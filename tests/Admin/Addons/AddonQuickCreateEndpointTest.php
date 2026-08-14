@@ -104,6 +104,44 @@ final class AddonQuickCreateEndpointTest extends WP_UnitTestCase {
 		$this->assertSame( '0', (string) get_post_meta( $result['addon_id'], 'mhmrentiva_addon_required', true ) );
 	}
 
+	/**
+	 * Both switches are now part of the form.
+	 *
+	 * They were left out of the first version on the rule that the quick form
+	 * writes four fields and the editor owns the rest. That rule holds for the
+	 * complicated fields -- tax rate, category, context -- and broke down for
+	 * these two: they are single checkboxes, and leaving them out meant every
+	 * newly created service had to be opened in the full editor to be switched
+	 * off or made mandatory, which is the trip the form exists to avoid.
+	 */
+	public function test_a_service_can_be_created_switched_off(): void {
+		$result = AddonScreen::quick_create( $this->build_request( array( 'enabled' => '0' ) ) );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertSame( '0', (string) get_post_meta( $result['addon_id'], 'mhmrentiva_addon_enabled', true ) );
+	}
+
+	public function test_a_service_can_be_created_as_mandatory(): void {
+		$result = AddonScreen::quick_create( $this->build_request( array( 'required' => '1' ) ) );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertSame( '1', (string) get_post_meta( $result['addon_id'], 'mhmrentiva_addon_required', true ) );
+	}
+
+	/**
+	 * The default when the form says nothing is still active, for the reason
+	 * the original K1 test gives: an absent flag reads as false, and a service
+	 * born switched off with no explanation is a silent defect.
+	 */
+	public function test_the_default_is_still_active_when_the_field_is_absent(): void {
+		$request = $this->build_request();
+		unset( $request['enabled'] );
+
+		$result = AddonScreen::quick_create( $request );
+
+		$this->assertSame( '1', (string) get_post_meta( $result['addon_id'], 'mhmrentiva_addon_enabled', true ) );
+	}
+
 	public function test_it_rejects_an_empty_title(): void {
 		$result = AddonScreen::quick_create( $this->build_request( array( 'title' => '   ' ) ) );
 

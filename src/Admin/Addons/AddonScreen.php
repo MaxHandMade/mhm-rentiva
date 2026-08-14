@@ -52,6 +52,7 @@ final class AddonScreen {
 		add_action( 'wp_ajax_mhmrentiva_addon_toggle_enabled', array( self::class, 'ajax_toggle_enabled' ) );
 		add_action( 'wp_ajax_mhmrentiva_addon_quick_create', array( self::class, 'ajax_quick_create' ) );
 		add_action( 'wp_ajax_mhmrentiva_addon_reorder', array( self::class, 'ajax_reorder' ) );
+		add_action( 'wp_ajax_mhmrentiva_addon_delete', array( self::class, 'ajax_delete_addon' ) );
 
 		// The endpoints above flush directly. These cover every other way the
 		// figures can change: the full editor, the native screen's bulk actions
@@ -102,11 +103,13 @@ final class AddonScreen {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( self::NONCE_ACTION ),
 				'i18n'    => array(
-					'active'       => __( 'Active', 'mhm-rentiva' ),
-					'inactive'     => __( 'Inactive', 'mhm-rentiva' ),
-					'saving'       => __( 'Saving…', 'mhm-rentiva' ),
-					'nameRequired' => __( 'Please enter a service name.', 'mhm-rentiva' ),
-					'genericError' => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					'active'        => __( 'Active', 'mhm-rentiva' ),
+					'inactive'      => __( 'Inactive', 'mhm-rentiva' ),
+					'saving'        => __( 'Saving…', 'mhm-rentiva' ),
+					'nameRequired'  => __( 'Please enter a service name.', 'mhm-rentiva' ),
+					'genericError'  => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					/* translators: %s: name of the additional service. */
+					'confirmDelete' => __( 'Move “%s” to the trash?', 'mhm-rentiva' ),
 				),
 			)
 		);
@@ -131,6 +134,82 @@ final class AddonScreen {
 		}
 
 		AddonStats::flush();
+	}
+
+	/**
+	 * AJAX boundary for deletion. See ajax_toggle_enabled() for why the nonce is
+	 * checked here as well as inside the pure method.
+	 */
+	public static function ajax_delete_addon(): void {
+		if ( ! check_ajax_referer( self::NONCE_ACTION, 'nonce', false ) ) {
+			wp_send_json_error( self::delete_failure( __( 'Security check failed.', 'mhm-rentiva' ) ) );
+		}
+
+		$result = self::delete_addon( wp_unslash( $_POST ) );
+
+		if ( $result['success'] ) {
+			wp_send_json_success( $result );
+		}
+
+		wp_send_json_error( $result );
+	}
+
+	/**
+	 * Move one add-on to the trash.
+	 *
+	 * TRASH, NOT PERMANENT DELETE
+	 * ---------------------------
+	 * The native screen this replaced deletes through WordPress's row action,
+	 * which trashes: the row can be restored, and bookings that reference the
+	 * service keep a resolvable post ID. Forcing a permanent delete for the same
+	 * click would make the new screen more destructive than the old one, which
+	 * is a regression wearing a feature's clothes.
+	 *
+	 * The guards are the ones AddonManager::handle_bulk_actions was missing when
+	 * it called wp_delete_post( $id, true ) on any post id it was handed.
+	 *
+	 * @param array<string,mixed> $request Unslashed request data.
+	 * @return array{success:bool,addon_id:int,message:string}
+	 */
+	public static function delete_addon( array $request ): array {
+		$nonce = isset( $request['nonce'] ) ? sanitize_text_field( (string) $request['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
+			return self::delete_failure( __( 'Security check failed.', 'mhm-rentiva' ) );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return self::delete_failure( __( 'You do not have permission for this action.', 'mhm-rentiva' ) );
+		}
+
+		$addon_id = isset( $request['addon_id'] ) ? absint( $request['addon_id'] ) : 0;
+		$addon    = $addon_id > 0 ? get_post( $addon_id ) : null;
+
+		if ( ! $addon || AddonPostType::POST_TYPE !== $addon->post_type ) {
+			return self::delete_failure( __( 'Additional service not found.', 'mhm-rentiva' ) );
+		}
+
+		if ( ! wp_trash_post( $addon_id ) ) {
+			return self::delete_failure( __( 'The additional service could not be deleted.', 'mhm-rentiva' ) );
+		}
+
+		AddonStats::flush();
+
+		return array(
+			'success'  => true,
+			'addon_id' => $addon_id,
+			'message'  => __( 'Additional service moved to the trash.', 'mhm-rentiva' ),
+		);
+	}
+
+	/**
+	 * @return array{success:bool,addon_id:int,message:string}
+	 */
+	private static function delete_failure( string $message ): array {
+		return array(
+			'success'  => false,
+			'addon_id' => 0,
+			'message'  => $message,
+		);
 	}
 
 	/**
@@ -320,10 +399,17 @@ final class AddonScreen {
 
 		$addon_id = (int) $addon_id;
 
+		// Absent means active. The form sends the switch explicitly, but a
+		// caller that omits it must still get a usable service: an absent flag
+		// reads as false everywhere else, and a service born switched off with
+		// no explanation is the silent defect this endpoint exists to avoid.
+		$enabled  = ! isset( $request['enabled'] ) || '1' === (string) $request['enabled'];
+		$required = isset( $request['required'] ) && '1' === (string) $request['required'];
+
 		update_post_meta( $addon_id, 'mhmrentiva_addon_price', (string) $price );
 		update_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', $pricing_type );
-		update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', '1' );
-		update_post_meta( $addon_id, 'mhmrentiva_addon_required', '0' );
+		update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', $enabled ? '1' : '0' );
+		update_post_meta( $addon_id, 'mhmrentiva_addon_required', $required ? '1' : '0' );
 		AddonStats::flush();
 
 		return array(
@@ -576,6 +662,21 @@ final class AddonScreen {
 
 		echo '</div>';
 
+		// Both switches live here rather than only in the full editor. They are
+		// single checkboxes, and leaving them out meant a service created from
+		// this form had to be opened in the editor to be switched off or made
+		// mandatory -- the exact trip the form exists to save. The complicated
+		// fields (tax, category, context) still belong to the editor.
+		printf(
+			'<p class="rv-addon-switch"><label><input type="checkbox" id="rv-addon-enabled" checked> %s</label></p>',
+			esc_html__( 'Enable this additional service', 'mhm-rentiva' )
+		);
+
+		printf(
+			'<p class="rv-addon-switch"><label><input type="checkbox" id="rv-addon-required"> %s</label></p>',
+			esc_html__( 'This additional service is required', 'mhm-rentiva' )
+		);
+
 		printf(
 			'<button type="button" class="button button-primary rv-addon-create">%s</button>',
 			esc_html__( 'Add Service', 'mhm-rentiva' )
@@ -751,6 +852,8 @@ final class AddonScreen {
 			esc_html( $enabled ? __( 'Active', 'mhm-rentiva' ) : __( 'Inactive', 'mhm-rentiva' ) )
 		);
 
+		echo '<span class="rv-addon-actions">';
+
 		if ( is_string( $edit_url ) && '' !== $edit_url ) {
 			printf(
 				'<a class="rv-addon-edit" href="%1$s">%2$s</a>',
@@ -758,6 +861,17 @@ final class AddonScreen {
 				esc_html__( 'Edit', 'mhm-rentiva' )
 			);
 		}
+
+		// Deleting was only possible on the native screen until now, so a list
+		// that replaced it without this was quietly taking a capability away.
+		printf(
+			'<button type="button" class="rv-addon-delete" aria-label="%1$s">%2$s</button>',
+			/* translators: %s: name of the additional service. */
+			esc_attr( sprintf( __( 'Delete %s', 'mhm-rentiva' ), $addon->post_title ) ),
+			esc_html__( 'Delete', 'mhm-rentiva' )
+		);
+
+		echo '</span>';
 
 		echo '</div>';
 	}

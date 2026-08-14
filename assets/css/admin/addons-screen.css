@@ -297,6 +297,58 @@
 	cursor: default;
 }
 
+#mhm-addons-root .rv-addon-switch {
+	margin: 0 0 8px;
+	font-size: 13px;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-switch label {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	line-height: 1.4;
+}
+
+#mhm-addons-root .rv-addon-switch input {
+	margin: 2px 0 0;
+	flex: none;
+}
+
+#mhm-addons-root .rv-addon-create {
+	margin-top: 6px;
+}
+
+#mhm-addons-root .rv-addon-actions {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* Destructive, so it is quiet until aimed at rather than red by default --
+   a list of three services with a red control on every row reads as a warning
+   screen. */
+#mhm-addons-root .rv-addon-delete {
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	font-size: 13px;
+	color: var( --rv-addon-faint );
+}
+
+#mhm-addons-root .rv-addon-delete:hover,
+#mhm-addons-root .rv-addon-delete:focus {
+	color: #b32d2e;
+	text-decoration: underline;
+}
+
+#mhm-addons-root .rv-addon-delete[disabled] {
+	opacity: 0.5;
+	cursor: default;
+}
+
 #mhm-addons-root .rv-addon-edit {
 	flex: none;
 	font-size: 13px;

@@ -107,6 +107,42 @@
 		} );
 	} );
 
+	/* ---------------------------------------------------------------- delete */
+
+	root.addEventListener( 'click', function ( event ) {
+		var button = event.target.closest( '.rv-addon-delete' );
+		if ( ! button ) {
+			return;
+		}
+
+		var row = button.closest( '.rv-addon-row' );
+		var name = row.querySelector( '.rv-addon-name' ).textContent;
+
+		// Confirmed before the request, not after. This is the one action here
+		// that removes something, and window.confirm is the admin's own idiom
+		// for it -- unlike alert() it is a question, and the answer decides
+		// whether anything happens at all.
+		if ( ! window.confirm( cfg.i18n.confirmDelete.replace( '%s', name ) ) ) {
+			return;
+		}
+
+		button.disabled = true;
+
+		post( 'mhmrentiva_addon_delete', { addon_id: row.dataset.addonId } ).then( function ( result ) {
+			if ( result && result.success ) {
+				// Reload rather than removing the row here: the KPI band, the
+				// counter and every later row's palette position all shift.
+				window.location.reload();
+				return;
+			}
+			report( ( result && result.data && result.data.message ) || cfg.i18n.genericError );
+			button.disabled = false;
+		} ).catch( function () {
+			report( cfg.i18n.genericError );
+			button.disabled = false;
+		} );
+	} );
+
 	function applyState( button, row, on ) {
 		button.dataset.enabled = on ? '1' : '0';
 		button.textContent = on ? cfg.i18n.active : cfg.i18n.inactive;
@@ -137,7 +173,9 @@
 				title: name.value,
 				description: root.querySelector( '#rv-addon-desc' ).value,
 				price: root.querySelector( '#rv-addon-price' ).value || '0',
-				pricing_type: root.querySelector( '#rv-addon-type' ).value
+				pricing_type: root.querySelector( '#rv-addon-type' ).value,
+				enabled: root.querySelector( '#rv-addon-enabled' ).checked ? '1' : '0',
+				required: root.querySelector( '#rv-addon-required' ).checked ? '1' : '0'
 			} ).then( function ( result ) {
 				if ( result && result.success ) {
 					// Reload rather than splice a row in by hand: the KPI band,

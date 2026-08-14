@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-14T18:15:38+00:00\n"
+"POT-Creation-Date: 2026-08-14T18:41:23+00:00\n"
 "PO-Revision-Date: 2026-08-10 12:55+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -576,7 +576,7 @@ msgid "Processing..."
 msgstr "İşleniyor..."
 
 #: src/Admin/Addons/AddonListTable.php:87 src/Admin/Addons/AddonManager.php:281
-#: src/Admin/Addons/AddonScreen.php:109 src/Admin/Core/AssetManager.php:860
+#: src/Admin/Addons/AddonScreen.php:110 src/Admin/Core/AssetManager.php:860
 #: src/Admin/Core/AssetManager.php:906
 #: src/Admin/Emails/Core/EmailTemplates.php:528
 #: src/Admin/Frontend/Account/AccountController.php:298
@@ -599,17 +599,17 @@ msgstr "Fiyat güncellenirken hata oluştu"
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
-#: src/Admin/Addons/AddonListTable.php:114 src/Admin/Addons/AddonScreen.php:607
+#: src/Admin/Addons/AddonListTable.php:114 src/Admin/Addons/AddonScreen.php:708
 msgid "Total Additional Services"
 msgstr "Toplam Ek Hizmetler"
 
 #: src/Admin/Addons/AddonListTable.php:116
-#: src/Admin/Addons/AddonListTable.php:134 src/Admin/Addons/AddonScreen.php:609
-#: src/Admin/Addons/AddonScreen.php:625
+#: src/Admin/Addons/AddonListTable.php:134 src/Admin/Addons/AddonScreen.php:710
+#: src/Admin/Addons/AddonScreen.php:726
 msgid "All services"
 msgstr "Tüm Servisler"
 
-#: src/Admin/Addons/AddonListTable.php:123 src/Admin/Addons/AddonScreen.php:613
+#: src/Admin/Addons/AddonListTable.php:123 src/Admin/Addons/AddonScreen.php:714
 msgid "Active Services"
 msgstr "Aktif Hizmetler"
 
@@ -618,20 +618,20 @@ msgstr "Aktif Hizmetler"
 msgid "active"
 msgstr "aktif"
 
-#: src/Admin/Addons/AddonListTable.php:132 src/Admin/Addons/AddonScreen.php:623
+#: src/Admin/Addons/AddonListTable.php:132 src/Admin/Addons/AddonScreen.php:724
 msgid "Average Price"
 msgstr "Ortalama Fiyat"
 
-#: src/Admin/Addons/AddonListTable.php:141 src/Admin/Addons/AddonScreen.php:629
+#: src/Admin/Addons/AddonListTable.php:141 src/Admin/Addons/AddonScreen.php:730
 msgid "Total Value"
 msgstr "Toplam değer"
 
-#: src/Admin/Addons/AddonListTable.php:143 src/Admin/Addons/AddonScreen.php:631
+#: src/Admin/Addons/AddonListTable.php:143 src/Admin/Addons/AddonScreen.php:732
 msgid "All prices"
 msgstr "Tüm fiyatlar"
 
 #: src/Admin/Addons/AddonManager.php:154 src/Admin/Addons/AddonMeta.php:75
-#: src/Admin/Addons/AddonScreen.php:562
+#: src/Admin/Addons/AddonScreen.php:648
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:84
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:96
@@ -649,9 +649,10 @@ msgid "Pricing Type"
 msgstr "Fiyatlandırma Tipi"
 
 #: src/Admin/Addons/AddonManager.php:480 src/Admin/Addons/AddonManager.php:631
-#: src/Admin/Addons/AddonScreen.php:142 src/Admin/Addons/AddonScreen.php:179
-#: src/Admin/Addons/AddonScreen.php:239 src/Admin/Addons/AddonScreen.php:279
-#: src/Admin/Addons/AddonScreen.php:367 src/Admin/Addons/AddonScreen.php:405
+#: src/Admin/Addons/AddonScreen.php:145 src/Admin/Addons/AddonScreen.php:177
+#: src/Admin/Addons/AddonScreen.php:221 src/Admin/Addons/AddonScreen.php:258
+#: src/Admin/Addons/AddonScreen.php:318 src/Admin/Addons/AddonScreen.php:358
+#: src/Admin/Addons/AddonScreen.php:453 src/Admin/Addons/AddonScreen.php:491
 #: src/Admin/Booking/Actions/BookingActionGuard.php:45
 #: src/Admin/Booking/Meta/BookingMeta.php:681
 #: src/Admin/Booking/Meta/BookingMeta.php:950
@@ -683,8 +684,8 @@ msgid "Security check failed."
 msgstr "Güvenlik kontrolü başarısız oldu."
 
 #: src/Admin/Addons/AddonManager.php:486 src/Admin/Addons/AddonManager.php:637
-#: src/Admin/Addons/AddonScreen.php:183 src/Admin/Addons/AddonScreen.php:283
-#: src/Admin/Addons/AddonScreen.php:409
+#: src/Admin/Addons/AddonScreen.php:181 src/Admin/Addons/AddonScreen.php:262
+#: src/Admin/Addons/AddonScreen.php:362 src/Admin/Addons/AddonScreen.php:495
 #: src/Admin/Booking/Actions/BookingActionGuard.php:62
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:61
@@ -717,11 +718,12 @@ msgstr "%d ek hizmet başarıyla işlendi."
 msgid "Invalid additional service ID."
 msgstr "Geçersiz ek hizmet kimliği."
 
-#: src/Admin/Addons/AddonManager.php:650 src/Admin/Addons/AddonScreen.php:296
+#: src/Admin/Addons/AddonManager.php:650 src/Admin/Addons/AddonScreen.php:375
 msgid "Price cannot be negative."
 msgstr "Fiyat negatif olamaz."
 
-#: src/Admin/Addons/AddonManager.php:657 src/Admin/Addons/AddonScreen.php:416
+#: src/Admin/Addons/AddonManager.php:657 src/Admin/Addons/AddonScreen.php:188
+#: src/Admin/Addons/AddonScreen.php:502
 msgid "Additional service not found."
 msgstr "Ek hizmet bulunamadı."
 
@@ -734,7 +736,7 @@ msgid "Error occurred while updating price."
 msgstr "Fiyatı güncellerken hata oluştu."
 
 #: src/Admin/Addons/AddonMenu.php:87 src/Admin/Addons/AddonPostType.php:59
-#: src/Admin/Addons/AddonScreen.php:483
+#: src/Admin/Addons/AddonScreen.php:569
 #: src/Admin/Booking/Addons/AddonBooking.php:39
 #: src/Admin/Booking/Addons/AddonBooking.php:162
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
@@ -773,8 +775,8 @@ msgstr "Bu ek hizmetin nasıl fiyatlandırılacağını seçin."
 msgid "Additional Service Settings"
 msgstr "Ek Hizmet Ayarları"
 
-#: src/Admin/Addons/AddonMeta.php:106 src/Admin/Addons/AddonScreen.php:105
-#: src/Admin/Addons/AddonScreen.php:751
+#: src/Admin/Addons/AddonMeta.php:115 src/Admin/Addons/AddonScreen.php:106
+#: src/Admin/Addons/AddonScreen.php:852
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:1011
 #: src/Admin/Customers/CustomersPage.php:253
@@ -795,15 +797,15 @@ msgstr "Ek Hizmet Ayarları"
 msgid "Active"
 msgstr "Aktif"
 
-#: src/Admin/Addons/AddonMeta.php:107
+#: src/Admin/Addons/AddonMeta.php:116 src/Admin/Addons/AddonScreen.php:672
 msgid "Enable this additional service"
 msgstr "Bu ek hizmeti etkinleştirin"
 
-#: src/Admin/Addons/AddonMeta.php:108
+#: src/Admin/Addons/AddonMeta.php:117
 msgid "Only active additional services are visible in booking form."
 msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 
-#: src/Admin/Addons/AddonMeta.php:112
+#: src/Admin/Addons/AddonMeta.php:121
 #: src/Admin/Customers/AddCustomerPage.php:145
 #: src/Admin/Customers/AddCustomerPage.php:150
 #: src/Admin/Customers/AddCustomerPage.php:155
@@ -815,11 +817,11 @@ msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 msgid "Required"
 msgstr "Gerekli"
 
-#: src/Admin/Addons/AddonMeta.php:113
+#: src/Admin/Addons/AddonMeta.php:122 src/Admin/Addons/AddonScreen.php:677
 msgid "This additional service is required"
 msgstr "Bu ek hizmet gereklidir"
 
-#: src/Admin/Addons/AddonMeta.php:114
+#: src/Admin/Addons/AddonMeta.php:123
 msgid ""
 "Required additional services are automatically selected and cannot be "
 "removed."
@@ -849,110 +851,124 @@ msgstr "Yolcu başına (yolcu sayısı × fiyat)"
 msgid "Per booking (fixed)"
 msgstr "Rezervasyon başına (sabit)"
 
-#: src/Admin/Addons/AddonScreen.php:106 src/Admin/Addons/AddonScreen.php:751
+#: src/Admin/Addons/AddonScreen.php:107 src/Admin/Addons/AddonScreen.php:852
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:236
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:695
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:697
 msgid "Inactive"
 msgstr "Pasif"
 
-#: src/Admin/Addons/AddonScreen.php:107 src/Admin/Core/AssetManager.php:1038
+#: src/Admin/Addons/AddonScreen.php:108 src/Admin/Core/AssetManager.php:1038
 msgid "Saving…"
 msgstr "Kaydediliyor…"
 
-#: src/Admin/Addons/AddonScreen.php:108 src/Admin/Addons/AddonScreen.php:290
+#: src/Admin/Addons/AddonScreen.php:109 src/Admin/Addons/AddonScreen.php:369
 msgid "Please enter a service name."
 msgstr "Lütfen bir hizmet adı girin."
 
-#: src/Admin/Addons/AddonScreen.php:189
+#. translators: %s: name of the additional service.
+#: src/Admin/Addons/AddonScreen.php:112
+#, php-format
+msgid "Move “%s” to the trash?"
+msgstr "“%s” çöpe taşınsın mı?"
+
+#: src/Admin/Addons/AddonScreen.php:192
+msgid "The additional service could not be deleted."
+msgstr "Ek hizmet silinemedi."
+
+#: src/Admin/Addons/AddonScreen.php:200
+msgid "Additional service moved to the trash."
+msgstr "Ek hizmet çöpe taşındı."
+
+#: src/Admin/Addons/AddonScreen.php:268
 msgid "No order was supplied."
 msgstr "Sıralama bilgisi gönderilmedi."
 
-#: src/Admin/Addons/AddonScreen.php:200
+#: src/Admin/Addons/AddonScreen.php:279
 msgid "The order contains an item that is not an additional service."
 msgstr "Sıralamada ek hizmet olmayan bir öğe var."
 
-#: src/Admin/Addons/AddonScreen.php:218
+#: src/Admin/Addons/AddonScreen.php:297
 msgid "Order saved."
 msgstr "Sıralama kaydedildi."
 
-#: src/Admin/Addons/AddonScreen.php:318
+#: src/Admin/Addons/AddonScreen.php:397
 msgid "The additional service could not be created."
 msgstr "Ek hizmet oluşturulamadı."
 
-#: src/Admin/Addons/AddonScreen.php:332
+#: src/Admin/Addons/AddonScreen.php:418
 msgid "Additional service created."
 msgstr "Ek hizmet oluşturuldu."
 
-#: src/Admin/Addons/AddonScreen.php:433
+#: src/Admin/Addons/AddonScreen.php:519
 msgid "Service activated."
 msgstr "Hizmet etkinleştirildi."
 
-#: src/Admin/Addons/AddonScreen.php:434
+#: src/Admin/Addons/AddonScreen.php:520
 msgid "Service deactivated."
 msgstr "Hizmet devre dışı bırakıldı."
 
-#: src/Admin/Addons/AddonScreen.php:471
+#: src/Admin/Addons/AddonScreen.php:557
 msgid "You do not have permission to view this page."
 msgstr "Bu sayfayı görüntüleme izniniz yok."
 
-#: src/Admin/Addons/AddonScreen.php:494
+#: src/Admin/Addons/AddonScreen.php:580
 msgid "Defined services"
 msgstr "Tanımlı hizmetler"
 
 #. translators: 1: number of active services, 2: total number of services.
-#: src/Admin/Addons/AddonScreen.php:500
+#: src/Admin/Addons/AddonScreen.php:586
 #, php-format
 msgid "%1$d active · %2$d total"
 msgstr "%1$d aktif · %2$d toplam"
 
-#: src/Admin/Addons/AddonScreen.php:509
+#: src/Admin/Addons/AddonScreen.php:595
 msgid "No additional services yet."
 msgstr "Henüz ek hizmet yok."
 
-#: src/Admin/Addons/AddonScreen.php:540
+#: src/Admin/Addons/AddonScreen.php:626
 msgid "New Additional Service"
 msgstr "Yeni Ek Hizmet"
 
-#: src/Admin/Addons/AddonScreen.php:541
+#: src/Admin/Addons/AddonScreen.php:627
 msgid "Add a service the customer can choose during booking."
 msgstr "Müşterinin rezervasyonda seçebileceği bir hizmet ekleyin."
 
-#: src/Admin/Addons/AddonScreen.php:546
+#: src/Admin/Addons/AddonScreen.php:632
 msgid "Service name"
 msgstr "Hizmet adı"
 
-#: src/Admin/Addons/AddonScreen.php:547
+#: src/Admin/Addons/AddonScreen.php:633
 msgid "e.g. Roadside Assistance"
 msgstr "Örn. Yol Yardım Paketi"
 
-#: src/Admin/Addons/AddonScreen.php:553
+#: src/Admin/Addons/AddonScreen.php:639
 msgid "Description"
 msgstr "Açıklama"
 
-#: src/Admin/Addons/AddonScreen.php:554
+#: src/Admin/Addons/AddonScreen.php:640
 msgid "Short description"
 msgstr "Kısa açıklama"
 
-#: src/Admin/Addons/AddonScreen.php:565
+#: src/Admin/Addons/AddonScreen.php:651
 msgid "Type"
 msgstr "Tip"
 
-#: src/Admin/Addons/AddonScreen.php:581
+#: src/Admin/Addons/AddonScreen.php:682
 msgid "Add Service"
 msgstr "Hizmet Ekle"
 
 #. translators: %s: share of services that are active, as a percentage.
-#: src/Admin/Addons/AddonScreen.php:617
+#: src/Admin/Addons/AddonScreen.php:718
 #, php-format
 msgid "%s%% active"
 msgstr "%%%s aktif"
 
-#: src/Admin/Addons/AddonScreen.php:724 src/Admin/Core/AssetManager.php:1059
+#: src/Admin/Addons/AddonScreen.php:825 src/Admin/Core/AssetManager.php:1059
 msgid "Drag to reorder"
 msgstr "Sürükleyerek sırala"
 
-#: src/Admin/Addons/AddonScreen.php:758 src/Admin/Core/AssetManager.php:1165
+#: src/Admin/Addons/AddonScreen.php:861 src/Admin/Core/AssetManager.php:1165
 #: src/Admin/Customers/CustomersPage.php:374
 #: src/Admin/Setup/SetupWizard.php:225
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:972
@@ -960,6 +976,21 @@ msgstr "Sürükleyerek sırala"
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:38
 msgid "Edit"
 msgstr "Düzenle"
+
+#. translators: %s: name of the additional service.
+#: src/Admin/Addons/AddonScreen.php:870
+#, php-format
+msgid "Delete %s"
+msgstr "%s hizmetini sil"
+
+#. translators: %d = number of customers
+#: src/Admin/Addons/AddonScreen.php:871 src/Admin/Core/AssetManager.php:694
+#: src/Admin/Core/AssetManager.php:852 src/Admin/Core/AssetManager.php:1164
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:113
+#: templates/shortcodes/vehicle-rating-form.php:298
+#: src-react/admin/customers/CustomersPage.jsx:79
+msgid "Delete"
+msgstr "Sil"
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:51
 #: src/Admin/Booking/Helpers/CancellationHandler.php:52
@@ -3178,15 +3209,6 @@ msgstr "İptal"
 #: src/Admin/Emails/Core/EmailTemplates.php:537
 msgid "Save"
 msgstr "Kaydet"
-
-#. translators: %d = number of customers
-#: src/Admin/Core/AssetManager.php:694 src/Admin/Core/AssetManager.php:852
-#: src/Admin/Core/AssetManager.php:1164
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:113
-#: templates/shortcodes/vehicle-rating-form.php:298
-#: src-react/admin/customers/CustomersPage.jsx:79
-msgid "Delete"
-msgstr "Sil"
 
 #: src/Admin/Core/AssetManager.php:696
 msgid "Are you sure you want to refund this payment?"
