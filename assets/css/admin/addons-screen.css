@@ -119,14 +119,34 @@
 	font-family: inherit;
 }
 
+/*
+ * Price and Type split 25/75 rather than evenly.
+ *
+ * A price is at most a handful of digits, while the type labels are full
+ * sentences -- "Günlük (rezervasyon süresi × fiyat)" is the longest. At 50/50
+ * the select truncated its own option text while the number field sat mostly
+ * empty, so the space went to the field that had nothing to do with it.
+ */
 #mhm-addons-root .rv-addon-field-row {
 	display: flex;
 	gap: 10px;
 }
 
 #mhm-addons-root .rv-addon-field-row .rv-addon-field {
-	flex: 1;
+	flex: 1 1 0;
 	min-width: 0;
+}
+
+#mhm-addons-root .rv-addon-field-row .rv-addon-field:last-child {
+	flex-grow: 3;
+}
+
+/* Stacked on narrow screens: 25% of a phone-width column is not a usable
+   number field, and the select would lose its text again. */
+@media screen and ( max-width: 480px ) {
+	#mhm-addons-root .rv-addon-field-row {
+		display: block;
+	}
 }
 
 #mhm-addons-root .rv-addon-create {

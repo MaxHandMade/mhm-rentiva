@@ -98,7 +98,16 @@ final class AddonMeta extends AbstractMetaBox {
 			),
 			'addon_settings' => array(
 				'title'    => __( 'Additional Service Settings', 'mhm-rentiva' ),
-				'context'  => 'side',
+				// Main column, not the sidebar. These fields render through the
+				// shared form-table template, which splits each row into a label
+				// cell and a control cell. In the ~280px sidebar that left both
+				// halves around 90px wide, so the checkbox labels and their
+				// explanations wrapped to one or two words per line and the
+				// setting could only be read as a column of fragments.
+				//
+				// The sidebar keeps Publish, Add-on Categories, Contexts,
+				// Attributes and the featured image, so it does not empty out.
+				'context'  => 'normal',
 				'priority' => 'default',
 				'fields'   => array(
 					'mhmrentiva_addon_enabled'  => array(
