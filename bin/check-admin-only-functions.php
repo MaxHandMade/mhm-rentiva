@@ -84,32 +84,63 @@ function mhmrentiva_defined_functions( string $dir, bool $recursive ): array {
 			continue;
 		}
 
-		$count = count( $tokens );
+		// Track brace depth so class/interface/trait/enum BODIES can be skipped.
+		//
+		// Only top-level functions count. WP_Filesystem_Base and its subclasses
+		// define file_exists(), is_file() and copy() as METHODS; counting those
+		// made an earlier version of this gate report 1300 names and flag every
+		// file_exists() call in the plugin. Checking for a visibility keyword
+		// before `function` is not enough either: interface methods and
+		// old-style declarations carry no visibility, which is why this tracks
+		// the actual body instead of guessing from one neighbouring token.
+		$count        = count( $tokens );
+		$depth        = 0;
+		$class_depths = array();
+		$pending      = false;
+
 		for ( $i = 0; $i < $count; $i++ ) {
-			if ( ! is_array( $tokens[ $i ] ) || T_FUNCTION !== $tokens[ $i ][0] ) {
+			$token = $tokens[ $i ];
+
+			if ( ! is_array( $token ) ) {
+				if ( '{' === $token ) {
+					++$depth;
+					if ( $pending ) {
+						$class_depths[] = $depth;
+						$pending        = false;
+					}
+				} elseif ( '}' === $token ) {
+					if ( array() !== $class_depths && end( $class_depths ) === $depth ) {
+						array_pop( $class_depths );
+					}
+					--$depth;
+				}
 				continue;
 			}
 
-			// Skip class methods. WP_Filesystem_Base and its subclasses define
-			// file_exists(), is_file(), copy() and friends as METHODS; counting
-			// those as admin-only functions made the first run of this gate
-			// report 1300 names and flag every file_exists() call in the tree.
-			$p = $i - 1;
-			while ( $p >= 0 && is_array( $tokens[ $p ] ) && T_WHITESPACE === $tokens[ $p ][0] ) {
-				$p--;
+			$type = $token[0];
+
+			if ( T_CLASS === $type || T_INTERFACE === $type || T_TRAIT === $type
+				|| ( defined( 'T_ENUM' ) && T_ENUM === $type ) ) {
+				// `Foo::class` is also T_CLASS. A real declaration is never
+				// preceded by ::.
+				$p = $i - 1;
+				while ( $p >= 0 && is_array( $tokens[ $p ] ) && T_WHITESPACE === $tokens[ $p ][0] ) {
+					--$p;
+				}
+				if ( ! ( $p >= 0 && is_array( $tokens[ $p ] ) && T_DOUBLE_COLON === $tokens[ $p ][0] ) ) {
+					$pending = true;
+				}
+				continue;
 			}
-			if ( $p >= 0 && is_array( $tokens[ $p ] ) && in_array(
-				$tokens[ $p ][0],
-				array( T_PUBLIC, T_PRIVATE, T_PROTECTED, T_STATIC, T_ABSTRACT, T_FINAL ),
-				true
-			) ) {
+
+			if ( T_FUNCTION !== $type || array() !== $class_depths ) {
 				continue;
 			}
 
 			// Walk forward past whitespace and a by-reference ampersand.
 			$j = $i + 1;
 			while ( $j < $count && ( ( is_array( $tokens[ $j ] ) && T_WHITESPACE === $tokens[ $j ][0] ) || '&' === $tokens[ $j ] ) ) {
-				$j++;
+				++$j;
 			}
 
 			if ( $j < $count && is_array( $tokens[ $j ] ) && T_STRING === $tokens[ $j ][0] ) {
@@ -130,35 +161,48 @@ if ( null === $core ) {
 	exit( 1 );
 }
 
-// Ask PHP, not a regex and not a tokenizer.
+// Read the core tree. Do NOT load WordPress.
 //
-// The first version of this gate derived the inventory by tokenizing
-// wp-admin/includes/*.php for `function <name>`. That counted CLASS METHODS as
-// functions -- WP_Filesystem_Base and its subclasses define file_exists(),
-// is_file(), copy() -- and reported 1300 names, so every file_exists() call in
-// the tree came back as a finding. Loading WordPress the way a front-end
-// request loads it, snapshotting get_defined_functions(), then loading the
-// admin API and snapshotting again gives the set with no interpretation in
-// between: whatever appeared is exactly what does not exist without wp-admin.
-if ( ! is_readable( $core . '/wp-load.php' ) ) {
-	echo "G-E: CANNOT MEASURE — {$core}/wp-load.php is not readable. Failing closed." . PHP_EOL;
-	exit( 1 );
+// The previous version derived the inventory at runtime: load wp-load.php,
+// snapshot get_defined_functions(), load the admin API, snapshot again. That
+// was more accurate in principle and wrong in practice, in two ways an audit
+// measured:
+//
+//   1. Environment poisoning. Other active plugins require wp-admin/includes/
+//      files at load time, so those functions were ALREADY in the "before"
+//      snapshot and fell out of the diff. On the dev stack the entire
+//      wp-admin/includes/plugin.php family (is_plugin_active, get_plugins,
+//      get_plugin_data) was missing from the inventory -- a REST call to any of
+//      them is fatal on a reviewer's clean site and this gate could not see it.
+//      The inventory was only as complete as the host was minimal.
+//   2. In CI it measured NOTHING and still passed. There is no installed
+//      WordPress there -- install-wp-tests.sh lays down a test suite, not a
+//      configured site -- so wp-load.php failed on a missing config, the
+//      output buffer swallowed it, and the gate exited 0 without printing its
+//      own summary line. A gate that cannot run must not look green.
+//
+// Reading the files is deterministic, needs no database, no config and no
+// plugins, and gives the same answer in CI and on any developer's machine.
+$admin_defined = mhmrentiva_defined_functions( $core . '/wp-admin/includes', false );
+$core_defined  = mhmrentiva_defined_functions( $core . '/wp-includes', true );
+
+// Admin-only = declared under wp-admin/includes and nowhere in wp-includes.
+$admin_only = array_diff_key( $admin_defined, $core_defined );
+
+// Fail closed, and check a KNOWN member rather than only a count: a count
+// alone passed while a whole family was missing.
+foreach ( array( 'wp_delete_user', 'is_plugin_active', 'get_plugins', 'add_meta_box' ) as $canary ) {
+	if ( ! isset( $admin_only[ $canary ] ) ) {
+		printf( "G-E: CANNOT MEASURE — %s() is missing from the derived inventory.%s", $canary, PHP_EOL );
+		echo "  It is declared in wp-admin/includes and nowhere in wp-includes, so its" . PHP_EOL;
+		echo "  absence means the core tree at {$core} was not read correctly." . PHP_EOL;
+		exit( 1 );
+	}
 }
 
-// wp-load.php echoes on some failure paths; keep the report clean.
-ob_start();
-require_once $core . '/wp-load.php';
-$before = get_defined_functions()['user'];
-require_once ABSPATH . 'wp-admin/includes/admin.php';
-$after = get_defined_functions()['user'];
-ob_end_clean();
-
-$admin_only = array_flip( array_diff( $after, $before ) );
-
-if ( count( $admin_only ) < 100 ) {
+if ( count( $admin_only ) < 300 ) {
 	printf( "G-E: CANNOT MEASURE — derived only %d admin-only functions, expected hundreds.%s", count( $admin_only ), PHP_EOL );
-	echo "  Loading the admin API added almost nothing, which means it was already" . PHP_EOL;
-	echo "  loaded or the core tree at {$core} is wrong. Failing closed." . PHP_EOL;
+	echo "  The core tree at {$core} looks wrong or unreadable. Failing closed." . PHP_EOL;
 	exit( 1 );
 }
 

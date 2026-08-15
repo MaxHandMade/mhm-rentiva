@@ -765,7 +765,14 @@ final class ContactForm extends AbstractShortcode {
 
 		$file['name'] = $sanitized_name;
 
-		// WordPress upload fonksiyonunu kullan
+		// wp_handle_upload() lives in wp-admin/includes/file.php. Today the only
+		// caller is the AJAX submit handler, and admin-ajax.php loads the admin
+		// API before firing any hook, so the function happens to exist. That is
+		// a property of the current caller, not of this method: called from a
+		// shortcode, a block render or a REST route it would be a fatal, which
+		// is exactly how /customers/bulk shipped broken for three months.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
 		$upload = wp_handle_upload($file, array( 'test_form' => false ));
 
 		if (isset($upload['error'])) {
