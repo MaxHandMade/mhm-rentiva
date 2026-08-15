@@ -600,11 +600,6 @@ parameters:
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/ContactForm.php
 
-		-
-			message: '#^Variable \$attachments might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/ContactForm.php
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'

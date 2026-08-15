@@ -567,6 +567,15 @@ final class ContactForm extends AbstractShortcode {
 			'Reply-To: ' . $data['name'] . ' <' . $data['email'] . '>',
 		);
 
+		// Defined before the branch, not inside it. Every submission without a
+		// file used to reach wp_mail() with this variable never assigned: PHP 8
+		// warns and passes null, and WordPress hands that null to str_replace()
+		// in pluggable.php for a deprecation on top. The mail still sent, so
+		// only a debug log ever showed it -- and this is a public,
+		// unauthenticated form, which is where a WordPress.org reviewer running
+		// with WP_DEBUG looks first.
+		$attachments = array();
+
 		if (! empty($data['attachment'])) {
 			$attachment_path = self::resolve_attachment_path($data['attachment']);
 			if ($attachment_path) {
