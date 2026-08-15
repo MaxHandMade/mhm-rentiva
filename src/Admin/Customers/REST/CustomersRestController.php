@@ -200,6 +200,16 @@ final class CustomersRestController {
 				continue;
 			}
 
+			// wp_delete_user() is defined in wp-admin/includes/user.php, and a
+			// /wp-json/ request stops at wp-load.php -- so on the path this
+			// route actually runs on, the function does not exist and the call
+			// is a fatal. Core's own WP_REST_Users_Controller requires the same
+			// file before deleting for the same reason. Every gate we own was
+			// green while this route died on its first real dispatch: PHPUnit
+			// has the admin API loaded by its bootstrap, and static analysis
+			// only sees a call to a function that exists somewhere.
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+
 			if ( wp_delete_user( $id ) ) {
 				++$deleted;
 			} else {
