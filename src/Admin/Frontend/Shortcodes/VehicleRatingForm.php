@@ -75,17 +75,17 @@ final class VehicleRatingForm extends AbstractShortcode {
 		return array_merge(
 			$data,
 			array(
-				'nonce'        => wp_create_nonce('mhmrentiva_rating_nonce'),
-				'is_logged_in' => is_user_logged_in(),
+				'nonce'         => wp_create_nonce('mhmrentiva_rating_nonce'),
+				'is_logged_in'  => is_user_logged_in(),
 				// The list renderer reads these two from the object root, not
 				// from the strings sub-object the other keys live in.
 				'no_ratings'    => __('No reviews yet.', 'mhm-rentiva'),
 				'reviews_title' => __('Reviews', 'mhm-rentiva'),
-				'settings'     => array(
+				'settings'      => array(
 					'allow_editing'  => $display_settings['allow_editing'] ?? true,
 					'allow_deletion' => $display_settings['allow_deletion'] ?? true,
 				),
-				'icons'        => array(
+				'icons'         => array(
 					'star'    => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
 					'trash'   => \MHMRentiva\Helpers\Icons::get('trash', array( 'class' => 'rv-icon-trash' )),
 					'success' => \MHMRentiva\Helpers\Icons::get('success'),
@@ -182,6 +182,14 @@ final class VehicleRatingForm extends AbstractShortcode {
 		$uid     = get_current_user_id();
 
 		if ($vid <= 0 || $rating < 1 || $rating > 5) {
+			wp_send_json_error(array( 'message' => __('Invalid vehicle or rating value', 'mhm-rentiva') ));
+		}
+
+		// The ID has to name an actual vehicle. Without this the value flows
+		// straight into comment_post_ID and update_vehicle_rating_meta(), so a
+		// nonce-carrying submitter could attach a `review` comment and vehicle
+		// rating aggregates to any post on the site.
+		if (get_post_type($vid) !== 'mhmrentiva_vehicle') {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle or rating value', 'mhm-rentiva') ));
 		}
 
@@ -364,6 +372,14 @@ final class VehicleRatingForm extends AbstractShortcode {
 			wp_send_json_error(array( 'message' => __('Comment not found', 'mhm-rentiva') ));
 		}
 
+		// Checked on the resolved comment rather than on the submitted vehicle_id,
+		// so both entry points are covered: without it this endpoint deletes the
+		// caller's comment on any post and then writes vehicle rating aggregates
+		// onto that post through update_vehicle_rating_meta().
+		if (get_post_type( (int) $c->comment_post_ID) !== 'mhmrentiva_vehicle') {
+			wp_send_json_error(array( 'message' => __('Comment not found', 'mhm-rentiva') ));
+		}
+
 		// Check permission: owner or admin
 		if ($c->user_id == $uid || current_user_can('manage_options')) {
 			$vid = (int) $c->comment_post_ID;
@@ -387,6 +403,13 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 		$vid = isset($_POST['vehicle_id']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id']))) : 0;
 		if (! $vid) {
+			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
+		}
+
+		// This handler is registered for nopriv and get_comments() does not check
+		// whether the caller may read the post, so without this guard any post id
+		// would return every approved comment on it -- author name, body and date.
+		if (get_post_type($vid) !== 'mhmrentiva_vehicle') {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
 		}
 

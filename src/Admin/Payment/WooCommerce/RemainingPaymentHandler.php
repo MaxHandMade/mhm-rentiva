@@ -80,6 +80,45 @@ final class RemainingPaymentHandler {
 	 */
 	public static function get_or_create_remaining_order(int $booking_id): \WC_Order|\WP_Error
 	{
+		// The existing-order lookup and the wc_create_order() that follows it must
+		// be one critical section. Before 6.0.3 they were not: two concurrent
+		// callers (a double click, two tabs, a re-sent payment link) could both
+		// read "no remaining order", both create one, and both write the meta. The
+		// booking keeps the last ID written; the other order survives as a live
+		// pending order for money that is already accounted for.
+		$result = \MHMRentiva\Admin\Booking\Helpers\Locker::withBookingLock(
+			$booking_id,
+			static fn() => self::resolve_remaining_order($booking_id)
+		);
+
+		if ($result instanceof \WC_Order || $result instanceof \WP_Error) {
+			return $result;
+		}
+
+		return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
+	}
+
+	/**
+	 * Resolve (reuse or create) the remaining-payment order for a booking.
+	 *
+	 * Always called inside Locker::withBookingLock() by
+	 * get_or_create_remaining_order(); it must not be called directly, or the
+	 * check-then-create sequence loses its critical section.
+	 *
+	 * @param int $booking_id Booking post ID.
+	 * @return \WC_Order|\WP_Error
+	 */
+	private static function resolve_remaining_order(int $booking_id): \WC_Order|\WP_Error
+	{
+		// Waiting for the lock is only half of it: the caller's ownership check
+		// (ajax_create_remaining_order(), and DepositManagementAjax) reads booking
+		// meta BEFORE the lock, and update_meta_cache() pulls the booking's whole
+		// meta set into the request cache at that moment. Without this the lookup
+		// below is served from a snapshot taken before the other request committed,
+		// so both requests decide "no remaining order exists" and both create one.
+		// Serialisation without freshness is not mutual exclusion.
+		wp_cache_delete($booking_id, 'post_meta');
+
 		// Must be a deposit booking with remaining amount > 0
 		$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
 		$remaining_amount = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
@@ -133,7 +172,7 @@ final class RemainingPaymentHandler {
 		// Add line item: use the booking product but override name & price
 		$item_name = sprintf(
 			/* translators: 1: vehicle name, 2: booking ID */
-			__('Kalan Odeme - %1$s #%2$d', 'mhm-rentiva'),
+			__('Remaining Payment - %1$s #%2$d', 'mhm-rentiva'),
 			$vehicle_name,
 			$booking_id
 		);
