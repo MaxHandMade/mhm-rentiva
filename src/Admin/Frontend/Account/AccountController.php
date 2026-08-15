@@ -118,6 +118,9 @@ final class AccountController {
 		// Receipt management
 		add_action('wp_ajax_mhmrentiva_upload_receipt', array( self::class, 'ajax_upload_receipt' ));
 		add_action('wp_ajax_mhmrentiva_remove_receipt', array( self::class, 'ajax_remove_receipt' ));
+		// Guarded delivery. Deliberately no _nopriv twin: a logged-out request has
+		// no booking to own, and registering one would be the whole vulnerability.
+		add_action('wp_ajax_mhmrentiva_view_receipt', array( self::class, 'stream_receipt' ));
 
 		// Assets
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
@@ -628,12 +631,12 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('Invalid booking ID.', 'mhm-rentiva') ), 400);
 		}
 
-		// Ownership check. NOT post_author: Handler::create_booking() writes
-		// 'post_author' => 1 for every online booking and a manual booking belongs
-		// to the staff member who entered it, so post_author is never the customer.
-		// _mhmrentiva_customer_user_id is the field that tracks them.
-		$booking_customer = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
-		if ($booking_customer !== $user_id && ! current_user_can('edit_post', $booking_id)) {
+		// Ownership check, routed through the one place that also verifies the id
+		// really names a booking. The previous inline check omitted that, so
+		// `edit_post` resolved normally on any other post type -- a contributor
+		// passed the gate on their own draft, reached media_handle_upload() (an
+		// effective upload_files they do not hold) and wrote receipt meta onto it.
+		if (! self::can_access_receipt($booking_id, $user_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
 		}
 
@@ -678,8 +681,11 @@ final class AccountController {
 			0,
 			array(),
 			array(
-				'test_form' => false,
-				'mimes'     => $allowed_mimes,
+				'test_form'                => false,
+				'mimes'                    => $allowed_mimes,
+				// Financial data in a publicly served directory: the stored name
+				// must not be derivable from what the customer uploaded.
+				'unique_filename_callback' => array( self::class, 'randomize_receipt_filename' ),
 			)
 		);
 		if (is_wp_error($attach_id)) {
@@ -692,6 +698,15 @@ final class AccountController {
 		// it is recorded on the booking.
 		self::harden_receipt_attachment($attach_id, $booking_id);
 
+		// Replacing a receipt must not orphan the previous file: overwriting the
+		// meta alone would leave it in the uploads tree indefinitely -- unreachable
+		// through the UI but still served, and under its old predictable name if it
+		// was uploaded before 6.0.3.
+		$previous_attachment = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);
+		if ($previous_attachment > 0 && $previous_attachment !== (int) $attach_id) {
+			wp_delete_attachment($previous_attachment, true);
+		}
+
 		// Save to booking meta
 		update_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', $attach_id);
 		update_post_meta($booking_id, '_mhmrentiva_receipt_status', 'submitted');
@@ -702,9 +717,144 @@ final class AccountController {
 			array(
 				'message'       => __('Receipt uploaded successfully.', 'mhm-rentiva'),
 				'attachment_id' => $attach_id,
-				'url'           => wp_get_attachment_url($attach_id),
+				// Guarded endpoint, not the raw uploads path.
+				'url'           => self::get_receipt_url($booking_id),
 			)
 		);
+	}
+
+	/**
+	 * Nonce-carrying URL for viewing a booking's receipt through the guarded
+	 * endpoint, rather than the raw uploads path.
+	 */
+	public static function get_receipt_url(int $booking_id): string
+	{
+		if ($booking_id <= 0) {
+			return '';
+		}
+
+		return add_query_arg(
+			array(
+				'action'     => 'mhmrentiva_view_receipt',
+				'booking_id' => $booking_id,
+				'_wpnonce'   => wp_create_nonce('mhmrentiva_receipt_' . $booking_id),
+			),
+			admin_url('admin-ajax.php')
+		);
+	}
+
+	/**
+	 * Deliver a receipt to someone entitled to see it.
+	 *
+	 * Thin by design: every decision it makes is delegated to
+	 * can_access_receipt(), which is unit-tested, because this method ends in
+	 * exit and PHPUnit cannot execute past that (feedback_admin_handler_test_seam).
+	 * The only untrusted input is booking_id; the attachment is resolved from the
+	 * booking's own meta, so no caller-supplied path ever reaches the filesystem.
+	 */
+	public static function stream_receipt(): void
+	{
+		$booking_id = isset($_GET['booking_id']) ? (int) $_GET['booking_id'] : 0;
+		$nonce      = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+
+		if ($booking_id <= 0 || ! wp_verify_nonce($nonce, 'mhmrentiva_receipt_' . $booking_id)) {
+			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'), '', array( 'response' => 403 ));
+		}
+
+		if (! self::can_access_receipt($booking_id, get_current_user_id())) {
+			wp_die(esc_html__('You are not allowed to view this receipt.', 'mhm-rentiva'), '', array( 'response' => 403 ));
+		}
+
+		$attachment_id = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);
+		$path          = $attachment_id > 0 ? get_attached_file($attachment_id) : '';
+
+		if (! $path || ! file_exists($path)) {
+			wp_die(esc_html__('Receipt not found.', 'mhm-rentiva'), '', array( 'response' => 404 ));
+		}
+
+		$mime = get_post_mime_type($attachment_id);
+
+		header('Content-Type: ' . ( $mime ?: 'application/octet-stream' ));
+		header('Content-Length: ' . (string) filesize($path));
+		header('Content-Disposition: inline; filename="' . basename($path) . '"');
+		header('X-Content-Type-Options: nosniff');
+		header('Cache-Control: private, no-store');
+
+		// SUPPRESSION, DELIBERATE AND MEASURED -- treat this as a review-queue item,
+		// not as a solved problem.
+		//
+		// Serving a binary file needs either readfile()/fpassthru() (which trip
+		// WordPress.WP.AlternativeFunctions) or reading it into memory and echoing
+		// it (which trips WordPress.Security.EscapeOutput -- escaping would corrupt
+		// the bytes). Both were measured against gate G-D: each produces exactly one
+		// ERROR, so there is no shape of this operation that the gate accepts and no
+		// suppression-free version to write. The narrower cost is chosen here:
+		// streaming, so a large receipt is never held in memory.
+		//
+		// Scope note: WordPress.org's own Plugin Check, run with the plugin_repo
+		// category it actually reviews against, reports nothing here -- measured,
+		// not assumed. This finding exists only in our wider G-D ruleset.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- See the note above: both alternatives produce one G-D error each; this one does not buffer the file.
+		readfile($path);
+		exit;
+	}
+
+	/**
+	 * Whether $user_id may see the receipt attached to $booking_id.
+	 *
+	 * Split out as a pure method because the delivery handler around it ends in
+	 * exit, which PHPUnit cannot catch; keeping the decision separate keeps it
+	 * testable. Ownership is read from _mhmrentiva_customer_user_id, NOT
+	 * post_author -- Handler::create_booking() writes 'post_author' => 1 for every
+	 * online booking, so post_author is never the customer.
+	 */
+	public static function can_access_receipt(int $booking_id, int $user_id): bool
+	{
+		if ($booking_id <= 0 || $user_id <= 0) {
+			return false;
+		}
+
+		if (get_post_type($booking_id) !== 'mhmrentiva_booking') {
+			return false;
+		}
+
+		$booking_customer = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
+		if ($booking_customer > 0 && $booking_customer === $user_id) {
+			return true;
+		}
+
+		// Staff reviewing a submitted receipt.
+		return user_can($user_id, 'edit_post', $booking_id);
+	}
+
+	/**
+	 * Stored filename for an uploaded receipt.
+	 *
+	 * Handed to WordPress as $overrides['unique_filename_callback'], so core calls
+	 * it as ($dir, $name, $ext) from wp_unique_filename() and uses the return
+	 * value verbatim.
+	 *
+	 * A receipt marked `private` is hidden from the REST media collection but the
+	 * file itself is still served straight off disk by the web server -- post
+	 * status is not access control for /wp-content/uploads. Discarding the
+	 * customer-supplied name and substituting crypto-random entropy is what makes
+	 * the direct URL unguessable.
+	 */
+	public static function randomize_receipt_filename(string $dir, string $name, string $ext): string
+	{
+		$extension = '' !== $ext
+			? $ext
+			: ( '' !== pathinfo($name, PATHINFO_EXTENSION) ? '.' . pathinfo($name, PATHINFO_EXTENSION) : '' );
+
+		// random_bytes() rather than wp_generate_password(): the latter passes its
+		// output through the `random_password` filter, so a password-policy plugin
+		// could observe -- or shorten -- the name that is protecting this file.
+		// 16 bytes is 128 bits, well past guessing.
+		do {
+			$candidate = 'receipt-' . bin2hex(random_bytes(16)) . $extension;
+		} while (file_exists(trailingslashit($dir) . $candidate));
+
+		return $candidate;
 	}
 
 	/**
@@ -715,9 +865,13 @@ final class AccountController {
 	 * as public: it is returned by the unauthenticated /wp/v2/media collection.
 	 * A payment receipt is customer financial data, so it is marked private and
 	 * re-parented to its booking. Anonymous callers no longer see it in the REST
-	 * media listing; administrators (who hold read_private_posts) still do, and
-	 * the customer's own view uses wp_get_attachment_url() server-side rather than
-	 * the public collection.
+	 * media listing.
+	 *
+	 * This is one layer of three, and on its own it protects very little: post
+	 * status is not access control for a file the web server hands out directly.
+	 * The other two are randomize_receipt_filename() (the direct URL cannot be
+	 * guessed) and get_receipt_url()/stream_receipt() (every link the UI produces
+	 * goes through an authenticated, ownership-checked endpoint).
 	 */
 	public static function harden_receipt_attachment(int $attachment_id, int $booking_id): void
 	{
@@ -751,12 +905,10 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('Invalid booking ID.', 'mhm-rentiva') ), 400);
 		}
 
-		// Ownership check. NOT post_author: Handler::create_booking() writes
-		// 'post_author' => 1 for every online booking and a manual booking belongs
-		// to the staff member who entered it, so post_author is never the customer.
-		// _mhmrentiva_customer_user_id is the field that tracks them.
-		$booking_customer = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
-		if ($booking_customer !== $user_id && ! current_user_can('edit_post', $booking_id)) {
+		// Same gate as the upload handler, including the entity check: without it
+		// `edit_post` resolves on any post type and the caller detaches and
+		// permanently deletes an attachment on content that is not a booking.
+		if (! self::can_access_receipt($booking_id, $user_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
 		}
 

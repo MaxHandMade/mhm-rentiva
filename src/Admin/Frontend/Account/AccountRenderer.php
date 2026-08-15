@@ -672,7 +672,12 @@ final class AccountRenderer {
 					'receipt'       => array(
 						'attachment_id' => $receipt_attachment_id,
 						'status'        => get_post_meta($booking->ID, '_mhmrentiva_receipt_status', true),
-						'url'           => $receipt_attachment_id > 0 ? wp_get_attachment_url($receipt_attachment_id) : '',
+						// Guarded endpoint: a `private` attachment still sits at a
+						// publicly served uploads path, so the customer is never
+						// handed the raw file URL.
+						'url'           => $receipt_attachment_id > 0
+							? \MHMRentiva\Admin\Frontend\Account\AccountController::get_receipt_url( (int) $booking->ID)
+							: '',
 					),
 				);
 			}

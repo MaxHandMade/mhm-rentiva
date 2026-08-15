@@ -204,8 +204,10 @@ final class BookingMeta extends AbstractMetaBox {
 	{
 		$attach_id = (int) get_post_meta($post->ID, '_mhmrentiva_receipt_attachment_id', true);
 		$status    = get_post_meta($post->ID, '_mhmrentiva_receipt_status', true);
-		$url       = $attach_id ? wp_get_attachment_url($attach_id) : '';
-		$note      = get_post_meta($post->ID, '_mhmrentiva_receipt_note', true);
+		// Guarded endpoint rather than the raw uploads path: the file is customer
+		// financial data and `private` post status does not gate the file itself.
+		$url  = $attach_id ? \MHMRentiva\Admin\Frontend\Account\AccountController::get_receipt_url( (int) $post->ID) : '';
+		$note = get_post_meta($post->ID, '_mhmrentiva_receipt_note', true);
 
 		wp_nonce_field('mhmrentiva_receipt_review', 'mhmrentiva_receipt_nonce');
 
