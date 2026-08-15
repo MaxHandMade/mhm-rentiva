@@ -331,3 +331,20 @@ jobs:
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
         run: composer test
+
+      # G-E lives in this job, not with the other gates, because it is the only
+      # one that must LOAD WordPress: it derives the admin-only function set by
+      # snapshotting get_defined_functions() before and after wp-admin/includes/
+      # admin.php. install-wp-tests.sh puts a core tree at /tmp/wordpress, which
+      # is the only place in CI where wp-load.php exists.
+      #
+      # Known limit, stated because a green here must not be read as more than
+      # it is: the inventory is only as complete as the loaded site is minimal.
+      # On a site whose other plugins preload parts of the admin API, those
+      # functions fall out of the diff and the gate goes blind to them. CI is
+      # closer to minimal than the dev stack, so this is the better place to run
+      # it -- but it is not proof of completeness.
+      - name: Admin-only function load-context gate (G-E)
+        env:
+          WP_CORE_DIR: /tmp/wordpress
+        run: composer check-admin-only

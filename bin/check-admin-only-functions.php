@@ -214,13 +214,46 @@ foreach ( $it as $file ) {
 	// ContactMessagePostType registers add_details_box() on
 	// add_meta_boxes_<type>, and that method calls add_meta_box(), which is
 	// admin-only and correct. Without this the gate reported it as a defect.
+	//
+	// The list is explicit, NOT `admin_[a-z_]+`. That pattern also matched
+	// admin_bar_menu, which fires on the FRONT END -- an audit mutation put an
+	// unguarded wp_delete_user() in an admin_bar_menu handler and this gate
+	// passed it. "Starts with admin_" is not the same claim as "only fires
+	// inside wp-admin", and only the second one is safe to exempt.
 	$admin_hooked = array();
 	if ( preg_match_all(
-		"/add_action\(\s*['\"](?:admin_[a-z_]+|add_meta_boxes[a-z_]*|save_post[a-z_]*|load-[a-z_.\-]+|manage_[a-z_]+_columns)['\"][^)]*?,\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/s",
+		"/add_action\(\s*['\"](?:admin_init|admin_menu|admin_notices|admin_enqueue_scripts|admin_head[a-z_-]*|admin_footer[a-z_-]*|admin_post_[a-z_]+|add_meta_boxes[a-z_]*|save_post[a-z_]*|load-[a-z_.\-]+|manage_[a-z_]+_columns|wp_ajax_[a-z_]+)['\"][^)]*?,\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/s",
 		$contents,
 		$hm
 	) ) {
 		$admin_hooked = array_flip( $hm[1] );
+	}
+
+	// Real require statements, taken from TOKENS and remembered by line.
+	//
+	// The first version asked preg_match() whether the file text contained a
+	// require of wp-admin/includes. It does not distinguish code from comments:
+	// an audit mutation commented the require out, left the fatal call in place,
+	// and the gate stayed green. A require that is not code cannot load
+	// anything, and one that appears after the call cannot help it either.
+	$require_lines = array();
+	for ( $t = 0; $t < count( $tokens ); $t++ ) {
+		if ( ! is_array( $tokens[ $t ] ) ) {
+			continue;
+		}
+		if ( ! in_array( $tokens[ $t ][0], array( T_REQUIRE, T_REQUIRE_ONCE, T_INCLUDE, T_INCLUDE_ONCE ), true ) ) {
+			continue;
+		}
+
+		$window = '';
+		$stop   = min( $t + 14, count( $tokens ) );
+		for ( $w = $t; $w < $stop; $w++ ) {
+			$window .= is_array( $tokens[ $w ] ) ? $tokens[ $w ][1] : $tokens[ $w ];
+		}
+
+		if ( str_contains( $window, 'wp-admin/includes/' ) ) {
+			$require_lines[] = $tokens[ $t ][2];
+		}
 	}
 
 	$current_method = '';
@@ -271,12 +304,23 @@ foreach ( $it as $file ) {
 
 		$calls++;
 
-		// Is the admin API required anywhere in this file?
-		if ( preg_match( '#require(_once)?\s*\(?\s*ABSPATH\s*\.\s*[\'"]wp-admin/includes/#', $contents ) ) {
+		$line = is_array( $tokens[ $i ] ) ? $tokens[ $i ][2] : 0;
+
+		// Cleared only by a real require that lexically precedes the call.
+		// Still file-scoped, which is coarser than it should be: a require in
+		// one method clears a call in another, and a require of image.php
+		// clears a call into user.php. Both are stated in the header.
+		$guarded = false;
+		foreach ( $require_lines as $require_line ) {
+			if ( $require_line < $line ) {
+				$guarded = true;
+				break;
+			}
+		}
+		if ( $guarded ) {
 			continue;
 		}
 
-		$line       = is_array( $tokens[ $i ] ) ? $tokens[ $i ][2] : 0;
 		$rel        = str_replace( str_replace( '\\', '/', $plugin_dir ) . '/', '', str_replace( '\\', '/', $path ) );
 		$findings[] = sprintf( '%s:%d  %s() — file %s, no wp-admin/includes require', $rel, $line, $name, $reason );
 	}
