@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.2
+Stable tag:        6.0.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -155,6 +155,13 @@ priority 2, so add it somewhere that runs before then — a theme's functions.ph
 file is early enough.
 
 == Changelog ==
+
+= 6.0.3 =
+* Fixed: two customers checking out at the same moment could both book the same vehicle for the same dates. The check meant to prevent this asked the database to hold the vehicle's records while the booking was written, but never opened the transaction that makes such a hold last — so the database let go of it immediately, before the booking was created. Both checkouts could read "available" and both could write a booking. The check and the booking are now one indivisible step; when a conflict is found the WooCommerce order is cancelled exactly as before. A site where two people rarely start checkout in the same second was unlikely to have hit this, but nothing prevented it.
+* Fixed: an uploaded payment receipt was stored under a name taken from the customer's own file, in the folder your site serves directly to visitors. Marking the upload "private" keeps it out of WordPress's media listings but puts nothing in front of the file itself, so anyone who guessed the address could open it. Receipts are now stored under an unguessable random name and handed out through an address that checks who is asking — the customer the booking belongs to, or your staff. Receipts uploaded by earlier versions keep their existing names; re-upload one if you want it renamed.
+* Fixed: asking for a remaining-payment link twice in quick succession — a double click, two open tabs — could create two separate WooCommerce orders for the same outstanding amount, leaving one of them unpaid and unaccounted for. The lookup and the creation are now a single step, so a second request hands back the order the first one made.
+* Fixed: the review form accepted whatever content ID the browser sent it without checking that it was a vehicle, so a review could be attached to a blog post or a page — which would then also carry this plugin's rating figures. A review is now refused unless its target really is a vehicle.
+* Fixed: switching between deposit and full payment answered the browser with an amount of zero on every successful switch, because the figure was worked out into a value nothing ever read. The cart itself was always correct and customers were charged the right amount; only the reported number was wrong. It now reports the cart total.
 
 = 6.0.2 =
 * Fixed: the customer screens and the endpoints behind them acted on whichever account they were given, checking only that you were allowed to manage users in general — never that the particular account was one of your customers. The customer detail view would open any account's profile, spend history and contact details by address alone, and the CSV export would write any account handed to it — an editor, a second administrator — into a downloaded file of personal data. They now check two separate things before acting: that WordPress permits you to act on that specific account, and that the account is actually a customer of this plugin — one the site has a booking for, one this plugin created, or one carrying the customer role. Accounts that are none of those are left alone. Note that the Customers list itself still shows every account on the site; narrowing it is a separate change and is not in this release, so a listed account that is not a customer will now decline to open, and will not appear in an export.

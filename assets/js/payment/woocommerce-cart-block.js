@@ -204,15 +204,38 @@
         observer.observe(document.body, { childList: true, subtree: true });
     }
 
+    /**
+     * Whether this page can ever need the injector.
+     *
+     * The script is enqueued on every front-end page on purpose: a Mini-Cart in
+     * the header renders with a full cart anywhere on the site, and making the
+     * enqueue conditional on cart contents would break under page caching. What
+     * does NOT belong on every page is a MutationObserver watching the whole of
+     * document.body with subtree:true -- it fires for every DOM change a theme or
+     * any other plugin makes, on pages where there is provably nothing to inject.
+     *
+     * The image map is localised server-side at render time, so an empty map
+     * means this request has no cart images at all and processAll() could not
+     * place anything however the DOM changed.
+     */
+    function mayNeedInjection() {
+        const map = window.mhmRentivaCartImages;
+        return !!map && Object.keys(map).length > 0;
+    }
+
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(init, 500);
-            observeChanges();
+            if (mayNeedInjection()) {
+                observeChanges();
+            }
         });
     } else {
         setTimeout(init, 500);
-        observeChanges();
+        if (mayNeedInjection()) {
+            observeChanges();
+        }
     }
 
     // Also listen for WooCommerce cart updates

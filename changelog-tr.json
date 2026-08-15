@@ -1,5 +1,19 @@
 [
   {
+    "version": "6.0.3",
+    "date": "2026-08-15",
+    "type": "patch",
+    "title": "Bağımsız kod incelemesinin bulduğu rezervasyon ve ödeme bütünlüğü düzeltmeleri",
+    "summary": "6.0.2 paketinin bağımsız incelemesi, çift rezervasyonu önlemesi gereken korumanın veritabanı kilidini gerçekte hiç tutmadığını, yüklenen ödeme dekontlarının tahmin edilebilir genel adreslerde durduğunu ve iki kez istenen kalan-ödeme bağlantısının iki ayrı sipariş oluşturabildiğini gösterdi. Üçü de bu sürümde düzeltildi; ayrıca her içerik kimliğini araç kabul eden yorum formu ve her zaman sıfır bildiren ödeme türü yanıtı da onarıldı.",
+    "changes": [
+      "Düzeltildi: aynı anda ödeme adımına giren iki müşteri, aynı aracı aynı tarihler için birlikte rezerve edebiliyordu. Bunu önlemesi gereken denetim, rezervasyon yazılırken aracın kayıtlarını tutmasını veritabanından istiyordu; ama bu tutmayı kalıcı kılan işlemi (transaction) hiç açmıyordu — veritabanı kilidi hemen, rezervasyon oluşturulmadan bırakıyordu. Böylece iki ödeme akışı da \"müsait\" okuyup ikisi de rezervasyon yazabiliyordu. Denetim ile rezervasyon artık bölünemez tek bir adım; çakışma bulunduğunda WooCommerce siparişi eskisi gibi iptal ediliyor. İki kişinin aynı saniyede ödemeye başlamasının seyrek olduğu sitelerde bu durumla karşılaşılmamış olabilir, ama hiçbir şey engellemiyordu.",
+      "Düzeltildi: yüklenen ödeme dekontu, müşterinin kendi dosya adıyla ve sitenizin ziyaretçilere doğrudan sunduğu klasörde saklanıyordu. Yüklemeyi \"özel\" işaretlemek onu WordPress'in ortam listelerinden gizler, ama dosyanın kendisinin önüne hiçbir engel koymaz; adresi tahmin eden herkes açabilirdi. Dekontlar artık tahmin edilemez rastgele bir adla saklanıyor ve kimin istediğini denetleyen bir adres üzerinden veriliyor — rezervasyonun sahibi müşteri ya da personeliniz. Önceki sürümlerde yüklenen dekontlar eski adlarını korur; yeniden adlandırılmasını istiyorsanız yeniden yükleyin.",
+      "Düzeltildi: kalan-ödeme bağlantısının kısa aralıkla iki kez istenmesi — çift tıklama, iki açık sekme — aynı kalan tutar için iki ayrı WooCommerce siparişi oluşturabiliyor, bunlardan biri ödenmemiş ve hesabı tutulmamış hâlde kalıyordu. Arama ile oluşturma artık tek adım; ikinci istek, ilkinin oluşturduğu siparişi geri veriyor.",
+      "Düzeltildi: yorum formu, tarayıcının gönderdiği içerik kimliğini araç olup olmadığını denetlemeden kabul ediyordu; bu yüzden bir yorum bir blog yazısına ya da sayfaya iliştirilebiliyor, o içerik bu eklentinin puan verilerini de taşımaya başlıyordu. Hedef gerçekten bir araç değilse yorum artık reddediliyor.",
+      "Düzeltildi: kapora ile tam ödeme arasında geçiş yapmak, her başarılı geçişte tarayıcıya sıfır tutar bildiriyordu; çünkü hesaplanan değer hiçbir yerin okumadığı bir değişkene yazılıyordu. Sepetin kendisi her zaman doğruydu ve müşterilerden doğru tutar tahsil edildi; yalnızca bildirilen sayı yanlıştı. Artık sepet toplamını bildiriyor."
+    ]
+  },
+  {
     "version": "6.0.1",
     "date": "2026-08-04",
     "type": "patch",
