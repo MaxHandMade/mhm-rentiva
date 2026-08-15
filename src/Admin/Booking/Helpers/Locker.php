@@ -48,6 +48,19 @@ final class Locker {
 			);
 			// prefix-rename:ignore-end
 
+			// The postmeta lock above is not sufficient on its own: if the vehicle
+			// happens to have no '_mhm%' row, that statement matches nothing and
+			// leaves only a gap lock -- and gap locks are compatible with each
+			// other, so two transactions would both sail through the guard. Lock
+			// the post row as well, which is guaranteed to exist for a real
+			// vehicle, so exclusion never depends on the meta set being non-empty.
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE",
+					$vehicle_id
+				)
+			);
+
 			// Execute callback
 			$result = $callback();
 
@@ -55,8 +68,11 @@ final class Locker {
 			$wpdb->query( 'COMMIT' );
 
 			return $result;
-		} catch ( \Exception $e ) {
-			// Rollback on error
+		} catch ( \Throwable $e ) {
+			// Rollback on ANY failure. Catching \Exception alone let a \TypeError
+			// (or any other \Error) escape with the transaction still open: the
+			// row lock stayed held and every later write on this connection joined
+			// a transaction that would never be committed.
 			$wpdb->query( 'ROLLBACK' );
 			throw $e;
 		}
@@ -87,11 +103,21 @@ final class Locker {
 			);
 			// prefix-rename:ignore-end
 
+			// Same reason as withLock(): a booking with no matching meta rows would
+			// otherwise be "locked" by a gap lock that excludes nobody.
+			$wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE",
+					$booking_id
+				)
+			);
+
 			$result = $callback();
 			$wpdb->query( 'COMMIT' );
 
 			return $result;
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
+			// See withLock(): \Exception alone let \Error escape without rollback.
 			$wpdb->query( 'ROLLBACK' );
 			throw $e;
 		}

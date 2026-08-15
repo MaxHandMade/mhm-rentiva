@@ -268,16 +268,30 @@ final class Util {
 	{
 		global $wpdb;
 
-		// Lock vehicle's postmeta records
+		// Lock vehicle's postmeta records.
+		//
+		// prefix-rename:ignore-start
+		// The pattern must cover BOTH the pre- and post-6.0.0 spellings, for the
+		// reason Locker::withLock() spells out: on a site running this code before
+		// the 6.0.0 rename migration has run, every row is still '_mhm_*', so a
+		// '_mhmrentiva_%' pattern selects ZERO rows and FOR UPDATE locks nothing --
+		// silently, with no error and no failing test. '_mhm' covers both families;
+		// esc_like() keeps the leading underscore literal so it cannot widen further.
+		//
+		// Note that this statement only holds a lock when the caller has already
+		// opened a transaction (see create_booking_from_data(), which wraps this
+		// call in Locker::withLock()). Under autocommit MySQL releases the row lock
+		// as soon as the statement completes.
 		$wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT meta_id FROM {$wpdb->postmeta}
              WHERE post_id = %d AND meta_key LIKE %s
              FOR UPDATE",
 				$vehicle_id,
-				$wpdb->esc_like('_mhmrentiva_') . '%'
+				$wpdb->esc_like('_mhm') . '%'
 			)
 		);
+		// prefix-rename:ignore-end
 
 		// Conflict check with accurate date interval handling
 		// ⭐ Exclude pending bookings with expired payment deadline
@@ -764,71 +778,11 @@ final class Util {
 	}
 
 
-	/**
-	 * Atomic availability check (with locking).
-	 */
-	public static function check_availability_locked(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
-	{
-		return \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
-			$vehicle_id,
-			function () use ($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time) {
-				// Validate vehicle existence
-				if (get_post_type($vehicle_id) !== 'mhmrentiva_vehicle') {
-					return array(
-						'ok'      => false,
-						'code'    => 'vehicle_not_found',
-						'message' => __('Vehicle not found.', 'mhm-rentiva'),
-					);
-				}
-
-				// Validate vehicle availability status
-				if (! self::is_vehicle_available($vehicle_id)) {
-					return array(
-						'ok'      => false,
-						'code'    => 'vehicle_unavailable',
-						'message' => __('Vehicle is currently not available for rental.', 'mhm-rentiva'),
-					);
-				}
-
-				// Parse date/time
-				$datetime_result = self::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-
-				if (is_wp_error($datetime_result)) {
-					return array(
-						'ok'      => false,
-						'code'    => 'invalid_input',
-						'message' => $datetime_result->get_error_message(),
-					);
-				}
-
-				$start_ts = $datetime_result['start_ts'];
-				$end_ts   = $datetime_result['end_ts'];
-
-				// Atomic overlap detection
-				if (self::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
-					return array(
-						'ok'      => false,
-						'code'    => 'unavailable',
-						'message' => __('Vehicle is not available in the selected date range.', 'mhm-rentiva'),
-					);
-				}
-
-				// Calculate rental days and pricing
-				$days          = self::rental_days($start_ts, $end_ts);
-				$price_per_day = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
-				$total_price   = self::total_price($vehicle_id, $days, $start_ts);
-
-				return array(
-					'ok'            => true,
-					'code'          => 'ok',
-					'message'       => __('Vehicle is available on selected dates.', 'mhm-rentiva'),
-					'days'          => $days,
-					'price_per_day' => $price_per_day,
-					'total_price'   => $total_price,
-					'start_ts'      => $start_ts,
-					'end_ts'        => $end_ts,
-				);
-			}
-		);
-	}
+	// check_availability_locked() lived here until 6.0.3: a correctly built locked
+	// availability check that nothing ever called, in either edition. It was the
+	// only caller of Locker::withLock(), which is how the locking layer came to be
+	// entirely dead while the live booking path ran unprotected (finding C-01).
+	// The live path now locks for itself in
+	// WooCommerceBridge::create_booking_from_data(); this scaffolding is removed
+	// rather than left as a second, unexercised way to do the same thing.
 }
