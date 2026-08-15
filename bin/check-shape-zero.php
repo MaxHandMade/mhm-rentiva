@@ -154,7 +154,56 @@ foreach ($residualByFile as $file => $count) {
         $overCeiling[] = "$file: $count > {$allowedByFile[$file]}";
     }
 }
+// The shipped surface phpcs.xml refuses to look at.
+//
+// The scan above runs --standard=phpcs.xml, and phpcs.xml excludes */vendor/*.
+// vendor/mhm/ui-core SHIPS (.distignore re-includes it), so its runtime code
+// was never measured by any gate: G-A could not see it, and the Plugin Check
+// parity gate that can see it obeys phpcs:ignore. A suppressed EscapeOutput in
+// there would have passed every gate we own. Proven, not assumed: a file with
+// `echo $_GET['x'];` placed in vendor/mhm/ui-core/src/ produced 0 findings
+// under --standard=phpcs.xml and 4 under --standard=WordPress.
+//
+// Zero tolerance rather than a ceiling: these paths are clean today (measured),
+// and there is no legacy debt here to grandfather.
+$extraPaths = array_values(array_filter(
+    ['vendor/mhm/', 'assets/', 'languages/'],
+    static fn(string $p): bool => is_dir($p)
+));
+
+$extraFindings = [];
+if ($extraPaths !== []) {
+    [$rc2, $stdout2, $stderr2] = ga_run(array_merge([
+        PHP_BINARY,
+        $phpcs,
+        '--standard=WordPress',
+        '--ignore-annotations',
+        '--report=json',
+        '--sniffs=WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput,WordPress.Security.ValidatedSanitizedInput',
+    ], $extraPaths));
+
+    if ($rc2 !== 0 && $rc2 !== 1) {
+        ga_cannot_measure(
+            'phpcs exited ' . $rc2 . ' on the shipped-but-unscanned paths (expected 0 or 1)',
+            trim($stderr2) !== '' ? trim($stderr2) : 'no stderr output'
+        );
+    }
+
+    $json2 = json_decode($stdout2, true);
+    if (!is_array($json2)) {
+        ga_cannot_measure('phpcs returned unparseable JSON for the shipped-but-unscanned paths', substr($stdout2, 0, 400));
+    }
+
+    foreach (($json2['files'] ?? []) as $file => $data) {
+        foreach (($data['messages'] ?? []) as $msg) {
+            $extraFindings[] = sprintf('%s:%d  %s', $file, $msg['line'] ?? 0, $msg['source'] ?? '?');
+        }
+    }
+}
+
 printf("G-A: hard=%d, residual-display=%d (tavan %d)\n", count($hard), $residual, $CEILING);
+printf("  shipped-but-unscanned paths (%s): %d finding(s)\n", implode(' ', $extraPaths), count($extraFindings));
+foreach ($extraFindings as $f) { echo "  $f\n"; }
 printf(
     "  families: NonceVerification.Missing=%d, EscapeOutput=%d, ValidatedSanitizedInput=%d, NonceVerification.Recommended(non-residual, hard)=%d\n",
     $families['WordPress.Security.NonceVerification.Missing'],
@@ -164,4 +213,4 @@ printf(
 );
 foreach ($hard as $h) { echo "  $h\n"; }
 foreach ($overCeiling as $row) { echo "  residual ceiling exceeded: $row\n"; }
-exit ((count($hard) > 0 || $residual > $CEILING || count($overCeiling) > 0) ? 1 : 0);
+exit ((count($hard) > 0 || $residual > $CEILING || count($overCeiling) > 0 || count($extraFindings) > 0) ? 1 : 0);
