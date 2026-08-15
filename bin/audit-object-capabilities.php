@@ -67,6 +67,22 @@ const BLANKET = '(edit_posts|publish_posts|read|upload_files|edit_published_post
 $suspect     = array();
 $unclassified = array();
 
+// PASS 1 -- read every file once, and resolve registrations that name a class
+// OTHER than the one the file defines.
+//
+// This pass exists because the single-pass version was blind in exactly one
+// place, and the tree had exactly one instance of it: CustomerExporter::handle
+// is registered from CustomersPage.php via CustomerExporter::class. Matching
+// hook registrations against handlers in the SAME file meant CustomersPage.php
+// recorded a hook for a method it does not define, CustomerExporter.php saw no
+// hooks at all, and the handler appeared in NEITHER section of the report --
+// not flagged, not even listed for manual review. It was the T8 #2 shape
+// (blanket edit_users, arbitrary $_POST['ids'], full PII per target) and this
+// script reported "(none)" over it. An independent audit found it instead.
+$files            = array();
+$class_of_file    = array();
+$cross_registered = array();
+
 foreach ( $roots as $root ) {
 	if ( ! is_dir( $root ) ) {
 		fwrite( STDERR, "skip (not a directory): {$root}\n" );
@@ -79,9 +95,35 @@ foreach ( $roots as $root ) {
 			continue;
 		}
 
-		$path = str_replace( '\\', '/', $file->getPathname() );
-		$src  = (string) file_get_contents( $path );
+		$path            = str_replace( '\\', '/', $file->getPathname() );
+		$files[ $path ] = (string) file_get_contents( $path );
 
+		if ( preg_match( '/^\s*(?:final\s+|abstract\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)/m', $files[ $path ], $cm ) ) {
+			$class_of_file[ $path ] = $cm[1];
+		}
+
+		// The class may be written fully qualified with a leading backslash --
+		// which is exactly how the one instance in this tree is written, and the
+		// first version of this pattern (bare [A-Za-z_]+ before ::class) matched
+		// none of it. The gate reported "(none)" and a mutation test caught that
+		// it was reporting nothing at all rather than nothing wrong.
+		preg_match_all(
+			"/add_action\(\s*['\"](?:wp_ajax_(?:nopriv_)?|admin_post_(?:nopriv_)?)[a-z_]+['\"]\s*,\s*array\(\s*\\\\?([A-Za-z_][A-Za-z0-9_\\\\]*)::class\s*,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/",
+			$files[ $path ],
+			$xm
+		);
+		foreach ( $xm[1] as $i => $target_class ) {
+			// Store under the short name; that is what the class declaration in
+			// the target file gives us to match against.
+			$short                                = (string) substr( (string) strrchr( '\\' . $target_class, '\\' ), 1 );
+			$cross_registered[ $short ][ $xm[2][ $i ] ] = true;
+		}
+	}
+}
+
+// PASS 2 -- analyse each file with the full picture of what is hooked.
+foreach ( $files as $path => $src ) {
+	{
 		// Entry points wired by the shape we can resolve.
 		preg_match_all(
 			"/add_action\(\s*['\"](?:wp_ajax_(?:nopriv_)?|admin_post_(?:nopriv_)?)[a-z_]+['\"]\s*,\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/",
@@ -92,6 +134,14 @@ foreach ( $roots as $root ) {
 		preg_match_all( "/'callback'\s*=>\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/", $src, $m2, PREG_OFFSET_CAPTURE );
 		foreach ( $m2[1] as $hit ) {
 			$hooked[ $hit[0] ] = true;
+		}
+
+		// Methods of THIS file's class that some other file hooked (pass 1).
+		$own_class = $class_of_file[ $path ] ?? null;
+		if ( null !== $own_class && isset( $cross_registered[ $own_class ] ) ) {
+			foreach ( $cross_registered[ $own_class ] as $method => $_ ) {
+				$hooked[ $method ] = true;
+			}
 		}
 
 		// Where the gate actually lives.

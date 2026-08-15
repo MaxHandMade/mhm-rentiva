@@ -7,9 +7,18 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Customers\CustomersOptimizer;
 
 final class CustomerExporter {
+
+	/**
+	 * The CSV column row. Named so the handler can emit a header-only export
+	 * without duplicating the literal that get_csv_rows() writes.
+	 *
+	 * @var string[]
+	 */
+	public const CSV_HEADER = array( 'Name', 'Email', 'Phone', 'Bookings', 'Total Spent', 'Last Booking', 'Registered' );
 
 	public static function handle(): void
 	{
@@ -28,7 +37,28 @@ final class CustomerExporter {
 		$raw_ids = array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? array() ) );
 		$ids     = array_values( array_filter( $raw_ids, fn( $id ) => $id > 0 ) );
 
-		$rows = self::get_csv_rows( $search, $ids );
+		$had_selection = ! empty( $ids );
+
+		// The per-target pair, here at the entry point as well as inside
+		// get_csv_rows(). Both are deliberate. get_csv_rows() is public and
+		// directly tested, so it defends itself; this copy is what a reviewer
+		// reading THIS handler can see. A check that exists only in a helper the
+		// handler calls is not line-local evidence -- our own object-capability
+		// audit flagged this method while the guard sat one call away, and
+		// WordPress.org's scanner reads it the same way.
+		$ids = array_values(
+			array_filter(
+				$ids,
+				static fn( int $id ): bool => current_user_can( 'edit_user', $id ) && CustomerIdentity::is_customer( $id )
+			)
+		);
+
+		// A selection that filtered down to nothing must produce an empty
+		// export, NOT fall through to the "no ids means export everything"
+		// branch -- that would turn a refused selection into a full dump.
+		$rows = ( $had_selection && empty( $ids ) )
+			? array( self::CSV_HEADER )
+			: self::get_csv_rows( $search, $ids );
 
 		$filename = 'customers-' . gmdate( 'Y-m-d' ) . '.csv';
 		header( 'Content-Type: text/csv; charset=UTF-8' );
@@ -92,11 +122,21 @@ final class CustomerExporter {
 	public static function get_csv_rows( string $search, array $ids ): array
 	{
 		$rows   = array();
-		$rows[] = array( 'Name', 'Email', 'Phone', 'Bookings', 'Total Spent', 'Last Booking', 'Registered' );
+		$rows[] = self::CSV_HEADER;
 
 		if ( ! empty( $ids ) ) {
 			// Fetch individual details for selected IDs.
 			foreach ( $ids as $id ) {
+				// Two questions per target, the same pair get_detail asks. The
+				// handler's edit_users check is about the CALLER and says nothing
+				// about which account; get_customer_details_optimized() LEFT JOINs
+				// bookings, so it happily returns a full PII row for an editor or a
+				// second administrator who has never booked anything. This is the
+				// T8 #2 shape, and the export is the sibling that sweep missed.
+				if ( ! current_user_can( 'edit_user', $id ) || ! CustomerIdentity::is_customer( $id ) ) {
+					continue;
+				}
+
 				$detail = CustomersOptimizer::get_customer_details_optimized( $id );
 				if ( null === $detail ) {
 					continue;
@@ -121,6 +161,19 @@ final class CustomerExporter {
 			$result    = CustomersOptimizer::get_customers_optimized( $page, $per_page, $search );
 			$customers = $result['customers'] ?? array();
 			foreach ( $customers as $c ) {
+				// Same pair as the selected-ids path above. The list query this
+				// walks starts FROM wp_users and filters only on `ID > 1 AND
+				// user_login != 'admin'`, so it hands back every editor and
+				// second administrator on the site. The screen showing them is a
+				// known, declared debt; writing them into a downloaded file of
+				// personal data is a different disclosure and not covered by it.
+				$candidate = (int) ( $c['id'] ?? 0 );
+				if ( $candidate <= 0
+					|| ! current_user_can( 'edit_user', $candidate )
+					|| ! CustomerIdentity::is_customer( $candidate ) ) {
+					continue;
+				}
+
 				$rows[] = array(
 					$c['name']          ?? '',
 					$c['email']         ?? '',
