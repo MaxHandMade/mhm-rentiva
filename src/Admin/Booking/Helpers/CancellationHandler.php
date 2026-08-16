@@ -88,7 +88,7 @@ final class CancellationHandler {
 
 		// Check user permission (user can only cancel their own bookings)
 		if ( $user_id > 0 ) {
-			$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
+			$booking_customer_id = self::resolve_booking_customer_id( $booking_id );
 			if ( $user_id !== $booking_customer_id && ! current_user_can( 'manage_options' ) ) {
 				return new \WP_Error(
 					'permission_denied',
@@ -435,6 +435,29 @@ final class CancellationHandler {
 	 * @param int $user_id User ID (0 for current user)
 	 * @return bool True if can cancel, false otherwise
 	 */
+	/**
+	 * The account a booking belongs to.
+	 *
+	 * Both call sites used to read `_mhmrentiva_customer_id` directly. Nothing in
+	 * either edition has ever written that key: every writer uses
+	 * `_mhmrentiva_customer_user_id`, and so does every other reader
+	 * (AccountController::can_access_receipt(), the receipt handlers,
+	 * RemainingPaymentHandler). The read returned '' -> 0, matched no real user,
+	 * and customer self-cancellation was refused for everyone -- a feature that
+	 * had never worked rather than a hole, since it failed closed.
+	 *
+	 * The legacy key is still read as a fallback so that any booking actually
+	 * carrying it stays cancellable; no new writes to it are made.
+	 */
+	private static function resolve_booking_customer_id( int $booking_id ): int {
+		$customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
+		if ( $customer_id > 0 ) {
+			return $customer_id;
+		}
+
+		return (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
+	}
+
 	public static function user_can_cancel( int $booking_id, int $user_id = 0 ): bool {
 		if ( $user_id === 0 ) {
 			$user_id = get_current_user_id();
@@ -446,7 +469,7 @@ final class CancellationHandler {
 		}
 
 		// Check if user owns the booking
-		$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
+		$booking_customer_id = self::resolve_booking_customer_id( $booking_id );
 		if ( $booking_customer_id !== $user_id ) {
 			return false;
 		}

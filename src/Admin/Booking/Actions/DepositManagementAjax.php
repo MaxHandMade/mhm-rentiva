@@ -91,10 +91,10 @@ final class DepositManagementAjax {
 		// Update payment status
 		update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
 
-		// If rental end date has already passed, mark as completed; otherwise confirmed
-		$dropoff       = get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true )
-			?: get_post_meta( $booking_id, '_mhmrentiva_end_date', true );
-		$target_status = ( $dropoff && strtotime( $dropoff ) < time() ) ? 'completed' : 'confirmed';
+		// If the rental period has actually ended, mark as completed; otherwise
+		// confirmed. Uses the drop-off time, not just the date -- see
+		// Util::rental_has_ended().
+		$target_status = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended( $booking_id ) ? 'completed' : 'confirmed';
 		Status::update_status( $booking_id, $target_status, get_current_user_id() );
 
 		// Add log
@@ -272,15 +272,74 @@ final class DepositManagementAjax {
 			$refund_amount = $deposit_amount;
 		}
 
-		// Update refund status
-		if ( $refund_amount > 0 ) {
-			update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'refunded' );
-			update_post_meta( $booking_id, '_mhmrentiva_refunded_amount', $refund_amount );
-			update_post_meta( $booking_id, '_mhmrentiva_refund_date', gmdate( 'Y-m-d H:i:s' ) );
-			update_post_meta( $booking_id, '_mhmrentiva_refund_processed_by', get_current_user_id() );
+		// Policy says nothing is owed back: nothing to attempt, nothing to change.
+		if ( $refund_amount <= 0 ) {
+			self::add_booking_log(
+				$booking_id,
+				'refund_processed',
+				array(
+					'refund_amount' => 0,
+					'processed_by'  => get_current_user_id(),
+				)
+			);
+
+			wp_send_json_success(
+				array(
+					'message' => __( 'Refund not processed due to cancellation policy.', 'mhm-rentiva' ),
+				)
+			);
+			return;
 		}
 
-		// Add log
+		// Hand the actual refund to the refund service.
+		//
+		// Until 6.0.4 this method wrote _mhmrentiva_payment_status = refunded and
+		// answered "Refund completed successfully" WITHOUT ever calling a gateway:
+		// no wc_create_refund(), no API call, nothing checking that money moved.
+		// The booking said refunded, the operator saw success, and the customer was
+		// never paid back.
+		//
+		// Payment\Refunds\Service does it properly -- validates, calls the gateway,
+		// inspects the result and only writes meta when the refund actually
+		// happened -- and had no caller anywhere in either edition. Rather than
+		// grow a second refund implementation, the live path now goes through it.
+		//
+		// It works in kuruş (minor units), which is what every consumer of
+		// _mhmrentiva_refunded_amount already assumes (BookingRefundMetaBox,
+		// RefundCalculator); the float this method used to write was itself a unit
+		// mismatch with those readers.
+		$result = \MHMRentiva\Admin\Payment\Refunds\Service::process(
+			$booking_id,
+			(int) round( $refund_amount * 100 ),
+			__( 'Refund issued from the deposit management screen.', 'mhm-rentiva' )
+		);
+
+		if ( '1' !== ( $result['mhmrentiva_refund'] ?? '0' ) ) {
+			$message = (string) ( $result['mhmrentiva_refund_msg'] ?? '' );
+
+			self::add_booking_log(
+				$booking_id,
+				'refund_failed',
+				array(
+					'refund_amount' => $refund_amount,
+					'processed_by'  => get_current_user_id(),
+					'reason'        => $message,
+				)
+			);
+
+			wp_send_json_error(
+				array(
+					'message' => '' !== $message ? $message : __( 'Refund failed.', 'mhm-rentiva' ),
+				)
+			);
+			return;
+		}
+
+		// The service has written payment status, refunded amount and the gateway
+		// transaction id. These two are this screen's own audit trail.
+		update_post_meta( $booking_id, '_mhmrentiva_refund_date', gmdate( 'Y-m-d H:i:s' ) );
+		update_post_meta( $booking_id, '_mhmrentiva_refund_processed_by', get_current_user_id() );
+
 		self::add_booking_log(
 			$booking_id,
 			'refund_processed',
@@ -290,20 +349,12 @@ final class DepositManagementAjax {
 			)
 		);
 
-		if ( $refund_amount > 0 ) {
-			wp_send_json_success(
-				array(
-					/* translators: %s placeholder. */
-					'message' => sprintf( __( 'Refund completed successfully. Refund amount: %s', 'mhm-rentiva' ), self::format_price( $refund_amount ) ),
-				)
-			);
-		} else {
-			wp_send_json_success(
-				array(
-					'message' => __( 'Refund not processed due to cancellation policy.', 'mhm-rentiva' ),
-				)
-			);
-		}
+		wp_send_json_success(
+			array(
+				/* translators: %s placeholder. */
+				'message' => sprintf( __( 'Refund completed successfully. Refund amount: %s', 'mhm-rentiva' ), self::format_price( $refund_amount ) ),
+			)
+		);
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {

@@ -1294,9 +1294,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					case 'completed':
 						// WC order completed - only mark booking as completed if rental period has ended.
 						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
-						$dropoff_date   = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true)
-							?: get_post_meta($booking_id, '_mhmrentiva_end_date', true);
-						$rental_ended   = $dropoff_date && strtotime( (string) $dropoff_date) < time();
+						// Same rule as the deposit screen, and for the same reason:
+						// a date-only comparison completes a booking at midnight on
+						// the drop-off day, hours before the car is back.
+						$rental_ended   = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id);
 						$booking_status = $rental_ended ? 'completed' : 'confirmed';
 						Status::update_status($booking_id, $booking_status, get_current_user_id());
 						// Clear remaining amount for deposit bookings so timeline shows All Payments Completed

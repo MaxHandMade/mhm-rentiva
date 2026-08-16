@@ -778,6 +778,46 @@ final class Util {
 	}
 
 
+	/**
+	 * Whether a booking's rental period is actually over.
+	 *
+	 * Both callers used to decide this with `strtotime( $dropoff_date ) < time()`,
+	 * which resolves a bare date to midnight: a car due back today at 18:00 read
+	 * as "returned" from 00:00 onwards, so settling the balance in the morning
+	 * marked the booking completed while the customer still had the vehicle.
+	 * Completed feeds availability, dashboards and reporting, so it is not
+	 * cosmetic.
+	 *
+	 * The stored drop-off time is now honoured, interpreted in the site's
+	 * timezone. When a booking has no time recorded the end of that day is used
+	 * rather than its start -- the conservative direction, since the error it can
+	 * make is "not finished yet" instead of "finished early".
+	 */
+	public static function rental_has_ended(int $booking_id): bool
+	{
+		$dropoff_date = (string) ( get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true)
+			?: get_post_meta($booking_id, '_mhmrentiva_end_date', true) );
+
+		if ('' === $dropoff_date) {
+			return false;
+		}
+
+		$dropoff_time = (string) ( get_post_meta($booking_id, '_mhmrentiva_dropoff_time', true)
+			?: get_post_meta($booking_id, '_mhmrentiva_end_time', true) );
+
+		if ('' === $dropoff_time) {
+			$dropoff_time = '23:59';
+		}
+
+		try {
+			$dropoff = new \DateTimeImmutable($dropoff_date . ' ' . $dropoff_time, wp_timezone());
+		} catch (\Exception $e) {
+			return false;
+		}
+
+		return $dropoff->getTimestamp() < time();
+	}
+
 	// check_availability_locked() lived here until 6.0.3: a correctly built locked
 	// availability check that nothing ever called, in either edition. It was the
 	// only caller of Locker::withLock(), which is how the locking layer came to be

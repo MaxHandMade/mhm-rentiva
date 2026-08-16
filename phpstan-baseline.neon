@@ -57,7 +57,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 12
+			count: 14
 			path: src/Admin/Booking/Actions/DepositManagementAjax.php
 
 		-
