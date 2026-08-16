@@ -121,17 +121,21 @@ final class RateLimiter {
 	 */
 	private static function checkTimeframe(string $identifier, string $action, string $timeframe, int $max_requests, int $duration): bool
 	{
-		$cache_key        = self::getCacheKey($identifier, $action, $timeframe);
-		$current_requests = (int) get_transient($cache_key);
+		$cache_key = self::getCacheKey($identifier, $action, $timeframe);
 
-		if ($current_requests >= $max_requests) {
-			// Rate limit exceeded - log it
-			self::logRateLimitExceeded($identifier, $action, $timeframe, $current_requests, $max_requests);
+		// Shared house primitive: atomic where a persistent object cache
+		// exists, transient otherwise. The read-modify-write this replaced
+		// let concurrent requests overwrite each other's increment, so the
+		// limiter undercounted exactly under load. See
+		// SecurityHelper::increment_counter().
+		$current_requests = SecurityHelper::increment_counter($cache_key, $duration);
+
+		if ($current_requests > $max_requests) {
+			// Rate limit exceeded - log it. The count reported is the hits
+			// already recorded, matching the pre-6.0.5 message.
+			self::logRateLimitExceeded($identifier, $action, $timeframe, $current_requests - 1, $max_requests);
 			return false;
 		}
-
-		// Increment request count
-		set_transient($cache_key, $current_requests + 1, $duration);
 
 		return true;
 	}
@@ -186,17 +190,20 @@ final class RateLimiter {
 		$rate_limits = self::get_rate_limits();
 		$limits      = $rate_limits[ $action ] ?? $rate_limits['general'];
 
+		// Read through the same primitive the counters are written with, or
+		// this reports 0 for every window on any site with a persistent
+		// object cache.
 		return array(
 			'minute' => array(
-				'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'minute')),
+				'current' => SecurityHelper::read_counter(self::getCacheKey($identifier, $action, 'minute')),
 				'limit'   => $limits['max_per_minute'],
 			),
 			'hour'   => array(
-				'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'hour')),
+				'current' => SecurityHelper::read_counter(self::getCacheKey($identifier, $action, 'hour')),
 				'limit'   => $limits['max_per_hour'],
 			),
 			'day'    => array(
-				'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'day')),
+				'current' => SecurityHelper::read_counter(self::getCacheKey($identifier, $action, 'day')),
 				'limit'   => $limits['max_per_day'],
 			),
 		);
@@ -212,16 +219,16 @@ final class RateLimiter {
 	public static function clear(string $identifier, string $action = 'general'): bool
 	{
 		$timeframes = array( 'minute', 'hour', 'day' );
-		$success    = true;
 
 		foreach ($timeframes as $timeframe) {
-			$cache_key = self::getCacheKey($identifier, $action, $timeframe);
-			if (! delete_transient($cache_key)) {
-				$success = false;
-			}
+			SecurityHelper::clear_counter(self::getCacheKey($identifier, $action, $timeframe));
 		}
 
-		return $success;
+		// Always true: clear_counter() drops the key from both stores, and
+		// "there was nothing to delete" is the desired end state, not a
+		// failure. The old delete_transient() return was reported as failure
+		// for any window that simply had no hits yet.
+		return true;
 	}
 
 	/**
@@ -235,16 +242,18 @@ final class RateLimiter {
 	public static function reset(string $identifier, string $action = 'general', int $duration_seconds = 3600): bool
 	{
 		$timeframes = array( 'minute', 'hour', 'day' );
-		$success    = true;
 
 		foreach ($timeframes as $timeframe) {
-			$cache_key = self::getCacheKey($identifier, $action, $timeframe);
-			if (! set_transient($cache_key, 0, $duration_seconds)) {
-				$success = false;
-			}
+			// Drop rather than write a zero: an explicit 0 in one store while
+			// the counter lives in the other would read back as "no hits" on
+			// one path and the old count on the other. An absent counter is
+			// zero on both.
+			SecurityHelper::clear_counter(self::getCacheKey($identifier, $action, $timeframe));
 		}
 
-		return $success;
+		unset($duration_seconds);
+
+		return true;
 	}
 
 	/**
