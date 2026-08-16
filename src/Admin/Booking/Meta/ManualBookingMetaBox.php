@@ -605,6 +605,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$customer_name       = '';
 		$customer_email      = '';
 		$customer_phone      = '';
+		$create_customer     = false;
 
 		if ($customer_id === 'new_customer') {
 			// Creating a new WP user (wp_create_user() below) is mandatory to
@@ -634,6 +635,61 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				wp_send_json_error(array( 'message' => esc_html__('This email address is already registered.', 'mhm-rentiva') ));
 			}
 
+			// Validated here, CREATED further down -- only once the vehicle is
+			// known to be free. Creating the account up here meant a booking
+			// refused for a full vehicle still left a real WP account behind,
+			// and the email_exists() check just above then rejected the
+			// operator's corrected retry for the same customer: the account
+			// they had never knowingly created blocked the booking they were
+			// trying to make.
+			$create_customer = true;
+		} else {
+			// Existing customer
+			$customer = get_userdata( (int) $customer_id);
+			if (! $customer) {
+				wp_send_json_error(array( 'message' => esc_html__('Customer not found.', 'mhm-rentiva') ));
+			}
+
+			// Get existing customer information
+			$customer_first_name = $customer->first_name;
+			$customer_last_name  = $customer->last_name;
+			$customer_name       = $customer->display_name;
+			$customer_email      = $customer->user_email;
+			$customer_phone      = get_user_meta($customer->ID, 'mhmrentiva_phone', true) ?: get_user_meta($customer->ID, 'phone', true);
+		}
+
+		// Date/time parse
+		$datetime_result = Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+
+		if (is_wp_error($datetime_result)) {
+			wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
+		}
+
+		$start_ts = $datetime_result['start_ts'];
+		$end_ts   = $datetime_result['end_ts'];
+		$days     = Util::rental_days($start_ts, $end_ts);
+
+		// Availability check. Early feedback only -- the authoritative check is
+		// has_overlap_locked() inside the transaction further down.
+		$availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+
+		if (! $availability['ok']) {
+			wp_send_json_error(array( 'message' => $availability['message'] ));
+		}
+
+		// Create the new customer account now: the vehicle looked free a moment
+		// ago, so this is no longer speculative work that leaves an orphan
+		// account behind on every refused attempt.
+		//
+		// Deliberately OUTSIDE the lock below. wp_create_user() fires
+		// user_register, which a site can hook to arbitrary third-party work
+		// (CRM sync, welcome mail); running that inside the vehicle's critical
+		// section would hold a row lock for as long as that work takes. The
+		// residual window is narrow and real: if a concurrent booking takes the
+		// vehicle between here and the locked re-check, the account survives a
+		// refused booking. That is the genuine race -- not the every-refusal
+		// case this reordering closes.
+		if ($create_customer) {
 			// Generate username from first name + last name
 			$base_username = trim(strtolower($customer_first_name . '.' . $customer_last_name));
 			$base_username = sanitize_user($base_username, true);
@@ -698,37 +754,6 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			update_user_meta($user_id, 'mhmrentiva_customer', true);
 
 			$customer = get_userdata($user_id);
-		} else {
-			// Existing customer
-			$customer = get_userdata( (int) $customer_id);
-			if (! $customer) {
-				wp_send_json_error(array( 'message' => esc_html__('Customer not found.', 'mhm-rentiva') ));
-			}
-
-			// Get existing customer information
-			$customer_first_name = $customer->first_name;
-			$customer_last_name  = $customer->last_name;
-			$customer_name       = $customer->display_name;
-			$customer_email      = $customer->user_email;
-			$customer_phone      = get_user_meta($customer->ID, 'mhmrentiva_phone', true) ?: get_user_meta($customer->ID, 'phone', true);
-		}
-
-		// Date/time parse
-		$datetime_result = Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-
-		if (is_wp_error($datetime_result)) {
-			wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
-		}
-
-		$start_ts = $datetime_result['start_ts'];
-		$end_ts   = $datetime_result['end_ts'];
-		$days     = Util::rental_days($start_ts, $end_ts);
-
-		// Availability check
-		$availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-
-		if (! $availability['ok']) {
-			wp_send_json_error(array( 'message' => $availability['message'] ));
 		}
 
 		// Add-ons calculation (same as BookingForm.php)
@@ -806,11 +831,53 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			),
 		);
 
-		$booking_id = wp_insert_post($booking_data);
+		// ⭐ The conflict check and the INSERT are one atomic critical section,
+		// exactly as on the WooCommerce checkout path (WooCommerceBridge::
+		// create_booking_from_data()). Until 6.0.5 this path had neither: it
+		// trusted the unlocked check_availability() above and then inserted, so
+		// two admins submitting at the same moment could both read "free" and
+		// both insert. The plugin shipped the correct primitive from 6.0.3 --
+		// only one of its two booking-creation paths ever called it.
+		//
+		// Clear the vehicle's cache first so the locked check reads the
+		// database, not a request cache that filled before the lock was taken.
+		if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+		}
 
-		if (is_wp_error($booking_id)) {
+		$creation_result = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+			$vehicle_id,
+			static function () use ($booking_data, $vehicle_id, $start_ts, $end_ts) {
+				// Authoritative conflict check, now genuinely holding the lock.
+				if (Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+					return false;
+				}
+
+				// $wp_error = true. WordPress documents the failure return as
+				// "the value 0 or WP_Error" -- 0 unless the error object is
+				// asked for. The previous is_wp_error()-only guard therefore
+				// caught nothing: a failed insert fell through to
+				// wp_send_json_success() and told the operator the booking was
+				// created, handing them an edit link for post 0.
+				$booking_id = wp_insert_post($booking_data, true);
+
+				if (is_wp_error($booking_id) || (int) $booking_id <= 0) {
+					return null;
+				}
+
+				return (int) $booking_id;
+			}
+		);
+
+		if (false === $creation_result) {
+			wp_send_json_error(array( 'message' => esc_html__('This vehicle has just been booked for the selected dates.', 'mhm-rentiva') ));
+		}
+
+		if (! is_int($creation_result) || $creation_result <= 0) {
 			wp_send_json_error(array( 'message' => esc_html__('Booking could not be created.', 'mhm-rentiva') ));
 		}
+
+		$booking_id = $creation_result;
 
 		// Save manual booking type
 		update_post_meta($booking_id, '_mhmrentiva_booking_type', 'manual');
