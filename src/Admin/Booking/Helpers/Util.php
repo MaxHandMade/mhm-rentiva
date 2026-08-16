@@ -125,14 +125,50 @@ final class Util {
 	 */
 	public static function total_price(int $vehicle_id, int $days, int $start_ts = 0): float
 	{
+		return self::price_breakdown($vehicle_id, $days, $start_ts)['total'];
+	}
+
+	/**
+	 * The vehicle total, itemised.
+	 *
+	 * Same arithmetic total_price() has always performed -- weekend days are
+	 * charged at `mhmrentiva_vehicle_weekend_multiplier` (default 1.2) -- but
+	 * it also reports HOW the total was reached, so a screen can show the
+	 * surcharge instead of leaving the operator to wonder why two days at
+	 * 2800 came to 6720.
+	 *
+	 * total_price() delegates here rather than keeping its own copy of the
+	 * loop: one concept, one computation. A breakdown re-derived in a
+	 * template or in JavaScript is how a screen starts quoting a number the
+	 * charge does not agree with.
+	 *
+	 * @return array{
+	 *     total: float,
+	 *     base_price_per_day: float,
+	 *     days: int,
+	 *     weekend_days: int,
+	 *     weekday_days: int,
+	 *     weekend_multiplier: float,
+	 *     weekend_surcharge: float
+	 * }
+	 */
+	public static function price_breakdown(int $vehicle_id, int $days, int $start_ts = 0): array
+	{
 		$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 
-		if ($price_per_day <= 0) {
-			return 0.0;
-		}
+		$empty = array(
+			'total'              => 0.0,
+			'base_price_per_day' => 0.0,
+			'days'               => $days,
+			'weekend_days'       => 0,
+			'weekday_days'       => $days,
+			'weekend_multiplier' => 1.0,
+			'weekend_surcharge'  => 0.0,
+		);
 
-		// If no start date or short rental, simple calc
-		// However, user wants multiplier logic.
+		if ($price_per_day <= 0) {
+			return $empty;
+		}
 
 		// Apply Base Price Multiplier
 		$base_multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_base_price', 1.0);
@@ -142,30 +178,38 @@ final class Util {
 
 		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.2);
 
-		// Safety check for multiplier
-		if ($multiplier <= 1.0) {
-			return $price_per_day * $days;
+		$flat = array(
+			'total'              => $price_per_day * $days,
+			'base_price_per_day' => $price_per_day,
+			'days'               => $days,
+			'weekend_days'       => 0,
+			'weekday_days'       => $days,
+			'weekend_multiplier' => $multiplier,
+			'weekend_surcharge'  => 0.0,
+		);
+
+		// Safety check for multiplier; and without a start date there is no
+		// way to know which days fall on a weekend, so charge flat and say so.
+		if ($multiplier <= 1.0 || $start_ts <= 0) {
+			$flat['weekend_multiplier'] = $multiplier <= 1.0 ? $multiplier : $flat['weekend_multiplier'];
+			return $flat;
 		}
 
-		if ($start_ts <= 0) {
-			return $price_per_day * $days;
-		}
+		$total        = 0.0;
+		$surcharge    = 0.0;
+		$weekend_days = 0;
+		$current_ts   = $start_ts;
 
-		$total      = 0.0;
-		$current_ts = $start_ts;
-
-		// Iterate through each day
+		// Iterate through each day. Rental days are 24h blocks and car rental
+		// charges the day rate for the specific calendar day.
 		for ($i = 0; $i < $days; $i++) {
-			// Check day of week (0 = Sunday, 6 = Saturday) for the current checking day
-			// We use getdate or gmdate('w') based on timestamp.
-			// Note: rental days are 24h blocks. Logic typically applies to ANY day overlapping weekend?
-			// Usually car rental charges "day rate" for that specific day.
-
+			// 0 = Sunday, 6 = Saturday.
 			$day_of_week = (int) gmdate('w', $current_ts);
 
-			// Sat (6) or Sun (0)
 			if (6 === $day_of_week || 0 === $day_of_week) {
-				$total += ( $price_per_day * $multiplier );
+				$total     += ( $price_per_day * $multiplier );
+				$surcharge += ( $price_per_day * $multiplier ) - $price_per_day;
+				++$weekend_days;
 			} else {
 				$total += $price_per_day;
 			}
@@ -174,7 +218,15 @@ final class Util {
 			$current_ts += 86400;
 		}
 
-		return $total;
+		return array(
+			'total'              => $total,
+			'base_price_per_day' => $price_per_day,
+			'days'               => $days,
+			'weekend_days'       => $weekend_days,
+			'weekday_days'       => $days - $weekend_days,
+			'weekend_multiplier' => $multiplier,
+			'weekend_surcharge'  => $surcharge,
+		);
 	}
 
 	/**

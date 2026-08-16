@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 6.0.4\n"
+"Project-Id-Version: MHM Rentiva 6.0.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-16T09:22:51+00:00\n"
+"POT-Creation-Date: 2026-08-16T10:00:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -670,8 +670,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1314
 #: src/Admin/Booking/Meta/BookingMeta.php:1395
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:493
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:575
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:499
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:591
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:35
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:106
@@ -747,7 +747,7 @@ msgstr ""
 #: src/Admin/Booking/Addons/AddonBooking.php:39
 #: src/Admin/Booking/Addons/AddonBooking.php:162
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:392
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:398
 #: src/Admin/Utilities/Menu/Menu.php:89
 #: src/Admin/Utilities/Menu/Menu.php:90
 #: templates/account/booking-detail.php:214
@@ -929,7 +929,7 @@ msgstr ""
 #: src/Admin/Booking/Addons/AddonBooking.php:71
 #: src/Admin/Booking/Addons/AddonBooking.php:143
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:319
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:416
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:422
 msgid "Additional Services Total:"
 msgstr ""
 
@@ -1299,34 +1299,34 @@ msgstr ""
 msgid "Maximum rental period is %d days."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:391
+#: src/Admin/Booking/Helpers/Util.php:443
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:253
 msgid "Selected vehicle is not available, but we can suggest similar vehicles:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:400
+#: src/Admin/Booking/Helpers/Util.php:452
 msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:414
+#: src/Admin/Booking/Helpers/Util.php:466
 msgid "Selected vehicle not found. Please select a valid vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:423
+#: src/Admin/Booking/Helpers/Util.php:475
 msgid "This vehicle is currently not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:434
+#: src/Admin/Booking/Helpers/Util.php:486
 msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:456
-#: src/Admin/Booking/Helpers/Util.php:468
+#: src/Admin/Booking/Helpers/Util.php:508
+#: src/Admin/Booking/Helpers/Util.php:520
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:918
 msgid "This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:479
+#: src/Admin/Booking/Helpers/Util.php:531
 msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr ""
 
@@ -1339,7 +1339,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:163
 #: src/Admin/Booking/ListTable/BookingColumns.php:1368
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:202
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:208
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:500
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:155
@@ -1400,7 +1400,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:170
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
 #: src/Admin/Booking/Meta/BookingMeta.php:326
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:450
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:456
 #: src/Admin/Setup/SetupWizard.php:164
 #: src/Admin/Setup/SetupWizard.php:205
 #: src/Admin/Setup/SetupWizard.php:465
@@ -1433,7 +1433,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:265
 #: src/Admin/Booking/ListTable/BookingColumns.php:1343
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:276
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:282
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1141
 #: src/Plugin.php:1022
 #: src-react/admin/dashboard/components/RecentBookings.jsx:65
@@ -1531,7 +1531,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:668
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:176
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:443
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:449
 msgid "Offline"
 msgstr ""
 
@@ -1793,7 +1793,7 @@ msgid "Close"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1351
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:314
 #: src/Admin/Customers/AddCustomerPage.php:145
 #: src/Admin/Customers/CustomersPage.php:201
 #: src/Admin/Customers/CustomersPage.php:388
@@ -1809,7 +1809,7 @@ msgid "Email"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1355
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:313
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:319
 #: src/Admin/Customers/AddCustomerPage.php:150
 #: src/Admin/Customers/CustomersPage.php:208
 #: src/Admin/Customers/CustomersPage.php:393
@@ -1951,7 +1951,7 @@ msgid "This booking was created with the old system. Deposit system information 
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:159
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:433
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:439
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:494
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:553
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:943
@@ -1960,8 +1960,8 @@ msgid "Payment Type"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:162
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:208
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:436
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:214
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:442
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:284
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1185
@@ -1974,7 +1974,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:164
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:430
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:435
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:441
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:243
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:491
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:550
@@ -1988,7 +1988,7 @@ msgid "Full Payment"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:171
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:441
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:447
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/booking-detail.php:169
 msgid "Payment Method"
@@ -1996,7 +1996,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:174
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:176
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:444
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:450
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr ""
@@ -2007,12 +2007,12 @@ msgid "Total Amount"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:205
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:209
 msgid "Rental Days"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:206
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:204
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
@@ -2201,7 +2201,7 @@ msgid "Manual"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:199
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:261
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:267
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:276
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:255
 #: src/Admin/Settings/Groups/FrontendSettings.php:350
@@ -2211,7 +2211,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:220
 #: src/Admin/Booking/Meta/BookingMeta.php:413
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:334
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:340
 #: templates/account/user-dashboard.php:206
 #: templates/account/user-dashboard.php:254
 msgid "Pickup Date"
@@ -2219,31 +2219,31 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
 #: src/Admin/Booking/Meta/BookingMeta.php:418
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:339
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:345
 msgid "Pickup Time"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:232
 #: src/Admin/Booking/Meta/BookingMeta.php:425
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:345
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:351
 #: templates/shortcodes/unified-search.php:148
 msgid "Return Date"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
 #: src/Admin/Booking/Meta/BookingMeta.php:430
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:350
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:356
 msgid "Return Time"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:244
 #: src/Admin/Booking/Meta/BookingMeta.php:436
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:358
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:364
 msgid "Number of Guests"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:397
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:403
 msgid "Select the additional services needed for this booking."
 msgstr ""
 
@@ -2592,7 +2592,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1127
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:192
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:896
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:912
 msgid "Booking created"
 msgstr ""
 
@@ -2671,8 +2671,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:498
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:580
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:504
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:596
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:39
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:110
 msgid "Permission denied."
@@ -2734,7 +2734,7 @@ msgid "Create Manual Booking"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:193
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:479
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:485
 msgid "Calculate Price"
 msgstr ""
 
@@ -2743,7 +2743,7 @@ msgid "Creating..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:195
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:480
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:486
 msgid "Create Booking"
 msgstr ""
 
@@ -2755,133 +2755,144 @@ msgstr ""
 msgid "Daily Price"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:197
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:200
+#: templates/shortcodes/booking-form.php:356
+msgid "Weekend Difference:"
+msgstr ""
+
+#. translators: %d: number of weekend days in the rental.
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:202
+#, php-format
+msgid "%d weekend day(s)"
+msgstr ""
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
 msgid "Drop-off date must be after pick-up date."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:198
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:204
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:393
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:414
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:415
 msgid "Please fill in all required fields."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:199
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:205
 msgid "Not specified"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:200
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:206
 msgid "Price calculated successfully."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:201
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:207
 msgid "Selected Vehicle"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:205
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:211
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:293
 msgid "Vehicle Total"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:206
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:212
 msgid "Add-ons"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:207
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:213
 msgid "Grand Total"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:209
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:215
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1190
 msgid "Remaining"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:216
 msgid "Add-on Services Total"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:255
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:261
 msgid "Vehicle & Customer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:263
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:269
 msgid "Select a vehicle..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:266
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:272
 #: templates/shortcodes/vehicle-comparison.php:139
 #: templates/shortcodes/vehicle-comparison.php:206
 msgid "day"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:278
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:284
 msgid "Select a customer..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:279
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:285
 msgid "+ Create New Customer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:292
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:298
 msgid "New Customer Information"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:298
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:304
 #: src/Admin/Settings/Groups/FrontendSettings.php:331
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:302
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
 #: src/Admin/Settings/Groups/FrontendSettings.php:332
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:327
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:333
 msgid "Dates & Duration"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:428
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:434
 msgid "Payment & Notes"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:464
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:470
 msgid "Notes"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:465
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:471
 msgid "Special notes about the booking..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:473
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:479
 msgid "Price Calculation"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:510
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:598
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:516
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:614
 msgid "Required fields are missing."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:549
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:786
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:555
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:802
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:943
 msgid "Price could not be calculated."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:619
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:635
 msgid "You do not have permission to create new customer accounts. Please select an existing customer instead."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:630
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:646
 msgid "New customer information is missing."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:635
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:651
 msgid "This email address is already registered."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:650
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:666
 #: src/Admin/Customers/CustomersPage.php:177
 #: src/Admin/Customers/CustomersPage.php:326
 #: src/Admin/Customers/REST/CustomersRestController.php:143
@@ -2890,20 +2901,20 @@ msgid "Customer not found."
 msgstr ""
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:794
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:810
 #, php-format
 msgid "Manual Booking - %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:873
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:889
 msgid "This vehicle has just been booked for the selected dates."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:877
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:893
 msgid "Booking could not be created."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:907
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:923
 msgid "Booking created successfully."
 msgstr ""
 
@@ -13524,10 +13535,6 @@ msgstr ""
 
 #: templates/shortcodes/booking-form.php:352
 msgid "Number of Days:"
-msgstr ""
-
-#: templates/shortcodes/booking-form.php:356
-msgid "Weekend Difference:"
 msgstr ""
 
 #: templates/shortcodes/booking-form.php:360

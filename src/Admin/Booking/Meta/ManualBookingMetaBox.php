@@ -194,6 +194,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 						'creating'           => __('Creating...', 'mhm-rentiva'),
 						'createBooking'      => __('Create Booking', 'mhm-rentiva'),
 						'dailyPrice'         => __('Daily Price', 'mhm-rentiva'),
+						// Same msgid the customer-facing form already uses for
+						// this row, so the operator and the customer read the
+						// same wording for the same charge.
+						'weekendDifference'  => __('Weekend Difference:', 'mhm-rentiva'),
+						/* translators: %d: number of weekend days in the rental. */
+						'weekendDaysCount'   => __('%d weekend day(s)', 'mhm-rentiva'),
 						'dropoffAfterPickup' => __('Drop-off date must be after pick-up date.', 'mhm-rentiva'),
 						'fillAllFields'      => __('Please fill in all required fields.', 'mhm-rentiva'),
 						'notSpecified'       => __('Not specified', 'mhm-rentiva'),
@@ -549,18 +555,28 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Price could not be calculated.', 'mhm-rentiva') ));
 		}
 
+		// Itemised vehicle total. Without this the screen printed "Daily
+		// Price: 2800" beside "Vehicle Total: 6720" for a two-day booking and
+		// left the operator to guess where the other 1120 came from -- it is
+		// the weekend surcharge, which nothing on the screen mentioned.
+		$breakdown = Util::price_breakdown($vehicle_id, $days, $start_ts);
+
 		wp_send_json_success(
 			array(
-				'days'             => $days,
-				'price_per_day'    => $availability['price_per_day'],
-				'vehicle_total'    => $deposit_result['vehicle_total'], // Only vehicle total
-				'addon_total'      => $addon_total,
-				'total_amount'     => $deposit_result['total_amount'], // Vehicle + additional services
-				'final_total'      => $deposit_result['total_amount'],
-				'deposit_amount'   => $deposit_result['deposit_amount'],
-				'remaining_amount' => $deposit_result['remaining_amount'],
-				'deposit_type'     => $deposit_result['deposit_type'],
-				'payment_display'  => $deposit_result['payment_display'],
+				'days'               => $days,
+				'price_per_day'      => $availability['price_per_day'],
+				'vehicle_total'      => $deposit_result['vehicle_total'], // Only vehicle total
+				'addon_total'        => $addon_total,
+				'total_amount'       => $deposit_result['total_amount'], // Vehicle + additional services
+				'final_total'        => $deposit_result['total_amount'],
+				'deposit_amount'     => $deposit_result['deposit_amount'],
+				'remaining_amount'   => $deposit_result['remaining_amount'],
+				'deposit_type'       => $deposit_result['deposit_type'],
+				'payment_display'    => $deposit_result['payment_display'],
+				'weekend_days'       => $breakdown['weekend_days'],
+				'weekend_surcharge'  => round($breakdown['weekend_surcharge'], 2),
+				'weekend_multiplier' => $breakdown['weekend_multiplier'],
+				'base_price_per_day' => round($breakdown['base_price_per_day'], 2),
 			)
 		);
 	}
