@@ -96,6 +96,75 @@ final class CustomerIdentity {
 	}
 
 	/**
+	 * The same question as is_customer(), expressed as a SQL condition.
+	 *
+	 * The Customers list needs this in SQL rather than in PHP: it paginates with
+	 * LIMIT/OFFSET and reports a total, and filtering rows after the query would
+	 * make both wrong. The three criteria are the ones is_customer() applies --
+	 * a booking points at the account, this plugin wrote user meta on it, or it
+	 * wears the customer role -- kept here beside the PHP version so the two
+	 * cannot drift apart unnoticed; CustomersListIsCustomersOnlyTest exercises
+	 * this path and CustomerIdentityTest the other.
+	 *
+	 * Returns a parenthesised boolean expression referring to the users table
+	 * under the alias `u`, which the one caller uses. Every dynamic value is a
+	 * bound parameter: the expression is built by a single prepare() call, so
+	 * nothing is interpolated into it and no phpcs suppression is needed.
+	 *
+	 * @return string
+	 */
+	public static function sql_is_customer(): string {
+		global $wpdb;
+
+		$configured = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+			'mhmrentiva_customer_default_role',
+			'customer'
+		);
+
+		$roles = array_values( array_unique( array_filter( array( $configured, 'customer' ) ) ) );
+		if ( array() === $roles ) {
+			$roles = array( 'customer' );
+		}
+
+		// Two bound slots always. When only one role is configured the same value
+		// is bound twice, which is harmless and keeps the statement shape fixed --
+		// a variable number of placeholders would mean interpolating SQL.
+		$role_like_a = '%' . $wpdb->esc_like( '"' . $roles[0] . '"' ) . '%';
+		$role_like_b = '%' . $wpdb->esc_like( '"' . ( $roles[1] ?? $roles[0] ) . '"' ) . '%';
+
+		return $wpdb->prepare(
+			"(
+			EXISTS (
+				SELECT 1 FROM {$wpdb->postmeta} bmeta
+				INNER JOIN {$wpdb->posts} bpost
+					ON bpost.ID = bmeta.post_id
+					AND bpost.post_type = 'mhmrentiva_booking'
+					AND bpost.post_status <> 'trash'
+				WHERE ( bmeta.meta_key = '_mhmrentiva_customer_user_id' AND bmeta.meta_value = u.ID )
+				   OR ( bmeta.meta_key = '_mhmrentiva_customer_email' AND u.user_email <> '' AND bmeta.meta_value = u.user_email )
+			)
+			OR EXISTS (
+				SELECT 1 FROM {$wpdb->usermeta} ometa
+				WHERE ometa.user_id = u.ID
+					AND ometa.meta_key IN (%s, %s)
+					AND ometa.meta_value <> ''
+			)
+			OR EXISTS (
+				SELECT 1 FROM {$wpdb->usermeta} caps
+				WHERE caps.user_id = u.ID
+					AND caps.meta_key = %s
+					AND ( caps.meta_value LIKE %s OR caps.meta_value LIKE %s )
+			)
+		)",
+			self::OWNED_USER_META[0],
+			self::OWNED_USER_META[1],
+			$wpdb->get_blog_prefix() . 'capabilities',
+			$role_like_a,
+			$role_like_b
+		);
+	}
+
+	/**
 	 * Forget everything learned this request.
 	 *
 	 * Only the tests need this: within a request an account does not stop being

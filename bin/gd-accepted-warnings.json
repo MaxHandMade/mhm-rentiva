@@ -2,13 +2,15 @@
     "_purpose": "Gate G-D documented warning acceptance. Every entry was individually audited; see reasons. Regenerate ONLY alongside the code change that justifies it: php bin/check-plugin-check-parity.php --write-accepted-warnings",
     "reasons": {
         "WordPress.DB.DirectDatabaseQuery.SchemaChange": "Mandatory DDL: activation, migration, uninstall and index-retirement code must CREATE/ALTER/DROP the plugin's own tables; WordPress ships no API for that.",
-        "WordPress.Security.NonceVerification.Recommended": "Read-only $_GET reads (list filters, pagination, tab state) that mutate nothing; each occurrence audited in the 2026-08 T8/T9 rounds, zero suppressions added."
+        "WordPress.Security.NonceVerification.Recommended": "Read-only $_GET reads (list filters, pagination, tab state) that mutate nothing; each occurrence audited in the 2026-08 T8/T9 rounds, zero suppressions added.",
+        "PluginCheck.Security.DirectDB.UnescapedDBParameter": "The Customers list splices CustomerIdentity::sql_is_customer() into its three statements so the screen shows customers rather than every account on the site. That fragment is itself one $wpdb->prepare() call with every dynamic value bound, and it carries no caller input -- but WordPress offers no placeholder for composing one prepared statement into another, so the composition is what the sniff reports. Filtering in PHP instead was rejected: it would break LIMIT/OFFSET and the reported total. Added 2026-08-16 with finding M-02."
     },
     "accepted": {
         "src/Admin/Core/PostTypes/AbstractPostType.php|WordPress.Security.NonceVerification.Recommended": 2,
         "src/Admin/Core/Utilities/DatabaseCleaner.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 7,
         "src/Admin/Core/Utilities/DatabaseMigrator.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 11,
         "src/Admin/Core/Utilities/RetiredIndexes.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 1,
+        "src/Admin/Customers/CustomersOptimizer.php|PluginCheck.Security.DirectDB.UnescapedDBParameter": 3,
         "src/Admin/Customers/CustomersPage.php|WordPress.Security.NonceVerification.Recommended": 4,
         "src/Admin/Emails/Core/EmailTemplates.php|WordPress.Security.NonceVerification.Recommended": 2,
         "src/Admin/Frontend/Account/AccountController.php|WordPress.Security.NonceVerification.Recommended": 6,

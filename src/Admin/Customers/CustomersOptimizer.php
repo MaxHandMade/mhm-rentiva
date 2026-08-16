@@ -72,6 +72,25 @@ final class CustomersOptimizer {
 		);
 		$order_col  = $column_map[ $sort_by ] ?? 'last_booking';
 		$order_asc  = 'asc' === strtolower( $sort_dir );
+
+		// Restrict the list to accounts that are actually customers of this plugin.
+		// Without this the query returns essentially every account on the site: it
+		// starts FROM wp_users and only LEFT JOINs the bookings, so the booking is
+		// optional and the sole account filters were `ID > 1` and
+		// `user_login != 'admin'`. Administrators, editors and other plugins' users
+		// were listed as customers, with their contact details, and counted in the
+		// total and the pagination.
+		//
+		// The definition lives in CustomerIdentity, which the detail, delete and
+		// export routes already use; expressing it in SQL rather than filtering
+		// afterwards is what keeps LIMIT/OFFSET and the total honest.
+		$membership = CustomerIdentity::sql_is_customer();
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
+		// is CustomerIdentity::sql_is_customer(): a single $wpdb->prepare() call with
+		// every dynamic value bound. WordPress provides no placeholder for splicing a
+		// composed SQL fragment into another statement, so the composition itself is
+		// what the sniff sees. Scoped to this region and re-enabled straight after.
 		$cache_key  = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir );
 
 		// Check cache
@@ -121,6 +140,7 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND {$membership}
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
             ORDER BY %i ASC
@@ -151,6 +171,7 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND {$membership}
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
             ORDER BY %i DESC
@@ -173,11 +194,14 @@ final class CustomersOptimizer {
             FROM {$wpdb->users} u
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND {$membership}
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)",
 				$search_like,
 				$search_like
 			)
 		);
+
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Format data
 		$currency  = CurrencyHelper::get_currency_symbol();

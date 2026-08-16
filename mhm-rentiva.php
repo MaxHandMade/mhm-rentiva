@@ -3,7 +3,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           6.0.3
+ * Version:           6.0.4
  * Requires at least: 6.7
  * Tested up to:      7.0
  * Requires PHP:      8.1
@@ -88,7 +88,7 @@ function mhmrentiva_initial_avatar_letter(string $name): string
 }
 
 // Define Version (Updated via build script)
-define('MHMRENTIVA_VERSION', '6.0.3');
+define('MHMRENTIVA_VERSION', '6.0.4');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -101,6 +101,27 @@ if (version_compare(PHP_VERSION, '8.1', '<')) {
 					__('MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s', 'mhm-rentiva'),
 					PHP_VERSION
 				)
+			);
+		}
+	);
+	return;
+}
+
+// mbstring check.
+//
+// The plugin calls mb_strtoupper/mb_substr/mb_strlen unconditionally in five
+// places, one of which is a visitor-facing AJAX path (review submission), and
+// the shipped text is Turkish, where byte-wise string handling is wrong rather
+// than merely approximate. WordPress lists mbstring as highly recommended but
+// does not require it, so "WordPress runs, therefore mbstring exists" is not a
+// guarantee the code may rely on -- without this check the failure mode is a
+// fatal "Call to undefined function mb_strlen()" in front of a customer.
+if (! extension_loaded('mbstring')) {
+	add_action(
+		'admin_notices',
+		function () {
+			mhmrentiva_render_admin_error_notice(
+				__('MHM Rentiva requires the PHP mbstring extension, which is not enabled on this server. Please ask your host to enable it.', 'mhm-rentiva')
 			);
 		}
 	);
