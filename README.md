@@ -431,7 +431,7 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 1,735 tests / 7,080 assertions (v6.0.6)
+- **PHPUnit**: 1,740 tests / 7,090 assertions (v6.0.6)
 - **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
 - **PHPCS**: Full WordPress Coding Standards compliance
 - **Test Admin Page**: Accessible from Rentiva menu
@@ -692,7 +692,7 @@ mhm-rentiva/
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (1,699 tests, 7,014 assertions)
+├── tests/                  # PHPUnit suite (1,740 tests, 7,090 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
@@ -770,7 +770,7 @@ define('SCRIPT_DEBUG', true);
 - Test email notifications
 
 **Automated Testing**:
-- PHPUnit suite: 1,699 tests / 7,014 assertions (unit + WP_UnitTestCase integration)
+- PHPUnit suite: 1,740 tests / 7,090 assertions (unit + WP_UnitTestCase integration)
 
 ---
 
