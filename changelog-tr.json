@@ -1,5 +1,20 @@
 [
   {
+    "version": "6.0.4",
+    "date": "2026-08-16",
+    "type": "patch",
+    "title": "Ödeme kuruluşuna hiç ulaşmayan iadeler, kimsenin yapamadığı iptaller ve kendi sayfalarınızı silen bir sıfırlama",
+    "summary": "6.0.3 paketinin ikinci bağımsız incelemesi bir kritik, iki yüksek ve üç orta seviyeli kusur buldu. İade düğmesi ödeme kuruluşuna hiç başvurmadan başarı bildiriyordu; müşteriler kendi rezervasyonlarını hiçbir zaman iptal edemiyordu çünkü sahiplik denetimi hiçbir yerin yazmadığı bir alanı okuyordu; kısa kod sayfalarını sıfırlamak ise site sahibinin kendi yazdığı sayfaları kalıcı olarak siliyordu. Altısı da bu sürümde düzeltildi.",
+    "changes": [
+      "Düzeltildi: kapora yönetimi ekranındaki \"iade işle\" düğmesi hiçbir zaman para iadesi yapmıyordu. İptal politikanıza göre iade tutarını hesaplıyor, rezervasyonu iade edilmiş olarak işaretliyor ve \"İade başarıyla tamamlandı\" diyordu — ama WooCommerce'e ya da ödeme kuruluşuna hiçbir şey göndermesini söylemiyordu. Böylece iade hem rezervasyonda hem ekranda yapılmış görünürken müşteriye para geri ödenmemiş olabiliyordu. Düğme artık eklentinin iade servisinden geçiyor; bu servis ödeme kuruluşuna başvurur ve sonucu denetler: para gerçekten hareket etmedikçe hiçbir şey iade edilmiş sayılmaz, başarısızlık başarısızlık olarak bildirilir. Bu ekrandan iade işaretlediğiniz rezervasyonlar varsa, ödeme kuruluşunuzun kendi kayıtlarıyla karşılaştırın.",
+      "Düzeltildi: müşteriler kendi rezervasyonlarını iptal edemiyordu. Yetki denetimi, rezervasyonun sahibini hiçbir yerin yazmadığı bir alandan okuyordu; alan hep boş döndüğü için her müşteri reddediliyordu — iptal işlemi de, arayüzün \"bu iptal edilebilir mi\" denetimi de aynı şekilde başarısızdı. Sahiplik artık rezervasyonun gerçekten sakladığı alandan okunuyor. Kapalı tarafa düştüğü için kimse bir başkasının rezervasyonunu da iptal edemiyordu.",
+      "Düzeltildi: \"kısa kod sayfalarını sıfırla\" kendi yazdığınız sayfaları kalıcı olarak silebiliyordu. Her kısa kodun sayfasını, yayınlanmış tüm sayfalarda o kısa kodu arayarak buluyor ve bulduğunu çöp kutusuna uğratmadan kalıcı siliyordu. İçinde bir Rentiva kısa kodu geçen kendi sayfanız da geçerli bir eşleşmeydi. Hem sıfırlama hem tekil sayfa silme artık yalnızca bu eklentinin oluşturduğu sayfalara dokunuyor.",
+      "Düzeltildi: kalan ödemenin alınması, müşteri henüz araçtayken rezervasyonu tamamlanmış olarak işaretleyebiliyordu. Yalnızca teslim tarihi dikkate alınıyor, saat alınmıyordu; bu yüzden 18:00'de dönecek bir kiralama o sabah gece yarısından itibaren bitmiş sayılıyordu. Teslim saati artık hesaba katılıyor ve saati kayıtlı olmayan bir rezervasyon, gününün başından değil sonundan itibaren bitmiş sayılıyor. Aynı düzeltme, bir WooCommerce siparişinin rezervasyonu tamamladığı yere de uygulandı.",
+      "Düzeltildi: Müşteriler ekranı, sitenizdeki neredeyse tüm hesapları — yöneticiler, editörler, aboneler ve başka eklentilere ait hesaplar — müşteriymiş gibi listeliyor, toplamlarda ve sayfalamada da sayıyordu. Artık yalnızca gerçek müşterileri listeliyor; müşteri detayı, silme ve dışa aktarma işlemlerinin zaten kullandığı tanımı kullanıyor. Bu, 6.0.2'de \"bekliyor\" diye duyurulan daraltmadır.",
+      "Eklendi: eklenti artık açılışta PHP'nin mbstring uzantısının var olup olmadığını denetliyor ve yoksa açık bir uyarı gösteriyor; böylece ilerleyen bir noktada — müşteriye görünen yorum formu dahil — ölümcül hatayla durmuyor."
+    ]
+  },
+  {
     "version": "6.0.3",
     "date": "2026-08-15",
     "type": "patch",

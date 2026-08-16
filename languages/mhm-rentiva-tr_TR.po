@@ -17,7 +17,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
-#: mhm-rentiva.php:479
+#: mhm-rentiva.php:500
 #: src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
@@ -54,39 +54,39 @@ msgid "MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s"
 msgstr "MHM Rentiva eklentisi PHP 8.1 veya üstü gerektiriyor. Mevcut sürümünüz: %s"
 
 #. translators: %s: startup exception message.
-#: mhm-rentiva.php:208
+#: mhm-rentiva.php:229
 #, php-format
 msgid "MHM Rentiva plugin error on startup: %s"
 msgstr "Başlangıçta MHM Rentiva eklentisi hatası: %s"
 
-#: mhm-rentiva.php:220
+#: mhm-rentiva.php:241
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr "MHM Rentiva eklentisi yüklenemedi. Lütfen eklentiyi yeniden yükleyin."
 
-#: mhm-rentiva.php:386
+#: mhm-rentiva.php:407
 msgid "MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again."
 msgstr "MHM Rentiva, gerekli veritabanı tablolarını oluşturamadı. Eklenti etkinleştirilmedi. Veritabanı izinlerini kontrol edip tekrar deneyin."
 
-#: mhm-rentiva.php:387
+#: mhm-rentiva.php:408
 msgid "Database Setup Failed"
 msgstr "Veritabanı Kurulumu Başarısız"
 
-#: mhm-rentiva.php:420
+#: mhm-rentiva.php:441
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr "MHM Rentiva eklentisi PHP 8.1 veya üstü sürüm gerektirir."
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:429
+#: mhm-rentiva.php:450
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir."
 
-#: mhm-rentiva.php:432
+#: mhm-rentiva.php:453
 msgid "Plugin Dependency Check"
 msgstr "Eklenti Bağımlılık Kontrolü"
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:478
+#: mhm-rentiva.php:499
 #, php-format
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir. Bu eklentiyi kullanmak için lütfen WooCommerce'i kurun."
@@ -677,9 +677,9 @@ msgstr "Fiyatlandırma Tipi"
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
 #: src/Admin/Frontend/Account/AccountController.php:625
 #: src/Admin/Frontend/Account/AccountController.php:761
-#: src/Admin/Frontend/Account/AccountController.php:884
-#: src/Admin/Frontend/Account/AccountController.php:931
-#: src/Admin/Frontend/Account/AccountController.php:1039
+#: src/Admin/Frontend/Account/AccountController.php:898
+#: src/Admin/Frontend/Account/AccountController.php:945
+#: src/Admin/Frontend/Account/AccountController.php:1053
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:906
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:678
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1055
@@ -847,10 +847,10 @@ msgstr "Rezervasyon başına (sabit)"
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:43
 #: src/Admin/Booking/Helpers/CancellationHandler.php:52
 #: src/Admin/Frontend/Account/AccountController.php:631
-#: src/Admin/Frontend/Account/AccountController.php:891
-#: src/Admin/Frontend/Account/AccountController.php:1091
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2297
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2356
+#: src/Admin/Frontend/Account/AccountController.php:905
+#: src/Admin/Frontend/Account/AccountController.php:1105
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2308
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2367
 msgid "Invalid booking ID."
 msgstr "Geçersiz rezervasyon kimliği."
 
@@ -901,12 +901,12 @@ msgid "Refund cannot be processed for this booking."
 msgstr "Bu rezervasyon için geri ödeme yapılamaz."
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:297
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:355
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr "Geri ödeme başarıyla tamamlandı. Geri ödeme tutarı: %s"
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:303
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:288
 msgid "Refund not processed due to cancellation policy."
 msgstr "İptal politikası nedeniyle geri ödeme işleme alınmamıştır."
 
@@ -1132,7 +1132,7 @@ msgid "Booking pickup date is missing."
 msgstr "Rezervasyonun teslim alma tarihi eksik."
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:196
-#: src/Admin/Booking/Helpers/CancellationHandler.php:500
+#: src/Admin/Booking/Helpers/CancellationHandler.php:523
 msgid "Invalid pickup date/time format."
 msgstr "Geçersiz teslim alma tarihi/saati biçimi."
 
@@ -1241,23 +1241,23 @@ msgstr "Geri ödeme uygulanabilirse, 5-7 iş günü içinde işleme alınacaktı
 msgid "Thank you for choosing our service."
 msgstr "Hizmetimizi tercih ettiğiniz için teşekkür ederiz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:483
+#: src/Admin/Booking/Helpers/CancellationHandler.php:506
 msgid "Invalid booking data."
 msgstr "Geçersiz rezervasyon bilgileri."
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:515
+#: src/Admin/Booking/Helpers/CancellationHandler.php:538
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr "%1$s (%2$d saat öncesine kadar) iptal edebilirsiniz."
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:522
+#: src/Admin/Booking/Helpers/CancellationHandler.php:545
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr "İptal süresi dolmuştur. Rezervasyonlar, teslim almadan en az %d saat önce iptal edilmelidir."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:538
+#: src/Admin/Booking/Helpers/CancellationHandler.php:561
 msgid "Error calculating cancellation deadline."
 msgstr "İptal son tarihini hesaplarken hata oluştu."
 
@@ -1318,22 +1318,9 @@ msgstr "Bu araç seçilen tarihler için zaten rezerve edilmiştir. Lütfen fark
 msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr "✅ Harika! Bu araç, seçtiğiniz tarihlerde kiralanabilir."
 
-#: src/Admin/Booking/Helpers/Util.php:794
 #: templates/shortcodes/availability-calendar.php:50
 msgid "Vehicle not found."
 msgstr "Araç bulunamadı."
-
-#: src/Admin/Booking/Helpers/Util.php:803
-msgid "Vehicle is currently not available for rental."
-msgstr "Araç şu anda kiralanamaz."
-
-#: src/Admin/Booking/Helpers/Util.php:826
-msgid "Vehicle is not available in the selected date range."
-msgstr "Araç, seçilen tarih aralığında mevcut değildir."
-
-#: src/Admin/Booking/Helpers/Util.php:838
-msgid "Vehicle is available on selected dates."
-msgstr "Araç belirli tarihlerde kullanılabilir."
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:162
 #: src/Admin/Booking/ListTable/BookingColumns.php:1752
@@ -1984,7 +1971,7 @@ msgstr "Depozito"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:491
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:550
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:942
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1624
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1635
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:214
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:255
 #: templates/account/booking-detail.php:162
@@ -6020,7 +6007,7 @@ msgid "All favorites cleared"
 msgstr "Tüm favoriler silindi"
 
 #: src/Admin/Frontend/Account/AccountController.php:620
-#: src/Admin/Frontend/Account/AccountController.php:879
+#: src/Admin/Frontend/Account/AccountController.php:893
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr "Giriş yapmalısınız."
@@ -6033,53 +6020,53 @@ msgstr "Bu rezervasyon için yükleme yapamazsınız."
 msgid "No file uploaded."
 msgstr "Dosya yüklenmedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:898
+#: src/Admin/Frontend/Account/AccountController.php:912
 msgid "You are not allowed to remove receipt for this booking."
 msgstr "Bu rezervasyonun makbuzunu silemezsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:903
+#: src/Admin/Frontend/Account/AccountController.php:917
 msgid "No receipt found to remove."
 msgstr "Kaldırılacak makbuz bulunamadı."
 
-#: src/Admin/Frontend/Account/AccountController.php:916
+#: src/Admin/Frontend/Account/AccountController.php:930
 msgid "Receipt removed successfully."
 msgstr "Makbuz başarıyla silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:918
+#: src/Admin/Frontend/Account/AccountController.php:932
 msgid "Failed to remove receipt file."
 msgstr "Makbuz dosyası silinemedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:936
+#: src/Admin/Frontend/Account/AccountController.php:950
 msgid "Please login."
 msgstr "Lütfen giriş yapın."
 
-#: src/Admin/Frontend/Account/AccountController.php:942
+#: src/Admin/Frontend/Account/AccountController.php:956
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr "Profil düzenleme şu anda devre dışıdır."
 
-#: src/Admin/Frontend/Account/AccountController.php:985
+#: src/Admin/Frontend/Account/AccountController.php:999
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:989
+#: src/Admin/Frontend/Account/AccountController.php:1003
 msgid "An error occurred while updating your account."
 msgstr "Hesabınızı güncellerken bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:1006
-#: src/Admin/Frontend/Account/AccountController.php:1019
+#: src/Admin/Frontend/Account/AccountController.php:1020
+#: src/Admin/Frontend/Account/AccountController.php:1033
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Bu uç nokta kullanımdan kaldırılmıştır. Lütfen sayfanızı yenileyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1069
+#: src/Admin/Frontend/Account/AccountController.php:1083
 msgid "You must be logged in to cancel a booking."
 msgstr "Rezervasyonu iptal etmek için oturum açmanız gerekir."
 
-#: src/Admin/Frontend/Account/AccountController.php:1080
+#: src/Admin/Frontend/Account/AccountController.php:1094
 msgid "Security verification failed. Please refresh and try again."
 msgstr "Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin ve tekrar deneyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:1118
+#: src/Admin/Frontend/Account/AccountController.php:1132
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Rezervasyon başarıyla iptal edildi. Onay e-postası gönderildi."
 
@@ -8628,7 +8615,7 @@ msgstr "İade Tarihi ve Saati"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:491
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:550
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:941
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1599
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1610
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:254
 #: templates/account/booking-detail.php:162
 msgid "Deposit Payment"
@@ -8642,39 +8629,39 @@ msgstr "Bırakma"
 msgid "Add-on Services"
 msgstr "Ek Hizmetler"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1263
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1273
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr "Rezervasyon iptal edildi: Araç seçilen tarihlerde zaten rezerve edilmiş."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1239
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1245
 msgid "Booking created from WooCommerce order"
 msgstr "WooCommerce siparişinden oluşturulan rezervasyon"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1392
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1403
 msgid "Booking completed — rental period ended."
 msgstr "Rezervasyon tamamlandı — kiralama süresi sona erdi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1402
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1413
 msgid "Booking cancelled by customer."
 msgstr "Rezervasyon müşteri tarafından iptal edildi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1587
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1598
 msgid "Payment Options"
 msgstr "Ödeme seçenekleri"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1602
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1613
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr "Rezervasyon için depozito ödeyin, kalan tutarı araç tesliminde ödeyin"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1608
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1619
 msgid "Remaining:"
 msgstr "Geriye kalan:"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1627
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1638
 msgid "Pay full amount now"
 msgstr "Tam tutarı şimdi ödeyin"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1731
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1742
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -8698,79 +8685,79 @@ msgstr "Tam tutarı şimdi ödeyin"
 msgid "Invalid security nonce."
 msgstr "Geçersiz güvenlik yok."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1740
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1751
 msgid "Cart not available"
 msgstr "Sepet mevcut değil"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1831
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1842
 msgid "Booking not found in cart"
 msgstr "Sepette rezervasyon bulunamadı"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1847
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1858
 msgid "Payment type updated"
 msgstr "Ödeme türü güncellendi"
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1941
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1952
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr "Üzgünüz, \"%1$s\" aracı seçilen tarihler (%2$s - %3$s) için artık mevcut değildir. Lütfen farklı tarihler veya başka bir araç seçin."
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1990
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2084
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2001
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2095
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr "Üzgünüz, \"%s\" aracı için yapılan rezervasyon iptal edilmiştir. Lütfen başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2030
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2041
 msgid "Invalid booking dates. Please try again."
 msgstr "Geçersiz rezervasyon tarihleri. Lütfen tekrar deneyin."
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2049
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2060
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle."
 msgstr "Üzgünüz, \"%1$s\" aracı seçilen tarihler (%2$s - %3$s) için artık mevcut değildir. Araç başka bir müşteri tarafından rezerve edilmiş olabilir. Lütfen farklı tarihler veya başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2252
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2263
 #: src/Admin/Setup/SetupWizard.php:878
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2308
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2319
 msgid "Payment already processed by WooCommerce."
 msgstr "Ödeme WooCommerce tarafından işlenmiştir."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2326
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2337
 msgid "Redirecting to checkout..."
 msgstr "Ödeme sayfasına yönlendiriliyor..."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2333
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2344
 msgid "Failed to add booking to cart."
 msgstr "Rezervasyon sepetine eklenemedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2349
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2360
 msgid "WooCommerce is not installed or activated."
 msgstr "WooCommerce yüklenmemiş veya etkinleştirilmemiştir."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2364
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2375
 msgid "Invalid payment amount."
 msgstr "Geçersiz ödeme tutarı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2403
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2414
 msgid "City"
 msgstr "Şehir"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2411
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2422
 msgid "District / Neighborhood"
 msgstr "İlçe / Mahalle"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2453
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2464
 msgid "Return to Cart"
 msgstr "Sepete Geri Dön"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2492
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2503
 msgid "(incl. tax)"
 msgstr "(kdv dahil)"
 
@@ -11199,6 +11186,7 @@ msgstr "Hazır"
 msgid "Refund processed."
 msgstr "Para iadesi işleme alındı."
 
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:332
 #: src/Admin/Utilities/Actions/Actions.php:114
 msgid "Refund failed."
 msgstr "Geri ödeme başarısız oldu."
@@ -15050,3 +15038,11 @@ msgstr "Dekont bulunamadı."
 #, php-format
 msgid "Remaining Payment - %1$s #%2$d"
 msgstr "Kalan Ödeme - %1$s #%2$d"
+
+#: mhm-rentiva.php:124
+msgid "MHM Rentiva requires the PHP mbstring extension, which is not enabled on this server. Please ask your host to enable it."
+msgstr "MHM Rentiva, PHP mbstring uzantısını gerektirir; bu sunucuda etkin değil. Lütfen barındırma sağlayıcınızdan etkinleştirmesini isteyin."
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:314
+msgid "Refund issued from the deposit management screen."
+msgstr "Kapora yönetimi ekranından iade işlendi."

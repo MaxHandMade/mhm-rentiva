@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.3
+Stable tag:        6.0.4
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -156,6 +156,16 @@ file is early enough.
 
 == Changelog ==
 
+Older releases are not repeated here, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
+
+= 6.0.4 =
+* Fixed: the "process refund" button on the deposit management screen never refunded any money. It worked out how much was owed back under your cancellation policy, marked the booking refunded and reported "Refund completed successfully" — but it never asked WooCommerce or the payment gateway to send anything. A refund could therefore look done, in the booking and on screen, while the customer was never paid. The button now goes through the plugin's refund service, which contacts the gateway and checks the result: nothing is marked refunded unless money actually moved, and a failure is reported as a failure. If you have marked bookings refunded on this screen, check them against your gateway's own records.
+* Fixed: customers could not cancel their own bookings. The permission check read the booking's owner from a field nothing has ever written, so it always came back empty and every customer was refused — the cancel action and the "can this be cancelled" test the interface uses both failed the same way. Ownership is now read from the field the booking actually stores. It failed closed, so nobody could cancel anybody else's booking either.
+* Fixed: "reset shortcode pages" could permanently delete pages you wrote yourself. It looked up each shortcode's page by searching every published page for that shortcode, then force-deleted what it found — bypassing the trash. A page of your own that happened to contain a Rentiva shortcode was an equally valid match. Both the reset and the single-page delete now act only on pages this plugin created.
+* Fixed: settling the remaining payment could mark a booking completed while the customer still had the car. Only the drop-off date was considered, not the time, so a rental due back at 18:00 counted as finished from midnight that morning. The drop-off time is now taken into account, and a booking with no time recorded is treated as running until the end of its last day rather than from its start. The same correction is applied where a WooCommerce order completes a booking.
+* Fixed: the Customers screen listed almost every account on your site — administrators, editors, subscribers and accounts belonging to other plugins — as though they were customers, and counted them in the totals and pagination. It now lists only genuine customers, using the same definition the customer detail, delete and export actions already used: an account a booking points at, one this plugin created, or one carrying the customer role. This is the narrowing announced as pending in 6.0.2.
+* Added: the plugin now checks at startup that PHP's mbstring extension is available and shows a clear notice if it is not, instead of failing later with a fatal error — including on the customer-facing review form.
+
 = 6.0.3 =
 * Fixed: two customers checking out at the same moment could both book the same vehicle for the same dates. The check meant to prevent this asked the database to hold the vehicle's records while the booking was written, but never opened the transaction that makes such a hold last — so the database let go of it immediately, before the booking was created. Both checkouts could read "available" and both could write a booking. The check and the booking are now one indivisible step; when a conflict is found the WooCommerce order is cancelled exactly as before. A site where two people rarely start checkout in the same second was unlikely to have hit this, but nothing prevented it.
 * Fixed: an uploaded payment receipt was stored under a name taken from the customer's own file, in the folder your site serves directly to visitors. Marking the upload "private" keeps it out of WordPress's media listings but puts nothing in front of the file itself, so anyone who guessed the address could open it. Receipts are now stored under an unguessable random name and handed out through an address that checks who is asking — the customer the booking belongs to, or your staff. Receipts uploaded by earlier versions keep their existing names; re-upload one if you want it renamed.
@@ -213,83 +223,6 @@ file is early enough.
 * Fixed: the plugin's custom fields are now registered on every request rather than only inside the admin, so the sanitising rules that protect them apply everywhere instead of only on admin screens.
 * Fixed: uninstalling the free plugin no longer removes the paid add-on's tables, which hold commission ledgers, payout records and the audit trail that signs them.
 * Security: the remaining places where the plugin built SQL by hand have been reshaped to use WordPress's prepared-statement API, and the comments that explain each remaining direct query have been checked line by line against the query they describe.
-
-= 5.2.4 =
-* Changed: the plugin's top-level admin menu now sits between Tools and Settings instead of directly above Appearance. Nothing else about the menu changes — the same screens are in the same order underneath it — but it no longer pushes past WordPress's own items.
-* Docs: the readme's "External services" section now lists every page outside your site that the admin screens link to (the documentation site, the issue tracker, wpalemi.com with its terms and privacy pages, this plugin's WordPress.org support forum, the wp-mail-smtp and fluent-smtp plugin pages, and a YouTube channel). The plugin still makes no request to any of them — these are links a user may click. A build check guards against reintroducing the third-party services earlier versions used (geolocation, CDN fonts and scripts, analytics, Gravatar).
-
-= 5.2.3 =
-* Fixed: the plugin's background-job table was created with "CREATE TABLE IF NOT EXISTS". WordPress reads the words after CREATE TABLE as the table's name, so its schema updater had been tracking a table called "IF" — a table it cannot describe, and therefore skipped entirely. The real table was created correctly by the database itself and no data was lost, but any column added to it in a later release would silently never have been applied. Measured on a live database: before the fix a newly added column was ignored; after it, the same column was created. Existing tables are updated in place and no data is touched.
-* Docs: the Privacy section has been corrected. It now discloses that every contact-form submission is stored with the sender's name, e-mail, telephone, message and the IP address and browser user-agent it came from, and that those records have no retention setting at all. It also notes that reviews left through the rating form are stored as WordPress comments, so WordPress records the reviewer's IP with them, and describes what the activity log and the e-mail log each hold and how long they keep it, and states that bookings placed through WooCommerce checkout record no IP address. What the plugin stores has not changed; the description of it was incomplete.
-
-= 5.2.2 =
-* Fixed: the plugin now tells WooCommerce which of its storage features it works with. Without that declaration WooCommerce could not confirm compatibility, and site owners turning on High-Performance Order Storage — the default for new stores since WooCommerce 8.2 — were warned about this plugin by name.
-* Fixed: the payment type chosen at checkout was written to order storage in a way that only works on the older layout. It is now written through WooCommerce's own order object, so it lands in the right place whichever storage a store uses. On existing stores the value stays exactly where it has always been; nothing is moved and nothing needs migrating.
-* Declared: this plugin is NOT compatible with the block-based cart and checkout, and now says so instead of leaving it unanswered. On a block checkout the payment-type selector, the custom tax row and the return-to-cart link do not appear, and — the part that matters most — the availability check that prevents two customers booking the same vehicle for the same dates does not run. Use the classic checkout with this plugin.
-
-= 5.2.1 =
-* Fixed: the dashboard chart was labelled "Revenue (Last 7 Days)" but sums the value of bookings CREATED in those days, not rental income earned in them — which is why it could read as empty while the table beside it listed upcoming rentals. It is now "New Bookings Value (Last 7 Days)", and the daily series is "Daily Bookings Value". The figures themselves are unchanged.
-* Fixed: five admin strings were translated but shipped in English, because the React translation catalogues could not be regenerated and the ones being shipped were four months old. Affects "Pending Payments", "Upcoming Operations", their empty-state messages, and the notice shown if an admin screen fails to load.
-* Removed: eleven translation catalogues belonging to screens and blocks that are no longer part of this plugin. Nothing loaded them.
-* Docs: the readme now lists Chart.js among the bundled third-party libraries, with its version, licence and upstream source.
-* Internal: the translation-catalogue build is deterministic again, and a continuous-integration check now fails if the shipped catalogues fall out of step with the translation source instead of silently going stale.
-
-= 5.2.0 =
-* Security: the booking, deposit, vehicle-gallery and blocked-date screens now check permissions against the specific booking or vehicle a request names, instead of a general "can edit content" capability. On multi-author sites this closes paths where one contributor could act on another's records.
-* Security: saving a booking from the editor now always requires a valid security token. A form field being present is no longer accepted in its place.
-* Security: the database backup screen only exports, restores or deletes backup tables this plugin created. Other tables in your database are out of reach of those buttons.
-* Security: markup generated by the plugin is now filtered through an explicit allowlist as it is printed, rather than trusted at the point of output.
-* Removed a booking-status endpoint and its script that had no interface and performed no action.
-* Fixed the translation catalogue so it compiles cleanly; strings using placeholders such as %days% were mis-flagged as printf formats.
-* New: redesigned Dashboard and Vehicle Settings screens. Vehicle Settings opens in the new layout by default; append ?ui=legacy to the page URL for the previous one.
-* Removed the Settings > Security tab. Its seventeen controls - "Brute Force Protection", "SQL Injection Protection", "XSS Protection", "CSRF Protection", "Enable Rate Limiting" and the IP lists - were connected to nothing, so switching them on changed nothing. A control that reports a protection as active while nothing enforces it is worse than no control, because it gets relied on. Saved values are cleaned up on update.
-* Removed the "Secure API Access Tokens" section from Integration settings. It issued keys labelled READ, WRITE and ADMIN, but nothing in the plugin ever validated them, so a key created there opened nothing. Stored keys are deleted on update. The REST API itself is unchanged.
-* Removed the Integration settings that were likewise not wired to anything: token duration, token refresh, API caching, debug output and "Allow Global CORS". Rate limiting, which does work, stays.
-* Removed the "Scheduled Notifications" background job. It ran hourly against a queue nothing ever added to, while the Cron Monitor reported it healthy. Booking confirmations, reminders and refund notices are sent by the e-mail system and are unaffected.
-* Fixed: "delete all data on uninstall" stopped partway through, leaving tables, scheduled jobs and terms behind even with the setting enabled.
-* Fixed: the database backups screen could go blank - any .sql file in the backup folder without a matching database record caused a fatal error while the list was built.
-* Backups are now written under the uploads folder instead of directly into wp-content. Backups taken by earlier versions stay listed, restorable and deletable.
-* Fixed: vehicle quick edit accepted values the full editor rejects - a negative daily price, which multiplied into rental totals, and a seat count of zero or above the configured maximum.
-* Fixed: the vehicle search request accepted any page size, so one request could ask the site to render the entire fleet. Search and testimonials now enforce the limits their own settings advertise.
-* Internal: temporary cache entries, the last-login record, background job names and the JavaScript objects our admin screens read now carry the plugin's prefix so they cannot collide with another plugin's. Caches expire and are rebuilt; the last-login value is written under the new name from this version on, and the old entry is left alone because that name is shared with other plugins.
-* Internal: removed about 2,000 lines of unreferenced code, including a file registering database-maintenance commands and one that would have exposed protected vehicle and booking fields over the REST API had it ever been enabled.
-* Removed the "Add Vehicle" control from the vehicle comparison: the button had no handler, its endpoints were never registered, and the Elementor switch for it had no effect. Selecting a vehicle and pressing it did nothing.
-* Fixed: "Auto Cleanup Logs" and "Log Retention (Days)" were ignored by the daily purge, which permanently deleted entries older than thirty days regardless of either setting.
-* Fixed: saving the Vehicle settings tab silently reset two Frontend-tab fields it does not display.
-* Fixed: the dashboard's recent-bookings panel could stay up to twelve hours stale after a booking changed.
-* Fixed: the customers screen re-ran every query on each load - its cache type was never registered, so nothing was stored or read.
-* Internal: every registered script and stylesheet now carries the full plugin prefix, so another plugin using the same short name cannot displace it.
-* Internal: settings posted from an unrecognised tab are no longer written to the database unchecked.
-
-= 5.1.1 =
-* Internal: the REST and deposit-management AJAX actions now use the full mhmrentiva_ prefix, and a duplicate handler registration was removed so each action is handled exactly once. (The API-key management this refers to was removed entirely in 5.2.0.)
-* Internal: removed a leftover reference to a settings class that is not part of the free plugin, unreachable deposit-calculation code, and developer debug logging from the block-editor and search scripts.
-* Internal: the customer privacy controls now render only when their handlers are available (they ship with the paid add-on), so the free plugin shows no non-functional buttons; add-on-only scripts were also removed from the free plugin.
-* No feature or behaviour change; your settings and data are unaffected.
-
-= 5.1.0 =
-* Security: hardened contact-form file-path handling, capability checks for customer-account creation, REST route permissions, output escaping and settings sanitization across the plugin.
-* Changed: testimonial and account avatars now render locally from initials with no external Gravatar request; the plugin makes no third-party calls.
-* Removed: the demo-data seeder and its bundled sample images.
-* Added: a "Source code" section documenting the React build and the public repository.
-* Maintenance: WordPress.org guideline compliance. The free plugin's behaviour is unchanged.
-
-= 5.0.2 =
-* Changed: the admin menu now sits lower in the WordPress menu, so it no longer competes with core items.
-* Fixed: about 105 error and status messages are now translatable and fully translated to Turkish.
-* Changed: internal AJAX action names on the Vehicle Settings screen are now plugin-prefixed.
-* Removed: a developer-only diagnostics test runner that used to ship with the plugin.
-* Maintenance: various WordPress.org compliance housekeeping. The free plugin's behaviour is unchanged.
-
-= 5.0.1 =
-* Maintenance: internal fixes to shared admin assets and an updated Turkish translation. The free plugin's behaviour is unchanged.
-
-= 5.0.0 =
-* First public release of MHM Rentiva on WordPress.org.
-* Rental core: fleet management, availability, bookings, customers, WooCommerce payments, email notifications, and the customer account pages.
-* 16 shortcodes, 16 Gutenberg blocks and 17 Elementor widgets, all sharing one renderer (Render Parity).
-* No third-party requests: the webfont is bundled with the plugin and there are no geolocation, analytics or CDN calls.
-* Full Turkish translation.
 
 == Upgrade Notice ==
 

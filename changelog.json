@@ -1,5 +1,20 @@
 [
   {
+    "version": "6.0.4",
+    "date": "2026-08-16",
+    "type": "patch",
+    "title": "Refunds that never reached the gateway, cancellations nobody could make, and a reset that deleted your own pages",
+    "summary": "A second independent review, of the 6.0.3 package, found one critical and two high-severity defects plus three of medium severity. The refund button reported success without ever contacting the payment gateway; customers could never cancel their own bookings because the ownership check read a field nothing writes; and resetting the shortcode pages permanently deleted pages the site owner had written. All six are fixed here.",
+    "changes": [
+      "Fixed: the \"process refund\" button on the deposit management screen never refunded any money. It worked out how much was owed back under your cancellation policy, marked the booking refunded and reported \"Refund completed successfully\" -- but it never asked WooCommerce or the payment gateway to send anything. A refund could therefore look done, in the booking and on screen, while the customer was never paid. The button now goes through the plugin's refund service, which contacts the gateway and checks the result: nothing is marked refunded unless money actually moved, and a failure is reported as a failure. If you have marked bookings refunded on this screen, check them against your gateway's own records.",
+      "Fixed: customers could not cancel their own bookings. The permission check read the booking's owner from a field nothing has ever written, so it always came back empty and every customer was refused -- the cancel action and the \"can this be cancelled\" test the interface uses both failed the same way. Ownership is now read from the field the booking actually stores. It failed closed, so nobody could cancel anybody else's booking either.",
+      "Fixed: \"reset shortcode pages\" could permanently delete pages you wrote yourself. It looked up each shortcode's page by searching every published page for that shortcode, then force-deleted what it found -- bypassing the trash. A page of your own that happened to contain a Rentiva shortcode was an equally valid match. Both the reset and the single-page delete now act only on pages this plugin created.",
+      "Fixed: settling the remaining payment could mark a booking completed while the customer still had the car. Only the drop-off date was considered, not the time, so a rental due back at 18:00 counted as finished from midnight that morning. The drop-off time is now taken into account, and a booking with no time recorded is treated as running until the end of its last day rather than from its start. The same correction is applied where a WooCommerce order completes a booking.",
+      "Fixed: the Customers screen listed almost every account on your site -- administrators, editors, subscribers and accounts belonging to other plugins -- as though they were customers, and counted them in the totals and pagination. It now lists only genuine customers, using the same definition the customer detail, delete and export actions already used. This is the narrowing announced as pending in 6.0.2.",
+      "Added: the plugin now checks at startup that PHP's mbstring extension is available and shows a clear notice if it is not, instead of failing later with a fatal error -- including on the customer-facing review form."
+    ]
+  },
+  {
     "version": "6.0.3",
     "date": "2026-08-15",
     "type": "patch",
