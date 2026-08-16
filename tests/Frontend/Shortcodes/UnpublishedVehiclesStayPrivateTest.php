@@ -152,6 +152,85 @@ final class UnpublishedVehiclesStayPrivateTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	/**
+	 * The busiest public endpoint of the three, and the one the round missed.
+	 *
+	 * `mhmrentiva_availability_unified` is what the rendered calendar actually
+	 * calls on every month change. It resolves a vehicle by ID and answers with
+	 * that vehicle's day-by-day occupancy and its daily prices, and it is nopriv.
+	 * The other surfaces were given a publish guard while this one kept only the
+	 * "is the ID non-zero" check, so a draft ID still returned a full year of
+	 * occupancy and pricing to an anonymous caller.
+	 */
+	public function test_the_unified_availability_endpoint_refuses_a_draft(): void
+	{
+		$_POST = array(
+			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
+			'vehicle_id'     => (string) $this->draft_id,
+			'start_month'    => '2026-09',
+			'months_to_show' => '1',
+		);
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
+			// See above.
+		}
+
+		$response = json_decode( $this->_last_response, true );
+
+		$this->assertFalse(
+			(bool) ( $response['success'] ?? false ),
+			'The unified endpoint published a draft vehicle\'s occupancy and pricing: ' . $this->_last_response
+		);
+	}
+
+	public function test_the_unified_availability_endpoint_refuses_a_private_vehicle(): void
+	{
+		$_POST = array(
+			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
+			'vehicle_id'     => (string) $this->private_id,
+			'start_month'    => '2026-09',
+			'months_to_show' => '1',
+		);
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
+			// See above.
+		}
+
+		$response = json_decode( $this->_last_response, true );
+
+		$this->assertFalse(
+			(bool) ( $response['success'] ?? false ),
+			'The unified endpoint published a private vehicle\'s occupancy and pricing: ' . $this->_last_response
+		);
+	}
+
+	public function test_the_unified_availability_endpoint_still_serves_a_published_vehicle(): void
+	{
+		$_POST = array(
+			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
+			'vehicle_id'     => (string) $this->published_id,
+			'start_month'    => '2026-09',
+			'months_to_show' => '1',
+		);
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
+			// See above.
+		}
+
+		$response = json_decode( $this->_last_response, true );
+
+		$this->assertTrue(
+			(bool) ( $response['success'] ?? false ),
+			'A published vehicle must still resolve: ' . $this->_last_response
+		);
+	}
+
 	public function test_the_details_calendar_endpoint_refuses_a_draft(): void
 	{
 		$_POST = array(

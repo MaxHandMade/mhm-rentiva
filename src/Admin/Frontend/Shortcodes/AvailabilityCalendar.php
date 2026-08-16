@@ -964,6 +964,17 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			return;
 		}
 
+		// The same line the other public entry points draw. This is the endpoint
+		// the rendered calendar actually calls on every month change, and it is
+		// nopriv: without this check a draft or private ID answered with that
+		// vehicle's day-by-day occupancy and its daily prices.
+		$vehicle = get_post($vehicle_id);
+		if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' || $vehicle->post_status !== 'publish') {
+			// No return after this: wp_send_json_error() terminates through
+			// wp_die(), and a return here is dead code the analyser reports.
+			wp_send_json_error(array( 'message' => esc_html__('Vehicle not found', 'mhm-rentiva') ));
+		}
+
 		// Only the data gathering is guarded. wp_send_json_* terminates the
 		// request by raising through wp_die(), so leaving those calls inside the
 		// try meant this catch swallowed the terminator and wrote a second,

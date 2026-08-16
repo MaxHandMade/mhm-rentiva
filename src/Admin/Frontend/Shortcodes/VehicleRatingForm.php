@@ -19,6 +19,15 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 	public const SHORTCODE = 'rentiva_vehicle_rating_form';
 
+	/**
+	 * Largest number of reviews one public read may return.
+	 *
+	 * The rating list endpoint is nopriv and its read grows with the data, so it
+	 * needs a ceiling for the same reason the testimonials surface has one; this
+	 * is the same value that surface declares.
+	 */
+	private const MAX_RATING_ROWS = 50;
+
 	public static function register(): void
 	{
 		parent::register();
@@ -409,7 +418,9 @@ final class VehicleRatingForm extends AbstractShortcode {
 		// This handler is registered for nopriv and get_comments() does not check
 		// whether the caller may read the post, so without this guard any post id
 		// would return every approved comment on it -- author name, body and date.
-		if (get_post_type($vid) !== 'mhmrentiva_vehicle') {
+		// The status matters as much as the type: a draft vehicle's reviews are
+		// as unpublished as the vehicle itself.
+		if (get_post_type($vid) !== 'mhmrentiva_vehicle' || get_post_status($vid) !== 'publish') {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
 		}
 
@@ -418,6 +429,9 @@ final class VehicleRatingForm extends AbstractShortcode {
 				'post_id' => $vid,
 				// 'type'    => 'review', // REMOVED: We want ALL comments, not just reviews
 				'status'  => 'approve',
+				// Bounded: this endpoint is nopriv and the read grows with the
+				// data. Matches the ceiling the testimonials surface declares.
+				'number'  => self::MAX_RATING_ROWS,
 				'orderby' => 'comment_date',
 				'order'   => 'DESC',
 			)

@@ -277,14 +277,17 @@ final class Testimonials extends AbstractShortcode {
 		foreach ($bookings as $booking) {
 			$vid            = (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
 			$testimonials[] = array(
-				'id'             => $booking->ID,
-				'review'         => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
-				'rating'         => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
-				'customer_name'  => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
-				'customer_email' => get_post_meta($booking->ID, '_mhmrentiva_customer_email', true),
-				'date'           => $booking->post_date,
-				'vehicle_id'     => $vid,
-				'vehicle_name'   => self::get_vehicle_name($vid),
+				'id'            => $booking->ID,
+				'review'        => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
+				'rating'        => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
+				'customer_name' => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
+				// No e-mail address here. These rows are returned verbatim by the
+				// nopriv mhmrentiva_load_testimonials endpoint, and nothing in the
+				// template or the script ever read this field -- it existed only
+				// on the wire.
+				'date'          => $booking->post_date,
+				'vehicle_id'    => $vid,
+				'vehicle_name'  => self::get_vehicle_name($vid),
 			);
 		}
 
@@ -300,12 +303,16 @@ final class Testimonials extends AbstractShortcode {
 	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS): array
 	{
 		$comment_args = array(
-			'post_type' => 'mhmrentiva_vehicle',
-			'status'    => 'approve',
+			'post_type'   => 'mhmrentiva_vehicle',
+			// A comment query does not inherit the post's visibility: without
+			// this, reviews of a draft or private vehicle are listed on a public
+			// page. WP_Comment_Query applies it to the parent post.
+			'post_status' => 'publish',
+			'status'      => 'approve',
 			// Bounded for the same reason as the booking read above.
-			'number'    => max(1, min($fetch_limit, self::MAX_ROWS)),
-			'orderby'   => 'comment_date',
-			'order'     => 'DESC',
+			'number'      => max(1, min($fetch_limit, self::MAX_ROWS)),
+			'orderby'     => 'comment_date',
+			'order'       => 'DESC',
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -340,14 +347,14 @@ final class Testimonials extends AbstractShortcode {
 			}
 
 			$testimonials[] = array(
-				'id'             => (int) $comment->comment_ID,
-				'review'         => $comment->comment_content,
-				'rating'         => $rating,
-				'customer_name'  => $customer_name ?: '',
-				'customer_email' => $comment->comment_author_email ?: '',
-				'date'           => $comment->comment_date,
-				'vehicle_id'     => $vehicle_id,
-				'vehicle_name'   => self::get_vehicle_name($vehicle_id),
+				'id'            => (int) $comment->comment_ID,
+				'review'        => $comment->comment_content,
+				'rating'        => $rating,
+				'customer_name' => $customer_name ?: '',
+				// See the booking builder above: this payload is public.
+				'date'          => $comment->comment_date,
+				'vehicle_id'    => $vehicle_id,
+				'vehicle_name'  => self::get_vehicle_name($vehicle_id),
 			);
 		}
 
@@ -418,9 +425,12 @@ final class Testimonials extends AbstractShortcode {
 
 		// Count vehicle comments
 		$comment_args = array(
-			'post_type' => 'mhmrentiva_vehicle',
-			'status'    => 'approve',
-			'count'     => true,
+			'post_type'   => 'mhmrentiva_vehicle',
+			// Same restriction as the read above, or the total would count rows
+			// the list will not show and "load more" would promise them.
+			'post_status' => 'publish',
+			'status'      => 'approve',
+			'count'       => true,
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -450,7 +460,15 @@ final class Testimonials extends AbstractShortcode {
 		}
 
 		$vehicle = get_post($vehicle_id);
-		return $vehicle ? (string) $vehicle->post_title : '';
+
+		// A vehicle taken off the site must not keep being named through its
+		// reviews. This runs on a public page and the name is printed next to
+		// every testimonial.
+		if (! $vehicle || $vehicle->post_status !== 'publish') {
+			return '';
+		}
+
+		return (string) $vehicle->post_title;
 	}
 
 	/**
