@@ -321,6 +321,39 @@ final class BookingQueryHelper {
 	 * @param int $booking_id Booking ID
 	 * @return array Customer information
 	 */
+	/**
+	 * Resolve the WooCommerce order a booking belongs to.
+	 *
+	 * Four meta keys have carried this link over the plugin's life and two are
+	 * still written: create_booking_from_data() writes
+	 * `_mhmrentiva_woocommerce_order_id` (canonical, current checkout) and
+	 * add_order_item_meta() writes `_mhmrentiva_wc_order_id`. The remaining two
+	 * are legacy data that must keep resolving.
+	 *
+	 * Readers used to carry private copies of this chain and disagreed about
+	 * both its membership and its order; this is the single definition.
+	 *
+	 * @param int $booking_id Booking post ID.
+	 * @return int Order ID, or 0 when the booking has no linked order.
+	 */
+	public static function resolve_wc_order_id( int $booking_id ): int {
+		$keys = array(
+			'_mhmrentiva_woocommerce_order_id',
+			'_mhmrentiva_wc_order_id',
+			'_mhmrentiva_order_id',
+			'_mhmrentiva_booking_order_id',
+		);
+
+		foreach ( $keys as $key ) {
+			$order_id = (int) get_post_meta( $booking_id, $key, true );
+			if ( $order_id > 0 ) {
+				return $order_id;
+			}
+		}
+
+		return 0;
+	}
+
 	public static function getBookingCustomerInfo( int $booking_id ): array {
 		if ( $booking_id <= 0 ) {
 			return array();
@@ -367,11 +400,7 @@ final class BookingQueryHelper {
 
 		// If still empty, try WooCommerce order
 		if ( ( empty( $first_name ) || empty( $email ) ) && function_exists( 'wc_get_order' ) ) {
-			// ⭐ Check multiple order ID meta keys (WooCommerce integration)
-			$order_id = get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true ) ?:
-						get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true ) ?:
-						get_post_meta( $booking_id, '_mhmrentiva_order_id', true ) ?:
-						get_post_meta( $booking_id, '_mhmrentiva_booking_order_id', true );
+			$order_id = self::resolve_wc_order_id( $booking_id );
 
 			if ( $order_id ) {
 				$order = wc_get_order( $order_id );

@@ -1906,9 +1906,7 @@ final class BookingColumns {
 		// If still no customer name, try WooCommerce order
 		if ( ! $customer_name && function_exists( 'wc_get_order' ) ) {
 			// Try multiple order ID meta keys
-			$order_id = get_post_meta( $post_id, '_mhmrentiva_order_id', true ) ?:
-				get_post_meta( $post_id, '_mhmrentiva_wc_order_id', true ) ?:
-				get_post_meta( $post_id, '_mhmrentiva_booking_order_id', true );
+			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $post_id );
 
 			if ( $order_id ) {
 				$order = wc_get_order( $order_id );

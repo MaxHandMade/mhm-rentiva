@@ -14,6 +14,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use Exception;
 
@@ -37,6 +38,18 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 
 	public const SHORTCODE = 'rentiva_availability_calendar';
+
+	/**
+	 * Largest month span one request may render.
+	 *
+	 * The calendar markup declares `data-months-to-show` of 1 (shortcode
+	 * default) to 3 (template fallback) and the client walks longer spans by
+	 * moving `start_month`, so a year is already well beyond what any caller
+	 * asks for. The bound exists because the unified endpoint is nopriv: the
+	 * value sizes two day-by-day loops and the cache key, which without a
+	 * ceiling lets an anonymous caller choose how much work the server does.
+	 */
+	private const MAX_MONTH_SPAN = 12;
 
 	/**
 	 * Safe sanitize text field that handles null values
@@ -362,7 +375,8 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			$vehicles = get_posts(
 				array(
 					'post_type'   => 'mhmrentiva_vehicle',
-					'post_status' => array( 'publish', 'draft', 'private' ),
+					// Public surface: unpublished vehicles stay unpublished.
+					'post_status' => 'publish',
 					'numberposts' => 1,
 					'orderby'     => 'date',
 					'order'       => 'DESC',
@@ -521,7 +535,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				$vehicles = get_posts(
 					array(
 						'post_type'   => 'mhmrentiva_vehicle',
-						'post_status' => array( 'publish', 'draft', 'private' ),
+						// This list becomes the public vehicle switcher; drafts
+						// and private vehicles do not belong in it.
+						'post_status' => 'publish',
 						'numberposts' => -1,
 						'orderby'     => 'title',
 						'order'       => 'ASC',
@@ -710,9 +726,13 @@ final class AvailabilityCalendar extends AbstractShortcode {
 							$day_status = 'unavailable';
 						}
 
+						// $day_bookings stays local: it decides the state above and
+						// is not published. This structure is returned verbatim to
+						// an anonymous caller and printed into public markup, so it
+						// carries the day's state and how many bookings cover it --
+						// never their IDs, titles or payment state.
 						$days[ $current_date ] = array(
 							'status'     => $day_status,
-							'bookings'   => $day_bookings,
 							'occupancy'  => $day_occupancy,
 							'day_number' => gmdate('j', strtotime($current_date)),
 							'is_weekend' => in_array(gmdate('N', strtotime($current_date)), array( 6, 7 )),
@@ -907,32 +927,40 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			return;
 		}
 
+		$request     = VerifiedRequest::from($_POST);
+		$vehicle_id  = $request->int('vehicle_id');
+		$start_month = $request->text('start_month', gmdate('Y-m'));
+		// Bounded: the endpoint is nopriv and this value sizes two day-by-day
+		// loops plus the cache key. See self::MAX_MONTH_SPAN.
+		$months_to_show = $request->intRange('months_to_show', 1, 1, self::MAX_MONTH_SPAN);
+
+		if (! $vehicle_id) {
+			wp_send_json_error(array( 'message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva') ));
+			return;
+		}
+
+		// Only the data gathering is guarded. wp_send_json_* terminates the
+		// request by raising through wp_die(), so leaving those calls inside the
+		// try meant this catch swallowed the terminator and wrote a second,
+		// contradictory JSON document after the first.
 		try {
-			$vehicle_id     = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-			$start_month    = isset($_POST['start_month']) ? sanitize_text_field(wp_unslash( (string) $_POST['start_month'])) : gmdate('Y-m');
-			$months_to_show = intval(isset($_POST['months_to_show']) ? wp_unslash($_POST['months_to_show']) : 1);
-
-			if (! $vehicle_id) {
-				wp_send_json_error(array( 'message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva') ));
-			}
-
-			// Get Both Availability and Pricing
 			$availability_data = self::get_availability_data($vehicle_id, $start_month, $months_to_show);
 			$pricing_data      = self::get_pricing_data($vehicle_id, $start_month, $months_to_show);
-
-			wp_send_json_success(
-				array(
-					'availability_data' => $availability_data,
-					'pricing_data'      => $pricing_data,
-					// No booking cap exists any more; the key stays so the
-					// calendar JS response contract is unchanged.
-					'limit_reached'     => false,
-					'message'           => esc_html__('Calendar data updated.', 'mhm-rentiva'),
-				)
-			);
 		} catch (Exception $e) {
 			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving data.', 'mhm-rentiva') ));
+			return;
 		}
+
+		wp_send_json_success(
+			array(
+				'availability_data' => $availability_data,
+				'pricing_data'      => $pricing_data,
+				// No booking cap exists any more; the key stays so the
+				// calendar JS response contract is unchanged.
+				'limit_reached'     => false,
+				'message'           => esc_html__('Calendar data updated.', 'mhm-rentiva'),
+			)
+		);
 	}
 
 	/**
@@ -942,26 +970,29 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 */
 	public static function ajax_get_vehicle_info(): void
 	{
+		// Security check
+		if (! check_ajax_referer('mhmrentiva_availability_nonce', 'nonce', false)) {
+			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
+			return;
+		}
+
+		$vehicle_id = VerifiedRequest::from($_POST)->int('vehicle_id');
+
+		if ($vehicle_id <= 0) {
+			wp_send_json_error(__('Invalid vehicle ID', 'mhm-rentiva'));
+		}
+
+		$vehicle = get_post($vehicle_id);
+
+		// This endpoint is nopriv and answers with the vehicle's title, media,
+		// specification and price, so an unpublished vehicle must be as absent
+		// here as it is everywhere else on the front end -- the post type on its
+		// own does not draw that line.
+		if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' || $vehicle->post_status !== 'publish') {
+			wp_send_json_error(__('Vehicle not found', 'mhm-rentiva'));
+		}
+
 		try {
-			// Security check
-			if (! check_ajax_referer('mhmrentiva_availability_nonce', 'nonce', false)) {
-				wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
-				return;
-			}
-
-			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-
-			if ($vehicle_id <= 0) {
-				wp_send_json_error(__('Invalid vehicle ID', 'mhm-rentiva'));
-				return;
-			}
-
-			$vehicle = get_post($vehicle_id);
-			if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle') {
-				wp_send_json_error(__('Vehicle not found', 'mhm-rentiva'));
-				return;
-			}
-
 			// Vehicle image
 			$image_url = '';
 			if (has_post_thumbnail($vehicle_id)) {
@@ -1058,11 +1089,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				'maintenance' => esc_html__('Out of Order', 'mhm-rentiva'),
 			);
 			$data['status_text'] = $status_labels[ $status ] ?? esc_html__('Unavailable', 'mhm-rentiva');
-
-			wp_send_json_success($data);
 		} catch (Exception $e) {
 			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving vehicle information.', 'mhm-rentiva') ));
 		}
+
+		// Outside the try: wp_send_json_* terminates through wp_die(), and a
+		// catch(Exception) around it swallows that terminator and writes a
+		// second, contradictory JSON document after the first.
+		wp_send_json_success($data);
 	}
 
 

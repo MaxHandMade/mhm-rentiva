@@ -335,11 +335,17 @@ if ($vehicle_id > 0) {
 						$day_classes = array_filter($day_classes);
 						$day_class   = implode(' ', $day_classes);
 
-						// Tooltip content
+						// Tooltip content -- the day's state, not the records behind
+						// it. This markup is public.
 						$tooltip_content = '';
-						if (! empty($day_data['bookings'])) {
-							$booking_titles  = array_column($day_data['bookings'], 'title');
-							$tooltip_content = 'data-tooltip="' . esc_attr(implode(', ', $booking_titles)) . '"';
+						$status_labels   = array(
+							'booked'      => __('Reserved', 'mhm-rentiva'),
+							'partial'     => __('Partially Reserved', 'mhm-rentiva'),
+							'maintenance' => __('Out of Order', 'mhm-rentiva'),
+							'unavailable' => __('Unavailable', 'mhm-rentiva'),
+						);
+						if (isset($status_labels[ $day_data['status'] ])) {
+							$tooltip_content = 'data-tooltip="' . esc_attr($status_labels[ $day_data['status'] ]) . '"';
 						}
 
 						// Price information
@@ -373,11 +379,14 @@ if ($vehicle_id > 0) {
 							echo '</div>';
 						}
 
-						// Booking status indicator
-						if (! empty($day_data['bookings'])) {
+						// Booking status indicator -- one mark per booking covering
+						// the day, carrying the day's state and nothing that
+						// identifies a booking.
+						$day_occupancy = (int) ( $day_data['occupancy'] ?? 0 );
+						if ($day_occupancy > 0) {
 							echo '<div class="rv-day-indicators">';
-							foreach ($day_data['bookings'] as $booking) {
-								echo '<span class="rv-booking-indicator rv-day-' . esc_attr($booking['status']) . '" title="' . esc_attr($booking['title']) . '"></span>';
+							for ($indicator = 0; $indicator < $day_occupancy; $indicator++) {
+								echo '<span class="rv-booking-indicator rv-day-' . esc_attr($day_data['status']) . '"></span>';
 							}
 							echo '</div>';
 						}

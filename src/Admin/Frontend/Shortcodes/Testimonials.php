@@ -181,19 +181,32 @@ final class Testimonials extends AbstractShortcode {
 		);
 	}
 
+	/**
+	 * Ceiling for a single testimonials read.
+	 *
+	 * Matches the maximum the nopriv `mhmrentiva_load_testimonials` endpoint
+	 * already clamps `limit` to, so the bound is the one the feature advertises.
+	 */
+	private const MAX_ROWS = 50;
+
 	private static function get_testimonials(array $atts): array
 	{
-		$limit = (int) ( $atts['limit'] ?? 5 );
-
-		// Source 1: Booking post meta reviews
-		$testimonials = self::get_booking_reviews($atts);
-
-		// Source 2: Approved WordPress comments on vehicle posts
-		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts));
-
-		// Sort merged results
+		$limit   = (int) ( $atts['limit'] ?? 5 );
 		$orderby = self::sanitize_orderby( (string) ( $atts['orderby'] ?? 'date' ));
 		$order   = self::sanitize_order( (string) ( $atts['order'] ?? 'DESC' ));
+
+		// How many rows each source may return. Both sources are sorted newest
+		// first, so for a date ordering the newest $limit of each is guaranteed
+		// to contain the newest $limit of the merge. A random ordering needs a
+		// pool to draw from, and an unlimited `limit` still needs a ceiling --
+		// both use the same maximum the testimonials endpoint already enforces.
+		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby ) ? $limit : self::MAX_ROWS;
+
+		// Source 1: Booking post meta reviews
+		$testimonials = self::get_booking_reviews($atts, $fetch_limit);
+
+		// Source 2: Approved WordPress comments on vehicle posts
+		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts, $fetch_limit));
 
 		if ('rand' === $orderby) {
 			shuffle($testimonials);
@@ -218,12 +231,16 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_booking_reviews(array $atts): array
+	private static function get_booking_reviews(array $atts, int $fetch_limit = self::MAX_ROWS): array
 	{
 		$args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => -1,
+			// Bounded: this runs on a public page and the caller slices to the
+			// displayed count anyway.
+			'posts_per_page' => max(1, min($fetch_limit, self::MAX_ROWS)),
+			'orderby'        => 'date',
+			'order'          => 'DESC',
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -280,12 +297,15 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_vehicle_comments(array $atts): array
+	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS): array
 	{
 		$comment_args = array(
 			'post_type' => 'mhmrentiva_vehicle',
 			'status'    => 'approve',
-			'number'    => 0,
+			// Bounded for the same reason as the booking read above.
+			'number'    => max(1, min($fetch_limit, self::MAX_ROWS)),
+			'orderby'   => 'comment_date',
+			'order'     => 'DESC',
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -359,7 +379,9 @@ final class Testimonials extends AbstractShortcode {
 		$booking_args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => -1,
+			// The total comes from found_posts, so one row is enough to run the
+			// query; -1 pulled every matching ID into PHP to be discarded.
+			'posts_per_page' => 1,
 			'fields'         => 'ids',
 			'meta_query'     => array(
 				'relation' => 'AND',
@@ -438,39 +460,42 @@ final class Testimonials extends AbstractShortcode {
 	 */
 	public static function ajax_load_testimonials(): void
 	{
+		// Security check
+		if (! check_ajax_referer('mhmrentiva_testimonials_nonce', 'nonce', false)) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+			return;
+		}
+
+		$page = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
+		// Clamped to the 50 the testimonials widget declares: this endpoint is
+		// nopriv and the value decides how many entries are rendered.
+		$limit      = isset($_POST['limit']) ? min(self::MAX_ROWS, max(1, absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))))) : 5;
+		$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
+		$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
+
+		$atts = array(
+			'limit'      => $limit,
+			'rating'     => $rating,
+			'vehicle_id' => $vehicle_id,
+		);
+
 		try {
-			// Security check
-			if (! check_ajax_referer('mhmrentiva_testimonials_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$page = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
-			// Clamped to the 50 the testimonials widget declares: this endpoint is
-			// nopriv and the value decides how many entries are rendered.
-			$limit      = isset($_POST['limit']) ? min(50, max(1, absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))))) : 5;
-			$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
-			$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
-
-			$atts = array(
-				'limit'      => $limit,
-				'rating'     => $rating,
-				'vehicle_id' => $vehicle_id,
-			);
-
 			$testimonials = self::get_testimonials($atts);
 			$total_count  = self::get_testimonials_count($atts);
-
-			wp_send_json_success(
-				array(
-					'testimonials' => $testimonials,
-					'total_count'  => $total_count,
-					'has_more'     => ( $page * $limit ) < $total_count,
-					'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
-				)
-			);
 		} catch (\Exception $e) {
 			wp_send_json_error(array( 'message' => __('An error occurred while loading reviews.', 'mhm-rentiva') ));
 		}
+
+		// Outside the try: wp_send_json_* terminates through wp_die(), and a
+		// catch(Exception) around it swallows that terminator and writes a
+		// second, contradictory JSON document after the first.
+		wp_send_json_success(
+			array(
+				'testimonials' => $testimonials,
+				'total_count'  => $total_count,
+				'has_more'     => ( $page * $limit ) < $total_count,
+				'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
+			)
+		);
 	}
 }

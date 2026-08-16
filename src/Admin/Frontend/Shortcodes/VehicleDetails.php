@@ -107,7 +107,11 @@ final class VehicleDetails extends AbstractShortcode {
 		// }
 
 		$vehicle = get_post( $vehicle_id );
-		if ( ! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' ) {
+
+		// Public shortcode: an unpublished vehicle renders as "not found" rather
+		// than exposing its title, gallery, specification and price to anyone
+		// who knows or guesses the ID.
+		if ( ! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' || $vehicle->post_status !== 'publish' ) {
 			return self::get_default_template_data( $atts );
 		}
 
@@ -714,6 +718,12 @@ final class VehicleDetails extends AbstractShortcode {
 		if ( ! $vid ) {
 			wp_send_json_error( array( 'message' => __( 'Vehicle ID required', 'mhm-rentiva' ) ) );
 			return;
+		}
+
+		// Same line the shortcode draws: this endpoint is nopriv, so it must not
+		// answer for a vehicle the front end cannot show.
+		if ( get_post_type( $vid ) !== 'mhmrentiva_vehicle' || get_post_status( $vid ) !== 'publish' ) {
+			wp_send_json_error( array( 'message' => __( 'Vehicle not found', 'mhm-rentiva' ) ) );
 		}
 
 		$calendar_html = self::render_monthly_calendar( $vid, $month, $year );

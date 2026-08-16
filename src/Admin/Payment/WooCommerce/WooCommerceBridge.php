@@ -1384,11 +1384,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// Try both meta keys for WC order ID
-		$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_wc_order_id', true);
-		if ($order_id <= 0) {
-			$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
-		}
+		$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id);
 		if ($order_id <= 0) {
 			return; // No WC order (manual booking) — nothing to sync
 		}
@@ -2320,7 +2316,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		// Check if order already exists for this booking
-		$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_wc_order_id', true);
+		$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id);
 		if ($order_id > 0) {
 			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
 			if ($order && $order->is_paid()) {

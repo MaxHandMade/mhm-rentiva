@@ -598,7 +598,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// Also try to get from WooCommerce order if available
 		if (empty($customer_email) && class_exists('WooCommerce') && function_exists('wc_get_order')) {
-			$order_id = get_post_meta($post->ID, '_mhmrentiva_wc_order_id', true);
+			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $post->ID );
 			if ($order_id) {
 				$order = call_user_func('wc_get_order', $order_id);
 				if ($order) {
