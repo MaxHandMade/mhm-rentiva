@@ -91,7 +91,7 @@ final class CustomersOptimizer {
 		// every dynamic value bound. WordPress provides no placeholder for splicing a
 		// composed SQL fragment into another statement, so the composition itself is
 		// what the sniff sees. Scoped to this region and re-enabled straight after.
-		$cache_key  = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir );
+		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir );
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
