@@ -6,12 +6,12 @@ Bu proje için tek kanonik paketleme yolu Docker içindeki
 
 ## Güncel release sözleşmesi
 
-- Eklenti sürümü: `6.0.1`
+- Eklenti sürümü: `6.0.6`
 - Sürüm sabiti: `MHMRENTIVA_VERSION`
 - ZIP içindeki tek kök: `mhm-rentiva/`
 - Kanonik host çıktısı:
-  `C:\tmp\plugin-builds\mhm-rentiva.6.0.1.zip`
-- 8 Ağustos 2026 tarihli allowlist ölçümü: `553` dosya
+  `C:\tmp\plugin-builds\mhm-rentiva.6.0.6.zip`
+- 16 Ağustos 2026 tarihli allowlist ölçümü: `555` dosya
 
 Dosya sayısı sabit bir hedef değildir. Her paketlemeden hemen önce aşağıdaki
 komutla yeniden ölçülür; kaynak ağaç değiştiyse bu belge ve release ledger'ı
@@ -21,19 +21,19 @@ gerçek sonuçla güncellenir.
 docker run --rm -v "C:/projects/rentiva-dev/plugins/mhm-rentiva:/src" -w /src python:3-slim python bin/build-release.py --list-shipped | Measure-Object -Line
 ```
 
-Güncel 553 dosyalık yüzey kaynak ağaçtan türetilmiştir:
+Güncel 555 dosyalık yüzey kaynak ağaçtan türetilmiştir:
 
 | Kök | Dosya |
 |---|---:|
 | `assets/` | 152 |
 | `build/` | 16 |
 | `languages/` | 24 |
-| `src/` | 261 |
+| `src/` | 263 |
 | `src-react/` | 46 |
 | `templates/` | 41 |
 | `vendor/` | 6 |
 | Kök dosyalar | 7 |
-| Toplam | 553 |
+| Toplam | 555 |
 
 `build/admin/` çalıştırma zamanı asset'lerini, `src-react/` bu asset'lerin
 kaynak ve paylaşılan stil yüzeyini, `vendor/mhm/ui-core/` ise eklentinin
