@@ -16,42 +16,28 @@ final class ClientUtilities {
 
 
 	/**
-	 * Get client IP address securely
+	 * Get client IP address securely.
 	 *
-	 * With proxy and load balancer support
+	 * Delegates to the single house resolver. This method used to walk seven
+	 * client-supplied proxy headers (CF-Connecting-IP, Client-IP,
+	 * X-Forwarded-For, ...) ahead of REMOTE_ADDR and return the first one that
+	 * parsed as an IP -- the same defect closed in SecurityHelper and
+	 * RateLimiter, in a third copy.
+	 *
+	 * What it costs here is not a rate limit -- nothing throttles on this
+	 * value. Its callers are AdvancedLogger's `ip_address` field and its
+	 * security-event context, i.e. this plugin's own audit trail: any caller
+	 * could write any IP it chose into the record a site owner reads after an
+	 * incident, and pin its own requests on someone else.
+	 *
+	 * SecurityHelper::get_client_ip() trusts REMOTE_ADDR by default and lets a
+	 * site behind a real reverse proxy opt specific headers back in through
+	 * the `mhmrentiva_trusted_proxy_ip_headers` filter. Delegating keeps that
+	 * decision in one place instead of three.
 	 */
 	public static function get_client_ip(): string
 	{
-		// Check proxy headers
-		$ip_headers = array(
-			'HTTP_CF_CONNECTING_IP',     // Cloudflare
-			'HTTP_CLIENT_IP',           // Proxy
-			'HTTP_X_FORWARDED_FOR',     // Load balancer
-			'HTTP_X_FORWARDED',         // Proxy
-			'HTTP_X_CLUSTER_CLIENT_IP', // Cluster
-			'HTTP_FORWARDED_FOR',       // Proxy
-			'HTTP_FORWARDED',           // Proxy
-			'REMOTE_ADDR',               // Direct connection
-		);
-
-		foreach ($ip_headers as $header) {
-			if (! empty($_SERVER[ $header ])) {
-				$ip = sanitize_text_field(wp_unslash($_SERVER[ $header ]));
-
-				// X-Forwarded-For can contain multiple IPs (comma separated)
-				if (strpos($ip, ',') !== false) {
-					$ips = explode(',', $ip);
-					$ip  = trim($ips[0]);
-				}
-
-				// Validate IP address
-				if (self::is_valid_ip($ip)) {
-					return $ip;
-				}
-			}
-		}
-
-		return 'unknown';
+		return \MHMRentiva\Admin\Core\SecurityHelper::get_client_ip();
 	}
 
 	/**
@@ -101,24 +87,6 @@ final class ClientUtilities {
 			'request_uri'    => $request_uri,
 			'request_method' => $request_method,
 		);
-	}
-
-	/**
-	 * Check if IP address is valid
-	 */
-	private static function is_valid_ip(string $ip): bool
-	{
-		// IPv4 and IPv6 support
-		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-			return true;
-		}
-
-		// Private IPs are acceptable (for local development)
-		if (filter_var($ip, FILTER_VALIDATE_IP)) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
