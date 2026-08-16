@@ -542,13 +542,18 @@ final class ContactForm extends AbstractShortcode {
 			),
 		);
 
-		$message_id = wp_insert_post($post_data);
+		// $wp_error = true. WordPress returns 0 -- not WP_Error -- on failure
+		// unless asked, so the is_wp_error() guard alone let a failed insert
+		// through: the visitor was told "Your message has been sent
+		// successfully!", the notification mail went out with message id 0,
+		// and nothing was ever stored for the site owner to answer.
+		$message_id = wp_insert_post($post_data, true);
 
-		if (is_wp_error($message_id)) {
+		if (is_wp_error($message_id) || (int) $message_id <= 0) {
 			throw new Exception(esc_html__('Unable to save the message.', 'mhm-rentiva'));
 		}
 
-		return $message_id;
+		return (int) $message_id;
 	}
 
 	private static function send_contact_email(array $data, int $message_id): bool

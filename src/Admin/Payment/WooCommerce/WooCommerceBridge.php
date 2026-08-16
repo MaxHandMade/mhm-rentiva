@@ -1202,19 +1202,29 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					return false;
 				}
 
-				$booking_id = wp_insert_post($post_data);
+				// $wp_error = true. Without it WordPress returns 0 on failure
+				// (documented as "the value 0 or WP_Error"), which the
+				// is_wp_error() guard below could never catch: the callback
+				// returned 0, is_int(0) was true, and the caller -- which only
+				// tests truthiness -- silently left the paid WooCommerce order
+				// with no booking attached and nothing in the log.
+				$booking_id = wp_insert_post($post_data, true);
 
-				if (is_wp_error($booking_id)) {
+				if (is_wp_error($booking_id) || (int) $booking_id <= 0) {
 					AdvancedLogger::error(
 						'Failed to create booking from order',
 						array(
 							'order_id' => $order_id,
-							'error'    => $booking_id->get_error_message(),
+							'error'    => is_wp_error($booking_id)
+								? $booking_id->get_error_message()
+								: 'wp_insert_post() returned ' . (int) $booking_id,
 						),
 						AdvancedLogger::CATEGORY_BOOKING
 					);
 					return null;
 				}
+
+				$booking_id = (int) $booking_id;
 
 				// The booking row now exists, but only inside this transaction, and
 				// wp_insert_post() has already populated the object cache with it.

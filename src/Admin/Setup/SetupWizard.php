@@ -846,6 +846,11 @@ final class SetupWizard {
 			return $existing;
 		}
 
+		// $wp_error = true, and the 0 case checked explicitly: WordPress
+		// returns 0 on failure by default, so an is_wp_error()-only guard
+		// returned 0 from a method whose contract is ?int. The caller happens
+		// to treat 0 as falsy today, but "failed" must not be spelled as a
+		// post ID for the next caller.
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => $page['label'],
@@ -853,10 +858,11 @@ final class SetupWizard {
 				'post_content' => $content,
 				'post_status'  => 'publish',
 				'post_type'    => 'page',
-			)
+			),
+			true
 		);
 
-		if (is_wp_error($post_id)) {
+		if (is_wp_error($post_id) || (int) $post_id <= 0) {
 			return null;
 		}
 
