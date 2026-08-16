@@ -596,8 +596,30 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		return $vehicles_list;
 	}
 
+	/**
+	 * Coerce a start month to a real `Y-m`.
+	 *
+	 * PHP's strtotime() answers false for anything it cannot parse, and on PHP 8
+	 * gmdate() raises a TypeError rather than quietly rendering January 1970.
+	 * Both public entry points into the calendar accept this value.
+	 */
+	private static function normalize_start_month(string $start_month): string
+	{
+		if (preg_match('/^\d{4}-\d{2}$/', $start_month) === 1 && strtotime($start_month . '-01') !== false) {
+			return $start_month;
+		}
+
+		return gmdate('Y-m');
+	}
+
 	private static function get_availability_data(int $vehicle_id, string $start_month, int $months_to_show): array
 	{
+		// Defence in depth: both the nopriv handler and the shortcode attribute
+		// reach this loop, and strtotime() returns false for a malformed month
+		// which gmdate() then rejects outright on PHP 8.
+		$start_month    = self::normalize_start_month($start_month);
+		$months_to_show = max(1, min($months_to_show, self::MAX_MONTH_SPAN));
+
 		// Cache key
 		$cache_key = "availability_data_{$vehicle_id}_{$start_month}_{$months_to_show}";
 
@@ -809,6 +831,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 	private static function calculate_calendar_pricing(int $vehicle_id, string $start_month, int $months_to_show): array
 	{
+		$start_month    = self::normalize_start_month($start_month);
+		$months_to_show = max(1, min($months_to_show, self::MAX_MONTH_SPAN));
+
 		$pricing_data  = array();
 		$current_month = $start_month;
 

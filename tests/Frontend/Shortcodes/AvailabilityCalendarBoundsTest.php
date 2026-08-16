@@ -86,6 +86,34 @@ final class AvailabilityCalendarBoundsTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
+	 * A malformed start month must not be fed to strtotime(), which reads it as
+	 * false and renders January 1970.
+	 */
+	public function test_a_malformed_start_month_falls_back_to_the_current_month(): void
+	{
+		$_POST = array(
+			'nonce'       => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
+			'vehicle_id'  => (string) $this->vehicle_id,
+			'start_month' => 'not-a-month',
+		);
+
+		try {
+			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
+			// See above.
+		}
+
+		$response = $this->sole_json_document( $this->_last_response );
+		$months   = array_keys( $response['data']['availability_data'] ?? array() );
+
+		$this->assertSame(
+			array( gmdate( 'Y-m' ) ),
+			$months,
+			'A malformed start_month should fall back to the current month.'
+		);
+	}
+
+	/**
 	 * A month span below the floor must not disable the calendar either.
 	 */
 	public function test_a_zero_month_span_falls_back_to_a_usable_calendar(): void
