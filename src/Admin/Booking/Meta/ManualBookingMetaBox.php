@@ -178,15 +178,26 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			);
 
 			// Localize for AJAX
+			$currency_parts = \MHMRentiva\Admin\Core\CurrencyHelper::get_js_currency_payload();
+
 			wp_localize_script(
 				'mhm-rentiva-manual-booking-meta',
 				'mhmManualBooking',
 				array(
-					'ajaxUrl'  => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
-					'currency' => get_woocommerce_currency_symbol(),
-					'locale'   => str_replace( '_', '-', get_locale() ),
-					'text'     => array(
+					'ajaxUrl'        => admin_url('admin-ajax.php'),
+					'nonce'          => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
+					// Canonical currency parts: this script formats prices itself, so
+					// it needs the placement and separators, not just the symbol. It
+					// used to receive the symbol alone and pin it to the right.
+					'currency'       => $currency_parts['symbol'],
+					'currencyFormat' => array(
+						'position'          => $currency_parts['position'],
+						'decimals'          => $currency_parts['decimals'],
+						'decimalSeparator'  => $currency_parts['decimalSeparator'],
+						'thousandSeparator' => $currency_parts['thousandSeparator'],
+					),
+					'locale'         => str_replace( '_', '-', get_locale() ),
+					'text'           => array(
 						'calculating'        => __('Calculating...', 'mhm-rentiva'),
 						'error'              => __('An error occurred', 'mhm-rentiva'),
 						'success'            => __('Booking created', 'mhm-rentiva'),
@@ -931,20 +942,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	 */
 	private static function format_addon_price(float $price): string
 	{
-		$symbol           = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency_position', 'right_space');
-		$formatted_amount = number_format($price, 2, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price($price, 2);
 	}
 }

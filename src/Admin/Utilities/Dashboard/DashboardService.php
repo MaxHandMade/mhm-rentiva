@@ -605,7 +605,10 @@ final class DashboardService {
 	}
 
 	/**
-	 * Get booking summary stats: monthly, confirmed, pending counts.
+	 * Get booking summary stats: monthly count plus the full per-status
+	 * enumeration. This is the CANONICAL source for booking status counts —
+	 * the booking-list stats band and status chips delegate here so the two
+	 * screens can never disagree.
 	 */
 	public static function get_booking_stats(): array {
 		global $wpdb;
@@ -616,25 +619,68 @@ final class DashboardService {
 			$wpdb->prepare(
 				"SELECT
                     COUNT(DISTINCT p.ID) as total,
-                    SUM(CASE WHEN p.post_date >= %s AND p.post_date <= %s THEN 1 ELSE 0 END) as monthly,
-                    SUM(CASE WHEN pm_status.meta_value = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
-                    SUM(CASE WHEN pm_status.meta_value = 'pending' THEN 1 ELSE 0 END) as pending
+                    SUM(CASE WHEN p.post_date >= %s AND p.post_date <= %s THEN 1 ELSE 0 END) as monthly
                 FROM {$wpdb->posts} p
-                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-                WHERE p.post_type = %s AND p.post_status != %s",
+                WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'",
 				$month_start,
 				$month_end,
-				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
+		// Full per-status enumeration in one GROUP BY, seeded with every
+		// allowed status so absent ones report 0 instead of a missing key.
+		// LEFT JOIN + COALESCE(...,'pending') — same Fix-D pattern as
+		// get_status_breakdown(): an INNER JOIN silently drops status-less
+		// bookings from every bucket while the total query still counts them,
+		// so "All" and the per-status sum would disagree.
+		//
+		// Dual-key COALESCE (new `_mhmrentiva_status` preferred, legacy
+		// `_mhmrentiva_booking_status` fallback, then 'pending') — the
+		// CANONICAL priority. This query only produces the COUNT; it does
+		// not by itself guarantee the chip's filtered list agrees. That
+		// guarantee lives in BookingColumns::apply_status_filter(), which
+		// must resolve every row to the SAME single bucket via nested
+		// meta_query groups expressing this exact priority (new key wins
+		// when set; legacy key only decides when the new key is
+		// absent/empty; pending only when both are absent/empty) — an
+		// OR-on-either-key match is NOT equivalent and lets a row count
+		// under one status while also matching another status's filter, or
+		// the pending filter, at the same time. OccupancyMapService::get_map()
+		// mirrors the same priority for its own SQL COALESCE.
+		// See BookingStatsConsistencyTest::
+		// test_chip_filter_agrees_with_canonical_count_for_every_dual_key_combination.
+		$by_status = array_fill_keys( \MHMRentiva\Admin\Booking\Core\Status::allowed(), 0 );
+
+		$status_rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') AS status, COUNT(DISTINCT p.ID) AS n
+                FROM {$wpdb->posts} p
+                LEFT JOIN {$wpdb->postmeta} pm_s1 ON p.ID = pm_s1.post_id AND pm_s1.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_s2 ON p.ID = pm_s2.post_id AND pm_s2.meta_key = %s
+                WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
+                GROUP BY COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending')",
+				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+				'_mhmrentiva_booking_status',
+				'mhmrentiva_booking'
+			)
+		);
+
+		foreach ( $status_rows as $status_row ) {
+			if ( isset( $by_status[ $status_row->status ] ) ) {
+				$by_status[ $status_row->status ] = (int) $status_row->n;
+			}
+		}
+
 		return array(
-			'total'     => (int) ( $row->total     ?? 0 ),
-			'monthly'   => (int) ( $row->monthly   ?? 0 ),
-			'confirmed' => (int) ( $row->confirmed ?? 0 ),
-			'pending'   => (int) ( $row->pending   ?? 0 ),
+			'total'       => (int) ( $row->total   ?? 0 ),
+			'monthly'     => (int) ( $row->monthly ?? 0 ),
+			'confirmed'   => $by_status['confirmed'] ?? 0,
+			'pending'     => $by_status['pending'] ?? 0,
+			'in_progress' => $by_status['in_progress'] ?? 0,
+			'completed'   => $by_status['completed'] ?? 0,
+			'cancelled'   => $by_status['cancelled'] ?? 0,
+			'by_status'   => $by_status,
 		);
 	}
 
@@ -1056,11 +1102,10 @@ final class DashboardService {
 			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm.meta_key = %s AND pm.meta_value = %s
              AND p.post_date >= %s AND p.post_date <= %s",
 				'mhmrentiva_booking',
-				'trash',
 				'_mhmrentiva_payment_type',
 				'deposit',
 				$current_month_start,
@@ -1077,15 +1122,14 @@ final class DashboardService {
              INNER JOIN {$wpdb->postmeta} pm_type ON p.ID = pm_type.post_id AND pm_type.meta_key = %s AND pm_type.meta_value = %s
              INNER JOIN {$wpdb->postmeta} pm_remaining ON p.ID = pm_remaining.post_id AND pm_remaining.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND CAST(pm_remaining.meta_value AS DECIMAL(10,2)) > 0
              AND pm_status.meta_value NOT IN ('cancelled', 'refunded', 'completed')",
 				'_mhmrentiva_payment_type',
 				'deposit',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_REMAINING_AMOUNT,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -1098,14 +1142,13 @@ final class DashboardService {
              INNER JOIN {$wpdb->postmeta} pm_type ON p.ID = pm_type.post_id AND pm_type.meta_key = %s AND pm_type.meta_value = %s
              INNER JOIN {$wpdb->postmeta} pm_deposit ON p.ID = pm_deposit.post_id AND pm_deposit.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')",
 				'_mhmrentiva_payment_type',
 				'deposit',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_DEPOSIT_AMOUNT,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -1161,7 +1204,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_deposit_order ON p.ID = pm_deposit_order.post_id AND pm_deposit_order.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_remaining_order ON p.ID = pm_remaining_order.post_id AND pm_remaining_order.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != %s
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value NOT IN ('cancelled', 'refunded', 'completed')
              AND ( pm_deposit_order.meta_value IS NOT NULL OR pm_remaining_order.meta_value IS NOT NULL )
              ORDER BY pm_deadline.meta_value ASC LIMIT 50",
@@ -1172,8 +1215,7 @@ final class DashboardService {
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 				'_mhmrentiva_woocommerce_order_id',
 				'_mhmrentiva_remaining_order_id',
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			),
 			ARRAY_A
 		) ?: array();

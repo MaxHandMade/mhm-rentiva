@@ -19,10 +19,11 @@
 					// Get existing values and load into form fields
 					setTimeout(
 						function () {
-							// License plate
-							var license_plate = $row.find( '.column-mhmrentiva_license_plate' ).text().trim();
-							if (license_plate !== '—') {
-								$( '.mhmrentiva_license_plate' ).val( license_plate );
+							// License plate — rides as data-plate on the Vehicle
+							// cell's meta line (the standalone column is gone).
+							var plate = $row.find( '.rv-vhl-vehicle__meta' ).data( 'plate' );
+							if (plate) {
+								$( '.mhmrentiva_license_plate' ).val( String( plate ) );
 							}
 
 							// Price/Day
@@ -34,44 +35,24 @@
 								$( '.mhmrentiva_price_per_day' ).val( numeric_price );
 							}
 
-							// Seats
-							var seats = $row.find( '.column-mhmrentiva_seats' ).text().trim();
-							if (seats !== '—') {
-								$( '.mhmrentiva_seats' ).val( seats );
-							}
-
-							// Transmission - Get labels from localized data
-							var transmission = $row.find( '.column-mhmrentiva_transmission' ).text().trim();
-							if (transmission !== '—') {
-								var transmission_value = 'auto'; // default
-								const labels           = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
-								const manualLabel      = labels.manual || 'Manual';
-								const autoLabel        = labels.auto || 'Automatic';
-
-								if (transmission === manualLabel) {
-									transmission_value = 'manual';
-								} else if (transmission === autoLabel) {
-									transmission_value = 'auto';
+							// Seats / Transmission / Fuel — the merged Features cell
+							// carries the RAW values as data attributes; reading the
+							// localized chip text would break on every translation
+							// (and did break when the three columns merged).
+							var $features = $row.find( '.column-mhmrentiva_features .rv-vhl-features' );
+							if ($features.length) {
+								var seats = $features.data( 'seats' );
+								if (seats) {
+									$( '.mhmrentiva_seats' ).val( String( seats ) );
 								}
-								$( '.mhmrentiva_transmission' ).val( transmission_value );
-							}
-
-							// Fuel
-							var fuel_type = $row.find( '.column-mhmrentiva_fuel_type' ).text().trim();
-							if (fuel_type !== '—') {
-								var fuel_value = 'petrol'; // default
-								const labels   = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
-
-								if (fuel_type === (labels.diesel || 'Diesel')) {
-									fuel_value = 'diesel';
-								} else if (fuel_type === (labels.hybrid || 'Hybrid')) {
-									fuel_value = 'hybrid';
-								} else if (fuel_type === (labels.electric || 'Electric')) {
-									fuel_value = 'electric';
-								} else if (fuel_type === (labels.petrol || 'Petrol')) {
-									fuel_value = 'petrol';
+								var transmission = $features.data( 'transmission' );
+								if (transmission) {
+									$( '.mhmrentiva_transmission' ).val( transmission );
 								}
-								$( '.mhmrentiva_fuel_type' ).val( fuel_value );
+								var fuel = $features.data( 'fuel' );
+								if (fuel) {
+									$( '.mhmrentiva_fuel_type' ).val( fuel );
+								}
 							}
 
 							// Available
@@ -89,11 +70,11 @@
 								$( '.mhmrentiva_location' ).val( String( locationId ) );
 							}
 
-							// Featured
-							var featuredLabels = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
-							var featuredText   = $row.find( '.column-mhmrentiva_featured' ).text().trim();
-							var yesLabel       = featuredLabels.yes || 'Yes';
-							$( '.mhmrentiva_featured' ).prop( 'checked', featuredText === yesLabel );
+							// Featured — the star carries data-featured; the old code
+							// compared the cell text against a translated "Yes" and
+							// always came up unchecked once the cell became a star.
+							var $star = $row.find( '.column-mhmrentiva_featured .rv-vhl-star' );
+							$( '.mhmrentiva_featured' ).prop( 'checked', $star.length && String( $star.data( 'featured' ) ) === '1' );
 
 						},
 						100

@@ -20,19 +20,81 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralized currency symbol management for the entire plugin.
  * All currency symbols must match the settings page currency list.
  *
+ * PRECEDENCE — the one rule for the whole plugin
+ * ----------------------------------------------
+ * 1. WooCommerce is authoritative whenever it is ACTIVE and has an opinion — active is
+ *    decided by `woocommerce_is_active()`, the one predicate. `woocommerce_currency_pos`
+ *    decides placement, `woocommerce_currency` / `get_woocommerce_currency_symbol()`
+ *    decide the symbol, and `wc_get_price_*_separator()` decide the separators. Note
+ *    `woocommerce_currency_pos` is autoloaded and OUTLIVES WooCommerce, so its presence
+ *    alone never means WooCommerce has an opinion.
+ * 2. The plugin's own `mhmrentiva_currency_position` / `mhmrentiva_currency` options are
+ *    a FALLBACK, consulted whenever WooCommerce is silent — inactive, or active with the
+ *    option absent/empty. The
+ *    Setup Wizard mirrors WooCommerce into them when WC is active, but that mirror is a
+ *    convenience, never the source of truth — an UNSET plugin option must never produce a
+ *    placement that contradicts WooCommerce.
+ * 3. Last resort, with neither source available: `right_space`.
+ *
+ * Every surface that shows money to a human must route through `format_price()`; every
+ * surface that hands raw parts to a client (REST payload, `wp_localize_script`) must take
+ * them from `get_js_currency_payload()` or the accessors below. Do not re-implement
+ * placement or separators anywhere else — see CurrencyPlacementParityTest.
+ *
  * @since 3.0.1
  */
 final class CurrencyHelper {
 
 	/**
+	 * The ONE "does WooCommerce have an opinion?" predicate.
+	 *
+	 * Every WooCommerce question in this plugin — placement, symbol, code,
+	 * separators, precision, and the settings screen that offers the position
+	 * dropdown — must be asked through here, and nowhere else.
+	 *
+	 * It used to be asked four different ways, and one of them misfired:
+	 * `get_currency_position()` tested the OPTION (`woocommerce_currency_pos`)
+	 * while everything else tested `function_exists()`. That option is autoloaded
+	 * and survives WooCommerce's deactivation and uninstall, so on any site that
+	 * once had WooCommerce and removed it, the settings screen offered the
+	 * position dropdown and accepted a choice while this helper kept returning the
+	 * stale WooCommerce value forever — the documented "plugin option applies when
+	 * WooCommerce is silent" rule was unreachable.
+	 *
+	 * A `function_exists()` guard may still sit next to a specific WooCommerce
+	 * call: that guards CALLABILITY, not policy. Policy is only ever this.
+	 *
+	 * @return bool
+	 */
+	public static function woocommerce_is_active(): bool {
+		$is_active = function_exists( 'wc_price' )
+			|| function_exists( 'get_woocommerce_currency' )
+			|| class_exists( 'WooCommerce' );
+
+		/**
+		 * Filters whether WooCommerce owns currency presentation on this site.
+		 *
+		 * Answering `false` makes the plugin's own currency options authoritative
+		 * even while WooCommerce is loaded; answering `true` is only meaningful
+		 * for a shim that provides WooCommerce's formatting API under another name.
+		 *
+		 * @since 6.0.2
+		 *
+		 * @param bool $is_active Whether WooCommerce currency settings apply.
+		 */
+		return (bool) apply_filters( 'mhmrentiva_woocommerce_is_active', $is_active );
+	}
+
+	/**
 	 * Get active currency position.
 	 *
-	 * WooCommerce setting is authoritative when available.
+	 * WooCommerce setting is authoritative when active; the plugin option is the
+	 * fallback. See the class docblock for the full precedence rule.
 	 *
 	 * @return string
 	 */
 	public static function get_currency_position(): string {
-		if ( function_exists( 'get_option' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'get_option' ) ) {
 			$wc_position = (string) get_option( 'woocommerce_currency_pos', '' );
 			if ( $wc_position !== '' ) {
 				return $wc_position;
@@ -50,10 +112,147 @@ final class CurrencyHelper {
 	 * @return string
 	 */
 	public static function format_amount( float $amount, int $decimals = 0 ): string {
-		$decimal_separator  = function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',';
-		$thousand_separator = function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : '.';
+		return number_format(
+			$amount,
+			max( 0, $decimals ),
+			self::get_decimal_separator(),
+			self::get_thousand_separator()
+		);
+	}
 
-		return number_format( $amount, max( 0, $decimals ), $decimal_separator, $thousand_separator );
+	/**
+	 * Active decimal separator, from WooCommerce when it has an opinion.
+	 *
+	 * @return string
+	 */
+	public static function get_decimal_separator(): string {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_get_price_decimal_separator' ) ) {
+			return (string) wc_get_price_decimal_separator();
+		}
+
+		return ',';
+	}
+
+	/**
+	 * Active thousand separator, from WooCommerce when it has an opinion.
+	 *
+	 * @return string
+	 */
+	public static function get_thousand_separator(): string {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_get_price_thousand_separator' ) ) {
+			return (string) wc_get_price_thousand_separator();
+		}
+
+		return '.';
+	}
+
+	/**
+	 * Active decimal precision for money, from WooCommerce when it has an opinion.
+	 *
+	 * Surfaces that used to be bare `wc_price()` calls deferred to this; passing a
+	 * literal `2` instead would diverge from the store on a 0-decimal currency
+	 * (JPY, HUF). Pass this where the store's own precision is what is wanted.
+	 *
+	 * @return int
+	 */
+	public static function get_price_decimals(): int {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_get_price_decimals' ) ) {
+			return max( 0, (int) wc_get_price_decimals() );
+		}
+
+		return 2;
+	}
+
+	/**
+	 * Coerce a possibly already-formatted money value back to a plain float.
+	 *
+	 * A bare `(float)` cast is NOT safe on money in this plugin. An amount reaches
+	 * a display surface as an int (kuruş), a float, a raw meta string
+	 * (`"1500.00"`) or — when a producer formatted it too early — a locale string
+	 * such as `"1.500,00"`. PHP casts that last one to `1.5`: a 1000x error in a
+	 * customer-facing figure, and a silent one, because no error is raised.
+	 *
+	 * The right fix is always to keep the number numeric at the data end; this is
+	 * the net under the display layer so that no consumer can be handed a
+	 * formatted string and quietly print a wrong amount.
+	 *
+	 * Deliberately locale-INDEPENDENT: the producer may have formatted with the
+	 * WordPress locale (`number_format_i18n()`) while this helper's separators
+	 * come from WooCommerce, so reading the string through one fixed separator
+	 * pair would trade one wrong number for another. The shape of the string
+	 * decides instead — the rightmost of `.`/`,` is the decimal separator when
+	 * both appear, and a lone separator followed by exactly three digits is
+	 * grouping.
+	 *
+	 * Known and accepted ambiguity: `"1.500"` is read as one thousand five
+	 * hundred, not as one and a half. Money in this plugin is stored with 0 or 2
+	 * decimals, so a three-digit tail is always grouping in practice.
+	 *
+	 * @param mixed $value Raw amount from meta, an email context, or a request.
+	 * @return float
+	 */
+	public static function to_amount( $value ): float {
+		if ( is_int( $value ) || is_float( $value ) ) {
+			return (float) $value;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return 0.0;
+		}
+
+		$raw = trim( $value );
+		if ( '' === $raw ) {
+			return 0.0;
+		}
+
+		// A fully grouped integer ("1.500", "1,500", "1.500.000"). This is
+		// `is_numeric()` in the `.` flavour and would cast to 1.5.
+		if ( 1 === preg_match( '/^-?\d{1,3}(?:([.,])\d{3})(?:\1\d{3})*$/', $raw ) ) {
+			return (float) str_replace( array( '.', ',' ), '', $raw );
+		}
+
+		// Machine format, straight from meta or a REST payload.
+		if ( is_numeric( $raw ) ) {
+			return (float) $raw;
+		}
+
+		$negative = str_contains( $raw, '-' );
+		$digits   = (string) preg_replace( '/[^0-9.,]/', '', $raw );
+		if ( '' === $digits ) {
+			return 0.0;
+		}
+
+		$last_dot   = strrpos( $digits, '.' );
+		$last_comma = strrpos( $digits, ',' );
+
+		if ( false !== $last_dot && false !== $last_comma ) {
+			// Both present: the rightmost one is the decimal separator.
+			$decimal_at = max( $last_dot, $last_comma );
+		} elseif ( false !== $last_dot || false !== $last_comma ) {
+			$separator  = ( false !== $last_dot ) ? '.' : ',';
+			$position   = ( false !== $last_dot ) ? $last_dot : $last_comma;
+			$tail       = strlen( $digits ) - $position - 1;
+			$is_group   = substr_count( $digits, $separator ) > 1 || 3 === $tail;
+			$decimal_at = $is_group ? -1 : $position;
+		} else {
+			$decimal_at = -1;
+		}
+
+		if ( $decimal_at >= 0 ) {
+			$integer  = (string) preg_replace( '/[^0-9]/', '', substr( $digits, 0, $decimal_at ) );
+			$fraction = (string) preg_replace( '/[^0-9]/', '', substr( $digits, $decimal_at + 1 ) );
+			$number   = ( '' === $integer ? '0' : $integer ) . '.' . ( '' === $fraction ? '0' : $fraction );
+		} else {
+			$number = (string) preg_replace( '/[^0-9]/', '', $digits );
+		}
+
+		if ( ! is_numeric( $number ) ) {
+			return 0.0;
+		}
+
+		$amount = (float) $number;
+
+		return $negative ? -$amount : $amount;
 	}
 
 	/**
@@ -62,23 +261,47 @@ final class CurrencyHelper {
 	 * WooCommerce settings are used when available. HTML tags are stripped so this
 	 * can be used safely in plain-text contexts and templates.
 	 *
-	 * @param float $amount   Numeric amount.
-	 * @param int   $decimals Decimal precision.
+	 * `$currency` overrides only the SYMBOL, for records that carry a currency of
+	 * their own (a refund, a payment log row). Placement and separators still come
+	 * from the one rule in the class docblock — a stored currency code never gets
+	 * to imply a different layout.
+	 *
+	 * The code is normalised BEFORE either branch sees it. Legacy and alias values
+	 * live in the data (`TL`, `LIRA`, a bare `₺`) — that is what
+	 * `normalize_currency_code()` exists for — and WooCommerce returns an EMPTY
+	 * symbol for a code it does not know, so handing it a raw alias printed a bare
+	 * number with no currency at all on the log surfaces that pass one.
+	 *
+	 * @param float       $amount   Numeric amount.
+	 * @param int         $decimals Decimal precision.
+	 * @param string|null $currency Optional currency code for this amount.
 	 * @return string
 	 */
-	public static function format_price( float $amount, int $decimals = 0 ): string {
-		if ( function_exists( 'wc_price' ) ) {
-			$formatted = (string) wc_price(
-				$amount,
-				array(
-					'decimals' => max( 0, $decimals ),
-				)
-			);
+	public static function format_price( float $amount, int $decimals = 0, ?string $currency = null ): string {
+		$code = ( $currency !== null && $currency !== '' )
+			? self::normalize_currency_code( strtoupper( trim( $currency ) ) )
+			: null;
+
+		// WooCommerce answers with an empty symbol for any code outside its own map,
+		// including codes this plugin adds through `mhmrentiva_currency_symbols`.
+		// Only hand it a per-record currency it can actually render; otherwise the
+		// house map formats, so an amount never loses its symbol.
+		$wc_can_render_code = null === $code
+			|| ( function_exists( 'get_woocommerce_currency_symbol' )
+				&& '' !== (string) get_woocommerce_currency_symbol( $code ) );
+
+		if ( self::woocommerce_is_active() && function_exists( 'wc_price' ) && $wc_can_render_code ) {
+			$args = array( 'decimals' => max( 0, $decimals ) );
+			if ( $code !== null ) {
+				$args['currency'] = $code;
+			}
+
+			$formatted = (string) wc_price( $amount, $args );
 
 			return trim( html_entity_decode( wp_strip_all_tags( $formatted ), ENT_QUOTES, 'UTF-8' ) );
 		}
 
-		$symbol   = self::get_currency_symbol();
+		$symbol   = self::get_currency_symbol( $code );
 		$position = self::get_currency_position();
 		$number   = self::format_amount( $amount, $decimals );
 
@@ -93,6 +316,41 @@ final class CurrencyHelper {
 			default:
 				return $number . ' ' . $symbol;
 		}
+	}
+
+	/**
+	 * Get the active currency CODE under the same precedence as the symbol.
+	 *
+	 * WooCommerce owns the code when active; the plugin option is the fallback.
+	 *
+	 * @return string ISO-ish currency code, e.g. 'USD'.
+	 */
+	public static function get_currency_code(): string {
+		if ( self::woocommerce_is_active() && function_exists( 'get_woocommerce_currency' ) ) {
+			return (string) get_woocommerce_currency();
+		}
+
+		return (string) SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+	}
+
+	/**
+	 * Canonical currency parts for clients that format on their own.
+	 *
+	 * REST payloads and `wp_localize_script()` calls must take their currency data from
+	 * here rather than reading `mhmrentiva_currency_position` directly, so a client-side
+	 * formatter lands on exactly the placement `format_price()` would have produced.
+	 *
+	 * @return array{currency: string, symbol: string, position: string, decimals: int, decimalSeparator: string, thousandSeparator: string}
+	 */
+	public static function get_js_currency_payload(): array {
+		return array(
+			'currency'          => self::get_currency_code(),
+			'symbol'            => self::get_currency_symbol(),
+			'position'          => self::get_currency_position(),
+			'decimals'          => self::get_price_decimals(),
+			'decimalSeparator'  => self::get_decimal_separator(),
+			'thousandSeparator' => self::get_thousand_separator(),
+		);
 	}
 
 	/**
@@ -182,7 +440,7 @@ final class CurrencyHelper {
 	public static function get_currency_symbol( ?string $currency_code = null ): string {
 		if ( $currency_code === null ) {
 			// When WooCommerce is active, use its symbol directly — WC owns the symbol map.
-			if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			if ( self::woocommerce_is_active() && function_exists( 'get_woocommerce_currency_symbol' ) ) {
 				return html_entity_decode( get_woocommerce_currency_symbol(), ENT_HTML5, 'UTF-8' );
 			}
 			$currency_code = SettingsCore::get( 'mhmrentiva_currency', 'USD' );

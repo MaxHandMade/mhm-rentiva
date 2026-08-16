@@ -446,16 +446,19 @@ final class CancellationHandler {
 	 * and customer self-cancellation was refused for everyone -- a feature that
 	 * had never worked rather than a hole, since it failed closed.
 	 *
-	 * The legacy key is still read as a fallback so that any booking actually
-	 * carrying it stays cancellable; no new writes to it are made.
+	 * That key is NOT read as a fallback. Ownership is an authorization answer,
+	 * and reading it from a shape no writer produces hands ownership to anything
+	 * that can put the key there by another route -- an import, a sibling plugin,
+	 * a hand-edited row -- with no writer of ours to audit against. The usual
+	 * argument for a legacy fallback is existing data, and there is none:
+	 * measured on 2026-08-16 the key had zero writers in the tree, no migration
+	 * step, and zero rows in the database.
+	 *
+	 * The Faz 2 sweep reached this conclusion independently and pinned it in
+	 * CancellationOwnershipTest::test_the_gate_reads_the_key_that_is_actually_written().
 	 */
 	private static function resolve_booking_customer_id( int $booking_id ): int {
-		$customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
-		if ( $customer_id > 0 ) {
-			return $customer_id;
-		}
-
-		return (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
+		return (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 	}
 
 	public static function user_can_cancel( int $booking_id, int $user_id = 0 ): bool {

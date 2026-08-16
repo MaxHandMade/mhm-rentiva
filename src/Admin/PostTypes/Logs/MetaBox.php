@@ -67,8 +67,9 @@ final class MetaBox {
 			}
 		}
 		if ( $ak > 0 ) {
-			$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $cur ?: null );
-			$val             = number_format_i18n( $ak / 100, 2 ) . ' ' . $currency_symbol;
+			// The row's own currency, but the house placement — this used to pin
+			// the symbol to the right regardless of woocommerce_currency_pos.
+			$val = \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $ak / 100, 2, $cur ?: null );
 			echo '<span style="margin-left:8px;">' . esc_html__( 'Amount', 'mhm-rentiva' ) . ': ' . esc_html( $val ) . '</span>';
 		}
 		echo '</p>';

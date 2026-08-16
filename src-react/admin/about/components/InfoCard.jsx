@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 
-export default function InfoCard( { title, rows } ) {
+export default function InfoCard( { title, rows, accent = false } ) {
 	return (
-		<div className="mhm-widget mhm-about-info-card">
+		<div className={ `mhm-widget rv-abt-card mhm-about-info-card${ accent ? ' is-accent' : '' }` }>
 			<h3>{ title }</h3>
 			<dl>
 				{ rows.map( ( row, i ) => (

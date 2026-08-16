@@ -62,9 +62,8 @@ if (! $vehicle_image) {
 	$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 }
 
-// Currency
-// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-$currency_symbol = apply_filters('mhmrentiva_currency_symbol', '');
+// Currency: prices below are rendered with CurrencyHelper::format_price(), which
+// carries the symbol and the WooCommerce placement itself.
 
 // Date format
 $wp_date_fmt            = get_option('date_format');
@@ -174,20 +173,20 @@ if ($is_integrated) {
 				<!-- Total Cost -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $total_price, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+					<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2)); ?></div>
 				</div>
 
 				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
 					<!-- Deposit Amount -->
 					<div class="rv-detail-row">
 						<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $deposit_amount, 2)); ?></div>
 					</div>
 
 					<!-- Remaining Amount -->
 					<div class="rv-detail-row">
 						<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $remaining_amount, 2)); ?></div>
 					</div>
 
 					<?php if ( (float) $remaining_amount > 0 && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>

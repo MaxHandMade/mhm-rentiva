@@ -226,8 +226,9 @@ final class AccountRenderer {
 		}
 		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
 
-		// Enqueue global interactions (v1.3.3)
-		wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+		// Enqueue global interactions (v1.3.3) -- through AssetManager, so the
+		// script always arrives with its one mhmrentiva_vars payload.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 
 		// Localize (grid/list ortak)
 		wp_localize_script(

@@ -366,8 +366,13 @@ final class EmailTemplates {
 					'amount'   => (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true),
 					'currency' => (string) get_post_meta($booking_id, '_mhmrentiva_payment_currency', true) ?: 'TRY',
 				),
-				// Helper for direct access
-				'total_price' => number_format_i18n( (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true) / 100, 2),
+				// Helper for direct access. NUMERIC on purpose: the display layer
+				// (Templates::compile / the email templates) formats it. This used
+				// to be a `number_format_i18n()` string, so every consumer that
+				// cast it to float read "1.500,00" as 1.5 — a silent 1000x error
+				// in a customer-facing figure — and the one consumer that guarded
+				// with `is_numeric()` printed the amount with no currency at all.
+				'total_price' => (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true) / 100,
 			);
 			$ctx['customer'] = array(
 				'email' => (string) get_post_meta($booking_id, '_mhmrentiva_contact_email', true),
@@ -385,10 +390,11 @@ final class EmailTemplates {
 			$amount_kurus = isset($ctx['booking']['payment']['amount']) ? (int) $ctx['booking']['payment']['amount'] : 0;
 			$cur          = isset($ctx['booking']['payment']['currency']) ? (string) $ctx['booking']['payment']['currency'] : 'TRY';
 
-			// Generate symbol dynamically based on the code provided in context
-			$symbol = CurrencyHelper::get_currency_symbol($cur);
-
-			$ctx['amount'] = number_format_i18n($amount_kurus / 100, 2) . ' ' . $symbol;
+			// A refund carries a currency of its own; the canonical helper takes the
+			// symbol from it and the placement from the house rule. Hand-rolling
+			// "<number> <symbol>" here pinned every refund mail to a right
+			// placement, whatever WooCommerce said.
+			$ctx['amount'] = CurrencyHelper::format_price($amount_kurus / 100, 2, $cur !== '' ? $cur : null);
 			$ctx['status'] = (string) ( $ctx['booking']['payment']['status'] ?? '' );
 			$ctx['reason'] = '';
 		}

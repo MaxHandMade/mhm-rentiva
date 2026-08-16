@@ -25,30 +25,18 @@ final class RefundNotifications {
 		$name  = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_name', true );
 		$admin = get_option( 'admin_email' );
 
-		if ( function_exists( 'wc_price' ) ) {
-			$amountHuman = wp_strip_all_tags( wc_price( $amount_kurus / 100, array( 'currency' => $currency ?: 'TRY' ) ) );
-		} else {
-			$symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency ?: null );
-			$amount = number_format_i18n( $amount_kurus / 100, 2 );
-			$pos    = get_option( 'mhmrentiva_currency_position', 'right_space' );
-
-			switch ( $pos ) {
-				case 'left':
-					$amountHuman = $symbol . $amount;
-					break;
-				case 'left_space':
-					$amountHuman = $symbol . ' ' . $amount;
-					break;
-				case 'right':
-					$amountHuman = $amount . $symbol;
-					break;
-				case 'right_space':
-				default:
-					$amountHuman = $amount . ' ' . $symbol;
-					break;
-			}
-		}
-		$statusText = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
+		// The refund carries its own currency code, which may differ from the store
+		// default; the placement still comes from the one house rule. The old
+		// WooCommerce-inactive branch read `mhmrentiva_currency_position` as a
+		// top-level option — a key the plugin never writes there, since its settings
+		// live inside the `mhmrentiva_settings` array — so it always resolved to
+		// `right_space`.
+		$amountHuman = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+			$amount_kurus / 100,
+			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+			$currency ?: 'TRY'
+		);
+		$statusText  = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
 
 		$wc_order_id = (int) get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true );
 

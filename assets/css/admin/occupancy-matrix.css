@@ -1,0 +1,626 @@
+/*
+ * Faz 2 Task 8 — skin for the three new admin-list surfaces: the
+ * segmented view toggle, the shared fleet occupancy matrix (Vehicles +
+ * Bookings Calendar faces), the Vehicles Cards face, and the Bookings
+ * "Approve" row action. Refined WP-admin language (accent #2271b1,
+ * system font) — NOT Broadsheet.
+ *
+ * Light-pinned: every colour below is a literal hex value, never a
+ * `var(--mhm-*)` design token, so this skin renders identically whether
+ * or not the plugin's dark-mode stylesheet (css-variables.css) is active
+ * — same decision Faz 1a/1b made for vehicle-list.css/booking-list.css.
+ *
+ * Every rule is scoped under the screen body classes
+ * (.mhm-vehicle-list / .mhm-booking-list) so nothing here leaks onto
+ * other admin screens.
+ */
+
+/* ════════════════════════════════════════════════════════════
+   1. Segmented view toggle (rv-view-toggle / rv-view-toggle__btn)
+   Supersedes the minimal placeholder that used to live inline in
+   vehicle-list.css/booking-list.css ("the refined skin lands in
+   Task 8") — that placeholder is removed as part of this task.
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-vehicle-list .rv-view-toggle,
+.mhm-booking-list .rv-view-toggle {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0;
+	background: #eceef1;
+	border-radius: 8px;
+	padding: 3px;
+	margin-left: auto;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn,
+.mhm-booking-list .rv-view-toggle__btn {
+	display: inline-block;
+	padding: 6px 14px;
+	border-radius: 6px;
+	border: 0;
+	background: transparent;
+	color: #646970;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn:hover,
+.mhm-booking-list .rv-view-toggle__btn:hover {
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn.is-active,
+.mhm-booking-list .rv-view-toggle__btn.is-active {
+	background: #fff;
+	color: #2271b1;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn.is-active:hover,
+.mhm-booking-list .rv-view-toggle__btn.is-active:hover {
+	color: #2271b1;
+}
+
+/* ════════════════════════════════════════════════════════════
+   2. Fleet occupancy matrix (FleetOccupancyMatrix::render_markup())
+   Shared by the Vehicles Calendar face and the Bookings Calendar face
+   — one legend, one set of cell colours, on both screens.
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap,
+.mhm-booking-list .mhm-occupancy-matrix-wrap {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 20px;
+	/* Beats calendars.css's base `.mhm-calendars { margin-top: 20px }` on
+	   specificity (screen scope + 2 classes vs. 1) — that value is tuned
+	   for a DIFFERENT context (KPI band → calendar widget elsewhere) and
+	   would stack with the filter row's own 20px margin-bottom here
+	   (vehicle-list.css / booking-list.css), doubling the gap on this
+	   face alone. Zeroed so the filter row's margin is the single source. */
+	margin-top: 0;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-header,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-header {
+	background: #fff;
+	border-bottom: 1px solid #f2f3f5;
+	padding: 0 0 16px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-header h2,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-header h2 {
+	color: #1d2327;
+	font-size: 18px;
+}
+
+/* ── Month navigation: ghost prev/next, filled current-month label ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-nav-btn,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-nav-btn {
+	background: transparent;
+	border: 1px solid #dcdde1;
+	color: #50575e;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-nav-btn:hover,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-nav-btn:hover {
+	background: #f7f9fc;
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-current,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-current {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+}
+
+/* ── Table wrapper: horizontal scroll is the NARROW-VIEWPORT FALLBACK
+   only, not the default. The table's own min-width (below) is a floor,
+   not a fixed size — table-layout:fixed lets day columns share whatever
+   width the wrapper actually has above that floor, so on any desktop
+   width wide enough for the floor, the whole month renders with zero
+   scroll (user requirement: "ay kaç günse tümü gösterilmeli, masaüstünde
+   scroll olmasın"). ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table-wrapper,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table-wrapper {
+	background: #fff;
+	overflow-x: auto;
+}
+
+/* `--rv-days` is set inline per render (FleetOccupancyMatrix::render_markup,
+   `style="--rv-days: <n>"` on this element) to the real day count for the
+   month being shown (28-31) — the one thing CSS cannot know on its own.
+   The floor below is two measured content minimums, not round numbers:
+   242px is the vehicle column's own floor (see th.vehicle-column) and
+   30px/day is this matrix's day-header numeral floor (see th.day-header).
+   Below that combined width the wrapper scrolls; at or above it,
+   table-layout:fixed's auto-share (no explicit width on th.day-header)
+   divides 100% of the actual available width equally across however many
+   day columns this month has — wider on a wide screen, always the exact
+   day count, never the fixed 31-column guess the old `min-width: calc(220px
+   + 31 * 32px)` rule used regardless of month length or viewport. The
+   `31` fallback in the calc is only for the (non-existent in practice)
+   case of this custom property being absent, e.g. a cached fragment. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table.mhm-occupancy-matrix,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table.mhm-occupancy-matrix {
+	background: #fff;
+	width: 100%;
+	min-width: calc(242px + var(--rv-days, 31) * 30px);
+	table-layout: fixed;
+}
+
+/* ── Vehicle name column (row header) ──
+   242px is a measured content floor, not a guess: the longest REAL
+   vehicle title in this install's data ("Volkswagen Golf 1.6 TDI
+   Comfortline") canvas-measures 215.71px at this cell's actual font (600
+   13px, the -apple-system/Segoe UI stack WP admin resolves to) — wider
+   than every plate ever gets (widest plate measured 57.92px, moot since
+   name and plate stack on separate lines rather than competing for the
+   same line). With box-sizing:border-box and this column's existing
+   12px/side padding (24px), the content area is 242 − 24 = 218px, a
+   2.3px margin over the 215.71px need — tight but real, and this is the
+   floor used only where the shared layout can't spare more (the day
+   columns get the rest of the width once this column is satisfied).
+   Deliberately NOT sized from the "Vehicles" header label (4 characters)
+   — that was the exact mistake an earlier round on this screen made on a
+   different column and had to walk back after it clipped real data; this
+   floor comes from actually querying every vehicle title in the table,
+   not the shortest string that happens to be visible in a screenshot. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap th.vehicle-column,
+.mhm-booking-list .mhm-occupancy-matrix-wrap th.vehicle-column {
+	background: #f7f9fc;
+	color: #646970;
+	width: 242px;
+	min-width: 242px;
+	max-width: 242px;
+	box-sizing: border-box;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-right: 1px solid #f4f6f8;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap td.vehicle-info,
+.mhm-booking-list .mhm-occupancy-matrix-wrap td.vehicle-info {
+	background: #f7f9fc;
+	width: 242px;
+	min-width: 242px;
+	max-width: 242px;
+	box-sizing: border-box;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-right: 1px solid #f4f6f8;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .vehicle-name,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .vehicle-name {
+	color: #1d2327;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .vehicle-plate,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .vehicle-plate {
+	color: #8a8f98;
+	font-size: 11px;
+	font-weight: 500;
+}
+
+/* ── Day headers: numerals only, muted, share the row's width ──
+   No `width` here on purpose: table-layout:fixed hands 100% of whatever
+   is left after the vehicle column's fixed 242px to whichever columns
+   carry no explicit width of their own — this thead row is where the
+   fixed layout algorithm reads column widths from, so leaving these
+   auto is what makes every day column share the actual available width
+   equally, regardless of how many days the month has. The table's own
+   `min-width` (above) is what keeps this column's numeral legible: it
+   never lets the shared width fall below 30px/day, a floor measured from
+   this cell's real font (500 12px) — the widest 2-digit day number
+   canvas-measures 13.58px ("24"), the cell keeps its existing 8px/side
+   padding (16px, content-box), leaving a real but tight ~0.4px margin at
+   the floor itself — live-verified with no clipped numeral at that exact
+   width (scrollWidth <= clientWidth on every day-header, all months
+   tested). Below the table's min-width the wrapper's own overflow-x:auto
+   takes over instead of letting columns compress past that floor. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap th.day-header,
+.mhm-booking-list .mhm-occupancy-matrix-wrap th.day-header {
+	background: #fff;
+	color: #8a8f98;
+	font-weight: 500;
+	font-size: 12px;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-left: 1px solid #f4f6f8;
+}
+
+/* ── Rows: ~41px tall, hairline borders ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td {
+	height: 41px;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-left: 1px solid #f4f6f8;
+}
+
+/* ── Cell status colours — the single canonical legend, identical on
+   both screens. Specificity (screen scope + 5 classes) beats the older
+   un-scoped rules in calendars.css/booking-calendar.css without needing
+   !important, except blocked-day (below), which overrides an !important
+   rule in calendars.css and so must match it. ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available {
+	background: #e6f4e6;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available:hover,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available:hover {
+	background: #d7ecd7;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked {
+	cursor: pointer;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending {
+	background: #f0c33c;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed {
+	background: #2f80c4;
+}
+
+/* status-in_progress (underscore — matches FleetOccupancyMatrix::STATUS_CLASSES)
+   had NO styling before this task; this is its first colour. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress {
+	background: #37a24a;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed {
+	background: #e8e9eb;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked:hover,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked:hover {
+	filter: brightness(0.96);
+}
+
+/* Blocked day: repeating red stripes — beats calendars.css's own
+   !important background rule (which paints an older, more saturated
+   red); cursor/pointer-events stay screen-specific below. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.blocked-day,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.blocked-day {
+	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 5px, #fbeaea 5px, #fbeaea 10px) !important;
+}
+
+/* Click-to-block affordance — Vehicles face only (enable_block_toggle
+   is true there, false on Bookings); folds in the cursor/pointer-events
+   override that used to live in VehicleColumns' wp_add_inline_style()
+   patch, dropped as redundant with this rule. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.blocked-day,
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available {
+	cursor: pointer !important;
+	pointer-events: auto !important;
+}
+
+/* ── Legend row: 15px rounded swatches + 13px labels, same colours ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-legend,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-legend {
+	background: #fff;
+	border: none;
+	border-top: 1px solid #f2f3f5;
+	margin-top: 16px;
+	padding: 16px 0 0;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-legend h4,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-legend h4 {
+	color: #646970;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-items,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-items {
+	gap: 18px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color {
+	width: 15px;
+	height: 15px;
+	border-radius: 4px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-label,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-label {
+	color: #50575e;
+	font-size: 13px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.is-free,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.is-free {
+	background: #e6f4e6;
+	border: 1px solid #d0e8d0;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-pending,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-pending {
+	background: #f0c33c;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-confirmed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-confirmed {
+	background: #2f80c4;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-in_progress,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-in_progress {
+	background: #37a24a;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-completed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-completed {
+	background: #e8e9eb;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.legend-blocked-day,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.legend-blocked-day {
+	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 5px, #fbeaea 5px, #fbeaea 10px);
+}
+
+/* ── Empty-state notices (Task 5): readable card-ish block ── */
+.mhm-booking-list .mhm-occupancy-matrix-empty,
+.mhm-booking-list .mhm-occupancy-matrix-vehicleless-note,
+.mhm-booking-list .mhm-occupancy-matrix-cap-notice {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-left: 4px solid #2271b1;
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 4px 4px;
+	margin: 16px 0;
+}
+
+.mhm-booking-list .mhm-occupancy-matrix-empty p,
+.mhm-booking-list .mhm-occupancy-matrix-vehicleless-note p,
+.mhm-booking-list .mhm-occupancy-matrix-cap-notice p {
+	color: #1d2327;
+	font-size: 14px;
+	padding: 12px 16px;
+	margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   3. Vehicles Cards face (Faz 2 Task 6)
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-vehicle-list .rv-vhl-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 16px;
+	/* Top margin removed: it used to be this face's only source of the
+	   filter-row gap and collapsed to whatever the empty `.tablenav.bottom`
+	   wrapper contributed (16px, measured) — vehicle-list.css's
+	   `.tablenav.top` margin-bottom is now the single deliberate source
+	   (20px, matching the other two faces) so this must not add its own. */
+	margin: 0 0 16px;
+}
+
+.mhm-vehicle-list .rv-vhl-card {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.mhm-vehicle-list .rv-vhl-card__media {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	background: #e9eaee;
+	overflow: hidden;
+}
+
+.mhm-vehicle-list .rv-vhl-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-card__placeholder {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
+	text-align: center;
+	color: #8a8f98;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 3px 10px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-active {
+	background: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-inactive {
+	background: #fbeaea;
+	color: #a02222;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-maintenance {
+	background: #fcf3d6;
+	color: #8a6d1b;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-default {
+	background: #f0f2f5;
+	color: #50575e;
+}
+
+.mhm-vehicle-list .rv-vhl-card__star {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: #fff;
+	color: #dba617;
+	font-size: 15px;
+	line-height: 26px;
+	text-align: center;
+	box-shadow: 0 1px 3px rgba(16, 24, 40, 0.15);
+}
+
+.mhm-vehicle-list .rv-vhl-card__body {
+	padding: 14px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	flex: 1;
+}
+
+.mhm-vehicle-list .rv-vhl-card__title {
+	font-size: 15px;
+	font-weight: 700;
+	color: #1d2327;
+	line-height: 1.3;
+}
+
+.mhm-vehicle-list .rv-vhl-card__subline {
+	font-size: 12px;
+	color: #8a8f98;
+	margin-top: -4px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__chip {
+	background: #f0f2f5;
+	color: #50575e;
+	border-radius: 6px;
+	font-size: 12px;
+	padding: 2px 9px;
+	white-space: nowrap;
+}
+
+/* 7-day strip, card scope: reuses .rv-vhl-week/.rv-vhl-day from
+   vehicle-list.css (same colours), only the size changes here —
+   7 equal 8px-tall bars instead of the list column's 16x20 badges. */
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-week {
+	gap: 3px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-week__day {
+	flex: 1;
+	min-width: 0;
+}
+
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-day {
+	width: 100%;
+	height: 8px;
+	border-radius: 2px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-day__label {
+	font-size: 9px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 12px 16px;
+	border-top: 1px solid #f2f3f5;
+}
+
+.mhm-vehicle-list .rv-vhl-card__price {
+	font-size: 20px;
+	font-weight: 700;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .rv-vhl-card__price-unit {
+	font-size: 12px;
+	font-weight: 500;
+	color: #8a8f98;
+}
+
+.mhm-vehicle-list .rv-vhl-card__edit {
+	display: inline-block;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	padding: 6px 14px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #2271b1;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list .rv-vhl-card__edit:hover {
+	border-color: #2271b1;
+	background: #f7f9fc;
+}
+
+/* ════════════════════════════════════════════════════════════
+   4. Bookings "Approve" row action (Faz 2 Task 7)
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-booking-list .rv-bkl-approve {
+	color: #0a6b1e;
+	font-weight: 600;
+}
+
+.mhm-booking-list .rv-bkl-approve:hover,
+.mhm-booking-list .rv-bkl-approve:focus {
+	color: #07500f;
+}
+
+.mhm-booking-list .rv-bkl-approve.is-busy {
+	color: #8a8f98;
+	cursor: default;
+	pointer-events: none;
+}
+
+.mhm-booking-list .rv-bkl-approve-error {
+	display: inline-block;
+	margin-left: 6px;
+	color: #a02222;
+	font-size: 12px;
+}

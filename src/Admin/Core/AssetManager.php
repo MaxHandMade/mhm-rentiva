@@ -314,42 +314,85 @@ final class AssetManager {
 		self::enqueue_frontend_specific_assets();
 
 		// Enqueue Vehicle Interactions (Favorites & Compare)
-		if (wp_script_is('mhm-rentiva-vehicle-interactions', 'registered')) {
-			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
-			wp_localize_script(
-				'mhm-rentiva-vehicle-interactions',
-				'mhmrentiva_vars',
-				array(
-					'ajax_url'           => admin_url('admin-ajax.php'),
-					'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'), // Fallback generic
-					'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
-					'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
-					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
-					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
-					'i18n'               => array(
-						'add_favorite'         => __('Add to Favorites', 'mhm-rentiva'),
-						'remove_favorite'      => __('Remove from Favorites', 'mhm-rentiva'),
-						'adding_favorite'      => __('Adding to favorites...', 'mhm-rentiva'),
-						'removing_favorite'    => __('Removing from favorites...', 'mhm-rentiva'),
-						'added_favorite'       => __('Added to favorites.', 'mhm-rentiva'),
-						'removed_favorite'     => __('Removed from favorites.', 'mhm-rentiva'),
-						'add_compare'          => __('Compare', 'mhm-rentiva'),
-						'remove_compare'       => __('Remove Compare', 'mhm-rentiva'),
-						'adding_compare'       => __('Adding to comparison...', 'mhm-rentiva'),
-						'removing_compare'     => __('Removing from comparison...', 'mhm-rentiva'),
-						'added_to_compare'     => __('Added to comparison.', 'mhm-rentiva'),
-						'removed_from_compare' => __('Removed from comparison.', 'mhm-rentiva'),
-						/* translators: %d: maximum number of vehicles allowed in compare list. */
-						'max_compare'          => __('You can compare up to %d vehicles', 'mhm-rentiva'),
-						'view_comparison'      => __('View comparison', 'mhm-rentiva'),
-						'go_to_favorites'      => __('Go to My Favorites', 'mhm-rentiva'),
-						'add_one_more'         => __('Add one more vehicle to compare', 'mhm-rentiva'),
-						'need_at_least_two'    => __('Comparison needs at least 2 vehicles', 'mhm-rentiva'),
-						'compare_page_missing' => __('Comparison page not configured', 'mhm-rentiva'),
-					),
-				)
-			);
+		self::enqueue_vehicle_interactions();
+	}
+
+	/**
+	 * Enqueue vehicle-interactions.js and localize its ONE mhmrentiva_vars payload.
+	 *
+	 * This is the single definition of that payload. It used to live inline in
+	 * enqueue_frontend_assets() alone, which runs only when should_load_assets()
+	 * says yes -- and that check reads $post->post_content for '[rentiva_' or a
+	 * registered block comment. An Elementor-built page stores its content in the
+	 * _elementor_data postmeta, so the check returned false and the whole payload
+	 * was skipped. vehicle-interactions.js still loaded on such pages, because
+	 * four shortcodes name it in their JS dependencies; its init() then found
+	 * mhmrentiva_vars undefined and bound no handlers at all, and every favourite
+	 * and compare button on the page was silently dead.
+	 *
+	 * SearchResults used to paper over its own case with a SECOND, shorter
+	 * wp_localize_script() of the same variable that carried no 'i18n' key, which
+	 * turned the silent failure into `Cannot read properties of undefined
+	 * (reading 'adding_compare')`. That copy is gone: every caller now routes
+	 * through here, so the strings cannot drift out of one of them again.
+	 *
+	 * Idempotent -- safe to call from every site that pulls the script in, in any
+	 * order, however many shortcodes render on one page. The guard reads the
+	 * handle's own attached data rather than a private static flag, so it cannot
+	 * fall out of step with reality: deregistering the handle (which drops that
+	 * data) genuinely re-arms it, which is what both a fresh request and a fresh
+	 * test case want.
+	 */
+	public static function enqueue_vehicle_interactions(): void
+	{
+		if (! wp_script_is('mhm-rentiva-vehicle-interactions', 'registered')) {
+			return;
 		}
+
+		$attached = wp_scripts()->get_data('mhm-rentiva-vehicle-interactions', 'data');
+		if (is_string($attached) && strpos($attached, 'mhmrentiva_vars') !== false) {
+			// Already localized this request. wp_localize_script() CONCATENATES
+			// rather than replaces, so calling it twice would emit two `var
+			// mhmrentiva_vars = ...` statements and leave the winner up to
+			// source order -- exactly the failure mode this method exists to end.
+			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+			return;
+		}
+
+		wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+		wp_localize_script(
+			'mhm-rentiva-vehicle-interactions',
+			'mhmrentiva_vars',
+			array(
+				'ajax_url'           => admin_url('admin-ajax.php'),
+				'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'), // Fallback generic
+				'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
+				'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
+				'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
+				'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
+				'i18n'               => array(
+					'add_favorite'         => __('Add to Favorites', 'mhm-rentiva'),
+					'remove_favorite'      => __('Remove from Favorites', 'mhm-rentiva'),
+					'adding_favorite'      => __('Adding to favorites...', 'mhm-rentiva'),
+					'removing_favorite'    => __('Removing from favorites...', 'mhm-rentiva'),
+					'added_favorite'       => __('Added to favorites.', 'mhm-rentiva'),
+					'removed_favorite'     => __('Removed from favorites.', 'mhm-rentiva'),
+					'add_compare'          => __('Compare', 'mhm-rentiva'),
+					'remove_compare'       => __('Remove Compare', 'mhm-rentiva'),
+					'adding_compare'       => __('Adding to comparison...', 'mhm-rentiva'),
+					'removing_compare'     => __('Removing from comparison...', 'mhm-rentiva'),
+					'added_to_compare'     => __('Added to comparison.', 'mhm-rentiva'),
+					'removed_from_compare' => __('Removed from comparison.', 'mhm-rentiva'),
+					/* translators: %d: maximum number of vehicles allowed in compare list. */
+					'max_compare'          => __('You can compare up to %d vehicles', 'mhm-rentiva'),
+					'view_comparison'      => __('View comparison', 'mhm-rentiva'),
+					'go_to_favorites'      => __('Go to My Favorites', 'mhm-rentiva'),
+					'add_one_more'         => __('Add one more vehicle to compare', 'mhm-rentiva'),
+					'need_at_least_two'    => __('Comparison needs at least 2 vehicles', 'mhm-rentiva'),
+					'compare_page_missing' => __('Comparison page not configured', 'mhm-rentiva'),
+				),
+			)
+		);
 	}
 
 	/**
@@ -576,14 +619,6 @@ final class AssetManager {
 	}
 
 	/**
-	 * Load calendars CSS
-	 */
-	public static function enqueue_calendars(): void
-	{
-		self::enqueue_component_css('mhm-calendars');
-	}
-
-	/**
 	 * Load frontend-specific assets
 	 */
 	private static function enqueue_frontend_specific_assets(): void
@@ -629,6 +664,8 @@ final class AssetManager {
 				'currentMode' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_dark_mode', 'auto'),
 			)
 		);
+		$currency_parts = CurrencyHelper::get_js_currency_payload();
+
 		wp_localize_script(
 			'mhm-rentiva-core-js',
 			'mhmRentivaAdmin',
@@ -636,12 +673,15 @@ final class AssetManager {
 				'ajaxUrl'          => admin_url('admin-ajax.php'),
 				'nonce'            => wp_create_nonce('mhmrentiva_admin_nonce'),
 				'locale'           => get_locale(),
-				'currency'         => get_option('mhmrentiva_currency', 'USD'),
-				'currencySymbol'   => CurrencyHelper::get_currency_symbol(),
-				'currencyPosition' => CurrencyHelper::get_currency_position(),
-				'decimalSep'       => function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',',
-				'thousandSep'      => function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : '.',
-				'numDecimals'      => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
+				// One canonical source for every currency part. `currency` used to be
+				// read straight off the plugin option, so it could name a different
+				// currency than the symbol beside it once WooCommerce was active.
+				'currency'         => $currency_parts['currency'],
+				'currencySymbol'   => $currency_parts['symbol'],
+				'currencyPosition' => $currency_parts['position'],
+				'decimalSep'       => $currency_parts['decimalSeparator'],
+				'thousandSep'      => $currency_parts['thousandSeparator'],
+				'numDecimals'      => $currency_parts['decimals'],
 				'dateFormat'       => get_option('date_format', 'Y-m-d'),
 				'timeFormat'       => get_option('time_format', 'H:i'),
 				'strings'          => array(

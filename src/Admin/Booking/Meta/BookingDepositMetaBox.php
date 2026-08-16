@@ -8,7 +8,6 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
-use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -390,21 +389,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	private static function format_price( float $price ): string {
-		$symbol   = get_woocommerce_currency_symbol();
-		$position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
-		$amount   = number_format_i18n( $price, 2 );
-
-		switch ( $position ) {
-			case 'left':
-				return $symbol . $amount;
-			case 'right':
-				return $amount . $symbol;
-			case 'left_space':
-				return $symbol . ' ' . $amount;
-			case 'right_space':
-			default:
-				return $amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 
 	private static function get_payment_status_label( string $status ): string {

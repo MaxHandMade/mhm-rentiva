@@ -144,12 +144,6 @@
 }
 
 
-.mhm-booking-list select.postform[name="mhmrentiva_booking_status"] {
-	min-width: 130px;
-	padding-right: 30px;
-	/* Extra padding for dropdown arrow */
-}
-
 /* General fix for WordPress admin dropdowns */
 .mhm-booking-list select.postform {
 	-webkit-appearance: none;
@@ -400,4 +394,413 @@
 
 .mhm-booking-list .subsubsub li {
 	margin-right: var(--mhm-space-4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Refined WP-admin skin (Faz 1a list transform — admin redesign recipe).
+   Joins the existing .mhm-booking-list scope and class names; only the
+   NEW chip strip uses the rv-bkl- prefix. Soft pill palette per mockup.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Table as a white rounded card ── */
+.mhm-booking-list .wp-list-table {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow: hidden;
+	border-spacing: 0;
+	margin-top: 0;
+}
+
+.mhm-booking-list .wp-list-table thead th,
+.mhm-booking-list .wp-list-table thead td {
+	background: #fafbfc;
+	color: #646970;
+	font-weight: 600;
+	border-bottom: 1px solid #eceef1;
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.mhm-booking-list .wp-list-table tbody th,
+.mhm-booking-list .wp-list-table tbody td {
+	border-bottom: 1px solid #f2f3f5;
+	padding-top: 11px;
+	padding-bottom: 11px;
+	vertical-align: middle;
+}
+
+.mhm-booking-list .wp-list-table tbody tr:hover td,
+.mhm-booking-list .wp-list-table tbody tr:hover th {
+	background-color: #fafbfc;
+}
+
+.mhm-booking-list .wp-list-table tfoot th,
+.mhm-booking-list .wp-list-table tfoot td {
+	background: #fafbfc;
+	border-top: none;
+}
+
+/* Striping off — the card look uses row borders, not zebra stripes. */
+.mhm-booking-list .wp-list-table.striped > tbody > :nth-child(odd) {
+	background-color: transparent;
+}
+
+/* ── Soft status pills (solid colors give way to the mockup palette) ── */
+.mhm-booking-list .badge {
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.mhm-booking-list .badge.status-pending {
+	background-color: #fcf3d6;
+	color: #8a6d1b;
+}
+
+.mhm-booking-list .badge.status-confirmed {
+	background-color: #e5eefb;
+	color: #135e96;
+}
+
+.mhm-booking-list .badge.status-in_progress {
+	background-color: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.mhm-booking-list .badge.status-completed {
+	background-color: #f0f2f5;
+	color: #50575e;
+}
+
+.mhm-booking-list .badge.status-cancelled,
+.mhm-booking-list .badge.status-no_show {
+	background-color: #fbeaea;
+	color: #a02222;
+}
+
+.mhm-booking-list .badge.status-refunded {
+	background-color: #fcf3d6;
+	color: #8a6d1b;
+}
+
+.mhm-booking-list .badge.status-draft {
+	background-color: #f0f2f5;
+	color: #8a8f98;
+}
+
+/* ── Soft payment pills ── */
+.mhm-booking-list .badge.payment-status-paid {
+	background-color: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.mhm-booking-list .badge.payment-status-pending,
+.mhm-booking-list .badge.payment-status-unpaid {
+	background-color: #fcf3d6;
+	color: #8a6d1b;
+	border: none;
+}
+
+.mhm-booking-list .badge.payment-status-partially_paid {
+	background-color: #e5eefb;
+	color: #135e96;
+}
+
+.mhm-booking-list .badge.payment-status-refunded,
+.mhm-booking-list .badge.payment-status-failed,
+.mhm-booking-list .badge.payment-status-cancelled {
+	background-color: #fbeaea;
+	color: #a02222;
+}
+
+.mhm-booking-list .badge.payment-status-processing {
+	background-color: #e5eefb;
+	color: #135e96;
+}
+
+.mhm-booking-list tr.status-completed .payment-info .badge.payment-status-paid {
+	background-color: #e4f6e9;
+	color: #0a6b1e;
+}
+
+/* ── Status chip strip (replaces the status dropdown) ── */
+.mhm-booking-list .rv-bkl-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 14px 0 4px;
+}
+
+.mhm-booking-list .rv-bkl-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 6px 13px;
+	border: 1px solid #dcdde1;
+	border-radius: 999px;
+	background: #fff;
+	color: #50575e;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.mhm-booking-list .rv-bkl-chip:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+.mhm-booking-list .rv-bkl-chip.is-active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+.mhm-booking-list .rv-bkl-chip__count {
+	opacity: 0.7;
+}
+
+/* ── KPI band refinements ──
+   shared/admin.css paints .mhm-stat-card:nth-child(N) gradients and loads
+   AFTER this file, so these overrides carry body+2-class specificity to
+   win against the (0,2,0) gradient rules on every card slot. */
+body.mhm-booking-list .mhm-stats-grid {
+	gap: 14px;
+	margin: 14px 0 4px;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card,
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(1),
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(2),
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(3),
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(4) {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 16px 18px;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card .dashicons {
+	color: #8a8f98;
+	background: #f4f5f7;
+	border-radius: 8px;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card__label {
+	font-size: 12px;
+	font-weight: 500;
+	color: #646970;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card__value {
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #1d2327;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card__sub {
+	color: #8a8f98;
+	opacity: 1;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-pending .mhm-stat-card__value {
+	color: #8a6d1b;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-completed .mhm-stat-card__value {
+	color: #0a6b1e;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__value {
+	color: #135e96;
+}
+
+/* ── Toolbar refinements: Add New, search box, remaining selects ── */
+.mhm-booking-list .page-title-action {
+	background: #2271b1;
+	border: 1px solid #2271b1;
+	border-radius: 8px;
+	color: #fff;
+	font-weight: 600;
+	padding: 5px 14px;
+}
+
+.mhm-booking-list .page-title-action:hover,
+.mhm-booking-list .page-title-action:focus {
+	background: #135e96;
+	border-color: #135e96;
+	color: #fff;
+}
+
+.mhm-booking-list #post-search-input,
+.mhm-booking-list select.postform,
+.mhm-booking-list .tablenav input[type="text"] {
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background-color: #fff;
+	padding: 6px 12px;
+	font-size: 13px;
+	box-shadow: none;
+}
+
+.mhm-booking-list .tablenav .button,
+.mhm-booking-list #search-submit {
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	color: #2c3338;
+}
+
+.mhm-booking-list .tablenav .button:hover,
+.mhm-booking-list #search-submit:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+/* ── Light-committed text colors ──
+   css-variables.css flips --mhm-text-* to light values under
+   prefers-color-scheme: dark while this skin pins light surfaces, which
+   washed the cell text out (measured). The refined screen commits to the
+   light look in both schemes, so text colors are pinned explicitly. */
+.mhm-booking-list .date-info .date-range,
+.mhm-booking-list .total-amount,
+.mhm-booking-list .vehicle-info .vehicle-name,
+.mhm-booking-list .vehicle-info .vehicle-name a,
+.mhm-booking-list .deposit-amount,
+.mhm-booking-list .remaining-amount.paid {
+	color: #1d2327;
+}
+
+.mhm-booking-list .booking-id,
+.mhm-booking-list .date-days,
+.mhm-booking-list .date-info .time-info,
+.mhm-booking-list .vehicle-info .vehicle-plate,
+.mhm-booking-list .mhm-gateway-pill {
+	color: #8a8f98;
+}
+
+.mhm-booking-list .mhm-gateway-pill {
+	background: #f4f5f7;
+	border-color: #e6e7eb;
+}
+
+.mhm-booking-list .wp-list-table tbody td,
+.mhm-booking-list .wp-list-table tbody th {
+	color: #1d2327;
+}
+
+/* ── Toolbar seam (renders only when a subscriber adds actions) ── */
+.mhm-booking-list .rv-bkl-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin: 10px 0 0;
+}
+
+.mhm-booking-list .rv-bkl-toolbar__btn {
+	display: inline-block;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 7px 14px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	color: #2c3338;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.mhm-booking-list .rv-bkl-toolbar__btn:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+/* ── Filter-row-to-content gap, standardised across both faces ──
+   Same defect and same fix as vehicle-list.css's identical rule — see
+   that comment for the full mechanism (WP core's fixed `.tablenav {
+   height: 30px }` clips the box short of its own wrapped content, so the
+   next element's position is built from the wrong edge). This screen's
+   filter row is WIDER than Vehicles' (payment status/method selects,
+   booking ID and plate text inputs on top of the bulk-action + date
+   controls) and wraps onto a second internal line at every desktop width
+   tested — so here the bug produced an oversized gap (measured 68.69px
+   at 1440px) rather than Vehicles' flush 0px, both from the same root
+   cause. `.wp-list-table`/`.mhm-occupancy-matrix-wrap` zero their own
+   margin-top so 20px (`--mhm-space-5`, matching vehicle-list.css's
+   choice) is the only source of the gap on either face. */
+.mhm-booking-list .tablenav.top {
+	height: auto;
+	margin-bottom: 20px;
+}
+
+/* ── View-switch toggle (Faz 2 view engine) ──
+   Refined skin now lives in occupancy-matrix.css (Faz 2 Task 8), shared
+   with the Vehicles screen's identical toggle — the minimal placeholder
+   that used to be here is gone. `.rv-bkl-toolbar-row` only exists when a
+   Pro toolbar subscriber is present (JS wraps toggle + toolbar together
+   in that case); with no subscriber the toggle renders standalone. */
+.mhm-booking-list .rv-bkl-toolbar-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.mhm-booking-list .rv-bkl-toolbar-row .rv-view-toggle,
+.mhm-booking-list .rv-bkl-toolbar-row .rv-bkl-toolbar {
+	margin: 0;
+}
+
+/* ── Face visibility (Faz 2 view engine) ──
+   The calendar FACE itself lands in Task 5; today `view=calendar` only
+   hides the list chrome so the (currently empty) content area below the
+   toolbar doesn't show a stray list table alongside it. Bookings has no
+   cards face. Unlike Vehicles, pagination is not meaningful on this face,
+   so `.tablenav-pages` stays hidden on the TOP row too. The BOTTOM row is
+   emptied instead of hidden (see the next rule): with the list table gone
+   the top and bottom rows collapse together, so every box-generating child
+   of the bottom row has to go — otherwise an empty row sits directly under
+   the top one — but the row element itself has to stay, because it is where
+   the Calendar face now prints. */
+body.mhm-booking-list.mhm-view-calendar .wp-list-table,
+body.mhm-booking-list.mhm-view-calendar .tablenav.top .bulkactions,
+body.mhm-booking-list.mhm-view-calendar .tablenav.top .tablenav-pages {
+	display: none;
+}
+
+/* The bottom tablenav can no longer be hidden wholesale: it is the host of
+   the Calendar face now. `manage_posts_extra_tablenav` (bottom) is the only
+   core hook that fires after the list table and still inside `.wrap`, so the
+   face prints into that band server-side instead of being moved there by a
+   script afterwards. Its own native children are hidden piece by piece — the
+   same empty-row problem the wholesale rule solved, solved without hiding
+   the face with them — and core's fixed `.tablenav { height: 30px }` is
+   released so the matrix can set its own height. */
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom > .actions,
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom > .tablenav-pages,
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom > br.clear {
+	display: none;
+}
+
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom {
+	height: auto;
+	margin: 0;
+}
+
+/* ── Calendar card harmonization (function untouched) ── */
+.mhm-booking-list .calendar-container {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }

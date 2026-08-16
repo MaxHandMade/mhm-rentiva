@@ -6,6 +6,36 @@
 	'use strict';
 
 	const ManualBooking = {
+		/**
+		 * Format an amount with the canonical currency symbol, placement and
+		 * separators — all of which PHP sources from WooCommerce. Every price in
+		 * this panel used to be printed as `${amount} ${symbol}`, which pinned the
+		 * symbol to the right no matter what woocommerce_currency_pos said, and
+		 * took separators from the browser locale rather than from WooCommerce.
+		 */
+		formatMoney: function (amount) {
+			const cfg      = ( typeof mhmManualBooking !== 'undefined' ) ? mhmManualBooking : {};
+			const symbol   = cfg.currency || '';
+			const fmt      = cfg.currencyFormat || {};
+			const position = fmt.position || 'right_space';
+			const decimals = ( fmt.decimals === undefined ) ? 2 : Number( fmt.decimals );
+			const decSep   = fmt.decimalSeparator || ',';
+			const thouSep  = fmt.thousandSeparator || '.';
+
+			const fixed = Number( amount || 0 ).toFixed( decimals );
+			const parts = fixed.split( '.' );
+			const int   = parts[0].replace( /\B(?=(\d{3})+(?!\d))/g, thouSep );
+			const value = decimals > 0 ? int + decSep + parts[1] : int;
+
+			switch ( position ) {
+				case 'left':        return symbol + value;
+				case 'left_space':  return symbol + ' ' + value;
+				case 'right':       return value + symbol;
+				case 'right_space':
+				default:            return value + ' ' + symbol;
+			}
+		},
+
 		init: function () {
 			this.bindEvents();
 			this.setupDateDefaults();
@@ -160,14 +190,7 @@
 
 			if (total > 0) {
 				$addonTotal.removeClass( 'mhm-hidden' );
-				const formattedTotal = total.toLocaleString(
-					mhmManualBooking.locale,
-					{
-						minimumFractionDigits: 2,
-						maximumFractionDigits: 2
-					}
-				);
-				$addonTotalAmount.text( formattedTotal + ' ' + mhmManualBooking.currency );
+				$addonTotalAmount.text( ManualBooking.formatMoney( total ) );
 			} else {
 				$addonTotal.addClass( 'mhm-hidden' );
 			}
@@ -189,7 +212,7 @@
 						</div>
 						<div class="mhm-vehicle-detail">
 							<strong>${dailyPriceText}:</strong>
-							<span>${$('<span>').text(price ? price + ' ' + mhmManualBooking.currency : notSpecifiedText).html()}</span>
+							<span>${$('<span>').text(price ? ManualBooking.formatMoney(price) : notSpecifiedText).html()}</span>
 						</div>
 					</div>
 				</div>
@@ -288,8 +311,8 @@
 		},
 
 		displayPriceCalculation: function (data) {
-			const currency  = mhmManualBooking.currency;
-			const text      = mhmManualBooking.text;
+			const money = ManualBooking.formatMoney;
+			const text  = mhmManualBooking.text;
 			const priceHtml = `
 				<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.rentalDays || 'Rental Days'}:</span>
@@ -297,36 +320,36 @@
 				</div>
 				<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.dailyPrice || 'Daily Price'}:</span>
-					<span class="mhm-price-value">${data.price_per_day} ${currency}</span>
+					<span class="mhm-price-value">${money(data.price_per_day)}</span>
 				</div>
 				${data.weekend_surcharge > 0 ? `
 					<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.weekendDifference || 'Weekend Difference:'} ${data.weekend_days ? `(${( text.weekendDaysCount || '%d weekend day(s)' ).replace( '%d', data.weekend_days )})` : ''}</span>
-					<span class="mhm-price-value">+${data.weekend_surcharge} ${currency}</span>
+					<span class="mhm-price-value">+${money(data.weekend_surcharge)}</span>
 					</div>
 					` : ''}
 				<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.vehicleTotal || 'Vehicle Total'}:</span>
-					<span class="mhm-price-value">${data.vehicle_total || data.total_amount} ${currency}</span>
+					<span class="mhm-price-value">${money(data.vehicle_total || data.total_amount)}</span>
 				</div>
 				${data.addon_total > 0 ? `
 					<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.addons || 'Add-ons'}:</span>
-					<span class="mhm-price-value">${data.addon_total} ${currency}</span>
+					<span class="mhm-price-value">${money(data.addon_total)}</span>
 					</div>
 					` : ''}
 				<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.grandTotal || 'Grand Total'}:</span>
-					<span class="mhm-price-value">${data.final_total || data.total_amount} ${currency}</span>
+					<span class="mhm-price-value">${money(data.final_total || data.total_amount)}</span>
 				</div>
 				${data.payment_type === 'deposit' ? `
 					<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.deposit || 'Deposit'}:</span>
-					<span class="mhm-price-value">${data.deposit_amount} ${currency}</span>
+					<span class="mhm-price-value">${money(data.deposit_amount)}</span>
 					</div>
 					<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.remaining || 'Remaining'}:</span>
-					<span class="mhm-price-value">${data.remaining_amount} ${currency}</span>
+					<span class="mhm-price-value">${money(data.remaining_amount)}</span>
 					</div>
 					` : ''}
 			`;
@@ -336,12 +359,8 @@
 
 			// Sync addon total display from AJAX data
 			if ( data.addon_total > 0 ) {
-				const formattedAddon = parseFloat( data.addon_total ).toLocaleString(
-					mhmManualBooking.locale,
-					{ minimumFractionDigits: 2, maximumFractionDigits: 2 }
-				);
 				$( '.mhm-addon-total' ).removeClass( 'mhm-hidden' );
-				$( '.mhm-addon-total-amount' ).text( formattedAddon + ' ' + mhmManualBooking.currency );
+				$( '.mhm-addon-total-amount' ).text( ManualBooking.formatMoney( parseFloat( data.addon_total ) ) );
 			}
 		},
 

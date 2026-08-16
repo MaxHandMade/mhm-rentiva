@@ -106,10 +106,22 @@ final class CancellationOwnershipTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Bookings written by an older version carry the legacy key. Reading it as a
-	 * fallback keeps those cancellable instead of stranding them.
+	 * Reversed on 2026-08-16, when the Faz 2 branch merged in.
+	 *
+	 * This test used to assert the opposite: that `_mhmrentiva_customer_id` was
+	 * honoured as a legacy fallback so older bookings stayed cancellable. Both
+	 * audit rounds had looked at this key and reached opposite verdicts, so it
+	 * was measured rather than argued -- the key has no writer anywhere in the
+	 * tree, no migration step, and zero rows in the database. There is no legacy
+	 * data for the fallback to rescue, and reading ownership from a shape no
+	 * writer produces hands it to anything that can put the key there by another
+	 * route.
+	 *
+	 * The scenario is kept rather than deleted, inverted, because it is the
+	 * negative control for the real read: if `resolve_booking_customer_id()` ever
+	 * grows the fallback back, this fails.
 	 */
-	public function test_legacy_ownership_key_is_still_honoured(): void
+	public function test_legacy_ownership_key_confers_no_ownership(): void
 	{
 		$legacy_booking = (int) self::factory()->post->create(array(
 			'post_type'   => 'mhmrentiva_booking',
@@ -122,9 +134,9 @@ final class CancellationOwnershipTest extends WP_UnitTestCase
 
 		wp_set_current_user($this->customer_id);
 
-		$this->assertTrue(
+		$this->assertFalse(
 			CancellationHandler::user_can_cancel($legacy_booking, $this->customer_id),
-			'A booking carrying only the legacy ownership key must remain cancellable by its owner.'
+			'A key nothing writes must not confer ownership, however plausible the id in it looks.'
 		);
 	}
 }

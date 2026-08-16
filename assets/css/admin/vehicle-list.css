@@ -1,0 +1,670 @@
+/*
+ * Vehicle list screen — refined WP-admin skin (Faz 1b, admin redesign
+ * recipe). Same token language as booking-list.css; everything scoped
+ * under the .mhm-vehicle-list body class. Light-committed: text colors
+ * are pinned explicitly so the dark-scheme token flip in
+ * css-variables.css cannot wash them out (measured on the bookings
+ * round).
+ */
+
+/* ── Table as a white rounded card ── */
+.mhm-vehicle-list .wp-list-table {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow: hidden;
+	border-spacing: 0;
+	margin-top: 0;
+}
+
+.mhm-vehicle-list .wp-list-table thead th,
+.mhm-vehicle-list .wp-list-table thead td {
+	background: #fafbfc;
+	color: #646970;
+	font-weight: 600;
+	border-bottom: 1px solid #eceef1;
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.mhm-vehicle-list .wp-list-table tbody th,
+.mhm-vehicle-list .wp-list-table tbody td {
+	border-bottom: 1px solid #f2f3f5;
+	padding-top: 11px;
+	padding-bottom: 11px;
+	vertical-align: middle;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .wp-list-table tbody tr:hover td,
+.mhm-vehicle-list .wp-list-table tbody tr:hover th {
+	background-color: #fafbfc;
+}
+
+.mhm-vehicle-list .wp-list-table tfoot th,
+.mhm-vehicle-list .wp-list-table tfoot td {
+	background: #fafbfc;
+	border-top: none;
+}
+
+.mhm-vehicle-list .wp-list-table.striped > tbody > :nth-child(odd) {
+	background-color: transparent;
+}
+
+/* ── Category chip strip ── */
+.mhm-vehicle-list .rv-vhl-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 14px 0 4px;
+}
+
+.mhm-vehicle-list .rv-vhl-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 6px 13px;
+	border: 1px solid #dcdde1;
+	border-radius: 999px;
+	background: #fff;
+	color: #50575e;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.mhm-vehicle-list .rv-vhl-chip:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .rv-vhl-chip.is-active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+.mhm-vehicle-list .rv-vhl-chip__count {
+	opacity: 0.7;
+}
+
+/* ── Rich Vehicle cell (thumbnail + title + meta line) ── */
+.mhm-vehicle-list .rv-vhl-vehicle {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.mhm-vehicle-list .rv-vhl-thumb {
+	width: 58px;
+	height: 40px;
+	flex: none;
+	background: #e9eaee;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #a7aaad;
+}
+
+.mhm-vehicle-list .rv-vhl-thumb .rv-vhl-thumb__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__body {
+	min-width: 0;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__title {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__title:hover {
+	color: #2271b1;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__meta {
+	display: block;
+	font-size: 12px;
+	color: #8a8f98;
+	margin-top: 2px;
+}
+
+.mhm-vehicle-list .column-mhmrentiva_vehicle {
+	width: 26%;
+	min-width: 260px;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__title {
+	line-height: 1.3;
+}
+
+/* Keep the narrow columns from stealing width the Vehicle cell needs.
+   featured is deliberately NOT in this group: its header ("Öne Çıkan") is
+   two words with a real space to break at, and it is budgeted below at a
+   width narrower than that header on one line, so it must be allowed to
+   wrap in thead. The other three keep the unscoped rule -- their header
+   labels are single un-hyphenatable words ("Fiyat/Gün", "Mevcut") or fit
+   their own explicit width on one line ("Yaşam Döngüsü"), and letting
+   them wrap would hand them to the theme's global `overflow-wrap:
+   break-word`, i.e. a mid-word split, not a clean line break. */
+.mhm-vehicle-list .column-mhmrentiva_price_per_day,
+.mhm-vehicle-list .column-mhmrentiva_available,
+.mhm-vehicle-list .column-mhmrentiva_lifecycle {
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list tbody .column-mhmrentiva_featured {
+	white-space: nowrap;
+}
+
+/* WP core's .wp-list-table is table-layout:fixed, which auto-splits
+   unconstrained columns to equal width (~100px here). The Turkish
+   "Yaşam Döngüsü" header needs ~131px at nowrap and was overflowing that
+   ~100px box by 11px with no clipping -- the overflow bled into "Öne
+   Çıkan" next door with zero visible gap, reading as one run-on word
+   (user-reported). Diagnosed in-browser: `min-width` is a no-op under
+   fixed table layout, only `width` is honoured, so this must set width.
+
+   Sized from the widest CELL VALUE this column can ever render, not from
+   its header: the lifecycle pill's widest label is "İnceleme Bekliyor"
+   (VehicleLifecycleStatus::PENDING_REVIEW), measured live at 116.14px
+   including the pill's own 10+10px padding, and the pill is `white-space:
+   nowrap` so it can never wrap out of trouble. 120px of content + this
+   cell's 10+10px padding renders at 140px, leaving that widest pill
+   3.86px clear of the content box (verified by injecting all five labels
+   into a live pill and reading back the overflow). The header still fits
+   on one line inside it (101.05px + 20px padding = 121.05px < 140px), so
+   the nowrap above stays honest. `width` here is the CONTENT box under
+   this table (120 -> 140 rendered, same content-box behaviour as the
+   featured column below). */
+.mhm-vehicle-list .column-mhmrentiva_lifecycle {
+	width: 120px;
+}
+
+/* Öne Çıkan renders exactly one thing: a 15px "★" glyph. Its floor is
+   therefore its (now wrappable) header, whose widest word is "Çıkan" at
+   35.18px -- 44px of content + 10+10px padding renders at 64px, clearing
+   the glyph by 29px and the widest header word by 8.8px, with the header
+   on two clean lines ("Öne" / "Çıkan", verified per-character: no
+   mid-word break at any tested width). Content-box `width` again. */
+.mhm-vehicle-list .column-mhmrentiva_featured {
+	width: 44px;
+}
+
+/* Tarih (WP core's own `date` column, no mhmrentiva_ prefix) carried
+   core's `.fixed .column-date { width: 14% }`, i.e. 148.53px at 1280 and
+   170.94px at 1440 -- the widest low-value column on the screen. Its real
+   cell need: the date/time line is set in tabular-figure digits, so every
+   date from "00.00.0000, 00:00" to "31.12.2026, 23:59" measures the
+   identical 98.93px (digit-independent, not an estimate), and every WP
+   core status word above it either fits on one line or breaks at its own
+   space -- including "Kaçırılmış zamanlama" (missed schedule, 122.78px),
+   which wraps cleanly to "Kaçırılmış" / "zamanlama". 124px was verified
+   by injecting each core status into a live cell: two text lines,
+   scrollWidth == clientWidth == 124, no mid-word break, at every tested
+   width. This column is last in the row and (like the sortable columns)
+   its specified `width` is used as the RENDERED width directly, with no
+   padding added -- 124px here is already the rendered target. */
+.mhm-vehicle-list .column-date {
+	width: 124px;
+}
+
+/* Room for the three feature chips to flow horizontally like the mockup. */
+.mhm-vehicle-list .column-mhmrentiva_features {
+	min-width: 200px;
+}
+
+/* ── 7-day availability strip ── */
+/* Fixed table layout only ever honours `width`, never `min-width` — the
+   Lifecycle column above already documents this. The min-width:176px
+   this column carried was therefore a silent no-op from day one, and the
+   padding-right/padding-left "clearance" added around it (twice, in two
+   follow-up commits) was hand-measured compensation for that same no-op.
+   Both held only at the ~1866px+ window they were eyeballed at: this
+   column's actual computed width is whatever table-layout:fixed's equal
+   auto-split gives it, which shrinks with the viewport, while the strip's
+   old fixed-size content (16px days + 4px gaps = 150px) did not — so
+   below ~1866px the strip still outgrew the column and bled under the
+   Available pill (confirmed 1280–1600px; the min-width and both padding
+   bumps never touched the actual cause). Reserving yet another fixed
+   width would only move the breakpoint again, so instead the strip is
+   made to shrink to whatever width the column is actually given, at any
+   width — see the .column-mhmrentiva_week-scoped rules below. */
+.mhm-vehicle-list .column-mhmrentiva_week {
+	padding-right: 8px;
+}
+
+/* ...and the width the day labels need, but ONLY where the row can pay
+   for it. The label row's own measured content need is 144.422px (see the
+   @container rule below); with this cell's 10+8px padding and the
+   content-box `width` behaviour of a plain column here, `width: 148px`
+   renders the cell at 166px and hands the strip exactly 148px of content.
+
+   Why a viewport query and not a plain width: the four columns left on
+   table-layout:fixed's auto share (Konum/Özellikler/Fiyat-Gün/Mevcut)
+   each have a hard data floor of their own, and the binding one is Konum
+   -- "Havalimanı" is a single 63.06px word that four of the six demo
+   locations end with, so below an 83.06px column it does not wrap, it
+   splits mid-word ("Havaliman" / "ı"). Taking a fixed 166px for this
+   column at every viewport would push that auto share to 65.70px at
+   1280px and 80.23px at 1366px -- both below Konum's floor, both
+   reproduced live and both a visible mid-word break in real data. Above
+   1400px the same 166px leaves the auto share at 86.53px and rising, i.e.
+   clear of every floor on the row. So the strip claims its width exactly
+   where the row can afford it and stays on the auto share below that,
+   where the @container fallback hides the labels cleanly rather than
+   clipping them.
+
+   1400px is not a round guess: it is the measured crossover. Konum's
+   floor is reached at an auto share of 83.06px, which this budget hits at
+   a 1162px table = roughly a 1379px viewport; 1400px is the nearest
+   sensible step above it, verified live to leave 3.47px of margin at the
+   boundary itself. */
+@media screen and (min-width: 1400px) {
+	.mhm-vehicle-list .column-mhmrentiva_week {
+		width: 148px;
+	}
+}
+
+.mhm-vehicle-list .column-mhmrentiva_available {
+	padding-left: 8px;
+}
+
+.mhm-vehicle-list .rv-vhl-week {
+	display: flex;
+	gap: 4px;
+}
+
+/* List column only (not the Kartlar face's .rv-vhl-card__strip reuse,
+   which already sets its own sizing at higher specificity in
+   occupancy-matrix.css): let the row of days shrink as one instead of
+   overflowing past the column's real, table-layout-fixed width. Also the
+   size-query container for the label toggle below — a <td> cannot host
+   one (table-cell display forces `contain: none`, confirmed live: setting
+   container-type on the cell itself never matched an @container rule),
+   so the container lives on this flex row instead; its children remain
+   valid query targets. */
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week {
+	container-type: inline-size;
+	container-name: rv-week-strip;
+	gap: 3px;
+	min-width: 0;
+}
+
+.mhm-vehicle-list .rv-vhl-week__day {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+}
+
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week__day {
+	flex: 0 1 16px;
+	min-width: 0;
+}
+
+.mhm-vehicle-list .rv-vhl-day {
+	width: 16px;
+	height: 20px;
+	border-radius: 3px;
+	display: block;
+}
+
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day {
+	width: 100%;
+	max-width: 16px;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-free {
+	background: #e6f4e6;
+	border: 1px solid #d0e8d0;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-pending {
+	background: #f0c33c;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-confirmed {
+	background: #2f80c4;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-active {
+	background: #37a24a;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-completed {
+	background: #9fd6ab;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-blocked {
+	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 3px, #fbeaea 3px, #fbeaea 6px);
+}
+
+.mhm-vehicle-list .rv-vhl-day__label {
+	font-size: 9px;
+	color: #8a8f98;
+	line-height: 1;
+}
+
+/* A single glyph of a Turkish weekday abbreviation is not information —
+   Pazartesi/Perşembe/Pazar all start with "P", Cuma/Cumartesi both with
+   "C" — and a mid-glyph clip (e.g. "Sal" losing its "l") reads as a
+   rendering fault, not a design choice. So the label is never partially
+   shown: below the row's own measured full-content width it is hidden
+   outright (each day already carries its full date in a native `title`
+   tooltip, so nothing is lost), and only revealed once there is room for
+   every label at its natural, unclipped size. `visibility` (not
+   `display`) so the label's box keeps reserving its height in both
+   states — the row never changes height when the label toggles. */
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day__label {
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	visibility: hidden;
+}
+
+/* Measured live (inline-flex, unconstrained, this gap/day-size): the
+   strip's own true content need is 144.422px — one day ("Cum", whose
+   Turkish label is wider than its 16px swatch) is the binding slot; the
+   other six fit inside their swatch. 145px gives that a hair of
+   sub-pixel margin. The column's explicit width above hands the strip
+   148px of content from a 1400px viewport up, so labels are on there and
+   at every wider width (verified unclipped at 1400/1440/1600/1920). Below
+   1400px the column falls back to table-layout:fixed's auto share, which
+   tops out at 84.28px of content just under the breakpoint — nowhere near
+   145px, so this query stays false and the labels are hidden outright.
+   That is deliberate, not almost-fitting-and-clipped: at those widths the
+   row cannot fund the label strip without breaking Konum's data mid-word
+   (see the column's own comment). Each day keeps its full date in a native
+   `title` tooltip either way. */
+@container rv-week-strip (min-width: 145px) {
+	.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week__day {
+		flex: 0 0 auto;
+		min-width: auto;
+	}
+
+	.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day {
+		width: 16px;
+		max-width: none;
+	}
+
+	.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day__label {
+		max-width: none;
+		overflow: visible;
+		visibility: visible;
+	}
+}
+
+/* ── Feature chips in the consolidated column ── */
+.mhm-vehicle-list .rv-vhl-features {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.mhm-vehicle-list .rv-vhl-feature {
+	font-size: 12px;
+	padding: 2px 9px;
+	border-radius: 6px;
+	background: #f0f2f5;
+	color: #50575e;
+	white-space: nowrap;
+}
+
+/* ── Status pills (Available column) ── */
+.mhm-vehicle-list .badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list .badge.status-active {
+	background-color: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.mhm-vehicle-list .badge.status-inactive {
+	background-color: #fbeaea;
+	color: #a02222;
+}
+
+.mhm-vehicle-list .badge.status-maintenance {
+	background-color: #fcf3d6;
+	color: #8a6d1b;
+}
+
+.mhm-vehicle-list .badge.status-default {
+	background-color: #f0f2f5;
+	color: #50575e;
+}
+
+/* ── Featured star ── */
+.mhm-vehicle-list .rv-vhl-star {
+	font-size: 18px;
+	color: #c3c4c7;
+	line-height: 1;
+}
+
+.mhm-vehicle-list .rv-vhl-star.is-featured {
+	color: #dba617;
+}
+
+/* Row actions align under the text body, not the thumbnail. */
+.mhm-vehicle-list .column-mhmrentiva_vehicle .row-actions {
+	margin-left: 70px;
+}
+
+/* ── KPI band (body+2class specificity beats the shared gradients) ── */
+body.mhm-vehicle-list .mhm-stats-grid {
+	gap: 14px;
+	margin: 14px 0 4px;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card,
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(1),
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(2),
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(3),
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(4) {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 16px 18px;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card .dashicons {
+	color: #8a8f98;
+	background: #f4f5f7;
+	border-radius: 8px;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__label {
+	font-size: 12px;
+	font-weight: 500;
+	color: #646970;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__value {
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #1d2327;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__sub {
+	color: #8a8f98;
+	opacity: 1;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-active-today .mhm-stat-card__value {
+	color: #0a6b1e;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-occupancy .mhm-stat-card__value {
+	color: #135e96;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__value {
+	color: #135e96;
+}
+
+/* ── Toolbar refinements ── */
+.mhm-vehicle-list .page-title-action {
+	background: #2271b1;
+	border: 1px solid #2271b1;
+	border-radius: 8px;
+	color: #fff;
+	font-weight: 600;
+	padding: 5px 14px;
+}
+
+.mhm-vehicle-list .page-title-action:hover,
+.mhm-vehicle-list .page-title-action:focus {
+	background: #135e96;
+	border-color: #135e96;
+	color: #fff;
+}
+
+.mhm-vehicle-list #post-search-input,
+.mhm-vehicle-list select.postform,
+.mhm-vehicle-list .tablenav select,
+.mhm-vehicle-list .tablenav input[type="text"] {
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background-color: #fff;
+	padding: 6px 12px;
+	font-size: 13px;
+	box-shadow: none;
+}
+
+/* The shorthand `padding: 6px 12px` above collapses WP core's asymmetric
+   `.wp-core-ui .tablenav select { padding: 0 24px 0 8px; }` down to a
+   symmetric 12px, which is too narrow for core's own appearance:none
+   chevron (16px icon, offset 8px from the right edge) — the label text
+   then renders under the arrow. Selects need their right padding restored;
+   text inputs don't carry a chevron and are unaffected. */
+.mhm-vehicle-list select.postform,
+.mhm-vehicle-list .tablenav select {
+	padding-right: 30px;
+}
+
+/* The lifecycle filter's default label ("Tüm yaşam döngüsü durumları") and
+   longest option ("Arşiv (süresi dolmuş + geri çekilmiş)") don't fit inside
+   WP core's `.wp-core-ui .tablenav select { max-width: 12.5rem; }` (200px)
+   cap even with correct padding — widen this one select so its label isn't
+   clipped. The other three filters stay within the core cap already. */
+.mhm-vehicle-list select[name="mhmrentiva_lifecycle_filter"] {
+	max-width: 260px;
+}
+
+.mhm-vehicle-list .tablenav .button,
+.mhm-vehicle-list #search-submit {
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	color: #2c3338;
+}
+
+.mhm-vehicle-list .tablenav .button:hover,
+.mhm-vehicle-list #search-submit:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+/* ── Filter-row-to-content gap, standardised across all three faces ──
+   WP core fixes `.tablenav { height: 30px; }`. That is harmless when the
+   row's floated `.actions`/`.tablenav-pages` children fit on one line, but
+   on any row that wraps (this screen's own filter set at narrow widths,
+   and the Bookings screen's wider filter set even at 1440px) the wrapped
+   children paint past the fixed-height box without growing it — so the
+   box's own bottom edge, which is what the NEXT element's position is
+   built from, lands well short of (or, once `height:auto` fixes that,
+   flush with) where the filter row actually stops rendering. Measured
+   live: at 1440px this quietly produced a 0px (flush) gap on this face's
+   Liste table (user-reported "too tight") — `height: auto` lets the box
+   contain its real content so the margin below it means what it says.
+   20px is `--mhm-space-5`, the same value `.mhm-calendars` (Kartlar/
+   Takvim's own content card) already uses elsewhere in this codebase for
+   "gap after a filters/KPI band, before the next content card" — this
+   screen's own `.subsubsub`-to-filter-row gap lands at that same 20px
+   natively, so 20px is this screen's established rhythm, not a new
+   number. `.wp-list-table`/`.rv-vhl-cards`/`.mhm-occupancy-matrix-wrap`
+   all zero their own margin-top (see their rules) so this is the ONLY
+   source of the gap on every face — no stacking, no drift. */
+.mhm-vehicle-list .tablenav.top {
+	height: auto;
+	margin-bottom: 20px;
+}
+
+/* ── View-switch toggle (Faz 2 view engine) ──
+   Refined skin now lives in occupancy-matrix.css (Faz 2 Task 8), shared
+   with the Bookings screen's identical toggle — the minimal placeholder
+   that used to be here is gone. */
+
+/* ── Face visibility (Faz 2 view engine) ──
+   The cards/calendar FACES themselves land in Tasks 4 and 6; today these
+   only hide the list chrome so the (currently empty) content area below
+   the toolbar doesn't show a stray list table alongside it. Both non-list
+   faces keep `.tablenav-pages` and `.search-box` visible on this screen
+   (unlike Bookings' calendar face, which also hides pagination) — the TOP
+   tablenav's pagination is still meaningful here (cards/calendar rows come
+   from the same main query) and its filter controls still drive that
+   query, so only the BOTTOM row is emptied (see the next rule). Without
+   that, WordPress renders both the top and bottom tablenav rows either side
+   of the (display:none) list table; with the table gone the two rows
+   collapse together and the "X öge" counter appears twice, stacked, right
+   under the filter row (user-reported). */
+body.mhm-vehicle-list.mhm-view-cards .wp-list-table,
+body.mhm-vehicle-list.mhm-view-calendar .wp-list-table,
+body.mhm-vehicle-list.mhm-view-cards .tablenav .bulkactions,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav .bulkactions {
+	display: none;
+}
+
+/* The bottom tablenav can no longer be hidden wholesale: it is the host of
+   the face content now. `manage_posts_extra_tablenav` (bottom) is the only
+   core hook that fires after the list table and still inside `.wrap`, so the
+   Cards and Calendar faces print into that band server-side instead of being
+   moved there by a script afterwards. Its own native children are hidden
+   piece by piece, and core's fixed `.tablenav { height: 30px }` is released
+   so the face can set its own height. */
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom > .actions,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom > .actions,
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom > .tablenav-pages,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom > .tablenav-pages,
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom > br.clear,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom > br.clear {
+	display: none;
+}
+
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom {
+	height: auto;
+	margin: 0;
+}
+
+/* ── Calendar card harmonization (function untouched) ── */
+.mhm-vehicle-list .mhm-calendars {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}

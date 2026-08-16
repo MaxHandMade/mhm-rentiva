@@ -3,28 +3,32 @@ import ShortcodeRow from './ShortcodeRow';
 
 export default function ShortcodeTable( { shortcodes, pendingSlugs, onCreate, onDelete } ) {
 	return (
-		<div style={ { overflowX: 'auto', WebkitOverflowScrolling: 'touch' } }>
-		<table className="wp-list-table widefat fixed striped mhm-sc-table">
-			<thead>
-				<tr>
-					<th>{ __( 'Shortcode', 'mhm-rentiva' ) }</th>
-					<th>{ __( 'Page', 'mhm-rentiva' ) }</th>
-					<th>{ __( 'Status', 'mhm-rentiva' ) }</th>
-					<th>{ __( 'Actions', 'mhm-rentiva' ) }</th>
-				</tr>
-			</thead>
-			<tbody>
-				{ shortcodes.map( ( sc ) => (
-					<ShortcodeRow
-						key={ sc.slug }
-						shortcode={ sc }
-						pending={ pendingSlugs.has( sc.slug ) }
-						onCreate={ onCreate }
-						onDelete={ onDelete }
-					/>
-				) ) }
-			</tbody>
-		</table>
+		<div className="rv-scp-card">
+			{ shortcodes.length === 0 ? (
+				<div className="rv-scp-empty">{ __( 'No matches found.', 'mhm-rentiva' ) }</div>
+			) : (
+				<table className="rv-scp-table">
+					<thead>
+						<tr>
+							<th>{ __( 'Shortcode', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Page', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Status', 'mhm-rentiva' ) }</th>
+							<th className="is-right">{ __( 'Actions', 'mhm-rentiva' ) }</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ shortcodes.map( ( sc ) => (
+							<ShortcodeRow
+								key={ sc.slug }
+								shortcode={ sc }
+								pending={ pendingSlugs.has( sc.slug ) }
+								onCreate={ onCreate }
+								onDelete={ onDelete }
+							/>
+						) ) }
+					</tbody>
+				</table>
+			) }
 		</div>
 	);
 }

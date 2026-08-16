@@ -161,26 +161,37 @@ final class AddonManager {
 	 */
 	public static function render_price_column( string $column, int $post_id ): void {
 		if ( 'mhmrentiva_addon_price' === $column ) {
-			$price           = get_post_meta( $post_id, 'mhmrentiva_addon_price', true );
-			$currency_code   = self::get_default_currency();
-			$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency_code );
+			$price = get_post_meta( $post_id, 'mhmrentiva_addon_price', true );
 
 			if ( $price ) {
-				$formatted_price = number_format( (float) $price, 2, ',', '.' ) . ' ' . $currency_symbol;
 				printf(
 					'<span class="addon-price-display" data-addon-id="%d" data-price="%s">%s</span>',
 					(int) $post_id,
 					esc_attr( $price ),
-					esc_html( $formatted_price )
+					esc_html( self::format_addon_price( (float) $price ) )
 				);
 			} else {
 				printf(
-					'<span class="addon-price-display" data-addon-id="%d" data-price="0">0,00 %s</span>',
+					'<span class="addon-price-display" data-addon-id="%d" data-price="0">%s</span>',
 					(int) $post_id,
-					esc_html( $currency_symbol )
+					esc_html( self::format_addon_price( 0.0 ) )
 				);
 			}
 		}
+	}
+
+	/**
+	 * Format an addon price for display.
+	 *
+	 * Canonical currency formatting (WC-aware symbol/position/separators). These
+	 * call sites used to concatenate the symbol on the right unconditionally,
+	 * which contradicted a `left` woocommerce_currency_pos.
+	 *
+	 * @param float $price Numeric price.
+	 * @return string
+	 */
+	private static function format_addon_price( float $price ): string {
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 
 	/**
@@ -669,13 +680,11 @@ final class AddonManager {
 		$result = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
 
 		if ( false !== $result ) {
-			$currency_code   = self::get_default_currency();
-			$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency_code );
 			wp_send_json_success(
 				array(
 					'message'         => esc_html__( 'Price successfully updated.', 'mhm-rentiva' ),
-					'currency'        => $currency_code,
-					'formatted_price' => number_format( $price, 2, ',', '.' ) . ' ' . $currency_symbol,
+					'currency'        => self::get_default_currency(),
+					'formatted_price' => self::format_addon_price( $price ),
 				)
 			);
 		} else {

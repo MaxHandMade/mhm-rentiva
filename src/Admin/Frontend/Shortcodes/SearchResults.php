@@ -349,21 +349,19 @@ final class SearchResults extends AbstractShortcode {
 			true
 		);
 
-		// Ensure vehicle interaction globals are available on block-only pages.
-		if (wp_script_is('mhm-rentiva-vehicle-interactions', 'enqueued')) {
-			wp_localize_script(
-				'mhm-rentiva-vehicle-interactions',
-				'mhmrentiva_vars',
-				array(
-					'ajax_url'           => admin_url('admin-ajax.php'),
-					'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'),
-					'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
-					'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
-					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
-					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
-				)
-			);
-		}
+		// Ensure vehicle interaction globals are available wherever this widget
+		// renders -- block-only pages, and Elementor-built ones, where
+		// AssetManager::should_load_assets() cannot see the shortcode because
+		// Elementor keeps the content in postmeta rather than post_content.
+		//
+		// This used to be a SECOND, shorter wp_localize_script() of
+		// mhmrentiva_vars written out right here, without the 'i18n' sub-array.
+		// wp_localize_script does not merge -- last writer wins -- so on those
+		// pages vehicle-interactions.js got a payload with no strings and threw
+		// `Cannot read properties of undefined (reading 'adding_compare')` on the
+		// first compare click. One definition, in AssetManager, is the fix; a
+		// second copy of the same 14 strings is how the bug reproduces.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 
 		// Localize script
 		wp_localize_script(
@@ -749,13 +747,106 @@ final class SearchResults extends AbstractShortcode {
 	 * Gets filter options
 	 */
 	/**
+	 * Distinct meta values across the PUBLIC vehicle catalogue.
+	 *
+	 * The INNER JOIN below is the whole point of this method, and the reason
+	 * there is a method at all: the six facet queries that used to sit inline in
+	 * get_filter_options() each scanned postmeta on the meta_key alone, with no
+	 * join to posts, so they described the entire database instead of the
+	 * catalogue. Written once, the restriction cannot be present in five queries
+	 * and missing from the sixth.
+	 *
+	 * Everything interpolated here is a table name from $wpdb; the only
+	 * caller-supplied value is a placeholder. Ordering is applied in PHP rather
+	 * than in an interpolated ORDER BY, so the SQL stays a single literal.
+	 *
+	 * @param string $meta_key      Meta key to collect.
+	 * @param bool   $numeric_order Sort numerically rather than lexically.
+	 * @return array<int, string>
+	 */
+	private static function public_meta_values(string $meta_key, bool $numeric_order = false): array
+	{
+		global $wpdb;
+
+		$values = (array) $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT pm.meta_value
+                 FROM {$wpdb->postmeta} pm
+                 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                     AND p.post_type = 'mhmrentiva_vehicle'
+                     AND p.post_status = 'publish'
+                     AND p.post_password = ''
+                 WHERE pm.meta_key = %s
+                 AND pm.meta_value != ''",
+				$meta_key
+			)
+		);
+
+		if ($numeric_order) {
+			usort($values, static fn($a, $b): int => (int) $a <=> (int) $b);
+		} else {
+			sort($values, SORT_NATURAL | SORT_FLAG_CASE);
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Min/max of a numeric meta key across the PUBLIC vehicle catalogue.
+	 *
+	 * Same join, same reason. One DECIMAL cast serves both callers: the year
+	 * facet reads the result through `(int)` and the price facet through
+	 * `(float)`, so a single wide numeric type keeps this a literal query rather
+	 * than an interpolated one.
+	 *
+	 * @param string $meta_key Meta key to measure.
+	 * @param string $pattern  REGEXP guard rejecting non-numeric rows.
+	 * @return array{min: float, max: float}|null Null when nothing matches.
+	 */
+	private static function public_meta_range(string $meta_key, string $pattern): ?array
+	{
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
+                     MIN(CAST(pm.meta_value AS DECIMAL(20,4))) as min_value,
+                     MAX(CAST(pm.meta_value AS DECIMAL(20,4))) as max_value
+                 FROM {$wpdb->postmeta} pm
+                 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                     AND p.post_type = 'mhmrentiva_vehicle'
+                     AND p.post_status = 'publish'
+                     AND p.post_password = ''
+                 WHERE pm.meta_key = %s
+                 AND pm.meta_value != ''
+                 AND pm.meta_value REGEXP %s",
+				$meta_key,
+				$pattern
+			)
+		);
+
+		if (! is_object($row) || null === $row->min_value) {
+			return null;
+		}
+
+		return array(
+			'min' => (float) $row->min_value,
+			'max' => (float) $row->max_value,
+		);
+	}
+
+	/**
 	 * Gets filter options
 	 */
 	private static function get_filter_options(array $current_params): array
 	{
 		// Caching Strategy: Search filters are global and expensive to compute.
 		// We cache them for 24 hours, invalidated on vehicle save/update.
-		$cache_key = 'mhmrentiva_search_filters_v1';
+		// _v2: the sweep that restricted this facet query to the published
+		// catalogue (see the publish-only get_posts() a few lines below) did
+		// not bump the key, so a transient cached before deploy could keep
+		// serving unpublished-vehicle facet values for up to 24h after it.
+		$cache_key = 'mhmrentiva_search_filters_v2';
 		$cached    = get_transient($cache_key);
 
 		if (false !== $cached && is_array($cached)) {
@@ -767,16 +858,25 @@ final class SearchResults extends AbstractShortcode {
 
 		global $wpdb;
 
+		/*
+		 * Every facet below is rendered into the PUBLIC search sidebar and then
+		 * cached for 24h in a role-agnostic transient.
+		 *
+		 * They used to scan the postmeta table on the meta_key alone, with no
+		 * join to the posts table at all -- so they described the whole database
+		 * rather than the catalogue. A draft vehicle's brand appeared in the
+		 * public brand list; a private vehicle's price set the price slider's
+		 * maximum; a trashed vehicle's year widened the year range. Measured on a
+		 * seeded draft priced 99999, the anonymous sidebar rendered max="99999".
+		 *
+		 * The six near-identical queries are now two parameterised helpers, so
+		 * the publish-only restriction is written down ONCE. Six copies of a rule
+		 * is six chances to omit it from one of them, which is how the facets
+		 * came to disagree with the search results they sit next to.
+		 */
+
 		// Fuel types - Get keys and convert to labels
-		$fuel_type_keys = $wpdb->get_col(
-			"
-            SELECT DISTINCT meta_value 
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhmrentiva_fuel_type' 
-            AND meta_value != '' 
-            ORDER BY meta_value ASC
-        "
-		);
+		$fuel_type_keys = self::public_meta_values('_mhmrentiva_fuel_type');
 
 		$fuel_types_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 		$fuel_types     = array();
@@ -791,15 +891,7 @@ final class SearchResults extends AbstractShortcode {
 		}
 
 		// Transmission types - Get keys and convert to labels
-		$transmission_keys = $wpdb->get_col(
-			"
-            SELECT DISTINCT meta_value 
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhmrentiva_transmission' 
-            AND meta_value != '' 
-            ORDER BY meta_value ASC
-        "
-		);
+		$transmission_keys = self::public_meta_values('_mhmrentiva_transmission');
 
 		$transmissions_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 		$transmissions     = array();
@@ -814,52 +906,16 @@ final class SearchResults extends AbstractShortcode {
 		}
 
 		// Seat counts
-		$seats = $wpdb->get_col(
-			"
-            SELECT DISTINCT meta_value 
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhmrentiva_seats' 
-            AND meta_value != '' 
-            ORDER BY CAST(meta_value AS UNSIGNED) ASC
-        "
-		);
+		$seats = self::public_meta_values('_mhmrentiva_seats', true);
 
 		// Brands
-		$brands = $wpdb->get_col(
-			"
-            SELECT DISTINCT meta_value 
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhmrentiva_brand' 
-            AND meta_value != '' 
-            ORDER BY meta_value ASC
-        "
-		);
+		$brands = self::public_meta_values('_mhmrentiva_brand');
 
 		// Year range
-		$year_range = $wpdb->get_row(
-			"
-            SELECT 
-                MIN(CAST(meta_value AS UNSIGNED)) as min_year,
-                MAX(CAST(meta_value AS UNSIGNED)) as max_year
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhmrentiva_year' 
-            AND meta_value != '' 
-            AND meta_value REGEXP '^[0-9]+$'
-        "
-		);
+		$year_range = self::public_meta_range('_mhmrentiva_year', '^[0-9]+$');
 
 		// Price range
-		$price_range = $wpdb->get_row(
-			"
-            SELECT 
-                MIN(CAST(meta_value AS DECIMAL(10,2))) as min_price,
-                MAX(CAST(meta_value AS DECIMAL(10,2))) as max_price
-            FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhmrentiva_price_per_day' 
-            AND meta_value != '' 
-            AND meta_value REGEXP '^[0-9]+(\.[0-9]+)?$'
-        "
-		);
+		$price_range = self::public_meta_range('_mhmrentiva_price_per_day', '^[0-9]+(\.[0-9]+)?$');
 
 		// Rental locations come from an add-on via the filter.
 		$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
@@ -871,12 +927,12 @@ final class SearchResults extends AbstractShortcode {
 			'brands'        => $brands ?: array(),
 			'locations'     => $locations,
 			'year_range'    => array(
-				'min' => (int) ( $year_range->min_year ?? 1990 ),
-				'max' => (int) ( $year_range->max_year ?? gmdate('Y') ),
+				'min' => (int) ( $year_range['min'] ?? 1990 ),
+				'max' => (int) ( $year_range['max'] ?? gmdate('Y') ),
 			),
 			'price_range'   => array(
-				'min' => (float) ( $price_range->min_price ?? 0 ),
-				'max' => (float) ( $price_range->max_price ?? 10000 ),
+				'min' => (float) ( $price_range['min'] ?? 0 ),
+				'max' => (float) ( $price_range['max'] ?? 10000 ),
 			),
 		);
 

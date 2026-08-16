@@ -320,6 +320,14 @@ final class Plugin {
 			\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
 		}
 
+		// Server-side layout seam for the transformed list screens. Must be
+		// registered before the column classes so their blocks have a slot to
+		// hang on; see ListScreenLayout for why `admin_notices` no longer
+		// carries them.
+		if ($this->is_class_available('MHMRentiva\Admin\Core\ListTable\ListScreenLayout')) {
+			\MHMRentiva\Admin\Core\ListTable\ListScreenLayout::register();
+		}
+
 		// List table columns
 		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
 			\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
@@ -826,6 +834,13 @@ final class Plugin {
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\DepositManagementAjax')) {
 			\MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::register();
 		}
+
+		// Bookings list "Approve" row action (Faz 2 Task 7) -- not a deposit
+		// flow, but registered alongside it: same domain (Booking\Actions),
+		// same guard, same lifecycle point.
+		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\BookingApproveAjax')) {
+			\MHMRentiva\Admin\Booking\Actions\BookingApproveAjax::register();
+		}
 	}
 
 	/**
@@ -876,9 +891,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -907,9 +922,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -940,11 +955,11 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 		}
 
 		// Booking meta changes

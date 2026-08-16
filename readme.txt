@@ -154,6 +154,29 @@ The default is `true`. The filter is read while the plugin sets up its hooks, on
 priority 2, so add it somewhere that runs before then — a theme's functions.php or an ordinary plugin
 file is early enough.
 
+= My site is behind Cloudflare (or another reverse proxy / CDN) — will rate limiting still work correctly? =
+
+By default, no — and this is worth fixing. The plugin's anonymous rate limits (contact form submissions,
+price and availability lookups on the booking form, and others) are counted per visitor IP address, read
+from the server's `REMOTE_ADDR`. Behind Cloudflare or any reverse proxy, `REMOTE_ADDR` is the proxy's own
+edge IP, the same for every visitor — so instead of limiting each visitor separately, the plugin
+effectively limits your whole site to one shared bucket (for example, the contact form's default of 5
+submissions per 5 minutes becomes 5 submissions per 5 minutes for every visitor combined).
+
+This default is intentional, not an oversight: trusting a header like `X-Forwarded-For` automatically
+would let anyone bypass rate limiting outright, since that header can be set by any visitor unless your
+proxy is configured to overwrite it. If you know your proxy overwrites it — which Cloudflare does — you
+can opt the specific header back in:
+
+`add_filter( 'mhmrentiva_trusted_proxy_ip_headers', function () {
+    return array( 'HTTP_CF_CONNECTING_IP' ); // Cloudflare
+} );`
+
+Add this to your theme's functions.php or a small plugin of your own. List headers in priority order —
+the plugin uses the first one present that holds a valid public IP address, falling back to `REMOTE_ADDR`
+if none match. Only add a header your proxy is actually configured to set and protect; adding one that
+ordinary visitors can also send re-opens the bypass this default closes.
+
 == Changelog ==
 
 Only the most recent releases are repeated here, plus 6.0.0 for its breaking-change notice, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.

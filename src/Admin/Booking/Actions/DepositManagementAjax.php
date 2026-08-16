@@ -8,48 +8,55 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Booking\Core\Status;
-use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
-use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Deposit-management write endpoints (payment approval, remaining-payment
+ * processing/link, cancellation, refund).
+ *
+ * Every handler opens with a line-local `check_ajax_referer( ..., false )`
+ * that is REDUNDANT with authorize_booking_action() immediately below it.
+ * That is deliberate: this file used to contain its own nonce and capability
+ * checks inline, and the Faz 2 Task 7 guard extraction moved both one file
+ * away -- leaving five registered `wp_ajax_*` money endpoints in which
+ * grepping for a nonce check finds nothing. The authoritative check (and the
+ * failure response) still belongs to BookingActionGuard; these lines only
+ * make the protection visible where the endpoint is.
+ */
 final class DepositManagementAjax {
 
 	/**
 	 * Single entry guard for every deposit action.
 	 *
-	 * Verifies the nonce, resolves the booking the request names, and checks the
-	 * caller against THAT booking. The handlers used to check the blanket
-	 * edit_posts and then act on whichever booking_id arrived, so any role with
-	 * edit_posts (a contributor, for instance) could approve payments, cancel
-	 * bookings or issue refunds on bookings belonging to anyone. edit_post on the
-	 * resolved booking is the capability that matches the object being acted on.
-	 *
-	 * Terminates the request via wp_send_json_error() when any check fails.
+	 * Delegates to BookingActionGuard::authorize() (Faz 2 Task 7 extraction)
+	 * under this class's own nonce action -- byte-for-byte the same four
+	 * checks (nonce, id, post_type, edit_post on the resolved booking) this
+	 * method used to run inline. See BookingActionGuard's docblock for why
+	 * edit_post on the resolved booking, not a blanket edit_posts check, is
+	 * the capability that belongs here: the handlers used to check the
+	 * blanket capability and then act on whichever booking_id arrived, so
+	 * any role with edit_posts (a contributor, for instance) could approve
+	 * payments, cancel bookings or issue refunds on bookings belonging to
+	 * anyone.
 	 */
 	private static function authorize_booking_action(): int {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return 0;
-		}
-
-		$booking_id = VerifiedRequest::from( $_POST )->int( 'booking_id' );
+		$booking_id = BookingActionGuard::authorize( 'mhmrentiva_deposit_management_action' );
 		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
 			return 0;
 		}
 
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'mhmrentiva_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
-			return 0;
-		}
-
+		// Redundant by design: keeps the capability check greppable in this
+		// file (WP.org review lens). BookingActionGuard::authorize() already
+		// ran this exact current_user_can('edit_post', ...) check against
+		// this exact booking id one line above -- nothing runs in between
+		// that could change the outcome, so this branch can never reject a
+		// caller the guard just approved. Message matches the guard's own
+		// rejection payload so behaviour is identical either way.
 		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
 			return 0;
@@ -67,6 +74,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function process_remaining_payment(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -115,6 +126,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function send_remaining_payment_link(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -169,6 +184,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function approve_payment(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -203,6 +222,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function cancel_booking(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -234,6 +257,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function process_refund(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -372,20 +399,9 @@ final class DepositManagementAjax {
 	}
 
 	private static function format_price( float $price ): string {
-		$symbol   = get_woocommerce_currency_symbol();
-		$position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
-		$amount   = number_format_i18n( $price, 2 );
-
-		switch ( $position ) {
-			case 'left':
-				return $symbol . $amount;
-			case 'right':
-				return $amount . $symbol;
-			case 'left_space':
-				return $symbol . ' ' . $amount;
-			case 'right_space':
-			default:
-				return $amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 }

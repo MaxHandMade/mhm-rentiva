@@ -7,6 +7,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
+
 /**
  * Addon Menu Class.
  *
@@ -35,7 +37,18 @@ final class AddonMenu {
 		// `?addon_created=1`. Nothing in this plugin has ever redirected with
 		// that parameter, so the notice could not fire; callback and read are
 		// both gone rather than kept behind a guard.
-		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
+		//
+		// The title block itself moved off `admin_notices` too: that hook fires
+		// above `edit.php`'s `.wrap`, so this printed a synthetic `<div
+		// class="wrap">` of its own to look correct standing alone, and jQuery
+		// dragged it into place afterwards -- the same first-paint jump
+		// ListScreenLayout's class docblock documents for the Vehicles/Bookings
+		// screens. It now hangs off the same header slot, which already fires
+		// INSIDE `edit.php`'s real `.wrap`, right after core's own (CSS-hidden)
+		// `<h1>`. Priority 5 keeps it ahead of AddonListTable's KPI band
+		// (registered at the default priority), matching the order the two had
+		// when both printed from `admin_notices`.
+		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'add_addon_page_title' ), 5);
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_page_title_style' ));
 	}
 
@@ -94,9 +107,12 @@ final class AddonMenu {
 			}
 		};
 
-		echo '<div class="wrap">';
+		// No synthetic `<div class="wrap">` here: this now renders from
+		// ListScreenLayout's header slot, which already fires inside
+		// `edit.php`'s own `.wrap`. Wrapping again would nest a second
+		// `.wrap` inside the real one and reintroduce the spacing this fix
+		// removes.
 		$renderer->render();
-		echo '</div>';
 	}
 
 	/**

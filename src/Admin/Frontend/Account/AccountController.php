@@ -229,7 +229,10 @@ final class AccountController {
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
 		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');
 		if ($endpoint === 'favorites' || get_query_var($favorites_slug) !== '') {
-			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+			// Through AssetManager, not a bare wp_enqueue_script(): the script is
+			// useless without its mhmrentiva_vars payload, and that payload has
+			// exactly one definition now.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 		}
 
 		// Enqueue Account Privacy JS on Dashboard.
@@ -382,7 +385,8 @@ final class AccountController {
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
 				'restUrl'     => rest_url('mhm-rentiva/v1/'),
 				'nonce'       => wp_create_nonce('mhmrentiva_account'),
-				'uploadNonce' => wp_create_nonce('mhmrentiva_upload_receipt'),
+				// wp_ajax_-only handler: no point minting/printing it for a logged-out visitor.
+				'uploadNonce' => is_user_logged_in() ? wp_create_nonce('mhmrentiva_upload_receipt') : '',
 				'restNonce'   => wp_create_nonce('wp_rest'),
 				'i18n'        => array(
 					'loading'                => __('Loading...', 'mhm-rentiva'),

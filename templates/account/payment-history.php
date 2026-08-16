@@ -88,7 +88,7 @@ if (empty($navigation)) {
 									</span>
 								</div>
 								<div class="payment-amount">
-									<span class="amount"><?php echo esc_html($currency_symbol); ?><?php echo esc_html(number_format_i18n( (float) ( $payment['amount'] ?? 0 ), 2)); ?></span>
+									<span class="amount"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $payment['amount'] ?? 0 ), 2)); ?></span>
 									<?php if ($payment['type'] === 'deposit') : ?>
 										<span class="amount-type"><?php esc_html_e('(Deposit)', 'mhm-rentiva'); ?></span>
 									<?php else : ?>
@@ -119,7 +119,7 @@ if (empty($navigation)) {
 										<div class="meta-item">
 											<span class="meta-label"><?php esc_html_e('Total Amount:', 'mhm-rentiva'); ?></span>
 											<span class="total-amount">
-												<?php echo esc_html($currency_symbol); ?><?php echo esc_html(number_format_i18n( (float) ( $payment['total'] ?? 0 ), 2)); ?>
+												<?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $payment['total'] ?? 0 ), 2)); ?>
 											</span>
 										</div>
 									<?php endif; ?>

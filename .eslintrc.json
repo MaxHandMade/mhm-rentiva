@@ -28,6 +28,7 @@
 		"mhmRentivaCartImages": "readonly",
 		"mhmCheckoutPaymentType": "readonly",
 		"mhmBookingPopup": "readonly",
+		"mhmBookingApprove": "readonly",
 		"mhmManualBooking": "readonly",
 		"mhmRentivaAddons": "readonly",
 		"mhmBookingEdit": "readonly",

@@ -326,9 +326,10 @@ final class SetupWizard {
 
 	private static function render_step_frontend(): void
 	{
-		// Check if WooCommerce is active and use its currency
-		if (class_exists('WooCommerce')) {
-			$currency                = get_woocommerce_currency();
+		// The one house predicate, not a local class_exists() of its own — see
+		// CurrencyHelper::woocommerce_is_active().
+		if (CurrencyHelper::woocommerce_is_active()) {
+			$currency                = CurrencyHelper::get_currency_code();
 			$is_woocommerce_currency = true;
 		} else {
 			$currency                = SettingsCore::get('mhmrentiva_currency', 'USD');
@@ -579,7 +580,7 @@ final class SetupWizard {
 		$settings                        = get_option('mhmrentiva_settings', array());
 		$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
 
-		if (class_exists('WooCommerce')) {
+		if (CurrencyHelper::woocommerce_is_active()) {
 			$settings['mhmrentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
 		} else {
 			$currency_position                        = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));

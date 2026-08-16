@@ -6,6 +6,20 @@
 (function ($) {
     'use strict';
 
+    /**
+     * Read one localized string, with a hard-coded English fallback.
+     *
+     * Belt and braces on top of the server-side fix: mhmrentiva_vars now has
+     * exactly one definition (AssetManager::enqueue_vehicle_interactions), so
+     * a second, shorter localize can no longer land here without its i18n
+     * sub-array. This makes a missing key cost that one label instead of
+     * throwing mid-handler and leaving the button stuck in its optimistic state.
+     */
+    function t(key, fallback) {
+        const strings = (typeof mhmrentiva_vars !== 'undefined' && mhmrentiva_vars.i18n) || {};
+        return strings[key] || fallback;
+    }
+
     const RentivaInteractions = {
         init: function () {
             if (typeof mhmrentiva_vars === 'undefined') {
@@ -31,7 +45,7 @@
 
             // Show optimistic toast (Two-Stage)
             const isAdd = !isActive;
-            const optimisticMsg = isAdd ? mhmrentiva_vars.i18n.adding_favorite : mhmrentiva_vars.i18n.removing_favorite;
+            const optimisticMsg = isAdd ? t('adding_favorite', 'Adding to favorites...') : t('removing_favorite', 'Removing from favorites...');
             const idempotencyKey = isAdd ? `fav:add:${vehicleId}` : `fav:remove:${vehicleId}`;
 
             const toastId = MHMRentivaToast.show(optimisticMsg, {
@@ -53,8 +67,8 @@
                     if (response.success) {
                         const isFavorited = response.data.is_favorite;
                         const favoriteLabel = isFavorited ?
-                            (mhmrentiva_vars.i18n.remove_favorite || 'Remove from Favorites') :
-                            (mhmrentiva_vars.i18n.add_favorite || 'Add to Favorites');
+                            t('remove_favorite', 'Remove from Favorites') :
+                            t('add_favorite', 'Add to Favorites');
 
                         // Sync state
                         if (isFavorited) {
@@ -88,12 +102,12 @@
 
                         if (isFavorited && mhmrentiva_vars.favorites_page_url) {
                             options.action = {
-                                label: mhmrentiva_vars.i18n.go_to_favorites || 'Go to My Favorites',
+                                label: t('go_to_favorites', 'Go to My Favorites'),
                                 href: mhmrentiva_vars.favorites_page_url
                             };
                         }
 
-                        const finalMsg = isFavorited ? mhmrentiva_vars.i18n.added_favorite : mhmrentiva_vars.i18n.removed_favorite;
+                        const finalMsg = isFavorited ? t('added_favorite', 'Added to favorites.') : t('removed_favorite', 'Removed from favorites.');
                         MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure
@@ -120,7 +134,7 @@
             const isCurrentlyActive = $btn.hasClass('is-active') || $btn.hasClass('active');
             // Show optimistic toast (Two-Stage)
             const isAdd = !isCurrentlyActive;
-            const optimisticMessage = isAdd ? mhmrentiva_vars.i18n.adding_compare : mhmrentiva_vars.i18n.removing_compare;
+            const optimisticMessage = isAdd ? t('adding_compare', 'Adding to comparison...') : t('removing_compare', 'Removing from comparison...');
             const idempotencyKey = isAdd ? `compare:add:${vehicleId}` : `compare:remove:${vehicleId}`;
 
             MHMRentivaToast.show(optimisticMessage, {
@@ -142,8 +156,8 @@
                     if (response.success) {
                         const isInCompare = response.data.is_in_compare;
                         const compareLabel = isInCompare ?
-                            (mhmrentiva_vars.i18n.remove_compare || 'Remove Compare') :
-                            (mhmrentiva_vars.i18n.add_compare || 'Compare');
+                            t('remove_compare', 'Remove Compare') :
+                            t('add_compare', 'Compare');
                         // Final Sync
                         if (isInCompare) {
                             $btn.addClass('is-active active');
@@ -164,12 +178,12 @@
 
                         if (isInCompare && mhmrentiva_vars.compare_page_url) {
                             options.action = {
-                                label: mhmrentiva_vars.i18n.view_comparison || 'View Comparison',
+                                label: t('view_comparison', 'View comparison'),
                                 href: mhmrentiva_vars.compare_page_url
                             };
                         }
 
-                        const finalMsg = isInCompare ? mhmrentiva_vars.i18n.added_to_compare : mhmrentiva_vars.i18n.removed_from_compare;
+                        const finalMsg = isInCompare ? t('added_to_compare', 'Added to comparison.') : t('removed_from_compare', 'Removed from comparison.');
                         MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure

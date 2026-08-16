@@ -7,6 +7,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate admin statistics are read directly and never mutate data.
 
 /**
@@ -19,7 +21,15 @@ final class AddonListTable {
 	 */
 	public static function register(): void {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
-		add_action('admin_notices', array( self::class, 'add_addon_stats_cards' ));
+		// Moved off `admin_notices` (fires above `edit.php`'s `.wrap`, so the
+		// KPI band painted at the top of the stream and jQuery dragged it into
+		// place at DOMContentLoaded -- measured jump `.mhm-stats-grid` y=166 →
+		// y=112 on every load) onto ListScreenLayout's header slot, the same
+		// server-side seam the Vehicles and Bookings screens use. Default
+		// priority (10) puts it below AddonMenu's page-title block (priority
+		// 5), matching the order the two had when both printed from
+		// `admin_notices`.
+		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'add_addon_stats_cards' ));
 	}
 
 	/**
@@ -189,16 +199,15 @@ final class AddonListTable {
 			)
 		);
 
-		$currency_code     = AddonManager::get_default_currency();
-		$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency_code);
 		$active_percentage = $total_addons > 0 ? round(( $active_addons / $total_addons ) * 100) : 0;
 
 		return array(
 			'total_addons'      => $total_addons,
 			'active_addons'     => $active_addons,
 			'active_percentage' => $active_percentage,
-			'avg_price'         => number_format($avg_price, 2, ',', '.') . ' ' . $currency_symbol,
-			'total_value'       => number_format($total_value, 2, ',', '.') . ' ' . $currency_symbol,
+			// Canonical currency formatting; these used to pin the symbol right.
+			'avg_price'         => \MHMRentiva\Admin\Core\CurrencyHelper::format_price($avg_price, 2),
+			'total_value'       => \MHMRentiva\Admin\Core\CurrencyHelper::format_price($total_value, 2),
 		);
 	}
 }

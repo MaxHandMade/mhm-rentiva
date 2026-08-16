@@ -146,6 +146,52 @@ class VehicleDataHelper {
 	}
 
 	/**
+	 * Is this id a vehicle whose page a logged-out visitor could already read?
+	 *
+	 * This is the canonical gate for every PUBLIC surface that accepts a vehicle
+	 * id -- shortcodes, `wp_ajax_nopriv_*` handlers and capability-free REST
+	 * routes. It answers the only question those surfaces are entitled to ask:
+	 * "could this visitor have read the vehicle's own page?"
+	 *
+	 * Three checks, each for a distinct reason:
+	 *
+	 *   - post type: an id belonging to some other CPT must not be answered as
+	 *     though it were a vehicle.
+	 *   - post password: core counts a password-protected post as publicly
+	 *     viewable, but its content sits behind the password, so its price,
+	 *     schedule and reviews must sit behind it too.
+	 *   - `is_post_publicly_viewable()`: draft, pending, private, auto-draft and
+	 *     trashed vehicles have no public page. Answering for them would both
+	 *     disclose unpublished business data and hand an anonymous caller an
+	 *     enumeration oracle -- "success for unpublished vehicle ids, failure for
+	 *     everything else" is itself the disclosure.
+	 *
+	 * Deliberately caller-independent: it does NOT widen for an administrator.
+	 * Several consumers cache their result in a role-agnostic transient
+	 * (`AvailabilityCalendar::get_availability_data()`,
+	 * `SearchResults::get_filter_options()`), so a capability-dependent answer
+	 * here would let one privileged page-view poison a shared cache with
+	 * unpublished data and serve it to the next anonymous visitor.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 * @return bool True when a logged-out visitor could already read this vehicle.
+	 */
+	public static function is_publicly_readable(int $vehicle_id): bool
+	{
+		$post = get_post($vehicle_id);
+
+		if (! $post instanceof \WP_Post || \MHMRentiva\Admin\Vehicle\PostType\Vehicle::POST_TYPE !== $post->post_type) {
+			return false;
+		}
+
+		if ('' !== (string) $post->post_password) {
+			return false;
+		}
+
+		return is_post_publicly_viewable($post);
+	}
+
+	/**
 	 * Get vehicle status
 	 */
 	public static function get_status(int $vehicle_id): string

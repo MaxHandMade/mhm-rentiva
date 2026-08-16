@@ -235,8 +235,8 @@ final class DepositCalculator {
 			'remaining_amount' => round($remaining_amount, 2), // Total amount minus deposit
 			'deposit_type'     => $deposit_type,
 			'payment_display'  => $deposit_amount > 0 ?
-				/* translators: 1: deposit amount; 2: currency symbol. */
-				sprintf(__('Deposit: %1$s %2$s', 'mhm-rentiva'), number_format($deposit_amount, 2, ',', '.'), \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol()) :
+				/* translators: %s: formatted deposit amount including the currency symbol. */
+				sprintf(__('Deposit: %s', 'mhm-rentiva'), \MHMRentiva\Admin\Core\CurrencyHelper::format_price($deposit_amount, 2)) :
 				__('No Deposit', 'mhm-rentiva'),
 			'vehicle_total'    => round($vehicle_total, 2),
 			'addon_total'      => round($addon_total, 2),

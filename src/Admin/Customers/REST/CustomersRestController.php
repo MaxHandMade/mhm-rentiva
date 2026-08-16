@@ -59,6 +59,12 @@ final class CustomersRestController {
 						'default'           => 'desc',
 						'sanitize_callback' => 'sanitize_key',
 					),
+					'status'   => array(
+						'type'              => 'string',
+						'default'           => 'all',
+						'enum'              => array( 'all', 'new', 'active', 'vip' ),
+						'sanitize_callback' => 'sanitize_key',
+					),
 				),
 			)
 		);
@@ -102,6 +108,7 @@ final class CustomersRestController {
 		$search   = (string) $request->get_param( 'search' );
 		$sort_by  = (string) $request->get_param( 'sort_by' );
 		$sort_dir = (string) $request->get_param( 'sort_dir' );
+		$status   = (string) $request->get_param( 'status' );
 
 		if ( ! in_array( $sort_by, self::SORT_WHITELIST, true ) ) {
 			return new \WP_Error(
@@ -115,7 +122,18 @@ final class CustomersRestController {
 			$sort_dir = 'desc';
 		}
 
-		$result = CustomersOptimizer::get_customers_optimized( $page, $per_page, $search, $sort_by, $sort_dir );
+		// The enum in the arg schema is documentation; with a custom
+		// sanitize_callback in place core skips schema validation, so the
+		// whitelist is enforced here the same way sort_by is.
+		if ( ! in_array( $status, array( 'all', 'new', 'active', 'vip' ), true ) ) {
+			return new \WP_Error(
+				'invalid_status',
+				__( 'Invalid status value.', 'mhm-rentiva' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$result = CustomersOptimizer::get_customers_optimized( $page, $per_page, $search, $sort_by, $sort_dir, $status );
 
 		return new \WP_REST_Response(
 			array(
