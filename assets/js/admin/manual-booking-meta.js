@@ -23,7 +23,10 @@
 			$( document ).on( 'change', '#mhmrentiva_manual_vehicle_id', this.onVehicleChange );
 
 			// Tarih değişikliklerinde otomatik hesaplama
-			$( document ).on( 'change', '#mhmrentiva_manual_pickup_date, #mhmrentiva_manual_dropoff_date', this.onDateChange );
+			// Times as well as dates: the pickup/return time changes the rental
+			// day count, so a time edited after the price was calculated left
+			// a total on screen that no longer matched the form.
+			$( document ).on( 'change', '#mhmrentiva_manual_pickup_date, #mhmrentiva_manual_dropoff_date, #mhmrentiva_manual_pickup_time, #mhmrentiva_manual_dropoff_time', this.onDateChange );
 
 			// Ödeme türü değiştiğinde
 			$( document ).on( 'change', '#mhmrentiva_manual_payment_type', this.onPaymentTypeChange );
@@ -48,6 +51,15 @@
 
 		onVehicleChange: function () {
 			const vehicleId = $( this ).val();
+
+			// Whatever is on screen was calculated for the vehicle that was
+			// selected a moment ago, so it cannot survive this change --
+			// otherwise vehicle A's total sits under vehicle B's name with a
+			// live "Create Booking" button beneath it.
+			// displayPriceCalculation() reveals the panel again as soon as a
+			// fresh price comes back.
+			ManualBooking.invalidatePriceCalculation();
+
 			if (vehicleId) {
 				const $option = $( this ).find( 'option:selected' );
 				const price   = $option.data( 'price' );
@@ -55,10 +67,11 @@
 				// Araç bilgilerini göster
 				ManualBooking.showVehicleInfo( $option.text(), price );
 
-				// Fiyat hesaplama alanını göster
-				$( '.mhm-price-calculation' ).removeClass( 'mhm-hidden' );
-			} else {
-				$( '.mhm-price-calculation' ).addClass( 'mhm-hidden' );
+				// Recalculate immediately when the dates are already filled
+				// in, so changing vehicle does not leave an empty panel.
+				if ($( '#mhmrentiva_manual_pickup_date' ).val() && $( '#mhmrentiva_manual_dropoff_date' ).val()) {
+					ManualBooking.calculatePrice();
+				}
 			}
 		},
 

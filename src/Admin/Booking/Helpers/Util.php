@@ -191,7 +191,6 @@ final class Util {
 		// Safety check for multiplier; and without a start date there is no
 		// way to know which days fall on a weekend, so charge flat and say so.
 		if ($multiplier <= 1.0 || $start_ts <= 0) {
-			$flat['weekend_multiplier'] = $multiplier <= 1.0 ? $multiplier : $flat['weekend_multiplier'];
 			return $flat;
 		}
 

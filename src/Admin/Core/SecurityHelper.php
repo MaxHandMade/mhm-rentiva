@@ -239,7 +239,24 @@ final class SecurityHelper {
 
 		$attempts = (int) get_transient($key);
 		++$attempts;
-		set_transient($key, $attempts, $duration);
+
+		// Keep the window fixed rather than letting it slide. set_transient()
+		// always rewrites the expiry, so counting every request -- including
+		// the ones being refused -- would push a client's block further out
+		// with each attempt, and a caller that keeps knocking would never
+		// serve out its window. The object-cache path does not have this
+		// problem (wp_cache_add sets the TTL once, wp_cache_incr leaves it
+		// alone), so the two stores would otherwise disagree about what a
+		// window means. Reuse the remaining life of the existing counter and
+		// fall back to a fresh window once it has genuinely elapsed.
+		$expires   = (int) get_option('_transient_timeout_' . $key);
+		$remaining = $expires - time();
+		if ($remaining <= 0) {
+			$remaining = $duration;
+			$attempts  = 1;
+		}
+
+		set_transient($key, $attempts, $remaining);
 
 		return $attempts;
 	}

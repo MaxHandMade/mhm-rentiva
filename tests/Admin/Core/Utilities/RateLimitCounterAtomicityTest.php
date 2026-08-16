@@ -118,6 +118,65 @@ final class RateLimitCounterAtomicityTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The window must not slide.
+	 *
+	 * The object-cache path gets this for free: wp_cache_add() sets the TTL
+	 * once and wp_cache_incr() does not touch it. The transient path had to
+	 * be made to match -- a plain set_transient() on every hit resets the
+	 * expiry, so a client that keeps knocking after being refused extends its
+	 * own block indefinitely instead of serving out a fixed window. (The
+	 * pre-6.0.5 code avoided this by not writing at all once the limit was
+	 * hit; counting every request is the deliberate change, sliding the
+	 * window with it was not.)
+	 *
+	 * The stored expiry is pushed to 100s from now first, so a run that
+	 * completes inside one second still distinguishes "preserved" from
+	 * "reset to the full 300".
+	 */
+	public function test_transient_window_does_not_slide_on_repeated_hits(): void
+	{
+		wp_using_ext_object_cache(false);
+
+		$key = 'mhmrentiva_rate_limit_window_probe';
+		SecurityHelper::increment_counter($key, 300);
+
+		$near_expiry = time() + 100;
+		update_option('_transient_timeout_' . $key, $near_expiry);
+
+		SecurityHelper::increment_counter($key, 300);
+
+		$this->assertLessThanOrEqual(
+			$near_expiry,
+			(int) get_option('_transient_timeout_' . $key),
+			'A later hit must not push the expiry back out to the full window.'
+		);
+		$this->assertSame(2, SecurityHelper::read_counter($key), 'The hit must still be counted.');
+	}
+
+	/**
+	 * Negative control: once the window has genuinely elapsed the counter
+	 * must start over, or a bucket would be blocked forever.
+	 */
+	public function test_transient_counter_restarts_after_the_window_elapses(): void
+	{
+		wp_using_ext_object_cache(false);
+
+		$key = 'mhmrentiva_rate_limit_elapsed_probe';
+		SecurityHelper::increment_counter($key, 300);
+		SecurityHelper::increment_counter($key, 300);
+		$this->assertSame(2, SecurityHelper::read_counter($key));
+
+		// Expire the window the way time passing would.
+		update_option('_transient_timeout_' . $key, time() - 1);
+
+		$this->assertSame(
+			1,
+			SecurityHelper::increment_counter($key, 300),
+			'A hit after the window elapsed must start a fresh count.'
+		);
+	}
+
+	/**
 	 * The second limiter, whose three windows share one increment path.
 	 */
 	public function test_rate_limiter_counts_each_hit_once_across_its_windows(): void
