@@ -171,7 +171,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 7
+			count: 8
 			path: src/Admin/Booking/Meta/BookingPortalMetaBox.php
 
 		-

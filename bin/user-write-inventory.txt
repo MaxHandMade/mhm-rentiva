@@ -1,0 +1,32 @@
+# User-account write sites in src/ -- checked by bin/audit-user-account-writes.php.
+#
+# One line per call site. The text after "--" is for humans: say WHY this surface
+# may write a user account and WHICH per-target check stands beside the write.
+# The script does not read the justification; the next person to touch this file
+# does. It only enforces that the SET of write sites is exactly this set, so a new
+# write cannot appear without somebody having to write a line here.
+#
+# Every claim below was read against the code on 2026-08-17 (6.0.7, WordPress.org
+# T9 round). Two shapes recur and they are not the same thing:
+#
+#   CREATE -- the account does not exist yet, so there is no target for a
+#             per-object check to be about. The gate is create_users, which is the
+#             capability WordPress itself requires to make a user, plus a nonce.
+#   WRITE  -- the target comes from somewhere, so the per-target question has to be
+#             asked at the write: current_user_can( 'edit_user'/'delete_user', $id )
+#             AND CustomerIdentity::is_customer( $id ). The blanket edit_users says
+#             the caller may edit users, not WHICH user. That gap is what T8 found
+#             on /customers/bulk and what T9 found in CustomersOptimizer.
+
+src/Admin/Booking/Meta/BookingPortalMetaBox.php | BookingPortalMetaBox::ajax_create_customer_account | wp_create_user  -- CREATE. An operator links a portal account to a booking that was taken off-line (phone, walk-in) so the customer can see it. current_user_can( 'create_users' ) is the handler's first statement, then nonce mhmrentiva_create_customer_account, then current_user_can( 'edit_post', $booking_id ) for the booking being linked. An existing account with that e-mail is linked instead of created.
+src/Admin/Booking/Meta/BookingPortalMetaBox.php | BookingPortalMetaBox::ajax_create_customer_account | wp_update_user  -- Target is the ID wp_create_user() returned two statements earlier, never a request value. Sets first/last/display name and the role, which is 'customer' where WooCommerce provides that role and 'subscriber' where it does not.
+src/Admin/Booking/Meta/ManualBookingMetaBox.php | ManualBookingMetaBox::ajax_create_booking | wp_create_user  -- CREATE, and only on the explicit customer_id === 'new_customer' branch. Nonce first, then current_user_can( 'manage_options' ) for the booking itself, then a SECOND current_user_can( 'create_users' ) for this branch alone -- an operator who may create bookings but not users is told to pick an existing customer. Mandatory here: the booking's meta reads $customer->ID and there is no fallback.
+src/Admin/Booking/Meta/ManualBookingMetaBox.php | ManualBookingMetaBox::ajax_create_booking | wp_update_user  -- Target is the ID just created on the same branch.
+src/Admin/Booking/Meta/ManualBookingMetaBox.php | ManualBookingMetaBox::ajax_create_booking | set_role  -- Same new ID. Belt-and-braces for wp_update_user() ignoring 'role'. The value is mhmrentiva_customer_default_role, existence-checked with get_role() and falling back to 'customer'.
+src/Admin/Core/Utilities/DatabaseMigrator.php | DatabaseMigrator::register_governance_capabilities | add_cap  -- Not a user write at all: adds this plugin's own payout capabilities to the administrator ROLE object during migration. No request input reaches it, and no account is named.
+src/Admin/Customers/AddCustomerPage.php | AddCustomerPage::render | wp_create_user  -- CREATE. The Customers screen's "Add Customer" form. current_user_can( 'create_users' ) returns early before anything else, then nonce mhmrentiva_add_customer.
+src/Admin/Customers/AddCustomerPage.php | AddCustomerPage::render | wp_update_user  -- Target is the ID just created.
+src/Admin/Customers/AddCustomerPage.php | AddCustomerPage::render | set_role  -- Same new ID; same default-role handling as ManualBookingMetaBox.
+src/Admin/Customers/CustomersPage.php | CustomersPage::render_customer_edit | wp_update_user  -- WRITE, target from ?customer_id=. Guarded (T8): current_user_can( 'edit_users' ) for the screen, then current_user_can( 'edit_user', $customer_id ) AND CustomerIdentity::is_customer( $customer_id ), refusing with the same "Customer not found." as a missing account so the parameter is not a probe for which IDs exist.
+src/Admin/Customers/REST/CustomersRestController.php | CustomersRestController::bulk_delete | wp_delete_user  -- WRITE, targets from the request body. Guarded (T8): route permission_callback delete_users, a handler-body repeat of it, then PER TARGET inside the loop current_user_can( 'delete_user', $id ) AND CustomerIdentity::is_customer( $id ); anything else is counted as skipped. User ID 1 is dropped before the loop.
+src/Admin/Frontend/Account/AccountController.php | AccountController::ajax_update_account | wp_update_user  -- Self-service, and the only front-end site here. The target is get_current_user_id() -- no ID is read from the request, so there is nothing for a per-target check to compare. Nonce mhmrentiva_account, is_user_logged_in(), and the site's own mhmrentiva_customer_profile_editable setting all precede it.
