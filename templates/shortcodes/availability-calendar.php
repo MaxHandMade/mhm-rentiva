@@ -335,23 +335,17 @@ if ($vehicle_id > 0) {
 						$day_classes = array_filter($day_classes);
 						$day_class   = implode(' ', $day_classes);
 
-						// Tooltip content
-						//
-						// This used to join the overlapping bookings' post_title
-						// values into the tooltip, which published another
-						// customer's booking title to every anonymous visitor.
-						// A public calendar's tooltip should answer "how taken
-						// is this day", so it now reports the occupancy count.
-						$day_occupancy   = (int) ( $day_data['occupancy'] ?? 0 );
+						// Tooltip content -- the day's state, not the records behind
+						// it. This markup is public.
 						$tooltip_content = '';
-						if ($day_occupancy > 0) {
-							$tooltip_content = 'data-tooltip="' . esc_attr(
-								sprintf(
-									/* translators: %d: number of bookings that overlap this day. */
-									_n('%d booking', '%d bookings', $day_occupancy, 'mhm-rentiva'),
-									$day_occupancy
-								)
-							) . '"';
+						$status_labels   = array(
+							'booked'      => __('Reserved', 'mhm-rentiva'),
+							'partial'     => __('Partially Reserved', 'mhm-rentiva'),
+							'maintenance' => __('Out of Order', 'mhm-rentiva'),
+							'unavailable' => __('Unavailable', 'mhm-rentiva'),
+						);
+						if (isset($status_labels[ $day_data['status'] ])) {
+							$tooltip_content = 'data-tooltip="' . esc_attr($status_labels[ $day_data['status'] ]) . '"';
 						}
 
 						// Price information
@@ -385,15 +379,10 @@ if ($vehicle_id > 0) {
 							echo '</div>';
 						}
 
-						// Booking status indicator
-						//
-						// One dot per overlapping booking, as before -- the
-						// visual density of a busy day is legitimate public
-						// availability information. What is gone is each dot's
-						// `title` attribute (another customer's booking title)
-						// and its per-booking raw status class, which disclosed
-						// paid-vs-pending per reservation. The dots now carry
-						// the day's own already-public status.
+						// Booking status indicator -- one mark per booking covering
+						// the day, carrying the day's state and nothing that
+						// identifies a booking.
+						$day_occupancy = (int) ( $day_data['occupancy'] ?? 0 );
 						if ($day_occupancy > 0) {
 							echo '<div class="rv-day-indicators">';
 							for ($indicator = 0; $indicator < $day_occupancy; $indicator++) {

@@ -582,6 +582,29 @@ final class AddonManager {
 		foreach ( $addon_ids as $addon_id ) {
 			$result = false;
 
+			// The target has to be one of ours before anything touches it.
+			// Without this the loop took whatever IDs the request supplied and
+			// ran wp_delete_post( $id, true ) on them -- a permanent delete of
+			// any post on the site, pages and other plugins' content included,
+			// behind a capability (manage_options) that says nothing about the
+			// object. This is the same shape WordPress.org's T8 review found on
+			// /customers/bulk, and the price handler further down this very file
+			// already guards it correctly; only the bulk path was missing it.
+			$addon = get_post( $addon_id );
+			if ( ! $addon || 'mhmrentiva_addon' !== $addon->post_type ) {
+				++$error_count;
+				continue;
+			}
+
+			// And the caller has to be allowed to act on THIS post, which is the
+			// question WordPress answers through the delete_post / edit_post meta
+			// caps rather than through manage_options.
+			$needed = 'delete' === $action ? 'delete_post' : 'edit_post';
+			if ( ! current_user_can( $needed, $addon_id ) ) {
+				++$error_count;
+				continue;
+			}
+
 			switch ( $action ) {
 				case 'enable_addons':
 					$result = update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', '1' );

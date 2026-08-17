@@ -45,10 +45,43 @@ if ( ! $roots ) {
 }
 
 // Capabilities that say nothing about which object is being acted on.
-const BLANKET = '(edit_posts|publish_posts|read|upload_files|edit_published_posts|delete_posts|edit_others_posts)';
+//
+// Two families. The post family was here from the start. The user family was
+// added after WordPress.org's T8 round flagged CustomersRestController::bulk_delete,
+// which this script had reported clean: it is gated on delete_users, and
+// delete_users was not on the list, so the handler was never even considered.
+// These caps are blanket in exactly the sense that matters -- delete_users says
+// the caller may delete users, not which user, and WordPress models the
+// per-target question as the meta cap delete_user( $id ).
+//
+// create_users is deliberately NOT here. A create has no existing target for a
+// per-object check to be about, so listing it only produced noise: the first run
+// with it flagged ManualBookingMetaBox::ajax_create_booking(), which is nonce'd,
+// gated on manage_options, and gates its user-creating branch on create_users
+// separately. Dropping it narrows the report; the known-broken case
+// (CustomersRestController::bulk_delete) still trips, which is the control that
+// says the narrowing did not just quieten the script.
+const BLANKET = '(edit_posts|publish_posts|read|upload_files|edit_published_posts|delete_posts|edit_others_posts'
+	. '|delete_users|edit_users|list_users|promote_users|remove_users)';
 
 $suspect     = array();
 $unclassified = array();
+
+// PASS 1 -- read every file once, and resolve registrations that name a class
+// OTHER than the one the file defines.
+//
+// This pass exists because the single-pass version was blind in exactly one
+// place, and the tree had exactly one instance of it: CustomerExporter::handle
+// is registered from CustomersPage.php via CustomerExporter::class. Matching
+// hook registrations against handlers in the SAME file meant CustomersPage.php
+// recorded a hook for a method it does not define, CustomerExporter.php saw no
+// hooks at all, and the handler appeared in NEITHER section of the report --
+// not flagged, not even listed for manual review. It was the T8 #2 shape
+// (blanket edit_users, arbitrary $_POST['ids'], full PII per target) and this
+// script reported "(none)" over it. An independent audit found it instead.
+$files            = array();
+$class_of_file    = array();
+$cross_registered = array();
 
 foreach ( $roots as $root ) {
 	if ( ! is_dir( $root ) ) {
@@ -62,9 +95,35 @@ foreach ( $roots as $root ) {
 			continue;
 		}
 
-		$path = str_replace( '\\', '/', $file->getPathname() );
-		$src  = (string) file_get_contents( $path );
+		$path            = str_replace( '\\', '/', $file->getPathname() );
+		$files[ $path ] = (string) file_get_contents( $path );
 
+		if ( preg_match( '/^\s*(?:final\s+|abstract\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)/m', $files[ $path ], $cm ) ) {
+			$class_of_file[ $path ] = $cm[1];
+		}
+
+		// The class may be written fully qualified with a leading backslash --
+		// which is exactly how the one instance in this tree is written, and the
+		// first version of this pattern (bare [A-Za-z_]+ before ::class) matched
+		// none of it. The gate reported "(none)" and a mutation test caught that
+		// it was reporting nothing at all rather than nothing wrong.
+		preg_match_all(
+			"/add_action\(\s*['\"](?:wp_ajax_(?:nopriv_)?|admin_post_(?:nopriv_)?)[a-z_]+['\"]\s*,\s*array\(\s*\\\\?([A-Za-z_][A-Za-z0-9_\\\\]*)::class\s*,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/",
+			$files[ $path ],
+			$xm
+		);
+		foreach ( $xm[1] as $i => $target_class ) {
+			// Store under the short name; that is what the class declaration in
+			// the target file gives us to match against.
+			$short                                = (string) substr( (string) strrchr( '\\' . $target_class, '\\' ), 1 );
+			$cross_registered[ $short ][ $xm[2][ $i ] ] = true;
+		}
+	}
+}
+
+// PASS 2 -- analyse each file with the full picture of what is hooked.
+foreach ( $files as $path => $src ) {
+	{
 		// Entry points wired by the shape we can resolve.
 		preg_match_all(
 			"/add_action\(\s*['\"](?:wp_ajax_(?:nopriv_)?|admin_post_(?:nopriv_)?)[a-z_]+['\"]\s*,\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/",
@@ -72,8 +131,37 @@ foreach ( $roots as $root ) {
 			$m
 		);
 		$hooked = array_flip( $m[1] );
-		preg_match_all( "/'callback'\s*=>\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/", $src, $m2 );
-		$hooked += array_flip( $m2[1] );
+		preg_match_all( "/'callback'\s*=>\s*array\(\s*[^,]+,\s*'([a-zA-Z_][a-zA-Z0-9_]*)'/", $src, $m2, PREG_OFFSET_CAPTURE );
+		foreach ( $m2[1] as $hit ) {
+			$hooked[ $hit[0] ] = true;
+		}
+
+		// Methods of THIS file's class that some other file hooked (pass 1).
+		$own_class = $class_of_file[ $path ] ?? null;
+		if ( null !== $own_class && isset( $cross_registered[ $own_class ] ) ) {
+			foreach ( $cross_registered[ $own_class ] as $method => $_ ) {
+				$hooked[ $method ] = true;
+			}
+		}
+
+		// Where the gate actually lives.
+		//
+		// The original script only looked for current_user_can() inside the
+		// handler body. That is the rarer shape: in a REST controller the gate is
+		// normally the route's permission_callback, several lines above the
+		// handler and outside it. bulk_delete was caught only because it happens
+		// to repeat its check in-body for defence in depth -- get_detail, same
+		// controller and the same blanket-cap-plus-arbitrary-id shape, was
+		// invisible because it trusts the route gate and checks nothing itself.
+		// So pair each 'callback' with the 'permission_callback' that follows it
+		// in the same register_rest_route() array.
+		$route_blanket = array();
+		foreach ( $m2[1] as $hit ) {
+			$window = substr( $src, $hit[1], 600 );
+			if ( preg_match( "/'permission_callback'\s*=>[^,]*current_user_can\(\s*'" . BLANKET . "'\s*\)/", $window ) ) {
+				$route_blanket[ $hit[0] ] = true;
+			}
+		}
 
 		// Entry points wired by a shape we cannot resolve -> manual review list.
 		if ( preg_match( "/add_action\(\s*['\"](?:wp_ajax|admin_post)[a-z_]*['\"]\s*,\s*(function|fn|'|\\\$)/", $src ) ) {
@@ -90,7 +178,9 @@ foreach ( $roots as $root ) {
 			if ( ! isset( $hooked[ $name ] ) ) {
 				continue;
 			}
-			if ( ! preg_match( "/current_user_can\(\s*'" . BLANKET . "'\s*\)/", $body ) ) {
+			$gated_in_body  = (bool) preg_match( "/current_user_can\(\s*'" . BLANKET . "'\s*\)/", $body );
+			$gated_at_route = isset( $route_blanket[ $name ] );
+			if ( ! $gated_in_body && ! $gated_at_route ) {
 				continue;
 			}
 			// An object-aware check anywhere in the body clears it.
@@ -98,7 +188,20 @@ foreach ( $roots as $root ) {
 				continue;
 			}
 			// Does it take an identifier from the request at all?
-			if ( ! preg_match( "/\\\$_(POST|GET|REQUEST)\s*\[\s*'[a-z_]*(id|key|name|table|type)'|->int\(\s*'[a-z_]*id'|->text\(\s*'[a-z_]*(id|key|table)'/", $body ) ) {
+			//
+			// The REST shapes below were added in the T8 round. bulk_delete reads
+			// its targets with get_json_params() and then $body['ids'] -- a plural
+			// array out of the JSON body, which none of the original superglobal
+			// or ->int('id') patterns matched. A handler that acts on a LIST of
+			// ids is the worse case, not the lesser one: the loop repeats whatever
+			// the missing per-object check would have caught.
+			$takes_id = "/\\\$_(POST|GET|REQUEST)\s*\[\s*'[a-z_]*(ids?|key|name|table|type)'"
+				. "|->int\(\s*'[a-z_]*ids?'"
+				. "|->text\(\s*'[a-z_]*(ids?|key|table)'"
+				. "|get_json_params\(\s*\)"
+				. "|get_param\(\s*'[a-z_]*(ids?|key)'\s*\)"
+				. "|\\\$[a-z_]+\s*\[\s*'[a-z_]*ids?'\s*\]/";
+			if ( ! preg_match( $takes_id, $body ) ) {
 				continue;
 			}
 			$suspect[] = "{$path}::{$name}()";

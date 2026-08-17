@@ -542,13 +542,18 @@ final class ContactForm extends AbstractShortcode {
 			),
 		);
 
-		$message_id = wp_insert_post($post_data);
+		// $wp_error = true. WordPress returns 0 -- not WP_Error -- on failure
+		// unless asked, so the is_wp_error() guard alone let a failed insert
+		// through: the visitor was told "Your message has been sent
+		// successfully!", the notification mail went out with message id 0,
+		// and nothing was ever stored for the site owner to answer.
+		$message_id = wp_insert_post($post_data, true);
 
-		if (is_wp_error($message_id)) {
+		if (is_wp_error($message_id) || (int) $message_id <= 0) {
 			throw new Exception(esc_html__('Unable to save the message.', 'mhm-rentiva'));
 		}
 
-		return $message_id;
+		return (int) $message_id;
 	}
 
 	private static function send_contact_email(array $data, int $message_id): bool
@@ -572,10 +577,13 @@ final class ContactForm extends AbstractShortcode {
 			'Reply-To: ' . $data['name'] . ' <' . $data['email'] . '>',
 		);
 
-		// Defined unconditionally: it used to exist only inside the `if`
-		// below, which raised a PHP 8 "Undefined variable" warning and
-		// passed null (instead of an empty array) to wp_mail() on every
-		// submission with no attachment.
+		// Defined before the branch, not inside it. Every submission without a
+		// file used to reach wp_mail() with this variable never assigned: PHP 8
+		// warns and passes null, and WordPress hands that null to str_replace()
+		// in pluggable.php for a deprecation on top. The mail still sent, so
+		// only a debug log ever showed it -- and this is a public,
+		// unauthenticated form, which is where a WordPress.org reviewer running
+		// with WP_DEBUG looks first.
 		$attachments = array();
 
 		if (! empty($data['attachment'])) {
@@ -775,6 +783,14 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		$file['name'] = $sanitized_name;
+
+		// wp_handle_upload() lives in wp-admin/includes/file.php. Today the only
+		// caller is the AJAX submit handler, and admin-ajax.php loads the admin
+		// API before firing any hook, so the function happens to exist. That is
+		// a property of the current caller, not of this method: called from a
+		// shortcode, a block render or a REST route it would be a fatal, which
+		// is exactly how /customers/bulk shipped broken for three months.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		// This is an unauthenticated, wp_ajax_nopriv_ upload endpoint. Keeping
 		// the caller's (sanitized) filename made every uploaded attachment's

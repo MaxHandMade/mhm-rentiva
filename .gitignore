@@ -478,6 +478,12 @@ bin/*
 # container does not have -- the same documented host-only shape as
 # check-plugin-check-parity.php. Tracked so any future round can re-run it.
 !bin/check-js-correctness.php
+# G-E: finds admin-only core functions called from paths that never load
+# wp-admin. It exists because /customers/bulk called wp_delete_user() -- which
+# lives in wp-admin/includes/user.php -- and fataled on every real dispatch
+# while PHPUnit, PHPCS, PHPStan and Plugin Check were all green over it. Must
+# be tracked or the gate that catches that class ships in nobody's clone.
+!bin/check-admin-only-functions.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

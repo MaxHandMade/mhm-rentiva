@@ -111,6 +111,60 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
+	 * Fable audit finding M-A: the receipt handlers checked ownership with
+	 * `current_user_can('edit_post', $booking_id)` without ever checking that the
+	 * id was a booking. On any other post type that capability resolves normally,
+	 * so a contributor passes the gate on their own draft -- reaching
+	 * media_handle_upload() (an effective upload_files they do not hold) and
+	 * writing _mhmrentiva_receipt_* meta onto arbitrary content.
+	 *
+	 * can_access_receipt() already refuses non-bookings; the sibling handlers have
+	 * to route through it rather than repeat a weaker check.
+	 */
+	public function test_receipt_handler_refuses_a_post_that_is_not_a_booking(): void
+	{
+		$contributor = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$draft       = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'draft',
+				'post_author' => $contributor,
+			)
+		);
+
+		// The draft carries a receipt attachment, so the handler cannot bail out
+		// early for a missing receipt: the only thing left to stop it is the
+		// entity check. Without this the test passes for the wrong reason.
+		$attachment = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'receipt.pdf',
+				'post_parent'    => $draft,
+				'post_mime_type' => 'application/pdf',
+			)
+		);
+		update_post_meta( $draft, '_mhmrentiva_receipt_attachment_id', $attachment );
+
+		wp_set_current_user( $contributor );
+
+		$_POST = array(
+			'nonce'      => wp_create_nonce( 'mhmrentiva_upload_receipt' ),
+			'booking_id' => $draft,
+		);
+
+		$res = $this->call( 'mhmrentiva_remove_receipt' );
+
+		$this->assertFalse(
+			(bool) ( $res['success'] ?? true ),
+			'A non-booking post must be refused even when the caller can edit it. Response: ' . $this->_last_response
+		);
+		$this->assertSame(
+			$attachment,
+			(int) get_post_meta( $draft, '_mhmrentiva_receipt_attachment_id', true ),
+			'Nothing may be detached from a post that is not a booking.'
+		);
+	}
+
+	/**
 	 * And someone else's customer must still be refused.
 	 */
 	public function test_another_customer_is_refused(): void

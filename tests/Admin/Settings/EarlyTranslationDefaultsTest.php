@@ -232,14 +232,24 @@ final class EarlyTranslationDefaultsTest extends WP_UnitTestCase
             $this->assertSame($declared[ $key ], SettingsCore::get($key), $key);
         }
 
+        // The site's name alone. T8 removed the "- Powered by MHM Rentiva" half:
+        // the footer goes out on customer mail, and a shipped default is not the
+        // opt-in that WordPress.org guideline 10 requires for a credit on a
+        // user-facing surface.
         $this->assertSame(
-            sprintf(
-                /* translators: %s: site name */
-                __('%s - Powered by MHM Rentiva', 'mhm-rentiva'),
-                get_bloginfo('name')
-            ),
+            get_bloginfo('name'),
             $declared['mhmrentiva_email_footer_text']
         );
+
+        // Stated as its own claim so re-adding a credit fails here even if
+        // someone also updates the equality above to match.
+        foreach (array( 'Powered by', 'MHM Rentiva', 'wpalemi', 'MaxHandMade' ) as $credit) {
+            $this->assertStringNotContainsStringIgnoringCase(
+                $credit,
+                (string) $declared['mhmrentiva_email_footer_text'],
+                'The default customer-facing email footer must not credit the plugin or its vendor.'
+            );
+        }
     }
 
     /**

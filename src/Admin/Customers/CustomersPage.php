@@ -269,7 +269,23 @@ final class CustomersPage {
 		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
 		$detail      = CustomersOptimizer::get_customer_details_optimized($customer_id);
 
-		if (! $detail) {
+		// The screen counterpart of the T8 finding on /customers/bulk: edit_users
+		// is a blanket capability, so on its own this screen would view and edit
+		// any account on the site by URL. Ask WordPress the per-target question
+		// (edit_user) and ask whether the account is this plugin's to manage.
+		//
+		// Deliberately the same "Customer not found." wp_die() as a missing
+		// account rather than a distinct permission message: a different message
+		// would turn ?customer_id= into a probe for which user IDs exist.
+		//
+		// The subject is `$detail` rather than the `$customer` this guard was
+		// written against: the Faz 2 redesign renamed the row it fetches. Only
+		// the name changed -- it is the same optimizer call, and the emptiness
+		// check still has to run alongside both authorization questions.
+		if (! $detail
+			|| ! current_user_can('edit_user', $customer_id)
+			|| ! CustomerIdentity::is_customer($customer_id)
+		) {
 			wp_die(esc_html__('Customer not found.', 'mhm-rentiva'));
 		}
 
@@ -401,7 +417,18 @@ final class CustomersPage {
 		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
 		$customer    = get_user_by('id', $customer_id);
 
-		if (! $customer) {
+		// The screen counterpart of the T8 finding on /customers/bulk: edit_users
+		// is a blanket capability, so on its own this screen would view and edit
+		// any account on the site by URL. Ask WordPress the per-target question
+		// (edit_user) and ask whether the account is this plugin's to manage.
+		//
+		// Deliberately the same "Customer not found." wp_die() as a missing
+		// account rather than a distinct permission message: a different message
+		// would turn ?customer_id= into a probe for which user IDs exist.
+		if (! $customer
+			|| ! current_user_can('edit_user', $customer_id)
+			|| ! CustomerIdentity::is_customer($customer_id)
+		) {
 			wp_die(esc_html__('Customer not found.', 'mhm-rentiva'));
 		}
 

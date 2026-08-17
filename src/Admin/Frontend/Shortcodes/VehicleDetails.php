@@ -107,7 +107,11 @@ final class VehicleDetails extends AbstractShortcode {
 		// }
 
 		$vehicle = get_post( $vehicle_id );
-		if ( ! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' ) {
+
+		// Public shortcode: an unpublished vehicle renders as "not found" rather
+		// than exposing its title, gallery, specification and price to anyone
+		// who knows or guesses the ID.
+		if ( ! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' || $vehicle->post_status !== 'publish' ) {
 			return self::get_default_template_data( $atts );
 		}
 
@@ -717,18 +721,23 @@ final class VehicleDetails extends AbstractShortcode {
 		}
 
 		/*
-		 * `wp_ajax_nopriv_` handler, and `mhmrentiva_calendar_nonce` is minted
-		 * into the public vehicle-details page, so every anonymous visitor holds
-		 * a valid one. The id itself was previously unchecked beyond being
-		 * non-zero, which made this an occupancy oracle: an anonymous caller
-		 * could walk post ids and read the month-by-month booked/free pattern of
-		 * vehicles that were never published.
+		 * Same line the shortcode draws: this endpoint is `wp_ajax_nopriv_`, and
+		 * `mhmrentiva_calendar_nonce` is minted into the public vehicle-details
+		 * page, so every anonymous visitor holds a valid one. The id itself was
+		 * previously unchecked beyond being non-zero, which made this an
+		 * occupancy oracle: an anonymous caller could walk post ids and read the
+		 * month-by-month booked/free pattern of vehicles that were never
+		 * published.
+		 *
+		 * The message stays "not found" rather than the id-shape message used
+		 * above: an unpublished vehicle must not be distinguishable from one
+		 * that does not exist.
 		 */
 		if ( ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vid ) ) {
 			// No `return` after this: wp_send_json_error() terminates, and the
 			// neighbouring guards' redundant returns are already at the file's
 			// budgeted count of ignored unreachable-statement findings.
-			wp_send_json_error( array( 'message' => __( 'Vehicle ID required', 'mhm-rentiva' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Vehicle not found', 'mhm-rentiva' ) ) );
 		}
 
 		$calendar_html = self::render_monthly_calendar( $vid, $month, $year );

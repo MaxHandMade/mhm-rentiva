@@ -419,10 +419,6 @@ final class EmailTemplates {
 		}
 
 		return array(
-			// ... (rest of array omitted for brevity, assuming existing content is preserved if I don't touch it. Wait, replace_file_content replaces the whole chunk!)
-			// I need to be careful not to delete the array content.
-			// I will use multi_replace to target specific lines.
-
 			'booking'       => array(
 				'id'               => 9999,
 				'title'            => __('Mock Booking #9999', 'mhm-rentiva'),

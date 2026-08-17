@@ -53,7 +53,10 @@
 			$( document ).on( 'change', '#mhmrentiva_manual_vehicle_id', this.onVehicleChange );
 
 			// Tarih değişikliklerinde otomatik hesaplama
-			$( document ).on( 'change', '#mhmrentiva_manual_pickup_date, #mhmrentiva_manual_dropoff_date', this.onDateChange );
+			// Times as well as dates: the pickup/return time changes the rental
+			// day count, so a time edited after the price was calculated left
+			// a total on screen that no longer matched the form.
+			$( document ).on( 'change', '#mhmrentiva_manual_pickup_date, #mhmrentiva_manual_dropoff_date, #mhmrentiva_manual_pickup_time, #mhmrentiva_manual_dropoff_time', this.onDateChange );
 
 			// Ödeme türü değiştiğinde
 			$( document ).on( 'change', '#mhmrentiva_manual_payment_type', this.onPaymentTypeChange );
@@ -78,6 +81,15 @@
 
 		onVehicleChange: function () {
 			const vehicleId = $( this ).val();
+
+			// Whatever is on screen was calculated for the vehicle that was
+			// selected a moment ago, so it cannot survive this change --
+			// otherwise vehicle A's total sits under vehicle B's name with a
+			// live "Create Booking" button beneath it.
+			// displayPriceCalculation() reveals the panel again as soon as a
+			// fresh price comes back.
+			ManualBooking.invalidatePriceCalculation();
+
 			if (vehicleId) {
 				const $option = $( this ).find( 'option:selected' );
 				const price   = $option.data( 'price' );
@@ -85,10 +97,11 @@
 				// Araç bilgilerini göster
 				ManualBooking.showVehicleInfo( $option.text(), price );
 
-				// Fiyat hesaplama alanını göster
-				$( '.mhm-price-calculation' ).removeClass( 'mhm-hidden' );
-			} else {
-				$( '.mhm-price-calculation' ).addClass( 'mhm-hidden' );
+				// Recalculate immediately when the dates are already filled
+				// in, so changing vehicle does not leave an empty panel.
+				if ($( '#mhmrentiva_manual_pickup_date' ).val() && $( '#mhmrentiva_manual_dropoff_date' ).val()) {
+					ManualBooking.calculatePrice();
+				}
 			}
 		},
 
@@ -99,6 +112,10 @@
 			if (pickupDate && dropoffDate) {
 				// Tarih doğrulama
 				if (new Date( dropoffDate ) <= new Date( pickupDate )) {
+					// Drop the old breakdown too: it was calculated for the
+					// previous dates and must not stay on screen beside
+					// invalid new ones.
+					ManualBooking.invalidatePriceCalculation();
 					ManualBooking.showMessage( 'error', mhmManualBooking.text.dropoffAfterPickup || 'Dropoff date must be after pickup date.' );
 					return;
 				}
@@ -251,10 +268,23 @@
 							$( '#mhm-create-booking' ).removeClass( 'mhm-hidden' );
 							ManualBooking.showMessage( 'success', mhmManualBooking.text.priceCalculated || 'Price calculated.' );
 						} else {
+							// Clear the previous breakdown. Leaving it on screen
+							// showed a price calculated for OTHER dates directly
+							// beneath the new ones -- change the dates to a range
+							// the vehicle is already booked for, the request
+							// fails, and the earlier range's total sits there
+							// looking like the answer. The booking itself was
+							// never at risk (the server recomputes the price from
+							// the submitted dates and ignores anything the
+							// browser sends), but the operator quotes what they
+							// see. The create button goes with it: an
+							// uncalculated booking must not be submittable.
+							ManualBooking.invalidatePriceCalculation();
 							ManualBooking.showMessage( 'error', response.data.message || mhmManualBooking.text.error );
 						}
 					},
 					error: function () {
+						ManualBooking.invalidatePriceCalculation();
 						ManualBooking.showMessage( 'error', mhmManualBooking.text.error );
 					},
 					complete: function () {
@@ -263,6 +293,21 @@
 					}
 				}
 			);
+		},
+
+		/**
+		 * Drop a breakdown that no longer describes what is on the form, and
+		 * hide the create button with it.
+		 *
+		 * Called whenever a calculation fails and whenever an input that
+		 * feeds the price changes. The alternative -- leaving the last good
+		 * figures on screen -- means the operator reads a total belonging to
+		 * dates, a vehicle or add-ons that are no longer selected.
+		 */
+		invalidatePriceCalculation: function () {
+			$( '.mhm-price-details' ).empty();
+			$( '.mhm-price-calculation' ).addClass( 'mhm-hidden' );
+			$( '#mhm-create-booking' ).addClass( 'mhm-hidden' );
 		},
 
 		displayPriceCalculation: function (data) {
@@ -277,6 +322,12 @@
 					<span class="mhm-price-label">${text.dailyPrice || 'Daily Price'}:</span>
 					<span class="mhm-price-value">${money(data.price_per_day)}</span>
 				</div>
+				${data.weekend_surcharge > 0 ? `
+					<div class="mhm-price-item">
+					<span class="mhm-price-label">${text.weekendDifference || 'Weekend Difference:'} ${data.weekend_days ? `(${( text.weekendDaysCount || '%d weekend day(s)' ).replace( '%d', data.weekend_days )})` : ''}</span>
+					<span class="mhm-price-value">+${money(data.weekend_surcharge)}</span>
+					</div>
+					` : ''}
 				<div class="mhm-price-item">
 					<span class="mhm-price-label">${text.vehicleTotal || 'Vehicle Total'}:</span>
 					<span class="mhm-price-value">${money(data.vehicle_total || data.total_amount)}</span>
@@ -304,6 +355,7 @@
 			`;
 
 			$( '.mhm-price-details' ).html( priceHtml );
+			$( '.mhm-price-calculation' ).removeClass( 'mhm-hidden' );
 
 			// Sync addon total display from AJAX data
 			if ( data.addon_total > 0 ) {

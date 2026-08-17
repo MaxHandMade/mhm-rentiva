@@ -18,6 +18,14 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
  */
 final class SecurityHelper {
 
+	/**
+	 * Object cache group for rate-limit counters.
+	 *
+	 * A group of its own so a counter can never be confused with, or flushed
+	 * alongside, unrelated cached data.
+	 */
+	public const RATE_LIMIT_CACHE_GROUP = 'mhmrentiva_rate_limits';
+
 
 
 
@@ -149,33 +157,135 @@ final class SecurityHelper {
 	 */
 	public static function check_rate_limit(string $action, int $limit = 10, int $window = 300, ?int $user_id = null): bool
 	{
+		$key   = self::rate_limit_key($action, $user_id);
+		$count = self::increment_counter($key, $window);
+
+		return $count <= $limit;
+	}
+
+	/**
+	 * Current hit count for a rate-limit bucket, read from whichever storage
+	 * increment_counter() writes to.
+	 *
+	 * @param string   $action  Action name.
+	 * @param int|null $user_id User ID (null = current user).
+	 */
+	public static function get_rate_limit_count(string $action, ?int $user_id = null): int
+	{
+		return self::read_counter(self::rate_limit_key($action, $user_id));
+	}
+
+	/**
+	 * Bucket key for an action/subject pair.
+	 *
+	 * Hashed like RateLimiter::getCacheKey() -- an unhashed IP in the
+	 * transient name is both an unnecessary PII exposure (visible to anyone
+	 * who can read wp_options) and needlessly inconsistent with the house
+	 * pattern for the same kind of key.
+	 */
+	private static function rate_limit_key(string $action, ?int $user_id = null): string
+	{
 		if ($user_id === null) {
 			$user_id = get_current_user_id();
 		}
 
-		// IP-based rate limiting for anonymous users
+		// IP-based rate limiting for anonymous users.
 		$identifier = (string) $user_id;
 		if ($user_id === 0) {
 			$identifier = self::get_client_ip();
 		}
 
-		// Hashed like RateLimiter::getCacheKey() -- an unhashed IP in the
-		// transient name is both an unnecessary PII exposure (visible to
-		// anyone who can read wp_options) and needlessly inconsistent with
-		// the house pattern for the same kind of key.
-		$hash     = hash('sha256', $identifier);
-		$key      = "mhmrentiva_rate_limit_{$action}_{$hash}";
-		$attempts = get_transient($key);
-		if (false === $attempts) {
-			$attempts = 0;
+		return "mhmrentiva_rate_limit_{$action}_" . hash('sha256', $identifier);
+	}
+
+	/**
+	 * Add one to a counter and return its new value.
+	 *
+	 * The house counter primitive, shared with RateLimiter so both limiters
+	 * count the same way.
+	 *
+	 * A transient counter is read-modify-write: get_transient(), compare,
+	 * set_transient(current + 1). Two concurrent requests read the same value
+	 * and write the same increment, so N simultaneous hits can advance the
+	 * counter by one -- the limiter undercounts precisely under the load it
+	 * exists to control. Where a persistent object cache is available its
+	 * increment is a single atomic operation (Redis INCR, Memcached INCR),
+	 * so use it: wp_cache_add() seeds the key with the window as its TTL
+	 * (whoever loses that race simply gets false and increments the winner's
+	 * key), and wp_cache_incr() does the counting without a read first.
+	 *
+	 * 🔴 The fallback is not optional. Without a persistent object cache
+	 * wp_cache_* is request-scoped -- a counter kept only there resets on
+	 * every request and the limiter silently stops limiting anything. Most
+	 * WordPress sites are on that path, so the transient remains the default.
+	 */
+	public static function increment_counter(string $key, int $duration): int
+	{
+		if (wp_using_ext_object_cache()) {
+			wp_cache_add($key, 0, self::RATE_LIMIT_CACHE_GROUP, $duration);
+			$count = wp_cache_incr($key, 1, self::RATE_LIMIT_CACHE_GROUP);
+
+			// incr() returns false only if the key vanished between the add
+			// and the incr (eviction, flush). Falling through to the
+			// transient would split one bucket across two stores, so re-seed
+			// this one instead.
+			if (false !== $count) {
+				return (int) $count;
+			}
+
+			wp_cache_set($key, 1, self::RATE_LIMIT_CACHE_GROUP, $duration);
+			return 1;
 		}
 
-		if ($attempts >= $limit) {
-			return false; // Rate limit exceeded
+		$attempts = (int) get_transient($key);
+		++$attempts;
+
+		// Keep the window fixed rather than letting it slide. set_transient()
+		// always rewrites the expiry, so counting every request -- including
+		// the ones being refused -- would push a client's block further out
+		// with each attempt, and a caller that keeps knocking would never
+		// serve out its window. The object-cache path does not have this
+		// problem (wp_cache_add sets the TTL once, wp_cache_incr leaves it
+		// alone), so the two stores would otherwise disagree about what a
+		// window means. Reuse the remaining life of the existing counter and
+		// fall back to a fresh window once it has genuinely elapsed.
+		$expires   = (int) get_option('_transient_timeout_' . $key);
+		$remaining = $expires - time();
+		if ($remaining <= 0) {
+			$remaining = $duration;
+			$attempts  = 1;
 		}
 
-		set_transient($key, $attempts + 1, $window);
-		return true; // Rate limit not exceeded
+		set_transient($key, $attempts, $remaining);
+
+		return $attempts;
+	}
+
+	/**
+	 * Read a counter written by increment_counter(), from the same storage.
+	 */
+	public static function read_counter(string $key): int
+	{
+		if (wp_using_ext_object_cache()) {
+			$value = wp_cache_get($key, self::RATE_LIMIT_CACHE_GROUP);
+			return false === $value ? 0 : (int) $value;
+		}
+
+		return (int) get_transient($key);
+	}
+
+	/**
+	 * Drop a counter from BOTH stores.
+	 *
+	 * Deliberately not conditional on wp_using_ext_object_cache(): a site
+	 * that gains or loses a persistent cache between the increment and the
+	 * clear would otherwise leave the counter stranded in the other store,
+	 * and an admin's "clear this limit" would silently do nothing.
+	 */
+	public static function clear_counter(string $key): void
+	{
+		wp_cache_delete($key, self::RATE_LIMIT_CACHE_GROUP);
+		delete_transient($key);
 	}
 
 	/**

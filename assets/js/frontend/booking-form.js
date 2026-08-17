@@ -1354,10 +1354,8 @@
             if (sidebar.length) sidebar.removeClass('rv-hidden');
         }
 
-        // Helper methods (showError, showSuccess, showLoading, hideMessages, formatPrice, getMessage, getFavoritesConfig, getAjaxUrl, calculateDays)
-        // These should be copied from original file or implemented if missing. 
-        // For brevity in this replacement, assuming they exist in the class.
-        // I will include them to be safe since I'm rewriting the class.
+        // Helper methods: showError, showSuccess, showLoading, hideMessages,
+        // formatPrice, getMessage, getFavoritesConfig, getAjaxUrl, calculateDays.
 
         showError(message) {
             // Check if message contains HTML - simplistic check

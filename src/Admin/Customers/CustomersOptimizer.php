@@ -96,6 +96,19 @@ final class CustomersOptimizer {
 		$order_col  = $column_map[ $sort_by ] ?? 'last_booking';
 		$order_asc  = 'asc' === strtolower( $sort_dir );
 
+		// Restrict the list to accounts that are actually customers of this plugin.
+		// Without this the query returns essentially every account on the site: it
+		// starts FROM wp_users and only LEFT JOINs the bookings, so the booking is
+		// optional and the sole account filters were `ID > 1` and
+		// `user_login != 'admin'`. Administrators, editors and other plugins' users
+		// were listed as customers, with their contact details, and counted in the
+		// total and the pagination.
+		//
+		// The definition lives in CustomerIdentity, which the detail, delete and
+		// export routes already use; expressing it in SQL rather than filtering
+		// afterwards is what keeps LIMIT/OFFSET and the total honest.
+		$membership = CustomerIdentity::sql_is_customer();
+
 		// Status filters are independent predicates (they may overlap): `new` means
 		// registered in the last 30 days, `active` means a booking in the last 90
 		// days (same window as the active_90d stat), `vip` means at least the
@@ -104,7 +117,18 @@ final class CustomersOptimizer {
 		if ( ! in_array( $status, array( 'all', 'new', 'active', 'vip' ), true ) ) {
 			$status = 'all';
 		}
-		$vip_min   = self::get_vip_min_bookings();
+		$vip_min = self::get_vip_min_bookings();
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
+		// is CustomerIdentity::sql_is_customer(): a single $wpdb->prepare() call with
+		// every dynamic value bound. WordPress provides no placeholder for splicing a
+		// composed SQL fragment into another statement, so the composition itself is
+		// what the sniff sees. Scoped to this region and re-enabled straight after.
+		//
+		// The key carries the status, the VIP threshold and the currency fingerprint
+		// as well as the paging/sort inputs: every one of them changes the rows or
+		// the formatting this method returns, so leaving any of them out serves one
+		// filter's result set under another filter's key.
 		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir . '_' . $status . '_' . $vip_min . '_' . self::currency_fingerprint() );
 
 		// Check cache
@@ -154,6 +178,7 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND {$membership}
                 AND u.user_email != ''
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                 AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
@@ -188,6 +213,7 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND {$membership}
                 AND u.user_email != ''
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                 AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
@@ -210,6 +236,12 @@ final class CustomersOptimizer {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Counterpart of the SELECT above; cached with it.
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
+				// Counts through the same derived table the SELECT above builds:
+				// the status filters live in GROUP BY/HAVING, so a flat
+				// COUNT(DISTINCT u.ID) would count rows the list itself does not
+				// show and hand the pager a total that never matches the pages.
+				// `$membership` is carried in here too -- a total that counts
+				// non-customers is the same defect as a list that shows them.
 				"SELECT COUNT(*) FROM (
                 SELECT u.ID
                 FROM {$wpdb->users} u
@@ -220,8 +252,9 @@ final class CustomersOptimizer {
                     AND p.post_status IN ('publish', 'private', 'pending')
                 WHERE u.ID > 1
                     AND u.user_login != 'admin'
+                    AND {$membership}
                     AND u.user_email != ''
-                AND (u.display_name LIKE %s OR u.user_email LIKE %s)
+                    AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                     AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
                 GROUP BY u.ID
                 HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
@@ -235,6 +268,8 @@ final class CustomersOptimizer {
 				$vip_min
 			)
 		);
+
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Format data
 		$currency  = CurrencyHelper::get_currency_symbol();

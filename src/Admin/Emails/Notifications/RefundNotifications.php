@@ -36,7 +36,7 @@ final class RefundNotifications {
 			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
 			$currency ?: 'TRY'
 		);
-		$statusText = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
+		$statusText  = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
 
 		$wc_order_id = (int) get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true );
 

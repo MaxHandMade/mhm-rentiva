@@ -75,7 +75,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 9
+			count: 11
 			path: src/Admin/Booking/Actions/DepositManagementAjax.php
 
 		-
@@ -857,12 +857,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 2
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
-
-		-
-			message: '#^Call to function is_wp_error\(\) with int will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Admin/PostTypes/Logs/AdvancedLogger.php
 
 		-
 			message: '#^Parameter \#2 \$args of function register_post_type expects array\{label\?\: string, labels\?\: array\<string\>, description\?\: string, public\?\: bool, hierarchical\?\: bool, exclude_from_search\?\: bool, publicly_queryable\?\: bool, show_ui\?\: bool, \.\.\.\}, array\{labels\: array\{name\: string, singular_name\: string, menu_name\: string, add_new\: string, add_new_item\: string, edit_item\: string, new_item\: string, view_item\: string, \.\.\.\}, public\: false, show_ui\: true, show_in_menu\: false, supports\: array\{''title'', ''editor''\}, capability_type\: array\{''mhmrentiva_log'', ''mhmrentiva_logs''\}, capabilities\: array\{create_posts\: ''do_not_allow'', edit_posts\: ''manage_options'', edit_others_posts\: ''manage_options'', edit_private_posts\: ''manage_options'', edit_published_posts\: ''manage_options'', read_private_posts\: ''manage_options'', delete_posts\: ''manage_options'', delete_others_posts\: ''manage_options'', \.\.\.\}, map_meta_cap\: true, \.\.\.\} given\.$#'

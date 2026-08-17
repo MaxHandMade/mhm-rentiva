@@ -869,6 +869,12 @@ class PrefixRenamer {
 				1 => array( '_mhm' ),
 			),
 		),
+		'src/Admin/Booking/Helpers/Util.php' => array(
+			'why'      => 'has_overlap_locked() takes the booking guard\'s FOR UPDATE row lock and must match BOTH spellings for exactly the reason Locker::withLock() documents: on an un-migrated site a new-prefix-only pattern selects zero rows, locks nothing, and the caller proceeds believing it is protected. Fixed in 6.0.3 (finding C-01); the narrow pattern shipped through 6.0.2',
+			'regions'  => array(
+				0 => array( '_mhm', '_mhm_', '_mhmrentiva_%' ),
+			),
+		),
 		'src/Admin/Core/Utilities/DatabaseCleaner.php' => array(
 			'why'      => 'the invalid-meta cleanup deletes every _mhm%% row NOT in its allowlist, so the allowlist must keep naming the pre-6.0.0 spellings of Pro\'s vendor identity keys while any site still holds un-migrated rows; and option analysis plus the backup-table probe must see pre-6.0.0 rows, because backup tables keep their old name forever (no TABLES entry) and are somebody\'s only recovery copy',
 			'regions'  => array(

@@ -164,8 +164,21 @@ final class ShortcodePageActions {
 	/**
 	 * Delete a shortcode page.
 	 */
+	/**
+	 * Whether this plugin created the page, as recorded by create_page().
+	 *
+	 * Matching a shortcode in post_content is not ownership: the site owner may
+	 * have embedded it in a page of their own.
+	 */
+	private function is_plugin_owned_page( int $page_id ): bool {
+		return (bool) get_post_meta( $page_id, '_mhmrentiva_auto_created', true );
+	}
+
 	public function delete_page( int $page_id ): bool {
-		if ( $page_id <= 0 ) {
+		// Same ownership rule as reset_pages(). This path trashes rather than
+		// force-deletes, so the damage was recoverable, but the assumption behind
+		// it was the same wrong one.
+		if ( $page_id <= 0 || ! $this->is_plugin_owned_page( $page_id ) ) {
 			return false;
 		}
 
@@ -209,7 +222,15 @@ final class ShortcodePageActions {
 
 		foreach ( $shortcodes as $sc ) {
 			$page_id = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id( $sc );
-			if ( $page_id ) {
+
+			// Ownership is required before deleting anything. get_page_id() does
+			// not answer "which page did this plugin create" -- it scans every
+			// published page for the shortcode or its block, so a page the site
+			// owner wrote, with their own content around a Rentiva shortcode, is an
+			// equally valid match. This ran wp_delete_post( $id, true ): force
+			// delete, no trash, no undo. The mapping is still cleared below either
+			// way; what changes is that content we did not create is left alone.
+			if ( $page_id && $this->is_plugin_owned_page( $page_id ) ) {
 				wp_delete_post( $page_id, true );
 				++$deleted_count;
 			}
@@ -315,8 +336,8 @@ final class ShortcodePageActions {
 					$via[] = 'block';
 				}
 				if ( '' !== $elementor ) {
-					$widget_used    = '' !== $widget_name && false !== strpos( $elementor, '"widgetType":"' . $widget_name . '"' );
-					$embedded_text  = false !== strpos( $elementor, '[' . $slug );
+					$widget_used   = '' !== $widget_name && false !== strpos( $elementor, '"widgetType":"' . $widget_name . '"' );
+					$embedded_text = false !== strpos( $elementor, '[' . $slug );
 					if ( $widget_used || $embedded_text ) {
 						$via[] = 'widget';
 					}

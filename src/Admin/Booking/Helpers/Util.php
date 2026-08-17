@@ -125,14 +125,50 @@ final class Util {
 	 */
 	public static function total_price(int $vehicle_id, int $days, int $start_ts = 0): float
 	{
+		return self::price_breakdown($vehicle_id, $days, $start_ts)['total'];
+	}
+
+	/**
+	 * The vehicle total, itemised.
+	 *
+	 * Same arithmetic total_price() has always performed -- weekend days are
+	 * charged at `mhmrentiva_vehicle_weekend_multiplier` (default 1.2) -- but
+	 * it also reports HOW the total was reached, so a screen can show the
+	 * surcharge instead of leaving the operator to wonder why two days at
+	 * 2800 came to 6720.
+	 *
+	 * total_price() delegates here rather than keeping its own copy of the
+	 * loop: one concept, one computation. A breakdown re-derived in a
+	 * template or in JavaScript is how a screen starts quoting a number the
+	 * charge does not agree with.
+	 *
+	 * @return array{
+	 *     total: float,
+	 *     base_price_per_day: float,
+	 *     days: int,
+	 *     weekend_days: int,
+	 *     weekday_days: int,
+	 *     weekend_multiplier: float,
+	 *     weekend_surcharge: float
+	 * }
+	 */
+	public static function price_breakdown(int $vehicle_id, int $days, int $start_ts = 0): array
+	{
 		$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 
-		if ($price_per_day <= 0) {
-			return 0.0;
-		}
+		$empty = array(
+			'total'              => 0.0,
+			'base_price_per_day' => 0.0,
+			'days'               => $days,
+			'weekend_days'       => 0,
+			'weekday_days'       => $days,
+			'weekend_multiplier' => 1.0,
+			'weekend_surcharge'  => 0.0,
+		);
 
-		// If no start date or short rental, simple calc
-		// However, user wants multiplier logic.
+		if ($price_per_day <= 0) {
+			return $empty;
+		}
 
 		// Apply Base Price Multiplier
 		$base_multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_base_price', 1.0);
@@ -142,30 +178,37 @@ final class Util {
 
 		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.2);
 
-		// Safety check for multiplier
-		if ($multiplier <= 1.0) {
-			return $price_per_day * $days;
+		$flat = array(
+			'total'              => $price_per_day * $days,
+			'base_price_per_day' => $price_per_day,
+			'days'               => $days,
+			'weekend_days'       => 0,
+			'weekday_days'       => $days,
+			'weekend_multiplier' => $multiplier,
+			'weekend_surcharge'  => 0.0,
+		);
+
+		// Safety check for multiplier; and without a start date there is no
+		// way to know which days fall on a weekend, so charge flat and say so.
+		if ($multiplier <= 1.0 || $start_ts <= 0) {
+			return $flat;
 		}
 
-		if ($start_ts <= 0) {
-			return $price_per_day * $days;
-		}
+		$total        = 0.0;
+		$surcharge    = 0.0;
+		$weekend_days = 0;
+		$current_ts   = $start_ts;
 
-		$total      = 0.0;
-		$current_ts = $start_ts;
-
-		// Iterate through each day
+		// Iterate through each day. Rental days are 24h blocks and car rental
+		// charges the day rate for the specific calendar day.
 		for ($i = 0; $i < $days; $i++) {
-			// Check day of week (0 = Sunday, 6 = Saturday) for the current checking day
-			// We use getdate or gmdate('w') based on timestamp.
-			// Note: rental days are 24h blocks. Logic typically applies to ANY day overlapping weekend?
-			// Usually car rental charges "day rate" for that specific day.
-
+			// 0 = Sunday, 6 = Saturday.
 			$day_of_week = (int) gmdate('w', $current_ts);
 
-			// Sat (6) or Sun (0)
 			if (6 === $day_of_week || 0 === $day_of_week) {
-				$total += ( $price_per_day * $multiplier );
+				$total     += ( $price_per_day * $multiplier );
+				$surcharge += ( $price_per_day * $multiplier ) - $price_per_day;
+				++$weekend_days;
 			} else {
 				$total += $price_per_day;
 			}
@@ -174,7 +217,15 @@ final class Util {
 			$current_ts += 86400;
 		}
 
-		return $total;
+		return array(
+			'total'              => $total,
+			'base_price_per_day' => $price_per_day,
+			'days'               => $days,
+			'weekend_days'       => $weekend_days,
+			'weekday_days'       => $days - $weekend_days,
+			'weekend_multiplier' => $multiplier,
+			'weekend_surcharge'  => $surcharge,
+		);
 	}
 
 	/**
@@ -268,16 +319,30 @@ final class Util {
 	{
 		global $wpdb;
 
-		// Lock vehicle's postmeta records
+		// Lock vehicle's postmeta records.
+		//
+		// prefix-rename:ignore-start
+		// The pattern must cover BOTH the pre- and post-6.0.0 spellings, for the
+		// reason Locker::withLock() spells out: on a site running this code before
+		// the 6.0.0 rename migration has run, every row is still '_mhm_*', so a
+		// '_mhmrentiva_%' pattern selects ZERO rows and FOR UPDATE locks nothing --
+		// silently, with no error and no failing test. '_mhm' covers both families;
+		// esc_like() keeps the leading underscore literal so it cannot widen further.
+		//
+		// Note that this statement only holds a lock when the caller has already
+		// opened a transaction (see create_booking_from_data(), which wraps this
+		// call in Locker::withLock()). Under autocommit MySQL releases the row lock
+		// as soon as the statement completes.
 		$wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT meta_id FROM {$wpdb->postmeta}
              WHERE post_id = %d AND meta_key LIKE %s
              FOR UPDATE",
 				$vehicle_id,
-				$wpdb->esc_like('_mhmrentiva_') . '%'
+				$wpdb->esc_like('_mhm') . '%'
 			)
 		);
+		// prefix-rename:ignore-end
 
 		// Conflict check with accurate date interval handling
 		// ⭐ Exclude pending bookings with expired payment deadline
@@ -765,70 +830,50 @@ final class Util {
 
 
 	/**
-	 * Atomic availability check (with locking).
+	 * Whether a booking's rental period is actually over.
+	 *
+	 * Both callers used to decide this with `strtotime( $dropoff_date ) < time()`,
+	 * which resolves a bare date to midnight: a car due back today at 18:00 read
+	 * as "returned" from 00:00 onwards, so settling the balance in the morning
+	 * marked the booking completed while the customer still had the vehicle.
+	 * Completed feeds availability, dashboards and reporting, so it is not
+	 * cosmetic.
+	 *
+	 * The stored drop-off time is now honoured, interpreted in the site's
+	 * timezone. When a booking has no time recorded the end of that day is used
+	 * rather than its start -- the conservative direction, since the error it can
+	 * make is "not finished yet" instead of "finished early".
 	 */
-	public static function check_availability_locked(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
+	public static function rental_has_ended(int $booking_id): bool
 	{
-		return \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
-			$vehicle_id,
-			function () use ($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time) {
-				// Validate vehicle existence
-				if (get_post_type($vehicle_id) !== 'mhmrentiva_vehicle') {
-					return array(
-						'ok'      => false,
-						'code'    => 'vehicle_not_found',
-						'message' => __('Vehicle not found.', 'mhm-rentiva'),
-					);
-				}
+		$dropoff_date = (string) ( get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true)
+			?: get_post_meta($booking_id, '_mhmrentiva_end_date', true) );
 
-				// Validate vehicle availability status
-				if (! self::is_vehicle_available($vehicle_id)) {
-					return array(
-						'ok'      => false,
-						'code'    => 'vehicle_unavailable',
-						'message' => __('Vehicle is currently not available for rental.', 'mhm-rentiva'),
-					);
-				}
+		if ('' === $dropoff_date) {
+			return false;
+		}
 
-				// Parse date/time
-				$datetime_result = self::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		$dropoff_time = (string) ( get_post_meta($booking_id, '_mhmrentiva_dropoff_time', true)
+			?: get_post_meta($booking_id, '_mhmrentiva_end_time', true) );
 
-				if (is_wp_error($datetime_result)) {
-					return array(
-						'ok'      => false,
-						'code'    => 'invalid_input',
-						'message' => $datetime_result->get_error_message(),
-					);
-				}
+		if ('' === $dropoff_time) {
+			$dropoff_time = '23:59';
+		}
 
-				$start_ts = $datetime_result['start_ts'];
-				$end_ts   = $datetime_result['end_ts'];
+		try {
+			$dropoff = new \DateTimeImmutable($dropoff_date . ' ' . $dropoff_time, wp_timezone());
+		} catch (\Exception $e) {
+			return false;
+		}
 
-				// Atomic overlap detection
-				if (self::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
-					return array(
-						'ok'      => false,
-						'code'    => 'unavailable',
-						'message' => __('Vehicle is not available in the selected date range.', 'mhm-rentiva'),
-					);
-				}
-
-				// Calculate rental days and pricing
-				$days          = self::rental_days($start_ts, $end_ts);
-				$price_per_day = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
-				$total_price   = self::total_price($vehicle_id, $days, $start_ts);
-
-				return array(
-					'ok'            => true,
-					'code'          => 'ok',
-					'message'       => __('Vehicle is available on selected dates.', 'mhm-rentiva'),
-					'days'          => $days,
-					'price_per_day' => $price_per_day,
-					'total_price'   => $total_price,
-					'start_ts'      => $start_ts,
-					'end_ts'        => $end_ts,
-				);
-			}
-		);
+		return $dropoff->getTimestamp() < time();
 	}
+
+	// check_availability_locked() lived here until 6.0.3: a correctly built locked
+	// availability check that nothing ever called, in either edition. It was the
+	// only caller of Locker::withLock(), which is how the locking layer came to be
+	// entirely dead while the live booking path ran unprotected (finding C-01).
+	// The live path now locks for itself in
+	// WooCommerceBridge::create_booking_from_data(); this scaffolding is removed
+	// rather than left as a second, unexercised way to do the same thing.
 }

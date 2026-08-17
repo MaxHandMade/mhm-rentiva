@@ -1086,9 +1086,6 @@ final class DashboardService {
 			);
 		}
 
-		// High-level systems or logic checks could be added here
-		// ... (truncated for brevity based on existing DashboardPage logic)
-
 		return array_slice( $notifications, 0, 4 );
 	}
 

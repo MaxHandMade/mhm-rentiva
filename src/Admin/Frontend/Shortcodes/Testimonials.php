@@ -181,19 +181,32 @@ final class Testimonials extends AbstractShortcode {
 		);
 	}
 
+	/**
+	 * Ceiling for a single testimonials read.
+	 *
+	 * Matches the maximum the nopriv `mhmrentiva_load_testimonials` endpoint
+	 * already clamps `limit` to, so the bound is the one the feature advertises.
+	 */
+	private const MAX_ROWS = 50;
+
 	private static function get_testimonials(array $atts): array
 	{
-		$limit = (int) ( $atts['limit'] ?? 5 );
-
-		// Source 1: Booking post meta reviews
-		$testimonials = self::get_booking_reviews($atts);
-
-		// Source 2: Approved WordPress comments on vehicle posts
-		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts));
-
-		// Sort merged results
+		$limit   = (int) ( $atts['limit'] ?? 5 );
 		$orderby = self::sanitize_orderby( (string) ( $atts['orderby'] ?? 'date' ));
 		$order   = self::sanitize_order( (string) ( $atts['order'] ?? 'DESC' ));
+
+		// How many rows each source may return. Both sources are sorted newest
+		// first, so for a date ordering the newest $limit of each is guaranteed
+		// to contain the newest $limit of the merge. A random ordering needs a
+		// pool to draw from, and an unlimited `limit` still needs a ceiling --
+		// both use the same maximum the testimonials endpoint already enforces.
+		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby ) ? $limit : self::MAX_ROWS;
+
+		// Source 1: Booking post meta reviews
+		$testimonials = self::get_booking_reviews($atts, $fetch_limit);
+
+		// Source 2: Approved WordPress comments on vehicle posts
+		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts, $fetch_limit));
 
 		if ('rand' === $orderby) {
 			shuffle($testimonials);
@@ -218,12 +231,16 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_booking_reviews(array $atts): array
+	private static function get_booking_reviews(array $atts, int $fetch_limit = self::MAX_ROWS): array
 	{
 		$args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => -1,
+			// Bounded: this runs on a public page and the caller slices to the
+			// displayed count anyway.
+			'posts_per_page' => max(1, min($fetch_limit, self::MAX_ROWS)),
+			'orderby'        => 'date',
+			'order'          => 'DESC',
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -260,23 +277,17 @@ final class Testimonials extends AbstractShortcode {
 		foreach ($bookings as $booking) {
 			$vid            = (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
 			$testimonials[] = array(
-				'id'             => $booking->ID,
-				'review'         => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
-				'rating'         => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
-				// `customer_email` was carried here and at the comments branch
-				// below. Nothing rendered it -- neither the template nor the
-				// testimonials JS reads the field -- but it travelled in the
-				// `mhmrentiva_load_testimonials` payload, a nopriv handler, so
-				// the row shape was one reachable request away from bulk
-				// customer-email disclosure. (Today that request 403s on a
-				// nonce-action mismatch; a future "fix the nonce string" commit
-				// would have silently switched the disclosure on.) The field is
-				// removed rather than filtered, so the shape cannot come back by
-				// accident.
-				'customer_name'  => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
-				'date'           => $booking->post_date,
-				'vehicle_id'     => $vid,
-				'vehicle_name'   => self::get_vehicle_name($vid),
+				'id'            => $booking->ID,
+				'review'        => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
+				'rating'        => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
+				'customer_name' => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
+				// No e-mail address here. These rows are returned verbatim by the
+				// nopriv mhmrentiva_load_testimonials endpoint, and nothing in the
+				// template or the script ever read this field -- it existed only
+				// on the wire.
+				'date'          => $booking->post_date,
+				'vehicle_id'    => $vid,
+				'vehicle_name'  => self::get_vehicle_name($vid),
 			);
 		}
 
@@ -289,12 +300,19 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_vehicle_comments(array $atts): array
+	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS): array
 	{
 		$comment_args = array(
-			'post_type' => 'mhmrentiva_vehicle',
-			'status'    => 'approve',
-			'number'    => 0,
+			'post_type'   => 'mhmrentiva_vehicle',
+			// A comment query does not inherit the post's visibility: without
+			// this, reviews of a draft or private vehicle are listed on a public
+			// page. WP_Comment_Query applies it to the parent post.
+			'post_status' => 'publish',
+			'status'      => 'approve',
+			// Bounded for the same reason as the booking read above.
+			'number'      => max(1, min($fetch_limit, self::MAX_ROWS)),
+			'orderby'     => 'comment_date',
+			'order'       => 'DESC',
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -329,15 +347,14 @@ final class Testimonials extends AbstractShortcode {
 			}
 
 			$testimonials[] = array(
-				'id'             => (int) $comment->comment_ID,
-				'review'         => $comment->comment_content,
-				'rating'         => $rating,
-				// See the note on the bookings branch above: the commenter's
-				// e-mail address is not public testimonial data.
-				'customer_name'  => $customer_name ?: '',
-				'date'           => $comment->comment_date,
-				'vehicle_id'     => $vehicle_id,
-				'vehicle_name'   => self::get_vehicle_name($vehicle_id),
+				'id'            => (int) $comment->comment_ID,
+				'review'        => $comment->comment_content,
+				'rating'        => $rating,
+				'customer_name' => $customer_name ?: '',
+				// See the booking builder above: this payload is public.
+				'date'          => $comment->comment_date,
+				'vehicle_id'    => $vehicle_id,
+				'vehicle_name'  => self::get_vehicle_name($vehicle_id),
 			);
 		}
 
@@ -369,7 +386,9 @@ final class Testimonials extends AbstractShortcode {
 		$booking_args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => -1,
+			// The total comes from found_posts, so one row is enough to run the
+			// query; -1 pulled every matching ID into PHP to be discarded.
+			'posts_per_page' => 1,
 			'fields'         => 'ids',
 			'meta_query'     => array(
 				'relation' => 'AND',
@@ -406,9 +425,12 @@ final class Testimonials extends AbstractShortcode {
 
 		// Count vehicle comments
 		$comment_args = array(
-			'post_type' => 'mhmrentiva_vehicle',
-			'status'    => 'approve',
-			'count'     => true,
+			'post_type'   => 'mhmrentiva_vehicle',
+			// Same restriction as the read above, or the total would count rows
+			// the list will not show and "load more" would promise them.
+			'post_status' => 'publish',
+			'status'      => 'approve',
+			'count'       => true,
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -438,7 +460,15 @@ final class Testimonials extends AbstractShortcode {
 		}
 
 		$vehicle = get_post($vehicle_id);
-		return $vehicle ? (string) $vehicle->post_title : '';
+
+		// A vehicle taken off the site must not keep being named through its
+		// reviews. This runs on a public page and the name is printed next to
+		// every testimonial.
+		if (! $vehicle || $vehicle->post_status !== 'publish') {
+			return '';
+		}
+
+		return (string) $vehicle->post_title;
 	}
 
 	/**
@@ -448,39 +478,42 @@ final class Testimonials extends AbstractShortcode {
 	 */
 	public static function ajax_load_testimonials(): void
 	{
+		// Security check
+		if (! check_ajax_referer('mhmrentiva_testimonials_nonce', 'nonce', false)) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+			return;
+		}
+
+		$page = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
+		// Clamped to the 50 the testimonials widget declares: this endpoint is
+		// nopriv and the value decides how many entries are rendered.
+		$limit      = isset($_POST['limit']) ? min(self::MAX_ROWS, max(1, absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))))) : 5;
+		$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
+		$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
+
+		$atts = array(
+			'limit'      => $limit,
+			'rating'     => $rating,
+			'vehicle_id' => $vehicle_id,
+		);
+
 		try {
-			// Security check
-			if (! check_ajax_referer('mhmrentiva_testimonials_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$page = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
-			// Clamped to the 50 the testimonials widget declares: this endpoint is
-			// nopriv and the value decides how many entries are rendered.
-			$limit      = isset($_POST['limit']) ? min(50, max(1, absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))))) : 5;
-			$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
-			$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
-
-			$atts = array(
-				'limit'      => $limit,
-				'rating'     => $rating,
-				'vehicle_id' => $vehicle_id,
-			);
-
 			$testimonials = self::get_testimonials($atts);
 			$total_count  = self::get_testimonials_count($atts);
-
-			wp_send_json_success(
-				array(
-					'testimonials' => $testimonials,
-					'total_count'  => $total_count,
-					'has_more'     => ( $page * $limit ) < $total_count,
-					'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
-				)
-			);
 		} catch (\Exception $e) {
 			wp_send_json_error(array( 'message' => __('An error occurred while loading reviews.', 'mhm-rentiva') ));
 		}
+
+		// Outside the try: wp_send_json_* terminates through wp_die(), and a
+		// catch(Exception) around it swallows that terminator and writes a
+		// second, contradictory JSON document after the first.
+		wp_send_json_success(
+			array(
+				'testimonials' => $testimonials,
+				'total_count'  => $total_count,
+				'has_more'     => ( $page * $limit ) < $total_count,
+				'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
+			)
+		);
 	}
 }

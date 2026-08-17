@@ -156,8 +156,19 @@ final class AdvancedLogger {
 			'post_content' => $content,
 		);
 
-		$post_id = (int) wp_insert_post( $post_arr, true );
-		if ( is_wp_error( $post_id ) || $post_id <= 0 ) {
+		// Check the raw return BEFORE casting. (int) on a WP_Error object
+		// yields 1 (with a PHP warning), which is a valid-looking post ID:
+		// is_wp_error() then sees an int, `> 0` passes, and every
+		// update_post_meta() below lands on post ID 1 -- typically the site's
+		// first post. Passing $wp_error = true is only half the contract; the
+		// other half is not destroying the error before testing for it.
+		$inserted = wp_insert_post( $post_arr, true );
+		if ( is_wp_error( $inserted ) ) {
+			return 0;
+		}
+
+		$post_id = (int) $inserted;
+		if ( $post_id <= 0 ) {
 			return 0;
 		}
 

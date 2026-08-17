@@ -331,3 +331,25 @@ jobs:
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
         run: composer test
+
+      # G-E runs in this job because it needs a WordPress CORE TREE to read --
+      # not a running site. install-wp-tests.sh puts one at /tmp/wordpress, and
+      # this is the only job that has it.
+      #
+      # It reads wp-admin/includes/ and wp-includes/ with the tokenizer and
+      # takes the difference. An earlier version derived the set at runtime from
+      # get_defined_functions(), which was wrong twice over: on a dev machine
+      # other active plugins preloaded parts of the admin API and those
+      # functions silently left the inventory, and HERE it measured nothing at
+      # all -- there is no configured site in CI, wp-load.php failed, an output
+      # buffer swallowed the error, and the gate exited 0 without ever printing
+      # its summary line. Reading files needs no database, no config and no
+      # plugins, so CI and a developer's machine get the same answer.
+      #
+      # The gate fails closed if the tree cannot be read, and checks four known
+      # admin-only functions are present rather than trusting a count: a count
+      # alone stayed plausible while a whole family was missing.
+      - name: Admin-only function load-context gate (G-E)
+        env:
+          WP_CORE_DIR: /tmp/wordpress
+        run: composer check-admin-only

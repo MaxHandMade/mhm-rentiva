@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Customers\CustomersOptimizer;
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded customer queries delegated to optimizer.
@@ -147,7 +148,21 @@ final class CustomersRestController {
 
 	public static function get_detail( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error
 	{
-		$id   = (int) $request->get_param( 'id' );
+		$id = (int) $request->get_param( 'id' );
+
+		// Same shape as bulk_delete, read side: the route gate is edit_users,
+		// which says nothing about WHICH account, and this returns a full
+		// customer profile. Refuse with the same 404 the not-found path uses
+		// rather than a 403 -- a distinct status would turn this route into a
+		// probe for which arbitrary user IDs exist.
+		if ( ! current_user_can( 'edit_user', $id ) || ! CustomerIdentity::is_customer( $id ) ) {
+			return new \WP_Error(
+				'customer_not_found',
+				__( 'Customer not found.', 'mhm-rentiva' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		$data = CustomersOptimizer::get_customer_details_optimized( $id );
 
 		if ( null === $data ) {
@@ -190,6 +205,29 @@ final class CustomersRestController {
 		$skipped = count( $raw_ids ) - count( $ids );
 
 		foreach ( $ids as $id ) {
+			// Per target, not once for the batch. delete_users says the caller
+			// may delete users; it does not say which, and it was the only thing
+			// standing between this route and any account on the site -- an
+			// editor, a second administrator -- which is what WordPress.org's T8
+			// review found. WordPress models the per-target question as the meta
+			// cap delete_user( $id ), so ask it, and ask whether the account is
+			// this plugin's to delete at all. Neither check implies the other:
+			// the cap is about the caller, CustomerIdentity is about the target.
+			if ( ! current_user_can( 'delete_user', $id ) || ! CustomerIdentity::is_customer( $id ) ) {
+				++$skipped;
+				continue;
+			}
+
+			// wp_delete_user() is defined in wp-admin/includes/user.php, and a
+			// /wp-json/ request stops at wp-load.php -- so on the path this
+			// route actually runs on, the function does not exist and the call
+			// is a fatal. Core's own WP_REST_Users_Controller requires the same
+			// file before deleting for the same reason. Every gate we own was
+			// green while this route died on its first real dispatch: PHPUnit
+			// has the admin API loaded by its bootstrap, and static analysis
+			// only sees a call to a function that exists somewhere.
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+
 			if ( wp_delete_user( $id ) ) {
 				++$deleted;
 			} else {

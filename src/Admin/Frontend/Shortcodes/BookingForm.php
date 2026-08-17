@@ -938,8 +938,13 @@ final class BookingForm extends AbstractShortcode {
 			// 4. Calculate Final Day Count
 			$days = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($start_ts, $end_ts);
 
-			// ⭐ ATOMIC OVERLAP CHECK - Final check before creating booking to prevent race conditions
-			// This is the authoritative check - no cache, real-time database query
+			// Advisory availability check: a real-time, uncached database read that
+			// gives the customer early feedback before the cart step. It is NOT
+			// atomic and holds no lock -- there is no transaction here, so the
+			// FOR UPDATE inside has_overlap_locked() lives only for that statement.
+			// The authoritative, locked check is in
+			// WooCommerceBridge::create_booking_from_data(), which runs inside
+			// Locker::withLock() at the moment the booking is actually written.
 
 			// Clear cache before atomic check to ensure fresh data
 			if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {

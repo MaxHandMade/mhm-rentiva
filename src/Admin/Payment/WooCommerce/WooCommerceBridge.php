@@ -1093,28 +1093,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return null;
 		}
 
-		// ⭐ CRITICAL: Final atomic overlap check before creating booking
-		// Clear cache first to ensure fresh data
+		// Clear cache first so the conflict check below reads fresh data.
 		if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
 			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($booking_data['vehicle_id']);
-		}
-
-		// Use locked overlap check to prevent concurrent bookings
-		if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($booking_data['vehicle_id'], $start_ts, $end_ts)) {
-			AdvancedLogger::error(
-				'Cannot create booking - vehicle already booked for selected dates',
-				array(
-					'order_id'   => $order_id,
-					'vehicle_id' => $booking_data['vehicle_id'],
-				),
-				AdvancedLogger::CATEGORY_BOOKING
-			);
-			// ⚠️ Cancel the WooCommerce order if booking cannot be created
-			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
-			if ($order) {
-				$order->update_status('cancelled', __('Booking cancelled: Vehicle already booked for selected dates.', 'mhm-rentiva'));
-			}
-			return null;
 		}
 
 		// Create booking post
@@ -1180,6 +1161,26 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// consent) still does so before the booking post itself is written.
 		// No-op by default; the add-on's GDPRManager only enforces when GDPR +
 		// consent-required are both explicitly enabled by the admin.
+		// ⭐ CRITICAL: the conflict check and the INSERT are one atomic critical
+		// section. Before 6.0.3 they were two bare statements under autocommit:
+		// has_overlap_locked() issued SELECT ... FOR UPDATE without an open
+		// transaction, so MySQL released the row lock the instant that statement
+		// finished -- well before the INSERT. Two concurrent checkouts could both
+		// read "free" and both insert, double-booking one vehicle.
+		//
+		// Locker::withLock() opens the transaction, takes FOR UPDATE on the
+		// vehicle's postmeta rows, runs this callback and COMMITs (ROLLBACK +
+		// rethrow on exception). The callback returns false for a date conflict
+		// and null for a failed insert, so the caller can tell the two apart
+		// after the transaction has closed.
+		// Fired OUTSIDE the transaction below. Its contract is only "before the
+		// booking record is created", and it must not run inside the critical
+		// section: a subscriber that halts the request (Pro's GDPRManager calls
+		// wp_die() when consent is missing) would otherwise leave the transaction
+		// open while WordPress runs its shutdown actions, so those writes join a
+		// transaction that is rolled back on disconnect -- and the vehicle's row
+		// lock would be held for the whole of it. Halting here still prevents the
+		// booking, because nothing has been written yet.
 		do_action('mhmrentiva_before_booking_creation', array(
 			'vehicle_id'      => $booking_data['vehicle_id'],
 			'pickup_date'     => $booking_data['pickup_date'],
@@ -1193,46 +1194,98 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			'order_id'        => $order_id,
 		));
 
-		$booking_id = wp_insert_post($post_data);
+		$creation_result = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+			(int) $booking_data['vehicle_id'],
+			static function () use ($post_data, $booking_data, $order_id, $start_ts, $end_ts) {
+				// Authoritative conflict check, now genuinely holding the lock.
+				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($booking_data['vehicle_id'], $start_ts, $end_ts)) {
+					return false;
+				}
 
-		if (is_wp_error($booking_id)) {
+				// $wp_error = true. Without it WordPress returns 0 on failure
+				// (documented as "the value 0 or WP_Error"), which the
+				// is_wp_error() guard below could never catch: the callback
+				// returned 0, is_int(0) was true, and the caller -- which only
+				// tests truthiness -- silently left the paid WooCommerce order
+				// with no booking attached and nothing in the log.
+				$booking_id = wp_insert_post($post_data, true);
+
+				if (is_wp_error($booking_id) || (int) $booking_id <= 0) {
+					AdvancedLogger::error(
+						'Failed to create booking from order',
+						array(
+							'order_id' => $order_id,
+							'error'    => is_wp_error($booking_id)
+								? $booking_id->get_error_message()
+								: 'wp_insert_post() returned ' . (int) $booking_id,
+						),
+						AdvancedLogger::CATEGORY_BOOKING
+					);
+					return null;
+				}
+
+				$booking_id = (int) $booking_id;
+
+				// The booking row now exists, but only inside this transaction, and
+				// wp_insert_post() has already populated the object cache with it.
+				// If anything below throws, withLock() rolls the row back while the
+				// cache keeps serving a post that no longer exists in the database --
+				// so drop it on the way out.
+				try {
+					// ⭐ Ensure payment_deadline is set (meta_input may not always work)
+					// Double-check and set payment_deadline if missing
+					$payment_deadline = get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
+					if (empty($payment_deadline)) {
+						$deadline = self::get_payment_deadline();
+						update_post_meta($booking_id, '_mhmrentiva_payment_deadline', $deadline);
+						AdvancedLogger::info(
+							'Payment deadline was missing for booking, set automatically',
+							array(
+								'booking_id' => $booking_id,
+								'deadline'   => $deadline,
+							),
+							AdvancedLogger::CATEGORY_BOOKING
+						);
+					}
+
+					// Add booking history note
+					if (class_exists('MHMRentiva\Admin\Booking\Meta\BookingMeta')) {
+						\MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
+							$booking_id,
+							__('Booking created from WooCommerce order', 'mhm-rentiva'),
+							'system'
+						);
+					}
+				} catch (\Throwable $e) {
+					clean_post_cache($booking_id);
+					throw $e;
+				}
+
+				return $booking_id;
+			}
+		);
+
+		// Date conflict: log and cancel the order OUTSIDE the transaction, so a
+		// WooCommerce write cannot be rolled back with the booking guard and does
+		// not hold the vehicle's row lock while it runs.
+		if (false === $creation_result) {
 			AdvancedLogger::error(
-				'Failed to create booking from order',
+				'Cannot create booking - vehicle already booked for selected dates',
 				array(
-					'order_id' => $order_id,
-					'error'    => $booking_id->get_error_message(),
+					'order_id'   => $order_id,
+					'vehicle_id' => $booking_data['vehicle_id'],
 				),
 				AdvancedLogger::CATEGORY_BOOKING
 			);
+			// ⚠️ Cancel the WooCommerce order if booking cannot be created
+			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
+			if ($order) {
+				$order->update_status('cancelled', __('Booking cancelled: Vehicle already booked for selected dates.', 'mhm-rentiva'));
+			}
 			return null;
 		}
 
-		// ⭐ Ensure payment_deadline is set (meta_input may not always work)
-		// Double-check and set payment_deadline if missing
-		$payment_deadline = get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
-		if (empty($payment_deadline)) {
-			$deadline = self::get_payment_deadline();
-			update_post_meta($booking_id, '_mhmrentiva_payment_deadline', $deadline);
-			AdvancedLogger::info(
-				'Payment deadline was missing for booking, set automatically',
-				array(
-					'booking_id' => $booking_id,
-					'deadline'   => $deadline,
-				),
-				AdvancedLogger::CATEGORY_BOOKING
-			);
-		}
-
-		// Add booking history note
-		if (class_exists('MHMRentiva\Admin\Booking\Meta\BookingMeta')) {
-			\MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
-				$booking_id,
-				__('Booking created from WooCommerce order', 'mhm-rentiva'),
-				'system'
-			);
-		}
-
-		return $booking_id;
+		return is_int($creation_result) ? $creation_result : null;
 	}
 
 	/**
@@ -1251,9 +1304,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					case 'completed':
 						// WC order completed - only mark booking as completed if rental period has ended.
 						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
-						$dropoff_date   = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true)
-							?: get_post_meta($booking_id, '_mhmrentiva_end_date', true);
-						$rental_ended   = $dropoff_date && strtotime( (string) $dropoff_date) < time();
+						// Same rule as the deposit screen, and for the same reason:
+						// a date-only comparison completes a booking at midnight on
+						// the drop-off day, hours before the car is back.
+						$rental_ended   = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id);
 						$booking_status = $rental_ended ? 'completed' : 'confirmed';
 						Status::update_status($booking_id, $booking_status, get_current_user_id());
 						// Clear remaining amount for deposit bookings so timeline shows All Payments Completed
@@ -1330,11 +1384,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// Try both meta keys for WC order ID
-		$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_wc_order_id', true);
-		if ($order_id <= 0) {
-			$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
-		}
+		$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id);
 		if ($order_id <= 0) {
 			return; // No WC order (manual booking) — nothing to sync
 		}
@@ -1708,13 +1758,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		$amount_to_pay = 0;
-		$cart_updated  = false;
+		$cart_updated = false;
 
 		// Iterate through ALL cart items and update any booking items
 		foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-			$updated_item_amount = 0;
-			$is_booking_item     = false;
+			$is_booking_item = false;
 
 			// 1. Pending Bookings (Cart Data)
 			if (isset($cart_item['mhmrentiva_booking_data']) && isset($cart_item['mhmrentiva_booking_pending']) && $cart_item['mhmrentiva_booking_pending']) {
@@ -1750,8 +1798,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$cart->cart_contents[ $cart_item_key ]['mhmrentiva_booking_price'] = $item_amount_to_pay;
 				$cart->cart_contents[ $cart_item_key ]['data']->set_price($item_amount_to_pay);
 
-				$updated_item_amount = $item_amount_to_pay;
-				$cart_updated        = true;
+				$cart_updated = true;
 			}
 			// 2. Existing Bookings (Database)
 			elseif (isset($cart_item['mhmrentiva_booking_id'])) {
@@ -1790,8 +1837,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$cart->cart_contents[ $cart_item_key ]['mhmrentiva_booking_price'] = $item_amount_to_pay;
 				$cart->cart_contents[ $cart_item_key ]['data']->set_price($item_amount_to_pay);
 
-				$updated_item_amount = $item_amount_to_pay;
-				$cart_updated        = true;
+				$cart_updated = true;
 			}
 
 			// Note: $is_booking_item carry-through; logging happens in caller layer.
@@ -1805,6 +1851,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// Recalculate cart totals
 		$cart->calculate_totals();
+
+		// Report what the customer now owes, read back from the cart after
+		// recalculation. Before 6.0.3 this reported a $amount_to_pay that was
+		// initialised to 0 and never assigned again -- every successful switch
+		// answered with 0.00 -- while the per-item figure was written to a
+		// $updated_item_amount that nothing ever read.
+		$amount_to_pay = (float) $cart->get_total('edit');
 
 		wp_send_json_success(
 			array(
@@ -1997,10 +2050,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					continue;
 				}
 
-				// ⭐ CRITICAL: Note: Cache invalidation should happen when booking is created, not on validation
-				// has_overlap_locked will check the database directly for real-time availability
-
-				// Use locked overlap check to prevent concurrent bookings
+				// Advisory checkout-time validation: an uncached, real-time read so
+				// the customer is told at checkout rather than after paying. It is
+				// NOT atomic and takes no lock (no transaction is open here). The
+				// authoritative locked check runs in create_booking_from_data().
 				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
 					$vehicle_title = get_the_title($vehicle_id);
 					$pickup_date   = date_i18n(get_option('date_format'), $start_ts);
@@ -2263,7 +2316,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		// Check if order already exists for this booking
-		$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_wc_order_id', true);
+		$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id);
 		if ($order_id > 0) {
 			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
 			if ($order && $order->is_paid()) {
