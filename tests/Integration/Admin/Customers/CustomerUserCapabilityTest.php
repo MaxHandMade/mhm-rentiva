@@ -194,42 +194,31 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $this->assertSame( 'Updated Name', $target->display_name, 'A user with edit_users must be able to modify a customer user.' );
     }
 
-    // --- Batch update (CustomersOptimizer::batch_update_customers) --------
+    // --- CustomersOptimizer writes nothing (WordPress.org T9) --------------
+    //
+    // The optimizer used to carry batch_update_customers()/update_customer_data(),
+    // a wp_update_user() path gated on the blanket edit_users alone -- no
+    // current_user_can( 'edit_user', $id ), no CustomerIdentity::is_customer( $id ).
+    // It had no caller anywhere in either edition; the two tests that stood here
+    // asserted that blanket-only behaviour was correct, which is why 2013 green
+    // tests said nothing. Both methods are gone. This anchors the deletion: the
+    // optimizer is a read/cache class, and anything that reintroduces a user
+    // write here has to delete this test first.
 
-    public function test_batch_update_customers_denied_without_edit_users_capability(): void
+    public function test_customers_optimizer_exposes_no_user_writing_method(): void
     {
-        $target_id = self::factory()->user->create(
-            array(
-                'role'         => 'customer',
-                'display_name' => 'Original Batch Name',
-            )
-        );
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
-        wp_set_current_user( $capped_id );
-
-        $result = CustomersOptimizer::batch_update_customers( array( $target_id ), array( 'name' => 'Hacked Batch Name' ) );
-
-        $this->assertFalse( $result );
-        $target = get_user_by( 'id', $target_id );
-        $this->assertSame( 'Original Batch Name', $target->display_name );
-    }
-
-    public function test_batch_update_customers_allowed_with_edit_users_capability(): void
-    {
-        $target_id = self::factory()->user->create(
-            array(
-                'role'         => 'customer',
-                'display_name' => 'Original Batch Name',
-            )
-        );
-        $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
-        wp_set_current_user( $manager_id );
-
-        $result = CustomersOptimizer::batch_update_customers( array( $target_id ), array( 'name' => 'Updated Batch Name' ) );
-
-        $this->assertTrue( $result );
-        $target = get_user_by( 'id', $target_id );
-        $this->assertSame( 'Updated Batch Name', $target->display_name );
+        foreach ( array( 'batch_update_customers', 'update_customer_data' ) as $method ) {
+            $this->assertFalse(
+                method_exists( CustomersOptimizer::class, $method ),
+                sprintf(
+                    'CustomersOptimizer::%s() writes WordPress user accounts from a service class, '
+                    . 'away from any per-target capability check. It was removed for the T9 review; '
+                    . 'customer writes belong on CustomersPage / AddCustomerPage / CustomersRestController, '
+                    . 'each of which asks current_user_can( \'edit_user\', $id ) beside the write.',
+                    $method
+                )
+            );
+        }
     }
 
     // --- Delete (CustomersRestController::bulk_delete) ---------------------
