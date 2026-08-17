@@ -1,5 +1,16 @@
 [
   {
+    "version": "6.0.7",
+    "date": "2026-08-17",
+    "type": "patch",
+    "title": "An unused routine that could write WordPress user accounts, removed",
+    "summary": "WordPress.org's fifth review of this plugin found one issue: a batch customer-update method in the customer performance helper wrote WordPress user accounts behind the blanket edit_users capability, without asking whether the caller may edit that particular account or whether the account was one this plugin manages. It had no caller anywhere in either edition, and the two tests written for it in an earlier round asserted the blanket-only behaviour was correct -- which is why 1,740 passing tests said nothing about it. The method and its private helper are gone. The defect class was then swept across the whole plugin: twelve places write a user account, and every one of them is now recorded with the check that stands beside it.",
+    "changes": [
+      "Security: removed an unused routine that could write WordPress user accounts. The plugin's customer performance helper carried a batch-update method that changed accounts' display names, e-mail addresses, phone numbers and postal addresses after checking only that the caller may edit users in general -- never that they may edit that particular account, nor that the account was one this plugin manages. Nothing in this plugin ever called it and there is no screen or address that could reach it, so no site could have been affected; it was removed rather than repaired, because unreachable code that writes user accounts should not ship at all. The places that do edit customers -- the customer edit screen, the add-customer form and the delete route -- each ask that per-account question beside the write, and already did.",
+      "Internal: added a development-time inventory of every place in the plugin that creates, updates or deletes a WordPress user account, or changes a role. The existing audit script starts from registered handlers and walks inward, so a service method no handler reaches was invisible to it -- which is exactly how this defect survived the previous round's sweep. The new check starts from the write itself, which a tokenizer cannot miss, and fails when a write appears that nobody has justified. It ships with neither the plugin nor the release package."
+    ]
+  },
+  {
     "version": "6.0.6",
     "date": "2026-08-16",
     "type": "patch",
