@@ -200,7 +200,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
     // a wp_update_user() path gated on the blanket edit_users alone -- no
     // current_user_can( 'edit_user', $id ), no CustomerIdentity::is_customer( $id ).
     // It had no caller anywhere in either edition; the two tests that stood here
-    // asserted that blanket-only behaviour was correct, which is why 2013 green
+    // asserted that blanket-only behaviour was correct, which is why 1,740 green
     // tests said nothing. Both methods are gone. This anchors the deletion: the
     // optimizer is a read/cache class, and anything that reintroduces a user
     // write here has to delete this test first.

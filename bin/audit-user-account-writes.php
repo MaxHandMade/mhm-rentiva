@@ -14,7 +14,7 @@
  *     service method is not reachable from any registration, so the script never
  *     considered it and reported "(none)".
  *   - the suite had two tests naming batch_update_customers() by name, and both
- *     asserted the blanket-only behaviour was CORRECT. 2013 green tests said
+ *     asserted the blanket-only behaviour was CORRECT. 1,740 green tests said
  *     nothing because the defect was the expectation.
  *
  * So this script starts from the opposite end: the WRITE ITSELF. Calling
