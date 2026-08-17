@@ -1,10 +1,17 @@
 name: Testing
 
+# wporg-t7 is listed alongside the default branches on purpose. It is the
+# line every WordPress.org submission has been cut from since 6.0.0, and it
+# has never triggered this workflow once: `on:` named only main/master, so a
+# push here ran nothing and the only green anyone could point at came from
+# the open PR into main. "I pushed it, so it is green" has been false in this
+# repo for the whole 6.0.x series. It stops being false here, and comes off
+# again when wporg-t7 merges into main.
 on:
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, wporg-t7 ]
   push:
-    branches: [ main, master ]
+    branches: [ main, master, wporg-t7 ]
 
 concurrency:
   group: testing-${{ github.workflow }}-${{ github.ref }}
@@ -220,6 +227,32 @@ jobs:
       # being one.
       - name: "Prefix inventory gate (G-C: bijection + migration-map completeness)"
         run: php bin/check-prefix-inventory.php
+
+      # Write-side inventory (WordPress.org T9 remediation).
+      #
+      # T9 rejected 6.0.6 over a wp_update_user() reachable from nothing: a
+      # static service method with no caller in either edition. Two gates were
+      # blind to it for the same structural reason -- bin/audit-object-
+      # capabilities.php walks OUT from registered handlers, so a method no
+      # registration reaches does not exist in its world, and it said "(none)"
+      # truthfully. The suite was blind too: that round's two tests asserted
+      # the blanket-only behaviour was CORRECT, so 1,740 green tests said
+      # nothing about the defect.
+      #
+      # This gate starts from the opposite end -- the write itself. Calling
+      # wp_create_user/wp_insert_user/wp_update_user/wp_delete_user/
+      # wp_set_password or ->set_role/add_role/remove_role/add_cap/remove_cap
+      # is a literal a tokenizer cannot miss, whether or not anything calls
+      # the method containing it.
+      #
+      # It is an INVENTORY LOCK, not a verdict: it says "the set of places
+      # that write a user account is exactly this one, and each has a recorded
+      # justification", never "the guard beside it is correct". A new write
+      # site fails the build until somebody writes down which check stands
+      # beside it -- which is the question T9 asked and nothing here could
+      # answer.
+      - name: "User-account write inventory (T9: every user write is recorded)"
+        run: composer check-user-writes
 
       # Gate G-D (WP.org T7 remediation): runs WP.org's Plugin Check ITSELF.
       #
