@@ -55,6 +55,46 @@ final class AddonStatsTest extends WP_UnitTestCase {
 		$this->assertSame( 2, AddonStats::get()['active_addons'] );
 	}
 
+	/**
+	 * A service that has never carried the flag counts as active.
+	 *
+	 * The count used to be an INNER JOIN on `enabled = '1'`, which cannot match a
+	 * row that has no such meta at all -- and those are exactly what a site that
+	 * upgraded into the flag has. AddonManager::is_sellable() calls them active
+	 * (AddonScreen's quick-create says why: "Absent means active"), and the
+	 * booking form sells them, so the band would have read "2 aktif" over a form
+	 * offering three. Two answers to one question, and the visible one wrong.
+	 *
+	 * Same defect class as the one get_available_addons() carried; this is the
+	 * second place it lived.
+	 */
+	public function test_an_add_on_that_never_carried_the_flag_counts_as_active(): void {
+		$flagless = self::factory()->post->create(
+			array(
+				'post_type'   => 'mhmrentiva_addon',
+				'post_status' => 'publish',
+			)
+		);
+		update_post_meta( $flagless, 'mhmrentiva_addon_price', '20' );
+		AddonStats::flush();
+
+		$this->assertTrue(
+			\MHMRentiva\Admin\Addons\AddonManager::is_sellable( $flagless ),
+			'Precondition: the plugin already treats a flagless service as sellable.'
+		);
+		$this->assertSame(
+			3,
+			AddonStats::get()['active_addons'],
+			'The KPI band must agree with what the booking form actually offers.'
+		);
+	}
+
+	public function test_an_explicitly_disabled_add_on_still_does_not_count(): void {
+		// The negative control for the change above: widening "active" must not
+		// widen it far enough to swallow a service the operator switched off.
+		$this->assertSame( 2, AddonStats::get()['active_addons'] );
+	}
+
 	public function test_it_reports_the_active_share(): void {
 		$this->assertEqualsWithDelta( 67.0, (float) AddonStats::get()['active_percentage'], 1.0 );
 	}

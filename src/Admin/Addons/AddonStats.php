@@ -67,12 +67,24 @@ final class AddonStats {
 			)
 		);
 
+		// LEFT JOIN, and "not '0'" rather than "= '1'". An INNER JOIN on the flag
+		// cannot match a service that carries no flag row at all, which is what
+		// every service created before the field existed looks like -- so the
+		// band counted them in total_addons and not here, and read "2 aktif"
+		// above a booking form offering three.
+		//
+		// AddonManager::is_sellable() is the definition this has to agree with,
+		// and it refuses only an explicit '0' (AddonScreen's quick-create: "Absent
+		// means active"). COUNT(DISTINCT) because a LEFT JOIN would otherwise
+		// count a post twice if the key ever held more than one row.
 		$active_addons = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+				"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
+				 LEFT JOIN {$wpdb->postmeta} pm
+				   ON p.ID = pm.post_id AND pm.meta_key = %s
 				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_enabled' AND pm.meta_value = '1'",
+				 AND ( pm.meta_value IS NULL OR pm.meta_value <> '0' )",
+				AddonManager::ENABLED_META,
 				AddonPostType::POST_TYPE,
 				'publish'
 			)
