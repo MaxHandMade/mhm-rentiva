@@ -952,10 +952,16 @@ final class AddonScreen {
 		) . '</span>';
 		echo '</span>';
 
+		// aria-pressed is what makes this a toggle button rather than a button
+		// that happens to change its own label. Without it, assistive
+		// technology announces an activation and no state; with it, the state
+		// is part of the control and the change is announced when it happens.
+		// The script keeps it in step with the label, revert included.
 		printf(
-			'<button type="button" class="rv-addon-status%1$s" data-enabled="%2$s">%3$s</button>',
+			'<button type="button" class="rv-addon-status%1$s" data-enabled="%2$s" aria-pressed="%3$s">%4$s</button>',
 			$enabled ? ' is-on' : '',
 			$enabled ? '1' : '0',
+			$enabled ? 'true' : 'false',
 			esc_html( $enabled ? __( 'Active', 'mhm-rentiva' ) : __( 'Inactive', 'mhm-rentiva' ) )
 		);
 

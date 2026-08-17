@@ -147,6 +147,14 @@
 		button.dataset.enabled = on ? '1' : '0';
 		button.textContent = on ? cfg.i18n.active : cfg.i18n.inactive;
 		button.classList.toggle( 'is-on', on );
+
+		// The label and the row already say the state to anyone who can see
+		// them. aria-pressed is what says it to anyone who cannot: without it
+		// this is a plain button, and activating it announces a click rather
+		// than a change of state. It moves here, with the optimistic flip, so
+		// it can never disagree with the label -- including on the revert.
+		button.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+
 		if ( row ) {
 			row.classList.toggle( 'rv-addon-row--off', ! on );
 		}
