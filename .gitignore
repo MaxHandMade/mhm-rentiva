@@ -348,6 +348,19 @@ bin/*
 !bin/audit-object-capabilities.php
 !bin/audit-control-classes.php
 !bin/audit-phantom-callbacks.php
+# The exception to the "reports, not gates" rule above, and the reason it is an
+# exception is worth stating. Those three make a JUDGEMENT (is this capability
+# the right one?) and a judgement that under-reports must not fail a build.
+# This one makes an INVENTORY claim -- "the set of user-account write sites in
+# src/ is exactly this set" -- and a tokenizer cannot miss a literal call the
+# way a call-graph walk can, so it is complete over the shape it looks for and
+# safe to exit 1 on. It exists because WordPress.org's T9 review found a
+# wp_update_user() in a service method that no handler reaches, which made it
+# invisible to audit-object-capabilities.php (that one starts from registered
+# handlers). Tracked with its input for the same reason lite-manifest-final.txt
+# is: a gate whose data file is untracked is not a gate.
+!bin/audit-user-account-writes.php
+!bin/user-write-inventory.txt
 # Quality-gate script: `composer crippleware` / `composer carve-gates` require
 # it at runtime; must ship in every clone (carve-out Task 1).
 !bin/check-crippleware.php
