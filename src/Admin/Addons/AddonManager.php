@@ -292,6 +292,79 @@ final class AddonManager {
 
 
 	/**
+	 * The meta key carrying the Aktif/Pasif switch.
+	 */
+	public const ENABLED_META = 'mhmrentiva_addon_enabled';
+
+	/**
+	 * May this id be sold as an additional service right now?
+	 *
+	 * The one answer to that question. Four surfaces used to decide it for
+	 * themselves and only one of them looked at the switch at all, so an
+	 * operator could set a service to Pasif, watch it go grey on the add-ons
+	 * screen, and have the customer booking form keep selling it.
+	 *
+	 * Three things have to hold, and they are separate questions: the id names a
+	 * post, that post is one of ours and published, and the switch is not off.
+	 *
+	 * "Not off" rather than "on" is deliberate and is the house rule, stated in
+	 * AddonScreen's quick-create endpoint: *absent means active*. Unchecking the
+	 * box writes '0' (AddonMeta::update_addon_meta) rather than deleting the
+	 * row, so an absent flag can only mean the service predates the field. Those
+	 * services stay sellable; reading absent as false would empty the booking
+	 * form on every site that upgraded into the flag.
+	 *
+	 * @param int $addon_id Candidate id, straight from a request in the hot path.
+	 * @return bool
+	 */
+	public static function is_sellable( int $addon_id ): bool {
+		if ( $addon_id <= 0 ) {
+			return false;
+		}
+
+		$addon = get_post( $addon_id );
+
+		if ( ! $addon instanceof \WP_Post ) {
+			return false;
+		}
+
+		if ( AddonPostType::POST_TYPE !== $addon->post_type || 'publish' !== $addon->post_status ) {
+			return false;
+		}
+
+		return '0' !== (string) get_post_meta( $addon_id, self::ENABLED_META, true );
+	}
+
+	/**
+	 * Keep only the ids that may be sold, in the order they arrived.
+	 *
+	 * This is the acceptance point, not a display filter. The booking form runs
+	 * submitted ids through SecurityHelper::validate_numeric_array(), which only
+	 * asks whether they are numbers -- so before this existed, a replayed form
+	 * could buy a service that had since been switched off, and a hand-made
+	 * request could attach any post on the site as a "service". Hiding the
+	 * checkbox never closed that; refusing the id does.
+	 *
+	 * @param array<int, mixed> $addon_ids Candidate ids.
+	 * @return array<int, int> Sellable ids, de-duplicated.
+	 */
+	public static function filter_sellable( array $addon_ids ): array {
+		$sellable = array();
+
+		foreach ( $addon_ids as $candidate ) {
+			$addon_id = (int) $candidate;
+
+			if ( isset( $sellable[ $addon_id ] ) || ! self::is_sellable( $addon_id ) ) {
+				continue;
+			}
+
+			$sellable[ $addon_id ] = true;
+		}
+
+		return array_map( 'intval', array_keys( $sellable ) );
+	}
+
+	/**
 	 * Get all published and enabled additional services.
 	 *
 	 * @return array List of addons.
@@ -300,11 +373,21 @@ final class AddonManager {
 		$args = array(
 			'post_type'      => 'mhmrentiva_addon',
 			'post_status'    => 'publish',
+			// Two clauses, not one. `compare => '='` alone is an INNER JOIN on
+			// postmeta, so it dropped every service that has never carried the
+			// flag -- exactly the ones an upgraded site has, and exactly the
+			// ones is_sellable() calls active. This is the SQL spelling of
+			// "anything but an explicit '0'".
 			'meta_query'     => array(
+				'relation' => 'OR',
 				array(
-					'key'     => 'mhmrentiva_addon_enabled',
-					'value'   => '1',
-					'compare' => '=',
+					'key'     => self::ENABLED_META,
+					'value'   => '0',
+					'compare' => '!=',
+				),
+				array(
+					'key'     => self::ENABLED_META,
+					'compare' => 'NOT EXISTS',
 				),
 			),
 			'orderby'        => 'menu_order',

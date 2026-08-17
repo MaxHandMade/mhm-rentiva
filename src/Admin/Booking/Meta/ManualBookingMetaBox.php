@@ -384,8 +384,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			)
 		);
 
+		// Pasif means not sold, and that has to hold for the operator too: a
+		// service offered here would be attached to a real booking and priced,
+		// which is the same sale by another door. Nothing is attached to this
+		// screen yet -- it creates bookings -- so there is no already-selected
+		// set to preserve, unlike the edit screen.
 		$available_addons = array();
 		foreach ( $addons as $addon ) {
+			if ( ! \MHMRentiva\Admin\Addons\AddonManager::is_sellable( (int) $addon->ID ) ) {
+				continue;
+			}
+
 			$available_addons[] = array(
 				'id'          => $addon->ID,
 				'title'       => $addon->post_title,
@@ -540,7 +549,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Additional services calculation (daily)
-		$selected_addons = isset($_POST['selected_addons']) ? array_map('intval', (array) wp_unslash($_POST['selected_addons'])) : array();
+		// Quoting a price for a service that is switched off would put a figure
+		// on screen the operator cannot then sell. Same refusal as the create
+		// path below, and the same reason the customer form has one.
+		$posted_addons   = isset($_POST['selected_addons']) ? array_map('intval', (array) wp_unslash($_POST['selected_addons'])) : array();
+		$selected_addons = \MHMRentiva\Admin\Addons\AddonManager::filter_sellable($posted_addons);
 		$addon_total     = 0;
 
 		if (! empty($selected_addons)) {
@@ -743,7 +756,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Add-ons calculation (same as BookingForm.php)
-		$selected_addons = isset( $_POST['selected_addons'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['selected_addons'] ) ) : array();
+		// This screen only ever CREATES a booking, so there is no already-attached
+		// set to preserve and the plain refusal is right. The edit screen's save
+		// path is deliberately NOT filtered this way: a booking may already carry
+		// a service switched off since, and filtering there would delete it.
+		$posted_addons   = isset( $_POST['selected_addons'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['selected_addons'] ) ) : array();
+		$selected_addons = \MHMRentiva\Admin\Addons\AddonManager::filter_sellable( $posted_addons );
 		$addon_total     = 0;
 		$addon_details   = array();
 

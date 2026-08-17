@@ -636,6 +636,56 @@ final class BookingForm extends AbstractShortcode {
 	 *
 	 * @return array
 	 */
+	/**
+	 * The add-on ids a submission is allowed to buy.
+	 *
+	 * A thin boundary on purpose: the handler around it cannot be exercised in a
+	 * test -- it answers with wp_send_json_* inside a try/catch that swallows the
+	 * terminator -- so the decision lives here, where a test can run the same
+	 * method the handler runs rather than a copy of its logic.
+	 *
+	 * Two parameter names because two clients post: the script sends `addons`,
+	 * the plain form sends `selected_addons`. intList() flattens either shape, so
+	 * one add-on posted as a scalar and several posted as `addons[]` both arrive
+	 * as a list of ids.
+	 *
+	 * validate_numeric_array() asks only whether those ids are numbers. That was
+	 * the whole of the check, which meant a replayed form could buy a service
+	 * that had since been switched off, and a hand-made request could attach any
+	 * post on the site as a "service" -- the offered list is markup, and nothing
+	 * obliges a request to have come from it. AddonManager::filter_sellable()
+	 * is the refusal.
+	 *
+	 * @param VerifiedRequest $req Verified request.
+	 * @return array<int, int> Ids that may be sold, de-duplicated.
+	 */
+	private static function accept_submitted_addons(VerifiedRequest $req): array
+	{
+		$submitted = array();
+
+		if ($req->has('addons')) {
+			$submitted = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('addons'));
+		} elseif ($req->has('selected_addons')) {
+			$submitted = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('selected_addons'));
+		}
+
+		return \MHMRentiva\Admin\Addons\AddonManager::filter_sellable($submitted);
+	}
+
+	/**
+	 * The services this form may offer a customer.
+	 *
+	 * The query used to ask for published add-ons and nothing else, so a service
+	 * switched to Pasif on the add-ons screen went grey in the admin and carried
+	 * on being sold here -- while that screen's own meta box promised "Only
+	 * active additional services are visible in booking form."
+	 *
+	 * The switch is now read through AddonManager::is_sellable(), the single
+	 * answer the whole plugin uses, rather than re-spelled here. This list is
+	 * defence in depth: what actually stops a disabled service being bought is
+	 * AddonManager::filter_sellable() on the submitted ids, because nothing
+	 * obliges a request to have come from this form.
+	 */
 	private static function get_available_addons(): array
 	{
 		$addons = get_posts(
@@ -651,7 +701,7 @@ final class BookingForm extends AbstractShortcode {
 		$result = array();
 		if (is_array($addons)) {
 			foreach ($addons as $addon) {
-				if ($addon instanceof \WP_Post) {
+				if ($addon instanceof \WP_Post && \MHMRentiva\Admin\Addons\AddonManager::is_sellable( (int) $addon->ID )) {
 					$result[] = array(
 						'id'          => $addon->ID,
 						'title'       => $addon->post_title,
@@ -806,18 +856,7 @@ final class BookingForm extends AbstractShortcode {
 			// If WooCommerce is not active, terms validation would be handled here
 			// But since we're using WooCommerce, validation happens on checkout
 
-			// ✅ JavaScript AJAX: 'addons' (array), Normal form submit: 'selected_addons' (array)
-			$selected_addons = array();
-
-			// Check 'addons' parameter sent via AJAX
-			// intList() accepts either shape, so a single addon posted as a scalar and
-			// a multi-select posted as addons[] both arrive as a list of ids.
-			if ($req->has('addons')) {
-				$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('addons'));
-			} elseif ($req->has('selected_addons')) {
-				// 'selected_addons' is the name used by the non-AJAX form submit.
-				$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('selected_addons'));
-			}
+			$selected_addons = self::accept_submitted_addons($req);
 
 			// Validation
 			if ($vehicle_id <= 0) {

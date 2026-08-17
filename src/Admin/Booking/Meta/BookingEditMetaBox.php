@@ -272,21 +272,47 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			)
 		);
 
-		$available_addons = array();
-		foreach ( $addons as $addon ) {
-			$available_addons[] = array(
-				'id'          => $addon->ID,
-				'title'       => $addon->post_title,
-				'price'       => get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ) ?: '0',
-				'description' => $addon->post_excerpt,
-				'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
-			);
-		}
-
-		// Fetch currently selected add-ons
+		// Fetch currently selected add-ons FIRST: the offered list is derived
+		// from it below, so it cannot be read afterwards.
 		$selected_addons = get_post_meta( $post->ID, '_mhmrentiva_selected_addons', true )
 	    ?: get_post_meta( $post->ID, 'mhmrentiva_selected_addons', true )
 	    ?: array();
+
+		$selected_ids = array_map( 'intval', (array) $selected_addons );
+
+		// Offered = sellable UNION already-attached, and the union is the whole
+		// point. A booking taken last month may carry a service switched off
+		// since; drop it from this screen and its checkbox disappears, the form
+		// posts without it, and saving the booking deletes a service the
+		// customer paid for. Filtering subtracts from what may be ADDED, never
+		// from what is already ON the booking.
+		$available_addons = array();
+		foreach ( $addons as $addon ) {
+			$addon_id    = (int) $addon->ID;
+			$is_attached = in_array( $addon_id, $selected_ids, true );
+
+			if ( ! $is_attached && ! \MHMRentiva\Admin\Addons\AddonManager::is_sellable( $addon_id ) ) {
+				continue;
+			}
+
+			$title = $addon->post_title;
+
+			// Say why it is here. Without this the operator sees a service the
+			// add-ons screen shows as Pasif and has no way to tell that it is
+			// listed because the booking already carries it.
+			if ( $is_attached && ! \MHMRentiva\Admin\Addons\AddonManager::is_sellable( $addon_id ) ) {
+				/* translators: %s: additional service name. */
+				$title = sprintf( __( '%s (inactive)', 'mhm-rentiva' ), $title );
+			}
+
+			$available_addons[] = array(
+				'id'          => $addon_id,
+				'title'       => $title,
+				'price'       => get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ) ?: '0',
+				'description' => $addon->post_excerpt,
+				'required'    => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_required', true ),
+			);
+		}
 
 		if ( ! empty( $available_addons ) ) {
 			echo '<div class="mhm-addon-selection">';
