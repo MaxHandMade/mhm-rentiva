@@ -111,16 +111,29 @@ final class AddonMeta extends AbstractMetaBox {
 				'priority' => 'default',
 				'fields'   => array(
 					'mhmrentiva_addon_enabled'  => array(
-						'type'        => 'checkbox',
-						'label'       => __( 'Active', 'mhm-rentiva' ),
-						'label_text'  => __( 'Enable this additional service', 'mhm-rentiva' ),
-						'description' => __( 'Only active additional services are visible in booking form.', 'mhm-rentiva' ),
+						'type'         => 'checkbox',
+						'label'        => __( 'Active', 'mhm-rentiva' ),
+						'label_text'   => __( 'Enable this additional service', 'mhm-rentiva' ),
+						'description'  => __( 'Only active additional services are visible in booking form.', 'mhm-rentiva' ),
+						// Unticking has to leave a '0' behind, not an empty row.
+						// AddonManager::is_sellable() reads a missing flag as ACTIVE
+						// so that services predating this field keep selling; without
+						// this line, unticking here deleted the row and the service
+						// went straight back on sale -- which is what the description
+						// directly above promises it will not do.
+						'absent_value' => '0',
 					),
 					'mhmrentiva_addon_required' => array(
-						'type'        => 'checkbox',
-						'label'       => __( 'Required', 'mhm-rentiva' ),
-						'label_text'  => __( 'This additional service is required', 'mhm-rentiva' ),
-						'description' => __( 'Required additional services are automatically selected and cannot be removed.', 'mhm-rentiva' ),
+						'type'         => 'checkbox',
+						'label'        => __( 'Required', 'mhm-rentiva' ),
+						'label_text'   => __( 'This additional service is required', 'mhm-rentiva' ),
+						'description'  => __( 'Required additional services are automatically selected and cannot be removed.', 'mhm-rentiva' ),
+						// Absence already means "not required" everywhere that reads
+						// it, so this changes no behaviour. It is here so the two
+						// switches in one box are not saved by two different rules,
+						// which is the kind of difference nobody notices until it
+						// matters.
+						'absent_value' => '0',
 					),
 				),
 			),
@@ -192,41 +205,15 @@ final class AddonMeta extends AbstractMetaBox {
 		);
 	}
 
-	/**
-	 * Update addon meta data.
-	 *
-	 * @param int   $addon_id Addon ID.
-	 * @param array $meta Meta data to update.
-	 * @return bool True on success.
-	 */
-	public static function update_addon_meta( int $addon_id, array $meta ): bool {
-		$updated = true;
-
-		if ( isset( $meta['price'] ) ) {
-			$updated &= update_post_meta( $addon_id, 'mhmrentiva_addon_price', floatval( $meta['price'] ) ) !== false;
-		}
-
-		if ( isset( $meta['enabled'] ) ) {
-			$enabled  = $meta['enabled'] ? '1' : '0';
-			$updated &= update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', $enabled ) !== false;
-		}
-
-		if ( isset( $meta['required'] ) ) {
-			$required = $meta['required'] ? '1' : '0';
-			$updated &= update_post_meta( $addon_id, 'mhmrentiva_addon_required', $required ) !== false;
-		}
-
-		return (bool) $updated;
-	}
-
-	/**
-	 * Delete addon meta data.
-	 *
-	 * @param int $addon_id Addon ID.
-	 */
-	public static function delete_addon_meta( int $addon_id ): void {
-		delete_post_meta( $addon_id, 'mhmrentiva_addon_price' );
-		delete_post_meta( $addon_id, 'mhmrentiva_addon_enabled' );
-		delete_post_meta( $addon_id, 'mhmrentiva_addon_required' );
-	}
+	// update_addon_meta() and delete_addon_meta() used to sit here. Both had no
+	// caller in either edition, and the first one did real harm by existing: it
+	// looked exactly like the editor's save path, so AddonManager::is_sellable()
+	// was written citing its behaviour ("unchecking writes '0'") as the reason
+	// absence could be read as active. The editor never called it. It deleted the
+	// row instead, and the predicate sold services the operator had switched off.
+	//
+	// Deleted rather than wired up: the save path they duplicate is
+	// AbstractMetaBox::save_field(), which now carries the `absent_value` option
+	// these fields declare. Two ways to write the same three meta keys is how the
+	// wrong one gets believed.
 }

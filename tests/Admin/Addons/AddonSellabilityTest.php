@@ -42,10 +42,14 @@ use WP_UnitTestCase;
  * --------------------------------------------
  * AddonScreen's quick-create writes the flag explicitly and says why: "Absent
  * means active ... a service born switched off with no explanation is the
- * silent defect this endpoint exists to avoid." Unchecking the box writes '0'
- * rather than deleting the row (AddonMeta::update_addon_meta). So only an
- * explicit '0' disables, and a service that has never carried the flag -- one
- * created before the field existed -- stays sellable. That is what
+ * silent defect this endpoint exists to avoid." So only an explicit '0'
+ * disables, and a service that has never carried the flag -- one created before
+ * the field existed -- stays sellable.
+ *
+ * That rule needs absence to have exactly one cause, and for a while it did not:
+ * the full editor deleted the row for an unticked checkbox, so unticking Active
+ * put the service back on sale. AddonEditorSaveTest covers that door; the fix is
+ * the `absent_value` option those fields now declare. That is what
  * test_addon_that_never_carried_the_flag_is_sellable() pins: a meta_query with
  * compare '=' is an INNER JOIN and would drop exactly those rows, which is how
  * the one "correct" implementation is also wrong.

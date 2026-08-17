@@ -1118,7 +1118,13 @@ final class BookingForm extends AbstractShortcode {
 			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
-			$addons       = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->arr('addons'));
+			// Same acceptance the submit path uses, and for the same reason: this
+			// endpoint is nopriv, so the ids arrive from whoever chose to send
+			// them. It was the busiest member of the class and the one the sweep
+			// missed -- the submit path refused a disabled service while this one
+			// still priced it, so the customer was quoted a total the booking
+			// would never carry.
+			$addons = self::accept_submitted_addons($req);
 
 			// Filter empty addon placeholder (JavaScript doesn't send empty array, sends [0])
 			$addons = array_filter(

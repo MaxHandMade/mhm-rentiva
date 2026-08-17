@@ -360,6 +360,26 @@ abstract class AbstractMetaBox {
 		if ( ! $request->has( $field_key ) ) {
 			// Special case for checkbox
 			if ( $field_type === 'checkbox' ) {
+				// A checkbox the browser did not send is a checkbox the operator
+				// unticked, and deleting the row is only the right record of that
+				// when absence and "off" mean the same thing downstream.
+				//
+				// For mhmrentiva_addon_enabled they do not. AddonManager::is_sellable()
+				// reads a MISSING flag as active on purpose -- a service that predates
+				// the field has to keep selling, or every site that upgraded into it
+				// loses its whole add-on list. So deleting on untick made "off" and
+				// "never configured" the same value, and unticking Active in the
+				// editor left the service on sale.
+				//
+				// A field that carries absent_value says what its own absence means
+				// and gets that written instead. Declared per field rather than
+				// changed for every checkbox: the others genuinely do mean "off",
+				// and this is not the place to decide that for them.
+				if ( isset( $field['absent_value'] ) ) {
+					update_post_meta( $post_id, $field_key, $field['absent_value'] );
+					return;
+				}
+
 				delete_post_meta( $post_id, $field_key );
 			}
 			return;

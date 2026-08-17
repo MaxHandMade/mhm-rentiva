@@ -308,11 +308,24 @@ final class AddonManager {
 	 * post, that post is one of ours and published, and the switch is not off.
 	 *
 	 * "Not off" rather than "on" is deliberate and is the house rule, stated in
-	 * AddonScreen's quick-create endpoint: *absent means active*. Unchecking the
-	 * box writes '0' (AddonMeta::update_addon_meta) rather than deleting the
-	 * row, so an absent flag can only mean the service predates the field. Those
-	 * services stay sellable; reading absent as false would empty the booking
-	 * form on every site that upgraded into the flag.
+	 * AddonScreen's quick-create endpoint: *absent means active*. An absent flag
+	 * means the service predates the field, and those stay sellable -- reading
+	 * absence as false would empty the booking form on every site that upgraded
+	 * into it.
+	 *
+	 * That only holds while nothing else can produce absence, and it did not.
+	 * This docblock used to justify the rule by saying the editor writes '0'
+	 * rather than deleting, citing AddonMeta::update_addon_meta() -- a method
+	 * with no caller anywhere in either edition. The real path is
+	 * AbstractMetaBox::save_field(), which deleted the row for any unticked
+	 * checkbox, so unticking Active in the editor made the service look like a
+	 * legacy one and put it straight back on sale. The independent audit found
+	 * it; the fix is the `absent_value` field option in AddonMeta, which makes
+	 * the editor write '0'. Absence is once again only ever the legacy case.
+	 *
+	 * The lesson is the citation, not the flag: a security predicate justified
+	 * by the behaviour of a function nothing calls is a predicate justified by
+	 * nothing. Both AddonMeta helpers were deleted with the fix.
 	 *
 	 * @param int $addon_id Candidate id, straight from a request in the hot path.
 	 * @return bool
