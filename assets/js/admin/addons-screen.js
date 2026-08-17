@@ -98,6 +98,13 @@
 			if ( ! result || ! result.success ) {
 				applyState( button, row, wasOn );
 				report( ( result && result.data && result.data.message ) || cfg.i18n.genericError );
+			} else {
+				// Only on success, and only from the server. The row flips
+				// optimistically because a row that waits feels broken; a
+				// counter that moved optimistically would be asserting a total
+				// it does not know yet and would have to be taken back on the
+				// revert.
+				applyStats( result.data && result.data.stats );
 			}
 			button.disabled = false;
 		} ).catch( function () {
@@ -142,6 +149,49 @@
 			button.disabled = false;
 		} );
 	} );
+
+	/**
+	 * Write the KPI band and the list counter from the server's figures.
+	 *
+	 * AddonStats owns these numbers and the toggle invalidates its cache, so
+	 * they arrive already correct and already formatted -- two of the four are
+	 * currency, which this file has no business assembling. Recomputing them
+	 * here would be a second source of the same truth, free to disagree.
+	 *
+	 * Silently does nothing without a payload: an older response, or a future
+	 * caller that has no stats to give, must not blank the counters.
+	 */
+	function applyStats( stats ) {
+		if ( ! stats ) {
+			return;
+		}
+
+		Object.keys( stats ).forEach( function ( key ) {
+			var value = root.querySelector( '[data-stat="' + key + '"] .mhm-stat-card__value' );
+			if ( value ) {
+				value.textContent = String( stats[ key ] );
+			}
+		} );
+
+		var share = root.querySelector( '[data-stat="active_addons"] .mhm-stat-card__sub' );
+		if ( share && cfg.i18n.activeShare ) {
+			// Substitute first, THEN collapse %% to %. These templates are
+			// written for PHP's sprintf, where %% is how you get a literal
+			// percent sign, and they reach us unprocessed. Order matters: the
+			// Turkish string is "%%%s aktif", so collapsing first would eat the
+			// escape and leave "%%s".
+			share.textContent = cfg.i18n.activeShare
+				.replace( '%s', String( stats.active_percentage ) )
+				.replace( /%%/g, '%' );
+		}
+
+		var count = root.querySelector( '.rv-addon-count' );
+		if ( count && cfg.i18n.countLabel ) {
+			count.textContent = cfg.i18n.countLabel
+				.replace( '%1$d', String( stats.active_addons ) )
+				.replace( '%2$d', String( stats.total_addons ) );
+		}
+	}
 
 	function applyState( button, row, on ) {
 		button.dataset.enabled = on ? '1' : '0';

@@ -108,6 +108,14 @@ final class AddonScreen {
 					'saving'            => __( 'Saving…', 'mhm-rentiva' ),
 					'nameRequired'      => __( 'Please enter a service name.', 'mhm-rentiva' ),
 					'genericError'      => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					// The two counter formats the script rewrites after a
+					// toggle. Same strings the server renders -- both come from
+					// count_label()/active_share_label(), so there is one
+					// translation and not two that can drift apart.
+					/* translators: 1: number of active services, 2: total number of services. */
+					'countLabel'        => __( '%1$d active · %2$d total', 'mhm-rentiva' ),
+					/* translators: %s: share of services that are active, as a percentage. */
+					'activeShare'       => __( '%s%% active', 'mhm-rentiva' ),
 					/* translators: %s: name of the additional service. */
 					'confirmDelete'     => __( 'Move “%s” to the trash?', 'mhm-rentiva' ),
 					/* translators: %d: number of selected services. */
@@ -522,6 +530,13 @@ final class AddonScreen {
 			'message' => $enabled
 				? __( 'Service activated.', 'mhm-rentiva' )
 				: __( 'Service deactivated.', 'mhm-rentiva' ),
+			// Read AFTER the flush, so these are the figures the toggle just
+			// produced rather than the ones it invalidated. The screen used to
+			// keep whatever it was rendered with, so switching a service on
+			// left three rows reading Aktif above a header still reading
+			// "2 aktif · 3 toplam" -- the counter being the one thing an
+			// operator would trust over counting the rows.
+			'stats'   => AddonStats::get(),
 		);
 	}
 
@@ -584,14 +599,7 @@ final class AddonScreen {
 		echo '<span class="rv-addon-list-title">' . esc_html__( 'Defined services', 'mhm-rentiva' ) . '</span>';
 		printf(
 			'<span class="rv-addon-count">%s</span>',
-			esc_html(
-				sprintf(
-					/* translators: 1: number of active services, 2: total number of services. */
-					__( '%1$d active · %2$d total', 'mhm-rentiva' ),
-					$active,
-					count( $addons )
-				)
-			)
+			esc_html( self::count_label( $active, count( $addons ) ) )
 		);
 		echo '</div>';
 
@@ -748,33 +756,73 @@ final class AddonScreen {
 	 * card system for this screen; Task 10 restyles it inside
 	 * `#mhm-addons-root`, which is what keeps the change local.
 	 */
+	/**
+	 * "N active · M total", the list header's counter.
+	 *
+	 * One place, because two now need it: this screen renders it, and the
+	 * script rewrites it after a toggle. A second copy of the format string
+	 * would be a second thing to translate and a second thing to forget.
+	 *
+	 * @param int $active Active services.
+	 * @param int $total  All services.
+	 * @return string
+	 */
+	private static function count_label( int $active, int $total ): string {
+		return sprintf(
+			/* translators: 1: number of active services, 2: total number of services. */
+			__( '%1$d active · %2$d total', 'mhm-rentiva' ),
+			$active,
+			$total
+		);
+	}
+
+	/**
+	 * "N% active", the sub-line under the Active Services figure.
+	 *
+	 * Same reason as count_label(): rendered here, rewritten by the script.
+	 *
+	 * @param string $percentage Share of services that are active.
+	 * @return string
+	 */
+	private static function active_share_label( string $percentage ): string {
+		return sprintf(
+			/* translators: %s: share of services that are active, as a percentage. */
+			__( '%s%% active', 'mhm-rentiva' ),
+			$percentage
+		);
+	}
+
 	private static function render_stats_band(): void {
 		$stats = AddonStats::get();
 
+		// Each card carries the AddonStats key it displays. Without it every card
+		// is an identical .mhm-stat-card and the script has no way to say "the
+		// active-services one" except by counting position, which the next
+		// person to reorder them would break silently.
 		$cards = array(
 			array(
+				'key'   => 'total_addons',
 				'icon'  => 'dashicons-plus-alt',
 				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['total_addons'],
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 			),
 			array(
+				'key'   => 'active_addons',
 				'icon'  => 'dashicons-yes-alt',
 				'label' => __( 'Active Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['active_addons'],
-				'sub'   => sprintf(
-					/* translators: %s: share of services that are active, as a percentage. */
-					__( '%s%% active', 'mhm-rentiva' ),
-					(string) $stats['active_percentage']
-				),
+				'sub'   => self::active_share_label( (string) $stats['active_percentage'] ),
 			),
 			array(
+				'key'   => 'avg_price',
 				'icon'  => 'dashicons-money-alt',
 				'label' => __( 'Average Price', 'mhm-rentiva' ),
 				'value' => $stats['avg_price'],
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 			),
 			array(
+				'key'   => 'total_value',
 				'icon'  => 'dashicons-chart-line',
 				'label' => __( 'Total Value', 'mhm-rentiva' ),
 				'value' => $stats['total_value'],
@@ -785,9 +833,10 @@ final class AddonScreen {
 		echo '<div class="mhm-stats-grid">';
 		foreach ( $cards as $card ) {
 			printf(
-				'<div class="mhm-stat-card"><span class="dashicons %1$s"></span><div class="mhm-stat-card__body">' .
-				'<p class="mhm-stat-card__label">%2$s</p><p class="mhm-stat-card__value">%3$s</p>' .
-				'<p class="mhm-stat-card__sub">%4$s</p></div></div>',
+				'<div class="mhm-stat-card" data-stat="%1$s"><span class="dashicons %2$s"></span><div class="mhm-stat-card__body">' .
+				'<p class="mhm-stat-card__label">%3$s</p><p class="mhm-stat-card__value">%4$s</p>' .
+				'<p class="mhm-stat-card__sub">%5$s</p></div></div>',
+				esc_attr( $card['key'] ),
 				esc_attr( $card['icon'] ),
 				esc_html( $card['label'] ),
 				esc_html( $card['value'] ),
