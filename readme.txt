@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.6
+Stable tag:        6.0.7
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -180,6 +180,9 @@ ordinary visitors can also send re-opens the bypass this default closes.
 == Changelog ==
 
 Only the most recent releases are repeated here, plus 6.0.0 for its breaking-change notice, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
+
+= 6.0.7 =
+* Security: removed an unused routine that could write WordPress user accounts. The plugin's customer performance helper carried a batch-update method that changed accounts' display names, e-mail addresses, phone numbers and postal addresses after checking only that the caller may edit users in general — never that they may edit that particular account, nor that the account was one this plugin manages. Nothing in this plugin called it, in this release or any earlier one, and there is no screen or address through which it could be reached; it was removed rather than repaired, because unreachable code that writes user accounts should not ship at all. The two places that do edit an existing customer — the customer edit screen and the delete route — already asked that per-account question beside the write, and still do. Adding a customer is a different case: it creates the account, so there is no existing account for such a question to be about, and it is gated on the permission WordPress itself requires to create a user.
 
 = 6.0.6 =
 * Fixed: vehicles you had not published could be shown to visitors. The availability calendar chose its default vehicle from a list that deliberately included drafts and private vehicles, its vehicle switcher offered that same list, and the three addresses the calendar and the vehicle details page call for their data checked only that the ID named a vehicle — never that it was published. One of those is the address the calendar calls every time you change month, and it answered a draft ID with that vehicle's day-by-day occupancy and its daily prices. A vehicle you were still preparing, or had taken off the site on purpose, could therefore be picked in the calendar and have its details, availability and prices read by anyone. All five now require a published vehicle. The booking form's own availability and price addresses still answer for an unpublished vehicle; that is recorded and will follow.

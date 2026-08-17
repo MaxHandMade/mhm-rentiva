@@ -28,7 +28,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Optimizes customer data performance.
  * - Cache system
  * - Optimized queries
- * - Batch data processing
+ *
+ * Read-only by design: every method here queries or caches. Customer accounts are
+ * written on the screens and routes that own them, and the check each one owes
+ * depends on whether it acts on an existing account or makes a new one:
+ *
+ *   - CustomersPage::render_customer_edit() and CustomersRestController::bulk_delete()
+ *     take a target from the request, so they ask the per-target question beside the
+ *     write -- current_user_can( 'edit_user'/'delete_user', $id ) AND
+ *     CustomerIdentity::is_customer( $id ). Neither implies the other: the capability
+ *     is about the caller, CustomerIdentity is about the target.
+ *   - AddCustomerPage::render() creates an account, so there is no existing target for
+ *     a per-object check to be about. It is gated on create_users -- the capability
+ *     WordPress itself requires to make a user -- before anything else runs, plus a
+ *     nonce.
+ *
+ * bin/user-write-inventory.txt records both shapes for every write site in the plugin.
  */
 final class CustomersOptimizer {
 
@@ -36,14 +51,7 @@ final class CustomersOptimizer {
 
 	private const CACHE_PREFIX = 'mhmrentiva_customers_';
 	private const CACHE_TTL    = 900; // 15 minutes
-	private const BATCH_SIZE   = 50;
 
-	/**
-	 * Safe sanitize text field that handles null values.
-	 *
-	 * @param mixed $value Input value.
-	 * @return string Sanitized string.
-	 */
 	/**
 	 * Fingerprint of everything that changes how money RENDERS.
 	 *
@@ -65,13 +73,6 @@ final class CustomersOptimizer {
 			0,
 			8
 		);
-	}
-
-	public static function sanitize_text_field_safe( $value ): string {
-		if ( null === $value || '' === $value ) {
-			return '';
-		}
-		return sanitize_text_field( (string) $value );
 	}
 
 	/**
@@ -643,81 +644,6 @@ final class CustomersOptimizer {
 
 		// Clear all customer cache
 		return CacheManager::clear_cache_by_type( 'customers' );
-	}
-
-	/**
-	 * Batch customer update
-	 *
-	 * @param array $customer_ids
-	 * @param array $updates
-	 * @return bool
-	 */
-	public static function batch_update_customers( array $customer_ids, array $updates ): bool {
-		// Batch-updating customers updates real WordPress user accounts, so this
-		// is gated on edit_users, not manage_options.
-		if ( ! current_user_can( 'edit_users' ) ) {
-			return false;
-		}
-
-		if ( empty( $customer_ids ) || empty( $updates ) ) {
-			return false;
-		}
-
-		$success = true;
-		$chunks  = array_chunk( $customer_ids, self::BATCH_SIZE );
-
-		foreach ( $chunks as $chunk ) {
-			foreach ( $chunk as $customer_id ) {
-				$result = self::update_customer_data( $customer_id, $updates );
-				if ( ! $result ) {
-					$success = false;
-				}
-
-				// Clear cache
-				self::clear_cache( $customer_id );
-			}
-		}
-
-		return $success;
-	}
-
-	/**
-	 * Single customer update
-	 *
-	 * @param int   $customer_id
-	 * @param array $updates
-	 * @return bool
-	 */
-	private static function update_customer_data( int $customer_id, array $updates ): bool {
-		$user_data = array();
-
-		if ( isset( $updates['name'] ) ) {
-			$user_data['display_name'] = self::sanitize_text_field_safe( $updates['name'] );
-			$user_data['first_name']   = self::sanitize_text_field_safe( $updates['name'] );
-		}
-
-		if ( isset( $updates['email'] ) ) {
-			$user_data['user_email'] = sanitize_email( (string) ( $updates['email'] ?? '' ) );
-		}
-
-		if ( ! empty( $user_data ) ) {
-			$user_data['ID'] = $customer_id;
-			$result          = wp_update_user( $user_data );
-			if ( is_wp_error( $result ) ) {
-				return false;
-			}
-		}
-
-		// Update meta data
-		if ( isset( $updates['phone'] ) ) {
-			update_user_meta( $customer_id, 'mhmrentiva_phone', self::sanitize_text_field_safe( $updates['phone'] ) );
-		}
-
-		if ( isset( $updates['address'] ) ) {
-			update_user_meta( $customer_id, 'mhmrentiva_address', sanitize_textarea_field( (string) ( $updates['address'] ?? '' ) ) );
-		}
-
-		return true;
 	}
 
 	/**
