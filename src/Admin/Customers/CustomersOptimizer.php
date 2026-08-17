@@ -29,11 +29,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - Cache system
  * - Optimized queries
  *
- * Read-only by design: every method here queries or caches. Customer accounts
- * are written on the screens and routes that own them (CustomersPage,
- * AddCustomerPage, CustomersRestController), each of which asks the per-target
- * question -- current_user_can( 'edit_user'/'delete_user', $id ) plus
- * CustomerIdentity::is_customer( $id ) -- next to the write itself.
+ * Read-only by design: every method here queries or caches. Customer accounts are
+ * written on the screens and routes that own them, and the check each one owes
+ * depends on whether it acts on an existing account or makes a new one:
+ *
+ *   - CustomersPage::render_customer_edit() and CustomersRestController::bulk_delete()
+ *     take a target from the request, so they ask the per-target question beside the
+ *     write -- current_user_can( 'edit_user'/'delete_user', $id ) AND
+ *     CustomerIdentity::is_customer( $id ). Neither implies the other: the capability
+ *     is about the caller, CustomerIdentity is about the target.
+ *   - AddCustomerPage::render() creates an account, so there is no existing target for
+ *     a per-object check to be about. It is gated on create_users -- the capability
+ *     WordPress itself requires to make a user -- before anything else runs, plus a
+ *     nonce.
+ *
+ * bin/user-write-inventory.txt records both shapes for every write site in the plugin.
  */
 final class CustomersOptimizer {
 

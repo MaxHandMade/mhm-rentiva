@@ -38,32 +38,69 @@
  * justification is TRUE stays a human question, re-asked whenever this file
  * makes someone edit the inventory.
  *
- * What it cannot see, by construction:
+ * What it cannot see, by construction. A probe that does not publish its blind
+ * spots is the "0 found" failure again, so this list is part of the tool:
  *   - writes through a variable function name, call_user_func(), or a WP hook
  *     that a third party fires (user_register consumers, etc.)
  *   - direct $wpdb writes to the users/usermeta tables
  *   - user meta writes (update_user_meta) -- deliberately out of scope: they are
  *     an order of magnitude more common and mostly self-scoped preference
  *     storage. The T9 class is account writes.
+ *   - the sibling Pro plugin, which shares this namespace. It is not scanned, and
+ *     the class HAS a live member over there: VendorOnboardingController::suspend()
+ *     and ::unsuspend() take a user id from a REST request and add/remove roles
+ *     with no check of their own, behind a blanket manage_options route gate.
+ *     Recorded rather than fixed here because Pro is not part of the
+ *     WordPress.org package. Do not read a clean run as "the ecosystem is clean".
  *
  * Usage:  php bin/audit-user-account-writes.php [--update]
  *         --update rewrites the inventory with TODO justifications for new
- *         entries. Fill them in; the script does not read them, humans do.
+ *         entries. Fill them in; the script does not read them, humans do. It
+ *         preserves the file's leading comment block and the justification of
+ *         every entry that still exists.
+ *         NEVER wire --update into CI: it always exits 0, so the gate would
+ *         never go red, and it would silently absorb the very write it exists
+ *         to make somebody look at.
  *
  * Exit: 0 when the inventory matches, 1 when it does not.
  */
 
 declare( strict_types=1 );
 
-const WATCHED_FUNCTIONS = array( 'wp_create_user', 'wp_insert_user', 'wp_update_user', 'wp_delete_user' );
-const WATCHED_METHODS   = array( 'set_role', 'add_role', 'add_cap' );
+const WATCHED_FUNCTIONS = array( 'wp_create_user', 'wp_insert_user', 'wp_update_user', 'wp_delete_user', 'wp_set_password' );
 
-$src           = __DIR__ . '/../src';
+// Removing a role is a role change as much as granting one. The live Pro instance
+// of this defect class uses remove_role, so a watcher that only knew add_role
+// would have walked straight past it.
+const WATCHED_METHODS = array( 'set_role', 'add_role', 'remove_role', 'add_cap', 'remove_cap' );
+
+// src/ holds the classes, but it is not everything that ships and runs: the
+// bootstrap file, the uninstall handler and the templates are all PHP in the
+// release ZIP, and an account write in any of them would count just as much.
+// None has one today -- scanning them is what keeps that a measurement.
+// realpath() throughout: without it the roots come back as "<plugin>/bin/../src"
+// and every entry is recorded under a path nobody would ever type, which reads as
+// a whole-inventory mismatch on the first run.
+$roots = array_values(
+	array_filter(
+		array_map(
+			static fn( string $path ) => realpath( $path ),
+			array(
+				__DIR__ . '/../src',
+				__DIR__ . '/../templates',
+				__DIR__ . '/../mhm-rentiva.php',
+				__DIR__ . '/../uninstall.php',
+			)
+		)
+	)
+);
+
+$plugin_root    = (string) realpath( __DIR__ . '/..' );
 $inventory_file = __DIR__ . '/user-write-inventory.txt';
 $update         = in_array( '--update', array_slice( $argv, 1 ), true );
 
-if ( ! is_dir( $src ) ) {
-	fwrite( STDERR, "src/ not found at {$src}\n" );
+if ( ! $roots ) {
+	fwrite( STDERR, "nothing to scan under {$plugin_root}\n" );
 	exit( 1 );
 }
 
@@ -113,8 +150,16 @@ function scan_file( string $path, string $rel ): array {
 
 		// A method call ($user->set_role) versus a plain function call
 		// (wp_update_user). The arrow is what separates them, and a definition
-		// (`function set_role`) must never count as a call site.
-		$is_arrow_call = is_array( $prev ) && T_OBJECT_OPERATOR === $prev[0];
+		// (`function set_role`) must never count as a call site. The nullsafe
+		// arrow counts too: $user?->set_role() writes exactly as much as
+		// $user->set_role(), and treating only T_OBJECT_OPERATOR as "a call"
+		// would hide it.
+		$arrow_tokens = array( T_OBJECT_OPERATOR );
+		if ( defined( 'T_NULLSAFE_OBJECT_OPERATOR' ) ) {
+			$arrow_tokens[] = T_NULLSAFE_OBJECT_OPERATOR;
+		}
+
+		$is_arrow_call = is_array( $prev ) && in_array( $prev[0], $arrow_tokens, true );
 		$is_definition = is_array( $prev ) && T_FUNCTION === $prev[0];
 
 		if ( $is_definition ) {
@@ -207,23 +252,51 @@ function next_significant_char( array $tokens, int $i ): string {
 	return '';
 }
 
-$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $src, FilesystemIterator::SKIP_DOTS ) );
-$actual   = array();
+/**
+ * Path as the inventory spells it: relative to the plugin root, forward slashes.
+ *
+ * @param string $absolute    Absolute file path.
+ * @param string $plugin_root Absolute plugin root.
+ * @return string
+ */
+function relative_path( string $absolute, string $plugin_root ): string {
+	$normalised = str_replace( '\\', '/', $absolute );
+	$root       = str_replace( '\\', '/', $plugin_root ) . '/';
 
-foreach ( $iterator as $file ) {
-	if ( ! $file->isFile() || 'php' !== strtolower( $file->getExtension() ) ) {
-		continue;
-	}
-	$rel    = 'src/' . str_replace( '\\', '/', substr( $file->getPathname(), strlen( $src ) + 1 ) );
-	$actual = array_merge( $actual, scan_file( $file->getPathname(), $rel ) );
+	return str_starts_with( $normalised, $root ) ? substr( $normalised, strlen( $root ) ) : $normalised;
 }
 
+$actual = array();
+
+foreach ( $roots as $root ) {
+	if ( is_file( $root ) ) {
+		$actual = array_merge( $actual, scan_file( $root, relative_path( $root, $plugin_root ) ) );
+		continue;
+	}
+
+	$iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ) );
+	foreach ( $iterator as $file ) {
+		if ( ! $file->isFile() || 'php' !== strtolower( $file->getExtension() ) ) {
+			continue;
+		}
+		$actual = array_merge( $actual, scan_file( $file->getPathname(), relative_path( $file->getPathname(), $plugin_root ) ) );
+	}
+}
+
+$actual = array_values( array_unique( $actual ) );
 sort( $actual );
 
 $recorded = array();
+$header   = array();
+
 if ( is_file( $inventory_file ) ) {
 	foreach ( file( $inventory_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ) as $line ) {
 		if ( '#' === substr( ltrim( $line ), 0, 1 ) ) {
+			// The header is where the CREATE-vs-WRITE taxonomy and the date the
+			// justifications were last read against the code live. --update used
+			// to overwrite it with four generated lines, which threw away the
+			// most considered part of the file.
+			$header[] = $line;
 			continue;
 		}
 		// "src/... | Class::method | wp_update_user  -- justification"
@@ -236,8 +309,8 @@ $new     = array_values( array_diff( $actual, array_keys( $recorded ) ) );
 $stale   = array_values( array_diff( array_keys( $recorded ), $actual ) );
 
 if ( $update ) {
-	$out = array(
-		'# User-account write sites in src/ -- generated by bin/audit-user-account-writes.php.',
+	$out = $header ? array_merge( $header, array( '' ) ) : array(
+		'# User-account write sites -- checked by bin/audit-user-account-writes.php.',
 		'# One line per call site. The text after "--" is for humans: say WHY this',
 		'# surface may write a user account and WHICH per-target check stands beside',
 		'# the write. The script does not read it; the next person to touch this file does.',
@@ -252,7 +325,7 @@ if ( $update ) {
 	exit( 0 );
 }
 
-printf( "User-account write sites found in src/: %d\n", count( $actual ) );
+printf( "User-account write sites found (src, templates, bootstrap, uninstall): %d\n", count( $actual ) );
 printf( "Recorded in %s: %d\n\n", basename( $inventory_file ), count( $recorded ) );
 
 if ( ! $new && ! $stale ) {
