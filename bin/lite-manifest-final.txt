@@ -12,7 +12,9 @@ src/Admin/Addons/AddonMeta.php
 src/Admin/Addons/AddonPostType.php
 src/Admin/Addons/AddonPricingCalculator.php
 src/Admin/Addons/AddonPricingType.php
+src/Admin/Addons/AddonScreen.php
 src/Admin/Addons/AddonSettings.php
+src/Admin/Addons/AddonStats.php
 src/Admin/Auth/SessionManager.php
 src/Admin/Booking/Actions/BookingActionGuard.php
 src/Admin/Booking/Actions/BookingApproveAjax.php
