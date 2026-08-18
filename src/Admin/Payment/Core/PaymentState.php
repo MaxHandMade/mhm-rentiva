@@ -51,6 +51,12 @@ final class PaymentState {
 		return new self(self::resolvePaidOrders($booking_id));
 	}
 
+	// The booking id is deliberately NOT kept as a property. PHPStan level 5
+	// catches write-only state, and nothing in this slice ever reads it back --
+	// resolveOfflinePaid() in Task 5 takes it as a parameter from this scope.
+	// When a later slice needs the object to carry its own identity, it gets
+	// added together with the caller that needs it.
+
 	/**
 	 * The orders whose money actually arrived, original first.
 	 *
