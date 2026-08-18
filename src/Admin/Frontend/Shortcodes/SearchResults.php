@@ -971,6 +971,8 @@ final class SearchResults extends AbstractShortcode {
 
 		$req = VerifiedRequest::from($_POST);
 
+		$payload = array();
+
 		try {
 			// Get filters from POST parameters.
 			//
@@ -1016,31 +1018,34 @@ final class SearchResults extends AbstractShortcode {
 
 			$results = self::perform_search($search_params, $atts);
 
-			wp_send_json_success(
-				array(
-					'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts),
-					'pagination' => self::render_pagination($results['pagination']),
-					'meta'       => array(
-						'total'        => (int) $results['total'],
-						'max_pages'    => (int) $results['max_pages'],
-						'current_page' => (int) $results['current_page'],
-						'layout'       => $atts['layout'],
-					),
-				)
+			// Built inside the try because rendering can throw; ANSWERED outside
+			// it, because wp_send_json_* ends the request through wp_die() and a
+			// catch around it swallows that terminator and appends a second,
+			// contradictory document after the first.
+			$payload = array(
+				'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts),
+				'pagination' => self::render_pagination($results['pagination']),
+				'meta'       => array(
+					'total'        => (int) $results['total'],
+					'max_pages'    => (int) $results['max_pages'],
+					'current_page' => (int) $results['current_page'],
+					'layout'       => $atts['layout'],
+				),
 			);
 		} catch (Exception $e) {
 			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
-			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
-				$e->getMessage(),
-				$debug_mode
-			);
 
 			wp_send_json_error(
 				array(
-					'message' => $message,
+					'message' => \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
+						$e->getMessage(),
+						$debug_mode
+					),
 				)
 			);
 		}
+
+		wp_send_json_success($payload);
 	}
 
 	/**

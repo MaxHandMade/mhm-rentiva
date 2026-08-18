@@ -943,23 +943,33 @@ final class AccountController {
 	 */
 	public static function ajax_update_account(): void
 	{
+		/*
+		 * Guards and every wp_send_json_* stay OUTSIDE the try. wp_send_json_*
+		 * ends the request through wp_die(), and a catch(Exception) around it
+		 * swallows that terminator and appends a second, contradictory JSON
+		 * document -- which is why this endpoint could not be measured at all.
+		 * The try below wraps only the work that can genuinely throw.
+		 */
+
+		// Nonce verification
+		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhmrentiva_account')) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+		}
+
+		// Login check
+		if (! is_user_logged_in()) {
+			wp_send_json_error(array( 'message' => __('Please login.', 'mhm-rentiva') ));
+		}
+
+		// Profile editing check
+		$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_customer_profile_editable', '1');
+		if ($profile_editable !== '1') {
+			wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
+		}
+
+		$error = '';
+
 		try {
-			// Nonce verification
-			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhmrentiva_account')) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-			}
-
-			// Login check
-			if (! is_user_logged_in()) {
-				wp_send_json_error(array( 'message' => __('Please login.', 'mhm-rentiva') ));
-			}
-
-			// Profile editing check
-			$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_customer_profile_editable', '1');
-			if ($profile_editable !== '1') {
-				wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
-			}
-
 			$user_id = get_current_user_id();
 
 			// Get and sanitize data - apply wp_unslash() before sanitization
@@ -987,25 +997,29 @@ final class AccountController {
 			$result = wp_update_user($user_data);
 
 			if (is_wp_error($result)) {
-				wp_send_json_error(array( 'message' => $result->get_error_message() ));
+				$error = (string) $result->get_error_message();
+			} else {
+				// Update meta information
+				if (! empty($phone)) {
+					update_user_meta($user_id, 'mhmrentiva_phone', $phone);
+				}
+				if (! empty($address)) {
+					update_user_meta($user_id, 'mhmrentiva_address', $address);
+				}
 			}
-
-			// Update meta information
-			if (! empty($phone)) {
-				update_user_meta($user_id, 'mhmrentiva_phone', $phone);
-			}
-			if (! empty($address)) {
-				update_user_meta($user_id, 'mhmrentiva_address', $address);
-			}
-
-			wp_send_json_success(
-				array(
-					'message' => __('Account updated successfully.', 'mhm-rentiva'),
-				)
-			);
 		} catch (\Exception $e) {
-			wp_send_json_error(array( 'message' => __('An error occurred while updating your account.', 'mhm-rentiva') ));
+			$error = __('An error occurred while updating your account.', 'mhm-rentiva');
 		}
+
+		if ('' !== $error) {
+			wp_send_json_error(array( 'message' => $error ));
+		}
+
+		wp_send_json_success(
+			array(
+				'message' => __('Account updated successfully.', 'mhm-rentiva'),
+			)
+		);
 	}
 
 	/**

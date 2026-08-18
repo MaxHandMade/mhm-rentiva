@@ -39,19 +39,25 @@ final class EmailAjaxHandler {
 			wp_send_json_error( __( 'Permission denied.', 'mhm-rentiva' ) );
 		}
 
+		$booking_id   = isset( $_POST['booking_id'] ) ? absint( $_POST['booking_id'] ) : 0;
+		$template_key = isset( $_POST['template_key'] ) ? sanitize_text_field( wp_unslash( $_POST['template_key'] ) ) : '';
+		$new_status   = isset( $_POST['new_status'] ) ? sanitize_text_field( wp_unslash( $_POST['new_status'] ) ) : '';
+
+		// If a booking ID is provided, verify it exists
+		if ( $booking_id > 0 && get_post_type( $booking_id ) !== 'mhmrentiva_booking' ) {
+			wp_send_json_error( __( 'Booking not found.', 'mhm-rentiva' ) );
+		}
+
+		/*
+		 * Only the rendering can throw, so only the rendering is wrapped: a
+		 * catch around wp_send_json_* swallows the wp_die() terminator and
+		 * writes a second, contradictory document after the first.
+		 */
+		$subject   = '';
+		$full_html = '';
+		$error     = '';
+
 		try {
-			$booking_id   = isset( $_POST['booking_id'] ) ? absint( $_POST['booking_id'] ) : 0;
-			$template_key = isset( $_POST['template_key'] ) ? sanitize_text_field( wp_unslash( $_POST['template_key'] ) ) : '';
-			$new_status   = isset( $_POST['new_status'] ) ? sanitize_text_field( wp_unslash( $_POST['new_status'] ) ) : '';
-
-			// If a booking ID is provided, verify it exists
-			if ( $booking_id > 0 && get_post_type( $booking_id ) !== 'mhmrentiva_booking' ) {
-				wp_send_json_error( __( 'Booking not found.', 'mhm-rentiva' ) );
-			}
-
-			// Determine context builder arguments
-			$context_status = $new_status !== '' ? 'booking_status_changed' : 'booking_created';
-
 			// Use EmailTemplates::build_context which now supports mock data if booking_id=0
 			$ctx = EmailTemplates::build_context( $template_key, $booking_id );
 
@@ -61,16 +67,20 @@ final class EmailAjaxHandler {
 			// render_body ALREADY wraps with layout when needed (see Templates.php line 182-184)
 			// Do NOT call wrapWithLayout again - it causes double-wrap and CSS leak!
 			$full_html = Templates::render_body( $template_key, $ctx );
-
-			wp_send_json_success(
-				array(
-					'subject' => $subject,
-					'html'    => $full_html,
-				)
-			);
 		} catch ( \Throwable $e ) {
-			wp_send_json_error( 'Connection error: ' . $e->getMessage() );
+			$error = 'Connection error: ' . $e->getMessage();
 		}
+
+		if ( '' !== $error ) {
+			wp_send_json_error( $error );
+		}
+
+		wp_send_json_success(
+			array(
+				'subject' => $subject,
+				'html'    => $full_html,
+			)
+		);
 	}
 
 	/**
@@ -125,20 +135,29 @@ final class EmailAjaxHandler {
 			wp_send_json_error( __( 'Missing parameters.', 'mhm-rentiva' ) );
 		}
 
+		// Same shape as the preview handler above: the try wraps only the work
+		// that can throw, and the answer is written once, outside it.
+		$sent  = false;
+		$error = '';
+
 		try {
 			// Build context
 			$ctx = EmailTemplates::build_context( $template_key, $booking_id );
 
 			// Send
 			$sent = Mailer::send( $template_key, $to, $ctx );
-
-			if ( $sent ) {
-				wp_send_json_success( __( 'Test email sent successfully!', 'mhm-rentiva' ) );
-			} else {
-				wp_send_json_error( __( 'Failed to send test email. Check server logs.', 'mhm-rentiva' ) );
-			}
 		} catch ( \Throwable $e ) {
-			wp_send_json_error( $e->getMessage() );
+			$error = $e->getMessage();
 		}
+
+		if ( '' !== $error ) {
+			wp_send_json_error( $error );
+		}
+
+		if ( $sent ) {
+			wp_send_json_success( __( 'Test email sent successfully!', 'mhm-rentiva' ) );
+		}
+
+		wp_send_json_error( __( 'Failed to send test email. Check server logs.', 'mhm-rentiva' ) );
 	}
 }
