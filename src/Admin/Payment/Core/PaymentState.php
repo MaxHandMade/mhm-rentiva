@@ -35,7 +35,11 @@ final class PaymentState {
 	 * @param int[] $order_ids Paid WooCommerce orders, in payment order.
 	 */
 	private function __construct(
-		private readonly array $order_ids,
+		private readonly array  $order_ids,
+		private readonly int    $wc_paid,
+		private readonly int    $wc_refunded,
+		private readonly int    $wc_refundable,
+		private readonly string $currency,
 	) {
 	}
 
@@ -48,7 +52,35 @@ final class PaymentState {
 	 */
 	public static function forBooking(int $booking_id): self
 	{
-		return new self(self::resolvePaidOrders($booking_id));
+		$order_ids = self::resolvePaidOrders($booking_id);
+
+		$paid       = 0;
+		$refunded   = 0;
+		$refundable = 0;
+		$currency   = '';
+
+		foreach ($order_ids as $order_id) {
+			$order = wc_get_order($order_id);
+
+			if (! $order instanceof \WC_Order) {
+				continue;
+			}
+
+			$paid     += self::toMinor($order->get_total());
+			$refunded += self::toMinor($order->get_total_refunded());
+			// get_remaining_refund_amount() returns a MAJOR-unit string.
+			$refundable += self::toMinor($order->get_remaining_refund_amount());
+
+			if ($currency === '') {
+				$currency = (string) $order->get_currency();
+			}
+		}
+
+		if ($currency === '') {
+			$currency = function_exists('get_woocommerce_currency') ? (string) get_woocommerce_currency() : '';
+		}
+
+		return new self($order_ids, $paid, $refunded, $refundable, $currency);
 	}
 
 	// The booking id is deliberately NOT kept as a property. PHPStan level 5
@@ -103,6 +135,40 @@ final class PaymentState {
 	public function orders(): array
 	{
 		return $this->order_ids;
+	}
+
+	/**
+	 * Money that arrived. A reporting figure -- never a refund amount.
+	 *
+	 * A coupon or a hand-edited order total can skew this; that is a reporting
+	 * inaccuracy and it stays one, because refunds read refundableAuto().
+	 */
+	public function paid(): int
+	{
+		return $this->wc_paid;
+	}
+
+	public function refunded(): int
+	{
+		return $this->wc_refunded;
+	}
+
+	/**
+	 * What WooCommerce itself says is still refundable.
+	 */
+	public function refundableAuto(): int
+	{
+		return $this->wc_refundable;
+	}
+
+	public function currency(): string
+	{
+		return $this->currency;
+	}
+
+	public function isFullyRefunded(): bool
+	{
+		return $this->paid() > 0 && $this->refunded() >= $this->paid();
 	}
 
 	/**

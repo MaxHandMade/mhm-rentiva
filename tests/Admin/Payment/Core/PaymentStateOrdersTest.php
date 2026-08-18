@@ -129,4 +129,56 @@ final class PaymentStateOrdersTest extends WP_UnitTestCase
     {
         $this->assertSame(array(), PaymentState::forBooking($this->booking_id)->orders());
     }
+
+    public function test_paid_sums_both_paid_orders(): void
+    {
+        $deposit   = $this->make_order('30', 'processing');
+        $remaining = $this->make_order('70', 'completed');
+
+        update_post_meta($this->booking_id, '_mhmrentiva_woocommerce_order_id', $deposit->get_id());
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', $remaining->get_id());
+
+        $this->assertSame(10000, PaymentState::forBooking($this->booking_id)->paid());
+    }
+
+    public function test_refundable_auto_comes_from_woocommerce_not_from_paid(): void
+    {
+        $order = $this->make_order('30', 'processing');
+
+        wc_create_refund(array(
+            'order_id'       => $order->get_id(),
+            'amount'         => 10,
+            'refund_payment' => false,
+        ));
+
+        update_post_meta($this->booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
+
+        $state = PaymentState::forBooking($this->booking_id);
+
+        $this->assertSame(3000, $state->paid(), 'paid() is the money that arrived, refunds do not reduce it.');
+        $this->assertSame(1000, $state->refunded());
+        $this->assertSame(
+            2000,
+            $state->refundableAuto(),
+            'The refund base must be WooCommerce\'s own remaining figure, never paid() minus refunded().'
+        );
+    }
+
+    public function test_a_fully_refunded_order_has_nothing_left_to_refund(): void
+    {
+        $order = $this->make_order('30', 'processing');
+
+        wc_create_refund(array(
+            'order_id'       => $order->get_id(),
+            'amount'         => 30,
+            'refund_payment' => false,
+        ));
+
+        update_post_meta($this->booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
+
+        $state = PaymentState::forBooking($this->booking_id);
+
+        $this->assertSame(0, $state->refundableAuto());
+        $this->assertTrue($state->isFullyRefunded());
+    }
 }
