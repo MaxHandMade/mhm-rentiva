@@ -135,7 +135,18 @@ final class Testimonials extends AbstractShortcode {
 
 	protected static function get_localized_data(): array
 	{
-		$data          = parent::get_localized_data();
+		$data = parent::get_localized_data();
+
+		/*
+		 * The endpoint verifies `mhmrentiva_testimonials_nonce`. The parent
+		 * mints its token from the shortcode tag, which yields
+		 * `mhmrentiva_rentiva_testimonials_nonce` -- the two names never met,
+		 * so "Load More" failed closed for every visitor. Every sibling that
+		 * checks a nonce of its own overrides it here the same way
+		 * (AvailabilityCalendar, VehicleDetails, BookingForm, ...).
+		 */
+		$data['nonce'] = wp_create_nonce('mhmrentiva_testimonials_nonce');
+
 		$data['icons'] = array(
 			'star'     => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
 			'car'      => \MHMRentiva\Helpers\Icons::get('car', array( 'class' => 'rv-icon-car' )),
