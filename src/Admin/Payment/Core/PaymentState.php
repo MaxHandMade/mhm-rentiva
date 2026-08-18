@@ -17,15 +17,20 @@ if (! defined('ABSPATH')) {
  * Pro -- every one of them reading 0, which is why refunds were refused with
  * "Paid amount not found" and why Pro's reports showed a zero paid column.
  *
- * Two rules hold this class together:
+ * Three rules hold this class together:
  *
- * 1. The refund base is never derived. It is read from WooCommerce's own
- *    get_remaining_refund_amount(). paid() is a reporting figure and cannot
- *    move money on its own -- so a coupon or a hand-edited order total skews
- *    a report, never a refund.
+ * 1. The WooCommerce refund base is never derived. refundableAuto() is read
+ *    from WooCommerce's own get_remaining_refund_amount(). paid() is a
+ *    reporting figure and cannot move money on its own -- so a coupon or a
+ *    hand-edited order total skews a report, never a WooCommerce refund.
  * 2. Amounts are derived, statuses are stored. Booking lists filter on
  *    payment_status with meta_query and a derived value cannot be queried in
  *    SQL; no query anywhere filters on an amount.
+ * 3. The offline channel's base IS derived -- from booking meta, total minus
+ *    remaining -- but only once payment_status proves the money actually
+ *    arrived. It is live only when the booking has no paid WooCommerce order
+ *    (see resolveOfflinePaid()), and refundableManual() is refunded by hand:
+ *    there is no gateway behind it to send the refund through.
  *
  * @since 6.1.0
  */
@@ -186,10 +191,13 @@ final class PaymentState {
 	}
 
 	/**
-	 * Money that arrived. A reporting figure -- never a refund amount.
+	 * Money that arrived, across both channels. A reporting figure -- never a
+	 * refund amount.
 	 *
 	 * A coupon or a hand-edited order total can skew this; that is a reporting
-	 * inaccuracy and it stays one, because refunds read refundableAuto().
+	 * inaccuracy and it stays one, because refunds read refundableAuto() for
+	 * the WooCommerce channel and refundableManual() for the offline one --
+	 * never paid() itself.
 	 */
 	public function paid(): int
 	{

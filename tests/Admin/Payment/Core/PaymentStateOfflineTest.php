@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Payment\Core;
 
 use MHMRentiva\Admin\Payment\Core\PaymentState;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
 /**
@@ -22,6 +23,8 @@ use WP_UnitTestCase;
  */
 final class PaymentStateOfflineTest extends WP_UnitTestCase
 {
+    use WooCommerceFixtures;
+
     /** @var int */
     private $booking_id;
 
@@ -96,5 +99,48 @@ final class PaymentStateOfflineTest extends WP_UnitTestCase
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'cancelled');
 
         $this->assertSame(0, PaymentState::forBooking($this->booking_id)->paid());
+    }
+
+    public function test_a_paid_wc_order_suppresses_the_offline_channel(): void
+    {
+        // Same booking, both stories: a real paid WooCommerce order AND the meta
+        // an offline booking would carry. The offline channel must stay inert --
+        // this single rule is what stops the same money being counted twice.
+        $this->require_woocommerce();
+
+        $product = $this->ensure_booking_product('300');
+
+        $order = wc_create_order(array( 'status' => 'pending' ));
+
+        $item = new \WC_Order_Item_Product();
+        $item->set_product($product);
+        $item->set_quantity(1);
+        $item->set_subtotal(300.0);
+        $item->set_total(300.0);
+        $order->add_item($item);
+        $order->calculate_totals();
+        $order->save();
+        $order->update_status('processing');
+
+        update_post_meta($this->booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
+
+        // The offline-looking meta a fully-paid offline booking would also carry.
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', 1000.0);
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', 0.0);
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+
+        $state = PaymentState::forBooking($this->booking_id);
+
+        $this->assertSame(
+            30000,
+            $state->paid(),
+            'The WC order must own paid(); the offline meta must not be added on top of it.'
+        );
+        $this->assertSame(0, $state->refunded());
+        $this->assertSame(
+            0,
+            $state->refundableManual(),
+            'The offline channel must stay inert while a paid WC order is present.'
+        );
     }
 }
