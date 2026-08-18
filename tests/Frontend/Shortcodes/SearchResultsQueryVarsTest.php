@@ -71,11 +71,30 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         $this->assertContains('mhmrentiva_fuel_type', $vars);
         $this->assertContains('mhmrentiva_pickup_location', $vars);
 
-        // The bare names must be GONE, not merely joined by prefixed twins --
-        // an additive rename would leave the generic names in the global list.
-        $this->assertNotContains('min_price', $vars);
-        $this->assertNotContains('fuel_type', $vars);
-        $this->assertNotContains('pickup_location', $vars);
+        // The bare names must be GONE from what THIS PLUGIN contributes -- an
+        // additive rename would leave the generic names alongside the prefixed
+        // twins. Measured against the plugin's own callbacks rather than the
+        // global list, because the global list is not ours to assert about:
+        // WooCommerce adds bare `min_price` itself, from
+        // ProductFilters\MainQueryController and Blocks\ProductQuery (measured
+        // 2026-08-18, once WooCommerce entered the test environment). Asserting
+        // its absence from `apply_filters('query_vars', [])` measured
+        // WooCommerce and called it a regression in us.
+        $ours = array();
+        foreach (
+            array(
+                SearchResults::class,
+                \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
+                \MHMRentiva\Admin\Frontend\Account\AccountController::class,
+                \MHMRentiva\Admin\Utilities\ListTable\LogColumns::class,
+            ) as $contributor
+        ) {
+            $ours = $contributor::register_query_vars($ours);
+        }
+
+        $this->assertNotContains('min_price', $ours);
+        $this->assertNotContains('fuel_type', $ours);
+        $this->assertNotContains('pickup_location', $ours);
     }
 
     /**

@@ -308,22 +308,20 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		$response = $this->dispatch_booking_form( $this->published_id );
 
 		/*
-		 * WooCommerce is not bootstrapped in this test process (see
-		 * tests/bootstrap.php), so `get_active_payment_gateway()` finds none
-		 * and the handler's own terminal branch is
-		 * "No payment gateway is available..." -- that is expected here and
-		 * is NOT what this test is about. What matters is that the response
-		 * is that specific downstream failure and not the id gate: the
-		 * request must have passed validate_public_vehicle_id(), the
-		 * availability check, the duration check, the overlap check and the
-		 * deposit calculation to reach it. A regression that rejected
-		 * published vehicles at the gate would fail this with
-		 * "Invalid vehicle ID." instead.
+		 * A published vehicle runs the whole submit path and hands over to the
+		 * gateway: it passed validate_public_vehicle_id(), the availability
+		 * check, the duration check, the locked overlap check and the deposit
+		 * calculation to get here. A regression that rejected published vehicles
+		 * at the gate would fail this with "Invalid vehicle ID." instead.
+		 *
+		 * Until 2026-08-18 this asserted the OPPOSITE -- that the answer was "No
+		 * payment gateway is available" -- because the suite ran without
+		 * WooCommerce and that was the terminal branch. It was measuring the
+		 * harness, not the plugin.
 		 */
-		$this->assertFalse( $response['success'] );
-		$this->assertSame(
-			'No payment gateway is available. Please contact the site administrator.',
-			$response['data']['message']
+		$this->assertTrue(
+			$response["success"],
+			"A published vehicle must reach the payment handover: " . wp_json_encode( $response )
 		);
 	}
 

@@ -360,6 +360,21 @@ jobs:
       - name: Install WordPress test suite
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
 
+      # WooCommerce is not part of the WordPress test suite, and without it 26
+      # source files take their "WooCommerce absent" branch -- which is how the
+      # refund and checkout paths went unmeasured until 2026-08-18. The version
+      # is pinned to the one the dev site runs so CI and a developer's machine
+      # answer the same question; WooCommerceTestEnvironmentTest fails loudly if
+      # this step is ever dropped or the download silently produces nothing.
+      - name: Install WooCommerce into the test tree
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wordpress/wp-content/plugins
+          curl -sSL --fail -o /tmp/woocommerce.zip \
+            https://downloads.wordpress.org/plugin/woocommerce.11.0.1.zip
+          unzip -q /tmp/woocommerce.zip -d /tmp/wordpress/wp-content/plugins
+          test -f /tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php
+
       - name: Run PHPUnit
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib

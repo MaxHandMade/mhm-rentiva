@@ -173,6 +173,95 @@ tests_add_filter('muplugins_loaded', static function () {
 }, 5);
 
 /**
+ * Locate WooCommerce, or return null when it is genuinely absent.
+ *
+ * Two environments, one shape. Locally WP_TESTS_DIR's config points ABSPATH at
+ * the dev site's core tree, so WooCommerce is already on disk beside this
+ * plugin. In CI, install-wp-tests.sh builds a clean tree at /tmp/wordpress and
+ * the workflow downloads WooCommerce into its plugins directory. Both end up at
+ * ABSPATH/wp-content/plugins/woocommerce, so one lookup covers both; WC_PLUGIN_DIR
+ * stays available as an override for a layout neither anticipates.
+ *
+ * @return string|null Absolute path to woocommerce.php, or null.
+ */
+function mhmrentiva_locate_woocommerce(): ?string
+{
+	$candidates = array();
+
+	$override = getenv('WC_PLUGIN_DIR');
+	if (is_string($override) && '' !== trim($override)) {
+		$candidates[] = rtrim($override, '/') . '/woocommerce.php';
+	}
+
+	// Sibling of the plugin under test.
+	$candidates[] = dirname(__DIR__, 2) . '/woocommerce/woocommerce.php';
+
+	if (defined('ABSPATH')) {
+		$candidates[] = rtrim((string) ABSPATH, '/') . '/wp-content/plugins/woocommerce/woocommerce.php';
+	}
+
+	foreach ($candidates as $candidate) {
+		if (is_readable($candidate)) {
+			return $candidate;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Load WooCommerce ahead of the plugin under test.
+ *
+ * Priority 5, so mhm-rentiva (priority 10) sees the same world it sees in
+ * production: 26 of its source files branch on WooCommerce being present, and a
+ * suite that loads them without it measures the absent branch every time.
+ *
+ * Deliberately silent when WooCommerce is missing rather than fatal: the suite
+ * still has to run for someone checking out this repo without a WooCommerce
+ * checkout beside it. WooCommerceTestEnvironmentTest is what turns that silence
+ * into a visible failure, so the absence is reported once, by name, instead of
+ * as five skipped files nobody reads.
+ */
+tests_add_filter('muplugins_loaded', static function () {
+	$woocommerce = mhmrentiva_locate_woocommerce();
+
+	if (null === $woocommerce) {
+		return;
+	}
+
+	require_once $woocommerce;
+}, 5);
+
+/**
+ * Install WooCommerce's schema into the test database.
+ *
+ * Loading the plugin is not installing it. Without this, the first test to
+ * touch an order fails on a missing table rather than on its own assertion --
+ * and HPOS in particular keeps orders in tables that only WC_Install creates.
+ *
+ * setup_theme runs after plugins are loaded and before the first test case, and
+ * it is where WooCommerce's own suite installs itself.
+ */
+tests_add_filter('setup_theme', static function () {
+	if (! class_exists('WC_Install')) {
+		return;
+	}
+
+	// The dev site runs HPOS (measured 2026-08-18). Declare it BEFORE install so
+	// the order tables are created and the store is selected in one pass; a
+	// suite in the other storage mode would prove nothing about the code paths
+	// WooCommerceBridge actually takes in production.
+	update_option('woocommerce_feature_custom_order_tables_enabled', 'yes');
+	update_option('woocommerce_custom_orders_table_enabled', 'yes');
+
+	\WC_Install::install();
+
+	// Capabilities are registered during install; WP caches roles before that.
+	$GLOBALS['wp_roles'] = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	wp_roles();
+});
+
+/**
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin()
@@ -246,6 +335,31 @@ tests_add_filter('muplugins_loaded', function () {
 	}
 
 }, 20);
+
+/**
+ * Autoload shared test support classes.
+ *
+ * PHPUnit only loads files matching the suite's `*Test.php` suffix, so traits
+ * and helpers under tests/Support/ are invisible to it. This plugin has no
+ * composer autoload map, so rather than adding one (and a composer dump
+ * requirement for anyone running the suite) the support namespace gets its own
+ * small loader, scoped so it can never resolve a production class.
+ */
+spl_autoload_register(static function (string $class): void {
+	$separator = chr(92);
+	$prefix    = 'MHMRentiva' . $separator . 'Tests' . $separator . 'Support' . $separator;
+
+	if (! str_starts_with($class, $prefix)) {
+		return;
+	}
+
+	$relative = str_replace($separator, '/', substr($class, strlen($prefix)));
+	$path     = __DIR__ . '/Support/' . $relative . '.php';
+
+	if (is_readable($path)) {
+		require_once $path;
+	}
+});
 
 // Start up the WP testing environment.
 require "{$_tests_dir}/includes/bootstrap.php";
