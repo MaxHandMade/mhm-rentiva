@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend;
 
+use MHMRentiva\Admin\Core\MetaKeys;
+use MHMRentiva\Admin\Core\SecurityHelper;
 use MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler;
 use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
 use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
+use MHMRentiva\Admin\Vehicle\PostType\Vehicle;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -29,10 +33,10 @@ use WP_Ajax_UnitTestCase;
  * Testimonials in 6.0.6, is to keep guards and every `wp_send_json_*` OUTSIDE
  * the try and let the try wrap only the work that can actually throw.
  *
- * Scope: the four blocks whose fix is a move rather than a restructure.
- * `BookingForm` carries three more (725, 1092, 1443 -- the largest is 348 lines
- * around the booking WRITE path) and they are deliberately left for their own
- * round with their own browser verification.
+ * Scope: every AJAX endpoint in the class, `BookingForm` included. Its three
+ * blocks (725, 1092, 1443 -- the largest was 348 lines around the booking WRITE
+ * path) took a restructure rather than a move, so they got their own round and
+ * their own browser verification, which this round performed.
  */
 final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 {
@@ -45,6 +49,7 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 		EmailAjaxHandler::register();
 		AccountController::register();
 		SearchResults::register();
+		BookingForm::register();
 	}
 
 	/**
@@ -133,6 +138,122 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 		$this->assertNotNull(
 			$this->sole_json_document(),
 			'The search filter endpoint wrote more than one JSON document: ' . $this->_last_response
+		);
+	}
+
+	/**
+	 * All three BookingForm endpoints share one nonce, so each gets the same
+	 * first case: the guard that used to fire from inside the try.
+	 */
+	public function test_booking_submit_answers_once_when_the_nonce_is_invalid(): void
+	{
+		wp_set_current_user( 0 );
+
+		$_POST = array( 'nonce' => 'not-a-real-nonce' );
+
+		$this->dispatch( 'mhmrentiva_booking_form' );
+
+		$this->assertNotNull(
+			$this->sole_json_document(),
+			'The booking submit endpoint wrote more than one JSON document: ' . $this->_last_response
+		);
+	}
+
+	/**
+	 * A refusal raised deep in the body, not by the opening guard: the vehicle
+	 * resolves and is publicly readable, but its status is not active.
+	 */
+	public function test_booking_submit_answers_once_when_the_vehicle_is_not_active(): void
+	{
+		wp_set_current_user( 0 );
+
+		$vehicle_id = (int) self::factory()->post->create(
+			array(
+				'post_type'   => Vehicle::POST_TYPE,
+				'post_status' => 'publish',
+			)
+		);
+		update_post_meta( $vehicle_id, MetaKeys::VEHICLE_STATUS, 'maintenance' );
+
+		$_POST = array(
+			'nonce'      => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
+			'vehicle_id' => (string) $vehicle_id,
+		);
+
+		$this->dispatch( 'mhmrentiva_booking_form' );
+
+		$this->assertNotNull(
+			$this->sole_json_document(),
+			'The booking submit endpoint wrote more than one JSON document: ' . $this->_last_response
+		);
+	}
+
+	public function test_calculate_price_answers_once_when_the_nonce_is_invalid(): void
+	{
+		wp_set_current_user( 0 );
+
+		$_POST = array( 'nonce' => 'not-a-real-nonce' );
+
+		$this->dispatch( 'mhmrentiva_calculate_price' );
+
+		$this->assertNotNull(
+			$this->sole_json_document(),
+			'The price endpoint wrote more than one JSON document: ' . $this->_last_response
+		);
+	}
+
+	/**
+	 * The refusal here is written by SecurityHelper rather than by the endpoint
+	 * itself -- a second place the terminator was being swallowed, and one no
+	 * amount of reading the endpoint's own wp_send_json_* calls would show.
+	 */
+	public function test_calculate_price_answers_once_when_the_rate_limit_is_exhausted(): void
+	{
+		wp_set_current_user( 0 );
+
+		for ( $i = 0; $i < 30; $i++ ) {
+			SecurityHelper::check_rate_limit( 'price_calculation', 30, 60 );
+		}
+
+		$_POST = array( 'nonce' => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ) );
+
+		$this->dispatch( 'mhmrentiva_calculate_price' );
+
+		$this->assertNotNull(
+			$this->sole_json_document(),
+			'The price endpoint wrote more than one JSON document: ' . $this->_last_response
+		);
+	}
+
+	public function test_check_availability_answers_once_when_the_nonce_is_invalid(): void
+	{
+		wp_set_current_user( 0 );
+
+		$_POST = array( 'nonce' => 'not-a-real-nonce' );
+
+		$this->dispatch( 'mhmrentiva_check_availability' );
+
+		$this->assertNotNull(
+			$this->sole_json_document(),
+			'The availability endpoint wrote more than one JSON document: ' . $this->_last_response
+		);
+	}
+
+	public function test_check_availability_answers_once_when_the_rate_limit_is_exhausted(): void
+	{
+		wp_set_current_user( 0 );
+
+		for ( $i = 0; $i < 20; $i++ ) {
+			SecurityHelper::check_rate_limit( 'availability_check', 20, 300 );
+		}
+
+		$_POST = array( 'nonce' => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ) );
+
+		$this->dispatch( 'mhmrentiva_check_availability' );
+
+		$this->assertNotNull(
+			$this->sole_json_document(),
+			'The availability endpoint wrote more than one JSON document: ' . $this->_last_response
 		);
 	}
 }

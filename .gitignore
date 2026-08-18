@@ -356,6 +356,11 @@ bin/*
 !bin/audit-object-capabilities.php
 !bin/audit-control-classes.php
 !bin/audit-phantom-callbacks.php
+# Same family, added by the BookingForm round: it finds wp_send_json_* refusals
+# with no return after them, which work only because wp_send_json_* ends the
+# request through wp_die(). Reports rather than gates for the same reason as the
+# three above -- it cannot see a call made through a variable function name.
+!bin/audit-json-fallthrough.php
 # The exception to the "reports, not gates" rule above, and the reason it is an
 # exception is worth stating. Those three make a JUDGEMENT (is this capability
 # the right one?) and a judgement that under-reports must not fail a build.
