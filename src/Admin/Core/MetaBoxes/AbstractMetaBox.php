@@ -257,22 +257,28 @@ abstract class AbstractMetaBox {
 	protected static function render_checkbox_field( string $field_key, $value, array $field ): void {
 		$label_text = $field['label_text'] ?? $field['label'] ?? '';
 
-		// A missing meta row is not automatically "off". `absent_value` already
-		// lets a field say what its absence should WRITE; this says what its
-		// absence should READ, and the two are not the same question -- both
-		// add-on checkboxes declare absent_value '0', but an absent enabled
-		// flag means the service is being SOLD while an absent required flag
-		// means not required.
+		// A field may declare which stored value means OFF, and then everything
+		// else -- including a missing row -- is on.
 		//
-		// Without this the editor rendered a flag-less service unticked, an
-		// unticked box is not submitted, absent_value wrote '0', and pressing
-		// Update after editing the description quietly took a selling service
-		// off sale. Declared per field so no other checkbox changes meaning.
-		if ( '' === $value && isset( $field['absent_reads_as'] ) ) {
-			$value = $field['absent_reads_as'];
+		// `absent_value` already lets a field say what its absence should
+		// WRITE; this says how its stored value should READ, and they are not
+		// the same question: both add-on checkboxes declare absent_value '0',
+		// but an absent enabled flag means the service is being SOLD while an
+		// absent required flag means not required.
+		//
+		// Without it the editor drew a flag-less service unticked, an unticked
+		// box is not submitted, absent_value wrote '0', and pressing Update
+		// after fixing a typo quietly took a selling service off sale.
+		//
+		// Phrased as "not the off value" rather than "empty", because that is
+		// the predicate AddonManager::is_enabled() uses. An "is it empty?"
+		// version agreed on '', '0' and '1' and diverged on anything else,
+		// which is the same two-definitions defect one scope smaller.
+		if ( isset( $field['off_value'] ) ) {
+			$checked = checked( (string) $value !== (string) $field['off_value'], true, false );
+		} else {
+			$checked = checked( $value, '1', false );
 		}
-
-		$checked = checked( $value, '1', false );
 
 		echo '<label>';
 		echo '<input type="checkbox" id="' . esc_attr( $field_key ) . '" name="' . esc_attr( $field_key ) . '" value="1" ' . wp_kses_post( $checked ) . '> ';

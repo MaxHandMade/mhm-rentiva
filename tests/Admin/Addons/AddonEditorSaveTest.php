@@ -113,6 +113,33 @@ final class AddonEditorSaveTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The render predicate has to be the SAME predicate as is_enabled(), not
+	 * merely one that agrees on the three values shipped writers emit.
+	 *
+	 * is_enabled() refuses only an explicit '0', so any other stored value is
+	 * active and sold. The first version of this fix asked "is the value
+	 * empty?" instead, which agreed on '', '0' and '1' and diverged on
+	 * everything else -- a hand-edited row or a get_post_metadata filter
+	 * returning 'yes' would render unticked while the service was selling, and
+	 * the next Update would write '0'. That is the exact two-definitions defect
+	 * this whole round was about, one scope smaller.
+	 */
+	public function test_the_editor_ticks_active_for_any_value_that_is_not_an_explicit_zero(): void {
+		update_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled', 'yes' );
+
+		$this->assertTrue(
+			AddonManager::is_sellable( $this->addon_id ),
+			'Precondition: is_enabled() refuses only an explicit 0, so this is sold.'
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/<input type="checkbox" id="mhmrentiva_addon_enabled"[^>]*checked/',
+			$this->render_settings_box(),
+			'The box must agree with the selling predicate for every value, not just the three we usually write.'
+		);
+	}
+
+	/**
 	 * NEGATIVE CONTROL. Both checkboxes declare absent_value => '0', so a fix
 	 * driven off that option alone would tick "Required" for every service that
 	 * never set it. Absence means active for one flag and not-required for the
