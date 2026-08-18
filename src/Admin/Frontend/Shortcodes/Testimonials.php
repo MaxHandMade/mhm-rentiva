@@ -206,12 +206,21 @@ final class Testimonials extends AbstractShortcode {
 		$orderby = self::sanitize_orderby( (string) ( $atts['orderby'] ?? 'date' ));
 		$order   = self::sanitize_order( (string) ( $atts['order'] ?? 'DESC' ));
 
+		// How far into the merged list this read starts. The shortcode never
+		// sets it; "Load More" does, and without it every click re-fetched the
+		// first page and appended the reviews already on screen.
+		$offset = max(0, (int) ( $atts['offset'] ?? 0 ));
+
 		// How many rows each source may return. Both sources are sorted newest
 		// first, so for a date ordering the newest $limit of each is guaranteed
 		// to contain the newest $limit of the merge. A random ordering needs a
 		// pool to draw from, and an unlimited `limit` still needs a ceiling --
 		// both use the same maximum the testimonials endpoint already enforces.
-		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby ) ? $limit : self::MAX_ROWS;
+		// A paged read has to fetch past its own start, or the slice below has
+		// nothing left to take.
+		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby )
+			? min( self::MAX_ROWS, $offset + $limit )
+			: self::MAX_ROWS;
 
 		// Source 1: Booking post meta reviews
 		$testimonials = self::get_booking_reviews($atts, $fetch_limit);
@@ -228,10 +237,8 @@ final class Testimonials extends AbstractShortcode {
 			});
 		}
 
-		// Apply limit on merged set
-		if ($limit > 0) {
-			$testimonials = \array_slice($testimonials, 0, $limit);
-		}
+		// Apply offset and limit on the merged set
+		$testimonials = \array_slice($testimonials, $offset, $limit > 0 ? $limit : null);
 
 		return $testimonials;
 	}
@@ -506,6 +513,9 @@ final class Testimonials extends AbstractShortcode {
 			'limit'      => $limit,
 			'rating'     => $rating,
 			'vehicle_id' => $vehicle_id,
+			// Without this the page number only ever reached has_more, and every
+			// click re-sent the first page.
+			'offset'     => ( max(1, $page) - 1 ) * $limit,
 		);
 
 		try {
