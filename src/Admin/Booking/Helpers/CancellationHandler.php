@@ -471,9 +471,14 @@ final class CancellationHandler {
 			return true;
 		}
 
-		// Check if user owns the booking
+		// Check if user owns the booking.
+		//
+		// Ownership has to be an identity, not the absence of one: a booking
+		// with no owner meta resolves to 0 and a logged-out visitor is also 0,
+		// so a bare `!==` let two zeros stand in for a match and the ownership
+		// question was never asked. Both sides must name a real user first.
 		$booking_customer_id = self::resolve_booking_customer_id( $booking_id );
-		if ( $booking_customer_id !== $user_id ) {
+		if ( $booking_customer_id <= 0 || $user_id <= 0 || $booking_customer_id !== $user_id ) {
 			return false;
 		}
 

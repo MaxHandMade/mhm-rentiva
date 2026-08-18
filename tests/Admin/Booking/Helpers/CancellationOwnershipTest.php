@@ -139,4 +139,59 @@ final class CancellationOwnershipTest extends WP_UnitTestCase
 			'A key nothing writes must not confer ownership, however plausible the id in it looks.'
 		);
 	}
+
+	/**
+	 * Ownership must be an identity, not the absence of one.
+	 *
+	 * A booking with no `_mhmrentiva_customer_user_id` resolves to 0, and a
+	 * logged-out visitor is also 0, so the ownership leg compared 0 with 0,
+	 * found them equal, and passed. Whether the visitor then gets a cancel
+	 * button depends only on the status and deadline legs -- ownership stopped
+	 * being asked. Records like this are ordinary: imports, half-written manual
+	 * bookings, rows created before the key existed.
+	 *
+	 * The single production caller is a template behind a login, which is why
+	 * this is a hardening rather than a live hole; it is fixed because the
+	 * predicate is what other surfaces will reuse.
+	 */
+	public function test_an_ownerless_booking_refuses_a_logged_out_visitor(): void
+	{
+		$ownerless = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		// Deliberately no ownership key of any kind.
+		update_post_meta($ownerless, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($ownerless, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('+10 days')));
+		update_post_meta($ownerless, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+14 days')));
+
+		wp_set_current_user(0);
+
+		$this->assertFalse(
+			CancellationHandler::user_can_cancel($ownerless, 0),
+			'Two zeros compared equal and stood in for ownership: an unowned booking said yes to nobody in particular.'
+		);
+	}
+
+	/**
+	 * The same shape from the other direction: a real, logged-in user must not
+	 * inherit an ownerless booking either.
+	 */
+	public function test_an_ownerless_booking_refuses_a_logged_in_stranger(): void
+	{
+		$ownerless = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		update_post_meta($ownerless, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($ownerless, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('+10 days')));
+		update_post_meta($ownerless, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+14 days')));
+
+		wp_set_current_user($this->stranger_id);
+
+		$this->assertFalse(
+			CancellationHandler::user_can_cancel($ownerless, $this->stranger_id),
+			'An unowned booking must not become anyone\'s to cancel.'
+		);
+	}
 }
