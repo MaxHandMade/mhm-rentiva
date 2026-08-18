@@ -261,6 +261,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		echo '<div class="mhm-field-group">';
 		echo '<label class="mhm-field-label">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</label>';
 
+		// Read the selection FIRST: the offered list is derived from it below.
+		$selected_addons = get_post_meta( $post->ID, '_mhmrentiva_selected_addons', true )
+	    ?: get_post_meta( $post->ID, 'mhmrentiva_selected_addons', true )
+	    ?: array();
+
+		$selected_ids = array_map( 'intval', (array) $selected_addons );
+
 		// Fetch current add-ons
 		$addons = get_posts(
 			array(
@@ -272,13 +279,31 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			)
 		);
 
-		// Fetch currently selected add-ons FIRST: the offered list is derived
-		// from it below, so it cannot be read afterwards.
-		$selected_addons = get_post_meta( $post->ID, '_mhmrentiva_selected_addons', true )
-	    ?: get_post_meta( $post->ID, 'mhmrentiva_selected_addons', true )
-	    ?: array();
+		// The union below can only work on services this query returned, and it
+		// asks for 'publish' only -- so a service the operator moved to the
+		// TRASH was never a candidate for "already attached" in the first
+		// place. It vanished from the screen, the form posted without it, and
+		// the next save deleted it from the booking: the exact failure the
+		// comment below describes, one status further along. Anything the
+		// booking already carries is pulled back in by id regardless of status.
+		$pool_ids = array_map( 'intval', wp_list_pluck( $addons, 'ID' ) );
+		$missing  = array_values( array_diff( $selected_ids, $pool_ids ) );
 
-		$selected_ids = array_map( 'intval', (array) $selected_addons );
+		if ( ! empty( $missing ) ) {
+			$addons = array_merge(
+				$addons,
+				get_posts(
+					array(
+						'post_type'      => 'mhmrentiva_addon',
+						'post__in'       => $missing,
+						'post_status'    => array( 'publish', 'pending', 'draft', 'private', 'future', 'trash' ),
+						'posts_per_page' => -1,
+						'orderby'        => 'menu_order',
+						'order'          => 'ASC',
+					)
+				)
+			);
+		}
 
 		// Offered = sellable UNION already-attached, and the union is the whole
 		// point. A booking taken last month may carry a service switched off
@@ -320,13 +345,25 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 			echo '<div class="mhm-addon-grid">';
 			foreach ( $available_addons as $addon ) {
-				$checked       = in_array( $addon['id'], $selected_addons ) ? 'checked' : '';
+				$is_attached   = in_array( (int) $addon['id'], $selected_ids, true );
+				$checked       = $is_attached ? 'checked' : '';
 				$checked      .= $addon['required'] ? ' disabled' : '';
 				$required_text = $addon['required'] ? ' <span class="required">*</span>' : '';
 
 				echo '<div class="mhm-addon-card">';
 				echo '<label class="mhm-addon-item">';
 				echo '<input type="checkbox" name="mhmrentiva_edit_selected_addons[]" value="' . esc_attr( $addon['id'] ) . '" class="mhm-addon-checkbox" data-price="' . esc_attr( $addon['price'] ) . '" ' . esc_attr( $checked ) . '>';
+
+				// A disabled control is not submitted, so a required service
+				// that is already on the booking would be dropped by the next
+				// save -- save_booking_details() treats the posted list as the
+				// whole truth, which is right for a checkbox the operator can
+				// actually clear. Only the ones the form CANNOT post get this;
+				// an ordinary attached service must stay removable by simply
+				// unchecking it.
+				if ( $is_attached && $addon['required'] ) {
+					echo '<input type="hidden" name="mhmrentiva_edit_selected_addons[]" value="' . esc_attr( (string) $addon['id'] ) . '">';
+				}
 				echo '<div class="mhm-addon-content">';
 				echo '<div class="mhm-addon-header">';
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
