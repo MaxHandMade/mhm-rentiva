@@ -1310,8 +1310,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						$rental_ended   = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id);
 						$booking_status = $rental_ended ? 'completed' : 'confirmed';
 						Status::update_status($booking_id, $booking_status, get_current_user_id());
-						// Clear remaining amount for deposit bookings so timeline shows All Payments Completed
-						if (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'deposit') {
+						// Clear the remaining balance only when THIS order is the one
+						// that settles it. Until 6.1.0 the branch looked only at the
+						// booking's payment_type, so completing the FIRST (deposit)
+						// order wiped a debt the customer had never paid -- and
+						// sync_completed_to_wc() drives the original order to completed
+						// itself, so the plugin could trigger it with nobody touching
+						// the order. The processing branch below has always carried
+						// this ownership check; this is the same rule, same key.
+						if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
 							$remaining = floatval(get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
 							if ($remaining > 0) {
 								update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
