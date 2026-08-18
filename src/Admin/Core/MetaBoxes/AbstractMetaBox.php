@@ -256,7 +256,23 @@ abstract class AbstractMetaBox {
 	 */
 	protected static function render_checkbox_field( string $field_key, $value, array $field ): void {
 		$label_text = $field['label_text'] ?? $field['label'] ?? '';
-		$checked    = checked( $value, '1', false );
+
+		// A missing meta row is not automatically "off". `absent_value` already
+		// lets a field say what its absence should WRITE; this says what its
+		// absence should READ, and the two are not the same question -- both
+		// add-on checkboxes declare absent_value '0', but an absent enabled
+		// flag means the service is being SOLD while an absent required flag
+		// means not required.
+		//
+		// Without this the editor rendered a flag-less service unticked, an
+		// unticked box is not submitted, absent_value wrote '0', and pressing
+		// Update after editing the description quietly took a selling service
+		// off sale. Declared per field so no other checkbox changes meaning.
+		if ( '' === $value && isset( $field['absent_reads_as'] ) ) {
+			$value = $field['absent_reads_as'];
+		}
+
+		$checked = checked( $value, '1', false );
 
 		echo '<label>';
 		echo '<input type="checkbox" id="' . esc_attr( $field_key ) . '" name="' . esc_attr( $field_key ) . '" value="1" ' . wp_kses_post( $checked ) . '> ';

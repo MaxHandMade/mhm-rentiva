@@ -44,9 +44,20 @@ describe( 'add-on screen counters after a toggle', () => {
 						</div>
 					</div>
 				</div>
+					<div class="mhm-stat-card" data-stat="avg_price">
+						<div class="mhm-stat-card__body">
+							<p class="mhm-stat-card__value">$31,67</p>
+						</div>
+					</div>
+					<div class="mhm-stat-card" data-stat="total_value">
+						<div class="mhm-stat-card__body">
+							<p class="mhm-stat-card__value">$95,00</p>
+						</div>
+					</div>
 				<span class="rv-addon-count">2 aktif · 3 toplam</span>
 				<div class="rv-addon-row" data-addon-id="7">
 					<span class="rv-addon-name">Bebek Koltuğu</span>
+					<button type="button" class="rv-addon-amount rv-addon-price-value" data-price="20">$20,00</button>
 					<button type="button" class="rv-addon-status" data-enabled="0" aria-pressed="false">Pasif</button>
 				</div>
 			</div>
@@ -85,6 +96,11 @@ describe( 'add-on screen counters after a toggle', () => {
 		aktif: document.querySelector( '[data-stat="active_addons"] .mhm-stat-card__value' ).textContent,
 		oran: document.querySelector( '[data-stat="active_addons"] .mhm-stat-card__sub' ).textContent,
 		sayac: document.querySelector( '.rv-addon-count' ).textContent,
+	} );
+
+	const readPrices = () => ( {
+		ortalama: document.querySelector( '[data-stat="avg_price"] .mhm-stat-card__value' ).textContent,
+		toplamDeger: document.querySelector( '[data-stat="total_value"] .mhm-stat-card__value' ).textContent,
 	} );
 
 	const freshStats = {
@@ -150,5 +166,44 @@ describe( 'add-on screen counters after a toggle', () => {
 
 		expect( read().aktif ).toBe( '2' );
 		expect( document.querySelector( '.rv-addon-status' ).textContent ).toBe( 'Aktif' );
+	} );
+
+	/**
+	 * Fable's LOW-2: applyStats was only ever driven through the toggle, while
+	 * the line the fix added sits in the INLINE PRICE callback. Average Price
+	 * and Total Value are the two cards a price moves, and neither was asserted
+	 * anywhere -- the same "the sweep's newest member is the one no test calls
+	 * by name" shape this repo keeps hitting.
+	 */
+	it( 'follows an inline price edit, not just a toggle', async () => {
+		setUp();
+
+		document.querySelector( '.rv-addon-price-value' ).click();
+		const input = document.querySelector( '.rv-addon-price-input' );
+		input.value = '120';
+		input.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Enter', bubbles: true } ) );
+
+		await answer( {
+			success: true,
+			data: {
+				formatted_price: '$120,00',
+				stats: { ...freshStats, avg_price: '$65,00', total_value: '$195,00' },
+			},
+		} );
+
+		expect( readPrices() ).toEqual( { ortalama: '$65,00', toplamDeger: '$195,00' } );
+	} );
+
+	it( 'leaves the price cards alone when the price save fails', async () => {
+		setUp();
+
+		document.querySelector( '.rv-addon-price-value' ).click();
+		const input = document.querySelector( '.rv-addon-price-input' );
+		input.value = '120';
+		input.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Enter', bubbles: true } ) );
+
+		await answer( { success: false, data: { message: 'Nope' } } );
+
+		expect( readPrices() ).toEqual( { ortalama: '$31,67', toplamDeger: '$95,00' } );
 	} );
 } );

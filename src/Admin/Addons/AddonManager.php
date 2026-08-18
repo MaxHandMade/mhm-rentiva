@@ -778,6 +778,7 @@ final class AddonManager {
 		// tree, and the gate is right not to count suppressions.
 		if ( ! check_ajax_referer( 'mhmrentiva_addon_list_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ) ) );
+			return;
 		}
 
 		$result = self::update_price( wp_unslash( $_POST ) );
@@ -847,9 +848,15 @@ final class AddonManager {
 			);
 		}
 
-		$result = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
+		// update_post_meta() returns false for "no rows changed" as well as for
+		// failure, so re-submitting the price a service already has reported
+		// "Error occurred while updating price" for a successful no-op. Reading
+		// the stored value first separates the two.
+		$stored    = get_post_meta( $addon_id, 'mhmrentiva_addon_price', true );
+		$unchanged = '' !== (string) $stored && abs( (float) $stored - $price ) < 0.00001;
+		$result    = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
 
-		if ( false === $result ) {
+		if ( false === $result && ! $unchanged ) {
 			return array(
 				'success' => false,
 				'message' => esc_html__( 'Error occurred while updating price.', 'mhm-rentiva' ),

@@ -111,17 +111,22 @@ final class AddonMeta extends AbstractMetaBox {
 				'priority' => 'default',
 				'fields'   => array(
 					'mhmrentiva_addon_enabled'  => array(
-						'type'         => 'checkbox',
-						'label'        => __( 'Active', 'mhm-rentiva' ),
-						'label_text'   => __( 'Enable this additional service', 'mhm-rentiva' ),
-						'description'  => __( 'Only active additional services are visible in booking form.', 'mhm-rentiva' ),
+						'type'            => 'checkbox',
+						'label'           => __( 'Active', 'mhm-rentiva' ),
+						'label_text'      => __( 'Enable this additional service', 'mhm-rentiva' ),
+						'description'     => __( 'Only active additional services are visible in booking form.', 'mhm-rentiva' ),
 						// Unticking has to leave a '0' behind, not an empty row.
 						// AddonManager::is_sellable() reads a missing flag as ACTIVE
 						// so that services predating this field keep selling; without
 						// this line, unticking here deleted the row and the service
 						// went straight back on sale -- which is what the description
 						// directly above promises it will not do.
-						'absent_value' => '0',
+						'absent_value'    => '0',
+						// ...and a row that was never written reads as ON, which is
+						// what AddonManager::is_enabled() answers everywhere else.
+						// The editor is the surface that turns a read into a write:
+						// render it unticked and the next Update writes '0'.
+						'absent_reads_as' => '1',
 					),
 					'mhmrentiva_addon_required' => array(
 						'type'         => 'checkbox',
@@ -191,19 +196,6 @@ final class AddonMeta extends AbstractMetaBox {
 		return $data;
 	}
 
-	/**
-	 * Get addon meta data.
-	 *
-	 * @param int $addon_id Addon ID.
-	 * @return array Meta data.
-	 */
-	public static function get_addon_meta( int $addon_id ): array {
-		return array(
-			'price'    => (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ),
-			'enabled'  => AddonManager::is_enabled( $addon_id ),
-			'required' => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_required', true ),
-		);
-	}
 
 	// update_addon_meta() and delete_addon_meta() used to sit here. Both had no
 	// caller in either edition, and the first one did real harm by existing: it

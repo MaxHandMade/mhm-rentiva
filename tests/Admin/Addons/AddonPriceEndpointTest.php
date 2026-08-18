@@ -118,6 +118,19 @@ final class AddonPriceEndpointTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * update_post_meta() returns false for "nothing changed" as well as for a
+	 * real failure, so re-typing the price a service already has told the
+	 * operator "Error occurred while updating price" for a successful no-op.
+	 */
+	public function test_resubmitting_the_same_price_is_not_an_error(): void {
+		$result = AddonManager::update_price( $this->request( array( 'price' => '100' ) ) );
+
+		$this->assertTrue( $result['success'], 'A no-op write is not a failure.' );
+		$this->assertSame( '100', $this->current_price() );
+		$this->assertArrayHasKey( 'stats', $result );
+	}
+
 	public function test_it_refuses_a_bad_nonce(): void {
 		$result = AddonManager::update_price( $this->request( array( 'nonce' => 'not-a-nonce' ) ) );
 

@@ -411,10 +411,14 @@ final class AddonScreen {
 
 		$addon_id = (int) $addon_id;
 
-		// Absent means active. The form sends the switch explicitly, but a
-		// caller that omits it must still get a usable service: an absent flag
-		// reads as false everywhere else, and a service born switched off with
-		// no explanation is the silent defect this endpoint exists to avoid.
+		// Absent means active -- and since AddonManager::is_enabled() that is
+		// true everywhere, not just here. (This comment used to say "an absent
+		// flag reads as false everywhere else", which was the state of the tree
+		// when it was written and is now exactly backwards.) The form sends the
+		// switch explicitly; a caller that omits it must still get a usable
+		// service, because a service born switched off with no explanation is
+		// the silent defect this endpoint exists to avoid. The row is written
+		// explicitly either way, so nothing here depends on the absence rule.
 		$enabled  = ! isset( $request['enabled'] ) || '1' === (string) $request['enabled'];
 		$required = isset( $request['required'] ) && '1' === (string) $request['required'];
 

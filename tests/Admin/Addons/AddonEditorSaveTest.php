@@ -80,6 +80,93 @@ final class AddonEditorSaveTest extends WP_UnitTestCase {
 		AddonMeta::save_meta( $this->addon_id, get_post( $this->addon_id ) );
 	}
 
+	/**
+	 * The editor's own checkbox was the surviving reader of the flag.
+	 *
+	 * A service created before the flag existed carries no meta row. Every other
+	 * surface calls it active -- it is sold, the KPI band counts it, the row
+	 * badge says Active. The editor rendered its box UNTICKED, because
+	 * checked( '', '1' ) does not match, and an unticked box is not submitted,
+	 * so `absent_value` wrote '0'. An operator fixing a typo in the description
+	 * and pressing Update took a selling service off sale, and the screen that
+	 * would have shown it is not the one they were on.
+	 *
+	 * grep could not find this reader: AbstractMetaBox is generic and takes the
+	 * field name from a variable, so a sweep for 'mhmrentiva_addon_enabled'
+	 * walks straight past it.
+	 */
+	public function test_the_editor_ticks_active_for_a_service_that_never_carried_the_flag(): void {
+		delete_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled' );
+
+		$this->assertTrue(
+			AddonManager::is_sellable( $this->addon_id ),
+			'Precondition: with no flag the service IS sold -- that is what makes an unticked box a lie.'
+		);
+
+		$html = $this->render_settings_box();
+
+		$this->assertMatchesRegularExpression(
+			'/<input type="checkbox" id="mhmrentiva_addon_enabled"[^>]*checked/',
+			$html,
+			'The box must show the state the seller uses, or Update silently switches the service off.'
+		);
+	}
+
+	/**
+	 * NEGATIVE CONTROL. Both checkboxes declare absent_value => '0', so a fix
+	 * driven off that option alone would tick "Required" for every service that
+	 * never set it. Absence means active for one flag and not-required for the
+	 * other; only the first one opts in.
+	 */
+	public function test_the_editor_does_not_tick_required_for_a_service_that_never_carried_it(): void {
+		delete_post_meta( $this->addon_id, 'mhmrentiva_addon_required' );
+
+		$html = $this->render_settings_box();
+
+		$this->assertDoesNotMatchRegularExpression(
+			'/<input type="checkbox" id="mhmrentiva_addon_required"[^>]*checked/',
+			$html,
+			'An absent required flag means NOT required.'
+		);
+	}
+
+	public function test_the_editor_leaves_an_explicitly_disabled_service_unticked(): void {
+		update_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled', '0' );
+
+		$html = $this->render_settings_box();
+
+		$this->assertDoesNotMatchRegularExpression(
+			'/<input type="checkbox" id="mhmrentiva_addon_enabled"[^>]*checked/',
+			$html,
+			'An explicit 0 is the operator saying off, and must stay off.'
+		);
+	}
+
+	/**
+	 * The whole point, end to end: the box renders ticked, so a browser submits
+	 * it, so a plain Update HEALS the legacy row to '1' instead of killing it.
+	 */
+	public function test_a_plain_update_keeps_a_flagless_service_on_sale(): void {
+		delete_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled' );
+
+		// A ticked box is submitted by the browser; that is what the render fix buys.
+		$this->save_from_editor( array( 'mhmrentiva_addon_enabled' => '1' ) );
+
+		$this->assertTrue( AddonManager::is_sellable( $this->addon_id ) );
+		$this->assertSame( '1', (string) get_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled', true ) );
+	}
+
+	/** The settings box exactly as the editor renders it. */
+	private function render_settings_box(): string {
+		ob_start();
+		try {
+			AddonMeta::render_meta_box( get_post( $this->addon_id ), array( 'id' => 'addon_settings' ) );
+			return (string) ob_get_contents();
+		} finally {
+			ob_end_clean();
+		}
+	}
+
 	public function test_unticking_active_in_the_editor_makes_the_service_unsellable(): void {
 		$this->assertTrue( AddonManager::is_sellable( $this->addon_id ), 'Precondition.' );
 
