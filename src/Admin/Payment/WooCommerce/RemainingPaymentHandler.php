@@ -81,15 +81,21 @@ final class RemainingPaymentHandler {
 	public static function get_or_create_remaining_order(int $booking_id): \WC_Order|\WP_Error
 	{
 		// A hybrid booking -- deposit taken offline, remainder through WooCommerce
-		// -- cannot be represented honestly: PaymentState reads the offline
-		// channel only when there is no paid WC order, so building this order
-		// would make the offline deposit disappear from paid(). Refuse instead
-		// of modelling it; the spec's v2 tried modelling and produced three
-		// defects.
-		if (\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id) <= 0) {
+		// -- cannot be represented honestly: PaymentState reads the offline channel
+		// only when there is no paid WC order, so building this order would make an
+		// already-received offline payment disappear from paid(). Refuse only when
+		// there is such a payment to lose: a booking with no proven payment yet is
+		// the ordinary "manual booking, send the customer a payment link" flow, and
+		// it stays supported.
+		$payment_status = (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true);
+
+		if (
+			\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id) <= 0
+			&& in_array($payment_status, array( 'paid', 'partially_refunded', 'refunded' ), true)
+		) {
 			return new \WP_Error(
 				'mhmrentiva_hybrid_booking_refused',
-				__('This booking was not paid through WooCommerce; collect the remaining balance the same way the deposit was taken.', 'mhm-rentiva')
+				__('This booking was already paid outside WooCommerce; collect the remaining balance the same way.', 'mhm-rentiva')
 			);
 		}
 

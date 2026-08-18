@@ -18,6 +18,12 @@ use WP_UnitTestCase;
  * paid(). Modelling it was tried in the spec's v2 and produced three defects
  * (tax bases that do not compare, ghost money from coupons, and an existing
  * offline refund record being ignored).
+ *
+ * The guard fires only when there is a proven offline payment to lose --
+ * _mhmrentiva_payment_status already in one of PaymentState::resolveOfflinePaid()'s
+ * three statuses. A deposit booking with no WooCommerce order and no proven
+ * payment yet has nothing to lose: that is the ordinary "manual booking, send
+ * the customer a payment link" flow, and it must keep working.
  */
 final class HybridBookingGuardTest extends WP_UnitTestCase
 {
@@ -75,5 +81,25 @@ final class HybridBookingGuardTest extends WP_UnitTestCase
         $result = RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
 
         $this->assertInstanceOf(\WC_Order::class, $result, 'The normal WooCommerce flow must not regress.');
+    }
+
+    public function test_a_manual_booking_with_no_proven_payment_still_gets_its_remaining_order(): void
+    {
+        $this->ensure_booking_product();
+
+        // setUp() marks the booking 'paid' so the refusal test above has a
+        // proven offline payment to lose. This test represents a booking that
+        // has never proven any payment at all -- an admin created it manually
+        // and is about to send the customer a WooCommerce link for the whole
+        // remaining balance. There is nothing for a WC order to make disappear.
+        delete_post_meta($this->booking_id, '_mhmrentiva_payment_status');
+
+        $result = RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+
+        $this->assertInstanceOf(
+            \WC_Order::class,
+            $result,
+            'A booking with no proven offline payment has nothing to lose from a WooCommerce order -- the manual-booking-plus-payment-link flow must stay supported.'
+        );
     }
 }
