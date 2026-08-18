@@ -108,18 +108,29 @@ final class OrderIdMetaKeyResolutionTest extends WP_UnitTestCase
 	 * outside the one canonical resolver, does anything read these keys from
 	 * post meta at all?
 	 *
-	 * WHERE THIS TOOL STARTS -- and therefore what it cannot see:
-	 *  - It reads `src/` of THIS edition only. The Pro tree is not scanned
-	 *    (measured on 2026-08-18: it has no reader of these keys).
-	 *  - It matches `get_post_meta` reads. Writers are out of scope by design,
-	 *    and a read assembled from a variable key name would slip past it.
-	 *  - It is a source-level check. WooCommerce is absent from this suite, so
-	 *    the refund path cannot be exercised end to end here; the behavioural
-	 *    half of the contract is the resolver's own tests above.
+	 * WHERE THIS TOOL STARTS -- rewritten on 2026-08-18 after an independent audit
+	 * showed the first version started in the wrong place. It had scanned `src/`
+	 * for `get_post_meta` lines, was green, and missed three live resolvers:
+	 * `mhmrentiva_get_display_id()` in the ROOT plugin file, a read in
+	 * `templates/account/booking-detail.php`, and -- in the very file this round
+	 * had just fixed one screen away -- a LEFT JOIN in DashboardService that
+	 * resolved the link in SQL, where no `get_post_meta` appears at all.
+	 *
+	 * So the question is no longer "who calls get_post_meta with these keys" but
+	 * "who NAMES these keys": every mention is a decision about the link, whether
+	 * it is a read, a JOIN, or a delete list. Files that legitimately name them
+	 * are listed below with a reason, and that list is the audit surface.
+	 *
+	 * What it still cannot see:
+	 *  - The Pro tree (measured 2026-08-18 and again by the audit: no mentions).
+	 *  - A key assembled at runtime from a variable or concatenation.
+	 *  - Behaviour. WooCommerce is not loaded in this suite, so the refund path
+	 *    cannot be exercised end to end; the behavioural half of the contract is
+	 *    the resolver's own tests above.
 	 */
-	public function test_no_reader_anywhere_resolves_the_link_itself(): void
+	public function test_nothing_outside_the_resolver_names_these_keys(): void
 	{
-		$root = dirname( __DIR__, 3 ) . '/src';
+		$root = dirname( __DIR__, 3 );
 		$keys = array(
 			'_mhmrentiva_woocommerce_order_id',
 			'_mhmrentiva_wc_order_id',
@@ -127,50 +138,135 @@ final class OrderIdMetaKeyResolutionTest extends WP_UnitTestCase
 			'_mhmrentiva_booking_order_id',
 		);
 
-		$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root ) );
+		// Path suffix => why this file is allowed to name the keys.
+		$allowed = array(
+			'src/Admin/Core/Utilities/BookingQueryHelper.php'     => 'the canonical resolver',
+			'src/Admin/Core/Utilities/DatabaseCleaner.php'        => 'uninstall must delete every historical key',
+			'src/Admin/Payment/WooCommerce/WooCommerceBridge.php' => 'writes the link',
+			'src/Admin/Core/MetaKeys.php'                         => 'declares the constants',
+			'src/Admin/Utilities/Dashboard/DashboardService.php'  => 'resolves the link in SQL, where the resolver cannot run -- pinned separately by test_the_pending_payments_query_joins_every_order_key()',
+		);
+
 		$scanned  = 0;
 		$offences = array();
 
-		foreach ( $iterator as $file ) {
-			if ( ! $file->isFile() || 'php' !== $file->getExtension() ) {
-				continue;
-			}
+		// tests/ is not walked: fixtures name legacy keys on purpose, which is
+		// how the legacy paths get exercised at all.
+		foreach ( array( '/src', '/templates' ) as $dir ) {
+			$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root . $dir ) );
 
-			$path = str_replace( '\\', '/', (string) $file->getPathname() );
-
-			// The canonical resolver is the one place these keys may be named.
-			if ( str_ends_with( $path, 'Admin/Core/Utilities/BookingQueryHelper.php' ) ) {
-				continue;
-			}
-
-			++$scanned;
-
-			foreach ( explode( "\n", (string) file_get_contents( $path ) ) as $number => $line ) {
-				if ( ! str_contains( $line, 'get_post_meta' ) ) {
+			foreach ( $iterator as $file ) {
+				if ( ! $file->isFile() || 'php' !== $file->getExtension() ) {
 					continue;
 				}
 
-				foreach ( $keys as $key ) {
-					if ( str_contains( $line, "'" . $key . "'" ) ) {
-						$offences[] = basename( $path ) . ':' . ( $number + 1 );
-						break;
-					}
-				}
+				$offences = array_merge( $offences, $this->keys_named_in( (string) $file->getPathname(), $keys, $allowed, $root ) );
+				++$scanned;
 			}
+		}
+
+		// The root plugin file is where mhmrentiva_get_display_id() lived -- a
+		// directory walk that starts at src/ never reaches it.
+		foreach ( (array) glob( $root . '/*.php' ) as $rootFile ) {
+			$offences = array_merge( $offences, $this->keys_named_in( (string) $rootFile, $keys, $allowed, $root ) );
+			++$scanned;
 		}
 
 		$this->assertGreaterThan(
 			200,
 			$scanned,
-			'The scan reached almost no files; it is no longer pointed at the source tree.'
+			'The scan reached almost no files; it is no longer pointed at the tree.'
 		);
 
 		$this->assertSame(
 			array(),
 			$offences,
-			"These call sites resolve the booking-to-order link themselves instead of asking "
+			"These places name the booking-to-order meta keys themselves instead of asking "
 			. "BookingQueryHelper::resolve_wc_order_id(), so they can disagree with it:\n  "
 			. implode( "\n  ", $offences )
 		);
+	}
+
+	/**
+	 * The pending-payments widget resolves the link in SQL, so it is exempted
+	 * from the scan above and pinned here instead.
+	 *
+	 * Its LEFT JOIN matched only `_mhmrentiva_woocommerce_order_id` and filtered
+	 * on IS NOT NULL, so a legacy-linked booking with an outstanding balance
+	 * never appeared in the widget at all.
+	 *
+	 * This is a source-level assertion by necessity: the consumer loop is gated
+	 * on `function_exists('wc_get_order')`, and WooCommerce is not loaded in this
+	 * suite, so an end-to-end assertion would pass for the wrong reason.
+	 */
+	public function test_the_pending_payments_query_joins_every_order_key(): void
+	{
+		$source = (string) file_get_contents(
+			dirname( __DIR__, 3 ) . '/src/Admin/Utilities/Dashboard/DashboardService.php'
+		);
+
+		$start = strpos( $source, 'private static function collect_pending_payments' );
+		$this->assertNotFalse( $start, 'collect_pending_payments() has been renamed; this gate no longer measures it.' );
+
+		// Up to the next method, so the assertion covers the query AND the loop
+		// that consumes it -- a window of fixed length silently stops measuring
+		// when the method grows.
+		$next  = strpos( $source, "\tprivate static function", $start + 10 );
+		$query = false === $next ? substr( $source, $start ) : substr( $source, $start, $next - $start );
+
+		$this->assertGreaterThan(
+			2000,
+			strlen( $query ),
+			'The extracted method body is implausibly short; the boundary detection has drifted.'
+		);
+
+		foreach ( array(
+			'_mhmrentiva_woocommerce_order_id',
+			'_mhmrentiva_wc_order_id',
+			'_mhmrentiva_order_id',
+			'_mhmrentiva_booking_order_id',
+		) as $key ) {
+			$this->assertStringContainsString(
+				$key,
+				$query,
+				"The pending-payments query does not look for {$key}, so bookings linked by that key are invisible to the widget."
+			);
+		}
+
+		$this->assertStringContainsString(
+			'BookingQueryHelper::resolve_wc_order_id',
+			$query,
+			'The widget must take the resolved order id from the canonical resolver, not from a JOIN of its own.'
+		);
+	}
+
+	/**
+	 * @param list<string>          $keys
+	 * @param array<string, string> $allowed
+	 * @return list<string>
+	 */
+	private function keys_named_in( string $path, array $keys, array $allowed, string $root ): array
+	{
+		$normalised = str_replace( '\\', '/', $path );
+
+		foreach ( array_keys( $allowed ) as $suffix ) {
+			if ( str_ends_with( $normalised, $suffix ) ) {
+				return array();
+			}
+		}
+
+		$relative = ltrim( str_replace( str_replace( '\\', '/', $root ), '', $normalised ), '/' );
+		$found    = array();
+
+		foreach ( explode( "\n", (string) file_get_contents( $path ) ) as $number => $line ) {
+			foreach ( $keys as $key ) {
+				if ( str_contains( $line, $key ) ) {
+					$found[] = $relative . ':' . ( $number + 1 );
+					break;
+				}
+			}
+		}
+
+		return $found;
 	}
 }

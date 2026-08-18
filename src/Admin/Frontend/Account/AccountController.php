@@ -967,7 +967,9 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
 		}
 
-		$error = '';
+		// null, not '': a WP_Error whose message happens to be empty must still
+		// be an error, not a silent success.
+		$error = null;
 
 		try {
 			$user_id = get_current_user_id();
@@ -1011,7 +1013,7 @@ final class AccountController {
 			$error = __('An error occurred while updating your account.', 'mhm-rentiva');
 		}
 
-		if ('' !== $error) {
+		if (null !== $error) {
 			wp_send_json_error(array( 'message' => $error ));
 		}
 

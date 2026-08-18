@@ -21,21 +21,22 @@ use WP_UnitTestCase;
  * WHERE THIS TOOL STARTS -- and therefore what it cannot see:
  *  - It walks `src/Admin/Frontend/Shortcodes/*.php` and pairs each class with
  *    the nonce actions verified *in that same file*.
- *  - There are two ways a shortcode hands a token to JavaScript, and the
- *    measurement differs per class, so each is reported by name:
- *      BEHAVIOURAL -- the class rides the parent's `localize_script()` pipeline,
- *      so `get_localized_data()['nonce']` is the token the page prints and it
- *      is verified for real with `wp_verify_nonce()`.
- *      SOURCE      -- the class writes its own `wp_localize_script()` call
- *      (SearchResults does), so the parent's data is not what reaches the page;
- *      the weaker check is that the file mints a token for the action it
- *      verifies. This catches a missing producer, not a mismatched one.
+ *  - There are two ways a shortcode hands a token to JavaScript, and a class may
+ *    use either or BOTH, so both are tried and one passing is enough:
+ *      BEHAVIOURAL -- `get_localized_data()['nonce']` is checked for real with
+ *      `wp_verify_nonce()` against the actions the class verifies.
+ *      SOURCE      -- a token minted inside the class's own
+ *      `wp_localize_script()` call (SearchResults reaches the page this way).
+ *      Weaker: it sees a missing producer, not a mismatched one. Only mints
+ *      inside that call count, so a second mint of the same action elsewhere in
+ *      the file cannot mask a drifted payload.
  *  - A handler living in another class, an Elementor widget, a block, or a
  *    token printed by `wp_nonce_field()` inside a template is OUTSIDE the
  *    start set. This test says nothing about those surfaces.
- *  - Classes that verify no nonce are skipped, and the count of skipped and
- *    of checked classes is asserted, so a scan that silently degrades to
- *    "nothing to check" fails instead of reporting green.
+ *  - Classes that verify no nonce are skipped. Floors are asserted on how many
+ *    classes were found, measured, and measured BEHAVIOURALLY, and a ceiling on
+ *    how many were skipped -- so a class that quietly starts throwing inside
+ *    get_localized_data() cannot slip out of the measurement unnoticed.
  */
 final class ShortcodeNonceHandshakeTest extends WP_UnitTestCase
 {
@@ -74,20 +75,41 @@ final class ShortcodeNonceHandshakeTest extends WP_UnitTestCase
 				continue;
 			}
 
+			/*
+			 * Only tokens minted INSIDE the wp_localize_script() call count. An
+			 * earlier version accepted any wp_create_nonce/wp_nonce_field
+			 * anywhere in the file, which let a second mint of the same action
+			 * elsewhere (SearchResults prints one in a form field as well as in
+			 * its script payload) keep the gate green while the payload's token
+			 * drifted -- exactly the Testimonials failure this file exists for.
+			 */
 			$mints = array();
 
-			if ( preg_match_all( "/wp_create_nonce\(\s*'([^']+)'/", $source, $m ) ) {
+			if ( preg_match_all( "/wp_localize_script\s*\((?:[^;]*?)wp_create_nonce\(\s*'([^']+)'/s", $source, $m ) ) {
 				$mints = array_merge( $mints, $m[1] );
 			}
 
-			if ( preg_match_all( "/wp_nonce_field\(\s*'([^']+)'/", $source, $m ) ) {
-				$mints = array_merge( $mints, $m[1] );
+			// A comment mentioning the call must not move a class to the weaker
+			// branch, so look for it on code lines only.
+			$own_localize = false;
+
+			foreach ( explode( "\n", $source ) as $line ) {
+				$trimmed = ltrim( $line );
+
+				if ( str_starts_with( $trimmed, '//' ) || str_starts_with( $trimmed, '*' ) || str_starts_with( $trimmed, '/*' ) ) {
+					continue;
+				}
+
+				if ( str_contains( $trimmed, 'wp_localize_script(' ) ) {
+					$own_localize = true;
+					break;
+				}
 			}
 
 			$found[ $class ] = array(
 				'actions'      => $actions,
 				'mints'        => array_values( array_unique( $mints ) ),
-				'own_localize' => str_contains( $source, 'wp_localize_script(' ),
+				'own_localize' => $own_localize,
 			);
 		}
 
@@ -111,58 +133,50 @@ final class ShortcodeNonceHandshakeTest extends WP_UnitTestCase
 		foreach ( $verifiers as $class => $facts ) {
 			$actions = $facts['actions'];
 
-			// A class that writes its own wp_localize_script() does not hand the
-			// parent's data to the page, so the behavioural check would measure
-			// a token nobody prints. Fall back to the weaker source check and
-			// say so in the tally.
-			if ( $facts['own_localize'] ) {
-				$this->assertNotEmpty(
-					array_intersect( $facts['mints'], $actions ),
-					sprintf(
-						'%s localises its own script but mints no token for the action(s) it verifies (%s), '
-						. 'so this surface can only fail closed.',
-						$class,
-						implode( ', ', $actions )
-					)
-				);
+			/*
+			 * A class can reach the page by EITHER route, and some use both
+			 * (AvailabilityCalendar overrides the parent's data AND calls
+			 * wp_localize_script itself). So both are tried and one passing is
+			 * enough; an earlier version treated them as exclusive and accused
+			 * a working class of being broken.
+			 */
+			$opens_one   = false;
+			$measured_by = null;
 
-				++$checked;
-				continue;
-			}
+			if ( method_exists( $class, 'get_localized_data' ) ) {
+				$method = new ReflectionMethod( $class, 'get_localized_data' );
+				$method->setAccessible( true );
 
-			if ( ! method_exists( $class, 'get_localized_data' ) ) {
-				$skipped[] = $class . ' (no get_localized_data)';
-				continue;
-			}
-
-			$method = new ReflectionMethod( $class, 'get_localized_data' );
-			$method->setAccessible( true );
-
-			try {
-				$data = (array) $method->invoke( null );
-			} catch ( \Throwable $e ) {
-				$skipped[] = $class . ' (' . $e->getMessage() . ')';
-				continue;
-			}
-
-			if ( ! isset( $data['nonce'] ) || ! is_string( $data['nonce'] ) ) {
-				$skipped[] = $class . ' (localises no nonce)';
-				continue;
-			}
-
-			$opens_one = false;
-
-			foreach ( $actions as $action ) {
-				if ( false !== wp_verify_nonce( $data['nonce'], $action ) ) {
-					$opens_one = true;
-					break;
+				try {
+					$data = (array) $method->invoke( null );
+				} catch ( \Throwable $e ) {
+					$data = array();
+					$skipped[] = $class . ' (' . $e->getMessage() . ')';
 				}
+
+				if ( isset( $data['nonce'] ) && is_string( $data['nonce'] ) ) {
+					foreach ( $actions as $action ) {
+						if ( false !== wp_verify_nonce( $data['nonce'], $action ) ) {
+							$opens_one   = true;
+							$measured_by = 'behavioural';
+							break;
+						}
+					}
+				}
+			}
+
+			// Source-level fallback: a token minted inside the class's own
+			// wp_localize_script() call for an action it verifies. Weaker -- it
+			// sees a missing producer, not a mismatched one.
+			if ( ! $opens_one && array() !== array_intersect( $facts['mints'], $actions ) ) {
+				$opens_one   = true;
+				$measured_by = 'source';
 			}
 
 			$this->assertTrue(
 				$opens_one,
 				sprintf(
-					'%s prints a nonce that opens none of the actions it verifies (%s). '
+					'%s prints no token that opens any action it verifies (%s). '
 					. 'The token and the check have drifted apart, so this surface fails closed.',
 					$class,
 					implode( ', ', $actions )
@@ -170,7 +184,10 @@ final class ShortcodeNonceHandshakeTest extends WP_UnitTestCase
 			);
 
 			++$checked;
-			++$behavioural;
+
+			if ( 'behavioural' === $measured_by ) {
+				++$behavioural;
+			}
 		}
 
 		$this->assertGreaterThanOrEqual(
@@ -186,6 +203,14 @@ final class ShortcodeNonceHandshakeTest extends WP_UnitTestCase
 			2,
 			$behavioural,
 			'No shortcode was measured behaviourally; the gate degraded to the source-level check only.'
+		);
+
+		// A class that starts throwing inside get_localized_data() would land in
+		// $skipped and vanish from the measurement silently. Cap it.
+		$this->assertLessThanOrEqual(
+			1,
+			count( $skipped ),
+			'Too many shortcodes dropped out of the measurement: ' . implode( ' | ', $skipped )
 		);
 	}
 }

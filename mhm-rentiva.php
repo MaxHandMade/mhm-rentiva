@@ -57,7 +57,11 @@ function mhmrentiva_sanitize_text_field_safe($value)
  */
 function mhmrentiva_get_display_id(int $booking_id): int
 {
-	$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
+	// Every booking-to-order lookup goes through the one resolver: this helper
+	// is used wherever a reference number is SHOWN, so reading only the current
+	// key made a legacy-linked booking display its raw post ID while the same
+	// booking's e-mail carried the WooCommerce order number.
+	$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id);
 	return $order_id ? $order_id : $booking_id;
 }
 

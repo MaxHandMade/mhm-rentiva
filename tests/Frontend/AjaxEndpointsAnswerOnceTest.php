@@ -70,8 +70,9 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 	{
 		wp_set_current_user( (int) self::factory()->user->create( array( 'role' => 'customer' ) ) );
 
-		// No nonce: the endpoint's own guard is the branch under test, and that
-		// guard sits inside the try.
+		// No valid nonce: the endpoint's own security guard is the branch under
+		// test. It used to sit inside the try, which is what produced the second
+		// document; this case is what keeps it outside.
 		$_POST = array( 'nonce' => 'not-a-real-nonce' );
 
 		$this->dispatch( 'mhmrentiva_update_account' );

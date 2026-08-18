@@ -55,7 +55,7 @@ final class EmailAjaxHandler {
 		 */
 		$subject   = '';
 		$full_html = '';
-		$error     = '';
+		$error     = null;
 
 		try {
 			// Use EmailTemplates::build_context which now supports mock data if booking_id=0
@@ -71,7 +71,7 @@ final class EmailAjaxHandler {
 			$error = 'Connection error: ' . $e->getMessage();
 		}
 
-		if ( '' !== $error ) {
+		if ( null !== $error ) {
 			wp_send_json_error( $error );
 		}
 
@@ -138,7 +138,7 @@ final class EmailAjaxHandler {
 		// Same shape as the preview handler above: the try wraps only the work
 		// that can throw, and the answer is written once, outside it.
 		$sent  = false;
-		$error = '';
+		$error = null;
 
 		try {
 			// Build context
@@ -150,7 +150,7 @@ final class EmailAjaxHandler {
 			$error = $e->getMessage();
 		}
 
-		if ( '' !== $error ) {
+		if ( null !== $error ) {
 			wp_send_json_error( $error );
 		}
 

@@ -44,7 +44,7 @@ $remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', t
 $selected_addons  = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true);
 
 // Payment method from WooCommerce order
-$wc_order_id          = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
+$wc_order_id          = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id((int) $booking_id);
 $payment_method_title = '';
 if ($wc_order_id && function_exists('wc_get_order')) {
 	$wc_order = wc_get_order($wc_order_id);

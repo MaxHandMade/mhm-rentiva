@@ -1190,7 +1190,6 @@ final class DashboardService {
                     CAST(COALESCE(pm_remaining.meta_value, '0') AS DECIMAL(10,2)) as remaining_amount,
                     pm_deadline.meta_value as deadline,
                     pm_status.meta_value as booking_status,
-                    pm_deposit_order.meta_value as deposit_order_id,
                     pm_remaining_order.meta_value as remaining_order_id
              FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = %s
@@ -1198,21 +1197,34 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_remaining ON p.ID = pm_remaining.post_id AND pm_remaining.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             LEFT JOIN {$wpdb->postmeta} pm_deposit_order ON p.ID = pm_deposit_order.post_id AND pm_deposit_order.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_remaining_order ON p.ID = pm_remaining_order.post_id AND pm_remaining_order.meta_key = %s
              WHERE p.post_type = %s
              AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value NOT IN ('cancelled', 'refunded', 'completed')
-             AND ( pm_deposit_order.meta_value IS NOT NULL OR pm_remaining_order.meta_value IS NOT NULL )
+             AND ( EXISTS (
+                       SELECT 1 FROM {$wpdb->postmeta} pm_any_order
+                       WHERE pm_any_order.post_id = p.ID
+                       AND pm_any_order.meta_key IN (%s, %s, %s, %s)
+                       AND pm_any_order.meta_value <> ''
+                   )
+                   OR pm_remaining_order.meta_value IS NOT NULL )
              ORDER BY pm_deadline.meta_value ASC LIMIT 50",
 				'_mhmrentiva_customer_name',
 				'_mhmrentiva_deposit_amount',
 				'_mhmrentiva_remaining_amount',
 				'_mhmrentiva_payment_deadline',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'_mhmrentiva_woocommerce_order_id',
 				'_mhmrentiva_remaining_order_id',
-				'mhmrentiva_booking'
+				'mhmrentiva_booking',
+				// All four historical keys carry this link. A JOIN on the current
+				// one alone hid every legacy-linked booking from this widget --
+				// the same defect this round removed from the PHP readers, one
+				// screen away, expressed in SQL. EXISTS rather than a widened
+				// JOIN so a booking carrying two of the keys is not counted twice.
+				'_mhmrentiva_woocommerce_order_id',
+				'_mhmrentiva_wc_order_id',
+				'_mhmrentiva_order_id',
+				'_mhmrentiva_booking_order_id'
 			),
 			ARRAY_A
 		) ?: array();
@@ -1241,8 +1253,10 @@ final class DashboardService {
 		// entirely once 10 were collected, which is fine for the widget list
 		// but would silently undercount an aggregate total.
 		foreach ( $rows as $row ) {
-			$booking_id         = (int) $row['booking_id'];
-			$deposit_order_id   = (int) ( $row['deposit_order_id'] ?? 0 );
+			$booking_id = (int) $row['booking_id'];
+			// Resolved in PHP so the key PRIORITY lives in one place; the query
+			// above only asks whether any of the four keys is present.
+			$deposit_order_id   = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $booking_id );
 			$remaining_order_id = (int) ( $row['remaining_order_id'] ?? 0 );
 			$deadline           = $row['deadline'] ?? '';
 			$is_overdue         = $deadline && strtotime( $deadline ) < strtotime( $now );
