@@ -9,12 +9,6 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Addons/AddonScreen.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
 			count: 1
 			path: src/Admin/About/REST/AboutController.php
 
@@ -51,7 +45,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 6
+			count: 2
 			path: src/Admin/Addons/AddonManager.php
 
 		-
@@ -59,6 +53,12 @@ parameters:
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Addons/AddonMenu.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: src/Admin/Addons/AddonScreen.php
 
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'

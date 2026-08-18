@@ -579,7 +579,11 @@ final class AddonScreen {
 		$addons = self::get_addons();
 		$active = 0;
 		foreach ( $addons as $addon ) {
-			if ( '1' === (string) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true ) ) {
+			// AddonManager::is_enabled(), not "=== '1'". A service that never
+			// carried the flag is sold, and the KPI band a few lines below
+			// already counts it -- this loop used to disagree with the band on
+			// the same screen.
+			if ( AddonManager::is_enabled( $addon->ID ) ) {
 				++$active;
 			}
 		}
@@ -938,7 +942,7 @@ final class AddonScreen {
 	}
 
 	private static function render_row( \WP_Post $addon, int $index, int $usage = 0 ): void {
-		$enabled  = '1' === (string) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true );
+		$enabled  = AddonManager::is_enabled( $addon->ID );
 		$price    = (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true );
 		$type     = AddonPricingType::sanitize( get_post_meta( $addon->ID, '_mhmrentiva_addon_pricing_type', true ) );
 		$palette  = self::AVATAR_PALETTE[ $index % count( self::AVATAR_PALETTE ) ];

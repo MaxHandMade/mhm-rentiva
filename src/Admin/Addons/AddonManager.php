@@ -345,6 +345,30 @@ final class AddonManager {
 			return false;
 		}
 
+		return self::is_enabled( $addon_id );
+	}
+
+	/**
+	 * Is the enabled flag open for this add-on? The flag only -- is_sellable()
+	 * adds the post type and the post status.
+	 *
+	 * ABSENT MEANS ACTIVE, and that is the entire reason this method exists.
+	 * A service created before the toggle shipped carries no flag row at all:
+	 * not '1', not '0', absent. is_sellable() has always refused only an
+	 * explicit '0', so those services ARE sold -- and get_available_addons()
+	 * and AddonStats were both taught to agree (OR/NOT EXISTS, LEFT JOIN).
+	 *
+	 * Three readers still asked it the other way round ("is it exactly '1'?")
+	 * and so called a sold service inactive: the list header counted it out,
+	 * the row badge dimmed it, and data-enabled reported 0 to the toggle
+	 * script -- which made the operator's first click send "enable" for
+	 * something already enabled, a no-op that looks like a change. The KPI
+	 * band said 2 while the list header said 1, on the same screen.
+	 *
+	 * Everything that asks "is this add-on on?" goes through here now, so the
+	 * question has one answer instead of two.
+	 */
+	public static function is_enabled( int $addon_id ): bool {
 		return '0' !== (string) get_post_meta( $addon_id, self::ENABLED_META, true );
 	}
 
@@ -454,7 +478,7 @@ final class AddonManager {
 			'title'       => $addon->post_title,
 			'description' => $description,
 			'price'       => (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ),
-			'enabled'     => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true ),
+			'enabled'     => self::is_enabled( $addon->ID ),
 			'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 		);
 	}
@@ -745,51 +769,105 @@ final class AddonManager {
 	 * AJAX: Price update.
 	 */
 	public static function handle_update_price(): void {
-		// Nonce check.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhmrentiva_addon_list_nonce' ) ) {
+		// Verified HERE, at the boundary, before the superglobal is read at all.
+		// update_price() checks the nonce again for its own contract (its tests
+		// drive it directly), so this is not redundant -- it is what keeps the
+		// raw $_POST read below from being an unguarded one. The first version
+		// of this split used a phpcs:ignore instead and check-shape-zero caught
+		// it: a suppression silences the sniff while leaving the shape in the
+		// tree, and the gate is right not to count suppressions.
+		if ( ! check_ajax_referer( 'mhmrentiva_addon_list_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ) ) );
+		}
+
+		$result = self::update_price( wp_unslash( $_POST ) );
+
+		if ( $result['success'] ) {
+			unset( $result['success'] );
+			wp_send_json_success( $result );
 			return;
 		}
 
-		// Permission check.
+		wp_send_json_error( array( 'message' => $result['message'] ) );
+	}
+
+	/**
+	 * The price write, with no wp_die() in it.
+	 *
+	 * Split out for the same reason ajax_toggle_enabled/toggle_enabled were:
+	 * wp_send_json_* ends in wp_die(), so a handler that calls it directly
+	 * cannot be asserted against in PHPUnit -- the process leaves through an
+	 * exception before the payload can be read. Every guard below therefore
+	 * lived in a method no test could reach. The AJAX wrapper above is now the
+	 * only part that dies.
+	 *
+	 * @param array<string,mixed> $request Raw request array ($_POST at the boundary).
+	 * @return array<string,mixed> success flag plus either the payload or a message.
+	 */
+	public static function update_price( array $request ): array {
+		// No wp_unslash() here: the AJAX boundary already unslashed the array,
+		// and doing it twice turns a literal backslash into nothing. Same shape as
+		// AddonScreen::toggle_enabled(), which sanitizes without unslashing.
+		if ( ! wp_verify_nonce( sanitize_text_field( (string) ( $request['nonce'] ?? '' ) ), 'mhmrentiva_addon_list_nonce' ) ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ),
+			);
+		}
+
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ),
+			);
 		}
 
-		$addon_id = isset( $_POST['addon_id'] ) ? absint( wp_unslash( $_POST['addon_id'] ) ) : 0;
-		$price    = isset( $_POST['price'] ) ? (float) sanitize_text_field( wp_unslash( (string) $_POST['price'] ) ) : 0.0;
+		$addon_id = isset( $request['addon_id'] ) ? absint( $request['addon_id'] ) : 0;
+		$price    = isset( $request['price'] ) ? (float) sanitize_text_field( (string) $request['price'] ) : 0.0;
 
 		if ( $addon_id <= 0 ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Invalid additional service ID.', 'mhm-rentiva' ) ) );
-			return;
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Invalid additional service ID.', 'mhm-rentiva' ),
+			);
 		}
 
 		if ( $price < 0 ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Price cannot be negative.', 'mhm-rentiva' ) ) );
-			return;
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Price cannot be negative.', 'mhm-rentiva' ),
+			);
 		}
 
-		// Check if addon exists.
 		$addon = get_post( $addon_id );
-		if ( ! $addon || 'mhmrentiva_addon' !== $addon->post_type ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Additional service not found.', 'mhm-rentiva' ) ) );
-			return;
+		if ( ! $addon || AddonPostType::POST_TYPE !== $addon->post_type ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Additional service not found.', 'mhm-rentiva' ),
+			);
 		}
 
-		// Update price.
 		$result = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
 
-		if ( false !== $result ) {
-			wp_send_json_success(
-				array(
-					'message'         => esc_html__( 'Price successfully updated.', 'mhm-rentiva' ),
-					'currency'        => self::get_default_currency(),
-					'formatted_price' => self::format_addon_price( $price ),
-				)
+		if ( false === $result ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Error occurred while updating price.', 'mhm-rentiva' ),
 			);
-		} else {
-			wp_send_json_error( array( 'message' => esc_html__( 'Error occurred while updating price.', 'mhm-rentiva' ) ) );
 		}
+
+		return array(
+			'success'         => true,
+			'message'         => esc_html__( 'Price successfully updated.', 'mhm-rentiva' ),
+			'currency'        => self::get_default_currency(),
+			'formatted_price' => self::format_addon_price( $price ),
+			// Read AFTER the write, so the meta hook that flushes the KPI cache
+			// (AddonScreen::flush_stats_on_addon_meta) has already run and this
+			// recomputes. Average Price and Total Value both move when a price
+			// does, and this is the only mutation on the screen that does not
+			// reload the page afterwards -- so it is the only one that has to
+			// hand the band its new figures.
+			'stats'           => AddonStats::get(),
+		);
 	}
 }

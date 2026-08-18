@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Addons;
 
+use MHMRentiva\Admin\Addons\AddonManager;
 use MHMRentiva\Admin\Addons\AddonPricingType;
 use MHMRentiva\Admin\Addons\AddonScreen;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
@@ -175,11 +176,89 @@ final class AddonScreenRenderTest extends WP_UnitTestCase {
 		$this->assertSame( 4, substr_count( $html, 'mhm-stat-card__label' ), 'Four cards.' );
 	}
 
+	/**
+	 * A flagless service -- the shape every add-on created before the toggle
+	 * existed has -- is the ONLY case where the two definitions disagree, and
+	 * the old fixture had none. Both surfaces answered "1", the assertion
+	 * passed, and it measured nothing: an equality both sides supply for free
+	 * is not evidence. The service is created here so the fixture can express
+	 * the disagreement at all.
+	 *
+	 * The assertion is anchored to what the SELLING definition
+	 * (AddonManager::is_sellable) produces, not merely to "the two surfaces
+	 * match" -- otherwise both could be wrong together and still agree.
+	 */
 	public function test_the_band_and_the_list_counter_agree_on_the_active_count(): void {
+		$legacy = $this->createFlaglessAddon();
+
+		$this->assertTrue(
+			AddonManager::is_sellable( $legacy ),
+			'Precondition: a flagless service IS sold. That is what makes a screen calling it inactive a lie.'
+		);
+
 		$html = wp_strip_all_tags( $this->render() );
 
-		// One of two add-ons is enabled in this fixture; both surfaces say 1.
-		$this->assertMatchesRegularExpression( '/1\D+2/u', $html );
+		$this->assertMatchesRegularExpression(
+			'/2 active/u',
+			$html,
+			'Two of the three services here are sellable, so the list header must say 2 -- the KPI band already does.'
+		);
+		$this->assertMatchesRegularExpression(
+			'/3 total/u',
+			$html,
+			'All three are published.'
+		);
+	}
+
+	/**
+	 * The badge is not cosmetic: the same flag drives data-enabled, which the
+	 * toggle script reads back. Reading "0" for a service that is being sold
+	 * means the operator's first click sends "enable" for something already
+	 * enabled -- a no-op that looks like a change.
+	 */
+	public function test_a_flagless_service_is_shown_as_active(): void {
+		$legacy = $this->createFlaglessAddon();
+
+		$html = $this->render();
+
+		$this->assertMatchesRegularExpression(
+			'/<div class="rv-addon-row" data-addon-id="' . $legacy . '"/u',
+			$html,
+			'A sold service must not be dimmed with rv-addon-row--off.'
+		);
+
+		$row = $this->rowFor( $html, $legacy );
+
+		$this->assertStringContainsString( 'data-enabled="1"', $row, 'The toggle must report the state the seller uses.' );
+		$this->assertStringContainsString( 'aria-pressed="true"', $row );
+		$this->assertStringContainsString( 'Active', $row );
+	}
+
+	/**
+	 * An add-on created before the enabled flag existed carries no meta row at
+	 * all -- not '1', not '0', absent. update_post_meta cannot express that, so
+	 * the post is simply created without it.
+	 */
+	private function createFlaglessAddon(): int {
+		$id = self::factory()->post->create(
+			array(
+				'post_type'   => 'mhmrentiva_addon',
+				'post_title'  => 'Child Seat',
+				'post_status' => 'publish',
+				'menu_order'  => 2,
+			)
+		);
+		update_post_meta( $id, 'mhmrentiva_addon_price', '90' );
+
+		return (int) $id;
+	}
+
+	/** The markup of one row, so an assertion cannot be satisfied by a sibling. */
+	private function rowFor( string $html, int $addon_id ): string {
+		$start = strpos( $html, 'data-addon-id="' . $addon_id . '"' );
+		$this->assertNotFalse( $start, 'The row for add-on ' . $addon_id . ' is not on the screen.' );
+
+		return substr( $html, $start, 2000 );
 	}
 
 	/**

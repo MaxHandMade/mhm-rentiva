@@ -200,7 +200,7 @@ final class AddonMeta extends AbstractMetaBox {
 	public static function get_addon_meta( int $addon_id ): array {
 		return array(
 			'price'    => (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ),
-			'enabled'  => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_enabled', true ),
+			'enabled'  => AddonManager::is_enabled( $addon_id ),
 			'required' => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_required', true ),
 		);
 	}

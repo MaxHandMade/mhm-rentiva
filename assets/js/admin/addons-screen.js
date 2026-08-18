@@ -301,6 +301,13 @@
 				if ( result && result.success && result.data && result.data.formatted_price ) {
 					trigger.textContent = result.data.formatted_price;
 					trigger.dataset.price = next;
+
+					// Average Price and Total Value both move when a price does.
+					// Every other mutation on this screen reloads the page, so
+					// the band is rebuilt for free; editing in place deliberately
+					// does not reload, which left this as the one path that
+					// changed a figure the band shows without telling the band.
+					applyStats( result.data.stats );
 				} else {
 					report( ( result && result.data && result.data.message ) || cfg.i18n.genericError );
 				}
