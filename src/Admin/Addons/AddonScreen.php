@@ -595,6 +595,21 @@ final class AddonScreen {
 		echo '<div class="wrap" id="mhm-addons-root">';
 		echo '<h1 class="rv-addon-title">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</h1>';
 
+		// Where WordPress is told to put admin notices on this screen.
+		//
+		// `admin_notices` fires before this .wrap opens, so every notice is
+		// printed above the heading and common.js relocates it on DOM ready.
+		// It looks for `.wp-header-end` and falls back to the first h1/h2 when
+		// there is none -- this screen had none, so its notices landed by
+		// fallback while every other plugin screen placed them by marker, and
+		// the position drifted from screen to screen.
+		//
+		// Exactly one, and after the heading: two markers make the relocator
+		// run .before() against both and CLONE the notice, which is why
+		// AdminHelperTrait carries $skip_wp_header_end for the screens where
+		// core prints its own.
+		echo '<hr class="wp-header-end" />';
+
 		self::render_stats_band();
 
 		echo '<div class="rv-addon-layout">';

@@ -63,6 +63,13 @@ final class AssetManager {
 			'url'  => 'assets/css/frontend/notifications.css',
 			'deps' => array( 'mhm-rentiva-css-variables' ),
 		),
+		// Deliberately dependency-free: it must apply before anything renders,
+		// and it targets wp-admin's own notice markup rather than ours, so
+		// waiting on the design tokens would only delay it.
+		'mhm-rentiva-notice-placement'      => array(
+			'url'  => 'assets/css/admin/notice-placement.css',
+			'deps' => array(),
+		),
 	);
 
 	/**
