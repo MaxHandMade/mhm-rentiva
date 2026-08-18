@@ -62,6 +62,31 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 		return is_array( $decoded ) ? $decoded : null;
 	}
 
+	/**
+	 * One parseable document AND the refusal this test names.
+	 *
+	 * The document count alone is a weak lock: if a fixture stops reaching the
+	 * branch it was written for -- a raised rate limit, a validator that refuses
+	 * earlier -- some other guard answers, the body still parses, and the test
+	 * stays green while measuring nothing. Pinning the message makes that drift
+	 * fail loudly instead.
+	 */
+	private function assertAnsweredOnceWith( string $expected_message, string $endpoint ): void
+	{
+		$document = $this->sole_json_document();
+
+		$this->assertNotNull(
+			$document,
+			$endpoint . ' wrote more than one JSON document: ' . $this->_last_response
+		);
+
+		$this->assertSame(
+			$expected_message,
+			$document['data']['message'] ?? null,
+			$endpoint . ' answered once, but not from the branch this test names'
+		);
+	}
+
 	private function dispatch( string $action ): void
 	{
 		try {
@@ -153,10 +178,7 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 
 		$this->dispatch( 'mhmrentiva_booking_form' );
 
-		$this->assertNotNull(
-			$this->sole_json_document(),
-			'The booking submit endpoint wrote more than one JSON document: ' . $this->_last_response
-		);
+		$this->assertAnsweredOnceWith( 'Security check failed.', 'The booking submit endpoint' );
 	}
 
 	/**
@@ -182,9 +204,9 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 
 		$this->dispatch( 'mhmrentiva_booking_form' );
 
-		$this->assertNotNull(
-			$this->sole_json_document(),
-			'The booking submit endpoint wrote more than one JSON document: ' . $this->_last_response
+		$this->assertAnsweredOnceWith(
+			'Selected vehicle is not available (Status: maintenance).',
+			'The booking submit endpoint'
 		);
 	}
 
@@ -196,10 +218,7 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 
 		$this->dispatch( 'mhmrentiva_calculate_price' );
 
-		$this->assertNotNull(
-			$this->sole_json_document(),
-			'The price endpoint wrote more than one JSON document: ' . $this->_last_response
-		);
+		$this->assertAnsweredOnceWith( 'Security check failed.', 'The price endpoint' );
 	}
 
 	/**
@@ -219,9 +238,9 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 
 		$this->dispatch( 'mhmrentiva_calculate_price' );
 
-		$this->assertNotNull(
-			$this->sole_json_document(),
-			'The price endpoint wrote more than one JSON document: ' . $this->_last_response
+		$this->assertAnsweredOnceWith(
+			'Too many price calculation requests. Please wait.',
+			'The price endpoint'
 		);
 	}
 
@@ -233,10 +252,7 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 
 		$this->dispatch( 'mhmrentiva_check_availability' );
 
-		$this->assertNotNull(
-			$this->sole_json_document(),
-			'The availability endpoint wrote more than one JSON document: ' . $this->_last_response
-		);
+		$this->assertAnsweredOnceWith( 'Security check failed.', 'The availability endpoint' );
 	}
 
 	public function test_check_availability_answers_once_when_the_rate_limit_is_exhausted(): void
@@ -251,9 +267,9 @@ final class AjaxEndpointsAnswerOnceTest extends WP_Ajax_UnitTestCase
 
 		$this->dispatch( 'mhmrentiva_check_availability' );
 
-		$this->assertNotNull(
-			$this->sole_json_document(),
-			'The availability endpoint wrote more than one JSON document: ' . $this->_last_response
+		$this->assertAnsweredOnceWith(
+			'Too many availability checks. Please wait.',
+			'The availability endpoint'
 		);
 	}
 }

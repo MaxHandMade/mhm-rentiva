@@ -146,6 +146,13 @@ function scan_file(string $path): array
                 if (in_array($id, [T_RETURN, T_EXIT, T_THROW], true)) {
                     break;
                 }
+                // An explicit wp_die() statement terminates just as surely as the
+                // one inside wp_send_json_*. Flagging it would contradict this
+                // tool own premise, which is that wp_die() is what makes the
+                // un-returned calls correct today.
+                if ($id === T_STRING && $c === 'wp_die') {
+                    break;
+                }
                 $findings[] = [
                     'line' => $flat[$i]['line'],
                     'next' => $flat[$k]['line'],

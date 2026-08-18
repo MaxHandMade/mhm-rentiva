@@ -358,8 +358,11 @@ bin/*
 !bin/audit-phantom-callbacks.php
 # Same family, added by the BookingForm round: it finds wp_send_json_* refusals
 # with no return after them, which work only because wp_send_json_* ends the
-# request through wp_die(). Reports rather than gates for the same reason as the
-# three above -- it cannot see a call made through a variable function name.
+# request through wp_die(). It reports rather than gates for a reason of its own,
+# and the honest one is not "a variable function name could hide a call": it is
+# that judging what follows a call needs a reachability model, and this one
+# approximates. It already had to be taught that an explicit wp_die() terminates.
+# An approximation that fails a build is a build failed by an approximation.
 !bin/audit-json-fallthrough.php
 # The exception to the "reports, not gates" rule above, and the reason it is an
 # exception is worth stating. Those three make a JUDGEMENT (is this capability

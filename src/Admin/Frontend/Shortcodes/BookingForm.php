@@ -639,10 +639,12 @@ final class BookingForm extends AbstractShortcode {
 	/**
 	 * The add-on ids a submission is allowed to buy.
 	 *
-	 * A thin boundary on purpose: the handler around it cannot be exercised in a
-	 * test -- it answers with wp_send_json_* inside a try/catch that swallows the
-	 * terminator -- so the decision lives here, where a test can run the same
-	 * method the handler runs rather than a copy of its logic.
+	 * A thin boundary on purpose: the decision lives here, where a test can run
+	 * the same method the handler runs rather than a copy of its logic. It was
+	 * extracted when the handler around it could not be exercised at all -- it
+	 * answered with wp_send_json_* inside a try/catch that swallowed the
+	 * terminator. That is no longer true of the handler, but the boundary earns
+	 * its keep either way.
 	 *
 	 * Two parameter names because two clients post: the script sends `addons`,
 	 * the plain form sends `selected_addons`. intList() flattens either shape, so
@@ -723,8 +725,12 @@ final class BookingForm extends AbstractShortcode {
 	 * the catch appends a second, contradictory document after the first. In
 	 * production `wp_die()` really dies so visitors never see it; the cost is
 	 * that the endpoint cannot be measured at all, because a test asking what it
-	 * answered gets a body that does not parse. So every endpoint in this class
-	 * collects an answer first and writes it here, outside every try.
+	 * answered gets a body that does not parse. So the three endpoints in this
+	 * class collect an answer first and write it here, outside every try.
+	 *
+	 * Two refusals do NOT come through here and are written directly instead: the
+	 * nonce guard at the top of each endpoint, and check_rate_limit_or_die().
+	 * Both already sit outside the try, which is what the defect was about.
 	 *
 	 * @param array{ok: bool, data: array<string, mixed>} $answer Answer to write.
 	 */
@@ -732,6 +738,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		if ($answer['ok']) {
 			wp_send_json_success($answer['data']);
+			return;
 		}
 
 		wp_send_json_error($answer['data']);
