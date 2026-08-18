@@ -40,6 +40,8 @@ final class PaymentState {
 		private readonly int    $wc_refunded,
 		private readonly int    $wc_refundable,
 		private readonly string $currency,
+		private readonly int    $offline_paid,
+		private readonly int    $offline_refunded,
 	) {
 	}
 
@@ -80,7 +82,20 @@ final class PaymentState {
 			$currency = function_exists('get_woocommerce_currency') ? (string) get_woocommerce_currency() : '';
 		}
 
-		return new self($order_ids, $paid, $refunded, $refundable, $currency);
+		$offline_paid     = self::resolveOfflinePaid($booking_id, $order_ids);
+		$offline_refunded = empty($order_ids)
+			? (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true)
+			: 0;
+
+		return new self(
+			$order_ids,
+			$paid,
+			$refunded,
+			$refundable,
+			$currency,
+			$offline_paid,
+			$offline_refunded
+		);
 	}
 
 	// The booking id is deliberately NOT kept as a property. PHPStan level 5
@@ -130,6 +145,39 @@ final class PaymentState {
 	}
 
 	/**
+	 * Money taken outside WooCommerce.
+	 *
+	 * Only meaningful when the booking has no paid WC order at all: with an
+	 * order present WooCommerce is the authority and a hybrid booking cannot
+	 * form (RemainingPaymentHandler refuses to build one).
+	 *
+	 * The payment-status gate is the point. _mhmrentiva_remaining_amount is
+	 * written for deposit bookings only, so "total - remaining" on a
+	 * full-payment offline booking would read the entire price as paid before
+	 * anyone had paid a lira. 'cancelled' -- what AutoCancel writes -- is not
+	 * proof of payment either.
+	 *
+	 * @param int[] $order_ids
+	 */
+	private static function resolveOfflinePaid(int $booking_id, array $order_ids): int
+	{
+		if (! empty($order_ids)) {
+			return 0;
+		}
+
+		$status = (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true);
+
+		if (! in_array($status, array( 'paid', 'partially_refunded', 'refunded' ), true)) {
+			return 0;
+		}
+
+		$total     = self::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true));
+		$remaining = self::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+
+		return max(0, $total - $remaining);
+	}
+
+	/**
 	 * @return int[]
 	 */
 	public function orders(): array
@@ -145,12 +193,12 @@ final class PaymentState {
 	 */
 	public function paid(): int
 	{
-		return $this->wc_paid;
+		return $this->wc_paid + $this->offline_paid;
 	}
 
 	public function refunded(): int
 	{
-		return $this->wc_refunded;
+		return $this->wc_refunded + $this->offline_refunded;
 	}
 
 	/**
@@ -159,6 +207,20 @@ final class PaymentState {
 	public function refundableAuto(): int
 	{
 		return $this->wc_refundable;
+	}
+
+	/**
+	 * Offline money still owed back. It cannot go through a gateway, so the
+	 * refund flow classifies it as a manual refund.
+	 */
+	public function refundableManual(): int
+	{
+		return max(0, $this->offline_paid - $this->offline_refunded);
+	}
+
+	public function refundable(): int
+	{
+		return $this->refundableAuto() + $this->refundableManual();
 	}
 
 	public function currency(): string
