@@ -114,14 +114,7 @@ final class RefundValidator {
 	public static function validateGatewaySpecific( int $bookingId, string $gateway ): array {
 		if ( $gateway === 'woocommerce' ) {
 			// ⭐ For WooCommerce, check if order exists and can be refunded
-			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
-			if ( empty( $order_id ) ) {
-				// Try alternative meta keys for backward compatibility
-				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
-				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
-				}
-			}
+			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
 
 			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
 				return array(

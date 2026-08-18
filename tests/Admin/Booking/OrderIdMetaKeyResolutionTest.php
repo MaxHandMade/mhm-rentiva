@@ -93,25 +93,84 @@ final class OrderIdMetaKeyResolutionTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * The readers that had their own copy of the chain must not keep one.
+	 * No reader anywhere may resolve the link on its own.
+	 *
+	 * The first version of this gate listed three files and searched each for
+	 * one literal string (`get_post_meta( $post_id, '_mhmrentiva_order_id',
+	 * true ) ?:`). It therefore protected a sample, not the class: eleven other
+	 * call sites spelled the same chain with different variable names and the
+	 * gate matched none of them. Two of those -- Refunds\Service and
+	 * RefundValidator -- carried a chain that stopped after three keys, so a
+	 * booking linked only by `_mhmrentiva_booking_order_id` showed its order in
+	 * the list and answered "WooCommerce order not found" on the refund screen.
+	 *
+	 * The gate now walks the whole tree and asks a shape-independent question:
+	 * outside the one canonical resolver, does anything read these keys from
+	 * post meta at all?
+	 *
+	 * WHERE THIS TOOL STARTS -- and therefore what it cannot see:
+	 *  - It reads `src/` of THIS edition only. The Pro tree is not scanned
+	 *    (measured on 2026-08-18: it has no reader of these keys).
+	 *  - It matches `get_post_meta` reads. Writers are out of scope by design,
+	 *    and a read assembled from a variable key name would slip past it.
+	 *  - It is a source-level check. WooCommerce is absent from this suite, so
+	 *    the refund path cannot be exercised end to end here; the behavioural
+	 *    half of the contract is the resolver's own tests above.
 	 */
-	public function test_no_reader_reimplements_the_chain(): void
+	public function test_no_reader_anywhere_resolves_the_link_itself(): void
 	{
-		$root    = dirname( __DIR__, 3 );
-		$readers = array(
-			'/src/Admin/Booking/ListTable/BookingColumns.php',
-			'/src/Admin/Booking/Meta/BookingMeta.php',
-			'/src/Admin/Payment/WooCommerce/WooCommerceBridge.php',
+		$root = dirname( __DIR__, 3 ) . '/src';
+		$keys = array(
+			'_mhmrentiva_woocommerce_order_id',
+			'_mhmrentiva_wc_order_id',
+			'_mhmrentiva_order_id',
+			'_mhmrentiva_booking_order_id',
 		);
 
-		foreach ( $readers as $reader ) {
-			$source = (string) file_get_contents( $root . $reader );
+		$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root ) );
+		$scanned  = 0;
+		$offences = array();
 
-			$this->assertStringNotContainsString(
-				"get_post_meta( \$post_id, '_mhmrentiva_order_id', true ) ?:",
-				$source,
-				$reader . ' still carries its own order-id fallback chain.'
-			);
+		foreach ( $iterator as $file ) {
+			if ( ! $file->isFile() || 'php' !== $file->getExtension() ) {
+				continue;
+			}
+
+			$path = str_replace( '\\', '/', (string) $file->getPathname() );
+
+			// The canonical resolver is the one place these keys may be named.
+			if ( str_ends_with( $path, 'Admin/Core/Utilities/BookingQueryHelper.php' ) ) {
+				continue;
+			}
+
+			++$scanned;
+
+			foreach ( explode( "\n", (string) file_get_contents( $path ) ) as $number => $line ) {
+				if ( ! str_contains( $line, 'get_post_meta' ) ) {
+					continue;
+				}
+
+				foreach ( $keys as $key ) {
+					if ( str_contains( $line, "'" . $key . "'" ) ) {
+						$offences[] = basename( $path ) . ':' . ( $number + 1 );
+						break;
+					}
+				}
+			}
 		}
+
+		$this->assertGreaterThan(
+			200,
+			$scanned,
+			'The scan reached almost no files; it is no longer pointed at the source tree.'
+		);
+
+		$this->assertSame(
+			array(),
+			$offences,
+			"These call sites resolve the booking-to-order link themselves instead of asking "
+			. "BookingQueryHelper::resolve_wc_order_id(), so they can disagree with it:\n  "
+			. implode( "\n  ", $offences )
+		);
 	}
 }

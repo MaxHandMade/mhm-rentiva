@@ -38,7 +38,7 @@ final class RefundNotifications {
 		);
 		$statusText  = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
 
-		$wc_order_id = (int) get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true );
+		$wc_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 
 		$context = array(
 			'booking'  => array(

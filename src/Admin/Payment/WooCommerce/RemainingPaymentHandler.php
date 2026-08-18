@@ -155,7 +155,7 @@ final class RemainingPaymentHandler {
 		$vehicle_name = $vehicle ? $vehicle->post_title : __('Vehicle', 'mhm-rentiva');
 
 		// Original WC order ID
-		$original_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
+		$original_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id);
 
 		// -----------------------------------------------------------------------
 		// Create the WC order

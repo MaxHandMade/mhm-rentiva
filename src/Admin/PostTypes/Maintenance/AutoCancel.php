@@ -294,10 +294,7 @@ final class AutoCancel {
 			// Lookup chain mirrors ReportRepository / RemainingPaymentHandler —
 			// historical key drift left several aliases in production data.
 			$wc_orders_to_cancel = array_filter(array(
-				(int) ( get_post_meta($bid, '_mhmrentiva_woocommerce_order_id', true)
-					?: get_post_meta($bid, '_mhmrentiva_wc_order_id', true)
-					?: get_post_meta($bid, '_mhmrentiva_order_id', true)
-					?: get_post_meta($bid, '_mhmrentiva_booking_order_id', true) ),
+				\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($bid),
 				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 
@@ -393,10 +390,7 @@ final class AutoCancel {
 			$bid = (int) $bid;
 
 			$candidate_ids = array_filter(array(
-				(int) ( get_post_meta($bid, '_mhmrentiva_woocommerce_order_id', true)
-					?: get_post_meta($bid, '_mhmrentiva_wc_order_id', true)
-					?: get_post_meta($bid, '_mhmrentiva_order_id', true)
-					?: get_post_meta($bid, '_mhmrentiva_booking_order_id', true) ),
+				\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($bid),
 				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 

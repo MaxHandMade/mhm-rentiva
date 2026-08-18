@@ -163,14 +163,7 @@ final class Service {
 			// This method is called when admin manually processes refund from Rentiva panel
 			// We'll create a WooCommerce refund programmatically
 
-			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
-			if ( empty( $order_id ) ) {
-				// Try alternative meta keys
-				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
-				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
-				}
-			}
+			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
 
 			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
 				return array(
@@ -250,14 +243,7 @@ final class Service {
 		if ( $gateway === 'woocommerce' ) {
 			// ⭐ For WooCommerce, process full refund through WooCommerce
 
-			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
-			if ( empty( $order_id ) ) {
-				// Try alternative meta keys
-				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
-				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
-				}
-			}
+			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
 
 			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
 				return array(
@@ -348,13 +334,7 @@ final class Service {
 
 			if ( empty( $currency ) ) {
 				// Try to get from WooCommerce order
-				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
-				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
-				}
-				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
-				}
+				$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
 
 				if ( $order_id && class_exists( 'WooCommerce' ) ) {
 					$order = wc_get_order( $order_id );
