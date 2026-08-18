@@ -320,8 +320,8 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		 * harness, not the plugin.
 		 */
 		$this->assertTrue(
-			$response["success"],
-			"A published vehicle must reach the payment handover: " . wp_json_encode( $response )
+			$response['success'],
+			'A published vehicle must reach the payment handover: ' . wp_json_encode( $response )
 		);
 	}
 

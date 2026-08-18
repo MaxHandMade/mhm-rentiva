@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Integrations\WooCommerce;
 
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -24,6 +25,8 @@ use WP_Ajax_UnitTestCase;
  */
 final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
 {
+    use WooCommerceFixtures;
+
     /** @var int */
     private $customer_id;
     /** @var int */
@@ -41,9 +44,7 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
     {
         parent::setUp();
 
-        if (! class_exists('WooCommerce')) {
-            $this->markTestSkipped('WooCommerce not loaded.');
-        }
+        $this->require_woocommerce();
 
         // Enable WC tax-inclusive mode (matches production setup).
         update_option('woocommerce_calc_taxes', 'yes');
@@ -64,10 +65,9 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
         ));
 
         // Booking product (must exist with the SKU the handler looks up).
-        $product          = new \WC_Product_Simple();
-        $product->set_sku(WooCommerceBridge::PRODUCT_SKU);
-        $product->set_regular_price('1');
+        $product          = $this->ensure_booking_product();
         $product->set_tax_status('taxable');
+        $this->product_id = $product->save();
         $this->product_id = $product->save();
 
         // Customer + booking.

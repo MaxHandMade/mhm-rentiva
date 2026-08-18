@@ -247,11 +247,25 @@ tests_add_filter('setup_theme', static function () {
 		return;
 	}
 
-	// The dev site runs HPOS (measured 2026-08-18). Declare it BEFORE install so
-	// the order tables are created and the store is selected in one pass; a
-	// suite in the other storage mode would prove nothing about the code paths
-	// WooCommerceBridge actually takes in production.
-	update_option('woocommerce_feature_custom_order_tables_enabled', 'yes');
+	// The dev site runs HPOS (measured 2026-08-18), and a suite in the other
+	// storage mode would prove nothing about the code paths WooCommerceBridge
+	// takes in production.
+	//
+	// This one update_option is both the switch and the installer. It is the
+	// option the feature declares as its own `option_key`
+	// (CustomOrdersTableController::CUSTOM_ORDERS_TABLE_USAGE_ENABLED_OPTION),
+	// so it is what OrderUtil::custom_orders_table_usage_is_enabled() reads;
+	// and changing its value fires the controller's `pre_update_option`
+	// handler, which creates the order tables. WC_Install::install() below does
+	// NOT create them at this point -- at setup_theme its HPOS branch evaluates
+	// false, because `woocommerce_init` has not fired yet. Verified against
+	// WooCommerce 11.0.1 source, 2026-08-18.
+	//
+	// A sibling `woocommerce_feature_custom_order_tables_enabled` was set here
+	// at first. Nothing in WooCommerce 11.0.1 reads it -- the generic
+	// `woocommerce_feature_{slug}_enabled` name only applies to features that
+	// declare no option_key -- so it was removed rather than left in the test
+	// database looking native.
 	update_option('woocommerce_custom_orders_table_enabled', 'yes');
 
 	\WC_Install::install();
@@ -259,6 +273,55 @@ tests_add_filter('setup_theme', static function () {
 	// Capabilities are registered during install; WP caches roles before that.
 	$GLOBALS['wp_roles'] = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	wp_roles();
+
+	// Reset WooCommerce's mutable tables.
+	//
+	// WP_UnitTestCase wraps each test in a transaction and rolls it back, but
+	// this plugin's own lock helper issues START TRANSACTION mid-test
+	// (Locker.php:25 and :87, CancellationHandler.php:101). MySQL has no nested
+	// transactions, so that implicitly COMMITs the framework's transaction and
+	// everything written before the lock becomes permanent. The teardown then
+	// deletes inside a NEW transaction, which does get rolled back -- so the
+	// inserts survive and the cleanup does not.
+	//
+	// Core tables hide this because the WP installer recreates them each run.
+	// WooCommerce's do not, and they accumulated: measured 18 orders, 34 order
+	// items and 7 tax rates before this reset existed, while wptests_posts sat
+	// at 0. Recycled post ids then met surviving rows -- a fresh order id 12
+	// inherited a previous run's line items, and RemainingPaymentTaxTest read a
+	// subtotal that grew every run (7953.75 expected; 15907.5, then 16707.5,
+	// then 24661.25 observed).
+	$mutable = array(
+		'wc_orders',
+		'wc_orders_meta',
+		'wc_order_addresses',
+		'wc_order_operational_data',
+		'wc_order_stats',
+		'wc_order_product_lookup',
+		'wc_order_tax_lookup',
+		'wc_order_coupon_lookup',
+		'wc_product_meta_lookup',
+		'wc_reserved_stock',
+		'woocommerce_order_items',
+		'woocommerce_order_itemmeta',
+		'woocommerce_tax_rates',
+		'woocommerce_tax_rate_locations',
+		'woocommerce_sessions',
+	);
+
+	global $wpdb;
+
+	foreach ($mutable as $suffix) {
+		$table = $wpdb->prefix . $suffix;
+
+		// Only truncate what this install actually created; the set differs
+		// between WooCommerce versions and a missing table is not an error here.
+		$exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+
+		if ($exists === $table) {
+			$wpdb->query("TRUNCATE TABLE `{$table}`"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		}
+	}
 });
 
 /**

@@ -80,21 +80,93 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         // 2026-08-18, once WooCommerce entered the test environment). Asserting
         // its absence from `apply_filters('query_vars', [])` measured
         // WooCommerce and called it a regression in us.
+        //
+        // Where this measurement starts, and why it starts there: walking the
+        // live `query_vars` hook finds only what THIS process registered, and
+        // BookingColumns and VehicleColumns register from an admin context the
+        // test process never enters -- a hook walk sees five of seven and says
+        // so truthfully. So the classes are named explicitly, the anonymous
+        // closure in Plugin.php (which no name can reach) comes from the hook,
+        // and the count below locks the inventory: add an eighth registration
+        // anywhere in src/ and this fails until it is accounted for.
         $ours = array();
+
         foreach (
             array(
                 SearchResults::class,
                 \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
                 \MHMRentiva\Admin\Frontend\Account\AccountController::class,
                 \MHMRentiva\Admin\Utilities\ListTable\LogColumns::class,
+                \MHMRentiva\Admin\Booking\ListTable\BookingColumns::class,
+                \MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::class,
             ) as $contributor
         ) {
             $ours = $contributor::register_query_vars($ours);
         }
 
+        $ours = $this->add_anonymous_contributions($ours);
+
+        $this->assertSame(
+            7,
+            $this->count_query_var_registrations_in_source(),
+            'src/ registers a number of query_vars callbacks this test does not account for.'
+        );
+
         $this->assertNotContains('min_price', $ours);
         $this->assertNotContains('fuel_type', $ours);
         $this->assertNotContains('pickup_location', $ours);
+    }
+
+    /**
+     * Contributions from callbacks that have no class name to call.
+     */
+    private function add_anonymous_contributions(array $vars): array
+    {
+        global $wp_filter;
+
+        foreach ($wp_filter['query_vars'] as $callbacks) {
+            foreach ($callbacks as $callback) {
+                if (! $callback['function'] instanceof \Closure) {
+                    continue;
+                }
+
+                $file = (string) (new \ReflectionFunction($callback['function']))->getFileName();
+
+                if (str_contains(str_replace(chr(92), chr(47), $file), '/mhm-rentiva/src/')) {
+                    $vars = (array) call_user_func($callback['function'], $vars);
+                }
+            }
+        }
+
+        return $vars;
+    }
+
+    /**
+     * How many `query_vars` registrations src/ actually contains.
+     *
+     * Read from the source rather than from the hook, because the hook only
+     * carries what this process registered.
+     */
+    private function count_query_var_registrations_in_source(): int
+    {
+        $count = 0;
+
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(dirname(__DIR__, 3) . '/src')
+        );
+
+        foreach ($files as $file) {
+            if (! $file->isFile() || 'php' !== $file->getExtension()) {
+                continue;
+            }
+
+            $count += preg_match_all(
+                '/add_filter\(\s*[\x27"]query_vars[\x27"]/',
+                (string) file_get_contents($file->getPathname())
+            );
+        }
+
+        return $count;
     }
 
     /**

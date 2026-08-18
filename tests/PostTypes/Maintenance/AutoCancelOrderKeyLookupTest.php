@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\PostTypes\Maintenance;
 
 use MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
 /**
@@ -18,12 +19,12 @@ use WP_UnitTestCase;
  */
 final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
 {
+    use WooCommerceFixtures;
+
     public function setUp(): void
     {
         parent::setUp();
-        if (! class_exists('WooCommerce')) {
-            $this->markTestSkipped('WooCommerce not loaded.');
-        }
+        $this->require_woocommerce();
     }
 
     /**

@@ -124,9 +124,11 @@ final class OrderIdMetaKeyResolutionTest extends WP_UnitTestCase
 	 * What it still cannot see:
 	 *  - The Pro tree (measured 2026-08-18 and again by the audit: no mentions).
 	 *  - A key assembled at runtime from a variable or concatenation.
-	 *  - Behaviour. WooCommerce is not loaded in this suite, so the refund path
-	 *    cannot be exercised end to end; the behavioural half of the contract is
-	 *    the resolver's own tests above.
+	 *  - Behaviour. The behavioural half of the contract is the resolver's own
+	 *    tests above. WooCommerce entered the test environment on 2026-08-18, so
+	 *    an end-to-end refund assertion is now POSSIBLE and simply is not written
+	 *    yet -- it belongs to the 6.1.0 finance round, not to this source-level
+	 *    inventory.
 	 */
 	public function test_nothing_outside_the_resolver_names_these_keys(): void
 	{
@@ -195,9 +197,11 @@ final class OrderIdMetaKeyResolutionTest extends WP_UnitTestCase
 	 * on IS NOT NULL, so a legacy-linked booking with an outstanding balance
 	 * never appeared in the widget at all.
 	 *
-	 * This is a source-level assertion by necessity: the consumer loop is gated
-	 * on `function_exists('wc_get_order')`, and WooCommerce is not loaded in this
-	 * suite, so an end-to-end assertion would pass for the wrong reason.
+	 * This is a source-level assertion about the SHAPE of the query -- which keys
+	 * the JOIN names -- and stays one after WooCommerce joined the test
+	 * environment (2026-08-18). A behavioural assertion is now possible and would
+	 * be a useful ADDITION; it is not a replacement, because a passing end-to-end
+	 * query proves the keys it happened to hit, not the ones it must cover.
 	 */
 	public function test_the_pending_payments_query_joins_every_order_key(): void
 	{

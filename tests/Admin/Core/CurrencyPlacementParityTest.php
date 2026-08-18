@@ -41,9 +41,11 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         unset($this->savedSettings['mhmrentiva_currency_position']);
         update_option('mhmrentiva_settings', $this->savedSettings);
         update_option('woocommerce_currency', 'USD');
-        // WooCommerce is not loaded in the test process, so every test that means
-        // "WooCommerce is authoritative here" has to say so explicitly. The one
-        // test that means the opposite drops this filter itself.
+        // Pinned rather than inferred: WooCommerce IS loaded here now
+        // (2026-08-18), but these tests are about what the plugin does when it
+        // treats WooCommerce as authoritative, and that must not become a
+        // question of how the environment happens to be configured. The one test
+        // that means the opposite drops this filter itself.
         add_filter('mhmrentiva_woocommerce_is_active', '__return_true');
     }
 
