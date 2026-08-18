@@ -90,25 +90,36 @@ final class AddonStats {
 			)
 		);
 
+		// LEFT JOIN with COALESCE, for the same reason active_addons above uses
+		// one: both cards are labelled "All services", and an INNER JOIN on the
+		// price meta silently redefined that to "services that happen to carry
+		// a price row". A catalogue of four averaged over three, and the figure
+		// moved when somebody merely opened and saved a service. A price that
+		// was never entered is zero (owner's decision, 2026-08-18), so it is
+		// counted rather than dropped.
 		$avg_price = (float) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT AVG(CAST(pm.meta_value AS DECIMAL(10,2)))
+				"SELECT AVG(COALESCE(CAST(pm.meta_value AS DECIMAL(10,2)), 0))
 				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_price'",
+				 LEFT JOIN {$wpdb->postmeta} pm
+				   ON p.ID = pm.post_id AND pm.meta_key = 'mhmrentiva_addon_price'
+				 WHERE p.post_type = %s AND p.post_status = %s",
 				AddonPostType::POST_TYPE,
 				'publish'
 			)
 		);
 
+		// Same join as the average above. The sum does not change by adding
+		// zeroes, so this is about the two cards standing on the same set: two
+		// figures labelled "All services" that quietly disagree about which
+		// services they mean is how one of them drifts later.
 		$total_value = (float) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
+				"SELECT SUM(COALESCE(CAST(pm.meta_value AS DECIMAL(10,2)), 0))
 				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_price'",
+				 LEFT JOIN {$wpdb->postmeta} pm
+				   ON p.ID = pm.post_id AND pm.meta_key = 'mhmrentiva_addon_price'
+				 WHERE p.post_type = %s AND p.post_status = %s",
 				AddonPostType::POST_TYPE,
 				'publish'
 			)

@@ -116,8 +116,15 @@ final class AddonStatsTest extends WP_UnitTestCase {
 	/**
 	 * An add-on with no price meta at all must not break the arithmetic -- the
 	 * dev database has add-ons in exactly that state.
+	 *
+	 * It counts as zero rather than being excluded (owner's decision,
+	 * 2026-08-18). The two price cards are labelled "All services", and an
+	 * INNER JOIN on the price meta quietly made that label false: a catalogue
+	 * of four averaged over three. The average is the figure that moves --
+	 * 180/3 = 60 becomes 180/4 = 45 -- while the total stays 180, because
+	 * adding zero to a sum is what "counts as zero" means.
 	 */
-	public function test_a_priceless_add_on_does_not_break_the_figures(): void {
+	public function test_a_priceless_add_on_counts_as_zero(): void {
 		self::factory()->post->create(
 			array(
 				'post_type'   => 'mhmrentiva_addon',
@@ -128,7 +135,12 @@ final class AddonStatsTest extends WP_UnitTestCase {
 		$stats = AddonStats::get();
 
 		$this->assertSame( 4, $stats['total_addons'] );
-		$this->assertStringContainsString( '180', $stats['total_value'] );
+		$this->assertStringContainsString( '180', $stats['total_value'], 'Adding a zero does not change a sum.' );
+		$this->assertStringContainsString(
+			'45',
+			$stats['avg_price'],
+			'Averaged over all four services, not over the three that happen to carry a price.'
+		);
 	}
 
 	/**
