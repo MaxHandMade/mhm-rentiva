@@ -82,19 +82,31 @@ final class RefundOperationMultiOrderTest extends WP_UnitTestCase
         $first  = wc_get_order($orders[0]);
         $second = wc_get_order($orders[1]);
 
-        $this->assertSame('30', wc_format_decimal($first->get_total_refunded(), 0));
-        $this->assertSame('20', wc_format_decimal($second->get_total_refunded(), 0));
+        // Money::toMinor() on both sides, not wc_format_decimal(..., 0): the
+        // dev store runs 3 decimals, and a zero-decimal comparison would
+        // accept 29.6 as '30'. This is the store's real precision, not the
+        // 2-decimal assumption a fixed 0 quietly bakes in.
+        $this->assertSame(Money::toMinor('30'), Money::toMinor($first->get_total_refunded()));
+        $this->assertSame(Money::toMinor('20'), Money::toMinor($second->get_total_refunded()));
     }
 
     public function test_a_partial_refund_smaller_than_the_first_order_does_not_touch_the_second(): void
     {
         $this->seed_deposit_and_remaining('30', '70');
 
-        Service::process($this->booking_id, Money::toMinor('10'), 'small partial');
+        $result = Service::process($this->booking_id, Money::toMinor('10'), 'small partial');
+
+        $this->assertSame('1', $result['mhmrentiva_refund'], (string) $result['mhmrentiva_refund_msg']);
 
         $orders = PaymentState::forBooking($this->booking_id)->orders();
+        $first  = wc_get_order($orders[0]);
         $second = wc_get_order($orders[1]);
 
-        $this->assertSame(0.0, (float) $second->get_total_refunded());
+        // The second order being untouched only proves something once the
+        // refund actually succeeded and the first order absorbed it -- a
+        // total failure (validator rejection, wc_create_refund error) also
+        // leaves the second order at 0 and would pass a one-sided assertion.
+        $this->assertSame(Money::toMinor('10'), Money::toMinor($first->get_total_refunded()));
+        $this->assertSame(0, Money::toMinor($second->get_total_refunded()));
     }
 }

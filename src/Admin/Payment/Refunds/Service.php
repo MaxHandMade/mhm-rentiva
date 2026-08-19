@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
@@ -181,9 +182,29 @@ final class Service {
 		);
 
 		if ( ! $operation['ok'] ) {
+			$message = $operation['message'];
+
+			if ( $operation['refunded'] > 0 ) {
+				// A retry cannot over-refund -- the validator recomputes a
+				// shrunken refundable() against what already moved -- so this
+				// is not a money defect. But "refund failed" alone, after a
+				// real leg already succeeded, hides that money already left
+				// the account; the operator needs both facts in one place.
+				$message = sprintf(
+					/* translators: 1: the amount already refunded before the failure, 2: the underlying error that stopped the rest */
+					__( '%1$s was already refunded before this failed: %2$s', 'mhm-rentiva' ),
+					CurrencyHelper::format_price(
+						(float) Money::toMajor( $operation['refunded'] ),
+						Money::decimals(),
+						PaymentState::forBooking( $bookingId )->currency()
+					),
+					$operation['message']
+				);
+			}
+
 			return array(
 				'mhmrentiva_refund'     => '0',
-				'mhmrentiva_refund_msg' => $operation['message'],
+				'mhmrentiva_refund_msg' => $message,
 			);
 		}
 
