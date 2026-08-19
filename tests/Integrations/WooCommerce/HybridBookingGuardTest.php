@@ -20,7 +20,7 @@ use WP_UnitTestCase;
  * offline refund record being ignored).
  *
  * The guard fires only when there is a proven offline payment to lose --
- * _mhmrentiva_payment_status already in one of PaymentState::resolveOfflinePaid()'s
+ * _mhmrentiva_payment_status already in one of PaymentState::resolveOfflineChannel()'s
  * three statuses. A deposit booking with no WooCommerce order and no proven
  * payment yet has nothing to lose: that is the ordinary "manual booking, send
  * the customer a payment link" flow, and it must keep working.

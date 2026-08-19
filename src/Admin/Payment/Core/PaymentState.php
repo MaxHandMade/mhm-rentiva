@@ -36,9 +36,11 @@ if (! defined('ABSPATH')) {
  *    SQL; no query anywhere filters on an amount.
  * 3. The offline channel's base IS derived -- from booking meta, total minus
  *    remaining -- but only once payment_status proves the money actually
- *    arrived. It is live only when the booking has no paid WooCommerce order
- *    (see resolveOfflinePaid()), and refundableManual() is refunded by hand:
- *    there is no gateway behind it to send the refund through.
+ *    arrived. It is live only when the booking has no paid WooCommerce order,
+ *    and both directions, paid and refunded, are resolved behind the same
+ *    gate (see resolveOfflineChannel()) so one cannot report money the other
+ *    denies ever existed. refundableManual() is refunded by hand: there is no
+ *    gateway behind it to send the refund through.
  *
  * @since 6.1.0
  */
@@ -95,10 +97,7 @@ final class PaymentState {
 			$currency = function_exists('get_woocommerce_currency') ? (string) get_woocommerce_currency() : '';
 		}
 
-		$offline_paid     = self::resolveOfflinePaid($booking_id, $order_ids);
-		$offline_refunded = empty($order_ids)
-			? (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true)
-			: 0;
+		list( $offline_paid, $offline_refunded ) = self::resolveOfflineChannel($booking_id, $order_ids);
 
 		return new self(
 			$order_ids,
@@ -113,7 +112,7 @@ final class PaymentState {
 
 	// The booking id is deliberately NOT kept as a property. PHPStan level 5
 	// catches write-only state, and nothing in this slice ever reads it back --
-	// resolveOfflinePaid() in Task 5 takes it as a parameter from this scope.
+	// resolveOfflineChannel() takes it as a parameter from this scope instead.
 	// When a later slice needs the object to carry its own identity, it gets
 	// added together with the caller that needs it.
 
@@ -158,36 +157,41 @@ final class PaymentState {
 	}
 
 	/**
-	 * Money taken outside WooCommerce.
+	 * Money taken outside WooCommerce, both directions, behind one gate.
 	 *
-	 * Only meaningful when the booking has no paid WC order at all: with an
-	 * order present WooCommerce is the authority and a hybrid booking cannot
-	 * form (RemainingPaymentHandler refuses to build one).
+	 * Both legs share a single predicate on purpose. They used to differ:
+	 * offline_paid demanded a payment_status that proves money arrived, while
+	 * offline_refunded only demanded the absence of a WooCommerce order. A
+	 * booking cancelled by AutoCancel while carrying a refund record therefore
+	 * reported refunded() > paid() -- money returned that was never received.
 	 *
-	 * The payment-status gate is the point. _mhmrentiva_remaining_amount is
-	 * written for deposit bookings only, so "total - remaining" on a
-	 * full-payment offline booking would read the entire price as paid before
-	 * anyone had paid a lira. 'cancelled' -- what AutoCancel writes -- is not
-	 * proof of payment either.
+	 * The gate itself: _mhmrentiva_remaining_amount is written for deposit
+	 * bookings only, so "total - remaining" on a full-payment offline booking
+	 * would read the entire price as paid before anyone had paid a lira.
+	 * 'cancelled' is not proof of payment, and it is not proof of a refund.
 	 *
 	 * @param int[] $order_ids
+	 * @return array{0: int, 1: int} paid, refunded -- both in minor units.
 	 */
-	private static function resolveOfflinePaid(int $booking_id, array $order_ids): int
+	private static function resolveOfflineChannel(int $booking_id, array $order_ids): array
 	{
+		// With a paid WooCommerce order present, WooCommerce is the authority
+		// and the offline channel is not live at all.
 		if (! empty($order_ids)) {
-			return 0;
+			return array( 0, 0 );
 		}
 
 		$status = (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true);
 
 		if (! in_array($status, array( 'paid', 'partially_refunded', 'refunded' ), true)) {
-			return 0;
+			return array( 0, 0 );
 		}
 
 		$total     = Money::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true));
 		$remaining = Money::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+		$refunded  = max(0, (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true));
 
-		return max(0, $total - $remaining);
+		return array( max(0, $total - $remaining), $refunded );
 	}
 
 	/**

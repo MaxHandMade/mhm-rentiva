@@ -18,8 +18,8 @@ use WP_UnitTestCase;
  *
  * Scale: _mhmrentiva_total_price and _mhmrentiva_remaining_amount are MAJOR
  * units (BookingMeta writes $daily_price * $days raw) while
- * _mhmrentiva_refunded_amount is MINOR units (writers use (int) round($x *
- * 100)). Subtracting one from the other without conversion is a 100x error.
+ * _mhmrentiva_refunded_amount is MINOR units (writers use Money::toMinor()).
+ * Subtracting one from the other without conversion is a 100x error.
  */
 final class PaymentStateOfflineTest extends WP_UnitTestCase
 {
@@ -142,5 +142,44 @@ final class PaymentStateOfflineTest extends WP_UnitTestCase
             $state->refundableManual(),
             'The offline channel must stay inert while a paid WC order is present.'
         );
+    }
+
+    /**
+     * The two offline legs used different gates: paid demanded proof of
+     * payment, refunded only demanded the absence of a WooCommerce order. A
+     * cancelled booking carrying a refund record therefore reported money
+     * returned that it also reported never receiving.
+     */
+    public function test_a_cancelled_booking_cannot_report_a_refund_it_never_took(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'cancelled');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '300.00');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+        update_post_meta($this->booking_id, '_mhmrentiva_refunded_amount', 5000);
+
+        $state = PaymentState::forBooking($this->booking_id);
+
+        $this->assertSame(0, $state->paid(), 'cancelled is not proof of payment.');
+        $this->assertSame(0, $state->refunded(), 'and it is not proof of a refund either.');
+        $this->assertSame(0, $state->refundableManual());
+    }
+
+    /**
+     * The negative control for the test above: with the same refund record and
+     * a payment status that IS proof, both legs stay live. Without this, the
+     * fix could be "always return 0" and the suite would applaud.
+     */
+    public function test_a_proven_offline_payment_still_reports_its_refund(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'partially_refunded');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '300.00');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+        update_post_meta($this->booking_id, '_mhmrentiva_refunded_amount', 5000);
+
+        $state = PaymentState::forBooking($this->booking_id);
+
+        $this->assertSame(30000, $state->paid());
+        $this->assertSame(5000, $state->refunded());
+        $this->assertSame(25000, $state->refundableManual());
     }
 }
