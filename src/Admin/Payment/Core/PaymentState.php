@@ -81,10 +81,10 @@ final class PaymentState {
 				continue;
 			}
 
-			$paid     += self::toMinor($order->get_total());
-			$refunded += self::toMinor($order->get_total_refunded());
+			$paid     += Money::toMinor($order->get_total());
+			$refunded += Money::toMinor($order->get_total_refunded());
 			// get_remaining_refund_amount() returns a MAJOR-unit string.
-			$refundable += self::toMinor($order->get_remaining_refund_amount());
+			$refundable += Money::toMinor($order->get_remaining_refund_amount());
 
 			if ($currency === '') {
 				$currency = (string) $order->get_currency();
@@ -184,8 +184,8 @@ final class PaymentState {
 			return 0;
 		}
 
-		$total     = self::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true));
-		$remaining = self::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+		$total     = Money::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true));
+		$remaining = Money::toMinor( (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
 
 		return max(0, $total - $remaining);
 	}
@@ -246,42 +246,5 @@ final class PaymentState {
 	public function isFullyRefunded(): bool
 	{
 		return $this->paid() > 0 && $this->refunded() >= $this->paid();
-	}
-
-	/**
-	 * The store's decimal precision, or 2 when WooCommerce is absent.
-	 *
-	 * `wc_get_price_decimals()` does not exist without WooCommerce; calling
-	 * it unguarded is a fatal error, not a fallback.
-	 */
-	public static function decimals(): int
-	{
-		return function_exists('wc_get_price_decimals')
-			? (int) wc_get_price_decimals()
-			: 2;
-	}
-
-	/**
-	 * Major units (what WooCommerce and the booking meta store) -> minor units.
-	 *
-	 * `round()` is not optional: (int) ( 19.99 * 100 ) is 1998, because the
-	 * float is 1998.9999999999998.
-	 */
-	public static function toMinor(float|string $major): int
-	{
-		return (int) round( (float) $major * ( 10 ** self::decimals() ));
-	}
-
-	/**
-	 * Minor units -> a major-unit string WooCommerce accepts.
-	 */
-	public static function toMajor(int $minor): string
-	{
-		$decimals = self::decimals();
-		$major    = $minor / ( 10 ** $decimals );
-
-		return function_exists('wc_format_decimal')
-			? (string) wc_format_decimal($major, $decimals)
-			: number_format($major, $decimals, '.', '');
 	}
 }
