@@ -18,11 +18,19 @@ use WP_UnitTestCase;
  * with an alert() carrying a staff-oriented instruction the customer cannot
  * act on ("collect the remaining balance the same way").
  *
- * This test renders the actual template (via AccountRenderer::render_booking_detail(),
- * the same entry point WooCommerceIntegration's account tab uses) rather than
- * only pinning the predicate, so it also catches a future regression in the
- * template's own conditional -- which HybridBookingButtonTest, being scoped to
- * DepositManagementAjax, structurally cannot.
+ * This test renders the actual template rather than only pinning the predicate,
+ * so it also catches a future regression in the template's own conditional --
+ * which HybridBookingButtonTest, being scoped to DepositManagementAjax,
+ * structurally cannot. It drives AccountRenderer::render_booking_detail(), a
+ * string-returning sibling of output_booking_detail() -- the method
+ * WooCommerceIntegration's account tab (WooCommerceIntegration.php:227) actually
+ * calls in production. render_booking_detail() itself has no production caller;
+ * it exists here only because it returns markup a test can assert on, where
+ * output_booking_detail() echoes. Both feed the same get_booking_detail_data()
+ * into the same template file (templates/account/booking-detail.php), which is
+ * what makes this coverage real rather than a detour: a reader who greps for
+ * render_booking_detail() and finds only this test should not conclude the test
+ * is dead, only that its production twin is the one carrying callers.
  *
  * @covers \MHMRentiva\Admin\Frontend\Account\AccountRenderer::render_booking_detail
  */
