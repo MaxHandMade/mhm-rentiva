@@ -41,10 +41,38 @@ final class Money {
 	 *
 	 * `round()` is not optional: (int) ( 19.99 * 100 ) is 1998, because the
 	 * float is 1998.9999999999998.
+	 *
+	 * A string that PHP's own is_numeric() rejects is routed through
+	 * CurrencyHelper::to_amount() rather than a bare (float) cast. This
+	 * method's signature is float|string and public, so nothing stops a
+	 * future caller from handing it raw meta or a request value instead of
+	 * the machine-format values today's seven call sites use -- and a bare
+	 * cast reads a locale string such as "1.500,00" as 1.5, a silent 1000x
+	 * error (see to_amount()'s docblock). is_numeric("1.500,00") is false
+	 * (the comma is not valid in a PHP numeric literal), so that shape is
+	 * exactly what this guard catches.
+	 *
+	 * The guard is deliberately narrower than "every string goes through
+	 * to_amount()": to_amount()'s own docblock states its grouping heuristic
+	 * -- a lone separator followed by exactly three digits reads as
+	 * thousands, not a decimal fraction -- assumes money is stored with 0 or
+	 * 2 decimals. Money supports a 3-decimal store (KWD) via decimals(), and
+	 * routing every string through to_amount() misreads its own machine
+	 * format there: is_numeric("19.990") is true, and a 3-decimal store's
+	 * "19.990" (nineteen point nine nine zero) would be read as the grouped
+	 * integer 19990 -- the same class of silent error this fix exists to
+	 * remove, just pointed the other way. Every is_numeric() string,
+	 * including that one, is machine format already and is left on the
+	 * direct-cast path unchanged; see
+	 * MoneyScaleTest::test_to_minor_honours_a_three_decimal_store().
 	 */
 	public static function toMinor(float|string $major): int
 	{
-		return (int) round( (float) $major * ( 10 ** self::decimals() ) );
+		$value = ( is_string($major) && ! is_numeric($major) )
+			? CurrencyHelper::to_amount($major)
+			: (float) $major;
+
+		return (int) round( $value * ( 10 ** self::decimals() ) );
 	}
 
 	/**

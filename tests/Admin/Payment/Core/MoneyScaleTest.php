@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Payment\Core;
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Payment\Core\Money;
 use WP_UnitTestCase;
 
@@ -48,6 +49,34 @@ final class MoneyScaleTest extends WP_UnitTestCase
         update_option('woocommerce_price_num_decimals', '0');
 
         $this->assertSame(1999, Money::toMinor('1999'));
+    }
+
+    /**
+     * Phase-close review, item 2: toMinor()'s string branch used to be a bare
+     * (float) cast, which CurrencyHelper::to_amount()'s own docblock names as
+     * unsafe on money -- PHP reads a locale-formatted "1.500,00" as 1.5,
+     * silently. No production call site sends toMinor() a value shaped like
+     * this today (all seven feed machine format), but the signature is
+     * float|string and public, so nothing stops a future caller from doing
+     * so. This pins the actual fix: routing the string branch through
+     * to_amount() reads "1.500,00" as one thousand five hundred, not 1.5 --
+     * without it, this assertion would see 150 instead of 150000, a 1000x
+     * error the old cast produced with no warning of any kind.
+     */
+    public function test_to_minor_reads_a_locale_formatted_string_through_to_amount(): void
+    {
+        update_option('woocommerce_price_num_decimals', '2');
+
+        $this->assertSame(
+            150000,
+            Money::toMinor('1.500,00'),
+            'A bare (float) cast reads this as 1.5 and returns 150 -- a silent 1000x error.'
+        );
+
+        // The route this exercises is CurrencyHelper::to_amount() itself, not a
+        // second parser -- confirms the two agree rather than pinning a
+        // coincidence.
+        $this->assertSame(1500.0, CurrencyHelper::to_amount('1.500,00'));
     }
 
     public function test_to_major_round_trips_through_to_minor(): void
