@@ -17,6 +17,28 @@ use WP_UnitTestCase;
  */
 final class MoneySweepInventoryTest extends WP_UnitTestCase
 {
+    /** @var list<string> Temp dirs to clean up. */
+    private array $temp_dirs = array();
+
+    protected function tearDown(): void
+    {
+        foreach ($this->temp_dirs as $dir) {
+            if (! is_dir($dir)) {
+                continue;
+            }
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($files as $file) {
+                $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
+            }
+            rmdir($dir);
+        }
+        $this->temp_dirs = array();
+        parent::tearDown();
+    }
+
     private function runProbe(string $extra_arg = ''): array
     {
         $root = dirname(__DIR__, 4);
@@ -57,6 +79,53 @@ final class MoneySweepInventoryTest extends WP_UnitTestCase
             $result['findings'],
             'With --self-test the probe scans a fixture that DOES contain the shape. Empty here means the probe is broken, not the tree clean.'
         );
+
+        // assertNotEmpty alone would also pass if the probe found the RIGHT
+        // shape at the WRONG place, or the wrong shape entirely. Pin the
+        // finding to the fixture's actual planted line, not just its
+        // existence.
+        $this->assertCount(1, $result['findings'], 'The fixture plants exactly one real member; the other two lines are negative controls.');
+        $finding = $result['findings'][0];
+        $this->assertSame('bin/fixtures/fixed-minor-scale-fixture.txt', $finding['file']);
+        $this->assertSame(4, $finding['line']);
+        $this->assertSame('$refund_amount_kurus = (int) round( $refund_amount * 100 );', $finding['code']);
+    }
+
+    /**
+     * Container-side lock on the exact defect this probe once had: an empty
+     * starting set (here, a synthetic repo with no tracked *.php/*.js files)
+     * must exit 2 and say it could not measure, never print a clean bill.
+     * This runs entirely inside the container, where the Windows cmd.exe
+     * quoting bug that produced the empty set never showed -- it locks the
+     * CONTRACT ("empty set is never success"), not the platform-specific
+     * cause.
+     */
+    public function test_the_probe_refuses_success_over_an_empty_starting_set(): void
+    {
+        $tmp = sys_get_temp_dir() . '/afms_empty_probe_' . uniqid();
+        $this->temp_dirs[] = $tmp;
+
+        mkdir($tmp . '/bin', 0777, true);
+        copy(
+            dirname(__DIR__, 4) . '/bin/audit-fixed-minor-scale.php',
+            $tmp . '/bin/audit-fixed-minor-scale.php'
+        );
+        file_put_contents($tmp . '/README.txt', "no php or js tracked here\n");
+
+        $git = static function (string $args) use ($tmp): void {
+            shell_exec('git -C ' . escapeshellarg($tmp) . ' ' . $args . ' 2>&1');
+        };
+        $git('init -q');
+        $git('-c user.email=probe@example.com -c user.name=probe add README.txt');
+        $git('-c user.email=probe@example.com -c user.name=probe commit -q -m init');
+
+        $cmd = escapeshellcmd(PHP_BINARY) . ' ' . escapeshellarg($tmp . '/bin/audit-fixed-minor-scale.php') . ' 2>&1';
+        exec($cmd, $output, $exit_code);
+        $combined = implode("\n", $output);
+
+        $this->assertSame(2, $exit_code, "An empty starting set must exit 2 (CANNOT MEASURE), not 0. Output:\n" . $combined);
+        $this->assertStringContainsString('CANNOT MEASURE', $combined);
+        $this->assertStringNotContainsString('No fixed-100 money conversions found', $combined);
     }
 
     public function test_the_probe_ignores_percentage_arithmetic(): void
