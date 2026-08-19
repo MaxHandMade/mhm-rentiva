@@ -87,12 +87,7 @@ final class RemainingPaymentHandler {
 		// there is such a payment to lose: a booking with no proven payment yet is
 		// the ordinary "manual booking, send the customer a payment link" flow, and
 		// it stays supported.
-		$payment_status = (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true);
-
-		if (
-			\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id) <= 0
-			&& in_array($payment_status, array( 'paid', 'partially_refunded', 'refunded' ), true)
-		) {
+		if (self::is_hybrid_booking($booking_id)) {
 			return new \WP_Error(
 				'mhmrentiva_hybrid_booking_refused',
 				__('This booking was already paid outside WooCommerce; collect the remaining balance the same way.', 'mhm-rentiva')
@@ -115,6 +110,34 @@ final class RemainingPaymentHandler {
 		}
 
 		return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
+	}
+
+	/**
+	 * Whether a booking has money that arrived outside WooCommerce and no paid
+	 * WooCommerce order to represent it -- the shape a hybrid booking (deposit
+	 * taken offline, remainder through WooCommerce) would leave behind.
+	 *
+	 * This is deliberately PaymentState's question, not
+	 * BookingQueryHelper::resolve_wc_order_id()'s. resolve_wc_order_id() asks
+	 * whether an order ID is present on the booking, not whether money
+	 * arrived -- and checkout binds a `pending` order at creation time, before
+	 * any payment happens. A booking whose deposit was taken in cash still
+	 * carries that pending order's ID in meta, so this guard asked
+	 * resolve_wc_order_id() <= 0 until 6.1.0, found an ID, stayed silent, and
+	 * let the hybrid this method exists to catch get created anyway.
+	 * PaymentState::orders() only counts orders whose get_date_paid() is set,
+	 * so a pending order does not count as "there is a WooCommerce order"
+	 * here -- closing exactly that gap.
+	 *
+	 * The single authority for this question: callers (this class and
+	 * DepositManagementAjax) must call it rather than re-deriving the
+	 * predicate, or the two copies drift.
+	 */
+	public static function is_hybrid_booking(int $booking_id): bool
+	{
+		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+
+		return $state->orders() === array() && $state->paid() > 0;
 	}
 
 	/**

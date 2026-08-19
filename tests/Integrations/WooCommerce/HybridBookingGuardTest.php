@@ -102,4 +102,62 @@ final class HybridBookingGuardTest extends WP_UnitTestCase
             'A booking with no proven offline payment has nothing to lose from a WooCommerce order -- the manual-booking-plus-payment-link flow must stay supported.'
         );
     }
+
+    /**
+     * The guard asked "is there a WooCommerce order id", the facade asks "is
+     * there a PAID WooCommerce order". Checkout binds a pending order at
+     * creation time, so on a booking whose deposit was taken in cash the guard
+     * saw an id, stayed silent, and let the hybrid it exists to prevent form.
+     */
+    public function test_a_pending_order_does_not_disarm_the_guard(): void
+    {
+        $this->ensure_booking_product();
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '300.00');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '200.00');
+
+        // A checkout order that exists but was never paid.
+        $pending = wc_create_order();
+        $pending->set_status('pending');
+        $pending->save();
+        update_post_meta($this->booking_id, '_mhmrentiva_woocommerce_order_id', $pending->get_id());
+
+        $result = RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+
+        $this->assertInstanceOf(\WP_Error::class, $result);
+        $this->assertSame('mhmrentiva_hybrid_booking_refused', $result->get_error_code());
+    }
+
+    /**
+     * Negative control. A booking with a genuinely PAID deposit order is the
+     * ordinary deposit flow, and the guard must stay out of its way -- without
+     * this, "always refuse" would pass the test above.
+     */
+    public function test_a_paid_deposit_order_leaves_the_guard_silent(): void
+    {
+        $this->ensure_booking_product();
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '300.00');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '200.00');
+
+        $deposit = wc_create_order();
+        $deposit->set_total('100.00');
+        $deposit->set_date_paid(time());
+        $deposit->save();
+        update_post_meta($this->booking_id, '_mhmrentiva_woocommerce_order_id', $deposit->get_id());
+
+        $result = RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+
+        if ($result instanceof \WP_Error) {
+            $this->fail(sprintf(
+                'This is the ordinary deposit flow, not a hybrid -- expected a WC_Order but got WP_Error %s: %s',
+                $result->get_error_code(),
+                $result->get_error_message()
+            ));
+        }
+
+        $this->assertInstanceOf(\WC_Order::class, $result);
+    }
 }
