@@ -184,6 +184,7 @@ final class BookingMeta extends AbstractMetaBox {
 					'emailNonce'           => wp_create_nonce( 'mhmrentiva_send_email' ),
 					'confirmCreateAccount' => __( 'Create a WordPress account for this customer?', 'mhm-rentiva' ),
 					'confirmRefund'        => __( 'Proceed with refund?', 'mhm-rentiva' ),
+					'priceDecimals'        => \MHMRentiva\Admin\Payment\Core\Money::decimals(),
 					'strings'              => array(
 						'sending'         => __( 'Sending...', 'mhm-rentiva' ),
 						'success'         => __( 'Email sent successfully!', 'mhm-rentiva' ),

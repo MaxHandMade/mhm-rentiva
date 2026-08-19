@@ -242,14 +242,22 @@
 		);
 	} );
 
-	// Refund Meta Box — Convert visible amount (lira) to kuruş hidden field
+	// Refund Meta Box — convert the visible amount to the store's minor unit.
+	// Not a fixed *100: PHP scales this meta by 10^woocommerce_price_num_decimals
+	// on both sides, and a 0-decimal (JPY) or 3-decimal (KWD) store would submit
+	// an amount off by a factor of ten.
 	$( document ).on( 'input', 'input[name="amount_visible"]', function () {
-		var raw   = parseFloat( $( this ).val() || '0' );
-		var kurus = Math.round( raw * 100 );
-		if ( ! isFinite( kurus ) || kurus < 0 ) {
-			kurus = 0;
+		var settings = window.mhmBookingEmail || {};
+		var decimals = parseInt( settings.priceDecimals, 10 );
+		if ( isNaN( decimals ) || decimals < 0 ) {
+			decimals = 2;
 		}
-		$( '#mhmrentiva_amount_kurus' ).val( String( kurus ) );
+		var raw   = parseFloat( $( this ).val() || '0' );
+		var minor = Math.round( raw * Math.pow( 10, decimals ) );
+		if ( ! isFinite( minor ) || minor < 0 ) {
+			minor = 0;
+		}
+		$( '#mhmrentiva_amount_kurus' ).val( String( minor ) );
 	} );
 
 } )( jQuery );
