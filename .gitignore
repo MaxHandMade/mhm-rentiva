@@ -505,6 +505,15 @@ bin/*
 # while PHPUnit, PHPCS, PHPStan and Plugin Check were all green over it. Must
 # be tracked or the gate that catches that class ships in nobody's clone.
 !bin/check-admin-only-functions.php
+# Task 5 of the 2026-08-19 refund/deposit slice 2 round: the M-02 sweep's own
+# inventory probe. Reports fixed-100 minor-unit conversions the sweep (Tasks
+# 2-4) did not reach; declares its starting set and blind spots rather than
+# gating. Tracked so the next round can re-run it. `bin/*` above ignores this
+# directory itself, so the fixture directory needs its own negation before its
+# file's negation -- a parent-directory exclusion cannot be undone from below.
+!bin/audit-fixed-minor-scale.php
+!bin/fixtures/
+!bin/fixtures/fixed-minor-scale-fixture.txt
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

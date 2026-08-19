@@ -1,0 +1,10 @@
+<?php
+// Fixture for bin/audit-fixed-minor-scale.php --self-test. NOT executed.
+// A real member of the class -- the probe must find this line:
+$refund_amount_kurus = (int) round( $refund_amount * 100 );
+// A ratio, sharing the literal and none of the defect -- must NOT be reported:
+$active_percentage = round( ( $active_addons / $total_addons ) * 100 );
+// Negative control for the comment-skip rule -- must NOT be reported: this
+// comment line itself contains a fixed-100 money shape, the way Tasks 2-4's
+// own explanatory comments do at the sites they fixed.
+// $amount_kurus = $amount * 100; -- negative control, comment only
