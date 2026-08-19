@@ -190,20 +190,29 @@ if ($is_integrated) {
 					</div>
 
 					<?php if ( (float) $remaining_amount > 0 && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
-					<div class="rv-detail-row rv-pay-remaining-row">
-						<div class="rv-detail-label"></div>
-						<div class="rv-detail-value">
-							<button
-								type="button"
-								class="rv-btn rv-btn-primary rv-pay-remaining-btn"
-								data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
-								data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_pay_remaining_' . $booking_id ) ); ?>"
-							>
-								<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
-							</button>
-							<span class="rv-pay-remaining-spinner" style="display:none;"></span>
+						<?php if ( \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::is_hybrid_booking( (int) $booking_id ) ) : ?>
+						<div class="rv-detail-row rv-pay-remaining-row">
+							<div class="rv-detail-label"></div>
+							<div class="rv-detail-value rv-pay-remaining-note">
+								<?php esc_html_e( 'Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance.', 'mhm-rentiva' ); ?>
+							</div>
 						</div>
-					</div>
+						<?php else : ?>
+						<div class="rv-detail-row rv-pay-remaining-row">
+							<div class="rv-detail-label"></div>
+							<div class="rv-detail-value">
+								<button
+									type="button"
+									class="rv-btn rv-btn-primary rv-pay-remaining-btn"
+									data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
+									data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_pay_remaining_' . $booking_id ) ); ?>"
+								>
+									<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
+								</button>
+								<span class="rv-pay-remaining-spinner" style="display:none;"></span>
+							</div>
+						</div>
+						<?php endif; ?>
 					<?php endif; ?>
 				<?php endif; ?>
 

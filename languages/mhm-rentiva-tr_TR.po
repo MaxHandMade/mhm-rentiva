@@ -772,7 +772,7 @@ msgstr "Fiyatı güncellerken hata oluştu."
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:418
 #: src/Admin/Utilities/Menu/Menu.php:94
 #: src/Admin/Utilities/Menu/Menu.php:95
-#: templates/account/booking-detail.php:213
+#: templates/account/booking-detail.php:222
 #: templates/shortcodes/booking-form.php:301
 #: src-react/admin/dashboard/components/QuickActions.jsx:11
 msgid "Additional Services"
@@ -1578,7 +1578,7 @@ msgstr "Rezervasyon ID"
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:500
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:197
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:459
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:513
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:927
@@ -2079,8 +2079,8 @@ msgstr "Ödeme Linki Gönder"
 #: src/Admin/Frontend/Account/AccountController.php:408
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
-#: templates/account/booking-detail.php:253
-#: templates/account/booking-detail.php:284
+#: templates/account/booking-detail.php:262
+#: templates/account/booking-detail.php:293
 msgid "Cancel Booking"
 msgstr "Rezervasyon İptal"
 
@@ -6105,7 +6105,7 @@ msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
 #: src/Admin/Frontend/Account/AccountController.php:324
-#: templates/account/booking-detail.php:202
+#: templates/account/booking-detail.php:210
 msgid "Pay Remaining Amount"
 msgstr "Kalan Tutarı Öde"
 
@@ -8825,20 +8825,20 @@ msgstr "Geçersiz rezervasyon."
 msgid "Access denied."
 msgstr "Erişim reddedildi."
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:169
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:179
 msgid "No remaining amount due for this booking."
 msgstr "Bu rezervasyon için kalan ödeme bulunmuyor."
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:184
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:194
 msgid "Booking product not found. Please contact support."
 msgstr "Rezervasyon ürünü bulunamadı. Lütfen destek ile iletişime geçin."
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:189
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:199
 msgid "Booking product could not be loaded."
 msgstr "Rezervasyon ürünü yüklenemedi."
 
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:112
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:211
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:221
 msgid "Failed to create payment order. Please try again."
 msgstr "Ödeme siparişi oluşturulamadı. Lütfen tekrar deneyin."
 
@@ -10152,7 +10152,7 @@ msgid "Back to Bookings Text"
 msgstr "Rezervasyonlara Geri Dön Metin"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:391
-#: templates/account/booking-detail.php:242
+#: templates/account/booking-detail.php:251
 msgid "Back to Bookings"
 msgstr "Rezervasyonlara geri dön"
 
@@ -12890,31 +12890,31 @@ msgstr "Toplam tutar"
 msgid "Deposit Paid"
 msgstr "Ödenecek Depozito"
 
-#: templates/account/booking-detail.php:235
+#: templates/account/booking-detail.php:244
 msgid "Next Steps"
 msgstr "Sonraki Adımlar"
 
-#: templates/account/booking-detail.php:236
+#: templates/account/booking-detail.php:245
 msgid "Please arrive at the pickup location 15 minutes prior to your scheduled pickup time. Remember to bring your driver's license and the credit card used for the reservation."
 msgstr "Lütfen planlanan teslim alma saatinden 15 dakika önce teslim alma noktasına geliniz. Ehliyetinizi ve rezervasyon için kullandığınız kredi kartınızı yanınızda getirmeyi unutmayınız."
 
-#: templates/account/booking-detail.php:289
+#: templates/account/booking-detail.php:298
 msgid "Are you sure you want to cancel this booking? This action cannot be undone."
 msgstr "Bu rezervasyonu iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
 
-#: templates/account/booking-detail.php:294
+#: templates/account/booking-detail.php:303
 msgid "Reason for cancellation (optional):"
 msgstr "İptal nedeni (isteğe bağlı):"
 
-#: templates/account/booking-detail.php:296
+#: templates/account/booking-detail.php:305
 msgid "Please tell us why you're cancelling..."
 msgstr "Lütfen iptal nedeninizi belirtiniz..."
 
-#: templates/account/booking-detail.php:302
+#: templates/account/booking-detail.php:311
 msgid "Keep Booking"
 msgstr "Rezervasyonu Sürdür"
 
-#: templates/account/booking-detail.php:303
+#: templates/account/booking-detail.php:312
 msgid "Yes, Cancel Booking"
 msgstr "Evet, Rezervasyonu İptal Et"
 
@@ -15323,7 +15323,7 @@ msgid "Receipt not found."
 msgstr "Dekont bulunamadı."
 
 #. translators: 1: vehicle name, 2: booking ID
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:217
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:227
 #, php-format
 msgid "Remaining Payment - %1$s #%2$d"
 msgstr "Kalan Ödeme - %1$s #%2$d"
@@ -15353,3 +15353,7 @@ msgstr "Depozito WooCommerce dışında ödendiği için kalan bakiye için öde
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:93
 msgid "This booking was already paid outside WooCommerce; collect the remaining balance the same way."
 msgstr "Bu rezervasyonun ödemesi zaten WooCommerce dışında alınmış; kalan bakiyeyi de aynı şekilde tahsil edin."
+
+#: templates/account/booking-detail.php:197
+msgid "Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance."
+msgstr "Depozitonuz web sitemiz dışında ödendiği için, kalan bakiyeyi tahsil etmek üzere sizinle doğrudan iletişime geçeceğiz."

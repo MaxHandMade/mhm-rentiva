@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-19T11:46:47+00:00\n"
+"POT-Creation-Date: 2026-08-19T15:55:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -775,7 +775,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:418
 #: src/Admin/Utilities/Menu/Menu.php:94
 #: src/Admin/Utilities/Menu/Menu.php:95
-#: templates/account/booking-detail.php:213
+#: templates/account/booking-detail.php:222
 #: templates/shortcodes/booking-form.php:301
 #: src-react/admin/dashboard/components/QuickActions.jsx:11
 msgid "Additional Services"
@@ -1586,7 +1586,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:500
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:197
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:459
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:513
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:927
@@ -2091,8 +2091,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:408
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
-#: templates/account/booking-detail.php:253
-#: templates/account/booking-detail.php:284
+#: templates/account/booking-detail.php:262
+#: templates/account/booking-detail.php:293
 msgid "Cancel Booking"
 msgstr ""
 
@@ -6138,7 +6138,7 @@ msgid "An error occurred."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:324
-#: templates/account/booking-detail.php:202
+#: templates/account/booking-detail.php:210
 msgid "Pay Remaining Amount"
 msgstr ""
 
@@ -8871,24 +8871,24 @@ msgid "This booking was already paid outside WooCommerce; collect the remaining 
 msgstr ""
 
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:112
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:211
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:221
 msgid "Failed to create payment order. Please try again."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:169
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:179
 msgid "No remaining amount due for this booking."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:184
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:194
 msgid "Booking product not found. Please contact support."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:189
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:199
 msgid "Booking product could not be loaded."
 msgstr ""
 
 #. translators: 1: vehicle name, 2: booking ID
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:217
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:227
 #, php-format
 msgid "Remaining Payment - %1$s #%2$d"
 msgstr ""
@@ -10203,7 +10203,7 @@ msgid "Back to Bookings Text"
 msgstr ""
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:391
-#: templates/account/booking-detail.php:242
+#: templates/account/booking-detail.php:251
 msgid "Back to Bookings"
 msgstr ""
 
@@ -12936,31 +12936,35 @@ msgstr ""
 msgid "Deposit Paid"
 msgstr ""
 
-#: templates/account/booking-detail.php:235
+#: templates/account/booking-detail.php:197
+msgid "Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance."
+msgstr ""
+
+#: templates/account/booking-detail.php:244
 msgid "Next Steps"
 msgstr ""
 
-#: templates/account/booking-detail.php:236
+#: templates/account/booking-detail.php:245
 msgid "Please arrive at the pickup location 15 minutes prior to your scheduled pickup time. Remember to bring your driver's license and the credit card used for the reservation."
 msgstr ""
 
-#: templates/account/booking-detail.php:289
+#: templates/account/booking-detail.php:298
 msgid "Are you sure you want to cancel this booking? This action cannot be undone."
 msgstr ""
 
-#: templates/account/booking-detail.php:294
+#: templates/account/booking-detail.php:303
 msgid "Reason for cancellation (optional):"
 msgstr ""
 
-#: templates/account/booking-detail.php:296
+#: templates/account/booking-detail.php:305
 msgid "Please tell us why you're cancelling..."
 msgstr ""
 
-#: templates/account/booking-detail.php:302
+#: templates/account/booking-detail.php:311
 msgid "Keep Booking"
 msgstr ""
 
-#: templates/account/booking-detail.php:303
+#: templates/account/booking-detail.php:312
 msgid "Yes, Cancel Booking"
 msgstr ""
 
