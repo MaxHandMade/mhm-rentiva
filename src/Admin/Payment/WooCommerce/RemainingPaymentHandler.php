@@ -132,6 +132,16 @@ final class RemainingPaymentHandler {
 	 * The single authority for this question: callers (this class and
 	 * DepositManagementAjax) must call it rather than re-deriving the
 	 * predicate, or the two copies drift.
+	 *
+	 * The move to `orders() === [] && paid() > 0` also narrows the guard,
+	 * not only widens it: paid()'s offline leg is max(0, total - remaining),
+	 * so a deposit booking where the vehicle carries no deposit value
+	 * (DepositCalculator::calculate_deposit() then sets remaining === total)
+	 * now leaves the guard silent where the old status-only check would have
+	 * refused it. That is chosen, not overlooked -- there is no offline
+	 * money for such a booking to lose, so building the order for the whole
+	 * balance is honest. See HybridBookingGuardTest::
+	 * test_a_no_deposit_booking_with_total_equal_to_remaining_leaves_the_guard_silent().
 	 */
 	public static function is_hybrid_booking(int $booking_id): bool
 	{

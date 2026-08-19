@@ -130,6 +130,38 @@ final class HybridBookingGuardTest extends WP_UnitTestCase
     }
 
     /**
+     * The guard's amount-based rewrite (orders() === [] && paid() > 0)
+     * narrows it as well as widens it. paid()'s offline leg is
+     * max(0, total - remaining); when the vehicle carries no deposit value,
+     * DepositCalculator::calculate_deposit() sets remaining_amount ===
+     * total_amount (ManualBookingMetaBox writes both from that result), so
+     * the offline leg is 0 even with a proof payment_status on record. The
+     * old status-based guard (resolve_wc_order_id() <= 0 && payment_status
+     * proven) would have refused this booking anyway, with no offline money
+     * at stake. The new guard stays silent -- a deliberate change, pinned
+     * here rather than left to be rediscovered as a regression. See the note
+     * on this direction in RemainingPaymentHandler::is_hybrid_booking()'s
+     * docblock.
+     */
+    public function test_a_no_deposit_booking_with_total_equal_to_remaining_leaves_the_guard_silent(): void
+    {
+        $this->ensure_booking_product();
+
+        // setUp() already marks the booking 'paid' (a proof status); only
+        // total/remaining need to collapse to the no-deposit shape.
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', 100.0);
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', 100.0);
+
+        $result = RemainingPaymentHandler::get_or_create_remaining_order($this->booking_id);
+
+        $this->assertInstanceOf(
+            \WC_Order::class,
+            $result,
+            'total === remaining means there is no offline deposit for a WC order to make disappear -- the guard must stay silent and let the remaining order build.'
+        );
+    }
+
+    /**
      * Negative control. A booking with a genuinely PAID deposit order is the
      * ordinary deposit flow, and the guard must stay out of its way -- without
      * this, "always refuse" would pass the test above.
