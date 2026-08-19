@@ -109,7 +109,7 @@ final class LogColumns {
 				if ( $ak > 0 ) {
 					// The row's own currency, but the house placement — this used to
 					// pin the symbol to the right regardless of the WC setting.
-					echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $ak / 100, 2, $cur ?: null ) );
+					echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $ak ), \MHMRentiva\Admin\Payment\Core\Money::decimals(), $cur ?: null ) );
 				} else {
 					echo '—';
 				}

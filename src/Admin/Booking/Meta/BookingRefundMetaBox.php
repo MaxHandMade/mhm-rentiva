@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MHMRentiva\Admin\Payment\Core\Money;
+
 final class BookingRefundMetaBox {
 
 
@@ -51,9 +53,9 @@ final class BookingRefundMetaBox {
 		$nonce  = wp_create_nonce( 'mhmrentiva_refund_booking' );
 		$defAmt = $remaining > 0 ? $remaining : 0;
 		echo '<p><strong>' . esc_html__( 'Gateway', 'mhm-rentiva' ) . ':</strong> ' . esc_html( strtoupper( $gateway ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $paidKurus / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $refunded / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $remaining / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( (int) $paidKurus ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( (int) $refunded ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( (int) $remaining ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
 		if ( $remaining <= 0 ) {
 			echo '<p class="description">' . esc_html__( 'Nothing left to refund.', 'mhm-rentiva' ) . '</p>';
 			return;
@@ -63,8 +65,10 @@ final class BookingRefundMetaBox {
 		echo '<input type="hidden" name="booking_id" value="' . (int) $bid . '" />';
 		echo '<input type="hidden" name="_wpnonce" value="' . esc_attr( $nonce ) . '" />';
 
+		$decimals = Money::decimals();
+		$step     = $decimals > 0 ? '0.' . str_repeat( '0', $decimals - 1 ) . '1' : '1';
 		echo '<p><label>' . esc_html__( 'Refund amount', 'mhm-rentiva' ) . '</label><br />';
-		echo '<input type="number" name="amount_visible" min="0" step="0.01" value="' . esc_attr( number_format( $defAmt / 100, 2, '.', '' ) ) . '" class="small-text" /> ' . esc_html( strtoupper( $currency ) ) . '</p>';
+		echo '<input type="number" name="amount_visible" min="0" step="' . esc_attr( $step ) . '" value="' . esc_attr( Money::toMajor( (int) $defAmt ) ) . '" class="small-text" /> ' . esc_html( strtoupper( $currency ) ) . '</p>';
 		echo '<input type="hidden" name="amount_kurus" id="mhmrentiva_amount_kurus" value="' . (int) $defAmt . '" />';
 		echo '<p><label>' . esc_html__( 'Reason (optional)', 'mhm-rentiva' ) . '</label><br />';
 		echo '<select name="reason">';

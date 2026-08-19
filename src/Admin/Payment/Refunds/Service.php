@@ -181,8 +181,8 @@ final class Service {
 				);
 			}
 
-			// Convert amount from kurus to order currency amount
-			$refund_amount = $amount / 100.0;
+			// Minor units -> the order's currency amount, at the store's precision
+			$refund_amount = (float) Money::toMajor( $amount );
 
 			// Check if refund amount is valid
 			$max_refund = $order->get_total() - $order->get_total_refunded();

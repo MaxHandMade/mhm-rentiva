@@ -16,6 +16,7 @@ use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
+use MHMRentiva\Admin\Payment\Core\Money;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -582,7 +583,7 @@ final class BookingColumns {
 				echo '<span class="badge payment-status-' . esc_attr( $status_slug ) . '">' . esc_html( $label ) . '</span>';
 
 				if ( $amount > 0 ) {
-					$val = number_format_i18n( $amount / 100, 2 );
+					$val = number_format_i18n( (float) Money::toMajor( (int) $amount ), Money::decimals() );
 					echo '<div class="amount">' . esc_html( $val . ' ' . strtoupper( $currency ) ) . '</div>';
 				}
 

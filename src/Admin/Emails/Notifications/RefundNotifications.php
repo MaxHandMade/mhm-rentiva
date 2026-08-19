@@ -32,7 +32,7 @@ final class RefundNotifications {
 		// live inside the `mhmrentiva_settings` array — so it always resolved to
 		// `right_space`.
 		$amountHuman = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
-			$amount_kurus / 100,
+			(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $amount_kurus ),
 			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
 			$currency ?: 'TRY'
 		);

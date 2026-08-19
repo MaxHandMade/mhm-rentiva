@@ -15,6 +15,7 @@ use MHMRentiva\Admin\Emails\Templates\EmailPreview;
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler;
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 
@@ -372,7 +373,7 @@ final class EmailTemplates {
 				// cast it to float read "1.500,00" as 1.5 — a silent 1000x error
 				// in a customer-facing figure — and the one consumer that guarded
 				// with `is_numeric()` printed the amount with no currency at all.
-				'total_price' => (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true) / 100,
+				'total_price' => (float) Money::toMajor( (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true) ),
 			);
 			$ctx['customer'] = array(
 				'email' => (string) get_post_meta($booking_id, '_mhmrentiva_contact_email', true),
@@ -394,7 +395,7 @@ final class EmailTemplates {
 			// symbol from it and the placement from the house rule. Hand-rolling
 			// "<number> <symbol>" here pinned every refund mail to a right
 			// placement, whatever WooCommerce said.
-			$ctx['amount'] = CurrencyHelper::format_price($amount_kurus / 100, 2, $cur !== '' ? $cur : null);
+			$ctx['amount'] = CurrencyHelper::format_price( (float) Money::toMajor($amount_kurus), Money::decimals(), $cur !== '' ? $cur : null);
 			$ctx['status'] = (string) ( $ctx['booking']['payment']['status'] ?? '' );
 			$ctx['reason'] = '';
 		}
