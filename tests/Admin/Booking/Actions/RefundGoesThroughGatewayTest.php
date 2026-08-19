@@ -26,9 +26,19 @@ use WP_Ajax_UnitTestCase;
  * The fix routes the AJAX handler through that service. These tests pin the part
  * that matters and that the suite can actually reach without WooCommerce: a
  * refund that does NOT succeed must not leave the booking looking refunded, and
- * must not answer success. The gateway failure is produced honestly -- the
- * booking carries no payment gateway, so RefundValidator refuses it, which is
- * exactly the "refund did not happen" branch.
+ * must not answer success. The refusal is produced honestly -- the fixture below
+ * carries no WooCommerce order and no recorded offline payment, so
+ * PaymentState::refundable() is genuinely 0 and RefundValidator refuses it,
+ * which is exactly the "refund did not happen" branch.
+ *
+ * (Slice 3 task 2 note: this is deliberately NOT "no payment gateway" any more.
+ * Before H-03/H-04 were fixed, and before Service derived its gateway from
+ * PaymentState::orders() instead of trusting a hard-coded 'woocommerce'
+ * placeholder, almost any fixture was refused, for the wrong reasons. A
+ * booking that carries a genuine offline-paid balance -- proof payment_status
+ * plus total/remaining meta implying money was actually collected, no WC order
+ * -- now correctly succeeds as a manual refund instead. That path is exercised
+ * separately in ServiceOfflineRoutingTest.)
  *
  * @covers \MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::process_refund
  */
@@ -51,9 +61,18 @@ final class RefundGoesThroughGatewayTest extends WP_Ajax_UnitTestCase
 		// A booking in the only state the handler accepts: paid and cancelled.
 		update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
 		update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+		// deposit_amount drives the cancellation-policy calculation inside
+		// process_refund() itself, so the handler still computes a nonzero
+		// amount to hand to the refund service.
 		update_post_meta($this->booking_id, '_mhmrentiva_deposit_amount', 500);
-		update_post_meta($this->booking_id, '_mhmrentiva_total_price', 1000);
-		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', 500);
+		// Deliberately NOT setting _mhmrentiva_total_price / _mhmrentiva_remaining_amount:
+		// PaymentState's offline channel derives offline_paid from total - remaining,
+		// and with neither set that is 0. This is what keeps the refund genuinely
+		// unfundable -- payment_status says 'paid' but no channel, WooCommerce or
+		// offline, has anything on record to give back. Setting them (as this
+		// fixture used to) describes a real offline-paid deposit instead, which
+		// Service now correctly routes to a manual refund and completes -- see the
+		// class docblock and ServiceOfflineRoutingTest.
 		// Inside the cancellation deadline, so policy grants a refund.
 		update_post_meta($this->booking_id, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('+2 days')));
 

@@ -114,10 +114,23 @@ final class RefundAmountSourceTest extends WP_UnitTestCase
         );
 
         $this->assertFalse($result['valid']);
-        $this->assertNotEmpty($result['message']);
+        $this->assertSame(
+            __('Refund amount exceeds remaining balance', 'mhm-rentiva'),
+            $result['message']
+        );
     }
 
-    public function test_a_fully_refunded_booking_is_refused_with_nothing_left(): void
+    /**
+     * Renamed from ...is_refused_with_nothing_left(): that name implied this
+     * measures the refundable() <= 0 branch. It does not. WooCommerceBridge::
+     * handle_order_refunded() (on woocommerce_refund_created, wired at plugin
+     * bootstrap) syncs _mhmrentiva_payment_status to 'refunded' the moment a
+     * WooCommerce refund covers the whole paid total -- fired here by
+     * wc_create_refund() below, before validateFullRefund() ever runs. decide()
+     * checks payment status before the balance by design, so this booking is
+     * refused there, not by the balance check.
+     */
+    public function test_a_fully_refunded_booking_is_refused_because_its_status_says_so(): void
     {
         $order = $this->create_paid_order_for_booking($this->booking_id, '120');
 
@@ -130,6 +143,7 @@ final class RefundAmountSourceTest extends WP_UnitTestCase
         $result = RefundValidator::validateFullRefund($this->booking_id);
 
         $this->assertFalse($result['valid']);
+        $this->assertSame(__('Already fully refunded', 'mhm-rentiva'), $result['message']);
     }
 
     public function test_the_validated_state_is_handed_to_the_caller(): void

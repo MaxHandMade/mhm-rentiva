@@ -30,10 +30,15 @@ final class Service {
 			);
 		}
 
-		// 'channel' is a Task 2 placeholder, always 'woocommerce' until Task 3
-		// makes it a real derived value -- read here only so this consumer does
-		// not crash on the key RefundValidator::decide() actually returns now.
-		$gateway = $validation['channel'];
+		// Derived, not trusted from 'channel' -- decide() hard-codes 'channel' to
+		// 'woocommerce' until Task 3, which would misroute an offline-only
+		// booking (payment_status proof plus total/remaining meta, no WC order
+		// at all) into the WooCommerce branch below. PaymentState::orders() is
+		// the same signal resolveOfflineChannel() itself uses to decide whether
+		// the offline channel is live, so this cannot disagree with the facade:
+		// WooCommerce owns the money when a paid order exists, otherwise the
+		// refund is a manual, offline one.
+		$gateway = empty( $validation['state']->orders() ) ? 'offline' : 'woocommerce';
 		$amount  = $validation['amount'];
 
 		// Process refund based on gateway
@@ -97,10 +102,15 @@ final class Service {
 			);
 		}
 
-		// 'channel' is a Task 2 placeholder, always 'woocommerce' until Task 3
-		// makes it a real derived value -- read here only so this consumer does
-		// not crash on the key RefundValidator::decide() actually returns now.
-		$gateway = $validation['channel'];
+		// Derived, not trusted from 'channel' -- decide() hard-codes 'channel' to
+		// 'woocommerce' until Task 3, which would misroute an offline-only
+		// booking (payment_status proof plus total/remaining meta, no WC order
+		// at all) into the WooCommerce branch below. PaymentState::orders() is
+		// the same signal resolveOfflineChannel() itself uses to decide whether
+		// the offline channel is live, so this cannot disagree with the facade:
+		// WooCommerce owns the money when a paid order exists, otherwise the
+		// refund is a manual, offline one.
+		$gateway = empty( $validation['state']->orders() ) ? 'offline' : 'woocommerce';
 		$amount  = $validation['amount'];
 
 		// Process full refund based on gateway
