@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Payment\Core;
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -20,15 +21,17 @@ use WP_UnitTestCase;
  */
 final class MoneyScaleTest extends WP_UnitTestCase
 {
+    use WooCommerceOptionSandbox;
+
     public function tearDown(): void
     {
-        delete_option('woocommerce_price_num_decimals');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 
     public function test_to_minor_rounds_instead_of_truncating(): void
     {
-        update_option('woocommerce_price_num_decimals', '2');
+        $this->sandbox_option('woocommerce_price_num_decimals', '2');
 
         $this->assertSame(
             1999,
@@ -39,14 +42,14 @@ final class MoneyScaleTest extends WP_UnitTestCase
 
     public function test_to_minor_honours_a_three_decimal_store(): void
     {
-        update_option('woocommerce_price_num_decimals', '3');
+        $this->sandbox_option('woocommerce_price_num_decimals', '3');
 
         $this->assertSame(19990, Money::toMinor('19.990'));
     }
 
     public function test_to_minor_honours_a_zero_decimal_store(): void
     {
-        update_option('woocommerce_price_num_decimals', '0');
+        $this->sandbox_option('woocommerce_price_num_decimals', '0');
 
         $this->assertSame(1999, Money::toMinor('1999'));
     }
@@ -65,7 +68,7 @@ final class MoneyScaleTest extends WP_UnitTestCase
      */
     public function test_to_minor_reads_a_locale_formatted_string_through_to_amount(): void
     {
-        update_option('woocommerce_price_num_decimals', '2');
+        $this->sandbox_option('woocommerce_price_num_decimals', '2');
 
         $this->assertSame(
             150000,
@@ -81,20 +84,24 @@ final class MoneyScaleTest extends WP_UnitTestCase
 
     public function test_to_major_round_trips_through_to_minor(): void
     {
-        update_option('woocommerce_price_num_decimals', '2');
+        $this->sandbox_option('woocommerce_price_num_decimals', '2');
 
         $this->assertSame('1999.99', Money::toMajor(Money::toMinor('1999.99')));
     }
 
     public function test_to_major_round_trips_in_a_three_decimal_store(): void
     {
-        update_option('woocommerce_price_num_decimals', '3');
+        $this->sandbox_option('woocommerce_price_num_decimals', '3');
 
         $this->assertSame('1999.990', Money::toMajor(Money::toMinor('1999.99')));
     }
 
     public function test_decimals_defaults_to_two(): void
     {
+        // Sandbox before forcing absence, not after: sandbox_option() must
+        // capture whatever the store really had BEFORE this test deletes the
+        // row, so tearDown() restores that instead of leaving it gone.
+        $this->sandbox_option('woocommerce_price_num_decimals', '2');
         delete_option('woocommerce_price_num_decimals');
 
         $this->assertSame(2, Money::decimals());
@@ -117,7 +124,7 @@ final class MoneyScaleTest extends WP_UnitTestCase
      */
     public function test_decimals_honours_the_house_rule_when_woocommerce_is_not_authoritative(): void
     {
-        update_option('woocommerce_price_num_decimals', '3');
+        $this->sandbox_option('woocommerce_price_num_decimals', '3');
         add_filter('mhmrentiva_woocommerce_is_active', '__return_false');
 
         try {

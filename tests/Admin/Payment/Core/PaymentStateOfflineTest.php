@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Payment\Core;
 
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -24,6 +25,7 @@ use WP_UnitTestCase;
 final class PaymentStateOfflineTest extends WP_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceOptionSandbox;
 
     /** @var int */
     private $booking_id;
@@ -32,12 +34,18 @@ final class PaymentStateOfflineTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        update_option('woocommerce_price_num_decimals', '2');
+        $this->sandbox_option('woocommerce_price_num_decimals', '2');
 
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
+    }
+
+    public function tearDown(): void
+    {
+        $this->restore_sandboxed_options();
+        parent::tearDown();
     }
 
     public function test_an_unpaid_offline_booking_has_no_refundable_money(): void

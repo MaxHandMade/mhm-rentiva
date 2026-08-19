@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Admin\Emails;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\Emails\Core\Templates;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -27,6 +28,8 @@ use WP_UnitTestCase;
  */
 final class EmailAmountIntegrityTest extends WP_UnitTestCase
 {
+    use WooCommerceOptionSandbox;
+
     private int $booking_id = 0;
 
     public function setUp(): void
@@ -49,7 +52,7 @@ final class EmailAmountIntegrityTest extends WP_UnitTestCase
 
     public function tearDown(): void
     {
-        delete_option('woocommerce_currency_pos');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 
@@ -136,7 +139,7 @@ final class EmailAmountIntegrityTest extends WP_UnitTestCase
      */
     public function test_the_compiled_total_price_always_carries_a_currency(): void
     {
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
 
         $ctx      = EmailTemplates::build_context('booking_created_customer', $this->booking_id);
         $expected = CurrencyHelper::format_price(1500.0, 2);
@@ -177,7 +180,7 @@ final class EmailAmountIntegrityTest extends WP_UnitTestCase
      */
     public function test_each_affected_template_renders_the_real_amount(string $template): void
     {
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
 
         $ctx                                = EmailTemplates::build_context('booking_created_customer', $this->booking_id);
         $ctx['booking']['payment_type']     = 'deposit';

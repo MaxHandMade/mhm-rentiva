@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Payment\Refunds;
 
 use MHMRentiva\Admin\Payment\Refunds\Service;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -23,13 +24,14 @@ use WP_UnitTestCase;
 final class RefundAmountReadScaleTest extends WP_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceOptionSandbox;
 
     private ?float $capturedAmount = null;
 
     public function tearDown(): void
     {
         remove_all_actions('woocommerce_create_refund');
-        delete_option('woocommerce_price_num_decimals');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 
@@ -37,7 +39,7 @@ final class RefundAmountReadScaleTest extends WP_UnitTestCase
     {
         $this->require_woocommerce();
 
-        update_option('woocommerce_price_num_decimals', '3');
+        $this->sandbox_option('woocommerce_price_num_decimals', '3');
 
         $booking_id = $this->factory->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
         $this->create_paid_order_for_booking($booking_id, '1000.000');

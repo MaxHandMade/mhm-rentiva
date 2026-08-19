@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Payment\Core;
 
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -24,10 +25,11 @@ use WP_UnitTestCase;
 final class RefundedMetaScaleTest extends WP_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceOptionSandbox;
 
     public function tearDown(): void
     {
-        delete_option('woocommerce_price_num_decimals');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 
@@ -35,7 +37,7 @@ final class RefundedMetaScaleTest extends WP_UnitTestCase
     {
         $this->require_woocommerce();
 
-        update_option('woocommerce_price_num_decimals', '3');
+        $this->sandbox_option('woocommerce_price_num_decimals', '3');
 
         $booking_id = $this->factory->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
 

@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Admin\Core;
 use MHMRentiva\Admin\Booking\ListTable\BookingColumns;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\Emails\Core\Templates;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -30,6 +31,8 @@ use WP_UnitTestCase;
  */
 final class CurrencyNumericRegressionTest extends WP_UnitTestCase
 {
+    use WooCommerceOptionSandbox;
+
     private int $booking_id = 0;
 
     public function setUp(): void
@@ -54,12 +57,12 @@ final class CurrencyNumericRegressionTest extends WP_UnitTestCase
 
         // Placement must not matter to any assertion below. Pick the one that
         // used to be contradicted, so a placement regression cannot hide here.
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
     }
 
     public function tearDown(): void
     {
-        delete_option('woocommerce_currency_pos');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 

@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Frontend\Shortcodes;
 use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -46,6 +47,8 @@ use WP_Ajax_UnitTestCase;
  */
 final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
 {
+    use WooCommerceOptionSandbox;
+
     /** @var string */
     protected $_last_response;
 
@@ -65,13 +68,13 @@ final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
         // payment_type='full' internally; deposit/remaining are not asserted
         // on here and do not feed vehicle_total/total_price either way.
 
-        update_option('woocommerce_calc_taxes', 'no');
+        $this->sandbox_option('woocommerce_calc_taxes', 'no');
     }
 
     public function tearDown(): void
     {
         delete_option('mhmrentiva_settings');
-        delete_option('woocommerce_calc_taxes');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 

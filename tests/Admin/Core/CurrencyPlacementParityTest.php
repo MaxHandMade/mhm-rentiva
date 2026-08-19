@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Core;
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -28,6 +29,8 @@ use WP_UnitTestCase;
  */
 final class CurrencyPlacementParityTest extends WP_UnitTestCase
 {
+    use WooCommerceOptionSandbox;
+
     /** @var array<string, mixed> */
     private array $savedSettings = array();
 
@@ -40,7 +43,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         // only thing that may decide placement is WooCommerce.
         unset($this->savedSettings['mhmrentiva_currency_position']);
         update_option('mhmrentiva_settings', $this->savedSettings);
-        update_option('woocommerce_currency', 'USD');
+        $this->sandbox_option('woocommerce_currency', 'USD');
         // Pinned rather than inferred: WooCommerce IS loaded here now
         // (2026-08-18), but these tests are about what the plugin does when it
         // treats WooCommerce as authoritative, and that must not become a
@@ -51,8 +54,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
 
     public function tearDown(): void
     {
-        delete_option('woocommerce_currency_pos');
-        delete_option('woocommerce_currency');
+        $this->restore_sandboxed_options();
         parent::tearDown();
     }
 
@@ -134,7 +136,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         string $wc_position,
         bool $symbol_leads
     ): void {
-        update_option('woocommerce_currency_pos', $wc_position);
+        $this->sandbox_option('woocommerce_currency_pos', $wc_position);
 
         $rendered = $this->normalize(CurrencyHelper::format_price(3500.0, 2, 'EUR'));
 
@@ -162,7 +164,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
      */
     public function test_a_legacy_currency_code_still_renders_a_symbol(string $stored): void
     {
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
 
         $rendered = $this->normalize(CurrencyHelper::format_price(1250.0, 2, $stored));
 
@@ -202,7 +204,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
      */
     public function test_the_customers_payload_carries_the_canonical_placement(string $wc_position): void
     {
-        update_option('woocommerce_currency_pos', $wc_position);
+        $this->sandbox_option('woocommerce_currency_pos', $wc_position);
 
         $customer_id = self::factory()->user->create(
             array(
@@ -238,7 +240,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
             )
         );
 
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
         $first = \MHMRentiva\Admin\Customers\CustomersOptimizer::get_customer_details_optimized($customer_id);
 
         if (null === $first || ! isset($first['total_spent'])) {
@@ -246,7 +248,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         }
 
         // Warm the cache, then move the setting under it.
-        update_option('woocommerce_currency_pos', 'right');
+        $this->sandbox_option('woocommerce_currency_pos', 'right');
         $second = \MHMRentiva\Admin\Customers\CustomersOptimizer::get_customer_details_optimized($customer_id);
 
         $this->assertSame(
@@ -305,7 +307,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         string $wc_position,
         bool $symbol_leads
     ): void {
-        update_option('woocommerce_currency_pos', $wc_position);
+        $this->sandbox_option('woocommerce_currency_pos', $wc_position);
 
         $rendered = $this->normalize($this->renderPriceColumn(3500.0));
 
@@ -354,7 +356,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
      */
     public function test_no_surface_drifts_from_the_canonical_helper(string $wc_position): void
     {
-        update_option('woocommerce_currency_pos', $wc_position);
+        $this->sandbox_option('woocommerce_currency_pos', $wc_position);
 
         $decimals = $this->surfaceDecimals();
 
@@ -382,7 +384,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         $settings                                  = (array) get_option('mhmrentiva_settings', array());
         $settings['mhmrentiva_currency_position'] = 'right_space';
         update_option('mhmrentiva_settings', $settings);
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
 
         $this->assertSame(
             'left',
@@ -397,6 +399,10 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
      */
     public function test_the_plugin_option_decides_when_woocommerce_is_silent(): void
     {
+        // Sandbox before forcing absence, not after: sandbox_option() must
+        // capture whatever the store really had BEFORE this test deletes the
+        // row, so tearDown() restores that instead of leaving it gone.
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
         delete_option('woocommerce_currency_pos');
         $settings                                  = (array) get_option('mhmrentiva_settings', array());
         $settings['mhmrentiva_currency_position'] = 'right';
@@ -421,7 +427,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         add_filter('mhmrentiva_woocommerce_is_active', '__return_false');
 
         // The leftover, exactly as an uninstalled WooCommerce leaves it.
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
 
         $settings                                 = (array) get_option('mhmrentiva_settings', array());
         $settings['mhmrentiva_currency_position'] = 'right_space';
@@ -450,7 +456,7 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
     {
         remove_filter('mhmrentiva_woocommerce_is_active', '__return_true');
         add_filter('mhmrentiva_woocommerce_is_active', '__return_false');
-        update_option('woocommerce_currency_pos', 'left');
+        $this->sandbox_option('woocommerce_currency_pos', 'left');
 
         ob_start();
         \MHMRentiva\Admin\Settings\Groups\GeneralSettings::render_currency_position_field();

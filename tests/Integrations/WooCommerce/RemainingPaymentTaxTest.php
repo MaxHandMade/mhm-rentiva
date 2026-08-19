@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Integrations\WooCommerce;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -26,6 +27,7 @@ use WP_Ajax_UnitTestCase;
 final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceOptionSandbox;
 
     /** @var int */
     private $customer_id;
@@ -47,9 +49,9 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
         $this->require_woocommerce();
 
         // Enable WC tax-inclusive mode (matches production setup).
-        update_option('woocommerce_calc_taxes', 'yes');
-        update_option('woocommerce_prices_include_tax', 'yes');
-        update_option('woocommerce_tax_based_on', 'base');
+        $this->sandbox_option('woocommerce_calc_taxes', 'yes');
+        $this->sandbox_option('woocommerce_prices_include_tax', 'yes');
+        $this->sandbox_option('woocommerce_tax_based_on', 'base');
 
         // Insert a single 20% KDV tax rate.
         $this->tax_rate_id = \WC_Tax::_insert_tax_rate(array(
@@ -94,8 +96,7 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
         if ($this->tax_rate_id) {
             \WC_Tax::_delete_tax_rate($this->tax_rate_id);
         }
-        delete_option('woocommerce_calc_taxes');
-        delete_option('woocommerce_prices_include_tax');
+        $this->restore_sandboxed_options();
         wp_logout();
         parent::tearDown();
     }
