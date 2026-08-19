@@ -87,4 +87,28 @@ final class RefundChannelTest extends WP_UnitTestCase
 
         $this->assertSame(RefundValidator::CHANNEL_WOOCOMMERCE, $result['channel']);
     }
+
+    public function test_the_manual_booking_creator_no_longer_writes_an_empty_gateway(): void
+    {
+        // The refund path stopped reading this meta in the previous task, but
+        // four surfaces still display or group by it: the booking-list filter
+        // dropdown, ReportRepository::get_payment_method_distribution() (which
+        // COALESCEs an empty value to 'unknown'), AccountRenderer, and the
+        // refund metabox. A manually created booking is an offline booking and
+        // should say so.
+        $source = file_get_contents(
+            dirname(__DIR__, 4) . '/src/Admin/Booking/Meta/ManualBookingMetaBox.php'
+        );
+
+        $this->assertIsString($source);
+        $this->assertStringNotContainsString(
+            "'_mhmrentiva_payment_gateway'       => '',",
+            $source,
+            'ManualBookingMetaBox must not seed the gateway meta with an empty string.'
+        );
+        $this->assertStringContainsString(
+            "'_mhmrentiva_payment_gateway'       => 'offline',",
+            $source
+        );
+    }
 }

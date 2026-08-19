@@ -861,7 +861,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				'_mhmrentiva_created_by'            => get_current_user_id(),
 				'_mhmrentiva_payment_type'          => $payment_type,
 				'_mhmrentiva_payment_method'        => $payment_method,
-				'_mhmrentiva_payment_gateway'       => '',
+				'_mhmrentiva_payment_gateway'       => 'offline',
 				'_mhmrentiva_deposit_amount'        => $deposit_result['deposit_amount'],
 				'_mhmrentiva_remaining_amount'      => $deposit_result['remaining_amount'],
 				'_mhmrentiva_deposit_type'          => $deposit_result['deposit_type'],
