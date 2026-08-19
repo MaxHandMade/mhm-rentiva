@@ -149,7 +149,12 @@ concurrency_proof.php
 v1.9_verification*.php
 AUDIT_REPORT_*.md
 *transient*.php
-*db*.php
+# Anchored to the repository root -- unanchored, this matched at every depth
+# and (case-insensitively, this repo's core.ignorecase) swallowed
+# tests/Integrations/WooCommerce/HybridBookingButtonTest.php, whose name
+# happens to contain "dB" from "HybridBooking". Same class of bug as the
+# /*reorder*.php-style rules above; same fix.
+/*db*.php
 
 # ============================================================================
 # SECTION 7: MHM Rentiva - Local Development Exclusions

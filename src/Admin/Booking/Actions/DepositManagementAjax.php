@@ -183,6 +183,19 @@ final class DepositManagementAjax {
 		);
 	}
 
+	/**
+	 * Whether a remaining-payment link can be offered for this booking.
+	 *
+	 * Delegates to RemainingPaymentHandler::is_hybrid_booking() -- the exact
+	 * question get_or_create_remaining_order() answers before it refuses.
+	 * Asked here so the admin screen does not render a control whose only
+	 * outcome is an error message. One predicate, two callers: if this drifts
+	 * from the handler's guard, the button comes back.
+	 */
+	public static function can_send_remaining_payment_link( int $booking_id ): bool {
+		return ! RemainingPaymentHandler::is_hybrid_booking( $booking_id );
+	}
+
 	public static function approve_payment(): void {
 		// Line-local nonce check, redundant by design -- see the class
 		// docblock. authorize_booking_action() below is authoritative.

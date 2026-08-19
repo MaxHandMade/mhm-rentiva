@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
@@ -342,10 +343,14 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			echo esc_html__( 'Process Remaining Amount', 'mhm-rentiva' );
 			echo '</button>';
 
-			echo '<button type="button" class="deposit-action-btn primary" id="send-remaining-payment-link" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
-			echo '<span class="dashicons dashicons-email-alt"></span>';
-			echo esc_html__( 'Send Payment Link', 'mhm-rentiva' );
-			echo '</button>';
+			if ( DepositManagementAjax::can_send_remaining_payment_link( $post_id ) ) {
+				echo '<button type="button" class="deposit-action-btn primary" id="send-remaining-payment-link" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+				echo '<span class="dashicons dashicons-email-alt"></span>';
+				echo esc_html__( 'Send Payment Link', 'mhm-rentiva' );
+				echo '</button>';
+			} else {
+				echo '<p class="description">' . esc_html__( 'The deposit was paid outside WooCommerce, so no payment link can be sent for the remaining balance; use "Process Remaining Amount" instead to record it as settled.', 'mhm-rentiva' ) . '</p>';
+			}
 		}
 
 		// Cancel button
