@@ -18,30 +18,76 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Service {
 
-	public static function process( int $bookingId, int $amountKurus, string $reason = '' ): array {
-		$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
+	/**
+	 * Bookings whose refund operation is currently running, keyed by id.
+	 *
+	 * Per booking, not global: a cron pass can refund several bookings inside
+	 * one request, and a single boolean would silence every booking after the
+	 * first. Always released in a finally block -- a flag left standing after
+	 * an exception makes every later refund in the request go out with no
+	 * e-mail at all, which is the failure mode nobody notices.
+	 *
+	 * @var array<int, true>
+	 */
+	private static array $inFlight = array();
 
-		if ( ! $validation['valid'] ) {
-			return array(
-				'mhmrentiva_refund'     => '0',
-				'mhmrentiva_refund_msg' => $validation['message'],
-			);
+	/**
+	 * Is a Service-driven refund operation running for this booking right now?
+	 *
+	 * WooCommerceBridge::handle_order_refunded() asks this to decide whether it
+	 * owns the customer e-mail. When the answer is yes, Service sends one
+	 * e-mail at the end of the whole operation; when it is no -- an admin
+	 * refunding from WooCommerce's own order screen -- the hook sends it.
+	 */
+	public static function isRefundInFlight( int $bookingId ): bool {
+		return isset( self::$inFlight[ $bookingId ] );
+	}
+
+	public static function process( int $bookingId, int $amountKurus, string $reason = '' ): array {
+		// The flag goes up before validation, not after. Validation resolves a
+		// PaymentState and touches WooCommerce objects, so it is part of the
+		// operation this booking owns; a throw there has to unwind the flag
+		// exactly like a throw in the refund loop. Raising it after validation
+		// leaves a window the finally block does not cover.
+		self::$inFlight[ $bookingId ] = true;
+
+		try {
+			$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
+
+			if ( ! $validation['valid'] ) {
+				return array(
+					'mhmrentiva_refund'     => '0',
+					'mhmrentiva_refund_msg' => $validation['message'],
+				);
+			}
+
+			$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
+		} finally {
+			unset( self::$inFlight[ $bookingId ] );
 		}
 
-		return self::finish( $bookingId, self::runOperation( $bookingId, $validation['amount'], $reason ), $reason );
+		return self::finish( $bookingId, $operation, $reason );
 	}
 
 	public static function processFullRefund( int $bookingId, string $reason = '' ): array {
-		$validation = RefundValidator::validateFullRefund( $bookingId );
+		self::$inFlight[ $bookingId ] = true;
 
-		if ( ! $validation['valid'] ) {
-			return array(
-				'mhmrentiva_refund'     => '0',
-				'mhmrentiva_refund_msg' => $validation['message'],
-			);
+		try {
+			$validation = RefundValidator::validateFullRefund( $bookingId );
+
+			if ( ! $validation['valid'] ) {
+				return array(
+					'mhmrentiva_refund'     => '0',
+					'mhmrentiva_refund_msg' => $validation['message'],
+				);
+			}
+
+			$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
+		} finally {
+			unset( self::$inFlight[ $bookingId ] );
 		}
 
-		return self::finish( $bookingId, self::runOperation( $bookingId, $validation['amount'], $reason ), $reason );
+		return self::finish( $bookingId, $operation, $reason );
 	}
 
 	/**
