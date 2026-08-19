@@ -745,12 +745,6 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
 
 		-
-			message: '#^Binary operation "\-" between float and string results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: src/Admin/Payment/Refunds/Service.php
-
-		-
 			message: '#^Parameter \#1 \$value of method WC_Order_Item_Product\:\:set_subtotal\(\) expects string, float given\.$#'
 			identifier: argument.type
 			count: 1

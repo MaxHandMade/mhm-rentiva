@@ -68,6 +68,14 @@ trait WooCommerceFixtures
 	 * reads booking meta `_mhmrentiva_woocommerce_order_id` to find the order. Wire only
 	 * one and a refund/payment test measures the wrong channel (or the early return).
 	 *
+	 * `_mhmrentiva_woocommerce_order_id` is written only the first time this is called
+	 * for a given booking, mirroring RemainingPaymentHandler::create() (:284), which
+	 * stamps a second order's id onto `_mhmrentiva_remaining_order_id` and never touches
+	 * the primary key. A test that calls this twice for the same booking to seed a
+	 * deposit-plus-remaining pair therefore keeps both orders distinguishable; an
+	 * unconditional overwrite here would collapse the pair into one order id shared by
+	 * both meta keys the moment the second call ran.
+	 *
 	 * ensure_booking_product() resolves an existing product by SKU after the first
 	 * call in a run, so its price argument is ignored past that point -- the item's
 	 * subtotal/total are set explicitly here and calculate_totals() derives the
@@ -90,7 +98,10 @@ trait WooCommerceFixtures
 
 		$order->update_meta_data('_mhmrentiva_booking_id', $booking_id);
 		$order->save();
-		update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
+
+		if ((int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true) <= 0) {
+			update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
+		}
 
 		return $order;
 	}

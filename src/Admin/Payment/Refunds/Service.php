@@ -8,8 +8,8 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
-use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,12 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Service {
 
-	/**
-	 * Processes refund
-	 */
 	public static function process( int $bookingId, int $amountKurus, string $reason = '' ): array {
-		// Validate
 		$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
+
 		if ( ! $validation['valid'] ) {
 			return array(
 				'mhmrentiva_refund'     => '0',
@@ -30,68 +27,12 @@ final class Service {
 			);
 		}
 
-		// The channel comes from the validator, which derives it from
-		// PaymentState -- a paid WooCommerce order means WooCommerce owns the
-		// money, its absence means the refund is a manual, offline one. Reading
-		// it here rather than re-deriving it keeps that fact computed in
-		// exactly one place.
-		$gateway = $validation['channel'];
-		$amount  = $validation['amount'];
-
-		// Process refund based on gateway
-		$result = self::processGatewayRefund( $bookingId, $gateway, $amount, $reason );
-
-		if ( ! $result['ok'] ) {
-			Logger::add(
-				array(
-					'gateway'      => $gateway,
-					'action'       => 'refund',
-					'status'       => 'error',
-					'booking_id'   => $bookingId,
-					'amount_kurus' => $amount,
-					'message'      => $result['message'] ?? __( 'Refund failed', 'mhm-rentiva' ),
-				)
-			);
-
-			return array(
-				'mhmrentiva_refund'     => '0',
-				'mhmrentiva_refund_msg' => $result['message'] ?? __( 'Refund failed', 'mhm-rentiva' ),
-			);
-		}
-
-		// Update booking meta
-		self::updateBookingMeta( $bookingId, $amount, $result );
-
-		// Send email notification
-		self::sendRefundNotification( $bookingId, $amount, $reason );
-
-		Logger::add(
-			array(
-				'gateway'      => $gateway,
-				'action'       => 'refund',
-				'status'       => 'success',
-				'booking_id'   => $bookingId,
-				'amount_kurus' => $amount,
-				'message'      => __( 'Refund successful', 'mhm-rentiva' ),
-				'context'      => array(
-					'refund_id' => $result['id'] ?? '',
-					'gateway'   => $gateway,
-				),
-			)
-		);
-
-		return array(
-			'mhmrentiva_refund'     => '1',
-			'mhmrentiva_refund_msg' => '',
-		);
+		return self::finish( $bookingId, self::runOperation( $bookingId, $validation['amount'], $reason ), $reason );
 	}
 
-	/**
-	 * Processes full refund
-	 */
 	public static function processFullRefund( int $bookingId, string $reason = '' ): array {
-		// Validate
 		$validation = RefundValidator::validateFullRefund( $bookingId );
+
 		if ( ! $validation['valid'] ) {
 			return array(
 				'mhmrentiva_refund'     => '0',
@@ -99,287 +40,180 @@ final class Service {
 			);
 		}
 
-		// The channel comes from the validator, which derives it from
-		// PaymentState -- a paid WooCommerce order means WooCommerce owns the
-		// money, its absence means the refund is a manual, offline one. Reading
-		// it here rather than re-deriving it keeps that fact computed in
-		// exactly one place.
-		$gateway = $validation['channel'];
-		$amount  = $validation['amount'];
+		return self::finish( $bookingId, self::runOperation( $bookingId, $validation['amount'], $reason ), $reason );
+	}
 
-		// Process full refund based on gateway
-		$result = self::processGatewayFullRefund( $bookingId, $gateway, $reason );
+	/**
+	 * Refund an amount across the booking's paid orders, original first.
+	 *
+	 * Each order is refunded by at most its own remaining balance, so the
+	 * operation never asks WooCommerce for more than one order can give back
+	 * (wc_create_refund() rejects that outright, WC 11.0.1 :584-586). The
+	 * refund_payment flag is decided per order rather than per booking: a
+	 * deposit paid by card and a remainder paid by transfer are two different
+	 * answers, and collapsing them to "manual" would record a refund for the
+	 * card without moving the money.
+	 *
+	 * @return array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string}
+	 */
+	private static function runOperation( int $bookingId, int $amountKurus, string $reason ): array {
+		$state   = PaymentState::forBooking( $bookingId );
+		$orders  = $state->orders();
+		$channel = array() === $orders
+			? RefundValidator::CHANNEL_OFFLINE
+			: RefundValidator::CHANNEL_WOOCOMMERCE;
 
-		if ( ! $result['ok'] ) {
-			Logger::add(
-				array(
-					'gateway'      => $gateway,
-					'action'       => 'full_refund',
-					'status'       => 'error',
-					'booking_id'   => $bookingId,
-					'amount_kurus' => $amount,
-					'message'      => $result['message'] ?? __( 'Full refund failed', 'mhm-rentiva' ),
-				)
-			);
-
+		if ( RefundValidator::CHANNEL_OFFLINE === $channel ) {
+			// Nothing to call: there is no gateway behind offline money. The
+			// refund is a bookkeeping record and Task 8 writes it.
 			return array(
-				'mhmrentiva_refund'     => '0',
-				'mhmrentiva_refund_msg' => $result['message'] ?? __( 'Full refund failed', 'mhm-rentiva' ),
+				'ok'       => true,
+				'refunded' => $amountKurus,
+				'mode'     => RefundValidator::MODE_MANUAL,
+				'txn_ids'  => array( 'manual_' . wp_generate_uuid4() ),
+				'channel'  => $channel,
+				'message'  => '',
 			);
 		}
 
-		// Update booking meta
-		self::updateBookingMeta( $bookingId, $amount, $result );
+		$outstanding = $amountKurus;
+		$refunded    = 0;
+		$txnIds      = array();
+		$allAuto     = true;
 
-		// Send email notification
-		self::sendRefundNotification( $bookingId, $amount, $reason );
+		foreach ( $orders as $orderId ) {
+			if ( $outstanding <= 0 ) {
+				break;
+			}
 
+			$order = wc_get_order( $orderId );
+
+			if ( ! $order instanceof \WC_Order ) {
+				continue;
+			}
+
+			$available = Money::toMinor( $order->get_remaining_refund_amount() );
+
+			if ( $available <= 0 ) {
+				continue;
+			}
+
+			$leg  = min( $outstanding, $available );
+			$mode = RefundValidator::modeForOrder( $order );
+
+			if ( RefundValidator::MODE_AUTO !== $mode ) {
+				$allAuto = false;
+			}
+
+			$refund = wc_create_refund(
+				array(
+					'order_id'       => $orderId,
+					'amount'         => Money::toMajor( $leg ),
+					'reason'         => '' !== $reason ? $reason : __( 'Refund processed from Rentiva panel', 'mhm-rentiva' ),
+					'refund_payment' => RefundValidator::MODE_AUTO === $mode,
+				)
+			);
+
+			if ( is_wp_error( $refund ) ) {
+				// The flow stops here. Refunds already made are NOT rolled back
+				// -- WooCommerce has no such operation -- so the caller records
+				// a partial failure and the operator retries the rest.
+				return array(
+					'ok'       => false,
+					'refunded' => $refunded,
+					'mode'     => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
+					'txn_ids'  => $txnIds,
+					'channel'  => $channel,
+					'message'  => $refund->get_error_message() ?: __( 'Failed to create WooCommerce refund', 'mhm-rentiva' ),
+				);
+			}
+
+			$txnIds[]     = (string) $refund->get_id();
+			$refunded    += $leg;
+			$outstanding -= $leg;
+		}
+
+		if ( 0 === $refunded ) {
+			return array(
+				'ok'       => false,
+				'refunded' => 0,
+				'mode'     => RefundValidator::MODE_MANUAL,
+				'txn_ids'  => array(),
+				'channel'  => $channel,
+				'message'  => __( 'No amount left to refund', 'mhm-rentiva' ),
+			);
+		}
+
+		return array(
+			'ok'       => $outstanding <= 0,
+			'refunded' => $refunded,
+			'mode'     => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
+			'txn_ids'  => $txnIds,
+			'channel'  => $channel,
+			'message'  => $outstanding <= 0 ? '' : __( 'Refund could not be completed in full', 'mhm-rentiva' ),
+		);
+	}
+
+	/**
+	 * Close the operation: log it, record it, tell the customer once.
+	 *
+	 * Tasks 7-10 of the slice-3 plan build this out. It exists from Task 6 so
+	 * the two entry points have one exit, not two.
+	 *
+	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 */
+	private static function finish( int $bookingId, array $operation, string $reason ): array {
 		Logger::add(
 			array(
-				'gateway'      => $gateway,
-				'action'       => 'full_refund',
-				'status'       => 'success',
+				'gateway'      => $operation['channel'],
+				'action'       => 'refund',
+				'status'       => $operation['ok'] ? 'success' : 'error',
 				'booking_id'   => $bookingId,
-				'amount_kurus' => $amount,
-				'message'      => __( 'Full refund successful', 'mhm-rentiva' ),
+				'amount_kurus' => $operation['refunded'],
+				'message'      => $operation['ok']
+					? __( 'Refund successful', 'mhm-rentiva' )
+					: $operation['message'],
 				'context'      => array(
-					'refund_id' => $result['id'] ?? '',
-					'gateway'   => $gateway,
+					'mode'    => $operation['mode'],
+					'txn_ids' => $operation['txn_ids'],
 				),
 			)
 		);
+
+		if ( ! $operation['ok'] ) {
+			return array(
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => $operation['message'],
+			);
+		}
+
+		if ( RefundValidator::CHANNEL_OFFLINE === $operation['channel'] ) {
+			// The one place in the plugin that adds rather than sets. Offline
+			// money has no WC_Order_Refund behind it, so no hook fired and this
+			// meta is the entire record of what has been given back. Every
+			// other write of this key -- the WooCommerce channel's -- is
+			// absolute and derived from PaymentState (Task 8).
+			$previous = max( 0, (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true ) );
+
+			update_post_meta( $bookingId, '_mhmrentiva_refunded_amount', $previous + $operation['refunded'] );
+
+			$state = PaymentState::forBooking( $bookingId );
+
+			update_post_meta(
+				$bookingId,
+				'_mhmrentiva_payment_status',
+				$state->isFullyRefunded() ? 'refunded' : 'partially_refunded'
+			);
+
+			foreach ( $operation['txn_ids'] as $txnId ) {
+				add_post_meta( $bookingId, '_mhmrentiva_refund_txn_id', $txnId );
+			}
+		}
 
 		return array(
 			'mhmrentiva_refund'     => '1',
 			'mhmrentiva_refund_msg' => '',
 		);
-	}
-
-	/**
-	 * Processes refund based on gateway
-	 * ⭐ Now supports both 'offline' and 'woocommerce' gateways
-	 */
-	private static function processGatewayRefund( int $bookingId, string $gateway, int $amount, string $reason ): array {
-		if ( $gateway === RefundValidator::CHANNEL_OFFLINE ) {
-			return array(
-				'ok'      => true,
-				'id'      => 'manual_' . uniqid(),
-				'amount'  => $amount,
-				'message' => __( 'Manual refund recorded', 'mhm-rentiva' ),
-			);
-		}
-
-		if ( $gateway === RefundValidator::CHANNEL_WOOCOMMERCE ) {
-			// ⭐ For WooCommerce, refund should be processed through WooCommerce UI
-			// This method is called when admin manually processes refund from Rentiva panel
-			// We'll create a WooCommerce refund programmatically
-
-			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
-
-			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
-				return array(
-					'ok'      => false,
-					'message' => __( 'WooCommerce order not found for this booking', 'mhm-rentiva' ),
-				);
-			}
-
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
-				return array(
-					'ok'      => false,
-					'message' => __( 'WooCommerce order not found', 'mhm-rentiva' ),
-				);
-			}
-
-			// Minor units -> the order's currency amount, at the store's precision
-			$refund_amount = (float) Money::toMajor( $amount );
-
-			// Check if refund amount is valid
-			$max_refund = $order->get_total() - $order->get_total_refunded();
-			if ( $refund_amount > $max_refund ) {
-				return array(
-					'ok'      => false,
-					'message' => sprintf(
-						/* translators: %s: maximum refund amount */
-						__( 'Refund amount exceeds maximum refundable amount (%s)', 'mhm-rentiva' ),
-						wc_price( $max_refund, array( 'currency' => $order->get_currency() ) )
-					),
-				);
-			}
-
-			// Create WooCommerce refund
-			$refund = wc_create_refund(
-				array(
-					'order_id'       => $order_id,
-					'amount'         => $refund_amount,
-					'reason'         => $reason ?: __( 'Refund processed from Rentiva panel', 'mhm-rentiva' ),
-					'refund_payment' => true, // Process refund through payment gateway
-				)
-			);
-
-			if ( is_wp_error( $refund ) ) {
-				return array(
-					'ok'      => false,
-					'message' => $refund->get_error_message() ?: __( 'Failed to create WooCommerce refund', 'mhm-rentiva' ),
-				);
-			}
-
-			return array(
-				'ok'      => true,
-				'id'      => (string) $refund->get_id(),
-				'amount'  => $amount,
-				'message' => __( 'WooCommerce refund processed successfully', 'mhm-rentiva' ),
-			);
-		}
-
-		return array(
-			'ok'      => false,
-			'message' => __( 'Unsupported payment gateway', 'mhm-rentiva' ),
-		);
-	}
-
-	/**
-	 * Processes full refund based on gateway
-	 * ⭐ Now supports both 'offline' and 'woocommerce' gateways
-	 */
-	private static function processGatewayFullRefund( int $bookingId, string $gateway, string $reason ): array {
-		if ( $gateway === RefundValidator::CHANNEL_OFFLINE ) {
-			return array(
-				'ok'      => true,
-				'id'      => 'manual_' . uniqid(),
-				'message' => __( 'Manual full refund recorded', 'mhm-rentiva' ),
-			);
-		}
-
-		if ( $gateway === RefundValidator::CHANNEL_WOOCOMMERCE ) {
-			// ⭐ For WooCommerce, process full refund through WooCommerce
-
-			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
-
-			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
-				return array(
-					'ok'      => false,
-					'message' => __( 'WooCommerce order not found for this booking', 'mhm-rentiva' ),
-				);
-			}
-
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
-				return array(
-					'ok'      => false,
-					'message' => __( 'WooCommerce order not found', 'mhm-rentiva' ),
-				);
-			}
-
-			// Get remaining refundable amount
-			$refund_amount = $order->get_total() - $order->get_total_refunded();
-
-			if ( $refund_amount <= 0 ) {
-				return array(
-					'ok'      => false,
-					'message' => __( 'Order is already fully refunded', 'mhm-rentiva' ),
-				);
-			}
-
-			// Create WooCommerce full refund
-			$refund = wc_create_refund(
-				array(
-					'order_id'       => $order_id,
-					'amount'         => $refund_amount,
-					'reason'         => $reason ?: __( 'Full refund processed from Rentiva panel', 'mhm-rentiva' ),
-					'refund_payment' => true, // Process refund through payment gateway
-				)
-			);
-
-			if ( is_wp_error( $refund ) ) {
-				return array(
-					'ok'      => false,
-					'message' => $refund->get_error_message() ?: __( 'Failed to create WooCommerce full refund', 'mhm-rentiva' ),
-				);
-			}
-
-			// Convert to the store's minor unit for the return value
-			$amount_kurus = Money::toMinor( $refund_amount );
-
-			return array(
-				'ok'      => true,
-				'id'      => (string) $refund->get_id(),
-				'amount'  => $amount_kurus,
-				'message' => __( 'WooCommerce full refund processed successfully', 'mhm-rentiva' ),
-			);
-		}
-
-		return array(
-			'ok'      => false,
-			'message' => __( 'Unsupported payment gateway', 'mhm-rentiva' ),
-		);
-	}
-
-	/**
-	 * Updates booking meta
-	 */
-	private static function updateBookingMeta( int $bookingId, int $amount, array $result ): void {
-		$refundedAmount    = (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true );
-		$newRefundedAmount = $refundedAmount + $amount;
-
-		update_post_meta( $bookingId, '_mhmrentiva_refunded_amount', $newRefundedAmount );
-
-		$paidAmount       = (int) get_post_meta( $bookingId, '_mhmrentiva_payment_amount', true );
-		$newPaymentStatus = $newRefundedAmount >= $paidAmount ? 'refunded' : 'partially_refunded';
-
-		update_post_meta( $bookingId, '_mhmrentiva_payment_status', $newPaymentStatus );
-
-		// Save refund transaction ID
-		if ( ! empty( $result['id'] ) ) {
-			add_post_meta( $bookingId, '_mhmrentiva_refund_txn_id', (string) $result['id'] );
-		}
-	}
-
-	/**
-	 * Sends refund notification
-	 */
-	private static function sendRefundNotification( int $bookingId, int $amount, string $reason ): void {
-		try {
-			// ⭐ Get currency dynamically - prioritize WooCommerce, then booking meta, then plugin settings
-			$currency = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_currency', true );
-
-			if ( empty( $currency ) ) {
-				// Try to get from WooCommerce order
-				$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
-
-				if ( $order_id && class_exists( 'WooCommerce' ) ) {
-					$order = wc_get_order( $order_id );
-					if ( $order ) {
-						$currency = $order->get_currency();
-					}
-				}
-			}
-
-			// Fallback to WooCommerce currency or plugin settings
-			if ( empty( $currency ) ) {
-				if ( function_exists( 'get_woocommerce_currency' ) ) {
-					$currency = get_woocommerce_currency();
-				} else {
-					$currency = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
-				}
-			}
-
-			$refundedAmount = (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true );
-			$paidAmount     = (int) get_post_meta( $bookingId, '_mhmrentiva_payment_amount', true );
-			$paymentStatus  = $refundedAmount >= $paidAmount ? 'refunded' : 'partially_refunded';
-
-			RefundNotifications::notify( $bookingId, $amount, $currency, $paymentStatus, $reason );
-		} catch ( \Throwable $e ) {
-			// Email error is not critical, log it
-			Logger::add(
-				array(
-					'action'     => 'refund_notification',
-					'status'     => 'error',
-					'booking_id' => $bookingId,
-					'message'    => __( 'Refund notification could not be sent:', 'mhm-rentiva' ) . ' ' . $e->getMessage(),
-				)
-			);
-		}
 	}
 
 	/**
