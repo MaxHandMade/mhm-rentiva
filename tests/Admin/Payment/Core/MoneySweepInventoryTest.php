@@ -128,6 +128,40 @@ final class MoneySweepInventoryTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('No fixed-100 money conversions found', $combined);
     }
 
+    /**
+     * Phase-close review, item 3: the empty-set refusal above was gated on
+     * `! $self_test`, so --self-test was the one path it did not cover. A
+     * missing or renamed fixture left $scanned at 0 there too, but the guard
+     * never ran -- --self-test printed "Scanned 0 files ... No fixed-100
+     * money conversions found" and exited 0, the exact contract violation
+     * test_the_probe_refuses_success_over_an_empty_starting_set() locks for
+     * the main path. This is the sibling lock for --self-test: no git
+     * repository needed, since --self-test never calls git ls-files -- only
+     * the fixture file has to be absent.
+     */
+    public function test_the_probe_refuses_success_over_a_missing_self_test_fixture(): void
+    {
+        $tmp = sys_get_temp_dir() . '/afms_missing_fixture_' . uniqid();
+        $this->temp_dirs[] = $tmp;
+
+        mkdir($tmp . '/bin', 0777, true);
+        copy(
+            dirname(__DIR__, 4) . '/bin/audit-fixed-minor-scale.php',
+            $tmp . '/bin/audit-fixed-minor-scale.php'
+        );
+        // Deliberately no bin/fixtures/ directory at all, so the fixture the
+        // script expects at bin/fixtures/fixed-minor-scale-fixture.txt is
+        // unreadable -- the same shape a rename or a bad merge would produce.
+
+        $cmd = escapeshellcmd(PHP_BINARY) . ' ' . escapeshellarg($tmp . '/bin/audit-fixed-minor-scale.php') . ' --self-test 2>&1';
+        exec($cmd, $output, $exit_code);
+        $combined = implode("\n", $output);
+
+        $this->assertSame(2, $exit_code, "A missing self-test fixture must exit 2 (CANNOT MEASURE), not 0. Output:\n" . $combined);
+        $this->assertStringContainsString('CANNOT MEASURE', $combined);
+        $this->assertStringNotContainsString('No fixed-100 money conversions found', $combined);
+    }
+
     public function test_the_probe_ignores_percentage_arithmetic(): void
     {
         $result = $this->runProbe('--self-test');

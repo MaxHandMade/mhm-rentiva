@@ -194,10 +194,21 @@ foreach ( $files as $path ) {
 // tree really was scanned from the wrong root). "Scanned 0 files. No
 // findings." reads as a clean bill; it is actually a probe that measured
 // nothing.
-if ( ! $self_test && 0 === $scanned ) {
+//
+// This refusal used to be gated on `! $self_test`, which made --self-test the
+// one path it did not cover: a missing or renamed fixture left $scanned at 0
+// and the guard never ran, so --self-test printed "Scanned 0 files ... No
+// fixed-100 money conversions found" and exited 0 -- a confident, well
+// formatted, wrong clean bill on the exact contract this tool exists to
+// enforce elsewhere. There is no legitimate case where a present, readable
+// self-test fixture scans to zero files, so the refusal below is now
+// unconditional.
+if ( 0 === $scanned ) {
 	afms_cannot_measure(
-		'0 files were scanned',
-		'git ls-files returned tracked paths, but none of them were readable *.php/*.js files outside vendor/, node_modules/, build/, tests/, bin/. Refusing to report a clean bill over an empty set.'
+		$self_test ? 'the self-test fixture was not found or not readable' : '0 files were scanned',
+		$self_test
+			? 'Expected: ' . $root . '/bin/fixtures/fixed-minor-scale-fixture.txt. Refusing to report a clean bill over an empty set.'
+			: 'git ls-files returned tracked paths, but none of them were readable *.php/*.js files outside vendor/, node_modules/, build/, tests/, bin/. Refusing to report a clean bill over an empty set.'
 	);
 }
 
