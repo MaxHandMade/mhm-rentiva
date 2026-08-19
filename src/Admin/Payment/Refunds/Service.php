@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
+use MHMRentiva\Admin\Payment\Core\Money;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -287,8 +288,8 @@ final class Service {
 				);
 			}
 
-			// Convert to kurus for return value
-			$amount_kurus = (int) round( $refund_amount * 100 );
+			// Convert to the store's minor unit for the return value
+			$amount_kurus = Money::toMinor( $refund_amount );
 
 			return array(
 				'ok'      => true,

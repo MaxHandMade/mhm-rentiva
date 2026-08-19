@@ -58,4 +58,40 @@ trait WooCommerceFixtures
 			);
 		}
 	}
+
+	/**
+	 * A paid WooCommerce order, bound to a booking in both directions.
+	 *
+	 * Both directions are load-bearing, not redundant:
+	 * WooCommerceBridge::get_booking_id_from_order() reads order meta
+	 * `_mhmrentiva_booking_id` to find the booking; BookingQueryHelper::resolve_wc_order_id()
+	 * reads booking meta `_mhmrentiva_woocommerce_order_id` to find the order. Wire only
+	 * one and a refund/payment test measures the wrong channel (or the early return).
+	 *
+	 * ensure_booking_product() resolves an existing product by SKU after the first
+	 * call in a run, so its price argument is ignored past that point -- the item's
+	 * subtotal/total are set explicitly here and calculate_totals() derives the
+	 * order total from them.
+	 */
+	protected function create_paid_order_for_booking( int $booking_id, string $total ): \WC_Order
+	{
+		$product = $this->ensure_booking_product($total);
+
+		$order = wc_create_order(array( 'status' => 'pending' ));
+		$item  = new \WC_Order_Item_Product();
+		$item->set_product($product);
+		$item->set_quantity(1);
+		$item->set_subtotal((float) $total);
+		$item->set_total((float) $total);
+		$order->add_item($item);
+		$order->calculate_totals();
+		$order->save();
+		$order->update_status('processing');
+
+		$order->update_meta_data('_mhmrentiva_booking_id', $booking_id);
+		$order->save();
+		update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
+
+		return $order;
+	}
 }

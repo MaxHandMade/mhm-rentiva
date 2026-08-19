@@ -337,7 +337,7 @@ final class DepositManagementAjax {
 		// mismatch with those readers.
 		$result = \MHMRentiva\Admin\Payment\Refunds\Service::process(
 			$booking_id,
-			(int) round( $refund_amount * 100 ),
+			\MHMRentiva\Admin\Payment\Core\Money::toMinor( $refund_amount ),
 			__( 'Refund issued from the deposit management screen.', 'mhm-rentiva' )
 		);
 

@@ -14,6 +14,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
@@ -2148,13 +2149,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$refund_amount = $order->get_total_refunded();
 		$currency      = $order->get_currency();
 
-		// Convert to smallest currency unit (kurus/cent)
-		// WooCommerce stores amounts as floats, we need to convert to smallest unit
-		$refund_amount_kurus = (int) round($refund_amount * 100);
+		// Convert to the store's minor unit. Not a fixed *100: a 0-decimal (JPY)
+		// or 3-decimal (KWD) store scales by a different power of ten, and this
+		// meta is read back through Money on the other side.
+		$refund_amount_kurus = Money::toMinor($refund_amount);
 
 		// Get total paid amount
 		$total_paid       = (float) $order->get_total();
-		$total_paid_kurus = (int) round($total_paid * 100);
+		$total_paid_kurus = Money::toMinor($total_paid);
 
 		// Update booking refund meta
 		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $refund_amount_kurus);

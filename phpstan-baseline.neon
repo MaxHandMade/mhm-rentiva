@@ -787,12 +787,6 @@ parameters:
 			path: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php
 
 		-
-			message: '#^Binary operation "\*" between string and 100 results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
-
-		-
 			message: '#^Call to function method_exists\(\) with WC_Cart and ''get_cart'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1

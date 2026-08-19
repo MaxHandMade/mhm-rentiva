@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 
 
 
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\PostTypes\Utilities\ClientUtilities;
 
@@ -599,7 +600,7 @@ final class AdvancedLogger {
 		} elseif ( isset( $args['amount'] ) ) {
 			$amount = $args['amount'];
 			if ( is_float( $amount ) || is_int( $amount ) ) {
-				$amount_kurus = (int) round( ( (float) $amount ) * 100 );
+				$amount_kurus = Money::toMinor( (float) $amount );
 			}
 		}
 
