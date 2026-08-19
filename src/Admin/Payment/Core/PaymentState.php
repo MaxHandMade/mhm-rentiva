@@ -19,10 +19,18 @@ if (! defined('ABSPATH')) {
  *
  * Three rules hold this class together:
  *
- * 1. The WooCommerce refund base is never derived. refundableAuto() is read
- *    from WooCommerce's own get_remaining_refund_amount(). paid() is a
- *    reporting figure and cannot move money on its own -- so a coupon or a
- *    hand-edited order total skews a report, never a WooCommerce refund.
+ * 1. The WooCommerce refund base is read, not derived. refundableAuto() reads
+ *    WooCommerce's own get_remaining_refund_amount() instead of computing
+ *    wc_paid - wc_refunded here. As of WooCommerce 11.0.1 that method IS
+ *    literally get_total() - get_total_refunded() (includes/class-wc-order.php
+ *    :2493-2495) -- so reading it produces the same number a local
+ *    subtraction would, and does not shield a coupon or a hand-edited order
+ *    total from skewing it. What reading buys instead: this class stays
+ *    bound to WooCommerce's own definition of "still refundable", and
+ *    follows it if that definition ever changes. The protection that does
+ *    hold, and is real: no amount here is ever produced by differencing the
+ *    WooCommerce and offline channels against each other -- that is what
+ *    would let a booking report money nobody paid.
  * 2. Amounts are derived, statuses are stored. Booking lists filter on
  *    payment_status with meta_query and a derived value cannot be queried in
  *    SQL; no query anywhere filters on an amount.
@@ -194,10 +202,9 @@ final class PaymentState {
 	 * Money that arrived, across both channels. A reporting figure -- never a
 	 * refund amount.
 	 *
-	 * A coupon or a hand-edited order total can skew this; that is a reporting
-	 * inaccuracy and it stays one, because refunds read refundableAuto() for
-	 * the WooCommerce channel and refundableManual() for the offline one --
-	 * never paid() itself.
+	 * Refunds never read paid() itself: they read refundableAuto() for the
+	 * WooCommerce channel and refundableManual() for the offline one, each
+	 * bound to that channel's own record of what is still owed back.
 	 */
 	public function paid(): int
 	{
