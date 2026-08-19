@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Payment\Core;
 
-use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Payment\Core\Money;
 use WP_UnitTestCase;
 
@@ -73,16 +72,34 @@ final class MoneyScaleTest extends WP_UnitTestCase
     }
 
     /**
-     * Not a tautology: it fails the moment Money grows its own copy of the
-     * precision rule. CurrencyHelper clamps with max(0, ...) and additionally
-     * checks woocommerce_is_active(); a reimplementation on Money would drift
-     * from both, and the plugin would answer "how many decimals" two ways.
+     * The delegation lock, and it has to be this one.
+     *
+     * Asserting Money::decimals() === CurrencyHelper::get_price_decimals() at a
+     * positive decimal count proves nothing: WooCommerce is always active in
+     * this suite and wc_get_price_decimals() absints upstream, so both of
+     * CurrencyHelper's distinguishing behaviours are no-ops there and the old
+     * PaymentState formula would pass too.
+     *
+     * This filter is the one state where the two answers differ. It is public
+     * API -- a site may declare that its own currency options are authoritative
+     * while WooCommerce is still loaded -- so a Money that read
+     * wc_get_price_decimals() directly would ignore that declaration and scale
+     * money by the wrong power of ten.
      */
-    public function test_decimals_delegates_to_the_house_currency_accessor(): void
+    public function test_decimals_honours_the_house_rule_when_woocommerce_is_not_authoritative(): void
     {
         update_option('woocommerce_price_num_decimals', '3');
+        add_filter('mhmrentiva_woocommerce_is_active', '__return_false');
 
-        $this->assertSame(CurrencyHelper::get_price_decimals(), Money::decimals());
+        try {
+            $this->assertSame(
+                2,
+                Money::decimals(),
+                'Reading wc_get_price_decimals() directly returns 3 here and ignores the house rule.'
+            );
+        } finally {
+            remove_filter('mhmrentiva_woocommerce_is_active', '__return_false');
+        }
     }
 
     // NOT TESTED HERE, ON PURPOSE: the WooCommerce-absent branch. WooCommerce is
