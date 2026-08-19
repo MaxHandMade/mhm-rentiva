@@ -12,11 +12,14 @@ use WP_UnitTestCase;
  * The writer half of M-02.
  *
  * Before this sweep WooCommerceBridge::handle_order_refunded() wrote
- * _mhmrentiva_refunded_amount with a fixed (int) round($x * 100) while
- * PaymentState scaled the offline channel with 10^decimals. In a 2-decimal
- * store the two agree by coincidence. This test runs the store at three
- * decimals so the coincidence is gone, and asserts the recorded refund comes
- * back out of the facade as the same money that went in.
+ * _mhmrentiva_refunded_amount with a fixed (int) round($x * 100), while every
+ * consumer of that meta scales by 10^decimals. In a 2-decimal store the two
+ * agree by coincidence. This test runs the store at three decimals so the
+ * coincidence is gone, and pins the writer to the correct scale directly by
+ * reading the meta back. The second assertion is a cross-check that the
+ * facade resolves the same order and reports the refund at that same scale --
+ * it does not exercise the offline-only channel, which gets its own coverage
+ * in Task 6.
  */
 final class RefundedMetaScaleTest extends WP_UnitTestCase
 {
@@ -51,7 +54,7 @@ final class RefundedMetaScaleTest extends WP_UnitTestCase
         $this->assertSame(
             25000,
             PaymentState::forBooking($booking_id)->refunded(),
-            'The write scale and the read scale have to be the same scale.'
+            'The facade must resolve this order (both meta directions wired) and report the refund at the same scale the meta holds.'
         );
     }
 }

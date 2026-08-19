@@ -593,7 +593,9 @@ final class AdvancedLogger {
 		$level    = ( 'success' === $status ) ? self::LEVEL_INFO : self::LEVEL_ERROR;
 		$category = ( 'payment' === $gateway ) ? self::CATEGORY_PAYMENT : self::CATEGORY_SYSTEM;
 
-		// Normalize amount to the smallest currency unit (kurus/cents).
+		// Normalize amount to the store's minor unit. Not a fixed *100: this
+		// scales by the store's actual decimal precision via Money::toMinor(),
+		// so it no longer assumes a 2-decimal (kurus/cents) store.
 		$amount_kurus = 0;
 		if ( isset( $args['amount_kurus'] ) ) {
 			$amount_kurus = max( 0, (int) $args['amount_kurus'] );
