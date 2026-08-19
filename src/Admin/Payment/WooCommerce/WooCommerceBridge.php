@@ -14,8 +14,8 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
-use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 
@@ -2145,30 +2145,27 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// Get refund amount (in order currency, convert to smallest unit)
+		// The refund figures come from PaymentState, not from this one order.
+		// A deposit booking has two paid orders; writing $order's own
+		// get_total_refunded() here overwrote the booking's record with half of
+		// it, and the second refund erased the first. PaymentState::refunded()
+		// is the sum across the set, so this write is absolute and idempotent
+		// no matter which order fired the hook or how many times.
+		$state    = PaymentState::forBooking($booking_id);
+		$currency = $order->get_currency();
+
+		// Kept only for the activity-log entry below, which records what THIS
+		// WooCommerce order's own refund total is -- not the booking-wide figure
+		// PaymentState now owns.
 		$refund_amount = $order->get_total_refunded();
-		$currency      = $order->get_currency();
 
-		// Convert to the store's minor unit. Not a fixed *100: a 0-decimal (JPY)
-		// or 3-decimal (KWD) store scales by a different power of ten, and this
-		// meta is read back through Money on the other side.
-		$refund_amount_kurus = Money::toMinor($refund_amount);
-
-		// Get total paid amount
-		$total_paid       = (float) $order->get_total();
-		$total_paid_kurus = Money::toMinor($total_paid);
-
-		// Update booking refund meta
-		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $refund_amount_kurus);
+		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $state->refunded());
 		update_post_meta($booking_id, '_mhmrentiva_payment_currency', $currency);
 
-		// Determine payment status
-		if ($refund_amount_kurus >= $total_paid_kurus) {
-			// Full refund
+		if ($state->isFullyRefunded()) {
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'refunded');
 			Status::update_status($booking_id, 'refunded', get_current_user_id());
 		} else {
-			// Partial refund
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'partially_refunded');
 		}
 
@@ -2183,11 +2180,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Send refund notification
 		if (class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
 			try {
-				$payment_status = $refund_amount_kurus >= $total_paid_kurus ? 'refunded' : 'partially_refunded';
+				// Booking-wide, mirroring the write above -- not a second,
+				// independently-derived comparison against this one order's totals.
+				$payment_status = $state->isFullyRefunded() ? 'refunded' : 'partially_refunded';
 				$refund_reason  = $refund ? $refund->get_reason() : '';
 				\MHMRentiva\Admin\Emails\Notifications\RefundNotifications::notify(
 					$booking_id,
-					$refund_amount_kurus,
+					$state->refunded(),
 					$currency,
 					$payment_status,
 					$refund_reason
