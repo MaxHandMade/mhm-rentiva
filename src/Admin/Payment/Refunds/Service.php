@@ -30,15 +30,12 @@ final class Service {
 			);
 		}
 
-		// Derived, not trusted from 'channel' -- decide() hard-codes 'channel' to
-		// 'woocommerce' until Task 3, which would misroute an offline-only
-		// booking (payment_status proof plus total/remaining meta, no WC order
-		// at all) into the WooCommerce branch below. PaymentState::orders() is
-		// the same signal resolveOfflineChannel() itself uses to decide whether
-		// the offline channel is live, so this cannot disagree with the facade:
-		// WooCommerce owns the money when a paid order exists, otherwise the
-		// refund is a manual, offline one.
-		$gateway = empty( $validation['state']->orders() ) ? 'offline' : 'woocommerce';
+		// The channel comes from the validator, which derives it from
+		// PaymentState -- a paid WooCommerce order means WooCommerce owns the
+		// money, its absence means the refund is a manual, offline one. Reading
+		// it here rather than re-deriving it keeps that fact computed in
+		// exactly one place.
+		$gateway = $validation['channel'];
 		$amount  = $validation['amount'];
 
 		// Process refund based on gateway
@@ -102,15 +99,12 @@ final class Service {
 			);
 		}
 
-		// Derived, not trusted from 'channel' -- decide() hard-codes 'channel' to
-		// 'woocommerce' until Task 3, which would misroute an offline-only
-		// booking (payment_status proof plus total/remaining meta, no WC order
-		// at all) into the WooCommerce branch below. PaymentState::orders() is
-		// the same signal resolveOfflineChannel() itself uses to decide whether
-		// the offline channel is live, so this cannot disagree with the facade:
-		// WooCommerce owns the money when a paid order exists, otherwise the
-		// refund is a manual, offline one.
-		$gateway = empty( $validation['state']->orders() ) ? 'offline' : 'woocommerce';
+		// The channel comes from the validator, which derives it from
+		// PaymentState -- a paid WooCommerce order means WooCommerce owns the
+		// money, its absence means the refund is a manual, offline one. Reading
+		// it here rather than re-deriving it keeps that fact computed in
+		// exactly one place.
+		$gateway = $validation['channel'];
 		$amount  = $validation['amount'];
 
 		// Process full refund based on gateway
@@ -166,7 +160,7 @@ final class Service {
 	 * ⭐ Now supports both 'offline' and 'woocommerce' gateways
 	 */
 	private static function processGatewayRefund( int $bookingId, string $gateway, int $amount, string $reason ): array {
-		if ( $gateway === 'offline' ) {
+		if ( $gateway === RefundValidator::CHANNEL_OFFLINE ) {
 			return array(
 				'ok'      => true,
 				'id'      => 'manual_' . uniqid(),
@@ -175,7 +169,7 @@ final class Service {
 			);
 		}
 
-		if ( $gateway === 'woocommerce' ) {
+		if ( $gateway === RefundValidator::CHANNEL_WOOCOMMERCE ) {
 			// ⭐ For WooCommerce, refund should be processed through WooCommerce UI
 			// This method is called when admin manually processes refund from Rentiva panel
 			// We'll create a WooCommerce refund programmatically
@@ -249,7 +243,7 @@ final class Service {
 	 * ⭐ Now supports both 'offline' and 'woocommerce' gateways
 	 */
 	private static function processGatewayFullRefund( int $bookingId, string $gateway, string $reason ): array {
-		if ( $gateway === 'offline' ) {
+		if ( $gateway === RefundValidator::CHANNEL_OFFLINE ) {
 			return array(
 				'ok'      => true,
 				'id'      => 'manual_' . uniqid(),
@@ -257,7 +251,7 @@ final class Service {
 			);
 		}
 
-		if ( $gateway === 'woocommerce' ) {
+		if ( $gateway === RefundValidator::CHANNEL_WOOCOMMERCE ) {
 			// ⭐ For WooCommerce, process full refund through WooCommerce
 
 			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );

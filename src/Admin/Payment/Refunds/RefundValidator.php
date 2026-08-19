@@ -27,6 +27,16 @@ final class RefundValidator {
 	public const MODE_MANUAL = 'manual';
 
 	/**
+	 * The booking's money sits in at least one paid WooCommerce order.
+	 */
+	public const CHANNEL_WOOCOMMERCE = 'woocommerce';
+
+	/**
+	 * No paid WooCommerce order: cash, transfer, or a manually entered booking.
+	 */
+	public const CHANNEL_OFFLINE = 'offline';
+
+	/**
 	 * Validates booking for refund
 	 */
 	public static function validateBooking( int $bookingId ): array {
@@ -48,26 +58,6 @@ final class RefundValidator {
 		return array(
 			'valid'   => true,
 			'booking' => $post,
-		);
-	}
-
-	/**
-	 * Validates payment gateway
-	 * ⭐ Now supports both 'offline' and 'woocommerce' payment methods
-	 */
-	public static function validateGateway( string $gateway ): array {
-		$supportedGateways = array( 'offline', 'woocommerce' );
-
-		if ( ! in_array( $gateway, $supportedGateways, true ) ) {
-			return array(
-				'valid'   => false,
-				'message' => __( 'Unsupported payment method for refund', 'mhm-rentiva' ),
-			);
-		}
-
-		return array(
-			'valid'   => true,
-			'gateway' => $gateway,
 		);
 	}
 
@@ -216,7 +206,9 @@ final class RefundValidator {
 		return array(
 			'valid'      => true,
 			'booking_id' => $bookingId,
-			'channel'    => 'woocommerce',
+			'channel'    => array() === $state->orders()
+				? self::CHANNEL_OFFLINE
+				: self::CHANNEL_WOOCOMMERCE,
 			'amount'     => $requested,
 			'state'      => $state,
 		);
