@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use WP_Post;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -68,13 +69,6 @@ final class RefundValidator {
 			'valid'   => true,
 			'gateway' => $gateway,
 		);
-	}
-
-	/**
-	 * Validates refund amount
-	 */
-	public static function validateAmount( int $bookingId, int $amountKurus ): array {
-		return RefundCalculator::validateRefundAmount( $bookingId, $amountKurus );
 	}
 
 	/**
@@ -150,76 +144,81 @@ final class RefundValidator {
 	}
 
 	/**
-	 * Performs full refund validation
+	 * Validate a refund of the whole remaining balance.
+	 *
+	 * The old signature passed 0 to validateAmount() as a "means full" sentinel
+	 * and that validator refused 0 as an invalid amount, so this method could
+	 * never return valid. There is no sentinel now: the amount IS the balance
+	 * PaymentState reports.
 	 */
 	public static function validateFullRefund( int $bookingId ): array {
-		// Booking validation
-		$bookingValidation = self::validateBooking( $bookingId );
-		if ( ! $bookingValidation['valid'] ) {
-			return $bookingValidation;
-		}
+		$state = PaymentState::forBooking( $bookingId );
 
-		// Payment status validation
-		$statusValidation = self::validatePaymentStatus( $bookingId );
-		if ( ! $statusValidation['valid'] ) {
-			return $statusValidation;
-		}
-
-		// Gateway validation
-		$gateway           = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_gateway', true );
-		$gatewayValidation = self::validateGateway( $gateway );
-		if ( ! $gatewayValidation['valid'] ) {
-			return $gatewayValidation;
-		}
-
-		// Amount validation (for full refund)
-		$amountValidation = self::validateAmount( $bookingId, 0 ); // 0 = tam iade
-		if ( ! $amountValidation['valid'] ) {
-			return $amountValidation;
-		}
-
-		return array(
-			'valid'      => true,
-			'booking_id' => $bookingId,
-			'gateway'    => $gateway,
-			'amount'     => $amountValidation['remaining'],
-		);
+		return self::decide( $bookingId, $state, $state->refundable() );
 	}
 
 	/**
-	 * Performs partial refund validation
+	 * Validate a refund of a specific amount, in minor units.
 	 */
 	public static function validatePartialRefund( int $bookingId, int $amountKurus ): array {
-		// Booking validation
+		return self::decide( $bookingId, PaymentState::forBooking( $bookingId ), $amountKurus );
+	}
+
+	/**
+	 * The part both entry points share.
+	 *
+	 * Order matters and is not arbitrary. The booking and payment-status checks
+	 * come first: every state they reject also produces refundable() === 0, so
+	 * they narrow nothing, but they say WHY in a sentence an operator can act
+	 * on. Checking the amount first would answer "refund amount exceeds
+	 * remaining balance" for a booking id that does not exist.
+	 *
+	 * Then the balance, then the request. "There is nothing left to give back"
+	 * and "you asked for the wrong number" are different problems and the first
+	 * one is the operator's actual situation.
+	 *
+	 * @param int $requested Minor units. The whole balance for a full refund.
+	 */
+	private static function decide( int $bookingId, PaymentState $state, int $requested ): array {
 		$bookingValidation = self::validateBooking( $bookingId );
 		if ( ! $bookingValidation['valid'] ) {
 			return $bookingValidation;
 		}
 
-		// Payment status validation
 		$statusValidation = self::validatePaymentStatus( $bookingId );
 		if ( ! $statusValidation['valid'] ) {
 			return $statusValidation;
 		}
 
-		// Gateway validation
-		$gateway           = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_gateway', true );
-		$gatewayValidation = self::validateGateway( $gateway );
-		if ( ! $gatewayValidation['valid'] ) {
-			return $gatewayValidation;
+		$refundable = $state->refundable();
+
+		if ( $refundable <= 0 ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'No amount left to refund', 'mhm-rentiva' ),
+			);
 		}
 
-		// Amount validation
-		$amountValidation = self::validateAmount( $bookingId, $amountKurus );
-		if ( ! $amountValidation['valid'] ) {
-			return $amountValidation;
+		if ( $requested <= 0 ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Invalid refund amount', 'mhm-rentiva' ),
+			);
+		}
+
+		if ( $requested > $refundable ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Refund amount exceeds remaining balance', 'mhm-rentiva' ),
+			);
 		}
 
 		return array(
 			'valid'      => true,
 			'booking_id' => $bookingId,
-			'gateway'    => $gateway,
-			'amount'     => $amountKurus,
+			'channel'    => 'woocommerce',
+			'amount'     => $requested,
+			'state'      => $state,
 		);
 	}
 }

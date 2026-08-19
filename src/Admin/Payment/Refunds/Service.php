@@ -30,7 +30,10 @@ final class Service {
 			);
 		}
 
-		$gateway = $validation['gateway'];
+		// 'channel' is a Task 2 placeholder, always 'woocommerce' until Task 3
+		// makes it a real derived value -- read here only so this consumer does
+		// not crash on the key RefundValidator::decide() actually returns now.
+		$gateway = $validation['channel'];
 		$amount  = $validation['amount'];
 
 		// Process refund based on gateway
@@ -94,7 +97,10 @@ final class Service {
 			);
 		}
 
-		$gateway = $validation['gateway'];
+		// 'channel' is a Task 2 placeholder, always 'woocommerce' until Task 3
+		// makes it a real derived value -- read here only so this consumer does
+		// not crash on the key RefundValidator::decide() actually returns now.
+		$gateway = $validation['channel'];
 		$amount  = $validation['amount'];
 
 		// Process full refund based on gateway
