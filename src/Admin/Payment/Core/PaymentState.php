@@ -37,10 +37,15 @@ if (! defined('ABSPATH')) {
  * 3. The offline channel's base IS derived -- from booking meta, total minus
  *    remaining -- but only once payment_status proves the money actually
  *    arrived. It is live only when the booking has no paid WooCommerce order,
- *    and both directions, paid and refunded, are resolved behind the same
- *    gate (see resolveOfflineChannel()) so one cannot report money the other
- *    denies ever existed. refundableManual() is refunded by hand: there is no
- *    gateway behind it to send the refund through.
+ *    and both directions, paid and refunded, share that same liveness gate
+ *    (see resolveOfflineChannel()): a payment_status outside the proof set
+ *    now zeroes both legs together, instead of only one going dark while the
+ *    other stays lit. This does NOT make refunded() <= paid() a general
+ *    invariant -- once the gate is open, "total - remaining" and the stored
+ *    _mhmrentiva_refunded_amount are still two independently maintained
+ *    values with no arithmetic tie between them. refundableManual() is
+ *    refunded by hand: there is no gateway behind it to send the refund
+ *    through.
  *
  * @since 6.1.0
  */
@@ -169,6 +174,16 @@ final class PaymentState {
 	 * bookings only, so "total - remaining" on a full-payment offline booking
 	 * would read the entire price as paid before anyone had paid a lira.
 	 * 'cancelled' is not proof of payment, and it is not proof of a refund.
+	 *
+	 * Sharing the gate does not make refunded() <= paid() a general
+	 * invariant. Once the gate is open (a proof status is present),
+	 * "total - remaining" and _mhmrentiva_refunded_amount are still two
+	 * independently maintained values with no arithmetic tie between them --
+	 * a 'paid' deposit booking whose full amount is still sitting in
+	 * remaining, alongside an unrelated refund record, reports paid() === 0
+	 * and refunded() > 0 by the same arithmetic. What this method fixes is
+	 * liveness parity: a status outside the proof set now zeroes both legs
+	 * together, rather than only one of them.
 	 *
 	 * @param int[] $order_ids
 	 * @return array{0: int, 1: int} paid, refunded -- both in minor units.
