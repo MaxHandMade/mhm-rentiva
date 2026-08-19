@@ -1,5 +1,16 @@
 [
   {
+    "version": "6.1.0",
+    "date": "2026-08-19",
+    "type": "minor",
+    "title": "Sabit yüzlük ölçek yerine mağazanın ondalık ayarına göre çalışan para dönüşümü, ve artık teklif edilmeyen, hataya düşen bir WooCommerce ödeme linki",
+    "summary": "6.1.0, rezervasyon parasının nasıl ölçeklendiğini değiştiren bir dilimle başlıyor: eklenti artık major-minor birim dönüşümünde sabit ×100 çarpanı yerine mağazanın kendi ondalık basamak ayarını (WooCommerce → Ayarlar → Genel → Para Birimi Seçenekleri → Ondalık Basamak Sayısı) okuyor. Varsayılan iki ondalıklı bir mağazada hiçbir şey değişmiyor; farklı bir ondalık sayısına ayarlanmış bir mağazada ise bu sürümden önce kaydedilmiş iade ve ödeme tutarları dönüştürülmeden, doğrudan yeni ölçekle yeniden okunuyor -- mevcut kayıtlar için bir göç adımı yok ve planlanmıyor. Aynı dilim WooCommerce dışında depozito alınmış, elle oluşturulmuş bir rezervasyona kalan bakiye için WooCommerce ödeme linki teklif edilmesini de kapatıyor: bu bağlantı zaten her zaman hata veriyordu, çünkü depozitoyu WooCommerce dışında almayı mümkün kılan aynı koruma, o parayı zaten bildiği için WooCommerce siparişi oluşturmayı da reddediyordu. Depozito ekranı artık düğmeyi sunmak yerine durumu açıklıyor; bakiyeyi WooCommerce'e hiç uğramadan tahsil edilmiş olarak kaydeden \"İşlem Kalan Miktar\" düğmesi bundan etkilenmiyor.",
+    "changes": [
+      "Değişti: para tutarları artık major-minor birim dönüşümünde sabit ×100 çarpanı yerine mağazanın kendi ondalık basamak ayarını (WooCommerce'in Para Birimi Seçenekleri altındaki \"Ondalık Basamak Sayısı\") kullanıyor. Varsayılan iki ondalıklı bir mağazada hiçbir şey değişmiyor. Farklı bir ondalık sayısına ayarlanmış bir mağazada ise bu sürümden önce kaydedilmiş iade ve ödeme tutarları dönüştürülmeden, doğrudan yeni ölçekle yeniden okunuyor -- mevcut kayıtlar için bir göç adımı yok.",
+      "Düzeltildi: WooCommerce dışında depozito alınmış, elle oluşturulmuş bir rezervasyona kalan bakiye için hâlâ WooCommerce ödeme linki teklif edilebiliyordu ve bu bağlantı kullanıldığında her zaman hata veriyordu -- depozitoyu WooCommerce dışında almayı mümkün kılan aynı koruma, o parayı zaten bildiği için WooCommerce siparişi oluşturmayı reddediyordu. Depozito ekranı artık bu durumu tanıyor ve düğme yerine bunu açıklıyor. Bakiyeyi WooCommerce'e hiç uğramadan tahsil edilmiş olarak kaydeden \"İşlem Kalan Miktar\" düğmesi bundan etkilenmiyor, çalışmaya devam ediyor."
+    ]
+  },
+  {
     "version": "6.0.7",
     "date": "2026-08-17",
     "type": "patch",
