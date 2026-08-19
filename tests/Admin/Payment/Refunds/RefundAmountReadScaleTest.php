@@ -40,22 +40,15 @@ final class RefundAmountReadScaleTest extends WP_UnitTestCase
         update_option('woocommerce_price_num_decimals', '3');
 
         $booking_id = $this->factory->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
-        $order      = $this->create_paid_order_for_booking($booking_id, '1000.000');
+        $this->create_paid_order_for_booking($booking_id, '1000.000');
 
-        // A third gate this task does not own, measured directly: WooCommerce's
-        // is_editable() -- which RefundValidator::validateGatewaySpecific() uses
-        // to decide whether an order "can be refunded" -- is true only for
-        // pending/on-hold/auto-draft. A paid order is ordinarily "processing",
-        // so on a real site today this gate refuses the ordinary case, not an
-        // edge case. This is not a settled property of the system: spec §5.5
-        // tracks it as M-01, a defect -- is_editable() is scoped to the Edit
-        // Order screen, not a refundability test, and the correct questions
-        // are get_remaining_refund_amount() / can_refund_order(). Spec §10
-        // step 4 replaces this validator. Until then, a test that wants to
-        // reach the conversion has to walk the order back to an editable
-        // status by hand, same as the priming below.
-        $order->update_status('on-hold');
-        $order->save();
+        // M-01 (spec §5.5) is fixed as of slice 3 task 1: RefundValidator no
+        // longer gates on WooCommerce's is_editable(), which was true only for
+        // pending/on-hold/auto-draft and answered a question about the Edit
+        // Order screen, not about refundability. The order stays "processing"
+        // -- the ordinary status for a paid order, from create_paid_order_for_booking()
+        // above -- and no longer needs walking back to an editable status by
+        // hand to reach the conversion this test measures.
 
         // Priming a gate this task does not own. RefundCalculator reads
         // _mhmrentiva_payment_amount, a key with zero production writers, and refuses

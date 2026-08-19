@@ -16,6 +16,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class RefundValidator {
 
 	/**
+	 * The gateway can send the money back on its own.
+	 */
+	public const MODE_AUTO = 'auto';
+
+	/**
+	 * A human moves the money; the refund record is bookkeeping only.
+	 */
+	public const MODE_MANUAL = 'manual';
+
+	/**
 	 * Validates booking for refund
 	 */
 	public static function validateBooking( int $bookingId ): array {
@@ -108,43 +118,35 @@ final class RefundValidator {
 	}
 
 	/**
-	 * Performs gateway-specific validation
-	 * ⭐ Now handles both 'offline' and 'woocommerce' gateways
+	 * Can this order's gateway send the money back by itself?
+	 *
+	 * This replaced a rejection, not another rejection. The old code refused
+	 * the refund unless the order was still WooCommerce-editable -- true only
+	 * for pending/on-hold/auto-draft, a question about the Edit Order screen,
+	 * not about refundability. Measured on the dev site 2026-08-19, that gate
+	 * passed only orders with no money in them.
+	 *
+	 * The canonical pair for this question is supports('refunds') plus
+	 * can_refund_order() (wp-knowledge/official/woocommerce/wc-refunds.md).
+	 * wc_get_payment_gateway_by_order() returns false for a method no active
+	 * gateway claims -- offline transfers, deleted plugins, legacy orders --
+	 * and false lands on MODE_MANUAL, which is the fail-safe direction: a
+	 * manual refund records the debt without pretending money moved.
 	 */
-	public static function validateGatewaySpecific( int $bookingId, string $gateway ): array {
-		if ( $gateway === 'woocommerce' ) {
-			// ⭐ For WooCommerce, check if order exists and can be refunded
-			$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $bookingId );
-
-			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
-				return array(
-					'valid'   => false,
-					'message' => __( 'WooCommerce order not found for this booking', 'mhm-rentiva' ),
-				);
-			}
-
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
-				return array(
-					'valid'   => false,
-					'message' => __( 'WooCommerce order not found', 'mhm-rentiva' ),
-				);
-			}
-
-			// Check if order can be refunded
-			if ( ! $order->is_editable() ) {
-				return array(
-					'valid'   => false,
-					'message' => __( 'Order cannot be refunded (already completed or cancelled)', 'mhm-rentiva' ),
-				);
-			}
+	public static function modeForOrder( \WC_Order $order ): string {
+		if ( ! function_exists( 'wc_get_payment_gateway_by_order' ) ) {
+			return self::MODE_MANUAL;
 		}
 
-		// No specific validation needed for offline refunds
-		return array(
-			'valid'   => true,
-			'gateway' => $gateway,
-		);
+		$gateway = wc_get_payment_gateway_by_order( $order );
+
+		if ( ! $gateway instanceof \WC_Payment_Gateway ) {
+			return self::MODE_MANUAL;
+		}
+
+		return ( $gateway->supports( 'refunds' ) && $gateway->can_refund_order( $order ) )
+			? self::MODE_AUTO
+			: self::MODE_MANUAL;
 	}
 
 	/**
@@ -168,12 +170,6 @@ final class RefundValidator {
 		$gatewayValidation = self::validateGateway( $gateway );
 		if ( ! $gatewayValidation['valid'] ) {
 			return $gatewayValidation;
-		}
-
-		// Gateway-specific validation
-		$gatewaySpecificValidation = self::validateGatewaySpecific( $bookingId, $gateway );
-		if ( ! $gatewaySpecificValidation['valid'] ) {
-			return $gatewaySpecificValidation;
 		}
 
 		// Amount validation (for full refund)
@@ -211,12 +207,6 @@ final class RefundValidator {
 		$gatewayValidation = self::validateGateway( $gateway );
 		if ( ! $gatewayValidation['valid'] ) {
 			return $gatewayValidation;
-		}
-
-		// Gateway-specific validation
-		$gatewaySpecificValidation = self::validateGatewaySpecific( $bookingId, $gateway );
-		if ( ! $gatewaySpecificValidation['valid'] ) {
-			return $gatewaySpecificValidation;
 		}
 
 		// Amount validation
