@@ -45,18 +45,24 @@ final class RefundAmountReadScaleTest extends WP_UnitTestCase
         // A third gate this task does not own, measured directly: WooCommerce's
         // is_editable() -- which RefundValidator::validateGatewaySpecific() uses
         // to decide whether an order "can be refunded" -- is true only for
-        // pending/on-hold/auto-draft. The fixture leaves the order in
-        // "processing" (correctly, for the writer-side tests it was built for),
-        // so a partial refund here needs it walked back to an editable status
-        // first. This is a WC status quirk, not scale, so it is separate from
-        // the two blockers already named for this test.
+        // pending/on-hold/auto-draft. A paid order is ordinarily "processing",
+        // so on a real site today this gate refuses the ordinary case, not an
+        // edge case. This is not a settled property of the system: spec §5.5
+        // tracks it as M-01, a defect -- is_editable() is scoped to the Edit
+        // Order screen, not a refundability test, and the correct questions
+        // are get_remaining_refund_amount() / can_refund_order(). Spec §10
+        // step 4 replaces this validator. Until then, a test that wants to
+        // reach the conversion has to walk the order back to an editable
+        // status by hand, same as the priming below.
         $order->update_status('on-hold');
         $order->save();
 
         // Priming a gate this task does not own. RefundCalculator reads
         // _mhmrentiva_payment_amount, a key with zero production writers, and refuses
         // every partial refund without it. Spec §10 step 4 deletes that validator; until
-        // then a test that wants to reach the conversion has to satisfy it.
+        // then a test that wants to reach the conversion has to satisfy it. Status and
+        // gateway are primed for the same reason: validatePaymentStatus() rejects an
+        // empty status and validateGateway() accepts only offline/woocommerce.
         update_post_meta($booking_id, '_mhmrentiva_payment_amount', 1000000);
         update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($booking_id, '_mhmrentiva_payment_gateway', 'woocommerce');
