@@ -32,7 +32,12 @@ describe( 'refund amount scale', () => {
 	} );
 
 	it( 'encodes at the store precision, not a fixed 100', () => {
-		window.mhmBookingEmail = { priceDecimals: 3 };
+		// WP_Scripts::localize() casts every scalar with (string) before it
+		// reaches the browser (wp-includes/class-wp-scripts.php:656-661), so
+		// window.mhmBookingEmail.priceDecimals is always a string here, never
+		// a number. Seeding a number would let this test pass without
+		// reproducing the shape the page actually ships.
+		window.mhmBookingEmail = { priceDecimals: '3' };
 		require( '../../assets/js/admin/booking-email-send.js' );
 
 		const field = document.querySelector( 'input[name="amount_visible"]' );
