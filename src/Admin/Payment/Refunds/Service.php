@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
@@ -277,10 +278,57 @@ final class Service {
 			}
 		}
 
+		self::announce( $bookingId, $operation );
+
 		return array(
 			'mhmrentiva_refund'     => '1',
 			'mhmrentiva_refund_msg' => '',
 		);
+	}
+
+	/**
+	 * The operation's single customer + admin e-mail.
+	 *
+	 * One per operation, not one per WooCommerce refund object: a deposit
+	 * booking refunded in full creates two refunds and fired the hook twice,
+	 * so the customer received two mails for one event. handle_order_refunded()
+	 * now defers to isRefundInFlight() and this method is the only sender while
+	 * an operation is running.
+	 *
+	 * WooCommerce's own "Refunded order" customer e-mail is deliberately NOT
+	 * suppressed: it fires for every manual refund made from the WooCommerce
+	 * order screen too, and silencing a core customer mail is a larger change
+	 * than this slice carries. The mode-specific sentence lives in ours.
+	 *
+	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 */
+	private static function announce( int $bookingId, array $operation ): void {
+		try {
+			$state    = PaymentState::forBooking( $bookingId );
+			$currency = $state->currency();
+
+			if ( '' === $currency ) {
+				$currency = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+			}
+
+			RefundNotifications::notify(
+				$bookingId,
+				$operation['refunded'],
+				$currency,
+				$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
+				'',
+				$operation['mode']
+			);
+		} catch ( \Throwable $e ) {
+			Logger::add(
+				array(
+					'action'     => 'refund_notification',
+					'status'     => 'error',
+					'booking_id' => $bookingId,
+					'message'    => __( 'Refund notification could not be sent:', 'mhm-rentiva' ) . ' ' . $e->getMessage(),
+				)
+			);
+		}
 	}
 
 	/**

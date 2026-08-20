@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Emails\Core\Mailer;
+use MHMRentiva\Admin\Payment\Refunds\RefundValidator;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,7 +21,14 @@ final class RefundNotifications {
 		// nothing to hook right now; kept for consistency
 	}
 
-	public static function notify( int $booking_id, int $amount_kurus, string $currency, string $newPayStatus, string $reason = '' ): void {
+	public static function notify(
+		int $booking_id,
+		int $amount_kurus,
+		string $currency,
+		string $newPayStatus,
+		string $reason = '',
+		string $mode = RefundValidator::MODE_AUTO
+	): void {
 		$email = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_email', true );
 		$name  = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_name', true );
 		$admin = get_option( 'admin_email' );
@@ -38,10 +46,25 @@ final class RefundNotifications {
 		);
 		$statusText  = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
 
+		/**
+		 * The refund mode as the customer will be told it.
+		 *
+		 * 'auto' means the gateway sent the money back and it will appear on
+		 * the original payment method; 'manual' means a person has to move it,
+		 * so promising an automatic return would be false. The filter exists so
+		 * an integrator can override the classification for a gateway we cannot
+		 * interrogate -- and so the slice-3 tests can observe it.
+		 */
+		$mode = (string) apply_filters( 'mhmrentiva_refund_notification_mode', $mode, $booking_id );
+
+		$modeText = RefundValidator::MODE_MANUAL === $mode
+			? __( 'The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva' )
+			: __( 'The refund has been sent back to your original payment method.', 'mhm-rentiva' );
+
 		$wc_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 
 		$context = array(
-			'booking'  => array(
+			'booking'   => array(
 				'id'       => (int) $booking_id,
 				'order_id' => $wc_order_id ?: (int) $booking_id,
 				'title'    => get_the_title( $booking_id ),
@@ -52,14 +75,16 @@ final class RefundNotifications {
 					'currency' => (string) get_post_meta( $booking_id, '_mhmrentiva_payment_currency', true ) ?: 'TRY',
 				),
 			),
-			'amount'   => $amountHuman,
-			'status'   => $statusText,
-			'reason'   => (string) $reason,
-			'customer' => array(
+			'amount'    => $amountHuman,
+			'status'    => $statusText,
+			'mode'      => $mode,
+			'mode_text' => $modeText,
+			'reason'    => (string) $reason,
+			'customer'  => array(
 				'email' => $email,
 				'name'  => $name,
 			),
-			'site'     => array(
+			'site'      => array(
 				'name' => get_bloginfo( 'name' ),
 				'url'  => home_url( '/' ),
 			),

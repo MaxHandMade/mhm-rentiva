@@ -2282,8 +2282,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			update_post_meta($booking_id, '_mhmrentiva_refund_reason', $refund_reason);
 		}
 
-		// Send refund notification
-		if (class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
+		// One e-mail per refund OPERATION, not per WooCommerce refund object.
+		// While Service is walking a booking's orders it owns the message and
+		// sends it once at the end; a refund created from WooCommerce's own
+		// order screen has no operation behind it, so this hook owns it.
+		if (! \MHMRentiva\Admin\Payment\Refunds\Service::isRefundInFlight($booking_id)
+			&& class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
 			try {
 				// Mirrors the write above -- not a second, independently-derived
 				// comparison -- for both branches above (PaymentState-resolvable

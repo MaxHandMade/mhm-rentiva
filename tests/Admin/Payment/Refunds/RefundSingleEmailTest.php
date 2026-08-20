@@ -116,4 +116,82 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
             'A flag left up by an exception silences every later refund in the same request.'
         );
     }
+
+    /**
+     * @return int number of mails wp_mail was asked to send
+     */
+    private function count_mails(callable $operation): int
+    {
+        $count = 0;
+
+        $counter = static function (array $args) use (&$count): array {
+            ++$count;
+            return $args;
+        };
+
+        add_filter('wp_mail', $counter, 999);
+        $operation();
+        remove_filter('wp_mail', $counter, 999);
+
+        return $count;
+    }
+
+    public function test_a_service_driven_refund_sends_one_customer_mail_not_two(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
+        $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        $sent = $this->count_mails(function (): void {
+            Service::process($this->booking_id, Money::toMinor('20'), 'one mail');
+        });
+
+        // One customer mail + one admin mail = 2. Before this task the hook
+        // and the service each sent both, so the figure was 4.
+        $this->assertSame(2, $sent, 'The hook must stay silent while Service owns the operation.');
+    }
+
+    public function test_a_refund_made_from_the_woocommerce_screen_still_gets_its_mail(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        $sent = $this->count_mails(static function () use ($order): void {
+            // No Service involved: this is what the WooCommerce admin does.
+            wc_create_refund(array(
+                'order_id'       => $order->get_id(),
+                'amount'         => 20,
+                'refund_payment' => false,
+            ));
+        });
+
+        $this->assertSame(2, $sent, 'With no operation in flight the hook owns the mail.');
+    }
+
+    public function test_the_operation_mode_reaches_the_notification(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order->set_payment_method('mhm_no_such_gateway');
+        $order->save();
+
+        $modes = array();
+
+        add_filter(
+            'mhmrentiva_refund_notification_mode',
+            static function (string $mode) use (&$modes): string {
+                $modes[] = $mode;
+                return $mode;
+            },
+            10,
+            1
+        );
+
+        Service::process($this->booking_id, Money::toMinor('20'), 'mode delivery');
+
+        $this->assertSame(
+            array( \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_MANUAL ),
+            $modes,
+            'An order whose gateway cannot refund produces a manual-mode message.'
+        );
+    }
 }
