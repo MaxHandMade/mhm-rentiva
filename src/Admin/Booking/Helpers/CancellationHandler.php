@@ -399,13 +399,13 @@ final class CancellationHandler {
 	}
 
 	/**
-	 * Process refund if payment was made
+	 * The money step of a cancellation (spec §5.3).
 	 *
 	 * @param int    $booking_id Booking ID
-	 * @param int    $user_id User ID
-	 * @param string $reason Cancellation reason
-	 * @param bool   $system True for cron/automation callers, which have no current user
-	 * @return bool True if refund initiated, false otherwise
+	 * @param int    $user_id    The actor, 0 only for declared system callers
+	 * @param string $reason     Cancellation reason, carried into the refund record
+	 * @param bool   $system     See cancel_booking()
+	 * @return bool True when a refund was actually made.
 	 */
 	private static function process_refund( int $booking_id, int $user_id, string $reason = '', bool $system = false ): bool {
 		if ( ! self::may_move_money( $booking_id, $user_id, $system ) ) {
@@ -422,30 +422,42 @@ final class CancellationHandler {
 			return false;
 		}
 
-		// Get payment status
-		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
+		$payment_status = (string) get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 
-		if ( 'paid' !== $payment_status ) {
-			// No payment to refund
+		// The entry condition is the balance, not the status string. 'paid' is
+		// kept as an OR rather than replaced: a booking whose meta claims a
+		// payment no channel can see is a legacy shape, and narrowing the
+		// extension point would take mhmrentiva_process_refund away from
+		// integrators who fire on exactly that claim. It closes as
+		// not_required below instead.
+		$has_money = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id )->paid() > 0
+			|| in_array( $payment_status, array( 'paid', 'partially_refunded' ), true );
+
+		if ( ! $has_money ) {
 			return false;
 		}
 
-		// Get payment gateway
 		$payment_gateway = get_post_meta( $booking_id, '_mhmrentiva_payment_gateway', true );
 
-		// Mark as pending refund
 		update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'pending' );
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_at', current_time( 'mysql' ) );
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_by', $user_id );
 
-		// Trigger refund action for payment gateway handlers
+		// Position unchanged (spec §5.3): integrators run BEFORE the lock and
+		// BEFORE the state is resolved, so a refund they make themselves is
+		// visible to the decision below and is not made twice.
 		do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
 
-		// Note: Actual refund processing depends on payment gateway implementation
-		// For now, we just mark it as pending refund and trigger the action
-		// Payment gateway classes should listen to this action and process refunds
+		return self::settle_refund( $booking_id, $reason );
+	}
 
-		return true;
+	/**
+	 * Steps 4-9 of the spec §5.3 sequence. Filled in by Task 5.
+	 */
+	private static function settle_refund( int $booking_id, string $reason ): bool {
+		update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'not_required' );
+
+		return false;
 	}
 
 	/**
