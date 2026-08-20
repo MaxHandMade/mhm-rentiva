@@ -98,6 +98,13 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhm_attachments',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
+		// Slice 3 Task 12 bound Lite's last active reader of this key
+		// (EmailTemplates, RefundNotifications, BookingColumns) to PaymentState.
+		// Pro's BackgroundProcessor.php and Export.php still read it directly, so
+		// it graduated from shared to Pro-only the moment Lite's reference
+		// disappeared; DatabaseCleaner.php's own protection-list entry does not
+		// count (excluded from the scan -- see scan_roots()).
+		'_mhmrentiva_payment_amount',
 		// T4 removed Lite's paid vehicle/vendor behaviour, not ownership of the
 		// historical rows. These remain Pro-written data that Lite's unscoped
 		// invalid-meta cleanup must continue protecting.

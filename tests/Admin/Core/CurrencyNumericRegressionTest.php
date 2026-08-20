@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Admin\Core;
 use MHMRentiva\Admin\Booking\ListTable\BookingColumns;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\Emails\Core\Templates;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
@@ -31,6 +32,7 @@ use WP_UnitTestCase;
  */
 final class CurrencyNumericRegressionTest extends WP_UnitTestCase
 {
+    use WooCommerceFixtures;
     use WooCommerceOptionSandbox;
 
     private int $booking_id = 0;
@@ -38,6 +40,8 @@ final class CurrencyNumericRegressionTest extends WP_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->require_woocommerce();
 
         $this->booking_id = self::factory()->post->create(
             array(
@@ -50,10 +54,15 @@ final class CurrencyNumericRegressionTest extends WP_UnitTestCase
         update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'deposit');
         update_post_meta($this->booking_id, '_mhmrentiva_deposit_amount', '450.00');
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '1050.00');
-        update_post_meta($this->booking_id, '_mhmrentiva_payment_amount', 150000);
         update_post_meta($this->booking_id, '_mhmrentiva_payment_currency', 'TRY');
         update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'numeric@example.test');
         update_post_meta($this->booking_id, '_mhmrentiva_contact_name', 'Numeric Fixture');
+
+        // Task 12 retired every Lite reader of _mhmrentiva_payment_amount, so
+        // "150000 kuruş paid" is now staged the way PaymentState actually
+        // derives it -- a paid WooCommerce order -- rather than by writing the
+        // retired key directly.
+        $this->create_paid_order_for_booking($this->booking_id, '1500');
 
         // Placement must not matter to any assertion below. Pick the one that
         // used to be contradicted, so a placement regression cannot hide here.

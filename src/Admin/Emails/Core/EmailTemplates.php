@@ -358,13 +358,15 @@ final class EmailTemplates {
 			),
 		);
 		if ($booking_id > 0) {
+			$paymentState = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
+
 			$ctx['booking'] = array(
 				'id'          => $booking_id,
 				'title'       => get_the_title($booking_id),
 				'status'      => (string) get_post_meta($booking_id, '_mhmrentiva_status', true),
 				'payment'     => array(
 					'status'   => (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true),
-					'amount'   => (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true),
+					'amount'   => $paymentState->paid(),
 					'currency' => (string) get_post_meta($booking_id, '_mhmrentiva_payment_currency', true) ?: 'TRY',
 				),
 				// Helper for direct access. NUMERIC on purpose: the display layer
@@ -373,7 +375,7 @@ final class EmailTemplates {
 				// cast it to float read "1.500,00" as 1.5 — a silent 1000x error
 				// in a customer-facing figure — and the one consumer that guarded
 				// with `is_numeric()` printed the amount with no currency at all.
-				'total_price' => (float) Money::toMajor( (int) get_post_meta($booking_id, '_mhmrentiva_payment_amount', true) ),
+				'total_price' => (float) Money::toMajor( $paymentState->paid() ),
 			);
 			$ctx['customer'] = array(
 				'email' => (string) get_post_meta($booking_id, '_mhmrentiva_contact_email', true),

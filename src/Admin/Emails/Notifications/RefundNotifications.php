@@ -79,7 +79,7 @@ final class RefundNotifications {
 				'status'   => (string) get_post_meta( $booking_id, '_mhmrentiva_status', true ),
 				'payment'  => array(
 					'status'   => $newPayStatus,
-					'amount'   => (int) get_post_meta( $booking_id, '_mhmrentiva_payment_amount', true ),
+					'amount'   => \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id )->paid(),
 					'currency' => (string) get_post_meta( $booking_id, '_mhmrentiva_payment_currency', true ) ?: 'TRY',
 				),
 			),

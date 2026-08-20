@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Admin\Emails;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\Emails\Core\Templates;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
@@ -28,6 +29,7 @@ use WP_UnitTestCase;
  */
 final class EmailAmountIntegrityTest extends WP_UnitTestCase
 {
+    use WooCommerceFixtures;
     use WooCommerceOptionSandbox;
 
     private int $booking_id = 0;
@@ -35,6 +37,8 @@ final class EmailAmountIntegrityTest extends WP_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->require_woocommerce();
 
         $this->booking_id = self::factory()->post->create(
             array(
@@ -44,8 +48,11 @@ final class EmailAmountIntegrityTest extends WP_UnitTestCase
             )
         );
 
-        // 150000 kuruş = 1500.00 in the store currency.
-        update_post_meta($this->booking_id, '_mhmrentiva_payment_amount', 150000);
+        // Task 12 retired every Lite reader of _mhmrentiva_payment_amount, so
+        // "150000 kuruş paid" is staged the way PaymentState actually derives
+        // it -- a paid WooCommerce order -- rather than by writing the retired
+        // key directly.
+        $this->create_paid_order_for_booking($this->booking_id, '1500');
         update_post_meta($this->booking_id, '_mhmrentiva_payment_currency', 'USD');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '1500.00');
     }

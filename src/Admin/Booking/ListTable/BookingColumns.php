@@ -568,7 +568,7 @@ final class BookingColumns {
 			case 'mhmrentiva_booking_payment':
 				// Check both old and new meta keys
 				$status    = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_status', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_status', true ) );
-				$amount    = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_amount', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_amount', true ) );
+				$amount    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $post_id )->paid();
 				$currency  = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_currency', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_currency', true ) );
 				$gateway   = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_gateway', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_gateway', true ) );
 				$receiptId = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_offline_receipt_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_offline_receipt_id', true ) );
@@ -663,17 +663,15 @@ final class BookingColumns {
 			);
 			$q->set( 'orderby', 'meta_value_num' );
 		} elseif ( $orderby === 'mhmrentiva_booking_payment' ) {
-			// Check both old and new meta keys
+			// A derived amount has no column to sort on. Spec §4.4: the sort
+			// moves to _mhmrentiva_total_price, which IS stored. Sorting by the
+			// retired key produced an empty result set on every site, so this
+			// is a repair, not a behaviour change.
 			$q->set(
 				'meta_query',
 				array(
-					'relation' => 'OR',
 					array(
-						'key'     => '_mhmrentiva_booking_payment_amount',
-						'compare' => 'EXISTS',
-					),
-					array(
-						'key'     => '_mhmrentiva_payment_amount',
+						'key'     => '_mhmrentiva_total_price',
 						'compare' => 'EXISTS',
 					),
 				)
