@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
@@ -253,8 +254,16 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		// Update booking status to cancelled
-		Status::update_status( $booking_id, 'cancelled', get_current_user_id() );
+		// One entry point for both cancellation surfaces (spec §5.3, decision
+		// 4). $force is true because the deadline in CancellationHandler is the
+		// CUSTOMER's cancellation policy; the operator's own button must not
+		// inherit it -- this screen never applied it before.
+		$result = CancellationHandler::cancel_booking( $booking_id, get_current_user_id(), '', true );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			return;
+		}
 
 		// Add log
 		self::add_booking_log(

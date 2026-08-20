@@ -121,10 +121,25 @@ final class CancellationHandler {
 				throw new \Exception( __( 'Failed to update booking status.', 'mhm-rentiva' ) );
 			}
 
-			// Free up vehicle availability
+			// Free up vehicle availability. Best-effort on purpose: this is
+			// bookkeeping, and refusing to cancel a booking because its vehicle
+			// meta is incomplete fails in the wrong direction -- the operator
+			// asked for a cancellation, and the worst case of a skipped release
+			// is that some dates stay blocked. Measured: dev bookings 9471 and
+			// 9474 carry no pickup date, so throwing here turned the operator's
+			// cancel button into "Cancellation failed: Invalid booking data for
+			// availability update." Logged rather than swallowed.
 			$availability_freed = self::free_vehicle_availability( $booking_id );
 			if ( is_wp_error( $availability_freed ) ) {
-				throw new \Exception( $availability_freed->get_error_message() );
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+					array(
+						'gateway'    => 'cancellation',
+						'action'     => 'availability_release',
+						'status'     => 'error',
+						'booking_id' => $booking_id,
+						'message'    => __( 'Vehicle availability was not released for this cancellation:', 'mhm-rentiva' ) . ' ' . $availability_freed->get_error_message(),
+					)
+				);
 			}
 
 			// Clear cache
