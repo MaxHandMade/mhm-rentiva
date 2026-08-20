@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-20T08:40:02+00:00\n"
+"POT-Creation-Date: 2026-08-20T15:12:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -717,7 +717,7 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:511
 #: src/Admin/Booking/Actions/BookingActionGuard.php:62
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:64
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:65
 #: src/Admin/Utilities/Actions/Actions.php:59
 msgid "You do not have permission for this action."
 msgstr ""
@@ -1078,7 +1078,7 @@ msgid "Delete %s"
 msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:51
-#: src/Admin/Booking/Helpers/CancellationHandler.php:52
+#: src/Admin/Booking/Helpers/CancellationHandler.php:56
 #: src/Admin/Frontend/Account/AccountController.php:635
 #: src/Admin/Frontend/Account/AccountController.php:909
 #: src/Admin/Frontend/Account/AccountController.php:1125
@@ -1101,63 +1101,63 @@ msgstr ""
 msgid "This booking could not be approved. It may have changed — reload the list."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:92
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:144
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:93
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:145
 msgid "This booking does not use deposit system."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:98
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:150
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:99
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:151
 msgid "No remaining amount found."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:126
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:127
 msgid "Remaining amount processed successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:183
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:184
 msgid "Payment link generated and emailed to the customer."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:214
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:215
 msgid "This booking is not awaiting payment."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:235
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:236
 msgid "Payment confirmed successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:252
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:253
 msgid "This booking cannot be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:270
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:279
 msgid "Booking cancelled successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:294
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:303
 msgid "Refund cannot be processed for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:295
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:304
 msgid "This booking has no refundable balance left."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:340
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:349
 msgid "Refund not processed due to cancellation policy."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:366
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:375
 msgid "Refund issued from the deposit management screen."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:389
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:398
 #: src/Admin/Utilities/Actions/Actions.php:124
 msgid "Refund failed."
 msgstr ""
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:412
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:421
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr ""
@@ -1345,68 +1345,74 @@ msgstr ""
 msgid "No Show"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:63
+#: src/Admin/Booking/Helpers/CancellationHandler.php:67
 msgid "This booking is already cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:70
+#: src/Admin/Booking/Helpers/CancellationHandler.php:74
 msgid "Cannot cancel a completed booking."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:77
+#: src/Admin/Booking/Helpers/CancellationHandler.php:81
 msgid "Cannot cancel a refunded booking."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:95
+#: src/Admin/Booking/Helpers/CancellationHandler.php:99
 msgid "You do not have permission to cancel this booking."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:117
+#: src/Admin/Booking/Helpers/CancellationHandler.php:121
 msgid "Failed to update booking status."
 msgstr ""
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:155
+#: src/Admin/Booking/Helpers/CancellationHandler.php:142
+#, php-format
+msgid "Vehicle availability was not released for this cancellation: %s"
+msgstr ""
+
+#. translators: %s placeholder.
+#: src/Admin/Booking/Helpers/CancellationHandler.php:178
 #, php-format
 msgid "Cancellation failed: %s"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:179
+#: src/Admin/Booking/Helpers/CancellationHandler.php:202
 msgid "Booking pickup date is missing."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:196
-#: src/Admin/Booking/Helpers/CancellationHandler.php:531
+#: src/Admin/Booking/Helpers/CancellationHandler.php:219
+#: src/Admin/Booking/Helpers/CancellationHandler.php:672
 msgid "Invalid pickup date/time format."
 msgstr ""
 
 #. translators: 1: required hours before pickup, 2: hours remaining until pickup.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:215
+#: src/Admin/Booking/Helpers/CancellationHandler.php:238
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:226
+#: src/Admin/Booking/Helpers/CancellationHandler.php:249
 msgid "Failed to check cancellation deadline."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:245
+#: src/Admin/Booking/Helpers/CancellationHandler.php:268
 msgid "Invalid booking data for availability update."
 msgstr ""
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:305
+#: src/Admin/Booking/Helpers/CancellationHandler.php:328
 #, php-format
 msgid "Booking Cancellation Confirmation - %s"
 msgstr ""
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:342
+#: src/Admin/Booking/Helpers/CancellationHandler.php:365
 #, php-format
 msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:372
+#: src/Admin/Booking/Helpers/CancellationHandler.php:395
 #: src/Admin/Booking/Meta/BookingMeta.php:653
 msgid "Booking Cancelled"
 msgstr ""
@@ -1414,7 +1420,7 @@ msgstr ""
 #. translators: %s placeholder.
 #. translators: %s: customer name.
 #. translators: %s: customer name
-#: src/Admin/Booking/Helpers/CancellationHandler.php:374
+#: src/Admin/Booking/Helpers/CancellationHandler.php:397
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:746
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
@@ -1422,22 +1428,22 @@ msgstr ""
 msgid "Hello %s,"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:375
+#: src/Admin/Booking/Helpers/CancellationHandler.php:398
 msgid "Your booking has been cancelled successfully."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:378
+#: src/Admin/Booking/Helpers/CancellationHandler.php:401
 msgid "Booking Details:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:379
+#: src/Admin/Booking/Helpers/CancellationHandler.php:402
 #: src/Admin/Settings/Groups/EmailSettings.php:176
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/emails/booking-cancelled.html.php:59
 msgid "Booking ID:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:380
+#: src/Admin/Booking/Helpers/CancellationHandler.php:403
 #: src/Admin/Booking/Meta/BookingMeta.php:374
 #: src/Admin/Booking/Meta/BookingMeta.php:450
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:706
@@ -1454,7 +1460,7 @@ msgstr ""
 msgid "Vehicle:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:381
+#: src/Admin/Booking/Helpers/CancellationHandler.php:404
 #: src/Admin/Settings/Groups/EmailSettings.php:135
 #: templates/emails/booking-cancelled.html.php:75
 #: templates/emails/booking-created-admin.html.php:41
@@ -1465,43 +1471,52 @@ msgstr ""
 msgid "Pickup Date:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:382
+#: src/Admin/Booking/Helpers/CancellationHandler.php:405
 #: templates/emails/booking-cancelled.html.php:83
 msgid "Dropoff Date:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:385
+#: src/Admin/Booking/Helpers/CancellationHandler.php:408
 #: templates/emails/refund-admin.html.php:34
 #: templates/emails/refund-customer.html.php:42
 msgid "Reason:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:389
-msgid "If a refund is applicable, it will be processed within 5-7 business days."
+#: src/Admin/Booking/Helpers/CancellationHandler.php:412
+#: templates/emails/booking-cancelled.html.php:131
+msgid "If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:390
+#: src/Admin/Booking/Helpers/CancellationHandler.php:413
 #: templates/emails/booking-cancelled.html.php:156
 msgid "Thank you for choosing our service."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:514
+#: src/Admin/Booking/Helpers/CancellationHandler.php:437
+msgid "Refund not attempted: the cancellation was not attributed to a user allowed to move money."
+msgstr ""
+
+#: src/Admin/Booking/Helpers/CancellationHandler.php:496
+msgid "Refund not attempted: another refund is already running for this booking."
+msgstr ""
+
+#: src/Admin/Booking/Helpers/CancellationHandler.php:655
 msgid "Invalid booking data."
 msgstr ""
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:546
+#: src/Admin/Booking/Helpers/CancellationHandler.php:687
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr ""
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:553
+#: src/Admin/Booking/Helpers/CancellationHandler.php:694
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:569
+#: src/Admin/Booking/Helpers/CancellationHandler.php:710
 msgid "Error calculating cancellation deadline."
 msgstr ""
 
@@ -5788,28 +5803,32 @@ msgstr ""
 msgid "All rights reserved."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:47
+#: src/Admin/Emails/Notifications/RefundNotifications.php:52
 msgid "full refund"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:47
+#: src/Admin/Emails/Notifications/RefundNotifications.php:52
 msgid "partial refund"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:61
+#: src/Admin/Emails/Notifications/RefundNotifications.php:66
 msgid "The refund will be transferred to you manually; it will not appear on your original payment method automatically."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:62
+#: src/Admin/Emails/Notifications/RefundNotifications.php:67
 msgid "The refund has been sent back to your original payment method."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:69
+#: src/Admin/Emails/Notifications/RefundNotifications.php:74
 msgid "The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:70
+#: src/Admin/Emails/Notifications/RefundNotifications.php:75
 msgid "The payment gateway processed this refund automatically; no manual transfer is required."
+msgstr ""
+
+#: src/Admin/Emails/Notifications/RefundNotifications.php:115
+msgid "Refund notice not sent: no customer address on this booking."
 msgstr ""
 
 #: src/Admin/Emails/PostTypes/EmailLog.php:25
@@ -8768,7 +8787,7 @@ msgid "Already fully refunded"
 msgstr ""
 
 #: src/Admin/Payment/Refunds/RefundValidator.php:188
-#: src/Admin/Payment/Refunds/Service.php:191
+#: src/Admin/Payment/Refunds/Service.php:227
 msgid "No amount left to refund"
 msgstr ""
 
@@ -8780,29 +8799,33 @@ msgstr ""
 msgid "Refund amount exceeds remaining balance"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:160
+#: src/Admin/Payment/Refunds/Service.php:119
+msgid "Another refund is already running for this booking. Please try again in a moment."
+msgstr ""
+
+#: src/Admin/Payment/Refunds/Service.php:196
 msgid "Refund processed from Rentiva panel"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:175
+#: src/Admin/Payment/Refunds/Service.php:211
 msgid "Failed to create WooCommerce refund"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:201
+#: src/Admin/Payment/Refunds/Service.php:237
 msgid "Refund could not be completed in full"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:222
+#: src/Admin/Payment/Refunds/Service.php:258
 msgid "Refund successful"
 msgstr ""
 
 #. translators: 1: the amount already refunded before the failure, 2: the underlying error that stopped the rest
-#: src/Admin/Payment/Refunds/Service.php:242
+#: src/Admin/Payment/Refunds/Service.php:278
 #, php-format
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:357
+#: src/Admin/Payment/Refunds/Service.php:406
 msgid "Refund notification could not be sent:"
 msgstr ""
 
@@ -13262,10 +13285,6 @@ msgstr ""
 
 #: templates/emails/booking-cancelled.html.php:128
 msgid "Refund Information"
-msgstr ""
-
-#: templates/emails/booking-cancelled.html.php:131
-msgid "Your refund has been initiated and will be processed within 5-7 business days. The refund will be credited to the original payment method you used."
 msgstr ""
 
 #: templates/emails/booking-cancelled.html.php:140

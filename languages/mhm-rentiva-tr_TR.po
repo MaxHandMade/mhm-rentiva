@@ -718,7 +718,7 @@ msgstr "Güvenlik kontrolü başarısız oldu."
 #: src/Admin/Addons/AddonScreen.php:511
 #: src/Admin/Booking/Actions/BookingActionGuard.php:62
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:64
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:65
 #: src/Admin/Utilities/Actions/Actions.php:59
 msgid "You do not have permission for this action."
 msgstr "Bu işlem için izininiz yok."
@@ -1079,7 +1079,7 @@ msgid "Delete %s"
 msgstr "%s hizmetini sil"
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:51
-#: src/Admin/Booking/Helpers/CancellationHandler.php:52
+#: src/Admin/Booking/Helpers/CancellationHandler.php:56
 #: src/Admin/Frontend/Account/AccountController.php:635
 #: src/Admin/Frontend/Account/AccountController.php:909
 #: src/Admin/Frontend/Account/AccountController.php:1125
@@ -1102,59 +1102,59 @@ msgstr "Rezervasyon bulunamadı."
 msgid "This booking could not be approved. It may have changed — reload the list."
 msgstr "Bu rezervasyon onaylanamadı. Değişmiş olabilir — listeyi yeniden yükleyin."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:92
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:144
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:93
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:145
 msgid "This booking does not use deposit system."
 msgstr "Bu rezervasyon depozito sistemi kullanmamaktadır."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:98
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:150
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:99
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:151
 msgid "No remaining amount found."
 msgstr "Kalan tutar bulunamadı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:126
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:127
 msgid "Remaining amount processed successfully."
 msgstr "Kalan tutar başarıyla işlendi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:183
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:184
 msgid "Payment link generated and emailed to the customer."
 msgstr "Ödeme linki oluşturuldu ve müşteriye e-postayla gönderildi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:214
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:215
 msgid "This booking is not awaiting payment."
 msgstr "Bu rezervasyon onay beklememektedir."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:235
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:236
 msgid "Payment confirmed successfully."
 msgstr "Ödeme başarıyla onaylandı."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:252
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:253
 msgid "This booking cannot be cancelled."
 msgstr "Bu rezervasyon iptal edilemez."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:270
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:279
 msgid "Booking cancelled successfully."
 msgstr "Rezervasyon başarıyla iptal edildi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:294
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:303
 msgid "Refund cannot be processed for this booking."
 msgstr "Bu rezervasyon için geri ödeme yapılamaz."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:340
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:349
 msgid "Refund not processed due to cancellation policy."
 msgstr "İptal politikası nedeniyle geri ödeme işleme alınmamıştır."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:366
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:375
 msgid "Refund issued from the deposit management screen."
 msgstr "Kapora yönetimi ekranından iade işlendi."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:389
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:398
 #: src/Admin/Utilities/Actions/Actions.php:124
 msgid "Refund failed."
 msgstr "Geri ödeme başarısız oldu."
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:412
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:421
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr "Geri ödeme başarıyla tamamlandı. Geri ödeme tutarı: %s"
@@ -1342,68 +1342,68 @@ msgstr "İade Edildi"
 msgid "No Show"
 msgstr "Gösteri Yok"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:63
+#: src/Admin/Booking/Helpers/CancellationHandler.php:67
 msgid "This booking is already cancelled."
 msgstr "Bu rezervasyon zaten iptal edilmiştir."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:70
+#: src/Admin/Booking/Helpers/CancellationHandler.php:74
 msgid "Cannot cancel a completed booking."
 msgstr "Tamamlanmış bir rezervasyonu iptal edemezsiniz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:77
+#: src/Admin/Booking/Helpers/CancellationHandler.php:81
 msgid "Cannot cancel a refunded booking."
 msgstr "İade edilen rezervasyonları iptal edemezsiniz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:95
+#: src/Admin/Booking/Helpers/CancellationHandler.php:99
 msgid "You do not have permission to cancel this booking."
 msgstr "Bu rezervasyonu iptal etme izniniz yoktur."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:117
+#: src/Admin/Booking/Helpers/CancellationHandler.php:121
 msgid "Failed to update booking status."
 msgstr "Rezervasyon durumunu güncelleyemedi."
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:155
+#: src/Admin/Booking/Helpers/CancellationHandler.php:178
 #, php-format
 msgid "Cancellation failed: %s"
 msgstr "İptal başarısız: %s"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:179
+#: src/Admin/Booking/Helpers/CancellationHandler.php:202
 msgid "Booking pickup date is missing."
 msgstr "Rezervasyonun teslim alma tarihi eksik."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:196
-#: src/Admin/Booking/Helpers/CancellationHandler.php:531
+#: src/Admin/Booking/Helpers/CancellationHandler.php:219
+#: src/Admin/Booking/Helpers/CancellationHandler.php:672
 msgid "Invalid pickup date/time format."
 msgstr "Geçersiz teslim alma tarihi/saati biçimi."
 
 #. translators: 1: required hours before pickup, 2: hours remaining until pickup.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:215
+#: src/Admin/Booking/Helpers/CancellationHandler.php:238
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining."
 msgstr "İptal süresi dolmuştur. Rezervasyonlar, teslim almadan en az %1$d saat önce iptal edilmelidir. Sadece %2$.1f saat kaldı."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:226
+#: src/Admin/Booking/Helpers/CancellationHandler.php:249
 msgid "Failed to check cancellation deadline."
 msgstr "İptal son tarihini kontrol edemedi."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:245
+#: src/Admin/Booking/Helpers/CancellationHandler.php:268
 msgid "Invalid booking data for availability update."
 msgstr "Müsaitlik güncellemesi için geçersiz rezervasyon verileri."
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:305
+#: src/Admin/Booking/Helpers/CancellationHandler.php:328
 #, php-format
 msgid "Booking Cancellation Confirmation - %s"
 msgstr "Rezervasyon İptal Onayı - %s"
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:342
+#: src/Admin/Booking/Helpers/CancellationHandler.php:365
 #, php-format
 msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr "[ADMIN] Rezervasyon İptal Edildi - #%d"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:372
+#: src/Admin/Booking/Helpers/CancellationHandler.php:395
 #: src/Admin/Booking/Meta/BookingMeta.php:653
 msgid "Booking Cancelled"
 msgstr "Rezervasyon İptal Edildi"
@@ -1411,7 +1411,7 @@ msgstr "Rezervasyon İptal Edildi"
 #. translators: %s placeholder.
 #. translators: %s: customer name.
 #. translators: %s: customer name
-#: src/Admin/Booking/Helpers/CancellationHandler.php:374
+#: src/Admin/Booking/Helpers/CancellationHandler.php:397
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:746
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
@@ -1419,22 +1419,22 @@ msgstr "Rezervasyon İptal Edildi"
 msgid "Hello %s,"
 msgstr "Merhaba %s,"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:375
+#: src/Admin/Booking/Helpers/CancellationHandler.php:398
 msgid "Your booking has been cancelled successfully."
 msgstr "Rezervasyonunuz başarıyla iptal edildi."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:378
+#: src/Admin/Booking/Helpers/CancellationHandler.php:401
 msgid "Booking Details:"
 msgstr "Rezervasyon Detayları:"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:379
+#: src/Admin/Booking/Helpers/CancellationHandler.php:402
 #: src/Admin/Settings/Groups/EmailSettings.php:176
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/emails/booking-cancelled.html.php:59
 msgid "Booking ID:"
 msgstr "Rezervasyon ID:"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:380
+#: src/Admin/Booking/Helpers/CancellationHandler.php:403
 #: src/Admin/Booking/Meta/BookingMeta.php:374
 #: src/Admin/Booking/Meta/BookingMeta.php:450
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:706
@@ -1451,7 +1451,7 @@ msgstr "Rezervasyon ID:"
 msgid "Vehicle:"
 msgstr "Araç:"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:381
+#: src/Admin/Booking/Helpers/CancellationHandler.php:404
 #: src/Admin/Settings/Groups/EmailSettings.php:135
 #: templates/emails/booking-cancelled.html.php:75
 #: templates/emails/booking-created-admin.html.php:41
@@ -1462,43 +1462,39 @@ msgstr "Araç:"
 msgid "Pickup Date:"
 msgstr "Teslim Tarihi:"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:382
+#: src/Admin/Booking/Helpers/CancellationHandler.php:405
 #: templates/emails/booking-cancelled.html.php:83
 msgid "Dropoff Date:"
 msgstr "Teslim Tarihi:"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:385
+#: src/Admin/Booking/Helpers/CancellationHandler.php:408
 #: templates/emails/refund-admin.html.php:34
 #: templates/emails/refund-customer.html.php:42
 msgid "Reason:"
 msgstr "Nedeni:"
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:389
-msgid "If a refund is applicable, it will be processed within 5-7 business days."
-msgstr "Geri ödeme uygulanabilirse, 5-7 iş günü içinde işleme alınacaktır."
-
-#: src/Admin/Booking/Helpers/CancellationHandler.php:390
+#: src/Admin/Booking/Helpers/CancellationHandler.php:413
 #: templates/emails/booking-cancelled.html.php:156
 msgid "Thank you for choosing our service."
 msgstr "Hizmetimizi tercih ettiğiniz için teşekkür ederiz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:514
+#: src/Admin/Booking/Helpers/CancellationHandler.php:655
 msgid "Invalid booking data."
 msgstr "Geçersiz rezervasyon bilgileri."
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:546
+#: src/Admin/Booking/Helpers/CancellationHandler.php:687
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr "%1$s (%2$d saat öncesine kadar) iptal edebilirsiniz."
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:553
+#: src/Admin/Booking/Helpers/CancellationHandler.php:694
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr "İptal süresi dolmuştur. Rezervasyonlar, teslim almadan en az %d saat önce iptal edilmelidir."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:569
+#: src/Admin/Booking/Helpers/CancellationHandler.php:710
 msgid "Error calculating cancellation deadline."
 msgstr "İptal son tarihini hesaplarken hata oluştu."
 
@@ -5781,27 +5777,27 @@ msgstr "Bu e-posta için içerik mevcut değil."
 msgid "All rights reserved."
 msgstr "Her hakkı saklıdır."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:47
+#: src/Admin/Emails/Notifications/RefundNotifications.php:52
 msgid "full refund"
 msgstr "tam geri ödeme"
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:47
+#: src/Admin/Emails/Notifications/RefundNotifications.php:52
 msgid "partial refund"
 msgstr "kısmi geri ödeme"
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:61
+#: src/Admin/Emails/Notifications/RefundNotifications.php:66
 msgid "The refund will be transferred to you manually; it will not appear on your original payment method automatically."
 msgstr "İade tutarı size manuel olarak aktarılacaktır; orijinal ödeme yönteminizde otomatik olarak görünmeyecektir."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:62
+#: src/Admin/Emails/Notifications/RefundNotifications.php:67
 msgid "The refund has been sent back to your original payment method."
 msgstr "İade tutarı, orijinal ödeme yönteminize yatırılmıştır."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:69
+#: src/Admin/Emails/Notifications/RefundNotifications.php:74
 msgid "The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually."
 msgstr "Ödeme ağ geçidi bu iadeyi otomatik olarak işleyemedi; yukarıdaki tutarın müşteriye manuel olarak aktarılması gerekiyor."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:70
+#: src/Admin/Emails/Notifications/RefundNotifications.php:75
 msgid "The payment gateway processed this refund automatically; no manual transfer is required."
 msgstr "Ödeme ağ geçidi bu iadeyi otomatik olarak işledi; manuel aktarım gerekmiyor."
 
@@ -8761,7 +8757,7 @@ msgid "Already fully refunded"
 msgstr "Tamamen iade edildi"
 
 #: src/Admin/Payment/Refunds/RefundValidator.php:188
-#: src/Admin/Payment/Refunds/Service.php:191
+#: src/Admin/Payment/Refunds/Service.php:227
 msgid "No amount left to refund"
 msgstr "İade edilecek tutar kalmadı"
 
@@ -8773,29 +8769,29 @@ msgstr "Geçersiz geri ödeme tutarı"
 msgid "Refund amount exceeds remaining balance"
 msgstr "İade tutarı kalan bakiyeyi aşıyor"
 
-#: src/Admin/Payment/Refunds/Service.php:160
+#: src/Admin/Payment/Refunds/Service.php:196
 msgid "Refund processed from Rentiva panel"
 msgstr "Rentiva panelinden işlenen geri ödeme"
 
-#: src/Admin/Payment/Refunds/Service.php:175
+#: src/Admin/Payment/Refunds/Service.php:211
 msgid "Failed to create WooCommerce refund"
 msgstr "WooCommerce geri ödemesi oluşturulamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:201
+#: src/Admin/Payment/Refunds/Service.php:237
 msgid "Refund could not be completed in full"
 msgstr "İade tam olarak tamamlanamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:222
+#: src/Admin/Payment/Refunds/Service.php:258
 msgid "Refund successful"
 msgstr "Para iadesi başarılı"
 
 #. translators: 1: the amount already refunded before the failure, 2: the underlying error that stopped the rest
-#: src/Admin/Payment/Refunds/Service.php:242
+#: src/Admin/Payment/Refunds/Service.php:278
 #, php-format
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr "Bu işlem başarısız olmadan önce %1$s zaten iade edildi: %2$s"
 
-#: src/Admin/Payment/Refunds/Service.php:357
+#: src/Admin/Payment/Refunds/Service.php:406
 msgid "Refund notification could not be sent:"
 msgstr "Para iadesi bildirimi gönderilemedi:"
 
@@ -13257,10 +13253,6 @@ msgstr "İptal Tarihi:"
 msgid "Refund Information"
 msgstr "İade Bilgileri"
 
-#: templates/emails/booking-cancelled.html.php:131
-msgid "Your refund has been initiated and will be processed within 5-7 business days. The refund will be credited to the original payment method you used."
-msgstr "Geri ödemeniz başlatılmıştır ve 5-7 iş günü içinde işleme alınacaktır. Geri ödeme, kullandığınız orijinal ödeme yöntemine yatırılacaktır."
-
 #: templates/emails/booking-cancelled.html.php:140
 msgid "We're sorry to see your booking cancelled. If you have any questions or would like to make a new reservation, please don't hesitate to contact us."
 msgstr "Rezervasyonunuzun iptal edildiğini görmekten üzüntü duyuyoruz. Herhangi bir sorunuz varsa veya yeni bir rezervasyon yapmak istiyorsanız, lütfen bizimle iletişime geçmekten çekinmeyin."
@@ -15303,10 +15295,37 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:295
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:304
 msgid "This booking has no refundable balance left."
 msgstr "Bu rezervasyonda iade edilebilir bakiye kalmadı."
 
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:90
 msgid "This amount is refundable; refunds for this booking are recorded from the deposit-management screen."
 msgstr "Bu tutar iade edilebilir; bu rezervasyonun iadeleri kapora yönetimi ekranından kaydedilir."
+
+#. translators: %s placeholder.
+#: src/Admin/Booking/Helpers/CancellationHandler.php:142
+#, php-format
+msgid "Vehicle availability was not released for this cancellation: %s"
+msgstr "Bu iptal için araç müsaitliği serbest bırakılamadı: %s"
+
+#: src/Admin/Booking/Helpers/CancellationHandler.php:412
+#: templates/emails/booking-cancelled.html.php:131
+msgid "If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you."
+msgstr "Bu rezervasyon için bir iade söz konusuysa, tutarı ve size nasıl ulaşacağını belirten ayrı bir iade bildirimi alacaksınız."
+
+#: src/Admin/Booking/Helpers/CancellationHandler.php:437
+msgid "Refund not attempted: the cancellation was not attributed to a user allowed to move money."
+msgstr "İade denenmedi: iptal işlemi, para hareketi yapmaya yetkili bir kullanıcıya atfedilmedi."
+
+#: src/Admin/Booking/Helpers/CancellationHandler.php:496
+msgid "Refund not attempted: another refund is already running for this booking."
+msgstr "İade denenmedi: bu rezervasyon için zaten başka bir iade işlemi sürüyor."
+
+#: src/Admin/Emails/Notifications/RefundNotifications.php:115
+msgid "Refund notice not sent: no customer address on this booking."
+msgstr "İade bildirimi gönderilmedi: bu rezervasyonda müşteri adresi yok."
+
+#: src/Admin/Payment/Refunds/Service.php:119
+msgid "Another refund is already running for this booking. Please try again in a moment."
+msgstr "Bu rezervasyon için zaten başka bir iade işlemi sürüyor. Lütfen birazdan tekrar deneyin."
