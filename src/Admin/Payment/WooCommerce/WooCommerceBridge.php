@@ -2217,7 +2217,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// on top of THAT is read-modify-write accumulation on every
 			// refund of this order: previous + running_total, growing
 			// without bound (three successive partial refunds of one
-			// invisible 40 order measured 1500, then 4500, then 8500,
+			// invisible 40 order would record 1500, then 4500, then 8500,
 			// against a true 4000) -- the exact double-write shape this
 			// slice exists to remove. So the pure case uses this order's own
 			// total alone, same as the pre-round-3 fallback.
