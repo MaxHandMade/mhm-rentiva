@@ -7,6 +7,8 @@ namespace MHMRentiva\Tests\Admin\Payment\Refunds;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Refunds\Service;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceRefundGatewayDouble;
+use MHMRentiva\Tests\Support\WooCommerceRefundGatewayRegistration;
 use WP_UnitTestCase;
 
 /**
@@ -23,6 +25,7 @@ use WP_UnitTestCase;
 final class RefundPartialFailureTest extends WP_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceRefundGatewayRegistration;
 
     /** @var int */
     private $booking_id;
@@ -39,18 +42,73 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
         ));
 
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+
+        $this->register_refund_gateway_double();
     }
 
-    public function test_a_completed_operation_records_completed(): void
+    public function tearDown(): void
+    {
+        $this->unregister_refund_gateway_double();
+
+        parent::tearDown();
+    }
+
+    /**
+     * create_paid_order_for_booking() never sets a payment method, so
+     * wc_get_payment_gateway_by_order() returns false and modeForOrder()
+     * answers MODE_MANUAL. This test was asserting 'completed' for an
+     * operation in which no gateway moved a lira -- true of the write, false
+     * of the world. wc-refunds.md fact 2: a manual refund is a bookkeeping
+     * record, not a payment, and the operator still has to send the money.
+     */
+    public function test_a_manual_operation_records_manual_pending(): void
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::processFullRefund($this->booking_id, 'completed');
+        Service::processFullRefund($this->booking_id, 'manual');
+
+        $this->assertSame(
+            'manual_pending',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true)
+        );
+    }
+
+    public function test_an_automatic_operation_records_completed(): void
+    {
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        // Opt this order into the auto path deliberately; see
+        // WooCommerceRefundGatewayDouble's docblock. The gateway itself is
+        // registered by the trait in setUp().
+        $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+        $order->save();
+
+        Service::processFullRefund($this->booking_id, 'auto');
 
         $this->assertSame(
             'completed',
-            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true)
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            'Only the gateway path may claim the money has already gone back.'
         );
+    }
+
+    public function test_the_operation_announces_its_end_once(): void
+    {
+        $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        $fired = 0;
+        add_action(
+            'mhmrentiva_refund_completed',
+            static function () use (&$fired): void {
+                ++$fired;
+            },
+            10,
+            2
+        );
+
+        Service::processFullRefund($this->booking_id, 'announce');
+
+        $this->assertSame(1, $fired, 'Spec §5.3 step 9: one operation, one completion signal.');
     }
 
     public function test_a_leg_that_fails_after_a_successful_one_records_partial_failure(): void

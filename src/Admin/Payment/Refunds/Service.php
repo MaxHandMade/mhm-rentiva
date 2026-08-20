@@ -305,13 +305,24 @@ final class Service {
 				$operation['refunded'] > 0 ? 'partial_failure' : 'failed'
 			);
 
+			do_action( 'mhmrentiva_refund_completed', $bookingId, $operation );
+
 			return array(
 				'mhmrentiva_refund'     => '0',
 				'mhmrentiva_refund_msg' => $message,
 			);
 		}
 
-		update_post_meta( $bookingId, '_mhmrentiva_refund_status', 'completed' );
+		// 'completed' is a claim that the money has already gone back. Only the
+		// gateway path can make it: a manual refund is a bookkeeping record and
+		// the operator still has to transfer the money by hand
+		// (wp-knowledge/official/woocommerce/wc-refunds.md, fact 2). Spec §5.3
+		// step 9 names this value; N-05 (step 7) is what will show it.
+		update_post_meta(
+			$bookingId,
+			'_mhmrentiva_refund_status',
+			RefundValidator::MODE_MANUAL === $operation['mode'] ? 'manual_pending' : 'completed'
+		);
 
 		if ( RefundValidator::CHANNEL_OFFLINE === $operation['channel'] ) {
 			// The one place in the plugin that adds rather than sets. Offline
@@ -337,6 +348,8 @@ final class Service {
 		}
 
 		self::announce( $bookingId, $operation );
+
+		do_action( 'mhmrentiva_refund_completed', $bookingId, $operation );
 
 		return array(
 			'mhmrentiva_refund'     => '1',
