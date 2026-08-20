@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Booking\Meta;
 
 use MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
 /**
@@ -24,6 +25,8 @@ use WP_UnitTestCase;
  */
 final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 {
+    use WooCommerceFixtures;
+
     /** @var int */
     private $booking_id;
 
@@ -73,6 +76,42 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
     {
         $html = $this->render();
 
+        $this->assertStringNotContainsString('name="amount_kurus"', $html);
+    }
+
+    /**
+     * The safety-critical branch: BookingRefundMetaBox.php's
+     * `array() === $state->orders() ? $state->refundableManual() : 0` forces
+     * $remaining to 0 the moment a paid WooCommerce order exists, so this box
+     * never opens a second refund path -- with different rules -- over money
+     * that already has a WooCommerce-owned or deposit-management path.
+     *
+     * The booking also carries the same offline meta as
+     * test_an_offline_paid_booking_gets_a_refund_form -- proof-of-payment
+     * status, a total, a zero remaining -- so this proves the WooCommerce
+     * order is what suppresses the form, not an absence of offline data. Drop
+     * the order and the same meta produces a form (that is the first test in
+     * this file). See the task report for the mutation-kill evidence: dropping
+     * this box's own ternary in favour of a bare refundableManual() call did
+     * NOT fail this test -- PaymentState::resolveOfflineChannel() already
+     * zeroes the offline channel whenever order_ids is non-empty, so the box's
+     * gate is defense-in-depth, not the only backstop. Replacing $remaining
+     * with paid() - refunded() (both channels, not just the offline one) DID
+     * fail it, rendering a full form for this WooCommerce-order booking.
+     */
+    public function test_a_paid_woocommerce_order_shows_no_form_even_with_offline_data_present(): void
+    {
+        $this->require_woocommerce();
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $this->create_paid_order_for_booking($this->booking_id, '80');
+
+        $html = $this->render();
+
+        $this->assertStringContainsString('No refundable payment found', $html);
         $this->assertStringNotContainsString('name="amount_kurus"', $html);
     }
 }
