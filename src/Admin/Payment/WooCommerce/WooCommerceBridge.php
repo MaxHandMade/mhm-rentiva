@@ -2294,12 +2294,26 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// or the per-order fallback).
 				$payment_status = $fully_refunded ? 'refunded' : 'partially_refunded';
 				$refund_reason  = $refund ? $refund->get_reason() : '';
+
+				// WooCommerce passes the operator's own gateway-vs-manual choice
+				// straight through as 'refund_payment' -- its admin AJAX handler
+				// sets this from the "Refund via gateway" vs "Refund manually"
+				// toggle the operator picked on the order screen. A missing key
+				// means no gateway refund was requested, so MODE_MANUAL is the
+				// fail-safe reading -- the same direction
+				// RefundValidator::modeForOrder() already defaults to when it
+				// cannot ask the gateway at all.
+				$mode = ( $args['refund_payment'] ?? false )
+					? \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_AUTO
+					: \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_MANUAL;
+
 				\MHMRentiva\Admin\Emails\Notifications\RefundNotifications::notify(
 					$booking_id,
 					$recorded_refunded,
 					$currency,
 					$payment_status,
-					$refund_reason
+					$refund_reason,
+					$mode
 				);
 			} catch (\Throwable $e) {
 				AdvancedLogger::error(

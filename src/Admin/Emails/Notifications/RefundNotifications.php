@@ -61,10 +61,18 @@ final class RefundNotifications {
 			? __( 'The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva' )
 			: __( 'The refund has been sent back to your original payment method.', 'mhm-rentiva' );
 
+		// The operator's copy of the same fact, phrased as an action item
+		// rather than a promise to the customer: a manual-mode refund did not
+		// touch the gateway, so unlike the customer sentence, this is the
+		// admin's cue that the transfer still has to be made by hand.
+		$adminModeText = RefundValidator::MODE_MANUAL === $mode
+			? __( 'The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually.', 'mhm-rentiva' )
+			: __( 'The payment gateway processed this refund automatically; no manual transfer is required.', 'mhm-rentiva' );
+
 		$wc_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 
 		$context = array(
-			'booking'   => array(
+			'booking'         => array(
 				'id'       => (int) $booking_id,
 				'order_id' => $wc_order_id ?: (int) $booking_id,
 				'title'    => get_the_title( $booking_id ),
@@ -75,16 +83,17 @@ final class RefundNotifications {
 					'currency' => (string) get_post_meta( $booking_id, '_mhmrentiva_payment_currency', true ) ?: 'TRY',
 				),
 			),
-			'amount'    => $amountHuman,
-			'status'    => $statusText,
-			'mode'      => $mode,
-			'mode_text' => $modeText,
-			'reason'    => (string) $reason,
-			'customer'  => array(
+			'amount'          => $amountHuman,
+			'status'          => $statusText,
+			'mode'            => $mode,
+			'mode_text'       => $modeText,
+			'admin_mode_text' => $adminModeText,
+			'reason'          => (string) $reason,
+			'customer'        => array(
 				'email' => $email,
 				'name'  => $name,
 			),
-			'site'      => array(
+			'site'            => array(
 				'name' => get_bloginfo( 'name' ),
 				'url'  => home_url( '/' ),
 			),

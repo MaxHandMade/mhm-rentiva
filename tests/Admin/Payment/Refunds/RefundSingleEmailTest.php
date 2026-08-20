@@ -7,6 +7,8 @@ namespace MHMRentiva\Tests\Admin\Payment\Refunds;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Refunds\Service;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceRefundGatewayDouble;
+use MHMRentiva\Tests\Support\WooCommerceRefundGatewayRegistration;
 use WP_UnitTestCase;
 
 /**
@@ -24,6 +26,7 @@ use WP_UnitTestCase;
 final class RefundSingleEmailTest extends WP_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceRefundGatewayRegistration;
 
     /** @var int */
     private $booking_id;
@@ -136,6 +139,30 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         return $count;
     }
 
+    /**
+     * The customer mail's actual HTML body -- what wp_mail() is asked to
+     * send, not $context. A test that only inspects $context (as this file's
+     * earlier mode test does) cannot notice a template that never references
+     * the token carrying that value; this is the rendered-output half.
+     */
+    private function capture_customer_body(callable $operation): string
+    {
+        $body = '';
+
+        $capture = static function (array $args) use (&$body): array {
+            if (($args['to'] ?? '') === 'customer@example.test') {
+                $body = (string) ($args['message'] ?? '');
+            }
+            return $args;
+        };
+
+        add_filter('wp_mail', $capture, 999);
+        $operation();
+        remove_filter('wp_mail', $capture, 999);
+
+        return $body;
+    }
+
     public function test_a_service_driven_refund_sends_one_customer_mail_not_two(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
@@ -150,21 +177,144 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         $this->assertSame(2, $sent, 'The hook must stay silent while Service owns the operation.');
     }
 
+    /**
+     * The context-array test above (test_the_operation_mode_reaches_the_notification)
+     * proves the mode value is computed and filtered correctly. It cannot
+     * prove a customer ever sees a sentence about it, because RefundNotifications::notify()
+     * puts mode_text into $context whether or not any template references
+     * that token -- and until this test existed, nothing did. This asserts
+     * against the rendered HTML body wp_mail() is actually asked to send,
+     * for both an auto-capable leg and a manual one, and checks each body
+     * contains its own sentence and NOT the other mode's.
+     */
+    public function test_the_rendered_customer_body_names_the_mode(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        $this->register_refund_gateway_double();
+        try {
+            $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+            $order->save();
+
+            $autoBody = $this->capture_customer_body(function (): void {
+                Service::process($this->booking_id, Money::toMinor('20'), 'auto body check');
+            });
+        } finally {
+            $this->unregister_refund_gateway_double();
+        }
+
+        $this->assertStringContainsString(
+            __('The refund has been sent back to your original payment method.', 'mhm-rentiva'),
+            $autoBody,
+            'An auto-capable leg must produce the auto sentence in the actual rendered body.'
+        );
+        $this->assertStringNotContainsString(
+            __('The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva'),
+            $autoBody
+        );
+
+        $manual_booking = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($manual_booking, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($manual_booking, '_mhmrentiva_contact_email', 'customer@example.test');
+
+        $manual_order = $this->create_paid_order_for_booking($manual_booking, '120');
+        $manual_order->set_payment_method('mhm_no_such_gateway');
+        $manual_order->save();
+
+        $manualBody = $this->capture_customer_body(function () use ($manual_booking): void {
+            Service::process($manual_booking, Money::toMinor('20'), 'manual body check');
+        });
+
+        $this->assertStringContainsString(
+            __('The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva'),
+            $manualBody,
+            'A gateway that cannot refund must produce the manual sentence in the actual rendered body.'
+        );
+        $this->assertStringNotContainsString(
+            __('The refund has been sent back to your original payment method.', 'mhm-rentiva'),
+            $manualBody
+        );
+    }
+
     public function test_a_refund_made_from_the_woocommerce_screen_still_gets_its_mail(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
         $order = $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        $sent = $this->count_mails(static function () use ($order): void {
-            // No Service involved: this is what the WooCommerce admin does.
-            wc_create_refund(array(
-                'order_id'       => $order->get_id(),
-                'amount'         => 20,
-                'refund_payment' => false,
-            ));
-        });
+        $sent       = 0;
+        $manualBody = '';
+
+        $counter = static function (array $args) use (&$sent, &$manualBody): array {
+            ++$sent;
+            if (($args['to'] ?? '') === 'customer@example.test') {
+                $manualBody = (string) ($args['message'] ?? '');
+            }
+            return $args;
+        };
+
+        add_filter('wp_mail', $counter, 999);
+        // No Service involved: this is what the WooCommerce admin does when
+        // the operator picks "Refund manually" on the order screen -- no
+        // money is sent through the gateway.
+        wc_create_refund(array(
+            'order_id'       => $order->get_id(),
+            'amount'         => 20,
+            'refund_payment' => false,
+        ));
+        remove_filter('wp_mail', $counter, 999);
 
         $this->assertSame(2, $sent, 'With no operation in flight the hook owns the mail.');
+        $this->assertStringContainsString(
+            __('The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva'),
+            $manualBody,
+            'refund_payment => false is the operator choosing "Refund manually" -- the mail must say '
+                . 'so, not silently default to the auto sentence.'
+        );
+
+        // The other direction: the operator picks "Refund via gateway"
+        // instead. A second, independent booking/order keeps this free of
+        // the first refund's remaining-balance bookkeeping.
+        $auto_booking = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($auto_booking, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($auto_booking, '_mhmrentiva_contact_email', 'customer@example.test');
+
+        $autoBody = '';
+
+        $this->register_refund_gateway_double();
+        try {
+            $auto_order = $this->create_paid_order_for_booking($auto_booking, '120');
+            $auto_order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+            $auto_order->save();
+
+            $autoBody = $this->capture_customer_body(static function () use ($auto_order): void {
+                wc_create_refund(array(
+                    'order_id'       => $auto_order->get_id(),
+                    'amount'         => 20,
+                    'refund_payment' => true,
+                ));
+            });
+        } finally {
+            $this->unregister_refund_gateway_double();
+        }
+
+        $this->assertStringContainsString(
+            __('The refund has been sent back to your original payment method.', 'mhm-rentiva'),
+            $autoBody,
+            'refund_payment => true is the operator choosing "Refund via gateway" -- the mail must say '
+                . 'the money is already on its way back, not default to manual either.'
+        );
+        $this->assertNotSame(
+            $manualBody,
+            $autoBody,
+            'The two operator choices on the WooCommerce screen must produce visibly different mails.'
+        );
     }
 
     public function test_the_operation_mode_reaches_the_notification(): void

@@ -241,11 +241,21 @@ final class EmailSettings {
 	 * Refund & Message Defaults (Simplified but professional)
 	 */
 	public static function get_default_refund_customer_body(): string {
-		return '<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'A refund of {amount} has been processed for your booking #{booking_id}.', 'mhm-rentiva' ) . '</p><div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #28a745;"><strong>' . __( 'Refund Amount:', 'mhm-rentiva' ) . '</strong> {amount}</div>';
+		// {mode_text} is not wrapped in __() here: it already carries a fully
+		// translated sentence built in RefundNotifications::notify() (auto vs
+		// manual), the same way {amount} above is a pre-formatted value rather
+		// than translatable text. Wrapping a placeholder-only string in __()
+		// would register a "translatable" string with nothing left to
+		// translate once substitution runs.
+		return '<p>' . __( 'Dear {contact_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'A refund of {amount} has been processed for your booking #{booking_id}.', 'mhm-rentiva' ) . '</p><div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #28a745;"><strong>' . __( 'Refund Amount:', 'mhm-rentiva' ) . '</strong> {amount}</div><p>{mode_text}</p>';
 	}
 
 	public static function get_default_refund_admin_body(): string {
-		return '<p><strong>' . __( 'Refund Notification', 'mhm-rentiva' ) . '</strong></p><p>' . __( 'A refund of {amount} has been processed for booking #{booking_id}.', 'mhm-rentiva' ) . '</p>';
+		// {admin_mode_text} follows the same rule as {mode_text} above: the
+		// sentence is already translated at its source, phrased for the
+		// operator rather than the customer -- a manual-mode refund is the
+		// admin's cue that the transfer still has to be made by hand.
+		return '<p><strong>' . __( 'Refund Notification', 'mhm-rentiva' ) . '</strong></p><p>' . __( 'A refund of {amount} has been processed for booking #{booking_id}.', 'mhm-rentiva' ) . '</p><p>{admin_mode_text}</p>';
 	}
 
 	public static function get_default_admin_status_change_body(): string {

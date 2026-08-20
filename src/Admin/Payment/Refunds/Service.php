@@ -205,8 +205,8 @@ final class Service {
 	/**
 	 * Close the operation: log it, record it, tell the customer once.
 	 *
-	 * Tasks 7-10 of the slice-3 plan build this out. It exists from Task 6 so
-	 * the two entry points have one exit, not two.
+	 * Built out across Tasks 6-9 of the slice-3 plan. It exists from Task 6
+	 * so the two entry points have one exit, not two.
 	 *
 	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
 	 */
