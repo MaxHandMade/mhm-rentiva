@@ -112,6 +112,40 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
     }
 
     /**
+     * The sibling of the test above: it only proves the hook fires on the
+     * success path. finish()'s failure branch writes its own terminal status
+     * (failed/partial_failure) and fires the same hook a few lines down; that
+     * call had no test asserting it actually ran.
+     */
+    public function test_the_operation_announces_its_end_once_on_failure_too(): void
+    {
+        $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        $fired = 0;
+        add_action(
+            'mhmrentiva_refund_completed',
+            static function () use (&$fired): void {
+                ++$fired;
+            },
+            10,
+            2
+        );
+
+        add_action(
+            'woocommerce_refund_created',
+            static function (): void {
+                throw new \RuntimeException('refused on purpose');
+            },
+            1,
+            2
+        );
+
+        Service::processFullRefund($this->booking_id, 'failure still announces');
+
+        $this->assertSame(1, $fired, 'The failure branch writes a terminal status too and must announce exactly once.');
+    }
+
+    /**
      * Finding A: before this slice, mhmrentiva_refund_completed had zero
      * listeners, so a broken one could never be reached. Now that it can fire
      * real integrator code, a throw from it must not unwind the terminal
