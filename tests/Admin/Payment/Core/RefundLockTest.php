@@ -141,6 +141,44 @@ final class RefundLockTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * The scenario the class docblock accepts as a bounded risk: this request
+     * acquired the lock, then had its row STOLEN by a TTL-preempted read on
+     * another request (or the row was overwritten some other way) before this
+     * request's own release() ran. release() must match on the token it
+     * itself wrote, not merely on the option_name -- otherwise a delayed
+     * release deletes whatever the new acquirer just wrote, and the new
+     * acquirer believes it still holds a lock that has actually vanished.
+     *
+     * This is the test `test_release_does_not_remove_another_owners_row()`
+     * above cannot cover: that test's request never acquired, so it hits the
+     * isset($depth[...]) early return and the DELETE statement never runs at
+     * all. Here the DELETE runs -- self::$depth[BOOKING] is set from a real
+     * acquire() -- and it is the "AND option_value = %s" clause alone that
+     * has to save the row.
+     */
+    public function test_release_does_not_remove_a_row_stolen_out_from_under_it(): void
+    {
+        $this->assertTrue(RefundLock::acquire(self::BOOKING));
+
+        $foreign_token = 'new-owner:' . time();
+
+        global $wpdb;
+        $wpdb->update(
+            $wpdb->options,
+            array( 'option_value' => $foreign_token ),
+            array( 'option_name' => 'mhmrentiva_refund_lock_' . self::BOOKING )
+        );
+
+        RefundLock::release(self::BOOKING);
+
+        $this->assertSame(
+            $foreign_token,
+            $this->stored_token(self::BOOKING),
+            'release() matched on option_name alone would delete the new owner\'s row here.'
+        );
+    }
+
     public function test_a_stale_lock_is_stolen(): void
     {
         $this->plant_foreign_lock(self::BOOKING, 3600);
