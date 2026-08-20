@@ -78,22 +78,31 @@ final class RefundUnresolvableOrderFallbackTest extends WP_UnitTestCase
             . " meta (0) and silently erase this refund. The guard must fall back to the order's own figure."
         );
 
+        // Not the single newest row: this booking has no customer meta, so
+        // RefundNotifications::notify() -- called later in the same hook --
+        // now ALSO logs its own "no customer address" entry (Task 7), which
+        // lands with a higher post ID than the fallback's. Fetch a handful of
+        // recent rows and find the one the fallback branch itself wrote,
+        // rather than assuming it is the last one written during the request.
         $logs = get_posts(array(
             'post_type'      => PostType::TYPE,
-            'posts_per_page' => 1,
+            'posts_per_page' => 5,
             'orderby'        => 'ID',
             'order'          => 'DESC',
             'post_status'    => 'publish',
         ));
 
-        $this->assertNotEmpty($logs, 'The fallback branch must log via AdvancedLogger::error() when it fires.');
-        $this->assertStringContainsString(
-            'not resolvable through PaymentState',
-            $logs[0]->post_content,
-            'The logged entry should be the one the fallback branch writes, not an unrelated log.'
-        );
-        $this->assertStringContainsString((string) $order->get_id(), $logs[0]->post_content);
-        $this->assertStringContainsString((string) $booking_id, $logs[0]->post_content);
+        $fallback_log = null;
+        foreach ($logs as $log) {
+            if (false !== strpos($log->post_content, 'not resolvable through PaymentState')) {
+                $fallback_log = $log;
+                break;
+            }
+        }
+
+        $this->assertNotNull($fallback_log, 'The fallback branch must log via AdvancedLogger::error() when it fires.');
+        $this->assertStringContainsString((string) $order->get_id(), $fallback_log->post_content);
+        $this->assertStringContainsString((string) $booking_id, $fallback_log->post_content);
     }
 
     public function test_two_successive_refunds_on_the_same_invisible_order_do_not_compound(): void
