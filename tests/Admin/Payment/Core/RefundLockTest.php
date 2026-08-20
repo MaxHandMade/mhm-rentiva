@@ -28,24 +28,39 @@ final class RefundLockTest extends WP_UnitTestCase
 
     public function tearDown(): void
     {
-        // Deviation from the brief (documented in task-1-report.md): a single
-        // release() only undoes one acquire(). test_the_same_request_may_re_enter()
-        // acquires twice in its body and never releases, which leaves this
-        // request's static depth counter at 1 for BOOKING. That counter is
-        // plain PHP process memory -- unlike the row deleted below, it is NOT
-        // reset by PHPUnit's per-test transaction rollback -- so it bleeds
-        // into whichever test runs next and makes its first acquire() a
-        // silent re-entrant no-op instead of a real INSERT. release() is a
-        // documented no-op once depth reaches zero, so draining it a few
-        // extra times here is harmless and restores true per-test isolation.
-        RefundLock::release(self::BOOKING);
-        RefundLock::release(self::BOOKING);
-        RefundLock::release(self::BOOKING);
+        // Deviation from the brief (documented in task-1-report.md, Finding 2
+        // of the review round): RefundLock's $depth/$tokens maps are plain
+        // PHP process memory, not DB state, so PHPUnit's per-test transaction
+        // rollback never touches them -- a test whose body leaves this
+        // request's depth above zero bleeds that count into whichever test
+        // runs next. Reset via reflection rather than calling release() a
+        // fixed number of times: a fixed count is sized to today's deepest
+        // test and silently under-drains a future test with more unmatched
+        // acquire() calls, and looping release() until the DB row disappears
+        // is unsafe too -- a test that only plants a *foreign* lock (this
+        // process never acquired it) would loop forever, since release() is
+        // permanently a no-op when isset($depth[...]) is false. Reaching
+        // into the static maps directly is correct regardless of how many
+        // times this test acquired, and regardless of whether it acquired
+        // at all.
+        $this->reset_lock_state(self::BOOKING);
 
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva_refund_lock_%'");
 
         parent::tearDown();
+    }
+
+    private function reset_lock_state(int $booking_id): void
+    {
+        foreach (['depth', 'tokens'] as $property_name) {
+            $property = new \ReflectionProperty(RefundLock::class, $property_name);
+            $property->setAccessible(true);
+
+            $value = $property->getValue();
+            unset($value[$booking_id]);
+            $property->setValue($value);
+        }
     }
 
     /**
@@ -138,6 +153,37 @@ final class RefundLockTest extends WP_UnitTestCase
             'someone-else',
             $this->stored_token(self::BOOKING),
             'Stealing means replacing the row, not co-existing with it.'
+        );
+    }
+
+    /**
+     * Review finding: strrpos() on a value with no colon returns false, and
+     * substr($value, false + 1) reads as substr($value, 1) -- an
+     * unparseable row would look like a near-zero timestamp and be stolen
+     * instantly instead of refused. Nothing but this class writes these rows
+     * today, so this is a fail-closed guard against a currently-unreachable
+     * shape, not a live production path.
+     */
+    public function test_an_unparseable_lock_is_not_stolen(): void
+    {
+        global $wpdb;
+
+        $malformed = 'not-a-token-with-no-colon-in-it';
+
+        $wpdb->query($wpdb->prepare(
+            "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+            'mhmrentiva_refund_lock_' . self::BOOKING,
+            $malformed
+        ));
+
+        $this->assertFalse(
+            RefundLock::acquire(self::BOOKING),
+            'A row this class cannot parse must fail closed -- refused, not stolen.'
+        );
+        $this->assertSame(
+            $malformed,
+            $this->stored_token(self::BOOKING),
+            'A closed refusal must not touch the row it could not parse.'
         );
     }
 

@@ -30,6 +30,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * blocking the booking forever, and a release can only delete the row it
  * itself wrote.
  *
+ * This is a lease, not a guarantee: TTL_SECONDS does not distinguish "the
+ * holder died" from "the holder is still running, just slower than
+ * expected." A holder that is merely slow can have its row stolen out from
+ * under it; its later release() then matches a row it no longer owns, is a
+ * silent no-op, and for a window both the original holder and the new
+ * acquirer believe they hold the lock. That risk is accepted, not
+ * overlooked, and it is bounded twice over: the critical section this lock
+ * guards is two wc_create_refund() calls, whose HTTP legs sit far below
+ * TTL_SECONDS, and WooCommerce itself re-checks the booking's remaining
+ * refundable amount at call time (WC 11.0.1 class-wc-order-refund.php or
+ * class-wc-order.php's create_refund path, ~:584-586), so a duplicate
+ * refund from a preempted holder is refused by WooCommerce, not by this
+ * lock. This class is defence in depth over that check, not the only guard
+ * -- which is why the lease design is kept as-is rather than growing a
+ * renewal or heartbeat.
+ *
  * ⚠️ Cross-process exclusion is not provable in this test suite (one process,
  * one connection). What the tests prove is the refusal, the re-entrancy, the
  * ownership of release, and the steal.
@@ -149,7 +165,20 @@ final class RefundLock {
 			return true;
 		}
 
-		$taken_at = (int) substr( (string) $current, strrpos( (string) $current, ':' ) + 1 );
+		$colon_position = strrpos( (string) $current, ':' );
+
+		if ( false === $colon_position ) {
+			// Fail closed: only this class's own "<token>:<unix-time>" rows
+			// are stealable. Without this guard, strrpos() returning false
+			// on a colon-less value makes substr()'s offset false + 1 = 1,
+			// which reads as a near-zero timestamp -- an unparseable row
+			// would look maximally stale and be stolen instantly instead of
+			// being refused. Nothing but this class writes these rows today,
+			// so the branch is currently unreachable in production.
+			return false;
+		}
+
+		$taken_at = (int) substr( (string) $current, $colon_position + 1 );
 
 		if ( time() - $taken_at < self::TTL_SECONDS ) {
 			return false;
