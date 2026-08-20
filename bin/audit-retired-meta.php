@@ -5,15 +5,24 @@
  * REPORTS, NEVER GATES. Exit code is always 0. An absence defect needs a tool
  * you read, not one you silence.
  *
- * Starting set: every file `git ls-files` tracks, minus languages/ and
- * bin/prefix-inventory-baseline.txt. That is deliberately the whole tree and
- * not src/ -- the 2026-08-18 sweep that started at src/ could not see the root
- * plugin file, templates/ or a key named inside a SQL string, and reported
- * "(none)" while telling the truth about what it had looked at.
+ * Starting set: every file `git ls-files` tracks, minus languages/,
+ * bin/prefix-inventory-baseline.txt, and this script's own file. That is
+ * deliberately the whole tree and not src/ -- the 2026-08-18 sweep that
+ * started at src/ could not see the root plugin file, templates/ or a key
+ * named inside a SQL string, and reported "(none)" while telling the truth
+ * about what it had looked at.
+ *
+ * This script excludes itself because its own $keys array below necessarily
+ * spells both retired keys as literals -- that is what it searches for, not
+ * evidence of a mention -- the same "a file that IS the inventory must not BE
+ * the evidence" reasoning DatabaseCleaner.php and bin/prefix-rename.php are
+ * excluded from the scan tests/Unit/Core/Utilities/DatabaseCleanerAllowlistTest.php
+ * runs over bin/.
  *
  * Not visible to this probe, by construction: a key assembled at runtime
- * ($prefix . '_payment_amount'), a key inside a compiled JS bundle, and a key
- * living in the Pro tree (run it there separately).
+ * ($prefix . '_payment_amount'), a key inside a compiled JS bundle, a key
+ * living in the Pro tree (run it there separately), and this script's own
+ * source.
  */
 
 declare(strict_types=1);
@@ -61,8 +70,8 @@ foreach ($tracked as $path) {
 
 echo "Retired-meta report\n";
 echo "Keys: " . implode(', ', $keys) . "\n";
-echo "Scanned: " . count($tracked) . " tracked files (languages/ and the prefix baseline excluded)\n";
-echo "Cannot see: runtime-assembled key names, compiled JS bundles, the Pro tree\n";
+echo "Scanned: " . count($tracked) . " tracked files (languages/, the prefix baseline, and this script itself excluded)\n";
+echo "Cannot see: runtime-assembled key names, compiled JS bundles, the Pro tree, and its own source\n";
 echo str_repeat('-', 72) . "\n";
 
 if ($hits === array()) {
