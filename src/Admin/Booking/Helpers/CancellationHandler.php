@@ -494,9 +494,32 @@ final class CancellationHandler {
 				return false;
 			}
 
-			$result = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason );
+			$result  = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason );
+			$success = '1' === ( $result['mhmrentiva_refund'] ?? '0' );
 
-			return '1' === ( $result['mhmrentiva_refund'] ?? '0' );
+			// processFullRefund() returns early -- before finish() -- when
+			// RefundValidator refuses the request (empty/pending/failed/refunded
+			// payment status). That path never writes a terminal status and
+			// never logs, so a refusal here would otherwise leave the 'pending'
+			// marker standing forever with no trace of why. The status is read
+			// back rather than assumed: finish() may already have legitimately
+			// written failed/partial_failure/completed, and this must not stamp
+			// over that.
+			if ( ! $success && 'pending' === (string) get_post_meta( $booking_id, '_mhmrentiva_refund_status', true ) ) {
+				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed' );
+
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+					array(
+						'gateway'    => 'cancellation',
+						'action'     => 'refund',
+						'status'     => 'error',
+						'booking_id' => $booking_id,
+						'message'    => $result['mhmrentiva_refund_msg'] ?? '',
+					)
+				);
+			}
+
+			return $success;
 		} finally {
 			\MHMRentiva\Admin\Payment\Core\RefundLock::release( $booking_id );
 		}

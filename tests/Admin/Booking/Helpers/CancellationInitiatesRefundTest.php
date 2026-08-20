@@ -7,6 +7,8 @@ namespace MHMRentiva\Tests\Admin\Booking\Helpers;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
+use MHMRentiva\Admin\PostTypes\Logs\PostType;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
@@ -47,6 +49,14 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
         update_post_meta($this->booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
     }
 
+    public function tearDown(): void
+    {
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva_refund_lock_%'");
+
+        parent::tearDown();
+    }
+
     private function cancel(): void
     {
         // The outer ownership guard reads the CURRENT user, not the actor
@@ -79,6 +89,15 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * The `_mhmrentiva_refund_status` marker is written unconditionally,
+     * immediately before do_action(), regardless of where settle_refund() (the
+     * money step) is sequenced -- so asserting on that marker alone would stay
+     * green even if the money step ran before the hook. What actually
+     * discriminates that ordering is the balance itself: settle_refund() is
+     * what moves it. If the hook fired after the money step instead of before,
+     * this listener would see the balance already at zero.
+     */
     public function test_the_hook_fires_before_the_balance_is_read(): void
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
@@ -88,16 +107,17 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
         add_action(
             'mhmrentiva_process_refund',
             function () use (&$seen): void {
-                $seen['status_at_hook_time'] = (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true);
+                $seen['refundable_at_hook_time'] = PaymentState::forBooking($this->booking_id)->refundable();
             }
         );
 
         $this->cancel();
 
         $this->assertSame(
-            'pending',
-            $seen['status_at_hook_time'] ?? '',
-            'The hook must see the pending marker: it fires after step 2 and before the money step.'
+            Money::toMinor('120'),
+            $seen['refundable_at_hook_time'] ?? null,
+            'If the money step ran before the hook fired, the balance would already be zero by the'
+            . ' time this listener runs.'
         );
     }
 
@@ -156,6 +176,88 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
                 'mhmrentiva_refund_lock_' . $this->booking_id
             )),
             'A lock surviving the operation blocks every later refund on this booking for the TTL.'
+        );
+    }
+
+    /**
+     * Service::processFullRefund() returns EARLY -- before finish() -- when
+     * RefundValidator refuses the request. That path never writes a terminal
+     * status and never logs, so without a guard in settle_refund() itself, a
+     * refusal here would leave the 'pending' marker standing forever with no
+     * trace of why.
+     *
+     * This is not a contrived shape: a deposit paid by card (order
+     * 'processing') with the remaining leg still an on-hold transfer order
+     * carries payment_status = 'pending' (WooCommerceBridge:1349) -- a paid
+     * WooCommerce order that passes the balance gate, sitting next to a
+     * booking payment_status the validator refuses.
+     */
+    public function test_a_validator_refusal_after_the_hook_still_reaches_a_terminal_status(): void
+    {
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'pending');
+
+        $this->cancel();
+
+        $this->assertSame(
+            Money::toMinor('0'),
+            Money::toMinor((string) wc_get_order($order->get_id())->get_total_refunded()),
+            'The validator refused the refund; no money may have moved.'
+        );
+
+        $this->assertSame(
+            'failed',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            "processFullRefund() returned before finish() could write a terminal status, so"
+            . " settle_refund() itself must -- 'pending' left standing forever is a silent failure"
+            . ' on the money path.'
+        );
+
+        $logs = get_posts(array(
+            'post_type'      => PostType::TYPE,
+            'posts_per_page' => 1,
+            'orderby'        => 'ID',
+            'order'          => 'DESC',
+            'post_status'    => 'publish',
+        ));
+
+        $this->assertNotEmpty($logs, 'A validator refusal on the money path must leave a log row, not silence.');
+        $this->assertStringContainsString(
+            'Pending payments cannot be refunded',
+            $logs[0]->post_content,
+            "The logged message must be the validator's own refusal reason, not a generic failure."
+        );
+    }
+
+    /**
+     * The failed-acquire branch at the top of settle_refund(): a lock held by
+     * another request must fail this attempt closed, before any money moves,
+     * and must not leave 'pending' standing.
+     */
+    public function test_the_lock_being_held_elsewhere_fails_closed_without_moving_money(): void
+    {
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+            'mhmrentiva_refund_lock_' . $this->booking_id,
+            'someone-else:' . time()
+        ));
+
+        $this->cancel();
+
+        $this->assertSame(
+            Money::toMinor('0'),
+            Money::toMinor((string) wc_get_order($order->get_id())->get_total_refunded()),
+            'The lock was already held; settle_refund() must not have reached the money step at all.'
+        );
+
+        $this->assertSame(
+            'failed',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            'A refusal to acquire the lock is a terminal failure, not a state left as pending.'
         );
     }
 }
