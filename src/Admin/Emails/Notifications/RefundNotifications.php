@@ -21,13 +21,34 @@ final class RefundNotifications {
 		// nothing to hook right now; kept for consistency
 	}
 
+	/**
+	 * @param int $auto_refunded_kurus   Fable audit H-2: Service::runOperation()
+	 *                                   decides refund_payment PER ORDER -- a
+	 *                                   deposit paid by card and a remainder
+	 *                                   paid by transfer are two different
+	 *                                   answers -- but $mode alone collapses a
+	 *                                   mixed operation to one word, and the
+	 *                                   old messaging named the OPERATION
+	 *                                   TOTAL regardless of which part the
+	 *                                   gateway actually touched. These two
+	 *                                   subtotals let the mixed-mode sentence
+	 *                                   name both amounts. Minor units.
+	 * @param int $manual_refunded_kurus See $auto_refunded_kurus. Both default
+	 *                                   to 0, so every existing caller
+	 *                                   (WooCommerceBridge's single-order
+	 *                                   refund, this class's own tests) is
+	 *                                   unaffected and produces the exact
+	 *                                   pure-mode sentence it always did.
+	 */
 	public static function notify(
 		int $booking_id,
 		int $amount_kurus,
 		string $currency,
 		string $newPayStatus,
 		string $reason = '',
-		string $mode = RefundValidator::MODE_AUTO
+		string $mode = RefundValidator::MODE_AUTO,
+		int $auto_refunded_kurus = 0,
+		int $manual_refunded_kurus = 0
 	): void {
 		// The address every OTHER consumer resolves through: customer_email ->
 		// booking_customer_email -> contact_email. Reading contact_email alone
@@ -62,17 +83,55 @@ final class RefundNotifications {
 		 */
 		$mode = (string) apply_filters( 'mhmrentiva_refund_notification_mode', $mode, $booking_id );
 
-		$modeText = RefundValidator::MODE_MANUAL === $mode
-			? __( 'The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva' )
-			: __( 'The refund has been sent back to your original payment method.', 'mhm-rentiva' );
+		// A mixed operation needs both legs named; either subtotal being 0
+		// means this was a pure-mode operation (or a caller that never passed
+		// the split at all), so the two branches below stay byte-for-byte
+		// what they always were -- no translator sees a diff for those.
+		$isMixedMode = $auto_refunded_kurus > 0 && $manual_refunded_kurus > 0;
 
-		// The operator's copy of the same fact, phrased as an action item
-		// rather than a promise to the customer: a manual-mode refund did not
-		// touch the gateway, so unlike the customer sentence, this is the
-		// admin's cue that the transfer still has to be made by hand.
-		$adminModeText = RefundValidator::MODE_MANUAL === $mode
-			? __( 'The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually.', 'mhm-rentiva' )
-			: __( 'The payment gateway processed this refund automatically; no manual transfer is required.', 'mhm-rentiva' );
+		if ( $isMixedMode ) {
+			$autoHuman   = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+				(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $auto_refunded_kurus ),
+				\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+				$currency ?: 'TRY'
+			);
+			$manualHuman = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+				(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $manual_refunded_kurus ),
+				\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+				$currency ?: 'TRY'
+			);
+
+			$modeText = sprintf(
+				/* translators: 1: the amount already returned automatically to the customer's original payment method, 2: the amount that will still be transferred to the customer by hand */
+				__( '%1$s was returned to your original payment method automatically; the remaining %2$s will be transferred to you manually.', 'mhm-rentiva' ),
+				$autoHuman,
+				$manualHuman
+			);
+
+			// The operator's copy of the same fact, phrased as an action item:
+			// the gateway leg is already done, ONLY the manual leg is still
+			// owed by hand -- naming the total here is exactly the defect
+			// this branch exists to close (an operator who followed it would
+			// over-refund the customer by the gateway leg).
+			$adminModeText = sprintf(
+				/* translators: 1: the amount the payment gateway already returned automatically, 2: the amount that must still be transferred to the customer manually */
+				__( 'The payment gateway already returned %1$s of this refund automatically; only the remaining %2$s must be transferred to the customer manually.', 'mhm-rentiva' ),
+				$autoHuman,
+				$manualHuman
+			);
+		} else {
+			$modeText = RefundValidator::MODE_MANUAL === $mode
+				? __( 'The refund will be transferred to you manually; it will not appear on your original payment method automatically.', 'mhm-rentiva' )
+				: __( 'The refund has been sent back to your original payment method.', 'mhm-rentiva' );
+
+			// The operator's copy of the same fact, phrased as an action item
+			// rather than a promise to the customer: a manual-mode refund did not
+			// touch the gateway, so unlike the customer sentence, this is the
+			// admin's cue that the transfer still has to be made by hand.
+			$adminModeText = RefundValidator::MODE_MANUAL === $mode
+				? __( 'The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually.', 'mhm-rentiva' )
+				: __( 'The payment gateway processed this refund automatically; no manual transfer is required.', 'mhm-rentiva' );
+		}
 
 		$wc_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 

@@ -1373,7 +1373,7 @@ msgid "Booking pickup date is missing."
 msgstr "Rezervasyonun teslim alma tarihi eksik."
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:219
-#: src/Admin/Booking/Helpers/CancellationHandler.php:703
+#: src/Admin/Booking/Helpers/CancellationHandler.php:729
 msgid "Invalid pickup date/time format."
 msgstr "Geçersiz teslim alma tarihi/saati biçimi."
 
@@ -1478,23 +1478,23 @@ msgstr "Nedeni:"
 msgid "Thank you for choosing our service."
 msgstr "Hizmetimizi tercih ettiğiniz için teşekkür ederiz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:686
+#: src/Admin/Booking/Helpers/CancellationHandler.php:712
 msgid "Invalid booking data."
 msgstr "Geçersiz rezervasyon bilgileri."
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:718
+#: src/Admin/Booking/Helpers/CancellationHandler.php:744
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr "%1$s (%2$d saat öncesine kadar) iptal edebilirsiniz."
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:725
+#: src/Admin/Booking/Helpers/CancellationHandler.php:751
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr "İptal süresi dolmuştur. Rezervasyonlar, teslim almadan en az %d saat önce iptal edilmelidir."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:741
+#: src/Admin/Booking/Helpers/CancellationHandler.php:767
 msgid "Error calculating cancellation deadline."
 msgstr "İptal son tarihini hesaplarken hata oluştu."
 
@@ -5777,27 +5777,27 @@ msgstr "Bu e-posta için içerik mevcut değil."
 msgid "All rights reserved."
 msgstr "Her hakkı saklıdır."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:52
+#: src/Admin/Emails/Notifications/RefundNotifications.php:73
 msgid "full refund"
 msgstr "tam geri ödeme"
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:52
+#: src/Admin/Emails/Notifications/RefundNotifications.php:73
 msgid "partial refund"
 msgstr "kısmi geri ödeme"
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:66
+#: src/Admin/Emails/Notifications/RefundNotifications.php:124
 msgid "The refund will be transferred to you manually; it will not appear on your original payment method automatically."
 msgstr "İade tutarı size manuel olarak aktarılacaktır; orijinal ödeme yönteminizde otomatik olarak görünmeyecektir."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:67
+#: src/Admin/Emails/Notifications/RefundNotifications.php:125
 msgid "The refund has been sent back to your original payment method."
 msgstr "İade tutarı, orijinal ödeme yönteminize yatırılmıştır."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:74
+#: src/Admin/Emails/Notifications/RefundNotifications.php:132
 msgid "The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually."
 msgstr "Ödeme ağ geçidi bu iadeyi otomatik olarak işleyemedi; yukarıdaki tutarın müşteriye manuel olarak aktarılması gerekiyor."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:75
+#: src/Admin/Emails/Notifications/RefundNotifications.php:133
 msgid "The payment gateway processed this refund automatically; no manual transfer is required."
 msgstr "Ödeme ağ geçidi bu iadeyi otomatik olarak işledi; manuel aktarım gerekmiyor."
 
@@ -8757,7 +8757,7 @@ msgid "Already fully refunded"
 msgstr "Tamamen iade edildi"
 
 #: src/Admin/Payment/Refunds/RefundValidator.php:188
-#: src/Admin/Payment/Refunds/Service.php:227
+#: src/Admin/Payment/Refunds/Service.php:262
 msgid "No amount left to refund"
 msgstr "İade edilecek tutar kalmadı"
 
@@ -8769,29 +8769,29 @@ msgstr "Geçersiz geri ödeme tutarı"
 msgid "Refund amount exceeds remaining balance"
 msgstr "İade tutarı kalan bakiyeyi aşıyor"
 
-#: src/Admin/Payment/Refunds/Service.php:196
+#: src/Admin/Payment/Refunds/Service.php:219
 msgid "Refund processed from Rentiva panel"
 msgstr "Rentiva panelinden işlenen geri ödeme"
 
-#: src/Admin/Payment/Refunds/Service.php:211
+#: src/Admin/Payment/Refunds/Service.php:238
 msgid "Failed to create WooCommerce refund"
 msgstr "WooCommerce geri ödemesi oluşturulamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:237
+#: src/Admin/Payment/Refunds/Service.php:274
 msgid "Refund could not be completed in full"
 msgstr "İade tam olarak tamamlanamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:258
+#: src/Admin/Payment/Refunds/Service.php:295
 msgid "Refund successful"
 msgstr "Para iadesi başarılı"
 
 #. translators: 1: the amount already refunded before the failure, 2: the underlying error that stopped the rest
-#: src/Admin/Payment/Refunds/Service.php:278
+#: src/Admin/Payment/Refunds/Service.php:315
 #, php-format
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr "Bu işlem başarısız olmadan önce %1$s zaten iade edildi: %2$s"
 
-#: src/Admin/Payment/Refunds/Service.php:433
+#: src/Admin/Payment/Refunds/Service.php:481
 msgid "Refund notification could not be sent:"
 msgstr "Para iadesi bildirimi gönderilemedi:"
 
@@ -15314,11 +15314,11 @@ msgstr "Bu rezervasyon için bir iade söz konusuysa, tutarı ve size nasıl ula
 msgid "Refund not attempted: the cancellation was not attributed to a user allowed to move money."
 msgstr "İade denenmedi: iptal işlemi, para hareketi yapmaya yetkili bir kullanıcıya atfedilmedi."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:527
+#: src/Admin/Booking/Helpers/CancellationHandler.php:543
 msgid "Refund not attempted: another refund is already running for this booking."
 msgstr "İade denenmedi: bu rezervasyon için zaten başka bir iade işlemi sürüyor."
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:115
+#: src/Admin/Emails/Notifications/RefundNotifications.php:174
 msgid "Refund notice not sent: no customer address on this booking."
 msgstr "İade bildirimi gönderilmedi: bu rezervasyonda müşteri adresi yok."
 
@@ -15332,6 +15332,18 @@ msgstr "Bu rezervasyon için zaten başka bir iade işlemi sürüyor. Lütfen bi
 msgid "A mhmrentiva_process_refund listener failed: %s"
 msgstr "Bir mhmrentiva_process_refund dinleyicisi başarısız oldu: %s"
 
-#: src/Admin/Payment/Refunds/Service.php:381
+#: src/Admin/Payment/Refunds/Service.php:418
 msgid "A mhmrentiva_refund_completed listener failed:"
 msgstr "Bir mhmrentiva_refund_completed dinleyicisi başarısız oldu:"
+
+#. translators: 1: the amount already returned automatically to the customer's original payment method, 2: the amount that will still be transferred to the customer by hand
+#: src/Admin/Emails/Notifications/RefundNotifications.php:106
+#, php-format
+msgid "%1$s was returned to your original payment method automatically; the remaining %2$s will be transferred to you manually."
+msgstr "%1$s tutarı orijinal ödeme yönteminize otomatik olarak iade edildi; kalan %2$s tutarı ise size manuel olarak aktarılacaktır."
+
+#. translators: 1: the amount the payment gateway already returned automatically, 2: the amount that must still be transferred to the customer manually
+#: src/Admin/Emails/Notifications/RefundNotifications.php:118
+#, php-format
+msgid "The payment gateway already returned %1$s of this refund automatically; only the remaining %2$s must be transferred to the customer manually."
+msgstr "Ödeme ağ geçidi bu iadenin %1$s tutarını otomatik olarak zaten iade etti; yalnızca kalan %2$s tutarının müşteriye manuel olarak aktarılması gerekiyor."

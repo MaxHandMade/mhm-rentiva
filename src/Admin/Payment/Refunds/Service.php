@@ -149,7 +149,15 @@ final class Service {
 	 * answers, and collapsing them to "manual" would record a refund for the
 	 * card without moving the money.
 	 *
-	 * @return array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string}
+	 * auto_refunded and manual_refunded (both minor units, summing to
+	 * 'refunded') carry the same per-order split forward: 'mode' alone
+	 * collapses a mixed operation to a single word, which is exactly the
+	 * H-2 messaging defect -- an operator told "transfer the amount above
+	 * manually" for the WHOLE total when only part of it never touched a
+	 * gateway. RefundNotifications::notify() reads these two to tell the
+	 * two amounts apart.
+	 *
+	 * @return array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string}
 	 */
 	private static function runOperation( int $bookingId, int $amountKurus, string $reason ): array {
 		$state   = PaymentState::forBooking( $bookingId );
@@ -162,19 +170,23 @@ final class Service {
 			// Nothing to call: there is no gateway behind offline money. The
 			// refund is a bookkeeping record and Task 8 writes it.
 			return array(
-				'ok'       => true,
-				'refunded' => $amountKurus,
-				'mode'     => RefundValidator::MODE_MANUAL,
-				'txn_ids'  => array( 'manual_' . wp_generate_uuid4() ),
-				'channel'  => $channel,
-				'message'  => '',
+				'ok'              => true,
+				'refunded'        => $amountKurus,
+				'auto_refunded'   => 0,
+				'manual_refunded' => $amountKurus,
+				'mode'            => RefundValidator::MODE_MANUAL,
+				'txn_ids'         => array( 'manual_' . wp_generate_uuid4() ),
+				'channel'         => $channel,
+				'message'         => '',
 			);
 		}
 
-		$outstanding = $amountKurus;
-		$refunded    = 0;
-		$txnIds      = array();
-		$allAuto     = true;
+		$outstanding    = $amountKurus;
+		$refunded       = 0;
+		$autoRefunded   = 0;
+		$manualRefunded = 0;
+		$txnIds         = array();
+		$allAuto        = true;
 
 		foreach ( $orders as $orderId ) {
 			if ( $outstanding <= 0 ) {
@@ -212,15 +224,25 @@ final class Service {
 			if ( is_wp_error( $refund ) ) {
 				// The flow stops here. Refunds already made are NOT rolled back
 				// -- WooCommerce has no such operation -- so the caller records
-				// a partial failure and the operator retries the rest.
+				// a partial failure and the operator retries the rest. The
+				// subtotals reflect only the legs that actually succeeded
+				// before this one failed, same as 'refunded' does.
 				return array(
-					'ok'       => false,
-					'refunded' => $refunded,
-					'mode'     => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
-					'txn_ids'  => $txnIds,
-					'channel'  => $channel,
-					'message'  => $refund->get_error_message() ?: __( 'Failed to create WooCommerce refund', 'mhm-rentiva' ),
+					'ok'              => false,
+					'refunded'        => $refunded,
+					'auto_refunded'   => $autoRefunded,
+					'manual_refunded' => $manualRefunded,
+					'mode'            => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
+					'txn_ids'         => $txnIds,
+					'channel'         => $channel,
+					'message'         => $refund->get_error_message() ?: __( 'Failed to create WooCommerce refund', 'mhm-rentiva' ),
 				);
+			}
+
+			if ( RefundValidator::MODE_AUTO === $mode ) {
+				$autoRefunded += $leg;
+			} else {
+				$manualRefunded += $leg;
 			}
 
 			$txnIds[]     = (string) $refund->get_id();
@@ -230,22 +252,26 @@ final class Service {
 
 		if ( 0 === $refunded ) {
 			return array(
-				'ok'       => false,
-				'refunded' => 0,
-				'mode'     => RefundValidator::MODE_MANUAL,
-				'txn_ids'  => array(),
-				'channel'  => $channel,
-				'message'  => __( 'No amount left to refund', 'mhm-rentiva' ),
+				'ok'              => false,
+				'refunded'        => 0,
+				'auto_refunded'   => 0,
+				'manual_refunded' => 0,
+				'mode'            => RefundValidator::MODE_MANUAL,
+				'txn_ids'         => array(),
+				'channel'         => $channel,
+				'message'         => __( 'No amount left to refund', 'mhm-rentiva' ),
 			);
 		}
 
 		return array(
-			'ok'       => $outstanding <= 0,
-			'refunded' => $refunded,
-			'mode'     => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
-			'txn_ids'  => $txnIds,
-			'channel'  => $channel,
-			'message'  => $outstanding <= 0 ? '' : __( 'Refund could not be completed in full', 'mhm-rentiva' ),
+			'ok'              => $outstanding <= 0,
+			'refunded'        => $refunded,
+			'auto_refunded'   => $autoRefunded,
+			'manual_refunded' => $manualRefunded,
+			'mode'            => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
+			'txn_ids'         => $txnIds,
+			'channel'         => $channel,
+			'message'         => $outstanding <= 0 ? '' : __( 'Refund could not be completed in full', 'mhm-rentiva' ),
 		);
 	}
 
@@ -255,7 +281,7 @@ final class Service {
 	 * Built out across Tasks 6-9 of the slice-3 plan. It exists from Task 6
 	 * so the two entry points have one exit, not two.
 	 *
-	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
 	 */
 	private static function finish( int $bookingId, array $operation, string $reason ): array {
 		Logger::add(
@@ -377,7 +403,7 @@ final class Service {
 	 * and the customer mail (if any) has already gone out by the time this
 	 * fires.
 	 *
-	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
 	 */
 	private static function announceCompletion( int $bookingId, array $operation ): void {
 		try {
@@ -409,7 +435,7 @@ final class Service {
 	 * order screen too, and silencing a core customer mail is a larger change
 	 * than this slice carries. The mode-specific sentence lives in ours.
 	 *
-	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
 	 */
 	private static function announce( int $bookingId, array $operation ): void {
 		try {
@@ -426,7 +452,18 @@ final class Service {
 				$currency,
 				$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
 				'',
-				$operation['mode']
+				$operation['mode'],
+				// H-2 (fable-audit.md): 'mode' alone collapses a mixed
+				// operation (a deposit paid by card, a remainder paid by
+				// transfer) to a single word, and the old message named the
+				// OPERATION TOTAL regardless -- an operator told to
+				// hand-transfer money the gateway already returned. These two
+				// subtotals let notify() tell the two amounts apart; they are
+				// 0/0 for every pure-mode operation runOperation() already
+				// produced, which keeps those sentences byte-for-byte
+				// unchanged.
+				$operation['auto_refunded'] ?? 0,
+				$operation['manual_refunded'] ?? 0
 			);
 		} catch ( \Throwable $e ) {
 			Logger::add(

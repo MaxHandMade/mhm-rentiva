@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-20T16:42:02+00:00\n"
+"POT-Creation-Date: 2026-08-20T18:05:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1382,7 +1382,7 @@ msgid "Booking pickup date is missing."
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:219
-#: src/Admin/Booking/Helpers/CancellationHandler.php:703
+#: src/Admin/Booking/Helpers/CancellationHandler.php:729
 msgid "Invalid pickup date/time format."
 msgstr ""
 
@@ -1502,27 +1502,27 @@ msgstr ""
 msgid "A mhmrentiva_process_refund listener failed: %s"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:527
+#: src/Admin/Booking/Helpers/CancellationHandler.php:543
 msgid "Refund not attempted: another refund is already running for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:686
+#: src/Admin/Booking/Helpers/CancellationHandler.php:712
 msgid "Invalid booking data."
 msgstr ""
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:718
+#: src/Admin/Booking/Helpers/CancellationHandler.php:744
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr ""
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:725
+#: src/Admin/Booking/Helpers/CancellationHandler.php:751
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:741
+#: src/Admin/Booking/Helpers/CancellationHandler.php:767
 msgid "Error calculating cancellation deadline."
 msgstr ""
 
@@ -5809,31 +5809,43 @@ msgstr ""
 msgid "All rights reserved."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:52
+#: src/Admin/Emails/Notifications/RefundNotifications.php:73
 msgid "full refund"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:52
+#: src/Admin/Emails/Notifications/RefundNotifications.php:73
 msgid "partial refund"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:66
+#. translators: 1: the amount already returned automatically to the customer's original payment method, 2: the amount that will still be transferred to the customer by hand
+#: src/Admin/Emails/Notifications/RefundNotifications.php:106
+#, php-format
+msgid "%1$s was returned to your original payment method automatically; the remaining %2$s will be transferred to you manually."
+msgstr ""
+
+#. translators: 1: the amount the payment gateway already returned automatically, 2: the amount that must still be transferred to the customer manually
+#: src/Admin/Emails/Notifications/RefundNotifications.php:118
+#, php-format
+msgid "The payment gateway already returned %1$s of this refund automatically; only the remaining %2$s must be transferred to the customer manually."
+msgstr ""
+
+#: src/Admin/Emails/Notifications/RefundNotifications.php:124
 msgid "The refund will be transferred to you manually; it will not appear on your original payment method automatically."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:67
+#: src/Admin/Emails/Notifications/RefundNotifications.php:125
 msgid "The refund has been sent back to your original payment method."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:74
+#: src/Admin/Emails/Notifications/RefundNotifications.php:132
 msgid "The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:75
+#: src/Admin/Emails/Notifications/RefundNotifications.php:133
 msgid "The payment gateway processed this refund automatically; no manual transfer is required."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:115
+#: src/Admin/Emails/Notifications/RefundNotifications.php:174
 msgid "Refund notice not sent: no customer address on this booking."
 msgstr ""
 
@@ -8793,7 +8805,7 @@ msgid "Already fully refunded"
 msgstr ""
 
 #: src/Admin/Payment/Refunds/RefundValidator.php:188
-#: src/Admin/Payment/Refunds/Service.php:227
+#: src/Admin/Payment/Refunds/Service.php:262
 msgid "No amount left to refund"
 msgstr ""
 
@@ -8809,33 +8821,33 @@ msgstr ""
 msgid "Another refund is already running for this booking. Please try again in a moment."
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:196
+#: src/Admin/Payment/Refunds/Service.php:219
 msgid "Refund processed from Rentiva panel"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:211
+#: src/Admin/Payment/Refunds/Service.php:238
 msgid "Failed to create WooCommerce refund"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:237
+#: src/Admin/Payment/Refunds/Service.php:274
 msgid "Refund could not be completed in full"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:258
+#: src/Admin/Payment/Refunds/Service.php:295
 msgid "Refund successful"
 msgstr ""
 
 #. translators: 1: the amount already refunded before the failure, 2: the underlying error that stopped the rest
-#: src/Admin/Payment/Refunds/Service.php:278
+#: src/Admin/Payment/Refunds/Service.php:315
 #, php-format
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:381
+#: src/Admin/Payment/Refunds/Service.php:418
 msgid "A mhmrentiva_refund_completed listener failed:"
 msgstr ""
 
-#: src/Admin/Payment/Refunds/Service.php:433
+#: src/Admin/Payment/Refunds/Service.php:481
 msgid "Refund notification could not be sent:"
 msgstr ""
 
