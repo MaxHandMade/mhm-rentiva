@@ -465,7 +465,29 @@ final class CancellationHandler {
 		// Position unchanged (spec §5.3): integrators run BEFORE the lock and
 		// BEFORE the state is resolved, so a refund they make themselves is
 		// visible to the decision below and is not made twice.
-		do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
+		//
+		// Wrapped: before this branch existed, this hook had zero listeners, so
+		// a broken third-party callback could not reach this path. Now that it
+		// can, a listener that throws must not abort a cancellation that has
+		// already committed -- the booking stays cancelled, the customer has
+		// already been told, and PaymentState still decides the truth below.
+		try {
+			do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
+		} catch ( \Throwable $e ) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+				array(
+					'gateway'    => 'cancellation',
+					'action'     => 'refund_hook',
+					'status'     => 'error',
+					'booking_id' => $booking_id,
+					'message'    => sprintf(
+						/* translators: %s: the message thrown by a mhmrentiva_process_refund listener. */
+						__( 'A mhmrentiva_process_refund listener failed: %s', 'mhm-rentiva' ),
+						$e->getMessage()
+					),
+				)
+			);
+		}
 
 		return self::settle_refund( $booking_id, $reason );
 	}

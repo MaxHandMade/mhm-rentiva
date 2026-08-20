@@ -305,7 +305,7 @@ final class Service {
 				$operation['refunded'] > 0 ? 'partial_failure' : 'failed'
 			);
 
-			do_action( 'mhmrentiva_refund_completed', $bookingId, $operation );
+			self::announceCompletion( $bookingId, $operation );
 
 			return array(
 				'mhmrentiva_refund'     => '0',
@@ -349,12 +349,39 @@ final class Service {
 
 		self::announce( $bookingId, $operation );
 
-		do_action( 'mhmrentiva_refund_completed', $bookingId, $operation );
+		self::announceCompletion( $bookingId, $operation );
 
 		return array(
 			'mhmrentiva_refund'     => '1',
 			'mhmrentiva_refund_msg' => '',
 		);
+	}
+
+	/**
+	 * Fire mhmrentiva_refund_completed, isolated from the operation's own outcome.
+	 *
+	 * Before this branch, the hook had zero listeners; nothing could reach this
+	 * throw. Now a broken third-party listener must not undo work finish() has
+	 * already committed -- the terminal status is written, the log row exists,
+	 * and the customer mail (if any) has already gone out by the time this
+	 * fires.
+	 *
+	 * @param array{ok: bool, refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 */
+	private static function announceCompletion( int $bookingId, array $operation ): void {
+		try {
+			do_action( 'mhmrentiva_refund_completed', $bookingId, $operation );
+		} catch ( \Throwable $e ) {
+			Logger::add(
+				array(
+					'gateway'    => $operation['channel'],
+					'action'     => 'refund_completed_hook',
+					'status'     => 'error',
+					'booking_id' => $bookingId,
+					'message'    => __( 'A mhmrentiva_refund_completed listener failed:', 'mhm-rentiva' ) . ' ' . $e->getMessage(),
+				)
+			);
+		}
 	}
 
 	/**

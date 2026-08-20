@@ -111,6 +111,49 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
         $this->assertSame(1, $fired, 'Spec §5.3 step 9: one operation, one completion signal.');
     }
 
+    /**
+     * Finding A: before this slice, mhmrentiva_refund_completed had zero
+     * listeners, so a broken one could never be reached. Now that it can fire
+     * real integrator code, a throw from it must not unwind the terminal
+     * status finish() already wrote, nor the record of what actually
+     * happened -- only the completion signal itself is allowed to fail.
+     */
+    public function test_a_throwing_refund_completed_listener_does_not_undo_the_terminal_status(): void
+    {
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+        $order->save();
+
+        add_action(
+            'mhmrentiva_refund_completed',
+            static function (): void {
+                throw new \RuntimeException('listener exploded');
+            },
+            10,
+            2
+        );
+
+        $result = Service::processFullRefund($this->booking_id, 'completed listener throws');
+
+        $this->assertSame(
+            '1',
+            $result['mhmrentiva_refund'],
+            'A broken mhmrentiva_refund_completed listener must not turn a completed refund into a failure return.'
+        );
+
+        $this->assertSame(
+            'completed',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            'finish() already wrote the terminal status before the hook fired; a listener throw must not erase it.'
+        );
+
+        $this->assertSame(
+            Money::toMinor('120'),
+            Money::toMinor((string) wc_get_order($order->get_id())->get_total_refunded()),
+            'The refund itself already happened before the hook fired.'
+        );
+    }
+
     public function test_a_leg_that_fails_after_a_successful_one_records_partial_failure(): void
     {
         $first = $this->create_paid_order_for_booking($this->booking_id, '30');

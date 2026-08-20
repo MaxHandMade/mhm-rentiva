@@ -231,6 +231,55 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
     }
 
     /**
+     * Finding A: before this slice, mhmrentiva_process_refund had zero
+     * listeners, so a broken one could never be reached. Now that it can fire
+     * real integrator code, a listener that throws must not unwind the
+     * cancellation that already committed -- the booking stays cancelled, the
+     * refund still runs, and the failure is logged rather than silent.
+     */
+    public function test_a_throwing_process_refund_listener_does_not_abort_the_cancellation(): void
+    {
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        add_action(
+            'mhmrentiva_process_refund',
+            static function (): void {
+                throw new \RuntimeException('listener exploded');
+            }
+        );
+
+        $this->cancel();
+
+        $this->assertSame(
+            Status::CANCELLED,
+            Status::get($this->booking_id),
+            'A broken listener must not turn a committed cancellation into a WP_Error, nor undo work already committed.'
+        );
+
+        $this->assertSame(
+            Money::toMinor('120'),
+            Money::toMinor(wc_get_order($order->get_id())->get_total_refunded()),
+            'PaymentState still decides the truth after the hook, regardless of what the listener did.'
+        );
+
+        $logs = get_posts(array(
+            'post_type'      => PostType::TYPE,
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+        ));
+
+        $found = false;
+        foreach ($logs as $log) {
+            if (str_contains($log->post_content, 'mhmrentiva_process_refund listener failed')) {
+                $found = true;
+                break;
+            }
+        }
+
+        $this->assertTrue($found, 'The listener failure must leave a trace rather than vanishing silently.');
+    }
+
+    /**
      * The failed-acquire branch at the top of settle_refund(): a lock held by
      * another request must fail this attempt closed, before any money moves,
      * and must not leave 'pending' standing.
