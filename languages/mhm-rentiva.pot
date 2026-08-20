@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-20T07:14:06+00:00\n"
+"POT-Creation-Date: 2026-08-20T08:04:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1706,7 +1706,7 @@ msgstr[1] ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1139
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:407
 #: src/Admin/Booking/Meta/BookingMeta.php:1169
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:64
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:60
 #: assets/blocks/payment-history/index.js:40
 msgid "Paid"
 msgstr ""
@@ -1795,7 +1795,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1150
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:176
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:63
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:59
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:469
 msgid "Offline"
 msgstr ""
@@ -2694,7 +2694,6 @@ msgid "Customer account created and linked to booking."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:26
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:83
 msgid "Refund"
 msgstr ""
 
@@ -2706,45 +2705,24 @@ msgstr ""
 msgid "No refundable payment found for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:63
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:59
 msgid "Channel"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:65
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:61
 msgid "Already refunded"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:66
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:62
 msgid "Remaining refundable"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:74
-msgid "Refund amount"
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:89
+msgid "Process this refund from the deposit-management screen."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:77
-msgid "Reason (optional)"
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:100
-msgid "Customer request"
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:101
-msgid "Vehicle unavailable"
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:102
-msgid "Duplicate booking"
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:103
-msgid "Fraud suspected"
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:104
-#: templates/shortcodes/search-results.php:150
-msgid "Other"
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:91
+msgid "This amount is refundable; the refund is recorded from the deposit-management screen once the booking is cancelled."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:52
@@ -13865,6 +13843,10 @@ msgstr ""
 
 #: templates/shortcodes/search-results.php:146
 msgid "Pickup Location"
+msgstr ""
+
+#: templates/shortcodes/search-results.php:150
+msgid "Other"
 msgstr ""
 
 #: templates/shortcodes/search-results.php:191
