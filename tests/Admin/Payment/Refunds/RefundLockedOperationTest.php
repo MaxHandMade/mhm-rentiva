@@ -8,6 +8,7 @@ use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\RefundLock;
 use MHMRentiva\Admin\Payment\Refunds\Service;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use ReflectionMethod;
 use WP_UnitTestCase;
 
 /**
@@ -99,7 +100,18 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
         RefundLock::release($this->booking_id);
     }
 
-    public function test_the_lock_is_released_when_the_operation_fails(): void
+    /**
+     * WooCommerce catches the exception thrown from the woocommerce_refund_created
+     * action itself (wc-order-functions.php: the refund is created inside a
+     * try { ... } catch ( Exception $e ) { return new WP_Error( ... ); } block),
+     * so the throw never reaches Service -- runOperation() takes its ordinary
+     * is_wp_error( $refund ) branch and returns an array like any other refused
+     * refund. This test therefore proves the lock is released on that ordinary
+     * *failure return*, not on exception unwinding; the latter is covered
+     * separately below, directly against withLock(), where an exception really
+     * does cross the boundary.
+     */
+    public function test_the_lock_is_released_after_a_refused_refund(): void
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
@@ -116,7 +128,48 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
 
         $this->assertTrue(
             RefundLock::acquire($this->booking_id),
-            'finally, not the happy path, is what releases the lock.'
+            'A lock still standing after a refused refund blocks the booking for TTL_SECONDS.'
+        );
+
+        RefundLock::release($this->booking_id);
+    }
+
+    /**
+     * The refusal-path test above cannot exercise withLock()'s finally block on
+     * an actual exception -- WooCommerce swallows the one it is given before it
+     * ever reaches Service. This test goes straight at withLock() (private,
+     * reached via reflection) with a closure that really does throw, so the
+     * exception-unwinding guarantee the brief leans on is proven against the
+     * method that makes it, not against a WooCommerce catch block that happens
+     * to produce the same observable lock state.
+     */
+    public function test_the_lock_is_released_when_withLock_throws(): void
+    {
+        $method = new ReflectionMethod(Service::class, 'withLock');
+        $method->setAccessible(true);
+
+        $thrown = null;
+
+        try {
+            $method->invoke(
+                null,
+                $this->booking_id,
+                static function (): array {
+                    throw new \RuntimeException('the operation itself threw');
+                }
+            );
+        } catch (\RuntimeException $e) {
+            $thrown = $e;
+        }
+
+        $this->assertNotNull(
+            $thrown,
+            'withLock() must let the operation\'s exception propagate, not swallow it.'
+        );
+
+        $this->assertTrue(
+            RefundLock::acquire($this->booking_id),
+            'withLock() must release the lock in a finally block even when the operation throws.'
         );
 
         RefundLock::release($this->booking_id);
