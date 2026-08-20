@@ -1373,7 +1373,7 @@ msgid "Booking pickup date is missing."
 msgstr "Rezervasyonun teslim alma tarihi eksik."
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:219
-#: src/Admin/Booking/Helpers/CancellationHandler.php:672
+#: src/Admin/Booking/Helpers/CancellationHandler.php:703
 msgid "Invalid pickup date/time format."
 msgstr "Geçersiz teslim alma tarihi/saati biçimi."
 
@@ -1474,27 +1474,27 @@ msgid "Reason:"
 msgstr "Nedeni:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:413
-#: templates/emails/booking-cancelled.html.php:156
+#: templates/emails/booking-cancelled.html.php:167
 msgid "Thank you for choosing our service."
 msgstr "Hizmetimizi tercih ettiğiniz için teşekkür ederiz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:655
+#: src/Admin/Booking/Helpers/CancellationHandler.php:686
 msgid "Invalid booking data."
 msgstr "Geçersiz rezervasyon bilgileri."
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:687
+#: src/Admin/Booking/Helpers/CancellationHandler.php:718
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr "%1$s (%2$d saat öncesine kadar) iptal edebilirsiniz."
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:694
+#: src/Admin/Booking/Helpers/CancellationHandler.php:725
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr "İptal süresi dolmuştur. Rezervasyonlar, teslim almadan en az %d saat önce iptal edilmelidir."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:710
+#: src/Admin/Booking/Helpers/CancellationHandler.php:741
 msgid "Error calculating cancellation deadline."
 msgstr "İptal son tarihini hesaplarken hata oluştu."
 
@@ -8791,7 +8791,7 @@ msgstr "Para iadesi başarılı"
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr "Bu işlem başarısız olmadan önce %1$s zaten iade edildi: %2$s"
 
-#: src/Admin/Payment/Refunds/Service.php:406
+#: src/Admin/Payment/Refunds/Service.php:433
 msgid "Refund notification could not be sent:"
 msgstr "Para iadesi bildirimi gönderilemedi:"
 
@@ -13249,15 +13249,15 @@ msgstr "İptal Nedeni:"
 msgid "Cancellation Date:"
 msgstr "İptal Tarihi:"
 
-#: templates/emails/booking-cancelled.html.php:128
+#: templates/emails/booking-cancelled.html.php:139
 msgid "Refund Information"
 msgstr "İade Bilgileri"
 
-#: templates/emails/booking-cancelled.html.php:140
+#: templates/emails/booking-cancelled.html.php:151
 msgid "We're sorry to see your booking cancelled. If you have any questions or would like to make a new reservation, please don't hesitate to contact us."
 msgstr "Rezervasyonunuzun iptal edildiğini görmekten üzüntü duyuyoruz. Herhangi bir sorunuz varsa veya yeni bir rezervasyon yapmak istiyorsanız, lütfen bizimle iletişime geçmekten çekinmeyin."
 
-#: templates/emails/booking-cancelled.html.php:149
+#: templates/emails/booking-cancelled.html.php:160
 #: templates/emails/receipt-status-email.html.php:276
 msgid "View My Account"
 msgstr "Hesabımı Görüntüle"
@@ -13569,11 +13569,7 @@ msgstr "İade Detayları"
 msgid "Your refund for booking #%s has been processed."
 msgstr "%s numaralı rezervasyonunuz için geri ödemeniz işleme alınmıştır."
 
-#: templates/emails/refund-customer.html.php:49
-msgid "The refund will be credited to your original payment method. Processing time may vary depending on your bank."
-msgstr "Geri ödeme, orijinal ödeme yönteminize yatırılacaktır. İşlem süresi, bankanıza bağlı olarak değişebilir."
-
-#: templates/emails/refund-customer.html.php:52
+#: templates/emails/refund-customer.html.php:64
 msgid "If you have any questions about this refund, please contact us."
 msgstr "Bu iade hakkında sorularınız için lütfen bizimle iletişime geçin."
 
@@ -15310,7 +15306,7 @@ msgid "Vehicle availability was not released for this cancellation: %s"
 msgstr "Bu iptal için araç müsaitliği serbest bırakılamadı: %s"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:412
-#: templates/emails/booking-cancelled.html.php:131
+#: templates/emails/booking-cancelled.html.php:142
 msgid "If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you."
 msgstr "Bu rezervasyon için bir iade söz konusuysa, tutarı ve size nasıl ulaşacağını belirten ayrı bir iade bildirimi alacaksınız."
 
@@ -15318,7 +15314,7 @@ msgstr "Bu rezervasyon için bir iade söz konusuysa, tutarı ve size nasıl ula
 msgid "Refund not attempted: the cancellation was not attributed to a user allowed to move money."
 msgstr "İade denenmedi: iptal işlemi, para hareketi yapmaya yetkili bir kullanıcıya atfedilmedi."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:496
+#: src/Admin/Booking/Helpers/CancellationHandler.php:527
 msgid "Refund not attempted: another refund is already running for this booking."
 msgstr "İade denenmedi: bu rezervasyon için zaten başka bir iade işlemi sürüyor."
 
@@ -15329,3 +15325,13 @@ msgstr "İade bildirimi gönderilmedi: bu rezervasyonda müşteri adresi yok."
 #: src/Admin/Payment/Refunds/Service.php:119
 msgid "Another refund is already running for this booking. Please try again in a moment."
 msgstr "Bu rezervasyon için zaten başka bir iade işlemi sürüyor. Lütfen birazdan tekrar deneyin."
+
+#. translators: %s: the message thrown by a mhmrentiva_process_refund listener.
+#: src/Admin/Booking/Helpers/CancellationHandler.php:485
+#, php-format
+msgid "A mhmrentiva_process_refund listener failed: %s"
+msgstr "Bir mhmrentiva_process_refund dinleyicisi başarısız oldu: %s"
+
+#: src/Admin/Payment/Refunds/Service.php:381
+msgid "A mhmrentiva_refund_completed listener failed:"
+msgstr "Bir mhmrentiva_refund_completed dinleyicisi başarısız oldu:"
