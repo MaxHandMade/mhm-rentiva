@@ -73,7 +73,7 @@ final class RefundModeTest extends WP_UnitTestCase
         // A bank-transfer / cheque style order: the payment method never
         // resolves to a gateway object that supports refunds.
         $order = $this->create_paid_order_for_booking($this->booking_id, '120');
-        $order->set_payment_method('mhm_no_such_gateway');
+        $order->set_payment_method('mhmrentiva_no_such_gateway');
         $order->save();
 
         $this->assertSame(

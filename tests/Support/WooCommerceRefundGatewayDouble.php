@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
  */
 class WooCommerceRefundGatewayDouble extends \WC_Payment_Gateway
 {
-	public const ID = 'mhm_test_auto_refund_gateway';
+	public const ID = 'mhmrentiva_test_auto_refund_gateway';
 
 	/**
 	 * What process_refund() returns, one value per call, in order. Left empty,

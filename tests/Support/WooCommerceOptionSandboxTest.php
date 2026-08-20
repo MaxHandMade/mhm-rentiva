@@ -29,47 +29,47 @@ final class WooCommerceOptionSandboxTest extends WP_UnitTestCase
 
     public function test_an_existing_option_is_put_back_at_its_original_value(): void
     {
-        update_option('mhm_sandbox_probe', 'configured');
+        update_option('mhmrentiva_sandbox_probe', 'configured');
 
-        $this->sandbox_option('mhm_sandbox_probe', 'temporary');
-        $this->assertSame('temporary', get_option('mhm_sandbox_probe'));
+        $this->sandbox_option('mhmrentiva_sandbox_probe', 'temporary');
+        $this->assertSame('temporary', get_option('mhmrentiva_sandbox_probe'));
 
         $this->restore_sandboxed_options();
 
         $this->assertSame(
             'configured',
-            get_option('mhm_sandbox_probe'),
+            get_option('mhmrentiva_sandbox_probe'),
             'Restoring must return the configured value, not delete the row.'
         );
     }
 
     public function test_an_absent_option_is_absent_again_afterwards(): void
     {
-        delete_option('mhm_sandbox_probe_absent');
+        delete_option('mhmrentiva_sandbox_probe_absent');
 
-        $this->sandbox_option('mhm_sandbox_probe_absent', 'temporary');
+        $this->sandbox_option('mhmrentiva_sandbox_probe_absent', 'temporary');
         $this->restore_sandboxed_options();
 
         $sentinel = new \stdClass();
 
         $this->assertSame(
             $sentinel,
-            get_option('mhm_sandbox_probe_absent', $sentinel),
+            get_option('mhmrentiva_sandbox_probe_absent', $sentinel),
             'An option the site never had must not exist after the test either.'
         );
     }
 
     public function test_the_first_saved_value_wins_when_a_test_sets_the_same_option_twice(): void
     {
-        update_option('mhm_sandbox_probe', 'configured');
+        update_option('mhmrentiva_sandbox_probe', 'configured');
 
-        $this->sandbox_option('mhm_sandbox_probe', 'first');
-        $this->sandbox_option('mhm_sandbox_probe', 'second');
+        $this->sandbox_option('mhmrentiva_sandbox_probe', 'first');
+        $this->sandbox_option('mhmrentiva_sandbox_probe', 'second');
         $this->restore_sandboxed_options();
 
         $this->assertSame(
             'configured',
-            get_option('mhm_sandbox_probe'),
+            get_option('mhmrentiva_sandbox_probe'),
             'Re-sandboxing must not record "first" as the value to restore.'
         );
     }
@@ -78,11 +78,11 @@ final class WooCommerceOptionSandboxTest extends WP_UnitTestCase
     {
         // '0' is a legitimate setting -- woocommerce_price_num_decimals = 0 is
         // a JPY store. A restore that tests truthiness would delete it.
-        update_option('mhm_sandbox_probe', '0');
+        update_option('mhmrentiva_sandbox_probe', '0');
 
-        $this->sandbox_option('mhm_sandbox_probe', '3');
+        $this->sandbox_option('mhmrentiva_sandbox_probe', '3');
         $this->restore_sandboxed_options();
 
-        $this->assertSame('0', get_option('mhm_sandbox_probe'));
+        $this->assertSame('0', get_option('mhmrentiva_sandbox_probe'));
     }
 }

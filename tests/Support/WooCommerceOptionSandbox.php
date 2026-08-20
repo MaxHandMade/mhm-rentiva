@@ -18,20 +18,20 @@ trait WooCommerceOptionSandbox
 	 *
 	 * @var array<string, array{0: bool, 1: mixed}>
 	 */
-	private array $mhm_saved_options = array();
+	private array $mhmrentiva_saved_options = array();
 
 	/**
 	 * @param mixed $value
 	 */
 	protected function sandbox_option( string $name, $value ): void {
-		if ( ! array_key_exists( $name, $this->mhm_saved_options ) ) {
+		if ( ! array_key_exists( $name, $this->mhmrentiva_saved_options ) ) {
 			// An object as the default makes "absent" unambiguous. A string or
 			// null sentinel cannot be told apart from a real stored value, and
 			// '0' and '' are both real WooCommerce settings.
 			$sentinel = new \stdClass();
 			$current  = get_option( $name, $sentinel );
 
-			$this->mhm_saved_options[ $name ] = ( $current === $sentinel )
+			$this->mhmrentiva_saved_options[ $name ] = ( $current === $sentinel )
 				? array( false, null )
 				: array( true, $current );
 		}
@@ -40,7 +40,7 @@ trait WooCommerceOptionSandbox
 	}
 
 	protected function restore_sandboxed_options(): void {
-		foreach ( $this->mhm_saved_options as $name => $saved ) {
+		foreach ( $this->mhmrentiva_saved_options as $name => $saved ) {
 			list( $existed, $value ) = $saved;
 
 			if ( $existed ) {
@@ -50,6 +50,6 @@ trait WooCommerceOptionSandbox
 			}
 		}
 
-		$this->mhm_saved_options = array();
+		$this->mhmrentiva_saved_options = array();
 	}
 }

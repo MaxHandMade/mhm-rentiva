@@ -222,7 +222,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         update_post_meta($manual_booking, '_mhmrentiva_contact_email', 'customer@example.test');
 
         $manual_order = $this->create_paid_order_for_booking($manual_booking, '120');
-        $manual_order->set_payment_method('mhm_no_such_gateway');
+        $manual_order->set_payment_method('mhmrentiva_no_such_gateway');
         $manual_order->save();
 
         $manualBody = $this->capture_customer_body(function () use ($manual_booking): void {
@@ -384,7 +384,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
     {
         update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
         $order = $this->create_paid_order_for_booking($this->booking_id, '120');
-        $order->set_payment_method('mhm_no_such_gateway');
+        $order->set_payment_method('mhmrentiva_no_such_gateway');
         $order->save();
 
         $modes = array();
