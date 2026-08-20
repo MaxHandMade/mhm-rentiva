@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Booking\Helpers;
 
+use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
@@ -115,5 +116,41 @@ final class CancellationRefundAuthorizationTest extends WP_UnitTestCase
 
         $this->assertTrue(is_wp_error($result));
         $this->assertSame('', $this->refund_status());
+    }
+
+    /**
+     * The test a `user_can( $user_id, ... )` -> `current_user_can( ... )` swap
+     * inside may_move_money() must fail.
+     *
+     * The current user is an administrator, so cancel_booking()'s OUTER,
+     * ambient guard (which does ask current_user_can()) lets the cancellation
+     * through -- proven below by asserting the booking actually reaches
+     * CANCELLED, so this test is not silently passing because of an unrelated
+     * refusal. The $user_id actor handed to the money step is a different
+     * person: a plain customer with no capability at all. may_move_money()
+     * must refuse based on THAT actor, not the ambient administrator running
+     * the request. If its admin branch were ever swapped back to
+     * current_user_can( 'manage_options' ), it would see the administrator
+     * and refund anyway, and this is the only test in the file that would
+     * catch it.
+     */
+    public function test_the_money_step_asks_about_the_actor_not_the_current_user(): void
+    {
+        wp_set_current_user($this->admin_id);
+
+        $result = CancellationHandler::cancel_booking($this->booking_id, $this->stranger_id, 'operator override', true);
+
+        $this->assertFalse(is_wp_error($result));
+        $this->assertSame(
+            Status::CANCELLED,
+            Status::get($this->booking_id),
+            'The outer, ambient guard must have let this cancellation through -- otherwise this test is measuring the wrong refusal, not the money step.'
+        );
+
+        $this->assertSame(
+            '',
+            $this->refund_status(),
+            'The money step must refuse based on the $user_id actor it was handed, not the ambient current user -- even though the ambient user is an administrator.'
+        );
     }
 }
