@@ -96,6 +96,69 @@ final class RefundUnresolvableOrderFallbackTest extends WP_UnitTestCase
         $this->assertStringContainsString((string) $booking_id, $logs[0]->post_content);
     }
 
+    public function test_two_successive_refunds_on_the_same_invisible_order_do_not_compound(): void
+    {
+        // The single-refund test above cannot catch the round-3 formula's
+        // bug: with the meta still at 0 before the first refund,
+        // `0 + this order's total` and `this order's total` alone produce
+        // the same write, so the additive term is invisible to a test that
+        // only refunds once. It only diverges on a SECOND refund of the
+        // SAME invisible order, once the meta it would read back is no
+        // longer 0.
+        //
+        // Round 3 used `$state->refunded() + Money::toMinor($refund_amount)`
+        // unconditionally. In the pure case ($state->orders() === []),
+        // $state->refunded() is PaymentState::resolveOfflineChannel()
+        // reading back `_mhmrentiva_refunded_amount` itself -- the very meta
+        // this write is about to overwrite -- so that formula was
+        // read-modify-write accumulation: previous + running_total,
+        // growing without bound on every partial refund of the same order.
+        $this->require_woocommerce();
+
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+
+        $order = $this->create_order_linked_by_line_item_only($booking_id, '40');
+
+        $this->assertSame(
+            array(),
+            \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id)->orders(),
+            'Guard: PaymentState must not resolve this order, or this is not the pure-fallback shape.'
+        );
+
+        $firstRefund = wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => '15',
+        ));
+        $this->assertFalse(is_wp_error($firstRefund), 'Guard: the first refund must succeed.');
+
+        $this->assertSame(
+            Money::toMinor('15'),
+            (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true),
+            'Guard: the first refund alone should record 15 -- this assertion cannot distinguish the'
+            . ' correct formula from the round-3 bug, since the meta was still 0 beforehand.'
+        );
+
+        $secondRefund = wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => '25',
+        ));
+        $this->assertFalse(is_wp_error($secondRefund), 'Guard: the second refund must succeed.');
+
+        $this->assertSame(
+            Money::toMinor('40'),
+            (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true),
+            "The order's own get_total_refunded() after both refunds is 40 -- its true, absolute total."
+            . ' Recording anything higher means the write added this order\'s cumulative total on top of'
+            . ' what this same meta already held for it, compounding on every partial refund instead of'
+            . " reporting the order's own figure."
+        );
+    }
+
     public function test_a_mixed_booking_keeps_the_resolvable_legs_refund_and_does_not_flip_status(): void
     {
         // The pure case above -- no resolvable orders at all -- is not the

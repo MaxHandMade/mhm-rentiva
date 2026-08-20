@@ -2193,10 +2193,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// own figure for $state->refunded() (as an earlier version of
 			// this fallback did) discarded every OTHER order's refund --
 			// N-01, recreated inside the branch meant to guard against it.
-			// Adding this order's own total on top instead keeps both: each
-			// term is a running total (PaymentState's own, and this order's
-			// own get_total_refunded()), so the sum stays idempotent no
-			// matter how many times this hook fires for either side.
+			// Adding this order's own total on top instead keeps the
+			// resolvable legs' contribution alongside this one -- for a
+			// SINGLE invisible leg. With two or more invisible orders this
+			// fallback still can't see any invisible order other than the
+			// one that fired it, so a second invisible leg's own event
+			// would still discard the first invisible leg's contribution;
+			// that is left unfixed here, not claimed fixed.
 			AdvancedLogger::error(
 				'Refunded order is not resolvable through PaymentState; booking-level refund figures may be incomplete',
 				array(
@@ -2206,7 +2209,32 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				AdvancedLogger::CATEGORY_PAYMENT
 			);
 
-			$recorded_refunded = $state->refunded() + Money::toMinor($refund_amount);
+			// $state->refunded() is NOT a peer running total when
+			// $state->orders() is empty: PaymentState::resolveOfflineChannel()
+			// opens in that case (PaymentState.php :195-201) and refunded()
+			// reads back _mhmrentiva_refunded_amount itself -- the very meta
+			// this line is about to overwrite. Adding this order's own total
+			// on top of THAT is read-modify-write accumulation on every
+			// refund of this order: previous + running_total, growing
+			// without bound (three successive partial refunds of one
+			// invisible 40 order measured 1500, then 4500, then 8500,
+			// against a true 4000) -- the exact double-write shape this
+			// slice exists to remove. So the pure case uses this order's own
+			// total alone, same as the pre-round-3 fallback.
+			//
+			// Trade-off, stated rather than left implicit: if this same
+			// booking ALSO carries an offline refund in that same meta key
+			// (Service::finish()'s channel), the pure-case branch drops it,
+			// because it no longer adds $state->refunded() (which is what
+			// would have read that offline figure back). The alternative --
+			// adding $state->refunded() in the pure case too -- doubles
+			// every WooCommerce refund on this order after the first, which
+			// is strictly worse: an offline refund can only be lost once,
+			// while an unboundedly growing WooCommerce figure is precisely
+			// the bug this task exists to remove.
+			$recorded_refunded = array() === $state->orders()
+				? Money::toMinor($refund_amount)
+				: $state->refunded() + Money::toMinor($refund_amount);
 
 			// Terminal-status authority is granted here ONLY when this
 			// invisible order is the booking's ENTIRE known WooCommerce
@@ -2217,10 +2245,20 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// that is the same terminal mid-walk shape Task 8 removed from
 			// handle_order_status_change() and this hook's main branch,
 			// re-created one level down inside this fallback.
-			// $state->isFullyRefunded() cannot see this order's paid or
-			// refunded contribution either, so deferring to it in the mixed
-			// case is conservative: it can only report "not fully refunded"
-			// more often than reality, never less.
+			//
+			// Deferring to $state->isFullyRefunded() in the mixed case is
+			// the best available answer, not a proven-safe one: it is blind
+			// to this order's paid AND refunded contribution, so if the
+			// resolvable legs alone are already fully refunded it reports
+			// true regardless of what this invisible leg still owes -- a
+			// resolvable 70/70 next to an invisible 30-paid/10-refunded
+			// reports fully refunded with 20 still outstanding. That
+			// specific flip is not newly reachable here: PaymentState is
+			// blind to this order everywhere, including the main branch
+			// above, so the resolvable leg alone already marks the booking
+			// refunded before this fallback ever runs. What deferring
+			// avoids is THIS fallback adding a second, independent way to
+			// reach the same terminal write from one order's own totals.
 			$fully_refunded = array() === $state->orders()
 				? Money::toMinor($refund_amount) >= Money::toMinor( (float) $order->get_total() )
 				: $state->isFullyRefunded();
