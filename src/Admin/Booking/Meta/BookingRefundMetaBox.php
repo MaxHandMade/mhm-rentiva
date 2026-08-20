@@ -43,7 +43,16 @@ final class BookingRefundMetaBox {
 		$currency  = $state->currency() ?: (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 
 		if ( $remaining <= 0 ) {
-			echo '<p class="description">' . esc_html__( 'No refundable payment found for this booking.', 'mhm-rentiva' ) . '</p>';
+			if ( $state->refundableAuto() > 0 ) {
+				// This booking's money is genuinely refundable -- just not
+				// through THIS box, which is deliberately offline-only (see
+				// the comment above). Saying "no refundable payment found"
+				// here would be false: point the operator at the path that
+				// actually works instead.
+				echo '<p class="description">' . esc_html__( 'This booking has a refundable WooCommerce payment. Refund it from the WooCommerce order screen or the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
+			} else {
+				echo '<p class="description">' . esc_html__( 'No refundable payment found for this booking.', 'mhm-rentiva' ) . '</p>';
+			}
 			return;
 		}
 
@@ -67,11 +76,32 @@ final class BookingRefundMetaBox {
 		echo '<input type="hidden" name="amount_kurus" id="mhmrentiva_amount_kurus" value="' . (int) $defAmt . '" />';
 		echo '<p><label>' . esc_html__( 'Reason (optional)', 'mhm-rentiva' ) . '</label><br />';
 		echo '<select name="reason">';
-		foreach ( array( 'customer_request', 'vehicle_unavailable', 'duplicate', 'fraud_suspected', 'other' ) as $r ) {
-			echo '<option value="' . esc_attr( $r ) . '">' . esc_html( ucwords( str_replace( '_', ' ', $r ) ) ) . '</option>';
+		foreach ( self::reasonLabels() as $r => $label ) {
+			echo '<option value="' . esc_attr( $r ) . '">' . esc_html( $label ) . '</option>';
 		}
 		echo '</select></p>';
 		echo '<p><button type="submit" class="button button-primary mhm-refund-submit-btn">' . esc_html__( 'Refund', 'mhm-rentiva' ) . '</button></p>';
 		echo '</form>';
+	}
+
+	/**
+	 * Slug => translated label for the reason dropdown.
+	 *
+	 * The slugs themselves (array keys) are the contract with
+	 * Actions::refund_booking() and must not change -- only the label the
+	 * operator reads is translated. Was ucwords(str_replace('_', ' ', $r)),
+	 * raw English derived from the slug with no __(), on a plugin whose
+	 * primary audience is Turkish-speaking.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function reasonLabels(): array {
+		return array(
+			'customer_request'    => __( 'Customer request', 'mhm-rentiva' ),
+			'vehicle_unavailable' => __( 'Vehicle unavailable', 'mhm-rentiva' ),
+			'duplicate'           => __( 'Duplicate booking', 'mhm-rentiva' ),
+			'fraud_suspected'     => __( 'Fraud suspected', 'mhm-rentiva' ),
+			'other'               => __( 'Other', 'mhm-rentiva' ),
+		);
 	}
 }

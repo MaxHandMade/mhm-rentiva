@@ -344,6 +344,13 @@ final class Service {
 		} catch ( \Throwable $e ) {
 			Logger::add(
 				array(
+					// Without 'gateway', AdvancedLogger::add() (:585-588) returns 0
+					// and writes nothing -- this catch block exists specifically to
+					// record that notify() failed, so a log call that is itself
+					// silently discarded reproduces the exact silent failure it was
+					// written to prevent. $operation['channel'] is in scope and is
+					// what every other Logger::add() call in this file passes.
+					'gateway'    => $operation['channel'],
 					'action'     => 'refund_notification',
 					'status'     => 'error',
 					'booking_id' => $bookingId,

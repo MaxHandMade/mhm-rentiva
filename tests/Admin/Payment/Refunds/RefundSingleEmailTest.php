@@ -317,6 +317,69 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * Slice-3 phase-close audit, item 2. Before the fix,
+     * WooCommerceBridge::handle_order_refunded() passed $recorded_refunded --
+     * the booking's CUMULATIVE refunded total -- into a template whose
+     * sentence describes a single event ("A refund of {amount} has been
+     * processed"). Paid 100, refund 40 from the WooCommerce order screen
+     * (mail correctly says 40), refund 30 more (mail said 70, the running
+     * total, for an event in which only 30 moved). This refunds the same
+     * order twice and asserts the second mail names ITS OWN amount.
+     */
+    public function test_a_second_woocommerce_screen_refund_names_its_own_amount_not_the_running_total(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '100');
+
+        $firstBody = $this->capture_customer_body(function () use ($order): void {
+            wc_create_refund(array(
+                'order_id'       => $order->get_id(),
+                'amount'         => 40,
+                'refund_payment' => false,
+            ));
+        });
+
+        $currency = $order->get_currency();
+        $forty    = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+            (float) Money::toMajor(Money::toMinor('40')),
+            \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+            $currency
+        );
+        $thirty = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+            (float) Money::toMajor(Money::toMinor('30')),
+            \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+            $currency
+        );
+        $seventy = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+            (float) Money::toMajor(Money::toMinor('70')),
+            \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+            $currency
+        );
+
+        $this->assertStringContainsString($forty, $firstBody, 'The first refund must name its own amount, 40.');
+
+        $secondBody = $this->capture_customer_body(function () use ($order): void {
+            wc_create_refund(array(
+                'order_id'       => $order->get_id(),
+                'amount'         => 30,
+                'refund_payment' => false,
+            ));
+        });
+
+        $this->assertStringContainsString(
+            $thirty,
+            $secondBody,
+            'The second mail must name this refund event\'s own amount, 30.'
+        );
+        $this->assertStringNotContainsString(
+            $seventy,
+            $secondBody,
+            'The second mail must not name the cumulative running total (40 + 30 = 70) -- that figure '
+                . 'describes the booking\'s history, not what moved in this event.'
+        );
+    }
+
     public function test_the_operation_mode_reaches_the_notification(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');

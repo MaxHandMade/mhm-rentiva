@@ -2307,9 +2307,36 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					? \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_AUTO
 					: \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_MANUAL;
 
+				// The template speaks of ONE event ("a refund of {amount} has
+				// been processed"), so the mail needs THIS refund's own amount,
+				// not $recorded_refunded -- the booking's CUMULATIVE refunded
+				// total, which is correct for the meta write above but wrong
+				// here: a second refund of 30 after an earlier 40 would report
+				// 70, an amount that never moved in this event. get_amount() on
+				// the WC_Order_Refund is this refund object's own figure alone
+				// (WC 11.0.1 wc-order-functions.php :583-588 -- the positive
+				// value wc_create_refund() stored as 'amount', validated against
+				// the order's remaining balance, never against another refund's),
+				// so a second 30 reports 30 here, not 70. The Service path
+				// (Service.php :338) already passes the operation's own amount;
+				// this brings the WooCommerce-screen path to the same meaning.
+				if ( ! $refund ) {
+					// wc_get_order($refund_id) returning false here means
+					// WooCommerce cannot reload the very refund object that fired
+					// this hook a moment ago -- practically unreachable. There is
+					// no other source for 'this refund's own amount': falling back
+					// to $recorded_refunded would silently reintroduce the
+					// cumulative-vs-single bug this fix removes, so the mail is
+					// skipped -- caught below and logged -- instead of showing the
+					// customer a number for a refund this code could not confirm.
+					throw new \RuntimeException( 'Refund order object unavailable for amount calculation' );
+				}
+
+				$this_refund_amount_kurus = Money::toMinor( (float) $refund->get_amount() );
+
 				\MHMRentiva\Admin\Emails\Notifications\RefundNotifications::notify(
 					$booking_id,
-					$recorded_refunded,
+					$this_refund_amount_kurus,
 					$currency,
 					$payment_status,
 					$refund_reason,

@@ -111,7 +111,42 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 
         $html = $this->render();
 
-        $this->assertStringContainsString('No refundable payment found', $html);
+        $this->assertStringNotContainsString('name="amount_kurus"', $html);
+    }
+
+    /**
+     * Slice-3 phase-close audit, item 3. render() printed "No refundable
+     * payment found for this booking." for the $remaining <= 0 branch
+     * unconditionally -- including the shape this test builds, where the
+     * booking's WooCommerce order is fully paid and nothing has been
+     * refunded from it yet, i.e. WooCommerce money IS genuinely refundable.
+     * The box staying offline-only is correct and unchanged (still no
+     * form, still no amount_kurus field); only the sentence was false. This
+     * pins the new sentence appearing and the old, false one NOT appearing
+     * for exactly that shape.
+     */
+    public function test_a_paid_woocommerce_order_gets_the_woocommerce_sentence_not_the_false_one(): void
+    {
+        $this->require_woocommerce();
+
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $this->create_paid_order_for_booking($this->booking_id, '80');
+
+        $html = $this->render();
+
+        $this->assertStringContainsString(
+            'This booking has a refundable WooCommerce payment.',
+            $html,
+            'A booking whose WooCommerce order is still refundable must be told so.'
+        );
+        $this->assertStringNotContainsString(
+            'No refundable payment found for this booking.',
+            $html,
+            'That sentence is false for a booking whose WooCommerce money is genuinely refundable.'
+        );
         $this->assertStringNotContainsString('name="amount_kurus"', $html);
     }
 }
