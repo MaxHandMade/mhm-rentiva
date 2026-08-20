@@ -8,6 +8,9 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox;
+use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 
@@ -279,47 +282,56 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
-		$booking_status = Status::get( $booking_id );
+		// The same predicate the deposit screen gates its button on and the
+		// refund box gates its link on. Three copies of this question used to
+		// live in three files and disagree; see
+		// BookingDepositMetaBox::can_refund_from_deposit_screen().
+		if ( ! BookingDepositMetaBox::can_refund_from_deposit_screen( $booking_id ) ) {
+			// An empty balance is the one failing condition the operator can
+			// read a meaning into, so it gets said out loud rather than hidden
+			// behind the generic refusal.
+			$message = PaymentState::forBooking( $booking_id )->refundable() > 0
+				? __( 'Refund cannot be processed for this booking.', 'mhm-rentiva' )
+				: __( 'This booking has no refundable balance left.', 'mhm-rentiva' );
 
-		if ( $payment_status !== 'paid' || $booking_status !== 'cancelled' ) {
-			wp_send_json_error( array( 'message' => __( 'Refund cannot be processed for this booking.', 'mhm-rentiva' ) ) );
+			wp_send_json_error( array( 'message' => $message ) );
 			return;
 		}
 
-		// Calculate refund amount
-		$deposit_amount   = floatval( get_post_meta( $booking_id, '_mhmrentiva_deposit_amount', true ) );
-		$total_amount     = floatval( get_post_meta( $booking_id, '_mhmrentiva_total_price', true ) );
-		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
+		// The refund amount IS the refundable balance. It used to be computed
+		// from _mhmrentiva_deposit_amount, which a full-payment booking stores
+		// as 0 -- so every such booking was told "Refund not processed due to
+		// cancellation policy" and refunded nothing, however much money was
+		// genuinely still refundable.
+		//
+		// 🔴 This is an int in MINOR units (kuruş), unlike the major-unit float
+		// it replaced. Service::process() wants minor units, so there is no
+		// Money::toMinor() at the call site any more; the display path is the
+		// one that now needs Money::toMajor().
+		$refund_amount = PaymentState::forBooking( $booking_id )->refundable();
 
-		// Cancellation policy check
+		// Cancellation policy check. Unchanged in intent: past the deadline
+		// nothing is owed back, otherwise the whole amount is. Only the meaning
+		// of "the whole amount" moved, from the deposit to the balance.
 		$cancellation_deadline = get_post_meta( $booking_id, '_mhmrentiva_cancellation_deadline', true );
-		$refund_amount         = 0;
 
-		if ( $cancellation_deadline ) {
-			$now      = time();
-			$deadline = strtotime( $cancellation_deadline . ' UTC' );
-
-			if ( $now <= $deadline ) {
-				// Cancellation within 24 hours - full refund
-				$refund_amount = $deposit_amount;
-			} else {
-				// Cancellation after 24 hours - no refund
-				$refund_amount = 0;
-			}
-		} else {
-			// No cancellation policy - full refund
-			$refund_amount = $deposit_amount;
+		if ( $cancellation_deadline && time() > strtotime( $cancellation_deadline . ' UTC' ) ) {
+			$refund_amount = 0;
 		}
 
-		// Policy says nothing is owed back: nothing to attempt, nothing to change.
+		// Policy says nothing is owed back: nothing to attempt, nothing to
+		// change. The gate above already proved refundable() > 0, so an expired
+		// deadline is the only way to reach this -- which is why the message
+		// can name the policy honestly. It could not before: a zero deposit
+		// arrived here too and got the same sentence on bookings that had no
+		// cancellation deadline at all.
 		if ( $refund_amount <= 0 ) {
 			self::add_booking_log(
 				$booking_id,
-				'refund_processed',
+				'refund_skipped',
 				array(
-					'refund_amount' => 0,
-					'processed_by'  => get_current_user_id(),
+					'reason'       => 'cancellation_policy',
+					'processed_by' => get_current_user_id(),
 				)
 			);
 
@@ -347,12 +359,17 @@ final class DepositManagementAjax {
 		// It works in kuruş (minor units), which is what every consumer of
 		// _mhmrentiva_refunded_amount already assumes (BookingRefundMetaBox,
 		// RefundCalculator); the float this method used to write was itself a unit
-		// mismatch with those readers.
+		// mismatch with those readers. $refund_amount is already in those units.
 		$result = \MHMRentiva\Admin\Payment\Refunds\Service::process(
 			$booking_id,
-			\MHMRentiva\Admin\Payment\Core\Money::toMinor( $refund_amount ),
+			$refund_amount,
 			__( 'Refund issued from the deposit management screen.', 'mhm-rentiva' )
 		);
+
+		// The log's `refund_amount` key is shared with WooCommerceBridge, which
+		// writes it in major units; keep the unit of the key rather than
+		// silently rescaling a stored audit record.
+		$refund_amount_major = (float) Money::toMajor( $refund_amount );
 
 		if ( '1' !== ( $result['mhmrentiva_refund'] ?? '0' ) ) {
 			$message = (string) ( $result['mhmrentiva_refund_msg'] ?? '' );
@@ -361,7 +378,7 @@ final class DepositManagementAjax {
 				$booking_id,
 				'refund_failed',
 				array(
-					'refund_amount' => $refund_amount,
+					'refund_amount' => $refund_amount_major,
 					'processed_by'  => get_current_user_id(),
 					'reason'        => $message,
 				)
@@ -384,7 +401,7 @@ final class DepositManagementAjax {
 			$booking_id,
 			'refund_processed',
 			array(
-				'refund_amount' => $refund_amount,
+				'refund_amount' => $refund_amount_major,
 				'processed_by'  => get_current_user_id(),
 			)
 		);
@@ -392,7 +409,7 @@ final class DepositManagementAjax {
 		wp_send_json_success(
 			array(
 				/* translators: %s placeholder. */
-				'message' => sprintf( __( 'Refund completed successfully. Refund amount: %s', 'mhm-rentiva' ), self::format_price( $refund_amount ) ),
+				'message' => sprintf( __( 'Refund completed successfully. Refund amount: %s', 'mhm-rentiva' ), self::format_price( $refund_amount_major ) ),
 			)
 		);
 	}

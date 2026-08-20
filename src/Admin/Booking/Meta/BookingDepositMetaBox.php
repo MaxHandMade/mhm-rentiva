@@ -8,7 +8,9 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
+use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -118,6 +120,50 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Can a refund be started from THIS screen for this booking?
+	 *
+	 * One predicate, three callers: the button below, the link
+	 * BookingRefundMetaBox points at it, and the rejection in
+	 * DepositManagementAjax::process_refund(). Those three used to be three
+	 * separate copies of the same question and they disagreed twice, both
+	 * measured:
+	 *
+	 * - Refunds\Service writes payment_status = 'partially_refunded' whenever
+	 *   a refund does not clear the whole balance (Service.php:295) while all
+	 *   three copies demanded exactly 'paid'. A correct partial refund
+	 *   therefore stranded the rest of the money permanently: no screen would
+	 *   offer the second refund, and the refund box went on reporting the
+	 *   balance as refundable while telling the operator to cancel a booking
+	 *   that was already cancelled.
+	 * - render_deposit_management() returns early -- before any button -- when
+	 *   _mhmrentiva_payment_type is empty ("old system" notice). The refund
+	 *   box's copy did not know that and linked to a button that was not on
+	 *   the page.
+	 *
+	 * The conditions below are exactly, and only, the ones under which the
+	 * button actually renders and the handler actually proceeds. The cheap
+	 * meta reads come first so the PaymentState resolution -- which touches
+	 * WooCommerce orders -- is skipped for the shapes that are already out.
+	 */
+	public static function can_refund_from_deposit_screen( int $booking_id ): bool {
+		$payment_status = (string) get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
+
+		if ( ! in_array( $payment_status, array( 'paid', 'partially_refunded' ), true ) ) {
+			return false;
+		}
+
+		if ( Status::CANCELLED !== Status::get( $booking_id ) ) {
+			return false;
+		}
+
+		if ( '' === (string) get_post_meta( $booking_id, '_mhmrentiva_payment_type', true ) ) {
+			return false;
+		}
+
+		return PaymentState::forBooking( $booking_id )->refundable() > 0;
 	}
 
 	public static function render_deposit_management( \WP_Post $post ): void {
@@ -361,8 +407,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			echo '</button>';
 		}
 
-		// Refund button
-		if ( $payment_status === 'paid' && in_array( $booking_status, array( 'cancelled' ), true ) ) {
+		// Refund button. The rule lives in can_refund_from_deposit_screen() so
+		// this screen, the refund box's link and the AJAX handler cannot drift
+		// apart again -- see that method for the two ways they already had.
+		if ( self::can_refund_from_deposit_screen( $post_id ) ) {
 			echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 			echo '<span class="dashicons dashicons-undo"></span>';
 			echo esc_html__( 'Process Refund', 'mhm-rentiva' );

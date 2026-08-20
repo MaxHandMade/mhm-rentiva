@@ -27,8 +27,18 @@ final class Actions {
 	public static function register(): void {
 		// admin_post_mhmrentiva_purge_logs -> purge_logs() was removed:
 		// zero shipped nonce producer and zero consumer anywhere.
-		// notice_url()/notices()/the NOTICE_NONCE_* constants below survive --
-		// refund_booking() (live, nonce produced by BookingRefundMetaBox) calls them.
+		//
+		// refund_booking() and the refund branch of notices() are now in the
+		// same position and are kept deliberately, not by oversight. a5c35a61
+		// deleted BookingRefundMetaBox's nested <form> -- invalid HTML that
+		// broke the booking edit screen's own Update button -- and with it the
+		// only wp_create_nonce( 'mhmrentiva_refund_booking' ) in the tree. With
+		// zero producers no request can pass the check_admin_referer() on the
+		// first line of refund_booking(), so the handler and the notices it
+		// feeds are unreachable rather than unprotected. Whether to delete them
+		// or give them a new producer is a product decision this slice did not
+		// take; notice_url()/notices()/the NOTICE_NONCE_* constants below stay
+		// with them.
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
 		add_action( 'admin_post_mhmrentiva_refund_booking', array( self::class, 'refund_booking' ) );
 	}

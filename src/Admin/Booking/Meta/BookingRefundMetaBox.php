@@ -72,23 +72,22 @@ final class BookingRefundMetaBox {
 		// second, broken one here. See BookingRefundMetaBoxRendersTest's
 		// "no form, no name=action" assertion for the regression this guards.
 		//
-		// That trigger is not always there to link to. BookingDepositMetaBox
-		// only prints its "Process Refund" button when payment_status ===
-		// 'paid' AND booking_status === 'cancelled' (measured live, fix
-		// round 1, 2026-08-20: a paid-but-not-cancelled offline booking
-		// renders the deposit box with zero buttons). Pointing at that
-		// screen unconditionally told the operator a route existed when, for
-		// most bookings that reach this branch, it did not. Mirror the same
-		// gate here and state the precondition when the route is not there,
-		// instead of implying one that is not.
-		$booking_status = \MHMRentiva\Admin\Booking\Core\Status::get( $bid );
-		$payment_status = (string) get_post_meta( $bid, '_mhmrentiva_payment_status', true );
-
-		if ( 'paid' === $payment_status && \MHMRentiva\Admin\Booking\Core\Status::CANCELLED === $booking_status ) {
+		// That trigger is not always there to link to, and this box used to
+		// keep its own copy of the rule that decides. The copy was wrong twice
+		// -- it demanded exactly 'paid' (so a partially refunded booking lost
+		// its route the moment a correct partial refund ran) and it did not
+		// know the deposit box returns early, before any button, on a booking
+		// with no _mhmrentiva_payment_type. Ask the screen that owns the
+		// button instead of mirroring its rule.
+		if ( BookingDepositMetaBox::can_refund_from_deposit_screen( $bid ) ) {
 			$deposit_url = admin_url( 'post.php?post=' . $bid . '&action=edit' ) . '#mhmrentiva_booking_deposit';
 			echo '<p><a class="button button-primary" href="' . esc_url( $deposit_url ) . '">' . esc_html__( 'Process this refund from the deposit-management screen.', 'mhm-rentiva' ) . '</a></p>';
 		} else {
-			echo '<p class="description">' . esc_html__( 'This amount is refundable; the refund is recorded from the deposit-management screen once the booking is cancelled.', 'mhm-rentiva' ) . '</p>';
+			// Deliberately does NOT name a missing condition. The predicate has
+			// four of them and the sentence has to stay true for every false
+			// case; the old wording named cancellation alone, which is already
+			// false for a cancelled booking that is merely partially refunded.
+			echo '<p class="description">' . esc_html__( 'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
 		}
 	}
 }

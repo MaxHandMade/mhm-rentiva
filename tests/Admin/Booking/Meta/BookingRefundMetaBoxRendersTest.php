@@ -64,16 +64,22 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
     }
 
     /**
-     * BookingDepositMetaBox::render_deposit_actions() only prints its
-     * "Process Refund" button when payment_status === 'paid' AND
-     * booking_status === 'cancelled'. This is that exact shape -- the one
-     * case where a route to the deposit-management screen genuinely exists
+     * BookingDepositMetaBox::can_refund_from_deposit_screen() is what decides
+     * whether that screen prints a "Process Refund" button at all. This is a
+     * shape it answers yes for -- the one case where a route genuinely exists
      * -- so the box must link to it, not merely describe the precondition.
+     *
+     * _mhmrentiva_payment_type is set here for a reason found by the surface
+     * round: without it the deposit box returns early with the "old system"
+     * notice and prints no buttons, so this fixture used to describe a booking
+     * whose route did not exist while asserting that the box link to it. Both
+     * copies of the gate were wrong in the same direction, so the test passed.
      */
     public function test_a_paid_cancelled_offline_booking_gets_the_summary_and_the_deposit_link(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
 
@@ -86,9 +92,9 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
             'A paid, cancelled booking has a genuine route to the deposit-management screen; the box must link to it.'
         );
         $this->assertStringNotContainsString(
-            'once the booking is cancelled',
+            'refunds for this booking are recorded from',
             $html,
-            'The precondition sentence is for bookings that are NOT (yet) cancelled -- this one already is, and gets the link instead.'
+            'The precondition sentence is for bookings with no route -- this one has one, and gets the link instead.'
         );
         $this->assertStringNotContainsString('No refundable payment found', $html);
     }
@@ -107,11 +113,18 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * test above, with only booking_status different, so it proves
      * booking_status alone decides which sentence renders -- not an
      * absence of offline data.
+     *
+     * The sentence itself stopped naming cancellation in the surface round:
+     * the predicate has four conditions and a cancelled-but-partially-refunded
+     * booking also lands here, for which "once the booking is cancelled" was
+     * simply false. It now states where refunds are recorded without claiming
+     * why this particular booking does not qualify.
      */
     public function test_a_paid_but_not_cancelled_offline_booking_gets_the_precondition_sentence(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($this->booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
 
@@ -119,9 +132,14 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 
         $this->assertStringContainsString('Remaining refundable', $html);
         $this->assertStringContainsString(
-            'This amount is refundable; the refund is recorded from the deposit-management screen once the booking is cancelled.',
+            'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.',
             $html,
             'No refund button exists for a paid, non-cancelled booking on the deposit-management screen; state the precondition, not a route.'
+        );
+        $this->assertStringNotContainsString(
+            'once the booking is cancelled',
+            $html,
+            'That wording is false for the cancelled-but-partially-refunded shape that also reaches this branch.'
         );
         $this->assertStringNotContainsString(
             'Process this refund from the deposit-management screen.',
@@ -149,17 +167,50 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * string assertion CAN prove: that no <form> and no name="action" field
      * is emitted by this box, ever, for a shape where money is offline and
      * refundable.
+     *
+     * Both branches, not one. Until the surface round this exercised only the
+     * else branch (the precondition sentence), so a <form> reintroduced around
+     * the LINK -- the branch that actually replaced the deleted form, and the
+     * likelier place for one to come back -- would not have failed anything.
+     * The two shapes below differ only in booking status, which is what
+     * decides the branch.
+     *
+     * @dataProvider provide_both_gate_branches
      */
-    public function test_the_box_emits_no_nested_form_and_no_action_field(): void
+    public function test_the_box_emits_no_nested_form_and_no_action_field(string $booking_status, string $branch): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_status', $booking_status);
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
 
         $html = $this->render();
 
+        // Prove the shape really did take the branch it claims to, so a gate
+        // change that quietly collapses both shapes into one branch cannot
+        // leave the other untested while this test still passes.
+        $this->assertStringContainsString($branch, $html, 'This shape must render the branch under test.');
+
         $this->assertStringNotContainsString('<form', $html);
         $this->assertStringNotContainsString('name="action"', $html);
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public function provide_both_gate_branches(): array
+    {
+        return array(
+            'link branch (a route exists)'      => array(
+                'cancelled',
+                'Process this refund from the deposit-management screen.',
+            ),
+            'sentence branch (no route)'        => array(
+                'confirmed',
+                'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.',
+            ),
+        );
     }
 
     public function test_an_offline_booking_with_nothing_left_says_so_instead_of_showing_a_link(): void
