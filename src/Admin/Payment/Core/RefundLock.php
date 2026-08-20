@@ -7,8 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex is the one thing that must never be answered from a cache, and the options API cannot express INSERT IGNORE.
-
 /**
  * A per-booking mutex for the money step.
  *
@@ -37,14 +35,34 @@ if ( ! defined( 'ABSPATH' ) ) {
  * silent no-op, and for a window both the original holder and the new
  * acquirer believe they hold the lock. That risk is accepted, not
  * overlooked, and it is bounded twice over: the critical section this lock
- * guards is two wc_create_refund() calls, whose HTTP legs sit far below
- * TTL_SECONDS, and WooCommerce itself re-checks the booking's remaining
+ * actually guards is Refunds\Service::withLock()'s whole closure -- the
+ * wc_create_refund() calls, but also finish(), which runs inside the same
+ * lock and sends two wp_mail() calls and fires the public
+ * mhmrentiva_refund_completed action, i.e. arbitrary third-party code. A
+ * slow mail transport or a slow listener therefore does extend how long the
+ * lock is held, not just the gateway legs. What still bounds the risk is
+ * the second leg: WooCommerce itself re-checks the booking's remaining
  * refundable amount at call time (WC 11.0.1 class-wc-order-refund.php or
  * class-wc-order.php's create_refund path, ~:584-586), so a duplicate
  * refund from a preempted holder is refused by WooCommerce, not by this
  * lock. This class is defence in depth over that check, not the only guard
  * -- which is why the lease design is kept as-is rather than growing a
  * renewal or heartbeat.
+ *
+ * Spec §5.3 puts mhmrentiva_refund_completed AFTER the lock is released;
+ * Refunds\Service fires it from inside finish(), which runs INSIDE
+ * withLock(). Known deviation, kept deliberately: both of finish()'s
+ * callers (process() and processFullRefund()) return finish()'s array as
+ * their own result, so moving the hook outside the lock would mean firing
+ * it after the return value is already computed, from both entry points --
+ * a larger change to their contract than this slice carries.
+ *
+ * A request that dies mid-refund (a fatal, a killed worker) leaves its
+ * mhmrentiva_refund_lock_<id> row standing: nothing runs release() for it.
+ * The row is not permanently orphaned -- it is picked up the same way any
+ * stale row is, by a later acquire() on the same booking finding it past
+ * TTL_SECONDS and stealing it, or, failing that, by Uninstaller's
+ * `option_name LIKE 'mhmrentiva%'` sweep when the plugin is removed.
  *
  * ⚠️ Cross-process exclusion is not provable in this test suite (one process,
  * one connection). What the tests prove is the refusal, the re-entrancy, the
@@ -111,6 +129,7 @@ final class RefundLock {
 
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex is the one thing that must never be answered from a cache.
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s",
@@ -118,6 +137,7 @@ final class RefundLock {
 				self::$tokens[ $booking_id ]
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		unset( self::$depth[ $booking_id ], self::$tokens[ $booking_id ] );
 	}
@@ -134,6 +154,8 @@ final class RefundLock {
 
 		// autoload 'no' keeps the row out of alloptions; nothing ever reads
 		// this name through the options API, so no cache has to be primed.
+		//
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The options API cannot express INSERT IGNORE.
 		$written = $wpdb->query(
 			$wpdb->prepare(
 				"INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
@@ -141,6 +163,7 @@ final class RefundLock {
 				$token
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		return 1 === (int) $written;
 	}
@@ -152,12 +175,14 @@ final class RefundLock {
 	private static function steal_if_stale( int $booking_id ): bool {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex is the one thing that must never be answered from a cache.
 		$current = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT option_value FROM {$wpdb->options} WHERE option_name = %s",
 				self::name( $booking_id )
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( null === $current ) {
 			// It disappeared between the failed insert and this read; the
@@ -184,6 +209,7 @@ final class RefundLock {
 			return false;
 		}
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex is the one thing that must never be answered from a cache.
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s",
@@ -191,6 +217,7 @@ final class RefundLock {
 				(string) $current
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		return (int) $deleted > 0;
 	}
