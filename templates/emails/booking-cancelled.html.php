@@ -120,7 +120,18 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 	</table>
 
 	<!-- Refund Notice -->
-	<?php if ( $payment_status === 'paid' ) : ?>
+	<?php
+	// Same question CancellationHandler::process_refund() asks before it moves
+	// money (spec §5.3): the balance, not just the status string. A booking
+	// whose meta still claims 'paid' after a channel emptied it, or one that
+	// took a PARTIAL refund and still carries a remainder, must both see this
+	// panel -- 'paid' alone missed the partially_refunded case entirely, which
+	// is the branch's headline scenario. PaymentState guards its own
+	// WooCommerce calls, so it is safe to call with WooCommerce absent.
+	$has_money = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking_id )->paid() > 0
+		|| in_array( $payment_status, array( 'paid', 'partially_refunded' ), true );
+	?>
+	<?php if ( $has_money ) : ?>
 		<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; border-left: 4px solid #ffc107; margin-bottom: 30px;">
 			<tr>
 				<td style="padding: 20px;">

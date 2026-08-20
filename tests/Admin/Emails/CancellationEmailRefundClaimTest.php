@@ -72,6 +72,30 @@ final class CancellationEmailRefundClaimTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * Finding E: the template gated the panel on `$payment_status === 'paid'`
+     * alone, a narrower question than the one CancellationHandler::process_refund()
+     * asks before it moves money (spec §5.3, widened by this branch to also
+     * cover a PARTIAL refund's remainder). A partially_refunded booking is
+     * this branch's headline case -- it is exactly the booking that now gets
+     * its remainder back -- and it got no panel at all before this fix.
+     */
+    public function test_a_partially_refunded_booking_still_gets_told_a_refund_notice_may_follow(): void
+    {
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'partially_refunded');
+
+        $this->assertStringContainsString(
+            'separate refund notice',
+            $this->render($booking_id),
+            'The branch widened the money gate to cover partially_refunded; the template must ask the same question.'
+        );
+    }
+
     public function test_an_unpaid_booking_gets_no_refund_panel(): void
     {
         $booking_id = (int) self::factory()->post->create(array(
