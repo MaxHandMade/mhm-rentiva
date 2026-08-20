@@ -71,7 +71,24 @@ final class BookingRefundMetaBox {
 		// via assets/js/admin/deposit-management.js) instead of rendering a
 		// second, broken one here. See BookingRefundMetaBoxRendersTest's
 		// "no form, no name=action" assertion for the regression this guards.
-		$deposit_url = admin_url( 'post.php?post=' . $bid . '&action=edit' ) . '#mhmrentiva_booking_deposit';
-		echo '<p><a class="button button-primary" href="' . esc_url( $deposit_url ) . '">' . esc_html__( 'Process this refund from the deposit-management screen.', 'mhm-rentiva' ) . '</a></p>';
+		//
+		// That trigger is not always there to link to. BookingDepositMetaBox
+		// only prints its "Process Refund" button when payment_status ===
+		// 'paid' AND booking_status === 'cancelled' (measured live, fix
+		// round 1, 2026-08-20: a paid-but-not-cancelled offline booking
+		// renders the deposit box with zero buttons). Pointing at that
+		// screen unconditionally told the operator a route existed when, for
+		// most bookings that reach this branch, it did not. Mirror the same
+		// gate here and state the precondition when the route is not there,
+		// instead of implying one that is not.
+		$booking_status = \MHMRentiva\Admin\Booking\Core\Status::get( $bid );
+		$payment_status = (string) get_post_meta( $bid, '_mhmrentiva_payment_status', true );
+
+		if ( 'paid' === $payment_status && \MHMRentiva\Admin\Booking\Core\Status::CANCELLED === $booking_status ) {
+			$deposit_url = admin_url( 'post.php?post=' . $bid . '&action=edit' ) . '#mhmrentiva_booking_deposit';
+			echo '<p><a class="button button-primary" href="' . esc_url( $deposit_url ) . '">' . esc_html__( 'Process this refund from the deposit-management screen.', 'mhm-rentiva' ) . '</a></p>';
+		} else {
+			echo '<p class="description">' . esc_html__( 'This amount is refundable; the refund is recorded from the deposit-management screen once the booking is cancelled.', 'mhm-rentiva' ) . '</p>';
+		}
 	}
 }

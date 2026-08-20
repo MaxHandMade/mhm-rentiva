@@ -10,7 +10,8 @@ use WP_UnitTestCase;
 
 /**
  * Spec addition B, measured 2026-08-19; nested-form regression fixed
- * 2026-08-20 (phase-close browser verification).
+ * 2026-08-20 (phase-close browser verification); the deposit-screen link
+ * itself corrected the same day (fix round 1).
  *
  * render() returned "No refundable payment found for this booking." unless
  * $gateway === 'offline' AND $paidKurus > 0, and $paidKurus read
@@ -24,6 +25,14 @@ use WP_UnitTestCase;
  * stopped saving. The box no longer prints a <form> at all; it links to the
  * deposit-management box, which has its own working, non-nested refund
  * trigger (wp_ajax_mhmrentiva_deposit_process_refund).
+ *
+ * Round 1: that link was itself unconditional, and BookingDepositMetaBox
+ * only prints its "Process Refund" button when payment_status === 'paid'
+ * AND booking_status === 'cancelled' -- measured live, a paid-but-not-
+ * cancelled offline booking renders the deposit box with zero buttons.
+ * render() now mirrors that same gate: the link only appears where the
+ * button genuinely exists; every other shape in this branch gets a sentence
+ * stating the cancellation precondition instead of a route that isn't there.
  *
  * The box is the OFFLINE surface: a WooCommerce booking is refunded from
  * WooCommerce's own order screen or from the deposit-management screen, and
@@ -54,16 +63,71 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
         return (string) ob_get_clean();
     }
 
-    public function test_an_offline_paid_booking_gets_the_refund_summary_and_a_link(): void
+    /**
+     * BookingDepositMetaBox::render_deposit_actions() only prints its
+     * "Process Refund" button when payment_status === 'paid' AND
+     * booking_status === 'cancelled'. This is that exact shape -- the one
+     * case where a route to the deposit-management screen genuinely exists
+     * -- so the box must link to it, not merely describe the precondition.
+     */
+    public function test_a_paid_cancelled_offline_booking_gets_the_summary_and_the_deposit_link(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
 
         $html = $this->render();
 
         $this->assertStringContainsString('Remaining refundable', $html);
-        $this->assertStringContainsString('deposit-management screen', $html);
+        $this->assertStringContainsString(
+            'Process this refund from the deposit-management screen.',
+            $html,
+            'A paid, cancelled booking has a genuine route to the deposit-management screen; the box must link to it.'
+        );
+        $this->assertStringNotContainsString(
+            'once the booking is cancelled',
+            $html,
+            'The precondition sentence is for bookings that are NOT (yet) cancelled -- this one already is, and gets the link instead.'
+        );
+        $this->assertStringNotContainsString('No refundable payment found', $html);
+    }
+
+    /**
+     * Fix round 1 (2026-08-20): render() used to point at the
+     * deposit-management screen unconditionally. Measured live: for a paid
+     * offline booking that is NOT cancelled -- the common case, e.g. a
+     * completed rental with a partial refund owed -- that screen's
+     * "Process Refund" button does not exist (BookingDepositMetaBox gates it
+     * on booking_status === 'cancelled' too), so the link led nowhere. The
+     * box must now say the amount is refundable and name the precondition
+     * instead of implying a route that is not there.
+     *
+     * This is deliberately the SAME payment/amount meta as the cancelled
+     * test above, with only booking_status different, so it proves
+     * booking_status alone decides which sentence renders -- not an
+     * absence of offline data.
+     */
+    public function test_a_paid_but_not_cancelled_offline_booking_gets_the_precondition_sentence(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $html = $this->render();
+
+        $this->assertStringContainsString('Remaining refundable', $html);
+        $this->assertStringContainsString(
+            'This amount is refundable; the refund is recorded from the deposit-management screen once the booking is cancelled.',
+            $html,
+            'No refund button exists for a paid, non-cancelled booking on the deposit-management screen; state the precondition, not a route.'
+        );
+        $this->assertStringNotContainsString(
+            'Process this refund from the deposit-management screen.',
+            $html,
+            'That sentence claims a route (a clickable link to a working button) that does not exist for this booking; the two branches must not collapse to the same string.'
+        );
         $this->assertStringNotContainsString('No refundable payment found', $html);
     }
 
@@ -127,7 +191,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * that already has a WooCommerce-owned or deposit-management path.
      *
      * The booking also carries the same offline meta as
-     * test_an_offline_paid_booking_gets_the_refund_summary_and_a_link --
+     * test_a_paid_cancelled_offline_booking_gets_the_summary_and_the_deposit_link --
      * proof-of-payment status, a total, a zero remaining -- so this proves
      * the WooCommerce order is what suppresses the summary/link, not an
      * absence of offline data. Drop the order and the same meta produces the
