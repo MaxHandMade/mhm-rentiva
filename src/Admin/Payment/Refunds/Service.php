@@ -120,6 +120,17 @@ final class Service {
 			);
 		}
 
+		// Waiting for the lock is only half of it: $operation() (the validator,
+		// via PaymentState::forBooking()) is about to read booking meta that a
+		// concurrent request may just have written and committed. WordPress's
+		// request-local post_meta cache does not know that -- it can still be
+		// serving a snapshot taken before this acquire() succeeded. Without
+		// this, the critical section decides on data that predates the lock it
+		// just waited for. Same fix, same reasoning, as
+		// RemainingPaymentHandler::resolve_remaining_order(): "Serialisation
+		// without freshness is not mutual exclusion."
+		wp_cache_delete( $bookingId, 'post_meta' );
+
 		try {
 			return $operation();
 		} finally {

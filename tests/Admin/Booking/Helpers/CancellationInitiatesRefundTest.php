@@ -347,4 +347,158 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
             'The other request already recorded the money moving; a lock refusal here must not say it did not.'
         );
     }
+
+    /**
+     * Fable audit finding H-1, the staleness half of the previous test.
+     *
+     * test_a_lock_refusal_does_not_overwrite_a_status_already_settled_elsewhere()
+     * plants its 'completed' status via update_post_meta(), which -- being a
+     * normal write inside THIS same request -- refreshes the request-local
+     * cache as a side effect, so that test would pass even if settle_refund()
+     * never cleared the cache at all. This test plants the same fact with a
+     * raw $wpdb->update() instead, the way a genuinely separate process would
+     * leave it: THIS request's post_meta cache still holds the value from
+     * before the write. The lock-refusal read-back must ask for freshness
+     * explicitly (wp_cache_delete() before the read), or it decides from the
+     * primed snapshot and stamps 'failed' over a refund that already
+     * completed.
+     */
+    public function test_lock_refusal_read_back_does_not_decide_on_a_stale_cache(): void
+    {
+        $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        global $wpdb;
+
+        add_action(
+            'mhmrentiva_process_refund',
+            function () use ($wpdb): void {
+                // Prime the cache exactly as a real listener reading booking
+                // meta would -- the status is still 'pending' at this point,
+                // process_refund() having just written it.
+                get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true);
+
+                // Another request holds the lock and finishes, writing the
+                // terminal status straight to the database so this request's
+                // cache is left stale rather than refreshed.
+                $wpdb->query($wpdb->prepare(
+                    "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+                    'mhmrentiva_refund_lock_' . $this->booking_id,
+                    'someone-else:' . time()
+                ));
+                $wpdb->update(
+                    $wpdb->postmeta,
+                    array( 'meta_value' => 'completed' ),
+                    array(
+                        'post_id'  => $this->booking_id,
+                        'meta_key' => '_mhmrentiva_refund_status',
+                    )
+                );
+            }
+        );
+
+        $this->cancel();
+
+        $this->assertSame(
+            'completed',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            'The other request already recorded the money moving; deciding from a stale cache would'
+                . " stamp 'failed' over it even though the read-back guard's logic is otherwise correct."
+        );
+    }
+
+    /**
+     * Fable audit finding H-1, the successful-acquire side: settle_refund()'s
+     * OWN PaymentState resolution, right after RefundLock::acquire() succeeds,
+     * is exposed the same way. mhmrentiva_process_refund fires -- and can read
+     * booking meta, priming the cache -- BEFORE settle_refund() ever touches
+     * the lock. If a concurrent request completes the whole refund in that
+     * window, settle_refund() must not recompute refundable() from the primed
+     * snapshot once it holds the lock.
+     *
+     * This is deliberately the offline channel (no WooCommerce order): the
+     * audit calls this "the expensive one" -- a stale refundable() > 0 here
+     * does not just mislabel an audit trail entry, it walks into
+     * Service::processFullRefund() and lays down a SECOND full manual-refund
+     * record on top of money a concurrent request already recorded as
+     * returned.
+     */
+    public function test_settle_refund_does_not_recompute_refundable_from_a_snapshot_primed_before_the_lock(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '200');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+        update_post_meta($this->booking_id, '_mhmrentiva_refunded_amount', '0');
+
+        global $wpdb;
+
+        add_action(
+            'mhmrentiva_process_refund',
+            function () use ($wpdb): void {
+                // Prime the cache exactly as a real listener reading booking
+                // meta would.
+                get_post_meta($this->booking_id, '_mhmrentiva_refunded_amount', true);
+
+                // A concurrent request finishes the WHOLE refund and commits
+                // it. Written directly so this request's cache stays stale,
+                // the way a separate process would leave it.
+                // _mhmrentiva_refunded_amount is stored in MINOR units,
+                // unlike _mhmrentiva_total_price/_mhmrentiva_remaining_amount.
+                $wpdb->update(
+                    $wpdb->postmeta,
+                    array( 'meta_value' => (string) Money::toMinor('200') ),
+                    array(
+                        'post_id'  => $this->booking_id,
+                        'meta_key' => '_mhmrentiva_refunded_amount',
+                    )
+                );
+            }
+        );
+
+        $this->cancel();
+
+        $this->assertSame(
+            Money::toMinor('200'),
+            (int) get_post_meta($this->booking_id, '_mhmrentiva_refunded_amount', true),
+            'A second manual refund record would double the recorded amount to 400 -- deciding from the'
+                . ' stale cache is what lays it down.'
+        );
+        $this->assertSame(
+            'completed_externally',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            'Fresh data shows nothing left to refund; the booking must be recorded as already settled,'
+                . ' not refunded a second time.'
+        );
+    }
+
+    /**
+     * Fable audit finding H-1, the belt-and-braces half.
+     *
+     * The two 'failed' stamps in settle_refund() now pass $prev_value =
+     * 'pending' to update_post_meta(), which update_metadata() puts in the
+     * SQL WHERE clause -- the write becomes conditional in the database
+     * itself. This protects a gap the cache-delete fix above cannot: a
+     * genuine cross-process race between the read-back and the write, which
+     * this suite cannot manufacture (RefundLock's own docblock: "Cross-process
+     * exclusion is not provable in this test suite"). What IS provable in one
+     * process is the mechanism itself -- that the conditional write refuses
+     * once the row's actual value no longer matches, regardless of what any
+     * prior read believed.
+     */
+    public function test_conditional_failed_write_refuses_to_overwrite_a_terminal_completed_status(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_refund_status', 'completed');
+
+        $result = update_post_meta($this->booking_id, '_mhmrentiva_refund_status', 'failed', 'pending');
+
+        $this->assertFalse(
+            $result,
+            'update_metadata() must refuse the write: its WHERE clause checks the value actually in the'
+                . ' database, not the value the caller assumed when it decided to write.'
+        );
+        $this->assertSame(
+            'completed',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            "A terminal 'completed' status must survive a conditional write whose assumed previous value"
+                . ' no longer matches.'
+        );
+    }
 }

@@ -514,8 +514,24 @@ final class CancellationHandler {
 			// failed/partial_failure). Overwriting that unconditionally turns
 			// a real, already-recorded transfer into a record that says
 			// nothing moved.
+			//
+			// This request never holds the lock, so nothing serialises this
+			// read either -- the other request's write may already have
+			// committed while this request's request-local post_meta cache
+			// still holds an older snapshot. Freshness has to be asked for
+			// explicitly here, the same way RemainingPaymentHandler::
+			// resolve_remaining_order() does it inside its own lock:
+			// "Serialisation without freshness is not mutual exclusion."
+			wp_cache_delete( $booking_id, 'post_meta' );
+
+			// Belt and braces: the read-back above narrows the window, but the
+			// write itself is made unconditional in SQL too, via $prev_value --
+			// update_metadata() puts it in the WHERE clause, so the UPDATE
+			// only lands if the row is STILL 'pending' at the moment it runs.
+			// That makes the write immune to cache staleness entirely, even if
+			// the read above were somehow still stale.
 			if ( 'pending' === (string) get_post_meta( $booking_id, '_mhmrentiva_refund_status', true ) ) {
-				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed' );
+				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed', 'pending' );
 			}
 
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
@@ -530,6 +546,13 @@ final class CancellationHandler {
 
 			return false;
 		}
+
+		// Same reasoning as the refusal branch above, this time on the side
+		// that DOES hold the lock: the PaymentState resolution just below
+		// reads booking meta the lock exists to protect, but acquiring the
+		// lock does not by itself refresh a cache primed before the acquire.
+		// Serialisation without freshness is not mutual exclusion.
+		wp_cache_delete( $booking_id, 'post_meta' );
 
 		try {
 			$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
@@ -556,7 +579,10 @@ final class CancellationHandler {
 			// written failed/partial_failure/completed, and this must not stamp
 			// over that.
 			if ( ! $success && 'pending' === (string) get_post_meta( $booking_id, '_mhmrentiva_refund_status', true ) ) {
-				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed' );
+				// $prev_value again: belt and braces alongside the read-back
+				// guard on the `if` above, and the write's real protection --
+				// it is conditional in SQL, immune to the cache entirely.
+				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed', 'pending' );
 
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
 					array(
