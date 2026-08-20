@@ -141,6 +141,7 @@ src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
 src/Admin/Payment/Core/Money.php
 src/Admin/Payment/Core/PaymentGatewayInterface.php
 src/Admin/Payment/Core/PaymentState.php
+src/Admin/Payment/Core/RefundLock.php
 src/Admin/Payment/Refunds/RefundValidator.php
 src/Admin/Payment/Refunds/Service.php
 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php
