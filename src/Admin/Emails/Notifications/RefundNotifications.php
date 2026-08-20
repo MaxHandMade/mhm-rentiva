@@ -29,9 +29,14 @@ final class RefundNotifications {
 		string $reason = '',
 		string $mode = RefundValidator::MODE_AUTO
 	): void {
-		$email = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_email', true );
-		$name  = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_name', true );
-		$admin = get_option( 'admin_email' );
+		// The address every OTHER consumer resolves through: customer_email ->
+		// booking_customer_email -> contact_email. Reading contact_email alone
+		// meant the notice had no recipient on 27 of 28 dev bookings, and
+		// `if ( $email )` below made that silent.
+		$customer = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( $booking_id );
+		$email    = (string) ( $customer['email'] ?? '' );
+		$name     = trim( (string) ( $customer['first_name'] ?? '' ) . ' ' . (string) ( $customer['last_name'] ?? '' ) );
+		$admin    = get_option( 'admin_email' );
 
 		// The refund carries its own currency code, which may differ from the store
 		// default; the placement still comes from the one house rule. The old
@@ -100,6 +105,16 @@ final class RefundNotifications {
 		);
 		if ( $email ) {
 			Mailer::send( 'refund_customer', $email, $context );
+		} else {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+				array(
+					'gateway'    => 'refund',
+					'action'     => 'refund_notification',
+					'status'     => 'error',
+					'booking_id' => $booking_id,
+					'message'    => __( 'Refund notice not sent: no customer address on this booking.', 'mhm-rentiva' ),
+				)
+			);
 		}
 		if ( $admin ) {
 			Mailer::send( 'refund_admin', $admin, $context );
