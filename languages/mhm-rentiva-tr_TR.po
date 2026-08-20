@@ -1079,8 +1079,8 @@ msgstr "%s hizmetini sil"
 #: src/Admin/Frontend/Account/AccountController.php:635
 #: src/Admin/Frontend/Account/AccountController.php:909
 #: src/Admin/Frontend/Account/AccountController.php:1125
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2446
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2505
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2473
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2532
 msgid "Invalid booking ID."
 msgstr "Geçersiz rezervasyon kimliği."
 
@@ -1698,7 +1698,7 @@ msgstr[1] "%d gün"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1139
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:407
 #: src/Admin/Booking/Meta/BookingMeta.php:1169
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:55
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:64
 #: assets/blocks/payment-history/index.js:40
 msgid "Paid"
 msgstr "Ödendi"
@@ -1787,7 +1787,7 @@ msgstr "Beklemede (Hold)"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1150
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:176
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:54
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:63
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:469
 msgid "Offline"
 msgstr "Çevrimdışı"
@@ -2676,11 +2676,11 @@ msgid "Customer account created and linked to booking."
 msgstr "Müşteri hesabı oluşturuldu ve rezervasyona bağlandı."
 
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:26
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:74
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:83
 msgid "Refund"
 msgstr "İade"
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:46
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:54
 msgid "No refundable payment found for this booking."
 msgstr "Bu rezervasyon için iade edilebilir ödeme bulunamadı."
 
@@ -2688,19 +2688,19 @@ msgstr "Bu rezervasyon için iade edilebilir ödeme bulunamadı."
 msgid "Gateway"
 msgstr "Geçit"
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:56
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:65
 msgid "Already refunded"
 msgstr "Zaten iade edildi"
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:57
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:66
 msgid "Remaining refundable"
 msgstr "Geri ödenebilir kalan tutar"
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:65
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:74
 msgid "Refund amount"
 msgstr "İade Tutarı"
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:68
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:77
 msgid "Reason (optional)"
 msgstr "Sebep (İsteğe Bağlı)"
 
@@ -8728,7 +8728,7 @@ msgstr "Rentiva panelinden işlenen geri ödeme"
 msgid "Failed to create WooCommerce refund"
 msgstr "WooCommerce geri ödemesi oluşturulamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:350
+#: src/Admin/Payment/Refunds/Service.php:357
 msgid "Refund notification could not be sent:"
 msgstr "Para iadesi bildirimi gönderilemedi:"
 
@@ -8882,44 +8882,44 @@ msgstr "Geçersiz rezervasyon tarihleri. Lütfen tekrar deneyin."
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle."
 msgstr "Üzgünüz, \"%1$s\" aracı seçilen tarihler (%2$s - %3$s) için artık mevcut değildir. Araç başka bir müşteri tarafından rezerve edilmiş olabilir. Lütfen farklı tarihler veya başka bir araç seçin."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2401
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2428
 #: src/Admin/Setup/SetupWizard.php:885
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2457
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2484
 msgid "Payment already processed by WooCommerce."
 msgstr "Ödeme WooCommerce tarafından işlenmiştir."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2475
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2502
 msgid "Redirecting to checkout..."
 msgstr "Ödeme sayfasına yönlendiriliyor..."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2482
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2509
 msgid "Failed to add booking to cart."
 msgstr "Rezervasyon sepetine eklenemedi."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2498
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2525
 msgid "WooCommerce is not installed or activated."
 msgstr "WooCommerce yüklenmemiş veya etkinleştirilmemiştir."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2513
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2540
 msgid "Invalid payment amount."
 msgstr "Geçersiz ödeme tutarı."
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2552
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2579
 msgid "City"
 msgstr "Şehir"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2560
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2587
 msgid "District / Neighborhood"
 msgstr "İlçe / Mahalle"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2602
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2629
 msgid "Return to Cart"
 msgstr "Sepete Geri Dön"
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2641
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2668
 msgid "(incl. tax)"
 msgstr "(kdv dahil)"
 
@@ -13763,6 +13763,7 @@ msgstr "Filtreler"
 msgid "Pickup Location"
 msgstr "Teslim Alma Konumu"
 
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:104
 #: templates/shortcodes/search-results.php:150
 msgid "Other"
 msgstr "Diğer"
@@ -15274,7 +15275,7 @@ msgstr "Bu rezervasyonun ödemesi zaten WooCommerce dışında alınmış; kalan
 msgid "Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance."
 msgstr "Depozitonuz web sitemiz dışında ödendiği için, kalan bakiyeyi tahsil etmek üzere sizinle doğrudan iletişime geçeceğiz."
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:54
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:63
 msgid "Channel"
 msgstr "Kanal"
 
@@ -15303,3 +15304,23 @@ msgstr "İade tam olarak tamamlanamadı"
 #, php-format
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr "Bu işlem başarısız olmadan önce %1$s zaten iade edildi: %2$s"
+
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:52
+msgid "This booking has a refundable WooCommerce payment. Refund it from the WooCommerce order screen or the deposit-management screen."
+msgstr "Bu rezervasyonun iade edilebilir bir WooCommerce ödemesi var. İadeyi WooCommerce sipariş ekranından veya kapora yönetimi ekranından yapın."
+
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:100
+msgid "Customer request"
+msgstr "Müşteri talebi"
+
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:101
+msgid "Vehicle unavailable"
+msgstr "Araç müsait değil"
+
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:102
+msgid "Duplicate booking"
+msgstr "Mükerrer rezervasyon"
+
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:103
+msgid "Fraud suspected"
+msgstr "Dolandırıcılık şüphesi"
