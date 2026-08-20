@@ -12,6 +12,7 @@ use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
+use MHMRentiva\Admin\Payment\Core\RefundLock;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -45,50 +46,85 @@ final class Service {
 	}
 
 	public static function process( int $bookingId, int $amountKurus, string $reason = '' ): array {
-		// The flag goes up before validation, not after. Validation resolves a
-		// PaymentState and touches WooCommerce objects, so it is part of the
-		// operation this booking owns; a throw there has to unwind the flag
-		// exactly like a throw in the refund loop. Raising it after validation
-		// leaves a window the finally block does not cover.
-		self::$inFlight[ $bookingId ] = true;
+		return self::withLock(
+			$bookingId,
+			static function () use ( $bookingId, $amountKurus, $reason ): array {
+				// The flag goes up before validation, not after. Validation resolves a
+				// PaymentState and touches WooCommerce objects, so it is part of the
+				// operation this booking owns; a throw there has to unwind the flag
+				// exactly like a throw in the refund loop. Raising it after validation
+				// leaves a window the finally block does not cover.
+				self::$inFlight[ $bookingId ] = true;
 
-		try {
-			$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
+				try {
+					$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
 
-			if ( ! $validation['valid'] ) {
-				return array(
-					'mhmrentiva_refund'     => '0',
-					'mhmrentiva_refund_msg' => $validation['message'],
-				);
+					if ( ! $validation['valid'] ) {
+						return array(
+							'mhmrentiva_refund'     => '0',
+							'mhmrentiva_refund_msg' => $validation['message'],
+						);
+					}
+
+					$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
+				} finally {
+					unset( self::$inFlight[ $bookingId ] );
+				}
+
+				return self::finish( $bookingId, $operation, $reason );
 			}
-
-			$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
-		} finally {
-			unset( self::$inFlight[ $bookingId ] );
-		}
-
-		return self::finish( $bookingId, $operation, $reason );
+		);
 	}
 
 	public static function processFullRefund( int $bookingId, string $reason = '' ): array {
-		self::$inFlight[ $bookingId ] = true;
+		return self::withLock(
+			$bookingId,
+			static function () use ( $bookingId, $reason ): array {
+				self::$inFlight[ $bookingId ] = true;
 
-		try {
-			$validation = RefundValidator::validateFullRefund( $bookingId );
+				try {
+					$validation = RefundValidator::validateFullRefund( $bookingId );
 
-			if ( ! $validation['valid'] ) {
-				return array(
-					'mhmrentiva_refund'     => '0',
-					'mhmrentiva_refund_msg' => $validation['message'],
-				);
+					if ( ! $validation['valid'] ) {
+						return array(
+							'mhmrentiva_refund'     => '0',
+							'mhmrentiva_refund_msg' => $validation['message'],
+						);
+					}
+
+					$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
+				} finally {
+					unset( self::$inFlight[ $bookingId ] );
+				}
+
+				return self::finish( $bookingId, $operation, $reason );
 			}
+		);
+	}
 
-			$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
-		} finally {
-			unset( self::$inFlight[ $bookingId ] );
+	/**
+	 * Serialise the money step per booking.
+	 *
+	 * The in-flight flag above and this lock answer different questions and
+	 * both stay: $inFlight decides who owns the customer e-mail inside ONE
+	 * request, the lock decides whether a SECOND request may run at all.
+	 *
+	 * @param callable(): array{mhmrentiva_refund: string, mhmrentiva_refund_msg: string} $operation
+	 * @return array{mhmrentiva_refund: string, mhmrentiva_refund_msg: string}
+	 */
+	private static function withLock( int $bookingId, callable $operation ): array {
+		if ( ! RefundLock::acquire( $bookingId ) ) {
+			return array(
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ),
+			);
 		}
 
-		return self::finish( $bookingId, $operation, $reason );
+		try {
+			return $operation();
+		} finally {
+			RefundLock::release( $bookingId );
+		}
 	}
 
 	/**
