@@ -309,4 +309,42 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
             'A refusal to acquire the lock is a terminal failure, not a state left as pending.'
         );
     }
+
+    /**
+     * Finding F: the narrow race the lock-refusal branch used to miss. Another
+     * request holds the lock, finishes its own refund, and writes a terminal
+     * status (here: 'completed') before this request's failed acquire is even
+     * handled. The listener on mhmrentiva_process_refund -- which fires before
+     * settle_refund() ever touches the lock -- plants both facts at once: a
+     * held lock (so RefundLock::acquire() below refuses) and the other
+     * request's terminal write, standing in for the interleaving a live test
+     * cannot otherwise force. Stamping 'failed' over that would say money
+     * never moved when it already had.
+     */
+    public function test_a_lock_refusal_does_not_overwrite_a_status_already_settled_elsewhere(): void
+    {
+        $this->create_paid_order_for_booking($this->booking_id, '120');
+
+        add_action(
+            'mhmrentiva_process_refund',
+            function (): void {
+                global $wpdb;
+                $wpdb->query($wpdb->prepare(
+                    "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+                    'mhmrentiva_refund_lock_' . $this->booking_id,
+                    'someone-else:' . time()
+                ));
+
+                update_post_meta($this->booking_id, '_mhmrentiva_refund_status', 'completed');
+            }
+        );
+
+        $this->cancel();
+
+        $this->assertSame(
+            'completed',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
+            'The other request already recorded the money moving; a lock refusal here must not say it did not.'
+        );
+    }
 }

@@ -507,7 +507,16 @@ final class CancellationHandler {
 	 */
 	private static function settle_refund( int $booking_id, string $reason ): bool {
 		if ( ! \MHMRentiva\Admin\Payment\Core\RefundLock::acquire( $booking_id ) ) {
-			update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed' );
+			// Read back rather than assumed, for the same reason the
+			// validator-refusal branch below does: the holder of the lock this
+			// request could not acquire may, by the time this runs, have
+			// already finished and written a terminal status (completed/
+			// failed/partial_failure). Overwriting that unconditionally turns
+			// a real, already-recorded transfer into a record that says
+			// nothing moved.
+			if ( 'pending' === (string) get_post_meta( $booking_id, '_mhmrentiva_refund_status', true ) ) {
+				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed' );
+			}
 
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
 				array(
