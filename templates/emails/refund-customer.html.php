@@ -45,8 +45,20 @@
 		<?php endif; ?>
 	</table>
 
+	<?php
+	// This is the exact claim Task 8 removed from the cancellation e-mail
+	// because it is false for a manual refund (wc-refunds.md, fact 2). This
+	// file's rendering path never runs replace_placeholders() -- it is
+	// included with `$data = $ctx` and reads the context directly, the way
+	// every other value on this page does ($data['booking']['id'],
+	// $data['amount'], $data['status'], $data['reason']) -- so the fix
+	// follows that same pattern rather than the {mode_text} token the DB/
+	// EmailSettings body override understands. RefundNotifications::notify()
+	// always sets 'mode_text' before rendering any 'refund_customer' template,
+	// so no fallback default is needed for the one caller this file has.
+	?>
 	<div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 6px; margin: 20px 0;">
-		<p style="margin: 0;"><?php esc_html_e( 'The refund will be credited to your original payment method. Processing time may vary depending on your bank.', 'mhm-rentiva' ); ?></p>
+		<p style="margin: 0;"><?php echo esc_html( $data['mode_text'] ?? '' ); ?></p>
 	</div>
 
 	<p style="color: #666; font-size: 14px;"><?php esc_html_e( 'If you have any questions about this refund, please contact us.', 'mhm-rentiva' ); ?></p>
