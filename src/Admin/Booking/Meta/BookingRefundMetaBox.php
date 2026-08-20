@@ -32,34 +32,29 @@ final class BookingRefundMetaBox {
 	}
 
 	public static function render( \WP_Post $post ): void {
-		$bid       = (int) $post->ID;
-		$gateway   = (string) get_post_meta( $bid, '_mhmrentiva_payment_gateway', true );
-		$payStatus = (string) get_post_meta( $bid, '_mhmrentiva_payment_status', true );
-		$paidKurus = (int) get_post_meta( $bid, '_mhmrentiva_payment_amount', true );
-		$currency  = (string) get_post_meta( $bid, '_mhmrentiva_payment_currency', true ) ?: \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
-		$refunded  = (int) get_post_meta( $bid, '_mhmrentiva_refunded_amount', true );
-		$remaining = max( 0, $paidKurus - $refunded );
+		$bid   = (int) $post->ID;
+		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
 
-		// Only show when refundable
-		if ( $gateway !== 'offline' || $paidKurus <= 0 ) {
+		// This box is the offline surface. A booking whose money sits in a
+		// WooCommerce order is refunded from the WooCommerce order screen or
+		// from the deposit-management screen; a third button here would give the
+		// operator two paths with different rules over the same money.
+		$remaining = array() === $state->orders() ? $state->refundableManual() : 0;
+		$currency  = $state->currency() ?: (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+
+		if ( $remaining <= 0 ) {
 			echo '<p class="description">' . esc_html__( 'No refundable payment found for this booking.', 'mhm-rentiva' ) . '</p>';
 			return;
 		}
-		if ( ! in_array( $payStatus, array( 'paid', 'partially_refunded' ), true ) ) {
-			echo '<p class="description">' . esc_html__( 'Booking is not in a refundable state.', 'mhm-rentiva' ) . '</p>';
-			return;
-		}
+
 		$action = esc_url( admin_url( 'admin-post.php' ) );
 		$nonce  = wp_create_nonce( 'mhmrentiva_refund_booking' );
-		$defAmt = $remaining > 0 ? $remaining : 0;
-		echo '<p><strong>' . esc_html__( 'Gateway', 'mhm-rentiva' ) . ':</strong> ' . esc_html( strtoupper( $gateway ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( (int) $paidKurus ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( (int) $refunded ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( (int) $remaining ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		if ( $remaining <= 0 ) {
-			echo '<p class="description">' . esc_html__( 'Nothing left to refund.', 'mhm-rentiva' ) . '</p>';
-			return;
-		}
+		$defAmt = $remaining;
+
+		echo '<p><strong>' . esc_html__( 'Channel', 'mhm-rentiva' ) . ':</strong> ' . esc_html__( 'Offline', 'mhm-rentiva' ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $state->paid() ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $state->refunded() ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $remaining ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
 		echo '<form action="' . esc_url( $action ) . '" method="post">';
 		echo '<input type="hidden" name="action" value="mhmrentiva_refund_booking" />';
 		echo '<input type="hidden" name="booking_id" value="' . (int) $bid . '" />';
