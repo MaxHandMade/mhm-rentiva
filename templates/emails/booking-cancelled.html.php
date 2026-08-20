@@ -128,7 +128,7 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 						ℹ️ <?php esc_html_e( 'Refund Information', 'mhm-rentiva' ); ?>
 					</h3>
 					<p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
-						<?php esc_html_e( 'Your refund has been initiated and will be processed within 5-7 business days. The refund will be credited to the original payment method you used.', 'mhm-rentiva' ); ?>
+						<?php esc_html_e( 'If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you.', 'mhm-rentiva' ); ?>
 					</p>
 				</td>
 			</tr>

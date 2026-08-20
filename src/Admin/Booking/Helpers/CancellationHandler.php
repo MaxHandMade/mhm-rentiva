@@ -409,7 +409,7 @@ final class CancellationHandler {
 		}
 		$html .= '</div>';
 
-		$html .= '<p>' . esc_html__( 'If a refund is applicable, it will be processed within 5-7 business days.', 'mhm-rentiva' ) . '</p>';
+		$html .= '<p>' . esc_html__( 'If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you.', 'mhm-rentiva' ) . '</p>';
 		$html .= '<p>' . esc_html__( 'Thank you for choosing our service.', 'mhm-rentiva' ) . '</p>';
 		$html .= '<p style="margin-top: 30px; font-size: 12px; color: #666;">' . esc_html( get_bloginfo( 'name' ) ) . '</p>';
 		$html .= '</div></body></html>';
