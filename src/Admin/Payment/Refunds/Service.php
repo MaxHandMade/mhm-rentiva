@@ -259,11 +259,23 @@ final class Service {
 				self::announce( $bookingId, $operation );
 			}
 
+			// partial_failure and failed are different facts: the first means
+			// money has already left and the operator must finish the job by
+			// hand, the second means nothing moved. Collapsing them would hide
+			// a real transfer behind the word "failed".
+			update_post_meta(
+				$bookingId,
+				'_mhmrentiva_refund_status',
+				$operation['refunded'] > 0 ? 'partial_failure' : 'failed'
+			);
+
 			return array(
 				'mhmrentiva_refund'     => '0',
 				'mhmrentiva_refund_msg' => $message,
 			);
 		}
+
+		update_post_meta( $bookingId, '_mhmrentiva_refund_status', 'completed' );
 
 		if ( RefundValidator::CHANNEL_OFFLINE === $operation['channel'] ) {
 			// The one place in the plugin that adds rather than sets. Offline
