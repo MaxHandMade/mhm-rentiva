@@ -13,9 +13,19 @@ use WP_UnitTestCase;
  * Spec §4.4: amounts are derived, statuses are stored.
  *
  * The point of this test is behavioural, not textual: with the retired key
- * unwritten, a surface that still reads it reports 0. Before this task a
- * refund e-mail said "amount paid: 0.00" next to a real refunded figure --
- * two contradicting numbers on one screen, which is the class
+ * unwritten, a surface that still reads it reports 0. What EmailTemplates:367
+ * and :376 actually protect is narrower than the rendered customer mail:
+ * build_context() is reached only from EmailAjaxHandler's manage_options-gated
+ * preview and test-send actions, so these bindings fix what an admin sees
+ * when previewing or test-sending a refund template. RefundNotifications:82's
+ * bound value reaches EmailLog::handle_email_sent(), which JSON-encodes the
+ * whole context into the _mhmrentiva_email_context audit record -- also not
+ * the rendered mail. refund-customer.html.php / refund-admin.html.php never
+ * read booking.payment.amount; they echo the top-level $data['amount'],
+ * built from notify()'s own $amount_kurus parameter, which was correct
+ * before this task and stays correct after it. Before this task, the admin
+ * preview/test-send output and the audit log both silently recorded 0 next
+ * to a real figure -- a contradiction the class
  * feedback_semantics_consistency_audit exists for.
  *
  * The two SQL sort keys in BookingColumns are NOT bound here and cannot be:
@@ -61,14 +71,17 @@ final class PaymentAmountMetaRetiredTest extends WP_UnitTestCase
     {
         // build_context()'s refund_customer / refund_admin branch formats
         // $ctx['booking']['payment']['amount'] into the human-readable figure
-        // the customer reads. Bound to the retired key it formatted 0 next to a
-        // real refunded amount -- two contradicting numbers in one e-mail.
+        // shown in EmailAjaxHandler's admin preview/test-send output (both
+        // manage_options-gated) and recorded into the _mhmrentiva_email_context
+        // audit log by EmailLog::handle_email_sent(). Bound to the retired key
+        // it formatted 0 there -- not in the customer-facing mail itself, which
+        // reads notify()'s own $amount_kurus parameter instead.
         $ctx = EmailTemplates::build_context('refund_customer', $this->booking_id);
 
         $this->assertNotSame(
             0,
             $ctx['booking']['payment']['amount'],
-            'The refund branch reads this key; a zero here reaches the customer.'
+            'The admin preview/test-send output and the e-mail audit log read this key; a zero here reached both, though never the customer-facing mail.'
         );
     }
 
