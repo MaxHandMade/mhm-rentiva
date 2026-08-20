@@ -519,6 +519,14 @@ bin/*
 !bin/audit-fixed-minor-scale.php
 !bin/fixtures/
 !bin/fixtures/fixed-minor-scale-fixture.txt
+# Task 13 of the 2026-08-19 refund/deposit slice 3 round: reports every
+# remaining mention of the two retired payment-amount meta keys
+# (_mhmrentiva_payment_amount, _mhmrentiva_booking_payment_amount), the way
+# audit-fixed-minor-scale.php above reports its own defect class. Declares its
+# starting set (every git-tracked file) and blind spots (runtime-assembled
+# keys, compiled JS, the Pro tree) rather than gating. Tracked so the next
+# round -- or a re-check of this one -- can re-run it.
+!bin/audit-retired-meta.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

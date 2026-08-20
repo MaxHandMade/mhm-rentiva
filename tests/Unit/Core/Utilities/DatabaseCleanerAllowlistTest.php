@@ -939,6 +939,23 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				if ( str_ends_with( $path, '/bin/prefix-rename.php' ) ) {
 					continue;
 				}
+				// Same reasoning, third instance: bin/audit-retired-meta.php IS
+				// the retired-meta probe -- its own $keys array necessarily
+				// spells '_mhmrentiva_payment_amount' as a literal, because that
+				// is what the probe searches for, exactly as bin/prefix-rename.php
+				// carries old meta-key literals as data above. Scanning it would
+				// feed the probe's own search target back in as "evidence Lite
+				// still uses this key," undoing what Task 12 earned when Lite's
+				// last reader was bound to PaymentState and re-drifting this gate
+				// against Pro's frozen list. A file that IS the inventory must
+				// not BE the evidence.
+				//
+				// Deliberately narrow: every OTHER file under bin/ is still
+				// scanned, so a stray meta-key literal introduced in a sibling
+				// script still turns this gate red.
+				if ( str_ends_with( $path, '/bin/audit-retired-meta.php' ) ) {
+					continue;
+				}
 				// Fourth instance of the same rule. PrefixMigrationMap.php IS
 				// the 6.0.0 rename's single source of truth: every entry in
 				// POSTMETA_PREFIX_RULES/USERMETA_PREFIX_RULES,
