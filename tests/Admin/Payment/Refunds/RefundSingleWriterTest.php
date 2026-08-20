@@ -116,10 +116,45 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
 
     private function seed_deposit_and_remaining(string $deposit, string $remaining): void
     {
-        $this->create_paid_order_for_booking($this->booking_id, $deposit);
+        $first = $this->create_paid_order_for_booking($this->booking_id, $deposit);
+        $this->wire_line_item_booking_id($first);
 
         $second = $this->create_paid_order_for_booking($this->booking_id, $remaining);
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', $second->get_id());
+        $this->wire_line_item_booking_id($second);
+    }
+
+    /**
+     * WooCommerceFixtures::create_paid_order_for_booking() wires
+     * `_mhmrentiva_booking_id` onto the ORDER only -- its own docblock says so.
+     * Production always wires the same key onto the order's LINE ITEM too
+     * (WooCommerceBridge.php :911 at checkout, :1026 on
+     * booking-created-from-order, RemainingPaymentHandler.php :256 on the
+     * remaining-payment order), and handle_order_status_change() reads ONLY
+     * the item copy (:1300) -- never the order's. Without this, that
+     * handler's `case 'refunded':` is structurally dead for every order this
+     * fixture builds, which is exactly how the second path to the terminal
+     * mid-walk defect stayed invisible to this file's own gate test.
+     *
+     * Wired here, locally to this test class, rather than in
+     * WooCommerceFixtures itself: measured directly with a throwaway scratch
+     * test that wiring it into the shared fixture flips a fresh booking's
+     * _mhmrentiva_status to 'confirmed' (and _mhmrentiva_payment_status to
+     * 'paid') on `create_paid_order_for_booking()` alone, silently, for every
+     * one of the eighteen files that share that trait -- none of them assert
+     * against it today, so all eighteen still pass, but that is a live
+     * behavioural change to shared test infrastructure this task's scope did
+     * not ask for. The docblock on the shared fixture should note the gap
+     * this leaves (item meta is not wired, so `handle_order_status_change()`
+     * cannot see orders it builds) so the next reader does not assume parity
+     * with production it does not have.
+     */
+    private function wire_line_item_booking_id( \WC_Order $order ): void
+    {
+        foreach ( $order->get_items() as $item ) {
+            $item->add_meta_data( '_mhmrentiva_booking_id', $this->booking_id, true );
+            $item->save();
+        }
     }
 
     public function test_a_multi_order_full_refund_records_the_whole_amount_not_the_last_leg(): void
@@ -148,8 +183,19 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
         // rental that is irreversible -- and it fires the customer's status-change e-mail and
         // invalidates the availability cache on the way out.
         //
-        // The comparison is booking-level now. A partial refund must leave the booking's own
-        // status alone no matter how completely one of its orders was drained.
+        // There are TWO paths to that same terminal write, and wc_create_refund() drives
+        // BOTH from a single call: it flips order A's own status to 'refunded' (WC 11.0.1
+        // wc-order-functions.php :731) -- which fires handle_order_status_change() -- before
+        // it fires woocommerce_refund_created (:742) -- which fires handle_order_refunded(),
+        // the one this task's Step 3 fixed. wire_line_item_booking_id() (see
+        // seed_deposit_and_remaining()) makes handle_order_status_change() resolve a
+        // booking id at all -- the shared fixture alone leaves that handler permanently
+        // dead -- so this assertion now exercises both paths, not just the one that was
+        // already fixed.
+        //
+        // The comparison is booking-level in both places now. A partial refund must leave
+        // the booking's own status alone no matter how completely one of its orders was
+        // drained.
         $this->seed_deposit_and_remaining('30', '70');
 
         \MHMRentiva\Admin\Booking\Core\Status::update_status($this->booking_id, 'completed', 0);

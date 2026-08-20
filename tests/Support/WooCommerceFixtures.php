@@ -80,6 +80,22 @@ trait WooCommerceFixtures
 	 * call in a run, so its price argument is ignored past that point -- the item's
 	 * subtotal/total are set explicitly here and calculate_totals() derives the
 	 * order total from them.
+	 *
+	 * What this does NOT wire: `_mhmrentiva_booking_id` on the order's LINE ITEM.
+	 * Production always sets it there too (WooCommerceBridge.php :911 at checkout,
+	 * :1026 on booking-created-from-order, RemainingPaymentHandler.php :256 on the
+	 * remaining-payment order), and WooCommerceBridge::handle_order_status_change()
+	 * reads ONLY that copy, never the order's. A test built on this fixture alone
+	 * therefore cannot exercise that handler at all -- its whole switch stays
+	 * structurally dead, silently, for whatever status transition the test drives.
+	 * Measured directly (2026-08-20): adding the item meta here flips a fresh
+	 * booking's `_mhmrentiva_status` to 'confirmed' the moment this method's own
+	 * `update_status('processing')` call runs, for every caller of this trait, none
+	 * of which currently assert against it. That is too large a blast radius for one
+	 * fix to carry incidentally; a caller that specifically needs
+	 * handle_order_status_change() to see its order should wire the item meta itself
+	 * (RefundSingleWriterTest::wire_line_item_booking_id() is one way to do it) rather
+	 * than assume this method provides it.
 	 */
 	protected function create_paid_order_for_booking( int $booking_id, string $total ): \WC_Order
 	{

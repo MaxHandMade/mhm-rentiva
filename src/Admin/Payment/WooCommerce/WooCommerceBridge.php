@@ -14,6 +14,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
@@ -1356,10 +1357,29 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						break;
 
 					case 'refunded':
-						// Order refunded - update status only (amount handled by handle_order_refunded)
-						Status::update_status($booking_id, 'refunded', get_current_user_id());
-						// ⭐ Also update payment status
-						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'refunded');
+						// This switch operates per ORDER, but WooCommerce flips an
+						// order's own status to 'refunded' the moment THAT order is
+						// fully drained -- not when the booking is. A deposit
+						// booking's smaller leg routinely hits zero long before the
+						// larger one does, and this handler runs BEFORE
+						// handle_order_refunded(): wc_create_refund() changes the
+						// order's own status (WC 11.0.1 wc-order-functions.php :731)
+						// before it fires woocommerce_refund_created (:742).
+						// Blindly mirroring the per-order flip here is the exact
+						// terminal mid-walk defect Task 8 removed from that hook,
+						// one hop earlier -- so this asks PaymentState the same
+						// booking-level question before touching the booking.
+						//
+						// _mhmrentiva_payment_status is left untouched here on
+						// purpose. handle_order_refunded() runs immediately after
+						// this (same wc_create_refund() call) and is that meta's
+						// single writer for a refund event; writing a value here
+						// that gets overwritten a moment later is a second writer
+						// under a new name -- and a wrong one, during the not-fully-
+						// refunded case, is live for however long that gap is.
+						if (PaymentState::forBooking($booking_id)->isFullyRefunded()) {
+							Status::update_status($booking_id, 'refunded', get_current_user_id());
+						}
 						break;
 				}
 
@@ -2145,13 +2165,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// The refund figures come from PaymentState, not from this one order.
-		// A deposit booking has two paid orders; writing $order's own
-		// get_total_refunded() here overwrote the booking's record with half of
-		// it, and the second refund erased the first. PaymentState::refunded()
-		// is the sum across the set, so this write is absolute and idempotent
-		// no matter which order fired the hook or how many times.
-		$state    = PaymentState::forBooking($booking_id);
 		$currency = $order->get_currency();
 
 		// Kept only for the activity-log entry below, which records what THIS
@@ -2159,10 +2172,45 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// PaymentState now owns.
 		$refund_amount = $order->get_total_refunded();
 
-		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $state->refunded());
+		// The refund figures come from PaymentState, not from this one order.
+		// A deposit booking has two paid orders; writing $order's own
+		// get_total_refunded() here overwrote the booking's record with half of
+		// it, and the second refund erased the first. PaymentState::refunded()
+		// is the sum across the set, so this write is absolute and idempotent
+		// no matter which order fired the hook or how many times.
+		$state = PaymentState::forBooking($booking_id);
+
+		if (in_array($order_id, $state->orders(), true)) {
+			$recorded_refunded = $state->refunded();
+			$fully_refunded    = $state->isFullyRefunded();
+		} else {
+			// This order reached the booking through get_booking_id_from_order()
+			// (order meta, or an item's), but PaymentState::resolvePaidOrders()
+			// -- which only follows _mhmrentiva_woocommerce_order_id and
+			// _mhmrentiva_remaining_order_id -- does not know this order exists.
+			// $state->refunded() would silently report THIS refund as whatever
+			// the OTHER orders total, provably wrong for the event that just
+			// fired the hook. Fall back to this order's own figure -- the
+			// pre-Task-8 behaviour -- rather than lose the record; this is a
+			// data-link gap (an order the booking never points back to), not
+			// the mainline multi-order case N-01 was about.
+			AdvancedLogger::error(
+				'Refunded order is not resolvable through PaymentState; booking-level refund figures may be incomplete',
+				array(
+					'booking_id' => $booking_id,
+					'order_id'   => $order_id,
+				),
+				AdvancedLogger::CATEGORY_PAYMENT
+			);
+
+			$recorded_refunded = Money::toMinor($refund_amount);
+			$fully_refunded    = $recorded_refunded >= Money::toMinor( (float) $order->get_total() );
+		}
+
+		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $recorded_refunded);
 		update_post_meta($booking_id, '_mhmrentiva_payment_currency', $currency);
 
-		if ($state->isFullyRefunded()) {
+		if ($fully_refunded) {
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'refunded');
 			Status::update_status($booking_id, 'refunded', get_current_user_id());
 		} else {
@@ -2180,13 +2228,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Send refund notification
 		if (class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
 			try {
-				// Booking-wide, mirroring the write above -- not a second,
-				// independently-derived comparison against this one order's totals.
-				$payment_status = $state->isFullyRefunded() ? 'refunded' : 'partially_refunded';
+				// Mirrors the write above -- not a second, independently-derived
+				// comparison -- for both branches above (PaymentState-resolvable
+				// or the per-order fallback).
+				$payment_status = $fully_refunded ? 'refunded' : 'partially_refunded';
 				$refund_reason  = $refund ? $refund->get_reason() : '';
 				\MHMRentiva\Admin\Emails\Notifications\RefundNotifications::notify(
 					$booking_id,
-					$state->refunded(),
+					$recorded_refunded,
 					$currency,
 					$payment_status,
 					$refund_reason
