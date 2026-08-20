@@ -194,4 +194,81 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
             'An order whose gateway cannot refund produces a manual-mode message.'
         );
     }
+
+    public function test_a_mid_walk_failure_still_mails_once_for_what_actually_moved(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_contact_email', 'customer@example.test');
+
+        $this->create_paid_order_for_booking($this->booking_id, '30');
+        $second = $this->create_paid_order_for_booking($this->booking_id, '70');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', $second->get_id());
+
+        // Force the second leg's wc_create_refund() to fail. Throwing from
+        // woocommerce_refund_created at priority 1 -- before
+        // WooCommerceBridge::handle_order_refunded() at its own priority 10 --
+        // lands inside wc_create_refund()'s own try/catch (wc-order-functions.php
+        // :741-747, WC 11.0.1), which deletes the half-built refund and returns
+        // a WP_Error instead of ever letting this leg's refund exist. The first
+        // order is untouched by this filter, so its refund goes through clean.
+        add_action(
+            'woocommerce_refund_created',
+            function (int $refund_id, array $args) use ($second): void {
+                if ((int) ($args['order_id'] ?? 0) === $second->get_id()) {
+                    throw new \RuntimeException('gateway exploded on the second leg');
+                }
+            },
+            1,
+            2
+        );
+
+        $captured = null;
+        add_action(
+            'mhmrentiva_email_sent',
+            static function (string $key, string $to, bool $ok, string $subject, array $context) use (&$captured): void {
+                if ('refund_customer' === $key) {
+                    $captured = $context['amount'];
+                }
+            },
+            10,
+            5
+        );
+
+        $sent = $this->count_mails(function (): void {
+            // 30 drains the first order in full; the requested 100 needs the
+            // second order too, and that leg is the one made to fail.
+            $result = Service::process($this->booking_id, Money::toMinor('100'), 'mid-walk failure');
+
+            $this->assertSame(
+                '0',
+                $result['mhmrentiva_refund'],
+                'The operation as a whole must report failure -- the second leg never refunded.'
+            );
+        });
+
+        $this->assertSame(
+            2,
+            $sent,
+            'Money moved on the first leg; the customer must hear about it exactly once, not zero times.'
+        );
+
+        $currency = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($this->booking_id)->currency() ?: 'TRY';
+
+        $movedAmount = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+            (float) Money::toMajor(Money::toMinor('30')),
+            \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+            $currency
+        );
+        $requestedAmount = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+            (float) Money::toMajor(Money::toMinor('100')),
+            \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
+            $currency
+        );
+
+        $this->assertSame(
+            $movedAmount,
+            $captured,
+            'The mail must name what actually moved (30), not what was requested (100).'
+        );
+        $this->assertNotSame($requestedAmount, $captured);
+    }
 }

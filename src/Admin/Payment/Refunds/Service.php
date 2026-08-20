@@ -247,6 +247,16 @@ final class Service {
 					),
 					$operation['message']
 				);
+
+				// The operation still speaks exactly once, even when it fails
+				// partway through: a leg already succeeded, real money already
+				// left the account, and the customer must hear about THAT
+				// amount -- not zero, and not the amount that was requested.
+				// Returning here without this call was the worse defect:
+				// "exactly one mail" read as license to send none, on the
+				// money path, in the failure case least likely to be
+				// exercised before a real customer hit it.
+				self::announce( $bookingId, $operation );
 			}
 
 			return array(
