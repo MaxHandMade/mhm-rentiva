@@ -9,14 +9,21 @@ use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
 /**
- * Spec addition B, measured 2026-08-19.
+ * Spec addition B, measured 2026-08-19; nested-form regression fixed
+ * 2026-08-20 (phase-close browser verification).
  *
  * render() returned "No refundable payment found for this booking." unless
  * $gateway === 'offline' AND $paidKurus > 0, and $paidKurus read
- * _mhmrentiva_payment_amount -- a key with zero writers. So the box has never
- * rendered its form, for any booking, on any site. Its form is the only
- * trigger for admin_post_mhmrentiva_refund_booking, which makes
- * Actions::refund_booking() and everything under it wired but unreachable.
+ * _mhmrentiva_payment_amount -- a key with zero writers. So the box had never
+ * rendered its form, for any booking, on any site, until that was fixed --
+ * at which point a browser (not a string assertion) showed the form itself
+ * was broken: a metabox renders INSIDE WordPress's own #post form, and HTML
+ * forbids nested forms. The browser's parser discarded this box's <form> tag
+ * and adopted its hidden `action` field into WordPress's own form, so
+ * clicking Refund submitted `editpost` and the booking's Update button
+ * stopped saving. The box no longer prints a <form> at all; it links to the
+ * deposit-management box, which has its own working, non-nested refund
+ * trigger (wp_ajax_mhmrentiva_deposit_process_refund).
  *
  * The box is the OFFLINE surface: a WooCommerce booking is refunded from
  * WooCommerce's own order screen or from the deposit-management screen, and
@@ -47,7 +54,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
         return (string) ob_get_clean();
     }
 
-    public function test_an_offline_paid_booking_gets_a_refund_form(): void
+    public function test_an_offline_paid_booking_gets_the_refund_summary_and_a_link(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
@@ -55,12 +62,43 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 
         $html = $this->render();
 
-        $this->assertStringContainsString('mhmrentiva_refund_booking', $html);
-        $this->assertStringContainsString('name="amount_kurus"', $html);
+        $this->assertStringContainsString('Remaining refundable', $html);
+        $this->assertStringContainsString('deposit-management screen', $html);
         $this->assertStringNotContainsString('No refundable payment found', $html);
     }
 
-    public function test_an_offline_booking_with_nothing_left_says_so_instead_of_showing_a_form(): void
+    /**
+     * The regression lock.
+     *
+     * A metabox is echoed into the middle of WordPress's own #post <form>
+     * on the booking edit screen. HTML does not allow nested forms: a
+     * browser's parser discards a <form> tag opened inside another form and
+     * adopts that form's fields into the OUTER (WordPress) form instead.
+     * Measured live: with the old markup, #post ended up with two
+     * name="action" fields ("editpost" and "mhmrentiva_refund_booking"),
+     * PHP took the last one, and clicking Update on the booking silently
+     * stopped saving -- while the refund button submitted WordPress's own
+     * form and never reached admin_post_mhmrentiva_refund_booking at all.
+     * A PHPUnit assertion on the HTML *string* cannot see any of this --
+     * strings don't get parsed -- which is exactly how the original form
+     * shipped with green tests. This asserts on the string the only thing a
+     * string assertion CAN prove: that no <form> and no name="action" field
+     * is emitted by this box, ever, for a shape where money is offline and
+     * refundable.
+     */
+    public function test_the_box_emits_no_nested_form_and_no_action_field(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        $html = $this->render();
+
+        $this->assertStringNotContainsString('<form', $html);
+        $this->assertStringNotContainsString('name="action"', $html);
+    }
+
+    public function test_an_offline_booking_with_nothing_left_says_so_instead_of_showing_a_link(): void
     {
         update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'refunded');
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
@@ -69,14 +107,16 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 
         $html = $this->render();
 
-        $this->assertStringNotContainsString('name="amount_kurus"', $html);
+        $this->assertStringContainsString('No refundable payment found', $html);
+        $this->assertStringNotContainsString('deposit-management screen', $html);
     }
 
-    public function test_a_booking_with_no_payment_at_all_shows_no_form(): void
+    public function test_a_booking_with_no_payment_at_all_shows_no_link(): void
     {
         $html = $this->render();
 
-        $this->assertStringNotContainsString('name="amount_kurus"', $html);
+        $this->assertStringContainsString('No refundable payment found', $html);
+        $this->assertStringNotContainsString('deposit-management screen', $html);
     }
 
     /**
@@ -87,19 +127,21 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * that already has a WooCommerce-owned or deposit-management path.
      *
      * The booking also carries the same offline meta as
-     * test_an_offline_paid_booking_gets_a_refund_form -- proof-of-payment
-     * status, a total, a zero remaining -- so this proves the WooCommerce
-     * order is what suppresses the form, not an absence of offline data. Drop
-     * the order and the same meta produces a form (that is the first test in
-     * this file). See the task report for the mutation-kill evidence: dropping
-     * this box's own ternary in favour of a bare refundableManual() call did
-     * NOT fail this test -- PaymentState::resolveOfflineChannel() already
-     * zeroes the offline channel whenever order_ids is non-empty, so the box's
-     * gate is defense-in-depth, not the only backstop. Replacing $remaining
-     * with paid() - refunded() (both channels, not just the offline one) DID
-     * fail it, rendering a full form for this WooCommerce-order booking.
+     * test_an_offline_paid_booking_gets_the_refund_summary_and_a_link --
+     * proof-of-payment status, a total, a zero remaining -- so this proves
+     * the WooCommerce order is what suppresses the summary/link, not an
+     * absence of offline data. Drop the order and the same meta produces the
+     * summary and link (that is the first test in this file). See the task
+     * report for the mutation-kill evidence: dropping this box's own ternary
+     * in favour of a bare refundableManual() call did NOT fail this test --
+     * PaymentState::resolveOfflineChannel() already zeroes the offline
+     * channel whenever order_ids is non-empty, so the box's gate is
+     * defense-in-depth, not the only backstop. Replacing $remaining with
+     * paid() - refunded() (both channels, not just the offline one) DID fail
+     * it, rendering the offline summary and link for this WooCommerce-order
+     * booking.
      */
-    public function test_a_paid_woocommerce_order_shows_no_form_even_with_offline_data_present(): void
+    public function test_a_paid_woocommerce_order_shows_no_summary_even_with_offline_data_present(): void
     {
         $this->require_woocommerce();
 
@@ -111,7 +153,7 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 
         $html = $this->render();
 
-        $this->assertStringNotContainsString('name="amount_kurus"', $html);
+        $this->assertStringNotContainsString('Remaining refundable', $html);
     }
 
     /**
@@ -121,9 +163,9 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
      * booking's WooCommerce order is fully paid and nothing has been
      * refunded from it yet, i.e. WooCommerce money IS genuinely refundable.
      * The box staying offline-only is correct and unchanged (still no
-     * form, still no amount_kurus field); only the sentence was false. This
-     * pins the new sentence appearing and the old, false one NOT appearing
-     * for exactly that shape.
+     * offline summary, still no link to the deposit-management screen from
+     * this branch); only the sentence was false. This pins the new sentence
+     * appearing and the old, false one NOT appearing for exactly that shape.
      */
     public function test_a_paid_woocommerce_order_gets_the_woocommerce_sentence_not_the_false_one(): void
     {
@@ -147,6 +189,6 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
             $html,
             'That sentence is false for a booking whose WooCommerce money is genuinely refundable.'
         );
-        $this->assertStringNotContainsString('name="amount_kurus"', $html);
+        $this->assertStringNotContainsString('Remaining refundable', $html);
     }
 }
