@@ -2149,7 +2149,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		$order_id = $args['order_id'] ?? 0;
+		$order_id = (int) ( $args['order_id'] ?? 0 );
 		if (! $order_id) {
 			return;
 		}
@@ -2187,13 +2187,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// This order reached the booking through get_booking_id_from_order()
 			// (order meta, or an item's), but PaymentState::resolvePaidOrders()
 			// -- which only follows _mhmrentiva_woocommerce_order_id and
-			// _mhmrentiva_remaining_order_id -- does not know this order exists.
-			// $state->refunded() would silently report THIS refund as whatever
-			// the OTHER orders total, provably wrong for the event that just
-			// fired the hook. Fall back to this order's own figure -- the
-			// pre-Task-8 behaviour -- rather than lose the record; this is a
-			// data-link gap (an order the booking never points back to), not
-			// the mainline multi-order case N-01 was about.
+			// _mhmrentiva_remaining_order_id -- does not know this order
+			// exists, so it is never in $state->orders() and never
+			// contributes to $state->refunded(). Substituting this order's
+			// own figure for $state->refunded() (as an earlier version of
+			// this fallback did) discarded every OTHER order's refund --
+			// N-01, recreated inside the branch meant to guard against it.
+			// Adding this order's own total on top instead keeps both: each
+			// term is a running total (PaymentState's own, and this order's
+			// own get_total_refunded()), so the sum stays idempotent no
+			// matter how many times this hook fires for either side.
 			AdvancedLogger::error(
 				'Refunded order is not resolvable through PaymentState; booking-level refund figures may be incomplete',
 				array(
@@ -2203,8 +2206,24 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				AdvancedLogger::CATEGORY_PAYMENT
 			);
 
-			$recorded_refunded = Money::toMinor($refund_amount);
-			$fully_refunded    = $recorded_refunded >= Money::toMinor( (float) $order->get_total() );
+			$recorded_refunded = $state->refunded() + Money::toMinor($refund_amount);
+
+			// Terminal-status authority is granted here ONLY when this
+			// invisible order is the booking's ENTIRE known WooCommerce
+			// presence ($state->orders() === []) -- the shape
+			// RefundUnresolvableOrderFallbackTest covers. A mixed booking,
+			// with one resolvable leg and one invisible, must not let this
+			// order's own totals decide 'refunded' for the whole booking:
+			// that is the same terminal mid-walk shape Task 8 removed from
+			// handle_order_status_change() and this hook's main branch,
+			// re-created one level down inside this fallback.
+			// $state->isFullyRefunded() cannot see this order's paid or
+			// refunded contribution either, so deferring to it in the mixed
+			// case is conservative: it can only report "not fully refunded"
+			// more often than reality, never less.
+			$fully_refunded = array() === $state->orders()
+				? Money::toMinor($refund_amount) >= Money::toMinor( (float) $order->get_total() )
+				: $state->isFullyRefunded();
 		}
 
 		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $recorded_refunded);

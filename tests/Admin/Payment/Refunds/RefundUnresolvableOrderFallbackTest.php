@@ -96,6 +96,89 @@ final class RefundUnresolvableOrderFallbackTest extends WP_UnitTestCase
         $this->assertStringContainsString((string) $booking_id, $logs[0]->post_content);
     }
 
+    public function test_a_mixed_booking_keeps_the_resolvable_legs_refund_and_does_not_flip_status(): void
+    {
+        // The pure case above -- no resolvable orders at all -- is not the
+        // only shape the fallback has to answer for. A booking can have ONE
+        // leg PaymentState resolves and ANOTHER it does not. Production
+        // always stamps a booking-side pointer for every order it creates,
+        // so this is a data-link-gap edge rather than a live mainline path,
+        // but the fallback still has to get it right without recreating the
+        // two things Task 8 removed: an absolute write that discards
+        // another order's refund (N-01), and a terminal status flip decided
+        // from one order's own totals while money is still outstanding
+        // elsewhere.
+        $this->require_woocommerce();
+
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+        \MHMRentiva\Admin\Booking\Core\Status::update_status($booking_id, 'completed', 0);
+
+        // The resolvable leg: wired through the shared fixture, which stamps
+        // BOTH the order-level meta and the booking's own
+        // _mhmrentiva_woocommerce_order_id pointer -- so PaymentState finds
+        // it.
+        $resolvable = $this->create_paid_order_for_booking($booking_id, '70');
+
+        // The invisible leg: linked ONLY by its line item, exactly like the
+        // pure case above -- and, critically, never registered as
+        // _mhmrentiva_remaining_order_id or any other booking-side pointer.
+        // Registering it there would make it resolvable and this would stop
+        // being the mixed shape.
+        $invisible = $this->create_order_linked_by_line_item_only($booking_id, '30');
+
+        $this->assertSame(
+            array( $resolvable->get_id() ),
+            \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id)->orders(),
+            'Guard: PaymentState must resolve the first order and NOT the second, or this is not the mixed shape.'
+        );
+
+        // Partially refund the RESOLVABLE leg first, so its contribution is
+        // on the record before the invisible leg is touched at all.
+        $firstRefund = wc_create_refund(array(
+            'order_id' => $resolvable->get_id(),
+            'amount'   => '20',
+        ));
+        $this->assertFalse(is_wp_error($firstRefund), "Guard: the resolvable leg's own refund must succeed.");
+
+        $this->assertSame(
+            Money::toMinor('20'),
+            (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true),
+            "Guard: before the invisible leg is touched, only the resolvable leg's refund should be on record."
+        );
+
+        // Now fully drain the INVISIBLE leg.
+        $secondRefund = wc_create_refund(array(
+            'order_id' => $invisible->get_id(),
+            'amount'   => '30',
+        ));
+        $this->assertFalse(is_wp_error($secondRefund), "Guard: the invisible leg's own refund must succeed.");
+
+        $this->assertSame(
+            Money::toMinor('50'),
+            (int) get_post_meta($booking_id, '_mhmrentiva_refunded_amount', true),
+            "The resolvable leg already refunded 20; the invisible leg's own 30 must be ADDED to that, not"
+            . " substituted for it. Recording 30 alone means the fallback discarded the resolvable leg's"
+            . " refund -- N-01, recreated inside the branch meant to guard against it."
+        );
+
+        $this->assertSame(
+            'completed',
+            (string) get_post_meta($booking_id, '_mhmrentiva_status', true),
+            'The invisible leg (30 of 30) is fully refunded on its OWN totals, but the booking as a whole'
+            . ' (50 of 100) is not. Granting terminal-status authority to the invisible leg alone here is'
+            . ' the exact mid-walk shape Task 8 removed, recreated one level down.'
+        );
+        $this->assertSame(
+            'partially_refunded',
+            (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true)
+        );
+    }
+
     /**
      * Builds a paid, processing WooCommerce order linked to the booking ONLY
      * through its line item's `_mhmrentiva_booking_id` meta -- never the
