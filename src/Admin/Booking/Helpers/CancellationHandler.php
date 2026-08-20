@@ -38,10 +38,14 @@ final class CancellationHandler {
 	 * @param int    $user_id User ID who is cancelling (0 for admin)
 	 * @param string $reason Cancellation reason (optional)
 	 * @param bool   $force Force cancellation even if deadline passed (admin only)
+	 * @param bool   $system True for cron/automation callers, which have no current
+	 *                       user. The money step refuses an unattributed 0 actor, so
+	 *                       an automated caller has to declare itself rather than
+	 *                       inherit the power by omission (spec §5.4).
 	 *
 	 * @return true|\WP_Error True on success, WP_Error on failure
 	 */
-	public static function cancel_booking( int $booking_id, int $user_id = 0, string $reason = '', bool $force = false ) {
+	public static function cancel_booking( int $booking_id, int $user_id = 0, string $reason = '', bool $force = false, bool $system = false ) {
 		global $wpdb;
 
 		// Validate booking exists
@@ -138,7 +142,7 @@ final class CancellationHandler {
 			self::send_cancellation_email( $booking_id, $reason );
 
 			// Process refund if payment was made
-			self::process_refund( $booking_id, $user_id );
+			self::process_refund( $booking_id, $user_id, $reason, $system );
 
 			// Trigger action for other plugins/integrations
 			do_action( 'mhmrentiva_booking_cancelled', $booking_id, $user_id, $reason );
@@ -397,11 +401,27 @@ final class CancellationHandler {
 	/**
 	 * Process refund if payment was made
 	 *
-	 * @param int $booking_id Booking ID
-	 * @param int $user_id User ID
+	 * @param int    $booking_id Booking ID
+	 * @param int    $user_id User ID
+	 * @param string $reason Cancellation reason
+	 * @param bool   $system True for cron/automation callers, which have no current user
 	 * @return bool True if refund initiated, false otherwise
 	 */
-	private static function process_refund( int $booking_id, int $user_id ): bool {
+	private static function process_refund( int $booking_id, int $user_id, string $reason = '', bool $system = false ): bool {
+		if ( ! self::may_move_money( $booking_id, $user_id, $system ) ) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+				array(
+					'gateway'    => 'cancellation',
+					'action'     => 'refund',
+					'status'     => 'error',
+					'booking_id' => $booking_id,
+					'message'    => __( 'Refund not attempted: the cancellation was not attributed to a user allowed to move money.', 'mhm-rentiva' ),
+				)
+			);
+
+			return false;
+		}
+
 		// Get payment status
 		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 
@@ -459,6 +479,31 @@ final class CancellationHandler {
 	 */
 	private static function resolve_booking_customer_id( int $booking_id ): int {
 		return (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
+	}
+
+	/**
+	 * May this actor take money out of a gateway on this booking?
+	 *
+	 * Fail-closed, and deliberately NOT current_user_can(): the actor is passed
+	 * in explicitly, and a cron pass has no current user at all, so asking the
+	 * request instead of the argument would answer for the wrong subject.
+	 * $system is the only way to say "no human here" -- an unattributed 0 buys
+	 * nothing.
+	 */
+	private static function may_move_money( int $booking_id, int $user_id, bool $system ): bool {
+		if ( $system ) {
+			return true;
+		}
+
+		if ( $user_id <= 0 ) {
+			return false;
+		}
+
+		if ( $user_id === self::resolve_booking_customer_id( $booking_id ) ) {
+			return true;
+		}
+
+		return user_can( $user_id, 'manage_options' );
 	}
 
 	public static function user_can_cancel( int $booking_id, int $user_id = 0 ): bool {
