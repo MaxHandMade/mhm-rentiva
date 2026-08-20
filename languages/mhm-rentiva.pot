@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-20T08:04:37+00:00\n"
+"POT-Creation-Date: 2026-08-20T08:40:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -569,7 +569,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:86
 #: src/Admin/Addons/AddonManager.php:280
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:112
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:114
 #: src/Admin/Core/AssetManager.php:702
 #: src/Admin/Core/AssetManager.php:1189
 #: src/Admin/Emails/Core/EmailTemplates.php:526
@@ -717,8 +717,8 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:511
 #: src/Admin/Booking/Actions/BookingActionGuard.php:62
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:61
-#: src/Admin/Utilities/Actions/Actions.php:49
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:64
+#: src/Admin/Utilities/Actions/Actions.php:59
 msgid "You do not have permission for this action."
 msgstr ""
 
@@ -1101,59 +1101,63 @@ msgstr ""
 msgid "This booking could not be approved. It may have changed — reload the list."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:89
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:141
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:92
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:144
 msgid "This booking does not use deposit system."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:95
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:147
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:98
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:150
 msgid "No remaining amount found."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:123
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:126
 msgid "Remaining amount processed successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:180
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:183
 msgid "Payment link generated and emailed to the customer."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:211
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:214
 msgid "This booking is not awaiting payment."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:232
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:235
 msgid "Payment confirmed successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:249
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:252
 msgid "This booking cannot be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:267
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:270
 msgid "Booking cancelled successfully."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:286
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:294
 msgid "Refund cannot be processed for this booking."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:328
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:295
+msgid "This booking has no refundable balance left."
+msgstr ""
+
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:340
 msgid "Refund not processed due to cancellation policy."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:354
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:366
 msgid "Refund issued from the deposit management screen."
 msgstr ""
 
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:372
-#: src/Admin/Utilities/Actions/Actions.php:114
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:389
+#: src/Admin/Utilities/Actions/Actions.php:124
 msgid "Refund failed."
 msgstr ""
 
 #. translators: %s placeholder.
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:395
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:412
 #, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr ""
@@ -1227,7 +1231,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:110
 #: src/Admin/Booking/ListTable/BookingColumns.php:1135
 #: src/Admin/Booking/ListTable/BookingColumns.php:1242
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:406
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:454
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
 #: src/Admin/Booking/Meta/BookingMeta.php:1141
 #: src/Admin/Core/AssetManager.php:719
@@ -1329,7 +1333,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:115
 #: src/Admin/Booking/ListTable/BookingColumns.php:1132
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:408
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:456
 #: src/Admin/Booking/Meta/BookingMeta.php:1171
 #: templates/account/user-dashboard.php:240
 #: templates/emails/booking-created-admin.html.php:68
@@ -1614,13 +1618,13 @@ msgid "Total"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:280
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:190
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:236
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:296
 msgid "Deposit Amount"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:196
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:242
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:297
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:505
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:564
@@ -1704,7 +1708,7 @@ msgstr[1] ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:558
 #: src/Admin/Booking/ListTable/BookingColumns.php:1131
 #: src/Admin/Booking/ListTable/BookingColumns.php:1139
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:407
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:455
 #: src/Admin/Booking/Meta/BookingMeta.php:1169
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:60
 #: assets/blocks/payment-history/index.js:40
@@ -1713,7 +1717,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:581
 #: src/Admin/Booking/ListTable/BookingColumns.php:1130
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:405
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:453
 #: src/Admin/Booking/Meta/BookingMeta.php:1167
 msgid "Unpaid"
 msgstr ""
@@ -1768,7 +1772,7 @@ msgid "All payment methods"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1133
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:409
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:457
 #: src/Admin/Emails/PostTypes/EmailLog.php:69
 #: templates/emails/booking-created-admin.html.php:66
 #: templates/emails/booking-created-customer.html.php:93
@@ -1777,13 +1781,13 @@ msgid "Failed"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1134
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:412
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:460
 #: src/Admin/Booking/Meta/BookingMeta.php:1168
 msgid "Pending Verification"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1137
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:410
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:458
 #: src/Admin/Settings/Groups/FrontendSettings.php:312
 #: templates/emails/refund-customer.html.php:34
 msgid "Processing"
@@ -1794,7 +1798,7 @@ msgid "On Hold"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1150
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:176
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:222
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:59
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:469
 msgid "Offline"
@@ -1874,54 +1878,54 @@ msgstr ""
 msgid "Booking #%d"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:30
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:36
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:32
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:38
 msgid "Deposit Management"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:107
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:109
 msgid "Do you confirm this action?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:108
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:110
 msgid "Confirm receipt of remaining payment?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:109
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:111
 msgid "Confirm receipt of deposit payment?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:110
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:112
 msgid "Are you sure you want to cancel this booking?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:111
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:113
 #: src/Admin/Core/AssetManager.php:713
 msgid "Dismiss this notice"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:113
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
 msgid "Operation successful!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:114
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:116
 #: src/Admin/Core/AssetManager.php:992
 msgid "An error occurred!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:117
 msgid "Copy Link"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:116
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
 msgid "Link copied to clipboard!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:148
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:194
 msgid "This booking was created with the old system. Deposit system information is not available."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:159
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:205
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:459
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:496
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:555
@@ -1930,7 +1934,7 @@ msgstr ""
 msgid "Payment Type"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:162
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:208
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:462
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:284
@@ -1943,8 +1947,8 @@ msgstr ""
 msgid "Deposit"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:164
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:423
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:210
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:471
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:461
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:243
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:493
@@ -1958,137 +1962,137 @@ msgstr ""
 msgid "Full Payment"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:171
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:217
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:467
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/booking-detail.php:168
 msgid "Payment Method"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:174
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:220
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:176
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:470
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:183
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:229
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:295
 msgid "Total Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:205
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:251
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:220
 msgid "Rental Days"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:206
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:252
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:221
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:213
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:259
 msgid "Deposit Type"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:222
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:268
 msgid "Payment Status"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:231
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:277
 msgid "Cancellation Policy"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:232
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:278
 msgid "Cancellation Deadline:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:237
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:283
 msgid "This booking can be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:239
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:285
 msgid "Cancellation period expired."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:247
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:293
 msgid "Payment Deadline"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:248
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:294
 msgid "Deadline:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:253
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:299
 msgid "Payment period expired. Booking can be cancelled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:269
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:315
 msgid "Deposit History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:277
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:323
 msgid "Booking Created"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:278
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:324
 msgid "Booking successfully created and deposit information saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:289
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:335
 msgid "Payment Received"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:290
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:336
 msgid "Deposit payment successfully received."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:297
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:343
 #: templates/emails/booking-created-admin.html.php:64
 msgid "Payment Pending"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:298
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:344
 msgid "Deposit payment not yet received."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:308
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:354
 msgid "Remaining Amount Payment"
 msgstr ""
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:310
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:356
 #, php-format
 msgid "Remaining amount: %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:316
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:362
 msgid "All Payments Completed"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:317
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:363
 msgid "Deposit and remaining amount payments completed."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:335
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:381
 msgid "Mark Payment Received"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:343
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:389
 msgid "Process Remaining Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:349
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:395
 msgid "Send Payment Link"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:352
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:398
 msgid "The deposit was paid outside WooCommerce, so no payment link can be sent for the remaining balance; use \"Process Remaining Amount\" instead to record it as settled."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:360
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:406
 #: src/Admin/Frontend/Account/AccountController.php:408
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
@@ -2097,29 +2101,29 @@ msgstr ""
 msgid "Cancel Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:368
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:416
 msgid "Process Refund"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:411
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:459
 #: src/Admin/Booking/Meta/BookingMeta.php:1170
 msgid "Partially Paid"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:424
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:472
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:163
 msgid "Percentage"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:425
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:473
 msgid "Fixed Amount"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:426
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:474
 msgid "Both"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:427
+#: src/Admin/Booking/Meta/BookingDepositMetaBox.php:475
 msgid "None"
 msgstr ""
 
@@ -2717,12 +2721,12 @@ msgstr ""
 msgid "Remaining refundable"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:89
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:84
 msgid "Process this refund from the deposit-management screen."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:91
-msgid "This amount is refundable; the refund is recorded from the deposit-management screen once the booking is cancelled."
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:90
+msgid "This amount is refundable; refunds for this booking are recorded from the deposit-management screen."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:52
@@ -8803,7 +8807,7 @@ msgid "Refund notification could not be sent:"
 msgstr ""
 
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:39
-#: src/Admin/Utilities/Actions/Actions.php:45
+#: src/Admin/Utilities/Actions/Actions.php:55
 msgid "Invalid booking."
 msgstr ""
 
@@ -11424,17 +11428,17 @@ msgstr ""
 msgid "Ready"
 msgstr ""
 
-#: src/Admin/Utilities/Actions/Actions.php:114
+#: src/Admin/Utilities/Actions/Actions.php:124
 msgid "Refund processed."
 msgstr ""
 
 #. translators: %d: number of deleted records
-#: src/Admin/Utilities/Actions/Actions.php:127
+#: src/Admin/Utilities/Actions/Actions.php:137
 #, php-format
 msgid "%d old records deleted."
 msgstr ""
 
-#: src/Admin/Utilities/Actions/Actions.php:142
+#: src/Admin/Utilities/Actions/Actions.php:152
 msgid "Permission check"
 msgstr ""
 
