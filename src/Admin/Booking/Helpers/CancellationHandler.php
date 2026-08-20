@@ -452,12 +452,54 @@ final class CancellationHandler {
 	}
 
 	/**
-	 * Steps 4-9 of the spec §5.3 sequence. Filled in by Task 5.
+	 * Steps 4-9 of the spec §5.3 sequence.
+	 *
+	 * The state is resolved AFTER the hook on purpose: an integrator that made
+	 * its own refund in mhmrentiva_process_refund has already lowered the
+	 * balance, and reading it beforehand would refund the same money twice.
+	 *
+	 * A balance of zero is not one fact but two, and they are recorded
+	 * differently: money was taken and is no longer refundable through us
+	 * (completed_externally -- including a refund made before this
+	 * cancellation), or no money was ever taken (not_required). Collapsing them
+	 * would hide a real transfer from the audit trail.
 	 */
 	private static function settle_refund( int $booking_id, string $reason ): bool {
-		update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'not_required' );
+		if ( ! \MHMRentiva\Admin\Payment\Core\RefundLock::acquire( $booking_id ) ) {
+			update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed' );
 
-		return false;
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+				array(
+					'gateway'    => 'cancellation',
+					'action'     => 'refund',
+					'status'     => 'error',
+					'booking_id' => $booking_id,
+					'message'    => __( 'Refund not attempted: another refund is already running for this booking.', 'mhm-rentiva' ),
+				)
+			);
+
+			return false;
+		}
+
+		try {
+			$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
+
+			if ( $state->refundable() <= 0 ) {
+				update_post_meta(
+					$booking_id,
+					'_mhmrentiva_refund_status',
+					$state->paid() > 0 ? 'completed_externally' : 'not_required'
+				);
+
+				return false;
+			}
+
+			$result = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason );
+
+			return '1' === ( $result['mhmrentiva_refund'] ?? '0' );
+		} finally {
+			\MHMRentiva\Admin\Payment\Core\RefundLock::release( $booking_id );
+		}
 	}
 
 	/**
