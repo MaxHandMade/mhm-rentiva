@@ -15,9 +15,10 @@ use WP_UnitTestCase;
  * the refundable amount. The first fix repointed both reads at 'channel' --
  * decide()'s hard-coded 'woocommerce' placeholder -- which stopped the
  * TypeError but silently misrouted every booking with no WooCommerce order at
- * all into the WooCommerce branch of processGatewayRefund()/
- * processGatewayFullRefund(), which then answered "WooCommerce order not
- * found for this booking" for money that was never in WooCommerce.
+ * all into the WooCommerce branch of runOperation() -- the single method that
+ * replaced both processGatewayRefund() and processGatewayFullRefund() in a
+ * later round -- which then answered "WooCommerce order not found for this
+ * booking" for money that was never in WooCommerce.
  *
  * PaymentState::orders() is what resolveOfflineChannel() itself already uses
  * to decide whether the offline channel is live, so deriving the gateway from
@@ -64,7 +65,7 @@ final class ServiceOfflineRoutingTest extends WP_UnitTestCase
         );
         $this->assertSame('', $result['mhmrentiva_refund_msg'] ?? null);
 
-        // The 'offline' branch of processGatewayRefund() is the only one that
+        // The 'offline' branch of runOperation() is the only one that
         // stamps a manual_* id; the 'woocommerce' branch would either fail
         // ("WooCommerce order not found for this booking", writing no id at
         // all) or, if it somehow found an order, stamp a numeric WooCommerce

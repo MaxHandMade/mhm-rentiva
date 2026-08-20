@@ -52,15 +52,14 @@ final class RefundAmountReadScaleTest extends WP_UnitTestCase
         // above -- and no longer needs walking back to an editable status by
         // hand to reach the conversion this test measures.
 
-        // Priming a gate this task does not own. RefundCalculator reads
-        // _mhmrentiva_payment_amount, a key with zero production writers, and refuses
-        // every partial refund without it. Spec §10 step 4 deletes that validator; until
-        // then a test that wants to reach the conversion has to satisfy it. Status and
-        // gateway are primed for the same reason: validatePaymentStatus() rejects an
-        // empty status and validateGateway() accepts only offline/woocommerce.
-        update_post_meta($booking_id, '_mhmrentiva_payment_amount', 1000000);
+        // RefundCalculator (the _mhmrentiva_payment_amount reader) and
+        // RefundValidator::validateGateway() are both gone now. What
+        // Service::process() -> RefundValidator::decide() gates on today is
+        // PaymentState, which derives refundability from the paid order(s)
+        // create_paid_order_for_booking() above already created -- no
+        // priming meta beyond payment status is needed to reach the
+        // conversion this test measures.
         update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
-        update_post_meta($booking_id, '_mhmrentiva_payment_gateway', 'woocommerce');
 
         add_action(
             'woocommerce_create_refund',
