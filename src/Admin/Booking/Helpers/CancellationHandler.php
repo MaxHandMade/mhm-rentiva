@@ -137,7 +137,11 @@ final class CancellationHandler {
 						'action'     => 'availability_release',
 						'status'     => 'error',
 						'booking_id' => $booking_id,
-						'message'    => __( 'Vehicle availability was not released for this cancellation:', 'mhm-rentiva' ) . ' ' . $availability_freed->get_error_message(),
+						'message'    => sprintf(
+							/* translators: %s placeholder. */
+							__( 'Vehicle availability was not released for this cancellation: %s', 'mhm-rentiva' ),
+							$availability_freed->get_error_message()
+						),
 					)
 				);
 			}

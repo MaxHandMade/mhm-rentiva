@@ -152,13 +152,42 @@ final class DepositScreenCancellationTest extends WP_Ajax_UnitTestCase
         );
     }
 
+    /**
+     * The booking stays in a status the screen's OWN precondition accepts
+     * ('confirmed', set in setUp()) -- setting it to something the screen
+     * itself rejects (e.g. 'completed') exercises the screen's private guard,
+     * not the CancellationHandler::cancel_booking() call this task added, and
+     * would pass identically if that call -- or the is_wp_error() branch
+     * around it -- were deleted.
+     *
+     * Instead the handler itself is made to fail: this filter blocks the
+     * '_mhmrentiva_status' meta write, so Status::update_status() returns
+     * false, cancel_booking() throws inside its try block and returns its
+     * own 'cancellation_failed' WP_Error. The message assertion is the part
+     * that actually distinguishes the two guards: the screen's own rejection
+     * reads "This booking cannot be cancelled.", the handler's reads
+     * "Cancellation failed: ...".
+     */
     public function test_a_handler_error_is_reported_as_a_json_error(): void
     {
-        $this->give_it_dates();
-        update_post_meta($this->booking_id, '_mhmrentiva_status', 'completed');
+        $block_status_write = static function ($check, $object_id, $meta_key) {
+            return '_mhmrentiva_status' === $meta_key ? false : $check;
+        };
+        add_filter('update_post_metadata', $block_status_write, 10, 3);
 
-        $response = $this->call_cancel();
+        try {
+            $response = $this->call_cancel();
+        } finally {
+            // Removed unconditionally so a failed assertion above cannot leak
+            // this filter into a neighbouring test.
+            remove_filter('update_post_metadata', $block_status_write, 10);
+        }
 
-        $this->assertFalse((bool) ($response['success'] ?? false));
+        $this->assertFalse((bool) ($response['success'] ?? false), 'Raw: ' . $this->_last_response);
+        $this->assertStringContainsString(
+            'Cancellation failed',
+            (string) ($response['data']['message'] ?? ''),
+            'This must be CancellationHandler\'s own error, not the screen\'s "This booking cannot be cancelled." precondition -- otherwise the delegation this task added is never reached.'
+        );
     }
 }
