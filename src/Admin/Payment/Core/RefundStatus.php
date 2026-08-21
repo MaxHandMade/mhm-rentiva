@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Payment\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * The single writer of a booking's refund status.
  *
