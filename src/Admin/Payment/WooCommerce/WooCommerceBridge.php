@@ -1346,6 +1346,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 					case 'on-hold':
 						// Payment pending (Bank transfer etc.)
+						// Same ownership rule the completed and processing branches
+						// carry, and for the same reason: a REMAINING order going
+						// on-hold says nothing about a deposit the customer already
+						// paid. Without this, choosing bank transfer for the
+						// remainder demoted the booking to pending/pending --
+						// precisely the pair AutoCancel sweep #1 selects, so the
+						// plugin cancelled a healthy booking and its paid deposit
+						// order along with it.
+						if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1'
+							&& get_post_meta($booking_id, '_mhmrentiva_payment_status', true) === 'paid') {
+							break;
+						}
+
 						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
 						Status::update_status($booking_id, 'pending', get_current_user_id());
 						break;
