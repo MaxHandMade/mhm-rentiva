@@ -561,7 +561,31 @@ final class CancellationHandler {
 			try {
 				do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
 			} catch ( \Throwable $e ) {
+				// error() alone drops this entry's booking linkage:
+				// AdvancedLogger::error() takes no booking_id and never
+				// passes one to log(), which only writes
+				// _mhmrentiva_log_booking_id when $args['booking_id'] is
+				// set -- and the admin Logs list table's Booking column
+				// reads exactly that meta, falling back to em dash without
+				// it. Kept alongside the pre-existing add() call, the same
+				// pattern the lock-refusal branch above already uses, so
+				// the failure an operator most needs to trace back to a
+				// booking is not the one entry with no link.
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( "A mhmrentiva_process_refund listener failed for booking #$booking_id", array( 'error' => $e->getMessage() ), 'system' );
+
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+					array(
+						'gateway'    => 'cancellation',
+						'action'     => 'refund_hook',
+						'status'     => 'error',
+						'booking_id' => $booking_id,
+						'message'    => sprintf(
+							/* translators: %s: the message thrown by a mhmrentiva_process_refund listener. */
+							__( 'A mhmrentiva_process_refund listener failed: %s', 'mhm-rentiva' ),
+							$e->getMessage()
+						),
+					)
+				);
 			}
 
 			// Resolved again, deliberately: $state above is the pre-hook
