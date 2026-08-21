@@ -15,6 +15,8 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Payment\Core\RefundLock;
+use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use WP_Query;
 use Exception;
 
@@ -280,8 +282,49 @@ final class AutoCancel {
 	 */
 	private static function cancel_booking_with_orders( int $bid, string $reason ): void {
 		try {
-			$new_status = 'cancelled';
-			update_post_meta($bid, '_mhmrentiva_status', $new_status);
+			// Lookup chain mirrors ReportRepository / RemainingPaymentHandler —
+			// historical key drift left several aliases in production data.
+			$wc_orders_to_cancel = array_filter(array(
+				\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($bid),
+				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
+			));
+
+			// K6: no unattended path moves money. A paid order inside the cancel
+			// set is either a data inconsistency or a real refund obligation, and
+			// neither may be settled by a sweep whose trigger can itself be a bug
+			// (the on-hold chain was exactly that). Park it for a human instead.
+			if (self::has_paid_order($wc_orders_to_cancel)) {
+				if (RefundLock::acquire($bid)) {
+					try {
+						if (RefundStatus::transition($bid, RefundStatus::NEEDS_REVIEW, array( 'surface' => 'auto_cancel' ))) {
+							if (class_exists('\MHMRentiva\Helpers\NotificationHelper')) {
+								\MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
+							}
+						}
+					} finally {
+						RefundLock::release($bid);
+					}
+				}
+
+				return;
+			}
+
+			if (! Status::update_status($bid, Status::CANCELLED, 0)) {
+				// The transition matrix refused (e.g. a COMPLETED booking has no
+				// CANCELLED edge). Writing the meta directly would have made the
+				// booking "cancelled" without the transition check and without
+				// mhmrentiva_booking_status_changed, so the rest of the plugin
+				// would never learn about it.
+				AdvancedLogger::warning(
+					"Auto-cancel refused for booking #$bid: no transition from " . Status::get($bid),
+					array( 'booking_id' => $bid ),
+					'system'
+				);
+
+				return;
+			}
+
+			$new_status = Status::CANCELLED;
 			update_post_meta($bid, '_mhmrentiva_payment_status', 'cancelled');
 			update_post_meta($bid, '_mhmrentiva_auto_cancelled', current_time('timestamp'));
 			update_post_meta($bid, '_mhmrentiva_auto_cancelled_reason', $reason);
@@ -289,14 +332,6 @@ final class AutoCancel {
 			if (class_exists('\MHMRentiva\Helpers\NotificationHelper')) {
 				\MHMRentiva\Helpers\NotificationHelper::send_auto_cancel_email($bid);
 			}
-
-			// Cancel both WooCommerce orders (deposit + remaining) if present.
-			// Lookup chain mirrors ReportRepository / RemainingPaymentHandler —
-			// historical key drift left several aliases in production data.
-			$wc_orders_to_cancel = array_filter(array(
-				\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($bid),
-				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
-			));
 
 			if ($wc_orders_to_cancel && function_exists('wc_get_order')) {
 				foreach (array_unique($wc_orders_to_cancel) as $oid) {
@@ -339,6 +374,32 @@ final class AutoCancel {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Does any candidate order already carry a payment?
+	 *
+	 * Checked via get_date_paid() rather than has_status(): a status check
+	 * would miss an order sitting in `on-hold` or `refunded` after having
+	 * been paid once — both are still "money changed hands", which is the
+	 * fact this method exists to protect.
+	 *
+	 * @param array<int, int> $order_ids
+	 */
+	private static function has_paid_order( array $order_ids ): bool {
+		if ( ! function_exists( 'wc_get_order' ) ) {
+			return false;
+		}
+
+		foreach ( array_unique( $order_ids ) as $oid ) {
+			$order = wc_get_order( $oid );
+
+			if ( $order instanceof \WC_Order && $order->get_date_paid() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
