@@ -69,7 +69,17 @@ class NotificationHelper {
 		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
 		$amount   = \MHMRentiva\Admin\Payment\Core\Money::toMajor($state->paid());
 		$currency = $state->currency() ?: 'TRY';
-		$link     = get_edit_post_link($booking_id, '');
+		// get_edit_post_link() returns null when current_user_can( 'edit_post',
+		// $id ) is false, and the only production caller of this method is
+		// AutoCancel, which runs from WP-Cron -- no logged-in user, so the
+		// link was empty on the one path that actually sends this email. The
+		// `?:` fallback to the booking list is the tree's existing answer to
+		// exactly this (Actions.php:67), chosen over BookingRefundMetaBox's
+		// hand-built admin_url( 'post.php?post=...&action=edit' ) because that
+		// one always emits a deep link, including for a recipient who cannot
+		// open it; this keeps the deep link whenever WordPress agrees to give
+		// one and degrades to a screen the recipient can always reach.
+		$link = get_edit_post_link($booking_id, '') ?: admin_url('edit.php?post_type=mhmrentiva_booking');
 
 		$subject = __('A cancelled reservation still holds paid money', 'mhm-rentiva');
 
