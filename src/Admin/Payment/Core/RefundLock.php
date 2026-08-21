@@ -91,6 +91,17 @@ final class RefundLock {
 	 */
 	private static array $tokens = array();
 
+	/**
+	 * Does THIS request hold the lock on this booking?
+	 *
+	 * Reads the same re-entrancy counter acquire()/release() maintain, so it
+	 * answers for this process only -- which is exactly the question
+	 * RefundStatus::transition() asks before writing.
+	 */
+	public static function isHeld( int $booking_id ): bool {
+		return isset( self::$depth[ $booking_id ] );
+	}
+
 	public static function acquire( int $booking_id ): bool {
 		if ( isset( self::$depth[ $booking_id ] ) ) {
 			++self::$depth[ $booking_id ];
