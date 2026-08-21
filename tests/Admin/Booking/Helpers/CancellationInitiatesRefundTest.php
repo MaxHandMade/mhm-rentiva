@@ -283,6 +283,13 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
      * The failed-acquire branch at the top of settle_refund(): a lock held by
      * another request must fail this attempt closed, before any money moves,
      * and must not leave 'pending' standing.
+     *
+     * A request that never held the lock has no standing to describe the
+     * booking's refund state -- only the actual holder does. Reaching
+     * FAILED from here would let two writers disagree about this booking's
+     * status, exactly the class this slice exists to remove. So the status
+     * stays untouched ('', since nothing else has run for this booking yet),
+     * and the refusal is proven auditable a different way: a log entry.
      */
     public function test_the_lock_being_held_elsewhere_fails_closed_without_moving_money(): void
     {
@@ -304,47 +311,72 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
         );
 
         $this->assertSame(
-            'failed',
+            '',
             (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
-            'A refusal to acquire the lock is a terminal failure, not a state left as pending.'
+            'A request that never held the lock has no standing to write this booking\'s refund state.'
         );
+
+        $logs = get_posts(array(
+            'post_type'      => PostType::TYPE,
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+        ));
+
+        $found = false;
+        foreach ($logs as $log) {
+            if (str_contains($log->post_content, 'Refund lock refused')) {
+                $found = true;
+                break;
+            }
+        }
+
+        $this->assertTrue($found, 'A lock refusal must leave a trace now that it no longer stamps a status.');
     }
 
     /**
      * Finding F: the narrow race the lock-refusal branch used to miss. Another
      * request holds the lock, finishes its own refund, and writes a terminal
-     * status (here: 'completed') before this request's failed acquire is even
-     * handled. The listener on mhmrentiva_process_refund -- which fires before
-     * settle_refund() ever touches the lock -- plants both facts at once: a
-     * held lock (so RefundLock::acquire() below refuses) and the other
-     * request's terminal write, standing in for the interleaving a live test
-     * cannot otherwise force. Stamping 'failed' over that would say money
-     * never moved when it already had.
+     * status (here: 'completed') before this request's own acquire ever runs.
+     *
+     * Planted directly, before cancel() -- not from inside the
+     * mhmrentiva_process_refund hook. That used to be how this test forced
+     * the interleaving, but the hook now fires INSIDE settle_refund()'s own
+     * lock (spec v3 §4.2): by the time it runs, THIS request already holds
+     * the lock itself (RefundLock is re-entrant, tracked per-process), so a
+     * row planted from inside it no longer makes this request's own acquire()
+     * fail -- it just collides with the row this request already holds and
+     * errors on the duplicate key, while settle_refund() sails on to actually
+     * move money. That gap is exactly what the assertion below now pins.
      */
     public function test_a_lock_refusal_does_not_overwrite_a_status_already_settled_elsewhere(): void
     {
-        $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        add_action(
-            'mhmrentiva_process_refund',
-            function (): void {
-                global $wpdb;
-                $wpdb->query($wpdb->prepare(
-                    "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
-                    'mhmrentiva_refund_lock_' . $this->booking_id,
-                    'someone-else:' . time()
-                ));
+        update_post_meta($this->booking_id, '_mhmrentiva_refund_status', 'completed');
 
-                update_post_meta($this->booking_id, '_mhmrentiva_refund_status', 'completed');
-            }
-        );
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+            'mhmrentiva_refund_lock_' . $this->booking_id,
+            'someone-else:' . time()
+        ));
 
         $this->cancel();
 
         $this->assertSame(
             'completed',
             (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
-            'The other request already recorded the money moving; a lock refusal here must not say it did not.'
+            'The other request already recorded the money moving; a lock refusal here must not touch the status at all.'
+        );
+
+        $this->assertSame(
+            Money::toMinor('0'),
+            Money::toMinor((string) wc_get_order($order->get_id())->get_total_refunded()),
+            'The lock was already held; settle_refund() must not have reached the money step at all. A prior'
+                . ' version of this test planted the foreign lock from inside the mhmrentiva_process_refund hook,'
+                . ' which fires AFTER this request already holds its own (re-entrant) lock -- so the plant no'
+                . ' longer blocked this request, and a real refund executed silently while this assertion was'
+                . ' absent.'
         );
     }
 
@@ -354,55 +386,66 @@ final class CancellationInitiatesRefundTest extends WP_UnitTestCase
      * test_a_lock_refusal_does_not_overwrite_a_status_already_settled_elsewhere()
      * plants its 'completed' status via update_post_meta(), which -- being a
      * normal write inside THIS same request -- refreshes the request-local
-     * cache as a side effect, so that test would pass even if settle_refund()
-     * never cleared the cache at all. This test plants the same fact with a
-     * raw $wpdb->update() instead, the way a genuinely separate process would
-     * leave it: THIS request's post_meta cache still holds the value from
-     * before the write. The lock-refusal read-back must ask for freshness
-     * explicitly (wp_cache_delete() before the read), or it decides from the
-     * primed snapshot and stamps 'failed' over a refund that already
-     * completed.
+     * cache as a side effect. This test plants the same fact with a raw
+     * $wpdb->update() instead, the way a genuinely separate process would
+     * leave it: THIS request primes its post_meta cache with an earlier
+     * value (here: 'pending', a prior attempt's own write) BEFORE the other
+     * process's write lands underneath it, so the cache and the database
+     * disagree by the time this request's own lock-acquire runs.
+     *
+     * The lock-refusal branch no longer reads OR writes refund_status at all
+     * (R2), so there is no read-back left to decide from a stale snapshot --
+     * but that is exactly what this test now proves: the outcome is correct
+     * regardless of what this request's cache believes, because the branch
+     * that used to consult it is gone. Planted before cancel(), like its
+     * sibling above, for the same reason: the mhmrentiva_process_refund hook
+     * now fires INSIDE this request's own (re-entrant) lock, so planting a
+     * foreign row from inside it no longer makes this request's own
+     * acquire() fail.
      */
     public function test_lock_refusal_read_back_does_not_decide_on_a_stale_cache(): void
     {
-        $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
 
         global $wpdb;
 
-        add_action(
-            'mhmrentiva_process_refund',
-            function () use ($wpdb): void {
-                // Prime the cache exactly as a real listener reading booking
-                // meta would -- the status is still 'pending' at this point,
-                // process_refund() having just written it.
-                get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true);
+        // A previous attempt got as far as 'pending', and this request's
+        // post_meta cache is primed with that value -- the way a real prior
+        // read of this booking would leave it.
+        update_post_meta($this->booking_id, '_mhmrentiva_refund_status', 'pending');
+        get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true);
 
-                // Another request holds the lock and finishes, writing the
-                // terminal status straight to the database so this request's
-                // cache is left stale rather than refreshed.
-                $wpdb->query($wpdb->prepare(
-                    "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
-                    'mhmrentiva_refund_lock_' . $this->booking_id,
-                    'someone-else:' . time()
-                ));
-                $wpdb->update(
-                    $wpdb->postmeta,
-                    array( 'meta_value' => 'completed' ),
-                    array(
-                        'post_id'  => $this->booking_id,
-                        'meta_key' => '_mhmrentiva_refund_status',
-                    )
-                );
-            }
+        // Another process finishes the whole operation and writes the
+        // terminal status straight to the database, the way a genuinely
+        // separate process would -- this request's cache is left stale
+        // rather than refreshed -- and leaves its lock row standing, so
+        // THIS request's own acquire() genuinely fails.
+        $wpdb->update(
+            $wpdb->postmeta,
+            array( 'meta_value' => 'completed' ),
+            array(
+                'post_id'  => $this->booking_id,
+                'meta_key' => '_mhmrentiva_refund_status',
+            )
         );
+        $wpdb->query($wpdb->prepare(
+            "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+            'mhmrentiva_refund_lock_' . $this->booking_id,
+            'someone-else:' . time()
+        ));
 
         $this->cancel();
 
         $this->assertSame(
             'completed',
             (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_status', true),
-            'The other request already recorded the money moving; deciding from a stale cache would'
-                . " stamp 'failed' over it even though the read-back guard's logic is otherwise correct."
+            'A lock refusal must not decide from a stale cache -- it must not touch the status at all.'
+        );
+
+        $this->assertSame(
+            Money::toMinor('0'),
+            Money::toMinor((string) wc_get_order($order->get_id())->get_total_refunded()),
+            'The lock was already held; settle_refund() must not have reached the money step at all.'
         );
     }
 

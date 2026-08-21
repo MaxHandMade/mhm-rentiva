@@ -456,48 +456,39 @@ final class CancellationHandler {
 			return false;
 		}
 
-		$payment_gateway = get_post_meta( $booking_id, '_mhmrentiva_payment_gateway', true );
+		$payment_gateway = (string) get_post_meta( $booking_id, '_mhmrentiva_payment_gateway', true );
 
-		update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'pending' );
+		// Not part of the status machine -- audit metadata about the request
+		// itself, not a state RefundStatus's matrix governs -- so it is
+		// written here and does not need the lock settle_refund() is about to
+		// take for the actual status write.
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_at', current_time( 'mysql' ) );
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_by', $user_id );
 
-		// Position unchanged (spec §5.3): integrators run BEFORE the lock and
-		// BEFORE the state is resolved, so a refund they make themselves is
-		// visible to the decision below and is not made twice.
-		//
-		// Wrapped: before this branch existed, this hook had zero listeners, so
-		// a broken third-party callback could not reach this path. Now that it
-		// can, a listener that throws must not abort a cancellation that has
-		// already committed -- the booking stays cancelled, the customer has
-		// already been told, and PaymentState still decides the truth below.
-		try {
-			do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
-		} catch ( \Throwable $e ) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-				array(
-					'gateway'    => 'cancellation',
-					'action'     => 'refund_hook',
-					'status'     => 'error',
-					'booking_id' => $booking_id,
-					'message'    => sprintf(
-						/* translators: %s: the message thrown by a mhmrentiva_process_refund listener. */
-						__( 'A mhmrentiva_process_refund listener failed: %s', 'mhm-rentiva' ),
-						$e->getMessage()
-					),
-				)
-			);
-		}
-
-		return self::settle_refund( $booking_id, $reason );
+		// cancel_booking() carries no "surface" concept today (no such
+		// parameter exists on it or on this method), so a literal names the
+		// one caller of settle_refund() rather than growing a parameter chain
+		// this slice does not otherwise need.
+		return self::settle_refund( $booking_id, $reason, $user_id, $payment_gateway, 'cancellation_handler' );
 	}
 
 	/**
-	 * Steps 4-9 of the spec §5.3 sequence.
+	 * Steps 4-9 of the spec §5.3 sequence, plus (as of the single-writer slice)
+	 * the pending write and the integrator hook, both moved inside the lock.
 	 *
-	 * The state is resolved AFTER the hook on purpose: an integrator that made
-	 * its own refund in mhmrentiva_process_refund has already lowered the
-	 * balance, and reading it beforehand would refund the same money twice.
+	 * RefundStatus::transition() refuses to write without the lock held, so
+	 * the pending marker has to be set AFTER acquire(), not before it --
+	 * writing it earlier (as this method used to, via process_refund()) meant
+	 * it silently never landed, and every later transition then looked like it
+	 * started from the empty string.
+	 *
+	 * Two different resolutions of PaymentState appear below, deliberately:
+	 * the first, before the hook, is a stub for Task 15's mixed-currency guard,
+	 * which needs to see the booking's currency shape before pending is even
+	 * written. The second, after the hook, is what THIS method's own decision
+	 * uses -- an integrator that made its own refund in mhmrentiva_process_refund
+	 * has already lowered the balance, and deciding from the pre-hook snapshot
+	 * would refund the same money twice.
 	 *
 	 * A balance of zero is not one fact but two, and they are recorded
 	 * differently: money was taken and is no longer refundable through us
@@ -505,34 +496,33 @@ final class CancellationHandler {
 	 * cancellation), or no money was ever taken (not_required). Collapsing them
 	 * would hide a real transfer from the audit trail.
 	 */
-	private static function settle_refund( int $booking_id, string $reason ): bool {
+	private static function settle_refund( int $booking_id, string $reason, int $user_id, string $payment_gateway, string $surface ): bool {
 		if ( ! \MHMRentiva\Admin\Payment\Core\RefundLock::acquire( $booking_id ) ) {
-			// Read back rather than assumed, for the same reason the
-			// validator-refusal branch below does: the holder of the lock this
-			// request could not acquire may, by the time this runs, have
-			// already finished and written a terminal status (completed/
-			// failed/partial_failure). Overwriting that unconditionally turns
-			// a real, already-recorded transfer into a record that says
-			// nothing moved.
+			// The lock refusal branch: no lock, no operation, and no status
+			// write either. RefundStatus::transition() refuses to write
+			// without the lock held (its own isHeld() guard) -- a request
+			// that never held it has no standing to describe the booking's
+			// refund state; only the actual holder does. Reaching FAILED
+			// from here would mean two writers can disagree about this
+			// booking's status, exactly the class this slice exists to
+			// remove. _mhmrentiva_refund_status is left untouched: '' if
+			// this is the booking's first attempt, or whatever terminal
+			// value the actual holder already wrote if it finished first.
 			//
-			// This request never holds the lock, so nothing serialises this
-			// read either -- the other request's write may already have
-			// committed while this request's request-local post_meta cache
-			// still holds an older snapshot. Freshness has to be asked for
-			// explicitly here, the same way RemainingPaymentHandler::
-			// resolve_remaining_order() does it inside its own lock:
-			// "Serialisation without freshness is not mutual exclusion."
-			wp_cache_delete( $booking_id, 'post_meta' );
-
-			// Belt and braces: the read-back above narrows the window, but the
-			// write itself is made unconditional in SQL too, via $prev_value --
-			// update_metadata() puts it in the WHERE clause, so the UPDATE
-			// only lands if the row is STILL 'pending' at the moment it runs.
-			// That makes the write immune to cache staleness entirely, even if
-			// the read above were somehow still stale.
-			if ( 'pending' === (string) get_post_meta( $booking_id, '_mhmrentiva_refund_status', true ) ) {
-				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed', 'pending' );
-			}
+			// The refusal is not silent even though the meta stays
+			// untouched: logged here, with the actor, so a stale/orphaned
+			// lock does not produce a cancellation whose refund was refused
+			// and which nothing records.
+			//
+			// error(), not warning(): AdvancedLogger::should_skip_log()
+			// compares against mhmrentiva_log_level, which defaults to
+			// 'error' on every install (LogsSettings.php, SettingsSanitizer.php)
+			// -- a 'warning'-level call is silently dropped under that
+			// default, which is exactly the "nothing records it" failure
+			// this call exists to prevent. Verified empirically: the
+			// intended assertion in CancellationInitiatesRefundTest found no
+			// log post until this was switched from warning() to error().
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( "Refund lock refused for booking #$booking_id (actor #$user_id): another refund is already running", array( 'reason' => 'lock_refused' ), 'system' );
 
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
 				array(
@@ -547,21 +537,46 @@ final class CancellationHandler {
 			return false;
 		}
 
-		// Same reasoning as the refusal branch above, this time on the side
-		// that DOES hold the lock: the PaymentState resolution just below
-		// reads booking meta the lock exists to protect, but acquiring the
-		// lock does not by itself refresh a cache primed before the acquire.
-		// Serialisation without freshness is not mutual exclusion.
-		wp_cache_delete( $booking_id, 'post_meta' );
-
 		try {
+			// Freshness first (RefundStatus::transition does this too, but the
+			// mixed-currency read below is not a transition).
+			wp_cache_delete( $booking_id, 'post_meta' );
+
+			$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
+
+			// Spec v3 §6/2: BEFORE pending and before every zero-balance
+			// branch, because refundable() returns the same 0 for "mixed
+			// currency" and "nothing to refund" -- and closing a mixed-currency
+			// booking as not_required is exactly the silent close this guard
+			// exists to prevent. Task 15 fills this in.
+			// (mixed-currency check goes here)
+
+			\MHMRentiva\Admin\Payment\Core\RefundStatus::transition( $booking_id, \MHMRentiva\Admin\Payment\Core\RefundStatus::PENDING, array( 'surface' => $surface ) );
+
+			// Spec v3 §4.2: the integrator hook moves INSIDE the lock. Its
+			// stated purpose -- a refund the listener makes is visible to the
+			// decision below -- is satisfied equally here, and outside the lock
+			// two concurrent requests could run two listeners at once while the
+			// mutex taken afterwards serialised nothing.
+			try {
+				do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
+			} catch ( \Throwable $e ) {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( "A mhmrentiva_process_refund listener failed for booking #$booking_id", array( 'error' => $e->getMessage() ), 'system' );
+			}
+
+			// Resolved again, deliberately: $state above is the pre-hook
+			// snapshot Task 15's mixed-currency guard needs. This decision
+			// must not reuse it -- see the method docblock.
+			wp_cache_delete( $booking_id, 'post_meta' );
 			$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
 
 			if ( $state->refundable() <= 0 ) {
-				update_post_meta(
+				$externally_refunded = $state->paid() > 0;
+
+				\MHMRentiva\Admin\Payment\Core\RefundStatus::transition(
 					$booking_id,
-					'_mhmrentiva_refund_status',
-					$state->paid() > 0 ? 'completed_externally' : 'not_required'
+					$externally_refunded ? \MHMRentiva\Admin\Payment\Core\RefundStatus::COMPLETED_EXTERNALLY : \MHMRentiva\Admin\Payment\Core\RefundStatus::NOT_REQUIRED,
+					array( 'surface' => $surface )
 				);
 
 				return false;
@@ -574,25 +589,27 @@ final class CancellationHandler {
 			// RefundValidator refuses the request (empty/pending/failed/refunded
 			// payment status). That path never writes a terminal status and
 			// never logs, so a refusal here would otherwise leave the 'pending'
-			// marker standing forever with no trace of why. The status is read
-			// back rather than assumed: finish() may already have legitimately
-			// written failed/partial_failure/completed, and this must not stamp
-			// over that.
-			if ( ! $success && 'pending' === (string) get_post_meta( $booking_id, '_mhmrentiva_refund_status', true ) ) {
-				// $prev_value again: belt and braces alongside the read-back
-				// guard on the `if` above, and the write's real protection --
-				// it is conditional in SQL, immune to the cache entirely.
-				update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'failed', 'pending' );
+			// marker standing forever with no trace of why. RefundStatus's own
+			// matrix is the guard now, in place of the read-back this used to
+			// do by hand: 'failed' is reachable only from 'pending', so a
+			// finish() that already wrote a terminal status (completed/failed/
+			// partial_failure) cannot be overwritten by this call, and
+			// transition()'s return value says whether this call was the one
+			// that actually recorded something.
+			if ( ! $success ) {
+				$recorded = \MHMRentiva\Admin\Payment\Core\RefundStatus::transition( $booking_id, \MHMRentiva\Admin\Payment\Core\RefundStatus::FAILED, array( 'reason' => 'validator_refused' ) );
 
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-					array(
-						'gateway'    => 'cancellation',
-						'action'     => 'refund',
-						'status'     => 'error',
-						'booking_id' => $booking_id,
-						'message'    => $result['mhmrentiva_refund_msg'] ?? '',
-					)
-				);
+				if ( $recorded ) {
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
+						array(
+							'gateway'    => 'cancellation',
+							'action'     => 'refund',
+							'status'     => 'error',
+							'booking_id' => $booking_id,
+							'message'    => $result['mhmrentiva_refund_msg'] ?? '',
+						)
+					);
+				}
 			}
 
 			return $success;

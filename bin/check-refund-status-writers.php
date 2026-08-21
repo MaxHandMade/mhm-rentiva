@@ -1,0 +1,83 @@
+<?php
+/**
+ * Single-writer gate for _mhmrentiva_refund_status.
+ *
+ * RefundStatus::transition() is the one legitimate writer of this key: it
+ * refuses to write without the booking lock held, and validates every move
+ * against a fixed matrix. A bare update_post_meta() bypasses both guards, so
+ * any such call outside RefundStatus.php itself is a back door into a machine
+ * this gate exists to keep shut.
+ *
+ * This is the CLI twin of tests/Gates/RefundStatusSingleWriterTest.php and
+ * shares its scan root and pattern exactly, so a developer without a PHPUnit
+ * environment (or a CI job without one) still has this invariant enforced.
+ *
+ * 🔴 Scans src/ ONLY, and says so in its own name and its own output. A tool
+ * that cannot say where it looked is worse than no tool -- tests/ and bin/
+ * are out of scope on purpose.
+ *
+ * The pattern reads whole file contents with the /s modifier, not line by
+ * line: Refunds\Service.php's update_post_meta() calls span multiple lines
+ * (the key and the value are several arguments apart), so a per-line pattern
+ * would miss exactly the writers this gate exists to catch.
+ *
+ * Exit codes: 0 = clean, 1 = a direct writer found (or the scan root is missing).
+ *
+ * @package MHM_Rentiva
+ */
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__) . '/src';
+
+if (! is_dir($root)) {
+    fwrite(STDERR, "[ERROR] Scan root not found: {$root}\n");
+    exit(1);
+}
+
+$base = str_replace('\\', '/', dirname(__DIR__)) . '/';
+
+$offenders = [];
+$iterator  = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS)
+);
+
+foreach ($iterator as $file) {
+    if ($file->getExtension() !== 'php') {
+        continue;
+    }
+    // RefundStatus itself is the one legitimate writer.
+    if ($file->getFilename() === 'RefundStatus.php') {
+        continue;
+    }
+
+    $contents = file_get_contents($file->getPathname());
+    if ($contents === false) {
+        continue;
+    }
+
+    if (preg_match_all('/update_post_meta\s*\(\s*[^;]{0,200}?_mhmrentiva_refund_status/s', $contents, $matches, PREG_OFFSET_CAPTURE)) {
+        $relative = str_replace('\\', '/', $file->getPathname());
+        if (strpos($relative, $base) === 0) {
+            $relative = substr($relative, strlen($base));
+        }
+
+        foreach ($matches[0] as $match) {
+            $line        = substr_count($contents, "\n", 0, $match[1]) + 1;
+            $offenders[] = $relative . ':' . $line;
+        }
+    }
+}
+
+if ($offenders !== []) {
+    sort($offenders);
+    printf("src/ altında %d doğrudan yazıcı bulundu:\n\n", count($offenders));
+    echo '  ' . implode("\n  ", $offenders) . "\n\n";
+    echo "Write through RefundStatus::transition() instead -- it is the one\n";
+    echo "writer allowed to touch _mhmrentiva_refund_status, because it is the\n";
+    echo "only place that checks the booking lock and the state matrix first.\n";
+    exit(1);
+}
+
+echo "[OK] src/ altında doğrudan yazıcı bulunamadı (RefundStatus::transition() dışında).\n";
+exit(0);

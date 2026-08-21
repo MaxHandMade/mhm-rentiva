@@ -527,6 +527,14 @@ bin/*
 # keys, compiled JS, the Pro tree) rather than gating. Tracked so the next
 # round -- or a re-check of this one -- can re-run it.
 !bin/audit-retired-meta.php
+# Task 2 of the 2026-08-21 refund/deposit slice 5 round: the single-writer
+# gate for _mhmrentiva_refund_status. `composer check-refund-status-writers` /
+# `composer carve-gates` require it at runtime; it is the CLI twin of
+# tests/Gates/RefundStatusSingleWriterTest.php, so a developer or CI job
+# without a PHPUnit environment still has the invariant enforced. Must ship
+# in every clone or the gate that catches a bare update_post_meta() bypassing
+# RefundStatus::transition() runs in nobody's clone but this one.
+!bin/check-refund-status-writers.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

@@ -13,6 +13,7 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Payment\Core\RefundLock;
+use MHMRentiva\Admin\Payment\Core\RefundStatus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -130,6 +131,19 @@ final class Service {
 		// RemainingPaymentHandler::resolve_remaining_order(): "Serialisation
 		// without freshness is not mutual exclusion."
 		wp_cache_delete( $bookingId, 'post_meta' );
+
+		// finish() below writes a terminal status through RefundStatus::transition(),
+		// and the matrix only reaches completed/manual_pending/partial_failure/failed
+		// FROM pending -- never directly from the empty string. CancellationHandler
+		// already writes pending before it ever calls in here, so for that caller
+		// this is a same-value no-op (transition() reports "nothing changed" and
+		// skips the hook). For a caller that reaches this class directly --
+		// DepositManagementAjax, Actions.php, a future integration -- this is the
+		// only place that establishes the precondition finish() now depends on;
+		// without it, a direct caller's terminal write would be silently refused
+		// by the matrix and the booking would carry no record at all of what its
+		// own refund operation just did.
+		RefundStatus::transition( $bookingId, RefundStatus::PENDING, array( 'surface' => 'refunds_service' ) );
 
 		try {
 			return $operation();
@@ -336,10 +350,10 @@ final class Service {
 			// money has already left and the operator must finish the job by
 			// hand, the second means nothing moved. Collapsing them would hide
 			// a real transfer behind the word "failed".
-			update_post_meta(
+			RefundStatus::transition(
 				$bookingId,
-				'_mhmrentiva_refund_status',
-				$operation['refunded'] > 0 ? 'partial_failure' : 'failed'
+				$operation['refunded'] > 0 ? RefundStatus::PARTIAL_FAILURE : RefundStatus::FAILED,
+				array( 'channel' => $operation['channel'] )
 			);
 
 			self::announceCompletion( $bookingId, $operation );
@@ -355,10 +369,10 @@ final class Service {
 		// the operator still has to transfer the money by hand
 		// (wp-knowledge/official/woocommerce/wc-refunds.md, fact 2). Spec §5.3
 		// step 9 names this value; N-05 (step 7) is what will show it.
-		update_post_meta(
+		RefundStatus::transition(
 			$bookingId,
-			'_mhmrentiva_refund_status',
-			RefundValidator::MODE_MANUAL === $operation['mode'] ? 'manual_pending' : 'completed'
+			RefundValidator::MODE_MANUAL === $operation['mode'] ? RefundStatus::MANUAL_PENDING : RefundStatus::COMPLETED,
+			array( 'channel' => $operation['channel'] )
 		);
 
 		if ( RefundValidator::CHANNEL_OFFLINE === $operation['channel'] ) {
