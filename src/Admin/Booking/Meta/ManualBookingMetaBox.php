@@ -772,13 +772,22 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			);
 			// Non-fatal: log but don't abort booking creation. Routed to the plugin's
 			// own logger instead of the site's PHP error log.
+			//
+			// Task 14b item 3: promoted from warning() to error(). This runs
+			// before the booking post itself exists (the customer account is
+			// created first), so no booking_id is available to link -- but
+			// the failure is real: the operator's manual booking form is
+			// silently leaving the customer's name/role fields unset, and
+			// warning() is exactly the level a stock install drops.
 			if ( is_wp_error( $update_result ) && class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
-					'wp_update_user failed while creating a manual booking',
-					array(
-						'user_id' => $user_id,
-						'error'   => $update_result->get_error_message(),
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: %s: the error message wp_update_user() returned. */
+						__( 'wp_update_user failed while creating a manual booking: %s', 'mhm-rentiva' ),
+						$update_result->get_error_message()
 					),
+					0,
+					array( 'user_id' => $user_id ),
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 			}

@@ -967,6 +967,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				}
 			}
 		} else {
+			// Task 14b item 3: left at warning() deliberately. This hook
+			// (woocommerce_add_order_item_meta) runs for EVERY order item on
+			// EVERY checkout, including ordinary non-rental WooCommerce
+			// products a site may sell alongside bookings -- the "no booking
+			// data" branch is the expected, frequent case for those, not a
+			// failure. Promoting it would make an unrelated product
+			// purchase generate an operator-visible error on every order.
 			AdvancedLogger::warning('No booking data found in cart item values', array(), AdvancedLogger::CATEGORY_PAYMENT);
 		}
 	}
@@ -1000,7 +1007,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$items = $order->get_items();
 
 		if (empty($items)) {
-			AdvancedLogger::warning('No items found in order', array( 'order_id' => $order_id ), AdvancedLogger::CATEGORY_PAYMENT);
+			// Task 14b item 3: promoted from warning() to error(). This
+			// runs on order-placed for every WooCommerce checkout that
+			// carries a pending booking; if it fires, create_booking_from_order()
+			// returns having created nothing, and the paid order is left
+			// with no linked booking at all -- silent under the default log
+			// level, on money that already moved.
+			AdvancedLogger::error_for_booking(
+				sprintf(
+					/* translators: %d: the WooCommerce order id with no items. */
+					__( 'No items found in order #%d', 'mhm-rentiva' ),
+					(int) $order_id
+				),
+				0,
+				array( 'order_id' => $order_id ),
+				AdvancedLogger::CATEGORY_PAYMENT
+			);
 			return;
 		}
 
@@ -1395,32 +1417,37 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 							// the booking looks perfectly healthy -- silently
 							// dropping the e-mail leaves nothing else for
 							// anyone to find.
-							$notified = class_exists( '\MHMRentiva\Helpers\NotificationHelper' )
+							$helper_exists = class_exists( '\MHMRentiva\Helpers\NotificationHelper' );
+							$notified      = $helper_exists
 								&& \MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
 
 							if ( ! $notified ) {
-								// error() + add(), same pair and same reasons
-								// as AutoCancel.php's lock-refusal/notify-
-								// failure branches; see the comments there.
-								AdvancedLogger::error(
-									"Order #{$order_id} was cancelled/failed on booking #{$booking_id} while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told.",
+								// Task 14b item 1: was error() + add(), the
+								// same pair and same reasons as AutoCancel.php's
+								// lock-refusal/notify-failure branches; one call
+								// now covers both.
+								//
+								// Task 14b item 7: the reason used to read
+								// 'notification_failed' even when
+								// $helper_exists was false -- practically
+								// unreachable (NotificationHelper ships in the
+								// Lite manifest), but the exact class item 2
+								// exists for: a reason this branch cannot
+								// actually know is wrong to state as fact.
+								AdvancedLogger::error_for_booking(
+									sprintf(
+										/* translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to. */
+										__( 'Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva' ),
+										(int) $order_id,
+										$booking_id
+									),
+									$booking_id,
 									array(
-										'booking_id' => $booking_id,
-										'order_id'   => (int) $order_id,
-										'surface'    => 'wc_status_change',
-										'reason'     => 'notification_failed',
+										'order_id' => (int) $order_id,
+										'surface'  => 'wc_status_change',
+										'reason'   => $helper_exists ? 'notification_failed' : 'helper_missing',
 									),
 									AdvancedLogger::CATEGORY_SYSTEM
-								);
-
-								AdvancedLogger::add(
-									array(
-										'gateway'    => 'woocommerce',
-										'action'     => 'order_cancelled_live_booking',
-										'status'     => 'error',
-										'booking_id' => $booking_id,
-										'message'    => __('An order was cancelled while this booking still had a paid sibling order, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva'),
-									)
 								);
 							}
 
@@ -2214,6 +2241,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						'error'
 					);
 
+					// Task 14b item 3: left at warning() deliberately -- the
+					// customer already sees the wc_add_notice() error above,
+					// on the checkout page, before checkout can even
+					// complete. This entry is a supplementary debug trace
+					// for the same event, not the only record of it.
 					// Log for debugging
 					AdvancedLogger::warning(
 						'Checkout validation failed - vehicle no longer available',
