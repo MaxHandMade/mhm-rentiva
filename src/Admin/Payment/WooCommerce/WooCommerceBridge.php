@@ -1365,17 +1365,65 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 					case 'cancelled':
 					case 'failed':
-						if ( ! self::is_last_live_money_order( $booking_id, (int) $order_id ) ) {
+						if ( self::has_paid_sibling_order( $booking_id, (int) $order_id ) ) {
 							// A sibling order still holds paid money. Cancelling
 							// the collection instrument is not cancelling the
 							// debt: the balance stays, the dead order id is
 							// cleared so the operator can issue a new payment
 							// link, and a human is told.
+							//
+							// Only the remaining-order pointer is ever cleared
+							// here, never _mhmrentiva_woocommerce_order_id: if
+							// the DEPOSIT order is the one dying, deleting the
+							// primary key would discard the only reference to
+							// the (still paid) deposit order -- data loss, and
+							// worse than the stale pointer this leaves instead.
 							if ( (int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ) === (int) $order_id ) {
 								delete_post_meta( $booking_id, '_mhmrentiva_remaining_order_id' );
 							}
 
-							\MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
+							// The bool is load-bearing, same reasons as
+							// AutoCancel.php's cancel_booking_with_orders():
+							// send_*_email() returns false without throwing
+							// when admin_email does not validate
+							// (NotificationHelper.php:64-66) and when
+							// wp_mail() fails, and src/ registers no
+							// wp_mail_failed listener. Discarding it here is
+							// worse than that site: there the booking lands in
+							// a visible needs_review state, but here the
+							// remaining-order pointer is already deleted and
+							// the booking looks perfectly healthy -- silently
+							// dropping the e-mail leaves nothing else for
+							// anyone to find.
+							$notified = class_exists( '\MHMRentiva\Helpers\NotificationHelper' )
+								&& \MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
+
+							if ( ! $notified ) {
+								// error() + add(), same pair and same reasons
+								// as AutoCancel.php's lock-refusal/notify-
+								// failure branches; see the comments there.
+								AdvancedLogger::error(
+									"Order #{$order_id} was cancelled/failed on booking #{$booking_id} while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told.",
+									array(
+										'booking_id' => $booking_id,
+										'order_id'   => (int) $order_id,
+										'surface'    => 'wc_status_change',
+										'reason'     => 'notification_failed',
+									),
+									AdvancedLogger::CATEGORY_SYSTEM
+								);
+
+								AdvancedLogger::add(
+									array(
+										'gateway'    => 'woocommerce',
+										'action'     => 'order_cancelled_live_booking',
+										'status'     => 'error',
+										'booking_id' => $booking_id,
+										'message'    => __('An order was cancelled while this booking still had a paid sibling order, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva'),
+									)
+								);
+							}
+
 							break;
 						}
 
@@ -1427,33 +1475,27 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Is this order the last order on the booking that still holds money?
+	 * Does the booking have another order, besides this one, that has ever
+	 * been paid?
 	 *
-	 * The cancelled/failed branch used to answer the booking-level question
-	 * from one order's status. On a deposit booking that is two orders, and
-	 * cancelling the unpaid remainder cancelled a booking whose deposit had
-	 * been paid -- with no refund anywhere.
+	 * Delegates to PaymentState::orders() rather than re-deriving the
+	 * candidate list: that list is the same two-candidate lookup
+	 * (resolve_wc_order_id() + _mhmrentiva_remaining_order_id) this method
+	 * used to duplicate, and the duplicate had already dropped
+	 * resolvePaidOrders()'s function_exists('wc_get_order') guard
+	 * (PaymentState.php:135-137) -- load-bearing for callers that can run
+	 * with WooCommerce inactive.
+	 *
+	 * "Ever paid", not "still holds money": PaymentState::orders() keeps a
+	 * fully refunded order in its set on purpose (PaymentState.php:153-155),
+	 * because get_date_paid() proves money arrived even after it was later
+	 * returned. The name and the branch below rely on that meaning.
 	 */
-	private static function is_last_live_money_order( int $booking_id, int $order_id ): bool {
-		$siblings = array_filter(
-			array(
-				\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $booking_id ),
-				(int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ),
-			),
-			static function ( $oid ) use ( $order_id ) {
-				return $oid && (int) $oid !== $order_id;
-			}
+	private static function has_paid_sibling_order( int $booking_id, int $order_id ): bool {
+		return (bool) array_diff(
+			PaymentState::forBooking( $booking_id )->orders(),
+			array( $order_id )
 		);
-
-		foreach ( array_unique( $siblings ) as $oid ) {
-			$order = wc_get_order( $oid );
-
-			if ( $order instanceof \WC_Order && $order->get_date_paid() ) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**

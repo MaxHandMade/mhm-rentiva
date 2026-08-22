@@ -115,7 +115,8 @@ class NotificationHelper {
 	}
 
 	/**
-	 * Send "order cancelled but the booking still owes money" email.
+	 * Send "order cancelled, but a sibling order on this booking is still
+	 * paid" email.
 	 *
 	 * The cancelled/failed branch found a sibling order still holding paid
 	 * money and left the booking alone -- cancelling the collection
@@ -124,6 +125,14 @@ class NotificationHelper {
 	 * send_refund_needs_review_email() is not: a live booking that just lost
 	 * one of its payment orders is exactly the situation that needs a human,
 	 * every time it happens.
+	 *
+	 * Deliberately silent on WHICH order died and which is still paid: a
+	 * deposit booking's dying order can be either leg, and a message that
+	 * assumes "the remaining balance" is wrong exactly when the deposit
+	 * order is the one that died -- the operator would be sent to issue a
+	 * new payment link for a balance that is actually zero. The true
+	 * statement in both directions is only that one order died while
+	 * another is still paid, and that the booking's balance needs a look.
 	 *
 	 * @param int $booking_id
 	 * @param int $order_id
@@ -138,17 +147,17 @@ class NotificationHelper {
 
 		$link = get_edit_post_link($booking_id, '') ?: admin_url('post.php?post=' . $booking_id . '&action=edit');
 
-		$subject = __('An order was cancelled but the booking still owes money', 'mhm-rentiva');
+		$subject = __('An order was cancelled while another order on the same booking is still paid', 'mhm-rentiva');
 
 		$body_parts = array(
 			sprintf(
 				/* translators: 1: order id, 2: booking id */
-				__('Order #%1$d was cancelled or failed, but booking #%2$d still has an unpaid balance -- the order was only the collection instrument, not the debt.', 'mhm-rentiva'),
+				__('Order #%1$d on booking #%2$d was cancelled or failed. Another order on this booking still holds paid money -- the order that died was not necessarily the debt.', 'mhm-rentiva'),
 				$order_id,
 				$booking_id
 			),
 			'',
-			__('A new payment link should be issued for the remaining balance.', 'mhm-rentiva'),
+			__("Review this booking's payment orders and balance before treating it as settled or cancelled.", 'mhm-rentiva'),
 			sprintf(
 				/* translators: %s: link to the booking */
 				__('Review the booking: %s', 'mhm-rentiva'),

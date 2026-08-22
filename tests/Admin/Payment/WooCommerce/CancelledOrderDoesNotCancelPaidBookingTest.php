@@ -103,6 +103,42 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
     }
 
     /**
+     * Positive control for the predicate's discriminating path: a sibling
+     * order exists (this IS a deposit/remaining pair) but NEITHER order was
+     * ever paid -- the production shape of a stale reservation that WC's own
+     * `woocommerce_cancel_unpaid_orders` cron cancels for non-payment.
+     * Cancelling here must NOT be blocked, because there is no paid sibling
+     * to protect. Without this case, a predicate regressed to "any sibling
+     * at all blocks cancellation" leaves both other tests in this file green
+     * while a fully unpaid booking silently keeps holding vehicle
+     * availability. Also drives the 'failed' label (only 'cancelled' is
+     * exercised elsewhere in this file).
+     */
+    public function test_cancelling_an_unpaid_remaining_order_still_cancels_the_booking_when_neither_order_was_ever_paid(): void
+    {
+        $booking_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+        update_post_meta( $booking_id, '_mhmrentiva_payment_type', 'deposit' );
+        update_post_meta( $booking_id, '_mhmrentiva_status', Status::PENDING );
+
+        $deposit = $this->create_unpaid_order_for_booking( $booking_id, '300' );
+        update_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', $deposit->get_id() );
+
+        $remaining = $this->create_unpaid_order_for_booking( $booking_id, '700' );
+        $this->wire_line_item_booking_id( $remaining, $booking_id );
+        $remaining->update_meta_data( '_mhmrentiva_is_remaining_payment', '1' );
+        $remaining->save();
+        update_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', $remaining->get_id() );
+
+        $remaining->update_status( 'failed' );
+
+        $this->assertSame(
+            Status::CANCELLED,
+            Status::get( $booking_id ),
+            'Neither order in this pair was ever paid -- a sibling existing is not enough to block cancellation.'
+        );
+    }
+
+    /**
      * WooCommerceFixtures::create_paid_order_for_booking() wires
      * `_mhmrentiva_booking_id` onto the ORDER only. Production also wires the
      * same key onto the order's LINE ITEM (WooCommerceBridge.php :911, :1026;
@@ -117,5 +153,33 @@ final class CancelledOrderDoesNotCancelPaidBookingTest extends WP_UnitTestCase
             $item->add_meta_data( '_mhmrentiva_booking_id', $booking_id, true );
             $item->save();
         }
+    }
+
+    /**
+     * Same shape as WooCommerceFixtures::create_paid_order_for_booking()
+     * minus the update_status('processing') call, so the order never gets a
+     * date_paid -- PaymentState::orders() (via resolvePaidOrders()) will not
+     * count it. Kept local rather than added to the shared trait: the
+     * fixture's own docblock already warns that changing its behaviour
+     * changes it for every caller, and only this test needs "never paid".
+     */
+    private function create_unpaid_order_for_booking( int $booking_id, string $total ): \WC_Order
+    {
+        $product = $this->ensure_booking_product( $total );
+
+        $order = wc_create_order( array( 'status' => 'pending' ) );
+        $item  = new \WC_Order_Item_Product();
+        $item->set_product( $product );
+        $item->set_quantity( 1 );
+        $item->set_subtotal( (float) $total );
+        $item->set_total( (float) $total );
+        $order->add_item( $item );
+        $order->calculate_totals();
+        $order->save();
+
+        $order->update_meta_data( '_mhmrentiva_booking_id', $booking_id );
+        $order->save();
+
+        return $order;
     }
 }
