@@ -48,6 +48,16 @@ use WP_UnitTestCase;
  * always executes". A false positive here costs one line moved outside a
  * try block; a false negative costs a production lock leak nobody notices
  * for RefundLock::TTL_SECONDS at a time.
+ *
+ * Task 14b item 8: the first test's main assertion is `assertSame(array(),
+ * $offenders, ...)`, which the outer file-walk satisfies identically whether
+ * it inspected every file in src/ or none at all -- an empty $offenders
+ * proves nothing about whether the walk actually ran. The second test below
+ * only proves find_try_finally_blocks() itself works against one file read
+ * directly into memory; it never exercises the RecursiveDirectoryIterator
+ * walk the first test's own assertion depends on. The first test now also
+ * asserts the number of files the walk visited is comfortably above zero,
+ * so the gate's own blind spot -- a silently-empty walk -- is itself gated.
  */
 final class RefundLockFinallyDoesNotSendJsonTest extends WP_UnitTestCase
 {
@@ -130,8 +140,9 @@ final class RefundLockFinallyDoesNotSendJsonTest extends WP_UnitTestCase
         $root = realpath( self::SRC_ROOT );
         $this->assertNotFalse( $root, 'Scan root must resolve.' );
 
-        $offenders = array();
-        $files     = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS ) );
+        $offenders     = array();
+        $files_scanned = 0;
+        $files         = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS ) );
 
         foreach ( $files as $file ) {
             if ( 'php' !== $file->getExtension() ) {
@@ -144,6 +155,8 @@ final class RefundLockFinallyDoesNotSendJsonTest extends WP_UnitTestCase
                 continue;
             }
 
+            ++$files_scanned;
+
             foreach ( $this->find_try_finally_blocks( $contents ) as $block ) {
                 if ( false === strpos( $block['finally_body'], 'RefundLock::release(' ) ) {
                     continue;
@@ -155,6 +168,21 @@ final class RefundLockFinallyDoesNotSendJsonTest extends WP_UnitTestCase
                 }
             }
         }
+
+        // Task 14b item 8: the assertion below passes just as happily if the
+        // walk above silently visited zero files (a moved SRC_ROOT, a broken
+        // iterator, an extension check that never matches) as it does if it
+        // visited every file and found nothing -- an empty $offenders array
+        // means both "clean" and "never looked" identically. src/ holds 273
+        // .php files measured at HEAD (2026-08-23); 100 is a floor
+        // comfortably below that, not a tight pin, so this does not become
+        // its own maintenance burden as the tree grows.
+        $this->assertGreaterThan(
+            100,
+            $files_scanned,
+            'The scan must actually walk src/ -- a low count here means the assertion below could be'
+                . ' passing vacuously (nothing looked at) rather than because nothing was found.'
+        );
 
         $this->assertSame(
             array(),
