@@ -70,6 +70,28 @@ final class RefundStatus {
 	}
 
 	/**
+	 * States with no outgoing edge in the transition matrix -- terminal.
+	 *
+	 * Derived from matrix() itself, not enumerated a second time: a status
+	 * that appears somewhere as a destination but never as a key has nowhere
+	 * left to go, which is the class docblock's own definition of terminal.
+	 * Task 12 (slice 5) needs this so AutoCancel::not_parked_for_review() can
+	 * follow the matrix instead of restating a list beside it -- the same
+	 * shape selectable_status_values() already uses for Status's machine. A
+	 * hand-written list here would drift the same way that one used to: an
+	 * edge added to or removed from the matrix would silently stop matching
+	 * whatever this method returned.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function terminalStates(): array {
+		$matrix       = self::matrix();
+		$destinations = array_unique( array_merge( ...array_values( $matrix ) ) );
+
+		return array_values( array_diff( $destinations, array_keys( $matrix ) ) );
+	}
+
+	/**
 	 * @param array<string, mixed> $context
 	 * @return bool True only when the status actually changed.
 	 */

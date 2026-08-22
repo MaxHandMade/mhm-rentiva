@@ -60,6 +60,13 @@ final class BookingRefundMetaBox {
 		// status would never reach the page if it sat after the guard below.
 		self::render_manual_close_control( $bid );
 
+		// Same placement, same reason: needs_review is produced by
+		// cancel_booking_with_orders() finding a paid WooCommerce order
+		// (Task 4's K6 guard), which is exactly the shape that zeroes
+		// $remaining below. A control gated only on status would never reach
+		// the page if it sat after the early return.
+		self::render_needs_review_controls( $bid );
+
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
 
 		// This box is the offline surface. A booking whose money sits in a
@@ -172,5 +179,45 @@ final class BookingRefundMetaBox {
 			. '<input type="text" id="manual-refund-reference" class="widefat" /></p>';
 		echo '<p><button type="button" class="button button-primary" id="close-manual-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
 			. esc_html__( 'Confirm hand transfer', 'mhm-rentiva' ) . '</button></p>';
+	}
+
+	/**
+	 * Task 12 (slice 5): needs_review's two operator exits.
+	 *
+	 * Kept as its own method for the same reason render_manual_close_control()
+	 * is: render_status_row() is deliberately a pure information line, visible
+	 * to anyone who can open this box at all, and these two buttons are money
+	 * decisions -- gated on MoneyAuthorization::mayMoveMoney(), asked with
+	 * $surface = 'review_action' to match DepositManagementAjax::
+	 * review_cancel_and_refund()/review_dismiss()'s own calls.
+	 *
+	 * Rendered independently of BookingDepositMetaBox::
+	 * can_refund_from_deposit_screen(): that predicate requires the booking
+	 * status to already be CANCELLED, and a needs_review booking is, by
+	 * construction, one AutoCancel parked WITHOUT touching the booking status
+	 * at all (cancel_booking_with_orders()'s docblock: "a park writes only
+	 * _mhmrentiva_refund_status"). Gating these controls on that predicate
+	 * too would hide them on exactly the bookings they exist for.
+	 *
+	 * The nonce these buttons need is the same mhmDepositManagement.nonce
+	 * render_manual_close_control() relies on -- see that method's docblock
+	 * for why no second wp_nonce_field() belongs here.
+	 */
+	private static function render_needs_review_controls( int $booking_id ): void {
+		if ( RefundStatus::NEEDS_REVIEW !== RefundStatus::get( $booking_id ) ) {
+			return;
+		}
+
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, get_current_user_id(), 'review_action' ) ) {
+			return;
+		}
+
+		echo '<p><button type="button" class="button button-primary" id="review-cancel-and-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+			. esc_html__( 'Cancel and start the refund', 'mhm-rentiva' ) . '</button></p>';
+
+		echo '<p><label for="refund-review-dismiss-reason">' . esc_html__( 'Why is no refund due?', 'mhm-rentiva' ) . '</label><br />'
+			. '<textarea id="refund-review-dismiss-reason" class="widefat" rows="2"></textarea></p>';
+		echo '<p><button type="button" class="button" id="review-dismiss" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+			. esc_html__( 'No refund is due', 'mhm-rentiva' ) . '</button></p>';
 	}
 }

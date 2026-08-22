@@ -136,4 +136,36 @@ final class RefundStatusTransitionTest extends WP_UnitTestCase
         $this->assertSame( RefundStatus::PENDING, $seen['old'] );
         $this->assertSame( 'admin_deposit', $seen['context']['surface'] );
     }
+
+    /**
+     * Task 12 (slice 5), correction #3: AutoCancel::not_parked_for_review()
+     * needs the terminal set without restating it, the same way
+     * cancellable_statuses() derives Status's set instead of a hand-written
+     * list beside it. This pins the derivation itself against the matrix's
+     * own docblock claim ("The four terminal states ... are absent as
+     * keys") rather than trusting the comment to stay true.
+     */
+    public function test_terminal_states_are_derived_from_the_matrix_and_match_the_four_named_in_its_docblock(): void
+    {
+        $this->assertEqualsCanonicalizing(
+            array(
+                RefundStatus::NOT_REQUIRED,
+                RefundStatus::COMPLETED_EXTERNALLY,
+                RefundStatus::COMPLETED,
+                RefundStatus::COMPLETED_MANUALLY,
+            ),
+            RefundStatus::terminalStates()
+        );
+    }
+
+    /**
+     * needs_review itself must NOT be reported as terminal -- it has an edge
+     * to PENDING and to NOT_REQUIRED. AutoCancel::parked_refund_statuses()
+     * depends on this distinction: it adds NEEDS_REVIEW to terminalStates()
+     * explicitly rather than relying on it being included already.
+     */
+    public function test_needs_review_is_not_a_terminal_state(): void
+    {
+        $this->assertNotContains( RefundStatus::NEEDS_REVIEW, RefundStatus::terminalStates() );
+    }
 }

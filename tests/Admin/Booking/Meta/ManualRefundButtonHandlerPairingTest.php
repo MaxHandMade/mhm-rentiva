@@ -228,6 +228,156 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
     }
 
     /**
+     * Task 12 (slice 5), correction #2: the same class of gap Task 11 hit --
+     * the plan's Step 5 rendered two more buttons and again said nothing
+     * about binding them. Both new handlers extend the SAME extraction this
+     * file already proved reads the shipped JS correctly
+     * (test_the_extraction_correctly_recovers_a_known_sibling_pairing above)
+     * rather than adding a second scanner.
+     */
+    public function test_the_review_cancel_and_refund_handler_is_bound_to_a_selector_the_metabox_actually_prints(): void
+    {
+        [$click_map] = $this->extract_action_maps($this->js_source());
+
+        $this->assertArrayHasKey(
+            'mhmrentiva_review_cancel_and_refund',
+            $click_map,
+            'No click handler in deposit-management.js posts action: "mhmrentiva_review_cancel_and_refund". '
+                . 'Either the handler is missing, or it no longer matches the binding pattern this scan looks for.'
+        );
+
+        $selector = $click_map['mhmrentiva_review_cancel_and_refund'];
+        $id       = ltrim($selector, '#');
+
+        $html = $this->render_needs_review_box_as_authorised_administrator();
+
+        $this->assertStringContainsString(
+            'id="' . $id . '"',
+            $html,
+            sprintf(
+                'deposit-management.js binds a click handler to %1$s and posts action '
+                    . '"mhmrentiva_review_cancel_and_refund", but the refund metabox\'s rendered markup for a '
+                    . 'needs_review booking contains no element with id="%2$s".',
+                $selector,
+                $id
+            )
+        );
+    }
+
+    public function test_the_review_dismiss_handler_is_bound_to_a_selector_the_metabox_actually_prints(): void
+    {
+        [$click_map] = $this->extract_action_maps($this->js_source());
+
+        $this->assertArrayHasKey(
+            'mhmrentiva_review_dismiss',
+            $click_map,
+            'No click handler in deposit-management.js posts action: "mhmrentiva_review_dismiss". '
+                . 'Either the handler is missing, or it no longer matches the binding pattern this scan looks for.'
+        );
+
+        $selector = $click_map['mhmrentiva_review_dismiss'];
+        $id       = ltrim($selector, '#');
+
+        $html = $this->render_needs_review_box_as_authorised_administrator();
+
+        $this->assertStringContainsString(
+            'id="' . $id . '"',
+            $html,
+            sprintf(
+                'deposit-management.js binds a click handler to %1$s and posts action '
+                    . '"mhmrentiva_review_dismiss", but the refund metabox\'s rendered markup for a '
+                    . 'needs_review booking contains no element with id="%2$s".',
+                $selector,
+                $id
+            )
+        );
+    }
+
+    /**
+     * (b)'s gerekçe (reason) field is a `.val()` read exactly like Task 11's
+     * manual-refund-reference field, and correction #2 names it the more
+     * dangerous mismatch of the two for the same reason I1 did there: a
+     * wrong button id does nothing, loudly; a wrong `.val()` selector returns
+     * `undefined`, `|| ''` swallows it, and review_dismiss() would reject
+     * every request with "say why no refund is due" while an operator
+     * insists they typed one.
+     */
+    public function test_the_review_dismiss_handler_reads_a_reason_selector_the_metabox_actually_prints(): void
+    {
+        [, $value_map] = $this->extract_action_maps($this->js_source());
+
+        $this->assertArrayHasKey(
+            'mhmrentiva_review_dismiss',
+            $value_map,
+            'handleReviewDismiss() no longer reads any $(\'...\').val() at all -- either the reason field '
+                . 'was dropped, or it no longer matches the pattern this scan looks for.'
+        );
+
+        $selector = $value_map['mhmrentiva_review_dismiss'];
+        $id       = ltrim($selector, '#');
+
+        $html = $this->render_needs_review_box_as_authorised_administrator();
+
+        $this->assertStringContainsString(
+            'id="' . $id . '"',
+            $html,
+            sprintf(
+                'deposit-management.js reads %1$s for the dismiss reason, but the refund metabox\'s rendered '
+                    . 'markup for a needs_review booking contains no element with id="%2$s". A mismatch here is '
+                    . 'silent: jQuery returns undefined, "|| \'\'" swallows it, and every dismissal is rejected '
+                    . 'as if the operator typed nothing.',
+                $selector,
+                $id
+            )
+        );
+    }
+
+    /**
+     * The positive control both needs_review assertions above need: without
+     * it, a fixture that rendered none of the three elements for any
+     * unrelated reason (the actor failing MoneyAuthorization, a status other
+     * than needs_review) would make either previous test pass or fail for
+     * the wrong reason regardless of the id match.
+     */
+    public function test_the_needs_review_controls_render_for_an_authorised_actor_on_a_needs_review_booking(): void
+    {
+        $html = $this->render_needs_review_box_as_authorised_administrator();
+
+        $this->assertStringContainsString(
+            'id="review-cancel-and-refund"',
+            $html,
+            'Positive control: an authorised administrator on a needs_review booking must see the cancel-and-refund button.'
+        );
+        $this->assertStringContainsString(
+            'id="review-dismiss"',
+            $html,
+            'Positive control: an authorised administrator on a needs_review booking must see the dismiss button.'
+        );
+        $this->assertStringContainsString(
+            'id="refund-review-dismiss-reason"',
+            $html,
+            'Positive control: the dismiss reason field must render alongside the buttons.'
+        );
+    }
+
+    private function render_needs_review_box_as_authorised_administrator(): string
+    {
+        $admin_id = self::factory()->user->create(array( 'role' => 'administrator' ));
+        wp_set_current_user($admin_id);
+
+        $booking_id = self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($booking_id, RefundStatus::META_KEY, RefundStatus::NEEDS_REVIEW);
+
+        ob_start();
+        BookingRefundMetaBox::render(get_post($booking_id));
+
+        return (string) ob_get_clean();
+    }
+
+    /**
      * The positive control both assertions above need: without it, a
      * fixture that rendered neither element for any unrelated reason (the
      * actor failing MoneyAuthorization, a status other than manual_pending)

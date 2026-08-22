@@ -82,6 +82,8 @@ final class DepositManagementAjax {
 		add_action( 'wp_ajax_mhmrentiva_deposit_cancel_booking', array( self::class, 'cancel_booking' ) );
 		add_action( 'wp_ajax_mhmrentiva_deposit_process_refund', array( self::class, 'process_refund' ) );
 		add_action( 'wp_ajax_mhmrentiva_close_manual_refund', array( self::class, 'close_manual_refund' ) );
+		add_action( 'wp_ajax_mhmrentiva_review_cancel_and_refund', array( self::class, 'review_cancel_and_refund' ) );
+		add_action( 'wp_ajax_mhmrentiva_review_dismiss', array( self::class, 'review_dismiss' ) );
 	}
 
 	public static function process_remaining_payment(): void {
@@ -432,12 +434,13 @@ final class DepositManagementAjax {
 	}
 
 	/**
-	 * Reference strings are free text from an operator; capped so a pasted
-	 * essay does not land verbatim in a WC order note and in post meta.
-	 * 191, not a round number: the sibling-safe bound under utf8mb4 (the
-	 * historical MySQL index-byte-length ceiling other varchar columns in
-	 * this stack are sized to), used here purely as a sane text cap, not
-	 * because this value is indexed.
+	 * Free text from an operator -- a manual-close reference, or (Task 12)
+	 * the reason a review was dismissed -- is capped so a pasted essay does
+	 * not land verbatim in a WC order note and in post meta. 191, not a round
+	 * number: the sibling-safe bound under utf8mb4 (the historical MySQL
+	 * index-byte-length ceiling other varchar columns in this stack are sized
+	 * to), used here purely as a sane text cap, not because either value is
+	 * indexed.
 	 */
 	private const REFERENCE_MAX_LENGTH = 191;
 
@@ -550,6 +553,153 @@ final class DepositManagementAjax {
 		}
 
 		wp_send_json_success( array( 'message' => __( 'Hand transfer recorded.', 'mhm-rentiva' ) ) );
+	}
+
+	/**
+	 * NEEDS_REVIEW's first exit: hand the booking to the cancellation flow,
+	 * which owns the money step.
+	 *
+	 * Moves no money itself -- CancellationHandler::cancel_booking() does,
+	 * inside its own lock (settle_refund()). This endpoint does not take
+	 * RefundLock at all: unlike close_manual_refund() and review_dismiss(),
+	 * it writes no refund-status meta of its own, so there is no lock
+	 * discipline to get wrong here. The NEEDS_REVIEW check above is a cheap,
+	 * unlocked pre-check for a clear error message; the transition
+	 * NEEDS_REVIEW -> PENDING that actually matters happens inside
+	 * settle_refund(), under its own lock, and refuses on its own terms if
+	 * the booking has moved on by the time it runs.
+	 *
+	 * $force = true, matching this file's own cancel_booking(): the deadline
+	 * CancellationHandler enforces is the CUSTOMER's cancellation policy, and
+	 * this is the operator resolving a review the plugin itself raised, not
+	 * the customer asking to cancel within their own window.
+	 */
+	public static function review_cancel_and_refund(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
+		$booking_id = self::authorize_booking_action();
+		if ( ! $booking_id ) {
+			return;
+		}
+
+		$actor = get_current_user_id();
+
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, $actor, 'review_action' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		if ( RefundStatus::NEEDS_REVIEW !== RefundStatus::get( $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting review.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$result = CancellationHandler::cancel_booking( $booking_id, $actor, '', true );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			return;
+		}
+
+		self::add_booking_log(
+			$booking_id,
+			'refund_review_cancelled',
+			array(
+				'cancelled_by' => $actor,
+			)
+		);
+
+		wp_send_json_success( array( 'message' => __( 'Booking cancelled and the refund started.', 'mhm-rentiva' ) ) );
+	}
+
+	/**
+	 * NEEDS_REVIEW's second exit: close the obligation with no money moving,
+	 * on the record of why.
+	 *
+	 * Every terminating wp_send_json_*() call is OUTSIDE the try/finally
+	 * below, for the exact reason close_manual_refund()'s own docblock gives
+	 * (fix round 1, C1, re-measured for Task 12 against the same running
+	 * stack): wp_send_json_*() calls wp_die(), a hard exit in production, and
+	 * PHP does not run a finally block across an exit. The plan's original
+	 * shape called wp_send_json_success()/wp_send_json_error() from INSIDE
+	 * the try, which would leak this lock for RefundLock::TTL_SECONDS on
+	 * every real request -- invisible to WP_Ajax_UnitTestCase, which
+	 * intercepts wp_die() by throwing (WPAjaxDieContinueException extends
+	 * \Exception), and PHP's finally DOES run while an exception unwinds the
+	 * stack. $moved is decided and acted on entirely inside the try
+	 * (RefundStatus::transition()'s own isHeld() guard holds for as long as
+	 * the lock does), and the lock is released before either response is
+	 * sent.
+	 */
+	public static function review_dismiss(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
+		$booking_id = self::authorize_booking_action();
+		if ( ! $booking_id ) {
+			return;
+		}
+
+		$actor = get_current_user_id();
+
+		// No money moves, but a refund obligation is being closed -- the same
+		// bar review_cancel_and_refund() and close_manual_refund() use.
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, $actor, 'review_action' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$reason = mb_substr( ( VerifiedRequest::from( $_POST ) )->text( 'reason' ), 0, self::REFERENCE_MAX_LENGTH );
+
+		if ( '' === trim( $reason ) ) {
+			wp_send_json_error( array( 'message' => __( 'Say why no refund is due. This closes a money obligation and the reason is the record of it.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		if ( ! RefundLock::acquire( $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$moved = false;
+
+		try {
+			$moved = RefundStatus::transition(
+				$booking_id,
+				RefundStatus::NOT_REQUIRED,
+				array(
+					'surface'  => 'review_action',
+					'actor_id' => $actor,
+				)
+			);
+
+			if ( $moved ) {
+				update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_by', $actor );
+				update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_at', current_time( 'mysql' ) );
+				update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_reason', $reason );
+
+				self::add_booking_log(
+					$booking_id,
+					'refund_review_dismissed',
+					array(
+						'reason'       => $reason,
+						'processed_by' => $actor,
+					)
+				);
+			}
+		} finally {
+			RefundLock::release( $booking_id );
+		}
+
+		if ( ! $moved ) {
+			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting review.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		wp_send_json_success( array( 'message' => __( 'Recorded: no refund is due.', 'mhm-rentiva' ) ) );
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {

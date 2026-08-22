@@ -441,7 +441,42 @@ final class AutoCancel {
 	 * that shape: a string-keyed `relation` alongside numerically indexed
 	 * sub-clauses.
 	 *
-	 * @return array<int|string, array<string, string>|string>
+	 * Task 12 correction #3 (slice 5) widened the second half from `!=
+	 * needs_review` to `NOT IN (parked_refund_statuses())`. Measured: a
+	 * booking this sweep excludes because it is `needs_review` can be closed
+	 * by an operator to `not_required` (Task 12's own review_dismiss()) and
+	 * fall right back into an ordinary unpaid, past-deadline selection on the
+	 * very next tick -- `not_required` is a plain string to this clause, not
+	 * a status the matrix still has an edge for. What happened next, also
+	 * measured: cancel_booking_with_orders() finds the paid order again and
+	 * tries `RefundStatus::transition( ..., NEEDS_REVIEW )`, but the matrix
+	 * has no key for a terminal `$from` (matrix() above), so transition()
+	 * returns false and the whole `if ( $moved )` block -- notification, log,
+	 * event -- is skipped in total silence. The operator's decision and the
+	 * sweep disagree forever, and nothing records either half.
+	 *
+	 * The fix is the same shape as cancellable_statuses(): stop excluding one
+	 * literal and start excluding every status a human or a flow could only
+	 * have reached by already closing the money question --
+	 * RefundStatus::terminalStates(), which is derived from matrix() rather
+	 * than written out here, so an edge added to or removed from the matrix
+	 * cannot silently stop matching this clause. `needs_review` itself is
+	 * added back in explicitly: it is NOT terminal (it has an edge, to
+	 * PENDING and to NOT_REQUIRED), so terminalStates() alone would not cover
+	 * the original case this clause exists for.
+	 *
+	 * The declared cost, stated once and not hidden: a booking whose
+	 * refund_status is terminal, unpaid, and past its pickup date or payment
+	 * deadline is no longer auto-cancelled by either sweep. A terminal
+	 * refund_status only exists once a human or a flow has already closed
+	 * that booking's money question -- and Task 12 hands the operator the
+	 * cancel button for exactly this shape (review_cancel_and_refund()), so
+	 * the booking is not stranded, only no longer unattended. See
+	 * AutoCancelSweepSelectionTest for the negative control that pins this
+	 * set and proves it is not larger than the four terminal states plus
+	 * needs_review.
+	 *
+	 * @return array<int|string, string|array<string, string|array<int, string>>>
 	 */
 	private static function not_parked_for_review(): array {
 		return array(
@@ -452,10 +487,26 @@ final class AutoCancel {
 			),
 			array(
 				'key'     => RefundStatus::META_KEY,
-				'value'   => RefundStatus::NEEDS_REVIEW,
-				'compare' => '!=',
+				'value'   => self::parked_refund_statuses(),
+				'compare' => 'NOT IN',
 			),
 		);
+	}
+
+	/**
+	 * `_mhmrentiva_refund_status` values a human already owns: the one
+	 * awaiting review, and every state that has no exit left at all.
+	 *
+	 * NEEDS_REVIEW is not itself terminal (matrix() gives it an edge to
+	 * PENDING and to NOT_REQUIRED), so it is named here explicitly rather
+	 * than folded into RefundStatus::terminalStates(); the terminal set is
+	 * added, not enumerated, for the reasons on not_parked_for_review()
+	 * above.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function parked_refund_statuses(): array {
+		return array_merge( array( RefundStatus::NEEDS_REVIEW ), RefundStatus::terminalStates() );
 	}
 
 	/**

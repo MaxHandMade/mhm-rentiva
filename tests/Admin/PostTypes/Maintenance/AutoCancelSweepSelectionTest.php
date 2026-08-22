@@ -32,7 +32,14 @@ use WP_UnitTestCase;
  * level, which the default log level drops -- a silent infinite loop; a
  * booking already parked in `needs_review`, which a human owns and which both
  * sweeps kept walking back over every five minutes; and an order somebody had
- * already paid for, reached through sync_orphan_wc_orders().
+ * already paid for, reached through sync_orphan_wc_orders(). Task 12 (slice
+ * 5) added a sibling to the `needs_review` control: any booking whose
+ * refund_status has already reached a terminal state (RefundStatus::
+ * terminalStates()) -- including one an operator just dismissed OUT of
+ * needs_review via review_dismiss() -- which used to fall straight back into
+ * an ordinary unpaid-and-past-deadline selection the moment it left
+ * `needs_review`, silently, for the reason not_parked_for_review()'s own
+ * docblock explains.
  *
  * Every one of those is satisfied by a sweep that selects nothing at all, so
  * the positive controls are not optional decoration: a genuinely unpaid
@@ -294,6 +301,103 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
                 . ' reason to want.'
         );
         $this->assertSame( RefundStatus::NEEDS_REVIEW, RefundStatus::get( $booking_id ) );
+        $this->assertSame(
+            'processing',
+            wc_get_order( $order->get_id() )->get_status(),
+            'No unattended path may move money.'
+        );
+    }
+
+    /**
+     * Task 12 (slice 5), correction #3: the barrier used to exclude only
+     * NEEDS_REVIEW. A booking whose refund_status has already reached ANY
+     * terminal state -- not_required, completed_externally, completed,
+     * completed_manually -- is not a candidate for an unattended sweep
+     * either: a terminal refund_status exists only because a human or a
+     * flow already closed that booking's money question. Before the fix, a
+     * booking an operator dismissed to `not_required` fell straight back
+     * into this sweep's ordinary unpaid-and-past-deadline selection on the
+     * very next tick, and cancel_booking_with_orders() found the paid order
+     * again and tried `RefundStatus::transition( ..., NEEDS_REVIEW )` from a
+     * terminal `$from` the matrix has no key for -- transition() returned
+     * false and the whole notify/log block was skipped in total silence.
+     *
+     * Driven off RefundStatus::terminalStates() itself, not a literal list
+     * restated here, so this test grows with the matrix instead of silently
+     * missing a status the day a new terminal one is added.
+     * RefundStatusTransitionTest pins that the derivation itself matches the
+     * four states named in the matrix's own docblock; this is the
+     * consumer-side proof that the sweep's query actually uses it.
+     *
+     * @dataProvider provide_every_terminal_refund_status
+     */
+    public function test_a_terminal_refund_status_past_pickup_is_not_swept( string $terminal_status ): void
+    {
+        $booking_id = $this->make_past_pickup_booking( 'pending', 'pending' );
+
+        // Bypasses RefundStatus::transition() on purpose, matching
+        // BookingRefundMetaBoxStatusRowTest's precedent: several of these
+        // states have no single-hop edge from '', and this test is about
+        // the sweep's own query, not the transition machine that lands a
+        // booking here in production.
+        update_post_meta( $booking_id, RefundStatus::META_KEY, $terminal_status );
+
+        $result = AutoCancel::sync_stale_past_bookings();
+
+        $this->assertSame(
+            0,
+            $result['cancelled'],
+            "A booking whose refund_status is already terminal ({$terminal_status}) must not be selected by an unattended sweep."
+        );
+        $this->assertSame( 'pending', get_post_meta( $booking_id, '_mhmrentiva_status', true ) );
+        $this->assertSame( $terminal_status, RefundStatus::get( $booking_id ) );
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public function provide_every_terminal_refund_status(): array
+    {
+        $cases = array();
+
+        foreach ( RefundStatus::terminalStates() as $status ) {
+            $cases[ $status ] = array( $status );
+        }
+
+        return $cases;
+    }
+
+    /**
+     * T12-R3's own motivating scenario, exercised through the same
+     * lock-and-transition mechanics DepositManagementAjax::review_dismiss()
+     * itself uses: needs_review -> (operator dismisses) -> not_required must
+     * not fall back into an ordinary unpaid-and-past-deadline selection.
+     * Before the fix, `not_required` was a plain string to
+     * not_parked_for_review()'s `!=` compare -- excluded from nothing -- and
+     * the booking was reselected on the very next tick, silently, for the
+     * reason the class docblock above explains.
+     */
+    public function test_a_booking_dismissed_out_of_needs_review_is_not_reselected(): void
+    {
+        $booking_id = $this->make_past_pickup_booking( 'pending', 'pending' );
+        $order      = $this->create_paid_order_for_booking( $booking_id, '600' );
+
+        $this->park_for_review( $booking_id );
+
+        $this->assertTrue( RefundLock::acquire( $booking_id ) );
+        $this->assertTrue(
+            RefundStatus::transition( $booking_id, RefundStatus::NOT_REQUIRED, array( 'surface' => 'review_action' ) )
+        );
+        RefundLock::release( $booking_id );
+
+        $result = AutoCancel::sync_stale_past_bookings();
+
+        $this->assertSame(
+            0,
+            $result['cancelled'],
+            'A booking an operator already closed as not_required must not be swept back into cancellation.'
+        );
+        $this->assertSame( RefundStatus::NOT_REQUIRED, RefundStatus::get( $booking_id ) );
         $this->assertSame(
             'processing',
             wc_get_order( $order->get_id() )->get_status(),
