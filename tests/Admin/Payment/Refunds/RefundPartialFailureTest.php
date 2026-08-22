@@ -148,7 +148,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
      * test_a_partial_failure_that_moved_gateway_money_announces_completion,
      * where a first leg genuinely succeeds before the second one fails.
      */
-    public function test_the_operation_announces_its_end_once_on_failure_too(): void
+    public function test_a_failure_that_moved_nothing_does_not_announce_completion(): void
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 

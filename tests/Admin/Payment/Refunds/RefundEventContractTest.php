@@ -68,6 +68,14 @@ final class RefundEventContractTest extends WP_Ajax_UnitTestCase
     {
         $_POST = array();
 
+        // Mirrors RefundPartialFailureTest::tearDown(): register_refund_gateway_double()
+        // re-runs WC()->payment_gateways()->init(), and the trait's own docblock says
+        // unregistering exists so a later init() elsewhere in the run does not keep
+        // picking the double back up (fix round 1, F4). Harmless for the tests in
+        // this file that never register it -- remove_filter() on a filter that was
+        // never added is a no-op.
+        $this->unregister_refund_gateway_double();
+
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva_refund_lock_%'");
 
@@ -188,16 +196,28 @@ final class RefundEventContractTest extends WP_Ajax_UnitTestCase
         $this->assertSame(RefundStatus::MANUAL_PENDING, $payload['refund_status']);
         $this->assertNotSame('', $payload['currency'], 'A listener cannot interpret the amounts without a currency.');
 
+        // Fix round 1, F1: the expected values must come from WooCommerce's
+        // own refund records, not from the payload under test -- reading
+        // $payload['order_refunds'] itself into the expectation cannot fail
+        // on which refund got attached to which order, only on the key set.
+        // Re-fetched fresh: $auto_order/$manual_order were last saved before
+        // the refund ran and do not carry WooCommerce's own refund objects
+        // in memory.
+        $auto_order_refunds   = wc_get_order($auto_order->get_id())->get_refunds();
+        $manual_order_refunds = wc_get_order($manual_order->get_id())->get_refunds();
+
+        $this->assertCount(1, $auto_order_refunds, 'Sanity: the auto leg must have produced exactly one refund record.');
+        $this->assertCount(1, $manual_order_refunds, 'Sanity: the manual leg must have produced exactly one refund record.');
+
         $this->assertSame(
             array(
-                $auto_order->get_id()   => (string) $payload['order_refunds'][ $auto_order->get_id() ],
-                $manual_order->get_id() => (string) $payload['order_refunds'][ $manual_order->get_id() ],
+                $auto_order->get_id()   => (string) $auto_order_refunds[0]->get_id(),
+                $manual_order->get_id() => (string) $manual_order_refunds[0]->get_id(),
             ),
             $payload['order_refunds'],
-            'Every order that actually moved money must map to the refund record it produced, and no other order.'
+            'Every order that actually moved money must map to the refund record WooCommerce itself attached to '
+                . 'it, and no other order.'
         );
-        $this->assertNotSame('', $payload['order_refunds'][ $auto_order->get_id() ]);
-        $this->assertNotSame('', $payload['order_refunds'][ $manual_order->get_id() ]);
 
         // Correction #6: _mhmrentiva_refunded_amount is ALSO kept absolute
         // (not accumulated) by WooCommerceBridge::handle_order_refunded(),
@@ -382,6 +402,65 @@ final class RefundEventContractTest extends WP_Ajax_UnitTestCase
             RefundValidator::CHANNEL_WOOCOMMERCE,
             $payload['channel'],
             "Only one channel actually moved money here -- 'mixed' would overstate what happened."
+        );
+    }
+
+    /**
+     * Fix round 1, F2: the payload's refund_status must report what the
+     * store actually holds, not what finish() merely attempted to write.
+     *
+     * RefundStatus::transition() returns false, and writes nothing, when
+     * the booking's CURRENT status has no matrix edge to the destination.
+     * completed_manually is terminal (RefundStatus::terminalStates()), so a
+     * booking already closed there has no edge to PENDING (the pre-operation
+     * write withLock() attempts) or to COMPLETED (the one finish()'s success
+     * branch attempts) -- both are silently refused. RefundValidator never
+     * consults RefundStatus (validatePaymentStatus() reads
+     * _mhmrentiva_payment_status, a different meta key entirely), so
+     * validation still passes and a genuinely refundable, card-paid order
+     * still gets refunded for real. Before this fix, the payload would have
+     * hardcoded 'completed' here while the meta -- unmoved by the refused
+     * transition -- still read 'completed_manually': a payload key the task
+     * exists to add that could disagree with the store it describes.
+     */
+    public function test_refund_status_in_the_payload_reflects_a_refused_transition_not_the_attempt(): void
+    {
+        $this->require_woocommerce();
+        $this->register_refund_gateway_double();
+
+        // Bypasses RefundStatus::transition() on purpose, same precedent as
+        // ManualRefundCloseTest::setUp(): this fixture is about what finish()
+        // reports when a LATER operation's own transition is refused, not
+        // about the machine that would normally land a booking here.
+        update_post_meta($this->booking_id, RefundStatus::META_KEY, RefundStatus::COMPLETED_MANUALLY);
+
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+        $order->save();
+
+        $fired = $this->capture_completion(function (): void {
+            $result = Service::processFullRefund($this->booking_id, 'refused transition', $this->admin_id);
+            $this->assertSame('1', $result['mhmrentiva_refund'], $result['mhmrentiva_refund_msg']);
+        });
+
+        $this->assertSame(
+            RefundStatus::COMPLETED_MANUALLY,
+            RefundStatus::get($this->booking_id),
+            'Sanity: completed_manually has no outgoing edge, so the meta must be exactly what it was before this '
+                . "operation ran -- finish()'s own COMPLETED transition must have been refused, not merely "
+                . 'coincidentally unwritten.'
+        );
+        $this->assertCount(
+            1,
+            $fired,
+            'Real gateway money still moved on the card-paid order, so the event must still announce -- the '
+                . "refused status transition is a bookkeeping fact, not a reason to suppress the money-following event."
+        );
+        $this->assertSame(
+            RefundStatus::COMPLETED_MANUALLY,
+            $fired[0]['refund_status'],
+            "The payload must report what RefundStatus::get() actually reads, not the 'completed' value "
+                . 'transition() merely attempted and failed to write.'
         );
     }
 }

@@ -396,6 +396,7 @@ final class Service {
 
 		if ( ! $operation['ok'] ) {
 			$message = $operation['message'];
+			$state   = PaymentState::forBooking( $bookingId );
 
 			if ( $operation['refunded'] > 0 ) {
 				// A retry cannot over-refund -- the validator recomputes a
@@ -409,7 +410,7 @@ final class Service {
 					CurrencyHelper::format_price(
 						(float) Money::toMajor( $operation['refunded'] ),
 						Money::decimals(),
-						PaymentState::forBooking( $bookingId )->currency()
+						$state->currency()
 					),
 					$operation['message']
 				);
@@ -422,7 +423,7 @@ final class Service {
 				// "exactly one mail" read as license to send none, on the
 				// money path, in the failure case least likely to be
 				// exercised before a real customer hit it.
-				self::announce( $bookingId, $operation );
+				self::announce( $bookingId, $operation, $state );
 			}
 
 			// partial_failure and failed are different facts: the first means
@@ -431,7 +432,15 @@ final class Service {
 			// a real transfer behind the word "failed".
 			$refundStatus = $operation['refunded'] > 0 ? RefundStatus::PARTIAL_FAILURE : RefundStatus::FAILED;
 
-			RefundStatus::transition(
+			// transition() reports false, and writes nothing, when $bookingId's
+			// CURRENT status has no matrix edge to $refundStatus -- reachable
+			// today: a booking with two orders whose first leg was already
+			// hand-closed to completed_manually (terminal) before a second
+			// operation runs on its still-refundable second leg. The payload
+			// must report what the store actually holds, never what this call
+			// merely attempted (fix round 1, F2) -- RefundStatus::get() is the
+			// fallback for exactly that refusal.
+			$transitioned = RefundStatus::transition(
 				$bookingId,
 				$refundStatus,
 				array( 'channel' => $operation['channel'] )
@@ -440,8 +449,8 @@ final class Service {
 			self::announceCompletion(
 				$bookingId,
 				$operation + array(
-					'refund_status' => $refundStatus,
-					'currency'      => self::resolveCurrency( $bookingId ),
+					'refund_status' => $transitioned ? $refundStatus : RefundStatus::get( $bookingId ),
+					'currency'      => self::resolveCurrency( $state ),
 				)
 			);
 
@@ -458,11 +467,18 @@ final class Service {
 		// step 9 names this value; N-05 (step 7) is what will show it.
 		$refundStatus = RefundValidator::MODE_MANUAL === $operation['mode'] ? RefundStatus::MANUAL_PENDING : RefundStatus::COMPLETED;
 
-		RefundStatus::transition(
+		// See the failure branch's own comment on $transitioned (fix round 1,
+		// F2): the same refusal is reachable here too, when a second
+		// operation on this booking runs after an earlier one already
+		// reached a DIFFERENT terminal status by another path
+		// (completed_manually, completed_externally, not_required).
+		$transitioned = RefundStatus::transition(
 			$bookingId,
 			$refundStatus,
 			array( 'channel' => $operation['channel'] )
 		);
+
+		$state = PaymentState::forBooking( $bookingId );
 
 		if ( RefundValidator::CHANNEL_OFFLINE === $operation['channel'] ) {
 			// The one place in the plugin that adds rather than sets. Offline
@@ -474,6 +490,10 @@ final class Service {
 
 			update_post_meta( $bookingId, '_mhmrentiva_refunded_amount', $previous + $operation['refunded'] );
 
+			// Freshness: the write above is exactly what PaymentState's
+			// offline channel reads (resolveOfflineChannel()), so the
+			// instance resolved above cannot answer isFullyRefunded()
+			// correctly until it is resolved again.
 			$state = PaymentState::forBooking( $bookingId );
 
 			update_post_meta(
@@ -487,13 +507,13 @@ final class Service {
 			}
 		}
 
-		self::announce( $bookingId, $operation );
+		self::announce( $bookingId, $operation, $state );
 
 		self::announceCompletion(
 			$bookingId,
 			$operation + array(
-				'refund_status' => $refundStatus,
-				'currency'      => self::resolveCurrency( $bookingId ),
+				'refund_status' => $transitioned ? $refundStatus : RefundStatus::get( $bookingId ),
+				'currency'      => self::resolveCurrency( $state ),
 			)
 		);
 
@@ -549,13 +569,19 @@ final class Service {
 	 * The currency a refund event should carry: PaymentState's own reading
 	 * when it has one, the store's configured currency otherwise.
 	 *
-	 * Extracted so every caller asks this exact question once. Before this,
-	 * announce() carried the fallback inline and announceCompletion()'s
-	 * payload would have needed its own copy -- the same question with two
-	 * chances to drift apart.
+	 * Extracted so every caller asks this exact question once, rather than
+	 * copying the fallback inline. Takes an already-resolved PaymentState
+	 * rather than a booking id (fix round 1, F3): PaymentState::forBooking()
+	 * is uncached and walks every paid order via wc_get_order() +
+	 * get_remaining_refund_amount() -- inside the refund lock. finish()
+	 * already resolves one instance per branch for isFullyRefunded()/its
+	 * failure message; resolving a second one here for the same booking,
+	 * on every operation including the ones announceCompletion() returns
+	 * from immediately, would trade one duplicated predicate for a
+	 * duplicated query under the lock.
 	 */
-	private static function resolveCurrency( int $bookingId ): string {
-		$currency = PaymentState::forBooking( $bookingId )->currency();
+	private static function resolveCurrency( PaymentState $state ): string {
+		$currency = $state->currency();
 
 		return '' !== $currency
 			? $currency
@@ -578,14 +604,12 @@ final class Service {
 	 *
 	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>} $operation
 	 */
-	private static function announce( int $bookingId, array $operation ): void {
+	private static function announce( int $bookingId, array $operation, PaymentState $state ): void {
 		try {
-			$state = PaymentState::forBooking( $bookingId );
-
 			RefundNotifications::notify(
 				$bookingId,
 				$operation['refunded'],
-				self::resolveCurrency( $bookingId ),
+				self::resolveCurrency( $state ),
 				$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
 				'',
 				$operation['mode'],
