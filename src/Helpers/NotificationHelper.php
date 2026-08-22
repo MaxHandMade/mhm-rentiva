@@ -115,6 +115,66 @@ class NotificationHelper {
 	}
 
 	/**
+	 * Send "a committed cancellation had a post-commit problem" email.
+	 *
+	 * CancellationHandler::cancel_booking() commits the cancellation itself
+	 * (the booking IS cancelled, the customer HAS been told) and only then
+	 * runs the cancellation e-mail, the refund and the public
+	 * mhmrentiva_booking_cancelled hook. If any of those three throws, the
+	 * booking stays cancelled -- there is nothing left to roll back -- but a
+	 * refund that was supposed to happen may not have, and nothing else in
+	 * that request will ever revisit it. Unlike send_auto_cancel_email() this
+	 * is not behind a settings toggle, for the same reason
+	 * send_refund_needs_review_email() is not: a post-commit throwable is
+	 * exactly the situation that needs a human, every time it happens.
+	 *
+	 * @param int $booking_id
+	 * @return bool
+	 */
+	public static function send_refund_failed_email(int $booking_id): bool
+	{
+		$admin_email = get_option('admin_email');
+		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
+			return false;
+		}
+
+		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+		$amount   = \MHMRentiva\Admin\Payment\Core\Money::toMajor($state->refundable());
+		$currency = $state->currency() ?: 'TRY';
+		// Same get_edit_post_link() ?: admin_url(...) fallback as
+		// send_refund_needs_review_email(), for the same reason: the
+		// booking CPT maps both edit_posts and edit_post to manage_options
+		// with no map_meta_cap (AbstractPostType.php:290-303), so an admin
+		// caller's deep link and the fallback URL this method would build by
+		// hand require the exact same capability.
+		$link = get_edit_post_link($booking_id, '') ?: admin_url('post.php?post=' . $booking_id . '&action=edit');
+
+		$subject = __('A cancelled booking had a problem completing its refund', 'mhm-rentiva');
+
+		$body_parts = array(
+			sprintf(
+				/* translators: %d: booking id */
+				__('Booking #%d was cancelled, but something went wrong afterward and the refund may not have completed.', 'mhm-rentiva'),
+				$booking_id
+			),
+			'',
+			sprintf(
+				/* translators: 1: amount still owed to the customer, 2: currency code */
+				__('Amount still owed to the customer: %1$s %2$s', 'mhm-rentiva'),
+				$amount,
+				$currency
+			),
+			sprintf(
+				/* translators: %s: link to the booking */
+				__('Review the booking: %s', 'mhm-rentiva'),
+				$link
+			),
+		);
+
+		return wp_mail($admin_email, $subject, implode("\n", $body_parts));
+	}
+
+	/**
 	 * Send "order cancelled, but a sibling order on this booking is still
 	 * paid" email.
 	 *

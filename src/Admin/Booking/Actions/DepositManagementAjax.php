@@ -283,6 +283,26 @@ final class DepositManagementAjax {
 			)
 		);
 
+		// Past this point CancellationHandler::cancel_booking() has already
+		// committed the cancellation -- a post-commit problem (a mail/refund/
+		// integrator throwable, or a refund that itself ended in 'failed')
+		// is "cancelled, with problems", never a reason to tell the operator
+		// the button did nothing. Cache cleared first: transition() writes
+		// through update_post_meta(), which refreshes it as a side effect in
+		// the common case, but the freshness this reads depends on is the
+		// same one review_cancel_and_refund() re-establishes explicitly
+		// rather than assume.
+		wp_cache_delete( $booking_id, 'post_meta' );
+
+		if ( ! empty( $result['problems'] ) || RefundStatus::FAILED === RefundStatus::get( $booking_id ) ) {
+			wp_send_json_success(
+				array(
+					'message' => __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ),
+				)
+			);
+			return;
+		}
+
 		wp_send_json_success(
 			array(
 				'message' => __( 'Booking cancelled successfully.', 'mhm-rentiva' ),
