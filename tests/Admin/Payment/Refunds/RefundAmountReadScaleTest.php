@@ -70,8 +70,11 @@ final class RefundAmountReadScaleTest extends WP_UnitTestCase
             2
         );
 
-        // 25.000 in a 3-decimal store is 25000 minor units.
-        Service::process($booking_id, 25000, 'scale check');
+        // 25.000 in a 3-decimal store is 25000 minor units. The actor is an
+        // administrator: this test measures unit scaling, not authorization,
+        // and the fixture sets no _mhmrentiva_customer_user_id at all.
+        $admin_id = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
+        Service::process($booking_id, 25000, 'scale check', $admin_id);
 
         $this->assertNotNull(
             $this->capturedAmount,

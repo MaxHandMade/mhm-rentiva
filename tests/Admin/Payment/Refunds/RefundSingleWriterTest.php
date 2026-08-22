@@ -35,12 +35,16 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
     /** @var int */
     private $booking_id;
 
+    /** @var int */
+    private $admin_id;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -53,7 +57,7 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::process($this->booking_id, Money::toMinor('20'), 'single writer');
+        Service::process($this->booking_id, Money::toMinor('20'), 'single writer', $this->admin_id);
 
         $this->assertSame(
             Money::toMinor('20'),
@@ -66,7 +70,7 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::process($this->booking_id, Money::toMinor('20'), 'status after partial');
+        Service::process($this->booking_id, Money::toMinor('20'), 'status after partial', $this->admin_id);
 
         $this->assertSame(
             'partially_refunded',
@@ -78,7 +82,7 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::processFullRefund($this->booking_id, 'status after full');
+        Service::processFullRefund($this->booking_id, 'status after full', $this->admin_id);
 
         $this->assertSame(
             'refunded',
@@ -90,8 +94,8 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::process($this->booking_id, Money::toMinor('20'), 'first');
-        Service::process($this->booking_id, Money::toMinor('30'), 'second');
+        Service::process($this->booking_id, Money::toMinor('20'), 'first', $this->admin_id);
+        Service::process($this->booking_id, Money::toMinor('30'), 'second', $this->admin_id);
 
         $this->assertSame(
             Money::toMinor('50'),
@@ -104,8 +108,8 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
         update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
         update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
 
-        Service::process($this->booking_id, Money::toMinor('30'), 'offline first');
-        Service::process($this->booking_id, Money::toMinor('20'), 'offline second');
+        Service::process($this->booking_id, Money::toMinor('30'), 'offline first', $this->admin_id);
+        Service::process($this->booking_id, Money::toMinor('20'), 'offline second', $this->admin_id);
 
         $this->assertSame(
             Money::toMinor('50'),
@@ -165,7 +169,7 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
         // N-01, and this is the assertion that catches it coming back.
         $this->seed_deposit_and_remaining('30', '70');
 
-        Service::processFullRefund($this->booking_id, 'multi-order absolute write');
+        Service::processFullRefund($this->booking_id, 'multi-order absolute write', $this->admin_id);
 
         $this->assertSame(
             Money::toMinor('100'),
@@ -203,7 +207,7 @@ final class RefundSingleWriterTest extends WP_UnitTestCase
 
         $this->assertSame('completed', $before, 'Guard: the fixture must start completed.');
 
-        Service::process($this->booking_id, Money::toMinor('50'), 'partial across orders');
+        Service::process($this->booking_id, Money::toMinor('50'), 'partial across orders', $this->admin_id);
 
         $this->assertSame(
             'completed',

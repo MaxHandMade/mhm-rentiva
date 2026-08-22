@@ -34,11 +34,13 @@ use WP_UnitTestCase;
 final class RefundLockCacheFreshnessTest extends WP_UnitTestCase
 {
     private int $booking_id;
+    private int $admin_id;
 
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -100,7 +102,7 @@ final class RefundLockCacheFreshnessTest extends WP_UnitTestCase
             )
         );
 
-        $result = Service::processFullRefund($this->booking_id, 'freshness check');
+        $result = Service::processFullRefund($this->booking_id, 'freshness check', $this->admin_id);
 
         $this->assertSame(
             '0',

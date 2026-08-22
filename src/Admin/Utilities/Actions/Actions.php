@@ -63,7 +63,7 @@ final class Actions {
 		$reason = isset( $_POST['reason'] ) && ! is_array( $_POST['reason'] )
 			? sanitize_text_field( wp_unslash( (string) $_POST['reason'] ) )
 			: '';
-		$res    = RefundService::process( $bid, $amount, $reason );
+		$res    = RefundService::process( $bid, $amount, $reason, get_current_user_id() );
 		wp_safe_redirect( self::notice_url( $res, get_edit_post_link( $bid, '' ) ?: admin_url( 'edit.php?post_type=mhmrentiva_booking' ) ) );
 		exit;
 	}

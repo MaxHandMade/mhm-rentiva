@@ -53,8 +53,9 @@ final class ServiceOfflineRoutingTest extends WP_UnitTestCase
     {
         // 1000 total, 500 remaining -> 500 collected offline, all of it refundable.
         $booking_id = $this->create_offline_paid_booking('1000', '500');
+        $admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
 
-        $result = Service::process($booking_id, Money::toMinor('200'), 'offline routing check');
+        $result = Service::process($booking_id, Money::toMinor('200'), 'offline routing check', $admin_id);
 
         $this->assertSame(
             '1',
@@ -83,10 +84,12 @@ final class ServiceOfflineRoutingTest extends WP_UnitTestCase
     {
         // 1000 total, 0 remaining -> the whole 1000 was collected offline.
         $booking_id = $this->create_offline_paid_booking('1000', '0');
+        $admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
 
         $result = Service::processFullRefund(
             $booking_id,
-            'offline routing check, full refund'
+            'offline routing check, full refund',
+            $admin_id
         );
 
         $this->assertSame(

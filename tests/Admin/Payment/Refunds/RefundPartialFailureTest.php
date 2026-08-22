@@ -30,12 +30,16 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
     /** @var int */
     private $booking_id;
 
+    /** @var int */
+    private $admin_id;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -65,7 +69,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::processFullRefund($this->booking_id, 'manual');
+        Service::processFullRefund($this->booking_id, 'manual', $this->admin_id);
 
         $this->assertSame(
             'manual_pending',
@@ -83,7 +87,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
         $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
         $order->save();
 
-        Service::processFullRefund($this->booking_id, 'auto');
+        Service::processFullRefund($this->booking_id, 'auto', $this->admin_id);
 
         $this->assertSame(
             'completed',
@@ -106,7 +110,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
             2
         );
 
-        Service::processFullRefund($this->booking_id, 'announce');
+        Service::processFullRefund($this->booking_id, 'announce', $this->admin_id);
 
         $this->assertSame(1, $fired, 'Spec §5.3 step 9: one operation, one completion signal.');
     }
@@ -140,7 +144,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
             2
         );
 
-        Service::processFullRefund($this->booking_id, 'failure still announces');
+        Service::processFullRefund($this->booking_id, 'failure still announces', $this->admin_id);
 
         $this->assertSame(1, $fired, 'The failure branch writes a terminal status too and must announce exactly once.');
     }
@@ -167,7 +171,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
             2
         );
 
-        $result = Service::processFullRefund($this->booking_id, 'completed listener throws');
+        $result = Service::processFullRefund($this->booking_id, 'completed listener throws', $this->admin_id);
 
         $this->assertSame(
             '1',
@@ -219,7 +223,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
             2
         );
 
-        $result = Service::processFullRefund($this->booking_id, 'partial failure');
+        $result = Service::processFullRefund($this->booking_id, 'partial failure', $this->admin_id);
 
         $this->assertSame(1, $fired, 'Negative control: the refusal hook must actually have run.');
         $this->assertSame('0', $result['mhmrentiva_refund']);
@@ -251,7 +255,7 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
             2
         );
 
-        Service::processFullRefund($this->booking_id, 'total failure');
+        Service::processFullRefund($this->booking_id, 'total failure', $this->admin_id);
 
         $this->assertSame(1, $fired, 'Negative control: the refusal hook must actually have run.');
         $this->assertSame(

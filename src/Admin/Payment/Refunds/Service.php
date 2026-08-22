@@ -11,6 +11,7 @@ use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Payment\Core\RefundLock;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
@@ -46,7 +47,18 @@ final class Service {
 		return isset( self::$inFlight[ $bookingId ] );
 	}
 
-	public static function process( int $bookingId, int $amountKurus, string $reason = '' ): array {
+	public static function process( int $bookingId, int $amountKurus, string $reason, int $actorId ): array {
+		// First statement, on purpose (spec §5): every caller of this method
+		// inherits the gate whether it remembers to ask or not. Before this
+		// task the question lived at each call site instead, and one of them
+		// -- Actions::refund_booking() -- never asked at all.
+		if ( ! MoneyAuthorization::mayMoveMoney( $bookingId, $actorId, 'service' ) ) {
+			return array(
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => __( 'You do not have permission to move money on this booking.', 'mhm-rentiva' ),
+			);
+		}
+
 		return self::withLock(
 			$bookingId,
 			static function () use ( $bookingId, $amountKurus, $reason ): array {
@@ -77,7 +89,16 @@ final class Service {
 		);
 	}
 
-	public static function processFullRefund( int $bookingId, string $reason = '' ): array {
+	public static function processFullRefund( int $bookingId, string $reason, int $actorId ): array {
+		// See process() above -- the same gate, the same reason it is the
+		// first statement.
+		if ( ! MoneyAuthorization::mayMoveMoney( $bookingId, $actorId, 'service' ) ) {
+			return array(
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => __( 'You do not have permission to move money on this booking.', 'mhm-rentiva' ),
+			);
+		}
+
 		return self::withLock(
 			$bookingId,
 			static function () use ( $bookingId, $reason ): array {

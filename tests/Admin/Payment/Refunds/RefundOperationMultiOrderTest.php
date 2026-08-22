@@ -27,12 +27,16 @@ final class RefundOperationMultiOrderTest extends WP_UnitTestCase
     /** @var int */
     private $booking_id;
 
+    /** @var int */
+    private $admin_id;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -53,7 +57,7 @@ final class RefundOperationMultiOrderTest extends WP_UnitTestCase
     {
         $this->seed_deposit_and_remaining('30', '70');
 
-        $result = Service::processFullRefund($this->booking_id, 'slice 3 multi-order');
+        $result = Service::processFullRefund($this->booking_id, 'slice 3 multi-order', $this->admin_id);
 
         $this->assertSame('1', $result['mhmrentiva_refund'], (string) $result['mhmrentiva_refund_msg']);
 
@@ -72,7 +76,7 @@ final class RefundOperationMultiOrderTest extends WP_UnitTestCase
         $this->seed_deposit_and_remaining('30', '70');
 
         // 50 = all of the deposit order plus 20 of the remaining order.
-        $result = Service::process($this->booking_id, Money::toMinor('50'), 'partial across orders');
+        $result = Service::process($this->booking_id, Money::toMinor('50'), 'partial across orders', $this->admin_id);
 
         $this->assertSame('1', $result['mhmrentiva_refund'], (string) $result['mhmrentiva_refund_msg']);
 
@@ -94,7 +98,7 @@ final class RefundOperationMultiOrderTest extends WP_UnitTestCase
     {
         $this->seed_deposit_and_remaining('30', '70');
 
-        $result = Service::process($this->booking_id, Money::toMinor('10'), 'small partial');
+        $result = Service::process($this->booking_id, Money::toMinor('10'), 'small partial', $this->admin_id);
 
         $this->assertSame('1', $result['mhmrentiva_refund'], (string) $result['mhmrentiva_refund_msg']);
 

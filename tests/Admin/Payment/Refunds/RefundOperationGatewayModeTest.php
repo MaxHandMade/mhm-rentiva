@@ -52,6 +52,9 @@ final class RefundOperationGatewayModeTest extends WP_UnitTestCase
     /** @var int */
     private $booking_id;
 
+    /** @var int */
+    private $admin_id;
+
     /** @var array<int, bool> */
     private $captured_refund_payment_flags = array();
 
@@ -61,6 +64,7 @@ final class RefundOperationGatewayModeTest extends WP_UnitTestCase
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -161,7 +165,7 @@ final class RefundOperationGatewayModeTest extends WP_UnitTestCase
         // by the time leg 2's failure reaches Service::finish().
         WooCommerceRefundGatewayDouble::$results = array( true, false );
 
-        $result = Service::processFullRefund($this->booking_id, 'i4 partial failure check');
+        $result = Service::processFullRefund($this->booking_id, 'i4 partial failure check', $this->admin_id);
 
         $this->assertSame('0', $result['mhmrentiva_refund']);
 

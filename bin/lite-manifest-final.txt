@@ -139,6 +139,7 @@ src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php
 src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php
 src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
 src/Admin/Payment/Core/Money.php
+src/Admin/Payment/Core/MoneyAuthorization.php
 src/Admin/Payment/Core/PaymentGatewayInterface.php
 src/Admin/Payment/Core/PaymentState.php
 src/Admin/Payment/Core/RefundLock.php

@@ -31,12 +31,16 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
     /** @var int */
     private $booking_id;
 
+    /** @var int */
+    private $admin_id;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -66,7 +70,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
             2
         );
 
-        Service::process($this->booking_id, Money::toMinor('20'), 'flag scope');
+        Service::process($this->booking_id, Money::toMinor('20'), 'flag scope', $this->admin_id);
 
         $this->assertTrue($seen['self'], 'The flag must be up while this booking is being refunded.');
         $this->assertFalse($seen['other'], 'A second booking in the same request must not be flagged.');
@@ -76,7 +80,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::process($this->booking_id, Money::toMinor('20'), 'flag release');
+        Service::process($this->booking_id, Money::toMinor('20'), 'flag release', $this->admin_id);
 
         $this->assertFalse(Service::isRefundInFlight($this->booking_id));
     }
@@ -105,7 +109,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         );
 
         try {
-            Service::process($this->booking_id, Money::toMinor('20'), 'flag finally');
+            Service::process($this->booking_id, Money::toMinor('20'), 'flag finally', $this->admin_id);
         } catch (\RuntimeException $e) {
             $escaped = true;
         }
@@ -169,7 +173,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
         $sent = $this->count_mails(function (): void {
-            Service::process($this->booking_id, Money::toMinor('20'), 'one mail');
+            Service::process($this->booking_id, Money::toMinor('20'), 'one mail', $this->admin_id);
         });
 
         // One customer mail + one admin mail = 2. Before this task the hook
@@ -198,7 +202,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
             $order->save();
 
             $autoBody = $this->capture_customer_body(function (): void {
-                Service::process($this->booking_id, Money::toMinor('20'), 'auto body check');
+                Service::process($this->booking_id, Money::toMinor('20'), 'auto body check', $this->admin_id);
             });
         } finally {
             $this->unregister_refund_gateway_double();
@@ -226,7 +230,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         $manual_order->save();
 
         $manualBody = $this->capture_customer_body(function () use ($manual_booking): void {
-            Service::process($manual_booking, Money::toMinor('20'), 'manual body check');
+            Service::process($manual_booking, Money::toMinor('20'), 'manual body check', $this->admin_id);
         });
 
         $this->assertStringContainsString(
@@ -399,7 +403,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
             1
         );
 
-        Service::process($this->booking_id, Money::toMinor('20'), 'mode delivery');
+        Service::process($this->booking_id, Money::toMinor('20'), 'mode delivery', $this->admin_id);
 
         $this->assertSame(
             array( \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_MANUAL ),
@@ -449,7 +453,7 @@ final class RefundSingleEmailTest extends WP_UnitTestCase
         $sent = $this->count_mails(function (): void {
             // 30 drains the first order in full; the requested 100 needs the
             // second order too, and that leg is the one made to fail.
-            $result = Service::process($this->booking_id, Money::toMinor('100'), 'mid-walk failure');
+            $result = Service::process($this->booking_id, Money::toMinor('100'), 'mid-walk failure', $this->admin_id);
 
             $this->assertSame(
                 '0',

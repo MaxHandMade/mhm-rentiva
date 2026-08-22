@@ -16,6 +16,13 @@ use WP_UnitTestCase;
  * money step and fails closed, and a genuine system caller has to say so with
  * a flag rather than with a silent zero.
  *
+ * Task 8 (spec §5) went one step further: MoneyAuthorization::mayMoveMoney()
+ * is now the single predicate BOTH cancel_booking()'s own outer ownership
+ * guard and the money step ask, instead of the outer guard asking the ambient
+ * current_user_can() and only the inner step asking the actor. There is also
+ * no $system bypass any more -- since K6 no unattended path moves money, an
+ * unattributed 0 actor is refused regardless of that flag.
+ *
  * The observable used here is _mhmrentiva_refund_status: the money step writes
  * 'pending' as its first act, so its absence means the step never ran. Asserting
  * on the WooCommerce refund object instead would also pass for a booking that
@@ -73,14 +80,26 @@ final class CancellationRefundAuthorizationTest extends WP_UnitTestCase
         );
     }
 
-    public function test_an_explicit_system_call_may_move_money(): void
+    /**
+     * Turned by Task 8 (spec §5): $system used to bypass may_move_money()'s
+     * actor check entirely (`if ($system) return true;`). Measured before this
+     * task: no production caller ever set it -- both real callers pass their
+     * 4th argument as $force, not $system -- so the bypass was already dead in
+     * practice; only this test exercised it. Since K6 no unattended path moves
+     * money at all, MoneyAuthorization has no $system leg, and a declared
+     * system caller with no attributed actor buys nothing at the money step
+     * any more. $system remains on cancel_booking()'s signature as attribution
+     * metadata only.
+     */
+    public function test_an_explicit_system_call_may_not_move_money(): void
     {
         CancellationHandler::cancel_booking($this->booking_id, 0, 'cron', true, true);
 
-        $this->assertNotSame(
+        $this->assertSame(
             '',
             $this->refund_status(),
-            'A declared system caller keeps the power the silent zero lost.'
+            'There is no $system bypass any more -- an unattributed actor is refused at the money'
+                . ' step regardless of this flag.'
         );
     }
 
@@ -93,11 +112,13 @@ final class CancellationRefundAuthorizationTest extends WP_UnitTestCase
 
     public function test_an_administrator_may_move_money(): void
     {
-        // cancel_booking()'s OUTER ownership guard (:87-95) asks
-        // current_user_can( 'manage_options' ) -- the current user, not the
-        // $user_id argument. Without this line the call is refused by a guard
-        // this task never touched, and the test would be measuring the wrong
-        // refusal.
+        // As of Task 8, cancel_booking()'s outer ownership guard asks
+        // MoneyAuthorization::mayMoveMoney( ..., $user_id, 'cancel' ) --
+        // the $user_id argument, not the ambient current user. This line is
+        // still needed here because $user_id === $this->admin_id: the actor
+        // being tested IS the current user in this scenario, so setting it
+        // makes the fixture's own state consistent, not because the outer
+        // guard reads it.
         wp_set_current_user($this->admin_id);
 
         CancellationHandler::cancel_booking($this->booking_id, $this->admin_id, 'operator', true);
@@ -119,38 +140,43 @@ final class CancellationRefundAuthorizationTest extends WP_UnitTestCase
     }
 
     /**
-     * The test a `user_can( $user_id, ... )` -> `current_user_can( ... )` swap
-     * inside may_move_money() must fail.
+     * Turned by Task 8 (spec §5). Before this task, cancel_booking()'s OUTER
+     * ownership guard asked current_user_can( 'manage_options' ) -- the
+     * ambient current user, not the $user_id argument -- so an administrator
+     * logged in could push a cancellation through on a stranger's behalf, and
+     * only the INNER money step (may_move_money(), which already asked the
+     * actor) refused. That split is exactly what let this scenario reach
+     * CANCELLED while still recording no refund, and is what this test used
+     * to assert.
      *
-     * The current user is an administrator, so cancel_booking()'s OUTER,
-     * ambient guard (which does ask current_user_can()) lets the cancellation
-     * through -- proven below by asserting the booking actually reaches
-     * CANCELLED, so this test is not silently passing because of an unrelated
-     * refusal. The $user_id actor handed to the money step is a different
-     * person: a plain customer with no capability at all. may_move_money()
-     * must refuse based on THAT actor, not the ambient administrator running
-     * the request. If its admin branch were ever swapped back to
-     * current_user_can( 'manage_options' ), it would see the administrator
-     * and refund anyway, and this is the only test in the file that would
-     * catch it.
+     * Task 8 ties the outer guard to the same MoneyAuthorization predicate the
+     * money step uses, so both now ask about $user_id. An ambient
+     * administrator can no longer walk a cancellation through at all when it
+     * is attributed to someone else -- the whole call is refused before
+     * Status::update_status() ever runs. This is the stronger property the
+     * old split-refusal version was reaching for one layer too late; it is
+     * still the only test in the file that would catch either guard being
+     * swapped back to current_user_can().
      */
-    public function test_the_money_step_asks_about_the_actor_not_the_current_user(): void
+    public function test_the_gate_asks_about_the_actor_not_the_current_user(): void
     {
         wp_set_current_user($this->admin_id);
 
         $result = CancellationHandler::cancel_booking($this->booking_id, $this->stranger_id, 'operator override', true);
 
-        $this->assertFalse(is_wp_error($result));
-        $this->assertSame(
-            Status::CANCELLED,
-            Status::get($this->booking_id),
-            'The outer, ambient guard must have let this cancellation through -- otherwise this test is measuring the wrong refusal, not the money step.'
+        $this->assertTrue(
+            is_wp_error($result),
+            'An ambient administrator must not push through a cancellation attributed to a stranger actor.'
         );
-
+        $this->assertSame(
+            Status::CONFIRMED,
+            Status::get($this->booking_id),
+            'The booking must be untouched -- the outer, actor-based guard must have refused before any status write.'
+        );
         $this->assertSame(
             '',
             $this->refund_status(),
-            'The money step must refuse based on the $user_id actor it was handed, not the ambient current user -- even though the ambient user is an administrator.'
+            'The money step must never even be reached once the outer guard refuses the actor.'
         );
     }
 }

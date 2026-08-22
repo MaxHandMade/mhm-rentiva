@@ -46,10 +46,13 @@ final class CancellationRefundGateTest extends WP_UnitTestCase
         update_post_meta($this->booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
         update_post_meta($this->booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
 
-        // cancel_booking()'s outer ownership guard asks current_user_can(),
-        // not user_can( $user_id ). An administrator actor therefore has to be
-        // the current user too, or every call below is refused by a guard this
-        // slice does not touch.
+        // Since Task 8, cancel_booking()'s outer ownership guard asks
+        // MoneyAuthorization::mayMoveMoney( ..., $user_id, 'cancel' ), which
+        // itself asks user_can( $user_id, 'manage_options' ) -- not the
+        // ambient current user. This call is not load-bearing for that guard
+        // any more, but other machinery in this booking's lifecycle (e.g.
+        // capability checks elsewhere in the request) still reads the current
+        // user, so it stays set for consistency with the actor under test.
         wp_set_current_user($this->admin_id);
     }
 

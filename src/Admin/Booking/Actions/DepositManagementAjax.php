@@ -372,7 +372,8 @@ final class DepositManagementAjax {
 		$result = \MHMRentiva\Admin\Payment\Refunds\Service::process(
 			$booking_id,
 			$refund_amount,
-			__( 'Refund issued from the deposit management screen.', 'mhm-rentiva' )
+			__( 'Refund issued from the deposit management screen.', 'mhm-rentiva' ),
+			get_current_user_id()
 		);
 
 		// The log's `refund_amount` key is shared with WooCommerceBridge, which

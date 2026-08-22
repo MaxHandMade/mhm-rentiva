@@ -41,6 +41,7 @@ final class RefundMixedModeMessagingTest extends WP_UnitTestCase
     use WooCommerceRefundGatewayRegistration;
 
     private int $booking_id;
+    private int $admin_id;
 
     public function setUp(): void
     {
@@ -48,6 +49,7 @@ final class RefundMixedModeMessagingTest extends WP_UnitTestCase
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -180,7 +182,7 @@ final class RefundMixedModeMessagingTest extends WP_UnitTestCase
         );
 
         $adminContext = $this->capture_email_context(function (): void {
-            $result = Service::processFullRefund($this->booking_id, 'mixed admin mail check');
+            $result = Service::processFullRefund($this->booking_id, 'mixed admin mail check', $this->admin_id);
             $this->assertSame('1', $result['mhmrentiva_refund'], $result['mhmrentiva_refund_msg']);
         }, 'refund_admin');
 
@@ -231,7 +233,7 @@ final class RefundMixedModeMessagingTest extends WP_UnitTestCase
         );
 
         $customerContext = $this->capture_email_context(function (): void {
-            $result = Service::processFullRefund($this->booking_id, 'mixed customer mail check');
+            $result = Service::processFullRefund($this->booking_id, 'mixed customer mail check', $this->admin_id);
             $this->assertSame('1', $result['mhmrentiva_refund'], $result['mhmrentiva_refund_msg']);
         }, 'refund_customer');
 
@@ -271,7 +273,7 @@ final class RefundMixedModeMessagingTest extends WP_UnitTestCase
         $order->save();
 
         $adminContext = $this->capture_email_context(function (): void {
-            $result = Service::processFullRefund($this->booking_id, 'pure auto check');
+            $result = Service::processFullRefund($this->booking_id, 'pure auto check', $this->admin_id);
             $this->assertSame('1', $result['mhmrentiva_refund'], $result['mhmrentiva_refund_msg']);
         }, 'refund_admin');
 

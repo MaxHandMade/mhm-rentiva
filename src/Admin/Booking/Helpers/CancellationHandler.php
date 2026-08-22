@@ -38,10 +38,13 @@ final class CancellationHandler {
 	 * @param int    $user_id User ID who is cancelling (0 for admin)
 	 * @param string $reason Cancellation reason (optional)
 	 * @param bool   $force Force cancellation even if deadline passed (admin only)
-	 * @param bool   $system True for cron/automation callers, which have no current
-	 *                       user. The money step refuses an unattributed 0 actor, so
-	 *                       an automated caller has to declare itself rather than
-	 *                       inherit the power by omission (spec §5.4).
+	 * @param bool   $system Attribution only: true for cron/automation callers, which
+	 *                       have no current user. It buys nothing at the money step --
+	 *                       since K6 no unattended path moves money at all, an
+	 *                       unattributed 0 actor is refused by MoneyAuthorization
+	 *                       regardless of this flag (spec §5.4). Kept on the signature
+	 *                       so a caller can still say who it is without that
+	 *                       declaration becoming a bypass.
 	 *
 	 * @return true|\WP_Error True on success, WP_Error on failure
 	 */
@@ -90,15 +93,20 @@ final class CancellationHandler {
 			}
 		}
 
-		// Check user permission (user can only cancel their own bookings)
-		if ( $user_id > 0 ) {
-			$booking_customer_id = self::resolve_booking_customer_id( $booking_id );
-			if ( $user_id !== $booking_customer_id && ! current_user_can( 'manage_options' ) ) {
-				return new \WP_Error(
-					'permission_denied',
-					__( 'You do not have permission to cancel this booking.', 'mhm-rentiva' )
-				);
-			}
+		// Check user permission (user can only cancel their own bookings).
+		// Tied to the same predicate the money step uses (spec §5): both
+		// questions -- may this actor cancel, may this actor move money --
+		// resolve to "is this actor the booking's customer, or an admin",
+		// and asking current_user_can() here (the request, not the argument)
+		// let an ambient administrator push through a cancellation attributed
+		// to someone else. $user_id === 0 (a declared system caller) skips
+		// this check entirely, same as before -- the money step's own hard
+		// floor is what refuses an unattributed actor.
+		if ( $user_id > 0 && ! \MHMRentiva\Admin\Payment\Core\MoneyAuthorization::mayMoveMoney( $booking_id, $user_id, 'cancel' ) ) {
+			return new \WP_Error(
+				'permission_denied',
+				__( 'You do not have permission to cancel this booking.', 'mhm-rentiva' )
+			);
 		}
 
 		// Begin transaction-like operation
@@ -160,8 +168,11 @@ final class CancellationHandler {
 			// Send cancellation email (after commit to ensure data consistency)
 			self::send_cancellation_email( $booking_id, $reason );
 
-			// Process refund if payment was made
-			self::process_refund( $booking_id, $user_id, $reason, $system );
+			// Process refund if payment was made. $system is deliberately NOT
+			// carried past this point: it is attribution information about
+			// cancel_booking() itself, not a bypass the money step accepts --
+			// see process_refund() and MoneyAuthorization.
+			self::process_refund( $booking_id, $user_id, $reason );
 
 			// Trigger action for other plugins/integrations
 			do_action( 'mhmrentiva_booking_cancelled', $booking_id, $user_id, $reason );
@@ -421,13 +432,16 @@ final class CancellationHandler {
 	 * The money step of a cancellation (spec §5.3).
 	 *
 	 * @param int    $booking_id Booking ID
-	 * @param int    $user_id    The actor, 0 only for declared system callers
+	 * @param int    $user_id    The actor. There is no $system leg any more --
+	 *                           since K6 no unattended path moves money at
+	 *                           all, so an unattributed 0 actor is refused
+	 *                           here regardless of how cancel_booking() was
+	 *                           called (see MoneyAuthorization).
 	 * @param string $reason     Cancellation reason, carried into the refund record
-	 * @param bool   $system     See cancel_booking()
 	 * @return bool True when a refund was actually made.
 	 */
-	private static function process_refund( int $booking_id, int $user_id, string $reason = '', bool $system = false ): bool {
-		if ( ! self::may_move_money( $booking_id, $user_id, $system ) ) {
+	private static function process_refund( int $booking_id, int $user_id, string $reason = '' ): bool {
+		if ( ! \MHMRentiva\Admin\Payment\Core\MoneyAuthorization::mayMoveMoney( $booking_id, $user_id, 'refund' ) ) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
 				array(
 					'gateway'    => 'cancellation',
@@ -606,7 +620,7 @@ final class CancellationHandler {
 				return false;
 			}
 
-			$result  = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason );
+			$result  = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason, $user_id );
 			$success = '1' === ( $result['mhmrentiva_refund'] ?? '0' );
 
 			// processFullRefund() returns early -- before finish() -- when
@@ -673,31 +687,6 @@ final class CancellationHandler {
 	 */
 	private static function resolve_booking_customer_id( int $booking_id ): int {
 		return (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
-	}
-
-	/**
-	 * May this actor take money out of a gateway on this booking?
-	 *
-	 * Fail-closed, and deliberately NOT current_user_can(): the actor is passed
-	 * in explicitly, and a cron pass has no current user at all, so asking the
-	 * request instead of the argument would answer for the wrong subject.
-	 * $system is the only way to say "no human here" -- an unattributed 0 buys
-	 * nothing.
-	 */
-	private static function may_move_money( int $booking_id, int $user_id, bool $system ): bool {
-		if ( $system ) {
-			return true;
-		}
-
-		if ( $user_id <= 0 ) {
-			return false;
-		}
-
-		if ( $user_id === self::resolve_booking_customer_id( $booking_id ) ) {
-			return true;
-		}
-
-		return user_can( $user_id, 'manage_options' );
 	}
 
 	public static function user_can_cancel( int $booking_id, int $user_id = 0 ): bool {

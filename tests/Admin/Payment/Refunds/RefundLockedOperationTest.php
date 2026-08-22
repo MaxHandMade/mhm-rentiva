@@ -25,6 +25,7 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
     use WooCommerceFixtures;
 
     private int $booking_id;
+    private int $admin_id;
 
     public function setUp(): void
     {
@@ -32,6 +33,7 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
 
         $this->require_woocommerce();
 
+        $this->admin_id   = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
@@ -65,7 +67,7 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
 
         $this->plant_foreign_lock();
 
-        $result = Service::process($this->booking_id, Money::toMinor('20'), 'locked out');
+        $result = Service::process($this->booking_id, Money::toMinor('20'), 'locked out', $this->admin_id);
 
         $this->assertSame('0', $result['mhmrentiva_refund']);
         $this->assertSame(
@@ -81,7 +83,7 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
 
         $this->plant_foreign_lock();
 
-        $result = Service::processFullRefund($this->booking_id, 'locked out');
+        $result = Service::processFullRefund($this->booking_id, 'locked out', $this->admin_id);
 
         $this->assertSame('0', $result['mhmrentiva_refund']);
     }
@@ -90,7 +92,7 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
     {
         $this->create_paid_order_for_booking($this->booking_id, '120');
 
-        Service::processFullRefund($this->booking_id, 'released');
+        Service::processFullRefund($this->booking_id, 'released', $this->admin_id);
 
         $this->assertTrue(
             RefundLock::acquire($this->booking_id),
@@ -124,7 +126,7 @@ final class RefundLockedOperationTest extends WP_UnitTestCase
             2
         );
 
-        Service::processFullRefund($this->booking_id, 'failing');
+        Service::processFullRefund($this->booking_id, 'failing', $this->admin_id);
 
         $this->assertTrue(
             RefundLock::acquire($this->booking_id),
