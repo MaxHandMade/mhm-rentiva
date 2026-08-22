@@ -973,18 +973,6 @@ parameters:
 			path: src/Admin/Setup/SetupWizard.php
 
 		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Actions\\Actions\:\:checkRoleBasedAccess\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Actions/Actions.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Actions\\Actions\:\:logPermissionCheck\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Actions/Actions.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1

@@ -39,7 +39,11 @@ final class LogRetentionDefaultParityTest extends WP_UnitTestCase
 	public function runtimeFilesProvider(): array
 	{
 		return array(
-			'admin-utilities-actions'  => array('src/Admin/Utilities/Actions/Actions.php'),
+			// admin-utilities-actions (src/Admin/Utilities/Actions/Actions.php)
+			// was removed whole by Task 9 (slice 5, 2026-08-22): its only
+			// registrations were a dead admin_post refund endpoint and the
+			// admin_notices callback that reported its result, neither of
+			// which ever touched log retention.
 			'maintenance-log-retention'=> array('src/Admin/PostTypes/Maintenance/LogRetention.php'),
 		);
 	}

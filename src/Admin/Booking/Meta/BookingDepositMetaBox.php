@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
@@ -399,8 +400,18 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			}
 		}
 
+		// Both money-moving buttons below are gated on the same actor question,
+		// asked once. It stays out of can_refund_from_deposit_screen() on
+		// purpose: that method is a pure booking-state predicate with three
+		// other callers (the refund box's link and the AJAX handler among
+		// them), and folding an actor check into it would make it silently
+		// actor-dependent for all of them. "One question, one home" applies
+		// per question -- the state question's home is that method, the actor
+		// question's home is MoneyAuthorization.
+		$may_move_money = MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' );
+
 		// Cancel button
-		if ( in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
+		if ( $may_move_money && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
 			echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 			echo '<span class="dashicons dashicons-no"></span>';
 			echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
@@ -410,7 +421,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		// Refund button. The rule lives in can_refund_from_deposit_screen() so
 		// this screen, the refund box's link and the AJAX handler cannot drift
 		// apart again -- see that method for the two ways they already had.
-		if ( self::can_refund_from_deposit_screen( $post_id ) ) {
+		if ( $may_move_money && self::can_refund_from_deposit_screen( $post_id ) ) {
 			echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 			echo '<span class="dashicons dashicons-undo"></span>';
 			echo esc_html__( 'Process Refund', 'mhm-rentiva' );

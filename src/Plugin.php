@@ -344,9 +344,12 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox')) {
 			\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::register();
 		}
-		if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Actions\Actions')) {
-			\MHMRentiva\Admin\Utilities\Actions\Actions::register();
-		}
+		// Utilities\Actions\Actions::register() was deleted whole (Task 9, slice
+		// 5): its only registrations were the dead admin_post refund endpoint
+		// (amount_kurus taken straight off the request, unreachable since
+		// a5c35a61 deleted its nonce producer) and the admin_notices callback
+		// that existed only to report that endpoint's result -- nothing was
+		// left to register.
 
 		// Maintenance (Moved to initialize_core_services for all-context support)
 

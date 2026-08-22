@@ -34,9 +34,28 @@ use WP_UnitTestCase;
  * apart again: every shape below asserts the button and the link TOGETHER, so
  * a change that moves one without the other fails here rather than in a
  * browser.
+ *
+ * Task 9 (slice 5) added a second, independent gate to the deposit box's own
+ * button: MoneyAuthorization::mayMoveMoney(), asked with the ambient
+ * get_current_user_id(). This file is deliberately about the STATE predicate
+ * only -- it is not the place actor authorization is exercised (that is
+ * NoUnguardedRefundEntryPointTest and MoneyAuthorizationTest) -- so setUp()
+ * below sets an ambient administrator once, for every test in this file, so
+ * the actor dimension stays authorized and out of the way of the state
+ * comparisons under test. Without it every shape here would fail
+ * unconditionally: PHPUnit's default ambient user is 0, which MoneyAuthorization
+ * refuses at its hard floor before either booking state or the
+ * mhmrentiva_may_move_money filter is even consulted.
  */
 final class RefundGateAgreementTest extends WP_UnitTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
+    }
+
     /**
      * An offline-paid booking: no WooCommerce order, so PaymentState's offline
      * channel is live and total-minus-remaining is what was actually
