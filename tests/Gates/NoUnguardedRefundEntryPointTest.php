@@ -145,4 +145,87 @@ final class NoUnguardedRefundEntryPointTest extends WP_UnitTestCase
         BookingDepositMetaBox::render_deposit_management(get_post($booking_id));
         return (string) ob_get_clean();
     }
+
+    /**
+     * Fix round 1 (F2, plan correction #5's own gap): `assertFalse(has_action(
+     * 'admin_post_mhmrentiva_refund_booking'))` above can only ever fail if
+     * something registers that tag IN THIS TEST PROCESS -- and nothing can,
+     * now that Actions is gone. The positive control above proves add_action()
+     * itself works here; it does not prove a refund-endpoint registrar ran.
+     * If a future "retry refund" feature re-registers this exact literal
+     * inside an EXISTING registrar (not a new file), carve-gates' manifest
+     * check would not catch it either, and neither would the assertion above
+     * go red. A gate named after this regression must be able to see it
+     * coming back; a source scan is the only thing that can, since there is
+     * no registrar left to call and prove reachable.
+     *
+     * Pattern and structure follow tests/Tools/NoBareMhmStorageKeysTest.php
+     * rather than inventing a new scanner.
+     */
+    public function test_no_source_file_registers_the_admin_post_refund_endpoint(): void
+    {
+        $root   = dirname(__DIR__, 2) . '/src';
+        $offend = array();
+        $files  = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root));
+
+        foreach ($files as $file) {
+            if ('php' !== $file->getExtension()) {
+                continue;
+            }
+
+            $contents = file_get_contents($file->getPathname());
+
+            if (false === $contents) {
+                continue;
+            }
+
+            if (preg_match("/add_action\\(\\s*['\"]admin_post_mhmrentiva_refund_booking['\"]/", $contents)) {
+                $offend[] = $file->getPathname();
+            }
+        }
+
+        $this->assertSame(
+            array(),
+            $offend,
+            "This endpoint took its refund amount straight off the request with no balance predicate "
+            . "and was deleted for it (Task 9, slice 5). Re-registering the literal below is exactly "
+            . "what a future retry-refund feature would do without meaning to re-open the hole:\n"
+            . implode("\n", $offend)
+        );
+    }
+
+    /**
+     * Guards the scan above: a broken iterator, a mistyped extension check, or
+     * an over-tight window would make that assertion pass while reading
+     * nothing. Counts every add_action() call under src/ instead of demanding
+     * the scan find any particular one -- the point is only to prove the walk
+     * and the pattern both work, the same way
+     * NoBareMhmStorageKeysTest::test_the_scan_reads_the_plugin_source() does.
+     */
+    public function test_the_endpoint_scan_reads_the_plugin_source(): void
+    {
+        $root  = dirname(__DIR__, 2) . '/src';
+        $count = 0;
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root));
+
+        foreach ($files as $file) {
+            if ('php' !== $file->getExtension()) {
+                continue;
+            }
+
+            $contents = file_get_contents($file->getPathname());
+
+            if (false === $contents) {
+                continue;
+            }
+
+            $count += preg_match_all('/add_action\(/', $contents);
+        }
+
+        $this->assertGreaterThan(
+            100,
+            $count,
+            'The add_action() scan matched implausibly few calls; the iterator or the pattern is broken.'
+        );
+    }
 }

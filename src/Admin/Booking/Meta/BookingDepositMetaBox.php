@@ -400,8 +400,15 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			}
 		}
 
-		// Both money-moving buttons below are gated on the same actor question,
-		// asked once. It stays out of can_refund_from_deposit_screen() on
+		// The cancel and refund buttons below pay money OUT and are gated on
+		// the same actor question, asked once. The three buttons above them
+		// (Mark Payment Received, Process Remaining Amount, Send Payment
+		// Link) take money IN rather than paying it out and are deliberately
+		// left ungated here -- this task's scope (Task 9, slice 5) is the two
+		// buttons that offer an action MoneyAuthorization::mayMoveMoney()
+		// would refuse.
+		//
+		// The actor question stays out of can_refund_from_deposit_screen() on
 		// purpose: that method is a pure booking-state predicate with three
 		// other callers (the refund box's link and the AJAX handler among
 		// them), and folding an actor check into it would make it silently

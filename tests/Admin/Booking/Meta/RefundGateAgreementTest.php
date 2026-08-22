@@ -35,17 +35,29 @@ use WP_UnitTestCase;
  * a change that moves one without the other fails here rather than in a
  * browser.
  *
- * Task 9 (slice 5) added a second, independent gate to the deposit box's own
- * button: MoneyAuthorization::mayMoveMoney(), asked with the ambient
- * get_current_user_id(). This file is deliberately about the STATE predicate
- * only -- it is not the place actor authorization is exercised (that is
- * NoUnguardedRefundEntryPointTest and MoneyAuthorizationTest) -- so setUp()
- * below sets an ambient administrator once, for every test in this file, so
- * the actor dimension stays authorized and out of the way of the state
- * comparisons under test. Without it every shape here would fail
- * unconditionally: PHPUnit's default ambient user is 0, which MoneyAuthorization
- * refuses at its hard floor before either booking state or the
- * mhmrentiva_may_move_money filter is even consulted.
+ * Task 9 (slice 5) added a second, independent gate -- MoneyAuthorization::
+ * mayMoveMoney(), asked with the ambient get_current_user_id() -- to BOTH
+ * surfaces: the deposit box's button (BookingDepositMetaBox.php:414,424) and,
+ * after fix round 1 closed a drift the first pass left open, the refund box's
+ * link too (BookingRefundMetaBox.php:82). A first version of this fix gated
+ * only the button, which made this very file's own invariant fail for the
+ * wrong reason: an unauthorized ambient actor made the button disappear while
+ * the link, still ungated, stayed -- disagreement on the actor dimension,
+ * caught by test_the_deposit_boxs_button_and_the_refund_boxs_link_answer_the_
+ * same_question_for_an_unauthorized_actor_too() below once it was added.
+ *
+ * This file is still deliberately about the STATE predicate for its five
+ * original tests -- it is not the primary place actor authorization is
+ * exercised (that is NoUnguardedRefundEntryPointTest and
+ * MoneyAuthorizationTest) -- so setUp() sets an ambient administrator by
+ * default. That pin is still load-bearing for those five tests: with both
+ * surfaces now gated, an unauthenticated ambient actor (PHPUnit's default,
+ * user 0) would force BOTH button and link to false regardless of booking
+ * state, via MoneyAuthorization's hard floor -- which would make every
+ * "true" shape below fail not because the state predicate disagrees, but
+ * because neither surface is reachable at all. The one test that
+ * deliberately wants that hard floor overrides the ambient user locally
+ * instead of removing the class-wide pin.
  */
 final class RefundGateAgreementTest extends WP_UnitTestCase
 {
@@ -138,6 +150,27 @@ final class RefundGateAgreementTest extends WP_UnitTestCase
                 $shape
             )
         );
+    }
+
+    /**
+     * The actor dimension, added by fix round 1 (F1). Uses the shape both
+     * surfaces already agree is a genuine refund route for an authorized
+     * actor (the control below) and asks the same question of an
+     * unattributed one instead. Before F1, this failed: the button asked
+     * MoneyAuthorization and the link did not, so an unauthorized actor made
+     * the button disappear while the link stayed -- agreeing with neither
+     * "both are false" nor the state-based expectation, just disagreeing
+     * with the button. The local wp_set_current_user(0) below overrides the
+     * class-wide administrator pin for this one test only; setUp() runs
+     * again before every other test.
+     */
+    public function test_the_deposit_boxs_button_and_the_refund_boxs_link_answer_the_same_question_for_an_unauthorized_actor_too(): void
+    {
+        $booking_id = $this->make_booking('paid', 'cancelled', 'full');
+
+        wp_set_current_user(0);
+
+        $this->assert_both_surfaces_agree($booking_id, false, 'paid + cancelled, unauthorized actor');
     }
 
     /**

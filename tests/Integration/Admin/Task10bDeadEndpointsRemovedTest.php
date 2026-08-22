@@ -119,7 +119,15 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
      * Task 9 deleted the endpoint, its registration, notices() (whose own
      * nonce had no producer left once notice_url() -- its only caller was
      * refund_booking() -- went with it) and the whole Actions class, so this
-     * row moves from "still exists" (below) to "now dead" (here).
+     * row moves from "still exists" (below) to "now dead" (here). Fix round 1
+     * (F5): that same deletion took row A6's own live apparatus with it --
+     * `Actions::class` was A6's registrar in setUp()'s loop and
+     * `admin_post_mhmrentiva_refund_booking` was its paired "still exists"
+     * control, both removed above -- so A6 is now a vacuous assertion
+     * (`has_action('admin_post_mhmrentiva_purge_logs')` was already false
+     * before this test process registers anything, with or without a
+     * registrar call); left as-is rather than rebuilt, since there is no
+     * class left to call register() on.
      *
      * @return array<string, array{0: string}>
      */

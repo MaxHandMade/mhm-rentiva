@@ -38,6 +38,18 @@ use WP_UnitTestCase;
  * WooCommerce's own order screen or from the deposit-management screen, and
  * showing a third path for it would give the operator two buttons with
  * different rules.
+ *
+ * Task 9 (slice 5) fix round 1 added a further condition to the link:
+ * MoneyAuthorization::mayMoveMoney(), the same predicate the deposit box's
+ * own button asks, so the two can never drift on the actor dimension after
+ * already having drifted twice on the state one (see RefundGateAgreementTest,
+ * whose whole job is proving they cannot). This test file's ambient user was
+ * never set before Task 9 -- PHPUnit's default (0) always failed
+ * MoneyAuthorization's hard floor -- so tests below that assert the link
+ * renders (the 'link branch' shape) would now anchor the drift by failing to
+ * notice the link no longer renders for anyone at all. setUp() below pins an
+ * administrator for that reason; tests asserting the link does NOT render
+ * are unaffected either way, since booking state alone already forces that.
  */
 final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
 {
@@ -49,6 +61,8 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
 
         $this->booking_id = (int) self::factory()->post->create(array(
             'post_type'   => 'mhmrentiva_booking',
@@ -97,6 +111,36 @@ final class BookingRefundMetaBoxRendersTest extends WP_UnitTestCase
             'The precondition sentence is for bookings with no route -- this one has one, and gets the link instead.'
         );
         $this->assertStringNotContainsString('No refundable payment found', $html);
+    }
+
+    /**
+     * Task 9 (slice 5) fix round 1: same fixture as the test above -- a
+     * genuine route exists -- but the ambient actor is unattributed
+     * (wp_set_current_user(0) overrides this file's class-wide administrator
+     * pin locally, for this test only). MoneyAuthorization::mayMoveMoney()'s
+     * hard floor must suppress the link even though the state predicate
+     * alone would show it, mirroring the button's own behaviour
+     * (NoUnguardedRefundEntryPointTest) so the two surfaces cannot drift on
+     * the actor dimension the way they already drifted twice on the state
+     * one.
+     */
+    public function test_an_unauthorized_actor_gets_no_link_even_for_an_otherwise_routable_booking(): void
+    {
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '80');
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
+
+        wp_set_current_user(0);
+
+        $html = $this->render();
+
+        $this->assertStringNotContainsString(
+            'Process this refund from the deposit-management screen.',
+            $html,
+            'An unattributed actor fails the MoneyAuthorization hard floor; the link must not render for them even though the state predicate alone would allow it.'
+        );
     }
 
     /**

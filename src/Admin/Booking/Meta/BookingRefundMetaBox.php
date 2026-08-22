@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
 
 final class BookingRefundMetaBox {
 
@@ -79,7 +80,15 @@ final class BookingRefundMetaBox {
 		// know the deposit box returns early, before any button, on a booking
 		// with no _mhmrentiva_payment_type. Ask the screen that owns the
 		// button instead of mirroring its rule.
-		if ( BookingDepositMetaBox::can_refund_from_deposit_screen( $bid ) ) {
+		//
+		// Task 9 (slice 5) added a second condition: this link and the button
+		// it points at answer the same question, so a refused actor must not
+		// see either. Fix round 1 (F1) closed the drift a first pass left
+		// open -- the button alone asked MoneyAuthorization, so an actor who
+		// failed it saw the button disappear but the link stay, disagreeing
+		// with the very button it points at. Same predicate, same $surface
+		// as the button ('admin_deposit') so the two never drift again.
+		if ( MoneyAuthorization::mayMoveMoney( $bid, get_current_user_id(), 'admin_deposit' ) && BookingDepositMetaBox::can_refund_from_deposit_screen( $bid ) ) {
 			$deposit_url = admin_url( 'post.php?post=' . $bid . '&action=edit' ) . '#mhmrentiva_booking_deposit';
 			echo '<p><a class="button button-primary" href="' . esc_url( $deposit_url ) . '">' . esc_html__( 'Process this refund from the deposit-management screen.', 'mhm-rentiva' ) . '</a></p>';
 		} else {
