@@ -28,6 +28,9 @@
             // İade işleme
             $(document).on('click', '#process-refund', (e) => this.handleProcessRefund(e));
 
+            // Elden teslim edilen (manual_pending) iadeyi kapama
+            $(document).on('click', '#close-manual-refund', (e) => this.handleCloseManualRefund(e));
+
             // Durum güncelleme
 
             // Kalan tutar için ödeme linki gönder
@@ -225,6 +228,44 @@
                     action: 'mhmrentiva_deposit_process_refund',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
+                },
+                success: (response) => {
+                    this.hideLoading($button);
+                    if (response.success) {
+                        this.showMessage('success', response.data.message);
+                        this.refreshPage();
+                    } else {
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                    }
+                },
+                error: () => {
+                    this.hideLoading($button);
+                    this.showMessage('error', mhmDepositManagement.strings.error);
+                }
+            });
+        }
+
+        handleCloseManualRefund(e) {
+            e.preventDefault();
+
+            const $button = $(e.currentTarget);
+            const bookingId = $button.data('booking-id');
+            const reference = $('#manual-refund-reference').val() || '';
+
+            if (!this.confirmAction(mhmDepositManagement.strings.confirmCloseManualRefund)) {
+                return;
+            }
+
+            this.showLoading($button);
+
+            $.ajax({
+                url: mhmDepositManagement.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'mhmrentiva_close_manual_refund',
+                    nonce: mhmDepositManagement.nonce,
+                    booking_id: bookingId,
+                    reference: reference
                 },
                 success: (response) => {
                     this.hideLoading($button);

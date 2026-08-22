@@ -44,6 +44,14 @@ final class BookingRefundMetaBox {
 		// every booking that needs it.
 		self::render_status_row( $bid );
 
+		// Same reasoning, same placement: a manual_pending booking's
+		// refundableManual() is already 0 by the time this box renders
+		// (Refunds\Service records the manual amount into
+		// _mhmrentiva_refunded_amount the moment manual_pending is set), so a
+		// control gated on that status would never reach the page if it sat
+		// after the guard below.
+		self::render_manual_close_control( $bid );
+
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
 
 		// This box is the offline surface. A booking whose money sits in a
@@ -120,5 +128,41 @@ final class BookingRefundMetaBox {
 		echo '<p class="mhm-refund-status"><strong>'
 			. esc_html__( 'Refund status:', 'mhm-rentiva' ) . '</strong> '
 			. esc_html( $label ) . '</p>';
+	}
+
+	/**
+	 * The control that lets an authorised actor attest a hand transfer.
+	 *
+	 * Kept separate from render_status_row() rather than folded into it:
+	 * that method is deliberately a pure information line, visible to
+	 * anyone who can open this box at all (Task 10's own docblock). This one
+	 * is a money action -- gated on MoneyAuthorization::mayMoveMoney(), the
+	 * same predicate Task 9 put on the deposit-screen's button and this
+	 * box's own link, asked with the same $surface convention
+	 * ('manual_close', matching DepositManagementAjax::close_manual_refund()'s
+	 * own call) so the two halves of this feature cannot drift apart the way
+	 * the button and the link once did (see RefundGateAgreementTest).
+	 *
+	 * The nonce this control's button needs is NOT a new wp_nonce_field
+	 * here: deposit-management.js is already enqueued on this same booking
+	 * edit screen by BookingDepositMetaBox::enqueue_scripts() and already
+	 * carries mhmDepositManagement.nonce, created under this exact action
+	 * ('mhmrentiva_deposit_management_action'). A second nonce field in this
+	 * box would be redundant at best and a second, driftable source of
+	 * truth at worst.
+	 */
+	private static function render_manual_close_control( int $booking_id ): void {
+		if ( RefundStatus::MANUAL_PENDING !== RefundStatus::get( $booking_id ) ) {
+			return;
+		}
+
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, get_current_user_id(), 'manual_close' ) ) {
+			return;
+		}
+
+		echo '<p><label for="manual-refund-reference">' . esc_html__( 'Payment reference (optional)', 'mhm-rentiva' ) . '</label><br />'
+			. '<input type="text" id="manual-refund-reference" class="widefat" /></p>';
+		echo '<p><button type="button" class="button button-primary" id="close-manual-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+			. esc_html__( 'Confirm hand transfer', 'mhm-rentiva' ) . '</button></p>';
 	}
 }

@@ -10,8 +10,13 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Core\Utilities\BookingQueryHelper;
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
+use MHMRentiva\Admin\Payment\Core\RefundLock;
+use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 
@@ -21,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Deposit-management write endpoints (payment approval, remaining-payment
- * processing/link, cancellation, refund).
+ * processing/link, cancellation, refund, manual refund closure).
  *
  * Every handler opens with a line-local `check_ajax_referer( ..., false )`
  * that is REDUNDANT with authorize_booking_action() immediately below it.
@@ -75,6 +80,7 @@ final class DepositManagementAjax {
 		add_action( 'wp_ajax_mhmrentiva_approve_payment', array( self::class, 'approve_payment' ) );
 		add_action( 'wp_ajax_mhmrentiva_deposit_cancel_booking', array( self::class, 'cancel_booking' ) );
 		add_action( 'wp_ajax_mhmrentiva_deposit_process_refund', array( self::class, 'process_refund' ) );
+		add_action( 'wp_ajax_mhmrentiva_close_manual_refund', array( self::class, 'close_manual_refund' ) );
 	}
 
 	public static function process_remaining_payment(): void {
@@ -422,6 +428,88 @@ final class DepositManagementAjax {
 				'message' => sprintf( __( 'Refund completed successfully. Refund amount: %s', 'mhm-rentiva' ), self::format_price( $refund_amount_major ) ),
 			)
 		);
+	}
+
+	/**
+	 * Attest that a manual_pending refund's money was handed over.
+	 *
+	 * Moves no money and computes nothing: RefundStatus::transition() already
+	 * refuses every edge except manual_pending -> completed_manually, so a
+	 * second click, or a click on a booking this task never reached, is
+	 * turned away by the transition matrix itself rather than by a check
+	 * duplicated here. The booking-level audit trio (_by/_at/_reference) is
+	 * written unconditionally -- it is the entire record of who is vouching
+	 * for this transfer. The WC order note is written only when a
+	 * WooCommerce order actually backs the money: the offline channel this
+	 * endpoint exists for is precisely the case where no such order exists,
+	 * so requiring one would make the channel impossible to close.
+	 */
+	public static function close_manual_refund(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
+		$booking_id = self::authorize_booking_action();
+		if ( ! $booking_id ) {
+			return;
+		}
+
+		$actor = get_current_user_id();
+
+		// Moving no money, but attesting that money moved -- the same bar.
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, $actor, 'manual_close' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$req       = VerifiedRequest::from( $_POST );
+		$reference = $req->text( 'reference' );
+
+		if ( ! RefundLock::acquire( $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		try {
+			$moved = RefundStatus::transition(
+				$booking_id,
+				RefundStatus::COMPLETED_MANUALLY,
+				array(
+					'surface'  => 'manual_close',
+					'actor_id' => $actor,
+				)
+			);
+
+			if ( ! $moved ) {
+				wp_send_json_error( array( 'message' => __( 'This refund is not awaiting a hand transfer.', 'mhm-rentiva' ) ) );
+				return;
+			}
+
+			// The audit record is booking-level and mandatory. The WC order
+			// note is conditional: the offline channel exists precisely
+			// because there is no WooCommerce order behind the money, so
+			// requiring one would make this channel impossible to close.
+			update_post_meta( $booking_id, '_mhmrentiva_refund_completed_by', $actor );
+			update_post_meta( $booking_id, '_mhmrentiva_refund_completed_at', current_time( 'mysql' ) );
+			update_post_meta( $booking_id, '_mhmrentiva_refund_completed_reference', $reference );
+
+			$order_id = BookingQueryHelper::resolve_wc_order_id( $booking_id );
+			$order    = $order_id && function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
+
+			if ( $order instanceof \WC_Order ) {
+				$order->add_order_note(
+					sprintf(
+						/* translators: %s: operator-supplied payment reference */
+						__( 'Hand transfer of the refund confirmed. Reference: %s', 'mhm-rentiva' ),
+						$reference
+					)
+				);
+			}
+
+			wp_send_json_success( array( 'message' => __( 'Hand transfer recorded.', 'mhm-rentiva' ) ) );
+		} finally {
+			RefundLock::release( $booking_id );
+		}
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
