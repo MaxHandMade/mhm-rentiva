@@ -1050,7 +1050,7 @@ final class Plugin {
 		// message was stale for exactly the case that reaches here. No
 		// booking_id: this runs on activation, before any booking exists.
 		if ($result === null && ! get_role('customer')) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 				__('Failed to create the customer role.', 'mhm-rentiva')
 			);
 		}

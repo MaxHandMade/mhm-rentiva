@@ -1013,7 +1013,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// returns having created nothing, and the paid order is left
 			// with no linked booking at all -- silent under the default log
 			// level, on money that already moved.
-			AdvancedLogger::error_for_booking(
+			AdvancedLogger::error_linked(
 				sprintf(
 					/* translators: %d: the WooCommerce order id with no items. */
 					__( 'No items found in order #%d', 'mhm-rentiva' ),
@@ -1434,7 +1434,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 								// Lite manifest), but the exact class item 2
 								// exists for: a reason this branch cannot
 								// actually know is wrong to state as fact.
-								AdvancedLogger::error_for_booking(
+								AdvancedLogger::error_linked(
 									sprintf(
 										/* translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to. */
 										__( 'Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva' ),

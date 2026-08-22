@@ -152,7 +152,7 @@ final class AutoComplete {
 				// AutoCancel.php's sibling catch -- and warning() is
 				// exactly the level a stock install drops.
 				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 						sprintf(
 							/* translators: %s: the throwable message that interrupted this booking's auto-complete. */
 							__( 'Auto-complete skipped a booking: %s', 'mhm-rentiva' ),

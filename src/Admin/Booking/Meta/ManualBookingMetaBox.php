@@ -780,7 +780,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// silently leaving the customer's name/role fields unset, and
 			// warning() is exactly the level a stock install drops.
 			if ( is_wp_error( $update_result ) && class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 					sprintf(
 						/* translators: %s: the error message wp_update_user() returned. */
 						__( 'wp_update_user failed while creating a manual booking: %s', 'mhm-rentiva' ),
