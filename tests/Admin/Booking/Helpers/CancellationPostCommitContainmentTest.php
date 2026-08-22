@@ -662,4 +662,80 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         }
         $this->assertTrue($found, 'The refusal must leave a trace an operator can find, linked to this booking.');
     }
+
+    /**
+     * Fix round 1, F6 (Task 14b review): settle_refund()'s PENDING-not-
+     * recorded refusal (item 11) RETURNS a value rather than throwing (fix
+     * round 2, G1), so cancel_booking() still reaches
+     * do_action('mhmrentiva_booking_cancelled', ...) afterward. If a LATER,
+     * unrelated listener on that hook throws, cancel_booking()'s own
+     * post-commit recovery block runs too -- and it checks the identical
+     * refundable() > 0 condition before sending the identical operator
+     * e-mail. Before this fix, both branches could fire in this ONE
+     * cancel_booking() call and the operator received the same "problem
+     * completing its refund" e-mail twice for one cancellation.
+     *
+     * Engineered by combining both triggers deliberately: refund_status is
+     * pre-seeded to a terminal value with no edge to PENDING (the same
+     * "another process already closed this out" shape
+     * test_a_refused_pending_transition_does_not_move_money uses), which
+     * fires item 11's send; a listener on mhmrentiva_booking_cancelled
+     * throws afterward, which fires the recovery block's send.
+     */
+    public function test_the_refund_failed_email_is_not_sent_twice_when_both_triggers_fire_in_one_call(): void
+    {
+        $this->require_woocommerce();
+
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
+        update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+
+        $this->create_paid_order_for_booking($booking_id, '120');
+
+        // The race item 11 exists for: another process already closed this
+        // booking's refund obligation as not_required, so settle_refund()'s
+        // own PENDING write is refused by the matrix -- but the WC order
+        // was never actually refunded, so refundable() is still > 0.
+        update_post_meta($booking_id, '_mhmrentiva_refund_status', RefundStatus::NOT_REQUIRED);
+
+        // The second, independent trigger: an unrelated listener throws
+        // AFTER the refusal above has already returned normally.
+        add_action(
+            'mhmrentiva_booking_cancelled',
+            static function (): void {
+                throw new \RuntimeException('an unrelated listener exploded');
+            }
+        );
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function (array $args) use (&$mails): array {
+                $mails[] = $args;
+                return $args;
+            }
+        );
+
+        wp_set_current_user($this->admin_id);
+        $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, '', true);
+
+        $this->assertFalse(is_wp_error($result), 'COMMIT already ran; neither trigger may read as a WP_Error.');
+
+        $failure_mails = array_filter(
+            $mails,
+            static fn (array $mail): bool => str_contains($mail['subject'], 'problem completing its refund')
+        );
+
+        $this->assertCount(
+            1,
+            $failure_mails,
+            'Both the PENDING-refusal branch and the post-commit recovery block decided to send this e-mail'
+                . ' in this one call -- exactly one must actually have gone out, not zero and not two.'
+        );
+    }
 }
