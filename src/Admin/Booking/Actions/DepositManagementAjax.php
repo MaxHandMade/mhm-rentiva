@@ -657,14 +657,21 @@ final class DepositManagementAjax {
 		wp_cache_delete( $booking_id, 'post_meta' );
 		$refund_status_after_delegation = (string) get_post_meta( $booking_id, RefundStatus::META_KEY, true );
 
-		// Task 14a fix round 1, F2: correction #7's own named scenario is a
-		// concurrent review_dismiss() writing not_required WHILE this
-		// request is in flight -- exactly what CancellationHandler's PENDING
-		// guard now refuses and reports via $result['problems']. Checked
-		// BEFORE the NEEDS_REVIEW branch below: without this, that refusal
-		// (which stops the money, correctly) left this endpoint claiming
-		// "the refund started" for a refund that never did.
-		if ( ! empty( $result['problems'] ) ) {
+		// Task 14a fix round 1, F2 / fix round 2, G2: the same two-part
+		// condition its two AJAX siblings carry (DepositManagementAjax::
+		// cancel_booking(), AccountController::ajax_cancel_booking()) --
+		// $result['problems'] covers a post-commit throwable OR a refused
+		// PENDING transition (correction #7's named race: a concurrent
+		// review_dismiss() writing not_required WHILE this request is in
+		// flight), and the FAILED check covers a validator refusal that
+		// never threw at all (fix round 1 left this third surface with only
+		// the first half, asymmetric with its siblings). $refund_status_after_delegation
+		// is reused rather than a second RefundStatus::get() call -- it is
+		// already the freshness-guaranteed read taken immediately above.
+		// Checked BEFORE the NEEDS_REVIEW branch below: without this, either
+		// refusal (both of which correctly stop the money) left this
+		// endpoint claiming "the refund started" for a refund that never did.
+		if ( ! empty( $result['problems'] ) || RefundStatus::FAILED === $refund_status_after_delegation ) {
 			wp_send_json_success( array( 'message' => __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ) ) );
 			return;
 		}

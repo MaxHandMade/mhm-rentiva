@@ -538,6 +538,8 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         // cancellation reaches settle_refund().
         update_post_meta($booking_id, '_mhmrentiva_refund_status', RefundStatus::NOT_REQUIRED);
 
+        $hook_count_before = did_action('mhmrentiva_booking_cancelled');
+
         wp_set_current_user($this->admin_id);
         $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, 'customer changed plans', true);
 
@@ -546,6 +548,19 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
             $result['problems'],
             'Fix round 1, F2: the refusal must be reported upward (not just logged) so a caller like'
                 . ' review_cancel_and_refund() can see it and stop claiming the refund started.'
+        );
+
+        // Fix round 2, G1's regression pin: fix round 1 REPORTED the refusal
+        // by throwing, which also unwound past this action entirely --
+        // skipping a live Pro consumer (VendorCancellationDateBlocker::
+        // maybe_block_dates()) even though the cancellation itself had
+        // already committed. Reporting the refusal must never cost the rest
+        // of the post-commit sequence.
+        $this->assertGreaterThan(
+            $hook_count_before,
+            did_action('mhmrentiva_booking_cancelled'),
+            'A refused PENDING transition must not prevent mhmrentiva_booking_cancelled from firing --'
+                . ' the cancellation itself succeeded regardless of what happened to the refund.'
         );
 
         $this->assertSame(

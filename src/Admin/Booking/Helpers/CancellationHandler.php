@@ -46,14 +46,16 @@ final class CancellationHandler {
 	 *                       so a caller can still say who it is without that
 	 *                       declaration becoming a bypass.
 	 *
-	 * @return array{cancelled: bool, refund: bool|null, problems: array<int, string>}|\WP_Error
+	 * @return array{cancelled: bool, refund: string|null, problems: array<int, string>}|\WP_Error
 	 *               An array on success -- 'cancelled' is always true past
-	 *               COMMIT, 'refund' is process_refund()'s own bool (null
-	 *               only if a post-commit throwable pre-empted it), and
-	 *               'problems' lists any post-commit \Throwable messages,
-	 *               empty when nothing went wrong after COMMIT. WP_Error
-	 *               only for a failure BEFORE COMMIT (validation, the
-	 *               deadline, permission, or a rolled-back write).
+	 *               COMMIT, 'refund' is process_refund()'s own return (null
+	 *               when the refund step itself needed nothing surfaced, a
+	 *               string describing a refusal it could not even start,
+	 *               copied into 'problems' too -- fix round 2, G1), and
+	 *               'problems' lists that plus any post-commit \Throwable
+	 *               messages, empty when nothing went wrong after COMMIT.
+	 *               WP_Error only for a failure BEFORE COMMIT (validation,
+	 *               the deadline, permission, or a rolled-back write).
 	 */
 	public static function cancel_booking( int $booking_id, int $user_id = 0, string $reason = '', bool $force = false, bool $system = false ) {
 		global $wpdb;
@@ -217,6 +219,18 @@ final class CancellationHandler {
 			// cancel_booking() itself, not a bypass the money step accepts --
 			// see process_refund() and MoneyAuthorization.
 			$refund = self::process_refund( $booking_id, $user_id, $reason );
+
+			// Fix round 2, G1: a non-null return is a refusal
+			// process_refund() could not even start (correction #7) --
+			// recorded here as a VALUE, precisely so it does NOT abort this
+			// try the way fix round 1's throw did. Aborting here skipped
+			// do_action() below entirely, even though the cancellation had
+			// already committed and other listeners (Pro's
+			// VendorCancellationDateBlocker::maybe_block_dates() among them)
+			// still need to run regardless of what happened to the refund.
+			if ( null !== $refund ) {
+				$problems[] = $refund;
+			}
 
 			// Trigger action for other plugins/integrations
 			do_action( 'mhmrentiva_booking_cancelled', $booking_id, $user_id, $reason );
@@ -586,13 +600,19 @@ final class CancellationHandler {
 	 *                           here regardless of how cancel_booking() was
 	 *                           called (see MoneyAuthorization).
 	 * @param string $reason     Cancellation reason, carried into the refund record
-	 * @return bool True when a refund was actually made.
-	 * @throws \Exception When settle_refund() could not even record that a
-	 *                    refund attempt started (fix round 1, F2) -- caught
-	 *                    by cancel_booking()'s own post-commit catch, which
-	 *                    is this method's only caller.
+	 * @return string|null Null when nothing about the refund step itself
+	 *                      needs to be surfaced to the caller (a refund
+	 *                      actually completed, none was owed, or a
+	 *                      pre-existing failure was already logged by
+	 *                      settle_refund() through its own channel). A
+	 *                      string when settle_refund() could not even
+	 *                      record that a refund attempt started (fix round
+	 *                      2, G1) -- returned, not thrown, so cancel_booking()
+	 *                      can add it to 'problems' AND still go on to fire
+	 *                      mhmrentiva_booking_cancelled, which a throw here
+	 *                      used to skip.
 	 */
-	private static function process_refund( int $booking_id, int $user_id, string $reason = '' ): bool {
+	private static function process_refund( int $booking_id, int $user_id, string $reason = '' ): ?string {
 		if ( ! \MHMRentiva\Admin\Payment\Core\MoneyAuthorization::mayMoveMoney( $booking_id, $user_id, 'refund' ) ) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
 				array(
@@ -604,7 +624,7 @@ final class CancellationHandler {
 				)
 			);
 
-			return false;
+			return null;
 		}
 
 		$payment_status = (string) get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
@@ -619,7 +639,7 @@ final class CancellationHandler {
 			|| in_array( $payment_status, array( 'paid', 'partially_refunded' ), true );
 
 		if ( ! $has_money ) {
-			return false;
+			return null;
 		}
 
 		$payment_gateway = (string) get_post_meta( $booking_id, '_mhmrentiva_payment_gateway', true );
@@ -662,13 +682,20 @@ final class CancellationHandler {
 	 * cancellation), or no money was ever taken (not_required). Collapsing them
 	 * would hide a real transfer from the audit trail.
 	 *
-	 * @throws \Exception When the PENDING transition itself could not be
-	 *                    recorded (fix round 1, F2) -- thrown rather than
-	 *                    returned so the caller's own post-commit
-	 *                    catch(\Throwable) can surface it, instead of a Log
-	 *                    entry being the only place it is visible.
+	 * @return string|null Null on every path except one: when the PENDING
+	 *                      transition itself could not be recorded (fix
+	 *                      round 1, F2). That path returns the refusal
+	 *                      message as a VALUE rather than throwing it (fix
+	 *                      round 2, G1) -- a throw here used to unwind past
+	 *                      process_refund()'s return in cancel_booking(),
+	 *                      skipping the public mhmrentiva_booking_cancelled
+	 *                      action entirely (a live Pro consumer:
+	 *                      VendorCancellationDateBlocker::maybe_block_dates())
+	 *                      even though the cancellation itself had already
+	 *                      committed and needed that hook to run regardless
+	 *                      of what happened to the refund.
 	 */
-	private static function settle_refund( int $booking_id, string $reason, int $user_id, string $payment_gateway, string $surface ): bool {
+	private static function settle_refund( int $booking_id, string $reason, int $user_id, string $payment_gateway, string $surface ): ?string {
 		if ( ! \MHMRentiva\Admin\Payment\Core\RefundLock::acquire( $booking_id ) ) {
 			// The lock refusal branch: no lock, no operation, and no status
 			// write either. RefundStatus::transition() refuses to write
@@ -706,7 +733,7 @@ final class CancellationHandler {
 				)
 			);
 
-			return false;
+			return null;
 		}
 
 		try {
@@ -759,17 +786,19 @@ final class CancellationHandler {
 					)
 				);
 
-				// Fix round 1, F2: thrown rather than silently returned, so
-				// cancel_booking()'s post-commit catch(\Throwable) records
-				// this in the 'problems' it already returns to both AJAX
-				// surfaces AND to review_cancel_and_refund() -- a Log-screen
-				// entry alone left the caller free to keep telling the
-				// operator/customer "cancelled successfully" while the
-				// refund that should have started never did. finally below
-				// still releases the lock; this exception is caught well
-				// outside this method (process_refund() adds no catch of
-				// its own).
-				throw new \Exception( __( "Refund not attempted: this booking's refund status changed before the refund could start.", 'mhm-rentiva' ) );
+				// Fix round 2, G1: RETURNED as a value, not thrown. Fix round
+				// 1 threw here, which reported the refusal but also unwound
+				// past process_refund()'s own return inside cancel_booking()'s
+				// try -- skipping do_action( 'mhmrentiva_booking_cancelled', ... )
+				// entirely, even though the cancellation itself had already
+				// committed and other listeners (Pro's
+				// VendorCancellationDateBlocker::maybe_block_dates() among
+				// them) still need to run regardless of what happened to the
+				// refund. Returning lets the caller decide what to do with
+				// the refusal -- add it to 'problems' -- without aborting
+				// anything that comes after it. finally below still
+				// releases the lock.
+				return __( "Refund not attempted: this booking's refund status changed before the refund could start.", 'mhm-rentiva' );
 			}
 
 			// Spec v3 §4.2: the integrator hook moves INSIDE the lock. Its
@@ -822,7 +851,7 @@ final class CancellationHandler {
 					array( 'surface' => $surface )
 				);
 
-				return false;
+				return null;
 			}
 
 			$result  = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason, $user_id );
@@ -855,7 +884,14 @@ final class CancellationHandler {
 				}
 			}
 
-			return $success;
+			// Fix round 2, G1: $success already drove the FAILED transition
+			// and its log entry above -- both existed before this task and
+			// are untouched. A validator refusal here is read back from
+			// _mhmrentiva_refund_status by every consumer that cares (the
+			// AJAX surfaces' FAILED check, F6), so it does not also need a
+			// 'problems' entry; only the PENDING-not-recorded refusal above
+			// does (G1's own scope).
+			return null;
 		} finally {
 			\MHMRentiva\Admin\Payment\Core\RefundLock::release( $booking_id );
 		}
