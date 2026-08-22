@@ -440,6 +440,14 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
      * (AutoCancel::is_paid()), rather than a second bare get_date_paid() --
      * two predicates answering one question is the defect class this slice
      * exists to remove.
+     *
+     * Task 14b item 6 (M-4): before item 5, a paid order here fell straight
+     * into `$skipped` -- K6 held (no money moved), but nothing an operator
+     * could see recorded it, unlike cancel_booking_with_orders()'s own
+     * paid-order guard, which parks the booking in needs_review and sends a
+     * notification. This assertion is deliberately turned, not weakened: it
+     * now asserts the NEW behaviour (parked, not skipped) rather than
+     * continuing to assert the old silence as if it were still correct.
      */
     public function test_sync_orphan_wc_orders_does_not_cancel_a_paid_order(): void
     {
@@ -467,7 +475,23 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
             'No unattended path may move money.'
         );
         $this->assertSame( 0, $result['cancelled'] );
-        $this->assertSame( 1, $result['skipped'] );
+        $this->assertSame(
+            0,
+            $result['skipped'],
+            'Item 6: a paid candidate is no longer counted as a plain skip -- it is parked instead, below.'
+        );
+        $this->assertSame(
+            1,
+            $result['parked'],
+            'Item 5: a paid order the backfill may not touch must be parked for review, the same as the cron'
+                . ' sweep\'s own K6 guard, not silently counted and forgotten.'
+        );
+        $this->assertSame(
+            RefundStatus::NEEDS_REVIEW,
+            RefundStatus::get( $booking_id ),
+            'Parking is only visible if it actually changes the booking\'s refund_status -- the same second'
+                . ' witness the cron-sweep sibling test (AutoCancelLeavesPaidMoneyAloneTest) uses.'
+        );
     }
 
     /**

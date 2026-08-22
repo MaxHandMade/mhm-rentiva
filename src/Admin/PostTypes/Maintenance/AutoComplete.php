@@ -145,13 +145,21 @@ final class AutoComplete {
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.
 				// Routed to the plugin's own logger instead of the site's PHP error log.
+				//
+				// Task 14b item 3: promoted from warning() to error(). A
+				// per-booking exception here means the sweep silently never
+				// completed a booking it selected -- the same shape as
+				// AutoCancel.php's sibling catch -- and warning() is
+				// exactly the level a stock install drops.
 				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
-						'Auto-complete skipped a booking',
-						array(
-							'booking_id' => $bid,
-							'error'      => $e->getMessage(),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+						sprintf(
+							/* translators: %s: the throwable message that interrupted this booking's auto-complete. */
+							__( 'Auto-complete skipped a booking: %s', 'mhm-rentiva' ),
+							$e->getMessage()
 						),
+						$bid,
+						array( 'error' => $e->getMessage() ),
 						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 					);
 				}

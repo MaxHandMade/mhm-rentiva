@@ -109,10 +109,26 @@ final class AutoCancel {
 		$schedules = wp_get_schedules();
 
 		if (! isset($schedules[ self::SCHEDULE ])) {
-			AdvancedLogger::warning('Custom schedule not found', array(
-				'schedule'  => self::SCHEDULE,
-				'available' => array_keys($schedules),
-			));
+			// Task 14b item 3: promoted from warning() to error() -- this
+			// runs on every 'init' (priority 100), so if it ever fires for
+			// real, the auto-cancel deadline sweep and the auto-complete
+			// sweep never get scheduled at all, on every page load, with no
+			// operator-visible sign why. warning() is dropped under the
+			// default mhmrentiva_log_level of 'error'; the failure this
+			// guards is worth more than that default.
+			AdvancedLogger::error_for_booking(
+				sprintf(
+					/* translators: 1: the custom cron schedule slug that is missing, 2: the schedule slugs that ARE registered. */
+					__( 'Custom schedule not found (schedule: %1$s, available: %2$s)', 'mhm-rentiva' ),
+					self::SCHEDULE,
+					implode( ', ', array_keys( $schedules ) )
+				),
+				0,
+				array(
+					'schedule'  => self::SCHEDULE,
+					'available' => array_keys($schedules),
+				)
+			);
 			return;
 		}
 
@@ -123,6 +139,11 @@ final class AutoCancel {
 			// If the event is scheduled far in the future (> 10 mins), it's likely using Local Time (UTC+3)
 			// WP-Cron runs on UTC, so this would delay execution by 3 hours.
 			if ($next_scheduled > ( time() + 600 )) {
+				// Task 14b item 3: left at warning() deliberately -- this is
+				// a detected-and-corrected drift, not a failure (the very
+				// next lines unschedule and let the code below reschedule
+				// correctly), so dropping it under the default log level is
+				// the right amount of silence for a self-healing branch.
 				AdvancedLogger::warning('Timezone mismatch detected (Event > 10min in future). Unscheduling to fix.');
 				wp_unschedule_event($next_scheduled, self::EVENT);
 				$next_scheduled = false;
@@ -547,31 +568,36 @@ final class AutoCancel {
 							// and this failure hides better than the lock
 							// refusal below, because the durable half (the
 							// status write, its event) all succeeded.
-							$notified = class_exists('\MHMRentiva\Helpers\NotificationHelper')
+							$helper_exists = class_exists('\MHMRentiva\Helpers\NotificationHelper');
+							$notified      = $helper_exists
 								&& \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
 
 							if (! $notified) {
-								// error() + add(), same pair and same reasons
-								// as the lock-refusal branch below; see the
-								// comments there.
-								AdvancedLogger::error(
-									"Refund review notification failed for booking #$bid (surface: auto_cancel): the booking is parked in needs_review but no one was told",
+								// Task 14b item 1: was error() + add(), same
+								// pair and same reasons as the lock-refusal
+								// branch below; one call now covers both.
+								//
+								// Task 14b item 7: the reason used to read
+								// 'notification_failed' even when $helper_exists
+								// was false -- the same operator-visible
+								// silence, but a different, misstated cause.
+								// Practically unreachable (NotificationHelper
+								// ships in the Lite manifest), kept honest
+								// anyway since it is the exact class item 2
+								// exists for.
+								AdvancedLogger::error_for_booking(
+									sprintf(
+										/* translators: 1: booking id, 2: the surface (auto_cancel) that parked this booking for review. */
+										__( 'Refund review notification failed for booking #%1$d (surface: %2$s): the booking is parked in needs_review, but the notification e-mail could not be sent -- no one has been told that it is holding paid money.', 'mhm-rentiva' ),
+										$bid,
+										'auto_cancel'
+									),
+									$bid,
 									array(
-										'booking_id' => $bid,
-										'surface'    => 'auto_cancel',
-										'reason'     => 'notification_failed',
+										'surface' => 'auto_cancel',
+										'reason'  => $helper_exists ? 'notification_failed' : 'helper_missing',
 									),
 									AdvancedLogger::CATEGORY_SYSTEM
-								);
-
-								AdvancedLogger::add(
-									array(
-										'gateway'    => 'auto_cancel',
-										'action'     => 'refund_review',
-										'status'     => 'error',
-										'booking_id' => $bid,
-										'message'    => __('This booking was parked for refund review, but the notification e-mail could not be sent -- no one has been told that it is holding paid money.', 'mhm-rentiva'),
-									)
 								);
 							}
 						}
@@ -584,50 +610,31 @@ final class AutoCancel {
 					// behind by a request that died blocks both the
 					// notification and the cancellation until its TTL expires
 					// and tells the operator nothing (ruling T2-R3). The
-					// sibling Status::update_status() refusal below is no
-					// counter-example: it calls warning(), which the default
-					// log level drops (see the next paragraph), so on a
-					// stock install that branch is just as silent. It is
-					// tracked as a class in Task 14 rather than fixed here.
+					// sibling Status::update_status() refusal below used to
+					// be a counter-example -- it called warning(), which the
+					// default log level drops -- until Task 14b item 3
+					// promoted it too, below.
 					//
-					// error(), not warning(): should_skip_log() compares
-					// against mhmrentiva_log_level, which defaults to 'error'
-					// on every install, so a warning-level audit trace is
-					// dropped before it is written -- measured in Task 2.
-					AdvancedLogger::error(
-						"Refund lock refused for booking #$bid (surface: auto_cancel): the booking holds paid money and was not parked for review",
+					// Task 14b item 1: was error() + add(); merged into one
+					// call. The message still names both possibilities
+					// rather than asserting one (item 2's own fix elsewhere
+					// in this slice): acquire() returns false identically
+					// for a row genuinely still held and one it refuses to
+					// steal because it has not hit RefundLock's TTL yet
+					// (RefundLock.php:198-221).
+					AdvancedLogger::error_for_booking(
+						sprintf(
+							/* translators: 1: booking id, 2: the surface (auto_cancel) that could not park this booking for review. */
+							__( 'Refund lock refused for booking #%1$d (surface: %2$s): the booking holds paid money and could not park the booking for review -- its refund lock could not be taken. Another refund operation may still be running, or a lock left behind by one that did not finish is waiting to expire.', 'mhm-rentiva' ),
+							$bid,
+							'auto_cancel'
+						),
+						$bid,
 						array(
-							'booking_id' => $bid,
-							'surface'    => 'auto_cancel',
-							'reason'     => 'lock_refused',
+							'surface' => 'auto_cancel',
+							'reason'  => 'lock_refused',
 						),
 						AdvancedLogger::CATEGORY_SYSTEM
-					);
-
-					// error()'s context array is JSON-encoded into the post
-					// body; only log()'s own booking_id argument writes
-					// _mhmrentiva_log_booking_id, which is the meta the admin
-					// Logs list table's Booking column reads (LogColumns.php:98).
-					// payment() and booking() pass it too, but both pin the
-					// entry to LEVEL_INFO (:355, :370), which the default
-					// 'error' log level drops -- so add() with a non-success
-					// status is the only public entry point that writes the
-					// booking link at a level that survives. The pair, not
-					// error() alone, is what keeps this entry traceable to its
-					// booking. Same pairing the sibling lock-refusal branch
-					// uses (CancellationHandler.php:525-535).
-					AdvancedLogger::add(
-						array(
-							'gateway'    => 'auto_cancel',
-							'action'     => 'refund_review',
-							'status'     => 'error',
-							'booking_id' => $bid,
-							// The branch cannot tell the two apart -- acquire()
-							// also returns false for a row it refuses to steal
-							// (RefundLock.php:198-221) -- so the message names
-							// both possibilities instead of asserting one.
-							'message'    => __('Auto-cancel left a paid order alone but could not park the booking for review: its refund lock could not be taken. Another refund operation may still be running, or a lock left behind by one that did not finish is waiting to expire.', 'mhm-rentiva'),
-						)
 					);
 				}
 
@@ -640,9 +647,22 @@ final class AutoCancel {
 				// booking "cancelled" without the transition check and without
 				// mhmrentiva_booking_status_changed, so the rest of the plugin
 				// would never learn about it.
-				AdvancedLogger::warning(
-					"Auto-cancel refused for booking #$bid: no transition from " . Status::get($bid),
-					array( 'booking_id' => $bid ),
+				//
+				// Task 14b item 3: promoted from warning() to error(). Both
+				// sweeps' own queries are built to exclude anything without a
+				// CANCELLED edge (selectable_status_values()), so this branch
+				// firing at all means a booking was selected AND refused --
+				// exactly the "silent infinite loop" AutoCancelSweepSelectionTest
+				// documents: at the previous warning() level, that loop left
+				// no trace on a stock install, tick after tick.
+				AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: %s: the booking's current status, which has no outgoing edge to CANCELLED. */
+						__( 'Auto-cancel refused for booking: no transition from %s', 'mhm-rentiva' ),
+						Status::get($bid)
+					),
+					$bid,
+					array(),
 					'system'
 				);
 
@@ -688,13 +708,22 @@ final class AutoCancel {
 			// Routed to the plugin's own logger instead of the site's PHP error
 			// log, so the record is visible in the admin Logs screen and a
 			// distributed plugin does not write to a file the owner never opted into.
+			//
+			// Task 14b item 3: promoted from warning() to error(). A
+			// per-booking exception here means the sweep silently never
+			// cancelled a booking it selected -- the same shape as
+			// AutoComplete.php's sibling catch (a separate file, same
+			// pattern) -- and warning() is exactly the level a stock
+			// install drops.
 			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
-					'Auto-cancel skipped a booking',
-					array(
-						'booking_id' => $bid,
-						'error'      => $e->getMessage(),
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: %s: the throwable message that interrupted this booking's auto-cancel. */
+						__( 'Auto-cancel skipped a booking: %s', 'mhm-rentiva' ),
+						$e->getMessage()
 					),
+					$bid,
+					array( 'error' => $e->getMessage() ),
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 			}
@@ -772,16 +801,25 @@ final class AutoCancel {
 	 * Usage:
 	 *   wp eval 'echo MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::sync_orphan_wc_orders();'
 	 *
-	 * @return array{checked: int, cancelled: int, skipped: int}
+	 * Task 14b item 5: a booking whose only candidate order(s) are already
+	 * paid is no longer just $skipped -- it is parked in needs_review and a
+	 * human is notified, the same K6 guard cancel_booking_with_orders() uses,
+	 * via park_paid_booking_for_review(). `$skipped` is now reserved for
+	 * the genuinely nothing-to-do cases: no candidate order ids at all, or
+	 * every candidate already in a settled status this backfill has no
+	 * reason to touch.
+	 *
+	 * @return array{checked: int, cancelled: int, skipped: int, parked: int}
 	 */
 	public static function sync_orphan_wc_orders(): array
 	{
 		$checked   = 0;
 		$cancelled = 0;
 		$skipped   = 0;
+		$parked    = 0;
 
 		if (! function_exists('wc_get_order')) {
-			return compact('checked', 'cancelled', 'skipped');
+			return compact('checked', 'cancelled', 'skipped', 'parked');
 		}
 
 		$q = new \WP_Query(array(
@@ -822,6 +860,12 @@ final class AutoCancel {
 			// check & cancel them independently so a deposit already cancelled
 			// in a previous pass doesn't cause the remaining order to be missed.
 			$booking_touched = false;
+			// Task 14b item 5: tracked separately from $booking_touched so a
+			// paid candidate can be told apart from "nothing here needed
+			// touching at all" (an already-cancelled/refunded/completed
+			// order, or an id that no longer resolves) -- only the paid case
+			// is the K6 money question this park exists for.
+			$has_paid_order = false;
 			foreach (array_unique($candidate_ids) as $oid) {
 				$order = call_user_func('\wc_get_order', $oid);
 				// One statement where there used to be a falsy check here and
@@ -847,6 +891,7 @@ final class AutoCancel {
 				// operator running the backfill by hand could cancel an order
 				// somebody had paid for. Measured, not hypothetical.
 				if (self::is_paid($order)) {
+					$has_paid_order = true;
 					continue;
 				}
 				if (! $order->has_status(array( 'pending', 'on-hold', 'failed', 'processing' ))) {
@@ -858,19 +903,101 @@ final class AutoCancel {
 			}
 
 			if (! $booking_touched) {
-				++$skipped;
+				if ($has_paid_order) {
+					// Task 14b item 5 (T5-R4): this used to fall straight into
+					// $skipped with nothing an operator could see -- K6 was
+					// upheld (no money moved) but the asymmetry with
+					// cancel_booking_with_orders()'s own paid-order guard,
+					// which parks and notifies, was exactly this task's own
+					// subject. Applying the sibling's pattern here too.
+					self::park_paid_booking_for_review($bid, 'sync_orphan_wc_orders');
+					++$parked;
+				} else {
+					++$skipped;
+				}
 			}
 		}
 
 		if (class_exists(AdvancedLogger::class)) {
 			AdvancedLogger::info(
 				'Orphan WC order backfill completed.',
-				compact('checked', 'cancelled', 'skipped'),
+				compact('checked', 'cancelled', 'skipped', 'parked'),
 				'system'
 			);
 		}
 
-		return compact('checked', 'cancelled', 'skipped');
+		return compact('checked', 'cancelled', 'skipped', 'parked');
+	}
+
+	/**
+	 * Parks a booking for manual review because a sweep found paid money it
+	 * may not touch on its own (K6) -- mirrors cancel_booking_with_orders()'s
+	 * own guard for the exact same reason (see its docblock, above). Task
+	 * 14b item 5: sync_orphan_wc_orders() used to fall straight into its
+	 * $skipped counter on exactly this path, with no status change, no
+	 * notification, and no log -- the asymmetry with the cron sweep this
+	 * method now closes.
+	 *
+	 * Deliberately its own method rather than a refactor of
+	 * cancel_booking_with_orders()'s inline block: that block is exercised by
+	 * this slice's own K6 tests (AutoCancelLeavesPaidMoneyAloneTest) and this
+	 * task's scope is visibility, not restructuring code that already works.
+	 *
+	 * @param int    $bid     Booking post ID.
+	 * @param string $surface Recorded on the transition and used in the
+	 *                        notification-failure log, so an operator reading
+	 *                        either can tell which caller parked the booking.
+	 */
+	private static function park_paid_booking_for_review( int $bid, string $surface ): void {
+		if (! RefundLock::acquire($bid)) {
+			AdvancedLogger::error_for_booking(
+				sprintf(
+					/* translators: %s: the surface (e.g. sync_orphan_wc_orders) that found paid money it could not park for review. */
+					__( 'Refund lock refused (surface: %s): the booking holds paid money and was not parked for review.', 'mhm-rentiva' ),
+					$surface
+				),
+				$bid,
+				array(
+					'surface' => $surface,
+					'reason'  => 'lock_refused',
+				),
+				AdvancedLogger::CATEGORY_SYSTEM
+			);
+			return;
+		}
+
+		try {
+			if (! RefundStatus::transition($bid, RefundStatus::NEEDS_REVIEW, array( 'surface' => $surface ))) {
+				return;
+			}
+
+			$helper_exists = class_exists('\MHMRentiva\Helpers\NotificationHelper');
+			$notified      = $helper_exists
+				&& \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
+
+			if (! $notified) {
+				// Task 14b item 7: the reason is not the same fact in both
+				// branches -- the helper class being entirely absent
+				// (helper_missing) is a different problem than the helper
+				// running and failing (notification_failed), even though the
+				// operator sees the same silence either way.
+				AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: %s: the surface that parked this booking for review. */
+						__( 'Refund review notification failed (surface: %s): the booking is parked in needs_review but no one was told.', 'mhm-rentiva' ),
+						$surface
+					),
+					$bid,
+					array(
+						'surface' => $surface,
+						'reason'  => $helper_exists ? 'notification_failed' : 'helper_missing',
+					),
+					AdvancedLogger::CATEGORY_SYSTEM
+				);
+			}
+		} finally {
+			RefundLock::release($bid);
+		}
 	}
 
 	/**
