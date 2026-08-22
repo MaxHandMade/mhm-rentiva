@@ -164,6 +164,21 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
      * payment_status is 'pending' rather than 'partially_refunded' on purpose:
      * it keeps this control measuring the booking-status half of the query
      * alone, so reverting only the `completed` entry still turns it red.
+     *
+     * Fix round 1, F1 (Task 14b review): Task 14b's own item 3 promoted this
+     * refusal from warning() to error() via AdvancedLogger::error_linked(),
+     * which writes the booking id to log()'s own booking_id argument --
+     * meta on the post, rendered on a SEPARATE content line -- rather than
+     * interpolating "#<id>" into the message text the way the pre-14b
+     * warning() call did. A bare str_contains('Auto-cancel refused for
+     * booking #' . $booking_id) against post_content could therefore never
+     * match again, whatever the sweep did: the assertion below had gone
+     * silently tautological, still green, no longer testing anything.
+     * SettingsCore::set('mhmrentiva_log_level', 'warning') is kept even
+     * though error() no longer needs it raised -- removing it would make
+     * this control indistinguishable from one that happens to pass at the
+     * default level, and the setting is prophylactic scaffolding, not the
+     * defect under test.
      */
     public function test_a_completed_booking_past_pickup_is_not_swept(): void
     {
@@ -180,9 +195,41 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         );
         $this->assertSame( 'completed', get_post_meta( $booking_id, '_mhmrentiva_status', true ) );
         $this->assertFalse(
-            $this->log_exists( 'Auto-cancel refused for booking #' . $booking_id ),
+            $this->log_exists_linked_to_booking( 'Auto-cancel refused for booking', $booking_id ),
             'A refusal entry proves the booking was selected. That is the silent infinite loop: every tick'
                 . ' picks it up, every tick refuses, and at the default log level nobody ever sees either half.'
+        );
+    }
+
+    /**
+     * Fix round 1, F1's own proof: log_exists_linked_to_booking() replaces a
+     * bare str_contains() check that had gone tautological (see the docblock
+     * above) precisely because the booking id moved out of post_content and
+     * into meta. This plants the exact shape AdvancedLogger::error_linked()
+     * writes -- the same message substring, but linked to a DIFFERENT
+     * booking -- and proves the helper tells them apart by meta, not merely
+     * by substring. Without this, a future regression that made the helper
+     * itself match on substring alone (silently ignoring $booking_id again)
+     * would go undetected the same way the original bug did.
+     */
+    public function test_log_exists_linked_to_booking_actually_reacts_to_a_planted_entry(): void
+    {
+        $booking_id       = (int) self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+        $other_booking_id = (int) self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+
+        \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+            'Auto-cancel refused for booking: no transition from completed',
+            $other_booking_id
+        );
+
+        $this->assertTrue(
+            $this->log_exists_linked_to_booking( 'Auto-cancel refused for booking', $other_booking_id ),
+            'A planted entry linked to the booking it actually names must be found.'
+        );
+        $this->assertFalse(
+            $this->log_exists_linked_to_booking( 'Auto-cancel refused for booking', $booking_id ),
+            'The same content substring, linked to a DIFFERENT booking id, must not match -- this is the'
+                . ' whole point of checking booking_id meta rather than post_content alone.'
         );
     }
 
@@ -495,6 +542,76 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
     }
 
     /**
+     * Fix round 1, F3 (Task 14b review): a booking can carry BOTH a deposit
+     * order and a remaining order (the comment above the per-order loop
+     * names exactly this shape), and before this fix a paid/unpaid MIX was
+     * never parked and left no trace at all. The unpaid sibling's own
+     * cancellation set `$booking_touched = true`, so the
+     * `if ( ! $booking_touched )` guard that used to gate both `$parked`
+     * and `$skipped` skipped BOTH branches for this booking entirely: the
+     * paid sibling's money fell through completely un-recorded, and the
+     * booking read as a clean success via the order-level `$cancelled`
+     * counter alone.
+     *
+     * Parking here is measured to be sound, not a half-state: this
+     * booking's OWN `_mhmrentiva_status` is already 'cancelled' (the
+     * query's own selection criterion, above) before this method ever
+     * runs, so recording NEEDS_REVIEW describes the still-open question
+     * about the PAID sibling's money -- it does not reopen or conflict
+     * with the cancellation the unpaid sibling's own WC order status
+     * already reflects.
+     */
+    public function test_sync_orphan_wc_orders_parks_a_booking_with_one_paid_and_one_unpaid_order(): void
+    {
+        $booking_id = (int) self::factory()->post->create( array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ) );
+        update_post_meta( $booking_id, '_mhmrentiva_status', 'cancelled' );
+
+        $paid_order = $this->create_paid_order_for_booking( $booking_id, '450' );
+
+        $unpaid_order = wc_create_order( array( 'status' => 'on-hold' ) );
+        $unpaid_order->set_total( '150.00' );
+        $unpaid_order->save();
+        update_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', $unpaid_order->get_id() );
+
+        $refunded_before = $paid_order->get_total_refunded();
+
+        $result = AutoCancel::sync_orphan_wc_orders();
+
+        $this->assertSame(
+            'processing',
+            wc_get_order( $paid_order->get_id() )->get_status(),
+            'The paid sibling must not be cancelled -- K6 holds regardless of what its sibling order looks like.'
+        );
+        $this->assertSame( $refunded_before, wc_get_order( $paid_order->get_id() )->get_total_refunded() );
+        $this->assertSame(
+            'cancelled',
+            wc_get_order( $unpaid_order->get_id() )->get_status(),
+            'The unpaid sibling is exactly what this backfill exists to clean up, and parking its paid'
+                . ' sibling must not stop that.'
+        );
+        $this->assertSame(
+            1,
+            $result['cancelled'],
+            'The order-level counter still reflects the one order this call actually cancelled.'
+        );
+        $this->assertSame(
+            1,
+            $result['parked'],
+            'Before this fix, $booking_touched (set by the unpaid sibling) skipped the parking branch'
+                . ' entirely for this booking -- the paid sibling was never parked and never counted anywhere.'
+        );
+        $this->assertSame( 0, $result['skipped'] );
+        $this->assertSame(
+            RefundStatus::NEEDS_REVIEW,
+            RefundStatus::get( $booking_id ),
+            'The second witness: parking is only real if it actually moved the booking\'s refund_status.'
+        );
+    }
+
+    /**
      * The allowlist's OTHER control: a status this plugin does recognise, and
      * which it stores as the empty string.
      *
@@ -601,6 +718,35 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
 
         foreach ( $logs as $log ) {
             if ( str_contains( $log->post_content, $needle ) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Fix round 1, F1: log_exists() alone is not enough for a message whose
+     * booking id lives in AdvancedLogger::log()'s own booking_id argument
+     * (meta, rendered on a separate content line) rather than interpolated
+     * into the text -- a bare substring match would find ANY booking's
+     * refusal, not specifically the one under test. Checks both: the
+     * content substring, AND that this exact post is linked (via
+     * _mhmrentiva_log_booking_id) to $booking_id.
+     */
+    private function log_exists_linked_to_booking( string $needle, int $booking_id ): bool
+    {
+        $logs = get_posts( array(
+            'post_type'      => PostType::TYPE,
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+        ) );
+
+        foreach ( $logs as $log ) {
+            if (
+                str_contains( $log->post_content, $needle )
+                && $booking_id === (int) get_post_meta( $log->ID, '_mhmrentiva_log_booking_id', true )
+            ) {
                 return true;
             }
         }
