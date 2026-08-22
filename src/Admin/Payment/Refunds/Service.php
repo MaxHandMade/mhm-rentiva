@@ -52,7 +52,24 @@ final class Service {
 		// inherits the gate whether it remembers to ask or not. Before this
 		// task the question lived at each call site instead, and one of them
 		// -- Actions::refund_booking() -- never asked at all.
+		//
+		// Always asks as 'service', regardless of who is calling -- even when
+		// the caller is CancellationHandler::process_refund(), which already
+		// asked the SAME actor one layer up as 'refund' (or cancel_booking()'s
+		// own outer gate, as 'cancel'). That is a deliberate double-ask, not a
+		// redundant one: by the time this ask runs, the outer ask has already
+		// let settle_refund() take RefundLock and write the 'pending' status.
+		// A future surface-aware filter that allows the outer ask and refuses
+		// this one would refuse here AFTER that lock and write already
+		// happened -- and the caller-side code records that as
+		// 'reason' => 'validator_refused', a label that would then describe a
+		// permission refusal, not a validator one (fix round 1, F6). Threading
+		// the caller's own surface through this ask was judged out of this
+		// task's scope; a surface-aware filter has to account for the
+		// two-ask sequence itself.
 		if ( ! MoneyAuthorization::mayMoveMoney( $bookingId, $actorId, 'service' ) ) {
+			self::logRefusedMoneyMove( $bookingId );
+
 			return array(
 				'mhmrentiva_refund'     => '0',
 				'mhmrentiva_refund_msg' => __( 'You do not have permission to move money on this booking.', 'mhm-rentiva' ),
@@ -91,8 +108,11 @@ final class Service {
 
 	public static function processFullRefund( int $bookingId, string $reason, int $actorId ): array {
 		// See process() above -- the same gate, the same reason it is the
-		// first statement.
+		// first statement, the same 'service' surface, and the same
+		// two-ask-sequence note.
 		if ( ! MoneyAuthorization::mayMoveMoney( $bookingId, $actorId, 'service' ) ) {
+			self::logRefusedMoneyMove( $bookingId );
+
 			return array(
 				'mhmrentiva_refund'     => '0',
 				'mhmrentiva_refund_msg' => __( 'You do not have permission to move money on this booking.', 'mhm-rentiva' ),
@@ -121,6 +141,27 @@ final class Service {
 
 				return self::finish( $bookingId, $operation, $reason );
 			}
+		);
+	}
+
+	/**
+	 * A refused money-move attempt is exactly the event an operator needs
+	 * after the fact -- this task's whole point is that a caller (like
+	 * Actions::refund_booking()) can now reach this refusal having never
+	 * asked the question itself, so nothing else in the tree is guaranteed
+	 * to have logged the attempt (fix round 1, F2). Mirrors the shape
+	 * CancellationHandler::process_refund()'s own refusal branch already
+	 * uses, one layer up.
+	 */
+	private static function logRefusedMoneyMove( int $bookingId ): void {
+		Logger::add(
+			array(
+				'gateway'    => 'refund_service',
+				'action'     => 'refund',
+				'status'     => 'error',
+				'booking_id' => $bookingId,
+				'message'    => __( 'Refund not attempted: this request was not attributed to a user allowed to move money.', 'mhm-rentiva' ),
+			)
 		);
 	}
 

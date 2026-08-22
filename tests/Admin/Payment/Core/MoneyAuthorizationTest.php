@@ -103,4 +103,21 @@ final class MoneyAuthorizationTest extends WP_UnitTestCase
         $this->assertSame('0', $result['mhmrentiva_refund']);
         $this->assertSame(0, did_action('mhmrentiva_refund_completed'));
     }
+
+    /**
+     * The standing positive control for the test above (fix round 1, F7):
+     * without it, a fixture that stopped being refundable for some unrelated
+     * reason would make the refusal test pass for the wrong reason -- refused
+     * because nothing was left to refund, not because the predicate rejected
+     * the actor -- and nothing in the suite would notice. Fix round 1's
+     * mutation run (Service.php's gate replaced with `if (false)`) is
+     * one-off evidence that this fixture is sensitive to the gate; this test
+     * is the version of that evidence that stays in the suite.
+     */
+    public function test_the_service_accepts_a_refund_the_predicate_allows(): void
+    {
+        $result = Service::processFullRefund($this->booking_id, '', $this->admin_id);
+
+        $this->assertSame('1', $result['mhmrentiva_refund'], $result['mhmrentiva_refund_msg']);
+    }
 }

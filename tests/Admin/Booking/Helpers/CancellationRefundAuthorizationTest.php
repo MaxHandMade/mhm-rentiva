@@ -76,7 +76,8 @@ final class CancellationRefundAuthorizationTest extends WP_UnitTestCase
         $this->assertSame(
             '',
             $this->refund_status(),
-            'An unattributed call must not reach the money step; that is what the $system flag is for.'
+            'An unattributed call must not reach the money step -- MoneyAuthorization\'s hard floor'
+                . ' refuses actor 0 regardless of any flag.'
         );
     }
 
@@ -90,16 +91,33 @@ final class CancellationRefundAuthorizationTest extends WP_UnitTestCase
      * system caller with no attributed actor buys nothing at the money step
      * any more. $system remains on cancel_booking()'s signature as attribution
      * metadata only.
+     *
+     * Fix round 1, F1: the first version of this turn asserted only the empty
+     * refund status, which would pass identically if cancel_booking() had
+     * bailed at any earlier gate (or thrown) and never reached the money step
+     * at all -- the exact failure shape this slice exists to close, and now a
+     * near-duplicate of test_a_silent_zero_actor_does_not_move_money() above
+     * in everything but $force/$system. Capturing the return and asserting
+     * CANCELLED restores the control: it proves the cancellation itself ran
+     * to completion, so the empty refund status is provably the money step's
+     * own refusal, not some earlier exit.
      */
     public function test_an_explicit_system_call_may_not_move_money(): void
     {
-        CancellationHandler::cancel_booking($this->booking_id, 0, 'cron', true, true);
+        $result = CancellationHandler::cancel_booking($this->booking_id, 0, 'cron', true, true);
 
+        $this->assertSame(
+            Status::CANCELLED,
+            Status::get($this->booking_id),
+            'Guard: the cancellation itself must have gone through -- $system only ever bore on the'
+                . ' MONEY step; otherwise this test would be measuring the wrong refusal.'
+        );
+        $this->assertFalse(is_wp_error($result));
         $this->assertSame(
             '',
             $this->refund_status(),
             'There is no $system bypass any more -- an unattributed actor is refused at the money'
-                . ' step regardless of this flag.'
+                . ' step regardless of this flag, even though the cancellation itself succeeded.'
         );
     }
 

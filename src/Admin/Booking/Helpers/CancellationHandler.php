@@ -694,8 +694,15 @@ final class CancellationHandler {
 			$user_id = get_current_user_id();
 		}
 
-		// Admins can always cancel
-		if ( current_user_can( 'manage_options' ) ) {
+		// Admins can always cancel. Asks the $user_id argument, not the
+		// ambient request (fix round 1, F3) -- this was the same defect
+		// class MoneyAuthorization exists to remove one method below,
+		// reached from the UI-gate side instead of the money side. The
+		// single production caller (templates/account/booking-detail.php)
+		// never passes an explicit actor, so $user_id is always the current
+		// user there and this changes nothing for it; it matters the moment
+		// any caller asks on another actor's behalf.
+		if ( user_can( $user_id, 'manage_options' ) ) {
 			return true;
 		}
 

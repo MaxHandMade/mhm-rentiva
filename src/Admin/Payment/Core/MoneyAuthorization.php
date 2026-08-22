@@ -13,8 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Deliberately NOT current_user_can(): the actor is passed in explicitly. A
  * request-scoped question answers for the wrong subject on any path where the
- * caller is acting on someone else's behalf, and current_user_can() also
- * returns true for super admins by default, which blurs the answer further.
+ * caller is acting on someone else's behalf.
  *
  * There is no $system leg. Since K6 no unattended path moves money at all, a
  * bypass boolean would be a hole any future caller could open by passing true.
