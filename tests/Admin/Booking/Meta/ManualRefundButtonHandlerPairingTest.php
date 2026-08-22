@@ -20,10 +20,15 @@ use WP_UnitTestCase;
  *
  * RefundGateAgreementTest already proves two PHP surfaces (the deposit box's
  * button, the refund box's link) cannot drift from each other. This file is
- * the same idea across the PHP/JS boundary: the id the new
- * `#close-manual-refund` handler in deposit-management.js is
- * bound to must be the SAME id BookingRefundMetaBox::render() actually
- * prints for a manual_pending booking.
+ * the same idea across the PHP/JS boundary, for BOTH ids the new handler
+ * depends on: the button it is bound to (`#close-manual-refund`) and the
+ * input it reads via `.val()` for the request's `reference` field
+ * (`#manual-refund-reference`) must each be the SAME id
+ * BookingRefundMetaBox::render() actually prints for a manual_pending
+ * booking. The second is the more dangerous mismatch of the two (fix round
+ * 1, I1): a wrong button id does nothing, loudly; a wrong `.val()` selector
+ * returns `undefined`, `|| ''` in the handler swallows it, and the endpoint
+ * silently records a money attestation with an empty reference.
  *
  * The extraction reads the shipped JS source rather than hard-coding the
  * selector as a literal on both sides of this test -- a literal on both
@@ -43,20 +48,28 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
     }
 
     /**
-     * Map every AJAX `action` string a click handler posts to the CSS
-     * selector its binding in bindEvents() is attached to.
+     * For every click-bound handler in bindEvents(), extract the AJAX
+     * `action` string its own body posts, the CSS selector its binding is
+     * attached to, and -- where the handler reads one -- the selector it
+     * pulls a `.val()` from for its own request payload (I1, fix round 1:
+     * a mismatched button id merely does nothing and is loud; a mismatched
+     * `.val()` selector returns `undefined` from jQuery, `|| ''` in the
+     * handler swallows it, and the endpoint silently records an empty
+     * reference -- so this needs the same anchor the button gets).
      *
      * Two passes, both over the real file, neither hard-coding a name:
      * 1. `$(document).on('click', '#selector', (e) => this.method(e))` gives
      *    method => selector.
      * 2. Every `method(e) {` declaration's offset delimits that method's own
-     *    body up to the NEXT such declaration (file order, not a name list),
-     *    and the `action: '...'` found inside that span is the action that
-     *    selector posts.
+     *    body up to the NEXT such declaration (file order, not a name list).
+     *    The `action: '...'` found inside that span is the action the
+     *    selector posts; a `$('#selector').val()` found in the SAME span,
+     *    if any, is what that handler reads for the request.
      *
-     * @return array<string, string> action => selector
+     * @return array{0: array<string,string>, 1: array<string,string>}
+     *         array{action => click selector, action => value-read selector}
      */
-    private function extract_action_to_selector_map(string $js): array
+    private function extract_action_maps(string $js): array
     {
         preg_match_all(
             "/\\\$\\(document\\)\\.on\\('click',\\s*'([^']+)',\\s*\\(e\\)\\s*=>\\s*this\\.(\\w+)\\(e\\)\\)/",
@@ -65,18 +78,20 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
             PREG_SET_ORDER
         );
 
-        $selector_by_method = array();
+        $click_selector_by_method = array();
         foreach ($bindings as $binding) {
-            $selector_by_method[$binding[2]] = $binding[1];
+            $click_selector_by_method[$binding[2]] = $binding[1];
         }
 
         preg_match_all('/(\w+)\(e\)\s*\{/', $js, $declarations, PREG_OFFSET_CAPTURE);
 
-        $map = array();
+        $action_to_click_selector = array();
+        $action_to_value_selector = array();
+
         foreach ($declarations[1] as $index => $declaration) {
             [$method, $offset] = $declaration;
 
-            if (! isset($selector_by_method[$method])) {
+            if (! isset($click_selector_by_method[$method])) {
                 // A method that also happens to take a single `(e)` argument
                 // but is not itself bound to a click in bindEvents().
                 continue;
@@ -85,12 +100,19 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
             $next_offset = $declarations[1][$index + 1][1] ?? strlen($js);
             $body        = substr($js, $offset, $next_offset - $offset);
 
-            if (preg_match("/action:\\s*'([^']+)'/", $body, $action_match)) {
-                $map[$action_match[1]] = $selector_by_method[$method];
+            if (! preg_match("/action:\\s*'([^']+)'/", $body, $action_match)) {
+                continue;
+            }
+
+            $action                             = $action_match[1];
+            $action_to_click_selector[$action]  = $click_selector_by_method[$method];
+
+            if (preg_match("/\\\$\\('([^']+)'\\)\\.val\\(\\)/", $body, $value_match)) {
+                $action_to_value_selector[$action] = $value_match[1];
             }
         }
 
-        return $map;
+        return array( $action_to_click_selector, $action_to_value_selector );
     }
 
     /**
@@ -104,11 +126,11 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
      */
     public function test_the_extraction_correctly_recovers_a_known_sibling_pairing(): void
     {
-        $map = $this->extract_action_to_selector_map($this->js_source());
+        [$click_map] = $this->extract_action_maps($this->js_source());
 
         $this->assertSame(
             '#process-refund',
-            $map['mhmrentiva_deposit_process_refund'] ?? null,
+            $click_map['mhmrentiva_deposit_process_refund'] ?? null,
             'Sanity check on the extraction itself: it must recover the well-known process-refund pairing, '
                 . 'or nothing in this file proves the scanner reads deposit-management.js at all.'
         );
@@ -116,30 +138,19 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
 
     public function test_the_close_manual_refund_handler_is_bound_to_a_selector_the_metabox_actually_prints(): void
     {
-        $map = $this->extract_action_to_selector_map($this->js_source());
+        [$click_map] = $this->extract_action_maps($this->js_source());
 
         $this->assertArrayHasKey(
             'mhmrentiva_close_manual_refund',
-            $map,
+            $click_map,
             'No click handler in deposit-management.js posts action: "mhmrentiva_close_manual_refund". '
                 . 'Either the handler is missing, or it no longer matches the binding pattern this scan looks for.'
         );
 
-        $selector = $map['mhmrentiva_close_manual_refund'];
+        $selector = $click_map['mhmrentiva_close_manual_refund'];
         $id       = ltrim($selector, '#');
 
-        $admin_id = self::factory()->user->create(array( 'role' => 'administrator' ));
-        wp_set_current_user($admin_id);
-
-        $booking_id = self::factory()->post->create(array(
-            'post_type'   => 'mhmrentiva_booking',
-            'post_status' => 'publish',
-        ));
-        update_post_meta($booking_id, RefundStatus::META_KEY, RefundStatus::MANUAL_PENDING);
-
-        ob_start();
-        BookingRefundMetaBox::render(get_post($booking_id));
-        $html = (string) ob_get_clean();
+        $html = $this->render_manual_pending_box_as_authorised_administrator();
 
         $this->assertStringContainsString(
             'id="' . $id . '"',
@@ -157,13 +168,49 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
     }
 
     /**
-     * The positive control the assertion above needs: without it, a fixture
-     * that rendered no button for any unrelated reason (the actor failing
-     * MoneyAuthorization, a status other than manual_pending) would make the
-     * previous test pass or fail for the wrong reason regardless of the
-     * id match.
+     * I1 (fix round 1): the button id is only half the pairing. The handler
+     * also reads `$('#manual-refund-reference').val()` for the request's
+     * `reference` field, off a DIFFERENT selector than the button's own id.
+     * A mismatch here is worse than a mismatched button: the button at
+     * least does nothing and is loud, while jQuery returns `undefined` for
+     * a missing selector, `|| ''` swallows it, and close_manual_refund()
+     * happily records an empty reference with no error surfaced anywhere.
+     * Uses the same already-proven body-span extractor as the button test
+     * above (see test_the_extraction_correctly_recovers_a_known_sibling_pairing
+     * for that mechanism's own read-proving control) -- this only adds a
+     * second regex over the identical, already-isolated span.
      */
-    public function test_the_control_button_id_renders_for_an_authorised_actor_on_a_manual_pending_booking(): void
+    public function test_the_close_manual_refund_handler_reads_a_reference_selector_the_metabox_actually_prints(): void
+    {
+        [, $value_map] = $this->extract_action_maps($this->js_source());
+
+        $this->assertArrayHasKey(
+            'mhmrentiva_close_manual_refund',
+            $value_map,
+            'handleCloseManualRefund() no longer reads any $(\'...\').val() at all -- either the reference '
+                . 'field was dropped, or it no longer matches the pattern this scan looks for.'
+        );
+
+        $selector = $value_map['mhmrentiva_close_manual_refund'];
+        $id       = ltrim($selector, '#');
+
+        $html = $this->render_manual_pending_box_as_authorised_administrator();
+
+        $this->assertStringContainsString(
+            'id="' . $id . '"',
+            $html,
+            sprintf(
+                'deposit-management.js reads %1$s for the reference field, but the refund metabox\'s rendered '
+                    . 'markup for a manual_pending booking contains no element with id="%2$s". A mismatch here is '
+                    . 'silent: jQuery returns undefined, "|| \'\'" swallows it, and the endpoint records an empty '
+                    . 'reference with no error anywhere.',
+                $selector,
+                $id
+            )
+        );
+    }
+
+    private function render_manual_pending_box_as_authorised_administrator(): string
     {
         $admin_id = self::factory()->user->create(array( 'role' => 'administrator' ));
         wp_set_current_user($admin_id);
@@ -176,12 +223,30 @@ final class ManualRefundButtonHandlerPairingTest extends WP_UnitTestCase
 
         ob_start();
         BookingRefundMetaBox::render(get_post($booking_id));
-        $html = (string) ob_get_clean();
+
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * The positive control both assertions above need: without it, a
+     * fixture that rendered neither element for any unrelated reason (the
+     * actor failing MoneyAuthorization, a status other than manual_pending)
+     * would make either previous test pass or fail for the wrong reason
+     * regardless of the id match.
+     */
+    public function test_the_control_button_and_reference_field_render_for_an_authorised_actor_on_a_manual_pending_booking(): void
+    {
+        $html = $this->render_manual_pending_box_as_authorised_administrator();
 
         $this->assertStringContainsString(
             'id="close-manual-refund"',
             $html,
-            'Positive control: an authorised administrator on a manual_pending booking must see the control at all.'
+            'Positive control: an authorised administrator on a manual_pending booking must see the button at all.'
+        );
+        $this->assertStringContainsString(
+            'id="manual-refund-reference"',
+            $html,
+            'Positive control: the reference field must render alongside the button.'
         );
     }
 }

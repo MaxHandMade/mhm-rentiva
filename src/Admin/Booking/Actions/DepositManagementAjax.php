@@ -33,7 +33,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * That is deliberate: this file used to contain its own nonce and capability
  * checks inline, and the Faz 2 Task 7 guard extraction moved both one file
  * away -- leaving five registered `wp_ajax_*` money endpoints in which
- * grepping for a nonce check finds nothing. The authoritative check (and the
+ * grepping for a nonce check finds nothing (a sixth, close_manual_refund(),
+ * joined later under the same pattern). The authoritative check (and the
  * failure response) still belongs to BookingActionGuard; these lines only
  * make the protection visible where the endpoint is.
  */
@@ -431,6 +432,16 @@ final class DepositManagementAjax {
 	}
 
 	/**
+	 * Reference strings are free text from an operator; capped so a pasted
+	 * essay does not land verbatim in a WC order note and in post meta.
+	 * 191, not a round number: the sibling-safe bound under utf8mb4 (the
+	 * historical MySQL index-byte-length ceiling other varchar columns in
+	 * this stack are sized to), used here purely as a sane text cap, not
+	 * because this value is indexed.
+	 */
+	private const REFERENCE_MAX_LENGTH = 191;
+
+	/**
 	 * Attest that a manual_pending refund's money was handed over.
 	 *
 	 * Moves no money and computes nothing: RefundStatus::transition() already
@@ -443,6 +454,21 @@ final class DepositManagementAjax {
 	 * WooCommerce order actually backs the money: the offline channel this
 	 * endpoint exists for is precisely the case where no such order exists,
 	 * so requiring one would make the channel impossible to close.
+	 *
+	 * Every terminating wp_send_json_*() call is OUTSIDE the try/finally
+	 * below, on purpose (fix round 1, C1). wp_send_json_*() calls wp_die(),
+	 * which is a hard exit in production -- PHP does not run a finally block
+	 * across an exit -- so a version of this method that called
+	 * wp_send_json_success()/wp_send_json_error() from INSIDE the try left
+	 * RefundLock::release() unreached on every real request, leaking the
+	 * lock for RefundLock::TTL_SECONDS. WP_Ajax_UnitTestCase could not catch
+	 * this: it intercepts wp_die() by THROWING (WPAjaxDieContinueException
+	 * extends \Exception), and PHP's finally DOES run while an exception
+	 * unwinds the stack -- so the bug was invisible to every test that goes
+	 * through _handleAjax(). $moved is decided and acted on entirely inside
+	 * the try (RefundStatus::transition()'s own isHeld() guard is satisfied
+	 * the whole time the lock is held), and the lock is released before
+	 * either response is sent.
 	 */
 	public static function close_manual_refund(): void {
 		// Line-local nonce check, redundant by design -- see the class
@@ -463,12 +489,14 @@ final class DepositManagementAjax {
 		}
 
 		$req       = VerifiedRequest::from( $_POST );
-		$reference = $req->text( 'reference' );
+		$reference = mb_substr( $req->text( 'reference' ), 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ) ) );
 			return;
 		}
+
+		$moved = false;
 
 		try {
 			$moved = RefundStatus::transition(
@@ -480,36 +508,48 @@ final class DepositManagementAjax {
 				)
 			);
 
-			if ( ! $moved ) {
-				wp_send_json_error( array( 'message' => __( 'This refund is not awaiting a hand transfer.', 'mhm-rentiva' ) ) );
-				return;
-			}
+			if ( $moved ) {
+				// The audit record is booking-level and mandatory. The WC
+				// order note is conditional: the offline channel exists
+				// precisely because there is no WooCommerce order behind the
+				// money, so requiring one would make this channel impossible
+				// to close.
+				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_by', $actor );
+				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_at', current_time( 'mysql' ) );
+				update_post_meta( $booking_id, '_mhmrentiva_refund_completed_reference', $reference );
 
-			// The audit record is booking-level and mandatory. The WC order
-			// note is conditional: the offline channel exists precisely
-			// because there is no WooCommerce order behind the money, so
-			// requiring one would make this channel impossible to close.
-			update_post_meta( $booking_id, '_mhmrentiva_refund_completed_by', $actor );
-			update_post_meta( $booking_id, '_mhmrentiva_refund_completed_at', current_time( 'mysql' ) );
-			update_post_meta( $booking_id, '_mhmrentiva_refund_completed_reference', $reference );
+				$order_id = BookingQueryHelper::resolve_wc_order_id( $booking_id );
+				$order    = $order_id && function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
 
-			$order_id = BookingQueryHelper::resolve_wc_order_id( $booking_id );
-			$order    = $order_id && function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
+				if ( $order instanceof \WC_Order ) {
+					$order->add_order_note(
+						sprintf(
+							/* translators: %s: operator-supplied payment reference */
+							__( 'Hand transfer of the refund confirmed. Reference: %s', 'mhm-rentiva' ),
+							$reference
+						)
+					);
+				}
 
-			if ( $order instanceof \WC_Order ) {
-				$order->add_order_note(
-					sprintf(
-						/* translators: %s: operator-supplied payment reference */
-						__( 'Hand transfer of the refund confirmed. Reference: %s', 'mhm-rentiva' ),
-						$reference
+				self::add_booking_log(
+					$booking_id,
+					'manual_refund_closed',
+					array(
+						'reference'    => $reference,
+						'processed_by' => $actor,
 					)
 				);
 			}
-
-			wp_send_json_success( array( 'message' => __( 'Hand transfer recorded.', 'mhm-rentiva' ) ) );
 		} finally {
 			RefundLock::release( $booking_id );
 		}
+
+		if ( ! $moved ) {
+			wp_send_json_error( array( 'message' => __( 'This refund is not awaiting a hand transfer.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		wp_send_json_success( array( 'message' => __( 'Hand transfer recorded.', 'mhm-rentiva' ) ) );
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {

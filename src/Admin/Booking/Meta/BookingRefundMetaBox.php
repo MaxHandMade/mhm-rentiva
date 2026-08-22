@@ -44,12 +44,20 @@ final class BookingRefundMetaBox {
 		// every booking that needs it.
 		self::render_status_row( $bid );
 
-		// Same reasoning, same placement: a manual_pending booking's
-		// refundableManual() is already 0 by the time this box renders
-		// (Refunds\Service records the manual amount into
-		// _mhmrentiva_refunded_amount the moment manual_pending is set), so a
-		// control gated on that status would never reach the page if it sat
-		// after the guard below.
+		// Same reasoning, same placement, for the same reason
+		// render_status_row() sits above the early return: a manual_pending
+		// booking always hits $remaining = 0 below, either because it has a
+		// WooCommerce order at all (the ternary's first branch zeroes
+		// $remaining unconditionally, before refund status ever enters it),
+		// or -- the pure-offline case -- because Refunds\Service already
+		// recorded the manual amount into _mhmrentiva_refunded_amount.
+		// That second write is gated on the refund's CHANNEL being offline
+		// (Service.php:440), not on its MODE being manual (Service.php:436,
+		// a different variable) -- a manual_pending booking backed by a real
+		// WooCommerce order whose gateway simply cannot auto-refund never
+		// takes that write at all, and does not need to: it is already
+		// covered by the first branch. Either way, a control gated only on
+		// status would never reach the page if it sat after the guard below.
 		self::render_manual_close_control( $bid );
 
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );

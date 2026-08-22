@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Booking\Actions;
 
 use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
+use MHMRentiva\Admin\Payment\Core\RefundLock;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_Ajax_UnitTestCase;
@@ -297,5 +298,100 @@ final class ManualRefundCloseTest extends WP_Ajax_UnitTestCase
             'RefundStatus::transition() must fire the status-changed event exactly once across both requests -- '
                 . 'the matrix refuses the second (completed_manually -> completed_manually is not an edge) before any event fires again.'
         );
+    }
+
+    /**
+     * C1 (fix round 1, CRITICAL): every terminating wp_send_json_*() call
+     * used to sit INSIDE the try/finally, so RefundLock::release() never ran
+     * in production -- wp_send_json_*() calls wp_die(), a hard exit, and PHP
+     * does not run a finally block across an exit. This suite cannot
+     * reproduce that exit: WP's own test bootstrap makes wp_die() THROW
+     * (WPAjaxDieContinueException here, WPDieException elsewhere) rather
+     * than terminate the process, and PHP's finally DOES run while an
+     * exception unwinds the stack -- so this test would have been GREEN
+     * against the pre-fix code too, for the harness's own reason, not
+     * because the fix was in place. See task-11-report.md's fix-round-1
+     * section for how the defect was actually verified (against the running
+     * container's wp_die() implementation and a standalone `finally`-vs-exit
+     * probe, neither of which goes through this suite).
+     *
+     * What this test DOES prove, and keeps proving for a different class of
+     * future regression: a successful close leaves neither the in-process
+     * lock counter (RefundLock::isHeld(), a static array only acquire()/
+     * release() touch) nor the persisted wp_options row behind. The second
+     * assertion is the one that would catch, for instance, a future
+     * release() call made conditional on something that is not the case
+     * here, or a codepath that calls acquire() twice without a matching
+     * release() -- isHeld() alone cannot tell "released" apart from "never
+     * really held" the way a direct row check can.
+     */
+    public function test_the_lock_is_released_after_a_successful_close(): void
+    {
+        global $wpdb;
+
+        $response = $this->call_close($this->booking_id);
+
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Sanity: the close must succeed. Raw: ' . $this->_last_response);
+
+        $this->assertFalse(
+            RefundLock::isHeld($this->booking_id),
+            'This process must not still consider itself the lock holder after a completed close.'
+        );
+
+        $row = $wpdb->get_var($wpdb->prepare(
+            "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s",
+            'mhmrentiva_refund_lock_' . $this->booking_id
+        ));
+
+        $this->assertNull(
+            $row,
+            'No mhmrentiva_refund_lock_<id> row may survive a successful close -- a surviving row is exactly '
+                . 'what leaked in production before fix round 1 moved the terminating response outside the try.'
+        );
+    }
+
+    /**
+     * M3 (fix round 1): every other write path in this file calls
+     * add_booking_log() on success; a hand-transfer attestation -- the most
+     * human-vouched money event here -- left no trace in that log at all.
+     */
+    public function test_close_writes_a_booking_log_entry(): void
+    {
+        $response = $this->call_close($this->booking_id, array( 'reference' => 'CASH-0002' ));
+
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Sanity: the close must succeed. Raw: ' . $this->_last_response);
+
+        $logs = get_post_meta($this->booking_id, '_mhmrentiva_booking_logs', true);
+
+        $this->assertIsArray($logs);
+
+        $matching = array_values(array_filter(
+            $logs,
+            static fn ( $entry ): bool => is_array($entry) && ( $entry['action'] ?? null ) === 'manual_refund_closed'
+        ));
+
+        $this->assertCount(1, $matching, 'Exactly one manual_refund_closed log entry must be written.');
+        $this->assertSame($this->admin_id, $matching[0]['data']['processed_by'] ?? null);
+        $this->assertSame('CASH-0002', $matching[0]['data']['reference'] ?? null);
+    }
+
+    /**
+     * M4 (fix round 1): sanitize_text_field() normalises but does not
+     * truncate, and the reference goes verbatim into a WC order note and
+     * into post meta. An operator pasting an arbitrarily long string must
+     * not write an arbitrarily long value to either place.
+     */
+    public function test_reference_is_capped_at_191_characters(): void
+    {
+        $long = str_repeat('a', 500);
+
+        $response = $this->call_close($this->booking_id, array( 'reference' => $long ));
+
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Sanity: the close must succeed. Raw: ' . $this->_last_response);
+
+        $stored = (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_completed_reference', true);
+
+        $this->assertSame(191, strlen($stored), 'The reference must be capped at 191 characters, not stored verbatim.');
+        $this->assertSame(str_repeat('a', 191), $stored);
     }
 }
