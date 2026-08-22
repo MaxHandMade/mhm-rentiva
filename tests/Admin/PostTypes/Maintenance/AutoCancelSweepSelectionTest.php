@@ -22,20 +22,27 @@ use WP_UnitTestCase;
  * satisfies just as happily as a correct one. A destructive sweep without a
  * negative control has no test.
  *
- * The four negative controls here are the four ways today's queries overreach
- * (spec v3 §7.2.2-4):
+ * The negative controls here are the ways the queries used to overreach
+ * (spec v3 §7.2.2-4), each stated in the past tense because each one is now
+ * fixed and this file is what keeps it fixed: a deliberately part-refunded
+ * booking, where the operator kept a cancellation fee, which is a settled
+ * outcome and not "unpaid"; a `completed` booking, which
+ * Status::can_transition() gives no CANCELLED edge, so it was selected and
+ * refused on every single tick forever, and the refusal logs at warning
+ * level, which the default log level drops -- a silent infinite loop; a
+ * booking already parked in `needs_review`, which a human owns and which both
+ * sweeps kept walking back over every five minutes; and an order somebody had
+ * already paid for, reached through sync_orphan_wc_orders().
  *
- *   1. a deliberately part-refunded booking -- the operator kept a
- *      cancellation fee, which is a settled outcome, not "unpaid";
- *   2. a `completed` booking -- Status::can_transition() has no COMPLETED ->
- *      CANCELLED edge, so it is selected and refused on every single tick,
- *      forever, and the refusal logs at warning level, which the default log
- *      level drops. A silent infinite loop;
- *   3. + 4. a booking already parked in `needs_review` -- a human owns it, and
- *      both sweeps keep walking back over it every five minutes.
+ * Every one of those is satisfied by a sweep that selects nothing at all, so
+ * the positive controls are not optional decoration: a genuinely unpaid
+ * past-pickup booking must still be swept, and so must one whose status meta
+ * is empty -- the value the rest of the plugin reads as `pending`. They are
+ * the reason a destructive sweep cannot be "fixed" by breaking it.
  *
- * Plus the too-narrow direction: a genuinely unpaid past-pickup booking must
- * still be swept, so none of the above can be satisfied by breaking the sweep.
+ * Neither list is numbered on purpose. A count in a docblock is one more
+ * thing to keep true, and the last one stopped being true the first time a
+ * control was added.
  *
  * The selection probe is `sync_stale_past_bookings()['cancelled']`, which
  * sweep #2 increments once per SELECTED booking, before it knows whether the
@@ -80,8 +87,9 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         // and one listener added to mhmrentiva_booking_status_changed would
         // be enough to change that. The failure would be silent -- a plugin
         // setting quietly altered for the rest of the run, which is how this
-        // dev install's price_num_decimals went from 3 to 2. Nine other files
-        // in the suite delete this option for the same reason.
+        // dev install's price_num_decimals went from 3 to 2. Deleting this
+        // option is the suite's standard tearDown pattern for any test that
+        // writes a setting; a count of the files doing it would only go stale.
         delete_option( 'mhmrentiva_settings' );
 
         parent::tearDown();
@@ -335,6 +343,48 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         );
         $this->assertSame( 0, $result['cancelled'] );
         $this->assertSame( 1, $result['skipped'] );
+    }
+
+    /**
+     * The allowlist's OTHER control: a status this plugin does recognise, and
+     * which it stores as the empty string.
+     *
+     * `''` is not an unrecognised value, it is the absence of a value, and
+     * every canonical reader in this plugin resolves it to `pending`:
+     * `Status::get()` falls back to PENDING for anything outside
+     * `Status::allowed()` (Status.php:39), `DashboardService::
+     * get_status_breakdown()` buckets it with `COALESCE(NULLIF(meta_value,
+     * ''), 'pending')`, and `BookingColumns` filters on the same priority.
+     * A sweep that skipped it would be the one place in the plugin reading
+     * this data differently from everywhere else.
+     *
+     * It is reachable, not hypothetical: the manual-booking form's own AJAX
+     * payload reads `#mhmrentiva_manual_status`, an id that does not exist
+     * (the select's id is `mhmrentiva_manual_booking_status`; only its `name`
+     * matches), so jQuery sends `status=` and the handler stores `''`. A
+     * manually created, unpaid booking whose pickup date has passed is the
+     * exact case sweep #2 exists for, and sweep #1 cannot reach it -- its
+     * clause is `IN ('pending','pending_payment')`. The id mismatch is a
+     * separate, tracked defect; this test pins the sweep's half.
+     */
+    public function test_a_booking_with_an_empty_status_is_still_swept(): void
+    {
+        $booking_id = $this->make_past_pickup_booking( 'pending', '' );
+
+        $result = AutoCancel::sync_stale_past_bookings();
+
+        $this->assertSame(
+            1,
+            $result['cancelled'],
+            'An empty `_mhmrentiva_status` reads as `pending` everywhere else in this plugin, so the sweep'
+                . ' that exists to catch unpaid past-pickup bookings has to read it that way too.'
+        );
+        $this->assertSame(
+            'cancelled',
+            get_post_meta( $booking_id, '_mhmrentiva_status', true ),
+            'Selection alone is not the contract: the sweep has to reach Status::update_status(), which'
+                . ' resolves the empty value to PENDING and finds the CANCELLED edge.'
+        );
     }
 
     /**

@@ -29,16 +29,24 @@ final class AutoCancel {
 	 * Payment statuses that disqualify a booking from the past-pickup sweep.
 	 *
 	 * This one stays a DENYLIST, deliberately, and the asymmetry with the
-	 * booking-status allowlist next to it is the point. The two clauses ask
-	 * different questions of their key. The booking-status clause asks "may
-	 * this booking be cancelled?", and the transition matrix answers it for
-	 * every value it knows -- so anything it does not know is not an answer,
-	 * and the sweep declines. This clause asks "was this booking never paid?",
-	 * and the honest default for an unrecognised payment status is that it is
-	 * NOT one of the settled outcomes below; an allowlist of "unpaid-looking"
-	 * statuses would instead make an unknown value silently disqualifying and
-	 * quietly shrink the sweep to nothing the first time a payment gateway
-	 * introduced a status of its own. Spec v3 §7.2.3 narrows this key by
+	 * booking-status allowlist next to it is the point. The difference is not
+	 * that one key is more exposed than the other -- both are plain post meta
+	 * and nothing in this plugin filters either. The difference is that one
+	 * key has an enumerated set to derive from and this one does not.
+	 * `_mhmrentiva_status` has `Status::allowed()` and a transition matrix, so
+	 * an allowlist can be computed and will follow the matrix on its own (see
+	 * selectable_status_values() below). `_mhmrentiva_payment_status` has no
+	 * enumeration at all: no constant lists its values, no filter publishes
+	 * them, and the writers scattered through src/ spell five between them
+	 * (`paid`, `pending`, `refunded`, `partially_refunded`, `cancelled`) while
+	 * the queries already read two the writers never produce -- `completed` in
+	 * the list below, and `pending_payment` in sweep #1. Any allowlist here
+	 * could only be hand-maintained, and a hand-maintained allowlist on a
+	 * destructive sweep fails the wrong way: a value nobody remembered to add
+	 * disqualifies the booking forever and the sweep quietly shrinks. A
+	 * hand-maintained denylist fails the other way -- an unnamed value is
+	 * swept, which for the question this clause asks ("was this booking never
+	 * paid?") is the sweep doing its job. Spec v3 §7.2.3 narrows this key by
 	 * naming an addition (`partially_refunded`), not by inverting the compare.
 	 *
 	 * `partially_refunded` is that addition: the operator refunded part of the
@@ -275,10 +283,10 @@ final class AutoCancel {
 				),
 				array(
 					'key'     => '_mhmrentiva_status',
-					// Allowlist, derived from the transition matrix rather
-					// than written out; cancellable_statuses() carries the
-					// reasoning and is the only place the set is decided.
-					'value'   => self::cancellable_statuses(),
+					// Allowlist, derived rather than written out;
+					// selectable_status_values() carries the reasoning and is
+					// the only place the set is decided.
+					'value'   => self::selectable_status_values(),
 					'compare' => 'IN',
 				),
 				self::not_parked_for_review(),
@@ -300,13 +308,21 @@ final class AutoCancel {
 	 * Derived from the transition matrix, never written out. This sweep's
 	 * only outcome is `Status::update_status( $bid, CANCELLED )`, so the set
 	 * of statuses worth selecting is exactly the set with a CANCELLED edge,
-	 * and `Status::can_transition()` already decides that. Deriving it means
-	 * an edge cannot be added or removed without this query following; the
-	 * hand-written list this replaces had already drifted (it did not name
-	 * `completed`, which is selected and refused on every single tick, and
-	 * the refusal logs at warning level, which the default
-	 * `mhmrentiva_log_level` of 'error' drops -- a silent infinite loop), and
-	 * it forced the same set to be spelled out again in a comment beside it.
+	 * and `Status::can_transition()` already decides that.
+	 *
+	 * The reason to derive it is that the hand-written form drifted once and
+	 * nothing stopped it drifting again. Two generations of that form, both
+	 * measured. The first was `NOT IN ('cancelled','refunded')`, and it was
+	 * the drifted one: it did not name `completed`, so a completed booking was
+	 * selected and refused on every tick, and the refusal logs at warning
+	 * level, which the default `mhmrentiva_log_level` of 'error' drops -- a
+	 * silent loop. The second added `completed` and was correct, and it is the
+	 * one this method replaces; the drift is not what it is being replaced
+	 * for. What it is being replaced for is what getting there cost: somebody
+	 * had to notice, by hand, and the corrected set then had to be spelled out
+	 * a second time in a comment beside the query. Deriving it means an edge
+	 * cannot be added to or taken out of the matrix without this query
+	 * following.
 	 *
 	 * An ALLOWLIST, per spec v3 §7.2.3 ("booking durumu seçimi CANCELLED
 	 * kenarı olanlarla sınırlanır"). The consequence is deliberate: a booking
@@ -320,6 +336,11 @@ final class AutoCancel {
 	 * tracked defect (`ajax_create_booking` stores the requested status with
 	 * no allowlist of its own); this clause is the read end.
 	 *
+	 * "Cannot describe" is the whole of it, and it is narrower than "is not in
+	 * this list": an EMPTY value is one the plugin describes perfectly well.
+	 * selectable_status_values() is where that distinction is applied -- this
+	 * method stays the matrix question and nothing else.
+	 *
 	 * @return array<int, string>
 	 */
 	private static function cancellable_statuses(): array {
@@ -329,6 +350,55 @@ final class AutoCancel {
 				static fn ( string $status ): bool => Status::can_transition( $status, Status::CANCELLED )
 			)
 		);
+	}
+
+	/**
+	 * The `_mhmrentiva_status` meta VALUES the past-pickup sweep may select on.
+	 *
+	 * Its sibling cancellable_statuses() answers a question about the matrix:
+	 * which statuses have a CANCELLED edge. This one answers a question about
+	 * storage: which stored values resolve to one of those statuses. They are
+	 * not the same set, because `''` is a value this key really holds and it
+	 * is not a status at all; it is the absence of one.
+	 *
+	 * Every canonical reader in this plugin resolves that absence to PENDING.
+	 * `Status::get()` returns PENDING for anything outside `Status::allowed()`
+	 * (Status.php:39), `DashboardService::get_status_breakdown()` buckets it
+	 * with `COALESCE(NULLIF(pm.meta_value, ''), 'pending')` and its comment
+	 * warns about exactly this trap, and `BookingColumns` filters on the same
+	 * priority. Dropping `''` here would make this the one place in the plugin
+	 * that reads the key differently from the rest of it, and it would leave
+	 * such a booking with no sweep at all: sweep #1's own `_mhmrentiva_status`
+	 * clause is `IN ('pending','pending_payment')`, which does not match an
+	 * empty value either.
+	 *
+	 * So the empty value is included exactly when the status it resolves to is
+	 * included: take PENDING's CANCELLED edge out of the matrix and this drops
+	 * out with it, no edit needed. The one thing not derived is WHICH status
+	 * the fallback lands on -- `Status::get()` names PENDING in a literal and
+	 * offers no accessor for it, so this restates the constant rather than
+	 * inventing an accessor for one caller. `DashboardService` restates the
+	 * same fallback in its COALESCE for the same reason; a third shape would
+	 * be the worse answer.
+	 *
+	 * A flat IN list rather than an OR of two clauses, and that was measured
+	 * on WP 7.1: both shapes produce the same five LEFT JOINs (core reuses the
+	 * alias for same-key siblings under OR), but the OR shape restates
+	 * `mt2.meta_key = '_mhmrentiva_status'` inside the OR group for no gain.
+	 * One predicate is the smaller thing to read and the smaller thing to get
+	 * wrong.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function selectable_status_values(): array {
+		$values = self::cancellable_statuses();
+
+		// Status::get()'s fallback for an unrecognised or empty stored value.
+		if ( in_array( Status::PENDING, $values, true ) ) {
+			$values[] = '';
+		}
+
+		return $values;
 	}
 
 	/**
@@ -704,7 +774,8 @@ final class AutoCancel {
 			foreach (array_unique($candidate_ids) as $oid) {
 				$order = call_user_func('\wc_get_order', $oid);
 				// One statement where there used to be a falsy check here and
-				// an inline instanceof narrowing three lines further down.
+				// a second, inline instanceof narrowing further down, at the
+				// is_paid() call.
 				// wc_get_order() answers `false` for an unresolvable id and a
 				// WC_Order_Refund for a refund id, and this loop may act on
 				// neither -- WC_Order_Refund does not even define
