@@ -37,6 +37,21 @@ final class RefundValidator {
 	public const CHANNEL_OFFLINE = 'offline';
 
 	/**
+	 * Both legs of one operation moved money, one through the gateway and one
+	 * by hand -- a card deposit refunded automatically alongside a
+	 * bank-transfer remainder waiting on a human.
+	 *
+	 * Only Service::runOperation() ever produces this value, and only after
+	 * a WooCommerce operation finishes with auto_refunded AND manual_refunded
+	 * both greater than zero. validateFullRefund()/validatePartialRefund()
+	 * (decide(), below) never return it: they run before any leg has been
+	 * split across orders, so at that point the only fact available is
+	 * whether the booking's money sits behind a WooCommerce order at all
+	 * (CHANNEL_WOOCOMMERCE) or not (CHANNEL_OFFLINE).
+	 */
+	public const CHANNEL_MIXED = 'mixed';
+
+	/**
 	 * Validates booking for refund
 	 */
 	public static function validateBooking( int $bookingId ): array {

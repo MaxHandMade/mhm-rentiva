@@ -233,7 +233,7 @@ final class Service {
 	 * gateway. RefundNotifications::notify() reads these two to tell the
 	 * two amounts apart.
 	 *
-	 * @return array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string}
+	 * @return array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>}
 	 */
 	private static function runOperation( int $bookingId, int $amountKurus, string $reason ): array {
 		$state   = PaymentState::forBooking( $bookingId );
@@ -254,6 +254,7 @@ final class Service {
 				'txn_ids'         => array( 'manual_' . wp_generate_uuid4() ),
 				'channel'         => $channel,
 				'message'         => '',
+				'order_refunds'   => array(),
 			);
 		}
 
@@ -262,6 +263,7 @@ final class Service {
 		$autoRefunded   = 0;
 		$manualRefunded = 0;
 		$txnIds         = array();
+		$orderRefunds   = array();
 		$allAuto        = true;
 
 		foreach ( $orders as $orderId ) {
@@ -310,8 +312,13 @@ final class Service {
 					'manual_refunded' => $manualRefunded,
 					'mode'            => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
 					'txn_ids'         => $txnIds,
-					'channel'         => $channel,
+					// Correction #5: only a leg that ACTUALLY moved money votes
+					// here -- the leg that just failed never reached $autoRefunded
+					// / $manualRefunded, so this reflects the legs that succeeded
+					// before it, not what was attempted.
+					'channel'         => ( $autoRefunded > 0 && $manualRefunded > 0 ) ? RefundValidator::CHANNEL_MIXED : $channel,
 					'message'         => $refund->get_error_message() ?: __( 'Failed to create WooCommerce refund', 'mhm-rentiva' ),
+					'order_refunds'   => $orderRefunds,
 				);
 			}
 
@@ -321,9 +328,10 @@ final class Service {
 				$manualRefunded += $leg;
 			}
 
-			$txnIds[]     = (string) $refund->get_id();
-			$refunded    += $leg;
-			$outstanding -= $leg;
+			$txnIds[]                 = (string) $refund->get_id();
+			$orderRefunds[ $orderId ] = (string) $refund->get_id();
+			$refunded                += $leg;
+			$outstanding             -= $leg;
 		}
 
 		if ( 0 === $refunded ) {
@@ -336,6 +344,7 @@ final class Service {
 				'txn_ids'         => array(),
 				'channel'         => $channel,
 				'message'         => __( 'No amount left to refund', 'mhm-rentiva' ),
+				'order_refunds'   => array(),
 			);
 		}
 
@@ -346,8 +355,16 @@ final class Service {
 			'manual_refunded' => $manualRefunded,
 			'mode'            => $allAuto ? RefundValidator::MODE_AUTO : RefundValidator::MODE_MANUAL,
 			'txn_ids'         => $txnIds,
-			'channel'         => $channel,
+			// Both legs genuinely moved money, one auto, one manual: neither
+			// CHANNEL_WOOCOMMERCE nor CHANNEL_OFFLINE alone tells a listener
+			// that. The offline ledger at CHANNEL_OFFLINE === channel below
+			// (finish()) is untouched by this value -- 'mixed' never equals
+			// CHANNEL_OFFLINE, so a mixed operation cannot fall into that
+			// branch and double-count money PaymentState already sees through
+			// the WooCommerce orders themselves.
+			'channel'         => ( $autoRefunded > 0 && $manualRefunded > 0 ) ? RefundValidator::CHANNEL_MIXED : $channel,
 			'message'         => $outstanding <= 0 ? '' : __( 'Refund could not be completed in full', 'mhm-rentiva' ),
+			'order_refunds'   => $orderRefunds,
 		);
 	}
 
@@ -357,7 +374,7 @@ final class Service {
 	 * Built out across Tasks 6-9 of the slice-3 plan. It exists from Task 6
 	 * so the two entry points have one exit, not two.
 	 *
-	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>} $operation
 	 */
 	private static function finish( int $bookingId, array $operation, string $reason ): array {
 		Logger::add(
@@ -412,13 +429,21 @@ final class Service {
 			// money has already left and the operator must finish the job by
 			// hand, the second means nothing moved. Collapsing them would hide
 			// a real transfer behind the word "failed".
+			$refundStatus = $operation['refunded'] > 0 ? RefundStatus::PARTIAL_FAILURE : RefundStatus::FAILED;
+
 			RefundStatus::transition(
 				$bookingId,
-				$operation['refunded'] > 0 ? RefundStatus::PARTIAL_FAILURE : RefundStatus::FAILED,
+				$refundStatus,
 				array( 'channel' => $operation['channel'] )
 			);
 
-			self::announceCompletion( $bookingId, $operation );
+			self::announceCompletion(
+				$bookingId,
+				$operation + array(
+					'refund_status' => $refundStatus,
+					'currency'      => self::resolveCurrency( $bookingId ),
+				)
+			);
 
 			return array(
 				'mhmrentiva_refund'     => '0',
@@ -431,9 +456,11 @@ final class Service {
 		// the operator still has to transfer the money by hand
 		// (wp-knowledge/official/woocommerce/wc-refunds.md, fact 2). Spec §5.3
 		// step 9 names this value; N-05 (step 7) is what will show it.
+		$refundStatus = RefundValidator::MODE_MANUAL === $operation['mode'] ? RefundStatus::MANUAL_PENDING : RefundStatus::COMPLETED;
+
 		RefundStatus::transition(
 			$bookingId,
-			RefundValidator::MODE_MANUAL === $operation['mode'] ? RefundStatus::MANUAL_PENDING : RefundStatus::COMPLETED,
+			$refundStatus,
 			array( 'channel' => $operation['channel'] )
 		);
 
@@ -462,7 +489,13 @@ final class Service {
 
 		self::announce( $bookingId, $operation );
 
-		self::announceCompletion( $bookingId, $operation );
+		self::announceCompletion(
+			$bookingId,
+			$operation + array(
+				'refund_status' => $refundStatus,
+				'currency'      => self::resolveCurrency( $bookingId ),
+			)
+		);
 
 		return array(
 			'mhmrentiva_refund'     => '1',
@@ -479,9 +512,24 @@ final class Service {
 	 * and the customer mail (if any) has already gone out by the time this
 	 * fires.
 	 *
-	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 * The trigger is the money, not the status. runOperation() decides
+	 * refund_payment per order, so a card deposit can genuinely come back
+	 * while a bank-transfer remainder waits on a human -- an operation whose
+	 * overall status is manual_pending but in which gateway money really did
+	 * return. Binding this to a terminal-status label hid that from anything
+	 * tracking money. finish() calls this from two places (its failure branch
+	 * and its success branch); this guard is what both of them share, so a
+	 * plain 'failed' operation (nothing moved) does not announce, while a
+	 * 'partial_failure' operation that moved gateway money before the failing
+	 * leg still does.
+	 *
+	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>, refund_status: string, currency: string} $operation
 	 */
 	private static function announceCompletion( int $bookingId, array $operation ): void {
+		if ( ( $operation['auto_refunded'] ?? 0 ) <= 0 ) {
+			return;
+		}
+
 		try {
 			do_action( 'mhmrentiva_refund_completed', $bookingId, $operation );
 		} catch ( \Throwable $e ) {
@@ -498,6 +546,23 @@ final class Service {
 	}
 
 	/**
+	 * The currency a refund event should carry: PaymentState's own reading
+	 * when it has one, the store's configured currency otherwise.
+	 *
+	 * Extracted so every caller asks this exact question once. Before this,
+	 * announce() carried the fallback inline and announceCompletion()'s
+	 * payload would have needed its own copy -- the same question with two
+	 * chances to drift apart.
+	 */
+	private static function resolveCurrency( int $bookingId ): string {
+		$currency = PaymentState::forBooking( $bookingId )->currency();
+
+		return '' !== $currency
+			? $currency
+			: (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+	}
+
+	/**
 	 * The operation's single customer + admin e-mail.
 	 *
 	 * One per operation, not one per WooCommerce refund object: a deposit
@@ -511,21 +576,16 @@ final class Service {
 	 * order screen too, and silencing a core customer mail is a larger change
 	 * than this slice carries. The mode-specific sentence lives in ours.
 	 *
-	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string} $operation
+	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>} $operation
 	 */
 	private static function announce( int $bookingId, array $operation ): void {
 		try {
-			$state    = PaymentState::forBooking( $bookingId );
-			$currency = $state->currency();
-
-			if ( '' === $currency ) {
-				$currency = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
-			}
+			$state = PaymentState::forBooking( $bookingId );
 
 			RefundNotifications::notify(
 				$bookingId,
 				$operation['refunded'],
-				$currency,
+				self::resolveCurrency( $bookingId ),
 				$state->isFullyRefunded() ? 'refunded' : 'partially_refunded',
 				'',
 				$operation['mode'],

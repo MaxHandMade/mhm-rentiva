@@ -96,9 +96,27 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * Task 13 turned this test's fixture: before Task 13, the hook fired for
+     * every completed/manual_pending/partial_failure/failed operation alike,
+     * so a manual-mode order (no payment method, modeForOrder() -> MANUAL)
+     * was enough to prove "fires on success, exactly once". Task 13 rebound
+     * the event to money actually moving through the gateway
+     * (auto_refunded > 0) -- a pure-manual success moves nothing through a
+     * gateway and must not announce at all (see
+     * RefundEventContractTest::test_a_manual_pending_operation_that_moved_gateway_money_announces_completion
+     * for the mixed case, and this file's own
+     * test_a_manual_operation_records_manual_pending() for the status this
+     * fixture would otherwise reach). Proving "exactly once, not twice" now
+     * needs a fixture that genuinely fires -- an auto-capable order -- so the
+     * gateway double from WooCommerceRefundGatewayRegistration is opted into
+     * here, same as test_an_automatic_operation_records_completed() above.
+     */
     public function test_the_operation_announces_its_end_once(): void
     {
-        $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order = $this->create_paid_order_for_booking($this->booking_id, '120');
+        $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+        $order->save();
 
         $fired = 0;
         add_action(
@@ -116,10 +134,19 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
     }
 
     /**
-     * The sibling of the test above: it only proves the hook fires on the
-     * success path. finish()'s failure branch writes its own terminal status
-     * (failed/partial_failure) and fires the same hook a few lines down; that
-     * call had no test asserting it actually ran.
+     * The sibling of the test above, and also turned by Task 13. Before Task
+     * 13 this proved finish()'s failure branch fires the hook too (not just
+     * the success branch); its fixture is a single manual-mode order refused
+     * on its only leg, so refunded === 0 and auto_refunded === 0 -- nothing
+     * moved anywhere, gateway or otherwise. That is now exactly the negative
+     * case the money-following contract exists for: a plain 'failed'
+     * operation must NOT announce (RefundEventContractTest::
+     * test_a_failed_operation_that_moved_no_money_does_not_announce_completion
+     * pins the same shape as part of the event contract itself). The
+     * "failure branch can still announce" half of this test's original claim
+     * survives in RefundEventContractTest::
+     * test_a_partial_failure_that_moved_gateway_money_announces_completion,
+     * where a first leg genuinely succeeds before the second one fails.
      */
     public function test_the_operation_announces_its_end_once_on_failure_too(): void
     {
@@ -146,7 +173,12 @@ final class RefundPartialFailureTest extends WP_UnitTestCase
 
         Service::processFullRefund($this->booking_id, 'failure still announces', $this->admin_id);
 
-        $this->assertSame(1, $fired, 'The failure branch writes a terminal status too and must announce exactly once.');
+        $this->assertSame(
+            0,
+            $fired,
+            "Nothing moved -- not through the gateway, not by hand -- so a plain 'failed' operation must not "
+                . 'announce completion.'
+        );
     }
 
     /**
