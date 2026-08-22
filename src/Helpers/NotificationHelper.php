@@ -113,4 +113,49 @@ class NotificationHelper {
 
 		return wp_mail($admin_email, $subject, implode("\n", $body_parts));
 	}
+
+	/**
+	 * Send "order cancelled but the booking still owes money" email.
+	 *
+	 * The cancelled/failed branch found a sibling order still holding paid
+	 * money and left the booking alone -- cancelling the collection
+	 * instrument is not cancelling the debt. Unlike send_auto_cancel_email()
+	 * this is not behind a settings toggle, for the same reason
+	 * send_refund_needs_review_email() is not: a live booking that just lost
+	 * one of its payment orders is exactly the situation that needs a human,
+	 * every time it happens.
+	 *
+	 * @param int $booking_id
+	 * @param int $order_id
+	 * @return bool
+	 */
+	public static function send_order_cancelled_on_live_booking_email(int $booking_id, int $order_id): bool
+	{
+		$admin_email = get_option('admin_email');
+		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
+			return false;
+		}
+
+		$link = get_edit_post_link($booking_id, '') ?: admin_url('post.php?post=' . $booking_id . '&action=edit');
+
+		$subject = __('An order was cancelled but the booking still owes money', 'mhm-rentiva');
+
+		$body_parts = array(
+			sprintf(
+				/* translators: 1: order id, 2: booking id */
+				__('Order #%1$d was cancelled or failed, but booking #%2$d still has an unpaid balance -- the order was only the collection instrument, not the debt.', 'mhm-rentiva'),
+				$order_id,
+				$booking_id
+			),
+			'',
+			__('A new payment link should be issued for the remaining balance.', 'mhm-rentiva'),
+			sprintf(
+				/* translators: %s: link to the booking */
+				__('Review the booking: %s', 'mhm-rentiva'),
+				$link
+			),
+		);
+
+		return wp_mail($admin_email, $subject, implode("\n", $body_parts));
+	}
 }

@@ -1365,7 +1365,20 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 					case 'cancelled':
 					case 'failed':
-						// Order cancelled
+						if ( ! self::is_last_live_money_order( $booking_id, (int) $order_id ) ) {
+							// A sibling order still holds paid money. Cancelling
+							// the collection instrument is not cancelling the
+							// debt: the balance stays, the dead order id is
+							// cleared so the operator can issue a new payment
+							// link, and a human is told.
+							if ( (int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ) === (int) $order_id ) {
+								delete_post_meta( $booking_id, '_mhmrentiva_remaining_order_id' );
+							}
+
+							\MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
+							break;
+						}
+
 						Status::update_status($booking_id, 'cancelled', get_current_user_id());
 						break;
 
@@ -1411,6 +1424,36 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				update_post_meta($booking_id, '_mhmrentiva_booking_logs', $logs);
 			}
 		}
+	}
+
+	/**
+	 * Is this order the last order on the booking that still holds money?
+	 *
+	 * The cancelled/failed branch used to answer the booking-level question
+	 * from one order's status. On a deposit booking that is two orders, and
+	 * cancelling the unpaid remainder cancelled a booking whose deposit had
+	 * been paid -- with no refund anywhere.
+	 */
+	private static function is_last_live_money_order( int $booking_id, int $order_id ): bool {
+		$siblings = array_filter(
+			array(
+				\MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $booking_id ),
+				(int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ),
+			),
+			static function ( $oid ) use ( $order_id ) {
+				return $oid && (int) $oid !== $order_id;
+			}
+		);
+
+		foreach ( array_unique( $siblings ) as $oid ) {
+			$order = wc_get_order( $oid );
+
+			if ( $order instanceof \WC_Order && $order->get_date_paid() ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
