@@ -611,6 +611,37 @@ final class DepositManagementAjax {
 			)
 		);
 
+		// Fix round 1, F6: cancel_booking() commits the CANCELLED status
+		// before it ever asks process_refund() to move money, and
+		// process_refund() returns early -- writing nothing -- the moment
+		// the booking has no balance left to refund (CancellationHandler.php's
+		// own $has_money guard). A non-WP_Error return therefore proves the
+		// booking was cancelled, not that the review closed: on a booking
+		// with nothing left to refund, RefundStatus never leaves
+		// NEEDS_REVIEW at all. Claiming "the refund started" regardless
+		// would be false, and would leave dismiss as the only way out for a
+		// booking that is, in fact, already resolved.
+		//
+		// The re-fetch clears the request-local meta cache first: this is
+		// the same booking cancel_booking() (and, inside it, settle_refund())
+		// may just have written through, and this read must not answer from
+		// whatever this request cached before that write. Read via
+		// get_post_meta() directly rather than a second RefundStatus::get()
+		// call to the same expression the check above already used --
+		// PHPStan's flow analysis otherwise treats the two calls as the
+		// same fact ("identical.alwaysTrue"), which is provably wrong here
+		// (RefundReviewActionsTest::
+		// test_cancel_and_refund_cancels_the_booking_and_advances_refund_status_past_pending
+		// exercises the branch where this genuinely differs) rather than a
+		// real invariant to suppress.
+		wp_cache_delete( $booking_id, 'post_meta' );
+		$refund_status_after_delegation = (string) get_post_meta( $booking_id, RefundStatus::META_KEY, true );
+
+		if ( RefundStatus::NEEDS_REVIEW === $refund_status_after_delegation ) {
+			wp_send_json_success( array( 'message' => __( 'Booking cancelled. No refund was found to process, so the review is still open.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
 		wp_send_json_success( array( 'message' => __( 'Booking cancelled and the refund started.', 'mhm-rentiva' ) ) );
 	}
 
@@ -618,20 +649,34 @@ final class DepositManagementAjax {
 	 * NEEDS_REVIEW's second exit: close the obligation with no money moving,
 	 * on the record of why.
 	 *
+	 * The source-state check is done fresh, INSIDE the lock, immediately
+	 * after RefundLock::acquire() and before RefundStatus::transition() is
+	 * even attempted (fix round 1, F1) -- unlike review_cancel_and_refund()'s
+	 * own NEEDS_REVIEW check, which is an unlocked pre-check because that
+	 * method writes no refund-status meta of its own (see its docblock).
+	 * The matrix cannot supply this precondition by itself here: unlike
+	 * close_manual_refund()'s COMPLETED_MANUALLY, which has exactly ONE
+	 * inbound edge (manual_pending), NOT_REQUIRED has TWO -- PENDING and
+	 * NEEDS_REVIEW (RefundStatus.php's matrix()) -- so a transition() call
+	 * that succeeds proves only that the booking was in ONE of those two
+	 * states, not which. Measured: without this check, a booking a
+	 * concurrent request had already advanced to `pending` (via
+	 * review_cancel_and_refund() itself, or a failed/partial_failure retry)
+	 * let a stale "No refund is due" click close it as not_required,
+	 * silently discarding an in-flight refund obligation -- and, because of
+	 * this task's own barrier widening, took the booking out of both
+	 * sweeps' reach at the same moment.
+	 *
 	 * Every terminating wp_send_json_*() call is OUTSIDE the try/finally
 	 * below, for the exact reason close_manual_refund()'s own docblock gives
 	 * (fix round 1, C1, re-measured for Task 12 against the same running
 	 * stack): wp_send_json_*() calls wp_die(), a hard exit in production, and
-	 * PHP does not run a finally block across an exit. The plan's original
-	 * shape called wp_send_json_success()/wp_send_json_error() from INSIDE
-	 * the try, which would leak this lock for RefundLock::TTL_SECONDS on
-	 * every real request -- invisible to WP_Ajax_UnitTestCase, which
-	 * intercepts wp_die() by throwing (WPAjaxDieContinueException extends
-	 * \Exception), and PHP's finally DOES run while an exception unwinds the
-	 * stack. $moved is decided and acted on entirely inside the try
-	 * (RefundStatus::transition()'s own isHeld() guard holds for as long as
-	 * the lock does), and the lock is released before either response is
-	 * sent.
+	 * PHP does not run a finally block across an exit. $in_review and $moved
+	 * are both decided and acted on entirely inside the try, and the lock is
+	 * released before either response is sent.
+	 * RefundLockFinallyDoesNotSendJsonTest (fix round 1, F2) now scans src/
+	 * for exactly this shape, so a future regression here does not depend on
+	 * a human re-noticing it.
 	 */
 	public static function review_dismiss(): void {
 		// Line-local nonce check, redundant by design -- see the class
@@ -652,50 +697,85 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$reason = mb_substr( ( VerifiedRequest::from( $_POST ) )->text( 'reason' ), 0, self::REFERENCE_MAX_LENGTH );
+		// Fix round 1, F4: trim() BEFORE the length cap. Capping first could
+		// truncate a long, genuinely non-empty reason down to nothing but
+		// leading whitespace, rejecting it as empty and, on success, storing
+		// whitespace nobody asked to keep. Fix round 1, F3: textarea(), not
+		// text() -- the control this posts from is a <textarea>
+		// (BookingRefundMetaBox::render_needs_review_controls()), and
+		// text()'s sanitize_text_field() collapses the newlines a
+		// multi-line reason relies on; textarea()'s sanitize_textarea_field()
+		// preserves them.
+		$reason = trim( ( VerifiedRequest::from( $_POST ) )->textarea( 'reason' ) );
 
-		if ( '' === trim( $reason ) ) {
+		if ( '' === $reason ) {
 			wp_send_json_error( array( 'message' => __( 'Say why no refund is due. This closes a money obligation and the reason is the record of it.', 'mhm-rentiva' ) ) );
 			return;
 		}
+
+		$reason = mb_substr( $reason, 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
-		$moved = false;
+		$in_review = false;
+		$moved     = false;
 
 		try {
-			$moved = RefundStatus::transition(
-				$booking_id,
-				RefundStatus::NOT_REQUIRED,
-				array(
-					'surface'  => 'review_action',
-					'actor_id' => $actor,
-				)
-			);
+			// The caller waited for the lock; the request-local meta cache
+			// did not. Mirrors RefundStatus::transition()'s own invalidation
+			// (RefundStatus.php:82) because THIS read has to happen before
+			// transition() is even called -- see the method docblock for why
+			// the matrix cannot supply this precondition on its own.
+			wp_cache_delete( $booking_id, 'post_meta' );
 
-			if ( $moved ) {
-				update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_by', $actor );
-				update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_at', current_time( 'mysql' ) );
-				update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_reason', $reason );
+			$in_review = RefundStatus::NEEDS_REVIEW === RefundStatus::get( $booking_id );
 
-				self::add_booking_log(
+			if ( $in_review ) {
+				$moved = RefundStatus::transition(
 					$booking_id,
-					'refund_review_dismissed',
+					RefundStatus::NOT_REQUIRED,
 					array(
-						'reason'       => $reason,
-						'processed_by' => $actor,
+						'surface'  => 'review_action',
+						'actor_id' => $actor,
 					)
 				);
+
+				if ( $moved ) {
+					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_by', $actor );
+					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_at', current_time( 'mysql' ) );
+					update_post_meta( $booking_id, '_mhmrentiva_refund_review_dismissed_reason', $reason );
+
+					self::add_booking_log(
+						$booking_id,
+						'refund_review_dismissed',
+						array(
+							'reason'       => $reason,
+							'processed_by' => $actor,
+						)
+					);
+				}
 			}
 		} finally {
 			RefundLock::release( $booking_id );
 		}
 
-		if ( ! $moved ) {
+		if ( ! $in_review ) {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting review.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		if ( ! $moved ) {
+			// Fix round 1, F5: deliberately a different message from the
+			// precondition refusal above. $in_review was true a moment ago,
+			// under the same lock this process still held -- nothing else
+			// could have written this booking's refund status in between --
+			// so reaching here means the write itself failed for a reason
+			// this endpoint cannot name (a lost lock, a stale read); it must
+			// not be described as "not awaiting review" when it just was.
+			wp_send_json_error( array( 'message' => __( 'Could not record this decision. Please refresh the page and try again.', 'mhm-rentiva' ) ) );
 			return;
 		}
 

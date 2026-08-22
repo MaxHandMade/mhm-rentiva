@@ -351,6 +351,27 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         );
         $this->assertSame( 'pending', get_post_meta( $booking_id, '_mhmrentiva_status', true ) );
         $this->assertSame( $terminal_status, RefundStatus::get( $booking_id ) );
+
+        // Also (controller ruling, fix round 1): not_parked_for_review() is
+        // shared by TWO call sites -- sweep #2 above (:292), and sweep #1,
+        // the deadline sweep (:230), via AutoCancel::run(). Everything above
+        // only exercised sweep #2; this closes the other half with the same
+        // data set, cheaply. make_expired_unpaid_booking() carries no
+        // pickup_date, which keeps sweep #2 (run() calls it last) out of
+        // this half of the measurement entirely -- its own docblock says so.
+        $deadline_booking_id = $this->make_expired_unpaid_booking();
+        update_post_meta( $deadline_booking_id, RefundStatus::META_KEY, $terminal_status );
+
+        SettingsCore::set( 'mhmrentiva_booking_auto_cancel_enabled', '1' );
+
+        AutoCancel::run();
+
+        $this->assertSame(
+            'pending',
+            get_post_meta( $deadline_booking_id, '_mhmrentiva_status', true ),
+            "Sweep #1 (the deadline sweep, :230) must also not select a booking whose refund_status is already terminal ({$terminal_status})."
+        );
+        $this->assertSame( $terminal_status, RefundStatus::get( $deadline_booking_id ) );
     }
 
     /**

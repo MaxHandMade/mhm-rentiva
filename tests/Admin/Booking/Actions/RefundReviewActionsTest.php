@@ -291,6 +291,32 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
         $this->assertSame(str_repeat('a', 191), $stored);
     }
 
+    /**
+     * F3 (fix round 1): the control this posts from is a <textarea>
+     * (BookingRefundMetaBox::render_needs_review_controls()'s
+     * #refund-review-dismiss-reason), and the endpoint used to read it with
+     * VerifiedRequest::text(), whose sanitize_text_field() collapses
+     * "\r\n\t" runs into a single space -- measured directly against this
+     * container's WordPress core: sanitize_text_field("Line one.\nLine
+     * two.") returns "Line one. Line two.". textarea()'s
+     * sanitize_textarea_field() preserves the newline (same measurement:
+     * returns the two lines unchanged). A reason an operator deliberately
+     * wrote as two lines must survive as two lines.
+     */
+    public function test_dismiss_reason_preserves_newlines(): void
+    {
+        $reason = "Line one.\nLine two.";
+
+        $response = $this->call('mhmrentiva_review_dismiss', array( 'reason' => $reason ));
+
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'Raw: ' . $this->_last_response);
+        $this->assertSame(
+            $reason,
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_review_dismissed_reason', true),
+            'sanitize_text_field() would have collapsed this into one line; sanitize_textarea_field() must not.'
+        );
+    }
+
     public function test_dismiss_writes_a_booking_log_entry(): void
     {
         $response = $this->call('mhmrentiva_review_dismiss', array( 'reason' => 'No refund owed.' ));
@@ -314,6 +340,19 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
         $response = $this->call('mhmrentiva_review_cancel_and_refund');
         $this->assertTrue((bool) ( $response['success'] ?? false ), 'Raw: ' . $this->_last_response);
 
+        // F6 (fix round 1): this fixture creates no paid WC order, so
+        // CancellationHandler::cancel_booking() cancels the booking but
+        // process_refund() finds no balance and never calls
+        // settle_refund() -- the review stays open. Before F6 this was
+        // asserted nowhere in this file; the endpoint replied "the refund
+        // started" regardless.
+        $this->assertSame(Status::CANCELLED, Status::get($this->booking_id));
+        $this->assertSame(
+            RefundStatus::NEEDS_REVIEW,
+            RefundStatus::get($this->booking_id),
+            'This fixture has no paid order behind it; the delegated cancellation has nothing to refund and must not silently resolve the review.'
+        );
+
         $logs = get_post_meta($this->booking_id, '_mhmrentiva_booking_logs', true);
         $this->assertIsArray($logs);
 
@@ -324,6 +363,33 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
 
         $this->assertCount(1, $matching, 'Exactly one refund_review_cancelled log entry must be written.');
         $this->assertSame($this->admin_id, $matching[0]['data']['cancelled_by'] ?? null);
+    }
+
+    /**
+     * F6 (fix round 1, Important-adjacent finding): CancellationHandler::
+     * cancel_booking() commits the CANCELLED status before it ever asks
+     * process_refund() to move money, and process_refund() returns early --
+     * writing nothing -- the moment the booking has no balance left to
+     * refund. Before this fix, review_cancel_and_refund() replied "the
+     * refund started" on a booking that stayed in needs_review: the booking
+     * WAS genuinely cancelled (this endpoint's one job on the cancellation
+     * half), but the review this task exists to close was not, and every
+     * later click on either exit would answer "already cancelled" /
+     * "not awaiting review" -- dismiss() left as the only surviving exit.
+     * This pins the truthful reply instead.
+     */
+    public function test_cancel_and_refund_reports_the_review_stays_open_when_nothing_is_refundable(): void
+    {
+        $response = $this->call('mhmrentiva_review_cancel_and_refund');
+
+        $this->assertTrue((bool) ( $response['success'] ?? false ), 'The booking itself is genuinely cancelled; this must still be reported as success. Raw: ' . $this->_last_response);
+        $this->assertSame(Status::CANCELLED, Status::get($this->booking_id));
+        $this->assertSame(RefundStatus::NEEDS_REVIEW, RefundStatus::get($this->booking_id));
+        $this->assertStringContainsString(
+            'review is still open',
+            (string) ( $response['data']['message'] ?? '' ),
+            'The reply must not claim "the refund started" when refund_status never left needs_review.'
+        );
     }
 
     /**
@@ -360,9 +426,14 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
     }
 
     /**
-     * The matrix boundary: a booking that has already left needs_review (by
-     * either exit, or by any other path) must refuse a second visit to
-     * either endpoint rather than silently re-running.
+     * The matrix boundary, terminal-state half: a booking that has already
+     * left needs_review for a TERMINAL state (here: not_required, reached
+     * as if by the dismiss exit itself) must refuse a second visit to
+     * either endpoint rather than silently re-running. This is the shape
+     * RefundStatus::transition() genuinely refuses on its own -- NOT_REQUIRED
+     * has no outgoing edge at all -- so it does not exercise F1's own fix
+     * (see test_dismiss_refuses_when_the_booking_has_already_advanced_to_pending()
+     * below for the shape the matrix cannot refuse by itself).
      */
     public function test_cancel_and_refund_refuses_a_booking_no_longer_in_needs_review(): void
     {
@@ -386,6 +457,46 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
 
         $this->assertFalse((bool) ( $response['success'] ?? true ), 'Raw: ' . $this->_last_response);
         $this->assertSame(RefundStatus::NOT_REQUIRED, RefundStatus::get($this->booking_id), 'Status must stay exactly as it was, not regress.');
+    }
+
+    /**
+     * F1 (Important, fix round 1): the shape the matrix cannot refuse on its
+     * own. NOT_REQUIRED has TWO inbound edges -- PENDING and NEEDS_REVIEW
+     * (RefundStatus.php's matrix()) -- unlike close_manual_refund()'s
+     * COMPLETED_MANUALLY, which has exactly one. Before this fix,
+     * review_dismiss() relied entirely on RefundStatus::transition()'s own
+     * refusal, which happily allows PENDING -> NOT_REQUIRED: a booking a
+     * concurrent request had already advanced to `pending` (via
+     * review_cancel_and_refund() itself, or a failed/partial_failure retry)
+     * let a stale "No refund is due" click close it as not_required,
+     * discarding an in-flight refund obligation silently. This is exactly
+     * the scenario test_dismiss_refuses_a_booking_no_longer_in_needs_review()
+     * above does NOT cover -- its source state is a terminal one the matrix
+     * already refuses by itself.
+     */
+    public function test_dismiss_refuses_when_the_booking_has_already_advanced_to_pending(): void
+    {
+        RefundLock::acquire($this->booking_id);
+        $this->assertTrue(RefundStatus::transition($this->booking_id, RefundStatus::PENDING));
+        RefundLock::release($this->booking_id);
+
+        $response = $this->call('mhmrentiva_review_dismiss', array( 'reason' => 'No refund owed.' ));
+
+        $this->assertFalse(
+            (bool) ( $response['success'] ?? true ),
+            'The matrix alone allows PENDING -> NOT_REQUIRED; only an explicit needs_review precondition '
+                . 'catches this. Raw: ' . $this->_last_response
+        );
+        $this->assertSame(
+            RefundStatus::PENDING,
+            RefundStatus::get($this->booking_id),
+            'A refund genuinely in progress must not be silently closed as not_required.'
+        );
+        $this->assertSame(
+            '',
+            (string) get_post_meta($this->booking_id, '_mhmrentiva_refund_review_dismissed_reason', true),
+            'No audit trail may be written for a decision that did not actually happen.'
+        );
     }
 
     /**
