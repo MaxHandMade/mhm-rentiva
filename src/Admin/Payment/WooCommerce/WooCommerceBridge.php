@@ -1499,10 +1499,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Sync booking "completed" status back to WooCommerce order.
+	 * Sync booking "completed"/"cancelled" status back to WooCommerce order.
 	 * Triggered by mhmrentiva_booking_status_changed hook.
-	 * Loop-safe: Status::can_transition('completed','completed') returns false,
-	 * so any re-entry from woocommerce_order_status_changed self-terminates.
+	 * Loop-safe both ways: Status::can_transition('completed','completed') and
+	 * Status::can_transition('cancelled','cancelled') both return false, so any
+	 * re-entry from woocommerce_order_status_changed self-terminates whichever
+	 * arm ran.
 	 */
 	public static function sync_completed_to_wc(int $booking_id, string $old_status, string $new_status): void
 	{

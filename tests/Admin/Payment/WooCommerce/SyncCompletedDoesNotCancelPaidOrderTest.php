@@ -87,14 +87,22 @@ final class SyncCompletedDoesNotCancelPaidOrderTest extends WP_UnitTestCase
      * "this order was paid" would make the positive assertion above pass for
      * the wrong reason.
      *
-     * This also drives the feedback loop the controller correction flagged:
-     * $order->update_status('cancelled') fires WooCommerce's own
-     * woocommerce_order_status_changed, reaching Task 6's cancelled/failed
-     * branch in handle_order_status_change(). That branch reads the booking
-     * id from LINE ITEM meta only (WooCommerceBridge.php :1301), which this
-     * test never wires -- so the re-entrant call sees booking_id === 0 and
-     * no-ops. Recorded here rather than asserted on, since it is a side
-     * effect of the fixture shape, not this task's guard.
+     * This also ASSERTS the feedback loop the controller correction flagged,
+     * rather than merely tracing it by hand: $order->update_status('cancelled')
+     * fires WooCommerce's own woocommerce_order_status_changed, reaching Task
+     * 6's cancelled/failed branch in handle_order_status_change(). That
+     * branch reads the booking id from LINE ITEM meta (WooCommerceBridge.php
+     * :1301), wired here (unlike the positive test above, which never needs
+     * it) precisely so the re-entrant call resolves a real booking id instead
+     * of no-oping on one it can never see. has_paid_sibling_order() is false
+     * for this single, unpaid order, so that branch calls
+     * Status::update_status($booking_id, 'cancelled', ...) again -- and that
+     * call self-terminates via Status::can_transition('cancelled','cancelled')
+     * returning false (the same loop-safety guard sync_completed_to_wc()'s own
+     * docblock notes for its 'completed' arm), rather than fighting the status
+     * this test already set. The final assertion below is what proves that:
+     * if the composition of the two guards ever stopped self-terminating, the
+     * booking would come out of this call in something other than CANCELLED.
      */
     public function test_cancelling_the_booking_still_cancels_an_unpaid_order(): void
     {
@@ -115,6 +123,7 @@ final class SyncCompletedDoesNotCancelPaidOrderTest extends WP_UnitTestCase
         $order->save();
 
         update_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id() );
+        $this->wire_line_item_booking_id( $order, $booking_id );
 
         Status::update_status( $booking_id, Status::CANCELLED, 1 );
 
@@ -125,5 +134,26 @@ final class SyncCompletedDoesNotCancelPaidOrderTest extends WP_UnitTestCase
             $fresh->get_status(),
             'The negative control: an order that was never paid must still be cancelled when the booking is.'
         );
+
+        $this->assertSame(
+            Status::CANCELLED,
+            Status::get( $booking_id ),
+            'The re-entrant call from handle_order_status_change() must self-terminate, not fight the status this test already set.'
+        );
+    }
+
+    /**
+     * Same shape as CancelledOrderDoesNotCancelPaidBookingTest's private
+     * method of the same name -- kept local rather than added to the shared
+     * trait, for the same reason that test class gives: only a test that
+     * specifically needs handle_order_status_change() to resolve a booking id
+     * from an order it built by hand needs this at all.
+     */
+    private function wire_line_item_booking_id( \WC_Order $order, int $booking_id ): void
+    {
+        foreach ( $order->get_items() as $item ) {
+            $item->add_meta_data( '_mhmrentiva_booking_id', $booking_id, true );
+            $item->save();
+        }
     }
 }
