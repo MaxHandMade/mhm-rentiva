@@ -584,4 +584,82 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         }
         $this->assertTrue($found, 'The refusal must leave a trace an operator can find, not just a discarded bool.');
     }
+
+    /**
+     * Task 14b item 13: settle_refund() attempts a FAILED write when the
+     * validator refuses a refund; before this fix, if the matrix ALSO
+     * refused that write (the booking's refund_status raced to a terminal
+     * value in between), nothing happened at all -- no log, and $success's
+     * own failure never reached 'problems' either, since the comment beside
+     * that branch covers only the $recorded === true case. All three AJAX
+     * surfaces kept reading "cancelled successfully" while the money never
+     * moved and nothing anywhere recorded that a refund had even been
+     * attempted here.
+     *
+     * Engineered via a mhmrentiva_process_refund listener that settles the
+     * booking's refund_status to a terminal value (NOT_REQUIRED) WITHOUT
+     * touching the actual balance -- a plausible integrator bug, and the
+     * only way, within one PHPUnit process, to make refund_status disagree
+     * with PaymentState between settle_refund()'s own PENDING write and its
+     * later FAILED attempt (RefundLock is re-entrant per-process, so the
+     * hook's transition() call succeeds while this request still holds the
+     * lock). _mhmrentiva_payment_status is seeded 'pending' so
+     * RefundValidator::validatePaymentStatus() refuses the refund outright
+     * -- has_money in process_refund() is still true via
+     * PaymentState::forBooking()->paid(), so settle_refund() is reached
+     * regardless of that meta value -- the cheapest way to force
+     * processFullRefund() to return before finish() ever runs.
+     */
+    public function test_a_refused_failed_transition_is_recorded_as_a_problem(): void
+    {
+        $this->require_woocommerce();
+
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
+        update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+
+        $this->create_paid_order_for_booking($booking_id, '120');
+
+        add_action(
+            'mhmrentiva_process_refund',
+            static function (int $bid) use ($booking_id): void {
+                if ($bid === $booking_id) {
+                    RefundStatus::transition($booking_id, RefundStatus::NOT_REQUIRED, array( 'surface' => 'test_fixture' ));
+                }
+            }
+        );
+
+        wp_set_current_user($this->admin_id);
+        $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, 'customer changed plans', true);
+
+        $this->assertFalse(is_wp_error($result), 'COMMIT already ran; a post-commit refusal must not read as a WP_Error.');
+        $this->assertNotEmpty(
+            $result['problems'],
+            'Item 13: a FAILED write the matrix refuses must be reported upward, the same as the PENDING'
+                . ' refusal above -- not total silence.'
+        );
+
+        $this->assertSame(
+            RefundStatus::NOT_REQUIRED,
+            RefundStatus::get($booking_id),
+            'The refused FAILED write must not be silently forced through; the status the hook set stands.'
+        );
+
+        $found = false;
+        foreach ($this->all_log_entries() as $log) {
+            if (
+                str_contains($log->post_content, 'FAILED')
+                && $booking_id === (int) get_post_meta($log->ID, '_mhmrentiva_log_booking_id', true)
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'The refusal must leave a trace an operator can find, linked to this booking.');
+    }
 }

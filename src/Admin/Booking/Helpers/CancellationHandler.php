@@ -46,16 +46,26 @@ final class CancellationHandler {
 	 *                       so a caller can still say who it is without that
 	 *                       declaration becoming a bypass.
 	 *
-	 * @return array{cancelled: bool, refund: string|null, problems: array<int, string>}|\WP_Error
+	 * @return array{cancelled: bool, problems: array<int, string>}|\WP_Error
 	 *               An array on success -- 'cancelled' is always true past
-	 *               COMMIT, 'refund' is process_refund()'s own return (null
-	 *               when the refund step itself needed nothing surfaced, a
-	 *               string describing a refusal it could not even start,
-	 *               copied into 'problems' too -- fix round 2, G1), and
-	 *               'problems' lists that plus any post-commit \Throwable
-	 *               messages, empty when nothing went wrong after COMMIT.
-	 *               WP_Error only for a failure BEFORE COMMIT (validation,
-	 *               the deadline, permission, or a rolled-back write).
+	 *               COMMIT, and 'problems' lists process_refund()'s own
+	 *               refusal (a string describing a refusal it could not
+	 *               even start -- fix round 2, G1) plus any post-commit
+	 *               \Throwable messages, empty when nothing went wrong
+	 *               after COMMIT. WP_Error only for a failure BEFORE
+	 *               COMMIT (validation, the deadline, permission, or a
+	 *               rolled-back write).
+	 *
+	 *               Task 14b item 12: a 'refund' key used to sit beside
+	 *               'problems' carrying the exact same value process_refund()
+	 *               returned (null = nothing to surface, a string = a
+	 *               refusal, ALREADY copied into 'problems' too) -- reversed
+	 *               polarity from what its name suggests (a non-null string
+	 *               means the refund did NOT start, not that one did), and
+	 *               measured to have zero readers across Lite, Pro, tests,
+	 *               templates and JS on this unpublished branch. Removed
+	 *               before anything could depend on it; $refund is still
+	 *               used internally to build 'problems'.
 	 */
 	public static function cancel_booking( int $booking_id, int $user_id = 0, string $reason = '', bool $force = false, bool $system = false ) {
 		global $wpdb;
@@ -173,7 +183,15 @@ final class CancellationHandler {
 
 			// Commit changes
 			$wpdb->query( 'COMMIT' );
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
+			// \Throwable, not \Exception (Task 14b item 10): Status::update_status()
+			// above fires the public mhmrentiva_booking_status_changed action
+			// BEFORE COMMIT, and a third-party listener on it -- or a plain
+			// TypeError -- can throw an \Error, which catch(\Exception) never
+			// sees. Before this fix an \Error here skipped ROLLBACK entirely
+			// and fatalled the request with the transaction left open; this is
+			// the same defect class 14a closed one phase later, on the
+			// post-commit try below.
 			// Rollback on error
 			$wpdb->query( 'ROLLBACK' );
 
@@ -266,20 +284,17 @@ final class CancellationHandler {
 							// than silently discarded, the same reasoning as
 							// settle_refund()'s own PENDING-refusal guard
 							// below.
-							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-								"Post-commit FAILED status could not be recorded for booking #$booking_id: current refund_status is '" . \MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id ) . "'",
+							// Task 14b item 1: was error() + add() -- one call
+							// now does both (booking-linked, LEVEL_ERROR).
+							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+								sprintf(
+									/* translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED. */
+									__( "Post-commit FAILED status could not be recorded: current refund_status is '%s'. A post-commit cancellation problem occurred, but the refund status could not be updated to reflect it.", 'mhm-rentiva' ),
+									\MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id )
+								),
+								$booking_id,
 								array( 'reason' => 'post_commit_failed_not_recorded' ),
-								'system'
-							);
-
-							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-								array(
-									'gateway'    => 'cancellation',
-									'action'     => 'refund',
-									'status'     => 'error',
-									'booking_id' => $booking_id,
-									'message'    => __( 'A post-commit cancellation problem occurred, but the refund status could not be updated to reflect it.', 'mhm-rentiva' ),
-								)
+								\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 							);
 						}
 					} finally {
@@ -287,27 +302,28 @@ final class CancellationHandler {
 					}
 				} else {
 					// Lock refusal, previously silent (fix round 1, F4).
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-						"Refund lock refused while recording a post-commit failure for booking #$booking_id",
+					// Task 14b item 1: was error() + add(); merged.
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+						__( 'Refund lock refused while recording a post-commit failure. A post-commit cancellation problem occurred, but the refund lock could not be acquired to record it.', 'mhm-rentiva' ),
+						$booking_id,
 						array( 'reason' => 'lock_refused' ),
-						'system'
-					);
-
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-						array(
-							'gateway'    => 'cancellation',
-							'action'     => 'refund',
-							'status'     => 'error',
-							'booking_id' => $booking_id,
-							'message'    => __( 'A post-commit cancellation problem occurred, but the refund lock could not be acquired to record it.', 'mhm-rentiva' ),
-						)
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 					);
 				}
 
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-					"Post-commit failure cancelling booking #$booking_id",
+				// Task 14b item 1: was a standalone error() with no
+				// booking_id (see the removed comment this method used to
+				// carry about error() dropping the link); error_for_booking()
+				// keeps this entry traceable like its siblings above.
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: %s: the message thrown by the post-commit throwable this recovery is handling. */
+						__( 'Post-commit failure cancelling booking: %s', 'mhm-rentiva' ),
+						$e->getMessage()
+					),
+					$booking_id,
 					array( 'error' => $e->getMessage() ),
-					'system'
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 
 				// Tam başarısızlıkta operatör e-postası (plan Step 5),
@@ -317,26 +333,17 @@ final class CancellationHandler {
 				// missing when none was ever due.
 				if ( \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id )->refundable() > 0 ) {
 					if ( ! \MHMRentiva\Helpers\NotificationHelper::send_refund_failed_email( $booking_id ) ) {
-						// error() + add(), same pair and same reasons as
-						// every other "the notification itself may silently
-						// fail" branch in this codebase (AutoCancel.php's
-						// send_refund_needs_review_email() caller): a
-						// dropped bool here is a post-commit problem nobody
-						// was told about.
-						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-							"Refund-failed notification could not be sent for booking #$booking_id",
+						// Task 14b item 1: was error() + add(), same pair and
+						// same reasons as every other "the notification
+						// itself may silently fail" branch in this codebase
+						// (AutoCancel.php's send_refund_needs_review_email()
+						// caller): a dropped bool here is a post-commit
+						// problem nobody was told about.
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+							__( 'Refund-failed notification could not be sent. A post-commit cancellation problem occurred, but the operator notification e-mail could not be sent -- no one has been told.', 'mhm-rentiva' ),
+							$booking_id,
 							array( 'reason' => 'notification_failed' ),
-							'system'
-						);
-
-						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-							array(
-								'gateway'    => 'cancellation',
-								'action'     => 'refund',
-								'status'     => 'error',
-								'booking_id' => $booking_id,
-								'message'    => __( 'A post-commit cancellation problem occurred, but the operator notification e-mail could not be sent -- no one has been told.', 'mhm-rentiva' ),
-							)
+							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 						);
 					}
 				}
@@ -350,7 +357,6 @@ final class CancellationHandler {
 
 		return array(
 			'cancelled' => true,
-			'refund'    => $refund,
 			'problems'  => $problems,
 		);
 	}
@@ -682,14 +688,17 @@ final class CancellationHandler {
 	 * cancellation), or no money was ever taken (not_required). Collapsing them
 	 * would hide a real transfer from the audit trail.
 	 *
-	 * @return string|null Null on every path except one: when the PENDING
+	 * @return string|null Null on every path except two: when the PENDING
 	 *                      transition itself could not be recorded (fix
-	 *                      round 1, F2). That path returns the refusal
-	 *                      message as a VALUE rather than throwing it (fix
-	 *                      round 2, G1) -- a throw here used to unwind past
-	 *                      process_refund()'s return in cancel_booking(),
-	 *                      skipping the public mhmrentiva_booking_cancelled
-	 *                      action entirely (a live Pro consumer:
+	 *                      round 1, F2), and when the FAILED transition
+	 *                      could not be recorded after the validator
+	 *                      refused the request (Task 14b item 13). Both
+	 *                      return the refusal message as a VALUE rather
+	 *                      than throwing it (fix round 2, G1) -- a throw
+	 *                      here used to unwind past process_refund()'s
+	 *                      return in cancel_booking(), skipping the public
+	 *                      mhmrentiva_booking_cancelled action entirely (a
+	 *                      live Pro consumer:
 	 *                      VendorCancellationDateBlocker::maybe_block_dates())
 	 *                      even though the cancellation itself had already
 	 *                      committed and needed that hook to run regardless
@@ -721,16 +730,23 @@ final class CancellationHandler {
 			// this call exists to prevent. Verified empirically: the
 			// intended assertion in CancellationInitiatesRefundTest found no
 			// log post until this was switched from warning() to error().
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( "Refund lock refused for booking #$booking_id (actor #$user_id): another refund is already running", array( 'reason' => 'lock_refused' ), 'system' );
-
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-				array(
-					'gateway'    => 'cancellation',
-					'action'     => 'refund',
-					'status'     => 'error',
-					'booking_id' => $booking_id,
-					'message'    => __( 'Refund not attempted: another refund is already running for this booking.', 'mhm-rentiva' ),
-				)
+			// Task 14b item 1: was error() + add(), merged into one call.
+			// Task 14b item 2: the message no longer asserts a cause
+			// RefundLock::acquire() cannot actually tell apart -- a lock
+			// refusal means either a genuinely running refund OR a lock a
+			// dead request left behind that has not hit RefundLock's own
+			// TTL yet (up to 5 minutes), and "another refund is already
+			// running" stated the first as fact regardless of which it was.
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+				sprintf(
+					/* translators: 1: booking id, 2: the user id attempting the refund. */
+					__( "Refund lock refused for booking #%1\$d (actor #%2\$d): another refund attempt holds this booking's lock -- refund not attempted.", 'mhm-rentiva' ),
+					$booking_id,
+					$user_id
+				),
+				$booking_id,
+				array( 'reason' => 'lock_refused' ),
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 			);
 
 			return null;
@@ -767,24 +783,51 @@ final class CancellationHandler {
 				// to land in, so it must not run at all -- the single-writer
 				// discipline this class exists for (RefundStatus's own
 				// docblock).
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-					"Refund PENDING could not be recorded for booking #$booking_id (surface: $surface): current refund_status is '" . \MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id ) . "'",
+				// Task 14b item 1: was error() + add(), merged into one call.
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: 1: the surface that attempted this refund, 2: the booking's current refund_status, which has no outgoing edge to PENDING. */
+						__( "Refund PENDING could not be recorded (surface: %1\$s): current refund_status is '%2\$s'. Refund not attempted: this booking's refund status changed before the refund could start.", 'mhm-rentiva' ),
+						$surface,
+						\MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id )
+					),
+					$booking_id,
 					array(
 						'surface' => $surface,
 						'reason'  => 'pending_not_recorded',
 					),
-					'system'
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-					array(
-						'gateway'    => 'cancellation',
-						'action'     => 'refund',
-						'status'     => 'error',
-						'booking_id' => $booking_id,
-						'message'    => __( "Refund not attempted: this booking's refund status changed before the refund could start.", 'mhm-rentiva' ),
-					)
-				);
+				// Task 14b item 11: this refusal used to be a throw (fix
+				// round 1), which landed in cancel_booking()'s post-commit
+				// recovery block and sent the operator this same
+				// send_refund_failed_email() whenever refundable() > 0. Fix
+				// round 2 turned it into a returned value instead (G1),
+				// precisely so it stops skipping
+				// do_action('mhmrentiva_booking_cancelled', ...) -- but that
+				// also means this refusal no longer reaches that recovery
+				// block at all, so the operator e-mail it used to send
+				// silently stopped firing: only the customer, reading
+				// 'problems' below, ever learned money was still owed on a
+				// terminal refund_status. Sent here directly instead, on the
+				// same condition the old recovery block used. $state is
+				// still the fresh pre-hook snapshot read a few lines above --
+				// nothing between there and here can have changed it, since
+				// this branch returns before the hook ever fires.
+				if ( $state->refundable() > 0 ) {
+					if ( ! \MHMRentiva\Helpers\NotificationHelper::send_refund_failed_email( $booking_id ) ) {
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+							__( 'Refund-failed notification could not be sent for a refused PENDING transition -- no one has been told.', 'mhm-rentiva' ),
+							$booking_id,
+							array(
+								'surface' => $surface,
+								'reason'  => 'notification_failed',
+							),
+							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+						);
+					}
+				}
 
 				// Fix round 2, G1: RETURNED as a value, not thrown. Fix round
 				// 1 threw here, which reported the refusal but also unwound
@@ -809,30 +852,23 @@ final class CancellationHandler {
 			try {
 				do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
 			} catch ( \Throwable $e ) {
-				// error() alone drops this entry's booking linkage:
-				// AdvancedLogger::error() takes no booking_id and never
-				// passes one to log(), which only writes
-				// _mhmrentiva_log_booking_id when $args['booking_id'] is
-				// set -- and the admin Logs list table's Booking column
-				// reads exactly that meta, falling back to em dash without
-				// it. Kept alongside the pre-existing add() call, the same
-				// pattern the lock-refusal branch above already uses, so
-				// the failure an operator most needs to trace back to a
-				// booking is not the one entry with no link.
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( "A mhmrentiva_process_refund listener failed for booking #$booking_id", array( 'error' => $e->getMessage() ), 'system' );
-
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
-					array(
-						'gateway'    => 'cancellation',
-						'action'     => 'refund_hook',
-						'status'     => 'error',
-						'booking_id' => $booking_id,
-						'message'    => sprintf(
-							/* translators: %s: the message thrown by a mhmrentiva_process_refund listener. */
-							__( 'A mhmrentiva_process_refund listener failed: %s', 'mhm-rentiva' ),
-							$e->getMessage()
-						),
-					)
+				// Task 14b item 1: was error() + add() -- error() alone used
+				// to drop this entry's booking linkage (AdvancedLogger::error()
+				// takes no booking_id and never passes one to log(), which
+				// only writes _mhmrentiva_log_booking_id when
+				// $args['booking_id'] is set, the meta the admin Logs list
+				// table's Booking column reads), and add() was kept
+				// alongside it purely to supply that link. One call now
+				// does both.
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+					sprintf(
+						/* translators: %s: the message thrown by a mhmrentiva_process_refund listener. */
+						__( 'A mhmrentiva_process_refund listener failed: %s', 'mhm-rentiva' ),
+						$e->getMessage()
+					),
+					$booking_id,
+					array( 'error' => $e->getMessage() ),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 			}
 
@@ -881,6 +917,31 @@ final class CancellationHandler {
 							'message'    => $result['mhmrentiva_refund_msg'] ?? '',
 						)
 					);
+				} else {
+					// Task 14b item 13: the matrix refused the FAILED write
+					// itself -- e.g. a mhmrentiva_process_refund listener
+					// already moved this booking's refund_status to a
+					// terminal value (without actually resolving the
+					// balance) between the PENDING write above and this
+					// point. Before this fix, this branch did nothing at
+					// all: no log, and $success's own failure never reached
+					// 'problems' either (see the comment below, which
+					// covers only the $recorded === true case) -- so all
+					// three AJAX surfaces kept reading "cancelled
+					// successfully" while the money never moved and nothing
+					// anywhere said a refund had even been attempted here.
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_for_booking(
+						sprintf(
+							/* translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED. */
+							__( "Refund FAILED status could not be recorded: current refund_status is '%s'.", 'mhm-rentiva' ),
+							\MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id )
+						),
+						$booking_id,
+						array( 'reason' => 'failed_not_recorded' ),
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+					);
+
+					return __( "Refund failed, but this booking's refund status changed before the failure could be recorded.", 'mhm-rentiva' );
 				}
 			}
 
@@ -889,8 +950,8 @@ final class CancellationHandler {
 			// are untouched. A validator refusal here is read back from
 			// _mhmrentiva_refund_status by every consumer that cares (the
 			// AJAX surfaces' FAILED check, F6), so it does not also need a
-			// 'problems' entry; only the PENDING-not-recorded refusal above
-			// does (G1's own scope).
+			// 'problems' entry; only the PENDING-not-recorded refusal above,
+			// and item 13's own $recorded === false branch just above, do.
 			return null;
 		} finally {
 			\MHMRentiva\Admin\Payment\Core\RefundLock::release( $booking_id );

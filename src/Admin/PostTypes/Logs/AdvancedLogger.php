@@ -264,6 +264,44 @@ final class AdvancedLogger {
 	}
 
 	/**
+	 * Logs an operator-visible error tied to a specific booking.
+	 *
+	 * Task 14b item 1 (slice 5): this replaces the `error()` immediately
+	 * followed by `add()` pattern that had spread to 9 call sites across
+	 * this codebase by this slice -- Task 4 set "extract on the third
+	 * occurrence" as the threshold, and this slice passed it several times
+	 * over. Both halves existed for a reason and neither alone was enough:
+	 * `error()` guarantees LEVEL_ERROR, which `should_skip_log()` never
+	 * drops under the default `mhmrentiva_log_level` of 'error', but it
+	 * takes no `booking_id` and never passes one to `log()` -- so the
+	 * admin Logs list table's Booking column (LogColumns.php) renders an
+	 * em dash for it. `add()` does write the booking link (and, with
+	 * `status => 'error'`, also self-levels to LEVEL_ERROR), but it is
+	 * `@deprecated` and its legacy gateway/action/status shape loses
+	 * fields `error()`'s own category/message pair keeps distinct.
+	 *
+	 * Built directly on `log()`, per the controller's explicit design
+	 * constraint -- NOT on `add()`, deprecated code must not gain a new
+	 * caller. `$booking_id` defaults to 0 (log()'s own "no booking"
+	 * value) so this is also usable, per item 3, wherever a warning() is
+	 * promoted to error level but no specific booking is in scope (e.g. a
+	 * cron-schedule or plugin-activation failure).
+	 *
+	 * @param array<string,mixed> $context
+	 */
+	public static function error_for_booking( string $message, int $booking_id = 0, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
+		return self::log(
+			array(
+				'level'      => self::LEVEL_ERROR,
+				'category'   => $category,
+				'message'    => $message,
+				'context'    => $context,
+				'booking_id' => $booking_id,
+			)
+		);
+	}
+
+	/**
 	 * Logs a critical error message.
 	 */
 	public static function critical( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
