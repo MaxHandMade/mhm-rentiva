@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
+use MHMRentiva\Admin\Payment\Core\RefundStatus;
 
 final class BookingRefundMetaBox {
 
@@ -33,7 +34,16 @@ final class BookingRefundMetaBox {
 	}
 
 	public static function render( \WP_Post $post ): void {
-		$bid   = (int) $post->ID;
+		$bid = (int) $post->ID;
+
+		// Before the early return, deliberately. The guard below zeroes
+		// $remaining for every WooCommerce-order booking and for an offline
+		// booking whose manual refund was already recorded -- which is exactly
+		// the set that produces manual_pending, partial_failure and
+		// needs_review. Rendered after it, this row would be invisible on
+		// every booking that needs it.
+		self::render_status_row( $bid );
+
 		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
 
 		// This box is the offline surface. A booking whose money sits in a
@@ -98,5 +108,17 @@ final class BookingRefundMetaBox {
 			// false for a cancelled booking that is merely partially refunded.
 			echo '<p class="description">' . esc_html__( 'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
 		}
+	}
+
+	private static function render_status_row( int $booking_id ): void {
+		$status = RefundStatus::get( $booking_id );
+		$labels = RefundStatus::labels();
+
+		// The meta can hold a legacy or foreign value; never echo it raw.
+		$label = $labels[ $status ] ?? __( 'Unrecognised refund status', 'mhm-rentiva' );
+
+		echo '<p class="mhm-refund-status"><strong>'
+			. esc_html__( 'Refund status:', 'mhm-rentiva' ) . '</strong> '
+			. esc_html( $label ) . '</p>';
 	}
 }
