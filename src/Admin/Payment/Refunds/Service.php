@@ -177,9 +177,14 @@ final class Service {
 	 */
 	private static function withLock( int $bookingId, callable $operation ): array {
 		if ( ! RefundLock::acquire( $bookingId ) ) {
+			// Task 14b item 2: was "another refund is already running",
+			// stated as fact. RefundLock::acquire() cannot tell that apart
+			// from an orphaned lock a dead request left behind (RefundLock.php's
+			// own "steal" branch) -- the same fix as the two AJAX surfaces
+			// in DepositManagementAjax.php that return this exact string.
 			return array(
 				'mhmrentiva_refund'     => '0',
-				'mhmrentiva_refund_msg' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ),
+				'mhmrentiva_refund_msg' => __( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within 5 minutes.", 'mhm-rentiva' ),
 			);
 		}
 

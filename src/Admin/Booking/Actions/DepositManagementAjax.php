@@ -515,7 +515,12 @@ final class DepositManagementAjax {
 		$reference = mb_substr( $req->text( 'reference' ), 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ) ) );
+			// Task 14b item 2: this used to claim "another refund is
+			// already running" as fact. RefundLock::acquire() cannot
+			// actually tell that apart from an orphaned lock a dead
+			// request left behind (RefundLock.php's own "steal" branch) --
+			// the honest answer covers both without asserting either.
+			wp_send_json_error( array( 'message' => __( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within 5 minutes.", 'mhm-rentiva' ) ) );
 			return;
 		}
 
@@ -755,7 +760,12 @@ final class DepositManagementAjax {
 		$reason = mb_substr( $reason, 0, self::REFERENCE_MAX_LENGTH );
 
 		if ( ! RefundLock::acquire( $booking_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Another refund is already running for this booking. Please try again in a moment.', 'mhm-rentiva' ) ) );
+			// Task 14b item 2: this used to claim "another refund is
+			// already running" as fact. RefundLock::acquire() cannot
+			// actually tell that apart from an orphaned lock a dead
+			// request left behind (RefundLock.php's own "steal" branch) --
+			// the honest answer covers both without asserting either.
+			wp_send_json_error( array( 'message' => __( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within 5 minutes.", 'mhm-rentiva' ) ) );
 			return;
 		}
 

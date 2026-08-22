@@ -1155,9 +1155,16 @@ final class AccountController {
 		wp_cache_delete($booking_id, 'post_meta');
 
 		if (! empty($result['problems']) || RefundStatus::FAILED === RefundStatus::get($booking_id)) {
+			// Task 14b item 9: "See the refund status on this screen" is an
+			// admin-facing sentence -- DepositManagementAjax::cancel_booking()
+			// uses the identical string correctly, because that screen has a
+			// refund-status meta box to look at. My Account has no such
+			// panel; the customer here needs to be told what actually
+			// happens next, not sent looking for something that is not on
+			// their screen.
 			wp_send_json_success(
 				array(
-					'message'    => __('Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva'),
+					'message'    => __('Booking cancelled, but the refund could not be completed automatically. We will contact you separately about your refund.', 'mhm-rentiva'),
 					'booking_id' => $booking_id,
 				)
 			);
