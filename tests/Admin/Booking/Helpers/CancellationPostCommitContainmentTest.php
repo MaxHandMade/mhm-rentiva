@@ -205,6 +205,82 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         );
     }
 
+    /**
+     * Fix round 1, F1: a throwable raised WHILE HANDLING a post-commit
+     * problem must not fatal the request or turn this into a WP_Error
+     * either -- there is no rollback left to perform. RefundStatus::
+     * transition() fires the public mhmrentiva_refund_status_changed
+     * action, reachable from third-party code exactly like
+     * mhmrentiva_booking_cancelled is, so a listener on THAT hook throwing
+     * from inside cancel_booking()'s own recovery path is the scenario the
+     * recovery block's extra try/catch exists for.
+     */
+    public function test_a_throwable_from_the_recovery_itself_still_returns_the_array_not_a_wp_error(): void
+    {
+        $booking_id = $this->make_unpaid_booking();
+        update_post_meta($booking_id, '_mhmrentiva_refund_status', RefundStatus::PENDING);
+
+        $this->throw_error_on_booking_cancelled();
+
+        add_action(
+            'mhmrentiva_refund_status_changed',
+            static function (): void {
+                throw new \RuntimeException('recovery listener exploded too');
+            }
+        );
+
+        wp_set_current_user($this->admin_id);
+        $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, '', true);
+
+        $this->assertFalse(
+            is_wp_error($result),
+            'A throwable raised while HANDLING a post-commit problem must not turn this into a WP_Error either.'
+        );
+        $this->assertTrue($result['cancelled']);
+        $this->assertGreaterThanOrEqual(
+            2,
+            count($result['problems']),
+            'Both the original throwable and the one raised by the recovery itself must be recorded.'
+        );
+    }
+
+    /**
+     * Fix round 1, F5: an unrelated post-commit throwable on a booking with
+     * nothing owed must not tell the operator a refund is missing when none
+     * was ever due. customer_email is seeded so send_cancellation_email()'s
+     * OWN, unrelated mail is also in play -- the assertion below targets the
+     * refund-failure subject specifically, not "no mail was sent at all".
+     */
+    public function test_the_operator_email_does_not_fire_when_there_is_no_money_at_stake(): void
+    {
+        $booking_id = $this->make_unpaid_booking();
+        update_post_meta($booking_id, '_mhmrentiva_customer_email', 'customer@example.com');
+        $this->throw_error_on_booking_cancelled();
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function (array $args) use (&$mails): array {
+                $mails[] = $args;
+                return $args;
+            }
+        );
+
+        wp_set_current_user($this->admin_id);
+        CancellationHandler::cancel_booking($booking_id, $this->admin_id, '', true);
+
+        $failure_mails = array_filter(
+            $mails,
+            static fn (array $mail): bool => str_contains($mail['subject'], 'problem completing its refund')
+        );
+
+        $this->assertSame(
+            array(),
+            $failure_mails,
+            'No money is at stake on this booking; the operator refund-failure email must not fire.'
+        );
+    }
+
     // -------------------------------------------------------------------
     // Plan assertion 4: both AJAX surfaces say so
     // -------------------------------------------------------------------
@@ -294,6 +370,121 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         );
     }
 
+    /**
+     * Fix round 1, F6: both new AJAX branches key on
+     * `! empty( $result['problems'] ) || RefundStatus::FAILED === RefundStatus::get(...)`.
+     * Every test above drives the FIRST disjunct via a throwing listener,
+     * which short-circuits before the SECOND ever runs -- and with it, the
+     * `wp_cache_delete()` freshness read that disjunct depends on. This
+     * drives the second one directly: a genuine validator refusal that
+     * never throws (the shape RefundValidator's own refusal branch
+     * produces -- see CancellationInitiatesRefundTest::
+     * test_a_validator_refusal_after_the_hook_still_reaches_a_terminal_status),
+     * which is the case real users hit far more often than a broken
+     * third-party listener.
+     */
+    public function test_the_deposit_screen_ajax_surface_reports_a_failed_refund_that_never_threw(): void
+    {
+        $this->require_woocommerce();
+
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
+        update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+
+        $this->create_paid_order_for_booking($booking_id, '120');
+
+        $response = $this->call_deposit_cancel($booking_id);
+
+        $this->assertTrue($response['success'] ?? false);
+        $this->assertStringContainsString('could not be completed', $response['data']['message'] ?? '');
+        $this->assertSame(
+            RefundStatus::FAILED,
+            RefundStatus::get($booking_id),
+            'Sanity check: this must be the validator-refusal shape, or the test proves nothing about the'
+                . ' second disjunct.'
+        );
+    }
+
+    public function test_the_account_ajax_surface_reports_a_failed_refund_that_never_threw(): void
+    {
+        $this->require_woocommerce();
+
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
+        update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+        update_post_meta($booking_id, '_mhmrentiva_customer_user_id', $this->customer_id);
+
+        $this->create_paid_order_for_booking($booking_id, '120');
+
+        $response = $this->call_account_cancel($booking_id);
+
+        $this->assertTrue($response['success'] ?? false);
+        $this->assertStringContainsString('could not be completed', $response['data']['message'] ?? '');
+        $this->assertSame(RefundStatus::FAILED, RefundStatus::get($booking_id));
+    }
+
+    /**
+     * F2's second half: review_cancel_and_refund() (Task 12) must not claim
+     * "the refund started" when cancel_booking() reports a post-commit
+     * problem. Correction #7's own named scenario -- a concurrent
+     * review_dismiss() writing not_required WHILE this request is in
+     * flight -- is awkward to manufacture directly in a single-process
+     * PHPUnit run; a generic post-commit throwable exercises the SAME new
+     * `! empty( $result['problems'] )` branch this endpoint now checks
+     * before either of its two pre-existing messages, which is what this
+     * test pins.
+     */
+    public function test_review_cancel_and_refund_reports_problems_instead_of_claiming_the_refund_started(): void
+    {
+        $booking_id = (int) self::factory()->post->create(array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+
+        $this->assertTrue(\MHMRentiva\Admin\Payment\Core\RefundLock::acquire($booking_id));
+        $this->assertTrue(
+            RefundStatus::transition($booking_id, RefundStatus::NEEDS_REVIEW, array( 'surface' => 'test_fixture' ))
+        );
+        \MHMRentiva\Admin\Payment\Core\RefundLock::release($booking_id);
+
+        $this->throw_error_on_booking_cancelled();
+
+        wp_set_current_user($this->admin_id);
+        $_POST = array(
+            'nonce'      => wp_create_nonce('mhmrentiva_deposit_management_action'),
+            'booking_id' => $booking_id,
+        );
+        $this->_last_response = '';
+
+        try {
+            $this->_handleAjax('mhmrentiva_review_cancel_and_refund');
+        } catch (\WPAjaxDieContinueException | \WPAjaxDieStopException $e) {
+            // wp_send_json_* terminates.
+        }
+
+        $decoded  = json_decode($this->_last_response, true);
+        $response = is_array($decoded) ? $decoded : array();
+
+        $this->assertTrue($response['success'] ?? false);
+        $this->assertStringContainsString(
+            'could not be completed',
+            $response['data']['message'] ?? '',
+            'A post-commit problem must not be reported as "the refund started" -- that sentence would be'
+                . ' false the moment $result[\'problems\'] is non-empty.'
+        );
+    }
+
     // -------------------------------------------------------------------
     // Correction #7: a refused PENDING transition must not move money
     // -------------------------------------------------------------------
@@ -328,6 +519,18 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
         update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
 
+        // Fix round 1, F3: create_paid_order_for_booking() does not write
+        // this meta key itself, and its absence let assertion (a) below
+        // pass even with the guard removed (PaymentState::forBooking()
+        // already reads a balance from the real WC order alone, so
+        // has_money was true regardless -- but RefundValidator's OWN
+        // payment-status gate, further down the un-guarded code path, is
+        // what actually stopped the money in that case, not the thing this
+        // test means to pin). Every sibling test that intends money to
+        // move seeds it explicitly (CancellationInitiatesRefundTest.php,
+        // CancellationRefundAuthorizationTest.php, CancellationRefundGateTest.php).
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+
         $order = $this->create_paid_order_for_booking($booking_id, '120');
 
         // The race this test stands in for: another request already closed
@@ -336,7 +539,14 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
         update_post_meta($booking_id, '_mhmrentiva_refund_status', RefundStatus::NOT_REQUIRED);
 
         wp_set_current_user($this->admin_id);
-        CancellationHandler::cancel_booking($booking_id, $this->admin_id, 'customer changed plans', true);
+        $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, 'customer changed plans', true);
+
+        $this->assertFalse(is_wp_error($result), 'COMMIT already ran; a post-commit refusal must not read as a WP_Error.');
+        $this->assertNotEmpty(
+            $result['problems'],
+            'Fix round 1, F2: the refusal must be reported upward (not just logged) so a caller like'
+                . ' review_cancel_and_refund() can see it and stop claiming the refund started.'
+        );
 
         $this->assertSame(
             Money::toMinor('0'),

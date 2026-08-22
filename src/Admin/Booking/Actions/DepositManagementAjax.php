@@ -657,6 +657,18 @@ final class DepositManagementAjax {
 		wp_cache_delete( $booking_id, 'post_meta' );
 		$refund_status_after_delegation = (string) get_post_meta( $booking_id, RefundStatus::META_KEY, true );
 
+		// Task 14a fix round 1, F2: correction #7's own named scenario is a
+		// concurrent review_dismiss() writing not_required WHILE this
+		// request is in flight -- exactly what CancellationHandler's PENDING
+		// guard now refuses and reports via $result['problems']. Checked
+		// BEFORE the NEEDS_REVIEW branch below: without this, that refusal
+		// (which stops the money, correctly) left this endpoint claiming
+		// "the refund started" for a refund that never did.
+		if ( ! empty( $result['problems'] ) ) {
+			wp_send_json_success( array( 'message' => __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
 		if ( RefundStatus::NEEDS_REVIEW === $refund_status_after_delegation ) {
 			wp_send_json_success( array( 'message' => __( 'Booking cancelled. No refund was found to process, so the review is still open.', 'mhm-rentiva' ) ) );
 			return;
