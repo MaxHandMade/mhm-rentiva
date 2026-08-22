@@ -74,8 +74,15 @@ final class RefundLock {
 
 	/**
 	 * How long a lock may sit before another request may take it over.
+	 *
+	 * Public since Task 14b fix round 1, F5: three operator/customer-facing
+	 * messages (DepositManagementAjax.php x2, Refunds/Service.php) used to
+	 * hardcode "within 5 minutes" -- exactly the kind of confident
+	 * falsehood item 2 removed elsewhere in this task, the moment this
+	 * constant ever changes. Widened to public so those messages can
+	 * derive the number instead of restating it.
 	 */
-	private const TTL_SECONDS = 300;
+	public const TTL_SECONDS = 300;
 
 	/**
 	 * Booking id => how many times THIS request has acquired the lock.

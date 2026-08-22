@@ -520,7 +520,16 @@ final class DepositManagementAjax {
 			// actually tell that apart from an orphaned lock a dead
 			// request left behind (RefundLock.php's own "steal" branch) --
 			// the honest answer covers both without asserting either.
-			wp_send_json_error( array( 'message' => __( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within 5 minutes.", 'mhm-rentiva' ) ) );
+			// Fix round 1, F5: the wait bound is DERIVED from
+			// RefundLock::TTL_SECONDS rather than a hardcoded "5 minutes" --
+			// a hardcoded number here is exactly the kind of confident
+			// falsehood item 2 removed, the moment the TTL ever changes.
+			$lock_held_message = sprintf(
+				/* translators: %d: minutes until an orphaned refund lock clears on its own. */
+				__( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.", 'mhm-rentiva' ),
+				(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
+			);
+			wp_send_json_error( array( 'message' => $lock_held_message ) );
 			return;
 		}
 
@@ -765,7 +774,16 @@ final class DepositManagementAjax {
 			// actually tell that apart from an orphaned lock a dead
 			// request left behind (RefundLock.php's own "steal" branch) --
 			// the honest answer covers both without asserting either.
-			wp_send_json_error( array( 'message' => __( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within 5 minutes.", 'mhm-rentiva' ) ) );
+			// Fix round 1, F5: the wait bound is DERIVED from
+			// RefundLock::TTL_SECONDS rather than a hardcoded "5 minutes" --
+			// a hardcoded number here is exactly the kind of confident
+			// falsehood item 2 removed, the moment the TTL ever changes.
+			$lock_held_message = sprintf(
+				/* translators: %d: minutes until an orphaned refund lock clears on its own. */
+				__( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.", 'mhm-rentiva' ),
+				(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
+			);
+			wp_send_json_error( array( 'message' => $lock_held_message ) );
 			return;
 		}
 
