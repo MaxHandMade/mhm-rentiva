@@ -64,6 +64,26 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         global $wpdb;
         $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva_refund_lock_%'" );
 
+        // Same trap, second door. SettingsCore::set() rewrites the whole
+        // mhmrentiva_settings option, and the tests below use it to raise
+        // mhmrentiva_log_level and to enable the auto-cancel sweep.
+        //
+        // Prophylactic, and said so on purpose: measured on this tree, those
+        // writes DO roll back today -- the stored option is byte-identical
+        // after this file runs with or without this line. What the line
+        // guards is that the rollback is not guaranteed. Locker::withLock()
+        // opens its own START TRANSACTION (Locker.php:25), which MySQL treats
+        // as an implicit COMMIT of everything the test has done up to that
+        // point; a probe that called SettingsCore::set() and then
+        // Locker::withLock() left the setting sitting in the database after
+        // the test ended. Nothing in this file reaches Locker at the moment,
+        // and one listener added to mhmrentiva_booking_status_changed would
+        // be enough to change that. The failure would be silent -- a plugin
+        // setting quietly altered for the rest of the run, which is how this
+        // dev install's price_num_decimals went from 3 to 2. Nine other files
+        // in the suite delete this option for the same reason.
+        delete_option( 'mhmrentiva_settings' );
+
         parent::tearDown();
     }
 
@@ -148,6 +168,44 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
             $this->log_exists( 'Auto-cancel refused for booking #' . $booking_id ),
             'A refusal entry proves the booking was selected. That is the silent infinite loop: every tick'
                 . ' picks it up, every tick refuses, and at the default log level nobody ever sees either half.'
+        );
+    }
+
+    /**
+     * The allowlist's own control: a status this plugin does not recognise.
+     *
+     * `_mhmrentiva_status` is free-form post meta -- among other writers,
+     * `ajax_create_booking` stores whatever status the request sends with no
+     * allowlist of its own -- so a value outside `Status::allowed()` is
+     * reachable, and legacy data is the second way in.
+     *
+     * Under a `NOT IN` denylist the sweep read every unrecognised value as
+     * "not one of the three I refuse" and went after the booking. What
+     * happened next is the point: `Status::get()` coerces an unknown value to
+     * PENDING, PENDING does have a CANCELLED edge, so `update_status()`
+     * succeeded and OVERWROTE the value nobody could read. An unattended job
+     * destroyed the only record of a state it did not understand.
+     *
+     * The allowlist inverts that default (spec v3 §7.2.3): selection is
+     * limited to the statuses the transition matrix names. The meta value is
+     * the witness -- if the sweep runs, `bogus_legacy_value` is gone.
+     */
+    public function test_a_booking_in_an_unrecognised_status_is_not_swept(): void
+    {
+        $booking_id = $this->make_past_pickup_booking( 'pending', 'bogus_legacy_value' );
+
+        $result = AutoCancel::sync_stale_past_bookings();
+
+        $this->assertSame(
+            0,
+            $result['cancelled'],
+            'A destructive unattended sweep may not select a booking whose status it cannot describe.'
+        );
+        $this->assertSame(
+            'bogus_legacy_value',
+            get_post_meta( $booking_id, '_mhmrentiva_status', true ),
+            'The sweep did not merely select the booking, it overwrote the unrecognised status with'
+                . ' `cancelled`: Status::get() coerced it to PENDING, and PENDING has a CANCELLED edge.'
         );
     }
 

@@ -42,6 +42,26 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
         global $wpdb;
         $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mhmrentiva_refund_lock_%'" );
 
+        // Same trap, second door. SettingsCore::set() rewrites the whole
+        // mhmrentiva_settings option, and the tests below use it to raise
+        // mhmrentiva_log_level and to enable the auto-cancel sweep.
+        //
+        // Prophylactic, and said so on purpose: measured on this tree, those
+        // writes DO roll back today -- the stored option is byte-identical
+        // after this file runs with or without this line. What the line
+        // guards is that the rollback is not guaranteed. Locker::withLock()
+        // opens its own START TRANSACTION (Locker.php:25), which MySQL treats
+        // as an implicit COMMIT of everything the test has done up to that
+        // point; a probe that called SettingsCore::set() and then
+        // Locker::withLock() left the setting sitting in the database after
+        // the test ended. Nothing in this file reaches Locker at the moment,
+        // and one listener added to mhmrentiva_booking_status_changed would
+        // be enough to change that. The failure would be silent -- a plugin
+        // setting quietly altered for the rest of the run, which is how this
+        // dev install's price_num_decimals went from 3 to 2. Nine other files
+        // in the suite delete this option for the same reason.
+        delete_option( 'mhmrentiva_settings' );
+
         parent::tearDown();
     }
 

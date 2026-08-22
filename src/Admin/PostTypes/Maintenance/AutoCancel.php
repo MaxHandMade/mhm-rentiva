@@ -9,10 +9,6 @@ if (! defined('ABSPATH')) {
 
 
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
-
-
-
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Payment\Core\RefundLock;
@@ -28,6 +24,29 @@ final class AutoCancel {
 
 	public const EVENT    = 'mhmrentiva_auto_cancel_event';
 	public const SCHEDULE = 'mhmrentiva_5min'; // Changed to 5min to match DatabaseInitialization
+
+	/**
+	 * Payment statuses that disqualify a booking from the past-pickup sweep.
+	 *
+	 * This one stays a DENYLIST, deliberately, and the asymmetry with the
+	 * booking-status allowlist next to it is the point. The two clauses ask
+	 * different questions of their key. The booking-status clause asks "may
+	 * this booking be cancelled?", and the transition matrix answers it for
+	 * every value it knows -- so anything it does not know is not an answer,
+	 * and the sweep declines. This clause asks "was this booking never paid?",
+	 * and the honest default for an unrecognised payment status is that it is
+	 * NOT one of the settled outcomes below; an allowlist of "unpaid-looking"
+	 * statuses would instead make an unknown value silently disqualifying and
+	 * quietly shrink the sweep to nothing the first time a payment gateway
+	 * introduced a status of its own. Spec v3 §7.2.3 narrows this key by
+	 * naming an addition (`partially_refunded`), not by inverting the compare.
+	 *
+	 * `partially_refunded` is that addition: the operator refunded part of the
+	 * money and deliberately kept the rest as a cancellation fee, which is a
+	 * settled outcome, not "unpaid". Reading it as unpaid sent this sweep
+	 * after a booking somebody had already dealt with by hand.
+	 */
+	private const SETTLED_PAYMENT_STATUSES = array( 'paid', 'completed', 'refunded', 'cancelled', 'partially_refunded' );
 
 	public static function register(): void
 	{
@@ -249,26 +268,18 @@ final class AutoCancel {
 				),
 				array(
 					'key'     => '_mhmrentiva_payment_status',
-					// partially_refunded added: the operator deliberately kept
-					// a cancellation fee, which is a settled outcome, not
-					// "unpaid". Reading it as unpaid sent this sweep after a
-					// booking somebody had already dealt with by hand.
-					'value'   => array( 'paid', 'completed', 'refunded', 'cancelled', 'partially_refunded' ),
+					// Denylist on purpose; see SETTLED_PAYMENT_STATUSES for why
+					// this key and the one below take opposite compares.
+					'value'   => self::SETTLED_PAYMENT_STATUSES,
 					'compare' => 'NOT IN',
 				),
 				array(
 					'key'     => '_mhmrentiva_status',
-					// completed added: Status::can_transition() gives COMPLETED
-					// only REFUNDED and IN_PROGRESS as exits, so there is no
-					// CANCELLED edge to take. Including it produced a booking
-					// that was selected and refused on every single tick, and
-					// the refusal logs at warning level, which the default
-					// mhmrentiva_log_level of 'error' drops -- a silent
-					// infinite loop. The remaining selectable statuses (draft,
-					// pending_payment, pending, confirmed, in_progress,
-					// no_show) all do have a CANCELLED edge.
-					'value'   => array( 'cancelled', 'refunded', 'completed' ),
-					'compare' => 'NOT IN',
+					// Allowlist, derived from the transition matrix rather
+					// than written out; cancellable_statuses() carries the
+					// reasoning and is the only place the set is decided.
+					'value'   => self::cancellable_statuses(),
+					'compare' => 'IN',
 				),
 				self::not_parked_for_review(),
 			),
@@ -281,6 +292,43 @@ final class AutoCancel {
 		}
 		wp_reset_postdata();
 		return $count;
+	}
+
+	/**
+	 * The booking statuses the past-pickup sweep is allowed to select.
+	 *
+	 * Derived from the transition matrix, never written out. This sweep's
+	 * only outcome is `Status::update_status( $bid, CANCELLED )`, so the set
+	 * of statuses worth selecting is exactly the set with a CANCELLED edge,
+	 * and `Status::can_transition()` already decides that. Deriving it means
+	 * an edge cannot be added or removed without this query following; the
+	 * hand-written list this replaces had already drifted (it did not name
+	 * `completed`, which is selected and refused on every single tick, and
+	 * the refusal logs at warning level, which the default
+	 * `mhmrentiva_log_level` of 'error' drops -- a silent infinite loop), and
+	 * it forced the same set to be spelled out again in a comment beside it.
+	 *
+	 * An ALLOWLIST, per spec v3 §7.2.3 ("booking durumu seçimi CANCELLED
+	 * kenarı olanlarla sınırlanır"). The consequence is deliberate: a booking
+	 * whose `_mhmrentiva_status` holds a value this plugin does not recognise
+	 * is no longer swept. A denylist read every unknown value as "safe to
+	 * cancel", and the damage was not hypothetical -- `Status::get()` coerces
+	 * an unrecognised value to PENDING, PENDING has a CANCELLED edge, so the
+	 * sweep cancelled the booking and overwrote the one record of the state
+	 * nobody could read. A destructive unattended job does not get to act on
+	 * a booking it cannot describe. The write end of that hole is a separate,
+	 * tracked defect (`ajax_create_booking` stores the requested status with
+	 * no allowlist of its own); this clause is the read end.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function cancellable_statuses(): array {
+		return array_values(
+			array_filter(
+				Status::allowed(),
+				static fn ( string $status ): bool => Status::can_transition( $status, Status::CANCELLED )
+			)
+		);
 	}
 
 	/**
@@ -297,9 +345,27 @@ final class AutoCancel {
 	 * lock logs an error every five minutes about a booking that is in exactly
 	 * the state it should be in.
 	 *
-	 * NOT EXISTS is the first half because a `NOT IN` / `!=` clause on its own
-	 * joins on the key and therefore drops every booking that has never been
-	 * through a refund flow at all -- which is nearly all of them.
+	 * NOT EXISTS is the first half of the OR, and the `!=` on its own would
+	 * not do. Core builds a `!=` clause with an INNER JOIN whose ON condition
+	 * is the post id and nothing else (class-wp-meta-query.php:609-611); the
+	 * meta_key restriction is emitted into WHERE instead (:669-671), which
+	 * lands it inside this group's OR. A booking that has never been through
+	 * a refund flow therefore has no `_mhmrentiva_refund_status` row for that
+	 * WHERE half to match, and the clause drops it -- which is nearly every
+	 * booking, measured.
+	 *
+	 * The NOT EXISTS half also does something less obvious, worth naming
+	 * before somebody "simplifies" it away: a single NOT EXISTS clause
+	 * anywhere in a meta_query makes core rewrite EVERY INNER JOIN in that
+	 * query to a LEFT JOIN (:374-378, core's own comment: "Otherwise posts
+	 * with no metadata will be excluded"). Both sweeps still pin meta_key AND
+	 * meta_value in WHERE for their other clauses, so a missing row still
+	 * fails them and the selection is unchanged -- but the query being run is
+	 * not the one the array on the page looks like.
+	 *
+	 * Core line anchors are against the RUNNING install, WordPress 7.1 in the
+	 * dev container. The wp/ tree at the root of the dev stack is an older
+	 * copy and these lines sit elsewhere in it.
 	 *
 	 * The key type is int|string because a meta_query clause group is exactly
 	 * that shape: a string-keyed `relation` alongside numerically indexed
@@ -528,13 +594,24 @@ final class AutoCancel {
 	 * it about a set of ids. Two copies of the get_date_paid() rule is the
 	 * defect class this slice exists to remove, so both callers come here.
 	 *
-	 * Nullable, because wc_get_order() answers `false` for an id that no
-	 * longer resolves and a WC_Order_Refund (which is not a WC_Order) for a
-	 * refund id; callers narrow to null in both cases rather than let a
-	 * missing order read as a paid one.
+	 * Strictly `WC_Order`, and both callers step past anything else with a
+	 * `continue` before they reach here. That is not defensive style, it is
+	 * the only shape this question can be asked in. `wc_get_order()` has two
+	 * other return shapes -- `false` for an id that no longer resolves, and
+	 * `WC_Order_Refund` for a refund id -- and `WC_Order_Refund extends
+	 * WC_Abstract_Order`, NOT `WC_Order` (WooCommerce 11.0.1,
+	 * includes/class-wc-order-refund.php:17), so handing either one to this
+	 * parameter is a TypeError.
+	 *
+	 * Widening the parameter to swallow them would be worse than the crash.
+	 * This is a money gate, and its PERMISSIVE answer is `false`: "there is
+	 * no order here" would come back as "nobody has paid", which is precisely
+	 * the green light to cancel. A caller holding something that is not a
+	 * WC_Order has not asked this question and must not be handed an answer
+	 * to it.
 	 */
-	private static function is_paid( ?\WC_Order $order ): bool {
-		return null !== $order && (bool) $order->get_date_paid();
+	private static function is_paid( \WC_Order $order ): bool {
+		return (bool) $order->get_date_paid();
 	}
 
 	/**
@@ -626,7 +703,19 @@ final class AutoCancel {
 			$booking_touched = false;
 			foreach (array_unique($candidate_ids) as $oid) {
 				$order = call_user_func('\wc_get_order', $oid);
-				if (! $order) {
+				// One statement where there used to be a falsy check here and
+				// an inline instanceof narrowing three lines further down.
+				// wc_get_order() answers `false` for an unresolvable id and a
+				// WC_Order_Refund for a refund id, and this loop may act on
+				// neither -- WC_Order_Refund does not even define
+				// update_status() (measured, WooCommerce 11.0.1), so reaching
+				// the cancel call with one would be fatal. Behaviour is
+				// unchanged: a refund object already fell through to the
+				// has_status() gate below and was skipped there, its status
+				// being `completed`. It is now skipped before any money
+				// question is asked about it, which is the difference between
+				// a gate and a coincidence.
+				if (! $order instanceof \WC_Order) {
 					continue;
 				}
 				// K6, restated here because this body never passes through
@@ -635,13 +724,7 @@ final class AutoCancel {
 				// status of a typical PAID order, so without this line an
 				// operator running the backfill by hand could cancel an order
 				// somebody had paid for. Measured, not hypothetical.
-				//
-				// Narrowed to ?WC_Order rather than passed straight through:
-				// wc_get_order() can hand back a WC_Order_Refund, which is not
-				// a WC_Order, and letting it reach has_status() unchanged is
-				// this line's pre-existing behaviour, not something to alter
-				// while closing a money hole.
-				if (self::is_paid($order instanceof \WC_Order ? $order : null)) {
+				if (self::is_paid($order)) {
 					continue;
 				}
 				if (! $order->has_status(array( 'pending', 'on-hold', 'failed', 'processing' ))) {
