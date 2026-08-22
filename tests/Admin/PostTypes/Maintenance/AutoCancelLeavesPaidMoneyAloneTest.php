@@ -162,12 +162,13 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
         );
         $this->assertStringContainsString( $order->get_currency(), $mail['message'] );
         $this->assertMatchesRegularExpression(
-            '#^Review the booking: https?://\S*post=' . $booking_id . '\S*$#m',
+            '#^Review the booking: https?://\S*[?&]post=' . $booking_id . '(?:&\S*)?$#m',
             $mail['message'],
             'In cron there is no current user, so get_edit_post_link() returns null and the fallback is the'
                 . ' branch that always runs. It must deep-link to this booking; a URL that merely exists --'
                 . ' the plugin-wide booking list, say -- makes the notification name a booking it then refuses'
-                . ' to open.'
+                . ' to open. The id is bounded on both sides deliberately: with a bare \S* in front of it the'
+                . ' pattern also accepts post=' . $booking_id . '0, which is a different booking entirely.'
         );
     }
 
@@ -181,6 +182,11 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
      * anywhere recording that the second half never happened. That reads
      * healthier than the lock refusal below, because the part that did work
      * is the part that leaves evidence.
+     *
+     * Two doors, so two tests: this one goes through the admin_email door and
+     * the one below through wp_mail()'s. Naming both here while covering only
+     * this one is how the helper's last line stayed free to swallow
+     * wp_mail()'s bool with the suite green.
      *
      * admin_email is broken through pre_option_admin_email rather than
      * update_option(): core's sanitize_option() restores the previous value
@@ -245,6 +251,94 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
             $traced,
             'send_refund_needs_review_email() returns false silently; with its return value discarded, a booking'
                 . ' parked for review that nobody was told about is indistinguishable from one that was.'
+        );
+        $this->assertTrue(
+            $linked,
+            'AdvancedLogger::error() passes no booking_id to log(), so its entry gets no'
+                . ' _mhmrentiva_log_booking_id and the admin Logs table shows an em dash where the operator'
+                . ' needs the link back to the booking (LogColumns.php:98).'
+        );
+    }
+
+    /**
+     * The sibling above closes one of the two doors
+     * send_refund_needs_review_email() can return false through; this closes
+     * the other, and it is the door production is far likelier to use. An
+     * invalid admin_email is a misconfiguration somebody has to create;
+     * wp_mail() failing is an SMTP timeout, a rejected sender, a mail plugin
+     * bailing out -- an ordinary Tuesday. While only the first door had a
+     * test, mutating the helper's last line from `return wp_mail(...)` to
+     * `wp_mail(...); return true;` kept the whole suite green: the trace
+     * branch would simply never run again, and nothing would say so.
+     *
+     * pre_wp_mail is the seam. Core hands its non-null value straight back out
+     * of wp_mail() (wp-includes/pluggable.php:233-236 in the installed WP 7.1;
+     * the copy under c:/projects/rentiva-dev/wp/ is 6.9.1 and its line numbers
+     * differ), so __return_false makes wp_mail() report failure without the
+     * mailer being involved at all. The `wp_mail` filter fires earlier in the
+     * same function (:209), which is why $mails records the attempt here while
+     * the sibling above records none -- that difference is itself the evidence
+     * that the two tests enter through different doors rather than restating
+     * one another.
+     */
+    public function test_a_notification_wp_mail_itself_refused_leaves_a_trace(): void
+    {
+        $booking_id = $this->make_expired_unpaid_booking();
+        $order      = $this->create_paid_order_for_booking( $booking_id, '1500' );
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function ( array $args ) use ( &$mails ): array {
+                $mails[] = $args;
+
+                return $args;
+            }
+        );
+        add_filter( 'pre_wp_mail', '__return_false' );
+
+        SettingsCore::set( 'mhmrentiva_booking_auto_cancel_enabled', '1' );
+
+        AutoCancel::run();
+
+        $this->assertCount(
+            1,
+            $mails,
+            'This test only means something if the helper got as far as calling wp_mail(). A run that never'
+                . ' reached the mailer would be the admin_email test above wearing a different name, and the'
+                . ' door this one exists to cover would still be untested.'
+        );
+
+        // The park itself must still hold: a mailer that refuses the message
+        // is no reason to leave a paid order exposed to the next sweep.
+        $this->assertSame( RefundStatus::NEEDS_REVIEW, RefundStatus::get( $booking_id ) );
+        $this->assertSame(
+            'processing',
+            wc_get_order( $order->get_id() )->get_status(),
+            'A failed notification must not weaken K6: the paid order stays untouched either way.'
+        );
+
+        $traced = false;
+        $linked = false;
+
+        foreach ( $this->all_log_entries() as $log ) {
+            if ( str_contains( $log->post_content, 'Refund review notification failed for booking #' . $booking_id ) ) {
+                $traced = true;
+            }
+
+            if (
+                str_contains( $log->post_content, 'notification e-mail could not be sent' )
+                && $booking_id === (int) get_post_meta( $log->ID, '_mhmrentiva_log_booking_id', true )
+            ) {
+                $linked = true;
+            }
+        }
+
+        $this->assertTrue(
+            $traced,
+            'wp_mail() returning false is the likeliest way this notification dies, and it dies quietly --'
+                . ' the helper hands the bool back and nothing throws. Without this entry the booking sits in'
+                . ' needs_review looking exactly like one whose operator was told.'
         );
         $this->assertTrue(
             $linked,
