@@ -1535,6 +1535,21 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				__('Booking completed — rental period ended.', 'mhm-rentiva')
 			);
 		} elseif ($new_status === 'cancelled') {
+			// The fourth order-cancelling caller in this class, and the one a
+			// single-line grep for update_status('cancelled' cannot see
+			// because the call spans lines. It fires on ANY surface's
+			// cancellation, so without this it undid Task 6 one hop later.
+			//
+			// The membership question has one home: PaymentState::orders() is
+			// the set of this booking's orders whose money actually arrived
+			// (get_date_paid() !== null -- PaymentState.php:153-155 says why
+			// that and not is_paid()). Task 6's has_paid_sibling_order() asks
+			// the booking-level question against the same list; this asks the
+			// order-level one.
+			if ( in_array( $order_id, PaymentState::forBooking( $booking_id )->orders(), true ) ) {
+				return;
+			}
+
 			// Cancel WC order if not already cancelled/refunded
 			if ($order->has_status(array( 'cancelled', 'refunded' ))) {
 				return;
