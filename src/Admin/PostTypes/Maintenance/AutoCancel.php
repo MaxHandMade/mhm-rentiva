@@ -200,6 +200,7 @@ final class AutoCancel {
 						'value'   => array( 'pending', 'pending_payment' ), // Also check booking status
 						'compare' => 'IN',
 					),
+					self::not_parked_for_review(),
 				),
 			)
 		);
@@ -248,14 +249,28 @@ final class AutoCancel {
 				),
 				array(
 					'key'     => '_mhmrentiva_payment_status',
-					'value'   => array( 'paid', 'completed', 'refunded', 'cancelled' ),
+					// partially_refunded added: the operator deliberately kept
+					// a cancellation fee, which is a settled outcome, not
+					// "unpaid". Reading it as unpaid sent this sweep after a
+					// booking somebody had already dealt with by hand.
+					'value'   => array( 'paid', 'completed', 'refunded', 'cancelled', 'partially_refunded' ),
 					'compare' => 'NOT IN',
 				),
 				array(
 					'key'     => '_mhmrentiva_status',
-					'value'   => array( 'cancelled', 'refunded' ),
+					// completed added: Status::can_transition() gives COMPLETED
+					// only REFUNDED and IN_PROGRESS as exits, so there is no
+					// CANCELLED edge to take. Including it produced a booking
+					// that was selected and refused on every single tick, and
+					// the refusal logs at warning level, which the default
+					// mhmrentiva_log_level of 'error' drops -- a silent
+					// infinite loop. The remaining selectable statuses (draft,
+					// pending_payment, pending, confirmed, in_progress,
+					// no_show) all do have a CANCELLED edge.
+					'value'   => array( 'cancelled', 'refunded', 'completed' ),
 					'compare' => 'NOT IN',
 				),
+				self::not_parked_for_review(),
 			),
 		));
 
@@ -266,6 +281,45 @@ final class AutoCancel {
 		}
 		wp_reset_postdata();
 		return $count;
+	}
+
+	/**
+	 * The meta_query clause both sweeps use to skip bookings a human already
+	 * owns.
+	 *
+	 * A park writes only `_mhmrentiva_refund_status`; the booking status and
+	 * payment status stay exactly as they were, which is precisely what keeps
+	 * both sweep queries selecting the booking on every following tick while
+	 * somebody works on it (spec v3 §7.2.2). The transition matrix already
+	 * makes the second visit harmless -- `needs_review -> needs_review`
+	 * returns false, so no notification and no event -- but harmless is not
+	 * the same as absent: a re-selection that cannot take the booking's refund
+	 * lock logs an error every five minutes about a booking that is in exactly
+	 * the state it should be in.
+	 *
+	 * NOT EXISTS is the first half because a `NOT IN` / `!=` clause on its own
+	 * joins on the key and therefore drops every booking that has never been
+	 * through a refund flow at all -- which is nearly all of them.
+	 *
+	 * The key type is int|string because a meta_query clause group is exactly
+	 * that shape: a string-keyed `relation` alongside numerically indexed
+	 * sub-clauses.
+	 *
+	 * @return array<int|string, array<string, string>|string>
+	 */
+	private static function not_parked_for_review(): array {
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => RefundStatus::META_KEY,
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => RefundStatus::META_KEY,
+				'value'   => RefundStatus::NEEDS_REVIEW,
+				'compare' => '!=',
+			),
+		);
 	}
 
 	/**
@@ -461,12 +515,30 @@ final class AutoCancel {
 	}
 
 	/**
-	 * Does any candidate order already carry a payment?
+	 * Has money already changed hands on this one order?
 	 *
 	 * Checked via get_date_paid() rather than has_status(): a status check
 	 * would miss an order sitting in `on-hold` or `refunded` after having
 	 * been paid once — both are still "money changed hands", which is the
-	 * fact this method exists to protect.
+	 * fact this predicate exists to protect. It would also read `processing`
+	 * as safe to cancel, which is the status of a typical PAID order.
+	 *
+	 * One predicate, one home: sync_orphan_wc_orders() asks the same question
+	 * about an order object it is already holding, and has_paid_order() asks
+	 * it about a set of ids. Two copies of the get_date_paid() rule is the
+	 * defect class this slice exists to remove, so both callers come here.
+	 *
+	 * Nullable, because wc_get_order() answers `false` for an id that no
+	 * longer resolves and a WC_Order_Refund (which is not a WC_Order) for a
+	 * refund id; callers narrow to null in both cases rather than let a
+	 * missing order read as a paid one.
+	 */
+	private static function is_paid( ?\WC_Order $order ): bool {
+		return null !== $order && (bool) $order->get_date_paid();
+	}
+
+	/**
+	 * Does any candidate order already carry a payment?
 	 *
 	 * @param array<int, int> $order_ids
 	 */
@@ -478,7 +550,11 @@ final class AutoCancel {
 		foreach ( array_unique( $order_ids ) as $oid ) {
 			$order = wc_get_order( $oid );
 
-			if ( $order instanceof \WC_Order && $order->get_date_paid() ) {
+			if ( ! $order instanceof \WC_Order ) {
+				continue;
+			}
+
+			if ( self::is_paid( $order ) ) {
 				return true;
 			}
 		}
@@ -551,6 +627,21 @@ final class AutoCancel {
 			foreach (array_unique($candidate_ids) as $oid) {
 				$order = call_user_func('\wc_get_order', $oid);
 				if (! $order) {
+					continue;
+				}
+				// K6, restated here because this body never passes through
+				// cancel_booking_with_orders() and so never meets its guard.
+				// The has_status() gate below is not one: `processing` is the
+				// status of a typical PAID order, so without this line an
+				// operator running the backfill by hand could cancel an order
+				// somebody had paid for. Measured, not hypothetical.
+				//
+				// Narrowed to ?WC_Order rather than passed straight through:
+				// wc_get_order() can hand back a WC_Order_Refund, which is not
+				// a WC_Order, and letting it reach has_status() unchanged is
+				// this line's pre-existing behaviour, not something to alter
+				// while closing a money hole.
+				if (self::is_paid($order instanceof \WC_Order ? $order : null)) {
 					continue;
 				}
 				if (! $order->has_status(array( 'pending', 'on-hold', 'failed', 'processing' ))) {
