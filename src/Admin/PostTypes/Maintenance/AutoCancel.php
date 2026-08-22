@@ -297,8 +297,41 @@ final class AutoCancel {
 				if (RefundLock::acquire($bid)) {
 					try {
 						if (RefundStatus::transition($bid, RefundStatus::NEEDS_REVIEW, array( 'surface' => 'auto_cancel' ))) {
-							if (class_exists('\MHMRentiva\Helpers\NotificationHelper')) {
-								\MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
+							// The bool is load-bearing: the notification
+							// returns false without throwing when admin_email
+							// does not validate (NotificationHelper.php:64-66)
+							// and when wp_mail() fails, and src/ registers no
+							// wp_mail_failed listener. Discarding it parks the
+							// booking, drops the e-mail and records nothing --
+							// and this failure hides better than the lock
+							// refusal below, because the durable half (the
+							// status write, its event) all succeeded.
+							$notified = class_exists('\MHMRentiva\Helpers\NotificationHelper')
+								&& \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email($bid);
+
+							if (! $notified) {
+								// error() + add(), same pair and same reasons
+								// as the lock-refusal branch below; see the
+								// comments there.
+								AdvancedLogger::error(
+									"Refund review notification failed for booking #$bid (surface: auto_cancel): the booking is parked in needs_review but no one was told",
+									array(
+										'booking_id' => $bid,
+										'surface'    => 'auto_cancel',
+										'reason'     => 'notification_failed',
+									),
+									AdvancedLogger::CATEGORY_SYSTEM
+								);
+
+								AdvancedLogger::add(
+									array(
+										'gateway'    => 'auto_cancel',
+										'action'     => 'refund_review',
+										'status'     => 'error',
+										'booking_id' => $bid,
+										'message'    => __('This booking was parked for refund review, but the notification e-mail could not be sent -- no one has been told that it is holding paid money.', 'mhm-rentiva'),
+									)
+								);
 							}
 						}
 					} finally {
@@ -306,11 +339,15 @@ final class AutoCancel {
 					}
 				} else {
 					// Without this the whole park-and-notify block is skipped
-					// in silence: no status, no email, no trace, while the
-					// Status::update_status() refusal below does log. A lock
-					// left behind by a request that died blocks both the
+					// in silence: no status, no email, no trace. A lock left
+					// behind by a request that died blocks both the
 					// notification and the cancellation until its TTL expires
-					// and tells the operator nothing (ruling T2-R3).
+					// and tells the operator nothing (ruling T2-R3). The
+					// sibling Status::update_status() refusal below is no
+					// counter-example: it calls warning(), which the default
+					// log level drops (see the next paragraph), so on a
+					// stock install that branch is just as silent. It is
+					// tracked as a class in Task 14 rather than fixed here.
 					//
 					// error(), not warning(): should_skip_log() compares
 					// against mhmrentiva_log_level, which defaults to 'error'
@@ -330,17 +367,25 @@ final class AutoCancel {
 					// body; only log()'s own booking_id argument writes
 					// _mhmrentiva_log_booking_id, which is the meta the admin
 					// Logs list table's Booking column reads (LogColumns.php:98).
-					// add() is the one public entry point that passes it, so
-					// the pair -- not error() alone -- is what keeps this entry
-					// traceable to its booking. Same pairing the sibling
-					// lock-refusal branch uses (CancellationHandler.php:525-535).
+					// payment() and booking() pass it too, but both pin the
+					// entry to LEVEL_INFO (:355, :370), which the default
+					// 'error' log level drops -- so add() with a non-success
+					// status is the only public entry point that writes the
+					// booking link at a level that survives. The pair, not
+					// error() alone, is what keeps this entry traceable to its
+					// booking. Same pairing the sibling lock-refusal branch
+					// uses (CancellationHandler.php:525-535).
 					AdvancedLogger::add(
 						array(
 							'gateway'    => 'auto_cancel',
 							'action'     => 'refund_review',
 							'status'     => 'error',
 							'booking_id' => $bid,
-							'message'    => __('Auto-cancel left a paid order alone but could not park the booking for review: another refund operation is already running.', 'mhm-rentiva'),
+							// The branch cannot tell the two apart -- acquire()
+							// also returns false for a row it refuses to steal
+							// (RefundLock.php:198-221) -- so the message names
+							// both possibilities instead of asserting one.
+							'message'    => __('Auto-cancel left a paid order alone but could not park the booking for review: its refund lock could not be taken. Another refund operation may still be running, or a lock left behind by one that did not finish is waiting to expire.', 'mhm-rentiva'),
 						)
 					);
 				}

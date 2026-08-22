@@ -69,17 +69,25 @@ class NotificationHelper {
 		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
 		$amount   = \MHMRentiva\Admin\Payment\Core\Money::toMajor($state->paid());
 		$currency = $state->currency() ?: 'TRY';
-		// get_edit_post_link() returns null when current_user_can( 'edit_post',
-		// $id ) is false, and the only production caller of this method is
-		// AutoCancel, which runs from WP-Cron -- no logged-in user, so the
-		// link was empty on the one path that actually sends this email. The
-		// `?:` fallback to the booking list is the tree's existing answer to
-		// exactly this (Actions.php:67), chosen over BookingRefundMetaBox's
-		// hand-built admin_url( 'post.php?post=...&action=edit' ) because that
-		// one always emits a deep link, including for a recipient who cannot
-		// open it; this keeps the deep link whenever WordPress agrees to give
-		// one and degrades to a screen the recipient can always reach.
-		$link = get_edit_post_link($booking_id, '') ?: admin_url('edit.php?post_type=mhmrentiva_booking');
+		// Both `?:` branches are live, because AutoCancel::run() has two
+		// production callers: the WP-Cron hook (AutoCancel.php:54), where
+		// there is no logged-in user, and VehicleColumns::maybe_run_autocancel()
+		// (VehicleColumns.php:1460, reached from :1417), a 60s-throttled
+		// fallback that runs inside an admin request with a logged-in user.
+		// The cron caller always takes the right-hand side: get_edit_post_link()
+		// bails at `if ( ! current_user_can( 'edit_post', $post->ID ) ) return null;`
+		// (core link-template.php:1473-1475) -- before its own filter, so no
+		// filter can rescue it. The admin caller usually takes the left.
+		//
+		// The fallback is byte-identical to what core would have built: the
+		// booking CPT leaves WP_Post_Type::$_edit_link at its 'post.php?post=%d'
+		// default and core appends '&action=edit' for a non-display context.
+		// It concedes no access either: AbstractPostType::get_capabilities_args()
+		// (:290-303) maps edit_posts AND edit_post to manage_options with no
+		// map_meta_cap, so the deep link and the list screen demand the very
+		// same capability -- which is why this is the tree's deep-link pattern
+		// (BookingRefundMetaBox.php:83) and not a link to the booking list.
+		$link = get_edit_post_link($booking_id, '') ?: admin_url('post.php?post=' . $booking_id . '&action=edit');
 
 		$subject = __('A cancelled reservation still holds paid money', 'mhm-rentiva');
 

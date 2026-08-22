@@ -104,11 +104,17 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
      * link that is always empty on the one path that actually runs shipped
      * green.
      *
-     * The link is the assertion that matters. AutoCancel::run() is registered
-     * on a WP-Cron hook (AutoCancel.php:54); WP-Cron has no logged-in user,
-     * and get_edit_post_link() returns null when current_user_can( 'edit_post',
+     * The link is the assertion that matters. AutoCancel::run() has two
+     * production callers: the WP-Cron hook it is registered on
+     * (AutoCancel.php:54), and VehicleColumns::maybe_run_autocancel()
+     * (VehicleColumns.php:1460, called from :1417), a 60s-throttled fallback
+     * for unreliable cron that runs inside an admin request with a logged-in
+     * user. This test pins the cron one: there is no logged-in user, and
+     * get_edit_post_link() returns null when current_user_can( 'edit_post',
      * $id ) is false (wp-includes/link-template.php:1473-1475 in the installed
-     * core). So on the real call path the "where to go" line was blank.
+     * core). So on that call path the "where to go" line was blank -- and
+     * then, once a fallback existed, pointed at the booking list instead of
+     * at the booking the sentence had just named.
      */
     public function test_the_review_notification_says_what_happened_and_where_to_go(): void
     {
@@ -156,10 +162,95 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
         );
         $this->assertStringContainsString( $order->get_currency(), $mail['message'] );
         $this->assertMatchesRegularExpression(
-            '#^Review the booking: https?://\S+$#m',
+            '#^Review the booking: https?://\S*post=' . $booking_id . '\S*$#m',
             $mail['message'],
-            'In cron there is no current user, so get_edit_post_link() returns null; without a fallback the'
-                . ' one line telling a human where to act is empty and the notification is decorative.'
+            'In cron there is no current user, so get_edit_post_link() returns null and the fallback is the'
+                . ' branch that always runs. It must deep-link to this booking; a URL that merely exists --'
+                . ' the plugin-wide booking list, say -- makes the notification name a booking it then refuses'
+                . ' to open.'
+        );
+    }
+
+    /**
+     * Parking the booking and telling a human are two steps, and only the
+     * first one is durable. send_refund_needs_review_email() returns false
+     * without throwing when admin_email does not validate
+     * (NotificationHelper.php:64-66) and when wp_mail() itself fails, and
+     * src/ registers no wp_mail_failed listener -- so a discarded return
+     * value leaves the booking parked, the operator uninformed, and nothing
+     * anywhere recording that the second half never happened. That reads
+     * healthier than the lock refusal below, because the part that did work
+     * is the part that leaves evidence.
+     *
+     * admin_email is broken through pre_option_admin_email rather than
+     * update_option(): core's sanitize_option() restores the previous value
+     * whenever the new one fails is_email() (formatting.php:4936-4941 with
+     * :5181), so update_option() cannot produce this state at all.
+     */
+    public function test_a_notification_that_could_not_be_sent_leaves_a_trace(): void
+    {
+        $booking_id = $this->make_expired_unpaid_booking();
+        $order      = $this->create_paid_order_for_booking( $booking_id, '1500' );
+
+        add_filter( 'pre_option_admin_email', static fn (): string => 'not-an-email' );
+
+        SettingsCore::set( 'mhmrentiva_booking_auto_cancel_enabled', '1' );
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function ( array $args ) use ( &$mails ): array {
+                $mails[] = $args;
+
+                return $args;
+            }
+        );
+
+        AutoCancel::run();
+
+        $this->assertSame(
+            array(),
+            $mails,
+            'The premise of this test is that no notification goes out; if one did, the branch under test was'
+                . ' never reached and everything below is measuring nothing.'
+        );
+
+        // The park itself must still have succeeded -- an undeliverable
+        // e-mail is no reason to leave the booking in a state that lets the
+        // next sweep cancel a paid order.
+        $this->assertSame( RefundStatus::NEEDS_REVIEW, RefundStatus::get( $booking_id ) );
+        $this->assertSame(
+            'processing',
+            wc_get_order( $order->get_id() )->get_status(),
+            'A failed notification must not weaken K6: the paid order stays untouched either way.'
+        );
+
+        $traced = false;
+        $linked = false;
+
+        foreach ( $this->all_log_entries() as $log ) {
+            if ( str_contains( $log->post_content, 'Refund review notification failed for booking #' . $booking_id ) ) {
+                $traced = true;
+            }
+
+            if (
+                str_contains( $log->post_content, 'notification e-mail could not be sent' )
+                && $booking_id === (int) get_post_meta( $log->ID, '_mhmrentiva_log_booking_id', true )
+            ) {
+                $linked = true;
+            }
+        }
+
+        $this->assertTrue(
+            $traced,
+            'send_refund_needs_review_email() returns false silently; with its return value discarded, a booking'
+                . ' parked for review that nobody was told about is indistinguishable from one that was.'
+        );
+        $this->assertTrue(
+            $linked,
+            'AdvancedLogger::error() passes no booking_id to log(), so its entry gets no'
+                . ' _mhmrentiva_log_booking_id and the admin Logs table shows an em dash where the operator'
+                . ' needs the link back to the booking (LogColumns.php:98).'
         );
     }
 
@@ -167,10 +258,14 @@ final class AutoCancelLeavesPaidMoneyAloneTest extends WP_UnitTestCase
      * The lock is the other way this feature can fail silently. If another
      * request (or a row left behind by one that died) holds the booking's
      * refund lock, the whole park-and-notify block is skipped: no status, no
-     * email, and -- until this test -- no trace at all, while the sibling
-     * Status::update_status() refusal five lines below did log. A stuck lock
+     * email, and -- until this test -- no trace at all. A stuck lock
      * therefore blocked both the cancellation and its notification
      * indefinitely and told the operator nothing. Same class as ruling T2-R3.
+     *
+     * The trace has to be an error(): the sibling Status::update_status()
+     * refusal logs through warning(), which should_skip_log() drops under the
+     * default mhmrentiva_log_level of 'error', so copying that branch would
+     * have written an audit trail nobody can read.
      */
     public function test_a_lock_held_elsewhere_leaves_the_money_alone_and_leaves_a_trace(): void
     {
