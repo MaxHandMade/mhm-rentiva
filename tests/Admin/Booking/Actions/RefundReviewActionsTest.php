@@ -156,6 +156,89 @@ final class RefundReviewActionsTest extends WP_Ajax_UnitTestCase
     }
 
     /**
+     * Whole-branch review, F1: needs_review has two REAL producers that leave
+     * (or find) a booking already CANCELLED before it ever parks -- the
+     * mixed-currency guard inside settle_refund() runs AFTER COMMIT
+     * (cancel_booking()'s own docblock: "past this line nothing may be
+     * rolled back"), and AutoCancel::sync_orphan_wc_orders() only ever parks
+     * a booking its own WP_Query already selected on `_mhmrentiva_status =
+     * 'cancelled'` (or `_mhmrentiva_auto_cancelled EXISTS`). On exactly that
+     * shape, "Cancel and start the refund" delegates to
+     * CancellationHandler::cancel_booking(), which refuses outright --
+     * WP_Error('already_cancelled') at CancellationHandler.php:115 -- the
+     * moment Status::CANCELLED === Status::get($booking_id). The button was a
+     * dead action: it could never do anything but error.
+     *
+     * Worse, the deposit screen offers nothing either on this shape
+     * (BookingDepositMetaBox::can_refund_from_deposit_screen() demands
+     * refundable() > 0, which Task 15 zeroed for a mixed-currency booking --
+     * the exact currency shape the first producer above requires), so
+     * "No refund is due" was the only button that actually worked, and
+     * clicking it writes the terminal not_required onto a booking that
+     * demonstrably still holds money.
+     *
+     * Fix: gate the button on the booking's OWN status, not already being
+     * cancelled, and print guidance instead -- the same "point at the path
+     * that actually works" idiom render()'s own WooCommerce-order sentence
+     * already uses two lines above (BookingRefundMetaBox.php's own render()
+     * method, "This booking has a refundable WooCommerce payment..."). The
+     * dismiss control stays available either way -- review_dismiss() is a
+     * general-purpose "close this obligation, with a mandatory reason"
+     * override for every needs_review shape, not something this fix narrows
+     * -- but now the operator who reaches for it here has actually been told
+     * where the money moves first, instead of finding it the only thing that
+     * responds.
+     */
+    public function test_the_cancel_and_refund_button_is_not_offered_on_an_already_cancelled_booking(): void
+    {
+        wp_set_current_user($this->admin_id);
+
+        update_post_meta($this->booking_id, '_mhmrentiva_status', Status::CANCELLED);
+
+        ob_start();
+        BookingRefundMetaBox::render(get_post($this->booking_id));
+        $html = (string) ob_get_clean();
+
+        $this->assertStringNotContainsString(
+            'id="review-cancel-and-refund"',
+            $html,
+            'CancellationHandler::cancel_booking() refuses outright (already_cancelled) for a booking'
+                . ' whose Status is already CANCELLED -- offering this button here offers a dead action.'
+        );
+        $this->assertStringContainsString(
+            'id="review-dismiss"',
+            $html,
+            'The dismiss control must still be available -- it is the general "close this obligation"'
+                . ' exit, not something this fix removes.'
+        );
+        $this->assertStringContainsString(
+            'WooCommerce order screen',
+            $html,
+            'The operator must be pointed at the path that actually moves money instead of being left'
+                . ' with only a button that records not_required.'
+        );
+    }
+
+    /**
+     * Positive control for the fix above, proving the gate is genuinely
+     * conditional on Status::CANCELLED and not on something else the two
+     * fixtures happen to also differ on.
+     */
+    public function test_the_cancel_and_refund_button_still_renders_when_the_booking_is_not_yet_cancelled(): void
+    {
+        wp_set_current_user($this->admin_id);
+
+        $this->assertNotSame(Status::CANCELLED, Status::get($this->booking_id));
+
+        ob_start();
+        BookingRefundMetaBox::render(get_post($this->booking_id));
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString('id="review-cancel-and-refund"', $html);
+        $this->assertStringNotContainsString('WooCommerce order screen', $html);
+    }
+
+    /**
      * Plan assertion 2: cancel-and-refund cancels the booking and moves
      * refund_status forward from pending. "Forward from pending" is measured
      * as "reached some state PENDING can move to", not one hard-coded

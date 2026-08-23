@@ -212,8 +212,34 @@ final class BookingRefundMetaBox {
 			return;
 		}
 
-		echo '<p><button type="button" class="button button-primary" id="review-cancel-and-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
-			. esc_html__( 'Cancel and start the refund', 'mhm-rentiva' ) . '</button></p>';
+		// Whole-branch review, F1: "Cancel and start the refund" delegates to
+		// CancellationHandler::cancel_booking(), which refuses outright --
+		// WP_Error( 'already_cancelled' ) at CancellationHandler.php:115 --
+		// the moment this booking's OWN status is already CANCELLED. Both of
+		// needs_review's real producers can leave a booking in exactly that
+		// shape: the mixed-currency guard inside settle_refund() runs AFTER
+		// COMMIT (cancel_booking()'s own docblock -- "past this line nothing
+		// may be rolled back"), and AutoCancel::sync_orphan_wc_orders() only
+		// ever parks a booking its own WP_Query already selected on
+		// `_mhmrentiva_status = 'cancelled'`. Offering this button there
+		// offers a dead action -- worse, on that same shape the deposit
+		// screen offers nothing either (can_refund_from_deposit_screen()
+		// demands refundable() > 0, which is 0 for exactly the
+		// mixed-currency booking the first producer requires), so "No
+		// refund is due" was the operator's only working button, and it
+		// writes a terminal not_required onto a booking that demonstrably
+		// still holds money. Gated and worded the same way render()'s own
+		// WooCommerce-order sentence already is, a few lines above this
+		// method's own render() caller: point at the path that actually
+		// moves money instead of offering one that cannot. No new refund
+		// path is invented here -- WooCommerce's own order screen already
+		// does this, and remains how the money actually moves.
+		if ( \MHMRentiva\Admin\Booking\Core\Status::CANCELLED === \MHMRentiva\Admin\Booking\Core\Status::get( $booking_id ) ) {
+			echo '<p class="description">' . esc_html__( 'This booking is already cancelled. Refund its paid order from the WooCommerce order screen, then close this review below once the money has actually moved.', 'mhm-rentiva' ) . '</p>';
+		} else {
+			echo '<p><button type="button" class="button button-primary" id="review-cancel-and-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+				. esc_html__( 'Cancel and start the refund', 'mhm-rentiva' ) . '</button></p>';
+		}
 
 		echo '<p><label for="refund-review-dismiss-reason">' . esc_html__( 'Why is no refund due?', 'mhm-rentiva' ) . '</label><br />'
 			. '<textarea id="refund-review-dismiss-reason" class="widefat" rows="2"></textarea></p>';
