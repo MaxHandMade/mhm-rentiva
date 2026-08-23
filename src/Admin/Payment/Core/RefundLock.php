@@ -20,11 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * makes the refusal untestable in single-process PHPUnit.
  *
  * This covers only the plugin's own refund entry points: acquire() is called
- * from DepositManagementAjax's two AJAX actions, AutoCancel's maintenance
- * sweep, and Refunds\Service::withLock() -- nothing else in the codebase
- * calls it. WooCommerce's own order-screen refund action never acquires this
- * lock, so two refunds started from there race with no serialization from
- * this class at all; only WooCommerce's own checks apply on that path.
+ * from DepositManagementAjax.php (two AJAX actions), CancellationHandler.php
+ * (two call sites -- the cancellation flow's own refund step and its lock
+ * probe), Refunds\Service.php (withLock()), and AutoCancel.php (two call
+ * sites -- the cron sweep's own paid-order guard in
+ * cancel_booking_with_orders(), and the backfill's separate
+ * park_paid_booking_for_review()). WooCommerce's own order-screen refund
+ * action never acquires this lock, so two refunds started from there race
+ * with no serialization from this class at all; only WooCommerce's own
+ * checks apply on that path.
  *
  * Re-entrant within a request on purpose: the cancellation flow holds the lock
  * across its call into Refunds\Service, which takes the same lock. A
