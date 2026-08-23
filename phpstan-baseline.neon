@@ -72,6 +72,21 @@ parameters:
 			count: 3
 			path: src/Admin/Booking/Actions/BookingApproveAjax.php
 
+		# Fix round 1, I2 (Task 16): kept deliberately, not an oversight. The
+		# `return 0;` after wp_send_json_error() inside
+		# authorize_booking_action() is genuinely unreachable in production
+		# (wp_send_json_error() calls wp_die()), same as the 25 siblings this
+		# task deleted elsewhere in this file -- but this one is the fail-
+		# closed post-condition of an int-returning authorization helper, in
+		# a file whose own class docblock explains that its redundant checks
+		# exist to stay greppable for a WP.org review lens. Deleting it would
+		# make this specific helper read fail-open to exactly that audience.
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Admin/Booking/Actions/DepositManagementAjax.php
+
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound

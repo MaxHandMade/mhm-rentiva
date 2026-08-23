@@ -67,8 +67,23 @@ final class DepositManagementAjax {
 		// that could change the outcome, so this branch can never reject a
 		// caller the guard just approved. Message matches the guard's own
 		// rejection payload so behaviour is identical either way.
+		//
+		// Fix round 1, I2: the `return 0;` below is genuinely unreachable in
+		// production (wp_send_json_error() calls wp_die()) -- PHPStan proves
+		// it and Task 16 step 2 deleted its 25 siblings on exactly that
+		// evidence. Kept here anyway: this is the one call sitting right
+		// beneath the comment above ("Redundant by design: keeps the
+		// capability check greppable in this file (WP.org review lens)") --
+		// an authorization helper returning int, where a human reading the
+		// failure branch must see it end the function, not fall through to
+		// `return $booking_id;` two lines down. Deleting it would make this
+		// specific helper read fail-open to exactly the audience the
+		// surrounding comment was written for, on a plugin with a rejection
+		// history on review-lens grounds. The resulting single baseline
+		// entry (phpstan-baseline.neon) is the cost, accepted explicitly.
 		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return 0;
 		}
 
 		return $booking_id;
