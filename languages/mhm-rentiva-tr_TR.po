@@ -1374,7 +1374,7 @@ msgid "Booking pickup date is missing."
 msgstr "Rezervasyonun teslim alma tarihi eksik."
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:472
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1365
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1371
 msgid "Invalid pickup date/time format."
 msgstr "Geçersiz teslim alma tarihi/saati biçimi."
 
@@ -1479,23 +1479,23 @@ msgstr "Nedeni:"
 msgid "Thank you for choosing our service."
 msgstr "Hizmetimizi tercih ettiğiniz için teşekkür ederiz."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1348
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1354
 msgid "Invalid booking data."
 msgstr "Geçersiz rezervasyon bilgileri."
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1380
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1386
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr "%1$s (%2$d saat öncesine kadar) iptal edebilirsiniz."
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1387
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1393
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr "İptal süresi dolmuştur. Rezervasyonlar, teslim almadan en az %d saat önce iptal edilmelidir."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1403
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1409
 msgid "Error calculating cancellation deadline."
 msgstr "İptal son tarihini hesaplarken hata oluştu."
 
@@ -8758,7 +8758,7 @@ msgid "Already fully refunded"
 msgstr "Tamamen iade edildi"
 
 #: src/Admin/Payment/Refunds/RefundValidator.php:203
-#: src/Admin/Payment/Refunds/Service.php:358
+#: src/Admin/Payment/Refunds/Service.php:404
 msgid "No amount left to refund"
 msgstr "İade edilecek tutar kalmadı"
 
@@ -8770,29 +8770,29 @@ msgstr "Geçersiz geri ödeme tutarı"
 msgid "Refund amount exceeds remaining balance"
 msgstr "İade tutarı kalan bakiyeyi aşıyor"
 
-#: src/Admin/Payment/Refunds/Service.php:309
+#: src/Admin/Payment/Refunds/Service.php:355
 msgid "Refund processed from Rentiva panel"
 msgstr "Rentiva panelinden işlenen geri ödeme"
 
-#: src/Admin/Payment/Refunds/Service.php:332
+#: src/Admin/Payment/Refunds/Service.php:378
 msgid "Failed to create WooCommerce refund"
 msgstr "WooCommerce geri ödemesi oluşturulamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:378
+#: src/Admin/Payment/Refunds/Service.php:424
 msgid "Refund could not be completed in full"
 msgstr "İade tam olarak tamamlanamadı"
 
-#: src/Admin/Payment/Refunds/Service.php:400
+#: src/Admin/Payment/Refunds/Service.php:446
 msgid "Refund successful"
 msgstr "Para iadesi başarılı"
 
 #. translators: 1: the amount already refunded before the failure, 2: the underlying error that stopped the rest
-#: src/Admin/Payment/Refunds/Service.php:421
+#: src/Admin/Payment/Refunds/Service.php:467
 #, php-format
 msgid "%1$s was already refunded before this failed: %2$s"
 msgstr "Bu işlem başarısız olmadan önce %1$s zaten iade edildi: %2$s"
 
-#: src/Admin/Payment/Refunds/Service.php:653
+#: src/Admin/Payment/Refunds/Service.php:699
 msgid "Refund notification could not be sent:"
 msgstr "Para iadesi bildirimi gönderilemedi:"
 
@@ -15310,7 +15310,7 @@ msgstr "İade bildirimi gönderilmedi: bu rezervasyonda müşteri adresi yok."
 msgid "A mhmrentiva_process_refund listener failed: %s"
 msgstr "Bir mhmrentiva_process_refund dinleyicisi başarısız oldu: %s"
 
-#: src/Admin/Payment/Refunds/Service.php:574
+#: src/Admin/Payment/Refunds/Service.php:620
 msgid "A mhmrentiva_refund_completed listener failed:"
 msgstr "Bir mhmrentiva_refund_completed dinleyicisi başarısız oldu:"
 
@@ -15334,7 +15334,7 @@ msgstr "Rezervasyon iptal edildi, ancak iade tamamlanamadı. Bu ekrandaki iade d
 #. translators: %d: minutes until an orphaned refund lock clears on its own.
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:530
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:775
-#: src/Admin/Payment/Refunds/Service.php:192
+#: src/Admin/Payment/Refunds/Service.php:196
 #, php-format
 msgid "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes."
 msgstr "Bu rezervasyonun iade kilidi başka bir denemede zaten tutuluyor. Bu deneme hâlâ çalışıyorsa kısa süre içinde bitecektir; kilidi bırakmadan başarısız olduysa bu işlem %d dakika içinde tekrar kullanılabilir hale gelir."
@@ -15445,12 +15445,12 @@ msgid "Refund not attempted: this booking's refund status changed before the ref
 msgstr "İade denenmedi: bu rezervasyonun iade durumu, iade başlamadan önce değişti."
 
 #. translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1233
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1239
 #, php-format
 msgid "Refund FAILED status could not be recorded: current refund_status is '%s'."
 msgstr "Refund FAILED durumu kaydedilemedi: mevcut refund_status '%s'."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1241
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1247
 msgid "Refund failed, but this booking's refund status changed before the failure could be recorded."
 msgstr "İade başarısız oldu, ancak bu rezervasyonun iade durumu, hata kaydedilmeden önce değişti."
 
@@ -15504,52 +15504,52 @@ msgstr "Manuel rezervasyon oluşturulurken wp_update_user başarısız oldu: %s"
 msgid "Booking cancelled, but the refund could not be completed automatically. We will contact you separately about your refund."
 msgstr "Rezervasyon iptal edildi, ancak iade otomatik olarak tamamlanamadı. İadenizle ilgili sizinle ayrıca iletişime geçeceğiz."
 
-#: src/Admin/Payment/Core/RefundStatus.php:135
+#: src/Admin/Payment/Core/RefundStatus.php:167
 msgid "No refund flow has run for this booking."
 msgstr "Bu rezervasyon için hiçbir iade süreci çalıştırılmadı."
 
-#: src/Admin/Payment/Core/RefundStatus.php:136
+#: src/Admin/Payment/Core/RefundStatus.php:168
 msgid "Refund in progress"
 msgstr "İade devam ediyor"
 
-#: src/Admin/Payment/Core/RefundStatus.php:137
+#: src/Admin/Payment/Core/RefundStatus.php:169
 msgid "Needs review — a paid order was found, no money moved"
 msgstr "İnceleme gerekiyor — ödenmiş bir sipariş bulundu, para hareket etmedi"
 
-#: src/Admin/Payment/Core/RefundStatus.php:138
+#: src/Admin/Payment/Core/RefundStatus.php:170
 msgid "Awaiting hand transfer"
 msgstr "Elden transfer bekleniyor"
 
-#: src/Admin/Payment/Core/RefundStatus.php:139
+#: src/Admin/Payment/Core/RefundStatus.php:171
 msgid "Partly refunded — the rest did not go back"
 msgstr "Kısmen iade edildi — kalanı geri gitmedi"
 
-#: src/Admin/Payment/Core/RefundStatus.php:140
+#: src/Admin/Payment/Core/RefundStatus.php:172
 msgid "Refund failed — nothing went back"
 msgstr "İade başarısız — hiçbir şey geri gitmedi"
 
-#: src/Admin/Payment/Core/RefundStatus.php:141
+#: src/Admin/Payment/Core/RefundStatus.php:173
 msgid "No refund was due"
 msgstr "İade yapılması gerekmiyordu"
 
-#: src/Admin/Payment/Core/RefundStatus.php:142
+#: src/Admin/Payment/Core/RefundStatus.php:174
 msgid "Refunded outside this plugin"
 msgstr "Bu eklentinin dışında iade edildi"
 
-#: src/Admin/Payment/Core/RefundStatus.php:143
+#: src/Admin/Payment/Core/RefundStatus.php:175
 msgid "Refunded through the payment gateway"
 msgstr "Ödeme ağ geçidi üzerinden iade edildi"
 
-#: src/Admin/Payment/Core/RefundStatus.php:144
+#: src/Admin/Payment/Core/RefundStatus.php:176
 msgid "Hand transfer confirmed"
 msgstr "Elden transfer onaylandı"
 
 #: src/Admin/Payment/Refunds/Service.php:75
-#: src/Admin/Payment/Refunds/Service.php:118
+#: src/Admin/Payment/Refunds/Service.php:120
 msgid "You do not have permission to move money on this booking."
 msgstr "Bu rezervasyonda para hareketi yapma izniniz yok."
 
-#: src/Admin/Payment/Refunds/Service.php:163
+#: src/Admin/Payment/Refunds/Service.php:167
 msgid "Refund not attempted: this request was not attributed to a user allowed to move money."
 msgstr "İade denenmedi: bu istek, para hareketi yapmaya yetkili bir kullanıcıya atfedilmedi."
 
@@ -15692,7 +15692,7 @@ msgstr "Lütfen bu rezervasyonun ödenmiş siparişlerini inceleyin ve varsa iad
 msgid "Failed to create the customer role."
 msgstr "Müşteri rolü oluşturulamadı."
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1215
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1221
 msgid "Refund partially failed; the rest did not go back."
 msgstr "İade kısmen başarısız oldu; kalanı geri dönmedi."
 
@@ -15707,3 +15707,9 @@ msgstr "Bu rezervasyonun ödenmiş siparişleri birden fazla para biriminde oldu
 #: src/Helpers/NotificationHelper.php:180
 msgid "This booking's paid orders are in more than one currency, so the amount still owed cannot be totalled automatically."
 msgstr "Bu rezervasyonun ödenmiş siparişleri birden fazla para biriminde olduğu için hâlâ borçlu olunan tutar otomatik olarak toplanamıyor."
+
+#. translators: 1: the refund status the booking was moving from, 2: the refund status it was moving to.
+#: src/Admin/Payment/Core/RefundStatus.php:142
+#, php-format
+msgid "The refund_status write was refused by the database: %1$s -> %2$s did not land."
+msgstr "refund_status yazımı veritabanı tarafından reddedildi: %1$s -> %2$s kaydedilmedi."
