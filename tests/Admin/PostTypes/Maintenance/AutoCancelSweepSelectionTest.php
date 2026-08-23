@@ -40,11 +40,15 @@ use WP_UnitTestCase;
  * an ordinary unpaid-and-past-deadline selection the moment it left
  * `needs_review`, silently, for the reason not_parked_for_review()'s own
  * docblock explains. Task 16 (slice 5) minor 3 gave sync_orphan_wc_orders()
- * the same `needs_review`/terminal barrier: before it, that backfill had no
- * refund_status filter at all, so a booking it had already parked in a prior
- * run stayed selectable forever, and every re-run's park attempt hit the
- * matrix's missing NEEDS_REVIEW -> NEEDS_REVIEW edge and logged an ERROR --
- * a steady state that read as a fresh failure on every single invocation.
+ * a NARROWER version of that same barrier -- deliberately not the identical
+ * one: this method's OWN selection must not exclude a needs_review/terminal
+ * booking, because such a booking can still have an unpaid candidate order
+ * this backfill is the only thing that ever cancels (fix round 1, C1, below).
+ * Only the RE-PARK decision checks refund_status; before it did, a booking
+ * this backfill had already parked in a prior run kept having
+ * park_paid_booking_for_review() called on it again, hitting the matrix's
+ * missing NEEDS_REVIEW -> NEEDS_REVIEW edge and logging an ERROR on every
+ * single re-run.
  *
  * Every one of those is satisfied by a sweep that selects nothing at all, so
  * the positive controls are not optional decoration: a genuinely unpaid
@@ -617,18 +621,23 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
     }
 
     /**
-     * Task 16 minor 3: nothing in sync_orphan_wc_orders()'s own query used to
-     * filter on refund_status, so a booking this backfill had already parked
-     * in a prior run stayed selectable on every later run too. Re-selecting
-     * it called park_paid_booking_for_review() again, which found the matrix
-     * has no NEEDS_REVIEW -> NEEDS_REVIEW edge (RefundStatus::transition()
+     * Task 16 minor 3 (fix round 1, C1): nothing in sync_orphan_wc_orders()'s
+     * own park decision used to check refund_status, so a booking this
+     * backfill had already parked in a prior run was re-selected (correctly
+     * -- see the test below for why selection itself must not change) and
+     * had park_paid_booking_for_review() called on it AGAIN, which found the
+     * matrix has no NEEDS_REVIEW -> NEEDS_REVIEW edge (RefundStatus::transition()
      * refused, matrix() above), and that refusal logs an ERROR -- a stable
      * steady state that read as a fresh failure on every single invocation,
-     * for a booking a human already owns. The fix reuses
-     * not_parked_for_review(), the same barrier sync_stale_past_bookings()
-     * already applies, rather than inventing a second query shape.
+     * for a booking a human already owns.
+     *
+     * An earlier version of this fix excluded such a booking from the query
+     * entirely, which silently stopped this booking's OTHER, unpaid
+     * candidate orders from ever being cancelled too -- corrected: the
+     * booking is still selected ($checked increments), the paid order is
+     * still left alone (K6), only the redundant re-park attempt is skipped.
      */
-    public function test_a_booking_already_parked_is_not_reselected_by_sync_orphan_wc_orders(): void
+    public function test_a_booking_already_parked_is_not_reparked_by_sync_orphan_wc_orders(): void
     {
         $booking_id = (int) self::factory()->post->create( array(
             'post_type'   => 'mhmrentiva_booking',
@@ -643,14 +652,20 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         $result = AutoCancel::sync_orphan_wc_orders();
 
         $this->assertSame(
-            0,
+            1,
             $result['checked'],
-            'A booking already parked for human review is not a candidate for this backfill either -- it must'
-                . ' not even be selected.'
+            'The booking is still a candidate and still selected -- only the re-park attempt is skipped, not'
+                . ' the booking itself (see the sibling test with an unpaid order for why selection must stand).'
+        );
+        $this->assertSame( 0, $result['parked'], 'Already parked; this run must not attempt it again.' );
+        $this->assertSame(
+            1,
+            $result['skipped'],
+            'Counted as skipped -- a human already owns this booking\'s refund question, nothing new to do.'
         );
         $this->assertFalse(
             $this->log_exists( "current refund_status is 'needs_review'" ),
-            'This entry only gets written if the backfill re-selected the booking and tried to park it again.'
+            'This entry only gets written if the backfill re-attempted the park despite already owning it.'
         );
         $this->assertSame( RefundStatus::NEEDS_REVIEW, RefundStatus::get( $booking_id ) );
         $this->assertSame(
@@ -669,7 +684,7 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
      *
      * @dataProvider provide_every_terminal_refund_status
      */
-    public function test_a_terminal_refund_status_is_not_reselected_by_sync_orphan_wc_orders( string $terminal_status ): void
+    public function test_a_terminal_refund_status_is_not_reparked_by_sync_orphan_wc_orders( string $terminal_status ): void
     {
         $booking_id = (int) self::factory()->post->create( array(
             'post_type'   => 'mhmrentiva_booking',
@@ -683,16 +698,73 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         $result = AutoCancel::sync_orphan_wc_orders();
 
         $this->assertSame(
-            0,
+            1,
             $result['checked'],
-            "A booking whose refund_status is already terminal ({$terminal_status}) must not be selected by"
-                . ' this backfill either.'
+            "A booking whose refund_status is already terminal ({$terminal_status}) is still selected --"
+                . ' only the re-park attempt is skipped.'
         );
+        $this->assertSame( 0, $result['parked'] );
+        $this->assertSame( 1, $result['skipped'] );
         $this->assertSame( $terminal_status, RefundStatus::get( $booking_id ) );
         $this->assertSame(
             'processing',
             wc_get_order( $order->get_id() )->get_status(),
             'No unattended path may move money.'
+        );
+    }
+
+    /**
+     * C1 (fix round 1): the test pair above only proves the re-park stopped
+     * -- both attach a PAID order, so neither exercises the branch where
+     * this backfill still has real work to do on a booking whose
+     * refund_status already reads terminal. Measured scenario: a booking
+     * cancelled from the deposit screen with its deposit refunded through
+     * the gateway lands at refund_status = completed (terminal); its
+     * separate remaining-payment order was created but never paid, and
+     * nothing else in this plugin cancels it (grep for
+     * `update_status( *'cancelled'` finds four call sites, none in
+     * CancellationHandler, and nothing listens on mhmrentiva_booking_cancelled
+     * to cancel linked orders). sync_stale_past_bookings() cannot reach it
+     * either -- Task 12 gave that sweep the same needs_review/terminal
+     * exclusion, which is correct there because that sweep only ever acts on
+     * the booking's OWN status, never on a sibling order.
+     *
+     * This pins that the query narrowing an earlier version of this fix
+     * introduced (excluding the booking from selection entirely) would have
+     * left that unpaid order with its live WooCommerce checkout URL
+     * forever -- and that the corrected, park-only guard does not.
+     */
+    public function test_an_unpaid_order_survives_on_an_already_terminal_booking(): void
+    {
+        $booking_id = (int) self::factory()->post->create( array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ) );
+        update_post_meta( $booking_id, '_mhmrentiva_status', 'cancelled' );
+        update_post_meta( $booking_id, RefundStatus::META_KEY, RefundStatus::COMPLETED );
+
+        $unpaid_order = wc_create_order( array( 'status' => 'pending' ) );
+        $unpaid_order->set_total( '150.00' );
+        $unpaid_order->save();
+        update_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', $unpaid_order->get_id() );
+
+        $result = AutoCancel::sync_orphan_wc_orders();
+
+        $this->assertSame(
+            'cancelled',
+            wc_get_order( $unpaid_order->get_id() )->get_status(),
+            'An unpaid order must still be cleaned up even though the booking\'s refund_status already reads'
+                . ' terminal for an unrelated (already-paid) reason.'
+        );
+        $this->assertSame( 1, $result['checked'] );
+        $this->assertSame( 1, $result['cancelled'] );
+        $this->assertSame( 0, $result['parked'], 'No paid candidate on this booking -- nothing to park.' );
+        $this->assertSame( 0, $result['skipped'] );
+        $this->assertSame(
+            RefundStatus::COMPLETED,
+            RefundStatus::get( $booking_id ),
+            'Unrelated to this backfill\'s own job -- the refund_status this booking already carries must not'
+                . ' move.'
         );
     }
 
