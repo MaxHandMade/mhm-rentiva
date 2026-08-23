@@ -391,7 +391,16 @@ final class CancellationHandler {
 				// F5): an unrelated post-commit throwable on a booking with
 				// nothing owed must not tell the operator a refund is
 				// missing when none was ever due.
-				if ( \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id )->refundable() > 0 ) {
+				//
+				// Correction #5 (Task 15): refundable() is zeroed for a
+				// mixed-currency booking, which is precisely the case where
+				// money IS owed and a human IS needed -- without the
+				// isMixedCurrency() disjunct this gate would silently drop
+				// the operator e-mail for exactly the booking this slice
+				// exists to stop closing silently.
+				$recovery_state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
+
+				if ( $recovery_state->refundable() > 0 || $recovery_state->isMixedCurrency() ) {
 					// Fix round 1, F6: routed through send_refund_failed_email_once()
 					// rather than the helper directly -- this branch and
 					// settle_refund()'s PENDING-not-recorded refusal (item 11)
@@ -749,7 +758,18 @@ final class CancellationHandler {
 		// extension point would take mhmrentiva_process_refund away from
 		// integrators who fire on exactly that claim. It closes as
 		// not_required below instead.
-		$has_money = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id )->paid() > 0
+		//
+		// T15-R1: isMixedCurrency() is ALSO an OR here, deliberately. paid()
+		// is zeroed for a mixed-currency booking (Task 15), so without this
+		// disjunct a mixed booking whose payment_status meta is not
+		// 'paid'/'partially_refunded' would never reach settle_refund() at
+		// all -- and settle_refund()'s own mixed-currency guard, which is
+		// what routes the booking to needs_review instead of a silent
+		// not_required close, would never run.
+		$payment_state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id );
+
+		$has_money = $payment_state->paid() > 0
+			|| $payment_state->isMixedCurrency()
 			|| in_array( $payment_status, array( 'paid', 'partially_refunded' ), true );
 
 		if ( ! $has_money ) {
@@ -872,7 +892,58 @@ final class CancellationHandler {
 			// currency" and "nothing to refund" -- and closing a mixed-currency
 			// booking as not_required is exactly the silent close this guard
 			// exists to prevent. Task 15 fills this in.
-			// (mixed-currency check goes here)
+			if ( $state->isMixedCurrency() ) {
+				// Before pending, deliberately: the matrix has no
+				// pending -> needs_review edge, and adding one would grow the
+				// machine for a case that never starts an operation at all.
+				// '' -> needs_review is already an edge, so this lands
+				// cleanly -- verified against RefundStatus::matrix() (Task
+				// 15 correction #6): this call sits inside RefundLock's own
+				// try block, after acquire() above already succeeded, so
+				// RefundStatus::transition()'s isHeld() guard is satisfied.
+				//
+				// Mirrors AutoCancel::cancel_booking_with_orders()'s own
+				// park branch (Task 14b's sibling pattern): the notification
+				// is only attempted once the transition itself is recorded,
+				// and its bool is never discarded -- a dropped notification
+				// here would leave a mixed-currency booking parked in
+				// needs_review with no one told it is holding money across
+				// more than one currency.
+				$mixed_currency_recorded = \MHMRentiva\Admin\Payment\Core\RefundStatus::transition(
+					$booking_id,
+					\MHMRentiva\Admin\Payment\Core\RefundStatus::NEEDS_REVIEW,
+					array(
+						'reason'  => 'mixed_currency',
+						'surface' => $surface,
+					)
+				);
+
+				if ( $mixed_currency_recorded ) {
+					if ( ! \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email( $booking_id ) ) {
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+							sprintf(
+								/* translators: %d: booking id. */
+								__( 'Mixed-currency refund review notification could not be sent for booking #%d: the booking is parked in needs_review, but no one has been told it is holding money across more than one currency.', 'mhm-rentiva' ),
+								$booking_id
+							),
+							$booking_id,
+							array(
+								'surface' => $surface,
+								'reason'  => 'notification_failed',
+							),
+							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+						);
+					}
+				}
+
+				// Correction #1: settle_refund()'s contract is ?string, not
+				// bool, as of Task 14a -- null means "nothing to surface",
+				// a non-empty string is a problem cancel_booking() appends
+				// to 'problems', which all three AJAX surfaces read. A
+				// mixed-currency refusal is exactly what the operator needs
+				// to see, not a bare false the caller cannot act on.
+				return __( "Refund not attempted: this booking's payment is split across more than one currency and cannot be totalled automatically. It has been flagged for manual review.", 'mhm-rentiva' );
+			}
 
 			$pending_recorded = \MHMRentiva\Admin\Payment\Core\RefundStatus::transition( $booking_id, \MHMRentiva\Admin\Payment\Core\RefundStatus::PENDING, array( 'surface' => $surface ) );
 

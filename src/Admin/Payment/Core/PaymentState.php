@@ -62,6 +62,7 @@ final class PaymentState {
 		private readonly string $currency,
 		private readonly int    $offline_paid,
 		private readonly int    $offline_refunded,
+		private readonly bool   $mixed_currency = false,
 	) {
 	}
 
@@ -80,6 +81,7 @@ final class PaymentState {
 		$refunded   = 0;
 		$refundable = 0;
 		$currency   = '';
+		$mixed      = false;
 
 		foreach ($order_ids as $order_id) {
 			$order = wc_get_order($order_id);
@@ -95,6 +97,12 @@ final class PaymentState {
 
 			if ($currency === '') {
 				$currency = (string) $order->get_currency();
+			} elseif ($currency !== (string) $order->get_currency()) {
+				// Summing across currencies produces a number with no meaning
+				// and labels it with whichever currency happened to be first.
+				// This ecosystem ships a per-order currency switcher, so this
+				// is not hypothetical.
+				$mixed = true;
 			}
 		}
 
@@ -111,7 +119,8 @@ final class PaymentState {
 			$refundable,
 			$currency,
 			$offline_paid,
-			$offline_refunded
+			$offline_refunded,
+			$mixed
 		);
 	}
 
@@ -224,31 +233,57 @@ final class PaymentState {
 	 * Refunds never read paid() itself: they read refundableAuto() for the
 	 * WooCommerce channel and refundableManual() for the offline one, each
 	 * bound to that channel's own record of what is still owed back.
+	 *
+	 * Zeroed when isMixedCurrency() (Task 15): the sum would be a number with
+	 * no meaning wearing whichever currency happened to arrive first. Zero is
+	 * the less wrong of two wrong answers -- see the class docblock and
+	 * MixedCurrencyTest for the consumers this deliberately makes read 0.
 	 */
 	public function paid(): int
 	{
+		if ($this->mixed_currency) {
+			return 0;
+		}
+
 		return $this->wc_paid + $this->offline_paid;
 	}
 
+	/**
+	 * Zeroed when isMixedCurrency(), for the same reason as paid().
+	 */
 	public function refunded(): int
 	{
+		if ($this->mixed_currency) {
+			return 0;
+		}
+
 		return $this->wc_refunded + $this->offline_refunded;
 	}
 
 	/**
 	 * What WooCommerce itself says is still refundable.
+	 *
+	 * Zeroed when isMixedCurrency(): this is what makes refundable() (and
+	 * every refund entry point that reads it) treat a mixed-currency booking
+	 * as having nothing safe to move automatically.
 	 */
 	public function refundableAuto(): int
 	{
-		return $this->wc_refundable;
+		return $this->mixed_currency ? 0 : $this->wc_refundable;
 	}
 
 	/**
 	 * Offline money still owed back. It cannot go through a gateway, so the
 	 * refund flow classifies it as a manual refund.
+	 *
+	 * Zeroed when isMixedCurrency(), for the same reason as refundableAuto().
 	 */
 	public function refundableManual(): int
 	{
+		if ($this->mixed_currency) {
+			return 0;
+		}
+
 		return max(0, $this->offline_paid - $this->offline_refunded);
 	}
 
@@ -260,6 +295,24 @@ final class PaymentState {
 	public function currency(): string
 	{
 		return $this->currency;
+	}
+
+	/**
+	 * True when this booking's paid orders do not all share one currency.
+	 *
+	 * This ecosystem ships a per-order currency switcher, so two of a
+	 * booking's orders (deposit, remaining) can legitimately be paid in
+	 * different currencies. Summing them (paid(), refunded(), the
+	 * refundable*() family) would produce a number with no meaning, labelled
+	 * with whichever currency happened to be seen first -- and the refund
+	 * flow reading a resulting refundable() of 0 as "nothing to refund" would
+	 * close a real obligation silently. currency() itself is NOT affected: it
+	 * still reports the first order's currency, exactly the value this method
+	 * exists to warn a caller not to trust for the total.
+	 */
+	public function isMixedCurrency(): bool
+	{
+		return $this->mixed_currency;
 	}
 
 	public function isFullyRefunded(): bool
