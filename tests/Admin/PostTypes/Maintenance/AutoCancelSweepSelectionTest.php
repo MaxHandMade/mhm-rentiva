@@ -931,6 +931,42 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
      * A booking sweep #2 selects on: pickup_date a week in the past, plus the
      * payment_status / booking status pair the caller wants to measure.
      */
+    /**
+     * The past-pickup sweep must run on the path CRON actually takes.
+     *
+     * `AutoCancel::run()` is what the scheduled event calls
+     * (`add_action( self::EVENT, [ self::class, 'run' ] )`, :81). It runs the
+     * deadline sweep first and, when that query matches nothing, RETURNS --
+     * so `sweep_past_pickup_unpaid()`, the call at the end of run(), never
+     * happens. The fallback sweep exists precisely for the bookings the
+     * deadline sweep misses ("when the setting was changed, when meta keys
+     * were missing on legacy bookings, or when cron was offline", :266-268),
+     * yet it could only run when the deadline sweep was NOT missing anything.
+     *
+     * Every existing positive control for this sweep calls
+     * `sync_stale_past_bookings()` instead, which reaches
+     * sweep_past_pickup_unpaid() directly and has no caller in src/ at all.
+     * The suite was therefore green while production could not reach the
+     * code under test: the test started where the defect was not.
+     */
+    public function test_the_past_pickup_sweep_runs_even_when_the_deadline_sweep_finds_nothing(): void
+    {
+        $booking_id = $this->make_past_pickup_booking( 'pending', 'pending' );
+
+        // Nothing here matches sweep #1: this booking's post_date is now, and
+        // the deadline sweep only takes posts older than the payment deadline.
+        SettingsCore::set( 'mhmrentiva_booking_auto_cancel_enabled', '1' );
+
+        AutoCancel::run();
+
+        $this->assertSame(
+            'cancelled',
+            get_post_meta( $booking_id, '_mhmrentiva_status', true ),
+            'run() skipped the past-pickup sweep because the deadline sweep matched nothing --'
+                . ' the fallback only runs when there is nothing to fall back from.'
+        );
+    }
+
     private function make_past_pickup_booking( string $payment_status, string $status ): int
     {
         $booking_id = (int) self::factory()->post->create( array(

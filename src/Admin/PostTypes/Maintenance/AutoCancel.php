@@ -253,17 +253,22 @@ final class AutoCancel {
 			)
 		);
 
-		if (! $q->have_posts()) {
-			return;
+		// No early return here. The past-pickup sweep below exists for the
+		// bookings THIS query misses, so gating it on this query having found
+		// something made the fallback reachable only when there was nothing to
+		// fall back from -- and cron takes exactly this path (self::EVENT is
+		// wired to run(), :81). Measured 2026-08-23: a booking past its pickup
+		// date was swept only when some unrelated booking happened to be past
+		// its payment deadline in the same tick.
+		if ($q->have_posts()) {
+			foreach ($q->posts as $bid) {
+				self::cancel_booking_with_orders(
+					(int) $bid,
+					'Payment deadline expired (' . $minutes . ' minutes)'
+				);
+			}
+			wp_reset_postdata();
 		}
-
-		foreach ($q->posts as $bid) {
-			self::cancel_booking_with_orders(
-				(int) $bid,
-				'Payment deadline expired (' . $minutes . ' minutes)'
-			);
-		}
-		wp_reset_postdata();
 
 		// Second sweep: bookings whose pickup_date is already in the past but
 		// were never paid. These escape the deadline-based sweep when the
