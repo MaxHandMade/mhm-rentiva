@@ -21,14 +21,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * This covers only the plugin's own refund entry points: acquire() is called
  * from DepositManagementAjax.php (two AJAX actions), CancellationHandler.php
- * (two call sites -- the cancellation flow's own refund step and its lock
- * probe), Refunds\Service.php (withLock()), and AutoCancel.php (two call
- * sites -- the cron sweep's own paid-order guard in
- * cancel_booking_with_orders(), and the backfill's separate
- * park_paid_booking_for_review()). WooCommerce's own order-screen refund
- * action never acquires this lock, so two refunds started from there race
- * with no serialization from this class at all; only WooCommerce's own
- * checks apply on that path.
+ * (two call sites -- settle_refund()'s own refund step, and
+ * cancel_booking()'s post-commit \Throwable recovery, which acquires the
+ * lock a second, independent time to record RefundStatus::FAILED when an
+ * unexpected error follows a cancellation that already committed),
+ * Refunds\Service.php (withLock()), and AutoCancel.php (two call sites --
+ * the cron sweep's own paid-order guard in cancel_booking_with_orders(), and
+ * the backfill's separate park_paid_booking_for_review()). WooCommerce's own
+ * order-screen refund action never acquires this lock, so two refunds
+ * started from there race with no serialization from this class at all;
+ * only WooCommerce's own checks apply on that path.
  *
  * Re-entrant within a request on purpose: the cancellation flow holds the lock
  * across its call into Refunds\Service, which takes the same lock. A
