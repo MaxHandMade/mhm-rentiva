@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Payment\Core;
 
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
+use MHMRentiva\Admin\PostTypes\Logs\PostType;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
@@ -133,7 +135,11 @@ final class MixedCurrencyTest extends WP_UnitTestCase
         $state = PaymentState::forBooking($this->booking_id);
 
         $this->assertFalse($state->isMixedCurrency());
-        $this->assertSame(10000, $state->paid(), 'The single-currency sum must still work -- the guard must not over-fire.');
+        $this->assertSame(
+            Money::toMinor('100'),
+            $state->paid(),
+            'The single-currency sum must still work -- the guard must not over-fire.'
+        );
     }
 
     // -------------------------------------------------------------------
@@ -170,19 +176,51 @@ final class MixedCurrencyTest extends WP_UnitTestCase
             'A mixed-currency booking must be flagged for a human, never closed as not_required.'
         );
         $this->assertNotSame(RefundStatus::NOT_REQUIRED, RefundStatus::get($this->booking_id));
-        $this->assertNotEmpty(
-            $result['problems'] ?? array(),
-            "settle_refund()'s ?string contract (correction #1): a mixed-currency refusal is a problem the"
-                . ' caller must see, not a discarded false.'
+        $this->assertNotEmpty($result['problems'] ?? array());
+        $this->assertStringContainsString(
+            'more than one currency',
+            $result['problems'][0] ?? '',
+            "settle_refund()'s ?string contract: a mixed-currency refusal is a problem the caller must see"
+                . ' -- asserting its content, not just its presence, ties this to the actual requirement'
+                . ' (review fix round 1: the text itself has no display path on any of the three AJAX'
+                . ' surfaces today, but the behavioural half -- a non-null return -- still must be this'
+                . " method's own refusal string, not some other branch's).",
         );
 
-        $review_mails = array_filter(
+        // Review fix round 1, F1: send_refund_needs_review_email() is
+        // AutoCancel's own e-mail and both of its factual claims are false
+        // on this path (the booking IS cancelled here; auto-cancel was never
+        // involved). This booking's own truthful e-mail must fire instead,
+        // and it must print no amount at all -- the whole point of
+        // isMixedCurrency() is that no summed figure is safe to quote.
+        $review_mails = array_values(array_filter(
+            $mails,
+            static fn (array $mail): bool => str_contains($mail['subject'], 'manual refund across currencies')
+        ));
+        $this->assertNotEmpty(
+            $review_mails,
+            'The mixed-currency review notification must actually be sent, its bool checked, not discarded.'
+        );
+        $this->assertStringNotContainsString(
+            'Amount held',
+            $review_mails[0]['message'],
+            'This e-mail must not quote a summed amount -- that is exactly the figure isMixedCurrency() exists'
+                . ' to warn against.'
+        );
+        $this->assertStringNotContainsString(
+            'Auto-cancel',
+            $review_mails[0]['message'],
+            "This booking was cancelled by this request, not by AutoCancel -- the e-mail must not tell the"
+                . ' operator the wrong story.'
+        );
+
+        $autocancel_mails = array_filter(
             $mails,
             static fn (array $mail): bool => str_contains($mail['subject'], 'still holds paid money')
         );
-        $this->assertNotEmpty(
-            $review_mails,
-            'The needs_review notification must actually be sent, its bool checked, not discarded.'
+        $this->assertEmpty(
+            $autocancel_mails,
+            "AutoCancel's own e-mail must not be reused for this path."
         );
     }
 
@@ -257,6 +295,77 @@ final class MixedCurrencyTest extends WP_UnitTestCase
             $failure_mails,
             'A mixed-currency booking has refundable() === 0 by design (Task 15), but it IS a booking with'
                 . ' money at stake -- the operator failure e-mail must not be silenced by that zero.'
+        );
+    }
+
+    // -------------------------------------------------------------------
+    // Review fix round 1, F2: a refused NEEDS_REVIEW transition must not
+    // be silent -- the defect this slice has already fixed twice.
+    // -------------------------------------------------------------------
+
+    /**
+     * The race this test stands in for: another process already moved this
+     * booking's refund_status to a value the matrix has no needs_review edge
+     * from (matrix()['pending'] does not include needs_review) -- e.g. a
+     * concurrent cancellation attempt that got there first. Before this fix,
+     * the mixed-currency branch returned silently on a refused transition:
+     * no status change, no e-mail (correctly, nothing was parked), but also
+     * no log -- exactly the "states nothing about a refusal it cannot avoid
+     * hitting" defect AutoCancel::park_paid_booking_for_review() and this
+     * same method's own PENDING-not-recorded branch both already guard
+     * against.
+     */
+    public function test_a_refused_needs_review_transition_for_a_mixed_currency_booking_is_logged(): void
+    {
+        $this->make_mixed_currency_booking();
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($this->booking_id, '_mhmrentiva_refund_status', RefundStatus::PENDING);
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function (array $args) use (&$mails): array {
+                $mails[] = $args;
+                return $args;
+            }
+        );
+
+        $this->cancel();
+
+        $this->assertSame(
+            RefundStatus::PENDING,
+            RefundStatus::get($this->booking_id),
+            'The matrix refused the write; the pre-existing status must stand untouched, not be silently'
+                . ' overwritten.'
+        );
+
+        $review_mails = array_filter(
+            $mails,
+            static fn (array $mail): bool => str_contains($mail['subject'], 'manual refund across currencies')
+        );
+        $this->assertEmpty(
+            $review_mails,
+            'The transition was never recorded -- nothing was actually parked, so the review notification'
+                . ' must not fire for a park that never happened.'
+        );
+
+        $logs = get_posts(array(
+            'post_type'      => PostType::TYPE,
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+        ));
+
+        $found = false;
+        foreach ($logs as $log) {
+            if (str_contains($log->post_content, 'Mixed-currency NEEDS_REVIEW could not be recorded')) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue(
+            $found,
+            'A refused mixed-currency NEEDS_REVIEW transition must leave a trace an operator can find, not'
+                . ' total silence.'
         );
     }
 }

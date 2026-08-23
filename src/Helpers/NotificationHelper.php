@@ -227,4 +227,58 @@ class NotificationHelper {
 
 		return wp_mail($admin_email, $subject, implode("\n", $body_parts));
 	}
+
+	/**
+	 * Send "this cancelled booking's payment cannot be totalled across
+	 * currencies, a human must settle it" email.
+	 *
+	 * CancellationHandler::settle_refund() found paid orders in more than one
+	 * currency (PaymentState::isMixedCurrency()) and parked the booking in
+	 * needs_review instead of computing or moving a refund -- summing across
+	 * currencies would be a number with no meaning, labelled with whichever
+	 * currency happened to be seen first.
+	 *
+	 * Deliberately its own method rather than a reuse of
+	 * send_refund_needs_review_email(): that helper's wording is written for
+	 * AutoCancel's surface and both of its factual claims are false here --
+	 * "left it alone, did not cancel the booking" is wrong (this booking IS
+	 * cancelled; the commit already happened before settle_refund() ever
+	 * runs), and "AutoCancel found" is wrong (auto-cancel was never
+	 * involved). Also prints NO amount, unlike that sibling: the whole point
+	 * of isMixedCurrency() is that no single figure is safe to quote here.
+	 *
+	 * @param int $booking_id
+	 * @return bool
+	 */
+	public static function send_refund_mixed_currency_review_email(int $booking_id): bool
+	{
+		$admin_email = get_option('admin_email');
+		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
+			return false;
+		}
+
+		// Same get_edit_post_link() ?: admin_url(...) fallback as every other
+		// refund notification, for the same reason (AbstractPostType.php
+		// :290-303 maps edit_posts and edit_post to the same capability).
+		$link = get_edit_post_link($booking_id, '') ?: admin_url('post.php?post=' . $booking_id . '&action=edit');
+
+		$subject = __('A cancelled booking needs a manual refund across currencies', 'mhm-rentiva');
+
+		$body_parts = array(
+			sprintf(
+				/* translators: %d: booking id */
+				__('Booking #%d has been cancelled. Its paid orders are in more than one currency, so the plugin cannot total or move a refund for it automatically.', 'mhm-rentiva'),
+				$booking_id
+			),
+			'',
+			__("Please review this booking's paid orders and settle any refund by hand.", 'mhm-rentiva'),
+			sprintf(
+				/* translators: %s: link to the booking */
+				__('Review the booking: %s', 'mhm-rentiva'),
+				$link
+			),
+		);
+
+		return wp_mail($admin_email, $subject, implode("\n", $body_parts));
+	}
 }

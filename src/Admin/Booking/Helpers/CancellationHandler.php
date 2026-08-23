@@ -919,7 +919,17 @@ final class CancellationHandler {
 				);
 
 				if ( $mixed_currency_recorded ) {
-					if ( ! \MHMRentiva\Helpers\NotificationHelper::send_refund_needs_review_email( $booking_id ) ) {
+					// Review fix round 1, F1: NOT send_refund_needs_review_email().
+					// That helper's wording is AutoCancel's own -- "left it
+					// alone, did not cancel the booking" and "AutoCancel
+					// found" are both FALSE on this path (the booking IS
+					// cancelled; auto-cancel was never involved) -- and it
+					// prints Money::toMajor($state->paid()), which is
+					// exactly the meaningless-if-summed figure
+					// isMixedCurrency() exists to warn against.
+					// send_refund_mixed_currency_review_email() tells this
+					// path's own true story and prints no amount at all.
+					if ( ! \MHMRentiva\Helpers\NotificationHelper::send_refund_mixed_currency_review_email( $booking_id ) ) {
 						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
 							sprintf(
 								/* translators: %d: booking id. */
@@ -934,14 +944,45 @@ final class CancellationHandler {
 							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 						);
 					}
+				} else {
+					// Review fix round 1, F2: this used to return silently,
+					// exactly the defect this slice has already fixed twice
+					// elsewhere. The matrix refusing NEEDS_REVIEW means this
+					// booking's CURRENT refund_status has no outgoing edge to
+					// it from here -- e.g. a concurrent request already moved
+					// it to pending/failed/a terminal value, or this is a
+					// second cancellation attempt on a booking already
+					// parked. Mirrors AutoCancel::park_paid_booking_for_review()'s
+					// own matrix-refusal log (AutoCancel.php:1003-1026) and
+					// this same method's PENDING-not-recorded branch twenty
+					// lines below -- neither of those is allowed to discard
+					// a refusal, so this one may not either.
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+						sprintf(
+							/* translators: 1: booking id, 2: the booking's current refund_status, which has no outgoing edge to needs_review. */
+							__( "Mixed-currency NEEDS_REVIEW could not be recorded for booking #%1\$d: current refund_status is '%2\$s'.", 'mhm-rentiva' ),
+							$booking_id,
+							\MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id )
+						),
+						$booking_id,
+						array(
+							'surface' => $surface,
+							'reason'  => 'mixed_currency_not_recorded',
+						),
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+					);
 				}
 
-				// Correction #1: settle_refund()'s contract is ?string, not
-				// bool, as of Task 14a -- null means "nothing to surface",
-				// a non-empty string is a problem cancel_booking() appends
-				// to 'problems', which all three AJAX surfaces read. A
-				// mixed-currency refusal is exactly what the operator needs
-				// to see, not a bare false the caller cannot act on.
+				// settle_refund()'s contract is ?string, not bool, as of Task
+				// 14a -- null means "nothing to surface", a non-empty string
+				// is a problem cancel_booking() appends to 'problems'. Review
+				// fix round 1 measured that none of the three AJAX surfaces
+				// actually display this text (each emits its own fixed
+				// sentence once 'problems' is non-empty) -- the BEHAVIOURAL
+				// half still matters (a non-null return flips which sentence
+				// a surface shows), so this still returns a real string
+				// rather than a bare false the caller cannot act on, even
+				// though the string itself has no display path today.
 				return __( "Refund not attempted: this booking's payment is split across more than one currency and cannot be totalled automatically. It has been flagged for manual review.", 'mhm-rentiva' );
 			}
 
