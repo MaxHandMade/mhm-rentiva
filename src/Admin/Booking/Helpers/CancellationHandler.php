@@ -1135,9 +1135,15 @@ final class CancellationHandler {
 
 			// processFullRefund() returns early -- before finish() -- when
 			// RefundValidator refuses the request (empty/pending/failed/refunded
-			// payment status). That path never writes a terminal status and
-			// never logs, so a refusal here would otherwise leave the 'pending'
-			// marker standing forever with no trace of why. RefundStatus's own
+			// payment status). Fable audit I-3: that early return now closes
+			// its own pending marker and logs the refusal's own words
+			// (Service::closeRefusedByValidator()), because withLock() raises
+			// the marker for direct callers too and those had no second layer
+			// to clean up after them. So on the validator path this call finds
+			// FAILED already standing and the else branch's first case
+			// ("finish() already wrote FAILED") ends the work -- this block
+			// stays as the guard for a FAILED write Service could not land at
+			// all. RefundStatus's own
 			// matrix is the guard now, in place of the read-back this used to
 			// do by hand: 'failed' is reachable only from 'pending', so a
 			// finish() that already wrote a terminal status (completed/failed/

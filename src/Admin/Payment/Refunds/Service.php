@@ -90,6 +90,8 @@ final class Service {
 					$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
 
 					if ( ! $validation['valid'] ) {
+						self::closeRefusedByValidator( $bookingId, $validation['message'] );
+
 						return array(
 							'mhmrentiva_refund'     => '0',
 							'mhmrentiva_refund_msg' => $validation['message'],
@@ -128,6 +130,8 @@ final class Service {
 					$validation = RefundValidator::validateFullRefund( $bookingId );
 
 					if ( ! $validation['valid'] ) {
+						self::closeRefusedByValidator( $bookingId, $validation['message'] );
+
 						return array(
 							'mhmrentiva_refund'     => '0',
 							'mhmrentiva_refund_msg' => $validation['message'],
@@ -224,6 +228,48 @@ final class Service {
 		} finally {
 			RefundLock::release( $bookingId );
 		}
+	}
+
+	/**
+	 * Close the pending marker withLock() raised, on the one path that never
+	 * reaches finish().
+	 *
+	 * The marker goes up unconditionally; validation refuses conditionally.
+	 * Between those two facts sits a booking that says "Refund
+	 * in progress" about an operation that was refused before it ran, on a
+	 * path where nothing else will ever write a terminal status. Spec v3
+	 * section 7.5 hangs the stuck-pending rule on the write rather than on
+	 * the flow, so it belongs to every path that raises the marker -- not
+	 * just to CancellationHandler, which has closed this shape one layer up
+	 * since slice 4.
+	 *
+	 * The log lives here rather than at the caller because this is where the
+	 * refusal's own words are: a caller that only sees a false return cannot
+	 * say why the refund was refused.
+	 */
+	private static function closeRefusedByValidator( int $bookingId, string $message ): void {
+		$recorded = RefundStatus::transition(
+			$bookingId,
+			RefundStatus::FAILED,
+			array(
+				'surface' => 'refunds_service',
+				'reason'  => 'validator_refused',
+			)
+		);
+
+		if ( ! $recorded ) {
+			// The matrix refused FAILED, so refund_status already holds a
+			// terminal value someone else wrote -- there is no stuck pending
+			// to close and no new fact to record.
+			return;
+		}
+
+		Logger::error_linked(
+			$message,
+			$bookingId,
+			array( 'reason' => 'validator_refused' ),
+			Logger::CATEGORY_SYSTEM
+		);
 	}
 
 	/**
