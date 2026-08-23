@@ -334,11 +334,26 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 
 ## 🚀 Kurulum
 
-### Adım 1: Eklentiyi Yükle
+### Adım 1: Eklentiyi Kur
 
-1. Eklenti dosyalarını indirin
-2. `/wp-content/plugins/mhm-rentiva/` klasörüne yükleyin
-3. WordPress admin panelinden eklentiyi etkinleştirin
+MHM Rentiva WordPress.org eklenti dizininde yayınlanmıştır; olağan yol WordPress'in kendi
+sunduğu yoldur:
+
+1. WordPress yönetim panelinde **Eklentiler > Yeni Ekle** sayfasına gidin
+2. **MHM Rentiva** araması yapın ve **Şimdi Kur**'a tıklayın
+3. **Etkinleştir**'e tıklayın
+
+Dizin sayfası: https://wordpress.org/plugins/mhm-rentiva/
+
+Belirli bir yapıyı kurmak isterseniz — bu deponun bir sürümü ya da kendi derlediğiniz bir
+paket — elle yükleyin:
+
+1. ZIP'i bu deponun [Releases](https://github.com/MaxHandMade/mhm-rentiva/releases) sayfasından indirin
+2. **Eklentiler > Yeni Ekle > Eklenti Yükle** sayfasında ZIP'i seçip **Şimdi Kur**'a tıklayın
+3. **Etkinleştir**'e tıklayın
+
+WooCommerce zorunludur ve etkinleştirme sırasında denetlenir: WooCommerce olmadan eklenti
+etkinleşmez.
 
 ### Adım 2: İlk Kurulum
 

@@ -513,11 +513,25 @@ All major admin pages have been migrated from legacy jQuery/WP_List_Table to Rea
 
 ## Installation
 
-### Step 1: Upload Plugin
+### Step 1: Install the plugin
 
-1. Download the plugin files
-2. Upload to `/wp-content/plugins/mhm-rentiva/`
-3. Activate the plugin through WordPress admin panel
+MHM Rentiva is published on the WordPress.org plugin directory, so the usual route is the
+one WordPress offers itself:
+
+1. In your WordPress admin, go to **Plugins > Add New**
+2. Search for **MHM Rentiva**, then click **Install Now**
+3. Click **Activate**
+
+Directory listing: https://wordpress.org/plugins/mhm-rentiva/
+
+To install a specific build instead — a release from this repository, or a version you built
+yourself — upload it by hand:
+
+1. Download the ZIP from this repository's [Releases](https://github.com/MaxHandMade/mhm-rentiva/releases) page
+2. Go to **Plugins > Add New > Upload Plugin**, choose the ZIP, and click **Install Now**
+3. Click **Activate**
+
+WooCommerce is required and is checked on activation: the plugin will not activate without it.
 
 ### Step 2: Initial Setup
 
