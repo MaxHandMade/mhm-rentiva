@@ -67,7 +67,6 @@ class NotificationHelper {
 		}
 
 		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		$amount   = \MHMRentiva\Admin\Payment\Core\Money::toMajor($state->paid());
 		$currency = $state->currency() ?: 'TRY';
 		// Both `?:` branches are live, because AutoCancel::run() has two
 		// production callers: the WP-Cron hook (AutoCancel.php:54), where
@@ -91,6 +90,28 @@ class NotificationHelper {
 
 		$subject = __('A cancelled reservation still holds paid money', 'mhm-rentiva');
 
+		// Whole-branch review, F2: paid() is zeroed for a mixed-currency
+		// booking (Task 15) -- summing across currencies is exactly the
+		// meaningless number isMixedCurrency() exists to refuse. This
+		// e-mail's decision to fire (K6: a paid order was found) is made
+		// per-order (AutoCancel::is_paid()) with no currency-matching
+		// involved, so a booking whose two paid orders sit in different
+		// currencies reaches this same e-mail -- and printing that zero
+		// stated the opposite of the truth this e-mail exists to report: it
+		// said no money was held on a booking flagged BECAUSE it holds paid
+		// money. State what is true instead of a figure, the same choice
+		// send_refund_mixed_currency_review_email() made when it was added.
+		if ($state->isMixedCurrency()) {
+			$amount_line = __('This booking\'s paid orders are in more than one currency, so the amount held cannot be totalled automatically.', 'mhm-rentiva');
+		} else {
+			$amount_line = sprintf(
+				/* translators: 1: amount held, 2: currency code */
+				__('Amount held: %1$s %2$s', 'mhm-rentiva'),
+				\MHMRentiva\Admin\Payment\Core\Money::toMajor($state->paid()),
+				$currency
+			);
+		}
+
 		$body_parts = array(
 			sprintf(
 				/* translators: %d: booking id */
@@ -98,12 +119,7 @@ class NotificationHelper {
 				$booking_id
 			),
 			'',
-			sprintf(
-				/* translators: 1: amount held, 2: currency code */
-				__('Amount held: %1$s %2$s', 'mhm-rentiva'),
-				$amount,
-				$currency
-			),
+			$amount_line,
 			sprintf(
 				/* translators: %s: link to the booking */
 				__('Review the booking: %s', 'mhm-rentiva'),
@@ -139,7 +155,6 @@ class NotificationHelper {
 		}
 
 		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		$amount   = \MHMRentiva\Admin\Payment\Core\Money::toMajor($state->refundable());
 		$currency = $state->currency() ?: 'TRY';
 		// Same get_edit_post_link() ?: admin_url(...) fallback as
 		// send_refund_needs_review_email(), for the same reason: the
@@ -151,6 +166,27 @@ class NotificationHelper {
 
 		$subject = __('A cancelled booking had a problem completing its refund', 'mhm-rentiva');
 
+		// Whole-branch review, F2: refundable() is zeroed for a
+		// mixed-currency booking (Task 15). CancellationHandler.php's own
+		// `$recovery_state->isMixedCurrency()` disjunct (:403) routes this
+		// exact shape to THIS e-mail deliberately -- its own comment says so
+		// -- BECAUSE money is owed and unknowable, not despite it. Printing
+		// the zero said the opposite of the truth this e-mail exists to
+		// report: "0.00" on an e-mail whose only reason to exist is that
+		// money IS still owed. State what is true instead of a figure, the
+		// same choice send_refund_mixed_currency_review_email() made when it
+		// was added.
+		if ($state->isMixedCurrency()) {
+			$amount_line = __('This booking\'s paid orders are in more than one currency, so the amount still owed cannot be totalled automatically.', 'mhm-rentiva');
+		} else {
+			$amount_line = sprintf(
+				/* translators: 1: amount still owed to the customer, 2: currency code */
+				__('Amount still owed to the customer: %1$s %2$s', 'mhm-rentiva'),
+				\MHMRentiva\Admin\Payment\Core\Money::toMajor($state->refundable()),
+				$currency
+			);
+		}
+
 		$body_parts = array(
 			sprintf(
 				/* translators: %d: booking id */
@@ -158,12 +194,7 @@ class NotificationHelper {
 				$booking_id
 			),
 			'',
-			sprintf(
-				/* translators: 1: amount still owed to the customer, 2: currency code */
-				__('Amount still owed to the customer: %1$s %2$s', 'mhm-rentiva'),
-				$amount,
-				$currency
-			),
+			$amount_line,
 			sprintf(
 				/* translators: %s: link to the booking */
 				__('Review the booking: %s', 'mhm-rentiva'),

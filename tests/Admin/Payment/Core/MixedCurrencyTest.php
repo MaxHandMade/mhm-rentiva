@@ -9,6 +9,7 @@ use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\PostTypes\Logs\PostType;
+use MHMRentiva\Helpers\NotificationHelper;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
@@ -295,6 +296,103 @@ final class MixedCurrencyTest extends WP_UnitTestCase
             $failure_mails,
             'A mixed-currency booking has refundable() === 0 by design (Task 15), but it IS a booking with'
                 . ' money at stake -- the operator failure e-mail must not be silenced by that zero.'
+        );
+    }
+
+    // -------------------------------------------------------------------
+    // Whole-branch review, F2: two operator e-mails print an amount from
+    // accessors that return 0 exactly when the amount is unknowable.
+    // -------------------------------------------------------------------
+
+    /**
+     * send_refund_failed_email() is routed to for a mixed-currency booking
+     * deliberately (CancellationHandler.php:403's own
+     * `$recovery_state->isMixedCurrency()` disjunct, proven firing by
+     * test_the_post_commit_failure_email_still_fires_for_a_mixed_currency_booking
+     * above) -- specifically BECAUSE money is owed and unknowable, not
+     * despite it. Money::toMajor($state->refundable()) is 0 for exactly this
+     * shape (Task 15), so the e-mail whose entire purpose is "money is still
+     * owed" said "Amount still owed to the customer: 0.00 EUR" -- a comment
+     * calling the isMixedCurrency() disjunct exists precisely so this case
+     * is not silently dropped, then the body it produces said nothing was
+     * owed. This calls the helper directly rather than driving the whole
+     * post-commit throwable path again (that is
+     * test_the_post_commit_failure_email_still_fires_for_a_mixed_currency_booking's
+     * job) -- this test is only about the BODY this method itself renders
+     * for that state.
+     */
+    public function test_the_failed_email_does_not_quote_a_zeroed_amount_for_a_mixed_currency_booking(): void
+    {
+        $this->make_mixed_currency_booking();
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function (array $args) use (&$mails): array {
+                $mails[] = $args;
+                return $args;
+            }
+        );
+
+        $sent = NotificationHelper::send_refund_failed_email($this->booking_id);
+
+        $this->assertTrue($sent, 'Sanity: the e-mail must actually send, or the body assertions below prove nothing.');
+        $this->assertNotEmpty($mails);
+
+        $this->assertStringNotContainsString(
+            'Amount still owed to the customer: 0',
+            $mails[0]['message'],
+            'refundable() is zeroed for a mixed-currency booking -- printing it here states a figure that'
+                . ' is false on its face for an e-mail whose whole point is that money IS still owed.'
+        );
+        $this->assertStringContainsString(
+            'more than one currency',
+            $mails[0]['message'],
+            'The body must say what is true instead of a figure -- the same reason'
+                . ' send_refund_mixed_currency_review_email() prints no amount at all.'
+        );
+    }
+
+    /**
+     * send_refund_needs_review_email() is AutoCancel's own e-mail
+     * (park_paid_booking_for_review()), fired whenever a sweep finds a paid
+     * WC order and refuses to touch the booking (K6) -- a decision made
+     * per-order (self::is_paid($order)) with no currency-matching involved,
+     * so a booking whose two paid orders sit in different currencies reaches
+     * this exact e-mail too. Money::toMajor($state->paid()) is 0 for that
+     * shape (Task 15), so this e-mail said "Amount held: 0.00" on a booking
+     * a sweep just refused to touch specifically because it holds money.
+     */
+    public function test_the_needs_review_email_does_not_quote_a_zeroed_amount_for_a_mixed_currency_booking(): void
+    {
+        $this->make_mixed_currency_booking();
+
+        $mails = array();
+        add_filter(
+            'wp_mail',
+            static function (array $args) use (&$mails): array {
+                $mails[] = $args;
+                return $args;
+            }
+        );
+
+        $sent = NotificationHelper::send_refund_needs_review_email($this->booking_id);
+
+        $this->assertTrue($sent, 'Sanity: the e-mail must actually send, or the body assertions below prove nothing.');
+        $this->assertNotEmpty($mails);
+
+        $this->assertStringNotContainsString(
+            'Amount held: 0',
+            $mails[0]['message'],
+            'paid() is zeroed for a mixed-currency booking -- printing it here states a figure that is'
+                . ' false on its face for an e-mail whose whole point is that this booking holds paid money.'
+        );
+        $this->assertStringContainsString(
+            'more than one currency',
+            $mails[0]['message'],
+            'The body must say what is true instead of a figure -- the same reason'
+                . ' send_refund_mixed_currency_review_email() prints no amount at all.'
         );
     }
 
