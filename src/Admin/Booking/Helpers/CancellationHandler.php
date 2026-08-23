@@ -816,15 +816,27 @@ final class CancellationHandler {
 	 * cancellation), or no money was ever taken (not_required). Collapsing them
 	 * would hide a real transfer from the audit trail.
 	 *
-	 * @return string|null Null on every path except two: when the PENDING
-	 *                      transition itself could not be recorded (fix
-	 *                      round 1, F2), and when the FAILED transition
-	 *                      could not be recorded after the validator
-	 *                      refused the request (Task 14b item 13). Both
-	 *                      return the refusal message as a VALUE rather
-	 *                      than throwing it (fix round 2, G1) -- a throw
-	 *                      here used to unwind past process_refund()'s
-	 *                      return in cancel_booking(), skipping the public
+	 * @return string|null Null when nothing about the refund step needs
+	 *                      surfacing to the caller: money moved, none was
+	 *                      owed, or a failure is already visible through
+	 *                      refund_status itself (the three surfaces that
+	 *                      call this class check `RefundStatus::FAILED ===
+	 *                      RefundStatus::get(...)` themselves). A string on
+	 *                      every other early return: the PENDING transition
+	 *                      itself could not be recorded (fix round 1, F2),
+	 *                      this booking's payment is split across
+	 *                      currencies (Task 15), the FAILED transition could
+	 *                      not be recorded because the matrix genuinely
+	 *                      refused it for another reason (Task 14b item 13),
+	 *                      or finish() had already written partial_failure
+	 *                      for this exact failure (whole-branch review, F3
+	 *                      -- partial_failure has no matrix edge to failed,
+	 *                      but IS a real failure the surfaces' `FAILED ===`
+	 *                      check cannot see on its own). All of these return
+	 *                      the refusal message as a VALUE rather than
+	 *                      throwing it (fix round 2, G1) -- a throw here
+	 *                      used to unwind past process_refund()'s return in
+	 *                      cancel_booking(), skipping the public
 	 *                      mhmrentiva_booking_cancelled action entirely (a
 	 *                      live Pro consumer:
 	 *                      VendorCancellationDateBlocker::maybe_block_dates())
@@ -1150,15 +1162,68 @@ final class CancellationHandler {
 						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 					);
 				} else {
-					// Task 14b item 13: the matrix refused the FAILED write
-					// itself -- e.g. a mhmrentiva_process_refund listener
-					// already moved this booking's refund_status to a
-					// terminal value (without actually resolving the
-					// balance) between the PENDING write above and this
-					// point. Before this fix, this branch did nothing at
-					// all: no log, and $success's own failure never reached
-					// 'problems' either (see the comment below, which
-					// covers only the $recorded === true case) -- so all
+					// Whole-branch review, F3: transition() to FAILED returns
+					// false for TWO unrelated reasons, and this branch used
+					// to treat them as one. Reason one is the genuine race
+					// item 13 was written for: something else moved
+					// refund_status to an unrelated terminal value between
+					// the PENDING write above and this point. Reason two is
+					// not a race at all -- Service::finish() (inside
+					// processFullRefund(), a few lines above, in this SAME
+					// request) already wrote this exact gateway failure as
+					// FAILED or PARTIAL_FAILURE itself, so this attempt to
+					// ALSO write FAILED was always going to be refused:
+					// either $from === $to (finish() wrote FAILED, refunded
+					// === 0) or partial_failure's only matrix edge leads back
+					// to pending, never to failed (finish() wrote
+					// PARTIAL_FAILURE, refunded > 0). Logging "could not be
+					// recorded" and returning "status changed before the
+					// failure could be recorded" for reason two is false on
+					// its face -- for the $from === $to case it is also
+					// self-contradicting, naming 'failed' as both the status
+					// that could not be recorded and the value already
+					// standing.
+					$post_finish_status = \MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id );
+
+					if ( \MHMRentiva\Admin\Payment\Core\RefundStatus::FAILED === $post_finish_status ) {
+						// Nothing is wrong, and nothing new needs recording:
+						// finish() already wrote FAILED for this exact
+						// failure. All three surfaces read refund_status
+						// themselves (`RefundStatus::FAILED ===
+						// RefundStatus::get(...)`, DepositManagementAjax.php
+						// :303/:684, AccountController.php:1157) alongside
+						// 'problems', so they already see this failure
+						// without help from a 'problems' entry here -- same
+						// as the $recorded === true branch above, which
+						// relies on the same fact.
+						return null;
+					}
+
+					if ( \MHMRentiva\Admin\Payment\Core\RefundStatus::PARTIAL_FAILURE === $post_finish_status ) {
+						// Also nothing wrong -- but unlike plain FAILED,
+						// partial_failure is NOT what the three surfaces'
+						// `FAILED ===` check looks for, so this case DOES
+						// still need a 'problems' entry, or the fact that
+						// only part of the money went back reaches nobody.
+						// $result['mhmrentiva_refund_msg'] already carries
+						// finish()'s own true accounting of what happened
+						// (the "%1$s was already refunded before this
+						// failed: %2$s" message, Service.php's finish()) --
+						// reused rather than composing a second, competing
+						// description of the same event.
+						return $result['mhmrentiva_refund_msg']
+							?? __( 'Refund partially failed; the rest did not go back.', 'mhm-rentiva' );
+					}
+
+					// The real race item 13 was written for: the matrix
+					// refused the FAILED write for a reason OTHER than
+					// finish() having already recorded this exact failure --
+					// e.g. a mhmrentiva_process_refund listener moved
+					// refund_status to an unrelated terminal value (without
+					// actually resolving the balance) between the PENDING
+					// write above and this point. Before item 13, this
+					// branch did nothing at all: no log, and $success's own
+					// failure never reached 'problems' either -- so all
 					// three AJAX surfaces kept reading "cancelled
 					// successfully" while the money never moved and nothing
 					// anywhere said a refund had even been attempted here.
@@ -1166,7 +1231,7 @@ final class CancellationHandler {
 						sprintf(
 							/* translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED. */
 							__( "Refund FAILED status could not be recorded: current refund_status is '%s'.", 'mhm-rentiva' ),
-							\MHMRentiva\Admin\Payment\Core\RefundStatus::get( $booking_id )
+							$post_finish_status
 						),
 						$booking_id,
 						array( 'reason' => 'failed_not_recorded' ),

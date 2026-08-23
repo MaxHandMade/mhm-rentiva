@@ -12,6 +12,8 @@ use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\PostTypes\Logs\PostType;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceRefundGatewayDouble;
+use MHMRentiva\Tests\Support\WooCommerceRefundGatewayRegistration;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -40,6 +42,7 @@ use WP_Ajax_UnitTestCase;
 final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
 {
     use WooCommerceFixtures;
+    use WooCommerceRefundGatewayRegistration;
 
     private int $admin_id;
     private int $customer_id;
@@ -661,6 +664,167 @@ final class CancellationPostCommitContainmentTest extends WP_Ajax_UnitTestCase
             }
         }
         $this->assertTrue($found, 'The refusal must leave a trace an operator can find, linked to this booking.');
+    }
+
+    /**
+     * Whole-branch review, F3, half 1: settle_refund()'s own attempt to
+     * write FAILED (`$recorded = RefundStatus::transition(..., FAILED,
+     * ...)`, item 13's own line) returns false for TWO unrelated reasons,
+     * and before this fix both were treated as the same race item 13 above
+     * exercises. This pins the other reason: an ORDINARY gateway refusal.
+     *
+     * A single-order refund whose gateway call fails leaves refunded === 0,
+     * so Service::finish() (inside processFullRefund(), called a few lines
+     * before settle_refund()'s own FAILED attempt, in this SAME request)
+     * computes RefundStatus::FAILED and writes it itself. settle_refund()'s
+     * later attempt to ALSO write FAILED necessarily hits `$from === $to`
+     * inside RefundStatus::transition() and returns false -- not because
+     * anything raced, but because the correct outcome was already recorded
+     * moments earlier. Before this fix that produced an ERROR log naming
+     * FAILED as both the status that "could not be recorded" AND the value
+     * already standing (self-contradicting on its face) and a 'problems'
+     * entry claiming "this booking's refund status changed before the
+     * failure could be recorded" -- false, nothing changed out from under
+     * this call.
+     */
+    public function test_an_ordinary_gateway_failure_already_recorded_by_finish_is_not_reported_as_a_race(): void
+    {
+        $this->require_woocommerce();
+        $this->register_refund_gateway_double();
+
+        try {
+            $booking_id = (int) self::factory()->post->create(array(
+                'post_type'   => 'mhmrentiva_booking',
+                'post_status' => 'publish',
+            ));
+            update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+            update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
+            update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
+            update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+
+            $order = $this->create_paid_order_for_booking($booking_id, '120');
+            $order->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+            $order->save();
+
+            // The one leg fails at the gateway -- refunded stays 0, so
+            // finish() computes FAILED (not partial_failure) and writes it
+            // BEFORE settle_refund()'s own FAILED attempt ever runs.
+            WooCommerceRefundGatewayDouble::$results = array( false );
+
+            wp_set_current_user($this->admin_id);
+            $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, 'gateway refuses', true);
+
+            $this->assertFalse(is_wp_error($result), 'Raw: ' . print_r($result, true));
+
+            $this->assertSame(
+                RefundStatus::FAILED,
+                RefundStatus::get($booking_id),
+                'Sanity check: finish() must have already recorded FAILED for this to be the shape under test.'
+            );
+
+            $this->assertEmpty(
+                $result['problems'],
+                'FAILED is already visible through refund_status itself -- all three surfaces check'
+                    . " `RefundStatus::FAILED === RefundStatus::get(...)` themselves (DepositManagementAjax.php"
+                    . ' :303/:684, AccountController.php:1157), so a redundant second attempt to record the SAME'
+                    . " failure must not also manufacture a 'problems' entry."
+            );
+
+            foreach ($this->all_log_entries() as $log) {
+                $this->assertStringNotContainsString(
+                    'could not be recorded',
+                    $log->post_content,
+                    'Nothing is wrong here -- finish() recorded this failure correctly a few lines earlier;'
+                        . ' this log entry would falsely claim a write failed to record.'
+                );
+            }
+        } finally {
+            $this->unregister_refund_gateway_double();
+        }
+    }
+
+    /**
+     * Whole-branch review, F3, half 2: the same "already recorded by
+     * finish(), nothing raced" case, but for the refunded > 0 shape.
+     *
+     * Leg 1 succeeds (money genuinely moves), leg 2 fails at the gateway --
+     * refunded === 30 > 0, so finish() computes RefundStatus::PARTIAL_FAILURE
+     * (not FAILED) and writes it. settle_refund()'s later attempt to write
+     * FAILED is refused too, but for a DIFFERENT structural reason than half
+     * 1: partial_failure's only matrix edge leads back to pending, never to
+     * failed, so this is the "matrix has no such edge" branch rather than
+     * the "$from === $to" one -- yet it is still "nothing raced", not the
+     * race item 13 exists for. Unlike half 1, this case is NOT already
+     * visible through the three surfaces' `FAILED ===` check (the real
+     * status is partial_failure, not failed), so it is the one case in this
+     * split that DOES still need a 'problems' entry -- just a true one.
+     */
+    public function test_a_partial_failure_already_recorded_by_finish_reaches_problems_without_a_false_race_claim(): void
+    {
+        $this->require_woocommerce();
+        $this->register_refund_gateway_double();
+
+        try {
+            $booking_id = (int) self::factory()->post->create(array(
+                'post_type'   => 'mhmrentiva_booking',
+                'post_status' => 'publish',
+            ));
+            update_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+            update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+10 days')));
+            update_post_meta($booking_id, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', strtotime('+12 days')));
+            update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+
+            $first = $this->create_paid_order_for_booking($booking_id, '30');
+            $first->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+            $first->save();
+
+            $second = $this->create_paid_order_for_booking($booking_id, '70');
+            $second->set_payment_method(WooCommerceRefundGatewayDouble::ID);
+            $second->save();
+            update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $second->get_id());
+
+            // Leg 1 (30) succeeds; leg 2 (70) fails at the gateway.
+            WooCommerceRefundGatewayDouble::$results = array( true, false );
+
+            wp_set_current_user($this->admin_id);
+            $result = CancellationHandler::cancel_booking($booking_id, $this->admin_id, 'gateway partially refuses', true);
+
+            $this->assertFalse(is_wp_error($result), 'Raw: ' . print_r($result, true));
+
+            $this->assertSame(
+                RefundStatus::PARTIAL_FAILURE,
+                RefundStatus::get($booking_id),
+                'Sanity check: finish() must have already recorded partial_failure for this to be the shape'
+                    . ' under test.'
+            );
+
+            $this->assertNotEmpty(
+                $result['problems'],
+                'partial_failure is NOT what the three surfaces\' `FAILED ===` check looks for -- unlike the'
+                    . ' plain-FAILED case, this DOES need a problems entry, or the fact that only part of the'
+                    . ' money went back reaches nobody.'
+            );
+
+            $problems_text = implode(' ', $result['problems']);
+
+            $this->assertStringNotContainsString(
+                "status changed before the failure could be recorded",
+                $problems_text,
+                'That sentence is false here: nothing changed out from under this call -- finish() recorded'
+                    . ' the correct partial_failure outcome moments earlier, in this same request.'
+            );
+
+            foreach ($this->all_log_entries() as $log) {
+                $this->assertStringNotContainsString(
+                    'could not be recorded',
+                    $log->post_content,
+                    'Nothing is wrong here either -- finish() recorded partial_failure correctly; this log'
+                        . ' entry would falsely claim a write failed to record.'
+                );
+            }
+        } finally {
+            $this->unregister_refund_gateway_double();
+        }
     }
 
     /**
