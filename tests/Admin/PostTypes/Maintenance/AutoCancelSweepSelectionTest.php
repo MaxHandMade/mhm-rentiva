@@ -682,6 +682,16 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
      * grows with the matrix instead of silently missing a status the day a
      * new terminal one is added.
      *
+     * Fix round 2, G1: without the assertFalse(log_exists(...)) below, this test
+     * was vacuous with respect to the guard it names -- no lock is held (the
+     * meta is written directly, not through park_for_review()), so acquire()
+     * succeeds and RefundStatus::transition() refuses on its own for a
+     * terminal $from, meaning every OTHER assertion here holds identically
+     * whether or not sync_orphan_wc_orders() ever checks refund_status
+     * before calling park_paid_booking_for_review(). Verified red by
+     * temporarily deleting that check: this assertion, and only this one,
+     * failed.
+     *
      * @dataProvider provide_every_terminal_refund_status
      */
     public function test_a_terminal_refund_status_is_not_reparked_by_sync_orphan_wc_orders( string $terminal_status ): void
@@ -705,6 +715,12 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
         );
         $this->assertSame( 0, $result['parked'] );
         $this->assertSame( 1, $result['skipped'] );
+        $this->assertFalse(
+            $this->log_exists( "current refund_status is '{$terminal_status}'" ),
+            'This entry only gets written if the backfill re-attempted the park despite already owning it'
+                . ' -- the guard-sensitive assertion: without the refund_status check in sync_orphan_wc_orders(),'
+                . ' this would log on every terminal state too, the same way the needs_review sibling test proves.'
+        );
         $this->assertSame( $terminal_status, RefundStatus::get( $booking_id ) );
         $this->assertSame(
             'processing',
