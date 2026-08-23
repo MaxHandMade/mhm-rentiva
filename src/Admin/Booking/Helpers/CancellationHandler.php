@@ -671,28 +671,6 @@ final class CancellationHandler {
 	}
 
 	/**
-	 * The money step of a cancellation (spec §5.3).
-	 *
-	 * @param int    $booking_id Booking ID
-	 * @param int    $user_id    The actor. There is no $system leg any more --
-	 *                           since K6 no unattended path moves money at
-	 *                           all, so an unattributed 0 actor is refused
-	 *                           here regardless of how cancel_booking() was
-	 *                           called (see MoneyAuthorization).
-	 * @param string $reason     Cancellation reason, carried into the refund record
-	 * @return string|null Null when nothing about the refund step itself
-	 *                      needs to be surfaced to the caller (a refund
-	 *                      actually completed, none was owed, or a
-	 *                      pre-existing failure was already logged by
-	 *                      settle_refund() through its own channel). A
-	 *                      string when settle_refund() could not even
-	 *                      record that a refund attempt started (fix round
-	 *                      2, G1) -- returned, not thrown, so cancel_booking()
-	 *                      can add it to 'problems' AND still go on to fire
-	 *                      mhmrentiva_booking_cancelled, which a throw here
-	 *                      used to skip.
-	 */
-	/**
 	 * Sends the operator's refund-failed notification at most ONCE per
 	 * booking per request (fix round 1, F6). Wraps
 	 * NotificationHelper::send_refund_failed_email() so the two independent
@@ -735,6 +713,28 @@ final class CancellationHandler {
 		return $sent;
 	}
 
+	/**
+	 * The money step of a cancellation (spec §5.3).
+	 *
+	 * @param int    $booking_id Booking ID
+	 * @param int    $user_id    The actor. There is no $system leg any more --
+	 *                           since K6 no unattended path moves money at
+	 *                           all, so an unattributed 0 actor is refused
+	 *                           here regardless of how cancel_booking() was
+	 *                           called (see MoneyAuthorization).
+	 * @param string $reason     Cancellation reason, carried into the refund record
+	 * @return string|null Null when nothing about the refund step itself
+	 *                      needs to be surfaced to the caller (a refund
+	 *                      actually completed, none was owed, or a
+	 *                      pre-existing failure was already logged by
+	 *                      settle_refund() through its own channel). A
+	 *                      string when settle_refund() could not even
+	 *                      record that a refund attempt started (fix round
+	 *                      2, G1) -- returned, not thrown, so cancel_booking()
+	 *                      can add it to 'problems' AND still go on to fire
+	 *                      mhmrentiva_booking_cancelled, which a throw here
+	 *                      used to skip.
+	 */
 	private static function process_refund( int $booking_id, int $user_id, string $reason = '' ): ?string {
 		if ( ! \MHMRentiva\Admin\Payment\Core\MoneyAuthorization::mayMoveMoney( $booking_id, $user_id, 'refund' ) ) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
