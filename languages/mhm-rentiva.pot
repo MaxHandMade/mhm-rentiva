@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-23T03:17:20+00:00\n"
+"POT-Creation-Date: 2026-08-23T05:23:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1465,7 +1465,7 @@ msgid "Booking pickup date is missing."
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:472
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1300
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1365
 msgid "Invalid pickup date/time format."
 msgstr ""
 
@@ -1580,74 +1580,78 @@ msgid "Refund not attempted: the cancellation was not attributed to a user allow
 msgstr ""
 
 #. translators: 1: booking id, 2: the user id attempting the refund.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:871
+#: src/Admin/Booking/Helpers/CancellationHandler.php:883
 #, php-format
 msgid "Refund lock refused for booking #%1$d (actor #%2$d): another refund attempt holds this booking's lock -- refund not attempted."
 msgstr ""
 
 #. translators: %d: booking id.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:936
+#: src/Admin/Booking/Helpers/CancellationHandler.php:948
 #, php-format
 msgid "Mixed-currency refund review notification could not be sent for booking #%d: the booking is parked in needs_review, but no one has been told it is holding money across more than one currency."
 msgstr ""
 
 #. translators: 1: booking id, 2: the booking's current refund_status, which has no outgoing edge to needs_review.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:963
+#: src/Admin/Booking/Helpers/CancellationHandler.php:975
 #, php-format
 msgid "Mixed-currency NEEDS_REVIEW could not be recorded for booking #%1$d: current refund_status is '%2$s'."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:986
+#: src/Admin/Booking/Helpers/CancellationHandler.php:998
 msgid "Refund not attempted: this booking's payment is split across more than one currency and cannot be totalled automatically. It has been flagged for manual review."
 msgstr ""
 
 #. translators: 1: the surface that attempted this refund, 2: the booking's current refund_status, which has no outgoing edge to PENDING.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1010
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1022
 #, php-format
 msgid "Refund PENDING could not be recorded (surface: %1$s): current refund_status is '%2$s'. Refund not attempted: this booking's refund status changed before the refund could start."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1049
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1061
 msgid "Refund-failed notification could not be sent for a refused PENDING transition -- no one has been told."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1072
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1084
 msgid "Refund not attempted: this booking's refund status changed before the refund could start."
 msgstr ""
 
 #. translators: %s: the message thrown by a mhmrentiva_process_refund listener.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1094
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1106
 #, php-format
 msgid "A mhmrentiva_process_refund listener failed: %s"
 msgstr ""
 
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1215
+msgid "Refund partially failed; the rest did not go back."
+msgstr ""
+
 #. translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1168
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1233
 #, php-format
 msgid "Refund FAILED status could not be recorded: current refund_status is '%s'."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1176
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1241
 msgid "Refund failed, but this booking's refund status changed before the failure could be recorded."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1283
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1348
 msgid "Invalid booking data."
 msgstr ""
 
 #. translators: 1: %s; 2: %d.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1315
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1380
 #, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr ""
 
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1322
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1387
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1338
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1403
 msgid "Error calculating cancellation deadline."
 msgstr ""
 
@@ -2903,15 +2907,19 @@ msgstr ""
 msgid "Confirm hand transfer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:216
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:238
+msgid "This booking is already cancelled. Refund its paid order from the WooCommerce order screen, then close this review below once the money has actually moved."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:241
 msgid "Cancel and start the refund"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:218
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:244
 msgid "Why is no refund due?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:221
+#: src/Admin/Booking/Meta/BookingRefundMetaBox.php:247
 msgid "No refund is due"
 msgstr ""
 
@@ -12893,72 +12901,80 @@ msgstr ""
 msgid "Favorites"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:92
+#: src/Helpers/NotificationHelper.php:91
 msgid "A cancelled reservation still holds paid money"
 msgstr ""
 
-#. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:97
-#, php-format
-msgid "Auto-cancel found booking #%d already holding a paid order and left it alone -- it did not cancel the booking or its order."
+#: src/Helpers/NotificationHelper.php:105
+msgid "This booking's paid orders are in more than one currency, so the amount held cannot be totalled automatically."
 msgstr ""
 
 #. translators: 1: amount held, 2: currency code
-#: src/Helpers/NotificationHelper.php:103
+#: src/Helpers/NotificationHelper.php:109
 #, php-format
 msgid "Amount held: %1$s %2$s"
 msgstr ""
 
+#. translators: %d: booking id
+#: src/Helpers/NotificationHelper.php:118
+#, php-format
+msgid "Auto-cancel found booking #%d already holding a paid order and left it alone -- it did not cancel the booking or its order."
+msgstr ""
+
 #. translators: %s: link to the booking
-#: src/Helpers/NotificationHelper.php:109
-#: src/Helpers/NotificationHelper.php:169
-#: src/Helpers/NotificationHelper.php:223
-#: src/Helpers/NotificationHelper.php:277
+#: src/Helpers/NotificationHelper.php:125
+#: src/Helpers/NotificationHelper.php:200
+#: src/Helpers/NotificationHelper.php:254
+#: src/Helpers/NotificationHelper.php:308
 #, php-format
 msgid "Review the booking: %s"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:152
+#: src/Helpers/NotificationHelper.php:167
 msgid "A cancelled booking had a problem completing its refund"
 msgstr ""
 
-#. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:157
-#, php-format
-msgid "Booking #%d was cancelled, but something went wrong afterward and the refund may not have completed."
+#: src/Helpers/NotificationHelper.php:180
+msgid "This booking's paid orders are in more than one currency, so the amount still owed cannot be totalled automatically."
 msgstr ""
 
 #. translators: 1: amount still owed to the customer, 2: currency code
-#: src/Helpers/NotificationHelper.php:163
+#: src/Helpers/NotificationHelper.php:184
 #, php-format
 msgid "Amount still owed to the customer: %1$s %2$s"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:210
+#. translators: %d: booking id
+#: src/Helpers/NotificationHelper.php:193
+#, php-format
+msgid "Booking #%d was cancelled, but something went wrong afterward and the refund may not have completed."
+msgstr ""
+
+#: src/Helpers/NotificationHelper.php:241
 msgid "An order was cancelled while another order on the same booking is still paid"
 msgstr ""
 
 #. translators: 1: order id, 2: booking id
-#: src/Helpers/NotificationHelper.php:215
+#: src/Helpers/NotificationHelper.php:246
 #, php-format
 msgid "Order #%1$d on booking #%2$d was cancelled or failed. Another order on this booking still holds paid money -- the order that died was not necessarily the debt."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:220
+#: src/Helpers/NotificationHelper.php:251
 msgid "Review this booking's payment orders and balance before treating it as settled or cancelled."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:265
+#: src/Helpers/NotificationHelper.php:296
 msgid "A cancelled booking needs a manual refund across currencies"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:270
+#: src/Helpers/NotificationHelper.php:301
 #, php-format
 msgid "Booking #%d has been cancelled. Its paid orders are in more than one currency, so the plugin cannot total or move a refund for it automatically."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:274
+#: src/Helpers/NotificationHelper.php:305
 msgid "Please review this booking's paid orders and settle any refund by hand."
 msgstr ""
 
