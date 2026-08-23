@@ -19,6 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * cache. GET_LOCK() is atomic too, but it is re-entrant per connection, which
  * makes the refusal untestable in single-process PHPUnit.
  *
+ * This covers only the plugin's own refund entry points: acquire() is called
+ * from DepositManagementAjax's two AJAX actions, AutoCancel's maintenance
+ * sweep, and Refunds\Service::withLock() -- nothing else in the codebase
+ * calls it. WooCommerce's own order-screen refund action never acquires this
+ * lock, so two refunds started from there race with no serialization from
+ * this class at all; only WooCommerce's own checks apply on that path.
+ *
  * Re-entrant within a request on purpose: the cancellation flow holds the lock
  * across its call into Refunds\Service, which takes the same lock. A
  * non-re-entrant lock would deadlock that path against itself.
@@ -49,6 +56,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * -- which is why the lease design is kept as-is rather than growing a
  * renewal or heartbeat.
  *
+ * That backstop exists only on the WooCommerce leg, where wc_create_refund()
+ * is the call making the check. A booking with no WooCommerce order behind
+ * it takes the offline channel (Refunds\Service::runOperation()'s
+ * CHANNEL_OFFLINE branch) and never calls wc_create_refund() at all -- there
+ * is no second barrier, and this lock is the only defence against a
+ * double-refund race.
+ *
  * Spec §5.3 puts mhmrentiva_refund_completed AFTER the lock is released;
  * Refunds\Service fires it from inside finish(), which runs INSIDE
  * withLock(). Known deviation, kept deliberately: both of finish()'s
@@ -62,7 +76,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * The row is not permanently orphaned -- it is picked up the same way any
  * stale row is, by a later acquire() on the same booking finding it past
  * TTL_SECONDS and stealing it, or, failing that, by Uninstaller's
- * `option_name LIKE 'mhmrentiva%'` sweep when the plugin is removed.
+ * `option_name LIKE 'mhmrentiva%'` sweep -- which only runs if the site
+ * owner opted into mhmrentiva_clean_data_on_uninstall (uninstall.php's
+ * $clean_on_uninstall gate; the option defaults to '0'). If they did not,
+ * a stale row can outlive the plugin's removal.
  *
  * ⚠️ Cross-process exclusion is not provable in this test suite (one process,
  * one connection). What the tests prove is the refusal, the re-entrancy, the
