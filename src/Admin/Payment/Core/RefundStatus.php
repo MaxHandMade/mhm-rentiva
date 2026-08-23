@@ -115,11 +115,43 @@ final class RefundStatus {
 			return false;
 		}
 
-		// $prev_value is a second barrier where it can be expressed at all.
+		// $prev_value is a second barrier where it can be expressed at all --
+		// and a barrier whose verdict is thrown away is not a barrier. The
+		// write can still be refused after every guard above passed: a plugin
+		// short-circuiting update_post_metadata, a failed row write, or this
+		// compare-and-swap rejecting the update because another request
+		// changed the value inside the lock's 300s lease-stealing window.
 		if ( '' === $from ) {
-			update_post_meta( $booking_id, self::META_KEY, $to );
+			$written = update_post_meta( $booking_id, self::META_KEY, $to );
 		} else {
-			update_post_meta( $booking_id, self::META_KEY, $to, $from );
+			$written = update_post_meta( $booking_id, self::META_KEY, $to, $from );
+		}
+
+		// Spec v3 section 2.3: the event and the status cannot diverge, and a
+		// true return means the status really changed. Announcing a write that
+		// never landed would have callers record audit trails, send operator
+		// mail and write order notes for a transition the database refused.
+		if ( ! $written ) {
+			// Callers read one bit and narrate it. Without this line a
+			// database refusal reaches the operator wearing the matrix's
+			// clothes -- "that transition is not allowed" -- and the real
+			// cause never surfaces anywhere.
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+				sprintf(
+					/* translators: 1: the refund status the booking was moving from, 2: the refund status it was moving to. */
+					__( 'The refund_status write was refused by the database: %1$s -> %2$s did not land.', 'mhm-rentiva' ),
+					'' === $from ? '(empty)' : $from,
+					$to
+				),
+				$booking_id,
+				array(
+					'from'    => $from,
+					'to'      => $to,
+					'context' => $context,
+				)
+			);
+
+			return false;
 		}
 
 		do_action( 'mhmrentiva_refund_status_changed', $booking_id, $to, $from, $context );

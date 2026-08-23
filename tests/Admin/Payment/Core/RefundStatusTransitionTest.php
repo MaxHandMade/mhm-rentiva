@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Admin\Payment\Core;
 
 use MHMRentiva\Admin\Payment\Core\RefundLock;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
+use MHMRentiva\Admin\PostTypes\Logs\PostType;
 use WP_UnitTestCase;
 
 /**
@@ -135,6 +136,91 @@ final class RefundStatusTransitionTest extends WP_UnitTestCase
         $this->assertSame( RefundStatus::FAILED, $seen['new'] );
         $this->assertSame( RefundStatus::PENDING, $seen['old'] );
         $this->assertSame( 'admin_deposit', $seen['context']['surface'] );
+    }
+
+    /**
+     * The write can be refused after every guard has passed: a plugin can
+     * short-circuit update_post_metadata, the row can fail to write, and the
+     * $prev_value compare-and-swap this class documents as "a second barrier"
+     * can reject the update inside the 300s lease-stealing window. In all
+     * three the status did not change, so the event must not claim it did --
+     * spec v3 section 2.3: "the event and the status cannot diverge".
+     */
+    public function test_it_reports_false_and_stays_silent_when_the_meta_write_does_not_land(): void
+    {
+        RefundLock::acquire( $this->booking_id );
+
+        add_filter(
+            'update_post_metadata',
+            static function ( $check, $object_id, $meta_key ) {
+                return RefundStatus::META_KEY === $meta_key ? false : $check;
+            },
+            10,
+            3
+        );
+
+        $fired = 0;
+        add_action(
+            'mhmrentiva_refund_status_changed',
+            static function () use ( &$fired ): void {
+                ++$fired;
+            }
+        );
+
+        $this->assertFalse(
+            RefundStatus::transition( $this->booking_id, RefundStatus::PENDING ),
+            'A write that never landed must not report a successful transition.'
+        );
+        $this->assertSame( 0, $fired, 'No status changed, so no listener may be told one did.' );
+        $this->assertSame( '', RefundStatus::get( $this->booking_id ) );
+    }
+
+    /**
+     * A refused write and a refused matrix edge both leave transition()
+     * returning false, and every caller reads that single bit. The matrix
+     * refusal is ordinary -- callers already narrate it. A database that
+     * refused the write is not ordinary, and without a trace of its own it
+     * arrives at the operator wearing the matrix's clothes.
+     */
+    public function test_it_leaves_a_trace_when_the_meta_write_is_refused(): void
+    {
+        RefundLock::acquire( $this->booking_id );
+
+        add_filter(
+            'update_post_metadata',
+            static function ( $check, $object_id, $meta_key ) {
+                return RefundStatus::META_KEY === $meta_key ? false : $check;
+            },
+            10,
+            3
+        );
+
+        RefundStatus::transition( $this->booking_id, RefundStatus::PENDING );
+
+        $logs = get_posts(
+            array(
+                'post_type'      => PostType::TYPE,
+                'posts_per_page' => 5,
+                'orderby'        => 'ID',
+                'order'          => 'DESC',
+                'post_status'    => 'publish',
+            )
+        );
+
+        $refusal_log = null;
+        foreach ( $logs as $log ) {
+            if ( false !== strpos( $log->post_content, 'refund_status write was refused' ) ) {
+                $refusal_log = $log;
+                break;
+            }
+        }
+
+        $this->assertNotNull(
+            $refusal_log,
+            'A refused write must be distinguishable from a refused matrix edge.'
+        );
+        $this->assertStringContainsString( (string) $this->booking_id, $refusal_log->post_content );
+        $this->assertStringContainsString( RefundStatus::PENDING, $refusal_log->post_content );
     }
 
     /**
