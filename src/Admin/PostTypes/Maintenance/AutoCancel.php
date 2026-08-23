@@ -798,16 +798,32 @@ final class AutoCancel {
 	 * Idempotent — re-running is safe; only touches orders still in pending
 	 * statuses.
 	 *
+	 * Task 16 minor 3: the selection query excludes any booking whose
+	 * refund_status is already needs_review or terminal (via
+	 * not_parked_for_review(), the same barrier sync_stale_past_bookings()
+	 * uses). Before this, a booking this method had already parked in a
+	 * prior run stayed selectable forever -- nothing here filters on
+	 * refund_status -- and every re-run called park_paid_booking_for_review()
+	 * again, which found the matrix had no NEEDS_REVIEW -> NEEDS_REVIEW edge
+	 * and logged an ERROR: a stable steady state that read as a fresh
+	 * failure on every single invocation.
+	 *
 	 * Usage:
 	 *   wp eval 'echo MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::sync_orphan_wc_orders();'
 	 *
-	 * Task 14b item 5: a booking whose only candidate order(s) are already
-	 * paid is no longer just $skipped -- it is parked in needs_review and a
-	 * human is notified, the same K6 guard cancel_booking_with_orders() uses,
-	 * via park_paid_booking_for_review(). `$skipped` is now reserved for
-	 * the genuinely nothing-to-do cases: no candidate order ids at all, or
+	 * Task 14b item 5: a booking with AT LEAST ONE paid candidate order --
+	 * not only when every candidate is paid; fix round 1 F3 closed exactly
+	 * the mixed deposit-plus-remaining pair, one paid and one not -- is no
+	 * longer just $skipped -- it is parked in needs_review and a human is
+	 * notified, the same K6 guard cancel_booking_with_orders() uses, via
+	 * park_paid_booking_for_review(). `$skipped` still covers the
+	 * genuinely nothing-to-do cases (no candidate order ids at all, or
 	 * every candidate already in a settled status this backfill has no
-	 * reason to touch.
+	 * reason to touch), but ALSO a paid-order booking whose park attempt
+	 * itself was refused (RefundLock held, or the status matrix refused
+	 * NEEDS_REVIEW) -- park_paid_booking_for_review() returning false falls
+	 * through to $skipped below, indistinguishable in this counter from the
+	 * benign cases.
 	 *
 	 * @return array{checked: int, cancelled: int, skipped: int, parked: int}
 	 */
@@ -829,16 +845,33 @@ final class AutoCancel {
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
 			'meta_query'     => array(
-				'relation' => 'OR',
+				'relation' => 'AND',
 				array(
-					'key'     => '_mhmrentiva_status',
-					'value'   => 'cancelled',
-					'compare' => '=',
+					'relation' => 'OR',
+					array(
+						'key'     => '_mhmrentiva_status',
+						'value'   => 'cancelled',
+						'compare' => '=',
+					),
+					array(
+						'key'     => '_mhmrentiva_auto_cancelled',
+						'compare' => 'EXISTS',
+					),
 				),
-				array(
-					'key'     => '_mhmrentiva_auto_cancelled',
-					'compare' => 'EXISTS',
-				),
+				// Minor 3 (Task 16): a booking whose refund_status is already
+				// needs_review or terminal is a human's or a closed flow's own
+				// decision, not this backfill's to revisit -- same barrier
+				// sync_stale_past_bookings() uses (not_parked_for_review()'s own
+				// docblock). Before this clause, re-running the backfill against
+				// an already-parked booking called park_paid_booking_for_review()
+				// again, RefundStatus::transition() refused the NEEDS_REVIEW ->
+				// NEEDS_REVIEW self-edge the matrix has no key for, and that
+				// refusal logged an ERROR every single run -- a stable steady
+				// state that read as a fresh failure forever. Excluded set
+				// measured and pinned by
+				// AutoCancelSweepSelectionTest::test_a_booking_already_parked_is_not_reselected_by_sync_orphan_wc_orders()
+				// and its terminal-state sibling.
+				self::not_parked_for_review(),
 			),
 		));
 

@@ -39,7 +39,12 @@ use WP_UnitTestCase;
  * needs_review via review_dismiss() -- which used to fall straight back into
  * an ordinary unpaid-and-past-deadline selection the moment it left
  * `needs_review`, silently, for the reason not_parked_for_review()'s own
- * docblock explains.
+ * docblock explains. Task 16 (slice 5) minor 3 gave sync_orphan_wc_orders()
+ * the same `needs_review`/terminal barrier: before it, that backfill had no
+ * refund_status filter at all, so a booking it had already parked in a prior
+ * run stayed selectable forever, and every re-run's park attempt hit the
+ * matrix's missing NEEDS_REVIEW -> NEEDS_REVIEW edge and logged an ERROR --
+ * a steady state that read as a fresh failure on every single invocation.
  *
  * Every one of those is satisfied by a sweep that selects nothing at all, so
  * the positive controls are not optional decoration: a genuinely unpaid
@@ -608,6 +613,86 @@ final class AutoCancelSweepSelectionTest extends WP_UnitTestCase
             RefundStatus::NEEDS_REVIEW,
             RefundStatus::get( $booking_id ),
             'The second witness: parking is only real if it actually moved the booking\'s refund_status.'
+        );
+    }
+
+    /**
+     * Task 16 minor 3: nothing in sync_orphan_wc_orders()'s own query used to
+     * filter on refund_status, so a booking this backfill had already parked
+     * in a prior run stayed selectable on every later run too. Re-selecting
+     * it called park_paid_booking_for_review() again, which found the matrix
+     * has no NEEDS_REVIEW -> NEEDS_REVIEW edge (RefundStatus::transition()
+     * refused, matrix() above), and that refusal logs an ERROR -- a stable
+     * steady state that read as a fresh failure on every single invocation,
+     * for a booking a human already owns. The fix reuses
+     * not_parked_for_review(), the same barrier sync_stale_past_bookings()
+     * already applies, rather than inventing a second query shape.
+     */
+    public function test_a_booking_already_parked_is_not_reselected_by_sync_orphan_wc_orders(): void
+    {
+        $booking_id = (int) self::factory()->post->create( array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ) );
+        update_post_meta( $booking_id, '_mhmrentiva_status', 'cancelled' );
+
+        $order = $this->create_paid_order_for_booking( $booking_id, '450' );
+
+        $this->park_for_review( $booking_id );
+
+        $result = AutoCancel::sync_orphan_wc_orders();
+
+        $this->assertSame(
+            0,
+            $result['checked'],
+            'A booking already parked for human review is not a candidate for this backfill either -- it must'
+                . ' not even be selected.'
+        );
+        $this->assertFalse(
+            $this->log_exists( "current refund_status is 'needs_review'" ),
+            'This entry only gets written if the backfill re-selected the booking and tried to park it again.'
+        );
+        $this->assertSame( RefundStatus::NEEDS_REVIEW, RefundStatus::get( $booking_id ) );
+        $this->assertSame(
+            'processing',
+            wc_get_order( $order->get_id() )->get_status(),
+            'No unattended path may move money.'
+        );
+    }
+
+    /**
+     * The terminal-state sibling of the test above, driven off
+     * RefundStatus::terminalStates() itself for the same reason
+     * test_a_terminal_refund_status_past_pickup_is_not_swept() is: this test
+     * grows with the matrix instead of silently missing a status the day a
+     * new terminal one is added.
+     *
+     * @dataProvider provide_every_terminal_refund_status
+     */
+    public function test_a_terminal_refund_status_is_not_reselected_by_sync_orphan_wc_orders( string $terminal_status ): void
+    {
+        $booking_id = (int) self::factory()->post->create( array(
+            'post_type'   => 'mhmrentiva_booking',
+            'post_status' => 'publish',
+        ) );
+        update_post_meta( $booking_id, '_mhmrentiva_status', 'cancelled' );
+        update_post_meta( $booking_id, RefundStatus::META_KEY, $terminal_status );
+
+        $order = $this->create_paid_order_for_booking( $booking_id, '450' );
+
+        $result = AutoCancel::sync_orphan_wc_orders();
+
+        $this->assertSame(
+            0,
+            $result['checked'],
+            "A booking whose refund_status is already terminal ({$terminal_status}) must not be selected by"
+                . ' this backfill either.'
+        );
+        $this->assertSame( $terminal_status, RefundStatus::get( $booking_id ) );
+        $this->assertSame(
+            'processing',
+            wc_get_order( $order->get_id() )->get_status(),
+            'No unattended path may move money.'
         );
     }
 
