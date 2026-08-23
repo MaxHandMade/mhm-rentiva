@@ -73,12 +73,6 @@ parameters:
 			path: src/Admin/Booking/Actions/BookingApproveAjax.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 26
-			path: src/Admin/Booking/Actions/DepositManagementAjax.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2

@@ -69,7 +69,6 @@ final class DepositManagementAjax {
 		// rejection payload so behaviour is identical either way.
 		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return 0;
 		}
 
 		return $booking_id;
@@ -100,13 +99,11 @@ final class DepositManagementAjax {
 		$payment_type = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
 		if ( $payment_type !== 'deposit' ) {
 			wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
 		if ( $remaining_amount <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		// Reset remaining amount
@@ -152,19 +149,16 @@ final class DepositManagementAjax {
 		$payment_type = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
 		if ( $payment_type !== 'deposit' ) {
 			wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
 		if ( $remaining_amount <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		$order = RemainingPaymentHandler::get_or_create_remaining_order( $booking_id );
 		if ( is_wp_error( $order ) ) {
 			wp_send_json_error( array( 'message' => $order->get_error_message() ) );
-			return;
 		}
 
 		$payment_url = $order->get_checkout_payment_url();
@@ -222,7 +216,6 @@ final class DepositManagementAjax {
 		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 		if ( ! in_array( $payment_status, array( 'pending', 'unpaid', 'pending_verification', '' ), true ) ) {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting payment.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		// Update payment status to confirmed
@@ -260,7 +253,6 @@ final class DepositManagementAjax {
 		$current_status = Status::get( $booking_id );
 		if ( ! in_array( $current_status, array( 'pending', 'confirmed' ), true ) ) {
 			wp_send_json_error( array( 'message' => __( 'This booking cannot be cancelled.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		// One entry point for both cancellation surfaces (spec §5.3, decision
@@ -271,7 +263,6 @@ final class DepositManagementAjax {
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
-			return;
 		}
 
 		// Add log
@@ -300,7 +291,6 @@ final class DepositManagementAjax {
 					'message' => __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ),
 				)
 			);
-			return;
 		}
 
 		wp_send_json_success(
@@ -333,7 +323,6 @@ final class DepositManagementAjax {
 				: __( 'This booking has no refundable balance left.', 'mhm-rentiva' );
 
 			wp_send_json_error( array( 'message' => $message ) );
-			return;
 		}
 
 		// The refund amount IS the refundable balance. It used to be computed
@@ -378,7 +367,6 @@ final class DepositManagementAjax {
 					'message' => __( 'Refund not processed due to cancellation policy.', 'mhm-rentiva' ),
 				)
 			);
-			return;
 		}
 
 		// Hand the actual refund to the refund service.
@@ -428,7 +416,6 @@ final class DepositManagementAjax {
 					'message' => '' !== $message ? $message : __( 'Refund failed.', 'mhm-rentiva' ),
 				)
 			);
-			return;
 		}
 
 		// The service has written payment status, refunded amount and the gateway
@@ -508,7 +495,6 @@ final class DepositManagementAjax {
 		// Moving no money, but attesting that money moved -- the same bar.
 		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, $actor, 'manual_close' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		$req       = VerifiedRequest::from( $_POST );
@@ -530,7 +516,6 @@ final class DepositManagementAjax {
 				(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
 			);
 			wp_send_json_error( array( 'message' => $lock_held_message ) );
-			return;
 		}
 
 		$moved = false;
@@ -583,7 +568,6 @@ final class DepositManagementAjax {
 
 		if ( ! $moved ) {
 			wp_send_json_error( array( 'message' => __( 'This refund is not awaiting a hand transfer.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		wp_send_json_success( array( 'message' => __( 'Hand transfer recorded.', 'mhm-rentiva' ) ) );
@@ -622,19 +606,16 @@ final class DepositManagementAjax {
 
 		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, $actor, 'review_action' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		if ( RefundStatus::NEEDS_REVIEW !== RefundStatus::get( $booking_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting review.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		$result = CancellationHandler::cancel_booking( $booking_id, $actor, '', true );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
-			return;
 		}
 
 		self::add_booking_log(
@@ -687,12 +668,10 @@ final class DepositManagementAjax {
 		// endpoint claiming "the refund started" for a refund that never did.
 		if ( ! empty( $result['problems'] ) || RefundStatus::FAILED === $refund_status_after_delegation ) {
 			wp_send_json_success( array( 'message' => __( 'Booking cancelled, but the refund could not be completed. See the refund status on this screen.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		if ( RefundStatus::NEEDS_REVIEW === $refund_status_after_delegation ) {
 			wp_send_json_success( array( 'message' => __( 'Booking cancelled. No refund was found to process, so the review is still open.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		wp_send_json_success( array( 'message' => __( 'Booking cancelled and the refund started.', 'mhm-rentiva' ) ) );
@@ -747,7 +726,6 @@ final class DepositManagementAjax {
 		// bar review_cancel_and_refund() and close_manual_refund() use.
 		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, $actor, 'review_action' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		// Fix round 1, F4: trim() BEFORE the length cap. Capping first could
@@ -763,7 +741,6 @@ final class DepositManagementAjax {
 
 		if ( '' === $reason ) {
 			wp_send_json_error( array( 'message' => __( 'Say why no refund is due. This closes a money obligation and the reason is the record of it.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		$reason = mb_substr( $reason, 0, self::REFERENCE_MAX_LENGTH );
@@ -784,7 +761,6 @@ final class DepositManagementAjax {
 				(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
 			);
 			wp_send_json_error( array( 'message' => $lock_held_message ) );
-			return;
 		}
 
 		$in_review = false;
@@ -831,7 +807,6 @@ final class DepositManagementAjax {
 
 		if ( ! $in_review ) {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting review.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		if ( ! $moved ) {
@@ -843,7 +818,6 @@ final class DepositManagementAjax {
 			// this endpoint cannot name (a lost lock, a stale read); it must
 			// not be described as "not awaiting review" when it just was.
 			wp_send_json_error( array( 'message' => __( 'Could not record this decision. Please refresh the page and try again.', 'mhm-rentiva' ) ) );
-			return;
 		}
 
 		wp_send_json_success( array( 'message' => __( 'Recorded: no refund is due.', 'mhm-rentiva' ) ) );
