@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2026-08-20T08:04:37+00:00\n"
-"PO-Revision-Date: 2026-08-10 12:55+0000\n"
+"PO-Revision-Date: 2026-08-23 16:10+0000\n"
 "Language: tr_TR\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Domain: mhm-rentiva\n"
@@ -8237,7 +8237,7 @@ msgstr "Tümünü Gör URL'si"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:215
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:159
 msgid "https://your-site.com/vehicles/"
-msgstr "https://siteniz.com/araclar/"
+msgstr "https://your-site.com/vehicles/"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:222
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:166
@@ -10398,7 +10398,7 @@ msgstr "Araç detay sayfaları için kullanılan URL bölümü. Varsayılan: veh
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:95
 msgid "vehicle"
-msgstr "Araç"
+msgstr "vehicle"
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:101
 msgid "Vehicle Pricing Settings"
