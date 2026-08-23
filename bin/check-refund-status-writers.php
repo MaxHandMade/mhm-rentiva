@@ -21,6 +21,23 @@
  * (the key and the value are several arguments apart), so a per-line pattern
  * would miss exactly the writers this gate exists to catch.
  *
+ * Whole-branch review, F4: measured against five spellings of "write this key
+ * outside RefundStatus::transition()", the pattern used to catch only one --
+ * the bare string literal passed straight to update_post_meta(). It missed:
+ * RefundStatus::META_KEY (already the live idiom at three sites in src/, and
+ * so the likeliest spelling a future back door would use), a local variable
+ * the file itself assigned the key's own spelling to one statement earlier,
+ * add_post_meta(), and delete_post_meta() (a terminality bypass: deleting the
+ * key resets get_post_meta()'s (string) cast to '', whose matrix row has
+ * outgoing edges). The call pattern below now covers the first two write
+ * functions and both key spellings; the second pass (over $assign_pattern)
+ * covers the variable case, which no single-statement alternation can see
+ * across a `;` -- it finds the assignment first, then looks for THAT
+ * variable name (and no other) used as a *_post_meta() call's key argument,
+ * so an unrelated $meta_key variable elsewhere in src/ is not flagged.
+ * tests/Gates/RefundStatusSingleWriterTest.php carries a fixture per
+ * newly-covered spelling, proving each is actually caught.
+ *
  * Exit codes: 0 = clean, 1 = a direct writer found (or the scan root is missing).
  *
  * @package MHM_Rentiva
@@ -36,6 +53,9 @@ if (! is_dir($root)) {
 }
 
 $base = str_replace('\\', '/', dirname(__DIR__)) . '/';
+
+$call_pattern   = '/(?:update|add|delete)_post_meta\s*\(\s*[^;]{0,200}?(?:_mhmrentiva_refund_status|RefundStatus::META_KEY)/s';
+$assign_pattern = '/\$([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?:\'_mhmrentiva_refund_status\'|"_mhmrentiva_refund_status"|RefundStatus::META_KEY)\s*;/';
 
 $offenders = [];
 $iterator  = new RecursiveIteratorIterator(
@@ -56,16 +76,40 @@ foreach ($iterator as $file) {
         continue;
     }
 
-    if (preg_match_all('/update_post_meta\s*\(\s*[^;]{0,200}?_mhmrentiva_refund_status/s', $contents, $matches, PREG_OFFSET_CAPTURE)) {
-        $relative = str_replace('\\', '/', $file->getPathname());
-        if (strpos($relative, $base) === 0) {
-            $relative = substr($relative, strlen($base));
-        }
+    $relative = str_replace('\\', '/', $file->getPathname());
+    if (strpos($relative, $base) === 0) {
+        $relative = substr($relative, strlen($base));
+    }
 
+    $lines = [];
+
+    if (preg_match_all($call_pattern, $contents, $matches, PREG_OFFSET_CAPTURE)) {
         foreach ($matches[0] as $match) {
-            $line        = substr_count($contents, "\n", 0, $match[1]) + 1;
-            $offenders[] = $relative . ':' . $line;
+            $lines[] = substr_count($contents, "\n", 0, $match[1]) + 1;
         }
+    }
+
+    // Second pass: a variable the file itself assigned the key's own
+    // spelling to one statement earlier. The call pattern above cannot see
+    // across the `;` that ends that assignment no matter how its
+    // alternation is widened, so this traces the assignment first and then
+    // looks for that exact variable name used as a *_post_meta() key
+    // argument -- narrow on purpose, so an unrelated $meta_key variable
+    // elsewhere in src/ is not flagged.
+    if (preg_match_all($assign_pattern, $contents, $assign_matches)) {
+        foreach (array_unique($assign_matches[1]) as $var_name) {
+            $var_pattern = '/(?:update|add|delete)_post_meta\s*\(\s*[^;]{0,200}?\$' . preg_quote($var_name, '/') . '\b/s';
+
+            if (preg_match_all($var_pattern, $contents, $var_matches, PREG_OFFSET_CAPTURE)) {
+                foreach ($var_matches[0] as $match) {
+                    $lines[] = substr_count($contents, "\n", 0, $match[1]) + 1;
+                }
+            }
+        }
+    }
+
+    foreach (array_unique($lines) as $line) {
+        $offenders[] = $relative . ':' . $line;
     }
 }
 
