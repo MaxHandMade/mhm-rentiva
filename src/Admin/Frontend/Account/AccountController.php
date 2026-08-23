@@ -1136,7 +1136,7 @@ final class AccountController {
 		$user_id = get_current_user_id();
 
 		// Use CancellationHandler to process cancellation
-		$result = CancellationHandler::cancel_booking($booking_id, $user_id, $reason, false);
+		$result = CancellationHandler::cancel_booking($booking_id, $user_id, $reason, false, false, 'customer_account');
 
 		if (is_wp_error($result)) {
 			wp_send_json_error(

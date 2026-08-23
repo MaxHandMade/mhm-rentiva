@@ -231,6 +231,113 @@ final class RefundStatusTransitionTest extends WP_UnitTestCase
      * own docblock claim ("The four terminal states ... are absent as
      * keys") rather than trusting the comment to stay true.
      */
+    /**
+     * Spec v3 section 3: the refund_status_changed context carries AT LEAST
+     * channel, surface and actor_id. Before this, thirteen call sites passed
+     * between one and two of them and none passed all three, so an integrator
+     * mirroring refund state could not read the contract the spec documents.
+     *
+     * transition() fills what the caller left out rather than refusing the
+     * write: the status is money state, the context is telemetry, and a
+     * missing telemetry key is no reason to leave money state unrecorded.
+     */
+    public function test_the_announced_context_always_carries_the_spec_triple(): void
+    {
+        $this->assertTrue( RefundLock::acquire( $this->booking_id ) );
+
+        $seen = null;
+        add_action(
+            'mhmrentiva_refund_status_changed',
+            static function ( $id, $new, $old, $context ) use ( &$seen ): void {
+                $seen = $context;
+            },
+            10,
+            4
+        );
+
+        $this->assertTrue( RefundStatus::transition( $this->booking_id, RefundStatus::PENDING ) );
+
+        $this->assertIsArray( $seen );
+        foreach ( array( 'channel', 'surface', 'actor_id' ) as $key ) {
+            $this->assertArrayHasKey(
+                $key,
+                $seen,
+                "Spec section 3 requires {$key} in every refund_status_changed context."
+            );
+        }
+        $this->assertSame( 'none', $seen['channel'], 'A transition that moved no money is channel "none".' );
+        $this->assertSame( get_current_user_id(), $seen['actor_id'] );
+    }
+
+    /**
+     * Spec v3 section 3 names five surfaces. Service.php passed
+     * "refunds_service", which is not one of them -- a value an integrator
+     * cannot switch on. transition() refuses to republish an out-of-set value
+     * and says so where someone will see it, rather than passing the caller's
+     * mistake through to every listener.
+     */
+    public function test_an_out_of_contract_surface_is_not_announced_verbatim(): void
+    {
+        $this->assertTrue( RefundLock::acquire( $this->booking_id ) );
+
+        $seen = null;
+        add_action(
+            'mhmrentiva_refund_status_changed',
+            static function ( $id, $new, $old, $context ) use ( &$seen ): void {
+                $seen = $context;
+            },
+            10,
+            4
+        );
+
+        $this->assertTrue(
+            RefundStatus::transition(
+                $this->booking_id,
+                RefundStatus::PENDING,
+                array( 'surface' => 'refunds_service' )
+            )
+        );
+
+        $this->assertNotSame( 'refunds_service', $seen['surface'] );
+        $this->assertContains(
+            $seen['surface'],
+            array( '', 'admin_deposit', 'customer_account', 'auto_cancel', 'manual_close', 'review_action' ),
+            'The announced surface must be one the spec names, or empty when the caller stated none.'
+        );
+    }
+
+    /**
+     * What the caller DOES state survives untouched -- normalisation fills
+     * gaps, it does not overwrite answers.
+     */
+    public function test_a_caller_that_states_the_triple_is_left_alone(): void
+    {
+        $this->assertTrue( RefundLock::acquire( $this->booking_id ) );
+
+        $seen = null;
+        add_action(
+            'mhmrentiva_refund_status_changed',
+            static function ( $id, $new, $old, $context ) use ( &$seen ): void {
+                $seen = $context;
+            },
+            10,
+            4
+        );
+
+        $this->assertTrue(
+            RefundStatus::transition(
+                $this->booking_id,
+                RefundStatus::PENDING,
+                array( 'channel' => 'manual', 'surface' => 'admin_deposit', 'actor_id' => 4242, 'reason' => 'kept' )
+            )
+        );
+
+        $this->assertSame( 'manual', $seen['channel'] );
+        $this->assertSame( 'admin_deposit', $seen['surface'] );
+        $this->assertSame( 4242, $seen['actor_id'] );
+        $this->assertSame( 'kept', $seen['reason'], 'Extra keys the caller adds must survive.' );
+    }
+
     public function test_terminal_states_are_derived_from_the_matrix_and_match_the_four_named_in_its_docblock(): void
     {
         $this->assertEqualsCanonicalizing(

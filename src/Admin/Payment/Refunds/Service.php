@@ -47,7 +47,7 @@ final class Service {
 		return isset( self::$inFlight[ $bookingId ] );
 	}
 
-	public static function process( int $bookingId, int $amountKurus, string $reason, int $actorId ): array {
+	public static function process( int $bookingId, int $amountKurus, string $reason, int $actorId, string $surface = '' ): array {
 		// First statement, on purpose (spec §5): every caller of this method
 		// inherits the gate whether it remembers to ask or not. Before this
 		// task the question lived at each call site instead, and one of them
@@ -78,7 +78,7 @@ final class Service {
 
 		return self::withLock(
 			$bookingId,
-			static function () use ( $bookingId, $amountKurus, $reason ): array {
+			static function () use ( $bookingId, $amountKurus, $reason, $surface ): array {
 				// The flag goes up before validation, not after. Validation resolves a
 				// PaymentState and touches WooCommerce objects, so it is part of the
 				// operation this booking owns; a throw there has to unwind the flag
@@ -90,7 +90,7 @@ final class Service {
 					$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
 
 					if ( ! $validation['valid'] ) {
-						self::closeRefusedByValidator( $bookingId, $validation['message'] );
+						self::closeRefusedByValidator( $bookingId, $validation['message'], $surface );
 
 						return array(
 							'mhmrentiva_refund'     => '0',
@@ -98,17 +98,18 @@ final class Service {
 						);
 					}
 
-					$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
+					$operation = self::runOperation( $bookingId, $validation['amount'], $reason, $surface );
 				} finally {
 					unset( self::$inFlight[ $bookingId ] );
 				}
 
-				return self::finish( $bookingId, $operation, $reason );
-			}
+				return self::finish( $bookingId, $operation, $reason, $surface );
+			},
+			$surface
 		);
 	}
 
-	public static function processFullRefund( int $bookingId, string $reason, int $actorId ): array {
+	public static function processFullRefund( int $bookingId, string $reason, int $actorId, string $surface = '' ): array {
 		// See process() above -- the same gate, the same reason it is the
 		// first statement, the same 'service' surface, and the same
 		// two-ask-sequence note.
@@ -123,14 +124,14 @@ final class Service {
 
 		return self::withLock(
 			$bookingId,
-			static function () use ( $bookingId, $reason ): array {
+			static function () use ( $bookingId, $reason, $surface ): array {
 				self::$inFlight[ $bookingId ] = true;
 
 				try {
 					$validation = RefundValidator::validateFullRefund( $bookingId );
 
 					if ( ! $validation['valid'] ) {
-						self::closeRefusedByValidator( $bookingId, $validation['message'] );
+						self::closeRefusedByValidator( $bookingId, $validation['message'], $surface );
 
 						return array(
 							'mhmrentiva_refund'     => '0',
@@ -138,13 +139,14 @@ final class Service {
 						);
 					}
 
-					$operation = self::runOperation( $bookingId, $validation['amount'], $reason );
+					$operation = self::runOperation( $bookingId, $validation['amount'], $reason, $surface );
 				} finally {
 					unset( self::$inFlight[ $bookingId ] );
 				}
 
-				return self::finish( $bookingId, $operation, $reason );
-			}
+				return self::finish( $bookingId, $operation, $reason, $surface );
+			},
+			$surface
 		);
 	}
 
@@ -179,7 +181,7 @@ final class Service {
 	 * @param callable(): array{mhmrentiva_refund: string, mhmrentiva_refund_msg: string} $operation
 	 * @return array{mhmrentiva_refund: string, mhmrentiva_refund_msg: string}
 	 */
-	private static function withLock( int $bookingId, callable $operation ): array {
+	private static function withLock( int $bookingId, callable $operation, string $surface = '' ): array {
 		if ( ! RefundLock::acquire( $bookingId ) ) {
 			// Task 14b item 2: was "another refund is already running",
 			// stated as fact. RefundLock::acquire() cannot tell that apart
@@ -221,7 +223,7 @@ final class Service {
 		// without it, a direct caller's terminal write would be silently refused
 		// by the matrix and the booking would carry no record at all of what its
 		// own refund operation just did.
-		RefundStatus::transition( $bookingId, RefundStatus::PENDING, array( 'surface' => 'refunds_service' ) );
+		RefundStatus::transition( $bookingId, RefundStatus::PENDING, array( 'surface' => $surface ) );
 
 		try {
 			return $operation();
@@ -247,12 +249,12 @@ final class Service {
 	 * refusal's own words are: a caller that only sees a false return cannot
 	 * say why the refund was refused.
 	 */
-	private static function closeRefusedByValidator( int $bookingId, string $message ): void {
+	private static function closeRefusedByValidator( int $bookingId, string $message, string $surface = '' ): void {
 		$recorded = RefundStatus::transition(
 			$bookingId,
 			RefundStatus::FAILED,
 			array(
-				'surface' => 'refunds_service',
+				'surface' => $surface,
 				'reason'  => 'validator_refused',
 			)
 		);
@@ -293,7 +295,7 @@ final class Service {
 	 *
 	 * @return array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>}
 	 */
-	private static function runOperation( int $bookingId, int $amountKurus, string $reason ): array {
+	private static function runOperation( int $bookingId, int $amountKurus, string $reason, string $surface = '' ): array {
 		$state   = PaymentState::forBooking( $bookingId );
 		$orders  = $state->orders();
 		$channel = array() === $orders
@@ -434,7 +436,7 @@ final class Service {
 	 *
 	 * @param array{ok: bool, refunded: int, auto_refunded: int, manual_refunded: int, mode: string, txn_ids: array<int, string>, channel: string, message: string, order_refunds: array<int, string>} $operation
 	 */
-	private static function finish( int $bookingId, array $operation, string $reason ): array {
+	private static function finish( int $bookingId, array $operation, string $reason, string $surface = '' ): array {
 		Logger::add(
 			array(
 				'gateway'      => $operation['channel'],
@@ -501,7 +503,10 @@ final class Service {
 			$transitioned = RefundStatus::transition(
 				$bookingId,
 				$refundStatus,
-				array( 'channel' => $operation['channel'] )
+				array(
+					'channel' => $operation['channel'],
+					'surface' => $surface,
+				)
 			);
 
 			self::announceCompletion(

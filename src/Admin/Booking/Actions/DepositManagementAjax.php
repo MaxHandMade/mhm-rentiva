@@ -274,7 +274,7 @@ final class DepositManagementAjax {
 		// 4). $force is true because the deadline in CancellationHandler is the
 		// CUSTOMER's cancellation policy; the operator's own button must not
 		// inherit it -- this screen never applied it before.
-		$result = CancellationHandler::cancel_booking( $booking_id, get_current_user_id(), '', true );
+		$result = CancellationHandler::cancel_booking( $booking_id, get_current_user_id(), '', true, false, 'admin_deposit' );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
@@ -405,7 +405,8 @@ final class DepositManagementAjax {
 			$booking_id,
 			$refund_amount,
 			__( 'Refund issued from the deposit management screen.', 'mhm-rentiva' ),
-			get_current_user_id()
+			get_current_user_id(),
+			'admin_deposit'
 		);
 
 		// The log's `refund_amount` key is shared with WooCommerceBridge, which
@@ -627,7 +628,7 @@ final class DepositManagementAjax {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting review.', 'mhm-rentiva' ) ) );
 		}
 
-		$result = CancellationHandler::cancel_booking( $booking_id, $actor, '', true );
+		$result = CancellationHandler::cancel_booking( $booking_id, $actor, '', true, false, 'review_action' );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );

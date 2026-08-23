@@ -974,7 +974,7 @@ final class AutoCancel {
 				// booking's OTHER candidate orders regardless of this check.
 				if (in_array(RefundStatus::get($bid), self::parked_refund_statuses(), true)) {
 					++$skipped;
-				} elseif (self::park_paid_booking_for_review($bid, 'sync_orphan_wc_orders')) {
+				} elseif (self::park_paid_booking_for_review($bid, 'auto_cancel')) {
 					// Task 14b item 5 (T5-R4): this used to fall straight into
 					// $skipped with nothing an operator could see -- K6 was
 					// upheld (no money moved) but the asymmetry with

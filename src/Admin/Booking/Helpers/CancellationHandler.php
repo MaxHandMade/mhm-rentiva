@@ -96,7 +96,7 @@ final class CancellationHandler {
 	 *               either way. Removed before anything could depend on it;
 	 *               $refund is still used internally to build 'problems'.
 	 */
-	public static function cancel_booking( int $booking_id, int $user_id = 0, string $reason = '', bool $force = false, bool $system = false ) {
+	public static function cancel_booking( int $booking_id, int $user_id = 0, string $reason = '', bool $force = false, bool $system = false, string $surface = '' ) {
 		global $wpdb;
 
 		// Validate booking exists
@@ -296,7 +296,7 @@ final class CancellationHandler {
 			// carried past this point: it is attribution information about
 			// cancel_booking() itself, not a bypass the money step accepts --
 			// see process_refund() and MoneyAuthorization.
-			$refund = self::process_refund( $booking_id, $user_id, $reason );
+			$refund = self::process_refund( $booking_id, $user_id, $reason, $surface );
 
 			// Fix round 2, G1: a non-null return is a refusal
 			// process_refund() could not even start (correction #7) --
@@ -735,7 +735,7 @@ final class CancellationHandler {
 	 *                      mhmrentiva_booking_cancelled, which a throw here
 	 *                      used to skip.
 	 */
-	private static function process_refund( int $booking_id, int $user_id, string $reason = '' ): ?string {
+	private static function process_refund( int $booking_id, int $user_id, string $reason = '', string $surface = '' ): ?string {
 		if ( ! \MHMRentiva\Admin\Payment\Core\MoneyAuthorization::mayMoveMoney( $booking_id, $user_id, 'refund' ) ) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::add(
 				array(
@@ -785,11 +785,13 @@ final class CancellationHandler {
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_at', current_time( 'mysql' ) );
 		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_by', $user_id );
 
-		// cancel_booking() carries no "surface" concept today (no such
-		// parameter exists on it or on this method), so a literal names the
-		// one caller of settle_refund() rather than growing a parameter chain
-		// this slice does not otherwise need.
-		return self::settle_refund( $booking_id, $reason, $user_id, $payment_gateway, 'cancellation_handler' );
+		// The surface travels from whoever asked for the cancellation, because
+		// only they know it: spec v3 section 3 names five surfaces and they
+		// describe where the ACTION came from, not which layer is executing it.
+		// This used to pass the literal 'cancellation_handler' -- a layer name,
+		// not one of the five -- which reached every refund_status_changed
+		// listener as a value the contract does not define (I-2).
+		return self::settle_refund( $booking_id, $reason, $user_id, $payment_gateway, $surface );
 	}
 
 	/**
@@ -1130,7 +1132,7 @@ final class CancellationHandler {
 				return null;
 			}
 
-			$result  = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason, $user_id );
+			$result  = \MHMRentiva\Admin\Payment\Refunds\Service::processFullRefund( $booking_id, $reason, $user_id, $surface );
 			$success = '1' === ( $result['mhmrentiva_refund'] ?? '0' );
 
 			// processFullRefund() returns early -- before finish() -- when
