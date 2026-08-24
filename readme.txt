@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.7
+Stable tag:        6.1.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
