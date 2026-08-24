@@ -1,17 +1,10 @@
 name: Testing
 
-# wporg-t7 is listed alongside the default branches on purpose. It is the
-# line every WordPress.org submission has been cut from since 6.0.0, and it
-# has never triggered this workflow once: `on:` named only main/master, so a
-# push here ran nothing and the only green anyone could point at came from
-# the open PR into main. "I pushed it, so it is green" has been false in this
-# repo for the whole 6.0.x series. It stops being false here, and comes off
-# again when wporg-t7 merges into main.
 on:
   pull_request:
-    branches: [ main, master, wporg-t7 ]
+    branches: [ main, master ]
   push:
-    branches: [ main, master, wporg-t7 ]
+    branches: [ main, master ]
 
 concurrency:
   group: testing-${{ github.workflow }}-${{ github.ref }}
