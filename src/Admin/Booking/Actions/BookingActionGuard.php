@@ -36,6 +36,37 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
  *
  * Returns the booking id (a genuine positive int) once every step passes,
  * or 0 after already sending the JSON error response.
+ *
+ * ---
+ *
+ * On the nonce action NOT naming the booking (Slice 5, Minor debt M2 --
+ * reviewed, and deliberately left as it is).
+ *
+ * All eight money endpoints in DepositManagementAjax share one action string,
+ * so a nonce minted on booking A's meta box verifies on booking B. That is a
+ * real property of this design and it is worth being explicit about why it is
+ * accepted rather than quietly true.
+ *
+ * What it does NOT allow: acting on a booking the caller cannot edit. Step 4
+ * above is current_user_can( 'edit_post', $booking_id ) against the booking the
+ * REQUEST names, not the one the nonce was minted for -- so the object check is
+ * already object-scoped even though the nonce is not. The residual exposure is
+ * therefore narrow: a CSRF against someone who can already edit BOTH bookings,
+ * using a token their own browser holds.
+ *
+ * What binding it would cost: the action string would have to be built from a
+ * booking id read out of $_POST BEFORE the nonce check, and the three minting
+ * sites (BookingDepositMetaBox's AJAX payload and its wp_nonce_field, plus
+ * BookingRefundMetaBox, which reuses this action) would have to move in the
+ * same commit as all eight verifiers. Any admin screen still open at that
+ * moment sends the old action and every money endpoint rejects it with
+ * "Security check failed" -- a self-inflicted outage on the refund path, in
+ * exchange for depth against an attacker who by construction already holds
+ * edit rights on both objects.
+ *
+ * If this is revisited, revisit it together with per-endpoint actions: eight
+ * handlers sharing one token is the more interesting half of the finding, and
+ * splitting those does not require reading the request body before the nonce.
  */
 final class BookingActionGuard {
 

@@ -1072,6 +1072,13 @@ final class AccountController {
 		// Nonce check
 		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['comm_prefs_nonce'] ?? '')), 'update_comm_preferences')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+			// PHPStan calls this unreachable and it is right today: wp_die()
+			// does not return. It stays as the guard for the day this handler
+			// moves behind a wrapper, or a test/CLI wp_die handler is installed
+			// that DOES return -- the wp_send_json_* fall-through class the
+			// tree already carries 160 members of. The cost is one dead line;
+			// the cost of removing it is a nonce failure that keeps going.
+			// Carried in phpstan-baseline.neon as deadCode.unreachable, count 2.
 			return;
 		}
 
@@ -1168,6 +1175,12 @@ final class AccountController {
 					'booking_id' => $booking_id,
 				)
 			);
+			// Slice 5 added this line, and with it the baseline's silent 1 -> 2.
+			// Same reasoning as the wp_die() guard in
+			// handle_communication_preferences(): wp_send_json_success() ends
+			// the request today, so PHPStan is correct that nothing follows --
+			// but this return is what stops the success payload below from ALSO
+			// being sent the day this code sits behind a wrapper that returns.
 			return;
 		}
 
