@@ -2,7 +2,7 @@
 Contributors:     maxhandmade
 Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
-Tested up to:      7.0
+Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
 Stable tag:        6.1.0

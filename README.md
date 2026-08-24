@@ -709,7 +709,7 @@ mhm-rentiva/
 ## Requirements
 
 ### WordPress & PHP
-- **WordPress**: 6.7 minimum (Tested up to 7.0)
+- **WordPress**: 6.7 minimum (Tested up to 7.1)
 - **PHP**: 8.1 minimum (8.2+ recommended)
 - **Memory Limit**: 128MB minimum (256MB recommended)
 

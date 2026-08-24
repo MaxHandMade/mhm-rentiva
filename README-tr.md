@@ -527,7 +527,7 @@ mhm-rentiva/
 
 ### WordPress & PHP
 - **Minimum WordPress**: 6.7
-- **Test Edilen**: 7.0
+- **Test Edilen**: 7.1
 - **Minimum PHP**: 8.1 (Önerilen: 8.2+)
 - **Bellek Limiti**: Minimum 128MB (256MB önerilir)
 
