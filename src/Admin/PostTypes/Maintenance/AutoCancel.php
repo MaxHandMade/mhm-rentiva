@@ -187,10 +187,7 @@ final class AutoCancel {
 			return;
 		}
 
-		// Use direct cron array manipulation to avoid WordPress's schedule validation
-		// This bypasses the invalid_schedule error that occurs when wp_schedule_event()
-		// checks the schedule before the filter is applied
-		self::direct_schedule_event();
+		self::schedule_event();
 	}
 
 	public static function run(): void
@@ -1134,10 +1131,30 @@ final class AutoCancel {
 	}
 
 	/**
-	 * Direct schedule event - bypasses wp_schedule_event's schedule validation
-	 * This method directly manipulates the cron array to avoid the invalid_schedule error
+	 * Schedule the recurring sweep through WordPress.
+	 *
+	 * This used to build the cron array by hand and save it with
+	 * _set_cron_array(), on the stated grounds that it "bypasses
+	 * wp_schedule_event's schedule validation ... to avoid the invalid_schedule
+	 * error". That reason does not survive reading the caller: maybe_schedule()
+	 * registers the cron_schedules filter and then asserts self::SCHEDULE is
+	 * present in wp_get_schedules() -- twice -- before reaching here.
+	 * wp_schedule_event() validates against that same wp_get_schedules(), so
+	 * the check being avoided would have passed.
+	 *
+	 * What the bypass actually cost: wp_schedule_event() fires
+	 * 'pre_schedule_event' and 'schedule_event' (wp-includes/cron.php:287,305)
+	 * and a direct _set_cron_array() fires neither. Installs that replace cron
+	 * storage or dispatch by short-circuiting 'pre_schedule_event' -- Cavalcade
+	 * and the external-runner family -- were therefore never told this event
+	 * exists. It went into a `cron` option they do not read, and the deadline
+	 * sweep simply never ran there.
+	 *
+	 * wp_schedule_event() also clears nothing, so the unschedule below keeps
+	 * the old hand-rolled behaviour of replacing any existing registration
+	 * rather than stacking a second one.
 	 */
-	private static function direct_schedule_event(): void
+	private static function schedule_event(): void
 	{
 		// Ensure schedule filter is applied
 		add_filter('cron_schedules', array( self::class, 'schedules' ), 1);
@@ -1148,52 +1165,31 @@ final class AutoCancel {
 			return;
 		}
 
-		// Get cron array
-		$cron = _get_cron_array();
-		if ($cron === false) {
-			$cron = array();
-		}
+		// Same replace-don't-stack semantics the hand-rolled version had, now
+		// through the API so an intercepting host sees the removal too.
+		wp_clear_scheduled_hook(self::EVENT);
 
-		// Remove any existing events for this hook
-		foreach ($cron as $timestamp => $cronhooks) {
-			if (isset($cronhooks[ self::EVENT ])) {
-				unset($cron[ $timestamp ][ self::EVENT ]);
-				// Clean up empty timestamps
-				if (empty($cron[ $timestamp ])) {
-					unset($cron[ $timestamp ]);
-				}
-			}
-		}
+		// $wp_error: the old path could only report failure by re-reading the
+		// cron array afterwards, which tells you THAT it failed and never why.
+		$scheduled = wp_schedule_event(time() + 300, self::SCHEDULE, self::EVENT, array(), true);
 
-		// Calculate next run time (5 minutes from now)
-		$next_run = time() + 300;
-
-		// Add to cron array with proper structure
-		$cron[ $next_run ][ self::EVENT ][ md5(serialize(array())) ] = array(
-			'schedule' => self::SCHEDULE,
-			'args'     => array(),
-		);
-
-		// Sort by timestamp
-		ksort($cron);
-
-		// Save cron array
-		_set_cron_array($cron);
-
-		// Verify it was scheduled
-		$verify_next     = wp_next_scheduled(self::EVENT);
-		$verify_schedule = wp_get_schedule(self::EVENT);
-
-		if ($verify_next && $verify_schedule === self::SCHEDULE) {
-			AdvancedLogger::info('Successfully scheduled recurring event', array(
+		if (is_wp_error($scheduled)) {
+			AdvancedLogger::error('Scheduling the recurring event failed', array(
 				'schedule' => self::SCHEDULE,
-				'next_run' => wp_date('Y-m-d H:i:s', $verify_next),
+				'code'     => $scheduled->get_error_code(),
+				'message'  => $scheduled->get_error_message(),
 			));
-		} else {
-			AdvancedLogger::error('Direct schedule failed', array(
-				'next'     => $verify_next ? wp_date('Y-m-d H:i:s', $verify_next) : 'none',
-				'schedule' => $verify_schedule ?: 'none',
-			));
+			return;
 		}
+
+		$next = wp_next_scheduled(self::EVENT);
+
+		AdvancedLogger::info('Successfully scheduled recurring event', array(
+			'schedule' => self::SCHEDULE,
+			// A host that owns scheduling answers wp_next_scheduled() however it
+			// likes, including "nothing here" -- that is not a failure, so this
+			// reports what it saw instead of judging it.
+			'next_run' => $next ? wp_date('Y-m-d H:i:s', $next) : 'owned by an external scheduler',
+		));
 	}
 }

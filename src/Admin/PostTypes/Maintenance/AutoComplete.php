@@ -49,7 +49,7 @@ final class AutoComplete {
 			return;
 		}
 
-		self::direct_schedule_event();
+		self::schedule_event();
 	}
 
 	public static function run(): void
@@ -167,7 +167,17 @@ final class AutoComplete {
 		}
 	}
 
-	private static function direct_schedule_event(): void
+	/**
+	 * Schedule the recurring sweep through WordPress.
+	 *
+	 * Was a hand-built cron array saved with _set_cron_array(), for the same
+	 * reason and at the same cost as AutoCancel's -- see the long note on
+	 * AutoCancel::schedule_event(). Short version: wp_schedule_event() fires
+	 * 'pre_schedule_event' and 'schedule_event' (wp-includes/cron.php:287,305),
+	 * a direct write fires neither, and an install that owns cron scheduling
+	 * therefore never learned this sweep existed.
+	 */
+	private static function schedule_event(): void
 	{
 		$schedules = wp_get_schedules();
 
@@ -175,31 +185,14 @@ final class AutoComplete {
 			return;
 		}
 
-		$cron = _get_cron_array();
-		if ($cron === false) {
-			$cron = array();
-		}
+		// Replace, don't stack -- what the loop that used to unset this hook
+		// from every timestamp was for, now visible to an intercepting host.
+		wp_clear_scheduled_hook(self::EVENT);
 
-		foreach ($cron as $timestamp => $cronhooks) {
-			if (isset($cronhooks[ self::EVENT ])) {
-				unset($cron[ $timestamp ][ self::EVENT ]);
-				if (empty($cron[ $timestamp ])) {
-					unset($cron[ $timestamp ]);
-				}
-			}
-		}
-
-		$interval  = $schedules[ self::SCHEDULE ]['interval'];
-		$timestamp = time() + $interval;
-		$key       = md5(serialize(array()));
-
-		$cron[ $timestamp ][ self::EVENT ][ $key ] = array(
-			'schedule' => self::SCHEDULE,
-			'args'     => array(),
-			'interval' => $interval,
+		wp_schedule_event(
+			time() + (int) $schedules[ self::SCHEDULE ]['interval'],
+			self::SCHEDULE,
+			self::EVENT
 		);
-
-		ksort($cron);
-		_set_cron_array($cron);
 	}
 }
