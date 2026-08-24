@@ -367,7 +367,11 @@ final class EmailTemplates {
 				'payment'     => array(
 					'status'   => (string) get_post_meta($booking_id, '_mhmrentiva_payment_status', true),
 					'amount'   => $paymentState->paid(),
-					'currency' => (string) get_post_meta($booking_id, '_mhmrentiva_payment_currency', true) ?: 'TRY',
+					// Falls back to the STORE's currency, not a fixed 'TRY': a
+					// booking that never stored one is a booking priced in
+					// whatever this shop sells in.
+					'currency' => (string) get_post_meta($booking_id, '_mhmrentiva_payment_currency', true)
+						?: CurrencyHelper::get_currency_code(),
 				),
 				// Helper for direct access. NUMERIC on purpose: the display layer
 				// (Templates::compile / the email templates) formats it. This used
@@ -391,7 +395,9 @@ final class EmailTemplates {
 		}
 		if ($key === 'refund_customer' || $key === 'refund_admin') {
 			$amount_kurus = isset($ctx['booking']['payment']['amount']) ? (int) $ctx['booking']['payment']['amount'] : 0;
-			$cur          = isset($ctx['booking']['payment']['currency']) ? (string) $ctx['booking']['payment']['currency'] : 'TRY';
+			$cur          = isset($ctx['booking']['payment']['currency'])
+				? (string) $ctx['booking']['payment']['currency']
+				: CurrencyHelper::get_currency_code();
 
 			// A refund carries a currency of its own; the canonical helper takes the
 			// symbol from it and the placement from the house rule. Hand-rolling
@@ -409,17 +415,16 @@ final class EmailTemplates {
 	 */
 	private static function get_mock_context(): array
 	{
-		// Dynamically get the currently active currency code (e.g., 'USD', 'EUR', 'TRY')
-		$currency_code = CurrencyHelper::get_currency_symbol(null); // Passing null gets default from settings/WooCommerce
-		// If it returns a symbol (like $), we want the code for context data usually, but here the preview expects what?
-		// Actually, get_currency_symbol returns the symbol. We need the CODE for the raw data.
-
-		$code = 'TRY';
-		if (function_exists('get_woocommerce_currency')) {
-			$code = \get_woocommerce_currency();
-		} else {
-			$code = get_option('mhmrentiva_currency', 'TRY');
-		}
+		// This used to hand-roll get_currency_code(), and drifted from it in two
+		// ways that both changed the answer: it asked whether
+		// get_woocommerce_currency() EXISTS rather than whether WooCommerce is
+		// active (the function is defined while the store is not in charge), and
+		// it read the raw option instead of SettingsCore, so a site relying on
+		// the registered default got 'TRY' where the rest of the plugin said
+		// 'USD'. A preview that lies about the currency is worse than no preview.
+		// It also assigned a $currency_code from get_currency_symbol() that
+		// nothing ever read.
+		$code = CurrencyHelper::get_currency_code();
 
 		return array(
 			'booking'       => array(

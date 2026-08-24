@@ -65,10 +65,14 @@ final class RefundNotifications {
 		// top-level option — a key the plugin never writes there, since its settings
 		// live inside the `mhmrentiva_settings` array — so it always resolved to
 		// `right_space`.
+		// The `?: null` below, here and at the two mixed-mode calls: format_price()'s
+		// third argument is nullable precisely so "this booking never stored a
+		// currency" defers to the store's own. Naming a fixed 'TRY' here printed
+		// lira totals in refund mail sent from shops that sell in something else.
 		$amountHuman = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
 			(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $amount_kurus ),
 			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
-			$currency ?: 'TRY'
+			$currency ?: null
 		);
 		$statusText  = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
 
@@ -93,12 +97,12 @@ final class RefundNotifications {
 			$autoHuman   = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
 				(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $auto_refunded_kurus ),
 				\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
-				$currency ?: 'TRY'
+				$currency ?: null
 			);
 			$manualHuman = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
 				(float) \MHMRentiva\Admin\Payment\Core\Money::toMajor( $manual_refunded_kurus ),
 				\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
-				$currency ?: 'TRY'
+				$currency ?: null
 			);
 
 			$modeText = sprintf(
@@ -144,7 +148,8 @@ final class RefundNotifications {
 				'payment'  => array(
 					'status'   => $newPayStatus,
 					'amount'   => \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $booking_id )->paid(),
-					'currency' => (string) get_post_meta( $booking_id, '_mhmrentiva_payment_currency', true ) ?: 'TRY',
+					'currency' => (string) get_post_meta( $booking_id, '_mhmrentiva_payment_currency', true )
+						?: \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_code(),
 				),
 			),
 			'amount'          => $amountHuman,

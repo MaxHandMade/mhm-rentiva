@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -113,8 +115,11 @@ final class Templates {
 		if ( $raw === '' || ! is_numeric( $raw ) ) {
 			return '';
 		}
+		// The mhmrentiva_currency_code filter stays an extension point; its
+		// DEFAULT is the store, not a currency this plugin happened to be born
+		// in. An unfiltered EUR shop used to advertise its daily rate in lira.
 		$price     = (float) $raw;
-		$currency  = apply_filters( 'mhmrentiva_currency_code', 'TRY' );
+		$currency  = apply_filters( 'mhmrentiva_currency_code', CurrencyHelper::get_currency_code() );
 		$formatted = apply_filters( 'mhmrentiva_format_price', number_format_i18n( $price, 0 ) . ' ' . $currency, $price, $currency, $post_id );
 		return sprintf(
 			'<span class="amount">%s</span> <span class="unit">%s</span>',

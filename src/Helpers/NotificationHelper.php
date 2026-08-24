@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 
@@ -66,8 +67,12 @@ class NotificationHelper {
 			return false;
 		}
 
+		// The admin reads the currency code next to a figure, so it has to be a
+		// code and it has to be the right one: the booking's own when it stored
+		// one, the STORE's when it did not. A fixed 'TRY' told a EUR shop's
+		// administrator that the money it holds is lira.
 		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		$currency = $state->currency() ?: 'TRY';
+		$currency = $state->currency() ?: CurrencyHelper::get_currency_code();
 		// Both `?:` branches are live, because AutoCancel::run() has two
 		// production callers: the WP-Cron hook (AutoCancel.php:54), where
 		// there is no logged-in user, and VehicleColumns::maybe_run_autocancel()
@@ -154,8 +159,12 @@ class NotificationHelper {
 			return false;
 		}
 
+		// The admin reads the currency code next to a figure, so it has to be a
+		// code and it has to be the right one: the booking's own when it stored
+		// one, the STORE's when it did not. A fixed 'TRY' told a EUR shop's
+		// administrator that the money it holds is lira.
 		$state    = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
-		$currency = $state->currency() ?: 'TRY';
+		$currency = $state->currency() ?: CurrencyHelper::get_currency_code();
 		// Same get_edit_post_link() ?: admin_url(...) fallback as
 		// send_refund_needs_review_email(), for the same reason: the
 		// booking CPT maps both edit_posts and edit_post to manage_options
