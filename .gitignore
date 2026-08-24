@@ -535,6 +535,14 @@ bin/*
 # in every clone or the gate that catches a bare update_post_meta() bypassing
 # RefundStatus::transition() runs in nobody's clone but this one.
 !bin/check-refund-status-writers.php
+# Translation placeholder gate. `composer check-i18n-placeholders` and the CI
+# step run it, and tests/Gates/I18nPlaceholderParityTest.php require()s it --
+# so an untracked copy would fail the suite in every clean clone, exactly the
+# way the missing bin/mhm-migrate-meta.php did. It catches the class msgfmt -c
+# cannot see: a translation that changes a {{placeholder}} rather than the
+# words around it. Seven Turkish e-mail subjects shipped {{booking.id}} where
+# the source says {{booking.order_id}}.
+!bin/check-i18n-placeholders.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

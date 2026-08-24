@@ -176,6 +176,22 @@ jobs:
       - name: React translation catalogs (languages/*.json vs the committed .po)
         run: python3 bin/build-i18n.py --verify-only
 
+      # Translation placeholder parity. A translator may change the words; a
+      # changed PLACEHOLDER changes behaviour. Found 2026-08-24: seven Turkish
+      # subjects rendered {{booking.id}} where the source says
+      # {{booking.order_id}}, so every transactional e-mail showed the internal
+      # post id in its subject and the WooCommerce order number in its body --
+      # two different numbers for one booking, in one message.
+      #
+      # Nothing above can see this class. msgfmt -c validates printf conversions
+      # (%s, %d), not {{dot.path}}/{token}, and reported the catalog clean with
+      # all seven present. build-i18n.py --verify-only compares the committed
+      # catalogs against the committed .po, and both sides agreed on the wrong
+      # token. No test renders a translated subject. The first observer was a
+      # customer.
+      - name: Translation placeholder parity (msgstr keeps msgid's placeholders)
+        run: composer check-i18n-placeholders
+
       # Gate G-A (WP.org T7 remediation, Task 1): zero visible security shapes
       # (missing nonces / unescaped output / unsanitized input) under phpcs
       # --ignore-annotations, with one narrow allowed residual class (see the

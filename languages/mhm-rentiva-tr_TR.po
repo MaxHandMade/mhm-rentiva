@@ -5700,20 +5700,20 @@ msgstr "Anonim"
 
 #: src/Admin/Emails/Core/Templates.php:39
 msgid "Booking #{{booking.order_id}} Confirmed - {{site.name}}"
-msgstr "Rezervasyon #{{booking.id}} Onaylandı - {{site.name}}"
+msgstr "Rezervasyon #{{booking.order_id}} Onaylandı - {{site.name}}"
 
 #: src/Admin/Emails/Core/Templates.php:43
 msgid "New Booking Request #{{booking.order_id}} - {{site.name}}"
-msgstr "Yeni Rezervasyon İsteği #{{booking.id}} - {{site.name}}"
+msgstr "Yeni Rezervasyon İsteği #{{booking.order_id}} - {{site.name}}"
 
 #: src/Admin/Emails/Core/Templates.php:47
 #: src/Admin/Emails/Core/Templates.php:51
 msgid "Booking #{{booking.order_id}} Status Updated - {{site.name}}"
-msgstr "Rezervasyon #{{booking.id}} Durumu Güncellendi - {{site.name}}"
+msgstr "Rezervasyon #{{booking.order_id}} Durumu Güncellendi - {{site.name}}"
 
 #: src/Admin/Emails/Core/Templates.php:55
 msgid "Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}"
-msgstr "Hatırlatma: {{booking.id}} Rezervasyonunuz Yakında Başlıyor - {{site.name}}"
+msgstr "Hatırlatma: {{booking.order_id}} Rezervasyonunuz Yakında Başlıyor - {{site.name}}"
 
 #: src/Admin/Emails/Core/Templates.php:59
 msgid "Complete Your Payment - {{site.name}}"
@@ -5726,15 +5726,15 @@ msgstr "{{site.name}}'ye hoş geldiniz"
 #: src/Admin/Emails/Core/Templates.php:70
 #: src/Admin/Emails/Core/Templates.php:76
 msgid "Booking #{{booking.order_id}} Cancelled - {{site.name}}"
-msgstr "Rezervasyon #{{booking.id}} İptal Edildi - {{site.name}}"
+msgstr "Rezervasyon #{{booking.order_id}} İptal Edildi - {{site.name}}"
 
 #: src/Admin/Emails/Core/Templates.php:82
 msgid "Refund Processed for Booking #{{booking.order_id}}"
-msgstr "Rezervasyon #{{booking.id}} için Geri Ödeme İşleme Alındı"
+msgstr "Rezervasyon #{{booking.order_id}} için Geri Ödeme İşleme Alındı"
 
 #: src/Admin/Emails/Core/Templates.php:86
 msgid "Refund Alert: Booking #{{booking.order_id}}"
-msgstr "Geri Ödeme Uyarısı: Rezervasyon #{{booking.id}}"
+msgstr "Geri Ödeme Uyarısı: Rezervasyon #{{booking.order_id}}"
 
 #: src/Admin/Emails/Core/Templates.php:177
 msgid "No content available for this email."
