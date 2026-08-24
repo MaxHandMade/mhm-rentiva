@@ -526,10 +526,21 @@ final class DepositManagementAjax {
 			// RefundLock::TTL_SECONDS rather than a hardcoded "5 minutes" --
 			// a hardcoded number here is exactly the kind of confident
 			// falsehood item 2 removed, the moment the TTL ever changes.
+			// Hoisted, and it has to stay hoisted -- see the note on
+			// Refunds\Service.php's copy of this message: `wp i18n make-pot`
+			// silently drops an i18n call whose argument list contains
+			// `(int) ( a / b )`, so inlining this expression would take the
+			// string out of the catalog with no warning anywhere.
+			$lock_minutes      = (int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS );
 			$lock_held_message = sprintf(
 				/* translators: %d: minutes until an orphaned refund lock clears on its own. */
-				__( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.", 'mhm-rentiva' ),
-				(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
+				_n(
+					"This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minute.",
+					"This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.",
+					$lock_minutes,
+					'mhm-rentiva'
+				),
+				$lock_minutes
 			);
 			wp_send_json_error( array( 'message' => $lock_held_message ) );
 		}
@@ -771,10 +782,21 @@ final class DepositManagementAjax {
 			// RefundLock::TTL_SECONDS rather than a hardcoded "5 minutes" --
 			// a hardcoded number here is exactly the kind of confident
 			// falsehood item 2 removed, the moment the TTL ever changes.
+			// Hoisted, and it has to stay hoisted -- see the note on
+			// Refunds\Service.php's copy of this message: `wp i18n make-pot`
+			// silently drops an i18n call whose argument list contains
+			// `(int) ( a / b )`, so inlining this expression would take the
+			// string out of the catalog with no warning anywhere.
+			$lock_minutes      = (int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS );
 			$lock_held_message = sprintf(
 				/* translators: %d: minutes until an orphaned refund lock clears on its own. */
-				__( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.", 'mhm-rentiva' ),
-				(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
+				_n(
+					"This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minute.",
+					"This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.",
+					$lock_minutes,
+					'mhm-rentiva'
+				),
+				$lock_minutes
 			);
 			wp_send_json_error( array( 'message' => $lock_held_message ) );
 		}

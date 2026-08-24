@@ -191,12 +191,27 @@ final class Service {
 			// Fix round 1, F5: the wait bound is DERIVED from
 			// RefundLock::TTL_SECONDS, not a hardcoded "5 minutes" that
 			// would silently go stale the moment the TTL changes.
+			// Hoisted, and it has to stay hoisted: `wp i18n make-pot` silently
+			// drops an i18n call whose argument list contains a cast applied to
+			// a parenthesised expression -- `(int) ( a / b )`. Measured
+			// 2026-08-24 against the generator: the same _n() extracts with
+			// `$var`, with `(int) ceil( a / b )`, with a bare constant and with
+			// a class constant, and vanishes with `(int) ( a / b )`. No warning
+			// is printed, so the string ships with no catalog entry and the
+			// i18n gate stays green.
+			$lock_minutes = (int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS );
+
 			return array(
 				'mhmrentiva_refund'     => '0',
 				'mhmrentiva_refund_msg' => sprintf(
 					/* translators: %d: minutes until an orphaned refund lock clears on its own. */
-					__( "This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.", 'mhm-rentiva' ),
-					(int) ( RefundLock::TTL_SECONDS / MINUTE_IN_SECONDS )
+					_n(
+						"This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minute.",
+						"This booking's refund lock is already held by another attempt. If that attempt is still running it will finish shortly; if it failed without releasing the lock, this becomes available again within %d minutes.",
+						$lock_minutes,
+						'mhm-rentiva'
+					),
+					$lock_minutes
 				),
 			);
 		}

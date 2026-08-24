@@ -488,7 +488,12 @@ final class CancellationHandler {
 					'deadline_passed',
 					sprintf(
 						/* translators: 1: required hours before pickup, 2: hours remaining until pickup. */
-						__( 'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining.', 'mhm-rentiva' ),
+						_n(
+							'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hour before pickup. Only %2$.1f hours remaining.',
+							'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining.',
+							$deadline_hours,
+							'mhm-rentiva'
+						),
 						$deadline_hours,
 						max( 0, $hours_until_pickup )
 					)
@@ -1384,15 +1389,25 @@ final class CancellationHandler {
 
 			if ( $can_cancel ) {
 				$message = sprintf(
-					/* translators: 1: %s; 2: %d. */
-					__( 'You can cancel until %1$s (%2$d hours before pickup)', 'mhm-rentiva' ),
+					/* translators: 1: the deadline date and time; 2: how many hours before pickup that is. */
+					_n(
+						'You can cancel until %1$s (%2$d hour before pickup)',
+						'You can cancel until %1$s (%2$d hours before pickup)',
+						$deadline_hours,
+						'mhm-rentiva'
+					),
 					$cancellation_deadline->format( 'Y-m-d H:i' ),
 					$deadline_hours
 				);
 			} else {
 				$message = sprintf(
-					/* translators: %d placeholder. */
-					__( 'Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup.', 'mhm-rentiva' ),
+					/* translators: %d: how many hours before pickup a booking must be cancelled. */
+					_n(
+						'Cancellation deadline has passed. Bookings must be cancelled at least %d hour before pickup.',
+						'Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup.',
+						$deadline_hours,
+						'mhm-rentiva'
+					),
 					$deadline_hours
 				);
 			}
