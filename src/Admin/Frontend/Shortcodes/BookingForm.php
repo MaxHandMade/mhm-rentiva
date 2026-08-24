@@ -1193,7 +1193,7 @@ final class BookingForm extends AbstractShortcode {
 					// Log error but continue to fallback (or show error)
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::payment('Payment Gateway Error', array( 'error' => $e->getMessage() ));
 					/* translators: %s: error message */
-					return self::failed(sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), $e->getMessage()));
+					return self::failed(sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), self::safe_message($e)));
 				}
 			}
 

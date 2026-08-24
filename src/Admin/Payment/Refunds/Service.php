@@ -721,25 +721,4 @@ final class Service {
 			);
 		}
 	}
-
-	/**
-	 * Checks refund status
-	 */
-	public static function isRefundSuccessful( array $result ): bool {
-		return $result['ok'] === true && ! empty( $result['id'] );
-	}
-
-	/**
-	 * Gets refund ID
-	 */
-	public static function getRefundId( array $result ): string {
-		return $result['id'] ?? '';
-	}
-
-	/**
-	 * Gets refund amount
-	 */
-	public static function getRefundAmount( array $result ): int {
-		return $result['amount'] ?? 0;
-	}
 }
