@@ -305,11 +305,46 @@ final class BookingForm extends AbstractShortcode {
 			'error_occurred'                        => __('An error occurred', 'mhm-rentiva'),
 			'try_again'                             => __('Please try again', 'mhm-rentiva'),
 			'connection_error'                      => __('Connection error', 'mhm-rentiva'),
+			// booking-form.js substitutes config.min_days into this string with a
+			// plain .replace('%d', …). The count is therefore known HERE, at
+			// localize time, so the plural form can be -- and must be -- chosen
+			// on this side: a one-day minimum used to read "Minimum rental
+			// period is 1 days." Both halves come from min_rental_days() so the
+			// form and the number cannot drift apart.
 			/* translators: %d: minimum days */
-			'min_days_error'                        => __('Minimum rental period is %d days.', 'mhm-rentiva'),
+			'min_days_error'                        => _n(
+				'Minimum rental period is %d day.',
+				'Minimum rental period is %d days.',
+				self::min_rental_days(),
+				'mhm-rentiva'
+			),
 			/* translators: %d: maximum days */
-			'max_days_error'                        => __('Maximum rental period is %d days.', 'mhm-rentiva'),
+			'max_days_error'                        => _n(
+				'Maximum rental period is %d day.',
+				'Maximum rental period is %d days.',
+				self::max_rental_days(),
+				'mhm-rentiva'
+			),
 		);
+	}
+
+	/**
+	 * The rental-day bounds, read in ONE place.
+	 *
+	 * get_localized_strings() picks a plural form with these and get_js_config()
+	 * ships the same numbers to the browser, which substitutes them into that
+	 * very string. Two independent reads of the same setting would be correct
+	 * today and a silent mismatch the first time one of them changed -- the
+	 * sentence saying "day" while the browser prints 7.
+	 */
+	private static function min_rental_days(): int
+	{
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
+	}
+
+	private static function max_rental_days(): int
+	{
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
 	}
 
 	protected static function get_js_config(): array
@@ -320,8 +355,8 @@ final class BookingForm extends AbstractShortcode {
 			'locale'               => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
 			'enable_deposit'       => get_option('mhmrentiva_enable_deposit', '1') === '1',
 			'default_payment'      => get_option('mhmrentiva_default_payment', 'deposit'),
-			'min_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1),
-			'max_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30),
+			'min_days'             => self::min_rental_days(),
+			'max_days'             => self::max_rental_days(),
 			'advance_booking_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_advance_booking_days', 365),
 		);
 	}
