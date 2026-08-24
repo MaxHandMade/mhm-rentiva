@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Core;
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
-use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use WP_UnitTestCase;
 
 /**
@@ -59,36 +59,48 @@ final class CurrencyFallbackIsTheStoreTest extends WP_UnitTestCase
         update_option('mhmrentiva_settings', $settings);
     }
 
-    public function test_price_html_reads_the_store_currency_instead_of_a_hardcoded_try(): void
+    /**
+     * The anchored half of the lock, on a LIVE surface.
+     *
+     * It used to run against Templates::price_html(), which was measured on
+     * 2026-08-24 to have zero callers in either tree -- so it proved the fix and
+     * nothing a user can reach, and the method was deleted. This runs against
+     * the e-mail context builder instead: 35 of the dev site's 39 bookings carry
+     * no _mhmrentiva_payment_currency, so this fallback is the branch real
+     * refund mail actually takes.
+     */
+    public function test_a_booking_with_no_stored_currency_falls_back_to_the_store(): void
     {
         $this->force_store_currency('EUR');
 
         // Loud precondition. If the environment refuses to be moved onto EUR,
         // this must fail HERE, saying so -- not further down as a confusing
-        // assertion about price_html() while the store was never EUR at all.
+        // assertion about the context while the store was never EUR at all.
         $this->assertSame(
             'EUR',
             CurrencyHelper::get_currency_code(),
             'The fixture could not move the store currency, so the assertion below would measure nothing.'
         );
 
-        $vehicle_id = self::factory()->post->create(array('post_type' => 'post'));
-        update_post_meta($vehicle_id, '_mhmrentiva_price_per_day', '100');
-
-        $html = Templates::price_html((int) $vehicle_id);
-
-        $this->assertStringContainsString(
-            'EUR',
-            $html,
-            'price_html() defaulted the mhmrentiva_currency_code filter to a hardcoded TRY, so an unfiltered'
-                . ' EUR store advertised its daily rate in lira.'
+        $booking_id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        $this->assertSame(
+            '',
+            (string) get_post_meta((int) $booking_id, '_mhmrentiva_payment_currency', true),
+            'The fixture must have NO stored currency, or it would never reach the fallback under test.'
         );
-        $this->assertStringNotContainsString(
+
+        $ctx = EmailTemplates::build_context('refund_customer', (int) $booking_id);
+
+        $this->assertSame(
+            'EUR',
+            $ctx['booking']['payment']['currency'] ?? null,
+            'A booking that never stored a currency must be described in the currency this shop sells in.'
+        );
+        $this->assertNotSame(
             'TRY',
-            $html,
-            'A EUR store must never print TRY. This is the anchored half of the lock: it names the value the'
-                . ' surface produced BEFORE the sweep, so binding every surface to a helper that is itself'
-                . ' wrong cannot make it pass.'
+            $ctx['booking']['payment']['currency'] ?? null,
+            'This is the anchored assertion: it names the value the surface produced BEFORE the sweep, so'
+                . ' binding every surface to a helper that is itself wrong cannot make it pass.'
         );
     }
 

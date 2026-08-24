@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-use MHMRentiva\Admin\Core\CurrencyHelper;
-
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -108,25 +106,15 @@ final class Templates {
 		return null;
 	}
 
-	// Price HTML helper method (usable in templates)
-	public static function price_html( int $post_id ): string {
-		$meta_key = apply_filters( 'mhmrentiva_vehicle_price_meta_key', '_mhmrentiva_price_per_day' );
-		$raw      = get_post_meta( $post_id, $meta_key, true );
-		if ( $raw === '' || ! is_numeric( $raw ) ) {
-			return '';
-		}
-		// The mhmrentiva_currency_code filter stays an extension point; its
-		// DEFAULT is the store, not a currency this plugin happened to be born
-		// in. An unfiltered EUR shop used to advertise its daily rate in lira.
-		$price     = (float) $raw;
-		$currency  = apply_filters( 'mhmrentiva_currency_code', CurrencyHelper::get_currency_code() );
-		$formatted = apply_filters( 'mhmrentiva_format_price', number_format_i18n( $price, 0 ) . ' ' . $currency, $price, $currency, $post_id );
-		return sprintf(
-			'<span class="amount">%s</span> <span class="unit">%s</span>',
-			esc_html( (string) $formatted ),
-			esc_html__( '/day', 'mhm-rentiva' )
-		);
-	}
+	// price_html() was removed on 2026-08-24. It had zero callers in Lite AND in
+	// the paid add-on -- the cross-tree grep the house requires before calling
+	// anything dead -- and the three filters it carried
+	// (mhmrentiva_vehicle_price_meta_key, mhmrentiva_currency_code,
+	// mhmrentiva_format_price) fired nowhere else, so they were extension points
+	// no integrator could ever reach: the method that would have run them never
+	// ran. Vehicle cards format prices through CurrencyHelper::format_price()
+	// and always did. Removing it changes no behaviour; the filters are named in
+	// the changelog so anyone who hooked one learns they never fired.
 
 	private static function plugin_file(): string {
 		// Use MHMRENTIVA_PLUGIN_FILE constant (more reliable)
