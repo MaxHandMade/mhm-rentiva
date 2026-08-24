@@ -28,88 +28,44 @@ use WP_UnitTestCase;
  * the file itself assigned the key's own spelling to one statement earlier,
  * add_post_meta(), and delete_post_meta() (a terminality bypass: deleting the
  * key resets get_post_meta()'s (string) cast to '', whose matrix row has
- * outgoing edges). find_offenders() below widens the alternation to cover all
- * four; the four test_the_gate_catches_* methods are the fixtures proving
- * each newly-covered spelling is actually caught, against a temp directory
- * standing in for src/ so a real one of these is never planted in the
- * codebase itself. Widening a gate without watching it bite is not widening
- * it.
+ * outgoing edges). Slice 5 added a fifth: update_metadata(), the lower-level
+ * family update_post_meta() itself wraps, writing the identical row. The
+ * test_the_gate_catches_* methods are the fixtures proving each covered
+ * spelling is actually caught, against a temp directory standing in for src/
+ * so a real one of these is never planted in the codebase itself. Widening a
+ * gate without watching it bite is not widening it.
+ *
+ * The alternation itself lives in bin/check-refund-status-writers.php and
+ * nowhere else. find_offenders() below used to hold a second copy, which meant
+ * these fixtures measured the copy: widening one side and not the other leaves
+ * both green and only one of them right.
  */
 final class RefundStatusSingleWriterTest extends WP_UnitTestCase
 {
     /**
-     * Scans $root exactly the way this gate (and its CLI twin,
-     * bin/check-refund-status-writers.php) always has: every .php file
-     * except RefundStatus.php itself, whole-file contents, looking for a
-     * direct write of the refund-status key.
+     * Delegates to the gate itself.
      *
-     * Two passes. The first is the original alternation, widened: the write
-     * function is now update_post_meta()/add_post_meta()/delete_post_meta()
-     * (not update_post_meta() alone), and the key spelling is now the bare
-     * string literal OR RefundStatus::META_KEY (not the literal alone). The
-     * second pass exists because the first cannot see across a `;`: a file
-     * that assigns the key's own spelling to a local variable one statement
-     * earlier, then passes that variable as the key argument, defeats any
-     * single-statement alternation no matter how it is widened. This finds
-     * that assignment first, then looks for THAT variable name (and no
-     * other) used as a *_post_meta() call's key argument -- narrow on
-     * purpose, so a $meta_key variable used for a completely unrelated meta
-     * key elsewhere in src/ is not flagged as a false positive.
+     * This helper used to carry its own copy of the two patterns, which made
+     * every fixture below a test of the copy rather than of the gate CI
+     * actually runs. Widening one and not the other would have left both
+     * green and only one of them right -- a gate proved by a duplicate of
+     * itself is not proved. There is now a single implementation,
+     * mhmrentiva_find_refund_status_writers() in
+     * bin/check-refund-status-writers.php, and these fixtures drive it.
+     *
+     * That file guards its CLI block against the resolved entry script, so
+     * requiring it here loads the function without running -- and exiting --
+     * the src/ scan.
      *
      * @return array<int, string> "path:line" entries, sorted.
      */
     private static function find_offenders(string $root, string $exclude_filename = 'RefundStatus.php'): array
     {
-        $offenders = array();
-        $files     = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root ) );
+        require_once dirname( __DIR__, 2 ) . '/bin/check-refund-status-writers.php';
 
-        $call_pattern   = '/(?:update|add|delete)_post_meta\s*\(\s*[^;]{0,200}?(?:_mhmrentiva_refund_status|RefundStatus::META_KEY)/s';
-        $assign_pattern = '/\$([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?:\'_mhmrentiva_refund_status\'|"_mhmrentiva_refund_status"|RefundStatus::META_KEY)\s*;/';
-
-        foreach ( $files as $file ) {
-            if ( 'php' !== $file->getExtension() ) {
-                continue;
-            }
-            // RefundStatus itself is the one legitimate writer.
-            if ( $exclude_filename === $file->getFilename() ) {
-                continue;
-            }
-
-            $contents = file_get_contents( $file->getPathname() );
-
-            if ( false === $contents ) {
-                continue;
-            }
-
-            $lines = array();
-
-            if ( preg_match_all( $call_pattern, $contents, $matches, PREG_OFFSET_CAPTURE ) ) {
-                foreach ( $matches[0] as $match ) {
-                    $lines[] = substr_count( $contents, "\n", 0, $match[1] ) + 1;
-                }
-            }
-
-            if ( preg_match_all( $assign_pattern, $contents, $assign_matches ) ) {
-                foreach ( array_unique( $assign_matches[1] ) as $var_name ) {
-                    $var_pattern = '/(?:update|add|delete)_post_meta\s*\(\s*[^;]{0,200}?\$' . preg_quote( $var_name, '/' ) . '\b/s';
-
-                    if ( preg_match_all( $var_pattern, $contents, $var_matches, PREG_OFFSET_CAPTURE ) ) {
-                        foreach ( $var_matches[0] as $match ) {
-                            $lines[] = substr_count( $contents, "\n", 0, $match[1] ) + 1;
-                        }
-                    }
-                }
-            }
-
-            foreach ( array_unique( $lines ) as $line ) {
-                $offenders[] = $file->getPathname() . ':' . $line;
-            }
-        }
-
-        sort( $offenders );
-
-        return $offenders;
+        return mhmrentiva_find_refund_status_writers( $root, '', $exclude_filename );
     }
+
 
     /**
      * @return string The temp directory the fixture file was written into.
@@ -237,6 +193,37 @@ final class RefundStatusSingleWriterTest extends WP_UnitTestCase
                 self::find_offenders( $dir ),
                 'get_post_meta() is a read, not a write -- widening the alternation to catch META_KEY must'
                     . ' not turn every READ of it into a false positive.'
+            );
+        } finally {
+            self::remove_fixture( $dir );
+        }
+    }
+
+    /**
+     * update_post_meta() is a thin wrapper over update_metadata( 'post', ... ):
+     * the lower-level family writes the identical row in the identical table,
+     * so a back door spelled update_metadata() bypasses RefundStatus::transition()
+     * exactly as completely as update_post_meta() would -- and the alternation
+     * above, which names only the *_post_meta() spellings, cannot see it.
+     *
+     * Measured before this test: src/ has no live member of this class (its one
+     * textual match is a comment), so this fixture is the gate's only proof that
+     * the widening bites. A blind spot with no current occupant is still a blind
+     * spot; it is where the next writer lands.
+     */
+    public function test_the_gate_catches_update_metadata(): void
+    {
+        $dir = self::write_fixture(
+            "<?php\n" .
+            "update_metadata( 'post', \$booking_id, RefundStatus::META_KEY, 'pending' );\n"
+        );
+
+        try {
+            $this->assertNotEmpty(
+                self::find_offenders( $dir ),
+                'update_metadata() writes the same row update_post_meta() writes; a pattern naming only'
+                    . ' the *_post_meta() family reports "clean" while the key is written around the'
+                    . ' single writer.'
             );
         } finally {
             self::remove_fixture( $dir );
