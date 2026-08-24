@@ -331,11 +331,12 @@ final class BookingForm extends AbstractShortcode {
 	/**
 	 * The rental-day bounds, read in ONE place.
 	 *
-	 * get_localized_strings() picks a plural form with these and get_js_config()
-	 * ships the same numbers to the browser, which substitutes them into that
-	 * very string. Two independent reads of the same setting would be correct
-	 * today and a silent mismatch the first time one of them changed -- the
-	 * sentence saying "day" while the browser prints 7.
+	 * Both halves of the sentence come from here: get_localized_strings() picks a
+	 * plural form with these numbers and get_js_config() ships the very same
+	 * numbers to the browser, which substitutes them into that string. Two
+	 * independent reads of one setting would be correct today and a silent
+	 * mismatch the first time either moved -- the sentence saying "day" while
+	 * the browser prints 7.
 	 */
 	private static function min_rental_days(): int
 	{
