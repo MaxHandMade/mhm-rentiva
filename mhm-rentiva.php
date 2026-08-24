@@ -3,9 +3,9 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           6.0.7
+ * Version:           6.1.0
  * Requires at least: 6.7
- * Tested up to:      7.0
+ * Tested up to:      7.1
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
  * Author:            MHM Development Team
@@ -57,7 +57,11 @@ function mhmrentiva_sanitize_text_field_safe($value)
  */
 function mhmrentiva_get_display_id(int $booking_id): int
 {
-	$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
+	// Every booking-to-order lookup goes through the one resolver: this helper
+	// is used wherever a reference number is SHOWN, so reading only the current
+	// key made a legacy-linked booking display its raw post ID while the same
+	// booking's e-mail carried the WooCommerce order number.
+	$order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id);
 	return $order_id ? $order_id : $booking_id;
 }
 
@@ -88,7 +92,7 @@ function mhmrentiva_initial_avatar_letter(string $name): string
 }
 
 // Define Version (Updated via build script)
-define('MHMRENTIVA_VERSION', '6.0.7');
+define('MHMRENTIVA_VERSION', '6.1.0');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {

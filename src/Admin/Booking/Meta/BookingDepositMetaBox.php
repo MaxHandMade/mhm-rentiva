@@ -7,8 +7,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
+use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
-use MHMRentiva\Admin\Settings\Settings;
+use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -104,20 +107,67 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 					'nonce'   => wp_create_nonce( 'mhmrentiva_deposit_management_action' ),
 					'strings' => array(
-						'confirmRefund'           => __( 'Do you confirm this action?', 'mhm-rentiva' ),
-						'confirmRemainingPayment' => __( 'Confirm receipt of remaining payment?', 'mhm-rentiva' ),
-						'confirmApprovePayment'   => __( 'Confirm receipt of deposit payment?', 'mhm-rentiva' ),
-						'confirmCancelBooking'    => __( 'Are you sure you want to cancel this booking?', 'mhm-rentiva' ),
-						'dismiss'                 => __( 'Dismiss this notice', 'mhm-rentiva' ),
-						'processing'              => __( 'Processing...', 'mhm-rentiva' ),
-						'success'                 => __( 'Operation successful!', 'mhm-rentiva' ),
-						'error'                   => __( 'An error occurred!', 'mhm-rentiva' ),
-						'copyLink'                => __( 'Copy Link', 'mhm-rentiva' ),
-						'linkCopied'              => __( 'Link copied to clipboard!', 'mhm-rentiva' ),
+						'confirmRefund'                => __( 'Do you confirm this action?', 'mhm-rentiva' ),
+						'confirmRemainingPayment'      => __( 'Confirm receipt of remaining payment?', 'mhm-rentiva' ),
+						'confirmApprovePayment'        => __( 'Confirm receipt of deposit payment?', 'mhm-rentiva' ),
+						'confirmCancelBooking'         => __( 'Are you sure you want to cancel this booking?', 'mhm-rentiva' ),
+						'confirmCloseManualRefund'     => __( 'Confirm this refund was handed over and is complete?', 'mhm-rentiva' ),
+						'confirmReviewCancelAndRefund' => __( 'Cancel this booking and start the refund?', 'mhm-rentiva' ),
+						'confirmReviewDismiss'         => __( 'Confirm no refund is due for this booking?', 'mhm-rentiva' ),
+						'dismiss'                      => __( 'Dismiss this notice', 'mhm-rentiva' ),
+						'processing'                   => __( 'Processing...', 'mhm-rentiva' ),
+						'success'                      => __( 'Operation successful!', 'mhm-rentiva' ),
+						'error'                        => __( 'An error occurred!', 'mhm-rentiva' ),
+						'copyLink'                     => __( 'Copy Link', 'mhm-rentiva' ),
+						'linkCopied'                   => __( 'Link copied to clipboard!', 'mhm-rentiva' ),
 					),
 				)
 			);
 		}
+	}
+
+	/**
+	 * Can a refund be started from THIS screen for this booking?
+	 *
+	 * One predicate, three callers: the button below, the link
+	 * BookingRefundMetaBox points at it, and the rejection in
+	 * DepositManagementAjax::process_refund(). Those three used to be three
+	 * separate copies of the same question and they disagreed twice, both
+	 * measured:
+	 *
+	 * - Refunds\Service writes payment_status = 'partially_refunded' whenever
+	 *   a refund does not clear the whole balance (Service.php:295) while all
+	 *   three copies demanded exactly 'paid'. A correct partial refund
+	 *   therefore stranded the rest of the money permanently: no screen would
+	 *   offer the second refund, and the refund box went on reporting the
+	 *   balance as refundable while telling the operator to cancel a booking
+	 *   that was already cancelled.
+	 * - render_deposit_management() returns early -- before any button -- when
+	 *   _mhmrentiva_payment_type is empty ("old system" notice). The refund
+	 *   box's copy did not know that and linked to a button that was not on
+	 *   the page.
+	 *
+	 * The conditions below are exactly, and only, the ones under which the
+	 * button actually renders and the handler actually proceeds. The cheap
+	 * meta reads come first so the PaymentState resolution -- which touches
+	 * WooCommerce orders -- is skipped for the shapes that are already out.
+	 */
+	public static function can_refund_from_deposit_screen( int $booking_id ): bool {
+		$payment_status = (string) get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
+
+		if ( ! in_array( $payment_status, array( 'paid', 'partially_refunded' ), true ) ) {
+			return false;
+		}
+
+		if ( Status::CANCELLED !== Status::get( $booking_id ) ) {
+			return false;
+		}
+
+		if ( '' === (string) get_post_meta( $booking_id, '_mhmrentiva_payment_type', true ) ) {
+			return false;
+		}
+
+		return PaymentState::forBooking( $booking_id )->refundable() > 0;
 	}
 
 	public static function render_deposit_management( \WP_Post $post ): void {
@@ -343,22 +393,45 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			echo esc_html__( 'Process Remaining Amount', 'mhm-rentiva' );
 			echo '</button>';
 
-			echo '<button type="button" class="deposit-action-btn primary" id="send-remaining-payment-link" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
-			echo '<span class="dashicons dashicons-email-alt"></span>';
-			echo esc_html__( 'Send Payment Link', 'mhm-rentiva' );
-			echo '</button>';
+			if ( DepositManagementAjax::can_send_remaining_payment_link( $post_id ) ) {
+				echo '<button type="button" class="deposit-action-btn primary" id="send-remaining-payment-link" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+				echo '<span class="dashicons dashicons-email-alt"></span>';
+				echo esc_html__( 'Send Payment Link', 'mhm-rentiva' );
+				echo '</button>';
+			} else {
+				echo '<p class="description">' . esc_html__( 'The deposit was paid outside WooCommerce, so no payment link can be sent for the remaining balance; use "Process Remaining Amount" instead to record it as settled.', 'mhm-rentiva' ) . '</p>';
+			}
 		}
 
+		// The cancel and refund buttons below pay money OUT and are gated on
+		// the same actor question, asked once. The three buttons above them
+		// (Mark Payment Received, Process Remaining Amount, Send Payment
+		// Link) take money IN rather than paying it out and are deliberately
+		// left ungated here -- this task's scope (Task 9, slice 5) is the two
+		// buttons that offer an action MoneyAuthorization::mayMoveMoney()
+		// would refuse.
+		//
+		// The actor question stays out of can_refund_from_deposit_screen() on
+		// purpose: that method is a pure booking-state predicate with three
+		// other callers (the refund box's link and the AJAX handler among
+		// them), and folding an actor check into it would make it silently
+		// actor-dependent for all of them. "One question, one home" applies
+		// per question -- the state question's home is that method, the actor
+		// question's home is MoneyAuthorization.
+		$may_move_money = MoneyAuthorization::mayMoveMoney( $post_id, get_current_user_id(), 'admin_deposit' );
+
 		// Cancel button
-		if ( in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
+		if ( $may_move_money && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
 			echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 			echo '<span class="dashicons dashicons-no"></span>';
 			echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
 			echo '</button>';
 		}
 
-		// Refund button
-		if ( $payment_status === 'paid' && in_array( $booking_status, array( 'cancelled' ), true ) ) {
+		// Refund button. The rule lives in can_refund_from_deposit_screen() so
+		// this screen, the refund box's link and the AJAX handler cannot drift
+		// apart again -- see that method for the two ways they already had.
+		if ( $may_move_money && self::can_refund_from_deposit_screen( $post_id ) ) {
 			echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 			echo '<span class="dashicons dashicons-undo"></span>';
 			echo esc_html__( 'Process Refund', 'mhm-rentiva' );
@@ -390,21 +463,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	private static function format_price( float $price ): string {
-		$symbol   = get_woocommerce_currency_symbol();
-		$position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
-		$amount   = number_format_i18n( $price, 2 );
-
-		switch ( $position ) {
-			case 'left':
-				return $symbol . $amount;
-			case 'right':
-				return $amount . $symbol;
-			case 'left_space':
-				return $symbol . ' ' . $amount;
-			case 'right_space':
-			default:
-				return $amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 
 	private static function get_payment_status_label( string $status ): string {

@@ -1,170 +1,349 @@
-/* ShortcodePages React SPA — page-specific styles */
+/*
+ * Shortcode Pages — refined WP-admin skin (admin redesign recipe).
+ * Every rule is scoped under #mhm-shortcode-pages-root so nothing leaks
+ * into shared/admin.css or other screens; rv-scp prefixed classes only.
+ */
 
-.mhm-shortcode-pages-app {
+#mhm-shortcode-pages-root .rv-scp {
 	max-width: 1200px;
+	margin-top: 16px;
+	font-size: 13px;
+	color: #1d2327;
 }
 
-/* Stats bar */
-.mhm-sc-stats {
-	display: flex;
-	gap: 16px;
-	margin-bottom: 20px;
+/* ── KPI cards ─────────────────────────────────────────────────────── */
+
+#mhm-shortcode-pages-root .rv-scp-kpis {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 14px;
+	margin-bottom: 16px;
 }
 
-.mhm-sc-stat-card {
-	background: linear-gradient( 135deg, #50575e, #3c4146 );
-	border-radius: 8px;
-	padding: 18px 24px;
-	min-width: 120px;
-	text-align: center;
-	box-shadow: 0 2px 8px rgba( 0, 0, 0, .18 );
-	color: #fff;
+#mhm-shortcode-pages-root .rv-scp-kpi {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	padding: 16px 18px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
-.mhm-sc-stat-value {
-	display: block;
-	font-size: 32px;
+#mhm-shortcode-pages-root .rv-scp-kpi__label {
+	font-size: 12px;
+	color: #646970;
+}
+
+#mhm-shortcode-pages-root .rv-scp-kpi__value {
+	font-size: 28px;
 	font-weight: 700;
-	line-height: 1.1;
-	color: #fff;
+	margin-top: 4px;
+	line-height: 1;
 }
 
-.mhm-sc-stat-label {
-	display: block;
-	font-size: 11px;
-	text-transform: uppercase;
-	letter-spacing: .5px;
-	opacity: .8;
-	margin-top: 6px;
-	color: #fff;
+#mhm-shortcode-pages-root .rv-scp-kpi.is-active .rv-scp-kpi__value {
+	color: #0a6b1e;
 }
 
-.mhm-sc-stat-card--active {
-	background: linear-gradient( 135deg, #00a32a, #007a1f );
-	box-shadow: 0 2px 8px rgba( 0, 163, 42, .3 );
+#mhm-shortcode-pages-root .rv-scp-kpi.is-missing .rv-scp-kpi__value {
+	color: #a02222;
 }
 
-.mhm-sc-stat-card--missing {
-	background: linear-gradient( 135deg, #d63638, #a52224 );
-	box-shadow: 0 2px 8px rgba( 214, 54, 56, .3 );
-}
+/* ── Toolbar ───────────────────────────────────────────────────────── */
 
-.mhm-sc-stat-card--active .mhm-sc-stat-value,
-.mhm-sc-stat-card--missing .mhm-sc-stat-value { color: #fff; }
-
-/* Mobile responsive */
-@media (max-width: 782px) {
-	.mhm-sc-stats {
-		flex-wrap: wrap;
-	}
-
-	.mhm-sc-stats .mhm-sc-stat-card {
-		flex: 1 1 calc(50% - 8px);
-		min-width: 120px;
-	}
-}
-
-/* System actions */
-.mhm-sc-system-actions {
+#mhm-shortcode-pages-root .rv-scp-toolbar {
 	display: flex;
+	align-items: center;
 	gap: 8px;
-	margin-bottom: 20px;
 	flex-wrap: wrap;
+	margin-bottom: 16px;
 }
 
-/* Table */
-.mhm-sc-table .mhm-sc-slug {
-	display: block;
-	font-family: monospace;
-	font-size: 12px;
-	color: #2271b1;
-	margin-bottom: 4px;
+#mhm-shortcode-pages-root .rv-scp-btn {
+	display: inline-block;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 8px 14px;
+	background: #fff;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	color: #2c3338;
+	cursor: pointer;
+	text-decoration: none;
+	text-align: center;
+	line-height: 1.4;
 }
 
-.mhm-sc-table .mhm-sc-label {
-	display: block;
-	font-weight: 600;
-	margin-bottom: 2px;
+#mhm-shortcode-pages-root .rv-scp-btn:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
 }
 
-.mhm-sc-table .mhm-sc-description {
-	display: block;
-	font-size: 12px;
-	color: #646970;
-}
-
-.mhm-sc-no-page {
-	color: #646970;
-}
-
-.mhm-sc-row--pending td {
+#mhm-shortcode-pages-root .rv-scp-btn:disabled {
 	opacity: 0.6;
+	cursor: default;
 }
 
-.mhm-sc-actions {
+#mhm-shortcode-pages-root .rv-scp-btn.is-primary {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+#mhm-shortcode-pages-root .rv-scp-btn.is-primary:hover {
+	background: #135e96;
+	border-color: #135e96;
+}
+
+#mhm-shortcode-pages-root .rv-scp-btn.is-danger {
+	border-color: #d63638;
+	color: #a02222;
+}
+
+#mhm-shortcode-pages-root .rv-scp-btn.is-danger:hover {
+	background: #fcf0f1;
+	border-color: #a02222;
+}
+
+#mhm-shortcode-pages-root .rv-scp-search {
+	margin-left: auto;
+	min-width: 220px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-search input {
+	width: 100%;
+	font-size: 13px;
+	padding: 8px 12px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: none;
+	line-height: 1.4;
+	min-height: 0;
+}
+
+/* ── Table card ────────────────────────────────────────────────────── */
+
+#mhm-shortcode-pages-root .rv-scp-card {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+#mhm-shortcode-pages-root .rv-scp-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	min-width: 820px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-table th {
+	text-align: left;
+	padding: 12px 14px;
+	border-bottom: 1px solid #eceef1;
+	font-weight: 600;
+	color: #646970;
+	background: #fafbfc;
 	white-space: nowrap;
 }
 
-.mhm-sc-actions .button {
-	margin-right: 4px;
+#mhm-shortcode-pages-root .rv-scp-table th:first-child {
+	padding-left: 16px;
 }
 
-/* Status badge */
-.mhm-sc-badge {
+#mhm-shortcode-pages-root .rv-scp-table th.is-right {
+	text-align: right;
+	padding-right: 16px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-table td {
+	padding: 13px 14px;
+	border-bottom: 1px solid #f2f3f5;
+	vertical-align: top;
+}
+
+#mhm-shortcode-pages-root .rv-scp-table td:first-child {
+	padding-left: 16px;
+	max-width: 340px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+#mhm-shortcode-pages-root .rv-scp-row--pending {
+	opacity: 0.55;
+}
+
+/* Shortcode cell */
+
+#mhm-shortcode-pages-root .rv-scp-slug {
 	display: inline-block;
-	padding: 2px 8px;
-	border-radius: 10px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	font-size: 12px;
+	background: #f0f2f5;
+	color: #2271b1;
+	padding: 2px 8px;
+	border-radius: 6px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-label {
+	display: block;
 	font-weight: 600;
+	margin-top: 6px;
 }
 
-.mhm-sc-badge--active {
-	background: #d7f0de;
-	color: #00600c;
+#mhm-shortcode-pages-root .rv-scp-description {
+	display: block;
+	font-size: 12px;
+	color: #8a8f98;
+	margin-top: 2px;
 }
 
-.mhm-sc-badge--missing {
-	background: #fde8e8;
-	color: #8a0000;
+#mhm-shortcode-pages-root .rv-scp-no-page {
+	color: #b6bcc3;
 }
 
-/* Debug panel */
-.mhm-sc-debug-panel {
-	margin-top: 24px;
+/* Status pill */
+
+#mhm-shortcode-pages-root .rv-scp-badge {
+	display: inline-block;
+	font-size: 12px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-weight: 600;
+	white-space: nowrap;
 }
 
-.mhm-sc-debug-header {
+#mhm-shortcode-pages-root .rv-scp-badge--active {
+	background: #e4f6e9;
+	color: #0a6b1e;
+}
+
+#mhm-shortcode-pages-root .rv-scp-badge--missing {
+	background: #fdecec;
+	color: #a02222;
+}
+
+/* Row actions */
+
+#mhm-shortcode-pages-root .rv-scp-actions {
+	text-align: right;
+	white-space: nowrap;
+	padding-right: 16px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-actions .rv-scp-btn {
+	font-size: 12px;
+	padding: 4px 10px;
+	border-radius: 6px;
+	margin-left: 4px;
+}
+
+#mhm-shortcode-pages-root .rv-scp-actions .rv-scp-btn.is-view {
+	color: #2271b1;
+}
+
+#mhm-shortcode-pages-root .rv-scp-empty {
+	padding: 40px 18px;
+	text-align: center;
+	color: #8a8f98;
+}
+
+/* ── Debug panel & modal (existing markup, reskinned) ──────────────── */
+
+#mhm-shortcode-pages-root .mhm-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(16, 24, 40, 0.45);
+	display: grid;
+	place-items: center;
+	z-index: 100000;
+}
+
+#mhm-shortcode-pages-root .mhm-modal {
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 8px 30px rgba(16, 24, 40, 0.18);
+	padding: 22px 24px;
+	max-width: 420px;
+	width: calc(100% - 40px);
+}
+
+#mhm-shortcode-pages-root .mhm-modal h3 {
+	margin: 0 0 8px;
+	font-size: 16px;
+}
+
+#mhm-shortcode-pages-root .mhm-modal p {
+	margin: 0 0 16px;
+	color: #50575e;
+}
+
+#mhm-shortcode-pages-root .mhm-modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+#mhm-shortcode-pages-root .mhm-sc-debug-panel {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 18px 20px;
+	margin-top: 16px;
+}
+
+#mhm-shortcode-pages-root .mhm-sc-debug-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 8px;
+	gap: 12px;
+	margin-bottom: 6px;
 }
 
-.mhm-sc-debug-header h3 {
+#mhm-shortcode-pages-root .mhm-sc-debug-header h3 {
 	margin: 0;
+	font-size: 15px;
 }
 
-.mhm-sc-debug-meta {
-	color: #646970;
-	margin-bottom: 12px;
+#mhm-shortcode-pages-root .mhm-sc-debug-meta {
+	color: #8a8f98;
+	margin: 0 0 12px;
 }
 
-.mhm-debug-found td {
-	background: #f0fff4;
+#mhm-shortcode-pages-root .rv-scp-debug-table {
+	min-width: 0;
 }
 
-/* Danger button */
-.mhm-btn-danger {
-	background: #d63638 !important;
-	border-color: #a52224 !important;
-	color: #fff !important;
+#mhm-shortcode-pages-root .rv-scp-debug-hit {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-right: 12px;
 }
 
-.mhm-btn-danger:hover {
-	background: #a52224 !important;
+#mhm-shortcode-pages-root .rv-scp-via {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 1px 6px;
+	border-radius: 5px;
+	background: #eef2f7;
+	color: #41505f;
 }
 
-.mhm-btn-danger-outline {
-	color: #d63638 !important;
-	border-color: #d63638 !important;
+#mhm-shortcode-pages-root .rv-scp-via.is-block {
+	background: #e5eefb;
+	color: #135e96;
+}
+
+#mhm-shortcode-pages-root .rv-scp-via.is-widget {
+	background: #f3e8fb;
+	color: #6b2fa0;
 }

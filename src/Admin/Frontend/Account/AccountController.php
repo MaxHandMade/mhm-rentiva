@@ -15,6 +15,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
+use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 
@@ -229,7 +230,10 @@ final class AccountController {
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
 		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');
 		if ($endpoint === 'favorites' || get_query_var($favorites_slug) !== '') {
-			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+			// Through AssetManager, not a bare wp_enqueue_script(): the script is
+			// useless without its mhmrentiva_vars payload, and that payload has
+			// exactly one definition now.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 		}
 
 		// Enqueue Account Privacy JS on Dashboard.
@@ -382,7 +386,8 @@ final class AccountController {
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
 				'restUrl'     => rest_url('mhm-rentiva/v1/'),
 				'nonce'       => wp_create_nonce('mhmrentiva_account'),
-				'uploadNonce' => wp_create_nonce('mhmrentiva_upload_receipt'),
+				// wp_ajax_-only handler: no point minting/printing it for a logged-out visitor.
+				'uploadNonce' => is_user_logged_in() ? wp_create_nonce('mhmrentiva_upload_receipt') : '',
 				'restNonce'   => wp_create_nonce('wp_rest'),
 				'i18n'        => array(
 					'loading'                => __('Loading...', 'mhm-rentiva'),
@@ -939,23 +944,35 @@ final class AccountController {
 	 */
 	public static function ajax_update_account(): void
 	{
+		/*
+		 * Guards and every wp_send_json_* stay OUTSIDE the try. wp_send_json_*
+		 * ends the request through wp_die(), and a catch(Exception) around it
+		 * swallows that terminator and appends a second, contradictory JSON
+		 * document -- which is why this endpoint could not be measured at all.
+		 * The try below wraps only the work that can genuinely throw.
+		 */
+
+		// Nonce verification
+		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhmrentiva_account')) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+		}
+
+		// Login check
+		if (! is_user_logged_in()) {
+			wp_send_json_error(array( 'message' => __('Please login.', 'mhm-rentiva') ));
+		}
+
+		// Profile editing check
+		$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_customer_profile_editable', '1');
+		if ($profile_editable !== '1') {
+			wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
+		}
+
+		// null, not '': a WP_Error whose message happens to be empty must still
+		// be an error, not a silent success.
+		$error = null;
+
 		try {
-			// Nonce verification
-			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhmrentiva_account')) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-			}
-
-			// Login check
-			if (! is_user_logged_in()) {
-				wp_send_json_error(array( 'message' => __('Please login.', 'mhm-rentiva') ));
-			}
-
-			// Profile editing check
-			$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_customer_profile_editable', '1');
-			if ($profile_editable !== '1') {
-				wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
-			}
-
 			$user_id = get_current_user_id();
 
 			// Get and sanitize data - apply wp_unslash() before sanitization
@@ -983,25 +1000,29 @@ final class AccountController {
 			$result = wp_update_user($user_data);
 
 			if (is_wp_error($result)) {
-				wp_send_json_error(array( 'message' => $result->get_error_message() ));
+				$error = (string) $result->get_error_message();
+			} else {
+				// Update meta information
+				if (! empty($phone)) {
+					update_user_meta($user_id, 'mhmrentiva_phone', $phone);
+				}
+				if (! empty($address)) {
+					update_user_meta($user_id, 'mhmrentiva_address', $address);
+				}
 			}
-
-			// Update meta information
-			if (! empty($phone)) {
-				update_user_meta($user_id, 'mhmrentiva_phone', $phone);
-			}
-			if (! empty($address)) {
-				update_user_meta($user_id, 'mhmrentiva_address', $address);
-			}
-
-			wp_send_json_success(
-				array(
-					'message' => __('Account updated successfully.', 'mhm-rentiva'),
-				)
-			);
 		} catch (\Exception $e) {
-			wp_send_json_error(array( 'message' => __('An error occurred while updating your account.', 'mhm-rentiva') ));
+			$error = __('An error occurred while updating your account.', 'mhm-rentiva');
 		}
+
+		if (null !== $error) {
+			wp_send_json_error(array( 'message' => $error ));
+		}
+
+		wp_send_json_success(
+			array(
+				'message' => __('Account updated successfully.', 'mhm-rentiva'),
+			)
+		);
 	}
 
 	/**
@@ -1051,6 +1072,13 @@ final class AccountController {
 		// Nonce check
 		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['comm_prefs_nonce'] ?? '')), 'update_comm_preferences')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+			// PHPStan calls this unreachable and it is right today: wp_die()
+			// does not return. It stays as the guard for the day this handler
+			// moves behind a wrapper, or a test/CLI wp_die handler is installed
+			// that DOES return -- the wp_send_json_* fall-through class the
+			// tree already carries 160 members of. The cost is one dead line;
+			// the cost of removing it is a nonce failure that keeps going.
+			// Carried in phpstan-baseline.neon as deadCode.unreachable, count 2.
 			return;
 		}
 
@@ -1115,7 +1143,7 @@ final class AccountController {
 		$user_id = get_current_user_id();
 
 		// Use CancellationHandler to process cancellation
-		$result = CancellationHandler::cancel_booking($booking_id, $user_id, $reason, false);
+		$result = CancellationHandler::cancel_booking($booking_id, $user_id, $reason, false, false, 'customer_account');
 
 		if (is_wp_error($result)) {
 			wp_send_json_error(
@@ -1124,6 +1152,36 @@ final class AccountController {
 				),
 				400
 			);
+		}
+
+		// Past this point CancellationHandler::cancel_booking() has already
+		// committed the cancellation -- a post-commit problem (a mail/refund/
+		// integrator throwable, or a refund that itself ended in 'failed')
+		// is "cancelled, with problems", never a reason to tell the customer
+		// the cancellation failed.
+		wp_cache_delete($booking_id, 'post_meta');
+
+		if (! empty($result['problems']) || RefundStatus::FAILED === RefundStatus::get($booking_id)) {
+			// Task 14b item 9: "See the refund status on this screen" is an
+			// admin-facing sentence -- DepositManagementAjax::cancel_booking()
+			// uses the identical string correctly, because that screen has a
+			// refund-status meta box to look at. My Account has no such
+			// panel; the customer here needs to be told what actually
+			// happens next, not sent looking for something that is not on
+			// their screen.
+			wp_send_json_success(
+				array(
+					'message'    => __('Booking cancelled, but the refund could not be completed automatically. We will contact you separately about your refund.', 'mhm-rentiva'),
+					'booking_id' => $booking_id,
+				)
+			);
+			// Slice 5 added this line, and with it the baseline's silent 1 -> 2.
+			// Same reasoning as the wp_die() guard in
+			// handle_communication_preferences(): wp_send_json_success() ends
+			// the request today, so PHPStan is correct that nothing follows --
+			// but this return is what stops the success payload below from ALSO
+			// being sent the day this code sits behind a wrapper that returns.
+			return;
 		}
 
 		// Success

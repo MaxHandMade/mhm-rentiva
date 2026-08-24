@@ -21,9 +21,11 @@
         "check-user-writes": "php bin/audit-user-account-writes.php",
         "check-js-correctness": [
             "@php ./bin/check-js-correctness.php",
-            "npx wp-scripts test-unit-js tests/js/toast-sticky-update.test.js tests/js/vehicle-interactions-accessibility.test.js --runInBand"
+            "npx wp-scripts test-unit-js tests/js/toast-sticky-update.test.js tests/js/vehicle-interactions-accessibility.test.js tests/js/addon-toggle-accessibility.test.js tests/js/addon-stats-refresh.test.js tests/js/refund-amount-scale.test.js --runInBand"
         ],
-        "carve-gates": ["@phpstan", "@crippleware", "php bin/check-guarded-refs.php", "php bin/check-manifest.php", "php bin/check-unguarded-pro-refs.php", "php bin/check-external-http.php", "php bin/check-no-pro-refs.php"],
+        "check-refund-status-writers": "php bin/check-refund-status-writers.php",
+        "check-i18n-placeholders": "php bin/check-i18n-placeholders.php",
+        "carve-gates": ["@phpstan", "@crippleware", "php bin/check-guarded-refs.php", "php bin/check-manifest.php", "php bin/check-unguarded-pro-refs.php", "php bin/check-external-http.php", "php bin/check-no-pro-refs.php", "php bin/check-refund-status-writers.php"],
         "phpcs:release": "@php ./vendor/bin/phpcs --standard=phpcs.xml mhm-rentiva.php uninstall.php src templates assets/blocks",
         "phpcbf:release": "@php ./vendor/bin/phpcbf --standard=phpcs.xml mhm-rentiva.php uninstall.php src templates assets/blocks",
         "plugin-check:release": "wp plugin check mhm-rentiva --path=/var/www/html --allow-root --format=json --ignore-codes=hidden_files --exclude-directories=tests,bin,website,.github,.ai,.agent,.agents,pcp,stubs,.intelephense,.vscode,build,docs,specs,.worktrees --exclude-files=.gitignore,.phpunit.result.cache,.tmp_scan.csv,.tmp_phpscan.csv,cookie_debug.php,generate-clean-pot.php,update-pot-ultimate.php,wp-stubs.php,AGENTS.md,PROJECT_GUIDE.md,PROJECT_MEMORIES.md,SHORTCODES.md,SKILLS.md,UI_CONTRACTS.md,README-tr.md,arac-kiralama-vip-transfer-theme-tasarim.md,phpunit.xml.dist,RELEASE_CHECKLIST.md",

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integrations\WooCommerce;
 
 use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -24,6 +25,8 @@ use WP_Ajax_UnitTestCase;
  * payment gateway; this is a pre-existing WooCommerceBridge defect.
  */
 final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
+	use WooCommerceFixtures;
+
 
 	private int $booking_id;
 
@@ -33,14 +36,9 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			$this->markTestSkipped( 'WooCommerce not loaded.' );
-		}
+		$this->require_woocommerce();
 
-		$product = new \WC_Product_Simple();
-		$product->set_sku( WooCommerceBridge::PRODUCT_SKU );
-		$product->set_regular_price( '1' );
-		$product->save();
+		$this->ensure_booking_product();
 
 		$this->booking_id = (int) self::factory()->post->create(
 			array(

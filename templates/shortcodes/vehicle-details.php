@@ -155,7 +155,21 @@ $allowed_svg_tags = array(
 									title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
 									aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
 									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
-									<?php Icons::render('heart', array( 'class' => 'mhm-heart-icon' )); ?>
+									<?php
+									// Explicit size at the call site: Icons::get()'s inline
+									// style defaults to 20px, which used to beat this page's
+									// own 16px rule for the compare icon while the card CSS's
+									// !important rule pinned the heart at 18px -- two sizes
+									// in one row of identical badges.
+									Icons::render(
+										'heart',
+										array(
+											'class'  => 'mhm-heart-icon',
+											'width'  => '16px',
+											'height' => '16px',
+										)
+									);
+									?>
 									<span class="text-label sr-only"><?php echo $is_favorite ? esc_html__('Remove from Favorites', 'mhm-rentiva') : esc_html__('Add to Favorites', 'mhm-rentiva'); ?></span>
 								</button>
 							<?php endif; ?>
@@ -166,7 +180,16 @@ $allowed_svg_tags = array(
 									title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
 									aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
 									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
-									<?php Icons::render('compare', array( 'class' => 'mhm-compare-icon' )); ?>
+									<?php
+									Icons::render(
+										'compare',
+										array(
+											'class'  => 'mhm-compare-icon',
+											'width'  => '16px',
+											'height' => '16px',
+										)
+									);
+									?>
 									<span class="text-label sr-only"><?php esc_html_e('Compare', 'mhm-rentiva'); ?></span>
 								</button>
 							<?php endif; ?>

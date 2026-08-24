@@ -1,10 +1,17 @@
 name: Testing
 
+# wporg-t7 is listed alongside the default branches on purpose. It is the
+# line every WordPress.org submission has been cut from since 6.0.0, and it
+# has never triggered this workflow once: `on:` named only main/master, so a
+# push here ran nothing and the only green anyone could point at came from
+# the open PR into main. "I pushed it, so it is green" has been false in this
+# repo for the whole 6.0.x series. It stops being false here, and comes off
+# again when wporg-t7 merges into main.
 on:
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, wporg-t7 ]
   push:
-    branches: [ main, master ]
+    branches: [ main, master, wporg-t7 ]
 
 concurrency:
   group: testing-${{ github.workflow }}-${{ github.ref }}
@@ -169,6 +176,22 @@ jobs:
       - name: React translation catalogs (languages/*.json vs the committed .po)
         run: python3 bin/build-i18n.py --verify-only
 
+      # Translation placeholder parity. A translator may change the words; a
+      # changed PLACEHOLDER changes behaviour. Found 2026-08-24: seven Turkish
+      # subjects rendered {{booking.id}} where the source says
+      # {{booking.order_id}}, so every transactional e-mail showed the internal
+      # post id in its subject and the WooCommerce order number in its body --
+      # two different numbers for one booking, in one message.
+      #
+      # Nothing above can see this class. msgfmt -c validates printf conversions
+      # (%s, %d), not {{dot.path}}/{token}, and reported the catalog clean with
+      # all seven present. build-i18n.py --verify-only compares the committed
+      # catalogs against the committed .po, and both sides agreed on the wrong
+      # token. No test renders a translated subject. The first observer was a
+      # customer.
+      - name: Translation placeholder parity (msgstr keeps msgid's placeholders)
+        run: composer check-i18n-placeholders
+
       # Gate G-A (WP.org T7 remediation, Task 1): zero visible security shapes
       # (missing nonces / unescaped output / unsanitized input) under phpcs
       # --ignore-annotations, with one narrow allowed residual class (see the
@@ -220,6 +243,32 @@ jobs:
       # being one.
       - name: "Prefix inventory gate (G-C: bijection + migration-map completeness)"
         run: php bin/check-prefix-inventory.php
+
+      # Write-side inventory (WordPress.org T9 remediation).
+      #
+      # T9 rejected 6.0.6 over a wp_update_user() reachable from nothing: a
+      # static service method with no caller in either edition. Two gates were
+      # blind to it for the same structural reason -- bin/audit-object-
+      # capabilities.php walks OUT from registered handlers, so a method no
+      # registration reaches does not exist in its world, and it said "(none)"
+      # truthfully. The suite was blind too: that round's two tests asserted
+      # the blanket-only behaviour was CORRECT, so 1,740 green tests said
+      # nothing about the defect.
+      #
+      # This gate starts from the opposite end -- the write itself. Calling
+      # wp_create_user/wp_insert_user/wp_update_user/wp_delete_user/
+      # wp_set_password or ->set_role/add_role/remove_role/add_cap/remove_cap
+      # is a literal a tokenizer cannot miss, whether or not anything calls
+      # the method containing it.
+      #
+      # It is an INVENTORY LOCK, not a verdict: it says "the set of places
+      # that write a user account is exactly this one, and each has a recorded
+      # justification", never "the guard beside it is correct". A new write
+      # site fails the build until somebody writes down which check stands
+      # beside it -- which is the question T9 asked and nothing here could
+      # answer.
+      - name: "User-account write inventory (T9: every user write is recorded)"
+        run: composer check-user-writes
 
       # Gate G-D (WP.org T7 remediation): runs WP.org's Plugin Check ITSELF.
       #
@@ -326,6 +375,21 @@ jobs:
 
       - name: Install WordPress test suite
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+
+      # WooCommerce is not part of the WordPress test suite, and without it 26
+      # source files take their "WooCommerce absent" branch -- which is how the
+      # refund and checkout paths went unmeasured until 2026-08-18. The version
+      # is pinned to the one the dev site runs so CI and a developer's machine
+      # answer the same question; WooCommerceTestEnvironmentTest fails loudly if
+      # this step is ever dropped or the download silently produces nothing.
+      - name: Install WooCommerce into the test tree
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wordpress/wp-content/plugins
+          curl -sSL --fail -o /tmp/woocommerce.zip \
+            https://downloads.wordpress.org/plugin/woocommerce.11.0.1.zip
+          unzip -q /tmp/woocommerce.zip -d /tmp/wordpress/wp-content/plugins
+          test -f /tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php
 
       - name: Run PHPUnit
         env:

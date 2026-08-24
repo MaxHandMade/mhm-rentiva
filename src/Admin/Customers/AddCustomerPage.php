@@ -61,8 +61,11 @@ final class AddCustomerPage {
 			$customer_phone   = sanitize_text_field( wp_unslash( $_POST['customer_phone'] ?? '' ) );
 			$customer_address = sanitize_textarea_field( wp_unslash( $_POST['customer_address'] ?? '' ) );
 
-			if ( empty( $customer_name ) || empty( $customer_email ) ) {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'Customer name and email fields are required.', 'mhm-rentiva' ) . '</p></div>';
+			// Phone is required alongside name and e-mail (matches the edit
+			// screen): bookings need a way to reach the customer, and the HTML
+			// `required` attribute alone is not enforcement.
+			if ( empty( $customer_name ) || empty( $customer_email ) || empty( $customer_phone ) ) {
+				echo '<div class="notice notice-error"><p>' . esc_html__( 'Customer name, email and phone fields are required.', 'mhm-rentiva' ) . '</p></div>';
 			} else {
 				// Generate username from customer name
 				$base_username = trim( strtolower( $customer_name ) );
@@ -115,7 +118,11 @@ final class AddCustomerPage {
 					// Clear cache
 					\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
 
-					echo '<div class="notice notice-success mhm-auto-hide-notice"><p>' . esc_html__( 'Customer added successfully!', 'mhm-rentiva' ) . '</p></div>';
+					$profile_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . (int) $user_id );
+					$list_url    = admin_url( 'admin.php?page=mhm-rentiva-customers' );
+					echo '<div class="notice notice-success"><p>' . esc_html__( 'Customer added successfully!', 'mhm-rentiva' )
+						. ' <a href="' . esc_url( $profile_url ) . '">' . esc_html__( 'Open Profile', 'mhm-rentiva' ) . '</a>'
+						. ' · <a href="' . esc_url( $list_url ) . '">' . esc_html__( '← Back to customers list', 'mhm-rentiva' ) . '</a></p></div>';
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'Error occurred while adding customer: ', 'mhm-rentiva' ) . esc_html( $user_id->get_error_message() ) . '</p></div>';
 				}
@@ -125,46 +132,42 @@ final class AddCustomerPage {
 		echo '<div class="wrap mhm-rentiva-wrap">';
 		echo '<h1>' . esc_html__( 'Add New Customer', 'mhm-rentiva' ) . '</h1>';
 
-		echo '<form method="post" action="">';
-		wp_nonce_field( 'mhmrentiva_add_customer', 'mhmrentiva_add_customer_nonce' );
-
-		echo '<table class="form-table">';
-		echo '<tbody>';
-
 		$posted_customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
 		$posted_customer_email   = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
 		$posted_customer_phone   = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
 		$posted_customer_address = isset( $_POST['customer_address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_address'] ) ) : '';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_name">' . esc_html__( 'Customer Name', 'mhm-rentiva' ) . ' <span class="description">(required)</span></label></th>';
-		echo '<td><input name="customer_name" type="text" id="customer_name" value="' . esc_attr( $posted_customer_name ) . '" class="regular-text" required /></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
+		echo '<form method="post" action="" class="rv-cust-panel__card rv-cust-form">';
+		wp_nonce_field( 'mhmrentiva_add_customer', 'mhmrentiva_add_customer_nonce' );
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_email">' . esc_html__( 'Email', 'mhm-rentiva' ) . ' <span class="description">(required)</span></label></th>';
-		echo '<td><input name="customer_email" type="email" id="customer_email" value="' . esc_attr( $posted_customer_email ) . '" class="regular-text" required /></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_name">' . esc_html__( 'Customer Name', 'mhm-rentiva' ) . ' <span class="rv-cust-req">' . esc_html__( 'Required', 'mhm-rentiva' ) . '</span></label>';
+		echo '<input name="customer_name" type="text" id="customer_name" value="' . esc_attr( $posted_customer_name ) . '" required />';
+		echo '</div>';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_phone">' . esc_html__( 'Phone', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr( $posted_customer_phone ) . '" class="regular-text" /></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_email">' . esc_html__( 'Email', 'mhm-rentiva' ) . ' <span class="rv-cust-req">' . esc_html__( 'Required', 'mhm-rentiva' ) . '</span></label>';
+		echo '<input name="customer_email" type="email" id="customer_email" value="' . esc_attr( $posted_customer_email ) . '" required />';
+		echo '</div>';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_address">' . esc_html__( 'Address', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><textarea name="customer_address" id="customer_address" rows="3" cols="50" class="large-text">' . esc_textarea( $posted_customer_address ) . '</textarea></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_phone">' . esc_html__( 'Phone', 'mhm-rentiva' ) . ' <span class="rv-cust-req">' . esc_html__( 'Required', 'mhm-rentiva' ) . '</span></label>';
+		echo '<input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr( $posted_customer_phone ) . '" required />';
+		echo '</div>';
 
-		echo '</tbody>';
-		echo '</table>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_address">' . esc_html__( 'Address', 'mhm-rentiva' ) . '</label>';
+		echo '<textarea name="customer_address" id="customer_address" rows="3">' . esc_textarea( $posted_customer_address ) . '</textarea>';
+		echo '</div>';
 
-		echo '<p class="submit">';
-		echo '<input type="submit" name="submit" id="submit" class="button button-primary" value="' . esc_attr__( 'Add Customer', 'mhm-rentiva' ) . '">';
-		echo ' <a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva-customers' ) ) . '" class="button">' . esc_html__( 'Cancel', 'mhm-rentiva' ) . '</a>';
-		echo '</p>';
+		echo '<div class="rv-cust-form__actions">';
+		echo '<button type="submit" name="submit" id="submit" class="rv-cust-btn is-primary">' . esc_html__( 'Add Customer', 'mhm-rentiva' ) . '</button>';
+		echo '<a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva-customers' ) ) . '" class="rv-cust-btn">' . esc_html__( 'Cancel', 'mhm-rentiva' ) . '</a>';
+		echo '</div>';
 
 		echo '</form>';
+		echo '</div></div>';
 		echo '</div>';
 	}
 

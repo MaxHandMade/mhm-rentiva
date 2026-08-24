@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Integrations\WooCommerce;
 use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -15,6 +16,8 @@ use WP_Ajax_UnitTestCase;
  * handler so it can also be called from an admin-initiated flow (Task 2).
  */
 final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
+	use WooCommerceFixtures;
+
 
 	private int $booking_id;
 
@@ -24,14 +27,9 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			$this->markTestSkipped( 'WooCommerce not loaded.' );
-		}
+		$this->require_woocommerce();
 
-		$product = new \WC_Product_Simple();
-		$product->set_sku( WooCommerceBridge::PRODUCT_SKU );
-		$product->set_regular_price( '1' );
-		$product->save();
+		$this->ensure_booking_product();
 
 		$this->booking_id = (int) self::factory()->post->create(
 			array(

@@ -108,13 +108,19 @@ final class Util {
 		$max_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
 
 		if ($days < $min_days) {
-			/* translators: %d: number of days */
-			return new \WP_Error('min_days', sprintf(__('Minimum rental period is %d days.', 'mhm-rentiva'), $min_days));
+			return new \WP_Error('min_days', sprintf(
+				/* translators: %d: number of days */
+				_n('Minimum rental period is %d day.', 'Minimum rental period is %d days.', $min_days, 'mhm-rentiva'),
+				$min_days
+			));
 		}
 
 		if ($max_days > 0 && $days > $max_days) {
-			/* translators: %d: number of days */
-			return new \WP_Error('max_days', sprintf(__('Maximum rental period is %d days.', 'mhm-rentiva'), $max_days));
+			return new \WP_Error('max_days', sprintf(
+				/* translators: %d: number of days */
+				_n('Maximum rental period is %d day.', 'Maximum rental period is %d days.', $max_days, 'mhm-rentiva'),
+				$max_days
+			));
 		}
 
 		return true;

@@ -178,15 +178,26 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			);
 
 			// Localize for AJAX
+			$currency_parts = \MHMRentiva\Admin\Core\CurrencyHelper::get_js_currency_payload();
+
 			wp_localize_script(
 				'mhm-rentiva-manual-booking-meta',
 				'mhmManualBooking',
 				array(
-					'ajaxUrl'  => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
-					'currency' => get_woocommerce_currency_symbol(),
-					'locale'   => str_replace( '_', '-', get_locale() ),
-					'text'     => array(
+					'ajaxUrl'        => admin_url('admin-ajax.php'),
+					'nonce'          => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
+					// Canonical currency parts: this script formats prices itself, so
+					// it needs the placement and separators, not just the symbol. It
+					// used to receive the symbol alone and pin it to the right.
+					'currency'       => $currency_parts['symbol'],
+					'currencyFormat' => array(
+						'position'          => $currency_parts['position'],
+						'decimals'          => $currency_parts['decimals'],
+						'decimalSeparator'  => $currency_parts['decimalSeparator'],
+						'thousandSeparator' => $currency_parts['thousandSeparator'],
+					),
+					'locale'         => str_replace( '_', '-', get_locale() ),
+					'text'           => array(
 						'calculating'        => __('Calculating...', 'mhm-rentiva'),
 						'error'              => __('An error occurred', 'mhm-rentiva'),
 						'success'            => __('Booking created', 'mhm-rentiva'),
@@ -379,8 +390,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			)
 		);
 
+		// Pasif means not sold, and that has to hold for the operator too: a
+		// service offered here would be attached to a real booking and priced,
+		// which is the same sale by another door. Nothing is attached to this
+		// screen yet -- it creates bookings -- so there is no already-selected
+		// set to preserve, unlike the edit screen.
 		$available_addons = array();
 		foreach ( $addons as $addon ) {
+			if ( ! \MHMRentiva\Admin\Addons\AddonManager::is_sellable( (int) $addon->ID ) ) {
+				continue;
+			}
+
 			$available_addons[] = array(
 				'id'          => $addon->ID,
 				'title'       => $addon->post_title,
@@ -535,7 +555,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Additional services calculation (daily)
-		$selected_addons = isset($_POST['selected_addons']) ? array_map('intval', (array) wp_unslash($_POST['selected_addons'])) : array();
+		// Quoting a price for a service that is switched off would put a figure
+		// on screen the operator cannot then sell. Same refusal as the create
+		// path below, and the same reason the customer form has one.
+		$posted_addons   = isset($_POST['selected_addons']) ? array_map('intval', (array) wp_unslash($_POST['selected_addons'])) : array();
+		$selected_addons = \MHMRentiva\Admin\Addons\AddonManager::filter_sellable($posted_addons);
 		$addon_total     = 0;
 
 		if (! empty($selected_addons)) {
@@ -748,13 +772,22 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			);
 			// Non-fatal: log but don't abort booking creation. Routed to the plugin's
 			// own logger instead of the site's PHP error log.
+			//
+			// Task 14b item 3: promoted from warning() to error(). This runs
+			// before the booking post itself exists (the customer account is
+			// created first), so no booking_id is available to link -- but
+			// the failure is real: the operator's manual booking form is
+			// silently leaving the customer's name/role fields unset, and
+			// warning() is exactly the level a stock install drops.
 			if ( is_wp_error( $update_result ) && class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
-					'wp_update_user failed while creating a manual booking',
-					array(
-						'user_id' => $user_id,
-						'error'   => $update_result->get_error_message(),
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+					sprintf(
+						/* translators: %s: the error message wp_update_user() returned. */
+						__( 'wp_update_user failed while creating a manual booking: %s', 'mhm-rentiva' ),
+						$update_result->get_error_message()
 					),
+					0,
+					array( 'user_id' => $user_id ),
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 			}
@@ -773,7 +806,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Add-ons calculation (same as BookingForm.php)
-		$selected_addons = isset( $_POST['selected_addons'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['selected_addons'] ) ) : array();
+		// This screen only ever CREATES a booking, so there is no already-attached
+		// set to preserve and the plain refusal is right. The edit screen's save
+		// path is deliberately NOT filtered this way: a booking may already carry
+		// a service switched off since, and filtering there would delete it.
+		$posted_addons   = isset( $_POST['selected_addons'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['selected_addons'] ) ) : array();
+		$selected_addons = \MHMRentiva\Admin\Addons\AddonManager::filter_sellable( $posted_addons );
 		$addon_total     = 0;
 		$addon_details   = array();
 
@@ -832,7 +870,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				'_mhmrentiva_created_by'            => get_current_user_id(),
 				'_mhmrentiva_payment_type'          => $payment_type,
 				'_mhmrentiva_payment_method'        => $payment_method,
-				'_mhmrentiva_payment_gateway'       => '',
+				'_mhmrentiva_payment_gateway'       => 'offline',
 				'_mhmrentiva_deposit_amount'        => $deposit_result['deposit_amount'],
 				'_mhmrentiva_remaining_amount'      => $deposit_result['remaining_amount'],
 				'_mhmrentiva_deposit_type'          => $deposit_result['deposit_type'],
@@ -931,20 +969,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	 */
 	private static function format_addon_price(float $price): string
 	{
-		$symbol           = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency_position', 'right_space');
-		$formatted_amount = number_format($price, 2, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price($price, 2);
 	}
 }

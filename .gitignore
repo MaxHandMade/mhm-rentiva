@@ -149,7 +149,12 @@ concurrency_proof.php
 v1.9_verification*.php
 AUDIT_REPORT_*.md
 *transient*.php
-*db*.php
+# Anchored to the repository root -- unanchored, this matched at every depth
+# and (case-insensitively, this repo's core.ignorecase) swallowed
+# tests/Integrations/WooCommerce/HybridBookingButtonTest.php, whose name
+# happens to contain "dB" from "HybridBooking". Same class of bug as the
+# /*reorder*.php-style rules above; same fix.
+/*db*.php
 
 # ============================================================================
 # SECTION 7: MHM Rentiva - Local Development Exclusions
@@ -175,17 +180,25 @@ flush_rules.php
 shortcode_analiz.php
 
 # AI Utility & Cleanup Scripts
-fix_*.php
-scan_*.php
-update_*.php
-check_*.php
-list_*.php
-*fixer*.php
-*mute*.php
-*parse*.php
-*reorder*.php
-*rescue*.php
-*analiz*.php
+#
+# Anchored to the repository root with a leading slash. Unanchored, these match
+# at every depth: `*reorder*.php` swallowed
+# tests/Admin/Addons/AddonReorderEndpointTest.php, and would have swallowed a
+# src/ class named for the same verb just as quietly -- an ignored test does not
+# fail, it simply never runs. Measured before narrowing: across the whole tree
+# these eleven patterns were hiding no real file except that test, so the rules
+# had outlived the throwaway scripts they were written for.
+/fix_*.php
+/scan_*.php
+/update_*.php
+/check_*.php
+/list_*.php
+/*fixer*.php
+/*mute*.php
+/*parse*.php
+/*reorder*.php
+/*rescue*.php
+/*analiz*.php
 *report*.txt
 *results*.txt
 *warnings*.txt
@@ -348,6 +361,14 @@ bin/*
 !bin/audit-object-capabilities.php
 !bin/audit-control-classes.php
 !bin/audit-phantom-callbacks.php
+# Same family, added by the BookingForm round: it finds wp_send_json_* refusals
+# with no return after them, which work only because wp_send_json_* ends the
+# request through wp_die(). It reports rather than gates for a reason of its own,
+# and the honest one is not "a variable function name could hide a call": it is
+# that judging what follows a call needs a reachability model, and this one
+# approximates. It already had to be taught that an explicit wp_die() terminates.
+# An approximation that fails a build is a build failed by an approximation.
+!bin/audit-json-fallthrough.php
 # The exception to the "reports, not gates" rule above, and the reason it is an
 # exception is worth stating. Those three make a JUDGEMENT (is this capability
 # the right one?) and a judgement that under-reports must not fail a build.
@@ -489,6 +510,39 @@ bin/*
 # while PHPUnit, PHPCS, PHPStan and Plugin Check were all green over it. Must
 # be tracked or the gate that catches that class ships in nobody's clone.
 !bin/check-admin-only-functions.php
+# Task 5 of the 2026-08-19 refund/deposit slice 2 round: the M-02 sweep's own
+# inventory probe. Reports fixed-100 minor-unit conversions the sweep (Tasks
+# 2-4) did not reach; declares its starting set and blind spots rather than
+# gating. Tracked so the next round can re-run it. `bin/*` above ignores this
+# directory itself, so the fixture directory needs its own negation before its
+# file's negation -- a parent-directory exclusion cannot be undone from below.
+!bin/audit-fixed-minor-scale.php
+!bin/fixtures/
+!bin/fixtures/fixed-minor-scale-fixture.txt
+# Task 13 of the 2026-08-19 refund/deposit slice 3 round: reports every
+# remaining mention of the two retired payment-amount meta keys
+# (_mhmrentiva_payment_amount, _mhmrentiva_booking_payment_amount), the way
+# audit-fixed-minor-scale.php above reports its own defect class. Declares its
+# starting set (every git-tracked file) and blind spots (runtime-assembled
+# keys, compiled JS, the Pro tree) rather than gating. Tracked so the next
+# round -- or a re-check of this one -- can re-run it.
+!bin/audit-retired-meta.php
+# Task 2 of the 2026-08-21 refund/deposit slice 5 round: the single-writer
+# gate for _mhmrentiva_refund_status. `composer check-refund-status-writers` /
+# `composer carve-gates` require it at runtime; it is the CLI twin of
+# tests/Gates/RefundStatusSingleWriterTest.php, so a developer or CI job
+# without a PHPUnit environment still has the invariant enforced. Must ship
+# in every clone or the gate that catches a bare update_post_meta() bypassing
+# RefundStatus::transition() runs in nobody's clone but this one.
+!bin/check-refund-status-writers.php
+# Translation placeholder gate. `composer check-i18n-placeholders` and the CI
+# step run it, and tests/Gates/I18nPlaceholderParityTest.php require()s it --
+# so an untracked copy would fail the suite in every clean clone, exactly the
+# way the missing bin/mhm-migrate-meta.php did. It catches the class msgfmt -c
+# cannot see: a translation that changes a {{placeholder}} rather than the
+# words around it. Seven Turkish e-mail subjects shipped {{booking.id}} where
+# the source says {{booking.order_id}}.
+!bin/check-i18n-placeholders.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

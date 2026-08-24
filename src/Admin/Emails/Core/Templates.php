@@ -562,6 +562,9 @@ final class Templates {
 			function ( $m ) use ( $context ) {
 				$path = (string) $m[1];
 				$val  = self::get_context_value( $context, $path );
+				if ( self::is_money_path( $path ) && self::is_renderable_amount( $val ) ) {
+					return self::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $val ) );
+				}
 				if ( is_scalar( $val ) ) {
 					return (string) $val;
 				}
@@ -575,20 +578,26 @@ final class Templates {
 
 		// Pass 2: {snake_case_or_dot} format (admin UI uses single braces)
 		$map = array(
-			'site_name'      => 'site.name',
-			'site_url'       => 'site.url',
-			'my_account_url' => '_special.my_account_url', // Special handler
-			'contact_name'   => 'customer.name',
-			'contact_email'  => 'customer.email',
-			'booking_id'     => 'booking.order_id', // Shows WooCommerce order ID (customer-facing)
-			'order_id'       => 'booking.order_id', // WooCommerce order ID
-			'vehicle_title'  => 'vehicle.title',
-			'pickup_date'    => 'booking.pickup_date',
-			'dropoff_date'   => 'booking.return_date',
-			'return_date'    => 'booking.return_date',
-			'total_price'    => 'booking.total_price',
-			'status'         => 'booking.status',
-			'customer_name'  => 'customer.name',
+			'site_name'       => 'site.name',
+			'site_url'        => 'site.url',
+			'my_account_url'  => '_special.my_account_url', // Special handler
+			'contact_name'    => 'customer.name',
+			'contact_email'   => 'customer.email',
+			'booking_id'      => 'booking.order_id', // Shows WooCommerce order ID (customer-facing)
+			'order_id'        => 'booking.order_id', // WooCommerce order ID
+			'vehicle_title'   => 'vehicle.title',
+			'pickup_date'     => 'booking.pickup_date',
+			'dropoff_date'    => 'booking.return_date',
+			'return_date'     => 'booking.return_date',
+			'total_price'     => 'booking.total_price',
+			'status'          => 'booking.status',
+			'customer_name'   => 'customer.name',
+			// Both context keys are flat (top-level), not nested -- the
+			// fallback below (str_replace('_', '.', $token)) would rewrite
+			// them to 'mode.text' / 'admin.mode.text' and silently resolve
+			// to nothing, since $context['mode'] is a string, not an array.
+			'mode_text'       => 'mode_text',
+			'admin_mode_text' => 'admin_mode_text',
 		);
 
 		$out = preg_replace_callback(
@@ -604,9 +613,13 @@ final class Templates {
 
 				$val = self::get_context_value( $context, $path );
 
-				// Special formatting for total_price - add currency
-				if ( $token === 'total_price' && is_numeric( $val ) ) {
-					return self::format_price( (float) $val );
+				// Special formatting for total_price - add currency.
+				// `is_numeric()` alone used to be the whole gate here, so a
+				// producer that handed over a already-formatted string ("1.500,00")
+				// fell straight through and the email printed the amount with NO
+				// currency symbol at all. Coerce instead of skipping.
+				if ( $token === 'total_price' && self::is_renderable_amount( $val ) ) {
+					return self::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $val ) );
 				}
 
 				if ( is_scalar( $val ) ) {
@@ -624,21 +637,52 @@ final class Templates {
 	}
 
 	/**
+	 * Context paths whose value is money and must be rendered with a currency.
+	 *
+	 * @param string $path Dot path from the template token.
+	 * @return bool
+	 */
+	private static function is_money_path( string $path ): bool {
+		return in_array(
+			$path,
+			array( 'booking.total_price', 'booking.deposit_amount', 'booking.remaining_amount' ),
+			true
+		);
+	}
+
+	/**
+	 * Is this context value an amount worth rendering as money?
+	 *
+	 * Accepts numbers AND strings a producer already formatted, so a formatted
+	 * value is repaired rather than silently printed without a symbol. An absent
+	 * or empty value stays empty — an email must not invent a `0,00`.
+	 *
+	 * @param mixed $val Raw context value.
+	 * @return bool
+	 */
+	private static function is_renderable_amount( $val ): bool {
+		if ( is_int( $val ) || is_float( $val ) ) {
+			return true;
+		}
+
+		// A string only counts when it actually carries digits, so a non-amount
+		// placeholder value ("N/A", "") is never turned into a bogus `0,00`.
+		return is_string( $val ) && 1 === preg_match( '/\d/', $val );
+	}
+
+	/**
 	 * Format price with currency symbol
 	 */
 	private static function format_price( float $amount ): string {
-		// Use WooCommerce price formatting if available
-		if ( function_exists( 'wc_price' ) ) {
-			return wp_strip_all_tags( \wc_price( $amount ) );
-		}
-
-		// Fallback: Use plugin currency settings
-		$currency_symbol = apply_filters( 'mhmrentiva_currency_symbol', '₺' );
-		$decimals        = 2;
-		$dec_sep         = ',';
-		$thousands_sep   = '.';
-
-		return $currency_symbol . number_format( $amount, $decimals, $dec_sep, $thousands_sep );
+		// Canonical currency formatting. The old WooCommerce-inactive fallback
+		// hardcoded both the symbol (`₺`) and a left placement, so an email could
+		// contradict every other surface — and the plugin's own currency setting.
+		// Precision comes from the store, not a literal 2, so a 0-decimal currency
+		// (JPY, HUF) is not given cents it does not have.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+			$amount,
+			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals()
+		);
 	}
 
 	/**

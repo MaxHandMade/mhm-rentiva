@@ -14,7 +14,9 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 
@@ -965,6 +967,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				}
 			}
 		} else {
+			// Task 14b item 3: left at warning() deliberately. This hook
+			// (woocommerce_add_order_item_meta) runs for EVERY order item on
+			// EVERY checkout, including ordinary non-rental WooCommerce
+			// products a site may sell alongside bookings -- the "no booking
+			// data" branch is the expected, frequent case for those, not a
+			// failure. Promoting it would make an unrelated product
+			// purchase generate an operator-visible error on every order.
 			AdvancedLogger::warning('No booking data found in cart item values', array(), AdvancedLogger::CATEGORY_PAYMENT);
 		}
 	}
@@ -998,7 +1007,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$items = $order->get_items();
 
 		if (empty($items)) {
-			AdvancedLogger::warning('No items found in order', array( 'order_id' => $order_id ), AdvancedLogger::CATEGORY_PAYMENT);
+			// Task 14b item 3: promoted from warning() to error(). This
+			// runs on order-placed for every WooCommerce checkout that
+			// carries a pending booking; if it fires, create_booking_from_order()
+			// returns having created nothing, and the paid order is left
+			// with no linked booking at all -- silent under the default log
+			// level, on money that already moved.
+			AdvancedLogger::error_linked(
+				sprintf(
+					/* translators: %d: the WooCommerce order id with no items. */
+					__( 'No items found in order #%d', 'mhm-rentiva' ),
+					(int) $order_id
+				),
+				0,
+				array( 'order_id' => $order_id ),
+				AdvancedLogger::CATEGORY_PAYMENT
+			);
 			return;
 		}
 
@@ -1310,8 +1334,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						$rental_ended   = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id);
 						$booking_status = $rental_ended ? 'completed' : 'confirmed';
 						Status::update_status($booking_id, $booking_status, get_current_user_id());
-						// Clear remaining amount for deposit bookings so timeline shows All Payments Completed
-						if (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'deposit') {
+						// Clear the remaining balance only when THIS order is the one
+						// that settles it. Until 6.1.0 the branch looked only at the
+						// booking's payment_type, so completing the FIRST (deposit)
+						// order wiped a debt the customer had never paid -- and
+						// sync_completed_to_wc() drives the original order to completed
+						// itself, so the plugin could trigger it with nobody touching
+						// the order. The processing branch below has always carried
+						// this ownership check; this is the same rule, same key.
+						if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
 							$remaining = floatval(get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
 							if ($remaining > 0) {
 								update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
@@ -1337,21 +1368,119 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 					case 'on-hold':
 						// Payment pending (Bank transfer etc.)
+						// Same ownership rule the completed and processing branches
+						// carry, and for the same reason: a REMAINING order going
+						// on-hold says nothing about a deposit the customer already
+						// paid. Without this, choosing bank transfer for the
+						// remainder demoted the booking to pending/pending --
+						// precisely the pair AutoCancel sweep #1 selects, so the
+						// plugin cancelled a healthy booking and its paid deposit
+						// order along with it.
+						if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1'
+							&& get_post_meta($booking_id, '_mhmrentiva_payment_status', true) === 'paid') {
+							break;
+						}
+
 						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
 						Status::update_status($booking_id, 'pending', get_current_user_id());
 						break;
 
 					case 'cancelled':
 					case 'failed':
-						// Order cancelled
+						if ( self::has_paid_sibling_order( $booking_id, (int) $order_id ) ) {
+							// A sibling order still holds paid money. Cancelling
+							// the collection instrument is not cancelling the
+							// debt: the balance stays, the dead order id is
+							// cleared so the operator can issue a new payment
+							// link, and a human is told.
+							//
+							// Only the remaining-order pointer is ever cleared
+							// here, never _mhmrentiva_woocommerce_order_id: if
+							// the DEPOSIT order is the one dying, deleting the
+							// primary key would discard the only reference to
+							// the (still paid) deposit order -- data loss, and
+							// worse than the stale pointer this leaves instead.
+							if ( (int) get_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', true ) === (int) $order_id ) {
+								delete_post_meta( $booking_id, '_mhmrentiva_remaining_order_id' );
+							}
+
+							// The bool is load-bearing, same reasons as
+							// AutoCancel.php's cancel_booking_with_orders():
+							// send_*_email() returns false without throwing
+							// when admin_email does not validate
+							// (NotificationHelper.php:64-66) and when
+							// wp_mail() fails, and src/ registers no
+							// wp_mail_failed listener. Discarding it here is
+							// worse than that site: there the booking lands in
+							// a visible needs_review state, but here the
+							// remaining-order pointer is already deleted and
+							// the booking looks perfectly healthy -- silently
+							// dropping the e-mail leaves nothing else for
+							// anyone to find.
+							$helper_exists = class_exists( '\MHMRentiva\Helpers\NotificationHelper' );
+							$notified      = $helper_exists
+								&& \MHMRentiva\Helpers\NotificationHelper::send_order_cancelled_on_live_booking_email( $booking_id, (int) $order_id );
+
+							if ( ! $notified ) {
+								// Task 14b item 1: was error() + add(), the
+								// same pair and same reasons as AutoCancel.php's
+								// lock-refusal/notify-failure branches; one call
+								// now covers both.
+								//
+								// Task 14b item 7: the reason used to read
+								// 'notification_failed' even when
+								// $helper_exists was false -- practically
+								// unreachable (NotificationHelper ships in the
+								// Lite manifest), but the exact class item 2
+								// exists for: a reason this branch cannot
+								// actually know is wrong to state as fact.
+								AdvancedLogger::error_linked(
+									sprintf(
+										/* translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to. */
+										__( 'Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed.', 'mhm-rentiva' ),
+										(int) $order_id,
+										$booking_id
+									),
+									$booking_id,
+									array(
+										'order_id' => (int) $order_id,
+										'surface'  => 'wc_status_change',
+										'reason'   => $helper_exists ? 'notification_failed' : 'helper_missing',
+									),
+									AdvancedLogger::CATEGORY_SYSTEM
+								);
+							}
+
+							break;
+						}
+
 						Status::update_status($booking_id, 'cancelled', get_current_user_id());
 						break;
 
 					case 'refunded':
-						// Order refunded - update status only (amount handled by handle_order_refunded)
-						Status::update_status($booking_id, 'refunded', get_current_user_id());
-						// ⭐ Also update payment status
-						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'refunded');
+						// This switch operates per ORDER, but WooCommerce flips an
+						// order's own status to 'refunded' the moment THAT order is
+						// fully drained -- not when the booking is. A deposit
+						// booking's smaller leg routinely hits zero long before the
+						// larger one does, and this handler runs BEFORE
+						// handle_order_refunded(): wc_create_refund() changes the
+						// order's own status (WC 11.0.1 wc-order-functions.php :731)
+						// before it fires woocommerce_refund_created (:742).
+						// Blindly mirroring the per-order flip here is the exact
+						// terminal mid-walk defect Task 8 removed from that hook,
+						// one hop earlier -- so this asks PaymentState the same
+						// booking-level question before touching the booking.
+						//
+						// _mhmrentiva_payment_status is left untouched here on
+						// purpose. handle_order_refunded() runs immediately after
+						// this (same wc_create_refund() call) and is that meta's
+						// single writer for a refund event; writing a value here
+						// that gets overwritten a moment later is a second writer
+						// under a new name -- and a wrong one, during the not-fully-
+						// refunded case, is live for however long that gap is.
+						if (PaymentState::forBooking($booking_id)->isFullyRefunded()) {
+							Status::update_status($booking_id, 'refunded', get_current_user_id());
+						}
 						break;
 				}
 
@@ -1373,10 +1502,36 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Sync booking "completed" status back to WooCommerce order.
+	 * Does the booking have another order, besides this one, that has ever
+	 * been paid?
+	 *
+	 * Delegates to PaymentState::orders() rather than re-deriving the
+	 * candidate list: that list is the same two-candidate lookup
+	 * (resolve_wc_order_id() + _mhmrentiva_remaining_order_id) this method
+	 * used to duplicate, and the duplicate had already dropped
+	 * resolvePaidOrders()'s function_exists('wc_get_order') guard
+	 * (PaymentState.php:135-137) -- load-bearing for callers that can run
+	 * with WooCommerce inactive.
+	 *
+	 * "Ever paid", not "still holds money": PaymentState::orders() keeps a
+	 * fully refunded order in its set on purpose (PaymentState.php:153-155),
+	 * because get_date_paid() proves money arrived even after it was later
+	 * returned. The name and the branch below rely on that meaning.
+	 */
+	private static function has_paid_sibling_order( int $booking_id, int $order_id ): bool {
+		return (bool) array_diff(
+			PaymentState::forBooking( $booking_id )->orders(),
+			array( $order_id )
+		);
+	}
+
+	/**
+	 * Sync booking "completed"/"cancelled" status back to WooCommerce order.
 	 * Triggered by mhmrentiva_booking_status_changed hook.
-	 * Loop-safe: Status::can_transition('completed','completed') returns false,
-	 * so any re-entry from woocommerce_order_status_changed self-terminates.
+	 * Loop-safe both ways: Status::can_transition('completed','completed') and
+	 * Status::can_transition('cancelled','cancelled') both return false, so any
+	 * re-entry from woocommerce_order_status_changed self-terminates whichever
+	 * arm ran.
 	 */
 	public static function sync_completed_to_wc(int $booking_id, string $old_status, string $new_status): void
 	{
@@ -1409,6 +1564,21 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				__('Booking completed — rental period ended.', 'mhm-rentiva')
 			);
 		} elseif ($new_status === 'cancelled') {
+			// The fourth order-cancelling caller in this class, and the one a
+			// single-line grep for update_status('cancelled' cannot see
+			// because the call spans lines. It fires on ANY surface's
+			// cancellation, so without this it undid Task 6 one hop later.
+			//
+			// The membership question has one home: PaymentState::orders() is
+			// the set of this booking's orders whose money actually arrived
+			// (get_date_paid() !== null -- PaymentState.php:153-155 says why
+			// that and not is_paid()). Task 6's has_paid_sibling_order() asks
+			// the booking-level question against the same list; this asks the
+			// order-level one.
+			if ( in_array( $order_id, PaymentState::forBooking( $booking_id )->orders(), true ) ) {
+				return;
+			}
+
 			// Cancel WC order if not already cancelled/refunded
 			if ($order->has_status(array( 'cancelled', 'refunded' ))) {
 				return;
@@ -2071,6 +2241,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						'error'
 					);
 
+					// Task 14b item 3: left at warning() deliberately -- the
+					// customer already sees the wc_add_notice() error above,
+					// on the checkout page, before checkout can even
+					// complete. This entry is a supplementary debug trace
+					// for the same event, not the only record of it.
 					// Log for debugging
 					AdvancedLogger::warning(
 						'Checkout validation failed - vehicle no longer available',
@@ -2121,7 +2296,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		$order_id = $args['order_id'] ?? 0;
+		$order_id = (int) ( $args['order_id'] ?? 0 );
 		if (! $order_id) {
 			return;
 		}
@@ -2137,29 +2312,112 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// Get refund amount (in order currency, convert to smallest unit)
+		$currency = $order->get_currency();
+
+		// Kept only for the activity-log entry below, which records what THIS
+		// WooCommerce order's own refund total is -- not the booking-wide figure
+		// PaymentState now owns.
 		$refund_amount = $order->get_total_refunded();
-		$currency      = $order->get_currency();
 
-		// Convert to smallest currency unit (kurus/cent)
-		// WooCommerce stores amounts as floats, we need to convert to smallest unit
-		$refund_amount_kurus = (int) round($refund_amount * 100);
+		// The refund figures come from PaymentState, not from this one order.
+		// A deposit booking has two paid orders; writing $order's own
+		// get_total_refunded() here overwrote the booking's record with half of
+		// it, and the second refund erased the first. PaymentState::refunded()
+		// is the sum across the set, so this write is absolute and idempotent
+		// no matter which order fired the hook or how many times.
+		$state = PaymentState::forBooking($booking_id);
 
-		// Get total paid amount
-		$total_paid       = (float) $order->get_total();
-		$total_paid_kurus = (int) round($total_paid * 100);
+		if (in_array($order_id, $state->orders(), true)) {
+			$recorded_refunded = $state->refunded();
+			$fully_refunded    = $state->isFullyRefunded();
+		} else {
+			// This order reached the booking through get_booking_id_from_order()
+			// (order meta, or an item's), but PaymentState::resolvePaidOrders()
+			// -- which only follows _mhmrentiva_woocommerce_order_id and
+			// _mhmrentiva_remaining_order_id -- does not know this order
+			// exists, so it is never in $state->orders() and never
+			// contributes to $state->refunded(). Substituting this order's
+			// own figure for $state->refunded() (as an earlier version of
+			// this fallback did) discarded every OTHER order's refund --
+			// N-01, recreated inside the branch meant to guard against it.
+			// Adding this order's own total on top instead keeps the
+			// resolvable legs' contribution alongside this one -- for a
+			// SINGLE invisible leg. With two or more invisible orders this
+			// fallback still can't see any invisible order other than the
+			// one that fired it, so a second invisible leg's own event
+			// would still discard the first invisible leg's contribution;
+			// that is left unfixed here, not claimed fixed.
+			AdvancedLogger::error(
+				'Refunded order is not resolvable through PaymentState; booking-level refund figures may be incomplete',
+				array(
+					'booking_id' => $booking_id,
+					'order_id'   => $order_id,
+				),
+				AdvancedLogger::CATEGORY_PAYMENT
+			);
 
-		// Update booking refund meta
-		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $refund_amount_kurus);
+			// $state->refunded() is NOT a peer running total when
+			// $state->orders() is empty: PaymentState::resolveOfflineChannel()
+			// opens in that case (PaymentState.php :195-201) and refunded()
+			// reads back _mhmrentiva_refunded_amount itself -- the very meta
+			// this line is about to overwrite. Adding this order's own total
+			// on top of THAT is read-modify-write accumulation on every
+			// refund of this order: previous + running_total, growing
+			// without bound (three successive partial refunds of one
+			// invisible 40 order would record 1500, then 4500, then 8500,
+			// against a true 4000) -- the exact double-write shape this
+			// slice exists to remove. So the pure case uses this order's own
+			// total alone, same as the pre-round-3 fallback.
+			//
+			// Trade-off, stated rather than left implicit: if this same
+			// booking ALSO carries an offline refund in that same meta key
+			// (Service::finish()'s channel), the pure-case branch drops it,
+			// because it no longer adds $state->refunded() (which is what
+			// would have read that offline figure back). The alternative --
+			// adding $state->refunded() in the pure case too -- doubles
+			// every WooCommerce refund on this order after the first, which
+			// is strictly worse: an offline refund can only be lost once,
+			// while an unboundedly growing WooCommerce figure is precisely
+			// the bug this task exists to remove.
+			$recorded_refunded = array() === $state->orders()
+				? Money::toMinor($refund_amount)
+				: $state->refunded() + Money::toMinor($refund_amount);
+
+			// Terminal-status authority is granted here ONLY when this
+			// invisible order is the booking's ENTIRE known WooCommerce
+			// presence ($state->orders() === []) -- the shape
+			// RefundUnresolvableOrderFallbackTest covers. A mixed booking,
+			// with one resolvable leg and one invisible, must not let this
+			// order's own totals decide 'refunded' for the whole booking:
+			// that is the same terminal mid-walk shape Task 8 removed from
+			// handle_order_status_change() and this hook's main branch,
+			// re-created one level down inside this fallback.
+			//
+			// Deferring to $state->isFullyRefunded() in the mixed case is
+			// the best available answer, not a proven-safe one: it is blind
+			// to this order's paid AND refunded contribution, so if the
+			// resolvable legs alone are already fully refunded it reports
+			// true regardless of what this invisible leg still owes -- a
+			// resolvable 70/70 next to an invisible 30-paid/10-refunded
+			// reports fully refunded with 20 still outstanding. That
+			// specific flip is not newly reachable here: PaymentState is
+			// blind to this order everywhere, including the main branch
+			// above, so the resolvable leg alone already marks the booking
+			// refunded before this fallback ever runs. What deferring
+			// avoids is THIS fallback adding a second, independent way to
+			// reach the same terminal write from one order's own totals.
+			$fully_refunded = array() === $state->orders()
+				? Money::toMinor($refund_amount) >= Money::toMinor( (float) $order->get_total() )
+				: $state->isFullyRefunded();
+		}
+
+		update_post_meta($booking_id, '_mhmrentiva_refunded_amount', $recorded_refunded);
 		update_post_meta($booking_id, '_mhmrentiva_payment_currency', $currency);
 
-		// Determine payment status
-		if ($refund_amount_kurus >= $total_paid_kurus) {
-			// Full refund
+		if ($fully_refunded) {
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'refunded');
 			Status::update_status($booking_id, 'refunded', get_current_user_id());
 		} else {
-			// Partial refund
 			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'partially_refunded');
 		}
 
@@ -2171,17 +2429,65 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			update_post_meta($booking_id, '_mhmrentiva_refund_reason', $refund_reason);
 		}
 
-		// Send refund notification
-		if (class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
+		// One e-mail per refund OPERATION, not per WooCommerce refund object.
+		// While Service is walking a booking's orders it owns the message and
+		// sends it once at the end; a refund created from WooCommerce's own
+		// order screen has no operation behind it, so this hook owns it.
+		if (! \MHMRentiva\Admin\Payment\Refunds\Service::isRefundInFlight($booking_id)
+			&& class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
 			try {
-				$payment_status = $refund_amount_kurus >= $total_paid_kurus ? 'refunded' : 'partially_refunded';
+				// Mirrors the write above -- not a second, independently-derived
+				// comparison -- for both branches above (PaymentState-resolvable
+				// or the per-order fallback).
+				$payment_status = $fully_refunded ? 'refunded' : 'partially_refunded';
 				$refund_reason  = $refund ? $refund->get_reason() : '';
+
+				// WooCommerce passes the operator's own gateway-vs-manual choice
+				// straight through as 'refund_payment' -- its admin AJAX handler
+				// sets this from the "Refund via gateway" vs "Refund manually"
+				// toggle the operator picked on the order screen. A missing key
+				// means no gateway refund was requested, so MODE_MANUAL is the
+				// fail-safe reading -- the same direction
+				// RefundValidator::modeForOrder() already defaults to when it
+				// cannot ask the gateway at all.
+				$mode = ( $args['refund_payment'] ?? false )
+					? \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_AUTO
+					: \MHMRentiva\Admin\Payment\Refunds\RefundValidator::MODE_MANUAL;
+
+				// The template speaks of ONE event ("a refund of {amount} has
+				// been processed"), so the mail needs THIS refund's own amount,
+				// not $recorded_refunded -- the booking's CUMULATIVE refunded
+				// total, which is correct for the meta write above but wrong
+				// here: a second refund of 30 after an earlier 40 would report
+				// 70, an amount that never moved in this event. get_amount() on
+				// the WC_Order_Refund is this refund object's own figure alone
+				// (WC 11.0.1 wc-order-functions.php :583-588 -- the positive
+				// value wc_create_refund() stored as 'amount', validated against
+				// the order's remaining balance, never against another refund's),
+				// so a second 30 reports 30 here, not 70. The Service path
+				// (Service.php :338) already passes the operation's own amount;
+				// this brings the WooCommerce-screen path to the same meaning.
+				if ( ! $refund ) {
+					// wc_get_order($refund_id) returning false here means
+					// WooCommerce cannot reload the very refund object that fired
+					// this hook a moment ago -- practically unreachable. There is
+					// no other source for 'this refund's own amount': falling back
+					// to $recorded_refunded would silently reintroduce the
+					// cumulative-vs-single bug this fix removes, so the mail is
+					// skipped -- caught below and logged -- instead of showing the
+					// customer a number for a refund this code could not confirm.
+					throw new \RuntimeException( 'Refund order object unavailable for amount calculation' );
+				}
+
+				$this_refund_amount_kurus = Money::toMinor( (float) $refund->get_amount() );
+
 				\MHMRentiva\Admin\Emails\Notifications\RefundNotifications::notify(
 					$booking_id,
-					$refund_amount_kurus,
+					$this_refund_amount_kurus,
 					$currency,
 					$payment_status,
-					$refund_reason
+					$refund_reason,
+					$mode
 				);
 			} catch (\Throwable $e) {
 				AdvancedLogger::error(

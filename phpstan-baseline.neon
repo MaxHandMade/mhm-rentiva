@@ -45,7 +45,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 6
+			count: 3
 			path: src/Admin/Addons/AddonManager.php
 
 		-
@@ -55,9 +55,36 @@ parameters:
 			path: src/Admin/Addons/AddonMenu.php
 
 		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: src/Admin/Addons/AddonScreen.php
+
+		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 14
+			count: 4
+			path: src/Admin/Booking/Actions/BookingActionGuard.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 3
+			path: src/Admin/Booking/Actions/BookingApproveAjax.php
+
+		# Fix round 1, I2 (Task 16): kept deliberately, not an oversight. The
+		# `return 0;` after wp_send_json_error() inside
+		# authorize_booking_action() is genuinely unreachable in production
+		# (wp_send_json_error() calls wp_die()), same as the 25 siblings this
+		# task deleted elsewhere in this file -- but this one is the fail-
+		# closed post-condition of an int-returning authorization helper, in
+		# a file whose own class docblock explains that its redundant checks
+		# exist to stay greppable for a WP.org review lens. Deleting it would
+		# make this specific helper read fail-open to exactly that audience.
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
 			path: src/Admin/Booking/Actions/DepositManagementAjax.php
 
 		-
@@ -105,85 +132,13 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 8
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Offset ''bookings'' on array\{type\: ''multi'', statuses\: non\-empty\-array\<int\<1, max\>\>, bookings\: non\-empty\-list\<array\{booking_id\: mixed, display_id\: int, customer_name\: mixed, customer_email\: mixed, customer_phone\: mixed, vehicle_id\: int, vehicle_title\: mixed, vehicle_plate\: mixed, \.\.\.\}\>\} in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Offset ''bookings'' on array\{type\: ''multi'', statuses\: non\-empty\-array\<int\<1, max\>\>, bookings\: non\-empty\-list\<array\{booking_id\: mixed, display_id\: int, customer_name\: mixed, customer_email\: mixed, customer_phone\: mixed, vehicle_id\: int, vehicle_title\: mixed, vehicle_plate\: mixed, \.\.\.\}\>\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 2
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Offset ''count'' on array\{type\: ''multi'', statuses\: non\-empty\-array\<int\<1, max\>\>, bookings\: non\-empty\-list\<array\{booking_id\: mixed, display_id\: int, customer_name\: mixed, customer_email\: mixed, customer_phone\: mixed, vehicle_id\: int, vehicle_title\: mixed, vehicle_plate\: mixed, \.\.\.\}\>\} on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Offset ''status'' on array\{type\: ''multi'', statuses\: non\-empty\-array\<int\<1, max\>\>, bookings\: non\-empty\-list\<array\{booking_id\: mixed, display_id\: int, customer_name\: mixed, customer_email\: mixed, customer_phone\: mixed, vehicle_id\: int, vehicle_title\: mixed, vehicle_plate\: mixed, \.\.\.\}\>\} on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, int\<\-5, 7\> given\.$#'
-			identifier: argument.type
-			count: 3
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, int\<0, max\> given\.$#'
-			identifier: argument.type
-			count: 1
+			count: 9
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
 			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
 			identifier: argument.type
 			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int\<1, 31\> given\.$#'
-			identifier: argument.type
-			count: 3
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_calendar_bookings\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_status_icon\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_status_label\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_status_priority\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between ''multi'' and ''multi'' will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 2
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
@@ -305,6 +260,12 @@ parameters:
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Core/Assets/DatepickerAssets.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Admin/Core/ListTable/FleetOccupancyMatrix.php
 
 		-
 			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{class\-string\<static\(MHMRentiva\\Admin\\Core\\MetaBoxes\\AbstractMetaBox\)\>, ''enqueue_scripts''\} given\.$#'
@@ -439,7 +400,7 @@ parameters:
 			path: src/Admin/Emails/Core/Templates.php
 
 		-
-			message: '#^Offset ''contact_phone'' on array\{booking\: array\{id\: ''9999'', title\: string, status\: ''cancelled'', payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}, amount\: non\-empty\-string, status\: mixed, reason\: '''', \.\.\.\}\|array\{booking\: array\{id\: ''9999'', title\: string, status\: ''cancelled'', payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}, booking_id\: ''9999'', order_id\: ''9999'', contact_name\: ''John Doe'', \.\.\.\}\|array\{booking\: array\{id\: int, title\: mixed, status\: mixed, payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}, amount\: non\-empty\-string, status\: ''completed'', reason\: ''''\}\|array\{booking\: array\{id\: int, title\: mixed, status\: mixed, payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}\} in empty\(\) does not exist\.$#'
+			message: '#^Offset ''contact_phone'' on array\{booking\: array\{id\: ''9999'', title\: string, status\: ''cancelled'', payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}, amount\: string, status\: mixed, reason\: '''', \.\.\.\}\|array\{booking\: array\{id\: ''9999'', title\: string, status\: ''cancelled'', payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}, booking_id\: ''9999'', order_id\: ''9999'', contact_name\: ''John Doe'', \.\.\.\}\|array\{booking\: array\{id\: int, title\: mixed, status\: mixed, payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}, amount\: string, status\: ''completed'', reason\: ''''\}\|array\{booking\: array\{id\: int, title\: mixed, status\: mixed, payment_status\: string, payment_gateway\: string, total_price\: float, pickup_date\: mixed, return_date\: mixed, \.\.\.\}, customer\: array\{name\: string, first_name\: mixed, last_name\: mixed, email\: mixed, phone\: mixed\}, vehicle\: array\{id\: mixed, title\: mixed, price_per_day\: mixed, featured_image\: mixed\}, site\: array\{name\: mixed, url\: mixed, admin_email\: mixed\}, status_change\?\: array\{old_status\: mixed, new_status\: string, old_status_label\: mixed, new_status_label\: string\}\} in empty\(\) does not exist\.$#'
 			identifier: empty.offset
 			count: 1
 			path: src/Admin/Emails/Templates/EmailPreview.php
@@ -471,7 +432,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 1
+			count: 2
 			path: src/Admin/Frontend/Account/AccountController.php
 
 		-
@@ -579,7 +540,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 15
+			count: 4
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
@@ -599,7 +560,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/ContactForm.php
-
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
@@ -794,12 +754,6 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
 
 		-
-			message: '#^Binary operation "\-" between float and string results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 2
-			path: src/Admin/Payment/Refunds/Service.php
-
-		-
 			message: '#^Parameter \#1 \$value of method WC_Order_Item_Product\:\:set_subtotal\(\) expects string, float given\.$#'
 			identifier: argument.type
 			count: 1
@@ -834,12 +788,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php
-
-		-
-			message: '#^Binary operation "\*" between string and 100 results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 
 		-
 			message: '#^Call to function method_exists\(\) with WC_Cart and ''get_cart'' will always evaluate to true\.$#'
@@ -1034,18 +982,6 @@ parameters:
 			path: src/Admin/Setup/SetupWizard.php
 
 		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Actions\\Actions\:\:checkRoleBasedAccess\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Actions/Actions.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Actions\\Actions\:\:logPermissionCheck\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Actions/Actions.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -1084,23 +1020,11 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 6
+			count: 9
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-
 			message: '#^Parameter \#1 \$text of function esc_attr expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int\<1, 31\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Parameter \#2 \$gmt of function current_time expects bool, int given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php

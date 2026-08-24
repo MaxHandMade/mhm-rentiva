@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 use WP_Post;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,6 +15,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class RefundValidator {
+
+	/**
+	 * The gateway can send the money back on its own.
+	 */
+	public const MODE_AUTO = 'auto';
+
+	/**
+	 * A human moves the money; the refund record is bookkeeping only.
+	 */
+	public const MODE_MANUAL = 'manual';
+
+	/**
+	 * The booking's money sits in at least one paid WooCommerce order.
+	 */
+	public const CHANNEL_WOOCOMMERCE = 'woocommerce';
+
+	/**
+	 * No paid WooCommerce order: cash, transfer, or a manually entered booking.
+	 */
+	public const CHANNEL_OFFLINE = 'offline';
+
+	/**
+	 * Both legs of one operation moved money, one through the gateway and one
+	 * by hand -- a card deposit refunded automatically alongside a
+	 * bank-transfer remainder waiting on a human.
+	 *
+	 * Only Service::runOperation() ever produces this value, and only after
+	 * a WooCommerce operation finishes with auto_refunded AND manual_refunded
+	 * both greater than zero. validateFullRefund()/validatePartialRefund()
+	 * (decide(), below) never return it: they run before any leg has been
+	 * split across orders, so at that point the only fact available is
+	 * whether the booking's money sits behind a WooCommerce order at all
+	 * (CHANNEL_WOOCOMMERCE) or not (CHANNEL_OFFLINE).
+	 */
+	public const CHANNEL_MIXED = 'mixed';
 
 	/**
 	 * Validates booking for refund
@@ -38,33 +74,6 @@ final class RefundValidator {
 			'valid'   => true,
 			'booking' => $post,
 		);
-	}
-
-	/**
-	 * Validates payment gateway
-	 * ⭐ Now supports both 'offline' and 'woocommerce' payment methods
-	 */
-	public static function validateGateway( string $gateway ): array {
-		$supportedGateways = array( 'offline', 'woocommerce' );
-
-		if ( ! in_array( $gateway, $supportedGateways, true ) ) {
-			return array(
-				'valid'   => false,
-				'message' => __( 'Unsupported payment method for refund', 'mhm-rentiva' ),
-			);
-		}
-
-		return array(
-			'valid'   => true,
-			'gateway' => $gateway,
-		);
-	}
-
-	/**
-	 * Validates refund amount
-	 */
-	public static function validateAmount( int $bookingId, int $amountKurus ): array {
-		return RefundCalculator::validateRefundAmount( $bookingId, $amountKurus );
 	}
 
 	/**
@@ -108,135 +117,115 @@ final class RefundValidator {
 	}
 
 	/**
-	 * Performs gateway-specific validation
-	 * ⭐ Now handles both 'offline' and 'woocommerce' gateways
+	 * Can this order's gateway send the money back by itself?
+	 *
+	 * This replaced a rejection, not another rejection. The old code refused
+	 * the refund unless the order was still WooCommerce-editable -- true only
+	 * for pending/on-hold/auto-draft, a question about the Edit Order screen,
+	 * not about refundability. Measured on the dev site 2026-08-19, that gate
+	 * passed only orders with no money in them.
+	 *
+	 * The canonical pair for this question is supports('refunds') plus
+	 * can_refund_order() (wp-knowledge/official/woocommerce/wc-refunds.md).
+	 * wc_get_payment_gateway_by_order() returns false for a method no active
+	 * gateway claims -- offline transfers, deleted plugins, legacy orders --
+	 * and false lands on MODE_MANUAL, which is the fail-safe direction: a
+	 * manual refund records the debt without pretending money moved.
 	 */
-	public static function validateGatewaySpecific( int $bookingId, string $gateway ): array {
-		if ( $gateway === 'woocommerce' ) {
-			// ⭐ For WooCommerce, check if order exists and can be refunded
-			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
-			if ( empty( $order_id ) ) {
-				// Try alternative meta keys for backward compatibility
-				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
-				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
-				}
-			}
-
-			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
-				return array(
-					'valid'   => false,
-					'message' => __( 'WooCommerce order not found for this booking', 'mhm-rentiva' ),
-				);
-			}
-
-			$order = wc_get_order( $order_id );
-			if ( ! $order ) {
-				return array(
-					'valid'   => false,
-					'message' => __( 'WooCommerce order not found', 'mhm-rentiva' ),
-				);
-			}
-
-			// Check if order can be refunded
-			if ( ! $order->is_editable() ) {
-				return array(
-					'valid'   => false,
-					'message' => __( 'Order cannot be refunded (already completed or cancelled)', 'mhm-rentiva' ),
-				);
-			}
+	public static function modeForOrder( \WC_Order $order ): string {
+		if ( ! function_exists( 'wc_get_payment_gateway_by_order' ) ) {
+			return self::MODE_MANUAL;
 		}
 
-		// No specific validation needed for offline refunds
-		return array(
-			'valid'   => true,
-			'gateway' => $gateway,
-		);
+		$gateway = wc_get_payment_gateway_by_order( $order );
+
+		if ( ! $gateway instanceof \WC_Payment_Gateway ) {
+			return self::MODE_MANUAL;
+		}
+
+		return ( $gateway->supports( 'refunds' ) && $gateway->can_refund_order( $order ) )
+			? self::MODE_AUTO
+			: self::MODE_MANUAL;
 	}
 
 	/**
-	 * Performs full refund validation
+	 * Validate a refund of the whole remaining balance.
+	 *
+	 * The old signature passed 0 to validateAmount() as a "means full" sentinel
+	 * and that validator refused 0 as an invalid amount, so this method could
+	 * never return valid. There is no sentinel now: the amount IS the balance
+	 * PaymentState reports.
 	 */
 	public static function validateFullRefund( int $bookingId ): array {
-		// Booking validation
-		$bookingValidation = self::validateBooking( $bookingId );
-		if ( ! $bookingValidation['valid'] ) {
-			return $bookingValidation;
-		}
+		$state = PaymentState::forBooking( $bookingId );
 
-		// Payment status validation
-		$statusValidation = self::validatePaymentStatus( $bookingId );
-		if ( ! $statusValidation['valid'] ) {
-			return $statusValidation;
-		}
-
-		// Gateway validation
-		$gateway           = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_gateway', true );
-		$gatewayValidation = self::validateGateway( $gateway );
-		if ( ! $gatewayValidation['valid'] ) {
-			return $gatewayValidation;
-		}
-
-		// Gateway-specific validation
-		$gatewaySpecificValidation = self::validateGatewaySpecific( $bookingId, $gateway );
-		if ( ! $gatewaySpecificValidation['valid'] ) {
-			return $gatewaySpecificValidation;
-		}
-
-		// Amount validation (for full refund)
-		$amountValidation = self::validateAmount( $bookingId, 0 ); // 0 = tam iade
-		if ( ! $amountValidation['valid'] ) {
-			return $amountValidation;
-		}
-
-		return array(
-			'valid'      => true,
-			'booking_id' => $bookingId,
-			'gateway'    => $gateway,
-			'amount'     => $amountValidation['remaining'],
-		);
+		return self::decide( $bookingId, $state, $state->refundable() );
 	}
 
 	/**
-	 * Performs partial refund validation
+	 * Validate a refund of a specific amount, in minor units.
 	 */
 	public static function validatePartialRefund( int $bookingId, int $amountKurus ): array {
-		// Booking validation
+		return self::decide( $bookingId, PaymentState::forBooking( $bookingId ), $amountKurus );
+	}
+
+	/**
+	 * The part both entry points share.
+	 *
+	 * Order matters and is not arbitrary. The booking and payment-status checks
+	 * come first: every state they reject also produces refundable() === 0, so
+	 * they narrow nothing, but they say WHY in a sentence an operator can act
+	 * on. Checking the amount first would answer "refund amount exceeds
+	 * remaining balance" for a booking id that does not exist.
+	 *
+	 * Then the balance, then the request. "There is nothing left to give back"
+	 * and "you asked for the wrong number" are different problems and the first
+	 * one is the operator's actual situation.
+	 *
+	 * @param int $requested Minor units. The whole balance for a full refund.
+	 */
+	private static function decide( int $bookingId, PaymentState $state, int $requested ): array {
 		$bookingValidation = self::validateBooking( $bookingId );
 		if ( ! $bookingValidation['valid'] ) {
 			return $bookingValidation;
 		}
 
-		// Payment status validation
 		$statusValidation = self::validatePaymentStatus( $bookingId );
 		if ( ! $statusValidation['valid'] ) {
 			return $statusValidation;
 		}
 
-		// Gateway validation
-		$gateway           = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_gateway', true );
-		$gatewayValidation = self::validateGateway( $gateway );
-		if ( ! $gatewayValidation['valid'] ) {
-			return $gatewayValidation;
+		$refundable = $state->refundable();
+
+		if ( $refundable <= 0 ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'No amount left to refund', 'mhm-rentiva' ),
+			);
 		}
 
-		// Gateway-specific validation
-		$gatewaySpecificValidation = self::validateGatewaySpecific( $bookingId, $gateway );
-		if ( ! $gatewaySpecificValidation['valid'] ) {
-			return $gatewaySpecificValidation;
+		if ( $requested <= 0 ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Invalid refund amount', 'mhm-rentiva' ),
+			);
 		}
 
-		// Amount validation
-		$amountValidation = self::validateAmount( $bookingId, $amountKurus );
-		if ( ! $amountValidation['valid'] ) {
-			return $amountValidation;
+		if ( $requested > $refundable ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Refund amount exceeds remaining balance', 'mhm-rentiva' ),
+			);
 		}
 
 		return array(
 			'valid'      => true,
 			'booking_id' => $bookingId,
-			'gateway'    => $gateway,
-			'amount'     => $amountKurus,
+			'channel'    => array() === $state->orders()
+				? self::CHANNEL_OFFLINE
+				: self::CHANNEL_WOOCOMMERCE,
+			'amount'     => $requested,
+			'state'      => $state,
 		);
 	}
 }

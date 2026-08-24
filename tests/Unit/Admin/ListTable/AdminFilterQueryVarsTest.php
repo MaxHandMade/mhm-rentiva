@@ -60,6 +60,11 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
             // other plugin registering it, and `year` is already core's own.
             'calendar month'   => array( 'mhmrentiva_month', '3' ),
             'calendar year'    => array( 'mhmrentiva_year', '2027' ),
+            // View engine (Faz 2): registered on BOTH screens. This provider
+            // only pins the query_vars round trip, not the per-screen
+            // whitelist of allowed values — that is BookingViewEngineTest /
+            // VehicleViewEngineTest's job (get_current_view()).
+            'view'             => array( 'mhmrentiva_view', 'calendar' ),
         );
     }
 

@@ -98,6 +98,13 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhm_attachments',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
+		// Slice 3 Task 12 bound Lite's last active reader of this key
+		// (EmailTemplates, RefundNotifications, BookingColumns) to PaymentState.
+		// Pro's BackgroundProcessor.php and Export.php still read it directly, so
+		// it graduated from shared to Pro-only the moment Lite's reference
+		// disappeared; DatabaseCleaner.php's own protection-list entry does not
+		// count (excluded from the scan -- see scan_roots()).
+		'_mhmrentiva_payment_amount',
 		// T4 removed Lite's paid vehicle/vendor behaviour, not ownership of the
 		// historical rows. These remain Pro-written data that Lite's unscoped
 		// invalid-meta cleanup must continue protecting.
@@ -930,6 +937,23 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				// scanned, so a stray meta-key literal introduced in a sibling
 				// script still turns this gate red (mutation-proven).
 				if ( str_ends_with( $path, '/bin/prefix-rename.php' ) ) {
+					continue;
+				}
+				// Same reasoning, third instance: bin/audit-retired-meta.php IS
+				// the retired-meta probe -- its own $keys array necessarily
+				// spells '_mhmrentiva_payment_amount' as a literal, because that
+				// is what the probe searches for, exactly as bin/prefix-rename.php
+				// carries old meta-key literals as data above. Scanning it would
+				// feed the probe's own search target back in as "evidence Lite
+				// still uses this key," undoing what Task 12 earned when Lite's
+				// last reader was bound to PaymentState and re-drifting this gate
+				// against Pro's frozen list. A file that IS the inventory must
+				// not BE the evidence.
+				//
+				// Deliberately narrow: every OTHER file under bin/ is still
+				// scanned, so a stray meta-key literal introduced in a sibling
+				// script still turns this gate red.
+				if ( str_ends_with( $path, '/bin/audit-retired-meta.php' ) ) {
 					continue;
 				}
 				// Fourth instance of the same rule. PrefixMigrationMap.php IS

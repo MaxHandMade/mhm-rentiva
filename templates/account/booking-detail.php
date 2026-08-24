@@ -44,7 +44,7 @@ $remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', t
 $selected_addons  = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true);
 
 // Payment method from WooCommerce order
-$wc_order_id          = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
+$wc_order_id          = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 $payment_method_title = '';
 if ($wc_order_id && function_exists('wc_get_order')) {
 	$wc_order = wc_get_order($wc_order_id);
@@ -62,9 +62,8 @@ if (! $vehicle_image) {
 	$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 }
 
-// Currency
-// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-$currency_symbol = apply_filters('mhmrentiva_currency_symbol', '');
+// Currency: prices below are rendered with CurrencyHelper::format_price(), which
+// carries the symbol and the WooCommerce placement itself.
 
 // Date format
 $wp_date_fmt            = get_option('date_format');
@@ -174,37 +173,46 @@ if ($is_integrated) {
 				<!-- Total Cost -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $total_price, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+					<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2)); ?></div>
 				</div>
 
 				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
 					<!-- Deposit Amount -->
 					<div class="rv-detail-row">
 						<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $deposit_amount, 2)); ?></div>
 					</div>
 
 					<!-- Remaining Amount -->
 					<div class="rv-detail-row">
 						<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $remaining_amount, 2)); ?></div>
 					</div>
 
 					<?php if ( (float) $remaining_amount > 0 && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
-					<div class="rv-detail-row rv-pay-remaining-row">
-						<div class="rv-detail-label"></div>
-						<div class="rv-detail-value">
-							<button
-								type="button"
-								class="rv-btn rv-btn-primary rv-pay-remaining-btn"
-								data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
-								data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_pay_remaining_' . $booking_id ) ); ?>"
-							>
-								<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
-							</button>
-							<span class="rv-pay-remaining-spinner" style="display:none;"></span>
+						<?php if ( \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::is_hybrid_booking( (int) $booking_id ) ) : ?>
+						<div class="rv-detail-row rv-pay-remaining-row">
+							<div class="rv-detail-label"></div>
+							<div class="rv-detail-value rv-pay-remaining-note">
+								<?php esc_html_e( 'Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance.', 'mhm-rentiva' ); ?>
+							</div>
 						</div>
-					</div>
+						<?php else : ?>
+						<div class="rv-detail-row rv-pay-remaining-row">
+							<div class="rv-detail-label"></div>
+							<div class="rv-detail-value">
+								<button
+									type="button"
+									class="rv-btn rv-btn-primary rv-pay-remaining-btn"
+									data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
+									data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_pay_remaining_' . $booking_id ) ); ?>"
+								>
+									<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
+								</button>
+								<span class="rv-pay-remaining-spinner" style="display:none;"></span>
+							</div>
+						</div>
+						<?php endif; ?>
 					<?php endif; ?>
 				<?php endif; ?>
 

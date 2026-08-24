@@ -229,7 +229,7 @@ final class Mailer {
 		$deposit_amount   = get_post_meta( $booking_id, '_mhmrentiva_deposit_amount', true );
 		$remaining_amount = get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true );
 		$payment_deadline = get_post_meta( $booking_id, '_mhmrentiva_payment_deadline', true );
-		$wc_order_id      = (int) get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true );
+		$wc_order_id      = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 
 		// Service type: 'rental' (default) or 'transfer'
 		$service_type  = (string) get_post_meta( $booking_id, '_mhmrentiva_service_type', true );
@@ -334,7 +334,7 @@ final class Mailer {
 		$status         = get_post_meta( $message_id, '_mhmrentiva_message_status', true );
 		$thread_id      = get_post_meta( $message_id, '_mhmrentiva_thread_id', true );
 		$msg_booking_id = (int) get_post_meta( $message_id, '_mhmrentiva_booking_id', true );
-		$msg_order_id   = $msg_booking_id ? (int) get_post_meta( $msg_booking_id, '_mhmrentiva_woocommerce_order_id', true ) : 0;
+		$msg_order_id   = $msg_booking_id ? \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $msg_booking_id ) : 0;
 
 		return array(
 			'message'  => array(

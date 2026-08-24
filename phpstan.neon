@@ -1,3 +1,12 @@
+# phpstan-baseline.neon is a QUEUE, not an accept-list. Two separate audit
+# rounds found a real bug hiding inside it, so a count that grows without a
+# reason written down is itself a finding.
+#
+# Entries whose reason lives in the code rather than here, because
+# --generate-baseline rewrites this file and would drop a comment placed in it:
+#   deadCode.unreachable, src/Admin/Frontend/Account/AccountController.php,
+#   count 2 -- deliberate guards after wp_die()/wp_send_json_success(). Both
+#   lines carry the reasoning at the site. Slice 5 raised this from 1 to 2.
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
     - phpstan-baseline.neon

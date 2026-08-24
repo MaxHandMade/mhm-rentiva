@@ -49,7 +49,7 @@ final class AutoComplete {
 			return;
 		}
 
-		self::direct_schedule_event();
+		self::schedule_event();
 	}
 
 	public static function run(): void
@@ -145,13 +145,21 @@ final class AutoComplete {
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.
 				// Routed to the plugin's own logger instead of the site's PHP error log.
+				//
+				// Task 14b item 3: promoted from warning() to error(). A
+				// per-booking exception here means the sweep silently never
+				// completed a booking it selected -- the same shape as
+				// AutoCancel.php's sibling catch -- and warning() is
+				// exactly the level a stock install drops.
 				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
-						'Auto-complete skipped a booking',
-						array(
-							'booking_id' => $bid,
-							'error'      => $e->getMessage(),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+						sprintf(
+							/* translators: %s: the throwable message that interrupted this booking's auto-complete. */
+							__( 'Auto-complete skipped a booking: %s', 'mhm-rentiva' ),
+							$e->getMessage()
 						),
+						$bid,
+						array( 'error' => $e->getMessage() ),
 						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 					);
 				}
@@ -159,7 +167,17 @@ final class AutoComplete {
 		}
 	}
 
-	private static function direct_schedule_event(): void
+	/**
+	 * Schedule the recurring sweep through WordPress.
+	 *
+	 * Was a hand-built cron array saved with _set_cron_array(), for the same
+	 * reason and at the same cost as AutoCancel's -- see the long note on
+	 * AutoCancel::schedule_event(). Short version: wp_schedule_event() fires
+	 * 'pre_schedule_event' and 'schedule_event' (wp-includes/cron.php:287,305),
+	 * a direct write fires neither, and an install that owns cron scheduling
+	 * therefore never learned this sweep existed.
+	 */
+	private static function schedule_event(): void
 	{
 		$schedules = wp_get_schedules();
 
@@ -167,31 +185,14 @@ final class AutoComplete {
 			return;
 		}
 
-		$cron = _get_cron_array();
-		if ($cron === false) {
-			$cron = array();
-		}
+		// Replace, don't stack -- what the loop that used to unset this hook
+		// from every timestamp was for, now visible to an intercepting host.
+		wp_clear_scheduled_hook(self::EVENT);
 
-		foreach ($cron as $timestamp => $cronhooks) {
-			if (isset($cronhooks[ self::EVENT ])) {
-				unset($cron[ $timestamp ][ self::EVENT ]);
-				if (empty($cron[ $timestamp ])) {
-					unset($cron[ $timestamp ]);
-				}
-			}
-		}
-
-		$interval  = $schedules[ self::SCHEDULE ]['interval'];
-		$timestamp = time() + $interval;
-		$key       = md5(serialize(array()));
-
-		$cron[ $timestamp ][ self::EVENT ][ $key ] = array(
-			'schedule' => self::SCHEDULE,
-			'args'     => array(),
-			'interval' => $interval,
+		wp_schedule_event(
+			time() + (int) $schedules[ self::SCHEDULE ]['interval'],
+			self::SCHEDULE,
+			self::EVENT
 		);
-
-		ksort($cron);
-		_set_cron_array($cron);
 	}
 }

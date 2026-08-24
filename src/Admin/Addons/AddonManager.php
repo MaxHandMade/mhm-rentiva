@@ -96,9 +96,14 @@ final class AddonManager {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
 
 		// Register the live enhancements for WordPress's native CPT list table.
+		// That screen is no longer in the menu, but it stays reachable by URL
+		// as the way back, so its enhancements stay registered too.
 		if ( class_exists( AddonListTable::class ) ) {
 			AddonListTable::register();
 		}
+
+		// The screen the menu now opens, and its endpoints.
+		AddonScreen::register();
 	}
 
 	/**
@@ -161,26 +166,37 @@ final class AddonManager {
 	 */
 	public static function render_price_column( string $column, int $post_id ): void {
 		if ( 'mhmrentiva_addon_price' === $column ) {
-			$price           = get_post_meta( $post_id, 'mhmrentiva_addon_price', true );
-			$currency_code   = self::get_default_currency();
-			$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency_code );
+			$price = get_post_meta( $post_id, 'mhmrentiva_addon_price', true );
 
 			if ( $price ) {
-				$formatted_price = number_format( (float) $price, 2, ',', '.' ) . ' ' . $currency_symbol;
 				printf(
 					'<span class="addon-price-display" data-addon-id="%d" data-price="%s">%s</span>',
 					(int) $post_id,
 					esc_attr( $price ),
-					esc_html( $formatted_price )
+					esc_html( self::format_addon_price( (float) $price ) )
 				);
 			} else {
 				printf(
-					'<span class="addon-price-display" data-addon-id="%d" data-price="0">0,00 %s</span>',
+					'<span class="addon-price-display" data-addon-id="%d" data-price="0">%s</span>',
 					(int) $post_id,
-					esc_html( $currency_symbol )
+					esc_html( self::format_addon_price( 0.0 ) )
 				);
 			}
 		}
+	}
+
+	/**
+	 * Format an addon price for display.
+	 *
+	 * Canonical currency formatting (WC-aware symbol/position/separators). These
+	 * call sites used to concatenate the symbol on the right unconditionally,
+	 * which contradicted a `left` woocommerce_currency_pos.
+	 *
+	 * @param float $price Numeric price.
+	 * @return string
+	 */
+	private static function format_addon_price( float $price ): string {
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 
 	/**
@@ -276,6 +292,116 @@ final class AddonManager {
 
 
 	/**
+	 * The meta key carrying the Aktif/Pasif switch.
+	 */
+	public const ENABLED_META = 'mhmrentiva_addon_enabled';
+
+	/**
+	 * May this id be sold as an additional service right now?
+	 *
+	 * The one answer to that question. Four surfaces used to decide it for
+	 * themselves and only one of them looked at the switch at all, so an
+	 * operator could set a service to Pasif, watch it go grey on the add-ons
+	 * screen, and have the customer booking form keep selling it.
+	 *
+	 * Three things have to hold, and they are separate questions: the id names a
+	 * post, that post is one of ours and published, and the switch is not off.
+	 *
+	 * "Not off" rather than "on" is deliberate and is the house rule, stated in
+	 * AddonScreen's quick-create endpoint: *absent means active*. An absent flag
+	 * means the service predates the field, and those stay sellable -- reading
+	 * absence as false would empty the booking form on every site that upgraded
+	 * into it.
+	 *
+	 * That only holds while nothing else can produce absence, and it did not.
+	 * This docblock used to justify the rule by saying the editor writes '0'
+	 * rather than deleting, citing AddonMeta::update_addon_meta() -- a method
+	 * with no caller anywhere in either edition. The real path is
+	 * AbstractMetaBox::save_field(), which deleted the row for any unticked
+	 * checkbox, so unticking Active in the editor made the service look like a
+	 * legacy one and put it straight back on sale. The independent audit found
+	 * it; the fix is the `absent_value` field option in AddonMeta, which makes
+	 * the editor write '0'. Absence is once again only ever the legacy case.
+	 *
+	 * The lesson is the citation, not the flag: a security predicate justified
+	 * by the behaviour of a function nothing calls is a predicate justified by
+	 * nothing. Both AddonMeta helpers were deleted with the fix.
+	 *
+	 * @param int $addon_id Candidate id, straight from a request in the hot path.
+	 * @return bool
+	 */
+	public static function is_sellable( int $addon_id ): bool {
+		if ( $addon_id <= 0 ) {
+			return false;
+		}
+
+		$addon = get_post( $addon_id );
+
+		if ( ! $addon instanceof \WP_Post ) {
+			return false;
+		}
+
+		if ( AddonPostType::POST_TYPE !== $addon->post_type || 'publish' !== $addon->post_status ) {
+			return false;
+		}
+
+		return self::is_enabled( $addon_id );
+	}
+
+	/**
+	 * Is the enabled flag open for this add-on? The flag only -- is_sellable()
+	 * adds the post type and the post status.
+	 *
+	 * ABSENT MEANS ACTIVE, and that is the entire reason this method exists.
+	 * A service created before the toggle shipped carries no flag row at all:
+	 * not '1', not '0', absent. is_sellable() has always refused only an
+	 * explicit '0', so those services ARE sold -- and get_available_addons()
+	 * and AddonStats were both taught to agree (OR/NOT EXISTS, LEFT JOIN).
+	 *
+	 * Three readers still asked it the other way round ("is it exactly '1'?")
+	 * and so called a sold service inactive: the list header counted it out,
+	 * the row badge dimmed it, and data-enabled reported 0 to the toggle
+	 * script -- which made the operator's first click send "enable" for
+	 * something already enabled, a no-op that looks like a change. The KPI
+	 * band said 2 while the list header said 1, on the same screen.
+	 *
+	 * Everything that asks "is this add-on on?" goes through here now, so the
+	 * question has one answer instead of two.
+	 */
+	public static function is_enabled( int $addon_id ): bool {
+		return '0' !== (string) get_post_meta( $addon_id, self::ENABLED_META, true );
+	}
+
+	/**
+	 * Keep only the ids that may be sold, in the order they arrived.
+	 *
+	 * This is the acceptance point, not a display filter. The booking form runs
+	 * submitted ids through SecurityHelper::validate_numeric_array(), which only
+	 * asks whether they are numbers -- so before this existed, a replayed form
+	 * could buy a service that had since been switched off, and a hand-made
+	 * request could attach any post on the site as a "service". Hiding the
+	 * checkbox never closed that; refusing the id does.
+	 *
+	 * @param array<int, mixed> $addon_ids Candidate ids.
+	 * @return array<int, int> Sellable ids, de-duplicated.
+	 */
+	public static function filter_sellable( array $addon_ids ): array {
+		$sellable = array();
+
+		foreach ( $addon_ids as $candidate ) {
+			$addon_id = (int) $candidate;
+
+			if ( isset( $sellable[ $addon_id ] ) || ! self::is_sellable( $addon_id ) ) {
+				continue;
+			}
+
+			$sellable[ $addon_id ] = true;
+		}
+
+		return array_map( 'intval', array_keys( $sellable ) );
+	}
+
+	/**
 	 * Get all published and enabled additional services.
 	 *
 	 * @return array List of addons.
@@ -284,11 +410,21 @@ final class AddonManager {
 		$args = array(
 			'post_type'      => 'mhmrentiva_addon',
 			'post_status'    => 'publish',
+			// Two clauses, not one. `compare => '='` alone is an INNER JOIN on
+			// postmeta, so it dropped every service that has never carried the
+			// flag -- exactly the ones an upgraded site has, and exactly the
+			// ones is_sellable() calls active. This is the SQL spelling of
+			// "anything but an explicit '0'".
 			'meta_query'     => array(
+				'relation' => 'OR',
 				array(
-					'key'     => 'mhmrentiva_addon_enabled',
-					'value'   => '1',
-					'compare' => '=',
+					'key'     => self::ENABLED_META,
+					'value'   => '0',
+					'compare' => '!=',
+				),
+				array(
+					'key'     => self::ENABLED_META,
+					'compare' => 'NOT EXISTS',
 				),
 			),
 			'orderby'        => 'menu_order',
@@ -342,7 +478,7 @@ final class AddonManager {
 			'title'       => $addon->post_title,
 			'description' => $description,
 			'price'       => (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ),
-			'enabled'     => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true ),
+			'enabled'     => self::is_enabled( $addon->ID ),
 			'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 		);
 	}
@@ -633,53 +769,112 @@ final class AddonManager {
 	 * AJAX: Price update.
 	 */
 	public static function handle_update_price(): void {
-		// Nonce check.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhmrentiva_addon_list_nonce' ) ) {
+		// Verified HERE, at the boundary, before the superglobal is read at all.
+		// update_price() checks the nonce again for its own contract (its tests
+		// drive it directly), so this is not redundant -- it is what keeps the
+		// raw $_POST read below from being an unguarded one. The first version
+		// of this split used a phpcs:ignore instead and check-shape-zero caught
+		// it: a suppression silences the sniff while leaving the shape in the
+		// tree, and the gate is right not to count suppressions.
+		if ( ! check_ajax_referer( 'mhmrentiva_addon_list_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
-		// Permission check.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+		$result = self::update_price( wp_unslash( $_POST ) );
+
+		if ( $result['success'] ) {
+			unset( $result['success'] );
+			wp_send_json_success( $result );
 			return;
 		}
 
-		$addon_id = isset( $_POST['addon_id'] ) ? absint( wp_unslash( $_POST['addon_id'] ) ) : 0;
-		$price    = isset( $_POST['price'] ) ? (float) sanitize_text_field( wp_unslash( (string) $_POST['price'] ) ) : 0.0;
+		wp_send_json_error( array( 'message' => $result['message'] ) );
+	}
+
+	/**
+	 * The price write, with no wp_die() in it.
+	 *
+	 * Split out for the same reason ajax_toggle_enabled/toggle_enabled were:
+	 * wp_send_json_* ends in wp_die(), so a handler that calls it directly
+	 * cannot be asserted against in PHPUnit -- the process leaves through an
+	 * exception before the payload can be read. Every guard below therefore
+	 * lived in a method no test could reach. The AJAX wrapper above is now the
+	 * only part that dies.
+	 *
+	 * @param array<string,mixed> $request Raw request array ($_POST at the boundary).
+	 * @return array<string,mixed> success flag plus either the payload or a message.
+	 */
+	public static function update_price( array $request ): array {
+		// No wp_unslash() here: the AJAX boundary already unslashed the array,
+		// and doing it twice turns a literal backslash into nothing. Same shape as
+		// AddonScreen::toggle_enabled(), which sanitizes without unslashing.
+		if ( ! wp_verify_nonce( sanitize_text_field( (string) ( $request['nonce'] ?? '' ) ), 'mhmrentiva_addon_list_nonce' ) ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ),
+			);
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ),
+			);
+		}
+
+		$addon_id = isset( $request['addon_id'] ) ? absint( $request['addon_id'] ) : 0;
+		$price    = isset( $request['price'] ) ? (float) sanitize_text_field( (string) $request['price'] ) : 0.0;
 
 		if ( $addon_id <= 0 ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Invalid additional service ID.', 'mhm-rentiva' ) ) );
-			return;
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Invalid additional service ID.', 'mhm-rentiva' ),
+			);
 		}
 
 		if ( $price < 0 ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Price cannot be negative.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Check if addon exists.
-		$addon = get_post( $addon_id );
-		if ( ! $addon || 'mhmrentiva_addon' !== $addon->post_type ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Additional service not found.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Update price.
-		$result = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
-
-		if ( false !== $result ) {
-			$currency_code   = self::get_default_currency();
-			$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency_code );
-			wp_send_json_success(
-				array(
-					'message'         => esc_html__( 'Price successfully updated.', 'mhm-rentiva' ),
-					'currency'        => $currency_code,
-					'formatted_price' => number_format( $price, 2, ',', '.' ) . ' ' . $currency_symbol,
-				)
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Price cannot be negative.', 'mhm-rentiva' ),
 			);
-		} else {
-			wp_send_json_error( array( 'message' => esc_html__( 'Error occurred while updating price.', 'mhm-rentiva' ) ) );
 		}
+
+		$addon = get_post( $addon_id );
+		if ( ! $addon || AddonPostType::POST_TYPE !== $addon->post_type ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Additional service not found.', 'mhm-rentiva' ),
+			);
+		}
+
+		// update_post_meta() returns false for "no rows changed" as well as for
+		// failure, so re-submitting the price a service already has reported
+		// "Error occurred while updating price" for a successful no-op. Reading
+		// the stored value first separates the two.
+		$stored    = get_post_meta( $addon_id, 'mhmrentiva_addon_price', true );
+		$unchanged = '' !== (string) $stored && abs( (float) $stored - $price ) < 0.00001;
+		$result    = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
+
+		if ( false === $result && ! $unchanged ) {
+			return array(
+				'success' => false,
+				'message' => esc_html__( 'Error occurred while updating price.', 'mhm-rentiva' ),
+			);
+		}
+
+		return array(
+			'success'         => true,
+			'message'         => esc_html__( 'Price successfully updated.', 'mhm-rentiva' ),
+			'currency'        => self::get_default_currency(),
+			'formatted_price' => self::format_addon_price( $price ),
+			// Read AFTER the write, so the meta hook that flushes the KPI cache
+			// (AddonScreen::flush_stats_on_addon_meta) has already run and this
+			// recomputes. Average Price and Total Value both move when a price
+			// does, and this is the only mutation on the screen that does not
+			// reload the page afterwards -- so it is the only one that has to
+			// hand the band its new figures.
+			'stats'           => AddonStats::get(),
+		);
 	}
 }

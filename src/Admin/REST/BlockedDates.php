@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\REST;
 
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 use MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox;
-use MHMRentiva\Admin\Vehicle\PostType\Vehicle;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -52,38 +52,22 @@ final class BlockedDates {
 		);
 	}
 
-	/**
-	 * Is this id a vehicle whose page a logged-out visitor could already read?
-	 *
-	 * The post-type check alone was not enough to keep the route's own "public"
-	 * justification true. A draft, pending, private or trashed vehicle has no
-	 * public page, so answering 200 for it would both disclose unpublished
-	 * business data and let an anonymous caller enumerate which post ids are
-	 * unpublished vehicles (200 for those, 404 for everything else). A
-	 * password-protected vehicle counts as viewable to core but hides its
-	 * content behind the password, so its schedule stays behind it too.
-	 *
-	 * Every rejection returns the same 404 as a bad id, so the response does not
-	 * distinguish "not a vehicle" from "a vehicle you may not see".
-	 */
-	private static function is_publicly_readable_vehicle( int $vehicle_id ): bool {
-		$post = get_post( $vehicle_id );
-
-		if ( ! $post instanceof \WP_Post || Vehicle::POST_TYPE !== $post->post_type ) {
-			return false;
-		}
-
-		if ( '' !== (string) $post->post_password ) {
-			return false;
-		}
-
-		return is_post_publicly_viewable( $post );
-	}
-
 	public static function get_blocked_dates( \WP_REST_Request $request ): \WP_REST_Response {
 		$vehicle_id = (int) $request['id'];
 
-		if ( ! self::is_publicly_readable_vehicle( $vehicle_id ) ) {
+		/*
+		 * The reasoning that used to live in this class's own
+		 * is_publicly_readable_vehicle() now lives on the shared accessor -- it
+		 * was the correct rule, and every other public surface needed the same
+		 * one. Keeping a private copy here would have made this route the place
+		 * the rule was written down and the other surfaces the places it was
+		 * forgotten, which is exactly how they came to disagree.
+		 *
+		 * Every rejection still returns the same 404 as a bad id, so the
+		 * response does not distinguish "not a vehicle" from "a vehicle you may
+		 * not see".
+		 */
+		if ( ! VehicleDataHelper::is_publicly_readable( $vehicle_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'success' => false,

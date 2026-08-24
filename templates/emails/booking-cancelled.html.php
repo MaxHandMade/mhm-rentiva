@@ -92,7 +92,7 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 								<strong><?php esc_html_e( 'Total Amount:', 'mhm-rentiva' ); ?></strong>
 							</td>
 							<td style="padding: 8px 0; color: #333;">
-								<?php echo esc_html( $currency_symbol . number_format( (float) $total_amount, 2 ) ); ?>
+								<?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $total_amount ), 2 ) ); ?>
 							</td>
 						</tr>
 					<?php endif; ?>
@@ -120,7 +120,18 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 	</table>
 
 	<!-- Refund Notice -->
-	<?php if ( $payment_status === 'paid' ) : ?>
+	<?php
+	// Same question CancellationHandler::process_refund() asks before it moves
+	// money (spec §5.3): the balance, not just the status string. A booking
+	// whose meta still claims 'paid' after a channel emptied it, or one that
+	// took a PARTIAL refund and still carries a remainder, must both see this
+	// panel -- 'paid' alone missed the partially_refunded case entirely, which
+	// is the branch's headline scenario. PaymentState guards its own
+	// WooCommerce calls, so it is safe to call with WooCommerce absent.
+	$has_money = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking_id )->paid() > 0
+		|| in_array( $payment_status, array( 'paid', 'partially_refunded' ), true );
+	?>
+	<?php if ( $has_money ) : ?>
 		<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff3cd; border-left: 4px solid #ffc107; margin-bottom: 30px;">
 			<tr>
 				<td style="padding: 20px;">
@@ -128,7 +139,7 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 						ℹ️ <?php esc_html_e( 'Refund Information', 'mhm-rentiva' ); ?>
 					</h3>
 					<p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
-						<?php esc_html_e( 'Your refund has been initiated and will be processed within 5-7 business days. The refund will be credited to the original payment method you used.', 'mhm-rentiva' ); ?>
+						<?php esc_html_e( 'If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you.', 'mhm-rentiva' ); ?>
 					</p>
 				</td>
 			</tr>

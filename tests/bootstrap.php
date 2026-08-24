@@ -173,6 +173,158 @@ tests_add_filter('muplugins_loaded', static function () {
 }, 5);
 
 /**
+ * Locate WooCommerce, or return null when it is genuinely absent.
+ *
+ * Two environments, one shape. Locally WP_TESTS_DIR's config points ABSPATH at
+ * the dev site's core tree, so WooCommerce is already on disk beside this
+ * plugin. In CI, install-wp-tests.sh builds a clean tree at /tmp/wordpress and
+ * the workflow downloads WooCommerce into its plugins directory. Both end up at
+ * ABSPATH/wp-content/plugins/woocommerce, so one lookup covers both; WC_PLUGIN_DIR
+ * stays available as an override for a layout neither anticipates.
+ *
+ * @return string|null Absolute path to woocommerce.php, or null.
+ */
+function mhmrentiva_locate_woocommerce(): ?string
+{
+	$candidates = array();
+
+	$override = getenv('WC_PLUGIN_DIR');
+	if (is_string($override) && '' !== trim($override)) {
+		$candidates[] = rtrim($override, '/') . '/woocommerce.php';
+	}
+
+	// Sibling of the plugin under test.
+	$candidates[] = dirname(__DIR__, 2) . '/woocommerce/woocommerce.php';
+
+	if (defined('ABSPATH')) {
+		$candidates[] = rtrim((string) ABSPATH, '/') . '/wp-content/plugins/woocommerce/woocommerce.php';
+	}
+
+	foreach ($candidates as $candidate) {
+		if (is_readable($candidate)) {
+			return $candidate;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Load WooCommerce ahead of the plugin under test.
+ *
+ * Priority 5, so mhm-rentiva (priority 10) sees the same world it sees in
+ * production: 26 of its source files branch on WooCommerce being present, and a
+ * suite that loads them without it measures the absent branch every time.
+ *
+ * Deliberately silent when WooCommerce is missing rather than fatal: the suite
+ * still has to run for someone checking out this repo without a WooCommerce
+ * checkout beside it. WooCommerceTestEnvironmentTest is what turns that silence
+ * into a visible failure, so the absence is reported once, by name, instead of
+ * as five skipped files nobody reads.
+ */
+tests_add_filter('muplugins_loaded', static function () {
+	$woocommerce = mhmrentiva_locate_woocommerce();
+
+	if (null === $woocommerce) {
+		return;
+	}
+
+	require_once $woocommerce;
+}, 5);
+
+/**
+ * Install WooCommerce's schema into the test database.
+ *
+ * Loading the plugin is not installing it. Without this, the first test to
+ * touch an order fails on a missing table rather than on its own assertion --
+ * and HPOS in particular keeps orders in tables that only WC_Install creates.
+ *
+ * setup_theme runs after plugins are loaded and before the first test case, and
+ * it is where WooCommerce's own suite installs itself.
+ */
+tests_add_filter('setup_theme', static function () {
+	if (! class_exists('WC_Install')) {
+		return;
+	}
+
+	// The dev site runs HPOS (measured 2026-08-18), and a suite in the other
+	// storage mode would prove nothing about the code paths WooCommerceBridge
+	// takes in production.
+	//
+	// This one update_option is both the switch and the installer. It is the
+	// option the feature declares as its own `option_key`
+	// (CustomOrdersTableController::CUSTOM_ORDERS_TABLE_USAGE_ENABLED_OPTION),
+	// so it is what OrderUtil::custom_orders_table_usage_is_enabled() reads;
+	// and changing its value fires the controller's `pre_update_option`
+	// handler, which creates the order tables. WC_Install::install() below does
+	// NOT create them at this point -- at setup_theme its HPOS branch evaluates
+	// false, because `woocommerce_init` has not fired yet. Verified against
+	// WooCommerce 11.0.1 source, 2026-08-18.
+	//
+	// A sibling `woocommerce_feature_custom_order_tables_enabled` was set here
+	// at first. Nothing in WooCommerce 11.0.1 reads it -- the generic
+	// `woocommerce_feature_{slug}_enabled` name only applies to features that
+	// declare no option_key -- so it was removed rather than left in the test
+	// database looking native.
+	update_option('woocommerce_custom_orders_table_enabled', 'yes');
+
+	\WC_Install::install();
+
+	// Capabilities are registered during install; WP caches roles before that.
+	$GLOBALS['wp_roles'] = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	wp_roles();
+
+	// Reset WooCommerce's mutable tables.
+	//
+	// WP_UnitTestCase wraps each test in a transaction and rolls it back, but
+	// this plugin's own lock helper issues START TRANSACTION mid-test
+	// (Locker.php:25 and :87, CancellationHandler.php:101). MySQL has no nested
+	// transactions, so that implicitly COMMITs the framework's transaction and
+	// everything written before the lock becomes permanent. The teardown then
+	// deletes inside a NEW transaction, which does get rolled back -- so the
+	// inserts survive and the cleanup does not.
+	//
+	// Core tables hide this because the WP installer recreates them each run.
+	// WooCommerce's do not, and they accumulated: measured 18 orders, 34 order
+	// items and 7 tax rates before this reset existed, while wptests_posts sat
+	// at 0. Recycled post ids then met surviving rows -- a fresh order id 12
+	// inherited a previous run's line items, and RemainingPaymentTaxTest read a
+	// subtotal that grew every run (7953.75 expected; 15907.5, then 16707.5,
+	// then 24661.25 observed).
+	$mutable = array(
+		'wc_orders',
+		'wc_orders_meta',
+		'wc_order_addresses',
+		'wc_order_operational_data',
+		'wc_order_stats',
+		'wc_order_product_lookup',
+		'wc_order_tax_lookup',
+		'wc_order_coupon_lookup',
+		'wc_product_meta_lookup',
+		'wc_reserved_stock',
+		'woocommerce_order_items',
+		'woocommerce_order_itemmeta',
+		'woocommerce_tax_rates',
+		'woocommerce_tax_rate_locations',
+		'woocommerce_sessions',
+	);
+
+	global $wpdb;
+
+	foreach ($mutable as $suffix) {
+		$table = $wpdb->prefix . $suffix;
+
+		// Only truncate what this install actually created; the set differs
+		// between WooCommerce versions and a missing table is not an error here.
+		$exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+
+		if ($exists === $table) {
+			$wpdb->query("TRUNCATE TABLE `{$table}`"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		}
+	}
+});
+
+/**
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin()
@@ -246,6 +398,31 @@ tests_add_filter('muplugins_loaded', function () {
 	}
 
 }, 20);
+
+/**
+ * Autoload shared test support classes.
+ *
+ * PHPUnit only loads files matching the suite's `*Test.php` suffix, so traits
+ * and helpers under tests/Support/ are invisible to it. This plugin has no
+ * composer autoload map, so rather than adding one (and a composer dump
+ * requirement for anyone running the suite) the support namespace gets its own
+ * small loader, scoped so it can never resolve a production class.
+ */
+spl_autoload_register(static function (string $class): void {
+	$separator = chr(92);
+	$prefix    = 'MHMRentiva' . $separator . 'Tests' . $separator . 'Support' . $separator;
+
+	if (! str_starts_with($class, $prefix)) {
+		return;
+	}
+
+	$relative = str_replace($separator, '/', substr($class, strlen($prefix)));
+	$path     = __DIR__ . '/Support/' . $relative . '.php';
+
+	if (is_readable($path)) {
+		require_once $path;
+	}
+});
 
 // Start up the WP testing environment.
 require "{$_tests_dir}/includes/bootstrap.php";

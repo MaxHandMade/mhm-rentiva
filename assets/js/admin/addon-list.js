@@ -56,8 +56,14 @@ jQuery( document ).ready(
 			},
 
 			startEdit: function ($element) {
-				var addonId      = $element.data( 'addon-id' );
 				var currentPrice = $element.data( 'price' );
+
+				// Keep the server's own rendering of this cell so cancelling
+				// restores exactly what PHP printed. The old cancel path
+				// re-formatted from scratch with a hardcoded right placement and a
+				// currency key that was never localized, so it wrote "1,234.56
+				// undefined" over a perfectly good cell.
+				$element.data( 'formatted', $element.html() );
 
 				$element.html(
 					'<input type="number" class="addon-price-input" value="' + currentPrice + '" min="0" step="0.01" style="width: 80px;" />'
@@ -91,16 +97,13 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								// Başarılı güncelleme
-								var currency       = mhmrentiva_addon_list_vars.currency;
-								var formattedPrice = newPrice.toLocaleString(
-									mhmrentiva_addon_list_vars.locale || 'en-US',
-									{
-										minimumFractionDigits: 2,
-										maximumFractionDigits: 2
-									}
-								) + ' ' + currency;
+								// The response already carries the canonical rendering
+								// from AddonManager::format_addon_price() — symbol,
+								// placement and separators all from the one house rule.
+								// Formatting it again here could only contradict it.
+								var formattedPrice = (response.data && response.data.formatted_price) || $element.data( 'formatted' );
 								$element.html( formattedPrice );
+								$element.data( 'formatted', formattedPrice );
 								$element.data( 'price', newPrice );
 							} else {
 								const errorMsg   = (mhmrentiva_addon_list_vars.strings && mhmrentiva_addon_list_vars.strings.priceUpdateError) || 'Error updating price';
@@ -119,19 +122,10 @@ jQuery( document ).ready(
 			},
 
 			cancelEdit: function ($input) {
-				var $element      = $input.closest( '.addon-price-display' );
-				var originalPrice = $element.data( 'price' );
-				var currency      = mhmrentiva_addon_list_vars.currency || 'USD';
+				var $element = $input.closest( '.addon-price-display' );
 
-				// Orijinal fiyatı geri yükle
-				var formattedPrice = originalPrice.toLocaleString(
-					mhmrentiva_addon_list_vars.locale || 'en-US',
-					{
-						minimumFractionDigits: 2,
-						maximumFractionDigits: 2
-					}
-				) + ' ' + currency;
-				$element.html( formattedPrice );
+				// Restore what the server rendered, captured in startEdit().
+				$element.html( $element.data( 'formatted' ) || '' );
 			}
 		};
 

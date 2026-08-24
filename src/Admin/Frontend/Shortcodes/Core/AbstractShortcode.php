@@ -316,6 +316,25 @@ abstract class AbstractShortcode {
 	 */
 	protected static function enqueue_scripts(array $atts = array()): void
 	{
+		// Any shortcode that names vehicle-interactions.js in its dependencies is
+		// rendering the favourite/compare buttons, so it needs that script's
+		// mhmrentiva_vars payload -- which AssetManager::enqueue_frontend_assets()
+		// only emits when should_load_assets() finds '[rentiva_' in
+		// $post->post_content, i.e. never on an Elementor-built page (Elementor
+		// keeps the content in the _elementor_data postmeta). Asking here, from
+		// the shared enqueue path, covers FeaturedVehicles and VehiclesList and
+		// anything that declares the dependency later, without a fifth hand-copied
+		// call site to keep in sync. The two classes that override enqueue_assets()
+		// outright -- VehiclesGrid and SearchResults -- never reach this method and
+		// call AssetManager::enqueue_vehicle_interactions() themselves.
+		//
+		// Deliberately BEFORE the loop below, not inside it: FeaturedVehicles in
+		// its default 'grid' layout returns no JS files at all, so nothing would
+		// pull the dependency in, yet its cards still carry the buttons.
+		if (in_array('mhm-rentiva-vehicle-interactions', static::get_js_dependencies(), true)) {
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
+		}
+
 		$base_handle = static::get_asset_handle();
 		$js_files    = static::get_js_files($atts);
 

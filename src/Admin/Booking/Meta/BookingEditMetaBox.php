@@ -261,6 +261,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		echo '<div class="mhm-field-group">';
 		echo '<label class="mhm-field-label">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</label>';
 
+		// Read the selection FIRST: the offered list is derived from it below.
+		$selected_addons = get_post_meta( $post->ID, '_mhmrentiva_selected_addons', true )
+	    ?: get_post_meta( $post->ID, 'mhmrentiva_selected_addons', true )
+	    ?: array();
+
+		$selected_ids = array_map( 'intval', (array) $selected_addons );
+
 		// Fetch current add-ons
 		$addons = get_posts(
 			array(
@@ -272,21 +279,65 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			)
 		);
 
-		$available_addons = array();
-		foreach ( $addons as $addon ) {
-			$available_addons[] = array(
-				'id'          => $addon->ID,
-				'title'       => $addon->post_title,
-				'price'       => get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ) ?: '0',
-				'description' => $addon->post_excerpt,
-				'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
+		// The union below can only work on services this query returned, and it
+		// asks for 'publish' only -- so a service the operator moved to the
+		// TRASH was never a candidate for "already attached" in the first
+		// place. It vanished from the screen, the form posted without it, and
+		// the next save deleted it from the booking: the exact failure the
+		// comment below describes, one status further along. Anything the
+		// booking already carries is pulled back in by id regardless of status.
+		$pool_ids = array_map( 'intval', wp_list_pluck( $addons, 'ID' ) );
+		$missing  = array_values( array_diff( $selected_ids, $pool_ids ) );
+
+		if ( ! empty( $missing ) ) {
+			$addons = array_merge(
+				$addons,
+				get_posts(
+					array(
+						'post_type'      => 'mhmrentiva_addon',
+						'post__in'       => $missing,
+						'post_status'    => array( 'publish', 'pending', 'draft', 'private', 'future', 'trash' ),
+						'posts_per_page' => -1,
+						'orderby'        => 'menu_order',
+						'order'          => 'ASC',
+					)
+				)
 			);
 		}
 
-		// Fetch currently selected add-ons
-		$selected_addons = get_post_meta( $post->ID, '_mhmrentiva_selected_addons', true )
-	    ?: get_post_meta( $post->ID, 'mhmrentiva_selected_addons', true )
-	    ?: array();
+		// Offered = sellable UNION already-attached, and the union is the whole
+		// point. A booking taken last month may carry a service switched off
+		// since; drop it from this screen and its checkbox disappears, the form
+		// posts without it, and saving the booking deletes a service the
+		// customer paid for. Filtering subtracts from what may be ADDED, never
+		// from what is already ON the booking.
+		$available_addons = array();
+		foreach ( $addons as $addon ) {
+			$addon_id    = (int) $addon->ID;
+			$is_attached = in_array( $addon_id, $selected_ids, true );
+
+			if ( ! $is_attached && ! \MHMRentiva\Admin\Addons\AddonManager::is_sellable( $addon_id ) ) {
+				continue;
+			}
+
+			$title = $addon->post_title;
+
+			// Say why it is here. Without this the operator sees a service the
+			// add-ons screen shows as Pasif and has no way to tell that it is
+			// listed because the booking already carries it.
+			if ( $is_attached && ! \MHMRentiva\Admin\Addons\AddonManager::is_sellable( $addon_id ) ) {
+				/* translators: %s: additional service name. */
+				$title = sprintf( __( '%s (inactive)', 'mhm-rentiva' ), $title );
+			}
+
+			$available_addons[] = array(
+				'id'          => $addon_id,
+				'title'       => $title,
+				'price'       => get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ) ?: '0',
+				'description' => $addon->post_excerpt,
+				'required'    => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_required', true ),
+			);
+		}
 
 		if ( ! empty( $available_addons ) ) {
 			echo '<div class="mhm-addon-selection">';
@@ -294,17 +345,30 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 			echo '<div class="mhm-addon-grid">';
 			foreach ( $available_addons as $addon ) {
-				$checked       = in_array( $addon['id'], $selected_addons ) ? 'checked' : '';
+				$is_attached   = in_array( (int) $addon['id'], $selected_ids, true );
+				$checked       = $is_attached ? 'checked' : '';
 				$checked      .= $addon['required'] ? ' disabled' : '';
 				$required_text = $addon['required'] ? ' <span class="required">*</span>' : '';
 
 				echo '<div class="mhm-addon-card">';
 				echo '<label class="mhm-addon-item">';
 				echo '<input type="checkbox" name="mhmrentiva_edit_selected_addons[]" value="' . esc_attr( $addon['id'] ) . '" class="mhm-addon-checkbox" data-price="' . esc_attr( $addon['price'] ) . '" ' . esc_attr( $checked ) . '>';
+
+				// A disabled control is not submitted, so a required service
+				// that is already on the booking would be dropped by the next
+				// save -- save_booking_details() treats the posted list as the
+				// whole truth, which is right for a checkbox the operator can
+				// actually clear. Only the ones the form CANNOT post get this;
+				// an ordinary attached service must stay removable by simply
+				// unchecking it.
+				if ( $is_attached && $addon['required'] ) {
+					echo '<input type="hidden" name="mhmrentiva_edit_selected_addons[]" value="' . esc_attr( (string) $addon['id'] ) . '">';
+				}
 				echo '<div class="mhm-addon-content">';
 				echo '<div class="mhm-addon-header">';
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
-				echo '<span class="mhm-addon-price">+ ' . esc_html( number_format( (float) $addon['price'], 2, ',', '.' ) ) . ' ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
+				// Canonical formatting; this used to pin the symbol to the right.
+				echo '<span class="mhm-addon-price">+ ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $addon['price'], 2 ) ) . '</span>';
 				echo '</div>';
 				if ( ! empty( $addon['description'] ) ) {
 					echo '<div class="mhm-addon-description">' . esc_html( $addon['description'] ) . '</div>';

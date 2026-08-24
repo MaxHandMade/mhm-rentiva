@@ -3,292 +3,17 @@
  * Styles for the monthly reservation calendar on booking list page
  */
 
-.booking-calendar-page {
-	margin: var(--mhm-space-5) 0;
-	padding: var(--mhm-space-5);
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: var(--mhm-radius-xl);
-	box-shadow: var(--mhm-shadow-base);
-}
-
-.booking-calendar-page .calendar-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: var(--mhm-space-5);
-	padding: var(--mhm-space-4) var(--mhm-space-5);
-	background: var(--mhm-bg-secondary);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: var(--mhm-radius-lg);
-}
-
-.booking-calendar-page .calendar-header h2 {
-	margin: 0;
-	font-size: 18px;
-	font-weight: var(--mhm-font-semibold);
-	color: var(--mhm-text-primary);
-}
-
-.booking-calendar-page .calendar-navigation {
-	display: flex;
-	align-items: center;
-	gap: var(--mhm-space-3);
-}
-
-.booking-calendar-page .calendar-nav-btn {
-	display: flex;
-	align-items: center;
-	gap: var(--mhm-space-2);
-	padding: var(--mhm-space-2) var(--mhm-space-3);
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-border-secondary);
-	border-radius: var(--mhm-radius-base);
-	color: var(--mhm-text-secondary);
-	text-decoration: none;
-	font-size: 13px;
-	transition: all var(--mhm-duration-200) ease;
-}
-
-.booking-calendar-page .calendar-nav-btn:hover {
-	background: var(--mhm-bg-secondary);
-	border-color: var(--mhm-border-primary);
-	color: var(--mhm-text-primary);
-}
-
-.booking-calendar-page .calendar-current {
-	font-size: 15px;
-	font-weight: var(--mhm-font-semibold);
-	color: var(--mhm-primary);
-	min-width: 140px;
-	text-align: center;
-	padding: var(--mhm-space-2) var(--mhm-space-3);
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-primary);
-	border-radius: var(--mhm-radius-base);
-}
-
-.booking-calendar-page .calendar-grid-wrapper {
-	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	gap: var(--mhm-space-2);
-	padding: var(--mhm-space-4);
-}
-
-.booking-calendar-page .day-cell {
-	padding: var(--mhm-space-3) var(--mhm-space-2);
-	text-align: center;
-	font-size: 14px;
-	font-weight: var(--mhm-font-medium);
-	color: var(--mhm-text-primary);
-	min-height: 60px;
-	vertical-align: middle;
-	border: 1px solid var(--mhm-border-primary);
-	background: var(--mhm-bg-card);
-	position: relative;
-	transition: all var(--mhm-duration-200) ease;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--mhm-space-1);
-}
-
-.booking-calendar-page .day-cell .day-name {
-	font-size: 11px;
-	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	color: var(--mhm-text-secondary);
-	letter-spacing: 0.5px;
-}
-
-.booking-calendar-page .day-cell .day-number {
-	font-size: 16px;
-	font-weight: var(--mhm-font-semibold);
-	color: var(--mhm-text-primary);
-}
-
-/* Day abbreviations in black on reserved cells */
-.booking-calendar-page .day-cell.booked .day-name {
-	color: var(--mhm-text-primary);
-}
-
-.booking-calendar-page .day-cell.booked.status-pending .day-name,
-.booking-calendar-page .day-cell.booked.status-pending .day-number {
-	color: #000;
-}
-
-.booking-calendar-page .day-cell.booked.status-confirmed .day-name,
-.booking-calendar-page .day-cell.booked.status-in-progress .day-name,
-.booking-calendar-page .day-cell.booked.status-completed .day-name,
-.booking-calendar-page .day-cell.booked.status-cancelled .day-name {
-	color: var(--mhm-text-primary);
-}
-
-.booking-calendar-page .day-cell.booked.status-confirmed .day-number,
-.booking-calendar-page .day-cell.booked.status-in-progress .day-number,
-.booking-calendar-page .day-cell.booked.status-completed .day-number,
-.booking-calendar-page .day-cell.booked.status-cancelled .day-number {
-	color: var(--mhm-white);
-}
-
-/* Today's date - show with border only on non-reserved days */
-.booking-calendar-page .day-cell.today:not(.booked) {
-	border: 2px solid var(--mhm-primary);
-	background: var(--mhm-bg-card);
-}
-
-.booking-calendar-page .day-cell.today:not(.booked) .day-name,
-.booking-calendar-page .day-cell.today:not(.booked) .day-number {
-	color: var(--mhm-text-primary);
-}
-
-/* Today's date with reservation - background color preserved */
-.booking-calendar-page .day-cell.today.booked .day-name,
-.booking-calendar-page .day-cell.today.booked .day-number {
-	color: inherit;
-}
-
-.booking-calendar-page .day-cell.booked {
-	cursor: pointer;
-}
-
-.booking-calendar-page .day-cell.booked:hover {
-	opacity: 0.9;
-	transform: scale(1.05);
-}
-
-.booking-calendar-page .day-cell.booked.status-pending {
-	background-color: var(--mhm-warning) !important;
-	color: #000;
-}
-
-.booking-calendar-page .day-cell.booked.status-confirmed {
-	background-color: var(--mhm-primary) !important;
-	color: var(--mhm-white);
-}
-
-.booking-calendar-page .day-cell.booked.status-in-progress {
-	background-color: #fd7e14 !important;
-	/* Orange */
-	color: var(--mhm-white);
-}
-
-.booking-calendar-page .day-cell.booked.status-completed {
-	background-color: #16a34a !important;
-	color: #fff !important;
-}
-
-.booking-calendar-page .day-cell.booked.status-cancelled {
-	background-color: var(--mhm-error) !important;
-	color: var(--mhm-white);
-}
-
-.booking-calendar-page .booking-icon {
-	display: block;
-	margin-top: 4px;
-	font-size: 16px;
-}
-
-/* Multi-status day: divide cell into equal parts */
-.booking-calendar-page .day-cell.multi-status-day {
-	padding: var(--mhm-space-2);
-	overflow: hidden;
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--mhm-space-1);
-}
-
-.booking-calendar-page .day-cell.multi-status-day .day-name {
-	font-size: 11px;
-	font-weight: var(--mhm-font-semibold);
-	text-transform: uppercase;
-	color: var(--mhm-text-primary);
-	letter-spacing: 0.5px;
-	z-index: 2;
-	position: relative;
-}
-
-.booking-calendar-page .day-cell.multi-status-day .day-number {
-	font-size: 16px;
-	font-weight: var(--mhm-font-semibold);
-	color: var(--mhm-text-primary);
-	z-index: 2;
-	position: relative;
-}
-
-/* Today's date for multi-status-day - colors preserved */
-.booking-calendar-page .day-cell.multi-status-day.today .day-name,
-.booking-calendar-page .day-cell.multi-status-day.today .day-number {
-	color: var(--mhm-text-primary);
-}
-
-.booking-calendar-page .day-cell.multi-status-day .booking-icon {
-	position: absolute;
-	top: 4px;
-	right: 4px;
-	font-size: 16px;
-	z-index: 2;
-	color: var(--mhm-text-primary);
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segments {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	top: 0;
-	height: 100%;
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	z-index: 1;
-	border-radius: inherit;
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segment {
-	flex: 1;
-	height: 100%;
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segment.status-pending {
-	background-color: var(--mhm-warning);
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segment.status-confirmed {
-	background-color: var(--mhm-success);
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segment.status-in-progress {
-	background-color: #fd7e14;
-	/* Orange */
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segment.status-completed {
-	background-color: var(--mhm-primary);
-}
-
-.booking-calendar-page .day-cell.multi-status-day .status-segment.status-cancelled {
-	background-color: var(--mhm-error);
-}
-
-/* Legacy split-indicator (backward compatibility) */
-.booking-calendar-page .split-indicator {
-	position: absolute;
-	bottom: 2px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 80%;
-	height: 3px;
-	background: linear-gradient(to right, #ffc107 50%, #28a745 50%);
-	border-radius: 2px;
-}
-
-/* Legend Styles — shared by both booking and vehicle calendars */
-.booking-calendar-page .calendar-legend,
+/* Legend Styles — shared by both booking and vehicle calendars.
+   Faz 2 Task 8: `.booking-calendar-page` was the old aggregate grid's own
+   scope class (BookingColumns::add_booking_calendar(), retired) — it is
+   never emitted by any current markup, so the dual selectors this section
+   used to carry are reduced to the still-live `.mhm-calendars` half.
+   Per-status swatch colours are gone too: FleetOccupancyMatrix's legend
+   never renders a "Cancelled" swatch, `status-in-progress` (hyphen) never
+   matched the emitted `status-in_progress` (underscore) class, and the
+   remaining pending/confirmed/completed values are superseded by
+   occupancy-matrix.css's single canonical legend (Task 8) — keeping both
+   would leave two different colours claiming to be the pending swatch. */
 .mhm-calendars .calendar-legend {
 	margin-top: var(--mhm-space-5);
 	padding: var(--mhm-space-4);
@@ -297,28 +22,24 @@
 	border: 1px solid var(--mhm-border-primary);
 }
 
-.booking-calendar-page .calendar-legend h4,
 .mhm-calendars .calendar-legend h4 {
 	margin: 0 0 var(--mhm-space-2) 0;
 	color: var(--mhm-text-primary);
 	font-size: 14px;
 }
 
-.booking-calendar-page .legend-items,
 .mhm-calendars .legend-items {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--mhm-space-4);
 }
 
-.booking-calendar-page .legend-item,
 .mhm-calendars .legend-item {
 	display: flex;
 	align-items: center;
 	gap: var(--mhm-space-2);
 }
 
-.booking-calendar-page .legend-color,
 .mhm-calendars .legend-color {
 	width: 16px;
 	height: 16px;
@@ -327,64 +48,9 @@
 	flex-shrink: 0;
 }
 
-.booking-calendar-page .legend-color.status-pending,
-.mhm-calendars .legend-color.status-pending {
-	background-color: var(--mhm-warning);
-}
-
-.booking-calendar-page .legend-color.status-confirmed,
-.mhm-calendars .legend-color.status-confirmed {
-	background-color: var(--mhm-primary);
-}
-
-.booking-calendar-page .legend-color.status-in-progress,
-.mhm-calendars .legend-color.status-in-progress {
-	background-color: #fd7e14;
-}
-
-.booking-calendar-page .legend-color.status-completed,
-.mhm-calendars .legend-color.status-completed {
-	background-color: #16a34a;
-}
-
-.booking-calendar-page .legend-color.status-cancelled,
-.mhm-calendars .legend-color.status-cancelled {
-	background-color: var(--mhm-error);
-}
-
-.booking-calendar-page .legend-label,
 .mhm-calendars .legend-label {
 	font-size: 12px;
 	color: var(--mhm-text-secondary);
-}
-
-/* Responsive */
-@media (max-width: 782px) {
-	.booking-calendar-page .calendar-header {
-		flex-direction: column;
-		gap: var(--mhm-space-4);
-		align-items: flex-start;
-	}
-
-	.booking-calendar-page .calendar-navigation {
-		width: 100%;
-		justify-content: space-between;
-	}
-
-	.booking-calendar-page .calendar-current {
-		min-width: auto;
-	}
-
-	.booking-calendar-page .day-cell {
-		padding: 8px 4px;
-		font-size: 12px;
-		min-height: 40px;
-	}
-
-	.booking-calendar-page .day-header {
-		padding: 8px 4px;
-		font-size: 10px;
-	}
 }
 
 /* ===== Booking Popup Modal ===== */
@@ -565,32 +231,12 @@
 	opacity: 0.9;
 }
 
-/* Vehicle calendar status colors (mhm-calendars container, table-based layout) */
-.mhm-calendars .calendar-table td.day-cell.booked.status-pending {
-	background-color: var(--mhm-warning) !important;
-	color: #000 !important;
-}
-
-.mhm-calendars .calendar-table td.day-cell.booked.status-confirmed {
-	background-color: var(--mhm-primary) !important;
-	color: #fff !important;
-}
-
-.mhm-calendars .calendar-table td.day-cell.booked.status-in-progress {
-	background-color: #fd7e14 !important;
-	color: #fff !important;
-}
-
-.mhm-calendars .calendar-table td.day-cell.booked.status-completed {
-	background-color: #16a34a !important;
-	color: #fff !important;
-}
-
-.mhm-calendars .calendar-table td.day-cell.booked.status-cancelled {
-	background-color: var(--mhm-error) !important;
-	color: #fff !important;
-}
-
+/* The old per-status !important background block that used to live here
+   (status-pending/confirmed/completed/cancelled, plus a status-in-progress
+   variant that never matched the emitted status-in_progress class) is gone
+   — Faz 2 Task 8's occupancy-matrix.css is now the single canonical source
+   for cell status colours on both screens; keeping !important rules here
+   would have beaten it regardless of selector specificity. */
 .mhm-calendars .calendar-table td.day-cell.booked {
 	cursor: pointer;
 }

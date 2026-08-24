@@ -79,4 +79,44 @@ final class ClientUtilitiesTest extends WP_UnitTestCase
 			'An explicitly trusted proxy header must still be honoured.'
 		);
 	}
+
+	/**
+	 * Carried over from the Faz 2 sweep, which closed this same defect
+	 * independently: an opted-in X-Forwarded-For may carry a chain, and only
+	 * the first hop is the client. Written against the delegate's contract --
+	 * SecurityHelper splits on the comma and validates the leading entry.
+	 */
+	public function test_get_client_ip_takes_the_first_hop_of_a_forwarded_chain(): void
+	{
+		$_SERVER['REMOTE_ADDR']          = '203.0.113.10';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.99, 192.168.1.1';
+
+		add_filter('mhmrentiva_trusted_proxy_ip_headers', static function () {
+			return array( 'HTTP_X_FORWARDED_FOR' );
+		});
+
+		$this->assertSame(
+			'198.51.100.99',
+			ClientUtilities::get_client_ip(),
+			'A trusted forwarding chain must resolve to its first hop, not the whole header.'
+		);
+	}
+
+	/**
+	 * Also from the Faz 2 sweep. Note the contract changed with the delegation:
+	 * this method used to answer 'unknown' with no REMOTE_ADDR, whereas the
+	 * house resolver answers '0.0.0.0'. The shipped 6.0.6 behaviour is the
+	 * delegate's, and this test pins it so the difference cannot drift back
+	 * unnoticed.
+	 */
+	public function test_get_client_ip_falls_back_to_the_house_sentinel(): void
+	{
+		unset($_SERVER['REMOTE_ADDR']);
+
+		$this->assertSame(
+			'0.0.0.0',
+			ClientUtilities::get_client_ip(),
+			'With no TCP peer the delegate returns its own sentinel, not this class\'s former one.'
+		);
+	}
 }

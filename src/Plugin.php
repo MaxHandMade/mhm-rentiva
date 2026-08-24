@@ -320,6 +320,14 @@ final class Plugin {
 			\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
 		}
 
+		// Server-side layout seam for the transformed list screens. Must be
+		// registered before the column classes so their blocks have a slot to
+		// hang on; see ListScreenLayout for why `admin_notices` no longer
+		// carries them.
+		if ($this->is_class_available('MHMRentiva\Admin\Core\ListTable\ListScreenLayout')) {
+			\MHMRentiva\Admin\Core\ListTable\ListScreenLayout::register();
+		}
+
 		// List table columns
 		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
 			\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
@@ -336,9 +344,12 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox')) {
 			\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::register();
 		}
-		if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Actions\Actions')) {
-			\MHMRentiva\Admin\Utilities\Actions\Actions::register();
-		}
+		// Utilities\Actions\Actions::register() was deleted whole (Task 9, slice
+		// 5): its only registrations were the dead admin_post refund endpoint
+		// (amount_kurus taken straight off the request, unreachable since
+		// a5c35a61 deleted its nonce producer) and the admin_notices callback
+		// that existed only to report that endpoint's result -- nothing was
+		// left to register.
 
 		// Maintenance (Moved to initialize_core_services for all-context support)
 
@@ -826,6 +837,13 @@ final class Plugin {
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\DepositManagementAjax')) {
 			\MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::register();
 		}
+
+		// Bookings list "Approve" row action (Faz 2 Task 7) -- not a deposit
+		// flow, but registered alongside it: same domain (Booking\Actions),
+		// same guard, same lifecycle point.
+		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\BookingApproveAjax')) {
+			\MHMRentiva\Admin\Booking\Actions\BookingApproveAjax::register();
+		}
 	}
 
 	/**
@@ -876,9 +894,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -907,9 +925,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -940,11 +958,11 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v2');
 		}
 
 		// Booking meta changes
@@ -1024,8 +1042,17 @@ final class Plugin {
 		);
 
 		// Optional: Log if role creation failed (shouldn't happen if check above works)
+		//
+		// Task 14b item 3: promoted from warning() to error(). The guard
+		// already re-checked get_role('customer') immediately above, so
+		// this branch means add_role() genuinely failed to create it, not
+		// merely that it already existed -- the parenthetical in the old
+		// message was stale for exactly the case that reaches here. No
+		// booking_id: this runs on activation, before any booking exists.
 		if ($result === null && ! get_role('customer')) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Failed to create customer role (may already exist from another plugin)');
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error_linked(
+				__('Failed to create the customer role.', 'mhm-rentiva')
+			);
 		}
 	}
 

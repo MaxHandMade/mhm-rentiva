@@ -1,0 +1,52 @@
+/* Admin notices: stop the relocation jump.
+ *
+ * WordPress prints `admin_notices` BEFORE the screen opens its `.wrap`, so
+ * every notice starts life above the heading. common.js then moves it on DOM
+ * ready -- to `.wp-header-end`, or to the first h1/h2 when no marker exists.
+ * The move is correct; the problem is that it is visible. On a heavy screen
+ * the notice sits above the title long enough to read, then hops below it.
+ *
+ * So the notice is hidden while it is still in the pre-move position, and the
+ * selector simply stops matching the moment WordPress relocates it into the
+ * `.wrap` -- no second rule, no class toggling, no script of ours involved.
+ *
+ * THE :has() GUARD IS NOT DECORATION
+ * ----------------------------------
+ * The relocation only happens when there is a `.wrap` for common.js to move
+ * the notice INTO. React-mounted screens (the Dashboard prints only
+ * `<div id="mhm-rentiva-dashboard">`) have no `.wrap`, so their notices never
+ * move -- and hiding one there would delete it permanently rather than defer
+ * it. `:has(> .wrap)` scopes the rule to exactly the screens where a move is
+ * coming.
+ *
+ * FAIL-SAFE
+ * ---------
+ * If the relocation never runs -- a JS error earlier on the page, a blocked
+ * script -- the notice must not stay invisible; a licence warning nobody sees
+ * is worse than one that jumps. The discrete animation restores it after two
+ * seconds, which is far longer than a successful relocation takes and short
+ * enough that the operator still gets the message.
+ *
+ * Only loaded on this plugin's own admin screens (AssetManager::enqueue_core_css,
+ * behind is_rentiva_admin_page) -- other plugins' screens are none of our business.
+ */
+#wpbody-content:has(> .wrap) > .notice:not(.inline):not(.below-h2),
+#wpbody-content:has(> .wrap) > .updated:not(.inline):not(.below-h2),
+#wpbody-content:has(> .wrap) > .error:not(.inline):not(.below-h2) {
+	/* `visibility` rather than `display`, and `position` to keep it out of the
+	 * flow so nothing reserves space for it. The first version used
+	 * `display: none` with the same fail-safe animation and the fail-safe did
+	 * NOT fire -- `display` cannot be animated from a keyframe. Measured in the
+	 * browser: both properties below flip correctly at the 2s mark, `display`
+	 * never did. */
+	position: absolute;
+	visibility: hidden;
+	animation: mhm-rentiva-notice-failsafe 0s 2s forwards;
+}
+
+@keyframes mhm-rentiva-notice-failsafe {
+	to {
+		position: static;
+		visibility: visible;
+	}
+}

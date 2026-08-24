@@ -180,7 +180,10 @@ final class GeneralSettings {
 	 * Currency Position Field (Custom Render)
 	 */
 	public static function render_currency_position_field(): void {
-		if ( class_exists( 'WooCommerce' ) ) {
+		// The same predicate `CurrencyHelper::get_currency_position()` obeys. Asking
+		// it differently here is exactly how this screen came to offer a dropdown
+		// whose value the plugin then ignored.
+		if ( \MHMRentiva\Admin\Core\CurrencyHelper::woocommerce_is_active() ) {
 			echo '<p class="description">' . esc_html__( 'Currency position is managed by WooCommerce settings.', 'mhm-rentiva' ) . '</p>';
 			return;
 		}

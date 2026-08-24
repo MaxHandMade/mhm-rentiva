@@ -405,6 +405,13 @@ final class CacheManager {
 
 		$success = true;
 		foreach ( $transient_keys as $key ) {
+			// The LIKE above also matches _transient_timeout_* rows; deleting the
+			// main transient removes its timeout row, and treating the timeout row
+			// as a transient of its own both fails the delete and turned every
+			// call into a spurious `false`.
+			if ( 0 === strpos( $key, '_transient_timeout_' ) ) {
+				continue;
+			}
 			$transient_name = str_replace( '_transient_', '', $key );
 			if ( ! delete_transient( $transient_name ) ) {
 				$success = false;

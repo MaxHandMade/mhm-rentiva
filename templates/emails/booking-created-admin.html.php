@@ -52,7 +52,7 @@
 			<tr>
 				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong><?php esc_html_e( 'Total Amount:', 'mhm-rentiva' ); ?></strong></td>
 				<?php // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public currency filter kept stable for integrations. ?>
-				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; text-align: right; color: #28a745; font-weight: bold;"><?php echo esc_html( apply_filters( 'mhmrentiva_currency_symbol', '₺' ) ); ?><?php echo esc_html( number_format( (float) ( $data['booking']['total_price'] ?? 0 ), 2 ) ); ?></td>
+				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; text-align: right; color: #28a745; font-weight: bold;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( ( $data['booking']['total_price'] ?? 0 ) ), 2 ) ); ?></td>
 			</tr>
 			<tr>
 				<td style="padding: 12px 15px; color: #555;"><strong><?php esc_html_e( 'Payment Status:', 'mhm-rentiva' ); ?></strong></td>

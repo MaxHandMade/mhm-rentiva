@@ -26,9 +26,24 @@ use WP_Ajax_UnitTestCase;
  * The fix routes the AJAX handler through that service. These tests pin the part
  * that matters and that the suite can actually reach without WooCommerce: a
  * refund that does NOT succeed must not leave the booking looking refunded, and
- * must not answer success. The gateway failure is produced honestly -- the
- * booking carries no payment gateway, so RefundValidator refuses it, which is
- * exactly the "refund did not happen" branch.
+ * must not answer success. The refusal is produced honestly -- the fixture below
+ * carries no WooCommerce order and no recorded offline payment, so
+ * PaymentState::refundable() is genuinely 0 and the refund is refused, which is
+ * exactly the "refund did not happen" branch. (Since the slice-3 surface round
+ * the refusal comes one step earlier, from
+ * BookingDepositMetaBox::can_refund_from_deposit_screen() -- the shared
+ * predicate the screen's button and the refund box's link are gated on -- rather
+ * than from RefundValidator further in. The measured facts these tests assert,
+ * not-success and untouched state, are the same either way.)
+ *
+ * (Slice 3 task 2 note: this is deliberately NOT "no payment gateway" any more.
+ * Before H-03/H-04 were fixed, and before Service derived its gateway from
+ * PaymentState::orders() instead of trusting a hard-coded 'woocommerce'
+ * placeholder, almost any fixture was refused, for the wrong reasons. A
+ * booking that carries a genuine offline-paid balance -- proof payment_status
+ * plus total/remaining meta implying money was actually collected, no WC order
+ * -- now correctly succeeds as a manual refund instead. That path is exercised
+ * separately in ServiceOfflineRoutingTest.)
  *
  * @covers \MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::process_refund
  */
@@ -48,12 +63,27 @@ final class RefundGoesThroughGatewayTest extends WP_Ajax_UnitTestCase
 			'post_status' => 'publish',
 		));
 
-		// A booking in the only state the handler accepts: paid and cancelled.
+		// A booking in the state the handler accepts: paid, cancelled, and
+		// created by the deposit system (an empty _mhmrentiva_payment_type is
+		// the legacy shape, which the deposit screen refuses before it prints
+		// any button -- setting it here keeps these tests measuring an empty
+		// balance rather than a legacy booking).
 		update_post_meta($this->booking_id, '_mhmrentiva_payment_status', 'paid');
 		update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+		update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'full');
+		// deposit_amount is inert as of the slice-3 surface round: the refund
+		// amount is PaymentState::refundable(), not this meta. It stays as a
+		// negative control -- a nonzero deposit on a booking with no money on
+		// record must NOT produce a refund.
 		update_post_meta($this->booking_id, '_mhmrentiva_deposit_amount', 500);
-		update_post_meta($this->booking_id, '_mhmrentiva_total_price', 1000);
-		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', 500);
+		// Deliberately NOT setting _mhmrentiva_total_price / _mhmrentiva_remaining_amount:
+		// PaymentState's offline channel derives offline_paid from total - remaining,
+		// and with neither set that is 0. This is what keeps the refund genuinely
+		// unfundable -- payment_status says 'paid' but no channel, WooCommerce or
+		// offline, has anything on record to give back. Setting them (as this
+		// fixture used to) describes a real offline-paid deposit instead, which
+		// Service now correctly routes to a manual refund and completes -- see the
+		// class docblock and ServiceOfflineRoutingTest.
 		// Inside the cancellation deadline, so policy grants a refund.
 		update_post_meta($this->booking_id, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('+2 days')));
 
@@ -127,9 +157,19 @@ final class RefundGoesThroughGatewayTest extends WP_Ajax_UnitTestCase
 	 * not be turned into an error by the new failure path: past the cancellation
 	 * deadline the policy grants nothing, so there is no refund to attempt and
 	 * the handler still reports the (unchanged) outcome rather than failing.
+	 *
+	 * The offline balance below is not decoration. Before the surface round
+	 * this fixture had no money on record at all, so the policy branch was
+	 * never reached -- the handler refused it for having nothing to refund and
+	 * the test passed anyway, measuring the wrong branch. The policy can only
+	 * deny a refund that would otherwise happen.
 	 */
 	public function test_policy_denied_refund_still_reports_without_touching_state(): void
 	{
+		// 500 collected offline and still refundable, so the deadline below is
+		// genuinely what denies the refund.
+		update_post_meta($this->booking_id, '_mhmrentiva_total_price', '500');
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '0');
 		update_post_meta($this->booking_id, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('-2 days')));
 
 		$response = $this->call_refund();

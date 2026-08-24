@@ -169,8 +169,16 @@
     min-width: unset !important;
     min-height: unset !important;
 
-    width: 18px !important;
-    height: 18px !important;
+    /* No width/height here on purpose. This rule used to pin the heart at
+       18px !important while the compare icon's rule below asked for 16px
+       WITHOUT !important -- so the heart won at 18 and the compare icon lost
+       to Icons::get()'s inline 20px default, and two different sizes sat in
+       identical 32px circles. The size is now stated once, at the call site
+       (templates/partials/vehicle-card.php, templates/shortcodes/vehicle-details.php,
+       and the add-on's templates/partials/transfer-card.php), where an inline
+       style wins without anyone having to out-!important anyone. The resets
+       above stay: they defend against theme rules like `svg { max-width: 100% }`,
+       which an inline width alone would not survive. */
     transition: var(--mhm-transition);
     /* Inactive: Red Outline Only */
     stroke: #ef4444 !important;

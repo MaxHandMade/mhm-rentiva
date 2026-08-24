@@ -1,0 +1,612 @@
+/**
+ * Add-ons screen.
+ *
+ * Every rule is scoped under #mhm-addons-root and every class carries the
+ * `rv-addon-` prefix. That is what keeps this screen's restyle from leaking:
+ * shared/admin.css is untouched, and the shared `.mhm-stat-card` markup the KPI
+ * band reuses is re-dressed here rather than globally, so the native list
+ * screen -- still reachable by URL -- keeps the look it has.
+ *
+ * Colours are pinned rather than inherited. The admin ships a dark-mode
+ * stylesheet that flips shared tokens, and a card that inherits its background
+ * from one place and its text colour from another renders grey-on-grey the
+ * moment either side moves. The dark block at the bottom re-pins both together.
+ */
+
+#mhm-addons-root {
+	--rv-addon-surface: #fff;
+	--rv-addon-canvas: #f4f5f7;
+	--rv-addon-line: #e6e7eb;
+	--rv-addon-line-soft: #f4f5f7;
+	--rv-addon-text: #1d2327;
+	--rv-addon-muted: #646970;
+	--rv-addon-faint: #8a8f98;
+	--rv-addon-accent: #2271b1;
+	--rv-addon-radius: 14px;
+	--rv-addon-shadow: 0 1px 2px rgba( 16, 24, 40, 0.04 );
+}
+
+#mhm-addons-root .rv-addon-title {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0 0 4px;
+	color: var( --rv-addon-text );
+}
+
+/* ------------------------------------------------------------------ layout */
+
+#mhm-addons-root .rv-addon-layout {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	align-items: flex-start;
+	margin-top: 18px;
+}
+
+#mhm-addons-root .rv-addon-create-card {
+	flex: 1 1 300px;
+	min-width: 0;
+	position: sticky;
+	top: 48px;
+}
+
+#mhm-addons-root .rv-addon-list-card {
+	flex: 2 1 520px;
+	min-width: 0;
+	overflow: hidden;
+	padding: 0;
+}
+
+#mhm-addons-root .rv-addon-create-card,
+#mhm-addons-root .rv-addon-list-card {
+	background: var( --rv-addon-surface );
+	border: 1px solid var( --rv-addon-line );
+	border-radius: var( --rv-addon-radius );
+	box-shadow: var( --rv-addon-shadow );
+	padding: 20px;
+}
+
+/* Below roughly a tablet the sidebar stops being a sidebar: a sticky column
+   that tall leaves the list scrolling behind a fixed block on a phone. */
+@media screen and ( max-width: 782px ) {
+	#mhm-addons-root .rv-addon-create-card {
+		position: static;
+		flex-basis: 100%;
+	}
+}
+
+/* -------------------------------------------------------------------- form */
+
+#mhm-addons-root .rv-addon-create-title {
+	font-size: 17px;
+	font-weight: 700;
+	margin: 0 0 4px;
+	padding: 0;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-create-intro {
+	font-size: 13px;
+	color: var( --rv-addon-muted );
+	margin: 0 0 16px;
+}
+
+#mhm-addons-root .rv-addon-field {
+	margin: 0 0 14px;
+}
+
+#mhm-addons-root .rv-addon-field label {
+	display: block;
+	font-size: 12px;
+	color: #50575e;
+	margin-bottom: 5px;
+}
+
+#mhm-addons-root .rv-addon-input {
+	width: 100%;
+	font-size: 14px;
+	padding: 9px 11px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: var( --rv-addon-surface );
+	color: var( --rv-addon-text );
+	box-sizing: border-box;
+}
+
+#mhm-addons-root textarea.rv-addon-input {
+	min-height: 70px;
+	resize: vertical;
+	font-family: inherit;
+}
+
+/*
+ * Price and Type split 25/75 rather than evenly.
+ *
+ * A price is at most a handful of digits, while the type labels are full
+ * sentences -- "Günlük (rezervasyon süresi × fiyat)" is the longest. At 50/50
+ * the select truncated its own option text while the number field sat mostly
+ * empty, so the space went to the field that had nothing to do with it.
+ */
+#mhm-addons-root .rv-addon-field-row {
+	display: flex;
+	gap: 10px;
+}
+
+#mhm-addons-root .rv-addon-field-row .rv-addon-field {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+#mhm-addons-root .rv-addon-field-row .rv-addon-field:last-child {
+	flex-grow: 3;
+}
+
+/* Stacked on narrow screens: 25% of a phone-width column is not a usable
+   number field, and the select would lose its text again. */
+@media screen and ( max-width: 480px ) {
+	#mhm-addons-root .rv-addon-field-row {
+		display: block;
+	}
+}
+
+#mhm-addons-root .rv-addon-create {
+	border-radius: 8px;
+	font-weight: 600;
+}
+
+#mhm-addons-root .rv-addon-create-feedback {
+	font-size: 13px;
+	color: var( --rv-addon-muted );
+	margin: 10px 0 0;
+	min-height: 1em;
+}
+
+#mhm-addons-root .rv-addon-create-feedback.is-error {
+	color: #b32d2e;
+}
+
+/* -------------------------------------------------------------------- list */
+
+#mhm-addons-root .rv-addon-list-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 18px;
+	margin: -20px -20px 0;
+	border-bottom: 1px solid #eceef1;
+}
+
+#mhm-addons-root .rv-addon-list-title {
+	font-weight: 700;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-count {
+	margin-left: auto;
+	font-size: 13px;
+	color: var( --rv-addon-muted );
+}
+
+#mhm-addons-root .rv-addon-empty {
+	padding: 24px 18px;
+	margin: 0;
+	color: var( --rv-addon-muted );
+}
+
+/* ------------------------------------------------------------------- bulk */
+
+#mhm-addons-root .rv-addon-bulk {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	padding: 10px 18px;
+	margin: 0 -20px;
+	border-bottom: 1px solid var( --rv-addon-line-soft );
+	background: #fbfbfc;
+	font-size: 13px;
+}
+
+#mhm-addons-root .rv-addon-bulk-all {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var( --rv-addon-muted );
+}
+
+#mhm-addons-root .rv-addon-bulk-actions {
+	display: flex;
+	gap: 6px;
+}
+
+#mhm-addons-root .rv-addon-bulk-action {
+	font-size: 12px;
+	height: auto;
+	padding: 3px 10px;
+	border-radius: 6px;
+}
+
+#mhm-addons-root .rv-addon-bulk-delete:not( [disabled] ) {
+	color: #b32d2e;
+	border-color: #d5aeae;
+}
+
+#mhm-addons-root .rv-addon-bulk-count {
+	margin-left: auto;
+	color: var( --rv-addon-muted );
+}
+
+#mhm-addons-root .rv-addon-select {
+	flex: none;
+	margin: 0;
+}
+
+/* ------------------------------------------------------- inline price edit */
+
+#mhm-addons-root .rv-addon-price-value {
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: text;
+	font: inherit;
+	font-weight: 700;
+	color: var( --rv-addon-text );
+	border-bottom: 1px dashed transparent;
+}
+
+#mhm-addons-root .rv-addon-price-value:hover,
+#mhm-addons-root .rv-addon-price-value:focus {
+	border-bottom-color: var( --rv-addon-accent );
+}
+
+#mhm-addons-root .rv-addon-price-input {
+	width: 90px;
+	font-size: 13px;
+	padding: 2px 6px;
+	border: 1px solid var( --rv-addon-accent );
+	border-radius: 6px;
+	text-align: right;
+}
+
+#mhm-addons-root .rv-addon-row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 18px;
+	margin: 0 -20px;
+	border-bottom: 1px solid var( --rv-addon-line-soft );
+	background: var( --rv-addon-surface );
+}
+
+#mhm-addons-root .rv-addon-row:last-child {
+	border-bottom: 0;
+	margin-bottom: -20px;
+}
+
+#mhm-addons-root .rv-addon-row--off {
+	background: #fafafa;
+}
+
+#mhm-addons-root .rv-addon-row.is-dragging {
+	opacity: 0.5;
+}
+
+#mhm-addons-root .rv-addon-drag {
+	color: #c3c6cc;
+	cursor: grab;
+	font-size: 14px;
+	letter-spacing: -2px;
+	flex: none;
+	user-select: none;
+}
+
+#mhm-addons-root .rv-addon-avatar {
+	width: 38px;
+	height: 38px;
+	flex: none;
+	border-radius: 9px;
+	display: grid;
+	place-items: center;
+	font-weight: 700;
+	font-size: 15px;
+}
+
+#mhm-addons-root .rv-addon-identity {
+	flex: 1;
+	min-width: 0;
+	display: block;
+}
+
+#mhm-addons-root .rv-addon-name {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-desc {
+	display: block;
+	font-size: 12px;
+	color: var( --rv-addon-faint );
+	margin-top: 1px;
+}
+
+#mhm-addons-root .rv-addon-price {
+	text-align: right;
+	flex: none;
+	display: block;
+}
+
+#mhm-addons-root .rv-addon-amount {
+	display: block;
+	font-weight: 700;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-type {
+	display: block;
+	font-size: 11px;
+	color: var( --rv-addon-faint );
+}
+
+#mhm-addons-root .rv-addon-usage {
+	flex: none;
+	width: 92px;
+	text-align: right;
+	display: block;
+}
+
+#mhm-addons-root .rv-addon-usage-count {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-usage-label {
+	display: block;
+	font-size: 11px;
+	color: var( --rv-addon-faint );
+}
+
+/* The usage column is the first thing to go when the row runs out of room:
+   it is context, not an action. */
+@media screen and ( max-width: 1100px ) {
+	#mhm-addons-root .rv-addon-usage {
+		display: none;
+	}
+}
+
+#mhm-addons-root .rv-addon-status {
+	flex: none;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 12px;
+	border-radius: 999px;
+	cursor: pointer;
+	background: var( --rv-addon-surface );
+	color: #aeb4bd;
+	border: 1px solid #e2e4e8;
+}
+
+#mhm-addons-root .rv-addon-status.is-on {
+	background: #e4f6e9;
+	color: #0a6b1e;
+	border-color: #a6dfb6;
+}
+
+#mhm-addons-root .rv-addon-status[disabled] {
+	opacity: 0.6;
+	cursor: default;
+}
+
+#mhm-addons-root .rv-addon-switch {
+	margin: 0 0 8px;
+	font-size: 13px;
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .rv-addon-switch label {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	line-height: 1.4;
+}
+
+#mhm-addons-root .rv-addon-switch input {
+	margin: 2px 0 0;
+	flex: none;
+}
+
+#mhm-addons-root .rv-addon-create {
+	margin-top: 6px;
+}
+
+#mhm-addons-root .rv-addon-actions {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* Destructive, so it is quiet until aimed at rather than red by default --
+   a list of three services with a red control on every row reads as a warning
+   screen. */
+#mhm-addons-root .rv-addon-delete {
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	font-size: 13px;
+	color: var( --rv-addon-faint );
+}
+
+#mhm-addons-root .rv-addon-delete:hover,
+#mhm-addons-root .rv-addon-delete:focus {
+	color: #b32d2e;
+	text-decoration: underline;
+}
+
+#mhm-addons-root .rv-addon-delete[disabled] {
+	opacity: 0.5;
+	cursor: default;
+}
+
+#mhm-addons-root .rv-addon-edit {
+	flex: none;
+	font-size: 13px;
+	color: var( --rv-addon-muted );
+	text-decoration: none;
+}
+
+#mhm-addons-root .rv-addon-edit:hover,
+#mhm-addons-root .rv-addon-edit:focus {
+	color: var( --rv-addon-accent );
+}
+
+#mhm-addons-root .rv-addon-notice {
+	display: none;
+	margin: 12px 0 0;
+	padding: 10px 14px;
+	border-left: 4px solid #b32d2e;
+	background: #fcf0f1;
+	color: #1d2327;
+	border-radius: 4px;
+}
+
+#mhm-addons-root .rv-addon-notice.is-visible {
+	display: block;
+}
+
+/* --------------------------------------------------------------- KPI band */
+
+#mhm-addons-root .mhm-stats-grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	gap: 16px;
+	margin-top: 16px;
+}
+
+#mhm-addons-root .mhm-stat-card {
+	background: var( --rv-addon-surface );
+	border: 1px solid var( --rv-addon-line );
+	border-radius: var( --rv-addon-radius );
+	box-shadow: var( --rv-addon-shadow );
+	padding: 16px 18px;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+/* The shared card ships gradient backgrounds selected by :nth-child. They are
+   more specific than a plain class rule, so they are unset explicitly here
+   rather than fought with !important. */
+#mhm-addons-root .mhm-stats-grid .mhm-stat-card:nth-child( n ) {
+	background: var( --rv-addon-surface );
+	color: var( --rv-addon-text );
+}
+
+#mhm-addons-root .mhm-stat-card .dashicons {
+	color: var( --rv-addon-accent );
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+#mhm-addons-root .mhm-stat-card__label {
+	font-size: 12px;
+	color: var( --rv-addon-muted );
+	margin: 0 0 2px;
+	text-transform: none;
+}
+
+#mhm-addons-root .mhm-stat-card__value {
+	font-size: 22px;
+	font-weight: 700;
+	color: var( --rv-addon-text );
+	margin: 0;
+	line-height: 1.2;
+}
+
+#mhm-addons-root .mhm-stat-card__sub {
+	font-size: 12px;
+	color: var( --rv-addon-faint );
+	margin: 2px 0 0;
+}
+
+/* --------------------------------------------------------------- dark mode */
+
+/*
+ * Keyed to the plugin's own body class, NOT to prefers-color-scheme.
+ *
+ * The browser-preference version was written first and then measured in the
+ * browser, which is what killed it: WordPress admin has no dark theme of its
+ * own, so honouring the OS preference painted these cards dark while the
+ * surrounding admin -- menu, header, page background -- stayed light. The
+ * screen became a dark island in a light page, which is worse than not
+ * following the preference at all.
+ *
+ * The body class only appears when the plugin's own dark mode is on, and then
+ * the surroundings are dark too, so the two agree.
+ *
+ * Worth recording while measuring this: SettingsCore::enqueue_dark_mode_styles()
+ * has no caller anywhere in the tree, so auto-dark-mode.css is never enqueued,
+ * and dark-mode.css loads only on the settings screen. The block below is
+ * therefore inert today. It is kept rather than deleted because it is correct
+ * for the moment that wiring is restored, and deleting it would mean writing it
+ * again from scratch then.
+ */
+body.mhm-dark-mode #mhm-addons-root,
+body.mhm-auto-dark-mode #mhm-addons-root {
+	--rv-addon-surface: #1e1e1e;
+	--rv-addon-canvas: #121212;
+	--rv-addon-line: #3c3c3c;
+	--rv-addon-line-soft: #2a2a2a;
+	--rv-addon-text: #e6e6e6;
+	--rv-addon-muted: #a7aaad;
+	--rv-addon-faint: #8c8f94;
+	--rv-addon-accent: #72aee6;
+	--rv-addon-shadow: 0 1px 2px rgba( 0, 0, 0, 0.4 );
+}
+
+body.mhm-dark-mode #mhm-addons-root .rv-addon-row--off,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-row--off {
+	background: #242424;
+}
+
+body.mhm-dark-mode #mhm-addons-root .rv-addon-input,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-input {
+	border-color: #4a4a4a;
+}
+
+body.mhm-dark-mode #mhm-addons-root .rv-addon-field label,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-field label {
+	color: var( --rv-addon-muted );
+}
+
+body.mhm-dark-mode #mhm-addons-root .rv-addon-list-head,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-list-head {
+	border-bottom-color: var( --rv-addon-line );
+}
+
+/* The status pill keeps its meaning in dark mode: green still reads as on,
+   and the off state stays visibly quieter rather than becoming invisible. */
+body.mhm-dark-mode #mhm-addons-root .rv-addon-status,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-status {
+	background: transparent;
+	color: #8c8f94;
+	border-color: #4a4a4a;
+}
+
+body.mhm-dark-mode #mhm-addons-root .rv-addon-status.is-on,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-status.is-on {
+	background: #14361d;
+	color: #7fd396;
+	border-color: #2f6b3f;
+}
+
+body.mhm-dark-mode #mhm-addons-root .rv-addon-notice,
+body.mhm-auto-dark-mode #mhm-addons-root .rv-addon-notice {
+	background: #3a1f20;
+	color: #f0d5d6;
+}

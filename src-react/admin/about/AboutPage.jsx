@@ -7,6 +7,7 @@ import GeneralTab    from './components/GeneralTab';
 import SystemTab     from './components/SystemTab';
 import SupportTab    from './components/SupportTab';
 import DeveloperTab  from './components/DeveloperTab';
+import buildSystemReport from './utils/systemReport';
 
 function getInitialTab() {
 	const tab = new URLSearchParams( window.location.search ).get( 'tab' );
@@ -57,7 +58,7 @@ export default function AboutPage() {
 				{ activeTab === 'general'   && <GeneralTab   data={ data.general }   /> }
 				{ activeTab === 'system'    && <SystemTab    data={ data.system }    /> }
 				{ activeTab === 'support'   && <SupportTab   data={ data.support }   /> }
-				{ activeTab === 'developer' && <DeveloperTab data={ data.developer } /> }
+				{ activeTab === 'developer' && <DeveloperTab data={ data.developer } report={ buildSystemReport( data ) } /> }
 			</div>
 		</div>
 	);

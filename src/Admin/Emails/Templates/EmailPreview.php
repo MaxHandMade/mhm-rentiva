@@ -222,29 +222,12 @@ final class EmailPreview {
 			if ( isset( $context['booking']['total_price'] ) && is_numeric( $context['booking']['total_price'] ) ) {
 				$amount = (float) $context['booking']['total_price'];
 			}
-			// Force custom logic for preview to guarantee symbol display
-			// if (function_exists('wc_price')) { ... }
-
-			$symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-
-			$formatted_amount = number_format( $amount, 2 );
-			$pos              = get_option( 'mhmrentiva_currency_position', 'right_space' );
-
-			switch ( $pos ) {
-				case 'left':
-					$context['amount'] = $symbol . $formatted_amount;
-					break;
-				case 'left_space':
-					$context['amount'] = $symbol . ' ' . $formatted_amount;
-					break;
-				case 'right':
-					$context['amount'] = $formatted_amount . $symbol;
-					break;
-				case 'right_space':
-				default:
-					$context['amount'] = $formatted_amount . ' ' . $symbol;
-					break;
-			}
+			// Canonical formatting, so the preview shows what the real email will.
+			// This branch used to read `mhmrentiva_currency_position` as a
+			// top-level option — a key the plugin never writes there, since its
+			// settings live inside the `mhmrentiva_settings` array — so the
+			// preview was pinned to `right_space` whatever WooCommerce said.
+			$context['amount'] = \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $amount, 2 );
 			$context['status'] = 'completed';
 			$context['reason'] = '';
 		}

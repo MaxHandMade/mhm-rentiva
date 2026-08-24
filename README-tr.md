@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — WordPress için Araç Kiralama Rezervasyon Sistemi" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-6.0.7-blue.svg)
+![Version](https://img.shields.io/badge/version-6.1.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -542,7 +542,7 @@ mhm-rentiva/
 
 ### WordPress & PHP
 - **Minimum WordPress**: 6.7
-- **Test Edilen**: 7.0
+- **Test Edilen**: 7.1
 - **Minimum PHP**: 8.1 (Önerilen: 8.2+)
 - **Bellek Limiti**: Minimum 128MB (256MB önerilir)
 
@@ -568,7 +568,7 @@ mhm-rentiva/
 - **Güvenlik**: Raw SQL yasaktır, her zaman `$wpdb->prepare()` kullanılır.
 
 ### 🧪 Otomatik Test Süiti
-- **PHPUnit**: 1.739 test / 7.088 doğrulama (v6.0.7).
+- **PHPUnit**: 2.491 test / 9.131 doğrulama (v6.1.0).
 - **CI Matrisi**: PHP 8.1 / 8.2 / 8.3 × WP 6.7 / latest = 6 paralel iş.
 - **PHPCS**: Tam WordPress Coding Standards uyumluluğu (0 hata).
 - **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.

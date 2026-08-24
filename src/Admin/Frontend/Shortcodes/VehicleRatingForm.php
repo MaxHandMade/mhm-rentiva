@@ -415,12 +415,23 @@ final class VehicleRatingForm extends AbstractShortcode {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
 		}
 
-		// This handler is registered for nopriv and get_comments() does not check
-		// whether the caller may read the post, so without this guard any post id
-		// would return every approved comment on it -- author name, body and date.
-		// The status matters as much as the type: a draft vehicle's reviews are
-		// as unpublished as the vehicle itself.
-		if (get_post_type($vid) !== 'mhmrentiva_vehicle' || get_post_status($vid) !== 'publish') {
+		/*
+		 * The parameter is named `vehicle_id`, but nothing used to make it one:
+		 * the id went straight into get_comments() as `post_id`, and get_comments()
+		 * does not check whether the caller may read the post. A `nopriv` caller
+		 * holding the public rating nonce could therefore read the approved
+		 * comments -- author display names, body and date -- of an unpublished
+		 * vehicle, or of any unrelated post type entirely. The status matters as
+		 * much as the type: a draft vehicle's reviews are as unpublished as the
+		 * vehicle itself.
+		 *
+		 * Both audit rounds closed this independently; the house helper is kept
+		 * over the inline type/status pair because it is the stricter of the two
+		 * (it also rejects password-protected posts) and because one canonical
+		 * answer to "may the public read this vehicle" is worth more than two
+		 * copies that can drift apart.
+		 */
+		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vid)) {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
 		}
 

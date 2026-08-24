@@ -22,10 +22,16 @@ use WP_UnitTestCase;
  * either repo can ever produce a valid nonce for them or POST to them.
  * GREEN (post-fix): each dead hook registration + its dead callback was
  * deleted; live siblings that share a class or file with a dead callback
- * (e.g. Actions::refund_booking(), DashboardPage::clear_dashboard_cache(),
- * AddCustomerPage::render(), Handler::get_cancellation_policy()/
- * get_payment_deadline(), Uninstaller::uninstall_direct()) were preserved
- * and are asserted still-present below as positive controls.
+ * (e.g. DashboardPage::clear_dashboard_cache(), AddCustomerPage::render(),
+ * Handler::get_cancellation_policy()/get_payment_deadline(),
+ * Uninstaller::uninstall_direct()) were preserved and are asserted
+ * still-present below as positive controls. Actions::refund_booking() was
+ * one of these at A6 measurement time (its nonce producer still existed),
+ * but Task 9 (slice 5, 2026-08-22) later deleted BookingRefundMetaBox's
+ * nonce-producing form (a5c35a61) and, once that made the endpoint provably
+ * unreachable, the endpoint itself, its registration, notices() and the
+ * whole Actions class -- see NoUnguardedRefundEntryPointTest and this row's
+ * move from the "still exists" list to the dead-hook list below.
  *
  * Görev 10c-A addition: `wp_ajax_mhmrentiva_create_default_addons`
  * (task-10a-endpoint-table.md row C1). Unlike A1-A12, this one had a real
@@ -45,7 +51,6 @@ use WP_UnitTestCase;
  * @covers \MHMRentiva\Admin\Booking\Core\Handler
  * @covers \MHMRentiva\Admin\Vehicle\Deposit\DepositAjax
  * @covers \MHMRentiva\Admin\Emails\Core\EmailTemplates
- * @covers \MHMRentiva\Admin\Utilities\Actions\Actions
  * @covers \MHMRentiva\Admin\Utilities\Uninstall\UninstallPage
  * @covers \MHMRentiva\Admin\Utilities\Uninstall\Uninstaller
  * @covers \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage
@@ -83,7 +88,6 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
                 \MHMRentiva\Admin\Booking\Core\Handler::class,
                 \MHMRentiva\Admin\Vehicle\Deposit\DepositAjax::class,
                 \MHMRentiva\Admin\Emails\Core\EmailTemplates::class,
-                \MHMRentiva\Admin\Utilities\Actions\Actions::class,
                 \MHMRentiva\Admin\Utilities\Uninstall\UninstallPage::class,
                 \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::class,
                 // CustomersPage, not AddCustomerPage directly: production fires
@@ -106,6 +110,25 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
      * The 12 Section-A hook tags, per task-10a-endpoint-table.md rows A1-A12
      * (nopriv rows included as their own row, matching the table's own count).
      *
+     * Görev 10c-A added C1 for the same reason (a page that was reachable by
+     * nothing). Task 9 (slice 5, 2026-08-22) adds T9:
+     * `admin_post_mhmrentiva_refund_booking` was a genuine positive control
+     * here at A6 measurement time -- BookingRefundMetaBox still produced its
+     * nonce -- but a5c35a61 later deleted that producer (fixing a nested-form
+     * regression), leaving the endpoint unreachable rather than unprotected.
+     * Task 9 deleted the endpoint, its registration, notices() (whose own
+     * nonce had no producer left once notice_url() -- its only caller was
+     * refund_booking() -- went with it) and the whole Actions class, so this
+     * row moves from "still exists" (below) to "now dead" (here). Fix round 1
+     * (F5): that same deletion took row A6's own live apparatus with it --
+     * `Actions::class` was A6's registrar in setUp()'s loop and
+     * `admin_post_mhmrentiva_refund_booking` was its paired "still exists"
+     * control, both removed above -- so A6 is now a vacuous assertion
+     * (`has_action('admin_post_mhmrentiva_purge_logs')` was already false
+     * before this test process registers anything, with or without a
+     * registrar call); left as-is rather than rebuilt, since there is no
+     * class left to call register() on.
+     *
      * @return array<string, array{0: string}>
      */
     public static function deadHookTagProvider(): array
@@ -125,6 +148,7 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
             'A11 wp_ajax_mhmrentiva_reset_dashboard_layout'   => array( 'wp_ajax_mhmrentiva_reset_dashboard_layout' ),
             'A12 wp_ajax_mhmrentiva_add_customer'             => array( 'wp_ajax_mhmrentiva_add_customer' ),
             'C1  wp_ajax_mhmrentiva_create_default_addons'    => array( 'wp_ajax_mhmrentiva_create_default_addons' ),
+            'T9  admin_post_mhmrentiva_refund_booking'        => array( 'admin_post_mhmrentiva_refund_booking' ),
         );
     }
 
@@ -143,10 +167,6 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
 
     public function test_live_sibling_hooks_on_the_same_classes_are_still_registered(): void
     {
-        $this->assertNotFalse(
-            has_action('admin_post_mhmrentiva_refund_booking'),
-            'Actions::refund_booking() is live (nonce produced by BookingRefundMetaBox) -- must survive the A6 purge_logs() deletion.'
-        );
         $this->assertNotFalse(
             has_action('wp_ajax_mhmrentiva_preview_email_ajax'),
             'The live nonce/capability-protected AJAX email preview must survive removal of the dead admin-post stub.'

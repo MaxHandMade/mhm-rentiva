@@ -270,7 +270,8 @@ final class Uninstaller {
 			++$results['posts_deleted'];
 		}
 
-		// 3b. Delete the plugin's own log and contact records.
+		// 3b. Delete the plugin's own records: logs, contact messages and the
+		// additional-services catalogue.
 		//
 		// Step 4's `_mhmrentiva%` postmeta sweep strips the meta but leaves the
 		// wp_posts row, and for a contact message that row still holds the
@@ -279,12 +280,21 @@ final class Uninstaller {
 		// again the moment the plugin is gone, which is precisely the
 		// unreachable state this release exists to end. Deleted by exact type,
 		// each of which is this plugin's alone.
+		//
+		// mhmrentiva_addon joined this list on 2026-08-24. It had been missing,
+		// which was an omission rather than a decision: the paid add-on's ledger
+		// TABLES are kept on purpose (append-only financial history, and a site
+		// removing Lite may be about to reinstall it), but an additional service
+		// is catalogue data with no such argument -- and leaving it behind meant
+		// one post type out of four survived, under a slug nothing registers any
+		// more.
 		$owned_records = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( %s, %s, %s )",
+				"SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( %s, %s, %s, %s )",
 				'mhmrentiva_contact',
 				'mhmrentiva_app_log',
-				'mhmrentiva_email_log'
+				'mhmrentiva_email_log',
+				'mhmrentiva_addon'
 			)
 		);
 

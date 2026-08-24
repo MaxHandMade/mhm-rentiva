@@ -274,8 +274,16 @@ final class ContactForm extends AbstractShortcode {
 				'contact_form_submission',
 				5,
 				$limit_time,
-				/* translators: %d: number of minutes. */
-				sprintf(__('You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva'), (int) ceil($limit_time / 60))
+				sprintf(
+					/* translators: %d: number of minutes. */
+					_n(
+						'You have sent too many contact forms. Please wait %d minute.',
+						'You have sent too many contact forms. Please wait %d minutes.',
+						(int) ceil($limit_time / 60),
+						'mhm-rentiva'
+					),
+					(int) ceil($limit_time / 60)
+				)
 			);
 
 			// Field-by-field reads: each expected POST key is individually

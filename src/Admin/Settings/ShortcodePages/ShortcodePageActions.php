@@ -248,9 +248,45 @@ final class ShortcodePageActions {
 	}
 
 	/**
-	 * Scan all published pages for shortcode usage.
+	 * Elementor widget names for Lite's shortcodes, keyed by shortcode tag —
+	 * the `get_name()` returns of the widget classes in
+	 * src/Admin/Frontend/Widgets/Elementor. The names are irregular
+	 * (rv-*, mhmrentiva_*, and a few differ from their shortcode root:
+	 * unified_search → rv-vehicle-search), so they cannot be derived the way
+	 * block names can. Pro can contribute its own widgets through the filter
+	 * in debug_search().
+	 */
+	private const ELEMENTOR_WIDGET_MAP = array(
+		'rentiva_availability_calendar' => 'rv-availability-calendar',
+		'rentiva_booking_form'          => 'rv-booking-form',
+		'rentiva_contact'               => 'rv-contact-form',
+		'rentiva_featured_vehicles'     => 'mhmrentiva_featured_vehicles',
+		'rentiva_my_bookings'           => 'rv-my-bookings',
+		'rentiva_my_favorites'          => 'rv-my-favorites',
+		'rentiva_payment_history'       => 'rv-payment-history',
+		'rentiva_search_results'        => 'rv-search-results',
+		'rentiva_testimonials'          => 'rv-testimonials',
+		'rentiva_unified_search'        => 'rv-vehicle-search',
+		'rentiva_user_dashboard'        => 'rv-user-dashboard',
+		'rentiva_vehicle_comparison'    => 'rv-vehicle-comparison',
+		'rentiva_vehicle_details'       => 'rv-vehicle-details',
+		'rentiva_vehicle_rating_form'   => 'rv-vehicle-rating',
+		'rentiva_vehicles_grid'         => 'mhmrentiva_vehicles_grid',
+		'rentiva_vehicles_list'         => 'mhmrentiva_vehicles_list',
+	);
+
+	/**
+	 * Scan all published pages for shortcode usage — in all three forms a page
+	 * can embed one under Render Parity: the classic `[shortcode]` text, the
+	 * matching Gutenberg block (`<!-- wp:mhm-rentiva/… -->`), and the matching
+	 * Elementor widget (or a shortcode embedded inside Elementor data).
 	 *
-	 * @return array{ scanned_pages: int, results: list<array{slug: string, label: string, found_in: list<array{page_id: int, page_title: string, page_url: string}>}> }
+	 * The previous version searched only the literal shortcode text and
+	 * pre-filtered to pages containing `[`, so a block-built demo page read
+	 * as "not found" while the very same component rendered on it, and
+	 * "scanned N pages" counted only the bracket-containing subset.
+	 *
+	 * @return array{ scanned_pages: int, results: list<array{slug: string, label: string, found_in: list<array{page_id: int, page_title: string, page_url: string, via: list<string>}>}> }
 	 */
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded admin-only debug scan; no user-facing cache needed.
 	public static function debug_search(): array {
@@ -258,14 +294,14 @@ final class ShortcodePageActions {
 
 		$all_pages = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
-				 WHERE post_type = %s
-				 AND post_status = %s
-				 AND post_content LIKE %s
-				 ORDER BY post_date DESC",
+				"SELECT p.ID, p.post_title, p.post_content, em.meta_value AS elementor_data
+				 FROM {$wpdb->posts} p
+				 LEFT JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_elementor_data'
+				 WHERE p.post_type = %s
+				 AND p.post_status = %s
+				 ORDER BY p.post_date DESC",
 				'page',
-				'publish',
-				'%[%'
+				'publish'
 			)
 		);
 		// phpcs:enable
@@ -273,14 +309,46 @@ final class ShortcodePageActions {
 		$config  = ( new self() )->get_config();
 		$results = array();
 
+		/**
+		 * Filters the shortcode-tag → Elementor-widget-name map the debug scan
+		 * uses. Pro subscribes to add its own widgets.
+		 *
+		 * @param array<string, string> $map Widget names keyed by shortcode tag.
+		 */
+		$widget_map = (array) apply_filters( 'mhmrentiva_shortcode_widget_map', self::ELEMENTOR_WIDGET_MAP );
+
 		foreach ( $config as $slug => $info ) {
+			// Block names follow one convention (BlockRegistry):
+			// rentiva_availability_calendar → mhm-rentiva/availability-calendar.
+			$block_needle = '<!-- wp:mhm-rentiva/' . str_replace( '_', '-', (string) preg_replace( '/^rentiva_/', '', $slug ) );
+			$widget_name  = (string) ( $widget_map[ $slug ] ?? '' );
+
 			$found_in = array();
 			foreach ( $all_pages as $page ) {
-				if ( preg_match( '/\[' . preg_quote( $slug, '/' ) . '(\]| |=)/', (string) $page->post_content ) ) {
+				$content   = (string) $page->post_content;
+				$elementor = (string) $page->elementor_data;
+
+				$via = array();
+				if ( preg_match( '/\[' . preg_quote( $slug, '/' ) . '(\]| |=)/', $content ) ) {
+					$via[] = 'shortcode';
+				}
+				if ( false !== strpos( $content, $block_needle ) ) {
+					$via[] = 'block';
+				}
+				if ( '' !== $elementor ) {
+					$widget_used   = '' !== $widget_name && false !== strpos( $elementor, '"widgetType":"' . $widget_name . '"' );
+					$embedded_text = false !== strpos( $elementor, '[' . $slug );
+					if ( $widget_used || $embedded_text ) {
+						$via[] = 'widget';
+					}
+				}
+
+				if ( array() !== $via ) {
 					$found_in[] = array(
 						'page_id'    => (int) $page->ID,
 						'page_title' => esc_html( (string) $page->post_title ),
 						'page_url'   => esc_url( (string) get_permalink( $page->ID ) ),
+						'via'        => $via,
 					);
 				}
 			}

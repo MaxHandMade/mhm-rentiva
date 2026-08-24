@@ -60,7 +60,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         remove_role( 'mhmrentiva_test_options_only' );
         remove_role( 'mhmrentiva_test_user_manager' );
         wp_set_current_user( 0 );
-        unset( $_POST['submit'], $_POST['mhmrentiva_add_customer_nonce'], $_POST['mhmrentiva_edit_customer_nonce'], $_POST['nonce'], $_POST['customer_name'], $_POST['customer_email'], $_GET['customer_id'] );
+        unset( $_POST['submit'], $_POST['mhmrentiva_add_customer_nonce'], $_POST['mhmrentiva_edit_customer_nonce'], $_POST['nonce'], $_POST['customer_name'], $_POST['customer_email'], $_POST['customer_phone'], $_GET['customer_id'] );
         parent::tearDown();
     }
 
@@ -110,6 +110,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $_POST['mhmrentiva_add_customer_nonce'] = wp_create_nonce( 'mhmrentiva_add_customer' );
         $_POST['customer_name']                  = 'Allowed Customer';
         $_POST['customer_email']                 = 'allowed-customer@example.com';
+        $_POST['customer_phone']                 = '+90 555 000 00 00'; // Phone is a required field.
 
         ob_start();
         AddCustomerPage::render();
@@ -123,6 +124,25 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $this->assertFalse( wp_check_password( 'demo123', $created->user_pass, $created->ID ) );
         $this->assertFalse( wp_check_password( 'password', $created->user_pass, $created->ID ) );
         $this->assertFalse( wp_check_password( '', $created->user_pass, $created->ID ) );
+    }
+
+    public function test_add_customer_rejected_without_phone(): void
+    {
+        $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
+        wp_set_current_user( $manager_id );
+
+        $_POST['submit']                        = 'submit';
+        $_POST['mhmrentiva_add_customer_nonce'] = wp_create_nonce( 'mhmrentiva_add_customer' );
+        $_POST['customer_name']                  = 'Phoneless Customer';
+        $_POST['customer_email']                 = 'phoneless-customer@example.com';
+        // customer_phone deliberately absent: phone is required server-side.
+
+        ob_start();
+        AddCustomerPage::render();
+        $html = ob_get_clean();
+
+        $this->assertFalse( get_user_by( 'email', 'phoneless-customer@example.com' ), 'A submission without a phone must not create a customer.' );
+        $this->assertStringContainsString( 'phone fields are required', $html );
     }
 
     // test_ajax_add_customer_denied_without_create_users_capability() was
@@ -183,6 +203,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $_POST['mhmrentiva_edit_customer_nonce']  = wp_create_nonce( 'mhmrentiva_edit_customer' );
         $_POST['customer_name']                    = 'Updated Name';
         $_POST['customer_email']                   = 'updated@example.com';
+        $_POST['customer_phone']                   = '+90 555 000 00 00'; // Phone is a required field.
 
         $page = new CustomersPage();
 

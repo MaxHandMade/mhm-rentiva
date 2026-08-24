@@ -88,36 +88,59 @@ final class AddonBookingEnqueueTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Review fix round 1, I1: addon-booking.js's total-line prefix (the local
-	 * `currency` const read at :149, rendered in the template literals at
-	 * :179/:198/:207) must come from currencySymbol -- CurrencyHelper's actual
-	 * symbol -- not from `currency`, the raw ISO code
-	 * (SettingsCore::get('mhmrentiva_currency', 'USD'), e.g. "USD"). Every
-	 * other "prefix a total" call site in the plugin agrees: this file's own
-	 * PHP twin AddonBooking::format_addon_price(), the sibling
-	 * availability-calendar.js, and Pro's transfer-addon-modal.js:20 all use
-	 * the symbol. Before this fix, every site rendered e.g. "USD1.234,56"
-	 * regardless of configured currency.
+	 * Review fix round 1, I1: addon-booking.js's money display must take its
+	 * symbol from currencySymbol -- CurrencyHelper's actual symbol -- not from
+	 * `currency`, the raw ISO code (e.g. "USD"). Every other "render a total"
+	 * call site in the plugin agrees: this file's own PHP twin
+	 * AddonBooking::format_addon_price(), the sibling availability-calendar.js,
+	 * and Pro's transfer-addon-modal.js:20 all use the symbol. Before that fix,
+	 * every site rendered e.g. "USD1.234,56" regardless of configured currency.
+	 *
+	 * The currency-placement sweep moved the read behind formatMoney()'s local
+	 * `cfg` alias, so this asserts the FIELD that is read rather than one
+	 * spelling of the object path -- the invariant was never "window.…" but
+	 * "the symbol field, not the ISO code field".
 	 *
 	 * This is a static source check, not a JS runtime test -- PHPUnit cannot
 	 * execute addon-booking.js -- but it is cheap and precise: the negative
-	 * regex requires `.currency` to be immediately closed by `)`, a pattern
-	 * `.currencySymbol)` can never match, so it fails only on a genuine
+	 * regex requires `.currency` to be immediately closed by `)` or `||`, a
+	 * pattern `.currencySymbol` can never match, so it fails only on a genuine
 	 * regression back to the ISO-code read.
 	 */
 	public function test_js_reader_uses_the_currency_symbol_for_the_display_prefix(): void {
 		$js = file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'assets/js/components/addon-booking.js' );
 		$this->assertIsString( $js, 'Premise: addon-booking.js must be readable.' );
 
-		$this->assertStringContainsString(
-			'window.mhmRentivaAddons.currencySymbol',
+		$this->assertMatchesRegularExpression(
+			'/\.currencySymbol\b/',
 			$js,
-			'The display-prefix const must read currencySymbol -- the actual currency symbol, not the ISO code.'
+			'The money formatter must read currencySymbol -- the actual currency symbol, not the ISO code.'
 		);
 		$this->assertDoesNotMatchRegularExpression(
-			'/mhmRentivaAddons\.currency\)/',
+			'/\.currency\s*(\)|\|\|)/',
 			$js,
-			'The display-prefix const must not read the bare ISO-code field (`.currency` immediately closed by `)`); `.currencySymbol)` never matches this pattern.'
+			'The money formatter must not read the bare ISO-code field (`.currency` immediately closed by `)` or `||`); `.currencySymbol` never matches this pattern.'
+		);
+	}
+
+	/**
+	 * The same file must not re-implement currency placement by concatenating
+	 * the symbol onto an amount: that is what pinned every addon total to the
+	 * right regardless of `woocommerce_currency_pos`. All money goes through
+	 * formatMoney(), which honours the localized position and separators.
+	 */
+	public function test_js_money_rendering_goes_through_the_placement_aware_formatter(): void {
+		$js = (string) file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'assets/js/components/addon-booking.js' );
+
+		$this->assertStringContainsString(
+			'formatMoney',
+			$js,
+			'addon-booking.js must own a placement-aware money formatter.'
+		);
+		$this->assertDoesNotMatchRegularExpression(
+			'/\$\{\s*currency\s*\}\$\{/',
+			$js,
+			'Money must not be rendered by gluing the symbol directly in front of an amount; that hardcodes a left placement.'
 		);
 	}
 

@@ -305,11 +305,47 @@ final class BookingForm extends AbstractShortcode {
 			'error_occurred'                        => __('An error occurred', 'mhm-rentiva'),
 			'try_again'                             => __('Please try again', 'mhm-rentiva'),
 			'connection_error'                      => __('Connection error', 'mhm-rentiva'),
+			// booking-form.js substitutes config.min_days into this string with a
+			// plain .replace('%d', …). The count is therefore known HERE, at
+			// localize time, so the plural form can be -- and must be -- chosen
+			// on this side: a one-day minimum used to read "Minimum rental
+			// period is 1 days." Both halves come from min_rental_days() so the
+			// form and the number cannot drift apart.
 			/* translators: %d: minimum days */
-			'min_days_error'                        => __('Minimum rental period is %d days.', 'mhm-rentiva'),
+			'min_days_error'                        => _n(
+				'Minimum rental period is %d day.',
+				'Minimum rental period is %d days.',
+				self::min_rental_days(),
+				'mhm-rentiva'
+			),
 			/* translators: %d: maximum days */
-			'max_days_error'                        => __('Maximum rental period is %d days.', 'mhm-rentiva'),
+			'max_days_error'                        => _n(
+				'Maximum rental period is %d day.',
+				'Maximum rental period is %d days.',
+				self::max_rental_days(),
+				'mhm-rentiva'
+			),
 		);
+	}
+
+	/**
+	 * The rental-day bounds, read in ONE place.
+	 *
+	 * Both halves of the sentence come from here: get_localized_strings() picks a
+	 * plural form with these numbers and get_js_config() ships the very same
+	 * numbers to the browser, which substitutes them into that string. Two
+	 * independent reads of one setting would be correct today and a silent
+	 * mismatch the first time either moved -- the sentence saying "day" while
+	 * the browser prints 7.
+	 */
+	private static function min_rental_days(): int
+	{
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
+	}
+
+	private static function max_rental_days(): int
+	{
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
 	}
 
 	protected static function get_js_config(): array
@@ -320,8 +356,8 @@ final class BookingForm extends AbstractShortcode {
 			'locale'               => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
 			'enable_deposit'       => get_option('mhmrentiva_enable_deposit', '1') === '1',
 			'default_payment'      => get_option('mhmrentiva_default_payment', 'deposit'),
-			'min_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1),
-			'max_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30),
+			'min_days'             => self::min_rental_days(),
+			'max_days'             => self::max_rental_days(),
 			'advance_booking_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_advance_booking_days', 365),
 		);
 	}
@@ -636,6 +672,58 @@ final class BookingForm extends AbstractShortcode {
 	 *
 	 * @return array
 	 */
+	/**
+	 * The add-on ids a submission is allowed to buy.
+	 *
+	 * A thin boundary on purpose: the decision lives here, where a test can run
+	 * the same method the handler runs rather than a copy of its logic. It was
+	 * extracted when the handler around it could not be exercised at all -- it
+	 * answered with wp_send_json_* inside a try/catch that swallowed the
+	 * terminator. That is no longer true of the handler, but the boundary earns
+	 * its keep either way.
+	 *
+	 * Two parameter names because two clients post: the script sends `addons`,
+	 * the plain form sends `selected_addons`. intList() flattens either shape, so
+	 * one add-on posted as a scalar and several posted as `addons[]` both arrive
+	 * as a list of ids.
+	 *
+	 * validate_numeric_array() asks only whether those ids are numbers. That was
+	 * the whole of the check, which meant a replayed form could buy a service
+	 * that had since been switched off, and a hand-made request could attach any
+	 * post on the site as a "service" -- the offered list is markup, and nothing
+	 * obliges a request to have come from it. AddonManager::filter_sellable()
+	 * is the refusal.
+	 *
+	 * @param VerifiedRequest $req Verified request.
+	 * @return array<int, int> Ids that may be sold, de-duplicated.
+	 */
+	private static function accept_submitted_addons(VerifiedRequest $req): array
+	{
+		$submitted = array();
+
+		if ($req->has('addons')) {
+			$submitted = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('addons'));
+		} elseif ($req->has('selected_addons')) {
+			$submitted = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('selected_addons'));
+		}
+
+		return \MHMRentiva\Admin\Addons\AddonManager::filter_sellable($submitted);
+	}
+
+	/**
+	 * The services this form may offer a customer.
+	 *
+	 * The query used to ask for published add-ons and nothing else, so a service
+	 * switched to Pasif on the add-ons screen went grey in the admin and carried
+	 * on being sold here -- while that screen's own meta box promised "Only
+	 * active additional services are visible in booking form."
+	 *
+	 * The switch is now read through AddonManager::is_sellable(), the single
+	 * answer the whole plugin uses, rather than re-spelled here. This list is
+	 * defence in depth: what actually stops a disabled service being bought is
+	 * AddonManager::filter_sellable() on the submitted ids, because nothing
+	 * obliges a request to have come from this form.
+	 */
 	private static function get_available_addons(): array
 	{
 		$addons = get_posts(
@@ -651,7 +739,7 @@ final class BookingForm extends AbstractShortcode {
 		$result = array();
 		if (is_array($addons)) {
 			foreach ($addons as $addon) {
-				if ($addon instanceof \WP_Post) {
+				if ($addon instanceof \WP_Post && \MHMRentiva\Admin\Addons\AddonManager::is_sellable( (int) $addon->ID )) {
 					$result[] = array(
 						'id'          => $addon->ID,
 						'title'       => $addon->post_title,
@@ -666,31 +754,132 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
+	 * Write the endpoint's single JSON document.
+	 *
+	 * `wp_send_json_*` ends the request through `wp_die()`. Called from inside
+	 * a `try` whose `catch` takes `Exception`, that terminator is swallowed and
+	 * the catch appends a second, contradictory document after the first. In
+	 * production `wp_die()` really dies so visitors never see it; the cost is
+	 * that the endpoint cannot be measured at all, because a test asking what it
+	 * answered gets a body that does not parse. So the three endpoints in this
+	 * class collect an answer first and write it here, outside every try.
+	 *
+	 * Two refusals do NOT come through here and are written directly instead: the
+	 * nonce guard at the top of each endpoint, and check_rate_limit_or_die().
+	 * Both already sit outside the try, which is what the defect was about.
+	 *
+	 * @param array{ok: bool, data: array<string, mixed>} $answer Answer to write.
+	 */
+	private static function answer(array $answer): void
+	{
+		if ($answer['ok']) {
+			wp_send_json_success($answer['data']);
+			return;
+		}
+
+		wp_send_json_error($answer['data']);
+	}
+
+	/**
+	 * @param array<string, mixed> $data Payload the endpoint succeeded with.
+	 *
+	 * @return array{ok: bool, data: array<string, mixed>}
+	 */
+	private static function succeeded(array $data): array
+	{
+		return array(
+			'ok'   => true,
+			'data' => $data,
+		);
+	}
+
+	/**
+	 * A refusal carrying just a message.
+	 *
+	 * @return array{ok: bool, data: array<string, mixed>}
+	 */
+	private static function failed(string $message): array
+	{
+		return array(
+			'ok'   => false,
+			'data' => array( 'message' => $message ),
+		);
+	}
+
+	/**
+	 * A refusal carrying a whole payload -- the availability check answers with
+	 * alternative suggestions alongside the refusal, not with a message alone.
+	 *
+	 * @param array<string, mixed> $data Payload the endpoint refused with.
+	 *
+	 * @return array{ok: bool, data: array<string, mixed>}
+	 */
+	private static function refused(array $data): array
+	{
+		return array(
+			'ok'   => false,
+			'data' => $data,
+		);
+	}
+
+	/**
+	 * Exception text a visitor may see: the raw message only under WP_DEBUG.
+	 */
+	private static function safe_message(\Exception $e): string
+	{
+		$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
+
+		return \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
+			$e->getMessage(),
+			$debug_mode
+		);
+	}
+
+	/**
 	 * AJAX booking form
 	 *
 	 * @return void
 	 */
 	public static function ajax_booking_form(): void
 	{
+		// Security checks
+		if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+			return;
+		}
+
+		$req = VerifiedRequest::from($_POST);
+
+		// Rate limiting check
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
+			'booking_form_submission',
+			5, // 5 requests
+			300, // 5 minutes
+			__('Too many booking requests. Please wait 5 minutes.', 'mhm-rentiva')
+		);
+
+		self::answer(self::resolve_booking_submission($req));
+	}
+
+	/**
+	 * Take the submitted booking as far as the payment handover, as an answer
+	 * the caller writes.
+	 *
+	 * Five of the refusals below used to fall through: they wrote their error
+	 * document and carried on, and only wp_die() inside wp_send_json_error()
+	 * kept the request from continuing past them -- including the locked
+	 * overlap check, which stands between a visitor and double-booking a
+	 * vehicle. They return now, so the guarantee is the code's rather than
+	 * wp_die()'s.
+	 *
+	 * @return array{ok: bool, data: array<string, mixed>}
+	 */
+	private static function resolve_booking_submission(VerifiedRequest $req): array
+	{
 		try {
-			// Security checks
-			if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$req = VerifiedRequest::from($_POST);
-
-			// Rate limiting check
-			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
-				'booking_form_submission',
-				5, // 5 requests
-				300, // 5 minutes
-				__('Too many booking requests. Please wait 5 minutes.', 'mhm-rentiva')
-			);
-
-			// Input validation
-			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			// Input validation. Public validator: this is a nopriv handler, so
+			// the id must be one an anonymous visitor could already read.
+			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 
 			// Check vehicle status
 			$vehicle_status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
@@ -698,8 +887,7 @@ final class BookingForm extends AbstractShortcode {
 			if ($vehicle_status !== 'active') {
 				/* translators: %s: vehicle status */
 				$error_msg = sprintf(esc_html__('Selected vehicle is not available (Status: %s).', 'mhm-rentiva'), $vehicle_status);
-				wp_send_json_error(array( 'message' => $error_msg ));
-				return;
+				return self::failed($error_msg);
 			}
 
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
@@ -709,8 +897,7 @@ final class BookingForm extends AbstractShortcode {
 
 			// Validate pickup time (required)
 			if (empty($pickup_time)) {
-				wp_send_json_error(array( 'message' => __('Pickup time is required.', 'mhm-rentiva') ));
-				return;
+				return self::failed(__('Pickup time is required.', 'mhm-rentiva'));
 			}
 
 			// Ensure dropoff time matches pickup time (security measure)
@@ -805,26 +992,15 @@ final class BookingForm extends AbstractShortcode {
 			// If WooCommerce is not active, terms validation would be handled here
 			// But since we're using WooCommerce, validation happens on checkout
 
-			// ✅ JavaScript AJAX: 'addons' (array), Normal form submit: 'selected_addons' (array)
-			$selected_addons = array();
-
-			// Check 'addons' parameter sent via AJAX
-			// intList() accepts either shape, so a single addon posted as a scalar and
-			// a multi-select posted as addons[] both arrive as a list of ids.
-			if ($req->has('addons')) {
-				$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('addons'));
-			} elseif ($req->has('selected_addons')) {
-				// 'selected_addons' is the name used by the non-AJAX form submit.
-				$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('selected_addons'));
-			}
+			$selected_addons = self::accept_submitted_addons($req);
 
 			// Validation
 			if ($vehicle_id <= 0) {
-				wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
+				return self::failed(__('Invalid vehicle ID.', 'mhm-rentiva'));
 			}
 
 			if (empty($pickup_date) || empty($dropoff_date)) {
-				wp_send_json_error(array( 'message' => __('Please select dates.', 'mhm-rentiva') ));
+				return self::failed(__('Please select dates.', 'mhm-rentiva'));
 			}
 
 			// ⭐ WooCommerce Integration: Customer information validation removed
@@ -835,8 +1011,7 @@ final class BookingForm extends AbstractShortcode {
 			// Only validate customer info if WooCommerce is NOT active (legacy support)
 			if (! class_exists('WooCommerce') && ! $is_admin) {
 				if (empty($customer_first_name) || empty($customer_last_name) || empty($customer_email) || empty($customer_phone)) {
-					wp_send_json_error(array( 'message' => __('Please fill in contact information.', 'mhm-rentiva') ));
-					return;
+					return self::failed(__('Please fill in contact information.', 'mhm-rentiva'));
 				}
 			}
 
@@ -868,8 +1043,7 @@ final class BookingForm extends AbstractShortcode {
 			// 1. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
-				return;
+				return self::failed($datetime_result->get_error_message());
 			}
 
 			$start_ts = $datetime_result['start_ts'];
@@ -885,14 +1059,13 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			if (! $availability_result['ok']) {
-				wp_send_json_error($availability_result);
+				return self::refused($availability_result);
 			}
 
 			// 3. Validate Duration Constraints (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($start_ts, $end_ts);
 			if (is_wp_error($duration_valid)) {
-				wp_send_json_error(array( 'message' => $duration_valid->get_error_message() ));
-				return;
+				return self::failed($duration_valid->get_error_message());
 			}
 
 			// 4. Calculate Final Day Count
@@ -913,7 +1086,7 @@ final class BookingForm extends AbstractShortcode {
 
 			// Use locked overlap check to prevent concurrent bookings
 			if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
-				wp_send_json_error(
+				return self::refused(
 					array(
 						'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
 						'code'    => 'unavailable',
@@ -940,7 +1113,7 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			if (! $deposit_result['success']) {
-				wp_send_json_error(array( 'message' => __('Price could not be calculated.', 'mhm-rentiva') ));
+				return self::failed(__('Price could not be calculated.', 'mhm-rentiva'));
 			}
 
 			// ⭐ PAYMENT GATEWAY INTEGRATION: Use interface-based payment gateway
@@ -994,7 +1167,7 @@ final class BookingForm extends AbstractShortcode {
 					// Add booking data to payment system (without creating booking yet)
 					// Booking will be created when payment is processed
 					if ($payment_gateway->add_booking_to_payment($booking_data_for_payment, $amount_to_pay)) {
-						wp_send_json_success(
+						return self::succeeded(
 							array(
 								'message'          => __('Redirecting to payment page...', 'mhm-rentiva'),
 								'payment_required' => true,
@@ -1015,30 +1188,22 @@ final class BookingForm extends AbstractShortcode {
 								),
 							)
 						);
-						return;
 					}
 				} catch (\Exception $e) {
 					// Log error but continue to fallback (or show error)
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::payment('Payment Gateway Error', array( 'error' => $e->getMessage() ));
 					/* translators: %s: error message */
-					wp_send_json_error(array( 'message' => sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), $e->getMessage()) ));
-					return;
+					return self::failed(sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), self::safe_message($e)));
 				}
 			}
 
 			// ⭐ No payment gateway available
 			// This code should not be reached if a payment gateway is active (should be handled above)
-			wp_send_json_error(array( 'message' => __('No payment gateway is available. Please contact the site administrator.', 'mhm-rentiva') ));
-			return;
+			return self::failed(__('No payment gateway is available. Please contact the site administrator.', 'mhm-rentiva'));
 		} catch (\InvalidArgumentException $e) {
-			wp_send_json_error(array( 'message' => $e->getMessage() ));
+			return self::failed($e->getMessage());
 		} catch (\Exception $e) {
-			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
-			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
-				$e->getMessage(),
-				$debug_mode
-			);
-			wp_send_json_error(array( 'message' => $message ));
+			return self::failed(self::safe_message($e));
 		}
 	}
 
@@ -1049,28 +1214,52 @@ final class BookingForm extends AbstractShortcode {
 	 */
 	public static function ajax_calculate_price(): void
 	{
+		// Security checks
+		if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+			return;
+		}
+
+		$req = VerifiedRequest::from($_POST);
+
+		// Rate limiting check. Unauthenticated, high-frequency endpoint --
+		// the frontend debounces every date/time/addon change into a
+		// call (100ms debounce, see booking-form.js autoCalculatePrice()),
+		// so a single honest visitor comparing a few date ranges and
+		// toggling several add-ons can legitimately fire ~15-20 requests
+		// within a minute. 30/60s covers that with headroom while
+		// cutting the previous 100/60s scripted-abuse allowance by 70%.
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
+			'price_calculation',
+			30, // 30 requests
+			60, // 1 minute
+			__('Too many price calculation requests. Please wait.', 'mhm-rentiva')
+		);
+
+		self::answer(self::resolve_price_breakdown($req));
+	}
+
+	/**
+	 * Price breakdown for the requested window, as an answer the caller writes.
+	 *
+	 * @return array{ok: bool, data: array<string, mixed>}
+	 */
+	private static function resolve_price_breakdown(VerifiedRequest $req): array
+	{
 		try {
-			// Security checks
-			if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$req = VerifiedRequest::from($_POST);
-
-			// Rate limiting check (increased limits)
-			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
-				'price_calculation',
-				100, // 100 requests (increased)
-				60, // 1 minute (reduced)
-				__('Too many price calculation requests. Please wait.', 'mhm-rentiva')
-			);
-
-			// Input validation
-			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			// Input validation. Public validator: this is a nopriv handler, so
+			// the id must be one an anonymous visitor could already read --
+			// otherwise the price breakdown below prices unpublished stock.
+			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
-			$addons       = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->arr('addons'));
+			// Same acceptance the submit path uses, and for the same reason: this
+			// endpoint is nopriv, so the ids arrive from whoever chose to send
+			// them. It was the busiest member of the class and the one the sweep
+			// missed -- the submit path refused a disabled service while this one
+			// still priced it, so the customer was quoted a total the booking
+			// would never carry.
+			$addons = self::accept_submitted_addons($req);
 
 			// Filter empty addon placeholder (JavaScript doesn't send empty array, sends [0])
 			$addons = array_filter(
@@ -1089,8 +1278,7 @@ final class BookingForm extends AbstractShortcode {
 			// 2. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
-				return;
+				return self::failed($datetime_result->get_error_message());
 			}
 
 			$start_ts = $datetime_result['start_ts'];
@@ -1099,8 +1287,7 @@ final class BookingForm extends AbstractShortcode {
 			// 3. Validate Duration (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($start_ts, $end_ts);
 			if (is_wp_error($duration_valid)) {
-				wp_send_json_error(array( 'message' => $duration_valid->get_error_message() ));
-				return;
+				return self::failed($duration_valid->get_error_message());
 			}
 
 			// 4. Calculate Final Day Count
@@ -1301,16 +1488,11 @@ final class BookingForm extends AbstractShortcode {
 				'is_weekend'            => $day_of_week >= 6,
 			);
 
-			wp_send_json_success($response_data);
+			return self::succeeded($response_data);
 		} catch (\InvalidArgumentException $e) {
-			wp_send_json_error(array( 'message' => $e->getMessage() ));
+			return self::failed($e->getMessage());
 		} catch (\Exception $e) {
-			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
-			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
-				$e->getMessage(),
-				$debug_mode
-			);
-			wp_send_json_error(array( 'message' => $message ));
+			return self::failed(self::safe_message($e));
 		}
 	}
 
@@ -1386,47 +1568,68 @@ final class BookingForm extends AbstractShortcode {
 	 */
 	public static function ajax_check_availability(): void
 	{
+		// Security checks
+		if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+			return;
+		}
+
+		$req = VerifiedRequest::from($_POST);
+
+		// Rate limiting check. Unauthenticated endpoint; fires less often
+		// than price_calculation -- only once a vehicle, both dates AND
+		// both times are set (300ms debounce, see booking-form.js
+		// autoCheckAvailability()). A visitor comparing a handful of
+		// date/vehicle combinations legitimately needs single digits of
+		// calls per session. 20/300s keeps generous headroom over that
+		// while cutting the previous 100/300s scripted-abuse allowance
+		// by 80%.
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
+			'availability_check',
+			20, // 20 requests
+			300, // 5 minutes
+			__('Too many availability checks. Please wait.', 'mhm-rentiva')
+		);
+
+		self::answer(self::resolve_availability($req));
+	}
+
+	/**
+	 * Availability for the requested window, as an answer the caller writes.
+	 *
+	 * @return array{ok: bool, data: array<string, mixed>}
+	 */
+	private static function resolve_availability(VerifiedRequest $req): array
+	{
 		try {
-			// Security checks
-			if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$req = VerifiedRequest::from($_POST);
-
-			// Rate limiting check
-			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
-				'availability_check',
-				100, // 100 requests (increased for testing)
-				300, // 5 minutes
-				__('Too many availability checks. Please wait.', 'mhm-rentiva')
-			);
-
-			// Input validation
-			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			// Input validation. Public validator: this is a nopriv handler, so
+			// the id must be one an anonymous visitor could already read.
+			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 			$pickup_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$pickup_time = $req->text('pickup_time');
 			// Check field names from JavaScript (dropoff_date or return_date)
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date', $req->text('return_date')));
 			$dropoff_time = $req->text('dropoff_time', $req->text('return_time'));
 
+			// Defence in depth rather than a live branch: both validators above
+			// throw on anything falsy, so this cannot currently fire. It stays
+			// because the guarantee belongs to them, not to this endpoint -- but
+			// it now RETURNS. It used to fall through, and only wp_die() inside
+			// wp_send_json_error() stopped the request continuing past a refusal.
 			if (! $vehicle_id || ! $pickup_date || ! $dropoff_date) {
-				wp_send_json_error(array( 'message' => __('Invalid data.', 'mhm-rentiva') ));
+				return self::failed(__('Invalid data.', 'mhm-rentiva'));
 			}
 
 			// ⭐ 1. Parse timestamps for duration validation
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
-				return;
+				return self::failed($datetime_result->get_error_message());
 			}
 
 			// ⭐ 2. Validate Duration Constraints (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($datetime_result['start_ts'], $datetime_result['end_ts']);
 			if (is_wp_error($duration_valid)) {
-				wp_send_json_error(array( 'message' => $duration_valid->get_error_message() ));
-				return;
+				return self::failed($duration_valid->get_error_message());
 			}
 
 			// ⭐ Clear cache before checking to ensure fresh data
@@ -1443,20 +1646,11 @@ final class BookingForm extends AbstractShortcode {
 				$dropoff_time
 			);
 
-			if ($result['ok']) {
-				wp_send_json_success($result);
-			} else {
-				wp_send_json_error($result);
-			}
+			return $result['ok'] ? self::succeeded($result) : self::refused($result);
 		} catch (\InvalidArgumentException $e) {
-			wp_send_json_error(array( 'message' => $e->getMessage() ));
+			return self::failed($e->getMessage());
 		} catch (\Exception $e) {
-			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
-			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
-				$e->getMessage(),
-				$debug_mode
-			);
-			wp_send_json_error(array( 'message' => $message ));
+			return self::failed(self::safe_message($e));
 		}
 	}
 

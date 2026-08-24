@@ -79,7 +79,25 @@ if (! $is_available) {
                         title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
                         aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
-                        <?php Icons::render('heart', [ 'class' => 'mhm-heart-icon' ]); ?>
+                        <?php
+						// Icons::get() writes an inline style="width:..;height:.."
+						// on every SVG and defaults it to 20px. The heart's CSS
+						// beat that default with !important (at 18px) and the
+						// compare icon's CSS did not, so the two badges rendered
+						// at different sizes inside identical 32px circles. Both
+						// call sites now state the design's 16px here, where the
+						// markup is, and win on inline specificity without
+						// another !important. Icons::get()'s own 20px default is
+						// left alone -- 100+ call sites depend on it.
+						Icons::render(
+							'heart',
+							[
+								'class'  => 'mhm-heart-icon',
+								'width'  => '16px',
+								'height' => '16px',
+							]
+						);
+						?>
                         <span class="text-label sr-only"><?php echo $is_favorite ? esc_html__('Remove from Favorites', 'mhm-rentiva') : esc_html__('Add to Favorites', 'mhm-rentiva'); ?></span>
                     </button>
                 <?php endif; ?>
@@ -92,7 +110,16 @@ if (! $is_available) {
                         title="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
                         aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
-                        <?php Icons::render('compare', [ 'class' => 'mhm-compare-icon' ]); ?>
+                        <?php
+                        Icons::render(
+                            'compare',
+                            [
+                                'class'  => 'mhm-compare-icon',
+                                'width'  => '16px',
+                                'height' => '16px',
+                            ]
+                        );
+                        ?>
                         <span class="text-label sr-only"><?php echo $is_in_compare ? esc_html__('Remove Compare', 'mhm-rentiva') : esc_html__('Compare', 'mhm-rentiva'); ?></span>
                     </button>
                 <?php endif; ?>

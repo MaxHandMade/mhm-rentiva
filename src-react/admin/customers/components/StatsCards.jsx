@@ -1,39 +1,52 @@
 import { __ } from '@wordpress/i18n';
+import { fmtMoney } from '../../../shared/format';
 
-export default function StatsCards( { stats } ) {
+export default function StatsCards( { stats, currency } ) {
 	if ( ! stats ) return null;
+
+	const trend    = stats.new_trend || '';
+	const trendUp  = trend.startsWith( '+' ) && trend !== '+0%';
+	const avgSpend = Number( stats.avg_spend ?? 0 );
 
 	const cards = [
 		{
-			icon:  'dashicons-groups',
 			value: stats.total ?? 0,
 			label: __( 'Total Customers', 'mhm-rentiva' ),
 		},
 		{
-			icon:  'dashicons-heart',
-			value: stats.active ?? 0,
-			label: __( 'Active Customers', 'mhm-rentiva' ),
-		},
-		{
-			icon:  'dashicons-plus-alt2',
 			value: stats.new_this_month ?? 0,
 			label: __( 'New This Month', 'mhm-rentiva' ),
+			sub:   trend,
+			tone:  trendUp ? 'up' : 'down',
 		},
 		{
-			icon:  'dashicons-chart-line',
-			value: stats.monthly_avg ?? 0,
-			label: __( 'Monthly Average', 'mhm-rentiva' ),
+			value: stats.active_90d ?? 0,
+			label: __( 'Active Customers', 'mhm-rentiva' ),
+			sub:   __( 'last 90 days', 'mhm-rentiva' ),
+			tone:  'info',
+		},
+		{
+			// fmtMoney places the symbol per woocommerce_currency_pos and uses the
+			// WooCommerce separators; the old template literal hardcoded the symbol
+			// to the left and took separators from the browser locale.
+			value: fmtMoney( avgSpend, currency ?? '' ),
+			label: __( 'Avg. Spend', 'mhm-rentiva' ),
+			sub:   __( 'per customer', 'mhm-rentiva' ),
 		},
 	];
 
 	return (
-		<div className="mhm-stats-grid">
+		<div className="rv-cust-kpis">
 			{ cards.map( ( card ) => (
-				<div key={ card.label } className="mhm-stat-card">
-					<span className={ `dashicons ${ card.icon }` } />
-					<div className="mhm-stat-card__body">
-						<p className="mhm-stat-card__label">{ card.label }</p>
-						<p className="mhm-stat-card__value">{ card.value }</p>
+				<div key={ card.label } className="rv-cust-kpi">
+					<div className="rv-cust-kpi__label">{ card.label }</div>
+					<div className="rv-cust-kpi__row">
+						<span className="rv-cust-kpi__value">{ card.value }</span>
+						{ card.sub && (
+							<span className={ `rv-cust-kpi__sub${ card.tone ? ` is-${ card.tone }` : '' }` }>
+								{ card.sub }
+							</span>
+						) }
 					</div>
 				</div>
 			) ) }

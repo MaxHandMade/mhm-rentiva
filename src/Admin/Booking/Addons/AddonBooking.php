@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Addons;
 
+use MHMRentiva\Admin\Booking\Core\Status;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -239,17 +241,23 @@ final class AddonBooking {
 		);
 
 		// Localize JavaScript variables
+		$currency_parts = \MHMRentiva\Admin\Core\CurrencyHelper::get_js_currency_payload();
+
 		wp_localize_script(
 			'mhm-rentiva-addons',
 			'mhmRentivaAddons',
 			array(
-				'currency'         => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' ),
-				'currencySymbol'   => \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(),
-				'currencyPosition' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency_position', 'right_space' ),
+				// Canonical source: WooCommerce decides code/symbol/placement and the
+				// separators when active. These were read straight off the plugin
+				// options, which pinned the client to `right_space` and to `,`/`.`
+				// regardless of the WooCommerce configuration.
+				'currency'         => $currency_parts['currency'],
+				'currencySymbol'   => $currency_parts['symbol'],
+				'currencyPosition' => $currency_parts['position'],
 				'currencyFormat'   => array(
-					'decimals'          => 2,
-					'decimalSeparator'  => ',',
-					'thousandSeparator' => '.',
+					'decimals'          => $currency_parts['decimals'],
+					'decimalSeparator'  => $currency_parts['decimalSeparator'],
+					'thousandSeparator' => $currency_parts['thousandSeparator'],
 				),
 				'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
 				'nonce'            => wp_create_nonce( 'mhmrentiva_addon_booking_nonce' ),
@@ -268,7 +276,20 @@ final class AddonBooking {
 		$start = $start_date->format( 'Y-m-d H:i:s' );
 		$end   = $end_date->format( 'Y-m-d H:i:s' );
 
-		// Get addon revenue from booking meta
+		// Booking status is META, not post status.
+		//
+		// This query used to filter `p.post_status IN ('confirmed','completed')`
+		// and therefore matched nothing, ever: every booking row is `publish`
+		// (measured on dev: 29 publish, 2 auto-draft, neither of those two
+		// values present at all), and the real status lives in
+		// `_mhmrentiva_status`, which is what Status::get()/set() read and write.
+		// The method returned an empty breakdown and 0.0 revenue on every call
+		// and was harmless only because nothing called it -- the danger was the
+		// name, which promised a revenue report to whoever wired it up next.
+		//
+		// AddonUsageCountTest pins both halves: that no booking carries its
+		// status in post_status, and that the counts are right now that the
+		// status join is against the meta table.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"
@@ -277,11 +298,16 @@ final class AddonBooking {
                 p.post_date as booking_date
             FROM {$wpdb->postmeta} pm
             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+            INNER JOIN {$wpdb->postmeta} sm
+                ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status'
             WHERE pm.meta_key = '_mhmrentiva_addon_details'
             AND p.post_type = 'mhmrentiva_booking'
-            AND p.post_status IN ('confirmed', 'completed')
+            AND p.post_status = 'publish'
+            AND sm.meta_value IN ( %s, %s )
             AND p.post_date BETWEEN %s AND %s
         ",
+				Status::CONFIRMED,
+				Status::COMPLETED,
 				$start,
 				$end
 			),
@@ -329,21 +355,10 @@ final class AddonBooking {
 	 * Format addon price with currency symbol and position
 	 */
 	private static function format_addon_price( float $price ): string {
-		$symbol           = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency_position', 'right_space' );
-		$formatted_amount = number_format( $price, 2, ',', '.' );
-
-		switch ( $position ) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 
 	/**

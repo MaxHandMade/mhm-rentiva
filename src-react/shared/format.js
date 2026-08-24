@@ -10,7 +10,9 @@ function getWcFormat() {
 		decimalSep:  admin.decimalSep  ?? ',',
 		thousandSep: admin.thousandSep ?? '.',
 		numDecimals: admin.numDecimals  ?? 2,
-		currencyPos: admin.currencyPosition ?? 'left',
+		// Last-resort default matches CurrencyHelper's: `right_space`. Keep the two
+		// in step — a different default here would be a second placement rule.
+		currencyPos: admin.currencyPosition ?? 'right_space',
 	};
 }
 

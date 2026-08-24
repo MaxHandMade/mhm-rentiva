@@ -256,7 +256,29 @@ abstract class AbstractMetaBox {
 	 */
 	protected static function render_checkbox_field( string $field_key, $value, array $field ): void {
 		$label_text = $field['label_text'] ?? $field['label'] ?? '';
-		$checked    = checked( $value, '1', false );
+
+		// A field may declare which stored value means OFF, and then everything
+		// else -- including a missing row -- is on.
+		//
+		// `absent_value` already lets a field say what its absence should
+		// WRITE; this says how its stored value should READ, and they are not
+		// the same question: both add-on checkboxes declare absent_value '0',
+		// but an absent enabled flag means the service is being SOLD while an
+		// absent required flag means not required.
+		//
+		// Without it the editor drew a flag-less service unticked, an unticked
+		// box is not submitted, absent_value wrote '0', and pressing Update
+		// after fixing a typo quietly took a selling service off sale.
+		//
+		// Phrased as "not the off value" rather than "empty", because that is
+		// the predicate AddonManager::is_enabled() uses. An "is it empty?"
+		// version agreed on '', '0' and '1' and diverged on anything else,
+		// which is the same two-definitions defect one scope smaller.
+		if ( isset( $field['off_value'] ) ) {
+			$checked = checked( (string) $value !== (string) $field['off_value'], true, false );
+		} else {
+			$checked = checked( $value, '1', false );
+		}
 
 		echo '<label>';
 		echo '<input type="checkbox" id="' . esc_attr( $field_key ) . '" name="' . esc_attr( $field_key ) . '" value="1" ' . wp_kses_post( $checked ) . '> ';
@@ -360,6 +382,26 @@ abstract class AbstractMetaBox {
 		if ( ! $request->has( $field_key ) ) {
 			// Special case for checkbox
 			if ( $field_type === 'checkbox' ) {
+				// A checkbox the browser did not send is a checkbox the operator
+				// unticked, and deleting the row is only the right record of that
+				// when absence and "off" mean the same thing downstream.
+				//
+				// For mhmrentiva_addon_enabled they do not. AddonManager::is_sellable()
+				// reads a MISSING flag as active on purpose -- a service that predates
+				// the field has to keep selling, or every site that upgraded into it
+				// loses its whole add-on list. So deleting on untick made "off" and
+				// "never configured" the same value, and unticking Active in the
+				// editor left the service on sale.
+				//
+				// A field that carries absent_value says what its own absence means
+				// and gets that written instead. Declared per field rather than
+				// changed for every checkbox: the others genuinely do mean "off",
+				// and this is not the place to decide that for them.
+				if ( isset( $field['absent_value'] ) ) {
+					update_post_meta( $post_id, $field_key, $field['absent_value'] );
+					return;
+				}
+
 				delete_post_meta( $post_id, $field_key );
 			}
 			return;

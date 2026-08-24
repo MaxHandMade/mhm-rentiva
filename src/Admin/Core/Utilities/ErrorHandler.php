@@ -172,6 +172,19 @@ final class ErrorHandler {
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( $message, $context, $type );
 					break;
 				case self::LEVEL_MEDIUM:
+					// Task 14b item 3: this is a ROUTER, not a single call
+					// site -- every caller of validation_error(), ajax_error(),
+					// rest_error(), handle_error(), and any business_error()
+					// caller that leaves $level at its LEVEL_MEDIUM default,
+					// lands here. Deliberately left at warning() rather than
+					// promoted: raising it would silently change the log
+					// level of every one of those call sites at once, which
+					// is a behaviour change well past this task's scope
+					// (visibility of THIS slice's own new/touched branches),
+					// not a single decision this sweep can make on their
+					// behalf. Item 3's "decide and write down why" is
+					// answered here for the router as a whole rather than
+					// per caller.
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning( $message, $context, $type );
 					break;
 				case self::LEVEL_LOW:

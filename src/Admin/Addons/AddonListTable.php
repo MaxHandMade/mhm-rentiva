@@ -7,7 +7,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate admin statistics are read directly and never mutate data.
+use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
+
 
 /**
  * Registers the live enhancements for WordPress's native add-on CPT list.
@@ -19,7 +20,15 @@ final class AddonListTable {
 	 */
 	public static function register(): void {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
-		add_action('admin_notices', array( self::class, 'add_addon_stats_cards' ));
+		// Moved off `admin_notices` (fires above `edit.php`'s `.wrap`, so the
+		// KPI band painted at the top of the stream and jQuery dragged it into
+		// place at DOMContentLoaded -- measured jump `.mhm-stats-grid` y=166 →
+		// y=112 on every load) onto ListScreenLayout's header slot, the same
+		// server-side seam the Vehicles and Bookings screens use. Default
+		// priority (10) puts it below AddonMenu's page-title block (priority
+		// 5), matching the order the two had when both printed from
+		// `admin_notices`.
+		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'add_addon_stats_cards' ));
 	}
 
 	/**
@@ -141,64 +150,14 @@ final class AddonListTable {
 	/**
 	 * Get add-on statistics.
 	 *
+	 * Delegates to AddonStats, which owns these four figures. They are also
+	 * painted by the plugin's own add-ons screen; keeping the arithmetic here as
+	 * well would be two definitions of the same numbers, one per screen, free to
+	 * drift apart.
+	 *
 	 * @return array{total_addons:int,active_addons:int,active_percentage:float|int,avg_price:string,total_value:string}
 	 */
 	private static function get_addon_stats(): array {
-		global $wpdb;
-
-		$total_addons = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$active_addons = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_enabled' AND pm.meta_value = '1'",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$avg_price = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT AVG(CAST(pm.meta_value AS DECIMAL(10,2)))
-				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_price'",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$total_value = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
-				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_price'",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$currency_code     = AddonManager::get_default_currency();
-		$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency_code);
-		$active_percentage = $total_addons > 0 ? round(( $active_addons / $total_addons ) * 100) : 0;
-
-		return array(
-			'total_addons'      => $total_addons,
-			'active_addons'     => $active_addons,
-			'active_percentage' => $active_percentage,
-			'avg_price'         => number_format($avg_price, 2, ',', '.') . ' ' . $currency_symbol,
-			'total_value'       => number_format($total_value, 2, ',', '.') . ' ' . $currency_symbol,
-		);
+		return AddonStats::get();
 	}
 }

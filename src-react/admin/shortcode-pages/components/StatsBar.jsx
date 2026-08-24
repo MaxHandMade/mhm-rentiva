@@ -2,20 +2,19 @@ import { __ } from '@wordpress/i18n';
 
 export default function StatsBar( { stats } ) {
 	if ( ! stats ) return null;
+	const cards = [
+		{ key: 'total',   value: stats.total,   label: __( 'Total', 'mhm-rentiva' ) },
+		{ key: 'active',  value: stats.active,  label: __( 'Active', 'mhm-rentiva' ),  tone: 'is-active' },
+		{ key: 'missing', value: stats.missing, label: __( 'Missing', 'mhm-rentiva' ), tone: 'is-missing' },
+	];
 	return (
-		<div className="mhm-sc-stats">
-			<div className="mhm-sc-stat-card">
-				<span className="mhm-sc-stat-value">{ stats.total }</span>
-				<span className="mhm-sc-stat-label">{ __( 'Total', 'mhm-rentiva' ) }</span>
-			</div>
-			<div className="mhm-sc-stat-card mhm-sc-stat-card--active">
-				<span className="mhm-sc-stat-value">{ stats.active }</span>
-				<span className="mhm-sc-stat-label">{ __( 'Active', 'mhm-rentiva' ) }</span>
-			</div>
-			<div className="mhm-sc-stat-card mhm-sc-stat-card--missing">
-				<span className="mhm-sc-stat-value">{ stats.missing }</span>
-				<span className="mhm-sc-stat-label">{ __( 'Missing', 'mhm-rentiva' ) }</span>
-			</div>
+		<div className="rv-scp-kpis">
+			{ cards.map( ( c ) => (
+				<div key={ c.key } className={ `rv-scp-kpi${ c.tone ? ` ${ c.tone }` : '' }` }>
+					<div className="rv-scp-kpi__label">{ c.label }</div>
+					<div className="rv-scp-kpi__value">{ c.value }</div>
+				</div>
+			) ) }
 		</div>
 	);
 }

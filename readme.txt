@@ -2,10 +2,10 @@
 Contributors:     maxhandmade
 Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
-Tested up to:      7.0
+Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.7
+Stable tag:        6.1.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -154,10 +154,62 @@ The default is `true`. The filter is read while the plugin sets up its hooks, on
 priority 2, so add it somewhere that runs before then — a theme's functions.php or an ordinary plugin
 file is early enough.
 
+= My site is behind Cloudflare (or another reverse proxy / CDN) — will rate limiting still work correctly? =
+
+By default, no — and this is worth fixing. The plugin's anonymous rate limits (contact form submissions,
+price and availability lookups on the booking form, and others) are counted per visitor IP address, read
+from the server's `REMOTE_ADDR`. Behind Cloudflare or any reverse proxy, `REMOTE_ADDR` is the proxy's own
+edge IP, the same for every visitor — so instead of limiting each visitor separately, the plugin
+effectively limits your whole site to one shared bucket (for example, the contact form's default of 5
+submissions per 5 minutes becomes 5 submissions per 5 minutes for every visitor combined).
+
+This default is intentional, not an oversight: trusting a header like `X-Forwarded-For` automatically
+would let anyone bypass rate limiting outright, since that header can be set by any visitor unless your
+proxy is configured to overwrite it. If you know your proxy overwrites it — which Cloudflare does — you
+can opt the specific header back in:
+
+`add_filter( 'mhmrentiva_trusted_proxy_ip_headers', function () {
+    return array( 'HTTP_CF_CONNECTING_IP' ); // Cloudflare
+} );`
+
+Add this to your theme's functions.php or a small plugin of your own. List headers in priority order —
+the plugin uses the first one present that holds a valid public IP address, falling back to `REMOTE_ADDR`
+if none match. Only add a header your proxy is actually configured to set and protect; adding one that
+ordinary visitors can also send re-opens the bypass this default closes.
+
 == Changelog ==
 
 Only the most recent releases are repeated here, plus 6.0.0 for its breaking-change notice, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
 
+= 6.1.0 =
+* Changed: money amounts now convert between the store's currency and its smallest unit using the store's own decimal setting (WooCommerce's "Number of Decimals," under Currency Options) instead of a fixed multiplier of 100. A store running the default two decimals sees no change. On a store configured for any other number of decimals, refund and payment amounts recorded before this release are re-read at the new scale rather than converted -- there is no migration step for existing records.
+* Fixed: a booking whose deposit was taken outside WooCommerce could still be offered a WooCommerce payment link for its remaining balance. For a manually created booking that never had a WooCommerce order, using that link always failed -- the same guard that makes taking the deposit offline possible also refuses to build a WooCommerce order for money it already knows arrived elsewhere. For a booking created through WooCommerce checkout whose deposit was then marked received offline, that link had actually worked: it created the order, and once paid it silently made the earlier offline deposit vanish from the booking's recorded paid amount. Both cases are now refused for the same reason. The deposit screen recognises them and explains it in place of that button. "Process Remaining Amount," which records the balance as settled without going through WooCommerce, is unaffected and still works.
+* Fixed: refunds of a paid order now work. The refund screen used to refuse any order that had actually been paid, because its check asked whether the order was still editable in WooCommerce -- true only for a pending, on-hold or auto-draft order -- rather than whether the gateway could actually send the money back.
+* Fixed: a deposit booking's remaining-payment order is now refunded together with the deposit order. It used to be invisible to refunds entirely: the lookup a refund used to find a booking's WooCommerce order recognised four older meta keys but not the one the remaining-payment order is stored under.
+* Fixed: a refund is now recorded once and announces itself once. A single refund used to run through two separate record-and-notify steps: WooCommerce's own refund hook wrote the refunded total onto the booking, then control returned to the Rentiva action that had just requested the refund, which added the same amount on top and sent its own e-mail -- so one refund was counted twice and the customer received two e-mails for it as soon as it succeeded.
+* Fixed: the default refund e-mail now tells the customer whether their money is returning automatically to their original payment method or has to be transferred by hand, instead of always promising an automatic return regardless of which happened. A site running a customised refund e-mail body keeps sending its own text unchanged, with no mode sentence added.
+* Fixed: manually created bookings are now recorded as offline payments. They used to be stored with no payment method at all, which left them unlabelled in the booking list and its filter, and refused by the refund path as an unsupported payment method.
+* Fixed: payment-method reports now group new manual bookings under "offline" instead of leaving them in a blank, unlabelled bucket.
+* Fixed: the refund box on the booking screen now shows its refund form for offline bookings with a balance -- for the first time on any site. The box itself has always been there; in place of the form it printed "No refundable payment found for this booking," because the form required a paid amount read from a meta key nothing wrote.
+
+* Fixed: cancelling a paid booking now actually refunds it. Until this release a cancellation marked the booking as awaiting a refund, fired an extension point that nothing listened to, and stopped -- no money ever moved, on either the customer's own cancellation or the operator's cancel button on the deposit screen. Both now run the refund through to the payment gateway, or record it as a manual refund where the gateway cannot return the money itself.
+* Changed: a customer who cancels their own booking before the cancellation deadline now receives the whole refundable balance back automatically, with no operator step in between. The plugin defines no cancellation fee, so a full refund is the only policy it can apply.
+* Fixed: the cancellation e-mail no longer tells the customer their refund will be credited to their original payment method. It cannot know: that e-mail is sent before the refund runs, and where the gateway cannot return the money, a person transfers it by hand. The e-mail now says a separate refund notice will follow, and that notice states which of the two happened.
+* Fixed: the refund notice now reaches the customer. It read an e-mail field that the contact form writes and bookings do not, and when the field was empty it skipped the notice in silence. It now resolves the address the same way the rest of the plugin does -- the booking's own customer e-mail, then the WooCommerce order's billing address, then the linked account -- and records the outcome when a booking genuinely has no address on file.
+* Fixed: a refund no payment gateway performed is no longer recorded as completed. It is recorded as awaiting a manual transfer, because the money has not moved until someone moves it.
+* Fixed: a refund split across a card-paid deposit and a hand-paid remainder no longer instructs the operator to transfer the whole amount by hand. The two amounts are now named separately: what the gateway has already returned, and what still has to be transferred.
+* Fixed: cancelling a booking whose vehicle or dates are incomplete no longer fails outright. Releasing the vehicle's blocked dates is treated as bookkeeping that can be skipped and is recorded when it is, instead of refusing the cancellation the operator asked for.
+* Added: refunds on one booking are serialised, so a cancellation and a refund started from the admin screen at the same moment cannot run against the same booking at once.
+* Added: mhmrentiva_refund_completed, an action that fires when a refund operation ends, with the booking id and the operation's result.
+* Fixed: cancelling or failing one order on a deposit-plus-remaining booking no longer touches the booking's other, already-paid order. Before this, cancelling the unpaid remaining-payment order (or having it fail) demoted or cancelled the whole booking even though its deposit order had already been paid, with no refund anywhere -- cancelling the collection instrument was not the same as cancelling the debt. The paid order is now left alone, the dead order's link is cleared so a new payment link can be issued for what is still owed, and an operator is notified.
+* Fixed: cancelling a booking and issuing a refund now share the same permission check -- can this specific actor move money on this booking -- asked once at the shared money step both paths run through, instead of each entry point asking its own version. Cancelling a booking used to check whether the CURRENT logged-in session was an administrator rather than whether the person the cancellation was attributed to had that right; every caller now inherits the corrected, actor-specific question automatically, including any added later.
+* Security: removed a refund endpoint that read its amount directly from the request, with no check against what the booking actually owed, and asked no permission question of its own. It had no working way to be reached in this release -- the button that once triggered it was already removed -- but re-arming it is exactly what a future retry-refund feature would do by accident, so it is deleted rather than left dormant.
+* Added: the booking screen's refund box now shows the booking's current refund status for every booking that has one. It used to be blank whenever the booking's own remaining balance happened to read as zero -- which is also true of a booking with nothing left to refund -- so a booking actually awaiting review, a manual hand transfer, or a partial failure showed nothing at all.
+* Added: a refund awaiting a hand transfer can now be closed from the booking screen once the money has actually moved by hand, recording who confirmed it, when, and an optional payment reference -- added to the booking's own record and, where a WooCommerce order exists, as an order note too.
+* Added: a booking parked for manual review because its refund needs a human decision now has two actions on the booking screen: cancel it and run the refund after all, or record that no refund is due, with a required reason kept on the booking's record.
+* Changed: a cancellation whose refund runs into a problem is no longer reported as if the cancellation itself had failed. The booking is cancelled either way; the operator is now told the cancellation succeeded and, separately, that the refund needs attention, instead of being left unsure whether the button did anything at all.
+* Fixed: cancelling a booking paid in more than one currency (for example, a deposit taken in one currency and a later payment recorded in another after a store's currency setting changed) no longer closes it automatically as "no refund needed." Summing two currencies together is not a meaningful amount, so from this release on, cancelling such a booking parks it for manual review instead, and an operator is notified -- visible on that booking's own edit screen, in its refund box. This only changes what happens when such a booking is cancelled after updating; it does not re-examine bookings already closed before this release.
+* Fixed: several places that only logged quietly, or not at all, when a notification e-mail failed to send now record it as an error visible to an operator -- among them a paid order left alone because a sibling order was already cancelled, and a booking parked for review because it needed a human decision. Both could previously fail to notify anyone with nothing left to show for it.
 = 6.0.7 =
 * Security: removed an unused routine that could write WordPress user accounts. The plugin's customer performance helper carried a batch-update method that changed accounts' display names, e-mail addresses, phone numbers and postal addresses after checking only that the caller may edit users in general — never that they may edit that particular account, nor that the account was one this plugin manages. Nothing in this plugin called it, in this release or any earlier one, and there is no screen or address through which it could be reached; it was removed rather than repaired, because unreachable code that writes user accounts should not ship at all. The two places that do edit an existing customer — the customer edit screen and the delete route — already asked that per-account question beside the write, and still do. Adding a customer is a different case: it creates the account, so there is no existing account for such a question to be about, and it is gated on the permission WordPress itself requires to create a user.
 

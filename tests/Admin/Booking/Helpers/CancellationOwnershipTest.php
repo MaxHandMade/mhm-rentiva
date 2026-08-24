@@ -106,10 +106,22 @@ final class CancellationOwnershipTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Bookings written by an older version carry the legacy key. Reading it as a
-	 * fallback keeps those cancellable instead of stranding them.
+	 * Reversed on 2026-08-16, when the Faz 2 branch merged in.
+	 *
+	 * This test used to assert the opposite: that `_mhmrentiva_customer_id` was
+	 * honoured as a legacy fallback so older bookings stayed cancellable. Both
+	 * audit rounds had looked at this key and reached opposite verdicts, so it
+	 * was measured rather than argued -- the key has no writer anywhere in the
+	 * tree, no migration step, and zero rows in the database. There is no legacy
+	 * data for the fallback to rescue, and reading ownership from a shape no
+	 * writer produces hands it to anything that can put the key there by another
+	 * route.
+	 *
+	 * The scenario is kept rather than deleted, inverted, because it is the
+	 * negative control for the real read: if `resolve_booking_customer_id()` ever
+	 * grows the fallback back, this fails.
 	 */
-	public function test_legacy_ownership_key_is_still_honoured(): void
+	public function test_legacy_ownership_key_confers_no_ownership(): void
 	{
 		$legacy_booking = (int) self::factory()->post->create(array(
 			'post_type'   => 'mhmrentiva_booking',
@@ -122,9 +134,64 @@ final class CancellationOwnershipTest extends WP_UnitTestCase
 
 		wp_set_current_user($this->customer_id);
 
-		$this->assertTrue(
+		$this->assertFalse(
 			CancellationHandler::user_can_cancel($legacy_booking, $this->customer_id),
-			'A booking carrying only the legacy ownership key must remain cancellable by its owner.'
+			'A key nothing writes must not confer ownership, however plausible the id in it looks.'
+		);
+	}
+
+	/**
+	 * Ownership must be an identity, not the absence of one.
+	 *
+	 * A booking with no `_mhmrentiva_customer_user_id` resolves to 0, and a
+	 * logged-out visitor is also 0, so the ownership leg compared 0 with 0,
+	 * found them equal, and passed. Whether the visitor then gets a cancel
+	 * button depends only on the status and deadline legs -- ownership stopped
+	 * being asked. Records like this are ordinary: imports, half-written manual
+	 * bookings, rows created before the key existed.
+	 *
+	 * The single production caller is a template behind a login, which is why
+	 * this is a hardening rather than a live hole; it is fixed because the
+	 * predicate is what other surfaces will reuse.
+	 */
+	public function test_an_ownerless_booking_refuses_a_logged_out_visitor(): void
+	{
+		$ownerless = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		// Deliberately no ownership key of any kind.
+		update_post_meta($ownerless, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($ownerless, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('+10 days')));
+		update_post_meta($ownerless, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+14 days')));
+
+		wp_set_current_user(0);
+
+		$this->assertFalse(
+			CancellationHandler::user_can_cancel($ownerless, 0),
+			'Two zeros compared equal and stood in for ownership: an unowned booking said yes to nobody in particular.'
+		);
+	}
+
+	/**
+	 * The same shape from the other direction: a real, logged-in user must not
+	 * inherit an ownerless booking either.
+	 */
+	public function test_an_ownerless_booking_refuses_a_logged_in_stranger(): void
+	{
+		$ownerless = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		update_post_meta($ownerless, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($ownerless, '_mhmrentiva_cancellation_deadline', gmdate('Y-m-d H:i:s', strtotime('+10 days')));
+		update_post_meta($ownerless, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+14 days')));
+
+		wp_set_current_user($this->stranger_id);
+
+		$this->assertFalse(
+			CancellationHandler::user_can_cancel($ownerless, $this->stranger_id),
+			'An unowned booking must not become anyone\'s to cancel.'
 		);
 	}
 }

@@ -324,11 +324,16 @@ final class BookingQueryHelper {
 	/**
 	 * Resolve the WooCommerce order a booking belongs to.
 	 *
-	 * Four meta keys have carried this link over the plugin's life and two are
-	 * still written: create_booking_from_data() writes
-	 * `_mhmrentiva_woocommerce_order_id` (canonical, current checkout) and
-	 * add_order_item_meta() writes `_mhmrentiva_wc_order_id`. The remaining two
-	 * are legacy data that must keep resolving.
+	 * Four meta keys have carried this link over the plugin's life and exactly
+	 * ONE is still written: create_booking_from_data() writes
+	 * `_mhmrentiva_woocommerce_order_id` (canonical, current checkout).
+	 *
+	 * `_mhmrentiva_wc_order_id` was long described here as the second live
+	 * writer. Measured on 2026-08-18: its writer (add_order_item_meta(),
+	 * WooCommerceBridge:913) only fires for cart items carrying
+	 * `mhmrentiva_booking_id`, and the sole producer of those --
+	 * add_booking_to_cart() -- has zero callers in either edition. It is legacy
+	 * too. The other two always were. All four must keep resolving.
 	 *
 	 * Readers used to carry private copies of this chain and disagreed about
 	 * both its membership and its order; this is the single definition.

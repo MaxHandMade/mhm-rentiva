@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 
 
 
+use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\PostTypes\Utilities\ClientUtilities;
 
@@ -258,6 +259,51 @@ final class AdvancedLogger {
 				'category' => $category,
 				'message'  => $message,
 				'context'  => $context,
+			)
+		);
+	}
+
+	/**
+	 * Logs a guaranteed-LEVEL_ERROR entry, linked to a booking when one
+	 * applies.
+	 *
+	 * Task 14b item 1 (slice 5): this replaces the `error()` immediately
+	 * followed by `add()` pattern that had spread to 9 call sites across
+	 * this codebase by this slice -- Task 4 set "extract on the third
+	 * occurrence" as the threshold, and this slice passed it several times
+	 * over. Both halves existed for a reason and neither alone was enough:
+	 * `error()` guarantees LEVEL_ERROR, which `should_skip_log()` never
+	 * drops under the default `mhmrentiva_log_level` of 'error', but it
+	 * takes no `booking_id` and never passes one to `log()` -- so the
+	 * admin Logs list table's Booking column (LogColumns.php) renders an
+	 * em dash for it. `add()` does write the booking link (and, with
+	 * `status => 'error'`, also self-levels to LEVEL_ERROR), but it is
+	 * `@deprecated` and its legacy gateway/action/status shape loses
+	 * fields `error()`'s own category/message pair keeps distinct.
+	 *
+	 * Built directly on `log()`, per the controller's explicit design
+	 * constraint -- NOT on `add()`, deprecated code must not gain a new
+	 * caller. `$booking_id` defaults to 0 (log()'s own "no booking"
+	 * value) so this is also usable, per item 3, wherever a warning() is
+	 * promoted to error level but no specific booking is in scope (e.g. a
+	 * cron-schedule or plugin-activation failure) -- named `error_linked()`
+	 * rather than the original `error_for_booking()` for exactly that
+	 * reason (fix round 1, F7): four call sites pass `0` because no
+	 * booking applies at all, and a name promising "for a booking" was
+	 * not honest about them. `error_linked()` describes what the method
+	 * actually always does -- guarantee the level, link when a booking id
+	 * is given -- without asserting a booking exists on every call.
+	 *
+	 * @param array<string,mixed> $context
+	 */
+	public static function error_linked( string $message, int $booking_id = 0, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
+		return self::log(
+			array(
+				'level'      => self::LEVEL_ERROR,
+				'category'   => $category,
+				'message'    => $message,
+				'context'    => $context,
+				'booking_id' => $booking_id,
 			)
 		);
 	}
@@ -592,14 +638,16 @@ final class AdvancedLogger {
 		$level    = ( 'success' === $status ) ? self::LEVEL_INFO : self::LEVEL_ERROR;
 		$category = ( 'payment' === $gateway ) ? self::CATEGORY_PAYMENT : self::CATEGORY_SYSTEM;
 
-		// Normalize amount to the smallest currency unit (kurus/cents).
+		// Normalize amount to the store's minor unit. Not a fixed *100: this
+		// scales by the store's actual decimal precision via Money::toMinor(),
+		// so it no longer assumes a 2-decimal (kurus/cents) store.
 		$amount_kurus = 0;
 		if ( isset( $args['amount_kurus'] ) ) {
 			$amount_kurus = max( 0, (int) $args['amount_kurus'] );
 		} elseif ( isset( $args['amount'] ) ) {
 			$amount = $args['amount'];
 			if ( is_float( $amount ) || is_int( $amount ) ) {
-				$amount_kurus = (int) round( ( (float) $amount ) * 100 );
+				$amount_kurus = Money::toMinor( (float) $amount );
 			}
 		}
 

@@ -226,8 +226,9 @@ final class AccountRenderer {
 		}
 		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
 
-		// Enqueue global interactions (v1.3.3)
-		wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+		// Enqueue global interactions (v1.3.3) -- through AssetManager, so the
+		// script always arrives with its one mhmrentiva_vars payload.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 
 		// Localize (grid/list ortak)
 		wp_localize_script(
@@ -637,7 +638,7 @@ final class AccountRenderer {
 				$woocommerce_method_title = '';
 
 				// Try to get method title from WooCommerce Order if exists
-				$wc_order_id = get_post_meta($booking->ID, '_mhmrentiva_woocommerce_order_id', true);
+				$wc_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking->ID);
 				if ($wc_order_id && function_exists('wc_get_order')) {
 					$order = wc_get_order($wc_order_id);
 					if ($order instanceof \WC_Order && method_exists($order, 'get_payment_method_title')) {

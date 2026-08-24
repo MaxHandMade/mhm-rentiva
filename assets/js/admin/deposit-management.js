@@ -28,6 +28,15 @@
             // İade işleme
             $(document).on('click', '#process-refund', (e) => this.handleProcessRefund(e));
 
+            // Elden teslim edilen (manual_pending) iadeyi kapama
+            $(document).on('click', '#close-manual-refund', (e) => this.handleCloseManualRefund(e));
+
+            // needs_review: iptal et ve iadeyi başlat
+            $(document).on('click', '#review-cancel-and-refund', (e) => this.handleReviewCancelAndRefund(e));
+
+            // needs_review: iade gerekmiyor
+            $(document).on('click', '#review-dismiss', (e) => this.handleReviewDismiss(e));
+
             // Durum güncelleme
 
             // Kalan tutar için ödeme linki gönder
@@ -116,8 +125,19 @@
             `);
 
             $box.find('.mhm-copy-payment-link').on('click', () => {
-                navigator.clipboard.writeText(url);
-                this.showMessage('success', copiedLabel);
+                // navigator.clipboard is undefined outside secure contexts (plain
+                // http admin) - guard and fall back, and only confirm on success.
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(
+                        () => this.showMessage('success', copiedLabel),
+                        () => {}
+                    );
+                } else {
+                    $box.find('input').trigger('focus').trigger('select');
+                    if (document.execCommand('copy')) {
+                        this.showMessage('success', copiedLabel);
+                    }
+                }
             });
 
             $('.deposit-management-metabox').prepend($box);
@@ -214,6 +234,118 @@
                     action: 'mhmrentiva_deposit_process_refund',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
+                },
+                success: (response) => {
+                    this.hideLoading($button);
+                    if (response.success) {
+                        this.showMessage('success', response.data.message);
+                        this.refreshPage();
+                    } else {
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                    }
+                },
+                error: () => {
+                    this.hideLoading($button);
+                    this.showMessage('error', mhmDepositManagement.strings.error);
+                }
+            });
+        }
+
+        handleCloseManualRefund(e) {
+            e.preventDefault();
+
+            const $button = $(e.currentTarget);
+            const bookingId = $button.data('booking-id');
+            const reference = $('#manual-refund-reference').val() || '';
+
+            if (!this.confirmAction(mhmDepositManagement.strings.confirmCloseManualRefund)) {
+                return;
+            }
+
+            this.showLoading($button);
+
+            $.ajax({
+                url: mhmDepositManagement.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'mhmrentiva_close_manual_refund',
+                    nonce: mhmDepositManagement.nonce,
+                    booking_id: bookingId,
+                    reference: reference
+                },
+                success: (response) => {
+                    this.hideLoading($button);
+                    if (response.success) {
+                        this.showMessage('success', response.data.message);
+                        this.refreshPage();
+                    } else {
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                    }
+                },
+                error: () => {
+                    this.hideLoading($button);
+                    this.showMessage('error', mhmDepositManagement.strings.error);
+                }
+            });
+        }
+
+        handleReviewCancelAndRefund(e) {
+            e.preventDefault();
+
+            const $button = $(e.currentTarget);
+            const bookingId = $button.data('booking-id');
+
+            if (!this.confirmAction(mhmDepositManagement.strings.confirmReviewCancelAndRefund)) {
+                return;
+            }
+
+            this.showLoading($button);
+
+            $.ajax({
+                url: mhmDepositManagement.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'mhmrentiva_review_cancel_and_refund',
+                    nonce: mhmDepositManagement.nonce,
+                    booking_id: bookingId
+                },
+                success: (response) => {
+                    this.hideLoading($button);
+                    if (response.success) {
+                        this.showMessage('success', response.data.message);
+                        this.refreshPage();
+                    } else {
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                    }
+                },
+                error: () => {
+                    this.hideLoading($button);
+                    this.showMessage('error', mhmDepositManagement.strings.error);
+                }
+            });
+        }
+
+        handleReviewDismiss(e) {
+            e.preventDefault();
+
+            const $button = $(e.currentTarget);
+            const bookingId = $button.data('booking-id');
+            const reason = $('#refund-review-dismiss-reason').val() || '';
+
+            if (!this.confirmAction(mhmDepositManagement.strings.confirmReviewDismiss)) {
+                return;
+            }
+
+            this.showLoading($button);
+
+            $.ajax({
+                url: mhmDepositManagement.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'mhmrentiva_review_dismiss',
+                    nonce: mhmDepositManagement.nonce,
+                    booking_id: bookingId,
+                    reason: reason
                 },
                 success: (response) => {
                     this.hideLoading($button);

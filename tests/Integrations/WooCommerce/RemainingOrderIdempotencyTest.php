@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integrations\WooCommerce;
 
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
 use WP_UnitTestCase;
 
 /**
@@ -33,6 +34,8 @@ use WP_UnitTestCase;
  */
 final class RemainingOrderIdempotencyTest extends WP_UnitTestCase
 {
+	use WooCommerceFixtures;
+
 	private int $booking_id;
 
 	/** @var list<string> */
@@ -186,9 +189,8 @@ final class RemainingOrderIdempotencyTest extends WP_UnitTestCase
 	 */
 	public function test_two_calls_return_the_same_order(): void
 	{
-		if (! class_exists('WooCommerce') || ! function_exists('wc_create_order')) {
-			$this->markTestSkipped('WooCommerce not loaded; the order-creation half of H-02 cannot be exercised here.');
-		}
+		$this->require_woocommerce();
+		$this->ensure_booking_product();
 
 		update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'deposit');
 		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', 500);

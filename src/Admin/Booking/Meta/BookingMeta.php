@@ -184,6 +184,7 @@ final class BookingMeta extends AbstractMetaBox {
 					'emailNonce'           => wp_create_nonce( 'mhmrentiva_send_email' ),
 					'confirmCreateAccount' => __( 'Create a WordPress account for this customer?', 'mhm-rentiva' ),
 					'confirmRefund'        => __( 'Proceed with refund?', 'mhm-rentiva' ),
+					'priceDecimals'        => \MHMRentiva\Admin\Payment\Core\Money::decimals(),
 					'strings'              => array(
 						'sending'         => __( 'Sending...', 'mhm-rentiva' ),
 						'success'         => __( 'Email sent successfully!', 'mhm-rentiva' ),
@@ -1247,21 +1248,10 @@ final class BookingMeta extends AbstractMetaBox {
 
 	private static function format_price(float $price): string
 	{
-		$symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-		$position = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_position();
-		$amount   = number_format_i18n($price, 2);
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $amount;
-			case 'right':
-				return $amount . $symbol;
-			case 'left_space':
-				return $symbol . ' ' . $amount;
-			case 'right_space':
-			default:
-				return $amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting. The placement was already canonical here,
+		// but number_format_i18n() takes its separators from the WP locale rather
+		// than from WooCommerce, so this cell could still drift from the rest.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price($price, 2);
 	}
 
 	/**

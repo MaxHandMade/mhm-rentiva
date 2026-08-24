@@ -80,6 +80,20 @@ final class RemainingPaymentHandler {
 	 */
 	public static function get_or_create_remaining_order(int $booking_id): \WC_Order|\WP_Error
 	{
+		// A hybrid booking -- deposit taken offline, remainder through WooCommerce
+		// -- cannot be represented honestly: PaymentState reads the offline channel
+		// only when there is no paid WC order, so building this order would make an
+		// already-received offline payment disappear from paid(). Refuse only when
+		// there is such a payment to lose: a booking with no proven payment yet is
+		// the ordinary "manual booking, send the customer a payment link" flow, and
+		// it stays supported.
+		if (self::is_hybrid_booking($booking_id)) {
+			return new \WP_Error(
+				'mhmrentiva_hybrid_booking_refused',
+				__('This booking was already paid outside WooCommerce; collect the remaining balance the same way.', 'mhm-rentiva')
+			);
+		}
+
 		// The existing-order lookup and the wc_create_order() that follows it must
 		// be one critical section. Before 6.0.3 they were not: two concurrent
 		// callers (a double click, two tabs, a re-sent payment link) could both
@@ -96,6 +110,44 @@ final class RemainingPaymentHandler {
 		}
 
 		return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
+	}
+
+	/**
+	 * Whether a booking has money that arrived outside WooCommerce and no paid
+	 * WooCommerce order to represent it -- the shape a hybrid booking (deposit
+	 * taken offline, remainder through WooCommerce) would leave behind.
+	 *
+	 * This is deliberately PaymentState's question, not
+	 * BookingQueryHelper::resolve_wc_order_id()'s. resolve_wc_order_id() asks
+	 * whether an order ID is present on the booking, not whether money
+	 * arrived -- and checkout binds a `pending` order at creation time, before
+	 * any payment happens. A booking whose deposit was taken in cash still
+	 * carries that pending order's ID in meta, so this guard asked
+	 * resolve_wc_order_id() <= 0 until 6.1.0, found an ID, stayed silent, and
+	 * let the hybrid this method exists to catch get created anyway.
+	 * PaymentState::orders() only counts orders whose get_date_paid() is set,
+	 * so a pending order does not count as "there is a WooCommerce order"
+	 * here -- closing exactly that gap.
+	 *
+	 * The single authority for this question: callers (this class and
+	 * DepositManagementAjax) must call it rather than re-deriving the
+	 * predicate, or the two copies drift.
+	 *
+	 * The move to `orders() === [] && paid() > 0` also narrows the guard,
+	 * not only widens it: paid()'s offline leg is max(0, total - remaining),
+	 * so a deposit booking where the vehicle carries no deposit value
+	 * (DepositCalculator::calculate_deposit() then sets remaining === total)
+	 * now leaves the guard silent where the old status-only check would have
+	 * refused it. That is chosen, not overlooked -- there is no offline
+	 * money for such a booking to lose, so building the order for the whole
+	 * balance is honest. See HybridBookingGuardTest::
+	 * test_a_no_deposit_booking_with_total_equal_to_remaining_leaves_the_guard_silent().
+	 */
+	public static function is_hybrid_booking(int $booking_id): bool
+	{
+		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+
+		return $state->orders() === array() && $state->paid() > 0;
 	}
 
 	/**
@@ -155,7 +207,7 @@ final class RemainingPaymentHandler {
 		$vehicle_name = $vehicle ? $vehicle->post_title : __('Vehicle', 'mhm-rentiva');
 
 		// Original WC order ID
-		$original_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
+		$original_order_id = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id);
 
 		// -----------------------------------------------------------------------
 		// Create the WC order

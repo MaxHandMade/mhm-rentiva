@@ -12,8 +12,12 @@ src/Admin/Addons/AddonMeta.php
 src/Admin/Addons/AddonPostType.php
 src/Admin/Addons/AddonPricingCalculator.php
 src/Admin/Addons/AddonPricingType.php
+src/Admin/Addons/AddonScreen.php
 src/Admin/Addons/AddonSettings.php
+src/Admin/Addons/AddonStats.php
 src/Admin/Auth/SessionManager.php
+src/Admin/Booking/Actions/BookingActionGuard.php
+src/Admin/Booking/Actions/BookingApproveAjax.php
 src/Admin/Booking/Actions/DepositManagementAjax.php
 src/Admin/Booking/Addons/AddonBooking.php
 src/Admin/Booking/Core/Handler.php
@@ -38,6 +42,8 @@ src/Admin/Core/CurrencyHelper.php
 src/Admin/Core/Exceptions/MHMException.php
 src/Admin/Core/Helpers/Sanitizer.php
 src/Admin/Core/LanguageHelper.php
+src/Admin/Core/ListTable/FleetOccupancyMatrix.php
+src/Admin/Core/ListTable/ListScreenLayout.php
 src/Admin/Core/MetaBoxes/AbstractMetaBox.php
 src/Admin/Core/MetaKeys.php
 src/Admin/Core/PerformanceHelper.php
@@ -57,6 +63,7 @@ src/Admin/Core/Utilities/DatabaseMigrator.php
 src/Admin/Core/Utilities/ErrorHandler.php
 src/Admin/Core/Utilities/MetaQueryHelper.php
 src/Admin/Core/Utilities/ObjectCache.php
+src/Admin/Core/Utilities/OccupancyMapService.php
 src/Admin/Core/Utilities/PrefixMigrationMap.php
 src/Admin/Core/Utilities/QueueManager.php
 src/Admin/Core/Utilities/RateLimiter.php
@@ -131,8 +138,12 @@ src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php
 src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php
 src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php
 src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
+src/Admin/Payment/Core/Money.php
+src/Admin/Payment/Core/MoneyAuthorization.php
 src/Admin/Payment/Core/PaymentGatewayInterface.php
-src/Admin/Payment/Refunds/RefundCalculator.php
+src/Admin/Payment/Core/PaymentState.php
+src/Admin/Payment/Core/RefundLock.php
+src/Admin/Payment/Core/RefundStatus.php
 src/Admin/Payment/Refunds/RefundValidator.php
 src/Admin/Payment/Refunds/Service.php
 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php
@@ -186,7 +197,6 @@ src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
 src/Admin/Settings/View/Tabs/GeneralSettingsRenderer.php
 src/Admin/Settings/View/Tabs/IntegrationRenderer.php
 src/Admin/Setup/SetupWizard.php
-src/Admin/Utilities/Actions/Actions.php
 src/Admin/Utilities/Cron/CronMonitor.php
 src/Admin/Utilities/Cron/CronMonitorPage.php
 src/Admin/Utilities/Dashboard/DashboardPage.php

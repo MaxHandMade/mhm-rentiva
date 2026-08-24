@@ -11,6 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Payment\Core\MoneyAuthorization;
+use MHMRentiva\Admin\Payment\Core\RefundStatus;
+
 final class BookingRefundMetaBox {
 
 
@@ -30,49 +34,216 @@ final class BookingRefundMetaBox {
 	}
 
 	public static function render( \WP_Post $post ): void {
-		$bid       = (int) $post->ID;
-		$gateway   = (string) get_post_meta( $bid, '_mhmrentiva_payment_gateway', true );
-		$payStatus = (string) get_post_meta( $bid, '_mhmrentiva_payment_status', true );
-		$paidKurus = (int) get_post_meta( $bid, '_mhmrentiva_payment_amount', true );
-		$currency  = (string) get_post_meta( $bid, '_mhmrentiva_payment_currency', true ) ?: \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
-		$refunded  = (int) get_post_meta( $bid, '_mhmrentiva_refunded_amount', true );
-		$remaining = max( 0, $paidKurus - $refunded );
+		$bid = (int) $post->ID;
 
-		// Only show when refundable
-		if ( $gateway !== 'offline' || $paidKurus <= 0 ) {
-			echo '<p class="description">' . esc_html__( 'No refundable payment found for this booking.', 'mhm-rentiva' ) . '</p>';
-			return;
-		}
-		if ( ! in_array( $payStatus, array( 'paid', 'partially_refunded' ), true ) ) {
-			echo '<p class="description">' . esc_html__( 'Booking is not in a refundable state.', 'mhm-rentiva' ) . '</p>';
-			return;
-		}
-		$action = esc_url( admin_url( 'admin-post.php' ) );
-		$nonce  = wp_create_nonce( 'mhmrentiva_refund_booking' );
-		$defAmt = $remaining > 0 ? $remaining : 0;
-		echo '<p><strong>' . esc_html__( 'Gateway', 'mhm-rentiva' ) . ':</strong> ' . esc_html( strtoupper( $gateway ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $paidKurus / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $refunded / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
-		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $remaining / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		// Before the early return, deliberately. The guard below zeroes
+		// $remaining for every WooCommerce-order booking and for an offline
+		// booking whose manual refund was already recorded -- which is exactly
+		// the set that produces manual_pending, partial_failure and
+		// needs_review. Rendered after it, this row would be invisible on
+		// every booking that needs it.
+		self::render_status_row( $bid );
+
+		// Same reasoning, same placement, for the same reason
+		// render_status_row() sits above the early return: a manual_pending
+		// booking always hits $remaining = 0 below, either because it has a
+		// WooCommerce order at all (the ternary's first branch zeroes
+		// $remaining unconditionally, before refund status ever enters it),
+		// or -- the pure-offline case -- because Refunds\Service already
+		// recorded the manual amount into _mhmrentiva_refunded_amount.
+		// That second write is gated on the refund's CHANNEL being offline
+		// (Service.php:440), not on its MODE being manual (Service.php:436,
+		// a different variable) -- a manual_pending booking backed by a real
+		// WooCommerce order whose gateway simply cannot auto-refund never
+		// takes that write at all, and does not need to: it is already
+		// covered by the first branch. Either way, a control gated only on
+		// status would never reach the page if it sat after the guard below.
+		self::render_manual_close_control( $bid );
+
+		// Same placement, same reason: needs_review is produced by
+		// cancel_booking_with_orders() finding a paid WooCommerce order
+		// (Task 4's K6 guard), which is exactly the shape that zeroes
+		// $remaining below. A control gated only on status would never reach
+		// the page if it sat after the early return.
+		self::render_needs_review_controls( $bid );
+
+		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( $bid );
+
+		// This box is the offline surface. A booking whose money sits in a
+		// WooCommerce order is refunded from the WooCommerce order screen or
+		// from the deposit-management screen; a third button here would give the
+		// operator two paths with different rules over the same money.
+		$remaining = array() === $state->orders() ? $state->refundableManual() : 0;
+		$currency  = $state->currency() ?: (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+
 		if ( $remaining <= 0 ) {
-			echo '<p class="description">' . esc_html__( 'Nothing left to refund.', 'mhm-rentiva' ) . '</p>';
+			if ( $state->refundableAuto() > 0 ) {
+				// This booking's money is genuinely refundable -- just not
+				// through THIS box, which is deliberately offline-only (see
+				// the comment above). Saying "no refundable payment found"
+				// here would be false: point the operator at the path that
+				// actually works instead.
+				echo '<p class="description">' . esc_html__( 'This booking has a refundable WooCommerce payment. Refund it from the WooCommerce order screen or the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
+			} else {
+				echo '<p class="description">' . esc_html__( 'No refundable payment found for this booking.', 'mhm-rentiva' ) . '</p>';
+			}
 			return;
 		}
-		echo '<form action="' . esc_url( $action ) . '" method="post">';
-		echo '<input type="hidden" name="action" value="mhmrentiva_refund_booking" />';
-		echo '<input type="hidden" name="booking_id" value="' . (int) $bid . '" />';
-		echo '<input type="hidden" name="_wpnonce" value="' . esc_attr( $nonce ) . '" />';
 
-		echo '<p><label>' . esc_html__( 'Refund amount', 'mhm-rentiva' ) . '</label><br />';
-		echo '<input type="number" name="amount_visible" min="0" step="0.01" value="' . esc_attr( number_format( $defAmt / 100, 2, '.', '' ) ) . '" class="small-text" /> ' . esc_html( strtoupper( $currency ) ) . '</p>';
-		echo '<input type="hidden" name="amount_kurus" id="mhmrentiva_amount_kurus" value="' . (int) $defAmt . '" />';
-		echo '<p><label>' . esc_html__( 'Reason (optional)', 'mhm-rentiva' ) . '</label><br />';
-		echo '<select name="reason">';
-		foreach ( array( 'customer_request', 'vehicle_unavailable', 'duplicate', 'fraud_suspected', 'other' ) as $r ) {
-			echo '<option value="' . esc_attr( $r ) . '">' . esc_html( ucwords( str_replace( '_', ' ', $r ) ) ) . '</option>';
+		echo '<p><strong>' . esc_html__( 'Channel', 'mhm-rentiva' ) . ':</strong> ' . esc_html__( 'Offline', 'mhm-rentiva' ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $state->paid() ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Already refunded', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $state->refunded() ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Remaining refundable', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( (float) Money::toMajor( $remaining ), Money::decimals() ) . ' ' . strtoupper( $currency ) ) . '</p>';
+
+		// A metabox renders INSIDE WordPress's own #post form. A nested
+		// <form> here (the box used to print one) is invalid HTML, so the
+		// browser's parser discards the <form> tag and adopts its fields
+		// into WordPress's own form -- the refund button then submits
+		// editpost, not a refund, and duplicates the `action` field WP
+		// itself relies on. Link to the box that already has a working,
+		// non-nested refund trigger (wp_ajax_mhmrentiva_deposit_process_refund
+		// via assets/js/admin/deposit-management.js) instead of rendering a
+		// second, broken one here. See BookingRefundMetaBoxRendersTest's
+		// "no form, no name=action" assertion for the regression this guards.
+		//
+		// That trigger is not always there to link to, and this box used to
+		// keep its own copy of the rule that decides. The copy was wrong twice
+		// -- it demanded exactly 'paid' (so a partially refunded booking lost
+		// its route the moment a correct partial refund ran) and it did not
+		// know the deposit box returns early, before any button, on a booking
+		// with no _mhmrentiva_payment_type. Ask the screen that owns the
+		// button instead of mirroring its rule.
+		//
+		// Task 9 (slice 5) added a second condition: this link and the button
+		// it points at answer the same question, so a refused actor must not
+		// see either. Fix round 1 (F1) closed the drift a first pass left
+		// open -- the button alone asked MoneyAuthorization, so an actor who
+		// failed it saw the button disappear but the link stay, disagreeing
+		// with the very button it points at. Same predicate, same $surface
+		// as the button ('admin_deposit') so the two never drift again.
+		if ( MoneyAuthorization::mayMoveMoney( $bid, get_current_user_id(), 'admin_deposit' ) && BookingDepositMetaBox::can_refund_from_deposit_screen( $bid ) ) {
+			$deposit_url = admin_url( 'post.php?post=' . $bid . '&action=edit' ) . '#mhmrentiva_booking_deposit';
+			echo '<p><a class="button button-primary" href="' . esc_url( $deposit_url ) . '">' . esc_html__( 'Process this refund from the deposit-management screen.', 'mhm-rentiva' ) . '</a></p>';
+		} else {
+			// Deliberately does NOT name a missing condition. The predicate has
+			// four of them and the sentence has to stay true for every false
+			// case; the old wording named cancellation alone, which is already
+			// false for a cancelled booking that is merely partially refunded.
+			echo '<p class="description">' . esc_html__( 'This amount is refundable; refunds for this booking are recorded from the deposit-management screen.', 'mhm-rentiva' ) . '</p>';
 		}
-		echo '</select></p>';
-		echo '<p><button type="submit" class="button button-primary mhm-refund-submit-btn">' . esc_html__( 'Refund', 'mhm-rentiva' ) . '</button></p>';
-		echo '</form>';
+	}
+
+	private static function render_status_row( int $booking_id ): void {
+		$status = RefundStatus::get( $booking_id );
+		$labels = RefundStatus::labels();
+
+		// The meta can hold a legacy or foreign value; never echo it raw.
+		$label = $labels[ $status ] ?? __( 'Unrecognised refund status', 'mhm-rentiva' );
+
+		echo '<p class="mhm-refund-status"><strong>'
+			. esc_html__( 'Refund status:', 'mhm-rentiva' ) . '</strong> '
+			. esc_html( $label ) . '</p>';
+	}
+
+	/**
+	 * The control that lets an authorised actor attest a hand transfer.
+	 *
+	 * Kept separate from render_status_row() rather than folded into it:
+	 * that method is deliberately a pure information line, visible to
+	 * anyone who can open this box at all (Task 10's own docblock). This one
+	 * is a money action -- gated on MoneyAuthorization::mayMoveMoney(), the
+	 * same predicate Task 9 put on the deposit-screen's button and this
+	 * box's own link, asked with the same $surface convention
+	 * ('manual_close', matching DepositManagementAjax::close_manual_refund()'s
+	 * own call) so the two halves of this feature cannot drift apart the way
+	 * the button and the link once did (see RefundGateAgreementTest).
+	 *
+	 * The nonce this control's button needs is NOT a new wp_nonce_field
+	 * here: deposit-management.js is already enqueued on this same booking
+	 * edit screen by BookingDepositMetaBox::enqueue_scripts() and already
+	 * carries mhmDepositManagement.nonce, created under this exact action
+	 * ('mhmrentiva_deposit_management_action'). A second nonce field in this
+	 * box would be redundant at best and a second, driftable source of
+	 * truth at worst.
+	 */
+	private static function render_manual_close_control( int $booking_id ): void {
+		if ( RefundStatus::MANUAL_PENDING !== RefundStatus::get( $booking_id ) ) {
+			return;
+		}
+
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, get_current_user_id(), 'manual_close' ) ) {
+			return;
+		}
+
+		echo '<p><label for="manual-refund-reference">' . esc_html__( 'Payment reference (optional)', 'mhm-rentiva' ) . '</label><br />'
+			. '<input type="text" id="manual-refund-reference" class="widefat" /></p>';
+		echo '<p><button type="button" class="button button-primary" id="close-manual-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+			. esc_html__( 'Confirm hand transfer', 'mhm-rentiva' ) . '</button></p>';
+	}
+
+	/**
+	 * Task 12 (slice 5): needs_review's two operator exits.
+	 *
+	 * Kept as its own method for the same reason render_manual_close_control()
+	 * is: render_status_row() is deliberately a pure information line, visible
+	 * to anyone who can open this box at all, and these two buttons are money
+	 * decisions -- gated on MoneyAuthorization::mayMoveMoney(), asked with
+	 * $surface = 'review_action' to match DepositManagementAjax::
+	 * review_cancel_and_refund()/review_dismiss()'s own calls.
+	 *
+	 * Rendered independently of BookingDepositMetaBox::
+	 * can_refund_from_deposit_screen(): that predicate requires the booking
+	 * status to already be CANCELLED, and a needs_review booking is, by
+	 * construction, one AutoCancel parked WITHOUT touching the booking status
+	 * at all (cancel_booking_with_orders()'s docblock: "a park writes only
+	 * _mhmrentiva_refund_status"). Gating these controls on that predicate
+	 * too would hide them on exactly the bookings they exist for.
+	 *
+	 * The nonce these buttons need is the same mhmDepositManagement.nonce
+	 * render_manual_close_control() relies on -- see that method's docblock
+	 * for why no second wp_nonce_field() belongs here.
+	 */
+	private static function render_needs_review_controls( int $booking_id ): void {
+		if ( RefundStatus::NEEDS_REVIEW !== RefundStatus::get( $booking_id ) ) {
+			return;
+		}
+
+		if ( ! MoneyAuthorization::mayMoveMoney( $booking_id, get_current_user_id(), 'review_action' ) ) {
+			return;
+		}
+
+		// Whole-branch review, F1: "Cancel and start the refund" delegates to
+		// CancellationHandler::cancel_booking(), which refuses outright --
+		// WP_Error( 'already_cancelled' ) at CancellationHandler.php:115 --
+		// the moment this booking's OWN status is already CANCELLED. Both of
+		// needs_review's real producers can leave a booking in exactly that
+		// shape: the mixed-currency guard inside settle_refund() runs AFTER
+		// COMMIT (cancel_booking()'s own docblock -- "past this line nothing
+		// may be rolled back"), and AutoCancel::sync_orphan_wc_orders() only
+		// ever parks a booking its own WP_Query already selected on
+		// `_mhmrentiva_status = 'cancelled'`. Offering this button there
+		// offers a dead action -- worse, on that same shape the deposit
+		// screen offers nothing either (can_refund_from_deposit_screen()
+		// demands refundable() > 0, which is 0 for exactly the
+		// mixed-currency booking the first producer requires), so "No
+		// refund is due" was the operator's only working button, and it
+		// writes a terminal not_required onto a booking that demonstrably
+		// still holds money. Gated and worded the same way render()'s own
+		// WooCommerce-order sentence already is, a few lines above this
+		// method's own render() caller: point at the path that actually
+		// moves money instead of offering one that cannot. No new refund
+		// path is invented here -- WooCommerce's own order screen already
+		// does this, and remains how the money actually moves.
+		if ( \MHMRentiva\Admin\Booking\Core\Status::CANCELLED === \MHMRentiva\Admin\Booking\Core\Status::get( $booking_id ) ) {
+			echo '<p class="description">' . esc_html__( 'This booking is already cancelled. Refund its paid order from the WooCommerce order screen, then close this review below once the money has actually moved.', 'mhm-rentiva' ) . '</p>';
+		} else {
+			echo '<p><button type="button" class="button button-primary" id="review-cancel-and-refund" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+				. esc_html__( 'Cancel and start the refund', 'mhm-rentiva' ) . '</button></p>';
+		}
+
+		echo '<p><label for="refund-review-dismiss-reason">' . esc_html__( 'Why is no refund due?', 'mhm-rentiva' ) . '</label><br />'
+			. '<textarea id="refund-review-dismiss-reason" class="widefat" rows="2"></textarea></p>';
+		echo '<p><button type="button" class="button" id="review-dismiss" data-booking-id="' . esc_attr( (string) $booking_id ) . '">'
+			. esc_html__( 'No refund is due', 'mhm-rentiva' ) . '</button></p>';
 	}
 }

@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Admin\Addons;
 
 use MHMRentiva\Admin\Addons\AddonListTable;
 use MHMRentiva\Admin\Addons\AddonManager;
+use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
 use WP_UnitTestCase;
 
 /**
@@ -16,7 +17,7 @@ final class AddonListTableRegistrationTest extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		remove_action( 'admin_enqueue_scripts', array( AddonListTable::class, 'enqueue_scripts' ) );
-		remove_action( 'admin_notices', array( AddonListTable::class, 'add_addon_stats_cards' ) );
+		remove_action( ListScreenLayout::HEADER_ACTION, array( AddonListTable::class, 'add_addon_stats_cards' ) );
 		parent::tearDown();
 	}
 
@@ -24,7 +25,17 @@ final class AddonListTableRegistrationTest extends WP_UnitTestCase {
 		AddonManager::admin_init();
 
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( AddonListTable::class, 'enqueue_scripts' ) ) );
-		$this->assertSame( 10, has_action( 'admin_notices', array( AddonListTable::class, 'add_addon_stats_cards' ) ) );
+		// KPI band hangs off ListScreenLayout's header slot, not `admin_notices`
+		// -- that hook fires above `edit.php`'s `.wrap`, so the band painted at
+		// the top of the stream and jQuery dragged it into place afterwards.
+		$this->assertSame(
+			10,
+			has_action( ListScreenLayout::HEADER_ACTION, array( AddonListTable::class, 'add_addon_stats_cards' ) )
+		);
+		$this->assertFalse(
+			has_action( 'admin_notices', array( AddonListTable::class, 'add_addon_stats_cards' ) ),
+			'The KPI band must not still be registered on admin_notices, or it prints twice.'
+		);
 		$this->assertFalse(
 			is_subclass_of( AddonListTable::class, \WP_List_Table::class ),
 			'The native add-on CPT screen must not ship an unreachable parallel WP_List_Table surface.'
