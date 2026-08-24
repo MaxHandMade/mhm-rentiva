@@ -706,7 +706,7 @@ mhm-rentiva/
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (1,740 tests, 7,090 assertions)
+├── tests/                  # PHPUnit suite (2,491 tests, 9,131 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
@@ -784,7 +784,7 @@ define('SCRIPT_DEBUG', true);
 - Test email notifications
 
 **Automated Testing**:
-- PHPUnit suite: 1,740 tests / 7,090 assertions (unit + WP_UnitTestCase integration)
+- PHPUnit suite: 2,491 tests / 9,131 assertions (unit + WP_UnitTestCase integration)
 
 ---
 
