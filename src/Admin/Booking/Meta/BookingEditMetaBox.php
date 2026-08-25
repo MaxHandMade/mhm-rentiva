@@ -246,7 +246,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		echo '</div>';
 
 		echo '<div class="mhm-field-group mhm-field-half">';
-		echo '<label for="mhmrentiva_edit_status" class="mhm-field-label">' . esc_html__( 'Status', 'mhm-rentiva' ) . '</label>';
+		echo '<label for="mhmrentiva_booking_edit_status" class="mhm-field-label">' . esc_html__( 'Status', 'mhm-rentiva' ) . '</label>';
 		echo '<select id="mhmrentiva_booking_edit_status" name="mhmrentiva_edit_status" class="mhm-field-select">';
 		echo '<option value="pending"' . selected( $status, 'pending', false ) . '>' . esc_html__( 'Pending', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="confirmed"' . selected( $status, 'confirmed', false ) . '>' . esc_html__( 'Confirmed', 'mhm-rentiva' ) . '</option>';

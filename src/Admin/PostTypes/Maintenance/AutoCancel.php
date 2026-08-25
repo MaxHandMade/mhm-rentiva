@@ -355,9 +355,12 @@ final class AutoCancel {
 	 * an unrecognised value to PENDING, PENDING has a CANCELLED edge, so the
 	 * sweep cancelled the booking and overwrote the one record of the state
 	 * nobody could read. A destructive unattended job does not get to act on
-	 * a booking it cannot describe. The write end of that hole is a separate,
-	 * tracked defect (`ajax_create_booking` stores the requested status with
-	 * no allowlist of its own); this clause is the read end.
+	 * a booking it cannot describe. The write end of that hole was closed in
+	 * 6.1.2 -- `ajax_create_booking` now refuses a status its own screen does
+	 * not offer, instead of storing whatever arrived -- but this clause stays:
+	 * it is the read end, it defends against writers that predate the guard
+	 * and against rows already carrying an unreadable value, and a destructive
+	 * unattended job should not depend on every writer being correct.
 	 *
 	 * "Cannot describe" is the whole of it, and it is narrower than "is not in
 	 * this list": an EMPTY value is one the plugin describes perfectly well.

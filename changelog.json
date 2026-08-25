@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.1.2",
+    "date": "2026-08-25",
+    "type": "patch",
+    "title": "Manual bookings are stored with the status you chose",
+    "summary": "A booking created from the admin's manual booking screen was stored with no status at all. The screen's script built its request by reading the status field's name where an id was needed, matched nothing, and sent an empty value; jQuery encodes a missing value as an empty string rather than dropping it, so the handler's default never ran and the empty value was stored. The consequence was not cosmetic: the availability check counts only live statuses, so a booking stored this way was invisible to it and the same vehicle could be booked again over the same dates. The same slip existed on the booking edit screen, where it silenced the confirmation prompt in front of a status change. Both are fixed, the manual booking boundary now refuses a status its own form does not offer, and the role handed to customer accounts is checked for administrative capabilities rather than mere existence.",
+    "changes": [
+      "Fixed: a booking created from the admin's manual booking screen was stored with no status at all. The screen's script read the status field by its name rather than its id, matched nothing, and sent an empty value that the handler stored as-is. Because the availability check counts only live statuses, such a booking was invisible to it and the same vehicle could be booked again over the same dates.",
+      "Security: the manual booking screen's boundary now refuses any status the screen itself does not offer, instead of writing whatever arrives.",
+      "Fixed: the confirmation prompt shown before changing a booking's status on the edit screen never appeared. It was bound to the status field by name rather than by id, so it was bound to nothing. The field's label was associated with the same missing id and is now correctly linked to the select.",
+      "Security: the role given to customer accounts this plugin creates is now rejected if it carries administrative capabilities, instead of being accepted on the strength of the role merely existing. The same setting also decides which accounts count as customers, so a privileged value affected the Customers list as well."
+    ]
+  },  {
     "version": "6.1.1",
     "date": "2026-08-25",
     "type": "patch",

@@ -687,7 +687,7 @@ msgstr "Fiyatlandırma Tipi"
 #: src/Admin/Booking/Meta/BookingMeta.php:1385
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:519
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:615
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:632
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:35
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:116
@@ -844,9 +844,9 @@ msgid "Only active additional services are visible in booking form."
 msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 
 #: src/Admin/Addons/AddonMeta.php:133
-#: src/Admin/Customers/AddCustomerPage.php:145
-#: src/Admin/Customers/AddCustomerPage.php:150
-#: src/Admin/Customers/AddCustomerPage.php:155
+#: src/Admin/Customers/AddCustomerPage.php:144
+#: src/Admin/Customers/AddCustomerPage.php:149
+#: src/Admin/Customers/AddCustomerPage.php:154
 #: src/Admin/Customers/CustomersPage.php:494
 #: src/Admin/Customers/CustomersPage.php:499
 #: src/Admin/Customers/CustomersPage.php:504
@@ -2559,7 +2559,7 @@ msgstr "Geçersiz rezervasyon kimliği veya boş not."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1128
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:950
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:977
 msgid "Booking created"
 msgstr "Rezervasyon oluşturuldu"
 
@@ -2639,7 +2639,7 @@ msgstr "Müşteri Hesabı Oluştur"
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:524
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:620
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:637
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:39
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:120
 msgid "Permission denied."
@@ -2807,7 +2807,7 @@ msgid "Last Name"
 msgstr "Soyadı"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
-#: src/Admin/Customers/AddCustomerPage.php:150
+#: src/Admin/Customers/AddCustomerPage.php:149
 #: src/Admin/Customers/CustomersPage.php:323
 #: src/Admin/Customers/CustomersPage.php:499
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:505
@@ -2821,7 +2821,7 @@ msgid "Email"
 msgstr "E-posta"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:330
-#: src/Admin/Customers/AddCustomerPage.php:155
+#: src/Admin/Customers/AddCustomerPage.php:154
 #: src/Admin/Customers/CustomersPage.php:324
 #: src/Admin/Customers/CustomersPage.php:504
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:506
@@ -2855,29 +2855,29 @@ msgid "Price Calculation"
 msgstr "Fiyat Hesaplama"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:536
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:638
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:655
 msgid "Required fields are missing."
 msgstr "Zorunlu alanlar eksik."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:579
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:840
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:867
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1116
 msgid "Price could not be calculated."
 msgstr "Fiyat hesaplanamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:659
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:687
 msgid "You do not have permission to create new customer accounts. Please select an existing customer instead."
 msgstr "Yeni müşteri hesabı oluşturma izniniz yok. Lütfen bunun yerine mevcut bir müşteri seçin."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:670
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:698
 msgid "New customer information is missing."
 msgstr "Yeni müşteri bilgileri eksik."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:675
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:703
 msgid "This email address is already registered."
 msgstr "Bu e-posta adresi zaten kayıtlı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:690
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:718
 #: src/Admin/Customers/CustomersPage.php:289
 #: src/Admin/Customers/CustomersPage.php:432
 #: src/Admin/Customers/REST/CustomersRestController.php:161
@@ -2886,20 +2886,20 @@ msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:848
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:875
 #, php-format
 msgid "Manual Booking - %s"
 msgstr "Manuel Rezervasyon - %s"
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:927
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:954
 msgid "This vehicle has just been booked for the selected dates."
 msgstr "Bu araç seçilen tarihler için az önce rezerve edildi."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:931
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:958
 msgid "Booking could not be created."
 msgstr "Rezervasyon oluşturulamadı."
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:961
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:988
 msgid "Booking created successfully."
 msgstr "Rezervasyon başarıyla oluşturuldu."
 
@@ -3219,7 +3219,7 @@ msgstr "Emin misiniz?"
 #: src/Admin/Core/AssetManager.php:699
 #: src/Admin/Core/AssetManager.php:1004
 #: src/Admin/Core/AssetManager.php:1168
-#: src/Admin/Customers/AddCustomerPage.php:166
+#: src/Admin/Customers/AddCustomerPage.php:165
 #: src/Admin/Customers/CustomersPage.php:515
 #: src/Admin/Emails/Core/EmailTemplates.php:536
 #: templates/account/account-details.php:189
@@ -5343,33 +5343,33 @@ msgstr "Ödemeyi Tekrar Dene"
 msgid "Customer name, email and phone fields are required."
 msgstr "Müşteri adı, e-posta ve telefon alanları zorunludur."
 
-#: src/Admin/Customers/AddCustomerPage.php:123
+#: src/Admin/Customers/AddCustomerPage.php:122
 msgid "Customer added successfully!"
 msgstr "Müşteri başarıyla eklendi!"
 
-#: src/Admin/Customers/AddCustomerPage.php:124
+#: src/Admin/Customers/AddCustomerPage.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:136
 msgid "Open Profile"
 msgstr "Profili Aç"
 
-#: src/Admin/Customers/AddCustomerPage.php:125
+#: src/Admin/Customers/AddCustomerPage.php:124
 msgid "← Back to customers list"
 msgstr "← Müşteri listesine dön"
 
-#: src/Admin/Customers/AddCustomerPage.php:127
+#: src/Admin/Customers/AddCustomerPage.php:126
 msgid "Error occurred while adding customer: "
 msgstr "Müşteri eklenirken hata oluştu: "
 
-#: src/Admin/Customers/AddCustomerPage.php:133
+#: src/Admin/Customers/AddCustomerPage.php:132
 msgid "Add New Customer"
 msgstr "Yeni Müşteri Ekleyin"
 
-#: src/Admin/Customers/AddCustomerPage.php:145
+#: src/Admin/Customers/AddCustomerPage.php:144
 #: src/Admin/Customers/CustomersPage.php:494
 msgid "Customer Name"
 msgstr "Müşteri Adı"
 
-#: src/Admin/Customers/AddCustomerPage.php:160
+#: src/Admin/Customers/AddCustomerPage.php:159
 #: src/Admin/Customers/CustomersPage.php:325
 #: src/Admin/Customers/CustomersPage.php:509
 #: templates/account/account-details.php:123
@@ -5377,7 +5377,7 @@ msgstr "Müşteri Adı"
 msgid "Address"
 msgstr "Adres"
 
-#: src/Admin/Customers/AddCustomerPage.php:165
+#: src/Admin/Customers/AddCustomerPage.php:164
 #: src-react/admin/customers/components/FilterBar.jsx:14
 msgid "Add Customer"
 msgstr "Müşteri Ekle"
@@ -6354,7 +6354,7 @@ msgid "You must be logged in to add to favorites"
 msgstr "Favorilere eklemek için oturum açmalısınız"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:402
-#: src/Admin/Frontend/Account/WooCommerceIntegration.php:222
+#: src/Admin/Frontend/Account/WooCommerceIntegration.php:347
 msgid "You do not have permission to view this booking."
 msgstr "Bu rezervasyonu görüntüleme izniniz yok."
 
@@ -6413,22 +6413,22 @@ msgstr "Araç Ödemeleri"
 msgid "View Booking"
 msgstr "Rezervasyon Görüntüle"
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:104
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:111
 msgctxt "endpoint slug"
 msgid "rentiva-bookings"
 msgstr "rentiva-rezervasyonlar"
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:105
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:112
 msgctxt "endpoint slug"
 msgid "rentiva-favorites"
 msgstr "rentiva-favoriler"
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:106
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:113
 msgctxt "endpoint slug"
 msgid "rentiva-payment-history"
 msgstr "rentiva-ödeme-geçmişi"
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:107
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:114
 msgctxt "endpoint slug"
 msgid "view-rentiva-booking"
 msgstr "view-rentiva-rezervasyon"
@@ -15446,7 +15446,7 @@ msgid "No refund is due"
 msgstr "İade yapılmayacak"
 
 #. translators: %s: the error message wp_update_user() returned.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:786
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:813
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
 msgstr "Manuel rezervasyon oluşturulurken wp_update_user başarısız oldu: %s"
@@ -15732,3 +15732,7 @@ msgstr[1] "Çok fazla iletişim formu gönderdiniz. Lütfen %d dakika bekleyin."
 #, php-format
 msgid "A refund_status_changed context announced %1$s \"%2$s\", which is not one of: %3$s. It was dropped."
 msgstr "Bir refund_status_changed bağlamı %1$s alanını \"%2$s\" olarak bildirdi; bu değer şunlardan biri değil: %3$s. Değer dikkate alınmadı."
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:666
+msgid "Invalid booking status."
+msgstr "Geçersiz rezervasyon durumu."
