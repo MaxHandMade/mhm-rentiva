@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.1.2",
+    "date": "2026-08-25",
+    "type": "patch",
+    "title": "Manuel rezervasyonlar seçtiğiniz durumla kaydediliyor",
+    "summary": "Yönetim tarafındaki manuel rezervasyon ekranından oluşturulan rezervasyon hiçbir durum bilgisi olmadan kaydediliyordu. Ekranın betiği isteği hazırlarken durum alanını id'si yerine adıyla okuyor, hiçbir öğeyle eşleşmiyor ve boş bir değer gönderiyordu; jQuery eksik değeri atmak yerine boş dize olarak kodladığı için işleyicinin varsayılanı hiç çalışmıyor ve boş değer kaydediliyordu. Sonucu kozmetik değildi: müsaitlik denetimi yalnız yürürlükteki durumları saydığından, böyle kaydedilen bir rezervasyon denetime görünmüyor ve aynı araç aynı tarihlere yeniden rezerve edilebiliyordu. Aynı hata rezervasyon düzenleme ekranında da vardı; orada durum değişikliği öncesindeki onay sorusunu susturuyordu. İkisi de düzeltildi, manuel rezervasyon ucu artık kendi formunun sunmadığı bir durumu reddediyor ve müşteri hesaplarına verilen rol yalnızca var olmasına değil, yönetimsel yetki taşıyıp taşımadığına göre denetleniyor.",
+    "changes": [
+      "Düzeltildi: yönetim tarafındaki manuel rezervasyon ekranından oluşturulan rezervasyon hiçbir durum bilgisi olmadan kaydediliyordu. Ekranın betiği durum alanını id'si yerine adıyla okuyor, hiçbir öğeyle eşleşmiyor ve işleyicinin olduğu gibi kaydettiği boş bir değer gönderiyordu. Müsaitlik denetimi yalnız yürürlükteki durumları saydığı için böyle bir rezervasyon denetime görünmüyor ve aynı araç aynı tarihlere yeniden rezerve edilebiliyordu.",
+      "Güvenlik: manuel rezervasyon ekranının ucu artık ekranın kendisinin sunmadığı bir durumu, geleni olduğu gibi yazmak yerine reddediyor.",
+      "Düzeltildi: düzenleme ekranında rezervasyon durumu değiştirilmeden önce çıkması gereken onay sorusu hiç görünmüyordu. Durum alanına id ile değil adla bağlandığı için hiçbir şeye bağlanmamıştı. Alanın etiketi de aynı var olmayan id'yi gösteriyordu; artık doğru şekilde seçim kutusuna bağlı.",
+      "Güvenlik: eklentinin oluşturduğu müşteri hesaplarına verilen rol, yalnızca rolün var olmasına bakılarak kabul edilmek yerine, yönetimsel yetki taşıyorsa reddediliyor. Aynı ayar hangi hesapların müşteri sayılacağına da karar verdiği için, ayrıcalıklı bir değer Müşteriler listesini de etkiliyordu."
+    ]
+  },  {
     "version": "6.1.1",
     "date": "2026-08-25",
     "type": "patch",

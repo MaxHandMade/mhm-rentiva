@@ -6,11 +6,11 @@ Bu proje için tek kanonik paketleme yolu Docker içindeki
 
 ## Güncel release sözleşmesi
 
-- Eklenti sürümü: `6.1.1`
+- Eklenti sürümü: `6.1.2`
 - Sürüm sabiti: `MHMRENTIVA_VERSION`
 - ZIP içindeki tek kök: `mhm-rentiva/`
 - Kanonik host çıktısı:
-  `C:\tmp\plugin-builds\mhm-rentiva.6.1.1.zip`
+  `C:\tmp\plugin-builds\mhm-rentiva.6.1.2.zip`
 - 24 Ağustos 2026 tarihli allowlist ölçümü: `573` dosya
 
 Dosya sayısı sabit bir hedef değildir. Her paketlemeden hemen önce aşağıdaki

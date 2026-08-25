@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.1
+Stable tag:        6.1.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -180,6 +180,12 @@ ordinary visitors can also send re-opens the bypass this default closes.
 == Changelog ==
 
 Only the most recent releases are repeated here, plus 6.0.0 for its breaking-change notice, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
+
+= 6.1.2 =
+* Fixed: a booking created from the admin's manual booking screen was stored with no status at all. The screen's script read the status field by its name rather than its id, matched nothing, and sent an empty value that the handler stored as-is. Because the availability check counts only live statuses, such a booking was invisible to it and the same vehicle could be booked again over the same dates.
+* Security: the manual booking screen's boundary now refuses any status the screen itself does not offer, instead of writing whatever arrives.
+* Fixed: the confirmation prompt shown before changing a booking's status on the edit screen never appeared. It was bound to the status field by name rather than by id, so it was bound to nothing. The field's label was associated with the same missing id and is now correctly linked to the select.
+* Security: the role given to customer accounts this plugin creates is now rejected if it carries administrative capabilities, instead of being accepted on the strength of the role merely existing. The same setting also decides which accounts count as customers, so a privileged value affected the Customers list as well.
 
 = 6.1.1 =
 * Fixed: a My Account tab contributed by an extension registered no endpoint at all when WooCommerce was active, so every such tab returned a 404. The extension point that carries those tabs was only consulted on the standalone-endpoint path, which WooCommerce sites never take.
