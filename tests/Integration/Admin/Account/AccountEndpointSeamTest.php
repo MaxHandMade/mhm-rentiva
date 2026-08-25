@@ -32,11 +32,13 @@ final class AccountEndpointSeamTest extends WP_UnitTestCase
     {
         parent::setUp();
         remove_all_filters('mhmrentiva_account_endpoints');
+        WooCommerceIntegration::reset_reserved_query_vars();
     }
 
     protected function tearDown(): void
     {
         remove_all_filters('mhmrentiva_account_endpoints');
+        WooCommerceIntegration::reset_reserved_query_vars();
         parent::tearDown();
     }
 

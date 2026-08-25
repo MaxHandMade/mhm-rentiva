@@ -34,6 +34,10 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
+		// Snapshot the query vars that already belong to someone else, before
+		// any endpoint registration adds to that list -- including ours.
+		add_action( 'init', array( self::class, 'snapshot_reserved_query_vars' ), 1 );
+
 		// Add endpoints (priority 5 to run before WooCommerce's default endpoints)
 		add_action( 'init', array( self::class, 'add_endpoints' ), 5 );
 
@@ -152,6 +156,62 @@ final class WooCommerceIntegration {
 	}
 
 	/**
+	 * Query var names that already belonged to someone else before any endpoint
+	 * was registered on this request.
+	 *
+	 * 🔴 Snapshotted, not read live. add_rewrite_endpoint() registers its slug
+	 * as a public query var, so once an extension's endpoint is registered the
+	 * live list contains it -- and reading the live list would make our own
+	 * contribution look reserved, drop it from every later call, and leave
+	 * is_wc_endpoint_url() answering "no" on a URL that works. The snapshot is
+	 * taken on init/1, before Lite's own endpoints (init/5) and WooCommerce's
+	 * (init/10).
+	 *
+	 * @var array<int, string>|null
+	 */
+	private static ?array $reserved_query_vars = null;
+
+	/**
+	 * Take the snapshot. Hooked on init/1; harmless to call twice.
+	 */
+	public static function snapshot_reserved_query_vars(): void {
+		if ( null !== self::$reserved_query_vars ) {
+			return;
+		}
+
+		self::$reserved_query_vars = isset( $GLOBALS['wp'] ) && $GLOBALS['wp'] instanceof \WP
+			? array_values( (array) $GLOBALS['wp']->public_query_vars )
+			: array();
+	}
+
+	/**
+	 * Test seam: forget the snapshot so the next call takes a fresh one.
+	 */
+	public static function reset_reserved_query_vars(): void {
+		self::$reserved_query_vars = null;
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private static function reserved_query_vars(): array {
+		if ( null === self::$reserved_query_vars ) {
+			// No snapshot yet -- a CLI call, or a request that reached this
+			// before init. Reading live is correct here precisely because
+			// nothing has registered an endpoint yet.
+			self::snapshot_reserved_query_vars();
+		}
+
+		$reserved = (array) self::$reserved_query_vars;
+
+		foreach ( array_keys( self::get_rentiva_endpoints_map() ) as $key ) {
+			$reserved[] = self::get_endpoint_slug( $key );
+		}
+
+		return $reserved;
+	}
+
+	/**
 	 * Endpoint slugs contributed by extensions, validated.
 	 *
 	 * Fed into WooCommerce's query vars and nowhere else. WC_Query::add_endpoints()
@@ -174,15 +234,7 @@ final class WooCommerceIntegration {
 	 * @return array<int, string>
 	 */
 	public static function get_extension_endpoint_slugs( array $taken = array() ): array {
-		$reserved = $taken;
-
-		if ( isset( $GLOBALS['wp'] ) && $GLOBALS['wp'] instanceof \WP ) {
-			$reserved = array_merge( $reserved, (array) $GLOBALS['wp']->public_query_vars );
-		}
-
-		foreach ( array_keys( self::get_rentiva_endpoints_map() ) as $key ) {
-			$reserved[] = self::get_endpoint_slug( $key );
-		}
+		$reserved = array_merge( $taken, self::reserved_query_vars() );
 
 		$slugs = array();
 
