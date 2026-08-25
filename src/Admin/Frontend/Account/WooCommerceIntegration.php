@@ -52,6 +52,12 @@ final class WooCommerceIntegration {
 		// Flush rewrite rules on plugin activation/update (one-time)
 		add_action( 'admin_init', array( self::class, 'maybe_flush_rewrite_rules' ) );
 
+		// admin_init fires in wp-admin and admin-ajax only, but the endpoint set
+		// is time-dependent: an extension's licence lapses on whatever request
+		// happens to be first. Without a front-end path the cached rewrite rule
+		// keeps matching a URL nothing renders until someone opens wp-admin.
+		add_action( 'wp', array( self::class, 'maybe_flush_rewrite_rules' ) );
+
 		// Override WooCommerce default dashboard with Rentiva dashboard
 		add_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) );
 	}
@@ -364,6 +370,12 @@ final class WooCommerceIntegration {
 		foreach ( array_keys( $rentiva_map ) as $key ) {
 			$current_slugs[] = self::get_endpoint_slug( $key );
 		}
+
+		// Extension endpoints belong in the hash too. The set is not static:
+		// it grows when a licence activates and shrinks when one lapses, and a
+		// hash blind to that never triggers the flush the change requires.
+		$current_slugs = array_merge( $current_slugs, self::get_extension_endpoint_slugs() );
+
 		$current_hash = md5( serialize( $current_slugs ) );
 
 		$flushed       = get_option( $flush_key, false );

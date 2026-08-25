@@ -130,4 +130,45 @@ final class AccountEndpointSeamTest extends WP_UnitTestCase
             'A slug Lite already owns must not be registered a second time by the seam.'
         );
     }
+
+    /**
+     * The flush trigger hashes the endpoint set to decide whether the rewrite
+     * rules need rebuilding. Hashing only Lite's own map means a licence
+     * activating -- which changes the endpoint set -- leaves the hash
+     * untouched, so the flush the new endpoint needs never runs.
+     */
+    public function test_flush_hash_changes_when_a_subscriber_joins(): void
+    {
+        delete_option('mhmrentiva_woocommerce_endpoints_hash');
+        delete_option('mhmrentiva_woocommerce_endpoints_flushed');
+        delete_option('mhmrentiva_woocommerce_endpoints_version');
+
+        WooCommerceIntegration::maybe_flush_rewrite_rules();
+        $without = (string) get_option('mhmrentiva_woocommerce_endpoints_hash', '');
+
+        $this->subscribe(self::FAKE_SLUG);
+        WooCommerceIntegration::maybe_flush_rewrite_rules();
+        $with = (string) get_option('mhmrentiva_woocommerce_endpoints_hash', '');
+
+        $this->assertNotSame(
+            $without,
+            $with,
+            'A new extension endpoint must change the flush hash, or no flush ever runs for it.'
+        );
+    }
+
+    /**
+     * admin_init fires in wp-admin and admin-ajax only. A licence lapses on
+     * whatever request happens to be first, and until someone opens wp-admin
+     * the cached rewrite rule keeps matching a URL nothing renders any more.
+     */
+    public function test_flush_trigger_is_registered_for_front_end_requests_too(): void
+    {
+        WooCommerceIntegration::register();
+
+        $this->assertNotFalse(
+            has_action('wp', array( WooCommerceIntegration::class, 'maybe_flush_rewrite_rules' )),
+            'The flush trigger must have a path that runs outside wp-admin.'
+        );
+    }
 }
