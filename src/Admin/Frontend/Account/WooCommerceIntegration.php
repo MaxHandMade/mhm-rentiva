@@ -34,6 +34,16 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
+		// Snapshot the query vars that already belong to someone else, before
+		// any endpoint registration adds to that list -- including ours.
+		//
+		// Taken here, synchronously, rather than from an init hook: register()
+		// is itself called on init priority 2, and adding a callback to a
+		// priority that has already passed on a hook that is currently running
+		// never fires it. An earlier version hooked init/1 and silently never
+		// ran, leaving the snapshot to whichever caller happened to ask first.
+		self::snapshot_reserved_query_vars();
+
 		// Add endpoints (priority 5 to run before WooCommerce's default endpoints)
 		add_action( 'init', array( self::class, 'add_endpoints' ), 5 );
 
@@ -51,6 +61,13 @@ final class WooCommerceIntegration {
 
 		// Flush rewrite rules on plugin activation/update (one-time)
 		add_action( 'admin_init', array( self::class, 'maybe_flush_rewrite_rules' ) );
+
+		// admin_init fires in wp-admin and admin-ajax only, but the endpoint set
+		// is not static: a contribution can appear or disappear between requests,
+		// on whatever request happens to be first. Without a front-end path the
+		// cached rewrite rule keeps matching a URL nothing renders until someone
+		// opens wp-admin.
+		add_action( 'wp', array( self::class, 'maybe_flush_rewrite_rules' ) );
 
 		// Override WooCommerce default dashboard with Rentiva dashboard
 		add_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) );
@@ -146,6 +163,106 @@ final class WooCommerceIntegration {
 	}
 
 	/**
+	 * Query var names that already belonged to someone else before any endpoint
+	 * was registered on this request.
+	 *
+	 * 🔴 Snapshotted, not read live. add_rewrite_endpoint() registers its slug
+	 * as a public query var, so once an extension's endpoint is registered the
+	 * live list contains it -- and reading the live list would make our own
+	 * contribution look reserved, drop it from every later call, and leave
+	 * is_wc_endpoint_url() answering "no" on a URL that works. The snapshot is
+	 * taken synchronously from register(), which runs on init/2 -- before Lite's
+	 * own endpoints (init/5) and WooCommerce's (init/10).
+	 *
+	 * @var array<int, string>|null
+	 */
+	private static ?array $reserved_query_vars = null;
+
+	/**
+	 * Take the snapshot. Called from register(); harmless to call twice.
+	 */
+	public static function snapshot_reserved_query_vars(): void {
+		if ( null !== self::$reserved_query_vars ) {
+			return;
+		}
+
+		self::$reserved_query_vars = isset( $GLOBALS['wp'] ) && $GLOBALS['wp'] instanceof \WP
+			? array_values( (array) $GLOBALS['wp']->public_query_vars )
+			: array();
+	}
+
+	/**
+	 * Test seam: forget the snapshot so the next call takes a fresh one.
+	 */
+	public static function reset_reserved_query_vars(): void {
+		self::$reserved_query_vars = null;
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private static function reserved_query_vars(): array {
+		if ( null === self::$reserved_query_vars ) {
+			// No snapshot yet -- a CLI call, or a request that reached this
+			// before init. Reading live is correct here precisely because
+			// nothing has registered an endpoint yet.
+			self::snapshot_reserved_query_vars();
+		}
+
+		$reserved = (array) self::$reserved_query_vars;
+
+		foreach ( array_keys( self::get_rentiva_endpoints_map() ) as $key ) {
+			$reserved[] = self::get_endpoint_slug( $key );
+		}
+
+		return $reserved;
+	}
+
+	/**
+	 * Endpoint slugs contributed by extensions, validated.
+	 *
+	 * Fed into WooCommerce's query vars and nowhere else. WC_Query::add_endpoints()
+	 * turns every query var into a rewrite endpoint using the mask WooCommerce
+	 * picks for this site, so registering one here as well would duplicate the
+	 * rule and hardcode a mask WooCommerce may not agree with.
+	 *
+	 * The validation is not decoration. add_rewrite_endpoint() checks nothing
+	 * and calls $wp->add_query_var() unconditionally, so a contribution of
+	 * 'name' or 'pagename' would break every permalink on the site.
+	 *
+	 * @param array<int, string> $taken Query var names already claimed on this
+	 *                                  request. add_query_vars() passes what it
+	 *                                  has collected so far, which is WooCommerce's
+	 *                                  own set plus Lite's -- read from the filter
+	 *                                  argument rather than from WC()->query, both
+	 *                                  because it is the same answer and because
+	 *                                  asking WC()->query->get_query_vars() from
+	 *                                  inside its own filter would recurse.
+	 * @return array<int, string>
+	 */
+	public static function get_extension_endpoint_slugs( array $taken = array() ): array {
+		$reserved = array_merge( $taken, self::reserved_query_vars() );
+
+		$slugs = array();
+
+		foreach ( (array) apply_filters( 'mhmrentiva_account_endpoints', array() ) as $slug ) {
+			if ( ! is_string( $slug ) || '' === $slug ) {
+				continue;
+			}
+
+			$clean = sanitize_title( $slug );
+
+			if ( '' === $clean || in_array( $clean, $reserved, true ) ) {
+				continue;
+			}
+
+			$slugs[ $clean ] = $clean;
+		}
+
+		return array_values( $slugs );
+	}
+
+	/**
 	 * Add rewrite endpoints
 	 * WooCommerce endpoints should use EP_PAGES only (not EP_ROOT)
 	 */
@@ -171,6 +288,14 @@ final class WooCommerceIntegration {
 		$rentiva_map = self::get_rentiva_endpoints_map();
 		foreach ( array_keys( $rentiva_map ) as $key ) {
 			$slug          = self::get_endpoint_slug( $key );
+			$vars[ $slug ] = $slug;
+		}
+
+		// Extension-contributed endpoints. This is the only place the seam is
+		// consumed: WooCommerce registers a rewrite endpoint for every query
+		// var it is given, so a tab an extension adds to the nav resolves from
+		// here alone.
+		foreach ( self::get_extension_endpoint_slugs( array_keys( $vars ) ) as $slug ) {
 			$vars[ $slug ] = $slug;
 		}
 
@@ -308,6 +433,12 @@ final class WooCommerceIntegration {
 		foreach ( array_keys( $rentiva_map ) as $key ) {
 			$current_slugs[] = self::get_endpoint_slug( $key );
 		}
+
+		// Extension endpoints belong in the hash too. The set is not static --
+		// a contribution can appear or disappear between requests -- and a hash
+		// blind to that never triggers the flush the change requires.
+		$current_slugs = array_merge( $current_slugs, self::get_extension_endpoint_slugs() );
+
 		$current_hash = md5( serialize( $current_slugs ) );
 
 		$flushed       = get_option( $flush_key, false );

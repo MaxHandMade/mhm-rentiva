@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.1.1",
+    "date": "2026-08-25",
+    "type": "patch",
+    "title": "My Account tabs added by an extension resolve again",
+    "summary": "A My Account tab contributed by an extension registered no endpoint when WooCommerce was active, so every such tab returned a 404. The extension point that carries those tabs was read only on the standalone-endpoint path -- the branch a WooCommerce site never takes -- while the WooCommerce path had no extension seam at all. The contribution now reaches WooCommerce's own query vars, which is where WooCommerce builds the rewrite endpoint from, using the mask it picks for the site. Two related gaps closed with it: the check that decides whether rewrite rules need rebuilding could not see extension endpoints and ran only in the admin, and a contribution is now refused when it collides with a reserved WordPress or WooCommerce query variable.",
+    "changes": [
+      "Fixed: a My Account tab contributed by an extension registered no endpoint at all when WooCommerce was active, so every such tab returned a 404. The extension point that carries those tabs was only consulted on the standalone-endpoint path, which WooCommerce sites never take.",
+      "Fixed: the rewrite-flush check ignored extension endpoints and ran only in the admin, so a newly contributed tab could stay unreachable until someone opened wp-admin and saved permalinks by hand.",
+      "Security: an extension's endpoint contribution is now rejected when it collides with a reserved WordPress or WooCommerce query variable. Registering one as an endpoint would have broken permalinks site-wide.",
+      "Fixed: the four core module scripts were requested a second time, without their version query, because the plugin URL already ended in a slash and the loader appended another."
+    ]
+  },  {
     "version": "6.1.0",
     "date": "2026-08-24",
     "type": "minor",
