@@ -390,7 +390,12 @@
 				guests: $( '#mhmrentiva_manual_guests' ).val(),
 				payment_type: $( '#mhmrentiva_manual_payment_type' ).val(),
 				payment_method: $( '#mhmrentiva_manual_payment_method' ).val(),
-				status: $( '#mhmrentiva_manual_status' ).val(),
+				// The element's id, not its name. Reading the name here matched
+				// nothing, and jQuery.param() encodes a missing value as an
+				// empty string rather than dropping the key -- so the booking
+				// was stored with an empty status, invisible to the conflict
+				// check.
+				status: $( '#mhmrentiva_manual_booking_status' ).val(),
 				notes: $( '#mhmrentiva_manual_notes' ).val(),
 				selected_addons: selectedAddons
 			};

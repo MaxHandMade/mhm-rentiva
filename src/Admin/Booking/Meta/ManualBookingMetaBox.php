@@ -471,7 +471,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		echo '</select>';
 		echo '</div>';
 
-		$initial_statuses = array( Status::PENDING, Status::CONFIRMED );
+		$initial_statuses = self::initial_statuses();
 		echo '<div class="mhm-field-group">';
 		echo '<label for="mhmrentiva_manual_booking_status" class="mhm-field-label">' . esc_html__( 'Status', 'mhm-rentiva' ) . '</label>';
 		echo '<select id="mhmrentiva_manual_booking_status" name="mhmrentiva_manual_status" class="mhm-field-select">';
@@ -608,6 +608,23 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	/**
 	 * AJAX: Create booking
 	 */
+	/**
+	 * The statuses a booking may be created with on this screen.
+	 *
+	 * Read by the <select> this screen renders AND by the AJAX boundary that
+	 * accepts its submission, so the offering and the guard cannot drift into
+	 * two different lists. Creation is deliberately narrower than
+	 * Status::allowed(): the later statuses are transitions, and reaching them
+	 * has to go through Status::update_status(), which enforces the transition
+	 * matrix this boundary has no business bypassing.
+	 *
+	 * @return list<string>
+	 */
+	public static function initial_statuses(): array
+	{
+		return array( Status::PENDING, Status::CONFIRMED );
+	}
+
 	public static function ajax_create_booking(): void
 	{
 		// Nonce check
@@ -631,11 +648,22 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$guests         = max(1, isset($_POST['guests']) ? absint(wp_unslash($_POST['guests'])) : 1);
 		$payment_type   = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_type'])) : 'deposit';
 		$payment_method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_method'])) : 'woocommerce';
-		$status         = isset($_POST['status']) ? sanitize_text_field(wp_unslash( (string) $_POST['status'])) : 'confirmed';
+		$status         = isset($_POST['status']) ? sanitize_text_field(wp_unslash( (string) $_POST['status'])) : Status::CONFIRMED;
 		$notes          = isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['notes'])) : '';
 
 		if (! $vehicle_id || ! $customer_id || ! $pickup_date || ! $dropoff_date) {
 			wp_send_json_error(array( 'message' => esc_html__('Required fields are missing.', 'mhm-rentiva') ));
+		}
+
+		// The status is written straight into _mhmrentiva_status below, and
+		// Util::has_overlap_locked() counts only the four live statuses -- so a
+		// value outside this screen's offering produces a booking the conflict
+		// check cannot see, leaving the vehicle bookable over the same dates.
+		// Refuse rather than fall back to the default: a client that sends a
+		// status this screen never offered is broken, and silently correcting
+		// it is how an empty status shipped unnoticed.
+		if (! in_array($status, self::initial_statuses(), true)) {
+			wp_send_json_error(array( 'message' => esc_html__('Invalid booking status.', 'mhm-rentiva') ));
 		}
 
 		// Customer processing
@@ -754,11 +782,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				wp_send_json_error(array( 'message' => $user_id->get_error_message() ));
 			}
 
-			// Determine safe default role (same as normal booking form)
-			$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_customer_default_role', 'customer');
-			if (! get_role($default_role)) {
-				$default_role = 'customer';
-			}
+			// Determine safe default role (same as normal booking form).
+			// CustomerIdentity owns this: existence is not safety -- get_role()
+			// answers yes for 'administrator' too.
+			$default_role = \MHMRentiva\Admin\Customers\CustomerIdentity::default_customer_role();
 
 			// Update user information (same as normal booking form)
 			$update_result = wp_update_user(

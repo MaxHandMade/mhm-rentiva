@@ -24,8 +24,11 @@
             validateDateRange();
         });
 
-        // Status change notification
-        $('#mhmrentiva_edit_status').on('change', function () {
+        // Status change notification.
+        // Bound by id -- mhmrentiva_edit_status is the field's NAME (which is
+        // what the server reads from $_POST). Bound to the name, this handler
+        // matched nothing and the confirmation never appeared.
+        $('#mhmrentiva_booking_edit_status').on('change', function () {
             const status = $(this).val();
             const statusLabels = (window.mhmRentivaAdmin && window.mhmRentivaAdmin.statusLabels) || {
                 'pending': 'Pending',
@@ -49,7 +52,7 @@
         });
 
         // Store previous value for status select
-        $('#mhmrentiva_edit_status').each(function () {
+        $('#mhmrentiva_booking_edit_status').each(function () {
             $(this).data('previous-value', $(this).val());
         });
 
