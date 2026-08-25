@@ -54,6 +54,26 @@ final class CustomerIdentity {
 	);
 
 	/**
+	 * Capabilities that disqualify a role from being handed to a customer.
+	 *
+	 * A deny list rather than "may hold nothing but read": a site is free to
+	 * give its customer role something harmless (an upload, a shop capability
+	 * a theme needs) and must keep working. What may not pass is anything that
+	 * administers the site, its users, or its content.
+	 *
+	 * @var string[]
+	 */
+	private const PRIVILEGED_CAPABILITIES = array(
+		'manage_options',
+		'promote_users',
+		'edit_users',
+		'delete_users',
+		'create_users',
+		'activate_plugins',
+		'edit_posts',
+	);
+
+	/**
 	 * Memo for the current request.
 	 *
 	 * The bulk-delete route asks once per target in a loop, so without this a
@@ -63,6 +83,48 @@ final class CustomerIdentity {
 	 * @var array<int, bool>
 	 */
 	private static array $memo = array();
+
+	/**
+	 * The role this plugin gives the accounts it creates.
+	 *
+	 * `mhmrentiva_customer_default_role` has no settings screen, no entry in
+	 * the defaults map and no sanitiser, so until this method existed nothing
+	 * between the stored value and a new account ever inspected it. The two
+	 * screens that create accounts checked only that `get_role()` returned
+	 * something -- which 'administrator' does.
+	 *
+	 * Resolving it here rather than in either screen is deliberate: the same
+	 * option also answers "is this account a customer?" in this class, once in
+	 * PHP and once in SQL. A privileged value there does not merely mint
+	 * privileged accounts, it makes the Customers list -- and the delete guard
+	 * built on it -- treat every administrator as a customer. One reader for
+	 * one invariant.
+	 *
+	 * @return string A role that exists and holds no privileged capability.
+	 */
+	public static function default_customer_role(): string {
+		$configured = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+			'mhmrentiva_customer_default_role',
+			'customer'
+		);
+
+		if ( '' === $configured || 'customer' === $configured ) {
+			return 'customer';
+		}
+
+		$role = get_role( $configured );
+		if ( ! $role instanceof \WP_Role ) {
+			return 'customer';
+		}
+
+		foreach ( self::PRIVILEGED_CAPABILITIES as $capability ) {
+			if ( ! empty( $role->capabilities[ $capability ] ) ) {
+				return 'customer';
+			}
+		}
+
+		return $configured;
+	}
 
 	/**
 	 * Is this user a customer of this plugin?
@@ -116,10 +178,7 @@ final class CustomerIdentity {
 	public static function sql_is_customer(): string {
 		global $wpdb;
 
-		$configured = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhmrentiva_customer_default_role',
-			'customer'
-		);
+		$configured = self::default_customer_role();
 
 		$roles = array_values( array_unique( array_filter( array( $configured, 'customer' ) ) ) );
 		if ( array() === $roles ) {
@@ -198,10 +257,7 @@ final class CustomerIdentity {
 	 * @return bool
 	 */
 	private static function wears_customer_role( \WP_User $user ): bool {
-		$configured = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhmrentiva_customer_default_role',
-			'customer'
-		);
+		$configured = self::default_customer_role();
 
 		$customer_roles = array_unique(
 			array_filter( array( $configured, 'customer' ) )

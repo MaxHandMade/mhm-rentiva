@@ -89,11 +89,10 @@ final class AddCustomerPage {
 				$user_id = wp_create_user( $username, wp_generate_password(), $customer_email );
 
 				if ( ! is_wp_error( $user_id ) ) {
-					// Determine safe default role
-					$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_default_role', 'customer' );
-					if ( ! get_role( $default_role ) ) {
-						$default_role = 'customer';
-					}
+					// Determine safe default role. CustomerIdentity owns this:
+					// existence is not safety -- get_role() answers yes for
+					// 'administrator' too.
+					$default_role = \MHMRentiva\Admin\Customers\CustomerIdentity::default_customer_role();
 
 					// Update user information
 					wp_update_user(
