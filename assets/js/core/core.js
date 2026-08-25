@@ -134,7 +134,7 @@
             // query on the URL. Fetching them again from here differs only in
             // that query, which is enough for the browser to treat it as a
             // separate resource and download the file a second time.
-            if (document.querySelector(`script[src*="/assets/js/core/${moduleName}.js"]`)) {
+            if (document.querySelector(`script[src*="mhm-rentiva/assets/js/core/${moduleName}.js"]`)) {
                 return;
             }
 

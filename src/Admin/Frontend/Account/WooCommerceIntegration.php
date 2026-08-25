@@ -36,7 +36,13 @@ final class WooCommerceIntegration {
 
 		// Snapshot the query vars that already belong to someone else, before
 		// any endpoint registration adds to that list -- including ours.
-		add_action( 'init', array( self::class, 'snapshot_reserved_query_vars' ), 1 );
+		//
+		// Taken here, synchronously, rather than from an init hook: register()
+		// is itself called on init priority 2, and adding a callback to a
+		// priority that has already passed on a hook that is currently running
+		// never fires it. An earlier version hooked init/1 and silently never
+		// ran, leaving the snapshot to whichever caller happened to ask first.
+		self::snapshot_reserved_query_vars();
 
 		// Add endpoints (priority 5 to run before WooCommerce's default endpoints)
 		add_action( 'init', array( self::class, 'add_endpoints' ), 5 );
@@ -57,9 +63,10 @@ final class WooCommerceIntegration {
 		add_action( 'admin_init', array( self::class, 'maybe_flush_rewrite_rules' ) );
 
 		// admin_init fires in wp-admin and admin-ajax only, but the endpoint set
-		// is time-dependent: an extension's licence lapses on whatever request
-		// happens to be first. Without a front-end path the cached rewrite rule
-		// keeps matching a URL nothing renders until someone opens wp-admin.
+		// is not static: a contribution can appear or disappear between requests,
+		// on whatever request happens to be first. Without a front-end path the
+		// cached rewrite rule keeps matching a URL nothing renders until someone
+		// opens wp-admin.
 		add_action( 'wp', array( self::class, 'maybe_flush_rewrite_rules' ) );
 
 		// Override WooCommerce default dashboard with Rentiva dashboard
@@ -164,15 +171,15 @@ final class WooCommerceIntegration {
 	 * live list contains it -- and reading the live list would make our own
 	 * contribution look reserved, drop it from every later call, and leave
 	 * is_wc_endpoint_url() answering "no" on a URL that works. The snapshot is
-	 * taken on init/1, before Lite's own endpoints (init/5) and WooCommerce's
-	 * (init/10).
+	 * taken synchronously from register(), which runs on init/2 -- before Lite's
+	 * own endpoints (init/5) and WooCommerce's (init/10).
 	 *
 	 * @var array<int, string>|null
 	 */
 	private static ?array $reserved_query_vars = null;
 
 	/**
-	 * Take the snapshot. Hooked on init/1; harmless to call twice.
+	 * Take the snapshot. Called from register(); harmless to call twice.
 	 */
 	public static function snapshot_reserved_query_vars(): void {
 		if ( null !== self::$reserved_query_vars ) {
@@ -427,9 +434,9 @@ final class WooCommerceIntegration {
 			$current_slugs[] = self::get_endpoint_slug( $key );
 		}
 
-		// Extension endpoints belong in the hash too. The set is not static:
-		// it grows when a licence activates and shrinks when one lapses, and a
-		// hash blind to that never triggers the flush the change requires.
+		// Extension endpoints belong in the hash too. The set is not static --
+		// a contribution can appear or disappear between requests -- and a hash
+		// blind to that never triggers the flush the change requires.
 		$current_slugs = array_merge( $current_slugs, self::get_extension_endpoint_slugs() );
 
 		$current_hash = md5( serialize( $current_slugs ) );
