@@ -47,20 +47,38 @@ final class AccountEndpointSeamTest extends WP_UnitTestCase
         });
     }
 
+    /**
+     * What WooCommerce actually hands the `woocommerce_get_query_vars` filter:
+     * its own query vars. Calling add_query_vars() with an empty array would
+     * be a shape the filter never sees, and would hide the fact that an
+     * extension must not be able to claim one of WooCommerce's own names.
+     *
+     * @return array<string, string>
+     */
+    private function wc_query_vars(): array
+    {
+        return array(
+            'orders'          => 'orders',
+            'view-order'      => 'view-order',
+            'edit-account'    => 'edit-account',
+            'customer-logout' => 'customer-logout',
+        );
+    }
+
     public function test_extension_slug_reaches_woocommerce_query_vars(): void
     {
         $this->subscribe(self::FAKE_SLUG);
 
         $this->assertArrayHasKey(
             self::FAKE_SLUG,
-            WooCommerceIntegration::add_query_vars(array()),
+            WooCommerceIntegration::add_query_vars($this->wc_query_vars()),
             'WC_Query::add_endpoints() builds rewrite endpoints from query vars; missing here means a 404.'
         );
     }
 
     public function test_lite_own_slugs_survive(): void
     {
-        $vars = WooCommerceIntegration::add_query_vars(array());
+        $vars = WooCommerceIntegration::add_query_vars($this->wc_query_vars());
 
         foreach (array( 'bookings', 'favorites', 'payment_history' ) as $key) {
             $this->assertArrayHasKey(WooCommerceIntegration::get_endpoint_slug($key), $vars);
@@ -79,10 +97,14 @@ final class AccountEndpointSeamTest extends WP_UnitTestCase
     {
         $this->subscribe($reserved);
 
-        $this->assertArrayNotHasKey(
+        // Asserted against the validated slug list rather than add_query_vars()'s
+        // return: a name like 'orders' is already in that array because
+        // WooCommerce put it there, so its presence would prove nothing about
+        // whether the contribution was refused.
+        $this->assertNotContains(
             $reserved,
-            WooCommerceIntegration::add_query_vars(array()),
-            sprintf('"%s" is a reserved query var and must never be registered as an endpoint.', $reserved)
+            WooCommerceIntegration::get_extension_endpoint_slugs(array_keys($this->wc_query_vars())),
+            sprintf('"%s" is a reserved query var and must never be accepted as an endpoint.', $reserved)
         );
     }
 
@@ -108,7 +130,7 @@ final class AccountEndpointSeamTest extends WP_UnitTestCase
             return $endpoints;
         });
 
-        $vars = WooCommerceIntegration::add_query_vars(array());
+        $vars = WooCommerceIntegration::add_query_vars($this->wc_query_vars());
 
         $this->assertArrayNotHasKey('', $vars);
         $this->assertArrayNotHasKey('42', $vars);
@@ -122,7 +144,7 @@ final class AccountEndpointSeamTest extends WP_UnitTestCase
         $own = WooCommerceIntegration::get_endpoint_slug('bookings');
         $this->subscribe($own);
 
-        $vars = WooCommerceIntegration::add_query_vars(array());
+        $vars = WooCommerceIntegration::add_query_vars($this->wc_query_vars());
 
         $this->assertCount(
             1,

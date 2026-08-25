@@ -163,10 +163,18 @@ final class WooCommerceIntegration {
 	 * and calls $wp->add_query_var() unconditionally, so a contribution of
 	 * 'name' or 'pagename' would break every permalink on the site.
 	 *
+	 * @param array<int, string> $taken Query var names already claimed on this
+	 *                                  request. add_query_vars() passes what it
+	 *                                  has collected so far, which is WooCommerce's
+	 *                                  own set plus Lite's -- read from the filter
+	 *                                  argument rather than from WC()->query, both
+	 *                                  because it is the same answer and because
+	 *                                  asking WC()->query->get_query_vars() from
+	 *                                  inside its own filter would recurse.
 	 * @return array<int, string>
 	 */
-	public static function get_extension_endpoint_slugs(): array {
-		$reserved = array();
+	public static function get_extension_endpoint_slugs( array $taken = array() ): array {
+		$reserved = $taken;
 
 		if ( isset( $GLOBALS['wp'] ) && $GLOBALS['wp'] instanceof \WP ) {
 			$reserved = array_merge( $reserved, (array) $GLOBALS['wp']->public_query_vars );
@@ -174,10 +182,6 @@ final class WooCommerceIntegration {
 
 		foreach ( array_keys( self::get_rentiva_endpoints_map() ) as $key ) {
 			$reserved[] = self::get_endpoint_slug( $key );
-		}
-
-		if ( function_exists( 'WC' ) && isset( WC()->query ) ) {
-			$reserved = array_merge( $reserved, array_keys( (array) WC()->query->query_vars ) );
 		}
 
 		$slugs = array();
@@ -232,7 +236,7 @@ final class WooCommerceIntegration {
 		// consumed: WooCommerce registers a rewrite endpoint for every query
 		// var it is given, so a tab an extension adds to the nav resolves from
 		// here alone.
-		foreach ( self::get_extension_endpoint_slugs() as $slug ) {
+		foreach ( self::get_extension_endpoint_slugs( array_keys( $vars ) ) as $slug ) {
 			$vars[ $slug ] = $slug;
 		}
 

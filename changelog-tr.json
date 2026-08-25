@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.1.1",
+    "date": "2026-08-25",
+    "type": "patch",
+    "title": "Bir eklentinin eklediği Hesabım sekmeleri yeniden açılıyor",
+    "summary": "Bir eklentinin Hesabım'a eklediği sekme, WooCommerce etkinken hiçbir uç kaydetmiyordu; bu yüzden o sekmelerin her biri 404 veriyordu. Sekmeleri taşıyan uzantı noktası yalnız bağımsız-uç yolunda okunuyordu -- WooCommerce'li bir sitenin hiç girmediği dal -- WooCommerce yolunda ise hiç uzantı dikişi yoktu. Katkı artık WooCommerce'in kendi sorgu değişkenlerine ulaşıyor; WooCommerce rewrite ucunu zaten oradan, üstelik site için kendi seçtiği maskeyle kuruyor. Yanında iki boşluk daha kapandı: rewrite kurallarının yeniden kurulması gerekip gerekmediğine karar veren kontrol eklenti uçlarını göremiyordu ve yalnız yönetim panelinde koşuyordu; ayrıca rezerve bir WordPress veya WooCommerce sorgu değişkeniyle çakışan katkı artık reddediliyor.",
+    "changes": [
+      "Düzeltildi: bir eklentinin Hesabım'a eklediği sekme, WooCommerce etkinken hiçbir uç kaydetmiyordu ve 404 veriyordu. Sekmeleri taşıyan uzantı noktası yalnız bağımsız-uç yolunda okunuyordu; WooCommerce'li siteler o yola hiç girmiyor.",
+      "Düzeltildi: rewrite tazeleme kontrolü eklenti uçlarını görmüyordu ve yalnız yönetim panelinde koşuyordu; yeni katkılanan bir sekme, biri wp-admin'e girip kalıcı bağlantıları elle kaydedene kadar erişilemez kalabiliyordu.",
+      "Güvenlik: bir eklentinin uç katkısı, rezerve bir WordPress veya WooCommerce sorgu değişkeniyle çakıştığında artık reddediliyor. Böyle birini uç olarak kaydetmek sitenin tüm kalıcı bağlantılarını kırardı.",
+      "Düzeltildi: dört çekirdek modül betiği, sürüm sorgusu olmadan ikinci kez indiriliyordu; eklenti URL'si zaten eğik çizgiyle bitiyor, yükleyici bir tane daha ekliyordu."
+    ]
+  },  {
     "version": "6.1.0",
     "date": "2026-08-24",
     "type": "minor",

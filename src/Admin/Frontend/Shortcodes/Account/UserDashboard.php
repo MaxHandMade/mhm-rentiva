@@ -114,9 +114,10 @@ final class UserDashboard {
 	 * and the body class the responsive rules are scoped to hang off it, so a
 	 * surface that cannot claim it renders unstyled.
 	 *
-	 * @since 6.1.1
+	 * The `mhmrentiva_dashboard_surface_active` filter receives Lite's own
+	 * answer (whether this is the /panel/ page) and may override it.
 	 *
-	 * @param bool $active Whether this request renders the dashboard.
+	 * @since 6.1.1
 	 */
 	public static function is_dashboard_surface(): bool
 	{

@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.0
+Stable tag:        6.1.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -180,6 +180,12 @@ ordinary visitors can also send re-opens the bypass this default closes.
 == Changelog ==
 
 Only the most recent releases are repeated here, plus 6.0.0 for its breaking-change notice, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
+
+= 6.1.1 =
+* Fixed: a My Account tab contributed by an extension registered no endpoint at all when WooCommerce was active, so every such tab returned a 404. The extension point that carries those tabs was only consulted on the standalone-endpoint path, which WooCommerce sites never take.
+* Fixed: the rewrite-flush check ignored extension endpoints and ran only in the admin, so a newly contributed tab could stay unreachable until someone opened wp-admin and saved permalinks by hand.
+* Security: an extension's endpoint contribution is now rejected when it collides with a reserved WordPress or WooCommerce query variable. Registering one as an endpoint would have broken permalinks site-wide.
+* Fixed: the four core module scripts were requested a second time, without their version query, because the plugin URL already ended in a slash and the loader appended another.
 
 = 6.1.0 =
 * Changed: money amounts now convert between the store's currency and its smallest unit using the store's own decimal setting (WooCommerce's "Number of Decimals," under Currency Options) instead of a fixed multiplier of 100. A store running the default two decimals sees no change. On a store configured for any other number of decimals, refund and payment amounts recorded before this release are re-read at the new scale rather than converted -- there is no migration step for existing records.
