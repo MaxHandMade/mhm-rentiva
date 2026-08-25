@@ -146,6 +146,54 @@ final class WooCommerceIntegration {
 	}
 
 	/**
+	 * Endpoint slugs contributed by extensions, validated.
+	 *
+	 * Fed into WooCommerce's query vars and nowhere else. WC_Query::add_endpoints()
+	 * turns every query var into a rewrite endpoint using the mask WooCommerce
+	 * picks for this site, so registering one here as well would duplicate the
+	 * rule and hardcode a mask WooCommerce may not agree with.
+	 *
+	 * The validation is not decoration. add_rewrite_endpoint() checks nothing
+	 * and calls $wp->add_query_var() unconditionally, so a contribution of
+	 * 'name' or 'pagename' would break every permalink on the site.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function get_extension_endpoint_slugs(): array {
+		$reserved = array();
+
+		if ( isset( $GLOBALS['wp'] ) && $GLOBALS['wp'] instanceof \WP ) {
+			$reserved = array_merge( $reserved, (array) $GLOBALS['wp']->public_query_vars );
+		}
+
+		foreach ( array_keys( self::get_rentiva_endpoints_map() ) as $key ) {
+			$reserved[] = self::get_endpoint_slug( $key );
+		}
+
+		if ( function_exists( 'WC' ) && isset( WC()->query ) ) {
+			$reserved = array_merge( $reserved, array_keys( (array) WC()->query->query_vars ) );
+		}
+
+		$slugs = array();
+
+		foreach ( (array) apply_filters( 'mhmrentiva_account_endpoints', array() ) as $slug ) {
+			if ( ! is_string( $slug ) || '' === $slug ) {
+				continue;
+			}
+
+			$clean = sanitize_title( $slug );
+
+			if ( '' === $clean || in_array( $clean, $reserved, true ) ) {
+				continue;
+			}
+
+			$slugs[ $clean ] = $clean;
+		}
+
+		return array_values( $slugs );
+	}
+
+	/**
 	 * Add rewrite endpoints
 	 * WooCommerce endpoints should use EP_PAGES only (not EP_ROOT)
 	 */
@@ -171,6 +219,14 @@ final class WooCommerceIntegration {
 		$rentiva_map = self::get_rentiva_endpoints_map();
 		foreach ( array_keys( $rentiva_map ) as $key ) {
 			$slug          = self::get_endpoint_slug( $key );
+			$vars[ $slug ] = $slug;
+		}
+
+		// Extension-contributed endpoints. This is the only place the seam is
+		// consumed: WooCommerce registers a rewrite endpoint for every query
+		// var it is given, so a tab an extension adds to the nav resolves from
+		// here alone.
+		foreach ( self::get_extension_endpoint_slugs() as $slug ) {
 			$vars[ $slug ] = $slug;
 		}
 
