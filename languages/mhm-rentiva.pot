@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 6.1.0\n"
+"Project-Id-Version: MHM Rentiva 6.1.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-24T17:39:02+00:00\n"
+"POT-Creation-Date: 2026-08-25T19:35:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -686,7 +686,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1385
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:519
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:615
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:632
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:35
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:116
@@ -843,9 +843,9 @@ msgid "Only active additional services are visible in booking form."
 msgstr ""
 
 #: src/Admin/Addons/AddonMeta.php:133
-#: src/Admin/Customers/AddCustomerPage.php:145
-#: src/Admin/Customers/AddCustomerPage.php:150
-#: src/Admin/Customers/AddCustomerPage.php:155
+#: src/Admin/Customers/AddCustomerPage.php:144
+#: src/Admin/Customers/AddCustomerPage.php:149
+#: src/Admin/Customers/AddCustomerPage.php:154
 #: src/Admin/Customers/CustomersPage.php:494
 #: src/Admin/Customers/CustomersPage.php:499
 #: src/Admin/Customers/CustomersPage.php:504
@@ -2773,7 +2773,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:1128
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:950
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:977
 msgid "Booking created"
 msgstr ""
 
@@ -2853,7 +2853,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:524
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:620
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:637
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:39
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:120
 msgid "Permission denied."
@@ -3057,7 +3057,7 @@ msgid "Last Name"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
-#: src/Admin/Customers/AddCustomerPage.php:150
+#: src/Admin/Customers/AddCustomerPage.php:149
 #: src/Admin/Customers/CustomersPage.php:323
 #: src/Admin/Customers/CustomersPage.php:499
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:505
@@ -3071,7 +3071,7 @@ msgid "Email"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:330
-#: src/Admin/Customers/AddCustomerPage.php:155
+#: src/Admin/Customers/AddCustomerPage.php:154
 #: src/Admin/Customers/CustomersPage.php:324
 #: src/Admin/Customers/CustomersPage.php:504
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:506
@@ -3105,29 +3105,33 @@ msgid "Price Calculation"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:536
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:638
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:655
 msgid "Required fields are missing."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:579
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:840
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:867
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1116
 msgid "Price could not be calculated."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:659
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:666
+msgid "Invalid booking status."
+msgstr ""
+
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:687
 msgid "You do not have permission to create new customer accounts. Please select an existing customer instead."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:670
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:698
 msgid "New customer information is missing."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:675
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:703
 msgid "This email address is already registered."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:690
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:718
 #: src/Admin/Customers/CustomersPage.php:289
 #: src/Admin/Customers/CustomersPage.php:432
 #: src/Admin/Customers/REST/CustomersRestController.php:161
@@ -3136,26 +3140,26 @@ msgid "Customer not found."
 msgstr ""
 
 #. translators: %s: the error message wp_update_user() returned.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:786
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:813
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
 msgstr ""
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:848
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:875
 #, php-format
 msgid "Manual Booking - %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:927
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:954
 msgid "This vehicle has just been booked for the selected dates."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:931
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:958
 msgid "Booking could not be created."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:961
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:988
 msgid "Booking created successfully."
 msgstr ""
 
@@ -3475,7 +3479,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:699
 #: src/Admin/Core/AssetManager.php:1004
 #: src/Admin/Core/AssetManager.php:1168
-#: src/Admin/Customers/AddCustomerPage.php:166
+#: src/Admin/Customers/AddCustomerPage.php:165
 #: src/Admin/Customers/CustomersPage.php:515
 #: src/Admin/Emails/Core/EmailTemplates.php:536
 #: templates/account/account-details.php:189
@@ -5590,33 +5594,33 @@ msgstr ""
 msgid "Customer name, email and phone fields are required."
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:123
+#: src/Admin/Customers/AddCustomerPage.php:122
 msgid "Customer added successfully!"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:124
+#: src/Admin/Customers/AddCustomerPage.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:136
 msgid "Open Profile"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:125
+#: src/Admin/Customers/AddCustomerPage.php:124
 msgid "← Back to customers list"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:127
+#: src/Admin/Customers/AddCustomerPage.php:126
 msgid "Error occurred while adding customer: "
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:133
+#: src/Admin/Customers/AddCustomerPage.php:132
 msgid "Add New Customer"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:145
+#: src/Admin/Customers/AddCustomerPage.php:144
 #: src/Admin/Customers/CustomersPage.php:494
 msgid "Customer Name"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:160
+#: src/Admin/Customers/AddCustomerPage.php:159
 #: src/Admin/Customers/CustomersPage.php:325
 #: src/Admin/Customers/CustomersPage.php:509
 #: templates/account/account-details.php:123
@@ -5624,7 +5628,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:165
+#: src/Admin/Customers/AddCustomerPage.php:164
 #: src-react/admin/customers/components/FilterBar.jsx:14
 msgid "Add Customer"
 msgstr ""
@@ -6621,7 +6625,7 @@ msgid "You must be logged in to add to favorites"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:402
-#: src/Admin/Frontend/Account/WooCommerceIntegration.php:222
+#: src/Admin/Frontend/Account/WooCommerceIntegration.php:347
 msgid "You do not have permission to view this booking."
 msgstr ""
 
@@ -6680,22 +6684,22 @@ msgstr ""
 msgid "View Booking"
 msgstr ""
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:104
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:111
 msgctxt "endpoint slug"
 msgid "rentiva-bookings"
 msgstr ""
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:105
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:112
 msgctxt "endpoint slug"
 msgid "rentiva-favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:106
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:113
 msgctxt "endpoint slug"
 msgid "rentiva-payment-history"
 msgstr ""
 
-#: src/Admin/Frontend/Account/EndpointHelperTrait.php:107
+#: src/Admin/Frontend/Account/EndpointHelperTrait.php:114
 msgctxt "endpoint slug"
 msgid "view-rentiva-booking"
 msgstr ""
