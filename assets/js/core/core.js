@@ -130,6 +130,14 @@
          * @param {string} moduleName - Module name
          */
         loadModuleScript: function (moduleName) {
+            // These modules are already enqueued by AssetManager, with a ?ver=
+            // query on the URL. Fetching them again from here differs only in
+            // that query, which is enough for the browser to treat it as a
+            // separate resource and download the file a second time.
+            if (document.querySelector(`script[src*="/assets/js/core/${moduleName}.js"]`)) {
+                return;
+            }
+
             const script = document.createElement('script');
             script.src = `${this.getBaseUrl()}/assets/js/core/${moduleName}.js`;
             script.async = false;
@@ -143,7 +151,9 @@
         getBaseUrl: function () {
             // Get from config first, otherwise use fallback
             if (window.mhmrentiva_config?.baseUrl) {
-                return window.mhmrentiva_config.baseUrl;
+                // plugin_dir_url() ends in a slash and every caller appends
+                // one, which yields '//assets/...'.
+                return window.mhmrentiva_config.baseUrl.replace(/\/+$/, '');
             }
 
             // Fallback: Extract base URL from current script's URL
