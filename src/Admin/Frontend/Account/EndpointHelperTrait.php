@@ -100,18 +100,40 @@ trait EndpointHelperTrait {
 		}
 
 		// 4. FALLBACK: Translation
-		$translated = match ( $key ) {
-			'bookings'        => _x( 'rentiva-bookings', 'endpoint slug', 'mhm-rentiva' ),
-			'favorites'       => _x( 'rentiva-favorites', 'endpoint slug', 'mhm-rentiva' ),
-			'payment_history' => _x( 'rentiva-payment-history', 'endpoint slug', 'mhm-rentiva' ),
-			'view_booking'    => _x( 'view-rentiva-booking', 'endpoint slug', 'mhm-rentiva' ),
-			default           => $default,
-		};
+		//
+		// Resolved in the SITE locale, not the asker's. A rewrite slug is an
+		// identifier, and rewrite rules live in one global option with no
+		// locale dimension -- so a slug that follows determine_locale() lets an
+		// administrator whose profile language differs rewrite the URLs every
+		// visitor sees (Trac #40298).
+		$translated = \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::resolve(
+			static fn (): string => match ( $key ) {
+				'bookings'        => _x( 'rentiva-bookings', 'endpoint slug', 'mhm-rentiva' ),
+				'favorites'       => _x( 'rentiva-favorites', 'endpoint slug', 'mhm-rentiva' ),
+				'payment_history' => _x( 'rentiva-payment-history', 'endpoint slug', 'mhm-rentiva' ),
+				'view_booking'    => _x( 'view-rentiva-booking', 'endpoint slug', 'mhm-rentiva' ),
+				default           => $default,
+			}
+		);
 
-		$slug                     = sanitize_title( $translated );
-		self::$slug_cache[ $key ] = $slug;
+		$slug = sanitize_title( $translated );
+
+		// Cached only once translations can be trusted. Before `init` a
+		// translated string resolves to its untranslated source, and caching
+		// that would hand the English answer to every later caller in the
+		// request -- silently, for the whole request.
+		if ( did_action( 'init' ) > 0 ) {
+			self::$slug_cache[ $key ] = $slug;
+		}
 
 		return $slug;
+	}
+
+	/**
+	 * Whether a slug is currently memoised. Test seam.
+	 */
+	public static function slug_cache_is_warm( string $key ): bool {
+		return isset( self::$slug_cache[ $key ] );
 	}
 
 	/**
