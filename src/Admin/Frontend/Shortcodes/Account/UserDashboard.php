@@ -98,11 +98,29 @@ final class UserDashboard {
 	 */
 	public static function add_body_class(array $classes): array
 	{
-		if (is_page('panel')) {
+		if (self::is_dashboard_surface()) {
 			$classes[] = 'rentiva-panel-page';
 		}
 
 		return $classes;
+	}
+
+	/**
+	 * Whether the dashboard surface is being rendered on this request.
+	 *
+	 * Lite's own surface is the /panel/ page. An extension that renders the
+	 * same dashboard somewhere else claims the surface through this filter,
+	 * rather than Lite learning where "somewhere else" is. Both the stylesheet
+	 * and the body class the responsive rules are scoped to hang off it, so a
+	 * surface that cannot claim it renders unstyled.
+	 *
+	 * @since 6.1.1
+	 *
+	 * @param bool $active Whether this request renders the dashboard.
+	 */
+	public static function is_dashboard_surface(): bool
+	{
+		return (bool) apply_filters('mhmrentiva_dashboard_surface_active', is_page('panel'));
 	}
 
 	/**
@@ -174,7 +192,7 @@ final class UserDashboard {
 	 */
 	public static function enqueue_assets(): void
 	{
-		if (! is_page('panel')) {
+		if (! self::is_dashboard_surface()) {
 			return;
 		}
 
