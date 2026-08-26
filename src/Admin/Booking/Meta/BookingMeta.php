@@ -499,6 +499,17 @@ final class BookingMeta extends AbstractMetaBox {
 
 	public static function save_meta(int $post_id, \WP_Post $post): void
 	{
+		// This handler is hooked to the UNTYPED `save_post`, so it runs for every post
+		// type on the site. Nothing further down tells a booking apart from a page: the
+		// nonce check below accepts core's own `update-post_{id}` nonce, which every
+		// classic-editor save of every post type carries, and edit_post is true for an
+		// author editing their own post. Without this line a page carrying
+		// mhmrentiva_edit_status reached Status::update_status() and was given booking
+		// status, history and dates.
+		if ('mhmrentiva_booking' !== $post->post_type) {
+			return;
+		}
+
 		// Autosave and revision check
 		if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
 			return;
@@ -693,6 +704,13 @@ final class BookingMeta extends AbstractMetaBox {
 		// generic "can edit something" check was not a check on this object.
 		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
 			wp_die(esc_html__('You do not have permission to send emails.', 'mhm-rentiva'));
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post a
+		// booking". map_meta_cap grants it for any post the caller owns, so without a
+		// type check this handler acts on whatever id arrives.
+		if ('mhmrentiva_booking' !== get_post_type($booking_id)) {
+			wp_die(esc_html__('Booking not found.', 'mhm-rentiva'));
 		}
 
 		$email_type = $req->text('email_type');
@@ -962,6 +980,13 @@ final class BookingMeta extends AbstractMetaBox {
 		// generic "can edit something" check was not a check on this object.
 		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
 			wp_die(esc_html__('You do not have permission to add notes.', 'mhm-rentiva'));
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post a
+		// booking". map_meta_cap grants it for any post the caller owns, so without a
+		// type check this handler acts on whatever id arrives.
+		if ('mhmrentiva_booking' !== get_post_type($booking_id)) {
+			wp_die(esc_html__('Booking not found.', 'mhm-rentiva'));
 		}
 
 		$note = $req->textarea('history_note');
@@ -1278,6 +1303,15 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
+		// edit_post answers "may this user edit that post", never "is that post a
+		// booking". map_meta_cap grants it for any post the caller owns, so without a
+		// type check this handler acts on whatever id arrives.
+		if ($booking_id && 'mhmrentiva_booking' !== get_post_type($booking_id)) {
+			// No return after this: wp_send_json_error() ends the request through
+			// wp_die(), so a return here would be unreachable.
+			wp_send_json_error(__('Booking not found.', 'mhm-rentiva'));
+		}
+
 		$email_type = $req->text('email_type');
 
 		if (! $booking_id || ! $email_type) {
@@ -1315,6 +1349,15 @@ final class BookingMeta extends AbstractMetaBox {
 		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
 			return;
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post a
+		// booking". map_meta_cap grants it for any post the caller owns, so without a
+		// type check this handler acts on whatever id arrives.
+		if ('mhmrentiva_booking' !== get_post_type($booking_id)) {
+			// No return after this: wp_send_json_error() ends the request through
+			// wp_die(), so a return here would be unreachable.
+			wp_send_json_error(__('Booking not found.', 'mhm-rentiva'));
 		}
 
 		$email_type = $req->text('email_type');
@@ -1396,6 +1439,15 @@ final class BookingMeta extends AbstractMetaBox {
 		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
 			return;
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post a
+		// booking". map_meta_cap grants it for any post the caller owns, so without a
+		// type check this handler acts on whatever id arrives.
+		if ('mhmrentiva_booking' !== get_post_type($booking_id)) {
+			// No return after this: wp_send_json_error() ends the request through
+			// wp_die(), so a return here would be unreachable.
+			wp_send_json_error(__('Booking not found.', 'mhm-rentiva'));
 		}
 
 		$note_type    = $req->text('note_type', 'manual');

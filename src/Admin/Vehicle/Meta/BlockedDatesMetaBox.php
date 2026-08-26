@@ -233,6 +233,13 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
+		// edit_post answers "may this user edit that post", never "is that post one of
+		// ours". map_meta_cap grants it for any post the caller owns, so without a type
+		// check this handler writes blocked-date meta onto whatever id arrives.
+		if ( 'mhmrentiva_vehicle' !== get_post_type( $vehicle_id ) ) {
+			wp_send_json_error( __( 'Vehicle not found.', 'mhm-rentiva' ) );
+		}
+
 		$date   = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : '';
 		$result = self::toggle_blocked_date( $vehicle_id, $date );
 
@@ -280,6 +287,13 @@ final class BlockedDatesMetaBox {
 		// "may edit content you do not own".
 		if ( ! current_user_can( 'edit_post', $source_id ) || ! current_user_can( 'edit_others_posts' ) ) {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post one of
+		// ours". map_meta_cap grants it for any post the caller owns, so without a type
+		// check this handler writes blocked-date meta onto whatever id arrives.
+		if ( 'mhmrentiva_vehicle' !== get_post_type( $source_id ) ) {
+			wp_send_json_error( __( 'Vehicle not found.', 'mhm-rentiva' ) );
 		}
 
 		// Prefer dates from browser payload (unsaved state); fall back to DB.
@@ -343,6 +357,13 @@ final class BlockedDatesMetaBox {
 		// "may edit content you do not own".
 		if ( ! current_user_can( 'edit_post', $source_id ) || ! current_user_can( 'edit_others_posts' ) ) {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post one of
+		// ours". map_meta_cap grants it for any post the caller owns, so without a type
+		// check this handler writes blocked-date meta onto whatever id arrives.
+		if ( 'mhmrentiva_vehicle' !== get_post_type( $source_id ) ) {
+			wp_send_json_error( __( 'Vehicle not found.', 'mhm-rentiva' ) );
 		}
 
 		// Prefer dates from browser payload (unsaved state); fall back to DB.

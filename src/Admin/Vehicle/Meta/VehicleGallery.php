@@ -221,6 +221,13 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
 		}
 
+		// edit_post answers "may this user edit that post", never "is that post one of
+		// ours". map_meta_cap grants it for any post the caller owns, so without a type
+		// check this handler writes gallery meta onto whatever id arrives.
+		if ( 'mhmrentiva_vehicle' !== get_post_type( $post_id ) ) {
+			wp_send_json_error( __( 'Vehicle not found.', 'mhm-rentiva' ) );
+		}
+
 		$image_ids = array_map( 'intval', $_POST['image_ids'] ?? array() );
 
 		if ( empty( $image_ids ) ) {
@@ -277,6 +284,13 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
 		}
 
+		// edit_post answers "may this user edit that post", never "is that post one of
+		// ours". map_meta_cap grants it for any post the caller owns, so without a type
+		// check this handler writes gallery meta onto whatever id arrives.
+		if ( 'mhmrentiva_vehicle' !== get_post_type( $post_id ) ) {
+			wp_send_json_error( __( 'Vehicle not found.', 'mhm-rentiva' ) );
+		}
+
 		$image_id = intval( $_POST['image_id'] ?? 0 );
 
 		if ( ! $image_id ) {
@@ -318,6 +332,13 @@ final class VehicleGallery extends AbstractMetaBox {
 		// the vehicle being modified.
 		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
+		}
+
+		// edit_post answers "may this user edit that post", never "is that post one of
+		// ours". map_meta_cap grants it for any post the caller owns, so without a type
+		// check this handler writes gallery meta onto whatever id arrives.
+		if ( 'mhmrentiva_vehicle' !== get_post_type( $post_id ) ) {
+			wp_send_json_error( __( 'Vehicle not found.', 'mhm-rentiva' ) );
 		}
 
 		$image_order = array_map( 'intval', $_POST['image_order'] ?? array() );
