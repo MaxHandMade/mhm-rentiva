@@ -77,6 +77,14 @@ final class VehicleSettings {
 			return;
 		}
 
+		// Nothing hooks or calls this today (measured 2026-08-27), so it is unreachable.
+		// The check is here anyway: its signature is save_post-shaped, and the day someone
+		// hooks it the M-1 defect arrives with it -- edit_post proves permission, never
+		// identity, and this writes global vehicle settings.
+		if ( 'mhmrentiva_vehicle' !== $post->post_type ) {
+			return;
+		}
+
 		// Autosave and revision check
 		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
 			return;

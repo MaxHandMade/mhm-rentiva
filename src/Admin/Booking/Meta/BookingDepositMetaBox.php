@@ -454,6 +454,15 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			return;
 		}
 
+		// This override drops the parent's type check (AbstractMetaBox::save_meta tests
+		// $post->post_type first), and register() here does not call parent::register(),
+		// so nothing hooks it today -- it is unreachable. The check is here anyway: the
+		// day someone wires it up, the M-1 defect would arrive with it, and an anchor
+		// added after the wiring is an anchor added after the incident.
+		if ( 'mhmrentiva_booking' !== $post->post_type ) {
+			return;
+		}
+
 		// Autosave / revision guard
 		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
 			return;

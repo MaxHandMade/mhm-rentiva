@@ -1263,6 +1263,15 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		// $grid_type is interpolated into both a meta key and an option key, so it
 		// is matched against the three grids that exist rather than merely sanitized.
+		// edit_post proves permission, never identity: map_meta_cap grants it for any post
+		// the caller owns, so without this check the handler wrote vehicle ordering meta
+		// onto whatever id arrived. Same M-1 class as the twelve swept in 1032c77e; this
+		// member sits outside the three files that sweep covered, which is why neither the
+		// fix nor its lock saw it. Found by an independent audit, not by a gate.
+		if ('mhmrentiva_vehicle' !== get_post_type($post_id)) {
+			wp_send_json_error(__('Vehicle not found.', 'mhm-rentiva'));
+		}
+
 		$grid_type = $req->text('grid_type');
 		if (! in_array($grid_type, array( 'details', 'features', 'equipment' ), true)) {
 			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));

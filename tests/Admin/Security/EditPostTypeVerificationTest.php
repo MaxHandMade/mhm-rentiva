@@ -11,125 +11,174 @@ use WP_UnitTestCase;
  * establish WHAT $id is.
  *
  * edit_post answers "may this user edit that post". It never answers "is that post one
- * of ours" -- map_meta_cap grants it for any post the caller owns, so a handler that
- * writes vehicle or booking meta onto whatever id arrives is acting on an object it
- * never identified. Twelve members had that shape (2026-08-26); the twelfth,
- * BookingMeta::save_meta(), is hooked to the untyped save_post and therefore ran on
- * every post type on the site.
+ * of ours" -- map_meta_cap grants it for any post the caller owns, so a handler writing
+ * vehicle or booking meta onto whatever id arrives acts on an object it never identified.
  *
- * WHAT THIS TEST CANNOT SEE, stated because a lock that under-reports while passing is
- * worse than no lock:
+ * This lock was first scoped to three hand-picked files, because that is where the
+ * recorded inventory said the class lived. An independent audit then found two more
+ * members outside those three -- invisible to a lock scoped by a list. The scope is now
+ * the whole of src/, and membership is decided by measurement.
  *
- *   - It reads three files, named below. A handler of the same shape in another file is
- *     invisible to it. The three are where the class was found; widening the scope means
- *     widening this list deliberately, not by accident.
- *   - It matches a type check by SHAPE ( get_post_type( ... ) or ->post_type ), not by
- *     meaning. A check comparing against the wrong post type would satisfy it.
- *   - It does not know whether the check runs BEFORE the write, only that it is present
- *     in the same function.
- *   - Its unit is a function as delimited by `function` keywords in source order, so a
- *     nested closure counts as part of its enclosing function.
+ * THREE EXEMPTIONS, each derived from the source rather than hand-listed:
+ *
+ *   1. Registered on a type-specific save_post hook -- the hook does the filtering.
+ *      Recognised for the concatenated form Pro uses as well as a literal hook name.
+ *   2. Delegates to BookingActionGuard::authorize(), which checks the post type before
+ *      it checks the capability.
+ *   3. Registered as a save_handler in a metabox field config: AbstractMetaBox::save_meta
+ *      verifies the type before dispatching to it.
+ *
+ * An exemption that stops being true disappears on its own: move a handler off its typed
+ * hook and it is a member again. That is deliberate. The twelfth member of this class
+ * came into being exactly that way, and a hand-written exemption list would have
+ * re-created the blind spot it was meant to close.
+ *
+ * WHAT THIS TEST STILL CANNOT SEE, printed because a lock that under-reports while
+ * passing is worse than no lock:
+ *
+ *   - Comments are stripped through token_get_all(), but string literals are not, so a
+ *     type name inside an unrelated string could satisfy the shape match.
+ *   - It matches a type check by SHAPE, never by meaning: a check against the wrong type,
+ *     or against a different id, passes.
+ *   - It does not know whether the check runs before the write, only that it is present.
+ *   - Its unit is a function delimited by function keywords in source order, so a nested
+ *     closure counts as part of its enclosing function.
+ *   - It reads src/ only. templates/, bin/ and the Pro repo are outside it. Pro has to
+ *     carry its own copy of this lock, and as of 2026-08-27 it does not.
+ *   - Unreachable code is judged the same as live code. Two dead handlers were fixed
+ *     rather than exempted, because dead is a property of today's wiring.
  */
 final class EditPostTypeVerificationTest extends WP_UnitTestCase
 {
-    /**
-     * @return array<string, array{0: string}>
-     */
-    public function guarded_files(): array
+    private function cap_call_present(string $text): bool
     {
-        return array(
-            'BlockedDatesMetaBox' => array( 'src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php' ),
-            'VehicleGallery'      => array( 'src/Admin/Vehicle/Meta/VehicleGallery.php' ),
-            'BookingMeta'         => array( 'src/Admin/Booking/Meta/BookingMeta.php' ),
-        );
+        return strpos($text, "current_user_can('edit_post'") !== false
+            || strpos($text, "current_user_can( 'edit_post'") !== false;
     }
 
     /**
-     * @dataProvider guarded_files
+     * Removes comments while preserving line count, so a capability named in a docblock
+     * is not mistaken for a call. Two files in this repo have exactly that shape.
      */
-    public function test_every_edit_post_handler_also_verifies_the_post_type(string $relative): void
+    private function without_comments(string $source): string
     {
-        $path = dirname(__DIR__, 3) . '/' . $relative;
-        $this->assertFileExists($path, 'The lock cannot measure a file it cannot find.');
+        $out = '';
 
-        $source = (string) file_get_contents($path);
-        $chunks = preg_split('/(?=\bfunction\s+\w+\s*\()/', $source);
-        $this->assertIsArray($chunks);
+        foreach (token_get_all($source) as $token) {
+            if (is_array($token)) {
+                if ($token[0] === T_COMMENT || $token[0] === T_DOC_COMMENT) {
+                    $out .= str_repeat("\n", substr_count($token[1], "\n"));
+                    continue;
+                }
 
+                $out .= $token[1];
+                continue;
+            }
+
+            $out .= $token;
+        }
+
+        return $out;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function source_files(): array
+    {
+        $root  = dirname(__DIR__, 3) . '/src';
+        $found = array();
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->isFile() && strtolower($file->getExtension()) === 'php') {
+                $found[] = str_replace('\\', '/', $file->getPathname());
+            }
+        }
+
+        sort($found);
+
+        return $found;
+    }
+
+    /**
+     * Matching is done line by line with strpos() rather than a regex: the patterns this
+     * needs carry both quote characters and backslashes, and escaping them was costing
+     * more than it bought.
+     */
+    private function is_exempt(string $source, string $chunk, string $name): bool
+    {
+        $needle = "'" . $name . "'";
+
+        foreach (explode("\n", $source) as $line) {
+            if (strpos($line, $needle) === false) {
+                continue;
+            }
+
+            if (strpos($line, 'add_action') !== false && strpos($line, 'save_post_') !== false) {
+                return true;
+            }
+
+            if (strpos($line, 'save_handler') !== false) {
+                return true;
+            }
+        }
+
+        return strpos($chunk, 'BookingActionGuard::authorize') !== false;
+    }
+
+    public function test_no_edit_post_handler_in_src_writes_without_establishing_the_post_type(): void
+    {
         $offenders = array();
         $checked   = 0;
 
-        foreach ($chunks as $chunk) {
-            if (strpos($chunk, "current_user_can( 'edit_post'") === false
-                && strpos($chunk, "current_user_can('edit_post'") === false) {
+        foreach ($this->source_files() as $path) {
+            $source = $this->without_comments((string) file_get_contents($path));
+
+            if (! $this->cap_call_present($source)) {
                 continue;
             }
 
-            ++$checked;
+            $relative = substr($path, strpos($path, '/src/') + 1);
 
-            $has_type_check = strpos($chunk, 'get_post_type(') !== false
-                || strpos($chunk, '->post_type') !== false;
+            foreach (preg_split('/(?=\bfunction\s+\w+\s*\()/', $source) as $chunk) {
+                if (! $this->cap_call_present($chunk)) {
+                    continue;
+                }
 
-            if ($has_type_check) {
-                continue;
+                ++$checked;
+
+                if (strpos($chunk, 'get_post_type(') !== false
+                    || strpos($chunk, '->post_type') !== false) {
+                    continue;
+                }
+
+                preg_match('/function\s+(\w+)/', $chunk, $m);
+                $name = isset($m[1]) ? $m[1] : '(unnamed)';
+
+                if ($this->is_exempt($source, $chunk, $name)) {
+                    continue;
+                }
+
+                $offenders[] = $relative . '::' . $name;
             }
-
-            preg_match('/function\s+(\w+)/', $chunk, $m);
-            $name = $m[1] ?? '(unnamed)';
-
-            // One exemption, and it is MEASURED rather than listed: a handler registered
-            // on a type-specific save_post_{type} hook is already filtered by the hook
-            // itself, so an explicit check would be dead code. The exemption is derived
-            // from this file's own add_action() calls, which means it disappears the
-            // moment someone moves that handler to the untyped save_post -- which is
-            // exactly how the twelfth member of this class came to exist.
-            $typed_hook = "/add_action\(\s*'save_post_\w+'\s*,\s*array\(\s*self::class\s*,\s*'"
-                . preg_quote($name, '/') . "'/";
-
-            if (preg_match($typed_hook, $source) === 1) {
-                continue;
-            }
-
-            $offenders[] = $name;
         }
 
         $this->assertGreaterThan(
-            0,
+            20,
             $checked,
-            "No edit_post handler found in {$relative}. Either the file moved or the tool "
-            . 'stopped matching -- both mean this lock measured nothing.'
+            'Only ' . $checked . ' edit_post call sites were found in src/. The sweep covered '
+            . '30; a collapse means the matcher stopped matching, not that the code got safer.'
         );
 
         $this->assertSame(
             array(),
             $offenders,
-            "These handlers in {$relative} ask edit_post without establishing the post type: "
+            'These handlers ask edit_post without establishing the post type: '
             . implode(', ', $offenders)
         );
-    }
-
-    /**
-     * The inventory itself, so a changing scope is visible. If a handler is added or
-     * removed, this number moves and the diff shows which member changed.
-     */
-    public function test_the_class_still_has_the_membership_it_was_swept_for(): void
-    {
-        $expected = array(
-            'src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php' => 4,
-            'src/Admin/Vehicle/Meta/VehicleGallery.php'      => 4,
-            'src/Admin/Booking/Meta/BookingMeta.php'         => 6,
-        );
-
-        foreach ($expected as $relative => $count) {
-            $source = (string) file_get_contents(dirname(__DIR__, 3) . '/' . $relative);
-            $actual = preg_match_all("/current_user_can\(\s*'edit_post'/", $source);
-
-            $this->assertSame(
-                $count,
-                $actual,
-                "{$relative} now has {$actual} edit_post call sites, the sweep covered {$count}. "
-                . 'A new one is a new member of the M-1 class and needs its own type check.'
-            );
-        }
     }
 }
