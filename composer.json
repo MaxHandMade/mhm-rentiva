@@ -17,6 +17,7 @@
         "check-external-http": "php bin/check-external-http.php",
         "check-no-pro-refs": "php bin/check-no-pro-refs.php",
         "check-react-imports": "php bin/check-react-imports.php",
+        "check-uicore-version": "php bin/check-uicore-version.php",
         "check-admin-only": "php bin/check-admin-only-functions.php",
         "check-user-writes": "php bin/audit-user-account-writes.php",
         "check-js-correctness": [
