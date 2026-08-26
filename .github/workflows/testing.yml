@@ -152,6 +152,15 @@ jobs:
       - name: React import declarations (src-react/ imports vs package.json)
         run: composer check-react-imports
 
+      # The ui-core version literal in mhm-rentiva.php cannot be read from the
+      # package (registration precedes any bootstrap), so nothing but a gate keeps
+      # the two in step. It had already drifted through three releases -- 0.2.0
+      # declared against an installed 0.3.2 -- and an independent audit found it,
+      # not a gate. Under-reporting is silent while we are the only registrant, and
+      # hands the selection to an older copy the moment we are not.
+      - name: ui-core version literal matches the installed package
+        run: composer check-uicore-version
+
       # React translation catalogs. Runs here for the same reason as the gate
       # above: the CHECKING half of bin/build-i18n.py reads only the .po and
       # languages/*.json, so it needs no Docker, no Node and no network — only

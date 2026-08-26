@@ -352,6 +352,11 @@ bin/*
 # Quality-gate script: `composer check-guarded-refs` requires it at runtime
 # and Task 3 wires it into CI, so it must ship in every clone.
 !bin/check-guarded-refs.php
+# Quality-gate script: `composer check-uicore-version` requires it at runtime and
+# CI invokes it, so it must ship in every clone. It locks the hand-written version
+# literal in mhm-rentiva.php to the ui-core package actually installed; the literal
+# cannot be read from the package because registration precedes any bootstrap.
+!bin/check-uicore-version.php
 # Audit helpers for the defect classes WordPress.org's review kept surfacing.
 # Deliberately REPORTS, not CI gates -- each prints what it cannot see before
 # what it found, because a tool that under-reports while printing "0 found" is
