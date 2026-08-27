@@ -554,6 +554,15 @@ bin/*
 # words around it. Seven Turkish e-mail subjects shipped {{booking.id}} where
 # the source says {{booking.order_id}}.
 !bin/check-i18n-placeholders.php
+# Design-token definition gate. `composer check-token-definitions` runs it and
+# tests/Gates/TokenDefinitionClassificationTest.php require()s it, so an
+# untracked copy would fail the suite in every clean clone. It exists because
+# three rounds of prose could not pin down what "shared token" means: measured
+# 2026-08-27, `--mhm-primary` was declared 33 times behind five expressions and
+# three fallback colours, so one name painted a different blue depending on
+# which stylesheet's selector matched. The classification lives in this file
+# and nowhere else -- the gate IS the specification.
+!bin/check-token-definitions.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

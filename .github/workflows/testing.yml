@@ -229,6 +229,17 @@ jobs:
       - name: Translation placeholder parity (msgstr keeps msgid's placeholders)
         run: composer check-i18n-placeholders
 
+      # Design-token definition gate. REPORT-ONLY on purpose while the token
+      # slice runs: the composer script passes --report-only, so this step
+      # prints its verdict and exits 0. It flips to blocking (drop the flag) in
+      # the PR that deletes the copied declaration blocks and brings the shared
+      # count to zero -- the measure exists before the change, without holding
+      # CI red across three merges. Today it prints 3 shared tokens
+      # (--mhm-font-base, --mhm-radius, --mhm-text) and 4 canonical-file
+      # duplicates; those numbers are the slice's starting baseline.
+      - name: Design token definitions (report-only until the token slice lands)
+        run: composer check-token-definitions
+
       # Gate G-A (WP.org T7 remediation, Task 1): zero visible security shapes
       # (missing nonces / unescaped output / unsanitized input) under phpcs
       # --ignore-annotations, with one narrow allowed residual class (see the
