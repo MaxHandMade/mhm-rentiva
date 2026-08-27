@@ -626,14 +626,14 @@ final class SettingsCore {
 		wp_enqueue_style(
 			'mhm-rentiva-settings',
 			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			\MHMRENTIVA_VERSION . '.toast2'
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-dark-mode',
 			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			\MHMRENTIVA_VERSION
 		);
 

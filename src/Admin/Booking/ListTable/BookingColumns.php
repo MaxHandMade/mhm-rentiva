@@ -314,14 +314,14 @@ final class BookingColumns {
 			wp_enqueue_style(
 				'mhm-rentiva-simple-calendars',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/components/calendars.css' )
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-booking-calendar',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
-				array( 'mhm-rentiva-simple-calendars' ),
+				array( 'mhm-rentiva-css-variables', 'mhm-rentiva-simple-calendars' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-calendar.css' )
 			);
 

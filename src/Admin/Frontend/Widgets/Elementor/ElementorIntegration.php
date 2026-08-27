@@ -225,7 +225,7 @@ class ElementorIntegration {
 		wp_enqueue_style(
 			'mhm-rentiva-featured-vehicles-preview',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/featured-vehicles.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			MHMRENTIVA_VERSION
 		);
 		wp_enqueue_script(

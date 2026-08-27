@@ -1,0 +1,11 @@
+AbstractShortcode.php:300 -- handle is not a literal
+AssetManager.php:197 -- handle is not a literal
+AssetManager.php:505 -- handle is not a literal
+AvailabilityCalendar.php:166 -- handle is not a literal
+BlockRegistry.php:458 -- handle is not a literal
+DatabaseCleanupRenderer.php:109 -- source is built from a variable
+MetaBox.php:92 -- source is built from a variable
+Styles.php:107 -- source is built from a variable
+Styles.php:71 -- handle is not a literal
+Styles.php:88 -- source is built from a variable
+Styles.php:97 -- source is built from a variable

@@ -406,6 +406,28 @@ function mhmrentiva_reaches(string $handle, string $target, array $deps_of, arra
     return false;
 }
 
+/**
+ * The set of call sites this gate cannot read, as a comparable signature.
+ *
+ * A count cannot lock these. Eleven registrations build their handle or source
+ * from variables, and each is fine on inspection -- but "eleven" stays eleven if
+ * one is fixed and a different one appears, and the new one rides in behind the
+ * old number. The baseline is therefore the sorted list of sites, so any
+ * substitution is a difference.
+ *
+ * @param array{unresolved: list<array{site: string, reason: string}>} $report
+ */
+function mhmrentiva_unresolved_signature(array $report): string
+{
+    $sites = array_map(
+        static fn (array $item): string => $item['site'] . ' -- ' . $item['reason'],
+        $report['unresolved']
+    );
+    sort($sites);
+
+    return implode("\n", $sites);
+}
+
 // ---------------------------------------------------------------------------
 // CLI.
 // ---------------------------------------------------------------------------
@@ -418,8 +440,14 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     $lite = dirname(__DIR__);
     $pro  = dirname($lite) . '/mhm-rentiva-pro';
 
+    // Default to THIS tree only. The baseline in bin/ is this tree's, and this
+    // plugin's CI checks out nothing else -- silently widening the scan to a
+    // sibling checkout when one happens to be on disk makes the same command
+    // mean two different things, and the baseline then fails on a developer
+    // machine while passing in CI. The paid plugin runs this same script from
+    // its own job and passes both paths explicitly.
     if (array() === $paths) {
-        $paths = is_dir($pro) ? array($lite, $pro) : array($lite);
+        $paths = array($lite);
     }
 
     $report = mhmrentiva_style_dependency_report(
@@ -437,8 +465,34 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
         );
     }
 
-    foreach ($report['unresolved'] as $item) {
-        printf("[UNRESOLVED] %s -- %s\n", $item['site'], $item['reason']);
+    $signature = mhmrentiva_unresolved_signature($report);
+    $baseline  = __DIR__ . '/token-deps-unresolved.txt';
+    $drift     = 0;
+
+    if (in_array('--write-baseline', $args, true)) {
+        file_put_contents($baseline, $signature . "\n");
+        printf("baseline written: %d site(s)\n", $signature === '' ? 0 : substr_count($signature, "\n") + 1);
+        exit(0);
+    }
+
+    if (is_file($baseline)) {
+        $expected = trim((string) file_get_contents($baseline));
+        if ($expected !== trim($signature)) {
+            $was = $expected === '' ? array() : explode("\n", $expected);
+            $now = trim($signature) === '' ? array() : explode("\n", trim($signature));
+            foreach (array_diff($now, $was) as $line) {
+                printf("[NEW UNREADABLE] %s\n", $line);
+                $drift++;
+            }
+            foreach (array_diff($was, $now) as $line) {
+                printf("[GONE, UPDATE BASELINE] %s\n", $line);
+                $drift++;
+            }
+        }
+    } else {
+        foreach ($report['unresolved'] as $item) {
+            printf("[UNRESOLVED] %s -- %s\n", $item['site'], $item['reason']);
+        }
     }
 
     printf(
@@ -449,7 +503,10 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     );
     printf("  failures %d · unresolved %d\n", count($report['failures']), count($report['unresolved']));
 
-    $problems = count($report['failures']) + count($report['unresolved']);
+    // Unreadable sites do not fail on their own -- each of them was inspected
+    // once and found sound. What fails is DRIFT: a site that was not on the
+    // baseline, or one that left it without the baseline being updated.
+    $problems = count($report['failures']) + $drift;
 
     if ($problems > 0 && ! $report_only) {
         exit(1);

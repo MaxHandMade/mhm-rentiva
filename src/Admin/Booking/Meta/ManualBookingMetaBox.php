@@ -165,7 +165,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_enqueue_style(
 				'mhm-rentiva-manual-booking-meta',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/manual-booking-meta.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 

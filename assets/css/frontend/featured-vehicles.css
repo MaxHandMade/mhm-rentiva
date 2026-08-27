@@ -1,11 +1,3 @@
-/* WordPress theme token integration */
-[class*="rv-"] {
-	--mhm-primary: var(--wp--preset--color--primary, #2271b1);
-	--mhm-font-base: var(--wp--preset--font-size--normal, 1rem);
-	--mhm-radius: var(--wp--preset--border-radius, 4px);
-	--mhm-text: var(--wp--preset--color--foreground, #1d2327);
-}
-
 /* Featured Vehicles Module */
 .mhm-rentiva-featured-wrapper {
     position: relative;
@@ -17,10 +9,12 @@
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif; /* reset monospace from <pre> wrapper */
     white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
-    --mhm-color-primary: var(--wp--preset--color--primary, #2563eb);
-    --mhm-color-text-primary: var(--wp--preset--color--black, #1f2937);
-    --mhm-color-text-secondary: var(--wp--preset--color--gray-600, #6b7280);
-    --mhm-color-border: var(--wp--preset--color--gray-200, #e5e7eb);
+    /* A second naming scheme for tokens the canonical stylesheet already owns
+       stood here: --mhm-color-primary, --mhm-color-text-primary,
+       --mhm-color-text-secondary and --mhm-color-border. Only the first two had
+       a reader; those now read the canonical names directly, and the other two
+       are gone rather than renamed -- renaming would have left a shared token
+       declared in a component file, which is the thing this slice removes. */
 }
 
 .mhm-rentiva-featured-title {
@@ -28,7 +22,7 @@
     margin-bottom: 2rem;
     font-size: 2rem;
     font-weight: 700;
-    color: var(--mhm-color-text-primary);
+    color: var(--mhm-text-primary);
 }
 
 /* =========================================
@@ -108,7 +102,7 @@
 }
 
 .mhm-featured-swiper .swiper-pagination-bullet-active {
-    background: var(--mhm-color-primary) !important;
+    background: var(--mhm-primary) !important;
 }
 
 /* Card Component styles are now handled by core/vehicle-card.css */

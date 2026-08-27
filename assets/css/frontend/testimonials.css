@@ -1,11 +1,5 @@
 /* Testimonials CSS — VIP Compact Design */
 
-/* ===== FSE Global Listener ===== */
-[class*="rv-"] {
-	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #1a2332));
-	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
-}
-
 /* ===== CSS VARIABLES ===== */
 :root {
 	--rv-t-card-bg: #ffffff;

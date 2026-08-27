@@ -119,7 +119,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		wp_enqueue_style(
 			'mhm-rentiva-unified-search-base',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/unified-search.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			MHMRENTIVA_VERSION
 		);
 
