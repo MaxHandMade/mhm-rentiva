@@ -180,6 +180,22 @@ jobs:
       - name: React endpoint map (members called vs members defined)
         run: composer check-react-api-map
 
+      # The companion to the gate above, and it exists because of how the same
+      # outage LOOKED. One broken map took out five of the add-on's screens at
+      # once; three were wrapped in <ErrorBoundary> and said "an error occurred",
+      # two were not and React unmounted the tree -- a blank page under the admin
+      # chrome with nothing saying what failed. Sweeping for the class found a
+      # third unguarded screen in THIS repo (shortcode-pages), which is why this
+      # is a gate and not three edits.
+      #
+      # A boundary fixes nothing. It decides whether a failure reads as "this
+      # screen is broken" or as "this plugin is broken", and the second is what
+      # an operator reports. The check looks inside the render() call, not the
+      # file: importing ErrorBoundary and not using it is exactly the half-done
+      # edit a file-wide grep would call clean.
+      - name: React error boundaries (every screen mounts guarded)
+        run: composer check-react-error-boundary
+
       # React translation catalogs. Runs here for the same reason as the gate
       # above: the CHECKING half of bin/build-i18n.py reads only the .po and
       # languages/*.json, so it needs no Docker, no Node and no network — only
