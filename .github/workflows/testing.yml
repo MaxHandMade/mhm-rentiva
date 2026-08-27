@@ -161,6 +161,25 @@ jobs:
       - name: ui-core version literal matches the installed package
         run: composer check-uicore-version
 
+      # The endpoint-map gate, and it is here because of a defect on the OTHER
+      # side of the seam. The carve (0ecc9368) removed the paid sections from
+      # src-react/shared/api/rentiva.js -- correctly -- and the add-on's five
+      # React screens, which byte-copy that file, lost every endpoint they call.
+      # Two of them died outright for nineteen days.
+      #
+      # Nothing saw it: check-react-imports measures package imports and a map
+      # KEY is not a package, PHPStan and PHPCS do not read JavaScript, no
+      # PHPUnit suite mounts React, and those screens had never been opened in a
+      # browser. So the comparison nobody was making -- members CALLED against
+      # members DEFINED -- is now made on both sides, and this run covers ours.
+      #
+      # The add-on runs this same file against its own map through MHM_API_*, the
+      # cross-repo shape check-react-imports and build-i18n.py already use. It
+      # lives here rather than there because this workflow is single-repo by
+      # design and must never need a private sibling to go green.
+      - name: React endpoint map (members called vs members defined)
+        run: composer check-react-api-map
+
       # React translation catalogs. Runs here for the same reason as the gate
       # above: the CHECKING half of bin/build-i18n.py reads only the .po and
       # languages/*.json, so it needs no Docker, no Node and no network — only
