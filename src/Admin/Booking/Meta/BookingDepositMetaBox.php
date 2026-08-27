@@ -87,7 +87,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			wp_enqueue_style(
 				'mhm-rentiva-deposit-management',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 

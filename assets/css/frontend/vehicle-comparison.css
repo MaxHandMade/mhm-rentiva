@@ -1,13 +1,3 @@
-/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
-[class*="rv-"],
-[class*="rv-"] *,
-[class*="rv-"] *::before,
-[class*="rv-"] *::after {
-	box-sizing: border-box;
-	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
-	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
-}
-
 .rv-vehicle-comparison {
 	font-family: var(--mhm-font-primary);
 	margin: var(--mhm-space-phi-3, 1.3125rem) auto;

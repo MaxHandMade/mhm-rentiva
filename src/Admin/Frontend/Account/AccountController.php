@@ -340,7 +340,7 @@ final class AccountController {
 			wp_enqueue_style(
 				'mhm-rentiva-my-account',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 
@@ -355,14 +355,14 @@ final class AccountController {
 			wp_enqueue_style(
 				'mhm-rentiva-booking-detail',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-bookings-page',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 		}

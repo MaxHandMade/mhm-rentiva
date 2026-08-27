@@ -1,9 +1,3 @@
-/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
-[class*="rv-"] {
-	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
-	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
-}
-
 .rv-shortcode-wrapper,
 [class*="rv-"] {
 	white-space: normal;

@@ -47,7 +47,7 @@ final class MyBookings extends AbstractAccountShortcode {
 		wp_enqueue_style(
 			'mhm-rentiva-bookings-page',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			MHMRENTIVA_VERSION
 		);
 	}

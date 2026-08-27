@@ -200,7 +200,7 @@ final class UserDashboard {
 		wp_enqueue_style(
 			'mhm-rentiva-user-dashboard',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			MHMRENTIVA_VERSION
 		);
 

@@ -159,7 +159,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			wp_enqueue_style(
 				'mhm-rentiva-woocommerce-checkout',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-checkout.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 

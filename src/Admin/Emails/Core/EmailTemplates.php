@@ -493,7 +493,7 @@ final class EmailTemplates {
 			wp_enqueue_style(
 				'mhm-rentiva-email-templates',
 				\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/email-templates.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				\MHMRENTIVA_VERSION
 			);
 

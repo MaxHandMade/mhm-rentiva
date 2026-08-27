@@ -653,7 +653,7 @@ final class VehicleColumns {
 			wp_enqueue_style(
 				'mhm-rentiva-booking-calendar',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/booking-calendar.css')
 			);
 

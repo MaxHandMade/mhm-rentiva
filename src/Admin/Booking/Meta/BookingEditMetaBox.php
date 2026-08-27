@@ -99,7 +99,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			wp_enqueue_style(
 				'mhm-rentiva-booking-edit-meta',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-edit-meta.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				MHMRENTIVA_VERSION
 			);
 

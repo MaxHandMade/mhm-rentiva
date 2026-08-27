@@ -572,6 +572,12 @@ bin/*
 # declaration blocks are still there, so the copies cannot be deleted until
 # this gate is green.
 !bin/check-style-token-deps.php
+# The dependency gate's baseline: the eleven call sites it cannot read
+# statically, each inspected once and found sound. Locked as a SET of
+# file:line, not a count -- a count stays eleven when one is fixed and a
+# different one appears, and the new one would ride in behind it. The gate
+# fails on any drift in either direction.
+!bin/token-deps-unresolved.txt
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

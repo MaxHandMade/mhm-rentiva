@@ -82,7 +82,7 @@ final class ContactForm extends AbstractShortcode {
 		wp_enqueue_style(
 			'mhm-rentiva-contact-form',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/contact-form.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			MHMRENTIVA_VERSION
 		);
 

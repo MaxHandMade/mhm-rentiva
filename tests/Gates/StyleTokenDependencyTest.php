@@ -255,6 +255,39 @@ final class StyleTokenDependencyTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * A count cannot lock an unreadable call site. Eleven registrations in this
+     * plugin build their handle or source from variables, and each one is fine on
+     * inspection -- but "eleven" stays eleven if one is fixed and a different one
+     * appears, and the new one would ride in behind the old count. So the gate
+     * locks the SET of sites, not how many there are.
+     */
+    public function test_swapping_one_unreadable_site_for_another_is_not_the_same_baseline(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/a.css' => $this->css_that_reads_a_token(),
+            'src/One.php'      => "<?php\nwp_enqueue_style(\$handle, LITE_URL . 'assets/css/a.css', array(), '1');\n",
+        ));
+
+        require_once dirname(__DIR__, 2) . '/bin/check-style-token-deps.php';
+
+        $first = mhmrentiva_unresolved_signature(
+            mhmrentiva_style_dependency_report(array($root), array('LITE_URL' => $root), 'mhm-rentiva-css-variables')
+        );
+
+        // Same number of unreadable sites, a different site.
+        file_put_contents($root . '/src/One.php', "<?php\n// resolved now\n");
+        file_put_contents($root . '/src/Two.php', "<?php\nwp_enqueue_style(\$other, LITE_URL . 'assets/css/a.css', array(), '1');\n");
+
+        $second = mhmrentiva_unresolved_signature(
+            mhmrentiva_style_dependency_report(array($root), array('LITE_URL' => $root), 'mhm-rentiva-css-variables')
+        );
+
+        $this->assertSame(1, substr_count($first, "\n") + 1, 'one unreadable site before');
+        $this->assertSame(1, substr_count($second, "\n") + 1, 'one unreadable site after');
+        $this->assertNotSame($first, $second, 'a different site is a different baseline, even at the same count');
+    }
+
     public function test_every_failure_names_the_call_site_that_produced_it(): void
     {
         $root = $this->tree(array(

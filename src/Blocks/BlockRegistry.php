@@ -203,7 +203,7 @@ class BlockRegistry {
 		wp_enqueue_style(
 			'mhm-rentiva-datepicker-custom-editor',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
-			array(),
+			array( 'mhm-rentiva-css-variables' ),
 			MHMRENTIVA_VERSION
 		);
 

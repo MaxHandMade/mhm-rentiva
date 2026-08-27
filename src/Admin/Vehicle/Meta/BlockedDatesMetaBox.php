@@ -472,7 +472,7 @@ final class BlockedDatesMetaBox {
 		wp_enqueue_style(
 			'mhm-rentiva-blocked-dates',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/blocked-dates.css',
-			array( 'flatpickr' ),
+			array( 'mhm-rentiva-css-variables', 'flatpickr' ),
 			MHMRENTIVA_VERSION
 		);
 		wp_enqueue_script(
