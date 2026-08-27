@@ -7,9 +7,15 @@
 
 :root {
 	/* === CORE COLORS (Linked to WP Global Presets) === */
-	--mhm-primary: var(--wp--preset--color--primary, #2563eb);
+	/* Fallbacks are the values these tokens already resolve to on a site whose
+	   theme defines no matching preset -- which is every site today, because the
+	   WordPress default palette has no `primary` or `secondary` slug. #2271b1 was
+	   what 19 component stylesheets and AssetManager's default both said; #00a32a
+	   was what the inline block printed. Changing either here would repaint the
+	   product as a side effect of a cleanup. */
+	--mhm-primary: var(--wp--preset--color--primary, #2271b1);
 	--mhm-primary-dark: #1d4ed8;
-	--mhm-secondary: var(--wp--preset--color--secondary, #1e40af);
+	--mhm-secondary: var(--wp--preset--color--secondary, #00a32a);
 	--mhm-secondary-dark: #1e3a8a;
 
 	/* === STATUS DARK VARIANTS === */
@@ -28,9 +34,10 @@
 	/* Price */
 	--mhm-price-color: var(--wp--preset--color--price-color, #059669);
 
-	/* Typography and Other Base Colors */
-	--mhm-text-primary: var(--wp--preset--color--text, #1f2937);
-	--mhm-text-secondary: var(--mhm-gray-600);
+	/* `--mhm-text-primary` and `--mhm-text-secondary` were declared here as well
+	   as under "Text Colors" below, with identical values -- two declarations of
+	   one token in one file. Removed here; the "Text Colors" group is their home,
+	   since it also holds text-tertiary, text-inverse and the link pair. */
 
 	/* Status Colors (Error, Success, etc.) */
 	--mhm-success: var(--wp--preset--color--success, #0073E6);
@@ -66,6 +73,19 @@
 	--mhm-text-inverse: var(--mhm-white);
 	--mhm-text-link: var(--mhm-primary);
 	--mhm-text-link-hover: var(--mhm-primary-dark);
+
+	/* === MOVED HERE FROM THE COPIED COMPONENT BLOCKS ===
+	   These three lived only inside `[class*="rv-"]` in 19 stylesheets, so they
+	   were undefined anywhere else -- on body, on admin screens, on any element a
+	   component did not wrap. The copies are deleted in a later step; without
+	   this move they would simply cease to exist. Expressions are carried over
+	   unchanged, so nothing painted moves.
+	   Note --mhm-font-base resolves through core's block-library stylesheet,
+	   which is absent on pages that render no blocks (measured: / and /araclar/);
+	   there the 1rem fallback applies, as it does today. */
+	--mhm-text: var(--wp--preset--color--foreground, #1d2327);
+	--mhm-font-base: var(--wp--preset--font-size--normal, 1rem);
+	--mhm-radius: 4px;
 
 	/* Border Colors */
 	--mhm-border-primary: var(--mhm-gray-200);

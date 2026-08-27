@@ -17,6 +17,8 @@
         "check-external-http": "php bin/check-external-http.php",
         "check-no-pro-refs": "php bin/check-no-pro-refs.php",
         "check-react-imports": "php bin/check-react-imports.php",
+        "check-token-definitions": "php bin/check-token-definitions.php --report-only",
+        "check-style-token-deps": "php bin/check-style-token-deps.php --report-only",
         "check-uicore-version": "php bin/check-uicore-version.php",
         "check-react-api-map": "php bin/check-react-api-map.php",
         "check-react-error-boundary": "php bin/check-react-error-boundary.php",

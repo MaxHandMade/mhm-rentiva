@@ -229,6 +229,39 @@ jobs:
       - name: Translation placeholder parity (msgstr keeps msgid's placeholders)
         run: composer check-i18n-placeholders
 
+      # Design-token definition gate. REPORT-ONLY on purpose while the token
+      # slice runs: the composer script passes --report-only, so this step
+      # prints its verdict and exits 0. It flips to blocking (drop the flag) in
+      # the PR that deletes the copied declaration blocks and brings the shared
+      # count to zero -- the measure exists before the change, without holding
+      # CI red across three merges.
+      #
+      # Prints 5 shared tokens and 3 canonical-file duplicates. The five are the
+      # union of the two copied blocks (--mhm-primary, --mhm-text-primary,
+      # --mhm-text, --mhm-radius, --mhm-font-base): each is now declared
+      # canonically AND still declared in 7, 12 or 19 component stylesheets, and
+      # deleting those copies is what takes the count to zero. The three
+      # duplicates are the Gutenberg bridge block re-declaring tokens the base
+      # :root already sets; they go when that block does.
+      - name: Design token definitions (report-only until the token slice lands)
+        run: composer check-token-definitions
+
+      # The other half. A stylesheet that reads a token must be guaranteed the
+      # file that defines it, or deleting the copied declaration blocks renders
+      # those pages with every token unset. Also REPORT-ONLY for now.
+      #
+      # This job checks out only this repository, so it sees 23 registrations
+      # that reach no canonical handle and 11 call sites it cannot read. Across
+      # both trees the counts are 28 and 15 -- the paid plugin's five (including
+      # VendorLedger.php:36 and VendorBookings.php:44, which enqueue THIS
+      # plugin's stylesheets with array()) are caught by the same gate in the
+      # paid plugin's pro-gates job, which checks out both trees.
+      #
+      # Unreadable call sites are listed one by one, never counted into a
+      # threshold: a threshold lets a new unreadable call hide behind an old one.
+      - name: Style token dependencies (report-only until the token slice lands)
+        run: composer check-style-token-deps
+
       # Gate G-A (WP.org T7 remediation, Task 1): zero visible security shapes
       # (missing nonces / unescaped output / unsanitized input) under phpcs
       # --ignore-annotations, with one narrow allowed residual class (see the
