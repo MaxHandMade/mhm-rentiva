@@ -357,6 +357,11 @@ bin/*
 # literal in mhm-rentiva.php to the ui-core package actually installed; the literal
 # cannot be read from the package because registration precedes any bootstrap.
 !bin/check-uicore-version.php
+
+# The React endpoint-map gate. Lives here rather than in the add-on because this
+# repo CI is single-repo by design; the add-on runs the same file against its own
+# map via MHM_API_* env overrides.
+!bin/check-react-api-map.php
 # Audit helpers for the defect classes WordPress.org's review kept surfacing.
 # Deliberately REPORTS, not CI gates -- each prints what it cannot see before
 # what it found, because a tool that under-reports while printing "0 found" is
