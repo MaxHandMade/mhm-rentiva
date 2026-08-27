@@ -44,6 +44,22 @@
 declare(strict_types=1);
 
 /**
+ * One spelling for every path the gates compare.
+ *
+ * The walker keys its maps by the paths it walked; the dependency gate looks
+ * those maps up with a path it rebuilt from a URL constant. Spelled differently
+ * -- one relative, one absolute -- every lookup misses and the gate reports a
+ * clean tree. Measured 2026-08-27: the dependency gate printed "failures 0" on
+ * a tree where the same scanner, given an absolute root, printed 28.
+ */
+function mhmrentiva_real(string $path): string
+{
+    $real = realpath($path);
+
+    return strtr(false === $real ? $path : $real, '\\', '/');
+}
+
+/**
  * Strips CSS comments while preserving byte offsets' ordering.
  */
 function mhmrentiva_strip_css_comments(string $css): string
@@ -186,7 +202,7 @@ function mhmrentiva_walk(string $root, string $extension): array
 
     foreach ($iterator as $file) {
         if ($file->isFile() && strtolower($file->getExtension()) === $extension) {
-            $files[] = str_replace('\\', '/', $file->getPathname());
+            $files[] = mhmrentiva_real($file->getPathname());
         }
     }
 
@@ -207,7 +223,7 @@ function mhmrentiva_walk(string $root, string $extension): array
  */
 function mhmrentiva_classify_tokens(array $roots, array $canonical_files): array
 {
-    $canonical = array_map(static fn (string $p): string => str_replace('\\', '/', $p), $canonical_files);
+    $canonical = array_map('mhmrentiva_real', $canonical_files);
 
     $declared_in  = array();
     $consumed_in  = array();
@@ -217,7 +233,7 @@ function mhmrentiva_classify_tokens(array $roots, array $canonical_files): array
     $counts       = array('css' => 0, 'php' => 0, 'declarations' => 0);
 
     foreach ($roots as $root) {
-        $root = str_replace('\\', '/', rtrim($root, '/'));
+        $root = mhmrentiva_real(rtrim($root, '/'));
 
         foreach (mhmrentiva_walk($root, 'css') as $file) {
             $counts['css']++;

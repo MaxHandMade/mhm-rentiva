@@ -563,6 +563,15 @@ bin/*
 # which stylesheet's selector matched. The classification lives in this file
 # and nowhere else -- the gate IS the specification.
 !bin/check-token-definitions.php
+# Style dependency gate, the other half of the token slice. `composer
+# check-style-token-deps` runs it and tests/Gates/StyleTokenDependencyTest.php
+# require()s it. Measured 2026-08-27: 28 registrations enqueue a token-reading
+# stylesheet without reaching the canonical handle -- including the paid
+# plugin enqueueing the free plugin's user-dashboard.css with array()
+# (VendorLedger.php:36). Those pages stay coloured only because the copied
+# declaration blocks are still there, so the copies cannot be deleted until
+# this gate is green.
+!bin/check-style-token-deps.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which
