@@ -466,7 +466,12 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     }
 
     $signature = mhmrentiva_unresolved_signature($report);
-    $baseline  = __DIR__ . '/token-deps-unresolved.txt';
+    // Beside the FIRST scanned tree, not beside this script. The paid plugin runs
+    // this same file from its own checkout and scans both trees, so its set of
+    // unreadable call sites is larger than this one's; pinning the baseline to
+    // the script's directory would measure that set against this plugin's list
+    // and report drift that is only a difference of scope.
+    $baseline = mhmrentiva_real($paths[0]) . '/bin/token-deps-unresolved.txt';
     $drift     = 0;
 
     if (in_array('--write-baseline', $args, true)) {
