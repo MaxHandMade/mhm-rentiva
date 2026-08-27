@@ -1404,6 +1404,43 @@ final class AssetManager {
 	 */
 	public static function enqueue_react_page( string $page_handle, array $extra_deps = [], ?string $base_dir = null, ?string $base_url = null, ?string $text_domain = null ): void
 	{
+		$base_dir = $base_dir ?? MHMRENTIVA_PLUGIN_DIR;
+		$base_url = $base_url ?? MHMRENTIVA_PLUGIN_URL;
+
+		/*
+		 * The implementation moved to mhm/ui-core 0.4.0. This method stays, with
+		 * its signature untouched, because it is NOT only ours: the add-on calls
+		 * it for its own five React screens, and an add-on already installed in
+		 * the field goes on calling this exact entry point until it is updated
+		 * too. Deleting it here would take those screens down.
+		 *
+		 * function_exists() rather than a version check: the site's winning
+		 * ui-core copy may be an older one registered by another plugin, in
+		 * which case the shared loader does not exist and the original body
+		 * below runs unchanged.
+		 *
+		 * The handle prefix and the fallback version stay 'mhm-rentiva-react-'
+		 * and MHMRENTIVA_VERSION for the add-on's bundles too. That looks odd
+		 * read cold, but those are the handles already registered in the field;
+		 * changing them inside a move would be a silent behaviour change wearing
+		 * a refactor's clothes.
+		 */
+		if ( function_exists( 'mhmuicore_enqueue_react_page' ) ) {
+			mhmuicore_enqueue_react_page(
+				array(
+					'page'          => $page_handle,
+					'base_dir'      => $base_dir,
+					'base_url'      => $base_url,
+					'handle_prefix' => 'mhm-rentiva-react-',
+					'version'       => MHMRENTIVA_VERSION,
+					'text_domain'   => $text_domain ?? 'mhm-rentiva',
+					'deps'          => $extra_deps,
+				)
+			);
+
+			return;
+		}
+
 		if ( ! self::$react_nonce_added ) {
 			wp_add_inline_script(
 				'wp-api-fetch',
@@ -1417,9 +1454,6 @@ final class AssetManager {
 		}
 
 		wp_enqueue_style( 'wp-components' );
-
-		$base_dir = $base_dir ?? MHMRENTIVA_PLUGIN_DIR;
-		$base_url = $base_url ?? MHMRENTIVA_PLUGIN_URL;
 
 		$asset_file = $base_dir . "build/admin/{$page_handle}.asset.php";
 		$asset      = file_exists( $asset_file )
