@@ -234,9 +234,15 @@ jobs:
       # prints its verdict and exits 0. It flips to blocking (drop the flag) in
       # the PR that deletes the copied declaration blocks and brings the shared
       # count to zero -- the measure exists before the change, without holding
-      # CI red across three merges. Today it prints 3 shared tokens
-      # (--mhm-font-base, --mhm-radius, --mhm-text) and 4 canonical-file
-      # duplicates; those numbers are the slice's starting baseline.
+      # CI red across three merges.
+      #
+      # Prints 5 shared tokens and 3 canonical-file duplicates. The five are the
+      # union of the two copied blocks (--mhm-primary, --mhm-text-primary,
+      # --mhm-text, --mhm-radius, --mhm-font-base): each is now declared
+      # canonically AND still declared in 7, 12 or 19 component stylesheets, and
+      # deleting those copies is what takes the count to zero. The three
+      # duplicates are the Gutenberg bridge block re-declaring tokens the base
+      # :root already sets; they go when that block does.
       - name: Design token definitions (report-only until the token slice lands)
         run: composer check-token-definitions
 

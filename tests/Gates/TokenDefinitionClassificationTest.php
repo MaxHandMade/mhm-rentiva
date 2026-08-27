@@ -128,6 +128,32 @@ final class TokenDefinitionClassificationTest extends WP_UnitTestCase
         $this->assertSame('canonical', $this->classify($root)['--mhm-primary']);
     }
 
+    /**
+     * The intermediate state the migration actually passes through, and the one
+     * that quietly disarmed the gate when it was first run for real.
+     *
+     * Moving a token INTO the canonical stylesheet does not delete the copies
+     * that were already declaring it elsewhere -- that is a later step. A
+     * classifier that answers "canonical" as soon as it sees a canonical
+     * declaration stops seeing those copies, so the very PR whose job is to
+     * delete them would run with no gate pressure at all. Measured 2026-08-27:
+     * after the three shared tokens moved, `shared` dropped from 3 to 0 while 19
+     * component stylesheets still declared every one of them.
+     */
+    public function test_a_token_declared_both_canonically_and_in_a_component_file_is_still_shared(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-text: #1d2327; }\n",
+            'assets/css/frontend/a.css'         => "[class*=\"rv-\"] { --mhm-text: #1d2327; }\n",
+        ));
+
+        $this->assertSame(
+            'shared',
+            $this->classify($root)['--mhm-text'],
+            'a canonical home does not excuse the copies still declaring the same token'
+        );
+    }
+
     public function test_a_token_used_only_inside_its_own_file_is_component_private(): void
     {
         $root = $this->tree(array(

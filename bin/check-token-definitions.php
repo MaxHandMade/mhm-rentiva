@@ -325,7 +325,11 @@ function mhmrentiva_token_class(
     bool $blueprint
 ): string {
     if (array_intersect($declared, $canonical)) {
-        return 'canonical';
+        // A canonical home does not excuse copies that still declare the same
+        // token. The migration passes through exactly that state -- the token is
+        // moved in before the copies come out -- and answering "canonical" there
+        // would disarm the gate for the very step whose job is to delete them.
+        return array_diff($declared, $canonical) ? 'shared' : 'canonical';
     }
     if ($blueprint) {
         return 'blueprint-namespace';
