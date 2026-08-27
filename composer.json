@@ -19,6 +19,7 @@
         "check-react-imports": "php bin/check-react-imports.php",
         "check-uicore-version": "php bin/check-uicore-version.php",
         "check-react-api-map": "php bin/check-react-api-map.php",
+        "check-react-error-boundary": "php bin/check-react-error-boundary.php",
         "check-admin-only": "php bin/check-admin-only-functions.php",
         "check-user-writes": "php bin/audit-user-account-writes.php",
         "check-js-correctness": [
