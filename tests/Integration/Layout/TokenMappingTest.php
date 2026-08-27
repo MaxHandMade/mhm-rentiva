@@ -48,9 +48,18 @@ final class TokenMappingTest extends TestCase
 
         $style = $this->mapper->map_to_style_string($tokens);
 
-        $this->assertStringContainsString('--mhm-primary: #ff0000;', $style);
-        $this->assertStringContainsString('--mhm-bg-main: #ffffff;', $style);
-        $this->assertStringContainsString('--mhm-spacing-base: 1.5rem;', $style);
+        $this->assertStringContainsString('--mhm-bp-primary: #ff0000;', $style);
+        $this->assertStringContainsString('--mhm-bp-bg-main: #ffffff;', $style);
+        $this->assertStringContainsString('--mhm-bp-spacing-base: 1.5rem;', $style);
+
+        // The point of the `bp` namespace, and the only assertion that would
+        // notice if someone mapped these back. The mapper's output lands as an
+        // inline style on .mhm-layout-root, and an inline custom property beats
+        // an inherited one on every descendant -- so emitting a shared name here
+        // hands a published blueprint the product's palette for its subtree.
+        $this->assertStringNotContainsString('--mhm-primary:', $style);
+        $this->assertStringNotContainsString('--mhm-bg-main:', $style);
+        $this->assertStringNotContainsString('--mhm-spacing-base:', $style);
     }
 
     /**
@@ -80,9 +89,9 @@ final class TokenMappingTest extends TestCase
 
         $style = $this->mapper->map_to_style_string($tokens);
 
-        $this->assertStringNotContainsString('--mhm-primary', $style);
+        $this->assertStringNotContainsString('--mhm-bp-primary', $style);
         $this->assertStringNotContainsString('javascript', $style);
-        $this->assertStringContainsString('--mhm-border-radius: 4px;', $style);
+        $this->assertStringContainsString('--mhm-bp-border-radius: 4px;', $style);
     }
 
     /**
@@ -112,6 +121,6 @@ final class TokenMappingTest extends TestCase
         $output = $builder->build($manifest, $page);
 
         $this->assertStringContainsString('class="mhm-layout-root"', $output);
-        $this->assertStringContainsString('--mhm-primary: #123456;', $output);
+        $this->assertStringContainsString('--mhm-bp-primary: #123456;', $output);
     }
 }

@@ -143,14 +143,6 @@ final class AssetManager {
 		add_action('init', array( self::class, 'register_vendor_assets' ));
 		// Register Common Assets (Shared but not Global)
 		add_action('init', array( self::class, 'register_common_assets' ));
-		// Attached on the *_enqueue_scripts hooks (not wp_head/admin_head):
-		// wp_print_styles runs at wp_head priority 8, and admin_print_styles
-		// fires before admin_head altogether, so by the time wp_head/admin_head
-		// executes the style queue for this request has already been printed.
-		// wp_add_inline_style() only has an effect if it runs before that print,
-		// which the *_enqueue_scripts hooks guarantee.
-		add_action('wp_enqueue_scripts', array( self::class, 'add_inline_styles' ), 20);
-		add_action('admin_enqueue_scripts', array( self::class, 'add_inline_styles' ), 20);
 	}
 
 	/**
@@ -1199,84 +1191,32 @@ final class AssetManager {
 		);
 	}
 
-	/**
-	 * Add inline styles
-	 */
-	public static function add_inline_styles(): void
-	{
-		// Add CSS variables inline. get_css_variables() has already validated
-		// every interpolated value against the grammar of its declaration, so
-		// the block is safe by construction -- no post-hoc filtering here.
-		$css_variables = self::get_css_variables();
-		if ($css_variables) {
-			wp_add_inline_style( 'mhm-rentiva-css-variables', $css_variables );
-		}
-	}
-
-	/**
-	 * Get CSS variables
+	/*
+	 * The dynamic colour block stood here: add_inline_styles(),
+	 * get_css_variables() and sanitize_css_declaration_value(), plus the two
+	 * wp_enqueue_scripts / admin_enqueue_scripts hooks above.
 	 *
-	 * @return string
-	 */
-	private static function get_css_variables(): string
-	{
-		// '' is the helper's only rejection signal, so the fallback tests for it
-		// explicitly. A `?:` here would also discard '0', which the helper accepts
-		// as a valid unitless declaration value.
-		$primary   = self::sanitize_css_declaration_value( (string) get_option('mhmrentiva_primary_color', '#2271b1') );
-		$secondary = self::sanitize_css_declaration_value( (string) get_option('mhmrentiva_secondary_color', '#00a32a') );
-
-		$primary_color   = '' !== $primary ? $primary : '#2271b1';
-		$secondary_color = '' !== $secondary ? $secondary : '#00a32a';
-
-		return "
-        :root {
-            --mhm-primary: {$primary_color};
-            --mhm-secondary: {$secondary_color};
-        }
-        ";
-	}
-
-	/**
-	 * Validate one CSS declaration value against the grammar it lands in.
+	 * It printed `:root { --mhm-primary: <option>; --mhm-secondary: <option>; }`
+	 * from mhmrentiva_primary_color / mhmrentiva_secondary_color -- two options
+	 * with no writer anywhere in either plugin: no settings field, no REST route,
+	 * no React screen. The only other reference is a rename entry in
+	 * PrefixMigrationMap.
 	 *
-	 * A value interpolated into a stylesheet cannot be made safe by escaping:
-	 * WordPress has no CSS-context escaper, and the HTML escapers leave `;`
-	 * and `}` untouched -- so `#fff; } body { background: url(//evil) ` walks
-	 * straight through esc_attr() or wp_strip_all_tags() and closes the rule
-	 * it was supposed to live inside. Validation is the only correct
-	 * instrument, so anything that does not match a known value type is
-	 * DROPPED and the caller falls back to its default.
+	 * It had to go because a literal hex at :root defeats the canonical
+	 * `var(--wp--preset--color--primary, ...)` bridge: a theme that does define
+	 * the preset would have been overridden by a value nobody can set.
 	 *
-	 * @param string $value Raw value, typically read from an option.
-	 * @return string The value if it is of a known type, otherwise ''.
+	 * The sanitizer went with it, and that is the stronger fix rather than a
+	 * weaker one. It existed to make an option value safe to interpolate into a
+	 * stylesheet -- WordPress has no CSS-context escaper, and the HTML escapers
+	 * leave `;` and `}` alone, so `#fff; } body { background: url(//evil) `
+	 * walks through esc_attr() and closes the rule it was meant to sit in. With
+	 * no interpolation site left, the shape that needed guarding is gone. Its
+	 * six tests went too, for the same reason; the contract they described is
+	 * restated in EmailLayoutCssContextTest, which still validates a colour it
+	 * really does interpolate.
 	 */
-	private static function sanitize_css_declaration_value( string $value ): string
-	{
-		$value = trim( $value );
 
-		// #rgb / #rrggbb.
-		if ( '' !== ( sanitize_hex_color( $value ) ?? '' ) ) {
-			return $value;
-		}
-
-		// rgb()/rgba() with integer channels and an optional 0-1 alpha.
-		if ( preg_match( '/^rgba?\(\s*\d{1,3}(\s*,\s*\d{1,3}){2}(\s*,\s*(0|1|0?\.\d+))?\s*\)$/', $value ) ) {
-			return $value;
-		}
-
-		// Number with an optional length/percentage unit.
-		if ( preg_match( '/^-?\d+(\.\d+)?(px|rem|em|%|vh|vw)?$/', $value ) ) {
-			return $value;
-		}
-
-		// Bare keyword (sans-serif, bold, inherit...).
-		if ( preg_match( '/^[a-zA-Z-]{1,32}$/', $value ) ) {
-			return $value;
-		}
-
-		return '';
-	}
 
 	/**
 	 * Check if asset is loaded

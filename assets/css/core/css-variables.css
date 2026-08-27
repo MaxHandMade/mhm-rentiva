@@ -157,22 +157,24 @@
 	--mhm-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
-/* 
- * GIB (Gutenberg Integration Bridge)
- * Ensures that changes in the Gutenberg sidebar (Link/Text/Typo) 
- * are forced into the local variables used by the plugin components.
+/*
+ * The "Gutenberg Integration Bridge" rule stood here. It re-declared
+ * --mhm-primary, --mhm-text-primary and --mhm-btn-bg with !important, so this
+ * file declared each of those tokens twice.
+ *
+ * It could never have worked, for two independent reasons measured 2026-08-27:
+ *   - it read --wp--style--color--link, which WordPress does not emit as a
+ *     custom property; link colour ships as a rule on the anchor instead.
+ *   - it was scoped to .wp-block-mhm-rentiva-search, and there is no
+ *     `mhm-rentiva/search` block. That name occurs once in the whole tree, in
+ *     a comment at BlockRegistry.php:501 explaining slug extraction, and the
+ *     class appears nowhere outside this stylesheet.
+ *
+ * Removing it changes no rendered value; it removes three duplicate
+ * declarations. Note the remaining .wp-block-mhm-rentiva-search rules below
+ * target the same non-existent class -- dead too, and tracked as its own
+ * cleanup rather than folded in here.
  */
-.wp-block-mhm-rentiva-search {
-	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb)) !important;
-	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937)) !important;
-	--mhm-btn-bg: var(--mhm-primary) !important;
-
-	/* Font & Color Inheritance */
-	font-family: inherit !important;
-	font-weight: inherit !important;
-	font-size: inherit !important;
-	color: inherit !important;
-}
 
 /* Ensure Sidebar typography settings apply to labels and inputs (e.g. font family, weight) */
 .wp-block-mhm-rentiva-search label,

@@ -73,15 +73,23 @@ class ContractRules {
      * Based on D2 - Token Mapping Specification.
      */
     public const TOKEN_MAPPING = [
-        'colors.primary'    => '--mhm-primary',
-        'colors.secondary'  => '--mhm-secondary',
-        'colors.text'       => '--mhm-text-primary',
-        'colors.background' => '--mhm-bg-main',
-        'colors.surface'    => '--mhm-bg-soft',
-        'colors.accent'     => '--mhm-accent',
-        'spacing.unit'      => '--mhm-spacing-base',
-        'radius.main'       => '--mhm-border-radius',
-        'fonts.body'        => '--mhm-font-family',
+        // Namespaced `--mhm-bp-*` so a blueprint cannot write the names the rest
+        // of the product reads. These land as an inline style on
+        // .mhm-layout-root, and an inline custom property beats an inherited one
+        // on every descendant -- so before this rename a published blueprint
+        // silently redefined the palette for its whole subtree. It looked
+        // harmless only because every component stylesheet happened to
+        // re-declare the same names on itself; deleting those copies would have
+        // handed the blueprint the palette.
+        'colors.primary'    => '--mhm-bp-primary',
+        'colors.secondary'  => '--mhm-bp-secondary',
+        'colors.text'       => '--mhm-bp-text-primary',
+        'colors.background' => '--mhm-bp-bg-main',
+        'colors.surface'    => '--mhm-bp-bg-soft',
+        'colors.accent'     => '--mhm-bp-accent',
+        'spacing.unit'      => '--mhm-bp-spacing-base',
+        'radius.main'       => '--mhm-bp-border-radius',
+        'fonts.body'        => '--mhm-bp-font-family',
     ];
 
     /**
