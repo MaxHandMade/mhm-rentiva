@@ -1239,8 +1239,18 @@ final class VehicleSettings {
 		// filter now normalize identically instead of one relying on the other.
 		// Save selected fields (Definitions Tab)
 		$selected_details = self::sanitize_array_option( $req->arr( 'selected_details' ) );
-		// Core fields are always selected - enforce even if disabled checkboxes weren't submitted
-		$core_fields_list = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
+		// Core fields are always selected - enforce even if disabled checkboxes weren't
+		// submitted. Intersected with the detail universe first, the same way the field
+		// map does at the read end ("Trap 4" there): get_core_fields() names keys that are
+		// NOT detail fields -- 'image' and 'gallery_images' are handled by their own meta
+		// boxes and have no entry in get_all_available_details(). Injecting them here put
+		// two keys into mhmrentiva_selected_details that the detail grid then rendered as
+		// empty, untranslated "Image" / "Gallery Images" boxes on every vehicle screen.
+		// The read end was already guarded; only this write end was not.
+		$core_fields_list = array_intersect(
+			\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields(),
+			array_keys( self::get_all_available_details() )
+		);
 		foreach ( $core_fields_list as $core_key ) {
 			if ( ! in_array( $core_key, $selected_details, true ) ) {
 				$selected_details[] = $core_key;
