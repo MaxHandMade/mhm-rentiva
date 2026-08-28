@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental Booking for WordPress" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-6.1.2-blue.svg)
+![Version](https://img.shields.io/badge/version-6.1.3-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -431,7 +431,7 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 2,527 tests / 9,196 assertions (v6.1.2)
+- **PHPUnit**: 2,545 tests / 9,238 assertions (v6.1.3)
 - **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
 - **PHPCS**: Full WordPress Coding Standards compliance
 - **Test Admin Page**: Accessible from Rentiva menu

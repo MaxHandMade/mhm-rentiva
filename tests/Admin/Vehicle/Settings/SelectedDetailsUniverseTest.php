@@ -92,6 +92,124 @@ final class SelectedDetailsUniverseTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * The route the test above says it does not cover -- found by reproducing the symptom
+     * in a browser against the FIXED code on 2026-08-29.
+     *
+     * Fixing the write path stops NEW pollution. It does nothing for the sites that already
+     * saved their settings: their option still holds 'image' and 'gallery_images', and on
+     * those sites the vehicle screen still rendered both ghost boxes, still emitted a second
+     * field named mhmrentiva_gallery_images, and still wiped the gallery on save. Measured:
+     * two elements answered [name="mhmrentiva_gallery_images"] -- the real hidden input
+     * carrying 1303 bytes of JSON, and an empty text box after it.
+     *
+     * Every guard downstream asks `isset($available_details[$key])`, and they all passed,
+     * because build_available_fields() ends in a "last resort" branch that turns a key it
+     * cannot identify into a label by prettifying the key itself. That branch converts
+     * "I do not know this field" into "here is a field", which is what let a ghost key walk
+     * past three separate checks.
+     *
+     * So the fix belongs here rather than in a data migration: a key that exists in none of
+     * the three sources is not renderable, and manufacturing a label for it is what caused
+     * data loss. Dropping it makes every already-polluted option harmless without touching
+     * anyone's database.
+     */
+    public function test_a_key_in_no_known_source_is_dropped_rather_than_given_a_made_up_label(): void
+    {
+        $build = new \ReflectionMethod(
+            \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::class,
+            'build_available_fields'
+        );
+        $build->setAccessible(true);
+
+        $available = $build->invoke(
+            null,
+            array('price_per_day', 'gallery_images'),   // selected: one real, one ghost
+            array('price_per_day' => 'Daily Price'),    // stored labels
+            array()                                     // customs
+        );
+
+        $this->assertArrayHasKey(
+            'price_per_day',
+            $available,
+            'A field that IS in the stored labels must survive -- this test must not pass by '
+            . 'emptying the result.'
+        );
+
+        $this->assertArrayNotHasKey(
+            'gallery_images',
+            $available,
+            'gallery_images is in no source: not in the stored labels, not a custom field and '
+            . 'not in the hardcoded defaults. Giving it a label makes the vehicle screen render '
+            . 'a second input named mhmrentiva_gallery_images, and PHP keeps the last field of a '
+            . 'repeated name -- so saving the vehicle writes an empty value over the gallery.'
+        );
+    }
+
+    /**
+     * The insurance, for a data shape we cannot inspect.
+     *
+     * The test above closes the route we measured: a stored key that matches NO source is
+     * dropped instead of being handed a made-up label. It leaves one gap open. If a site's
+     * stored-label option (mhmrentiva_vehicle_details) carries an actual label for
+     * gallery_images, the first branch of build_available_fields answers before the drop is
+     * ever reached, the key is "known", and the duplicate field name comes back.
+     *
+     * No writer in this repository can produce that shape -- the destructive updated_labels
+     * logic was gone before the first public commit, and apply_label_updates cannot write a
+     * non-default key into the overrides. But the plugin's pre-public 4.x and 5.x history is
+     * not in this repository, PrefixMigrationMap still carries the pre-6.0 option spellings forward, and
+     * the failure mode is a customer losing a gallery without being told why.
+     *
+     * So these two keys are refused by name, from every source. That is not a workaround for
+     * a shape we know exists; it is a floor under one we cannot rule out. It is also simply
+     * correct: image and gallery_images are owned by their own meta boxes and are not detail
+     * fields in any configuration, which is the same fact that made them dangerous here.
+     */
+    public function test_the_two_gallery_keys_are_refused_even_when_a_stored_label_exists(): void
+    {
+        $build = new \ReflectionMethod(
+            \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::class,
+            'build_available_fields'
+        );
+        $build->setAccessible(true);
+
+        $available = $build->invoke(
+            null,
+            array('price_per_day', 'image', 'gallery_images'),
+            array(
+                'price_per_day'   => 'Daily Price',
+                // The shape this test exists for: a label present for keys that are not
+                // detail fields. Branch one of build_available_fields would accept both.
+                'image'           => 'Image',
+                'gallery_images'  => 'Gallery Images',
+            ),
+            array()
+        );
+
+        $this->assertArrayHasKey(
+            'price_per_day',
+            $available,
+            'A real detail field must still survive -- this test must not pass by refusing '
+            . 'everything.'
+        );
+
+        $this->assertArrayNotHasKey(
+            'gallery_images',
+            $available,
+            'gallery_images carried a stored label and was still accepted. That is the one '
+            . 'route left open after the no-source drop, and it ends in the same duplicate '
+            . 'field name that wipes the gallery on save.'
+        );
+
+        $this->assertArrayNotHasKey(
+            'image',
+            $available,
+            'image is owned by the featured-image meta box and is not a detail field in any '
+            . 'configuration. It rendered as the other empty ghost box.'
+        );
+    }
+
     public function tearDown(): void
     {
         $_POST = array();
