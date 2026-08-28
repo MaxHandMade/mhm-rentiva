@@ -1,5 +1,18 @@
 [
   {
+    "version": "6.1.3",
+    "date": "2026-08-29",
+    "type": "patch",
+    "title": "Vehicle galleries stop disappearing on sites configured before 6.1.2",
+    "summary": "Fixed: on a site whose vehicle settings were saved before 6.1.2, adding gallery images and pressing Update still wiped the gallery. 6.1.2 stopped the two non-detail keys, image and gallery_images, from being written into the selected-details option, but did nothing for the sites that already had them stored. A stored key that matched none of the known field sources was handed a label made up from the key name, which carried it past every later check, and the detail grid then rendered a second field named mhmrentiva_gallery_images -- the same name as the gallery meta box's hidden input. PHP keeps the last field of a repeated name, so an empty box overwrote the gallery. Such a key is now dropped rather than labelled, which makes an already-affected site safe without touching its database.",
+    "changes": [
+      "Fixed: on a site whose vehicle settings were saved before 6.1.2, adding gallery images and pressing Update still wiped the gallery. 6.1.2 stopped the two non-detail keys, image and gallery_images, from being written into the selected-details option, but did nothing for the sites that already had them stored. A stored key that matched none of the known field sources was handed a label made up from the key name, which carried it past every later check, and the detail grid then rendered a second field named mhmrentiva_gallery_images -- the same name as the gallery meta box's hidden input. PHP keeps the last field of a repeated name, so an empty box overwrote the gallery. Such a key is now dropped rather than labelled, which makes an already-affected site safe without touching its database.",
+      "Security: the handlers that write vehicle and booking meta now verify the post type of the post they are writing to. edit_post answers whether a user may edit a given post, never whether that post is one of this plugin's, so a handler acting on whatever id arrived was writing to an object it had not identified. The booking meta handler was the widest case: hooked to the untyped save_post, saving any page or post on the site wrote a booking status onto it. Twelve handlers were corrected; an independent audit then found three more outside the recorded list, including a live AJAX handler that wrote vehicle ordering meta onto any post id it was given.",
+      "Fixed: an admin screen whose data fails to load now says so instead of going blank. One bad endpoint map took out five screens at once: the three wrapped in an error boundary showed a message and could be refreshed, while the two that were not left an empty page under the WordPress chrome with nothing explaining it. Every React screen is wrapped now, and a gate keeps new ones from shipping unwrapped.",
+      "Changed: the shared admin modules and the React page loader are taken from the mhm/ui-core package instead of being copied into this plugin, and duplicate CSS custom-property declarations were consolidated. Checked in the browser in light and dark against a pre-change baseline: nothing rendered differently."
+    ]
+  },
+  {
     "version": "6.1.2",
     "date": "2026-08-25",
     "type": "patch",
@@ -11,7 +24,8 @@
       "Fixed: the confirmation prompt shown before changing a booking's status on the edit screen never appeared. It was bound to the status field by name rather than by id, so it was bound to nothing. The field's label was associated with the same missing id and is now correctly linked to the select.",
       "Security: the role given to customer accounts this plugin creates is now rejected if it carries administrative capabilities, instead of being accepted on the strength of the role merely existing. The same setting also decides which accounts count as customers, so a privileged value affected the Customers list as well."
     ]
-  },  {
+  },
+  {
     "version": "6.1.1",
     "date": "2026-08-25",
     "type": "patch",
@@ -23,7 +37,8 @@
       "Security: an extension's endpoint contribution is now rejected when it collides with a reserved WordPress or WooCommerce query variable. Registering one as an endpoint would have broken permalinks site-wide.",
       "Fixed: the four core module scripts were requested a second time, without their version query, because the plugin URL already ended in a slash and the loader appended another."
     ]
-  },  {
+  },
+  {
     "version": "6.1.0",
     "date": "2026-08-24",
     "type": "minor",

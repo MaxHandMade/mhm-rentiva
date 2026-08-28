@@ -1142,10 +1142,28 @@ final class VehicleMeta extends AbstractMetaBox {
 				);
 				if (isset($all_defaults[ $key ])) {
 					$available_fields[ $key ] = $all_defaults[ $key ];
-				} else {
-					// Last resort: use the key name as label
-					$available_fields[ $key ] = ucwords(str_replace('_', ' ', (string) $key));
 				}
+
+				// A key none of the three sources knows is DROPPED, not labelled.
+				//
+				// This used to end in a "last resort" that prettified the key into a
+				// label. That turned "I cannot identify this field" into "here is a
+				// field", and every guard downstream asks isset($available_details[$key])
+				// -- so an unidentified key walked past all of them.
+				//
+				// It cost a gallery. Sites that saved their settings before the write
+				// path was fixed still carry 'image' and 'gallery_images' in
+				// mhmrentiva_selected_details; both were manufactured a label here, the
+				// grid rendered them, and the second one emitted a field named
+				// mhmrentiva_gallery_images -- the same name as the gallery meta box's
+				// hidden input. PHP keeps the last field of a repeated name, so the empty
+				// box won and saving the vehicle wrote a zero-length value over the
+				// gallery. Reproduced in a browser on 2026-08-29 against the already-fixed
+				// write path: two elements answered that name, the real one holding 1303
+				// bytes of JSON and an empty text box after it.
+				//
+				// Dropping the key makes every already-polluted option harmless without
+				// touching anyone's database, which is why this is not a migration.
 			}
 		}
 

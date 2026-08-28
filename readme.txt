@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.2
+Stable tag:        6.1.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -180,6 +180,12 @@ ordinary visitors can also send re-opens the bypass this default closes.
 == Changelog ==
 
 Only the most recent releases are repeated here, plus 6.0.0 for its breaking-change notice, to keep this file within the length WordPress.org's readme parser renders. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json.
+
+= 6.1.3 =
+* Fixed: on a site whose vehicle settings were saved before 6.1.2, adding gallery images and pressing Update still wiped the gallery. 6.1.2 stopped the two non-detail keys, image and gallery_images, from being written into the selected-details option, but did nothing for the sites that already had them stored. A stored key that matched none of the known field sources was handed a label made up from the key name, which carried it past every later check, and the detail grid then rendered a second field named mhmrentiva_gallery_images -- the same name as the gallery meta box's hidden input. PHP keeps the last field of a repeated name, so an empty box overwrote the gallery. Such a key is now dropped rather than labelled, which makes an already-affected site safe without touching its database.
+* Security: the handlers that write vehicle and booking meta now verify the post type of the post they are writing to. edit_post answers whether a user may edit a given post, never whether that post is one of this plugin's, so a handler acting on whatever id arrived was writing to an object it had not identified. The booking meta handler was the widest case: hooked to the untyped save_post, saving any page or post on the site wrote a booking status onto it. Twelve handlers were corrected; an independent audit then found three more outside the recorded list, including a live AJAX handler that wrote vehicle ordering meta onto any post id it was given.
+* Fixed: an admin screen whose data fails to load now says so instead of going blank. One bad endpoint map took out five screens at once: the three wrapped in an error boundary showed a message and could be refreshed, while the two that were not left an empty page under the WordPress chrome with nothing explaining it. Every React screen is wrapped now, and a gate keeps new ones from shipping unwrapped.
+* Changed: the shared admin modules and the React page loader are taken from the mhm/ui-core package instead of being copied into this plugin, and duplicate CSS custom-property declarations were consolidated. Checked in the browser in light and dark against a pre-change baseline: nothing rendered differently.
 
 = 6.1.2 =
 * Fixed: a booking created from the admin's manual booking screen was stored with no status at all. The screen's script read the status field by its name rather than its id, matched nothing, and sent an empty value that the handler stored as-is. Because the availability check counts only live statuses, such a booking was invisible to it and the same vehicle could be booked again over the same dates.
