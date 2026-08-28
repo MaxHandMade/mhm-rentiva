@@ -333,4 +333,88 @@ final class TokenDefinitionClassificationTest extends WP_UnitTestCase
 
         $this->assertArrayNotHasKey('--mhm-ghost', $this->classify($root));
     }
+
+    /**
+     * @return list<string>
+     */
+    private function set_a_overlap(string $root): array
+    {
+        require_once dirname(__DIR__, 2) . '/bin/check-token-definitions.php';
+
+        $report   = mhmrentiva_classify_tokens(
+            array($root),
+            array($root . '/assets/css/core/css-variables.css')
+        );
+        $declared = array();
+        foreach ($report['tokens'] as $token => $row) {
+            if (array() !== $row['declared_in']) {
+                $declared[] = $token;
+            }
+        }
+
+        return mhmrentiva_set_a_overlap(array($root), $declared);
+    }
+
+    /**
+     * Set A -- the admin React palette -- is deliberately outside the
+     * classification universe (see the test above). The carve-out's
+     * COMPENSATING CONTROL is that its overlap with the product's own tokens is
+     * reported: one spelling, two sources, and whichever selector matches last
+     * wins. The spec promised this signal (§5 G1, `[SET-A-OVERLAP]`) and the
+     * gate shipped without it, so the carve-out was invisible rather than
+     * merely out of scope.
+     */
+    public function test_set_a_overlap_names_a_token_both_universes_declare(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-text: #111; }
+",
+            'assets/css/core/card.css'          => ".mhm-card { --mhm-card-bg: #fff; background: var(--mhm-card-bg); }
+",
+            'src-react/shared/admin.css'        => ":root { --mhm-text: #1d2327; --mhm-card-bg: #ffffff; --mhm-admin-only: #eee; }
+",
+        ));
+
+        $this->assertSame(
+            array('--mhm-card-bg', '--mhm-text'),
+            $this->set_a_overlap($root)
+        );
+    }
+
+    /**
+     * A palette name that only set A declares is not an overlap -- it is set A
+     * doing exactly what it is allowed to do. Reporting it would turn the
+     * signal into noise and train the reader to skip the line.
+     */
+    public function test_set_a_overlap_ignores_a_token_only_the_react_palette_declares(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-primary: #2271b1; }
+",
+            'src-react/shared/admin.css'        => ":root { --mhm-admin-only: #eee; }
+",
+        ));
+
+        $this->assertSame(array(), $this->set_a_overlap($root));
+    }
+
+    /**
+     * Reporting the overlap must not drag set A back into classification: the
+     * two names would immediately become false `shared` violations, which is
+     * the exact outcome the carve-out exists to avoid.
+     */
+    public function test_reporting_the_overlap_leaves_classification_untouched(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-text: #111; }
+",
+            'src-react/shared/admin.css'        => ":root { --mhm-text: #1d2327; --mhm-admin-only: #eee; }
+",
+        ));
+
+        $classes = $this->classify($root);
+
+        $this->assertSame('canonical', $classes['--mhm-text']);
+        $this->assertArrayNotHasKey('--mhm-admin-only', $classes);
+    }
 }

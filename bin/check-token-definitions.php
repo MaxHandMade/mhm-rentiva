@@ -30,7 +30,14 @@
  *   shared              declared outside the canonical files AND either
  *                       declared in more than one file or read outside its own
  *
- * Only `shared` fails. `unused` and `orphan` are reported against a manifest.
+ * Only `shared` fails. `unused` and `orphan` are reported BY NAME, not against
+ * a manifest: an accepted-list would turn a deferred decision into a permanent
+ * baseline, and this project has already been bitten by a bucket that read as
+ * a baseline when it was really a "could not decide" list.
+ *
+ * The gate also prints `[SET-A-OVERLAP]`: names that the admin React palette
+ * (set A, skipped by the walker below) and the classified universe BOTH
+ * declare. Set A being out of scope is a decision; drifting unseen is not.
  *
  * PHP is read through token_get_all() rather than a regex, because a docblock
  * that shows `--mhm-primary:#000;` as an example (TokenMapper.php:29) is
@@ -209,6 +216,89 @@ function mhmrentiva_walk(string $root, string $extension): array
     sort($files);
 
     return $files;
+}
+
+/**
+ * Walks set A only: the admin React palette the classifier deliberately skips.
+ *
+ * Kept separate from mhmrentiva_walk() on purpose. That walker's skip list is
+ * load-bearing -- widening it would pull set A into classification and turn the
+ * shared names into false `shared` violations, which is the exact outcome the
+ * carve-out exists to avoid. This walker reads the same files for a different
+ * question and never feeds the classifier.
+ *
+ * @return list<string>
+ */
+function mhmrentiva_walk_set_a(string $root): array
+{
+    $base = $root . '/src-react';
+
+    if (! is_dir($base)) {
+        return array();
+    }
+
+    $skip  = array('node_modules', 'vendor', 'build', '.git');
+    $files = array();
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveCallbackFilterIterator(
+            new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS),
+            static function ($current) use ($skip): bool {
+                return ! ($current->isDir() && in_array($current->getFilename(), $skip, true));
+            }
+        )
+    );
+
+    foreach ($iterator as $file) {
+        if ($file->isFile() && strtolower($file->getExtension()) === 'css') {
+            $files[] = mhmrentiva_real($file->getPathname());
+        }
+    }
+
+    sort($files);
+
+    return $files;
+}
+
+/**
+ * Names that set A and the classified universe BOTH declare.
+ *
+ * This is the compensating control for the carve-out. Set A being out of scope
+ * is a decision; set A drifting unseen is not. One spelling with two sources is
+ * a latent collision -- whichever selector matches last wins, and today the two
+ * sources disagree in kind: the product's canonical `--mhm-text` is theme-aware
+ * (`var( --wp--preset--color--foreground, ... )`) while set A's is a hard
+ * value. They paint the same pixel only until a theme defines the preset.
+ *
+ * Report-only by contract: this function never decides a violation. Failing on
+ * it would fail the tree for a decision the slice deliberately deferred.
+ *
+ * @param list<string> $roots          Same roots the classifier walked.
+ * @param list<string> $declared_names Tokens the classifier found a DECLARATION
+ *                                     for; orphans (read, never declared) are
+ *                                     not an overlap with anything.
+ *
+ * @return list<string> Sorted, unique.
+ */
+function mhmrentiva_set_a_overlap(array $roots, array $declared_names): array
+{
+    $set_a = array();
+
+    foreach ($roots as $root) {
+        foreach (mhmrentiva_walk_set_a(mhmrentiva_real($root)) as $file) {
+            $css = (string) file_get_contents($file);
+
+            foreach (mhmrentiva_css_declarations($css) as $decl) {
+                $set_a[$decl['token']] = true;
+            }
+        }
+    }
+
+    $overlap = array_values(array_intersect(array_keys($set_a), $declared_names));
+
+    sort($overlap);
+
+    return $overlap;
 }
 
 /**
@@ -397,6 +487,37 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     );
     foreach (array('canonical', 'component-private', 'unused', 'runtime-parameter', 'blueprint-namespace', 'orphan', 'shared') as $class) {
         printf("  %-20s %d\n", $class, count($buckets[$class] ?? array()));
+    }
+
+    // A count cannot be acted on. The spec asks for the sets themselves, and a
+    // reader who has to re-derive them from a number will not derive them.
+    foreach (array('unused', 'orphan') as $class) {
+        $names = $buckets[$class] ?? array();
+
+        if (array() === $names) {
+            continue;
+        }
+
+        sort($names);
+        printf("[%s] %s
+", strtoupper($class), implode(', ', $names));
+    }
+
+    // Compensating control for the set A carve-out. Report-only by contract:
+    // failing here would fail the tree for a decision this slice deferred.
+    $declared = array();
+
+    foreach ($report['tokens'] as $token => $row) {
+        if (array() !== $row['declared_in']) {
+            $declared[] = $token;
+        }
+    }
+
+    $overlap = mhmrentiva_set_a_overlap($paths, $declared);
+
+    if (array() !== $overlap) {
+        printf("[SET-A-OVERLAP] %s
+", implode(', ', $overlap));
     }
 
     if ($fail > 0 && ! $report_only) {
