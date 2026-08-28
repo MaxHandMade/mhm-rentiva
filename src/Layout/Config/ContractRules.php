@@ -62,8 +62,13 @@ class ContractRules {
      */
     public const FORBIDDEN_PATTERNS = [
         'tw-',
+        // 'tailwind' matches by stripos(), so it already covers every string that
+        // contains a Tailwind CDN URL. A separate 'cdn.tailwindcss.com' entry added
+        // nothing to the ban and cost the plugin its only Plugin Check ERROR: the
+        // scanner reads a literal CDN host in source as offloaded content, and cannot
+        // tell a blocklist from a script tag. The behaviour is pinned by
+        // GovernanceGateTest's 'Tailwind CDN URL' cases, not by this list.
         'tailwind',
-        'cdn.tailwindcss.com',
         'antialiased',
         'flex-1',
     ];

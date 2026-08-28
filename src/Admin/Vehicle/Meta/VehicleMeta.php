@@ -1122,6 +1122,15 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
+	 * Keys that are never detail, feature or equipment fields, whatever an option says.
+	 *
+	 * Both are owned by their own meta boxes. gallery_images is the one that cost a
+	 * gallery: rendered as a detail it emits a second field with the gallery meta box's
+	 * name, and PHP keeps the last field of a repeated name.
+	 */
+	private const NEVER_A_DETAIL_FIELD = array('image', 'gallery_images');
+
+	/**
 	 * Build available fields
 	 */
 	private static function build_available_fields(array $selected_fields, array $stored_fields, array $custom_fields): array
@@ -1129,6 +1138,26 @@ final class VehicleMeta extends AbstractMetaBox {
 		$available_fields = array();
 
 		foreach ($selected_fields as $key) {
+			// Refused from every source, not just from the unknown-key branch below.
+			//
+			// The drop at the end of this loop closes the route we measured: a stored key
+			// that matches nothing gets no label. It leaves one open. If a site's
+			// mhmrentiva_vehicle_details option carries an actual LABEL for gallery_images,
+			// the first branch answers before the drop is reached, the key counts as known,
+			// and the duplicate field name -- and the wiped gallery -- come back.
+			//
+			// No writer in this repository can produce that shape. But the plugin's
+			// pre-public history is not in this repository, PrefixMigrationMap still carries
+			// old mhm_* options forward, and the failure mode is a customer losing a gallery
+			// with nothing on screen explaining it. The asymmetry decides it: refusing these
+			// two keys costs nothing if the shape never existed.
+			//
+			// It is also just true. Both keys are owned by their own meta boxes and are not
+			// detail fields in any configuration -- the same fact that made them dangerous.
+			if (in_array($key, self::NEVER_A_DETAIL_FIELD, true)) {
+				continue;
+			}
+
 			if (! empty($stored_fields[ $key ])) {
 				$available_fields[ $key ] = $stored_fields[ $key ];
 			} elseif (! empty($custom_fields[ $key ])) {

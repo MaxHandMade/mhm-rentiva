@@ -146,6 +146,70 @@ final class SelectedDetailsUniverseTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * The insurance, for a data shape we cannot inspect.
+     *
+     * The test above closes the route we measured: a stored key that matches NO source is
+     * dropped instead of being handed a made-up label. It leaves one gap open. If a site's
+     * stored-label option (mhmrentiva_vehicle_details) carries an actual label for
+     * gallery_images, the first branch of build_available_fields answers before the drop is
+     * ever reached, the key is "known", and the duplicate field name comes back.
+     *
+     * No writer in this repository can produce that shape -- the destructive updated_labels
+     * logic was gone before the first public commit, and apply_label_updates cannot write a
+     * non-default key into the overrides. But the plugin's pre-public 4.x and 5.x history is
+     * not in this repository, PrefixMigrationMap still carries old mhm_* options forward, and
+     * the failure mode is a customer losing a gallery without being told why.
+     *
+     * So these two keys are refused by name, from every source. That is not a workaround for
+     * a shape we know exists; it is a floor under one we cannot rule out. It is also simply
+     * correct: image and gallery_images are owned by their own meta boxes and are not detail
+     * fields in any configuration, which is the same fact that made them dangerous here.
+     */
+    public function test_the_two_gallery_keys_are_refused_even_when_a_stored_label_exists(): void
+    {
+        $build = new \ReflectionMethod(
+            \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::class,
+            'build_available_fields'
+        );
+        $build->setAccessible(true);
+
+        $available = $build->invoke(
+            null,
+            array('price_per_day', 'image', 'gallery_images'),
+            array(
+                'price_per_day'   => 'Daily Price',
+                // The shape this test exists for: a label present for keys that are not
+                // detail fields. Branch one of build_available_fields would accept both.
+                'image'           => 'Image',
+                'gallery_images'  => 'Gallery Images',
+            ),
+            array()
+        );
+
+        $this->assertArrayHasKey(
+            'price_per_day',
+            $available,
+            'A real detail field must still survive -- this test must not pass by refusing '
+            . 'everything.'
+        );
+
+        $this->assertArrayNotHasKey(
+            'gallery_images',
+            $available,
+            'gallery_images carried a stored label and was still accepted. That is the one '
+            . 'route left open after the no-source drop, and it ends in the same duplicate '
+            . 'field name that wipes the gallery on save.'
+        );
+
+        $this->assertArrayNotHasKey(
+            'image',
+            $available,
+            'image is owned by the featured-image meta box and is not a detail field in any '
+            . 'configuration. It rendered as the other empty ghost box.'
+        );
+    }
+
     public function tearDown(): void
     {
         $_POST = array();
