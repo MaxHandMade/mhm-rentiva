@@ -1128,7 +1128,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	 * gallery: rendered as a detail it emits a second field with the gallery meta box's
 	 * name, and PHP keeps the last field of a repeated name.
 	 */
-	private const NEVER_A_DETAIL_FIELD = array('image', 'gallery_images');
+	private const NEVER_A_DETAIL_FIELD = array( 'image', 'gallery_images' );
 
 	/**
 	 * Build available fields
@@ -1148,7 +1148,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			//
 			// No writer in this repository can produce that shape. But the plugin's
 			// pre-public history is not in this repository, PrefixMigrationMap still carries
-			// old mhm_* options forward, and the failure mode is a customer losing a gallery
+			// the pre-6.0 option spellings forward, and the failure mode is a customer losing a gallery
 			// with nothing on screen explaining it. The asymmetry decides it: refusing these
 			// two keys costs nothing if the shape never existed.
 			//

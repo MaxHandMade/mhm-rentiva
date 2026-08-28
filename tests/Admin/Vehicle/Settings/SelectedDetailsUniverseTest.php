@@ -158,7 +158,7 @@ final class SelectedDetailsUniverseTest extends WP_UnitTestCase
      * No writer in this repository can produce that shape -- the destructive updated_labels
      * logic was gone before the first public commit, and apply_label_updates cannot write a
      * non-default key into the overrides. But the plugin's pre-public 4.x and 5.x history is
-     * not in this repository, PrefixMigrationMap still carries old mhm_* options forward, and
+     * not in this repository, PrefixMigrationMap still carries the pre-6.0 option spellings forward, and
      * the failure mode is a customer losing a gallery without being told why.
      *
      * So these two keys are refused by name, from every source. That is not a workaround for
