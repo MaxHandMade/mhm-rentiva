@@ -7,6 +7,7 @@ use MHMRentiva\Admin\Customers\AddCustomerPage;
 use MHMRentiva\Admin\Customers\CustomersOptimizer;
 use MHMRentiva\Admin\Customers\CustomersPage;
 use MHMRentiva\Admin\Customers\REST\CustomersRestController;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
@@ -19,6 +20,8 @@ use WP_UnitTestCase;
  */
 final class CustomerUserCapabilityTest extends WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     private static WP_REST_Server $server;
 
     public function setUp(): void
@@ -105,6 +108,13 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
     {
         $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
+        // The role grant above is the whole contract on a single site. On a
+        // network core rewrites create_users/edit_users/delete_users to
+        // do_not_allow for anyone who is not a super admin, so the ALLOWED
+        // side has to ask for what the current mode requires. No-op on a
+        // single site; the DENIED tests keep using the options-only actor and
+        // are untouched.
+        $this->grant_user_management_privilege( $manager_id );
 
         $_POST['submit']                        = 'submit';
         $_POST['mhmrentiva_add_customer_nonce'] = wp_create_nonce( 'mhmrentiva_add_customer' );
@@ -130,6 +140,13 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
     {
         $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
+        // The role grant above is the whole contract on a single site. On a
+        // network core rewrites create_users/edit_users/delete_users to
+        // do_not_allow for anyone who is not a super admin, so the ALLOWED
+        // side has to ask for what the current mode requires. No-op on a
+        // single site; the DENIED tests keep using the options-only actor and
+        // are untouched.
+        $this->grant_user_management_privilege( $manager_id );
 
         $_POST['submit']                        = 'submit';
         $_POST['mhmrentiva_add_customer_nonce'] = wp_create_nonce( 'mhmrentiva_add_customer' );
@@ -197,6 +214,13 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         );
         $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
+        // The role grant above is the whole contract on a single site. On a
+        // network core rewrites create_users/edit_users/delete_users to
+        // do_not_allow for anyone who is not a super admin, so the ALLOWED
+        // side has to ask for what the current mode requires. No-op on a
+        // single site; the DENIED tests keep using the options-only actor and
+        // are untouched.
+        $this->grant_user_management_privilege( $manager_id );
 
         $_GET['customer_id']                      = (string) $target_id;
         $_POST['submit']                           = 'submit';
@@ -271,7 +295,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $response = self::$server->dispatch( $request );
 
         $this->assertSame( 403, $response->get_status(), 'A caller without delete_users must be denied even if the route-level check passed.' );
-        $this->assertNotNull( get_user_by( 'id', $target_id ), 'The target user must not be deleted when the operation is denied.' );
+        $this->assertAccountStillOnSite( $target_id, 'The target user must not be deleted when the operation is denied.' );
 
         remove_action( 'rest_api_init', array( CustomersRestController::class, 'register_routes' ) );
         global $wp_rest_server;
@@ -285,6 +309,13 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $target_id  = self::factory()->user->create( array( 'role' => 'customer' ) );
         $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
+        // The role grant above is the whole contract on a single site. On a
+        // network core rewrites create_users/edit_users/delete_users to
+        // do_not_allow for anyone who is not a super admin, so the ALLOWED
+        // side has to ask for what the current mode requires. No-op on a
+        // single site; the DENIED tests keep using the options-only actor and
+        // are untouched.
+        $this->grant_user_management_privilege( $manager_id );
 
         $request = new WP_REST_Request( 'DELETE', '/mhm-rentiva/v1/customers/bulk' );
         $request->set_header( 'Content-Type', 'application/json' );
@@ -293,7 +324,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
 
         $this->assertSame( 200, $response->get_status() );
         $this->assertSame( 1, $response->get_data()['deleted'] );
-        $this->assertFalse( get_user_by( 'id', $target_id ) );
+        $this->assertAccountRemovedFromSite( $target_id, 'A caller with delete_users must be able to delete the customer.' );
 
         remove_action( 'rest_api_init', array( CustomersRestController::class, 'register_routes' ) );
         global $wp_rest_server;

@@ -8,6 +8,7 @@ use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Customers\REST\CustomersRestController;
 use WP_REST_Request;
 use WP_REST_Server;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_UnitTestCase;
 
 /**
@@ -26,6 +27,8 @@ use WP_UnitTestCase;
  */
 final class CustomersObjectCapabilityTest extends WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     private static WP_REST_Server $server;
 
     public function setUp(): void
@@ -60,6 +63,27 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
         return (int) self::factory()->user->create(array('role' => $role));
     }
 
+    /**
+     * The caller these tests act as: someone who genuinely holds the route
+     * capabilities, so that any refusal below can only be the object-level
+     * guard talking.
+     *
+     * That distinction is the whole point of this suite, and on a network it
+     * is the part that breaks: core rewrites edit_users/delete_users to
+     * do_not_allow for a plain administrator, so without the mode-correct
+     * grant every test here would go green for the wrong reason -- refused by
+     * the ROUTE gate, never reaching the object-level check it exists to pin.
+     * Deliberately separate from createBystander(), which builds TARGET
+     * accounts that must stay unprivileged.
+     */
+    private function createCaller(): int
+    {
+        $caller_id = (int) self::factory()->user->create(array('role' => 'administrator'));
+        $this->grant_user_management_privilege($caller_id);
+
+        return $caller_id;
+    }
+
     private function createRealCustomer(): int
     {
         return (int) self::factory()->user->create(array('role' => 'customer'));
@@ -76,7 +100,7 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
 
     public function test_bulk_delete_refuses_an_editor_who_is_not_a_customer(): void
     {
-        wp_set_current_user($this->createBystander('administrator'));
+        wp_set_current_user($this->createCaller());
         $target_id = $this->createBystander('editor');
 
         $response = $this->dispatchBulkDelete(array($target_id));
@@ -84,22 +108,22 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
         $this->assertSame(200, $response->get_status());
         $this->assertSame(0, $response->get_data()['deleted'], 'A non-customer must not be deleted.');
         $this->assertSame(1, $response->get_data()['skipped']);
-        $this->assertNotFalse(get_user_by('id', $target_id), 'The bystander account must survive.');
+        $this->assertAccountStillOnSite($target_id, 'The bystander account must survive.');
     }
 
     public function test_bulk_delete_refuses_a_second_administrator(): void
     {
-        wp_set_current_user($this->createBystander('administrator'));
+        wp_set_current_user($this->createCaller());
         $target_id = $this->createBystander('administrator');
 
         $this->dispatchBulkDelete(array($target_id));
 
-        $this->assertNotFalse(get_user_by('id', $target_id), 'A second administrator must survive a customer bulk delete.');
+        $this->assertAccountStillOnSite($target_id, 'A second administrator must survive a customer bulk delete.');
     }
 
     public function test_bulk_delete_deletes_customers_and_skips_bystanders_in_one_batch(): void
     {
-        wp_set_current_user($this->createBystander('administrator'));
+        wp_set_current_user($this->createCaller());
         $customer_id  = $this->createRealCustomer();
         $bystander_id = $this->createBystander('editor');
 
@@ -108,8 +132,8 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
         // The mixed batch is the case a per-batch check cannot express at all.
         $this->assertSame(1, $response->get_data()['deleted']);
         $this->assertSame(1, $response->get_data()['skipped']);
-        $this->assertFalse(get_user_by('id', $customer_id));
-        $this->assertNotFalse(get_user_by('id', $bystander_id));
+        $this->assertAccountRemovedFromSite($customer_id, 'The genuine customer in the batch must actually be deleted.');
+        $this->assertAccountStillOnSite($bystander_id, 'The bystander in the same batch must be skipped, not deleted.');
     }
 
     /**
@@ -128,7 +152,7 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
      */
     public function test_bulk_delete_honours_a_denied_per_target_meta_capability(): void
     {
-        wp_set_current_user($this->createBystander('administrator'));
+        wp_set_current_user($this->createCaller());
         $protected_id = $this->createRealCustomer();
 
         $deny = static function (array $caps, string $cap, int $user_id, array $args) use ($protected_id): array {
@@ -147,15 +171,15 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
         }
 
         $this->assertSame(0, $response->get_data()['deleted']);
-        $this->assertNotFalse(
-            get_user_by('id', $protected_id),
+        $this->assertAccountStillOnSite(
+            $protected_id,
             'A customer the caller may not delete per-target must survive, even though CustomerIdentity accepts them.'
         );
     }
 
     public function test_detail_route_refuses_an_account_that_is_not_a_customer(): void
     {
-        wp_set_current_user($this->createBystander('administrator'));
+        wp_set_current_user($this->createCaller());
         $target_id = $this->createBystander('editor');
 
         $request  = new WP_REST_Request('GET', '/mhm-rentiva/v1/customers/' . $target_id);
@@ -168,7 +192,7 @@ final class CustomersObjectCapabilityTest extends WP_UnitTestCase
 
     public function test_detail_route_still_returns_a_real_customer(): void
     {
-        wp_set_current_user($this->createBystander('administrator'));
+        wp_set_current_user($this->createCaller());
         $customer_id = $this->createRealCustomer();
 
         $request  = new WP_REST_Request('GET', '/mhm-rentiva/v1/customers/' . $customer_id);

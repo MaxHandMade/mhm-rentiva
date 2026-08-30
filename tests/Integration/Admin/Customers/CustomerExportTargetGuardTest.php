@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Integration\Admin\Customers;
 
 use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Customers\Export\CustomerExporter;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_UnitTestCase;
 
 /**
@@ -32,6 +33,8 @@ use WP_UnitTestCase;
  * screen, so until this passes, the changelog is a claim a grep disproves.
  */
 final class CustomerExportTargetGuardTest extends WP_UnitTestCase {
+	use UserManagementCapabilities;
+
 
 	/**
 	 * Reset the per-request memo so ids created here are judged fresh.
@@ -51,6 +54,12 @@ final class CustomerExportTargetGuardTest extends WP_UnitTestCase {
 	public function test_export_omits_an_account_that_is_not_a_customer(): void {
 		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
+		// The Customers surface is gated on edit_users, which an administrator
+		// does not hold on a network -- core rewrites it to do_not_allow for
+		// anyone who is not a super admin. Ask for what the mode requires so
+		// the assertions below measure this plugin's guard rather than core's
+		// capability rewrite. No-op on a single site.
+		$this->grant_user_management_privilege( (int) $admin );
 
 		$editor = self::factory()->user->create(
 			array(
@@ -109,6 +118,12 @@ final class CustomerExportTargetGuardTest extends WP_UnitTestCase {
 	public function test_a_fully_refused_selection_yields_only_the_header(): void {
 		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
+		// The Customers surface is gated on edit_users, which an administrator
+		// does not hold on a network -- core rewrites it to do_not_allow for
+		// anyone who is not a super admin. Ask for what the mode requires so
+		// the assertions below measure this plugin's guard rather than core's
+		// capability rewrite. No-op on a single site.
+		$this->grant_user_management_privilege( (int) $admin );
 
 		$editor = self::factory()->user->create(
 			array(
@@ -149,6 +164,12 @@ final class CustomerExportTargetGuardTest extends WP_UnitTestCase {
 	public function test_export_all_omits_accounts_that_are_not_customers(): void {
 		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
+		// The Customers surface is gated on edit_users, which an administrator
+		// does not hold on a network -- core rewrites it to do_not_allow for
+		// anyone who is not a super admin. Ask for what the mode requires so
+		// the assertions below measure this plugin's guard rather than core's
+		// capability rewrite. No-op on a single site.
+		$this->grant_user_management_privilege( (int) $admin );
 
 		$editor = self::factory()->user->create(
 			array(
@@ -190,6 +211,12 @@ final class CustomerExportTargetGuardTest extends WP_UnitTestCase {
 	public function test_export_omits_a_customer_the_caller_may_not_edit(): void {
 		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
+		// The Customers surface is gated on edit_users, which an administrator
+		// does not hold on a network -- core rewrites it to do_not_allow for
+		// anyone who is not a super admin. Ask for what the mode requires so
+		// the assertions below measure this plugin's guard rather than core's
+		// capability rewrite. No-op on a single site.
+		$this->grant_user_management_privilege( (int) $admin );
 
 		$customer = self::factory()->user->create(
 			array(

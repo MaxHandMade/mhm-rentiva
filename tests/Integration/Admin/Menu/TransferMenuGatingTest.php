@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Admin\Menu;
 
 use MHMRentiva\Admin\Utilities\Menu\Menu;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 
 /**
  * FORMER PURPOSE (kept for history; do not resurrect the mechanism below)
@@ -38,10 +39,20 @@ use MHMRentiva\Admin\Utilities\Menu\Menu;
  */
 final class TransferMenuGatingTest extends \WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     protected function setUp(): void
     {
         parent::setUp();
-        wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+        $actor_id = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
+        // The Customers submenu is registered with the edit_users capability,
+        // and add_submenu_page() simply does not register a screen the current
+        // user cannot access. On a network an administrator does not hold
+        // edit_users, so without this the screen is legitimately absent and the
+        // assertion below would be measuring core's capability rewrite instead
+        // of this plugin's menu wiring. No-op on a single site.
+        $this->grant_user_management_privilege($actor_id);
+        wp_set_current_user($actor_id);
     }
 
     protected function tearDown(): void

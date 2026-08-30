@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Booking\Meta;
 
 use MHMRentiva\Admin\Booking\Meta\BookingPortalMetaBox;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -14,6 +15,8 @@ use WP_Ajax_UnitTestCase;
  */
 final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     protected $_last_response;
 
     private int $booking_id;
@@ -21,6 +24,14 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
+        // create_users is the capability this suite is about, and it is the one
+        // capability with TWO multisite paths: super admin, or the network
+        // option add_new_users. Turning the option on is the faithful choice
+        // here -- it keeps the actor a plain administrator, so the DENIED
+        // tests (roles without create_users) stay denied for exactly the
+        // reason they always did, and it models the deployment where a site
+        // owner really can add customers. No-op on a single site.
+        $this->allow_site_admins_to_create_users();
 
         $this->booking_id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
 
@@ -52,6 +63,12 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
     public function tearDown(): void
     {
+        // Defensive: allow_site_admins_to_create_users() works through a hook, and
+        // WP_UnitTestCase restores hooks after each test, so this is belt and
+        // braces rather than load-bearing. It is kept because a future edit that
+        // reaches for update_site_option() again would reintroduce a leak this
+        // suite has already been bitten by once.
+        $this->forbid_site_admins_from_creating_users();
         remove_role('mhmrentiva_test_editposts_only');
         remove_role('mhmrentiva_test_user_creator');
         parent::tearDown();
