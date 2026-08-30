@@ -135,6 +135,14 @@ No. It makes no third-party requests at all — see the "External services" sect
 = Is it mobile-ready? =
 Yes, all frontend components and admin settings are fully responsive.
 
+= Does it work on a WordPress multisite network? =
+Yes, and it can be network-activated. One limit is worth knowing before you plan around it: the
+parts that manage WordPress user accounts -- the Customers screens and creating a customer account
+from a booking -- require a Super Admin. WordPress itself reserves user management for the network
+level on multisite, so a site administrator will not see those screens even though they can use
+everything else. Vehicles, bookings, add-ons, payments and all frontend features work normally for
+a site administrator.
+
 = Which page builders are supported? =
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 

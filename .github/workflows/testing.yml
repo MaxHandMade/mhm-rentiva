@@ -144,6 +144,21 @@ jobs:
       - name: Carve-out manifest invariant (src/ == Lite keep-list)
         run: composer check-manifest
 
+      # check-manifest pins src/. This pins the other 318 files -- assets,
+      # templates, src-react, languages, build, the root files and the bundled
+      # ui-core package -- because the ZIP is how WordPress.org and every user
+      # meet this plugin, and its contents have drifted both ways unnoticed:
+      # a stray phpunit log written to build/ joined it (588 -> 589), and Pro
+      # was shipping the ui-core README because a .distignore re-exclusion sat
+      # in the wrong order. The second direction is the dangerous one -- a file
+      # that stops shipping is first reported as a fatal on a user's site.
+      #
+      # A count would not catch a swap, so the comparison is by name in both
+      # directions, and the list is read from the ZIP builder rather than
+      # restated here.
+      - name: Shipped-surface invariant (the ZIP == the pinned surface)
+        run: composer check-shipped-surface
+
       # Reproducible-build gate. Runs here rather than in a Node job on purpose:
       # it needs no node_modules, and the defect it catches is precisely one an
       # `npm ci` would have caught but nobody ever ran on a clean tree.

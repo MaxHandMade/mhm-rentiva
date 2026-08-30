@@ -407,6 +407,8 @@ bin/*
 # rather than a real mismatch, and no CI job ran it. Tracking the script but not
 # the list it needs is the same as not having the gate.
 !bin/lite-manifest-final.txt
+!bin/check-shipped-surface.php
+!bin/shipped-surface-final.txt
 # Quality-gate script: `composer check-unguarded-pro-refs` / `composer carve-gates`
 # require it at runtime; it is the inverse of check-guarded-refs.php (proves every
 # Pro reference sits behind a guard, incl. in templates/ which PHPStan never
