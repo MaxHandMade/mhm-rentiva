@@ -351,6 +351,7 @@ bin/*
 !bin/cleanup-early-completed-bookings.php
 # Quality-gate script: `composer check-guarded-refs` requires it at runtime
 # and Task 3 wires it into CI, so it must ship in every clone.
+!bin/assert-tests-ran.php
 !bin/check-guarded-refs.php
 # Quality-gate script: `composer check-uicore-version` requires it at runtime and
 # CI invokes it, so it must ship in every clone. It locks the hand-written version

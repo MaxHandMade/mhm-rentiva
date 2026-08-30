@@ -156,3 +156,10 @@ languages/*-backup-*.l10n.php
 *.log
 *.zip
 build_debug.txt
+
+
+# Test artefacts, not build output. build/ ships (the compiled admin bundles
+# live there), so anything else dropped into it ships too -- measured: a stray
+# phpunit --log-junit file took the shipped surface from 588 to 589 without a
+# single gate objecting.
+/build/logs/
