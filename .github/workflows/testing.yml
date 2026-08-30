@@ -448,21 +448,46 @@ jobs:
       # implement multisite: mhm-rentiva.php has network-wide activation.
       #
       # Measured before wiring it up: the config works and the run it documents
-      # is green -- 7 tests, 22 assertions, "Running as multisite...". Running the
-      # WHOLE suite under multisite is a different question and is NOT what this
-      # step does: it produces 1 error and 38 failures, almost all of them the
-      # Customers surface, because core maps edit_users to do_not_allow for
-      # anyone without manage_network_users (wp-includes/capabilities.php, the
-      # is_multisite() branch). That is a product boundary awaiting a decision,
-      # not something to fix by widening a CI step.
+      # is green -- 7 tests, 22 assertions, "Running as multisite...".
       #
       # --fail-on-skipped so the sentinel cannot go back to skipping silently,
       # and assert-tests-ran.php because --group matching nothing prints
       # "No tests executed!" and exits 0 -- 9.6 has no --fail-on-empty-test-suite.
-      - name: Multisite run (the config nothing used to execute)
+      - name: Multisite sentinel (the config nothing used to execute)
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
         run: composer test:multisite
+
+      # The whole suite under multisite is STILL not a step here, and the reason
+      # changed on 2026-08-31. It is no longer the Customers capability boundary
+      # -- that was decided (the behaviour stays) and the tests were rewritten to
+      # state the multisite contract, which took thirteen classes from 38
+      # failures to 0.
+      #
+      # The blocker now is that this run is not reproducible. Same commit on
+      # main, same command, two runs an hour apart:
+      #
+      #   run A   1 error,  38 failures
+      #   run B   2 errors, 98 failures
+      #
+      # The composition moved too -- Refunds, Payments, Cancellation and
+      # CurrencyNumericRegression classes that are nothing to do with multisite
+      # appear and disappear between runs. The cause is already on record: the
+      # locking helper commits the PHPUnit transaction mid-test, so whatever a
+      # test wrote outlives it and the next test sees a database nobody
+      # described. Under multisite more of the suite reaches the code that
+      # commits, so the spread is wider there, but the defect is not multisite's.
+      #
+      # Wiring a gate onto a run that swings between 39 and 100 failures would
+      # not measure this plugin, it would measure the order PHPUnit happened to
+      # pick, and a flaky red gate teaches everyone to ignore it -- which is the
+      # same ending as the sentinel above was written to prevent, reached from
+      # the other side.
+      #
+      # `composer test:multisite:full` exists and is the command to reproduce
+      # this locally. It becomes a step here when the run is deterministic, and
+      # the work that makes it deterministic is the transaction-commit defect,
+      # not anything in this file.
 
   # Gate G-D: WP.org's own Plugin Check, on the surface .distignore actually
   # ships -- including vendor/mhm/ui-core, which Plugin Check hides from itself
