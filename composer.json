@@ -5,6 +5,10 @@
     "license": "GPL-2.0-or-later",
     "scripts": {
         "test": "@php ./vendor/bin/phpunit -c phpunit.xml",
+        "test:multisite": [
+            "@php ./vendor/bin/phpunit -c tests/phpunit/multisite.xml --fail-on-skipped --group multisite --log-junit ./build/logs/multisite-junit.xml",
+            "@php ./bin/assert-tests-ran.php ./build/logs/multisite-junit.xml"
+        ],
         "phpcs": "@php ./vendor/bin/phpcs --standard=phpcs.xml",
         "phpcbf": "@php ./vendor/bin/phpcbf --standard=phpcs.xml",
         "phpstan": "@php ./vendor/bin/phpstan analyse --memory-limit=4G",

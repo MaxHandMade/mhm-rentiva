@@ -425,6 +425,30 @@ jobs:
           WP_CORE_DIR: /tmp/wordpress
         run: composer check-admin-only
 
+      # tests/phpunit/multisite.xml has existed since 2026-08-03 and nothing has
+      # ever run it -- no composer script, no CI step. The sentinel guarding it
+      # (IndexCleanupMigrationTest::test_multisite_xml_config_actually_enables_multisite)
+      # therefore skipped on every run, everywhere, since the day it was written,
+      # and PHPUnit exits 0 on a skipped test. Meanwhile this plugin really does
+      # implement multisite: mhm-rentiva.php has network-wide activation.
+      #
+      # Measured before wiring it up: the config works and the run it documents
+      # is green -- 7 tests, 22 assertions, "Running as multisite...". Running the
+      # WHOLE suite under multisite is a different question and is NOT what this
+      # step does: it produces 1 error and 38 failures, almost all of them the
+      # Customers surface, because core maps edit_users to do_not_allow for
+      # anyone without manage_network_users (wp-includes/capabilities.php, the
+      # is_multisite() branch). That is a product boundary awaiting a decision,
+      # not something to fix by widening a CI step.
+      #
+      # --fail-on-skipped so the sentinel cannot go back to skipping silently,
+      # and assert-tests-ran.php because --group matching nothing prints
+      # "No tests executed!" and exits 0 -- 9.6 has no --fail-on-empty-test-suite.
+      - name: Multisite run (the config nothing used to execute)
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        run: composer test:multisite
+
   # Gate G-D: WP.org's own Plugin Check, on the surface .distignore actually
   # ships -- including vendor/mhm/ui-core, which Plugin Check hides from itself
   # ("vendor" is in its hardcoded ignore list, so the gate restages those files

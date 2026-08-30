@@ -30,6 +30,12 @@ use WP_UnitTestCase;
  *  5. a DROP that fails (forced via the injected $runner seam) is reported
  *     under 'failed', and critically -- the index is confirmed still present
  *     afterward, so a failure can never masquerade as success.
+ *
+ * @group multisite
+ *   Opted in to the multisite run (composer test:multisite). The group is how a
+ *   test says "I am worth running under a network", so the runner never has to
+ *   name a class -- a filter on a class name rots silently the moment the class
+ *   is renamed, and phpunit exits 0 on a selection that matches nothing.
  */
 final class IndexCleanupMigrationTest extends WP_UnitTestCase
 {
