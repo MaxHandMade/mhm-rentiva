@@ -49,7 +49,7 @@ export default function DashboardPage() {
 				<StatsCards metrics={ metrics } deltas={ metricDeltas } currency={ currency } />
 			</div>
 
-			{ /* Two columns: left (chart + bookings) / right (statuses + payments + quick actions) */ }
+			{ /* Two columns: left (chart + bookings) / right (actions + what is coming next + summaries) */ }
 			<div className="rv-dash-cols">
 				<div className="rv-dash-cols__left">
 					<RevenueChart revenueData={ revenueData } currency={ currency } />
@@ -59,11 +59,11 @@ export default function DashboardPage() {
 						currency={ currency }
 						adminUrl={ adminUrl }
 					/>
-					<UpcomingOperations initial={ upcomingInitial } />
 				</div>
 
 				<div className="rv-dash-cols__right">
 					<QuickActions adminUrl={ adminUrl } />
+					<UpcomingOperations initial={ upcomingInitial } />
 					<StatusBreakdown items={ statusBreakdown } />
 					<PaymentsSummary summary={ paymentsSummary } currency={ currency } />
 				</div>
