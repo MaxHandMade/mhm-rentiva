@@ -49,6 +49,17 @@ phpstan-baseline.neon
 /vendor/mhm/ui-core/phpunit.xml
 /vendor/mhm/ui-core/phpunit.xml.dist
 /vendor/mhm/ui-core/tests/
+# Defence in depth: the package's own .gitattributes already export-ignores
+# these dev-surface paths, so a normal (dist) `composer install` never puts
+# them in vendor/ at all. They only matter for a --prefer-source install, or
+# if the package's export-ignore list ever regresses. Must be listed here,
+# AFTER "!/vendor/mhm/", for the same last-match-wins reason as above.
+/vendor/mhm/ui-core/bin/
+/vendor/mhm/ui-core/package.json
+/vendor/mhm/ui-core/package-lock.json
+/vendor/mhm/ui-core/.eslintrc.js
+/vendor/mhm/ui-core/.stylelintrc.json
+/vendor/mhm/ui-core/jest.config.js
 node_modules/
 build/zip-staging
 composer.lock
