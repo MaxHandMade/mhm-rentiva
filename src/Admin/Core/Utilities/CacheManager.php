@@ -126,11 +126,19 @@ final class CacheManager {
 			$pattern = self::CACHE_KEYS[ $type ];
 
 			if ( str_ends_with( $pattern, '_' ) ) {
-				// Clear by pattern (e.g., booking_report_*)
+				// Clear by pattern (e.g., booking_report_*). The LIKE search in
+				// clear_cache_by_pattern() matches the _blog_<id> suffix already,
+				// because the suffix is appended rather than inserted.
 				self::clear_cache_by_pattern( $pattern );
 			} else {
-				// Clear single cache
-				self::delete_cache_object( $pattern );
+				// Single-key types (dashboard_stats, addon_list, system_info) have
+				// no pattern to search, so the key has to be spelled the way
+				// set_cache() spelled it -- through get_multisite_cache_key().
+				// Without this the writer stores mhmrentiva_system_info_blog_2 and
+				// this deletes mhmrentiva_system_info, so on a network the entry
+				// survives its own invalidation until the TTL expires: saving
+				// settings would leave the About screen reporting the old ones.
+				self::delete_cache_object( self::get_multisite_cache_key( $pattern ) );
 			}
 		}
 	}

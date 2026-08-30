@@ -27,6 +27,7 @@ final class CustomersCacheTypeTest extends WP_UnitTestCase
 	public function tearDown(): void
 	{
 		CacheManager::delete_cache( 'customers', 'unit_test' );
+		CacheManager::clear_cache( array( 'system_info' ) );
 		parent::tearDown();
 	}
 
@@ -115,6 +116,38 @@ final class CustomersCacheTypeTest extends WP_UnitTestCase
 			array( 'rows' => 'other' ),
 			$survivor,
 			'And it must not reach across into another site entry.'
+		);
+	}
+
+	/**
+	 * The busiest member of the same class, found by an independent audit
+	 * after the first fix landed.
+	 *
+	 * delete_cache() was the sample, not the class. In Lite it has no
+	 * production caller at all -- every live invalidation goes through
+	 * clear_cache(), and for a single-key type that ends at
+	 * delete_cache_object( $pattern ) with the raw pattern. set_cache() writes
+	 * the same type through get_multisite_cache_key(), so on a network the two
+	 * spelled different keys and the entry survived its own invalidation.
+	 *
+	 * system_info is the live pair: SystemInfo.php writes it, and clearing the
+	 * settings cache is supposed to drop it.
+	 */
+	public function test_clear_cache_reaches_a_single_key_type_on_a_network(): void
+	{
+		CacheManager::set_cache( 'system_info', '', array( 'php' => '8.2' ), 300 );
+
+		$this->assertSame(
+			array( 'php' => '8.2' ),
+			CacheManager::get_cache( 'system_info' ),
+			'Precondition: the entry is readable before the clear.'
+		);
+
+		CacheManager::clear_cache( array( 'system_info' ) );
+
+		$this->assertFalse(
+			CacheManager::get_cache( 'system_info' ),
+			'clear_cache() must delete the key set_cache() wrote, in either mode.'
 		);
 	}
 
