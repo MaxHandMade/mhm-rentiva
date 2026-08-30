@@ -265,6 +265,7 @@ src/Layout/CLI/LayoutImportCommand.php
 src/Layout/CompositionBuilder.php
 src/Layout/Config/ContractRules.php
 src/Layout/Ingestion/AtomicImporter.php
+src/Layout/LayoutErrorMessages.php
 src/Layout/Observability/LayoutAuditService.php
 src/Layout/Observability/LayoutDiffService.php
 src/Layout/Observability/LayoutHistoryService.php

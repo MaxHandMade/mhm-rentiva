@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-28T22:02:48+00:00\n"
+"POT-Creation-Date: 2026-08-30T10:49:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -12281,7 +12281,7 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:228
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:291
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:341
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:1290
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:1319
 #: templates/shortcodes/availability-calendar.php:50
 msgid "Vehicle not found."
 msgstr ""
@@ -12355,22 +12355,22 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:211
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:276
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:326
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:1265
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:1294
 msgid "Security error"
 msgstr ""
 
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:221
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:284
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:334
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:1279
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:1308
 msgid "Permission error"
 msgstr ""
 
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:234
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:297
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:347
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:1295
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:1302
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:1324
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:1331
 msgid "Invalid data"
 msgstr ""
 
@@ -13024,39 +13024,51 @@ msgid "Please review this booking's paid orders and settle any refund by hand."
 msgstr ""
 
 #. translators: %s: missing root key in manifest.
+#. translators: %s: the manifest's missing root key.
 #: src/Layout/BlueprintValidator.php:40
+#: src/Layout/LayoutErrorMessages.php:82
 #, php-format
 msgid "Manifest root key missing: %s"
 msgstr ""
 
 #. translators: %s: blueprint version string.
+#. translators: %s: the manifest's declared version string.
 #: src/Layout/BlueprintValidator.php:53
+#: src/Layout/LayoutErrorMessages.php:89
 #, php-format
 msgid "Unsupported blueprint version: %s"
 msgstr ""
 
 #. translators: %s: forbidden pattern name.
+#. translators: %s: the forbidden pattern found in the manifest.
 #: src/Layout/BlueprintValidator.php:70
+#: src/Layout/LayoutErrorMessages.php:96
 #, php-format
 msgid "Forbidden pattern detected in manifest: %s"
 msgstr ""
 
 #: src/Layout/BlueprintValidator.php:79
+#: src/Layout/LayoutErrorMessages.php:101
 msgid "Manifest contains no pages."
 msgstr ""
 
 #: src/Layout/BlueprintValidator.php:94
+#: src/Layout/LayoutErrorMessages.php:104
 msgid "Manifest components section must be an object/array."
 msgstr ""
 
 #. translators: 1: page index, 2: missing key.
+#. translators: 1: page index in the manifest. 2: the page's missing key.
 #: src/Layout/BlueprintValidator.php:116
+#: src/Layout/LayoutErrorMessages.php:117
 #, php-format
 msgid "Page #%1$d is missing key: %2$s"
 msgstr ""
 
 #. translators: 1: component index, 2: page index.
+#. translators: 1: the component instance's index within its page. 2: the page index.
 #: src/Layout/BlueprintValidator.php:135
+#: src/Layout/LayoutErrorMessages.php:145
 #, php-format
 msgid "Component instance #%1$d in page #%2$d missing instance_id"
 msgstr ""
@@ -13191,25 +13203,33 @@ msgid "No Component changes."
 msgstr ""
 
 #. translators: %s: unknown component ID.
+#. translators: %s: the unrecognised component reference.
 #: src/Layout/CompositionBuilder.php:49
+#: src/Layout/LayoutErrorMessages.php:153
 #, php-format
 msgid "Unknown component reference: %s"
 msgstr ""
 
 #. translators: %s: missing adapter type name.
+#. translators: %s: the component type with no registered adapter.
 #: src/Layout/CompositionBuilder.php:61
+#: src/Layout/LayoutErrorMessages.php:160
 #, php-format
 msgid "No adapter found for component type: %s"
 msgstr ""
 
 #. translators: %s: forbidden pattern found in rendered markup.
+#. translators: %s: the forbidden framework pattern found in rendered markup.
 #: src/Layout/CompositionBuilder.php:112
+#: src/Layout/LayoutErrorMessages.php:167
 #, php-format
 msgid "Tailwind leakage detected in rendered markup: %s"
 msgstr ""
 
 #. translators: %s: utility class fragment.
+#. translators: %s: the unprefixed utility class fragment.
 #: src/Layout/CompositionBuilder.php:124
+#: src/Layout/LayoutErrorMessages.php:174
 #, php-format
 msgid "Unprefixed utility class detected: %s"
 msgstr ""
@@ -13232,6 +13252,24 @@ msgstr ""
 #: src/Layout/Ingestion/AtomicImporter.php:224
 #, php-format
 msgid "Post ID %d lost during processing."
+msgstr ""
+
+#. translators: %d: page index in the manifest.
+#: src/Layout/LayoutErrorMessages.php:125
+#, php-format
+msgid "Page #%d is not a valid page object"
+msgstr ""
+
+#. translators: %s: the instance_id value, which is not a string.
+#: src/Layout/LayoutErrorMessages.php:138
+#, php-format
+msgid "Component instance has a non-string instance_id: %s"
+msgstr ""
+
+#. translators: %s: the unrecognised WP_Error code.
+#: src/Layout/LayoutErrorMessages.php:185
+#, php-format
+msgid "Unhandled layout error: %s"
 msgstr ""
 
 #: src/Layout/Versioning/LayoutRollbackService.php:43
