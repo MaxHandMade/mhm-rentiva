@@ -42,7 +42,7 @@ trait UserManagementCapabilities
 	 *
 	 * @var string[]
 	 */
-	private array $mhm_super_admin_logins = array();
+	private array $granted_super_admin_logins = array();
 
 	/**
 	 * User IDs this test has given manage_network_users, for the user_has_cap
@@ -51,7 +51,7 @@ trait UserManagementCapabilities
 	 *
 	 * @var int[]
 	 */
-	private array $mhm_network_user_editors = array();
+	private array $granted_network_user_editors = array();
 
 	protected function grant_user_management_privilege(int $user_id): void
 	{
@@ -73,10 +73,10 @@ trait UserManagementCapabilities
 		// merely linger, it silently promotes an unrelated later user to super
 		// admin and turns real denials green. Hooks are restored after every
 		// test; network options are not.
-		$this->mhm_super_admin_logins[] = $user->user_login;
+		$this->granted_super_admin_logins[] = $user->user_login;
 
-		if (! has_filter('pre_site_option_site_admins', array($this, 'mhm_filter_super_admins'))) {
-			add_filter('pre_site_option_site_admins', array($this, 'mhm_filter_super_admins'));
+		if (! has_filter('pre_site_option_site_admins', array($this, 'filter_granted_super_admins'))) {
+			add_filter('pre_site_option_site_admins', array($this, 'filter_granted_super_admins'));
 		}
 
 		// Capability results are cached on the WP_User object that
@@ -91,9 +91,9 @@ trait UserManagementCapabilities
 	/**
 	 * @return string[]
 	 */
-	public function mhm_filter_super_admins(): array
+	public function filter_granted_super_admins(): array
 	{
-		return $this->mhm_super_admin_logins;
+		return $this->granted_super_admin_logins;
 	}
 
 	/**
@@ -125,10 +125,10 @@ trait UserManagementCapabilities
 		// for the factory to hand to somebody else. An inherited
 		// manage_network_users is exactly the kind of leak that turns a real
 		// denial green somewhere far away, so nothing is written at all.
-		$this->mhm_network_user_editors[] = $user_id;
+		$this->granted_network_user_editors[] = $user_id;
 
-		if (! has_filter('user_has_cap', array($this, 'mhm_filter_network_user_editing'))) {
-			add_filter('user_has_cap', array($this, 'mhm_filter_network_user_editing'), 10, 4);
+		if (! has_filter('user_has_cap', array($this, 'filter_granted_network_user_editing'))) {
+			add_filter('user_has_cap', array($this, 'filter_granted_network_user_editing'), 10, 4);
 		}
 
 		if (get_current_user_id() === $user_id) {
@@ -143,9 +143,9 @@ trait UserManagementCapabilities
 	 * @param array<int,mixed>   $args
 	 * @return array<string,bool>
 	 */
-	public function mhm_filter_network_user_editing(array $allcaps, array $caps, array $args, \WP_User $user): array
+	public function filter_granted_network_user_editing(array $allcaps, array $caps, array $args, \WP_User $user): array
 	{
-		if (in_array((int) $user->ID, $this->mhm_network_user_editors, true)) {
+		if (in_array((int) $user->ID, $this->granted_network_user_editors, true)) {
 			$allcaps['manage_network_users'] = true;
 		}
 
