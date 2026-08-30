@@ -76,12 +76,22 @@
  *      conflated with 0: a gate that cannot run must be loud, not green.
  *
  * WHERE IT RUNS
- *   Locally, against the Docker WP stack (container rentiva-dev-wpcli-1 by
- *   default; override with MHM_GD_CONTAINER / MHM_GD_PLUGIN_DIR / MHM_GD_SLUG).
- *   It does NOT run on GitHub Actions, which has no WordPress install and no
- *   plugin-check plugin -- there it exits 2 and says so. Making it run in CI
- *   means provisioning WP + plugin-check in the workflow; that is not done yet
- *   and this header does not pretend otherwise.
+ *   Two environments, one gate. Locally it drives the Docker WP stack
+ *   (container rentiva-dev-wpcli-1 by default). On CI the workflow installs
+ *   WordPress and plugin-check onto the runner itself and sets
+ *   MHM_GD_CONTAINER='' , which drops the `docker exec` prefix and runs the
+ *   very same commands directly.
+ *
+ *   Overrides: MHM_GD_CONTAINER ('' or 'local' = no Docker) /
+ *   MHM_GD_WP_PATH (WordPress root) / MHM_GD_WP_BIN (wp-cli binary) /
+ *   MHM_GD_PLUGIN_DIR / MHM_GD_SLUG.
+ *
+ *   Until 2026-08-30 this said the gate could not run on GitHub Actions, and
+ *   that was true: every command was prefixed with `docker exec` and three
+ *   paths were hardcoded to the stack's layout, so CI could only ever reach
+ *   exit 2. The step was continue-on-error, which meant a gate nothing
+ *   enforced -- and it had been failing since 2026-08-14 with four warnings
+ *   nobody saw.
  */
 
 $root = dirname(__DIR__);
@@ -91,10 +101,39 @@ const EXIT_CLEAN = 0;
 const EXIT_FINDINGS = 1;
 const EXIT_CANNOT_MEASURE = 2;
 
-$container = getenv('MHM_GD_CONTAINER') ?: 'rentiva-dev-wpcli-1';
+// An UNSET variable means "the usual Docker stack"; an explicitly EMPTY one
+// means "WordPress is right here". getenv() returns false when unset and ''
+// when set-but-empty, and those two must not collapse -- ?: would turn the
+// deliberate '' back into the default and silently re-enable Docker on CI.
+$containerEnv = getenv('MHM_GD_CONTAINER');
+$container    = false === $containerEnv ? 'rentiva-dev-wpcli-1' : $containerEnv;
+if ('local' === $container) {
+    $container = '';
+}
+
 $slug      = getenv('MHM_GD_SLUG') ?: 'mhm-rentiva';
-$pluginDir = getenv('MHM_GD_PLUGIN_DIR') ?: '/var/www/html/wp-content/plugins/' . $slug;
-$pcDir     = '/var/www/html/wp-content/plugins/plugin-check';
+$wpPath    = rtrim(getenv('MHM_GD_WP_PATH') ?: '/var/www/html', '/');
+$wpBin     = getenv('MHM_GD_WP_BIN') ?: '/usr/local/bin/wp';
+$pluginDir = getenv('MHM_GD_PLUGIN_DIR') ?: $wpPath . '/wp-content/plugins/' . $slug;
+$pcDir     = $wpPath . '/wp-content/plugins/plugin-check';
+
+/**
+ * Prefix a command so it runs where WordPress lives.
+ *
+ * With a container name, through `docker exec`; without one, directly. The
+ * argument vector is otherwise identical, which is the point: CI and a
+ * developer's machine must run the same command, not two that resemble each
+ * other.
+ *
+ * @param string[] $argv
+ * @return string[]
+ */
+function in_wp(array $argv): array
+{
+    global $container;
+
+    return '' === $container ? $argv : array_merge(['docker', 'exec', $container], $argv);
+}
 
 /**
  * Run a command without going through a shell.
@@ -200,7 +239,7 @@ sort($excludeFiles);
 // Self-check. Plugin Check matches an excluded directory by the substring
 // "/<token>/" and an excluded file by the suffix "/<token>", both against the
 // ABSOLUTE path -- so a token can over-match, either inside the plugin or
-// inside the /var/www/html/... prefix. Any collision would silently shrink the
+// inside the WordPress-root prefix. Any collision would silently shrink the
 // scanned surface, which is the precise failure this rewrite exists to end.
 $collisions = [];
 foreach ($shipped as $rel) {
@@ -227,14 +266,16 @@ if ($collisions) {
 // ---------------------------------------------------------------------------
 // C. The real tool.
 // ---------------------------------------------------------------------------
-[$rc] = run_cmd(['docker', 'exec', $container, 'test', '-d', $pluginDir]);
+[$rc] = run_cmd(in_wp(['test', '-d', $pluginDir]));
 if ($rc !== 0) {
     cannot_measure(
-        "container '$container' unreachable, or '$pluginDir' missing inside it",
-        'start the Docker WP stack, or set MHM_GD_CONTAINER / MHM_GD_PLUGIN_DIR.'
+        '' === $container
+            ? "'$pluginDir' does not exist"
+            : "container '$container' unreachable, or '$pluginDir' missing inside it",
+        'start the Docker WP stack, or set MHM_GD_CONTAINER / MHM_GD_WP_PATH / MHM_GD_PLUGIN_DIR.'
     );
 }
-[$rc] = run_cmd(['docker', 'exec', $container, 'test', '-f', $pcDir . '/phpcs-rulesets/plugin-review.xml']);
+[$rc] = run_cmd(in_wp(['test', '-f', $pcDir . '/phpcs-rulesets/plugin-review.xml']));
 if ($rc !== 0) {
     cannot_measure(
         "the plugin-check plugin is not installed at $pcDir",
@@ -242,15 +283,14 @@ if ($rc !== 0) {
     );
 }
 
-$pcArgs = [
-    'docker', 'exec', $container,
-    'php', '-d', 'memory_limit=1024M', '/usr/local/bin/wp',
+$pcArgs = in_wp([
+    'php', '-d', 'memory_limit=1024M', $wpBin,
     'plugin', 'check', $slug,
     '--categories=plugin_repo',
     '--allow-root',
     '--format=json',
-    '--path=/var/www/html',
-];
+    '--path=' . $wpPath,
+]);
 if ($excludeDirs) {
     $pcArgs[] = '--exclude-directories=' . implode(',', $excludeDirs);
 }
@@ -345,7 +385,7 @@ if ($vendorPhp) {
     // error. A supplementary pass blind to the exact family that got this
     // plugin rejected would have been worse than none.
     $vendorSlug = $slug . '-gd-vendorscope';
-    $stage      = '/var/www/html/wp-content/plugins/' . $vendorSlug;
+    $stage      = $wpPath . '/wp-content/plugins/' . $vendorSlug;
 
     $script = 'set -e; rm -rf ' . $stage . '; mkdir -p ' . $stage . ';';
     foreach ($vendorPhp as $p) {
@@ -362,10 +402,7 @@ if ($vendorPhp) {
     $script .= " printf '<?php\\n/**\\n * Plugin Name: GD vendor scope\\n */\\n' > "
              . $stage . '/' . $vendorSlug . '.php;';
 
-    [$vRc, $vOut, $vErr] = run_cmd(array_merge(
-        ['docker', 'exec', $container, 'bash', '-c'],
-        [$script]
-    ));
+    [$vRc, $vOut, $vErr] = run_cmd(in_wp(['bash', '-c', $script]));
     if ($vRc !== 0) {
         cannot_measure('could not stage the vendor scope: ' . trim($vErr . ' ' . $vOut));
     }
@@ -373,31 +410,27 @@ if ($vendorPhp) {
     // Plugin Check only emits a FILE: block for files that HAVE findings, so
     // "nothing came back" and "nothing was scanned" look identical in its
     // output. Count what actually landed on disk instead of assuming.
-    [, $vCount] = run_cmd([
-        'docker', 'exec', $container,
-        'bash', '-c', 'find ' . $stage . ' -name "*.php" | wc -l',
-    ]);
+    [, $vCount] = run_cmd(in_wp(['bash', '-c', 'find ' . $stage . ' -name "*.php" | wc -l']));
     // -1 for the synthetic plugin-header file staged alongside the sources.
     $vendorScanned = max(0, (int) trim($vCount) - 1);
     if ($vendorScanned !== count($vendorPhp)) {
-        run_cmd(['docker', 'exec', $container, 'rm', '-rf', $stage]);
+        run_cmd(in_wp(['rm', '-rf', $stage]));
         cannot_measure(
             'vendor scope staged ' . $vendorScanned . ' of ' . count($vendorPhp) . ' shipped PHP files'
         );
     }
 
-    [$vRc, $vOut, $vErr] = run_cmd([
-        'docker', 'exec', $container,
-        'php', '-d', 'memory_limit=1024M', '/usr/local/bin/wp',
+    [$vRc, $vOut, $vErr] = run_cmd(in_wp([
+        'php', '-d', 'memory_limit=1024M', $wpBin,
         'plugin', 'check', $vendorSlug,
         '--categories=plugin_repo',
         '--allow-root',
         '--format=json',
-        '--path=/var/www/html',
-    ]);
+        '--path=' . $wpPath,
+    ]));
     // Tear down before acting on the result, so a findings-driven exit cannot
     // leave a stray plugin directory behind.
-    run_cmd(['docker', 'exec', $container, 'rm', '-rf', $stage]);
+    run_cmd(in_wp(['rm', '-rf', $stage]));
     assert_real_result($vRc, $vOut, $vErr);
 
     $stagedRel = [];
@@ -501,9 +534,9 @@ printf(
     $vendorScanned
 );
 printf(
-    "  tool: wp plugin check %s --categories=plugin_repo (container %s)\n",
+    "  tool: wp plugin check %s --categories=plugin_repo (%s)\n",
     $slug,
-    $container
+    '' === $container ? 'local WordPress at ' . $wpPath : 'container ' . $container
 );
 printf(
     "  scope: derived from .distignore via `bin/build-release.py --list-shipped` -- %d excluded dirs, %d excluded files\n",

@@ -59,13 +59,13 @@ final class AddonStats {
 
 		global $wpdb;
 
-		$total_addons = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				AddonPostType::POST_TYPE,
-				'publish'
-			)
-		);
+		// Core's own counter, not a hand-written COUNT(*). It answers exactly
+		// this question, caches per post type in the `counts` group, and is
+		// invalidated by core on every status transition -- and it costs the
+		// plugin one DirectDatabaseQuery finding fewer at WP.org review. The
+		// three queries below have no core equivalent (a LEFT JOIN counting
+		// rows that may not exist, an AVG and a SUM), which is why they stay.
+		$total_addons = (int) wp_count_posts( AddonPostType::POST_TYPE )->publish;
 
 		// LEFT JOIN, and "not '0'" rather than "= '1'". An INNER JOIN on the flag
 		// cannot match a service that carries no flag row at all, which is what
