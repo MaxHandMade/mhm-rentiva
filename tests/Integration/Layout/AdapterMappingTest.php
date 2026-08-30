@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Layout;
 
-use MHMRentiva\Layout\AdapterRegistry;
+use MHMRentiva\Layout\LayoutEngineFactory;
+use MHMUiCore\Layout\LayoutContract;
 use PHPUnit\Framework\TestCase;
 
 if (! defined('ABSPATH')) {
@@ -19,15 +20,17 @@ if (! defined('ABSPATH')) {
 final class AdapterMappingTest extends TestCase
 {
 
+    private LayoutContract $contract;
+
     protected function setUp(): void
     {
         parent::setUp();
-        AdapterRegistry::boot_defaults();
+        $this->contract = LayoutEngineFactory::contract();
     }
 
     public function test_search_hero_adapter_mapping(): void
     {
-        $adapter = AdapterRegistry::get_adapter('search_hero');
+        $adapter = $this->contract->adapter('search_hero');
         $this->assertNotNull($adapter);
 
         // `style` is deliberately not an allowlisted attribute: the glass/solid
@@ -43,7 +46,7 @@ final class AdapterMappingTest extends TestCase
 
     public function test_vehicle_listing_adapter_mapping(): void
     {
-        $adapter = AdapterRegistry::get_adapter('vehicle_listing');
+        $adapter = $this->contract->adapter('vehicle_listing');
         $this->assertNotNull($adapter);
 
         $attributes = [
@@ -62,7 +65,7 @@ final class AdapterMappingTest extends TestCase
 
     public function test_reviews_adapter_mapping(): void
     {
-        $adapter = AdapterRegistry::get_adapter('reviews_grid');
+        $adapter = $this->contract->adapter('reviews_grid');
         $this->assertNotNull($adapter);
 
         $attributes = ['limit' => 4, 'columns' => 2];
@@ -75,7 +78,7 @@ final class AdapterMappingTest extends TestCase
 
     public function test_unknown_type_returns_null(): void
     {
-        $adapter = AdapterRegistry::get_adapter('non_existent_type');
+        $adapter = $this->contract->adapter('non_existent_type');
         $this->assertNull($adapter);
     }
 }

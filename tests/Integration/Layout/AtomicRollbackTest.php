@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Layout;
 
 use MHMRentiva\Layout\Ingestion\AtomicImporter;
-use MHMRentiva\Layout\AdapterRegistry;
+use MHMRentiva\Layout\LayoutEngineFactory;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -23,8 +23,7 @@ final class AtomicRollbackTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->importer = new AtomicImporter();
-        AdapterRegistry::boot_defaults();
+        $this->importer = new AtomicImporter(LayoutEngineFactory::engine());
 
         $this->delete_by_slug('rollback-good');
         $this->delete_by_slug('rollback-bad');

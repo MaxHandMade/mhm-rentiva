@@ -8,6 +8,8 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Core\Attribute\CanonicalAttributeMapper;
+use MHMUiCore\Layout\LayoutComponentAdapter;
+use MHMUiCore\Layout\ShortcodeMarkup;
 
 
 
@@ -19,7 +21,7 @@ use MHMRentiva\Core\Attribute\CanonicalAttributeMapper;
  * @package MHMRentiva\Layout\Adapters
  * @since 4.14.0
  */
-abstract class BaseAdapter {
+abstract class BaseAdapter implements LayoutComponentAdapter {
 
 
     /**
@@ -53,11 +55,6 @@ abstract class BaseAdapter {
      */
     protected function to_shortcode(string $tag, array $atts): string
     {
-        $string = '[' . $tag;
-        foreach ($atts as $key => $val) {
-            $string .= sprintf(' %s="%s"', esc_attr($key), esc_attr( (string) $val));
-        }
-        $string .= ']';
-        return $string;
+        return ShortcodeMarkup::to_shortcode($tag, $atts);
     }
 }

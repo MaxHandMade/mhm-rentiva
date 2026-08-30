@@ -6,7 +6,7 @@ namespace MHMRentiva\Tests\Layout\Observability;
 
 use MHMRentiva\Layout\Observability\LayoutAuditService;
 use MHMRentiva\Layout\Observability\LayoutHistoryService;
-use MHMRentiva\Layout\Observability\LayoutDiffService;
+use MHMRentiva\Layout\LayoutEngineFactory;
 use WP_UnitTestCase;
 
 class ObservabilityTest extends WP_UnitTestCase
@@ -64,7 +64,7 @@ class ObservabilityTest extends WP_UnitTestCase
             'components' => ['old' => ['type' => 'footer']],
         ];
 
-        $diff = LayoutDiffService::diff($curr, $prev);
+        $diff = LayoutEngineFactory::engine()->diff($curr, $prev);
 
         // Tokens
         $this->assertContains('size', $diff['tokens']['added']);

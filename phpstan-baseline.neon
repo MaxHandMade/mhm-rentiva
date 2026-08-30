@@ -1228,18 +1228,6 @@ parameters:
 			path: src/Core/Services/TrendService.php
 
 		-
-			message: '#^PHPDoc tag @return with type WP_Error\|true is not subtype of native type WP_Error\|null\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Layout/BlueprintValidator.php
-
-		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Layout/Versioning/LayoutNormalization.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2

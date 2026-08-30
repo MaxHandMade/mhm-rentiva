@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef1936111899d061b4312a952da6c60d",
+    "content-hash": "ba3d5d9cc4f55c8465415a889b55b6fe",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.4.1",
+            "version": "v0.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "794128a8f730731ed69989699c546a5a5abcad1a"
+                "reference": "4ab41652c34670e0fb31df95e6397026ee799ce1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/794128a8f730731ed69989699c546a5a5abcad1a",
-                "reference": "794128a8f730731ed69989699c546a5a5abcad1a",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/4ab41652c34670e0fb31df95e6397026ee799ce1",
+                "reference": "4ab41652c34670e0fb31df95e6397026ee799ce1",
                 "shasum": ""
             },
             "require": {
@@ -54,10 +54,22 @@
                 "phpstan": [
                     "@php ./vendor/bin/phpstan analyse --memory-limit=1G"
                 ],
+                "check:php-namespace": [
+                    "@php ./bin/check-php-namespace.php"
+                ],
+                "check:error-prefix": [
+                    "@php ./bin/check-error-prefix.php"
+                ],
+                "check:no-i18n": [
+                    "@php ./bin/check-no-i18n.php"
+                ],
                 "check": [
                     "@phpcs",
                     "@phpstan",
-                    "@test"
+                    "@test",
+                    "@check:php-namespace",
+                    "@check:error-prefix",
+                    "@check:no-i18n"
                 ]
             },
             "license": [
@@ -65,10 +77,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.4.1",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.6.0",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-08-27T09:56:05+00:00"
+            "time": "2026-08-30T11:50:32+00:00"
         }
     ],
     "packages-dev": [

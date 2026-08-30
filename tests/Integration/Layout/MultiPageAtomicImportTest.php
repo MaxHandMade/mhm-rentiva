@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Layout;
 
 use MHMRentiva\Layout\Ingestion\AtomicImporter;
-use MHMRentiva\Layout\AdapterRegistry;
+use MHMRentiva\Layout\LayoutEngineFactory;
 use PHPUnit\Framework\TestCase;
 
 if (! defined('ABSPATH')) {
@@ -26,8 +26,7 @@ final class MultiPageAtomicImportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->importer = new AtomicImporter();
-        AdapterRegistry::boot_defaults();
+        $this->importer = new AtomicImporter(LayoutEngineFactory::engine());
 
         $fixture_path = plugin_dir_path(__FILE__) . '../../fixtures/multi-page-manifest.json';
         $this->manifest = json_decode((string) file_get_contents($fixture_path), true);
