@@ -191,11 +191,20 @@ final class DashboardPage {
 
 		$bookings_result = DashboardService::get_recent_bookings_paginated( 1, 5 );
 
+		// Same first page the REST route would return, so the widget paints from
+		// localized data instead of spinning on load -- the pattern recent_bookings
+		// above already uses. Page 1, 5 rows, 7-day horizon: the arguments
+		// rest_get_upcoming() passes, kept identical on purpose so the first page
+		// and every page after it come from one definition.
+		$upcoming_result = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
+
 		$data = array(
 			'metrics'                     => DashboardService::get_dashboard_metrics(),
 			'revenue_data'                => DashboardService::get_revenue_data(),
 			'recent_bookings'             => $bookings_result['items'],
 			'recent_bookings_total_pages' => $bookings_result['total_pages'],
+			'upcoming'                    => self::format_upcoming_items( $upcoming_result['items'] ),
+			'upcoming_total_pages'        => (int) $upcoming_result['total_pages'],
 			'metric_deltas'               => DashboardService::get_metric_deltas(),
 			'status_breakdown'            => DashboardService::get_status_breakdown(),
 			'payments_summary'            => DashboardService::get_payments_summary(),
