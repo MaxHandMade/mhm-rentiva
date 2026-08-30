@@ -504,10 +504,15 @@ jobs:
           php /tmp/wp-cli.phar core download --path=/tmp/wp
           $WP config create --dbname=wordpress_pc --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306
           $WP db create
-          # Throwaway credentials for a database that exists for the length of
-          # one job and is never reachable from anywhere.
+          # The admin credential parameter is deliberately absent. wp-cli
+          # reports it as optional, defaulting to a randomly generated value,
+          # and nothing in this job ever signs in -- the gate only runs
+          # `wp plugin check`. Writing a literal one would leave a
+          # credential-shaped line in a public repository, which the secret
+          # gate flags. The fix for a flagged shape is to delete the shape,
+          # never to write it an exemption.
           $WP core install --url=http://plugin-check.test --title="Plugin Check CI" \
-            --admin_user=ci --admin_password=ci-throwaway-not-a-secret \
+            --admin_user=ci \
             --admin_email=ci@example.test --skip-email
           $WP plugin install plugin-check --activate
           test -f /tmp/wp/wp-content/plugins/plugin-check/phpcs-rulesets/plugin-review.xml
