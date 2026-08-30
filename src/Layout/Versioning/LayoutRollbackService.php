@@ -8,7 +8,8 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Layout\Ingestion\AtomicImporter;
-use MHMRentiva\Layout\BlueprintValidator;
+use MHMRentiva\Layout\LayoutErrorMessages;
+use MHMUiCore\Layout\LayoutEngine;
 use Exception;
 use Throwable;
 
@@ -30,12 +31,13 @@ final class LayoutRollbackService {
     /**
      * Perform rollback for a specific post.
      *
-     * @param int  $post_id Post ID to rollback.
-     * @param bool $dry_run If true, only validate without writing.
+     * @param int          $post_id Post ID to rollback.
+     * @param bool          $dry_run If true, only validate without writing.
+     * @param LayoutEngine  $engine  Engine built from this plugin's contract.
      * @return array Success summary.
      * @throws Exception If rollback fails.
      */
-    public static function rollback(int $post_id, bool $dry_run = false): array
+    public static function rollback(int $post_id, bool $dry_run, LayoutEngine $engine): array
     {
         // 5.1 Pre-conditions
         $post = get_post($post_id);
@@ -75,7 +77,7 @@ final class LayoutRollbackService {
                 throw new Exception(__('Previous manifest data is corrupted or invalid.', 'mhm-rentiva'));
             }
 
-            $normalized    = LayoutNormalization::normalize($prev_manifest_data);
+            $normalized    = $engine->normalize($prev_manifest_data);
             $computed_hash = hash('sha256', (string) wp_json_encode($normalized));
 
             if ($computed_hash !== $prev_hash) {
@@ -83,14 +85,16 @@ final class LayoutRollbackService {
             }
 
             // STATE C — Validate & Gate (No Bypass)
-            $validator         = new BlueprintValidator();
-            $validation_result = $validator->validate($prev_manifest_data);
+            $validation_result = $engine->validate($prev_manifest_data);
             if (is_wp_error($validation_result)) {
+                // The engine's WP_Error carries no message -- only a code and
+                // a payload. LayoutErrorMessages rebuilds the sentence in this
+                // plugin's text domain.
                 throw new Exception(
                     sprintf(
                         /* translators: %s: governance validation error message. */
                         __('Governance validation failed for previous layout: %s', 'mhm-rentiva'),
-                        sanitize_text_field( (string) $validation_result->get_error_message())
+                        sanitize_text_field(LayoutErrorMessages::render($validation_result))
                     )
                 );
             }
@@ -108,7 +112,7 @@ final class LayoutRollbackService {
 
             // STATE D — Apply via Atomic Import Path & Flip
             // Rule: Flip only after success.
-            $importer = new AtomicImporter();
+            $importer = new AtomicImporter($engine);
             // Re-run atomic import on previous manifest with is_rollback => true to avoid shifting.
             // also suppress_audit => true because we log rollback separately here.
             $importer->import($prev_manifest_data, array(

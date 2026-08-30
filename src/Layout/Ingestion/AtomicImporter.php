@@ -10,10 +10,9 @@ if (! defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Layout\BlueprintValidator;
-use MHMRentiva\Layout\CompositionBuilder;
-use MHMRentiva\Layout\Versioning\LayoutNormalization;
+use MHMRentiva\Layout\LayoutErrorMessages;
 use MHMRentiva\Layout\Observability\LayoutAuditService;
+use MHMUiCore\Layout\LayoutEngine;
 use Exception;
 use Throwable;
 use WP_Error;
@@ -41,16 +40,25 @@ class AtomicImporter {
     private array $snapshots = [];
 
     /**
-     * @var CompositionBuilder
+     * The blueprint engine, owned by mhm/ui-core.
+     *
+     * Required, not optional: every call site must hand over an engine built
+     * from this plugin's own contract. A nullable parameter with an internal
+     * fallback would turn a missed wiring into a runtime surprise on a
+     * customer's site; a required one turns it into an error at the call.
+     *
+     * @var LayoutEngine
      */
-    private CompositionBuilder $builder;
+    private LayoutEngine $engine;
 
     /**
      * Constructor
+     *
+     * @param LayoutEngine $engine Engine built from this plugin's contract.
      */
-    public function __construct()
+    public function __construct(LayoutEngine $engine)
     {
-        $this->builder = new CompositionBuilder();
+        $this->engine = $engine;
     }
 
     /**
@@ -67,14 +75,16 @@ class AtomicImporter {
         $this->snapshots  = [];
 
         // 1. Pre-Validation
-        $validator         = new BlueprintValidator();
-        $validation_result = $validator->validate($manifest);
+        $validation_result = $this->engine->validate($manifest);
         if (is_wp_error($validation_result)) {
-            throw new Exception(esc_html( (string) $validation_result->get_error_message()));
+            // The engine's WP_Error carries no message -- only a code and a
+            // payload. LayoutErrorMessages turns that back into a sentence in
+            // this plugin's text domain.
+            throw new Exception(esc_html(LayoutErrorMessages::render($validation_result)));
         }
 
         // 2. Hash Calculation
-        $normalized = LayoutNormalization::normalize($manifest);
+        $normalized = $this->engine->normalize($manifest);
         $hash       = hash('sha256', (string) wp_json_encode($normalized));
 
         $pages = $manifest['pages'] ?? [];
@@ -94,14 +104,14 @@ class AtomicImporter {
                 }
 
                 // Composition Build
-                $markup = $this->builder->build($manifest, $page_data);
+                $markup = $this->engine->build($manifest, $page_data);
                 if (is_wp_error($markup)) {
-                    throw new Exception(sprintf(
+                    throw new Exception(esc_html(sprintf(
                         /* translators: 1: page index, 2: error message. */
                         __('Composition error in page %1$d: %2$s', 'mhm-rentiva'),
                         $index,
-                        sanitize_text_field( (string) $markup->get_error_message())
-                    ));
+                        LayoutErrorMessages::render($markup)
+                    )));
                 }
 
                 if ($resolution['status'] === 'update') {

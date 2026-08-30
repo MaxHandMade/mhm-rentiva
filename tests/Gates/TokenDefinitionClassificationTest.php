@@ -241,6 +241,89 @@ final class TokenDefinitionClassificationTest extends WP_UnitTestCase
         $this->assertSame('blueprint-namespace', $this->classify($root)['--mhm-bp-primary']);
     }
 
+    /**
+     * The live blueprint map is not in this repository any more.
+     *
+     * ui-core v0.6.0 took TokenMapper into the package, so the nine names this
+     * plugin actually writes into page content are `--mhmui-bp-*` and they live
+     * under vendor/ -- which mhmrentiva_walk() skips on purpose. The classifier
+     * therefore reads one extra directory, vendor/mhm/ui-core/src/Layout,
+     * through a walker of its own.
+     */
+    public function test_the_packages_blueprint_map_is_classified_even_though_it_lives_in_vendor(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css'                  => ":root { --mhm-primary: #2271b1; }
+",
+            'vendor/mhm/ui-core/src/Layout/TokenMapper.php'      => "<?php
+const TOKEN_MAPPING = array('colors.primary' => '--mhmui-bp-primary');
+",
+        ));
+
+        $this->assertSame('blueprint-namespace', $this->classify($root)['--mhmui-bp-primary']);
+    }
+
+    /**
+     * Negative control for the walker above: a vendor file OUTSIDE the package's
+     * Layout directory stays invisible, so the extra walk did not quietly widen
+     * classification to the whole dependency tree.
+     */
+    public function test_a_vendor_file_outside_the_packages_layout_directory_is_still_skipped(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css'          => ":root { --mhm-primary: #2271b1; }
+",
+            'vendor/someone/else/src/Whatever.php'       => "<?php
+const T = array('x' => '--mhmui-bp-intruder');
+",
+        ));
+
+        $this->assertArrayNotHasKey('--mhmui-bp-intruder', $this->classify($root));
+    }
+
+    /**
+     * And the real thing: the installed package still carries the map, and the
+     * gate still sees all nine names. Deleting or renaming TokenMapper in a
+     * future ui-core release turns this red instead of silently dropping the
+     * blueprint namespace from the report -- the gate's own exit code would not,
+     * because a smaller classification is not a violation.
+     */
+    public function test_the_installed_package_still_publishes_all_nine_blueprint_names(): void
+    {
+        $plugin_root = dirname(__DIR__, 2);
+
+        if (! is_dir($plugin_root . '/vendor/mhm/ui-core/src/Layout')) {
+            $this->markTestSkipped('mhm/ui-core is not installed in this tree.');
+        }
+
+        $classified = array_keys(array_filter(
+            $this->classify($plugin_root),
+            static fn (string $class): bool => 'blueprint-namespace' === $class
+        ));
+
+        $live = array_values(array_filter(
+            $classified,
+            static fn (string $token): bool => str_starts_with($token, '--mhmui-bp-')
+        ));
+
+        sort($live);
+
+        $this->assertSame(
+            array(
+                '--mhmui-bp-accent',
+                '--mhmui-bp-bg-main',
+                '--mhmui-bp-bg-soft',
+                '--mhmui-bp-border-radius',
+                '--mhmui-bp-font-family',
+                '--mhmui-bp-primary',
+                '--mhmui-bp-secondary',
+                '--mhmui-bp-spacing-base',
+                '--mhmui-bp-text-primary',
+            ),
+            $live
+        );
+    }
+
     public function test_the_same_token_declared_twice_unconditionally_in_the_canonical_file_is_a_violation(): void
     {
         $root = $this->tree(array(

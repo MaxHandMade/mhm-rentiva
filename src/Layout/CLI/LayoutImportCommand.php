@@ -7,14 +7,12 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-use MHMRentiva\Layout\BlueprintValidator;
-use MHMRentiva\Layout\CompositionBuilder;
-use MHMRentiva\Layout\AdapterRegistry;
 use MHMRentiva\Layout\Ingestion\AtomicImporter;
+use MHMRentiva\Layout\LayoutEngineFactory;
 use MHMRentiva\Layout\Versioning\LayoutRollbackService;
 use MHMRentiva\Layout\Observability\LayoutHistoryService;
-use MHMRentiva\Layout\Observability\LayoutDiffService;
 use MHMRentiva\Layout\Observability\LayoutAuditService;
+use MHMUiCore\Layout\LayoutEngine;
 use WP_CLI;
 use WP_Error;
 use Exception;
@@ -32,6 +30,25 @@ use Exception;
  * @since 4.14.0
  */
 class LayoutImportCommand {
+
+    /**
+     * Build the blueprint engine from this plugin's contract.
+     *
+     * The contract itself lives in LayoutEngineFactory, which is the single
+     * place the adapter map is written. This method exists only to turn a
+     * missing package into a WP-CLI error the operator can read, instead of
+     * a fatal "class not found" from the autoloader.
+     *
+     * @return LayoutEngine
+     */
+    private function engine(): LayoutEngine
+    {
+        if (! class_exists(\MHMUiCore\Layout\LayoutEngine::class)) {
+            \WP_CLI::error(__('mhm/ui-core 0.6.0 or newer is required for layout commands.', 'mhm-rentiva'));
+        }
+
+        return LayoutEngineFactory::engine();
+    }
 
     /**
      * Imports a blueprint manifest.
@@ -74,10 +91,7 @@ class LayoutImportCommand {
             return;
         }
 
-        // Boot Adapters
-        AdapterRegistry::boot_defaults();
-
-        $importer = new AtomicImporter();
+        $importer = new AtomicImporter($this->engine());
 
         if ($dry_run) {
             $this->log(__('Executing side-effect free dry-run...', 'mhm-rentiva'));
@@ -126,9 +140,6 @@ class LayoutImportCommand {
         $post_id = (int) $args[0];
         $dry_run = isset($assoc_args['dry-run']);
 
-        // Boot Adapters for validation in Service (STATE C)
-        AdapterRegistry::boot_defaults();
-
         if ($dry_run) {
             $this->log(__('Executing side-effect free dry-run for rollback...', 'mhm-rentiva'));
         } else {
@@ -142,7 +153,7 @@ class LayoutImportCommand {
         }
 
         try {
-            $result = LayoutRollbackService::rollback($post_id, $dry_run);
+            $result = LayoutRollbackService::rollback($post_id, $dry_run, $this->engine());
 
             if ($dry_run) {
                 $this->log(
@@ -282,7 +293,7 @@ class LayoutImportCommand {
             return;
         }
 
-        $diff = LayoutDiffService::diff($current['manifest'], $prev['manifest']);
+        $diff = $this->engine()->diff($current['manifest'], $prev['manifest']);
 
         $this->log(
             sprintf(

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Layout;
 
 use MHMRentiva\Layout\Ingestion\AtomicImporter;
-use MHMRentiva\Layout\AdapterRegistry;
+use MHMRentiva\Layout\LayoutEngineFactory;
 use PHPUnit\Framework\TestCase;
 
 if (! defined('ABSPATH')) {
@@ -25,8 +25,7 @@ final class PageResolutionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->importer = new AtomicImporter();
-        AdapterRegistry::boot_defaults();
+        $this->importer = new AtomicImporter(LayoutEngineFactory::engine());
 
         $this->delete_by_slug('target-slug');
         $this->delete_by_slug('other-slug');

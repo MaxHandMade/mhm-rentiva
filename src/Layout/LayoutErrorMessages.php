@@ -21,8 +21,9 @@ use WP_Error;
  *
  * Each branch below is written against the real payload the corresponding
  * `new WP_Error(...)` site in mhm-ui-core actually constructs (verified by
- * reading src/Layout/BlueprintValidator.php and CompositionBuilder.php at
- * 86e48c3, not assumed): it must never read a field that shape does not
+ * reading vendor/mhm/ui-core/src/Layout/BlueprintValidator.php and
+ * CompositionBuilder.php at v0.6.0, not assumed -- this plugin's own copies
+ * of those two classes are gone): it must never read a field that shape does not
  * carry, and it must never paper over an omitted field with an empty
  * placeholder -- printing a sentence the data never said is a defect, not a
  * cosmetic detail.

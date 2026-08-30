@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Layout;
 
 use MHMRentiva\Layout\LayoutErrorMessages;
+use MHMUiCore\Layout\ErrorCodes;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
@@ -86,7 +87,7 @@ final class LayoutErrorMessagesTest extends TestCase
                 ],
                 'Component instance #1 in page #3 missing instance_id',
             ],
-            'invalid_instance: instance_id, non-string (CompositionBuilder::build)' => [
+            'invalid_instance: instance_id, non-string (ui-core CompositionBuilder::build)' => [
                 'invalid_instance',
                 ['instance_id' => 42],
                 'Component instance has a non-string instance_id: 42',
@@ -128,5 +129,34 @@ final class LayoutErrorMessagesTest extends TestCase
             'Unhandled layout error: mhmrentiva_some_future_code',
             LayoutErrorMessages::render($error)
         );
+    }
+
+    /**
+     * HANDLED is a literal list, and a literal list about someone else's
+     * constants drifts the moment they change. This ties the two together: the
+     * package renaming, adding or dropping a code turns this red instead of
+     * letting render() fall through to its generic fallback, which is
+     * non-empty and therefore invisible to any "did it produce a sentence"
+     * check.
+     *
+     * Both sides are sorted before comparison. PHP compares list arrays
+     * position by position, and these two are each internally coherent but in
+     * different orders -- asserting them unsorted would fail while nothing is
+     * actually missing, which is a gate reporting on something it is not
+     * measuring.
+     */
+    public function test_every_package_error_code_has_a_sentence(): void
+    {
+        $expected = array_map(
+            static fn (string $suffix): string => 'mhmrentiva_' . $suffix,
+            ErrorCodes::ALL
+        );
+
+        $handled = LayoutErrorMessages::HANDLED;
+
+        sort($expected);
+        sort($handled);
+
+        $this->assertSame($expected, $handled);
     }
 }

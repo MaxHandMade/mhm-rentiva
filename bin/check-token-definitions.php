@@ -170,7 +170,14 @@ function mhmrentiva_php_token_usage(string $code): array
         }
 
         // A blueprint mapping target is a bare quoted name, never an assignment.
-        if (preg_match('/^[\'"](--mhm-bp-[a-z0-9-]+)[\'"]$/i', trim($text), $m)) {
+        //
+        // Two namespaces, deliberately. `--mhmui-bp-*` is the LIVE set, owned by
+        // mhm/ui-core's TokenMapper since v0.6.0 and the only one this plugin
+        // still writes into page content. `--mhm-bp-*` is what
+        // src/Layout/Config/ContractRules.php still names; that class has had no
+        // reader since the engine moved and is kept on purpose rather than
+        // deleted, so its names stay recognised instead of surfacing as orphans.
+        if (preg_match('/^[\'"](--mhm(?:ui)?-bp-[a-z0-9-]+)[\'"]$/i', trim($text), $m)) {
             $blueprint[] = strtolower($m[1]);
         }
     }
@@ -209,6 +216,43 @@ function mhmrentiva_walk(string $root, string $extension): array
 
     foreach ($iterator as $file) {
         if ($file->isFile() && strtolower($file->getExtension()) === $extension) {
+            $files[] = mhmrentiva_real($file->getPathname());
+        }
+    }
+
+    sort($files);
+
+    return $files;
+}
+
+/**
+ * Walks the installed package's Layout source for blueprint token names.
+ *
+ * Kept separate from mhmrentiva_walk() for the same reason set A is: that
+ * walker skips `vendor` on purpose, and lifting the skip would drag the whole
+ * dependency tree into classification. This one reads a single directory,
+ * vendor/mhm/ui-core/src/Layout, because that is where the blueprint token map
+ * moved in ui-core v0.6.0.
+ *
+ * Without it the gate reports blueprint names it can no longer see. The nine
+ * `--mhm-bp-*` entries left in ContractRules are dead constants, so a count
+ * taken from them alone reads exactly the same whether the live map exists or
+ * not -- which is to say it measures nothing.
+ *
+ * @return list<string>
+ */
+function mhmrentiva_walk_package_layout(string $root): array
+{
+    $base = $root . '/vendor/mhm/ui-core/src/Layout';
+
+    if (! is_dir($base)) {
+        return array();
+    }
+
+    $files = array();
+
+    foreach (new DirectoryIterator($base) as $file) {
+        if ($file->isFile() && strtolower($file->getExtension()) === 'php') {
             $files[] = mhmrentiva_real($file->getPathname());
         }
     }
@@ -361,6 +405,16 @@ function mhmrentiva_classify_tokens(array $roots, array $canonical_files): array
             foreach ($usage['consumes'] as $token) {
                 $consumed_in[$token][$file] = true;
             }
+            foreach ($usage['blueprint'] as $token) {
+                $blueprint[$token] = true;
+            }
+        }
+
+        // The live blueprint map lives in the installed package, which the
+        // walker above skips along with the rest of vendor/.
+        foreach (mhmrentiva_walk_package_layout($root) as $file) {
+            $usage = mhmrentiva_php_token_usage((string) file_get_contents($file));
+
             foreach ($usage['blueprint'] as $token) {
                 $blueprint[$token] = true;
             }

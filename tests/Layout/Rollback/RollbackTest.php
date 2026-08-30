@@ -6,7 +6,8 @@ namespace MHMRentiva\Tests\Layout\Rollback;
 
 use MHMRentiva\Layout\Versioning\LayoutRollbackService;
 use MHMRentiva\Layout\Ingestion\AtomicImporter;
-use MHMRentiva\Layout\AdapterRegistry;
+use MHMRentiva\Layout\LayoutEngineFactory;
+use MHMUiCore\Layout\LayoutEngine;
 use WP_UnitTestCase;
 
 if (! defined('ABSPATH')) {
@@ -22,6 +23,7 @@ if (! defined('ABSPATH')) {
 class RollbackTest extends WP_UnitTestCase
 {
     private $page_id;
+    private LayoutEngine $engine;
     private $hash_v1;
     private $hash_v2;
 
@@ -29,8 +31,7 @@ class RollbackTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        // Register default adapters
-        AdapterRegistry::boot_defaults();
+        $this->engine = LayoutEngineFactory::engine();
 
         // 1. Create a page with Layout V1
         $manifest_v1 = [
@@ -57,7 +58,7 @@ class RollbackTest extends WP_UnitTestCase
             ],
         ];
 
-        $importer      = new AtomicImporter();
+        $importer      = new AtomicImporter($this->engine);
         $summary       = $importer->import($manifest_v1, ['create' => true]);
         $this->page_id = $summary[0]['post_id'];
         $this->hash_v1 = get_post_meta($this->page_id, '_mhmrentiva_layout_hash', true);
@@ -103,7 +104,7 @@ class RollbackTest extends WP_UnitTestCase
     public function test_rollback_success_flip(): void
     {
         // Perform Rollback
-        $result = LayoutRollbackService::rollback($this->page_id);
+        $result = LayoutRollbackService::rollback($this->page_id, false, $this->engine);
 
         $this->assertEquals('success', $result['status']);
         $this->assertEquals($this->hash_v1, $result['new_hash']);
@@ -124,7 +125,7 @@ class RollbackTest extends WP_UnitTestCase
     {
         $content_before = get_post($this->page_id)->post_content;
 
-        $result = LayoutRollbackService::rollback($this->page_id, true);
+        $result = LayoutRollbackService::rollback($this->page_id, true, $this->engine);
 
         $this->assertEquals('possible', $result['status']);
         $this->assertEquals($this->hash_v1, $result['target_hash']);
@@ -144,7 +145,7 @@ class RollbackTest extends WP_UnitTestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Hash mismatch');
 
-        LayoutRollbackService::rollback($this->page_id);
+        LayoutRollbackService::rollback($this->page_id, false, $this->engine);
     }
 
     /**
@@ -157,6 +158,6 @@ class RollbackTest extends WP_UnitTestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('No rollback version available');
 
-        LayoutRollbackService::rollback((int) $new_page_id);
+        LayoutRollbackService::rollback((int) $new_page_id, false, $this->engine);
     }
 }

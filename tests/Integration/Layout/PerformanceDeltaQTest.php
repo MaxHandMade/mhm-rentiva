@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Layout;
 
-use MHMRentiva\Layout\CompositionBuilder;
-use MHMRentiva\Layout\AdapterRegistry;
+use MHMRentiva\Layout\LayoutEngineFactory;
+use MHMUiCore\Layout\LayoutEngine;
 use PHPUnit\Framework\TestCase;
 
 if (! defined('ABSPATH')) {
@@ -18,17 +18,23 @@ if (! defined('ABSPATH')) {
  * Enforces ΔQ <= 0 for the Layout Pipeline rendering phase.
  * Includes warm-up cycles and SAVEQUERIES deterministic reset.
  *
+ * This test stayed here when the engine moved into mhm/ui-core, and it is the
+ * only one of the layout suite that could not move with it: it needs a real
+ * $wpdb query log and a real do_shortcode() baseline, and the package has no
+ * WordPress test run. The package being pure is the reason ΔQ is zero; this
+ * is what measures that the purity survives contact with this plugin's own
+ * adapters, which are the half that did NOT move.
+ *
  * @package MHMRentiva\Tests\Integration\Layout
  */
 final class PerformanceDeltaQTest extends TestCase
 {
-    private CompositionBuilder $builder;
+    private LayoutEngine $engine;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->builder = new CompositionBuilder();
-        AdapterRegistry::boot_defaults();
+        $this->engine = LayoutEngineFactory::engine();
 
         // Ensure SAVEQUERIES is enabled for monitoring if not already
         if (! defined('SAVEQUERIES')) {
@@ -51,7 +57,7 @@ final class PerformanceDeltaQTest extends TestCase
 
         // 1. Warm-up Phase (3 cycles to prime caches/autoloaders)
         for ($i = 0; $i < 3; $i++) {
-            $this->builder->build($manifest, $page);
+            $this->engine->build($manifest, $page);
         }
 
         // 2. Baseline Measurement (Simulate non-layout render overhead)
@@ -69,7 +75,7 @@ final class PerformanceDeltaQTest extends TestCase
         $wpdb->queries = [];
         $start_time = microtime(true);
 
-        $result = $this->builder->build($manifest, $page);
+        $result = $this->engine->build($manifest, $page);
 
         $layout_queries = count($wpdb->queries);
         $layout_time = microtime(true) - $start_time;
