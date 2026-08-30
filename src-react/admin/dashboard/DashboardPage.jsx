@@ -3,6 +3,7 @@ import StatsCards       from './components/StatsCards';
 import QuickActions     from './components/QuickActions';
 import RevenueChart     from './components/RevenueChart';
 import RecentBookings   from './components/RecentBookings';
+import UpcomingOperations from './components/UpcomingOperations';
 import StatusBreakdown  from './components/StatusBreakdown';
 import PaymentsSummary  from './components/PaymentsSummary';
 
@@ -15,6 +16,8 @@ export default function DashboardPage() {
 		revenue_data:                 revenueData,
 		recent_bookings:              recentBookings       = [],
 		recent_bookings_total_pages:  recentBookingsTotalPages = 1,
+		upcoming:                     upcoming             = [],
+		upcoming_total_pages:         upcomingTotalPages   = 1,
 		status_breakdown:             statusBreakdown      = [],
 		payments_summary:             paymentsSummary,
 		currency  = '',
@@ -22,6 +25,7 @@ export default function DashboardPage() {
 	} = data;
 
 	const bookingsInitial = { items: recentBookings, total_pages: recentBookingsTotalPages, page: 1 };
+	const upcomingInitial = { items: upcoming, total_pages: upcomingTotalPages, page: 1 };
 
 	return (
 		<div className="mhm-dashboard rv-dashboard">
@@ -55,6 +59,7 @@ export default function DashboardPage() {
 						currency={ currency }
 						adminUrl={ adminUrl }
 					/>
+					<UpcomingOperations initial={ upcomingInitial } />
 				</div>
 
 				<div className="rv-dash-cols__right">
