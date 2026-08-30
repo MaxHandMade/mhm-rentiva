@@ -433,7 +433,30 @@ final class CacheManager {
 			return false;
 		}
 
-		$cache_key = self::CACHE_PREFIX . $type . '_' . $key;
+		if ( ! isset( self::CACHE_KEYS[ $type ] ) ) {
+			return false;
+		}
+
+		// Mirror set_cache()/get_cache() exactly. This method used to build its
+		// own key -- CACHE_PREFIX . $type . '_' . $key -- and skip
+		// get_multisite_cache_key() entirely, which went unnoticed because on a
+		// single site the two spellings collide by accident: CACHE_PREFIX
+		// ('mhmrentiva_') plus 'customers' plus '_' is character-for-character
+		// the CACHE_KEYS['customers'] entry. On a network they diverge, because
+		// only the writer appends '_blog_<id>', so every targeted invalidation
+		// deleted a key nothing had ever written and the stale entry stayed
+		// readable until its TTL expired.
+		//
+		// The same mirroring fixes the second half: the writer and reader both
+		// switch to the external object cache when one is present, while this
+		// method always went to the transient table -- so with a persistent
+		// object cache the delete missed in single-site installs too.
+		$cache_key = self::get_multisite_cache_key( self::CACHE_KEYS[ $type ] . $key );
+
+		if ( wp_using_ext_object_cache() ) {
+			return wp_cache_delete( $cache_key, 'mhmrentiva' );
+		}
+
 		return delete_transient( $cache_key );
 	}
 }

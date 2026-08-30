@@ -59,6 +59,66 @@ final class CustomersCacheTypeTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The regression this file exists to hold shut.
+	 *
+	 * set_cache()/get_cache() scope the key per site through
+	 * get_multisite_cache_key(); delete_cache() used to build its own key and
+	 * skip that call. On a single site the two spellings collide by accident,
+	 * so the divergence was invisible for as long as nothing ran this suite
+	 * under multisite. Deleting on one site must not touch another site's
+	 * entry, and — the half that was actually broken — deleting on THIS site
+	 * must actually reach the entry this site wrote.
+	 */
+	public function test_a_customers_entry_is_scoped_to_one_site_on_a_network(): void
+	{
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Per-site cache scoping only has meaning on a network.' );
+		}
+
+		// 🔴 KNOWN DEBT, not noise. Creating a site fires this plugin's own
+		// listener at mhm-rentiva.php:519, which is still hooked to
+		// `wpmu_new_blog` -- deprecated since WordPress 5.1.0 in favour of
+		// `wp_initialize_site`. Core only still fires it for back-compat. This
+		// is declared rather than fixed here because moving the network
+		// activation path is its own change with its own test and browser
+		// verification; the declaration keeps the debt visible and named
+		// instead of letting a bare deprecation notice fail an unrelated test.
+		$this->setExpectedDeprecated( 'wpmu_new_blog' );
+
+		$other_blog = (int) self::factory()->blog->create();
+
+		CacheManager::set_cache( 'customers', 'unit_test', array( 'rows' => 'main' ), 300 );
+
+		switch_to_blog( $other_blog );
+		CacheManager::set_cache( 'customers', 'unit_test', array( 'rows' => 'other' ), 300 );
+		restore_current_blog();
+
+		$this->assertSame(
+			array( 'rows' => 'main' ),
+			CacheManager::get_cache( 'customers', 'unit_test' ),
+			'Two sites writing the same logical key must not share one entry.'
+		);
+
+		CacheManager::delete_cache( 'customers', 'unit_test' );
+
+		$this->assertFalse(
+			CacheManager::get_cache( 'customers', 'unit_test' ),
+			'Deleting must reach the entry THIS site wrote -- the half that was broken.'
+		);
+
+		switch_to_blog( $other_blog );
+		$survivor = CacheManager::get_cache( 'customers', 'unit_test' );
+		CacheManager::delete_cache( 'customers', 'unit_test' );
+		restore_current_blog();
+
+		$this->assertSame(
+			array( 'rows' => 'other' ),
+			$survivor,
+			'And it must not reach across into another site entry.'
+		);
+	}
+
+	/**
 	 * An unknown type must still fail closed rather than write somewhere
 	 * unexpected — the guard is right, it was the missing entry that was wrong.
 	 */
