@@ -563,10 +563,10 @@ templates/shortcodes/vehicles-list.php
 templates/single-vehicle.php
 uninstall.php
 vendor/mhm/ui-core/LICENSE
+vendor/mhm/ui-core/assets/react/admin.css
 vendor/mhm/ui-core/bootstrap.php
 vendor/mhm/ui-core/composer.json
 vendor/mhm/ui-core/register.php
-vendor/mhm/ui-core/src-react/admin.css
 vendor/mhm/ui-core/src-react/api/createApiClient.js
 vendor/mhm/ui-core/src-react/components/ErrorBoundary.jsx
 vendor/mhm/ui-core/src-react/format.js

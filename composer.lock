@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba3d5d9cc4f55c8465415a889b55b6fe",
+    "content-hash": "96d5eaeabe1d6f41039bc3209a26fb4f",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.6.0",
+            "version": "v0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "4ab41652c34670e0fb31df95e6397026ee799ce1"
+                "reference": "6498d39dc9ebaeb5dc8c63f76248f4252b654e8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/4ab41652c34670e0fb31df95e6397026ee799ce1",
-                "reference": "4ab41652c34670e0fb31df95e6397026ee799ce1",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/6498d39dc9ebaeb5dc8c63f76248f4252b654e8f",
+                "reference": "6498d39dc9ebaeb5dc8c63f76248f4252b654e8f",
                 "shasum": ""
             },
             "require": {
@@ -77,10 +77,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.6.0",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.7.0",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-08-30T11:50:32+00:00"
+            "time": "2026-08-30T18:44:40+00:00"
         }
     ],
     "packages-dev": [
