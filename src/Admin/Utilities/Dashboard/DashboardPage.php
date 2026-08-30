@@ -140,6 +140,68 @@ final class DashboardPage {
 	 * @param array $items Raw items from the repository.
 	 * @return array Formatted items.
 	 */
+	/**
+	 * Shortcuts contributed by add-ons, resolved and made safe to render.
+	 *
+	 * The default is an EMPTY array on purpose. Lite ships seven shortcuts of
+	 * its own, hardcoded in the React component, and it must not know that any
+	 * other kind exists: naming a paid destination here -- even to hide it --
+	 * would put tier awareness in the free plugin, which is exactly what the
+	 * WordPress.org carve-out forbids. Whatever comes back from this filter is
+	 * appended after Lite's own, in the order contributed.
+	 *
+	 * Everything is scrubbed rather than trusted, because a filter takes input
+	 * from any plugin on the site and the result is handed to the browser:
+	 *
+	 *   - href goes through esc_url_raw() restricted to http/https, so a
+	 *     `javascript:` shortcut cannot be smuggled into an anchor;
+	 *   - icon must look exactly like a dashicon token, or it is replaced --
+	 *     it is interpolated into a class attribute, and an unconstrained
+	 *     string there is a styling injection;
+	 *   - label is sanitised text (React escapes it too, but the payload is
+	 *     also readable by anything else that reads the localized data);
+	 *   - an entry missing a label or a usable href is dropped rather than
+	 *     rendered as an empty box.
+	 *
+	 * @return list<array{label:string,href:string,icon:string}>
+	 */
+	public static function get_extra_quick_actions(): array
+	{
+		$contributed = apply_filters( 'mhmrentiva_dashboard_quick_actions', array() );
+
+		if ( ! is_array( $contributed ) ) {
+			return array();
+		}
+
+		$clean = array();
+
+		foreach ( $contributed as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
+			$href  = isset( $item['href'] ) ? esc_url_raw( (string) $item['href'], array( 'http', 'https' ) ) : '';
+			$icon  = isset( $item['icon'] ) ? (string) $item['icon'] : '';
+
+			if ( '' === $label || '' === $href ) {
+				continue;
+			}
+
+			if ( 1 !== preg_match( '/^dashicons-[a-z0-9-]+$/', $icon ) ) {
+				$icon = 'dashicons-admin-generic';
+			}
+
+			$clean[] = array(
+				'label' => $label,
+				'href'  => $href,
+				'icon'  => $icon,
+			);
+		}
+
+		return $clean;
+	}
+
 	private static function format_upcoming_items( array $items ): array
 	{
 		return array_map(
@@ -205,6 +267,7 @@ final class DashboardPage {
 			'recent_bookings_total_pages' => $bookings_result['total_pages'],
 			'upcoming'                    => self::format_upcoming_items( $upcoming_result['items'] ),
 			'upcoming_total_pages'        => (int) $upcoming_result['total_pages'],
+			'quick_actions_extra'         => self::get_extra_quick_actions(),
 			'metric_deltas'               => DashboardService::get_metric_deltas(),
 			'status_breakdown'            => DashboardService::get_status_breakdown(),
 			'payments_summary'            => DashboardService::get_payments_summary(),

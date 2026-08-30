@@ -18,6 +18,7 @@ export default function DashboardPage() {
 		recent_bookings_total_pages:  recentBookingsTotalPages = 1,
 		upcoming:                     upcoming             = [],
 		upcoming_total_pages:         upcomingTotalPages   = 1,
+		quick_actions_extra:          quickActionsExtra    = [],
 		status_breakdown:             statusBreakdown      = [],
 		payments_summary:             paymentsSummary,
 		currency  = '',
@@ -62,7 +63,7 @@ export default function DashboardPage() {
 				</div>
 
 				<div className="rv-dash-cols__right">
-					<QuickActions adminUrl={ adminUrl } />
+					<QuickActions adminUrl={ adminUrl } extra={ quickActionsExtra } />
 					<UpcomingOperations initial={ upcomingInitial } />
 					<StatusBreakdown items={ statusBreakdown } />
 					<PaymentsSummary summary={ paymentsSummary } currency={ currency } />
