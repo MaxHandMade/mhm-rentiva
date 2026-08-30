@@ -327,62 +327,12 @@ jobs:
       - name: "User-account write inventory (T9: every user write is recorded)"
         run: composer check-user-writes
 
-      # Gate G-D (WP.org T7 remediation): runs WP.org's Plugin Check ITSELF.
-      #
-      # HONESTY NOTE -- THIS STEP DOES NOT MEASURE ANYTHING ON CI TODAY.
-      # G-D used to run a vendored copy of Plugin Check's ruleset through the
-      # repo's own phpcs, which did work here but measured the wrong thing: the
-      # copy lacked WordPress.Security.EscapeOutput and the four PluginCheck.*
-      # sniffs, so it read "1 error / 56 warnings" where the real tool read
-      # 4 errors -- two of them EscapeOutput, the family the fifth WP.org
-      # review rejected this plugin over. It was also phpcs-only, and 13 of the
-      # plugin_repo category's checks are not phpcs at all (readme/stable tag,
-      # hidden files, trademarks, file types, ...).
-      #
-      # The gate now shells out to `wp plugin check` in the Docker WP stack, so
-      # it needs a WordPress install plus the plugin-check plugin. This runner
-      # has neither, so the step exits 2 ("cannot measure") and says why. That
-      # is deliberate: a gate that cannot run must be loud, not silently green.
-      # Making it real on CI means provisioning WP + plugin-check in this
-      # workflow -- not done yet, and `continue-on-error` is what keeps that
-      # debt visible instead of red-washing the build.
-      #
-      # Locally: `php bin/check-plugin-check-parity.php`.
-      # UPDATE (T8 Görev 16, 2026-08-04): the 2026-08-02 baseline below is
-      # superseded. restore_full_backup() no longer exists under that name
-      # (its PreparedSQL.NotPrepared error went with it), a hidden_files
-      # error from a newly-shipped .eslintrc.json came and went (Görev 15
-      # added the file, Görev 16 excluded it in .distignore), and the owner's
-      # K6 verdict (2026-08-04) stripped 11 suppressed
-      # DirectDatabaseQuery.SchemaChange annotations, so the sniff now
-      # reports everywhere it used to be silenced, not just the 10 the K1
-      # shape left visible on purpose. Current gate output, quoted verbatim:
-      #   G-D SUMMARY: errors=0 warnings=47 files_with_findings=13
-      #   shipped_files=553 vendor_files_scanned=4
-      #     25   W WordPress.DB.DirectDatabaseQuery.SchemaChange
-      #     22   W WordPress.Security.NonceVerification.Recommended
-      # 47 = 22 nonce (gate G-A above) + 25 SchemaChange (K1/K6, both families
-      # already accounted for elsewhere in this file) -- zero new, unexplained
-      # warnings. errors=0 was this task's own exit criterion.
-      #
-      # Superseded baseline (2026-08-02), kept for the historical record: 1
-      # error / 97 warnings over the 571 files .distignore shipped then. The
-      # single error was DatabaseCleaner::restore_full_backup()
-      # (PreparedSQL.NotPrepared, product decision pending); readme.txt's
-      # stable-tag mismatch was fixed in the 6.0.0 release commit, which is
-      # why that figure was 1/97 and not the 2/99 stated before it.
-      #
-      # KNOWN HOLE, to close after submission: this gate honours phpcs
-      # annotations, so it cannot see the suppressed surface at all -- while the
-      # house rule is that suppressions ARE the WP.org review queue. G-A ignores
-      # annotations but skips PrefixAllGlobals; G-D covers PrefixAllGlobals but
-      # respects annotations. Neither sees the 966 findings behind the 76
-      # directives, which sit on exactly the sniff the fifth rejection named. Do
-      # not change this before submission: the reply letter cites these numbers,
-      # and moving the instrument now would invalidate the verification table.
-      - name: "Plugin Check gate (G-D: real tool; exits 2 = cannot measure on CI)"
-        run: php bin/check-plugin-check-parity.php
-        continue-on-error: true
+      # Gate G-D (WP.org Plugin Check) used to sit here, exiting 2 with
+      # continue-on-error because this job has no WordPress. It now has a job
+      # of its own that installs WordPress and plugin-check and runs it for
+      # real -- see `plugin-check` at the bottom of this file. Nothing about
+      # G-D belongs here any more, and a step that can only ever say "cannot
+      # measure" is worse than no step: it reads like coverage.
 
   phpunit:
     name: Run PHPUnit
@@ -474,3 +424,111 @@ jobs:
         env:
           WP_CORE_DIR: /tmp/wordpress
         run: composer check-admin-only
+
+  # Gate G-D: WP.org's own Plugin Check, on the surface .distignore actually
+  # ships -- including vendor/mhm/ui-core, which Plugin Check hides from itself
+  # ("vendor" is in its hardcoded ignore list, so the gate restages those files
+  # under a path with no "vendor" segment and scans them there).
+  #
+  # WHY THIS JOB EXISTS. The gate was written 2026-08-02 and wired into the
+  # phpstan job with continue-on-error, because every command it issued went
+  # through `docker exec` and CI has no Docker WP stack. It therefore exited 2 --
+  # "cannot measure" -- on every run since. On 2026-08-30 it was run by hand and
+  # came back RED: four WordPress.DB.DirectDatabaseQuery.DirectQuery warnings in
+  # AddonStats.php, introduced 2026-08-14 and unseen for sixteen days. A gate no
+  # job can run is not a gate; this job is the fix.
+  #
+  # The gate takes MHM_GD_CONTAINER=local to mean "WordPress is right here" and
+  # drops the docker prefix, running the identical argument vectors. So this job
+  # and a developer's machine measure the same thing rather than two things that
+  # resemble each other.
+  plugin-check:
+    name: Plugin Check (G-D)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            vendor
+            ~/.composer/cache/files
+          key: ${{ runner.os }}-php-8.2-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.2-composer-
+
+      # vendor/ is not optional here: vendor/mhm/ui-core SHIPS (.distignore's
+      # "!/vendor/mhm/"), and scanning it is half of what this gate is for.
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # Pinned to a path we choose rather than whatever setup-php's tool cache
+      # decides, because the gate is handed this path and a wrong one is a
+      # "cannot measure", not a failure anyone would read as one.
+      - name: Install WP-CLI
+        run: |
+          set -euo pipefail
+          curl -sSL --fail -o /tmp/wp-cli.phar \
+            https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          php /tmp/wp-cli.phar --info > /dev/null
+
+      - name: Install WordPress and the Plugin Check plugin
+        run: |
+          set -euo pipefail
+          WP="php /tmp/wp-cli.phar --path=/tmp/wp"
+          php /tmp/wp-cli.phar core download --path=/tmp/wp
+          $WP config create --dbname=wordpress_pc --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306
+          $WP db create
+          # Throwaway credentials for a database that exists for the length of
+          # one job and is never reachable from anywhere.
+          $WP core install --url=http://plugin-check.test --title="Plugin Check CI" \
+            --admin_user=ci --admin_password=ci-throwaway-not-a-secret \
+            --admin_email=ci@example.test --skip-email
+          $WP plugin install plugin-check --activate
+          test -f /tmp/wp/wp-content/plugins/plugin-check/phpcs-rulesets/plugin-review.xml
+
+      # A copy, not a symlink: Plugin Check resolves the plugin by path and the
+      # gate derives its scope from .distignore against the same tree, so the
+      # two must be one tree.
+      - name: Stage this checkout as the plugin under test
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wp/wp-content/plugins/mhm-rentiva
+          rsync -a --delete --exclude '.git' ./ /tmp/wp/wp-content/plugins/mhm-rentiva/
+          test -f /tmp/wp/wp-content/plugins/mhm-rentiva/vendor/mhm/ui-core/bootstrap.php
+
+      # BLOCKING. Exit 0 = clean, 1 = findings, 2 = could not measure -- and 2
+      # fails this step too, which is the whole point: the previous arrangement
+      # turned "could not measure" into a green tick.
+      - name: Plugin Check gate (G-D)
+        env:
+          MHM_GD_CONTAINER: local
+          MHM_GD_WP_PATH: /tmp/wp
+          MHM_GD_WP_BIN: /tmp/wp-cli.phar
+          MHM_GD_PLUGIN_DIR: /tmp/wp/wp-content/plugins/mhm-rentiva
+        run: php /tmp/wp/wp-content/plugins/mhm-rentiva/bin/check-plugin-check-parity.php
