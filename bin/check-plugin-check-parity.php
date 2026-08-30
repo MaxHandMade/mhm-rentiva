@@ -239,7 +239,7 @@ sort($excludeFiles);
 // Self-check. Plugin Check matches an excluded directory by the substring
 // "/<token>/" and an excluded file by the suffix "/<token>", both against the
 // ABSOLUTE path -- so a token can over-match, either inside the plugin or
-// inside the /var/www/html/... prefix. Any collision would silently shrink the
+// inside the WordPress-root prefix. Any collision would silently shrink the
 // scanned surface, which is the precise failure this rewrite exists to end.
 $collisions = [];
 foreach ($shipped as $rel) {
@@ -385,7 +385,7 @@ if ($vendorPhp) {
     // error. A supplementary pass blind to the exact family that got this
     // plugin rejected would have been worse than none.
     $vendorSlug = $slug . '-gd-vendorscope';
-    $stage      = '/var/www/html/wp-content/plugins/' . $vendorSlug;
+    $stage      = $wpPath . '/wp-content/plugins/' . $vendorSlug;
 
     $script = 'set -e; rm -rf ' . $stage . '; mkdir -p ' . $stage . ';';
     foreach ($vendorPhp as $p) {
