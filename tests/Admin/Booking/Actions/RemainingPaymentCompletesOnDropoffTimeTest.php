@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Admin\Booking\Actions;
 
 use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Tests\Support\SiteClock;
 use WP_Ajax_UnitTestCase;
 
 /**
@@ -24,6 +25,8 @@ use WP_Ajax_UnitTestCase;
  */
 final class RemainingPaymentCompletesOnDropoffTimeTest extends WP_Ajax_UnitTestCase
 {
+	use SiteClock;
+
 	private int $admin_id;
 
 	public function setUp(): void
@@ -80,13 +83,12 @@ final class RemainingPaymentCompletesOnDropoffTimeTest extends WP_Ajax_UnitTestC
 	 */
 	public function test_booking_due_back_later_today_is_not_completed_yet(): void
 	{
+		// The fixture is "later today", so the clock has to be somewhere the
+		// arithmetic stays inside today. It used to be whatever hour the suite
+		// happened to run at, and the test skipped itself after 18:00 -- real in
+		// the morning, decorative at night, a coin flip in CI.
+		$this->pin_site_hour(9);
 		$later_today = ( new \DateTimeImmutable('now', wp_timezone()) )->modify('+6 hours');
-
-		// Skip when "+6 hours" would cross midnight; the case under test is
-		// specifically same-day-but-later.
-		if ($later_today->format('Y-m-d') !== gmdate('Y-m-d', current_time('timestamp'))) {
-			$this->markTestSkipped('Run crosses midnight in site timezone; same-day case not applicable.');
-		}
 
 		$booking_id = $this->make_booking($later_today->format('Y-m-d'), $later_today->format('H:i'));
 

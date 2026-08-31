@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\PostTypes\Maintenance;
 
 use MHMRentiva\Admin\PostTypes\Maintenance\AutoComplete;
+use MHMRentiva\Tests\Support\SiteClock;
 use WP_UnitTestCase;
 
 /**
@@ -23,6 +24,8 @@ use WP_UnitTestCase;
  */
 final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 {
+	use SiteClock;
+
 	private const VEHICLE_ID = 3008;
 
 	/**
@@ -51,11 +54,16 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		update_post_meta($booking_id, '_mhmrentiva_status', $opts['status']);
 		update_post_meta($booking_id, '_mhmrentiva_vehicle_id', self::VEHICLE_ID);
-		update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', $opts['start_ts']));
-		update_post_meta($booking_id, '_mhmrentiva_pickup_time', wp_date('H:i', $opts['start_ts']));
+		// Every timestamp handed to this helper is site-local (built from
+		// current_time), so it is formatted as-is. wp_date() would apply the
+		// offset a second time -- harmless while the test site sits at UTC and
+		// wrong by the offset the moment a test pins the clock. CI caught the
+		// first two of these; these four were the rest of the same shape.
+		update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', $opts['start_ts']));
+		update_post_meta($booking_id, '_mhmrentiva_pickup_time', gmdate('H:i', $opts['start_ts']));
 		update_post_meta($booking_id, '_mhmrentiva_start_ts', $opts['start_ts']);
 
-		$dropoff_date = $opts['dropoff_date'] ?? wp_date('Y-m-d', $opts['end_ts']);
+		$dropoff_date = $opts['dropoff_date'] ?? gmdate('Y-m-d', $opts['end_ts']);
 		update_post_meta($booking_id, '_mhmrentiva_dropoff_date', $dropoff_date);
 		update_post_meta($booking_id, '_mhmrentiva_end_date', $dropoff_date);
 
@@ -63,7 +71,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 			update_post_meta($booking_id, '_mhmrentiva_end_ts', $opts['end_ts']);
 		}
 		if ($opts['set_dropoff_time']) {
-			$dropoff_time = $opts['dropoff_time'] ?? wp_date('H:i', $opts['end_ts']);
+			$dropoff_time = $opts['dropoff_time'] ?? gmdate('H:i', $opts['end_ts']);
 			update_post_meta($booking_id, '_mhmrentiva_dropoff_time', $dropoff_time);
 		}
 
@@ -77,8 +85,14 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	 */
 	public function test_cron_does_not_complete_booking_when_end_ts_is_in_future(): void
 	{
+		// Same reason as the sibling test below: a fixture that says "dropoff is
+		// today, end_ts is an hour away" is incoherent when the run starts at 23:30.
+		$this->pin_site_hour(9);
 		$now       = (int) current_time('timestamp');
-		$today_str = wp_date('Y-m-d', $now);
+		// $now is already site-local (current_time), so it is formatted as-is.
+		// wp_date($fmt, $now) would shift it a SECOND time -- invisible while the
+		// test site sits at UTC, and 14 hours wrong the moment the clock is pinned.
+		$today_str = gmdate('Y-m-d', $now);
 
 		$booking_id = $this->create_booking(array(
 			'status'       => 'confirmed',
@@ -148,15 +162,17 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	 */
 	public function test_cron_does_not_complete_when_end_ts_missing_and_dropoff_time_in_future(): void
 	{
+		// "+2 hours" has to stay inside today. This used to skip after 22:00,
+		// which meant the cron's date-only bug went unmeasured for two hours of
+		// every day and on whichever CI runs started then.
+		$this->pin_site_hour(9);
 		$now          = (int) current_time('timestamp');
-		$current_hour = (int) wp_date('G', $now);
 
-		if ($current_hour >= 22) {
-			$this->markTestSkipped('Requires at least 2h until midnight (current hour: ' . $current_hour . ').');
-		}
-
-		$today_str         = wp_date('Y-m-d', $now);
-		$future_time_today = wp_date('H:i', $now + 7200);
+		// $now is already site-local (current_time), so it is formatted as-is.
+		// wp_date($fmt, $now) would shift it a SECOND time -- invisible while the
+		// test site sits at UTC, and 14 hours wrong the moment the clock is pinned.
+		$today_str         = gmdate('Y-m-d', $now);
+		$future_time_today = gmdate('H:i', $now + 7200);
 
 		$booking_id = $this->create_booking(array(
 			'status'       => 'confirmed',
