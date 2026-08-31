@@ -137,9 +137,7 @@ final class CustomersPage {
 			array(
 				'stats'            => array(
 					'total'          => $stats['total']         ?? 0,
-					'active'         => $stats['active']        ?? 0,
 					'new_this_month' => $stats['new']           ?? 0,
-					'monthly_avg'    => $stats['average']       ?? 0,
 					'new_trend'      => $stats['average_trend'] ?? '',
 					// Redesign KPIs: activity inside 90 days + lifetime spend per customer.
 					'active_90d'     => $stats['active_90d']    ?? 0,

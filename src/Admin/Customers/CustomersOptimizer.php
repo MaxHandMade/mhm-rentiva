@@ -399,10 +399,6 @@ final class CustomersOptimizer {
                     THEN u.ID
                 END) as new_customers,
                 COUNT(DISTINCT CASE
-                    WHEN u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-                    THEN u.ID
-                END) as active_customers,
-                COUNT(DISTINCT CASE
                     WHEN p.post_date >= DATE_SUB(NOW(), INTERVAL 90 DAY)
                     THEN u.ID
                 END) as active_90d,
@@ -425,18 +421,13 @@ final class CustomersOptimizer {
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// Calculate monthly average (last 3 months)
-		$monthly_avg = self::calculate_monthly_average();
-
 		$total     = (int) ( $result->total_customers ?? 0 );
 		$revenue   = (float) ( $result->total_revenue ?? 0 );
 		$avg_spend = $total > 0 ? round( $revenue / $total, 2 ) : 0.0;
 
 		$stats = array(
 			'total'         => $total,
-			'active'        => (int) ( $result->active_customers ?? 0 ),
 			'new'           => (int) ( $result->new_customers ?? 0 ),
-			'average'       => $monthly_avg,
 			'average_trend' => self::calculate_trend(),
 			// Customers whose latest booking activity falls in the last 90 days —
 			// the same window the per-row "active" tag uses.
@@ -666,48 +657,6 @@ final class CustomersOptimizer {
 		return CacheManager::clear_cache_by_type( 'customers' );
 	}
 
-	/**
-	 * Monthly average calculation
-	 *
-	 * @return float
-	 */
-	private static function calculate_monthly_average(): float {
-		global $wpdb;
-
-		// Get customer registration counts for last 3 months (WordPress user registration dates).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only aggregate report query; cached by the caller.
-		$results = $wpdb->get_results(
-			"
-            SELECT 
-                YEAR(u.user_registered) as year,
-                MONTH(u.user_registered) as month,
-                COUNT(DISTINCT u.ID) as customer_count
-            FROM {$wpdb->users} u
-            INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhmrentiva_customer_email'
-            INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'mhmrentiva_booking'
-                AND p.post_status IN ('publish', 'private', 'pending')
-                AND p.post_status != 'trash'
-            WHERE u.ID > 1 
-                AND u.user_login != 'admin'
-                AND u.user_registered >= DATE_SUB(NOW(), INTERVAL 3 MONTH)
-            GROUP BY YEAR(u.user_registered), MONTH(u.user_registered)
-            ORDER BY year DESC, month DESC
-        "
-		);
-
-		if ( empty( $results ) ) {
-			return 0.0;
-		}
-
-		$total_customers = 0;
-		foreach ( $results as $result ) {
-			$total_customers += (int) $result->customer_count;
-		}
-
-		return round( $total_customers / count( $results ), 1 );
-	}
 
 	/**
 	 * Trend calculation.
