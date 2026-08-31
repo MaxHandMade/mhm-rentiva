@@ -110,6 +110,60 @@ final class CacheManager {
 	}
 
 	/**
+	 * The one place a cache key is spelled.
+	 *
+	 * Each of set_cache(), get_cache() and delete_cache() used to build this
+	 * for itself, and delete_cache() drifted: it skipped
+	 * get_multisite_cache_key() entirely, so on a network it deleted a key
+	 * nothing had written. Three spellings of one thing is two too many.
+	 */
+	private static function cache_key_for( string $type, string $key ): string {
+		return self::get_multisite_cache_key(
+			self::CACHE_KEYS[ $type ] . self::type_version( $type ) . '_' . $key
+		);
+	}
+
+	/**
+	 * The stamp every cache key for $type carries.
+	 *
+	 * Read from whichever backend the data itself uses, so the two cannot
+	 * disagree. A missing stamp reads as '0', which is a key nobody wrote once
+	 * anything has been invalidated -- so losing it costs a cold cache, never a
+	 * resurrected stale entry. That asymmetry is the reason this is a stamp and
+	 * not a counter: a counter that expired and restarted at 1 would make v1
+	 * entries readable again.
+	 */
+	private static function type_version( string $type ): string {
+		$key = self::CACHE_PREFIX . 'ver_' . $type;
+
+		$version = wp_using_ext_object_cache()
+			? wp_cache_get( $key, 'mhmrentiva' )
+			: get_transient( $key );
+
+		return false === $version ? '0' : (string) $version;
+	}
+
+	/**
+	 * Move the stamp forward. Stored without expiry on purpose -- see above.
+	 *
+	 * Taking max( time(), current + 1 ) rather than time() alone matters because
+	 * two invalidations inside the same second would otherwise land on the same
+	 * stamp, and the entries written between them would survive.
+	 */
+	private static function bump_type_version( string $type ): void {
+		$key  = self::CACHE_PREFIX . 'ver_' . $type;
+		$next = max( time(), (int) self::type_version( $type ) + 1 );
+
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_set( $key, $next, 'mhmrentiva', 0 );
+
+			return;
+		}
+
+		set_transient( $key, $next, 0 );
+	}
+
+	/**
 	 * Clear cache - Object Cache + Transient (only specified types)
 	 */
 	public static function clear_cache( array $types = array() ): void {
@@ -122,6 +176,20 @@ final class CacheManager {
 			if ( ! isset( self::CACHE_KEYS[ $type ] ) ) {
 				continue;
 			}
+
+			// This is the invalidation. Everything after it is housekeeping.
+			//
+			// Searching for keys to delete only works against the transient
+			// table; wp_cache_* cannot be scanned by pattern at all, so on a
+			// site with a persistent object cache -- most managed hosting --
+			// the LIKE below matched nothing, reported success, and the stale
+			// value kept being served until its TTL ran out. Five of the nine
+			// types go down that path, including the Customers list and every
+			// report.
+			//
+			// Bumping a per-type stamp that every key carries invalidates the
+			// same entries in either backend without looking for them.
+			self::bump_type_version( $type );
 
 			$pattern = self::CACHE_KEYS[ $type ];
 
@@ -179,7 +247,7 @@ final class CacheManager {
 			return false;
 		}
 
-		$cache_key       = self::get_multisite_cache_key( self::CACHE_KEYS[ $type ] . $key );
+		$cache_key       = self::cache_key_for( $type, $key );
 		$cache_durations = self::get_cache_durations();
 		$duration        = $duration ?? $cache_durations[ $type ] ?? self::get_cache_duration_default();
 
@@ -200,7 +268,7 @@ final class CacheManager {
 			return false;
 		}
 
-		$cache_key = self::get_multisite_cache_key( self::CACHE_KEYS[ $type ] . $key );
+		$cache_key = self::cache_key_for( $type, $key );
 
 		// Use Object Cache (if available)
 		if ( wp_using_ext_object_cache() ) {
@@ -395,6 +463,14 @@ final class CacheManager {
 	public static function clear_cache_by_type( string $type ): bool {
 		global $wpdb;
 
+		// The second entry point into invalidation, and the one the Customers
+		// screen actually calls. Same reasoning as clear_cache(): the stamp is
+		// what invalidates, the scan below is housekeeping that only reaches the
+		// transient table.
+		if ( isset( self::CACHE_KEYS[ $type ] ) ) {
+			self::bump_type_version( $type );
+		}
+
 		$pattern = self::CACHE_PREFIX . $type . '_';
 
 		// Clear transient caches
@@ -459,7 +535,7 @@ final class CacheManager {
 		// switch to the external object cache when one is present, while this
 		// method always went to the transient table -- so with a persistent
 		// object cache the delete missed in single-site installs too.
-		$cache_key = self::get_multisite_cache_key( self::CACHE_KEYS[ $type ] . $key );
+		$cache_key = self::cache_key_for( $type, $key );
 
 		if ( wp_using_ext_object_cache() ) {
 			return wp_cache_delete( $cache_key, 'mhmrentiva' );
