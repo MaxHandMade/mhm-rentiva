@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-30T10:49:47+00:00\n"
+"POT-Creation-Date: 2026-08-31T21:57:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
 #: src/Admin/Utilities/Menu/Menu.php:29
 #: src/Admin/Utilities/Menu/Menu.php:30
-#: src-react/admin/dashboard/DashboardPage.jsx:69
+#: src-react/admin/dashboard/DashboardPage.jsx:75
 msgid "MHM Rentiva"
 msgstr ""
 
@@ -117,7 +117,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php:37
 #: src/Admin/Utilities/Menu/Menu.php:139
 #: src/Admin/Utilities/Menu/Menu.php:140
-#: src-react/admin/dashboard/components/QuickActions.jsx:9
+#: src-react/admin/dashboard/components/QuickActions.jsx:17
 msgid "Settings"
 msgstr ""
 
@@ -289,7 +289,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1233
 #: src/Core/Dashboard/DashboardConfig.php:24
 #: templates/account/dashboard.php:50
-#: src-react/admin/dashboard/components/StatsCards.jsx:21
+#: src-react/admin/dashboard/components/StatsCards.jsx:23
 msgid "Total Bookings"
 msgstr ""
 
@@ -779,7 +779,7 @@ msgstr ""
 #: src/Admin/Utilities/Menu/Menu.php:95
 #: templates/account/booking-detail.php:222
 #: templates/shortcodes/booking-form.php:301
-#: src-react/admin/dashboard/components/QuickActions.jsx:11
+#: src-react/admin/dashboard/components/QuickActions.jsx:19
 msgid "Additional Services"
 msgstr ""
 
@@ -814,11 +814,11 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:1037
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:1010
-#: src/Admin/Customers/CustomersPage.php:253
+#: src/Admin/Customers/CustomersPage.php:251
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:887
 #: src/Admin/Setup/SetupWizard.php:946
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1235
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1125
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:235
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:694
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:497
@@ -846,9 +846,9 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:144
 #: src/Admin/Customers/AddCustomerPage.php:149
 #: src/Admin/Customers/AddCustomerPage.php:154
-#: src/Admin/Customers/CustomersPage.php:494
-#: src/Admin/Customers/CustomersPage.php:499
-#: src/Admin/Customers/CustomersPage.php:504
+#: src/Admin/Customers/CustomersPage.php:492
+#: src/Admin/Customers/CustomersPage.php:497
+#: src/Admin/Customers/CustomersPage.php:502
 #: src/Admin/Setup/SetupWizard.php:969
 #: assets/blocks/unified-search/index.js:134
 msgid "Required"
@@ -1065,7 +1065,7 @@ msgstr[1] ""
 
 #: src/Admin/Addons/AddonScreen.php:1046
 #: src/Admin/Core/AssetManager.php:1164
-#: src/Admin/Customers/CustomersPage.php:390
+#: src/Admin/Customers/CustomersPage.php:388
 #: src/Admin/Setup/SetupWizard.php:225
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:972
 #: templates/shortcodes/vehicle-rating-form.php:292
@@ -1299,8 +1299,8 @@ msgstr ""
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
 #: src/Admin/Frontend/Account/AccountRenderer.php:631
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1040
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1233
+#: src/Admin/Utilities/Dashboard/DashboardService.php:930
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1123
 #: templates/account/booking-detail.php:75
 #: templates/account/bookings.php:116
 #: templates/account/bookings.php:201
@@ -1321,7 +1321,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:474
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1234
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1124
 #: templates/account/booking-detail.php:76
 #: templates/account/bookings.php:117
 #: templates/account/bookings.php:202
@@ -2118,8 +2118,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:462
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:284
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1236
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1240
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1126
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1130
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:460
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:830
 #: assets/blocks/booking-form/index.js:94
@@ -2342,7 +2342,7 @@ msgid "Current License Plate:"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:147
-#: src/Admin/Customers/CustomersOptimizer.php:577
+#: src/Admin/Customers/CustomersOptimizer.php:588
 msgid "BK-"
 msgstr ""
 
@@ -3015,7 +3015,7 @@ msgid "Grand Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1241
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1131
 msgid "Remaining"
 msgstr ""
 
@@ -3063,8 +3063,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
 #: src/Admin/Customers/AddCustomerPage.php:149
-#: src/Admin/Customers/CustomersPage.php:323
-#: src/Admin/Customers/CustomersPage.php:499
+#: src/Admin/Customers/CustomersPage.php:321
+#: src/Admin/Customers/CustomersPage.php:497
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:505
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -3077,8 +3077,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:330
 #: src/Admin/Customers/AddCustomerPage.php:154
-#: src/Admin/Customers/CustomersPage.php:324
-#: src/Admin/Customers/CustomersPage.php:504
+#: src/Admin/Customers/CustomersPage.php:322
+#: src/Admin/Customers/CustomersPage.php:502
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:506
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -3137,8 +3137,8 @@ msgid "This email address is already registered."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:718
-#: src/Admin/Customers/CustomersPage.php:289
-#: src/Admin/Customers/CustomersPage.php:432
+#: src/Admin/Customers/CustomersPage.php:287
+#: src/Admin/Customers/CustomersPage.php:430
 #: src/Admin/Customers/REST/CustomersRestController.php:161
 #: src/Admin/Customers/REST/CustomersRestController.php:171
 msgid "Customer not found."
@@ -3485,7 +3485,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:996
 #: src/Admin/Core/AssetManager.php:1160
 #: src/Admin/Customers/AddCustomerPage.php:165
-#: src/Admin/Customers/CustomersPage.php:515
+#: src/Admin/Customers/CustomersPage.php:513
 #: src/Admin/Emails/Core/EmailTemplates.php:536
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -4123,7 +4123,7 @@ msgid "Confirm"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1166
-#: src/Admin/Customers/CustomersPage.php:514
+#: src/Admin/Customers/CustomersPage.php:512
 msgid "Update"
 msgstr ""
 
@@ -4163,7 +4163,7 @@ msgid "Back"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1172
-#: src/Admin/Customers/CustomersPage.php:385
+#: src/Admin/Customers/CustomersPage.php:383
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:393
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1153
 #: templates/account/payment-history.php:191
@@ -4175,7 +4175,7 @@ msgid "Next"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1173
-#: src/Admin/Customers/CustomersPage.php:380
+#: src/Admin/Customers/CustomersPage.php:378
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:392
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1152
 #: templates/account/payment-history.php:176
@@ -5595,7 +5595,7 @@ msgid "Retry Payment"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:68
-#: src/Admin/Customers/CustomersPage.php:448
+#: src/Admin/Customers/CustomersPage.php:446
 msgid "Customer name, email and phone fields are required."
 msgstr ""
 
@@ -5621,13 +5621,13 @@ msgid "Add New Customer"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:144
-#: src/Admin/Customers/CustomersPage.php:494
+#: src/Admin/Customers/CustomersPage.php:492
 msgid "Customer Name"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:159
-#: src/Admin/Customers/CustomersPage.php:325
-#: src/Admin/Customers/CustomersPage.php:509
+#: src/Admin/Customers/CustomersPage.php:323
+#: src/Admin/Customers/CustomersPage.php:507
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "Address"
@@ -5639,69 +5639,69 @@ msgid "Add Customer"
 msgstr ""
 
 #. translators: 1: customer display name, 2: profile URL
-#: src/Admin/Customers/CustomersPage.php:184
+#: src/Admin/Customers/CustomersPage.php:182
 #, php-format
 msgid "Showing bookings for <strong>%1$s</strong> only. <a href=\"%2$s\">← Back to customer profile</a>"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:249
+#: src/Admin/Customers/CustomersPage.php:247
 #: src-react/admin/customers/components/CustomerTable.jsx:22
 #: src-react/admin/customers/CustomersPage.jsx:15
 msgid "VIP"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:251
+#: src/Admin/Customers/CustomersPage.php:249
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/customers/components/CustomerTable.jsx:23
 #: src-react/admin/customers/CustomersPage.jsx:14
 msgid "New"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:266
-#: src/Admin/Customers/CustomersPage.php:414
+#: src/Admin/Customers/CustomersPage.php:264
+#: src/Admin/Customers/CustomersPage.php:412
 msgid "Invalid customer ID."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:294
+#: src/Admin/Customers/CustomersPage.php:292
 msgid "Customers List"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:304
+#: src/Admin/Customers/CustomersPage.php:302
 #: src-react/admin/customers/components/CustomerPanel.jsx:37
 #: src-react/admin/customers/components/CustomerPanel.jsx:51
 msgid "Customer Details"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:326
+#: src/Admin/Customers/CustomersPage.php:324
 msgid "First Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:327
+#: src/Admin/Customers/CustomersPage.php:325
 msgid "Last Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:332
+#: src/Admin/Customers/CustomersPage.php:330
 #: src-react/admin/customers/components/CustomerPanel.jsx:92
 msgid "bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:335
+#: src/Admin/Customers/CustomersPage.php:333
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
-#: src-react/admin/dashboard/components/StatsCards.jsx:38
+#: src-react/admin/dashboard/components/StatsCards.jsx:40
 msgid "total"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:336
+#: src/Admin/Customers/CustomersPage.php:334
 #: src-react/admin/customers/components/CustomerPanel.jsx:102
 msgid "favorites"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:362
+#: src/Admin/Customers/CustomersPage.php:360
 #: src-react/admin/customers/components/CustomerPanel.jsx:107
 msgid "Recent bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:364
+#: src/Admin/Customers/CustomersPage.php:362
 #: src-react/admin/customers/components/CustomerPanel.jsx:131
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
 #: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
@@ -5709,40 +5709,40 @@ msgid "No bookings yet."
 msgstr ""
 
 #. translators: 1: current page, 2: total pages
-#: src/Admin/Customers/CustomersPage.php:383
+#: src/Admin/Customers/CustomersPage.php:381
 #, php-format
 msgid "%1$d / %2$d"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:391
+#: src/Admin/Customers/CustomersPage.php:389
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 msgid "View Bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:392
+#: src/Admin/Customers/CustomersPage.php:390
 msgid "Go Back"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:410
+#: src/Admin/Customers/CustomersPage.php:408
 msgid "You do not have permission to edit customers."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:471
+#: src/Admin/Customers/CustomersPage.php:469
 msgid "Customer information updated successfully."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:471
+#: src/Admin/Customers/CustomersPage.php:469
 msgid "← Back to customer details"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:480
+#: src/Admin/Customers/CustomersPage.php:478
 #: templates/account/dashboard.php:202
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:41
 msgid "View"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:487
+#: src/Admin/Customers/CustomersPage.php:485
 msgid "Edit Customer"
 msgstr ""
 
@@ -5948,7 +5948,7 @@ msgid "Email templates saved successfully!"
 msgstr ""
 
 #: src/Admin/Emails/Core/Mailer.php:354
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1050
+#: src/Admin/Utilities/Dashboard/DashboardService.php:940
 #: templates/shortcodes/vehicle-rating-form.php:226
 msgid "Anonymous"
 msgstr ""
@@ -6638,7 +6638,7 @@ msgstr ""
 #: src/Admin/Utilities/Menu/Menu.php:44
 #: src/Admin/Utilities/Menu/Menu.php:45
 #: templates/account/booking-detail.php:102
-#: src-react/admin/dashboard/DashboardPage.jsx:32
+#: src-react/admin/dashboard/DashboardPage.jsx:37
 msgid "Dashboard"
 msgstr ""
 
@@ -11859,25 +11859,25 @@ msgstr ""
 msgid "Cron hook is required"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1041
+#: src/Admin/Utilities/Dashboard/DashboardService.php:931
 msgid "Answered"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1042
+#: src/Admin/Utilities/Dashboard/DashboardService.php:932
 msgid "Closed"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1076
+#: src/Admin/Utilities/Dashboard/DashboardService.php:966
 msgid "Pending Messages"
 msgstr ""
 
 #. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1079
+#: src/Admin/Utilities/Dashboard/DashboardService.php:969
 #, php-format
 msgid "%s pending messages"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1082
+#: src/Admin/Utilities/Dashboard/DashboardService.php:972
 msgid "Now"
 msgstr ""
 
@@ -11979,8 +11979,7 @@ msgstr ""
 
 #: src/Admin/Utilities/Menu/Menu.php:129
 #: src/Admin/Utilities/Menu/Menu.php:130
-#: src-react/admin/dashboard/components/QuickActions.jsx:10
-#: src-react/admin/dashboard/components/StatsCards.jsx:42
+#: src-react/admin/dashboard/components/QuickActions.jsx:18
 msgid "Customers"
 msgstr ""
 
@@ -13023,278 +13022,262 @@ msgstr ""
 msgid "Please review this booking's paid orders and settle any refund by hand."
 msgstr ""
 
-#. translators: %s: missing root key in manifest.
-#. translators: %s: the manifest's missing root key.
-#: src/Layout/BlueprintValidator.php:40
-#: src/Layout/LayoutErrorMessages.php:82
-#, php-format
-msgid "Manifest root key missing: %s"
+#: src/Layout/CLI/LayoutImportCommand.php:47
+msgid "mhm/ui-core 0.6.0 or newer is required for layout commands."
 msgstr ""
 
-#. translators: %s: blueprint version string.
-#. translators: %s: the manifest's declared version string.
-#: src/Layout/BlueprintValidator.php:53
-#: src/Layout/LayoutErrorMessages.php:89
-#, php-format
-msgid "Unsupported blueprint version: %s"
-msgstr ""
-
-#. translators: %s: forbidden pattern name.
-#. translators: %s: the forbidden pattern found in the manifest.
-#: src/Layout/BlueprintValidator.php:70
-#: src/Layout/LayoutErrorMessages.php:96
-#, php-format
-msgid "Forbidden pattern detected in manifest: %s"
-msgstr ""
-
-#: src/Layout/BlueprintValidator.php:79
-#: src/Layout/LayoutErrorMessages.php:101
-msgid "Manifest contains no pages."
-msgstr ""
-
-#: src/Layout/BlueprintValidator.php:94
-#: src/Layout/LayoutErrorMessages.php:104
-msgid "Manifest components section must be an object/array."
-msgstr ""
-
-#. translators: 1: page index, 2: missing key.
-#. translators: 1: page index in the manifest. 2: the page's missing key.
-#: src/Layout/BlueprintValidator.php:116
-#: src/Layout/LayoutErrorMessages.php:117
-#, php-format
-msgid "Page #%1$d is missing key: %2$s"
-msgstr ""
-
-#. translators: 1: component index, 2: page index.
-#. translators: 1: the component instance's index within its page. 2: the page index.
-#: src/Layout/BlueprintValidator.php:135
-#: src/Layout/LayoutErrorMessages.php:145
-#, php-format
-msgid "Component instance #%1$d in page #%2$d missing instance_id"
-msgstr ""
-
-#: src/Layout/CLI/LayoutImportCommand.php:54
+#: src/Layout/CLI/LayoutImportCommand.php:71
 msgid "Missing manifest file path."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:83
+#: src/Layout/CLI/LayoutImportCommand.php:97
 msgid "Executing side-effect free dry-run..."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:86
+#: src/Layout/CLI/LayoutImportCommand.php:100
 msgid "Dry-run simulation completed."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:91
+#: src/Layout/CLI/LayoutImportCommand.php:105
 msgid "Starting atomic multi-page ingestion..."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:94
+#: src/Layout/CLI/LayoutImportCommand.php:108
 msgid "All pages imported successfully."
 msgstr ""
 
 #. translators: %s: import error message.
-#: src/Layout/CLI/LayoutImportCommand.php:100
+#: src/Layout/CLI/LayoutImportCommand.php:114
 #, php-format
 msgid "Import failed: %s. Rollback executed."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:122
+#: src/Layout/CLI/LayoutImportCommand.php:136
 msgid "Missing post ID."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:133
+#: src/Layout/CLI/LayoutImportCommand.php:144
 msgid "Executing side-effect free dry-run for rollback..."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:138
+#: src/Layout/CLI/LayoutImportCommand.php:149
 #, php-format
 msgid "Initiating atomic rollback for Post ID: %d..."
 msgstr ""
 
 #. translators: %s: target layout hash.
-#: src/Layout/CLI/LayoutImportCommand.php:151
+#: src/Layout/CLI/LayoutImportCommand.php:162
 #, php-format
 msgid "Target Hash: %s"
 msgstr ""
 
 #. translators: %s: current layout hash or dash.
-#: src/Layout/CLI/LayoutImportCommand.php:158
+#: src/Layout/CLI/LayoutImportCommand.php:169
 #, php-format
 msgid "Current Hash: %s"
 msgstr ""
 
 #. translators: %s: rollback validation message.
-#: src/Layout/CLI/LayoutImportCommand.php:165
+#: src/Layout/CLI/LayoutImportCommand.php:176
 #, php-format
 msgid "Rollback is possible. (%s)"
 msgstr ""
 
 #. translators: %s: old layout hash.
-#: src/Layout/CLI/LayoutImportCommand.php:173
+#: src/Layout/CLI/LayoutImportCommand.php:184
 #, php-format
 msgid "Old Hash: %s"
 msgstr ""
 
 #. translators: %s: new layout hash.
-#: src/Layout/CLI/LayoutImportCommand.php:180
+#: src/Layout/CLI/LayoutImportCommand.php:191
 #, php-format
 msgid "New Hash: %s"
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:187
+#: src/Layout/CLI/LayoutImportCommand.php:198
 #, php-format
 msgid "Rollback successful for Post ID: %d."
 msgstr ""
 
 #. translators: %s: rollback error message.
-#: src/Layout/CLI/LayoutImportCommand.php:196
+#: src/Layout/CLI/LayoutImportCommand.php:207
 #, php-format
 msgid "Rollback failed: %s"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:219
-#: src/Layout/CLI/LayoutImportCommand.php:273
+#: src/Layout/CLI/LayoutImportCommand.php:230
+#: src/Layout/CLI/LayoutImportCommand.php:284
 msgid "Invalid post ID."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:232
+#: src/Layout/CLI/LayoutImportCommand.php:243
 #, php-format
 msgid "Layout History for Post ID: %d"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:241
+#: src/Layout/CLI/LayoutImportCommand.php:252
 msgid "Audit Trail (Last 10 events):"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:281
+#: src/Layout/CLI/LayoutImportCommand.php:292
 msgid "No previous layout version found to compare."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:290
+#: src/Layout/CLI/LayoutImportCommand.php:301
 #, php-format
 msgid "Layout Diff for Post ID: %d"
 msgstr ""
 
 #. translators: 1: previous hash prefix, 2: current hash prefix.
-#: src/Layout/CLI/LayoutImportCommand.php:297
+#: src/Layout/CLI/LayoutImportCommand.php:308
 #, php-format
 msgid "Comparing %1$s -> %2$s"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:306
+#: src/Layout/CLI/LayoutImportCommand.php:317
 msgid "Tokens Changes:"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:317
+#: src/Layout/CLI/LayoutImportCommand.php:328
 msgid "No Token changes."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:322
+#: src/Layout/CLI/LayoutImportCommand.php:333
 msgid "Components Changes:"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:333
+#: src/Layout/CLI/LayoutImportCommand.php:344
 msgid "No Component changes."
 msgstr ""
 
-#. translators: %s: unknown component ID.
-#. translators: %s: the unrecognised component reference.
-#: src/Layout/CompositionBuilder.php:49
-#: src/Layout/LayoutErrorMessages.php:153
-#, php-format
-msgid "Unknown component reference: %s"
-msgstr ""
-
-#. translators: %s: missing adapter type name.
-#. translators: %s: the component type with no registered adapter.
-#: src/Layout/CompositionBuilder.php:61
-#: src/Layout/LayoutErrorMessages.php:160
-#, php-format
-msgid "No adapter found for component type: %s"
-msgstr ""
-
-#. translators: %s: forbidden pattern found in rendered markup.
-#. translators: %s: the forbidden framework pattern found in rendered markup.
-#: src/Layout/CompositionBuilder.php:112
-#: src/Layout/LayoutErrorMessages.php:167
-#, php-format
-msgid "Tailwind leakage detected in rendered markup: %s"
-msgstr ""
-
-#. translators: %s: utility class fragment.
-#. translators: %s: the unprefixed utility class fragment.
-#: src/Layout/CompositionBuilder.php:124
-#: src/Layout/LayoutErrorMessages.php:174
-#, php-format
-msgid "Unprefixed utility class detected: %s"
-msgstr ""
-
 #. translators: 1: page index, 2: error message.
-#: src/Layout/Ingestion/AtomicImporter.php:101
+#: src/Layout/Ingestion/AtomicImporter.php:111
 #, php-format
 msgid "Composition error in page %1$d: %2$s"
 msgstr ""
 
-#: src/Layout/Ingestion/AtomicImporter.php:111
+#: src/Layout/Ingestion/AtomicImporter.php:121
 msgid "Layout identical, skipping update."
 msgstr ""
 
-#: src/Layout/Ingestion/AtomicImporter.php:209
+#: src/Layout/Ingestion/AtomicImporter.php:219
 msgid "Page not found and --create flag not set."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/Ingestion/AtomicImporter.php:224
+#: src/Layout/Ingestion/AtomicImporter.php:234
 #, php-format
 msgid "Post ID %d lost during processing."
 msgstr ""
 
+#. translators: %s: the manifest's missing root key.
+#: src/Layout/LayoutErrorMessages.php:83
+#, php-format
+msgid "Manifest root key missing: %s"
+msgstr ""
+
+#. translators: %s: the manifest's declared version string.
+#: src/Layout/LayoutErrorMessages.php:90
+#, php-format
+msgid "Unsupported blueprint version: %s"
+msgstr ""
+
+#. translators: %s: the forbidden pattern found in the manifest.
+#: src/Layout/LayoutErrorMessages.php:97
+#, php-format
+msgid "Forbidden pattern detected in manifest: %s"
+msgstr ""
+
+#: src/Layout/LayoutErrorMessages.php:102
+msgid "Manifest contains no pages."
+msgstr ""
+
+#: src/Layout/LayoutErrorMessages.php:105
+msgid "Manifest components section must be an object/array."
+msgstr ""
+
+#. translators: 1: page index in the manifest. 2: the page's missing key.
+#: src/Layout/LayoutErrorMessages.php:118
+#, php-format
+msgid "Page #%1$d is missing key: %2$s"
+msgstr ""
+
 #. translators: %d: page index in the manifest.
-#: src/Layout/LayoutErrorMessages.php:125
+#: src/Layout/LayoutErrorMessages.php:126
 #, php-format
 msgid "Page #%d is not a valid page object"
 msgstr ""
 
 #. translators: %s: the instance_id value, which is not a string.
-#: src/Layout/LayoutErrorMessages.php:138
+#: src/Layout/LayoutErrorMessages.php:139
 #, php-format
 msgid "Component instance has a non-string instance_id: %s"
 msgstr ""
 
+#. translators: 1: the component instance's index within its page. 2: the page index.
+#: src/Layout/LayoutErrorMessages.php:146
+#, php-format
+msgid "Component instance #%1$d in page #%2$d missing instance_id"
+msgstr ""
+
+#. translators: %s: the unrecognised component reference.
+#: src/Layout/LayoutErrorMessages.php:154
+#, php-format
+msgid "Unknown component reference: %s"
+msgstr ""
+
+#. translators: %s: the component type with no registered adapter.
+#: src/Layout/LayoutErrorMessages.php:161
+#, php-format
+msgid "No adapter found for component type: %s"
+msgstr ""
+
+#. translators: %s: the forbidden framework pattern found in rendered markup.
+#: src/Layout/LayoutErrorMessages.php:168
+#, php-format
+msgid "Tailwind leakage detected in rendered markup: %s"
+msgstr ""
+
+#. translators: %s: the unprefixed utility class fragment.
+#: src/Layout/LayoutErrorMessages.php:175
+#, php-format
+msgid "Unprefixed utility class detected: %s"
+msgstr ""
+
 #. translators: %s: the unrecognised WP_Error code.
-#: src/Layout/LayoutErrorMessages.php:185
+#: src/Layout/LayoutErrorMessages.php:186
 #, php-format
 msgid "Unhandled layout error: %s"
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:43
+#: src/Layout/Versioning/LayoutRollbackService.php:45
 msgid "Post not found."
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:50
+#: src/Layout/Versioning/LayoutRollbackService.php:52
 msgid "No rollback version available for this post."
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:75
+#: src/Layout/Versioning/LayoutRollbackService.php:77
 msgid "Previous manifest data is corrupted or invalid."
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:82
+#: src/Layout/Versioning/LayoutRollbackService.php:84
 msgid "Hash mismatch: Previous manifest data corruption detected."
 msgstr ""
 
 #. translators: %s: governance validation error message.
-#: src/Layout/Versioning/LayoutRollbackService.php:92
+#: src/Layout/Versioning/LayoutRollbackService.php:96
 #, php-format
 msgid "Governance validation failed for previous layout: %s"
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:104
+#: src/Layout/Versioning/LayoutRollbackService.php:108
 msgid "Rollback is possible and valid."
 msgstr ""
 
@@ -13523,7 +13506,7 @@ msgid "You haven't made any vehicle bookings yet. Browse our fleet and make your
 msgstr ""
 
 #: templates/account/dashboard.php:237
-#: src-react/admin/dashboard/components/QuickActions.jsx:16
+#: src-react/admin/dashboard/components/QuickActions.jsx:26
 msgid "Quick Actions"
 msgstr ""
 
@@ -15446,19 +15429,19 @@ msgstr ""
 msgid "No pending payments."
 msgstr ""
 
-#: src-react/admin/dashboard/components/QuickActions.jsx:5
+#: src-react/admin/dashboard/components/QuickActions.jsx:13
 msgid "Add New Booking"
 msgstr ""
 
-#: src-react/admin/dashboard/components/QuickActions.jsx:6
+#: src-react/admin/dashboard/components/QuickActions.jsx:14
 msgid "All Bookings"
 msgstr ""
 
-#: src-react/admin/dashboard/components/QuickActions.jsx:7
+#: src-react/admin/dashboard/components/QuickActions.jsx:15
 msgid "Add New Vehicle"
 msgstr ""
 
-#: src-react/admin/dashboard/components/QuickActions.jsx:8
+#: src-react/admin/dashboard/components/QuickActions.jsx:16
 msgid "All Vehicles"
 msgstr ""
 
@@ -15488,23 +15471,23 @@ msgstr ""
 msgid "This week:"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:10
-#: src-react/admin/dashboard/components/StatsCards.jsx:11
-#: src-react/admin/dashboard/components/StatsCards.jsx:24
-#: src-react/admin/dashboard/components/StatsCards.jsx:31
+#: src-react/admin/dashboard/components/StatsCards.jsx:12
+#: src-react/admin/dashboard/components/StatsCards.jsx:13
+#: src-react/admin/dashboard/components/StatsCards.jsx:26
+#: src-react/admin/dashboard/components/StatsCards.jsx:33
 msgid "this month"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:28
+#: src-react/admin/dashboard/components/StatsCards.jsx:30
 msgid "Total Revenue"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:35
+#: src-react/admin/dashboard/components/StatsCards.jsx:37
 msgid "Active Vehicles"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:45
-msgid "new this month"
+#: src-react/admin/dashboard/components/StatsCards.jsx:50
+msgid "Renting this month"
 msgstr ""
 
 #: src-react/admin/dashboard/components/StatusBreakdown.jsx:7
@@ -15519,19 +15502,19 @@ msgstr ""
 msgid "No upcoming operations in the next 7 days."
 msgstr ""
 
-#: src-react/admin/dashboard/DashboardPage.jsx:33
+#: src-react/admin/dashboard/DashboardPage.jsx:38
 msgid "MHM Rentiva · Overview"
 msgstr ""
 
-#: src-react/admin/dashboard/DashboardPage.jsx:37
+#: src-react/admin/dashboard/DashboardPage.jsx:42
 msgid "Date range"
 msgstr ""
 
-#: src-react/admin/dashboard/DashboardPage.jsx:38
+#: src-react/admin/dashboard/DashboardPage.jsx:43
 msgid "Last 30 days"
 msgstr ""
 
-#: src-react/admin/dashboard/DashboardPage.jsx:70
+#: src-react/admin/dashboard/DashboardPage.jsx:76
 msgid "Built with WordPress."
 msgstr ""
 
