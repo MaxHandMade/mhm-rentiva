@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Integration\Admin\Customers;
 
 use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Customers\CustomersPage;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_UnitTestCase;
 
 /**
@@ -31,11 +32,20 @@ use WP_UnitTestCase;
  */
 final class CustomersPageTargetGuardTest extends WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     public function setUp(): void
     {
         parent::setUp();
         CustomerIdentity::flush_memo();
-        wp_set_current_user((int) self::factory()->user->create(array('role' => 'administrator')));
+        $actor_id = (int) self::factory()->user->create(array('role' => 'administrator'));
+        // The Customers surface is gated on edit_users, which an administrator
+        // does not hold on a network -- core rewrites it to do_not_allow for
+        // anyone who is not a super admin. Ask for what the mode requires so
+        // the assertions below measure this plugin's guard rather than core's
+        // capability rewrite. No-op on a single site.
+        $this->grant_user_management_privilege($actor_id);
+        wp_set_current_user($actor_id);
     }
 
     public function tearDown(): void

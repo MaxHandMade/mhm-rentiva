@@ -7,10 +7,13 @@ use MHMRentiva\Admin\Customers\CustomersPage;
 use MHMRentiva\Admin\Customers\REST\CustomersRestController;
 use WP_REST_Request;
 use WP_REST_Server;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_UnitTestCase;
 
 final class CustomersRestEndpointTest extends WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     private static WP_REST_Server $server;
     private int $admin_id  = 0;
     private int $customer_id = 0;
@@ -29,6 +32,15 @@ final class CustomersRestEndpointTest extends WP_UnitTestCase
         self::$server   = $wp_rest_server;
         do_action( 'rest_api_init', self::$server );
         $this->admin_id    = (int) $this->factory->user->create( array( 'role' => 'administrator' ) );
+        // The customer routes are gated on edit_users / delete_users. On a
+        // network an administrator holds neither -- core rewrites both to
+        // do_not_allow for anyone who is not a super admin -- so the actor for
+        // the ALLOWED side of these tests has to be granted what the current
+        // mode actually requires. On a single site this is a no-op and the
+        // administrator role remains the whole contract. The DENIED side (the
+        // unauthenticated 401 tests) never uses this actor and still runs in
+        // both modes.
+        $this->grant_user_management_privilege( $this->admin_id );
         $this->customer_id = (int) $this->factory->user->create( array( 'role' => 'customer' ) );
     }
 

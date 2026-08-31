@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Integration\Admin\REST;
 
 use MHMRentiva\Admin\Customers\REST\CustomersRestController;
 use MHMRentiva\Admin\REST\Availability;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
@@ -30,6 +31,8 @@ use WP_UnitTestCase;
  */
 final class CustomersPermissionTest extends WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     private static WP_REST_Server $server;
 
     public function setUp(): void
@@ -143,6 +146,13 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     {
         $id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_edit_users' ) );
         wp_set_current_user( $id );
+        // On a network core rewrites edit_users unless the caller passes
+        // manage_network_users, so grant exactly that -- NOT super admin,
+        // which holds every capability and would make this test pass without
+        // saying anything about the route gate. The actor still has no
+        // manage_options and no list_users, so the claim under test keeps its
+        // meaning in both modes. No-op on a single site.
+        $this->grant_network_user_editing( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
         $response = self::$server->dispatch( $request );
@@ -185,6 +195,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
         $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_edit_users' ) );
         wp_set_current_user( $id );
+        $this->grant_network_user_editing( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $target_id );
         $response = self::$server->dispatch( $request );
@@ -219,8 +230,8 @@ final class CustomersPermissionTest extends WP_UnitTestCase
             $data['message'] ?? null,
             'Denial must come from the route permission_callback, not the B-G1d handler-body guard.'
         );
-        $this->assertNotNull(
-            get_user_by( 'id', $target_id ),
+        $this->assertAccountStillOnSite(
+            $target_id,
             'bulk_delete() must never execute when the route gate denies the request.'
         );
     }
@@ -230,6 +241,12 @@ final class CustomersPermissionTest extends WP_UnitTestCase
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
         $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_delete_users' ) );
         wp_set_current_user( $id );
+        // delete_users has no capability path on a network at all: core gates
+        // it on is_super_admin() outright, so unlike edit_users above there is
+        // nothing narrower to grant. The discrimination this suite exists for
+        // is still carried by the denied-side tests -- manage_options alone and
+        // list_users alone are both refused -- which run unchanged in both modes.
+        $this->grant_user_management_privilege( $id );
 
         $request = new WP_REST_Request( 'DELETE', '/mhm-rentiva/v1/customers/bulk' );
         $request->set_header( 'Content-Type', 'application/json' );
@@ -238,7 +255,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
         $this->assertSame( 200, $response->get_status() );
         $this->assertSame( 1, $response->get_data()['deleted'] );
-        $this->assertFalse( get_user_by( 'id', $target_id ) );
+        $this->assertAccountRemovedFromSite( $target_id, 'The bulk-delete route must actually delete the target.' );
     }
 
     // --- GET /availability (deliberately public, doc-commented decision) -----

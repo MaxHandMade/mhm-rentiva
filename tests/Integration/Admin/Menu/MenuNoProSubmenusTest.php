@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Admin\Menu;
 
 use MHMRentiva\Admin\Utilities\Menu\Menu;
+use MHMRentiva\Tests\Support\UserManagementCapabilities;
 
 /**
  * Task A7 seam inversion: Menu::add_menu()/add_bayi_menus() no longer name
@@ -33,6 +34,8 @@ use MHMRentiva\Admin\Utilities\Menu\Menu;
  */
 final class MenuNoProSubmenusTest extends \WP_UnitTestCase
 {
+    use UserManagementCapabilities;
+
     /** The eight submenu slugs Task A7 carved out of Lite entirely. */
     private const REMOVED_SLUGS = array(
         'mhm-rentiva-transfer-locations',
@@ -49,7 +52,15 @@ final class MenuNoProSubmenusTest extends \WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+        $actor_id = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
+        // The Customers submenu is registered with the edit_users capability,
+        // and add_submenu_page() simply does not register a screen the current
+        // user cannot access. On a network an administrator does not hold
+        // edit_users, so without this the screen is legitimately absent and the
+        // assertion below would be measuring core's capability rewrite instead
+        // of this plugin's menu wiring. No-op on a single site.
+        $this->grant_user_management_privilege($actor_id);
+        wp_set_current_user($actor_id);
     }
 
     protected function tearDown(): void
