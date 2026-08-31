@@ -3,7 +3,9 @@ import { fmtAmount, fmtMoney as fmtMon } from '../../../shared/format';
 
 function DeltaLine( { delta, fallbackSub } ) {
 	if ( ! delta || delta.format === 'neutral' ) {
-		return <p className="mhm-stat-card__sub">{ fallbackSub }</p>;
+		// A card with neither a delta nor a sub should render nothing, not an
+		// empty paragraph holding open a line of whitespace.
+		return fallbackSub ? <p className="mhm-stat-card__sub">{ fallbackSub }</p> : null;
 	}
 	const arrow = delta.direction === 'up' ? '↑' : delta.direction === 'down' ? '↓' : '';
 	const text  = delta.format === 'pct'
@@ -39,10 +41,19 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 			icon:  'dashicons-car',
 		},
 		{
-			label: __( 'Customers', 'mhm-rentiva' ),
+			// The value is people who booked THIS MONTH, not the customer
+			// population. Labelling it "Customers" put the same word on two
+			// screens counting different sets -- this card said 3 while the
+			// Customers screen listed 11 accounts, and the two only overlapped
+			// in 6 people. Naming the action removes the collision instead of
+			// changing a number that is right for a dashboard.
+			label: __( 'Renting this month', 'mhm-rentiva' ),
 			value: fmt( metrics?.total_customers_this_month ),
 			delta: deltas.customers,
-			sub:   `${ fmt( metrics?.new_customers_this_month ) } ${ __( 'new this month', 'mhm-rentiva' ) }`,
+			// No sub: it read "N new this month" where N was the card's own
+			// value -- the query windows both to the current month, so they were
+			// the same number by construction -- and DeltaLine only renders the
+			// fallback when there is no delta, so it never reached the screen.
 			icon:  'dashicons-groups',
 		},
 	];

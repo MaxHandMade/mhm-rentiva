@@ -23,24 +23,6 @@ final class DashboardService {
 
 
 
-	/**
-	 * Get all dashboard metrics in a single structured array.
-	 */
-	public static function get_comprehensive_stats(): array {
-		return array(
-			'metrics'          => self::get_dashboard_metrics(),
-			'recent_bookings'  => self::get_recent_bookings(),
-			'booking_stats'    => self::get_booking_stats(),
-			'vehicle_stats'    => self::get_vehicle_stats(),
-			'revenue_data'     => self::get_revenue_data(),
-			'customer_stats'   => self::get_customer_detail_stats(),
-			'message_stats'    => self::get_message_stats(),
-			'recent_messages'  => self::get_recent_messages(),
-			'notifications'    => self::get_system_notifications(),
-			'deposit_stats'    => self::get_deposit_stats(),
-			'pending_payments' => self::get_pending_payments(),
-		);
-	}
 
 	/**
 	 * Get main dashboard metrics - No cache (Fresh data every time)
@@ -136,8 +118,7 @@ final class DashboardService {
 		$customer_stats = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT 
-                COUNT(DISTINCT pm_email.meta_value) as total_customers,
-                COUNT(DISTINCT CASE WHEN p.post_date >= %s THEN pm_email.meta_value END) as new_customers
+                COUNT(DISTINCT pm_email.meta_value) as total_customers
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_customer_email'
              WHERE p.post_type = 'mhmrentiva_booking' 
@@ -145,27 +126,11 @@ final class DashboardService {
              AND p.post_date >= %s AND p.post_date <= %s
              AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
 				$current_month_start,
-				$current_month_start,
 				$current_month_end
 			)
 		);
 
 		$total_customers_this_month = (int) ( $customer_stats->total_customers ?? 0 );
-		$new_customers_this_month   = (int) ( $customer_stats->new_customers ?? 0 );
-
-		// Total customers - ALL TIME
-		$total_customers_all_time = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT pm_email.meta_value) 
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = %s
-             WHERE p.post_type = %s 
-             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
-				'_mhmrentiva_customer_email',
-				'mhmrentiva_booking'
-			)
-		);
 
 		return array(
 			'total_bookings'             => $total_bookings,
@@ -175,8 +140,6 @@ final class DashboardService {
 			'total_vehicles'             => $total_vehicles,
 			'available_vehicles'         => $available_vehicles,
 			'total_customers_this_month' => $total_customers_this_month,
-			'total_customers_all_time'   => $total_customers_all_time,
-			'new_customers_this_month'   => $new_customers_this_month,
 		);
 	}
 
@@ -901,81 +864,7 @@ final class DashboardService {
 		);
 	}
 
-	/**
-	 * Get customer detailed statistics
-	 */
-	public static function get_customer_detail_stats(): array {
-		$stats        = self::get_dashboard_metrics();
-		$avg_spending = self::calculate_customer_avg_spending();
 
-		return array(
-			'total'          => $stats['total_customers_this_month'],
-			'new_this_month' => $stats['new_customers_this_month'],
-			'active'         => $stats['total_customers_this_month'],
-			'avg_spending'   => $avg_spending,
-		);
-	}
-
-	/**
-	 * Calculate average customer spending
-	 */
-	private static function calculate_customer_avg_spending(): string {
-		global $wpdb;
-		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
-		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
-
-		$total_spending = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-             WHERE p.post_type = %s AND p.post_status IN (%s, %s, %s) AND p.post_status != %s
-             AND p.post_date >= %s AND p.post_date <= %s
-             AND pm.meta_key = %s
-             AND pm_status.meta_key = %s
-             AND pm_status.meta_value IN (%s, %s)",
-				'mhmrentiva_booking',
-				'publish',
-				'private',
-				'pending',
-				'trash',
-				$current_month_start,
-				$current_month_end,
-				'_mhmrentiva_total_price',
-				'_mhmrentiva_status',
-				'completed',
-				'confirmed'
-			)
-		);
-
-		$total_customers = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT pm_email.meta_value)
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = %s
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status IN (%s, %s, %s) AND p.post_status != %s
-             AND pm_status.meta_value IN (%s, %s)
-             AND p.post_date >= %s AND p.post_date <= %s
-             AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
-				'_mhmrentiva_customer_email',
-				'_mhmrentiva_status',
-				'mhmrentiva_booking',
-				'publish',
-				'private',
-				'pending',
-				'trash',
-				'completed',
-				'confirmed',
-				$current_month_start,
-				$current_month_end
-			)
-		);
-
-		$avg = ( $total_customers > 0 ) ? ( $total_spending / $total_customers ) : 0.00;
-		return number_format( $avg, 2 );
-	}
 
 	/**
 	 * Get message statistics - No cache (fresh count for notification badge accuracy)
