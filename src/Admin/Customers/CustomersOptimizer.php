@@ -367,7 +367,27 @@ final class CustomersOptimizer {
 
 		global $wpdb;
 
-		// Customer statistics from WordPress users.
+		// The population is the one the list underneath these cards uses, and it
+		// is expressed once, in CustomerIdentity. This query used to INNER JOIN
+		// bookings through `_mhmrentiva_customer_email` instead, which made the
+		// cards answer a narrower question than their own label: a customer added
+		// by hand had no booking and was not counted, so the screen could read
+		// "Total Customers 0" directly above a populated table. A booking linked
+		// by `_mhmrentiva_customer_user_id` was invisible to it for the same
+		// reason. CustomerStatsMatchTheListTest pins the equality rather than any
+		// one symptom.
+		//
+		// The joins below are LEFT and mirror the list's exactly -- including the
+		// list's own choice to reach bookings by email only. The booking-derived
+		// figures therefore keep their narrower meaning: a customer with no
+		// booking joins `total` and contributes nothing to `active_90d` or to
+		// revenue.
+		$membership = CustomerIdentity::sql_is_customer();
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
+		// is CustomerIdentity::sql_is_customer(): a single $wpdb->prepare() call with
+		// every dynamic value bound, composed into this statement the same way
+		// get_customers_optimized() composes it. Re-enabled straight after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
@@ -388,22 +408,22 @@ final class CustomersOptimizer {
                 END) as active_90d,
                 COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_revenue
             FROM {$wpdb->users} u
-            INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhmrentiva_customer_email'
-            INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
+            LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
+                AND email_meta.meta_key = '_mhmrentiva_customer_email'
+            LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
-                AND p.post_status != 'trash'
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND {$membership}
                 AND u.user_email != ''
-                AND u.user_email IS NOT NULL
         ",
 				gmdate( 'Y-m-01 00:00:00' )
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Calculate monthly average (last 3 months)
 		$monthly_avg = self::calculate_monthly_average();
