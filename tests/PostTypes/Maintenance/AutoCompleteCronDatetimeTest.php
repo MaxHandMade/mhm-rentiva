@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\PostTypes\Maintenance;
 
 use MHMRentiva\Admin\PostTypes\Maintenance\AutoComplete;
+use MHMRentiva\Tests\Support\SiteClock;
 use WP_UnitTestCase;
 
 /**
@@ -23,6 +24,8 @@ use WP_UnitTestCase;
  */
 final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 {
+	use SiteClock;
+
 	private const VEHICLE_ID = 3008;
 
 	/**
@@ -148,12 +151,11 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	 */
 	public function test_cron_does_not_complete_when_end_ts_missing_and_dropoff_time_in_future(): void
 	{
+		// "+2 hours" has to stay inside today. This used to skip after 22:00,
+		// which meant the cron's date-only bug went unmeasured for two hours of
+		// every day and on whichever CI runs started then.
+		$this->pin_site_hour(9);
 		$now          = (int) current_time('timestamp');
-		$current_hour = (int) wp_date('G', $now);
-
-		if ($current_hour >= 22) {
-			$this->markTestSkipped('Requires at least 2h until midnight (current hour: ' . $current_hour . ').');
-		}
 
 		$today_str         = wp_date('Y-m-d', $now);
 		$future_time_today = wp_date('H:i', $now + 7200);
