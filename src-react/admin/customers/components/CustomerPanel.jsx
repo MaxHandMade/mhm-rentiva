@@ -9,7 +9,9 @@ export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 	const [error,   setError]   = useState( null );
 
 	const fetchDetail = useCallback( () => {
-		if ( ! panelId ) return;
+		if ( ! panelId ) {
+			return;
+		}
 		setLoading( true );
 		setError( null );
 		rentivaApi.customers.getDetail( panelId )
@@ -27,7 +29,11 @@ export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 
 	// Clear the selection on Escape.
 	useEffect( () => {
-		const handler = ( e ) => { if ( e.key === 'Escape' ) onClose(); };
+		const handler = ( e ) => {
+			if ( e.key === 'Escape' ) {
+				onClose();
+			}
+		};
 		document.addEventListener( 'keydown', handler );
 		return () => document.removeEventListener( 'keydown', handler );
 	}, [onClose] );

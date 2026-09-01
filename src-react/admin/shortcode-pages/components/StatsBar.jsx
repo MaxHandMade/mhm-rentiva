@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
 
 export default function StatsBar( { stats } ) {
-	if ( ! stats ) return null;
+	if ( ! stats ) {
+		return null;
+	}
 	const cards = [
 		{ key: 'total',   value: stats.total,   label: __( 'Total', 'mhm-rentiva' ) },
 		{ key: 'active',  value: stats.active,  label: __( 'Active', 'mhm-rentiva' ),  tone: 'is-active' },

@@ -5,7 +5,9 @@ export default function FilterBar( { search, selectedIds, nonce, adminUrl, addCu
 	const formRef = useRef( null );
 
 	const handleExport = () => {
-		if ( formRef.current ) formRef.current.submit();
+		if ( formRef.current ) {
+			formRef.current.submit();
+		}
 	};
 
 	return (

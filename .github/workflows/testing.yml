@@ -99,6 +99,15 @@ jobs:
       - name: JavaScript correctness gate (all shipped JS and JSX)
         run: composer check-js-correctness
 
+      # G-F. Complements G-E rather than repeating it: G-E enforces
+      # `eslint:recommended` over the whole shipped surface and deliberately
+      # leaves style alone, which is right for the legacy assets/ tree. This
+      # step adds the @wordpress house rules and jsx-a11y over src-react/ only,
+      # which is maintained code. Before it existed `npm run lint:js` was called
+      # by no job at all and, unscoped, reported 18661 problems across 115 files.
+      - name: JavaScript house-style and a11y gate (maintained React surface)
+        run: npm run lint:js
+
       - name: PHPStan level 0 (no baseline — dead-reference gate)
         run: composer phpstan:0
 

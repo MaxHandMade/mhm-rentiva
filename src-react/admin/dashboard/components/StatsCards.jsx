@@ -7,7 +7,8 @@ function DeltaLine( { delta, fallbackSub } ) {
 		// empty paragraph holding open a line of whitespace.
 		return fallbackSub ? <p className="mhm-stat-card__sub">{ fallbackSub }</p> : null;
 	}
-	const arrow = delta.direction === 'up' ? '↑' : delta.direction === 'down' ? '↓' : '';
+	const arrows = { up: '↑', down: '↓' };
+	const arrow  = arrows[ delta.direction ] ?? '';
 	const text  = delta.format === 'pct'
 		? `${ arrow } %${ Math.abs( delta.value ) } ${ __( 'this month', 'mhm-rentiva' ) }`
 		: `+${ delta.value } ${ __( 'this month', 'mhm-rentiva' ) }`;

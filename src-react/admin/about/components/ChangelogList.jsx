@@ -14,7 +14,11 @@ export default function ChangelogList( { items } ) {
 	const toggle = ( version ) => {
 		setExpanded( ( prev ) => {
 			const next = new Set( prev );
-			next.has( version ) ? next.delete( version ) : next.add( version );
+			if ( next.has( version ) ) {
+				next.delete( version );
+			} else {
+				next.add( version );
+			}
 			return next;
 		} );
 	};

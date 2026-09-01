@@ -7,7 +7,9 @@ const VIA_LABELS = {
 };
 
 export default function DebugPanel( { data, onClose } ) {
-	if ( ! data ) return null;
+	if ( ! data ) {
+		return null;
+	}
 	return (
 		<div className="mhm-widget mhm-sc-debug-panel">
 			<div className="mhm-sc-debug-header">

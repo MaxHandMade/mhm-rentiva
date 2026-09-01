@@ -2,7 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { fmtMoney } from '../../../shared/format';
 
 export default function StatsCards( { stats, currency } ) {
-	if ( ! stats ) return null;
+	if ( ! stats ) {
+		return null;
+	}
 
 	const trend    = stats.new_trend || '';
 	const trendUp  = trend.startsWith( '+' ) && trend !== '+0%';
