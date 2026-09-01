@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
 
 export default function Pagination( { page, totalPages, onPageChange } ) {
-	if ( totalPages <= 1 ) return null;
+	if ( totalPages <= 1 ) {
+		return null;
+	}
 	return (
 		<div className="mhm-pagination" style={ { display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 } }>
 			<button

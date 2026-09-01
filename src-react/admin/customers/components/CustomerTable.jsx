@@ -43,7 +43,10 @@ export default function CustomerTable( { items, sortBy, sortDir, selected, panel
 
 	const SortTh = ( { col } ) => {
 		const isActive = sortBy === col.key;
-		const icon     = isActive ? ( sortDir === 'asc' ? '▲' : '▼' ) : '⇅';
+		let icon = '⇅';
+		if ( isActive ) {
+			icon = sortDir === 'asc' ? '▲' : '▼';
+		}
 		return (
 			<th
 				className={ `rv-cust-th sortable${ isActive ? ' sort-active' : '' }${ col.align === 'right' ? ' is-right' : '' }` }

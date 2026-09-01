@@ -4,7 +4,7 @@
   "scripts": {
     "build": "wp-scripts build",
     "start": "wp-scripts start",
-    "lint:js": "wp-scripts lint-js"
+    "lint:js": "wp-scripts lint-js --no-eslintrc --config .eslintrc.src-react.js src-react"
   },
   "devDependencies": {
     "@wordpress/scripts": "^30.0.0",

@@ -5,9 +5,13 @@ import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
 
 const formatShortDate = ( dateStr ) => {
-	if ( ! dateStr ) return '';
+	if ( ! dateStr ) {
+		return '';
+	}
 	const d = new Date( dateStr );
-	if ( isNaN( d.getTime() ) ) return dateStr;
+	if ( isNaN( d.getTime() ) ) {
+		return dateStr;
+	}
 	return d.toLocaleDateString( undefined, { day: '2-digit', month: 'short' } );
 };
 

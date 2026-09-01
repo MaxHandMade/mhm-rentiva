@@ -74,9 +74,13 @@ export default function CustomersPage() {
 	};
 
 	const handleBulkDelete = () => {
-		if ( selected.length === 0 ) return;
+		if ( selected.length === 0 ) {
+			return;
+		}
 		// translators: %d = number of customers
-		if ( ! window.confirm( `${ __( 'Delete', 'mhm-rentiva' ) } ${ selected.length } ${ __( 'customer(s)? This cannot be undone.', 'mhm-rentiva' ) }` ) ) return;
+		if ( ! window.confirm( `${ __( 'Delete', 'mhm-rentiva' ) } ${ selected.length } ${ __( 'customer(s)? This cannot be undone.', 'mhm-rentiva' ) }` ) ) {
+			return;
+		}
 		rentivaApi.customers.bulkDelete( selected )
 			.then( () => {
 				setSelected( [] );

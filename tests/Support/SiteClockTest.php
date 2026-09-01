@@ -56,12 +56,31 @@ final class SiteClockTest extends WP_UnitTestCase
 	 */
 	public function test_the_correct_spellings_agree_once_the_clock_moves(): void
 	{
-		$this->pin_site_hour( 23 );
+		// The pinned hour is derived from UTC rather than hard-coded, because
+		// the third assertion below only holds when the offset is NON-ZERO --
+		// the double-offset spelling reads `hour + offset`, which differs from
+		// `hour` for every offset except 0.
+		//
+		// `pin_site_hour( 23 )` produced offset 0 whenever the suite ran inside
+		// the 23:00 UTC hour, so the assertion compared 23 with 23 and the test
+		// failed for one hour every day -- deterministically, not flakily.
+		// Measured: CI run 33569855524 failed at 2026-09-01T23:14Z, and
+		// `offset_for_hour( 23, 23 )` returns 0 on its own.
+		//
+		// A fixed +5 keeps the offset inside WordPress's -12..+14 range at every
+		// UTC hour, so the premise now holds by construction.
+		$hour = ( (int) gmdate( 'G' ) + 5 ) % 24;
+		$this->pin_site_hour( $hour );
 
-		$this->assertSame( 23, (int) wp_date( 'G' ), 'wp_date() with no timestamp is site-local now.' );
-		$this->assertSame( 23, (int) current_time( 'G' ), 'current_time() with a format is site-local now.' );
 		$this->assertNotSame(
-			23,
+			0,
+			self::offset_for_hour( $hour, (int) gmdate( 'G' ) ),
+			'The premise of the last assertion: a zero offset makes both spellings agree, so the test would prove nothing.'
+		);
+		$this->assertSame( $hour, (int) wp_date( 'G' ), 'wp_date() with no timestamp is site-local now.' );
+		$this->assertSame( $hour, (int) current_time( 'G' ), 'current_time() with a format is site-local now.' );
+		$this->assertNotSame(
+			$hour,
 			(int) wp_date( 'G', (int) current_time( 'timestamp' ) ),
 			'And the double-offset spelling is wrong -- pinned here so nobody reintroduces it believing it works.'
 		);

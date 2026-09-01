@@ -127,7 +127,13 @@ phpcs.xml.dist
 # at runtime loads it). Shipping it trips WP.org Plugin Check's hidden_files
 # check (a dotfile in the release ZIP) -- see task-15-report.md's "Concerns"
 # section, where adding .eslintrc.json (Görev 15) first put it in the ZIP.
-.eslintrc.json
+#
+# 2026-09-01: the SAME class recurred. Adding .eslintrc.src-react.js for gate
+# G-F put a second dev config in the ZIP, and check-shipped-surface caught it
+# (pinned=588 actual=589). One filename per config is a list that goes stale the
+# next time someone adds one, so the entry is now a PATTERN: every ESLint config
+# at the plugin root is dev-only, without exception.
+.eslintrc*
 
 # Website static exports
 website/
