@@ -43,8 +43,14 @@ use WP_UnitTestCase;
  *   - It does not know whether the check runs before the write, only that it is present.
  *   - Its unit is a function delimited by function keywords in source order, so a nested
  *     closure counts as part of its enclosing function.
- *   - It reads src/ only. templates/, bin/ and the Pro repo are outside it. Pro has to
- *     carry its own copy of this lock, and as of 2026-08-27 it does not.
+ *   - It reads src/ only. templates/ and bin/ are outside it.
+ *   - The Pro repo is outside it too, and used to be an open hole: this docblock said
+ *     "Pro has to carry its own copy of this lock, and as of 2026-08-27 it does not."
+ *     It does now -- mhm-rentiva-pro/tests/Admin/Security/EditPostTypeVerificationTest.php,
+ *     added 2026-09-02, same matcher, one exemption instead of three (the other two have
+ *     zero counterparts in Pro, measured) and its two members asserted by name rather
+ *     than by a count floor, because two is too small a population to count.
+ *     Neither copy sees the other's tree; both are needed.
  *   - Unreachable code is judged the same as live code. Two dead handlers were fixed
  *     rather than exempted, because dead is a property of today's wiring.
  */
