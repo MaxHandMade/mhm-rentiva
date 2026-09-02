@@ -225,7 +225,6 @@ src-react/admin/customers/customers.css
 src-react/admin/customers/index.js
 src-react/admin/dashboard/DashboardPage.jsx
 src-react/admin/dashboard/components/PaymentsSummary.jsx
-src-react/admin/dashboard/components/PendingPayments.jsx
 src-react/admin/dashboard/components/QuickActions.jsx
 src-react/admin/dashboard/components/RecentBookings.jsx
 src-react/admin/dashboard/components/RevenueChart.jsx
