@@ -359,6 +359,47 @@ add_action(
 );
 
 /**
+ * Every site in the network that network-wide activation must reach.
+ *
+ * 🔴 Two things here are deliberate, and both used to be wrong.
+ *
+ * `number => 0` because WP_Site_Query defaults it to 100
+ * (wp-includes/class-wp-site-query.php, __construct()). A caller that stays
+ * silent gets the first hundred sites and no indication that there were more,
+ * so activation on a larger network succeeds loudly and leaves the rest of the
+ * sites without tables.
+ *
+ * No `public` constraint, because a subsite being unlisted is a directory
+ * decision, not a statement that the plugin should be half installed there.
+ * `deleted => 0` is the one constraint worth keeping: a deleted site is one
+ * WordPress itself treats as gone.
+ *
+ * @return int[] Blog IDs, ready for switch_to_blog().
+ */
+function mhmrentiva_network_site_ids(): array
+{
+	$cached = wp_cache_get('mhmrentiva_network_blogs');
+	if (is_array($cached)) {
+		return $cached;
+	}
+
+	$ids = array_map(
+		'intval',
+		(array) get_sites(
+			array(
+				'number'  => 0,
+				'fields'  => 'ids',
+				'deleted' => 0,
+			)
+		)
+	);
+
+	wp_cache_set('mhmrentiva_network_blogs', $ids, '', 3600);
+
+	return $ids;
+}
+
+/**
  * Single site activation operations.
  *
  * The optional callables are narrow test seams. Production callers pass
@@ -467,20 +508,11 @@ register_activation_hook(
 			// Network-wide activation
 			if ($network_wide) {
 
-				// Fetch blog IDs using get_sites() instead of direct database query
-				$blog_ids = wp_cache_get('mhmrentiva_network_blogs');
-				if (false === $blog_ids) {
-					$sites    = get_sites( array( 'public' => 1 ) );
-					$blog_ids = array();
-					foreach ($sites as $site) {
-						$blog_ids[] = $site->blog_id;
-					}
-					wp_cache_set('mhmrentiva_network_blogs', $blog_ids, '', 3600);
-				}
+				$blog_ids = mhmrentiva_network_site_ids();
 
 				if (! empty($blog_ids)) {
 					foreach ($blog_ids as $blog_id) {
-						switch_to_blog( (int) $blog_id );
+						switch_to_blog($blog_id);
 						mhmrentiva_single_site_activation();
 						restore_current_blog();
 					}

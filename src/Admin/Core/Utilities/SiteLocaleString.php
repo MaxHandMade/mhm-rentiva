@@ -64,9 +64,31 @@ final class SiteLocaleString {
 	 * the option is bypassed here -- correct for this purpose: those plugins
 	 * translate URLs through their own rewrite layer, not by moving the site's
 	 * locale under everyone else.
+	 *
+	 * 🔴 Under a network the SITE option is read first and the network option
+	 * is only the fallback, mirroring core's own resolution order
+	 * (wp-includes/l10n.php, get_locale()). Reading the network option alone --
+	 * as this did until 6.1.4 -- derives every subsite's URL slugs from the
+	 * network language, so a Turkish subsite of a German network answers in
+	 * German.
+	 *
+	 * The fallback is guarded by `false ===`, not by emptiness, because core
+	 * guards it that way and the difference is a real site: a subsite set to
+	 * English stores '', and '' is a decision, not an absence. Falling back on
+	 * empty() would hand that site the network's locale instead of en_US.
 	 */
 	public static function site_locale(): string {
-		$stored = is_multisite() ? get_site_option( 'WPLANG' ) : get_option( 'WPLANG' );
+		if ( is_multisite() ) {
+			// Core reads the network option alone while installing, when the
+			// blog option cannot be trusted to exist yet.
+			$stored = wp_installing() ? get_site_option( 'WPLANG' ) : get_option( 'WPLANG' );
+
+			if ( false === $stored ) {
+				$stored = get_site_option( 'WPLANG' );
+			}
+		} else {
+			$stored = get_option( 'WPLANG' );
+		}
 
 		return is_string( $stored ) && '' !== $stored ? $stored : 'en_US';
 	}
