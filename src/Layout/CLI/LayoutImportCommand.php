@@ -263,7 +263,7 @@ class LayoutImportCommand {
                 return [
                     'Date'      => $e['timestamp'] ?? '-',
                     'Operation' => strtoupper($e['operation'] ?? '-'),
-                    'Actor'     => $this->render_actor((string) ( $e['actor'] ?? '' )),
+                    'Actor'     => $this->render_actor( (string) ( $e['actor'] ?? '' )),
                     'Result'    => sprintf('%s -> %s', substr($e['previous_hash'] ?? '', 0, 8), substr($e['new_hash'] ?? '', 0, 8)),
                 ];
             }, array_slice($events, -10));
@@ -400,9 +400,9 @@ class LayoutImportCommand {
             return sprintf(
                 /* translators: 1: operation name, 2: date, 3: actor name. */
                 __('%1$s (%2$s by %3$s)', 'mhm-rentiva'),
-                strtoupper((string) $value['operation']),
+                strtoupper( (string) $value['operation']),
                 (string) $value['timestamp'],
-                $this->render_actor((string) $value['actor'])
+                $this->render_actor( (string) $value['actor'])
             );
         }
 
