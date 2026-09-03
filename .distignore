@@ -169,3 +169,4 @@ build_debug.txt
 # phpunit --log-junit file took the shipped surface from 588 to 589 without a
 # single gate objecting.
 /build/logs/
+.claude

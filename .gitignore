@@ -602,3 +602,4 @@ drafts/wporg-assets/
 # Both were tracked in the public repo until 2026-07-26 and were removed from history.
 carveout/
 .superpowers/
+.claude/memory/
