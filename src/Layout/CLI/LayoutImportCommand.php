@@ -95,7 +95,10 @@ class LayoutImportCommand {
 
         if ($dry_run) {
             $this->log(__('Executing side-effect free dry-run...', 'mhm-rentiva'));
-            $summary = $importer->dry_run($manifest, [ 'create' => $create ]);
+            $summary = $importer->dry_run($manifest, [
+                'create'        => $create,
+                'default_title' => __('Layout Page', 'mhm-rentiva'),
+            ]);
             $this->render_summary_table($summary);
             $this->log_success(__('Dry-run simulation completed.', 'mhm-rentiva'));
             return;
@@ -103,7 +106,12 @@ class LayoutImportCommand {
 
         try {
             $this->log(__('Starting atomic multi-page ingestion...', 'mhm-rentiva'));
-            $summary = $importer->import($manifest, [ 'create' => $create ]);
+            $summary = $importer->import($manifest, [
+                'create'        => $create,
+                // The importer names nothing in English of its own; a manifest
+                // page without a title gets this plugin's translated fallback.
+                'default_title' => __('Layout Page', 'mhm-rentiva'),
+            ]);
             $this->render_summary_table($summary);
             $this->log_success(__('All pages imported successfully.', 'mhm-rentiva'));
         } catch (Exception $e) {
@@ -246,7 +254,7 @@ class LayoutImportCommand {
             );
             $this->log('--------------------------------------------------');
             foreach ($summary as $key => $value) {
-                $this->log(sprintf('%-15s: %s', ucwords(str_replace('_', ' ', $key)), $value));
+                $this->log(sprintf('%-15s: %s', ucwords(str_replace('_', ' ', $key)), $this->render_summary_value($key, $value)));
             }
             $this->log('--------------------------------------------------');
             $this->log(__('Audit Trail (Last 10 events):', 'mhm-rentiva'));
@@ -255,7 +263,7 @@ class LayoutImportCommand {
                 return [
                     'Date'      => $e['timestamp'] ?? '-',
                     'Operation' => strtoupper($e['operation'] ?? '-'),
-                    'Actor'     => $e['actor'] ?? '-',
+                    'Actor'     => $this->render_actor( (string) ( $e['actor'] ?? '' )),
                     'Result'    => sprintf('%s -> %s', substr($e['previous_hash'] ?? '', 0, 8), substr($e['new_hash'] ?? '', 0, 8)),
                 ];
             }, array_slice($events, -10));
@@ -369,6 +377,53 @@ class LayoutImportCommand {
         } else {
             throw new Exception(esc_html($msg));
         }
+    }
+
+    /**
+     * Turn one history value into the line an operator reads.
+     *
+     * The history service reports facts -- an empty string for an absent value,
+     * the parts of an event rather than a sentence. The words for those are a
+     * display decision, and they belong here, in this plugin's text domain.
+     *
+     * @param string $key   Summary key.
+     * @param mixed  $value Structural value from LayoutHistoryService.
+     * @return string
+     */
+    private function render_summary_value(string $key, $value): string
+    {
+        if ('last_operation' === $key) {
+            if (! is_array($value)) {
+                return __('Unknown', 'mhm-rentiva');
+            }
+
+            return sprintf(
+                /* translators: 1: operation name, 2: date, 3: actor name. */
+                __('%1$s (%2$s by %3$s)', 'mhm-rentiva'),
+                strtoupper( (string) $value['operation']),
+                (string) $value['timestamp'],
+                $this->render_actor( (string) $value['actor'])
+            );
+        }
+
+        return '' === (string) $value ? __('N/A', 'mhm-rentiva') : (string) $value;
+    }
+
+    /**
+     * Name the actor, including when the record has no name to give.
+     *
+     * @param string $actor Stored actor, '' when no user was logged in.
+     * @return string
+     */
+    private function render_actor(string $actor): string
+    {
+        if ('' !== $actor) {
+            return $actor;
+        }
+
+        return defined('WP_CLI') && WP_CLI
+            ? __('WP-CLI User', 'mhm-rentiva')
+            : __('System', 'mhm-rentiva');
     }
 
     /**

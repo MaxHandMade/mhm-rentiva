@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-31T21:57:06+00:00\n"
+"POT-Creation-Date: 2026-09-03T01:15:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
 
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
-#: mhm-rentiva.php:508
+#: mhm-rentiva.php:540
 #: src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
@@ -66,30 +66,30 @@ msgstr ""
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr ""
 
-#: mhm-rentiva.php:415
+#: mhm-rentiva.php:456
 msgid "MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again."
 msgstr ""
 
-#: mhm-rentiva.php:416
+#: mhm-rentiva.php:457
 msgid "Database Setup Failed"
 msgstr ""
 
-#: mhm-rentiva.php:449
+#: mhm-rentiva.php:490
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr ""
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:458
+#: mhm-rentiva.php:499
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr ""
 
-#: mhm-rentiva.php:461
+#: mhm-rentiva.php:502
 msgid "Plugin Dependency Check"
 msgstr ""
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:507
+#: mhm-rentiva.php:539
 #, php-format
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr ""
@@ -133,6 +133,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1240
 #: src/Admin/Setup/SetupWizard.php:880
 #: src/Admin/Setup/SetupWizard.php:971
+#: src/Layout/CLI/LayoutImportCommand.php:397
 msgid "Unknown"
 msgstr ""
 
@@ -194,7 +195,7 @@ msgstr ""
 #: src/Admin/About/Tabs/GeneralTab.php:158
 #: src/Admin/About/Tabs/SystemTab.php:116
 #: src-react/admin/about/components/GeneralTab.jsx:7
-#: src-react/admin/about/components/SystemTab.jsx:8
+#: src-react/admin/about/components/SystemTab.jsx:27
 msgid "Plugin Information"
 msgstr ""
 
@@ -289,12 +290,12 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1233
 #: src/Core/Dashboard/DashboardConfig.php:24
 #: templates/account/dashboard.php:50
-#: src-react/admin/dashboard/components/StatsCards.jsx:23
+#: src-react/admin/dashboard/components/StatsCards.jsx:24
 msgid "Total Bookings"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:312
-#: src-react/admin/customers/components/StatsCards.jsx:14
+#: src-react/admin/customers/components/StatsCards.jsx:16
 msgid "Total Customers"
 msgstr ""
 
@@ -394,7 +395,7 @@ msgid "WordPress Support Forum"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:164
-#: src-react/admin/about/components/ChangelogList.jsx:41
+#: src-react/admin/about/components/ChangelogList.jsx:45
 msgid "Current Version"
 msgstr ""
 
@@ -424,7 +425,7 @@ msgid "WordPress, PHP, MySQL and plugin system information"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:47
-#: src-react/admin/about/components/SystemTab.jsx:6
+#: src-react/admin/about/components/SystemTab.jsx:25
 msgid "WordPress Information"
 msgstr ""
 
@@ -445,7 +446,7 @@ msgid "Multisite:"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:81
-#: src-react/admin/about/components/SystemTab.jsx:7
+#: src-react/admin/about/components/SystemTab.jsx:26
 msgid "PHP Information"
 msgstr ""
 
@@ -474,7 +475,7 @@ msgid "Last Update:"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:145
-#: src-react/admin/about/components/SystemTab.jsx:9
+#: src-react/admin/about/components/SystemTab.jsx:28
 msgid "Database Information"
 msgstr ""
 
@@ -818,7 +819,7 @@ msgstr ""
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:887
 #: src/Admin/Setup/SetupWizard.php:946
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1125
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1124
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:235
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:694
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:497
@@ -828,7 +829,7 @@ msgstr ""
 #: assets/blocks/my-bookings/index.js:42
 #: src-react/admin/customers/components/CustomerTable.jsx:24
 #: src-react/admin/customers/CustomersPage.jsx:13
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:7
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:9
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 msgid "Active"
 msgstr ""
@@ -1037,7 +1038,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1163
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:122
 #: templates/shortcodes/vehicle-rating-form.php:298
-#: src-react/admin/customers/CustomersPage.jsx:79
+#: src-react/admin/customers/CustomersPage.jsx:81
 msgid "Delete"
 msgstr ""
 
@@ -1069,7 +1070,7 @@ msgstr[1] ""
 #: src/Admin/Setup/SetupWizard.php:225
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:972
 #: templates/shortcodes/vehicle-rating-form.php:292
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:38
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:48
 msgid "Edit"
 msgstr ""
 
@@ -1299,8 +1300,8 @@ msgstr ""
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
 #: src/Admin/Frontend/Account/AccountRenderer.php:631
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
-#: src/Admin/Utilities/Dashboard/DashboardService.php:930
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1123
+#: src/Admin/Utilities/Dashboard/DashboardService.php:929
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1122
 #: templates/account/booking-detail.php:75
 #: templates/account/bookings.php:116
 #: templates/account/bookings.php:201
@@ -1321,7 +1322,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:474
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1124
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1123
 #: templates/account/booking-detail.php:76
 #: templates/account/bookings.php:117
 #: templates/account/bookings.php:202
@@ -1780,7 +1781,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:256
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:713
 #: src-react/admin/dashboard/components/RecentBookings.jsx:41
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:6
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:8
 msgid "Total"
 msgstr ""
 
@@ -1820,7 +1821,7 @@ msgstr ""
 #: templates/account/user-dashboard.php:255
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
-#: src-react/admin/customers/components/CustomerTable.jsx:82
+#: src-react/admin/customers/components/CustomerTable.jsx:85
 #: src-react/admin/dashboard/components/RecentBookings.jsx:68
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:15
 msgid "Status"
@@ -2118,8 +2119,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:462
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:284
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1126
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1130
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1125
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1129
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:460
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:830
 #: assets/blocks/booking-form/index.js:94
@@ -2588,7 +2589,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:653
 #: src/Admin/Booking/Meta/BookingMeta.php:680
-#: src-react/admin/customers/components/CustomerPanel.jsx:139
+#: src-react/admin/customers/components/CustomerPanel.jsx:145
 msgid "Send Email"
 msgstr ""
 
@@ -2747,6 +2748,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:879
 #: src/Admin/Booking/Meta/BookingMeta.php:912
 #: src/Admin/Booking/Meta/BookingMeta.php:957
+#: src/Layout/CLI/LayoutImportCommand.php:426
 msgid "System"
 msgstr ""
 
@@ -3015,7 +3017,7 @@ msgid "Grand Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1131
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1130
 msgid "Remaining"
 msgstr ""
 
@@ -3071,7 +3073,7 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:62
-#: src-react/admin/customers/components/CustomerPanel.jsx:76
+#: src-react/admin/customers/components/CustomerPanel.jsx:82
 msgid "Email"
 msgstr ""
 
@@ -3084,8 +3086,8 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:74
-#: src-react/admin/customers/components/CustomerPanel.jsx:80
-#: src-react/admin/customers/components/CustomerTable.jsx:79
+#: src-react/admin/customers/components/CustomerPanel.jsx:86
+#: src-react/admin/customers/components/CustomerTable.jsx:82
 msgid "Phone"
 msgstr ""
 
@@ -3313,7 +3315,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:632
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:684
 #: templates/account/payment-history.php:150
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:48
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:58
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
 msgid "Remove"
 msgstr ""
@@ -3443,8 +3445,8 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:749
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:761
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
-#: src-react/admin/about/components/InfoCard.jsx:14
-#: src-react/admin/about/components/SystemTab.jsx:24
+#: src-react/admin/about/components/InfoCard.jsx:13
+#: src-react/admin/about/components/SystemTab.jsx:14
 msgid "Yes"
 msgstr ""
 
@@ -3488,7 +3490,7 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:513
 #: src/Admin/Emails/Core/EmailTemplates.php:536
 #: templates/account/account-details.php:189
-#: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
+#: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:32
 msgid "Cancel"
 msgstr ""
 
@@ -4113,8 +4115,8 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:750
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:762
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:402
-#: src-react/admin/about/components/InfoCard.jsx:15
-#: src-react/admin/about/components/SystemTab.jsx:25
+#: src-react/admin/about/components/InfoCard.jsx:14
+#: src-react/admin/about/components/SystemTab.jsx:15
 msgid "No"
 msgstr ""
 
@@ -4149,8 +4151,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1689
 #: src/Blocks/BlockRegistry.php:239
 #: templates/admin/partials/booking-popup.php:40
-#: src-react/admin/customers/components/CustomerPanel.jsx:68
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:16
+#: src-react/admin/customers/components/CustomerPanel.jsx:74
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:18
 msgid "Close"
 msgstr ""
 
@@ -5604,7 +5606,7 @@ msgid "Customer added successfully!"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:123
-#: src-react/admin/customers/components/CustomerPanel.jsx:136
+#: src-react/admin/customers/components/CustomerPanel.jsx:142
 msgid "Open Profile"
 msgstr ""
 
@@ -5629,12 +5631,12 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:323
 #: src/Admin/Customers/CustomersPage.php:507
 #: templates/account/account-details.php:123
-#: src-react/admin/customers/components/CustomerPanel.jsx:84
+#: src-react/admin/customers/components/CustomerPanel.jsx:90
 msgid "Address"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:164
-#: src-react/admin/customers/components/FilterBar.jsx:14
+#: src-react/admin/customers/components/FilterBar.jsx:16
 msgid "Add Customer"
 msgstr ""
 
@@ -5667,8 +5669,8 @@ msgid "Customers List"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:302
-#: src-react/admin/customers/components/CustomerPanel.jsx:37
-#: src-react/admin/customers/components/CustomerPanel.jsx:51
+#: src-react/admin/customers/components/CustomerPanel.jsx:43
+#: src-react/admin/customers/components/CustomerPanel.jsx:57
 msgid "Customer Details"
 msgstr ""
 
@@ -5681,28 +5683,28 @@ msgid "Last Booking"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:330
-#: src-react/admin/customers/components/CustomerPanel.jsx:92
+#: src-react/admin/customers/components/CustomerPanel.jsx:98
 msgid "bookings"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:333
-#: src-react/admin/customers/components/CustomerPanel.jsx:98
-#: src-react/admin/dashboard/components/StatsCards.jsx:40
+#: src-react/admin/customers/components/CustomerPanel.jsx:104
+#: src-react/admin/dashboard/components/StatsCards.jsx:41
 msgid "total"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:334
-#: src-react/admin/customers/components/CustomerPanel.jsx:102
+#: src-react/admin/customers/components/CustomerPanel.jsx:108
 msgid "favorites"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:360
-#: src-react/admin/customers/components/CustomerPanel.jsx:107
+#: src-react/admin/customers/components/CustomerPanel.jsx:113
 msgid "Recent bookings"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:362
-#: src-react/admin/customers/components/CustomerPanel.jsx:131
+#: src-react/admin/customers/components/CustomerPanel.jsx:137
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
 #: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
 msgid "No bookings yet."
@@ -5738,7 +5740,7 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:478
 #: templates/account/dashboard.php:202
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:41
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr ""
 
@@ -5948,7 +5950,7 @@ msgid "Email templates saved successfully!"
 msgstr ""
 
 #: src/Admin/Emails/Core/Mailer.php:354
-#: src/Admin/Utilities/Dashboard/DashboardService.php:940
+#: src/Admin/Utilities/Dashboard/DashboardService.php:939
 #: templates/shortcodes/vehicle-rating-form.php:226
 msgid "Anonymous"
 msgstr ""
@@ -8404,7 +8406,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:148
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:67
 #: assets/blocks/unified-search/index.js:85
-#: src-react/admin/about/components/ChangelogList.jsx:75
+#: src-react/admin/about/components/ChangelogList.jsx:79
 msgid "Hide"
 msgstr ""
 
@@ -11447,13 +11449,13 @@ msgid "Rentiva uses dedicated WordPress pages for booking, confirmation and cust
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:203
-#: src-react/admin/customers/components/Pagination.jsx:15
+#: src-react/admin/customers/components/Pagination.jsx:17
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:204
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:26
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:28
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 msgid "Shortcode"
 msgstr ""
@@ -11468,7 +11470,7 @@ msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:213
 #: src/Admin/Setup/SetupWizard.php:886
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:8
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:10
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr ""
@@ -11859,25 +11861,25 @@ msgstr ""
 msgid "Cron hook is required"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:931
+#: src/Admin/Utilities/Dashboard/DashboardService.php:930
 msgid "Answered"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:932
+#: src/Admin/Utilities/Dashboard/DashboardService.php:931
 msgid "Closed"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:966
+#: src/Admin/Utilities/Dashboard/DashboardService.php:965
 msgid "Pending Messages"
 msgstr ""
 
 #. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:969
+#: src/Admin/Utilities/Dashboard/DashboardService.php:968
 #, php-format
 msgid "%s pending messages"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:972
+#: src/Admin/Utilities/Dashboard/DashboardService.php:971
 msgid "Now"
 msgstr ""
 
@@ -12861,7 +12863,7 @@ msgid "Invalid post"
 msgstr ""
 
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:44
-#: src-react/admin/customers/CustomersPage.jsx:126
+#: src-react/admin/customers/CustomersPage.jsx:130
 msgid "Delete Selected"
 msgstr ""
 
@@ -13035,144 +13037,172 @@ msgid "Executing side-effect free dry-run..."
 msgstr ""
 
 #: src/Layout/CLI/LayoutImportCommand.php:100
+#: src/Layout/CLI/LayoutImportCommand.php:113
+msgid "Layout Page"
+msgstr ""
+
+#: src/Layout/CLI/LayoutImportCommand.php:103
 msgid "Dry-run simulation completed."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:105
+#: src/Layout/CLI/LayoutImportCommand.php:108
 msgid "Starting atomic multi-page ingestion..."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:108
+#: src/Layout/CLI/LayoutImportCommand.php:116
 msgid "All pages imported successfully."
 msgstr ""
 
 #. translators: %s: import error message.
-#: src/Layout/CLI/LayoutImportCommand.php:114
+#: src/Layout/CLI/LayoutImportCommand.php:122
 #, php-format
 msgid "Import failed: %s. Rollback executed."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:136
+#: src/Layout/CLI/LayoutImportCommand.php:144
 msgid "Missing post ID."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:144
+#: src/Layout/CLI/LayoutImportCommand.php:152
 msgid "Executing side-effect free dry-run for rollback..."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:149
+#: src/Layout/CLI/LayoutImportCommand.php:157
 #, php-format
 msgid "Initiating atomic rollback for Post ID: %d..."
 msgstr ""
 
 #. translators: %s: target layout hash.
-#: src/Layout/CLI/LayoutImportCommand.php:162
+#: src/Layout/CLI/LayoutImportCommand.php:170
 #, php-format
 msgid "Target Hash: %s"
 msgstr ""
 
 #. translators: %s: current layout hash or dash.
-#: src/Layout/CLI/LayoutImportCommand.php:169
+#: src/Layout/CLI/LayoutImportCommand.php:177
 #, php-format
 msgid "Current Hash: %s"
 msgstr ""
 
 #. translators: %s: rollback validation message.
-#: src/Layout/CLI/LayoutImportCommand.php:176
+#: src/Layout/CLI/LayoutImportCommand.php:184
 #, php-format
 msgid "Rollback is possible. (%s)"
 msgstr ""
 
 #. translators: %s: old layout hash.
-#: src/Layout/CLI/LayoutImportCommand.php:184
+#: src/Layout/CLI/LayoutImportCommand.php:192
 #, php-format
 msgid "Old Hash: %s"
 msgstr ""
 
 #. translators: %s: new layout hash.
-#: src/Layout/CLI/LayoutImportCommand.php:191
+#: src/Layout/CLI/LayoutImportCommand.php:199
 #, php-format
 msgid "New Hash: %s"
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:198
+#: src/Layout/CLI/LayoutImportCommand.php:206
 #, php-format
 msgid "Rollback successful for Post ID: %d."
 msgstr ""
 
 #. translators: %s: rollback error message.
-#: src/Layout/CLI/LayoutImportCommand.php:207
+#: src/Layout/CLI/LayoutImportCommand.php:215
 #, php-format
 msgid "Rollback failed: %s"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:230
-#: src/Layout/CLI/LayoutImportCommand.php:284
+#: src/Layout/CLI/LayoutImportCommand.php:238
+#: src/Layout/CLI/LayoutImportCommand.php:292
 msgid "Invalid post ID."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:243
+#: src/Layout/CLI/LayoutImportCommand.php:251
 #, php-format
 msgid "Layout History for Post ID: %d"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:252
+#: src/Layout/CLI/LayoutImportCommand.php:260
 msgid "Audit Trail (Last 10 events):"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:292
+#: src/Layout/CLI/LayoutImportCommand.php:300
 msgid "No previous layout version found to compare."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/CLI/LayoutImportCommand.php:301
+#: src/Layout/CLI/LayoutImportCommand.php:309
 #, php-format
 msgid "Layout Diff for Post ID: %d"
 msgstr ""
 
 #. translators: 1: previous hash prefix, 2: current hash prefix.
-#: src/Layout/CLI/LayoutImportCommand.php:308
+#: src/Layout/CLI/LayoutImportCommand.php:316
 #, php-format
 msgid "Comparing %1$s -> %2$s"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:317
+#: src/Layout/CLI/LayoutImportCommand.php:325
 msgid "Tokens Changes:"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:328
+#: src/Layout/CLI/LayoutImportCommand.php:336
 msgid "No Token changes."
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:333
+#: src/Layout/CLI/LayoutImportCommand.php:341
 msgid "Components Changes:"
 msgstr ""
 
-#: src/Layout/CLI/LayoutImportCommand.php:344
+#: src/Layout/CLI/LayoutImportCommand.php:352
 msgid "No Component changes."
 msgstr ""
 
+#. translators: 1: operation name, 2: date, 3: actor name.
+#: src/Layout/CLI/LayoutImportCommand.php:402
+#, php-format
+msgid "%1$s (%2$s by %3$s)"
+msgstr ""
+
+#: src/Layout/CLI/LayoutImportCommand.php:409
+#: templates/account/bookings.php:227
+#: templates/account/bookings.php:338
+#: templates/account/user-dashboard.php:216
+msgid "N/A"
+msgstr ""
+
+#: src/Layout/CLI/LayoutImportCommand.php:425
+msgid "WP-CLI User"
+msgstr ""
+
 #. translators: 1: page index, 2: error message.
-#: src/Layout/Ingestion/AtomicImporter.php:111
+#: src/Layout/Ingestion/AtomicImporter.php:158
 #, php-format
 msgid "Composition error in page %1$d: %2$s"
 msgstr ""
 
-#: src/Layout/Ingestion/AtomicImporter.php:121
+#: src/Layout/Ingestion/AtomicImporter.php:168
 msgid "Layout identical, skipping update."
 msgstr ""
 
-#: src/Layout/Ingestion/AtomicImporter.php:219
+#: src/Layout/Ingestion/AtomicImporter.php:280
 msgid "Page not found and --create flag not set."
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/Layout/Ingestion/AtomicImporter.php:234
+#: src/Layout/Ingestion/AtomicImporter.php:295
 #, php-format
 msgid "Post ID %d lost during processing."
+msgstr ""
+
+#. translators: 1: post ID, 2: failure reason reported by WordPress.
+#: src/Layout/Ingestion/AtomicImporter.php:348
+#, php-format
+msgid "Failed to write layout content to post %1$d: %2$s"
 msgstr ""
 
 #. translators: %s: the manifest's missing root key.
@@ -13263,22 +13293,26 @@ msgstr ""
 msgid "No rollback version available for this post."
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:77
+#: src/Layout/Versioning/LayoutRollbackService.php:81
 msgid "Previous manifest data is corrupted or invalid."
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:84
+#: src/Layout/Versioning/LayoutRollbackService.php:88
 msgid "Hash mismatch: Previous manifest data corruption detected."
 msgstr ""
 
 #. translators: %s: governance validation error message.
-#: src/Layout/Versioning/LayoutRollbackService.php:96
+#: src/Layout/Versioning/LayoutRollbackService.php:100
 #, php-format
 msgid "Governance validation failed for previous layout: %s"
 msgstr ""
 
-#: src/Layout/Versioning/LayoutRollbackService.php:108
+#: src/Layout/Versioning/LayoutRollbackService.php:112
 msgid "Rollback is possible and valid."
+msgstr ""
+
+#: src/Layout/Versioning/LayoutRollbackService.php:137
+msgid "Rollback wrote nothing for this page: the previous manifest no longer resolves to it."
 msgstr ""
 
 #: src/Plugin.php:1054
@@ -13437,12 +13471,6 @@ msgstr ""
 #: templates/account/bookings.php:169
 #: templates/account/bookings.php:280
 msgid "Act"
-msgstr ""
-
-#: templates/account/bookings.php:227
-#: templates/account/bookings.php:338
-#: templates/account/user-dashboard.php:216
-msgid "N/A"
 msgstr ""
 
 #: templates/account/bookings.php:265
@@ -15183,7 +15211,7 @@ msgstr ""
 msgid "Failed to load page data. Please refresh."
 msgstr ""
 
-#: src-react/admin/about/components/ChangelogList.jsx:76
+#: src-react/admin/about/components/ChangelogList.jsx:80
 msgid "Show all versions"
 msgstr ""
 
@@ -15321,16 +15349,16 @@ msgstr ""
 msgid "Tested with: WP 7.0, PHP 8.2"
 msgstr ""
 
-#: src-react/admin/customers/components/CustomerPanel.jsx:17
+#: src-react/admin/customers/components/CustomerPanel.jsx:19
 msgid "Could not load customer details."
 msgstr ""
 
-#: src-react/admin/customers/components/CustomerPanel.jsx:40
+#: src-react/admin/customers/components/CustomerPanel.jsx:46
 msgid "Select a customer to see the details"
 msgstr ""
 
-#: src-react/admin/customers/components/CustomerPanel.jsx:109
-#: src-react/admin/customers/CustomersPage.jsx:132
+#: src-react/admin/customers/components/CustomerPanel.jsx:115
+#: src-react/admin/customers/CustomersPage.jsx:136
 msgid "Loading…"
 msgstr ""
 
@@ -15338,29 +15366,29 @@ msgstr ""
 msgid "Total Spent"
 msgstr ""
 
-#: src-react/admin/customers/components/CustomerTable.jsx:60
+#: src-react/admin/customers/components/CustomerTable.jsx:63
 msgid "No customers found."
 msgstr ""
 
-#: src-react/admin/customers/components/CustomerTable.jsx:75
+#: src-react/admin/customers/components/CustomerTable.jsx:78
 msgid "Select all customers"
 msgstr ""
 
-#: src-react/admin/customers/components/FilterBar.jsx:17
+#: src-react/admin/customers/components/FilterBar.jsx:19
 msgid "Export CSV"
 msgstr ""
 
-#: src-react/admin/customers/components/Pagination.jsx:12
+#: src-react/admin/customers/components/Pagination.jsx:14
 msgid "← Previous"
 msgstr ""
 
-#: src-react/admin/customers/components/Pagination.jsx:15
+#: src-react/admin/customers/components/Pagination.jsx:17
 msgid "of"
 msgstr ""
 
-#: src-react/admin/customers/components/Pagination.jsx:22
+#: src-react/admin/customers/components/Pagination.jsx:24
 #: src-react/admin/dashboard/components/RecentBookings.jsx:111
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:88
 msgid "Next →"
 msgstr ""
 
@@ -15368,23 +15396,23 @@ msgstr ""
 msgid "Search name, email, phone…"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:18
+#: src-react/admin/customers/components/StatsCards.jsx:20
 msgid "New This Month"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:24
+#: src-react/admin/customers/components/StatsCards.jsx:26
 msgid "Active Customers"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:25
+#: src-react/admin/customers/components/StatsCards.jsx:27
 msgid "last 90 days"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:33
+#: src-react/admin/customers/components/StatsCards.jsx:35
 msgid "Avg. Spend"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:34
+#: src-react/admin/customers/components/StatsCards.jsx:36
 msgid "per customer"
 msgstr ""
 
@@ -15392,19 +15420,19 @@ msgstr ""
 msgid "Failed to load customers."
 msgstr ""
 
-#: src-react/admin/customers/CustomersPage.jsx:79
+#: src-react/admin/customers/CustomersPage.jsx:81
 msgid "customer(s)? This cannot be undone."
 msgstr ""
 
-#: src-react/admin/customers/CustomersPage.jsx:86
+#: src-react/admin/customers/CustomersPage.jsx:90
 msgid "Bulk delete failed."
 msgstr ""
 
-#: src-react/admin/customers/CustomersPage.jsx:114
+#: src-react/admin/customers/CustomersPage.jsx:118
 msgid "Filter by status"
 msgstr ""
 
-#: src-react/admin/customers/CustomersPage.jsx:124
+#: src-react/admin/customers/CustomersPage.jsx:128
 msgid "selected"
 msgstr ""
 
@@ -15418,15 +15446,6 @@ msgstr ""
 
 #: src-react/admin/dashboard/components/PaymentsSummary.jsx:11
 msgid "Payments"
-msgstr ""
-
-#: src-react/admin/dashboard/components/PendingPayments.jsx:8
-#: src-react/admin/dashboard/components/PendingPayments.jsx:16
-msgid "Pending Payments"
-msgstr ""
-
-#: src-react/admin/dashboard/components/PendingPayments.jsx:9
-msgid "No pending payments."
 msgstr ""
 
 #: src-react/admin/dashboard/components/QuickActions.jsx:13
@@ -15450,12 +15469,12 @@ msgid "This Month"
 msgstr ""
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:54
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:32
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:36
 msgid "Failed to load."
 msgstr ""
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:103
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:77
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:81
 msgid "← Prev"
 msgstr ""
 
@@ -15471,22 +15490,22 @@ msgstr ""
 msgid "This week:"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:12
 #: src-react/admin/dashboard/components/StatsCards.jsx:13
-#: src-react/admin/dashboard/components/StatsCards.jsx:26
-#: src-react/admin/dashboard/components/StatsCards.jsx:33
+#: src-react/admin/dashboard/components/StatsCards.jsx:14
+#: src-react/admin/dashboard/components/StatsCards.jsx:27
+#: src-react/admin/dashboard/components/StatsCards.jsx:34
 msgid "this month"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:30
+#: src-react/admin/dashboard/components/StatsCards.jsx:31
 msgid "Total Revenue"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:37
+#: src-react/admin/dashboard/components/StatsCards.jsx:38
 msgid "Active Vehicles"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:50
+#: src-react/admin/dashboard/components/StatsCards.jsx:51
 msgid "Renting this month"
 msgstr ""
 
@@ -15494,11 +15513,11 @@ msgstr ""
 msgid "Booking Statuses"
 msgstr ""
 
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:29
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:33
 msgid "Upcoming Operations"
 msgstr ""
 
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:35
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:39
 msgid "No upcoming operations in the next 7 days."
 msgstr ""
 
@@ -15530,25 +15549,25 @@ msgstr ""
 msgid "widget"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:14
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:16
 msgid "Debug Search Results"
 msgstr ""
 
 #. translators: %d: number of pages scanned
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:21
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:23
 #, js-format
 msgid "Scanned %d pages."
 msgstr ""
 
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:27
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:29
 msgid "Found In"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:39
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:41
 msgid "Not found"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:32
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:42
 msgid "Create Page"
 msgstr ""
 

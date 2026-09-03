@@ -66,6 +66,10 @@ final class LayoutRollbackService {
                 'hash_prev'      => $prev_hash,
                 'timestamp_prev' => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', true),
                 'template'       => get_post_meta($post_id, '_wp_page_template', true),
+                // get_post_meta() answers '' both for "absent" and for "empty",
+                // so record which keys were really there. Restoring '' into an
+                // absent key creates it instead of undoing the write.
+                'existing_meta'  => self::existing_meta_keys($post_id),
             );
         }
 
@@ -115,10 +119,27 @@ final class LayoutRollbackService {
             $importer = new AtomicImporter($engine);
             // Re-run atomic import on previous manifest with is_rollback => true to avoid shifting.
             // also suppress_audit => true because we log rollback separately here.
-            $importer->import($prev_manifest_data, array(
-				'is_rollback'    => true,
-				'suppress_audit' => true,
+            // restrict_to_post_id keeps a multi-page manifest from dragging the
+            // sibling pages back with it: only this post was asked to move, and
+            // only this post's meta is flipped below.
+            $summary = $importer->import($prev_manifest_data, array(
+				'is_rollback'         => true,
+				'suppress_audit'      => true,
+				'restrict_to_post_id' => $post_id,
 			));
+
+            // The replay can resolve nothing -- an editor renaming a page breaks
+            // a manifest that resolves by slug -- and it says so by returning an
+            // 'ignore' row instead of raising. Flipping the meta after that would
+            // advertise a version the page does not carry.
+            if (! self::target_was_written($summary, $post_id)) {
+                throw new Exception(
+                    esc_html__(
+                        'Rollback wrote nothing for this page: the previous manifest no longer resolves to it.',
+                        'mhm-rentiva'
+                    )
+                );
+            }
 
             // Meta Flip on Success:
             // new current = old previous
@@ -162,6 +183,34 @@ final class LayoutRollbackService {
 
 
     /**
+     * Did the replay actually write the page we were asked to roll back?
+     *
+     * @param array $summary Import summary rows.
+     * @param int   $post_id The rollback target.
+     * @return bool
+     */
+    private static function target_was_written(array $summary, int $post_id): bool
+    {
+        foreach ($summary as $row) {
+            if ( (int) ( $row['post_id'] ?? 0 ) !== $post_id) {
+                continue;
+            }
+
+            // Sibling pages are skipped on purpose and carry that reason; an
+            // identical-hash skip means the page already holds the target state.
+            if (( $row['reason'] ?? '' ) === 'out_of_scope') {
+                continue;
+            }
+
+            if (in_array($row['status'] ?? '', array( 'update', 'create', 'skip' ), true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Restore post and meta from snapshot.
      */
     private static function restore_snapshot(int $post_id, array $snapshot): void
@@ -175,15 +224,56 @@ final class LayoutRollbackService {
             )
         );
 
-        update_post_meta($post_id, '_mhmrentiva_layout_manifest', $snapshot['manifest']);
-        update_post_meta($post_id, '_mhmrentiva_layout_hash', $snapshot['hash']);
-        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', $snapshot['timestamp']);
+        $values = array(
+            '_mhmrentiva_layout_manifest'          => $snapshot['manifest'],
+            '_mhmrentiva_layout_hash'              => $snapshot['hash'],
+            '_mhmrentiva_layout_version_timestamp' => $snapshot['timestamp'],
+            '_mhmrentiva_layout_manifest_previous' => $snapshot['manifest_prev'],
+            '_mhmrentiva_layout_hash_previous'     => $snapshot['hash_prev'],
+            '_mhmrentiva_layout_version_timestamp_previous' => $snapshot['timestamp_prev'],
+            '_wp_page_template'                    => $snapshot['template'],
+        );
 
-        update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $snapshot['manifest_prev']);
-        update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', $snapshot['hash_prev']);
-        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', $snapshot['timestamp_prev']);
+        $existing = (array) ( $snapshot['existing_meta'] ?? array() );
 
-        update_post_meta($post_id, '_wp_page_template', $snapshot['template']);
+        foreach ($values as $key => $value) {
+            if (in_array($key, $existing, true)) {
+                update_post_meta($post_id, $key, $value);
+                continue;
+            }
+
+            delete_post_meta($post_id, $key);
+        }
+
         clean_post_cache($post_id);
+    }
+
+    /**
+     * Which of the snapshotted meta keys currently exist on a post.
+     *
+     * @param int $post_id Post to inspect.
+     * @return string[]
+     */
+    private static function existing_meta_keys(int $post_id): array
+    {
+        $keys = array(
+            '_mhmrentiva_layout_manifest',
+            '_mhmrentiva_layout_hash',
+            '_mhmrentiva_layout_version_timestamp',
+            '_mhmrentiva_layout_manifest_previous',
+            '_mhmrentiva_layout_hash_previous',
+            '_mhmrentiva_layout_version_timestamp_previous',
+            '_wp_page_template',
+        );
+
+        $existing = array();
+
+        foreach ($keys as $key) {
+            if (metadata_exists('post', $post_id, $key)) {
+                $existing[] = $key;
+            }
+        }
+
+        return $existing;
     }
 }

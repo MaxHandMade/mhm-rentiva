@@ -30,9 +30,43 @@ use WP_Error;
 class AtomicImporter {
 
     /**
+     * The post type this importer writes to.
+     *
+     * Named TARGET_ deliberately: this importer registers nothing, it addresses
+     * a type WordPress already owns. The house gate reads a bare POST_TYPE
+     * constant as a registration and would rightly ask why 'page' carries no
+     * plugin prefix. Written once so the ID path and the slug path cannot
+     * disagree about what a layout page is.
+     */
+    private const TARGET_POST_TYPE = 'page';
+
+    /**
+     * Post meta this importer owns and therefore snapshots before writing.
+     *
+     * Reading meta answers '' both for "stored as empty" and for "never
+     * stored", so the snapshot records which of these keys actually existed.
+     * Restoring '' into a key that was absent does not undo the write -- it
+     * creates the key.
+     */
+    private const SNAPSHOT_META_KEYS = [
+        '_mhmrentiva_layout_manifest',
+        '_mhmrentiva_layout_hash',
+        '_mhmrentiva_layout_version_timestamp',
+        '_mhmrentiva_layout_manifest_previous',
+        '_mhmrentiva_layout_hash_previous',
+        '_mhmrentiva_layout_version_timestamp_previous',
+        '_wp_page_template',
+    ];
+
+    /**
      * @var int[] IDs of posts created during the current batch.
      */
     private array $undo_stack = [];
+
+    /**
+     * @var array Audit events held until the batch succeeds.
+     */
+    private array $pending_audit = [];
 
     /**
      * @var array Snapshots of modified posts for rollback.
@@ -71,8 +105,9 @@ class AtomicImporter {
      */
     public function import(array $manifest, array $options = []): array
     {
-        $this->undo_stack = [];
-        $this->snapshots  = [];
+        $this->undo_stack    = [];
+        $this->snapshots     = [];
+        $this->pending_audit = [];
 
         // 1. Pre-Validation
         $validation_result = $this->engine->validate($manifest);
@@ -94,12 +129,24 @@ class AtomicImporter {
 
         $summary = [];
 
+        // A rollback asks about one page, but the manifest it replays describes
+        // all of them. Without this restriction the sibling pages are rewritten
+        // to a version nobody asked for, while only the target's meta is flipped.
+        $restrict_to = isset($options['restrict_to_post_id']) ? (int) $options['restrict_to_post_id'] : 0;
+
         try {
             foreach ($pages as $index => $page_data) {
                 $resolution = $this->resolve_page($page_data, $options);
 
                 if ($resolution['status'] === 'ignore') {
                     $summary[] = $resolution;
+                    continue;
+                }
+
+                if ($restrict_to > 0 && (int) $resolution['post_id'] !== $restrict_to) {
+                    $resolution['status'] = 'skip';
+                    $resolution['reason'] = 'out_of_scope';
+                    $summary[]            = $resolution;
                     continue;
                 }
 
@@ -124,7 +171,7 @@ class AtomicImporter {
                     }
                     $this->perform_update($resolution['post_id'], $markup, $manifest, $hash, $options);
                 } elseif ($resolution['status'] === 'create') {
-                    $new_id                = $this->perform_create($page_data, $markup, $manifest, $hash);
+                    $new_id                = $this->perform_create($page_data, $markup, $manifest, $hash, $options);
                     $resolution['post_id'] = $new_id;
                 }
 
@@ -142,6 +189,12 @@ class AtomicImporter {
             $wrapped = new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
             throw $wrapped;
         }
+
+        // The batch is complete: only now is "an import happened" true.
+        if (empty($options['suppress_audit'])) {
+            $this->flush_audit();
+        }
+        $this->pending_audit = [];
 
         return $summary;
     }
@@ -172,11 +225,19 @@ class AtomicImporter {
     {
         $post_id = isset($page_data['post_id']) ? (int) $page_data['post_id'] : 0;
         $slug    = $page_data['slug']    ?? '';
-        $title   = $page_data['title']   ?? 'Layout Page';
+        // The fallback title is the caller's word, not ours: a page created here
+        // carries it into the site's content, where a shared package's consumer
+        // could not translate a string this class invented.
+        $title = $page_data['title'] ?? (string) ( $options['default_title'] ?? '' );
 
         if ($post_id > 0) {
             $post = get_post($post_id);
-            if ($post) {
+
+            // Resolution by slug asks for a page and so cannot stray. An ID
+            // asks get_post() for anything at all, so a stale or mistyped one
+            // would overwrite whatever carries that number -- a blog post, a
+            // vehicle -- with layout markup. Fall through to the slug instead.
+            if ($post && self::TARGET_POST_TYPE === $post->post_type) {
                 return [
                     'status'       => 'update',
                     'post_id'      => $post->ID,
@@ -188,7 +249,7 @@ class AtomicImporter {
         }
 
         if (!empty($slug)) {
-            $existing = get_page_by_path($slug, OBJECT, 'page');
+            $existing = get_page_by_path($slug, OBJECT, self::TARGET_POST_TYPE);
             if ($existing) {
                 return [
                     'status'       => 'update',
@@ -252,6 +313,7 @@ class AtomicImporter {
             'manifest_prev'  => get_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', true),
             'hash_prev'      => get_post_meta($post_id, '_mhmrentiva_layout_hash_previous', true),
             'timestamp_prev' => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', true),
+            'existing_meta'  => self::existing_meta_keys($post_id),
         ];
 
         // 2. State Shifting (Current -> Previous) - ONLY if NOT a rollback
@@ -265,31 +327,55 @@ class AtomicImporter {
         }
 
         // 3. Write Current
-        wp_update_post([
+        // wp_update_post() reports failure by return value, not by raising.
+        // Writing the meta regardless would stamp a hash onto content the post
+        // never received -- and the next import would then skip it as identical.
+        $updated = wp_update_post([
 			'ID'           => $post_id,
 			'post_content' => $markup,
 		], true);
+
+        $failure = '';
+        if (is_wp_error($updated)) {
+            $failure = $updated->get_error_message();
+        } elseif (0 === $updated) {
+            $failure = 'unknown error';
+        }
+
+        if ('' !== $failure) {
+            throw new Exception(esc_html(sprintf(
+                /* translators: 1: post ID, 2: failure reason reported by WordPress. */
+                __('Failed to write layout content to post %1$d: %2$s', 'mhm-rentiva'),
+                absint($post_id),
+                $failure
+            )));
+        }
+
         update_post_meta($post_id, '_mhmrentiva_layout_manifest', $manifest);
         update_post_meta($post_id, '_mhmrentiva_layout_hash', $hash);
         update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
 
-        // 4. Audit Log
-        if (empty($options['suppress_audit'])) {
-            LayoutAuditService::log_import($post_id, $this->snapshots[ $post_id ]['hash'] ?? '', $hash, false);
-        }
+        // 4. Audit Log -- held until the whole batch succeeds. Written here, a
+        // failed batch would leave an "import happened" entry behind, and the
+        // internal rollback does not touch the log.
+        $this->pending_audit[] = [
+            'post_id'       => $post_id,
+            'previous_hash' => (string) ( $this->snapshots[ $post_id ]['hash'] ?? '' ),
+            'new_hash'      => $hash,
+        ];
     }
 
     /**
      * Perform creation and track for force-deletion.
      */
-    private function perform_create(array $page_data, string $markup, array $manifest, string $hash): int
+    private function perform_create(array $page_data, string $markup, array $manifest, string $hash, array $options = []): int
     {
         $new_id = wp_insert_post([
-            'post_title'   => $page_data['title'] ?? 'Layout Page',
+            'post_title'   => $page_data['title'] ?? (string) ( $options['default_title'] ?? '' ),
             'post_name'    => $page_data['slug']  ?? '',
             'post_content' => $markup,
             'post_status'  => 'publish',
-            'post_type'    => 'page',
+            'post_type'    => self::TARGET_POST_TYPE,
         ], true);
 
         if (is_wp_error($new_id)) {
@@ -301,34 +387,117 @@ class AtomicImporter {
         update_post_meta($new_id, '_mhmrentiva_layout_hash', $hash);
         update_post_meta($new_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
 
-        // Audit Log for creation
-        LayoutAuditService::log_import($new_id, '', $hash);
+        // Audit Log for creation -- held until the batch succeeds, see perform_update().
+        $this->pending_audit[] = [
+            'post_id'       => $new_id,
+            'previous_hash' => '',
+            'new_hash'      => $hash,
+        ];
 
         return $new_id;
     }
 
     private function rollback(): void
     {
+        // Nothing this batch queued has been written yet, and nothing it queued
+        // should be: the batch did not happen.
+        $this->pending_audit = [];
+
         foreach ($this->snapshots as $post_id => $data) {
-            wp_update_post([
+            $restored = wp_update_post([
                 'ID'           => $post_id,
                 'post_content' => $data['post_content'],
                 'post_title'   => $data['post_title'],
                 'post_status'  => $data['post_status'],
-            ]);
-            update_post_meta($post_id, '_mhmrentiva_layout_manifest', $data['manifest']);
-            update_post_meta($post_id, '_mhmrentiva_layout_hash', $data['hash']);
-            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', $data['timestamp']);
+            ], true);
 
-            update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $data['manifest_prev']);
-            update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', $data['hash_prev']);
-            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', $data['timestamp_prev']);
-            update_post_meta($post_id, '_wp_page_template', $data['template']);
+            $restore_failure = '';
+            if (is_wp_error($restored)) {
+                $restore_failure = $restored->get_error_message();
+            } elseif (0 === $restored) {
+                $restore_failure = 'unknown error';
+            }
+
+            if ('' !== $restore_failure) {
+                // The page keeps the half-written content. Say so where it can
+                // be found later: the caller only hears about the first failure.
+                LayoutAuditService::log_restore_failure($post_id, $restore_failure);
+            }
+
+            self::restore_meta(
+                $post_id,
+                [
+                    '_mhmrentiva_layout_manifest'          => $data['manifest'],
+                    '_mhmrentiva_layout_hash'              => $data['hash'],
+                    '_mhmrentiva_layout_version_timestamp' => $data['timestamp'],
+                    '_mhmrentiva_layout_manifest_previous' => $data['manifest_prev'],
+                    '_mhmrentiva_layout_hash_previous'     => $data['hash_prev'],
+                    '_mhmrentiva_layout_version_timestamp_previous' => $data['timestamp_prev'],
+                    '_wp_page_template'                    => $data['template'],
+                ],
+                (array) ( $data['existing_meta'] ?? [] )
+            );
+
             clean_post_cache($post_id);
         }
 
         foreach ($this->undo_stack as $post_id) {
             wp_delete_post($post_id, true);
+        }
+    }
+
+    /**
+     * Write the queued audit events. Called only after the batch has succeeded.
+     */
+    private function flush_audit(): void
+    {
+        foreach ($this->pending_audit as $event) {
+            LayoutAuditService::log_import(
+                (int) $event['post_id'],
+                (string) $event['previous_hash'],
+                (string) $event['new_hash'],
+                false
+            );
+        }
+
+        $this->pending_audit = [];
+    }
+
+    /**
+     * Which of the snapshotted meta keys currently exist on a post.
+     *
+     * @param int $post_id Post to inspect.
+     * @return string[]
+     */
+    private static function existing_meta_keys(int $post_id): array
+    {
+        $existing = [];
+
+        foreach (self::SNAPSHOT_META_KEYS as $key) {
+            if (metadata_exists('post', $post_id, $key)) {
+                $existing[] = $key;
+            }
+        }
+
+        return $existing;
+    }
+
+    /**
+     * Restore meta, deleting the keys that did not exist when the snapshot was taken.
+     *
+     * @param int      $post_id  Post to restore.
+     * @param array    $values   Key => snapshotted value.
+     * @param string[] $existing Keys that existed before the write.
+     */
+    private static function restore_meta(int $post_id, array $values, array $existing): void
+    {
+        foreach ($values as $key => $value) {
+            if (in_array($key, $existing, true)) {
+                update_post_meta($post_id, $key, $value);
+                continue;
+            }
+
+            delete_post_meta($post_id, $key);
         }
     }
 }
