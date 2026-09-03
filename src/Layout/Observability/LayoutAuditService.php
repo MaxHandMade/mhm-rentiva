@@ -78,6 +78,25 @@ class LayoutAuditService {
     }
 
     /**
+     * Log a restore that WordPress refused.
+     *
+     * The batch already raises about whatever failed first. This records the
+     * separate, quieter fact that the page could not be put back, which is the
+     * one case where its content and its metadata disagree on disk.
+     *
+     * @param int    $post_id Post that could not be restored.
+     * @param string $reason  Failure reported by WordPress.
+     * @return bool
+     */
+    public static function log_restore_failure(int $post_id, string $reason): bool
+    {
+        return self::append_event($post_id, [
+            'operation' => 'restore_failed',
+            'reason'    => $reason,
+        ]);
+    }
+
+    /**
      * Get events for a post.
      */
     public static function get_events(int $post_id, int $limit = 0): array
@@ -95,15 +114,18 @@ class LayoutAuditService {
     }
 
     /**
-     * Get current actor name.
+     * Get current actor name, or '' when there is no user to name.
+     *
+     * "WP-CLI User" and "System" are labels for an absence, written in one
+     * language. The record stores the absence; whoever displays it chooses the
+     * word -- and already knows the context from the 'source' field.
+     *
+     * @return string
      */
     private static function get_actor(): string
     {
-        if (defined('WP_CLI') && WP_CLI) {
-            return 'WP-CLI User';
-        }
-
         $user = wp_get_current_user();
-        return $user->exists() ? $user->user_login : 'System';
+
+        return $user->exists() ? $user->user_login : '';
     }
 }

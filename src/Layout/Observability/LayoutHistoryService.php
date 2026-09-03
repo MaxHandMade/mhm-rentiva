@@ -51,13 +51,19 @@ class LayoutHistoryService {
         $audit   = LayoutAuditService::get_events($post_id, 1);
         $last    = ! empty($audit) ? end($audit) : null;
 
+        // Values, not sentences: "N/A", "Unknown" and the "OP (date by actor)"
+        // wording are display decisions in one language. The caller renders them.
         return [
             'post_id'        => $post_id,
-            'current_hash'   => $current['hash'] ?: 'N/A',
-            'current_date'   => $current['timestamp'] ?: 'N/A',
-            'previous_hash'  => $prev['hash'] ?: 'N/A',
-            'previous_date'  => $prev['timestamp'] ?: 'N/A',
-            'last_operation' => $last ? sprintf('%s (%s by %s)', strtoupper($last['operation']), $last['timestamp'], $last['actor']) : 'Unknown',
+            'current_hash'   => (string) $current['hash'],
+            'current_date'   => (string) $current['timestamp'],
+            'previous_hash'  => (string) $prev['hash'],
+            'previous_date'  => (string) $prev['timestamp'],
+            'last_operation' => $last ? [
+                'operation' => (string) ( $last['operation'] ?? '' ),
+                'timestamp' => (string) ( $last['timestamp'] ?? '' ),
+                'actor'     => (string) ( $last['actor'] ?? '' ),
+            ] : null,
         ];
     }
 }
