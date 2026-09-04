@@ -170,3 +170,6 @@ build_debug.txt
 # single gate objecting.
 /build/logs/
 .claude
+# Pencere kartı (hafıza mimarisi v2) — geliştirme aracı, sevk paketinde işi yok.
+# `.claude` tek başına bunu KAPSAMAZ: kart depo kökünde ayrı bir dosyadır.
+CLAUDE.md
