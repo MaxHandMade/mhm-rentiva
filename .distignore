@@ -93,6 +93,27 @@ phpstan-baseline.neon
 /vendor/mhm/ui-core/src/Seam/PurityScanner.php
 /vendor/mhm/ui-core/src-react/
 /vendor/mhm/ui-core/assets/react/pro.css
+# This plugin's OWN React sources. Only the compiled bundles under assets/ run on
+# a user's site; the JSX and JS here are webpack INPUT, and nobody builds on a
+# WordPress install. Measured 2026-09-06 before excluding: of the 46 src-react
+# files the ZIP carried, the only runtime paths are the five stylesheets (each
+# enqueued from PHP by name), and every "index.js" reference in src/ resolves to
+# assets/blocks/<slug>/index.js -- a built bundle, not a source.
+#
+# 🔴 The direct reason: four of those sources import from
+# vendor/mhm/ui-core/src-react, which this ZIP stopped shipping in the same round.
+# Shipping an importer without the module it imports is a dangling reference in
+# the artefact -- harmless at runtime, because WordPress never executes JSX, but
+# it is exactly the defect class that pruning one file out of a barrel produces.
+# Either both travel or neither does, and neither is the honest answer: the
+# bundles are what runs.
+#
+# The stylesheets stay. They are anchored below the exclusions so last-match-wins
+# re-includes them.
+/src-react/**/*.js
+/src-react/**/*.jsx
+!/src-react/**/*.css
+
 node_modules/
 build/zip-staging
 composer.lock
