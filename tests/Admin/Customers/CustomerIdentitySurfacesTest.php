@@ -44,6 +44,22 @@ final class CustomerIdentitySurfacesTest extends WP_UnitTestCase
 		$this->assertStringContainsString( "'' <> ''", $sql );
 	}
 
+	/**
+	 * The mirror of the email guard above, for the user-id branch.
+	 *
+	 * Without it, `bmeta.meta_value = 0` compares a `longtext` meta_value to
+	 * an integer: MySQL casts the text numerically, so 0 matches every row
+	 * carrying that meta key whose value is not a number. A caller with no
+	 * user id to bind -- get_recent_bookings()'s new parameter defaults to 0
+	 * -- must not have that default silently match unrelated bookings.
+	 */
+	public function test_the_bound_surface_drops_the_user_id_branch_when_there_is_no_user_id(): void
+	{
+		$sql = CustomerIdentity::sql_booking_owned_by( 0, 'a@example.test' );
+
+		$this->assertStringContainsString( '0 <> 0', $sql );
+	}
+
 	public function test_the_meta_query_surface_is_an_or_over_both_links(): void
 	{
 		$mq = CustomerIdentity::meta_query_owned_by( 42, 'a@example.test' );

@@ -350,4 +350,21 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 			'The card sits directly above the list; its money must equal the money the list rows sum to.'
 		);
 	}
+
+	/**
+	 * The detail panel's booking list reaches the same bookings the row's
+	 * count claims. New parameter goes LAST with a default: the method is
+	 * public static in a strict_types file, so a leading int would be a
+	 * TypeError for any caller we have not found.
+	 */
+	public function test_recent_bookings_returns_a_booking_linked_only_by_user_id(): void
+	{
+		$user    = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$booking = $this->makeBooking( '', $user, 100.0 );
+
+		$rows = CustomersOptimizer::get_recent_bookings( get_userdata( $user )->user_email, 5, 0, $user );
+		$ids  = array_map( static fn( $r ): int => (int) $r['id'], $rows );
+
+		$this->assertContains( $booking, $ids );
+	}
 }

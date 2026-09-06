@@ -168,8 +168,15 @@ final class CustomerIdentity {
 	 * $wpdb->prepare() raise _doing_it_wrong ("must have a placeholder"),
 	 * which the test suite turns into a failure.
 	 *
+	 * The user-id branch carries the same style of guard as the email branch
+	 * (`%d <> 0` beside `%s <> ''`): `%d` binds a value, it does not change the
+	 * comparison's type, so `bmeta.meta_value = 0` against a `longtext` column
+	 * casts every non-numeric string in that meta key to 0 and matches it. A
+	 * caller that has no user id to bind -- get_recent_bookings() defaults to
+	 * 0 -- must not have that default silently match unrelated rows.
+	 *
 	 * @param bool   $correlated True to compare against the `u` alias, false to bind values.
-	 * @param int    $user_id    Bound mode only.
+	 * @param int    $user_id    Bound mode only; 0 drops the user-id branch.
 	 * @param string $email      Bound mode only; '' drops the email branch.
 	 * @return string SQL predicate over the `bmeta` alias.
 	 */
@@ -186,9 +193,10 @@ final class CustomerIdentity {
 		}
 
 		return $wpdb->prepare(
-			"( ( bmeta.meta_key = %s AND bmeta.meta_value = %d )
+			"( ( bmeta.meta_key = %s AND %d <> 0 AND bmeta.meta_value = %d )
 			   OR ( bmeta.meta_key = %s AND %s <> '' AND bmeta.meta_value = %s ) )",
 			MetaKeys::BOOKING_CUSTOMER_USER_ID,
+			$user_id,
 			$user_id,
 			MetaKeys::BOOKING_CUSTOMER_EMAIL,
 			$email,
@@ -218,7 +226,7 @@ final class CustomerIdentity {
 	 * The same predicate with the account's values bound, for statements that
 	 * have no `users` table to correlate to.
 	 *
-	 * @param int    $user_id Account ID.
+	 * @param int    $user_id Account ID, 0 drops the user-id branch.
 	 * @param string $email   Account e-mail, '' when it has none.
 	 * @return string
 	 */

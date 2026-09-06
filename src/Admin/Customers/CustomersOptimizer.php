@@ -479,12 +479,23 @@ final class CustomersOptimizer {
 			return null;
 		}
 
+		// The JOIN below mirrors the list's and the stat cards' ownership rule
+		// (CustomerIdentity::sql_user_owns_booking()) instead of reaching bookings
+		// through `_mhmrentiva_customer_email` alone, so a booking linked by
+		// `_mhmrentiva_customer_user_id` counts here exactly as it does one screen up
+		// -- see get_customer_stats_optimized() above for the fuller account of why.
+		$owns = CustomerIdentity::sql_user_owns_booking();
+
 		// Customer details and booking statistics in single query
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $owns is
+		// CustomerIdentity::sql_user_owns_booking(), a single $wpdb->prepare() call
+		// with every dynamic value bound, composed into this statement the same way
+		// get_customer_stats_optimized() composes it. Re-enabled straight after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
 				"
-            SELECT 
+            SELECT
                 u.ID,
                 u.display_name,
                 u.user_email,
@@ -496,11 +507,9 @@ final class CustomersOptimizer {
                 MAX(p.post_date) as last_booking,
                 MIN(p.post_date) as first_booking
             FROM {$wpdb->users} u
-            LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhmrentiva_customer_email'
-            LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'mhmrentiva_booking'
+            LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
+                AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
@@ -513,6 +522,7 @@ final class CustomersOptimizer {
 				$customer_id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( ! $result ) {
 			return null;
@@ -534,7 +544,7 @@ final class CustomersOptimizer {
 			'last_booking'    => $result->last_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->last_booking ) ) : '-',
 			'first_booking'   => $result->first_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->first_booking ) ) : '-',
 			'favorites_count' => count( \MHMRentiva\Admin\Services\FavoritesService::get_user_favorites( $customer_id ) ),
-			'recent_bookings' => self::get_recent_bookings( $result->user_email, 5 ),
+			'recent_bookings' => self::get_recent_bookings( $result->user_email, 5, 0, (int) $result->ID ),
 			'status'          => self::derive_status(
 				(int) $result->booking_count,
 				(int) strtotime( $result->user_registered ),
@@ -555,14 +565,32 @@ final class CustomersOptimizer {
 	 * back to the booking title when the vehicle link is missing), booking date
 	 * and the formatted amount.
 	 *
-	 * @param string $email  Customer e-mail the bookings are keyed on.
-	 * @param int    $limit  Maximum rows to return.
-	 * @param int    $offset Rows to skip (detail-page pagination).
+	 * @param string $email   Customer e-mail the bookings are keyed on.
+	 * @param int    $limit   Maximum rows to return.
+	 * @param int    $offset  Rows to skip (detail-page pagination).
+	 * @param int    $user_id Customer account id, for a booking linked by
+	 *                        `_mhmrentiva_customer_user_id` rather than by e-mail.
+	 *                        Goes LAST with a default: this is a public static
+	 *                        method in a strict_types file, so a leading required
+	 *                        parameter would be a TypeError for any caller not
+	 *                        updated here. 0 falls back to e-mail-only matching,
+	 *                        which CustomerIdentity::sql_booking_owned_by()'s own
+	 *                        guard makes safe -- see that method.
 	 * @return array<int, array{id: int, vehicle: string, date: string, amount: string}>
 	 */
-	public static function get_recent_bookings( string $email, int $limit = 5, int $offset = 0 ): array {
+	public static function get_recent_bookings( string $email, int $limit = 5, int $offset = 0, int $user_id = 0 ): array {
 		global $wpdb;
 
+		// Same ownership rule as the row above it and the detail panel's own
+		// aggregate query: a booking linked by `_mhmrentiva_customer_user_id`
+		// must show up in this list exactly as one linked by e-mail does.
+		$owned = CustomerIdentity::sql_booking_owned_by( $user_id, $email );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $owned is
+		// CustomerIdentity::sql_booking_owned_by(), a single $wpdb->prepare() call
+		// with every dynamic value bound, composed into this statement the same way
+		// get_customer_details_optimized() composes sql_user_owns_booking(). Re-enabled
+		// straight after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Small bounded lookup; cached by the caller inside the customer-details payload.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
@@ -572,9 +600,6 @@ final class CustomersOptimizer {
                     v.post_title as vehicle_title,
                     CAST(COALESCE(price_meta.meta_value, 0) AS DECIMAL(10,2)) as amount
                 FROM {$wpdb->posts} p
-                INNER JOIN {$wpdb->postmeta} email_meta ON p.ID = email_meta.post_id
-                    AND email_meta.meta_key = '_mhmrentiva_customer_email'
-                    AND email_meta.meta_value = %s
                 LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                     AND price_meta.meta_key = '_mhmrentiva_total_price'
                 LEFT JOIN {$wpdb->postmeta} vehicle_meta ON p.ID = vehicle_meta.post_id
@@ -582,13 +607,14 @@ final class CustomersOptimizer {
                 LEFT JOIN {$wpdb->posts} v ON v.ID = CAST(vehicle_meta.meta_value AS UNSIGNED)
                 WHERE p.post_type = 'mhmrentiva_booking'
                     AND p.post_status IN ('publish', 'private', 'pending')
+                    AND {$owned}
                 ORDER BY p.post_date DESC
                 LIMIT %d OFFSET %d",
-				$email,
 				$limit,
 				$offset
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$bookings = array();
 		foreach ( (array) $rows as $row ) {
