@@ -242,9 +242,14 @@ DESIGN.md
 # ============================================================================
 # Keep: mhm-rentiva.pot, mhm-rentiva-tr_TR.po, mhm-rentiva-tr_TR.mo
 # Keep: mhm-rentiva-de_DE.po, mhm-rentiva-de_DE.mo (German)
+# Keep: languages/*.l10n.php -- WP 6.5+ loads these at runtime, so they SHIP.
+#   Do not re-add an ignore rule for them. It was here until 2026-09-06 and the
+#   only reason tr_TR survived is that someone had force-added it (`git add -f`);
+#   a second locale's .l10n.php would have been dropped silently, with no error
+#   at build time and no missing-file gate to catch it. Pro's .gitignore never
+#   had the rule -- the two trees had disagreed since WP 6.5.
 languages/*-backup-*.pot~
 languages/*-backup-*.po~
-languages/*.l10n.php
 # React/JS i18n: WordPress core resolves a script handle's translations to
 # `mhm-rentiva-<locale>-md5(<src relative to plugin root>).json`. The React
 # admin scripts register src `build/admin/<page>.js`, so the ONLY files WP
