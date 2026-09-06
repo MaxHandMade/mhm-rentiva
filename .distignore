@@ -60,6 +60,28 @@ phpstan-baseline.neon
 /vendor/mhm/ui-core/.eslintrc.js
 /vendor/mhm/ui-core/.stylelintrc.json
 /vendor/mhm/ui-core/jest.config.js
+
+# ui-core 0.9.1 brought five paths that have no runtime path on a user's site.
+# Derived, not blacklisted: everything else in the package ships, because the
+# loader serves ONE copy site-wide -- pruning a runtime class here would make a
+# sibling plugin's call fatal. These five are the exceptions, and each is named:
+#
+#   src/Cli/          WP-CLI commands. Safe to drop since ui-core 0.8.1, which
+#                     stopped tying registration to WP_CLI's presence -- before
+#                     that, dropping this directory cost the consumer `wp` itself.
+#   PurityScanner     Ships the licence/limit vocabulary it hunts for
+#                     ('upgrade_to_pro', 'is_pro_active', 'license_server', ...).
+#                     A reviewer grepping this free plugin's ZIP would read those
+#                     words as an edition check regardless of the file's purpose.
+#   ProLock.jsx       Carries the .mhmui-pro-lock class; same grep, same reading.
+#   assets/react/pro.css  The stylesheet for that class.
+#
+# Measured 2026-09-06: nothing in ui-core or in either Rentiva tree enqueues
+# pro.css or imports ProLock, and the scanner is a CI tool, not a runtime one.
+/vendor/mhm/ui-core/src/Cli/
+/vendor/mhm/ui-core/src/Seam/PurityScanner.php
+/vendor/mhm/ui-core/src-react/components/ProLock.jsx
+/vendor/mhm/ui-core/assets/react/pro.css
 node_modules/
 build/zip-staging
 composer.lock

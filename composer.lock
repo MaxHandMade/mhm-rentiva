@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96d5eaeabe1d6f41039bc3209a26fb4f",
+    "content-hash": "5f0cc6d1b1a8081fdfd049418147eb09",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.7.0",
+            "version": "v0.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "6498d39dc9ebaeb5dc8c63f76248f4252b654e8f"
+                "reference": "6039f048a30a34341e58c5cb429f129bfdfa0c2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/6498d39dc9ebaeb5dc8c63f76248f4252b654e8f",
-                "reference": "6498d39dc9ebaeb5dc8c63f76248f4252b654e8f",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/6039f048a30a34341e58c5cb429f129bfdfa0c2a",
+                "reference": "6039f048a30a34341e58c5cb429f129bfdfa0c2a",
                 "shasum": ""
             },
             "require": {
@@ -25,7 +25,7 @@
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
-                "php-stubs/wordpress-stubs": "^6.7",
+                "php-stubs/wordpress-stubs": "^7.1",
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^9.6",
                 "squizlabs/php_codesniffer": "^3.9",
@@ -47,6 +47,9 @@
             "scripts": {
                 "test": [
                     "@php ./vendor/bin/phpunit -c phpunit.xml"
+                ],
+                "test:wp": [
+                    "@php ./vendor/bin/phpunit -c phpunit-integration.xml"
                 ],
                 "phpcs": [
                     "@php ./vendor/bin/phpcs --standard=phpcs.xml"
@@ -77,10 +80,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.7.0",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.9.3",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-08-30T18:44:40+00:00"
+            "time": "2026-09-06T11:33:31+00:00"
         }
     ],
     "packages-dev": [
