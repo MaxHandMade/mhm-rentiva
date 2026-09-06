@@ -367,4 +367,23 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 
 		$this->assertContains( $booking, $ids );
 	}
+
+	/**
+	 * The trend counts accounts registered this month that have a booking.
+	 * A booking linked by id is a booking. Nothing else in the suite asserts
+	 * the trend's VALUE, which is why a broken query here would be silent:
+	 * calculate_trend() swallows a null result and returns '0%'.
+	 */
+	public function test_the_trend_counts_a_booking_linked_only_by_user_id(): void
+	{
+		$user = (int) self::factory()->user->create(
+			array(
+				'role'            => 'subscriber',
+				'user_registered' => gmdate( 'Y-m-d H:i:s' ),
+			)
+		);
+		$this->makeBooking( '', $user, 100.0 );
+
+		$this->assertSame( '+100%', CustomersOptimizer::get_customer_stats_optimized()['average_trend'] );
+	}
 }

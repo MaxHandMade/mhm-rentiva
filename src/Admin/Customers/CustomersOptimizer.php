@@ -706,20 +706,30 @@ final class CustomersOptimizer {
 	private static function calculate_trend(): string {
 		global $wpdb;
 
+		// The same ownership rule the rest of this file uses
+		// (CustomerIdentity::sql_user_owns_booking()) instead of reaching bookings
+		// through `_mhmrentiva_customer_email` alone, so a booking linked by
+		// `_mhmrentiva_customer_user_id` counts toward the trend exactly as it
+		// does everywhere else on the card.
+		$owns = CustomerIdentity::sql_user_owns_booking();
+
 		// Compare this month and last month customer registration counts.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $owns is
+		// CustomerIdentity::sql_user_owns_booking(), a single $wpdb->prepare() call
+		// with every dynamic value bound, composed into these two statements the
+		// same way get_customer_stats_optimized() composes it. Re-enabled straight
+		// after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only aggregate report query; cached by the caller.
 		$current_month = $wpdb->get_var(
 			$wpdb->prepare(
 				"
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
-            INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhmrentiva_customer_email'
-            INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'mhmrentiva_booking'
+            INNER JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
-            WHERE u.ID > 1 
+                AND {$owns}
+            WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND u.user_registered >= %s
         ",
@@ -733,13 +743,11 @@ final class CustomersOptimizer {
 				"
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
-            INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhmrentiva_customer_email'
-            INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'mhmrentiva_booking'
+            INNER JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
-            WHERE u.ID > 1 
+                AND {$owns}
+            WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND u.user_registered >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%%Y-%%m-01')
                 AND u.user_registered < %s
@@ -747,6 +755,7 @@ final class CustomersOptimizer {
 				gmdate( 'Y-m-01 00:00:00' )
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( $last_month > 0 ) {
 			$trend = ( ( $current_month - $last_month ) / $last_month ) * 100;
