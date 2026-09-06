@@ -277,24 +277,64 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * The card's money and the list's money are the same money.
+	 * The card's money must be the fixture's money, not just agree with the
+	 * list by coincidence.
 	 *
-	 * Revenue is not in the card payload (CustomerStatsShipNothingUnreadTest
-	 * pins the key set exactly), so it is derived: avg_spend * total. The
-	 * expectation is NOT a hard-coded number -- that would only hold while the
-	 * customer population is exactly the two users this test creates, and one
-	 * extra customer anywhere in the fixture makes avg_spend round and fail
-	 * the assertion for a reason unrelated to the defect. Instead both sides
-	 * are built from the same run: sum the list's own (formatted) totals and
-	 * compare that sum, run through the same formatter, against the card's.
+	 * A prior version of this test only compared the card against the list
+	 * (sum of list rows == avg_spend * total). That is an algebraic identity
+	 * whenever the two surfaces share a JOIN -- true before this task's fix
+	 * AND after it, for this fixture, because both sides were reading the
+	 * same (then-wrong, now-right) numbers. It caught nothing about THIS
+	 * defect; it only guards against a future asymmetric edit (one surface
+	 * changed, the other forgotten) -- which is still worth having, so it
+	 * stays, but as a second check, not the only one.
+	 *
+	 * The actual defect this task fixes is: a booking linked only by
+	 * `_mhmrentiva_customer_user_id` (no email meta at all) is invisible to
+	 * the card. So the primary assertion anchors the card's money to the sum
+	 * of the prices THIS TEST created ($price_a + $price_b, never a bare
+	 * literal), which is exactly the number pre-fix code gets wrong: pre-fix,
+	 * the user-id-only booking contributes nothing, so the card only sees
+	 * $price_b.
 	 */
 	public function test_the_card_money_equals_the_list_money(): void
 	{
 		$a = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		$b = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		$this->makeBooking( '', $a, 100.0 );
-		$this->makeBooking( get_userdata( $b )->user_email, 0, 100.0 );
 
+		// One booking linked ONLY by user id, one linked ONLY by email --
+		// each exercises a different half of CustomerIdentity's ownership
+		// rule, and pre-fix code only reaches the second one.
+		$price_a = 100.0;
+		$price_b = 100.0;
+		$this->makeBooking( '', $a, $price_a );
+		$this->makeBooking( get_userdata( $b )->user_email, 0, $price_b );
+
+		$stats = CustomersOptimizer::get_customer_stats_optimized();
+
+		// Assert the population FIRST: makes the rounding assumption explicit
+		// rather than silent. If a stray fixture customer ever leaks in here,
+		// THIS line fails with a clear reason instead of a money figure that
+		// looks like the defect but isn't.
+		$this->assertSame(
+			2,
+			(int) $stats['total'],
+			'Precondition: the card must see exactly the two customers this test created.'
+		);
+
+		$expected_total = $price_a + $price_b;
+		$card_sum       = (float) $stats['avg_spend'] * (int) $stats['total'];
+
+		$this->assertSame(
+			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( $expected_total, 2 ),
+			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( $card_sum, 2 ),
+			'The card must count BOTH bookings -- the one linked by user id and the one linked by email -- not just one of them.'
+		);
+
+		// Second check, kept from the prior version: the list and the card
+		// must still agree with EACH OTHER, so a future edit that changes one
+		// surface's ownership rule without the other's still fails here even
+		// if it coincidentally still matches the fixture total above.
 		$list_rows = CustomersOptimizer::get_customers_optimized( 1, 100 )['customers'] ?? array();
 		$list_sum  = 0.0;
 		foreach ( $list_rows as $row ) {
@@ -303,9 +343,6 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 			// whatever the list actually returned for the whole population.
 			$list_sum += (float) preg_replace( '/[^0-9.\-]/', '', (string) $row['total_spent'] );
 		}
-
-		$stats    = CustomersOptimizer::get_customer_stats_optimized();
-		$card_sum = (float) $stats['avg_spend'] * (int) $stats['total'];
 
 		$this->assertSame(
 			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( $list_sum, 2 ),
