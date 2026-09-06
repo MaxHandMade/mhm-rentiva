@@ -73,14 +73,25 @@ phpstan-baseline.neon
 #                     ('upgrade_to_pro', 'is_pro_active', 'license_server', ...).
 #                     A reviewer grepping this free plugin's ZIP would read those
 #                     words as an edition check regardless of the file's purpose.
-#   ProLock.jsx       Carries the .mhmui-pro-lock class; same grep, same reading.
-#   assets/react/pro.css  The stylesheet for that class.
+#   src-react/        The package's JSX/token SOURCE. It is build-time input, and
+#                     nothing on a user's site reads it: measured 2026-09-06, no
+#                     shipped file references vendor/mhm/ui-core/src-react and
+#                     this plugin's webpack does not either. It also carries
+#                     ProLock.jsx, whose .mhmui-pro-lock class a reviewer would
+#                     read as a paid-feature lock.
+#                     🔴 Excluding ONLY ProLock.jsx was tried first and was wrong:
+#                     src-react/index.js re-exports it, so the ZIP kept both the
+#                     name in a reviewer's grep AND a dangling import. Dropping
+#                     one file out of a barrel moves the defect, it does not
+#                     remove it. The directory goes as a unit.
+#   assets/react/pro.css  The stylesheet for that class. (admin.css does NOT
+#                     carry .mhmui-pro-lock -- verified, ui-core 0.8.1 moved it.)
 #
 # Measured 2026-09-06: nothing in ui-core or in either Rentiva tree enqueues
-# pro.css or imports ProLock, and the scanner is a CI tool, not a runtime one.
+# pro.css, and the scanner is a CI tool, not a runtime one.
 /vendor/mhm/ui-core/src/Cli/
 /vendor/mhm/ui-core/src/Seam/PurityScanner.php
-/vendor/mhm/ui-core/src-react/components/ProLock.jsx
+/vendor/mhm/ui-core/src-react/
 /vendor/mhm/ui-core/assets/react/pro.css
 node_modules/
 build/zip-staging
