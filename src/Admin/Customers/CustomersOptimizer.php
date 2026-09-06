@@ -53,6 +53,14 @@ final class CustomersOptimizer {
 	private const CACHE_TTL    = 900; // 15 minutes
 
 	/**
+	 * Bumped when the MEANING of a cached figure changes, so a deploy is not
+	 * followed by 15 minutes of the old numbers. One constant, because writing
+	 * the token in three places is how get_customer_details_optimized()'s cache
+	 * key and clear_cache()'s copy of it drift apart.
+	 */
+	private const CACHE_SHAPE = 'v3';
+
+	/**
 	 * Fingerprint of everything that changes how money RENDERS.
 	 *
 	 * These payloads carry pre-formatted amounts (`total_spent`, `amount`), so a
@@ -110,6 +118,12 @@ final class CustomersOptimizer {
 		// afterwards is what keeps LIMIT/OFFSET and the total honest.
 		$membership = CustomerIdentity::sql_is_customer();
 
+		// The one rule for "this booking belongs to this account" (CustomerIdentity),
+		// correlated to `u` and `p` below. Computed once and spliced into all three
+		// statements this method runs, so the SELECT, its counterpart total and the
+		// other sort direction can never answer the ownership question differently.
+		$owns = CustomerIdentity::sql_user_owns_booking();
+
 		// Status filters are independent predicates (they may overlap): `new` means
 		// registered in the last 30 days, `active` means a booking in the last 90
 		// days (same window as the active_90d stat), `vip` means at least the
@@ -121,16 +135,17 @@ final class CustomersOptimizer {
 		$vip_min = self::get_vip_min_bookings();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
-		// is CustomerIdentity::sql_is_customer(): a single $wpdb->prepare() call with
-		// every dynamic value bound. WordPress provides no placeholder for splicing a
-		// composed SQL fragment into another statement, so the composition itself is
+		// is CustomerIdentity::sql_is_customer() and $owns is
+		// CustomerIdentity::sql_user_owns_booking(): each a single $wpdb->prepare() call
+		// with every dynamic value bound. WordPress provides no placeholder for splicing
+		// a composed SQL fragment into another statement, so the composition itself is
 		// what the sniff sees. Scoped to this region and re-enabled straight after.
 		//
 		// The key carries the status, the VIP threshold and the currency fingerprint
 		// as well as the paging/sort inputs: every one of them changes the rows or
 		// the formatting this method returns, so leaving any of them out serves one
 		// filter's result set under another filter's key.
-		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir . '_' . $status . '_' . $vip_min . '_' . self::currency_fingerprint() );
+		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir . '_' . $status . '_' . $vip_min . '_' . self::currency_fingerprint() . '_' . self::CACHE_SHAPE );
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -166,11 +181,9 @@ final class CustomersOptimizer {
                 COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_spent,
                 MAX(p.post_date) as last_booking
             FROM {$wpdb->users} u
-            LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhmrentiva_customer_email'
-            LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'mhmrentiva_booking'
+            LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
+                AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
@@ -201,11 +214,9 @@ final class CustomersOptimizer {
                 COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_spent,
                 MAX(p.post_date) as last_booking
             FROM {$wpdb->users} u
-            LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhmrentiva_customer_email'
-            LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'mhmrentiva_booking'
+            LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
+                AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
@@ -246,11 +257,9 @@ final class CustomersOptimizer {
 				"SELECT COUNT(*) FROM (
                 SELECT u.ID
                 FROM {$wpdb->users} u
-                LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                    AND email_meta.meta_key = '_mhmrentiva_customer_email'
-                LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                    AND p.post_type = 'mhmrentiva_booking'
+                LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                     AND p.post_status IN ('publish', 'private', 'pending')
+                    AND {$owns}
                 WHERE u.ID > 1
                     AND u.user_login != 'admin'
                     AND {$membership}
@@ -355,9 +364,10 @@ final class CustomersOptimizer {
 	 * @return array
 	 */
 	public static function get_customer_stats_optimized(): array {
-		// v2: the key changed when active_90d / avg_spend joined the payload, so a
-		// stale pre-redesign cache entry can never serve the old shape.
-		$cache_key = self::CACHE_PREFIX . 'stats_v2';
+		// CACHE_SHAPE: the key changes when active_90d / avg_spend / the ownership
+		// rule change the payload, so a stale pre-redesign cache entry can never
+		// serve the old shape.
+		$cache_key = self::CACHE_PREFIX . 'stats_' . self::CACHE_SHAPE;
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -378,15 +388,18 @@ final class CustomersOptimizer {
 		// one symptom.
 		//
 		// The joins below are LEFT and mirror the list's exactly -- including the
-		// list's own choice to reach bookings by email only. The booking-derived
-		// figures therefore keep their narrower meaning: a customer with no
-		// booking joins `total` and contributes nothing to `active_90d` or to
+		// list's own ownership rule (CustomerIdentity::sql_user_owns_booking()), so a
+		// booking linked by user id counts here exactly as it does in the list. The
+		// booking-derived figures keep their narrower meaning regardless: a customer
+		// with no booking joins `total` and contributes nothing to `active_90d` or to
 		// revenue.
 		$membership = CustomerIdentity::sql_is_customer();
+		$owns       = CustomerIdentity::sql_user_owns_booking();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
-		// is CustomerIdentity::sql_is_customer(): a single $wpdb->prepare() call with
-		// every dynamic value bound, composed into this statement the same way
+		// is CustomerIdentity::sql_is_customer() and $owns is
+		// CustomerIdentity::sql_user_owns_booking(): each a single $wpdb->prepare() call
+		// with every dynamic value bound, composed into this statement the same way
 		// get_customers_optimized() composes it. Re-enabled straight after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
 		$result = $wpdb->get_row(
@@ -404,11 +417,9 @@ final class CustomersOptimizer {
                 END) as active_90d,
                 COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_revenue
             FROM {$wpdb->users} u
-            LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhmrentiva_customer_email'
-            LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'mhmrentiva_booking'
+            LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
+                AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             WHERE u.ID > 1
@@ -449,10 +460,11 @@ final class CustomersOptimizer {
 	 * @return array|null
 	 */
 	public static function get_customer_details_optimized( int $customer_id ): ?array {
-		// v2 suffix: recent_bookings / favorites_count / status joined the payload,
-		// so a stale pre-redesign cache entry can never serve the old shape.
-		// clear_cache() below uses the same key.
-		$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id . '_' . self::currency_fingerprint();
+		// CACHE_SHAPE suffix: recent_bookings / favorites_count / status joined the
+		// payload, so a stale pre-redesign cache entry can never serve the old shape.
+		// clear_cache() below builds this same expression -- byte-identical, or the
+		// detail cache for a customer can never be cleared.
+		$cache_key = self::CACHE_PREFIX . 'details_' . self::CACHE_SHAPE . '_' . $customer_id . '_' . self::currency_fingerprint();
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -649,7 +661,9 @@ final class CustomersOptimizer {
 	 */
 	public static function clear_cache( ?int $customer_id = null ): bool {
 		if ( $customer_id ) {
-			$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id . '_' . self::currency_fingerprint();
+			// Byte-identical to the expression in get_customer_details_optimized() --
+			// see the comment there.
+			$cache_key = self::CACHE_PREFIX . 'details_' . self::CACHE_SHAPE . '_' . $customer_id . '_' . self::currency_fingerprint();
 			return CacheManager::delete_cache( 'customers', $cache_key );
 		}
 

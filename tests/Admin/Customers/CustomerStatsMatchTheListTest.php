@@ -65,7 +65,23 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 		return array_map( static fn( $row ): int => (int) $row['id'], $result['customers'] ?? array() );
 	}
 
-	private function makeBooking( string $email = '', int $user_id = 0 ): int
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function listed_row( int $user_id ): array
+	{
+		$rows = CustomersOptimizer::get_customers_optimized( 1, 100 )['customers'] ?? array();
+
+		foreach ( $rows as $row ) {
+			if ( (int) $row['id'] === $user_id ) {
+				return $row;
+			}
+		}
+
+		$this->fail( "User {$user_id} is not in the list at all." );
+	}
+
+	private function makeBooking( string $email = '', int $user_id = 0, ?float $price = null ): int
 	{
 		$booking = (int) self::factory()->post->create(
 			array(
@@ -80,6 +96,10 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 
 		if ( 0 !== $user_id ) {
 			update_post_meta( $booking, '_mhmrentiva_customer_user_id', $user_id );
+		}
+
+		if ( null !== $price ) {
+			update_post_meta( $booking, '_mhmrentiva_total_price', (string) $price );
 		}
 
 		return $booking;
@@ -211,5 +231,86 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 		$this->assertSame( 1, (int) $stats['total'], 'They are a customer.' );
 		$this->assertSame( 0, (int) $stats['active_90d'], 'But they have no booking activity, so they are not active.' );
 		$this->assertSame( 0.0, (float) $stats['avg_spend'], 'And they have spent nothing.' );
+	}
+
+	// --- The user-id link: the defect this task closes --------------------
+
+	/**
+	 * The defect PR #30 named and deliberately left: a booking that points at
+	 * the account by ID contributes nothing to the account's own figures.
+	 */
+	public function test_a_booking_linked_only_by_user_id_counts_toward_the_totals(): void
+	{
+		$user = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$this->makeBooking( '', $user, 100.0 );
+
+		$row = $this->listed_row( $user );
+
+		$this->assertSame( 1, (int) $row['booking_count'] );
+		$this->assertSame(
+			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( 100.0, 2 ),
+			$row['total_spent'],
+			'Spend is a formatted string; build the expectation with the same helper the screen uses.'
+		);
+		$this->assertNotEmpty( $row['last_booking'] );
+	}
+
+	/**
+	 * A manual booking carries BOTH links (ManualBookingMetaBox writes them
+	 * side by side). Joining through postmeta with an OR would match two rows
+	 * for one booking and double SUM(price); EXISTS matches once.
+	 */
+	public function test_a_booking_carrying_both_links_is_counted_once(): void
+	{
+		$user  = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$email = get_userdata( $user )->user_email;
+		$this->makeBooking( $email, $user, 100.0 );
+
+		$row = $this->listed_row( $user );
+
+		$this->assertSame( 1, (int) $row['booking_count'] );
+		$this->assertSame(
+			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( 100.0, 2 ),
+			$row['total_spent'],
+			'Double-linked booking must not be counted twice.'
+		);
+	}
+
+	/**
+	 * The card's money and the list's money are the same money.
+	 *
+	 * Revenue is not in the card payload (CustomerStatsShipNothingUnreadTest
+	 * pins the key set exactly), so it is derived: avg_spend * total. The
+	 * expectation is NOT a hard-coded number -- that would only hold while the
+	 * customer population is exactly the two users this test creates, and one
+	 * extra customer anywhere in the fixture makes avg_spend round and fail
+	 * the assertion for a reason unrelated to the defect. Instead both sides
+	 * are built from the same run: sum the list's own (formatted) totals and
+	 * compare that sum, run through the same formatter, against the card's.
+	 */
+	public function test_the_card_money_equals_the_list_money(): void
+	{
+		$a = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$b = (int) self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$this->makeBooking( '', $a, 100.0 );
+		$this->makeBooking( get_userdata( $b )->user_email, 0, 100.0 );
+
+		$list_rows = CustomersOptimizer::get_customers_optimized( 1, 100 )['customers'] ?? array();
+		$list_sum  = 0.0;
+		foreach ( $list_rows as $row ) {
+			// total_spent is the formatted string the screen renders; parse it back
+			// rather than assuming a hard amount so the comparison stays tied to
+			// whatever the list actually returned for the whole population.
+			$list_sum += (float) preg_replace( '/[^0-9.\-]/', '', (string) $row['total_spent'] );
+		}
+
+		$stats    = CustomersOptimizer::get_customer_stats_optimized();
+		$card_sum = (float) $stats['avg_spend'] * (int) $stats['total'];
+
+		$this->assertSame(
+			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( $list_sum, 2 ),
+			\MHMRentiva\Admin\Core\CurrencyHelper::format_price( $card_sum, 2 ),
+			'The card sits directly above the list; its money must equal the money the list rows sum to.'
+		);
 	}
 }
