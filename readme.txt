@@ -190,10 +190,11 @@ ordinary visitors can also send re-opens the bypass this default closes.
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
 = 6.1.4 =
-* Fixed: a booking linked to a customer's account by ID rather than e-mail was invisible on the Customers screen, in that customer's detail panel, the dashboard's money totals, and behind the "View Bookings" link. Everyone the customer list counts as a customer is now counted everywhere else, too.
-* Fixed: multisite activation stopped at the hundredth site and skipped private sites; both now get their tables. A subsite reads its own language for its URL slugs, not the network's.
-* Fixed: on hosting with an external object cache (Redis/Memcached), saving a customer, booking or vehicle left its list showing stale data until it expired on its own.
-* Changed: the ZIP no longer ships React source files WordPress never runs, making the download smaller and cleaner to inspect.
+* Fixed: on the Customers screen, a booking linked by ID rather than e-mail did not count on the customer's row, was missing from their detail panel and summary cards, and did not show behind "View Bookings".
+* Fixed: multisite activation stopped at the hundredth site and skipped private sites; both now get their tables. A subsite reads its own language for URL slugs, not the network's.
+* Fixed: a page rollback in the layout tool could overwrite an unrelated post with layout markup via a stale ID; it can no longer touch a post it was not meant to.
+* Fixed: on hosting with an external cache (Redis/Memcached), saving a customer, booking or vehicle left its list stale until the cache expired.
+* Changed: the ZIP no longer ships React source files WordPress never runs, so the download is smaller.
 * Changed: the admin menu moved back above WordPress's own Appearance, Plugins, Users and Tools items, just below WooCommerce.
 
 = 6.1.3 =
