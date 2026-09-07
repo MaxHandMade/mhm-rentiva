@@ -82,6 +82,7 @@ final class MetaKeys {
 	public const BOOKING_END_TS              = '_mhmrentiva_end_ts';
 	public const BOOKING_VEHICLE_ID          = '_mhmrentiva_vehicle_id';
 	public const BOOKING_TOTAL_PRICE         = '_mhmrentiva_total_price';
+	public const BOOKING_CUSTOMER_USER_ID    = '_mhmrentiva_customer_user_id';
 	public const BOOKING_CUSTOMER_EMAIL      = '_mhmrentiva_customer_email';
 	public const BOOKING_CUSTOMER_FIRST_NAME = '_mhmrentiva_customer_first_name';
 	public const BOOKING_CUSTOMER_LAST_NAME  = '_mhmrentiva_customer_last_name';

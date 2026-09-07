@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace MHMRentiva\Admin\Customers;
 
+use MHMRentiva\Admin\Core\MetaKeys;
+
 /**
  * The single place that answers "is this WordPress user a Rentiva customer?".
  *
@@ -158,6 +160,115 @@ final class CustomerIdentity {
 	}
 
 	/**
+	 * The one rule: this booking belongs to this account.
+	 *
+	 * Three surfaces below are this pair with a different right-hand side, so
+	 * "belongs to" is defined once. Both meta keys are BOUND rather than
+	 * written into the string: an entirely literal fragment would make
+	 * $wpdb->prepare() raise _doing_it_wrong ("must have a placeholder"),
+	 * which the test suite turns into a failure.
+	 *
+	 * The user-id branch carries the same style of guard as the email branch
+	 * (`%d <> 0` beside `%s <> ''`): `%d` binds a value, it does not change the
+	 * comparison's type, so `bmeta.meta_value = 0` against a `longtext` column
+	 * casts every non-numeric string in that meta key to 0 and matches it. A
+	 * caller that has no user id to bind -- get_recent_bookings() defaults to
+	 * 0 -- must not have that default silently match unrelated rows.
+	 *
+	 * @param bool   $correlated True to compare against the `u` alias, false to bind values.
+	 * @param int    $user_id    Bound mode only; 0 drops the user-id branch.
+	 * @param string $email      Bound mode only; '' drops the email branch.
+	 * @return string SQL predicate over the `bmeta` alias.
+	 */
+	private static function booking_link_pair( bool $correlated, int $user_id = 0, string $email = '' ): string {
+		global $wpdb;
+
+		if ( $correlated ) {
+			return $wpdb->prepare(
+				"( ( bmeta.meta_key = %s AND bmeta.meta_value = u.ID )
+				   OR ( bmeta.meta_key = %s AND u.user_email <> '' AND bmeta.meta_value = u.user_email ) )",
+				MetaKeys::BOOKING_CUSTOMER_USER_ID,
+				MetaKeys::BOOKING_CUSTOMER_EMAIL
+			);
+		}
+
+		return $wpdb->prepare(
+			"( ( bmeta.meta_key = %s AND %d <> 0 AND bmeta.meta_value = %d )
+			   OR ( bmeta.meta_key = %s AND %s <> '' AND bmeta.meta_value = %s ) )",
+			MetaKeys::BOOKING_CUSTOMER_USER_ID,
+			$user_id,
+			$user_id,
+			MetaKeys::BOOKING_CUSTOMER_EMAIL,
+			$email,
+			$email
+		);
+	}
+
+	/**
+	 * EXISTS predicate for a JOIN's ON clause, correlated to `u` and `p`.
+	 *
+	 * EXISTS is a predicate, not a join: a booking carrying BOTH links still
+	 * matches once, so SUM() over the joined rows cannot double.
+	 *
+	 * @return string
+	 */
+	public static function sql_user_owns_booking(): string {
+		global $wpdb;
+
+		return "EXISTS (
+			SELECT 1 FROM {$wpdb->postmeta} bmeta
+			WHERE bmeta.post_id = p.ID
+				AND " . self::booking_link_pair( true ) . '
+		)';
+	}
+
+	/**
+	 * The same predicate with the account's values bound, for statements that
+	 * have no `users` table to correlate to.
+	 *
+	 * @param int    $user_id Account ID, 0 drops the user-id branch.
+	 * @param string $email   Account e-mail, '' when it has none.
+	 * @return string
+	 */
+	public static function sql_booking_owned_by( int $user_id, string $email ): string {
+		global $wpdb;
+
+		return "EXISTS (
+			SELECT 1 FROM {$wpdb->postmeta} bmeta
+			WHERE bmeta.post_id = p.ID
+				AND " . self::booking_link_pair( false, $user_id, $email ) . '
+		)';
+	}
+
+	/**
+	 * The same rule as a WP_Query meta_query, for callers that filter through
+	 * WP_Query rather than composing SQL.
+	 *
+	 * @param int    $user_id Account ID.
+	 * @param string $email   Account e-mail, '' when it has none.
+	 * @return array<int|string, array<string, string>|string> 'relation' holds a
+	 *         string ('OR'); the numeric keys each hold a {key, value} clause.
+	 */
+	public static function meta_query_owned_by( int $user_id, string $email ): array {
+		$clauses = array(
+			'relation' => 'OR',
+			array(
+				'key'   => MetaKeys::BOOKING_CUSTOMER_USER_ID,
+				'value' => (string) $user_id,
+			),
+		);
+
+		if ( '' !== $email ) {
+			$clauses[] = array(
+				'key'   => MetaKeys::BOOKING_CUSTOMER_EMAIL,
+				'value' => $email,
+			);
+		}
+
+		return $clauses;
+	}
+
+	/**
 	 * The same question as is_customer(), expressed as a SQL condition.
 	 *
 	 * The Customers list needs this in SQL rather than in PHP: it paginates with
@@ -170,8 +281,10 @@ final class CustomerIdentity {
 	 *
 	 * Returns a parenthesised boolean expression referring to the users table
 	 * under the alias `u`, which the one caller uses. Every dynamic value is a
-	 * bound parameter: the expression is built by a single prepare() call, so
-	 * nothing is interpolated into it and no phpcs suppression is needed.
+	 * bound parameter -- the first EXISTS block's predicate comes from
+	 * booking_link_pair(), which runs its own prepare() and returns an
+	 * already-bound fragment, which is why splicing it in needs a scoped
+	 * phpcs suppression (see below) rather than a placeholder.
 	 *
 	 * @return string
 	 */
@@ -191,6 +304,11 @@ final class CustomerIdentity {
 		$role_like_a = '%' . $wpdb->esc_like( '"' . $roles[0] . '"' ) . '%';
 		$role_like_b = '%' . $wpdb->esc_like( '"' . ( $roles[1] ?? $roles[0] ) . '"' ) . '%';
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- booking_link_pair() runs its
+		// own $wpdb->prepare() and returns a fully bound predicate; WordPress provides no
+		// placeholder for splicing a composed SQL fragment into another statement, so the
+		// composition itself is what the sniff sees. Scoped to this statement and
+		// re-enabled immediately after, same pattern as CustomersOptimizer::get_customers_optimized().
 		return $wpdb->prepare(
 			"(
 			EXISTS (
@@ -199,8 +317,7 @@ final class CustomerIdentity {
 					ON bpost.ID = bmeta.post_id
 					AND bpost.post_type = 'mhmrentiva_booking'
 					AND bpost.post_status <> 'trash'
-				WHERE ( bmeta.meta_key = '_mhmrentiva_customer_user_id' AND bmeta.meta_value = u.ID )
-				   OR ( bmeta.meta_key = '_mhmrentiva_customer_email' AND u.user_email <> '' AND bmeta.meta_value = u.user_email )
+				WHERE " . self::booking_link_pair( true ) . "
 			)
 			OR EXISTS (
 				SELECT 1 FROM {$wpdb->usermeta} ometa
@@ -221,6 +338,7 @@ final class CustomerIdentity {
 			$role_like_a,
 			$role_like_b
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	/**
@@ -300,23 +418,7 @@ final class CustomerIdentity {
 	 * @return bool
 	 */
 	private static function has_booking( int $user_id, string $email ): bool {
-		$meta_query = array(
-			'relation' => 'OR',
-			array(
-				'key'   => '_mhmrentiva_customer_user_id',
-				'value' => (string) $user_id,
-			),
-		);
-
-		// Only match on email when there is an email to match. Comparing against
-		// '' would turn every booking row with an empty customer-email meta into
-		// a match, which is how a guard quietly stops being one.
-		if ( '' !== $email ) {
-			$meta_query[] = array(
-				'key'   => '_mhmrentiva_customer_email',
-				'value' => $email,
-			);
-		}
+		$meta_query = self::meta_query_owned_by( $user_id, $email );
 
 		$found = new \WP_Query(
 			array(

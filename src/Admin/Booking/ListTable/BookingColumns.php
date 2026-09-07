@@ -17,6 +17,7 @@ use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
 use MHMRentiva\Admin\Payment\Core\Money;
+use MHMRentiva\Admin\Customers\CustomerIdentity;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -1792,12 +1793,29 @@ final class BookingColumns {
 		// the parameter was silently ignored and the full list rendered.
 		// Registered query var, read through the same helper the sibling
 		// filters use.
+		//
+		// The Customers screen's own queries count a booking toward a
+		// customer when it is linked by user ID OR by e-mail
+		// (CustomerIdentity's ownership predicate — Task 1 of the
+		// customer-booking-link tour). Matching on e-mail meta alone here
+		// would make this link disagree with that count: a booking linked
+		// only by user ID shows in the row's total but not behind "View
+		// Bookings". Resolving the e-mail to its account and reusing the
+		// same predicate keeps the two in sync. When no account carries
+		// this e-mail (a guest booking, a stale address) there is nothing to
+		// widen the match with, so behaviour stays exactly what it was:
+		// e-mail meta alone.
 		$customer_email = sanitize_email( self::get_query_text( 'mhmrentiva_customer_email' ) );
 		if ( '' !== $customer_email ) {
-			$meta_query[] = array(
-				'key'   => '_mhmrentiva_customer_email',
-				'value' => $customer_email,
-			);
+			$customer_account = get_user_by( 'email', $customer_email );
+			$customer_user_id = ( $customer_account instanceof \WP_User ) ? (int) $customer_account->ID : 0;
+
+			$meta_query[] = $customer_user_id > 0
+				? CustomerIdentity::meta_query_owned_by( $customer_user_id, $customer_email )
+				: array(
+					'key'   => '_mhmrentiva_customer_email',
+					'value' => $customer_email,
+				);
 			$q->set( 'meta_query', $meta_query );
 		}
 
