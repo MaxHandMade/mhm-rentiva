@@ -354,7 +354,7 @@ final class CustomersPage {
 		$bookings_page = min( $total_pages, max( 1, $bookings_page ) );
 		$recent        = 1 === $bookings_page
 			? (array) ( $detail['recent_bookings'] ?? array() )
-			: CustomersOptimizer::get_recent_bookings( (string) $detail['email'], $per_page, ( $bookings_page - 1 ) * $per_page );
+			: CustomersOptimizer::get_recent_bookings( (string) $detail['email'], $per_page, ( $bookings_page - 1 ) * $per_page, (int) $detail['id'] );
 
 		echo '<div class="rv-cust-panel__body">';
 		echo '<div class="rv-cust-panel__section-title">' . esc_html__( 'Recent bookings', 'mhm-rentiva' ) . '</div>';
