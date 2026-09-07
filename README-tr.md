@@ -572,7 +572,7 @@ mhm-rentiva/
 - **CI Matrisi**: PHP 8.1 / 8.2 / 8.3 × WP 6.7 / latest = 6 paralel iş.
 - **PHPCS**: Tam WordPress Coding Standards uyumluluğu (0 hata).
 - **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.
-- **Belgelenmiş Baseline**: 0 hata, 21 atlanan test (her biri gerekçeli).
+- **Belgelenmiş Baseline**: 0 hata, 16 atlanan test (her biri gerekçeli).
 
 ### ⚓ Geliştirici Kancaları (Hooks)
 
