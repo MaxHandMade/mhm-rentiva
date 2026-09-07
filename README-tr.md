@@ -268,7 +268,7 @@ TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, 
 
 ### 🔒 Güvenlik Özellikleri
 
-MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliştirilmiştir:
+MHM Rentiva, WordPress Coding Standards'ı (WPCS) izler ve aşağıdaki güvenlik pratiklerini titizlikle uygular:
 
 - **Veri Temizleme (Sanitization)**: Tüm kullanıcı girdileri `sanitize_text_field()`, `absint()` ve eklentiye özel `Sanitizer::text_field_safe()` yardımcı sınıfı ile temizlenir.
 - **Çıktı Güvenliği (Escaping)**: Tüm çıktılar bağlama uygun olarak `esc_html()`, `esc_attr()`, `esc_url()` veya `SecurityHelper::safe_output()` ile kaçırılır (XSS koruması).
