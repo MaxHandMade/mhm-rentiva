@@ -32,10 +32,16 @@ final class Menu {
 			'mhm-rentiva',
 			array( new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render' ),
 			'dashicons-car',
-			// Below Tools (75) and above Settings (80). This used to be 58, which put
-			// the plugin directly above Appearance -- a plugin menu should not sit among
-			// core's own top-level items.
-			76
+			// 58: directly below WooCommerce (55.5) and directly above core's own
+			// separator (59) and Appearance (60). This is also the floor of the
+			// WordPress.org submission guidance this plugin ships under, which asks
+			// for 58 or higher so a plugin does not compete with core's top-level
+			// items. Commit 0cf5a089 moved this to 76 on the reasoning that a plugin
+			// menu should not sit among core's own items -- but 58 was already inside
+			// the 58+ guidance band, so that move only cost four positions of
+			// visibility for no measured requirement. Do not go lower than 58, and
+			// do not "improve" on it by going higher again.
+			58
 		);
 
 		// 1. Dashboard
