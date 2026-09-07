@@ -27,6 +27,16 @@ use WP_UnitTestCase;
  * so Menu::add_menu() can be called directly here and the real $menu it
  * populates read back -- the same pattern MenuNoProSubmenusTest and
  * PayoutMenuGatingTest already use in this suite for submenu assertions.
+ *
+ * There is deliberately only one assertion here. The floor -- 58 or higher,
+ * per the WordPress.org guidance this plugin ships under -- is a policy
+ * statement, not a separate runtime fact: pinning the exact position to 58
+ * already asserts everything the floor would, and more strictly. A prior
+ * version of this file also asserted `assertGreaterThanOrEqual(58,
+ * EXPECTED_POSITION)`, comparing the class's own constant to itself; it read
+ * neither Menu.php nor $menu and could not fail. Removed rather than fixed,
+ * because there is nothing left at runtime for it to check that the test
+ * below does not already check.
  */
 final class TopLevelMenuPositionTest extends WP_UnitTestCase
 {
@@ -67,15 +77,6 @@ final class TopLevelMenuPositionTest extends WP_UnitTestCase
 			self::EXPECTED_POSITION,
 			$position,
 			'The top-level menu must register at position ' . self::EXPECTED_POSITION . '.'
-		);
-	}
-
-	public function test_position_stays_at_or_above_the_wporg_floor(): void
-	{
-		$this->assertGreaterThanOrEqual(
-			58,
-			self::EXPECTED_POSITION,
-			'WordPress.org guidance asks a plugin menu to sit at 58 or higher so it does not compete with core.'
 		);
 	}
 }
