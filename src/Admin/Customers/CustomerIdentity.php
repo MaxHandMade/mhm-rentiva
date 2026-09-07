@@ -246,7 +246,8 @@ final class CustomerIdentity {
 	 *
 	 * @param int    $user_id Account ID.
 	 * @param string $email   Account e-mail, '' when it has none.
-	 * @return array<string, mixed>
+	 * @return array<int|string, array<string, string>|string> 'relation' holds a
+	 *         string ('OR'); the numeric keys each hold a {key, value} clause.
 	 */
 	public static function meta_query_owned_by( int $user_id, string $email ): array {
 		$clauses = array(
