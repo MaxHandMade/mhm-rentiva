@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — WordPress için Araç Kiralama Rezervasyon Sistemi" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-6.1.3-blue.svg)
+![Version](https://img.shields.io/badge/version-6.1.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -268,7 +268,7 @@ TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, 
 
 ### 🔒 Güvenlik Özellikleri
 
-MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliştirilmiştir:
+MHM Rentiva, WordPress Coding Standards'ı (WPCS) izler ve aşağıdaki güvenlik pratiklerini titizlikle uygular:
 
 - **Veri Temizleme (Sanitization)**: Tüm kullanıcı girdileri `sanitize_text_field()`, `absint()` ve eklentiye özel `Sanitizer::text_field_safe()` yardımcı sınıfı ile temizlenir.
 - **Çıktı Güvenliği (Escaping)**: Tüm çıktılar bağlama uygun olarak `esc_html()`, `esc_attr()`, `esc_url()` veya `SecurityHelper::safe_output()` ile kaçırılır (XSS koruması).
@@ -568,11 +568,11 @@ mhm-rentiva/
 - **Güvenlik**: Raw SQL yasaktır, her zaman `$wpdb->prepare()` kullanılır.
 
 ### 🧪 Otomatik Test Süiti
-- **PHPUnit**: 2.545 test / 9.238 doğrulama (v6.1.3).
-- **CI Matrisi**: PHP 8.1 / 8.2 / 8.3 × WP 6.7 / latest = 6 paralel iş.
-- **PHPCS**: Tam WordPress Coding Standards uyumluluğu (0 hata).
+- **PHPUnit**: 2.629 test / 12.250 doğrulama (v6.1.4).
+- **CI Matrisi**: 4 iş (PHPCS, PHPStan, PHPUnit, Plugin Check), hepsi tek bir sabit PHP 8.2 üzerinde — PHP/WP sürüm matrisi yok.
+- **PHPCS**: Kendi ruleset'i üzerinden WordPress Coding Standards uygulanır (43 belgelenmiş istisna), 0 hata.
 - **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.
-- **Belgelenmiş Baseline**: 0 hata, 21 atlanan test (her biri gerekçeli).
+- **Belgelenmiş Baseline**: 0 hata, 16 atlanan test (her biri gerekçeli).
 
 ### ⚓ Geliştirici Kancaları (Hooks)
 

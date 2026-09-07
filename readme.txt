@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.3
+Stable tag:        6.1.4
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -189,6 +189,14 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.1.4 =
+* Fixed: on the Customers screen, a booking linked by ID rather than e-mail did not count on the customer's row, was missing from their detail panel and summary cards, and did not show behind "View Bookings".
+* Fixed: multisite activation stopped at the hundredth site and skipped private sites; both now get their tables. A subsite reads its own language for URL slugs, not the network's.
+* Fixed: a page rollback in the layout tool could overwrite an unrelated post with layout markup via a stale ID; it can no longer touch a post it was not meant to.
+* Fixed: on hosting with an external cache (Redis/Memcached), saving a customer, booking or vehicle left its list stale until the cache expired.
+* Changed: the ZIP no longer ships React source files WordPress never runs, so the download is smaller.
+* Changed: the admin menu moved back above WordPress's own Appearance, Plugins, Users and Tools items, just below WooCommerce.
+
 = 6.1.3 =
 * Fixed: on a site whose vehicle settings were saved before 6.1.2, adding gallery images and pressing Update still wiped the gallery. 6.1.2 stopped the two non-detail keys, image and gallery_images, from being written into the selected-details option, but did nothing for the sites that already had them stored. A stored key that matched none of the known field sources was handed a label made up from the key name, which carried it past every later check, and the detail grid then rendered a second field named mhmrentiva_gallery_images -- the same name as the gallery meta box's hidden input. PHP keeps the last field of a repeated name, so an empty box overwrote the gallery. Such a key is now dropped rather than labelled, which makes an already-affected site safe without touching its database. One deliberate consequence: a custom detail whose name you clear under Edit Names now disappears from the grid instead of showing under a key-derived label. Nothing stored is deleted, naming it again brings it back, and the front end was already hiding it.
 * Security: the handlers that write vehicle and booking meta now verify the post type of the post they are writing to. edit_post answers whether a user may edit a given post, never whether that post is one of this plugin's, so a handler acting on whatever id arrived was writing to an object it had not identified. The booking meta handler was the widest case: hooked to the untyped save_post, saving any page or post on the site wrote a booking status onto it. Twelve handlers were corrected; an independent audit then found three more outside the recorded list, including a live AJAX handler that wrote vehicle ordering meta onto any post id it was given.
@@ -200,12 +208,6 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Security: the manual booking screen's boundary now refuses any status the screen itself does not offer, instead of writing whatever arrives.
 * Fixed: the confirmation prompt before changing a booking's status on the edit screen never appeared -- it was bound to the status field by name rather than by id, so it was bound to nothing. The field's label was associated with the same missing id and is now linked to the select.
 * Security: the role given to customer accounts this plugin creates is rejected if it carries administrative capabilities, rather than accepted because the role exists. The same setting decides which accounts count as customers, so a privileged value affected the Customers list too.
-
-= 6.1.1 =
-* Fixed: a My Account tab contributed by an extension registered no endpoint at all when WooCommerce was active, so every such tab returned a 404. The extension point that carries those tabs was only consulted on the standalone-endpoint path, which WooCommerce sites never take.
-* Fixed: the rewrite-flush check ignored extension endpoints and ran only in the admin, so a newly contributed tab could stay unreachable until someone opened wp-admin and saved permalinks by hand.
-* Security: an extension's endpoint contribution is now rejected when it collides with a reserved WordPress or WooCommerce query variable. Registering one as an endpoint would have broken permalinks site-wide.
-* Fixed: the four core module scripts were requested a second time, without their version query, because the plugin URL already ended in a slash and the loader appended another.
 
 == Upgrade Notice ==
 

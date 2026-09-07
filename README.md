@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental Booking for WordPress" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-6.1.3-blue.svg)
+![Version](https://img.shields.io/badge/version-6.1.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -431,9 +431,9 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 2,545 tests / 9,238 assertions (v6.1.3)
-- **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
-- **PHPCS**: Full WordPress Coding Standards compliance
+- **PHPUnit**: 2,629 tests / 12,250 assertions (v6.1.4)
+- **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check), all on a single pinned PHP 8.2 — no PHP/WP version matrix
+- **PHPCS**: WordPress Coding Standards via a custom ruleset (43 documented exclusions), 0 errors
 - **Test Admin Page**: Accessible from Rentiva menu
 - **Test Reports**: Downloadable test reports
 - **Test Runner**: Automated test execution
@@ -706,7 +706,7 @@ mhm-rentiva/
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (2,491 tests, 9,131 assertions)
+├── tests/                  # PHPUnit suite (2,629 tests, 12,250 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
@@ -752,7 +752,7 @@ define('SCRIPT_DEBUG', true);
 
 ### Code Standards
 
-- **WordPress Coding Standards (WPCS)**: Full compliance
+- **WordPress Coding Standards (WPCS)**: Enforced via a custom ruleset (43 documented exclusions), 0 errors
 - **PSR-4 Autoloading**: Namespace-based autoloading
 - **Type Hinting**: PHP 8.0+ type declarations
 - **Strict Types**: `declare(strict_types=1)` in all files
@@ -784,7 +784,7 @@ define('SCRIPT_DEBUG', true);
 - Test email notifications
 
 **Automated Testing**:
-- PHPUnit suite: 2,491 tests / 9,131 assertions (unit + WP_UnitTestCase integration)
+- PHPUnit suite: 2,629 tests / 12,250 assertions (unit + WP_UnitTestCase integration)
 
 ---
 
