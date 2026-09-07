@@ -308,7 +308,7 @@ final class CustomerIdentity {
 		// own $wpdb->prepare() and returns a fully bound predicate; WordPress provides no
 		// placeholder for splicing a composed SQL fragment into another statement, so the
 		// composition itself is what the sniff sees. Scoped to this statement and
-		// re-enabled immediately after, same pattern as CustomersOptimizer::get_customers_data().
+		// re-enabled immediately after, same pattern as CustomersOptimizer::get_customers_optimized().
 		return $wpdb->prepare(
 			"(
 			EXISTS (
@@ -418,23 +418,7 @@ final class CustomerIdentity {
 	 * @return bool
 	 */
 	private static function has_booking( int $user_id, string $email ): bool {
-		$meta_query = array(
-			'relation' => 'OR',
-			array(
-				'key'   => '_mhmrentiva_customer_user_id',
-				'value' => (string) $user_id,
-			),
-		);
-
-		// Only match on email when there is an email to match. Comparing against
-		// '' would turn every booking row with an empty customer-email meta into
-		// a match, which is how a guard quietly stops being one.
-		if ( '' !== $email ) {
-			$meta_query[] = array(
-				'key'   => '_mhmrentiva_customer_email',
-				'value' => $email,
-			);
-		}
+		$meta_query = self::meta_query_owned_by( $user_id, $email );
 
 		$found = new \WP_Query(
 			array(
