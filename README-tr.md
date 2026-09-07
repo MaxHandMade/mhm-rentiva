@@ -569,8 +569,8 @@ mhm-rentiva/
 
 ### 🧪 Otomatik Test Süiti
 - **PHPUnit**: 2.629 test / 12.250 doğrulama (v6.1.4).
-- **CI Matrisi**: PHP 8.1 / 8.2 / 8.3 × WP 6.7 / latest = 6 paralel iş.
-- **PHPCS**: Tam WordPress Coding Standards uyumluluğu (0 hata).
+- **CI Matrisi**: 4 iş (PHPCS, PHPStan, PHPUnit, Plugin Check), hepsi tek bir sabit PHP 8.2 üzerinde — PHP/WP sürüm matrisi yok.
+- **PHPCS**: Kendi ruleset'i üzerinden WordPress Coding Standards uygulanır (43 belgelenmiş istisna), 0 hata.
 - **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.
 - **Belgelenmiş Baseline**: 0 hata, 16 atlanan test (her biri gerekçeli).
 

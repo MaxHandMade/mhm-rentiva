@@ -432,8 +432,8 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 
 **Automated Test Suite:**
 - **PHPUnit**: 2,629 tests / 12,250 assertions (v6.1.4)
-- **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
-- **PHPCS**: Full WordPress Coding Standards compliance
+- **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check), all on a single pinned PHP 8.2 — no PHP/WP version matrix
+- **PHPCS**: WordPress Coding Standards via a custom ruleset (43 documented exclusions), 0 errors
 - **Test Admin Page**: Accessible from Rentiva menu
 - **Test Reports**: Downloadable test reports
 - **Test Runner**: Automated test execution
@@ -752,7 +752,7 @@ define('SCRIPT_DEBUG', true);
 
 ### Code Standards
 
-- **WordPress Coding Standards (WPCS)**: Full compliance
+- **WordPress Coding Standards (WPCS)**: Enforced via a custom ruleset (43 documented exclusions), 0 errors
 - **PSR-4 Autoloading**: Namespace-based autoloading
 - **Type Hinting**: PHP 8.0+ type declarations
 - **Strict Types**: `declare(strict_types=1)` in all files
