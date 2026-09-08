@@ -353,6 +353,13 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		$available_value = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post->ID);
 
+		// Initialised before the loop, not inside it: $available_details comes from a
+		// filtered option, so an empty one left this undefined and shipped null into
+		// the template payload below -- a PHP warning on the vehicle edit screen.
+		// ensure_default_options() fills the option today, which is why nobody has
+		// seen it; that is a reason it has not fired yet, not a reason it cannot.
+		$detail_values = array();
+
 		foreach ($available_details as $key => $label) {
 			$detail_values[ $key ] = $meta_data[ '_mhmrentiva_' . $key ] ?? '';
 
