@@ -30,16 +30,12 @@ use WP_UnitTestCase;
  * leaves via dot-path) so the missing sub-array fails loudly instead of
  * degrading silently.
  *
- * Field inventory (grepped directly from assets/js/admin/email-templates.js):
- *   ajax_url          :156,268,294,326,523,576   admin_post_url    :438
- *   nonce             :162,273,301,331            send_test_nonce  :439
- *   preview_email     :53                         send_test        :135
- *   processing        :152,290,515,572             test_email_sent :166
- *   test_email_failed :169                         error_occurred  :173,310,314,339,343
- *   strings.enterEmail:102        strings.sendTestEmail:123   strings.emailAddress:124
- *   strings.cancel    :125,229    strings.editTemplate  :225  strings.subject     :226
- *   strings.content   :227        strings.save          :228  strings.templateSaved:305
- *   strings.templateReset:335
+ * 🔴 The inventory is DERIVED, not transcribed. An earlier version of this test
+ * listed the fields by hand -- with line numbers -- under the heading "grepped
+ * directly from assets/js/...". Those line numbers were stale within two
+ * commits, and when the dead half of that script was deleted the list went on
+ * demanding a `nonce` key nothing read any more, turning a correct deletion
+ * into a red suite. A contract with a file must be read FROM that file.
  *
  * `auto_refresh` (:664) is deliberately NOT in this contract: it is read
  * behind `typeof vars !== 'undefined' && vars.auto_refresh` and, even when
@@ -71,31 +67,88 @@ final class EmailTemplatesPayloadContractTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The script this payload exists for.
+	 */
+	private static function script_path(): string {
+		return dirname( __DIR__, 4 ) . '/assets/js/admin/email-templates.js';
+	}
+
+	/**
+	 * Every `mhmrentiva_email_templates_vars.<path>` the script actually reads.
+	 *
+	 * Read out of the file rather than listed here, so deleting a script that
+	 * stops reading a field shrinks this contract by itself and adding a read
+	 * extends it. `auto_refresh` is the one deliberate exclusion: it is guarded
+	 * by `typeof vars !== 'undefined' && vars.auto_refresh` and, even when true,
+	 * drives an empty setInterval body -- inert, and absent from every payload
+	 * this plugin has ever localized.
+	 *
 	 * @return array<string, array{0: string}>
 	 */
 	public function payload_field_provider(): array {
-		return array(
-			'ajax_url'               => array( 'ajax_url' ),
-			'admin_post_url'         => array( 'admin_post_url' ),
-			'nonce'                  => array( 'nonce' ),
-			'send_test_nonce'        => array( 'send_test_nonce' ),
-			'preview_email'          => array( 'preview_email' ),
-			'send_test'              => array( 'send_test' ),
-			'test_email_sent'        => array( 'test_email_sent' ),
-			'test_email_failed'      => array( 'test_email_failed' ),
-			'processing'             => array( 'processing' ),
-			'error_occurred'         => array( 'error_occurred' ),
-			'strings.enterEmail'     => array( 'strings.enterEmail' ),
-			'strings.sendTestEmail'  => array( 'strings.sendTestEmail' ),
-			'strings.emailAddress'   => array( 'strings.emailAddress' ),
-			'strings.cancel'         => array( 'strings.cancel' ),
-			'strings.editTemplate'   => array( 'strings.editTemplate' ),
-			'strings.subject'        => array( 'strings.subject' ),
-			'strings.content'        => array( 'strings.content' ),
-			'strings.save'           => array( 'strings.save' ),
-			'strings.templateSaved'  => array( 'strings.templateSaved' ),
-			'strings.templateReset'  => array( 'strings.templateReset' ),
+		$source = (string) file_get_contents( self::script_path() );
+
+		preg_match_all(
+			'/mhmrentiva_email_templates_vars\.([A-Za-z_][A-Za-z0-9_]*)(?:\.([A-Za-z_][A-Za-z0-9_]*))?/',
+			$source,
+			$matches,
+			PREG_SET_ORDER
 		);
+
+		$leaves = array();
+		$parents = array();
+		foreach ( $matches as $m ) {
+			$top = $m[1];
+			if ( 'auto_refresh' === $top ) {
+				continue;
+			}
+			if ( isset( $m[2] ) && '' !== $m[2] ) {
+				$leaves[ $top . '.' . $m[2] ] = true;
+				$parents[ $top ]              = true;
+				continue;
+			}
+			$leaves[ $top ] = true;
+		}
+
+		// A branch that has leaves is not itself a leaf: the script reads
+		// `vars.strings.cancel`, and also `vars.strings` as the guard in front of
+		// it. Asserting the guard would be asserting the same thing twice.
+		foreach ( array_keys( $parents ) as $parent ) {
+			unset( $leaves[ $parent ] );
+		}
+
+		ksort( $leaves );
+
+		$cases = array();
+		foreach ( array_keys( $leaves ) as $path ) {
+			$cases[ $path ] = array( $path );
+		}
+
+		return $cases;
+	}
+
+	/**
+	 * 🔴 A derived provider that finds nothing passes every test after it
+	 * without reading a single field -- the quietest way for this contract to
+	 * stop meaning anything. Pin the extraction itself.
+	 */
+	public function test_the_field_inventory_is_actually_extracted(): void {
+		$this->assertFileExists( self::script_path(), 'The script this test is a contract with has moved.' );
+
+		$fields = $this->payload_field_provider();
+
+		// Not a threshold: a number here would be the same staleness this test just
+		// removed -- it would have to be re-tuned every time the script changes.
+		// Emptiness is the failure mode worth naming, and the named fields below
+		// are what make a non-empty result meaningful.
+		$this->assertNotEmpty(
+			$fields,
+			'The inventory parser found nothing, which makes the provider below vacuous rather than satisfied.'
+		);
+		$this->assertArrayHasKey( 'ajax_url', $fields, 'The parser missed a top-level field the script certainly reads.' );
+		$this->assertArrayHasKey( 'send_test_nonce', $fields, 'The parser missed the live test-email nonce.' );
+		$this->assertArrayNotHasKey( 'strings', $fields, 'A branch with leaves was asserted as a leaf.' );
+		$this->assertArrayNotHasKey( 'auto_refresh', $fields, 'The documented exclusion leaked back in.' );
 	}
 
 	/**

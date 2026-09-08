@@ -522,7 +522,13 @@ final class EmailTemplates {
 				array(
 					'ajax_url'          => admin_url('admin-ajax.php'),
 					'admin_post_url'    => admin_url('admin-post.php'),
-					'nonce'             => wp_create_nonce('mhmrentiva_email_templates_nonce'),
+					// No `nonce` key: the only script that read it was the dead code removed
+					// from email-templates.js, and it was minted with the FIELD NAME as its
+					// action while verified_save_request() checks the action
+					// 'mhmrentiva_save_email_templates' -- it could never have validated.
+					// The save path's real nonce is the settings screen's own
+					// (settings_fields), and the detached test-email form uses
+					// send_test_nonce below.
 					'send_test_nonce'   => wp_create_nonce('mhmrentiva_send_template_test'),
 					'preview_email'     => __('Email Preview', 'mhm-rentiva'),
 					'send_test'         => __('Send Test', 'mhm-rentiva'),
