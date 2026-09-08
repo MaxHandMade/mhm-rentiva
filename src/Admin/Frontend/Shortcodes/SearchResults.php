@@ -1076,7 +1076,12 @@ final class SearchResults extends AbstractShortcode {
 	private static function render_vehicles_list(array $vehicles, string $layout, array $atts = array()): string
 	{
 		if (empty($vehicles)) {
-			return '<div class="rv-no-results">' . __('No vehicles found matching your criteria.', 'mhm-rentiva') . '</div>';
+			// esc_html__ rather than __: this string reaches the browser two ways, and
+			// only one of them escapes. The shortcode path goes out through
+			// ShortcodeServiceProvider's wp_kses() dispatcher, but the AJAX path returns
+			// this markup as the `html` field of a JSON response and nothing escapes it
+			// on the way. A translator's markup would land in the DOM raw.
+			return '<div class="rv-no-results">' . esc_html__('No vehicles found matching your criteria.', 'mhm-rentiva') . '</div>';
 		}
 
 		$html = '';
