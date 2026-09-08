@@ -84,7 +84,7 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 Most of this plugin is plain, human-readable PHP with no build step.
 
-Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No obfuscated code is bundled.
+Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is the four screens' stylesheets. No obfuscated code is bundled.
 
 The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
