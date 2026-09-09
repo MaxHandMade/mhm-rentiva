@@ -74,7 +74,6 @@ MHMRentiva\CLI\KeyRevokeCommand
 MHMRentiva\CLI\MaturedPayoutCommand
 MHMRentiva\Core\Dashboard\AnalyticsController
 MHMRentiva\Core\Dashboard\AnalyticsDashboardDataProvider
-MHMRentiva\Core\Dashboard\VendorDashboard
 MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration
 MHMRentiva\Core\Database\Migrations\LedgerMigration
 MHMRentiva\Core\Database\Migrations\TransferMigration
