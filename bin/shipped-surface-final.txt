@@ -522,6 +522,7 @@ templates/single-vehicle.php
 uninstall.php
 vendor/mhm/ui-core/LICENSE
 vendor/mhm/ui-core/assets/react/admin.css
+vendor/mhm/ui-core/assets/react/front.css
 vendor/mhm/ui-core/bootstrap.php
 vendor/mhm/ui-core/composer.json
 vendor/mhm/ui-core/register.php
