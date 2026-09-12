@@ -96,6 +96,10 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 */
 	private const PRO_ONLY_META_KEYS = array(
 		'_mhm_attachments',
+		// Pro's listing fee marks a completed order line as applied so the
+		// completion hook is idempotent. Born after the 6.0.0 rename,
+		// so it has no legacy '_mhm_' spelling to list beside it.
+		'_mhmrentiva_listing_applied_at',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
 		// Slice 3 Task 12 bound Lite's last active reader of this key

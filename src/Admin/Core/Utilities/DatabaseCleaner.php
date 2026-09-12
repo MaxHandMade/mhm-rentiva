@@ -271,6 +271,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_layout_version_timestamp',
 			'_mhmrentiva_layout_version_timestamp_previous',
 			'_mhmrentiva_listing_action',
+			'_mhmrentiva_listing_applied_at',
 			'_mhmrentiva_listing_vehicle_id',
 			'_mhmrentiva_lock_status',
 			'_mhmrentiva_log_action',
