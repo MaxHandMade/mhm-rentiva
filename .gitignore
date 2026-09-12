@@ -562,6 +562,13 @@ bin/*
 # words around it. Seven Turkish e-mail subjects shipped {{booking.id}} where
 # the source says {{booking.order_id}}.
 !bin/check-i18n-placeholders.php
+# Untranslated-entry gate. `composer check-po-untranslated` and the CI step run
+# it, tests/Gates/PoUntranslatedGateTest.php require()s it, and Pro's
+# `composer po-untranslated` runs it against Pro's catalog with --plugin-dir.
+# It is the gate check-i18n-placeholders.php's docblock promised and nobody had
+# written. Without this line the file never reaches a clone and the gate exists
+# on one disk only.
+!bin/check-po-untranslated.php
 # Design-token definition gate. `composer check-token-definitions` runs it and
 # tests/Gates/TokenDefinitionClassificationTest.php require()s it, so an
 # untracked copy would fail the suite in every clean clone. It exists because

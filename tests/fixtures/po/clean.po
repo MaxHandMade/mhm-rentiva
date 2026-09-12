@@ -1,0 +1,49 @@
+# Fixture for bin/check-po-untranslated.php -- every entry here is TRANSLATED.
+# If the gate reports anything in this file, the gate is wrong.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: src/Example.php:10
+msgid "Save"
+msgstr "Kaydet"
+
+#. A multi-line msgstr: its first line is msgstr "" and it is NOT empty.
+#. 119 such entries exist in Pro's tr_TR catalog; a line-based check reports all of them.
+#: src/Example.php:20
+msgid "This listing is no longer waiting for its listing fee."
+msgstr ""
+"Bu ilan artık ilan ücretini "
+"beklemiyor."
+
+#. A multi-line msgid that IS translated -- the shape an earlier draft mistook for a header.
+#: src/Example.php:30
+msgid ""
+"Listing fee paid, but the action could not be applied: "
+"%s"
+msgstr "İlan ücreti ödendi ancak işlem uygulanamadı: %s"
+
+#: src/Example.php:40
+msgid "%d listing"
+msgid_plural "%d listings"
+msgstr[0] "%d ilan"
+msgstr[1] "%d ilan"
+
+#: src/Example.php:50
+msgctxt "endpoint slug"
+msgid "vendor-panel"
+msgstr "bayi-paneli"
+
+#. A translated entry containing U+2705 (bytes E2 9C 85). 0x85 is NEL, and a PCRE \R
+#. without /u splits the line on it -- the entry was silently not read at all.
+#: src/Example.php:60
+msgid "✅ Pro License Active"
+msgstr "✅ Pro Lisansı Etkin"
+
+#. Obsolete entries are not used by WordPress. An empty one is not a finding.
+#~ msgid "Old label nobody uses"
+#~ msgstr ""
