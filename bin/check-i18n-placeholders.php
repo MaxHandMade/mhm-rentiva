@@ -48,8 +48,8 @@ const MHMRENTIVA_PLACEHOLDER_PATTERN = '/\{\{[A-Za-z0-9_.]+\}\}|\{[A-Za-z0-9_]+\
  * Scan one catalog for placeholder sets that differ between msgid and msgstr.
  *
  * Entries whose msgid carries no placeholder are skipped, and so are untranslated
- * ones: an empty msgstr is a different finding with its own gate, and reporting
- * it here would bury this one.
+ * ones: an empty msgstr is a different finding with its own gate --
+ * bin/check-po-untranslated.php -- and reporting it here would bury this one.
  *
  * @param string $path            Catalog to read.
  * @param int    $scanned         Out: how many translated placeholder-bearing entries were compared.
@@ -65,12 +65,18 @@ function mhmrentiva_find_placeholder_mismatches(string $path, int &$scanned = 0)
 
     $findings = [];
 
-    foreach (preg_split('/\R\R+/', $contents) ?: [] as $block) {
+    // Line endings are spelled out, not \R: without /u, \R also matches the
+    // byte 0x85 (NEL) inside UTF-8 characters such as U+2705 (E2 9C 85), which
+    // cut a msgid in two so the entry was never compared. Found 2026-09-13 by
+    // counting entries in bin/check-po-untranslated.php, which shares this
+    // pattern. (/u is not the fix: invalid UTF-8 makes preg_split() return
+    // false, and `?: []` would turn that into a clean scan of nothing.)
+    foreach (preg_split('/(?:\r\n|\n|\r){2,}/', $contents) ?: [] as $block) {
         $msgid  = '';
         $msgstr = '';
         $target = null;
 
-        foreach (preg_split('/\R/', $block) ?: [] as $line) {
+        foreach (preg_split('/\r\n|\n|\r/', $block) ?: [] as $line) {
             if (strpos($line, 'msgid_plural') === 0) {
                 // A plural entry's msgstr[N] lines belong to a different shape;
                 // its singular msgid is still compared via the msgid branch.

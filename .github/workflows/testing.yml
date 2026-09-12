@@ -253,6 +253,15 @@ jobs:
       - name: Translation placeholder parity (msgstr keeps msgid's placeholders)
         run: composer check-i18n-placeholders
 
+      # The gate the placeholder check's own docblock promised ("an empty msgstr
+      # is a different finding with its own gate") and nobody had written. An
+      # empty, missing or plural-incomplete msgstr shows the source language; a
+      # fuzzy one ships as if reviewed, because WP-CLI's make-mo/make-php skip
+      # only disabled (#~) entries. Reads every live entry: an earlier \R-based
+      # split silently skipped entries containing U+2705.
+      - name: Translation completeness (no empty, missing or fuzzy msgstr)
+        run: composer check-po-untranslated
+
       # Design-token definition gate, now BLOCKING. Every --mhm-* token lands in
       # exactly one of seven classes and only `shared` fails -- a token declared
       # outside the canonical stylesheets, or declared canonically while copies

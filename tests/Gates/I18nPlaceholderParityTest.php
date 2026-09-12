@@ -119,6 +119,26 @@ final class I18nPlaceholderParityTest extends WP_UnitTestCase
         $this->assertSame(array('{{booking.id}}'), $found[0]['extra']);
     }
 
+    public function test_the_gate_reads_an_entry_whose_text_contains_a_0x85_byte(): void
+    {
+        // U+2705 is E2 9C 85 in UTF-8, and 0x85 is NEL: preg_split('/\R/')
+        // without /u cut the msgid line in two, so the entry was never read and
+        // a swapped placeholder inside it was invisible. Found 2026-09-13 while
+        // writing check-po-untranslated.php on the same parsing pattern; Lite's
+        // catalog has one such entry, Pro's two.
+        $file = $this->write_catalog(
+            "msgid \"✅ Booking #{{booking.order_id}} Confirmed\"\n"
+            . "msgstr \"✅ Rezervasyon #{{booking.id}} Onaylandi\"\n"
+        );
+
+        $scanned = 0;
+        $found   = $this->scan($file, $scanned);
+
+        $this->assertSame(1, $scanned, 'The entry was not read at all.');
+        $this->assertCount(1, $found);
+        $this->assertSame(array('{{booking.order_id}}'), $found[0]['missing']);
+    }
+
     public function test_the_gate_catches_a_dropped_placeholder(): void
     {
         $file = $this->write_catalog(
