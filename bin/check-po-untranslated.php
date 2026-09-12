@@ -22,16 +22,27 @@
  *                           (measured in the installed WP-CLI, 2026-09-13). So a
  *                           guess ships as if it were reviewed.
  *
- * Parsing follows check-i18n-placeholders.php: the catalog is split into blocks
- * on blank lines and each block's lines are gathered, so multi-line msgid and
- * msgstr values are joined before anything is judged. A line-by-line check gets
- * this wrong in both directions -- Pro's tr_TR catalog has 119 valid translations
- * whose first line is `msgstr ""`, and an untranslated multi-line msgid opens with
- * `msgid ""`, the same line the header opens with. An earlier draft of this gate
- * used a line state machine and produced exactly those two false results.
+ * The catalog is read the way WP-CLI reads it, because WP-CLI compiles what
+ * WordPress loads (gettext's Extractors/Po.php in the installed phar): every
+ * line is trim()med, so a directive may be indented, and a line that is empty
+ * after trimming -- or is a bare "#" -- ends the entry. Values are gathered
+ * across continuation lines before anything is judged. Each of these was learned
+ * from a wrong "clean":
+ *   - a multi-line msgid opens with `msgid ""`, the header's own first line, and
+ *     a line-by-line check skipped it as the header;
+ *   - Pro's tr_TR catalog has 119 valid translations whose first line is
+ *     `msgstr ""`;
+ *   - PCRE's \R without /u also matches the byte 0x85, the last byte of U+2705,
+ *     and cut three real entries in two;
+ *   - splitting only on EMPTY lines merged an entry after a tab-only separator
+ *     into the header, and column-0 anchors ignored indented entries entirely
+ *     (both from Codex's review of Lite #48).
  *
  * Not findings: the header entry, and obsolete (#~) entries, which WP-CLI does
  * not compile.
+ *
+ * mhmrentiva_po_entries() is also the reader check-i18n-placeholders.php uses:
+ * one reader for both gates, so a parsing defect is fixed once.
  *
  * Usage:
  *   php bin/check-po-untranslated.php [<catalog.po>...]
@@ -45,6 +56,107 @@
  */
 
 declare(strict_types=1);
+
+/**
+ * Every entry of a PO catalog, header included, as WP-CLI would read it.
+ *
+ * Obsolete (#~) entries are not returned: all of their lines are comments, so
+ * they never gain a msgid. The header is the entry whose joined msgid and
+ * context are both empty; callers decide what to do with it.
+ *
+ * @return array<int, array{context: string, msgid: string, plural: bool, msgstr: string, has_msgstr: bool, forms: array<int, string>, fuzzy: bool}>
+ */
+function mhmrentiva_po_entries(string $contents): array
+{
+    $blank = static function (): array {
+        return [
+            'context'    => '',
+            'msgid'      => '',
+            'has_msgid'  => false,
+            'plural'     => false,
+            'msgstr'     => '',
+            'has_msgstr' => false,
+            'forms'      => [],
+            'fuzzy'      => false,
+        ];
+    };
+
+    $entries = [];
+    $entry   = $blank();
+    $target  = null;
+
+    // Line endings are spelled out, not \R: without /u, \R also matches the
+    // byte 0x85 (NEL), the last byte of U+2705 (E2 9C 85). /u is not the fix
+    // either: invalid UTF-8 makes preg_split() return false, and `?: []` would
+    // turn that into a clean scan of nothing.
+    $lines   = preg_split('/\r\n|\n|\r/', $contents) ?: [];
+    $lines[] = ''; // Ends the last entry exactly as a separator would.
+
+    foreach ($lines as $raw) {
+        // trim(), as WP-CLI does. Its default character set does not include
+        // 0x85, so this cannot re-open the \R defect.
+        $line = trim($raw);
+
+        if ($line === '' || $line === '#') {
+            if ($entry['has_msgid']) {
+                unset($entry['has_msgid']);
+                $entries[] = $entry;
+            }
+            $entry  = $blank();
+            $target = null;
+            continue;
+        }
+
+        if (strpos($line, '#,') === 0) {
+            if (preg_match('/(^|[\s,])fuzzy(,|\s|$)/', substr($line, 2)) === 1) {
+                $entry['fuzzy'] = true;
+            }
+            continue;
+        }
+
+        // Every other comment, including obsolete `#~` lines.
+        if ($line[0] === '#') {
+            continue;
+        }
+
+        if (preg_match('/^(msgctxt|msgid_plural|msgid|msgstr(?:\[(\d+)\])?)\s+"(.*)"$/', $line, $m) === 1) {
+            $keyword = $m[1];
+            $value   = $m[3];
+
+            if ($keyword === 'msgctxt') {
+                $target            = 'context';
+                $entry['context'] .= $value;
+            } elseif ($keyword === 'msgid_plural') {
+                // The plural source is not judged; its msgstr[N] lines are.
+                $entry['plural'] = true;
+                $target          = null;
+            } elseif ($keyword === 'msgid') {
+                $entry['has_msgid'] = true;
+                $target             = 'msgid';
+                $entry['msgid']    .= $value;
+            } elseif (isset($m[2]) && $m[2] !== '') {
+                $entry['has_msgstr']       = true;
+                $target                    = (int) $m[2];
+                $entry['forms'][ $target ] = ( $entry['forms'][ $target ] ?? '' ) . $value;
+            } else {
+                $entry['has_msgstr'] = true;
+                $target              = 'msgstr';
+                $entry['msgstr']    .= $value;
+            }
+            continue;
+        }
+
+        if ($target !== null && preg_match('/^"(.*)"$/', $line, $m) === 1) {
+            if (is_int($target)) {
+                $entry['forms'][ $target ] .= $m[1];
+            } else {
+                $entry[ $target ] .= $m[1];
+            }
+        }
+    }
+
+    return $entries;
+}
 
 /**
  * Scan one catalog for entries that are not translated.
@@ -64,89 +176,10 @@ function mhmrentiva_find_untranslated_entries(string $path, int &$scanned = 0): 
     $findings = [];
     $nplurals = 2;
 
-    // Line endings are spelled out, not \R. Without the /u modifier PCRE's \R
-    // also matches the single byte 0x85 (NEL), which is the last byte of U+2705
-    // (E2 9C 85): a msgid containing it was cut in two and the entry was never
-    // read -- 1 of Lite's live entries and 2 of Pro's, while the gate said clean.
-    // /u is not the fix either: on a catalog with one invalid UTF-8 byte
-    // preg_split() returns false, `?: []` turns that into "nothing to scan",
-    // and the gate would report clean having read nothing.
-    foreach (preg_split('/(?:\r\n|\n|\r){2,}/', $contents) ?: [] as $block) {
-        $entry = [
-            'context'    => '',
-            'msgid'      => '',
-            'has_msgid'  => false,
-            'plural'     => false,
-            'msgstr'     => '',
-            'has_msgstr' => false,
-            'forms'      => [],
-            'fuzzy'      => false,
-        ];
-        $target = null;
-
-        foreach (preg_split('/\r\n|\n|\r/', $block) ?: [] as $line) {
-            if ($line === '') {
-                continue;
-            }
-
-            if (strpos($line, '#,') === 0) {
-                if (preg_match('/(^|[\s,])fuzzy(,|\s|$)/', substr($line, 2)) === 1) {
-                    $entry['fuzzy'] = true;
-                }
-                continue;
-            }
-
-            // Every other comment, including obsolete `#~` lines: an obsolete
-            // entry is ALL `#~` lines, so it never gains a msgid here and is
-            // dropped below with the comment-only blocks. (A separate obsolete
-            // flag used to exist; a mutation removing it changed nothing.)
-            if ($line[0] === '#') {
-                continue;
-            }
-
-            if (preg_match('/^(msgctxt|msgid_plural|msgid|msgstr(?:\[(\d+)\])?)\s+"(.*)"\s*$/', $line, $m) === 1) {
-                $keyword = $m[1];
-                $value   = $m[3];
-
-                if ($keyword === 'msgctxt') {
-                    $target            = 'context';
-                    $entry['context'] .= $value;
-                } elseif ($keyword === 'msgid_plural') {
-                    // The plural source is not judged; its msgstr[N] lines are.
-                    $entry['plural'] = true;
-                    $target          = null;
-                } elseif ($keyword === 'msgid') {
-                    $entry['has_msgid'] = true;
-                    $target             = 'msgid';
-                    $entry['msgid']    .= $value;
-                } elseif (isset($m[2]) && $m[2] !== '') {
-                    $entry['has_msgstr']           = true;
-                    $target                        = (int) $m[2];
-                    $entry['forms'][ $target ]     = ( $entry['forms'][ $target ] ?? '' ) . $value;
-                } else {
-                    $entry['has_msgstr'] = true;
-                    $target              = 'msgstr';
-                    $entry['msgstr']    .= $value;
-                }
-                continue;
-            }
-
-            if ($line[0] === '"' && $target !== null && preg_match('/^"(.*)"\s*$/', $line, $m) === 1) {
-                if (is_int($target)) {
-                    $entry['forms'][ $target ] .= $m[1];
-                } else {
-                    $entry[ $target ] .= $m[1];
-                }
-            }
-        }
-
-        if (! $entry['has_msgid']) {
-            continue;
-        }
-
+    foreach (mhmrentiva_po_entries($contents) as $entry) {
         // The header is the entry whose JOINED msgid is empty. A multi-line
         // msgid also opens with `msgid ""`, which is why this is judged after
-        // the block has been gathered and not on the first line.
+        // the entry has been gathered and not on its first line.
         if ($entry['msgid'] === '' && $entry['context'] === '') {
             if (preg_match('/nplurals\s*=\s*(\d+)/', $entry['msgstr'], $np) === 1 && (int) $np[1] > 0) {
                 $nplurals = (int) $np[1];
@@ -194,9 +227,9 @@ function mhmrentiva_find_untranslated_entries(string $path, int &$scanned = 0): 
 /**
  * CLI entry point.
  *
- * Guarded against the resolved entry script so the PHPUnit gate can require this
- * file for the function above without the scan running -- and calling exit() --
- * at include time.
+ * Guarded against the resolved entry script so the PHPUnit gate -- and
+ * check-i18n-placeholders.php, which require()s this file for its reader -- can
+ * load the functions above without the scan running and calling exit().
  */
 if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__FILE__)) {
     $args       = array_slice($argv, 1);

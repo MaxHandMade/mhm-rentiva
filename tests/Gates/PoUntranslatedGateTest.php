@@ -58,8 +58,8 @@ final class PoUntranslatedGateTest extends WP_UnitTestCase
         // The count that exposed the \R defect: the gate scanned 3252 of Lite's
         // 3253 live entries and 1766 of Pro's 1768, and reported both catalogs
         // clean. The reference count here is deliberately a different method --
-        // `msgid ` line starts, minus the header -- so a parser bug cannot agree
-        // with itself.
+        // `msgid ` line starts (after optional indentation, which WP-CLI
+        // accepts), minus the header -- so a parser bug cannot agree with itself.
         $catalogs = glob(dirname(__DIR__, 2) . '/languages/*.po') ?: array();
         $pro      = dirname(__DIR__, 3) . '/mhm-rentiva-pro/languages';
         if (is_dir($pro)) {
@@ -69,7 +69,7 @@ final class PoUntranslatedGateTest extends WP_UnitTestCase
         $this->assertNotEmpty($catalogs);
 
         foreach ($catalogs as $catalog) {
-            $reference = preg_match_all('/^msgid /m', (string) file_get_contents($catalog)) - 1;
+            $reference = preg_match_all('/^[ \t]*msgid /m', (string) file_get_contents($catalog)) - 1;
             $scanned   = 0;
             $this->scan($catalog, $scanned);
 
@@ -114,6 +114,85 @@ final class PoUntranslatedGateTest extends WP_UnitTestCase
 
         $this->assertCount(1, $findings);
         $this->assertSame('missing_plural_form', $findings[0]['reason']);
+    }
+
+    // ── Reading a catalog the way WP-CLI reads it (Codex, Lite #48) ──
+
+    /**
+     * WP-CLI compiles the catalogs WordPress loads, and its gettext Po extractor
+     * trim()s every line: a line holding only spaces or tabs ends an entry, and
+     * a directive may be indented. The gate split blocks on EMPTY lines only
+     * and anchored every directive at column 0, so it read a different catalog
+     * from the one that ships -- and in both cases the wrong read was "clean".
+     */
+    public function test_a_whitespace_only_separator_ends_the_header_like_an_empty_line(): void
+    {
+        $path = $this->write_catalog(
+            "msgid \"\"\nmsgstr \"\"\n\"Plural-Forms: nplurals=2; plural=n != 1;\\n\"\n \t\n"
+            . "msgid \"UNTRANSLATED-AFTER-A-TAB-LINE\"\nmsgstr \"\"\n"
+        );
+
+        $scanned  = 0;
+        $findings = $this->scan($path, $scanned);
+
+        $this->assertSame(1, $scanned, 'The entry was merged into the header block and inherited its msgstr.');
+        $this->assertCount(1, $findings);
+        $this->assertSame('empty', $findings[0]['reason']);
+    }
+
+    public function test_an_indented_entry_is_read(): void
+    {
+        $path = $this->write_catalog(
+            "msgid \"\"\nmsgstr \"\"\n\n  msgid \"INDENTED-UNTRANSLATED\"\n\tmsgstr \"\"\n"
+        );
+
+        $scanned  = 0;
+        $findings = $this->scan($path, $scanned);
+
+        $this->assertSame(1, $scanned, 'An indented directive was ignored and the catalog read as empty and clean.');
+        $this->assertCount(1, $findings);
+        $this->assertSame(1, $this->cli(array( $path ))['code'], 'The CLI printed [OK] for a catalog it had not read.');
+    }
+
+    public function test_a_bare_hash_line_ends_an_entry_as_wp_cli_treats_it(): void
+    {
+        // WP-CLI's extractor turns a line that is exactly "#" into an empty
+        // line. Without the same rule the untranslated entry below would be
+        // merged into the header and inherit its non-empty msgstr.
+        $path = $this->write_catalog(
+            "msgid \"\"\nmsgstr \"\"\n\"Language: tr_TR\\n\"\n#\nmsgid \"AFTER-A-BARE-HASH\"\nmsgstr \"\"\n"
+        );
+
+        $findings = $this->scan($path);
+
+        $this->assertCount(1, $findings);
+        $this->assertSame('AFTER-A-BARE-HASH', $findings[0]['msgid']);
+    }
+
+    public function test_the_last_entry_of_a_file_without_a_final_newline_is_read(): void
+    {
+        // Every fixture ends with a newline, and a mutation removing the reader's
+        // end-of-input separator changed nothing -- so the case it exists for
+        // was untested. An editor that strips the final newline must not make
+        // the last entry disappear from the scan.
+        $path = $this->write_catalog("msgid \"\"\nmsgstr \"\"\n\nmsgid \"LAST-WITHOUT-NEWLINE\"\nmsgstr \"\"");
+
+        $scanned  = 0;
+        $findings = $this->scan($path, $scanned);
+
+        $this->assertSame(1, $scanned);
+        $this->assertCount(1, $findings);
+    }
+
+    public function test_an_indented_multi_line_value_is_joined(): void
+    {
+        $path = $this->write_catalog(
+            "msgid \"\"\nmsgstr \"\"\n\nmsgid \"Split\"\nmsgstr \"\"\n   \"\"\n"
+        );
+
+        $findings = $this->scan($path);
+
+        $this->assertCount(1, $findings, 'Two empty pieces are still an empty translation.');
     }
 
     public function test_an_obsolete_entry_is_never_a_finding(): void
