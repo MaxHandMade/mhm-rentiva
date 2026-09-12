@@ -38,6 +38,10 @@
 
 declare(strict_types=1);
 
+// The shared PO reader. Its CLI block is guarded against being the entry
+// script, so requiring it runs nothing.
+require_once __DIR__ . '/check-po-untranslated.php';
+
 /**
  * Both formats Templates::replace_placeholders() resolves, in its two passes:
  * {{dot.path}} first, then {token}.
@@ -65,41 +69,17 @@ function mhmrentiva_find_placeholder_mismatches(string $path, int &$scanned = 0)
 
     $findings = [];
 
-    // Line endings are spelled out, not \R: without /u, \R also matches the
-    // byte 0x85 (NEL) inside UTF-8 characters such as U+2705 (E2 9C 85), which
-    // cut a msgid in two so the entry was never compared. Found 2026-09-13 by
-    // counting entries in bin/check-po-untranslated.php, which shares this
-    // pattern. (/u is not the fix: invalid UTF-8 makes preg_split() return
-    // false, and `?: []` would turn that into a clean scan of nothing.)
-    foreach (preg_split('/(?:\r\n|\n|\r){2,}/', $contents) ?: [] as $block) {
-        $msgid  = '';
-        $msgstr = '';
-        $target = null;
+    // One reader for both translation gates: check-po-untranslated.php's, which
+    // reads a catalog the way WP-CLI compiles it. This gate used to carry its
+    // own copy, and the copy had every defect the other one was fixed for --
+    // \R splitting U+2705 entries in two, empty-line-only separators, column-0
+    // anchors -- each of which meant an entry that was never compared.
+    foreach (mhmrentiva_po_entries($contents) as $entry) {
+        $msgid = $entry['msgid'];
 
-        foreach (preg_split('/\r\n|\n|\r/', $block) ?: [] as $line) {
-            if (strpos($line, 'msgid_plural') === 0) {
-                // A plural entry's msgstr[N] lines belong to a different shape;
-                // its singular msgid is still compared via the msgid branch.
-                $target = null;
-                continue;
-            }
-            if (strpos($line, 'msgid') === 0) {
-                $target = 'id';
-            } elseif (strpos($line, 'msgstr') === 0) {
-                $target = 'str';
-            } elseif ($line === '' || $line[0] !== '"') {
-                continue;
-            }
-
-            if (preg_match('/"(.*)"\s*$/', $line, $m) !== 1) {
-                continue;
-            }
-            if ($target === 'id') {
-                $msgid .= $m[1];
-            } elseif ($target === 'str') {
-                $msgstr .= $m[1];
-            }
-        }
+        // A plural entry is compared on its singular msgid against all of its
+        // forms together, as the earlier reader did.
+        $msgstr = $entry['plural'] ? implode('', $entry['forms']) : $entry['msgstr'];
 
         if ($msgid === '' || $msgstr === '') {
             continue;
