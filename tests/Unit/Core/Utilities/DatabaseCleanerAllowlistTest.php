@@ -242,10 +242,18 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		}
 		$this->seeded_options = array();
 
+		// 'mhmrentiva_postmeta_backup_invalid_', matching what
+		// cleanup_invalid_meta_keys() actually names the table -- an earlier
+		// version of this pattern searched for 'mhm_postmeta_backup_invalid_'
+		// (one underscore after 'mhm', not the real spelling), which SHOW
+		// TABLES LIKE never matched, so this sweep had swept nothing since it
+		// was written. Harmless only because the table is a CREATE TEMPORARY
+		// TABLE under WP_UnitTestCase (connection-scoped, not committed), so
+		// it never actually leaked into the persistent schema.
 		$leftovers = $wpdb->get_col(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',
-				$wpdb->esc_like( $wpdb->prefix . 'mhm_postmeta_backup_invalid_' ) . '%'
+				$wpdb->esc_like( $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' ) . '%'
 			)
 		);
 		foreach ( $leftovers as $table ) {
@@ -401,6 +409,52 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
 		$this->assertSame( '', get_post_meta( $post_id, '_mhmcsX_fake', true ) );
 		$this->assertContains( '_mhmcsX_fake', $result['keys_removed'] );
+	}
+
+	/**
+	 * Regression control for the backup-table name collision fixed alongside
+	 * this task: two cleanup_invalid_meta_keys(false) calls issued back to
+	 * back -- exactly what the three tests above already do in this class --
+	 * used to build the IDENTICAL backup table name (a gmdate('Ymd_His')
+	 * timestamp is only one-second resolution), so the second call's CREATE
+	 * TABLE failed and WordPress echoed a raw
+	 * `<div id="error">...wpdberror...` block into test output. `$wpdb->last_error`
+	 * cannot detect this: wpdb clears it at the start of every new query, and
+	 * the cleanup's own later queries (the INSERT, the DELETE) succeed and
+	 * overwrite it before the function returns -- see
+	 * UpcomingOperationsLocationBranchParityTest's docblock for the same
+	 * observation about this class of bug. Output capture is what actually
+	 * saw the error originally, so it is what has to catch its return.
+	 */
+	public function test_two_cleanups_in_the_same_second_do_not_collide_on_the_backup_table(): void
+	{
+		$first_post  = $this->seed_post_with_meta( array( '_mhm_not_a_real_rentiva_key_at_all' => 'garbage' ) );
+		$second_post = $this->seed_post_with_meta( array( '_mhm_also_not_a_real_rentiva_key' => 'garbage' ) );
+
+		ob_start();
+		$first = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+		$first_output = ob_get_clean();
+
+		ob_start();
+		$second = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+		$second_output = ob_get_clean();
+
+		$this->assertArrayNotHasKey( 'aborted', $first, 'the first cleanup should have run, not refused' );
+		$this->assertArrayNotHasKey( 'aborted', $second, 'the second cleanup should have run, not refused' );
+
+		$this->assertStringNotContainsString(
+			'wpdberror',
+			$first_output,
+			"the first cleanup's own backup-table CREATE reported a database error"
+		);
+		$this->assertStringNotContainsString(
+			'wpdberror',
+			$second_output,
+			'two cleanups issued back-to-back collided on the same backup table name -- the timestamp-only name is not unique within one second'
+		);
+
+		$this->assertSame( '', get_post_meta( $first_post, '_mhm_not_a_real_rentiva_key_at_all', true ) );
+		$this->assertSame( '', get_post_meta( $second_post, '_mhm_also_not_a_real_rentiva_key', true ) );
 	}
 
 	/**

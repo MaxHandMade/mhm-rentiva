@@ -1027,8 +1027,29 @@ final class DatabaseCleaner {
 			);
 		}
 
-		// Create backup table
-		$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' . gmdate( 'Ymd_His' );
+		// Create backup table.
+		//
+		// The name carries a short random tail after the Ymd_His timestamp.
+		// Without it, two calls landing in the same wall-clock second (the
+		// timestamp's only resolution) built the IDENTICAL table name: the
+		// second CREATE TABLE failed with "already exists", surfaced as a raw
+		// WordPress database error, and its INSERT silently wrote into the
+		// FIRST call's backup instead of its own. Every reader of this name
+		// (list_backups(), restore_backup(), is_managed_backup_table(), the
+		// SHOW TABLES / preg_match callers below) matches it by substring or
+		// prefix wildcard, never by exact length, so appending here is safe
+		// for all of them; list_backups()'s `/(\d{8}_\d{6})/` date extraction
+		// in particular only needs the timestamp segment to appear somewhere
+		// in the name, not to be the name's tail.
+		//
+		// Budgeted, not unlimited: MySQL identifiers cap at 64 characters and
+		// this literal prefix plus the timestamp already measures 50
+		// characters before the table-name prefix is even added (58 total
+		// with the 8-character 'wptests_' test-suite prefix), so the tail is
+		// kept to 6 characters -- enough that two calls could only collide if
+		// they landed on the exact same microsecond, not merely the same
+		// second.
+		$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' . gmdate( 'Ymd_His' ) . '_' . substr( uniqid(), -5 );
 		$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 		// Extract meta keys
