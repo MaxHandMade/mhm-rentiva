@@ -458,6 +458,104 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Round-2 fix. Fixing the same-second collision above by simply
+	 * appending a fixed-length tail (round 1) narrowed the margin between
+	 * "longest $wpdb->prefix this still works for" and MySQL's 64-character
+	 * identifier limit from 14 characters down to 8 -- a hardened/randomised
+	 * custom prefix longer than 8 characters (a common security practice,
+	 * and previously safe up to 14) would make CREATE TABLE %i fail with
+	 * "Identifier name is too long", which the caller did not check for at
+	 * all. invalid_meta_backup_table_name() is the pure, stateless builder
+	 * extracted to fix that: these tests exercise it directly, against
+	 * arbitrary prefixes, without needing a live $wpdb->prefix override
+	 * (which WP_UnitTestCase cannot safely do mid-test -- every core query in
+	 * the same test uses the same $wpdb->prefix).
+	 *
+	 * For the default `'wp_'`-shaped prefix (and this suite's own
+	 * `'wptests_'`, 8 characters), the full form -- timestamp AND unique tail
+	 * -- must still be present: this is the common case and round 1's
+	 * behaviour must not regress for it.
+	 */
+	public function test_the_backup_table_name_keeps_the_full_form_for_a_normal_length_prefix(): void
+	{
+		$name = DatabaseCleaner::invalid_meta_backup_table_name( 'wptests_', '20260914_120000', 'ab12d' );
+
+		$this->assertLessThanOrEqual( 64, strlen( $name ) );
+		$this->assertStringStartsWith( 'wptests_mhmrentiva_postmeta_backup_invalid_', $name );
+		$this->assertMatchesRegularExpression( '/\d{8}_\d{6}/', $name, 'the date-extraction regex list_backups() uses must still find the timestamp' );
+		$this->assertStringEndsWith( '_ab12d', $name, 'the full unique tail must survive for a normal-length prefix' );
+	}
+
+	/**
+	 * A 20-character prefix is well past the 8-character margin round 1 left
+	 * (and well within what a hardened/randomised prefix realistically
+	 * reaches). At this length there is no room left for the human-readable
+	 * timestamp at all -- list_backups()'s displayed date becomes "unknown"
+	 * for this table, which is a cosmetic trade-off documented on
+	 * invalid_meta_backup_table_name() -- but every reader that decides
+	 * ROUTING or TYPING must still recognise the name, checked here against
+	 * the exact pattern each one actually uses:
+	 *  - list_backups()'s `SHOW TABLES LIKE '{prefix}mhmrentiva_%_backup%'`
+	 *    (reproduced here as the string checks that pattern compiles to,
+	 *    since SHOW TABLES needs a live table to query against);
+	 *  - list_backups()'s and restore_backup()'s
+	 *    `strpos($name, 'postmeta_backup_invalid') !== false` typing/routing
+	 *    check.
+	 */
+	public function test_the_backup_table_name_stays_within_the_mysql_limit_and_stays_recognisable_for_a_20_character_prefix(): void
+	{
+		$prefix = str_repeat( 'p', 20 );
+		$name   = DatabaseCleaner::invalid_meta_backup_table_name( $prefix, '20260914_120000', 'ab12d' );
+
+		$this->assertNotSame( '', $name, 'a 20-character prefix must still get a real backup table name' );
+		$this->assertLessThanOrEqual( 64, strlen( $name ), "MySQL's identifier limit" );
+
+		// list_backups()'s SHOW TABLES LIKE '{prefix}mhmrentiva_%_backup%'.
+		$this->assertStringStartsWith( $prefix . 'mhmrentiva_', $name );
+		$this->assertStringContainsString( '_backup', substr( $name, strlen( $prefix . 'mhmrentiva_' ) ) );
+
+		// list_backups()'s and restore_backup()'s typing/routing check.
+		$this->assertStringContainsString( 'postmeta_backup_invalid', $name );
+	}
+
+	/**
+	 * The documented ceiling: $table_prefix .
+	 * DatabaseCleaner::INVALID_META_BACKUP_TABLE_LITERAL (the mandatory,
+	 * never-shortened part) exactly fills 64 characters at
+	 * max_supported_backup_table_prefix_length(), with zero room left for a
+	 * timestamp or tail -- still a real, recognisable name, just with no
+	 * uniqueness protection at this one exact boundary. One character longer
+	 * and no recognisable name can be built at all: the builder returns ''
+	 * so cleanup_invalid_meta_keys() can fail closed instead of handing
+	 * CREATE TABLE a name MySQL is guaranteed to reject.
+	 */
+	public function test_the_backup_table_name_still_fits_at_the_maximum_supported_prefix_length(): void
+	{
+		$max = DatabaseCleaner::max_supported_backup_table_prefix_length();
+
+		$at_max = DatabaseCleaner::invalid_meta_backup_table_name( str_repeat( 'p', $max ), '20260914_120000', 'ab12d' );
+		$this->assertNotSame( '', $at_max, 'the documented maximum prefix length must still produce a name' );
+		$this->assertLessThanOrEqual( 64, strlen( $at_max ) );
+		$this->assertStringContainsString( 'postmeta_backup_invalid', $at_max );
+
+		$over_max = DatabaseCleaner::invalid_meta_backup_table_name( str_repeat( 'p', $max + 1 ), '20260914_120000', 'ab12d' );
+		$this->assertSame( '', $over_max, 'one character past the documented maximum, no recognisable name can be built' );
+	}
+
+	/**
+	 * Uniqueness is the entire point of this mechanism (it is what fixes the
+	 * same-second collision above), so two calls that differ only in their
+	 * unique tail must never collapse onto the same table name.
+	 */
+	public function test_two_different_unique_tails_produce_different_backup_table_names(): void
+	{
+		$first  = DatabaseCleaner::invalid_meta_backup_table_name( 'wptests_', '20260914_120000', 'aaaaa' );
+		$second = DatabaseCleaner::invalid_meta_backup_table_name( 'wptests_', '20260914_120000', 'bbbbb' );
+
+		$this->assertNotSame( $first, $second );
+	}
+
+	/**
 	 * Drift gate. Re-derives the inventory from the source tree, so a new meta
 	 * key added anywhere in either plugin fails here until it is protected.
 	 * MetaKeys' constants are literals inside src/, so this subsumes a

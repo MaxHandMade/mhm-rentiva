@@ -983,6 +983,94 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * The literal every reader of the invalid-meta backup table name keys
+	 * off, directly or via list_backups()'s own SHOW TABLES enumeration.
+	 * Never shortened by invalid_meta_backup_table_name() -- doing so would
+	 * silently mis-type the backup (list_backups() would fall through to
+	 * 'orphaned_meta', or to unrecognised 'custom') instead of 'invalid_meta',
+	 * and there is room for it up to max_supported_backup_table_prefix_length()
+	 * characters of $wpdb->prefix -- far past any real WordPress install.
+	 */
+	private const INVALID_META_BACKUP_TABLE_LITERAL = 'mhmrentiva_postmeta_backup_invalid_';
+
+	/**
+	 * The longest $wpdb->prefix invalid_meta_backup_table_name() can still
+	 * name a backup table for at all -- i.e. the prefix plus
+	 * INVALID_META_BACKUP_TABLE_LITERAL alone, with no timestamp or unique
+	 * tail left over, exactly fills MySQL's 64-character identifier limit.
+	 *
+	 * @return int
+	 */
+	public static function max_supported_backup_table_prefix_length(): int {
+		return 64 - strlen( self::INVALID_META_BACKUP_TABLE_LITERAL );
+	}
+
+	/**
+	 * Build the invalid-meta cleanup's backup table name, staying within
+	 * MySQL's 64-character identifier limit for any $table_prefix up to
+	 * max_supported_backup_table_prefix_length() characters.
+	 *
+	 * Pure and stateless on purpose -- every input is a parameter, nothing is
+	 * read from $wpdb or the clock -- so it is testable against arbitrary
+	 * prefixes without a database connection.
+	 *
+	 * $table_prefix . INVALID_META_BACKUP_TABLE_LITERAL is mandatory and
+	 * never shortened (see that constant's docblock for why). Everything
+	 * after it is negotiable, tried in this priority order:
+	 *
+	 *  1. Full form: the literal, then $timestamp, then '_' and the whole of
+	 *     $unique. This is what a normal-length $wpdb->prefix (WordPress's
+	 *     own default is 'wp_') gets, and it is what list_backups()'s
+	 *     `/(\d{8}_\d{6})/` date-extraction regex expects to find.
+	 *
+	 *  2. If keeping the full $timestamp would leave LESS room for $unique
+	 *     than dropping $timestamp entirely would, $timestamp is dropped and
+	 *     $unique (truncated if the remaining room is still short) gets the
+	 *     rest of the budget instead. A partial timestamp is never used: it
+	 *     satisfies nobody -- it cannot match the date regex's fixed
+	 *     8-digit/6-digit shape either way, so keeping a few of its
+	 *     characters would only spend room without buying anything back. This
+	 *     is the branch a hardened/randomised custom $wpdb->prefix (a common
+	 *     security practice) hits: list_backups()'s displayed date becomes
+	 *     "unknown" for that table, but the name stays exactly as
+	 *     collision-resistant as the available room allows -- the actual bug
+	 *     this method exists to prevent does not come back just because the
+	 *     prefix is long.
+	 *
+	 *  3. If $table_prefix . INVALID_META_BACKUP_TABLE_LITERAL alone already
+	 *     exceeds 64 characters, no name can be built at all: returns '' so
+	 *     the caller can fail closed instead of handing CREATE TABLE a name
+	 *     MySQL is guaranteed to reject with "Identifier name is too long".
+	 *
+	 * @param string $table_prefix The live $wpdb->prefix (or a hypothetical one, for tests).
+	 * @param string $timestamp    gmdate('Ymd_His') -- or any 'YYYYMMDD_HHMMSS'-shaped, 15-character string.
+	 * @param string $unique       A short collision-avoidance tail, e.g. from uniqid().
+	 * @return string The backup table name, or '' if $table_prefix is too long to name one at all.
+	 */
+	public static function invalid_meta_backup_table_name( string $table_prefix, string $timestamp, string $unique ): string {
+		$base = $table_prefix . self::INVALID_META_BACKUP_TABLE_LITERAL;
+
+		if ( strlen( $base ) > 64 ) {
+			return '';
+		}
+
+		$remaining        = 64 - strlen( $base );
+		$timestamp_len    = strlen( $timestamp );
+		$unique_len       = strlen( $unique );
+		$tail_with_ts     = $remaining >= $timestamp_len ? min( $unique_len, $remaining - $timestamp_len - 1 ) : -1;
+		$tail_dropping_ts = min( $unique_len, $remaining );
+
+		if ( $tail_with_ts >= 0 && $tail_with_ts >= $tail_dropping_ts ) {
+			$tail   = max( 0, $tail_with_ts );
+			$suffix = $timestamp . ( $tail > 0 ? '_' . substr( $unique, 0, $tail ) : '' );
+		} else {
+			$suffix = substr( $unique, 0, max( 0, $tail_dropping_ts ) );
+		}
+
+		return $base . $suffix;
+	}
+
+	/**
 	 * DELETE every postmeta row whose key the protection list does not cover.
 	 *
 	 * Destructive with $dry_run = false. Rows are copied to a timestamped backup
@@ -1027,29 +1115,36 @@ final class DatabaseCleaner {
 			);
 		}
 
-		// Create backup table.
-		//
-		// The name carries a short random tail after the Ymd_His timestamp.
-		// Without it, two calls landing in the same wall-clock second (the
-		// timestamp's only resolution) built the IDENTICAL table name: the
-		// second CREATE TABLE failed with "already exists", surfaced as a raw
-		// WordPress database error, and its INSERT silently wrote into the
-		// FIRST call's backup instead of its own. Every reader of this name
-		// (list_backups(), restore_backup(), is_managed_backup_table(), the
-		// SHOW TABLES / preg_match callers below) matches it by substring or
-		// prefix wildcard, never by exact length, so appending here is safe
-		// for all of them; list_backups()'s `/(\d{8}_\d{6})/` date extraction
-		// in particular only needs the timestamp segment to appear somewhere
-		// in the name, not to be the name's tail.
-		//
-		// Budgeted, not unlimited: MySQL identifiers cap at 64 characters and
-		// this literal prefix plus the timestamp already measures 50
-		// characters before the table-name prefix is even added (58 total
-		// with the 8-character 'wptests_' test-suite prefix), so the tail is
-		// kept to 6 characters -- enough that two calls could only collide if
-		// they landed on the exact same microsecond, not merely the same
-		// second.
-		$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' . gmdate( 'Ymd_His' ) . '_' . substr( uniqid(), -5 );
+		// Create backup table. See invalid_meta_backup_table_name() for why
+		// the name carries a short tail after the timestamp (a same-second
+		// collision on the plain timestamp used to fail the CREATE TABLE
+		// below with a raw WordPress database error) and how it shortens
+		// itself for a long custom $wpdb->prefix without ever exceeding
+		// MySQL's 64-character identifier limit.
+		$backup_table = self::invalid_meta_backup_table_name( $wpdb->prefix, gmdate( 'Ymd_His' ), substr( uniqid(), -5 ) );
+
+		// Fail closed, the same way the unvouched-custom-field check above
+		// does: a $wpdb->prefix long enough that even the shortest
+		// recognisable backup-table name cannot fit within 64 characters
+		// means there is no safe name to hand to CREATE TABLE at all -- MySQL
+		// is guaranteed to reject a longer one with "Identifier name is too
+		// long", after which this function would still be holding
+		// $invalid_data['keys'] with nowhere to back them up before deleting.
+		if ( '' === $backup_table ) {
+			return array(
+				'dry_run'      => false,
+				'aborted'      => true,
+				'deleted'      => 0,
+				'keys_removed' => array(),
+				'error'        => sprintf(
+					/* translators: 1: current table-prefix length in characters. 2: maximum supported length in characters. */
+					__( 'This site\'s table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL\'s 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run.', 'mhm-rentiva' ),
+					strlen( $wpdb->prefix ),
+					self::max_supported_backup_table_prefix_length()
+				),
+			);
+		}
+
 		$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 		// Extract meta keys
