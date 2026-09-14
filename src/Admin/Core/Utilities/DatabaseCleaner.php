@@ -28,7 +28,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
 final class DatabaseCleaner {
 
-
+	/**
+	 * Meta-key prefix namespace owned by Currency Switcher, a sibling product
+	 * (not part of this plugin family) that is commonly installed alongside
+	 * it but is not a dependency of it. Currency Switcher writes
+	 * '_mhmcs_fixed_prices' (product meta) and '_mhmcs_currency_code' /
+	 * '_mhmcs_exchange_rate' / '_mhmcs_base_currency' (order meta, when HPOS
+	 * is off) -- every one of them begins with '_mhm' and would otherwise
+	 * fall inside this cleanup's unscoped `LIKE '_mhm%'` reach.
+	 *
+	 * Excluded by PREFIX, not by listing each key in get_valid_meta_keys():
+	 * this is a different product's namespace, so PRO_ONLY-style enumeration
+	 * would have to be re-done by hand every time Currency Switcher adds a
+	 * key. find_invalid_meta_keys() applies this via
+	 * `NOT LIKE esc_like(<prefix>) . '%'`; esc_like() escapes the literal
+	 * underscores in the prefix so MySQL does not read them as its
+	 * single-character wildcard -- unescaped, this pattern would also spare
+	 * '_mhmcsX...', which is not this namespace.
+	 */
+	private const CURRENCY_SWITCHER_META_PREFIX = '_mhmcs_';
 
 	/**
 	 * Public, read-only view of the invalid-meta cleanup's protection list.
@@ -43,13 +61,33 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * Public, read-only view of the meta-key prefixes the invalid-meta
+	 * cleanup excludes wholesale (as a namespace), rather than by listing
+	 * individual keys in valid_meta_keys().
+	 *
+	 * Exists so tests can assert against the real list instead of holding a
+	 * second, hand-copied literal that can drift from this one.
+	 *
+	 * @return array<string> Array of protected meta key prefixes
+	 */
+	public static function protected_meta_prefixes(): array {
+		return array( self::CURRENCY_SWITCHER_META_PREFIX );
+	}
+
+	/**
 	 * Meta keys the invalid-meta cleanup must NEVER delete.
 	 *
 	 * This is a PROTECTION list, not a deletion list. find_invalid_meta_keys()
-	 * uses it as `meta_key LIKE '_mhm%' AND meta_key NOT IN (<this list>)`
-	 * across the entire postmeta table -- it is scoped to no post type -- and
-	 * cleanup_invalid_meta_keys( false ) DELETEs every row it returns. A key
-	 * that is missing here is therefore destroyed on the next cleanup run.
+	 * uses it as `meta_key LIKE '_mhm%' AND meta_key NOT LIKE '_mhmcs_%' AND
+	 * meta_key NOT IN (<this list>)` across the entire postmeta table -- it is
+	 * scoped to no post type -- and cleanup_invalid_meta_keys( false ) DELETEs
+	 * every row it returns. A key that is missing here is therefore destroyed
+	 * on the next cleanup run.
+	 *
+	 * The `NOT LIKE '_mhmcs_%'` half is a separate mechanism
+	 * (CURRENCY_SWITCHER_META_PREFIX / protected_meta_prefixes()): it excludes
+	 * a whole sibling-product namespace by prefix, not by listing that
+	 * product's keys here -- this list stays this plugin family's own.
 	 *
 	 * Because omission costs live data and over-inclusion costs nothing but an
 	 * unswept row, membership is deliberately generous: every meta-key literal
@@ -892,6 +930,11 @@ final class DatabaseCleaner {
 	 * get_valid_meta_keys() and is used here with NOT IN, so it protects rather
 	 * than selects. The scan spans the whole postmeta table and is limited to
 	 * neither this plugin's post types nor its own rows.
+	 *
+	 * A second exclusion, `NOT LIKE` against protected_meta_prefixes(), keeps
+	 * the whole '_mhmcs_' namespace (Currency Switcher, a sibling product) out
+	 * of reach regardless of get_valid_meta_keys() -- see
+	 * CURRENCY_SWITCHER_META_PREFIX.
 	 */
 	public static function find_invalid_meta_keys(): array {
 		global $wpdb;
@@ -904,18 +947,31 @@ final class DatabaseCleaner {
             SELECT DISTINCT meta_key, COUNT(*) as count
             FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s
-            AND meta_key NOT IN (" . implode( ',', array_fill( 0, count( $valid_keys ), '%s' ) ) . ')
+            " . implode( "\n            ", array_fill( 0, count( self::protected_meta_prefixes() ), 'AND meta_key NOT LIKE %s' ) ) . '
+            AND meta_key NOT IN (' . implode( ',', array_fill( 0, count( $valid_keys ), '%s' ) ) . ')
             GROUP BY meta_key
             ORDER BY count DESC
             LIMIT 50
         ',
-				// esc_like() escapes the leading underscore. Unescaped, '_' is
-				// MySQL's single-character wildcard, so '_mhm%' also matched
-				// 'Xmhm...' for any X -- rows belonging to nobody in particular,
-				// on a statement that DELETEs. An earlier round deferred this here because
-				// it is one half of the rename hazard. Escaping only ever NARROWS
-				// what the DELETE can reach, which is the safe direction.
-				array_merge( array( $wpdb->esc_like( '_mhm' ) . '%' ), $valid_keys )
+				array_merge(
+					// esc_like() escapes the leading underscore. Unescaped, '_' is
+					// MySQL's single-character wildcard, so '_mhm%' also matched
+					// 'Xmhm...' for any X -- rows belonging to nobody in particular,
+					// on a statement that DELETEs. An earlier round deferred this here because
+					// it is one half of the rename hazard. Escaping only ever NARROWS
+					// what the DELETE can reach, which is the safe direction.
+					array( $wpdb->esc_like( '_mhm' ) . '%' ),
+					// Same escaping, same reason, for the sibling-product prefix
+					// exclusion: unescaped, '_mhmcs_%' would also spare
+					// '_mhmcsX...' (any single character standing in for the
+					// escaped underscore), which is not Currency Switcher's
+					// namespace and must still be cleaned.
+					array_map(
+						static fn( string $protected_prefix ): string => $wpdb->esc_like( $protected_prefix ) . '%',
+						self::protected_meta_prefixes()
+					),
+					$valid_keys
+				)
 			),
 			ARRAY_A
 		);

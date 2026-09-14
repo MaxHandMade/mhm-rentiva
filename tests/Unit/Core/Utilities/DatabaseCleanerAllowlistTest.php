@@ -12,7 +12,8 @@ use WP_UnitTestCase;
  *
  * find_invalid_meta_keys() runs
  *
- *     WHERE meta_key LIKE '_mhm%' AND meta_key NOT IN (<the list>)
+ *     WHERE meta_key LIKE '_mhm%' AND meta_key NOT LIKE '_mhmcs_%'
+ *     AND meta_key NOT IN (<the list>)
  *
  * over the whole postmeta table -- it is scoped to no post type at all -- and
  * cleanup_invalid_meta_keys(false) then DELETEs every row whose key came back.
@@ -22,6 +23,14 @@ use WP_UnitTestCase;
  * The list is therefore maintained as a superset of every meta-key literal in
  * either plugin's source, and test_no_meta_key_literal_in_the_source_is_missing
  * re-derives that superset from the source tree on every run so it cannot drift.
+ *
+ * The `NOT LIKE '_mhmcs_%'` half is a separate mechanism: it excludes Currency
+ * Switcher's whole namespace (a sibling product, not part of this plugin
+ * family) by prefix, via DatabaseCleaner::protected_meta_prefixes() --
+ * is_prefix_protected() below applies the same rule when judging the two
+ * drift gates, so a '_mhmcs_*' literal in either plugin's source counts as
+ * protected without needing an entry in the allowlist or in
+ * PRO_ONLY_META_KEYS.
  *
  * The Pro add-on is a sibling checkout, not a dependency: CI clones this repo
  * alone, so the scan cannot see Pro there. PRO_ONLY_META_KEYS freezes what Pro
@@ -182,6 +191,28 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	/** Source subdirectories expected to exist and be scanned, per plugin. */
 	private const SCANNED_SUBDIRS = array( 'src', 'templates', 'assets', 'bin' );
 
+	/**
+	 * A literal starting with any of DatabaseCleaner::protected_meta_prefixes()
+	 * belongs to a sibling product's namespace (Currency Switcher's
+	 * '_mhmcs_'), not to this plugin family. The cleanup excludes that whole
+	 * namespace by prefix rather than by listing each of its keys, so the two
+	 * drift gates below must recognise it the same way: neither "missing from
+	 * the allowlist" (it is protected by prefix, not by membership) nor
+	 * "Pro-only inventory drift" (it is not Pro's key at all, and folding it
+	 * into PRO_ONLY_META_KEYS would freeze a different plugin's namespace
+	 * inside the wrong list).
+	 */
+	private function is_prefix_protected( string $literal ): bool
+	{
+		foreach ( DatabaseCleaner::protected_meta_prefixes() as $protected_prefix ) {
+			if ( str_starts_with( $literal, $protected_prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/** @var list<int> */
 	private array $seeded_posts = array();
 
@@ -309,6 +340,70 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Currency Switcher (sibling product, not part of this plugin family)
+	 * writes '_mhmcs_fixed_prices' on the product post as its per-product
+	 * fixed-price override. It begins with '_mhm' like this plugin's own
+	 * keys, so without the prefix exclusion the unscoped invalid-meta cleanup
+	 * would delete another plugin's product data.
+	 */
+	public function test_a_currency_switcher_product_price_survives_the_invalid_meta_cleanup(): void
+	{
+		$post_id = $this->seed_post_with_meta( array( '_mhmcs_fixed_prices' => 'a:0:{}' ) );
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
+		$this->assertSame( 'a:0:{}', get_post_meta( $post_id, '_mhmcs_fixed_prices', true ) );
+		$this->assertNotContains( '_mhmcs_fixed_prices', $result['keys_removed'] );
+	}
+
+	/**
+	 * Currency Switcher also writes its currency/rate snapshot onto the order
+	 * (postmeta when HPOS is off). All three keys begin with '_mhm' and are
+	 * reached by the same unscoped LIKE, so all three must survive together.
+	 */
+	public function test_the_currency_switcher_order_rate_meta_survives_the_invalid_meta_cleanup(): void
+	{
+		$post_id = $this->seed_post_with_meta(
+			array(
+				'_mhmcs_currency_code' => 'EUR',
+				'_mhmcs_exchange_rate' => '1.0842',
+				'_mhmcs_base_currency' => 'TRY',
+			)
+		);
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
+		$this->assertSame( 'EUR', get_post_meta( $post_id, '_mhmcs_currency_code', true ) );
+		$this->assertSame( '1.0842', get_post_meta( $post_id, '_mhmcs_exchange_rate', true ) );
+		$this->assertSame( 'TRY', get_post_meta( $post_id, '_mhmcs_base_currency', true ) );
+		$this->assertNotContains( '_mhmcs_currency_code', $result['keys_removed'] );
+		$this->assertNotContains( '_mhmcs_exchange_rate', $result['keys_removed'] );
+		$this->assertNotContains( '_mhmcs_base_currency', $result['keys_removed'] );
+	}
+
+	/**
+	 * LIKE-escape negative control. '_' is MySQL's single-character wildcard,
+	 * so an unescaped '_mhmcs_%' exclusion would also spare '_mhmcsX_fake' --
+	 * anything with one extra character standing in for the escaped
+	 * underscore. That key is not Currency Switcher's namespace and carries
+	 * no cover in get_valid_meta_keys() either, so it must still be deleted;
+	 * without this control, a broken (unescaped) exclusion would pass the two
+	 * tests above just as well.
+	 */
+	public function test_a_key_that_only_resembles_the_prefix_is_still_cleaned(): void
+	{
+		$post_id = $this->seed_post_with_meta( array( '_mhmcsX_fake' => 'garbage' ) );
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
+		$this->assertSame( '', get_post_meta( $post_id, '_mhmcsX_fake', true ) );
+		$this->assertContains( '_mhmcsX_fake', $result['keys_removed'] );
+	}
+
+	/**
 	 * Drift gate. Re-derives the inventory from the source tree, so a new meta
 	 * key added anywhere in either plugin fails here until it is protected.
 	 * MetaKeys' constants are literals inside src/, so this subsumes a
@@ -323,6 +418,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 
 		foreach ( $found as $literal => $where ) {
 			if ( isset( self::NON_META_LITERALS[ $literal ] ) ) {
+				continue;
+			}
+			if ( $this->is_prefix_protected( $literal ) ) {
 				continue;
 			}
 			if ( ! in_array( $literal, $valid, true ) ) {
@@ -425,8 +523,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			array_unique(
 				array_filter(
 					array_diff( $pro_literals, $lite_literals ),
-					static function ( string $literal ) use ( $exceptions ): bool {
-						return ! in_array( $literal, $exceptions, true );
+					function ( string $literal ) use ( $exceptions ): bool {
+						return ! in_array( $literal, $exceptions, true )
+							&& ! $this->is_prefix_protected( $literal );
 					}
 				)
 			)
