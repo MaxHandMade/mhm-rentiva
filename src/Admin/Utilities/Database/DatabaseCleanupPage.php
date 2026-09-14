@@ -206,6 +206,39 @@ final class DatabaseCleanupPage {
 	}
 
 	/**
+	 * The message to show the admin for an aborted invalid-meta cleanup.
+	 *
+	 * DatabaseCleaner::cleanup_invalid_meta_keys() can set 'aborted' => true
+	 * for two independent, unrelated causes -- 'reason' says which:
+	 * 'custom_fields_unreadable' (the vehicle custom-field definitions could
+	 * not be read, so custom-field meta cannot be told apart from stale meta)
+	 * or 'table_prefix_too_long' ($wpdb->prefix is too long for the backup
+	 * table's name to fit MySQL's 64-character identifier limit). A single
+	 * hardcoded message was accurate only for the first of these; extracted
+	 * here, as its own static method, specifically so both causes are
+	 * unit-testable without needing a testable seam through the AJAX handler
+	 * itself (which exits via wp_send_json_error()).
+	 *
+	 * @param array $result The array cleanup_invalid_meta_keys() returned, with 'aborted' => true.
+	 * @return string
+	 */
+	public static function invalid_meta_cleanup_message( array $result ): string
+	{
+		if ( 'table_prefix_too_long' === ( $result['reason'] ?? '' ) ) {
+			// DatabaseCleaner already composed a specific, translated message
+			// naming the measured prefix length; only a generic fallback is
+			// owned here, for the case some future caller reaches this
+			// branch without that key set.
+			return $result['error'] ?? __('Cleanup cancelled: this site\'s table prefix is too long for the cleanup to name a backup table. Nothing was deleted.', 'mhm-rentiva');
+		}
+
+		// 'custom_fields_unreadable', or any reason this method does not yet
+		// know about -- the pre-existing message is the safer default, since
+		// it was already true for every abort before 'reason' existed.
+		return __('Cleanup cancelled: the vehicle custom field definitions could not be read, so custom field data cannot be told apart from stale meta. Nothing was deleted.', 'mhm-rentiva');
+	}
+
+	/**
 	 * AJAX - Cleanup invalid meta keys
 	 */
 	public static function ajax_cleanup_invalid_meta(): void
@@ -220,13 +253,15 @@ final class DatabaseCleanupPage {
 
 		$result = DatabaseCleaner::cleanup_invalid_meta_keys(false); // Execute cleanup
 
-		// The cleaner refuses to run when it cannot identify live custom-field
-		// meta. Report that as a failure so the admin sees why nothing happened,
-		// rather than a success message reading "0 records cleaned".
+		// The cleaner refuses to run for more than one reason (see
+		// invalid_meta_cleanup_message()). Report that as a failure so the
+		// admin sees why nothing happened, rather than a success message
+		// reading "0 records cleaned" -- or, before this fix, the same
+		// custom-field-specific message regardless of which reason fired.
 		if (! empty($result['aborted'])) {
 			wp_send_json_error(
 				array(
-					'message' => __('Cleanup cancelled: the vehicle custom field definitions could not be read, so custom field data cannot be told apart from stale meta. Nothing was deleted.', 'mhm-rentiva'),
+					'message' => self::invalid_meta_cleanup_message($result),
 					'result'  => $result,
 				)
 			);

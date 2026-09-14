@@ -28,7 +28,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
 final class DatabaseCleaner {
 
-
+	/**
+	 * Meta-key prefix namespace owned by Currency Switcher, a sibling product
+	 * (not part of this plugin family) that is commonly installed alongside
+	 * it but is not a dependency of it. Currency Switcher writes
+	 * '_mhmcs_fixed_prices' (product meta) and '_mhmcs_currency_code' /
+	 * '_mhmcs_exchange_rate' / '_mhmcs_base_currency' (order meta, when HPOS
+	 * is off) -- every one of them begins with '_mhm' and would otherwise
+	 * fall inside this cleanup's unscoped `LIKE '_mhm%'` reach.
+	 *
+	 * Excluded by PREFIX, not by listing each key in get_valid_meta_keys():
+	 * this is a different product's namespace, so PRO_ONLY-style enumeration
+	 * would have to be re-done by hand every time Currency Switcher adds a
+	 * key. find_invalid_meta_keys() applies this via
+	 * `NOT LIKE esc_like(<prefix>) . '%'`; esc_like() escapes the literal
+	 * underscores in the prefix so MySQL does not read them as its
+	 * single-character wildcard -- unescaped, this pattern would also spare
+	 * '_mhmcsX...', which is not this namespace.
+	 */
+	private const CURRENCY_SWITCHER_META_PREFIX = '_mhmcs_';
 
 	/**
 	 * Public, read-only view of the invalid-meta cleanup's protection list.
@@ -43,13 +61,33 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * Public, read-only view of the meta-key prefixes the invalid-meta
+	 * cleanup excludes wholesale (as a namespace), rather than by listing
+	 * individual keys in valid_meta_keys().
+	 *
+	 * Exists so tests can assert against the real list instead of holding a
+	 * second, hand-copied literal that can drift from this one.
+	 *
+	 * @return array<string> Array of protected meta key prefixes
+	 */
+	public static function protected_meta_prefixes(): array {
+		return array( self::CURRENCY_SWITCHER_META_PREFIX );
+	}
+
+	/**
 	 * Meta keys the invalid-meta cleanup must NEVER delete.
 	 *
 	 * This is a PROTECTION list, not a deletion list. find_invalid_meta_keys()
-	 * uses it as `meta_key LIKE '_mhm%' AND meta_key NOT IN (<this list>)`
-	 * across the entire postmeta table -- it is scoped to no post type -- and
-	 * cleanup_invalid_meta_keys( false ) DELETEs every row it returns. A key
-	 * that is missing here is therefore destroyed on the next cleanup run.
+	 * uses it as `meta_key LIKE '_mhm%' AND meta_key NOT LIKE '_mhmcs_%' AND
+	 * meta_key NOT IN (<this list>)` across the entire postmeta table -- it is
+	 * scoped to no post type -- and cleanup_invalid_meta_keys( false ) DELETEs
+	 * every row it returns. A key that is missing here is therefore destroyed
+	 * on the next cleanup run.
+	 *
+	 * The `NOT LIKE '_mhmcs_%'` half is a separate mechanism
+	 * (CURRENCY_SWITCHER_META_PREFIX / protected_meta_prefixes()): it excludes
+	 * a whole sibling-product namespace by prefix, not by listing that
+	 * product's keys here -- this list stays this plugin family's own.
 	 *
 	 * Because omission costs live data and over-inclusion costs nothing but an
 	 * unswept row, membership is deliberately generous: every meta-key literal
@@ -892,6 +930,11 @@ final class DatabaseCleaner {
 	 * get_valid_meta_keys() and is used here with NOT IN, so it protects rather
 	 * than selects. The scan spans the whole postmeta table and is limited to
 	 * neither this plugin's post types nor its own rows.
+	 *
+	 * A second exclusion, `NOT LIKE` against protected_meta_prefixes(), keeps
+	 * the whole '_mhmcs_' namespace (Currency Switcher, a sibling product) out
+	 * of reach regardless of get_valid_meta_keys() -- see
+	 * CURRENCY_SWITCHER_META_PREFIX.
 	 */
 	public static function find_invalid_meta_keys(): array {
 		global $wpdb;
@@ -904,18 +947,31 @@ final class DatabaseCleaner {
             SELECT DISTINCT meta_key, COUNT(*) as count
             FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s
-            AND meta_key NOT IN (" . implode( ',', array_fill( 0, count( $valid_keys ), '%s' ) ) . ')
+            " . implode( "\n            ", array_fill( 0, count( self::protected_meta_prefixes() ), 'AND meta_key NOT LIKE %s' ) ) . '
+            AND meta_key NOT IN (' . implode( ',', array_fill( 0, count( $valid_keys ), '%s' ) ) . ')
             GROUP BY meta_key
             ORDER BY count DESC
             LIMIT 50
         ',
-				// esc_like() escapes the leading underscore. Unescaped, '_' is
-				// MySQL's single-character wildcard, so '_mhm%' also matched
-				// 'Xmhm...' for any X -- rows belonging to nobody in particular,
-				// on a statement that DELETEs. An earlier round deferred this here because
-				// it is one half of the rename hazard. Escaping only ever NARROWS
-				// what the DELETE can reach, which is the safe direction.
-				array_merge( array( $wpdb->esc_like( '_mhm' ) . '%' ), $valid_keys )
+				array_merge(
+					// esc_like() escapes the leading underscore. Unescaped, '_' is
+					// MySQL's single-character wildcard, so '_mhm%' also matched
+					// 'Xmhm...' for any X -- rows belonging to nobody in particular,
+					// on a statement that DELETEs. An earlier round deferred this here because
+					// it is one half of the rename hazard. Escaping only ever NARROWS
+					// what the DELETE can reach, which is the safe direction.
+					array( $wpdb->esc_like( '_mhm' ) . '%' ),
+					// Same escaping, same reason, for the sibling-product prefix
+					// exclusion: unescaped, '_mhmcs_%' would also spare
+					// '_mhmcsX...' (any single character standing in for the
+					// escaped underscore), which is not Currency Switcher's
+					// namespace and must still be cleaned.
+					array_map(
+						static fn( string $protected_prefix ): string => $wpdb->esc_like( $protected_prefix ) . '%',
+						self::protected_meta_prefixes()
+					),
+					$valid_keys
+				)
 			),
 			ARRAY_A
 		);
@@ -927,11 +983,105 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * The literal every reader of the invalid-meta backup table name keys
+	 * off, directly or via list_backups()'s own SHOW TABLES enumeration.
+	 * Never shortened by invalid_meta_backup_table_name() -- doing so would
+	 * silently mis-type the backup (list_backups() would fall through to
+	 * 'orphaned_meta', or to unrecognised 'custom') instead of 'invalid_meta',
+	 * and there is room for it up to max_supported_backup_table_prefix_length()
+	 * characters of $wpdb->prefix -- far past any real WordPress install.
+	 */
+	private const INVALID_META_BACKUP_TABLE_LITERAL = 'mhmrentiva_postmeta_backup_invalid_';
+
+	/**
+	 * The longest $wpdb->prefix invalid_meta_backup_table_name() can still
+	 * name a backup table for at all -- i.e. the prefix plus
+	 * INVALID_META_BACKUP_TABLE_LITERAL alone, with no timestamp or unique
+	 * tail left over, exactly fills MySQL's 64-character identifier limit.
+	 *
+	 * @return int
+	 */
+	public static function max_supported_backup_table_prefix_length(): int {
+		return 64 - strlen( self::INVALID_META_BACKUP_TABLE_LITERAL );
+	}
+
+	/**
+	 * Build the invalid-meta cleanup's backup table name, staying within
+	 * MySQL's 64-character identifier limit for any $table_prefix up to
+	 * max_supported_backup_table_prefix_length() characters.
+	 *
+	 * Pure and stateless on purpose -- every input is a parameter, nothing is
+	 * read from $wpdb or the clock -- so it is testable against arbitrary
+	 * prefixes without a database connection.
+	 *
+	 * $table_prefix . INVALID_META_BACKUP_TABLE_LITERAL is mandatory and
+	 * never shortened (see that constant's docblock for why). Everything
+	 * after it is negotiable, tried in this priority order:
+	 *
+	 *  1. Full form: the literal, then $timestamp, then '_' and the whole of
+	 *     $unique. This is what a normal-length $wpdb->prefix (WordPress's
+	 *     own default is 'wp_') gets, and it is what list_backups()'s
+	 *     `/(\d{8}_\d{6})/` date-extraction regex expects to find.
+	 *
+	 *  2. If keeping the full $timestamp would leave LESS room for $unique
+	 *     than dropping $timestamp entirely would, $timestamp is dropped and
+	 *     $unique (truncated if the remaining room is still short) gets the
+	 *     rest of the budget instead. A partial timestamp is never used: it
+	 *     satisfies nobody -- it cannot match the date regex's fixed
+	 *     8-digit/6-digit shape either way, so keeping a few of its
+	 *     characters would only spend room without buying anything back. This
+	 *     is the branch a hardened/randomised custom $wpdb->prefix (a common
+	 *     security practice) hits: list_backups()'s displayed date becomes
+	 *     "unknown" for that table, but the name stays exactly as
+	 *     collision-resistant as the available room allows -- the actual bug
+	 *     this method exists to prevent does not come back just because the
+	 *     prefix is long.
+	 *
+	 *  3. If $table_prefix . INVALID_META_BACKUP_TABLE_LITERAL alone already
+	 *     exceeds 64 characters, no name can be built at all: returns '' so
+	 *     the caller can fail closed instead of handing CREATE TABLE a name
+	 *     MySQL is guaranteed to reject with "Identifier name is too long".
+	 *
+	 * @param string $table_prefix The live $wpdb->prefix (or a hypothetical one, for tests).
+	 * @param string $timestamp    gmdate('Ymd_His') -- or any 'YYYYMMDD_HHMMSS'-shaped, 15-character string.
+	 * @param string $unique       A short collision-avoidance tail, e.g. from uniqid().
+	 * @return string The backup table name, or '' if $table_prefix is too long to name one at all.
+	 */
+	public static function invalid_meta_backup_table_name( string $table_prefix, string $timestamp, string $unique ): string {
+		$base = $table_prefix . self::INVALID_META_BACKUP_TABLE_LITERAL;
+
+		if ( strlen( $base ) > 64 ) {
+			return '';
+		}
+
+		$remaining        = 64 - strlen( $base );
+		$timestamp_len    = strlen( $timestamp );
+		$unique_len       = strlen( $unique );
+		$tail_with_ts     = $remaining >= $timestamp_len ? min( $unique_len, $remaining - $timestamp_len - 1 ) : -1;
+		$tail_dropping_ts = min( $unique_len, $remaining );
+
+		if ( $tail_with_ts >= 0 && $tail_with_ts >= $tail_dropping_ts ) {
+			$tail   = max( 0, $tail_with_ts );
+			$suffix = $timestamp . ( $tail > 0 ? '_' . substr( $unique, 0, $tail ) : '' );
+		} else {
+			$suffix = substr( $unique, 0, max( 0, $tail_dropping_ts ) );
+		}
+
+		return $base . $suffix;
+	}
+
+	/**
 	 * DELETE every postmeta row whose key the protection list does not cover.
 	 *
 	 * Destructive with $dry_run = false. Rows are copied to a timestamped backup
 	 * table first, but the only thing standing between live data and this DELETE
 	 * is get_valid_meta_keys(), so a key missing from that list is data lost.
+	 *
+	 * Two independent, unrelated conditions can set 'aborted' => true in the
+	 * returned array; 'reason' tells them apart ('custom_fields_unreadable' or
+	 * 'table_prefix_too_long') so a caller can show the admin the actual cause
+	 * instead of one hardcoded message that was only ever true for the first
+	 * of the two. See DatabaseCleanupPage::invalid_meta_cleanup_message().
 	 */
 	public static function cleanup_invalid_meta_keys( bool $dry_run = true ): array {
 		global $wpdb;
@@ -946,6 +1096,7 @@ final class DatabaseCleaner {
 			return array(
 				'dry_run'      => $dry_run,
 				'aborted'      => true,
+				'reason'       => 'custom_fields_unreadable',
 				'deleted'      => 0,
 				'keys_removed' => array(),
 				'at_risk_keys' => $unvouched,
@@ -971,8 +1122,37 @@ final class DatabaseCleaner {
 			);
 		}
 
-		// Create backup table
-		$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' . gmdate( 'Ymd_His' );
+		// Create backup table. See invalid_meta_backup_table_name() for why
+		// the name carries a short tail after the timestamp (a same-second
+		// collision on the plain timestamp used to fail the CREATE TABLE
+		// below with a raw WordPress database error) and how it shortens
+		// itself for a long custom $wpdb->prefix without ever exceeding
+		// MySQL's 64-character identifier limit.
+		$backup_table = self::invalid_meta_backup_table_name( $wpdb->prefix, gmdate( 'Ymd_His' ), substr( uniqid(), -5 ) );
+
+		// Fail closed, the same way the unvouched-custom-field check above
+		// does: a $wpdb->prefix long enough that even the shortest
+		// recognisable backup-table name cannot fit within 64 characters
+		// means there is no safe name to hand to CREATE TABLE at all -- MySQL
+		// is guaranteed to reject a longer one with "Identifier name is too
+		// long", after which this function would still be holding
+		// $invalid_data['keys'] with nowhere to back them up before deleting.
+		if ( '' === $backup_table ) {
+			return array(
+				'dry_run'      => false,
+				'aborted'      => true,
+				'reason'       => 'table_prefix_too_long',
+				'deleted'      => 0,
+				'keys_removed' => array(),
+				'error'        => sprintf(
+					/* translators: 1: current table-prefix length in characters. 2: maximum supported length in characters. */
+					__( 'This site\'s table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL\'s 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run.', 'mhm-rentiva' ),
+					strlen( $wpdb->prefix ),
+					self::max_supported_backup_table_prefix_length()
+				),
+			);
+		}
+
 		$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 		// Extract meta keys

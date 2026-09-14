@@ -12,7 +12,8 @@ use WP_UnitTestCase;
  *
  * find_invalid_meta_keys() runs
  *
- *     WHERE meta_key LIKE '_mhm%' AND meta_key NOT IN (<the list>)
+ *     WHERE meta_key LIKE '_mhm%' AND meta_key NOT LIKE '_mhmcs_%'
+ *     AND meta_key NOT IN (<the list>)
  *
  * over the whole postmeta table -- it is scoped to no post type at all -- and
  * cleanup_invalid_meta_keys(false) then DELETEs every row whose key came back.
@@ -22,6 +23,14 @@ use WP_UnitTestCase;
  * The list is therefore maintained as a superset of every meta-key literal in
  * either plugin's source, and test_no_meta_key_literal_in_the_source_is_missing
  * re-derives that superset from the source tree on every run so it cannot drift.
+ *
+ * The `NOT LIKE '_mhmcs_%'` half is a separate mechanism: it excludes Currency
+ * Switcher's whole namespace (a sibling product, not part of this plugin
+ * family) by prefix, via DatabaseCleaner::protected_meta_prefixes() --
+ * is_prefix_protected() below applies the same rule when judging the two
+ * drift gates, so a '_mhmcs_*' literal in either plugin's source counts as
+ * protected without needing an entry in the allowlist or in
+ * PRO_ONLY_META_KEYS.
  *
  * The Pro add-on is a sibling checkout, not a dependency: CI clones this repo
  * alone, so the scan cannot see Pro there. PRO_ONLY_META_KEYS freezes what Pro
@@ -182,6 +191,28 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	/** Source subdirectories expected to exist and be scanned, per plugin. */
 	private const SCANNED_SUBDIRS = array( 'src', 'templates', 'assets', 'bin' );
 
+	/**
+	 * A literal starting with any of DatabaseCleaner::protected_meta_prefixes()
+	 * belongs to a sibling product's namespace (Currency Switcher's
+	 * '_mhmcs_'), not to this plugin family. The cleanup excludes that whole
+	 * namespace by prefix rather than by listing each of its keys, so the two
+	 * drift gates below must recognise it the same way: neither "missing from
+	 * the allowlist" (it is protected by prefix, not by membership) nor
+	 * "Pro-only inventory drift" (it is not Pro's key at all, and folding it
+	 * into PRO_ONLY_META_KEYS would freeze a different plugin's namespace
+	 * inside the wrong list).
+	 */
+	private function is_prefix_protected( string $literal ): bool
+	{
+		foreach ( DatabaseCleaner::protected_meta_prefixes() as $protected_prefix ) {
+			if ( str_starts_with( $literal, $protected_prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/** @var list<int> */
 	private array $seeded_posts = array();
 
@@ -211,10 +242,18 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		}
 		$this->seeded_options = array();
 
+		// 'mhmrentiva_postmeta_backup_invalid_', matching what
+		// cleanup_invalid_meta_keys() actually names the table -- an earlier
+		// version of this pattern searched for 'mhm_postmeta_backup_invalid_'
+		// (one underscore after 'mhm', not the real spelling), which SHOW
+		// TABLES LIKE never matched, so this sweep had swept nothing since it
+		// was written. Harmless only because the table is a CREATE TEMPORARY
+		// TABLE under WP_UnitTestCase (connection-scoped, not committed), so
+		// it never actually leaked into the persistent schema.
 		$leftovers = $wpdb->get_col(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',
-				$wpdb->esc_like( $wpdb->prefix . 'mhm_postmeta_backup_invalid_' ) . '%'
+				$wpdb->esc_like( $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' ) . '%'
 			)
 		);
 		foreach ( $leftovers as $table ) {
@@ -309,6 +348,214 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Currency Switcher (sibling product, not part of this plugin family)
+	 * writes '_mhmcs_fixed_prices' on the product post as its per-product
+	 * fixed-price override. It begins with '_mhm' like this plugin's own
+	 * keys, so without the prefix exclusion the unscoped invalid-meta cleanup
+	 * would delete another plugin's product data.
+	 */
+	public function test_a_currency_switcher_product_price_survives_the_invalid_meta_cleanup(): void
+	{
+		$post_id = $this->seed_post_with_meta( array( '_mhmcs_fixed_prices' => 'a:0:{}' ) );
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
+		$this->assertSame( 'a:0:{}', get_post_meta( $post_id, '_mhmcs_fixed_prices', true ) );
+		$this->assertNotContains( '_mhmcs_fixed_prices', $result['keys_removed'] );
+	}
+
+	/**
+	 * Currency Switcher also writes its currency/rate snapshot onto the order
+	 * (postmeta when HPOS is off). All three keys begin with '_mhm' and are
+	 * reached by the same unscoped LIKE, so all three must survive together.
+	 */
+	public function test_the_currency_switcher_order_rate_meta_survives_the_invalid_meta_cleanup(): void
+	{
+		$post_id = $this->seed_post_with_meta(
+			array(
+				'_mhmcs_currency_code' => 'EUR',
+				'_mhmcs_exchange_rate' => '1.0842',
+				'_mhmcs_base_currency' => 'TRY',
+			)
+		);
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
+		$this->assertSame( 'EUR', get_post_meta( $post_id, '_mhmcs_currency_code', true ) );
+		$this->assertSame( '1.0842', get_post_meta( $post_id, '_mhmcs_exchange_rate', true ) );
+		$this->assertSame( 'TRY', get_post_meta( $post_id, '_mhmcs_base_currency', true ) );
+		$this->assertNotContains( '_mhmcs_currency_code', $result['keys_removed'] );
+		$this->assertNotContains( '_mhmcs_exchange_rate', $result['keys_removed'] );
+		$this->assertNotContains( '_mhmcs_base_currency', $result['keys_removed'] );
+	}
+
+	/**
+	 * LIKE-escape negative control. '_' is MySQL's single-character wildcard,
+	 * so an unescaped '_mhmcs_%' exclusion would also spare '_mhmcsX_fake' --
+	 * anything with one extra character standing in for the escaped
+	 * underscore. That key is not Currency Switcher's namespace and carries
+	 * no cover in get_valid_meta_keys() either, so it must still be deleted;
+	 * without this control, a broken (unescaped) exclusion would pass the two
+	 * tests above just as well.
+	 */
+	public function test_a_key_that_only_resembles_the_prefix_is_still_cleaned(): void
+	{
+		$post_id = $this->seed_post_with_meta( array( '_mhmcsX_fake' => 'garbage' ) );
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
+		$this->assertSame( '', get_post_meta( $post_id, '_mhmcsX_fake', true ) );
+		$this->assertContains( '_mhmcsX_fake', $result['keys_removed'] );
+	}
+
+	/**
+	 * Regression control for the backup-table name collision fixed alongside
+	 * this task: two cleanup_invalid_meta_keys(false) calls issued back to
+	 * back -- exactly what the three tests above already do in this class --
+	 * used to build the IDENTICAL backup table name (a gmdate('Ymd_His')
+	 * timestamp is only one-second resolution), so the second call's CREATE
+	 * TABLE failed and WordPress echoed a raw
+	 * `<div id="error">...wpdberror...` block into test output. `$wpdb->last_error`
+	 * cannot detect this: wpdb clears it at the start of every new query, and
+	 * the cleanup's own later queries (the INSERT, the DELETE) succeed and
+	 * overwrite it before the function returns -- see
+	 * UpcomingOperationsLocationBranchParityTest's docblock for the same
+	 * observation about this class of bug. Output capture is what actually
+	 * saw the error originally, so it is what has to catch its return.
+	 */
+	public function test_two_cleanups_in_the_same_second_do_not_collide_on_the_backup_table(): void
+	{
+		$first_post  = $this->seed_post_with_meta( array( '_mhm_not_a_real_rentiva_key_at_all' => 'garbage' ) );
+		$second_post = $this->seed_post_with_meta( array( '_mhm_also_not_a_real_rentiva_key' => 'garbage' ) );
+
+		ob_start();
+		$first = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+		$first_output = ob_get_clean();
+
+		ob_start();
+		$second = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+		$second_output = ob_get_clean();
+
+		$this->assertArrayNotHasKey( 'aborted', $first, 'the first cleanup should have run, not refused' );
+		$this->assertArrayNotHasKey( 'aborted', $second, 'the second cleanup should have run, not refused' );
+
+		$this->assertStringNotContainsString(
+			'wpdberror',
+			$first_output,
+			"the first cleanup's own backup-table CREATE reported a database error"
+		);
+		$this->assertStringNotContainsString(
+			'wpdberror',
+			$second_output,
+			'two cleanups issued back-to-back collided on the same backup table name -- the timestamp-only name is not unique within one second'
+		);
+
+		$this->assertSame( '', get_post_meta( $first_post, '_mhm_not_a_real_rentiva_key_at_all', true ) );
+		$this->assertSame( '', get_post_meta( $second_post, '_mhm_also_not_a_real_rentiva_key', true ) );
+	}
+
+	/**
+	 * Round-2 fix. Fixing the same-second collision above by simply
+	 * appending a fixed-length tail (round 1) narrowed the margin between
+	 * "longest $wpdb->prefix this still works for" and MySQL's 64-character
+	 * identifier limit from 14 characters down to 8 -- a hardened/randomised
+	 * custom prefix longer than 8 characters (a common security practice,
+	 * and previously safe up to 14) would make CREATE TABLE %i fail with
+	 * "Identifier name is too long", which the caller did not check for at
+	 * all. invalid_meta_backup_table_name() is the pure, stateless builder
+	 * extracted to fix that: these tests exercise it directly, against
+	 * arbitrary prefixes, without needing a live $wpdb->prefix override
+	 * (which WP_UnitTestCase cannot safely do mid-test -- every core query in
+	 * the same test uses the same $wpdb->prefix).
+	 *
+	 * For the default `'wp_'`-shaped prefix (and this suite's own
+	 * `'wptests_'`, 8 characters), the full form -- timestamp AND unique tail
+	 * -- must still be present: this is the common case and round 1's
+	 * behaviour must not regress for it.
+	 */
+	public function test_the_backup_table_name_keeps_the_full_form_for_a_normal_length_prefix(): void
+	{
+		$name = DatabaseCleaner::invalid_meta_backup_table_name( 'wptests_', '20260914_120000', 'ab12d' );
+
+		$this->assertLessThanOrEqual( 64, strlen( $name ) );
+		$this->assertStringStartsWith( 'wptests_mhmrentiva_postmeta_backup_invalid_', $name );
+		$this->assertMatchesRegularExpression( '/\d{8}_\d{6}/', $name, 'the date-extraction regex list_backups() uses must still find the timestamp' );
+		$this->assertStringEndsWith( '_ab12d', $name, 'the full unique tail must survive for a normal-length prefix' );
+	}
+
+	/**
+	 * A 20-character prefix is well past the 8-character margin round 1 left
+	 * (and well within what a hardened/randomised prefix realistically
+	 * reaches). At this length there is no room left for the human-readable
+	 * timestamp at all -- list_backups()'s displayed date becomes "unknown"
+	 * for this table, which is a cosmetic trade-off documented on
+	 * invalid_meta_backup_table_name() -- but every reader that decides
+	 * ROUTING or TYPING must still recognise the name, checked here against
+	 * the exact pattern each one actually uses:
+	 *  - list_backups()'s `SHOW TABLES LIKE '{prefix}mhmrentiva_%_backup%'`
+	 *    (reproduced here as the string checks that pattern compiles to,
+	 *    since SHOW TABLES needs a live table to query against);
+	 *  - list_backups()'s and restore_backup()'s
+	 *    `strpos($name, 'postmeta_backup_invalid') !== false` typing/routing
+	 *    check.
+	 */
+	public function test_the_backup_table_name_stays_within_the_mysql_limit_and_stays_recognisable_for_a_20_character_prefix(): void
+	{
+		$prefix = str_repeat( 'p', 20 );
+		$name   = DatabaseCleaner::invalid_meta_backup_table_name( $prefix, '20260914_120000', 'ab12d' );
+
+		$this->assertNotSame( '', $name, 'a 20-character prefix must still get a real backup table name' );
+		$this->assertLessThanOrEqual( 64, strlen( $name ), "MySQL's identifier limit" );
+
+		// list_backups()'s SHOW TABLES LIKE '{prefix}mhmrentiva_%_backup%'.
+		$this->assertStringStartsWith( $prefix . 'mhmrentiva_', $name );
+		$this->assertStringContainsString( '_backup', substr( $name, strlen( $prefix . 'mhmrentiva_' ) ) );
+
+		// list_backups()'s and restore_backup()'s typing/routing check.
+		$this->assertStringContainsString( 'postmeta_backup_invalid', $name );
+	}
+
+	/**
+	 * The documented ceiling: $table_prefix .
+	 * DatabaseCleaner::INVALID_META_BACKUP_TABLE_LITERAL (the mandatory,
+	 * never-shortened part) exactly fills 64 characters at
+	 * max_supported_backup_table_prefix_length(), with zero room left for a
+	 * timestamp or tail -- still a real, recognisable name, just with no
+	 * uniqueness protection at this one exact boundary. One character longer
+	 * and no recognisable name can be built at all: the builder returns ''
+	 * so cleanup_invalid_meta_keys() can fail closed instead of handing
+	 * CREATE TABLE a name MySQL is guaranteed to reject.
+	 */
+	public function test_the_backup_table_name_still_fits_at_the_maximum_supported_prefix_length(): void
+	{
+		$max = DatabaseCleaner::max_supported_backup_table_prefix_length();
+
+		$at_max = DatabaseCleaner::invalid_meta_backup_table_name( str_repeat( 'p', $max ), '20260914_120000', 'ab12d' );
+		$this->assertNotSame( '', $at_max, 'the documented maximum prefix length must still produce a name' );
+		$this->assertLessThanOrEqual( 64, strlen( $at_max ) );
+		$this->assertStringContainsString( 'postmeta_backup_invalid', $at_max );
+
+		$over_max = DatabaseCleaner::invalid_meta_backup_table_name( str_repeat( 'p', $max + 1 ), '20260914_120000', 'ab12d' );
+		$this->assertSame( '', $over_max, 'one character past the documented maximum, no recognisable name can be built' );
+	}
+
+	/**
+	 * Uniqueness is the entire point of this mechanism (it is what fixes the
+	 * same-second collision above), so two calls that differ only in their
+	 * unique tail must never collapse onto the same table name.
+	 */
+	public function test_two_different_unique_tails_produce_different_backup_table_names(): void
+	{
+		$first  = DatabaseCleaner::invalid_meta_backup_table_name( 'wptests_', '20260914_120000', 'aaaaa' );
+		$second = DatabaseCleaner::invalid_meta_backup_table_name( 'wptests_', '20260914_120000', 'bbbbb' );
+
+		$this->assertNotSame( $first, $second );
+	}
+
+	/**
 	 * Drift gate. Re-derives the inventory from the source tree, so a new meta
 	 * key added anywhere in either plugin fails here until it is protected.
 	 * MetaKeys' constants are literals inside src/, so this subsumes a
@@ -323,6 +570,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 
 		foreach ( $found as $literal => $where ) {
 			if ( isset( self::NON_META_LITERALS[ $literal ] ) ) {
+				continue;
+			}
+			if ( $this->is_prefix_protected( $literal ) ) {
 				continue;
 			}
 			if ( ! in_array( $literal, $valid, true ) ) {
@@ -425,8 +675,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			array_unique(
 				array_filter(
 					array_diff( $pro_literals, $lite_literals ),
-					static function ( string $literal ) use ( $exceptions ): bool {
-						return ! in_array( $literal, $exceptions, true );
+					function ( string $literal ) use ( $exceptions ): bool {
+						return ! in_array( $literal, $exceptions, true )
+							&& ! $this->is_prefix_protected( $literal );
 					}
 				)
 			)
