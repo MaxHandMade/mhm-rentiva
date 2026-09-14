@@ -37,7 +37,7 @@ final class DatabaseCleanupPageTest extends WP_UnitTestCase
 				'reason'       => 'custom_fields_unreadable',
 				'deleted'      => 0,
 				'keys_removed' => array(),
-				'at_risk_keys' => array( '_mhm_rentiva_engine_torque' ),
+				'at_risk_keys' => array( '_mhmrentiva_engine_torque' ),
 			)
 		);
 
