@@ -1076,6 +1076,12 @@ final class DatabaseCleaner {
 	 * Destructive with $dry_run = false. Rows are copied to a timestamped backup
 	 * table first, but the only thing standing between live data and this DELETE
 	 * is get_valid_meta_keys(), so a key missing from that list is data lost.
+	 *
+	 * Two independent, unrelated conditions can set 'aborted' => true in the
+	 * returned array; 'reason' tells them apart ('custom_fields_unreadable' or
+	 * 'table_prefix_too_long') so a caller can show the admin the actual cause
+	 * instead of one hardcoded message that was only ever true for the first
+	 * of the two. See DatabaseCleanupPage::invalid_meta_cleanup_message().
 	 */
 	public static function cleanup_invalid_meta_keys( bool $dry_run = true ): array {
 		global $wpdb;
@@ -1090,6 +1096,7 @@ final class DatabaseCleaner {
 			return array(
 				'dry_run'      => $dry_run,
 				'aborted'      => true,
+				'reason'       => 'custom_fields_unreadable',
 				'deleted'      => 0,
 				'keys_removed' => array(),
 				'at_risk_keys' => $unvouched,
@@ -1134,6 +1141,7 @@ final class DatabaseCleaner {
 			return array(
 				'dry_run'      => false,
 				'aborted'      => true,
+				'reason'       => 'table_prefix_too_long',
 				'deleted'      => 0,
 				'keys_removed' => array(),
 				'error'        => sprintf(
