@@ -974,6 +974,8 @@ final class AssetManager {
 				array(
 					'nonce' => wp_create_nonce('vehicle_settings_nonce'),
 					'state' => \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::build_settings_state(),
+					// Only the v2 UI reads it; the live preview card's real vehicle.
+					'preview' => $vs_is_v2 ? \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::build_preview_vehicle() : array(),
 					'i18n'  => array(
 						'confirmResetAll'        => __('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva'),
 						'saved'                  => __('Settings saved successfully!', 'mhm-rentiva'),

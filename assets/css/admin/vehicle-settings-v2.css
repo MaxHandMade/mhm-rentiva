@@ -535,6 +535,18 @@
 	font-size: 12px;
 }
 
+.rv-vs__pimage--photo {
+	display: block;
+	background: #e9edf2;
+}
+
+.rv-vs__pimage--photo img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .rv-vs__pbody {
 	padding: 14px 16px;
 }

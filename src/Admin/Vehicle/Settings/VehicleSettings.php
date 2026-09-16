@@ -1002,6 +1002,60 @@ final class VehicleSettings {
 	}
 
 	/**
+	 * The vehicle the Display & Preview tab's live preview card shows.
+	 *
+	 * The first published vehicle (oldest post date) that has a featured
+	 * image, so the card previews the site's own fleet instead of a grey box
+	 * and a sample name. Name and price come from that same vehicle so the
+	 * card never pairs one car's photo with another's title. An empty array
+	 * when no published vehicle has an image: the card keeps its placeholder.
+	 *
+	 * @return array{image?:string,name?:string,price?:string}
+	 */
+	public static function build_preview_vehicle(): array {
+		$ids = get_posts(
+			array(
+				'post_type'              => \MHMRentiva\Admin\Vehicle\PostType\Vehicle::POST_TYPE,
+				'post_status'            => 'publish',
+				'posts_per_page'         => 1,
+				'orderby'                => 'date',
+				'order'                  => 'ASC',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one EXISTS clause on _thumbnail_id, LIMIT 1, admin screen only.
+				'meta_query'             => array(
+					array(
+						'key'     => '_thumbnail_id',
+						'compare' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		if ( empty( $ids ) ) {
+			return array();
+		}
+
+		$vehicle_id = (int) $ids[0];
+		$image      = wp_get_attachment_image_url( (int) get_post_thumbnail_id( $vehicle_id ), 'medium_large' );
+		if ( ! is_string( $image ) || '' === $image ) {
+			return array();
+		}
+
+		$daily = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day( $vehicle_id );
+		$price = $daily > 0
+			? \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $daily ) . ' ' . __( '/ day', 'mhm-rentiva' )
+			: '';
+
+		return array(
+			'image' => $image,
+			'name'  => get_the_title( $vehicle_id ),
+			'price' => $price,
+		);
+	}
+
+	/**
 	 * Build the client-side state payload for the Vehicle Settings UI.
 	 *
 	 * @return array{fields:array<int,array>,cardOrder:string[],detailOrder:string[]}
