@@ -196,7 +196,7 @@ final class ListScreenLayout {
 	 * list screens. Same `$pagenow`/`$post_type` idiom the block renderers
 	 * themselves use, so a screen guard never disagrees with its own block.
 	 */
-	private static function is_list_screen(): bool
+	public static function is_list_screen(): bool
 	{
 		global $pagenow, $post_type;
 

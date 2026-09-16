@@ -22,7 +22,10 @@ jQuery(document).ready(
 
 		const convertWPNoticesToToasts = function () {
 			// Select standard WordPress notices that appear after saving
-			const $wpNotices = $('.wrap .notice, .wrap .updated, .wrap .error, #setting-error-settings_updated').not('.inline');
+			// Skip .below-h2: those are admin notices NoticePlacement already placed
+			// under the header (the Pro licence warning among them). They stay a
+			// band on the page instead of a toast that disappears after 4 seconds.
+			const $wpNotices = $('.wrap .notice, .wrap .updated, .wrap .error, #setting-error-settings_updated').not('.inline, .below-h2');
 
 			if ($wpNotices.length > 0) {
 				$wpNotices.each(

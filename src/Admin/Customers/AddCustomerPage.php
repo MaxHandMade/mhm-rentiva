@@ -130,6 +130,8 @@ final class AddCustomerPage {
 
 		echo '<div class="wrap mhm-rentiva-wrap">';
 		echo '<h1>' . esc_html__( 'Add New Customer', 'mhm-rentiva' ) . '</h1>';
+		// Anchor for admin notices (core common.js and NoticePlacement).
+		echo '<hr class="wp-header-end">';
 
 		$posted_customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
 		$posted_customer_email   = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
