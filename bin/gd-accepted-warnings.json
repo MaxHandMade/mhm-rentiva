@@ -9,7 +9,7 @@
     "accepted": {
         "src/Admin/Addons/AddonStats.php|WordPress.DB.DirectDatabaseQuery.DirectQuery": 3,
         "src/Admin/Core/PostTypes/AbstractPostType.php|WordPress.Security.NonceVerification.Recommended": 2,
-        "src/Admin/Core/Utilities/DatabaseCleaner.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 7,
+        "src/Admin/Core/Utilities/DatabaseCleaner.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 6,
         "src/Admin/Core/Utilities/DatabaseMigrator.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 11,
         "src/Admin/Core/Utilities/RetiredIndexes.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 1,
         "src/Admin/Customers/CustomersOptimizer.php|PluginCheck.Security.DirectDB.UnescapedDBParameter": 8,

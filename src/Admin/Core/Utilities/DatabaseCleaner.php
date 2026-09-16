@@ -983,6 +983,47 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * Creates $backup_table shaped like $source_table. True only when the
+	 * CREATE succeeded.
+	 *
+	 * Every backed-up cleanup is CREATE -> INSERT ... SELECT -> DELETE, and
+	 * used to read the result of neither backup statement: a CREATE that
+	 * failed (a same-second name collision, a name past MySQL's identifier
+	 * limit, a missing privilege) or an INSERT that failed left the DELETE
+	 * running with no copy of what it removed. Callers delete nothing unless
+	 * this returned true AND their own INSERT returned something other than
+	 * false; each INSERT stays a literal $wpdb->prepare() at its call site.
+	 */
+	private static function create_backup_table( string $backup_table, string $source_table ): bool {
+		global $wpdb;
+
+		return false !== $wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $source_table ) );
+	}
+
+	/**
+	 * Drops a backup table THIS cleanup created and then failed to fill, so the
+	 * backup list never offers an empty one to restore from.
+	 *
+	 * 🔴 Only after create_backup_table() returned true. When the CREATE itself
+	 * failed, a table of that name may already exist -- a previous cleanup's
+	 * backup from the same second -- and dropping it would destroy the one
+	 * good copy.
+	 */
+	private static function discard_unfilled_backup_table( string $backup_table ): void {
+		global $wpdb;
+
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $backup_table ) );
+	}
+
+	/**
+	 * The admin-facing reason for a cleanup that refused to delete because its
+	 * backup could not be made.
+	 */
+	public static function backup_failed_message(): string {
+		return __( 'Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted.', 'mhm-rentiva' );
+	}
+
+	/**
 	 * The literal every reader of the invalid-meta backup table name keys
 	 * off, directly or via list_backups()'s own SHOW TABLES enumeration.
 	 * Never shortened by invalid_meta_backup_table_name() -- doing so would
@@ -1153,23 +1194,38 @@ final class DatabaseCleaner {
 			);
 		}
 
-		$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
-
 		// Extract meta keys
 		$invalid_keys = array_column( $invalid_data['keys'], 'meta_key' );
 
-		// Backup invalid meta data
-		$wpdb->query(
-			$wpdb->prepare(
-				"
+		// Backup invalid meta data -- and delete nothing without it.
+		$backed_up = self::create_backup_table( $backup_table, $wpdb->postmeta );
+		if ( $backed_up ) {
+			$backed_up = false !== $wpdb->query(
+				$wpdb->prepare(
+					"
             INSERT INTO %i
             SELECT pm.*
             FROM {$wpdb->postmeta} pm
             WHERE pm.meta_key IN (" . implode( ',', array_fill( 0, count( $invalid_keys ), '%s' ) ) . ')
         ',
-				array_merge( array( $backup_table ), $invalid_keys )
-			)
-		);
+					array_merge( array( $backup_table ), $invalid_keys )
+				)
+			);
+			if ( ! $backed_up ) {
+				self::discard_unfilled_backup_table( $backup_table );
+			}
+		}
+
+		if ( ! $backed_up ) {
+			return array(
+				'dry_run'      => false,
+				'aborted'      => true,
+				'reason'       => 'backup_failed',
+				'deleted'      => 0,
+				'keys_removed' => array(),
+				'error'        => self::backup_failed_message(),
+			);
+		}
 
 		// Delete invalid meta keys
 		$deleted = $wpdb->query(
@@ -1271,12 +1327,13 @@ final class DatabaseCleaner {
 		if ( ! $dry_run && $count > 0 ) {
 			// Create backup table
 			$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_' . gmdate( 'Ymd_His' );
-			$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
-			// Backup orphaned data
-			$wpdb->query(
-				$wpdb->prepare(
-					"
+			// Backup orphaned data -- and delete nothing without it.
+			$backed_up = self::create_backup_table( $backup_table, $wpdb->postmeta );
+			if ( $backed_up ) {
+				$backed_up = false !== $wpdb->query(
+					$wpdb->prepare(
+						"
                 INSERT INTO %i
                 SELECT pm.*
                 FROM {$wpdb->postmeta} pm
@@ -1284,10 +1341,24 @@ final class DatabaseCleaner {
                 WHERE p.ID IS NULL
                 AND pm.meta_key LIKE %s
             ",
-					$backup_table,
-					'_mhm%'
-				)
-			);
+						$backup_table,
+						'_mhm%'
+					)
+				);
+				if ( ! $backed_up ) {
+					self::discard_unfilled_backup_table( $backup_table );
+				}
+			}
+
+			if ( ! $backed_up ) {
+				return array(
+					'dry_run' => false,
+					'aborted' => true,
+					'reason'  => 'backup_failed',
+					'deleted' => 0,
+					'error'   => self::backup_failed_message(),
+				);
+			}
 
 			// Delete orphaned meta
 			$deleted = $wpdb->query(
@@ -1417,16 +1488,34 @@ final class DatabaseCleaner {
 				// Create backup
 				$backup_table = $table_name . '_backup_' . gmdate( 'Ymd_His' );
 
-				$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $table_name ) );
-				$wpdb->query(
-					$wpdb->prepare(
-						'INSERT INTO %i SELECT * FROM %i WHERE %i < %s',
-						$backup_table,
-						$table_name,
-						$date_column,
-						$cutoff_date
-					)
-				);
+				$backed_up = self::create_backup_table( $backup_table, $table_name );
+				if ( $backed_up ) {
+					$backed_up = false !== $wpdb->query(
+						$wpdb->prepare(
+							'INSERT INTO %i SELECT * FROM %i WHERE %i < %s',
+							$backup_table,
+							$table_name,
+							$date_column,
+							$cutoff_date
+						)
+					);
+					if ( ! $backed_up ) {
+						self::discard_unfilled_backup_table( $backup_table );
+					}
+				}
+
+				// Delete nothing from this table without its backup; the other
+				// tables are independent and keep going.
+				if ( ! $backed_up ) {
+					$results[ $key ] = array(
+						'exists'  => true,
+						'aborted' => true,
+						'reason'  => 'backup_failed',
+						'deleted' => 0,
+						'error'   => self::backup_failed_message(),
+					);
+					continue;
+				}
 
 				// Delete old records
 				$deleted = $wpdb->query(
