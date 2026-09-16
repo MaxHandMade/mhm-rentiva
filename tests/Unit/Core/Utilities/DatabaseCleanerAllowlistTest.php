@@ -543,6 +543,61 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * A hardened prefix of 9 to 14 characters (`wp_a1b2c3_` is 10) leaves room
+	 * for the timestamp AND a shorter unique tail. The first version of this
+	 * builder dropped the timestamp whenever the FULL five-character tail did
+	 * not fit after it -- so for exactly these prefixes list_backups() showed
+	 * the date as "unknown" and sorted the backup above every dated one, where
+	 * 6.1.4 had shown the date. Keep the date while any tail fits.
+	 *
+	 * @dataProvider hardened_prefix_lengths
+	 */
+	public function test_a_hardened_prefix_keeps_the_timestamp_and_a_unique_tail( int $length ): void
+	{
+		$prefix = str_repeat( 'p', $length );
+		$name   = DatabaseCleaner::invalid_meta_backup_table_name( $prefix, '20260914_120000', 'ab12d' );
+
+		$this->assertLessThanOrEqual( 64, strlen( $name ), "MySQL's identifier limit" );
+		$this->assertStringContainsString( '20260914_120000', $name, 'list_backups() must still find the date' );
+
+		// 64 - 35 (literal) - length = room after the literal. The date is 15;
+		// "_" plus at least one tail character needs 17. So 9-12 keep a tail,
+		// 13-14 keep the date alone -- the name 6.1.4 used for them -- and a
+		// same-second collision there refuses (no backup, no delete) rather than
+		// hiding the date.
+		if ( 64 - 35 - $length >= 17 ) {
+			$this->assertMatchesRegularExpression( '/20260914_120000_[0-9a-f]+$/', $name, 'a unique tail must still follow the date' );
+		} else {
+			$this->assertStringEndsWith( '20260914_120000', $name );
+		}
+	}
+
+	/** @return array<string, array{0: int}> */
+	public function hardened_prefix_lengths(): array
+	{
+		$cases = array();
+		for ( $length = 9; $length <= 14; $length++ ) {
+			$cases[ $length . ' characters' ] = array( $length );
+		}
+		return $cases;
+	}
+
+	/**
+	 * When the tail has to be shortened, it keeps the FINE end of the unique
+	 * value. The caller passes the last five hex characters of uniqid() --
+	 * microseconds -- whose leading character changes only every ~65 ms; two
+	 * cleanups in the same second must differ in what survives.
+	 */
+	public function test_a_shortened_tail_keeps_the_fine_end_of_the_unique_value(): void
+	{
+		$prefix = str_repeat( 'p', 12 );
+		$first  = DatabaseCleaner::invalid_meta_backup_table_name( $prefix, '20260914_120000', 'aaaa1' );
+		$second = DatabaseCleaner::invalid_meta_backup_table_name( $prefix, '20260914_120000', 'aaaa2' );
+
+		$this->assertNotSame( $first, $second );
+	}
+
+	/**
 	 * Uniqueness is the entire point of this mechanism (it is what fixes the
 	 * same-second collision above), so two calls that differ only in their
 	 * unique tail must never collapse onto the same table name.

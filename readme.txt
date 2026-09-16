@@ -192,7 +192,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 = 6.1.5 =
 * Fixed: the invalid-meta cleanup under Settings > Database Cleanup deleted MHM Currency Switcher's product fixed prices and, where orders are stored as posts, each order's recorded currency and exchange rate. Keys under _mhmcs_ are left alone.
 * Fixed: the invalid-meta, orphaned-meta and old-log cleanups deleted rows even when their backup table could not be created or filled. They now delete nothing, say why, and remove a backup table left empty.
-* Fixed: two invalid-meta cleanups in the same second shared a backup table, and a table prefix over 14 characters broke its name. Each run gets its own name, working up to a 29-character prefix.
+* Fixed: two invalid-meta cleanups in the same second shared a backup table, and a table prefix over 14 characters broke its name. The name now fits up to a 29-character prefix, keeps its date where it fits, and a run without a free name deletes nothing.
 * Fixed: a cancelled cleanup showed "[object Object]" or the wrong reason instead of its own.
 * Security: the search filter's AJAX "No vehicles found" message is now escaped, as the shortcode path already was.
 * Changed: unused e-mail screen JavaScript calling four non-existent admin actions was removed; mhm/ui-core is 0.10.0.

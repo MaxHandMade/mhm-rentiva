@@ -431,7 +431,7 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 2,654 tests / 12,262 assertions (v6.1.5)
+- **PHPUnit**: 2,661 tests / 12,287 assertions (v6.1.5)
 - **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check), all on a single pinned PHP 8.2 — no PHP/WP version matrix
 - **PHPCS**: WordPress Coding Standards via a custom ruleset (43 documented exclusions), 0 errors
 - **Test Admin Page**: Accessible from Rentiva menu
