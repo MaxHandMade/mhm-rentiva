@@ -79,8 +79,8 @@ final class NoticePlacement {
 
 		return str_contains($screen->id, 'mhmrentiva')
 			|| str_contains($screen->id, 'mhm-rentiva')
-			|| str_contains((string) ( $screen->post_type ?? '' ), 'mhmrentiva')
-			|| str_contains((string) ( $screen->taxonomy ?? '' ), 'mhmrentiva');
+			|| str_contains($screen->post_type, 'mhmrentiva')
+			|| str_contains($screen->taxonomy, 'mhmrentiva');
 	}
 
 	public static function print_script(): void
