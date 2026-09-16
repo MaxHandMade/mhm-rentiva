@@ -46,6 +46,7 @@ src/Admin/Core/ListTable/FleetOccupancyMatrix.php
 src/Admin/Core/ListTable/ListScreenLayout.php
 src/Admin/Core/MetaBoxes/AbstractMetaBox.php
 src/Admin/Core/MetaKeys.php
+src/Admin/Core/NoticePlacement.php
 src/Admin/Core/PerformanceHelper.php
 src/Admin/Core/PostTypes/AbstractPostType.php
 src/Admin/Core/QueryHelper.php
