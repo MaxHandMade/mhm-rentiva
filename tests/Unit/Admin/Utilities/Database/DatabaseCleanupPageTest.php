@@ -106,4 +106,22 @@ final class DatabaseCleanupPageTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString( 'custom field definitions could not be read', $message );
 	}
+
+	/**
+	 * A third cause: the backup table could not be created or filled. It must
+	 * not fall through to the custom-field message, which would name a cause
+	 * that did not happen.
+	 */
+	public function test_the_backup_failed_reason_says_the_backup_failed(): void
+	{
+		$message = DatabaseCleanupPage::invalid_meta_cleanup_message(
+			array(
+				'aborted' => true,
+				'reason'  => 'backup_failed',
+			)
+		);
+
+		$this->assertStringContainsString( 'backup table could not be created or filled', $message );
+		$this->assertStringNotContainsString( 'custom field', $message );
+	}
 }

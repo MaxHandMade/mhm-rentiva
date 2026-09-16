@@ -107,6 +107,15 @@ final class DatabaseCleanupPage {
 
 		$result = DatabaseCleaner::cleanup_orphaned_postmeta(false); // Execute cleanup
 
+		if (! empty($result['aborted'])) {
+			wp_send_json_error(
+				array(
+					'message' => $result['error'] ?? DatabaseCleaner::backup_failed_message(),
+					'result'  => $result,
+				)
+			);
+		}
+
 		wp_send_json_success(
 			array(
 				'message' => sprintf(
@@ -224,6 +233,10 @@ final class DatabaseCleanupPage {
 	 */
 	public static function invalid_meta_cleanup_message( array $result ): string
 	{
+		if ( 'backup_failed' === ( $result['reason'] ?? '' ) ) {
+			return $result['error'] ?? DatabaseCleaner::backup_failed_message();
+		}
+
 		if ( 'table_prefix_too_long' === ( $result['reason'] ?? '' ) ) {
 			// DatabaseCleaner already composed a specific, translated message
 			// naming the measured prefix length; only a generic fallback is
@@ -633,8 +646,27 @@ final class DatabaseCleanupPage {
 		$results = DatabaseCleaner::cleanup_old_logs(30, false); // Execute cleanup
 
 		$total_deleted = 0;
+		$aborted       = false;
 		foreach ($results as $table_result) {
 			$total_deleted += ( $table_result['deleted'] ?? 0 );
+			$aborted        = $aborted || ! empty($table_result['aborted']);
+		}
+
+		// Tables are cleaned independently, so some may have been cleaned before
+		// another refused. Say both, as a failure, rather than a success count
+		// that hides the table whose old rows are still there.
+		if ($aborted) {
+			wp_send_json_error(
+				array(
+					'message' => sprintf(
+						/* translators: 1: reason the cleanup was cancelled. 2: number of records cleaned from the other tables. */
+						__('%1$s (%2$d old log records were cleaned from the other tables.)', 'mhm-rentiva'),
+						DatabaseCleaner::backup_failed_message(),
+						$total_deleted
+					),
+					'result'  => $results,
+				)
+			);
 		}
 
 		wp_send_json_success(
