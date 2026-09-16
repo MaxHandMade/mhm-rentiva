@@ -40,6 +40,9 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 
 	private int $broken = 0;
 
+	/** @var list<string> Every DROP TABLE issued while the filter was on. */
+	private array $drops = array();
+
 	public function tearDown(): void
 	{
 		remove_filter( 'query', array( $this, 'break_the_backup' ) );
@@ -54,6 +57,9 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 	public function break_the_backup( $query ): string
 	{
 		$query   = (string) $query;
+		if ( preg_match( '/^\s*DROP\s+(TEMPORARY\s+)?TABLE/i', $query ) ) {
+			$this->drops[] = $query;
+		}
 		$pattern = 'create' === $this->break
 			? '/^\s*CREATE\s+(TEMPORARY\s+)?TABLE\s+`?[a-z0-9_]*' . preg_quote( $this->break_table_fragment, '/' ) . '/i'
 			: '/^\s*INSERT\s+INTO\s+`?[a-z0-9_]*' . preg_quote( $this->break_table_fragment, '/' ) . '/i';
@@ -73,6 +79,22 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		add_filter( 'query', array( $this, 'break_the_backup' ) );
 	}
 
+	/**
+	 * 🔴 A failed CREATE must not be followed by a DROP of that name: the
+	 * CREATE may have failed BECAUSE the table exists -- a previous cleanup's
+	 * backup from the same second -- and dropping it would destroy that copy.
+	 */
+	private function assertNoBackupWasDropped(): void
+	{
+		$this->assertSame( array(), preg_grep( '/' . preg_quote( $this->break_table_fragment, '/' ) . '/i', $this->drops ), 'a backup table was dropped after its CREATE failed' );
+	}
+
+	/** A table created but not filled is discarded, not left in the backup list. */
+	private function assertTheUnfilledBackupWasDropped(): void
+	{
+		$this->assertCount( 1, preg_grep( '/' . preg_quote( $this->break_table_fragment, '/' ) . '/i', $this->drops ), 'the unfilled backup table was not dropped' );
+	}
+
 	/** @return array<string, mixed> The cleanup result, with the injected DB error silenced. */
 	private static function quietly( callable $cleanup ): array
 	{
@@ -90,7 +112,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 	private function seed_invalid_meta(): int
 	{
 		$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
-		update_post_meta( $post_id, '_mhm_fail_closed_probe', 'keep-me' );
+		update_post_meta( $post_id, '_mhmprobe_fail_closed', 'keep-me' );
 
 		return $post_id;
 	}
@@ -106,7 +128,8 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		$this->assertTrue( $result['aborted'] ?? false );
 		$this->assertSame( 'backup_failed', $result['reason'] ?? '' );
 		$this->assertSame( 0, $result['deleted'] ?? null );
-		$this->assertSame( 'keep-me', get_post_meta( $post_id, '_mhm_fail_closed_probe', true ) );
+		$this->assertSame( 'keep-me', get_post_meta( $post_id, '_mhmprobe_fail_closed', true ) );
+		$this->assertNoBackupWasDropped();
 	}
 
 	public function test_invalid_meta_is_not_deleted_when_the_backup_copy_fails(): void
@@ -118,7 +141,8 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 
 		$this->assertSame( 1, $this->broken, 'premise: the backup INSERT was issued and broken' );
 		$this->assertSame( 'backup_failed', $result['reason'] ?? '' );
-		$this->assertSame( 'keep-me', get_post_meta( $post_id, '_mhm_fail_closed_probe', true ) );
+		$this->assertSame( 'keep-me', get_post_meta( $post_id, '_mhmprobe_fail_closed', true ) );
+		$this->assertTheUnfilledBackupWasDropped();
 	}
 
 	public function test_negative_control_invalid_meta_is_deleted_when_the_backup_succeeds(): void
@@ -128,7 +152,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
 
 		$this->assertArrayNotHasKey( 'aborted', $result );
-		$this->assertSame( '', get_post_meta( $post_id, '_mhm_fail_closed_probe', true ) );
+		$this->assertSame( '', get_post_meta( $post_id, '_mhmprobe_fail_closed', true ) );
 	}
 
 	// -------------------------------------------------------- orphaned postmeta
@@ -142,7 +166,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 			$wpdb->postmeta,
 			array(
 				'post_id'    => $missing_post_id,
-				'meta_key'   => '_mhm_orphan_fail_closed_probe',
+				'meta_key'   => '_mhmrentiva_orphan_fail_closed_probe',
 				'meta_value' => 'keep-me',
 			)
 		);
@@ -169,6 +193,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		$this->assertSame( 'backup_failed', $result['reason'] ?? '' );
 		$this->assertSame( 0, $result['deleted'] ?? null );
 		$this->assertTrue( self::meta_row_exists( $meta_id ) );
+		$this->assertNoBackupWasDropped();
 	}
 
 	public function test_orphaned_meta_is_not_deleted_when_the_backup_copy_fails(): void
@@ -181,6 +206,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		$this->assertSame( 1, $this->broken, 'premise: the backup INSERT was issued and broken' );
 		$this->assertSame( 'backup_failed', $result['reason'] ?? '' );
 		$this->assertTrue( self::meta_row_exists( $meta_id ) );
+		$this->assertTheUnfilledBackupWasDropped();
 	}
 
 	public function test_negative_control_orphaned_meta_is_deleted_when_the_backup_succeeds(): void
@@ -230,6 +256,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		$this->assertSame( 'backup_failed', $results['queue']['reason'] ?? '' );
 		$this->assertSame( 0, $results['queue']['deleted'] ?? null );
 		$this->assertTrue( self::queue_row_exists( $row_id ) );
+		$this->assertNoBackupWasDropped();
 	}
 
 	public function test_old_queue_rows_are_not_deleted_when_the_backup_copy_fails(): void
@@ -242,6 +269,7 @@ final class DatabaseCleanerBackupFailClosedTest extends WP_UnitTestCase
 		$this->assertSame( 1, $this->broken, 'premise: the queue backup INSERT was issued and broken' );
 		$this->assertSame( 'backup_failed', $results['queue']['reason'] ?? '' );
 		$this->assertTrue( self::queue_row_exists( $row_id ) );
+		$this->assertTheUnfilledBackupWasDropped();
 	}
 
 	public function test_negative_control_old_queue_rows_are_deleted_when_the_backup_succeeds(): void
