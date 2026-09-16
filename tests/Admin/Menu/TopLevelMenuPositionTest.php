@@ -9,40 +9,37 @@ use MHMRentiva\Tests\Support\UserManagementCapabilities;
 use WP_UnitTestCase;
 
 /**
- * The top-level menu's position has moved twice: 58 -> 76 in 0cf5a089, and
- * back to 58 here. Nothing recorded the decision, so each move looked free.
+ * The top-level menu's position is a recorded decision, not a free choice.
  *
- * 58 is not arbitrary. WooCommerce registers at 55.5 and core's separator sits
- * at 59, so 58 is the last slot below WooCommerce and above Appearance (60) --
- * the plugin clears core's whole stack without displacing it. It is also the
- * floor of the WordPress.org guidance this plugin ships under, which asks for
- * 58 or higher so a plugin does not compete with core's own items.
+ * History: 6 -> 58 after a WordPress.org review note that a plugin menu should
+ * not compete with core's top-level items; 58 -> 76 (0cf5a089) -> 58 in 6.1.4;
+ * 58 -> 55.4 in 6.1.5 at the product owner's request (2026-09-17). At 58 the
+ * menu sat under WooCommerce, Products, Payments and Analytics, and with Pro's
+ * submenus its list ran well below the screen.
  *
- * Going lower would gain a little visibility and put a published plugin below
- * that floor. Going higher is what this test exists to stop drifting back to.
+ * 55.4 puts the menu directly above WooCommerce (55.5) and still below core's
+ * content block (Comments, 25). Core registers nothing between 25 and its
+ * separator at 59, so relative to core's own items the menu sits where 58 did.
+ * The earlier "58 or higher" floor was our own reading of the review note --
+ * which was about position 6 -- not a published rule.
  *
- * This is a behavioural test rather than the structural regex the task brief
- * offered as a fallback: add_menu_page() only ever writes into the global
- * $menu array, it does not require is_admin() or a real admin request to run,
- * so Menu::add_menu() can be called directly here and the real $menu it
- * populates read back -- the same pattern MenuNoProSubmenusTest and
- * PayoutMenuGatingTest already use in this suite for submenu assertions.
- *
- * There is deliberately only one assertion here. The floor -- 58 or higher,
- * per the WordPress.org guidance this plugin ships under -- is a policy
- * statement, not a separate runtime fact: pinning the exact position to 58
- * already asserts everything the floor would, and more strictly. A prior
- * version of this file also asserted `assertGreaterThanOrEqual(58,
- * EXPECTED_POSITION)`, comparing the class's own constant to itself; it read
- * neither Menu.php nor $menu and could not fail. Removed rather than fixed,
- * because there is nothing left at runtime for it to check that the test
- * below does not already check.
+ * Behavioural, not structural: add_menu_page() only writes into the global
+ * $menu array and needs no real admin request, so Menu::add_menu() is called
+ * directly and the $menu it populates is read back -- the pattern
+ * MenuNoProSubmenusTest and PayoutMenuGatingTest already use.
  */
 final class TopLevelMenuPositionTest extends WP_UnitTestCase
 {
 	use UserManagementCapabilities;
 
-	private const EXPECTED_POSITION = 58;
+	/** Core casts a float position to a string key. */
+	private const EXPECTED_POSITION = '55.4';
+
+	/** WooCommerce's own add_menu_page() position (class-wc-admin-menus.php). */
+	private const WOOCOMMERCE_POSITION = 55.5;
+
+	/** Core's Comments menu, the last item of core's content block. */
+	private const CORE_COMMENTS_POSITION = 25;
 
 	protected function setUp(): void
 	{
@@ -60,23 +57,34 @@ final class TopLevelMenuPositionTest extends WP_UnitTestCase
 		parent::tearDown();
 	}
 
-	public function test_top_level_menu_is_registered_at_the_agreed_position(): void
+	private function registered_position(): ?string
 	{
 		Menu::add_menu();
 
 		global $menu;
-		$position = null;
 		foreach ($menu as $pos => $item) {
 			if (( $item[2] ?? null ) === 'mhm-rentiva') {
-				$position = $pos;
-				break;
+				return (string) $pos;
 			}
 		}
 
+		return null;
+	}
+
+	public function test_top_level_menu_is_registered_at_the_agreed_position(): void
+	{
 		$this->assertSame(
 			self::EXPECTED_POSITION,
-			$position,
+			$this->registered_position(),
 			'The top-level menu must register at position ' . self::EXPECTED_POSITION . '.'
 		);
+	}
+
+	public function test_menu_sits_above_woocommerce_and_below_core_content_items(): void
+	{
+		$position = (float) $this->registered_position();
+
+		$this->assertLessThan(self::WOOCOMMERCE_POSITION, $position, 'The menu must sit directly above WooCommerce.');
+		$this->assertGreaterThan(self::CORE_COMMENTS_POSITION, $position, 'The menu must not climb into core\'s content block.');
 	}
 }
