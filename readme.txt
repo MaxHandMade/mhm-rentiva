@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.4
+Stable tag:        6.1.5
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -84,7 +84,7 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 Most of this plugin is plain, human-readable PHP with no build step.
 
-Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is the four screens' stylesheets. No obfuscated code is bundled.
+Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is plain CSS: the four screens' stylesheets and the shared admin stylesheet (`src-react/shared/admin.css`) that the vehicle, booking and add-on list screens load directly. No obfuscated code is bundled.
 
 The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
@@ -189,6 +189,14 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.1.5 =
+* Fixed: the invalid-meta cleanup under Settings > Database Cleanup deleted MHM Currency Switcher's product fixed prices and, where orders are stored as posts, each order's recorded currency and exchange rate. Keys under _mhmcs_ are left alone.
+* Fixed: the invalid-meta, orphaned-meta and old-log cleanups deleted rows even when their backup table could not be created or filled. They now delete nothing, say why, and remove a backup table left empty.
+* Fixed: two invalid-meta cleanups in the same second shared a backup table, and a table prefix over 14 characters broke its name. Each run gets its own name, working up to a 29-character prefix.
+* Fixed: a cancelled cleanup showed "[object Object]" or the wrong reason instead of its own.
+* Security: the search filter's AJAX "No vehicles found" message is now escaped, as the shortcode path already was.
+* Changed: unused e-mail screen JavaScript calling four non-existent admin actions was removed; mhm/ui-core is 0.10.0.
+
 = 6.1.4 =
 * Fixed: on the Customers screen, a booking linked by ID rather than e-mail did not count on the customer's row, was missing from their detail panel and summary cards, and did not show behind "View Bookings".
 * Fixed: multisite activation stopped at the hundredth site and skipped private sites; both now get their tables. A subsite reads its own language for URL slugs, not the network's.
@@ -196,18 +204,6 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Fixed: on hosting with an external cache (Redis/Memcached), saving a customer, booking or vehicle left its list stale until the cache expired.
 * Changed: the ZIP no longer ships React source files WordPress never runs, so the download is smaller.
 * Changed: the admin menu moved back above WordPress's own Appearance, Plugins, Users and Tools items, just below WooCommerce.
-
-= 6.1.3 =
-* Fixed: on a site whose vehicle settings were saved before 6.1.2, adding gallery images and pressing Update still wiped the gallery. 6.1.2 stopped the two non-detail keys, image and gallery_images, from being written into the selected-details option, but did nothing for the sites that already had them stored. A stored key that matched none of the known field sources was handed a label made up from the key name, which carried it past every later check, and the detail grid then rendered a second field named mhmrentiva_gallery_images -- the same name as the gallery meta box's hidden input. PHP keeps the last field of a repeated name, so an empty box overwrote the gallery. Such a key is now dropped rather than labelled, which makes an already-affected site safe without touching its database. One deliberate consequence: a custom detail whose name you clear under Edit Names now disappears from the grid instead of showing under a key-derived label. Nothing stored is deleted, naming it again brings it back, and the front end was already hiding it.
-* Security: the handlers that write vehicle and booking meta now verify the post type of the post they are writing to. edit_post answers whether a user may edit a given post, never whether that post is one of this plugin's, so a handler acting on whatever id arrived was writing to an object it had not identified. The booking meta handler was the widest case: hooked to the untyped save_post, saving any page or post on the site wrote a booking status onto it. Twelve handlers were corrected; an independent audit then found three more outside the recorded list, including a live AJAX handler that wrote vehicle ordering meta onto any post id it was given.
-* Fixed: an admin screen whose data fails to load now says so instead of going blank. The failure that prompted this happened in the companion add-on, where one bad endpoint map took out five screens at once -- the three wrapped in an error boundary showed a message and could be refreshed, while the two that were not left an empty page under the WordPress chrome with nothing explaining it. Sweeping the same class here rather than fixing only the screens that had already failed found one unwrapped screen in this plugin. Every React screen here is wrapped now, and a gate keeps new ones from shipping unwrapped.
-* Changed: shared admin modules and the React page loader now come from the mhm/ui-core package rather than copies kept here, and duplicate CSS custom-property declarations were consolidated. Checked in the browser, light and dark: nothing rendered differently.
-
-= 6.1.2 =
-* Fixed: a booking created from the admin's manual booking screen was stored with no status at all. The screen's script read the status field by its name rather than its id, matched nothing, and sent an empty value that the handler stored as-is. The availability check counts only live statuses, so such a booking was invisible to it and the same vehicle could be booked again over the same dates.
-* Security: the manual booking screen's boundary now refuses any status the screen itself does not offer, instead of writing whatever arrives.
-* Fixed: the confirmation prompt before changing a booking's status on the edit screen never appeared -- it was bound to the status field by name rather than by id, so it was bound to nothing. The field's label was associated with the same missing id and is now linked to the select.
-* Security: the role given to customer accounts this plugin creates is rejected if it carries administrative capabilities, rather than accepted because the role exists. The same setting decides which accounts count as customers, so a privileged value affected the Customers list too.
 
 == Upgrade Notice ==
 

@@ -1,5 +1,24 @@
 [
   {
+    "version": "6.1.5",
+    "date": "2026-09-16",
+    "type": "patch",
+    "title": "Veritabanı temizliği artık Currency Switcher'ın verisini silmiyor ve yedekleyemediği hiçbir şeyi silmiyor",
+    "summary": "6.1.5, Ayarlar altındaki Veri tabanı temizleme sekmesi için bir veri güvenliği sürümü. Geçersiz meta temizliği _mhm ile başlayan her anahtarı kendisininmiş gibi görüyordu; bu yüzden MHM Currency Switcher'ın ürün başına sabit fiyatlarını ve siparişleri yazı olarak saklayan mağazalarda her siparişe kaydedilen para birimini, döviz kurunu ve ana para birimini siliyordu. Bu anahtarlara artık dokunulmuyor. Ayrıca silmeden önce yedek alan üç temizlik -- geçersiz meta, sahipsiz meta ve eski günlük kayıtları -- yedeğin gerçekten alınıp alınmadığını hiç kontrol etmiyordu: yedek tablo oluşturulamaz ya da doldurulamazsa kayıtlar kopyası olmadan yine de siliniyordu. Artık hiçbir şey silmiyor ve nedenini söylüyorlar. Aynı temizliğin yedek tablosunun adı da artık aynı saniyede iki çalıştırmada ya da uzun bir özel tablo önekinde bozulmuyor; iptal edilen bir temizlik \"[object Object]\" yerine nedenini gösteriyor. Arama sonuçlarının boş durum mesajı AJAX yolunda da artık kaçışlanıyor.",
+    "changes": [
+      "Düzeltildi: geçersiz meta temizliği (Ayarlar > Veri tabanı temizleme), anahtarları aynı _mhm önekiyle başladığı için MHM Currency Switcher'ın kendi verisini siliyordu: her ürünün sabit fiyatlarını (_mhmcs_fixed_prices) ve siparişleri yazı olarak saklayan mağazalarda her siparişe kaydedilen para birimi kodunu, döviz kurunu ve ana para birimini. _mhmcs_ altındaki anahtarlara artık dokunulmuyor; öneke yalnızca benzeyen bir anahtar yine temizleniyor.",
+      "Düzeltildi: geçersiz meta, sahipsiz meta ve eski günlük temizlikleri, yedek tabloları oluşturulamadığında ya da doldurulamadığında bile kayıtları siliyordu; sonuçta adı geçen yedek, silineni içermiyordu. Her biri artık yedeğinin iki adımı da başarılı olmadıkça hiçbir şey silmiyor, reddi nedeniyle birlikte hata olarak bildiriyor ve oluşturup dolduramadığı yedek tabloyu kaldırıyor. Eski günlük temizliği tablo tablo karar veriyor, yani diğer tablolar yine temizleniyor.",
+      "Düzeltildi: aynı saniyede başlatılan iki geçersiz meta temizliği aynı yedek tabloyu oluşturmaya çalışıyordu; ikinci çalıştırmanın yedeği birincinin tablosuna gidiyordu. Her çalıştırma artık kendi adını alıyor.",
+      "Düzeltildi: 14 karakterden uzun özel tablo öneki olan bir sitede geçersiz meta temizliğinin yedek tablo adı MySQL'in 64 karakterlik sınırını aşıyordu. Ad artık kendini kısaltıyor ve 29 karakterlik bir öneke kadar çalışıyor; bunun ötesinde temizlik çalışmak yerine reddediyor ve bunu söylüyor.",
+      "Düzeltildi: bir temizlik iptal edildiğinde yönetici nedeni değil \"[object Object]\" görüyordu; geçersiz meta temizliği ise neden başka olsa bile özel alan açıklamasını veriyordu. Her iptal artık kendi nedenini gösteriyor.",
+      "Güvenlik: arama filtresinin AJAX isteğinin döndürdüğü \"Kriterlerinize uyan araç bulunamadı.\" mesajı artık kaçışlanıyor. Kısa kod yolu bunu zaten kaçışlıyordu; AJAX yolu işaretleme içeren bir çeviriyi sayfaya olduğu gibi ekliyordu.",
+      "Düzeltildi: araç düzenleme ekranı, araç ayrıntıları ayarı boş olduğunda bir PHP uyarısı verebiliyordu.",
+      "Değişti: e-posta ayarları ekranlarından kullanılmayan JavaScript kaldırıldı. Hiçbir ekranın oluşturmadığı düğmeleri hedefliyor ve var olmayan dört yönetici eylemini çağırıyordu.",
+      "Değişti: paketle gelen mhm/ui-core kütüphanesi artık Pro eklentisinin de kullandığı 0.10.0 sürümünde.",
+      "Değişti: readme artık React kaynaklarının eklenti paketine dahil olmadığını (6.1.4'ten beri değiller) söylüyor ve bulundukları herkese açık depoyu adlandırıyor."
+    ]
+  },
+  {
     "version": "6.1.4",
     "date": "2026-09-07",
     "type": "minor",

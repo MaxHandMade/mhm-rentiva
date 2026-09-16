@@ -6,12 +6,12 @@ Bu proje için tek kanonik paketleme yolu Docker içindeki
 
 ## Güncel release sözleşmesi
 
-- Eklenti sürümü: `6.1.4`
+- Eklenti sürümü: `6.1.5`
 - Sürüm sabiti: `MHMRENTIVA_VERSION`
 - ZIP içindeki tek kök: `mhm-rentiva/`
 - Kanonik host çıktısı:
-  `C:\tmp\plugin-builds\mhm-rentiva.6.1.4.zip`
-- 7 Eylül 2026 tarihli allowlist ölçümü: `553` dosya
+  `C:\tmp\plugin-builds\mhm-rentiva.6.1.5.zip`
+- 16 Eylül 2026 tarihli allowlist ölçümü: `554` dosya
 
 Dosya sayısı sabit bir hedef değildir. Her paketlemeden hemen önce aşağıdaki
 komutla yeniden ölçülür; kaynak ağaç değiştiyse bu belge ve release ledger'ı
@@ -21,19 +21,19 @@ gerçek sonuçla güncellenir.
 docker run --rm -v "C:/projects/rentiva-dev/plugins/mhm-rentiva:/src" -w /src python:3-slim python bin/build-release.py --list-shipped | Measure-Object -Line
 ```
 
-Güncel 553 dosyalık yüzey kaynak ağaçtan türetilmiştir:
+Güncel 554 dosyalık yüzey kaynak ağaçtan türetilmiştir:
 
 | Kök | Dosya |
 |---|---:|
 | `src/` | 270 |
 | `assets/` | 158 |
 | `templates/` | 42 |
-| `vendor/` | 31 |
+| `vendor/` | 32 |
 | `languages/` | 24 |
 | `build/` | 16 |
 | `src-react/` | 5 |
 | Kök dosyalar | 7 |
-| Toplam | 553 |
+| Toplam | 554 |
 
 `build/admin/` çalıştırma zamanı asset'lerini, `src-react/` bu asset'lerin
 kaynak ve paylaşılan stil yüzeyini, `vendor/mhm/ui-core/` ise eklentinin
@@ -49,8 +49,8 @@ kaynağı bu tablo değil, `bin/build-release.py --list-shipped` çıktısıdır
 docker run --rm -v "C:/projects/rentiva-dev/plugins/mhm-rentiva:/src" -w /src python:3-slim python bin/build-release.py
 
 New-Item -ItemType Directory -Force -Path 'C:\tmp\plugin-builds' | Out-Null
-Remove-Item -LiteralPath 'C:\tmp\plugin-builds\mhm-rentiva.6.1.4.zip' -Force -ErrorAction SilentlyContinue
-Copy-Item -LiteralPath 'C:\projects\rentiva-dev\plugins\mhm-rentiva\build\mhm-rentiva.6.1.4.zip' -Destination 'C:\tmp\plugin-builds\mhm-rentiva.6.1.4.zip'
+Remove-Item -LiteralPath 'C:\tmp\plugin-builds\mhm-rentiva.6.1.5.zip' -Force -ErrorAction SilentlyContinue
+Copy-Item -LiteralPath 'C:\projects\rentiva-dev\plugins\mhm-rentiva\build\mhm-rentiva.6.1.5.zip' -Destination 'C:\tmp\plugin-builds\mhm-rentiva.6.1.5.zip'
 ```
 
 `build-release.py` staging alanını temizler, `.distignore` ve kendi açık
@@ -64,7 +64,7 @@ kopyalanır.
 Kaynak testlerinin yeşil olması ZIP'in doğru olduğunu kanıtlamaz. Doğrulamalar
 kanonik ZIP üzerinde yeniden çalıştırılır:
 
-1. ZIP adı ve eklenti başlığındaki sürüm `6.1.4` olmalıdır.
+1. ZIP adı ve eklenti başlığındaki sürüm `6.1.5` olmalıdır.
 2. Tek kök `mhm-rentiva/` olmalı ve hiçbir üye `\` içermemelidir.
 3. ZIP'teki dosya listesi `--list-shipped` allowlist'iyle birebir eşleşmelidir.
 4. `tests/`, `docs/`, `bin/`, geliştirme yapılandırmaları, günlükler ve başka
@@ -76,7 +76,7 @@ kanonik ZIP üzerinde yeniden çalıştırılır:
 
 Kanonik dosya dışındaki eski `build/` ZIP'leri başvuru artefaktı değildir.
 GitHub Release veya WordPress.org yüklemesinden önce son doğrulanan dosya her
-zaman `C:\tmp\plugin-builds\mhm-rentiva.6.1.4.zip` olmalıdır.
+zaman `C:\tmp\plugin-builds\mhm-rentiva.6.1.5.zip` olmalıdır.
 
 ## Yasak yollar
 
