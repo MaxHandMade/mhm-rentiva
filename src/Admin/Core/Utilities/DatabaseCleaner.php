@@ -1064,21 +1064,22 @@ final class DatabaseCleaner {
 	 *     own default is 'wp_') gets, and it is what list_backups()'s
 	 *     `/(\d{8}_\d{6})/` date-extraction regex expects to find.
 	 *
-	 *  2. If keeping the full $timestamp would leave LESS room for $unique
-	 *     than dropping $timestamp entirely would, $timestamp is dropped and
-	 *     $unique (truncated if the remaining room is still short) gets the
-	 *     rest of the budget instead. A partial timestamp is never used: it
-	 *     satisfies nobody -- it cannot match the date regex's fixed
-	 *     8-digit/6-digit shape either way, so keeping a few of its
-	 *     characters would only spend room without buying anything back. This
-	 *     is the branch a hardened/randomised custom $wpdb->prefix (a common
-	 *     security practice) hits: list_backups()'s displayed date becomes
-	 *     "unknown" for that table, but the name stays exactly as
-	 *     collision-resistant as the available room allows -- the actual bug
-	 *     this method exists to prevent does not come back just because the
-	 *     prefix is long.
+	 *  2. If the whole $timestamp still fits, it is kept, followed by '_' and
+	 *     as much of $unique's FINE end as fits -- possibly none. A hardened
+	 *     9-12 character prefix keeps the date and a 1-4 character tail; a
+	 *     13-14 character prefix keeps the date alone, which is the name 6.1.4
+	 *     gave it. The date wins over tail length because list_backups() shows
+	 *     it to the admin and sorts by it; a same-second collision on a
+	 *     tail-less name makes CREATE TABLE fail, and every cleanup then
+	 *     refuses rather than deleting without its backup.
 	 *
-	 *  3. If $table_prefix . INVALID_META_BACKUP_TABLE_LITERAL alone already
+	 *  3. If the $timestamp does not fit (prefix 15-29 characters), it is
+	 *     dropped and $unique's fine end gets the room. A partial timestamp is
+	 *     never used: it cannot match the date regex's fixed 8-digit/6-digit
+	 *     shape, so it would spend room without buying anything back.
+	 *     list_backups() shows "unknown" for such a table.
+	 *
+	 *  4. If $table_prefix . INVALID_META_BACKUP_TABLE_LITERAL alone already
 	 *     exceeds 64 characters, no name can be built at all: returns '' so
 	 *     the caller can fail closed instead of handing CREATE TABLE a name
 	 *     MySQL is guaranteed to reject with "Identifier name is too long".
@@ -1095,20 +1096,35 @@ final class DatabaseCleaner {
 			return '';
 		}
 
-		$remaining        = 64 - strlen( $base );
-		$timestamp_len    = strlen( $timestamp );
-		$unique_len       = strlen( $unique );
-		$tail_with_ts     = $remaining >= $timestamp_len ? min( $unique_len, $remaining - $timestamp_len - 1 ) : -1;
-		$tail_dropping_ts = min( $unique_len, $remaining );
+		$remaining     = 64 - strlen( $base );
+		$timestamp_len = strlen( $timestamp );
+		$unique_len    = strlen( $unique );
 
-		if ( $tail_with_ts >= 0 && $tail_with_ts >= $tail_dropping_ts ) {
-			$tail   = max( 0, $tail_with_ts );
-			$suffix = $timestamp . ( $tail > 0 ? '_' . substr( $unique, 0, $tail ) : '' );
+		// The date is kept whenever it fits: list_backups() reads it back for the
+		// admin and sorts by it, and 6.1.4 showed it for every prefix up to 14
+		// characters. A tail follows only when "_" plus at least one character
+		// still fit. Preferring a full tail over the date (the first version of
+		// this builder) turned every hardened 9-14 character prefix into an
+		// "unknown"-dated backup sorted above all dated ones.
+		if ( $remaining >= $timestamp_len ) {
+			$tail   = min( $unique_len, $remaining - $timestamp_len - 1 );
+			$suffix = $timestamp . ( $tail > 0 ? '_' . self::fine_end( $unique, $tail ) : '' );
 		} else {
-			$suffix = substr( $unique, 0, max( 0, $tail_dropping_ts ) );
+			$suffix = self::fine_end( $unique, min( $unique_len, $remaining ) );
 		}
 
 		return $base . $suffix;
+	}
+
+	/**
+	 * The last $length characters of $unique -- its fine end.
+	 *
+	 * The caller passes the tail of uniqid(), i.e. microseconds in hex; the
+	 * leading character moves only every ~65 ms, so a shortened tail cut from
+	 * the front would let two runs in the same second share it.
+	 */
+	private static function fine_end( string $unique, int $length ): string {
+		return $length > 0 ? substr( $unique, -$length ) : '';
 	}
 
 	/**
