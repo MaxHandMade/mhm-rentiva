@@ -741,11 +741,21 @@
 				chips.appendChild( h( 'span', { class: 'rv-vs__empty-inline', text: T.noCard } ) );
 			}
 
+			// The site's first vehicle with a featured image, when there is one
+			// (VehicleSettings::build_preview_vehicle()); otherwise the grey
+			// placeholder and the sample name/price.
+			var real = ( payload.preview && payload.preview.image ) ? payload.preview : null;
+			var image = real
+				? h( 'div', { class: 'rv-vs__pimage rv-vs__pimage--photo' }, [
+					h( 'img', { src: real.image, alt: '', loading: 'lazy', decoding: 'async' } )
+				] )
+				: h( 'div', { class: 'rv-vs__pimage', text: T.previewImage } );
+
 			var vehicleCard = h( 'div', { class: 'rv-vs__pcard' }, [
-				h( 'div', { class: 'rv-vs__pimage', text: T.previewImage } ),
+				image,
 				h( 'div', { class: 'rv-vs__pbody' }, [
-					h( 'div', { class: 'rv-vs__pname', text: T.previewName } ),
-					h( 'div', { class: 'rv-vs__pprice', text: T.previewPrice } ),
+					h( 'div', { class: 'rv-vs__pname', text: real ? real.name : T.previewName } ),
+					h( 'div', { class: 'rv-vs__pprice', text: real ? real.price : T.previewPrice } ),
 					chips,
 					h( 'div', { class: 'rv-vs__plink', text: T.previewLink } )
 				] )

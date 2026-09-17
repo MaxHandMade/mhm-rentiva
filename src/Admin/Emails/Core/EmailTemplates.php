@@ -91,7 +91,7 @@ final class EmailTemplates {
 				</button>
 			</div>
 		</div>
-		<hr class="wp-header-end">
+		<?php // No wp-header-end here: the Settings page header already prints one, and a second makes common.js clone every notice. ?>
 
 		<h2 class="nav-tab-wrapper" style="margin-top: 20px;">
 			<?php

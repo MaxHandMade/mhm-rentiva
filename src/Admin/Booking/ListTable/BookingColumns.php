@@ -1000,86 +1000,43 @@ final class BookingColumns {
 		$meta = array();
 
 		$booking_status_filter = self::get_query_text( 'mhmrentiva_booking_status' );
-		if ( '' !== $booking_status_filter ) {
-			$val = $booking_status_filter;
-			if ( in_array( $val, Status::allowed(), true ) ) {
-				// Resolve status by the SAME priority
-				// DashboardService::get_booking_stats() uses:
-				// COALESCE(NULLIF(_mhmrentiva_status,''), NULLIF(_mhmrentiva_booking_status,''), 'pending').
-				// An OR-on-either-key match (the old shape here) is NOT
-				// equivalent to that priority: a row could match more than
-				// one status filter at once (both keys set to different
-				// values), or match a real-status filter AND the pending
-				// filter at once (legacy-only / empty-new-key rows) — so the
-				// chip's own count and its own filtered list could disagree.
-				// See BookingStatsConsistencyTest::
-				// test_chip_filter_agrees_with_canonical_count_for_every_dual_key_combination
-				// for the fixtures this closes.
-				//
-				// "New key present and non-empty" wins outright; the legacy
-				// key only gets a say when the new key is absent/empty.
-				$new_key_absent_or_empty = array(
-					'relation' => 'OR',
-					array(
-						'key'     => '_mhmrentiva_status',
-						'compare' => 'NOT EXISTS',
-					),
-					array(
-						'key'     => '_mhmrentiva_status',
-						'value'   => '',
-						'compare' => '=',
-					),
-				);
+		if ( '' !== $booking_status_filter && in_array( $booking_status_filter, Status::allowed(), true ) ) {
+			// Resolve the status by the SAME priority the chip counts use
+			// (DashboardService::get_booking_stats()):
+			// COALESCE(NULLIF(_mhmrentiva_status,''), NULLIF(_mhmrentiva_booking_status,''), 'pending').
+			// The new key wins when set, the legacy key decides only when the
+			// new key is absent/empty, and a row with neither is pending -- so
+			// every booking lands in exactly one chip and the chip's list
+			// agrees with its count (BookingStatsConsistencyTest).
+			//
+			// Do NOT express this priority as a nested meta_query again. That
+			// was the previous shape: WP_Meta_Query compiles every
+			// `key = value` clause under an OR into its own postmeta self-join
+			// with no meta_key restriction, so the pending chip produced eight
+			// joins, five unrestricted, and never returned on a site with 33
+			// meta rows per booking (33^5 intermediate rows per booking; see
+			// BookingStatusFilterQueryShapeTest). Two key-restricted LEFT JOINs
+			// resolve the IDs once and the list query carries no join at all.
+			global $wpdb;
+			$status_ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT p.ID
+                    FROM {$wpdb->posts} p
+                    LEFT JOIN {$wpdb->postmeta} pm_s1 ON p.ID = pm_s1.post_id AND pm_s1.meta_key = %s
+                    LEFT JOIN {$wpdb->postmeta} pm_s2 ON p.ID = pm_s2.post_id AND pm_s2.meta_key = %s
+                    WHERE p.post_type = %s
+                    AND COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') = %s",
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+					'_mhmrentiva_booking_status',
+					'mhmrentiva_booking',
+					$booking_status_filter
+				)
+			);
 
-				// Priority match for the literal value $val (this covers
-				// PENDING too — 'pending' is also a real, explicitly
-				// stored value, not only the COALESCE fallback): the new
-				// key wins outright when it equals $val, OR the legacy key
-				// wins when the new key is absent/empty and the legacy key
-				// equals $val.
-				$clauses = array(
-					'relation' => 'OR',
-					array(
-						'key'     => '_mhmrentiva_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-					array(
-						'relation' => 'AND',
-						$new_key_absent_or_empty,
-						array(
-							'key'     => '_mhmrentiva_booking_status',
-							'value'   => $val,
-							'compare' => '=',
-						),
-					),
-				);
-
-				if ( Status::PENDING === $val ) {
-					// Additionally fold in the COALESCE's final 'pending'
-					// fallback: a row where BOTH keys are absent/empty
-					// resolves to 'pending' even though neither key ever
-					// literally holds that string.
-					$legacy_key_absent_or_empty = array(
-						'relation' => 'OR',
-						array(
-							'key'     => '_mhmrentiva_booking_status',
-							'compare' => 'NOT EXISTS',
-						),
-						array(
-							'key'     => '_mhmrentiva_booking_status',
-							'value'   => '',
-							'compare' => '=',
-						),
-					);
-					$clauses[]                  = array(
-						'relation' => 'AND',
-						$new_key_absent_or_empty,
-						$legacy_key_absent_or_empty,
-					);
-				}
-				$meta[] = $clauses;
-			}
+			// An empty post__in means "no restriction" to WP_Query; array( 0 )
+			// is how a chip with no matching booking lists nothing.
+			$status_ids = array_values( array_unique( array_map( 'intval', $status_ids ) ) );
+			$q->set( 'post__in', ! empty( $status_ids ) ? $status_ids : array( 0 ) );
 		}
 		$payment_status_filter = self::get_query_text( 'mhmrentiva_payment_status' );
 		if ( '' !== $payment_status_filter ) {
@@ -1868,7 +1825,15 @@ final class BookingColumns {
 				);
 
 				if ( ! empty( $booking_ids ) ) {
-					$q->set( 'post__in', $booking_ids );
+					// apply_status_filter() runs first and may already have
+					// narrowed the list to one chip's IDs; the plate narrows
+					// that set instead of replacing it.
+					$booking_ids = array_map( 'intval', $booking_ids );
+					$already_in  = array_map( 'intval', (array) $q->get( 'post__in' ) );
+					if ( ! empty( $already_in ) ) {
+						$booking_ids = array_values( array_intersect( $booking_ids, $already_in ) );
+					}
+					$q->set( 'post__in', ! empty( $booking_ids ) ? $booking_ids : array( 0 ) );
 				} else {
 					// No bookings found
 					$q->set( 'post__in', array( 0 ) );

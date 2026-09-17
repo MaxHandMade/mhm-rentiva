@@ -190,6 +190,9 @@ ordinary visitors can also send re-opens the bypass this default closes.
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
 = 6.1.5 =
+* Fixed: the Bookings list's Pending chip never finished loading on sites with real booking data; every status chip now looks its bookings up once, by the same rule as its count.
+* Fixed: admin notices such as the licence warning pushed most admin screens down after they had drawn, showed twice on Settings > Notification Templates and vanished as a pop-up on Settings.
+* Changed: the admin menu now sits directly above WooCommerce; the Vehicle Settings live preview shows your first vehicle with a featured image.
 * Fixed: the invalid-meta cleanup under Settings > Database Cleanup deleted MHM Currency Switcher's product fixed prices and, where orders are stored as posts, each order's recorded currency and exchange rate. Keys under _mhmcs_ are left alone.
 * Fixed: the invalid-meta, orphaned-meta and old-log cleanups deleted rows even when their backup table could not be created or filled. They now delete nothing, say why, and remove a backup table left empty.
 * Fixed: two invalid-meta cleanups in the same second shared a backup table, and a table prefix over 14 characters broke its name. The name now fits up to a 29-character prefix, keeps its date where it fits, and a run without a free name deletes nothing.

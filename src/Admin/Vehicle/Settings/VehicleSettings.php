@@ -1002,6 +1002,73 @@ final class VehicleSettings {
 	}
 
 	/**
+	 * The vehicle the Display & Preview tab's live preview card shows.
+	 *
+	 * The first published vehicle (oldest post date) with a usable featured
+	 * image (up to 20 candidates), so the card previews the site's own fleet instead of a grey box
+	 * and a sample name. Name and price come from that same vehicle so the
+	 * card never pairs one car's photo with another's title. An empty array
+	 * when no published vehicle has an image: the card keeps its placeholder.
+	 *
+	 * @return array{image?:string,name?:string,price?:string}
+	 */
+	public static function build_preview_vehicle(): array {
+		$ids = get_posts(
+			array(
+				'post_type'              => \MHMRentiva\Admin\Vehicle\PostType\Vehicle::POST_TYPE,
+				'post_status'            => 'publish',
+				// Candidates, not the answer: a _thumbnail_id can point at an
+				// attachment row that no longer exists (a database import, a
+				// deleted attachment), so the first vehicle whose image URL resolves
+				// wins. A row whose FILE was removed from uploads/ still resolves and
+				// is not detected here. Bounded so a fleet of broken imports cannot
+				// make the admin screen walk every vehicle.
+				'posts_per_page'         => 20,
+				'orderby'                => 'date',
+				'order'                  => 'ASC',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one EXISTS clause on _thumbnail_id, LIMIT 20, admin screen only.
+				'meta_query'             => array(
+					array(
+						'key'     => '_thumbnail_id',
+						'compare' => 'EXISTS',
+					),
+				),
+			)
+		);
+
+		$vehicle_id = 0;
+		$image      = '';
+		foreach ( $ids as $candidate_id ) {
+			$url = wp_get_attachment_image_url( (int) get_post_thumbnail_id( (int) $candidate_id ), 'medium_large' );
+			if ( is_string( $url ) && '' !== $url ) {
+				$vehicle_id = (int) $candidate_id;
+				$image      = $url;
+				break;
+			}
+		}
+
+		if ( 0 === $vehicle_id ) {
+			return array();
+		}
+
+		$daily = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day( $vehicle_id );
+		$price = $daily > 0
+			? \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $daily ) . ' ' . __( '/ day', 'mhm-rentiva' )
+			: '';
+
+		return array(
+			'image' => $image,
+			// The card sets textContent, and wp_localize_script() only decodes
+			// top-level values, so the texturized title's entities would show.
+			'name'  => html_entity_decode( get_the_title( $vehicle_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
+			'price' => $price,
+		);
+	}
+
+	/**
 	 * Build the client-side state payload for the Vehicle Settings UI.
 	 *
 	 * @return array{fields:array<int,array>,cardOrder:string[],detailOrder:string[]}

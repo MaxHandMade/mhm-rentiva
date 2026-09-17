@@ -328,6 +328,12 @@ final class Plugin {
 			\MHMRentiva\Admin\Core\ListTable\ListScreenLayout::register();
 		}
 
+		// Every other Rentiva screen: admin notices placed below the header
+		// before the first paint (see NoticePlacement).
+		if ($this->is_class_available('MHMRentiva\Admin\Core\NoticePlacement')) {
+			\MHMRentiva\Admin\Core\NoticePlacement::register();
+		}
+
 		// List table columns
 		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
 			\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();

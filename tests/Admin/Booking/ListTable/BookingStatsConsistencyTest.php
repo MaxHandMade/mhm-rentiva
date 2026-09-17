@@ -205,7 +205,8 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
                 'post_type'      => 'mhmrentiva_booking',
                 'posts_per_page' => -1,
                 'fields'         => 'ids',
-                'meta_query'     => $q->get('meta_query'),
+                'meta_query'     => $q->get('meta_query') ?: array(),
+                'post__in'       => $q->get('post__in') ?: array(),
             ));
 
             $this->assertCount(
