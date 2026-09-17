@@ -31,7 +31,7 @@ describe( 'dashboard stats strip', () => {
 		expect( container.querySelector( '[class*="mhmui-stat-card--"]' ) ).toBeNull();
 	} );
 
-	test( 'a percentage delta becomes the kit delta line in its direction', () => {
+	test( 'a percentage delta becomes the kit delta line in its direction, marked once by the kit', () => {
 		const { container } = render(
 			<StatsCards
 				metrics={ metrics }
@@ -40,8 +40,12 @@ describe( 'dashboard stats strip', () => {
 			/>
 		);
 		const delta = container.querySelector( '.mhmui-stat-card__delta--up' );
+		const marks = container.querySelectorAll( '.mhmui-stat-card__delta-mark' );
 
 		expect( delta ).not.toBeNull();
-		expect( delta.textContent ).toContain( '5' );
+		// Since ui-core 0.12.0 the kit renders the direction mark itself; the
+		// consumer's delta.text must be plain, or the arrow appears twice.
+		expect( marks ).toHaveLength( 1 );
+		expect( delta.textContent.replace( marks[ 0 ].textContent, '' ) ).toBe( '%5 this month' );
 	} );
 } );

@@ -3,8 +3,10 @@ import StatsGrid from '../../../../vendor/mhm/ui-core/src-react/components/Stats
 import { fmtAmount, fmtMoney as fmtMon } from '../../../shared/format';
 
 /**
- * The kit takes a formatted delta line; the arrow and the wording stay here,
- * because they are this product's copy, not the kit's.
+ * The kit takes a formatted delta line; the wording stays here, because it
+ * is this product's copy, not the kit's. Since ui-core 0.12.0 the kit itself
+ * renders the up/down direction mark, so `text` must stay plain -- no arrow,
+ * no sign -- or the mark appears twice.
  *
  * @param {Object} delta { direction, format, value } from the REST payload.
  * @return {Object|undefined} { direction, text } for StatCard, or undefined.
@@ -13,11 +15,9 @@ function toDelta( delta ) {
 	if ( ! delta || delta.format === 'neutral' ) {
 		return undefined;
 	}
-	const arrows = { up: '↑', down: '↓' };
-	const arrow = arrows[ delta.direction ] ?? '';
 	const text =
 		delta.format === 'pct'
-			? `${ arrow } %${ Math.abs( delta.value ) } ${ __( 'this month', 'mhm-rentiva' ) }`
+			? `%${ Math.abs( delta.value ) } ${ __( 'this month', 'mhm-rentiva' ) }`
 			: `+${ delta.value } ${ __( 'this month', 'mhm-rentiva' ) }`;
 
 	return { direction: delta.direction, text };
