@@ -18,7 +18,7 @@ $current_tab = $args['current_tab'] ?? 'general';
 $tabs        = $args['tabs'] ?? array();
 $renderer    = $args['renderer'] ?? null;
 ?>
-<div class="wrap mhm-settings-page">
+<div class="wrap mhm-settings-page mhmui-admin mhmui-admin-page">
 	<div class="mhm-settings-header">
 		<?php
 		if (isset($args['header_html'])) {
@@ -52,7 +52,7 @@ $renderer    = $args['renderer'] ?? null;
 		<!-- Main Content Area -->
 		<div class="mhm-settings-content">
 			<?php if (null !== $renderer) : ?>
-				<div class="mhm-settings-tab-container">
+				<div class="mhm-settings-tab-container mhmui-measure">
 					<?php
 					// Delegate form wrapping decision to the renderer itself
 					if ($renderer->should_wrap_with_form()) :

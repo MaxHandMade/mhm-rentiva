@@ -5,7 +5,6 @@
  */
 
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust {
-	max-width: 1400px;
 	margin-top: 16px;
 	padding: 0 4px;
 	font-size: 13px;

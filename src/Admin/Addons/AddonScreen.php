@@ -81,6 +81,8 @@ final class AddonScreen {
 			return;
 		}
 
+		AssetManager::enqueue_kit( 'admin' );
+
 		wp_enqueue_style(
 			'mhm-rentiva-addons-screen',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/addons-screen.css',
@@ -592,7 +594,7 @@ final class AddonScreen {
 			}
 		}
 
-		echo '<div class="wrap" id="mhm-addons-root">';
+		echo '<div class="wrap mhmui-admin mhmui-admin-page" id="mhm-addons-root">';
 		echo '<h1 class="rv-addon-title">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</h1>';
 
 		// Where WordPress is told to put admin notices on this screen.
