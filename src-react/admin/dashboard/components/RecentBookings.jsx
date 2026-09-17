@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
 import { fmtAmount, fmtMoney } from '../../../shared/format';
+import StatsGrid from '../../../../vendor/mhm/ui-core/src-react/components/StatsGrid';
 
 const statusLabel = ( status ) => ( {
 	pending:     __( 'Pending',     'mhm-rentiva' ),
@@ -35,20 +36,14 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 			<h3><span className="dashicons dashicons-calendar-alt" />{ __( 'Recent Bookings', 'mhm-rentiva' ) }</h3>
 
 			{ /* Mini KPI row — values from localize data (same source as StatsCards) */ }
-			<div className="mhm-kpi-row">
-				<div className="mhm-kpi-box mhm-kpi-box--blue">
-					<div className="mhm-kpi-box__value">{ fmt( metrics?.total_bookings ) }</div>
-					<div className="mhm-kpi-box__label">{ __( 'Total', 'mhm-rentiva' ) }</div>
-				</div>
-				<div className="mhm-kpi-box mhm-kpi-box--green">
-					<div className="mhm-kpi-box__value">{ fmt( metrics?.bookings_this_month ) }</div>
-					<div className="mhm-kpi-box__label">{ __( 'This Month', 'mhm-rentiva' ) }</div>
-				</div>
-				<div className="mhm-kpi-box mhm-kpi-box--amber">
-					<div className="mhm-kpi-box__value">{ fmtMoney( metrics?.total_revenue, currency, 0 ) }</div>
-					<div className="mhm-kpi-box__label">{ __( 'Revenue', 'mhm-rentiva' ) }</div>
-				</div>
-			</div>
+			<StatsGrid
+				columns={ 3 }
+				cards={ [
+					{ label: __( 'Total', 'mhm-rentiva' ), value: fmt( metrics?.total_bookings ), icon: 'calendar-alt' },
+					{ label: __( 'This Month', 'mhm-rentiva' ), value: fmt( metrics?.bookings_this_month ), icon: 'clock' },
+					{ label: __( 'Revenue', 'mhm-rentiva' ), value: fmtMoney( metrics?.total_revenue, currency, 0 ), icon: 'money-alt' },
+				] }
+			/>
 
 			{ loading && <Spinner /> }
 			{ error   && <p className="mhm-error">{ __( 'Failed to load.', 'mhm-rentiva' ) }</p> }

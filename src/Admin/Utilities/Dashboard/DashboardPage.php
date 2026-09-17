@@ -243,6 +243,7 @@ final class DashboardPage {
 		}
 
 		AssetManager::enqueue_react_page( 'dashboard', array() );
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'admin' );
 
 		wp_enqueue_style(
 			'mhm-rentiva-dashboard',

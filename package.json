@@ -7,6 +7,9 @@
     "lint:js": "wp-scripts lint-js --no-eslintrc --config .eslintrc.src-react.js src-react"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@wordpress/element": "^6.46.0",
+    "@wordpress/i18n": "^6.28.0",
     "@wordpress/scripts": "^30.0.0",
     "jquery": "^3.7.1"
   },
