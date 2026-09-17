@@ -1018,17 +1018,18 @@ final class VehicleSettings {
 				'post_type'              => \MHMRentiva\Admin\Vehicle\PostType\Vehicle::POST_TYPE,
 				'post_status'            => 'publish',
 				// Candidates, not the answer: a _thumbnail_id can point at an
-				// attachment that no longer exists (a database import, a
-				// deleted file), so the first vehicle with a USABLE image wins.
-				// Bounded so a fleet of broken imports cannot make the admin
-				// screen walk every vehicle.
+				// attachment row that no longer exists (a database import, a
+				// deleted attachment), so the first vehicle whose image URL resolves
+				// wins. A row whose FILE was removed from uploads/ still resolves and
+				// is not detected here. Bounded so a fleet of broken imports cannot
+				// make the admin screen walk every vehicle.
 				'posts_per_page'         => 20,
 				'orderby'                => 'date',
 				'order'                  => 'ASC',
 				'fields'                 => 'ids',
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one EXISTS clause on _thumbnail_id, LIMIT 1, admin screen only.
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one EXISTS clause on _thumbnail_id, LIMIT 20, admin screen only.
 				'meta_query'             => array(
 					array(
 						'key'     => '_thumbnail_id',
