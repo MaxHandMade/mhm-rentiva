@@ -1060,7 +1060,9 @@ final class VehicleSettings {
 
 		return array(
 			'image' => $image,
-			'name'  => get_the_title( $vehicle_id ),
+			// The card sets textContent, and wp_localize_script() only decodes
+			// top-level values, so the texturized title's entities would show.
+			'name'  => html_entity_decode( get_the_title( $vehicle_id ), ENT_QUOTES, get_bloginfo( 'charset' ) ),
 			'price' => $price,
 		);
 	}

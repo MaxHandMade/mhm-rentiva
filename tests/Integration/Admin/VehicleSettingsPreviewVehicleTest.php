@@ -74,6 +74,19 @@ final class VehicleSettingsPreviewVehicleTest extends WP_UnitTestCase {
 		$this->assertSame( 'Usable Car', $preview['name'] ?? null );
 	}
 
+	public function test_the_name_is_plain_text_not_html_entities(): void {
+		// Fable delta-6 Minor 1: get_the_title() runs wptexturize, and
+		// wp_localize_script() only decodes top-level scalars, so a nested
+		// name reached the card's textContent as "Fiat&#8217;s 500".
+		$this->vehicle( "Fiat's 500 & Co", '2021-03-01 10:00:00' );
+
+		$preview = VehicleSettings::build_preview_vehicle();
+
+		$this->assertStringNotContainsString( '&#', $preview['name'] );
+		$this->assertStringNotContainsString( '&amp;', $preview['name'] );
+		$this->assertStringContainsString( '500 & Co', $preview['name'] );
+	}
+
 	public function test_a_vehicle_without_a_daily_price_leaves_the_price_empty(): void {
 		$this->vehicle( 'Priceless', '2021-03-01 10:00:00', 'publish', true, '' );
 

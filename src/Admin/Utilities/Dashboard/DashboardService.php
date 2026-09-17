@@ -600,10 +600,12 @@ final class DashboardService {
 		// CANONICAL priority. This query only produces the COUNT; it does
 		// not by itself guarantee the chip's filtered list agrees. That
 		// guarantee lives in BookingColumns::apply_status_filter(), which
-		// must resolve every row to the SAME single bucket via nested
-		// meta_query groups expressing this exact priority (new key wins
-		// when set; legacy key only decides when the new key is
-		// absent/empty; pending only when both are absent/empty) — an
+		// must resolve every row to the SAME single bucket by this exact
+		// priority (new key wins when set; legacy key only decides when the
+		// new key is absent/empty; pending only when both are absent/empty).
+		// Since 6.1.5 it runs this same COALESCE to collect the IDs -- the
+		// nested meta_query it used before never returned for "pending" on a
+		// real site (see BookingStatusFilterQueryShapeTest) — an
 		// OR-on-either-key match is NOT equivalent and lets a row count
 		// under one status while also matching another status's filter, or
 		// the pending filter, at the same time. OccupancyMapService::get_map()
