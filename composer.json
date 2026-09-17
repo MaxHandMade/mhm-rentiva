@@ -86,6 +86,6 @@
         "wpackagist-plugin/elementor": "*"
     },
     "require": {
-        "mhm/ui-core": "^0.10"
+        "mhm/ui-core": "^0.11"
     }
 }

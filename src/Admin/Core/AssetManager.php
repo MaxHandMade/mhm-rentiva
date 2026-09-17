@@ -512,6 +512,24 @@ final class AssetManager {
 	}
 
 	/**
+	 * Enqueue one ui-core kit stylesheet for a surface.
+	 *
+	 * Guarded because the function was born in ui-core 0.11.0: on a site where an
+	 * older sibling plugin ships the winning copy, the loader serves 0.10.x and the
+	 * function does not exist. An unstyled card is readable; a fatal is not.
+	 *
+	 * @param string $surface 'admin' or 'front'.
+	 * @return string The enqueued handle, or '' when no stylesheet could be loaded.
+	 */
+	public static function enqueue_kit( string $surface ): string {
+		if ( ! function_exists( 'mhmuicore_enqueue_kit' ) ) {
+			return '';
+		}
+
+		return mhmuicore_enqueue_kit( $surface, MHMRENTIVA_PLUGIN_PATH . 'vendor/mhm/ui-core' );
+	}
+
+	/**
 	 * Load component JS file
 	 *
 	 * @param string $component - Component name
