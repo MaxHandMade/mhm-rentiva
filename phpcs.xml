@@ -38,6 +38,21 @@
     -->
 	<rule ref="WordPress.Security"/>
 	<rule ref="WordPress.DB"/>
+
+	<!--
+	ui-core kit HTML renderers (mhmuicore_stat_card_html / mhmuicore_stats_grid_html)
+	escape every prop themselves before returning the string (see StatCard::render_html /
+	StatsGrid::render_html in vendor/mhm/ui-core), so echoing their return value is not
+	unescaped output. Documented in vendor/mhm/ui-core/README.md's own phpcs.xml example.
+	-->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customEscapingFunctions" type="array">
+				<element value="mhmuicore_stat_card_html"/>
+				<element value="mhmuicore_stats_grid_html"/>
+			</property>
+		</properties>
+	</rule>
 	
 	<!-- Enforce strict types -->
 	<rule ref="Generic.PHP.RequireStrictTypes"/>

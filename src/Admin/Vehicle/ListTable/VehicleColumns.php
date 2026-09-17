@@ -626,13 +626,8 @@ final class VehicleColumns {
 			// position from ListScreenLayout's server-side seams. The old
 			// vehicle-list-ui.js did nothing but re-parent them and is gone.
 
-			// Load statistics cards CSS
-			wp_enqueue_style(
-				'mhm-rentiva-stats-cards',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-				array(),
-				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/components/stats-cards.css')
-			);
+			// KPI strip markup/styling now comes from the ui-core kit.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'admin' );
 
 			wp_enqueue_style(
 				'mhm-rentiva-shared-admin',
@@ -673,7 +668,7 @@ final class VehicleColumns {
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-list.css',
-				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin', 'mhm-rentiva-calendars', 'mhm-rentiva-booking-calendar', 'mhm-rentiva-occupancy-matrix' ),
+				array( 'mhm-rentiva-shared-admin', 'mhm-rentiva-calendars', 'mhm-rentiva-booking-calendar', 'mhm-rentiva-occupancy-matrix' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/vehicle-list.css')
 			);
 
@@ -1126,46 +1121,57 @@ final class VehicleColumns {
 
 		// Get statistics data
 		$stats = self::get_vehicle_stats();
-		?>
-		<div class="mhm-stats-grid">
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-car"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Total Vehicles', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['total_vehicles']); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['reserved']); ?> <?php esc_html_e('reserved this month', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
 
-			<div class="mhm-stat-card is-active-today">
-				<span class="dashicons dashicons-admin-users"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Active Today', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['active_today']); ?></p>
-					<p class="mhm-stat-card__sub"><?php esc_html_e('vehicles with customers', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
+		$revenue_trend = $stats['revenue_trend'] ?? 0;
 
-			<div class="mhm-stat-card is-occupancy">
-				<span class="dashicons dashicons-chart-bar"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Occupancy', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['occupancy_rate']); ?>%</p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['total_vehicles']); ?> <?php esc_html_e('total vehicles', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
+		$cards = array(
+			array(
+				'label' => __( 'Total Vehicles', 'mhm-rentiva' ),
+				'value' => (string) $stats['total_vehicles'],
+				'icon'  => 'car',
+				'sub'   => sprintf(
+					/* translators: %s: number of vehicles reserved this month. */
+					__( '%s reserved this month', 'mhm-rentiva' ),
+					$stats['reserved']
+				),
+			),
+			array(
+				'label' => __( 'Active Today', 'mhm-rentiva' ),
+				'value' => (string) $stats['active_today'],
+				'icon'  => 'admin-users',
+				'sub'   => __( 'vehicles with customers', 'mhm-rentiva' ),
+			),
+			array(
+				'label' => __( 'This Month Occupancy', 'mhm-rentiva' ),
+				'value' => $stats['occupancy_rate'] . '%',
+				'icon'  => 'chart-bar',
+				'sub'   => sprintf(
+					/* translators: %s: total number of vehicles. */
+					__( '%s total vehicles', 'mhm-rentiva' ),
+					$stats['total_vehicles']
+				),
+			),
+			array(
+				'label' => __( 'This Month Revenue', 'mhm-rentiva' ),
+				'value' => self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ) ),
+				'icon'  => 'money-alt',
+				'delta' => array(
+					'direction' => $revenue_trend > 0 ? 'up' : ( $revenue_trend < 0 ? 'down' : 'flat' ),
+					'text'      => sprintf(
+						/* translators: %s: percentage change against last month (magnitude only; direction is carried by the arrow). */
+						__( '%s%% vs last month', 'mhm-rentiva' ),
+						abs( $revenue_trend )
+					),
+				),
+				'sub'   => __( 'vs last month', 'mhm-rentiva' ),
+			),
+		);
 
-			<div class="mhm-stat-card is-revenue">
-				<span class="dashicons dashicons-money-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Revenue', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html(self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ))); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo ( $stats['revenue_trend'] ?? 0 ) >= 0 ? '+' : ''; ?><?php echo esc_html($stats['revenue_trend'] ?? 0); ?>% <?php esc_html_e('vs last month', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
-		</div>
-
-		<?php
+		echo '<div class="mhmui-admin">';
+		echo function_exists( 'mhmuicore_stats_grid_html' )
+			? mhmuicore_stats_grid_html( $cards, 4 )
+			: '';
+		echo '</div>';
 	}
 
 	/**

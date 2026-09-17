@@ -33,7 +33,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 4
+			count: 3
 			path: src/Admin/Addons/AddonListTable.php
 
 		-
@@ -132,7 +132,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 9
+			count: 8
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
@@ -1026,7 +1026,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 9
+			count: 8
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-

@@ -43,12 +43,8 @@ final class AddonListTable {
 			return;
 		}
 
-		wp_enqueue_style(
-			'mhm-rentiva-stats-cards',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-			array(),
-			MHMRENTIVA_VERSION
-		);
+		// KPI strip markup/styling now comes from the ui-core kit.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'admin' );
 
 		wp_enqueue_style(
 			'mhm-rentiva-shared-admin',
@@ -106,45 +102,45 @@ final class AddonListTable {
 		}
 
 		$stats = self::get_addon_stats();
-		?>
-		<div class="mhm-stats-grid">
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-plus-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Total Additional Services', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( (string) $stats['total_addons'] ); ?></p>
-					<p class="mhm-stat-card__sub"><?php esc_html_e('All services', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
 
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-yes-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Active Services', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( (string) $stats['active_addons'] ); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html( (string) $stats['active_percentage'] ); ?>% <?php esc_html_e('active', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
+		$cards = array(
+			array(
+				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
+				'value' => (string) $stats['total_addons'],
+				'icon'  => 'plus-alt',
+				'sub'   => __( 'All services', 'mhm-rentiva' ),
+			),
+			array(
+				'label' => __( 'Active Services', 'mhm-rentiva' ),
+				'value' => (string) $stats['active_addons'],
+				'icon'  => 'yes-alt',
+				'sub'   => sprintf(
+					/* translators: %s: percentage of add-ons that are active. */
+					__( '%s%% active', 'mhm-rentiva' ),
+					$stats['active_percentage']
+				),
+			),
+			array(
+				'label' => __( 'Average Price', 'mhm-rentiva' ),
+				// Already formatted by AddonStats; not re-formatted here.
+				'value' => $stats['avg_price'],
+				'icon'  => 'money-alt',
+				'sub'   => __( 'All services', 'mhm-rentiva' ),
+			),
+			array(
+				'label' => __( 'Total Value', 'mhm-rentiva' ),
+				// Already formatted by AddonStats; not re-formatted here.
+				'value' => $stats['total_value'],
+				'icon'  => 'chart-line',
+				'sub'   => __( 'All prices', 'mhm-rentiva' ),
+			),
+		);
 
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-money-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Average Price', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['avg_price']); ?></p>
-					<p class="mhm-stat-card__sub"><?php esc_html_e('All services', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
-
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-chart-line"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Total Value', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['total_value']); ?></p>
-					<p class="mhm-stat-card__sub"><?php esc_html_e('All prices', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
-		</div>
-		<?php
+		echo '<div class="mhmui-admin">';
+		echo function_exists( 'mhmuicore_stats_grid_html' )
+			? mhmuicore_stats_grid_html( $cards, 4 )
+			: '';
+		echo '</div>';
 	}
 
 	/**
