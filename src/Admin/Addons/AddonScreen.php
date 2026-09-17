@@ -769,19 +769,6 @@ final class AddonScreen {
 	}
 
 	/**
-	 * The KPI band.
-	 *
-	 * The design does not draw one — it opens straight into the two columns —
-	 * but the band stays, by decision: it is the only place four of these
-	 * numbers are shown at all, and average price and total value appear on no
-	 * other screen. Dropping them to match a mockup would be removing working
-	 * information to gain a resemblance.
-	 *
-	 * It reuses the shared `mhm-stat-card` markup rather than inventing a second
-	 * card system for this screen; Task 10 restyles it inside
-	 * `#mhm-addons-root`, which is what keeps the change local.
-	 */
-	/**
 	 * "N active · M total", the list header's counter.
 	 *
 	 * One place, because two now need it: this screen renders it, and the
@@ -817,58 +804,63 @@ final class AddonScreen {
 		);
 	}
 
-	private static function render_stats_band(): void {
+	/**
+	 * The four add-on figures, painted through the ui-core kit.
+	 *
+	 * The design does not draw a band -- it opens straight into the two
+	 * columns -- but it stays, by decision: it is the only place four of
+	 * these numbers are shown at all, and average price and total value
+	 * appear on no other screen. Dropping them to match a mockup would be
+	 * removing working information to gain a resemblance.
+	 *
+	 * Each card carries its AddonStats key in `data.stat`, which the kit
+	 * renders as `data-stat="…"`. Without it every card is an identical
+	 * kit card and the live-counter script has no way to say "the
+	 * active-services one" except by counting position, which the next
+	 * person to reorder them would break silently.
+	 *
+	 * Public (not private) because the test that pins the `data-stat` hook
+	 * calls it directly, the same shape the migrated list-table strips use.
+	 *
+	 * `#mhm-addons-root` already carries `mhmui-admin mhmui-admin-page`
+	 * (see render_page()), so the band does not open a second scope div --
+	 * one ancestor with the class is all the kit's selectors need.
+	 */
+	public static function render_stats_band(): void {
 		$stats = AddonStats::get();
 
-		// Each card carries the AddonStats key it displays. Without it every card
-		// is an identical .mhm-stat-card and the script has no way to say "the
-		// active-services one" except by counting position, which the next
-		// person to reorder them would break silently.
 		$cards = array(
 			array(
-				'key'   => 'total_addons',
-				'icon'  => 'dashicons-plus-alt',
 				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['total_addons'],
+				'icon'  => 'plus-alt',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
+				'data'  => array( 'stat' => 'total_addons' ),
 			),
 			array(
-				'key'   => 'active_addons',
-				'icon'  => 'dashicons-yes-alt',
 				'label' => __( 'Active Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['active_addons'],
+				'icon'  => 'yes-alt',
 				'sub'   => self::active_share_label( (string) $stats['active_percentage'] ),
+				'data'  => array( 'stat' => 'active_addons' ),
 			),
 			array(
-				'key'   => 'avg_price',
-				'icon'  => 'dashicons-money-alt',
 				'label' => __( 'Average Price', 'mhm-rentiva' ),
 				'value' => $stats['avg_price'],
+				'icon'  => 'money-alt',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
+				'data'  => array( 'stat' => 'avg_price' ),
 			),
 			array(
-				'key'   => 'total_value',
-				'icon'  => 'dashicons-chart-line',
 				'label' => __( 'Total Value', 'mhm-rentiva' ),
 				'value' => $stats['total_value'],
+				'icon'  => 'chart-line',
 				'sub'   => __( 'All prices', 'mhm-rentiva' ),
+				'data'  => array( 'stat' => 'total_value' ),
 			),
 		);
 
-		echo '<div class="mhm-stats-grid">';
-		foreach ( $cards as $card ) {
-			printf(
-				'<div class="mhm-stat-card" data-stat="%1$s"><span class="dashicons %2$s"></span><div class="mhm-stat-card__body">' .
-				'<p class="mhm-stat-card__label">%3$s</p><p class="mhm-stat-card__value">%4$s</p>' .
-				'<p class="mhm-stat-card__sub">%5$s</p></div></div>',
-				esc_attr( $card['key'] ),
-				esc_attr( $card['icon'] ),
-				esc_html( $card['label'] ),
-				esc_html( $card['value'] ),
-				esc_html( $card['sub'] )
-			);
-		}
-		echo '</div>';
+		echo function_exists( 'mhmuicore_stats_grid_html' ) ? mhmuicore_stats_grid_html( $cards, 4 ) : '';
 	}
 
 	/**
