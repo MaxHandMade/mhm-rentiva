@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.11.0",
+            "version": "v0.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "8b3ee565ec9505b8c00a2c67b2365e5ef89ab2db"
+                "reference": "152f39222e2e600de6b175e9cad3f1d158da5311"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/8b3ee565ec9505b8c00a2c67b2365e5ef89ab2db",
-                "reference": "8b3ee565ec9505b8c00a2c67b2365e5ef89ab2db",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/152f39222e2e600de6b175e9cad3f1d158da5311",
+                "reference": "152f39222e2e600de6b175e9cad3f1d158da5311",
                 "shasum": ""
             },
             "require": {
@@ -87,10 +87,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.11.0",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.11.1",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-09-17T17:23:53+00:00"
+            "time": "2026-09-17T20:40:08+00:00"
         }
     ],
     "packages-dev": [
