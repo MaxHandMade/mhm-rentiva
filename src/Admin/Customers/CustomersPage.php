@@ -120,6 +120,7 @@ final class CustomersPage {
 		}
 
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'customers' );
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'admin' );
 
 		wp_enqueue_style(
 			'mhm-rentiva-customers',

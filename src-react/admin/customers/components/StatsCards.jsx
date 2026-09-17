@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import StatsGrid from '../../../../vendor/mhm/ui-core/src-react/components/StatsGrid';
 import { fmtMoney } from '../../../shared/format';
 
 export default function StatsCards( { stats, currency } ) {
@@ -6,52 +7,38 @@ export default function StatsCards( { stats, currency } ) {
 		return null;
 	}
 
-	const trend    = stats.new_trend || '';
-	const trendUp  = trend.startsWith( '+' ) && trend !== '+0%';
+	const trend = String( stats.new_trend ?? '' );
+	const rising = trend.startsWith( '+' ) && trend !== '+0%';
+	const falling = trend.startsWith( '-' );
 	const avgSpend = Number( stats.avg_spend ?? 0 );
 
 	const cards = [
 		{
-			value: stats.total ?? 0,
 			label: __( 'Total Customers', 'mhm-rentiva' ),
+			value: String( stats.total ?? 0 ),
+			icon: 'groups',
 		},
 		{
-			value: stats.new_this_month ?? 0,
 			label: __( 'New This Month', 'mhm-rentiva' ),
-			sub:   trend,
-			tone:  trendUp ? 'up' : 'down',
+			value: String( stats.new_this_month ?? 0 ),
+			icon: 'plus-alt',
+			// Only a real movement earns a delta line; a flat trend reads as a sub.
+			delta: rising || falling ? { direction: rising ? 'up' : 'down', text: trend } : undefined,
+			sub: rising || falling ? undefined : trend,
 		},
 		{
-			value: stats.active_90d ?? 0,
 			label: __( 'Active Customers', 'mhm-rentiva' ),
-			sub:   __( 'last 90 days', 'mhm-rentiva' ),
-			tone:  'info',
+			value: String( stats.active_90d ?? 0 ),
+			icon: 'yes-alt',
+			sub: __( 'last 90 days', 'mhm-rentiva' ),
 		},
 		{
-			// fmtMoney places the symbol per woocommerce_currency_pos and uses the
-			// WooCommerce separators; the old template literal hardcoded the symbol
-			// to the left and took separators from the browser locale.
-			value: fmtMoney( avgSpend, currency ?? '' ),
 			label: __( 'Avg. Spend', 'mhm-rentiva' ),
-			sub:   __( 'per customer', 'mhm-rentiva' ),
+			value: fmtMoney( avgSpend, currency ?? '' ),
+			icon: 'money-alt',
+			sub: __( 'per customer', 'mhm-rentiva' ),
 		},
 	];
 
-	return (
-		<div className="rv-cust-kpis">
-			{ cards.map( ( card ) => (
-				<div key={ card.label } className="rv-cust-kpi">
-					<div className="rv-cust-kpi__label">{ card.label }</div>
-					<div className="rv-cust-kpi__row">
-						<span className="rv-cust-kpi__value">{ card.value }</span>
-						{ card.sub && (
-							<span className={ `rv-cust-kpi__sub${ card.tone ? ` is-${ card.tone }` : '' }` }>
-								{ card.sub }
-							</span>
-						) }
-					</div>
-				</div>
-			) ) }
-		</div>
-	);
+	return <StatsGrid cards={ cards } columns={ 4 } />;
 }
