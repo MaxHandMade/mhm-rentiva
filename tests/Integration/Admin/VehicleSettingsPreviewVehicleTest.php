@@ -59,6 +59,21 @@ final class VehicleSettingsPreviewVehicleTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( '850', $preview['price'] );
 	}
 
+	public function test_a_stale_thumbnail_id_is_skipped_for_the_next_vehicle_with_a_usable_image(): void {
+		// Codex review on PR #53: after a database import the oldest vehicle
+		// can carry a _thumbnail_id whose attachment no longer exists. The
+		// query matched it, the image URL came back false, and the card fell
+		// back to the placeholder although a newer vehicle had a real image.
+		$stale = $this->vehicle( 'Imported Oldest', '2018-01-01 10:00:00', 'publish', false );
+		update_post_meta( $stale, '_thumbnail_id', 987654321 );
+
+		$this->vehicle( 'Usable Car', '2022-01-01 10:00:00' );
+
+		$preview = VehicleSettings::build_preview_vehicle();
+
+		$this->assertSame( 'Usable Car', $preview['name'] ?? null );
+	}
+
 	public function test_a_vehicle_without_a_daily_price_leaves_the_price_empty(): void {
 		$this->vehicle( 'Priceless', '2021-03-01 10:00:00', 'publish', true, '' );
 

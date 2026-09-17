@@ -1004,8 +1004,8 @@ final class VehicleSettings {
 	/**
 	 * The vehicle the Display & Preview tab's live preview card shows.
 	 *
-	 * The first published vehicle (oldest post date) that has a featured
-	 * image, so the card previews the site's own fleet instead of a grey box
+	 * The first published vehicle (oldest post date) with a usable featured
+	 * image (up to 20 candidates), so the card previews the site's own fleet instead of a grey box
 	 * and a sample name. Name and price come from that same vehicle so the
 	 * card never pairs one car's photo with another's title. An empty array
 	 * when no published vehicle has an image: the card keeps its placeholder.
@@ -1017,7 +1017,12 @@ final class VehicleSettings {
 			array(
 				'post_type'              => \MHMRentiva\Admin\Vehicle\PostType\Vehicle::POST_TYPE,
 				'post_status'            => 'publish',
-				'posts_per_page'         => 1,
+				// Candidates, not the answer: a _thumbnail_id can point at an
+				// attachment that no longer exists (a database import, a
+				// deleted file), so the first vehicle with a USABLE image wins.
+				// Bounded so a fleet of broken imports cannot make the admin
+				// screen walk every vehicle.
+				'posts_per_page'         => 20,
 				'orderby'                => 'date',
 				'order'                  => 'ASC',
 				'fields'                 => 'ids',
@@ -1033,13 +1038,18 @@ final class VehicleSettings {
 			)
 		);
 
-		if ( empty( $ids ) ) {
-			return array();
+		$vehicle_id = 0;
+		$image      = '';
+		foreach ( $ids as $candidate_id ) {
+			$url = wp_get_attachment_image_url( (int) get_post_thumbnail_id( (int) $candidate_id ), 'medium_large' );
+			if ( is_string( $url ) && '' !== $url ) {
+				$vehicle_id = (int) $candidate_id;
+				$image      = $url;
+				break;
+			}
 		}
 
-		$vehicle_id = (int) $ids[0];
-		$image      = wp_get_attachment_image_url( (int) get_post_thumbnail_id( $vehicle_id ), 'medium_large' );
-		if ( ! is_string( $image ) || '' === $image ) {
+		if ( 0 === $vehicle_id ) {
 			return array();
 		}
 
