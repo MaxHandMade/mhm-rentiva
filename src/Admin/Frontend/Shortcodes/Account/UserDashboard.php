@@ -50,6 +50,12 @@ final class UserDashboard {
 		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
 		if ('customer' === $type) {
+			// Also here, not only in enqueue_assets(): the block and the Elementor
+			// widget render this shortcode on pages that are not the dashboard
+			// surface, where enqueue_assets() returns early and the kit's
+			// stylesheet would otherwise never load. Enqueueing is idempotent.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
+
 			return CustomerDashboard::render($data);
 		}
 
@@ -189,7 +195,7 @@ final class UserDashboard {
 	}
 
 	/**
-	 * Enqueue scoped stylesheet.
+	 * Enqueue the scoped stylesheet and the ui-core front kit.
 	 */
 	public static function enqueue_assets(): void
 	{
@@ -204,12 +210,7 @@ final class UserDashboard {
 			MHMRENTIVA_VERSION
 		);
 
-		wp_enqueue_script(
-			'mhm-rentiva-dashboard',
-			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
-			array(),
-			MHMRENTIVA_VERSION,
-			true
-		);
+		// Kit stat cards and the front page shell (K4: iconless on the front end).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
 	}
 }

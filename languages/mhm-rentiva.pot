@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-18T01:03:54+00:00\n"
+"POT-Creation-Date: 2026-09-18T18:33:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -289,13 +289,13 @@ msgstr ""
 #: src/Admin/About/Tabs/GeneralTab.php:308
 #: src/Admin/Booking/ListTable/BookingColumns.php:1184
 #: src/Core/Dashboard/DashboardConfig.php:24
-#: templates/account/dashboard.php:50
+#: templates/account/dashboard.php:51
 #: src-react/admin/dashboard/components/StatsCards.jsx:50
 msgid "Total Bookings"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:312
-#: src-react/admin/customers/components/StatsCards.jsx:38
+#: src-react/admin/customers/components/StatsCards.jsx:53
 msgid "Total Customers"
 msgstr ""
 
@@ -697,11 +697,11 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:181
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:630
-#: src/Admin/Frontend/Account/AccountController.php:766
-#: src/Admin/Frontend/Account/AccountController.php:903
-#: src/Admin/Frontend/Account/AccountController.php:957
-#: src/Admin/Frontend/Account/AccountController.php:1074
+#: src/Admin/Frontend/Account/AccountController.php:625
+#: src/Admin/Frontend/Account/AccountController.php:761
+#: src/Admin/Frontend/Account/AccountController.php:898
+#: src/Admin/Frontend/Account/AccountController.php:952
+#: src/Admin/Frontend/Account/AccountController.php:1069
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1022
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:847
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1219
@@ -818,7 +818,7 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:1031
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:1030
-#: src/Admin/Customers/CustomersPage.php:252
+#: src/Admin/Customers/CustomersPage.php:255
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:887
 #: src/Admin/Setup/SetupWizard.php:946
@@ -850,9 +850,9 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:146
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/AddCustomerPage.php:156
-#: src/Admin/Customers/CustomersPage.php:493
-#: src/Admin/Customers/CustomersPage.php:498
-#: src/Admin/Customers/CustomersPage.php:503
+#: src/Admin/Customers/CustomersPage.php:496
+#: src/Admin/Customers/CustomersPage.php:501
+#: src/Admin/Customers/CustomersPage.php:506
 #: src/Admin/Setup/SetupWizard.php:969
 #: assets/blocks/unified-search/index.js:134
 msgid "Required"
@@ -1062,7 +1062,7 @@ msgstr[1] ""
 
 #: src/Admin/Addons/AddonScreen.php:1040
 #: src/Admin/Core/AssetManager.php:1184
-#: src/Admin/Customers/CustomersPage.php:389
+#: src/Admin/Customers/CustomersPage.php:392
 #: src/Admin/Setup/SetupWizard.php:225
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:967
 #: templates/shortcodes/vehicle-rating-form.php:292
@@ -1078,9 +1078,9 @@ msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:82
 #: src/Admin/Booking/Helpers/CancellationHandler.php:107
-#: src/Admin/Frontend/Account/AccountController.php:636
-#: src/Admin/Frontend/Account/AccountController.php:910
-#: src/Admin/Frontend/Account/AccountController.php:1133
+#: src/Admin/Frontend/Account/AccountController.php:631
+#: src/Admin/Frontend/Account/AccountController.php:905
+#: src/Admin/Frontend/Account/AccountController.php:1128
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2620
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2679
 msgid "Invalid booking ID."
@@ -1302,8 +1302,8 @@ msgstr ""
 #: templates/account/bookings.php:116
 #: templates/account/bookings.php:201
 #: templates/account/bookings.php:312
-#: templates/account/dashboard.php:136
-#: templates/account/user-dashboard.php:238
+#: templates/account/dashboard.php:121
+#: templates/account/user-dashboard.php:189
 #: templates/emails/booking-created-customer.html.php:92
 #: templates/emails/refund-customer.html.php:32
 #: assets/blocks/payment-history/index.js:41
@@ -1323,8 +1323,8 @@ msgstr ""
 #: templates/account/bookings.php:117
 #: templates/account/bookings.php:202
 #: templates/account/bookings.php:313
-#: templates/account/dashboard.php:124
-#: templates/account/user-dashboard.php:236
+#: templates/account/dashboard.php:109
+#: templates/account/user-dashboard.php:187
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
 msgid "Confirmed"
 msgstr ""
@@ -1339,7 +1339,7 @@ msgstr ""
 #: templates/account/bookings.php:118
 #: templates/account/bookings.php:203
 #: templates/account/bookings.php:314
-#: templates/account/user-dashboard.php:237
+#: templates/account/user-dashboard.php:188
 #: src-react/admin/dashboard/components/RecentBookings.jsx:12
 msgid "In Progress"
 msgstr ""
@@ -1356,8 +1356,8 @@ msgstr ""
 #: templates/account/bookings.php:119
 #: templates/account/bookings.php:204
 #: templates/account/bookings.php:315
-#: templates/account/dashboard.php:128
-#: templates/account/user-dashboard.php:235
+#: templates/account/dashboard.php:113
+#: templates/account/user-dashboard.php:186
 #: templates/emails/booking-created-admin.html.php:65
 #: templates/emails/booking-created-customer.html.php:91
 #: templates/emails/refund-customer.html.php:33
@@ -1380,8 +1380,8 @@ msgstr ""
 #: templates/account/bookings.php:120
 #: templates/account/bookings.php:205
 #: templates/account/bookings.php:316
-#: templates/account/dashboard.php:132
-#: templates/account/user-dashboard.php:239
+#: templates/account/dashboard.php:117
+#: templates/account/user-dashboard.php:190
 #: templates/emails/booking-created-admin.html.php:67
 #: assets/blocks/my-bookings/index.js:45
 #: src-react/admin/dashboard/components/RecentBookings.jsx:14
@@ -1392,7 +1392,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1085
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:486
 #: src/Admin/Booking/Meta/BookingMeta.php:1196
-#: templates/account/user-dashboard.php:240
+#: templates/account/user-dashboard.php:191
 #: templates/emails/booking-created-admin.html.php:68
 #: assets/blocks/payment-history/index.js:42
 msgid "Refunded"
@@ -1813,8 +1813,8 @@ msgstr ""
 #: templates/account/booking-detail.php:151
 #: templates/account/bookings.php:167
 #: templates/account/bookings.php:278
-#: templates/account/user-dashboard.php:207
-#: templates/account/user-dashboard.php:255
+#: templates/account/user-dashboard.php:158
+#: templates/account/user-dashboard.php:206
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
 #: src-react/admin/customers/components/CustomerTable.jsx:85
@@ -2002,22 +2002,25 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1227
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1165
-#: src-react/admin/customers/components/StatsCards.jsx:30
+#: templates/account/user-dashboard.php:123
+#: src-react/admin/customers/components/StatsCards.jsx:45
 #: src-react/admin/dashboard/components/StatsCards.jsx:32
 msgid "increase"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1228
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1166
-#: src-react/admin/customers/components/StatsCards.jsx:32
+#: templates/account/user-dashboard.php:124
+#: src-react/admin/customers/components/StatsCards.jsx:47
 #: src-react/admin/dashboard/components/StatsCards.jsx:34
 msgid "decrease"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1228
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1166
-#: src-react/admin/customers/components/StatsCards.jsx:33
-#: src-react/admin/dashboard/components/StatsCards.jsx:35
+#: templates/account/user-dashboard.php:124
+#: src-react/admin/customers/components/StatsCards.jsx:43
+#: src-react/admin/dashboard/components/StatsCards.jsx:30
 msgid "no change"
 msgstr ""
 
@@ -2026,12 +2029,6 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1169
 #, php-format
 msgid "%s%% vs last month"
-msgstr ""
-
-#. translators: %s: percentage change against last month (magnitude only; direction is carried by the kit's arrow).
-#: src-react/admin/customers/components/StatsCards.jsx:38
-#, php-format
-msgid "%s%%"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1235
@@ -2308,7 +2305,7 @@ msgid "The deposit was paid outside WooCommerce, so no payment link can be sent 
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:427
-#: src/Admin/Frontend/Account/AccountController.php:409
+#: src/Admin/Frontend/Account/AccountController.php:404
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
 #: templates/account/booking-detail.php:262
@@ -2417,8 +2414,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:220
 #: src/Admin/Booking/Meta/BookingMeta.php:414
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:351
-#: templates/account/user-dashboard.php:206
-#: templates/account/user-dashboard.php:254
+#: templates/account/user-dashboard.php:157
+#: templates/account/user-dashboard.php:205
 msgid "Pickup Date"
 msgstr ""
 
@@ -2589,8 +2586,8 @@ msgstr ""
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
 #: src/Admin/Utilities/ListTable/LogColumns.php:77
-#: templates/account/user-dashboard.php:204
-#: templates/account/user-dashboard.php:248
+#: templates/account/user-dashboard.php:155
+#: templates/account/user-dashboard.php:199
 msgid "Booking"
 msgstr ""
 
@@ -3100,8 +3097,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
 #: src/Admin/Customers/AddCustomerPage.php:151
-#: src/Admin/Customers/CustomersPage.php:322
-#: src/Admin/Customers/CustomersPage.php:498
+#: src/Admin/Customers/CustomersPage.php:325
+#: src/Admin/Customers/CustomersPage.php:501
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:505
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -3114,8 +3111,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:330
 #: src/Admin/Customers/AddCustomerPage.php:156
-#: src/Admin/Customers/CustomersPage.php:323
-#: src/Admin/Customers/CustomersPage.php:503
+#: src/Admin/Customers/CustomersPage.php:326
+#: src/Admin/Customers/CustomersPage.php:506
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:506
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -3174,8 +3171,8 @@ msgid "This email address is already registered."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:718
-#: src/Admin/Customers/CustomersPage.php:288
-#: src/Admin/Customers/CustomersPage.php:431
+#: src/Admin/Customers/CustomersPage.php:291
+#: src/Admin/Customers/CustomersPage.php:434
 #: src/Admin/Customers/REST/CustomersRestController.php:161
 #: src/Admin/Customers/REST/CustomersRestController.php:171
 msgid "Customer not found."
@@ -3487,7 +3484,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:705
 #: src/Admin/Core/AssetManager.php:1173
-#: src/Admin/Frontend/Account/AccountController.php:393
+#: src/Admin/Frontend/Account/AccountController.php:388
 #: src/Admin/Frontend/Account/AccountRenderer.php:246
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:302
@@ -3512,7 +3509,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:708
 #: src/Admin/Core/AssetManager.php:1206
-#: src/Admin/Frontend/Account/AccountController.php:396
+#: src/Admin/Frontend/Account/AccountController.php:391
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:69
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:115
 msgid "Are you sure?"
@@ -3522,7 +3519,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1016
 #: src/Admin/Core/AssetManager.php:1180
 #: src/Admin/Customers/AddCustomerPage.php:167
-#: src/Admin/Customers/CustomersPage.php:514
+#: src/Admin/Customers/CustomersPage.php:517
 #: src/Admin/Emails/Core/EmailTemplates.php:542
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:32
@@ -4165,7 +4162,7 @@ msgid "Confirm"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1186
-#: src/Admin/Customers/CustomersPage.php:513
+#: src/Admin/Customers/CustomersPage.php:516
 msgid "Update"
 msgstr ""
 
@@ -4205,7 +4202,7 @@ msgid "Back"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1192
-#: src/Admin/Customers/CustomersPage.php:384
+#: src/Admin/Customers/CustomersPage.php:387
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:393
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1158
 #: templates/account/payment-history.php:191
@@ -4217,7 +4214,7 @@ msgid "Next"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1193
-#: src/Admin/Customers/CustomersPage.php:379
+#: src/Admin/Customers/CustomersPage.php:382
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:392
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1157
 #: templates/account/payment-history.php:176
@@ -5407,7 +5404,7 @@ msgid "Password must be at least %length% characters."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:131
-#: src/Admin/Frontend/Account/AccountController.php:405
+#: src/Admin/Frontend/Account/AccountController.php:400
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
 msgid "Passwords do not match."
 msgstr ""
@@ -5647,7 +5644,7 @@ msgid "Retry Payment"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:68
-#: src/Admin/Customers/CustomersPage.php:447
+#: src/Admin/Customers/CustomersPage.php:450
 msgid "Customer name, email and phone fields are required."
 msgstr ""
 
@@ -5673,13 +5670,13 @@ msgid "Add New Customer"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:146
-#: src/Admin/Customers/CustomersPage.php:493
+#: src/Admin/Customers/CustomersPage.php:496
 msgid "Customer Name"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:161
-#: src/Admin/Customers/CustomersPage.php:324
-#: src/Admin/Customers/CustomersPage.php:508
+#: src/Admin/Customers/CustomersPage.php:327
+#: src/Admin/Customers/CustomersPage.php:511
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
 msgid "Address"
@@ -5691,69 +5688,69 @@ msgid "Add Customer"
 msgstr ""
 
 #. translators: 1: customer display name, 2: profile URL
-#: src/Admin/Customers/CustomersPage.php:183
+#: src/Admin/Customers/CustomersPage.php:186
 #, php-format
 msgid "Showing bookings for <strong>%1$s</strong> only. <a href=\"%2$s\">← Back to customer profile</a>"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:248
+#: src/Admin/Customers/CustomersPage.php:251
 #: src-react/admin/customers/components/CustomerTable.jsx:22
 #: src-react/admin/customers/CustomersPage.jsx:15
 msgid "VIP"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:250
+#: src/Admin/Customers/CustomersPage.php:253
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/customers/components/CustomerTable.jsx:23
 #: src-react/admin/customers/CustomersPage.jsx:14
 msgid "New"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:265
-#: src/Admin/Customers/CustomersPage.php:413
+#: src/Admin/Customers/CustomersPage.php:268
+#: src/Admin/Customers/CustomersPage.php:416
 msgid "Invalid customer ID."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:293
+#: src/Admin/Customers/CustomersPage.php:296
 msgid "Customers List"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:303
+#: src/Admin/Customers/CustomersPage.php:306
 #: src-react/admin/customers/components/CustomerPanel.jsx:43
 #: src-react/admin/customers/components/CustomerPanel.jsx:57
 msgid "Customer Details"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:325
+#: src/Admin/Customers/CustomersPage.php:328
 msgid "First Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:326
+#: src/Admin/Customers/CustomersPage.php:329
 msgid "Last Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:331
+#: src/Admin/Customers/CustomersPage.php:334
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 msgid "bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:334
+#: src/Admin/Customers/CustomersPage.php:337
 #: src-react/admin/customers/components/CustomerPanel.jsx:104
 #: src-react/admin/dashboard/components/StatsCards.jsx:67
 msgid "total"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:335
+#: src/Admin/Customers/CustomersPage.php:338
 #: src-react/admin/customers/components/CustomerPanel.jsx:108
 msgid "favorites"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:361
+#: src/Admin/Customers/CustomersPage.php:364
 #: src-react/admin/customers/components/CustomerPanel.jsx:113
 msgid "Recent bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:363
+#: src/Admin/Customers/CustomersPage.php:366
 #: src-react/admin/customers/components/CustomerPanel.jsx:137
 #: src-react/admin/dashboard/components/RecentBookings.jsx:52
 #: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
@@ -5761,40 +5758,40 @@ msgid "No bookings yet."
 msgstr ""
 
 #. translators: 1: current page, 2: total pages
-#: src/Admin/Customers/CustomersPage.php:382
+#: src/Admin/Customers/CustomersPage.php:385
 #, php-format
 msgid "%1$d / %2$d"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:390
+#: src/Admin/Customers/CustomersPage.php:393
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 msgid "View Bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:391
+#: src/Admin/Customers/CustomersPage.php:394
 msgid "Go Back"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:409
+#: src/Admin/Customers/CustomersPage.php:412
 msgid "You do not have permission to edit customers."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:470
+#: src/Admin/Customers/CustomersPage.php:473
 msgid "Customer information updated successfully."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:470
+#: src/Admin/Customers/CustomersPage.php:473
 msgid "← Back to customer details"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:479
-#: templates/account/dashboard.php:202
+#: src/Admin/Customers/CustomersPage.php:482
+#: templates/account/dashboard.php:187
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:486
+#: src/Admin/Customers/CustomersPage.php:489
 msgid "Edit Customer"
 msgstr ""
 
@@ -6424,7 +6421,7 @@ msgid "Cancelling..."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:324
-#: src/Admin/Frontend/Account/AccountController.php:394
+#: src/Admin/Frontend/Account/AccountController.php:389
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:67
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:320
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:512
@@ -6436,173 +6433,173 @@ msgstr ""
 msgid "Pay Remaining Amount"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:395
+#: src/Admin/Frontend/Account/AccountController.php:390
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
 msgid "Success!"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:397
+#: src/Admin/Frontend/Account/AccountController.php:392
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:70
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:135
 msgid "Uploading..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:398
-#: src/Admin/Frontend/Account/AccountController.php:723
+#: src/Admin/Frontend/Account/AccountController.php:393
+#: src/Admin/Frontend/Account/AccountController.php:718
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:71
 msgid "Receipt uploaded successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:399
+#: src/Admin/Frontend/Account/AccountController.php:394
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
 msgid "Receipt upload failed."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:400
+#: src/Admin/Frontend/Account/AccountController.php:395
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
 msgid "Are you sure you want to remove this receipt?"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:401
+#: src/Admin/Frontend/Account/AccountController.php:396
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
 msgid "Account details saved successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:402
+#: src/Admin/Frontend/Account/AccountController.php:397
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 msgid "Vehicle removed from favorites."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:403
+#: src/Admin/Frontend/Account/AccountController.php:398
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 msgid "Vehicle added to favorites."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:404
+#: src/Admin/Frontend/Account/AccountController.php:399
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 msgid "All favorites cleared."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:406
+#: src/Admin/Frontend/Account/AccountController.php:401
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 msgid "Are you sure you want to cancel changes?"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:407
+#: src/Admin/Frontend/Account/AccountController.php:402
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:80
 msgid "No favorite vehicles yet."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:408
+#: src/Admin/Frontend/Account/AccountController.php:403
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:81
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:410
+#: src/Admin/Frontend/Account/AccountController.php:405
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:83
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:76
 msgid "Save Changes"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:411
+#: src/Admin/Frontend/Account/AccountController.php:406
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:84
 msgid "vehicle in your favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:412
+#: src/Admin/Frontend/Account/AccountController.php:407
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:85
 msgid "vehicles in your favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:600
+#: src/Admin/Frontend/Account/AccountController.php:595
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:228
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:274
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:344
 msgid "Security error."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:604
+#: src/Admin/Frontend/Account/AccountController.php:599
 msgid "You must be logged in"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:612
+#: src/Admin/Frontend/Account/AccountController.php:607
 msgid "All favorites cleared"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:625
-#: src/Admin/Frontend/Account/AccountController.php:898
+#: src/Admin/Frontend/Account/AccountController.php:620
+#: src/Admin/Frontend/Account/AccountController.php:893
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:645
+#: src/Admin/Frontend/Account/AccountController.php:640
 msgid "You are not allowed to upload for this booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:649
+#: src/Admin/Frontend/Account/AccountController.php:644
 msgid "No file uploaded."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:770
+#: src/Admin/Frontend/Account/AccountController.php:765
 msgid "You are not allowed to view this receipt."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:777
+#: src/Admin/Frontend/Account/AccountController.php:772
 msgid "Receipt not found."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:917
+#: src/Admin/Frontend/Account/AccountController.php:912
 msgid "You are not allowed to remove receipt for this booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:922
+#: src/Admin/Frontend/Account/AccountController.php:917
 msgid "No receipt found to remove."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:935
+#: src/Admin/Frontend/Account/AccountController.php:930
 msgid "Receipt removed successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:937
+#: src/Admin/Frontend/Account/AccountController.php:932
 msgid "Failed to remove receipt file."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:962
+#: src/Admin/Frontend/Account/AccountController.php:957
 msgid "Please login."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:968
+#: src/Admin/Frontend/Account/AccountController.php:963
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1014
+#: src/Admin/Frontend/Account/AccountController.php:1009
 msgid "An error occurred while updating your account."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1023
+#: src/Admin/Frontend/Account/AccountController.php:1018
 msgid "Account updated successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1041
-#: src/Admin/Frontend/Account/AccountController.php:1054
+#: src/Admin/Frontend/Account/AccountController.php:1036
+#: src/Admin/Frontend/Account/AccountController.php:1049
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1111
+#: src/Admin/Frontend/Account/AccountController.php:1106
 msgid "You must be logged in to cancel a booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1122
+#: src/Admin/Frontend/Account/AccountController.php:1117
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1174
+#: src/Admin/Frontend/Account/AccountController.php:1169
 msgid "Booking cancelled, but the refund could not be completed automatically. We will contact you separately about your refund."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:1190
+#: src/Admin/Frontend/Account/AccountController.php:1185
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr ""
 
@@ -6704,7 +6701,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:467
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:39
-#: templates/account/dashboard.php:78
+#: templates/account/dashboard.php:59
 msgid "Favorite Vehicles"
 msgstr ""
 
@@ -13236,7 +13233,7 @@ msgstr ""
 #: src/Layout/CLI/LayoutImportCommand.php:409
 #: templates/account/bookings.php:227
 #: templates/account/bookings.php:338
-#: templates/account/user-dashboard.php:216
+#: templates/account/user-dashboard.php:167
 msgid "N/A"
 msgstr ""
 
@@ -13518,8 +13515,8 @@ msgstr ""
 
 #: templates/account/bookings.php:165
 #: templates/account/bookings.php:276
-#: templates/account/user-dashboard.php:205
-#: templates/account/user-dashboard.php:253
+#: templates/account/user-dashboard.php:156
+#: templates/account/user-dashboard.php:204
 msgid "Service"
 msgstr ""
 
@@ -13551,113 +13548,113 @@ msgid "You haven't made any vehicle bookings yet. Start exploring our fleet!"
 msgstr ""
 
 #: templates/account/bookings.php:380
-#: templates/account/dashboard.php:226
-#: templates/account/dashboard.php:254
+#: templates/account/dashboard.php:211
+#: templates/account/dashboard.php:239
 #: templates/shortcodes/vehicle-comparison.php:389
 msgid "Browse Vehicles"
 msgstr ""
 
-#: templates/account/dashboard.php:60
+#: templates/account/dashboard.php:55
 msgid "Active Bookings"
 msgstr ""
 
-#: templates/account/dashboard.php:87
-#: templates/account/user-dashboard.php:194
+#: templates/account/dashboard.php:72
+#: templates/account/user-dashboard.php:145
 #: src-react/admin/dashboard/components/RecentBookings.jsx:36
 msgid "Recent Bookings"
 msgstr ""
 
-#: templates/account/dashboard.php:89
-#: templates/account/user-dashboard.php:196
+#: templates/account/dashboard.php:74
+#: templates/account/user-dashboard.php:147
 msgid "View All"
 msgstr ""
 
-#: templates/account/dashboard.php:147
+#: templates/account/dashboard.php:132
 msgid "Vehicle Not Found"
 msgstr ""
 
 #. translators: %s: booking post ID.
-#: templates/account/dashboard.php:151
+#: templates/account/dashboard.php:136
 #, php-format
 msgid "Booking #%s"
 msgstr ""
 
-#: templates/account/dashboard.php:159
+#: templates/account/dashboard.php:144
 msgid "Pickup:"
 msgstr ""
 
-#: templates/account/dashboard.php:170
+#: templates/account/dashboard.php:155
 msgid "Return:"
 msgstr ""
 
-#: templates/account/dashboard.php:212
+#: templates/account/dashboard.php:197
 msgid "No Bookings Yet"
 msgstr ""
 
-#: templates/account/dashboard.php:213
+#: templates/account/dashboard.php:198
 msgid "You haven't made any vehicle bookings yet. Browse our fleet and make your first booking!"
 msgstr ""
 
-#: templates/account/dashboard.php:237
+#: templates/account/dashboard.php:222
 #: src-react/admin/dashboard/components/QuickActions.jsx:26
 msgid "Quick Actions"
 msgstr ""
 
-#: templates/account/dashboard.php:255
+#: templates/account/dashboard.php:240
 msgid "Explore our fleet"
 msgstr ""
 
-#: templates/account/dashboard.php:270
+#: templates/account/dashboard.php:255
 msgid "New Booking"
 msgstr ""
 
-#: templates/account/dashboard.php:271
+#: templates/account/dashboard.php:256
 msgid "Make a new reservation"
 msgstr ""
 
-#: templates/account/dashboard.php:286
+#: templates/account/dashboard.php:271
 msgid "Contact Support"
 msgstr ""
 
-#: templates/account/dashboard.php:287
+#: templates/account/dashboard.php:272
 msgid "We're here to help"
 msgstr ""
 
-#: templates/account/dashboard.php:305
+#: templates/account/dashboard.php:290
 msgid "Privacy Controls"
 msgstr ""
 
-#: templates/account/dashboard.php:306
+#: templates/account/dashboard.php:291
 msgid "Manage your personal data and privacy settings"
 msgstr ""
 
-#: templates/account/dashboard.php:311
+#: templates/account/dashboard.php:296
 msgid "Data Export"
 msgstr ""
 
-#: templates/account/dashboard.php:312
+#: templates/account/dashboard.php:297
 msgid "Download a copy of all your personal data"
 msgstr ""
 
-#: templates/account/dashboard.php:314
+#: templates/account/dashboard.php:299
 msgid "Export My Data"
 msgstr ""
 
-#: templates/account/dashboard.php:319
-#: templates/account/dashboard.php:322
+#: templates/account/dashboard.php:304
+#: templates/account/dashboard.php:307
 msgid "Withdraw Consent"
 msgstr ""
 
-#: templates/account/dashboard.php:320
+#: templates/account/dashboard.php:305
 msgid "Withdraw your consent for data processing"
 msgstr ""
 
-#: templates/account/dashboard.php:327
-#: templates/account/dashboard.php:330
+#: templates/account/dashboard.php:312
+#: templates/account/dashboard.php:315
 msgid "Delete Account"
 msgstr ""
 
-#: templates/account/dashboard.php:328
+#: templates/account/dashboard.php:313
 msgid "Permanently delete your account and all associated data"
 msgstr ""
 
@@ -13770,7 +13767,13 @@ msgstr ""
 msgid "Sign Out"
 msgstr ""
 
-#: templates/account/user-dashboard.php:264
+#. translators: 1: percentage change (magnitude only; the direction is carried by the arrow), 2: the period this compares.
+#: templates/account/user-dashboard.php:127
+#, php-format
+msgid "%1$s%% %2$s"
+msgstr ""
+
+#: templates/account/user-dashboard.php:215
 msgid "No bookings found."
 msgstr ""
 
@@ -15461,23 +15464,29 @@ msgstr ""
 msgid "Search name, email, phone…"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:43
-msgid "New This Month"
-msgstr ""
-
-#: src-react/admin/customers/components/StatsCards.jsx:49
-msgid "Active Customers"
-msgstr ""
-
-#: src-react/admin/customers/components/StatsCards.jsx:52
-msgid "last 90 days"
-msgstr ""
-
-#: src-react/admin/customers/components/StatsCards.jsx:55
-msgid "Avg. Spend"
+#. translators: %s: percentage change against last month (magnitude only; direction is carried by the kit's arrow).
+#: src-react/admin/customers/components/StatsCards.jsx:38
+#, js-format
+msgid "%s%%"
 msgstr ""
 
 #: src-react/admin/customers/components/StatsCards.jsx:58
+msgid "New This Month"
+msgstr ""
+
+#: src-react/admin/customers/components/StatsCards.jsx:64
+msgid "Active Customers"
+msgstr ""
+
+#: src-react/admin/customers/components/StatsCards.jsx:67
+msgid "last 90 days"
+msgstr ""
+
+#: src-react/admin/customers/components/StatsCards.jsx:70
+msgid "Avg. Spend"
+msgstr ""
+
+#: src-react/admin/customers/components/StatsCards.jsx:73
 msgid "per customer"
 msgstr ""
 

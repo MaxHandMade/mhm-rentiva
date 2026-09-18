@@ -84,7 +84,6 @@ final class LitePaidSurfaceRemovalTest extends TestCase
                 'src/Core/Dashboard/DashboardNavigation.php',
                 'src/Admin/Frontend/Shortcodes/Account/UserDashboard.php',
                 'templates/account/user-dashboard.php',
-                'assets/js/frontend/user-dashboard.js',
             ) as $relative
         ) {
             $source = strtolower((string) file_get_contents($root . $relative));

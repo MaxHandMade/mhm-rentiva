@@ -140,7 +140,6 @@ assets/js/frontend/search-results.js
 assets/js/frontend/testimonials.js
 assets/js/frontend/toast.js
 assets/js/frontend/unified-search.js
-assets/js/frontend/user-dashboard.js
 assets/js/frontend/vehicle-comparison.js
 assets/js/frontend/vehicle-details.js
 assets/js/frontend/vehicle-interactions.js

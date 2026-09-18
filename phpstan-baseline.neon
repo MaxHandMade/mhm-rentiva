@@ -480,7 +480,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 2
+			count: 1
 			path: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 
 		-
