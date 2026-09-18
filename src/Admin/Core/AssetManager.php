@@ -73,20 +73,6 @@ final class AssetManager {
 	);
 
 	/**
-	 * Component CSS files
-	 */
-	private static array $component_css = array(
-		'mhm-rentiva-stats-cards' => array(
-			'url'  => 'assets/css/components/stats-cards.css',
-			'deps' => array( 'mhm-rentiva-core-css' ),
-		),
-		'mhm-rentiva-calendars'   => array(
-			'url'  => 'assets/css/components/calendars.css',
-			'deps' => array( 'mhm-rentiva-core-css' ),
-		),
-	);
-
-	/**
 	 * Core JS files
 	 */
 	private static array $core_js = array(
@@ -491,24 +477,6 @@ final class AssetManager {
 
 		// Localize JavaScript configuration
 		self::localize_scripts();
-	}
-
-	/**
-	 * Load component CSS file
-	 *
-	 * @param string $component - Component name
-	 */
-	public static function enqueue_component_css(string $component): void
-	{
-		if (isset(self::$component_css[ $component ])) {
-			$asset = self::$component_css[ $component ];
-			wp_enqueue_style(
-				$component,
-				self::get_asset_url($asset['url']),
-				$asset['deps'],
-				self::get_file_version($asset['url'])
-			);
-		}
 	}
 
 	/**

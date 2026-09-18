@@ -76,15 +76,6 @@ jQuery( document ).ready(
 						sendTestEmail.submitForm( 'mhm-template-key-settings', 'mhm-booking-id-settings', 'mhm-new-status-settings', 'mhm-send-to-settings' );
 					}
 				);
-
-				// Main page send button
-				$( '#mhm-send-template-btn' ).on(
-					'click',
-					function (e) {
-						e.preventDefault();
-						sendTestEmail.submitForm( 'mhm-template-key', 'mhm-booking-id', 'mhm-new-status', 'mhm-send-to' );
-					}
-				);
 			},
 
 			submitForm: function (templateKeyId, bookingIdId, statusId, toId) {

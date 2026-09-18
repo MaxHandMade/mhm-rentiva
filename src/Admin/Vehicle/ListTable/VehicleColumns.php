@@ -636,11 +636,15 @@ final class VehicleColumns {
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('src-react/shared/admin.css')
 			);
 
-			// Load calendar CSS
+			// Load calendar CSS. calendars.css reads --mhm-* tokens, so it names the
+			// file that defines them. Until AssetManager's never-called
+			// $component_css registry was deleted, that registry's entry for this
+			// handle (deps: core-css) was what satisfied check-style-token-deps --
+			// a dead declaration standing in for this live call's empty array.
 			wp_enqueue_style(
 				'mhm-rentiva-calendars',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
-				array(),
+				array( 'mhm-rentiva-css-variables' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/components/calendars.css')
 			);
 

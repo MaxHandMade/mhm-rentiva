@@ -41,9 +41,11 @@ final class EmailTemplates {
 		// Email templates form processing
 		add_action('admin_post_mhmrentiva_save_email_templates', array( self::class, 'handle_save_templates' ));
 
-		// Add hooks for email templates page
+		// Assets for the Settings > Email Templates tab. show_save_notice() was
+		// removed: its guard required ?page=mhm-rentiva-email-templates, a page no
+		// menu registers, so it never printed. The Settings-form save reports
+		// through SettingsHandler::handle_email_templates()'s settings error.
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
-		add_action('admin_notices', array( self::class, 'show_save_notice' ));
 	}
 
 
@@ -480,8 +482,9 @@ final class EmailTemplates {
 	 */
 	public static function enqueue_scripts(string $hook): void
 	{
-		// Load on email templates page OR settings page (when email tab is active)
-		if (strpos($hook, 'mhm-rentiva-email-templates') !== false || strpos($hook, 'mhm-rentiva-settings') !== false) {
+		// Settings screen only: no menu registers a standalone email-templates page,
+		// so a hook suffix naming one never reaches this callback.
+		if (strpos($hook, 'mhm-rentiva-settings') !== false) {
 			wp_enqueue_style(
 				'mhm-rentiva-email-templates',
 				\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/email-templates.css',
@@ -546,28 +549,9 @@ final class EmailTemplates {
 	}
 
 	/**
-	 * Show save success message
-	 */
-	public static function show_save_notice(): void
-	{
-		global $pagenow;
-
-		// Show only on email templates page
-		if ($pagenow !== 'admin.php' || self::get_key('page') !== 'mhm-rentiva-email-templates') {
-			return;
-		}
-
-		if (self::get_text('updated') === '1') {
-			echo '<div class="notice notice-success is-dismissible">';
-			echo '<p><strong>' . esc_html__('Email templates saved successfully!', 'mhm-rentiva') . '</strong></p>';
-			echo '</div>';
-		}
-	}
-
-	/**
-	 * Read a screen-navigation value from the admin URL (?page=, ?tab=, ?type=,
-	 * ?updated=). These select which panel to render and never drive a write, so
-	 * there is no state change to protect with a nonce.
+	 * Read a screen-navigation value from the admin URL (?tab=, ?type=). These
+	 * select which panel to render and never drive a write, so there is no state
+	 * change to protect with a nonce.
 	 */
 	private static function get_text(string $key, string $default = ''): string
 	{
