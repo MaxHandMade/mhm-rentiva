@@ -147,7 +147,7 @@ describe( 'dashboard stats strip', () => {
 		} );
 	} );
 
-	test( 'the customers card is untouched: no figure folded in', () => {
+	test( 'the customers card folds no figure, and its percent goes through the catalogue', () => {
 		const { container } = render(
 			<StatsCards
 				metrics={ metrics }
@@ -155,7 +155,26 @@ describe( 'dashboard stats strip', () => {
 				currency="$"
 			/>
 		);
+		const parts = deltaParts( container, 'down' );
 
-		expect( deltaParts( container, 'down' ).text ).toBe( '%50 this month' );
+		// English order in the source msgid: a hard-coded "%50" was Turkish order
+		// shown to every locale.
+		expect( parts.marks ).toHaveLength( 1 );
+		expect( parts.label ).toBe( 'decrease' );
+		expect( parts.text ).toBe( '50% this month' );
+	} );
+
+	test( 'the customers card with no previous month shows the count, formatted, with no sign of its own', () => {
+		const { container } = render(
+			<StatsCards
+				metrics={ metrics }
+				deltas={ { customers: { direction: 'up', format: 'abs', value: 1234 } } }
+				currency="$"
+			/>
+		);
+		const parts = deltaParts( container, 'up' );
+
+		expect( parts.marks ).toHaveLength( 1 );
+		expect( parts.text ).toBe( '1.234 this month' );
 	} );
 } );

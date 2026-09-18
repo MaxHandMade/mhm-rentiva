@@ -28,8 +28,9 @@ import { fmtAmount, fmtMoney as fmtMon } from '../../../shared/format';
  * puts it before the number. A flat trend (0%) takes the same pattern. The
  * `abs` format (last month had nothing, this month has something) has no
  * magnitude: its value IS the this-month figure, so the text is that figure,
- * formatted like the card. Omitted (the customers card), the text is exactly
- * what it was before.
+ * formatted like the card. Omitted (the customers card, whose value already
+ * is this month's count), the text is the magnitude alone through its own
+ * translatable pattern, or for `abs` the count formatted like a count card.
  *
  * @param {Object} delta     { direction, format, value } from the REST payload.
  * @param {string} thisMonth Optional; the formatted this-month figure to fold in.
@@ -49,11 +50,24 @@ function toDelta( delta, thisMonth ) {
 		label = __( 'decrease', 'mhm-rentiva' );
 	}
 	let text;
-	if ( thisMonth === undefined ) {
-		text =
-			delta.format === 'pct'
-				? `%${ Math.abs( delta.value ) } ${ __( 'this month', 'mhm-rentiva' ) }`
-				: `+${ delta.value } ${ __( 'this month', 'mhm-rentiva' ) }`;
+	if ( thisMonth === undefined && delta.format === 'pct' ) {
+		// No figure to fold (the customers card: its value already IS this
+		// month's count). The percent sign goes through the catalogue, never
+		// concatenated -- a hard-coded `%${ n }` showed English users the
+		// Turkish order ("%5 this month").
+		text = sprintf(
+			/* translators: %s: percentage change against last month, number only (the direction arrow is drawn separately). */
+			__( '%s%% this month', 'mhm-rentiva' ),
+			Math.abs( delta.value )
+		);
+	} else if ( thisMonth === undefined ) {
+		// abs without a figure: the value is this month's count itself, formatted
+		// like a count card. No "+": the kit's arrow already says "up".
+		text = sprintf(
+			/* translators: %s: this month's figure, already formatted (a count or a money amount); last month had none, so there is no percentage to show. */
+			_x( '%s this month', 'dashboard KPI delta line', 'mhm-rentiva' ),
+			fmtAmount( delta.value, 0 )
+		);
 	} else if ( delta.format === 'pct' ) {
 		text = sprintf(
 			/* translators: 1: percentage change against last month, number only (the direction arrow is drawn separately); 2: this month's figure, already formatted (a count or a money amount). */

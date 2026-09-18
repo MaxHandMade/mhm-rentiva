@@ -82,4 +82,34 @@ final class KpiStripTest extends WP_UnitTestCase {
 			$this->assertStringNotContainsString( 'class="mhm-stat-card', $html );
 		}
 	}
+
+	/**
+	 * The occupancy card's percent sign used to be concatenated (`. '%'`), which
+	 * no translation can move: Turkish puts it before the number. It must come
+	 * from the catalogue, so a translation of the pattern reaches the value.
+	 */
+	public function test_vehicle_occupancy_percent_sign_is_translatable(): void {
+		$render = fn (): string => $this->render_strip(
+			static fn () => VehicleColumns::add_vehicle_stats_cards(),
+			'mhmrentiva_vehicle'
+		);
+		$occupancy_value = static function ( string $html ): string {
+			preg_match_all( '/mhmui-stat-card__value">([^<]*)</', $html, $m );
+			return (string) ( $m[1][2] ?? '' );
+		};
+
+		$this->assertMatchesRegularExpression( '/^\d+%$/', $occupancy_value( $render() ) );
+
+		$turkish = static function ( $translation, $text, $context, $domain ) {
+			return ( '%s%%' === $text && 'KPI card value: a percentage' === $context && 'mhm-rentiva' === $domain )
+				? '%%%s'
+				: $translation;
+		};
+		add_filter( 'gettext_with_context', $turkish, 10, 4 );
+		try {
+			$this->assertMatchesRegularExpression( '/^%\d+$/', $occupancy_value( $render() ) );
+		} finally {
+			remove_filter( 'gettext_with_context', $turkish, 10 );
+		}
+	}
 }

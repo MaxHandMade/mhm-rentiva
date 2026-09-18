@@ -1147,7 +1147,12 @@ final class VehicleColumns {
 			),
 			array(
 				'label' => __( 'This Month Occupancy', 'mhm-rentiva' ),
-				'value' => $stats['occupancy_rate'] . '%',
+				// Through the catalogue, never `. '%'`: Turkish puts the sign first.
+				'value' => sprintf(
+					/* translators: %s: this month's fleet occupancy rate, a whole number. */
+					_x( '%s%%', 'KPI card value: a percentage', 'mhm-rentiva' ),
+					$stats['occupancy_rate']
+				),
 				'icon'  => 'chart-bar',
 				'sub'   => sprintf(
 					/* translators: %s: total number of vehicles. */
