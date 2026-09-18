@@ -10,9 +10,14 @@
 	border-radius: 14px;
 	overflow: hidden;
 	min-height: 100vh;
-	width: 100%;
-	max-width: 1200px;
-	margin: 40px auto;
+	/* Width, max-width and horizontal centring belong to the kit's page shell
+	   (.mhmui-front-page on this same element: width 100%, max-width
+	   var(--mhmui-page-max), margin-inline auto). This rule used to declare its
+	   own `max-width: 1200px; margin: 40px auto` as well -- both selectors are
+	   0-1-0, so whichever stylesheet printed later won, and the dashboard was
+	   1200px on one placement and 1152px on another. One owner now; Rentiva
+	   keeps only the vertical breathing room. */
+	margin-block: 40px;
 	padding: 0 0;
 	box-sizing: border-box;
 }
