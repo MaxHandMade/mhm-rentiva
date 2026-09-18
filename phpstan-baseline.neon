@@ -384,13 +384,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Emails/Core/EmailTemplates.php
-
-		-
-			message: '#^Property WP_Query\:\:\$found_posts \(int\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
+			count: 2
 			path: src/Admin/Emails/Core/EmailTemplates.php
 
 		-

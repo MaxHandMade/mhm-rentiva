@@ -628,14 +628,6 @@ final class AssetManager {
 	}
 
 	/**
-	 * Load stats cards CSS
-	 */
-	public static function enqueue_stats_cards(): void
-	{
-		self::enqueue_component_css('mhm-stats-cards');
-	}
-
-	/**
 	 * Load frontend-specific assets
 	 */
 	private static function enqueue_frontend_specific_assets(): void

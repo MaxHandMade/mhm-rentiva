@@ -43,7 +43,6 @@ final class EmailTemplates {
 
 		// Add hooks for email templates page
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
-		add_action('admin_notices', array( self::class, 'add_email_stats_cards' ));
 		add_action('admin_notices', array( self::class, 'show_save_notice' ));
 	}
 
@@ -484,13 +483,6 @@ final class EmailTemplates {
 		// Load on email templates page OR settings page (when email tab is active)
 		if (strpos($hook, 'mhm-rentiva-email-templates') !== false || strpos($hook, 'mhm-rentiva-settings') !== false) {
 			wp_enqueue_style(
-				'mhm-rentiva-stats-cards',
-				\MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-				array(),
-				\MHMRENTIVA_VERSION
-			);
-
-			wp_enqueue_style(
 				'mhm-rentiva-email-templates',
 				\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/email-templates.css',
 				array( 'mhm-rentiva-css-variables' ),
@@ -551,156 +543,6 @@ final class EmailTemplates {
 				)
 			);
 		}
-	}
-
-	/**
-	 * Add email templates statistics cards
-	 */
-	public static function add_email_stats_cards(): void
-	{
-		global $pagenow;
-
-		// Show only on email templates page
-		if ($pagenow !== 'admin.php' || self::get_key('page') !== 'mhm-rentiva-email-templates') {
-			return;
-		}
-
-		$stats = self::get_email_stats();
-
-		?>
-		<div class="mhm-stats-cards">
-			<div class="stats-grid">
-				<!-- Total Templates -->
-				<div class="stat-card stat-card-total-templates">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-email-alt2"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['total_templates']); ?></div>
-						<div class="stat-label"><?php esc_html_e('Total Templates', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e('All templates', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Active Templates -->
-				<div class="stat-card stat-card-active-templates">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-yes-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['active_templates']); ?></div>
-						<div class="stat-label"><?php esc_html_e('Active Templates', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text trend-up"><?php echo esc_html($stats['active_percentage']); ?>% <?php esc_html_e('active', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Sent This Month -->
-				<div class="stat-card stat-card-monthly-sent">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-paperclip"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['monthly_sent']); ?></div>
-						<div class="stat-label"><?php esc_html_e('Sent This Month', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e('Email count', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Success Rate -->
-				<div class="stat-card stat-card-success-rate">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-chart-line"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['success_rate']); ?></div>
-						<div class="stat-label"><?php esc_html_e('Success Rate', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text trend-up"><?php esc_html_e('Delivery rate', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Get email templates statistics
-	 */
-	private static function get_email_stats(): array
-	{
-		global $wpdb;
-
-		// Email template types
-		$email_types = array(
-			'booking_notifications' => array(
-				'booking_confirmation' => __('Booking Confirmation', 'mhm-rentiva'),
-				'booking_reminder'     => __('Booking Reminder', 'mhm-rentiva'),
-				'booking_cancellation' => __('Booking Cancellation', 'mhm-rentiva'),
-			),
-			'refund_emails'         => array(
-				'refund_customer' => __('Customer Refund Email', 'mhm-rentiva'),
-				'refund_admin'    => __('Admin Refund Email', 'mhm-rentiva'),
-			),
-		);
-
-		// Total template count
-		$total_templates = 0;
-		foreach ($email_types as $type => $templates) {
-			$total_templates += count($templates);
-		}
-
-		// Active template count (simple calculation - all templates considered active)
-		$active_templates = $total_templates;
-
-		// ⭐ Emails sent this month - Using WP_Query instead of raw SQL
-		$monthly_sent = self::get_monthly_email_count();
-
-		// Success rate (simple calculation - 95% accepted)
-		$success_rate = '95%';
-
-		// Active percentage
-		$active_percentage = $total_templates > 0 ? round(( $active_templates / $total_templates ) * 100) : 0;
-
-		return array(
-			'total_templates'   => $total_templates,
-			'active_templates'  => $active_templates,
-			'active_percentage' => $active_percentage,
-			'monthly_sent'      => $monthly_sent,
-			'success_rate'      => $success_rate,
-		);
-	}
-
-	/**
-	 * Get monthly email count using WP_Query (replaces raw SQL)
-	 *
-	 * @return int Monthly email count
-	 */
-	private static function get_monthly_email_count(): int
-	{
-		$query = new \WP_Query(
-			array(
-				'post_type'      => 'mhmrentiva_email_log',
-				'post_status'    => 'publish',
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-				'date_query'     => array(
-					array(
-						'after'     => gmdate('Y-m-01 00:00:00'),
-						'inclusive' => true,
-					),
-				),
-				'no_found_rows'  => true,
-			)
-		);
-
-		return $query->found_posts ?? 0;
 	}
 
 	/**

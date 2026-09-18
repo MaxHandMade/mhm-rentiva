@@ -61,21 +61,6 @@ jQuery( document ).ready(
 			}
 		};
 
-		// Statistics cards animation
-		var statsAnimation = {
-			init: function () {
-				this.animateStats();
-			},
-
-			animateStats: function () {
-				$( '.stat-card' ).each(
-					function (index) {
-						$( this ).css( 'animation-delay', (index * 0.1) + 's' );
-					}
-				);
-			}
-		};
-
 		// Send test email handler (moved from inline script in EmailTemplates.php)
 		var sendTestEmail = {
 			init: function () {
@@ -272,7 +257,6 @@ jQuery( document ).ready(
 		// Initialize
 		emailVariables.init();
 		tabManagement.init();
-		statsAnimation.init();
 		sendTestEmail.init();
 		emailPreviewTab.init(); // New init logic
 

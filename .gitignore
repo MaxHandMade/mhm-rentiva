@@ -386,6 +386,10 @@ bin/*
 # approximates. It already had to be taught that an explicit wp_die() terminates.
 # An approximation that fails a build is a build failed by an approximation.
 !bin/audit-json-fallthrough.php
+# Same family again: the legacy KPI card inventory left after the ui-core kit
+# migration. A report, not a gate -- a class name assembled at runtime is
+# invisible to it; tests/Admin/KpiInventoryTest.php is the rendering half.
+!bin/kpi-inventory.php
 # The exception to the "reports, not gates" rule above, and the reason it is an
 # exception is worth stating. Those three make a JUDGEMENT (is this capability
 # the right one?) and a judgement that under-reports must not fail a build.
