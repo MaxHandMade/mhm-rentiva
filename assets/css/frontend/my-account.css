@@ -125,6 +125,15 @@
 	min-width: 0;
 }
 
+/* KPI strip (kit markup, `.mhmui-front` scope) — restores the gap the old
+   `.stats-grid` rules gave the strip before the Task 8 kit migration removed
+   them (was `margin-bottom: 1.5rem` on `.mhm-rentiva-account-page.mhm-integrated
+   .stats-grid`, commit 420225fd). Rentiva-owned class, not a rule on
+   `.mhmui-front` itself, since that class is the kit's shared token scope. */
+.mhm-account-kpi-strip {
+	margin-block-end: 1.5rem;
+}
+
 .account-header {
 	margin-bottom: 30px;
 	padding-bottom: 20px;
@@ -1871,9 +1880,9 @@ input[type="text"].password-input {
 	margin-top: 0;
 }
 
-.woocommerce-account .woocommerce-MyAccount-content p,
-.woocommerce-account .woocommerce-MyAccount-content li,
-.woocommerce-account .woocommerce-MyAccount-content label {
+.woocommerce-account .woocommerce-MyAccount-content p:not(.mhmui-front *),
+.woocommerce-account .woocommerce-MyAccount-content li:not(.mhmui-front *),
+.woocommerce-account .woocommerce-MyAccount-content label:not(.mhmui-front *) {
 	color: var(--mhm-text-primary, #111827);
 }
 

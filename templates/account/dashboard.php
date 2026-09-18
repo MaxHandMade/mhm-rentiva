@@ -61,7 +61,7 @@ if ($is_integrated) {
 			),
 		);
 		?>
-		<div class="mhmui-front">
+		<div class="mhmui-front mhm-account-kpi-strip">
 			<?php echo function_exists('mhmuicore_stats_grid_html') ? mhmuicore_stats_grid_html($account_cards, 3) : ''; ?>
 		</div>
 
