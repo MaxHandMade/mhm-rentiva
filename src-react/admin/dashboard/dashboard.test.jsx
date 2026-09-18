@@ -41,11 +41,23 @@ describe( 'dashboard stats strip', () => {
 		);
 		const delta = container.querySelector( '.mhmui-stat-card__delta--up' );
 		const marks = container.querySelectorAll( '.mhmui-stat-card__delta-mark' );
+		const label = container.querySelector( '.mhmui-stat-card__delta-sr' );
 
 		expect( delta ).not.toBeNull();
-		// Since ui-core 0.12.0 the kit renders the direction mark itself; the
-		// consumer's delta.text must be plain, or the arrow appears twice.
+		// Since ui-core 0.13.0 the kit renders the direction mark itself and the
+		// consumer supplies an accessible name (delta.label) as hidden text --
+		// so delta.textContent now carries mark + hidden label + plain text.
+		// The mark must appear exactly once -- this is what caught the
+		// duplicate-arrow bug when the kit started drawing its own mark -- and
+		// the hidden label must carry the direction word, or up/down announce
+		// identically to a screen reader (WCAG 1.4.1).
 		expect( marks ).toHaveLength( 1 );
-		expect( delta.textContent.replace( marks[ 0 ].textContent, '' ) ).toBe( '%5 this month' );
+		expect( label ).not.toBeNull();
+		expect( label.textContent.trim() ).toBe( 'increase' );
+		expect(
+			delta.textContent
+				.replace( marks[ 0 ].textContent, '' )
+				.replace( label.textContent, '' )
+		).toBe( '%5 this month' );
 	} );
 } );
