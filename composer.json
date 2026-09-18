@@ -35,7 +35,7 @@
         "check-user-writes": "php bin/audit-user-account-writes.php",
         "check-js-correctness": [
             "@php ./bin/check-js-correctness.php",
-            "npx wp-scripts test-unit-js tests/js/toast-sticky-update.test.js tests/js/vehicle-interactions-accessibility.test.js tests/js/addon-toggle-accessibility.test.js tests/js/addon-stats-refresh.test.js tests/js/refund-amount-scale.test.js --runInBand"
+            "npx wp-scripts test-unit-js tests/js src-react --runInBand"
         ],
         "check-refund-status-writers": "php bin/check-refund-status-writers.php",
         "check-i18n-placeholders": "php bin/check-i18n-placeholders.php",
