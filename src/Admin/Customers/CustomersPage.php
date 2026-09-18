@@ -139,7 +139,10 @@ final class CustomersPage {
 				'stats'            => array(
 					'total'          => $stats['total']         ?? 0,
 					'new_this_month' => $stats['new']           ?? 0,
-					'new_trend'      => $stats['average_trend'] ?? '',
+					// A raw signed percentage (float), not a formatted string -- see
+					// CustomersOptimizer::calculate_trend(). StatsCards.jsx formats
+					// it for the current locale.
+					'new_trend'      => $stats['average_trend'] ?? 0,
 					// Redesign KPIs: activity inside 90 days + lifetime spend per customer.
 					'active_90d'     => $stats['active_90d']    ?? 0,
 					'avg_spend'      => $stats['avg_spend']     ?? 0,

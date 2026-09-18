@@ -2028,6 +2028,12 @@ msgstr ""
 msgid "%s%% vs last month"
 msgstr ""
 
+#. translators: %s: percentage change against last month (magnitude only; direction is carried by the kit's arrow).
+#: src-react/admin/customers/components/StatsCards.jsx:38
+#, php-format
+msgid "%s%%"
+msgstr ""
+
 #: src/Admin/Booking/ListTable/BookingColumns.php:1235
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1173
 msgid "vs last month"

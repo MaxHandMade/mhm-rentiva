@@ -701,9 +701,18 @@ final class CustomersOptimizer {
 	/**
 	 * Trend calculation.
 	 *
-	 * @return string
+	 * Returns the raw signed percentage change (never a pre-formatted string):
+	 * the sign carries the direction, and it is the VIEW's job to format the
+	 * number and the % sign for the current locale -- CustomersPage.php ships
+	 * this number as-is via wp_localize_script(), and
+	 * src-react/admin/customers/components/StatsCards.jsx is the only reader.
+	 * A pre-formatted "+12.3%" string here is exactly the bug this shape
+	 * fixes: it bakes English placement of the % sign into data the PHP
+	 * translation layer can never reach because it never runs through __().
+	 *
+	 * @return float
 	 */
-	private static function calculate_trend(): string {
+	private static function calculate_trend(): float {
 		global $wpdb;
 
 		// The same ownership rule the rest of this file uses
@@ -759,10 +768,9 @@ final class CustomersOptimizer {
 
 		if ( $last_month > 0 ) {
 			$trend = ( ( $current_month - $last_month ) / $last_month ) * 100;
-			$sign  = $trend >= 0 ? '+' : '';
-			return $sign . round( $trend, 1 ) . '%';
+			return round( $trend, 1 );
 		}
 
-		return $current_month > 0 ? '+100%' : '0%';
+		return $current_month > 0 ? 100.0 : 0.0;
 	}
 }

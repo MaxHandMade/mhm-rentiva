@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import StatsGrid from '../../../../vendor/mhm/ui-core/src-react/components/StatsGrid';
 import { fmtMoney } from '../../../shared/format';
 
@@ -7,9 +7,14 @@ export default function StatsCards( { stats, currency } ) {
 		return null;
 	}
 
-	const trend = String( stats.new_trend ?? '' );
-	const rising = trend.startsWith( '+' ) && trend !== '+0%';
-	const falling = trend.startsWith( '-' );
+	// A raw signed percentage (float), not a formatted string -- see
+	// CustomersOptimizer::calculate_trend(). Formatting the "%" sign here,
+	// through __(), is what lets a translation move it: a string built in
+	// PHP with '%' baked into it (the old shape) could never be reached by
+	// the .po catalog.
+	const trendValue = Number( stats.new_trend ?? 0 );
+	const rising = trendValue > 0;
+	const falling = trendValue < 0;
 	// Since ui-core 0.12.0 the kit renders the up/down mark itself, so the
 	// delta text must drop the sign that used to be this screen's own mark --
 	// otherwise the sign and the kit's arrow duplicate the same cue. The
@@ -20,14 +25,19 @@ export default function StatsCards( { stats, currency } ) {
 	// a sub line and losing the number -- a flat trend now prints "→ 0%"
 	// like the other stat cards, rather than hiding it (product decision:
 	// printing the zero consistently everywhere beats hiding it on this one
-	// screen).
+	// screen). A true zero (trendValue === 0) stays `flat` here exactly as
+	// the old '+0%' special case did.
 	let direction = 'flat';
 	if ( rising ) {
 		direction = 'up';
 	} else if ( falling ) {
 		direction = 'down';
 	}
-	const trendMagnitude = trend.replace( /^[+-]/, '' ) || '0%';
+	const trendMagnitude = sprintf(
+		/* translators: %s: percentage change against last month (magnitude only; direction is carried by the kit's arrow). */
+		__( '%s%%', 'mhm-rentiva' ),
+		Math.abs( trendValue )
+	);
 	// Accessible name for the delta line (kit 0.13.0): the kit has no text
 	// domain and cannot translate "increase"/"decrease"/"no change" itself.
 	let trendLabel = __( 'no change', 'mhm-rentiva' );
