@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import StatsGrid from '../../../../vendor/mhm/ui-core/src-react/components/StatsGrid';
 import { fmtAmount, fmtMoney as fmtMon } from '../../../shared/format';
 
@@ -17,10 +17,25 @@ import { fmtAmount, fmtMoney as fmtMon } from '../../../shared/format';
  * is mapped to 'flat' here rather than left to silently miss the kit's
  * direction check.
  *
- * @param {Object} delta { direction, format, value } from the REST payload.
+ * `thisMonth` is the card's this-month figure, ALREADY FORMATTED by the
+ * card's own formatter (a count, or a money amount for the revenue card).
+ * The kit renders a card's delta line OR its sub line, never both, so a card
+ * that used to carry that figure in `sub` lost it whenever a delta rendered
+ * (since ui-core 0.12.0). Passing it here folds it into the delta text
+ * (product decision 2026-09-18): "5% · 3 this month", Turkish "%5 · bu ay 3".
+ * It is ONE sprintf pattern with numbered placeholders so a translator can
+ * reorder the magnitude and the figure, and move the percent sign -- Turkish
+ * puts it before the number. A flat trend (0%) takes the same pattern. The
+ * `abs` format (last month had nothing, this month has something) has no
+ * magnitude: its value IS the this-month figure, so the text is that figure,
+ * formatted like the card. Omitted (the customers card), the text is exactly
+ * what it was before.
+ *
+ * @param {Object} delta     { direction, format, value } from the REST payload.
+ * @param {string} thisMonth Optional; the formatted this-month figure to fold in.
  * @return {Object|undefined} { direction, text, label } for StatCard, or undefined.
  */
-function toDelta( delta ) {
+function toDelta( delta, thisMonth ) {
 	if ( ! delta || delta.format === 'neutral' ) {
 		return undefined;
 	}
@@ -33,10 +48,26 @@ function toDelta( delta ) {
 	} else if ( direction === 'down' ) {
 		label = __( 'decrease', 'mhm-rentiva' );
 	}
-	const text =
-		delta.format === 'pct'
-			? `%${ Math.abs( delta.value ) } ${ __( 'this month', 'mhm-rentiva' ) }`
-			: `+${ delta.value } ${ __( 'this month', 'mhm-rentiva' ) }`;
+	let text;
+	if ( thisMonth === undefined ) {
+		text =
+			delta.format === 'pct'
+				? `%${ Math.abs( delta.value ) } ${ __( 'this month', 'mhm-rentiva' ) }`
+				: `+${ delta.value } ${ __( 'this month', 'mhm-rentiva' ) }`;
+	} else if ( delta.format === 'pct' ) {
+		text = sprintf(
+			/* translators: 1: percentage change against last month, number only (the direction arrow is drawn separately); 2: this month's figure, already formatted (a count or a money amount). */
+			__( '%1$s%% · %2$s this month', 'mhm-rentiva' ),
+			Math.abs( delta.value ),
+			thisMonth
+		);
+	} else {
+		text = sprintf(
+			/* translators: %s: this month's figure, already formatted (a count or a money amount); last month had none, so there is no percentage to show. */
+			_x( '%s this month', 'dashboard KPI delta line', 'mhm-rentiva' ),
+			thisMonth
+		);
+	}
 
 	return { direction, text, label };
 }
@@ -50,14 +81,14 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 			label: __( 'Total Bookings', 'mhm-rentiva' ),
 			value: fmt( metrics?.total_bookings ),
 			icon: 'calendar-alt',
-			delta: toDelta( deltas.bookings ),
+			delta: toDelta( deltas.bookings, fmt( metrics?.bookings_this_month ) ),
 			sub: `${ fmt( metrics?.bookings_this_month ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
 		},
 		{
 			label: __( 'Total Revenue', 'mhm-rentiva' ),
 			value: fmtMoney( metrics?.total_revenue ),
 			icon: 'money-alt',
-			delta: toDelta( deltas.revenue ),
+			delta: toDelta( deltas.revenue, fmtMoney( metrics?.monthly_revenue ) ),
 			sub: `${ fmtMoney( metrics?.monthly_revenue ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
 		},
 		{

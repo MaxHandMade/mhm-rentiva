@@ -58,6 +58,104 @@ describe( 'dashboard stats strip', () => {
 			delta.textContent
 				.replace( marks[ 0 ].textContent, '' )
 				.replace( label.textContent, '' )
-		).toBe( '%5 this month' );
+		).toBe( '5% · 3 this month' );
+	} );
+
+	/*
+	 * The kit renders a card's delta line OR its sub line, never both, so the
+	 * this-month figure the two cards used to carry in `sub` vanished whenever a
+	 * delta rendered. It is folded into the delta text instead (product decision
+	 * 2026-09-18). Split the delta line into its three parts -- the aria-hidden
+	 * mark, the hidden accessible label, the visible text -- and pin each one.
+	 */
+	const deltaParts = ( container, direction ) => {
+		const delta = container.querySelector( `.mhmui-stat-card__delta--${ direction }` );
+		const marks = delta.querySelectorAll( '.mhmui-stat-card__delta-mark' );
+		const label = delta.querySelector( '.mhmui-stat-card__delta-sr' );
+		return {
+			marks,
+			label: label ? label.textContent.trim() : null,
+			text: delta.textContent
+				.replace( marks[ 0 ].textContent, '' )
+				.replace( label ? label.textContent : '', '' ),
+		};
+	};
+
+	// A store money format distinct from the kit's defaults, so the assertions
+	// below prove the folded amount goes through the card's own formatter.
+	const withStoreFormat = ( fn ) => {
+		window.mhmRentivaAdmin = { decimalSep: '.', thousandSep: ',', numDecimals: 2, currencyPosition: 'left' };
+		try {
+			fn();
+		} finally {
+			delete window.mhmRentivaAdmin;
+		}
+	};
+	const revenueMetrics = { ...metrics, total_revenue: 98765.4, monthly_revenue: 1234.5 };
+
+	test( 'a rising revenue delta carries the this-month amount, formatted like the card value', () => {
+		withStoreFormat( () => {
+			const { container } = render(
+				<StatsCards
+					metrics={ revenueMetrics }
+					deltas={ { revenue: { direction: 'up', format: 'pct', value: 12 } } }
+					currency="$"
+				/>
+			);
+			const parts = deltaParts( container, 'up' );
+			const card = container.querySelector( '.mhmui-stat-card__delta--up' ).closest( '.mhmui-stat-card' );
+
+			expect( container.querySelectorAll( '.mhmui-stat-card__delta' ) ).toHaveLength( 1 );
+			expect( card.querySelector( '.mhmui-stat-card__value' ).textContent ).toBe( '$98,765.40' );
+			expect( parts.marks ).toHaveLength( 1 );
+			expect( parts.marks[ 0 ].textContent ).toBe( '↑' );
+			expect( parts.label ).toBe( 'increase' );
+			expect( parts.text ).toBe( '12% · $1,234.50 this month' );
+		} );
+	} );
+
+	test( 'a flat trend gets its own line and still carries the this-month figure', () => {
+		const { container } = render(
+			<StatsCards
+				metrics={ metrics }
+				deltas={ { bookings: { direction: 'none', format: 'pct', value: 0 } } }
+				currency="$"
+			/>
+		);
+		const parts = deltaParts( container, 'flat' );
+
+		expect( parts.marks ).toHaveLength( 1 );
+		expect( parts.marks[ 0 ].textContent ).toBe( '→' );
+		expect( parts.label ).toBe( 'no change' );
+		expect( parts.text ).toBe( '0% · 3 this month' );
+	} );
+
+	test( 'with no previous month to compare, the delta is the this-month figure itself, formatted like the card', () => {
+		withStoreFormat( () => {
+			const { container } = render(
+				<StatsCards
+					metrics={ revenueMetrics }
+					deltas={ { revenue: { direction: 'up', format: 'abs', value: 1235 } } }
+					currency="$"
+				/>
+			);
+			const parts = deltaParts( container, 'up' );
+
+			expect( parts.marks ).toHaveLength( 1 );
+			expect( parts.label ).toBe( 'increase' );
+			expect( parts.text ).toBe( '$1,234.50 this month' );
+		} );
+	} );
+
+	test( 'the customers card is untouched: no figure folded in', () => {
+		const { container } = render(
+			<StatsCards
+				metrics={ metrics }
+				deltas={ { customers: { direction: 'down', format: 'pct', value: 50 } } }
+				currency="$"
+			/>
+		);
+
+		expect( deltaParts( container, 'down' ).text ).toBe( '%50 this month' );
 	} );
 } );
