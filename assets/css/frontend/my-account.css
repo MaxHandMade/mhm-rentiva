@@ -144,58 +144,6 @@
 }
 
 /* ============================================================================
-	STATISTICS CARDS
-	========================================================================= */
-.mhm-rentiva-account-page .account-stats,
-.mhm-rentiva-account-page .stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 20px;
-	margin-bottom: 30px;
-}
-
-.mhm-rentiva-account-page .stat-card {
-	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
-	color: var(--mhm-btn-color);
-	padding: 25px;
-	border-radius: var(--account-radius);
-	display: flex;
-	align-items: center;
-	gap: 15px;
-	transition: var(--account-transition);
-}
-
-.mhm-rentiva-account-page .stat-card:hover {
-	transform: translateY(-5px);
-	box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-}
-
-.mhm-rentiva-account-page .stat-card.stat-active {
-	background: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
-}
-
-.mhm-rentiva-account-page .stat-icon {
-	font-size: 36px;
-}
-
-.mhm-rentiva-account-page .stat-content {
-	flex: 1;
-}
-
-.mhm-rentiva-account-page .stat-number {
-	display: block;
-	font-size: 32px;
-	font-weight: bold;
-	margin: 0 0 5px 0;
-}
-
-.mhm-rentiva-account-page .stat-label {
-	margin: 0;
-	font-size: 13px;
-	opacity: 0.9;
-}
-
-/* ============================================================================
 	SECTIONS
 	========================================================================= */
 .account-section {
@@ -1093,11 +1041,6 @@ input[type="text"].password-input {
 		gap: 15px;
 	}
 
-	.mhm-rentiva-account-page .account-stats,
-	.mhm-rentiva-account-page .stats-grid {
-		grid-template-columns: 1fr;
-	}
-
 	.form-row-cols-2 {
 		grid-template-columns: 1fr;
 	}
@@ -1819,13 +1762,6 @@ input[type="text"].password-input {
 }
 
 
-.mhm-rentiva-account-page.mhm-integrated .stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-	gap: 1rem;
-	margin-bottom: 1.5rem;
-}
-
 .mhm-rentiva-account-page.mhm-integrated .booking-item {
 	min-width: 0;
 }
@@ -1906,10 +1842,6 @@ input[type="text"].password-input {
 }
 
 @media (max-width: 782px) {
-	.mhm-rentiva-account-page.mhm-integrated .stats-grid {
-		grid-template-columns: 1fr;
-	}
-
 	.mhm-rentiva-account-page.mhm-integrated .btn,
 	.mhm-rentiva-account-page.mhm-integrated .button,
 	.mhm-rentiva-account-page.mhm-integrated .form-actions .btn,
