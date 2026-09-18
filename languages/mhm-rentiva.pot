@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-17T22:50:18+00:00\n"
+"POT-Creation-Date: 2026-09-18T01:03:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -290,12 +290,12 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1184
 #: src/Core/Dashboard/DashboardConfig.php:24
 #: templates/account/dashboard.php:50
-#: src-react/admin/dashboard/components/StatsCards.jsx:32
+#: src-react/admin/dashboard/components/StatsCards.jsx:50
 msgid "Total Bookings"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:312
-#: src-react/admin/customers/components/StatsCards.jsx:23
+#: src-react/admin/customers/components/StatsCards.jsx:38
 msgid "Total Customers"
 msgstr ""
 
@@ -610,19 +610,19 @@ msgid "Unknown error"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:108
-#: src/Admin/Addons/AddonScreen.php:831
+#: src/Admin/Addons/AddonScreen.php:834
 msgid "Total Additional Services"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:111
 #: src/Admin/Addons/AddonListTable.php:128
-#: src/Admin/Addons/AddonScreen.php:833
-#: src/Admin/Addons/AddonScreen.php:847
+#: src/Admin/Addons/AddonScreen.php:837
+#: src/Admin/Addons/AddonScreen.php:851
 msgid "All services"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:114
-#: src/Admin/Addons/AddonScreen.php:838
+#: src/Admin/Addons/AddonScreen.php:841
 msgid "Active Services"
 msgstr ""
 
@@ -630,23 +630,23 @@ msgstr ""
 #. translators: %s: share of services that are active, as a percentage.
 #: src/Admin/Addons/AddonListTable.php:119
 #: src/Admin/Addons/AddonScreen.php:120
-#: src/Admin/Addons/AddonScreen.php:815
+#: src/Admin/Addons/AddonScreen.php:802
 #, php-format
 msgid "%s%% active"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:124
-#: src/Admin/Addons/AddonScreen.php:845
+#: src/Admin/Addons/AddonScreen.php:848
 msgid "Average Price"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:131
-#: src/Admin/Addons/AddonScreen.php:852
+#: src/Admin/Addons/AddonScreen.php:855
 msgid "Total Value"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:135
-#: src/Admin/Addons/AddonScreen.php:854
+#: src/Admin/Addons/AddonScreen.php:858
 msgid "All prices"
 msgstr ""
 
@@ -815,7 +815,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonMeta.php:115
 #: src/Admin/Addons/AddonScreen.php:108
-#: src/Admin/Addons/AddonScreen.php:1039
+#: src/Admin/Addons/AddonScreen.php:1031
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:1030
 #: src/Admin/Customers/CustomersPage.php:252
@@ -826,7 +826,7 @@ msgstr ""
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:235
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:694
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:497
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1754
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1761
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
 #: assets/blocks/my-bookings/index.js:42
@@ -892,7 +892,7 @@ msgid "Per booking (fixed)"
 msgstr ""
 
 #: src/Admin/Addons/AddonScreen.php:109
-#: src/Admin/Addons/AddonScreen.php:1039
+#: src/Admin/Addons/AddonScreen.php:1031
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:236
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:695
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:697
@@ -911,7 +911,7 @@ msgstr ""
 
 #. translators: 1: number of active services, 2: total number of services.
 #: src/Admin/Addons/AddonScreen.php:118
-#: src/Admin/Addons/AddonScreen.php:798
+#: src/Admin/Addons/AddonScreen.php:785
 #, php-format
 msgid "%1$d active · %2$d total"
 msgstr ""
@@ -1028,7 +1028,7 @@ msgstr ""
 
 #. translators: %d = number of customers
 #: src/Admin/Addons/AddonScreen.php:763
-#: src/Admin/Addons/AddonScreen.php:1058
+#: src/Admin/Addons/AddonScreen.php:1050
 #: src/Admin/Core/AssetManager.php:711
 #: src/Admin/Core/AssetManager.php:869
 #: src/Admin/Core/AssetManager.php:1183
@@ -1038,29 +1038,29 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:983
+#: src/Admin/Addons/AddonScreen.php:975
 #: src/Admin/Core/AssetManager.php:1078
 msgid "Drag to reorder"
 msgstr ""
 
 #. translators: %s: name of the additional service.
-#: src/Admin/Addons/AddonScreen.php:990
+#: src/Admin/Addons/AddonScreen.php:982
 #, php-format
 msgid "Select %s"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:1015
+#: src/Admin/Addons/AddonScreen.php:1007
 msgid "Click to edit the price"
 msgstr ""
 
 #. translators: label under the number of bookings an add-on appears on.
-#: src/Admin/Addons/AddonScreen.php:1025
+#: src/Admin/Addons/AddonScreen.php:1017
 msgid "booking"
 msgid_plural "bookings"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Addons/AddonScreen.php:1048
+#: src/Admin/Addons/AddonScreen.php:1040
 #: src/Admin/Core/AssetManager.php:1184
 #: src/Admin/Customers/CustomersPage.php:389
 #: src/Admin/Setup/SetupWizard.php:225
@@ -1071,7 +1071,7 @@ msgid "Edit"
 msgstr ""
 
 #. translators: %s: name of the additional service.
-#: src/Admin/Addons/AddonScreen.php:1057
+#: src/Admin/Addons/AddonScreen.php:1049
 #, php-format
 msgid "Delete %s"
 msgstr ""
@@ -1744,7 +1744,7 @@ msgid "Customer"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:277
-#: src/Admin/Booking/ListTable/BookingColumns.php:1730
+#: src/Admin/Booking/ListTable/BookingColumns.php:1737
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:487
 msgid "Booking ID"
 msgstr ""
@@ -2000,56 +2000,77 @@ msgstr ""
 msgid "Monthly Revenue"
 msgstr ""
 
-#. translators: %s: percentage change against last month (magnitude only; direction is carried by the arrow).
-#: src/Admin/Booking/ListTable/BookingColumns.php:1224
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1162
-#, php-format
-msgid "%s%% vs last month"
+#: src/Admin/Booking/ListTable/BookingColumns.php:1227
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1165
+#: src-react/admin/customers/components/StatsCards.jsx:30
+#: src-react/admin/dashboard/components/StatsCards.jsx:32
+msgid "increase"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1228
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1166
+#: src-react/admin/customers/components/StatsCards.jsx:32
+#: src-react/admin/dashboard/components/StatsCards.jsx:34
+msgid "decrease"
+msgstr ""
+
+#: src/Admin/Booking/ListTable/BookingColumns.php:1228
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1166
+#: src-react/admin/customers/components/StatsCards.jsx:33
+#: src-react/admin/dashboard/components/StatsCards.jsx:35
+msgid "no change"
+msgstr ""
+
+#. translators: %s: percentage change against last month (magnitude only; direction is carried by the arrow).
+#: src/Admin/Booking/ListTable/BookingColumns.php:1231
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1169
+#, php-format
+msgid "%s%% vs last month"
+msgstr ""
+
+#: src/Admin/Booking/ListTable/BookingColumns.php:1235
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1173
 msgid "vs last month"
 msgstr ""
 
 #. translators: %d: number of vehicle rows shown before the fleet is trimmed.
-#: src/Admin/Booking/ListTable/BookingColumns.php:1485
+#: src/Admin/Booking/ListTable/BookingColumns.php:1492
 #, php-format
 msgid "Showing first %d vehicles — narrow the filters to see the rest."
 msgstr ""
 
 #. translators: %s: the active status chip's label (e.g. "Cancelled").
-#: src/Admin/Booking/ListTable/BookingColumns.php:1525
+#: src/Admin/Booking/ListTable/BookingColumns.php:1532
 #, php-format
 msgid "The %s filter has no calendar view — cancelled and similar bookings do not occupy vehicles. Switch to the List view to see them."
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1533
+#: src/Admin/Booking/ListTable/BookingColumns.php:1540
 msgid "No bookings match the current filters in this month."
 msgstr ""
 
 #. translators: %s: number of bookings with no vehicle assigned (transfers etc.), formatted for display.
-#: src/Admin/Booking/ListTable/BookingColumns.php:1566
+#: src/Admin/Booking/ListTable/BookingColumns.php:1573
 #, php-format
 msgid "%s booking has no vehicle assigned and is not shown in this view — see the List view."
 msgid_plural "%s bookings have no vehicle assigned and are not shown in this view — see the List view."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1743
+#: src/Admin/Booking/ListTable/BookingColumns.php:1750
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:285
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1498
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1505
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:458
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:821
 msgid "License Plate"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1959
+#: src/Admin/Booking/ListTable/BookingColumns.php:1966
 msgid "Auto Draft"
 msgstr ""
 
 #. translators: %d: booking ID
-#: src/Admin/Booking/ListTable/BookingColumns.php:1961
+#: src/Admin/Booking/ListTable/BookingColumns.php:1968
 #, php-format
 msgid "Booking #%d"
 msgstr ""
@@ -3343,7 +3364,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:577
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:221
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:793
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1563
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1570
 #: templates/shortcodes/availability-calendar.php:92
 #: templates/shortcodes/availability-calendar.php:233
 msgid "Available"
@@ -3417,7 +3438,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:620
 #: src/Admin/Core/AssetManager.php:1031
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1765
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1772
 msgid "Passive"
 msgstr ""
 
@@ -3425,7 +3446,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:286
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:237
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:696
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1755
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1762
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:40
 msgid "Maintenance"
 msgstr ""
@@ -5712,7 +5733,7 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:334
 #: src-react/admin/customers/components/CustomerPanel.jsx:104
-#: src-react/admin/dashboard/components/StatsCards.jsx:49
+#: src-react/admin/dashboard/components/StatsCards.jsx:67
 msgid "total"
 msgstr ""
 
@@ -7634,14 +7655,14 @@ msgid "Fuel Type"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:277
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1534
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1541
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:827
 #: templates/shortcodes/search-results.php:245
 msgid "Transmission"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:278
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1524
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1531
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:825
 #: templates/shortcodes/search-results.php:262
 #: templates/shortcodes/vehicle-details.php:318
@@ -7985,7 +8006,7 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:223
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:917
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1584
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1591
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:198
 msgid "Featured"
 msgstr ""
@@ -12152,13 +12173,13 @@ msgid "Duplicate Review"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:213
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1600
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1607
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:50
 msgid "Location"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:218
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1509
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1516
 msgid "Price/Day"
 msgstr ""
 
@@ -12271,11 +12292,11 @@ msgstr ""
 msgid "This Month Revenue"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1548
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1555
 msgid "Fuel"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1602
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1609
 msgid "— No Location —"
 msgstr ""
 
@@ -15434,23 +15455,23 @@ msgstr ""
 msgid "Search name, email, phone…"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:28
+#: src-react/admin/customers/components/StatsCards.jsx:43
 msgid "New This Month"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:36
+#: src-react/admin/customers/components/StatsCards.jsx:49
 msgid "Active Customers"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:39
+#: src-react/admin/customers/components/StatsCards.jsx:52
 msgid "last 90 days"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:42
+#: src-react/admin/customers/components/StatsCards.jsx:55
 msgid "Avg. Spend"
 msgstr ""
 
-#: src-react/admin/customers/components/StatsCards.jsx:45
+#: src-react/admin/customers/components/StatsCards.jsx:58
 msgid "per customer"
 msgstr ""
 
@@ -15528,22 +15549,22 @@ msgstr ""
 msgid "This week:"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:20
-#: src-react/admin/dashboard/components/StatsCards.jsx:21
-#: src-react/admin/dashboard/components/StatsCards.jsx:36
-#: src-react/admin/dashboard/components/StatsCards.jsx:43
+#: src-react/admin/dashboard/components/StatsCards.jsx:38
+#: src-react/admin/dashboard/components/StatsCards.jsx:39
+#: src-react/admin/dashboard/components/StatsCards.jsx:54
+#: src-react/admin/dashboard/components/StatsCards.jsx:61
 msgid "this month"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:39
+#: src-react/admin/dashboard/components/StatsCards.jsx:57
 msgid "Total Revenue"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:46
+#: src-react/admin/dashboard/components/StatsCards.jsx:64
 msgid "Active Vehicles"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:54
+#: src-react/admin/dashboard/components/StatsCards.jsx:72
 msgid "Renting this month"
 msgstr ""
 

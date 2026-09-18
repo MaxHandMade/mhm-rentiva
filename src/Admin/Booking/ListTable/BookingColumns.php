@@ -1219,6 +1219,13 @@ final class BookingColumns {
 				'icon'  => 'money-alt',
 				'delta' => array(
 					'direction' => $stats['revenue_trend'] > 0 ? 'up' : ( $stats['revenue_trend'] < 0 ? 'down' : 'flat' ),
+					// Accessible name for the delta line (kit 0.13.0): the kit has no
+					// text domain and cannot translate "increase"/"decrease"/"no
+					// change" itself, so up vs. down would otherwise announce
+					// identically to a screen reader (the arrow mark is aria-hidden).
+					'label'     => $stats['revenue_trend'] > 0
+						? __( 'increase', 'mhm-rentiva' )
+						: ( $stats['revenue_trend'] < 0 ? __( 'decrease', 'mhm-rentiva' ) : __( 'no change', 'mhm-rentiva' ) ),
 					'text'      => sprintf(
 						/* translators: %s: percentage change against last month (magnitude only; direction is carried by the arrow). */
 						__( '%s%% vs last month', 'mhm-rentiva' ),
