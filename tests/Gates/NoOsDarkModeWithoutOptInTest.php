@@ -149,6 +149,8 @@ final class NoOsDarkModeWithoutOptInTest extends WP_UnitTestCase
             . "@media (prefers-color-scheme: dark) {\n"
             . "\t:not(.mhm-dark-mode) .negated { color: #fff; }\n"
             . "\tbody:not(.wp-admin).mhm-dark-mode .keyed { color: #fff; }\n"
+            . "\t:not(:is(.mhm-dark-mode)) .nested-negation { color: #fff; }\n"
+            . "\tbody:is(.mhm-dark-mode) .positive-is { color: #fff; }\n"
             . "}\n"
             . "@media (prefers-color-scheme: dark) {\n"
             . "\t@supports (display: grid) {\n"
@@ -163,6 +165,7 @@ final class NoOsDarkModeWithoutOptInTest extends WP_UnitTestCase
                 array( 'line' => 9, 'selector' => '(declarations directly inside a nested media block)' ),
                 array( 'line' => 13, 'selector' => '@import url(dark.css) (prefers-color-scheme: dark)' ),
                 array( 'line' => 15, 'selector' => ':not(.mhm-dark-mode) .negated' ),
+                array( 'line' => 17, 'selector' => ':not(:is(.mhm-dark-mode)) .nested-negation' ),
             ),
             $this->os_dark_selectors($css)
         );
@@ -236,10 +239,36 @@ final class NoOsDarkModeWithoutOptInTest extends WP_UnitTestCase
         return $hits;
     }
 
+    /**
+     * The selector with every :not(...) removed, however deep its argument nests.
+     */
+    private static function strip_negations(string $selector): string
+    {
+        $out = '';
+        $len = strlen($selector);
+        for ($i = 0; $i < $len; $i++) {
+            if (0 !== substr_compare($selector, ':not(', $i, 5, true)) {
+                $out .= $selector[ $i ];
+                continue;
+            }
+            $depth = 0;
+            for ($i += 4; $i < $len; $i++) {
+                if ('(' === $selector[ $i ]) {
+                    ++$depth;
+                } elseif (')' === $selector[ $i ] && 0 === --$depth) {
+                    break;
+                }
+            }
+        }
+        return $out;
+    }
+
     private function is_opted_in(string $selector): bool
     {
-        // A class named only inside :not() is the opposite of an opt-in.
-        $positive = (string) preg_replace('/:not\([^()]*\)/i', '', $selector);
+        // A class named only inside :not() is the opposite of an opt-in -- including
+        // when it sits deeper, as in :not(:is(.x)), so the argument is removed by
+        // balanced parentheses rather than by a flat pattern.
+        $positive = self::strip_negations($selector);
         foreach (self::OPT_IN_CLASSES as $class) {
             if (preg_match('/' . preg_quote($class, '/') . '(?![\w-])/', $positive)) {
                 return true;
