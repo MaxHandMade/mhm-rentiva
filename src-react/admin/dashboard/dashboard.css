@@ -216,26 +216,6 @@
 .rv-dash-header__controls { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .rv-dash-header__range { font-size: 13px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: var( --rv-radius ); background: #fff; color: #2c3338; }
 
-/* Stat cards: gradient -> white (override shared/admin.css via #id specificity) */
-#mhm-rentiva-dashboard .mhm-stat-card,
-#mhm-rentiva-dashboard .mhm-stat-card:nth-child(1),
-#mhm-rentiva-dashboard .mhm-stat-card:nth-child(2),
-#mhm-rentiva-dashboard .mhm-stat-card:nth-child(3),
-#mhm-rentiva-dashboard .mhm-stat-card:nth-child(4) {
-	background: var( --rv-surface );
-	color: var( --rv-ink );
-	border: 1px solid var( --rv-border );
-	border-radius: var( --rv-radius );
-	box-shadow: var( --rv-shadow );
-}
-#mhm-rentiva-dashboard .mhm-stat-card .dashicons { color: var( --rv-accent ); opacity: 1; }
-#mhm-rentiva-dashboard .mhm-stat-card__label { color: var( --rv-muted ); opacity: 1; }
-#mhm-rentiva-dashboard .mhm-stat-card__value { color: var( --rv-ink ); }
-#mhm-rentiva-dashboard .mhm-stat-card__delta { margin: 0; font-size: 12px; }
-#mhm-rentiva-dashboard .mhm-stat-card__delta--up   { color: var( --rv-pos ); }
-#mhm-rentiva-dashboard .mhm-stat-card__delta--down { color: var( --rv-neg ); }
-#mhm-rentiva-dashboard .mhm-stat-card__delta--none { color: var( --rv-muted ); }
-
 /* Two-column layout */
 .rv-dash-cols { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; align-items: flex-start; }
 .rv-dash-cols__left  { flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }

@@ -128,7 +128,7 @@ export default function ShortcodePagesPage() {
 		: shortcodes;
 
 	return (
-		<div className="rv-scp">
+		<div className="rv-scp mhmui-admin mhmui-admin-page">
 			<StatsBar stats={ stats } />
 			<SystemActions
 				onClearCache={ handleClearCache }

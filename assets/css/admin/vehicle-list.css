@@ -470,62 +470,6 @@
 	margin-left: 70px;
 }
 
-/* ── KPI band (body+2class specificity beats the shared gradients) ── */
-body.mhm-vehicle-list .mhm-stats-grid {
-	gap: 14px;
-	margin: 14px 0 4px;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card,
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(1),
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(2),
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(3),
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(4) {
-	background: #fff;
-	border: 1px solid #e6e7eb;
-	border-radius: 12px;
-	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-	padding: 16px 18px;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card .dashicons {
-	color: #8a8f98;
-	background: #f4f5f7;
-	border-radius: 8px;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__label {
-	font-size: 12px;
-	font-weight: 500;
-	color: #646970;
-	text-transform: none;
-	letter-spacing: normal;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__value {
-	font-size: 26px;
-	font-weight: 700;
-	line-height: 1.1;
-	color: #1d2327;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__sub {
-	color: #8a8f98;
-	opacity: 1;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-active-today .mhm-stat-card__value {
-	color: #0a6b1e;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-occupancy .mhm-stat-card__value {
-	color: #135e96;
-}
-
-body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__value {
-	color: #135e96;
-}
-
 /* ── Toolbar refinements ── */
 .mhm-vehicle-list .page-title-action {
 	background: #2271b1;

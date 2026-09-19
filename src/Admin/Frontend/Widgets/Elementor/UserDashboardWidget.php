@@ -27,6 +27,21 @@ class UserDashboardWidget extends ElementorWidgetBase {
 		return 'eicon-person';
 	}
 
+	/**
+	 * The ui-core kit's front stylesheet, declared so Elementor enqueues it on
+	 * wp_enqueue_scripts (its page-assets pass) and the <link> lands in <head>.
+	 * Left to the shortcode's render-time enqueue it would print in the footer.
+	 * The handle is registered early by UserDashboard::register_kit_style();
+	 * empty when the winning ui-core predates the kit.
+	 *
+	 * @return string[]
+	 */
+	public function get_style_depends(): array {
+		$handle = \MHMRentiva\Admin\Core\AssetManager::kit_handle( 'front' );
+
+		return '' === $handle ? array() : array( $handle );
+	}
+
 	protected function register_content_controls(): void {
 		$this->start_controls_section(
 			'general_section',

@@ -167,13 +167,13 @@
 		}
 
 		Object.keys( stats ).forEach( function ( key ) {
-			var value = root.querySelector( '[data-stat="' + key + '"] .mhm-stat-card__value' );
+			var value = root.querySelector( '[data-stat="' + key + '"] .mhmui-stat-card__value' );
 			if ( value ) {
 				value.textContent = String( stats[ key ] );
 			}
 		} );
 
-		var share = root.querySelector( '[data-stat="active_addons"] .mhm-stat-card__sub' );
+		var share = root.querySelector( '[data-stat="active_addons"] .mhmui-stat-card__sub' );
 		if ( share && cfg.i18n.activeShare ) {
 			// Substitute first, THEN collapse %% to %. These templates are
 			// written for PHP's sprintf, where %% is how you get a literal

@@ -1,8 +1,11 @@
 /* MHM Rentiva Settings Layout */
 .wrap.mhm-settings-page {
-	max-width: 1400px;
 	margin: 20px 20px 0 2px;
 }
+
+/* The kit's readable measure is 48rem; settings rows are label + field pairs and
+   read better a little wider. Screen-local override -- the kit default stays. */
+.wrap.mhm-settings-page { --mhmui-measure: 60rem; }
 
 /* Header & Breadcrumb Area */
 .mhm-settings-header {

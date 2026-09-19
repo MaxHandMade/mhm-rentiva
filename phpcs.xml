@@ -38,7 +38,14 @@
     -->
 	<rule ref="WordPress.Security"/>
 	<rule ref="WordPress.DB"/>
-	
+
+	<!--
+	No customEscapingFunctions, on purpose. WP.org's Plugin Check (gate G-D) never
+	reads this file, so a function declared "escaping" here is still unescaped output
+	to the reviewer: a local gate more lenient than the acceptance bar. That is how
+	six kit echoes reached CI red (2026-09-19). Escape at the echo instead.
+	-->
+
 	<!-- Enforce strict types -->
 	<rule ref="Generic.PHP.RequireStrictTypes"/>
 

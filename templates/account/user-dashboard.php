@@ -27,7 +27,7 @@ if (! $user_display_name) {
 }
 ?>
 
-<div class="mhm-rentiva-dashboard">
+<div class="mhm-rentiva-dashboard mhmui-front mhmui-front-page">
 	<aside class="mhm-rentiva-dashboard__sidebar">
 		<div class="mhm-rentiva-dashboard__brand">
 			<div class="mhm-rentiva-dashboard__brand-logo">R</div>
@@ -97,94 +97,45 @@ if (! $user_display_name) {
 					<h2><?php esc_html_e('Overview', 'mhm-rentiva'); ?></h2>
 				</div>
 
-				<div class="mhm-rentiva-dashboard__kpis">
-					<?php foreach ($kpi_items as $kpi_key => $kpi_config) : ?>
-						<?php
-						$kpi_label           = (string) ( $kpi_config['label'] ?? '' );
-						$kpi_meta            = (string) ( $kpi_config['meta'] ?? '' );
-						$kpi_icon            = sanitize_key( (string) ( $kpi_config['icon'] ?? 'chart' ));
-						$kpi_item            = is_array($kpi_data[ $kpi_key ] ?? null) ? $kpi_data[ $kpi_key ] : array();
-						$kpi_value           = (int) ( $kpi_item['total'] ?? 0 );
-						$kpi_trend_direction = 'neutral';
-						$kpi_trend_value     = null;
-						$with_trend          = ! empty($kpi_config['trend']);
+				<?php
+				// KPI strip: ui-core kit cards (KPI kit migration, Task 9). No icons on
+				// the front end (K4), no count-up animation; a trend is the kit's
+				// delta line, whose direction mark the kit renders itself.
+				$dashboard_cards = array();
+				foreach ($kpi_items as $kpi_key => $kpi_config) {
+					$kpi_item  = is_array($kpi_data[ $kpi_key ] ?? null) ? $kpi_data[ $kpi_key ] : array();
+					$kpi_value = (int) ( $kpi_item['total'] ?? 0 );
+					$card      = array(
+						'label' => (string) ( $kpi_config['label'] ?? '' ),
+						'value' => (string) $kpi_value,
+						'sub'   => (string) ( $kpi_config['meta'] ?? '' ),
+					);
 
-						if ($with_trend && isset($kpi_item['trend'])) {
-							$kpi_trend_direction = sanitize_key( (string) ( $kpi_item['direction'] ?? 'neutral' ));
-							$kpi_trend_direction = in_array($kpi_trend_direction, array( 'up', 'down', 'neutral' ), true) ? $kpi_trend_direction : 'neutral';
-							$kpi_trend_value     = abs( (int) $kpi_item['trend']);
-						}
-						?>
-						<div class="mhm-rentiva-dashboard__kpi-card">
-							<div class="mhm-rentiva-dashboard__kpi-header">
-								<div class="mhm-rentiva-dashboard__kpi-icon" aria-hidden="true">
-									<?php if ($kpi_icon === 'calendar') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M7 3.75V6.25M17 3.75V6.25M3.75 9H20.25M6.5 12.25H9.5M12 12.25H15M6.5 16H9.5M3.75 7.75C3.75 6.92157 4.42157 6.25 5.25 6.25H18.75C19.5784 6.25 20.25 6.92157 20.25 7.75V18.75C20.25 19.5784 19.5784 20.25 18.75 20.25H5.25C4.42157 20.25 3.75 19.5784 3.75 18.75V7.75Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php elseif ($kpi_icon === 'briefcase') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M5.25 9.5H18.75C19.9926 9.5 21 10.5074 21 11.75V16C21 17.2426 19.9926 18.25 18.75 18.25H5.25C4.00736 18.25 3 17.2426 3 16V11.75C3 10.5074 4.00736 9.5 5.25 9.5Z" stroke="currentColor" stroke-width="1.5" />
-											<path d="M7 9.5V7.75C7 6.64543 7.89543 5.75 9 5.75H15C16.1046 5.75 17 6.64543 17 7.75V9.5M7.5 13H7.51M16.5 13H16.51" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-										</svg>
-									<?php elseif ($kpi_icon === 'mail') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M4.5 6.75H19.5C20.3284 6.75 21 7.42157 21 8.25V15.75C21 16.5784 20.3284 17.25 19.5 17.25H4.5C3.67157 17.25 3 16.5784 3 15.75V8.25C3 7.42157 3.67157 6.75 4.5 6.75Z" stroke="currentColor" stroke-width="1.5" />
-											<path d="M4 8L10.9393 12.6262C11.5704 13.0469 12.4296 13.0469 13.0607 12.6262L20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php elseif ($kpi_icon === 'heart') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M12 20.25C12 20.25 4.5 15.75 4.5 10.5C4.5 8.42893 6.17893 6.75 8.25 6.75C9.52065 6.75 10.6437 7.38082 11.3228 8.34727C11.6222 8.77356 12.3778 8.77356 12.6772 8.34727C13.3563 7.38082 14.4794 6.75 15.75 6.75C17.8211 6.75 19.5 8.42893 19.5 10.5C19.5 15.75 12 20.25 12 20.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php elseif ($kpi_icon === 'car') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M4 14.25L5.8 9.75C6.09 9.02 6.79 8.55 7.58 8.55H16.42C17.21 8.55 17.91 9.02 18.2 9.75L20 14.25M5.25 14.25H18.75C19.44 14.25 20 14.81 20 15.5V17.25C20 17.66 19.66 18 19.25 18H18.5M5.5 18H4.75C4.34 18 4 17.66 4 17.25V15.5C4 14.81 4.56 14.25 5.25 14.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-											<circle cx="7.5" cy="16.5" r="1" fill="currentColor" />
-											<circle cx="16.5" cy="16.5" r="1" fill="currentColor" />
-										</svg>
-									<?php elseif ($kpi_icon === 'chart') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M4 19H20M7 16V10M12 16V5M17 16V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php elseif ($kpi_icon === 'wallet') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M19.5 9.5V17.5C19.5 18.6046 18.6046 19.5 17.5 19.5H6.5C5.39543 19.5 4.5 18.6046 4.5 17.5V6.5C4.5 5.39543 5.39543 4.5 6.5 4.5H16.5C17.6046 4.5 18.5 5.39543 18.5 6.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-											<path d="M21 9.5V14.5C21 15.0523 20.5523 15.5 20 15.5H18C16.8954 15.5 16 14.6046 16 13.5V10.5C16 9.39543 16.8954 8.5 18 8.5H20C20.5523 8.5 21 8.94772 21 9.5Z" stroke="currentColor" stroke-width="1.5" />
-											<circle cx="18.5" cy="12" r="0.5" fill="currentColor" />
-										</svg>
-									<?php elseif ($kpi_icon === 'clock') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-											<path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php elseif ($kpi_icon === 'check-circle') : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="1.5" />
-											<path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php else : ?>
-										<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-											<path d="M4 19H20M7 16V10M12 16V5M17 16V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-										</svg>
-									<?php endif; ?>
-								</div>
-								<div class="mhm-rentiva-dashboard__kpi-label"><?php echo esc_html($kpi_label); ?></div>
-							</div>
-							<div class="mhm-rentiva-dashboard__kpi-value" id="kpi-<?php echo esc_attr($kpi_key); ?>-value" data-count="<?php echo esc_attr( (string) $kpi_value); ?>">
-								<?php echo esc_html( (string) $kpi_value); ?>
-							</div>
-							<?php if ($with_trend && null !== $kpi_trend_value) : ?>
-								<div class="mhm-rentiva-dashboard__kpi-context" id="kpi-<?php echo esc_attr($kpi_key); ?>-context">
-									<span class="mhm-rentiva-dashboard__kpi-meta" id="kpi-<?php echo esc_attr($kpi_key); ?>-meta"><?php echo esc_html( (string) ( $kpi_config['trend_meta'] ?? $kpi_meta )); ?></span>
-									<span class="mhm-rentiva-dashboard__kpi-trend is-<?php echo esc_attr($kpi_trend_direction); ?>" id="kpi-<?php echo esc_attr($kpi_key); ?>-trend">
-										<?php echo esc_html( (string) $kpi_trend_value . '%'); ?>
-									</span>
-								</div>
-							<?php else : ?>
-								<div class="mhm-rentiva-dashboard__kpi-meta" id="kpi-<?php echo esc_attr($kpi_key); ?>-meta"><?php echo esc_html($kpi_meta); ?></div>
-							<?php endif; ?>
-						</div>
-					<?php endforeach; ?>
+					if (! empty($kpi_config['trend']) && isset($kpi_item['trend'])) {
+						$kpi_direction = (string) ( $kpi_item['direction'] ?? 'neutral' );
+						$kpi_direction = in_array($kpi_direction, array( 'up', 'down' ), true) ? $kpi_direction : 'flat';
+						$card['delta'] = array(
+							'direction' => $kpi_direction,
+							// Accessible name for the delta line (kit 0.13.0): the arrow
+							// mark is aria-hidden, so up and down would otherwise announce
+							// identically to a screen reader.
+							'label'     => 'up' === $kpi_direction
+								? __('increase', 'mhm-rentiva')
+								: ( 'down' === $kpi_direction ? __('decrease', 'mhm-rentiva') : __('no change', 'mhm-rentiva') ),
+							'text'      => sprintf(
+								/* translators: 1: percentage change (magnitude only; the direction is carried by the arrow), 2: the period this compares. */
+								__('%1$s%% %2$s', 'mhm-rentiva'),
+								abs( (int) $kpi_item['trend']),
+								(string) ( $kpi_config['trend_meta'] ?? $kpi_config['meta'] ?? '' )
+							),
+						);
+					}
+
+					$dashboard_cards[] = $card;
+				}
+				?>
+				<div class="mhm-rentiva-dashboard__strip">
+					<?php echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $dashboard_cards, 3 ) ); ?>
 				</div>
 
 				<div class="mhm-rentiva-dashboard__overview-grid">

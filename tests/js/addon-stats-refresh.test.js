@@ -30,28 +30,28 @@ describe( 'add-on screen counters after a toggle', () => {
 
 		document.body.innerHTML = `
 			<div id="mhm-addons-root">
-				<div class="mhm-stats-grid">
-					<div class="mhm-stat-card" data-stat="total_addons">
-						<div class="mhm-stat-card__body">
-							<p class="mhm-stat-card__value">3</p>
-							<p class="mhm-stat-card__sub">Tüm Servisler</p>
+				<div class="mhmui-stats-grid">
+					<div class="mhmui-stat-card" data-stat="total_addons">
+						<div class="mhmui-stat-card__body">
+							<p class="mhmui-stat-card__value">3</p>
+							<p class="mhmui-stat-card__sub">Tüm Servisler</p>
 						</div>
 					</div>
-					<div class="mhm-stat-card" data-stat="active_addons">
-						<div class="mhm-stat-card__body">
-							<p class="mhm-stat-card__value">2</p>
-							<p class="mhm-stat-card__sub">%67 aktif</p>
+					<div class="mhmui-stat-card" data-stat="active_addons">
+						<div class="mhmui-stat-card__body">
+							<p class="mhmui-stat-card__value">2</p>
+							<p class="mhmui-stat-card__sub">%67 aktif</p>
 						</div>
 					</div>
 				</div>
-					<div class="mhm-stat-card" data-stat="avg_price">
-						<div class="mhm-stat-card__body">
-							<p class="mhm-stat-card__value">$31,67</p>
+					<div class="mhmui-stat-card" data-stat="avg_price">
+						<div class="mhmui-stat-card__body">
+							<p class="mhmui-stat-card__value">$31,67</p>
 						</div>
 					</div>
-					<div class="mhm-stat-card" data-stat="total_value">
-						<div class="mhm-stat-card__body">
-							<p class="mhm-stat-card__value">$95,00</p>
+					<div class="mhmui-stat-card" data-stat="total_value">
+						<div class="mhmui-stat-card__body">
+							<p class="mhmui-stat-card__value">$95,00</p>
 						</div>
 					</div>
 				<span class="rv-addon-count">2 aktif · 3 toplam</span>
@@ -92,15 +92,15 @@ describe( 'add-on screen counters after a toggle', () => {
 	};
 
 	const read = () => ( {
-		toplam: document.querySelector( '[data-stat="total_addons"] .mhm-stat-card__value' ).textContent,
-		aktif: document.querySelector( '[data-stat="active_addons"] .mhm-stat-card__value' ).textContent,
-		oran: document.querySelector( '[data-stat="active_addons"] .mhm-stat-card__sub' ).textContent,
+		toplam: document.querySelector( '[data-stat="total_addons"] .mhmui-stat-card__value' ).textContent,
+		aktif: document.querySelector( '[data-stat="active_addons"] .mhmui-stat-card__value' ).textContent,
+		oran: document.querySelector( '[data-stat="active_addons"] .mhmui-stat-card__sub' ).textContent,
 		sayac: document.querySelector( '.rv-addon-count' ).textContent,
 	} );
 
 	const readPrices = () => ( {
-		ortalama: document.querySelector( '[data-stat="avg_price"] .mhm-stat-card__value' ).textContent,
-		toplamDeger: document.querySelector( '[data-stat="total_value"] .mhm-stat-card__value' ).textContent,
+		ortalama: document.querySelector( '[data-stat="avg_price"] .mhmui-stat-card__value' ).textContent,
+		toplamDeger: document.querySelector( '[data-stat="total_value"] .mhmui-stat-card__value' ).textContent,
 	} );
 
 	const freshStats = {

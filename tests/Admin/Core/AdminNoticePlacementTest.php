@@ -78,6 +78,12 @@ final class AdminNoticePlacementTest extends WP_UnitTestCase {
 	 * searches. `.wrap` is what common.js scopes its lookup to.
 	 */
 	public function test_the_screen_opens_a_wrap_for_the_relocation_to_target(): void {
-		$this->assertStringContainsString( 'class="wrap"', $this->renderAddonScreen() );
+		// The kit's scope + page-shell classes (mhmui-admin mhmui-admin-page) ride
+		// alongside "wrap" on the same element (K7 layout standard) -- common.js
+		// only needs "wrap" to be one of the classes, not the only one.
+		$this->assertMatchesRegularExpression(
+			'/<div class="wrap(?:\s[^"]*)?" id="mhm-addons-root"/',
+			$this->renderAddonScreen()
+		);
 	}
 }

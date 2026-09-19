@@ -172,8 +172,8 @@ final class AddonScreenRenderTest extends WP_UnitTestCase {
 	public function test_it_renders_the_kpi_band(): void {
 		$html = $this->render();
 
-		$this->assertStringContainsString( 'mhm-stats-grid', $html );
-		$this->assertSame( 4, substr_count( $html, 'mhm-stat-card__label' ), 'Four cards.' );
+		$this->assertStringContainsString( 'mhmui-stats-grid', $html );
+		$this->assertSame( 4, substr_count( $html, 'mhmui-stat-card__label' ), 'Four cards.' );
 	}
 
 	/**

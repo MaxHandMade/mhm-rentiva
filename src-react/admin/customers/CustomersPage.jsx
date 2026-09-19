@@ -94,7 +94,7 @@ export default function CustomersPage() {
 	const panelRow = items.find( ( c ) => c.id === panelId ) ?? null;
 
 	return (
-		<div className="mhm-customers rv-cust">
+		<div className="mhm-customers rv-cust mhmui-admin mhmui-admin-page">
 			<div className="rv-cust-topbar">
 				<StatsCards stats={ cfg.stats } currency={ cfg.currency } />
 				<FilterBar

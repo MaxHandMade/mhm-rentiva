@@ -1,6 +1,5 @@
 AbstractShortcode.php:300 -- handle is not a literal
-AssetManager.php:197 -- handle is not a literal
-AssetManager.php:505 -- handle is not a literal
+AssetManager.php:183 -- handle is not a literal
 AvailabilityCalendar.php:166 -- handle is not a literal
 BlockRegistry.php:458 -- handle is not a literal
 DatabaseCleanupRenderer.php:109 -- source is built from a variable

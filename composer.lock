@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "60b54f4e230cd082c052555238ea7684",
+    "content-hash": "9d8fc2e40d50b396832d4fd7d4f33d14",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.10.0",
+            "version": "v0.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "bdec695b6b55aaea07bd9bc0deadde4b2d81da71"
+                "reference": "89ab69c77c6e2712b9e64ebd2cb631b4871307df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/bdec695b6b55aaea07bd9bc0deadde4b2d81da71",
-                "reference": "bdec695b6b55aaea07bd9bc0deadde4b2d81da71",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/89ab69c77c6e2712b9e64ebd2cb631b4871307df",
+                "reference": "89ab69c77c6e2712b9e64ebd2cb631b4871307df",
                 "shasum": ""
             },
             "require": {
@@ -66,13 +66,20 @@
                 "check:no-i18n": [
                     "@php ./bin/check-no-i18n.php"
                 ],
+                "dump:kit-classes": [
+                    "@php ./bin/dump-kit-classes.php"
+                ],
+                "check:kit-parity": [
+                    "@php ./bin/dump-kit-classes.php --check"
+                ],
                 "check": [
                     "@phpcs",
                     "@phpstan",
                     "@test",
                     "@check:php-namespace",
                     "@check:error-prefix",
-                    "@check:no-i18n"
+                    "@check:no-i18n",
+                    "@check:kit-parity"
                 ]
             },
             "license": [
@@ -80,10 +87,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.10.0",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.13.1",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-09-08T23:23:24+00:00"
+            "time": "2026-09-18T16:31:22+00:00"
         }
     ],
     "packages-dev": [

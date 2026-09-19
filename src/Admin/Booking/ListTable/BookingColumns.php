@@ -296,13 +296,8 @@ final class BookingColumns {
 
 		// Load only on booking list page
 		if ( $hook === 'edit.php' && $post_type === 'mhmrentiva_booking' ) {
-			// Load statistics cards CSS
-			wp_enqueue_style(
-				'mhm-rentiva-stats-cards',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-				array(),
-				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/components/stats-cards.css' )
-			);
+			// KPI strip markup/styling now comes from the ui-core kit.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'admin' );
 
 			wp_enqueue_style(
 				'mhm-rentiva-shared-admin',
@@ -342,7 +337,7 @@ final class BookingColumns {
 			wp_enqueue_style(
 				'mhm-rentiva-booking-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
-				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin', 'mhm-rentiva-simple-calendars', 'mhm-rentiva-booking-calendar', 'mhm-rentiva-occupancy-matrix' ),
+				array( 'mhm-rentiva-shared-admin', 'mhm-rentiva-simple-calendars', 'mhm-rentiva-booking-calendar', 'mhm-rentiva-occupancy-matrix' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-list.css' )
 			);
 
@@ -1183,46 +1178,67 @@ final class BookingColumns {
 
 		// Get statistics data
 		$stats = self::get_booking_stats();
-		?>
-		<div class="mhm-stats-grid">
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-calendar-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e( 'Total Bookings', 'mhm-rentiva' ); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['total'] ); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html( $stats['monthly'] ); ?> <?php esc_html_e( 'This month', 'mhm-rentiva' ); ?></p>
-				</div>
-			</div>
 
-			<div class="mhm-stat-card is-pending">
-				<span class="dashicons dashicons-clock"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e( 'Pending', 'mhm-rentiva' ); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['pending'] ); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html( $stats['pending_this_week'] ); ?> <?php esc_html_e( 'This week', 'mhm-rentiva' ); ?></p>
-				</div>
-			</div>
+		$cards = array(
+			array(
+				'label' => __( 'Total Bookings', 'mhm-rentiva' ),
+				'value' => (string) $stats['total'],
+				'icon'  => 'calendar-alt',
+				'sub'   => sprintf(
+					/* translators: %s: number of bookings created this month. */
+					__( '%s this month', 'mhm-rentiva' ),
+					$stats['monthly']
+				),
+			),
+			array(
+				'label' => __( 'Pending', 'mhm-rentiva' ),
+				'value' => (string) $stats['pending'],
+				'icon'  => 'clock',
+				// The only tone in this migration: "pending" is a state that asks
+				// for action, and the label says so without the colour (WCAG 1.4.1).
+				'tone'  => 'warning',
+				'sub'   => sprintf(
+					/* translators: %s: number of pending bookings created this week. */
+					__( '%s this week', 'mhm-rentiva' ),
+					$stats['pending_this_week']
+				),
+			),
+			array(
+				'label' => __( 'Completed', 'mhm-rentiva' ),
+				'value' => (string) $stats['completed'],
+				'icon'  => 'yes',
+				'sub'   => sprintf(
+					/* translators: %s: number of bookings completed this month. */
+					__( '%s this month', 'mhm-rentiva' ),
+					$stats['completed_this_month']
+				),
+			),
+			array(
+				'label' => __( 'Monthly Revenue', 'mhm-rentiva' ),
+				'value' => self::format_price( $stats['monthly_revenue'] ),
+				'icon'  => 'money-alt',
+				'delta' => array(
+					'direction' => $stats['revenue_trend'] > 0 ? 'up' : ( $stats['revenue_trend'] < 0 ? 'down' : 'flat' ),
+					// Accessible name for the delta line (kit 0.13.0): the kit has no
+					// text domain and cannot translate "increase"/"decrease"/"no
+					// change" itself, so up vs. down would otherwise announce
+					// identically to a screen reader (the arrow mark is aria-hidden).
+					'label'     => $stats['revenue_trend'] > 0
+						? __( 'increase', 'mhm-rentiva' )
+						: ( $stats['revenue_trend'] < 0 ? __( 'decrease', 'mhm-rentiva' ) : __( 'no change', 'mhm-rentiva' ) ),
+					'text'      => sprintf(
+						/* translators: %s: percentage change against last month (magnitude only; direction is carried by the arrow). */
+						__( '%s%% vs last month', 'mhm-rentiva' ),
+						abs( $stats['revenue_trend'] )
+					),
+				),
+				'sub'   => __( 'vs last month', 'mhm-rentiva' ),
+			),
+		);
 
-			<div class="mhm-stat-card is-completed">
-				<span class="dashicons dashicons-yes"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e( 'Completed', 'mhm-rentiva' ); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['completed'] ); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html( $stats['completed_this_month'] ); ?> <?php esc_html_e( 'This month', 'mhm-rentiva' ); ?></p>
-				</div>
-			</div>
-
-			<div class="mhm-stat-card is-revenue">
-				<span class="dashicons dashicons-money-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e( 'Monthly Revenue', 'mhm-rentiva' ); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( self::format_price( $stats['monthly_revenue'] ) ); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo $stats['revenue_trend'] >= 0 ? '+' : ''; ?><?php echo esc_html( $stats['revenue_trend'] ); ?>% <?php esc_html_e( 'vs last month', 'mhm-rentiva' ); ?></p>
-				</div>
-			</div>
-		</div>
-
-		<?php
+		echo '<div class="mhmui-admin">';
+		echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $cards, 4 ) );
+		echo '</div>';
 	}
 
 	/**

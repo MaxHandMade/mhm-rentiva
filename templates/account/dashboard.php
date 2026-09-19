@@ -17,7 +17,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Helpers\Icons;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 // Get customer experience settings
@@ -40,44 +39,30 @@ if ($is_integrated) {
 	<div class="mhm-account-content">
 
 		<!-- Statistics Cards -->
-		<div class="stats-grid">
-			<div class="stat-card stat-card-total-bookings">
-				<div class="stat-icon">
-					<?php Icons::render('calendar'); ?>
-				</div>
-				<div class="stat-content">
-					<h3 class="stat-number"><?php echo esc_html($data['bookings_count']); ?></h3>
-					<p class="stat-label"><?php esc_html_e('Total Bookings', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
+		<?php
+		$favorites_count = 0;
+		if ($data['favorites'] === '1') {
+			$favorites_data  = get_user_meta($data['user']->ID, 'mhmrentiva_favorites', true);
+			$favorites_count = is_array($favorites_data) ? count($favorites_data) : 0;
+		}
 
-			<div class="stat-card stat-card-active-bookings">
-				<div class="stat-icon">
-					<?php Icons::render('car'); ?>
-				</div>
-				<div class="stat-content">
-					<h3 class="stat-number"><?php echo esc_html($data['active_bookings_count']); ?></h3>
-					<p class="stat-label"><?php esc_html_e('Active Bookings', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
-
-			<div class="stat-card stat-card-total-favorites">
-				<div class="stat-icon">
-					<?php Icons::render('heart'); ?>
-				</div>
-				<div class="stat-content">
-					<?php
-					if ($data['favorites'] === '1') {
-						$favorites_data  = get_user_meta($data['user']->ID, 'mhmrentiva_favorites', true);
-						$favorites_count = is_array($favorites_data) ? count($favorites_data) : 0;
-					} else {
-						$favorites_count = 0;
-					}
-					?>
-					<h3 class="stat-number"><?php echo esc_html($favorites_count); ?></h3>
-					<p class="stat-label"><?php esc_html_e('Favorite Vehicles', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
+		$account_cards = array(
+			array(
+				'label' => __('Total Bookings', 'mhm-rentiva'),
+				'value' => (string) $data['bookings_count'],
+			),
+			array(
+				'label' => __('Active Bookings', 'mhm-rentiva'),
+				'value' => (string) $data['active_bookings_count'],
+			),
+			array(
+				'label' => __('Favorite Vehicles', 'mhm-rentiva'),
+				'value' => (string) $favorites_count,
+			),
+		);
+		?>
+		<div class="mhmui-front mhm-account-kpi-strip">
+			<?php echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $account_cards, 3 ) ); ?>
 		</div>
 
 		<!-- Recent Bookings -->

@@ -140,7 +140,6 @@ assets/js/frontend/search-results.js
 assets/js/frontend/testimonials.js
 assets/js/frontend/toast.js
 assets/js/frontend/unified-search.js
-assets/js/frontend/user-dashboard.js
 assets/js/frontend/vehicle-comparison.js
 assets/js/frontend/vehicle-details.js
 assets/js/frontend/vehicle-interactions.js
@@ -537,6 +536,8 @@ vendor/mhm/ui-core/src/Component/Surfaces/ElementorSurface.php
 vendor/mhm/ui-core/src/Component/Surfaces/ElementorWidgetFactory.php
 vendor/mhm/ui-core/src/Component/Surfaces/LayoutAdapterSurface.php
 vendor/mhm/ui-core/src/Component/Surfaces/ShortcodeSurface.php
+vendor/mhm/ui-core/src/Kit/StatCard.php
+vendor/mhm/ui-core/src/Kit/StatsGrid.php
 vendor/mhm/ui-core/src/Layout/AdapterRegistry.php
 vendor/mhm/ui-core/src/Layout/BlueprintValidator.php
 vendor/mhm/ui-core/src/Layout/CompositionBuilder.php

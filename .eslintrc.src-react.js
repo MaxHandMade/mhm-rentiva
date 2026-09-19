@@ -73,5 +73,24 @@ module.exports = {
 				'jsdoc/require-param': 'off',
 			},
 		},
+		{
+			// Test files run under Jest, whose globals (`describe`, `test`,
+			// `expect`) are not in `.eslintrc.json`'s env -- that file declares
+			// the BROWSER surface the shipped bundles run in, and Jest is not
+			// part of it. Without this block every assertion in a `.test.jsx`
+			// is a `no-undef` error, which is not a defect report: the
+			// identifier is defined, just by a runtime this config had not been
+			// told about.
+			//
+			// Measured 2026-09-18: `src-react/**/*.test.jsx` first appeared on
+			// the KPI-kit branch, and by the time anyone looked, `lint:js` --
+			// a BLOCKING CI step -- was exiting 1 with 46 such errors. Three
+			// separate passes called them "pre-existing" because each compared
+			// against the branch tip instead of against `main`, where the files
+			// do not exist at all. Compare against the base branch, not against
+			// what you inherited from the last commit.
+			files: [ '**/*.test.js', '**/*.test.jsx' ],
+			env: { jest: true },
+		},
 	],
 };

@@ -411,27 +411,11 @@ jQuery( document ).ready(
 			}
 		};
 
-		// İstatistik kartları animasyonu
-		var statsAnimation = {
-			init: function () {
-				this.animateStats();
-			},
-
-			animateStats: function () {
-				$( '.stat-card' ).each(
-					function (index) {
-						$( this ).css( 'animation-delay', (index * 0.1) + 's' );
-					}
-				);
-			}
-		};
-
 		// Başlatma
 		inlineEdit.init();
 		bulkActions.init();
 		filtering.init();
 		quickEdit.init();
-		statsAnimation.init();
 
 		// Sayfa yüklendiğinde istatistikleri güncelle
 		/**

@@ -344,13 +344,8 @@ final class AccountController {
 				MHMRENTIVA_VERSION
 			);
 
-			// Load Stats Cards CSS
-			wp_enqueue_style(
-				'mhm-rentiva-stats-cards',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-				array(),
-				MHMRENTIVA_VERSION
-			);
+			// Kit stat cards (K4: iconless on the front end).
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
 
 			wp_enqueue_style(
 				'mhm-rentiva-booking-detail',

@@ -92,9 +92,6 @@ abstract class AbstractTab {
 			case 'table':
 				static::render_table_section( $section, $data );
 				break;
-			case 'stats':
-				static::render_stats_section( $section, $data );
-				break;
 			case 'custom':
 				if ( isset( $section['custom_render'] ) && is_callable( $section['custom_render'] ) ) {
 					call_user_func( $section['custom_render'], $section, $data );
@@ -183,19 +180,6 @@ abstract class AbstractTab {
 	}
 
 	/**
-	 * Stats section render
-	 */
-	protected static function render_stats_section( array $section, array $data = array() ): void {
-		$stats = $section['stats'] ?? array();
-
-		echo '<div class="stats-grid">';
-		foreach ( $stats as $stat ) {
-			static::render_stat_item( $stat, $data );
-		}
-		echo '</div>';
-	}
-
-	/**
 	 * Card render
 	 */
 	protected static function render_card( array $card, array $data = array() ): void {
@@ -259,20 +243,6 @@ abstract class AbstractTab {
 		}
 
 		echo '</li>';
-	}
-
-	/**
-	 * Stat item render
-	 */
-	protected static function render_stat_item( array $stat, array $data = array() ): void {
-		$number = $stat['number'] ?? '0';
-		$label  = $stat['label'] ?? '';
-		$class  = $stat['class'] ?? '';
-
-		echo '<div class="stat-item ' . esc_attr( $class ) . '">';
-		echo '<div class="stat-number">' . esc_html( $number ) . '</div>';
-		echo '<div class="stat-label">' . esc_html( $label ) . '</div>';
-		echo '</div>';
 	}
 
 	/**

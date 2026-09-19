@@ -623,6 +623,8 @@ final class SettingsCore {
 			wp_enqueue_media();
 		}
 
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'admin' );
+
 		wp_enqueue_style(
 			'mhm-rentiva-settings',
 			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',

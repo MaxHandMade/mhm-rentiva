@@ -28,6 +28,8 @@ final class UserDashboard {
 		MetricCacheManager::boot();
 		add_action('template_redirect', array( self::class, 'guard_panel_access' ));
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
+		// Before Elementor enqueues page assets by handle (its priority 20).
+		add_action('wp_enqueue_scripts', array( self::class, 'register_kit_style' ), 1);
 		add_filter('body_class', array( self::class, 'add_body_class' ));
 	}
 
@@ -50,6 +52,16 @@ final class UserDashboard {
 		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
 		if ('customer' === $type) {
+			// Last resort, not the main path. enqueue_assets() already put the kit
+			// in <head> for the /panel/ surface and for any singular post whose
+			// content carries the shortcode or the block; the Elementor widget
+			// declares it through get_style_depends(). What none of those can see
+			// -- a theme template, a widget area, a do_shortcode() in PHP, an
+			// Elementor template outside the queried post -- still gets the
+			// stylesheet here, printed in the footer (late, but not missing).
+			// Enqueueing is idempotent.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
+
 			return CustomerDashboard::render($data);
 		}
 
@@ -189,11 +201,51 @@ final class UserDashboard {
 	}
 
 	/**
-	 * Enqueue scoped stylesheet.
+	 * Register the kit's front stylesheet without enqueueing it, so the
+	 * Elementor widget can name it in get_style_depends(): Elementor enqueues a
+	 * widget's style dependencies by handle alone, and an unregistered handle is
+	 * dropped silently. Registering costs nothing on pages that never use it.
+	 */
+	public static function register_kit_style(): void
+	{
+		\MHMRentiva\Admin\Core\AssetManager::register_kit( 'front' );
+	}
+
+	/**
+	 * Whether the queried singular post's own content carries the dashboard,
+	 * as the shortcode or as the block.
+	 *
+	 * Only the queried post: a dashboard placed in a template, a widget area
+	 * or a synced pattern is invisible here and falls back to render().
+	 */
+	private static function queried_post_embeds_dashboard(): bool
+	{
+		if (! is_singular()) {
+			return false;
+		}
+
+		$post = get_queried_object();
+		if (! $post instanceof \WP_Post) {
+			return false;
+		}
+
+		return has_shortcode($post->post_content, 'rentiva_user_dashboard')
+			|| has_block('mhm-rentiva/user-dashboard', $post);
+	}
+
+	/**
+	 * Enqueue the scoped stylesheet and the ui-core front kit.
 	 */
 	public static function enqueue_assets(): void
 	{
 		if (! self::is_dashboard_surface()) {
+			// Not Lite's own surface, but the queried post may still embed the
+			// dashboard. Enqueue the kit NOW, on wp_enqueue_scripts, so its
+			// <link> lands in <head>; left to render() it would print in the
+			// footer and the cards would paint unstyled first.
+			if (self::queried_post_embeds_dashboard()) {
+				\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
+			}
 			return;
 		}
 
@@ -204,12 +256,7 @@ final class UserDashboard {
 			MHMRENTIVA_VERSION
 		);
 
-		wp_enqueue_script(
-			'mhm-rentiva-dashboard',
-			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
-			array(),
-			MHMRENTIVA_VERSION,
-			true
-		);
+		// Kit stat cards and the front page shell (K4: iconless on the front end).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
 	}
 }

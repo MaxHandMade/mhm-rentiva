@@ -3,19 +3,6 @@
 	white-space: normal;
 }
 
-/* Panel page container â€” match My Account width (1200px) for consistency */
-body.rentiva-panel-page .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
-	max-width: 1200px !important;
-	margin-left: auto !important;
-	margin-right: auto !important;
-}
-
-body.rentiva-panel-page .entry-content > * {
-	max-width: 1200px !important;
-	margin-left: auto !important;
-	margin-right: auto !important;
-}
-
 .mhm-rentiva-dashboard {
 	display: flex;
 	background: #f6f8fc;
@@ -23,9 +10,14 @@ body.rentiva-panel-page .entry-content > * {
 	border-radius: 14px;
 	overflow: hidden;
 	min-height: 100vh;
-	width: 100%;
-	max-width: 1200px;
-	margin: 40px auto;
+	/* Width, max-width and horizontal centring belong to the kit's page shell
+	   (.mhmui-front-page on this same element: width 100%, max-width
+	   var(--mhmui-page-max), margin-inline auto). This rule used to declare its
+	   own `max-width: 1200px; margin: 40px auto` as well -- both selectors are
+	   0-1-0, so whichever stylesheet printed later won, and the dashboard was
+	   1200px on one placement and 1152px on another. One owner now; Rentiva
+	   keeps only the vertical breathing room. */
+	margin-block: 40px;
 	padding: 0 0;
 	box-sizing: border-box;
 }
@@ -203,127 +195,17 @@ body.rentiva-panel-page .entry-content > * {
 	color: #11192b;
 }
 
-.mhm-rentiva-dashboard__kpis {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 12px;
+/* KPI strip wrapper (kit markup inside the root's `.mhmui-front` scope).
+   Restores the bottom gap the old `__kpis` grid gave the strip; the grid,
+   the cards and their gap are the kit's own. */
+.mhm-rentiva-dashboard__strip {
 	margin-bottom: 16px;
 }
 
-.mhm-rentiva-dashboard__kpi-card {
-	position: relative;
-	padding: 18px 18px 20px;
-	border-radius: 16px;
-	border: 1px solid #e4e8f2;
-	background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
-	box-shadow: 0 6px 18px rgba(22, 34, 66, 0.05);
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.mhm-rentiva-dashboard__kpi-card:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 10px 28px rgba(22, 34, 66, 0.08);
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(1) {
-	border-left: 4px solid #2f54ff;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(2) {
-	border-left: 4px solid #8b5cf6;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(3) {
-	border-left: 4px solid #f59e0b;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(4) {
-	border-left: 4px solid #ef4444;
-}
-
-.mhm-rentiva-dashboard__kpi-header {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 10px;
-}
-
-.mhm-rentiva-dashboard__kpi-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 22px;
-	height: 22px;
-	border-radius: 8px;
-	background: #eef2ff;
-	color: #2f54ff;
-	flex-shrink: 0;
-}
-
-.mhm-rentiva-dashboard__kpi-icon svg {
-	width: 14px;
-	height: 14px;
-	display: block;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(2) .mhm-rentiva-dashboard__kpi-icon {
-	background: #f3e8ff;
-	color: #8b5cf6;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(3) .mhm-rentiva-dashboard__kpi-icon {
-	background: #fff7ed;
-	color: #f59e0b;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(4) .mhm-rentiva-dashboard__kpi-icon {
-	background: #fee2e2;
-	color: #ef4444;
-}
-
-.mhm-rentiva-dashboard__kpi-label {
-	font-size: 12px;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	color: #6b748f;
-	margin-bottom: 0;
-	text-transform: uppercase;
-}
-
-.mhm-rentiva-dashboard__kpi-value {
-	font-size: 34px;
-	line-height: 1;
-	font-weight: 800;
-	color: #101828;
-}
-
-.mhm-rentiva-dashboard__kpi-meta {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	font-size: 10px;
-	font-weight: 700;
-	padding: 4px 10px;
-	border-radius: 999px;
-	margin-top: 10px;
-	background: #eef2ff;
-	color: #2f54ff;
-	letter-spacing: 0.03em;
-	text-transform: uppercase;
-}
-
-.mhm-rentiva-dashboard__kpi-context {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	margin-top: 10px;
-	flex-wrap: wrap;
-}
-
-.mhm-rentiva-dashboard__kpi-context .mhm-rentiva-dashboard__kpi-meta {
-	margin-top: 0;
-}
-
+/* Kept for Pro, not for Lite: Pro src/Core/Dashboard/AnalyticsController.php
+   (fetch_vendor_stats, `growth_html`) emits
+   <span class="mhm-rentiva-dashboard__kpi-trend is-up|is-down|is-neutral">.
+   Lite no longer prints this class. Remove with the Pro KPI migration (Plan 3). */
 .mhm-rentiva-dashboard__kpi-trend {
 	font-size: 11px;
 	font-weight: 700;
@@ -350,26 +232,6 @@ body.rentiva-panel-page .entry-content > * {
 
 .mhm-rentiva-dashboard__kpi-trend.is-down::before {
 	content: "\2193";
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(1) .mhm-rentiva-dashboard__kpi-meta {
-	background: #eef2ff;
-	color: #2f54ff;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(2) .mhm-rentiva-dashboard__kpi-meta {
-	background: #f3e8ff;
-	color: #8b5cf6;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(3) .mhm-rentiva-dashboard__kpi-meta {
-	background: #fff7ed;
-	color: #f59e0b;
-}
-
-.mhm-rentiva-dashboard__kpi-card:nth-child(4) .mhm-rentiva-dashboard__kpi-meta {
-	background: #fee2e2;
-	color: #ef4444;
 }
 
 .mhm-rentiva-dashboard__section {
@@ -550,19 +412,11 @@ body.rentiva-panel-page .entry-content > * {
 		border-right: 0;
 		border-bottom: 1px solid #e4e8f2;
 	}
-
-	.mhm-rentiva-dashboard__kpis {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
 }
 
 @media (max-width: 640px) {
 	.mhm-rentiva-dashboard__content {
 		padding: 14px;
-	}
-
-	.mhm-rentiva-dashboard__kpis {
-		grid-template-columns: 1fr;
 	}
 }
 
@@ -589,24 +443,8 @@ body.rentiva-panel-page .entry-content > * {
 		margin-bottom: 24px;
 	}
 
-	body.rentiva-panel-page .mhm-rentiva-dashboard__kpis {
-		gap: 16px;
+	body.rentiva-panel-page .mhm-rentiva-dashboard__strip {
 		margin-bottom: 24px;
-	}
-
-	body.rentiva-panel-page .mhm-rentiva-dashboard__kpi-card {
-		padding: 18px 16px;
-		border-radius: 14px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-	}
-
-	body.rentiva-panel-page .mhm-rentiva-dashboard__kpi-card:hover {
-		transform: none;
-	}
-
-	body.rentiva-panel-page .mhm-rentiva-dashboard__kpi-meta {
-		font-size: 9px;
-		padding: 4px 8px;
 	}
 
 	body.rentiva-panel-page .mhm-rentiva-dashboard__section {

@@ -29,7 +29,7 @@ export default function DashboardPage() {
 	const upcomingInitial = { items: upcoming, total_pages: upcomingTotalPages, page: 1 };
 
 	return (
-		<div className="mhm-dashboard rv-dashboard">
+		<div className="mhm-dashboard rv-dashboard mhmui-admin mhmui-admin-page">
 
 			{ /* Header strip: title + static range selector (visual only) */ }
 			<div className="rv-dash-header">

@@ -3,9 +3,10 @@
  *
  * Every rule is scoped under #mhm-addons-root and every class carries the
  * `rv-addon-` prefix. That is what keeps this screen's restyle from leaking:
- * shared/admin.css is untouched, and the shared `.mhm-stat-card` markup the KPI
- * band reuses is re-dressed here rather than globally, so the native list
- * screen -- still reachable by URL -- keeps the look it has.
+ * shared/admin.css is untouched. The KPI band itself is the tone-less
+ * ui-core kit (mhmui-stats-grid / mhmui-stat-card), styled by the kit's own
+ * stylesheet rather than by this file -- there is nothing left here to scope
+ * to the native list screen, which keeps the look it has.
  *
  * Colours are pinned rather than inherited. The admin ships a dark-mode
  * stylesheet that flips shared tokens, and a card that inherits its background
@@ -476,62 +477,6 @@
 
 #mhm-addons-root .rv-addon-notice.is-visible {
 	display: block;
-}
-
-/* --------------------------------------------------------------- KPI band */
-
-#mhm-addons-root .mhm-stats-grid {
-	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
-	gap: 16px;
-	margin-top: 16px;
-}
-
-#mhm-addons-root .mhm-stat-card {
-	background: var( --rv-addon-surface );
-	border: 1px solid var( --rv-addon-line );
-	border-radius: var( --rv-addon-radius );
-	box-shadow: var( --rv-addon-shadow );
-	padding: 16px 18px;
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-}
-
-/* The shared card ships gradient backgrounds selected by :nth-child. They are
-   more specific than a plain class rule, so they are unset explicitly here
-   rather than fought with !important. */
-#mhm-addons-root .mhm-stats-grid .mhm-stat-card:nth-child( n ) {
-	background: var( --rv-addon-surface );
-	color: var( --rv-addon-text );
-}
-
-#mhm-addons-root .mhm-stat-card .dashicons {
-	color: var( --rv-addon-accent );
-	font-size: 20px;
-	width: 20px;
-	height: 20px;
-}
-
-#mhm-addons-root .mhm-stat-card__label {
-	font-size: 12px;
-	color: var( --rv-addon-muted );
-	margin: 0 0 2px;
-	text-transform: none;
-}
-
-#mhm-addons-root .mhm-stat-card__value {
-	font-size: 22px;
-	font-weight: 700;
-	color: var( --rv-addon-text );
-	margin: 0;
-	line-height: 1.2;
-}
-
-#mhm-addons-root .mhm-stat-card__sub {
-	font-size: 12px;
-	color: var( --rv-addon-faint );
-	margin: 2px 0 0;
 }
 
 /* --------------------------------------------------------------- dark mode */

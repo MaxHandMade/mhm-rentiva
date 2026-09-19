@@ -96,6 +96,39 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      # G-G. The committed build/admin/* bundles must be exactly what their
+      # source builds to. Every other JS gate here reads the SOURCE; a browser
+      # runs the BUNDLE, and nothing checked that the two agree. Measured
+      # 2026-09-19: a commit changed the customers payload from a string to a
+      # number and rewrote src-react/.../StatsCards.jsx to match, but never
+      # rebuilt build/admin/customers.js. Every test passed; the shipped bundle
+      # still parsed the payload as a string, so a zero trend rendered "→0"
+      # and a rising trend would have rendered as "no change". build/ is
+      # dir-ignored with an explicit un-ignore allowlist in .gitignore.
+      #
+      # Wipe first, then build, then require a clean `git status --ignored`.
+      # A plain `git diff` after the build (the first version of this step)
+      # could go green on a stale tree in two ways, found by an independent
+      # audit: a NEW webpack entry missing from the .gitignore allowlist builds
+      # an ignored, untracked bundle `git diff` never sees -- while
+      # bin/build-release.py packs the filesystem, not git -- and a DELETED
+      # entry leaves its old tracked bundle untouched. After a wipe-and-build,
+      # every case surfaces in one status: ` M` changed, `!!` built but not
+      # allowlisted, `??` allowlisted but never committed, ` D` committed but
+      # no longer built. Measured 2026-09-19: the build emits exactly the 16
+      # tracked files (4 entries x js / asset.php / css / rtl.css), so a clean
+      # tree reports nothing.
+      - name: Committed React bundles match their source
+        run: |
+          rm -rf build/admin
+          npm run build
+          stale="$(git status --porcelain --ignored -- build/admin)"
+          if [ -n "$stale" ]; then
+            echo "build/admin does not match what the source builds to:"
+            echo "$stale"
+            exit 1
+          fi
+
       - name: JavaScript correctness gate (all shipped JS and JSX)
         run: composer check-js-correctness
 

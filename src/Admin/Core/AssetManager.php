@@ -73,20 +73,6 @@ final class AssetManager {
 	);
 
 	/**
-	 * Component CSS files
-	 */
-	private static array $component_css = array(
-		'mhm-rentiva-stats-cards' => array(
-			'url'  => 'assets/css/components/stats-cards.css',
-			'deps' => array( 'mhm-rentiva-core-css' ),
-		),
-		'mhm-rentiva-calendars'   => array(
-			'url'  => 'assets/css/components/calendars.css',
-			'deps' => array( 'mhm-rentiva-core-css' ),
-		),
-	);
-
-	/**
 	 * Core JS files
 	 */
 	private static array $core_js = array(
@@ -494,21 +480,187 @@ final class AssetManager {
 	}
 
 	/**
-	 * Load component CSS file
+	 * Enqueue one ui-core kit stylesheet for a surface.
 	 *
-	 * @param string $component - Component name
+	 * Guarded because the function was born in ui-core 0.11.0: on a site where an
+	 * older sibling plugin ships the winning copy, the loader serves 0.10.x and the
+	 * function does not exist. An unstyled card is readable; a fatal is not.
+	 *
+	 * @param string $surface 'admin' or 'front'.
+	 * @return string The enqueued handle, or '' when no stylesheet could be loaded.
 	 */
-	public static function enqueue_component_css(string $component): void
-	{
-		if (isset(self::$component_css[ $component ])) {
-			$asset = self::$component_css[ $component ];
-			wp_enqueue_style(
-				$component,
-				self::get_asset_url($asset['url']),
-				$asset['deps'],
-				self::get_file_version($asset['url'])
-			);
+	public static function enqueue_kit( string $surface ): string {
+		if ( ! function_exists( 'mhmuicore_enqueue_kit' ) ) {
+			return '';
 		}
+
+		return mhmuicore_enqueue_kit( $surface, MHMRENTIVA_PLUGIN_PATH . 'vendor/mhm/ui-core' );
+	}
+
+	/**
+	 * The kit's package-constant style handle for a surface, or '' when the
+	 * winning ui-core copy predates the kit (0.10.x has no mhmuicore_kit_handle()).
+	 *
+	 * @param string $surface 'admin' or 'front'.
+	 */
+	public static function kit_handle( string $surface ): string {
+		return function_exists( 'mhmuicore_kit_handle' ) ? mhmuicore_kit_handle( $surface ) : '';
+	}
+
+	/**
+	 * Register -- but do not enqueue -- one kit stylesheet.
+	 *
+	 * For consumers that name the handle as a dependency and let someone else
+	 * enqueue it (Elementor's get_style_depends(): Elementor enqueues a widget's
+	 * dependencies BY HANDLE on wp_enqueue_scripts, so the handle must already be
+	 * registered by then or WordPress drops it without a word).
+	 *
+	 * ui-core has no register-only entry point: mhmuicore_enqueue_kit() owns the
+	 * source resolution (winning copy first, this plugin's own copy as the
+	 * fallback root). Re-deriving that URL here would be a second copy of the
+	 * rule, free to drift from the first. So this asks the package to enqueue --
+	 * which registers -- and takes the handle back out of the queue. Registration
+	 * survives wp_dequeue_style(). If the handle was already enqueued by someone
+	 * else this request, it is left enqueued.
+	 *
+	 * Use for 'admin' / 'front' only: 'pro' also enqueues 'admin' as its own
+	 * dependency, which this would leave behind.
+	 *
+	 * @param string $surface 'admin' or 'front'.
+	 * @return string The registered handle, or '' when no stylesheet could be found.
+	 */
+	public static function register_kit( string $surface ): string {
+		$handle = self::kit_handle( $surface );
+		if ( '' === $handle ) {
+			return '';
+		}
+
+		$was_enqueued = wp_style_is( $handle, 'enqueued' );
+		$registered   = self::enqueue_kit( $surface );
+
+		if ( '' !== $registered && ! $was_enqueued ) {
+			wp_dequeue_style( $registered );
+		}
+
+		return $registered;
+	}
+
+	/**
+	 * Directions the kit renders a delta line for, with their text marks.
+	 * Mirrors MHMUiCore\Kit\StatCard::DIRECTION_MARKS, which the fallback below
+	 * cannot read: it runs exactly when that class is not there.
+	 */
+	private const KIT_DIRECTION_MARKS = array(
+		'up'   => "\u{2191}",
+		'down' => "\u{2193}",
+		'flat' => "\u{2192}",
+	);
+
+	/** Tones the kit accepts (MHMUiCore\Kit\StatCard::TONES). */
+	private const KIT_TONES = array( 'success', 'warning', 'danger', 'info', 'neutral' );
+
+	/**
+	 * A row of KPI cards as HTML: the ui-core kit's when it is loaded, otherwise
+	 * a plain readable rendering of the same card arrays.
+	 *
+	 * The kit renderer is born in ui-core 0.11.0. When an older copy wins the
+	 * loader (a sibling plugin that requires bootstrap.php directly defines
+	 * MHMUICORE_VERSION first and wins, see the package README), the function
+	 * does not exist. The strip used to print NOTHING then -- while
+	 * enqueue_kit()'s own docblock promised the cards stay "readable, merely
+	 * unstyled". The fallback keeps that promise: the kit's class names and
+	 * element shape (so kit CSS that loads later still applies, and the
+	 * Add-ons screen's live counters still find `[data-stat] .mhmui-stat-card__value`),
+	 * every string esc_html()'d, no icon and no inline style.
+	 *
+	 * The return value is NOT an escaping function as far as WPCS and WP.org's
+	 * Plugin Check are concerned (a static method cannot be declared one), so
+	 * every caller echoes it through wp_kses_post(). Both renderings survive
+	 * wp_kses_post() byte for byte -- pinned by KitStatsGridHtmlTest.
+	 *
+	 * @param array<int|string, mixed> $cards     StatCard prop arrays (label, value,
+	 *                                            icon?, tone?, sub?, delta?, emphasis?, data?).
+	 * @param int                      $columns   Column ceiling for the kit grid.
+	 * @param bool                     $allow_kit False forces the fallback. Exists so
+	 *                                            the fallback branch is testable: a
+	 *                                            defined function cannot be undefined
+	 *                                            inside one PHP process.
+	 * @return string HTML, every dynamic value escaped.
+	 */
+	public static function stats_grid_html( array $cards, int $columns, bool $allow_kit = true ): string {
+		if ( $allow_kit && function_exists( 'mhmuicore_stats_grid_html' ) ) {
+			return mhmuicore_stats_grid_html( $cards, $columns );
+		}
+
+		$html = '<div class="mhmui-stats-grid">';
+		foreach ( $cards as $card ) {
+			if ( is_array( $card ) ) {
+				$html .= self::fallback_stat_card_html( $card );
+			}
+		}
+
+		return $html . '</div>';
+	}
+
+	/**
+	 * One card of the fallback rendering. Same element shape and class set as
+	 * MHMUiCore\Kit\StatCard::render_html(), minus the dashicon.
+	 *
+	 * @param array<string, mixed> $card Card props.
+	 */
+	private static function fallback_stat_card_html( array $card ): string {
+		$classes = array( 'mhmui-stat-card' );
+
+		$tone = self::fallback_text( $card['tone'] ?? '' );
+		if ( in_array( $tone, self::KIT_TONES, true ) ) {
+			$classes[] = 'mhmui-stat-card--' . $tone;
+		}
+		if ( true === ( $card['emphasis'] ?? false ) ) {
+			$classes[] = 'mhmui-stat-card--emphasis';
+		}
+
+		$data = '';
+		if ( isset( $card['data'] ) && is_array( $card['data'] ) ) {
+			foreach ( $card['data'] as $key => $value ) {
+				if ( is_string( $key ) && 1 === preg_match( '/^[a-z0-9-]{1,32}$/', $key )
+					&& ( is_string( $value ) || is_int( $value ) || is_float( $value ) )
+				) {
+					$data .= ' data-' . $key . '="' . esc_attr( (string) $value ) . '"';
+				}
+			}
+		}
+
+		$line  = '';
+		$delta = $card['delta'] ?? null;
+		if ( is_array( $delta ) && isset( self::KIT_DIRECTION_MARKS[ self::fallback_text( $delta['direction'] ?? '' ) ] ) ) {
+			$direction = self::fallback_text( $delta['direction'] );
+			$label     = self::fallback_text( $delta['label'] ?? '' );
+			$line      = '<p class="' . esc_attr( 'mhmui-stat-card__delta mhmui-stat-card__delta--' . $direction ) . '" data-direction="' . esc_attr( $direction ) . '">'
+				. '<span class="mhmui-stat-card__delta-mark" aria-hidden="true">' . esc_html( self::KIT_DIRECTION_MARKS[ $direction ] ) . '</span>'
+				. ( '' === $label ? '' : '<span class="mhmui-stat-card__delta-sr">' . esc_html( $label . ' ' ) . '</span>' )
+				. esc_html( self::fallback_text( $delta['text'] ?? '' ) ) . '</p>';
+		} else {
+			$sub = self::fallback_text( $card['sub'] ?? '' );
+			if ( '' !== $sub ) {
+				$line = '<p class="mhmui-stat-card__sub">' . esc_html( $sub ) . '</p>';
+			}
+		}
+
+		return '<div class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $data . '>'
+			. '<div class="mhmui-stat-card__body">'
+			. '<p class="mhmui-stat-card__label">' . esc_html( self::fallback_text( $card['label'] ?? '' ) ) . '</p>'
+			. '<p class="mhmui-stat-card__value">' . esc_html( self::fallback_text( $card['value'] ?? '' ) ) . '</p>'
+			. $line
+			. '</div></div>';
+	}
+
+	/**
+	 * A string/int/float prop as a string; anything else (bool, array, null) as ''.
+	 *
+	 * @param mixed $value Anything.
+	 */
+	private static function fallback_text( $value ): string {
+		return ( is_string( $value ) || is_int( $value ) || is_float( $value ) ) ? (string) $value : '';
 	}
 
 	/**
@@ -607,14 +759,6 @@ final class AssetManager {
 				);
 				break;
 		}
-	}
-
-	/**
-	 * Load stats cards CSS
-	 */
-	public static function enqueue_stats_cards(): void
-	{
-		self::enqueue_component_css('mhm-stats-cards');
 	}
 
 	/**

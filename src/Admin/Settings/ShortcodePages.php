@@ -145,6 +145,7 @@ final class ShortcodePages {
 		}
 
 		AssetManager::enqueue_react_page( 'shortcode-pages' );
+		AssetManager::enqueue_kit( 'admin' );
 
 		wp_enqueue_style(
 			'mhm-rentiva-shortcode-pages',
