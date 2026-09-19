@@ -135,7 +135,7 @@ if (! $user_display_name) {
 				}
 				?>
 				<div class="mhm-rentiva-dashboard__strip">
-					<?php echo function_exists('mhmuicore_stats_grid_html') ? mhmuicore_stats_grid_html($dashboard_cards, 3) : ''; ?>
+					<?php echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $dashboard_cards, 3 ) ); ?>
 				</div>
 
 				<div class="mhm-rentiva-dashboard__overview-grid">

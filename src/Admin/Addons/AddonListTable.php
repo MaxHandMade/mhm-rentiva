@@ -137,9 +137,7 @@ final class AddonListTable {
 		);
 
 		echo '<div class="mhmui-admin">';
-		echo function_exists( 'mhmuicore_stats_grid_html' )
-			? mhmuicore_stats_grid_html( $cards, 4 )
-			: '';
+		echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $cards, 4 ) );
 		echo '</div>';
 	}
 

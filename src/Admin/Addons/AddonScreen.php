@@ -860,7 +860,7 @@ final class AddonScreen {
 			),
 		);
 
-		echo function_exists( 'mhmuicore_stats_grid_html' ) ? mhmuicore_stats_grid_html( $cards, 4 ) : '';
+		echo wp_kses_post( AssetManager::stats_grid_html( $cards, 4 ) );
 	}
 
 	/**

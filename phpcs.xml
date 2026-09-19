@@ -40,20 +40,12 @@
 	<rule ref="WordPress.DB"/>
 
 	<!--
-	ui-core kit HTML renderers (mhmuicore_stat_card_html / mhmuicore_stats_grid_html)
-	escape every prop themselves before returning the string (see StatCard::render_html /
-	StatsGrid::render_html in vendor/mhm/ui-core), so echoing their return value is not
-	unescaped output. Documented in vendor/mhm/ui-core/README.md's own phpcs.xml example.
+	No customEscapingFunctions, on purpose. WP.org's Plugin Check (gate G-D) never
+	reads this file, so a function declared "escaping" here is still unescaped output
+	to the reviewer: a local gate more lenient than the acceptance bar. That is how
+	six kit echoes reached CI red (2026-09-19). Escape at the echo instead.
 	-->
-	<rule ref="WordPress.Security.EscapeOutput">
-		<properties>
-			<property name="customEscapingFunctions" type="array">
-				<element value="mhmuicore_stat_card_html"/>
-				<element value="mhmuicore_stats_grid_html"/>
-			</property>
-		</properties>
-	</rule>
-	
+
 	<!-- Enforce strict types -->
 	<rule ref="Generic.PHP.RequireStrictTypes"/>
 
