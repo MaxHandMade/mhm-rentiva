@@ -2884,68 +2884,6 @@
 
 }
 
-
-
-/* ===== DARK MODE SUPPORT ===== */
-
-@media (prefers-color-scheme: dark) {
-
-	.rv-booking-form {
-
-		background: var(--mhm-gray-800);
-
-		color: var(--mhm-gray-50);
-
-	}
-
-
-
-	.rv-form-section {
-
-		background: var(--mhm-gray-700);
-
-		border-color: var(--mhm-gray-600);
-
-	}
-
-
-
-	.rv-section-title {
-
-		color: var(--mhm-gray-50);
-
-	}
-
-
-
-	.rv-input,
-
-	.rv-select {
-
-		background: var(--mhm-gray-700);
-
-		border-color: var(--mhm-gray-600);
-
-		color: var(--mhm-gray-50);
-
-	}
-
-
-
-	.rv-input:focus,
-
-	.rv-select:focus {
-
-		border-color: var(--mhm-primary);
-
-		background: var(--mhm-gray-700);
-
-	}
-
-}
-
-
-
 /* ===== AVAILABILITY STATUS ===== */
 
 .rv-availability-status {

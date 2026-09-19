@@ -608,10 +608,13 @@
 }
 
 /* ── Light-committed text colors ──
-   css-variables.css flips --mhm-text-* to light values under
-   prefers-color-scheme: dark while this skin pins light surfaces, which
-   washed the cell text out (measured). The refined screen commits to the
-   light look in both schemes, so text colors are pinned explicitly. */
+   Pinned when css-variables.css still flipped --mhm-text-* to light values
+   under prefers-color-scheme: dark, which washed the cell text out against
+   this skin's light surfaces (measured). That flip was removed on
+   2026-09-19 -- no stylesheet follows the OS preference any more except
+   behind the plugin's own Dark Mode body class, see
+   tests/Gates/NoOsDarkModeWithoutOptInTest.php -- and the pins stay because
+   they are this screen's own colours, not a workaround. */
 .mhm-booking-list .date-info .date-range,
 .mhm-booking-list .total-amount,
 .mhm-booking-list .vehicle-info .vehicle-name,

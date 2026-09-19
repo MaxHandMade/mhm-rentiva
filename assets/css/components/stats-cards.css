@@ -725,23 +725,6 @@
 	}
 }
 
-/* === DARK MODE === */
-
-@media (prefers-color-scheme: dark) {
-	.stat-card {
-		background: var(--mhm-bg-card);
-		border-color: var(--mhm-border-primary);
-	}
-
-	.stat-card:hover {
-		border-color: var(--mhm-border-secondary);
-	}
-
-	.stat-card.loading .stat-number {
-		background: var(--mhm-gray-700);
-	}
-}
-
 /* WordPress Admin Dark Mode */
 body.wp-admin.wp-theme-dark .stat-card {
 	background: var(--mhm-bg-card);
