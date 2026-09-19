@@ -326,20 +326,6 @@
 	}
 }
 
-/* === DARK MODE === */
-
-@media (prefers-color-scheme: dark) {
-	.calendar-container {
-		background: var(--mhm-bg-card);
-		border-color: var(--mhm-border-primary);
-	}
-
-	.calendar-header {
-		background: var(--mhm-bg-secondary);
-		border-bottom-color: var(--mhm-border-primary);
-	}
-}
-
 /* WordPress Admin Dark Mode */
 body.wp-admin.wp-theme-dark .calendar-container {
 	background: var(--mhm-bg-card);

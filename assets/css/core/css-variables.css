@@ -266,16 +266,3 @@
 .wp-block-mhm-rentiva-search * {
 	box-sizing: border-box !important;
 }
-
-/* === DARK MODE === */
-@media (prefers-color-scheme: dark) {
-	:root {
-		--mhm-bg-primary: var(--mhm-gray-900);
-		--mhm-bg-secondary: var(--mhm-gray-800);
-		--mhm-bg-tertiary: var(--mhm-gray-700);
-		--mhm-bg-card: var(--mhm-gray-800);
-		--mhm-text-primary: var(--mhm-gray-100);
-		--mhm-text-secondary: var(--mhm-gray-300);
-		--mhm-border-primary: var(--mhm-gray-700);
-	}
-}

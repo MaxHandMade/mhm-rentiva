@@ -459,28 +459,6 @@
 	}
 }
 
-/* ===== DARK MODE ===== */
-@media (prefers-color-scheme: dark) {
-	.rv-testimonials {
-		--rv-t-card-bg: #1e293b;
-		--rv-t-card-border: #334155;
-		--rv-t-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15);
-		--rv-t-card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.2);
-		--rv-t-quote-color: #94a3b8;
-		--rv-t-text-primary: #f1f5f9;
-		--rv-t-text-secondary: #94a3b8;
-		--rv-t-text-review: #cbd5e1;
-	}
-
-	.rv-testimonial-author {
-		border-top-color: #334155;
-	}
-
-	.rv-avatar-placeholder {
-		background: #475569;
-	}
-}
-
 /* ===== ACCESSIBILITY ===== */
 .rv-carousel-prev:focus-visible,
 .rv-carousel-next:focus-visible,
