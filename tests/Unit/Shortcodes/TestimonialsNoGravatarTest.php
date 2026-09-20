@@ -101,7 +101,7 @@ final class TestimonialsNoGravatarTest extends WP_UnitTestCase
      * Tree-wide backstop (B-G1b review finding #3): PHPUnit's own copy of the
      * task brief's acceptance-bar grep --
      *   grep -rniE "gravatar|get_avatar" templates/ src/
-     * -- so vehicle-rating-form.php, user-dashboard.php, and any future
+     * -- so vehicle-rating-form.php, booking-detail.php, and any future
      * template/class that reintroduces Gravatar fail a test automatically,
      * not just a manual grep someone has to remember to run. This also
      * catches a bare get_avatar() call on its own, which

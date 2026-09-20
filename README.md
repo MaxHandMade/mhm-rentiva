@@ -191,7 +191,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
   - Password management
 
 **Customer Portal Shortcodes:**
-- `[rentiva_user_dashboard]` - Main account dashboard (Login/Register/Account)
+- `[rentiva_user_dashboard]` - Deprecated in 6.2.0. Renders a notice pointing customers to the WooCommerce account page; removed in 7.0.
 - `[rentiva_my_bookings]` - Booking history
 - `[rentiva_my_favorites]` - Favorite vehicles
 - `[rentiva_payment_history]` - Payment transactions
@@ -558,8 +558,9 @@ The plugin will automatically create pages for shortcodes, or you can create the
 - Favorites page (use `[rentiva_my_favorites]` shortcode)
 - Vehicle comparison page (use `[rentiva_vehicle_comparison]` shortcode)
 
-> Login and registration are handled by the WooCommerce My Account page; `[rentiva_user_dashboard]`
-> renders the login/register/account views on a page of your own if you prefer.
+> Login and registration are handled by the WooCommerce My Account page. `[rentiva_user_dashboard]`
+> is deprecated in 6.2.0 — it now renders a notice pointing customers to that page and will be
+> removed in 7.0; do not use it for new pages.
 
 The `Rentiva > Shortcode Pages` tool creates any of these for you in one click.
 
@@ -648,7 +649,7 @@ The plugin registers **16 shortcodes** across booking, account and supporting su
 - `[rentiva_vehicle_comparison]` — Side-by-side vehicle comparison.
 
 ### Customer Account (4)
-- `[rentiva_user_dashboard]` — Customer main dashboard.
+- `[rentiva_user_dashboard]` — Deprecated in 6.2.0; renders a notice pointing customers to the WooCommerce account page. Removed in 7.0.
 - `[rentiva_my_bookings]` — Customer's current and past bookings (WC My Account sub-route).
 - `[rentiva_my_favorites]` — Customer's favorite vehicles (WC My Account sub-route).
 - `[rentiva_payment_history]` — Payment history and receipt details.

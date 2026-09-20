@@ -2,13 +2,14 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "mhm-rentiva/user-dashboard",
-    "title": "MHM User Dashboard",
+    "title": "MHM User Dashboard (deprecated)",
     "category": "widgets",
     "icon": "admin-users",
-    "description": "Display the vendor or customer dashboard panel.",
+    "description": "Deprecated: this block renders a notice pointing customers to the WooCommerce account page. It will be removed in 7.0.",
     "textdomain": "mhm-rentiva",
     "supports": {
         "html": false,
+        "inserter": false,
         "anchor": true,
         "className": true,
         "customClassName": true,
@@ -46,11 +47,5 @@
             "type": "string",
             "default": ""
         }
-    },
-    "editorStyle": [
-        "mhm-rentiva-core-variables"
-    ],
-    "style": [
-        "mhm-rentiva-user-dashboard"
-    ]
+    }
 }

@@ -191,7 +191,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
   - Ödeme geçmişi
 
 **Hesap Shortcode'ları:**
-- `[rentiva_user_dashboard]` - Müşteri panosu (giriş durumuna göre içerik değişir)
+- `[rentiva_user_dashboard]` - 6.2.0'da kullanımdan kaldırılmıştır; müşterileri WooCommerce Hesabım sayfasına yönlendiren bir uyarı gösterir, 7.0'da kaldırılacaktır.
 - `[rentiva_my_bookings]` - Rezervasyon geçmişi
 - `[rentiva_my_favorites]` - Favori araçlar
 - `[rentiva_payment_history]` - Ödeme işlemleri
@@ -369,7 +369,7 @@ etkinleşmez.
 Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel olarak oluşturabilirsiniz:
 
 **Gerekli Sayfalar:**
-- Panel sayfası (`[rentiva_user_dashboard]` kullanın - Giriş/Kayıt ve Hesap yönetimi için)
+- Hesabım sayfası (WooCommerce tarafından yönetilir; giriş, kayıt ve hesap yönetimi burada yapılır — `[rentiva_user_dashboard]` 6.2.0'da kullanımdan kaldırılmıştır, kullanmayın)
 - Rezervasyon Formu sayfası (`[rentiva_booking_form]` kullanın)
 - Araç Listesi/Grid sayfası (`[rentiva_vehicles_grid]` veya `[rentiva_vehicles_list]`)
 
@@ -481,7 +481,7 @@ Eklenti, esnek yerleşimler için kapsamlı bir shortcode setine sahiptir.
 - `[rentiva_vehicle_rating_form]` — Araç değerlendirme formu.
 
 ### Müşteri Paneli
-- `[rentiva_user_dashboard]` — Müşteri ana panosu.
+- `[rentiva_user_dashboard]` — 6.2.0'da kullanımdan kaldırılmıştır; müşterileri WooCommerce Hesabım sayfasına yönlendiren bir uyarı gösterir. 7.0'da kaldırılacaktır.
 - `[rentiva_my_bookings]` — Müşterinin mevcut ve geçmiş rezervasyonları.
 - `[rentiva_my_favorites]` — Favoriye eklenen araçlar listesi.
 - `[rentiva_payment_history]` — Ödeme geçmişi ve makbuz detayları.

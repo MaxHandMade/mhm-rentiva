@@ -79,11 +79,15 @@ final class LitePaidSurfaceRemovalTest extends TestCase
 
         foreach (
             array(
+                // DashboardContext.php, DashboardNavigation.php and
+                // templates/account/user-dashboard.php were watched here until
+                // 2026-09-20. The customer dashboard was retired and all three
+                // were deleted, so the two files below are what is left of the
+                // surface this assertion guards. The claim is unchanged: no
+                // reachable vendor contract token in Lite's boot or dashboard
+                // shortcode.
                 'src/Plugin.php',
-                'src/Core/Dashboard/DashboardContext.php',
-                'src/Core/Dashboard/DashboardNavigation.php',
                 'src/Admin/Frontend/Shortcodes/Account/UserDashboard.php',
-                'templates/account/user-dashboard.php',
             ) as $relative
         ) {
             $source = strtolower((string) file_get_contents($root . $relative));

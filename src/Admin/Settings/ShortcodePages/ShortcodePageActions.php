@@ -18,6 +18,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class ShortcodePageActions {
 
+	/**
+	 * Tags that no longer get a "create a page" button, but are still scanned
+	 * and still cleaned up by factory reset.
+	 *
+	 * A retired tag is not gone: sites have it embedded, and the owner needs to
+	 * find those pages to remove it. Only the offer to create NEW pages goes.
+	 * Titles are built in retired_label(), not here: a const cannot call __().
+	 *
+	 * @var string[]
+	 */
+	private const RETIRED_TAGS = array( 'rentiva_user_dashboard' );
+
+	private function retired_label( string $tag ): string {
+		$labels = array(
+			'rentiva_user_dashboard' => __( 'User Dashboard (deprecated)', 'mhm-rentiva' ),
+		);
+
+		return $labels[ $tag ] ?? $tag;
+	}
 
 	/**
 	 * Get shortcode page configurations that this build can render.
@@ -102,11 +121,6 @@ final class ShortcodePageActions {
 				'title'       => __( 'Featured Vehicles', 'mhm-rentiva' ),
 				'slug'        => 'featured-vehicles',
 				'description' => __( 'Featured vehicles showcase - highlights recommended vehicles', 'mhm-rentiva' ),
-			),
-			'rentiva_user_dashboard'        => array(
-				'title'       => __( 'User Dashboard', 'mhm-rentiva' ),
-				'slug'        => 'demo-user-dashboard',
-				'description' => __( 'Customer dashboard - booking, favorite and account summary', 'mhm-rentiva' ),
 			),
 		);
 
@@ -216,7 +230,7 @@ final class ShortcodePageActions {
 	 * @return int Number of pages deleted.
 	 */
 	public function reset_pages(): int {
-		$shortcodes    = array_keys( $this->get_config() );
+		$shortcodes    = array_merge( array_keys( $this->get_config() ), self::RETIRED_TAGS );
 		$settings      = get_option( 'mhmrentiva_settings', array() );
 		$deleted_count = 0;
 
@@ -317,7 +331,15 @@ final class ShortcodePageActions {
 		 */
 		$widget_map = (array) apply_filters( 'mhmrentiva_shortcode_widget_map', self::ELEMENTOR_WIDGET_MAP );
 
+		$scan = array();
 		foreach ( $config as $slug => $info ) {
+			$scan[ $slug ] = (string) $info['title'];
+		}
+		foreach ( self::RETIRED_TAGS as $slug ) {
+			$scan[ $slug ] = ( new self() )->retired_label( $slug );
+		}
+
+		foreach ( $scan as $slug => $label ) {
 			// Block names follow one convention (BlockRegistry):
 			// rentiva_availability_calendar → mhm-rentiva/availability-calendar.
 			$block_needle = '<!-- wp:mhm-rentiva/' . str_replace( '_', '-', (string) preg_replace( '/^rentiva_/', '', $slug ) );
@@ -354,7 +376,7 @@ final class ShortcodePageActions {
 			}
 			$results[] = array(
 				'slug'     => $slug,
-				'label'    => $info['title'],
+				'label'    => $label,
 				'found_in' => $found_in,
 			);
 		}
