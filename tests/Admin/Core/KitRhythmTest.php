@@ -37,4 +37,29 @@ final class KitRhythmTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( '> .mhmui-stats-grid', AssetManager::STRIP_RHYTHM_CSS );
 		$this->assertStringStartsWith( '.mhm-kpi-strip > .mhmui-stats-grid{', AssetManager::STRIP_RHYTHM_CSS );
 	}
+
+	/**
+	 * @dataProvider php_strip_producers
+	 */
+	public function test_every_php_strip_wrapper_carries_the_product_class( string $file ): void {
+		$source = file_get_contents( MHMRENTIVA_PLUGIN_PATH . $file );
+		$this->assertIsString( $source );
+		$this->assertMatchesRegularExpression(
+			'/class="[^"]*\bmhm-kpi-strip\b[^"]*"/',
+			$source,
+			$file . ' renders a KPI strip, so its wrapper must carry mhm-kpi-strip.'
+		);
+	}
+
+	/** @return array<string, array{0: string}> */
+	public static function php_strip_producers(): array {
+		// Measured 2026-09-21. A new producer added without a row here is the
+		// failure this provider exists to catch.
+		return array(
+			'addon list table' => array( 'src/Admin/Addons/AddonListTable.php' ),
+			'addon screen'     => array( 'src/Admin/Addons/AddonScreen.php' ),
+			'booking columns'  => array( 'src/Admin/Booking/ListTable/BookingColumns.php' ),
+			'vehicle columns'  => array( 'src/Admin/Vehicle/ListTable/VehicleColumns.php' ),
+		);
+	}
 }
