@@ -10,13 +10,22 @@ use WP_UnitTestCase;
  * A stylesheet that reads a token must be guaranteed the file that defines it.
  *
  * Measured 2026-08-27: the paid plugin registers the free plugin's
- * user-dashboard.css with an empty dependency array (VendorLedger.php:36, and
- * the same shape at VendorBookings.php:44). Today that is survivable only
- * because every one of those stylesheets carries its own copied block of
- * `--mhm-*` declarations. The slice that deletes those copies removes the only
- * thing keeping those pages coloured -- so the copies cannot go until the
- * dependency is real. Of the paid plugin's 32 registrations, exactly 2 name the
- * canonical handle, and both of those are admin.
+ * bookings-page.css with an empty dependency array (VendorBookings.php:44, and
+ * the same shape at VendorLedger.php for user-dashboard.css). Today that is
+ * survivable only because every one of those stylesheets carries its own copied
+ * block of `--mhm-*` declarations. The slice that deletes those copies removes
+ * the only thing keeping those pages coloured -- so the copies cannot go until
+ * the dependency is real. Of the paid plugin's 32 registrations, exactly 2 name
+ * the canonical handle, and both of those are admin.
+ *
+ * Re-measured 2026-09-20: user-dashboard.css is no longer one of the examples.
+ * The customer dashboard was retired and the only `var(--mhm-*)` read in that
+ * file (`__user-avatar-initials`) went with the rules it belonged to, so the
+ * file is no longer a token-reading stylesheet and the scanner no longer
+ * considers VendorLedger's dependency-free registration of it. VendorBookings'
+ * registration of bookings-page.css (3 token reads, still measured) carries the
+ * same shape and is now the live example. Nothing in this gate's assertions
+ * moved: they all run against synthetic fixture trees, never the real repo.
  *
  * The definition gate (bin/check-token-definitions.php) knows WHICH files read
  * tokens. This gate knows whether a registration reaches the canonical handle.

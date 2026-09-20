@@ -474,12 +474,6 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
 			count: 4
 			path: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 
@@ -1208,18 +1202,6 @@ parameters:
 			identifier: constant.notFound
 			count: 8
 			path: src/Blocks/BlockRegistry.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Core/Dashboard/CustomerDashboard.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\TrendService\:\:resolve_metric_totals\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Core/Services/TrendService.php
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'

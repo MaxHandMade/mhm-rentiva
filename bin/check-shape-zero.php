@@ -112,7 +112,10 @@ $allowedByFile = [
     'CustomersPage.php'          => 4,
     'EmailTemplates.php'         => 2,
     'AccountController.php'      => 6,
-    'UserDashboard.php'          => 2,
+    // UserDashboard.php'ın 2 kalıntısı 2026-09-20'de DÜŞTÜ: müşteri panosu
+    // emekliye ayrıldı, dosya artık $_GET okumayan bir vekil. Ölçüldü:
+    // vendor/bin/phpcs --report=json .../UserDashboard.php -> 0 uyarı.
+    // Tavan bu dizinin toplamı olduğu için 22'den 20'ye iner.
     'Settings.php'               => 2,
     'SetupWizard.php'            => 2,
     'VehicleSettings.php'        => 2,
@@ -147,7 +150,11 @@ foreach ($violations as [$f, $l, $s]) {
 
     $hard[] = "$f:$l  $s";
 }
-$CEILING = 22; // 2026-08-08 gerçek Plugin Check satır envanteri; bir daha ARTAMAZ.
+// 2026-08-08 gerçek Plugin Check satır envanteri; bir daha ARTAMAZ.
+// 2026-09-20: 22 -> 20. Müşteri panosu emekliye ayrıldı, UserDashboard.php'nin
+// $_GET okuyan kodu gitti, dosyada 0 uyarı kaldı (ölçüldü: phpcs --report=json).
+// Tavan yukarıdaki $allowedByFile toplamıyla aynı kalmalı; İNDİRİLDİ.
+$CEILING = 20;
 $overCeiling = [];
 foreach ($residualByFile as $file => $count) {
     if ($count > $allowedByFile[$file]) {

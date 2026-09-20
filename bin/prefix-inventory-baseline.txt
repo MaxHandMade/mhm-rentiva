@@ -891,7 +891,6 @@
 'mhmrentiva_refund_msg'
 'mhmrentiva_register_settings_providers'
 'mhmrentiva_register_url'
-'mhmrentiva_registered_metrics'
 'mhmrentiva_remove_blocked_from_all'
 'mhmrentiva_render_email_type'
 'mhmrentiva_render_settings_tab'

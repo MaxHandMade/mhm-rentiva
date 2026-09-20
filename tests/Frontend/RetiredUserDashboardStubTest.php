@@ -56,22 +56,52 @@ final class RetiredUserDashboardStubTest extends \WP_UnitTestCase {
         $this->assertStringContainsString('<!-- customer -->', UserDashboard::render());
     }
 
-    /** The dashboard pipeline is gone; the stub must not reach for it. */
+    /**
+     * The dashboard pipeline is gone; the stub must not reach for it.
+     *
+     * This used to hang a callback on `mhmrentiva_dashboard_data` and assert it
+     * never fired. That worked while the pipeline still existed. Once the
+     * pipeline was deleted (2026-09-20) no apply_filters() for that name was
+     * left in Lite, so the callback could not have fired whatever the stub did
+     * -- the test would have gone on passing over a stub that had been rewritten
+     * to rebuild the whole dashboard by hand. A test that cannot fail is not a
+     * test.
+     *
+     * The claim is the same one, pinned at the source instead: the stub's own
+     * file must not name any class of the retired pipeline. That fails the
+     * moment someone writes `use MHMRentiva\Core\Dashboard\DashboardContext;`
+     * back into it, which is the actual regression being guarded against.
+     */
     public function test_the_stub_builds_no_dashboard_data(): void
     {
-        wp_set_current_user($this->factory->user->create(array( 'role' => 'customer' )));
-        $called = false;
-        add_filter(
-            'mhmrentiva_dashboard_data',
-            static function ($data) use (&$called) {
-                $called = true;
-                return $data;
-            }
+        $path   = dirname(__DIR__, 2) . '/src/Admin/Frontend/Shortcodes/Account/UserDashboard.php';
+        $source = (string) file_get_contents($path);
+
+        // Positive control: a path typo or a moved file would otherwise let
+        // every assertion below pass against an empty string.
+        $this->assertStringContainsString(
+            'class UserDashboard',
+            $source,
+            'Positive control: the stub source was not read.'
         );
 
-        UserDashboard::render();
-
-        $this->assertFalse($called, 'The stub still runs the retired dashboard pipeline.');
+        foreach (
+            array(
+                'DashboardContext',
+                'DashboardDataProvider',
+                'DashboardNavigation',
+                'DashboardConfig',
+                'CustomerDashboard',
+                'MetricRegistry',
+                'TrendService',
+            ) as $retired_class
+        ) {
+            $this->assertStringNotContainsString(
+                $retired_class,
+                $source,
+                "The stub reaches for the retired dashboard pipeline again: {$retired_class}."
+            );
+        }
     }
 
     public function test_register_wires_only_the_panel_guard(): void

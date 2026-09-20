@@ -55,12 +55,17 @@ final class A10TemplateCarveTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * templates/account/ still exists in Lite -- it keeps user-dashboard.php,
-	 * account-details.php, bookings.php, favorites.php, etc. Only the three
-	 * Pro-only files above were removed from it.
+	 * templates/account/ still exists in Lite -- it keeps account-details.php,
+	 * bookings.php, favorites.php, etc. Only the three Pro-only files above
+	 * were removed from it by Task A10.
+	 *
+	 * The positive control used to be user-dashboard.php. That template was
+	 * deleted on 2026-09-20 with the customer dashboard's retirement -- for a
+	 * reason that has nothing to do with A10's carve -- so the control moved to
+	 * account-details.php, a Lite-owned account template A10 never touched.
 	 */
 	public function test_account_templates_directory_still_exists_with_lite_owned_files(): void {
 		$this->assertDirectoryExists( MHMRENTIVA_PLUGIN_PATH . 'templates/account' );
-		$this->assertFileExists( MHMRENTIVA_PLUGIN_PATH . 'templates/account/user-dashboard.php' );
+		$this->assertFileExists( MHMRENTIVA_PLUGIN_PATH . 'templates/account/account-details.php' );
 	}
 }

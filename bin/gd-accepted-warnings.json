@@ -16,7 +16,6 @@
         "src/Admin/Customers/CustomersPage.php|WordPress.Security.NonceVerification.Recommended": 4,
         "src/Admin/Emails/Core/EmailTemplates.php|WordPress.Security.NonceVerification.Recommended": 2,
         "src/Admin/Frontend/Account/AccountController.php|WordPress.Security.NonceVerification.Recommended": 6,
-        "src/Admin/Frontend/Shortcodes/Account/UserDashboard.php|WordPress.Security.NonceVerification.Recommended": 2,
         "src/Admin/Settings/Settings.php|WordPress.Security.NonceVerification.Recommended": 2,
         "src/Admin/Setup/SetupWizard.php|WordPress.Security.NonceVerification.Recommended": 2,
         "src/Admin/Utilities/Uninstall/Uninstaller.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 1,
