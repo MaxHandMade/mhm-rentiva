@@ -494,8 +494,34 @@ final class AssetManager {
 			return '';
 		}
 
-		return mhmuicore_enqueue_kit( $surface, MHMRENTIVA_PLUGIN_PATH . 'vendor/mhm/ui-core' );
+		$handle = mhmuicore_enqueue_kit( $surface, MHMRENTIVA_PLUGIN_PATH . 'vendor/mhm/ui-core' );
+
+		if ( '' !== $handle && 'admin' === $surface ) {
+			wp_add_inline_style( $handle, self::STRIP_RHYTHM_CSS );
+		}
+
+		return $handle;
 	}
+
+	/**
+	 * The KPI strip's vertical rhythm, owned here rather than by the package.
+	 *
+	 * ui-core 0.14.0 moved the strip's rhythm from the component to the page
+	 * shell (`.mhmui-admin-page > * + :is( .mhmui-stats-grid, ... )`). That rule
+	 * needs the grid to be a DIRECT child of the shell AND to have a preceding
+	 * element sibling. Measured 2026-09-21: of Rentiva's 15 affected strips,
+	 * exactly two satisfy both -- three sit on core's `edit.php`, one in a
+	 * dashboard postbox, and the rest are a level too deep or are the shell's
+	 * first child. Owning the rule here also survives the field window where a
+	 * site runs one plugin upgraded and the other not: the winning ui-core copy
+	 * decides which package CSS loads, but this rule is ours either way.
+	 *
+	 * It targets the GRID, not the wrapper, at (0,2,0). While 0.13.1 is still
+	 * installed the package's own `.mhmui-stats-grid { margin-top: 16px }` is
+	 * live at (0,1,0); same element, higher specificity, so the two never add up
+	 * and the measured value does not change across the upgrade.
+	 */
+	public const STRIP_RHYTHM_CSS = '.mhm-kpi-strip > .mhmui-stats-grid{margin-block-start:16px}';
 
 	/**
 	 * The kit's package-constant style handle for a surface, or '' when the
