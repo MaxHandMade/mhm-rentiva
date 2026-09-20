@@ -53,8 +53,13 @@ final class KitRhythmTest extends WP_UnitTestCase {
 
 	/** @return array<string, array{0: string}> */
 	public static function php_strip_producers(): array {
-		// Measured 2026-09-21. A new producer added without a row here is the
-		// failure this provider exists to catch.
+		// Measured 2026-09-21. This only catches a LISTED producer losing the
+		// class from its source; it cannot catch a producer added with no row
+		// here (silent, since the suite stays green), and the regex is a
+		// presence check, not a structure check, so it cannot catch the class
+		// landing on the wrong element. The direct-parent invariant is
+		// enforced for real by the browser matrix (Task 6), which reads the
+		// computed margin on every screen.
 		return array(
 			'addon list table' => array( 'src/Admin/Addons/AddonListTable.php' ),
 			'addon screen'     => array( 'src/Admin/Addons/AddonScreen.php' ),

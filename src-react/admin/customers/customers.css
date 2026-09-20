@@ -21,10 +21,13 @@
 	margin-bottom: 18px;
 }
 
-/* The KPI strip now renders through the ui-core kit (.mhmui-stats-grid); this
- * is the layout half that used to live on .rv-cust-kpis -- it stays here
- * because .rv-cust-topbar is a Customers-screen concern, not the kit's. */
-:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-topbar > .mhmui-stats-grid {
+/* The KPI strip now renders through the ui-core kit (.mhmui-stats-grid), wrapped
+ * in .mhm-kpi-strip (StatsCards.jsx) for the rhythm rule in AssetManager -- that
+ * wrapper is the direct flex child of .rv-cust-topbar now, not the grid itself,
+ * so this rule targets it. This is the layout half that used to live on
+ * .rv-cust-kpis -- it stays here because .rv-cust-topbar is a Customers-screen
+ * concern, not the kit's. */
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-topbar > .mhm-kpi-strip {
 	flex: 1 1 640px;
 }
 
