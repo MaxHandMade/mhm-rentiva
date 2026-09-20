@@ -20,7 +20,7 @@ class UserDashboardWidget extends ElementorWidgetBase {
 	}
 
 	public function get_title(): string {
-		return __( 'User Dashboard', 'mhm-rentiva' );
+		return __( 'User Dashboard (deprecated)', 'mhm-rentiva' );
 	}
 
 	public function get_icon(): string {
@@ -28,18 +28,28 @@ class UserDashboardWidget extends ElementorWidgetBase {
 	}
 
 	/**
-	 * The ui-core kit's front stylesheet, declared so Elementor enqueues it on
-	 * wp_enqueue_scripts (its page-assets pass) and the <link> lands in <head>.
-	 * Left to the shortcode's render-time enqueue it would print in the footer.
-	 * The handle is registered early by UserDashboard::register_kit_style();
-	 * empty when the winning ui-core predates the kit.
+	 * Hidden from the widget panel and from its search: this surface is retired,
+	 * so no one should place a new one. Elementor keeps rendering the widgets
+	 * already placed on a page -- registration is unaffected by either method
+	 * (Elementor 4.1.4, includes/base/widget-base.php:240,253).
+	 */
+	public function show_in_panel(): bool {
+		return false;
+	}
+
+	public function hide_on_search(): bool {
+		return true;
+	}
+
+	/**
+	 * The stub carries no styles, so it depends on none. The kit handle this
+	 * used to name is no longer registered by UserDashboard, and Elementor drops
+	 * an unregistered handle silently.
 	 *
 	 * @return string[]
 	 */
 	public function get_style_depends(): array {
-		$handle = \MHMRentiva\Admin\Core\AssetManager::kit_handle( 'front' );
-
-		return '' === $handle ? array() : array( $handle );
+		return array();
 	}
 
 	protected function register_content_controls(): void {
@@ -55,7 +65,7 @@ class UserDashboardWidget extends ElementorWidgetBase {
 			'info',
 			array(
 				'type'            => 'raw_html',
-				'raw'             => __( 'Displays the vendor or customer dashboard panel. Output is determined automatically by the logged-in user\'s role.', 'mhm-rentiva' ),
+				'raw'             => __( 'Deprecated: this widget renders a notice pointing customers to the WooCommerce account page. Remove it from this page; it will stop working in 7.0.', 'mhm-rentiva' ),
 				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
 			)
 		);

@@ -130,7 +130,9 @@ class BlockRegistry {
 		'user-dashboard'        => array(
 			'tag'   => 'rentiva_user_dashboard',
 			'title' => 'User Dashboard',
-			'css'   => 'user-dashboard.css',
+			// Retired surface: the stub needs no stylesheet. The key stays --
+			// registration reads $config['css'] without isset() (see :434).
+			'css'   => array(),
 		),
 	);
 
