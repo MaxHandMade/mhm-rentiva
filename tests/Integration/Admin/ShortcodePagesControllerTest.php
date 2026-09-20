@@ -67,12 +67,14 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey( 'shortcodes', $data );
         $this->assertArrayHasKey( 'stats', $data );
-        // 16, not the monolith's 26: get_config() drops the 10 carved-out Pro
-        // shortcodes, which this tool used to offer and publish as literal text.
-        // Kept as an explicit count so re-adding an unrenderable entry fails here.
-        // See ShortcodePagesLiteSeamTest for the seam itself.
-        $this->assertCount( 16, $data['shortcodes'] );
-        $this->assertSame( 16, (int) $data['stats']['total'] );
+        // 15, not the monolith's 26: get_config() drops the 10 carved-out Pro
+        // shortcodes, which this tool used to offer and publish as literal text,
+        // plus the retired rentiva_user_dashboard tag (still scanned and cleaned
+        // up, but no longer offered for new pages — see RetiredShortcodePageTest).
+        // Kept as an explicit count so re-adding an unrenderable/retired entry
+        // fails here. See ShortcodePagesLiteSeamTest for the seam itself.
+        $this->assertCount( 15, $data['shortcodes'] );
+        $this->assertSame( 15, (int) $data['stats']['total'] );
     }
 
     public function test_all_shortcode_slugs_have_rentiva_prefix(): void
