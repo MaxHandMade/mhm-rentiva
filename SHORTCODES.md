@@ -35,7 +35,7 @@ The system uses a single unified rendering path where Gutenberg blocks act purel
 | `rentiva_my_bookings` | account | Yes | Account bookings |
 | `rentiva_my_favorites` | account | Yes | Account favorites |
 | `rentiva_payment_history` | account | Yes | Account payments |
-| `rentiva_user_dashboard` | account | Yes | Master account dashboard |
+| `rentiva_user_dashboard` | account | Yes | Deprecated in 6.2.0 — renders a notice pointing customers to the WooCommerce account page; removed in 7.0. |
 | `rentiva_commission_resolver` | account | Yes | Commission resolver |
 | `rentiva_transfer_search` | transfer | No | Transfer search form |
 | `rentiva_transfer_results` | transfer | No | Transfer results |
