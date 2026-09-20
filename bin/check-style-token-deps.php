@@ -4,12 +4,22 @@
  *
  * A stylesheet that reads a token must be guaranteed the file that defines it.
  * Measured 2026-08-27: the paid plugin enqueues the free plugin's
- * user-dashboard.css with an empty dependency array (VendorLedger.php:36; the
- * same shape at VendorBookings.php:44), and only 2 of its 32 registrations name
- * the canonical handle -- both of them admin. Those pages stay coloured today
- * only because each stylesheet carries its own copied block of declarations.
- * Delete the copies without fixing the dependencies and the pages render with
- * every token unset.
+ * bookings-page.css with an empty dependency array (VendorBookings.php:44; the
+ * same shape at VendorLedger.php for user-dashboard.css), and only 2 of its 32
+ * registrations name the canonical handle -- both of them admin. Those pages
+ * stay coloured today only because each stylesheet carries its own copied block
+ * of declarations. Delete the copies without fixing the dependencies and the
+ * pages render with every token unset.
+ *
+ * Re-measured 2026-09-20: user-dashboard.css is no longer one of the examples.
+ * The customer dashboard was retired and the only `var(--mhm-*)` read in that
+ * file went with the rules it belonged to, so it is no longer a token-reading
+ * stylesheet and this scanner no longer considers VendorLedger's
+ * dependency-free registration of it. VendorBookings' registration of
+ * bookings-page.css (3 token reads, re-measured) carries the same shape and is
+ * the live example now. Kept in step with the test twin that drives this file,
+ * tests/Gates/StyleTokenDependencyTest.php -- the two describing the same
+ * measurement differently is how a gate and its test quietly drift apart.
  *
  * This gate answers "does this registration reach the canonical handle?".
  * bin/check-token-definitions.php answers "which files read tokens?". The two

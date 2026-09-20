@@ -8,7 +8,14 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Native user dashboard shortcode for the Panel page.
+ * Retirement stub for the `[rentiva_user_dashboard]` shortcode.
+ *
+ * This class used to render the customer dashboard on the Panel page. That
+ * dashboard was retired in 6.2.0 -- a customer's home is the WooCommerce
+ * account page -- and its whole pipeline was deleted. What is left renders a
+ * pointer to My Account and keeps non-administrators off /panel/. The tag, the
+ * block and the Elementor widget stay registered because sites in the wild have
+ * them embedded.
  */
 final class UserDashboard {
 
@@ -61,10 +68,29 @@ final class UserDashboard {
 		$role = 'customer';
 
 		// Administrators get the sentence that tells them what to DO about it.
-		// `! is_admin()` on purpose: the block editor previews this through the
-		// REST block renderer and Elementor previews it in a front-end iframe,
-		// and those are exactly the two places where the person who can remove
-		// the block is looking at it.
+		//
+		// `! is_admin()` is a guard, not a reach. An earlier version of this
+		// comment claimed Elementor previews the stub in a front-end iframe and
+		// that the editing administrator therefore sees this paragraph.
+		// Measured in the browser 2026-09-20: that is false. Elementor's editor
+		// is itself a /wp-admin/ request, and it renders the widget while
+		// assembling that page, baking the HTML into the document's `htmlCache`
+		// field -- so is_admin() is true and this paragraph is absent from the
+		// editor canvas. The same admin, on the same widget instance, does get
+		// it on the front end. Both were captured.
+		//
+		// Keep the guard anyway, and precisely because of that cache: a notice
+		// rendered during a wp-admin request is stored in htmlCache, and a
+		// cache later served to a visitor would show an administrator-only
+		// sentence to a customer. Admin-conditional output must not be baked
+		// into cached markup.
+		//
+		// The block editor is the other case and behaves differently: its
+		// preview goes through the REST block renderer, which is not
+		// WP_ADMIN, so is_admin() is false and the notice does show there.
+		// The Elementor user is told by the widget's own surfaces instead --
+		// UserDashboardWidget::get_title() returns "User Dashboard
+		// (deprecated)" and the panel carries a raw_html control saying so.
 		if (! is_admin() && current_user_can('manage_options')) {
 			$html .= sprintf(
 				'<div class="mhm-rentiva-retired-dashboard__admin"><p>%s</p></div>',
@@ -85,7 +111,14 @@ final class UserDashboard {
 	}
 
 	/**
-	 * Redirect unauthenticated users away from the panel page before output starts.
+	 * Send everyone but an administrator away from the panel page, before
+	 * output starts.
+	 *
+	 * Three outcomes, not two: an administrator stays (they may still want to
+	 * look at the page they are about to clean up), a logged-in non-administrator
+	 * is redirected to My Account, and a guest is redirected to the account page
+	 * too -- that is where the login form lives -- falling back to
+	 * wp_login_url() when WooCommerce is not available to answer.
 	 */
 	public static function guard_panel_access(): void
 	{
