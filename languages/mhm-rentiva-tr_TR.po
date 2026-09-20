@@ -15725,15 +15725,11 @@ msgstr "%%%s"
 msgid "%s%% this month"
 msgstr "%%%s bu ay"
 
-#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:51
-msgid "Your account has moved. Everything you had here — bookings, favourites and payments — is now on your account page."
-msgstr "Hesabınız taşındı. Burada bulunan her şey — rezervasyonlarınız, favorileriniz ve ödemeleriniz — artık hesap sayfanızda."
-
-#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:57
+#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:64
 msgid "Go to my account"
 msgstr "Hesabıma git"
 
-#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:71
+#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:97
 msgid "Rentiva: this customer dashboard is deprecated and will be removed in 7.0. Remove the shortcode, block or widget from this page; customers use the WooCommerce account page instead. Only administrators see this notice."
 msgstr "Rentiva: bu müşteri panosu kullanım dışıdır ve 7.0'da kaldırılacaktır. Kısa kodu, bloğu ya da bileşeni bu sayfadan kaldırın; müşteriler WooCommerce hesap sayfasını kullanıyor. Bu uyarıyı yalnız yöneticiler görür."
 
@@ -15755,3 +15751,7 @@ msgstr "MHM Kullanıcı Paneli (kullanımdan kaldırılmış)"
 msgctxt "block description"
 msgid "Deprecated: this block renders a notice pointing customers to the WooCommerce account page. It will be removed in 7.0."
 msgstr "Kullanımdan kaldırılmış: bu blok, müşterileri WooCommerce hesap sayfasına yönlendiren bir uyarı gösterir. 7.0'da kaldırılacaktır."
+
+#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:58
+msgid "Your account has moved. Everything you had here — bookings, favorites and payments — is now on your account page."
+msgstr "Hesabınız taşındı. Burada bulunan her şey — rezervasyonlarınız, favorileriniz ve ödemeleriniz — artık hesap sayfanızda."

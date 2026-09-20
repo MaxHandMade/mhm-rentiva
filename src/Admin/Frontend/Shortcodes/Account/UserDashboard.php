@@ -55,7 +55,7 @@ final class UserDashboard {
 
 		$html = sprintf(
 			'<div class="mhm-rentiva-retired-dashboard"><p>%1$s</p>%2$s</div>',
-			esc_html__('Your account has moved. Everything you had here — bookings, favourites and payments — is now on your account page.', 'mhm-rentiva'),
+			esc_html__('Your account has moved. Everything you had here — bookings, favorites and payments — is now on your account page.', 'mhm-rentiva'),
 			'' === $account_url
 				? ''
 				: sprintf(
