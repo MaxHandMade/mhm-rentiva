@@ -33,6 +33,42 @@ final class RetiredShortcodePageTest extends \WP_UnitTestCase {
         $this->assertStringContainsStringIgnoringCase('deprecated', (string) $row['label']);
     }
 
+    public function test_the_scan_finds_the_retired_tag_via_its_block(): void
+    {
+        $page_id = $this->factory->post->create(array(
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            // Block-built page: no shortcode bracket anywhere in the content.
+            'post_content' => '<!-- wp:mhm-rentiva/user-dashboard /-->',
+        ));
+
+        $rows = ShortcodePageActions::debug_search()['results'];
+        $row  = current(array_filter($rows, static fn (array $r): bool => 'rentiva_user_dashboard' === $r['slug']));
+        $this->assertNotFalse($row, 'The retired tag vanished from the scan.');
+
+        $hit = current(array_filter($row['found_in'], static fn (array $h): bool => $page_id === $h['page_id']));
+        $this->assertNotFalse($hit, 'The block-built page was not found by the scan.');
+        $this->assertContains('block', $hit['via']);
+    }
+
+    public function test_the_scan_finds_the_retired_tag_via_its_elementor_widget(): void
+    {
+        $page_id = $this->factory->post->create(array(
+            'post_type'    => 'page',
+            'post_status'  => 'publish',
+            'post_content' => '',
+        ));
+        update_post_meta($page_id, '_elementor_data', '[{"widgetType":"rv-user-dashboard","settings":{}}]');
+
+        $rows = ShortcodePageActions::debug_search()['results'];
+        $row  = current(array_filter($rows, static fn (array $r): bool => 'rentiva_user_dashboard' === $r['slug']));
+        $this->assertNotFalse($row, 'The retired tag vanished from the scan.');
+
+        $hit = current(array_filter($row['found_in'], static fn (array $h): bool => $page_id === $h['page_id']));
+        $this->assertNotFalse($hit, 'The Elementor-widget page was not found by the scan.');
+        $this->assertContains('widget', $hit['via']);
+    }
+
     public function test_factory_reset_still_deletes_the_plugin_created_demo_page(): void
     {
         $page_id = $this->factory->post->create(array(

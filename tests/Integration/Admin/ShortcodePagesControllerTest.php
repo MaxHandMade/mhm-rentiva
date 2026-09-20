@@ -158,8 +158,10 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
         $this->assertArrayHasKey( 'scanned_pages', $data );
         $this->assertArrayHasKey( 'results', $data );
         $this->assertGreaterThanOrEqual( 0, (int) $data['scanned_pages'] );
-        // 16: the debug scan reports one row per offered shortcode, and Lite offers
-        // only the 16 it can actually render (see the list assertion above).
+        // 16: the debug scan reports one row per offered shortcode (15, see the
+        // list assertion above) plus one row per retired tag it still walks for
+        // discovery and cleanup (1: rentiva_user_dashboard) — 15 + 1 = 16. See
+        // RetiredShortcodePageTest for the retired-tag scan behaviour itself.
         $this->assertCount( 16, $data['results'] );
         $this->assertArrayHasKey( 'slug',     $data['results'][0] );
         $this->assertArrayHasKey( 'found_in', $data['results'][0] );
