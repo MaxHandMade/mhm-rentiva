@@ -1183,7 +1183,7 @@ final class VehicleColumns {
 			),
 		);
 
-		echo '<div class="mhmui-admin">';
+		echo '<div class="mhmui-admin mhm-kpi-strip">';
 		echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $cards, 4 ) );
 		echo '</div>';
 	}

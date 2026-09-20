@@ -12,5 +12,9 @@ export default function StatsBar( { stats } ) {
 		{ label: __( 'Missing', 'mhm-rentiva' ), value: String( stats.missing ?? 0 ), icon: 'warning' },
 	];
 
-	return <StatsGrid cards={ cards } columns={ 3 } />;
+	return (
+		<div className="mhm-kpi-strip">
+			<StatsGrid cards={ cards } columns={ 3 } />
+		</div>
+	);
 }

@@ -823,8 +823,10 @@ final class AddonScreen {
 	 * calls it directly, the same shape the migrated list-table strips use.
 	 *
 	 * `#mhm-addons-root` already carries `mhmui-admin mhmui-admin-page`
-	 * (see render_page()), so the band does not open a second scope div --
-	 * one ancestor with the class is all the kit's selectors need.
+	 * (see render_page()), so this wrapper adds no token scope; it is here
+	 * only to carry `mhm-kpi-strip`, the one class that gives every Rentiva
+	 * strip its rhythm (AssetManager::STRIP_RHYTHM_CSS). Before 0.14.0 this
+	 * band was the rare strip that got its spacing from the package.
 	 */
 	public static function render_stats_band(): void {
 		$stats = AddonStats::get();
@@ -860,7 +862,9 @@ final class AddonScreen {
 			),
 		);
 
+		echo '<div class="mhm-kpi-strip">';
 		echo wp_kses_post( AssetManager::stats_grid_html( $cards, 4 ) );
+		echo '</div>';
 	}
 
 	/**

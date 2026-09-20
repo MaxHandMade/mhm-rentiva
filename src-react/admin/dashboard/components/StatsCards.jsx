@@ -121,5 +121,9 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 		},
 	];
 
-	return <StatsGrid cards={ cards } columns={ 4 } />;
+	return (
+		<div className="mhm-kpi-strip">
+			<StatsGrid cards={ cards } columns={ 4 } />
+		</div>
+	);
 }
