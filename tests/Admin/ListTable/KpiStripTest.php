@@ -53,7 +53,7 @@ final class KpiStripTest extends WP_UnitTestCase {
 			'mhmrentiva_booking'
 		);
 
-		$this->assertStringContainsString( '<div class="mhmui-admin">', $html );
+		$this->assertStringContainsString( '<div class="mhmui-admin mhm-kpi-strip">', $html );
 		$this->assertStringContainsString( 'mhmui-stats-grid', $html );
 		preg_match_all( '/class="mhmui-stat-card[ "]/', $html, $matches );
 		$this->assertSame( 4, count( $matches[0] ) );
