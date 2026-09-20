@@ -525,6 +525,7 @@ vendor/mhm/ui-core/src/Component/Surfaces/ElementorSurface.php
 vendor/mhm/ui-core/src/Component/Surfaces/ElementorWidgetFactory.php
 vendor/mhm/ui-core/src/Component/Surfaces/LayoutAdapterSurface.php
 vendor/mhm/ui-core/src/Component/Surfaces/ShortcodeSurface.php
+vendor/mhm/ui-core/src/Kit/Icons.php
 vendor/mhm/ui-core/src/Kit/StatCard.php
 vendor/mhm/ui-core/src/Kit/StatsGrid.php
 vendor/mhm/ui-core/src/Layout/AdapterRegistry.php

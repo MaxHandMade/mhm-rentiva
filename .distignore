@@ -64,7 +64,7 @@ phpstan-baseline.neon
 # ui-core 0.9.1 brought five paths that have no runtime path on a user's site.
 # Derived, not blacklisted: everything else in the package ships, because the
 # loader serves ONE copy site-wide -- pruning a runtime class here would make a
-# sibling plugin's call fatal. These five are the exceptions, and each is named:
+# sibling plugin's call fatal. These six are the exceptions, and each is named:
 #
 #   src/Cli/          WP-CLI commands. Safe to drop since ui-core 0.8.1, which
 #                     stopped tying registration to WP_CLI's presence -- before
@@ -86,6 +86,12 @@ phpstan-baseline.neon
 #                     remove it. The directory goes as a unit.
 #   assets/react/pro.css  The stylesheet for that class. (admin.css does NOT
 #                     carry .mhmui-pro-lock -- verified, ui-core 0.8.1 moved it.)
+#   IconConceptScanner.php  ui-core 0.14.0's convergence gate: a filesystem
+#                     walker (RecursiveDirectoryIterator + token_get_all) with
+#                     no runtime path on a user's site. The package ships it so
+#                     a consumer's CI can require it from vendor/; a consumer
+#                     who does not run that gate ships a dev tool to
+#                     WordPress.org reviewers, who grep the shipped tree.
 #
 # Measured 2026-09-06: nothing in ui-core or in either Rentiva tree enqueues
 # pro.css, and the scanner is a CI tool, not a runtime one.
@@ -93,6 +99,7 @@ phpstan-baseline.neon
 /vendor/mhm/ui-core/src/Seam/PurityScanner.php
 /vendor/mhm/ui-core/src-react/
 /vendor/mhm/ui-core/assets/react/pro.css
+/vendor/mhm/ui-core/src/Kit/IconConceptScanner.php
 # This plugin's OWN React sources. Only the compiled bundles under assets/ run on
 # a user's site; the JSX and JS here are webpack INPUT, and nobody builds on a
 # WordPress install. Measured 2026-09-06 before excluding: of the 46 src-react

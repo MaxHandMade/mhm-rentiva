@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d8fc2e40d50b396832d4fd7d4f33d14",
+    "content-hash": "f2c6e23839272784d72c5d933b6c8029",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.13.1",
+            "version": "v0.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "89ab69c77c6e2712b9e64ebd2cb631b4871307df"
+                "reference": "b57775c67e822fadb4e17c788b29a7517a89350a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/89ab69c77c6e2712b9e64ebd2cb631b4871307df",
-                "reference": "89ab69c77c6e2712b9e64ebd2cb631b4871307df",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/b57775c67e822fadb4e17c788b29a7517a89350a",
+                "reference": "b57775c67e822fadb4e17c788b29a7517a89350a",
                 "shasum": ""
             },
             "require": {
@@ -72,6 +72,9 @@
                 "check:kit-parity": [
                     "@php ./bin/dump-kit-classes.php --check"
                 ],
+                "check:icon-concepts": [
+                    "@php ./bin/check-icon-concepts.php --anchor=mhmuicore_stat_card_html --anchor=mhmuicore_stats_grid_html --anchor=ui-core/src-react/components/Stat --anchor=AssetManager::stats_grid_html --expect-raw=2 tests/Fixtures/icon-concepts"
+                ],
                 "check": [
                     "@phpcs",
                     "@phpstan",
@@ -87,10 +90,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.13.1",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.14.0",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-09-18T16:31:22+00:00"
+            "time": "2026-09-20T20:18:18+00:00"
         }
     ],
     "packages-dev": [
