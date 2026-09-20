@@ -68,11 +68,19 @@ final class RetiredUserDashboardStubTest extends \WP_UnitTestCase {
      * test.
      *
      * The claim is the same one, pinned at the source instead: the stub's own
-     * file must not name any class of the retired pipeline. That fails the
-     * moment someone writes `use MHMRentiva\Core\Dashboard\DashboardContext;`
-     * back into it, which is the actual regression being guarded against.
+     * file must not name any of the nine classes this retirement deleted. That
+     * fails the moment someone writes
+     * `use MHMRentiva\Core\Dashboard\DashboardContext;` back into it, which is
+     * the actual regression being guarded against -- a reference to a class
+     * that no longer exists is a fatal on a customer's page, and
+     * bin/check-guarded-refs.php does not see an unguarded one.
+     *
+     * Narrow on purpose, and the narrowing is the point: this reads ONE file's
+     * bytes. A dashboard rebuilt under new class names, or in a new file, would
+     * not trip it. test_register_wires_only_the_panel_guard() is the
+     * behavioural half of the pair.
      */
-    public function test_the_stub_builds_no_dashboard_data(): void
+    public function test_the_stub_references_no_deleted_pipeline_class(): void
     {
         $path   = dirname(__DIR__, 2) . '/src/Admin/Frontend/Shortcodes/Account/UserDashboard.php';
         $source = (string) file_get_contents($path);
@@ -94,6 +102,8 @@ final class RetiredUserDashboardStubTest extends \WP_UnitTestCase {
                 'CustomerDashboard',
                 'MetricRegistry',
                 'TrendService',
+                'TotalBookingsMetric',
+                'UpcomingPickupsMetric',
             ) as $retired_class
         ) {
             $this->assertStringNotContainsString(
