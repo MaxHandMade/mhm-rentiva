@@ -506,8 +506,9 @@ final class AssetManager {
 	/**
 	 * The KPI strip's vertical rhythm, owned here rather than by the package.
 	 *
-	 * ui-core 0.14.0 moved the strip's rhythm from the component to the page
-	 * shell (`.mhmui-admin-page > * + :is( .mhmui-stats-grid, ... )`). That rule
+	 * Version 0.14.0 of the package moved the strip's rhythm from the component
+	 * to the page shell
+	 * (`.mhmui-admin-page > * + :is( .mhmui-stats-grid, ... )`). That rule
 	 * needs the grid to be a DIRECT child of the shell AND to have a preceding
 	 * element sibling. Measured 2026-09-21: of Rentiva's 15 affected strips,
 	 * exactly two satisfy both -- three sit on core's `edit.php`, one in a
