@@ -16,7 +16,7 @@ permissions:
 jobs:
   phpcs:
     name: Run PHPCS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     steps:
@@ -53,7 +53,7 @@ jobs:
 
   phpstan:
     name: Run PHPStan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     steps:
@@ -429,7 +429,7 @@ jobs:
   # Remove the row once ubuntu-latest resolves to 26.04.
   phpunit:
     name: Run PHPUnit (PHP ${{ matrix.php }}${{ matrix.os != 'ubuntu-latest' && format(', {0}', matrix.os) || '' }})
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
 
     strategy:
@@ -588,7 +588,7 @@ jobs:
   # resemble each other.
   plugin-check:
     name: Plugin Check (G-D)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 25
 
     services:
