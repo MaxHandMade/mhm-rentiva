@@ -418,6 +418,12 @@ bin/*
 !bin/lite-manifest-final.txt
 !bin/check-shipped-surface.php
 !bin/shipped-surface-final.txt
+# Quality-gate script: `composer check-icon-concepts` runs it and CI calls that
+# script, so a clone without it fails the job rather than skipping it. It reads
+# the vocabulary from src/Admin/Core/IconConcepts.php and the engine from
+# vendor/mhm/ui-core -- neither of which it may restate, or the gate would
+# measure a different map than the plugin registers.
+!bin/check-icon-concepts.php
 # Quality-gate script: `composer check-unguarded-pro-refs` / `composer carve-gates`
 # require it at runtime; it is the inverse of check-guarded-refs.php (proves every
 # Pro reference sits behind a guard, incl. in templates/ which PHPStan never
