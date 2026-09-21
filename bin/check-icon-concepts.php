@@ -67,7 +67,14 @@ require_once $root . '/src/Admin/Core/IconConcepts.php';
 // reached only from inside those wrappers, and anchoring on it finds nothing.
 $anchors = array( 'stats_grid_html', 'ProKit::grid', 'StatsGrid' );
 
-$paths = array( $root . '/src', $root . '/src-react' );
+// 🔴 templates/ IS IN THIS LIST BECAUSE LEAVING IT OUT WAS THIS TREE'S
+// RECURRING BLIND SPOT -- and this gate had it. templates/account/dashboard.php
+// hands cards to the kit and the first version of this file could not see it.
+// It passes no icons today, so nothing was being missed yet; the gate said
+// "converged" about a directory it had never opened. During the 0.14 upgrade
+// the count of kit call sites was written wrong four times running, and every
+// wrong count came from a scan that read src/ and src-react/ and stopped.
+$paths = array_values( array_filter( array( $root . '/src', $root . '/src-react', $root . '/templates' ), 'is_dir' ) );
 
 $scanner = new \MHMUiCore\Kit\IconConceptScanner( $anchors );
 $result  = $scanner->scan( $paths );
