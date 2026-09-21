@@ -16,7 +16,7 @@ permissions:
 jobs:
   phpcs:
     name: Run PHPCS
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
@@ -53,7 +53,7 @@ jobs:
 
   phpstan:
     name: Run PHPStan
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
@@ -423,13 +423,17 @@ jobs:
   # PHPStan has no phpVersion pin and analyses against the runtime, so moving
   # them is a separate change with its own findings.
   #
-  # The ubuntu-26.04 row exists because ubuntu-latest moves to 26.04 between
-  # 2026-10-19 and 2026-11-19 (actions/runner-images#14748). One row on the new
-  # image now means the move is measured before it happens to every job at once.
-  # Remove the row once ubuntu-latest resolves to 26.04.
+  # ubuntu-latest moves to 26.04 between 2026-10-19 and 2026-11-19
+  # (actions/runner-images#14748). The move was measured once for EVERY job --
+  # phpcs, phpstan, plugin-check and all four PHP rows on ubuntu-26.04, all
+  # green, run 35654336481 (2026-09-21). The row below is a standing canary for
+  # this job only, on 8.1: the oldest, end-of-life version is the one most
+  # likely to lose a package on a newer distro. It does NOT cover the other
+  # jobs. Remove it once ubuntu-latest resolves to 26.04 -- from then on it is
+  # a duplicate of the 8.1 row.
   phpunit:
     name: Run PHPUnit (PHP ${{ matrix.php }}${{ matrix.os != 'ubuntu-latest' && format(', {0}', matrix.os) || '' }})
-    runs-on: ubuntu-26.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
 
     strategy:
@@ -438,7 +442,7 @@ jobs:
         php: [ '8.1', '8.2', '8.3', '8.4' ]
         os: [ ubuntu-latest ]
         include:
-          - php: '8.3'
+          - php: '8.1'
             os: ubuntu-26.04
 
     services:
@@ -588,7 +592,7 @@ jobs:
   # resemble each other.
   plugin-check:
     name: Plugin Check (G-D)
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     timeout-minutes: 25
 
     services:
