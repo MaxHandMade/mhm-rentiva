@@ -94,7 +94,7 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 		{
 			label: __( 'Total Bookings', 'mhm-rentiva' ),
 			value: fmt( metrics?.total_bookings ),
-			icon: 'time',
+			icon: 'bookings',
 			delta: toDelta( deltas.bookings, fmt( metrics?.bookings_this_month ) ),
 			sub: `${ fmt( metrics?.bookings_this_month ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
 		},

@@ -22,7 +22,7 @@ import DashboardPage from './DashboardPage';
  * Same value as the PHP side, deliberately: `vehicles` must draw the same
  * glyph whether a strip is rendered in PHP or in React.
  */
-registerIcons( { vehicles: 'car' } );
+registerIcons( { vehicles: 'car', bookings: 'calendar-alt' } );
 
 const container = document.getElementById( 'mhm-rentiva-dashboard' );
 if ( container ) {
