@@ -8,7 +8,7 @@ export default function StatsBar( { stats } ) {
 
 	const cards = [
 		{ label: __( 'Total', 'mhm-rentiva' ), value: String( stats.total ?? 0 ), icon: 'admin-page' },
-		{ label: __( 'Active', 'mhm-rentiva' ), value: String( stats.active ?? 0 ), icon: 'yes-alt' },
+		{ label: __( 'Active', 'mhm-rentiva' ), value: String( stats.active ?? 0 ), icon: 'active' },
 		{ label: __( 'Missing', 'mhm-rentiva' ), value: String( stats.missing ?? 0 ), icon: 'warning' },
 	];
 

@@ -107,13 +107,13 @@ final class AddonListTable {
 			array(
 				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['total_addons'],
-				'icon'  => 'plus-alt',
+				'icon'  => 'new',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 			),
 			array(
 				'label' => __( 'Active Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['active_addons'],
-				'icon'  => 'yes-alt',
+				'icon'  => 'active',
 				'sub'   => sprintf(
 					/* translators: %s: percentage of add-ons that are active. */
 					__( '%s%% active', 'mhm-rentiva' ),
@@ -124,14 +124,14 @@ final class AddonListTable {
 				'label' => __( 'Average Price', 'mhm-rentiva' ),
 				// Already formatted by AddonStats; not re-formatted here.
 				'value' => $stats['avg_price'],
-				'icon'  => 'money-alt',
+				'icon'  => 'revenue',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 			),
 			array(
 				'label' => __( 'Total Value', 'mhm-rentiva' ),
 				// Already formatted by AddonStats; not re-formatted here.
 				'value' => $stats['total_value'],
-				'icon'  => 'chart-line',
+				'icon'  => 'rate',
 				'sub'   => __( 'All prices', 'mhm-rentiva' ),
 			),
 		);

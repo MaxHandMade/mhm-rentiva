@@ -94,21 +94,21 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 		{
 			label: __( 'Total Bookings', 'mhm-rentiva' ),
 			value: fmt( metrics?.total_bookings ),
-			icon: 'calendar-alt',
+			icon: 'time',
 			delta: toDelta( deltas.bookings, fmt( metrics?.bookings_this_month ) ),
 			sub: `${ fmt( metrics?.bookings_this_month ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
 		},
 		{
 			label: __( 'Total Revenue', 'mhm-rentiva' ),
 			value: fmtMoney( metrics?.total_revenue ),
-			icon: 'money-alt',
+			icon: 'revenue',
 			delta: toDelta( deltas.revenue, fmtMoney( metrics?.monthly_revenue ) ),
 			sub: `${ fmtMoney( metrics?.monthly_revenue ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
 		},
 		{
 			label: __( 'Active Vehicles', 'mhm-rentiva' ),
 			value: fmt( metrics?.available_vehicles ),
-			icon: 'car',
+			icon: 'vehicles',
 			sub: `${ fmt( metrics?.total_vehicles ) } ${ __( 'total', 'mhm-rentiva' ) }`,
 		},
 		{

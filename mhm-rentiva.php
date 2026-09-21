@@ -212,6 +212,49 @@ if ( file_exists( $mhmrentiva_uicore_register_file ) ) {
 	);
 }
 
+/**
+ * Rentiva's own icon concepts, added to the kit's twelve seed concepts.
+ *
+ * The kit's `icon` prop takes a CONCEPT ("revenue") and resolves it to a
+ * Dashicon suffix ("money-alt"), so a card says what it means instead of what
+ * it draws. The seed vocabulary is domain-independent and does not cover a
+ * car-rental product's nouns; `Icons::register()` is the package's seam for
+ * exactly that, and the registry it writes to belongs to the WINNING copy, so
+ * one registration serves every plugin on the site.
+ *
+ * 🔴 PRIORITY 1, NOT THIS FILE'S OTHER LANE. The plugin bootstraps at
+ * plugins_loaded -10 and the package boots at 0, so a registration made from
+ * Plugin::bootstrap() would run BEFORE the Icons class exists. The package's
+ * own docblock says priority >= 1; this is that.
+ *
+ * 🔴 EVERY CONCEPT HERE PRESERVES THE GLYPH THAT CALL SITES ALREADY DREW.
+ * ui-core was written after this plugin was finished, so its vocabulary is not
+ * a norm this product must bend to: where the seed matched what Rentiva
+ * already drew it was adopted, and where it did not, the product's own icon
+ * became the concept's target. Nothing on screen changes -- measured, not
+ * intended.
+ *
+ * class_exists() rather than an unguarded call: an older ui-core copy can win
+ * the arbitration on a site with a sibling plugin, and 0.13.x has no Icons.
+ */
+add_action(
+	'plugins_loaded',
+	static function () {
+		if ( ! class_exists( '\\MHMUiCore\\Kit\\Icons' ) ) {
+			return;
+		}
+
+		// The map itself lives in IconConcepts::MAP, which the CI gate reads
+		// too -- a vocabulary written out at each caller drifts, and a gate
+		// measuring a different vocabulary than the product uses is worse than
+		// no gate. The class carries no WordPress, so the gate can require it
+		// outside WP.
+		require_once __DIR__ . '/src/Admin/Core/IconConcepts.php';
+		\MHMUiCore\Kit\Icons::register( \MHMRentiva\Admin\Core\IconConcepts::MAP );
+	},
+	1
+);
+
 // Central bootstrap - ALL registrations are done in Plugin.php
 // Priority -10: Load BEFORE AJAX requests
 add_action(

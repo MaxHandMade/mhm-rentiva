@@ -1,0 +1,144 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Tests\Admin\Core;
+
+use MHMRentiva\Admin\Core\IconConcepts;
+use WP_UnitTestCase;
+
+/**
+ * The product's icon vocabulary has a PHP home and a JSX twin, and nothing
+ * else makes them agree.
+ *
+ * ui-core's PHP registry lives in the winning copy, so one `Icons::register()`
+ * call serves every plugin on the site. Its JSX registry does not: it lives
+ * inside whichever bundle registered it and reaches no other bundle. So a
+ * React card that writes `icon: 'vehicles'` in a bundle whose entry point
+ * never calls `registerIcons()` gets the value passed through untouched, the
+ * kit prints `dashicons-vehicles`, and the browser draws NOTHING. No error, no
+ * failing test, no console warning — an empty square where an icon was.
+ *
+ * That is the failure this file exists to make loud.
+ */
+final class IconConceptsTwinTest extends WP_UnitTestCase {
+
+	/** Bundle entry points, one per React admin screen. */
+	private const BUNDLE_ROOT = 'src-react/admin';
+
+	public function test_every_registered_jsx_concept_matches_the_php_map(): void {
+		$found = 0;
+
+		foreach ( $this->bundles() as $bundle => $dir ) {
+			$entry = $dir . '/index.js';
+			if ( ! is_file( $entry ) ) {
+				continue;
+			}
+
+			foreach ( $this->registrations( (string) file_get_contents( $entry ) ) as $concept => $suffix ) {
+				++$found;
+				$this->assertArrayHasKey(
+					$concept,
+					IconConcepts::MAP,
+					sprintf( '%s registers the concept "%s", which IconConcepts::MAP does not define.', $bundle, $concept )
+				);
+				$this->assertSame(
+					IconConcepts::MAP[ $concept ],
+					$suffix,
+					sprintf( '%s maps "%s" to a different glyph than the PHP side does.', $bundle, $concept )
+				);
+			}
+		}
+
+		// A twin test that finds no twins has measured nothing.
+		$this->assertGreaterThan( 0, $found, 'No registerIcons() call was found in any bundle entry point.' );
+	}
+
+	public function test_a_bundle_that_uses_a_product_concept_registers_it(): void {
+		$checked = 0;
+
+		foreach ( $this->bundles() as $bundle => $dir ) {
+			$used = $this->product_concepts_used( $dir );
+			if ( array() === $used ) {
+				continue;
+			}
+
+			$entry = $dir . '/index.js';
+			$this->assertFileExists( $entry, sprintf( '%s uses a product concept but has no entry point.', $bundle ) );
+
+			$registered = $this->registrations( (string) file_get_contents( $entry ) );
+
+			foreach ( $used as $concept ) {
+				++$checked;
+				$this->assertArrayHasKey(
+					$concept,
+					$registered,
+					sprintf(
+						'%s renders a card with icon "%s" but its entry point never registers it. '
+						. 'The kit would print dashicons-%s and the browser would draw nothing.',
+						$bundle,
+						$concept,
+						$concept
+					)
+				);
+			}
+		}
+
+		$this->assertGreaterThan( 0, $checked, 'No bundle used a product concept; this test measured nothing.' );
+	}
+
+	/** @return array<string, string> bundle name => absolute directory */
+	private function bundles(): array {
+		$root = MHMRENTIVA_PLUGIN_PATH . self::BUNDLE_ROOT;
+		$out  = array();
+
+		foreach ( (array) glob( $root . '/*', GLOB_ONLYDIR ) as $dir ) {
+			$out[ basename( (string) $dir ) ] = (string) $dir;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * `registerIcons( { a: 'b', c: 'd' } )` -> [ a => b, c => d ].
+	 *
+	 * @return array<string, string>
+	 */
+	private function registrations( string $source ): array {
+		if ( ! preg_match( '/registerIcons\(\s*\{(.*?)\}\s*\)/s', $source, $call ) ) {
+			return array();
+		}
+
+		preg_match_all( "/([a-zA-Z0-9_]+)\s*:\s*'([^']+)'/", $call[1], $pairs, PREG_SET_ORDER );
+
+		$out = array();
+		foreach ( $pairs as $pair ) {
+			$out[ $pair[1] ] = $pair[2];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Product concepts (not seed ones) written as `icon:` in a bundle's tree.
+	 *
+	 * @return array<int, string>
+	 */
+	private function product_concepts_used( string $dir ): array {
+		$used = array();
+
+		$files = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $dir ) );
+		foreach ( $files as $file ) {
+			if ( ! preg_match( '/\.jsx?$/', $file->getFilename() ) ) {
+				continue;
+			}
+			preg_match_all( "/\bicon:\s*'([^']+)'/", (string) file_get_contents( $file->getPathname() ), $hits );
+			foreach ( $hits[1] as $value ) {
+				if ( isset( IconConcepts::MAP[ $value ] ) ) {
+					$used[ $value ] = true;
+				}
+			}
+		}
+
+		return array_keys( $used );
+	}
+}

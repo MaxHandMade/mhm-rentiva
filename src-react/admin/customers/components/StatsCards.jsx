@@ -57,19 +57,19 @@ export default function StatsCards( { stats, currency } ) {
 		{
 			label: __( 'New This Month', 'mhm-rentiva' ),
 			value: String( stats.new_this_month ?? 0 ),
-			icon: 'plus-alt',
+			icon: 'new',
 			delta: { direction, text: trendMagnitude, label: trendLabel },
 		},
 		{
 			label: __( 'Active Customers', 'mhm-rentiva' ),
 			value: String( stats.active_90d ?? 0 ),
-			icon: 'yes-alt',
+			icon: 'active',
 			sub: __( 'last 90 days', 'mhm-rentiva' ),
 		},
 		{
 			label: __( 'Avg. Spend', 'mhm-rentiva' ),
 			value: fmtMoney( avgSpend, currency ?? '' ),
-			icon: 'money-alt',
+			icon: 'revenue',
 			sub: __( 'per customer', 'mhm-rentiva' ),
 		},
 	];
