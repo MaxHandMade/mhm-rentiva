@@ -1183,7 +1183,7 @@ final class BookingColumns {
 			array(
 				'label' => __( 'Total Bookings', 'mhm-rentiva' ),
 				'value' => (string) $stats['total'],
-				'icon'  => 'calendar-alt',
+				'icon'  => 'time',
 				'sub'   => sprintf(
 					/* translators: %s: number of bookings created this month. */
 					__( '%s this month', 'mhm-rentiva' ),
@@ -1193,7 +1193,7 @@ final class BookingColumns {
 			array(
 				'label' => __( 'Pending', 'mhm-rentiva' ),
 				'value' => (string) $stats['pending'],
-				'icon'  => 'clock',
+				'icon'  => 'pending',
 				// The only tone in this migration: "pending" is a state that asks
 				// for action, and the label says so without the colour (WCAG 1.4.1).
 				'tone'  => 'warning',
@@ -1216,7 +1216,7 @@ final class BookingColumns {
 			array(
 				'label' => __( 'Monthly Revenue', 'mhm-rentiva' ),
 				'value' => self::format_price( $stats['monthly_revenue'] ),
-				'icon'  => 'money-alt',
+				'icon'  => 'revenue',
 				'delta' => array(
 					'direction' => $stats['revenue_trend'] > 0 ? 'up' : ( $stats['revenue_trend'] < 0 ? 'down' : 'flat' ),
 					// Accessible name for the delta line (kit 0.13.0): the kit has no

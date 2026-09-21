@@ -40,9 +40,9 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 				<StatsGrid
 					columns={ 3 }
 					cards={ [
-						{ label: __( 'Total', 'mhm-rentiva' ), value: fmt( metrics?.total_bookings ), icon: 'calendar-alt' },
-						{ label: __( 'This Month', 'mhm-rentiva' ), value: fmt( metrics?.bookings_this_month ), icon: 'clock' },
-						{ label: __( 'Revenue', 'mhm-rentiva' ), value: fmtMoney( metrics?.total_revenue, currency, 0 ), icon: 'money-alt' },
+						{ label: __( 'Total', 'mhm-rentiva' ), value: fmt( metrics?.total_bookings ), icon: 'time' },
+						{ label: __( 'This Month', 'mhm-rentiva' ), value: fmt( metrics?.bookings_this_month ), icon: 'pending' },
+						{ label: __( 'Revenue', 'mhm-rentiva' ), value: fmtMoney( metrics?.total_revenue, currency, 0 ), icon: 'revenue' },
 					] }
 				/>
 			</div>

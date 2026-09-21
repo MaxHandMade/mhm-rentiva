@@ -1132,7 +1132,7 @@ final class VehicleColumns {
 			array(
 				'label' => __( 'Total Vehicles', 'mhm-rentiva' ),
 				'value' => (string) $stats['total_vehicles'],
-				'icon'  => 'car',
+				'icon'  => 'vehicles',
 				'sub'   => sprintf(
 					/* translators: %s: number of vehicles reserved this month. */
 					__( '%s reserved this month', 'mhm-rentiva' ),
@@ -1142,7 +1142,7 @@ final class VehicleColumns {
 			array(
 				'label' => __( 'Active Today', 'mhm-rentiva' ),
 				'value' => (string) $stats['active_today'],
-				'icon'  => 'admin-users',
+				'icon'  => 'customers',
 				'sub'   => __( 'vehicles with customers', 'mhm-rentiva' ),
 			),
 			array(
@@ -1153,7 +1153,7 @@ final class VehicleColumns {
 					_x( '%s%%', 'KPI card value: a percentage', 'mhm-rentiva' ),
 					$stats['occupancy_rate']
 				),
-				'icon'  => 'chart-bar',
+				'icon'  => 'total',
 				'sub'   => sprintf(
 					/* translators: %s: total number of vehicles. */
 					__( '%s total vehicles', 'mhm-rentiva' ),
@@ -1163,7 +1163,7 @@ final class VehicleColumns {
 			array(
 				'label' => __( 'This Month Revenue', 'mhm-rentiva' ),
 				'value' => self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ) ),
-				'icon'  => 'money-alt',
+				'icon'  => 'revenue',
 				'delta' => array(
 					'direction' => $revenue_trend > 0 ? 'up' : ( $revenue_trend < 0 ? 'down' : 'flat' ),
 					// Accessible name for the delta line (kit 0.13.0): the kit has no

@@ -612,11 +612,19 @@ final class AssetManager {
 	 *                                            the fallback branch is testable: a
 	 *                                            defined function cannot be undefined
 	 *                                            inside one PHP process.
+	 * @param bool|null                $kit_resolves_concepts Override for whether the
+	 *                                            WINNING kit copy understands concept
+	 *                                            names; null measures it. Exists for
+	 *                                            the same reason $allow_kit does: a
+	 *                                            loaded class cannot be unloaded
+	 *                                            inside one PHP process.
 	 * @return string HTML, every dynamic value escaped.
 	 */
-	public static function stats_grid_html( array $cards, int $columns, bool $allow_kit = true ): string {
+	public static function stats_grid_html( array $cards, int $columns, bool $allow_kit = true, ?bool $kit_resolves_concepts = null ): string {
 		if ( $allow_kit && function_exists( 'mhmuicore_stats_grid_html' ) ) {
-			return mhmuicore_stats_grid_html( $cards, $columns );
+			$resolves = $kit_resolves_concepts ?? class_exists( '\MHMUiCore\Kit\Icons' );
+
+			return mhmuicore_stats_grid_html( $resolves ? $cards : self::legacy_icon_cards( $cards ), $columns );
 		}
 
 		$html = '<div class="mhmui-stats-grid">';
@@ -627,6 +635,40 @@ final class AssetManager {
 		}
 
 		return $html . '</div>';
+	}
+
+	/**
+	 * Resolve concept names to Dashicon suffixes ourselves, for a winning kit
+	 * copy that cannot.
+	 *
+	 * 🔴 WHEN THIS RUNS AND WHY IT IS NOT DEAD CODE. ui-core boots the HIGHEST
+	 * registered copy across every plugin on the site, so a sibling MHM plugin
+	 * bundling 0.11-0.13 can win over Rentiva's own 0.14. Those copies have no
+	 * `Kit\Icons`: their StatCard concatenates `'dashicons dashicons-' . $icon`
+	 * verbatim. Since the call sites now write `revenue` where they used to
+	 * write `money-alt`, such a copy would print `dashicons-revenue` -- a class
+	 * no stylesheet defines -- and every PHP KPI card would lose its icon, with
+	 * no error, no console warning, and every CI gate green.
+	 *
+	 * A value that is not a concept (`yes`, a plain Dashicon suffix the CI gate
+	 * reports as unknown and allows) passes through untouched: the legacy kit
+	 * handles those exactly as it always did.
+	 *
+	 * @param array<int|string, mixed> $cards StatCard prop arrays.
+	 * @return array<int|string, mixed> The same cards, concepts resolved.
+	 */
+	private static function legacy_icon_cards( array $cards ): array {
+		foreach ( $cards as $index => $card ) {
+			if ( ! is_array( $card ) || ! isset( $card['icon'] ) || ! is_string( $card['icon'] ) ) {
+				continue;
+			}
+
+			if ( isset( IconConcepts::LEGACY_SUFFIX[ $card['icon'] ] ) ) {
+				$cards[ $index ]['icon'] = IconConcepts::LEGACY_SUFFIX[ $card['icon'] ];
+			}
+		}
+
+		return $cards;
 	}
 
 	/**

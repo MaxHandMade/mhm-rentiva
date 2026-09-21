@@ -201,6 +201,19 @@ jobs:
       - name: Shipped-surface invariant (the ZIP == the pinned surface)
         run: composer check-shipped-surface
 
+      # Icon-concept convergence. A kit card names a CONCEPT ("revenue"), not
+      # the Dashicon suffix it resolves to ("money-alt"). Writing the suffix
+      # still renders, so nothing fails when a call site drifts back -- what is
+      # lost is silent, and this tree has already paid for it once: the same
+      # "Total Customers" figure was drawn with `groups` on one screen and
+      # `admin-users` on another.
+      #
+      # The engine is the package's (it ships inside vendor/ so a consumer's CI
+      # can require it); the vocabulary is ours, read from IconConcepts::MAP so
+      # the gate measures the same map the plugin registers at runtime.
+      - name: Icon concepts (a call site names a concept, not a glyph)
+        run: composer check-icon-concepts
+
       # Reproducible-build gate. Runs here rather than in a Node job on purpose:
       # it needs no node_modules, and the defect it catches is precisely one an
       # `npm ci` would have caught but nobody ever ran on a clean tree.
