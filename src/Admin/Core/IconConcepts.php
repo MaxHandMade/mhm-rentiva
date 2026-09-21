@@ -42,6 +42,13 @@ final class IconConcepts {
 		// `items` (products) would read as a shop's catalogue rather than a
 		// rental fleet.
 		'vehicles' => 'car',
+
+		// A count of reservations, drawn on a calendar. The seed's `time` carries
+		// this exact glyph and was used here first, but a COUNT card calling
+		// itself "time" inverts the point of the vocabulary: the prop is supposed
+		// to say what the card means, and this one means bookings. `time` stays in
+		// the seed for a card that is genuinely temporal.
+		'bookings' => 'calendar-alt',
 	);
 
 	/**
@@ -78,7 +85,7 @@ final class IconConcepts {
 		'pending'   => 'clock',
 		'active'    => 'yes-alt',
 		'new'       => 'plus-alt',
-		'time'      => 'calendar-alt',
+		'bookings'  => 'calendar-alt',
 		'vehicles'  => 'car',
 	);
 }

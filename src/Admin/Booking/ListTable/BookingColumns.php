@@ -1183,7 +1183,7 @@ final class BookingColumns {
 			array(
 				'label' => __( 'Total Bookings', 'mhm-rentiva' ),
 				'value' => (string) $stats['total'],
-				'icon'  => 'time',
+				'icon'  => 'bookings',
 				'sub'   => sprintf(
 					/* translators: %s: number of bookings created this month. */
 					__( '%s this month', 'mhm-rentiva' ),
