@@ -236,6 +236,14 @@ if ( file_exists( $mhmrentiva_uicore_register_file ) ) {
  *
  * class_exists() rather than an unguarded call: an older ui-core copy can win
  * the arbitration on a site with a sibling plugin, and 0.13.x has no Icons.
+ *
+ * 🔴 SKIPPING THE REGISTRATION IS ONLY HALF THE COMPATIBILITY CASE, AND THE
+ * HALF THAT COSTS NOTHING. When the guard returns, the call sites still hand
+ * the winning copy concept names it cannot resolve, and its StatCard prints
+ * `dashicons-revenue` -- no glyph, on every PHP KPI card, with no error and
+ * every gate green. The other half is AssetManager::stats_grid_html(), which
+ * resolves the concepts itself before delegating to a kit that cannot; see
+ * IconConcepts::LEGACY_SUFFIX. Removing either half re-opens the defect.
  */
 add_action(
 	'plugins_loaded',

@@ -43,4 +43,42 @@ final class IconConcepts {
 		// rental fleet.
 		'vehicles' => 'car',
 	);
+
+	/**
+	 * Concept => the glyph to draw when the WINNING ui-core cannot resolve it.
+	 *
+	 * 🔴 WHY A SECOND MAP EXISTS, AND WHY IT IS NOT REDUNDANT. ui-core
+	 * arbitrates by version: the highest registered copy boots and serves every
+	 * plugin on the site. A sibling MHM plugin bundling 0.11-0.13 can therefore
+	 * win over Rentiva's 0.14 -- that is a supported install, not a broken one.
+	 * Those copies have no `Kit\Icons`; their StatCard concatenates
+	 * `'dashicons dashicons-' . $icon` with no resolution step. Handing such a
+	 * copy `revenue` prints `dashicons-revenue`, a class no stylesheet defines,
+	 * and every PHP KPI card on the site loses its icon -- silently, with no
+	 * error and no failing gate. So Rentiva resolves the concept itself before
+	 * delegating, and this is the table it resolves from.
+	 *
+	 * 🔴 IT MUST NOT DRIFT FROM THE PACKAGE. Every entry is asserted equal to
+	 * `Icons::resolve()` by IconConceptsLegacyKitTest, and that same test scans
+	 * the PHP call sites and fails when one writes a concept missing here. A
+	 * missing entry is the whole defect; a stale value is a silent pixel
+	 * change.
+	 *
+	 * Only the PHP path needs this. The JSX registry is bundled at build time
+	 * out of Rentiva's OWN vendor copy, so a React card resolves its concepts
+	 * no matter which PHP copy won.
+	 *
+	 * @var array<string, string>
+	 */
+	public const LEGACY_SUFFIX = array(
+		'revenue'   => 'money-alt',
+		'total'     => 'chart-bar',
+		'rate'      => 'chart-line',
+		'customers' => 'admin-users',
+		'pending'   => 'clock',
+		'active'    => 'yes-alt',
+		'new'       => 'plus-alt',
+		'time'      => 'calendar-alt',
+		'vehicles'  => 'car',
+	);
 }
