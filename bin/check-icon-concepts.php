@@ -109,19 +109,14 @@ $accepted_raw = array(
 	// BookingColumns: the "Completed" card. The seed's `active` draws yes-alt
 	// (the circled tick); this card has always drawn the plain tick.
 	'yes'        => array( 1, 'plain tick on the completed-bookings card; no concept draws it' ),
-	// 🔴 OPEN (audit I-1): the two cards below still draw `groups` while every
-	// other customer card, in both editions, draws `customers` (admin-users).
-	// Converting them changes pixels, so it waits for a visual decision; this
-	// entry goes when they do, and the gate will say so.
-	'groups'     => array( 2, 'customers/StatsCards.jsx + dashboard/StatsCards.jsx, pending audit I-1' ),
 	// shortcode-pages/StatsBar.jsx: page-status counters with no product noun.
 	'admin-page' => array( 1, 'shortcode pages: Total' ),
 	'warning'    => array( 1, 'shortcode pages: Missing' ),
 );
 
-// 🔴 WHAT THE COUNT DOES NOT SEE: a relocation. Converting one `groups` card
-// and giving `groups` to a new card in the same change keeps the count at 2
-// and passes. Closing that means counting per file; it was left as a recorded
+// 🔴 WHAT THE COUNT DOES NOT SEE: a relocation. Converting the `yes` card and
+// giving `yes` to a new card in the same change keeps the count at 1 and
+// passes. Closing that means counting per file; it was left as a recorded
 // debt (third independent audit, 2026-09-22) because it needs two opposite
 // edits landing together, and a reviewer sees both in one diff.
 
