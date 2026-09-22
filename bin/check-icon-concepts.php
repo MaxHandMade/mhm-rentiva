@@ -31,16 +31,26 @@
  * The package's own function names find zero call sites here — every one goes
  * through a product wrapper — so the anchors are those wrappers.
  *
- * 🔴 WHAT A CLEAN RUN DOES NOT MEAN. The scanner matches per FILE: a file that
- * mentions an anchor has all of its `icon` values read, including ones that
- * belong to the other two vocabularies. Those land in the `unknown` bucket,
- * which does not fail — so a clean exit means "no call site wrote a suffix
- * that has a concept", not "no raw suffix exists". The package's own docblock
- * lists the rest of its blind spots (a value in a variable, one built with
- * sprintf, a dynamic JSX prop).
+ * 🔴 WHY THE `unknown` BUCKET FAILS UNLESS IT IS NAMED BELOW. The scanner
+ * matches per FILE: a file that mentions an anchor has all of its `icon`
+ * values read, including ones that belong to the other two vocabularies.
+ * Those land in `unknown`. So does a misspelled concept: `'revenu'` is
+ * neither a concept nor a suffix with one, and it reaches the browser as
+ * `dashicons-revenu`, which draws nothing -- under every kit version, with no
+ * error. The first version of this gate let that bucket pass, so a typo
+ * produced exactly the failure the vocabulary exists to prevent while the
+ * gate said "converged" (an independent audit found it, 2026-09-22). Every
+ * value that is legitimately not a concept is therefore named in
+ * $accepted_raw with its reason; anything else in `unknown` fails, and so
+ * does an entry nothing writes any more, so the list cannot rot into a
+ * blanket pass. The package's own docblock lists the scanner's remaining
+ * blind spots (a value in a variable, one built with sprintf, a dynamic JSX
+ * prop).
  *
  * Exit codes: 0 = converged, 1 = a call site wrote a suffix with a concept,
- * 2 = the run measured nothing (an empty gate is a broken gate).
+ * a value that is neither a concept nor accepted, or an accepted value no
+ * call site writes; 2 = the run measured nothing (an empty gate is a broken
+ * gate).
  *
  * @package Mhm_Rentiva
  */
@@ -50,6 +60,22 @@ declare(strict_types=1);
 $root    = dirname( __DIR__ );
 $package = $root . '/vendor/mhm/ui-core/src/Kit';
 
+// 🔴 A RUN THAT NEVER REACHES THE VERDICT IS NOT A PASS. An `exit` anywhere
+// below -- a direct-access guard in a required file was the measured case --
+// ends the process with status 0 and no output, which CI reads as "converged".
+// Shutdown functions still run after such an exit, and an exit() inside one
+// replaces the status, so the run is failed here unless the verdict line set
+// the flag.
+$verdict_reached = false;
+register_shutdown_function(
+	static function () use ( &$verdict_reached ): void {
+		if ( ! $verdict_reached ) {
+			fwrite( STDERR, "MEASURE-FAILED: the gate stopped before its verdict; nothing was measured.\n" );
+			exit( 2 );
+		}
+	}
+);
+
 foreach ( array( $package . '/Icons.php', $package . '/IconConceptScanner.php' ) as $file ) {
 	if ( ! is_file( $file ) ) {
 		fwrite( STDERR, "MEASURE-FAILED: the package's scanner is not installed: {$file}\n" );
@@ -58,7 +84,32 @@ foreach ( array( $package . '/Icons.php', $package . '/IconConceptScanner.php' )
 	require_once $file;
 }
 
+// The vocabulary file carries the direct-access guard every shipped class file
+// carries. Without this define, requiring it outside WordPress would `exit`
+// inside the require -- which the shutdown check above turns into a failure
+// rather than a silent pass, but the gate would still measure nothing.
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', $root . '/' );
+}
+
 require_once $root . '/src/Admin/Core/IconConcepts.php';
+
+// Values an anchored file writes as `icon` that are deliberately NOT concepts.
+// Each one needs a reason; a value without one is a typo until proven
+// otherwise.
+$accepted_raw = array(
+	// BookingColumns: the "Completed" card. The seed's `active` draws yes-alt
+	// (the circled tick); this card has always drawn the plain tick.
+	'yes'        => 'plain tick on the completed-bookings card; no concept draws it',
+	// 🔴 OPEN (audit I-1): the two cards below still draw `groups` while every
+	// other customer card, in both editions, draws `customers` (admin-users).
+	// Converting them changes pixels, so it waits for a visual decision; this
+	// entry goes when they do, and the gate will say so.
+	'groups'     => 'customers/StatsCards.jsx + dashboard/StatsCards.jsx, pending audit I-1',
+	// shortcode-pages/StatsBar.jsx: page-status counters with no product noun.
+	'admin-page' => 'shortcode pages: Total',
+	'warning'    => 'shortcode pages: Missing',
+);
 
 \MHMUiCore\Kit\Icons::register( \MHMRentiva\Admin\Core\IconConcepts::MAP );
 
@@ -93,8 +144,23 @@ if ( 0 === $measured ) {
 	exit( 2 );
 }
 
+$unaccepted = array();
+$seen       = array();
+
 foreach ( $result['unknown'] as $hit ) {
-	printf( "unknown  %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
+	if ( isset( $accepted_raw[ $hit['value'] ] ) ) {
+		$seen[ $hit['value'] ] = true;
+		printf( "accepted %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
+		continue;
+	}
+	$unaccepted[] = $hit;
+	printf( "UNKNOWN  %s:%d  '%s' -- not a concept and not accepted; a typo draws nothing%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
+}
+
+$stale = array_keys( array_diff_key( $accepted_raw, $seen ) );
+
+foreach ( $stale as $value ) {
+	printf( "STALE    '%s' is accepted but no call site writes it -- remove it from \$accepted_raw%s", $value, PHP_EOL );
 }
 
 foreach ( $result['raw'] as $hit ) {
@@ -108,12 +174,20 @@ foreach ( $result['raw'] as $hit ) {
 	);
 }
 
+// The file count is printed because it is the number this tree kept getting
+// wrong (see the templates/ note above): a verdict without it cannot be
+// checked against the directories it claims to have read.
 printf(
-	'icon-concepts: %d concept call site(s), %d raw, %d unknown%s',
+	'icon-concepts: %d file(s), %d concept call site(s), %d raw, %d accepted, %d unknown, %d stale%s',
+	$result['files'],
 	$result['concepts'],
 	count( $result['raw'] ),
-	count( $result['unknown'] ),
+	count( $result['unknown'] ) - count( $unaccepted ),
+	count( $unaccepted ),
+	count( $stale ),
 	PHP_EOL
 );
 
-exit( array() === $result['raw'] ? 0 : 1 );
+$verdict_reached = true;
+
+exit( array() === $result['raw'] && array() === $unaccepted && array() === $stale ? 0 : 1 );

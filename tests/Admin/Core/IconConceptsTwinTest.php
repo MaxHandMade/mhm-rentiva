@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Core;
 
 use MHMRentiva\Admin\Core\IconConcepts;
+use MHMRentiva\Admin\Core\ProIconConcepts;
 use WP_UnitTestCase;
 
 /**
@@ -84,6 +85,42 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 		}
 
 		$this->assertGreaterThan( 0, $checked, 'No bundle used a product concept; this test measured nothing.' );
+	}
+
+	/**
+	 * Lite and Pro both define `bookings` and `vehicles`, on purpose. ui-core's
+	 * PHP registry is last-write-wins and serves both plugins, so if the two
+	 * maps ever disagree, whichever plugin registers second silently decides
+	 * the glyph on BOTH plugins' PHP strips, while each JSX bundle keeps its
+	 * own -- one concept, two pictures, no error.
+	 *
+	 * Pro's suite asserts the same thing from its side, but that runs only
+	 * when Pro's CI runs. This is the half that fires when LITE changes the
+	 * shared entry (an independent audit found the guard was one-sided,
+	 * 2026-09-22). It needs Pro checked out as a sibling, which is how the
+	 * development tree is laid out; Lite's own CI has no Pro and skips it.
+	 */
+	public function test_lite_and_pro_agree_on_the_concepts_they_share(): void {
+		$pro = dirname( MHMRENTIVA_PLUGIN_PATH ) . '/mhm-rentiva-pro/src/Admin/Core/ProIconConcepts.php';
+
+		if ( ! is_file( $pro ) ) {
+			$this->markTestSkipped( 'Pro is not checked out as a sibling; the overlap cannot be measured here.' );
+		}
+
+		if ( ! class_exists( ProIconConcepts::class, false ) ) {
+			require_once $pro;
+		}
+
+		$shared = array_intersect_key( IconConcepts::MAP, ProIconConcepts::MAP );
+		$this->assertNotEmpty( $shared, 'Lite and Pro share no concept; this test measured nothing.' );
+
+		foreach ( $shared as $concept => $suffix ) {
+			$this->assertSame(
+				ProIconConcepts::MAP[ $concept ],
+				$suffix,
+				sprintf( 'Lite draws "%s" as %s while Pro draws it as %s; one concept, two pictures.', $concept, $suffix, ProIconConcepts::MAP[ $concept ] )
+			);
+		}
 	}
 
 	/** @return array<string, string> bundle name => absolute directory */
