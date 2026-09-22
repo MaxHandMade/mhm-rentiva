@@ -119,6 +119,21 @@ $accepted_raw = array(
 	'warning'    => array( 1, 'shortcode pages: Missing' ),
 );
 
+// 🔴 WHAT THE COUNT DOES NOT SEE: a relocation. Converting one `groups` card
+// and giving `groups` to a new card in the same change keeps the count at 2
+// and passes. Closing that means counting per file; it was left as a recorded
+// debt (third independent audit, 2026-09-22) because it needs two opposite
+// edits landing together, and a reviewer sees both in one diff.
+
+// The list's own shape is an input: an entry left as `value => 'reason'` (the
+// first version's shape, a plausible merge artefact) would be compared against
+// the reason's first character and blame the call site instead of the list.
+foreach ( $accepted_raw as $value => $entry ) {
+	if ( ! is_array( $entry ) || ! is_int( $entry[0] ?? null ) || ! is_string( $entry[1] ?? null ) ) {
+		$measure_failed( "malformed \$accepted_raw entry '{$value}': expected array( count, reason )" );
+	}
+}
+
 \MHMUiCore\Kit\Icons::register( \MHMRentiva\Admin\Core\IconConcepts::MAP );
 
 // The product wrappers every kit call site goes through, plus the JSX
