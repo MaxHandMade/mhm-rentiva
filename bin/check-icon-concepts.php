@@ -102,7 +102,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once $root . '/src/Admin/Core/IconConcepts.php';
 
 // Values an anchored file writes as `icon` that are deliberately NOT concepts:
-// value => array( array( file basename => how many call sites there ), why ).
+// value => array( array( path relative to the plugin root => how many call
+// sites there ), why ). A path, not a basename: this tree has two
+// StatsCards.jsx, and a basename key let a use move between them unseen
+// (fourth independent audit round, 2026-09-22).
 // A value without a reason is a typo until proven otherwise, and a count that
 // moves -- in any file -- is a new use nobody decided on.
 //
@@ -115,6 +118,18 @@ require_once $root . '/src/Admin/Core/IconConcepts.php';
 // as accepted (third independent audit, 2026-09-22).
 $accepted_raw = array();
 
+// Tests only: IconConceptGateTest supplies its own list (JSON, same shape) so
+// the per-file count can be exercised while this tree's list is empty.
+// Nothing in CI or composer sets it, and the run says so on STDERR when it is.
+$accepted_override = getenv( 'MHM_ICON_GATE_ACCEPTED' );
+if ( is_string( $accepted_override ) && '' !== $accepted_override ) {
+	$accepted_raw = json_decode( $accepted_override, true );
+	if ( ! is_array( $accepted_raw ) ) {
+		$measure_failed( 'MHM_ICON_GATE_ACCEPTED is not a JSON object.' );
+	}
+	fwrite( STDERR, "NOTICE: MHM_ICON_GATE_ACCEPTED is set -- this run uses a test's accepted list, not this file's.\n" );
+}
+
 // The list's own shape is an input: an entry in an older shape (a plausible
 // merge artefact) would be compared as garbage and blame the call site
 // instead of the list.
@@ -124,7 +139,7 @@ foreach ( $accepted_raw as $value => $entry ) {
 		$files_ok = $files_ok && is_string( $file ) && is_int( $count ) && $count > 0;
 	}
 	if ( ! $files_ok || ! is_string( $entry[1] ?? null ) ) {
-		$measure_failed( "malformed \$accepted_raw entry '{$value}': expected array( array( basename => count ), reason )" );
+		$measure_failed( "malformed \$accepted_raw entry '{$value}': expected array( array( relative path => count ), reason )" );
 	}
 }
 
@@ -144,13 +159,31 @@ $anchors = array( 'stats_grid_html', 'ProKit::grid', 'StatsGrid' );
 // wrong count came from a scan that read src/ and src-react/ and stopped.
 $paths = array_values( array_filter( array( $root . '/src', $root . '/src-react', $root . '/templates' ), 'is_dir' ) );
 
+// Accepted-value paths are relative to these bases. Normally the plugin root.
+$bases = array( $root );
+
 // Tests only: IconConceptGateTest points the gate at a fixture directory to
-// pin its verdicts (clean, typo, raw suffix, miscount) as exit codes. Nothing
-// in CI or composer sets this.
+// pin its verdicts (clean, typo, raw suffix, miscount, stale, measured
+// nothing) as exit codes. Nothing in CI or composer sets this, and a run
+// that honours it says so on STDERR -- a verdict over a fixture must never
+// read like one over the tree.
 $override = getenv( 'MHM_ICON_GATE_PATHS' );
 if ( is_string( $override ) && '' !== $override ) {
 	$paths = array_values( array_filter( explode( PATH_SEPARATOR, $override ), 'is_dir' ) );
+	$bases = $paths;
+	fwrite( STDERR, 'NOTICE: MHM_ICON_GATE_PATHS is set -- scanning ' . implode( ', ', $paths ) . " instead of this tree.\n" );
 }
+
+$relative = static function ( string $file ) use ( $bases ): string {
+	$file = str_replace( '\\', '/', $file );
+	foreach ( $bases as $base ) {
+		$base = rtrim( str_replace( '\\', '/', $base ), '/' ) . '/';
+		if ( 0 === strpos( $file, $base ) ) {
+			return substr( $file, strlen( $base ) );
+		}
+	}
+	return $file;
+};
 
 $scanner = new \MHMUiCore\Kit\IconConceptScanner( $anchors );
 $result  = $scanner->scan( $paths );
@@ -174,8 +207,8 @@ $seen       = array();
 
 foreach ( $result['unknown'] as $hit ) {
 	if ( isset( $accepted_raw[ $hit['value'] ] ) ) {
-		$base                            = basename( str_replace( '\\', '/', $hit['file'] ) );
-		$seen[ $hit['value'] ][ $base ] = ( $seen[ $hit['value'] ][ $base ] ?? 0 ) + 1;
+		$where                           = $relative( $hit['file'] );
+		$seen[ $hit['value'] ][ $where ] = ( $seen[ $hit['value'] ][ $where ] ?? 0 ) + 1;
 		printf( "accepted %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
 		continue;
 	}

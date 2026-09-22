@@ -95,6 +95,10 @@ final class IconConcepts {
 	 * missing entry is the whole defect; a stale value is a silent pixel
 	 * change.
 	 *
+	 * Exactly the concepts Lite's PHP call sites write -- no more (a row nothing
+	 * writes was pruned 2026-09-22, so this table stays a list of real needs),
+	 * no less (IconConceptsLegacyKitTest fails on a missing one).
+	 *
 	 * Only the PHP path needs this. The JSX registry is bundled at build time
 	 * out of Rentiva's OWN vendor copy, so a React card resolves its concepts
 	 * no matter which PHP copy won.
@@ -103,12 +107,8 @@ final class IconConcepts {
 	 */
 	public const LEGACY_SUFFIX = array(
 		'revenue'   => 'money-alt',
-		'total'     => 'chart-bar',
-		'rate'      => 'chart-line',
-		'customers' => 'admin-users',
 		'pending'   => 'clock',
 		'active'    => 'yes-alt',
-		'new'       => 'plus-alt',
 		'bookings'  => 'calendar-alt',
 		'vehicles'  => 'car',
 		'items'     => 'products',
