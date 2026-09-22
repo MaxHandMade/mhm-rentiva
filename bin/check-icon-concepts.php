@@ -41,15 +41,15 @@
  * produced exactly the failure the vocabulary exists to prevent while the
  * gate said "converged" (an independent audit found it, 2026-09-22). Every
  * value that is legitimately not a concept is therefore named in
- * $accepted_raw with its reason; anything else in `unknown` fails, and so
- * does an entry nothing writes any more, so the list cannot rot into a
- * blanket pass. The package's own docblock lists the scanner's remaining
+ * $accepted_raw with its reason and how many call sites write it; anything
+ * else in `unknown` fails, and so does an entry written more or fewer times
+ * than recorded, so the list cannot rot into a blanket pass. The package's own docblock lists the scanner's remaining
  * blind spots (a value in a variable, one built with sprintf, a dynamic JSX
  * prop).
  *
  * Exit codes: 0 = converged, 1 = a call site wrote a suffix with a concept,
- * a value that is neither a concept nor accepted, or an accepted value no
- * call site writes; 2 = the run measured nothing (an empty gate is a broken
+ * a value that is neither a concept nor accepted, or an accepted value
+ * written a different number of times than recorded; 2 = the run measured nothing (an empty gate is a broken
  * gate).
  *
  * @package Mhm_Rentiva
@@ -76,10 +76,17 @@ register_shutdown_function(
 	}
 );
 
+// Every deliberate "measured nothing" exit goes through here, so it reports
+// once and the shutdown check above does not report it a second time.
+$measure_failed = static function ( string $why ) use ( &$verdict_reached ): void {
+	$verdict_reached = true;
+	fwrite( STDERR, 'MEASURE-FAILED: ' . $why . "\n" );
+	exit( 2 );
+};
+
 foreach ( array( $package . '/Icons.php', $package . '/IconConceptScanner.php' ) as $file ) {
 	if ( ! is_file( $file ) ) {
-		fwrite( STDERR, "MEASURE-FAILED: the package's scanner is not installed: {$file}\n" );
-		exit( 2 );
+		$measure_failed( "the package's scanner is not installed: {$file}" );
 	}
 	require_once $file;
 }
@@ -94,21 +101,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once $root . '/src/Admin/Core/IconConcepts.php';
 
-// Values an anchored file writes as `icon` that are deliberately NOT concepts.
-// Each one needs a reason; a value without one is a typo until proven
-// otherwise.
+// Values an anchored file writes as `icon` that are deliberately NOT concepts:
+// value => array( how many call sites write it, why ). A value without a
+// reason is a typo until proven otherwise, and a count that moves is a new
+// use nobody decided on.
 $accepted_raw = array(
 	// BookingColumns: the "Completed" card. The seed's `active` draws yes-alt
 	// (the circled tick); this card has always drawn the plain tick.
-	'yes'        => 'plain tick on the completed-bookings card; no concept draws it',
+	'yes'        => array( 1, 'plain tick on the completed-bookings card; no concept draws it' ),
 	// 🔴 OPEN (audit I-1): the two cards below still draw `groups` while every
 	// other customer card, in both editions, draws `customers` (admin-users).
 	// Converting them changes pixels, so it waits for a visual decision; this
 	// entry goes when they do, and the gate will say so.
-	'groups'     => 'customers/StatsCards.jsx + dashboard/StatsCards.jsx, pending audit I-1',
+	'groups'     => array( 2, 'customers/StatsCards.jsx + dashboard/StatsCards.jsx, pending audit I-1' ),
 	// shortcode-pages/StatsBar.jsx: page-status counters with no product noun.
-	'admin-page' => 'shortcode pages: Total',
-	'warning'    => 'shortcode pages: Missing',
+	'admin-page' => array( 1, 'shortcode pages: Total' ),
+	'warning'    => array( 1, 'shortcode pages: Missing' ),
 );
 
 \MHMUiCore\Kit\Icons::register( \MHMRentiva\Admin\Core\IconConcepts::MAP );
@@ -131,17 +139,17 @@ $scanner = new \MHMUiCore\Kit\IconConceptScanner( $anchors );
 $result  = $scanner->scan( $paths );
 
 if ( array() !== ( $result['failed'] ?? array() ) ) {
+	$reasons = array();
 	foreach ( $result['failed'] as $failure ) {
-		fwrite( STDERR, 'MEASURE-FAILED: ' . ( is_array( $failure ) ? implode( ' ', $failure ) : (string) $failure ) . "\n" );
+		$reasons[] = is_array( $failure ) ? implode( ' ', $failure ) : (string) $failure;
 	}
-	exit( 2 );
+	$measure_failed( implode( "\nMEASURE-FAILED: ", $reasons ) );
 }
 
 $measured = $result['concepts'] + count( $result['raw'] ) + count( $result['unknown'] );
 
 if ( 0 === $measured ) {
-	fwrite( STDERR, "MEASURE-FAILED: no anchored file carried a readable icon value; the anchors or the paths are wrong.\n" );
-	exit( 2 );
+	$measure_failed( 'no anchored file carried a readable icon value; the anchors or the paths are wrong.' );
 }
 
 $unaccepted = array();
@@ -149,7 +157,7 @@ $seen       = array();
 
 foreach ( $result['unknown'] as $hit ) {
 	if ( isset( $accepted_raw[ $hit['value'] ] ) ) {
-		$seen[ $hit['value'] ] = true;
+		$seen[ $hit['value'] ] = ( $seen[ $hit['value'] ] ?? 0 ) + 1;
 		printf( "accepted %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
 		continue;
 	}
@@ -157,10 +165,23 @@ foreach ( $result['unknown'] as $hit ) {
 	printf( "UNKNOWN  %s:%d  '%s' -- not a concept and not accepted; a typo draws nothing%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
 }
 
-$stale = array_keys( array_diff_key( $accepted_raw, $seen ) );
+// An accepted value is accepted a known number of times, not anywhere. A
+// value-only key let a third card quietly adopt `groups`, or a half-converted
+// pair pass, and still read as accepted -- the second independent audit's
+// finding. Counting keeps line numbers out of this file and fails both.
+$miscounted = array();
 
-foreach ( $stale as $value ) {
-	printf( "STALE    '%s' is accepted but no call site writes it -- remove it from \$accepted_raw%s", $value, PHP_EOL );
+foreach ( $accepted_raw as $value => $entry ) {
+	$found = $seen[ $value ] ?? 0;
+	if ( $found === $entry[0] ) {
+		continue;
+	}
+	$miscounted[] = $value;
+	if ( 0 === $found ) {
+		printf( "STALE    '%s' is accepted but no call site writes it -- remove it from \$accepted_raw%s", $value, PHP_EOL );
+	} else {
+		printf( "COUNT    '%s' is accepted %d time(s) but written %d -- a new use needs a concept or a reason (%s)%s", $value, $entry[0], $found, $entry[1], PHP_EOL );
+	}
 }
 
 foreach ( $result['raw'] as $hit ) {
@@ -178,16 +199,16 @@ foreach ( $result['raw'] as $hit ) {
 // wrong (see the templates/ note above): a verdict without it cannot be
 // checked against the directories it claims to have read.
 printf(
-	'icon-concepts: %d file(s), %d concept call site(s), %d raw, %d accepted, %d unknown, %d stale%s',
+	'icon-concepts: %d file(s), %d concept call site(s), %d raw, %d accepted, %d unknown, %d miscounted%s',
 	$result['files'],
 	$result['concepts'],
 	count( $result['raw'] ),
 	count( $result['unknown'] ) - count( $unaccepted ),
 	count( $unaccepted ),
-	count( $stale ),
+	count( $miscounted ),
 	PHP_EOL
 );
 
 $verdict_reached = true;
 
-exit( array() === $result['raw'] && array() === $unaccepted && array() === $stale ? 0 : 1 );
+exit( array() === $result['raw'] && array() === $unaccepted && array() === $miscounted ? 0 : 1 );
