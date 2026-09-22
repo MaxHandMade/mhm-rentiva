@@ -21,6 +21,12 @@
  * Changing a shared glyph is therefore a two-repository change by design:
  * this file, Lite's map and Pro's map move together.
  *
+ * 🔴 Pro reads THIS PATH from its Lite checkout (MHMRENTIVA_PLUGIN_PATH .
+ * 'tests/fixtures/...'). Moving or renaming it turns Pro's CI red with no
+ * glyph defect; move it only together with Pro's test. A concept Lite adds
+ * that Pro already defines must be listed here -- icon-concepts-pro-keys.php
+ * is how Lite's own CI notices.
+ *
  * @package Mhm_Rentiva
  */
 
