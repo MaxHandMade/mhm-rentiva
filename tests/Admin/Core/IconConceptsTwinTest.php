@@ -88,23 +88,10 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Lite and Pro both define `bookings` and `vehicles`, on purpose. ui-core's
-	 * PHP registry is last-write-wins and serves both plugins, so if the two
-	 * maps ever disagree, whichever plugin registers second silently decides
-	 * the glyph on BOTH plugins' PHP strips, while each JSX bundle keeps its
-	 * own -- one concept, two pictures, no error.
-	 *
-	 * Pro's suite asserts the same thing from its side, but that runs only
-	 * when Pro's CI runs. This is the half that fires when LITE changes the
-	 * shared entry (an independent audit found the guard was one-sided,
-	 * 2026-09-22). It needs Pro checked out as a sibling, which is how the
-	 * development tree is laid out; Lite's own CI has no Pro and skips it.
-	 */
-	/**
 	 * The half of the Lite/Pro contract that cannot skip. Lite's CI has no Pro
-	 * (it is private), so the comparison below skips there; this one reads the
-	 * shared-entry contract committed in tests/fixtures and runs everywhere.
-	 * Pro's suite asserts the same file against Pro's map.
+	 * (it is private), so the sibling comparison further down skips there;
+	 * this one reads the shared-entry contract committed in tests/fixtures and
+	 * runs everywhere. Pro's suite asserts the same file against Pro's map.
 	 */
 	public function test_the_shared_entries_match_the_contract_pro_also_asserts(): void {
 		$contract = require MHMRENTIVA_PLUGIN_PATH . 'tests/fixtures/icon-concepts-shared-with-pro.php';
@@ -132,6 +119,69 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * The contract lists the entries Lite and Pro share TODAY. A concept Lite
+	 * adds that Pro already defines would be shared without being listed, and
+	 * the test above -- which walks the contract -- would never look at it
+	 * (fourth independent audit, 2026-09-22). So Lite also keeps Pro's concept
+	 * NAMES (not glyphs; Pro's suite pins this list to its real map) and every
+	 * Lite run checks that nothing outside the contract overlaps them.
+	 */
+	public function test_no_lite_concept_overlaps_pro_outside_the_contract(): void {
+		$contract = require MHMRENTIVA_PLUGIN_PATH . 'tests/fixtures/icon-concepts-shared-with-pro.php';
+		$pro_keys = require MHMRENTIVA_PLUGIN_PATH . 'tests/fixtures/icon-concepts-pro-keys.php';
+
+		$this->assertIsArray( $pro_keys );
+		$this->assertNotEmpty( $pro_keys, 'The Pro concept-name list is empty; this test measured nothing.' );
+
+		// The list's own shape is Lite's to hold: array_flip() below would
+		// silently collapse a duplicate or choke on a non-string.
+		foreach ( $pro_keys as $name ) {
+			$this->assertIsString( $name, 'tests/fixtures/icon-concepts-pro-keys.php must list concept names as strings.' );
+		}
+		$this->assertSame(
+			array_values( array_unique( $pro_keys ) ),
+			array_values( $pro_keys ),
+			'tests/fixtures/icon-concepts-pro-keys.php lists a concept name twice.'
+		);
+
+		$overlap = array_keys( array_intersect_key( IconConcepts::MAP, array_flip( $pro_keys ) ) );
+
+		// Two ways to disagree, two different fixes -- the message names which.
+		$unlisted = array_diff( $overlap, array_keys( $contract ) );
+		$stale    = array_diff( array_keys( $contract ), $overlap );
+
+		$this->assertSame(
+			array(),
+			array_values( $unlisted ),
+			sprintf(
+				'Lite defines %s, which Pro also defines, but the shared-entry contract does not list it. '
+				. 'Add it to tests/fixtures/icon-concepts-shared-with-pro.php with the glyph both editions draw.',
+				implode( ', ', $unlisted )
+			)
+		);
+		$this->assertSame(
+			array(),
+			array_values( $stale ),
+			sprintf(
+				'The shared-entry contract lists %s, which is no longer defined by both editions. '
+				. 'Remove it from tests/fixtures/icon-concepts-shared-with-pro.php.',
+				implode( ', ', $stale )
+			)
+		);
+	}
+
+	/**
+	 * Lite and Pro both define `bookings` and `vehicles`, on purpose. ui-core's
+	 * PHP registry is last-write-wins and serves both plugins, so if the two
+	 * maps ever disagree, whichever plugin registers second silently decides
+	 * the glyph on BOTH plugins' PHP strips, while each JSX bundle keeps its
+	 * own -- one concept, two pictures, no error.
+	 *
+	 * This compares against Pro's real file. It needs Pro checked out as a
+	 * sibling, which is how the development tree is laid out; Lite's own CI has
+	 * no Pro and skips it -- the two contract tests above are what hold there.
+	 */
 	public function test_lite_and_pro_agree_on_the_concepts_they_share(): void {
 		$pro = dirname( MHMRENTIVA_PLUGIN_PATH ) . '/mhm-rentiva-pro/src/Admin/Core/ProIconConcepts.php';
 
