@@ -41,16 +41,16 @@
  * produced exactly the failure the vocabulary exists to prevent while the
  * gate said "converged" (an independent audit found it, 2026-09-22). Every
  * value that is legitimately not a concept is therefore named in
- * $accepted_raw with its reason and how many call sites write it; anything
- * else in `unknown` fails, and so does an entry written more or fewer times
- * than recorded, so the list cannot rot into a blanket pass. The package's own docblock lists the scanner's remaining
- * blind spots (a value in a variable, one built with sprintf, a dynamic JSX
- * prop).
+ * $accepted_raw with its reason and where it is written (file, count);
+ * anything else in `unknown` fails, and so does an entry written in other
+ * files or other numbers than recorded, so the list cannot rot into a blanket
+ * pass. The package's own docblock lists the scanner's remaining blind spots
+ * (a value in a variable, one built with sprintf, a dynamic JSX prop).
  *
  * Exit codes: 0 = converged, 1 = a call site wrote a suffix with a concept,
  * a value that is neither a concept nor accepted, or an accepted value
- * written a different number of times than recorded; 2 = the run measured nothing (an empty gate is a broken
- * gate).
+ * written other than recorded; 2 = the run measured nothing (an empty gate is
+ * a broken gate).
  *
  * @package Mhm_Rentiva
  */
@@ -102,30 +102,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once $root . '/src/Admin/Core/IconConcepts.php';
 
 // Values an anchored file writes as `icon` that are deliberately NOT concepts:
-// value => array( how many call sites write it, why ). A value without a
-// reason is a typo until proven otherwise, and a count that moves is a new
-// use nobody decided on.
-$accepted_raw = array(
-	// BookingColumns: the "Completed" card. The seed's `active` draws yes-alt
-	// (the circled tick); this card has always drawn the plain tick.
-	'yes'        => array( 1, 'plain tick on the completed-bookings card; no concept draws it' ),
-	// shortcode-pages/StatsBar.jsx: page-status counters with no product noun.
-	'admin-page' => array( 1, 'shortcode pages: Total' ),
-	'warning'    => array( 1, 'shortcode pages: Missing' ),
-);
+// value => array( array( file basename => how many call sites there ), why ).
+// A value without a reason is a typo until proven otherwise, and a count that
+// moves -- in any file -- is a new use nobody decided on.
+//
+// EMPTY SINCE 2026-09-22: every Lite card now names a concept (the last three
+// raw values became `completed`, `pages` and `missing`). Keep it that way; an
+// entry here is an exception someone has to justify.
+//
+// Counted per FILE, not per value: a per-value count let one use move to
+// another card -- converted here, written there, same total -- and still read
+// as accepted (third independent audit, 2026-09-22).
+$accepted_raw = array();
 
-// 🔴 WHAT THE COUNT DOES NOT SEE: a relocation. Converting the `yes` card and
-// giving `yes` to a new card in the same change keeps the count at 1 and
-// passes. Closing that means counting per file; it was left as a recorded
-// debt (third independent audit, 2026-09-22) because it needs two opposite
-// edits landing together, and a reviewer sees both in one diff.
-
-// The list's own shape is an input: an entry left as `value => 'reason'` (the
-// first version's shape, a plausible merge artefact) would be compared against
-// the reason's first character and blame the call site instead of the list.
+// The list's own shape is an input: an entry in an older shape (a plausible
+// merge artefact) would be compared as garbage and blame the call site
+// instead of the list.
 foreach ( $accepted_raw as $value => $entry ) {
-	if ( ! is_array( $entry ) || ! is_int( $entry[0] ?? null ) || ! is_string( $entry[1] ?? null ) ) {
-		$measure_failed( "malformed \$accepted_raw entry '{$value}': expected array( count, reason )" );
+	$files_ok = is_array( $entry[0] ?? null ) && array() !== $entry[0];
+	foreach ( ( $files_ok ? $entry[0] : array() ) as $file => $count ) {
+		$files_ok = $files_ok && is_string( $file ) && is_int( $count ) && $count > 0;
+	}
+	if ( ! $files_ok || ! is_string( $entry[1] ?? null ) ) {
+		$measure_failed( "malformed \$accepted_raw entry '{$value}': expected array( array( basename => count ), reason )" );
 	}
 }
 
@@ -144,6 +143,14 @@ $anchors = array( 'stats_grid_html', 'ProKit::grid', 'StatsGrid' );
 // the count of kit call sites was written wrong four times running, and every
 // wrong count came from a scan that read src/ and src-react/ and stopped.
 $paths = array_values( array_filter( array( $root . '/src', $root . '/src-react', $root . '/templates' ), 'is_dir' ) );
+
+// Tests only: IconConceptGateTest points the gate at a fixture directory to
+// pin its verdicts (clean, typo, raw suffix, miscount) as exit codes. Nothing
+// in CI or composer sets this.
+$override = getenv( 'MHM_ICON_GATE_PATHS' );
+if ( is_string( $override ) && '' !== $override ) {
+	$paths = array_values( array_filter( explode( PATH_SEPARATOR, $override ), 'is_dir' ) );
+}
 
 $scanner = new \MHMUiCore\Kit\IconConceptScanner( $anchors );
 $result  = $scanner->scan( $paths );
@@ -167,7 +174,8 @@ $seen       = array();
 
 foreach ( $result['unknown'] as $hit ) {
 	if ( isset( $accepted_raw[ $hit['value'] ] ) ) {
-		$seen[ $hit['value'] ] = ( $seen[ $hit['value'] ] ?? 0 ) + 1;
+		$base                            = basename( str_replace( '\\', '/', $hit['file'] ) );
+		$seen[ $hit['value'] ][ $base ] = ( $seen[ $hit['value'] ][ $base ] ?? 0 ) + 1;
 		printf( "accepted %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
 		continue;
 	}
@@ -175,23 +183,40 @@ foreach ( $result['unknown'] as $hit ) {
 	printf( "UNKNOWN  %s:%d  '%s' -- not a concept and not accepted; a typo draws nothing%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
 }
 
-// An accepted value is accepted a known number of times, not anywhere. A
-// value-only key let a third card quietly adopt `groups`, or a half-converted
-// pair pass, and still read as accepted -- the second independent audit's
-// finding. Counting keeps line numbers out of this file and fails both.
+// An accepted value is accepted a known number of times IN KNOWN FILES, not
+// anywhere: a value-only key let a third card adopt a raw value (second
+// independent audit), and a per-value total let one use move between cards
+// (third). Line numbers still stay out of this file.
 $miscounted = array();
 
 foreach ( $accepted_raw as $value => $entry ) {
-	$found = $seen[ $value ] ?? 0;
-	if ( $found === $entry[0] ) {
+	$expected = $entry[0];
+	$found    = $seen[ $value ] ?? array();
+	ksort( $expected );
+	ksort( $found );
+	if ( $found === $expected ) {
 		continue;
 	}
 	$miscounted[] = $value;
-	if ( 0 === $found ) {
+	if ( array() === $found ) {
 		printf( "STALE    '%s' is accepted but no call site writes it -- remove it from \$accepted_raw%s", $value, PHP_EOL );
-	} else {
-		printf( "COUNT    '%s' is accepted %d time(s) but written %d -- a new use needs a concept or a reason (%s)%s", $value, $entry[0], $found, $entry[1], PHP_EOL );
+		continue;
 	}
+	$describe = static function ( array $per_file ): string {
+		$parts = array();
+		foreach ( $per_file as $file => $count ) {
+			$parts[] = $file . ' x' . $count;
+		}
+		return array() === $parts ? 'nowhere' : implode( ', ', $parts );
+	};
+	printf(
+		"COUNT    '%s' is accepted in %s but written in %s -- a new or moved use needs a concept or a reason (%s)%s",
+		$value,
+		$describe( $expected ),
+		$describe( $found ),
+		$entry[1],
+		PHP_EOL
+	);
 }
 
 foreach ( $result['raw'] as $hit ) {

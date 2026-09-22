@@ -19,10 +19,11 @@ import DashboardPage from './DashboardPage';
  * cards use seed concepts only (`revenue`, `active`, `new`, `time`…) resolve
  * them without any registration.
  *
- * Same value as the PHP side, deliberately: `vehicles` must draw the same
- * glyph whether a strip is rendered in PHP or in React.
+ * Same value as the PHP side, deliberately: `bookings` must draw the same
+ * glyph whether a strip is rendered in PHP or in React. (`vehicles` left this
+ * list when "Active Vehicles" became an `active` card, 2026-09-22.)
  */
-registerIcons( { vehicles: 'car', bookings: 'calendar-alt' } );
+registerIcons( { bookings: 'calendar-alt' } );
 
 const container = document.getElementById( 'mhm-rentiva-dashboard' );
 if ( container ) {

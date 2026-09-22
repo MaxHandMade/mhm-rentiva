@@ -155,8 +155,9 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 			array(),
 			array_values( $unlisted ),
 			sprintf(
-				'Lite defines %s, which Pro also defines, but the shared-entry contract does not list it. '
-				. 'Add it to tests/fixtures/icon-concepts-shared-with-pro.php with the glyph both editions draw.',
+				'Lite defines %s, which icon-concepts-pro-keys.php says Pro also defines, but the shared-entry '
+				. 'contract does not list it. If Pro does define it, add it to icon-concepts-shared-with-pro.php '
+				. 'with the glyph both editions draw; if Pro dropped it, remove the name from icon-concepts-pro-keys.php.',
 				implode( ', ', $unlisted )
 			)
 		);
@@ -195,6 +196,16 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 
 		$shared = array_intersect_key( IconConcepts::MAP, ProIconConcepts::MAP );
 		$this->assertNotEmpty( $shared, 'Lite and Pro share no concept; this test measured nothing.' );
+
+		// With the real Pro at hand, the name list can be checked here too,
+		// before Pro's own CI would: a Pro concept missing from it leaves Lite's
+		// overlap check blind to that concept.
+		$pro_keys = require MHMRENTIVA_PLUGIN_PATH . 'tests/fixtures/icon-concepts-pro-keys.php';
+		$this->assertSame(
+			array(),
+			array_values( array_diff( array_keys( ProIconConcepts::MAP ), $pro_keys ) ),
+			'Pro defines concepts that tests/fixtures/icon-concepts-pro-keys.php does not list.'
+		);
 
 		// The contract must name exactly the concepts the two maps share: a new
 		// shared concept missing from it would be guarded nowhere in Lite's CI.

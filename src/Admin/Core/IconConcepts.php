@@ -25,12 +25,14 @@ if (! defined('ABSPATH')) {
  * A vocabulary written out three times drifts, and a gate measuring a
  * different vocabulary than the product uses is worse than no gate.
  *
- * 🔴 EVERY ENTRY PRESERVES THE GLYPH ITS CALL SITES ALREADY DREW. ui-core was
- * written after this plugin was finished, so its vocabulary is not a norm this
- * product bends to: where a seed concept already resolved to the icon Rentiva
- * drew, the seed was adopted; where it did not, the product's existing icon
- * became the concept's target. Adopting the vocabulary changed no pixel — that
- * was measured across fifteen strips, not assumed.
+ * 🔴 A CARD NAMES WHAT ITS FIGURE MEANS, AND THE GLYPH FOLLOWS. Adopting the
+ * vocabulary first preserved every glyph (measured across fifteen strips), and
+ * that left cards whose concept contradicted their figure -- a booking count
+ * called `pending`, an occupancy rate called `total`. A central glyph change
+ * would then have moved them with the wrong group. The rule since 2026-09-22
+ * (approved pixel change): "Total X" cards use X's noun, "Active X" cards use
+ * `active`, money, rate and state cards use the concept for that. A new card
+ * picks its concept by that rule, not by the glyph it wants.
  *
  * This file must stay free of WordPress: the gate requires it outside WP,
  * defining ABSPATH first so the guard above lets it through.
@@ -54,6 +56,23 @@ final class IconConcepts {
 		// to say what the card means, and this one means bookings. `time` stays in
 		// the seed for a card that is genuinely temporal.
 		'bookings' => 'calendar-alt',
+
+		// A price, not revenue: the add-on screens show what services cost
+		// (average, sum of all prices), which nobody has been paid yet.
+		'price'    => 'money-alt',
+
+		// Bookings that finished. The seed's `active` means "in effect now";
+		// a completed booking is over, so it keeps the plain tick. Shared with
+		// Pro's vendor screen -- see tests/fixtures/icon-concepts-shared-with-pro.php.
+		'completed' => 'yes',
+
+		// Fleet occupancy, a rate. Shared with Pro, which drew it as a pie first.
+		'occupancy' => 'chart-pie',
+
+		// The shortcode-pages screen counts WordPress pages it created and the
+		// ones that are missing -- neither is a seed noun.
+		'pages'    => 'admin-page',
+		'missing'  => 'warning',
 	);
 
 	/**
@@ -92,5 +111,9 @@ final class IconConcepts {
 		'new'       => 'plus-alt',
 		'bookings'  => 'calendar-alt',
 		'vehicles'  => 'car',
+		'items'     => 'products',
+		'price'     => 'money-alt',
+		'completed' => 'yes',
+		'occupancy' => 'chart-pie',
 	);
 }

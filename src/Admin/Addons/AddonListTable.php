@@ -107,7 +107,7 @@ final class AddonListTable {
 			array(
 				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['total_addons'],
-				'icon'  => 'new',
+				'icon'  => 'items',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 			),
 			array(
@@ -124,14 +124,14 @@ final class AddonListTable {
 				'label' => __( 'Average Price', 'mhm-rentiva' ),
 				// Already formatted by AddonStats; not re-formatted here.
 				'value' => $stats['avg_price'],
-				'icon'  => 'revenue',
+				'icon'  => 'price',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 			),
 			array(
 				'label' => __( 'Total Value', 'mhm-rentiva' ),
 				// Already formatted by AddonStats; not re-formatted here.
 				'value' => $stats['total_value'],
-				'icon'  => 'rate',
+				'icon'  => 'price',
 				'sub'   => __( 'All prices', 'mhm-rentiva' ),
 			),
 		);
