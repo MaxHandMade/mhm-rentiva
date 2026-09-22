@@ -31,16 +31,26 @@
  * The package's own function names find zero call sites here — every one goes
  * through a product wrapper — so the anchors are those wrappers.
  *
- * 🔴 WHAT A CLEAN RUN DOES NOT MEAN. The scanner matches per FILE: a file that
- * mentions an anchor has all of its `icon` values read, including ones that
- * belong to the other two vocabularies. Those land in the `unknown` bucket,
- * which does not fail — so a clean exit means "no call site wrote a suffix
- * that has a concept", not "no raw suffix exists". The package's own docblock
- * lists the rest of its blind spots (a value in a variable, one built with
- * sprintf, a dynamic JSX prop).
+ * 🔴 WHY THE `unknown` BUCKET FAILS UNLESS IT IS NAMED BELOW. The scanner
+ * matches per FILE: a file that mentions an anchor has all of its `icon`
+ * values read, including ones that belong to the other two vocabularies.
+ * Those land in `unknown`. So does a misspelled concept: `'revenu'` is
+ * neither a concept nor a suffix with one, and it reaches the browser as
+ * `dashicons-revenu`, which draws nothing -- under every kit version, with no
+ * error. The first version of this gate let that bucket pass, so a typo
+ * produced exactly the failure the vocabulary exists to prevent while the
+ * gate said "converged" (an independent audit found it, 2026-09-22). Every
+ * value that is legitimately not a concept is therefore named in
+ * $accepted_raw with its reason and how many call sites write it; anything
+ * else in `unknown` fails, and so does an entry written more or fewer times
+ * than recorded, so the list cannot rot into a blanket pass. The package's own docblock lists the scanner's remaining
+ * blind spots (a value in a variable, one built with sprintf, a dynamic JSX
+ * prop).
  *
  * Exit codes: 0 = converged, 1 = a call site wrote a suffix with a concept,
- * 2 = the run measured nothing (an empty gate is a broken gate).
+ * a value that is neither a concept nor accepted, or an accepted value
+ * written a different number of times than recorded; 2 = the run measured nothing (an empty gate is a broken
+ * gate).
  *
  * @package Mhm_Rentiva
  */
@@ -50,15 +60,74 @@ declare(strict_types=1);
 $root    = dirname( __DIR__ );
 $package = $root . '/vendor/mhm/ui-core/src/Kit';
 
+// 🔴 A RUN THAT NEVER REACHES THE VERDICT IS NOT A PASS. An `exit` anywhere
+// below -- a direct-access guard in a required file was the measured case --
+// ends the process with status 0 and no output, which CI reads as "converged".
+// Shutdown functions still run after such an exit, and an exit() inside one
+// replaces the status, so the run is failed here unless the verdict line set
+// the flag.
+$verdict_reached = false;
+register_shutdown_function(
+	static function () use ( &$verdict_reached ): void {
+		if ( ! $verdict_reached ) {
+			fwrite( STDERR, "MEASURE-FAILED: the gate stopped before its verdict; nothing was measured.\n" );
+			exit( 2 );
+		}
+	}
+);
+
+// Every deliberate "measured nothing" exit goes through here, so it reports
+// once and the shutdown check above does not report it a second time.
+$measure_failed = static function ( string $why ) use ( &$verdict_reached ): void {
+	$verdict_reached = true;
+	fwrite( STDERR, 'MEASURE-FAILED: ' . $why . "\n" );
+	exit( 2 );
+};
+
 foreach ( array( $package . '/Icons.php', $package . '/IconConceptScanner.php' ) as $file ) {
 	if ( ! is_file( $file ) ) {
-		fwrite( STDERR, "MEASURE-FAILED: the package's scanner is not installed: {$file}\n" );
-		exit( 2 );
+		$measure_failed( "the package's scanner is not installed: {$file}" );
 	}
 	require_once $file;
 }
 
+// The vocabulary file carries the direct-access guard every shipped class file
+// carries. Without this define, requiring it outside WordPress would `exit`
+// inside the require -- which the shutdown check above turns into a failure
+// rather than a silent pass, but the gate would still measure nothing.
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', $root . '/' );
+}
+
 require_once $root . '/src/Admin/Core/IconConcepts.php';
+
+// Values an anchored file writes as `icon` that are deliberately NOT concepts:
+// value => array( how many call sites write it, why ). A value without a
+// reason is a typo until proven otherwise, and a count that moves is a new
+// use nobody decided on.
+$accepted_raw = array(
+	// BookingColumns: the "Completed" card. The seed's `active` draws yes-alt
+	// (the circled tick); this card has always drawn the plain tick.
+	'yes'        => array( 1, 'plain tick on the completed-bookings card; no concept draws it' ),
+	// shortcode-pages/StatsBar.jsx: page-status counters with no product noun.
+	'admin-page' => array( 1, 'shortcode pages: Total' ),
+	'warning'    => array( 1, 'shortcode pages: Missing' ),
+);
+
+// 🔴 WHAT THE COUNT DOES NOT SEE: a relocation. Converting the `yes` card and
+// giving `yes` to a new card in the same change keeps the count at 1 and
+// passes. Closing that means counting per file; it was left as a recorded
+// debt (third independent audit, 2026-09-22) because it needs two opposite
+// edits landing together, and a reviewer sees both in one diff.
+
+// The list's own shape is an input: an entry left as `value => 'reason'` (the
+// first version's shape, a plausible merge artefact) would be compared against
+// the reason's first character and blame the call site instead of the list.
+foreach ( $accepted_raw as $value => $entry ) {
+	if ( ! is_array( $entry ) || ! is_int( $entry[0] ?? null ) || ! is_string( $entry[1] ?? null ) ) {
+		$measure_failed( "malformed \$accepted_raw entry '{$value}': expected array( count, reason )" );
+	}
+}
 
 \MHMUiCore\Kit\Icons::register( \MHMRentiva\Admin\Core\IconConcepts::MAP );
 
@@ -80,21 +149,49 @@ $scanner = new \MHMUiCore\Kit\IconConceptScanner( $anchors );
 $result  = $scanner->scan( $paths );
 
 if ( array() !== ( $result['failed'] ?? array() ) ) {
+	$reasons = array();
 	foreach ( $result['failed'] as $failure ) {
-		fwrite( STDERR, 'MEASURE-FAILED: ' . ( is_array( $failure ) ? implode( ' ', $failure ) : (string) $failure ) . "\n" );
+		$reasons[] = is_array( $failure ) ? implode( ' ', $failure ) : (string) $failure;
 	}
-	exit( 2 );
+	$measure_failed( implode( "\nMEASURE-FAILED: ", $reasons ) );
 }
 
 $measured = $result['concepts'] + count( $result['raw'] ) + count( $result['unknown'] );
 
 if ( 0 === $measured ) {
-	fwrite( STDERR, "MEASURE-FAILED: no anchored file carried a readable icon value; the anchors or the paths are wrong.\n" );
-	exit( 2 );
+	$measure_failed( 'no anchored file carried a readable icon value; the anchors or the paths are wrong.' );
 }
 
+$unaccepted = array();
+$seen       = array();
+
 foreach ( $result['unknown'] as $hit ) {
-	printf( "unknown  %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
+	if ( isset( $accepted_raw[ $hit['value'] ] ) ) {
+		$seen[ $hit['value'] ] = ( $seen[ $hit['value'] ] ?? 0 ) + 1;
+		printf( "accepted %s:%d  '%s'%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
+		continue;
+	}
+	$unaccepted[] = $hit;
+	printf( "UNKNOWN  %s:%d  '%s' -- not a concept and not accepted; a typo draws nothing%s", $hit['file'], $hit['line'], $hit['value'], PHP_EOL );
+}
+
+// An accepted value is accepted a known number of times, not anywhere. A
+// value-only key let a third card quietly adopt `groups`, or a half-converted
+// pair pass, and still read as accepted -- the second independent audit's
+// finding. Counting keeps line numbers out of this file and fails both.
+$miscounted = array();
+
+foreach ( $accepted_raw as $value => $entry ) {
+	$found = $seen[ $value ] ?? 0;
+	if ( $found === $entry[0] ) {
+		continue;
+	}
+	$miscounted[] = $value;
+	if ( 0 === $found ) {
+		printf( "STALE    '%s' is accepted but no call site writes it -- remove it from \$accepted_raw%s", $value, PHP_EOL );
+	} else {
+		printf( "COUNT    '%s' is accepted %d time(s) but written %d -- a new use needs a concept or a reason (%s)%s", $value, $entry[0], $found, $entry[1], PHP_EOL );
+	}
 }
 
 foreach ( $result['raw'] as $hit ) {
@@ -108,12 +205,20 @@ foreach ( $result['raw'] as $hit ) {
 	);
 }
 
+// The file count is printed because it is the number this tree kept getting
+// wrong (see the templates/ note above): a verdict without it cannot be
+// checked against the directories it claims to have read.
 printf(
-	'icon-concepts: %d concept call site(s), %d raw, %d unknown%s',
+	'icon-concepts: %d file(s), %d concept call site(s), %d raw, %d accepted, %d unknown, %d miscounted%s',
+	$result['files'],
 	$result['concepts'],
 	count( $result['raw'] ),
-	count( $result['unknown'] ),
+	count( $result['unknown'] ) - count( $unaccepted ),
+	count( $unaccepted ),
+	count( $miscounted ),
 	PHP_EOL
 );
 
-exit( array() === $result['raw'] ? 0 : 1 );
+$verdict_reached = true;
+
+exit( array() === $result['raw'] && array() === $unaccepted && array() === $miscounted ? 0 : 1 );

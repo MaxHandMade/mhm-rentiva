@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Core;
 
 use MHMRentiva\Admin\Core\IconConcepts;
+use MHMRentiva\Admin\Core\ProIconConcepts;
 use WP_UnitTestCase;
 
 /**
@@ -84,6 +85,83 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 		}
 
 		$this->assertGreaterThan( 0, $checked, 'No bundle used a product concept; this test measured nothing.' );
+	}
+
+	/**
+	 * Lite and Pro both define `bookings` and `vehicles`, on purpose. ui-core's
+	 * PHP registry is last-write-wins and serves both plugins, so if the two
+	 * maps ever disagree, whichever plugin registers second silently decides
+	 * the glyph on BOTH plugins' PHP strips, while each JSX bundle keeps its
+	 * own -- one concept, two pictures, no error.
+	 *
+	 * Pro's suite asserts the same thing from its side, but that runs only
+	 * when Pro's CI runs. This is the half that fires when LITE changes the
+	 * shared entry (an independent audit found the guard was one-sided,
+	 * 2026-09-22). It needs Pro checked out as a sibling, which is how the
+	 * development tree is laid out; Lite's own CI has no Pro and skips it.
+	 */
+	/**
+	 * The half of the Lite/Pro contract that cannot skip. Lite's CI has no Pro
+	 * (it is private), so the comparison below skips there; this one reads the
+	 * shared-entry contract committed in tests/fixtures and runs everywhere.
+	 * Pro's suite asserts the same file against Pro's map.
+	 */
+	public function test_the_shared_entries_match_the_contract_pro_also_asserts(): void {
+		$contract = require MHMRENTIVA_PLUGIN_PATH . 'tests/fixtures/icon-concepts-shared-with-pro.php';
+
+		$this->assertIsArray( $contract );
+		$this->assertNotEmpty( $contract, 'The shared-entry contract is empty; this test measured nothing.' );
+
+		foreach ( $contract as $concept => $suffix ) {
+			$this->assertArrayHasKey(
+				$concept,
+				IconConcepts::MAP,
+				sprintf( 'The contract shares "%s" with Pro, but IconConcepts::MAP no longer defines it.', $concept )
+			);
+			$this->assertSame(
+				$suffix,
+				IconConcepts::MAP[ $concept ],
+				sprintf(
+					'Lite draws the shared concept "%s" as %s; the contract Pro also asserts says %s. '
+					. 'Changing a shared glyph moves the contract, Lite and Pro together.',
+					$concept,
+					IconConcepts::MAP[ $concept ],
+					$suffix
+				)
+			);
+		}
+	}
+
+	public function test_lite_and_pro_agree_on_the_concepts_they_share(): void {
+		$pro = dirname( MHMRENTIVA_PLUGIN_PATH ) . '/mhm-rentiva-pro/src/Admin/Core/ProIconConcepts.php';
+
+		if ( ! is_file( $pro ) ) {
+			$this->markTestSkipped( 'Pro is not checked out as a sibling; the overlap cannot be measured here.' );
+		}
+
+		if ( ! class_exists( ProIconConcepts::class, false ) ) {
+			require_once $pro;
+		}
+
+		$shared = array_intersect_key( IconConcepts::MAP, ProIconConcepts::MAP );
+		$this->assertNotEmpty( $shared, 'Lite and Pro share no concept; this test measured nothing.' );
+
+		// The contract must name exactly the concepts the two maps share: a new
+		// shared concept missing from it would be guarded nowhere in Lite's CI.
+		$contract = require MHMRENTIVA_PLUGIN_PATH . 'tests/fixtures/icon-concepts-shared-with-pro.php';
+		$this->assertEqualsCanonicalizing(
+			array_keys( $shared ),
+			array_keys( $contract ),
+			'tests/fixtures/icon-concepts-shared-with-pro.php does not list exactly the concepts Lite and Pro share.'
+		);
+
+		foreach ( $shared as $concept => $suffix ) {
+			$this->assertSame(
+				ProIconConcepts::MAP[ $concept ],
+				$suffix,
+				sprintf( 'Lite draws "%s" as %s while Pro draws it as %s; one concept, two pictures.', $concept, $suffix, ProIconConcepts::MAP[ $concept ] )
+			);
+		}
 	}
 
 	/** @return array<string, string> bundle name => absolute directory */

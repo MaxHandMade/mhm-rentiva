@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 /**
  * Rentiva's own icon concepts — the single source the runtime and the gate share.
  *
@@ -28,7 +32,8 @@ namespace MHMRentiva\Admin\Core;
  * became the concept's target. Adopting the vocabulary changed no pixel — that
  * was measured across fifteen strips, not assumed.
  *
- * This file must stay free of WordPress: the gate requires it outside WP.
+ * This file must stay free of WordPress: the gate requires it outside WP,
+ * defining ABSPATH first so the guard above lets it through.
  */
 final class IconConcepts {
 

@@ -116,7 +116,10 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 			// population -- see the note this comment replaced in git history.
 			label: __( 'Renting this month', 'mhm-rentiva' ),
 			value: fmt( metrics?.total_customers_this_month ),
-			icon: 'groups',
+			// People, so the customers concept -- it drew `groups`, the one
+			// customer card on a different glyph (pixel change approved
+			// 2026-09-22, audit I-1).
+			icon: 'customers',
 			delta: toDelta( deltas.customers ),
 		},
 	];

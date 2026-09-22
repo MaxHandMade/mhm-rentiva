@@ -52,7 +52,10 @@ export default function StatsCards( { stats, currency } ) {
 		{
 			label: __( 'Total Customers', 'mhm-rentiva' ),
 			value: String( stats.total ?? 0 ),
-			icon: 'groups',
+			// Drew `groups` while every other customer card, in both editions,
+			// drew `customers` (admin-users): one concept, two pictures. The
+			// pixel change was approved (2026-09-22, audit I-1).
+			icon: 'customers',
 		},
 		{
 			label: __( 'New This Month', 'mhm-rentiva' ),
