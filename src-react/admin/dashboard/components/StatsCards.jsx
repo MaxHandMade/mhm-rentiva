@@ -108,7 +108,7 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 		{
 			label: __( 'Active Vehicles', 'mhm-rentiva' ),
 			value: fmt( metrics?.available_vehicles ),
-			icon: 'vehicles',
+			icon: 'active',
 			sub: `${ fmt( metrics?.total_vehicles ) } ${ __( 'total', 'mhm-rentiva' ) }`,
 		},
 		{

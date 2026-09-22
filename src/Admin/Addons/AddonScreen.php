@@ -835,7 +835,7 @@ final class AddonScreen {
 			array(
 				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
 				'value' => (string) $stats['total_addons'],
-				'icon'  => 'new',
+				'icon'  => 'items',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 				'data'  => array( 'stat' => 'total_addons' ),
 			),
@@ -849,14 +849,14 @@ final class AddonScreen {
 			array(
 				'label' => __( 'Average Price', 'mhm-rentiva' ),
 				'value' => $stats['avg_price'],
-				'icon'  => 'revenue',
+				'icon'  => 'price',
 				'sub'   => __( 'All services', 'mhm-rentiva' ),
 				'data'  => array( 'stat' => 'avg_price' ),
 			),
 			array(
 				'label' => __( 'Total Value', 'mhm-rentiva' ),
 				'value' => $stats['total_value'],
-				'icon'  => 'rate',
+				'icon'  => 'price',
 				'sub'   => __( 'All prices', 'mhm-rentiva' ),
 				'data'  => array( 'stat' => 'total_value' ),
 			),

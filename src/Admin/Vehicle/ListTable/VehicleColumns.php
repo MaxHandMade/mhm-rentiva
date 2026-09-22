@@ -1142,7 +1142,7 @@ final class VehicleColumns {
 			array(
 				'label' => __( 'Active Today', 'mhm-rentiva' ),
 				'value' => (string) $stats['active_today'],
-				'icon'  => 'customers',
+				'icon'  => 'active',
 				'sub'   => __( 'vehicles with customers', 'mhm-rentiva' ),
 			),
 			array(
@@ -1153,7 +1153,7 @@ final class VehicleColumns {
 					_x( '%s%%', 'KPI card value: a percentage', 'mhm-rentiva' ),
 					$stats['occupancy_rate']
 				),
-				'icon'  => 'total',
+				'icon'  => 'occupancy',
 				'sub'   => sprintf(
 					/* translators: %s: total number of vehicles. */
 					__( '%s total vehicles', 'mhm-rentiva' ),

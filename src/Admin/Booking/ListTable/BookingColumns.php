@@ -1206,7 +1206,7 @@ final class BookingColumns {
 			array(
 				'label' => __( 'Completed', 'mhm-rentiva' ),
 				'value' => (string) $stats['completed'],
-				'icon'  => 'yes',
+				'icon'  => 'completed',
 				'sub'   => sprintf(
 					/* translators: %s: number of bookings completed this month. */
 					__( '%s this month', 'mhm-rentiva' ),

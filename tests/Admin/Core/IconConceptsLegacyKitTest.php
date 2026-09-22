@@ -55,7 +55,10 @@ final class IconConceptsLegacyKitTest extends WP_UnitTestCase {
 		$legacy    = AssetManager::stats_grid_html( $this->cards(), 4, true, false );
 		$resolving = AssetManager::stats_grid_html( $this->cards(), 4, true, true );
 
-		$this->assertStringContainsString( 'dashicons-money-alt', $legacy, 'A seed concept reached a legacy kit unresolved.' );
+		// Only the PRODUCT concept discriminates here: this test still renders
+		// through the 0.14 kit, which resolves seed concepts (`revenue`) on its
+		// own even after reset(). What a legacy kit is actually handed is
+		// pinned by test_a_legacy_kit_is_handed_suffixes_never_concepts.
 		$this->assertStringContainsString( 'dashicons-car', $legacy, 'A product concept reached a legacy kit unresolved.' );
 		$this->assertStringNotContainsString( 'dashicons-revenue', $legacy );
 		$this->assertStringNotContainsString( 'dashicons-vehicles', $legacy );
@@ -64,6 +67,54 @@ final class IconConceptsLegacyKitTest extends WP_UnitTestCase {
 		// product concept. If this said `car` too, the paths would be
 		// indistinguishable and the assertions above would prove nothing.
 		$this->assertStringContainsString( 'dashicons-vehicles', $resolving );
+	}
+
+	/**
+	 * What a pre-0.14 kit RECEIVES, not what the 0.14 kit in this test process
+	 * draws. A real legacy StatCard prints `'dashicons dashicons-' . $icon`, so
+	 * every concept a PHP call site writes must reach it already turned into a
+	 * suffix -- seed concepts included. The render-based test above cannot see
+	 * a missing seed entry (the 0.14 kit resolves seeds itself); this can: it
+	 * fails if any LEGACY_SUFFIX entry is dropped (first independent audit's
+	 * M-1, 2026-09-21).
+	 */
+	public function test_a_legacy_kit_is_handed_suffixes_never_concepts(): void {
+		$method = new \ReflectionMethod( AssetManager::class, 'legacy_icon_cards' );
+		$method->setAccessible( true );
+
+		// Inputs and expectations come from two sources independent of
+		// LEGACY_SUFFIX: the concepts the PHP call sites really write, and what
+		// the package resolves them to. Building either from the map itself
+		// would skip exactly the entry that went missing.
+		$vocabulary = Icons::map();
+		$concepts   = array();
+		foreach ( $this->call_sites() as $file ) {
+			preg_match_all( "/'icon'\s*=>\s*'([^']*)'/", (string) file_get_contents( $file ), $hits );
+			foreach ( $hits[1] as $value ) {
+				if ( isset( $vocabulary[ $value ] ) ) {
+					$concepts[ $value ] = true;
+				}
+			}
+		}
+		$this->assertNotEmpty( $concepts, 'No PHP call site wrote a concept; this test measured nothing.' );
+
+		$cards = array();
+		foreach ( array_keys( $concepts ) as $concept ) {
+			$cards[] = array( 'label' => $concept, 'value' => '1', 'icon' => $concept );
+		}
+		$cards[] = array( 'label' => 'raw', 'value' => '1', 'icon' => 'yes' );
+
+		$handed = $method->invoke( null, $cards );
+
+		foreach ( $handed as $index => $card ) {
+			$written  = $cards[ $index ]['icon'];
+			$expected = isset( $concepts[ $written ] ) ? Icons::resolve( $written ) : $written;
+			$this->assertSame(
+				$expected,
+				$card['icon'],
+				sprintf( 'A legacy kit would be handed "%s" for "%s"; it prints that string verbatim.', $card['icon'], $written )
+			);
+		}
 	}
 
 	public function test_both_kits_draw_the_same_markup(): void {
@@ -75,9 +126,9 @@ final class IconConceptsLegacyKitTest extends WP_UnitTestCase {
 	}
 
 	public function test_a_raw_suffix_still_passes_through_a_legacy_kit(): void {
-		// Not every value is a concept: `yes` is a plain Dashicon suffix the
-		// gate reports as unknown and lets through. Pre-resolution must not
-		// eat it.
+		// Not every value handed to the kit is a concept: a plain Dashicon
+		// suffix (`yes`) must pass through pre-resolution untouched. No Lite
+		// call site writes one today, but the wrapper is shared.
 		$html = AssetManager::stats_grid_html(
 			array( array( 'label' => 'Onay', 'value' => '1', 'icon' => 'yes' ) ),
 			4,

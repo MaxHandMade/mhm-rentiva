@@ -33,6 +33,8 @@
 declare(strict_types=1);
 
 return array(
-	'bookings' => 'calendar-alt',
-	'vehicles' => 'car',
+	'bookings'  => 'calendar-alt',
+	'vehicles'  => 'car',
+	'occupancy' => 'chart-pie',
+	'completed' => 'yes',
 );

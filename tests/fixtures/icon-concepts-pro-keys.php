@@ -13,6 +13,12 @@
  * first (a name Pro does not define yet is tolerated), then the Pro change.
  * Removing one: Pro first, then drop the name here.
  *
+ * A concept entering or leaving the SHARED set (both editions define it) is a
+ * two-repository change: this list, icon-concepts-shared-with-pro.php, Lite's
+ * map and Pro's map move together, Lite first. Pro's CI is red on its
+ * contract test between the Lite merge and the Pro merge -- merge order, not
+ * drift (see the LITE_REF note in Pro's testing.yml).
+ *
  * @package Mhm_Rentiva
  */
 
@@ -26,4 +32,6 @@ return array(
 	'loyalty',
 	'refunds',
 	'latest',
+	'completed',
+	'balance',
 );
