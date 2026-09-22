@@ -8,8 +8,10 @@
  * Pro's next CI run. IconConceptsTwinTest reads this list on every Lite run.
  *
  * 🔴 Pro's ProIconConceptsTest reads THIS PATH from its Lite checkout and
- * asserts the list equals array_keys( ProIconConcepts::MAP ). Moving or
- * renaming this file turns Pro's CI red; a new Pro concept means a line here.
+ * fails when a concept Pro defines is missing here. Moving or renaming this
+ * file turns Pro's CI red. Order for a NEW Pro concept: add its name here
+ * first (a name Pro does not define yet is tolerated), then the Pro change.
+ * Removing one: Pro first, then drop the name here.
  *
  * @package Mhm_Rentiva
  */

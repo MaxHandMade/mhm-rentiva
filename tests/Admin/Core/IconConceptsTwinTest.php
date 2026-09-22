@@ -134,11 +134,40 @@ final class IconConceptsTwinTest extends WP_UnitTestCase {
 		$this->assertIsArray( $pro_keys );
 		$this->assertNotEmpty( $pro_keys, 'The Pro concept-name list is empty; this test measured nothing.' );
 
-		$this->assertEqualsCanonicalizing(
-			array_keys( array_intersect_key( IconConcepts::MAP, array_flip( $pro_keys ) ) ),
-			array_keys( $contract ),
-			'Lite now defines a concept Pro also defines, but the shared-entry contract does not list it. '
-			. 'Add it to tests/fixtures/icon-concepts-shared-with-pro.php with the glyph both editions draw.'
+		// The list's own shape is Lite's to hold: array_flip() below would
+		// silently collapse a duplicate or choke on a non-string.
+		foreach ( $pro_keys as $name ) {
+			$this->assertIsString( $name, 'tests/fixtures/icon-concepts-pro-keys.php must list concept names as strings.' );
+		}
+		$this->assertSame(
+			array_values( array_unique( $pro_keys ) ),
+			array_values( $pro_keys ),
+			'tests/fixtures/icon-concepts-pro-keys.php lists a concept name twice.'
+		);
+
+		$overlap = array_keys( array_intersect_key( IconConcepts::MAP, array_flip( $pro_keys ) ) );
+
+		// Two ways to disagree, two different fixes -- the message names which.
+		$unlisted = array_diff( $overlap, array_keys( $contract ) );
+		$stale    = array_diff( array_keys( $contract ), $overlap );
+
+		$this->assertSame(
+			array(),
+			array_values( $unlisted ),
+			sprintf(
+				'Lite defines %s, which Pro also defines, but the shared-entry contract does not list it. '
+				. 'Add it to tests/fixtures/icon-concepts-shared-with-pro.php with the glyph both editions draw.',
+				implode( ', ', $unlisted )
+			)
+		);
+		$this->assertSame(
+			array(),
+			array_values( $stale ),
+			sprintf(
+				'The shared-entry contract lists %s, which is no longer defined by both editions. '
+				. 'Remove it from tests/fixtures/icon-concepts-shared-with-pro.php.',
+				implode( ', ', $stale )
+			)
 		);
 	}
 
