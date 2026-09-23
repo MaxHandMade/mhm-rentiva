@@ -34,4 +34,5 @@ return array(
 	'latest',
 	'completed',
 	'balance',
+	'iban',
 );
