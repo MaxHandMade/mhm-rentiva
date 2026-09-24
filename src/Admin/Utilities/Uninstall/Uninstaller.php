@@ -77,6 +77,7 @@ final class Uninstaller {
 			'mhm_rentiva_background_jobs',
 			'mhm_rentiva_payout_audit',
 			'mhm_rentiva_key_registry',
+			'mhm_rentiva_admin_audit',
 			// prefix-rename:ignore-end
 		);
 
@@ -533,7 +534,7 @@ final class Uninstaller {
 			// Each plugin removes its own data, which is
 			// also the rule WordPress.org applies. The add-on owns their removal.
 			//
-			// key_registry is why the list is six and not four: dropping the keys
+			// key_registry is why the list is seven and not six: dropping the keys
 			// while leaving the ledger produces an append-only financial record
 			// that nobody can verify -- worse than either consistent choice.
 			//
