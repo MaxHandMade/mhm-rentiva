@@ -129,6 +129,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_vendor_bio',
 		'_mhmrentiva_vendor_commission_rate',
 		'_mhmrentiva_vendor_iban',
+		'_mhmrentiva_vendor_iban_unreadable',
 		'_mhmrentiva_vendor_phone',
 		'_mhmrentiva_vendor_service_areas',
 		'_mhmrentiva_vendor_status',
