@@ -599,6 +599,7 @@ final class DatabaseCleaner {
 			// prefix-rename:ignore-end
 			'_mhmrentiva_vendor_avatar_id',
 			'_mhmrentiva_vendor_city',
+			'_mhmrentiva_vendor_iban_unreadable',
 			'_mhmrentiva_vendor_reliability_score',
 			'_mhmrentiva_vendor_reliability_updated_at',
 			'_mhmrentiva_vendor_score_history',
