@@ -205,6 +205,22 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
     }
 
     /**
+     * Task 5 creates {prefix}mhmrentiva_admin_audit for the add-on's own audit
+     * trail. It is carved out here ahead of that table existing, so Plan 3 /
+     * Task 5 do not also have to touch Lite's uninstaller.
+     */
+    public function test_the_admin_audit_table_belongs_to_the_add_on(): void
+    {
+        global $wpdb;
+
+        $this->assertContains(
+            $wpdb->prefix . 'mhmrentiva_admin_audit',
+            $this->invoke('addon_owned_tables'),
+            'mhmrentiva_admin_audit is the add-on\'s table and Lite\'s uninstall must not drop it.'
+        );
+    }
+
+    /**
      * ...and the sweep actually SPARES them, run for real.
      *
      * The previous version looked for the strings addon_owned_tables() and

@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Handles complete removal of all plugin data from database
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Runs once, from uninstall.php, only after the operator has confirmed deletion. Deletes are set-based over this plugin's own tables, options, postmeta and usermeta, plus a pattern sweep for orphaned {prefix}mhmrentiva_% tables; delete_post_meta_by_key() and friends cannot express "every row whose key matches this pattern" in one statement, and looping post-by-post over an uninstall is what times out on large sites. Nothing is cached because the process is deleting the very rows a cache would describe, and the request ends immediately afterwards. The add-on's six tables are explicitly carved out -- see addon_owned_tables().
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Runs once, from uninstall.php, only after the operator has confirmed deletion. Deletes are set-based over this plugin's own tables, options, postmeta and usermeta, plus a pattern sweep for orphaned {prefix}mhmrentiva_% tables; delete_post_meta_by_key() and friends cannot express "every row whose key matches this pattern" in one statement, and looping post-by-post over an uninstall is what times out on large sites. Nothing is cached because the process is deleting the very rows a cache would describe, and the request ends immediately afterwards. The add-on's seven tables are explicitly carved out -- see addon_owned_tables().
 final class Uninstaller {
 
 
@@ -52,9 +52,10 @@ final class Uninstaller {
 	/**
 	 * The add-on's tables, in both spellings -- never dropped by Lite.
 	 *
-	 * See the note in get_all_plugin_tables() for why these six are the add-on's
-	 * to remove. Listed here as whole names so the broad orphan pattern can carve
-	 * them out by identity rather than by a LIKE that might drift.
+	 * See the note in get_all_plugin_tables() for why these seven are the
+	 * add-on's to remove. Listed here as whole names so the broad orphan
+	 * pattern can carve them out by identity rather than by a LIKE that might
+	 * drift.
 	 *
 	 * @return array<int,string>
 	 */
@@ -68,6 +69,7 @@ final class Uninstaller {
 			'mhmrentiva_background_jobs',
 			'mhmrentiva_payout_audit',
 			'mhmrentiva_key_registry',
+			'mhmrentiva_admin_audit',
 			// prefix-rename:ignore-start
 			'mhm_rentiva_ledger',
 			'mhm_rentiva_commission_policy',
@@ -514,10 +516,10 @@ final class Uninstaller {
 		global $wpdb;
 
 		return array(
-			// 🔴 THE ADD-ON'S SIX TABLES ARE NOT LISTED HERE, DELIBERATELY.
+			// 🔴 THE ADD-ON'S SEVEN TABLES ARE NOT LISTED HERE, DELIBERATELY.
 			//
 			//   ledger · commission_policy · vendor_reports · background_jobs
-			//   payout_audit · key_registry
+			//   payout_audit · key_registry · admin_audit
 			//
 			// Measured, not assumed: Lite queries NONE of them outside schema and
 			// cleanup plumbing (PenaltyCalculator.php:167 only READS the ledger),
