@@ -11,10 +11,10 @@ use WP_UnitTestCase;
 /**
  * Lite's uninstall must not delete the add-on's tables.
  *
- * Owner decision, 2026-08-02, reversing the previous behaviour. Six tables --
- * ledger, commission_policy, vendor_reports, background_jobs, payout_audit and
- * key_registry -- are created, read and written by the add-on; Lite queries none
- * of them outside schema and cleanup plumbing. They hold the commission ledger,
+ * Owner decision, 2026-08-02, reversing the previous behaviour. Seven tables --
+ * ledger, commission_policy, vendor_reports, background_jobs, payout_audit,
+ * key_registry and admin_audit -- are created, read and written by the add-on;
+ * Lite queries none of them outside schema and cleanup plumbing. They hold the commission ledger,
  * payout statements and audit trail, and the keys that SIGN the ledger. Dropping
  * them when somebody removes Lite destroys append-only financial history
  * belonging to a different product, on a site that may be reinstalling.
@@ -112,7 +112,7 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
     }
 
     /**
-     * Suffixes of the add-on's six tables, current spelling.
+     * Suffixes of the add-on's seven tables, current spelling.
      *
      * @var list<string>
      */
@@ -123,6 +123,7 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
         'mhmrentiva_background_jobs',
         'mhmrentiva_payout_audit',
         'mhmrentiva_key_registry',
+        'mhmrentiva_admin_audit',
     );
 
     /**
@@ -205,6 +206,21 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
     }
 
     /**
+     * The add-on's admin audit table is carved out ahead of its own creation,
+     * so nothing else has to touch Lite's uninstaller when it appears.
+     */
+    public function test_the_admin_audit_table_belongs_to_the_add_on(): void
+    {
+        global $wpdb;
+
+        $this->assertContains(
+            $wpdb->prefix . 'mhmrentiva_admin_audit',
+            $this->invoke('addon_owned_tables'),
+            'mhmrentiva_admin_audit is the add-on\'s table and Lite\'s uninstall must not drop it.'
+        );
+    }
+
+    /**
      * ...and the sweep actually SPARES them, run for real.
      *
      * The previous version looked for the strings addon_owned_tables() and
@@ -221,7 +237,7 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
      *
      * "The list holds the right names" is a SEPARATE question, and is asserted
      * separately by test_the_orphan_pattern_carve_out_covers_both_spellings()
-     * for all six tables in both spellings. This one asks only whether the sweep
+     * for all seven tables in both spellings. This one asks only whether the sweep
      * honours the list it is given.
      *
      * 🔴 uninstall_direct() is DESTRUCTIVE and its DDL commits, so it outlives

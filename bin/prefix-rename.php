@@ -987,10 +987,10 @@ class PrefixRenamer {
 		// file's count from 15 to 10; the survivors were renumbered 3-9 below
 		// to stay contiguous with regions() 0-based, file-scan-order ordinals.
 		'src/Admin/Utilities/Uninstall/Uninstaller.php' => array(
-			'why'      => 'uninstall must delete rows on a site that never ran the migration; and it must NOT delete the six add-on tables, which are carved out of the broad orphan pattern by name',
+			'why'      => 'uninstall must delete rows on a site that never ran the migration; and it must NOT delete the seven add-on tables, which are carved out of the broad orphan pattern by name',
 			'regions'  => array(
 				0 => array( 'mhm_rentiva' ),
-				1 => array( 'mhm_rentiva_background_jobs', 'mhm_rentiva_commission_policy', 'mhm_rentiva_key_registry', 'mhm_rentiva_ledger', 'mhm_rentiva_payout_audit', 'mhm_rentiva_vendor_reports' ),
+				1 => array( 'mhm_rentiva_admin_audit', 'mhm_rentiva_background_jobs', 'mhm_rentiva_commission_policy', 'mhm_rentiva_key_registry', 'mhm_rentiva_ledger', 'mhm_rentiva_payout_audit', 'mhm_rentiva_vendor_reports' ),
 				2 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications' ),
 				3 => array( '_mhm_rentiva%', '_mhmrentiva%', 'mhm_rentiva%', 'mhmrentiva%' ),
 				4 => array( '_mhm%', 'mhmrentiva_vehicle' ),

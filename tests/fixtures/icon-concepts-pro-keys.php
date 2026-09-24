@@ -35,4 +35,5 @@ return array(
 	'completed',
 	'balance',
 	'iban',
+	'reliability',
 );
