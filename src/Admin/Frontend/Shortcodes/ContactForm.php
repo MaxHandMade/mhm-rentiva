@@ -630,12 +630,15 @@ final class ContactForm extends AbstractShortcode {
 	/**
 	 * Resolve an attachment URL to a local filesystem path.
 	 *
-	 * `$url` reaches this method as attacker-reachable free text -- it is
-	 * stored straight from `sanitize_text_field()`'d POST data and is not
-	 * guaranteed to be the URL `wp_handle_upload()` produced. It is
-	 * resolved via `wp_upload_dir()` (baseurl -> basedir mapping) rather
-	 * than string surgery on `site_url()`/`ABSPATH`, which breaks on
-	 * subdirectory, multisite, and mapped-domain installs.
+	 * Since 4.4.0, `$url` reaches this method only as `handle_file_upload()`'s
+	 * own result -- the sole writer of `$data['attachment']` -- so it is
+	 * always the URL `wp_handle_upload()` produced, never raw POST data. The
+	 * defensive checks below stay in place regardless: this method cannot see
+	 * who its caller is or whether that stays true at every future call site,
+	 * so it verifies its input itself rather than trusting the one caller it
+	 * happens to have today. It is resolved via `wp_upload_dir()` (baseurl ->
+	 * basedir mapping) rather than string surgery on `site_url()`/`ABSPATH`,
+	 * which breaks on subdirectory, multisite, and mapped-domain installs.
 	 *
 	 * Anything that is not verifiably inside this site's own uploads
 	 * directory is rejected outright (never guessed at) to avoid SSRF/LFI:
