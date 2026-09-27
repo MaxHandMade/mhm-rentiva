@@ -859,7 +859,7 @@ final class PrefixMigrationMap {
         'mhmrentiva_multi_tenant_migration_attempts',
         'mhmrentiva_multi_tenant_migration_blocked',
         'mhmrentiva_rewrite_rules_version',
-        // Contact Messages status migration (4.4.0): a done-flag and its
+        // Contact Messages status migration (DB schema 4.4.0): a done-flag and its
         // cutoff timestamp, introduced with the new screen and therefore
         // with no legacy spelling either. Same reasoning as the entries
         // above -- get_option()/update_option()/add_option() call sites in
