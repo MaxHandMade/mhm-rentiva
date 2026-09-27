@@ -34,6 +34,13 @@
 	.mhm-contact-messages__table td { border: 0; padding: 0; }
 	.mhm-contact-messages__table td:not( .check-column ) { grid-column: 2; }
 	.mhm-contact-messages__table .button { min-height: 44px; }
+	/* A grid track's automatic min-width is its content's min-content, not 0 --
+	   the nowrap snippet's min-content is its full (~465px) unbroken width, so
+	   the 1fr column refuses to shrink below it and max-width alone cannot cap
+	   the td. Without this, the 470px desktop snippet still overflows the card
+	   and forces a horizontal scrollbar inside .mhm-contact-messages__table-wrap
+	   (measured live: table-wrap scrollWidth 521 vs clientWidth 366). */
+	.mhm-contact-messages__table td { min-width: 0; }
 	/* The desktop 470px cap overflows the narrow card and forces a horizontal
 	   scrollbar inside .mhm-contact-messages__table-wrap; the ellipsis itself
 	   (white-space/overflow/text-overflow, set above) still applies. */
