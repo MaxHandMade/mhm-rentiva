@@ -142,7 +142,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					{ /* Always present so a screen reader has a live region to announce
 					     into; empty (and visually absent -- no CSS class) when there is
 					     nothing to say. */ }
-					<div role="status">
+					<div role="status" aria-label={ __( 'Reply reminder', 'mhm-rentiva' ) }>
 						{ mailed && msg.status !== 'replied' && (
 							<div className="mhm-contact-messages__mail-note">
 								<span>{ __( 'Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied.', 'mhm-rentiva' ) }</span>
