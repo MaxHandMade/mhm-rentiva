@@ -100,6 +100,9 @@ final class CustomerStatsMatchTheListTest extends WP_UnitTestCase
 
 		if ( null !== $price ) {
 			update_post_meta( $booking, '_mhmrentiva_total_price', (string) $price );
+			// Only a revenue status is spend (CustomerSpendCountsRevenueOnlyTest);
+			// these fixtures are about ownership, so their money is revenue.
+			update_post_meta( $booking, '_mhmrentiva_status', 'confirmed' );
 		}
 
 		return $booking;

@@ -94,6 +94,8 @@ final class CustomerExporterTest extends WP_UnitTestCase
         // Four figures: the range `CurrencyHelper::format_price()` starts
         // inserting a thousands separator into.
         update_post_meta( $booking_id, '_mhmrentiva_total_price', '1500.00' );
+        // Only a revenue status is spend (CustomerSpendCountsRevenueOnlyTest).
+        update_post_meta( $booking_id, '_mhmrentiva_status', 'confirmed' );
 
         $rows = CustomerExporter::get_csv_rows( '', array( $uid ) );
         $this->assertCount( 2, $rows, 'Header plus exactly one data row for the single requested ID.' );

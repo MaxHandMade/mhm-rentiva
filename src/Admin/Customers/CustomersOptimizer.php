@@ -17,6 +17,7 @@ if (!defined('ABSPATH')) {
 
 
 
+use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\Utilities\CacheManager;
 
@@ -58,7 +59,7 @@ final class CustomersOptimizer {
 	 * the token in three places is how get_customer_details_optimized()'s cache
 	 * key and clear_cache()'s copy of it drift apart.
 	 */
-	private const CACHE_SHAPE = 'v3';
+	private const CACHE_SHAPE = 'v4';
 
 	/**
 	 * Fingerprint of everything that changes how money RENDERS.
@@ -124,10 +125,15 @@ final class CustomersOptimizer {
 		// other sort direction can never answer the ownership question differently.
 		$owns = CustomerIdentity::sql_user_owns_booking();
 
+		// Money and activity count revenue bookings only (see sql_is_revenue());
+		// `booking_count` still counts every booking, the one number the detail
+		// panel's full booking list pages through.
+		$revenue = self::sql_is_revenue();
+
 		// Status filters are independent predicates (they may overlap): `new` means
-		// registered in the last 30 days, `active` means a booking in the last 90
-		// days (same window as the active_90d stat), `vip` means at least the
-		// filterable minimum number of bookings. Anything unknown collapses to
+		// registered in the last 30 days, `active` means a revenue booking in the
+		// last 90 days (same window as the active_90d stat), `vip` means at least
+		// the filterable minimum number of revenue bookings. Anything unknown collapses to
 		// 'all' so the bound toggles below never see a stray value.
 		if ( ! in_array( $status, array( 'all', 'new', 'active', 'vip' ), true ) ) {
 			$status = 'all';
@@ -135,9 +141,10 @@ final class CustomersOptimizer {
 		$vip_min = self::get_vip_min_bookings();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
-		// is CustomerIdentity::sql_is_customer() and $owns is
-		// CustomerIdentity::sql_user_owns_booking(): each a single $wpdb->prepare() call
-		// with every dynamic value bound. WordPress provides no placeholder for splicing
+		// is CustomerIdentity::sql_is_customer(), $owns is
+		// CustomerIdentity::sql_user_owns_booking() and $revenue is sql_is_revenue():
+		// each a single $wpdb->prepare() call with every dynamic value bound.
+		// WordPress provides no placeholder for splicing
 		// a composed SQL fragment into another statement, so the composition itself is
 		// what the sniff sees. Scoped to this region and re-enabled straight after.
 		//
@@ -178,7 +185,9 @@ final class CustomersOptimizer {
                 um_phone.meta_value as phone,
                 um_address.meta_value as address,
                 COUNT(DISTINCT p.ID) as booking_count,
-                COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_spent,
+                COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) as paid_count,
+                COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_spent,
+                MAX(CASE WHEN {$revenue} THEN p.post_date END) as last_paid_booking,
                 MAX(p.post_date) as last_booking
             FROM {$wpdb->users} u
             LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
@@ -186,6 +195,8 @@ final class CustomersOptimizer {
                 AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
+            LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
+                AND status_meta.meta_key = '_mhmrentiva_status'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
                 AND um_phone.meta_key = 'mhmrentiva_phone'
             LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
@@ -197,8 +208,8 @@ final class CustomersOptimizer {
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                 AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
-            HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
-                AND ( %s != 'vip' OR COUNT(DISTINCT p.ID) >= %d )
+            HAVING ( %s != 'active' OR MAX(CASE WHEN {$revenue} THEN p.post_date END) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
+                AND ( %s != 'vip' OR COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) >= %d )
             ORDER BY %i ASC
             LIMIT %d OFFSET %d
             ", $search_like, $search_like, $status, $status, $status, $vip_min, $order_col, (int) $per_page, (int) $offset ) )
@@ -211,7 +222,9 @@ final class CustomersOptimizer {
                 um_phone.meta_value as phone,
                 um_address.meta_value as address,
                 COUNT(DISTINCT p.ID) as booking_count,
-                COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_spent,
+                COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) as paid_count,
+                COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_spent,
+                MAX(CASE WHEN {$revenue} THEN p.post_date END) as last_paid_booking,
                 MAX(p.post_date) as last_booking
             FROM {$wpdb->users} u
             LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
@@ -219,6 +232,8 @@ final class CustomersOptimizer {
                 AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
+            LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
+                AND status_meta.meta_key = '_mhmrentiva_status'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
                 AND um_phone.meta_key = 'mhmrentiva_phone'
             LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
@@ -230,8 +245,8 @@ final class CustomersOptimizer {
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                 AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
-            HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
-                AND ( %s != 'vip' OR COUNT(DISTINCT p.ID) >= %d )
+            HAVING ( %s != 'active' OR MAX(CASE WHEN {$revenue} THEN p.post_date END) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
+                AND ( %s != 'vip' OR COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) >= %d )
             ORDER BY %i DESC
             LIMIT %d OFFSET %d
             ", $search_like, $search_like, $status, $status, $status, $vip_min, $order_col, (int) $per_page, (int) $offset ) );
@@ -260,6 +275,8 @@ final class CustomersOptimizer {
                 LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                     AND p.post_status IN ('publish', 'private', 'pending')
                     AND {$owns}
+                LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
+                    AND status_meta.meta_key = '_mhmrentiva_status'
                 WHERE u.ID > 1
                     AND u.user_login != 'admin'
                     AND {$membership}
@@ -267,8 +284,8 @@ final class CustomersOptimizer {
                     AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                     AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
                 GROUP BY u.ID
-                HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
-                    AND ( %s != 'vip' OR COUNT(DISTINCT p.ID) >= %d )
+                HAVING ( %s != 'active' OR MAX(CASE WHEN {$revenue} THEN p.post_date END) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
+                    AND ( %s != 'vip' OR COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) >= %d )
             ) filtered",
 				$search_like,
 				$search_like,
@@ -301,9 +318,9 @@ final class CustomersOptimizer {
 				'created_date'  => $result->created_date ? gmdate( 'd.m.Y', strtotime( $result->created_date ) ) : '-',
 				'currency'      => $currency,
 				'status'        => self::derive_status(
-					(int) $result->booking_count,
+					(int) $result->paid_count,
 					$result->created_date ? (int) strtotime( $result->created_date ) : 0,
-					$result->last_booking ? (int) strtotime( $result->last_booking ) : 0
+					$result->last_paid_booking ? (int) strtotime( $result->last_paid_booking ) : 0
 				),
 			);
 		}
@@ -323,6 +340,27 @@ final class CustomersOptimizer {
 	}
 
 	/**
+	 * SQL predicate: this booking's price is money the customer spent.
+	 *
+	 * Correlated to a `status_meta` join on `_mhmrentiva_status`. Uses the set
+	 * the dashboard revenue cards and the customer report sum
+	 * (Status::revenue_statuses()), so "Total Spent" here and revenue there
+	 * cannot disagree about a cancelled, refunded, unpaid or status-less
+	 * booking -- the screen used to count all of them.
+	 *
+	 * @return string
+	 */
+	private static function sql_is_revenue(): string {
+		global $wpdb;
+
+		$statuses     = Status::revenue_statuses();
+		$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders is a run of literal %s tokens, one per bound status.
+		return (string) $wpdb->prepare( "status_meta.meta_value IN ({$placeholders})", $statuses );
+	}
+
+	/**
 	 * Minimum booking count for the VIP tag (filterable, floor of 1).
 	 *
 	 * @return int
@@ -338,9 +376,12 @@ final class CustomersOptimizer {
 	 * underlying predicates independently, so a VIP row still matches the
 	 * `active` filter when its last booking is inside the 90-day window.
 	 *
-	 * @param int $booking_count   Lifetime booking count.
+	 * Callers pass revenue bookings only (sql_is_revenue()): a cancelled or
+	 * unpaid booking makes nobody VIP or active.
+	 *
+	 * @param int $booking_count   Lifetime revenue booking count.
 	 * @param int $registered_ts   Registration timestamp (0 = unknown).
-	 * @param int $last_booking_ts Latest booking timestamp (0 = none).
+	 * @param int $last_booking_ts Latest revenue booking timestamp (0 = none).
 	 * @return string One of vip|new|active|none.
 	 */
 	public static function derive_status( int $booking_count, int $registered_ts, int $last_booking_ts ): string {
@@ -395,12 +436,14 @@ final class CustomersOptimizer {
 		// revenue.
 		$membership = CustomerIdentity::sql_is_customer();
 		$owns       = CustomerIdentity::sql_user_owns_booking();
+		$revenue    = self::sql_is_revenue();
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $membership
-		// is CustomerIdentity::sql_is_customer() and $owns is
-		// CustomerIdentity::sql_user_owns_booking(): each a single $wpdb->prepare() call
-		// with every dynamic value bound, composed into this statement the same way
-		// get_customers_optimized() composes it. Re-enabled straight after.
+		// is CustomerIdentity::sql_is_customer(), $owns is
+		// CustomerIdentity::sql_user_owns_booking() and $revenue is sql_is_revenue():
+		// each a single $wpdb->prepare() call with every dynamic value bound, composed
+		// into this statement the same way get_customers_optimized() composes it.
+		// Re-enabled straight after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
@@ -412,16 +455,18 @@ final class CustomersOptimizer {
                     THEN u.ID
                 END) as new_customers,
                 COUNT(DISTINCT CASE
-                    WHEN p.post_date >= DATE_SUB(NOW(), INTERVAL 90 DAY)
+                    WHEN {$revenue} AND p.post_date >= DATE_SUB(NOW(), INTERVAL 90 DAY)
                     THEN u.ID
                 END) as active_90d,
-                COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_revenue
+                COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_revenue
             FROM {$wpdb->users} u
             LEFT JOIN {$wpdb->posts} p ON p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
+            LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
+                AND status_meta.meta_key = '_mhmrentiva_status'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND {$membership}
@@ -484,13 +529,15 @@ final class CustomersOptimizer {
 		// through `_mhmrentiva_customer_email` alone, so a booking linked by
 		// `_mhmrentiva_customer_user_id` counts here exactly as it does one screen up
 		// -- see get_customer_stats_optimized() above for the fuller account of why.
-		$owns = CustomerIdentity::sql_user_owns_booking();
+		$owns    = CustomerIdentity::sql_user_owns_booking();
+		$revenue = self::sql_is_revenue();
 
 		// Customer details and booking statistics in single query
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $owns is
-		// CustomerIdentity::sql_user_owns_booking(), a single $wpdb->prepare() call
-		// with every dynamic value bound, composed into this statement the same way
-		// get_customer_stats_optimized() composes it. Re-enabled straight after.
+		// CustomerIdentity::sql_user_owns_booking() and $revenue is sql_is_revenue(),
+		// each a single $wpdb->prepare() call with every dynamic value bound, composed
+		// into this statement the same way get_customer_stats_optimized() composes it.
+		// Re-enabled straight after.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
@@ -503,7 +550,9 @@ final class CustomersOptimizer {
                 um_phone.meta_value as phone,
                 um_address.meta_value as address,
                 COUNT(DISTINCT p.ID) as booking_count,
-                COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_spent,
+                COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) as paid_count,
+                COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_spent,
+                MAX(CASE WHEN {$revenue} THEN p.post_date END) as last_paid_booking,
                 MAX(p.post_date) as last_booking,
                 MIN(p.post_date) as first_booking
             FROM {$wpdb->users} u
@@ -512,6 +561,8 @@ final class CustomersOptimizer {
                 AND {$owns}
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
+            LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
+                AND status_meta.meta_key = '_mhmrentiva_status'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
                 AND um_phone.meta_key = 'mhmrentiva_phone'
             LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
@@ -546,9 +597,9 @@ final class CustomersOptimizer {
 			'favorites_count' => count( \MHMRentiva\Admin\Services\FavoritesService::get_user_favorites( $customer_id ) ),
 			'recent_bookings' => self::get_recent_bookings( $result->user_email, 5, 0, (int) $result->ID ),
 			'status'          => self::derive_status(
-				(int) $result->booking_count,
+				(int) $result->paid_count,
 				(int) strtotime( $result->user_registered ),
-				$result->last_booking ? (int) strtotime( $result->last_booking ) : 0
+				$result->last_paid_booking ? (int) strtotime( $result->last_paid_booking ) : 0
 			),
 		);
 
@@ -576,7 +627,7 @@ final class CustomersOptimizer {
 	 *                        updated here. 0 falls back to e-mail-only matching,
 	 *                        which CustomerIdentity::sql_booking_owned_by()'s own
 	 *                        guard makes safe -- see that method.
-	 * @return array<int, array{id: int, vehicle: string, date: string, amount: string}>
+	 * @return array<int, array{id: int, vehicle: string, date: string, amount: string, status: string, status_label: string, counted: bool}>
 	 */
 	public static function get_recent_bookings( string $email, int $limit = 5, int $offset = 0, int $user_id = 0 ): array {
 		global $wpdb;
@@ -598,10 +649,13 @@ final class CustomersOptimizer {
                     p.post_title as booking_title,
                     p.post_date,
                     v.post_title as vehicle_title,
-                    CAST(COALESCE(price_meta.meta_value, 0) AS DECIMAL(10,2)) as amount
+                    CAST(COALESCE(price_meta.meta_value, 0) AS DECIMAL(10,2)) as amount,
+                    status_meta.meta_value as booking_status
                 FROM {$wpdb->posts} p
                 LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                     AND price_meta.meta_key = '_mhmrentiva_total_price'
+                LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
+                    AND status_meta.meta_key = '_mhmrentiva_status'
                 LEFT JOIN {$wpdb->postmeta} vehicle_meta ON p.ID = vehicle_meta.post_id
                     AND vehicle_meta.meta_key = '_mhmrentiva_vehicle_id'
                 LEFT JOIN {$wpdb->posts} v ON v.ID = CAST(vehicle_meta.meta_value AS UNSIGNED)
@@ -620,14 +674,22 @@ final class CustomersOptimizer {
 		foreach ( (array) $rows as $row ) {
 			$booking_id = (int) $row->booking_id;
 			$bookings[] = array(
-				'id'        => $booking_id,
+				'id'           => $booking_id,
 				// Same reference format the booking edit meta box shows
 				// (BookingEditMetaBox: translated prefix + 6-digit display id).
-				'reference' => __( 'BK-', 'mhm-rentiva' ) . str_pad( (string) mhmrentiva_get_display_id( $booking_id ), 6, '0', STR_PAD_LEFT ),
-				'vehicle'   => $row->vehicle_title ? $row->vehicle_title : $row->booking_title,
-				'date'      => gmdate( 'd.m.Y', strtotime( $row->post_date ) ),
+				'reference'    => __( 'BK-', 'mhm-rentiva' ) . str_pad( (string) mhmrentiva_get_display_id( $booking_id ), 6, '0', STR_PAD_LEFT ),
+				'vehicle'      => $row->vehicle_title ? $row->vehicle_title : $row->booking_title,
+				'date'         => gmdate( 'd.m.Y', strtotime( $row->post_date ) ),
 				// Canonical, symbol included — see get_customers_optimized().
-				'amount'    => CurrencyHelper::format_price( (float) $row->amount, 2 ),
+				'amount'       => CurrencyHelper::format_price( (float) $row->amount, 2 ),
+				// Every booking is listed; `counted` says whether its amount is in
+				// the customer's total (sql_is_revenue()), so a cancelled row can
+				// say why the total leaves it out. Raw meta, not Status::get(): that
+				// falls back to `pending` and would label a status-less booking as
+				// one.
+				'status'       => (string) $row->booking_status,
+				'status_label' => '' === (string) $row->booking_status ? '' : Status::get_label( (string) $row->booking_status ),
+				'counted'      => in_array( (string) $row->booking_status, Status::revenue_statuses(), true ),
 			);
 		}
 
