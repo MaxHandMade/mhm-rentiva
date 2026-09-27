@@ -85,6 +85,15 @@ final class DatabaseMigrator {
 	public const LOCK_TIMEOUT = 900;
 
 	/**
+	 * The LOCK_OPTION value this request wrote ('' when it holds no lock).
+	 * release_lock() deletes only a row still carrying it: a run that outlived
+	 * LOCK_TIMEOUT may have been taken over, and deleting the new owner's row
+	 * would let a third request migrate concurrently. Same rule as the
+	 * add-on's VendorPanelPage::release_seed_lock().
+	 */
+	private static string $held_lock = '';
+
+	/**
 	 * Whether a migration lane may run in this request context.
 	 *
 	 * An admin page load, cron or WP-CLI -- never admin-ajax.php or
@@ -3251,18 +3260,20 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
+		$stamp = (string) time();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex: add_option() is not atomic across requests (it reads before it writes); INSERT IGNORE is.
 		$taken = $wpdb->query(
 			$wpdb->prepare(
 				"INSERT IGNORE INTO {$wpdb->options} ( option_name, option_value, autoload ) VALUES ( %s, %s, 'off' )",
 				self::LOCK_OPTION,
-				(string) time()
+				$stamp
 			)
 		);
 		wp_cache_delete('notoptions', 'options');
 		wp_cache_delete('alloptions', 'options');
 
 		if ($taken) {
+			self::$held_lock = $stamp;
 			return true;
 		}
 
@@ -3275,20 +3286,40 @@ final class DatabaseMigrator {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Conditional takeover of an expired mutex; the loser's UPDATE matches no row.
-		$stolen = $wpdb->query(
+		$stolen = (bool) $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s",
-				(string) time(),
+				$stamp,
 				self::LOCK_OPTION,
 				(string) $held
 			)
 		);
+		if ($stolen) {
+			self::$held_lock = $stamp;
+		}
 
-		return (bool) $stolen;
+		return $stolen;
 	}
 
+	/** Give back only the lock this request took (see $held_lock). */
 	private static function release_lock(): void
 	{
-		delete_option(self::LOCK_OPTION);
+		global $wpdb;
+
+		if ('' === self::$held_lock) {
+			return;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Conditional release of the mutex row; a taken-over lock carries another value and is left alone.
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s",
+				self::LOCK_OPTION,
+				self::$held_lock
+			)
+		);
+		self::$held_lock = '';
+		wp_cache_delete(self::LOCK_OPTION, 'options');
+		wp_cache_delete('notoptions', 'options');
+		wp_cache_delete('alloptions', 'options');
 	}
 }
