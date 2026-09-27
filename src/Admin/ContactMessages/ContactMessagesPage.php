@@ -69,7 +69,9 @@ final class ContactMessagesPage {
 					'type' => 'documentation',
 					'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
 				),
-			)
+			),
+			true,
+			__( 'Requests sent through the contact form on your site', 'mhm-rentiva' )
 		);
 		echo '<div id="mhm-contact-messages-root"></div></div>';
 	}
@@ -112,7 +114,10 @@ final class ContactMessagesPage {
 		if (ContactMessagePostType::TYPE !== $typenow) {
 			return false;
 		}
-		if (isset($query['filter_action']) || isset($query['delete_all']) || isset($query['delete_all2'])) {
+		// current_action() (core's WP_List_Table) treats filter_action as "present"
+		// only when it is non-empty; a blank ?filter_action= (the filter form
+		// submitted with no value picked) is still a plain viewing request.
+		if (( isset($query['filter_action']) && '' !== (string) $query['filter_action'] ) || isset($query['delete_all']) || isset($query['delete_all2'])) {
 			return false;
 		}
 		foreach (array( 'action', 'action2' ) as $key) {

@@ -62,6 +62,15 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		}
 	};
 
+	const restore = async () => {
+		try {
+			await contactApi.bulk( [ id ], 'restore' );
+			onBack();
+		} catch {
+			setError( __( 'The message could not be restored.', 'mhm-rentiva' ) );
+		}
+	};
+
 	if ( error && ! msg ) {
 		return <Notice tone="danger">{ error }</Notice>;
 	}
@@ -79,41 +88,72 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		...( msg.vehicle ? [ { label: __( 'Vehicle', 'mhm-rentiva' ), value: msg.vehicle.title } ] : [] ),
 	];
 
+	const trashed = Boolean( msg.trashed );
+
 	const aside = (
 		<>
 			<SenderWidget msg={ msg } />
 			<TechnicalWidget id={ id } />
-			<Widget title={ __( 'Delete message', 'mhm-rentiva' ) }>
-				<p>{ __( 'The message moves to the trash; WordPress empties the trash automatically.', 'mhm-rentiva' ) }</p>
-				<ConfirmButton
-					label={ __( 'Move to trash', 'mhm-rentiva' ) }
-					confirmText={ sprintf(
-						/* translators: %s: sender name. */
-						__( 'Move the message from %s to the trash?', 'mhm-rentiva' ),
-						msg.name
-					) }
-					confirmLabel={ __( 'Yes, move to trash', 'mhm-rentiva' ) }
-					cancelLabel={ __( 'Cancel', 'mhm-rentiva' ) }
-					busyText={ __( 'Moving…', 'mhm-rentiva' ) }
-					variant="danger"
-					onConfirm={ async () => {
-						try {
-							await contactApi.trash( id );
-							onBack();
-						} catch {
-							setError( __( 'The message could not be moved to the trash.', 'mhm-rentiva' ) );
-						}
-					} }
-				/>
-			</Widget>
+			{ trashed ? (
+				<Widget title={ __( 'Trashed message', 'mhm-rentiva' ) }>
+					<p>{ __( 'This message is in the trash. Restore it, or delete it permanently.', 'mhm-rentiva' ) }</p>
+					<div className="mhm-contact-messages__actions">
+						<button type="button" className="button" onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</button>
+						<ConfirmButton
+							label={ __( 'Delete permanently', 'mhm-rentiva' ) }
+							confirmText={ sprintf(
+								/* translators: %s: sender name. */
+								__( 'Delete the message from %s permanently? This cannot be undone.', 'mhm-rentiva' ),
+								msg.name
+							) }
+							confirmLabel={ __( 'Yes, delete', 'mhm-rentiva' ) }
+							cancelLabel={ __( 'Cancel', 'mhm-rentiva' ) }
+							busyText={ __( 'Deleting…', 'mhm-rentiva' ) }
+							variant="danger"
+							onConfirm={ async () => {
+								try {
+									await contactApi.destroy( id );
+									onBack();
+								} catch {
+									setError( __( 'The message could not be deleted.', 'mhm-rentiva' ) );
+								}
+							} }
+						/>
+					</div>
+				</Widget>
+			) : (
+				<Widget title={ __( 'Delete message', 'mhm-rentiva' ) }>
+					<p>{ __( 'The message moves to the trash; WordPress empties the trash automatically.', 'mhm-rentiva' ) }</p>
+					<ConfirmButton
+						label={ __( 'Move to trash', 'mhm-rentiva' ) }
+						confirmText={ sprintf(
+							/* translators: %s: sender name. */
+							__( 'Move the message from %s to the trash?', 'mhm-rentiva' ),
+							msg.name
+						) }
+						confirmLabel={ __( 'Yes, move to trash', 'mhm-rentiva' ) }
+						cancelLabel={ __( 'Cancel', 'mhm-rentiva' ) }
+						busyText={ __( 'Moving…', 'mhm-rentiva' ) }
+						variant="danger"
+						onConfirm={ async () => {
+							try {
+								await contactApi.trash( id );
+								onBack();
+							} catch {
+								setError( __( 'The message could not be moved to the trash.', 'mhm-rentiva' ) );
+							}
+						} }
+					/>
+				</Widget>
+			) }
 		</>
 	);
 
 	return (
-		<div className="mhm-contact-messages">
+		<div className="mhm-contact-messages mhmui-admin mhmui-admin-page">
 			<PageHeader
 				title={ msg.name }
-				back={ { label: __( 'Back to contact messages', 'mhm-rentiva' ), href: window.mhmRentivaContactMessages.pageUrl, onClick: ( e ) => {
+				back={ { label: __( 'Back to contact messages', 'mhm-rentiva' ), href: window.mhmRentivaContactMessages?.pageUrl ?? '', onClick: ( e ) => {
 					e.preventDefault();
 					onBack();
 				} } }
@@ -126,17 +166,19 @@ export default function ContactMessageDetail( { id, onBack } ) {
 				<Widget
 					title={ __( 'Message', 'mhm-rentiva' ) }
 					actions={
-						<div className="mhm-contact-messages__actions">
-							<button type="button" className="button-link" onClick={ () => setStatus( 'new' ) }>{ __( 'Mark unread', 'mhm-rentiva' ) }</button>
-							{ msg.status !== 'replied' && (
-								<button type="button" className="button" onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</button>
-							) }
-							{ msg.sender.email_linkable && (
-								<a className="button button-primary" href={ buildMailto( msg.sender.email, subject ) } onClick={ () => setMailed( true ) }>
-									{ __( 'Reply by e-mail', 'mhm-rentiva' ) }
-								</a>
-							) }
-						</div>
+						trashed ? null : (
+							<div className="mhm-contact-messages__actions">
+								<button type="button" className="button-link" onClick={ () => setStatus( 'new' ) }>{ __( 'Mark unread', 'mhm-rentiva' ) }</button>
+								{ msg.status !== 'replied' && (
+									<button type="button" className="button" onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</button>
+								) }
+								{ msg.sender.email_linkable && (
+									<a className="button button-primary" href={ buildMailto( msg.sender.email, subject ) } onClick={ () => setMailed( true ) }>
+										{ __( 'Reply by e-mail', 'mhm-rentiva' ) }
+									</a>
+								) }
+							</div>
+						)
 					}
 				>
 					{ /* Always present so a screen reader has a live region to announce

@@ -13,7 +13,7 @@ import { buildMailto } from './mailto';
 jest.mock( '@wordpress/components', () => ( { Spinner: () => null } ), { virtual: true } );
 
 jest.mock( './api', () => ( {
-	contactApi: { list: jest.fn(), bulk: jest.fn() },
+	contactApi: { list: jest.fn(), bulk: jest.fn(), destroy: jest.fn() },
 } ) );
 
 window.mhmRentivaContactMessages = {
@@ -41,6 +41,9 @@ describe( 'contact messages list', () => {
 		contactApi.list.mockResolvedValue( page( [ row() ] ) );
 		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
 		await screen.findByText( 'Şule Çağ' );
+		expect( container.firstChild.className.split( ' ' ) ).toEqual(
+			expect.arrayContaining( [ 'mhmui-admin', 'mhmui-admin-page' ] )
+		);
 		expect( container.querySelectorAll( '.mhmui-stat-card' ) ).toHaveLength( 4 );
 		expect( container.querySelector( '.mhmui-stat-card--warning' ) ).not.toBeNull();
 		expect( within( container.querySelector( '.mhm-contact-messages__table' ) ).getByText( 'Booking Inquiry' ) ).toBeTruthy();
@@ -53,6 +56,27 @@ describe( 'contact messages list', () => {
 		// that one tab so it isn't confused with the "New" tab's own "1".
 		const allTab = within( tabsNav ).getByText( 'All' ).closest( 'a' );
 		expect( within( allTab ).getByText( '1' ) ).toBeTruthy();
+	} );
+
+	test( 'the list does not print its own page title (PHP prints the H1)', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Şule Çağ' );
+		expect( screen.queryByRole( 'heading', { name: 'Contact Messages' } ) ).toBeNull();
+	} );
+
+	test( 'a rejected bulk action shows a visible error and re-enables the bar', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		contactApi.bulk.mockRejectedValue( new Error( 'network' ) );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		expect( await screen.findByText( 'The bulk action could not be completed.' ) ).toBeTruthy();
+		// The list is not refetched on failure -- only the initial load call.
+		expect( contactApi.list ).toHaveBeenCalledTimes( 1 );
+		// Busy is cleared (button usable again) and the selection is kept.
+		expect( screen.getByRole( 'button', { name: 'Mark as read' } ).disabled ).toBe( false );
+		expect( screen.getByRole( 'region', { name: 'Bulk actions' } ) ).toBeTruthy();
 	} );
 
 	test( 'no warning tone when there is nothing new', async () => {
@@ -91,6 +115,14 @@ describe( 'contact messages list', () => {
 	test( 'initials keep Turkish letters', () => {
 		render( <table><ContactTable rows={ [ row() ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } /></table> );
 		expect( screen.getByText( 'ŞÇ' ) ).toBeTruthy();
+	} );
+
+	test( 'a row without a vehicle marks its vehicle cell empty (hidden in card mode)', () => {
+		const { container } = render(
+			<table><ContactTable rows={ [ row( { vehicle: null } ) ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } /></table>
+		);
+		const cell = within( container ).getByText( '—' ).closest( 'td' );
+		expect( cell.className ).toContain( 'is-empty' );
 	} );
 
 	test( 'switching status from a deep page lands the list, and its pagination, on page 1', async () => {
@@ -191,8 +223,58 @@ describe( 'contact message detail', () => {
 		await waitFor( () => expect( contactApi.markRead ).toHaveBeenCalledWith( 1 ) );
 	} );
 
+	test( 'the detail root carries the kit page-shell classes', async () => {
+		const { container } = render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		expect( container.firstChild.className.split( ' ' ) ).toEqual(
+			expect.arrayContaining( [ 'mhmui-admin', 'mhmui-admin-page' ] )
+		);
+	} );
+
+	test( 'a trashed message offers Restore and Delete permanently, and hides the live-message actions', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+
+		expect( screen.getByRole( 'button', { name: 'Restore' } ) ).toBeTruthy();
+		expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeTruthy();
+
+		expect( screen.queryByRole( 'button', { name: 'Mark unread' } ) ).toBeNull();
+		expect( screen.queryByRole( 'button', { name: 'Mark as replied' } ) ).toBeNull();
+		expect( screen.queryByRole( 'link', { name: 'Reply by e-mail' } ) ).toBeNull();
+		expect( screen.queryByRole( 'button', { name: 'Move to trash' } ) ).toBeNull();
+		// markRead must not fire for an already-read, trashed message.
+		expect( contactApi.markRead ).not.toHaveBeenCalled();
+	} );
+
+	test( 'restoring a trashed message calls the bulk restore action and navigates back', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+		contactApi.bulk = jest.fn().mockResolvedValue( { results: [ { id: 1, ok: true } ] } );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Restore' } ) );
+		await waitFor( () => expect( contactApi.bulk ).toHaveBeenCalledWith( [ 1 ], 'restore' ) );
+		await waitFor( () => expect( onBack ).toHaveBeenCalled() );
+	} );
+
+	test( 'a failed permanent delete keeps the message on screen, shows an error, and does not navigate', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+		contactApi.destroy = jest.fn().mockRejectedValue( new Error( 'network' ) );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, delete' } ) );
+
+		expect( await screen.findByText( 'The message could not be deleted.' ) ).toBeTruthy();
+		expect( onBack ).not.toHaveBeenCalled();
+	} );
+
 	test( 'reply link encodes the address and the subject', () => {
-		expect( buildMailto( 'a+b@example.com', 'Re: Booking Inquiry' ) ).toBe( 'mailto:a%2Bb%40example.com?subject=Re%3A%20Booking%20Inquiry' );
+		expect( buildMailto( 'a+b@example.com', 'Re: Booking Inquiry' ) ).toBe( 'mailto:a%2Bb@example.com?subject=Re%3A%20Booking%20Inquiry' );
 	} );
 
 	test( 'an address with query characters gets no link', async () => {

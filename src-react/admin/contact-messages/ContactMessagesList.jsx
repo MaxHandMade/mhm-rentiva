@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import PageHeader from '../../../vendor/mhm/ui-core/src-react/components/PageHeader';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import Tabs from '../../../vendor/mhm/ui-core/src-react/components/Tabs';
 import Pagination from '../../../vendor/mhm/ui-core/src-react/components/Pagination';
 import Notice from '../../../vendor/mhm/ui-core/src-react/components/Notice';
@@ -90,12 +89,14 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 			if ( failed > 0 ) {
 				setError( sprintf(
 					/* translators: %d: number of messages the action could not change. */
-					__( '%d message(s) could not be changed.', 'mhm-rentiva' ),
+					_n( '%d message could not be changed.', '%d messages could not be changed.', failed, 'mhm-rentiva' ),
 					failed
 				) );
 			}
 			setSelected( [] );
 			await load( page );
+		} catch {
+			setError( __( 'The bulk action could not be completed.', 'mhm-rentiva' ) );
 		} finally {
 			setBusy( false );
 		}
@@ -113,12 +114,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	];
 
 	return (
-		<div className="mhm-contact-messages">
-			<PageHeader
-				title={ __( 'Contact Messages', 'mhm-rentiva' ) }
-				meta={ __( 'Requests sent through the contact form on your site', 'mhm-rentiva' ) }
-				level={ 2 }
-			/>
+		<div className="mhm-contact-messages mhmui-admin mhmui-admin-page">
 			{ data && <ContactStats stats={ data.stats } /> }
 			<div className="mhm-contact-messages__tabs">
 				<Tabs
