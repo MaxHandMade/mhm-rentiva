@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import CustomerBadges from './CustomerBadges';
 
 const SORTABLE = [
 	{ key: 'name',        label: __( 'Customer', 'mhm-rentiva' ) },
@@ -108,7 +109,10 @@ export default function CustomerTable( { items, sortBy, sortDir, selected, panel
 											{ initials( c.name ) }
 										</span>
 										<span className="rv-cust-who__text">
-											<span className="rv-cust-who__name">{ c.name }</span>
+											<span className="rv-cust-who__name">
+												{ c.name }
+												<CustomerBadges badges={ c.badges } />
+											</span>
 											<span className="rv-cust-who__email">{ c.email }</span>
 										</span>
 									</div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { rentivaApi } from '../../../shared/api/rentiva';
 import { STATUS_LABELS, initials, avatarColors } from './CustomerTable';
+import CustomerBadges from './CustomerBadges';
 
 export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 	const [detail,  setDetail]  = useState( null );
@@ -61,7 +62,10 @@ export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 						{ initials( row.name ) }
 					</span>
 					<div className="rv-cust-panel__title">
-						<div className="rv-cust-panel__name">{ row.name }</div>
+						<div className="rv-cust-panel__name">
+							{ row.name }
+							<CustomerBadges badges={ detail?.badges ?? row.badges } />
+						</div>
 						<div className="rv-cust-panel__meta">
 							{ detail?.registered ?? '…' }
 							{ statusLabel ? ` · ${ statusLabel }` : '' }

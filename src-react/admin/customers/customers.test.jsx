@@ -101,3 +101,32 @@ describe( 'customer panel booking rows', () => {
 		expect( document.body.textContent ).not.toContain( 'Confirmed' );
 	} );
 } );
+
+describe( 'customer badges', () => {
+	test( 'a badge with a url is a link whose click does not open the row; one without is text', () => {
+		const CustomerBadges = require( './components/CustomerBadges' ).default;
+		const onRow          = jest.fn();
+		const { container }  = render(
+			<div onClick={ onRow }>
+				<CustomerBadges badges={ [
+					{ key: 'vendor', label: 'Vendor', url: 'http://example.org/wp-admin/admin.php?page=mhm-rentiva-vendors&tab=vendors&vendor=150' },
+					{ key: 'other', label: 'Other', url: '' },
+				] } />
+			</div>
+		);
+
+		const link = container.querySelector( 'a.rv-cust-badge.is-badge-vendor' );
+		expect( link ).not.toBeNull();
+		expect( link.textContent ).toBe( 'Vendor' );
+		link.dispatchEvent( new MouseEvent( 'click', { bubbles: true, cancelable: true } ) );
+		expect( onRow ).not.toHaveBeenCalled();
+
+		expect( container.querySelector( 'span.rv-cust-badge.is-badge-other' ).textContent ).toBe( 'Other' );
+	} );
+
+	test( 'no badges renders nothing', () => {
+		const CustomerBadges = require( './components/CustomerBadges' ).default;
+		const { container }  = render( <CustomerBadges badges={ [] } /> );
+		expect( container.innerHTML ).toBe( '' );
+	} );
+} );

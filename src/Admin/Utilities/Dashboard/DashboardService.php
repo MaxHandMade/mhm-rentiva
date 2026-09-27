@@ -405,7 +405,7 @@ final class DashboardService {
 						$booking['customer_name'] = trim( $first . ' ' . $last );
 					}
 					if ( empty( $booking['customer_phone'] ) ) {
-						$booking['customer_phone'] = get_user_meta( (int) $user_id, 'phone', true );
+						$booking['customer_phone'] = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $user_id );
 					}
 				}
 			}

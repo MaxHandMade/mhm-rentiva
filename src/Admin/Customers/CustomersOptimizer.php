@@ -59,7 +59,7 @@ final class CustomersOptimizer {
 	 * the token in three places is how get_customer_details_optimized()'s cache
 	 * key and clear_cache()'s copy of it drift apart.
 	 */
-	private const CACHE_SHAPE = 'v4';
+	private const CACHE_SHAPE = 'v5';
 
 	/**
 	 * Fingerprint of everything that changes how money RENDERS.
@@ -157,7 +157,7 @@ final class CustomersOptimizer {
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
 		if ( $cached_data !== false ) {
-			return $cached_data;
+			return self::with_contact_and_badges( $cached_data );
 		}
 
 		global $wpdb;
@@ -182,8 +182,6 @@ final class CustomersOptimizer {
                 u.display_name as customer_name,
                 u.user_email as customer_email,
                 u.user_registered as created_date,
-                um_phone.meta_value as phone,
-                um_address.meta_value as address,
                 COUNT(DISTINCT p.ID) as booking_count,
                 COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) as paid_count,
                 COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_spent,
@@ -197,17 +195,13 @@ final class CustomersOptimizer {
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
                 AND status_meta.meta_key = '_mhmrentiva_status'
-            LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
-                AND um_phone.meta_key = 'mhmrentiva_phone'
-            LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
-                AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND {$membership}
                 AND u.user_email != ''
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                 AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
-            GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
+            GROUP BY u.ID, u.display_name, u.user_email, u.user_registered
             HAVING ( %s != 'active' OR MAX(CASE WHEN {$revenue} THEN p.post_date END) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
                 AND ( %s != 'vip' OR COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) >= %d )
             ORDER BY %i ASC
@@ -219,8 +213,6 @@ final class CustomersOptimizer {
                 u.display_name as customer_name,
                 u.user_email as customer_email,
                 u.user_registered as created_date,
-                um_phone.meta_value as phone,
-                um_address.meta_value as address,
                 COUNT(DISTINCT p.ID) as booking_count,
                 COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) as paid_count,
                 COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_spent,
@@ -234,17 +226,13 @@ final class CustomersOptimizer {
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
                 AND status_meta.meta_key = '_mhmrentiva_status'
-            LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
-                AND um_phone.meta_key = 'mhmrentiva_phone'
-            LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
-                AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND {$membership}
                 AND u.user_email != ''
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
                 AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
-            GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
+            GROUP BY u.ID, u.display_name, u.user_email, u.user_registered
             HAVING ( %s != 'active' OR MAX(CASE WHEN {$revenue} THEN p.post_date END) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
                 AND ( %s != 'vip' OR COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) >= %d )
             ORDER BY %i DESC
@@ -257,7 +245,7 @@ final class CustomersOptimizer {
 				'total'     => 0,
 			);
 			CacheManager::set_cache( 'customers', $cache_key, $data, self::CACHE_TTL );
-			return $data;
+			return self::with_contact_and_badges( $data );
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Counterpart of the SELECT above; cached with it.
@@ -307,8 +295,6 @@ final class CustomersOptimizer {
 				'id'            => (int) $result->user_id,
 				'name'          => $result->customer_name ? $result->customer_name : $result->customer_email,
 				'email'         => $result->customer_email,
-				'phone'         => $result->phone ? $result->phone : '-',
-				'address'       => $result->address ? $result->address : '-',
 				'booking_count' => (int) $result->booking_count,
 				// Canonical, symbol included. Clients must render this as-is; the
 				// old shape was a bare number that every client concatenated the
@@ -336,7 +322,50 @@ final class CustomersOptimizer {
 		// Cache save
 		CacheManager::set_cache( 'customers', $cache_key, $data, self::CACHE_TTL );
 
+		return self::with_contact_and_badges( $data );
+	}
+
+	/**
+	 * Add phone, address and badges to a cached-or-fresh list payload.
+	 *
+	 * Deliberately outside the cache. Contact details come from CustomerContact,
+	 * whose sources (My Account, WooCommerce checkout, an add-on) change without
+	 * clearing this cache; a badge's link depends on what the current viewer may
+	 * open. The whole page's user meta is primed in one query first.
+	 *
+	 * @param array<string, mixed> $data get_customers_optimized() payload.
+	 * @return array<string, mixed>
+	 */
+	private static function with_contact_and_badges( array $data ): array {
+		$rows = (array) ( $data['customers'] ?? array() );
+		if ( array() === $rows ) {
+			return $data;
+		}
+
+		update_meta_cache( 'user', array_map( static fn( $row ): int => (int) $row['id'], $rows ) );
+
+		$data['customers'] = array_map( array( self::class, 'decorate_customer' ), $rows );
+
 		return $data;
+	}
+
+	/**
+	 * Add phone, address and badges to one customer row or detail payload.
+	 *
+	 * '-' stands for "unknown", the placeholder every client already renders.
+	 *
+	 * @param array<string, mixed> $customer Row with an `id`.
+	 * @return array<string, mixed>
+	 */
+	private static function decorate_customer( array $customer ): array {
+		$id      = (int) ( $customer['id'] ?? 0 );
+		$contact = CustomerContact::for_user( $id );
+
+		$customer['phone']   = '' !== $contact['phone'] ? $contact['phone'] : '-';
+		$customer['address'] = '' !== $contact['address'] ? $contact['address'] : '-';
+		$customer['badges']  = CustomerBadges::for_user( $id );
+
+		return $customer;
 	}
 
 	/**
@@ -519,7 +548,7 @@ final class CustomersOptimizer {
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
 		if ( $cached_data !== false ) {
-			return $cached_data;
+			return self::decorate_customer( $cached_data );
 		}
 
 		global $wpdb;
@@ -552,8 +581,6 @@ final class CustomersOptimizer {
                 u.display_name,
                 u.user_email,
                 u.user_registered,
-                um_phone.meta_value as phone,
-                um_address.meta_value as address,
                 COUNT(DISTINCT p.ID) as booking_count,
                 COUNT(DISTINCT CASE WHEN {$revenue} THEN p.ID END) as paid_count,
                 COALESCE(SUM(CASE WHEN {$revenue} THEN CAST(price_meta.meta_value AS DECIMAL(10,2)) END), 0) as total_spent,
@@ -568,12 +595,8 @@ final class CustomersOptimizer {
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->postmeta} status_meta ON p.ID = status_meta.post_id
                 AND status_meta.meta_key = '_mhmrentiva_status'
-            LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
-                AND um_phone.meta_key = 'mhmrentiva_phone'
-            LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
-                AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID = %d
-            GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
+            GROUP BY u.ID, u.display_name, u.user_email, u.user_registered
         ",
 				$customer_id
 			)
@@ -590,8 +613,6 @@ final class CustomersOptimizer {
 			'id'              => (int) $result->ID,
 			'name'            => $result->display_name,
 			'email'           => $result->user_email,
-			'phone'           => $result->phone ? $result->phone : '-',
-			'address'         => $result->address ? $result->address : '-',
 			'registered'      => gmdate( 'd.m.Y', strtotime( $result->user_registered ) ),
 			'booking_count'   => (int) $result->booking_count,
 			// Canonical, symbol included — see get_customers_optimized().
@@ -611,7 +632,7 @@ final class CustomersOptimizer {
 		// Cache save
 		CacheManager::set_cache( 'customers', $cache_key, $customer_data, self::CACHE_TTL );
 
-		return $customer_data;
+		return self::decorate_customer( $customer_data );
 	}
 
 	/**
