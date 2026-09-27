@@ -73,6 +73,11 @@ final class IconConcepts {
 		// ones that are missing -- neither is a seed noun.
 		'pages'    => 'admin-page',
 		'missing'  => 'warning',
+
+		// A count of contact-form submissions. The seed has no messages
+		// concept; `total`/`pending`/`time` (already seed nouns) cover the
+		// other three Contact Messages stat cards.
+		'messages' => 'email',
 	);
 
 	/**

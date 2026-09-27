@@ -109,6 +109,10 @@ build/
 !build/admin/shortcode-pages.asset.php
 !build/admin/shortcode-pages.css
 !build/admin/shortcode-pages-rtl.css
+!build/admin/contact-messages.js
+!build/admin/contact-messages.asset.php
+!build/admin/contact-messages.css
+!build/admin/contact-messages-rtl.css
 dist/
 .cache/
 

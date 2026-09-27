@@ -14,6 +14,7 @@ module.exports = {
 		'admin/customers':  './src-react/admin/customers/index.js',
 		'admin/about':           './src-react/admin/about/index.js',
 		'admin/shortcode-pages': './src-react/admin/shortcode-pages/index.js',
+		'admin/contact-messages': './src-react/admin/contact-messages/index.js',
 	},
 	output: {
 		...defaultConfig.output,
