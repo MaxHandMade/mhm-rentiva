@@ -304,7 +304,10 @@ final class ContactForm extends AbstractShortcode {
 				'priority'       => isset($_POST['priority']) ? sanitize_text_field(wp_unslash( (string) $_POST['priority'])) : '',
 				'rating'         => isset($_POST['rating']) ? absint(wp_unslash($_POST['rating'])) : 0,
 				'message'        => isset($_POST['message']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['message'])) : '',
-				'attachment'     => isset($_POST['attachment']) ? sanitize_text_field(wp_unslash( (string) $_POST['attachment'])) : '',
+				// Never from the request: before 4.4.0 a typed URL landed here
+				// and became a link in the admin screen and a path fed to the
+				// admin e-mail. Only handle_file_upload() below sets it.
+				'attachment'     => '',
 				'auto_reply'     => isset($_POST['auto_reply']) ? sanitize_text_field(wp_unslash( (string) $_POST['auto_reply'])) : '1',
 			);
 
@@ -431,25 +434,45 @@ final class ContactForm extends AbstractShortcode {
 	/**
 	 * Contact form specific sanitization
 	 */
+	public const MAX_ATTACHMENT_BYTES = 5242880; // 5 MB
+
 	private static function sanitize_contact_form_data(array $data): array
 	{
 		return array(
-			'type'           => self::sanitize_text_field_safe($data['type'] ?? 'general'),
+			'type'           => in_array( (string) ( $data['type'] ?? '' ), ContactMessagePostType::TYPES, true ) ? (string) $data['type'] : 'general',
 			'name'           => self::sanitize_text_field_safe($data['name'] ?? ''),
 			'email'          => \MHMRentiva\Admin\Core\SecurityHelper::validate_email($data['email'] ?? ''),
 			'phone'          => \MHMRentiva\Admin\Core\SecurityHelper::validate_phone($data['phone'] ?? ''),
 			'company'        => self::sanitize_text_field_safe($data['company'] ?? ''),
-			'vehicle_id'     => intval($data['vehicle_id'] ?? 0),
-			'preferred_date' => self::sanitize_text_field_safe($data['preferred_date'] ?? ''),
-			'priority'       => self::sanitize_text_field_safe($data['priority'] ?? ''),
-			'rating'         => intval($data['rating'] ?? 0),
+			'vehicle_id'     => self::vehicle_id_or_zero( (int) ( $data['vehicle_id'] ?? 0 )),
+			'preferred_date' => self::date_or_empty( (string) ( $data['preferred_date'] ?? '' )),
+			'priority'       => in_array( (string) ( $data['priority'] ?? '' ), ContactMessagePostType::PRIORITIES, true ) ? (string) $data['priority'] : '',
+			'rating'         => max(0, min(5, (int) ( $data['rating'] ?? 0 ))),
 			'message'        => ( $data['message'] ?? '' ) !== null ? sanitize_textarea_field( (string) ( $data['message'] ?? '' )) : '',
-			'attachment'     => self::sanitize_text_field_safe($data['attachment'] ?? ''),
+			'attachment'     => '',
 			'auto_reply'     => self::sanitize_text_field_safe($data['auto_reply'] ?? '1'),
 			'ip_address'     => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '')),
 			'user_agent'     => sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'] ?? '')),
 			'timestamp'      => current_time('mysql'),
 		);
+	}
+
+	private static function vehicle_id_or_zero(int $id): int
+	{
+		return $id > 0 && 'mhmrentiva_vehicle' === get_post_type($id) ? $id : 0;
+	}
+
+	private static function date_or_empty(string $value): string
+	{
+		$d = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+		return ( $d && $d->format('Y-m-d') === $value ) ? $value : '';
+	}
+
+	/** The cap for an anonymous upload: 5 MB, filterable, never above PHP's own limit. */
+	private static function max_attachment_bytes(): int
+	{
+		$cap = (int) apply_filters('mhmrentiva_contact_attachment_max_bytes', self::MAX_ATTACHMENT_BYTES);
+		return max(1, min($cap, (int) wp_max_upload_size()));
 	}
 
 	private static function validate_form_data(array $data): array
@@ -736,8 +759,8 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		$message .= '<hr>';
-		$message .= '<p><small>' . __('IP Address:', 'mhm-rentiva') . ' ' . esc_html($data['ip_address']) . '</small></p>';
-		$message .= '<p><small>' . __('Sent Date:', 'mhm-rentiva') . ' ' . esc_html($data['timestamp']) . '</small></p>';
+		$message .= '<p><small>' . __('Sent Date:', 'mhm-rentiva') . ' ' . esc_html($data['timestamp'] ?? '') . '</small></p>';
+		$message .= '<p><a href="' . esc_url(ContactMessagePostType::admin_detail_url($message_id)) . '">' . esc_html__('Open in the admin panel', 'mhm-rentiva') . '</a></p>';
 		$message .= '</body></html>';
 
 		return $message;
@@ -766,8 +789,22 @@ final class ContactForm extends AbstractShortcode {
 
 	private static function handle_file_upload(array $file): array
 	{
-		// File size check
-		if ($file['size'] > wp_max_upload_size()) {
+		if (UPLOAD_ERR_OK !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE )) {
+			return array(
+				'success' => false,
+				'message' => __('The file could not be uploaded.', 'mhm-rentiva'),
+			);
+		}
+
+		$size = (int) ( $file['size'] ?? 0 );
+		$tmp  = (string) ( $file['tmp_name'] ?? '' );
+		if ($size <= 0) {
+			return array(
+				'success' => false,
+				'message' => __('The file is empty.', 'mhm-rentiva'),
+			);
+		}
+		if ($size > self::max_attachment_bytes() || ( is_file($tmp) && filesize($tmp) > self::max_attachment_bytes() )) {
 			return array(
 				'success' => false,
 				'message' => __('File size is too large.', 'mhm-rentiva'),

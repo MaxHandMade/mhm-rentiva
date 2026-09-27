@@ -41,6 +41,48 @@ final class ContactMessagePostType {
 
     public const TYPE = 'mhmrentiva_contact';
 
+    public const TYPES      = array( 'general', 'booking', 'support', 'feedback' );
+    public const PRIORITIES = array( 'low', 'medium', 'high' );
+
+    /**
+     * Human label of an enquiry type. Unknown stored values (the form did not
+     * allowlist the type before 4.4.0) read as the general form's label.
+     */
+    public static function type_label(string $type): string
+    {
+        switch ($type) {
+            case 'booking':
+                return __('Booking Inquiry', 'mhm-rentiva');
+            case 'support':
+                return __('Technical Support', 'mhm-rentiva');
+            case 'feedback':
+                return __('Feedback', 'mhm-rentiva');
+            default:
+                return __('General Contact', 'mhm-rentiva');
+        }
+    }
+
+    /** Translated priority label; '' for anything outside PRIORITIES. Same strings as ContactForm::get_priority_options(). */
+    public static function priority_label(string $priority): string
+    {
+        switch ($priority) {
+            case 'low':
+                return __('Low', 'mhm-rentiva');
+            case 'medium':
+                return __('Medium', 'mhm-rentiva');
+            case 'high':
+                return __('High', 'mhm-rentiva');
+            default:
+                return '';
+        }
+    }
+
+    /** Detail screen of one message in the React admin page. */
+    public static function admin_detail_url(int $id): string
+    {
+        return admin_url('admin.php?page=mhm-rentiva-contact-messages&id=' . $id);
+    }
+
     /**
      * The stored fields, in reading order: full meta key => label.
      *
