@@ -35,3 +35,15 @@
 	.mhm-contact-messages__table td:not( .check-column ) { grid-column: 2; }
 	.mhm-contact-messages__table .button { min-height: 44px; }
 }
+.mhm-contact-messages__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mhm-contact-messages__mail-note { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 10px 14px; background: var( --mhmui-info-soft, #e5f0fa ); border: 1px solid #b6d1ea; border-radius: var( --mhmui-radius, 4px ); }
+.mhm-contact-messages__body { margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-line; max-width: 760px; }
+.mhm-contact-messages__attachment { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 1px solid #dcdcde; border-radius: var( --mhmui-radius, 4px ); max-width: 520px; }
+.mhm-contact-messages__attachment span:first-child { flex: 1; }
+.mhm-contact-messages__muted { color: var( --mhmui-text-muted, #646970 ); }
+.mhm-contact-messages__avatar.is-large { width: 44px; height: 44px; font-size: 14px; }
+.mhm-contact-messages__dl { margin: 12px 0; display: grid; gap: 4px; }
+.mhm-contact-messages__dl dt { font-size: 12px; color: var( --mhmui-text-muted, #646970 ); }
+.mhm-contact-messages__dl dd { margin: 0 0 8px; }
+.mhm-contact-messages__dl.is-code dd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; word-break: break-all; }
+.mhm-contact-messages__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

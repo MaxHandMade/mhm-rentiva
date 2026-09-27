@@ -1,8 +1,10 @@
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import ContactMessagesList from './ContactMessagesList';
 import ContactMessagesApp from './ContactMessagesApp';
+import ContactMessageDetail from './ContactMessageDetail';
 import ContactTable from './components/ContactTable';
 import { contactApi } from './api';
+import { buildMailto } from './mailto';
 
 // A virtual mock: @wordpress/components is not a real devDependency of this
 // project (webpack externalises every @wordpress/* import to the wp-admin
@@ -163,5 +165,62 @@ describe( 'contact messages list', () => {
 		await waitFor( () => expect( contactApi.list ).toHaveBeenCalled() );
 		const params = contactApi.list.mock.calls[ 0 ][ 0 ];
 		expect( params.status ).toBeUndefined();
+	} );
+} );
+
+describe( 'contact message detail', () => {
+	const detail = ( over = {} ) => ( {
+		...row( { status: 'new' } ),
+		content: 'Line one\nLine two',
+		fields: [ { key: 'type', label: 'Enquiry type', value: 'Booking Inquiry' } ],
+		attachment: null,
+		sender: { email: 'sule@example.com', email_linkable: true, phone: '+90 533 000 2940', customer_url: null, other_count: 1 },
+		...over,
+	} );
+
+	beforeEach( () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail() );
+		contactApi.markRead = jest.fn().mockResolvedValue( row( { status: 'read', status_label: 'Read' } ) );
+		contactApi.setStatus = jest.fn().mockImplementation( ( id, status ) => Promise.resolve( row( { status, status_label: status } ) ) );
+		contactApi.technical = jest.fn().mockResolvedValue( { ip_address: '203.0.113.48', user_agent: 'UA/1' } );
+	} );
+
+	test( 'opening marks a new message read', async () => {
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		await waitFor( () => expect( contactApi.markRead ).toHaveBeenCalledWith( 1 ) );
+	} );
+
+	test( 'reply link encodes the address and the subject', () => {
+		expect( buildMailto( 'a+b@example.com', 'Re: Booking Inquiry' ) ).toBe( 'mailto:a%2Bb%40example.com?subject=Re%3A%20Booking%20Inquiry' );
+	} );
+
+	test( 'an address with query characters gets no link', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { sender: { email: 'a?cc=b%40evil.com&x=@example.com', email_linkable: false, phone: '', customer_url: null, other_count: 0 } } ) );
+		const { container } = render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		expect( container.querySelector( 'a[href^="mailto:"]' ) ).toBeNull();
+	} );
+
+	test( 'reply by e-mail shows the mark-as-replied prompt, which disappears once replied', async () => {
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		const link = await screen.findByRole( 'link', { name: 'Reply by e-mail' } );
+		// jsdom logs "navigation not implemented" for a real activation, and
+		// @wordpress/jest-console fails the test on it. A target listener runs
+		// before React's root listener: the navigation is cancelled, onClick still fires.
+		link.addEventListener( 'click', ( e ) => e.preventDefault(), { once: true } );
+		fireEvent.click( link );
+		const prompt = await screen.findByRole( 'status' );
+		fireEvent.click( within( prompt ).getByRole( 'button', { name: 'Mark as replied' } ) );
+		await waitFor( () => expect( screen.queryByRole( 'status' ) ).toBeNull() );
+		expect( contactApi.setStatus ).toHaveBeenCalledWith( 1, 'replied' );
+	} );
+
+	test( 'technical record is fetched only on demand', async () => {
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		expect( contactApi.technical ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Show' } ) );
+		expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
 	} );
 } );
