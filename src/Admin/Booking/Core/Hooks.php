@@ -9,8 +9,8 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Booking\Helpers\Cache;
+use MHMRentiva\Admin\Core\Utilities\CacheManager;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
-use MHMRentiva\Admin\Customers\CustomersOptimizer;
 
 
 
@@ -41,10 +41,14 @@ final class Hooks {
 
 	/**
 	 * Drop the cached Customers figures (list, cards, details).
+	 *
+	 * A stamp bump, not CustomersOptimizer::clear_cache(): that also scans the
+	 * options table, and AutoCancel / AutoComplete change up to fifty statuses
+	 * in one run.
 	 */
 	public static function invalidate_customer_figures(): void
 	{
-		CustomersOptimizer::clear_cache();
+		CacheManager::invalidate_type('customers');
 	}
 
 	/**

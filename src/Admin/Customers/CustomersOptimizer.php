@@ -348,6 +348,11 @@ final class CustomersOptimizer {
 	 * cannot disagree about a cancelled, refunded, unpaid or status-less
 	 * booking -- the screen used to count all of them.
 	 *
+	 * Like the `price_meta` join beside it, the `status_meta` join assumes one
+	 * row per booking; every writer uses update_post_meta(). A hand-duplicated
+	 * status row would double that booking in SUM (COUNT DISTINCT is immune) --
+	 * accepted, same class as a duplicated price row.
+	 *
 	 * @return string
 	 */
 	private static function sql_is_revenue(): string {

@@ -229,4 +229,34 @@ final class CustomerSpendCountsRevenueOnlyTest extends WP_UnitTestCase
 
 		$this->assertSame( CurrencyHelper::format_price( 0.0, 2 ), $this->listedRow( $user )['total_spent'] );
 	}
+
+	/**
+	 * AutoCancel / AutoComplete change up to fifty statuses per run; the
+	 * invalidation on that path is a stamp bump, never the options-table scan
+	 * clear_cache_by_type() runs (Fable, slice 1 audit, finding 1). Other listeners
+	 * on the same action (vehicle caches) are not this test's subject.
+	 */
+	public function test_the_status_change_invalidation_does_not_scan_the_options_table(): void
+	{
+		Hooks::register();
+		$user    = $this->makeOldCustomer();
+		$booking = $this->makeBooking( $user, 300.0, Status::CONFIRMED );
+
+		$scans   = array();
+		$capture = static function ( string $sql ) use ( &$scans ): string {
+			if ( false !== stripos( $sql, 'option_name LIKE' ) && false !== stripos( $sql, 'customers' ) ) {
+				$scans[] = $sql;
+			}
+			return $sql;
+		};
+		add_filter( 'query', $capture );
+
+		try {
+			do_action( 'mhmrentiva_booking_status_changed', $booking, Status::CONFIRMED, Status::CANCELLED );
+		} finally {
+			remove_filter( 'query', $capture );
+		}
+
+		$this->assertSame( array(), $scans );
+	}
 }
