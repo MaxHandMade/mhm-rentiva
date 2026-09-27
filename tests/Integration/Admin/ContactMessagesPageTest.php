@@ -75,4 +75,37 @@ final class ContactMessagesPageTest extends WP_UnitTestCase
 		$this->assertFalse(has_action('add_meta_boxes_mhmrentiva_contact'));
 		$this->assertFalse(has_filter('manage_mhmrentiva_contact_posts_columns'));
 	}
+
+	public function test_register_wires_forget_badge_to_every_status_changing_hook(): void
+	{
+		ContactMessagesPage::register();
+
+		foreach ( array( 'save_post_mhmrentiva_contact', 'trashed_post', 'untrashed_post', 'deleted_post' ) as $hook ) {
+			$this->assertNotFalse(
+				has_action($hook, array( ContactStatus::class, 'forget_badge' )),
+				"expected {$hook} to clear the badge transient"
+			);
+		}
+	}
+
+	public function test_creating_a_contact_post_clears_the_badge_transient(): void
+	{
+		ContactMessagesPage::register();
+		set_transient(ContactStatus::BADGE_TRANSIENT, 5, 300);
+
+		self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
+
+		$this->assertFalse(get_transient(ContactStatus::BADGE_TRANSIENT));
+	}
+
+	public function test_trashing_a_contact_post_clears_the_badge_transient(): void
+	{
+		ContactMessagesPage::register();
+		$id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
+		set_transient(ContactStatus::BADGE_TRANSIENT, 5, 300);
+
+		wp_trash_post($id);
+
+		$this->assertFalse(get_transient(ContactStatus::BADGE_TRANSIENT));
+	}
 }

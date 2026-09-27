@@ -139,7 +139,7 @@ final class ContactMessagesPage {
 	{
 		global $typenow;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing decision on a GET; no state changes here.
-		$query = (array) wp_unslash($_GET);
+		$query = (array) wp_unslash($_REQUEST);
 		if (self::legacy_list_should_redirect($query, (string) $typenow)) {
 			$trash = isset($query['post_status']) && 'trash' === $query['post_status'];
 			wp_safe_redirect(admin_url('admin.php?page=' . self::SLUG . ( $trash ? '&status=trash' : '' )));
@@ -150,7 +150,7 @@ final class ContactMessagesPage {
 	public static function maybe_redirect_legacy_post(): void
 	{
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing decision on a GET.
-		$id = self::legacy_post_redirect_id( (array) wp_unslash($_GET));
+		$id = self::legacy_post_redirect_id( (array) wp_unslash($_REQUEST));
 		if ($id > 0) {
 			wp_safe_redirect(ContactMessagePostType::admin_detail_url($id));
 			exit;
