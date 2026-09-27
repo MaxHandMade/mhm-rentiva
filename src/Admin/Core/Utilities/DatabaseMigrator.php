@@ -34,6 +34,12 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.4.0 (2026-09-27): migrate_contact_status_440() marks every contact
+	 * message stored before the upgrade as read. It carries its own done flag
+	 * because this migrator replays its whole body on every later stamp
+	 * bump -- without the flag, messages an admin marked unread would flip
+	 * back to read on the next upgrade.
+	 *
 	 * 4.3.0 (2026-08-03): Retires the core-table index surface -- see the
 	 * class docblock. RetiredIndexes::drop() replaces
 	 * add_performance_indexes()/add_missing_indexes(); without this bump the
@@ -48,7 +54,25 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.3.0';
+	private const CURRENT_VERSION = '4.4.0';
+
+	/**
+	 * Whether migrate_contact_status_440() has already run once.
+	 *
+	 * @see migrate_contact_status_440()
+	 */
+	public const CONTACT_STATUS_DONE_OPTION = 'mhmrentiva_contact_status_migrated';
+
+	/**
+	 * The cutoff timestamp (local time, same clock as post_date) below which
+	 * migrate_contact_status_440() moves `new` rows to `read`. Recorded the
+	 * first time the step runs so a later replay of run_migrations() (see the
+	 * class docblock) always compares against the ORIGINAL upgrade moment,
+	 * not whatever "now" happens to be on that later request.
+	 *
+	 * @see migrate_contact_status_440()
+	 */
+	public const CONTACT_STATUS_CUTOFF_OPTION = 'mhmrentiva_contact_status_migrated_at';
 
 	/**
 	 * Mutex for run_migrations(). Same shape and semantics as the add-on's
@@ -437,6 +461,7 @@ final class DatabaseMigrator {
 			self::cleanup_orphan_data();
 			self::migrate_standalone_settings();
 			self::migrate_vehicle_lifecycle_status();
+			self::migrate_contact_status_440();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -1222,6 +1247,67 @@ final class DatabaseMigrator {
 		}
 
 		update_option('mhmrentiva_lifecycle_migration_done', '1', false);
+	}
+
+	/**
+	 * 4.4.0: contact messages stored before this upgrade become `read`.
+	 *
+	 * Until 4.4.0 no screen read the status the form wrote, so every stored
+	 * row still says `new`; showing them all as new messages the day the new
+	 * screen appears would be noise, not information. Only rows dated before
+	 * the cutoff move, and only once (own done flag): the migrator replays its
+	 * body on every later stamp bump, and "mark unread" must survive that.
+	 */
+	private static function migrate_contact_status_440(): void
+	{
+		if ('1' === get_option(self::CONTACT_STATUS_DONE_OPTION)) {
+			return;
+		}
+
+		global $wpdb;
+
+		$cutoff = (string) get_option(self::CONTACT_STATUS_CUTOFF_OPTION, '');
+		if ('' === $cutoff) {
+			// Local time, the same clock as post_date.
+			$cutoff = current_time('mysql');
+			add_option(self::CONTACT_STATUS_CUTOFF_OPTION, $cutoff, '', false);
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-shot backfill in a version-gated migration; the IDs are collected first so their meta cache can be dropped after the bulk UPDATE.
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s
+				 WHERE p.post_type = %s AND p.post_date < %s AND pm.meta_value = %s",
+				\MHMRentiva\Admin\ContactMessages\ContactStatus::META_KEY,
+				'mhmrentiva_contact',
+				$cutoff,
+				\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_NEW
+			)
+		);
+
+		if (array() !== $ids) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Same one-shot backfill; update_post_meta() per row would be N queries for an unbounded N.
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} pm
+					 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+					 SET pm.meta_value = %s
+					 WHERE pm.meta_key = %s AND p.post_type = %s AND p.post_date < %s AND pm.meta_value = %s",
+					\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_READ,
+					\MHMRentiva\Admin\ContactMessages\ContactStatus::META_KEY,
+					'mhmrentiva_contact',
+					$cutoff,
+					\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_NEW
+				)
+			);
+			foreach ($ids as $id) {
+				wp_cache_delete( (int) $id, 'post_meta');
+			}
+		}
+
+		\MHMRentiva\Admin\ContactMessages\ContactStatus::forget_badge();
+		update_option(self::CONTACT_STATUS_DONE_OPTION, '1', false);
 	}
 
 	/**

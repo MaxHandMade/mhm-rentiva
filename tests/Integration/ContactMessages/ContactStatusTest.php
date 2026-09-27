@@ -1,0 +1,46 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Tests\Integration\ContactMessages;
+
+use MHMRentiva\Admin\ContactMessages\ContactStatus;
+use WP_UnitTestCase;
+
+final class ContactStatusTest extends WP_UnitTestCase
+{
+	private function contact(): int
+	{
+		return (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
+	}
+
+	public function test_normalize_keeps_known_values_and_reads_the_rest(): void
+	{
+		$this->assertSame('new', ContactStatus::normalize('new'));
+		$this->assertSame('replied', ContactStatus::normalize('replied'));
+		$this->assertSame('read', ContactStatus::normalize(''));
+		$this->assertSame('read', ContactStatus::normalize('bogus'));
+		$this->assertSame('read', ContactStatus::normalize(null));
+	}
+
+	public function test_get_without_meta_is_read(): void
+	{
+		$this->assertSame('read', ContactStatus::get($this->contact()));
+	}
+
+	public function test_set_rejects_unknown_values_and_other_post_types(): void
+	{
+		$id = $this->contact();
+		$this->assertFalse(ContactStatus::set($id, 'urgent'));
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		$this->assertFalse(ContactStatus::set($booking, 'new'));
+		$this->assertTrue(ContactStatus::set($id, 'replied'));
+		$this->assertSame('replied', get_post_meta($id, ContactStatus::META_KEY, true));
+	}
+
+	public function test_set_forgets_the_badge_count(): void
+	{
+		set_transient(ContactStatus::BADGE_TRANSIENT, 9, 300);
+		ContactStatus::set($this->contact(), 'new');
+		$this->assertFalse(get_transient(ContactStatus::BADGE_TRANSIENT));
+	}
+}
