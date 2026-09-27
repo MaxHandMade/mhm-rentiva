@@ -119,6 +119,9 @@ describe( 'contact messages list', () => {
 		await act( async () => {} );
 		const lastParams = contactApi.list.mock.calls[ contactApi.list.mock.calls.length - 1 ][ 0 ];
 		expect( lastParams.page ).toBe( 2 );
+		// The page-1 selection does not follow the operator to page 2, so the
+		// next bulk action cannot resend ids they can no longer see.
+		expect( screen.queryByRole( 'region', { name: 'Bulk actions' } ) ).toBeNull();
 	} );
 
 	test( 'a rejected bulk action shows a visible error and re-enables the bar', async () => {

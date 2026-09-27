@@ -89,6 +89,9 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 
 	const changePage = ( next ) => {
 		viewSeq.current++;
+		// Like a status/filter change: the selection belongs to the rows the
+		// operator is leaving, and a retired bulk result no longer clears it.
+		setSelected( [] );
 		setPage( next );
 	};
 
