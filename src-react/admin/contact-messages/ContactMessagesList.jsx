@@ -23,6 +23,10 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	const [ data, setData ] = useState( null );
 	const [ selected, setSelected ] = useState( [] );
 	const [ error, setError ] = useState( null );
+	// Kept apart from `error`: load() clears that one first thing, and the
+	// reload that follows a bulk call would wipe the partial-failure notice
+	// before anyone could read it (Codex bot, #75 P2).
+	const [ bulkNotice, setBulkNotice ] = useState( null );
 	const [ busy, setBusy ] = useState( false );
 
 	// Request-sequence guard: a status change re-creates `load` (it closes over
@@ -73,6 +77,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 		if ( lastStatus.current !== status ) {
 			lastStatus.current = status;
 			setSelected( [] );
+			setBulkNotice( null );
 			setPage( 1 );
 		}
 	}, [ status ] );
@@ -80,16 +85,18 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	const changeFilters = ( patch ) => {
 		setFilters( ( f ) => ( { ...f, ...patch } ) );
 		setSelected( [] );
+		setBulkNotice( null );
 		setPage( 1 );
 	};
 
 	const runBulk = async ( action ) => {
 		setBusy( true );
+		setBulkNotice( null );
 		try {
 			const { results } = await contactApi.bulk( selected, action );
 			const failed = results.filter( ( r ) => ! r.ok ).length;
 			if ( failed > 0 ) {
-				setError( sprintf(
+				setBulkNotice( sprintf(
 					/* translators: %d: number of messages the action could not change. */
 					_n( '%d message could not be changed.', '%d messages could not be changed.', failed, 'mhm-rentiva' ),
 					failed
@@ -162,6 +169,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 				<ContactToolbar filters={ filters } total={ data?.total ?? 0 } onChange={ changeFilters } />
 			) }
 			{ error && <Notice tone="danger">{ error }</Notice> }
+			{ bulkNotice && <Notice tone="warning">{ bulkNotice }</Notice> }
 			{ ! data && ! error && <Spinner /> }
 			{ data && data.items.length === 0 && (
 				<div className="mhm-contact-messages__empty">

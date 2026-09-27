@@ -66,6 +66,18 @@ describe( 'contact messages list', () => {
 		expect( screen.queryByRole( 'heading', { name: 'Contact Messages' } ) ).toBeNull();
 	} );
 
+	test( 'a partial bulk failure stays visible after the list reloads', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		contactApi.bulk.mockResolvedValue( { results: [ { id: 1, ok: false, error: 'not_allowed' } ] } );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		// The reload after the bulk call has happened...
+		await waitFor( () => expect( contactApi.list ).toHaveBeenCalledTimes( 2 ) );
+		// ...and the partial-failure notice survived it.
+		expect( await screen.findByText( '1 message could not be changed.' ) ).toBeTruthy();
+	} );
+
 	test( 'a rejected bulk action shows a visible error and re-enables the bar', async () => {
 		contactApi.list.mockResolvedValue( page( [ row() ] ) );
 		contactApi.bulk.mockRejectedValue( new Error( 'network' ) );
