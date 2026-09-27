@@ -3269,6 +3269,7 @@ final class DatabaseMigrator {
 				$stamp
 			)
 		);
+		wp_cache_delete(self::LOCK_OPTION, 'options');
 		wp_cache_delete('notoptions', 'options');
 		wp_cache_delete('alloptions', 'options');
 
