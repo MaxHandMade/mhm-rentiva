@@ -159,8 +159,14 @@ class ReportRepository {
 		$meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
 		// Payment method usually stored in _mhmrentiva_payment_gateway
 		$meta_gateway = '_mhmrentiva_payment_gateway';
+		// Revenue bookings only, like every other figure in this class: a
+		// cancelled order is not money its gateway took.
+		$meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+		$revenue     = \MHMRentiva\Admin\Booking\Core\Status::revenue_statuses();
+		$revenue_in  = implode( ', ', array_fill( 0, count( $revenue ), '%s' ) );
 
-		return $wpdb->get_results(
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $revenue_in is a run of %s tokens, one per status in $revenue, all bound below; the sniff cannot count an array_merge() argument.
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
                 COALESCE(pm_gw.meta_value, 'unknown') as method, 
@@ -169,18 +175,23 @@ class ReportRepository {
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_gw ON p.ID = pm_gw.post_id AND pm_gw.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
              AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ({$revenue_in})
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY pm_gw.meta_value
              ORDER BY revenue DESC",
-				$meta_price,
-				$meta_gateway,
-				'mhmrentiva_booking',
-				$start_date . ' 00:00:00',
-				$end_date . ' 23:59:59'
+				array_merge(
+					array( $meta_price, $meta_gateway, $meta_status, 'mhmrentiva_booking' ),
+					$revenue,
+					array( $start_date . ' 00:00:00', $end_date . ' 23:59:59' )
+				)
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		return $rows;
 	}
 
 	/**
