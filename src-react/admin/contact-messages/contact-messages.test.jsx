@@ -101,6 +101,26 @@ describe( 'contact messages list', () => {
 		expect( lastParams.status ).toBe( 'replied' );
 	} );
 
+	test( 'a bulk result that returns after a page change does not reload the old page', async () => {
+		contactApi.list.mockImplementation( async ( params ) => page( [ row( { id: 100 + params.page } ) ], { total: 40, pages: 2, page: params.page } ) );
+		let resolveBulk;
+		contactApi.bulk.mockReturnValue( new Promise( ( r ) => {
+			resolveBulk = r;
+		} ) );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		// The operator pages forward while the bulk call is in flight.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await waitFor( () => expect( contactApi.list.mock.calls.some( ( [ p ] ) => p.page === 2 ) ).toBe( true ) );
+		await act( async () => {
+			resolveBulk( { results: [ { id: 101, ok: true } ] } );
+		} );
+		await act( async () => {} );
+		const lastParams = contactApi.list.mock.calls[ contactApi.list.mock.calls.length - 1 ][ 0 ];
+		expect( lastParams.page ).toBe( 2 );
+	} );
+
 	test( 'a rejected bulk action shows a visible error and re-enables the bar', async () => {
 		contactApi.list.mockResolvedValue( page( [ row() ] ) );
 		contactApi.bulk.mockRejectedValue( new Error( 'network' ) );

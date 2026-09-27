@@ -27,9 +27,9 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	// reload that follows a bulk call would wipe the partial-failure notice
 	// before anyone could read it (Codex bot, #75 P2).
 	const [ bulkNotice, setBulkNotice ] = useState( null );
-	// Bumped on every status/filter change: a bulk result that comes back
-	// after the operator moved to another view must not post its notice
-	// there (Codex bot + Codex audit, #76).
+	// Bumped on every status/filter/page change the operator makes: a bulk
+	// result that comes back after they moved to another view must not post
+	// its notice or reload the old view there (Codex bot + Codex audit, #76).
 	const viewSeq = useRef( 0 );
 	const [ busy, setBusy ] = useState( false );
 
@@ -86,6 +86,11 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 			setPage( 1 );
 		}
 	}, [ status ] );
+
+	const changePage = ( next ) => {
+		viewSeq.current++;
+		setPage( next );
+	};
 
 	const changeFilters = ( patch ) => {
 		viewSeq.current++;
@@ -213,7 +218,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 					<Pagination
 						page={ page }
 						totalPages={ data.pages }
-						onChange={ setPage }
+						onChange={ changePage }
 						labels={ {
 							navigation: __( 'Contact messages pages', 'mhm-rentiva' ),
 							previous: __( 'Previous', 'mhm-rentiva' ),
