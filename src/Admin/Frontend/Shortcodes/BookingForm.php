@@ -513,7 +513,7 @@ final class BookingForm extends AbstractShortcode {
 			'user_id'      => $is_logged_in ? $current_user->ID : 0,
 			'user_name'    => $is_logged_in ? $current_user->display_name : '',
 			'user_email'   => $is_logged_in ? $current_user->user_email : '',
-			'user_phone'   => $is_logged_in ? get_user_meta($current_user->ID, 'mhmrentiva_phone', true) : '',
+			'user_phone'   => $is_logged_in ? \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $current_user->ID) : '',
 			'first_name'   => $is_logged_in ? $current_user->first_name : '',
 			'last_name'    => $is_logged_in ? $current_user->last_name : '',
 		);
@@ -943,10 +943,7 @@ final class BookingForm extends AbstractShortcode {
 				$customer_last_name  = $current_user->last_name ? $current_user->last_name : '';
 				$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
 				$customer_email      = $current_user->user_email;
-				$customer_phone      = (string) get_user_meta($current_user->ID, 'billing_phone', true);
-				if ($customer_phone === '') {
-					$customer_phone = (string) get_user_meta($current_user->ID, 'mhmrentiva_phone', true);
-				}
+				$customer_phone      = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $current_user->ID);
 			}
 
 			// If form fields are provided (for logged-in users or manual entry), use them
@@ -1028,10 +1025,7 @@ final class BookingForm extends AbstractShortcode {
 					$customer_email = $current_user->user_email;
 				}
 				if ($customer_phone === '') {
-					$customer_phone = (string) get_user_meta($current_user->ID, 'billing_phone', true);
-					if ($customer_phone === '') {
-						$customer_phone = (string) get_user_meta($current_user->ID, 'mhmrentiva_phone', true);
-					}
+					$customer_phone = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $current_user->ID);
 				}
 				$customer_name = trim($customer_first_name . ' ' . $customer_last_name);
 			}

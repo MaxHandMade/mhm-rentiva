@@ -315,6 +315,29 @@
 	color: #6b2fa0;
 }
 
+/* Badges an add-on reports (Pro: Vendor). A role, not a state, so no tone. */
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-badges {
+	display: inline-flex;
+	gap: 4px;
+	margin-left: 6px;
+	vertical-align: middle;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-badge {
+	font-size: 11px;
+	padding: 1px 8px;
+	background: #f0f0f1;
+	color: #3c434a;
+	text-decoration: none;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) a.rv-cust-badge:hover,
+:is(#mhm-customers-root, .rv-cust-scope) a.rv-cust-badge:focus {
+	background: #dcdcde;
+	color: #1d2327;
+	text-decoration: underline;
+}
+
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-tag.is-none {
 	background: transparent;
 	color: #b6bcc3;

@@ -258,6 +258,51 @@ final class CustomersPage {
 	}
 
 	/**
+	 * Write Rentiva's own contact field only when it holds a value already or
+	 * the admin changed what the form showed.
+	 *
+	 * @param int    $user_id   Customer.
+	 * @param string $key       `mhmrentiva_phone` or `mhmrentiva_address`.
+	 * @param string $submitted Sanitised form value.
+	 * @param string $resolved  CustomerContact's answer the form was pre-filled with.
+	 * @return void
+	 */
+	private static function save_own_contact_field( int $user_id, string $key, string $submitted, string $resolved ): void
+	{
+		$own = get_user_meta( $user_id, $key, true );
+		// Compared whitespace-normalised: sanitize_text_field() collapses inner
+		// runs, so an untouched "+90  555" would otherwise read as changed.
+		$normalise = static fn( string $v ): string => (string) preg_replace( '/\s+/u', ' ', trim( $v ) );
+		if ( ( is_scalar( $own ) && '' !== trim( (string) $own ) ) || $normalise( $submitted ) !== $normalise( $resolved ) ) {
+			update_user_meta( $user_id, $key, $submitted );
+		}
+	}
+
+	/**
+	 * Badges an add-on reports for the customer (CustomerBadges), the PHP twin
+	 * of src-react/admin/customers/components/CustomerBadges.jsx.
+	 *
+	 * @param array<int, array{key: string, label: string, url: string}> $badges Already shape-checked.
+	 * @return void
+	 */
+	private static function render_badges( array $badges ): void
+	{
+		if ( array() === $badges ) {
+			return;
+		}
+		echo '<span class="rv-cust-badges">';
+		foreach ( $badges as $badge ) {
+			$class = 'rv-cust-tag rv-cust-badge is-badge-' . sanitize_html_class( (string) $badge['key'] );
+			if ( '' !== (string) $badge['url'] ) {
+				echo '<a class="' . esc_attr( $class ) . '" href="' . esc_url( (string) $badge['url'] ) . '">' . esc_html( (string) $badge['label'] ) . '</a>';
+			} else {
+				echo '<span class="' . esc_attr( $class ) . '">' . esc_html( (string) $badge['label'] ) . '</span>';
+			}
+		}
+		echo '</span>';
+	}
+
+	/**
 	 * Render customer view page
 	 *
 	 * @return void
@@ -312,7 +357,9 @@ final class CustomersPage {
 		echo '<div class="rv-cust-panel__head">';
 		echo '<span class="rv-cust-avatar is-lg" style="background:' . esc_attr( $av_bg ) . ';color:' . esc_attr( $av_color ) . '">' . esc_html( self::avatar_initials( (string) $detail['name'] ) ) . '</span>';
 		echo '<div class="rv-cust-panel__title">';
-		echo '<div class="rv-cust-panel__name">' . esc_html( $detail['name'] ) . '</div>';
+		echo '<div class="rv-cust-panel__name">' . esc_html( $detail['name'] );
+		self::render_badges( (array) ( $detail['badges'] ?? array() ) );
+		echo '</div>';
 		echo '<div class="rv-cust-panel__meta">' . esc_html( $detail['registered'] . ( '' !== $status_label ? ' · ' . $status_label : '' ) ) . '</div>';
 		echo '</div>';
 		if ( '' !== $status_label ) {
@@ -446,6 +493,8 @@ final class CustomersPage {
 		// page's own form carries it, so its validity is the whole test.
 		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_edit_customer_nonce'] ?? ''));
 		if (wp_verify_nonce($nonce, 'mhmrentiva_edit_customer')) {
+			// What the form was pre-filled with, read before anything is written.
+			$resolved_contact = CustomerContact::for_user($customer_id);
 			$customer_name    = isset($_POST['customer_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_name'])) : '';
 			$customer_email   = sanitize_email(wp_unslash($_POST['customer_email'] ?? ''));
 			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_phone'])) : '';
@@ -467,9 +516,12 @@ final class CustomersPage {
 					)
 				);
 
-				// Update meta information
-				update_user_meta($customer_id, 'mhmrentiva_phone', $customer_phone);
-				update_user_meta($customer_id, 'mhmrentiva_address', $customer_address);
+				// Update meta information -- only what the admin changed. The form
+				// is pre-filled from CustomerContact, so an untouched field can
+				// hold the billing phone/address; writing it back would be a copy
+				// that stops following billing.
+				self::save_own_contact_field($customer_id, 'mhmrentiva_phone', $customer_phone, $resolved_contact['phone']);
+				self::save_own_contact_field($customer_id, 'mhmrentiva_address', $customer_address, $resolved_contact['address']);
 
 				// Clear the WHOLE customers cache, not just this customer's
 				// details: the list payload carries phone/name per row, and a
@@ -512,12 +564,12 @@ final class CustomersPage {
 
 		echo '<div class="rv-cust-form__field">';
 		echo '<label for="customer_phone">' . esc_html__('Phone', 'mhm-rentiva') . ' <span class="rv-cust-req">' . esc_html__('Required', 'mhm-rentiva') . '</span></label>';
-		echo '<input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhmrentiva_phone', true)) . '" required />';
+		echo '<input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(CustomerContact::phone($customer_id)) . '" required />';
 		echo '</div>';
 
 		echo '<div class="rv-cust-form__field">';
 		echo '<label for="customer_address">' . esc_html__('Address', 'mhm-rentiva') . '</label>';
-		echo '<textarea name="customer_address" id="customer_address" rows="3">' . esc_textarea(get_user_meta($customer_id, 'mhmrentiva_address', true)) . '</textarea>';
+		echo '<textarea name="customer_address" id="customer_address" rows="3">' . esc_textarea(CustomerContact::address($customer_id)) . '</textarea>';
 		echo '</div>';
 
 		echo '<div class="rv-cust-form__actions">';

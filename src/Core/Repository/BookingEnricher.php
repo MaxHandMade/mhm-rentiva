@@ -68,7 +68,7 @@ final class BookingEnricher {
 						$row['customer_name'] = trim( $first . ' ' . $last );
 					}
 					if ( $wants_phone && empty( $row['customer_phone'] ) ) {
-						$row['customer_phone'] = get_user_meta( (int) $user_id, 'phone', true );
+						$row['customer_phone'] = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $user_id );
 					}
 				}
 			}

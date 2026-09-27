@@ -442,7 +442,7 @@ final class BookingQueryHelper {
 						$email = $user->user_email;
 					}
 					if ( empty( $phone ) ) {
-						$phone = get_user_meta( $user_id, 'phone', true );
+						$phone = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $user_id );
 					}
 				}
 			}

@@ -723,7 +723,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			$customer_last_name  = $customer->last_name;
 			$customer_name       = $customer->display_name;
 			$customer_email      = $customer->user_email;
-			$customer_phone      = get_user_meta($customer->ID, 'mhmrentiva_phone', true) ?: get_user_meta($customer->ID, 'phone', true);
+			$customer_phone      = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $customer->ID);
 		}
 
 		// Date/time parse

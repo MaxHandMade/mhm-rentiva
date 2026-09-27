@@ -101,3 +101,36 @@ describe( 'customer panel booking rows', () => {
 		expect( document.body.textContent ).not.toContain( 'Confirmed' );
 	} );
 } );
+
+describe( 'customer badges', () => {
+	test( 'a badge with a url is a link whose click does not open the row; one without is text', () => {
+		const CustomerBadges = require( './components/CustomerBadges' ).default;
+		// Stands in for the table row's click: a listener above React's root,
+		// which a stopped event never reaches.
+		const onRow          = jest.fn();
+		document.body.addEventListener( 'click', onRow );
+		const { container }  = render(
+			<CustomerBadges badges={ [
+				{ key: 'vendor', label: 'Vendor', url: 'http://example.org/wp-admin/admin.php?page=mhm-rentiva-vendors&tab=vendors&vendor=150' },
+				{ key: 'other', label: 'Other', url: '' },
+			] } />
+		);
+
+		const link = container.querySelector( 'a.rv-cust-badge.is-badge-vendor' );
+		expect( link ).not.toBeNull();
+		expect( link.textContent ).toBe( 'Vendor' );
+		link.dispatchEvent( new MouseEvent( 'click', { bubbles: true, cancelable: true } ) );
+		expect( onRow ).not.toHaveBeenCalled();
+		container.querySelector( 'span.rv-cust-badge.is-badge-other' ).dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+		expect( onRow ).toHaveBeenCalledTimes( 1 ); // the probe does hear an unstopped click
+		document.body.removeEventListener( 'click', onRow );
+
+		expect( container.querySelector( 'span.rv-cust-badge.is-badge-other' ).textContent ).toBe( 'Other' );
+	} );
+
+	test( 'no badges renders nothing', () => {
+		const CustomerBadges = require( './components/CustomerBadges' ).default;
+		const { container }  = render( <CustomerBadges badges={ [] } /> );
+		expect( container.innerHTML ).toBe( '' );
+	} );
+} );

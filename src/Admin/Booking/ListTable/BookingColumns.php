@@ -1919,7 +1919,7 @@ final class BookingColumns {
 						$customer_email = $user->user_email;
 					}
 					if ( empty( $customer_phone ) ) {
-						$customer_phone = get_user_meta( $user_id, 'phone', true );
+						$customer_phone = \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $user_id );
 					}
 				}
 			}
