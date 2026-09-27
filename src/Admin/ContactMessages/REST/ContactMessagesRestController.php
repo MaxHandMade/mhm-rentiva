@@ -96,6 +96,141 @@ final class ContactMessagesRestController {
 	 */
 	private static function register_write_routes(callable $can, array $id): void
 	{
+		register_rest_route(self::NS, '/contact-messages/(?P<id>\d+)/status', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'set_status' ),
+			'permission_callback' => $can,
+			'args'                => $id + array( 'status' => array( 'type' => 'string', 'enum' => ContactStatus::ALL, 'required' => true ) ),
+		));
+
+		register_rest_route(self::NS, '/contact-messages/(?P<id>\d+)/read', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'mark_read' ),
+			'permission_callback' => $can,
+			'args'                => $id,
+		));
+
+		register_rest_route(self::NS, '/contact-messages/bulk', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'bulk' ),
+			'permission_callback' => $can,
+			'args'                => array(
+				'ids'    => array( 'type' => 'array', 'items' => array( 'type' => 'integer', 'minimum' => 1 ), 'minItems' => 1, 'maxItems' => 100, 'required' => true ),
+				'action' => array( 'type' => 'string', 'enum' => array( 'read', 'replied', 'trash', 'restore', 'delete' ), 'required' => true ),
+			),
+		));
+
+		register_rest_route(self::NS, '/contact-messages/(?P<id>\d+)', array(
+			'methods'             => \WP_REST_Server::DELETABLE,
+			'callback'            => array( self::class, 'delete_item' ),
+			'permission_callback' => $can,
+			'args'                => $id + array( 'force' => array( 'type' => 'boolean', 'default' => false ) ),
+		));
+	}
+
+	/** @return \WP_REST_Response|\WP_Error */
+	public static function set_status(\WP_REST_Request $request)
+	{
+		$post = self::find((int) $request['id']);
+		if ($post instanceof \WP_Error) {
+			return $post;
+		}
+		ContactStatus::set($post->ID, (string) $request['status']);
+		return new \WP_REST_Response(self::row($post));
+	}
+
+	/** @return \WP_REST_Response|\WP_Error */
+	public static function mark_read(\WP_REST_Request $request)
+	{
+		$post = self::find((int) $request['id']);
+		if ($post instanceof \WP_Error) {
+			return $post;
+		}
+		if (ContactStatus::STATUS_NEW === ContactStatus::get($post->ID)) {
+			ContactStatus::set($post->ID, ContactStatus::STATUS_READ);
+		}
+		return new \WP_REST_Response(self::row($post));
+	}
+
+	public static function bulk(\WP_REST_Request $request): \WP_REST_Response
+	{
+		$action  = (string) $request['action'];
+		$results = array();
+
+		foreach (array_unique(array_map('intval', (array) $request['ids'])) as $id) {
+			$post = self::find($id);
+			if ($post instanceof \WP_Error) {
+				$results[] = array( 'id' => $id, 'ok' => false, 'error' => 'not_found' );
+				continue;
+			}
+
+			switch ($action) {
+				case 'read':
+				case 'replied':
+					$ok = ContactStatus::set($id, $action);
+					break;
+				case 'trash':
+					$ok = 'trash' !== $post->post_status && false !== wp_trash_post($id);
+					break;
+				case 'restore':
+					$ok = self::untrash($id);
+					break;
+				default: // delete
+					$ok = 'trash' === $post->post_status && false !== wp_delete_post($id, true);
+			}
+
+			$results[] = $ok ? array( 'id' => $id, 'ok' => true ) : array( 'id' => $id, 'ok' => false, 'error' => 'not_allowed' );
+		}
+
+		ContactStatus::forget_badge();
+
+		return new \WP_REST_Response(array( 'results' => $results ));
+	}
+
+	/** @return \WP_REST_Response|\WP_Error */
+	public static function delete_item(\WP_REST_Request $request)
+	{
+		$post = self::find((int) $request['id']);
+		if ($post instanceof \WP_Error) {
+			return $post;
+		}
+
+		if ((bool) $request['force']) {
+			if ('trash' !== $post->post_status) {
+				return new \WP_Error('rest_not_in_trash', __('Only a message in the trash can be deleted permanently.', 'mhm-rentiva'), array( 'status' => 400 ));
+			}
+			$deleted = false !== wp_delete_post($post->ID, true);
+			ContactStatus::forget_badge();
+			return new \WP_REST_Response(array( 'id' => $post->ID, 'trashed' => false, 'deleted' => $deleted ));
+		}
+
+		$trashed = false !== wp_trash_post($post->ID);
+		ContactStatus::forget_badge();
+
+		return new \WP_REST_Response(array( 'id' => $post->ID, 'trashed' => $trashed, 'deleted' => false ));
+	}
+
+	/**
+	 * Restore to the status the message had before it was trashed (private).
+	 * Core's default is `draft`, which would drop it from every tab.
+	 */
+	public static function untrash(int $id): bool
+	{
+		if ('trash' !== get_post_status($id)) {
+			return false;
+		}
+
+		$had = false !== has_filter('wp_untrash_post_status', 'wp_untrash_post_set_previous_status');
+		if (! $had) {
+			add_filter('wp_untrash_post_status', 'wp_untrash_post_set_previous_status', 10, 3);
+		}
+		try {
+			return false !== wp_untrash_post($id);
+		} finally {
+			if (! $had) {
+				remove_filter('wp_untrash_post_status', 'wp_untrash_post_set_previous_status', 10);
+			}
+		}
 	}
 
 	public static function get_list(\WP_REST_Request $request): \WP_REST_Response
