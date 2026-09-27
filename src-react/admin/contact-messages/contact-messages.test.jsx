@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import ContactMessagesList from './ContactMessagesList';
 import ContactMessagesApp from './ContactMessagesApp';
 import ContactMessageDetail from './ContactMessageDetail';
+import ContactBulkBar from './components/ContactBulkBar';
 import ContactTable from './components/ContactTable';
 import { contactApi } from './api';
 import { buildMailto } from './mailto';
@@ -190,6 +191,15 @@ describe( 'contact messages list', () => {
 		expect( trashLink.hasAttribute( 'aria-current' ) ).toBe( false );
 	} );
 
+	test( 'the Trash link is hidden when trash is disabled (EMPTY_TRASH_DAYS = 0)', async () => {
+		window.mhmRentivaContactMessages.trashEnabled = false;
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Şule Çağ' );
+		expect( container.querySelector( '.mhm-contact-messages__trash-link' ) ).toBeNull();
+		delete window.mhmRentivaContactMessages.trashEnabled;
+	} );
+
 	test( 'an unrecognised ?status= in the URL is not sent to the API', async () => {
 		window.history.pushState( null, '', '/wp-admin/admin.php?page=mhm-rentiva-contact-messages&status=bogus' );
 		contactApi.list.mockResolvedValue( page( [] ) );
@@ -197,6 +207,42 @@ describe( 'contact messages list', () => {
 		await waitFor( () => expect( contactApi.list ).toHaveBeenCalled() );
 		const params = contactApi.list.mock.calls[ 0 ][ 0 ];
 		expect( params.status ).toBeUndefined();
+	} );
+} );
+
+describe( 'contact bulk bar', () => {
+	afterEach( () => {
+		delete window.mhmRentivaContactMessages.trashEnabled;
+	} );
+
+	test( 'when trash is disabled the button reads Delete permanently and confirms before acting', async () => {
+		window.mhmRentivaContactMessages.trashEnabled = false;
+		const onAction = jest.fn();
+		render( <ContactBulkBar count={ 2 } inTrash={ false } busy={ false } onAction={ onAction } onClear={ () => {} } /> );
+
+		expect( screen.queryByRole( 'button', { name: 'Move to trash' } ) ).toBeNull();
+		const trigger = screen.getByRole( 'button', { name: 'Delete permanently' } );
+		fireEvent.click( trigger );
+		expect( onAction ).not.toHaveBeenCalled();
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Yes, delete' } ) );
+		await waitFor( () => expect( onAction ).toHaveBeenCalledWith( 'trash' ) );
+	} );
+
+	test( 'with the global absent the bulk bar keeps the old Move to trash label', () => {
+		const onAction = jest.fn();
+		render( <ContactBulkBar count={ 1 } inTrash={ false } busy={ false } onAction={ onAction } onClear={ () => {} } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Move to trash' } ) ).toBeTruthy();
+		expect( screen.queryByRole( 'button', { name: 'Delete permanently' } ) ).toBeNull();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Move to trash' } ) );
+		expect( onAction ).toHaveBeenCalledWith( 'trash' );
+	} );
+
+	test( 'with trash explicitly enabled the bulk bar keeps the old Move to trash label', () => {
+		window.mhmRentivaContactMessages.trashEnabled = true;
+		render( <ContactBulkBar count={ 1 } inTrash={ false } busy={ false } onAction={ () => {} } onClear={ () => {} } /> );
+		expect( screen.getByRole( 'button', { name: 'Move to trash' } ) ).toBeTruthy();
 	} );
 } );
 
@@ -369,6 +415,49 @@ describe( 'contact message detail', () => {
 		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, move to trash' } ) );
 		expect( await screen.findByText( 'The message could not be moved to the trash.' ) ).toBeTruthy();
 		expect( onBack ).not.toHaveBeenCalled();
+	} );
+
+	describe( 'trash disabled (EMPTY_TRASH_DAYS = 0)', () => {
+		beforeEach( () => {
+			window.mhmRentivaContactMessages.trashEnabled = false;
+		} );
+		afterEach( () => {
+			delete window.mhmRentivaContactMessages.trashEnabled;
+		} );
+
+		test( 'the delete widget shows permanent-deletion wording instead of trash wording', async () => {
+			render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+
+			expect( screen.getByText( 'The message is deleted immediately; the trash is disabled on this site.' ) ).toBeTruthy();
+			expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeTruthy();
+			expect( screen.queryByRole( 'button', { name: 'Move to trash' } ) ).toBeNull();
+		} );
+
+		test( 'a successful permanent delete calls onBack', async () => {
+			contactApi.trash = jest.fn().mockResolvedValue( { id: 1, trashed: false, deleted: true } );
+			const onBack = jest.fn();
+			render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+			await screen.findByText( /Line one/ );
+
+			fireEvent.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+			fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, delete permanently' } ) );
+
+			await waitFor( () => expect( onBack ).toHaveBeenCalled() );
+		} );
+
+		test( 'a failed permanent delete keeps the message on screen and shows the deletion error', async () => {
+			contactApi.trash = jest.fn().mockRejectedValue( new Error( 'network' ) );
+			const onBack = jest.fn();
+			render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+			await screen.findByText( /Line one/ );
+
+			fireEvent.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+			fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, delete permanently' } ) );
+
+			expect( await screen.findByText( 'The message could not be deleted.' ) ).toBeTruthy();
+			expect( onBack ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	test( 'a failed technical fetch shows an inline error inside the widget and leaves the button usable', async () => {

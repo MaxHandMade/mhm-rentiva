@@ -100,8 +100,12 @@ final class ContactMessagesPage {
 		}
 
 		wp_localize_script('mhm-rentiva-react-contact-messages', 'mhmRentivaContactMessages', array(
-			'types'   => $types,
-			'pageUrl' => admin_url('admin.php?page=' . self::SLUG),
+			'types'        => $types,
+			'pageUrl'      => admin_url('admin.php?page=' . self::SLUG),
+			// Core's posts screen offers "Delete permanently" instead of "Move
+			// to trash" when the site has disabled the trash; this screen
+			// mirrors that instead of moving records nobody can ever see again.
+			'trashEnabled' => (bool) EMPTY_TRASH_DAYS,
 		));
 	}
 

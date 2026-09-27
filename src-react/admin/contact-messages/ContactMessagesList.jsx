@@ -16,6 +16,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	// Read inside the component (house pattern, CustomersPage.jsx:19): a
 	// module-level read runs before a test can set the global.
 	const pageUrl = window.mhmRentivaContactMessages?.pageUrl ?? '';
+	const trashEnabled = window.mhmRentivaContactMessages?.trashEnabled !== false;
 	const [ page, setPage ] = useState( initialPage );
 	const [ filters, setFilters ] = useState( { search: '', type: '', period: '' } );
 	const [ data, setData ] = useState( null );
@@ -126,25 +127,27 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 						onStatusChange( id === 'all' ? '' : id );
 					} }
 				/>
-				<a
-					href={ href( 'trash' ) }
-					className={
-						status === 'trash'
-							? 'mhm-contact-messages__trash-link mhm-contact-messages__trash-link--current'
-							: 'mhm-contact-messages__trash-link'
-					}
-					aria-current={ status === 'trash' ? 'page' : undefined }
-					onClick={ ( e ) => {
-						e.preventDefault();
-						onStatusChange( 'trash' );
-					} }
-				>
-					{ sprintf(
-						/* translators: %d: number of messages in the trash. */
-						__( 'Trash (%d)', 'mhm-rentiva' ),
-						counts.trash
-					) }
-				</a>
+				{ trashEnabled && (
+					<a
+						href={ href( 'trash' ) }
+						className={
+							status === 'trash'
+								? 'mhm-contact-messages__trash-link mhm-contact-messages__trash-link--current'
+								: 'mhm-contact-messages__trash-link'
+						}
+						aria-current={ status === 'trash' ? 'page' : undefined }
+						onClick={ ( e ) => {
+							e.preventDefault();
+							onStatusChange( 'trash' );
+						} }
+					>
+						{ sprintf(
+							/* translators: %d: number of messages in the trash. */
+							__( 'Trash (%d)', 'mhm-rentiva' ),
+							counts.trash
+						) }
+					</a>
+				) }
 			</div>
 			{ selected.length > 0 ? (
 				<ContactBulkBar

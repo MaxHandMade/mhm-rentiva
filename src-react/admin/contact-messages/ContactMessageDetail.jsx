@@ -15,6 +15,9 @@ import { buildMailto } from './mailto';
 const TONE = { new: 'warning', read: 'neutral', replied: 'success' };
 
 export default function ContactMessageDetail( { id, onBack } ) {
+	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
+	// module-level read runs before a test can set the global.
+	const trashEnabled = window.mhmRentivaContactMessages?.trashEnabled !== false;
 	const [ msg, setMsg ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ mailed, setMailed ] = useState( false );
@@ -143,24 +146,37 @@ export default function ContactMessageDetail( { id, onBack } ) {
 				</Widget>
 			) : (
 				<Widget title={ __( 'Delete message', 'mhm-rentiva' ) }>
-					<p>{ __( 'The message moves to the trash; WordPress empties the trash automatically.', 'mhm-rentiva' ) }</p>
+					<p>{ trashEnabled
+						? __( 'The message moves to the trash; WordPress empties the trash automatically.', 'mhm-rentiva' )
+						: __( 'The message is deleted immediately; the trash is disabled on this site.', 'mhm-rentiva' ) }</p>
 					<ConfirmButton
-						label={ __( 'Move to trash', 'mhm-rentiva' ) }
-						confirmText={ sprintf(
-							/* translators: %s: sender name. */
-							__( 'Move the message from %s to the trash?', 'mhm-rentiva' ),
-							msg.name
-						) }
-						confirmLabel={ __( 'Yes, move to trash', 'mhm-rentiva' ) }
+						label={ trashEnabled ? __( 'Move to trash', 'mhm-rentiva' ) : __( 'Delete permanently', 'mhm-rentiva' ) }
+						confirmText={ trashEnabled
+							? sprintf(
+								/* translators: %s: sender name. */
+								__( 'Move the message from %s to the trash?', 'mhm-rentiva' ),
+								msg.name
+							)
+							: sprintf(
+								/* translators: %s: sender name. */
+								__( 'Delete the message from %s permanently? This cannot be undone.', 'mhm-rentiva' ),
+								msg.name
+							) }
+						confirmLabel={ trashEnabled ? __( 'Yes, move to trash', 'mhm-rentiva' ) : __( 'Yes, delete permanently', 'mhm-rentiva' ) }
 						cancelLabel={ __( 'Cancel', 'mhm-rentiva' ) }
-						busyText={ __( 'Moving…', 'mhm-rentiva' ) }
+						busyText={ trashEnabled ? __( 'Moving…', 'mhm-rentiva' ) : __( 'Deleting…', 'mhm-rentiva' ) }
 						variant="danger"
 						onConfirm={ async () => {
+							// wp_trash_post() itself deletes the record outright when
+							// EMPTY_TRASH_DAYS is falsy (REST controller comment,
+							// ContactMessagesRestController.php:269) -- same call either way.
 							try {
 								await contactApi.trash( id );
 								onBack();
 							} catch {
-								setError( __( 'The message could not be moved to the trash.', 'mhm-rentiva' ) );
+								setError( trashEnabled
+									? __( 'The message could not be moved to the trash.', 'mhm-rentiva' )
+									: __( 'The message could not be deleted.', 'mhm-rentiva' ) );
 							}
 						} }
 					/>
