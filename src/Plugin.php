@@ -468,6 +468,11 @@ final class Plugin {
 			add_action('rest_api_init', [ '\\MHMRentiva\\Admin\\Customers\\REST\\CustomersRestController', 'register_routes' ]);
 		}
 
+		// Contact Messages REST — context-agnostic for the same reason as Customers above.
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\ContactMessages\\REST\\ContactMessagesRestController')) {
+			add_action('rest_api_init', [ '\\MHMRentiva\\Admin\\ContactMessages\\REST\\ContactMessagesRestController', 'register_routes' ]);
+		}
+
 		// ShortcodePages REST endpoints — must be context-agnostic (same reason as
 		// Customers above: rest_api_init fires on REST requests where is_admin() is
 		// false, so initialize_admin_services() is skipped entirely).
