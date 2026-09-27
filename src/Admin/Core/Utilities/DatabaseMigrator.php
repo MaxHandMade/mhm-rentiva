@@ -1273,7 +1273,6 @@ final class DatabaseMigrator {
 			add_option(self::CONTACT_STATUS_CUTOFF_OPTION, $cutoff, '', false);
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-shot backfill in a version-gated migration; the IDs are collected first so their meta cache can be dropped after the bulk UPDATE.
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT p.ID FROM {$wpdb->posts} p
@@ -1287,7 +1286,6 @@ final class DatabaseMigrator {
 		);
 
 		if (array() !== $ids) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Same one-shot backfill; update_post_meta() per row would be N queries for an unbounded N.
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE {$wpdb->postmeta} pm
