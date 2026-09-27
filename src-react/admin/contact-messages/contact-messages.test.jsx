@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import ContactMessagesList from './ContactMessagesList';
 import ContactMessagesApp from './ContactMessagesApp';
 import ContactMessageDetail from './ContactMessageDetail';
@@ -76,6 +76,29 @@ describe( 'contact messages list', () => {
 		await waitFor( () => expect( contactApi.list ).toHaveBeenCalledTimes( 2 ) );
 		// ...and the partial-failure notice survived it.
 		expect( await screen.findByText( '1 message could not be changed.' ) ).toBeTruthy();
+	} );
+
+	test( 'a partial failure that returns after the view changed is not shown in the new view', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		let resolveBulk;
+		contactApi.bulk.mockReturnValue( new Promise( ( r ) => {
+			resolveBulk = r;
+		} ) );
+		const { rerender } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		// The operator switches to another tab while the bulk call is in flight.
+		rerender( <ContactMessagesList status="replied" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await act( async () => {
+			resolveBulk( { results: [ { id: 1, ok: false, error: 'not_allowed' } ] } );
+		} );
+		// Let the rest of runBulk (reload, busy reset) settle.
+		await act( async () => {} );
+		expect( contactApi.bulk ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByText( '1 message could not be changed.' ) ).toBeNull();
+		// No stale reload of the old view after the result came back.
+		const lastParams = contactApi.list.mock.calls[ contactApi.list.mock.calls.length - 1 ][ 0 ];
+		expect( lastParams.status ).toBe( 'replied' );
 	} );
 
 	test( 'a rejected bulk action shows a visible error and re-enables the bar', async () => {

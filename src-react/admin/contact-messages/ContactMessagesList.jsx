@@ -27,6 +27,10 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	// reload that follows a bulk call would wipe the partial-failure notice
 	// before anyone could read it (Codex bot, #75 P2).
 	const [ bulkNotice, setBulkNotice ] = useState( null );
+	// Bumped on every status/filter change: a bulk result that comes back
+	// after the operator moved to another view must not post its notice
+	// there (Codex bot + Codex audit, #76).
+	const viewSeq = useRef( 0 );
 	const [ busy, setBusy ] = useState( false );
 
 	// Request-sequence guard: a status change re-creates `load` (it closes over
@@ -76,6 +80,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	useEffect( () => {
 		if ( lastStatus.current !== status ) {
 			lastStatus.current = status;
+			viewSeq.current++;
 			setSelected( [] );
 			setBulkNotice( null );
 			setPage( 1 );
@@ -83,6 +88,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	}, [ status ] );
 
 	const changeFilters = ( patch ) => {
+		viewSeq.current++;
 		setFilters( ( f ) => ( { ...f, ...patch } ) );
 		setSelected( [] );
 		setBulkNotice( null );
@@ -92,8 +98,14 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	const runBulk = async ( action ) => {
 		setBusy( true );
 		setBulkNotice( null );
+		const view = viewSeq.current;
 		try {
 			const { results } = await contactApi.bulk( selected, action );
+			if ( view !== viewSeq.current ) {
+				// The operator moved on: this closure's load() would fetch the
+				// old view and, being the newest request, overwrite the new one.
+				return;
+			}
 			const failed = results.filter( ( r ) => ! r.ok ).length;
 			if ( failed > 0 ) {
 				setBulkNotice( sprintf(
@@ -105,7 +117,9 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 			setSelected( [] );
 			await load( page );
 		} catch {
-			setError( __( 'The bulk action could not be completed.', 'mhm-rentiva' ) );
+			if ( view === viewSeq.current ) {
+				setError( __( 'The bulk action could not be completed.', 'mhm-rentiva' ) );
+			}
 		} finally {
 			setBusy( false );
 		}
