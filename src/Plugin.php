@@ -610,6 +610,9 @@ final class Plugin {
 		// remove it without keeping some other unconditional retry path --
 		// see DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS for why that retry
 		// is itself bounded rather than infinite.
+		// The request-context gate lives in DatabaseMigrator::run_migrations_from_hook():
+		// admin page loads keep retrying on every request; admin-ajax.php
+		// (reachable anonymously) no longer does.
 		// Use the action-specific void adapter: run_migrations() returns whether
 		// the schema is complete, while WordPress action callbacks return nothing.
 		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations_from_hook' ), 10, 0);

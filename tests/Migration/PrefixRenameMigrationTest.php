@@ -83,11 +83,40 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
      * being NO custom-field definitions -- it stopped aborting and started
      * deleting, and the failure surfaced two test classes away from its cause.
      */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        self::forget_migration_lock();
+    }
+
+    /**
+     * Remove DatabaseMigrator::LOCK_OPTION by hand -- it is written with raw SQL
+     * (DatabaseMigrator::acquire_lock()/release_lock()), and this class's own
+     * RENAME TABLE/CREATE TABLE/DROP TABLE statements are DDL, which is an
+     * implicit COMMIT -- the same hazard the class docblock above already
+     * describes for options and user meta. A lock acquired before that implicit
+     * commit survives it while the DELETE that releases it does not, so a stuck
+     * lock silently declines run_migrations() for every later test in the
+     * process -- not just this class's own tests. Same fix as the add-on's
+     * ProMigrationLockTest::forget_lock() / ProPrefixRenameMigrationTest.
+     */
+    private static function forget_migration_lock(): void
+    {
+        global $wpdb;
+
+        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s", DatabaseMigrator::LOCK_OPTION));
+        wp_cache_delete(DatabaseMigrator::LOCK_OPTION, 'options');
+        wp_cache_delete('notoptions', 'options');
+        wp_cache_delete('alloptions', 'options');
+    }
+
     protected function tearDown(): void
     {
         global $wpdb;
 
         parent::tearDown();
+
+        self::forget_migration_lock();
 
         foreach ($this->temp_tables as $table) {
             $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));

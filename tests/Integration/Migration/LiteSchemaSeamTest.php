@@ -24,6 +24,36 @@ use WP_UnitTestCase;
  */
 final class LiteSchemaSeamTest extends WP_UnitTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        self::forget_migration_lock();
+    }
+
+    public function tearDown(): void
+    {
+        self::forget_migration_lock();
+        parent::tearDown();
+    }
+
+    /**
+     * Remove DatabaseMigrator::LOCK_OPTION by hand -- it is written with raw SQL
+     * (acquire_lock()/release_lock()), and the migration's own DDL (the 6.0.0
+     * prefix rename's RENAME TABLE) is an implicit COMMIT that ends
+     * WP_UnitTestCase's per-test transaction early. A lock acquired before that
+     * point survives it while the DELETE that releases it does not, so a stuck
+     * lock silently declines run_migrations() for every later test in the
+     * process. Same fix as the add-on's ProMigrationLockTest::forget_lock().
+     */
+    private static function forget_migration_lock(): void
+    {
+        global $wpdb;
+
+        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s", DatabaseMigrator::LOCK_OPTION));
+        wp_cache_delete(DatabaseMigrator::LOCK_OPTION, 'options');
+        wp_cache_delete('notoptions', 'options');
+        wp_cache_delete('alloptions', 'options');
+    }
 
     /**
      * Guards the premise: these are the classes whose absence makes the schema dead.

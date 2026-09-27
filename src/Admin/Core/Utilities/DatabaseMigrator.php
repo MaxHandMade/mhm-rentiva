@@ -51,6 +51,34 @@ final class DatabaseMigrator {
 	private const CURRENT_VERSION = '4.3.0';
 
 	/**
+	 * Mutex for run_migrations(). Same shape and semantics as the add-on's
+	 * ProDatabaseMigrator::LOCK_OPTION: a row inserted with INSERT IGNORE, so
+	 * two concurrent requests cannot both think they own it.
+	 */
+	public const LOCK_OPTION = 'mhmrentiva_migration.lock';
+
+	/** A lock older than this is a run that died; the next caller takes it over. */
+	public const LOCK_TIMEOUT = 900;
+
+	/**
+	 * Whether a migration lane may run in this request context.
+	 *
+	 * An admin page load, cron or WP-CLI -- never admin-ajax.php. AJAX sets
+	 * WP_ADMIN (so is_admin() is true) and fires admin_init even for nopriv
+	 * actions, which is how an anonymous contact-form submission used to pay
+	 * for, and race, the whole migration. Pure so it can be tested without
+	 * faking the request. Mirrors mhmrentiva_pro_lane_context_allows().
+	 */
+	public static function context_allows(bool $is_admin, bool $is_ajax, bool $is_cron, bool $is_cli): bool
+	{
+		if ($is_cron || $is_cli) {
+			return true;
+		}
+
+		return $is_admin && ! $is_ajax;
+	}
+
+	/**
 	 * How many admin_init requests in a row the core-table index cleanup may
 	 * fail before run_migrations() stops retrying and stamps anyway.
 	 *
@@ -248,6 +276,39 @@ final class DatabaseMigrator {
 		}
 
 		self::adopt_legacy_db_version();
+
+		// Fast path, before the lock: admin_init calls this on every admin
+		// request, and an up-to-date install must not pay an INSERT, a DELETE
+		// and an alloptions flush for it. Same placement as the add-on's
+		// ProDatabaseMigrator::run_migrations().
+		if (! version_compare(self::stored_db_version(), self::CURRENT_VERSION, '<')) {
+			return true;
+		}
+
+		if (! self::acquire_lock()) {
+			return false;
+		}
+
+		try {
+			return self::run_migrations_locked($index_cleanup_expected, $index_cleanup_runner, $multi_tenant_runner);
+		} finally {
+			self::release_lock();
+		}
+	}
+
+	/**
+	 * The migration body, entered only while holding LOCK_OPTION.
+	 *
+	 * @param array<string, array<string, list<array{seq:int, col:string, sub:?int, non_unique:int, type:string}>>>|null $index_cleanup_expected
+	 * @param callable(string,string):bool|null $index_cleanup_runner
+	 * @param callable():bool|null $multi_tenant_runner
+	 */
+	private static function run_migrations_locked(?array $index_cleanup_expected, ?callable $index_cleanup_runner, ?callable $multi_tenant_runner): bool
+	{
+		// Another request may have finished the migration while we waited for
+		// the lock; read the stamp fresh rather than from this request's cache.
+		wp_cache_delete('alloptions', 'options');
+		wp_cache_delete('mhmrentiva_db_version', 'options');
 
 		$current_version = self::stored_db_version();
 
@@ -455,9 +516,16 @@ final class DatabaseMigrator {
 	 * WordPress action adapter for the retry lane.
 	 *
 	 * The migration result remains available to activation and tests, while the
-	 * action contract intentionally discards it.
+	 * action contract intentionally discards it. Gated by context_allows(): this
+	 * is the admin_init retry (Plugin.php), a hook that also fires for an
+	 * unauthenticated admin-ajax.php request, which must never trigger a
+	 * migration.
 	 */
 	public static function run_migrations_from_hook(): void {
+		if (! self::context_allows(is_admin(), wp_doing_ajax(), wp_doing_cron(), defined('WP_CLI') && WP_CLI)) {
+			return;
+		}
+
 		self::run_migrations();
 	}
 
@@ -3028,5 +3096,55 @@ final class DatabaseMigrator {
 		}
 
 		return $changed;
+	}
+
+	/**
+	 * Take LOCK_OPTION. INSERT IGNORE is atomic; an expired lock is taken over
+	 * with a conditional UPDATE so exactly one racer wins. Same primitives as
+	 * the add-on's ProDatabaseMigrator::acquire_lock().
+	 */
+	private static function acquire_lock(): bool
+	{
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex: add_option() is not atomic across requests (it reads before it writes); INSERT IGNORE is.
+		$taken = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT IGNORE INTO {$wpdb->options} ( option_name, option_value, autoload ) VALUES ( %s, %s, 'off' )",
+				self::LOCK_OPTION,
+				(string) time()
+			)
+		);
+		wp_cache_delete('notoptions', 'options');
+		wp_cache_delete('alloptions', 'options');
+
+		if ($taken) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reading the mutex row itself; a cached value is exactly what must not be trusted here.
+		$held = $wpdb->get_var(
+			$wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", self::LOCK_OPTION)
+		);
+		if (null === $held || (int) $held > ( time() - self::LOCK_TIMEOUT )) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Conditional takeover of an expired mutex; the loser's UPDATE matches no row.
+		$stolen = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s",
+				(string) time(),
+				self::LOCK_OPTION,
+				(string) $held
+			)
+		);
+
+		return (bool) $stolen;
+	}
+
+	private static function release_lock(): void
+	{
+		delete_option(self::LOCK_OPTION);
 	}
 }
