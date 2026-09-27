@@ -11,13 +11,14 @@ import SenderWidget from './components/SenderWidget';
 import TechnicalWidget from './components/TechnicalWidget';
 import { contactApi } from './api';
 import { buildMailto } from './mailto';
+import { isTrashEnabled } from './trash';
 
 const TONE = { new: 'warning', read: 'neutral', replied: 'success' };
 
 export default function ContactMessageDetail( { id, onBack } ) {
 	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
 	// module-level read runs before a test can set the global.
-	const trashEnabled = window.mhmRentivaContactMessages?.trashEnabled !== false;
+	const trashEnabled = isTrashEnabled();
 	const [ msg, setMsg ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ mailed, setMailed ] = useState( false );

@@ -1,10 +1,11 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
 import ConfirmButton from '../../../../vendor/mhm/ui-core/src-react/components/ConfirmButton';
+import { isTrashEnabled } from '../trash';
 
 export default function ContactBulkBar( { count, inTrash, busy, onAction, onClear } ) {
 	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
 	// module-level read runs before a test can set the global.
-	const trashEnabled = window.mhmRentivaContactMessages?.trashEnabled !== false;
+	const trashEnabled = isTrashEnabled();
 
 	return (
 		<div role="region" aria-label={ __( 'Bulk actions', 'mhm-rentiva' ) } className="mhm-contact-messages__bulk">

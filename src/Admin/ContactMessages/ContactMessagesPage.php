@@ -105,7 +105,8 @@ final class ContactMessagesPage {
 			// Core's posts screen offers "Delete permanently" instead of "Move
 			// to trash" when the site has disabled the trash; this screen
 			// mirrors that instead of moving records nobody can ever see again.
-			'trashEnabled' => (bool) EMPTY_TRASH_DAYS,
+			// Sent as '1'/'0': wp_localize_script() stringifies scalars (false -> '').
+			'trashEnabled' => EMPTY_TRASH_DAYS ? '1' : '0',
 		));
 	}
 

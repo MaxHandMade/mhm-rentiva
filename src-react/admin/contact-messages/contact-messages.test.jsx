@@ -239,6 +239,19 @@ describe( 'contact bulk bar', () => {
 		expect( onAction ).toHaveBeenCalledWith( 'trash' );
 	} );
 
+	test.each( [ '', '0' ] )( 'a localized trashEnabled of %p (wp_localize_script stringifies false) disables trash', ( value ) => {
+		window.mhmRentivaContactMessages.trashEnabled = value;
+		render( <ContactBulkBar count={ 1 } inTrash={ false } busy={ false } onAction={ () => {} } onClear={ () => {} } /> );
+		expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeTruthy();
+		expect( screen.queryByRole( 'button', { name: 'Move to trash' } ) ).toBeNull();
+	} );
+
+	test( 'a localized trashEnabled of "1" keeps the Move to trash label', () => {
+		window.mhmRentivaContactMessages.trashEnabled = '1';
+		render( <ContactBulkBar count={ 1 } inTrash={ false } busy={ false } onAction={ () => {} } onClear={ () => {} } /> );
+		expect( screen.getByRole( 'button', { name: 'Move to trash' } ) ).toBeTruthy();
+	} );
+
 	test( 'with trash explicitly enabled the bulk bar keeps the old Move to trash label', () => {
 		window.mhmRentivaContactMessages.trashEnabled = true;
 		render( <ContactBulkBar count={ 1 } inTrash={ false } busy={ false } onAction={ () => {} } onClear={ () => {} } /> );

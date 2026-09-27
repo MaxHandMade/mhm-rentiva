@@ -9,6 +9,7 @@ import ContactToolbar from './components/ContactToolbar';
 import ContactBulkBar from './components/ContactBulkBar';
 import ContactTable from './components/ContactTable';
 import { contactApi } from './api';
+import { isTrashEnabled } from './trash';
 
 const PER_PAGE = 20;
 
@@ -16,7 +17,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	// Read inside the component (house pattern, CustomersPage.jsx:19): a
 	// module-level read runs before a test can set the global.
 	const pageUrl = window.mhmRentivaContactMessages?.pageUrl ?? '';
-	const trashEnabled = window.mhmRentivaContactMessages?.trashEnabled !== false;
+	const trashEnabled = isTrashEnabled();
 	const [ page, setPage ] = useState( initialPage );
 	const [ filters, setFilters ] = useState( { search: '', type: '', period: '' } );
 	const [ data, setData ] = useState( null );
