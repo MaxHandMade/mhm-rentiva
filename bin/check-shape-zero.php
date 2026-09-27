@@ -119,6 +119,13 @@ $allowedByFile = [
     'Settings.php'               => 2,
     'SetupWizard.php'            => 2,
     'VehicleSettings.php'        => 2,
+    // ContactMessagesPage.php'nin 2 kalıntısı 2026-09-27'de EKLENDİ: aynı
+    // kalıp -- sanitize edilmiş, salt-okunur admin routing kararı $_REQUEST
+    // üzerinden alınıyor (post_status=trash yönlendirmesi, eski
+    // edit.php?post= yönlendirmesi), state değişmiyor. Tavan bu yüzden
+    // 20'den 22'ye çıkar (UserDashboard.php'nin emekliye ayrılmasıyla
+    // düştüğü değer).
+    'ContactMessagesPage.php'    => 2,
 ];
 $residualByFile = array_fill_keys(array_keys($allowedByFile), 0);
 $hard = []; $residual = 0;
@@ -154,7 +161,10 @@ foreach ($violations as [$f, $l, $s]) {
 // 2026-09-20: 22 -> 20. Müşteri panosu emekliye ayrıldı, UserDashboard.php'nin
 // $_GET okuyan kodu gitti, dosyada 0 uyarı kaldı (ölçüldü: phpcs --report=json).
 // Tavan yukarıdaki $allowedByFile toplamıyla aynı kalmalı; İNDİRİLDİ.
-$CEILING = 20;
+// 2026-09-27: 20 -> 22. ContactMessagesPage.php iki yeni salt-okunur routing
+// kararı ekledi (yukarıdaki gerekçe). Tavan yine $allowedByFile toplamıyla
+// eşleşir.
+$CEILING = 22;
 $overCeiling = [];
 foreach ($residualByFile as $file => $count) {
     if ($count > $allowedByFile[$file]) {

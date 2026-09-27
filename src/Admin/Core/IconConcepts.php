@@ -77,7 +77,7 @@ final class IconConcepts {
 		// A count of contact-form submissions. The seed has no messages
 		// concept; `total`/`pending`/`time` (already seed nouns) cover the
 		// other three Contact Messages stat cards.
-		'messages' => 'email',
+		'messages'  => 'email',
 	);
 
 	/**
