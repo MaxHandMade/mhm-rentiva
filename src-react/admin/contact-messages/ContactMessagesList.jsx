@@ -23,6 +23,14 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	const [ data, setData ] = useState( null );
 	const [ selected, setSelected ] = useState( [] );
 	const [ error, setError ] = useState( null );
+	// Kept apart from `error`: load() clears that one first thing, and the
+	// reload that follows a bulk call would wipe the partial-failure notice
+	// before anyone could read it (Codex bot, #75 P2).
+	const [ bulkNotice, setBulkNotice ] = useState( null );
+	// Bumped on every status/filter/page change the operator makes: a bulk
+	// result that comes back after they moved to another view must not post
+	// its notice or reload the old view there (Codex bot + Codex audit, #76).
+	const viewSeq = useRef( 0 );
 	const [ busy, setBusy ] = useState( false );
 
 	// Request-sequence guard: a status change re-creates `load` (it closes over
@@ -72,24 +80,43 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	useEffect( () => {
 		if ( lastStatus.current !== status ) {
 			lastStatus.current = status;
+			viewSeq.current++;
 			setSelected( [] );
+			setBulkNotice( null );
 			setPage( 1 );
 		}
 	}, [ status ] );
 
+	const changePage = ( next ) => {
+		viewSeq.current++;
+		// Like a status/filter change: the selection belongs to the rows the
+		// operator is leaving, and a retired bulk result no longer clears it.
+		setSelected( [] );
+		setPage( next );
+	};
+
 	const changeFilters = ( patch ) => {
+		viewSeq.current++;
 		setFilters( ( f ) => ( { ...f, ...patch } ) );
 		setSelected( [] );
+		setBulkNotice( null );
 		setPage( 1 );
 	};
 
 	const runBulk = async ( action ) => {
 		setBusy( true );
+		setBulkNotice( null );
+		const view = viewSeq.current;
 		try {
 			const { results } = await contactApi.bulk( selected, action );
+			if ( view !== viewSeq.current ) {
+				// The operator moved on: this closure's load() would fetch the
+				// old view and, being the newest request, overwrite the new one.
+				return;
+			}
 			const failed = results.filter( ( r ) => ! r.ok ).length;
 			if ( failed > 0 ) {
-				setError( sprintf(
+				setBulkNotice( sprintf(
 					/* translators: %d: number of messages the action could not change. */
 					_n( '%d message could not be changed.', '%d messages could not be changed.', failed, 'mhm-rentiva' ),
 					failed
@@ -98,7 +125,9 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 			setSelected( [] );
 			await load( page );
 		} catch {
-			setError( __( 'The bulk action could not be completed.', 'mhm-rentiva' ) );
+			if ( view === viewSeq.current ) {
+				setError( __( 'The bulk action could not be completed.', 'mhm-rentiva' ) );
+			}
 		} finally {
 			setBusy( false );
 		}
@@ -162,6 +191,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 				<ContactToolbar filters={ filters } total={ data?.total ?? 0 } onChange={ changeFilters } />
 			) }
 			{ error && <Notice tone="danger">{ error }</Notice> }
+			{ bulkNotice && <Notice tone="warning">{ bulkNotice }</Notice> }
 			{ ! data && ! error && <Spinner /> }
 			{ data && data.items.length === 0 && (
 				<div className="mhm-contact-messages__empty">
@@ -191,7 +221,7 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 					<Pagination
 						page={ page }
 						totalPages={ data.pages }
-						onChange={ setPage }
+						onChange={ changePage }
 						labels={ {
 							navigation: __( 'Contact messages pages', 'mhm-rentiva' ),
 							previous: __( 'Previous', 'mhm-rentiva' ),

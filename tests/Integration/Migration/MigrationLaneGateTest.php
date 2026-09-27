@@ -111,6 +111,32 @@ final class MigrationLaneGateTest extends WP_UnitTestCase
 		$this->assertFalse(get_option(DatabaseMigrator::LOCK_OPTION));
 	}
 
+	/**
+	 * A run that outlives LOCK_TIMEOUT can have its lock taken over by the
+	 * next request. When the slow run finishes it must not delete the new
+	 * owner's row -- that would let a third request migrate concurrently.
+	 */
+	public function test_release_keeps_a_lock_taken_over_during_the_run(): void
+	{
+		global $wpdb;
+		update_option('mhmrentiva_db_version', '1.0.0');
+		$new_owner = (string) ( time() + 1000 );
+
+		$ran = DatabaseMigrator::run_migrations(null, null, static function () use ($wpdb, $new_owner): bool {
+			// Simulate the takeover a later request performs on an expired lock.
+			$wpdb->query($wpdb->prepare(
+				"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s",
+				$new_owner,
+				DatabaseMigrator::LOCK_OPTION
+			));
+			return true;
+		});
+
+		$this->assertTrue($ran);
+		$held = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", DatabaseMigrator::LOCK_OPTION));
+		$this->assertSame($new_owner, $held, 'the slow run must release only the lock it took');
+	}
+
 	public function test_a_held_lock_is_reported_as_lock_busy_not_failure(): void
 	{
 		update_option('mhmrentiva_db_version', '1.0.0');

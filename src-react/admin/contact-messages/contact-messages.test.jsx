@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import ContactMessagesList from './ContactMessagesList';
 import ContactMessagesApp from './ContactMessagesApp';
 import ContactMessageDetail from './ContactMessageDetail';
@@ -64,6 +64,64 @@ describe( 'contact messages list', () => {
 		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
 		await screen.findByText( 'Şule Çağ' );
 		expect( screen.queryByRole( 'heading', { name: 'Contact Messages' } ) ).toBeNull();
+	} );
+
+	test( 'a partial bulk failure stays visible after the list reloads', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		contactApi.bulk.mockResolvedValue( { results: [ { id: 1, ok: false, error: 'not_allowed' } ] } );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		// The reload after the bulk call has happened...
+		await waitFor( () => expect( contactApi.list ).toHaveBeenCalledTimes( 2 ) );
+		// ...and the partial-failure notice survived it.
+		expect( await screen.findByText( '1 message could not be changed.' ) ).toBeTruthy();
+	} );
+
+	test( 'a partial failure that returns after the view changed is not shown in the new view', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		let resolveBulk;
+		contactApi.bulk.mockReturnValue( new Promise( ( r ) => {
+			resolveBulk = r;
+		} ) );
+		const { rerender } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		// The operator switches to another tab while the bulk call is in flight.
+		rerender( <ContactMessagesList status="replied" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await act( async () => {
+			resolveBulk( { results: [ { id: 1, ok: false, error: 'not_allowed' } ] } );
+		} );
+		// Let the rest of runBulk (reload, busy reset) settle.
+		await act( async () => {} );
+		expect( contactApi.bulk ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByText( '1 message could not be changed.' ) ).toBeNull();
+		// No stale reload of the old view after the result came back.
+		const lastParams = contactApi.list.mock.calls[ contactApi.list.mock.calls.length - 1 ][ 0 ];
+		expect( lastParams.status ).toBe( 'replied' );
+	} );
+
+	test( 'a bulk result that returns after a page change does not reload the old page', async () => {
+		contactApi.list.mockImplementation( async ( params ) => page( [ row( { id: 100 + params.page } ) ], { total: 40, pages: 2, page: params.page } ) );
+		let resolveBulk;
+		contactApi.bulk.mockReturnValue( new Promise( ( r ) => {
+			resolveBulk = r;
+		} ) );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		fireEvent.click( await screen.findByRole( 'checkbox', { name: /Şule Çağ/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Mark as read' } ) );
+		// The operator pages forward while the bulk call is in flight.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await waitFor( () => expect( contactApi.list.mock.calls.some( ( [ p ] ) => p.page === 2 ) ).toBe( true ) );
+		await act( async () => {
+			resolveBulk( { results: [ { id: 101, ok: true } ] } );
+		} );
+		await act( async () => {} );
+		const lastParams = contactApi.list.mock.calls[ contactApi.list.mock.calls.length - 1 ][ 0 ];
+		expect( lastParams.page ).toBe( 2 );
+		// The page-1 selection does not follow the operator to page 2, so the
+		// next bulk action cannot resend ids they can no longer see.
+		expect( screen.queryByRole( 'region', { name: 'Bulk actions' } ) ).toBeNull();
 	} );
 
 	test( 'a rejected bulk action shows a visible error and re-enables the bar', async () => {
