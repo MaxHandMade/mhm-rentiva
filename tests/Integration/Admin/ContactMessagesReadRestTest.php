@@ -138,6 +138,26 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$this->assertNull($d['attachment']['download_url']);
 	}
 
+	/** vehicle_id '0' is the un-set default (never a real post ID); it must read as no vehicle, not a lookup of post 0. */
+	public function test_vehicle_id_of_zero_is_no_vehicle(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact(array( 'vehicle_id' => '0' ));
+		$this->assertNull($this->get('/contact-messages/' . $id)->get_data()['vehicle']);
+	}
+
+	public function test_phone_and_company_appear_in_the_detail_response_when_set(): void
+	{
+		wp_set_current_user($this->admin);
+		$id     = $this->contact(array( 'phone' => '+90 555 0100', 'company' => 'Acme Rentals' ));
+		$detail = $this->get('/contact-messages/' . $id)->get_data();
+
+		$this->assertSame('+90 555 0100', $detail['sender']['phone']);
+
+		$company = array_values(array_filter($detail['fields'], static fn($f) => 'company' === $f['key']));
+		$this->assertSame('Acme Rentals', $company[0]['value'] ?? null);
+	}
+
 	public function test_other_count_excludes_self_and_trash(): void
 	{
 		wp_set_current_user($this->admin);
