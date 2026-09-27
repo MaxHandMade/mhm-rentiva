@@ -273,8 +273,46 @@ describe( 'contact message detail', () => {
 		expect( onBack ).not.toHaveBeenCalled();
 	} );
 
+	test( 'a restore that the server reports as not-ok shows an error and does not navigate (bulk resolves 200 with ok:false)', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+		contactApi.bulk = jest.fn().mockResolvedValue( { results: [ { id: 1, ok: false, error: 'not_allowed' } ] } );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Restore' } ) );
+
+		expect( await screen.findByText( 'The message could not be restored.' ) ).toBeTruthy();
+		expect( onBack ).not.toHaveBeenCalled();
+	} );
+
+	test( 'a permanent delete that the server reports as not deleted shows an error and does not navigate (destroy resolves 200 with deleted:false)', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+		contactApi.destroy = jest.fn().mockResolvedValue( { id: 1, trashed: true, deleted: false } );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, delete' } ) );
+
+		expect( await screen.findByText( 'The message could not be deleted.' ) ).toBeTruthy();
+		expect( onBack ).not.toHaveBeenCalled();
+	} );
+
+	test( 'a trashed message never triggers the automatic mark-as-read call', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'new', trashed: true } ) );
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		expect( contactApi.markRead ).not.toHaveBeenCalled();
+	} );
+
 	test( 'reply link encodes the address and the subject', () => {
 		expect( buildMailto( 'a+b@example.com', 'Re: Booking Inquiry' ) ).toBe( 'mailto:a%2Bb@example.com?subject=Re%3A%20Booking%20Inquiry' );
+	} );
+
+	test( 'an address with no local part builds no link', () => {
+		expect( buildMailto( 'abc', 'Re: Booking Inquiry' ) ).toBe( '' );
 	} );
 
 	test( 'an address with query characters gets no link', async () => {

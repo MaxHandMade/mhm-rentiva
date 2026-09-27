@@ -18,6 +18,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	const [ msg, setMsg ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ mailed, setMailed ] = useState( false );
+	const [ restoring, setRestoring ] = useState( false );
 
 	useEffect( () => {
 		let live = true;
@@ -26,7 +27,9 @@ export default function ContactMessageDetail( { id, onBack } ) {
 				return;
 			}
 			setMsg( data );
-			if ( data.status === 'new' ) {
+			// A trashed message is never auto-marked read: it is on its way out,
+			// and mark-as-read is not one of the two actions the trash view offers.
+			if ( data.status === 'new' && ! data.trashed ) {
 				// Its own catch: a failed markRead must not overwrite an
 				// already-loaded message with the "could not be loaded" notice.
 				contactApi.markRead( id ).then( ( updated ) => {
@@ -63,11 +66,21 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	};
 
 	const restore = async () => {
+		setRestoring( true );
 		try {
-			await contactApi.bulk( [ id ], 'restore' );
+			const { results } = await contactApi.bulk( [ id ], 'restore' );
+			// bulk() answers HTTP 200 even when the action itself failed
+			// (id not found, not in the trash any more, etc.) -- results[0].ok
+			// is the real outcome, not the resolved promise.
+			if ( ! results?.[ 0 ]?.ok ) {
+				setError( __( 'The message could not be restored.', 'mhm-rentiva' ) );
+				return;
+			}
 			onBack();
 		} catch {
 			setError( __( 'The message could not be restored.', 'mhm-rentiva' ) );
+		} finally {
+			setRestoring( false );
 		}
 	};
 
@@ -98,7 +111,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 				<Widget title={ __( 'Trashed message', 'mhm-rentiva' ) }>
 					<p>{ __( 'This message is in the trash. Restore it, or delete it permanently.', 'mhm-rentiva' ) }</p>
 					<div className="mhm-contact-messages__actions">
-						<button type="button" className="button" onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</button>
+						<button type="button" className="button" disabled={ restoring } onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</button>
 						<ConfirmButton
 							label={ __( 'Delete permanently', 'mhm-rentiva' ) }
 							confirmText={ sprintf(
@@ -112,7 +125,14 @@ export default function ContactMessageDetail( { id, onBack } ) {
 							variant="danger"
 							onConfirm={ async () => {
 								try {
-									await contactApi.destroy( id );
+									const res = await contactApi.destroy( id );
+									// destroy() also answers HTTP 200 with { deleted: false }
+									// when the record was not actually removed (already gone,
+									// not in the trash, etc.) -- do not treat that as success.
+									if ( ! res?.deleted ) {
+										setError( __( 'The message could not be deleted.', 'mhm-rentiva' ) );
+										return;
+									}
 									onBack();
 								} catch {
 									setError( __( 'The message could not be deleted.', 'mhm-rentiva' ) );

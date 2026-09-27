@@ -13,10 +13,16 @@
  * @param {string} email   Recipient address.
  * @param {string} subject Reply subject line.
  * @return {string} A `mailto:` URI with a literal `@` between the encoded
- *                  local part and the encoded domain.
+ *                  local part and the encoded domain, or '' when `email` has
+ *                  no local part to address (no `@`, or `@` in the first
+ *                  position) -- a fabricated `mailto:` for an address that was
+ *                  never valid is worse than no link at all.
  */
 export function buildMailto( email, subject ) {
 	const at = email.lastIndexOf( '@' );
+	if ( at < 1 ) {
+		return '';
+	}
 	const local = email.slice( 0, at );
 	const domain = email.slice( at + 1 );
 	return `mailto:${ encodeURIComponent( local ) }@${ encodeURIComponent( domain ) }?subject=${ encodeURIComponent( subject ) }`;
