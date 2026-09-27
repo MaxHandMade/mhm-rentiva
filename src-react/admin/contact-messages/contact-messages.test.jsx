@@ -1,7 +1,14 @@
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import ContactMessagesList from './ContactMessagesList';
+import ContactMessagesApp from './ContactMessagesApp';
 import ContactTable from './components/ContactTable';
 import { contactApi } from './api';
+
+// A virtual mock: @wordpress/components is not a real devDependency of this
+// project (webpack externalises every @wordpress/* import to the wp-admin
+// global at build time; only Jest needs a real module to require()), and
+// ContactMessagesList's only use of it is the loading Spinner.
+jest.mock( '@wordpress/components', () => ( { Spinner: () => null } ), { virtual: true } );
 
 jest.mock( './api', () => ( {
 	contactApi: { list: jest.fn(), bulk: jest.fn() },
@@ -35,6 +42,15 @@ describe( 'contact messages list', () => {
 		expect( container.querySelectorAll( '.mhmui-stat-card' ) ).toHaveLength( 4 );
 		expect( container.querySelector( '.mhmui-stat-card--warning' ) ).not.toBeNull();
 		expect( within( container.querySelector( '.mhm-contact-messages__table' ) ).getByText( 'Booking Inquiry' ) ).toBeTruthy();
+
+		const tabsNav = container.querySelector( '.mhmui-tabs' );
+		// The "New" tab's badge carries its count (1) as an accessible name,
+		// not only as a bare digit -- see Tabs.jsx's badgeLabel handling.
+		expect( within( tabsNav ).getByText( '1 new' ) ).toBeTruthy();
+		// The "All" tab's badge is a plain count (no badgeLabel), scoped to
+		// that one tab so it isn't confused with the "New" tab's own "1".
+		const allTab = within( tabsNav ).getByText( 'All' ).closest( 'a' );
+		expect( within( allTab ).getByText( '1' ) ).toBeTruthy();
 	} );
 
 	test( 'no warning tone when there is nothing new', async () => {
@@ -73,5 +89,79 @@ describe( 'contact messages list', () => {
 	test( 'initials keep Turkish letters', () => {
 		render( <table><ContactTable rows={ [ row() ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } /></table> );
 		expect( screen.getByText( 'ŞÇ' ) ).toBeTruthy();
+	} );
+
+	test( 'switching status from a deep page lands the list, and its pagination, on page 1', async () => {
+		// "All" has 5 pages; "Replied" has only 2. The status effect and the
+		// fetch effect (load() is re-created when `status` changes, so its
+		// [load, page] effect fires too) both run in the same commit, so a
+		// STALE request for the old page (3) under the NEW status is
+		// unavoidable -- the guard in `load` must stop that stale response
+		// from ever calling setPage(), not stop the request from being made.
+		contactApi.list.mockImplementation( async ( params ) => {
+			if ( ! params.status ) {
+				return page( [ row( { id: 100 + params.page } ) ], { pages: 5, page: params.page } );
+			}
+			if ( params.page > 2 ) {
+				// The stale (replied, page 3) request: nothing lives there.
+				return page( [], { pages: 2, page: params.page } );
+			}
+			return page(
+				[ row( { id: params.page, status: 'replied', status_label: 'Replied' } ) ],
+				{ pages: 2, page: params.page }
+			);
+		} );
+
+		const { rerender, container } = render(
+			<ContactMessagesList status="" initialPage={ 3 } onOpen={ () => {} } onStatusChange={ () => {} } />
+		);
+		await screen.findByText( 'Şule Çağ' );
+
+		rerender(
+			<ContactMessagesList status="replied" initialPage={ 3 } onOpen={ () => {} } onStatusChange={ () => {} } />
+		);
+
+		await waitFor( () =>
+			expect( contactApi.list ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { status: 'replied', page: 1 } )
+			)
+		);
+
+		// No later call ever asked for (replied, page 2) -- the old bug's
+		// symptom was landing one page short of 1 instead of on it.
+		expect(
+			contactApi.list.mock.calls.some(
+				( [ params ] ) => params.status === 'replied' && params.page === 2
+			)
+		).toBe( false );
+
+		expect(
+			container.querySelector( '.mhmui-pagination__status' ).textContent.replace( /\s+/g, ' ' ).trim()
+		).toBe( '1 of 2' );
+	} );
+
+	test( 'the Trash link marks itself current when viewing the trash', async () => {
+		contactApi.list.mockResolvedValue( page( [ row( { status: 'read', status_label: 'Read', trashed: true } ) ] ) );
+		const { container } = render( <ContactMessagesList status="trash" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Şule Çağ' );
+		const trashLink = container.querySelector( '.mhm-contact-messages__trash-link' );
+		expect( trashLink.getAttribute( 'aria-current' ) ).toBe( 'page' );
+	} );
+
+	test( 'the Trash link is not marked current outside the trash view', async () => {
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Şule Çağ' );
+		const trashLink = container.querySelector( '.mhm-contact-messages__trash-link' );
+		expect( trashLink.hasAttribute( 'aria-current' ) ).toBe( false );
+	} );
+
+	test( 'an unrecognised ?status= in the URL is not sent to the API', async () => {
+		window.history.pushState( null, '', '/wp-admin/admin.php?page=mhm-rentiva-contact-messages&status=bogus' );
+		contactApi.list.mockResolvedValue( page( [] ) );
+		render( <ContactMessagesApp /> );
+		await waitFor( () => expect( contactApi.list ).toHaveBeenCalled() );
+		const params = contactApi.list.mock.calls[ 0 ][ 0 ];
+		expect( params.status ).toBeUndefined();
 	} );
 } );

@@ -1,6 +1,7 @@
 .mhm-contact-messages { display: flex; flex-direction: column; gap: 16px; container-type: inline-size; }
 .mhm-contact-messages__tabs { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .mhm-contact-messages__trash-link { padding-bottom: 12px; }
+.mhm-contact-messages__trash-link--current { color: var( --mhmui-accent, #2271b1 ); font-weight: 600; box-shadow: inset 0 -2px 0 var( --mhmui-accent, #2271b1 ); }
 .mhm-contact-messages__toolbar,
 .mhm-contact-messages__bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; }
 .mhm-contact-messages__toolbar input[type="search"] { width: 340px; max-width: 100%; min-height: 40px; }

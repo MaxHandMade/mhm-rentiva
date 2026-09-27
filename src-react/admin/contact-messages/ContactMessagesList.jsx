@@ -24,18 +24,38 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	const [ error, setError ] = useState( null );
 	const [ busy, setBusy ] = useState( false );
 
+	// Request-sequence guard: a status change re-creates `load` (it closes over
+	// `status`), which re-fires the fetch effect below for the STALE page
+	// before the status-change effect gets a chance to reset it to 1 in the
+	// same commit -- see the effect ordering note above the status effect.
+	// That stale request can come back empty for the new status (e.g. "All"
+	// page 3 has no counterpart in "Replied"), and without this guard its
+	// `targetPage > 1` fall-back would call setPage() a second, wrong time
+	// (landing one page short of 1 instead of on it). Bumping a counter per
+	// call and checking it's still the latest AFTER the await -- for both the
+	// fall-back and the success path -- makes only the newest request able to
+	// touch state; an older one that resolves late is silently dropped.
+	const requestSeq = useRef( 0 );
+
 	const load = useCallback( async ( targetPage ) => {
+		const seq = ++requestSeq.current;
 		setError( null );
 		try {
 			const params = { page: targetPage, per_page: PER_PAGE, status, ...filters };
 			Object.keys( params ).forEach( ( k ) => params[ k ] === '' && delete params[ k ] );
 			const result = await contactApi.list( params );
+			if ( seq !== requestSeq.current ) {
+				return; // A newer request started; this response is stale.
+			}
 			if ( result.items.length === 0 && targetPage > 1 ) {
 				setPage( targetPage - 1 );
 				return;
 			}
 			setData( result );
 		} catch {
+			if ( seq !== requestSeq.current ) {
+				return;
+			}
 			setError( __( 'Contact messages could not be loaded.', 'mhm-rentiva' ) );
 		}
 	}, [ status, filters ] );
@@ -112,7 +132,12 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 				/>
 				<a
 					href={ href( 'trash' ) }
-					className="mhm-contact-messages__trash-link"
+					className={
+						status === 'trash'
+							? 'mhm-contact-messages__trash-link mhm-contact-messages__trash-link--current'
+							: 'mhm-contact-messages__trash-link'
+					}
+					aria-current={ status === 'trash' ? 'page' : undefined }
 					onClick={ ( e ) => {
 						e.preventDefault();
 						onStatusChange( 'trash' );
