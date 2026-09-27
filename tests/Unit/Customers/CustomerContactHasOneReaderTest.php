@@ -30,7 +30,7 @@ final class CustomerContactHasOneReaderTest extends TestCase
 	 * structured fields -- WooCommerce's shape, not a displayed address.
 	 */
 	private const STRUCTURED = array(
-		'src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php' => array( 'billing_address_1', 'billing_city', 'billing_postcode' ),
+		'src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php' => array( 'billing_phone', 'billing_address_1', 'billing_city', 'billing_postcode' ),
 	);
 
 	public function test_only_customer_contact_reads_the_contact_keys(): void

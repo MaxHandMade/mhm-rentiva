@@ -12,10 +12,10 @@ export default function CustomerBadges( { badges } ) {
 
 	return (
 		<span className="rv-cust-badges">
-			{ badges.map( ( b ) =>
+			{ badges.map( ( b, i ) =>
 				b.url ? (
 					<a
-						key={ b.key }
+						key={ `${ b.key }-${ i }` }
 						className={ `rv-cust-tag rv-cust-badge is-badge-${ b.key }` }
 						href={ b.url }
 						onClick={ ( e ) => e.stopPropagation() }
@@ -23,7 +23,7 @@ export default function CustomerBadges( { badges } ) {
 						{ b.label }
 					</a>
 				) : (
-					<span key={ b.key } className={ `rv-cust-tag rv-cust-badge is-badge-${ b.key }` }>
+					<span key={ `${ b.key }-${ i }` } className={ `rv-cust-tag rv-cust-badge is-badge-${ b.key }` }>
 						{ b.label }
 					</span>
 				)

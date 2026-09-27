@@ -102,4 +102,13 @@ final class CustomerEditFormContactTest extends WP_UnitTestCase
 
         $this->assertSame('+90 777', (string) get_user_meta($this->customer, 'mhmrentiva_phone', true));
     }
+
+    public function test_whitespace_collapsed_by_sanitising_is_not_a_change(): void
+    {
+        update_user_meta($this->customer, 'billing_phone', '+90  555  555');
+
+        $this->submit('+90  555  555', 'Test Sokak 1, Ulus');
+
+        $this->assertSame('', (string) get_user_meta($this->customer, 'mhmrentiva_phone', true));
+    }
 }

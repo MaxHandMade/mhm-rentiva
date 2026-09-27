@@ -270,7 +270,10 @@ final class CustomersPage {
 	private static function save_own_contact_field( int $user_id, string $key, string $submitted, string $resolved ): void
 	{
 		$own = get_user_meta( $user_id, $key, true );
-		if ( ( is_scalar( $own ) && '' !== trim( (string) $own ) ) || trim( $submitted ) !== $resolved ) {
+		// Compared whitespace-normalised: sanitize_text_field() collapses inner
+		// runs, so an untouched "+90  555" would otherwise read as changed.
+		$normalise = static fn( string $v ): string => (string) preg_replace( '/\s+/u', ' ', trim( $v ) );
+		if ( ( is_scalar( $own ) && '' !== trim( (string) $own ) ) || $normalise( $submitted ) !== $normalise( $resolved ) ) {
 			update_user_meta( $user_id, $key, $submitted );
 		}
 	}

@@ -263,7 +263,10 @@ final class RemainingPaymentHandler {
 			$order->set_billing_first_name( (string) get_user_meta($customer_user_id, 'billing_first_name', true) ?: $user_info->first_name);
 			$order->set_billing_last_name( (string) get_user_meta($customer_user_id, 'billing_last_name', true) ?: $user_info->last_name);
 			$order->set_billing_email( (string) $user_info->user_email);
-			$order->set_billing_phone( \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $customer_user_id));
+			// The order's billing block stays WooCommerce's own: its billing phone
+			// first, like the address fields beside it; CustomerContact only fills
+			// a phone WooCommerce does not have.
+			$order->set_billing_phone( (string) get_user_meta($customer_user_id, 'billing_phone', true) ?: \MHMRentiva\Admin\Customers\CustomerContact::phone( (int) $customer_user_id));
 			$order->set_billing_address_1( (string) get_user_meta($customer_user_id, 'billing_address_1', true));
 			$order->set_billing_city( (string) get_user_meta($customer_user_id, 'billing_city', true));
 			$order->set_billing_postcode( (string) get_user_meta($customer_user_id, 'billing_postcode', true));
