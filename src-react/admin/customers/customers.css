@@ -484,6 +484,17 @@
 	white-space: nowrap;
 }
 
+/* A booking outside the customer's total: its status is named beside the
+   date and its amount is struck through, so it does not read as spent. */
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__booking-status {
+	font-weight: 600;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__booking-amount.is-uncounted {
+	color: #8a8f98;
+	text-decoration: line-through;
+}
+
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__none {
 	color: #8a8f98;
 	font-style: italic;

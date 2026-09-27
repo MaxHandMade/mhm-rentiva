@@ -71,3 +71,33 @@ describe( 'customers stats strip', () => {
 		).toBe( '0%' );
 	} );
 } );
+
+jest.mock( '../../shared/api/rentiva', () => ( {
+	rentivaApi: { customers: { getDetail: jest.fn() } },
+} ) );
+
+describe( 'customer panel booking rows', () => {
+	test( 'a booking outside the total names its status and strikes its amount; a counted one does neither', async () => {
+		const { rentivaApi } = require( '../../shared/api/rentiva' );
+		const CustomerPanel  = require( './components/CustomerPanel' ).default;
+		const { findByText } = require( '@testing-library/react' ).screen;
+
+		rentivaApi.customers.getDetail.mockResolvedValue( {
+			recent_bookings: [
+				{ id: 1, reference: 'BK-000001', vehicle: 'BMW', date: '16.08.2026', amount: '$6,185.00', status: 'cancelled', status_label: 'Cancelled', counted: false },
+				{ id: 2, reference: 'BK-000002', vehicle: 'Clio', date: '17.08.2026', amount: '$100.00', status: 'confirmed', status_label: 'Confirmed', counted: true },
+			],
+		} );
+
+		const row = { id: 7, name: 'Akif', email: 'a@example.com', status: 'none', booking_count: 2, total_spent: '$100.00' };
+		render( <CustomerPanel panelId={ 7 } row={ row } adminUrl="/wp-admin/" onClose={ () => {} } /> );
+
+		expect( await findByText( 'Cancelled' ) ).toBeTruthy();
+
+		const cancelledAmount = await findByText( '$6,185.00' );
+		const countedAmount   = await findByText( '$100.00', { selector: '.rv-cust-panel__booking-amount' } );
+		expect( cancelledAmount.className ).toContain( 'is-uncounted' );
+		expect( countedAmount.className ).not.toContain( 'is-uncounted' );
+		expect( document.body.textContent ).not.toContain( 'Confirmed' );
+	} );
+} );

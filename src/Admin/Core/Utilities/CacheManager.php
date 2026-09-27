@@ -455,6 +455,23 @@ final class CacheManager {
 	}
 
 	/**
+	 * Invalidate every cached entry of $type by bumping its stamp -- no scan.
+	 *
+	 * For callers on a hot path. The stamp is part of every key
+	 * (cache_key_for()), so after a bump nothing written before it is ever read
+	 * again; the old transients simply expire. clear_cache_by_type() does the
+	 * same bump and then scans the options table to delete them early, which a
+	 * cron sweep changing fifty booking statuses would otherwise run fifty times.
+	 *
+	 * @param string $type Cache type (a CACHE_KEYS key; anything else is a no-op).
+	 */
+	public static function invalidate_type( string $type ): void {
+		if ( isset( self::CACHE_KEYS[ $type ] ) ) {
+			self::bump_type_version( $type );
+		}
+	}
+
+	/**
 	 * Clear all caches of specific type
 	 *
 	 * @param string $type Cache type

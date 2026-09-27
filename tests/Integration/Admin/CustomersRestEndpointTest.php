@@ -181,6 +181,9 @@ final class CustomersRestEndpointTest extends WP_UnitTestCase
         );
         update_post_meta( $booking_id, '_mhmrentiva_customer_email', $email );
         update_post_meta( $booking_id, '_mhmrentiva_total_price', $price );
+        // Spend, activity and VIP count revenue bookings only
+        // (CustomerSpendCountsRevenueOnlyTest), so the fixture is a paid one.
+        update_post_meta( $booking_id, '_mhmrentiva_status', 'confirmed' );
         if ( $vehicle_id > 0 ) {
             update_post_meta( $booking_id, '_mhmrentiva_vehicle_id', $vehicle_id );
         }

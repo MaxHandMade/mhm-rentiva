@@ -370,8 +370,16 @@ final class CustomersPage {
 				$reference   = (string) ( $booking['reference'] ?? ( '#' . $booking['id'] ) );
 				echo '<div class="rv-cust-panel__booking">';
 				echo '<div><div class="rv-cust-panel__booking-vehicle"><a href="' . esc_url( $booking_url ) . '">' . esc_html( $reference ) . '</a> · ' . esc_html( $booking['vehicle'] ) . '</div>';
-				echo '<div class="rv-cust-panel__booking-date">' . esc_html( $booking['date'] ) . '</div></div>';
-				echo '<span class="rv-cust-panel__booking-amount">' . esc_html( $detail['currency'] . $booking['amount'] ) . '</span>';
+				echo '<div class="rv-cust-panel__booking-date">' . esc_html( $booking['date'] );
+				// A booking outside the total (cancelled, unpaid, ...) names its
+				// status, so the amount beside it does not read as spent.
+				if ( empty( $booking['counted'] ) && '' !== (string) ( $booking['status_label'] ?? '' ) ) {
+					echo ' · <span class="rv-cust-panel__booking-status">' . esc_html( (string) $booking['status_label'] ) . '</span>';
+				}
+				echo '</div></div>';
+				// `amount` already carries the canonical symbol and placement, like
+				// `total_spent` above; prepending `currency` printed "$$6.185,00".
+				echo '<span class="rv-cust-panel__booking-amount' . ( empty( $booking['counted'] ) ? ' is-uncounted' : '' ) . '">' . esc_html( $booking['amount'] ) . '</span>';
 				echo '</div>';
 			}
 		}

@@ -128,9 +128,17 @@ export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 										) : null }
 										{ b.vehicle }
 									</div>
-									<div className="rv-cust-panel__booking-date">{ b.date }</div>
+									<div className="rv-cust-panel__booking-date">
+										{ b.date }
+										{ ! b.counted && b.status_label ? (
+											<>
+												{ ' · ' }
+												<span className="rv-cust-panel__booking-status">{ b.status_label }</span>
+											</>
+										) : null }
+									</div>
 								</div>
-								<span className="rv-cust-panel__booking-amount">{ b.amount }</span>
+								<span className={ `rv-cust-panel__booking-amount${ b.counted ? '' : ' is-uncounted' }` }>{ b.amount }</span>
 							</div>
 						) )
 					) : (

@@ -9,6 +9,7 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Booking\Helpers\Cache;
+use MHMRentiva\Admin\Core\Utilities\CacheManager;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 
 
@@ -30,6 +31,24 @@ final class Hooks {
 		// involved, so the occupancy map's own transient prefix needs its
 		// own subscription here alongside the other status-change listeners.
 		add_action('mhmrentiva_booking_status_changed', array( self::class, 'invalidate_occupancy_map' ), 10, 3);
+
+		// The Customers screen caches spend, activity and VIP figures that now
+		// depend on each booking's status; without this a cancellation kept the
+		// old total on screen for the rest of the cache lifetime.
+		add_action('mhmrentiva_booking_created', array( self::class, 'invalidate_customer_figures' ), 10, 0);
+		add_action('mhmrentiva_booking_status_changed', array( self::class, 'invalidate_customer_figures' ), 10, 0);
+	}
+
+	/**
+	 * Drop the cached Customers figures (list, cards, details).
+	 *
+	 * A stamp bump, not CustomersOptimizer::clear_cache(): that also scans the
+	 * options table, and AutoCancel / AutoComplete change up to fifty statuses
+	 * in one run.
+	 */
+	public static function invalidate_customer_figures(): void
+	{
+		CacheManager::invalidate_type('customers');
 	}
 
 	/**

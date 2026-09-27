@@ -54,6 +54,20 @@ final class Status {
 		);
 	}
 
+	/**
+	 * The statuses whose price is money the business has.
+	 *
+	 * The dashboard revenue cards, the reports and the Customers screen all
+	 * mean this set when they sum `_mhmrentiva_total_price`; a cancelled,
+	 * refunded, unpaid or status-less booking is not revenue.
+	 *
+	 * @return string[]
+	 */
+	public static function revenue_statuses(): array
+	{
+		return array( self::COMPLETED, self::CONFIRMED );
+	}
+
 	public static function can_transition(string $from, string $to): bool
 	{
 		if ($from === $to) {
