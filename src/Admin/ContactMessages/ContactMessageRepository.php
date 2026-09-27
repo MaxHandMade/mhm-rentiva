@@ -30,10 +30,13 @@ final class ContactMessageRepository {
 	private const STATUS_SQL = "CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END";
 
 	/**
-	 * The four filters below (status/type/period-from/period-to/search) are
-	 * never conditionally appended to the query text -- every one of them is
-	 * always present in the literal SQL, self-neutralising via `%s = ''` when
-	 * the caller didn't ask for that filter. This is deliberate: an earlier
+	 * The filters below (status/type/period/search) are never conditionally
+	 * appended to the query text -- every one of them is always present in
+	 * the literal SQL. Status, type and search self-neutralise via `%s = ''`
+	 * when the caller didn't ask for them; the period always compares
+	 * post_date against real DATETIME bounds (the widest valid range when
+	 * unfiltered), because '' against a DATETIME column is an error on
+	 * MySQL 8. This is deliberate: an earlier
 	 * version built `$where`/`$joins` as PHP arrays/strings and interpolated
 	 * them into the SQL text, which is exactly the shape WP.org's Plugin
 	 * Check (PluginCheck.Security.DirectDB.UnescapedDBParameter) flags --
@@ -67,8 +70,13 @@ final class ContactMessageRepository {
 		$type = (string) ( $args['type'] ?? '' );
 
 		list($from, $to) = self::period_bounds( (string) ( $args['period'] ?? '' ));
-		$from            = $from ?? '';
-		$to              = $to ?? '';
+		// No period filter -> the widest valid DATETIME range, never ''.
+		// MySQL 8 (strict) raises "Incorrect DATETIME value: ''" when an
+		// empty string meets post_date, even behind a `'' = '' OR`, and the
+		// whole query fails (MariaDB only warns). A real bound also keeps
+		// both conditions sargable.
+		$from = $from ?? '1000-01-01 00:00:00';
+		$to   = $to ?? '9999-12-31 23:59:59';
 
 		$search = trim( (string) ( $args['search'] ?? '' ));
 		$like   = '%' . $wpdb->esc_like($search) . '%';
@@ -86,8 +94,6 @@ final class ContactMessageRepository {
 			$type,
 			$type,
 			$from,
-			$from,
-			$to,
 			$to,
 			$search,
 			$like,
@@ -96,7 +102,7 @@ final class ContactMessageRepository {
 			strtolower($search),
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the sniff counts $params as one replacement because it's a variable, not a literal array() expression; it holds exactly 17, one per %s above, in the fixed order documented on this method's docblock.
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the sniff counts $params as one replacement because it's a variable, not a literal array() expression; it holds exactly 15, one per %s above, in the fixed order documented on this method's docblock.
 		$total = (int) $wpdb->get_var($wpdb->prepare(
 			"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
 			LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
@@ -107,8 +113,8 @@ final class ContactMessageRepository {
 			AND p.post_status = %s
 			AND (%s = '' OR CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END = %s)
 			AND (%s = '' OR (%s = 'general' AND (ty.meta_value IS NULL OR ty.meta_value NOT IN ('booking','support','feedback'))) OR (%s <> 'general' AND ty.meta_value = %s))
-			AND (%s = '' OR p.post_date >= %s)
-			AND (%s = '' OR p.post_date < %s)
+			AND p.post_date >= %s
+			AND p.post_date < %s
 			AND (%s = '' OR nm.meta_value LIKE %s OR em.meta_value LIKE %s OR p.post_content LIKE %s OR LOWER(em.meta_value) = %s)",
 			$params
 		));
@@ -116,7 +122,7 @@ final class ContactMessageRepository {
 		$page_params   = $params;
 		$page_params[] = $per_page;
 		$page_params[] = ( $page - 1 ) * $per_page;
-		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- as above; $page_params is $params (17) plus the LIMIT/OFFSET pair appended just above (19 total), one per %s/%d.
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- as above; $page_params is $params (15) plus the LIMIT/OFFSET pair appended just above (17 total), one per %s/%d.
 		$ids = $wpdb->get_col($wpdb->prepare(
 			"SELECT DISTINCT p.ID FROM {$wpdb->posts} p
 			LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
@@ -127,8 +133,8 @@ final class ContactMessageRepository {
 			AND p.post_status = %s
 			AND (%s = '' OR CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END = %s)
 			AND (%s = '' OR (%s = 'general' AND (ty.meta_value IS NULL OR ty.meta_value NOT IN ('booking','support','feedback'))) OR (%s <> 'general' AND ty.meta_value = %s))
-			AND (%s = '' OR p.post_date >= %s)
-			AND (%s = '' OR p.post_date < %s)
+			AND p.post_date >= %s
+			AND p.post_date < %s
 			AND (%s = '' OR nm.meta_value LIKE %s OR em.meta_value LIKE %s OR p.post_content LIKE %s OR LOWER(em.meta_value) = %s)
 			ORDER BY p.post_date DESC, p.ID DESC
 			LIMIT %d OFFSET %d",

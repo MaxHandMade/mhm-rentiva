@@ -274,4 +274,33 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$this->assertSame(400, $status);
 		$this->assertSame(array(), $caught, 'an array period must not trigger a PHP warning/notice');
 	}
+
+	/**
+	 * MySQL 8 (strict) raises "Incorrect DATETIME value: ''" when an empty
+	 * string meets post_date -- even behind a self-neutralising `'' = '' OR`
+	 * -- and the whole list query fails; MariaDB only warns, so the local
+	 * suite stayed green while CI returned 0 rows. Pin the SQL shape itself
+	 * so a MariaDB run catches the regression too.
+	 */
+	public function test_list_sql_never_compares_post_date_with_an_empty_string(): void
+	{
+		wp_set_current_user($this->admin);
+		$this->contact();
+
+		$queries = array();
+		$spy     = static function ($sql) use (&$queries) {
+			$queries[] = $sql;
+			return $sql;
+		};
+		add_filter('query', $spy);
+		$response = $this->get('/contact-messages');
+		remove_filter('query', $spy);
+
+		$list_sql = array_values(array_filter($queries, static fn($q) => str_contains($q, 'p.post_date')));
+		$this->assertNotSame(array(), $list_sql, 'the list query must have run');
+		foreach ($list_sql as $sql) {
+			$this->assertDoesNotMatchRegularExpression("/post_date\\s*[<>]=?\\s*''/", $sql);
+		}
+		$this->assertSame(1, $response->get_data()['total']);
+	}
 }
