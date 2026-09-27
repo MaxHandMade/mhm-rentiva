@@ -1300,9 +1300,29 @@ final class DatabaseMigrator {
 				)
 			);
 			if (false === $updated) {
-				// The backfill did not land -- leave the done flag unset so the
-				// next admin_init/plugins_loaded pass retries it, instead of
-				// permanently stranding these records as "new".
+				// The backfill did not land. This does NOT retry on the next
+				// request: run_migrations() gates this whole locked block on
+				// stored_db_version() < CURRENT_VERSION, and the steps after this
+				// one still stamp mhmrentiva_db_version to CURRENT_VERSION
+				// regardless of this step's own outcome (see
+				// run_migrations_locked()). Leaving CONTACT_STATUS_DONE_OPTION
+				// unset means the step is retried on the NEXT migration run --
+				// the next CURRENT_VERSION bump -- not on the next
+				// admin_init/plugins_loaded pass; that is deliberately bounded
+				// rather than an unbounded per-request retry of a failing UPDATE.
+				// Log once so a stranded backfill is visible before that day
+				// comes, instead of only being discoverable by noticing the
+				// records are still "new".
+				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+						'Contact message status backfill (4.4.0) failed: the UPDATE did not run; affected records remain "new" until the next migration run',
+						array(
+							'cutoff'   => $cutoff,
+							'affected' => count($ids),
+						),
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+					);
+				}
 				return;
 			}
 			foreach ($ids as $id) {

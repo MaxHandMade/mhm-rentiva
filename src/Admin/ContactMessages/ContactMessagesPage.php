@@ -58,9 +58,11 @@ final class ContactMessagesPage {
 			return;
 		}
 
-		// PHP prints the heading and the wp-header-end marker (house standard,
-		// AdminHelperTrait): admin notices are moved there at DOM-ready, before
-		// React mounts. React's PageHeader renders at level 2 below it.
+		// PHP prints the heading, the subtitle and the wp-header-end marker
+		// (house standard, AdminHelperTrait): admin notices are moved there at
+		// DOM-ready, before React mounts. The list view no longer renders its
+		// own PageHeader (this H1 is its only title); the detail view still
+		// does, level 2, for a different title -- the sender's name.
 		echo '<div class="wrap mhm-rentiva-wrap contact-messages-page">';
 		$this->render_admin_header(
 			(string) get_admin_page_title(),

@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Admin\PostTypes\Logs\PostType as LogPostType;
 use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use ReflectionMethod;
 use WP_UnitTestCase;
@@ -92,8 +93,19 @@ final class ContactStatusMigrationTest extends WP_UnitTestCase
 	 * Codex Important #1: the backfill ignored $wpdb->query()'s return value and
 	 * set the done flag regardless. If the database accepts the SELECT but
 	 * rejects the UPDATE (permissions, a broken table, a hostile `query`
-	 * filter), the old records must stay `new` and the step must be retried on
-	 * the next pass -- not be marked done while nothing actually changed.
+	 * filter), the old records must stay `new` and the done flag must stay
+	 * unset -- not be marked done while nothing actually changed.
+	 *
+	 * Residual round correction: leaving the done flag unset does NOT mean the
+	 * step retries on the next admin_init/plugins_loaded request. run_migrations()
+	 * gates this whole locked block on stored_db_version() < CURRENT_VERSION,
+	 * and the steps that run after this one in run_migrations_locked() still
+	 * stamp mhmrentiva_db_version to CURRENT_VERSION regardless of this step's
+	 * own outcome -- so the very next request already reads the version as
+	 * current and never calls migrate_contact_status_440() again. The step is
+	 * retried on the NEXT migration run (the next CURRENT_VERSION bump), when
+	 * its own done flag is checked again and found unset. Because that could be
+	 * a long wait, a failed UPDATE is now also logged once via AdvancedLogger.
 	 */
 	public function test_a_failed_update_does_not_mark_the_step_done_and_leaves_records_new(): void
 	{
@@ -118,5 +130,15 @@ final class ContactStatusMigrationTest extends WP_UnitTestCase
 
 		$this->assertFalse(get_option(DatabaseMigrator::CONTACT_STATUS_DONE_OPTION), 'a failed UPDATE must not mark the backfill complete');
 		$this->assertSame('new', get_post_meta($old, ContactStatus::META_KEY, true), 'the record must not be reported as migrated when the write never landed');
+
+		$logs = get_posts(array(
+			'post_type'      => LogPostType::TYPE,
+			'posts_per_page' => 1,
+			'orderby'        => 'ID',
+			'order'          => 'DESC',
+		));
+		$this->assertNotEmpty($logs, 'a failed backfill UPDATE must be logged once, since it will not be retried until the next version bump');
+		$this->assertStringContainsString('backfill', strtolower($logs[0]->post_title));
+		$this->assertSame('error', get_post_meta($logs[0]->ID, '_mhmrentiva_log_level', true));
 	}
 }
