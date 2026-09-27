@@ -163,4 +163,62 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$priority = array_values(array_filter($fields, static fn($f) => 'priority' === $f['key']));
 		$this->assertSame('High', $priority[0]['value'] ?? null);
 	}
+
+	/** Ruling 1: postmeta collates case-insensitive/PAD SPACE, so 'New' must normalise, not pass through raw. */
+	public function test_mixed_case_status_meta_normalises_to_read(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact(array( 'status' => 'New' ));
+
+		$counts = $this->get('/contact-messages')->get_data()['counts'];
+		$this->assertSame(array( 'all' => 1, 'new' => 0, 'read' => 1, 'replied' => 0, 'trash' => 0 ), $counts);
+
+		$this->assertSame(1, $this->get('/contact-messages', array( 'status' => 'read' ))->get_data()['total']);
+		$this->assertSame(0, $this->get('/contact-messages', array( 'status' => 'new' ))->get_data()['total']);
+		$this->assertSame($id, $this->get('/contact-messages', array( 'status' => 'read' ))->get_data()['items'][0]['id']);
+	}
+
+	/** Ruling 2: a fanned-out join (duplicate status meta row) must not double-count a post. */
+	public function test_counts_are_distinct_per_post_even_with_duplicate_status_meta(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact(array( 'status' => 'new' ));
+		add_post_meta($id, ContactStatus::META_KEY, 'new', false);
+
+		$this->assertSame(1, $this->get('/contact-messages')->get_data()['counts']['new']);
+		$this->assertSame(1, $this->get('/contact-messages')->get_data()['counts']['all']);
+	}
+
+	/** Ruling 3: mysql_to_rfc3339() carries no offset; clients need an explicit one. */
+	public function test_date_iso_carries_an_explicit_utc_offset(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact();
+		$date_iso = $this->get('/contact-messages/' . $id)->get_data()['date_iso'];
+		$this->assertStringEndsWith('+00:00', $date_iso);
+	}
+
+	/** Ruling 4: row() labels a missing/unrecognised type meta "General Contact" too, so the filter must match both. */
+	public function test_type_general_matches_missing_and_unrecognised_type_meta(): void
+	{
+		wp_set_current_user($this->admin);
+		$evil    = $this->contact(array( 'type' => 'evil' ));
+		$missing = $this->contact();
+		delete_post_meta($missing, '_mhmrentiva_contact_type');
+		$booking = $this->contact(array( 'type' => 'booking' ));
+
+		$data = $this->get('/contact-messages', array( 'type' => 'general' ))->get_data();
+		$ids  = array_column($data['items'], 'id');
+		$this->assertSame(2, $data['total']);
+		$this->assertContains($evil, $ids);
+		$this->assertContains($missing, $ids);
+		$this->assertNotContains($booking, $ids);
+	}
+
+	/** Ruling 5: an array `period` must 400, not trigger "Array to string conversion". */
+	public function test_period_as_array_is_a_400_without_a_php_warning(): void
+	{
+		wp_set_current_user($this->admin);
+		$this->assertSame(400, $this->get('/contact-messages', array( 'period' => array( '2026-01' ) ))->get_status());
+	}
 }

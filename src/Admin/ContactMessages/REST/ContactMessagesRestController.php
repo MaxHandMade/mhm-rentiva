@@ -50,7 +50,7 @@ final class ContactMessagesRestController {
 				'period'   => array(
 					'type'              => 'string',
 					'default'           => '',
-					'validate_callback' => static fn($v): bool => in_array($v, array( '', '7d', '30d' ), true) || 1 === preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', (string) $v),
+					'validate_callback' => static fn($v): bool => is_string($v) && ( in_array($v, array( '', '7d', '30d' ), true) || 1 === preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $v) ),
 				),
 				'search'   => array(
 					'type'              => 'string',
@@ -100,7 +100,13 @@ final class ContactMessagesRestController {
 			'methods'             => \WP_REST_Server::CREATABLE,
 			'callback'            => array( self::class, 'set_status' ),
 			'permission_callback' => $can,
-			'args'                => $id + array( 'status' => array( 'type' => 'string', 'enum' => ContactStatus::ALL, 'required' => true ) ),
+			'args'                => $id + array(
+				'status' => array(
+					'type'     => 'string',
+					'enum'     => ContactStatus::ALL,
+					'required' => true,
+				),
+			),
 		));
 
 		register_rest_route(self::NS, '/contact-messages/(?P<id>\d+)/read', array(
@@ -115,8 +121,21 @@ final class ContactMessagesRestController {
 			'callback'            => array( self::class, 'bulk' ),
 			'permission_callback' => $can,
 			'args'                => array(
-				'ids'    => array( 'type' => 'array', 'items' => array( 'type' => 'integer', 'minimum' => 1 ), 'minItems' => 1, 'maxItems' => 100, 'required' => true ),
-				'action' => array( 'type' => 'string', 'enum' => array( 'read', 'replied', 'trash', 'restore', 'delete' ), 'required' => true ),
+				'ids'    => array(
+					'type'     => 'array',
+					'items'    => array(
+						'type'    => 'integer',
+						'minimum' => 1,
+					),
+					'minItems' => 1,
+					'maxItems' => 100,
+					'required' => true,
+				),
+				'action' => array(
+					'type'     => 'string',
+					'enum'     => array( 'read', 'replied', 'trash', 'restore', 'delete' ),
+					'required' => true,
+				),
 			),
 		));
 
@@ -124,14 +143,19 @@ final class ContactMessagesRestController {
 			'methods'             => \WP_REST_Server::DELETABLE,
 			'callback'            => array( self::class, 'delete_item' ),
 			'permission_callback' => $can,
-			'args'                => $id + array( 'force' => array( 'type' => 'boolean', 'default' => false ) ),
+			'args'                => $id + array(
+				'force' => array(
+					'type'    => 'boolean',
+					'default' => false,
+				),
+			),
 		));
 	}
 
 	/** @return \WP_REST_Response|\WP_Error */
 	public static function set_status(\WP_REST_Request $request)
 	{
-		$post = self::find((int) $request['id']);
+		$post = self::find( (int) $request['id']);
 		if ($post instanceof \WP_Error) {
 			return $post;
 		}
@@ -142,7 +166,7 @@ final class ContactMessagesRestController {
 	/** @return \WP_REST_Response|\WP_Error */
 	public static function mark_read(\WP_REST_Request $request)
 	{
-		$post = self::find((int) $request['id']);
+		$post = self::find( (int) $request['id']);
 		if ($post instanceof \WP_Error) {
 			return $post;
 		}
@@ -160,7 +184,11 @@ final class ContactMessagesRestController {
 		foreach (array_unique(array_map('intval', (array) $request['ids'])) as $id) {
 			$post = self::find($id);
 			if ($post instanceof \WP_Error) {
-				$results[] = array( 'id' => $id, 'ok' => false, 'error' => 'not_found' );
+				$results[] = array(
+					'id'    => $id,
+					'ok'    => false,
+					'error' => 'not_found',
+				);
 				continue;
 			}
 
@@ -179,7 +207,14 @@ final class ContactMessagesRestController {
 					$ok = 'trash' === $post->post_status && false !== wp_delete_post($id, true);
 			}
 
-			$results[] = $ok ? array( 'id' => $id, 'ok' => true ) : array( 'id' => $id, 'ok' => false, 'error' => 'not_allowed' );
+			$results[] = $ok ? array(
+				'id' => $id,
+				'ok' => true,
+			) : array(
+				'id'    => $id,
+				'ok'    => false,
+				'error' => 'not_allowed',
+			);
 		}
 
 		ContactStatus::forget_badge();
@@ -190,24 +225,32 @@ final class ContactMessagesRestController {
 	/** @return \WP_REST_Response|\WP_Error */
 	public static function delete_item(\WP_REST_Request $request)
 	{
-		$post = self::find((int) $request['id']);
+		$post = self::find( (int) $request['id']);
 		if ($post instanceof \WP_Error) {
 			return $post;
 		}
 
-		if ((bool) $request['force']) {
+		if ( (bool) $request['force']) {
 			if ('trash' !== $post->post_status) {
 				return new \WP_Error('rest_not_in_trash', __('Only a message in the trash can be deleted permanently.', 'mhm-rentiva'), array( 'status' => 400 ));
 			}
 			$deleted = false !== wp_delete_post($post->ID, true);
 			ContactStatus::forget_badge();
-			return new \WP_REST_Response(array( 'id' => $post->ID, 'trashed' => false, 'deleted' => $deleted ));
+			return new \WP_REST_Response(array(
+				'id'      => $post->ID,
+				'trashed' => false,
+				'deleted' => $deleted,
+			));
 		}
 
 		$trashed = false !== wp_trash_post($post->ID);
 		ContactStatus::forget_badge();
 
-		return new \WP_REST_Response(array( 'id' => $post->ID, 'trashed' => $trashed, 'deleted' => false ));
+		return new \WP_REST_Response(array(
+			'id'      => $post->ID,
+			'trashed' => $trashed,
+			'deleted' => false,
+		));
 	}
 
 	/**
@@ -322,7 +365,8 @@ final class ContactMessagesRestController {
 			'rating'         => max(0, min(5, (int) $meta('rating'))),
 			'status'         => $status,
 			'status_label'   => ContactStatus::label($status),
-			'date_iso'       => mysql_to_rfc3339($post->post_date_gmt),
+			// mysql_to_rfc3339() emits no UTC offset; gmdate('c', ...) does, and clients need it to compare dates reliably.
+			'date_iso'       => gmdate('c', (int) strtotime($post->post_date_gmt . ' UTC')),
 			'date_label'     => wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) strtotime($post->post_date_gmt . ' UTC')),
 			'trashed'        => 'trash' === $post->post_status,
 		);

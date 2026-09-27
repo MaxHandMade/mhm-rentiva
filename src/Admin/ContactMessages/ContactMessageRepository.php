@@ -7,6 +7,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only listing over a private post type: the status has to be read as "new|replied, else read" (a CASE) and the search has to span a meta column and post_content at once; WP_Query can express neither. Every value is bound through $wpdb->prepare().
 
 /**
@@ -18,8 +20,14 @@ final class ContactMessageRepository {
 
 	private const TYPE = 'mhmrentiva_contact';
 
-	/** SQL for the normalised status of alias `st` (ContactStatus::normalize in SQL). */
-	private const STATUS_SQL = "CASE WHEN st.meta_value IN ('new','replied') THEN st.meta_value ELSE 'read' END";
+	/**
+	 * SQL for the normalised status of alias `st` (ContactStatus::normalize in SQL).
+	 * `postmeta.meta_value` collates case-insensitive and PAD SPACE, so a plain
+	 * `IN ('new','replied')` would match `'New'`/`'replied '` too and hand the raw
+	 * (unnormalised) value back. BINARY forces byte comparison so only the exact
+	 * literals match, mirroring ContactStatus::normalize()'s strict in_array().
+	 */
+	private const STATUS_SQL = "CASE WHEN BINARY st.meta_value = 'new' THEN 'new' WHEN BINARY st.meta_value = 'replied' THEN 'replied' ELSE 'read' END";
 
 	/**
 	 * @param array{status?:string,type?:string,period?:string,search?:string,page?:int,per_page?:int} $args
@@ -42,7 +50,14 @@ final class ContactMessageRepository {
 		}
 
 		$type = (string) ( $args['type'] ?? '' );
-		if ('' !== $type) {
+		if ('general' === $type) {
+			// row() labels a missing/unrecognised type meta "General Contact" too, so
+			// the `general` filter has to match both, not just an explicit 'general'.
+			$known   = array_values(array_diff(ContactMessagePostType::TYPES, array( 'general' )));
+			$in_sql  = implode(',', array_fill(0, count($known), '%s'));
+			$where[] = "(ty.meta_value IS NULL OR ty.meta_value NOT IN ({$in_sql}))";
+			$params  = array_merge($params, $known);
+		} elseif ('' !== $type) {
 			$where[]  = 'ty.meta_value = %s';
 			$params[] = $type;
 		}
@@ -100,7 +115,7 @@ final class ContactMessageRepository {
 
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- self::STATUS_SQL is a fixed CASE expression declared as a private class constant in this file, not user input; it contains no placeholders to bind.
 		$rows = $wpdb->get_results($wpdb->prepare(
-			'SELECT p.post_status AS ps, ' . self::STATUS_SQL . " AS s, COUNT(*) AS n
+			'SELECT p.post_status AS ps, ' . self::STATUS_SQL . " AS s, COUNT(DISTINCT p.ID) AS n
 			 FROM {$wpdb->posts} p
 			 LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
 			 WHERE p.post_type = %s AND p.post_status IN ('private','trash')
