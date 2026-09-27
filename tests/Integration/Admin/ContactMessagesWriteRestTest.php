@@ -167,4 +167,90 @@ final class ContactMessagesWriteRestTest extends WP_UnitTestCase
 		$this->assertFalse($res[0]['ok']);
 		$this->assertSame('new', ContactStatus::get($id));
 	}
+
+	/**
+	 * Audit fix X1: bulk 'read' used to report ok:true unconditionally, even
+	 * when the promotion from 'new' to 'read' it just attempted was silently
+	 * rejected by a short-circuited meta write.
+	 */
+	public function test_bulk_read_reports_failure_when_the_status_write_is_blocked(): void
+	{
+		$id = $this->contact('new');
+
+		$block = static function ($check, $object_id, $meta_key) {
+			return ContactStatus::META_KEY === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		try {
+			$res = $this->send('POST', '/contact-messages/bulk', array( 'ids' => array( $id ), 'action' => 'read' ))->get_data()['results'];
+		} finally {
+			remove_filter('update_post_metadata', $block, 10);
+		}
+
+		$this->assertFalse($res[0]['ok']);
+		$this->assertSame('new', ContactStatus::get($id));
+	}
+
+	/** Audit fix X1: set_status() used to return the row even when the write it just made never landed. */
+	public function test_set_status_returns_500_when_the_write_is_blocked(): void
+	{
+		$id = $this->contact('new');
+
+		$block = static function ($check, $object_id, $meta_key) {
+			return ContactStatus::META_KEY === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		try {
+			$response = $this->send('POST', "/contact-messages/$id/status", array( 'status' => 'replied' ));
+		} finally {
+			remove_filter('update_post_metadata', $block, 10);
+		}
+
+		$this->assertSame(500, $response->get_status());
+		$this->assertSame('rest_status_not_saved', $response->get_data()['code']);
+		$this->assertSame('new', ContactStatus::get($id));
+	}
+
+	/** Audit fix X1: mark_read() must report failure when it actually tried to write and the write was blocked. */
+	public function test_mark_read_returns_500_when_the_write_is_blocked(): void
+	{
+		$id = $this->contact('new');
+
+		$block = static function ($check, $object_id, $meta_key) {
+			return ContactStatus::META_KEY === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		try {
+			$response = $this->send('POST', "/contact-messages/$id/read");
+		} finally {
+			remove_filter('update_post_metadata', $block, 10);
+		}
+
+		$this->assertSame(500, $response->get_status());
+		$this->assertSame('rest_status_not_saved', $response->get_data()['code']);
+		$this->assertSame('new', ContactStatus::get($id));
+	}
+
+	/** Audit fix X1: mark_read() is a no-op for an already read/replied message, so a blocked write must not surface as an error there. */
+	public function test_mark_read_stays_a_success_when_no_write_is_attempted(): void
+	{
+		$id = $this->contact('replied');
+
+		$block = static function ($check, $object_id, $meta_key) {
+			return ContactStatus::META_KEY === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		try {
+			$response = $this->send('POST', "/contact-messages/$id/read");
+		} finally {
+			remove_filter('update_post_metadata', $block, 10);
+		}
+
+		$this->assertSame(200, $response->get_status());
+		$this->assertSame('replied', $response->get_data()['status']);
+	}
 }

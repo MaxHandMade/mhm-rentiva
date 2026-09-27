@@ -159,7 +159,9 @@ final class ContactMessagesRestController {
 		if ($post instanceof \WP_Error) {
 			return $post;
 		}
-		ContactStatus::set($post->ID, (string) $request['status']);
+		if (! ContactStatus::set($post->ID, (string) $request['status'])) {
+			return new \WP_Error('rest_status_not_saved', __('The message status could not be saved.', 'mhm-rentiva'), array( 'status' => 500 ));
+		}
 		return new \WP_REST_Response(self::row($post));
 	}
 
@@ -170,8 +172,8 @@ final class ContactMessagesRestController {
 		if ($post instanceof \WP_Error) {
 			return $post;
 		}
-		if (ContactStatus::STATUS_NEW === ContactStatus::get($post->ID)) {
-			ContactStatus::set($post->ID, ContactStatus::STATUS_READ);
+		if (ContactStatus::STATUS_NEW === ContactStatus::get($post->ID) && ! ContactStatus::set($post->ID, ContactStatus::STATUS_READ)) {
+			return new \WP_Error('rest_status_not_saved', __('The message status could not be saved.', 'mhm-rentiva'), array( 'status' => 500 ));
 		}
 		return new \WP_REST_Response(self::row($post));
 	}
@@ -196,22 +198,21 @@ final class ContactMessagesRestController {
 				case 'read':
 					// Same rule as mark_read(): reading a message never downgrades an
 					// already-replied one back to unread.
-					if (ContactStatus::STATUS_NEW === ContactStatus::get($id)) {
-						ContactStatus::set($id, ContactStatus::STATUS_READ);
-					}
-					$ok = true;
+					$ok = ContactStatus::STATUS_NEW === ContactStatus::get($id)
+						? ContactStatus::set($id, ContactStatus::STATUS_READ)
+						: true;
 					break;
 				case 'replied':
 					$ok = ContactStatus::set($id, $action);
 					break;
 				case 'trash':
-					$ok = 'trash' !== $post->post_status && false !== wp_trash_post($id);
+					$ok = 'trash' !== $post->post_status && wp_trash_post($id) instanceof \WP_Post;
 					break;
 				case 'restore':
 					$ok = self::untrash($id);
 					break;
 				default: // delete
-					$ok = 'trash' === $post->post_status && false !== wp_delete_post($id, true);
+					$ok = 'trash' === $post->post_status && wp_delete_post($id, true) instanceof \WP_Post;
 			}
 
 			// A site with EMPTY_TRASH_DAYS = 0 makes wp_trash_post() delete the
@@ -254,7 +255,7 @@ final class ContactMessagesRestController {
 			if ('trash' !== $post->post_status) {
 				return new \WP_Error('rest_not_in_trash', __('Only a message in the trash can be deleted permanently.', 'mhm-rentiva'), array( 'status' => 400 ));
 			}
-			$deleted = false !== wp_delete_post($post->ID, true);
+			$deleted = wp_delete_post($post->ID, true) instanceof \WP_Post;
 			ContactStatus::forget_badge();
 			return new \WP_REST_Response(array(
 				'id'      => $post->ID,
@@ -263,7 +264,7 @@ final class ContactMessagesRestController {
 			));
 		}
 
-		$trashed = false !== wp_trash_post($post->ID);
+		$trashed = wp_trash_post($post->ID) instanceof \WP_Post;
 		ContactStatus::forget_badge();
 
 		// A site with EMPTY_TRASH_DAYS = 0 makes wp_trash_post() delete permanently
