@@ -43,4 +43,28 @@ final class ContactStatusTest extends WP_UnitTestCase
 		ContactStatus::set($this->contact(), 'new');
 		$this->assertFalse(get_transient(ContactStatus::BADGE_TRANSIENT));
 	}
+
+	/**
+	 * Codex Important #4: set() discarded update_post_meta()'s outcome and
+	 * always returned true. A short-circuited write (another plugin, a full
+	 * options/meta table, a lease race) must be reported as a failure, not as
+	 * a status change that never actually happened.
+	 */
+	public function test_set_returns_false_when_the_meta_write_is_short_circuited(): void
+	{
+		$id = $this->contact();
+
+		$block = static function ($check, $object_id, $meta_key) {
+			return ContactStatus::META_KEY === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		try {
+			$this->assertFalse(ContactStatus::set($id, 'replied'));
+		} finally {
+			remove_filter('update_post_metadata', $block, 10);
+		}
+
+		$this->assertSame('read', ContactStatus::get($id), 'the stored status must not have changed when the write was blocked');
+	}
 }

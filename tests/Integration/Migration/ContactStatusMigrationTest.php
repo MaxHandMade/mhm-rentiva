@@ -87,4 +87,36 @@ final class ContactStatusMigrationTest extends WP_UnitTestCase
 		$this->step();
 		$this->assertSame('read', get_post_meta($old, ContactStatus::META_KEY, true));
 	}
+
+	/**
+	 * Codex Important #1: the backfill ignored $wpdb->query()'s return value and
+	 * set the done flag regardless. If the database accepts the SELECT but
+	 * rejects the UPDATE (permissions, a broken table, a hostile `query`
+	 * filter), the old records must stay `new` and the step must be retried on
+	 * the next pass -- not be marked done while nothing actually changed.
+	 */
+	public function test_a_failed_update_does_not_mark_the_step_done_and_leaves_records_new(): void
+	{
+		global $wpdb;
+		$old = $this->contact('2026-08-01 10:00:00', 'new');
+
+		$original_errors = $wpdb->suppress_errors(true);
+		$break_update     = static function (string $query): string {
+			if (str_starts_with(trim($query), 'UPDATE') && str_contains($query, 'SET pm.meta_value')) {
+				return 'SELECT * FROM mhmrentiva_deliberately_missing_table';
+			}
+			return $query;
+		};
+
+		try {
+			add_filter('query', $break_update, 9999);
+			$this->step();
+		} finally {
+			remove_filter('query', $break_update, 9999);
+			$wpdb->suppress_errors($original_errors);
+		}
+
+		$this->assertFalse(get_option(DatabaseMigrator::CONTACT_STATUS_DONE_OPTION), 'a failed UPDATE must not mark the backfill complete');
+		$this->assertSame('new', get_post_meta($old, ContactStatus::META_KEY, true), 'the record must not be reported as migrated when the write never landed');
+	}
 }

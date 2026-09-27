@@ -214,6 +214,19 @@ final class ContactMessagesRestController {
 					$ok = 'trash' === $post->post_status && false !== wp_delete_post($id, true);
 			}
 
+			// A site with EMPTY_TRASH_DAYS = 0 makes wp_trash_post() delete the
+			// record permanently instead of changing its status (same caveat as
+			// the single-item DELETE route above) -- report that honestly rather
+			// than as an ordinary trash success.
+			if ('trash' === $action && $ok && null === get_post($id)) {
+				$results[] = array(
+					'id'      => $id,
+					'ok'      => true,
+					'deleted' => true,
+				);
+				continue;
+			}
+
 			$results[] = $ok ? array(
 				'id' => $id,
 				'ok' => true,

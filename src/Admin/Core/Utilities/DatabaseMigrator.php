@@ -1286,7 +1286,7 @@ final class DatabaseMigrator {
 		);
 
 		if (array() !== $ids) {
-			$wpdb->query(
+			$updated = $wpdb->query(
 				$wpdb->prepare(
 					"UPDATE {$wpdb->postmeta} pm
 					 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
@@ -1299,6 +1299,12 @@ final class DatabaseMigrator {
 					\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_NEW
 				)
 			);
+			if (false === $updated) {
+				// The backfill did not land -- leave the done flag unset so the
+				// next admin_init/plugins_loaded pass retries it, instead of
+				// permanently stranding these records as "new".
+				return;
+			}
 			foreach ($ids as $id) {
 				wp_cache_delete( (int) $id, 'post_meta');
 			}

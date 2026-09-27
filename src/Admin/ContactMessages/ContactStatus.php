@@ -55,6 +55,15 @@ final class ContactStatus {
 		}
 
 		update_post_meta($post_id, self::META_KEY, $status);
+
+		// update_post_meta()'s own return is not enough to tell a rejected write
+		// from a no-op one (it also returns false when the stored value was
+		// already $status) -- read the value back to know whether the write
+		// actually landed before reporting success and clearing the badge.
+		if (get_post_meta($post_id, self::META_KEY, true) !== $status) {
+			return false;
+		}
+
 		self::forget_badge();
 
 		return true;

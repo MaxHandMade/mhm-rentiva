@@ -143,4 +143,28 @@ final class ContactMessagesWriteRestTest extends WP_UnitTestCase
 		$this->assertFalse($res[0]['ok']);
 		$this->assertSame('private', get_post_status($id));
 	}
+
+	/**
+	 * Codex Important #4, measured through the REST route: bulk 'replied'
+	 * calls ContactStatus::set() directly for its $ok value, so a
+	 * short-circuited meta write must surface as ok:false there too.
+	 */
+	public function test_bulk_replied_reports_failure_when_the_status_write_is_blocked(): void
+	{
+		$id = $this->contact('new');
+
+		$block = static function ($check, $object_id, $meta_key) {
+			return ContactStatus::META_KEY === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $block, 10, 3);
+
+		try {
+			$res = $this->send('POST', '/contact-messages/bulk', array( 'ids' => array( $id ), 'action' => 'replied' ))->get_data()['results'];
+		} finally {
+			remove_filter('update_post_metadata', $block, 10);
+		}
+
+		$this->assertFalse($res[0]['ok']);
+		$this->assertSame('new', ContactStatus::get($id));
+	}
 }

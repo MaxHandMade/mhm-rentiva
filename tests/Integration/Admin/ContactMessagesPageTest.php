@@ -29,6 +29,19 @@ final class ContactMessagesPageTest extends WP_UnitTestCase
 		$this->assertFalse(ContactMessagesPage::legacy_list_should_redirect(array( 'post_type' => 'post' ), 'post'));
 	}
 
+	/**
+	 * Codex minor: core's current_action() (WP_List_Table) only treats
+	 * filter_action as "present" when it is non-empty -- a plain view of the
+	 * filter bar with nothing chosen submits `filter_action=` (empty), which
+	 * must still redirect to the new screen, not be mistaken for a filter
+	 * request left on the legacy list.
+	 */
+	public function test_an_empty_filter_action_is_treated_as_absent(): void
+	{
+		$t = 'mhmrentiva_contact';
+		$this->assertTrue(ContactMessagesPage::legacy_list_should_redirect(array( 'post_type' => $t, 'filter_action' => '' ), $t));
+	}
+
 	public function test_legacy_edit_screen_redirects_only_for_view(): void
 	{
 		$id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
