@@ -61,7 +61,7 @@ export default function ContactTable( { rows, selected, onToggle, onToggleAll, o
 							</div>
 							<div className="mhm-contact-messages__snippet">{ r.snippet }</div>
 						</td>
-						<td>{ r.vehicle ? r.vehicle.title : '—' }</td>
+						<td className={ r.vehicle ? undefined : 'is-empty' }>{ r.vehicle ? r.vehicle.title : '—' }</td>
 						<td><StatusBadge tone={ TONE[ r.status ] }>{ r.status_label }</StatusBadge></td>
 						<td><time dateTime={ r.date_iso }>{ r.date_label }</time></td>
 						<td>
