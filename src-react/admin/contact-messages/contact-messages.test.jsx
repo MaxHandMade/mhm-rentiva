@@ -300,6 +300,19 @@ describe( 'contact message detail', () => {
 		expect( onBack ).not.toHaveBeenCalled();
 	} );
 
+	test( 'a successful permanent delete from the trash navigates back (destroy resolves with deleted:true)', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+		contactApi.destroy = jest.fn().mockResolvedValue( { id: 1, trashed: false, deleted: true } );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, delete' } ) );
+
+		await waitFor( () => expect( onBack ).toHaveBeenCalled() );
+	} );
+
 	test( 'a trashed message never triggers the automatic mark-as-read call', async () => {
 		contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'new', trashed: true } ) );
 		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
