@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Integration\Admin;
 
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\ContactMessages\REST\ContactMessagesRestController;
+use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
@@ -233,6 +234,24 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$this->assertContains($evil, $ids);
 		$this->assertContains($missing, $ids);
 		$this->assertNotContains($booking, $ids);
+	}
+
+	/**
+	 * ContactMessageRepository::list() writes the "general" type filter's NOT
+	 * IN list as the literal SQL fragment ('booking','support','feedback')
+	 * rather than building it from ContactMessagePostType::TYPES at runtime
+	 * (Task 9C fix round 2 -- G-D flagged the runtime-built version as an
+	 * unescaped DB parameter shape). This pins the assumption the literal
+	 * depends on: if TYPES ever gains, loses or reorders a non-general
+	 * member, this test fails loudly and points at the query to update,
+	 * instead of the "general" filter silently drifting from what TYPES says.
+	 */
+	public function test_non_general_types_match_the_literal_in_list_the_repository_query_hardcodes(): void
+	{
+		$this->assertSame(
+			array( 'booking', 'support', 'feedback' ),
+			array_values(array_diff(ContactMessagePostType::TYPES, array( 'general' )))
+		);
 	}
 
 	/** Ruling 5: an array `period` must 400, not trigger "Array to string conversion". */

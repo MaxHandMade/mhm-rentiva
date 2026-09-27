@@ -7,8 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
-
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only listing over a private post type: the status has to be read as "new|replied, else read" (a CASE) and the search has to span a meta column and post_content at once; WP_Query can express neither. Every value is bound through $wpdb->prepare().
 
 /**
@@ -32,6 +30,23 @@ final class ContactMessageRepository {
 	private const STATUS_SQL = "CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END";
 
 	/**
+	 * The four filters below (status/type/period-from/period-to/search) are
+	 * never conditionally appended to the query text -- every one of them is
+	 * always present in the literal SQL, self-neutralising via `%s = ''` when
+	 * the caller didn't ask for that filter. This is deliberate: an earlier
+	 * version built `$where`/`$joins` as PHP arrays/strings and interpolated
+	 * them into the SQL text, which is exactly the shape WP.org's Plugin
+	 * Check (PluginCheck.Security.DirectDB.UnescapedDBParameter) flags --
+	 * correctly, since a tool reading the source alone cannot tell that
+	 * `$where_sql` is built only from hardcoded fragments and never from
+	 * request input. Writing the whole WHERE clause as one string literal
+	 * eliminates the shape itself rather than justifying it away.
+	 *
+	 * The 'general' branch's NOT IN list is `('booking','support','feedback')`
+	 * as a literal, not built from ContactMessagePostType::TYPES at runtime --
+	 * see test_non_general_types_match_the_literal_in_list_the_repository_query_hardcodes()
+	 * for the guard that fails loudly if TYPES ever changes shape.
+	 *
 	 * @param array{status?:string,type?:string,period?:string,search?:string,page?:int,per_page?:int} $args
 	 * @return array{items:list<int>,total:int}
 	 */
@@ -39,64 +54,86 @@ final class ContactMessageRepository {
 	{
 		global $wpdb;
 
-		$status   = (string) ( $args['status'] ?? '' );
-		$per_page = max(1, min(100, (int) ( $args['per_page'] ?? 20 )));
-		$page     = max(1, (int) ( $args['page'] ?? 1 ));
+		$status_raw = (string) ( $args['status'] ?? '' );
+		$per_page   = max(1, min(100, (int) ( $args['per_page'] ?? 20 )));
+		$page       = max(1, (int) ( $args['page'] ?? 1 ));
 
-		$where  = array( 'p.post_type = %s', 'p.post_status = %s' );
-		$params = array( self::TYPE, 'trash' === $status ? 'trash' : 'private' );
-
-		if (in_array($status, ContactStatus::ALL, true)) {
-			$where[]  = self::STATUS_SQL . ' = %s';
-			$params[] = $status;
-		}
+		$post_status = 'trash' === $status_raw ? 'trash' : 'private';
+		// Only new|read|replied ever filter rows; anything else (including
+		// 'trash', already consumed above) means "no status filter", same as
+		// the pre-rewrite `in_array($status, ContactStatus::ALL, true)` gate.
+		$status = in_array($status_raw, ContactStatus::ALL, true) ? $status_raw : '';
 
 		$type = (string) ( $args['type'] ?? '' );
-		if ('general' === $type) {
-			// row() labels a missing/unrecognised type meta "General Contact" too, so
-			// the `general` filter has to match both, not just an explicit 'general'.
-			$known   = array_values(array_diff(ContactMessagePostType::TYPES, array( 'general' )));
-			$in_sql  = implode(',', array_fill(0, count($known), '%s'));
-			$where[] = "(ty.meta_value IS NULL OR ty.meta_value NOT IN ({$in_sql}))";
-			$params  = array_merge($params, $known);
-		} elseif ('' !== $type) {
-			$where[]  = 'ty.meta_value = %s';
-			$params[] = $type;
-		}
 
 		list($from, $to) = self::period_bounds( (string) ( $args['period'] ?? '' ));
-		if (null !== $from) {
-			$where[]  = 'p.post_date >= %s';
-			$params[] = $from;
-		}
-		if (null !== $to) {
-			$where[]  = 'p.post_date < %s';
-			$params[] = $to;
-		}
+		$from            = $from ?? '';
+		$to              = $to ?? '';
 
 		$search = trim( (string) ( $args['search'] ?? '' ));
-		if ('' !== $search) {
-			$like     = '%' . $wpdb->esc_like($search) . '%';
-			$where[]  = '(nm.meta_value LIKE %s OR em.meta_value LIKE %s OR p.post_content LIKE %s OR LOWER(em.meta_value) = %s)';
-			$params[] = $like;
-			$params[] = $like;
-			$params[] = $like;
-			$params[] = strtolower($search);
-		}
+		$like   = '%' . $wpdb->esc_like($search) . '%';
 
-		$joins     = "LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
+		// Fixed order, one entry per %s/%d in both queries below. A filter
+		// that isn't active still contributes its slot(s) -- always '' for
+		// its own self-neutralising check(s).
+		$params = array(
+			self::TYPE,
+			$post_status,
+			$status,
+			$status,
+			$type,
+			$type,
+			$type,
+			$type,
+			$from,
+			$from,
+			$to,
+			$to,
+			$search,
+			$like,
+			$like,
+			$like,
+			strtolower($search),
+		);
+
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the sniff counts $params as one replacement because it's a variable, not a literal array() expression; it holds exactly 17, one per %s above, in the fixed order documented on this method's docblock.
+		$total = (int) $wpdb->get_var($wpdb->prepare(
+			"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
+			LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
 			LEFT JOIN {$wpdb->postmeta} ty ON ty.post_id = p.ID AND ty.meta_key = '_mhmrentiva_contact_type'
 			LEFT JOIN {$wpdb->postmeta} nm ON nm.post_id = p.ID AND nm.meta_key = '_mhmrentiva_contact_name'
-			LEFT JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_contact_email'";
-		$where_sql = implode(' AND ', $where);
+			LEFT JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_contact_email'
+			WHERE p.post_type = %s
+			AND p.post_status = %s
+			AND (%s = '' OR CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END = %s)
+			AND (%s = '' OR (%s = 'general' AND (ty.meta_value IS NULL OR ty.meta_value NOT IN ('booking','support','feedback'))) OR (%s <> 'general' AND ty.meta_value = %s))
+			AND (%s = '' OR p.post_date >= %s)
+			AND (%s = '' OR p.post_date < %s)
+			AND (%s = '' OR nm.meta_value LIKE %s OR em.meta_value LIKE %s OR p.post_content LIKE %s OR LOWER(em.meta_value) = %s)",
+			$params
+		));
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $joins/$where_sql are built from literals above, values are placeholders; the sniff cannot statically count the %s/%d it assembles, but $params (bound below via prepare()) matches it exactly.
-		$total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p {$joins} WHERE {$where_sql}", $params));
-
-		$params[] = $per_page;
-		$params[] = ( $page - 1 ) * $per_page;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- as above; $params carries every bound value including the LIMIT/OFFSET pair appended just above.
-		$ids = $wpdb->get_col($wpdb->prepare("SELECT DISTINCT p.ID FROM {$wpdb->posts} p {$joins} WHERE {$where_sql} ORDER BY p.post_date DESC, p.ID DESC LIMIT %d OFFSET %d", $params));
+		$page_params   = $params;
+		$page_params[] = $per_page;
+		$page_params[] = ( $page - 1 ) * $per_page;
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- as above; $page_params is $params (17) plus the LIMIT/OFFSET pair appended just above (19 total), one per %s/%d.
+		$ids = $wpdb->get_col($wpdb->prepare(
+			"SELECT DISTINCT p.ID FROM {$wpdb->posts} p
+			LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = '_mhmrentiva_contact_status'
+			LEFT JOIN {$wpdb->postmeta} ty ON ty.post_id = p.ID AND ty.meta_key = '_mhmrentiva_contact_type'
+			LEFT JOIN {$wpdb->postmeta} nm ON nm.post_id = p.ID AND nm.meta_key = '_mhmrentiva_contact_name'
+			LEFT JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_contact_email'
+			WHERE p.post_type = %s
+			AND p.post_status = %s
+			AND (%s = '' OR CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END = %s)
+			AND (%s = '' OR (%s = 'general' AND (ty.meta_value IS NULL OR ty.meta_value NOT IN ('booking','support','feedback'))) OR (%s <> 'general' AND ty.meta_value = %s))
+			AND (%s = '' OR p.post_date >= %s)
+			AND (%s = '' OR p.post_date < %s)
+			AND (%s = '' OR nm.meta_value LIKE %s OR em.meta_value LIKE %s OR p.post_content LIKE %s OR LOWER(em.meta_value) = %s)
+			ORDER BY p.post_date DESC, p.ID DESC
+			LIMIT %d OFFSET %d",
+			$page_params
+		));
 
 		$ids = array_map('intval', $ids);
 		if (array() !== $ids) {
