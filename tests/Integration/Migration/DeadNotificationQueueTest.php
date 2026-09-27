@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -30,6 +31,8 @@ use WP_UnitTestCase;
  */
 final class DeadNotificationQueueTest extends WP_UnitTestCase
 {
+	use ForgetsMigrationLock;
+
 	private const HOOK        = 'mhmrentiva_send_scheduled_notifications';
 	private const LEGACY_HOOK = 'mhmrentiva_send_scheduled_notifications';
 
@@ -40,12 +43,19 @@ final class DeadNotificationQueueTest extends WP_UnitTestCase
 		return $wpdb->prefix . 'mhmrentiva_notification_queue';
 	}
 
+	public function setUp(): void
+	{
+		parent::setUp();
+		self::forget_migration_lock();
+	}
+
 	public function tearDown(): void
 	{
 		delete_option( 'mhmrentiva_db_version' );
 		wp_clear_scheduled_hook( self::HOOK );
 		wp_clear_scheduled_hook( self::LEGACY_HOOK );
 		parent::tearDown();
+		self::forget_migration_lock();
 	}
 
 	public function test_the_migration_unschedules_both_cron_names(): void

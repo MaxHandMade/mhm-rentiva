@@ -468,6 +468,11 @@ final class Plugin {
 			add_action('rest_api_init', [ '\\MHMRentiva\\Admin\\Customers\\REST\\CustomersRestController', 'register_routes' ]);
 		}
 
+		// Contact Messages REST — context-agnostic for the same reason as Customers above.
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\ContactMessages\\REST\\ContactMessagesRestController')) {
+			add_action('rest_api_init', [ '\\MHMRentiva\\Admin\\ContactMessages\\REST\\ContactMessagesRestController', 'register_routes' ]);
+		}
+
 		// ShortcodePages REST endpoints — must be context-agnostic (same reason as
 		// Customers above: rest_api_init fires on REST requests where is_admin() is
 		// false, so initialize_admin_services() is skipped entirely).
@@ -598,18 +603,28 @@ final class Plugin {
 	{
 		$is_admin = is_admin();
 
-		// Database migration. LOAD-BEARING: this is the only unconditional
-		// retry path for a version-gated migration that failed to finish --
-		// mhm-rentiva.php's own plugins_loaded lane stamps
+		// Database migration. LOAD-BEARING: this admin_init registration is the
+		// only unconditional retry path for a version-gated migration that
+		// failed to finish -- mhm-rentiva.php's own plugins_loaded lane stamps
 		// mhmrentiva_plugin_version after calling run_migrations() exactly
 		// once per code-version change, regardless of whether the migration
 		// itself finished, so it never calls run_migrations() again on its
 		// own. As long as `mhmrentiva_db_version` has not reached
-		// DatabaseMigrator::CURRENT_VERSION, THIS hook is what gives the
-		// migration another attempt on the next request. Do not gate it or
-		// remove it without keeping some other unconditional retry path --
-		// see DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS for why that retry
-		// is itself bounded rather than infinite.
+		// DatabaseMigrator::CURRENT_VERSION, an admin page load keeps giving
+		// the migration another attempt on the next request. Do not add a
+		// request-narrowing gate HERE, or remove this registration, without
+		// keeping some other unconditional retry path -- see
+		// DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS for why that retry is
+		// itself bounded rather than infinite.
+		// The request-context gate that DOES exist lives one level down, inside
+		// DatabaseMigrator::run_migrations_from_hook() itself: admin page loads
+		// still retry on every request exactly as before, while an
+		// unauthenticated admin-ajax.php or admin-post.php request -- which
+		// also fires this same admin_init hook -- now returns without
+		// migrating. Registering the hook unconditionally here and narrowing
+		// inside the callback is deliberate: it keeps this one call site as the
+		// single unconditional retry path while still closing the anonymous
+		// trigger.
 		// Use the action-specific void adapter: run_migrations() returns whether
 		// the schema is complete, while WordPress action callbacks return nothing.
 		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations_from_hook' ), 10, 0);

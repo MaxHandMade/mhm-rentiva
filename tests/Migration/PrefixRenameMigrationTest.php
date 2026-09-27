@@ -7,6 +7,7 @@ namespace MHMRentiva\Tests\Migration;
 use MHMRentiva\Admin\Core\Utilities\DatabaseCleaner;
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
 use MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -36,6 +37,8 @@ use WP_UnitTestCase;
  */
 final class PrefixRenameMigrationTest extends WP_UnitTestCase
 {
+    use ForgetsMigrationLock;
+
     private const DB_VERSION        = 'mhmrentiva_db_version';
     private const LEGACY_DB_VERSION = 'mhm_rentiva_db_version';
     private const LIFECYCLE_FLAG    = 'mhmrentiva_lifecycle_migration_done';
@@ -83,11 +86,19 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
      * being NO custom-field definitions -- it stopped aborting and started
      * deleting, and the failure surfaced two test classes away from its cause.
      */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        self::forget_migration_lock();
+    }
+
     protected function tearDown(): void
     {
         global $wpdb;
 
         parent::tearDown();
+
+        self::forget_migration_lock();
 
         foreach ($this->temp_tables as $table) {
             $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));

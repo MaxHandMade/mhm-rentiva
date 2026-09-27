@@ -34,6 +34,12 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.4.0 (2026-09-27): migrate_contact_status_440() marks every contact
+	 * message stored before the upgrade as read. It carries its own done flag
+	 * because this migrator replays its whole body on every later stamp
+	 * bump -- without the flag, messages an admin marked unread would flip
+	 * back to read on the next upgrade.
+	 *
 	 * 4.3.0 (2026-08-03): Retires the core-table index surface -- see the
 	 * class docblock. RetiredIndexes::drop() replaces
 	 * add_performance_indexes()/add_missing_indexes(); without this bump the
@@ -48,7 +54,59 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.3.0';
+	private const CURRENT_VERSION = '4.4.0';
+
+	/**
+	 * Whether migrate_contact_status_440() has already run once.
+	 *
+	 * @see migrate_contact_status_440()
+	 */
+	public const CONTACT_STATUS_DONE_OPTION = 'mhmrentiva_contact_status_migrated';
+
+	/**
+	 * The cutoff timestamp (local time, same clock as post_date) below which
+	 * migrate_contact_status_440() moves `new` rows to `read`. Recorded the
+	 * first time the step runs so a later replay of run_migrations() (see the
+	 * class docblock) always compares against the ORIGINAL upgrade moment,
+	 * not whatever "now" happens to be on that later request.
+	 *
+	 * @see migrate_contact_status_440()
+	 */
+	public const CONTACT_STATUS_CUTOFF_OPTION = 'mhmrentiva_contact_status_migrated_at';
+
+	/**
+	 * Mutex for run_migrations(). Same shape and semantics as the add-on's
+	 * ProDatabaseMigrator::LOCK_OPTION: a row inserted with INSERT IGNORE, so
+	 * two concurrent requests cannot both think they own it.
+	 */
+	public const LOCK_OPTION = 'mhmrentiva_migration.lock';
+
+	/** A lock older than this is a run that died; the next caller takes it over. */
+	public const LOCK_TIMEOUT = 900;
+
+	/**
+	 * Whether a migration lane may run in this request context.
+	 *
+	 * An admin page load, cron or WP-CLI -- never admin-ajax.php or
+	 * admin-post.php, both reachable anonymously. AJAX sets WP_ADMIN (so
+	 * is_admin() is true) and fires admin_init even for nopriv actions, which is
+	 * how an anonymous contact-form submission used to pay for, and race, the
+	 * whole migration. admin-post.php has the identical shape: it also defines
+	 * WP_ADMIN and fires admin_init before WordPress has authenticated the
+	 * request, then serves `admin_post_nopriv_*` actions to a logged-out
+	 * visitor -- so `is_admin()` is true and `wp_doing_ajax()` is false there
+	 * too, and without $is_admin_post this gate would wave it through. Pure so
+	 * it can be tested without faking the request. Mirrors
+	 * mhmrentiva_pro_lane_context_allows().
+	 */
+	public static function context_allows(bool $is_admin, bool $is_ajax, bool $is_cron, bool $is_cli, bool $is_admin_post = false): bool
+	{
+		if ($is_cron || $is_cli) {
+			return true;
+		}
+
+		return $is_admin && ! $is_ajax && ! $is_admin_post;
+	}
 
 	/**
 	 * How many admin_init requests in a row the core-table index cleanup may
@@ -121,6 +179,13 @@ final class DatabaseMigrator {
 	 * its own table and a run with nothing to discard creates none at all.
 	 */
 	private static ?string $merge_loser_table = null;
+
+	/**
+	 * Set only when the most recent run_migrations() call returned false
+	 * because LOCK_OPTION was held by another request -- never for any other
+	 * failure. See last_run_was_lock_busy().
+	 */
+	private static bool $last_run_was_lock_busy = false;
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -241,6 +306,8 @@ final class DatabaseMigrator {
 	 */
 	public static function run_migrations(?array $index_cleanup_expected = null, ?callable $index_cleanup_runner = null, ?callable $multi_tenant_runner = null): bool
 	{
+		self::$last_run_was_lock_busy = false;
+
 		if (! self::pro_satisfies(self::installed_pro_version())) {
 			add_action('admin_notices', array( self::class, 'render_pro_lockstep_notice' ));
 
@@ -248,6 +315,58 @@ final class DatabaseMigrator {
 		}
 
 		self::adopt_legacy_db_version();
+
+		// Fast path, before the lock: admin_init calls this on every admin
+		// request, and an up-to-date install must not pay an INSERT, a DELETE
+		// and an alloptions flush for it. Same placement as the add-on's
+		// ProDatabaseMigrator::run_migrations().
+		if (! version_compare(self::stored_db_version(), self::CURRENT_VERSION, '<')) {
+			return true;
+		}
+
+		if (! self::acquire_lock()) {
+			self::$last_run_was_lock_busy = true;
+
+			return false;
+		}
+
+		try {
+			return self::run_migrations_locked($index_cleanup_expected, $index_cleanup_runner, $multi_tenant_runner);
+		} finally {
+			self::release_lock();
+		}
+	}
+
+	/**
+	 * Whether the last run_migrations() call declined only because another
+	 * request held LOCK_OPTION -- never because the migration itself failed.
+	 *
+	 * Backs mhmrentiva_single_site_activation(): a held lock (e.g. the previous
+	 * request died on a fatal mid-migration, and the lock is still fresh for up
+	 * to LOCK_TIMEOUT seconds) must not be reported as an activation failure --
+	 * the lock holder is doing the work, and the plugin has every reason to
+	 * believe it will finish. Reset to false at the top of every
+	 * run_migrations() call, so a stale true from an earlier call can never
+	 * leak into a later, unrelated one.
+	 */
+	public static function last_run_was_lock_busy(): bool
+	{
+		return self::$last_run_was_lock_busy;
+	}
+
+	/**
+	 * The migration body, entered only while holding LOCK_OPTION.
+	 *
+	 * @param array<string, array<string, list<array{seq:int, col:string, sub:?int, non_unique:int, type:string}>>>|null $index_cleanup_expected
+	 * @param callable(string,string):bool|null $index_cleanup_runner
+	 * @param callable():bool|null $multi_tenant_runner
+	 */
+	private static function run_migrations_locked(?array $index_cleanup_expected, ?callable $index_cleanup_runner, ?callable $multi_tenant_runner): bool
+	{
+		// Another request may have finished the migration while we waited for
+		// the lock; read the stamp fresh rather than from this request's cache.
+		wp_cache_delete('alloptions', 'options');
+		wp_cache_delete('mhmrentiva_db_version', 'options');
 
 		$current_version = self::stored_db_version();
 
@@ -342,6 +461,7 @@ final class DatabaseMigrator {
 			self::cleanup_orphan_data();
 			self::migrate_standalone_settings();
 			self::migrate_vehicle_lifecycle_status();
+			self::migrate_contact_status_440();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -455,9 +575,16 @@ final class DatabaseMigrator {
 	 * WordPress action adapter for the retry lane.
 	 *
 	 * The migration result remains available to activation and tests, while the
-	 * action contract intentionally discards it.
+	 * action contract intentionally discards it. Gated by context_allows(): this
+	 * is the admin_init retry (Plugin.php), a hook that also fires for an
+	 * unauthenticated admin-ajax.php or admin-post.php request, neither of
+	 * which must ever trigger a migration.
 	 */
 	public static function run_migrations_from_hook(): void {
+		if (! self::context_allows(is_admin(), wp_doing_ajax(), wp_doing_cron(), defined('WP_CLI') && WP_CLI, 'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' ))) {
+			return;
+		}
+
 		self::run_migrations();
 	}
 
@@ -1120,6 +1247,91 @@ final class DatabaseMigrator {
 		}
 
 		update_option('mhmrentiva_lifecycle_migration_done', '1', false);
+	}
+
+	/**
+	 * 4.4.0: contact messages stored before this upgrade become `read`.
+	 *
+	 * Until 4.4.0 no screen read the status the form wrote, so every stored
+	 * row still says `new`; showing them all as new messages the day the new
+	 * screen appears would be noise, not information. Only rows dated before
+	 * the cutoff move, and only once (own done flag): the migrator replays its
+	 * body on every later stamp bump, and "mark unread" must survive that.
+	 */
+	private static function migrate_contact_status_440(): void
+	{
+		if ('1' === get_option(self::CONTACT_STATUS_DONE_OPTION)) {
+			return;
+		}
+
+		global $wpdb;
+
+		$cutoff = (string) get_option(self::CONTACT_STATUS_CUTOFF_OPTION, '');
+		if ('' === $cutoff) {
+			// Local time, the same clock as post_date.
+			$cutoff = current_time('mysql');
+			add_option(self::CONTACT_STATUS_CUTOFF_OPTION, $cutoff, '', false);
+		}
+
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s
+				 WHERE p.post_type = %s AND p.post_date < %s AND pm.meta_value = %s",
+				\MHMRentiva\Admin\ContactMessages\ContactStatus::META_KEY,
+				'mhmrentiva_contact',
+				$cutoff,
+				\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_NEW
+			)
+		);
+
+		if (array() !== $ids) {
+			$updated = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} pm
+					 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+					 SET pm.meta_value = %s
+					 WHERE pm.meta_key = %s AND p.post_type = %s AND p.post_date < %s AND pm.meta_value = %s",
+					\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_READ,
+					\MHMRentiva\Admin\ContactMessages\ContactStatus::META_KEY,
+					'mhmrentiva_contact',
+					$cutoff,
+					\MHMRentiva\Admin\ContactMessages\ContactStatus::STATUS_NEW
+				)
+			);
+			if (false === $updated) {
+				// The backfill did not land. This does NOT retry on the next
+				// request: run_migrations() gates this whole locked block on
+				// stored_db_version() < CURRENT_VERSION, and the steps after this
+				// one still stamp mhmrentiva_db_version to CURRENT_VERSION
+				// regardless of this step's own outcome (see
+				// run_migrations_locked()). Leaving CONTACT_STATUS_DONE_OPTION
+				// unset means the step is retried on the NEXT migration run --
+				// the next CURRENT_VERSION bump -- not on the next
+				// admin_init/plugins_loaded pass; that is deliberately bounded
+				// rather than an unbounded per-request retry of a failing UPDATE.
+				// Log once so a stranded backfill is visible before that day
+				// comes, instead of only being discoverable by noticing the
+				// records are still "new".
+				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+						'Contact message status backfill (4.4.0) failed: the UPDATE did not run; affected records remain "new" until the next migration run',
+						array(
+							'cutoff'   => $cutoff,
+							'affected' => count($ids),
+						),
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+					);
+				}
+				return;
+			}
+			foreach ($ids as $id) {
+				wp_cache_delete( (int) $id, 'post_meta');
+			}
+		}
+
+		\MHMRentiva\Admin\ContactMessages\ContactStatus::forget_badge();
+		update_option(self::CONTACT_STATUS_DONE_OPTION, '1', false);
 	}
 
 	/**
@@ -3028,5 +3240,55 @@ final class DatabaseMigrator {
 		}
 
 		return $changed;
+	}
+
+	/**
+	 * Take LOCK_OPTION. INSERT IGNORE is atomic; an expired lock is taken over
+	 * with a conditional UPDATE so exactly one racer wins. Same primitives as
+	 * the add-on's ProDatabaseMigrator::acquire_lock().
+	 */
+	private static function acquire_lock(): bool
+	{
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A mutex: add_option() is not atomic across requests (it reads before it writes); INSERT IGNORE is.
+		$taken = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT IGNORE INTO {$wpdb->options} ( option_name, option_value, autoload ) VALUES ( %s, %s, 'off' )",
+				self::LOCK_OPTION,
+				(string) time()
+			)
+		);
+		wp_cache_delete('notoptions', 'options');
+		wp_cache_delete('alloptions', 'options');
+
+		if ($taken) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reading the mutex row itself; a cached value is exactly what must not be trusted here.
+		$held = $wpdb->get_var(
+			$wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", self::LOCK_OPTION)
+		);
+		if (null === $held || (int) $held > ( time() - self::LOCK_TIMEOUT )) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Conditional takeover of an expired mutex; the loser's UPDATE matches no row.
+		$stolen = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s",
+				(string) time(),
+				self::LOCK_OPTION,
+				(string) $held
+			)
+		);
+
+		return (bool) $stolen;
+	}
+
+	private static function release_lock(): void
+	{
+		delete_option(self::LOCK_OPTION);
 	}
 }

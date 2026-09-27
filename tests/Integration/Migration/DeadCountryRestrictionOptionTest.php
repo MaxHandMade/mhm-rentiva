@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -24,6 +25,8 @@ use WP_UnitTestCase;
  */
 final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
 {
+    use ForgetsMigrationLock;
+
     private const DEAD_OPTION = 'mhmrentiva_country_restriction_enabled';
 
     /** @var string|false */
@@ -33,6 +36,7 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
     {
         parent::setUp();
         $this->previous_version = get_option('mhmrentiva_db_version');
+        self::forget_migration_lock();
     }
 
     protected function tearDown(): void
@@ -45,6 +49,7 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
         delete_option(self::DEAD_OPTION);
         delete_option('mhmrentiva_allowed_countries');
         parent::tearDown();
+        self::forget_migration_lock();
     }
 
     /**

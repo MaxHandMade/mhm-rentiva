@@ -254,10 +254,18 @@ foreach ( $it as $file ) {
 	}
 
 	// Methods this file wires to a hook that only ever fires inside wp-admin.
-	// A file can sit under Frontend/ and still contribute an admin screen:
-	// ContactMessagePostType registers add_details_box() on
-	// add_meta_boxes_<type>, and that method calls add_meta_box(), which is
-	// admin-only and correct. Without this the gate reported it as a defect.
+	// A file can sit under Frontend/ (one of this gate's "admin-free" path
+	// signals, see the class docblock) and still legitimately contribute an
+	// admin screen or admin-only callback -- for example a method hooked to
+	// `add_meta_boxes_*` or `load-*`, both of which only ever fire once
+	// wp-admin has loaded. Without this exemption the gate would misreport
+	// such wiring as a defect purely because of where the file lives.
+	//
+	// `save_post_*` is NOT such a hook, despite sitting in the list below --
+	// it fires from wp_insert_post() on any save, including a REST request or
+	// a front-end form handler, with wp-admin never loaded. An earlier version
+	// of this comment named it as an example of an admin-only hook, which was
+	// false and is exactly the kind of claim this gate exists to not need.
 	//
 	// The list is explicit, NOT `admin_[a-z_]+`. That pattern also matched
 	// admin_bar_menu, which fires on the FRONT END -- an audit mutation put an

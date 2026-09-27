@@ -4,11 +4,13 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 
 /**
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations
  */
 final class MultiTenantMigrationCircuitBreakerTest extends \WP_UnitTestCase {
+	use ForgetsMigrationLock;
 
 	private $original_db_version;
 
@@ -19,6 +21,7 @@ final class MultiTenantMigrationCircuitBreakerTest extends \WP_UnitTestCase {
 		delete_option( 'mhmrentiva_multi_tenant_migration_attempts' );
 		delete_option( 'mhmrentiva_multi_tenant_migration_blocked' );
 		update_option( 'mhmrentiva_db_version', '4.2.0' );
+		self::forget_migration_lock();
 	}
 
 	protected function tearDown(): void {
@@ -32,6 +35,7 @@ final class MultiTenantMigrationCircuitBreakerTest extends \WP_UnitTestCase {
 		}
 
 		parent::tearDown();
+		self::forget_migration_lock();
 	}
 
 	public function test_repeated_multi_tenant_failure_never_stamps_and_then_opens_a_circuit(): void {
@@ -57,7 +61,7 @@ final class MultiTenantMigrationCircuitBreakerTest extends \WP_UnitTestCase {
 		$blocked = get_option( 'mhmrentiva_multi_tenant_migration_blocked', array() );
 		$this->assertSame( 3, $calls );
 		$this->assertIsArray( $blocked );
-		$this->assertSame( '4.3.0', $blocked['version'] ?? '' );
+		$this->assertSame( '4.4.0', $blocked['version'] ?? '' );
 		$this->assertGreaterThan( time(), $blocked['retry_after'] ?? 0 );
 
 		$this->assertFalse(

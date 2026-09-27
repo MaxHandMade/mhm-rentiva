@@ -332,82 +332,92 @@ add_action(
  *    mhmrentiva.com. Each migration checks its own flag option and returns
  *    immediately once done, so the overhead on repeat admin loads is a
  *    single `get_option()` call per migration.
+ *
+ * Named rather than a closure so its request-context gate can be tested.
  */
-add_action(
-	'plugins_loaded',
-	function () {
-		if (! is_admin() && ! wp_doing_cron() && ! ( defined('WP_CLI') && WP_CLI )) {
-			// Only check on admin / cron / cli to avoid front-end overhead.
-			return;
-		}
+function mhmrentiva_run_version_drift_lane(): void
+{
+	// Admin page loads, cron and CLI only -- never admin-ajax.php or
+	// admin-post.php, both reachable anonymously (the contact form posts to
+	// admin-ajax.php as nopriv). Same gate as the admin_init retry lane.
+	$lane_allowed = class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')
+		&& \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::context_allows(
+			is_admin(),
+			wp_doing_ajax(),
+			wp_doing_cron(),
+			defined('WP_CLI') && WP_CLI,
+			'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' )
+		);
+	if (! $lane_allowed) {
+		return;
+	}
 
-		// Lane A — schema drift.
-		//
-		// The stamp option was itself renamed in 6.0.0, so on the upgrade that
-		// carries the rename the new name does not exist yet and the value is
-		// still under the old one. Reading only the new name would return '',
-		// which happens to differ from MHMRENTIVA_VERSION and so would still
-		// fire the migration -- but it would fire it again on the NEXT upgrade
-		// too, because the old row would sit there forever shadowing nothing.
-		// The legacy row is adopted once, here, at the line that reads it; that
-		// is Lane A's own gate, not one of Lane B's flag-guarded cleanups.
-		$stored_version = get_option( 'mhmrentiva_plugin_version', '' );
-		if ('' === $stored_version) {
-			// PrefixMigrationMap::BOOTSTRAP_FALLBACK_ALLOWLIST -- deliberately
-			// exempt from the rename sweep, because recognising a pre-6.0.0
-			// install is the whole job of this literal.
-			$legacy_version = get_option( 'mhm_rentiva_plugin_version', '' );
-			if ('' !== $legacy_version) {
-				add_option('mhmrentiva_plugin_version', $legacy_version, '', true);
-				delete_option('mhm_rentiva_plugin_version');
-				$stored_version = $legacy_version;
-			}
+	// Lane A — schema drift.
+	//
+	// The stamp option was itself renamed in 6.0.0, so on the upgrade that
+	// carries the rename the new name does not exist yet and the value is
+	// still under the old one. Reading only the new name would return '',
+	// which happens to differ from MHMRENTIVA_VERSION and so would still
+	// fire the migration -- but it would fire it again on the NEXT upgrade
+	// too, because the old row would sit there forever shadowing nothing.
+	// The legacy row is adopted once, here, at the line that reads it; that
+	// is Lane A's own gate, not one of Lane B's flag-guarded cleanups.
+	$stored_version = get_option( 'mhmrentiva_plugin_version', '' );
+	if ('' === $stored_version) {
+		// PrefixMigrationMap::BOOTSTRAP_FALLBACK_ALLOWLIST -- deliberately
+		// exempt from the rename sweep, because recognising a pre-6.0.0
+		// install is the whole job of this literal.
+		$legacy_version = get_option( 'mhm_rentiva_plugin_version', '' );
+		if ('' !== $legacy_version) {
+			add_option('mhmrentiva_plugin_version', $legacy_version, '', true);
+			delete_option('mhm_rentiva_plugin_version');
+			$stored_version = $legacy_version;
 		}
+	}
 
-		if ($stored_version !== MHMRENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
-			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
-			// This stamp tracks the PLUGIN CODE version, not migration
-			// completion -- it is written whether run_migrations() finished
-			// or returned early to retry a still-failing step later.
-			// mhmrentiva_db_version (written by run_migrations() itself,
-			// bounded by DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS) is the
-			// only source of truth for "did the schema migration finish",
-			// and Plugin.php's unconditional admin_init hook -- not this
-			// lane -- is what retries it. The two stamps are deliberately
-			// independent so that neither can shadow the other's retry.
-			update_option('mhmrentiva_plugin_version', MHMRENTIVA_VERSION);
-		}
+	if ($stored_version !== MHMRENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
+		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
+		// This stamp tracks the PLUGIN CODE version, not migration
+		// completion -- it is written whether run_migrations() finished
+		// or returned early to retry a still-failing step later.
+		// mhmrentiva_db_version (written by run_migrations() itself,
+		// bounded by DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS) is the
+		// only source of truth for "did the schema migration finish",
+		// and Plugin.php's unconditional admin_init hook -- not this
+		// lane -- is what retries it. The two stamps are deliberately
+		// independent so that neither can shadow the other's retry.
+		update_option('mhmrentiva_plugin_version', MHMRENTIVA_VERSION);
+	}
 
-		// Lane B — one-time data cleanups.
-		// Each migration is idempotent via its own flag option; calling them
-		// on every admin request after steady state is a cheap no-op.
-		//
-		// v4.27.1 — legacy installs persisted translated field labels into
-		// wp_options, where they outranked live __() calls after a locale
-		// switch. Flag: mhmrentiva_v4271_labels_migrated.
-		if (class_exists('MHMRentiva\\Admin\\Vehicle\\Meta\\VehicleMeta')) {
-			\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::migrate_remove_auto_populated_labels();
-		}
+	// Lane B — one-time data cleanups.
+	// Each migration is idempotent via its own flag option; calling them
+	// on every admin request after steady state is a cheap no-op.
+	//
+	// v4.27.1 — legacy installs persisted translated field labels into
+	// wp_options, where they outranked live __() calls after a locale
+	// switch. Flag: mhmrentiva_v4271_labels_migrated.
+	if (class_exists('MHMRentiva\\Admin\\Vehicle\\Meta\\VehicleMeta')) {
+		\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::migrate_remove_auto_populated_labels();
+	}
 
-		// v4.27.2 — Settings Testing "Run All Diagnostics" could leak
-		// '1' / '0' test payloads into free-text, email, URL and currency
-		// fields inside mhmrentiva_settings. Flag:
-		// mhmrentiva_v4272_test_pollution_cleaned.
-		if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
-			\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_clean_test_pollution();
-		}
+	// v4.27.2 — Settings Testing "Run All Diagnostics" could leak
+	// '1' / '0' test payloads into free-text, email, URL and currency
+	// fields inside mhmrentiva_settings. Flag:
+	// mhmrentiva_v4272_test_pollution_cleaned.
+	if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
+		\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_clean_test_pollution();
+	}
 
-		// v4.64.1 — second pass of the cleanup above. Installs where the
-		// v4.27.2 flag was already stamped "done" before the pollution
-		// actually happened (e.g. the ajax_save_dark_mode() clobber bug,
-		// fixed in the same release) never got re-cleaned. Flag:
-		// mhmrentiva_v4641_test_pollution_recleaned.
-		if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
-			\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_reclean_test_pollution();
-		}
-	},
-	20
-);
+	// v4.64.1 — second pass of the cleanup above. Installs where the
+	// v4.27.2 flag was already stamped "done" before the pollution
+	// actually happened (e.g. the ajax_save_dark_mode() clobber bug,
+	// fixed in the same release) never got re-cleaned. Flag:
+	// mhmrentiva_v4641_test_pollution_recleaned.
+	if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
+		\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_reclean_test_pollution();
+	}
+}
+add_action('plugins_loaded', 'mhmrentiva_run_version_drift_lane', 20); // same priority as the closure it replaced
 
 /**
  * Every site in the network that network-wide activation must reach.
@@ -482,8 +492,17 @@ function mhmrentiva_single_site_activation(?callable $migration_runner = null, ?
 		$migration_runner ??= array( \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' );
 		$table_creator    ??= array( \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class, 'create_table' );
 
-		// Run migrations to ensure all indexes and tables are up to date
-		$database_ready = (bool) $migration_runner();
+		// Run migrations to ensure all indexes and tables are up to date.
+		//
+		// A held LOCK_OPTION (another request is walking the lane right now --
+		// e.g. a previous request died on a fatal mid-migration, and the lock is
+		// still fresh for up to DatabaseMigrator::LOCK_TIMEOUT seconds) makes
+		// run_migrations() return false without the migration having failed at
+		// all. That must not fail activation: the lock holder is doing the
+		// work, and there is no database problem to report. Only a genuine
+		// failure -- run_migrations() returned false for any OTHER reason, or a
+		// critical table below did not get created -- still aborts.
+		$database_ready = (bool) $migration_runner() || \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::last_run_was_lock_busy();
 
 		// Force-create only the tables required by the Lite runtime. Add-on
 		// tables remain owned by their class-gated migrations.

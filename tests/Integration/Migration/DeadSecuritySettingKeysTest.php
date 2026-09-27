@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -34,6 +35,8 @@ use WP_UnitTestCase;
  */
 final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 {
+	use ForgetsMigrationLock;
+
 	private const SETTINGS_OPTION = 'mhmrentiva_settings';
 
 	/**
@@ -57,12 +60,19 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 		'mhmrentiva_rate_limit_payment_per_minute',
 	);
 
+	public function setUp(): void
+	{
+		parent::setUp();
+		self::forget_migration_lock();
+	}
+
 	public function tearDown(): void
 	{
 		delete_option( self::SETTINGS_OPTION );
 		delete_option( 'mhmrentiva_db_version' );
 		delete_option( 'mhmrentiva_api_keys' );
 		parent::tearDown();
+		self::forget_migration_lock();
 	}
 
 	/**

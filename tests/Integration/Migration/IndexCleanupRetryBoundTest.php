@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
 use MHMRentiva\Admin\Core\Utilities\RetiredIndexes;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -32,6 +33,8 @@ use WP_UnitTestCase;
  */
 final class IndexCleanupRetryBoundTest extends WP_UnitTestCase
 {
+    use ForgetsMigrationLock;
+
     private const DB_VERSION        = 'mhmrentiva_db_version';
     private const ATTEMPTS_OPTION   = 'mhmrentiva_index_cleanup_attempts';
     private const UNFINISHED_OPTION = 'mhmrentiva_index_cleanup_unfinished';
@@ -57,6 +60,7 @@ final class IndexCleanupRetryBoundTest extends WP_UnitTestCase
         $this->previous_db_version = get_option(self::DB_VERSION);
         delete_option(self::ATTEMPTS_OPTION);
         delete_option(self::UNFINISHED_OPTION);
+        self::forget_migration_lock();
     }
 
     protected function tearDown(): void
@@ -74,6 +78,7 @@ final class IndexCleanupRetryBoundTest extends WP_UnitTestCase
         delete_option('mhmrentiva_plugin_version');
 
         parent::tearDown();
+        self::forget_migration_lock();
     }
 
     /**

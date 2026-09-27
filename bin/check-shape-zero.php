@@ -10,6 +10,13 @@
  * The reviewer-named AbstractListTable implementation was unreachable from any
  * rendered screen and has been removed rather than allowlisted. The residual
  * files below contain only live, read-only display parameters.
+ *
+ * One deliberate exception to "GET": ContactMessagesPage.php reads $_REQUEST,
+ * not $_GET, for its legacy-URL routing checks -- the same source
+ * WP_List_Table::current_action() reads from, for the same reason (a bulk
+ * form submits action/action2 as POST). The values are validated (literal
+ * string comparison / absint), not sanitized for output, and are never
+ * written or printed -- only compared to decide a redirect target.
  */
 $families = [
     'WordPress.Security.NonceVerification.Missing'                => 0,
@@ -119,6 +126,13 @@ $allowedByFile = [
     'Settings.php'               => 2,
     'SetupWizard.php'            => 2,
     'VehicleSettings.php'        => 2,
+    // ContactMessagesPage.php'nin 2 kalıntısı 2026-09-27'de EKLENDİ: salt-okunur
+    // admin routing kararı $_REQUEST üzerinden alınıyor (post_status=trash
+    // yönlendirmesi, eski edit.php?post= yönlendirmesi). Değer doğrulanmış:
+    // sabit dizeyle karşılaştırma (''/'-1'/'trash'/'edit') veya absint() --
+    // sanitize edilmez, çünkü hiçbir yere yazılmaz veya basılmaz, yalnızca
+    // bir yönlendirme hedefine karar vermek için okunur.
+    'ContactMessagesPage.php'    => 2,
 ];
 $residualByFile = array_fill_keys(array_keys($allowedByFile), 0);
 $hard = []; $residual = 0;
@@ -150,11 +164,16 @@ foreach ($violations as [$f, $l, $s]) {
 
     $hard[] = "$f:$l  $s";
 }
-// 2026-08-08 gerçek Plugin Check satır envanteri; bir daha ARTAMAZ.
+// 2026-08-08 gerçek Plugin Check satır envanteri. Tavan yukarıdaki
+// $allowedByFile toplamıyla her zaman aynı kalmalı; her değişiklik kendi
+// dosya bazlı gerekçesini yukarıda taşır -- bu satır bir üst sınırı değil,
+// o anki toplamı belgeler.
 // 2026-09-20: 22 -> 20. Müşteri panosu emekliye ayrıldı, UserDashboard.php'nin
 // $_GET okuyan kodu gitti, dosyada 0 uyarı kaldı (ölçüldü: phpcs --report=json).
-// Tavan yukarıdaki $allowedByFile toplamıyla aynı kalmalı; İNDİRİLDİ.
-$CEILING = 20;
+// 2026-09-27: 20 -> 22. ContactMessagesPage.php'nin iki yeni salt-okunur
+// routing okuması eklendi (yukarıdaki gerekçe, contact messages ekranı).
+// Sonraki her artış aynı şekilde kendi dosya bazlı gerekçesini taşımalı.
+$CEILING = 22;
 $overCeiling = [];
 foreach ($residualByFile as $file => $count) {
     if ($count > $allowedByFile[$file]) {

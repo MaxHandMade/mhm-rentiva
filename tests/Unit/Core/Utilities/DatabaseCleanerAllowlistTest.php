@@ -74,6 +74,10 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			'plugin' => 'lite',
 			'why'    => 'LIKE prefix and concatenation base, not a meta key by itself: Util::has_overlap_locked() locks every postmeta row on the vehicle post via meta_key LIKE \'_mhmrentiva_%\' (FOR UPDATE); VehicleMeta/VehicleFeatureHelper/VehicleSettings/Plugin.php build the real keys as \'_mhmrentiva_\' . $key',
 		),
+		'_mhmrentiva_contact_' => array(
+			'plugin' => 'lite',
+			'why'    => 'concatenation base, not a meta key by itself: ContactMessagesRestController::row()/detail() build the real keys (already-allowlisted _mhmrentiva_contact_name/_email/_type/_status/etc.) as \'_mhmrentiva_contact_\' . $k',
+		),
 		'_mhmrentiva_deposit'  => array(
 			'plugin' => 'lite',
 			'why'    => 'a real, already-protected meta key (MetaKeys::VEHICLE_DEPOSIT, guarded directly in DatabaseCleaner\'s own list); excused here too so this drift gate does not hinge on which of two independent sightings scan_roots() happens to record first',

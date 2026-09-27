@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -24,6 +25,19 @@ use WP_UnitTestCase;
  */
 final class LiteSchemaSeamTest extends WP_UnitTestCase
 {
+    use ForgetsMigrationLock;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        self::forget_migration_lock();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        self::forget_migration_lock();
+    }
 
     /**
      * Guards the premise: these are the classes whose absence makes the schema dead.

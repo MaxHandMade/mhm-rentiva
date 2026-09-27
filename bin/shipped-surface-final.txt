@@ -160,6 +160,10 @@ build/admin/about-rtl.css
 build/admin/about.asset.php
 build/admin/about.css
 build/admin/about.js
+build/admin/contact-messages-rtl.css
+build/admin/contact-messages.asset.php
+build/admin/contact-messages.css
+build/admin/contact-messages.js
 build/admin/customers-rtl.css
 build/admin/customers.asset.php
 build/admin/customers.css
@@ -194,6 +198,7 @@ languages/mhm-rentiva-tr_TR-b0fb167deee320826702567309d9e6db.json
 languages/mhm-rentiva-tr_TR-b4ae635c1e2adff61cb7bdeb5cfa34ad.json
 languages/mhm-rentiva-tr_TR-cf70516f6ab87ebc2b515bea578d4294.json
 languages/mhm-rentiva-tr_TR-d5ebbd71ff57ae8c2db18ad0d37cf797.json
+languages/mhm-rentiva-tr_TR-ee3fe54256e18df4c301cdca51fdb9af.json
 languages/mhm-rentiva-tr_TR-f1ad99e74bfd743f1c3cca94e903ca72.json
 languages/mhm-rentiva-tr_TR.l10n.php
 languages/mhm-rentiva-tr_TR.mo
@@ -202,6 +207,7 @@ languages/mhm-rentiva.pot
 mhm-rentiva.php
 readme.txt
 src-react/admin/about/about.css
+src-react/admin/contact-messages/contact-messages.css
 src-react/admin/customers/customers.css
 src-react/admin/dashboard/dashboard.css
 src-react/admin/shortcode-pages/shortcode-pages.css
@@ -244,6 +250,10 @@ src/Admin/Booking/Meta/BookingRefundMetaBox.php
 src/Admin/Booking/Meta/ManualBookingMetaBox.php
 src/Admin/Booking/PostType/Booking.php
 src/Admin/CLI/RepairRatingsCommand.php
+src/Admin/ContactMessages/ContactMessageRepository.php
+src/Admin/ContactMessages/ContactMessagesPage.php
+src/Admin/ContactMessages/ContactStatus.php
+src/Admin/ContactMessages/REST/ContactMessagesRestController.php
 src/Admin/Core/AssetManager.php
 src/Admin/Core/Assets/DatepickerAssets.php
 src/Admin/Core/CurrencyHelper.php
