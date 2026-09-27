@@ -219,6 +219,20 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 	public function test_period_as_array_is_a_400_without_a_php_warning(): void
 	{
 		wp_set_current_user($this->admin);
-		$this->assertSame(400, $this->get('/contact-messages', array( 'period' => array( '2026-01' ) ))->get_status());
+
+		$caught = array();
+		set_error_handler(static function (int $errno, string $errstr) use (&$caught): bool {
+			$caught[] = $errstr;
+			return true;
+		}, E_WARNING | E_NOTICE);
+
+		try {
+			$status = $this->get('/contact-messages', array( 'period' => array( '2026-01' ) ))->get_status();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertSame(400, $status);
+		$this->assertSame(array(), $caught, 'an array period must not trigger a PHP warning/notice');
 	}
 }

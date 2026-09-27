@@ -69,6 +69,26 @@ final class ContactMessagesWriteRestTest extends WP_UnitTestCase
 		$this->assertSame(401, $this->send('DELETE', "/contact-messages/$id")->get_status());
 	}
 
+	public function test_editor_writes_are_403(): void
+	{
+		$id = $this->contact();
+		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'editor' )));
+		$this->assertSame(403, $this->send('POST', "/contact-messages/$id/read")->get_status());
+	}
+
+	public function test_bulk_read_does_not_downgrade_replied_but_promotes_new(): void
+	{
+		$replied = $this->contact('replied');
+		$new     = $this->contact('new');
+
+		$res = $this->send('POST', '/contact-messages/bulk', array( 'ids' => array( $replied, $new ), 'action' => 'read' ))->get_data()['results'];
+
+		$this->assertTrue($res[0]['ok']);
+		$this->assertSame('replied', ContactStatus::get($replied), 'bulk read must not downgrade an already-replied message');
+		$this->assertTrue($res[1]['ok']);
+		$this->assertSame('read', ContactStatus::get($new));
+	}
+
 	public function test_trash_then_restore_returns_to_private(): void
 	{
 		$id = $this->contact();
@@ -79,6 +99,14 @@ final class ContactMessagesWriteRestTest extends WP_UnitTestCase
 		$r = $this->send('POST', '/contact-messages/bulk', array( 'ids' => array( $id ), 'action' => 'restore' ));
 		$this->assertTrue($r->get_data()['results'][0]['ok']);
 		$this->assertSame('private', get_post_status($id));
+		$this->assertFalse(has_filter('wp_untrash_post_status', 'wp_untrash_post_set_previous_status'), 'the filter is scoped to the restore call only');
+	}
+
+	public function test_untrash_refuses_a_trashed_post_of_another_type(): void
+	{
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		wp_trash_post($booking);
+		$this->assertFalse(ContactMessagesRestController::untrash($booking));
 	}
 
 	public function test_force_delete_only_from_trash(): void
@@ -93,7 +121,12 @@ final class ContactMessagesWriteRestTest extends WP_UnitTestCase
 
 	public function test_bulk_limits_and_mixed_results(): void
 	{
-		$this->assertSame(400, $this->send('POST', '/contact-messages/bulk', array( 'ids' => range(1, 101), 'action' => 'read' ))->get_status());
+		$seeded = $this->contact('new');
+		$ids    = range(1, 101);
+		$ids[0] = $seeded;
+		$this->assertSame(400, $this->send('POST', '/contact-messages/bulk', array( 'ids' => $ids, 'action' => 'read' ))->get_status());
+		$this->assertSame('new', ContactStatus::get($seeded), 'a request rejected for exceeding the limit must not touch any of its ids');
+		$this->assertSame('private', get_post_status($seeded));
 
 		$ok      = $this->contact('new');
 		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));

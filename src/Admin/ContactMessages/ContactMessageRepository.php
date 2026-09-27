@@ -24,10 +24,12 @@ final class ContactMessageRepository {
 	 * SQL for the normalised status of alias `st` (ContactStatus::normalize in SQL).
 	 * `postmeta.meta_value` collates case-insensitive and PAD SPACE, so a plain
 	 * `IN ('new','replied')` would match `'New'`/`'replied '` too and hand the raw
-	 * (unnormalised) value back. BINARY forces byte comparison so only the exact
-	 * literals match, mirroring ContactStatus::normalize()'s strict in_array().
+	 * (unnormalised) value back. `CAST(... AS BINARY)` forces byte comparison so only
+	 * the exact literals match, mirroring ContactStatus::normalize()'s strict
+	 * in_array() -- the bare `BINARY` operator does the same thing but is deprecated
+	 * as of MySQL 8.0.27 (warning 1287).
 	 */
-	private const STATUS_SQL = "CASE WHEN BINARY st.meta_value = 'new' THEN 'new' WHEN BINARY st.meta_value = 'replied' THEN 'replied' ELSE 'read' END";
+	private const STATUS_SQL = "CASE WHEN CAST(st.meta_value AS BINARY) = 'new' THEN 'new' WHEN CAST(st.meta_value AS BINARY) = 'replied' THEN 'replied' ELSE 'read' END";
 
 	/**
 	 * @param array{status?:string,type?:string,period?:string,search?:string,page?:int,per_page?:int} $args

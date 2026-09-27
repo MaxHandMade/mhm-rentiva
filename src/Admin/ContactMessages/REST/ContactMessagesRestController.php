@@ -194,6 +194,13 @@ final class ContactMessagesRestController {
 
 			switch ($action) {
 				case 'read':
+					// Same rule as mark_read(): reading a message never downgrades an
+					// already-replied one back to unread.
+					if (ContactStatus::STATUS_NEW === ContactStatus::get($id)) {
+						ContactStatus::set($id, ContactStatus::STATUS_READ);
+					}
+					$ok = true;
+					break;
 				case 'replied':
 					$ok = ContactStatus::set($id, $action);
 					break;
@@ -246,6 +253,17 @@ final class ContactMessagesRestController {
 		$trashed = false !== wp_trash_post($post->ID);
 		ContactStatus::forget_badge();
 
+		// A site with EMPTY_TRASH_DAYS = 0 makes wp_trash_post() delete permanently
+		// instead of changing status, so "trashed" success does not mean the record
+		// still exists -- check for real before reporting which one happened.
+		if ($trashed && null === get_post($post->ID)) {
+			return new \WP_REST_Response(array(
+				'id'      => $post->ID,
+				'trashed' => false,
+				'deleted' => true,
+			));
+		}
+
 		return new \WP_REST_Response(array(
 			'id'      => $post->ID,
 			'trashed' => $trashed,
@@ -259,6 +277,9 @@ final class ContactMessagesRestController {
 	 */
 	public static function untrash(int $id): bool
 	{
+		if (ContactMessagePostType::TYPE !== get_post_type($id)) {
+			return false;
+		}
 		if ('trash' !== get_post_status($id)) {
 			return false;
 		}
