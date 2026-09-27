@@ -212,7 +212,10 @@ describe( 'contact message detail', () => {
 		fireEvent.click( link );
 		const prompt = await screen.findByRole( 'status' );
 		fireEvent.click( within( prompt ).getByRole( 'button', { name: 'Mark as replied' } ) );
-		await waitFor( () => expect( screen.queryByRole( 'status' ) ).toBeNull() );
+		// The status region is always present (a stable live region for screen
+		// readers -- fix round 1, finding 5), so its own absence is no longer
+		// the signal; the prompt's text disappearing is.
+		await waitFor( () => expect( screen.queryByText( /Your e-mail app opened a reply draft/ ) ).toBeNull() );
 		expect( contactApi.setStatus ).toHaveBeenCalledWith( 1, 'replied' );
 	} );
 
@@ -222,5 +225,39 @@ describe( 'contact message detail', () => {
 		expect( contactApi.technical ).not.toHaveBeenCalled();
 		fireEvent.click( screen.getByRole( 'button', { name: 'Show' } ) );
 		expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
+	} );
+
+	test( 'a failed trash keeps the message on screen and shows an error, without navigating back', async () => {
+		contactApi.trash = jest.fn().mockRejectedValue( new Error( 'network' ) );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Move to trash' } ) );
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, move to trash' } ) );
+		expect( await screen.findByText( 'The message could not be moved to the trash.' ) ).toBeTruthy();
+		expect( onBack ).not.toHaveBeenCalled();
+	} );
+
+	test( 'a failed technical fetch shows an inline error inside the widget and leaves the button usable', async () => {
+		contactApi.technical = jest.fn().mockRejectedValue( new Error( 'network' ) );
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Show' } ) );
+		expect( await screen.findByText( 'The technical record could not be loaded.' ) ).toBeTruthy();
+		expect( screen.getByRole( 'button', { name: 'Hide' } ).disabled ).toBe( false );
+	} );
+
+	test( 'an attachment without a download URL shows "File not available" and no link', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { attachment: { name: 'photo.jpg', download_url: null } } ) );
+		const { container } = render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		expect( screen.getByText( 'File not available' ) ).toBeTruthy();
+		expect( container.querySelector( '.mhm-contact-messages__attachment a' ) ).toBeNull();
+	} );
+
+	test( 'no fields and no vehicle shows the "no further details" placeholder', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { fields: [], vehicle: null } ) );
+		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		expect( await screen.findByText( 'No further details were filled in.' ) ).toBeTruthy();
 	} );
 } );

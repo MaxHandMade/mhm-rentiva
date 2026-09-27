@@ -36,7 +36,10 @@ export default function ContactMessagesApp() {
 	};
 
 	if ( route.id ) {
-		return <ContactMessageDetail id={ route.id } onBack={ () => go( { status: route.status, id: null } ) } />;
+		// key: switching ids must remount, not update in place -- otherwise the
+		// previous message's msg/mailed/error state and TechnicalWidget's
+		// already-fetched data would leak into the new id's view.
+		return <ContactMessageDetail key={ route.id } id={ route.id } onBack={ () => go( { status: route.status, id: null } ) } />;
 	}
 
 	return (

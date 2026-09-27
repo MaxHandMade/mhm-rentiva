@@ -21,18 +21,29 @@ export default function ContactMessageDetail( { id, onBack } ) {
 
 	useEffect( () => {
 		let live = true;
-		contactApi.get( id ).then( async ( data ) => {
+		contactApi.get( id ).then( ( data ) => {
 			if ( ! live ) {
 				return;
 			}
 			setMsg( data );
 			if ( data.status === 'new' ) {
-				const updated = await contactApi.markRead( id );
-				if ( live ) {
-					setMsg( ( m ) => ( { ...m, status: updated.status, status_label: updated.status_label } ) );
-				}
+				// Its own catch: a failed markRead must not overwrite an
+				// already-loaded message with the "could not be loaded" notice.
+				contactApi.markRead( id ).then( ( updated ) => {
+					if ( live ) {
+						setMsg( ( m ) => ( { ...m, status: updated.status, status_label: updated.status_label } ) );
+					}
+				} ).catch( () => {
+					if ( live ) {
+						setError( __( 'The message could not be marked as read.', 'mhm-rentiva' ) );
+					}
+				} );
 			}
-		} ).catch( () => live && setError( __( 'The message could not be loaded.', 'mhm-rentiva' ) ) );
+		} ).catch( () => {
+			if ( live ) {
+				setError( __( 'The message could not be loaded.', 'mhm-rentiva' ) );
+			}
+		} );
 		return () => {
 			live = false;
 		};
@@ -42,6 +53,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		try {
 			const updated = await contactApi.setStatus( id, status );
 			setMsg( ( m ) => ( { ...m, status: updated.status, status_label: updated.status_label } ) );
+			setError( null );
 			if ( status === 'replied' ) {
 				setMailed( false );
 			}
@@ -85,8 +97,12 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					busyText={ __( 'Moving…', 'mhm-rentiva' ) }
 					variant="danger"
 					onConfirm={ async () => {
-						await contactApi.trash( id );
-						onBack();
+						try {
+							await contactApi.trash( id );
+							onBack();
+						} catch {
+							setError( __( 'The message could not be moved to the trash.', 'mhm-rentiva' ) );
+						}
 					} }
 				/>
 			</Widget>
@@ -123,12 +139,17 @@ export default function ContactMessageDetail( { id, onBack } ) {
 						</div>
 					}
 				>
-					{ mailed && msg.status !== 'replied' && (
-						<div role="status" className="mhm-contact-messages__mail-note">
-							<span>{ __( 'Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied.', 'mhm-rentiva' ) }</span>
-							<button type="button" className="button" onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</button>
-						</div>
-					) }
+					{ /* Always present so a screen reader has a live region to announce
+					     into; empty (and visually absent -- no CSS class) when there is
+					     nothing to say. */ }
+					<div role="status">
+						{ mailed && msg.status !== 'replied' && (
+							<div className="mhm-contact-messages__mail-note">
+								<span>{ __( 'Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied.', 'mhm-rentiva' ) }</span>
+								<button type="button" className="button" onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</button>
+							</div>
+						) }
+					</div>
 					<p className="mhm-contact-messages__body">{ msg.content }</p>
 					{ msg.attachment && (
 						<div className="mhm-contact-messages__attachment">
