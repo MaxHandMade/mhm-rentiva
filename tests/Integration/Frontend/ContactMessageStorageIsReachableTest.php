@@ -16,6 +16,9 @@ use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
  * read or erase, while readme.txt's Privacy section described the records as
  * manageable. These tests lock the registration and the properties that make
  * the screen usable and safe, so the storage cannot go dark again.
+ *
+ * The details panel and list columns moved to the React screen (4.4.0); their
+ * field coverage lives in ContactMessagesReadRestTest.
  */
 final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 {
@@ -166,92 +169,4 @@ final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 		$this->assertNull(get_post($message_id));
 	}
 
-	/**
-	 * "You read them yourself" has to be true of the whole record, not of the
-	 * two fields the post itself carries. The rest live in underscore-prefixed
-	 * meta, which the Custom Fields box hides, so the panel is the only path.
-	 */
-	public function test_the_details_panel_prints_every_stored_field_escaped(): void
-	{
-		$message_id = self::factory()->post->create(array(
-			'post_type'   => ContactMessagePostType::TYPE,
-			'post_status' => 'private',
-			'post_title'  => 'Contact Message - Alice',
-		));
-
-		update_post_meta($message_id, '_mhmrentiva_contact_email', 'alice@example.com');
-		update_post_meta($message_id, '_mhmrentiva_contact_phone', '+90 555 000 00 00');
-		update_post_meta($message_id, '_mhmrentiva_contact_ip_address', '203.0.113.9');
-		update_post_meta($message_id, '_mhmrentiva_contact_user_agent', 'Mozilla/5.0 <script>alert(1)</script>');
-
-		ob_start();
-		ContactMessagePostType::render_details_box(get_post($message_id));
-		$html = (string) ob_get_clean();
-
-		$this->assertStringContainsString('alice@example.com', $html);
-		$this->assertStringContainsString('+90 555 000 00 00', $html);
-		$this->assertStringContainsString('203.0.113.9', $html, 'The IP the privacy section sets in bold must be readable.');
-		$this->assertStringNotContainsString('<script>alert(1)</script>', $html, 'A stored user-agent must not execute.');
-		$this->assertStringContainsString('&lt;script&gt;', $html);
-	}
-
-	/**
-	 * A field the submission never set must not print an empty row.
-	 */
-	public function test_the_details_panel_skips_fields_with_no_value(): void
-	{
-		$message_id = self::factory()->post->create(array(
-			'post_type'   => ContactMessagePostType::TYPE,
-			'post_status' => 'private',
-		));
-		update_post_meta($message_id, '_mhmrentiva_contact_email', 'bob@example.com');
-
-		ob_start();
-		ContactMessagePostType::render_details_box(get_post($message_id));
-		$html = (string) ob_get_clean();
-
-		$this->assertSame(1, substr_count($html, '<tr>'), 'Only the one field that has a value may render a row.');
-	}
-
-	/**
-	 * The form stores integer 0 for vehicle_id and rating when the enquiry
-	 * names neither. A "Vehicle: 0" row is noise, and get_the_title( 0 ) falls
-	 * back to the global post, which printed the message's own title.
-	 */
-	public function test_a_stored_zero_is_treated_as_absent(): void
-	{
-		$message_id = self::factory()->post->create(array(
-			'post_type'   => ContactMessagePostType::TYPE,
-			'post_status' => 'private',
-			'post_title'  => 'Contact Message - Dave',
-		));
-		update_post_meta($message_id, '_mhmrentiva_contact_vehicle_id', '0');
-		update_post_meta($message_id, '_mhmrentiva_contact_rating', '0');
-		update_post_meta($message_id, '_mhmrentiva_contact_email', 'dave@example.com');
-
-		ob_start();
-		ContactMessagePostType::render_details_box(get_post($message_id));
-		$html = (string) ob_get_clean();
-
-		$this->assertSame(1, substr_count($html, '<tr>'), 'Only the e-mail row may render.');
-		$this->assertStringNotContainsString('Contact Message - Dave', $html, 'get_the_title(0) must not leak the post\'s own title into the Vehicle row.');
-	}
-
-	/**
-	 * The list screen has to show enough to find a record without opening it.
-	 */
-	public function test_the_list_screen_shows_the_sender_address(): void
-	{
-		$columns = ContactMessagePostType::columns(array( 'cb' => '', 'title' => 'Title', 'date' => 'Date' ));
-
-		$this->assertArrayHasKey('mhmrentiva_email', $columns);
-		$this->assertSame('date', array_key_last($columns), 'Date stays last, as on every core list table.');
-
-		$message_id = self::factory()->post->create(array( 'post_type' => ContactMessagePostType::TYPE ));
-		update_post_meta($message_id, '_mhmrentiva_contact_email', 'carol@example.com');
-
-		ob_start();
-		ContactMessagePostType::column('mhmrentiva_email', $message_id);
-		$this->assertSame('carol@example.com', ob_get_clean());
-	}
 }

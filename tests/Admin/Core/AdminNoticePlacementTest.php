@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Core;
 
 use MHMRentiva\Admin\Addons\AddonScreen;
+use MHMRentiva\Admin\ContactMessages\ContactMessagesPage;
 use WP_UnitTestCase;
 
 /**
@@ -38,10 +39,34 @@ final class AdminNoticePlacementTest extends WP_UnitTestCase {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 	}
 
+	public function tearDown(): void {
+		unset( $GLOBALS['title'] );
+		parent::tearDown();
+	}
+
 	private function renderAddonScreen(): string {
 		ob_start();
 		try {
 			AddonScreen::render_page();
+			return (string) ob_get_contents();
+		} finally {
+			ob_end_clean();
+		}
+	}
+
+	/**
+	 * `get_admin_page_title()` (wp-admin/includes/plugin.php) returns
+	 * `$GLOBALS['title']` immediately when it is non-empty; outside a real
+	 * admin.php request $plugin_page is null, and without this the function
+	 * warns on PHP 8.3 and falls through to an empty `<h1>`.
+	 */
+	private function renderContactMessages(): string {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$GLOBALS['title'] = 'Contact Messages';
+
+		ob_start();
+		try {
+			( new ContactMessagesPage() )->render();
 			return (string) ob_get_contents();
 		} finally {
 			ob_end_clean();
@@ -84,6 +109,31 @@ final class AdminNoticePlacementTest extends WP_UnitTestCase {
 		$this->assertMatchesRegularExpression(
 			'/<div class="wrap(?:\s[^"]*)?" id="mhm-addons-root"/',
 			$this->renderAddonScreen()
+		);
+	}
+
+	public function test_the_contact_messages_screen_emits_exactly_one_header_end_marker(): void {
+		$html = $this->renderContactMessages();
+
+		$this->assertSame(
+			1,
+			substr_count( $html, 'wp-header-end' ),
+			'Zero leaves WordPress guessing from the first heading; two make it clone the notice.'
+		);
+	}
+
+	public function test_the_contact_messages_marker_comes_after_the_heading(): void {
+		$html = $this->renderContactMessages();
+
+		$heading = strpos( $html, '<h1' );
+		$marker  = strpos( $html, 'wp-header-end' );
+
+		$this->assertNotFalse( $heading, 'The screen must have a heading to place the notice against.' );
+		$this->assertNotFalse( $marker );
+		$this->assertLessThan(
+			$marker,
+			$heading,
+			'A marker before the heading puts the notice back above the title -- the bug this fixes.'
 		);
 	}
 }

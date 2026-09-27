@@ -20,6 +20,7 @@ final class Menu {
 
 		// Register page hooks (Internal registration logic, without add_submenu_page)
 		\MHMRentiva\Admin\Customers\CustomersPage::register();
+		\MHMRentiva\Admin\ContactMessages\ContactMessagesPage::register();
 		\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::register();
 	}
 
@@ -125,9 +126,10 @@ final class Menu {
 		add_submenu_page(
 			'mhm-rentiva',
 			__('Contact Messages', 'mhm-rentiva'),
-			__('Contact Messages', 'mhm-rentiva'),
+			\MHMRentiva\Admin\ContactMessages\ContactMessagesPage::menu_title(),
 			'manage_options',
-			'edit.php?post_type=mhmrentiva_contact'
+			\MHMRentiva\Admin\ContactMessages\ContactMessagesPage::SLUG,
+			array( new \MHMRentiva\Admin\ContactMessages\ContactMessagesPage(), 'render' )
 		);
 
 		// 6. Customers — gated on `edit_users`, the capability that matches the data
