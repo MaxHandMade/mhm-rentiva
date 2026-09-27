@@ -430,6 +430,27 @@ describe( 'contact message detail', () => {
 		expect( onBack ).not.toHaveBeenCalled();
 	} );
 
+	test( 'a 200 trash response that neither trashed nor deleted is treated as a failure', async () => {
+		contactApi.trash = jest.fn().mockResolvedValue( { id: 1, trashed: false, deleted: false } );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Move to trash' } ) );
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, move to trash' } ) );
+		expect( await screen.findByText( 'The message could not be moved to the trash.' ) ).toBeTruthy();
+		expect( onBack ).not.toHaveBeenCalled();
+	} );
+
+	test( 'a successful trash navigates back', async () => {
+		contactApi.trash = jest.fn().mockResolvedValue( { id: 1, trashed: true, deleted: false } );
+		const onBack = jest.fn();
+		render( <ContactMessageDetail id={ 1 } onBack={ onBack } /> );
+		await screen.findByText( /Line one/ );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Move to trash' } ) );
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, move to trash' } ) );
+		await waitFor( () => expect( onBack ).toHaveBeenCalled() );
+	} );
+
 	describe( 'trash disabled (EMPTY_TRASH_DAYS = 0)', () => {
 		beforeEach( () => {
 			window.mhmRentivaContactMessages.trashEnabled = false;

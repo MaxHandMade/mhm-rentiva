@@ -171,9 +171,15 @@ export default function ContactMessageDetail( { id, onBack } ) {
 							// wp_trash_post() itself deletes the record outright when
 							// EMPTY_TRASH_DAYS is falsy (REST controller comment,
 							// ContactMessagesRestController.php:269) -- same call either way.
+							// A 200 with neither flag set (the record vanished between the
+							// lookup and the core call) is not a success -- stay on screen.
 							try {
-								await contactApi.trash( id );
-								onBack();
+								const res = await contactApi.trash( id );
+								if ( res?.trashed || res?.deleted ) {
+									onBack();
+									return;
+								}
+								throw new Error( 'not_trashed' );
 							} catch {
 								setError( trashEnabled
 									? __( 'The message could not be moved to the trash.', 'mhm-rentiva' )
