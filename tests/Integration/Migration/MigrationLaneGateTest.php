@@ -158,4 +158,17 @@ final class MigrationLaneGateTest extends WP_UnitTestCase
 		$this->assertSame('1.0.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('0.0.1', get_option('mhmrentiva_plugin_version'), 'the gate returns before the code-version stamp');
 	}
+
+	public function test_the_plugins_loaded_drift_lane_does_not_migrate_during_an_admin_post_request(): void
+	{
+		update_option('mhmrentiva_plugin_version', '0.0.1');
+		update_option('mhmrentiva_db_version', '1.0.0');
+		set_current_screen('dashboard');
+		$GLOBALS['pagenow'] = 'admin-post.php';
+
+		mhmrentiva_run_version_drift_lane();
+
+		$this->assertSame('1.0.0', get_option('mhmrentiva_db_version'));
+		$this->assertSame('0.0.1', get_option('mhmrentiva_plugin_version'), 'the gate returns before the code-version stamp');
+	}
 }
