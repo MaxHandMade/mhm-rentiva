@@ -337,15 +337,16 @@ add_action(
  */
 function mhmrentiva_run_version_drift_lane(): void
 {
-	// Admin page loads, cron and CLI only -- never admin-ajax.php, which
-	// sets is_admin() and is reachable anonymously (the contact form posts
-	// there as nopriv). Same gate as the admin_init retry lane.
+	// Admin page loads, cron and CLI only -- never admin-ajax.php or
+	// admin-post.php, both reachable anonymously (the contact form posts to
+	// admin-ajax.php as nopriv). Same gate as the admin_init retry lane.
 	$lane_allowed = class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')
 		&& \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::context_allows(
 			is_admin(),
 			wp_doing_ajax(),
 			wp_doing_cron(),
-			defined('WP_CLI') && WP_CLI
+			defined('WP_CLI') && WP_CLI,
+			'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' )
 		);
 	if (! $lane_allowed) {
 		return;
@@ -416,7 +417,7 @@ function mhmrentiva_run_version_drift_lane(): void
 		\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_reclean_test_pollution();
 	}
 }
-add_action('plugins_loaded', 'mhmrentiva_run_version_drift_lane', 20); // same priority as the closure it replaces (mhm-rentiva.php:409)
+add_action('plugins_loaded', 'mhmrentiva_run_version_drift_lane', 20); // same priority as the closure it replaced
 
 /**
  * Every site in the network that network-wide activation must reach.
@@ -491,8 +492,17 @@ function mhmrentiva_single_site_activation(?callable $migration_runner = null, ?
 		$migration_runner ??= array( \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' );
 		$table_creator    ??= array( \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class, 'create_table' );
 
-		// Run migrations to ensure all indexes and tables are up to date
-		$database_ready = (bool) $migration_runner();
+		// Run migrations to ensure all indexes and tables are up to date.
+		//
+		// A held LOCK_OPTION (another request is walking the lane right now --
+		// e.g. a previous request died on a fatal mid-migration, and the lock is
+		// still fresh for up to DatabaseMigrator::LOCK_TIMEOUT seconds) makes
+		// run_migrations() return false without the migration having failed at
+		// all. That must not fail activation: the lock holder is doing the
+		// work, and there is no database problem to report. Only a genuine
+		// failure -- run_migrations() returned false for any OTHER reason, or a
+		// critical table below did not get created -- still aborts.
+		$database_ready = (bool) $migration_runner() || \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::last_run_was_lock_busy();
 
 		// Force-create only the tables required by the Lite runtime. Add-on
 		// tables remain owned by their class-gated migrations.

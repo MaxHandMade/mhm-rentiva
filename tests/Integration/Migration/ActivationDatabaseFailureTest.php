@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Migration;
 
+use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use RuntimeException;
 use WP_UnitTestCase;
 
@@ -12,6 +14,7 @@ use WP_UnitTestCase;
  * cannot be created.
  */
 final class ActivationDatabaseFailureTest extends WP_UnitTestCase {
+	use ForgetsMigrationLock;
 
 	private mixed $original_plugin_version = false;
 
@@ -24,6 +27,7 @@ final class ActivationDatabaseFailureTest extends WP_UnitTestCase {
 		$this->original_db_version     = get_option('mhmrentiva_db_version', false);
 		update_option('mhmrentiva_db_version', '4.3.0');
 		delete_option('mhmrentiva_plugin_version');
+		self::forget_migration_lock();
 	}
 
 	protected function tearDown(): void {
@@ -40,6 +44,7 @@ final class ActivationDatabaseFailureTest extends WP_UnitTestCase {
 		}
 
 		parent::tearDown();
+		self::forget_migration_lock();
 	}
 
 	public function test_failed_required_table_creation_aborts_before_the_plugin_version_stamp(): void {
@@ -69,6 +74,45 @@ final class ActivationDatabaseFailureTest extends WP_UnitTestCase {
 		} finally {
 			remove_filter('wp_die_handler', $die_handler);
 		}
+	}
+
+	public function test_activation_does_not_die_when_the_migration_runner_reports_a_held_lock(): void {
+		// Prime the real static flag the same way another request would: a
+		// genuine run_migrations() call that finds LOCK_OPTION held returns
+		// false and marks the run lock-busy.
+		update_option('mhmrentiva_db_version', '1.0.0');
+		add_option(DatabaseMigrator::LOCK_OPTION, (string) time(), '', false);
+		$this->assertFalse(DatabaseMigrator::run_migrations());
+		$this->assertTrue(DatabaseMigrator::last_run_was_lock_busy());
+		self::forget_migration_lock();
+		update_option('mhmrentiva_db_version', '4.3.0');
+
+		$die_handler = static function (): callable {
+			return static function ($message): void {
+				throw new RuntimeException(wp_strip_all_tags((string) $message));
+			};
+		};
+
+		add_filter('wp_die_handler', $die_handler);
+
+		try {
+			// The activation seam itself reports "not ready" (false), exactly
+			// as a real run_migrations() call does when it declines because
+			// the lock is busy -- last_run_was_lock_busy() being true must
+			// still let activation through instead of wp_die()ing.
+			\mhmrentiva_single_site_activation(
+				static fn (): bool => false,
+				static fn (string $table): bool => true
+			);
+		} finally {
+			remove_filter('wp_die_handler', $die_handler);
+		}
+
+		$this->assertSame(
+			MHMRENTIVA_VERSION,
+			get_option('mhmrentiva_plugin_version'),
+			'A held lock is not a database failure; activation must complete.'
+		);
 	}
 
 	public function test_activation_forces_only_the_lite_runtime_tables(): void {

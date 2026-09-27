@@ -63,19 +63,25 @@ final class DatabaseMigrator {
 	/**
 	 * Whether a migration lane may run in this request context.
 	 *
-	 * An admin page load, cron or WP-CLI -- never admin-ajax.php. AJAX sets
-	 * WP_ADMIN (so is_admin() is true) and fires admin_init even for nopriv
-	 * actions, which is how an anonymous contact-form submission used to pay
-	 * for, and race, the whole migration. Pure so it can be tested without
-	 * faking the request. Mirrors mhmrentiva_pro_lane_context_allows().
+	 * An admin page load, cron or WP-CLI -- never admin-ajax.php or
+	 * admin-post.php, both reachable anonymously. AJAX sets WP_ADMIN (so
+	 * is_admin() is true) and fires admin_init even for nopriv actions, which is
+	 * how an anonymous contact-form submission used to pay for, and race, the
+	 * whole migration. admin-post.php has the identical shape: it also defines
+	 * WP_ADMIN and fires admin_init before WordPress has authenticated the
+	 * request, then serves `admin_post_nopriv_*` actions to a logged-out
+	 * visitor -- so `is_admin()` is true and `wp_doing_ajax()` is false there
+	 * too, and without $is_admin_post this gate would wave it through. Pure so
+	 * it can be tested without faking the request. Mirrors
+	 * mhmrentiva_pro_lane_context_allows().
 	 */
-	public static function context_allows(bool $is_admin, bool $is_ajax, bool $is_cron, bool $is_cli): bool
+	public static function context_allows(bool $is_admin, bool $is_ajax, bool $is_cron, bool $is_cli, bool $is_admin_post = false): bool
 	{
 		if ($is_cron || $is_cli) {
 			return true;
 		}
 
-		return $is_admin && ! $is_ajax;
+		return $is_admin && ! $is_ajax && ! $is_admin_post;
 	}
 
 	/**
@@ -149,6 +155,13 @@ final class DatabaseMigrator {
 	 * its own table and a run with nothing to discard creates none at all.
 	 */
 	private static ?string $merge_loser_table = null;
+
+	/**
+	 * Set only when the most recent run_migrations() call returned false
+	 * because LOCK_OPTION was held by another request -- never for any other
+	 * failure. See last_run_was_lock_busy().
+	 */
+	private static bool $last_run_was_lock_busy = false;
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -269,6 +282,8 @@ final class DatabaseMigrator {
 	 */
 	public static function run_migrations(?array $index_cleanup_expected = null, ?callable $index_cleanup_runner = null, ?callable $multi_tenant_runner = null): bool
 	{
+		self::$last_run_was_lock_busy = false;
+
 		if (! self::pro_satisfies(self::installed_pro_version())) {
 			add_action('admin_notices', array( self::class, 'render_pro_lockstep_notice' ));
 
@@ -286,6 +301,8 @@ final class DatabaseMigrator {
 		}
 
 		if (! self::acquire_lock()) {
+			self::$last_run_was_lock_busy = true;
+
 			return false;
 		}
 
@@ -294,6 +311,23 @@ final class DatabaseMigrator {
 		} finally {
 			self::release_lock();
 		}
+	}
+
+	/**
+	 * Whether the last run_migrations() call declined only because another
+	 * request held LOCK_OPTION -- never because the migration itself failed.
+	 *
+	 * Backs mhmrentiva_single_site_activation(): a held lock (e.g. the previous
+	 * request died on a fatal mid-migration, and the lock is still fresh for up
+	 * to LOCK_TIMEOUT seconds) must not be reported as an activation failure --
+	 * the lock holder is doing the work, and the plugin has every reason to
+	 * believe it will finish. Reset to false at the top of every
+	 * run_migrations() call, so a stale true from an earlier call can never
+	 * leak into a later, unrelated one.
+	 */
+	public static function last_run_was_lock_busy(): bool
+	{
+		return self::$last_run_was_lock_busy;
 	}
 
 	/**
@@ -518,11 +552,11 @@ final class DatabaseMigrator {
 	 * The migration result remains available to activation and tests, while the
 	 * action contract intentionally discards it. Gated by context_allows(): this
 	 * is the admin_init retry (Plugin.php), a hook that also fires for an
-	 * unauthenticated admin-ajax.php request, which must never trigger a
-	 * migration.
+	 * unauthenticated admin-ajax.php or admin-post.php request, neither of
+	 * which must ever trigger a migration.
 	 */
 	public static function run_migrations_from_hook(): void {
-		if (! self::context_allows(is_admin(), wp_doing_ajax(), wp_doing_cron(), defined('WP_CLI') && WP_CLI)) {
+		if (! self::context_allows(is_admin(), wp_doing_ajax(), wp_doing_cron(), defined('WP_CLI') && WP_CLI, 'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' ))) {
 			return;
 		}
 

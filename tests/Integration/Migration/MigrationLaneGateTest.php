@@ -4,17 +4,25 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
- * The Lite migration lane must not run from an anonymous admin-ajax request
- * (the contact form posts there as nopriv) and must not run twice at once.
+ * The Lite migration lane must not run from an anonymous admin-ajax or
+ * admin-post request (the contact form posts to admin-ajax.php as nopriv) and
+ * must not run twice at once.
  */
 final class MigrationLaneGateTest extends WP_UnitTestCase
 {
+	use ForgetsMigrationLock;
+
+	/** @var string|null */
+	private $original_pagenow;
+
 	public function setUp(): void
 	{
 		parent::setUp();
+		$this->original_pagenow = $GLOBALS['pagenow'] ?? null;
 		self::forget_migration_lock();
 	}
 
@@ -22,31 +30,14 @@ final class MigrationLaneGateTest extends WP_UnitTestCase
 	{
 		remove_all_filters('wp_doing_ajax');
 		delete_option(DatabaseMigrator::LOCK_OPTION);
-		self::forget_migration_lock();
 		set_current_screen('front');
+		if (null === $this->original_pagenow) {
+			unset($GLOBALS['pagenow']);
+		} else {
+			$GLOBALS['pagenow'] = $this->original_pagenow;
+		}
 		parent::tearDown();
-	}
-
-	/**
-	 * Remove DatabaseMigrator::LOCK_OPTION by hand, not just via delete_option().
-	 *
-	 * A test here that opens the version gate runs the real migration body,
-	 * including the 6.0.0 prefix rename's RENAME TABLE and
-	 * RetiredIndexes::drop()'s DROP INDEX on core tables -- both DDL, both an
-	 * implicit COMMIT. That ends WP_UnitTestCase's per-test transaction early:
-	 * whatever acquired the lock before that point survives it, while a plain
-	 * delete_option() afterward can land in a transaction the suite's own
-	 * rollback then undoes, leaving the lock stuck for every later test in the
-	 * process. Same fix as the add-on's ProMigrationLockTest::forget_lock().
-	 */
-	private static function forget_migration_lock(): void
-	{
-		global $wpdb;
-
-		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s", DatabaseMigrator::LOCK_OPTION));
-		wp_cache_delete(DatabaseMigrator::LOCK_OPTION, 'options');
-		wp_cache_delete('notoptions', 'options');
-		wp_cache_delete('alloptions', 'options');
+		self::forget_migration_lock();
 	}
 
 	public function test_context_allows_admin_page_cron_and_cli_but_not_ajax(): void
@@ -56,6 +47,22 @@ final class MigrationLaneGateTest extends WP_UnitTestCase
 		$this->assertFalse(DatabaseMigrator::context_allows(false, false, false, false));
 		$this->assertTrue(DatabaseMigrator::context_allows(false, false, true, false));
 		$this->assertTrue(DatabaseMigrator::context_allows(false, false, false, true));
+	}
+
+	public function test_context_allows_rejects_admin_post(): void
+	{
+		$this->assertFalse(DatabaseMigrator::context_allows(true, false, false, false, true));
+	}
+
+	public function test_hook_lane_does_not_migrate_during_an_admin_post_request(): void
+	{
+		update_option('mhmrentiva_db_version', '1.0.0');
+		set_current_screen('dashboard');
+		$GLOBALS['pagenow'] = 'admin-post.php';
+
+		DatabaseMigrator::run_migrations_from_hook();
+
+		$this->assertSame('1.0.0', get_option('mhmrentiva_db_version'));
 	}
 
 	public function test_hook_lane_does_not_migrate_during_an_ajax_request(): void
@@ -102,6 +109,41 @@ final class MigrationLaneGateTest extends WP_UnitTestCase
 		$this->assertTrue(DatabaseMigrator::run_migrations());
 		wp_cache_delete('notoptions', 'options');
 		$this->assertFalse(get_option(DatabaseMigrator::LOCK_OPTION));
+	}
+
+	public function test_a_held_lock_is_reported_as_lock_busy_not_failure(): void
+	{
+		update_option('mhmrentiva_db_version', '1.0.0');
+		add_option(DatabaseMigrator::LOCK_OPTION, (string) time(), '', false);
+
+		$this->assertFalse(DatabaseMigrator::run_migrations());
+		$this->assertTrue(
+			DatabaseMigrator::last_run_was_lock_busy(),
+			'A held lock is not a migration failure -- activation must not treat it as one.'
+		);
+	}
+
+	public function test_a_normal_run_is_not_reported_as_lock_busy(): void
+	{
+		update_option('mhmrentiva_db_version', '1.0.0');
+
+		$this->assertTrue(DatabaseMigrator::run_migrations());
+		$this->assertFalse(DatabaseMigrator::last_run_was_lock_busy());
+	}
+
+	public function test_the_lock_busy_flag_resets_at_the_top_of_every_run(): void
+	{
+		// Prime the flag true with a held lock...
+		update_option('mhmrentiva_db_version', '1.0.0');
+		add_option(DatabaseMigrator::LOCK_OPTION, (string) time(), '', false);
+		$this->assertFalse(DatabaseMigrator::run_migrations());
+		$this->assertTrue(DatabaseMigrator::last_run_was_lock_busy());
+
+		// ...then release it and run again: a stale `true` from the earlier
+		// call must not leak into this unrelated one.
+		self::forget_migration_lock();
+		$this->assertTrue(DatabaseMigrator::run_migrations());
+		$this->assertFalse(DatabaseMigrator::last_run_was_lock_busy());
 	}
 
 	public function test_the_plugins_loaded_drift_lane_does_not_migrate_during_an_ajax_request(): void
