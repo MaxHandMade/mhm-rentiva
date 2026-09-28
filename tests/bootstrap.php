@@ -138,6 +138,16 @@ if ($should_isolate_db) {
 require_once "{$_tests_dir}/includes/functions.php";
 
 /**
+ * R-3 (Dilim 2): the suite runs against the dev site's ABSPATH, so its uploads
+ * directory is real. Pin the contact attachment root to a temp directory for
+ * every test; a test that needs the default path removes this filter itself
+ * (WP_UnitTestCase restores hooks after each test).
+ */
+tests_add_filter('mhmrentiva_contact_attachment_root', static function (): string {
+	return rtrim(str_replace('\\', '/', sys_get_temp_dir()), '/') . '/mhm-rentiva-tests-contact-root';
+});
+
+/**
  * Allow activation hook dependency guard bypass in test runtime only.
  *
  * This keeps production dependency checks intact while permitting
@@ -426,3 +436,13 @@ spl_autoload_register(static function (string $class): void {
 
 // Start up the WP testing environment.
 require "{$_tests_dir}/includes/bootstrap.php";
+
+/**
+ * R-3 hard stop: a canary test cannot abort the suite, so measure here.
+ */
+$mhmrentiva_contact_root = wp_normalize_path((string) apply_filters('mhmrentiva_contact_attachment_root', ''));
+if (! str_starts_with($mhmrentiva_contact_root, wp_normalize_path(sys_get_temp_dir()) . '/')) {
+	fwrite(STDERR, "mhm-rentiva tests: the contact attachment root is not sandboxed; refusing to run against real uploads.\n");
+	exit(1);
+}
+unset($mhmrentiva_contact_root);
