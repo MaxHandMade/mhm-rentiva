@@ -968,7 +968,7 @@ class PrefixRenamer {
 		'src/Admin/Utilities/Dashboard/DashboardPage.php' => array(
 			'why'      => 'a cache this code believes it cleared but did not is a stale number on the dashboard with no way for the user to flush it',
 			'regions'  => array(
-				0 => array( 'mhm_rentiva_booking_report_', 'mhm_rentiva_customer_report_', 'mhm_rentiva_dashboard_recent_bookings_v4', 'mhm_rentiva_dashboard_stats', 'mhm_rentiva_recent_messages_', 'mhm_rentiva_revenue_report_', 'mhm_rentiva_vehicle_report_', 'mhm_rentiva_vlist_', 'mhm_revenue_report_' ),
+				0 => array( 'mhm_rentiva_booking_report_', 'mhm_rentiva_customer_report_', 'mhm_rentiva_dashboard_recent_bookings_v4', 'mhm_rentiva_dashboard_stats', 'mhm_rentiva_revenue_report_', 'mhm_rentiva_vehicle_report_', 'mhm_rentiva_vlist_', 'mhm_revenue_report_' ),
 			),
 		),
 		'tests/Unit/Utilities/UninstallAddonTableSafetyTest.php' => array(

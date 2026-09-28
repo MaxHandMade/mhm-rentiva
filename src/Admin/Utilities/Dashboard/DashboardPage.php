@@ -41,12 +41,11 @@ final class DashboardPage {
 		// React dashboard payload
 		// hardcodes 'widget_order' => array() and never reads back what those
 		// two would have written. clear_dashboard_cache() below survives: the
-		// 6 hook registrations directly beneath this comment all call it live.
+		// 5 hook callbacks registered directly beneath this comment all call it live.
 
 		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
 		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'clear_cache_on_vehicle_change' ));
-		add_action('save_post_mhmrentiva_message', array( self::class, 'clear_cache_on_message_change' ));
 		add_action('mhmrentiva_booking_status_changed', array( self::class, 'clear_dashboard_cache' ));
 		add_action('updated_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
 		add_action('added_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
@@ -308,12 +307,6 @@ final class DashboardPage {
 			self::clear_dashboard_cache();
 		}
 	}
-	public static function clear_cache_on_message_change(int $post_id): void
-	{
-		if (get_post_type($post_id) === 'mhmrentiva_message') {
-			self::clear_dashboard_cache();
-		}
-	}
 
 	/**
 	 * Clear cache when booking-related meta changes (status, payment, etc.).
@@ -347,8 +340,6 @@ final class DashboardPage {
 		$cache_keys = array(
 			// DashboardService::get_recent_bookings() -- 12 hour TTL.
 			'mhmrentiva_dashboard_recent_bookings_v4',
-			// DashboardService::get_recent_messages() -- per user.
-			'mhmrentiva_recent_messages_',
 			// CacheManager::CACHE_KEYS entries touched by dashboard widgets.
 			'mhmrentiva_dashboard_stats',
 			'mhmrentiva_revenue_report_',
@@ -374,7 +365,6 @@ final class DashboardPage {
 			'mhm_rentiva_revenue_report_',
 			'mhm_revenue_report_',
 			'mhm_rentiva_dashboard_recent_bookings_v4',
-			'mhm_rentiva_recent_messages_',
 			'mhm_rentiva_dashboard_stats',
 			'mhm_rentiva_booking_report_',
 			'mhm_rentiva_customer_report_',
@@ -393,5 +383,5 @@ final class DashboardPage {
 
 	// ajax_clear_dashboard_cache() was removed with its wp_ajax_* registration
 	// above. clear_dashboard_cache() above survives -- it is called
-	// live by the 6 hook registrations in register().
+	// live by the 5 hook callbacks in register().
 }
