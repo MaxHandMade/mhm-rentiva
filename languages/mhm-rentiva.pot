@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-28T04:54:08+00:00\n"
+"POT-Creation-Date: 2026-09-28T11:40:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -356,7 +356,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:648
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:668
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:681
 #: templates/emails/booking-created-admin.html.php:20
 #: templates/emails/booking-status-changed-admin.html.php:21
 #: templates/emails/refund-admin.html.php:21
@@ -370,7 +370,7 @@ msgid "+90 538 556 4158"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:123
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:671
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:684
 #: templates/emails/booking-created-admin.html.php:24
 #: src-react/admin/about/components/DeveloperTab.jsx:143
 #: src-react/admin/about/components/SupportTab.jsx:27
@@ -820,7 +820,7 @@ msgstr ""
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:887
 #: src/Admin/Setup/SetupWizard.php:946
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1126
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1017
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:235
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:694
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:497
@@ -1294,8 +1294,7 @@ msgstr ""
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
 #: src/Admin/Frontend/Account/AccountRenderer.php:631
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
-#: src/Admin/Utilities/Dashboard/DashboardService.php:931
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1124
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1015
 #: templates/account/booking-detail.php:75
 #: templates/account/bookings.php:116
 #: templates/account/bookings.php:201
@@ -1315,7 +1314,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:475
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1125
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1016
 #: templates/account/booking-detail.php:76
 #: templates/account/bookings.php:117
 #: templates/account/bookings.php:202
@@ -1502,7 +1501,7 @@ msgstr ""
 #. translators: %s: customer name.
 #. translators: %s: customer name
 #: src/Admin/Booking/Helpers/CancellationHandler.php:655
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:720
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:733
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
 #, php-format
@@ -1527,7 +1526,7 @@ msgstr ""
 #: src/Admin/Booking/Helpers/CancellationHandler.php:661
 #: src/Admin/Booking/Meta/BookingMeta.php:374
 #: src/Admin/Booking/Meta/BookingMeta.php:450
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:680
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:693
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
 #: src/Admin/Settings/Groups/EmailSettings.php:226
@@ -1744,7 +1743,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:278
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:559
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:572
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:460
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:514
@@ -2141,8 +2140,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:462
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:284
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1127
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1131
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1018
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1022
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:467
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:830
 #: assets/blocks/booking-form/index.js:94
@@ -2642,7 +2641,7 @@ msgid "Email subject..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:675
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:697
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:710
 msgid "Message:"
 msgstr ""
 
@@ -3033,7 +3032,7 @@ msgid "Grand Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
-#: src/Admin/Utilities/Dashboard/DashboardService.php:1132
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1023
 msgid "Remaining"
 msgstr ""
 
@@ -3083,7 +3082,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:556
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:569
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:62
@@ -3095,7 +3094,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:557
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:570
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:74
@@ -3201,20 +3200,20 @@ msgstr ""
 msgid "File not available"
 msgstr ""
 
-#: src/Admin/ContactMessages/ContactAttachmentMigration.php:312
+#: src/Admin/ContactMessages/ContactAttachmentMigration.php:321
 msgid "The private attachment folder could not be written. Attachments saved by earlier versions are still in the public uploads folder; moving them will be retried on the next update."
 msgstr ""
 
 #. translators: %d: number of contact message attachments that were not moved.
-#: src/Admin/ContactMessages/ContactAttachmentMigration.php:322
+#: src/Admin/ContactMessages/ContactAttachmentMigration.php:331
 #, php-format
 msgid "%d contact message attachment could not be moved into the private folder. Its link was removed from the message; the file itself was left where it was:"
 msgid_plural "%d contact message attachments could not be moved into the private folder. Their links were removed from the messages; the files themselves were left where they were:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/ContactMessages/ContactAttachmentStore.php:309
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:738
+#: src/Admin/ContactMessages/ContactAttachmentStore.php:425
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:751
 msgid "The file could not be uploaded."
 msgstr ""
 
@@ -3283,7 +3282,7 @@ msgid "Enquiry type"
 msgstr ""
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:428
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:561
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:574
 #: templates/shortcodes/contact-form.php:128
 msgid "Priority"
 msgstr ""
@@ -3297,13 +3296,13 @@ msgid "Preferred date"
 msgstr ""
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:431
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:558
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:571
 #: templates/shortcodes/contact-form.php:88
 msgid "Company"
 msgstr ""
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:432
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:562
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:575
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
 #: templates/shortcodes/contact-form.php:146
 #: assets/blocks/featured-vehicles/index.js:30
@@ -5493,12 +5492,12 @@ msgid "This field is required."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:126
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:520
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:533
 msgid "Please enter a valid email address."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:127
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:525
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:538
 msgid "Please enter a valid phone number."
 msgstr ""
 
@@ -6049,8 +6048,7 @@ msgstr ""
 msgid "Template reset to default!"
 msgstr ""
 
-#: src/Admin/Emails/Core/Mailer.php:354
-#: src/Admin/Utilities/Dashboard/DashboardService.php:941
+#: src/Admin/Emails/Core/Mailer.php:349
 #: templates/shortcodes/vehicle-rating-form.php:226
 msgid "Anonymous"
 msgstr ""
@@ -7352,35 +7350,35 @@ msgid "Are you sure you want to reset the form?"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:455
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:753
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:766
 msgid "File size is too large."
 msgstr ""
 
 #. translators: %s: field label.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:514
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:527
 #, php-format
 msgid "%s field is required."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:530
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:543
 msgid "Please rate between 1-5."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:536
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:549
 msgid "Please fix form errors."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:555
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:568
 #: templates/shortcodes/contact-form.php:53
 msgid "Full Name"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:560
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:573
 #: templates/shortcodes/contact-form.php:118
 msgid "Preferred Date"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:563
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:576
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:163
 #: src-react/admin/contact-messages/components/ContactTable.jsx:17
@@ -7389,76 +7387,76 @@ msgid "Message"
 msgstr ""
 
 #. translators: %s: customer name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:577
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:590
 #, php-format
 msgid "Contact Message - %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:616
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:629
 msgid "Unable to save the message."
 msgstr ""
 
 #. translators: 1: Site name, 2: Form title, 3: Message subject
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:629
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:642
 #, php-format
 msgid "[%1$s] %2$s - %3$s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:666
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:679
 msgid "Message ID:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:667
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:680
 msgid "From:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:675
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:688
 msgid "Company:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:684
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:697
 msgid "Preferred Date:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:690
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:703
 msgid "Priority:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:694
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:707
 msgid "Rating:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:701
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:714
 msgid "Attachment:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:705
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:718
 msgid "Sent Date:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:706
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:719
 msgid "Open in the admin panel"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:715
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:728
 #, php-format
 msgid "[%s] Your Message Received"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:718
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:731
 msgid "Your Message Received"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:721
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:734
 msgid "Your message has been successfully received. We will get back to you as soon as possible."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:722
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:735
 msgid "Thank you,"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:747
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:760
 msgid "The file is empty."
 msgstr ""
 
@@ -11925,28 +11923,6 @@ msgstr ""
 
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:69
 msgid "Cron hook is required"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardService.php:932
-msgid "Answered"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardService.php:933
-msgid "Closed"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardService.php:967
-msgid "Pending Messages"
-msgstr ""
-
-#. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:970
-#, php-format
-msgid "%s pending messages"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardService.php:973
-msgid "Now"
 msgstr ""
 
 #. translators: 1: %1$d; 2: %2$s.
