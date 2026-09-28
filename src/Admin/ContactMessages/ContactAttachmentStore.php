@@ -78,15 +78,23 @@ final class ContactAttachmentStore {
 	 * move_uploaded_file() -- Generic.PHP.ForbiddenFunctions, user decision
 	 * 2026-09-28). The caller has already checked UPLOAD_ERR_OK and size.
 	 *
-	 * Core's wp_handle_upload() itself proves the source is an HTTP upload
-	 * (its is_uploaded_file() check runs whichever handler is passed, since
-	 * the default *is* wp_handle_upload()). This class never lets it write into
-	 * the normal dated uploads/YYYY/MM folder: the 'upload_dir' filter below
-	 * redirects that one call into the private root, and is always removed
-	 * again before returning, success or exception. An offload/CDN plugin
-	 * that hooks wp_handle_upload() could still copy the file elsewhere --
-	 * documented in the readme, not something this class can prevent.
+	 * With the default handler, core's is_uploaded_file() check proves the
+	 * source is an HTTP upload; a caller that passes a handler (test seam)
+	 * takes that guarantee over -- production passes none (ContactForm.php).
+	 * This class never lets it write into the normal dated uploads/YYYY/MM
+	 * folder: the 'upload_dir' filter below redirects that one call into the
+	 * private root, and is always removed again before returning, success or
+	 * exception. An offload/CDN plugin that hooks wp_handle_upload() could
+	 * still copy the file elsewhere -- documented in the readme, not
+	 * something this class can prevent.
 	 *
+	 * Filters on this path (wp_handle_upload_prefilter, including multisite's
+	 * check_upload_size; wp_unique_filename; wp_handle_upload_overrides;
+	 * wp_handle_upload) can make an upload fail closed; a converter or
+	 * resizer that rewrites the file's bytes in place instead is caught by
+	 * the re-validation and size check below, not by core's own checks.
+	 *
+	 * @internal The $handler parameter is a test seam.
 	 * @param callable(array,array):array|null $handler Test seam; signature of
 	 *        wp_handle_upload(array &$file, array $overrides): array. Default
 	 *        null means 'wp_handle_upload' itself.
@@ -152,17 +160,44 @@ final class ContactAttachmentStore {
 
 		$root_real = realpath($root);
 		$real      = is_string($result['file'] ?? null) && '' !== $result['file'] ? realpath($result['file']) : false;
-		$inside    = false !== $real && false !== $root_real && is_file($real)
-			&& str_starts_with(wp_normalize_path($real), wp_normalize_path($root_real) . '/');
 
-		if (! $inside || basename($real) !== $token) {
-			if ($inside) {
+		// A file this class owns, wherever core (or a filter) actually put
+		// it -- used only to decide what may be deleted.
+		$within_tree = false !== $real && false !== $root_real && is_file($real)
+			&& str_starts_with(wp_normalize_path($real), wp_normalize_path($root_real) . '/');
+		// A file this class TRUSTS: it must sit DIRECTLY in the root (Opus
+		// O1 -- a subdirectory is not enough, even though it is within_tree)
+		// under exactly the token this call generated.
+		$valid = $within_tree
+			&& wp_normalize_path(dirname($real)) === wp_normalize_path($root_real)
+			&& basename($real) === $token;
+
+		if (! $valid) {
+			if ($within_tree) {
 				wp_delete_file($real);
+			}
+			// The token file this request generated is always ours, even if
+			// a filter made $result report a different path afterwards
+			// (Fable I2): core had already moved the real upload there.
+			$own = $root . '/' . $token;
+			if (is_file($own)) {
+				wp_delete_file($own);
 			}
 			return self::unavailable();
 		}
 
-		return self::finish(true, $real, $token, $name, $valid['mime'], $size);
+		// The bytes core moved onto disk are not necessarily the bytes
+		// validate() checked above: a *_prefilter hook can rewrite tmp_name's
+		// content in place before the move (Fable I1). Re-check the stored
+		// file itself, and take the recorded size from it, not from the
+		// pre-upload figure.
+		$again = ContactAttachmentValidator::validate($real, $name);
+		if (is_wp_error($again)) {
+			wp_delete_file($real);
+			return self::unavailable();
+		}
+
+		return self::finish(true, $real, $token, $name, $again['mime'], (int) filesize($real));
 	}
 
 	/**

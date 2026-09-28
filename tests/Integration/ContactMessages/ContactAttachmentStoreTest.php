@@ -82,6 +82,17 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 	 * (a) wp_handle_upload() defaults to a dated uploads/YYYY/MM subfolder;
 	 * the upload_dir redirect (spec) must land the file directly in the
 	 * private root instead, still under the bare 32-hex token.
+	 *
+	 * The private root itself is never a subdirectory of $this->sandbox
+	 * (O3, Opus Minor 5): bootstrap.php pins mhmrentiva_contact_attachment_root
+	 * to its own fixed temp directory for the whole run, and
+	 * SandboxesUploads::sandbox_uploads() only redirects wp_upload_dir()'s
+	 * basedir -- root() does not consult that once the ROOT_FILTER above it
+	 * is registered. So nothing but this test's own input fixture ('in')
+	 * should ever appear under the sandbox: no dated uploads/YYYY/MM
+	 * subfolder core's default naming would have created before the
+	 * redirect took effect, and no 'mhm-rentiva-private' tree either, since
+	 * that tree lives entirely outside the sandbox.
 	 */
 	public function test_the_stored_file_is_the_bare_token_directly_in_the_private_root(): void
 	{
@@ -91,11 +102,7 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 		$this->assertSame($root . '/' . $r['file'], ContactAttachmentStore::path($r));
 		$this->assertStringNotContainsString('.', $r['file'], 'the stored name must carry no extension');
 
-		// Nothing besides the private folder (and this test's own input
-		// fixture) exists under the uploads base -- in particular no
-		// dated uploads/YYYY/MM subfolder was created by core's default
-		// naming before the redirect took effect.
-		$leftover = array_diff( (array) scandir($this->sandbox), array( '.', '..', 'mhm-rentiva-private', 'in' ));
+		$leftover = array_diff( (array) scandir($this->sandbox), array( '.', '..', 'in' ));
 		$this->assertSame(array(), array_values($leftover));
 	}
 
@@ -154,6 +161,151 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 		$this->assertSame('The file could not be uploaded.', $r->get_error_message());
 		$this->assertSame($before, scandir($root));
 		$this->assertFileExists($elsewhere);
+	}
+
+	/**
+	 * Fable I1: validate() runs on $tmp before core ever sees it, but a
+	 * wp_handle_upload_prefilter-shaped hook (wp_handle_sideload_prefilter
+	 * for this test seam -- _wp_handle_upload() names that filter after
+	 * the $action it was called with, and wp_handle_sideload() passes
+	 * 'wp_handle_sideload', confirmed against the mounted core's
+	 * file.php:840) can rewrite tmp_name's bytes in place before the move.
+	 * The stored file must be re-validated and its recorded size taken
+	 * from it, not from the pre-upload figure.
+	 */
+	public function test_a_prefilter_rewriting_the_bytes_in_place_is_re_validated_and_sized_from_the_stored_file(): void
+	{
+		$rewritten = "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\nEXTRA TRAILING BYTES THAT CHANGE THE LENGTH\n%%EOF\n";
+		$filter    = static function (array $file) use ($rewritten): array {
+			file_put_contents($file['tmp_name'], $rewritten);
+			return $file;
+		};
+		add_filter('wp_handle_sideload_prefilter', $filter);
+		try {
+			$r = $this->upload('pdf', 'a.pdf');
+		} finally {
+			remove_filter('wp_handle_sideload_prefilter', $filter);
+		}
+
+		$this->assertSame(strlen($rewritten), $r['size']);
+		$this->assertSame(strlen($rewritten), (int) filesize((string) ContactAttachmentStore::path($r)));
+	}
+
+	/**
+	 * Fable I1, refusal side: a prefilter that rewrites the bytes into
+	 * something the plugin's own content check refuses must still leave
+	 * the private root exactly as it was.
+	 */
+	public function test_a_prefilter_rewriting_the_bytes_to_disallowed_content_is_refused_and_the_root_is_unchanged(): void
+	{
+		$root   = (string) ContactAttachmentStore::root();
+		$before = scandir($root);
+		$filter = static function (array $file): array {
+			file_put_contents($file['tmp_name'], '<?php echo 1;');
+			return $file;
+		};
+		add_filter('wp_handle_sideload_prefilter', $filter);
+		try {
+			$r = ContactAttachmentStore::store_upload($this->fixture($this->in, 'pdf'), 'a.pdf', $this->sideload());
+		} finally {
+			remove_filter('wp_handle_sideload_prefilter', $filter);
+		}
+
+		$this->assertInstanceOf(\WP_Error::class, $r);
+		$this->assertSame($before, scandir($root));
+	}
+
+	/**
+	 * Fable I2: a wp_handle_upload filter (the one core applies to its own
+	 * RETURN value -- always named 'wp_handle_upload' regardless of
+	 * whether wp_handle_upload() or wp_handle_sideload() was called,
+	 * confirmed against the mounted core's file.php:1073-1081) can report
+	 * a path outside the root even though core already moved the real
+	 * upload into <root>/<token>. That token file is this request's own
+	 * and must always be cleaned up on refusal, whatever the filter claims.
+	 */
+	public function test_a_wp_handle_upload_filter_redirecting_the_result_still_cleans_up_our_own_token_file(): void
+	{
+		$root      = (string) ContactAttachmentStore::root();
+		$before    = scandir($root);
+		$elsewhere = $this->sandbox . '/elsewhere.bin';
+		file_put_contents($elsewhere, 'not yours');
+
+		$filter = static fn(array $u): array => array( 'file' => $elsewhere ) + $u;
+		add_filter('wp_handle_upload', $filter);
+		try {
+			$r = ContactAttachmentStore::store_upload($this->fixture($this->in, 'pdf'), 'a.pdf', $this->sideload());
+		} finally {
+			remove_filter('wp_handle_upload', $filter);
+		}
+
+		$this->assertInstanceOf(\WP_Error::class, $r);
+		$this->assertSame($before, scandir($root));
+		$this->assertFileExists($elsewhere, 'a file this class does not own must never be deleted');
+	}
+
+	/**
+	 * Opus O1: this class only trusts a file that sits DIRECTLY in the
+	 * root -- a handler reporting a subdirectory of the root must be
+	 * refused, and the file it left behind removed (only the now-empty
+	 * subdirectory itself, an artifact of this synthetic handler, remains).
+	 */
+	public function test_a_handler_writing_the_token_into_a_subdirectory_of_the_root_is_refused_and_removed(): void
+	{
+		$root   = (string) ContactAttachmentStore::root();
+		$before = scandir($root);
+		$dest   = null;
+
+		$r = ContactAttachmentStore::store_upload(
+			$this->fixture($this->in, 'pdf'),
+			'a.pdf',
+			static function (array $f, array $o) use (&$dest): array {
+				$token = (string) call_user_func($o['unique_filename_callback']);
+				$dir   = wp_upload_dir()['path'] . '/sub';
+				wp_mkdir_p($dir);
+				$dest  = $dir . '/' . $token;
+				copy($f['tmp_name'], $dest);
+				return array(
+					'file' => $dest,
+					'url'  => '',
+					'type' => $f['type'],
+				);
+			}
+		);
+
+		$this->assertInstanceOf(\WP_Error::class, $r);
+		$this->assertNotNull($dest);
+		$this->assertFileDoesNotExist($dest);
+		$this->assertSame($before, array_diff(scandir($root), array( 'sub' )));
+	}
+
+	/**
+	 * Opus O1 (Minor 3): only the token THIS call generated is trusted --
+	 * a handler reporting a different, validly-shaped file directly in the
+	 * root must be refused and that file removed.
+	 */
+	public function test_a_handler_reporting_a_different_token_directly_in_the_root_is_refused_and_removed(): void
+	{
+		$root   = (string) ContactAttachmentStore::root();
+		$before = scandir($root);
+
+		$r = ContactAttachmentStore::store_upload(
+			$this->fixture($this->in, 'pdf'),
+			'a.pdf',
+			static function (array $f, array $o): array {
+				$other = bin2hex(random_bytes(16));
+				$dest  = wp_upload_dir()['path'] . '/' . $other;
+				copy($f['tmp_name'], $dest);
+				return array(
+					'file' => $dest,
+					'url'  => '',
+					'type' => $f['type'],
+				);
+			}
+		);
+
+		$this->assertInstanceOf(\WP_Error::class, $r);
+		$this->assertSame($before, scandir($root));
 	}
 
 	/** Spec §4: refused content leaves nothing in the private folder. */

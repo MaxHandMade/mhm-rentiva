@@ -496,11 +496,24 @@ final class ContactForm extends AbstractShortcode {
 		return ( $d && $d->format('Y-m-d') === $value ) ? $value : '';
 	}
 
-	/** The cap for an anonymous upload: 5 MB, filterable, never above PHP's own limit. */
-	private static function max_attachment_bytes(): int
+	/**
+	 * The cap for an anonymous upload: 5 MB, filterable, never above PHP's
+	 * own limit -- and, on a multisite network with upload space checks on,
+	 * never above the network's own per-file quota either (Fable M2): core's
+	 * check_upload_size prefilter enforces that quota on this path too, so
+	 * a cap that ignores it would advertise a size the network will refuse.
+	 * Public: the template needs it to show the real cap (Fable M3).
+	 */
+	public static function max_attachment_bytes(): int
 	{
-		$cap = (int) apply_filters('mhmrentiva_contact_attachment_max_bytes', self::MAX_ATTACHMENT_BYTES);
-		return max(1, min($cap, (int) wp_max_upload_size()));
+		$cap = min(
+			(int) apply_filters('mhmrentiva_contact_attachment_max_bytes', self::MAX_ATTACHMENT_BYTES),
+			(int) wp_max_upload_size()
+		);
+		if (is_multisite() && ! get_site_option('upload_space_check_disabled')) {
+			$cap = min($cap, KB_IN_BYTES * (int) get_site_option('fileupload_maxk', 1500));
+		}
+		return max(1, $cap);
 	}
 
 	private static function validate_form_data(array $data): array
