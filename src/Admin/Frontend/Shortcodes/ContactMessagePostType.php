@@ -86,6 +86,9 @@ final class ContactMessagePostType {
     public static function register(): void
     {
         add_action('init', array( self::class, 'cpt' ));
+        // Registered here, not with the admin page: a permanent delete through
+        // REST is not an is_admin() request, and it must still take the file.
+        add_action('before_delete_post', array( \MHMRentiva\Admin\ContactMessages\ContactAttachmentStore::class, 'on_before_delete_post' ), 10, 1);
     }
 
     public static function cpt(): void
