@@ -350,7 +350,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 	public function test_a_stored_attachment_gets_a_download_url_and_its_size(): void
 	{
 		wp_set_current_user($this->admin);
-		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', static fn(string $f, string $t): bool => copy($f, $t));
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
 		$id     = $this->contact();
 		ContactAttachmentStore::attach($id, $record);
 
@@ -376,7 +376,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 	public function test_a_record_whose_file_is_gone_has_no_link(): void
 	{
 		wp_set_current_user($this->admin);
-		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', static fn(string $f, string $t): bool => copy($f, $t));
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
 		$id     = $this->contact();
 		ContactAttachmentStore::attach($id, $record);
 		ContactAttachmentStore::discard($record);

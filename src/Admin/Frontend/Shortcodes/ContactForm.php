@@ -357,10 +357,10 @@ final class ContactForm extends AbstractShortcode {
 	 *
 	 * @param array<string,mixed>      $post_data Field-by-field sanitized request.
 	 * @param array<string,mixed>|null $file      The $_FILES leaf set, or null.
-	 * @param callable|null            $mover     Test seam, see ContactAttachmentStore::store_upload().
+	 * @param callable|null            $handler   Test seam, see ContactAttachmentStore::store_upload().
 	 * @return array<string,mixed>
 	 */
-	private static function process_submission(array $post_data, ?array $file, ?callable $mover = null): array
+	private static function process_submission(array $post_data, ?array $file, ?callable $handler = null): array
 	{
 		$form_data  = self::sanitize_contact_form_data($post_data);
 		$validation = self::validate_form_data($form_data);
@@ -374,7 +374,7 @@ final class ContactForm extends AbstractShortcode {
 
 		$record = null;
 		if (null !== $file) {
-			$upload = self::handle_file_upload($file, $mover);
+			$upload = self::handle_file_upload($file, $handler);
 			if (! $upload['success']) {
 				return array(
 					'ok'      => false,
@@ -730,7 +730,7 @@ final class ContactForm extends AbstractShortcode {
 		return wp_mail($data['email'], $subject, $message, $headers);
 	}
 
-	private static function handle_file_upload(array $file, ?callable $mover = null): array
+	private static function handle_file_upload(array $file, ?callable $handler = null): array
 	{
 		if (UPLOAD_ERR_OK !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE )) {
 			return array(
@@ -754,7 +754,7 @@ final class ContactForm extends AbstractShortcode {
 			);
 		}
 
-		$record = ContactAttachmentStore::store_upload($tmp, (string) ( $file['name'] ?? '' ), $mover);
+		$record = ContactAttachmentStore::store_upload($tmp, (string) ( $file['name'] ?? '' ), $handler);
 		if (is_wp_error($record)) {
 			return array(
 				'success' => false,

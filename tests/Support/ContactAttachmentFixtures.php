@@ -50,4 +50,20 @@ trait ContactAttachmentFixtures
 		}
 		return $path;
 	}
+
+	/**
+	 * A ContactAttachmentStore::store_upload()/ContactForm::process_submission()
+	 * handler seam backed by a real core function: wp_handle_sideload() takes the
+	 * same overrides contract as wp_handle_upload() but checks is_readable()
+	 * instead of is_uploaded_file(), so it accepts a fixture that was never an
+	 * HTTP upload. It copies (not renames) the source and unlinks the original --
+	 * a test that reuses a fixture path after calling this must make a fresh one.
+	 */
+	private function sideload(): callable
+	{
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		return static function (array $file, array $overrides): array {
+			return wp_handle_sideload($file, $overrides);
+		};
+	}
 }

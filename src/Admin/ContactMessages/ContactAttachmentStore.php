@@ -74,13 +74,25 @@ final class ContactAttachmentStore {
 	}
 
 	/**
-	 * Store an HTTP upload. The caller has already checked UPLOAD_ERR_OK and size.
+	 * Store an HTTP upload through the canonical core API (Plugin Check forbids
+	 * move_uploaded_file() -- Generic.PHP.ForbiddenFunctions, user decision
+	 * 2026-09-28). The caller has already checked UPLOAD_ERR_OK and size.
 	 *
-	 * @param callable(string,string):bool|null $mover Test seam; null means
-	 *        move_uploaded_file(), which itself proves the source is an HTTP upload.
+	 * Core's wp_handle_upload() itself proves the source is an HTTP upload
+	 * (its is_uploaded_file() check runs whichever handler is passed, since
+	 * the default *is* wp_handle_upload()). This class never lets it write into
+	 * the normal dated uploads/YYYY/MM folder: the 'upload_dir' filter below
+	 * redirects that one call into the private root, and is always removed
+	 * again before returning, success or exception. An offload/CDN plugin
+	 * that hooks wp_handle_upload() could still copy the file elsewhere --
+	 * documented in the readme, not something this class can prevent.
+	 *
+	 * @param callable(array,array):array|null $handler Test seam; signature of
+	 *        wp_handle_upload(array &$file, array $overrides): array. Default
+	 *        null means 'wp_handle_upload' itself.
 	 * @return array{file:string,name:string,mime:string,size:int}|\WP_Error
 	 */
-	public static function store_upload(string $tmp, string $original_name, ?callable $mover = null)
+	public static function store_upload(string $tmp, string $original_name, ?callable $handler = null)
 	{
 		$name  = self::clean_name($original_name);
 		$valid = ContactAttachmentValidator::validate($tmp, $name);
@@ -92,12 +104,65 @@ final class ContactAttachmentStore {
 			return $root;
 		}
 
-		$file  = bin2hex(random_bytes(16));
-		$dest  = $root . '/' . $file;
-		$size  = (int) filesize($tmp);
-		$moved = null !== $mover ? (bool) $mover($tmp, $dest) : move_uploaded_file($tmp, $dest);
+		// wp_handle_upload() lives in wp-admin/includes/file.php. Front-end
+		// AJAX happens to load it already; a REST or cron caller would not.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		return self::finish($moved, $dest, $file, $name, $valid['mime'], $size);
+		$token     = bin2hex(random_bytes(16));
+		$size      = (int) filesize($tmp);
+		$file      = array(
+			'name'     => $name,
+			'type'     => $valid['mime'],
+			'tmp_name' => $tmp,
+			'error'    => UPLOAD_ERR_OK,
+			'size'     => $size,
+		);
+		$overrides = array(
+			'test_form'                => false,
+			// Re-check with OUR map: a site's own upload_mimes may narrow it
+			// further (R-17), but never widen it.
+			'test_type'                => true,
+			'mimes'                    => ContactAttachmentValidator::TYPES,
+			'unique_filename_callback' => static function () use ($token): string {
+				return $token; // 32 hex, no extension -- the shape NAME_PATTERN checks.
+			},
+		);
+
+		$dir_filter = static function (array $dir) use ($root): array {
+			$dir['path']    = $root;
+			$dir['subdir']  = '';
+			$dir['basedir'] = $root;
+			$dir['error']   = false;
+			// url/baseurl are left as core computed them: never used, never
+			// stored, so a harmless value here is fine.
+			return $dir;
+		};
+
+		$do = $handler ?? 'wp_handle_upload';
+		add_filter('upload_dir', $dir_filter, PHP_INT_MAX);
+		try {
+			$result = $do($file, $overrides);
+		} finally {
+			remove_filter('upload_dir', $dir_filter, PHP_INT_MAX);
+		}
+
+		if (is_wp_error($result) || ! is_array($result) || isset($result['error'])) {
+			return self::unavailable();
+		}
+
+		$root_real = realpath($root);
+		$real      = is_string($result['file'] ?? null) && '' !== $result['file'] ? realpath($result['file']) : false;
+		$inside    = false !== $real && false !== $root_real && is_file($real)
+			&& str_starts_with(wp_normalize_path($real), wp_normalize_path($root_real) . '/');
+
+		if (! $inside || basename($real) !== $token) {
+			if ($inside) {
+				wp_delete_file($real);
+			}
+			return self::unavailable();
+		}
+
+		return self::finish(true, $real, $token, $name, $valid['mime'], $size);
 	}
 
 	/**

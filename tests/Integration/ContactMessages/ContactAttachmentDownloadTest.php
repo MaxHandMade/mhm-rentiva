@@ -22,7 +22,7 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		parent::setUp();
 		$this->sandbox_uploads();
 		$this->admin = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
-		$record      = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', static fn(string $f, string $t): bool => copy($f, $t));
+		$record      = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
 		$this->id    = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
 		ContactAttachmentStore::attach($this->id, $record);
 	}
@@ -249,7 +249,7 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 	/** Review Focus 3, end to end (Fable plan M3): the upload path sanitizes the name first. */
 	public function test_an_uploaded_turkish_name_reaches_the_header_sanitized(): void
 	{
-		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'Teklif "son" şartname.pdf', static fn(string $f, string $t): bool => copy($f, $t));
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'Teklif "son" şartname.pdf', $this->sideload());
 		$id     = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
 		ContactAttachmentStore::attach($id, $record);
 		$name = ContactAttachmentDownload::resolve($id)['name'];
