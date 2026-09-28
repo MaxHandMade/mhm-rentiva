@@ -42,12 +42,46 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		$_REQUEST['_wpnonce'] = $nonce;
 	}
 
+	private static bool $shutdownGuardRegistered = false;
+	private static bool $expectingDeath           = false;
+
+	/**
+	 * handle() always ends in exit -- wp_die() throws WPDieException in tests,
+	 * but a guard that fails to die falls through to the real exit at the end
+	 * of handle(). exit() has status 0 and PHPUnit cannot catch it, so a run
+	 * that hits that path stops mid-suite with no failure line and exit code
+	 * 0 -- a broken guard would read as green. PHP still runs registered
+	 * shutdown functions on exit(), and exit() called from inside one of them
+	 * is what sets the process's final exit status, so a shutdown function
+	 * that finds $expectingDeath still true (the finally below never ran)
+	 * turns that silent exit(0) into a reported exit(1).
+	 */
+	private function call_handle_expecting_death(): void
+	{
+		if (! self::$shutdownGuardRegistered) {
+			self::$shutdownGuardRegistered = true;
+			register_shutdown_function(static function (): void {
+				if (self::$expectingDeath) {
+					fwrite(STDERR, "ContactAttachmentDownload::handle() reached exit inside a test: a guard that should have died did not\n");
+					exit(1);
+				}
+			});
+		}
+
+		self::$expectingDeath = true;
+		try {
+			ContactAttachmentDownload::handle();
+		} finally {
+			self::$expectingDeath = false;
+		}
+	}
+
 	public function test_a_request_without_a_valid_nonce_dies(): void
 	{
 		wp_set_current_user($this->admin);
 		$this->request($this->id, 'nope');
 		$this->expectException(\WPDieException::class);
-		ContactAttachmentDownload::handle();
+		$this->call_handle_expecting_death();
 	}
 
 	public function test_a_user_without_manage_options_dies_unauthorized(): void
@@ -56,7 +90,7 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		$this->request($this->id, wp_create_nonce(ContactAttachmentDownload::nonce_action($this->id)));
 		$this->expectException(\WPDieException::class);
 		$this->expectExceptionMessage('Unauthorized.');
-		ContactAttachmentDownload::handle();
+		$this->call_handle_expecting_death();
 	}
 
 	public function test_another_post_types_id_dies_not_found(): void
@@ -67,7 +101,7 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		$this->request($booking, wp_create_nonce(ContactAttachmentDownload::nonce_action($booking)));
 		$this->expectException(\WPDieException::class);
 		$this->expectExceptionMessage('File not available');
-		ContactAttachmentDownload::handle();
+		$this->call_handle_expecting_death();
 	}
 
 	public function test_a_nonce_for_one_message_does_not_open_another(): void
@@ -85,7 +119,7 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		// action), measured against this container's WordPress -- not the
 		// later-stage "File not available"/"Unauthorized." messages.
 		$this->expectExceptionMessage('The link you followed has expired.');
-		ContactAttachmentDownload::handle();
+		$this->call_handle_expecting_death();
 	}
 
 	public function test_serve_sends_the_verified_type_attachment_disposition_and_no_cache(): void
