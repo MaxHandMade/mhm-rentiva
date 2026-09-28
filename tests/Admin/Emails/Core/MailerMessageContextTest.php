@@ -151,6 +151,24 @@ final class MailerMessageContextTest extends WP_UnitTestCase {
 		$this->assertSame( 'Merhaba tıkla', \MHMRentiva\Admin\Emails\Core\Templates::replace_placeholders( '{message_body}', $context ) );
 	}
 
+	public function test_the_body_aliases_keep_paragraph_and_line_breaks_as_newlines(): void {
+		// PR #78 bot review: wp_strip_all_tags() alone glued "<p>a</p><p>b</p>"
+		// and "a<br>b" into "ab". Break and block-closing tags become newlines
+		// first, so the file templates' pre-wrap box shows the lines.
+		$root  = $this->root( 'pending' );
+		$reply = $this->reply(
+			$root,
+			$root,
+			'pending',
+			array( 'post_content' => '<p>Birinci</p><p>İkinci</p>Üçüncü<br>Dördüncü<br />Beşinci' )
+		);
+
+		$message = Mailer::getMessageContext( $reply )['message'];
+
+		$this->assertSame( "Birinci\nİkinci\nÜçüncü\nDördüncü\nBeşinci", $message['body'] );
+		$this->assertSame( $message['body'], $message['reply'] );
+	}
+
 	public function test_the_pro_reply_body_token_resolves_to_the_reply(): void {
 		// Pro's default custom body for the reply e-mail is `{reply_body}`
 		// (MessageEmails.php); the engine's snake-to-dot fallback turned it into

@@ -350,8 +350,12 @@ final class Mailer {
 		// Text, not the stored HTML: Pro saves content through wp_kses_post, and
 		// a saved custom body puts {message_body} through the placeholder engine
 		// unescaped. Entities are kept (no decode), so the file templates'
-		// esc_html() does not double-encode and no `<` is reintroduced.
-		$text = wp_strip_all_tags( $post->post_content );
+		// esc_html() does not double-encode and no `<` is reintroduced. Line
+		// breaks and block ends become newlines first, or "<p>a</p><p>b</p>"
+		// would arrive as "ab".
+		$text = wp_strip_all_tags(
+			(string) preg_replace( '#<br\s*/?>|</(?:p|div|li|h[1-6]|blockquote|tr)>#i', "\n", $post->post_content )
+		);
 
 		return array(
 			'message'  => array(
