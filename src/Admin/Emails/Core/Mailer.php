@@ -315,6 +315,8 @@ final class Mailer {
 	/**
 	 * Prepare message context data
 	 *
+	 * Status, category and thread id are read from the thread's root.
+	 *
 	 * @param int $message_id Message ID
 	 * @return array|null Message context data
 	 */
@@ -330,28 +332,53 @@ final class Mailer {
 
 		$customer_name  = get_post_meta( $message_id, '_mhmrentiva_customer_name', true );
 		$customer_email = get_post_meta( $message_id, '_mhmrentiva_customer_email', true );
-		$category       = get_post_meta( $message_id, '_mhmrentiva_message_category', true );
-		$status         = get_post_meta( $message_id, '_mhmrentiva_message_status', true );
-		$thread_id      = get_post_meta( $message_id, '_mhmrentiva_thread_id', true );
+		// Status, category and thread belong to the thread, and the thread's
+		// record of them is its root: a reply's own status is whatever its
+		// writer left there (Pro <= 6.2.0 births every admin reply `pending`),
+		// so an e-mail about a reply to a closed thread said "pending".
+		// Identity, text, sender and booking stay on the given record -- the
+		// e-mail is about that message.
+		$root_id        = self::resolve_message_root( $message_id );
+		$category       = get_post_meta( $root_id, '_mhmrentiva_message_category', true );
+		$status         = get_post_meta( $root_id, '_mhmrentiva_message_status', true );
+		$thread_id      = $root_id !== $message_id
+			? (string) $root_id
+			: get_post_meta( $message_id, '_mhmrentiva_thread_id', true );
 		$msg_booking_id = (int) get_post_meta( $message_id, '_mhmrentiva_booking_id', true );
 		$msg_order_id   = $msg_booking_id ? \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $msg_booking_id ) : 0;
+		$sender_name    = $customer_name ?: __( 'Anonymous', 'mhm-rentiva' );
+		// Text, not the stored HTML: Pro saves content through wp_kses_post, and
+		// a saved custom body puts {message_body} through the placeholder engine
+		// unescaped. Entities are kept (no decode), so the file templates'
+		// esc_html() does not double-encode and no `<` is reintroduced. Line
+		// breaks and block ends become newlines first, or "<p>a</p><p>b</p>"
+		// would arrive as "ab".
+		$text = wp_strip_all_tags(
+			(string) preg_replace( '#<br\s*/?>|</(?:p|div|li|h[1-6]|blockquote|tr)>#i', "\n", $post->post_content )
+		);
 
 		return array(
 			'message'  => array(
-				'id'        => $message_id,
-				'subject'   => $post->post_title,
-				'content'   => $post->post_content,
-				'date'      => $post->post_date,
-				'category'  => $category,
-				'status'    => $status,
-				'thread_id' => $thread_id,
+				'id'         => $message_id,
+				'subject'    => $post->post_title,
+				'content'    => $post->post_content,
+				'date'       => $post->post_date,
+				'category'   => $category,
+				'status'     => $status,
+				'thread_id'  => $thread_id,
+				// The names Pro's default message templates read. Aliases of
+				// content (as text) and the customer fields, not new data.
+				'body'       => $text,
+				'reply'      => $text,
+				'from_name'  => $sender_name,
+				'from_email' => $customer_email,
 			),
 			'booking'  => array(
 				'id'       => $msg_booking_id ?: '',
 				'order_id' => ( $msg_order_id ?: $msg_booking_id ) ?: '',
 			),
 			'customer' => array(
-				'name'  => $customer_name ?: __( 'Anonymous', 'mhm-rentiva' ),
+				'name'  => $sender_name,
 				'email' => $customer_email,
 			),
 			'site'     => array(
@@ -360,6 +387,41 @@ final class Mailer {
 				'admin_email' => get_option( 'admin_email' ),
 			),
 		);
+	}
+
+	/**
+	 * The root of a message's thread, or the message itself when the thread
+	 * cannot be resolved (spec v2.4 §5, plan R-2/R-3).
+	 *
+	 * The root is the record the message's `_mhmrentiva_thread_id` names, in
+	 * the canonical form every writer produces: digits only, no leading zero.
+	 * The digit check comes before the (int) cast so "12abc" never becomes
+	 * record 12. Anything that is not a live message -- a UUID thread id from
+	 * the legacy admin form, a deleted or trashed record, another post type --
+	 * falls back to the message itself, which is what this reader did before.
+	 * Every post_status except `trash` counts as a root (spec §6.1's admin
+	 * rule); the customer-side `publish` rule does not apply to e-mail context.
+	 *
+	 * @param int $message_id Message ID.
+	 * @return int Root message ID, or $message_id.
+	 */
+	private static function resolve_message_root( int $message_id ): int {
+		$thread = get_post_meta( $message_id, '_mhmrentiva_thread_id', true );
+		if ( ! is_string( $thread ) || ! ctype_digit( $thread ) || '0' === $thread[0] ) {
+			return $message_id;
+		}
+
+		$root_id = (int) $thread;
+		if ( $root_id === $message_id ) {
+			return $message_id;
+		}
+
+		$root = get_post( $root_id );
+		if ( ! $root instanceof \WP_Post || 'mhmrentiva_message' !== $root->post_type || 'trash' === $root->post_status ) {
+			return $message_id;
+		}
+
+		return $root_id;
 	}
 
 	/**

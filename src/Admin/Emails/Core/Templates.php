@@ -592,6 +592,9 @@ final class Templates {
 			'total_price'     => 'booking.total_price',
 			'status'          => 'booking.status',
 			'customer_name'   => 'customer.name',
+			// Pro's default custom body for the message-reply e-mail. The
+			// fallback below would read `reply.body`, which no context carries.
+			'reply_body'      => 'message.reply',
 			// Both context keys are flat (top-level), not nested -- the
 			// fallback below (str_replace('_', '.', $token)) would rewrite
 			// them to 'mode.text' / 'admin.mode.text' and silently resolve
