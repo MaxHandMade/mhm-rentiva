@@ -92,6 +92,7 @@ final class ContactMessagePostType {
         // Logged-in only: no admin_post_nopriv_ counterpart. handle() gates on
         // manage_options itself, but an anonymous request should never reach it.
         add_action('admin_post_' . \MHMRentiva\Admin\ContactMessages\ContactAttachmentDownload::ACTION, array( \MHMRentiva\Admin\ContactMessages\ContactAttachmentDownload::class, 'handle' ));
+        add_action('admin_notices', array( \MHMRentiva\Admin\ContactMessages\ContactAttachmentMigration::class, 'render_unmigrated_notice' ));
     }
 
     public static function cpt(): void

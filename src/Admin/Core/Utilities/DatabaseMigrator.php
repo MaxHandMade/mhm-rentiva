@@ -34,6 +34,11 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.4.1 (2026-09-28): migrate_contact_attachments_441() moves contact-form
+	 * attachments from the public uploads folder into the private store
+	 * (ContactAttachmentMigration). Own done flag, same reason as 4.4.0: the
+	 * body replays on every later stamp bump.
+	 *
 	 * 4.4.0 (2026-09-27): migrate_contact_status_440() marks every contact
 	 * message stored before the upgrade as read. It carries its own done flag
 	 * because this migrator replays its whole body on every later stamp
@@ -54,7 +59,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.4.0';
+	private const CURRENT_VERSION = '4.4.1';
 
 	/**
 	 * Whether migrate_contact_status_440() has already run once.
@@ -471,6 +476,7 @@ final class DatabaseMigrator {
 			self::migrate_standalone_settings();
 			self::migrate_vehicle_lifecycle_status();
 			self::migrate_contact_status_440();
+			self::migrate_contact_attachments_441();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -1341,6 +1347,17 @@ final class DatabaseMigrator {
 
 		\MHMRentiva\Admin\ContactMessages\ContactStatus::forget_badge();
 		update_option(self::CONTACT_STATUS_DONE_OPTION, '1', false);
+	}
+
+	/**
+	 * 4.4.1: contact attachments into the private store. A run that cannot
+	 * finish (unwritable folder, failed copy) logs once and leaves its done
+	 * flag unset; like 4.4.0 it runs again on the next stamp bump, never on
+	 * every request -- admin_init is reachable anonymously.
+	 */
+	private static function migrate_contact_attachments_441(): void
+	{
+		\MHMRentiva\Admin\ContactMessages\ContactAttachmentMigration::run();
 	}
 
 	/**
