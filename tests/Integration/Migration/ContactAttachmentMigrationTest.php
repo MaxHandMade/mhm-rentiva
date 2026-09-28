@@ -89,6 +89,78 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		$this->assertFileDoesNotExist($this->sandbox . '/2026/08/shared.pdf');
 	}
 
+	/** Uppercases the scheme://host[:port] authority, leaving the path untouched. */
+	private function with_uppercase_host(string $url): string
+	{
+		return (string) preg_replace_callback('#^(https?://)([^/]+)#', static fn(array $m): string => $m[1] . strtoupper($m[2]), $url);
+	}
+
+	/**
+	 * Review Focus 1 (round 3): classify()'s host check is case-insensitive
+	 * (strcasecmp), so two DIFFERENT meta values -- differing only in host
+	 * case -- both classify 'ok' to the exact same real file.
+	 *
+	 * Measured note: this specific variant does NOT actually discriminate
+	 * round 2 from round 3. next_urls()'s and posts_for()'s WHERE/DISTINCT
+	 * clauses run under the postmeta table's own (case-insensitive) default
+	 * collation, so MySQL itself already folds these two meta values into one
+	 * row before either version of the PHP code sees two distinct URLs at
+	 * all (confirmed by a temporary debug dump: next_urls() returned exactly
+	 * one entry for these two stored values, and posts_for() on it matched
+	 * both posts). It is kept because it is still the exact scenario the
+	 * review asked for and a genuine end-to-end guarantee -- the http/https
+	 * pair below is the one that actually fails against round 2 (a scheme
+	 * difference is real byte content, not something a collation folds).
+	 */
+	public function test_two_host_case_variants_of_one_url_share_one_private_file(): void
+	{
+		$url     = $this->legacy('2026/08/shared-case.pdf');
+		$variant = $this->with_uppercase_host($url);
+		$this->assertNotSame($url, $variant, 'the variant must actually differ from the original meta value');
+
+		$a = $this->contact($url);
+		$b = $this->contact($variant, '2026-08-20 09:00:00');
+
+		$this->assertTrue(ContactAttachmentMigration::run());
+
+		$record_a = ContactAttachmentStore::record($a);
+		$record_b = ContactAttachmentStore::record($b);
+		$this->assertNotNull($record_a);
+		$this->assertNotNull($record_b);
+		$this->assertSame($record_a['file'], $record_b['file'], 'both posts must share the same private file');
+		$this->assertFileDoesNotExist($this->sandbox . '/2026/08/shared-case.pdf');
+		$this->assertSame(array(), $this->unmigrated_reasons());
+		$state = get_option(ContactAttachmentMigration::UNMIGRATED_OPTION, array());
+		$this->assertEmpty($state['store_failed'] ?? false, 'the run must not report the folder as unwritable');
+	}
+
+	/**
+	 * Review Focus 1 (round 3): classify() never compares scheme, only host
+	 * and path -- an http/https pair of the same URL is the same bug class as
+	 * the host-case variant above.
+	 */
+	public function test_an_http_https_pair_of_one_url_share_one_private_file(): void
+	{
+		$url_http = $this->legacy('2026/08/shared-scheme.pdf');
+		$this->assertStringStartsWith('http://', $url_http, 'the sandboxed site URL is expected to be plain http in tests');
+		$url_https = substr_replace($url_http, 'https', 0, 4);
+
+		$a = $this->contact($url_http);
+		$b = $this->contact($url_https, '2026-08-20 09:00:00');
+
+		$this->assertTrue(ContactAttachmentMigration::run());
+
+		$record_a = ContactAttachmentStore::record($a);
+		$record_b = ContactAttachmentStore::record($b);
+		$this->assertNotNull($record_a);
+		$this->assertNotNull($record_b);
+		$this->assertSame($record_a['file'], $record_b['file'], 'both posts must share the same private file');
+		$this->assertFileDoesNotExist($this->sandbox . '/2026/08/shared-scheme.pdf');
+		$this->assertSame(array(), $this->unmigrated_reasons());
+		$state = get_option(ContactAttachmentMigration::UNMIGRATED_OPTION, array());
+		$this->assertEmpty($state['store_failed'] ?? false, 'the run must not report the folder as unwritable');
+	}
+
 	/** @return array<string, array{0:string,1:string}> */
 	public static function refused_urls(): array
 	{

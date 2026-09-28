@@ -52,7 +52,16 @@ final class ContactAttachmentMigration {
 				$url_count = count($urls);
 
 				// Phase 1: classify every post behind every URL in THIS batch
-				// without deleting or moving anything yet.
+				// without deleting or moving anything yet. Review Focus 1
+				// (round 3): keyed by the classified SOURCE PATH, not by URL --
+				// two different meta values (a host-case variant, an http/https
+				// pair, a percent-encoded name) can classify to the exact same
+				// real file. Keying by URL (round 2) gave each variant its own
+				// plan; phase 2 would then copy the same file twice and the
+				// SECOND store_copy() would find its source already deleted by
+				// the first, failing the whole run and leaving every remaining
+				// URL public. Grouping by path means one copy serves every
+				// variant that resolves to it.
 				$plans       = array();
 				$refused_ids = array();
 				foreach ($urls as $url) {
@@ -63,22 +72,29 @@ final class ContactAttachmentMigration {
 					}
 					$seen[ $url ] = true;
 
-					$movable = array();
-					$source  = null;
 					foreach (self::posts_for($url) as $id => $date) {
 						$c = self::classify($url, $date);
-						if ($c['ok']) {
-							$movable[] = $id;
-							$source    = $c;
+						if (! $c['ok']) {
+							self::collect_unmigrated($collected, $id, $url, $c['reason']);
+							$refused_ids[] = $id;
 							continue;
 						}
-						self::collect_unmigrated($collected, $id, $url, $c['reason']);
-						$refused_ids[] = $id;
+						$path = $c['path'];
+						if (! isset($plans[ $path ])) {
+							$plans[ $path ] = array(
+								'movable' => array(),
+								'urls'    => array(),
+								'source'  => $c,
+							);
+						}
+						$plans[ $path ]['movable'][] = array(
+							'post_id' => $id,
+							'url'     => $url,
+						);
+						if (! in_array($url, $plans[ $path ]['urls'], true)) {
+							$plans[ $path ]['urls'][] = $url;
+						}
 					}
-					$plans[ $url ] = array(
-						'movable' => $movable,
-						'source'  => $source,
-					);
 				}
 
 				// Review Focus 2 (round 2 fix): every refusal THIS batch found
@@ -99,12 +115,10 @@ final class ContactAttachmentMigration {
 					delete_post_meta($id, ContactAttachmentStore::META_KEY);
 				}
 
-				// Phase 2: now safe to actually move each URL's file.
-				foreach ($plans as $url => $plan) {
-					if (null === $plan['source']) {
-						continue;
-					}
-					$moved = self::store_and_attach($url, $plan['movable'], $plan['source'], $collected);
+				// Phase 2: now safe to actually move each distinct source file --
+				// one store_copy() per path, whatever URL variants named it.
+				foreach ($plans as $plan) {
+					$moved = self::store_and_attach($plan['urls'], $plan['movable'], $plan['source'], $collected);
 					if (! $moved) {
 						self::log('a file could not be copied into the private folder');
 						self::flag_store_failed();
@@ -326,24 +340,47 @@ final class ContactAttachmentMigration {
 	}
 
 	/**
-	 * Copies $source into the private store and attaches it to every post in
-	 * $movable. Called only after run() has already flushed this batch's
-	 * refusals (Review Focus 2, round 2) -- classification and meta deletion
-	 * happen in run() itself, not here.
+	 * Copies $source into the private store once and attaches it to every
+	 * post in $movable, whatever URL variant each one originally pointed at.
+	 * Called only after run() has already flushed this batch's refusals
+	 * (Review Focus 2, round 2) -- classification and meta deletion for
+	 * refusals happen in run() itself, not here.
 	 *
-	 * @param list<int>                                       $movable
-	 * @param array{path:string,name:string,mime:string}      $source
-	 * @param list<array{post_id:int,url:string,reason:string}> $collected Appended to on a 'source' refusal.
+	 * @param list<string>                                       $urls     Every URL variant this batch found pointing at $source['path'] (R-8 pending tracking).
+	 * @param list<array{post_id:int,url:string}>                $movable  Every post to attach, with the URL it was found under.
+	 * @param array{path:string,name:string,mime:string}         $source
+	 * @param list<array{post_id:int,url:string,reason:string}>  $collected Appended to on a 'source' refusal.
 	 */
-	private static function store_and_attach(string $url, array $movable, array $source, array &$collected): bool
+	private static function store_and_attach(array $urls, array $movable, array $source, array &$collected): bool
 	{
+		// Review Focus 1 (round 3), second belt: a different URL variant of
+		// this exact file, classified in an EARLIER batch, may already have
+		// copied and deleted it -- the by-path grouping above only merges
+		// variants found WITHIN one batch, and two variants far apart
+		// alphabetically can land in different next_urls() pages. Refuse
+		// these posts as 'missing' rather than failing the whole run: the
+		// content itself is already safe, under whichever post got there first.
+		if (! is_file($source['path'])) {
+			$refused = array();
+			foreach ($movable as $m) {
+				self::collect_unmigrated($refused, $m['post_id'], $m['url'], 'missing');
+			}
+			// Same rule as Review Focus 2 (round 2): record before deleting.
+			self::persist_unmigrated($refused);
+			foreach ($movable as $m) {
+				delete_post_meta($m['post_id'], ContactAttachmentStore::META_KEY);
+			}
+
+			return true;
+		}
+
 		$record = ContactAttachmentStore::store_copy($source['path'], $source['name'], $source['mime']);
 		if (is_wp_error($record)) {
 			return false;
 		}
-		self::set_pending($source['path'], $url);
-		foreach ($movable as $id) {
-			ContactAttachmentStore::attach($id, $record);
+		self::set_pending($source['path'], $urls);
+		foreach ($movable as $m) {
+			ContactAttachmentStore::attach($m['post_id'], $record);
 		}
 		if (self::delete_source($source['path'])) {
 			self::set_pending($source['path'], null);
@@ -351,7 +388,7 @@ final class ContactAttachmentMigration {
 			// R-20: the move itself succeeded (rows keep their private record);
 			// the public copy is listed for the owner and stays pending.
 			self::log('the public copy could not be deleted: ' . $source['path']);
-			self::collect_unmigrated($collected, $movable[0], $url, 'source');
+			self::collect_unmigrated($collected, $movable[0]['post_id'], $movable[0]['url'], 'source');
 		}
 
 		return true;
@@ -375,12 +412,25 @@ final class ContactAttachmentMigration {
 		update_option(self::UNMIGRATED_OPTION, $state, false);
 	}
 
-	/** R-8. */
+	/**
+	 * R-8. A pending path may now name more than one URL (round 3, Review
+	 * Focus 1): every variant that classified to this exact file in one
+	 * store_and_attach() call. A plain string is still accepted -- a pending
+	 * row an earlier version wrote before this change named only one.
+	 */
 	private static function finish_pending_sources(): void
 	{
-		foreach ( (array) get_option(self::PENDING_OPTION, array()) as $path => $url) {
-			if (array() !== self::posts_for( (string) $url)) {
-				continue; // Its group is still unmigrated; run()'s batch loop deletes it.
+		foreach ( (array) get_option(self::PENDING_OPTION, array()) as $path => $stored) {
+			$urls       = is_array($stored) ? $stored : array( (string) $stored );
+			$referenced = false;
+			foreach ($urls as $url) {
+				if (array() !== self::posts_for($url)) {
+					$referenced = true;
+					break;
+				}
+			}
+			if ($referenced) {
+				continue; // At least one variant is still unmigrated; run()'s batch loop deletes it.
 			}
 			$uploads = realpath( (string) wp_get_upload_dir()['basedir']);
 			$real    = realpath( (string) $path);
@@ -447,13 +497,14 @@ final class ContactAttachmentMigration {
 		return $out;
 	}
 
-	private static function set_pending(string $path, ?string $url): void
+	/** @param list<string>|null $urls Every URL variant naming $path; null clears the entry. */
+	private static function set_pending(string $path, ?array $urls): void
 	{
 		$pending = (array) get_option(self::PENDING_OPTION, array());
-		if (null === $url) {
+		if (null === $urls) {
 			unset($pending[ $path ]);
 		} else {
-			$pending[ $path ] = $url;
+			$pending[ $path ] = $urls;
 		}
 		update_option(self::PENDING_OPTION, $pending, false);
 	}
@@ -475,10 +526,13 @@ final class ContactAttachmentMigration {
 	 * the same option earlier in the same request; this always re-reads
 	 * fresh before merging, so nothing here clobbers those).
 	 *
-	 * De-duplicated by post_id + reason (round 2 / Review Focus 2): $collected
-	 * keeps growing across a run and this is now called once per batch, so
-	 * the same item would otherwise be re-merged on every later call; a
-	 * second run that re-refuses an already-listed post for the same reason
+	 * De-duplicated by post_id + reason + url (round 2 / Review Focus 2;
+	 * round 3, Review Focus 2: the key now also includes the url -- the same
+	 * post can legitimately be refused for the same reason under two
+	 * DIFFERENT URL variants, and both are worth listing). $collected keeps
+	 * growing across a run and this is now called once per batch, so the
+	 * same item would otherwise be re-merged on every later call; a second
+	 * run that re-refuses an already-listed post for the same reason and url
 	 * (e.g. its meta was restored) must not add a second entry either.
 	 *
 	 * @param list<array{post_id:int,url:string,reason:string}> $collected
@@ -494,11 +548,11 @@ final class ContactAttachmentMigration {
 
 		$seen = array();
 		foreach ($existing as $item) {
-			$seen[ $item['post_id'] . '|' . $item['reason'] ] = true;
+			$seen[ $item['post_id'] . '|' . $item['reason'] . '|' . $item['url'] ] = true;
 		}
 		$added = false;
 		foreach ($collected as $item) {
-			$key = $item['post_id'] . '|' . $item['reason'];
+			$key = $item['post_id'] . '|' . $item['reason'] . '|' . $item['url'];
 			if (isset($seen[ $key ])) {
 				continue;
 			}
