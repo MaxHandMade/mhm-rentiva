@@ -57,6 +57,7 @@ final class ContactAttachmentStore {
 		 *
 		 * @param string $root Absolute path; default <uploads>/mhm-rentiva-private/contact.
 		 */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- self::ROOT_FILTER is 'mhmrentiva_contact_attachment_root', which carries the plugin prefix.
 		$root = untrailingslashit(wp_normalize_path( (string) apply_filters(self::ROOT_FILTER, $default)));
 		if ('' === $root || ! wp_mkdir_p($root) || ! wp_is_writable($root)) {
 			return self::unavailable();
@@ -228,7 +229,7 @@ final class ContactAttachmentStore {
 	{
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A COUNT joined on post type; meta_query cannot restrict the counted rows to one post type, and a cached count could delete a file still in use.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A security-relevant existence COUNT joined on post type; a cached or hydrated WP_Query result could miss a reference and delete a file still in use.
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->postmeta} pm
@@ -245,6 +246,7 @@ final class ContactAttachmentStore {
 	/** Realpath() of the (filtered) root without creating it. */
 	private static function existing_root(): ?string
 	{
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- self::ROOT_FILTER is 'mhmrentiva_contact_attachment_root', which carries the plugin prefix.
 		$real = realpath( (string) apply_filters(self::ROOT_FILTER, self::default_root()));
 		return false === $real ? null : untrailingslashit(wp_normalize_path($real));
 	}
