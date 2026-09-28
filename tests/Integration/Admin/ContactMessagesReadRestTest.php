@@ -303,4 +303,39 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		}
 		$this->assertSame(1, $response->get_data()['total']);
 	}
+
+	/** R-12: December 9999's exclusive upper bound is 10000-01-01, which MySQL 8 rejects. */
+	public function test_period_outside_years_1000_to_9998_is_a_400(): void
+	{
+		wp_set_current_user($this->admin);
+		$this->assertSame(400, $this->get('/contact-messages', array( 'period' => '9999-12' ))->get_status());
+		$this->assertSame(400, $this->get('/contact-messages', array( 'period' => '0999-01' ))->get_status());
+		$this->assertSame(200, $this->get('/contact-messages', array( 'period' => '9998-12' ))->get_status());
+		$this->assertSame(200, $this->get('/contact-messages', array( 'period' => '1000-01' ))->get_status());
+	}
+
+	public function test_a_month_period_lists_exactly_that_month(): void
+	{
+		wp_set_current_user($this->admin);
+		$this->contact(array( 'name' => 'Before' ), array( 'post_date' => '2026-07-31 23:59:59' ));
+		$first = $this->contact(array( 'name' => 'First' ), array( 'post_date' => '2026-08-01 00:00:00' ));
+		$last  = $this->contact(array( 'name' => 'Last' ), array( 'post_date' => '2026-08-31 23:59:59' ));
+		$this->contact(array( 'name' => 'After' ), array( 'post_date' => '2026-09-01 00:00:00' ));
+
+		$ids = wp_list_pluck($this->get('/contact-messages', array( 'period' => '2026-08' ))->get_data()['items'], 'id');
+		sort($ids);
+		$this->assertSame(array( $first, $last ), $ids);
+	}
+
+	public function test_a_seven_day_period_lists_only_the_last_seven_days(): void
+	{
+		wp_set_current_user($this->admin);
+		// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- post_date is local time; the fixture must use the same clock as the repository.
+		$now    = (int) current_time('timestamp');
+		$recent = $this->contact(array( 'name' => 'Recent' ), array( 'post_date' => gmdate('Y-m-d H:i:s', $now - DAY_IN_SECONDS) ));
+		$this->contact(array( 'name' => 'Old' ), array( 'post_date' => gmdate('Y-m-d H:i:s', $now - 8 * DAY_IN_SECONDS) ));
+
+		$ids = wp_list_pluck($this->get('/contact-messages', array( 'period' => '7d' ))->get_data()['items'], 'id');
+		$this->assertSame(array( $recent ), $ids);
+	}
 }

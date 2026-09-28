@@ -50,7 +50,7 @@ final class ContactMessagesRestController {
 				'period'   => array(
 					'type'              => 'string',
 					'default'           => '',
-					'validate_callback' => static fn($v): bool => is_string($v) && ( in_array($v, array( '', '7d', '30d' ), true) || 1 === preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $v) ),
+					'validate_callback' => static fn($v): bool => is_string($v) && ContactMessageRepository::is_valid_period($v),
 				),
 				'search'   => array(
 					'type'              => 'string',
