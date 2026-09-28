@@ -95,17 +95,25 @@ final class ContactAttachmentStore {
 	 * the re-validation and size check below, not by core's own checks.
 	 *
 	 * @internal The $handler parameter is a test seam.
-	 * @param callable(array,array):array|null $handler Test seam; signature of
+	 * @param callable(array,array):array|null $handler   Test seam; signature of
 	 *        wp_handle_upload(array &$file, array $overrides): array. Default
 	 *        null means 'wp_handle_upload' itself.
+	 * @param int $max_bytes Re-applied to the bytes that actually land on disk
+	 *        (0 = no cap): a *_prefilter hook can rewrite tmp_name to a larger
+	 *        payload after the caller already checked the pre-upload size.
 	 * @return array{file:string,name:string,mime:string,size:int}|\WP_Error
 	 */
-	public static function store_upload(string $tmp, string $original_name, ?callable $handler = null)
+	public static function store_upload(string $tmp, string $original_name, ?callable $handler = null, int $max_bytes = 0)
 	{
 		$name  = self::clean_name($original_name);
 		$valid = ContactAttachmentValidator::validate($tmp, $name);
 		if (is_wp_error($valid)) {
 			return $valid;
+		}
+		// Cheap early exit: refuse before ever calling the handler if the
+		// caller's own pre-upload size figure is already over the cap.
+		if ($max_bytes > 0 && filesize($tmp) > $max_bytes) {
+			return self::unavailable();
 		}
 		$root = self::root();
 		if (is_wp_error($root)) {
@@ -197,7 +205,15 @@ final class ContactAttachmentStore {
 			return self::unavailable();
 		}
 
-		return self::finish(true, $real, $token, $name, $again['mime'], (int) filesize($real));
+		// Re-apply the cap to the bytes actually stored: the same prefilter
+		// that can rewrite content (Fable I1) can also just make it bigger.
+		$stored_size = (int) filesize($real);
+		if ($max_bytes > 0 && $stored_size > $max_bytes) {
+			wp_delete_file($real);
+			return self::unavailable();
+		}
+
+		return self::finish(true, $real, $token, $name, $again['mime'], $stored_size);
 	}
 
 	/**

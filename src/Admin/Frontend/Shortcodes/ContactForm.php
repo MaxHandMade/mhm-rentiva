@@ -767,7 +767,7 @@ final class ContactForm extends AbstractShortcode {
 			);
 		}
 
-		$record = ContactAttachmentStore::store_upload($tmp, (string) ( $file['name'] ?? '' ), $handler);
+		$record = ContactAttachmentStore::store_upload($tmp, (string) ( $file['name'] ?? '' ), $handler, self::max_attachment_bytes());
 		if (is_wp_error($record)) {
 			return array(
 				'success' => false,

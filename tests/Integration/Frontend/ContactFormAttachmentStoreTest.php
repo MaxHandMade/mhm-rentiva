@@ -87,6 +87,35 @@ final class ContactFormAttachmentStoreTest extends WP_UnitTestCase
 		$this->assertSame($before, (int) wp_count_posts('mhmrentiva_contact')->private);
 	}
 
+	/**
+	 * PR #77 bot comment: ContactForm's own pre-upload size check only sees
+	 * the tmp file BEFORE the move; a prefilter can enlarge it afterwards.
+	 * handle_file_upload() must pass its cap through to store_upload() so the
+	 * stored file is checked too.
+	 */
+	public function test_a_prefilter_enlarging_the_file_past_the_cap_is_refused(): void
+	{
+		add_filter('mhmrentiva_contact_attachment_max_bytes', static fn() => 200);
+		$big    = "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n" . str_repeat('X', 300) . "\n%%EOF\n";
+		$filter = static function (array $file) use ($big): array {
+			file_put_contents($file['tmp_name'], $big);
+			return $file;
+		};
+		add_filter('wp_handle_sideload_prefilter', $filter);
+		try {
+			$r = $this->submit(array(), 'pdf', 'a.pdf');
+		} finally {
+			remove_filter('wp_handle_sideload_prefilter', $filter);
+			remove_all_filters('mhmrentiva_contact_attachment_max_bytes');
+		}
+
+		$this->assertFalse($r['ok']);
+		// Caught inside store_upload() after the move, not by handle_file_upload()'s
+		// own pre-upload size check (that one already passed, on the small fixture).
+		$this->assertSame('The file could not be uploaded.', $r['message']);
+		$this->assertSame(array(), $this->stored_files());
+	}
+
 	public function test_the_admin_email_attaches_the_file_under_its_original_name_and_carries_no_link(): void
 	{
 		$r    = $this->submit(array(), 'pdf', 'Teklif şartname.pdf');

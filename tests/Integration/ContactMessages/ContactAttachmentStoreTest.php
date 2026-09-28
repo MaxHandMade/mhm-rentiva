@@ -216,6 +216,34 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * PR #77 bot comment: a wp_handle_upload_prefilter-shaped hook can rewrite
+	 * tmp_name to a LARGER still-valid payload after the caller's own
+	 * pre-upload size check already passed (ContactForm::handle_file_upload()
+	 * only sees the size before the move). The cap must be re-applied to the
+	 * file that actually landed on disk, using the 4th $max_bytes argument.
+	 */
+	public function test_a_prefilter_enlarging_the_file_past_an_explicit_cap_is_refused_and_the_root_is_unchanged(): void
+	{
+		$root   = (string) ContactAttachmentStore::root();
+		$before = scandir($root);
+		$big    = "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n" . str_repeat('X', 300) . "\n%%EOF\n";
+		$this->assertGreaterThan(200, strlen($big), 'fixture sanity: the rewritten payload must exceed the cap used below');
+		$filter = static function (array $file) use ($big): array {
+			file_put_contents($file['tmp_name'], $big);
+			return $file;
+		};
+		add_filter('wp_handle_sideload_prefilter', $filter);
+		try {
+			$r = ContactAttachmentStore::store_upload($this->fixture($this->in, 'pdf'), 'a.pdf', $this->sideload(), 200);
+		} finally {
+			remove_filter('wp_handle_sideload_prefilter', $filter);
+		}
+
+		$this->assertInstanceOf(\WP_Error::class, $r);
+		$this->assertSame($before, scandir($root));
+	}
+
+	/**
 	 * Fable I2: a wp_handle_upload filter (the one core applies to its own
 	 * RETURN value -- always named 'wp_handle_upload' regardless of
 	 * whether wp_handle_upload() or wp_handle_sideload() was called,
