@@ -175,6 +175,125 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		$this->assertFileExists($target, 'the symlink target must survive untouched');
 	}
 
+	/**
+	 * Review Focus 2 (round 2): the ENTIRE uploads basedir is a symlink here,
+	 * not one file inside it -- Bedrock/Capistrano's shared/uploads convention
+	 * and mounted-volume deployments generally. The round-1 fix compared
+	 * realpath() against a literal built from the UNRESOLVED basedir, so every
+	 * legitimate file failed that comparison and was refused as 'missing'.
+	 */
+	public function test_a_symlinked_uploads_root_still_migrates_a_legitimate_file(): void
+	{
+		$real = $this->sandbox . '-symlink-target';
+		$link = $this->sandbox . '-symlink-root';
+		wp_mkdir_p($real . '/2026/08');
+		copy($this->fixture($this->sandbox . '/src', 'pdf'), $real . '/2026/08/via-symlink.pdf');
+		symlink($real, $link);
+
+		add_filter('upload_dir', static function (array $dir) use ($link): array {
+			$dir['basedir'] = $link;
+			return $dir;
+		});
+
+		$url = trailingslashit(wp_get_upload_dir()['baseurl']) . '2026/08/via-symlink.pdf';
+		$id  = $this->contact($url);
+
+		try {
+			$this->assertTrue(ContactAttachmentMigration::run());
+			$this->assertNotNull(ContactAttachmentStore::record($id), 'a legitimate file under a symlinked uploads root must still migrate');
+		} finally {
+			unlink($link);
+			$this->remove_tree($real);
+		}
+	}
+
+	private function remove_tree(string $dir): void
+	{
+		if (! is_dir($dir)) {
+			return;
+		}
+		$it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+		foreach ($it as $f) {
+			$f->isDir() ? rmdir($f->getPathname()) : unlink($f->getPathname());
+		}
+		rmdir($dir);
+	}
+
+	/**
+	 * Review Focus 2 (round 2): the refusal must already be written to
+	 * UNMIGRATED_OPTION at the exact moment its meta is about to be deleted
+	 * -- delete_metadata() fires 'delete_post_meta' immediately before the
+	 * actual DELETE (wp-includes/meta.php), which is the last observable
+	 * point before a real fatal (timeout/memory -- uncatchable, so it would
+	 * skip run()'s try/finally too) could strand a refusal that was cleared
+	 * but never recorded.
+	 */
+	public function test_a_refusal_is_recorded_before_its_meta_is_cleared(): void
+	{
+		$id = $this->contact('https://evil.example/x.pdf'); // always refused: 'host'.
+
+		$recorded_before_delete = null;
+		$hook                   = function ($meta_ids, $object_id, $meta_key) use ($id, &$recorded_before_delete): void {
+			if ($object_id !== $id || ContactAttachmentStore::META_KEY !== $meta_key) {
+				return;
+			}
+			$state                  = get_option(ContactAttachmentMigration::UNMIGRATED_OPTION, array());
+			$reasons                = wp_list_pluck( (array) ( $state['items'] ?? array() ), 'reason', 'post_id');
+			$recorded_before_delete = $reasons[ $id ] ?? null;
+		};
+		add_action('delete_post_meta', $hook, 10, 3);
+
+		ContactAttachmentMigration::run();
+
+		remove_action('delete_post_meta', $hook, 10);
+
+		$this->assertSame('host', $recorded_before_delete, 'the refusal must already be in the option before its meta is deleted');
+	}
+
+	/** Review Focus 2 (round 2): a refusal in the FIRST of two batches must still be recorded by the time run() finishes. */
+	public function test_a_refusal_in_the_first_of_two_batches_still_ends_up_recorded(): void
+	{
+		// '0' sorts before 'b' in next_urls()'s ORDER BY meta_value, so this
+		// lands in the first LIMIT-50 batch out of 55 total URLs.
+		$bad_url = trailingslashit(wp_get_upload_dir()['baseurl']) . '2026/08/0-refused.zip';
+		$bad_id  = $this->contact($bad_url);
+
+		$ids = array();
+		for ($i = 0; $i < 54; $i++) {
+			$ids[] = $this->contact($this->legacy(sprintf('2026/08/b%02d.pdf', $i)));
+		}
+
+		ContactAttachmentMigration::run();
+
+		$this->assertSame(array( $bad_id => 'extension' ), $this->unmigrated_reasons());
+		foreach ($ids as $id) {
+			$this->assertNotNull(ContactAttachmentStore::record($id));
+		}
+	}
+
+	/** Review Focus 2 (round 2): persist_unmigrated()'s de-dup by post_id + reason. */
+	public function test_a_repeated_refusal_after_the_meta_is_restored_produces_only_one_entry(): void
+	{
+		$url = trailingslashit(wp_get_upload_dir()['baseurl']) . '2026/08/repeat.zip';
+		$id  = $this->contact($url);
+
+		ContactAttachmentMigration::run();
+		$state = get_option(ContactAttachmentMigration::UNMIGRATED_OPTION, array());
+		$this->assertCount(1, (array) ( $state['items'] ?? array() ));
+
+		// Simulate the meta reappearing (a restored revision, a bad import)
+		// and the migration running again from scratch.
+		update_post_meta($id, ContactAttachmentStore::META_KEY, wp_slash($url));
+		delete_option(ContactAttachmentMigration::DONE_OPTION);
+		ContactAttachmentMigration::run();
+
+		$state = get_option(ContactAttachmentMigration::UNMIGRATED_OPTION, array());
+		$items = (array) ( $state['items'] ?? array() );
+		$this->assertCount(1, $items, 'a re-refusal of the same post for the same reason must not add a second entry');
+		$this->assertSame($id, $items[0]['post_id']);
+		$this->assertSame('extension', $items[0]['reason']);
+	}
+
 	public function test_content_that_does_not_prove_its_extension_is_refused(): void
 	{
 		$id = $this->contact($this->legacy('2026/08/fake.pdf', 'zip'));

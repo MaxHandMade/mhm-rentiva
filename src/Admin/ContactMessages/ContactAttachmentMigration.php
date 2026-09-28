@@ -50,6 +50,11 @@ final class ContactAttachmentMigration {
 			do {
 				$urls      = self::next_urls();
 				$url_count = count($urls);
+
+				// Phase 1: classify every post behind every URL in THIS batch
+				// without deleting or moving anything yet.
+				$plans       = array();
+				$refused_ids = array();
 				foreach ($urls as $url) {
 					if (isset($seen[ $url ])) {
 						self::log('a message kept its legacy URL after being processed');
@@ -57,13 +62,60 @@ final class ContactAttachmentMigration {
 						return false;
 					}
 					$seen[ $url ] = true;
-					$moved        = self::migrate_url($url, $collected);
+
+					$movable = array();
+					$source  = null;
+					foreach (self::posts_for($url) as $id => $date) {
+						$c = self::classify($url, $date);
+						if ($c['ok']) {
+							$movable[] = $id;
+							$source    = $c;
+							continue;
+						}
+						self::collect_unmigrated($collected, $id, $url, $c['reason']);
+						$refused_ids[] = $id;
+					}
+					$plans[ $url ] = array(
+						'movable' => $movable,
+						'source'  => $source,
+					);
+				}
+
+				// Review Focus 2 (round 2 fix): every refusal THIS batch found
+				// is written down BEFORE any of its meta is cleared below.
+				// Previously the option was written only in this method's
+				// finally, so a fatal (timeout/memory -- not a catchable
+				// exception, so try/finally never runs either) between an
+				// earlier batch's delete_post_meta() and the end of run()
+				// could clear a meta whose refusal was never recorded
+				// anywhere, losing the URL for good. A death between THIS
+				// flush and the deletions below now only leaves the metas in
+				// place: the next run re-refuses the same posts, and
+				// persist_unmigrated()'s de-dup (by post_id + reason) keeps
+				// the list from growing on that retry.
+				self::persist_unmigrated($collected);
+
+				foreach ($refused_ids as $id) {
+					delete_post_meta($id, ContactAttachmentStore::META_KEY);
+				}
+
+				// Phase 2: now safe to actually move each URL's file.
+				foreach ($plans as $url => $plan) {
+					if (null === $plan['source']) {
+						continue;
+					}
+					$moved = self::store_and_attach($url, $plan['movable'], $plan['source'], $collected);
 					if (! $moved) {
 						self::log('a file could not be copied into the private folder');
 						self::flag_store_failed();
 						return false;
 					}
 				}
+
+				// Same ordering for 'source' items (Review Focus 2): they are
+				// recorded, never meta-deleted, so flushing once per batch --
+				// rather than only at the very end -- is enough.
+				self::persist_unmigrated($collected);
 			} while (self::BATCH === $url_count);
 
 			// Review Focus 4: a clean finish no longer needs to say the folder
@@ -77,9 +129,10 @@ final class ContactAttachmentMigration {
 			self::flag_store_failed();
 			return false;
 		} finally {
-			// Review Focus 5: one option write for everything THIS run
-			// refused, on every exit path (success, a stop, or an exception)
-			// -- not one write per item.
+			// Backstop for the last (possibly partial) batch, or anything an
+			// exception left uncollected above -- persist_unmigrated()'s
+			// de-dup makes a repeat call here, after the per-batch flushes
+			// above already ran, a safe no-op.
 			self::persist_unmigrated($collected);
 		}
 	}
@@ -127,17 +180,24 @@ final class ContactAttachmentMigration {
 		}
 
 		$real_base = realpath( (string) $uploads['basedir']);
-		$literal   = trailingslashit( (string) $uploads['basedir']) . $rel;
-		$real      = realpath($literal);
-		if (false === $real_base || false === $real || ! is_file($real)
-			|| ! str_starts_with(wp_normalize_path($real), untrailingslashit(wp_normalize_path($real_base)) . '/')) {
+		$real      = realpath(trailingslashit( (string) $uploads['basedir']) . $rel);
+		if (false === $real_base || false === $real || ! is_file($real)) {
 			return self::refuse('missing');
 		}
-		// Review Focus 2: a symlink (or any other alias) that RESOLVES
-		// somewhere else on disk must not unlock a delete of whatever it
-		// actually points at -- the literal path is what gets deleted later,
-		// so it is the literal path that must be the real file.
-		if (wp_normalize_path($real) !== wp_normalize_path($literal)) {
+		// Review Focus 2 (round 2 fix): compared against the RESOLVED base,
+		// not the literal (unresolved) uploads['basedir'] -- a symlinked
+		// uploads root (Bedrock/Capistrano shared/uploads, a mounted volume)
+		// must not refuse every legitimate file just because
+		// trailingslashit(basedir) . $rel never resolves back to itself. A
+		// symlink further down -- the file itself, or a month folder --
+		// still gets caught: realpath() resolves it to somewhere that is not
+		// real_base . '/' . $rel, which is exactly what this equality tests.
+		// This single check also replaces the old separate "starts with
+		// real_base" containment test: $rel can never carry ".." (the shape
+		// regex above only accepts digit-only year/month segments and a
+		// slash-free filename), so exact equality is strictly the stronger
+		// of the two.
+		if (wp_normalize_path($real) !== untrailingslashit(wp_normalize_path($real_base)) . '/' . $rel) {
 			return self::refuse('missing');
 		}
 
@@ -265,26 +325,18 @@ final class ContactAttachmentMigration {
 		update_option(self::UNMIGRATED_OPTION, $state, false);
 	}
 
-	/** @param list<array{post_id:int,url:string,reason:string}> $collected Appended to; written once by run() (Review Focus 5). */
-	private static function migrate_url(string $url, array &$collected): bool
+	/**
+	 * Copies $source into the private store and attaches it to every post in
+	 * $movable. Called only after run() has already flushed this batch's
+	 * refusals (Review Focus 2, round 2) -- classification and meta deletion
+	 * happen in run() itself, not here.
+	 *
+	 * @param list<int>                                       $movable
+	 * @param array{path:string,name:string,mime:string}      $source
+	 * @param list<array{post_id:int,url:string,reason:string}> $collected Appended to on a 'source' refusal.
+	 */
+	private static function store_and_attach(string $url, array $movable, array $source, array &$collected): bool
 	{
-		$movable = array();
-		$source  = null;
-		foreach (self::posts_for($url) as $id => $date) {
-			$c = self::classify($url, $date);
-			if ($c['ok']) {
-				$movable[] = $id;
-				$source    = $c;
-				continue;
-			}
-			delete_post_meta($id, ContactAttachmentStore::META_KEY);
-			self::collect_unmigrated($collected, $id, $url, $c['reason']);
-		}
-
-		if (null === $source) {
-			return true;
-		}
-
 		$record = ContactAttachmentStore::store_copy($source['path'], $source['name'], $source['mime']);
 		if (is_wp_error($record)) {
 			return false;
@@ -328,7 +380,7 @@ final class ContactAttachmentMigration {
 	{
 		foreach ( (array) get_option(self::PENDING_OPTION, array()) as $path => $url) {
 			if (array() !== self::posts_for( (string) $url)) {
-				continue; // Its group is still unmigrated; migrate_url() deletes it.
+				continue; // Its group is still unmigrated; run()'s batch loop deletes it.
 			}
 			$uploads = realpath( (string) wp_get_upload_dir()['basedir']);
 			$real    = realpath( (string) $path);
@@ -423,6 +475,12 @@ final class ContactAttachmentMigration {
 	 * the same option earlier in the same request; this always re-reads
 	 * fresh before merging, so nothing here clobbers those).
 	 *
+	 * De-duplicated by post_id + reason (round 2 / Review Focus 2): $collected
+	 * keeps growing across a run and this is now called once per batch, so
+	 * the same item would otherwise be re-merged on every later call; a
+	 * second run that re-refuses an already-listed post for the same reason
+	 * (e.g. its meta was restored) must not add a second entry either.
+	 *
 	 * @param list<array{post_id:int,url:string,reason:string}> $collected
 	 */
 	private static function persist_unmigrated(array $collected): void
@@ -430,9 +488,29 @@ final class ContactAttachmentMigration {
 		if (array() === $collected) {
 			return;
 		}
-		$state             = get_option(self::UNMIGRATED_OPTION, array());
-		$state             = is_array($state) ? $state : array();
-		$state['items']    = array_merge( (array) ( $state['items'] ?? array() ), $collected);
+		$state    = get_option(self::UNMIGRATED_OPTION, array());
+		$state    = is_array($state) ? $state : array();
+		$existing = (array) ( $state['items'] ?? array() );
+
+		$seen = array();
+		foreach ($existing as $item) {
+			$seen[ $item['post_id'] . '|' . $item['reason'] ] = true;
+		}
+		$added = false;
+		foreach ($collected as $item) {
+			$key = $item['post_id'] . '|' . $item['reason'];
+			if (isset($seen[ $key ])) {
+				continue;
+			}
+			$seen[ $key ] = true;
+			$existing[]   = $item;
+			$added        = true;
+		}
+		if (! $added) {
+			return;
+		}
+
+		$state['items']    = $existing;
 		$state['notified'] = false;
 		update_option(self::UNMIGRATED_OPTION, $state, false);
 	}
