@@ -134,6 +134,35 @@ final class MailerMessageContextTest extends WP_UnitTestCase {
 		$this->assertSame( 'ayse@example.com', $message['from_email'] );
 	}
 
+	public function test_the_body_aliases_carry_text_not_the_stored_html(): void {
+		// Pro stores message content through wp_kses_post, so links and images
+		// survive. The file templates escape, but a saved custom body puts
+		// {message_body} through the placeholder engine raw -- customer-written
+		// markup must not reach the admin's inbox as live HTML there.
+		$root  = $this->root( 'pending' );
+		$html  = '<p>Merhaba <a href="https://phish.example/x">tıkla</a></p><img src="https://phish.example/p.png">';
+		$reply = $this->reply( $root, $root, 'pending', array( 'post_content' => $html ) );
+
+		$context = Mailer::getMessageContext( $reply );
+
+		$this->assertSame( 'Merhaba tıkla', $context['message']['body'] );
+		$this->assertSame( 'Merhaba tıkla', $context['message']['reply'] );
+		$this->assertSame( get_post( $reply )->post_content, $context['message']['content'], 'content itself is unchanged (R-4)' );
+		$this->assertSame( 'Merhaba tıkla', \MHMRentiva\Admin\Emails\Core\Templates::replace_placeholders( '{message_body}', $context ) );
+	}
+
+	public function test_the_pro_reply_body_token_resolves_to_the_reply(): void {
+		// Pro's default custom body for the reply e-mail is `{reply_body}`
+		// (MessageEmails.php); the engine's snake-to-dot fallback turned it into
+		// `reply.body`, which no context carries, so it rendered empty.
+		$root  = $this->root( 'answered' );
+		$reply = $this->reply( $root, $root, 'answered', array( 'post_content' => 'Yanıtımız burada.' ) );
+
+		$out = \MHMRentiva\Admin\Emails\Core\Templates::replace_placeholders( '[{reply_body}]', Mailer::getMessageContext( $reply ) );
+
+		$this->assertSame( '[Yanıtımız burada.]', $out );
+	}
+
 	public function test_a_chained_reply_reads_the_root_not_its_parent(): void {
 		// Live 3665: parent is the reply 3664, thread_id is the root 3358.
 		$root   = $this->root( 'answered' );

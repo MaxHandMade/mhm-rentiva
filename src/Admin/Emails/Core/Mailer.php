@@ -347,6 +347,11 @@ final class Mailer {
 		$msg_booking_id = (int) get_post_meta( $message_id, '_mhmrentiva_booking_id', true );
 		$msg_order_id   = $msg_booking_id ? \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $msg_booking_id ) : 0;
 		$sender_name    = $customer_name ?: __( 'Anonymous', 'mhm-rentiva' );
+		// Text, not the stored HTML: Pro saves content through wp_kses_post, and
+		// a saved custom body puts {message_body} through the placeholder engine
+		// unescaped. Entities are kept (no decode), so the file templates'
+		// esc_html() does not double-encode and no `<` is reintroduced.
+		$text = wp_strip_all_tags( $post->post_content );
 
 		return array(
 			'message'  => array(
@@ -358,9 +363,9 @@ final class Mailer {
 				'status'     => $status,
 				'thread_id'  => $thread_id,
 				// The names Pro's default message templates read. Aliases of
-				// content and the customer fields, not new data.
-				'body'       => $post->post_content,
-				'reply'      => $post->post_content,
+				// content (as text) and the customer fields, not new data.
+				'body'       => $text,
+				'reply'      => $text,
 				'from_name'  => $sender_name,
 				'from_email' => $customer_email,
 			),
