@@ -47,7 +47,12 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 	private function contact(string $url, string $date = '2026-08-01 12:00:00'): int
 	{
 		$id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private', 'post_date' => $date ));
-		update_post_meta($id, ContactAttachmentStore::META_KEY, $url);
+		// update_post_meta() treats its value as "expected_slashed" and calls
+		// wp_unslash() on the way in (meta.php's update_metadata()); without
+		// wp_slash() here, a literal backslash in $url is silently eaten by
+		// PHP's stripslashes() ("a\b" -> "ab") before it ever reaches the
+		// migration -- measured directly against this test suite, not assumed.
+		update_post_meta($id, ContactAttachmentStore::META_KEY, wp_slash($url));
 		return $id;
 	}
 
@@ -106,6 +111,17 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 			// before the control-character guard -- turns it into a real NUL byte,
 			// which realpath() rejects with a ValueError on PHP 8 without the fix.
 			'control character'  => array( '{base}/2026/08/a%00.pdf', 'shape' ),
+			// Review Focus 7: the counterpart to the case above -- a raw NUL byte
+			// really is refused, just not for reason 'shape' (see the comment on
+			// the case above for why): parse_url() rewrites it to "_" before
+			// classify() sees it, so it reads as an ordinary, non-existent name.
+			'raw NUL byte'        => array( "{base}/2026/08/a\0.pdf", 'missing' ),
+			// rawurldecode() turns this into a literal "/" inside what must be a
+			// single path segment; the shape regex has no slash-in-segment case.
+			'percent-encoded slash' => array( '{base}/2026/08/a%2Fb.pdf', 'shape' ),
+			// A literal backslash is barred from the filename segment by the
+			// same character class that already excludes "/".
+			'backslash'           => array( '{base}/2026/08/a\\b.pdf', 'shape' ),
 		);
 	}
 
@@ -127,6 +143,38 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		}
 	}
 
+	/** Review Focus 7: a ".." segment is refused however the regex happens to reject it; nothing gets deleted either way. */
+	public function test_a_dot_dot_segment_is_refused_and_nothing_is_deleted(): void
+	{
+		$outside = $this->sandbox . '/secret.pdf';
+		copy($this->fixture($this->sandbox . '/src', 'pdf'), $outside);
+		$url = trailingslashit(wp_get_upload_dir()['baseurl']) . '2026/08/../../secret.pdf';
+		$id  = $this->contact($url);
+
+		ContactAttachmentMigration::run();
+
+		$reasons = $this->unmigrated_reasons();
+		$this->assertArrayHasKey($id, $reasons);
+		$this->assertContains($reasons[ $id ], array( 'shape', 'missing' ));
+		$this->assertFileExists($outside);
+	}
+
+	/** Review Focus 2: a symlink resolving elsewhere on disk must not unlock a delete of its target. */
+	public function test_a_symlink_is_refused_and_its_target_survives(): void
+	{
+		$this->legacy('2026/08/real-target.pdf');
+		$target = $this->sandbox . '/2026/08/real-target.pdf';
+		$link   = $this->sandbox . '/2026/08/linked.pdf';
+		symlink($target, $link);
+		$url = trailingslashit(wp_get_upload_dir()['baseurl']) . '2026/08/linked.pdf';
+		$id  = $this->contact($url);
+
+		ContactAttachmentMigration::run();
+
+		$this->assertSame(array( $id => 'missing' ), $this->unmigrated_reasons());
+		$this->assertFileExists($target, 'the symlink target must survive untouched');
+	}
+
 	public function test_content_that_does_not_prove_its_extension_is_refused(): void
 	{
 		$id = $this->contact($this->legacy('2026/08/fake.pdf', 'zip'));
@@ -144,6 +192,19 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 			'a -scaled original'               => array( '2026/08/big-scaled.png', '2026/08/big-scaled.png' ),
 			'a sub-size of a -scaled original' => array( '2026/08/big-scaled.png', '2026/08/big-300x200.png' ),
 			'a -rotated original'              => array( '2026/08/turn-rotated.png', '2026/08/turn-rotated.png' ),
+			// Review Focus 1: names actually measured in the container's own
+			// core (wp-admin/includes/image.php, image-edit.php), not guessed.
+			// A -rotated original's own -WxH sub-size (image.php ~:412 EXIF
+			// auto-rotate; sub-sizes are then generated from the rotated file).
+			'a -rotated original\'s -WxH sub-size' => array( '2026/08/turn-rotated.png', '2026/08/turn-300x200.png' ),
+			// ...and its own pre-rotation name, which core keeps registered too.
+			'a -rotated original\'s own name'      => array( '2026/08/turn-rotated.png', '2026/08/turn.png' ),
+			// image-edit.php's wp_save_image(): editing a library image backs up
+			// the pre-edit file under -e<13+ digit millisecond timestamp>.
+			'an edited image\'s pre-edit name'     => array( '2026/08/photo-e1727500000000.png', '2026/08/photo.png' ),
+			// image.php ~:707: a PDF's own preview image is named <name>-pdf.<ext>
+			// (png fixtures throughout; only the NAME exercises the PDF-preview shape).
+			'a PDF\'s preview name'                => array( '2026/08/doc.pdf', '2026/08/doc-pdf.png' ),
 		);
 	}
 
@@ -243,6 +304,11 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		ob_start();
 		ContactAttachmentMigration::render_unmigrated_notice();
 		$this->assertStringContainsString('The private attachment folder could not be written.', (string) ob_get_clean());
+
+		// Review Focus 7: once shown, it stays shown -- a second render prints nothing.
+		ob_start();
+		ContactAttachmentMigration::render_unmigrated_notice();
+		$this->assertSame('', (string) ob_get_clean());
 	}
 
 	/** R-8: a request that died after writing the metas but before deleting the source. */

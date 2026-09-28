@@ -38,37 +38,50 @@ final class ContactAttachmentMigration {
 		// No up-front root() call: a site with no legacy attachment must not get
 		// an empty private folder just because it upgraded. store_copy() creates
 		// the folder on the first real move and fails the run if it cannot.
-		self::finish_pending_sources();
+		//
+		// Review Focus 3: the WHOLE body below runs inside this one try, not
+		// just the per-URL call -- no exception, foreseen or not, may escape
+		// run() and reach admin_init (R-19).
+		$collected = array();
+		try {
+			self::finish_pending_sources();
 
-		$seen = array();
-		do {
-			$urls      = self::next_urls();
-			$url_count = count($urls);
-			foreach ($urls as $url) {
-				if (isset($seen[ $url ])) {
-					self::log('a message kept its legacy URL after being processed');
-					return false;
+			$seen = array();
+			do {
+				$urls      = self::next_urls();
+				$url_count = count($urls);
+				foreach ($urls as $url) {
+					if (isset($seen[ $url ])) {
+						self::log('a message kept its legacy URL after being processed');
+						self::flag_store_failed();
+						return false;
+					}
+					$seen[ $url ] = true;
+					$moved        = self::migrate_url($url, $collected);
+					if (! $moved) {
+						self::log('a file could not be copied into the private folder');
+						self::flag_store_failed();
+						return false;
+					}
 				}
-				$seen[ $url ] = true;
-				try {
-					$moved = self::migrate_url($url);
-				} catch (\Throwable $e) {
-					// R-19: no failure, foreseen or not, may escape into admin_init.
-					self::log('unexpected error: ' . $e->getMessage());
-					self::flag_store_failed();
-					return false;
-				}
-				if (! $moved) {
-					self::log('a file could not be copied into the private folder');
-					self::flag_store_failed();
-					return false;
-				}
-			}
-		} while (self::BATCH === $url_count);
+			} while (self::BATCH === $url_count);
 
-		update_option(self::DONE_OPTION, '1', false);
+			// Review Focus 4: a clean finish no longer needs to say the folder
+			// was unwritable, even if an earlier run once flagged it.
+			self::clear_store_failed();
+			update_option(self::DONE_OPTION, '1', false);
 
-		return true;
+			return true;
+		} catch (\Throwable $e) {
+			self::log('unexpected error: ' . $e->getMessage());
+			self::flag_store_failed();
+			return false;
+		} finally {
+			// Review Focus 5: one option write for everything THIS run
+			// refused, on every exit path (success, a stop, or an exception)
+			// -- not one write per item.
+			self::persist_unmigrated($collected);
+		}
 	}
 
 	/** @return array{ok:true,path:string,name:string,mime:string}|array{ok:false,reason:string} */
@@ -114,9 +127,17 @@ final class ContactAttachmentMigration {
 		}
 
 		$real_base = realpath( (string) $uploads['basedir']);
-		$real      = realpath(trailingslashit( (string) $uploads['basedir']) . $rel);
+		$literal   = trailingslashit( (string) $uploads['basedir']) . $rel;
+		$real      = realpath($literal);
 		if (false === $real_base || false === $real || ! is_file($real)
 			|| ! str_starts_with(wp_normalize_path($real), untrailingslashit(wp_normalize_path($real_base)) . '/')) {
+			return self::refuse('missing');
+		}
+		// Review Focus 2: a symlink (or any other alias) that RESOLVES
+		// somewhere else on disk must not unlock a delete of whatever it
+		// actually points at -- the literal path is what gets deleted later,
+		// so it is the literal path that must be the real file.
+		if (wp_normalize_path($real) !== wp_normalize_path($literal)) {
 			return self::refuse('missing');
 		}
 
@@ -134,41 +155,70 @@ final class ContactAttachmentMigration {
 	}
 
 	/**
-	 * The uploads-relative path, its size-suffix-stripped original, that
-	 * original with -scaled, and the path with -scaled/-rotated stripped.
-	 * Core records the -scaled name in _wp_attached_file, so looking up only
-	 * the stripped name misses it (Codex v2-1).
-	 *
-	 * @return list<string>
+	 * Review Focus 1: a conservative stem for the library-exclusion prefix
+	 * match, not an enumeration of specific candidate names -- core generates
+	 * far more variant names than any fixed list could name. Strips the
+	 * extension, then repeatedly strips one core-added suffix (measured in
+	 * the container's own core) until none match: a -WxH sub-size, -scaled
+	 * (image.php's wp_generate_attachment_metadata()/_wp_image_editor
+	 * pipeline, ~:375), -rotated (an EXIF auto-rotate, ~:412), -e<13+ digit
+	 * timestamp> (an edited image, image-edit.php's wp_save_image()), or
+	 * -pdf (a PDF's own preview image, image.php ~:707; its -WxH sub-sizes
+	 * strip to the same stem via the first pattern). Two names sharing a stem
+	 * are treated as the same media item -- this favors leaving a file alone
+	 * over deleting one the library still tracks under a name this method
+	 * never had to enumerate by hand.
 	 */
-	public static function library_candidates(string $rel): array
+	private static function library_stem(string $basename): string
 	{
-		$unsized = (string) preg_replace('/-\d+x\d+(\.[A-Za-z0-9]+)$/', '$1', $rel);
+		$stem = (string) preg_replace('/\.[^.\/]+$/', '', $basename);
+		do {
+			$before = $stem;
+			$stem   = (string) preg_replace('/-\d+x\d+$|-scaled$|-rotated$|-e\d{13,}$|-pdf$/', '', $stem);
+		} while ($stem !== $before);
 
-		return array_values(array_unique(array(
-			$rel,
-			$unsized,
-			(string) preg_replace('/(\.[A-Za-z0-9]+)$/', '-scaled$1', $unsized),
-			(string) preg_replace('/-(?:scaled|rotated)(\.[A-Za-z0-9]+)$/', '$1', $rel),
-		)));
+		return $stem;
 	}
 
 	/**
 	 * R-18: queried directly, not through attachment_url_to_postid(), whose
 	 * pre_attachment_url_to_postid filter may answer 0 without looking -- and
-	 * this answer decides whether a source file gets deleted.
+	 * this answer decides whether a source file gets deleted. A stem prefix
+	 * match (library_stem()) catches every core-generated variant of the
+	 * candidate's own media item; a PDF's own attachment metadata is checked
+	 * separately since neither a PDF's preview nor its metadata ever appears
+	 * in another attachment's _wp_attached_file.
 	 */
 	private static function in_media_library(string $rel): bool
 	{
 		global $wpdb;
 
-		$candidates   = self::library_candidates($rel);
-		$placeholders = implode(', ', array_fill(0, count($candidates), '%s'));
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a list of literal %s tokens; every value is bound. No filterable lookup may decide a delete (R-18).
-		$sql = "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND meta_value IN ($placeholders)";
+		$slash    = strrpos($rel, '/');
+		$dir      = false !== $slash ? substr($rel, 0, $slash + 1) : '';
+		$basename = false !== $slash ? substr($rel, $slash + 1) : $rel;
+		$stem     = self::library_stem($basename);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- $sql is a local literal with a bound placeholder list; no filterable lookup may decide a delete (R-18).
-		return (int) $wpdb->get_var($wpdb->prepare($sql, ...$candidates)) > 0;
+		$attached_like = $wpdb->esc_like($dir . $stem) . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- No filterable lookup may decide a delete (R-18).
+		$found = (int) $wpdb->get_var($wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_wp_attached_file' AND meta_value LIKE %s",
+			$attached_like
+		));
+		if ($found > 0) {
+			return true;
+		}
+
+		// A PDF's own preview/backup-sizes/metadata never lists it under
+		// _wp_attached_file at all; the raw name still appears, quoted, in
+		// its serialized _wp_attachment_metadata or _wp_attachment_backup_sizes.
+		$basename_like = '%' . $wpdb->esc_like('"' . $basename . '"') . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- As above (R-18).
+		$found = (int) $wpdb->get_var($wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key IN ('_wp_attachment_backup_sizes', '_wp_attachment_metadata') AND meta_value LIKE %s",
+			$basename_like
+		));
+
+		return $found > 0;
 	}
 
 	public static function render_unmigrated_notice(): void
@@ -203,7 +253,10 @@ final class ContactAttachmentMigration {
 			),
 			count($items)
 		)) . '</p><ul>';
-		foreach ($items as $item) {
+		// Review Focus 5: the sentence above already carries the true total;
+		// the list itself is capped so a very large backlog cannot render an
+		// unbounded admin screen.
+		foreach (array_slice($items, 0, 50) as $item) {
 			echo '<li><code>' . esc_html( (string) ( $item['url'] ?? '' )) . '</code></li>';
 		}
 		echo '</ul></div>';
@@ -212,7 +265,8 @@ final class ContactAttachmentMigration {
 		update_option(self::UNMIGRATED_OPTION, $state, false);
 	}
 
-	private static function migrate_url(string $url): bool
+	/** @param list<array{post_id:int,url:string,reason:string}> $collected Appended to; written once by run() (Review Focus 5). */
+	private static function migrate_url(string $url, array &$collected): bool
 	{
 		$movable = array();
 		$source  = null;
@@ -224,7 +278,7 @@ final class ContactAttachmentMigration {
 				continue;
 			}
 			delete_post_meta($id, ContactAttachmentStore::META_KEY);
-			self::record_unmigrated($id, $url, $c['reason']);
+			self::collect_unmigrated($collected, $id, $url, $c['reason']);
 		}
 
 		if (null === $source) {
@@ -245,7 +299,7 @@ final class ContactAttachmentMigration {
 			// R-20: the move itself succeeded (rows keep their private record);
 			// the public copy is listed for the owner and stays pending.
 			self::log('the public copy could not be deleted: ' . $source['path']);
-			self::record_unmigrated($movable[0], $url, 'source');
+			self::collect_unmigrated($collected, $movable[0], $url, 'source');
 		}
 
 		return true;
@@ -278,10 +332,20 @@ final class ContactAttachmentMigration {
 			}
 			$uploads = realpath( (string) wp_get_upload_dir()['basedir']);
 			$real    = realpath( (string) $path);
-			if (false !== $uploads && false !== $real && is_file($real)
-				&& str_starts_with(wp_normalize_path($real), untrailingslashit(wp_normalize_path($uploads)) . '/')
-				&& ! self::delete_source($real)) {
-				continue; // Still there: keep it pending (R-20); it is already listed.
+			$exists  = false !== $uploads && false !== $real && is_file($real)
+				&& str_starts_with(wp_normalize_path($real), untrailingslashit(wp_normalize_path($uploads)) . '/');
+			if ($exists) {
+				// Review Focus 6: it may have become a library file (e.g. a
+				// re-import) since this path was queued; forget it, never
+				// delete it, the same rule classify() applies on the way in.
+				$rel = ltrim(substr(wp_normalize_path($real), strlen(untrailingslashit(wp_normalize_path($uploads)))), '/');
+				if (self::in_media_library($rel)) {
+					self::set_pending( (string) $path, null);
+					continue;
+				}
+				if (! self::delete_source($real)) {
+					continue; // Still there: keep it pending (R-20); it is already listed.
+				}
 			}
 			self::set_pending( (string) $path, null);
 		}
@@ -342,19 +406,45 @@ final class ContactAttachmentMigration {
 		update_option(self::PENDING_OPTION, $pending, false);
 	}
 
-	private static function record_unmigrated(int $post_id, string $url, string $reason): void
+	/** @param list<array{post_id:int,url:string,reason:string}> $collected */
+	private static function collect_unmigrated(array &$collected, int $post_id, string $url, string $reason): void
 	{
-		$state = get_option(self::UNMIGRATED_OPTION, array());
-		$state = is_array($state) ? $state : array();
-		$item  = array(
+		$collected[] = array(
 			'post_id' => $post_id,
 			'url'     => $url,
 			'reason'  => $reason,
 		);
+	}
 
-		$state['items']    = array_merge( (array) ( $state['items'] ?? array() ), array( $item ));
+	/**
+	 * Review Focus 5: merges run()'s in-memory refusals into the stored
+	 * option and writes it once, whatever else already changed it this
+	 * request (flag_store_failed()/clear_store_failed() read-modify-write
+	 * the same option earlier in the same request; this always re-reads
+	 * fresh before merging, so nothing here clobbers those).
+	 *
+	 * @param list<array{post_id:int,url:string,reason:string}> $collected
+	 */
+	private static function persist_unmigrated(array $collected): void
+	{
+		if (array() === $collected) {
+			return;
+		}
+		$state             = get_option(self::UNMIGRATED_OPTION, array());
+		$state             = is_array($state) ? $state : array();
+		$state['items']    = array_merge( (array) ( $state['items'] ?? array() ), $collected);
 		$state['notified'] = false;
 		update_option(self::UNMIGRATED_OPTION, $state, false);
+	}
+
+	/** Review Focus 4: a run that finishes cleanly no longer needs to say the folder was unwritable. */
+	private static function clear_store_failed(): void
+	{
+		$state = get_option(self::UNMIGRATED_OPTION, array());
+		if (is_array($state) && ! empty($state['store_failed'])) {
+			unset($state['store_failed']);
+			update_option(self::UNMIGRATED_OPTION, $state, false);
+		}
 	}
 
 	/** @return array{ok:false,reason:string} */
