@@ -36,6 +36,10 @@ src/Admin/Booking/Meta/BookingRefundMetaBox.php
 src/Admin/Booking/Meta/ManualBookingMetaBox.php
 src/Admin/Booking/PostType/Booking.php
 src/Admin/CLI/RepairRatingsCommand.php
+src/Admin/ContactMessages/ContactAttachmentDownload.php
+src/Admin/ContactMessages/ContactAttachmentMigration.php
+src/Admin/ContactMessages/ContactAttachmentStore.php
+src/Admin/ContactMessages/ContactAttachmentValidator.php
 src/Admin/ContactMessages/ContactMessageRepository.php
 src/Admin/ContactMessages/ContactMessagesPage.php
 src/Admin/ContactMessages/ContactStatus.php
