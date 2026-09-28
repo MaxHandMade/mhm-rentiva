@@ -3,15 +3,21 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin;
 
+use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\ContactMessages\REST\ContactMessagesRestController;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
+use MHMRentiva\Tests\Support\ContactAttachmentFixtures;
+use MHMRentiva\Tests\Support\SandboxesUploads;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
 
 final class ContactMessagesReadRestTest extends WP_UnitTestCase
 {
+	use SandboxesUploads;
+	use ContactAttachmentFixtures;
+
 	private WP_REST_Server $server;
 	private int $admin = 0;
 
@@ -25,6 +31,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		do_action('rest_api_init', $this->server);
 		$this->admin = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
 		delete_transient(ContactStatus::BADGE_TRANSIENT);
+		$this->sandbox_uploads();
 	}
 
 	public function tearDown(): void
@@ -34,6 +41,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		remove_action('rest_api_init', array( ContactMessagesRestController::class, 'register_routes' ));
 		wp_set_current_user(0);
 		parent::tearDown();
+		$this->remove_sandbox();
 	}
 
 	private function contact(array $meta = array(), array $post = array()): int
@@ -337,5 +345,41 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 
 		$ids = wp_list_pluck($this->get('/contact-messages', array( 'period' => '7d' ))->get_data()['items'], 'id');
 		$this->assertSame(array( $recent ), $ids);
+	}
+
+	public function test_a_stored_attachment_gets_a_download_url_and_its_size(): void
+	{
+		wp_set_current_user($this->admin);
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', static fn(string $f, string $t): bool => copy($f, $t));
+		$id     = $this->contact();
+		ContactAttachmentStore::attach($id, $record);
+
+		$row = $this->get('/contact-messages')->get_data()['items'][0];
+		$this->assertTrue($row['has_attachment']);
+		$a = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertSame('offer.pdf', $a['name']);
+		$this->assertSame($record['size'], $a['size']);
+		$this->assertSame(ContactAttachmentStore::download_url($id), $a['download_url']);
+	}
+
+	/** R-6: a leftover pre-4.4.1 URL is named but never linked. */
+	public function test_a_legacy_url_is_listed_without_a_link(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact(array( 'attachment' => trailingslashit(wp_upload_dir()['baseurl']) . '2026/08/a.pdf' ));
+		$a  = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertSame('a.pdf', $a['name']);
+		$this->assertNull($a['size']);
+		$this->assertNull($a['download_url']);
+	}
+
+	public function test_a_record_whose_file_is_gone_has_no_link(): void
+	{
+		wp_set_current_user($this->admin);
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', static fn(string $f, string $t): bool => copy($f, $t));
+		$id     = $this->contact();
+		ContactAttachmentStore::attach($id, $record);
+		ContactAttachmentStore::discard($record);
+		$this->assertNull($this->get('/contact-messages/' . $id)->get_data()['attachment']['download_url']);
 	}
 }

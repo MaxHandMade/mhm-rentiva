@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactMessageRepository;
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
@@ -396,7 +397,7 @@ final class ContactMessagesRestController {
 			'type_label'     => ContactMessagePostType::type_label($type),
 			'snippet'        => mb_substr(preg_replace('/\s+/u', ' ', $text) ?? '', 0, 140),
 			'vehicle'        => self::vehicle( (int) $meta('vehicle_id')),
-			'has_attachment' => '' !== $meta('attachment'),
+			'has_attachment' => null !== ContactAttachmentStore::record($post->ID) || '' !== ContactAttachmentStore::legacy_url($post->ID),
 			'rating'         => max(0, min(5, (int) $meta('rating'))),
 			'status'         => $status,
 			'status_label'   => ContactStatus::label($status),
@@ -431,12 +432,20 @@ final class ContactMessagesRestController {
 		$add('rating', __('Rating', 'mhm-rentiva'), $row['rating'] > 0 ? sprintf('%d/5', $row['rating']) : '');
 
 		$attachment = null;
-		$url        = $meta('attachment');
-		if ('' !== $url) {
-			$base       = (string) ( wp_upload_dir()['baseurl'] ?? '' );
+		$record     = ContactAttachmentStore::record($post->ID);
+		$legacy     = ContactAttachmentStore::legacy_url($post->ID);
+		if (null !== $record) {
 			$attachment = array(
-				'name'         => sanitize_file_name(wp_basename( (string) wp_parse_url($url, PHP_URL_PATH))),
-				'download_url' => ( '' !== $base && str_starts_with($url, trailingslashit($base)) ) ? esc_url_raw($url) : null,
+				'name'         => $record['name'],
+				'size'         => $record['size'],
+				'download_url' => null !== ContactAttachmentStore::path($record) ? ContactAttachmentStore::download_url($post->ID) : null,
+			);
+		} elseif ('' !== $legacy) {
+			// R-6: only an unfinished 4.4.1 migration leaves a URL here; never link it.
+			$attachment = array(
+				'name'         => sanitize_file_name(wp_basename( (string) wp_parse_url($legacy, PHP_URL_PATH))),
+				'size'         => null,
+				'download_url' => null,
 			);
 		}
 

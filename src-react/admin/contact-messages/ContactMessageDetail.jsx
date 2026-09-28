@@ -240,7 +240,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 						<div className="mhm-contact-messages__attachment">
 							<span>{ msg.attachment.name }</span>
 							{ msg.attachment.download_url
-								? <a className="button" href={ msg.attachment.download_url } download>{ __( 'Open', 'mhm-rentiva' ) }</a>
+								? <a className="button" href={ msg.attachment.download_url }>{ __( 'Download', 'mhm-rentiva' ) }</a>
 								: <span className="mhm-contact-messages__muted">{ __( 'File not available', 'mhm-rentiva' ) }</span> }
 						</div>
 					) }
