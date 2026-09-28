@@ -27,7 +27,7 @@ if (! file_exists("{$_tests_dir}/includes/functions.php")) {
 
 // Test-only cryptographic seed constants for audit key generation paths.
 if (! defined('AUTH_KEY')) {
-	define('AUTH_KEY', 'unit-test-auth-key');
+	define('AUTH_KEY', hash('sha256', 'mhm-rentiva-test-suite')); // Test-only seed, computed so it is never mistaken for a real key.
 }
 
 if (! defined('SECURE_AUTH_SALT')) {
