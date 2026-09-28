@@ -154,6 +154,19 @@ final class ContactAttachmentStore {
 		return is_string($v) ? $v : '';
 	}
 
+	/** R-10: a raw URL (no &amp;), usable verbatim as an href; the nonce is bound to this record. */
+	public static function download_url(int $post_id): string
+	{
+		return add_query_arg(
+			array(
+				'action'   => ContactAttachmentDownload::ACTION,
+				'id'       => $post_id,
+				'_wpnonce' => wp_create_nonce(ContactAttachmentDownload::nonce_action($post_id)),
+			),
+			admin_url('admin-post.php')
+		);
+	}
+
 	/** Absolute path of an existing stored file, or null. Never follows a name outside the root. */
 	public static function path(array $record): ?string
 	{

@@ -89,6 +89,9 @@ final class ContactMessagePostType {
         // Registered here, not with the admin page: a permanent delete through
         // REST is not an is_admin() request, and it must still take the file.
         add_action('before_delete_post', array( \MHMRentiva\Admin\ContactMessages\ContactAttachmentStore::class, 'on_before_delete_post' ), 10, 1);
+        // Logged-in only: no admin_post_nopriv_ counterpart. handle() gates on
+        // manage_options itself, but an anonymous request should never reach it.
+        add_action('admin_post_' . \MHMRentiva\Admin\ContactMessages\ContactAttachmentDownload::ACTION, array( \MHMRentiva\Admin\ContactMessages\ContactAttachmentDownload::class, 'handle' ));
     }
 
     public static function cpt(): void
