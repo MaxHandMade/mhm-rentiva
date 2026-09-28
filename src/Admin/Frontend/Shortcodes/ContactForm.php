@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use Exception;
 
@@ -311,57 +312,28 @@ final class ContactForm extends AbstractShortcode {
 				'auto_reply'     => isset($_POST['auto_reply']) ? sanitize_text_field(wp_unslash( (string) $_POST['auto_reply'])) : '1',
 			);
 
-			$form_data = self::sanitize_contact_form_data($post_data);
-
-			// Handle file upload. Each leaf of the $_FILES sub-array is read and
-			// sanitized/cast individually at the point of access (rather than
-			// passing the raw superglobal slice through), matching the same
-			// field-by-field discipline used for $_POST above.
+			$attachment_file = null;
 			if (! empty($_FILES['attachment']['name'])) {
 				$attachment_file = array(
+					// The five field-by-field sanitized leaves -- today's :321-327, unchanged.
 					'name'     => isset($_FILES['attachment']['name']) ? sanitize_file_name(wp_unslash( (string) $_FILES['attachment']['name'])) : '',
 					'type'     => isset($_FILES['attachment']['type']) ? sanitize_mime_type(wp_unslash( (string) $_FILES['attachment']['type'])) : '',
 					'tmp_name' => isset($_FILES['attachment']['tmp_name']) ? sanitize_text_field(wp_unslash( (string) $_FILES['attachment']['tmp_name'])) : '',
 					'error'    => isset($_FILES['attachment']['error']) ? (int) $_FILES['attachment']['error'] : UPLOAD_ERR_NO_FILE,
 					'size'     => isset($_FILES['attachment']['size']) ? (int) $_FILES['attachment']['size'] : 0,
 				);
-				$upload_result   = self::handle_file_upload($attachment_file);
-
-				if ($upload_result['success']) {
-					$form_data['attachment'] = $upload_result['url'];
-				} else {
-					self::ajax_error($upload_result['message']);
-					return;
-				}
 			}
 
-			$validation_result = self::validate_form_data($form_data);
-
-			if (! $validation_result['valid']) {
-				self::ajax_error(
-					$validation_result['message'],
-					array(
-						'errors' => $validation_result['errors'],
-					)
-				);
+			$result = self::process_submission($post_data, $attachment_file);
+			if (! $result['ok']) {
+				self::ajax_error($result['message'], isset($result['errors']) ? array( 'errors' => $result['errors'] ) : array());
 				return;
-			}
-
-			// Save message
-			$message_id = self::save_contact_message($form_data);
-
-			// Send email
-			$email_sent = self::send_contact_email($form_data, $message_id);
-
-			// Send auto reply
-			if ($form_data['auto_reply'] === '1') {
-				self::send_auto_reply($form_data);
 			}
 
 			self::ajax_success(
 				array(
-					'message_id' => $message_id,
-					'email_sent' => $email_sent,
+					'message_id' => $result['message_id'],
+					'email_sent' => $result['email_sent'],
 				),
 				__('Your message has been sent successfully!', 'mhm-rentiva')
 			);
@@ -376,6 +348,62 @@ final class ContactForm extends AbstractShortcode {
 			);
 			self::ajax_error($message);
 		}
+	}
+
+	/**
+	 * Validate, store the file, save, mail -- in that order (R-4). The file is
+	 * written only after the form itself passed, and removed again if the
+	 * record cannot be saved, so a refused submission never leaves a file.
+	 *
+	 * @param array<string,mixed>      $post_data Field-by-field sanitized request.
+	 * @param array<string,mixed>|null $file      The $_FILES leaf set, or null.
+	 * @param callable|null            $mover     Test seam, see ContactAttachmentStore::store_upload().
+	 * @return array<string,mixed>
+	 */
+	private static function process_submission(array $post_data, ?array $file, ?callable $mover = null): array
+	{
+		$form_data  = self::sanitize_contact_form_data($post_data);
+		$validation = self::validate_form_data($form_data);
+		if (! $validation['valid']) {
+			return array(
+				'ok'      => false,
+				'message' => $validation['message'],
+				'errors'  => $validation['errors'],
+			);
+		}
+
+		$record = null;
+		if (null !== $file) {
+			$upload = self::handle_file_upload($file, $mover);
+			if (! $upload['success']) {
+				return array(
+					'ok'      => false,
+					'message' => $upload['message'],
+				);
+			}
+			$record                  = $upload['record'];
+			$form_data['attachment'] = $record;
+		}
+
+		try {
+			$message_id = self::save_contact_message($form_data);
+		} catch (Exception $e) {
+			if (null !== $record) {
+				ContactAttachmentStore::discard($record);
+			}
+			throw $e;
+		}
+
+		$email_sent = self::send_contact_email($form_data, $message_id);
+		if ('1' === $form_data['auto_reply']) {
+			self::send_auto_reply($form_data);
+		}
+
+		return array(
+			'ok'         => true,
+			'message_id' => $message_id,
+			'email_sent' => $email_sent,
+		);
 	}
 
 	/**
@@ -565,13 +593,17 @@ final class ContactForm extends AbstractShortcode {
 				'_mhmrentiva_contact_preferred_date' => $data['preferred_date'],
 				'_mhmrentiva_contact_priority'       => $data['priority'],
 				'_mhmrentiva_contact_rating'         => $data['rating'],
-				'_mhmrentiva_contact_attachment'     => $data['attachment'],
 				'_mhmrentiva_contact_ip_address'     => $data['ip_address'],
 				'_mhmrentiva_contact_user_agent'     => $data['user_agent'],
 				'_mhmrentiva_contact_timestamp'      => $data['timestamp'],
 				'_mhmrentiva_contact_status'         => 'new',
 			),
 		);
+
+		if (is_array($data['attachment']) && array() !== $data['attachment']) {
+			$post_data['meta_input'][ ContactAttachmentStore::META_KEY ]  = $data['attachment'];
+			$post_data['meta_input'][ ContactAttachmentStore::FILE_META ] = $data['attachment']['file'];
+		}
 
 		// $wp_error = true. WordPress returns 0 -- not WP_Error -- on failure
 		// unless asked, so the is_wp_error() guard alone let a failed insert
@@ -616,107 +648,15 @@ final class ContactForm extends AbstractShortcode {
 		// unauthenticated form, which is where a WordPress.org reviewer running
 		// with WP_DEBUG looks first.
 		$attachments = array();
-
-		if (! empty($data['attachment'])) {
-			$attachment_path = self::resolve_attachment_path($data['attachment']);
-			if ($attachment_path) {
-				$attachments[] = $attachment_path;
+		if (is_array($data['attachment'] ?? null) && array() !== $data['attachment']) {
+			$path = ContactAttachmentStore::path($data['attachment']);
+			if (null !== $path) {
+				// Keyed by the visitor's own file name; the stored name is random (spec §4).
+				$attachments[ (string) $data['attachment']['name'] ] = $path;
 			}
 		}
 
 		return wp_mail($email_recipients, $subject, $message, $headers, $attachments);
-	}
-
-	/**
-	 * Resolve an attachment URL to a local filesystem path.
-	 *
-	 * Since 4.4.0, `$url` reaches this method only as `handle_file_upload()`'s
-	 * own result -- the sole writer of `$data['attachment']` -- so it is
-	 * always the URL `wp_handle_upload()` produced, never raw POST data. The
-	 * defensive checks below stay in place regardless: this method cannot see
-	 * who its caller is or whether that stays true at every future call site,
-	 * so it verifies its input itself rather than trusting the one caller it
-	 * happens to have today. It is resolved via `wp_upload_dir()` (baseurl ->
-	 * basedir mapping) rather than string surgery on `site_url()`/`ABSPATH`,
-	 * which breaks on subdirectory, multisite, and mapped-domain installs.
-	 *
-	 * Anything that is not verifiably inside this site's own uploads
-	 * directory is rejected outright (never guessed at) to avoid SSRF/LFI:
-	 * a bare filesystem path, a foreign host, or a "../" escape must all
-	 * resolve to null rather than a wrong or attacker-controlled path.
-	 */
-	private static function resolve_attachment_path(string $url): ?string
-	{
-		if (empty($url)) {
-			return null;
-		}
-
-		$upload_dir = wp_upload_dir();
-		if (! empty($upload_dir['error'])) {
-			return null;
-		}
-
-		$url_parts  = wp_parse_url(urldecode($url));
-		$base_parts = wp_parse_url($upload_dir['baseurl']);
-
-		// Require an absolute URL on this site's own uploads host. Rejects
-		// bare filesystem paths (no 'host') and foreign hosts alike.
-		if (
-			empty($url_parts['host']) || empty($base_parts['host'])
-			|| strcasecmp($url_parts['host'], $base_parts['host']) !== 0
-		) {
-			return null;
-		}
-
-		$base_path = isset($base_parts['path']) ? untrailingslashit($base_parts['path']) : '';
-		$url_path  = $url_parts['path'] ?? '';
-
-		if ($base_path !== '') {
-			// Normal case: baseurl carries a path (e.g. /wp-content/uploads,
-			// or /wp-content/uploads/sites/2 on a multisite subdirectory
-			// network). Require the URL to sit under it -- this is a cheap
-			// pre-filter, not the security boundary itself (that is the
-			// realpath() containment check below).
-			if (strpos($url_path, $base_path . '/') !== 0) {
-				return null;
-			}
-			$relative_path = substr($url_path, strlen($base_path));
-		} else {
-			// Some CDN / media-offload configurations serve uploads from a
-			// path-less host (e.g. baseurl "https://cdn.example.com" with
-			// no path component), so there is no string prefix to check
-			// here. Do NOT hard-reject a legit attachment on that config --
-			// fall through with the URL's own path as the relative segment.
-			// Host equality already passed above, and the realpath()
-			// containment recheck below (resolved candidate must still
-			// land inside realpath($basedir)) remains the real security
-			// boundary regardless of this branch, so skipping the prefix
-			// pre-check here does not weaken containment.
-			if ($url_path === '') {
-				return null;
-			}
-			$relative_path = $url_path;
-		}
-
-		$candidate = wp_normalize_path(untrailingslashit($upload_dir['basedir']) . $relative_path);
-
-		// realpath() resolves symlinks/".." and doubles as the file-exists
-		// check (returns false for anything missing).
-		$real_base = realpath($upload_dir['basedir']);
-		$real_path = realpath($candidate);
-
-		if ($real_base === false || $real_path === false || ! is_file($real_path)) {
-			return null;
-		}
-
-		$real_base = wp_normalize_path($real_base);
-		$real_path = wp_normalize_path($real_path);
-
-		if (strpos($real_path, $real_base . '/') !== 0) {
-			return null;
-		}
-
-		return $real_path;
 	}
 
 	private static function build_email_message(array $data, array $form_config, int $message_id): string
@@ -757,8 +697,8 @@ final class ContactForm extends AbstractShortcode {
 		$message .= '<h3>' . __('Message:', 'mhm-rentiva') . '</h3>';
 		$message .= '<p>' . nl2br(esc_html($data['message'])) . '</p>';
 
-		if (! empty($data['attachment'])) {
-			$message .= '<p><strong>' . __('Attachment:', 'mhm-rentiva') . '</strong> <a href="' . esc_url($data['attachment']) . '">' . __('Download File', 'mhm-rentiva') . '</a></p>';
+		if (is_array($data['attachment'] ?? null) && '' !== (string) ( $data['attachment']['name'] ?? '' )) {
+			$message .= '<p><strong>' . esc_html__('Attachment:', 'mhm-rentiva') . '</strong> ' . esc_html( (string) $data['attachment']['name']) . '</p>';
 		}
 
 		$message .= '<hr>';
@@ -790,7 +730,7 @@ final class ContactForm extends AbstractShortcode {
 		return wp_mail($data['email'], $subject, $message, $headers);
 	}
 
-	private static function handle_file_upload(array $file): array
+	private static function handle_file_upload(array $file, ?callable $mover = null): array
 	{
 		if (UPLOAD_ERR_OK !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE )) {
 			return array(
@@ -814,62 +754,17 @@ final class ContactForm extends AbstractShortcode {
 			);
 		}
 
-		// Sanitize the client-supplied filename before trusting any part of it.
-		$sanitized_name = sanitize_file_name( (string) ( $file['name'] ?? '' ));
-
-		// File type check: never trust $file['type'] (the client-supplied MIME
-		// type) -- validate the real extension via wp_check_filetype() instead.
-		$allowed_types  = array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' );
-		$filetype       = wp_check_filetype($sanitized_name);
-		$file_extension = ! empty($filetype['ext']) ? strtolower($filetype['ext']) : '';
-
-		if ('' === $file_extension || ! in_array($file_extension, $allowed_types, true)) {
+		$record = ContactAttachmentStore::store_upload($tmp, (string) ( $file['name'] ?? '' ), $mover);
+		if (is_wp_error($record)) {
 			return array(
 				'success' => false,
-				'message' => __('Invalid file type.', 'mhm-rentiva'),
-			);
-		}
-
-		$file['name'] = $sanitized_name;
-
-		// wp_handle_upload() lives in wp-admin/includes/file.php. Today the only
-		// caller is the AJAX submit handler, and admin-ajax.php loads the admin
-		// API before firing any hook, so the function happens to exist. That is
-		// a property of the current caller, not of this method: called from a
-		// shortcode, a block render or a REST route it would be a fatal, which
-		// is exactly how /customers/bulk shipped broken for three months.
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-
-		// This is an unauthenticated, wp_ajax_nopriv_ upload endpoint. Keeping
-		// the caller's (sanitized) filename made every uploaded attachment's
-		// name -- and therefore its public URL under uploads/ -- predictable
-		// from the submitted form alone, with no auth required to guess it.
-		// wp_handle_upload()'s unique_filename_callback replaces the name
-		// with a random one before the file ever touches disk; the extension
-		// (already validated above) is preserved so MIME/type sniffing on
-		// download is unaffected.
-		$upload = wp_handle_upload(
-			$file,
-			array(
-				'test_form'                => false,
-				'unique_filename_callback' => static function ($dir, $name, $ext) {
-					unset($dir, $name);
-					return wp_generate_password(20, false, false) . $ext;
-				},
-			)
-		);
-
-		if (isset($upload['error'])) {
-			return array(
-				'success' => false,
-				'message' => $upload['error'],
+				'message' => $record->get_error_message(),
 			);
 		}
 
 		return array(
 			'success' => true,
-			'url'     => $upload['url'],
-			'name'    => basename($upload['file']),
+			'record'  => $record,
 		);
 	}
 }
