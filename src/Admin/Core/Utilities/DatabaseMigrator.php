@@ -3286,6 +3286,10 @@ final class DatabaseMigrator {
 			return false;
 		}
 
+		// A fresh stamp, not the one from the INSERT attempt: however long this
+		// request stalled in between, the lock it takes over must start its
+		// LOCK_TIMEOUT now. Same fix as the add-on's a008905.
+		$stamp = (string) time();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Conditional takeover of an expired mutex; the loser's UPDATE matches no row.
 		$stolen = (bool) $wpdb->query(
 			$wpdb->prepare(
