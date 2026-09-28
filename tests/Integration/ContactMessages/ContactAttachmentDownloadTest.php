@@ -74,8 +74,17 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 	{
 		wp_set_current_user($this->admin);
 		$other = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private' ));
+		// $other carries a real, resolvable record: if nonce_action() ignored
+		// $id the request would clear the nonce and capability checks and die
+		// later at "File not available" instead -- this attachment makes that
+		// failure mode reach resolve()/serve() so the test still catches it.
+		ContactAttachmentStore::attach($other, ContactAttachmentStore::record($this->id));
 		$this->request($other, wp_create_nonce(ContactAttachmentDownload::nonce_action($this->id)));
 		$this->expectException(\WPDieException::class);
+		// check_admin_referer()'s failure text (wp_nonce_ays(), non-log-out
+		// action), measured against this container's WordPress -- not the
+		// later-stage "File not available"/"Unauthorized." messages.
+		$this->expectExceptionMessage('The link you followed has expired.');
 		ContactAttachmentDownload::handle();
 	}
 
@@ -115,6 +124,11 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/^attachment; filename="[A-Za-z0-9._-]+"; filename\*=UTF-8\'\'/', $d);
 		$this->assertStringContainsString("filename*=UTF-8''" . rawurlencode('teklif "son" şartname.pdf'), $d);
 		$this->assertStringContainsString('.pdf"', $d);
+
+		// A CR/LF in the name must not reach the header raw (response splitting).
+		$injected = ContactAttachmentDownload::disposition("evil\r\nX-Injected: 1.pdf");
+		$this->assertStringNotContainsString("\r", $injected);
+		$this->assertStringNotContainsString("\n", $injected);
 	}
 
 	/** Review Focus 3, end to end (Fable plan M3): the upload path sanitizes the name first. */
