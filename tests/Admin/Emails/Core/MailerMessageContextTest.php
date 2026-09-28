@@ -115,6 +115,25 @@ final class MailerMessageContextTest extends WP_UnitTestCase {
 		$this->assertSame( $booking, $context['booking']['id'] );
 	}
 
+	public function test_the_context_carries_the_keys_the_pro_templates_read(): void {
+		// Pro's default file templates read message.from_name / from_email /
+		// body (message-received-admin.html.php:6-8) and message.reply
+		// (message-replied-customer.html.php:7). Without them the admin
+		// notification went out with an empty sender and body, and the reply
+		// e-mail without the reply (plan R-8).
+		$root  = $this->root( 'pending' );
+		$reply = $this->reply( $root, $root, 'pending', array( 'post_content' => "Line one\nLine two" ) );
+		update_post_meta( $reply, '_mhmrentiva_customer_name', 'Ayşe Yılmaz' );
+		update_post_meta( $reply, '_mhmrentiva_customer_email', 'ayse@example.com' );
+
+		$message = Mailer::getMessageContext( $reply )['message'];
+
+		$this->assertSame( "Line one\nLine two", $message['body'] );
+		$this->assertSame( "Line one\nLine two", $message['reply'] );
+		$this->assertSame( 'Ayşe Yılmaz', $message['from_name'] );
+		$this->assertSame( 'ayse@example.com', $message['from_email'] );
+	}
+
 	public function test_a_chained_reply_reads_the_root_not_its_parent(): void {
 		// Live 3665: parent is the reply 3664, thread_id is the root 3358.
 		$root   = $this->root( 'answered' );

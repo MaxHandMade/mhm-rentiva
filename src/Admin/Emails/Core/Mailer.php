@@ -346,23 +346,30 @@ final class Mailer {
 			: get_post_meta( $message_id, '_mhmrentiva_thread_id', true );
 		$msg_booking_id = (int) get_post_meta( $message_id, '_mhmrentiva_booking_id', true );
 		$msg_order_id   = $msg_booking_id ? \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $msg_booking_id ) : 0;
+		$sender_name    = $customer_name ?: __( 'Anonymous', 'mhm-rentiva' );
 
 		return array(
 			'message'  => array(
-				'id'        => $message_id,
-				'subject'   => $post->post_title,
-				'content'   => $post->post_content,
-				'date'      => $post->post_date,
-				'category'  => $category,
-				'status'    => $status,
-				'thread_id' => $thread_id,
+				'id'         => $message_id,
+				'subject'    => $post->post_title,
+				'content'    => $post->post_content,
+				'date'       => $post->post_date,
+				'category'   => $category,
+				'status'     => $status,
+				'thread_id'  => $thread_id,
+				// The names Pro's default message templates read. Aliases of
+				// content and the customer fields, not new data.
+				'body'       => $post->post_content,
+				'reply'      => $post->post_content,
+				'from_name'  => $sender_name,
+				'from_email' => $customer_email,
 			),
 			'booking'  => array(
 				'id'       => $msg_booking_id ?: '',
 				'order_id' => ( $msg_order_id ?: $msg_booking_id ) ?: '',
 			),
 			'customer' => array(
-				'name'  => $customer_name ?: __( 'Anonymous', 'mhm-rentiva' ),
+				'name'  => $sender_name,
 				'email' => $customer_email,
 			),
 			'site'     => array(
