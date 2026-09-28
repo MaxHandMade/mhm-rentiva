@@ -5,9 +5,6 @@ namespace MHMRentiva\Tests\Support;
 
 trait ContactAttachmentFixtures
 {
-	private const PNG_1X1 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-	private const GIF_1X1 = 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
 	/** Writes one fixture of $kind into $dir and returns its path. */
 	private function fixture(string $dir, string $kind): string
 	{
@@ -18,10 +15,10 @@ trait ContactAttachmentFixtures
 				file_put_contents($path, "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n");
 				break;
 			case 'png':
-				file_put_contents($path, base64_decode(self::PNG_1X1));
+				file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
 				break;
 			case 'gif':
-				file_put_contents($path, base64_decode(self::GIF_1X1));
+				file_put_contents($path, base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'));
 				break;
 			case 'doc_magic':
 				file_put_contents($path, "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" . str_repeat("\0", 1016));
