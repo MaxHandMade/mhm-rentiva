@@ -866,5 +866,14 @@ final class PrefixMigrationMap {
         // DatabaseMigrator::migrate_contact_status_440().
         'mhmrentiva_contact_status_migrated',
         'mhmrentiva_contact_status_migrated_at',
+        // Contact attachment migration (DB schema 4.4.1): a done-flag, its
+        // admin-notice backlog, and the in-flight source-file tracker (R-8).
+        // Same reasoning as the entries above -- get_option()/update_option()
+        // call sites in ContactAttachmentMigration (DONE_OPTION,
+        // UNMIGRATED_OPTION, PENDING_OPTION); no legacy spelling exists
+        // because the private attachment store did not exist before 4.4.1.
+        'mhmrentiva_contact_attachments_migrated',
+        'mhmrentiva_contact_attachment_unmigrated',
+        'mhmrentiva_contact_attachment_pending_sources',
     ];
 }

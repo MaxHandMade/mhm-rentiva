@@ -569,6 +569,16 @@ describe( 'contact message detail', () => {
 		expect( container.querySelector( '.mhm-contact-messages__attachment a' ) ).toBeNull();
 	} );
 
+	test( 'an attachment links to its download URL as "Download", without a download attribute', async () => {
+		contactApi.get = jest.fn().mockResolvedValue( detail( { attachment: { name: 'offer.pdf', size: 1234, download_url: 'http://example.test/wp-admin/admin-post.php?action=mhmrentiva_contact_attachment&id=7&_wpnonce=abc' } } ) );
+		const { container } = render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+		await screen.findByText( /Line one/ );
+		const link = container.querySelector( '.mhm-contact-messages__attachment a' );
+		expect( link.getAttribute( 'href' ) ).toBe( 'http://example.test/wp-admin/admin-post.php?action=mhmrentiva_contact_attachment&id=7&_wpnonce=abc' );
+		expect( link.hasAttribute( 'download' ) ).toBe( false );
+		expect( link.textContent ).toBe( 'Download' );
+	} );
+
 	test( 'no fields and no vehicle shows the "no further details" placeholder', async () => {
 		contactApi.get = jest.fn().mockResolvedValue( detail( { fields: [], vehicle: null } ) );
 		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );

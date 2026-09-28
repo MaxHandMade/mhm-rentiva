@@ -137,6 +137,39 @@ final class MigrationLaneGateTest extends WP_UnitTestCase
 		$this->assertSame($new_owner, $held, 'the slow run must release only the lock it took');
 	}
 
+	/**
+	 * The takeover UPDATE must write a stamp taken when the takeover happens.
+	 * Reusing the INSERT attempt's stamp writes an already-old value if the
+	 * request stalled in between, and a third request could take the lock
+	 * straight back. Pro #78 a008905 is the same fix.
+	 */
+	public function test_an_expired_lock_is_taken_over_with_a_fresh_stamp(): void
+	{
+		global $wpdb;
+		update_option('mhmrentiva_db_version', '1.0.0');
+		add_option(DatabaseMigrator::LOCK_OPTION, (string) ( time() - DatabaseMigrator::LOCK_TIMEOUT - 5 ), '', false);
+
+		$after_stall = 0;
+		$stall = static function (string $query) use (&$after_stall): string {
+			if (0 === $after_stall && str_contains($query, 'SELECT option_value') && str_contains($query, DatabaseMigrator::LOCK_OPTION)) {
+				sleep(2);
+				$after_stall = time();
+			}
+			return $query;
+		};
+		add_filter('query', $stall);
+
+		$seen = '';
+		DatabaseMigrator::run_migrations(null, null, static function () use ($wpdb, &$seen): bool {
+			$seen = (string) $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", DatabaseMigrator::LOCK_OPTION));
+			return true;
+		});
+		remove_filter('query', $stall);
+
+		$this->assertGreaterThan(0, $after_stall, 'the takeover SELECT never ran');
+		$this->assertGreaterThanOrEqual($after_stall, (int) $seen, 'the takeover wrote the stamp taken before the stall');
+	}
+
 	public function test_a_held_lock_is_reported_as_lock_busy_not_failure(): void
 	{
 		update_option('mhmrentiva_db_version', '1.0.0');

@@ -188,7 +188,7 @@ $unique_id             = uniqid('rv_contact_');
 					</div>
 					<small class="rv-file-help">
 						<?php echo esc_html__('Supported formats: JPG, PNG, GIF, PDF, DOC, DOCX (Max: ', 'mhm-rentiva'); ?>
-						<?php echo esc_html(size_format(wp_max_upload_size())); ?>)
+						<?php echo esc_html(size_format(\MHMRentiva\Admin\Frontend\Shortcodes\ContactForm::max_attachment_bytes())); ?>)
 					</small>
 				</div>
 			<?php endif; ?>

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T21:14:01+00:00\n"
+"POT-Creation-Date: 2026-09-28T04:54:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -356,7 +356,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:648
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:728
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:668
 #: templates/emails/booking-created-admin.html.php:20
 #: templates/emails/booking-status-changed-admin.html.php:21
 #: templates/emails/refund-admin.html.php:21
@@ -370,7 +370,7 @@ msgid "+90 538 556 4158"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:123
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:731
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:671
 #: templates/emails/booking-created-admin.html.php:24
 #: src-react/admin/about/components/DeveloperTab.jsx:143
 #: src-react/admin/about/components/SupportTab.jsx:27
@@ -704,7 +704,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:847
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1213
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1567
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:261
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:262
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:501
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:710
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
@@ -1502,7 +1502,7 @@ msgstr ""
 #. translators: %s: customer name.
 #. translators: %s: customer name
 #: src/Admin/Booking/Helpers/CancellationHandler.php:655
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:780
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:720
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
 #, php-format
@@ -1527,7 +1527,7 @@ msgstr ""
 #: src/Admin/Booking/Helpers/CancellationHandler.php:661
 #: src/Admin/Booking/Meta/BookingMeta.php:374
 #: src/Admin/Booking/Meta/BookingMeta.php:450
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:740
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:680
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
 #: src/Admin/Settings/Groups/EmailSettings.php:226
@@ -1744,7 +1744,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:278
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:531
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:559
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:460
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:514
@@ -1755,7 +1755,7 @@ msgstr ""
 #: templates/admin/partials/booking-popup.php:77
 #: templates/shortcodes/contact-form.php:101
 #: src-react/admin/contact-messages/components/ContactTable.jsx:18
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:104
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:105
 #: src-react/admin/dashboard/components/RecentBookings.jsx:61
 msgid "Vehicle"
 msgstr ""
@@ -1914,7 +1914,7 @@ msgstr ""
 #: assets/blocks/my-bookings/index.js:41
 #: assets/blocks/payment-history/index.js:39
 #: assets/blocks/testimonials/index.js:52
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:109
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:139
 #: src-react/admin/customers/CustomersPage.jsx:12
 msgid "All"
 msgstr ""
@@ -2489,9 +2489,9 @@ msgid "Proceed with refund?"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:189
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:401
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:421
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:422
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:429
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:449
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:450
 #: templates/shortcodes/contact-form.php:212
 msgid "Sending..."
 msgstr ""
@@ -2642,7 +2642,7 @@ msgid "Email subject..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:675
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:757
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:697
 msgid "Message:"
 msgstr ""
 
@@ -3001,9 +3001,9 @@ msgid "Drop-off date must be after pick-up date."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:215
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:404
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:425
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:426
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:432
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:453
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:454
 msgid "Please fill in all required fields."
 msgstr ""
 
@@ -3083,7 +3083,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:528
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:556
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:62
@@ -3095,7 +3095,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:529
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:557
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:74
@@ -3191,10 +3191,42 @@ msgstr ""
 msgid "Bookings"
 msgstr ""
 
+#: src/Admin/ContactMessages/ContactAttachmentDownload.php:35
+#: src/Admin/Customers/Export/CustomerExporter.php:41
+msgid "Unauthorized."
+msgstr ""
+
+#: src/Admin/ContactMessages/ContactAttachmentDownload.php:40
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:244
+msgid "File not available"
+msgstr ""
+
+#: src/Admin/ContactMessages/ContactAttachmentMigration.php:312
+msgid "The private attachment folder could not be written. Attachments saved by earlier versions are still in the public uploads folder; moving them will be retried on the next update."
+msgstr ""
+
+#. translators: %d: number of contact message attachments that were not moved.
+#: src/Admin/ContactMessages/ContactAttachmentMigration.php:322
+#, php-format
+msgid "%d contact message attachment could not be moved into the private folder. Its link was removed from the message; the file itself was left where it was:"
+msgid_plural "%d contact message attachments could not be moved into the private folder. Their links were removed from the messages; the files themselves were left where they were:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/ContactMessages/ContactAttachmentStore.php:309
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:738
+msgid "The file could not be uploaded."
+msgstr ""
+
+#: src/Admin/ContactMessages/ContactAttachmentValidator.php:94
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:456
+msgid "Invalid file type."
+msgstr ""
+
 #: src/Admin/ContactMessages/ContactMessagesPage.php:36
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:94
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:96
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:102
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:101
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:103
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:109
 #: src/Admin/Utilities/Menu/Menu.php:128
 msgid "Contact Messages"
 msgstr ""
@@ -3216,62 +3248,62 @@ msgstr ""
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/contact-messages/components/ContactStats.jsx:8
 #: src-react/admin/contact-messages/components/ContactTable.jsx:41
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:110
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:140
 #: src-react/admin/customers/components/CustomerTable.jsx:24
 #: src-react/admin/customers/CustomersPage.jsx:14
 msgid "New"
 msgstr ""
 
 #: src/Admin/ContactMessages/ContactStatus.php:40
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:114
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:144
 msgid "Replied"
 msgstr ""
 
 #: src/Admin/ContactMessages/ContactStatus.php:42
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:113
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:143
 msgid "Read"
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:163
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:176
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:164
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:177
 msgid "The message status could not be saved."
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:256
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:257
 msgid "Only a message in the trash can be deleted permanently."
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:373
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:374
 msgid "Invalid message ID."
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:426
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:427
 #: src-react/admin/contact-messages/components/ContactToolbar.jsx:23
 msgid "Enquiry type"
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:427
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:533
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:428
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:561
 #: templates/shortcodes/contact-form.php:128
 msgid "Priority"
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:428
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:429
 msgid "Submitted"
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:429
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:430
 msgid "Preferred date"
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:430
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:530
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:431
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:558
 #: templates/shortcodes/contact-form.php:88
 msgid "Company"
 msgstr ""
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:431
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:534
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:432
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:562
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
 #: templates/shortcodes/contact-form.php:146
 #: assets/blocks/featured-vehicles/index.js:30
@@ -3562,7 +3594,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:246
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:302
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:429
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:457
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:531
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:376
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:161
@@ -3596,10 +3628,10 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:577
 #: src/Admin/Emails/Core/EmailTemplates.php:537
 #: templates/account/account-details.php:189
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:29
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:54
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:126
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:30
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:55
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:127
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:167
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:32
 msgid "Cancel"
 msgstr ""
@@ -4287,7 +4319,7 @@ msgstr ""
 #: templates/shortcodes/availability-calendar.php:263
 #: templates/shortcodes/search-results.php:358
 #: templates/shortcodes/testimonials.php:136
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:198
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:229
 msgid "Next"
 msgstr ""
 
@@ -4300,7 +4332,7 @@ msgstr ""
 #: templates/shortcodes/availability-calendar.php:255
 #: templates/shortcodes/search-results.php:357
 #: templates/shortcodes/testimonials.php:133
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:196
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:227
 msgid "Previous"
 msgstr ""
 
@@ -5064,212 +5096,212 @@ msgstr ""
 msgid "Select a city..."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1024
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1025
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr ""
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1207
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1208
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1726
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1727
 msgid "Database Cleanup Report"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1731
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1732
 msgid "Category"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1732
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1733
 msgid "Count"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1733
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1734
 msgid "Size"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1734
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1735
 #: src/Admin/Utilities/ListTable/LogColumns.php:75
 msgid "Action"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
 msgid "Orphaned Post Meta"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1745
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1760
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1817
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1746
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1791
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1818
 msgid "Cleanup Recommended"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1748
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1763
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1793
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1820
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1749
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1764
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1794
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1821
 msgid "Clean"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1754
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
 msgid "Expired Transients"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1769
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1770
 msgid "Autoload Options"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1775
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1776
 msgid "Optimization Recommended"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1778
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1779
 msgid "Optimized"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1784
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1785
 msgid "Invalid Meta Keys"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1797
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1798
 msgid "All Valid"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1803
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1804
 msgid "Log Records (>30 days)"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1827
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1828
 msgid "Custom Tables"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1831
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1832
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:72
 msgid "Table"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1832
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
 msgid "Exists"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1834
 msgid "Rows"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1834
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1835
 msgid "Size (MB)"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1847
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1848
 msgid "Repair/Create"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1875
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1876
 msgid "Analyze Database"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1880
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1881
 msgid "Clean Orphaned Meta"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1885
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1886
 msgid "Clean Expired Transients"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1890
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1895
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
 msgid "Optimize Tables"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1900
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1901
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2063
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2064
 msgid "Backup table not found"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2081
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2082
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr ""
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2127
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2128
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2145
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2146
 msgid "Not a backup table"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2154
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2567
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2155
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2568
 msgid "Backup deleted successfully"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2154
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2155
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2171
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2172
 msgid "Failed to initialize filesystem."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2212
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2213
 msgid "No tables found to backup"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2262
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2263
 msgid "Failed to write backup file"
 msgstr ""
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2313
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2314
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2537
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2538
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2568
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2569
 msgid "Backup deletion completed with some warnings"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2622
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2623
 msgid "Filesystem initialization failed"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2632
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2633
 msgid "Backup directory does not exist"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2639
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2640
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2643
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2644
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2650
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2651
 msgid "index.php file missing - directory listing is possible"
 msgstr ""
 
 #. translators: 1: installed add-on version, 2: required add-on version.
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:262
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:276
 #, php-format
 msgid "MHM Rentiva has paused its database update: MHM Rentiva Pro %1$s is installed, but %2$s or newer is required. Update MHM Rentiva Pro to continue. Your data has not been changed."
 msgstr ""
@@ -5461,12 +5493,12 @@ msgid "This field is required."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:126
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:492
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:520
 msgid "Please enter a valid email address."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:127
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:497
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:525
 msgid "Please enter a valid phone number."
 msgstr ""
 
@@ -5869,10 +5901,6 @@ msgstr ""
 
 #: src/Admin/Customers/Export/CustomerExporter.php:34
 msgid "Invalid security token."
-msgstr ""
-
-#: src/Admin/Customers/Export/CustomerExporter.php:41
-msgid "Unauthorized."
 msgstr ""
 
 #: src/Admin/Customers/REST/CustomersRestController.php:116
@@ -7229,242 +7257,229 @@ msgstr ""
 msgid "Wk"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:148
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:149
 msgid "7/24 Support"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:157
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:158
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:61
 msgid "General Contact"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:158
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:159
 msgid "Contact us. We are happy to answer your questions."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:165
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:166
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:55
 msgid "Booking Inquiry"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:166
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:167
 msgid "Write to us to make a booking or get information about your existing booking."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:173
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:174
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
 msgid "Technical Support"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:174
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:175
 msgid "Our support team will help you with your technical issues."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:181
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:182
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:59
 msgid "Feedback"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:182
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:183
 msgid "Share your experience with us. Your feedback is valuable to us."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:221
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:222
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:70
 msgid "Low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:222
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:223
 msgid "General inquiries"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:226
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:227
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:72
 msgid "Medium"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:227
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:228
 msgid "Important issues"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:231
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:232
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:74
 msgid "High"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:232
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:233
 msgid "Emergency cases"
 msgstr ""
 
 #. translators: %d: number of minutes.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:279
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:280
 #, php-format
 msgid "You have sent too many contact forms. Please wait %d minute."
 msgid_plural "You have sent too many contact forms. Please wait %d minutes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:366
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:423
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:338
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:451
 msgid "Your message has been sent successfully!"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:402
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:430
 msgid "Your message has been sent successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:403
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:424
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:431
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:452
 msgid "An error occurred while sending message."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:405
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:430
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:433
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:458
 msgid "Are you sure you want to reset the form?"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:427
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:813
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:455
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:753
 msgid "File size is too large."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:428
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:829
-msgid "Invalid file type."
-msgstr ""
-
 #. translators: %s: field label.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:486
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:514
 #, php-format
 msgid "%s field is required."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:502
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:530
 msgid "Please rate between 1-5."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:508
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:536
 msgid "Please fix form errors."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:527
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:555
 #: templates/shortcodes/contact-form.php:53
 msgid "Full Name"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:532
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:560
 #: templates/shortcodes/contact-form.php:118
 msgid "Preferred Date"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:535
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:563
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:163
 #: src-react/admin/contact-messages/components/ContactTable.jsx:17
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:203
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:210
 msgid "Message"
 msgstr ""
 
 #. translators: %s: customer name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:549
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:577
 #, php-format
 msgid "Contact Message - %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:584
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:616
 msgid "Unable to save the message."
 msgstr ""
 
 #. translators: 1: Site name, 2: Form title, 3: Message subject
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:597
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:629
 #, php-format
 msgid "[%1$s] %2$s - %3$s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:726
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:666
 msgid "Message ID:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:727
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:667
 msgid "From:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:735
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:675
 msgid "Company:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:744
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:684
 msgid "Preferred Date:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:750
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:690
 msgid "Priority:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:754
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:694
 msgid "Rating:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:761
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:701
 msgid "Attachment:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:761
-msgid "Download File"
-msgstr ""
-
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:765
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:705
 msgid "Sent Date:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:766
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:706
 msgid "Open in the admin panel"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:775
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:715
 #, php-format
 msgid "[%s] Your Message Received"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:778
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:718
 msgid "Your Message Received"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:781
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:721
 msgid "Your message has been successfully received. We will get back to you as soon as possible."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:782
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:722
 msgid "Thank you,"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:798
-msgid "The file could not be uploaded."
-msgstr ""
-
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:807
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:747
 msgid "The file is empty."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:95
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:97
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:102
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:104
 msgid "Contact Message"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:98
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:105
 msgid "View Contact Message"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:99
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:106
 msgid "Search Contact Messages"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:100
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:107
 msgid "No contact messages found."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:101
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:108
 msgid "No contact messages found in Trash."
 msgstr ""
 
@@ -12057,16 +12072,16 @@ msgstr ""
 msgid "Failed to remove retired database index %s."
 msgstr ""
 
-#: src/Admin/Utilities/Uninstall/Uninstaller.php:466
+#: src/Admin/Utilities/Uninstall/Uninstaller.php:473
 msgid "All plugin data has been removed successfully"
 msgstr ""
 
-#: src/Admin/Utilities/Uninstall/Uninstaller.php:467
+#: src/Admin/Utilities/Uninstall/Uninstaller.php:474
 msgid "Uninstall completed with some errors"
 msgstr ""
 
 #. translators: %s: Database table name.
-#: src/Admin/Utilities/Uninstall/Uninstaller.php:500
+#: src/Admin/Utilities/Uninstall/Uninstaller.php:507
 #, php-format
 msgid "Failed to remove database table %s."
 msgstr ""
@@ -15274,6 +15289,7 @@ msgid "Copy Report"
 msgstr ""
 
 #: src-react/admin/about/components/DeveloperTab.jsx:86
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:243
 msgid "Download"
 msgstr ""
 
@@ -15345,68 +15361,68 @@ msgstr ""
 msgid "Tested with: WP 7.0, PHP 8.2"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:10
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:11
 msgid "Bulk actions"
 msgstr ""
 
 #. translators: %d: number of selected messages.
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:14
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:15
 #, js-format
 msgid "%d message selected"
 msgid_plural "%d messages selected"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:117
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:21
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:118
 msgid "Restore"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:22
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:47
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:119
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:153
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:23
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:48
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:120
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:154
 msgid "Delete permanently"
 msgstr ""
 
 #. translators: %d: number of selected messages.
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:25
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:50
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:26
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:51
 #, js-format
 msgid "Delete %d message permanently? This cannot be undone."
 msgid_plural "Delete %d messages permanently? This cannot be undone."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:28
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:53
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:125
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:29
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:54
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:126
 msgid "Yes, delete"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:30
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:55
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:127
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:167
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:31
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:56
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:128
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:168
 msgid "Deleting…"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:38
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:39
 msgid "Mark as read"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:39
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:209
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:227
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:40
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:216
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:234
 msgid "Mark as replied"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:41
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:153
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:42
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:154
 msgid "Move to trash"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:63
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:64
 msgid "Clear selection"
 msgstr ""
 
@@ -15447,7 +15463,6 @@ msgid "Open the message from %s"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:75
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:236
 msgid "Open"
 msgstr ""
 
@@ -15520,170 +15535,166 @@ msgstr ""
 msgid "Browser"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:44
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:45
 msgid "The message could not be marked as read."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:50
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:51
 msgid "The message could not be loaded."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:67
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:68
 msgid "The status could not be saved."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:79
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:84
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:80
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:85
 msgid "The message could not be restored."
 msgstr ""
 
 #. translators: %s: enquiry type label.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:99
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:100
 #, js-format
 msgid "Re: %s"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:114
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:115
 msgid "Trashed message"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:115
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:116
 msgid "This message is in the trash. Restore it, or delete it permanently."
 msgstr ""
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:122
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:162
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:123
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:163
 #, js-format
 msgid "Delete the message from %s permanently? This cannot be undone."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:136
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:141
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:179
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:137
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:142
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:186
 msgid "The message could not be deleted."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:148
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:149
 msgid "Delete message"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:150
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:151
 msgid "The message moves to the trash; WordPress empties the trash automatically."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:151
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:152
 msgid "The message is deleted immediately; the trash is disabled on this site."
 msgstr ""
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:157
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:158
 #, js-format
 msgid "Move the message from %s to the trash?"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:165
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
 msgid "Yes, move to trash"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:165
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
 msgid "Yes, delete permanently"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:167
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:168
 msgid "Moving…"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:178
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:185
 msgid "The message could not be moved to the trash."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:192
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
 msgid "Back to contact messages"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:208
 msgid "Sender and actions"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:207
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:214
 msgid "Mark unread"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:220
 msgid "Reply by e-mail"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:223
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:230
 msgid "Reply reminder"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:226
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:233
 msgid "Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:237
-msgid "File not available"
-msgstr ""
-
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:241
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:248
 msgid "Request details"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:243
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:250
 msgid "No further details were filled in."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:59
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:68
 msgid "Contact messages could not be loaded."
 msgstr ""
 
 #. translators: %d: number of messages the action could not change.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:93
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:121
 #, js-format
 msgid "%d message could not be changed."
 msgid_plural "%d messages could not be changed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:100
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:129
 msgid "The bulk action could not be completed."
 msgstr ""
 
 #. translators: %d: number of new messages.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:112
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:142
 #, js-format
 msgid "%d new"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:122
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:152
 #: src-react/admin/customers/CustomersPage.jsx:118
 msgid "Filter by status"
 msgstr ""
 
 #. translators: %d: number of messages in the trash.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:146
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:176
 #, js-format
 msgid "Trash (%d)"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:169
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:200
 msgid "No contact messages yet"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:170
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:201
 msgid "No messages in this view"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:173
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:204
 msgid "Add the contact form to a page; every request sent through it is listed here."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:195
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:226
 msgid "Contact messages pages"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:197
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:228
 #: src-react/admin/customers/components/Pagination.jsx:17
 msgid "of"
 msgstr ""

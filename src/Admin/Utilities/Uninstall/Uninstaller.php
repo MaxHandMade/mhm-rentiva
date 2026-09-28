@@ -306,6 +306,13 @@ final class Uninstaller {
 			++$results['posts_deleted'];
 		}
 
+		// 3c. Contact attachments live outside the media library (4.4.1), so
+		// deleting the messages above does not reach them when uninstall.php
+		// runs without the plugin's hooks. purge() removes only files this
+		// plugin names and never touches the shared mhm-rentiva-private/ parent,
+		// where the add-on keeps vendor identity documents.
+		\MHMRentiva\Admin\ContactMessages\ContactAttachmentStore::purge();
+
 		// 4. Delete all postmeta - using prepare for LIKE pattern. Scoped to
 		// this plugin's own '_mhmrentiva%' prefix (every other step in this
 		// method already scopes to 'mhmrentiva%'/'_mhmrentiva%'; the

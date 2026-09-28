@@ -3,15 +3,21 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin;
 
+use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\ContactMessages\REST\ContactMessagesRestController;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
+use MHMRentiva\Tests\Support\ContactAttachmentFixtures;
+use MHMRentiva\Tests\Support\SandboxesUploads;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
 
 final class ContactMessagesReadRestTest extends WP_UnitTestCase
 {
+	use SandboxesUploads;
+	use ContactAttachmentFixtures;
+
 	private WP_REST_Server $server;
 	private int $admin = 0;
 
@@ -25,6 +31,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		do_action('rest_api_init', $this->server);
 		$this->admin = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
 		delete_transient(ContactStatus::BADGE_TRANSIENT);
+		$this->sandbox_uploads();
 	}
 
 	public function tearDown(): void
@@ -34,6 +41,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		remove_action('rest_api_init', array( ContactMessagesRestController::class, 'register_routes' ));
 		wp_set_current_user(0);
 		parent::tearDown();
+		$this->remove_sandbox();
 	}
 
 	private function contact(array $meta = array(), array $post = array()): int
@@ -302,5 +310,76 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 			$this->assertDoesNotMatchRegularExpression("/post_date\\s*[<>]=?\\s*''/", $sql);
 		}
 		$this->assertSame(1, $response->get_data()['total']);
+	}
+
+	/** R-12: December 9999's exclusive upper bound is 10000-01-01, which MySQL 8 rejects. */
+	public function test_period_outside_years_1000_to_9998_is_a_400(): void
+	{
+		wp_set_current_user($this->admin);
+		$this->assertSame(400, $this->get('/contact-messages', array( 'period' => '9999-12' ))->get_status());
+		$this->assertSame(400, $this->get('/contact-messages', array( 'period' => '0999-01' ))->get_status());
+		$this->assertSame(200, $this->get('/contact-messages', array( 'period' => '9998-12' ))->get_status());
+		$this->assertSame(200, $this->get('/contact-messages', array( 'period' => '1000-01' ))->get_status());
+	}
+
+	public function test_a_month_period_lists_exactly_that_month(): void
+	{
+		wp_set_current_user($this->admin);
+		$this->contact(array( 'name' => 'Before' ), array( 'post_date' => '2026-07-31 23:59:59' ));
+		$first = $this->contact(array( 'name' => 'First' ), array( 'post_date' => '2026-08-01 00:00:00' ));
+		$last  = $this->contact(array( 'name' => 'Last' ), array( 'post_date' => '2026-08-31 23:59:59' ));
+		$this->contact(array( 'name' => 'After' ), array( 'post_date' => '2026-09-01 00:00:00' ));
+
+		$ids = wp_list_pluck($this->get('/contact-messages', array( 'period' => '2026-08' ))->get_data()['items'], 'id');
+		sort($ids);
+		$this->assertSame(array( $first, $last ), $ids);
+	}
+
+	public function test_a_seven_day_period_lists_only_the_last_seven_days(): void
+	{
+		wp_set_current_user($this->admin);
+		// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- post_date is local time; the fixture must use the same clock as the repository.
+		$now    = (int) current_time('timestamp');
+		$recent = $this->contact(array( 'name' => 'Recent' ), array( 'post_date' => gmdate('Y-m-d H:i:s', $now - DAY_IN_SECONDS) ));
+		$this->contact(array( 'name' => 'Old' ), array( 'post_date' => gmdate('Y-m-d H:i:s', $now - 8 * DAY_IN_SECONDS) ));
+
+		$ids = wp_list_pluck($this->get('/contact-messages', array( 'period' => '7d' ))->get_data()['items'], 'id');
+		$this->assertSame(array( $recent ), $ids);
+	}
+
+	public function test_a_stored_attachment_gets_a_download_url_and_its_size(): void
+	{
+		wp_set_current_user($this->admin);
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
+		$id     = $this->contact();
+		ContactAttachmentStore::attach($id, $record);
+
+		$row = $this->get('/contact-messages')->get_data()['items'][0];
+		$this->assertTrue($row['has_attachment']);
+		$a = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertSame('offer.pdf', $a['name']);
+		$this->assertSame($record['size'], $a['size']);
+		$this->assertSame(ContactAttachmentStore::download_url($id), $a['download_url']);
+	}
+
+	/** R-6: a leftover pre-4.4.1 URL is named but never linked. */
+	public function test_a_legacy_url_is_listed_without_a_link(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact(array( 'attachment' => trailingslashit(wp_upload_dir()['baseurl']) . '2026/08/a.pdf' ));
+		$a  = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertSame('a.pdf', $a['name']);
+		$this->assertNull($a['size']);
+		$this->assertNull($a['download_url']);
+	}
+
+	public function test_a_record_whose_file_is_gone_has_no_link(): void
+	{
+		wp_set_current_user($this->admin);
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
+		$id     = $this->contact();
+		ContactAttachmentStore::attach($id, $record);
+		ContactAttachmentStore::discard($record);
+		$this->assertNull($this->get('/contact-messages/' . $id)->get_data()['attachment']['download_url']);
 	}
 }

@@ -241,10 +241,33 @@ final class ContactMessageRepository {
 	}
 
 	/**
+	 * The one definition of an acceptable `period` (REST validation and
+	 * period_bounds() both call it). Years stay inside 1000-9998: DATETIME's
+	 * supported range starts at 1000, and December 9999's exclusive upper
+	 * bound would be 10000-01-01, which MySQL 8 rejects outright.
+	 */
+	public static function is_valid_period(string $period): bool
+	{
+		if (in_array($period, array( '', '7d', '30d' ), true)) {
+			return true;
+		}
+		if (1 !== preg_match('/^(\d{4})-(0[1-9]|1[0-2])$/', $period, $m)) {
+			return false;
+		}
+		$year = (int) $m[1];
+
+		return $year >= 1000 && $year <= 9998;
+	}
+
+	/**
 	 * @return array{0:?string,1:?string} Local-time [from, to) for post_date.
 	 */
 	public static function period_bounds(string $period): array
 	{
+		if ('' === $period || ! self::is_valid_period($period)) {
+			return array( null, null );
+		}
+
 		// phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- gmdate() below formats this local timestamp to match post_date, which WordPress also stores in local time; both sides of every comparison must use the same clock.
 		$now = (int) current_time('timestamp');
 		if ('7d' === $period) {
