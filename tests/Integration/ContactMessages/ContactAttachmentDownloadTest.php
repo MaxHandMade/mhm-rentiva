@@ -151,6 +151,87 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		$this->assertSame(array(), preg_grep('/^Content-Length/', $headers));
 	}
 
+	/**
+	 * M1: the extracted seam behaves like the inline loop it replaced when
+	 * every buffer is removable -- it is unconditional, so it also drains
+	 * the buffer PHPUnit itself opened around this test (TestCase::runBare()
+	 * -> startOutputBuffering()), which is the correct production behavior
+	 * (handle() must clear everything ahead of it, not just its own). The
+	 * final loop restores that level so PHPUnit's own end-of-test bookkeeping
+	 * (stopOutputBuffering()) still finds a buffer to close.
+	 */
+	public function test_drain_output_buffers_removes_every_removable_buffer_and_allows_content_length(): void
+	{
+		$level_before = ob_get_level();
+		ob_start();
+		echo 'stray-a';
+		ob_start();
+		echo 'stray-b';
+
+		$can_send_length = ContactAttachmentDownload::drain_output_buffers();
+
+		$this->assertTrue($can_send_length);
+		$this->assertSame(0, ob_get_level(), 'every removable buffer, including the two this test opened, must be gone');
+
+		while (ob_get_level() < $level_before) {
+			ob_start();
+		}
+	}
+
+	/**
+	 * M1: a buffer opened without PHP_OUTPUT_HANDLER_REMOVABLE (the zlib
+	 * output-compression handler is one; so is a plugin's own ob_start() that
+	 * omits the flag) cannot be popped by ob_end_clean() for the rest of the
+	 * PHP process -- measured against this exact PHP build below, mirroring
+	 * the audit's own php -r probe.
+	 *
+	 * Run out of process, never inline in this test: PHPUnit wraps every
+	 * test in its own ob_start()/ob_end_clean() pair
+	 * (TestCase::stopOutputBuffering()), and that pair's own cleanup loop
+	 * (`while (ob_get_level() >= $level) { ob_end_clean(); }`) would spin
+	 * forever against a level it can never remove -- hanging the whole
+	 * suite, not just failing one test. A bare `php -r` child process pays
+	 * for that irreversibility itself and simply exits.
+	 */
+	public function test_drain_output_buffers_clears_bytes_from_a_buffer_it_cannot_remove(): void
+	{
+		$source = dirname(__DIR__, 3) . '/src/Admin/ContactMessages/ContactAttachmentDownload.php';
+		$this->assertFileExists($source);
+
+		$script = 'define("ABSPATH", __DIR__ . "/"); require ' . var_export($source, true) . ';'
+			. 'ob_start(null, 0, PHP_OUTPUT_HANDLER_STDFLAGS ^ PHP_OUTPUT_HANDLER_REMOVABLE);'
+			. 'echo "P";'
+			. '$level = ob_get_level();'
+			. '$ok = \\MHMRentiva\\Admin\\ContactMessages\\ContactAttachmentDownload::drain_output_buffers();'
+			. 'fwrite(STDOUT, json_encode(array('
+			. '"level_before_drain" => $level,'
+			. '"can_send_length" => $ok,'
+			. '"level_after_drain" => ob_get_level(),'
+			. '"surviving_body" => ob_get_contents(),'
+			. ')));';
+
+		$process = proc_open(
+			array( PHP_BINARY, '-r', $script ),
+			array( 0 => array( 'pipe', 'r' ), 1 => array( 'pipe', 'w' ), 2 => array( 'pipe', 'w' ) ),
+			$pipes
+		);
+		$this->assertIsResource($process, 'could not spawn the isolated probe process');
+		fclose($pipes[0]);
+		$stdout = stream_get_contents($pipes[1]);
+		$stderr = stream_get_contents($pipes[2]);
+		fclose($pipes[1]);
+		fclose($pipes[2]);
+		$exit_code = proc_close($process);
+
+		$this->assertSame(0, $exit_code, "the isolated probe process failed: {$stderr}");
+		$result = json_decode( (string) $stdout, true);
+		$this->assertIsArray($result, "unexpected probe output: {$stdout}");
+		$this->assertSame(1, $result['level_before_drain'], 'the probe must have exactly one buffer open before draining');
+		$this->assertFalse($result['can_send_length'], 'a surviving buffer means Content-Length must not be sent');
+		$this->assertSame(1, $result['level_after_drain'], 'the non-removable buffer itself is still there -- it cannot be removed, only cleared');
+		$this->assertSame('', $result['surviving_body'], 'the stray byte must be discarded from the surviving buffer');
+	}
+
 	/** Review Focus 3. */
 	public function test_disposition_keeps_quotes_out_and_the_real_name_in_filename_star(): void
 	{

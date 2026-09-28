@@ -366,6 +366,44 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		$this->assertSame('extension', $items[0]['reason']);
 	}
 
+	/**
+	 * M2: classify() itself never throws on planted input, so this reaches
+	 * for the one seam it calls that a filter CAN make throw --
+	 * wp_check_filetype_and_ext() -- rather than reproducing a defect. A
+	 * Throwable from one row's classification must refuse only that row
+	 * (meta cleared, file untouched, listed with reason 'error') and let the
+	 * rest of the batch, including a second legitimate row, continue; the
+	 * outer whole-body try/catch (R-19) is the second layer, not the only one.
+	 */
+	public function test_a_throwable_from_classify_refuses_only_that_row_and_the_batch_continues(): void
+	{
+		$bad_url  = $this->legacy('2026/08/boom.pdf');
+		$bad_id   = $this->contact($bad_url);
+		$good_url = $this->legacy('2026/08/fine.pdf');
+		$good_id  = $this->contact($good_url, '2026-08-02 09:00:00');
+
+		$throw_for_boom = static function ($data, $file, $filename) {
+			if ('boom.pdf' === $filename) {
+				throw new \RuntimeException('synthetic classify failure');
+			}
+			return $data;
+		};
+		add_filter('wp_check_filetype_and_ext', $throw_for_boom, 10, 3);
+
+		try {
+			$this->assertTrue(ContactAttachmentMigration::run());
+		} finally {
+			remove_filter('wp_check_filetype_and_ext', $throw_for_boom, 10);
+		}
+
+		$this->assertSame(array( $bad_id => 'error' ), $this->unmigrated_reasons());
+		$this->assertSame('', get_post_meta($bad_id, ContactAttachmentStore::META_KEY, true));
+		$this->assertFileExists($this->sandbox . '/2026/08/boom.pdf', 'a refused file is never touched');
+		$this->assertNotNull(ContactAttachmentStore::record($good_id), 'a legitimate row in the same run still migrates');
+		$state = get_option(ContactAttachmentMigration::UNMIGRATED_OPTION, array());
+		$this->assertEmpty($state['store_failed'] ?? false, 'a per-row Throwable is not an IO failure');
+	}
+
 	public function test_content_that_does_not_prove_its_extension_is_refused(): void
 	{
 		$id = $this->contact($this->legacy('2026/08/fake.pdf', 'zip'));

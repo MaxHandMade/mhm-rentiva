@@ -27,7 +27,7 @@ final class ContactAttachmentDownload {
 
 	public static function handle(): void
 	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The ID names the nonce action; check_admin_referer() on the next line verifies it.
+		// check_admin_referer() on the next line verifies the nonce WPCS looks for here.
 		$id = isset($_GET['id']) ? absint(wp_unslash($_GET['id'])) : 0;
 		check_admin_referer(self::nonce_action($id));
 
@@ -40,16 +40,35 @@ final class ContactAttachmentDownload {
 			wp_die(esc_html__('File not available', 'mhm-rentiva'), '', array( 'response' => 404 ));
 		}
 
-		// Drop every buffer PHP lets us drop; a non-removable one stops the loop.
+		self::serve($file, 'header', self::drain_output_buffers());
+		exit;
+	}
+
+	/**
+	 * Drops every buffer PHP lets us drop; a non-removable one (the zlib
+	 * output-compression handler, or a plugin's own ob_start() without
+	 * PHP_OUTPUT_HANDLER_REMOVABLE) stops the loop but may already hold bytes
+	 * of its own -- those are still flushed ahead of the file at shutdown, so
+	 * they are cleared here rather than left to corrupt the download.
+	 *
+	 * @return bool Whether no buffer level remains -- only then is a
+	 *              Content-Length header safe (a surviving level, the zlib
+	 *              handler included, may still resize the body afterwards).
+	 */
+	public static function drain_output_buffers(): bool
+	{
 		while (ob_get_level() > 0) {
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A non-removable buffer returns false with a notice; stopping there is the intent.
 			if (! @ob_end_clean()) {
 				break;
 			}
 		}
+		if (ob_get_level() > 0) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Same as above: discard whatever the surviving (non-removable) buffer already held, without removing it.
+			@ob_clean();
+		}
 
-		self::serve($file, 'header', ! (bool) ini_get('zlib.output_compression'));
-		exit;
+		return 0 === ob_get_level();
 	}
 
 	/** @return array{path:string,name:string,mime:string,size:int}|null */

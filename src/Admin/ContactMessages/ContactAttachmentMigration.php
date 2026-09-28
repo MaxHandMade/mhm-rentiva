@@ -73,7 +73,16 @@ final class ContactAttachmentMigration {
 					$seen[ $url ] = true;
 
 					foreach (self::posts_for($url) as $id => $date) {
-						$c = self::classify($url, $date);
+						// M2: classify() is expected to fail safe on planted input, but
+						// a Throwable here must refuse only THIS row, not the run -- the
+						// outer try/catch below still catches whatever a $seen stop or a
+						// truly unexpected error throws for the whole batch (R-19).
+						try {
+							$c = self::classify($url, $date);
+						} catch (\Throwable $e) {
+							self::log('classify failed: ' . $e->getMessage());
+							$c = self::refuse('error');
+						}
 						if (! $c['ok']) {
 							self::collect_unmigrated($collected, $id, $url, $c['reason']);
 							$refused_ids[] = $id;
