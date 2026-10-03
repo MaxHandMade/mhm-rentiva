@@ -234,7 +234,7 @@ final class ContactMessageRepository {
 		), ARRAY_A);
 
 		$out = array();
-		foreach ((array) $rows as $row) {
+		foreach ( (array) $rows as $row) {
 			$year  = (int) $row['y'];
 			$month = (int) $row['m'];
 			if ($year < 1) {

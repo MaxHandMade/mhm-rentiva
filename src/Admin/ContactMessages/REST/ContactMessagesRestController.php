@@ -388,24 +388,24 @@ final class ContactMessagesRestController {
 		$text   = trim(wp_specialchars_decode(wp_strip_all_tags($post->post_content)));
 
 		return array(
-			'id'             => $post->ID,
-			'name'           => $name,
-			'email'          => $email,
-			'email_linkable' => self::email_linkable($email),
-			'initials'       => self::initials($name),
-			'type'           => in_array($type, ContactMessagePostType::TYPES, true) ? $type : 'general',
-			'type_label'     => ContactMessagePostType::type_label($type),
-			'snippet'        => mb_substr(preg_replace('/\s+/u', ' ', $text) ?? '', 0, 140),
-			'vehicle'        => self::vehicle( (int) $meta('vehicle_id')),
-			'has_attachment' => null !== ContactAttachmentStore::record($post->ID) || '' !== ContactAttachmentStore::legacy_url($post->ID),
-			'rating'         => max(0, min(5, (int) $meta('rating'))),
-			'status'         => $status,
-			'status_label'   => ContactStatus::label($status),
+			'id'              => $post->ID,
+			'name'            => $name,
+			'email'           => $email,
+			'email_linkable'  => self::email_linkable($email),
+			'initials'        => self::initials($name),
+			'type'            => in_array($type, ContactMessagePostType::TYPES, true) ? $type : 'general',
+			'type_label'      => ContactMessagePostType::type_label($type),
+			'snippet'         => mb_substr(preg_replace('/\s+/u', ' ', $text) ?? '', 0, 140),
+			'vehicle'         => self::vehicle( (int) $meta('vehicle_id')),
+			'has_attachment'  => null !== ContactAttachmentStore::record($post->ID) || '' !== ContactAttachmentStore::legacy_url($post->ID),
+			'rating'          => max(0, min(5, (int) $meta('rating'))),
+			'status'          => $status,
+			'status_label'    => ContactStatus::label($status),
 			// mysql_to_rfc3339() emits no UTC offset; gmdate('c', ...) does, and clients need it to compare dates reliably.
-			'date_iso'       => gmdate('c', (int) strtotime($post->post_date_gmt . ' UTC')),
-			'date_label'     => wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) strtotime($post->post_date_gmt . ' UTC')),
+			'date_iso'        => gmdate('c', (int) strtotime($post->post_date_gmt . ' UTC')),
+			'date_label'      => wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) strtotime($post->post_date_gmt . ' UTC')),
 			'date_label_long' => wp_date(get_option('date_format') . ', ' . get_option('time_format'), (int) strtotime($post->post_date_gmt . ' UTC')),
-			'trashed'        => 'trash' === $post->post_status,
+			'trashed'         => 'trash' === $post->post_status,
 		);
 	}
 
