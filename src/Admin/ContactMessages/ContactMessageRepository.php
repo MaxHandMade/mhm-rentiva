@@ -210,6 +210,46 @@ final class ContactMessageRepository {
 		);
 	}
 
+	/**
+	 * Months that hold at least one live (private) contact message, newest
+	 * first -- the option list of the period filter. The post_status
+	 * predicate is the same one stats() and other_count() use, so trashed
+	 * and draft records never contribute a month. post_date is local time,
+	 * like period_bounds().
+	 *
+	 * @return list<array{value:string,label:string}>
+	 */
+	public static function months(int $limit = 12): array
+	{
+		global $wpdb;
+
+		$rows = $wpdb->get_results($wpdb->prepare(
+			"SELECT YEAR(post_date) AS y, MONTH(post_date) AS m FROM {$wpdb->posts}
+			 WHERE post_type = %s AND post_status = 'private'
+			 GROUP BY YEAR(post_date), MONTH(post_date)
+			 ORDER BY y DESC, m DESC
+			 LIMIT %d",
+			self::TYPE,
+			max(1, $limit)
+		), ARRAY_A);
+
+		$out = array();
+		foreach ((array) $rows as $row) {
+			$year  = (int) $row['y'];
+			$month = (int) $row['m'];
+			if ($year < 1) {
+				continue;
+			}
+			$out[] = array(
+				'value' => sprintf('%04d-%02d', $year, $month),
+				// Noon UTC on the 1st stays inside the month in every time zone.
+				'label' => wp_date('F Y', (int) gmmktime(12, 0, 0, $month, 1, $year)),
+			);
+		}
+
+		return $out;
+	}
+
 	public static function other_count(string $email, int $exclude_id): int
 	{
 		global $wpdb;

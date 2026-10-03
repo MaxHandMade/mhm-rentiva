@@ -404,6 +404,7 @@ final class ContactMessagesRestController {
 			// mysql_to_rfc3339() emits no UTC offset; gmdate('c', ...) does, and clients need it to compare dates reliably.
 			'date_iso'       => gmdate('c', (int) strtotime($post->post_date_gmt . ' UTC')),
 			'date_label'     => wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) strtotime($post->post_date_gmt . ' UTC')),
+			'date_label_long' => wp_date(get_option('date_format') . ', ' . get_option('time_format'), (int) strtotime($post->post_date_gmt . ' UTC')),
 			'trashed'        => 'trash' === $post->post_status,
 		);
 	}
@@ -438,13 +439,18 @@ final class ContactMessagesRestController {
 			$attachment = array(
 				'name'         => $record['name'],
 				'size'         => $record['size'],
+				'type_label'   => self::type_label_of($record['name']),
+				'size_label'   => $record['size'] > 0 ? ( size_format($record['size']) ?: null ) : null,
 				'download_url' => null !== ContactAttachmentStore::path($record) ? ContactAttachmentStore::download_url($post->ID) : null,
 			);
 		} elseif ('' !== $legacy) {
 			// R-6: only an unfinished 4.4.1 migration leaves a URL here; never link it.
-			$attachment = array(
-				'name'         => sanitize_file_name(wp_basename( (string) wp_parse_url($legacy, PHP_URL_PATH))),
+			$legacy_name = sanitize_file_name(wp_basename( (string) wp_parse_url($legacy, PHP_URL_PATH)));
+			$attachment  = array(
+				'name'         => $legacy_name,
 				'size'         => null,
+				'type_label'   => self::type_label_of($legacy_name),
+				'size_label'   => null,
 				'download_url' => null,
 			);
 		}
@@ -461,6 +467,12 @@ final class ContactMessagesRestController {
 				'other_count'    => ContactMessageRepository::other_count($row['email'], $post->ID),
 			),
 		));
+	}
+
+	/** Upper-case extension of a file name; '' when it has none. */
+	private static function type_label_of(string $name): string
+	{
+		return strtoupper(pathinfo($name, PATHINFO_EXTENSION));
 	}
 
 	/** The is_email() check alone is not enough: it accepts `?&%=#` in the local part, and such an address would inject mailto: query fields. */
@@ -483,13 +495,14 @@ final class ContactMessagesRestController {
 		return mb_strtoupper($out);
 	}
 
-	/** @return array{id:int,title:string}|null */
+	/** @return array{id:int,title:string,edit_url:?string}|null */
 	private static function vehicle(int $id): ?array
 	{
 		return $id > 0 && 'mhmrentiva_vehicle' === get_post_type($id)
 			? array(
-				'id'    => $id,
-				'title' => get_the_title($id),
+				'id'       => $id,
+				'title'    => get_the_title($id),
+				'edit_url' => current_user_can('edit_post', $id) ? ( get_edit_post_link($id, 'raw') ?: null ) : null,
 			)
 			: null;
 	}

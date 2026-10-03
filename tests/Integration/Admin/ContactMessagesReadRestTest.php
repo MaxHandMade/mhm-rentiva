@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Admin;
 
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
+use MHMRentiva\Admin\ContactMessages\ContactMessageRepository;
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
 use MHMRentiva\Admin\ContactMessages\REST\ContactMessagesRestController;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
@@ -381,5 +382,99 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		ContactAttachmentStore::attach($id, $record);
 		ContactAttachmentStore::discard($record);
 		$this->assertNull($this->get('/contact-messages/' . $id)->get_data()['attachment']['download_url']);
+	}
+
+	public function test_a_stored_attachment_carries_its_type_and_size_labels(): void
+	{
+		wp_set_current_user($this->admin);
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
+		$id     = $this->contact();
+		ContactAttachmentStore::attach($id, $record);
+		$a = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertSame('PDF', $a['type_label']);
+		$this->assertSame(size_format($record['size']), $a['size_label']);
+	}
+
+	public function test_a_legacy_attachment_has_no_size_label(): void
+	{
+		wp_set_current_user($this->admin);
+		$id = $this->contact(array( 'attachment' => trailingslashit(wp_upload_dir()['baseurl']) . '2026/08/a.pdf' ));
+		$a  = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertNull($a['size_label']);
+		$this->assertSame('PDF', $a['type_label']);
+		$this->assertNull($a['download_url']);
+
+		$bare = $this->contact(array( 'attachment' => trailingslashit(wp_upload_dir()['baseurl']) . '2026/08/noext' ));
+		$this->assertSame('', $this->get('/contact-messages/' . $bare)->get_data()['attachment']['type_label']);
+	}
+
+	public function test_a_record_whose_file_is_gone_keeps_its_labels(): void
+	{
+		wp_set_current_user($this->admin);
+		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'offer.pdf', $this->sideload());
+		$id     = $this->contact();
+		ContactAttachmentStore::attach($id, $record);
+		ContactAttachmentStore::discard($record);
+		$a = $this->get('/contact-messages/' . $id)->get_data()['attachment'];
+		$this->assertNull($a['download_url']);
+		$this->assertSame('PDF', $a['type_label']);
+	}
+
+	public function test_the_vehicle_links_to_its_edit_screen_for_editors_only(): void
+	{
+		$vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Golf' ));
+		$id      = $this->contact(array( 'vehicle_id' => $vehicle ));
+
+		wp_set_current_user($this->admin);
+		$v = $this->get('/contact-messages/' . $id)->get_data()['vehicle'];
+		$this->assertSame(get_edit_post_link($vehicle, 'raw'), $v['edit_url']);
+		$this->assertNotEmpty($v['edit_url']);
+		$this->assertSame($v['edit_url'], $this->get('/contact-messages')->get_data()['items'][0]['vehicle']['edit_url']);
+
+		// The routes are manage_options; a role that can manage options but not edit the vehicle is the only way to reach the null branch.
+		$limited = (int) self::factory()->user->create(array( 'role' => 'subscriber' ));
+		get_user_by('id', $limited)->add_cap('manage_options');
+		wp_set_current_user($limited);
+		$this->assertFalse(current_user_can('edit_post', $vehicle));
+		$this->assertNull($this->get('/contact-messages/' . $id)->get_data()['vehicle']['edit_url']);
+	}
+
+	public function test_detail_carries_a_comma_date_label_for_the_meta_line(): void
+	{
+		wp_set_current_user($this->admin);
+		$id   = $this->contact();
+		$post = get_post($id);
+		$d    = $this->get('/contact-messages/' . $id)->get_data();
+		$ts   = (int) strtotime($post->post_date_gmt . ' UTC');
+		$this->assertSame(wp_date(get_option('date_format') . ', ' . get_option('time_format'), $ts), $d['date_label_long']);
+		$this->assertSame(wp_date(get_option('date_format') . ' ' . get_option('time_format'), $ts), $d['date_label']);
+	}
+
+	public function test_months_lists_months_with_messages_newest_first_and_skips_trash(): void
+	{
+		foreach (array( '2026-09-15', '2026-08-02', '2026-08-20' ) as $d) {
+			$this->contact(array(), array( 'post_date' => $d . ' 10:00:00' ));
+		}
+		$this->contact(array(), array( 'post_date' => '2026-07-01 10:00:00', 'post_status' => 'trash' ));
+		$this->contact(array(), array( 'post_date' => '2026-06-10 10:00:00', 'post_status' => 'draft' ));
+
+		$months = ContactMessageRepository::months();
+		$this->assertSame(array( '2026-09', '2026-08' ), wp_list_pluck($months, 'value'));
+		$this->assertSame(wp_date('F Y', gmmktime(12, 0, 0, 9, 1, 2026)), $months[0]['label']);
+	}
+
+	public function test_months_is_capped(): void
+	{
+		for ($m = 1; $m <= 14; $m++) {
+			$year = $m > 12 ? 2027 : 2026;
+			$this->contact(array(), array( 'post_date' => sprintf('%d-%02d-10 10:00:00', $year, $m > 12 ? $m - 12 : $m) ));
+		}
+		$this->assertCount(12, ContactMessageRepository::months());
+		$this->assertCount(3, ContactMessageRepository::months(3));
+	}
+
+	public function test_only_the_admin_type_label_is_contextual(): void
+	{
+		$this->assertSame('Booking Inquiry', ContactMessagePostType::type_label('booking'));
 	}
 }
