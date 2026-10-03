@@ -15934,7 +15934,7 @@ msgstr "Teknik kayıt"
 
 #: src-react/admin/contact-messages/components/TechnicalWidget.jsx:44
 msgid "The sender's IP address and browser. Only needed when investigating abuse."
-msgstr "Gönderenin IP adresi ve tarayıcısı. Yalnızca kötüye kullanım araştırılırken gereklidir."
+msgstr "Gönderenin IP adresi ve tarayıcı bilgisi. Kötüye kullanım incelemesi dışında gerekmez."
 
 #: src-react/admin/contact-messages/components/TechnicalWidget.jsx:53
 msgid "Browser"
