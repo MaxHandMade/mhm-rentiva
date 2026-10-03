@@ -1,6 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import PageHeader from '../../../vendor/mhm/ui-core/src-react/components/PageHeader';
 import DetailLayout from '../../../vendor/mhm/ui-core/src-react/components/DetailLayout';
 import DetailList from '../../../vendor/mhm/ui-core/src-react/components/DetailList';
@@ -287,7 +287,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					<p className="mhm-contact-messages__body">{ msg.content }</p>
 					{ msg.attachment && (
 						<div className="mhm-contact-messages__attachment-block">
-							<h3 className="mhm-contact-messages__subhead">{ __( 'Attachment', 'mhm-rentiva' ) }</h3>
+							<h3 className="mhm-contact-messages__subhead">{ _x( 'Attachment', 'contact message', 'mhm-rentiva' ) }</h3>
 							<div className="mhm-contact-messages__attachment">
 								<span className="mhm-contact-messages__attachment-icon" aria-hidden="true">
 									<AttachmentIcon image={ IMAGE_EXT.test( msg.attachment.name ) } />

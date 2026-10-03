@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from '../../../../vendor/mhm/ui-core/src-react/components/Button';
 import StatusBadge from '../../../../vendor/mhm/ui-core/src-react/components/StatusBadge';
 
@@ -88,7 +88,7 @@ export default function ContactTable( { rows, selected, onToggle, onToggleAll, o
 										<svg aria-hidden="true" focusable="false" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<path d="M20 11.5l-8.1 8.1a5 5 0 01-7.1-7.1l8.1-8.1a3.3 3.3 0 014.7 4.7l-8.1 8.1a1.7 1.7 0 01-2.4-2.4l7.4-7.4" />
 										</svg>
-										{ __( 'Attachment', 'mhm-rentiva' ) }
+										{ _x( 'Attachment', 'contact message', 'mhm-rentiva' ) }
 									</span>
 								) }
 								{ r.rating > 0 && (

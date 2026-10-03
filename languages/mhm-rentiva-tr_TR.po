@@ -7032,8 +7032,6 @@ msgid "Preferred date"
 msgstr "Tercih edilen tarih"
 
 #: templates/shortcodes/contact-form.php:173
-#: src-react/admin/contact-messages/components/ContactTable.jsx:91
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:290
 msgid "Attachment"
 msgstr "Ek dosya"
 
@@ -16175,3 +16173,9 @@ msgstr[1] "%1$d–%2$d / %3$d mesaj"
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:244
 msgid "Go to shortcode pages"
 msgstr "Kısa kod sayfalarına git"
+
+#: src-react/admin/contact-messages/components/ContactTable.jsx:91
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:290
+msgctxt "contact message"
+msgid "Attachment"
+msgstr """Ek"
