@@ -67,12 +67,33 @@
 .mhm-contact-messages__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mhm-contact-messages__mail-note { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 10px 14px; background: var( --mhmui-info-soft, #e5f0fa ); border: 1px solid #b6d1ea; border-radius: var( --mhmui-radius, 4px ); }
 .mhm-contact-messages__body { margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-line; max-width: 760px; }
-.mhm-contact-messages__attachment { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 1px solid #dcdcde; border-radius: var( --mhmui-radius, 4px ); max-width: 520px; }
-.mhm-contact-messages__attachment span:first-child { flex: 1; }
 .mhm-contact-messages__muted { color: var( --mhmui-text-muted, #646970 ); }
 .mhm-contact-messages__avatar.is-large { width: 44px; height: 44px; font-size: 14px; }
-.mhm-contact-messages__dl { margin: 12px 0; display: grid; gap: 4px; }
-.mhm-contact-messages__dl dt { font-size: 12px; color: var( --mhmui-text-muted, #646970 ); }
-.mhm-contact-messages__dl dd { margin: 0 0 8px; }
-.mhm-contact-messages__dl.is-code dd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; word-break: break-all; }
+/* R-B1: the detail view's h1 is the sender's name; hide the PHP house header (its h1 is the
+   list title) while that h1 is mounted. hr.wp-header-end sits outside the header and stays,
+   so admin notices keep their place. */
+.wrap:has( > #mhm-contact-messages-root h1.mhmui-page-header__title ) > .mhm-admin-header { display: none; }
+.mhm-contact-messages__attachment-block { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var( --mhmui-border-light, #f0f0f1 ); }
+.mhm-contact-messages__subhead { margin: 0; font-size: 13px; font-weight: 600; }
+.mhm-contact-messages__attachment { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var( --mhmui-border-divider, #dcdcde ); border-radius: var( --mhmui-radius, 4px ); max-width: 520px; }
+.mhm-contact-messages__attachment-icon { width: 40px; height: 40px; flex: none; border-radius: 4px; background: #f0f0f1; color: #50575e; display: flex; align-items: center; justify-content: center; }
+.mhm-contact-messages__attachment-info { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mhm-contact-messages__attachment-name { font-size: 14px; overflow-wrap: anywhere; }
+.mhm-contact-messages__attachment-info .mhm-contact-messages__muted { font-size: 12px; color: var( --mhmui-text-secondary, #646970 ); }
+.mhm-contact-messages__help { display: block; font-size: 12px; color: var( --mhmui-text-secondary, #646970 ); }
+.mhm-contact-messages__dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.mhm-contact-messages__dl dt { font-size: 12px; color: var( --mhmui-text-secondary, #646970 ); }
+.mhm-contact-messages__dl dd { margin: 3px 0 0; font-size: 14px; overflow-wrap: anywhere; }
+.mhm-contact-messages__dl.is-code { gap: 10px; padding: 12px; background: #f6f7f7; border-radius: 3px; }
+.mhm-contact-messages__dl.is-code dd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 1.5; word-break: break-all; }
+.mhm-contact-messages__dl.is-code[hidden] { display: none; }
 .mhm-contact-messages__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mhm-contact-messages__sender-links { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var( --mhmui-border-divider, #dcdcde ); }
+.mhm-contact-messages__customer { display: flex; align-items: center; gap: 8px; color: #50575e; }
+.mhm-contact-messages__more { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; }
+.mhm-contact-messages .mhmui-widget--plain p { margin: 0; color: #50575e; line-height: 1.5; }
+.mhmui-detail-layout__aside .mhm-contact-messages__sender { gap: 12px; }
+.mhm-contact-messages .mhmui-widget:not( .mhmui-widget--plain ) .mhmui-widget__body { padding: 18px 20px 20px; }
+.mhm-contact-messages .mhmui-widget--plain .mhmui-widget__body { display: flex; flex-direction: column; gap: 14px; }
+.mhm-contact-messages .mhmui-widget--plain a:not( .mhmui-button ),
+.mhm-contact-messages__more { text-decoration: none; }

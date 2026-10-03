@@ -1,6 +1,7 @@
 import { useState, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Widget from '../../../../vendor/mhm/ui-core/src-react/components/Widget';
+import Button from '../../../../vendor/mhm/ui-core/src-react/components/Button';
 import { contactApi } from '../api';
 
 export default function TechnicalWidget( { id } ) {
@@ -31,11 +32,13 @@ export default function TechnicalWidget( { id } ) {
 
 	return (
 		<Widget
+			level={ 2 }
+			variant="plain"
 			title={ __( 'Technical record', 'mhm-rentiva' ) }
 			actions={
-				<button type="button" className="button" aria-expanded={ open } aria-controls={ panelId } disabled={ loading } onClick={ toggle }>
+				<Button size="sm" aria-expanded={ open } aria-controls={ panelId } disabled={ loading } onClick={ toggle }>
 					{ open ? __( 'Hide', 'mhm-rentiva' ) : __( 'Show', 'mhm-rentiva' ) }
-				</button>
+				</Button>
 			}
 		>
 			<p>{ __( "The sender's IP address and browser. Only needed when investigating abuse.", 'mhm-rentiva' ) }</p>

@@ -691,6 +691,107 @@ describe( 'contact message detail', () => {
 		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
 		expect( await screen.findByText( 'No further details were filled in.' ) ).toBeTruthy();
 	} );
+
+	describe( 'artboard binding (Task C4)', () => {
+		const long = { id: 3531, name: 'Barış Koç', type_label: 'Technical Support', date_label_long: '26/09/2026, 21:40' };
+		const email = 'baris@example.com';
+		const sender = ( over = {} ) => ( { email, email_linkable: true, phone: '', customer_url: null, other_count: 0, ...over } );
+
+		test( 'the sender name is the page h1 and the meta carries the message number', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, email, sender: sender() } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( 'Barış Koç' );
+			expect( screen.queryAllByRole( 'heading', { level: 1 } ) ).toHaveLength( 1 );
+			expect( container.querySelector( '.mhmui-page-header__meta' ).textContent ).toBe( 'Technical Support · 26/09/2026, 21:40 · Message #3531' );
+		} );
+
+		test( 'the attachment card shows type and size and downloads', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, attachment: { name: 'odeme-hatasi.png', type_label: 'PNG', size_label: '312 KB', download_url: '/dl' } } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'odeme-hatasi.png' ) ).toBeTruthy();
+			expect( screen.getByText( 'PNG · 312 KB' ) ).toBeTruthy();
+			expect( screen.getByRole( 'link', { name: 'Download' } ).getAttribute( 'href' ) ).toBe( '/dl' );
+		} );
+
+		test( 'an attachment with only a type shows no dangling separator', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, attachment: { name: 'x.bin', type_label: 'BIN', size_label: null, download_url: null } } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'BIN' ) ).toBeTruthy();
+		} );
+
+		test( 'the vehicle links to its edit screen only when edit_url is given', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, vehicle: { id: 9, title: 'Fiat Egea', edit_url: '/v/9' } } ) );
+			const first = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'link', { name: 'Fiat Egea' } ).getAttribute( 'href' ) ).toBe( '/v/9' );
+			first.unmount();
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, vehicle: { id: 9, title: 'Fiat Egea', edit_url: null } } ) );
+			render( <ContactMessageDetail id={ 3532 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'Fiat Egea' ) ).toBeTruthy();
+			expect( screen.queryByRole( 'link', { name: 'Fiat Egea' } ) ).toBeNull();
+		} );
+
+		test( 'other messages from the address link to the list filtered by that address', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, email, sender: sender( { other_count: 1 } ) } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const link = screen.getByRole( 'link', { name: /1 more message from this address/ } );
+			expect( link.getAttribute( 'href' ).endsWith( '&search=baris%40example.com' ) ).toBe( true );
+		} );
+
+		test( 'other messages count reads 1 and 2 (C-1)', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { other_count: 1 } ) } ) );
+			const one = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'link', { name: /^1 more message from this address/ } ) ).toBeTruthy();
+			one.unmount();
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { other_count: 2 } ) } ) );
+			render( <ContactMessageDetail id={ 3532 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'link', { name: /^2 more messages from this address/ } ) ).toBeTruthy();
+		} );
+
+		test( 'a nameless message reads — as its h1 and sender (R-B15)', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, name: '', email: '', initials: '', sender: sender( { email: '', email_linkable: false } ) } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( '—' );
+			const aside = container.querySelector( '.mhmui-detail-layout__aside' );
+			expect( within( aside ).getAllByText( '—' ).length ).toBeGreaterThan( 0 );
+			expect( within( aside ).queryByRole( 'button', { name: 'Copy' } ) ).toBeNull();
+			expect( container.querySelector( 'a[href^="mailto:"]' ) ).toBeNull();
+		} );
+
+		test( 'a non-linkable address is plain text, not mailto', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { email_linkable: false } ) } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const aside = container.querySelector( '.mhmui-detail-layout__aside' );
+			expect( aside.querySelector( 'a[href^="mailto:"]' ) ).toBeNull();
+			expect( within( aside ).getByText( email ) ).toBeTruthy();
+		} );
+
+		test( 'a linkable address is a mailto link next to a Copy button', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender() } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const aside = container.querySelector( '.mhmui-detail-layout__aside' );
+			expect( aside.querySelector( 'a[href^="mailto:"]' ).textContent ).toBe( email );
+			expect( within( aside ).getByRole( 'button', { name: 'Copy' } ) ).toBeTruthy();
+		} );
+
+		test( 'a registered customer gets a separate record link', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { customer_url: '/c/5' } ) } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'This e-mail belongs to a registered customer' ) ).toBeTruthy();
+			expect( screen.getByRole( 'link', { name: /Open customer record/ } ).getAttribute( 'href' ) ).toBe( '/c/5' );
+		} );
+	} );
 } );
 
 describe( 'contact table accessible names', () => {

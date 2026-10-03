@@ -5,6 +5,7 @@ import PageHeader from '../../../vendor/mhm/ui-core/src-react/components/PageHea
 import DetailLayout from '../../../vendor/mhm/ui-core/src-react/components/DetailLayout';
 import DetailList from '../../../vendor/mhm/ui-core/src-react/components/DetailList';
 import Widget from '../../../vendor/mhm/ui-core/src-react/components/Widget';
+import Button from '../../../vendor/mhm/ui-core/src-react/components/Button';
 import ConfirmButton from '../../../vendor/mhm/ui-core/src-react/components/ConfirmButton';
 import Notice from '../../../vendor/mhm/ui-core/src-react/components/Notice';
 import SenderWidget from './components/SenderWidget';
@@ -14,6 +15,31 @@ import { buildMailto } from './mailto';
 import { isTrashEnabled } from './trash';
 
 const TONE = { new: 'warning', read: 'neutral', replied: 'success' };
+const IMAGE_EXT = /.(jpe?g|png|gif|webp|avif|bmp|svg)$/i;
+
+const svgProps = { 'aria-hidden': 'true', focusable: 'false', fill: 'none', stroke: 'currentColor', strokeLinecap: 'round', strokeLinejoin: 'round' };
+const ReplyIcon = () => (
+	<svg { ...svgProps } width="15" height="15" viewBox="0 0 24 24" strokeWidth="2">
+		<path d="M9 7L4.5 11.5 9 16" />
+		<path d="M4.5 11.5H15a4.5 4.5 0 010 9h-2" />
+	</svg>
+);
+const AttachmentIcon = ( { image } ) => (
+	<svg { ...svgProps } width="20" height="20" viewBox="0 0 24 24" strokeWidth="1.8">
+		{ image ? (
+			<>
+				<rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+				<circle cx="9" cy="10" r="1.8" />
+				<path d="M20.5 16l-5-5-8 8.5" />
+			</>
+		) : (
+			<>
+				<path d="M14 3.5H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V8.5z" />
+				<path d="M14 3.5v5h5" />
+			</>
+		) }
+	</svg>
+);
 
 export default function ContactMessageDetail( { id, onBack } ) {
 	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
@@ -100,10 +126,30 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		__( 'Re: %s', 'mhm-rentiva' ),
 		msg.type_label
 	);
-	const details = [
-		...msg.fields.map( ( f ) => ( { label: f.label, value: f.value } ) ),
-		...( msg.vehicle ? [ { label: __( 'Vehicle', 'mhm-rentiva' ), value: msg.vehicle.title } ] : [] ),
-	];
+	const details = msg.fields.map( ( f ) => ( { label: f.label, value: f.value } ) );
+	if ( msg.vehicle ) {
+		// The artboard draws the vehicle right after the "Submitted" date.
+		const vehicle = {
+			label: __( 'Vehicle', 'mhm-rentiva' ),
+			value: msg.vehicle.edit_url ? <a href={ msg.vehicle.edit_url }>{ msg.vehicle.title }</a> : msg.vehicle.title,
+		};
+		const after = msg.fields.findIndex( ( f ) => f.key === 'submitted' );
+		details.splice( after < 0 ? details.length : after + 1, 0, vehicle );
+	}
+	const name = msg.name || '—';
+	const meta = sprintf(
+		/* translators: 1: enquiry type label, 2: date and time, 3: message number line. */
+		__( '%1$s · %2$s · %3$s', 'mhm-rentiva' ),
+		msg.type_label,
+		msg.date_label_long || msg.date_label,
+		sprintf(
+			/* translators: %d: message number. */
+			__( 'Message #%d', 'mhm-rentiva' ),
+			msg.id
+		)
+	);
+	const mailto = msg.sender.email_linkable ? buildMailto( msg.sender.email, subject ) : '';
+	const attachmentMeta = msg.attachment ? [ msg.attachment.type_label, msg.attachment.size_label ].filter( Boolean ).join( ' · ' ) : '';
 
 	const trashed = Boolean( msg.trashed );
 
@@ -112,21 +158,22 @@ export default function ContactMessageDetail( { id, onBack } ) {
 			<SenderWidget msg={ msg } />
 			<TechnicalWidget id={ id } />
 			{ trashed ? (
-				<Widget title={ __( 'Trashed message', 'mhm-rentiva' ) }>
+				<Widget level={ 2 } variant="plain" title={ __( 'Trashed message', 'mhm-rentiva' ) }>
 					<p>{ __( 'This message is in the trash. Restore it, or delete it permanently.', 'mhm-rentiva' ) }</p>
 					<div className="mhm-contact-messages__actions">
-						<button type="button" className="button" disabled={ restoring } onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</button>
+						<Button size="sm" disabled={ restoring } onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</Button>
 						<ConfirmButton
 							label={ __( 'Delete permanently', 'mhm-rentiva' ) }
 							confirmText={ sprintf(
 								/* translators: %s: sender name. */
 								__( 'Delete the message from %s permanently? This cannot be undone.', 'mhm-rentiva' ),
-								msg.name
+								name
 							) }
 							confirmLabel={ __( 'Yes, delete', 'mhm-rentiva' ) }
 							cancelLabel={ __( 'Cancel', 'mhm-rentiva' ) }
 							busyText={ __( 'Deleting…', 'mhm-rentiva' ) }
 							variant="danger"
+							size="compact"
 							onConfirm={ async () => {
 								try {
 									const res = await contactApi.destroy( id );
@@ -146,7 +193,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					</div>
 				</Widget>
 			) : (
-				<Widget title={ __( 'Delete message', 'mhm-rentiva' ) }>
+				<Widget level={ 2 } variant="plain" title={ __( 'Delete message', 'mhm-rentiva' ) }>
 					<p>{ trashEnabled
 						? __( 'The message moves to the trash; WordPress empties the trash automatically.', 'mhm-rentiva' )
 						: __( 'The message is deleted immediately; the trash is disabled on this site.', 'mhm-rentiva' ) }</p>
@@ -156,17 +203,18 @@ export default function ContactMessageDetail( { id, onBack } ) {
 							? sprintf(
 								/* translators: %s: sender name. */
 								__( 'Move the message from %s to the trash?', 'mhm-rentiva' ),
-								msg.name
+								name
 							)
 							: sprintf(
 								/* translators: %s: sender name. */
 								__( 'Delete the message from %s permanently? This cannot be undone.', 'mhm-rentiva' ),
-								msg.name
+								name
 							) }
 						confirmLabel={ trashEnabled ? __( 'Yes, move to trash', 'mhm-rentiva' ) : __( 'Yes, delete permanently', 'mhm-rentiva' ) }
 						cancelLabel={ __( 'Cancel', 'mhm-rentiva' ) }
 						busyText={ trashEnabled ? __( 'Moving…', 'mhm-rentiva' ) : __( 'Deleting…', 'mhm-rentiva' ) }
 						variant="danger"
+							size="compact"
 						onConfirm={ async () => {
 							// wp_trash_post() itself deletes the record outright when
 							// EMPTY_TRASH_DAYS is falsy (REST controller comment,
@@ -195,30 +243,31 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	return (
 		<div className="mhm-contact-messages mhmui-admin mhmui-admin-page">
 			<PageHeader
-				title={ msg.name }
+				level={ 1 }
+				title={ name }
 				back={ { label: __( 'Back to contact messages', 'mhm-rentiva' ), href: window.mhmRentivaContactMessages?.pageUrl ?? '', onClick: ( e ) => {
 					e.preventDefault();
 					onBack();
 				} } }
 				badge={ { text: msg.status_label, tone: TONE[ msg.status ] } }
-				meta={ `${ msg.type_label } · ${ msg.date_label }` }
-				level={ 2 }
+				meta={ meta }
 			/>
 			{ error && <Notice tone="danger">{ error }</Notice> }
 			<DetailLayout aside={ aside } asideLabel={ __( 'Sender and actions', 'mhm-rentiva' ) }>
 				<Widget
+					level={ 2 }
 					title={ __( 'Message', 'mhm-rentiva' ) }
 					actions={
 						trashed ? null : (
 							<div className="mhm-contact-messages__actions">
-								<button type="button" className="button-link" onClick={ () => setStatus( 'new' ) }>{ __( 'Mark unread', 'mhm-rentiva' ) }</button>
+								<Button variant="plain" onClick={ () => setStatus( 'new' ) }>{ __( 'Mark unread', 'mhm-rentiva' ) }</Button>
 								{ msg.status !== 'replied' && (
-									<button type="button" className="button" onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</button>
+									<Button onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</Button>
 								) }
-								{ msg.sender.email_linkable && (
-									<a className="button button-primary" href={ buildMailto( msg.sender.email, subject ) } onClick={ () => setMailed( true ) }>
+								{ mailto && (
+									<Button variant="primary" href={ mailto } icon={ <ReplyIcon /> } onClick={ () => setMailed( true ) }>
 										{ __( 'Reply by e-mail', 'mhm-rentiva' ) }
-									</a>
+									</Button>
 								) }
 							</div>
 						)
@@ -231,27 +280,37 @@ export default function ContactMessageDetail( { id, onBack } ) {
 						{ mailed && msg.status !== 'replied' && (
 							<div className="mhm-contact-messages__mail-note">
 								<span>{ __( 'Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied.', 'mhm-rentiva' ) }</span>
-								<button type="button" className="button" onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</button>
+								<Button onClick={ () => setStatus( 'replied' ) }>{ __( 'Mark as replied', 'mhm-rentiva' ) }</Button>
 							</div>
 						) }
 					</div>
 					<p className="mhm-contact-messages__body">{ msg.content }</p>
 					{ msg.attachment && (
-						<div className="mhm-contact-messages__attachment">
-							<span>{ msg.attachment.name }</span>
-							{ msg.attachment.download_url
-								? <a className="button" href={ msg.attachment.download_url }>{ __( 'Download', 'mhm-rentiva' ) }</a>
-								: <span className="mhm-contact-messages__muted">{ __( 'File not available', 'mhm-rentiva' ) }</span> }
+						<div className="mhm-contact-messages__attachment-block">
+							<h3 className="mhm-contact-messages__subhead">{ __( 'Attachment', 'mhm-rentiva' ) }</h3>
+							<div className="mhm-contact-messages__attachment">
+								<span className="mhm-contact-messages__attachment-icon" aria-hidden="true">
+									<AttachmentIcon image={ IMAGE_EXT.test( msg.attachment.name ) } />
+								</span>
+								<div className="mhm-contact-messages__attachment-info">
+									<span className="mhm-contact-messages__attachment-name">{ msg.attachment.name }</span>
+									{ attachmentMeta && <span className="mhm-contact-messages__muted">{ attachmentMeta }</span> }
+								</div>
+								{ msg.attachment.download_url
+									? <Button href={ msg.attachment.download_url }>{ __( 'Download', 'mhm-rentiva' ) }</Button>
+									: <span className="mhm-contact-messages__muted">{ __( 'File not available', 'mhm-rentiva' ) }</span> }
+							</div>
 						</div>
 					) }
 				</Widget>
-				<Widget title={ __( 'Request details', 'mhm-rentiva' ) }>
+				<Widget level={ 2 } variant="plain" title={ __( 'Request details', 'mhm-rentiva' ) }>
 					{ details.length === 0 ? (
 						<p className="mhm-contact-messages__muted">{ __( 'No further details were filled in.', 'mhm-rentiva' ) }</p>
 					) : (
 						// emptyText is the per-VALUE placeholder, not an empty-list text (Fable plan I9).
 						<DetailList columns={ 3 } items={ details } emptyText="—" />
 					) }
+					<span className="mhm-contact-messages__muted mhm-contact-messages__help">{ __( 'Fields left empty on the form are not shown.', 'mhm-rentiva' ) }</span>
 				</Widget>
 			</DetailLayout>
 		</div>
