@@ -692,3 +692,21 @@ describe( 'contact message detail', () => {
 		expect( await screen.findByText( 'No further details were filled in.' ) ).toBeTruthy();
 	} );
 } );
+
+describe( 'contact table accessible names', () => {
+	const tableOf = ( r ) => render(
+		<table>
+			<ContactTable rows={ [ r ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } />
+		</table>
+	);
+
+	test( 'a nameless row falls back to the address, then to a generic label', () => {
+		const first = tableOf( row( { name: '', email: 'x@example.com', initials: '' } ) );
+		expect( screen.getByRole( 'checkbox', { name: 'Select the message from x@example.com' } ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: 'Open the message from x@example.com' } ) ).toBeTruthy();
+		first.unmount();
+		tableOf( row( { name: '', email: '', initials: '' } ) );
+		expect( screen.getByRole( 'checkbox', { name: 'Select this message' } ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: 'Open this message' } ) ).toBeTruthy();
+	} );
+} );

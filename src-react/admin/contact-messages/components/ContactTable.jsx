@@ -8,6 +8,29 @@ const TONE = { new: 'warning', read: 'neutral', replied: 'success' };
 // keeps the browser's own link behaviour (new tab).
 const isPlainLeftClick = ( e ) => e.button === 0 && ! e.metaKey && ! e.ctrlKey && ! e.shiftKey && ! e.altKey;
 
+// A row with no name falls back to its address, then to a generic label, so the
+// checkbox and the Open link never get an empty accessible name.
+const selectLabel = ( r ) => {
+	const who = r.name || r.email;
+	return who
+		? sprintf(
+			/* translators: %s: sender name, or e-mail address when the sender gave no name. */
+			__( 'Select the message from %s', 'mhm-rentiva' ),
+			who
+		)
+		: __( 'Select this message', 'mhm-rentiva' );
+};
+const openLabel = ( r ) => {
+	const who = r.name || r.email;
+	return who
+		? sprintf(
+			/* translators: %s: sender name, or e-mail address when the sender gave no name. */
+			__( 'Open the message from %s', 'mhm-rentiva' ),
+			who
+		)
+		: __( 'Open this message', 'mhm-rentiva' );
+};
+
 export default function ContactTable( { rows, selected, onToggle, onToggleAll, onOpen } ) {
 	const all = rows.length > 0 && selected.length === rows.length;
 	const pageUrl = window.mhmRentivaContactMessages?.pageUrl ?? '';
@@ -40,8 +63,7 @@ export default function ContactTable( { rows, selected, onToggle, onToggleAll, o
 						<td className="check-column">
 							<input
 								type="checkbox"
-								/* translators: %s: sender name. */
-								aria-label={ sprintf( __( 'Select the message from %s', 'mhm-rentiva' ), r.name ) }
+								aria-label={ selectLabel( r ) }
 								checked={ selected.includes( r.id ) }
 								onChange={ () => onToggle( r.id ) }
 							/>
@@ -89,8 +111,7 @@ export default function ContactTable( { rows, selected, onToggle, onToggleAll, o
 							<Button
 								size="sm"
 								href={ openHref( r.id ) }
-								/* translators: %s: sender name. */
-								aria-label={ sprintf( __( 'Open the message from %s', 'mhm-rentiva' ), r.name ) }
+								aria-label={ openLabel( r ) }
 								onClick={ ( e ) => open( e, r.id ) }
 							>
 								{ __( 'Open', 'mhm-rentiva' ) }
