@@ -727,6 +727,8 @@ describe( 'contact message detail', () => {
 			const first = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
 			await screen.findByText( /Line one/ );
 			expect( screen.getByRole( 'link', { name: 'Fiat Egea' } ).getAttribute( 'href' ) ).toBe( '/v/9' );
+			expect( screen.getByText( 'Related vehicle' ) ).toBeTruthy();
+			expect( screen.queryByText( 'Vehicle' ) ).toBeNull();
 			first.unmount();
 			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, vehicle: { id: 9, title: 'Fiat Egea', edit_url: null } } ) );
 			render( <ContactMessageDetail id={ 3532 } onBack={ () => {} } /> );

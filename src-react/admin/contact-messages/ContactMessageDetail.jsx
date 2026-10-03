@@ -130,7 +130,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	if ( msg.vehicle ) {
 		// The artboard draws the vehicle right after the "Submitted" date.
 		const vehicle = {
-			label: __( 'Vehicle', 'mhm-rentiva' ),
+			label: __( 'Related vehicle', 'mhm-rentiva' ),
 			value: msg.vehicle.edit_url ? <a href={ msg.vehicle.edit_url }>{ msg.vehicle.title }</a> : msg.vehicle.title,
 		};
 		const after = msg.fields.findIndex( ( f ) => f.key === 'submitted' );
