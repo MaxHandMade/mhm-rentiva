@@ -115,6 +115,15 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhmrentiva_listing_applied_at',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
+		// Pro's messages thread model (DB 1.0.8) writes these on its
+		// mhmrentiva_message posts. legacy_status is a transient migration
+		// snapshot, swept at the end of the 1.0.8 migration, but it is on disk
+		// while a migration runs.
+		'_mhmrentiva_last_activity',
+		'_mhmrentiva_last_actor',
+		'_mhmrentiva_legacy_status',
+		'_mhmrentiva_legacy_thread_uuid',
+		'_mhmrentiva_message_count',
 		// Slice 3 Task 12 bound Lite's last active reader of this key
 		// (EmailTemplates, RefundNotifications, BookingColumns) to PaymentState.
 		// Pro's BackgroundProcessor.php and Export.php still read it directly, so
