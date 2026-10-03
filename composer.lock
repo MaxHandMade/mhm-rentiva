@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "11f9b4999d3de1e43d3e7dec55fdb935",
+    "content-hash": "8e723a9c1eeabd0c74229c2bb370d17b",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.15.2",
+            "version": "dev-feat/kit-artboard-variants",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "b7bcc07c3e2766aea8a07dae9becd99eafebdb67"
+                "reference": "54ff30b1be979df5373aa982e68b802b0afe000a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/b7bcc07c3e2766aea8a07dae9becd99eafebdb67",
-                "reference": "b7bcc07c3e2766aea8a07dae9becd99eafebdb67",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/54ff30b1be979df5373aa982e68b802b0afe000a",
+                "reference": "54ff30b1be979df5373aa982e68b802b0afe000a",
                 "shasum": ""
             },
             "require": {
@@ -90,10 +90,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.15.2",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/feat/kit-artboard-variants",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-09-26T23:17:03+00:00"
+            "time": "2026-10-03T19:17:15+00:00"
         }
     ],
     "packages-dev": [
@@ -3018,9 +3018,18 @@
             "time": "2025-08-10T05:13:49+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "mhm/ui-core",
+            "version": "dev-feat/kit-artboard-variants",
+            "alias": "0.16.0",
+            "alias_normalized": "0.16.0.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "mhm/ui-core": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {},
