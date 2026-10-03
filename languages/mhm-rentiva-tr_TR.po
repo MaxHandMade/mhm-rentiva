@@ -1555,8 +1555,6 @@ msgstr "Rezervasyon ID"
 #: templates/account/booking-detail.php:128
 #: templates/admin/partials/booking-popup.php:77
 #: templates/shortcodes/contact-form.php:101
-#: src-react/admin/contact-messages/components/ContactTable.jsx:18
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:105
 #: src-react/admin/dashboard/components/RecentBookings.jsx:61
 msgid "Vehicle"
 msgstr "Araç"
@@ -1609,7 +1607,7 @@ msgstr "Ödeme"
 #: templates/account/bookings.php:278
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
-#: src-react/admin/contact-messages/components/ContactTable.jsx:19
+#: src-react/admin/contact-messages/components/ContactTable.jsx:55
 #: src-react/admin/customers/components/CustomerTable.jsx:86
 #: src-react/admin/dashboard/components/RecentBookings.jsx:65
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:15
@@ -1715,7 +1713,7 @@ msgstr "Takvim"
 #: assets/blocks/my-bookings/index.js:41
 #: assets/blocks/payment-history/index.js:39
 #: assets/blocks/testimonials/index.js:52
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:139
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:140
 #: src-react/admin/customers/CustomersPage.jsx:12
 msgid "All"
 msgstr "Tümü"
@@ -2810,7 +2808,7 @@ msgstr "E-posta"
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:74
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:34
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
 #: src-react/admin/customers/components/CustomerTable.jsx:83
 msgid "Phone"
@@ -3205,10 +3203,9 @@ msgstr "Emin misiniz?"
 #: src/Admin/Customers/CustomersPage.php:577
 #: src/Admin/Emails/Core/EmailTemplates.php:537
 #: templates/account/account-details.php:189
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:30
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:55
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:127
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:167
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:173
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:214
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:32
 msgid "Cancel"
 msgstr "İptal"
@@ -3892,7 +3889,7 @@ msgstr "Geri"
 #: templates/shortcodes/availability-calendar.php:263
 #: templates/shortcodes/search-results.php:358
 #: templates/shortcodes/testimonials.php:136
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:229
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:261
 msgid "Next"
 msgstr "Sonraki"
 
@@ -3905,7 +3902,7 @@ msgstr "Sonraki"
 #: templates/shortcodes/availability-calendar.php:255
 #: templates/shortcodes/search-results.php:357
 #: templates/shortcodes/testimonials.php:133
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:227
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:258
 msgid "Previous"
 msgstr "Önceki"
 
@@ -4669,197 +4666,197 @@ msgstr "Uygula"
 msgid "Select a city..."
 msgstr "Şehir seçin..."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1727
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1732
 msgid "Database Cleanup Report"
 msgstr "Veritabanı Temizleme Raporu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1732
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1737
 msgid "Category"
 msgstr "Kategori"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1733
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1738
 msgid "Count"
 msgstr "Sayı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1734
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
 msgid "Size"
 msgstr "Boyut"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1735
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
 #: src/Admin/Utilities/ListTable/LogColumns.php:75
 msgid "Action"
 msgstr "Eylem"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1745
 msgid "Orphaned Post Meta"
 msgstr "Yetim Post Meta"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1746
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1791
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1818
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1751
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1766
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1796
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1823
 msgid "Cleanup Recommended"
 msgstr "Temizlik Önerilir"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1749
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1764
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1794
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1821
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1754
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1769
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1799
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1826
 msgid "Clean"
 msgstr "Temiz"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1760
 msgid "Expired Transients"
 msgstr "Süresi dolan geçişler"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1770
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1775
 msgid "Autoload Options"
 msgstr "Otomatik Yükleme Seçenekleri"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1776
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1781
 msgid "Optimization Recommended"
 msgstr "Optimizasyon Önerilir"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1779
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1784
 msgid "Optimized"
 msgstr "İyileştirme"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1785
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
 msgid "Invalid Meta Keys"
 msgstr "Geçersiz Meta Anahtarları"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1798
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1803
 msgid "All Valid"
 msgstr "Tüm geçerli"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1804
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1809
 msgid "Log Records (>30 days)"
 msgstr "Günlük Kayıtları (>30 gün)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1828
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
 msgid "Custom Tables"
 msgstr "Özel Tablolar"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1832
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1837
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:72
 msgid "Table"
 msgstr "Tablo"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1838
 msgid "Exists"
 msgstr "Şu var olan"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1834
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
 msgid "Rows"
 msgstr "Satırlar"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1835
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1840
 msgid "Size (MB)"
 msgstr "Boyut (MB)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1848
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1853
 msgid "Repair/Create"
 msgstr "Onarım/Oluşturma"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1876
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1881
 msgid "Analyze Database"
 msgstr "Veritabanını Analiz Et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1881
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1886
 msgid "Clean Orphaned Meta"
 msgstr "Temiz Yetim Meta"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1886
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
 msgid "Clean Expired Transients"
 msgstr "Süresi Dolmuş Geçici Dosyaları Temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr "Otomatik Yüklemeyi Optimize Et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1901
 msgid "Optimize Tables"
 msgstr "Tabloları Optimize Et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1901
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1906
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr "Eski Günlükleri Temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2064
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2069
 msgid "Backup table not found"
 msgstr "Yedekleme tablosu bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2082
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2087
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr "Bu yedek iki farklı tabloya ait elenmiş meta kayıtlarını tutuyor ve olduğu yere geri yüklenemez. Dışa aktarıp ihtiyacınız olan satırları elle uygulayın."
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2128
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2133
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr "%1$d kaydı %2$s olarak geri yüklendi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2146
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2151
 msgid "Not a backup table"
 msgstr "Yedek tablo değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2155
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2568
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2573
 msgid "Backup deleted successfully"
 msgstr "Yedekleme başarıyla silindi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2155
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr "Yedekleme silinmedi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2172
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2177
 msgid "Failed to initialize filesystem."
 msgstr "Dosya sistemini başlatılamadı."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2213
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218
 msgid "No tables found to backup"
 msgstr "Yedeklenecek tablo bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2263
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2268
 msgid "Failed to write backup file"
 msgstr "Yedekleme dosyası yazılmadı"
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2314
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2319
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "Tam yedekleme başarıyla oluşturuldu: %1$d tablo, %2$d satır"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2538
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2543
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr "Geçersiz yedekleme dosyası yolu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2569
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2574
 msgid "Backup deletion completed with some warnings"
 msgstr "Yedekleme silme işlemi bazı uyarılarla tamamlandı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2623
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2628
 msgid "Filesystem initialization failed"
 msgstr "Dosya sistemi başlatma başarısız"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2633
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2638
 msgid "Backup directory does not exist"
 msgstr "Yedekleme dizini mevcut değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2640
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2645
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ".htaccess dosyası eksik - dizin web erişiminden korunmuyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2644
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2649
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ".htaccess dosyası mevcut ancak erişimi düzgün bir şekilde engellemiyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2651
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2656
 msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
@@ -5386,8 +5383,8 @@ msgstr "VIP"
 #: src/Admin/Customers/CustomersPage.php:253
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/contact-messages/components/ContactStats.jsx:8
-#: src-react/admin/contact-messages/components/ContactTable.jsx:41
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:140
+#: src-react/admin/contact-messages/components/ContactTable.jsx:76
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:141
 #: src-react/admin/customers/components/CustomerTable.jsx:24
 #: src-react/admin/customers/CustomersPage.jsx:14
 msgid "New"
@@ -6821,7 +6818,6 @@ msgid "Contact us. We are happy to answer your questions."
 msgstr "Bize ulaşın. Sorularınızı memnuniyetle yanıtlayacağız."
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:166
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:55
 msgid "Booking Inquiry"
 msgstr "Rezervasyon Sorgulama"
 
@@ -6922,7 +6918,7 @@ msgstr "Lütfen form hatalarını düzeltin."
 msgid "Full Name"
 msgstr "Ad Soyad"
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:431
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:432
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:571
 #: templates/shortcodes/contact-form.php:88
 msgid "Company"
@@ -6933,13 +6929,13 @@ msgstr "Şirket"
 msgid "Preferred Date"
 msgstr "Tercih Edilen Tarih"
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:428
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:429
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:574
 #: templates/shortcodes/contact-form.php:128
 msgid "Priority"
 msgstr "Öncelik"
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:432
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:433
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:575
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
 #: templates/shortcodes/contact-form.php:146
@@ -6955,8 +6951,8 @@ msgstr "Değerlendirme"
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:576
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:163
-#: src-react/admin/contact-messages/components/ContactTable.jsx:17
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:210
+#: src-react/admin/contact-messages/components/ContactTable.jsx:53
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:259
 msgid "Message"
 msgstr "Mesaj"
 
@@ -7026,25 +7022,26 @@ msgstr "Mesajınız başarıyla alındı. En kısa sürede size geri dönüş ya
 msgid "Thank you,"
 msgstr "Teşekkür ederiz,"
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:427
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:23
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:428
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:30
 msgid "Enquiry type"
 msgstr "Talep türü"
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:430
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:431
 msgid "Preferred date"
 msgstr "Tercih edilen tarih"
 
 #: templates/shortcodes/contact-form.php:173
-#: src-react/admin/contact-messages/components/ContactTable.jsx:51
+#: src-react/admin/contact-messages/components/ContactTable.jsx:91
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:290
 msgid "Attachment"
 msgstr "Ek dosya"
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:48
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:51
 msgid "IP address"
 msgstr "IP adresi"
 
-#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:429
+#: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:430
 msgid "Submitted"
 msgstr "Gönderildi"
 
@@ -7904,8 +7901,8 @@ msgstr "Tarafından sipariş"
 #: assets/blocks/my-bookings/index.js:53
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
-#: src-react/admin/contact-messages/components/ContactTable.jsx:20
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:28
+#: src-react/admin/contact-messages/components/ContactTable.jsx:56
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:35
 #: src-react/admin/dashboard/components/RecentBookings.jsx:63
 msgid "Date"
 msgstr "Tarih"
@@ -8021,7 +8018,7 @@ msgstr "Fiyatı Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:147
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:66
 #: assets/blocks/unified-search/index.js:84
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:37
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:40
 msgid "Show"
 msgstr "Göster"
 
@@ -8064,7 +8061,7 @@ msgstr "Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:67
 #: assets/blocks/unified-search/index.js:85
 #: src-react/admin/about/components/ChangelogList.jsx:79
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:37
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:40
 msgid "Hide"
 msgstr "Gizle"
 
@@ -8955,7 +8952,7 @@ msgid "Copy JSON"
 msgstr "JSON'u kopyala"
 
 #: src/Admin/PostTypes/Logs/MetaBox.php:111
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:29
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
 msgid "Copied"
 msgstr "Kopyalandı"
 
@@ -10643,7 +10640,7 @@ msgid "Next Execution"
 msgstr "Sonraki Yürütme"
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:108
-#: src-react/admin/contact-messages/components/ContactTable.jsx:21
+#: src-react/admin/contact-messages/components/ContactTable.jsx:57
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:16
 msgid "Actions"
 msgstr "Eylemler"
@@ -10965,6 +10962,7 @@ msgid "Rentiva uses dedicated WordPress pages for booking, confirmation and cust
 msgstr "Rentiva, rezervasyon, onay ve müşteri hesabı ekranları için özel WordPress sayfaları kullanır. Eksik sayfaları otomatik olarak oluşturun veya mevcut sayfalara bağlantı verin."
 
 #: src/Admin/Setup/SetupWizard.php:203
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:259
 #: src-react/admin/customers/components/Pagination.jsx:17
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
@@ -14559,7 +14557,7 @@ msgid "Copy Report"
 msgstr "Raporu Kopyala"
 
 #: src-react/admin/about/components/DeveloperTab.jsx:86
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:243
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
 msgid "Download"
 msgstr "İndir"
 
@@ -14664,7 +14662,6 @@ msgstr "CSV Dışa Aktar"
 msgid "← Previous"
 msgstr "← Önceki"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:228
 #: src-react/admin/customers/components/Pagination.jsx:17
 msgid "of"
 msgstr "/"
@@ -14711,7 +14708,7 @@ msgstr "müşteri silinsin? Bu işlem geri alınamaz."
 msgid "Bulk delete failed."
 msgstr "Toplu silme başarısız oldu."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:152
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:172
 #: src-react/admin/customers/CustomersPage.jsx:118
 msgid "Filter by status"
 msgstr "Duruma göre filtrele"
@@ -14807,7 +14804,7 @@ msgstr "MHM Rentiva · Genel bakış"
 msgid "Date range"
 msgstr "Tarih aralığı"
 
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:32
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:39
 #: src-react/admin/dashboard/DashboardPage.jsx:43
 msgid "Last 30 days"
 msgstr "Son 30 gün"
@@ -15610,7 +15607,7 @@ msgid "Rollback wrote nothing for this page: the previous manifest no longer res
 msgstr "Bu sayfa için geri alma hiçbir şey yazmadı: önceki manifest artık bu sayfaya çözümlenmiyor."
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1208
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1213
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr "Bu sitenin tablo öneki (%1$d karakter), geçersiz meta temizliğinin MySQL'in 64 karakterlik tanımlayıcı sınırı içinde bir yedek tablo adı oluşturması için çok uzun (desteklenen en fazla: %2$d karakter). Temizlik çalıştırılmadı."
@@ -15619,7 +15616,7 @@ msgstr "Bu sitenin tablo öneki (%1$d karakter), geçersiz meta temizliğinin My
 msgid "Cleanup cancelled: this site's table prefix is too long for the cleanup to name a backup table. Nothing was deleted."
 msgstr "Temizlik iptal edildi: bu sitenin tablo öneki, temizliğin bir yedek tablo adı oluşturması için çok uzun. Hiçbir şey silinmedi."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1025
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1030
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr "Temizlik iptal edildi: yedek tablo oluşturulamadı ya da doldurulamadı. Hiçbir şey silinmedi."
 
@@ -15756,12 +15753,12 @@ msgstr[0] "%s yeni mesaj"
 msgstr[1] "%s yeni mesaj"
 
 #: src/Admin/ContactMessages/ContactStatus.php:40
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:144
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:145
 msgid "Replied"
 msgstr "Yanıtlandı"
 
 #: src/Admin/ContactMessages/ContactStatus.php:42
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:143
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:144
 msgid "Read"
 msgstr "Okundu"
 
@@ -15786,68 +15783,64 @@ msgstr "Dosya yüklenemedi."
 msgid "The file is empty."
 msgstr "Dosya boş."
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:11
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:30
 msgid "Bulk actions"
 msgstr "Toplu işlemler"
 
 #. translators: %d: number of selected messages.
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:15
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:34
 #, js-format
 msgid "%d message selected"
 msgid_plural "%d messages selected"
 msgstr[0] "%d mesaj seçildi"
 msgstr[1] "%d mesaj seçildi"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:21
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:118
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:41
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:164
 msgid "Restore"
 msgstr "Geri yükle"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:23
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:48
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:120
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:154
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:13
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
 msgid "Delete permanently"
 msgstr "Kalıcı olarak sil"
 
 #. translators: %d: number of selected messages.
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:26
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:51
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:16
 #, js-format
 msgid "Delete %d message permanently? This cannot be undone."
 msgid_plural "Delete %d messages permanently? This cannot be undone."
 msgstr[0] "%d mesaj kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
 msgstr[1] "%d mesaj kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:29
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:54
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:126
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:19
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:172
 msgid "Yes, delete"
 msgstr "Evet, sil"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:31
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:56
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:128
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:168
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:21
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:174
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
 msgid "Deleting…"
 msgstr "Siliniyor…"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:39
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:46
 msgid "Mark as read"
 msgstr "Okundu işaretle"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:40
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:216
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:234
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:47
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:265
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:283
 msgid "Mark as replied"
 msgstr "Yanıtlandı işaretle"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:42
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:154
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:49
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
 msgid "Move to trash"
 msgstr "Çöpe taşı"
 
-#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:64
+#: src-react/admin/contact-messages/components/ContactBulkBar.jsx:59
 msgid "Clear selection"
 msgstr "Seçimi temizle"
 
@@ -15856,253 +15849,251 @@ msgid "Awaiting reply"
 msgstr "Yanıt bekleyen"
 
 #: src-react/admin/contact-messages/components/ContactStats.jsx:10
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:31
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:38
 msgid "Last 7 days"
 msgstr "Son 7 gün"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:14
+#: src-react/admin/contact-messages/components/ContactTable.jsx:50
 msgid "Select all messages"
 msgstr "Tüm mesajları seç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:16
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:19
+#: src-react/admin/contact-messages/components/ContactTable.jsx:52
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:44
 msgid "Sender"
 msgstr "Gönderen"
 
-#. translators: %s: sender name.
-#: src-react/admin/contact-messages/components/ContactTable.jsx:31
+#. translators: %s: sender name, or e-mail address when the sender gave no name.
+#: src-react/admin/contact-messages/components/ContactTable.jsx:18
 #, js-format
 msgid "Select the message from %s"
 msgstr "%s adresinden gelen mesajı seç"
 
 #. translators: %d: rating out of 5.
-#: src-react/admin/contact-messages/components/ContactTable.jsx:56
+#: src-react/admin/contact-messages/components/ContactTable.jsx:99
 #, js-format
 msgid "%d/5"
 msgstr "%d/5"
 
-#. translators: %s: sender name.
-#: src-react/admin/contact-messages/components/ContactTable.jsx:72
+#. translators: %s: sender name, or e-mail address when the sender gave no name.
+#: src-react/admin/contact-messages/components/ContactTable.jsx:28
 #, js-format
 msgid "Open the message from %s"
 msgstr "%s adresinden gelen mesajı aç"
 
-#: src-react/admin/contact-messages/components/ContactTable.jsx:75
+#: src-react/admin/contact-messages/components/ContactTable.jsx:117
 msgid "Open"
 msgstr "Aç"
 
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:11
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:13
 msgid "Search contact messages"
 msgstr "İletişim mesajlarında ara"
 
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:16
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:18
 msgid "Name, e-mail or message…"
-msgstr "Ad, e-posta veya mesaj…"
+msgstr "Ad, e-posta veya mesaj ara…"
 
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:25
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:32
 msgid "All enquiry types"
 msgstr "Tüm talep türleri"
 
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:30
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:37
 msgid "All dates"
 msgstr "Tüm tarihler"
 
 #. translators: %d: number of messages in the current view.
-#: src-react/admin/contact-messages/components/ContactToolbar.jsx:37
+#. translators: %d: number of messages (always 0 here).
+#: src-react/admin/contact-messages/components/ContactToolbar.jsx:45
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:156
 #, js-format
 msgid "%d message"
 msgid_plural "%d messages"
 msgstr[0] "%d mesaj"
 msgstr[1] "%d mesaj"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:25
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:51
 msgid "E-mail"
 msgstr "E-posta"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:29
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
 msgid "Copy"
 msgstr "Kopyala"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:40
-msgid "This e-mail belongs to a registered customer — open customer record"
-msgstr "Bu e-posta kayıtlı bir müşteriye ait — müşteri kaydını aç"
-
 #. translators: %d: number of other messages from the same address.
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:46
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:37
 #, js-format
 msgid "%d more message from this address"
 msgid_plural "%d more messages from this address"
 msgstr[0] "Bu adresten %d mesaj daha"
 msgstr[1] "Bu adresten %d mesaj daha"
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:24
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:25
 msgid "The technical record could not be loaded."
 msgstr "Teknik kayıt yüklenemedi."
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:34
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:37
 msgid "Technical record"
 msgstr "Teknik kayıt"
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:41
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:44
 msgid "The sender's IP address and browser. Only needed when investigating abuse."
 msgstr "Gönderenin IP adresi ve tarayıcısı. Yalnızca kötüye kullanım araştırılırken gereklidir."
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:50
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:53
 msgid "Browser"
 msgstr "Tarayıcı"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:45
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:71
 msgid "The message could not be marked as read."
 msgstr "Mesaj okundu olarak işaretlenemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:51
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:77
 msgid "The message could not be loaded."
 msgstr "Mesaj yüklenemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:68
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:94
 msgid "The status could not be saved."
 msgstr "Durum kaydedilemedi."
 
 #. translators: %s: enquiry type label.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:100
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:126
 #, js-format
 msgid "Re: %s"
 msgstr "Re: %s"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:149
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:196
 msgid "Delete message"
 msgstr "Mesajı sil"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:151
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:198
 msgid "The message moves to the trash; WordPress empties the trash automatically."
 msgstr "Mesaj çöp kutusuna taşınır; WordPress çöp kutusunu otomatik olarak boşaltır."
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:158
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:205
 #, js-format
 msgid "Move the message from %s to the trash?"
 msgstr "%s adresinden gelen mesaj çöpe taşınsın mı?"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
 msgid "Yes, move to trash"
 msgstr "Evet, çöpe taşı"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:168
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
 msgid "Moving…"
 msgstr "Taşınıyor…"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:185
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:233
 msgid "The message could not be moved to the trash."
 msgstr "Mesaj çöpe taşınamadı."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:248
 msgid "Back to contact messages"
 msgstr "İletişim mesajlarına dön"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:208
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:256
 msgid "Sender and actions"
 msgstr "Gönderen ve işlemler"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:214
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:263
 msgid "Mark unread"
 msgstr "Okunmadı yap"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:220
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:269
 msgid "Reply by e-mail"
 msgstr "E-postayla yanıtla"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:230
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:279
 msgid "Reply reminder"
 msgstr "Yanıt hatırlatması"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:233
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:282
 msgid "Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied."
 msgstr "E-posta uygulamanız bir yanıt taslağı açtı. Gönderdikten sonra mesajı yanıtlandı olarak işaretleyin."
 
 #: src/Admin/ContactMessages/ContactAttachmentDownload.php:40
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:244
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:301
 msgid "File not available"
 msgstr "Dosya kullanılamıyor"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:248
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:306
 msgid "Request details"
 msgstr "Talep ayrıntıları"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:250
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:308
 msgid "No further details were filled in."
 msgstr "Başka ayrıntı girilmemiş."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:68
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:69
 msgid "Contact messages could not be loaded."
 msgstr "İletişim mesajları yüklenemedi."
 
 #. translators: %d: number of new messages.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:142
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:143
 #, js-format
 msgid "%d new"
 msgstr "%d yeni"
 
 #: src/Admin/ContactMessages/ContactMessagesPage.php:76
 msgid "Requests sent through the contact form on your site"
-msgstr "Sitenizdeki iletişim formu üzerinden gönderilen talepler"
+msgstr "Sitedeki iletişim formundan gelen talepler"
 
 #. translators: %d: number of messages in the trash.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:176
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:198
 #, js-format
 msgid "Trash (%d)"
 msgstr "Çöp kutusu (%d)"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:200
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:237
 msgid "No contact messages yet"
 msgstr "Henüz iletişim mesajı yok"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:201
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:238
 msgid "No messages in this view"
 msgstr "Bu görünümde mesaj yok"
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:204
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:242
 msgid "Add the contact form to a page; every request sent through it is listed here."
 msgstr "İletişim formunu bir sayfaya ekleyin; bu form üzerinden gönderilen her talep burada listelenir."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:226
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:257
 msgid "Contact messages pages"
 msgstr "İletişim mesajları sayfaları"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:80
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:85
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:106
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:111
 msgid "The message could not be restored."
 msgstr "Mesaj geri yüklenemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:115
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:161
 msgid "Trashed message"
 msgstr "Çöp kutusundaki mesaj"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:116
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:162
 msgid "This message is in the trash. Restore it, or delete it permanently."
 msgstr "Bu mesaj çöp kutusunda. Geri yükleyin ya da kalıcı olarak silin."
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:123
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:163
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:169
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:210
 #, js-format
 msgid "Delete the message from %s permanently? This cannot be undone."
 msgstr "%s adlı gönderenin mesajı kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:137
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:142
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:186
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:184
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:189
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:234
 msgid "The message could not be deleted."
 msgstr "Mesaj silinemedi."
 
 #. translators: %d: number of messages the action could not change.
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:121
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:122
 #, js-format
 msgid "%d message could not be changed."
 msgid_plural "%d messages could not be changed."
 msgstr[0] "%d mesaj değiştirilemedi."
 msgstr[1] "%d mesaj değiştirilemedi."
 
-#: src-react/admin/contact-messages/ContactMessagesList.jsx:129
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:130
 msgid "The bulk action could not be completed."
 msgstr "Toplu işlem tamamlanamadı."
 
@@ -16111,11 +16102,11 @@ msgstr "Toplu işlem tamamlanamadı."
 msgid "The message status could not be saved."
 msgstr "Mesajın durumu kaydedilemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:152
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
 msgid "The message is deleted immediately; the trash is disabled on this site."
 msgstr "Mesaj hemen silinir; bu sitede çöp kutusu devre dışı."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
 msgid "Yes, delete permanently"
 msgstr "Evet, kalıcı olarak sil"
 
@@ -16130,3 +16121,57 @@ msgid "%d contact message attachment could not be moved into the private folder.
 msgid_plural "%d contact message attachments could not be moved into the private folder. Their links were removed from the messages; the files themselves were left where they were:"
 msgstr[0] "%d iletişim mesajı eki özel klasöre taşınamadı. Bağlantısı mesajdan kaldırıldı; dosyanın kendisine dokunulmadı:"
 msgstr[1] "%d iletişim mesajı eki özel klasöre taşınamadı. Bağlantıları mesajlardan kaldırıldı; dosyaların kendisine dokunulmadı:"
+
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:55
+msgctxt "contact message type"
+msgid "Booking Inquiry"
+msgstr "Rezervasyon Talebi"
+
+#: src-react/admin/contact-messages/components/ContactTable.jsx:21
+msgid "Select this message"
+msgstr "Bu mesajı seç"
+
+#: src-react/admin/contact-messages/components/ContactTable.jsx:31
+msgid "Open this message"
+msgstr "Bu mesajı aç"
+
+#: src-react/admin/contact-messages/components/ContactTable.jsx:54
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:133
+msgid "Related vehicle"
+msgstr "İlgili araç"
+
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:76
+msgid "This e-mail belongs to a registered customer"
+msgstr "Bu e-posta kayıtlı bir müşteriye ait"
+
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:79
+msgid "Open customer record"
+msgstr "Müşteri kaydını aç"
+
+#. translators: 1: enquiry type label, 2: date and time, 3: message number line.
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:142
+#, js-format
+msgid "%1$s · %2$s · %3$s"
+msgstr "%1$s · %2$s · %3$s"
+
+#. translators: %d: message number.
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:147
+#, js-format
+msgid "Message #%d"
+msgstr "Mesaj #%d"
+
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:313
+msgid "Fields left empty on the form are not shown."
+msgstr "Formda boş bırakılan alanlar gösterilmez."
+
+#. translators: 1: first message number on this page, 2: last message number on this page, 3: total number of messages.
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:161
+#, js-format
+msgid "%1$d–%2$d of %3$d message"
+msgid_plural "%1$d–%2$d of %3$d messages"
+msgstr[0] "%1$d–%2$d / %3$d mesaj"
+msgstr[1] "%1$d–%2$d / %3$d mesaj"
+
+#: src-react/admin/contact-messages/ContactMessagesList.jsx:244
+msgid "Go to shortcode pages"
+msgstr "Kısa kod sayfalarına git"
