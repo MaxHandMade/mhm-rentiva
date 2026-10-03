@@ -16178,4 +16178,4 @@ msgstr "Kısa kod sayfalarına git"
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:290
 msgctxt "contact message"
 msgid "Attachment"
-msgstr """Ek"
+msgstr "Ek"
