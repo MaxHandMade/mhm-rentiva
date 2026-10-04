@@ -16,7 +16,7 @@ const CustomerIcon = () => (
 	</svg>
 );
 
-export default function SenderWidget( { msg } ) {
+export default function SenderWidget( { msg, layout = 'wide' } ) {
 	const [ copied, setCopied ] = useState( false );
 	const { sender } = msg;
 	const pageUrl = window.mhmRentivaContactMessages?.pageUrl ?? '';
@@ -41,7 +41,14 @@ export default function SenderWidget( { msg } ) {
 	const hasLinks = sender.customer_url || ( others && sender.email );
 
 	return (
-		<Widget level={ 2 } variant="plain" title={ __( 'Sender', 'mhm-rentiva' ) }>
+		<Widget
+			level={ 2 }
+			variant="plain"
+			title={ __( 'Sender', 'mhm-rentiva' ) }
+			collapsible
+			storageKey={ `mhm-rentiva:contact:sender:${ layout }` }
+			defaultOpen={ layout === 'wide' }
+		>
 			<div className="mhm-contact-messages__sender">
 				{ msg.initials && <span className="mhm-contact-messages__avatar is-large" aria-hidden="true">{ msg.initials }</span> }
 				<strong>{ msg.name || '—' }</strong>

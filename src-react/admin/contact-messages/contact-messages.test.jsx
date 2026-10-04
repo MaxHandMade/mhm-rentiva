@@ -38,6 +38,13 @@ const page = ( items, over = {} ) => ( {
 	stats: { new: 1, awaiting: 1, last_7_days: 1, total: items.length }, ...over,
 } );
 
+// Collapsed-card preferences live in localStorage: one test's write must not leak into the next.
+const realRO = window.ResizeObserver;
+beforeEach( () => window.localStorage.clear() );
+afterEach( () => {
+	window.ResizeObserver = realRO;
+} );
+
 describe( 'contact messages list', () => {
 	beforeEach( () => jest.clearAllMocks() );
 
@@ -580,7 +587,7 @@ describe( 'contact message detail', () => {
 		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
 		await screen.findByText( /Line one/ );
 		expect( contactApi.technical ).not.toHaveBeenCalled();
-		fireEvent.click( screen.getByRole( 'button', { name: 'Show' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Technical record' } ) );
 		expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
 	} );
 
@@ -614,6 +621,108 @@ describe( 'contact message detail', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: 'Move to trash' } ) );
 		fireEvent.click( await screen.findByRole( 'button', { name: 'Yes, move to trash' } ) );
 		await waitFor( () => expect( onBack ).toHaveBeenCalled() );
+	} );
+
+	describe( 'collapsible side cards (Task L2)', () => {
+		const narrow = () => {
+			window.ResizeObserver = class {
+				constructor( cb ) { this.cb = cb; }
+				observe() { this.cb( [ { contentRect: { width: 366 } } ] ); }
+				disconnect() {}
+			};
+		};
+		const wide = () => {
+			window.ResizeObserver = class {
+				constructor( cb ) { this.cb = cb; }
+				observe() { this.cb( [ { contentRect: { width: 1100 } } ] ); }
+				disconnect() {}
+			};
+		};
+		const open = async () => {
+			const r = render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			return r;
+		};
+		const toggle = ( name ) => screen.getByRole( 'button', { name } );
+
+		test( 'on a narrow container the side cards start collapsed and the message card stays open', async () => {
+			narrow();
+			await open();
+			[ 'Request details', 'Sender', 'Technical record', 'Delete message' ].forEach( ( n ) => {
+				expect( toggle( n ).getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+			} );
+			expect( screen.queryByRole( 'button', { name: 'Message' } ) ).toBeNull();
+			expect( screen.getByText( /Line one/ ).closest( '[hidden]' ) ).toBeNull();
+		} );
+
+		test( 'on a wide container the side cards start open except the technical record', async () => {
+			wide();
+			await open();
+			[ 'Request details', 'Sender', 'Delete message' ].forEach( ( n ) => {
+				expect( toggle( n ).getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+			} );
+			expect( toggle( 'Technical record' ).getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+		} );
+
+		test( 'a toggled card is remembered per layout', async () => {
+			narrow();
+			const first = await open();
+			fireEvent.click( toggle( 'Sender' ) );
+			expect( window.localStorage.getItem( 'mhm-rentiva:contact:sender:narrow' ) ).toBe( '1' );
+			expect( window.localStorage.getItem( 'mhm-rentiva:contact:sender:wide' ) ).toBeNull();
+			first.unmount();
+			await open();
+			expect( toggle( 'Sender' ).getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+		} );
+
+		test( 'technical record fetches once on first open and retries after a failure', async () => {
+			wide();
+			await open();
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
+			fireEvent.click( toggle( 'Technical record' ) );
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( contactApi.technical ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		test( 'a failed technical fetch shows an inline error and the next open retries', async () => {
+			wide();
+			contactApi.technical = jest.fn().mockRejectedValueOnce( new Error( 'network' ) ).mockResolvedValue( { ip_address: '203.0.113.48', user_agent: 'UA/1' } );
+			await open();
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( await screen.findByText( 'The technical record could not be loaded.' ) ).toBeTruthy();
+			fireEvent.click( toggle( 'Technical record' ) );
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
+			expect( contactApi.technical ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		test( 'the technical record always starts closed and keeps no stored preference', async () => {
+			wide();
+			window.localStorage.setItem( 'mhm-rentiva:contact:technical:wide', '1' );
+			await open();
+			expect( toggle( 'Technical record' ).getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
+			expect( window.localStorage.getItem( 'mhm-rentiva:contact:technical:wide' ) ).toBe( '1' );
+			expect( window.localStorage.getItem( 'mhm-rentiva:contact:technical:narrow' ) ).toBeNull();
+		} );
+
+		test( 'the technical record has no separate Show button any more', async () => {
+			wide();
+			await open();
+			expect( screen.queryByRole( 'button', { name: 'Show' } ) ).toBeNull();
+			expect( screen.queryByRole( 'button', { name: 'Hide' } ) ).toBeNull();
+		} );
+
+		test( "a trashed message's card uses the delete key", async () => {
+			narrow();
+			window.localStorage.setItem( 'mhm-rentiva:contact:delete:narrow', '1' );
+			contactApi.get = jest.fn().mockResolvedValue( detail( { status: 'read', trashed: true } ) );
+			await open();
+			expect( toggle( 'Trashed message' ).getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+			expect( toggle( 'Request details' ).getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+		} );
 	} );
 
 	describe( 'trash disabled (EMPTY_TRASH_DAYS = 0)', () => {
@@ -657,15 +766,6 @@ describe( 'contact message detail', () => {
 			expect( await screen.findByText( 'The message could not be deleted.' ) ).toBeTruthy();
 			expect( onBack ).not.toHaveBeenCalled();
 		} );
-	} );
-
-	test( 'a failed technical fetch shows an inline error inside the widget and leaves the button usable', async () => {
-		contactApi.technical = jest.fn().mockRejectedValue( new Error( 'network' ) );
-		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
-		await screen.findByText( /Line one/ );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Show' } ) );
-		expect( await screen.findByText( 'The technical record could not be loaded.' ) ).toBeTruthy();
-		expect( screen.getByRole( 'button', { name: 'Hide' } ).disabled ).toBe( false );
 	} );
 
 	test( 'an attachment without a download URL shows "File not available" and no link', async () => {
