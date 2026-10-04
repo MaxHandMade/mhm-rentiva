@@ -11,8 +11,13 @@ import { buildMailto } from './mailto';
 // A virtual mock: @wordpress/components is not a real devDependency of this
 // project (webpack externalises every @wordpress/* import to the wp-admin
 // global at build time; only Jest needs a real module to require()), and
-// ContactMessagesList's only use of it is the loading Spinner.
-jest.mock( '@wordpress/components', () => ( { Spinner: () => null } ), { virtual: true } );
+// the only thing used from it is the loading Spinner, rendered as a marker so
+// a test can see when a loading state shows.
+jest.mock(
+	'@wordpress/components',
+	() => ( { Spinner: () => require( 'react' ).createElement( 'span', { 'data-testid': 'spinner' } ) } ),
+	{ virtual: true }
+);
 
 jest.mock( './api', () => ( {
 	contactApi: { list: jest.fn(), bulk: jest.fn(), destroy: jest.fn() },
@@ -727,6 +732,36 @@ describe( 'contact message detail', () => {
 			fireEvent.click( toggle( 'Technical record' ) );
 			expect( await screen.findByText( '203.0.113.48' ) ).toBeTruthy();
 			expect( contactApi.technical ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		test( 'the technical record shows a spinner, not an empty list, while it loads', async () => {
+			wide();
+			let resolve;
+			contactApi.technical = jest.fn().mockReturnValue( new Promise( ( r ) => { resolve = r; } ) );
+			await open();
+			const card = () => toggle( 'Technical record' ).closest( '.mhmui-widget' );
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( within( card() ).getByTestId( 'spinner' ) ).toBeTruthy();
+			expect( card().querySelector( '.mhm-contact-messages__dl' ) ).toBeNull();
+			await act( async () => {
+				resolve( { ip_address: '203.0.113.48', user_agent: 'UA/1' } );
+			} );
+			const dl = card().querySelector( '.mhm-contact-messages__dl' );
+			expect( dl ).not.toBeNull();
+			expect( within( dl ).getByText( '203.0.113.48' ) ).toBeTruthy();
+			expect( within( dl ).getByText( 'UA/1' ) ).toBeTruthy();
+			expect( within( card() ).queryByTestId( 'spinner' ) ).toBeNull();
+		} );
+
+		test( 'a failed technical fetch shows the error and no list', async () => {
+			wide();
+			contactApi.technical = jest.fn().mockRejectedValue( new Error( 'network' ) );
+			await open();
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( await screen.findByText( 'The technical record could not be loaded.' ) ).toBeTruthy();
+			const card = toggle( 'Technical record' ).closest( '.mhmui-widget' );
+			expect( card.querySelector( '.mhm-contact-messages__dl' ) ).toBeNull();
+			expect( within( card ).queryByTestId( 'spinner' ) ).toBeNull();
 		} );
 
 		test( 'the technical record always starts closed and keeps no stored preference', async () => {

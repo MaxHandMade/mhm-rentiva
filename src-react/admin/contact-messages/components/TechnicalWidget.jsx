@@ -1,3 +1,4 @@
+import { Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Widget from '../../../../vendor/mhm/ui-core/src-react/components/Widget';
@@ -39,17 +40,16 @@ export default function TechnicalWidget( { id } ) {
 			onToggle={ onToggle }
 		>
 			<p>{ __( "The sender's IP address and browser. Only needed when investigating abuse.", 'mhm-rentiva' ) }</p>
+			{ loading && <Spinner /> }
 			{ error && <p className="mhm-contact-messages__muted">{ error }</p> }
-			<dl className="mhm-contact-messages__dl is-code">
-				{ data && (
-					<>
-						<dt>{ __( 'IP address', 'mhm-rentiva' ) }</dt>
-						<dd>{ data.ip_address }</dd>
-						<dt>{ __( 'Browser', 'mhm-rentiva' ) }</dt>
-						<dd>{ data.user_agent }</dd>
-					</>
-				) }
-			</dl>
+			{ data && (
+				<dl className="mhm-contact-messages__dl is-code">
+					<dt>{ __( 'IP address', 'mhm-rentiva' ) }</dt>
+					<dd>{ data.ip_address }</dd>
+					<dt>{ __( 'Browser', 'mhm-rentiva' ) }</dt>
+					<dd>{ data.user_agent }</dd>
+				</dl>
+			) }
 		</Widget>
 	);
 }
