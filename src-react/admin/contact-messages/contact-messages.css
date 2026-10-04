@@ -94,7 +94,5 @@
 .mhmui-detail-layout__aside .mhm-contact-messages__sender { gap: 12px; }
 .mhm-contact-messages .mhmui-widget:not( .mhmui-widget--plain ) .mhmui-widget__body { padding: 18px 20px 20px; }
 .mhm-contact-messages .mhmui-widget--plain .mhmui-widget__body { display: flex; flex-direction: column; gap: 14px; }
-/* The rule above out-ranks the kit's [hidden] reset; a collapsed card must stay hidden. */
-.mhm-contact-messages .mhmui-widget--plain .mhmui-widget__body[hidden] { display: none; }
 .mhm-contact-messages .mhmui-widget--plain a:not( .mhmui-button ),
 .mhm-contact-messages__more { text-decoration: none; }

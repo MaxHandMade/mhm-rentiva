@@ -664,6 +664,38 @@ describe( 'contact message detail', () => {
 			expect( toggle( 'Technical record' ).getAttribute( 'aria-expanded' ) ).toBe( 'false' );
 		} );
 
+		test( 'on a narrow container the cards never render open under the wide key', async () => {
+			const seen = [];
+			let measuredYet = false;
+			window.ResizeObserver = class {
+				constructor( cb ) { this.cb = cb; }
+				observe() {
+					measuredYet = true;
+					this.cb( [ { contentRect: { width: 366 } } ] );
+				}
+				disconnect() {}
+			};
+			const names = [ 'Request details', 'Sender', 'Technical record', 'Delete message' ];
+			const snap = () => {
+				const expanded = names.filter( ( n ) => {
+					const b = screen.queryByRole( 'button', { name: n } );
+					return b && b.getAttribute( 'aria-expanded' ) === 'true';
+				} );
+				const mounted = names.filter( ( n ) => screen.queryByRole( 'button', { name: n } ) );
+				seen.push( { measuredYet, open: expanded, mounted } );
+			};
+			const mo = new window.MutationObserver( snap );
+			render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
+			mo.observe( document.body, { childList: true, subtree: true, attributes: true } );
+			await screen.findByText( /Line one/ );
+			await new Promise( ( r ) => setTimeout( r, 0 ) );
+			mo.disconnect();
+			expect( seen.some( ( s ) => s.mounted.length > 0 ) ).toBe( true );
+			expect( seen.every( ( s ) => s.open.length === 0 ) ).toBe( true );
+			expect( seen.filter( ( s ) => s.mounted.length > 0 ).every( ( s ) => s.measuredYet ) ).toBe( true );
+			expect( window.localStorage.getItem( 'mhm-rentiva:contact:sender:wide' ) ).toBeNull();
+		} );
+
 		test( 'a toggled card is remembered per layout', async () => {
 			narrow();
 			const first = await open();

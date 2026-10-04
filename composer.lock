@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "4e46f0bede985f61453a72ddbc6d8b05ff74998b"
+                "reference": "1da78dd20b09f80c988ee4f45e209b0ff5a48b77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/4e46f0bede985f61453a72ddbc6d8b05ff74998b",
-                "reference": "4e46f0bede985f61453a72ddbc6d8b05ff74998b",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/1da78dd20b09f80c988ee4f45e209b0ff5a48b77",
+                "reference": "1da78dd20b09f80c988ee4f45e209b0ff5a48b77",
                 "shasum": ""
             },
             "require": {
@@ -93,7 +93,7 @@
                 "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/feat/kit-collapsible-widget",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-10-04T07:06:19+00:00"
+            "time": "2026-10-04T07:34:23+00:00"
         }
     ],
     "packages-dev": [

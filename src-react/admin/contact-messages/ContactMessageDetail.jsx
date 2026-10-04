@@ -46,7 +46,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
 	// module-level read runs before a test can set the global.
 	const trashEnabled = isTrashEnabled();
-	const [ setRootRef, layout ] = useContainerWidth( 600 );
+	const [ setRootRef, layout, measured ] = useContainerWidth( 600 );
 	const [ msg, setMsg ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ mailed, setMailed ] = useState( false );
@@ -116,11 +116,13 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		}
 	};
 
+	// The root carries the width observer from the first render, so the layout is
+	// known before any collapsible card mounts (no wide -> narrow flip).
 	if ( error && ! msg ) {
-		return <Notice tone="danger">{ error }</Notice>;
+		return <div ref={ setRootRef } className="mhm-contact-messages mhmui-admin mhmui-admin-page"><Notice tone="danger">{ error }</Notice></div>;
 	}
 	if ( ! msg ) {
-		return <Spinner />;
+		return <div ref={ setRootRef } className="mhm-contact-messages mhmui-admin mhmui-admin-page"><Spinner /></div>;
 	}
 
 	const subject = sprintf(
@@ -161,7 +163,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		defaultOpen: layout === 'wide',
 	} );
 
-	const aside = (
+	const aside = ! measured ? null : (
 		<>
 			<SenderWidget msg={ msg } layout={ layout } />
 			<TechnicalWidget id={ id } />
@@ -311,6 +313,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 						</div>
 					) }
 				</Widget>
+				{ measured && (
 				<Widget level={ 2 } variant="plain" title={ __( 'Request details', 'mhm-rentiva' ) } { ...cardProps( 'details' ) }>
 					{ details.length === 0 ? (
 						<p className="mhm-contact-messages__muted">{ __( 'No further details were filled in.', 'mhm-rentiva' ) }</p>
@@ -320,6 +323,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					) }
 					<span className="mhm-contact-messages__muted mhm-contact-messages__help">{ __( 'Fields left empty on the form are not shown.', 'mhm-rentiva' ) }</span>
 				</Widget>
+				) }
 			</DetailLayout>
 		</div>
 	);
