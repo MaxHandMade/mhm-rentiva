@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20efd60b53848bd06b57fd57f2693849",
+    "content-hash": "ddec66f694e92cdcc36cb76775a6096f",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.16.0",
+            "version": "dev-feat/kit-collapsible-widget",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "629fb8c62d6ee038ff23403c43b456bbf5a31b0d"
+                "reference": "4e46f0bede985f61453a72ddbc6d8b05ff74998b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/629fb8c62d6ee038ff23403c43b456bbf5a31b0d",
-                "reference": "629fb8c62d6ee038ff23403c43b456bbf5a31b0d",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/4e46f0bede985f61453a72ddbc6d8b05ff74998b",
+                "reference": "4e46f0bede985f61453a72ddbc6d8b05ff74998b",
                 "shasum": ""
             },
             "require": {
@@ -90,10 +90,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.16.0",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/feat/kit-collapsible-widget",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-10-04T04:06:02+00:00"
+            "time": "2026-10-04T07:06:19+00:00"
         }
     ],
     "packages-dev": [
@@ -3018,9 +3018,18 @@
             "time": "2025-08-10T05:13:49+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "mhm/ui-core",
+            "version": "dev-feat/kit-collapsible-widget",
+            "alias": "0.17.0",
+            "alias_normalized": "0.17.0.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "mhm/ui-core": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {},

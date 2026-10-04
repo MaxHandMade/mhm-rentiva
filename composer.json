@@ -87,6 +87,6 @@
         "wpackagist-plugin/elementor": "*"
     },
     "require": {
-        "mhm/ui-core": "^0.16"
+        "mhm/ui-core": "dev-feat/kit-collapsible-widget as 0.17.0"
     }
 }
