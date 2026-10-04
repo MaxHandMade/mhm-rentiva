@@ -318,7 +318,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					{ details.length === 0 ? (
 						<p className="mhm-contact-messages__muted">{ __( 'No further details were filled in.', 'mhm-rentiva' ) }</p>
 					) : (
-						// emptyText is the per-VALUE placeholder, not an empty-list text (Fable plan I9).
+						// emptyText is the per-VALUE placeholder, not an empty-list text.
 						<DetailList columns={ 3 } items={ details } emptyText="—" />
 					) }
 					<span className="mhm-contact-messages__muted mhm-contact-messages__help">{ __( 'Fields left empty on the form are not shown.', 'mhm-rentiva' ) }</span>

@@ -59,7 +59,7 @@ class ContactFormTest extends WP_UnitTestCase
     }
 
     /**
-     * Fable M3: the help text under the attachment field must show the cap
+     * The help text under the attachment field must show the cap
      * the server actually enforces (ContactForm::max_attachment_bytes(),
      * which is never above wp_max_upload_size() but can be lower), not
      * PHP's raw upload_max_filesize. Forced well below any real
@@ -83,7 +83,7 @@ class ContactFormTest extends WP_UnitTestCase
     /**
      * @group multisite
      *
-     * Fable M2: core's check_upload_size prefilter enforces the network's
+     * Core's check_upload_size prefilter enforces the network's
      * own fileupload_maxk (KB, default 1500) as a per-file quota on this
      * upload path too -- on such a network, advertising the plugin's flat
      * 5 MB default would promise a size the network refuses.

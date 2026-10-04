@@ -233,7 +233,7 @@ final class CustomerSpendCountsRevenueOnlyTest extends WP_UnitTestCase
 	/**
 	 * AutoCancel / AutoComplete change up to fifty statuses per run; the
 	 * invalidation on that path is a stamp bump, never the options-table scan
-	 * clear_cache_by_type() runs (Fable, slice 1 audit, finding 1). Other listeners
+	 * clear_cache_by_type() runs. Other listeners
 	 * on the same action (vehicle caches) are not this test's subject.
 	 */
 	public function test_the_status_change_invalidation_does_not_scan_the_options_table(): void

@@ -83,7 +83,7 @@ final class CustomersScreenReadsOneContactTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable P4 on slice 1: the list grouped by the phone/address meta values,
+	 * The list used to group by the phone/address meta values,
 	 * so an account with two `mhmrentiva_phone` rows was listed twice while
 	 * the pager counted it once.
 	 */

@@ -26,11 +26,11 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 	const [ error, setError ] = useState( null );
 	// Kept apart from `error`: load() clears that one first thing, and the
 	// reload that follows a bulk call would wipe the partial-failure notice
-	// before anyone could read it (Codex bot, #75 P2).
+	// before anyone could read it.
 	const [ bulkNotice, setBulkNotice ] = useState( null );
 	// Bumped on every status/filter/page change the operator makes: a bulk
 	// result that comes back after they moved to another view must not post
-	// its notice or reload the old view there (Codex bot + Codex audit, #76).
+	// its notice or reload the old view there.
 	const viewSeq = useRef( 0 );
 	const [ busy, setBusy ] = useState( false );
 
@@ -76,7 +76,7 @@ export default function ContactMessagesList( { status, initialPage = 1, initialS
 
 	// A status change arrives as a new prop: reset page and selection then.
 	// Filter changes reset in changeFilters() below, in the same batch as the
-	// filter itself, so one change is one request (Fable plan M6).
+	// filter itself, so one change is one request.
 	const lastStatus = useRef( status );
 	useEffect( () => {
 		if ( lastStatus.current !== status ) {

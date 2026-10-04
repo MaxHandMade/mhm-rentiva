@@ -246,7 +246,7 @@ final class ContactAttachmentDownloadTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString("\n", $injected);
 	}
 
-	/** Review Focus 3, end to end (Fable plan M3): the upload path sanitizes the name first. */
+	/** End to end: the upload path sanitizes the name first. */
 	public function test_an_uploaded_turkish_name_reaches_the_header_sanitized(): void
 	{
 		$record = ContactAttachmentStore::store_upload($this->fixture($this->sandbox . '/in', 'pdf'), 'Teklif "son" şartname.pdf', $this->sideload());
