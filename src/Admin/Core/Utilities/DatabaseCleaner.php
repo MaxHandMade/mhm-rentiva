@@ -264,6 +264,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_cancellation_deadline',
 			'_mhmrentiva_cancellation_policy',
 			'_mhmrentiva_client_ip',
+			'_mhmrentiva_commission_pending_policy',
 			'_mhmrentiva_contact_email',
 			'_mhmrentiva_contact_name',
 			'_mhmrentiva_contact_phone',
