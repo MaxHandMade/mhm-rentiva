@@ -15,7 +15,7 @@ import { buildMailto } from './mailto';
 // a test can see when a loading state shows.
 jest.mock(
 	'@wordpress/components',
-	() => ( { Spinner: () => require( 'react' ).createElement( 'span', { 'data-testid': 'spinner' } ) } ),
+	() => ( { Spinner: () => require( '@wordpress/element' ).createElement( 'span', { 'data-testid': 'spinner' } ) } ),
 	{ virtual: true }
 );
 
