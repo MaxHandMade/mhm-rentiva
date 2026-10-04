@@ -582,7 +582,7 @@ describe( 'contact message detail', () => {
 		const prompt = await screen.findByRole( 'status' );
 		fireEvent.click( within( prompt ).getByRole( 'button', { name: 'Mark as replied' } ) );
 		// The status region is always present (a stable live region for screen
-		// readers -- fix round 1, finding 5), so its own absence is no longer
+		// readers), so its own absence is no longer
 		// the signal; the prompt's text disappearing is.
 		await waitFor( () => expect( screen.queryByText( /Your e-mail app opened a reply draft/ ) ).toBeNull() );
 		expect( contactApi.setStatus ).toHaveBeenCalledWith( 1, 'replied' );
@@ -628,7 +628,7 @@ describe( 'contact message detail', () => {
 		await waitFor( () => expect( onBack ).toHaveBeenCalled() );
 	} );
 
-	describe( 'collapsible side cards (Task L2)', () => {
+	describe( 'collapsible side cards', () => {
 		const narrow = () => {
 			window.ResizeObserver = class {
 				constructor( cb ) { this.cb = cb; }
@@ -764,6 +764,39 @@ describe( 'contact message detail', () => {
 			expect( within( card ).queryByTestId( 'spinner' ) ).toBeNull();
 		} );
 
+		test( 'a retry clears the previous error while it loads, and a second failure shows it again', async () => {
+			wide();
+			let reject;
+			contactApi.technical = jest.fn()
+				.mockRejectedValueOnce( new Error( 'network' ) )
+				.mockReturnValueOnce( new Promise( ( r, j ) => { reject = j; } ) );
+			await open();
+			const card = () => toggle( 'Technical record' ).closest( '.mhmui-widget' );
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( await screen.findByText( 'The technical record could not be loaded.' ) ).toBeTruthy();
+			fireEvent.click( toggle( 'Technical record' ) );
+			fireEvent.click( toggle( 'Technical record' ) );
+			expect( within( card() ).getByTestId( 'spinner' ) ).toBeTruthy();
+			expect( screen.queryByText( 'The technical record could not be loaded.' ) ).toBeNull();
+			await act( async () => {
+				reject( new Error( 'network' ) );
+			} );
+			expect( await screen.findByText( 'The technical record could not be loaded.' ) ).toBeTruthy();
+			expect( within( card() ).queryByTestId( 'spinner' ) ).toBeNull();
+			expect( contactApi.technical ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		test( 'an empty IP address or browser reads — instead of a blank cell', async () => {
+			wide();
+			contactApi.technical = jest.fn().mockResolvedValue( { ip_address: '', user_agent: '' } );
+			await open();
+			fireEvent.click( toggle( 'Technical record' ) );
+			const card = toggle( 'Technical record' ).closest( '.mhmui-widget' );
+			await waitFor( () => expect( card.querySelector( '.mhm-contact-messages__dl' ) ).not.toBeNull() );
+			const values = [ ...card.querySelectorAll( '.mhm-contact-messages__dl dd' ) ].map( ( dd ) => dd.textContent );
+			expect( values ).toEqual( [ '—', '—' ] );
+		} );
+
 		test( 'the technical record always starts closed and keeps no stored preference', async () => {
 			wide();
 			window.localStorage.setItem( 'mhm-rentiva:contact:technical:wide', '1' );
@@ -859,7 +892,7 @@ describe( 'contact message detail', () => {
 		expect( await screen.findByText( 'No further details were filled in.' ) ).toBeTruthy();
 	} );
 
-	describe( 'artboard binding (Task C4)', () => {
+	describe( 'artboard binding', () => {
 		const long = { id: 3531, name: 'Barış Koç', type_label: 'Technical Support', date_label_long: '26/09/2026, 21:40' };
 		const email = 'baris@example.com';
 		const sender = ( over = {} ) => ( { email, email_linkable: true, phone: '', customer_url: null, other_count: 0, ...over } );

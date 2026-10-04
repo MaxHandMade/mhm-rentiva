@@ -18,10 +18,9 @@ export default function TechnicalWidget( { id } ) {
 			return;
 		}
 		setLoading( true );
+		setError( null );
 		try {
-			const result = await contactApi.technical( id );
-			setData( result );
-			setError( null );
+			setData( await contactApi.technical( id ) );
 		} catch {
 			setError( __( 'The technical record could not be loaded.', 'mhm-rentiva' ) );
 		} finally {
@@ -45,9 +44,9 @@ export default function TechnicalWidget( { id } ) {
 			{ data && (
 				<dl className="mhm-contact-messages__dl is-code">
 					<dt>{ __( 'IP address', 'mhm-rentiva' ) }</dt>
-					<dd>{ data.ip_address }</dd>
+					<dd>{ data.ip_address || '—' }</dd>
 					<dt>{ __( 'Browser', 'mhm-rentiva' ) }</dt>
-					<dd>{ data.user_agent }</dd>
+					<dd>{ data.user_agent || '—' }</dd>
 				</dl>
 			) }
 		</Widget>
