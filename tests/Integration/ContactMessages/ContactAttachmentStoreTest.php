@@ -164,7 +164,7 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable I1: validate() runs on $tmp before core ever sees it, but a
+	 * validate() runs on $tmp before core ever sees it, but a
 	 * wp_handle_upload_prefilter-shaped hook (wp_handle_sideload_prefilter
 	 * for this test seam -- _wp_handle_upload() names that filter after
 	 * the $action it was called with, and wp_handle_sideload() passes
@@ -192,7 +192,7 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable I1, refusal side: a prefilter that rewrites the bytes into
+	 * Refusal side of the test above: a prefilter that rewrites the bytes into
 	 * something the plugin's own content check refuses must still leave
 	 * the private root exactly as it was.
 	 */
@@ -244,7 +244,7 @@ final class ContactAttachmentStoreTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fable I2: a wp_handle_upload filter (the one core applies to its own
+	 * A wp_handle_upload filter (the one core applies to its own
 	 * RETURN value -- always named 'wp_handle_upload' regardless of
 	 * whether wp_handle_upload() or wp_handle_sideload() was called,
 	 * confirmed against the mounted core's file.php:1073-1081) can report

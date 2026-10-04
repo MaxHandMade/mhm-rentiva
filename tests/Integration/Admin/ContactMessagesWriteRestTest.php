@@ -145,7 +145,7 @@ final class ContactMessagesWriteRestTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex Important #4, measured through the REST route: bulk 'replied'
+	 * Measured through the REST route: bulk 'replied'
 	 * calls ContactStatus::set() directly for its $ok value, so a
 	 * short-circuited meta write must surface as ok:false there too.
 	 */

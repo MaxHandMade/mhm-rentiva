@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-03T20:21:56+00:00\n"
+"POT-Creation-Date: 2026-10-04T10:32:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -3096,7 +3096,7 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:74
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:72
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
 #: src-react/admin/customers/components/CustomerTable.jsx:83
 msgid "Phone"
@@ -3194,7 +3194,7 @@ msgid "Unauthorized."
 msgstr ""
 
 #: src/Admin/ContactMessages/ContactAttachmentDownload.php:40
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:301
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:311
 msgid "File not available"
 msgstr ""
 
@@ -3626,8 +3626,8 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:537
 #: templates/account/account-details.php:189
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:173
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:214
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:183
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:224
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:32
 msgid "Cancel"
 msgstr ""
@@ -7378,7 +7378,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:163
 #: src-react/admin/contact-messages/components/ContactTable.jsx:53
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:259
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:269
 msgid "Message"
 msgstr ""
 
@@ -8426,7 +8426,6 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:147
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:66
 #: assets/blocks/unified-search/index.js:84
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:40
 msgid "Show"
 msgstr ""
 
@@ -8469,7 +8468,6 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:67
 #: assets/blocks/unified-search/index.js:85
 #: src-react/admin/about/components/ChangelogList.jsx:79
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:40
 msgid "Hide"
 msgstr ""
 
@@ -9446,7 +9444,7 @@ msgid "Copy JSON"
 msgstr ""
 
 #: src/Admin/PostTypes/Logs/MetaBox.php:111
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
 msgid "Copied"
 msgstr ""
 
@@ -15266,7 +15264,7 @@ msgid "Copy Report"
 msgstr ""
 
 #: src-react/admin/about/components/DeveloperTab.jsx:86
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:310
 msgid "Download"
 msgstr ""
 
@@ -15339,8 +15337,8 @@ msgid "Tested with: WP 7.0, PHP 8.2"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:13
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:176
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:211
 msgid "Delete permanently"
 msgstr ""
 
@@ -15353,13 +15351,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:19
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:172
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:182
 msgid "Yes, delete"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:21
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:174
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:184
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:225
 msgid "Deleting…"
 msgstr ""
 
@@ -15376,7 +15374,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:41
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:164
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:174
 msgid "Restore"
 msgstr ""
 
@@ -15385,13 +15383,13 @@ msgid "Mark as read"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:47
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:265
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:283
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:275
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:293
 msgid "Mark as replied"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:49
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:211
 msgid "Move to trash"
 msgstr ""
 
@@ -15433,17 +15431,17 @@ msgid "Select all messages"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:52
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:44
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:47
 msgid "Sender"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:54
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:133
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:137
 msgid "Related vehicle"
 msgstr ""
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:91
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:290
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
 msgctxt "contact message"
 msgid "Attachment"
 msgstr ""
@@ -15497,19 +15495,19 @@ msgid_plural "%d more messages from this address"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:51
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
 msgid "E-mail"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
 msgid "Copy"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:76
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:83
 msgid "This e-mail belongs to a registered customer"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:79
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:86
 msgid "Open customer record"
 msgstr ""
 
@@ -15517,145 +15515,145 @@ msgstr ""
 msgid "The technical record could not be loaded."
 msgstr ""
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:37
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:36
 msgid "Technical record"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:44
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:41
 msgid "The sender's IP address and browser. Only needed when investigating abuse."
 msgstr ""
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:51
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:46
 msgid "IP address"
 msgstr ""
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:53
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:48
 msgid "Browser"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:71
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:73
 msgid "The message could not be marked as read."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:77
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:79
 msgid "The message could not be loaded."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:94
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:96
 msgid "The status could not be saved."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:106
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:111
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:108
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:113
 msgid "The message could not be restored."
 msgstr ""
 
 #. translators: %s: enquiry type label.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:126
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:130
 #, js-format
 msgid "Re: %s"
 msgstr ""
 
 #. translators: 1: enquiry type label, 2: date and time, 3: message number line.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:142
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:146
 #, js-format
 msgid "%1$s · %2$s · %3$s"
 msgstr ""
 
 #. translators: %d: message number.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:147
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:151
 #, js-format
 msgid "Message #%d"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:161
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:171
 msgid "Trashed message"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:162
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:172
 msgid "This message is in the trash. Restore it, or delete it permanently."
 msgstr ""
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:169
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:210
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:179
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:220
 #, js-format
 msgid "Delete the message from %s permanently? This cannot be undone."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:184
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:189
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:234
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:194
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:244
 msgid "The message could not be deleted."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:196
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:206
 msgid "Delete message"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:198
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:208
 msgid "The message moves to the trash; WordPress empties the trash automatically."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:209
 msgid "The message is deleted immediately; the trash is disabled on this site."
 msgstr ""
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:205
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
 #, js-format
 msgid "Move the message from %s to the trash?"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:223
 msgid "Yes, move to trash"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:223
 msgid "Yes, delete permanently"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:225
 msgid "Moving…"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:233
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:243
 msgid "The message could not be moved to the trash."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:248
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:258
 msgid "Back to contact messages"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:256
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:266
 msgid "Sender and actions"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:263
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:273
 msgid "Mark unread"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:269
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:279
 msgid "Reply by e-mail"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:279
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:289
 msgid "Reply reminder"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:282
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:292
 msgid "Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:306
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:317
 msgid "Request details"
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:308
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:319
 msgid "No further details were filled in."
 msgstr ""
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:313
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:324
 msgid "Fields left empty on the form are not shown."
 msgstr ""
 

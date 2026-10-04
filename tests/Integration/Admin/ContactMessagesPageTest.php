@@ -30,7 +30,7 @@ final class ContactMessagesPageTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex minor: core's current_action() (WP_List_Table) only treats
+	 * Core's current_action() (WP_List_Table) only treats
 	 * filter_action as "present" when it is non-empty -- a plain view of the
 	 * filter bar with nothing chosen submits `filter_action=` (empty), which
 	 * must still redirect to the new screen, not be mistaken for a filter

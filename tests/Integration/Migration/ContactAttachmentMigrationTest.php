@@ -172,7 +172,7 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 			'month mismatch'     => array( '{base}/2026/07/a.pdf', 'month' ),
 			'extension'          => array( '{base}/2026/08/a.zip', 'extension' ),
 			'missing file'       => array( '{base}/2026/08/nope.pdf', 'missing' ),
-			// R-19 / Fable plan B1: before the fix this errors with ValueError from realpath().
+			// R-19: before the fix this errors with ValueError from realpath().
 			// A literal raw NUL byte here would be silently rewritten to "_" by
 			// PHP's own parse_url() before classify() ever saw it (verified: PHP
 			// 8.3.33, parse_url('http://x.test/2026/08/a' . "\0" . '.pdf') returns
@@ -437,7 +437,7 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		);
 	}
 
-	/** @dataProvider library_files Codex v2-1: core stores the -scaled name in _wp_attached_file. */
+	/** @dataProvider library_files Core stores the -scaled name in _wp_attached_file. */
 	public function test_a_media_library_file_is_never_moved(string $attached, string $pointed): void
 	{
 		$url = $this->legacy($pointed, 'png');
@@ -451,7 +451,7 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		$this->assertFileExists($this->sandbox . '/' . $pointed);
 	}
 
-	/** R-18 / Codex plan 1: a filter answering "not in the library" must not unlock a delete. */
+	/** R-18: a filter answering "not in the library" must not unlock a delete. */
 	public function test_a_library_file_is_found_even_when_the_lookup_filter_says_none(): void
 	{
 		add_filter('pre_attachment_url_to_postid', static fn() => 0);
@@ -466,7 +466,7 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		$this->assertFileExists($this->sandbox . '/2026/08/lib.png');
 	}
 
-	/** R-20 / Fable plan I3 · Codex plan 2: a public copy that will not go away stays listed and pending. */
+	/** R-20: a public copy that will not go away stays listed and pending. */
 	public function test_an_undeletable_source_is_listed_and_stays_pending(): void
 	{
 		$url  = $this->legacy('2026/08/stuck.pdf');
@@ -528,7 +528,7 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		$this->assertFileExists($this->sandbox . '/2026/08/wait.pdf');
 		$this->assertFalse(get_option(ContactAttachmentMigration::DONE_OPTION));
 
-		// R-20 / Fable plan I1: the administrator is told, not only the log.
+		// R-20: the administrator is told, not only the log.
 		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
 		ob_start();
 		ContactAttachmentMigration::render_unmigrated_notice();

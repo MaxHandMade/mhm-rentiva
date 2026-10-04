@@ -249,7 +249,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 	 * ContactMessageRepository::list() writes the "general" type filter's NOT
 	 * IN list as the literal SQL fragment ('booking','support','feedback')
 	 * rather than building it from ContactMessagePostType::TYPES at runtime
-	 * (Task 9C fix round 2 -- G-D flagged the runtime-built version as an
+	 * (a review flagged the runtime-built version as an
 	 * unescaped DB parameter shape). This pins the assumption the literal
 	 * depends on: if TYPES ever gains, loses or reorders a non-general
 	 * member, this test fails loudly and points at the query to update,

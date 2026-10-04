@@ -36,7 +36,7 @@ final class UninstallRemovesContactAttachmentsTest extends WP_UnitTestCase {
 		$this->remove_sandbox();
 	}
 
-	/** Spec §4, Fable v2 N-B1: the add-on's vendor documents share the parent folder. */
+	/** Spec §4: the add-on's vendor documents share the parent folder. */
 	public function test_uninstall_takes_contact_and_leaves_the_add_ons_vendor_docs(): void
 	{
 		$root   = (string) ContactAttachmentStore::root();

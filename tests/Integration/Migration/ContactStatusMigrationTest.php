@@ -90,7 +90,7 @@ final class ContactStatusMigrationTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex Important #1: the backfill ignored $wpdb->query()'s return value and
+	 * The backfill used to ignore $wpdb->query()'s return value and
 	 * set the done flag regardless. If the database accepts the SELECT but
 	 * rejects the UPDATE (permissions, a broken table, a hostile `query`
 	 * filter), the old records must stay `new` and the done flag must stay

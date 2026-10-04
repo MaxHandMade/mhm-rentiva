@@ -45,7 +45,7 @@ final class ContactStatusTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex Important #4: set() discarded update_post_meta()'s outcome and
+	 * set() used to discard update_post_meta()'s outcome and
 	 * always returned true. A short-circuited write (another plugin, a full
 	 * options/meta table, a lease race) must be reported as a failure, not as
 	 * a status change that never actually happened.
