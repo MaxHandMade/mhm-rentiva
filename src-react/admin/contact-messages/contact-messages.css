@@ -1,16 +1,28 @@
 .mhm-contact-messages { display: flex; flex-direction: column; gap: 16px; container-type: inline-size; }
-.mhm-contact-messages__tabs { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.mhm-contact-messages__trash-link { padding-bottom: 12px; white-space: nowrap; }
+.mhm-contact-messages .mhmui-tabs-bar > a.mhm-contact-messages__trash-link { white-space: nowrap; text-decoration: none; }
 .mhm-contact-messages__trash-link--current { color: var( --mhmui-accent, #2271b1 ); font-weight: 600; box-shadow: inset 0 -2px 0 var( --mhmui-accent, #2271b1 ); }
 .mhm-contact-messages__toolbar,
 .mhm-contact-messages__bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; }
-.mhm-contact-messages__toolbar input[type="search"] { width: 340px; max-width: 100%; min-height: 40px; }
+.mhm-contact-messages__search { position: relative; width: 340px; max-width: 100%; }
+.mhm-contact-messages__search input[type="search"] { box-sizing: border-box; width: 100%; min-height: 40px; padding-left: 34px; }
+.mhm-contact-messages__search svg { position: absolute; left: 11px; top: 12px; color: var( --mhmui-text-secondary, #646970 ); pointer-events: none; }
 .mhm-contact-messages__toolbar select { min-height: 40px; }
 .mhm-contact-messages__count { color: var( --mhmui-text-muted, #646970 ); margin-left: 4px; }
+.mhm-contact-messages__bulk-sep { width: 1px; height: 22px; background: #b6d1ea; }
 .mhm-contact-messages__bulk { padding: 0 14px; background: var( --mhmui-info-soft, #e5f0fa ); border: 1px solid #b6d1ea; border-radius: var( --mhmui-radius, 4px ); }
 .mhm-contact-messages__clear { margin-left: auto; }
 .mhm-contact-messages__table-wrap { background: var( --mhmui-surface, #fff ); border: 1px solid var( --mhmui-border, #c3c4c7 ); border-radius: var( --mhmui-radius, 4px ); overflow-x: auto; }
 .mhm-contact-messages__table { width: 100%; border-collapse: collapse; font-size: 13px; }
+/* Not "col-*": the legacy .mhm-rentiva-wrap [class*="col-"] rule forces width:100% on those. */
+.mhm-contact-messages__th-message { width: 100%; }
+/* max-width:0 lets the message cell shrink below its nowrap snippet; the ellipsis does the rest. */
+.mhm-contact-messages__table td.mhm-contact-messages__msg { max-width: 0; }
+.mhm-contact-messages__th-sender { width: 250px; min-width: 250px; }
+.mhm-contact-messages__th-vehicle { width: 170px; min-width: 170px; }
+.mhm-contact-messages__th-status { width: 110px; min-width: 110px; }
+.mhm-contact-messages__th-date { width: 120px; min-width: 120px; }
+.mhm-contact-messages__table th.check-column { width: 44px; }
+.mhm-contact-messages__th-action { width: 60px; min-width: 60px; }
 .mhm-contact-messages__table th { text-align: left; font-weight: 600; color: #50575e; padding: 10px 8px; border-bottom: 1px solid var( --mhmui-border, #c3c4c7 ); }
 .mhm-contact-messages__table td { padding: 12px 8px; vertical-align: top; border-top: 1px solid var( --mhmui-border-light, #f0f0f1 ); }
 .mhm-contact-messages__table tr.is-new { background: #fbfcfe; }
@@ -18,22 +30,25 @@
 .mhm-contact-messages__table tr.is-new .mhm-contact-messages__snippet { font-weight: 600; color: var( --mhmui-text, #1d2327 ); }
 .mhm-contact-messages__sender { display: flex; align-items: center; gap: 10px; }
 .mhm-contact-messages__avatar { width: 32px; height: 32px; flex: none; border-radius: 50%; background: #f0f0f1; color: #3c434a; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.mhm-contact-messages__who { min-width: 0; }
+.mhm-contact-messages__name a { color: inherit; text-decoration: none; }
 .mhm-contact-messages__name { display: flex; align-items: center; gap: 6px; font-size: 14px; }
 .mhm-contact-messages__email { display: block; font-size: 12px; color: var( --mhmui-text-muted, #646970 ); }
 .mhm-contact-messages__dot { width: 8px; height: 8px; border-radius: 50%; background: var( --mhmui-accent, #2271b1 ); flex: none; }
 .mhm-contact-messages__meta { display: flex; align-items: center; gap: 8px; }
 .mhm-contact-messages__chip { font-size: 12px; color: #50575e; background: #f0f0f1; border-radius: 999px; padding: 1px 8px; }
+.mhm-contact-messages__attach { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; color: #50575e; }
+.mhm-contact-messages__open { padding: 10px 16px 10px 8px; }
 .mhm-contact-messages__rating { font-size: 12px; font-weight: 600; color: #8a6100; }
 .mhm-contact-messages__snippet { margin-top: 5px; color: #50575e; max-width: 470px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mhm-contact-messages__empty { padding: 56px 24px; text-align: center; background: var( --mhmui-surface, #fff ); border: 1px solid var( --mhmui-border, #c3c4c7 ); border-radius: var( --mhmui-radius, 4px ); }
-.mhm-contact-messages .mhmui-status--warning { color: #8a6100; }
-.mhm-button-danger { color: #b32d2e !important; border-color: #b32d2e !important; }
+.mhm-contact-messages__empty { padding: 56px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; color: #8c8f94; }
+.mhm-contact-messages__empty strong { font-size: 15px; color: var( --mhmui-text, #1d2327 ); }
+.mhm-contact-messages__empty p { margin: 0; max-width: 440px; line-height: 1.6; color: var( --mhmui-text-secondary, #646970 ); }
 @container ( max-width: 782px ) {
 	.mhm-contact-messages__table thead { display: none; }
 	.mhm-contact-messages__table tr { display: grid; grid-template-columns: 32px 1fr; gap: 4px 8px; padding: 12px 8px; border-top: 1px solid var( --mhmui-border-light, #f0f0f1 ); }
 	.mhm-contact-messages__table td { border: 0; padding: 0; }
 	.mhm-contact-messages__table td:not( .check-column ) { grid-column: 2; }
-	.mhm-contact-messages__table .button { min-height: 44px; }
 	/* A grid track's automatic min-width is its content's min-content, not 0 --
 	   the nowrap snippet's min-content is its full (~465px) unbroken width, so
 	   the 1fr column refuses to shrink below it and max-width alone cannot cap
@@ -41,6 +56,7 @@
 	   and forces a horizontal scrollbar inside .mhm-contact-messages__table-wrap
 	   (measured live: table-wrap scrollWidth 521 vs clientWidth 366). */
 	.mhm-contact-messages__table td { min-width: 0; }
+	.mhm-contact-messages__table td.mhm-contact-messages__msg { max-width: none; }
 	/* The desktop 470px cap overflows the narrow card and forces a horizontal
 	   scrollbar inside .mhm-contact-messages__table-wrap; the ellipsis itself
 	   (white-space/overflow/text-overflow, set above) still applies. */
@@ -51,12 +67,33 @@
 .mhm-contact-messages__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mhm-contact-messages__mail-note { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 10px 14px; background: var( --mhmui-info-soft, #e5f0fa ); border: 1px solid #b6d1ea; border-radius: var( --mhmui-radius, 4px ); }
 .mhm-contact-messages__body { margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-line; max-width: 760px; }
-.mhm-contact-messages__attachment { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 12px; border: 1px solid #dcdcde; border-radius: var( --mhmui-radius, 4px ); max-width: 520px; }
-.mhm-contact-messages__attachment span:first-child { flex: 1; }
 .mhm-contact-messages__muted { color: var( --mhmui-text-muted, #646970 ); }
 .mhm-contact-messages__avatar.is-large { width: 44px; height: 44px; font-size: 14px; }
-.mhm-contact-messages__dl { margin: 12px 0; display: grid; gap: 4px; }
-.mhm-contact-messages__dl dt { font-size: 12px; color: var( --mhmui-text-muted, #646970 ); }
-.mhm-contact-messages__dl dd { margin: 0 0 8px; }
-.mhm-contact-messages__dl.is-code dd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; word-break: break-all; }
+/* R-B1: the detail view's h1 is the sender's name; hide the PHP house header (its h1 is the
+   list title) while that h1 is mounted. hr.wp-header-end sits outside the header and stays,
+   so admin notices keep their place. */
+.wrap:has( > #mhm-contact-messages-root h1.mhmui-page-header__title ) > .mhm-admin-header { display: none; }
+.mhm-contact-messages__attachment-block { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var( --mhmui-border-light, #f0f0f1 ); }
+.mhm-contact-messages__subhead { margin: 0; font-size: 13px; font-weight: 600; }
+.mhm-contact-messages__attachment { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var( --mhmui-border-divider, #dcdcde ); border-radius: var( --mhmui-radius, 4px ); max-width: 520px; }
+.mhm-contact-messages__attachment-icon { width: 40px; height: 40px; flex: none; border-radius: 4px; background: #f0f0f1; color: #50575e; display: flex; align-items: center; justify-content: center; }
+.mhm-contact-messages__attachment-info { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mhm-contact-messages__attachment-name { font-size: 14px; overflow-wrap: anywhere; }
+.mhm-contact-messages__attachment-info .mhm-contact-messages__muted { font-size: 12px; color: var( --mhmui-text-secondary, #646970 ); }
+.mhm-contact-messages__help { display: block; font-size: 12px; color: var( --mhmui-text-secondary, #646970 ); }
+.mhm-contact-messages__dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.mhm-contact-messages__dl dt { font-size: 12px; color: var( --mhmui-text-secondary, #646970 ); }
+.mhm-contact-messages__dl dd { margin: 3px 0 0; font-size: 14px; overflow-wrap: anywhere; }
+.mhm-contact-messages__dl.is-code { gap: 10px; padding: 12px; background: #f6f7f7; border-radius: 3px; }
+.mhm-contact-messages__dl.is-code dd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 1.5; word-break: break-all; }
+.mhm-contact-messages__dl.is-code[hidden] { display: none; }
 .mhm-contact-messages__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mhm-contact-messages__sender-links { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var( --mhmui-border-divider, #dcdcde ); }
+.mhm-contact-messages__customer { display: flex; align-items: center; gap: 8px; color: #50575e; }
+.mhm-contact-messages__more { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; }
+.mhm-contact-messages .mhmui-widget--plain p { margin: 0; color: #50575e; line-height: 1.5; }
+.mhmui-detail-layout__aside .mhm-contact-messages__sender { gap: 12px; }
+.mhm-contact-messages .mhmui-widget:not( .mhmui-widget--plain ) .mhmui-widget__body { padding: 18px 20px 20px; }
+.mhm-contact-messages .mhmui-widget--plain .mhmui-widget__body { display: flex; flex-direction: column; gap: 14px; }
+.mhm-contact-messages .mhmui-widget--plain a:not( .mhmui-button ),
+.mhm-contact-messages__more { text-decoration: none; }

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import Tabs from '../../../vendor/mhm/ui-core/src-react/components/Tabs';
+import Button from '../../../vendor/mhm/ui-core/src-react/components/Button';
 import Pagination from '../../../vendor/mhm/ui-core/src-react/components/Pagination';
 import Notice from '../../../vendor/mhm/ui-core/src-react/components/Notice';
 import ContactStats from './components/ContactStats';
@@ -13,13 +14,13 @@ import { isTrashEnabled } from './trash';
 
 const PER_PAGE = 20;
 
-export default function ContactMessagesList( { status, initialPage = 1, onOpen, onStatusChange } ) {
+export default function ContactMessagesList( { status, initialPage = 1, initialSearch = '', onOpen, onStatusChange } ) {
 	// Read inside the component (house pattern, CustomersPage.jsx:19): a
 	// module-level read runs before a test can set the global.
 	const pageUrl = window.mhmRentivaContactMessages?.pageUrl ?? '';
 	const trashEnabled = isTrashEnabled();
 	const [ page, setPage ] = useState( initialPage );
-	const [ filters, setFilters ] = useState( { search: '', type: '', period: '' } );
+	const [ filters, setFilters ] = useState( { search: initialSearch, type: '', period: '' } );
 	const [ data, setData ] = useState( null );
 	const [ selected, setSelected ] = useState( [] );
 	const [ error, setError ] = useState( null );
@@ -137,21 +138,42 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 	const href = ( s ) => ( s ? `${ pageUrl }&status=${ s }` : pageUrl );
 	const tabs = [
 		{ id: 'all', label: __( 'All', 'mhm-rentiva' ), href: href( '' ), badge: counts.all },
-		{ id: 'new', label: __( 'New', 'mhm-rentiva' ), href: href( 'new' ), badge: counts.new,
+		{ id: 'new', label: __( 'New', 'mhm-rentiva' ), href: href( 'new' ), badge: counts.new, badgeTone: counts.new > 0 ? 'warning' : undefined,
 			/* translators: %d: number of new messages. */
 			badgeLabel: sprintf( __( '%d new', 'mhm-rentiva' ), counts.new ) },
 		{ id: 'read', label: __( 'Read', 'mhm-rentiva' ), href: href( 'read' ), badge: counts.read },
 		{ id: 'replied', label: __( 'Replied', 'mhm-rentiva' ), href: href( 'replied' ), badge: counts.replied },
 	];
 
+	const firstRun = counts.all === 0 && status !== 'trash';
+	const shortcodePagesUrl = window.mhmRentivaContactMessages?.shortcodePagesUrl ?? '';
+	const total = data?.total ?? 0;
+	const from = total === 0 ? 0 : ( page - 1 ) * PER_PAGE + 1;
+	const to = Math.min( page * PER_PAGE, total );
+	const summary = total === 0
+		? sprintf(
+			/* translators: %d: number of messages (always 0 here). */
+			_n( '%d message', '%d messages', 0, 'mhm-rentiva' ),
+			0
+		)
+		: sprintf(
+			/* translators: 1: first message number on this page, 2: last message number on this page, 3: total number of messages. */
+			_n( '%1$d–%2$d of %3$d message', '%1$d–%2$d of %3$d messages', total, 'mhm-rentiva' ),
+			from,
+			to,
+			total
+		);
+
 	return (
 		<div className="mhm-contact-messages mhmui-admin mhmui-admin-page">
 			{ data && <ContactStats stats={ data.stats } /> }
-			<div className="mhm-contact-messages__tabs">
+			<div className="mhmui-tabs-bar">
 				<Tabs
 					label={ __( 'Filter by status', 'mhm-rentiva' ) }
 					current={ status === 'trash' ? undefined : ( status || 'all' ) }
 					items={ tabs }
+					variant="underline"
+					showZero
 					onSelect={ ( id, e ) => {
 						e.preventDefault();
 						onStatusChange( id === 'all' ? '' : id );
@@ -193,43 +215,53 @@ export default function ContactMessagesList( { status, initialPage = 1, onOpen, 
 			{ error && <Notice tone="danger">{ error }</Notice> }
 			{ bulkNotice && <Notice tone="warning">{ bulkNotice }</Notice> }
 			{ ! data && ! error && <Spinner /> }
-			{ data && data.items.length === 0 && (
-				<div className="mhm-contact-messages__empty">
-					<strong>
-						{ counts.all === 0 && status !== 'trash'
-							? __( 'No contact messages yet', 'mhm-rentiva' )
-							: __( 'No messages in this view', 'mhm-rentiva' ) }
-					</strong>
-					{ counts.all === 0 && status !== 'trash' && (
-						<p>{ __( 'Add the contact form to a page; every request sent through it is listed here.', 'mhm-rentiva' ) }</p>
+			{ data && (
+				<div className="mhm-contact-messages__table-wrap">
+					<table className="mhm-contact-messages__table">
+						<ContactTable
+							rows={ data.items }
+							selected={ selected }
+							onToggle={ ( id ) => setSelected( ( s ) => ( s.includes( id ) ? s.filter( ( x ) => x !== id ) : [ ...s, id ] ) ) }
+							onToggleAll={ ( on ) => setSelected( on ? data.items.map( ( r ) => r.id ) : [] ) }
+							onOpen={ onOpen }
+						/>
+					</table>
+					{ data.items.length === 0 && (
+						<div className="mhm-contact-messages__empty">
+							<svg aria-hidden="true" focusable="false" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+								<rect x="3" y="5.5" width="18" height="13" rx="2" />
+								<path d="M3.5 7l8.5 6 8.5-6" />
+							</svg>
+							<strong>
+								{ firstRun
+									? __( 'No contact messages yet', 'mhm-rentiva' )
+									: __( 'No messages in this view', 'mhm-rentiva' ) }
+							</strong>
+							{ firstRun && (
+								<>
+									<p>{ __( 'Add the contact form to a page; every request sent through it is listed here.', 'mhm-rentiva' ) }</p>
+									{ shortcodePagesUrl && (
+										<Button href={ shortcodePagesUrl }>{ __( 'Go to shortcode pages', 'mhm-rentiva' ) }</Button>
+									) }
+								</>
+							) }
+						</div>
 					) }
-				</div>
-			) }
-			{ data && data.items.length > 0 && (
-				<>
-					<div className="mhm-contact-messages__table-wrap">
-						<table className="mhm-contact-messages__table">
-							<ContactTable
-								rows={ data.items }
-								selected={ selected }
-								onToggle={ ( id ) => setSelected( ( s ) => ( s.includes( id ) ? s.filter( ( x ) => x !== id ) : [ ...s, id ] ) ) }
-								onToggleAll={ ( on ) => setSelected( on ? data.items.map( ( r ) => r.id ) : [] ) }
-								onOpen={ onOpen }
-							/>
-						</table>
-					</div>
 					<Pagination
+						variant="footer"
 						page={ page }
 						totalPages={ data.pages }
 						onChange={ changePage }
+						summary={ summary }
 						labels={ {
 							navigation: __( 'Contact messages pages', 'mhm-rentiva' ),
 							previous: __( 'Previous', 'mhm-rentiva' ),
-							of: __( 'of', 'mhm-rentiva' ),
+							page: __( 'Page', 'mhm-rentiva' ),
+							of: '/',
 							next: __( 'Next', 'mhm-rentiva' ),
 						} }
 					/>
-				</>
+				</div>
 			) }
 		</div>
 	);

@@ -121,4 +121,15 @@ final class ContactMessagesPageTest extends WP_UnitTestCase
 
 		$this->assertFalse(get_transient(ContactStatus::BADGE_TRANSIENT));
 	}
+
+	public function test_the_script_localizes_the_month_options(): void
+	{
+		self::factory()->post->create(array( 'post_type' => 'mhmrentiva_contact', 'post_status' => 'private', 'post_date' => '2026-09-15 10:00:00' ));
+		ContactMessagesPage::enqueue_assets('toplevel_page_' . ContactMessagesPage::SLUG);
+
+		$data = wp_scripts()->get_data('mhm-rentiva-react-contact-messages', 'data');
+		$this->assertIsString($data);
+		$this->assertStringContainsString('"months":[{"value":"2026-09"', $data);
+		$this->assertStringContainsString('"shortcodePagesUrl":"' . admin_url('admin.php?page=mhm-rentiva-shortcode-pages') . '"', $data);
+	}
 }

@@ -10,7 +10,13 @@ const normalizeStatus = ( value ) => ( VALID_STATUSES.has( value ) ? value : '' 
 
 const readUrl = () => {
 	const p = new URLSearchParams( window.location.search );
-	return { id: parseInt( p.get( 'id' ) || '0', 10 ) || null, status: normalizeStatus( p.get( 'status' ) || '' ) };
+	return {
+		id: parseInt( p.get( 'id' ) || '0', 10 ) || null,
+		status: normalizeStatus( p.get( 'status' ) || '' ),
+		// A deep link such as ?search=<address> seeds the search box; go() does
+		// not write it back.
+		search: p.get( 'search' ) || '',
+	};
 };
 
 export default function ContactMessagesApp() {
@@ -45,6 +51,7 @@ export default function ContactMessagesApp() {
 	return (
 		<ContactMessagesList
 			status={ route.status }
+			initialSearch={ route.search }
 			onOpen={ ( id ) => go( { status: route.status, id } ) }
 			onStatusChange={ ( status ) => go( { status, id: null } ) }
 		/>

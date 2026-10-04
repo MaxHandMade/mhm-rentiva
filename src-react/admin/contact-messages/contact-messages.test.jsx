@@ -4,6 +4,7 @@ import ContactMessagesApp from './ContactMessagesApp';
 import ContactMessageDetail from './ContactMessageDetail';
 import ContactBulkBar from './components/ContactBulkBar';
 import ContactTable from './components/ContactTable';
+import ContactToolbar from './components/ContactToolbar';
 import { contactApi } from './api';
 import { buildMailto } from './mailto';
 
@@ -20,6 +21,8 @@ jest.mock( './api', () => ( {
 window.mhmRentivaContactMessages = {
 	types: { general: 'General Contact', booking: 'Booking Inquiry', support: 'Technical Support', feedback: 'Feedback' },
 	pageUrl: '/wp-admin/admin.php?page=mhm-rentiva-contact-messages',
+	shortcodePagesUrl: 'http://example.test/wp-admin/admin.php?page=mhm-rentiva-shortcode-pages',
+	months: [],
 };
 
 const row = ( over = {} ) => ( {
@@ -134,8 +137,112 @@ describe( 'contact messages list', () => {
 		// The list is not refetched on failure -- only the initial load call.
 		expect( contactApi.list ).toHaveBeenCalledTimes( 1 );
 		// Busy is cleared (button usable again) and the selection is kept.
-		expect( screen.getByRole( 'button', { name: 'Mark as read' } ).disabled ).toBe( false );
+		expect( screen.getByRole( 'button', { name: 'Mark as read' } ).hasAttribute( 'aria-disabled' ) ).toBe( false );
 		expect( screen.getByRole( 'region', { name: 'Bulk actions' } ) ).toBeTruthy();
+	} );
+
+	const six = () => [ 1, 2, 3, 4, 5, 6 ].map( ( id ) => row( { id, name: `Sender ${ id }`, status: [ 'new', 'new', 'read', 'replied', 'replied', 'replied' ][ id - 1 ] } ) );
+	const sixPage = () => page( six(), { counts: { all: 6, new: 2, read: 1, replied: 0, trash: 0 } } );
+
+	test( 'the tabs are the underline variant, zero counts shown, New warns only above zero', async () => {
+		contactApi.list.mockResolvedValue( sixPage() );
+		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Sender 1' );
+		expect( container.querySelector( 'nav.mhmui-tabs' ).className ).toBe( 'mhmui-tabs mhmui-tabs--underline' );
+		expect( [ ...container.querySelectorAll( '.mhmui-tabs__badge' ) ].map( ( b ) => b.textContent ) ).toEqual( [ '6', '2' + '2 new', '1', '0' ] );
+		expect( container.querySelectorAll( '.mhmui-tabs__badge--warning' ) ).toHaveLength( 1 );
+		// The Trash link is a direct child of the bar (kit CSS right-aligns it).
+		expect( container.querySelector( '.mhmui-tabs-bar > a.mhm-contact-messages__trash-link' ) ).not.toBeNull();
+		expect( container.querySelector( '.mhmui-tabs-bar > nav.mhmui-tabs' ) ).not.toBeNull();
+	} );
+
+	test( 'no warning chip on New when there is nothing new', async () => {
+		contactApi.list.mockResolvedValue( page( [ row( { status: 'read' } ) ], { counts: { all: 1, new: 0, read: 1, replied: 0, trash: 0 } } ) );
+		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Şule Çağ' );
+		expect( container.querySelectorAll( '.mhmui-tabs__badge--warning' ) ).toHaveLength( 0 );
+	} );
+
+	test( 'the footer sits inside the table card and reads the range on a single page', async () => {
+		contactApi.list.mockResolvedValue( sixPage() );
+		const { container } = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Sender 1' );
+		expect( container.querySelector( '.mhm-contact-messages__table-wrap .mhmui-pagination--footer .mhmui-pagination__summary' ).textContent ).toBe( '1–6 of 6 messages' );
+	} );
+
+	test( 'the footer summary carries the count for 1, 2 (C-1) and 0', async () => {
+		const summary = ( c ) => c.querySelector( '.mhmui-pagination__summary' ).textContent;
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		let r = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'Şule Çağ' );
+		expect( summary( r.container ) ).toBe( '1–1 of 1 message' );
+		r.unmount();
+		contactApi.list.mockResolvedValue( page( [ row(), row( { id: 2 } ) ] ) );
+		r = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findAllByText( 'Şule Çağ' );
+		expect( summary( r.container ) ).toBe( '1–2 of 2 messages' );
+		r.unmount();
+		contactApi.list.mockResolvedValue( page( [], { counts: { all: 3, new: 0, read: 3, replied: 0, trash: 0 } } ) );
+		r = render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		await screen.findByText( 'No messages in this view' );
+		expect( summary( r.container ) ).toBe( '0 messages' );
+	} );
+
+	test( 'month options come from the localized list, after Last 30 days', () => {
+		window.mhmRentivaContactMessages.months = [ { value: '2026-09', label: 'September 2026' } ];
+		const { container } = render( <ContactToolbar filters={ { search: '', type: '', period: '' } } total={ 3 } onChange={ () => {} } /> );
+		const opts = [ ...container.querySelectorAll( '#mhm-contact-period option' ) ].map( ( o ) => [ o.value, o.textContent ] );
+		expect( opts ).toEqual( [ [ '', 'All dates' ], [ '7d', 'Last 7 days' ], [ '30d', 'Last 30 days' ], [ '2026-09', 'September 2026' ] ] );
+		window.mhmRentivaContactMessages.months = [];
+	} );
+
+	test( 'a ?search= in the URL seeds the search filter and reaches the API', async () => {
+		window.history.pushState( null, '', '?page=mhm-rentiva-contact-messages&search=baris%40example.com' );
+		contactApi.list.mockResolvedValue( page( [ row() ] ) );
+		render( <ContactMessagesApp /> );
+		await waitFor( () => expect( contactApi.list ).toHaveBeenCalledWith( expect.objectContaining( { search: 'baris@example.com' } ) ) );
+		expect( ( await screen.findByRole( 'searchbox' ) ).value ).toBe( 'baris@example.com' );
+		window.history.pushState( null, '', '/' );
+	} );
+
+	test( 'a nameless, address-less row reads — and draws no initials (R-B15)', () => {
+		const { container } = render(
+			<table><ContactTable rows={ [ row( { name: '', email: '', initials: '', status: 'read' } ) ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } /></table>
+		);
+		expect( container.querySelector( '.mhm-contact-messages__avatar' ) ).toBeNull();
+		expect( container.querySelector( '.mhm-contact-messages__name' ).textContent ).toBe( '—' );
+		expect( container.querySelector( '.mhm-contact-messages__email' ).textContent ).toBe( '—' );
+	} );
+
+	test( 'the empty state links to the shortcode pages', async () => {
+		contactApi.list.mockResolvedValue( page( [], { counts: { all: 0, new: 0, read: 0, replied: 0, trash: 0 } } ) );
+		render( <ContactMessagesList status="" onOpen={ () => {} } onStatusChange={ () => {} } /> );
+		const link = await screen.findByRole( 'link', { name: 'Go to shortcode pages' } );
+		expect( link.getAttribute( 'href' ) ).toContain( 'page=mhm-rentiva-shortcode-pages' );
+	} );
+
+	test( 'a row shows the related vehicle title, the paperclip and the star rating', () => {
+		const { container } = render(
+			<table><ContactTable rows={ [ row( { vehicle: { title: 'Renault Clio', edit_url: 'x' }, has_attachment: true, rating: 5 } ) ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } /></table>
+		);
+		expect( screen.getByText( 'Renault Clio' ) ).toBeTruthy();
+		expect( screen.getByRole( 'columnheader', { name: 'Related vehicle' } ) ).toBeTruthy();
+		expect( container.querySelector( '.mhm-contact-messages__attach svg' ) ).not.toBeNull();
+		expect( container.querySelector( '.mhm-contact-messages__rating [aria-hidden="true"]' ).textContent ).toBe( '★' );
+		expect( container.querySelector( '.mhm-contact-messages__rating' ).textContent ).toBe( '★5/5' );
+	} );
+
+	test( 'Open is a link that opens the message on a plain click only', () => {
+		const onOpen = jest.fn();
+		render( <table><ContactTable rows={ [ row() ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ onOpen } /></table> );
+		const open = screen.getByRole( 'link', { name: 'Open the message from Şule Çağ' } );
+		expect( open.getAttribute( 'href' ) ).toContain( 'id=1' );
+		// jsdom cannot navigate; the browser's own handling is what we leave alone.
+		open.addEventListener( 'click', ( e ) => e.preventDefault() );
+		fireEvent.click( open, { ctrlKey: true } );
+		expect( onOpen ).not.toHaveBeenCalled();
+		fireEvent.click( open );
+		expect( onOpen ).toHaveBeenCalledWith( 1 );
 	} );
 
 	test( 'no warning tone when there is nothing new', async () => {
@@ -230,7 +337,7 @@ describe( 'contact messages list', () => {
 
 		expect(
 			container.querySelector( '.mhmui-pagination__status' ).textContent.replace( /\s+/g, ' ' ).trim()
-		).toBe( '1 of 2' );
+		).toBe( 'Page 1 / 2' );
 	} );
 
 	test( 'the Trash link marks itself current when viewing the trash', async () => {
@@ -583,5 +690,126 @@ describe( 'contact message detail', () => {
 		contactApi.get = jest.fn().mockResolvedValue( detail( { fields: [], vehicle: null } ) );
 		render( <ContactMessageDetail id={ 1 } onBack={ () => {} } /> );
 		expect( await screen.findByText( 'No further details were filled in.' ) ).toBeTruthy();
+	} );
+
+	describe( 'artboard binding (Task C4)', () => {
+		const long = { id: 3531, name: 'Barış Koç', type_label: 'Technical Support', date_label_long: '26/09/2026, 21:40' };
+		const email = 'baris@example.com';
+		const sender = ( over = {} ) => ( { email, email_linkable: true, phone: '', customer_url: null, other_count: 0, ...over } );
+
+		test( 'the sender name is the page h1 and the meta carries the message number', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, email, sender: sender() } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( 'Barış Koç' );
+			expect( screen.queryAllByRole( 'heading', { level: 1 } ) ).toHaveLength( 1 );
+			expect( container.querySelector( '.mhmui-page-header__meta' ).textContent ).toBe( 'Technical Support · 26/09/2026, 21:40 · Message #3531' );
+		} );
+
+		test( 'the attachment card shows type and size and downloads', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, attachment: { name: 'odeme-hatasi.png', type_label: 'PNG', size_label: '312 KB', download_url: '/dl' } } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'odeme-hatasi.png' ) ).toBeTruthy();
+			expect( screen.getByText( 'PNG · 312 KB' ) ).toBeTruthy();
+			expect( screen.getByRole( 'link', { name: 'Download' } ).getAttribute( 'href' ) ).toBe( '/dl' );
+		} );
+
+		test( 'an attachment with only a type shows no dangling separator', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, attachment: { name: 'x.bin', type_label: 'BIN', size_label: null, download_url: null } } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'BIN' ) ).toBeTruthy();
+		} );
+
+		test( 'the vehicle links to its edit screen only when edit_url is given', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, vehicle: { id: 9, title: 'Fiat Egea', edit_url: '/v/9' } } ) );
+			const first = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'link', { name: 'Fiat Egea' } ).getAttribute( 'href' ) ).toBe( '/v/9' );
+			expect( screen.getByText( 'Related vehicle' ) ).toBeTruthy();
+			expect( screen.queryByText( 'Vehicle' ) ).toBeNull();
+			first.unmount();
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, vehicle: { id: 9, title: 'Fiat Egea', edit_url: null } } ) );
+			render( <ContactMessageDetail id={ 3532 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'Fiat Egea' ) ).toBeTruthy();
+			expect( screen.queryByRole( 'link', { name: 'Fiat Egea' } ) ).toBeNull();
+		} );
+
+		test( 'other messages from the address link to the list filtered by that address', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, email, sender: sender( { other_count: 1 } ) } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const link = screen.getByRole( 'link', { name: /1 more message from this address/ } );
+			expect( link.getAttribute( 'href' ).endsWith( '&search=baris%40example.com' ) ).toBe( true );
+		} );
+
+		test( 'other messages count reads 1 and 2 (C-1)', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { other_count: 1 } ) } ) );
+			const one = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'link', { name: /^1 more message from this address/ } ) ).toBeTruthy();
+			one.unmount();
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { other_count: 2 } ) } ) );
+			render( <ContactMessageDetail id={ 3532 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'link', { name: /^2 more messages from this address/ } ) ).toBeTruthy();
+		} );
+
+		test( 'a nameless message reads — as its h1 and sender (R-B15)', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, name: '', email: '', initials: '', sender: sender( { email: '', email_linkable: false } ) } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( '—' );
+			const aside = container.querySelector( '.mhmui-detail-layout__aside' );
+			expect( within( aside ).getAllByText( '—' ).length ).toBeGreaterThan( 0 );
+			expect( within( aside ).queryByRole( 'button', { name: 'Copy' } ) ).toBeNull();
+			expect( container.querySelector( 'a[href^="mailto:"]' ) ).toBeNull();
+		} );
+
+		test( 'a non-linkable address is plain text, not mailto', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { email_linkable: false } ) } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const aside = container.querySelector( '.mhmui-detail-layout__aside' );
+			expect( aside.querySelector( 'a[href^="mailto:"]' ) ).toBeNull();
+			expect( within( aside ).getByText( email ) ).toBeTruthy();
+		} );
+
+		test( 'a linkable address is a mailto link next to a Copy button', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender() } ) );
+			const { container } = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const aside = container.querySelector( '.mhmui-detail-layout__aside' );
+			expect( aside.querySelector( 'a[href^="mailto:"]' ).textContent ).toBe( email );
+			expect( within( aside ).getByRole( 'button', { name: 'Copy' } ) ).toBeTruthy();
+		} );
+
+		test( 'a registered customer gets a separate record link', async () => {
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, sender: sender( { customer_url: '/c/5' } ) } ) );
+			render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( 'This e-mail belongs to a registered customer' ) ).toBeTruthy();
+			expect( screen.getByRole( 'link', { name: /Open customer record/ } ).getAttribute( 'href' ) ).toBe( '/c/5' );
+		} );
+	} );
+} );
+
+describe( 'contact table accessible names', () => {
+	const tableOf = ( r ) => render(
+		<table>
+			<ContactTable rows={ [ r ] } selected={ [] } onToggle={ () => {} } onToggleAll={ () => {} } onOpen={ () => {} } />
+		</table>
+	);
+
+	test( 'a nameless row falls back to the address, then to a generic label', () => {
+		const first = tableOf( row( { name: '', email: 'x@example.com', initials: '' } ) );
+		expect( screen.getByRole( 'checkbox', { name: 'Select the message from x@example.com' } ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: 'Open the message from x@example.com' } ) ).toBeTruthy();
+		first.unmount();
+		tableOf( row( { name: '', email: '', initials: '' } ) );
+		expect( screen.getByRole( 'checkbox', { name: 'Select this message' } ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: 'Open this message' } ) ).toBeTruthy();
 	} );
 } );
