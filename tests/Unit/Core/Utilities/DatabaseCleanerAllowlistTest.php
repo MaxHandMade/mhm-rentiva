@@ -113,6 +113,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		// completion hook is idempotent. Born after the 6.0.0 rename,
 		// so it has no legacy '_mhm_' spelling to list beside it.
 		'_mhmrentiva_listing_applied_at',
+		// Pro's commission bridge marks an order whose commission is held while
+		// no commission policy is active, until a saved rate replays it.
+		'_mhmrentiva_commission_pending_policy',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
 		// Pro's messages thread model (DB 1.0.8) writes these on its
