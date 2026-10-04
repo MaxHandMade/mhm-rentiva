@@ -86,7 +86,6 @@
 .mhm-contact-messages__dl dd { margin: 3px 0 0; font-size: 14px; overflow-wrap: anywhere; }
 .mhm-contact-messages__dl.is-code { gap: 10px; padding: 12px; background: #f6f7f7; border-radius: 3px; }
 .mhm-contact-messages__dl.is-code dd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 1.5; word-break: break-all; }
-.mhm-contact-messages__dl.is-code[hidden] { display: none; }
 .mhm-contact-messages__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .mhm-contact-messages__sender-links { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var( --mhmui-border-divider, #dcdcde ); }
 .mhm-contact-messages__customer { display: flex; align-items: center; gap: 8px; color: #50575e; }

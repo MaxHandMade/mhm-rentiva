@@ -5,6 +5,7 @@ import PageHeader from '../../../vendor/mhm/ui-core/src-react/components/PageHea
 import DetailLayout from '../../../vendor/mhm/ui-core/src-react/components/DetailLayout';
 import DetailList from '../../../vendor/mhm/ui-core/src-react/components/DetailList';
 import Widget from '../../../vendor/mhm/ui-core/src-react/components/Widget';
+import { useContainerWidth } from '../../../vendor/mhm/ui-core/src-react/hooks/useContainerWidth';
 import Button from '../../../vendor/mhm/ui-core/src-react/components/Button';
 import ConfirmButton from '../../../vendor/mhm/ui-core/src-react/components/ConfirmButton';
 import Notice from '../../../vendor/mhm/ui-core/src-react/components/Notice';
@@ -45,6 +46,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	// Read inside the component (house pattern, ContactMessagesList.jsx:18): a
 	// module-level read runs before a test can set the global.
 	const trashEnabled = isTrashEnabled();
+	const [ setRootRef, layout, measured ] = useContainerWidth( 600 );
 	const [ msg, setMsg ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ mailed, setMailed ] = useState( false );
@@ -114,11 +116,13 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		}
 	};
 
+	// The root carries the width observer from the first render, so the layout is
+	// known before any collapsible card mounts (no wide -> narrow flip).
 	if ( error && ! msg ) {
-		return <Notice tone="danger">{ error }</Notice>;
+		return <div ref={ setRootRef } className="mhm-contact-messages mhmui-admin mhmui-admin-page"><Notice tone="danger">{ error }</Notice></div>;
 	}
 	if ( ! msg ) {
-		return <Spinner />;
+		return <div ref={ setRootRef } className="mhm-contact-messages mhmui-admin mhmui-admin-page"><Spinner /></div>;
 	}
 
 	const subject = sprintf(
@@ -152,13 +156,19 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	const attachmentMeta = msg.attachment ? [ msg.attachment.type_label, msg.attachment.size_label ].filter( Boolean ).join( ' · ' ) : '';
 
 	const trashed = Boolean( msg.trashed );
+	// Side cards collapse; narrow containers start them closed, wide ones open.
+	const cardProps = ( card ) => ( {
+		collapsible: true,
+		storageKey: `mhm-rentiva:contact:${ card }:${ layout }`,
+		defaultOpen: layout === 'wide',
+	} );
 
-	const aside = (
+	const aside = ! measured ? null : (
 		<>
-			<SenderWidget msg={ msg } />
+			<SenderWidget msg={ msg } layout={ layout } />
 			<TechnicalWidget id={ id } />
 			{ trashed ? (
-				<Widget level={ 2 } variant="plain" title={ __( 'Trashed message', 'mhm-rentiva' ) }>
+				<Widget level={ 2 } variant="plain" title={ __( 'Trashed message', 'mhm-rentiva' ) } { ...cardProps( 'delete' ) }>
 					<p>{ __( 'This message is in the trash. Restore it, or delete it permanently.', 'mhm-rentiva' ) }</p>
 					<div className="mhm-contact-messages__actions">
 						<Button size="sm" disabled={ restoring } onClick={ restore }>{ __( 'Restore', 'mhm-rentiva' ) }</Button>
@@ -193,7 +203,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					</div>
 				</Widget>
 			) : (
-				<Widget level={ 2 } variant="plain" title={ __( 'Delete message', 'mhm-rentiva' ) }>
+				<Widget level={ 2 } variant="plain" title={ __( 'Delete message', 'mhm-rentiva' ) } { ...cardProps( 'delete' ) }>
 					<p>{ trashEnabled
 						? __( 'The message moves to the trash; WordPress empties the trash automatically.', 'mhm-rentiva' )
 						: __( 'The message is deleted immediately; the trash is disabled on this site.', 'mhm-rentiva' ) }</p>
@@ -241,7 +251,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 	);
 
 	return (
-		<div className="mhm-contact-messages mhmui-admin mhmui-admin-page">
+		<div ref={ setRootRef } className="mhm-contact-messages mhmui-admin mhmui-admin-page">
 			<PageHeader
 				level={ 1 }
 				title={ name }
@@ -303,7 +313,8 @@ export default function ContactMessageDetail( { id, onBack } ) {
 						</div>
 					) }
 				</Widget>
-				<Widget level={ 2 } variant="plain" title={ __( 'Request details', 'mhm-rentiva' ) }>
+				{ measured && (
+				<Widget level={ 2 } variant="plain" title={ __( 'Request details', 'mhm-rentiva' ) } { ...cardProps( 'details' ) }>
 					{ details.length === 0 ? (
 						<p className="mhm-contact-messages__muted">{ __( 'No further details were filled in.', 'mhm-rentiva' ) }</p>
 					) : (
@@ -312,6 +323,7 @@ export default function ContactMessageDetail( { id, onBack } ) {
 					) }
 					<span className="mhm-contact-messages__muted mhm-contact-messages__help">{ __( 'Fields left empty on the form are not shown.', 'mhm-rentiva' ) }</span>
 				</Widget>
+				) }
 			</DetailLayout>
 		</div>
 	);
