@@ -10,8 +10,8 @@ use WP_UnitTestCase;
 
 /**
  * Direct writes of the gallery meta and every front-end read obey the image
- * policy, so an importer or a historical row cannot expose a foreign or
- * sensitive attachment.
+ * policy: a historical row cannot expose a sensitive attachment, and a direct
+ * write cannot store a foreign one.
  *
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::guard_gallery
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::get_gallery_for_frontend
@@ -180,7 +180,7 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		) as $ids ) {
 			$this->assertContains( $adminer, $ids );
 			$this->assertNotContains( $vetoed, $ids );
-			}
+		}
 
 		delete_post_meta( $this->vehicle, self::META_KEY );
 		wp_set_current_user( 0 );
@@ -273,6 +273,53 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$own     = $this->image( $this->author_id );
 		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, array( array( 'id' => $foreign ) ) ) );
 		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, array( array( 'id' => $own ) ) ) );
+	}
+
+	public function test_scalar_id_forms_are_checked_by_the_write_guard(): void
+	{
+		$foreign = $this->image( $this->other_id );
+		$own     = $this->image( $this->author_id );
+
+		// An early write: the field and its sanitizer are not registered yet.
+		// (The test case restores the hook table afterwards.)
+		remove_all_filters( 'sanitize_post_meta_' . self::META_KEY );
+		remove_all_filters( 'sanitize_post_meta_' . self::META_KEY . '_for_mhmrentiva_vehicle' );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, array( $foreign ) ) );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, array( (string) $foreign ) ) );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, array( 'abc' ) ) );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, array( array( 'alt' => 'no id' ) ) ) );
+		$this->assertSame( '', get_post_meta( $this->vehicle, self::META_KEY, true ) );
+
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, array( $own ) ) );
+
+		$method = new \ReflectionMethod( VehicleDetails::class, 'get_gallery' );
+		$method->setAccessible( true );
+		$this->assertContains( $own, array_column( $method->invoke( null, $this->vehicle ), 'id' ) );
+	}
+
+	public function test_entries_missing_alt_title_url_raise_no_warnings(): void
+	{
+		$own = $this->image( $this->author_id );
+		$this->raw_insert( self::META_KEY, (string) wp_json_encode( array( array( 'id' => $own ) ) ) );
+
+		$errors = array();
+		set_error_handler(
+			static function ( int $no, string $str ) use ( &$errors ): bool {
+				$errors[] = $str;
+				return true;
+			}
+		);
+		try {
+			$front = VehicleGallery::get_gallery_for_frontend( $this->vehicle );
+			ob_start();
+			VehicleGallery::render_gallery_meta_box( get_post( $this->vehicle ) );
+			ob_end_clean();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertSame( array(), $errors );
+		$this->assertSame( $own, (int) $front[0]['id'] );
 	}
 
 	public function test_stored_url_is_the_medium_rendition(): void

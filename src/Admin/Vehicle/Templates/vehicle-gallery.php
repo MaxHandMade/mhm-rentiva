@@ -53,9 +53,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="mhm-gallery-item" data-image-id="<?php echo esc_attr( $image['id'] ); ?>">
 					<input type="checkbox" class="gallery-item-checkbox" value="<?php echo esc_attr( $image['id'] ); ?>">
 					<div class="mhm-gallery-item-inner">
-						<img src="<?php echo esc_url( $image['url'] ); ?>" 
-							alt="<?php echo esc_attr( $image['alt'] ); ?>" 
-							title="<?php echo esc_attr( $image['title'] ); ?>" />
+						<img src="<?php echo esc_url( (string) ( $image['url'] ?? '' ) ); ?>" 
+							alt="<?php echo esc_attr( (string) ( $image['alt'] ?? '' ) ); ?>" 
+							title="<?php echo esc_attr( (string) ( $image['title'] ?? '' ) ); ?>" />
 						<div class="mhm-gallery-item-overlay">
 							<div class="mhm-gallery-item-actions">
 								<button type="button" 

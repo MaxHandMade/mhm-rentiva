@@ -341,7 +341,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 		$gallery = array();
 		foreach ( $gallery_ids as $item ) {
-			$id = is_array( $item ) ? (int) ( $item['id'] ?? 0 ) : (int) $item;
+			$id = \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::entry_id( $item );
 			if ( $id > 0 && \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::is_displayable_image( $vehicle_id, $id ) ) {
 				$gallery[] = array(
 					'id'        => $id,

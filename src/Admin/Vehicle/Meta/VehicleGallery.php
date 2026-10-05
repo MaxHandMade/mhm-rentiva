@@ -241,6 +241,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		/** This filter is documented in is_allowed_image(). */
 		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $owner );
 	}
+
 	/**
 	 * Current user ID, or 0 when user functions are not loaded yet (guards run from bootstrap).
 	 */
@@ -307,13 +308,16 @@ final class VehicleGallery extends AbstractMetaBox {
 		$actor_id = self::current_actor_id();
 
 		foreach ( $entries as $entry ) {
-			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
-				continue;
+			// An entry that names no attachment is refused, not skipped: a reader
+			// would resolve it the same way and could still show something.
+			$id = self::entry_id( $entry );
+			if ( $id <= 0 ) {
+				return false;
 			}
 
 			$allowed = 0 === $actor_id
-				? self::is_displayable_image( $object_id, (int) $entry['id'] )
-				: self::is_allowed_image( $object_id, (int) $entry['id'], $actor_id );
+				? self::is_displayable_image( $object_id, $id )
+				: self::is_allowed_image( $object_id, $id, $actor_id );
 			if ( ! $allowed ) {
 				return false;
 			}
@@ -594,6 +598,22 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Attachment ID a stored gallery entry names, or 0 when it names none.
+	 *
+	 * One resolution shared by the write guard and the readers so they cannot
+	 * disagree: an array with a numeric `id`, or a numeric scalar (the bare-id form).
+	 *
+	 * @param mixed $entry Gallery entry.
+	 */
+	public static function entry_id( $entry ): int {
+		if ( is_array( $entry ) ) {
+			$entry = $entry['id'] ?? null;
+		}
+
+		return is_numeric( $entry ) ? (int) $entry : 0;
+	}
+
+	/**
 	 * Get gallery images
 	 */
 	public static function get_gallery_images( int $post_id ): array {
@@ -608,19 +628,20 @@ final class VehicleGallery extends AbstractMetaBox {
 		$frontend_images = array();
 
 		foreach ( $gallery_images as $image ) {
-			if ( ! is_array( $image ) || ! isset( $image['id'] ) || ! self::is_displayable_image( $post_id, (int) $image['id'] ) ) {
+			$image_id = self::entry_id( $image );
+			if ( $image_id <= 0 || ! self::is_displayable_image( $post_id, $image_id ) ) {
 				continue;
 			}
 
-			$image_url = wp_get_attachment_image_url( $image['id'], $size );
+			$image_url = wp_get_attachment_image_url( $image_id, $size );
 			if ( $image_url ) {
 				$frontend_images[] = array(
-					'id'            => $image['id'],
+					'id'            => $image_id,
 					'url'           => $image_url,
-					'alt'           => $image['alt'],
-					'title'         => $image['title'],
-					'full_url'      => wp_get_attachment_image_url( $image['id'], 'full' ),
-					'thumbnail_url' => wp_get_attachment_image_url( $image['id'], 'thumbnail' ),
+					'alt'           => is_array( $image ) ? (string) ( $image['alt'] ?? '' ) : '',
+					'title'         => is_array( $image ) ? (string) ( $image['title'] ?? '' ) : '',
+					'full_url'      => wp_get_attachment_image_url( $image_id, 'full' ),
+					'thumbnail_url' => wp_get_attachment_image_url( $image_id, 'thumbnail' ),
 				);
 			}
 		}
