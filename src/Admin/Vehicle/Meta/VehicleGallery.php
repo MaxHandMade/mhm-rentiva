@@ -143,6 +143,10 @@ final class VehicleGallery extends AbstractMetaBox {
 
 	/**
 	 * Render gallery meta box
+	 *
+	 * Every stored entry is listed. An entry the site does not show (see
+	 * is_displayable_image()) is marked and listed without its image -- it may be
+	 * another user's file -- so the drop on the next save is announced, not silent.
 	 */
 	public static function render_gallery_meta_box( \WP_Post $post ): void {
 		$gallery_images = array();
@@ -152,12 +156,15 @@ final class VehicleGallery extends AbstractMetaBox {
 				continue;
 			}
 
+			$shown = self::is_displayable_image( $post->ID, $id );
+
 			// The stored url is never trusted: it is rebuilt from the attachment.
 			$gallery_images[] = array(
 				'id'    => $id,
-				'url'   => self::rendition_url( $id ),
-				'alt'   => self::entry_text( $entry, 'alt' ),
-				'title' => self::entry_text( $entry, 'title' ),
+				'url'   => $shown ? self::rendition_url( $id ) : '',
+				'alt'   => $shown ? self::entry_text( $entry, 'alt' ) : '',
+				'title' => $shown ? self::entry_text( $entry, 'title' ) : '',
+				'shown' => $shown,
 			);
 		}
 
@@ -450,6 +457,174 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Read choke for a vehicle's featured image (`post_thumbnail_id`).
+	 *
+	 * Every core reader -- get_post_thumbnail_id(), has_post_thumbnail(),
+	 * get_the_post_thumbnail(_url)() -- passes through this filter, so the
+	 * plugin's grids, lists and account templates, WooCommerce and the theme all
+	 * see a vehicle's cover only when it is_displayable_image(), the same rule as
+	 * the gallery readers. The stored `_thumbnail_id` is left as it is: the admin
+	 * featured-image box and the write guards read the meta directly.
+	 *
+	 * @param int|false        $thumbnail_id Stored thumbnail ID, or false when the post does not exist.
+	 * @param int|\WP_Post|null $post        Post the thumbnail belongs to.
+	 * @return int|false
+	 */
+	public static function filter_thumbnail_id( $thumbnail_id, $post ) {
+		if ( ! $thumbnail_id ) {
+			return $thumbnail_id;
+		}
+
+		$post = get_post( $post );
+		if ( ! $post || 'mhmrentiva_vehicle' !== $post->post_type ) {
+			return $thumbnail_id;
+		}
+
+		if ( false === wp_cache_get( (int) $thumbnail_id, 'posts' ) ) {
+			self::prime_main_query_covers();
+		}
+
+		return self::is_displayable_image( (int) $post->ID, (int) $thumbnail_id ) ? $thumbnail_id : 0;
+	}
+
+	/**
+	 * Loads the covers of the main query's vehicles, and their uploaders, in one go.
+	 *
+	 * Core's update_post_thumbnail_cache() asks for every post's thumbnail id before
+	 * it primes the attachments, so judging each cover there would load them one
+	 * by one. On the first cache miss the stored covers of the main query's
+	 * vehicles (their meta is already primed by the query) are loaded together.
+	 * Runs once per main query; covers outside it are judged as they come.
+	 */
+	private static function prime_main_query_covers(): void {
+		static $primed = array();
+
+		global $wp_query;
+		if ( ! $wp_query instanceof \WP_Query || empty( $wp_query->posts ) ) {
+			return;
+		}
+
+		$key = spl_object_id( $wp_query ) . ':' . count( $wp_query->posts );
+		if ( isset( $primed[ $key ] ) ) {
+			return;
+		}
+		$primed[ $key ] = true;
+
+		$covers = array();
+		foreach ( $wp_query->posts as $item ) {
+			$item = get_post( $item );
+			if ( $item && 'mhmrentiva_vehicle' === $item->post_type ) {
+				$cover = (int) get_post_meta( $item->ID, '_thumbnail_id', true );
+				if ( $cover > 0 ) {
+					$covers[] = $cover;
+				}
+			}
+		}
+		if ( array() === $covers ) {
+			return;
+		}
+
+		_prime_post_caches( $covers, false, true );
+
+		$uploaders = array();
+		foreach ( $covers as $cover ) {
+			$uploader = (int) get_post_field( 'post_author', $cover );
+			if ( $uploader > 0 ) {
+				$uploaders[] = $uploader;
+			}
+		}
+		if ( array() !== $uploaders ) {
+			cache_users( array_unique( $uploaders ) );
+		}
+	}
+
+	/**
+	 * Whether the current user may move an existing attachment onto a vehicle.
+	 *
+	 * Being attached to a vehicle makes an attachment a trusted source for that
+	 * vehicle's gallery and cover (has_trusted_provenance()). WordPress checks the
+	 * parent when an upload is created, but not when an existing attachment is
+	 * re-parented, so a vendor could move their own upload onto another vendor's
+	 * vehicle. Moving onto a vehicle therefore needs edit_post on it. A parent
+	 * that does not change, detaching, a non-vehicle parent and a write without a
+	 * current user (WP-CLI, cron, importers) are not restricted.
+	 *
+	 * @param int $attachment_id Existing attachment ID.
+	 * @param int $parent        Requested parent ID.
+	 */
+	private static function may_attach_to( int $attachment_id, int $parent ): bool {
+		if ( $parent <= 0 || 'mhmrentiva_vehicle' !== get_post_type( $parent ) ) {
+			return true;
+		}
+
+		$attachment = get_post( $attachment_id );
+		if ( ! $attachment || (int) $attachment->post_parent === $parent ) {
+			return true;
+		}
+
+		return 0 === self::current_actor_id() || current_user_can( 'edit_post', $parent );
+	}
+
+	/**
+	 * Keeps an attachment's old parent when an update would move it onto a vehicle
+	 * the current user may not edit (see may_attach_to()).
+	 *
+	 * Hooked on `wp_insert_attachment_data`, so every path that ends in
+	 * wp_insert_post() is covered: REST, the media modal's save-attachment, the
+	 * attachment edit screen and add-ons. New uploads are left to the checks of
+	 * the code that creates them. The REST route also gets an explicit error from
+	 * guard_rest_attachment_parent(), so its caller is not told the move succeeded.
+	 *
+	 * @param array<string, mixed> $data                Slashed, sanitized attachment data.
+	 * @param array<string, mixed> $postarr             Sanitized post data.
+	 * @param array<string, mixed> $unsanitized_postarr Unsanitized post data.
+	 * @param bool                 $update              Whether an existing attachment is updated.
+	 * @return array<string, mixed>
+	 */
+	public static function guard_attachment_parent( $data, $postarr, $unsanitized_postarr, $update ) {
+		unset( $unsanitized_postarr );
+
+		$id = (int) ( $postarr['ID'] ?? 0 );
+		if ( ! $update || $id <= 0 || ! isset( $data['post_parent'] ) ) {
+			return $data;
+		}
+
+		if ( ! self::may_attach_to( $id, (int) $data['post_parent'] ) ) {
+			$data['post_parent'] = (int) get_post_field( 'post_parent', $id );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * REST face of guard_attachment_parent(): refuses `POST /wp/v2/media/{id}` with
+	 * a `post` the current user may not attach to, instead of answering 200 with
+	 * the parent silently unchanged.
+	 *
+	 * The requested parent is read from the request: the attachments controller
+	 * copies `post` into the prepared object only after this filter has run.
+	 *
+	 * @param \stdClass|\WP_Error $prepared_post Attachment prepared for the database.
+	 * @param \WP_REST_Request    $request       Request.
+	 * @return \stdClass|\WP_Error
+	 */
+	public static function guard_rest_attachment_parent( $prepared_post, $request ) {
+		if ( is_wp_error( $prepared_post ) || empty( $prepared_post->ID ) || ! isset( $request['post'] ) ) {
+			return $prepared_post;
+		}
+
+		if ( self::may_attach_to( (int) $prepared_post->ID, (int) $request['post'] ) ) {
+			return $prepared_post;
+		}
+
+		return new \WP_Error(
+			'mhmrentiva_cannot_attach_to_vehicle',
+			__( 'You are not allowed to attach media to this vehicle.', 'mhm-rentiva' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Server-built URL stored with a gallery entry: the medium rendition, so the
 	 * edit screen does not download originals; the original when no rendition exists.
 	 */
@@ -569,6 +744,9 @@ final class VehicleGallery extends AbstractMetaBox {
 		// Determine limit
 		$limit = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_max_gallery_images', 50 );
 
+		// Picked images the rule refuses are counted, so the response can say so.
+		$rejected = 0;
+
 		foreach ( $image_ids as $image_id ) {
 			if ( ! in_array( $image_id, $existing_ids, true ) && count( $gallery_images ) < $limit ) {
 				$new_entry = self::filter_allowed_entries(
@@ -584,6 +762,8 @@ final class VehicleGallery extends AbstractMetaBox {
 				if ( $new_entry ) {
 					$gallery_images[] = $new_entry[0];
 					$existing_ids[]   = $image_id;
+				} else {
+					++$rejected;
 				}
 			}
 		}
@@ -592,7 +772,10 @@ final class VehicleGallery extends AbstractMetaBox {
 
 		wp_send_json_success(
 			array(
-				'message'        => __( 'Images successfully added', 'mhm-rentiva' ),
+				'message'        => $rejected > 0
+					? __( 'Some images could not be added: only images you uploaded or images attached to this vehicle can be used.', 'mhm-rentiva' )
+					: __( 'Images successfully added', 'mhm-rentiva' ),
+				'rejected'       => $rejected,
 				'gallery_images' => $gallery_images,
 			)
 		);

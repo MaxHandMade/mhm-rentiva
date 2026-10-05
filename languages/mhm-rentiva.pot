@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-04T10:32:44+00:00\n"
+"POT-Creation-Date: 2026-10-05T17:55:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
 
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
-#: mhm-rentiva.php:610
+#: mhm-rentiva.php:628
 #: src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
@@ -57,39 +57,39 @@ msgid "MHM Rentiva requires the PHP mbstring extension, which is not enabled on 
 msgstr ""
 
 #. translators: %s: startup exception message.
-#: mhm-rentiva.php:288
+#: mhm-rentiva.php:306
 #, php-format
 msgid "MHM Rentiva plugin error on startup: %s"
 msgstr ""
 
-#: mhm-rentiva.php:300
+#: mhm-rentiva.php:318
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr ""
 
-#: mhm-rentiva.php:526
+#: mhm-rentiva.php:544
 msgid "MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again."
 msgstr ""
 
-#: mhm-rentiva.php:527
+#: mhm-rentiva.php:545
 msgid "Database Setup Failed"
 msgstr ""
 
-#: mhm-rentiva.php:560
+#: mhm-rentiva.php:578
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr ""
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:569
+#: mhm-rentiva.php:587
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr ""
 
-#: mhm-rentiva.php:572
+#: mhm-rentiva.php:590
 msgid "Plugin Dependency Check"
 msgstr ""
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:609
+#: mhm-rentiva.php:627
 #, php-format
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr ""
@@ -706,7 +706,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1567
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:262
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:501
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:710
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:706
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
 msgid "Security check failed."
 msgstr ""
@@ -3600,7 +3600,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:112
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:402
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:96
 #: templates/shortcodes/availability-calendar.php:452
 msgid "Loading..."
 msgstr ""
@@ -3718,7 +3718,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:973
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:129
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:64
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:72
 msgid "Remove Image"
 msgstr ""
 
@@ -5092,207 +5092,207 @@ msgstr ""
 msgid "Select a city..."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1030
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1031
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr ""
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1213
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1214
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1732
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1733
 msgid "Database Cleanup Report"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1737
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1738
 msgid "Category"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1738
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
 msgid "Count"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
 msgid "Size"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1741
 #: src/Admin/Utilities/ListTable/LogColumns.php:75
 msgid "Action"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1745
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1746
 msgid "Orphaned Post Meta"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1751
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1766
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1796
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1823
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1752
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1767
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1797
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1824
 msgid "Cleanup Recommended"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1754
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1769
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1799
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1826
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1770
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1800
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1827
 msgid "Clean"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1760
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
 msgid "Expired Transients"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1775
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1776
 msgid "Autoload Options"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1781
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1782
 msgid "Optimization Recommended"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1784
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1785
 msgid "Optimized"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1791
 msgid "Invalid Meta Keys"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1803
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1804
 msgid "All Valid"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1809
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1810
 msgid "Log Records (>30 days)"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1834
 msgid "Custom Tables"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1837
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1838
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:72
 msgid "Table"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1838
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
 msgid "Exists"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1840
 msgid "Rows"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1840
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1841
 msgid "Size (MB)"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1853
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1854
 msgid "Repair/Create"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1881
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1882
 msgid "Analyze Database"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1886
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1887
 msgid "Clean Orphaned Meta"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1892
 msgid "Clean Expired Transients"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1897
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1901
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1902
 msgid "Optimize Tables"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1906
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1907
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2069
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2070
 msgid "Backup table not found"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2087
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2088
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr ""
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2133
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2134
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2151
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2152
 msgid "Not a backup table"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2573
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2161
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2574
 msgid "Backup deleted successfully"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2161
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2177
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2178
 msgid "Failed to initialize filesystem."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2219
 msgid "No tables found to backup"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2268
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2269
 msgid "Failed to write backup file"
 msgstr ""
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2319
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2320
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2543
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2544
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2574
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2575
 msgid "Backup deletion completed with some warnings"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2628
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2629
 msgid "Filesystem initialization failed"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2638
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2639
 msgid "Backup directory does not exist"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2645
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2646
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2649
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2650
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2656
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2657
 msgid "index.php file missing - directory listing is possible"
 msgstr ""
 
@@ -6935,8 +6935,8 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1050
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1105
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:740
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:757
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:736
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:753
 msgid "Vehicle not found"
 msgstr ""
 
@@ -7727,7 +7727,7 @@ msgid "Gallery Images"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:289
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:590
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:586
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:478
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:772
 msgid "Air Conditioning"
@@ -7738,7 +7738,7 @@ msgid "GPS"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:291
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:602
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:598
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:487
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:781
 msgid "Bluetooth"
@@ -7757,28 +7757,28 @@ msgid "Sunroof"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:295
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:591
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:587
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:479
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:773
 msgid "Power Steering"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:296
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:594
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:590
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:482
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:776
 msgid "Central Locking"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:297
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:606
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:602
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:486
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:780
 msgid "Cruise Control"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:298
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:593
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:589
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:481
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:775
 msgid "Airbags"
@@ -7786,7 +7786,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:299
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:300
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:592
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:588
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:774
 msgid "ABS Brakes"
 msgstr ""
@@ -7798,7 +7798,7 @@ msgid "Fog Lights"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:302
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:596
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:592
 msgid "Parking Sensors"
 msgstr ""
 
@@ -7813,14 +7813,14 @@ msgid "Leather Seats"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:305
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:603
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:599
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:492
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:786
 msgid "Heated Seats"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:306
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:595
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:591
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:483
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:777
 msgid "Electric Windows"
@@ -7845,7 +7845,7 @@ msgid "Roof Rack"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:311
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:598
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:594
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:489
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:783
 msgid "Navigation"
@@ -7856,35 +7856,35 @@ msgid "View Gallery"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:209
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:719
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:715
 msgid "Vehicle ID required"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:597
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:593
 msgid "Rear Camera"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:599
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:595
 msgid "GPS Navigation"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:600
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:596
 msgid "Apple CarPlay"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:601
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:597
 msgid "Android Auto"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:604
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:600
 msgid "ISOFIX"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:605
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:601
 msgid "Lane Assist"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:607
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:603
 msgid "Electronic Stability"
 msgstr ""
 
@@ -12343,9 +12343,9 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:240
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:296
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:366
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:228
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:291
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:341
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:729
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:805
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:856
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1326
 #: templates/shortcodes/availability-calendar.php:50
 msgid "Vehicle not found."
@@ -12395,7 +12395,7 @@ msgid "Set as Featured Image"
 msgstr ""
 
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:131
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:80
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
 msgid "No images added yet"
 msgstr ""
 
@@ -12417,37 +12417,45 @@ msgstr ""
 msgid "Error occurred while removing image"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:211
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:276
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:326
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:622
+msgid "You are not allowed to attach media to this vehicle."
+msgstr ""
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:712
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:790
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:841
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1301
 msgid "Security error"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:221
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:284
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:334
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:722
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:798
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:849
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1315
 msgid "Permission error"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:234
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:297
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:347
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:735
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:811
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:862
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1331
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1338
 msgid "Invalid data"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:264
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:776
+msgid "Some images could not be added: only images you uploaded or images attached to this vehicle can be used."
+msgstr ""
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:777
 msgid "Images successfully added"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:314
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:829
 msgid "Image successfully removed"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:367
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:882
 msgid "Images successfully reordered"
 msgstr ""
 
@@ -12931,11 +12939,20 @@ msgstr ""
 msgid "Delete Selected"
 msgstr ""
 
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:81
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:61
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:64
+msgid "This image is not shown on the site and will be removed when the gallery is saved."
+msgstr ""
+
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:63
+msgid "Not shown on the site"
+msgstr ""
+
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:89
 msgid "Add images for vehicle gallery"
 msgstr ""
 
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:95
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:103
 msgid "You can add up to 10 images. You can drag and drop images to reorder them."
 msgstr ""
 

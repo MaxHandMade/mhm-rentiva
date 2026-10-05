@@ -85,6 +85,29 @@
 	display: block;
 }
 
+/* An entry the site does not show: listed without its image, marked. */
+.mhm-gallery-item.is-hidden-on-site {
+	outline: 2px dashed var(--mhm-warning);
+	outline-offset: -2px;
+}
+
+.mhm-gallery-item-hidden {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--mhm-space-1);
+	padding: var(--mhm-space-2);
+	box-sizing: border-box;
+	background: var(--mhm-bg-hover);
+	color: var(--mhm-warning-dark);
+	text-align: center;
+	font-size: 11px;
+	line-height: 1.3;
+}
+
 .mhm-gallery-item-overlay {
 	position: absolute;
 	top: 0;
