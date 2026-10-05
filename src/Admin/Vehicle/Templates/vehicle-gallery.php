@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @package MHMRentiva
  *
  * @var \WP_Post $post
- * @var array $gallery_images
+ * @var array<int, array{id:int,url:string,alt:string,title:string}> $gallery_images Normalised entries.
  */
 
 // Security check
@@ -50,8 +50,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="mhm-gallery-grid" id="vehicle-gallery-grid">
 		<?php if ( ! empty( $gallery_images ) ) : ?>
 			<?php foreach ( $gallery_images as $index => $image ) : ?>
-				<div class="mhm-gallery-item" data-image-id="<?php echo esc_attr( $image['id'] ); ?>">
-					<input type="checkbox" class="gallery-item-checkbox" value="<?php echo esc_attr( $image['id'] ); ?>">
+				<div class="mhm-gallery-item" data-image-id="<?php echo esc_attr( (string) $image['id'] ); ?>">
+					<input type="checkbox" class="gallery-item-checkbox" value="<?php echo esc_attr( (string) $image['id'] ); ?>">
 					<div class="mhm-gallery-item-inner">
 						<img src="<?php echo esc_url( $image['url'] ); ?>" 
 							alt="<?php echo esc_attr( $image['alt'] ); ?>" 
@@ -60,7 +60,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<div class="mhm-gallery-item-actions">
 								<button type="button" 
 										class="mhm-gallery-remove-btn" 
-										data-image-id="<?php echo esc_attr( $image['id'] ); ?>"
+										data-image-id="<?php echo esc_attr( (string) $image['id'] ); ?>"
 										title="<?php esc_attr_e( 'Remove Image', 'mhm-rentiva' ); ?>">
 									<span class="dashicons dashicons-trash"></span>
 								</button>

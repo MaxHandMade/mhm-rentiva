@@ -196,6 +196,17 @@ spl_autoload_register(
 	}
 );
 
+// Meta write chokes (featured image and gallery). Registered while the plugin file
+// loads, outside any hook, so a write made from any later hook -- including
+// plugins_loaded at any priority (importers, migrations, integrations) -- obeys the
+// image policy. The callbacks are static and only run when a meta write happens,
+// after WordPress has loaded plugins; add_filter() dedupes identical callbacks.
+foreach (array( 'update_post_metadata', 'add_post_metadata' ) as $mhmrentiva_meta_hook) {
+	add_filter($mhmrentiva_meta_hook, array( 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery', 'guard_thumbnail' ), 10, 4);
+	add_filter($mhmrentiva_meta_hook, array( 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery', 'guard_gallery' ), 10, 4);
+}
+unset($mhmrentiva_meta_hook);
+
 // Register this plugin's bundled copy of ui-core. The highest version across
 // all plugins that bundle it wins at plugins_loaded priority 0.
 $mhmrentiva_uicore_register_file = __DIR__ . '/vendor/mhm/ui-core/register.php';
@@ -264,7 +275,8 @@ add_action(
 );
 
 // Central bootstrap - ALL registrations are done in Plugin.php
-// Priority -10: Load BEFORE AJAX requests
+// Runs at the default plugins_loaded priority (10); the meta write guards above are
+// registered at file load and do not depend on it.
 add_action(
 	'plugins_loaded',
 	function () {

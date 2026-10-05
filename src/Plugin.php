@@ -253,10 +253,6 @@ final class Plugin {
 
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery')) {
 			add_action('init', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'register_meta_fields' ));
-
-			// Featured-image choke: every request, not only wp-admin.
-			add_filter('update_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
-			add_filter('add_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
 		}
 	}
 

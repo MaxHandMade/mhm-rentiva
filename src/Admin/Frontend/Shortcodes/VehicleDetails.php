@@ -337,16 +337,12 @@ final class VehicleDetails extends AbstractShortcode {
 			return array();
 		}
 
-		$gallery_ids = is_string( $gallery_data ) ? json_decode( $gallery_data, true ) : $gallery_data;
-
-		if ( ! is_array( $gallery_ids ) ) {
-			return array();
-		}
+		$gallery_ids = \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::normalize_gallery( $gallery_data );
 
 		$gallery = array();
 		foreach ( $gallery_ids as $item ) {
-			$id = is_array( $item ) ? (int) ( $item['id'] ?? 0 ) : (int) $item;
-			if ( $id > 0 ) {
+			$id = \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::entry_id( $item );
+			if ( $id > 0 && \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::is_displayable_image( $vehicle_id, $id ) ) {
 				$gallery[] = array(
 					'id'        => $id,
 					'url'       => wp_get_attachment_image_url( $id, 'medium' ),

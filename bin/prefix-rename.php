@@ -971,6 +971,12 @@ class PrefixRenamer {
 				0 => array( 'mhm_rentiva_booking_report_', 'mhm_rentiva_customer_report_', 'mhm_rentiva_dashboard_recent_bookings_v4', 'mhm_rentiva_dashboard_stats', 'mhm_rentiva_revenue_report_', 'mhm_rentiva_vehicle_report_', 'mhm_rentiva_vlist_', 'mhm_revenue_report_' ),
 			),
 		),
+		'tests/Admin/Vehicle/GalleryMetaChokeTest.php' => array(
+			'why'     => 'plants a gallery under the pre-6.0.0 meta key to prove the front-end reader still filters sites that have not run the migration',
+			'regions' => array(
+				0 => array( '_mhm_gallery_images' ),
+			),
+		),
 		'tests/Unit/Utilities/UninstallAddonTableSafetyTest.php' => array(
 			'why'      => 'asserts that BOTH spellings of the add-on\'s tables are protected, so it has to name the pre-6.0.0 spelling; and the backup fixtures are real table names, one of them pre-rename',
 			'regions'  => array(

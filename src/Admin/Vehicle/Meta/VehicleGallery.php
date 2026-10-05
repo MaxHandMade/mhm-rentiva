@@ -145,8 +145,21 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * Render gallery meta box
 	 */
 	public static function render_gallery_meta_box( \WP_Post $post ): void {
-		$gallery_images = get_post_meta( $post->ID, '_mhmrentiva_gallery_images', true );
-		$gallery_images = $gallery_images ? json_decode( $gallery_images, true ) : array();
+		$gallery_images = array();
+		foreach ( self::get_gallery_images( $post->ID ) as $entry ) {
+			$id = self::entry_id( $entry );
+			if ( $id <= 0 ) {
+				continue;
+			}
+
+			// The stored url is never trusted: it is rebuilt from the attachment.
+			$gallery_images[] = array(
+				'id'    => $id,
+				'url'   => self::rendition_url( $id ),
+				'alt'   => self::entry_text( $entry, 'alt' ),
+				'title' => self::entry_text( $entry, 'title' ),
+			);
+		}
 
 		include MHMRENTIVA_PLUGIN_PATH . 'src/Admin/Vehicle/Templates/vehicle-gallery.php';
 	}
@@ -177,12 +190,16 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
-	 * Whether an attachment may enter a vehicle's gallery or become its featured image.
+	 * Whether an attachment may newly enter a vehicle's gallery or become its featured image.
 	 *
 	 * Passes only for an image attachment the actor may use: actors with
 	 * `edit_others_posts` may use any image, everyone else only images attached to
 	 * the vehicle or uploaded by themselves. The filter runs last so an add-on can
 	 * veto an otherwise acceptable image (e.g. a sensitive document).
+	 *
+	 * Applies to entries that are new to the vehicle. An entry already stored for
+	 * the same vehicle is judged by is_displayable_image() instead, so a vendor's
+	 * write does not silently drop an image an administrator added.
 	 *
 	 * @param int      $vehicle_id Vehicle the image is destined for.
 	 * @param int      $id         Attachment ID.
@@ -207,6 +224,11 @@ final class VehicleGallery extends AbstractMetaBox {
 		 *
 		 * Applied only after the type, image and ownership checks have passed.
 		 *
+		 * The filter is a content veto (e.g. a sensitive attachment). When an image
+		 * is displayed, or an entry already in the gallery is kept on a write, it
+		 * runs with the vehicle's author as `$actor_id`, not the signed-in user, so
+		 * a filter that grants access based on the actor is not supported there.
+		 *
 		 * @since 6.1.6
 		 *
 		 * @param bool $allowed    Whether the attachment is allowed.
@@ -218,14 +240,91 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Whether a stored gallery image may be shown, kept on a write, or written without a signed-in user.
+	 *
+	 * Ownership is decided once, when an entry first enters the gallery: every
+	 * writer enforces is_allowed_image() (ownership plus the filter veto) for new
+	 * entries, so what is stored was accepted for someone entitled to curate this
+	 * gallery. Display, and keeping an entry already stored for the same vehicle,
+	 * therefore ask only that the entry is an image attachment and that the
+	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto it. The vehicle's
+	 * author is passed as the actor: the filter is a content veto, and a filter
+	 * that grants access based on the actor is not supported here. A sensitive
+	 * document therefore never renders. The no-current-user write branches of
+	 * guard_gallery() and guard_thumbnail() (importers, CLI, cron) use the same
+	 * rule, because those code paths are trusted.
+	 *
+	 * @param int $vehicle_id Vehicle ID.
+	 * @param int $id         Attachment ID.
+	 */
+	public static function is_displayable_image( int $vehicle_id, int $id ): bool {
+		if ( $id <= 0 || 'attachment' !== get_post_type( $id ) || ! wp_attachment_is_image( $id ) ) {
+			return false;
+		}
+
+		$owner = (int) get_post_field( 'post_author', $vehicle_id );
+
+		/** This filter is documented in is_allowed_image(). */
+		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $owner );
+	}
+
+	/**
+	 * Attachment ids already in this vehicle's stored gallery.
+	 *
+	 * Read from the stored value before a write (the meta write filters run
+	 * before the row changes), so the set never holds what the write is adding,
+	 * and never another vehicle's entries.
+	 *
+	 * @param int $vehicle_id Vehicle ID.
+	 * @return array<int, true> Ids as keys.
+	 */
+	private static function stored_gallery_ids( int $vehicle_id ): array {
+		$ids = array();
+		foreach ( self::get_gallery_images( $vehicle_id ) as $entry ) {
+			$id = self::entry_id( $entry );
+			if ( $id > 0 ) {
+				$ids[ $id ] = true;
+			}
+		}
+		return $ids;
+	}
+
+	/**
+	 * Whether a gallery entry may be written: an entry already stored for this
+	 * vehicle needs only is_displayable_image(), a new one needs is_allowed_image().
+	 *
+	 * @param int              $vehicle_id Vehicle ID.
+	 * @param int              $id         Attachment ID.
+	 * @param array<int, true> $stored     Ids already stored for this vehicle.
+	 * @param int|null         $actor_id   Acting user; defaults to the current user.
+	 */
+	private static function may_write_entry( int $vehicle_id, int $id, array $stored, ?int $actor_id ): bool {
+		return isset( $stored[ $id ] )
+			? self::is_displayable_image( $vehicle_id, $id )
+			: self::is_allowed_image( $vehicle_id, $id, $actor_id );
+	}
+
+	/**
+	 * Current user ID, or 0 when user functions are not loaded yet (guards run from bootstrap).
+	 */
+	private static function current_actor_id(): int {
+		return function_exists( 'wp_get_current_user' ) ? get_current_user_id() : 0;
+	}
+
+	/**
 	 * The single choke for a vehicle's featured image (`_thumbnail_id`).
 	 *
 	 * Hooked on `update_post_metadata` and `add_post_metadata` on every request,
 	 * so admin, REST, front-end and add-on writers all pass through it. Returning
 	 * `false` rejects the write; returning the incoming `$check` leaves WordPress
 	 * to carry on (a non-null `$check` would short-circuit the write without
-	 * storing). User 0 (WP-CLI, cron, importers) is not restricted. Deleting the
-	 * meta is never blocked: `delete_post_metadata` is not hooked.
+	 * storing). Clearing values (0, '', -1) always pass, and deleting the meta is
+	 * never blocked: `delete_post_metadata` is not hooked.
+	 *
+	 * Re-writing the id that is already the featured image needs only
+	 * is_displayable_image(); any other id needs is_allowed_image(). User 0
+	 * (WP-CLI, cron, importers) is trusted with ownership, so it needs only
+	 * is_displayable_image(): an image the filter does not veto.
 	 *
 	 * @param mixed  $check      Short-circuit value from earlier filters.
 	 * @param int    $object_id  Post ID.
@@ -238,20 +337,92 @@ final class VehicleGallery extends AbstractMetaBox {
 			return $check;
 		}
 
-		if ( 0 === get_current_user_id() ) {
+		// Clearing the featured image is never blocked.
+		if ( '' === $meta_value || ( is_numeric( $meta_value ) && in_array( (int) $meta_value, array( 0, -1 ), true ) ) ) {
 			return $check;
 		}
 
-		if ( ! is_numeric( $meta_value ) || ! self::is_allowed_image( $object_id, (int) $meta_value ) ) {
+		if ( ! is_numeric( $meta_value ) ) {
 			return false;
+		}
+
+		$id       = (int) $meta_value;
+		$actor_id = self::current_actor_id();
+		$current  = (int) get_post_meta( $object_id, '_thumbnail_id', true );
+
+		$allowed = ( 0 === $actor_id || ( $current > 0 && $current === $id ) )
+			? self::is_displayable_image( $object_id, $id )
+			: self::is_allowed_image( $object_id, $id, $actor_id );
+
+		return $allowed ? $check : false;
+	}
+
+	/**
+	 * Write guard for a vehicle's gallery (`_mhmrentiva_gallery_images`).
+	 *
+	 * Hooked next to guard_thumbnail() on `update_post_metadata` and
+	 * `add_post_metadata`, so a direct update_post_meta()/add_post_meta() from an
+	 * integration or importer obeys the same image policy as the gallery writers.
+	 * The incoming value is the already-sanitized JSON string (or array); anything
+	 * that is not a list is left to the registered sanitize callback. An id that
+	 * is already in this vehicle's stored gallery needs only is_displayable_image();
+	 * a new id needs is_allowed_image(). When there is no current user (WP-CLI,
+	 * cron, importers) is_displayable_image() judges every entry, so the filter
+	 * veto still applies.
+	 *
+	 * @param mixed  $check      Short-circuit value from earlier filters.
+	 * @param int    $object_id  Post ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Value about to be stored.
+	 * @return mixed `$check` unchanged to allow, `false` to reject.
+	 */
+	public static function guard_gallery( $check, int $object_id, string $meta_key, $meta_value ) {
+		if ( '_mhmrentiva_gallery_images' !== $meta_key || 'mhmrentiva_vehicle' !== get_post_type( $object_id ) ) {
+			return $check;
+		}
+
+		$entries = self::normalize_gallery( $meta_value );
+
+		$actor_id = self::current_actor_id();
+		$stored   = 0 === $actor_id || array() === $entries ? array() : self::stored_gallery_ids( $object_id );
+
+		foreach ( $entries as $entry ) {
+			// An entry that names no attachment is refused, not skipped: a reader
+			// would resolve it the same way and could still show something.
+			$id = self::entry_id( $entry );
+			if ( $id <= 0 ) {
+				return false;
+			}
+
+			$allowed = 0 === $actor_id
+				? self::is_displayable_image( $object_id, $id )
+				: self::may_write_entry( $object_id, $id, $stored, $actor_id );
+			if ( ! $allowed ) {
+				return false;
+			}
 		}
 
 		return $check;
 	}
 
 	/**
-	 * Reduce gallery entries to those that pass is_allowed_image().
+	 * Server-built URL stored with a gallery entry: the medium rendition, so the
+	 * edit screen does not download originals; the original when no rendition exists.
+	 */
+	private static function rendition_url( int $id ): string {
+		$url = wp_get_attachment_image_url( $id, 'medium' );
+		if ( ! $url ) {
+			$url = wp_get_attachment_url( $id );
+		}
+		return (string) $url;
+	}
+
+	/**
+	 * Reduce gallery entries to those that may be written.
 	 *
+	 * An id already in this vehicle's stored gallery needs only
+	 * is_displayable_image(), so an image an administrator added survives a
+	 * vendor's save; a new id needs is_allowed_image() (ownership plus veto).
 	 * Ids are resolved with (int) because stored galleries may hold them as
 	 * strings. The client-supplied url is never trusted: it is rebuilt from the
 	 * attachment. Rejected entries are dropped silently.
@@ -262,23 +433,20 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * @return array<int, array{id:int,url:string,alt:string,title:string}>
 	 */
 	public static function filter_allowed_entries( int $vehicle_id, array $entries, ?int $actor_id = null ): array {
-		$kept = array();
+		$kept   = array();
+		$stored = self::stored_gallery_ids( $vehicle_id );
 
 		foreach ( $entries as $entry ) {
-			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
-				continue;
-			}
-
-			$id = (int) $entry['id'];
-			if ( ! self::is_allowed_image( $vehicle_id, $id, $actor_id ) ) {
+			$id = self::entry_id( $entry );
+			if ( $id <= 0 || ! self::may_write_entry( $vehicle_id, $id, $stored, $actor_id ) ) {
 				continue;
 			}
 
 			$kept[] = array(
 				'id'    => $id,
-				'url'   => (string) wp_get_attachment_url( $id ),
-				'alt'   => sanitize_text_field( (string) ( $entry['alt'] ?? '' ) ),
-				'title' => sanitize_text_field( (string) ( $entry['title'] ?? '' ) ),
+				'url'   => self::rendition_url( $id ),
+				'alt'   => sanitize_text_field( self::entry_text( $entry, 'alt' ) ),
+				'title' => sanitize_text_field( self::entry_text( $entry, 'title' ) ),
 			);
 		}
 
@@ -293,19 +461,20 @@ final class VehicleGallery extends AbstractMetaBox {
 			return '';
 		}
 
-		$images = json_decode( $value, true );
+		$images = is_string( $value ) ? json_decode( $value, true ) : $value;
 		if ( ! is_array( $images ) ) {
 			return '';
 		}
 
 		$sanitized_images = array();
 		foreach ( $images as $image ) {
-			if ( isset( $image['id'] ) && is_numeric( $image['id'] ) ) {
+			$id = self::entry_id( $image );
+			if ( $id > 0 ) {
 				$sanitized_images[] = array(
-					'id'    => intval( $image['id'] ),
-					'url'   => esc_url_raw( $image['url'] ?? '' ),
-					'alt'   => sanitize_text_field( (string) ( $image['alt'] ?? '' ) ),
-					'title' => sanitize_text_field( (string) ( $image['title'] ?? '' ) ),
+					'id'    => $id,
+					'url'   => esc_url_raw( self::entry_text( $image, 'url' ) ),
+					'alt'   => sanitize_text_field( self::entry_text( $image, 'alt' ) ),
+					'title' => sanitize_text_field( self::entry_text( $image, 'title' ) ),
 				);
 			}
 		}
@@ -486,30 +655,87 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Reduce a stored or incoming gallery value to a list of entries.
+	 *
+	 * The value is a JSON string normally, but a write made before the meta field
+	 * was registered can leave a PHP array, and a damaged row can hold anything.
+	 * Arrays are used as they are, strings are decoded, everything else (and any
+	 * decode failure or non-list) yields an empty list.
+	 *
+	 * @param mixed $raw Stored or incoming value.
+	 * @return array<int, mixed>
+	 */
+	public static function normalize_gallery( $raw ): array {
+		if ( is_string( $raw ) ) {
+			$raw = json_decode( $raw, true );
+		}
+
+		if ( ! is_array( $raw ) || array() === $raw || array_keys( $raw ) !== range( 0, count( $raw ) - 1 ) ) {
+			return array();
+		}
+
+		return $raw;
+	}
+
+	/**
+	 * Attachment ID a stored gallery entry names, or 0 when it names none.
+	 *
+	 * One resolution shared by the write guard and the readers so they cannot
+	 * disagree: an array with a numeric `id`, or a numeric scalar (the bare-id form).
+	 *
+	 * @param mixed $entry Gallery entry.
+	 */
+	public static function entry_id( $entry ): int {
+		if ( is_array( $entry ) ) {
+			$entry = $entry['id'] ?? null;
+		}
+
+		return is_numeric( $entry ) ? (int) $entry : 0;
+	}
+
+	/**
+	 * A text field of a stored gallery entry as a string; '' for scalar entries,
+	 * missing keys and non-scalar values.
+	 *
+	 * @param mixed  $entry Gallery entry.
+	 * @param string $key   Field name.
+	 */
+	private static function entry_text( $entry, string $key ): string {
+		$value = is_array( $entry ) ? ( $entry[ $key ] ?? '' ) : '';
+		return is_scalar( $value ) ? (string) $value : '';
+	}
+
+	/**
 	 * Get gallery images
 	 */
 	public static function get_gallery_images( int $post_id ): array {
-		$gallery_images = get_post_meta( $post_id, '_mhmrentiva_gallery_images', true );
-		return $gallery_images ? json_decode( $gallery_images, true ) : array();
+		return self::normalize_gallery( get_post_meta( $post_id, '_mhmrentiva_gallery_images', true ) );
 	}
 
 	/**
 	 * Get gallery images for frontend use
+	 *
+	 * `alt` and `title` come back unescaped; the consumer must escape them for its context.
 	 */
 	public static function get_gallery_for_frontend( int $post_id, string $size = 'medium' ): array {
 		$gallery_images  = self::get_gallery_images( $post_id );
 		$frontend_images = array();
 
 		foreach ( $gallery_images as $image ) {
-			$image_url = wp_get_attachment_image_url( $image['id'], $size );
+			$image_id = self::entry_id( $image );
+			if ( $image_id <= 0 || ! self::is_displayable_image( $post_id, $image_id ) ) {
+				continue;
+			}
+
+			$image_url = wp_get_attachment_image_url( $image_id, $size );
 			if ( $image_url ) {
 				$frontend_images[] = array(
-					'id'            => $image['id'],
+					'id'            => $image_id,
 					'url'           => $image_url,
-					'alt'           => $image['alt'],
-					'title'         => $image['title'],
-					'full_url'      => wp_get_attachment_image_url( $image['id'], 'full' ),
-					'thumbnail_url' => wp_get_attachment_image_url( $image['id'], 'thumbnail' ),
+					'alt'           => self::entry_text( $image, 'alt' ),
+					'title'         => self::entry_text( $image, 'title' ),
+					'full_url'      => wp_get_attachment_image_url( $image_id, 'full' ),
+					'thumbnail_url' => wp_get_attachment_image_url( $image_id, 'thumbnail' ),
 				);
 			}
 		}

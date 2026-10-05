@@ -8,8 +8,9 @@ use MHMRentiva\Admin\Vehicle\Meta\VehicleGallery;
 use WP_Ajax_UnitTestCase;
 
 /**
- * One acceptance rule for every gallery writer: the id must be an image the
- * actor owns (or may manage) and that no filter marks as sensitive.
+ * One acceptance rule for every gallery writer: a new id must be an image the
+ * actor owns (or may manage) and that no filter marks as sensitive; an id
+ * already in the gallery need only be a displayable image.
  *
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::is_allowed_image
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::filter_allowed_entries
@@ -83,6 +84,16 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	/**
+	 * Store a gallery row the way a historical install holds it, bypassing the write guard.
+	 */
+	private function plant( string $value ): void
+	{
+		remove_filter( 'update_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10 );
+		update_post_meta( $this->vehicle, self::META_KEY, $value );
+		add_filter( 'update_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10, 4 );
+	}
+
 	private function assert_clean( string $writer, int $foreign, int $owned ): void
 	{
 		$stored = $this->stored();
@@ -90,7 +101,7 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assertContains( $owned, $ids, $writer . ': owned entry survives' );
 		$this->assertNotContains( $foreign, $ids, $writer . ': foreign entry dropped' );
 		foreach ( $stored as $entry ) {
-			$this->assertSame( wp_get_attachment_url( (int) $entry['id'] ), $entry['url'], $writer . ': url comes from the server' );
+			$this->assertSame( (string) ( wp_get_attachment_image_url( (int) $entry['id'], 'medium' ) ?: wp_get_attachment_url( (int) $entry['id'] ) ), $entry['url'], $writer . ': url comes from the server' );
 			$this->assertStringNotContainsString( '<', (string) $entry['alt'], $writer . ': alt sanitized' );
 		}
 	}
@@ -217,8 +228,12 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$foreign = $this->image( $this->other_id );
 		$owned   = $this->image( $this->author_id );
 		$extra   = $this->image( $this->author_id );
+		// A planted entry is already stored, so it only has to be displayable:
+		// a foreign image would be kept like display keeps it. The stored poison
+		// is therefore a non-image attachment, which no writer may keep.
+		$pdf = $this->image( $this->other_id, 0, 'application/pdf', 'doc.pdf' );
 
-		// 1. save_gallery_images: the posted JSON carries the poison.
+		// 1. save_gallery_images: the posted JSON carries the poison (new to this gallery).
 		$_POST = array(
 			'mhmrentiva_gallery_images_nonce' => wp_create_nonce( 'mhmrentiva_gallery_images' ),
 			'mhmrentiva_gallery_images'       => $this->poison( $foreign, $owned ),
@@ -227,34 +242,149 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assert_clean( 'save', $foreign, $owned );
 
 		// 2. add: the stored gallery is already poisoned.
-		update_post_meta( $this->vehicle, self::META_KEY, $this->poison( $foreign, $owned ) );
+		$this->plant( $this->poison( $pdf, $owned ) );
 		$_POST = array(
 			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'   => $this->vehicle,
 			'image_ids' => array( $extra ),
 		);
 		$this->call( 'mhmrentiva_add_gallery_image' );
-		$this->assert_clean( 'add', $foreign, $owned );
+		$this->assert_clean( 'add', $pdf, $owned );
 		$this->assertContains( $extra, array_map( 'intval', array_column( $this->stored(), 'id' ) ) );
 
 		// 3. remove: a different, valid id.
-		update_post_meta( $this->vehicle, self::META_KEY, $this->poison( $foreign, $owned ) );
+		$this->plant( $this->poison( $pdf, $owned ) );
 		$_POST = array(
 			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'  => $this->vehicle,
 			'image_id' => $extra,
 		);
 		$this->call( 'mhmrentiva_remove_gallery_image' );
-		$this->assert_clean( 'remove', $foreign, $owned );
+		$this->assert_clean( 'remove', $pdf, $owned );
 
-		// 4. reorder: the client even asks for the foreign id.
-		update_post_meta( $this->vehicle, self::META_KEY, $this->poison( $foreign, $owned ) );
+		// 4. reorder: the client even asks for the planted id.
+		$this->plant( $this->poison( $pdf, $owned ) );
 		$_POST = array(
 			'nonce'       => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'     => $this->vehicle,
-			'image_order' => array( $foreign, $owned ),
+			'image_order' => array( $pdf, $owned ),
 		);
 		$this->call( 'mhmrentiva_reorder_gallery_images' );
-		$this->assert_clean( 'reorder', $foreign, $owned );
+		$this->assert_clean( 'reorder', $pdf, $owned );
+	}
+
+	/**
+	 * An admin adds an image they uploaded to a vendor's vehicle; the vendor's
+	 * later writes (save, AJAX add/remove/reorder) keep it, because an entry
+	 * already in the gallery need only be displayable.
+	 */
+	public function test_admin_image_already_in_vendor_gallery_survives_every_vendor_writer(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$adminer = $this->image( $admin );
+		$owned   = $this->image( $this->author_id );
+		$extra   = $this->image( $this->author_id );
+
+		$seed = function () use ( $admin, $adminer, $owned ): void {
+			wp_set_current_user( $admin );
+			$this->assertNotFalse(
+				update_post_meta(
+					$this->vehicle,
+					self::META_KEY,
+					wp_slash( (string) wp_json_encode( array( array( 'id' => $adminer ), array( 'id' => $owned ) ) ) )
+				)
+			);
+			wp_set_current_user( $this->author_id );
+		};
+		$ids = function (): array {
+			return array_map( 'intval', array_column( $this->stored(), 'id' ) );
+		};
+
+		// save: the vendor presses Update with the gallery as the meta box shows it.
+		$seed();
+		$_POST = array(
+			'mhmrentiva_gallery_images_nonce' => wp_create_nonce( 'mhmrentiva_gallery_images' ),
+			'mhmrentiva_gallery_images'       => wp_slash( (string) wp_json_encode( array( array( 'id' => $adminer ), array( 'id' => $owned ) ) ) ),
+		);
+		VehicleGallery::save_gallery_images( $this->vehicle );
+		$this->assertSame( array( $adminer, $owned ), $ids(), 'save keeps the admin image' );
+
+		// add another image of the vendor's own.
+		$seed();
+		$_POST = array(
+			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'   => $this->vehicle,
+			'image_ids' => array( $extra ),
+		);
+		$this->call( 'mhmrentiva_add_gallery_image' );
+		$this->assertSame( array( $adminer, $owned, $extra ), $ids(), 'add keeps the admin image' );
+
+		// remove a different image.
+		$_POST = array(
+			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'  => $this->vehicle,
+			'image_id' => $extra,
+		);
+		$this->call( 'mhmrentiva_remove_gallery_image' );
+		$this->assertSame( array( $adminer, $owned ), $ids(), 'remove keeps the admin image' );
+
+		// reorder.
+		$_POST = array(
+			'nonce'       => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'     => $this->vehicle,
+			'image_order' => array( $owned, $adminer ),
+		);
+		$this->call( 'mhmrentiva_reorder_gallery_images' );
+		$this->assertSame( array( $owned, $adminer ), $ids(), 'reorder keeps the admin image' );
+
+		// The vendor may still remove the admin image: removal only shortens the list.
+		$_POST = array(
+			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'  => $this->vehicle,
+			'image_id' => $adminer,
+		);
+		$this->call( 'mhmrentiva_remove_gallery_image' );
+		$this->assertSame( array( $owned ), $ids(), 'vendor can remove the admin image' );
+	}
+
+	public function test_vendor_save_cannot_bring_in_a_foreign_image_next_to_kept_ones(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$adminer = $this->image( $admin );
+		$foreign = $this->image( $this->other_id );
+
+		wp_set_current_user( $admin );
+		update_post_meta( $this->vehicle, self::META_KEY, wp_slash( (string) wp_json_encode( array( array( 'id' => $adminer ) ) ) ) );
+
+		wp_set_current_user( $this->author_id );
+		$_POST = array(
+			'mhmrentiva_gallery_images_nonce' => wp_create_nonce( 'mhmrentiva_gallery_images' ),
+			'mhmrentiva_gallery_images'       => wp_slash( (string) wp_json_encode( array( array( 'id' => $adminer ), array( 'id' => $foreign ) ) ) ),
+		);
+		VehicleGallery::save_gallery_images( $this->vehicle );
+		$this->assertSame( array( $adminer ), array_map( 'intval', array_column( $this->stored(), 'id' ) ) );
+	}
+
+	public function test_kept_entry_vetoed_later_is_dropped_by_the_next_write(): void
+	{
+		wp_set_current_user( $this->author_id );
+		$owned     = $this->image( $this->author_id );
+		$sensitive = $this->image( $this->author_id );
+		update_post_meta( $this->vehicle, self::META_KEY, wp_slash( (string) wp_json_encode( array( array( 'id' => $owned ), array( 'id' => $sensitive ) ) ) ) );
+
+		add_filter(
+			'mhmrentiva_gallery_attachment_allowed',
+			static fn( $allowed, $att ) => (int) $att === $sensitive ? false : $allowed,
+			10,
+			2
+		);
+
+		$_POST = array(
+			'nonce'       => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'     => $this->vehicle,
+			'image_order' => array( $sensitive, $owned ),
+		);
+		$this->call( 'mhmrentiva_reorder_gallery_images' );
+		$this->assertSame( array( $owned ), array_map( 'intval', array_column( $this->stored(), 'id' ) ) );
 	}
 }
