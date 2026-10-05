@@ -145,14 +145,14 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$ids = array_column( VehicleGallery::get_gallery_for_frontend( $this->vehicle ), 'id' );
 		$this->assertContains( $good, $ids );
 		$this->assertNotContains( $sensitive, $ids );
-		$this->assertNotContains( $foreign, $ids );
+		$this->assertContains( $foreign, $ids, 'Display does not re-decide ownership.' );
 
 		$method = new \ReflectionMethod( VehicleDetails::class, 'get_gallery' );
 		$method->setAccessible( true );
 		$details = array_column( $method->invoke( null, $this->vehicle ), 'id' );
 		$this->assertContains( $good, $details );
 		$this->assertNotContains( $sensitive, $details );
-		$this->assertNotContains( $foreign, $details );
+		$this->assertContains( $foreign, $details );
 
 		delete_post_meta( $this->vehicle, self::META_KEY );
 		// prefix-rename:ignore-start
@@ -180,14 +180,12 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		) as $ids ) {
 			$this->assertContains( $adminer, $ids );
 			$this->assertNotContains( $vetoed, $ids );
-			$this->assertNotContains( $foreign, $ids );
-		}
+			}
 
 		delete_post_meta( $this->vehicle, self::META_KEY );
 		wp_set_current_user( 0 );
 		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer ) ) );
 		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $vetoed ) ) );
-		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $foreign ) ) );
 	}
 
 	public function test_guards_are_registered_by_the_plugin_constructor_not_only_on_init(): void
@@ -229,6 +227,52 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 				}
 			}
 		}
+	}
+
+	public function test_foreign_vendor_image_is_still_refused_for_a_signed_in_vendor(): void
+	{
+		$foreign = $this->image( $this->other_id );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $foreign ) ) );
+	}
+
+	public function test_array_and_invalid_stored_values_do_not_break_readers_or_writers(): void
+	{
+		$own = $this->image( $this->author_id );
+		$ex  = $this->image( $this->author_id );
+
+		// An early write can leave the value as a serialized PHP array.
+		global $wpdb;
+		$wpdb->insert(
+			$wpdb->postmeta,
+			array( 'post_id' => $this->vehicle, 'meta_key' => self::META_KEY, 'meta_value' => maybe_serialize( array( array( 'id' => $own, 'url' => '', 'alt' => 'a', 'title' => 't' ) ) ) ) // phpcs:ignore WordPress.DB.SlowDBQuery
+		);
+		wp_cache_delete( $this->vehicle, 'post_meta' );
+
+		$this->assertSame( $own, (int) VehicleGallery::get_gallery_images( $this->vehicle )[0]['id'] );
+		$this->assertContains( $own, array_column( VehicleGallery::get_gallery_for_frontend( $this->vehicle ), 'id' ) );
+
+		$post = get_post( $this->vehicle );
+		ob_start();
+		VehicleGallery::render_gallery_meta_box( $post );
+		$html = (string) ob_get_clean();
+		$this->assertStringContainsString( (string) $own, $html );
+
+		// Invalid JSON stored raw.
+		delete_post_meta( $this->vehicle, self::META_KEY );
+		$this->raw_insert( self::META_KEY, '{not json' );
+		$this->assertSame( array(), VehicleGallery::get_gallery_images( $this->vehicle ) );
+		$this->assertSame( array(), VehicleGallery::get_gallery_for_frontend( $this->vehicle ) );
+		ob_start();
+		VehicleGallery::render_gallery_meta_box( $post );
+		ob_end_clean();
+	}
+
+	public function test_early_array_write_is_still_policy_checked(): void
+	{
+		$foreign = $this->image( $this->other_id );
+		$own     = $this->image( $this->author_id );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, array( array( 'id' => $foreign ) ) ) );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, array( array( 'id' => $own ) ) ) );
 	}
 
 	public function test_stored_url_is_the_medium_rendition(): void

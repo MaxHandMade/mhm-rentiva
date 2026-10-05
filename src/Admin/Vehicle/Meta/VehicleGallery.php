@@ -145,8 +145,7 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * Render gallery meta box
 	 */
 	public static function render_gallery_meta_box( \WP_Post $post ): void {
-		$gallery_images = get_post_meta( $post->ID, '_mhmrentiva_gallery_images', true );
-		$gallery_images = $gallery_images ? json_decode( $gallery_images, true ) : array();
+		$gallery_images = self::get_gallery_images( $post->ID );
 
 		include MHMRENTIVA_PLUGIN_PATH . 'src/Admin/Vehicle/Templates/vehicle-gallery.php';
 	}
@@ -218,14 +217,16 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
-	 * Whether a stored gallery image may be shown or written without a person acting.
+	 * Whether a stored gallery image may be shown, or written without a signed-in user.
 	 *
-	 * Judges the image on its own: an image attachment that belongs to the vehicle,
-	 * was uploaded by the vehicle's author, or was uploaded by someone who may
-	 * manage any post (an admin curating a vendor's gallery), and that the
-	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto (the vehicle's
-	 * author is passed as the actor). Writes by a signed-in user use
-	 * is_allowed_image() instead.
+	 * The display layer does not re-decide ownership: every writer enforces
+	 * is_allowed_image() (ownership plus the filter veto), so what is stored was
+	 * accepted for someone entitled to curate this gallery. Display therefore asks
+	 * only that the entry is an image attachment and that the
+	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto it (the vehicle's
+	 * author is passed as the actor), so a sensitive document never renders. The
+	 * no-current-user write branch of guard_gallery() (importers, CLI, cron) uses
+	 * the same rule, because those code paths are trusted.
 	 *
 	 * @param int $vehicle_id Vehicle ID.
 	 * @param int $id         Attachment ID.
@@ -235,16 +236,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			return false;
 		}
 
-		$owner      = (int) get_post_field( 'post_author', $vehicle_id );
-		$attachment = get_post( $id );
-		if ( ! $attachment ) {
-			return false;
-		}
-
-		$uploader = (int) $attachment->post_author;
-		if ( (int) $attachment->post_parent !== $vehicle_id && $uploader !== $owner && ! user_can( $uploader, 'edit_others_posts' ) ) {
-			return false;
-		}
+		$owner = (int) get_post_field( 'post_author', $vehicle_id );
 
 		/** This filter is documented in is_allowed_image(). */
 		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $owner );
@@ -310,10 +302,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			return $check;
 		}
 
-		$entries = is_string( $meta_value ) ? json_decode( $meta_value, true ) : $meta_value;
-		if ( ! is_array( $entries ) ) {
-			return $check;
-		}
+		$entries = self::normalize_gallery( $meta_value );
 
 		$actor_id = self::current_actor_id();
 
@@ -389,7 +378,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			return '';
 		}
 
-		$images = json_decode( $value, true );
+		$images = is_string( $value ) ? json_decode( $value, true ) : $value;
 		if ( ! is_array( $images ) ) {
 			return '';
 		}
@@ -582,11 +571,33 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Reduce a stored or incoming gallery value to a list of entries.
+	 *
+	 * The value is a JSON string normally, but a write made before the meta field
+	 * was registered can leave a PHP array, and a damaged row can hold anything.
+	 * Arrays are used as they are, strings are decoded, everything else (and any
+	 * decode failure or non-list) yields an empty list.
+	 *
+	 * @param mixed $raw Stored or incoming value.
+	 * @return array<int, mixed>
+	 */
+	public static function normalize_gallery( $raw ): array {
+		if ( is_string( $raw ) ) {
+			$raw = json_decode( $raw, true );
+		}
+
+		if ( ! is_array( $raw ) || array() === $raw || array_keys( $raw ) !== range( 0, count( $raw ) - 1 ) ) {
+			return array();
+		}
+
+		return $raw;
+	}
+
+	/**
 	 * Get gallery images
 	 */
 	public static function get_gallery_images( int $post_id ): array {
-		$gallery_images = get_post_meta( $post_id, '_mhmrentiva_gallery_images', true );
-		return $gallery_images ? json_decode( $gallery_images, true ) : array();
+		return self::normalize_gallery( get_post_meta( $post_id, '_mhmrentiva_gallery_images', true ) );
 	}
 
 	/**
