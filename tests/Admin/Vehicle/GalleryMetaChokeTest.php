@@ -188,47 +188,36 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $vetoed ) ) );
 	}
 
-	public function test_guards_are_registered_by_the_plugin_constructor_not_only_on_init(): void
+	public function test_guards_are_registered_when_the_plugin_file_loads(): void
 	{
-		$hooks  = array( 'update_post_metadata', 'add_post_metadata' );
-		$guards = array( 'guard_gallery', 'guard_thumbnail' );
-		foreach ( $hooks as $hook ) {
-			foreach ( $guards as $guard ) {
-				remove_filter( $hook, array( VehicleGallery::class, $guard ), 10 );
-			}
+		if ( ! function_exists( 'shell_exec' ) || '' === trim( (string) shell_exec( 'command -v wp 2>/dev/null' ) ) ) {
+			$this->markTestSkipped( 'WP-CLI is not available to boot WordPress in a child process.' );
 		}
 
-		// The constructor is what runs on plugins_loaded; init has long fired here.
-		$ref      = new \ReflectionClass( \MHMRentiva\Plugin::class );
-		$instance = $ref->newInstanceWithoutConstructor();
-		$ctor     = $ref->getConstructor();
-		$ctor->setAccessible( true );
-		$ctor->invoke( $instance );
+		// A fresh WordPress boot: observe at plugins_loaded priority -100, i.e. after
+		// every plugin file was included but before any plugin bootstrap hook ran.
+		$probe = tempnam( sys_get_temp_dir(), 'probe' ) . '.php';
+		file_put_contents(
+			$probe,
+			'<?php WP_CLI::add_wp_hook( "plugins_loaded", function () { $o = array(); foreach ( array( "update_post_metadata", "add_post_metadata" ) as $h ) { foreach ( array( "guard_gallery", "guard_thumbnail" ) as $g ) { $o[] = $h . ":" . $g . "=" . ( false !== has_filter( $h, array( "MHMRentiva\\Admin\\Vehicle\\Meta\\VehicleGallery", $g ) ) ? "1" : "0" ); } } echo "PROBE " . implode( ",", $o ) . "\n"; }, -100 );'
+		);
+		$out = (string) shell_exec( 'wp --allow-root --path=' . escapeshellarg( ABSPATH ) . ' --skip-plugins=mhm-rentiva-pro --require=' . escapeshellarg( $probe ) . ' eval "" 2>&1' );
+		unlink( $probe );
 
-		try {
-			foreach ( $hooks as $hook ) {
-				foreach ( $guards as $guard ) {
-					$this->assertNotFalse( has_filter( $hook, array( VehicleGallery::class, $guard ) ), "$guard on $hook" );
-				}
-			}
+		$this->assertStringContainsString( 'PROBE ', $out, $out );
+		$this->assertStringNotContainsString( '=0', $out );
+		$this->assertStringContainsString( 'update_post_metadata:guard_gallery=1', $out );
+		$this->assertStringContainsString( 'add_post_metadata:guard_thumbnail=1', $out );
+	}
 
-			$foreign = $this->image( $this->other_id );
-			$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $foreign ) ) );
-		} finally {
-			// Drop the throwaway instance's own hooks so it cannot act for the rest of the run.
-			global $wp_filter;
-			foreach ( $wp_filter as $tag => $hook_obj ) {
-				foreach ( $hook_obj->callbacks as $priority => $callbacks ) {
-					foreach ( $callbacks as $cb ) {
-						if ( is_array( $cb['function'] ) && $cb['function'][0] === $instance ) {
-							remove_filter( $tag, $cb['function'], $priority );
-						}
-					}
-				}
+	public function test_guards_are_hooked_in_the_running_site(): void
+	{
+		foreach ( array( 'update_post_metadata', 'add_post_metadata' ) as $hook ) {
+			foreach ( array( 'guard_gallery', 'guard_thumbnail' ) as $guard ) {
+				$this->assertSame( 10, has_filter( $hook, array( VehicleGallery::class, $guard ) ), "$guard on $hook" );
 			}
 		}
 	}
-
 	public function test_foreign_vendor_image_is_still_refused_for_a_signed_in_vendor(): void
 	{
 		$foreign = $this->image( $this->other_id );
@@ -320,6 +309,46 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 
 		$this->assertSame( array(), $errors );
 		$this->assertSame( $own, (int) $front[0]['id'] );
+	}
+
+	public function test_bare_id_forms_render_and_survive_a_save_round_trip(): void
+	{
+		$own = $this->image( $this->author_id );
+
+		foreach ( array( array( $own ), array( (string) $own ) ) as $stored ) {
+			delete_post_meta( $this->vehicle, self::META_KEY );
+			$this->raw_insert( self::META_KEY, (string) wp_json_encode( $stored ) );
+
+			$errors = array();
+			set_error_handler(
+				static function ( int $no, string $str ) use ( &$errors ): bool {
+					$errors[] = $str;
+					return true;
+				}
+			);
+			try {
+				ob_start();
+				VehicleGallery::render_gallery_meta_box( get_post( $this->vehicle ) );
+				$html = (string) ob_get_clean();
+			} finally {
+				restore_error_handler();
+			}
+
+			$this->assertSame( array(), $errors );
+			$this->assertStringContainsString( 'data-image-id="' . $own . '"', $html );
+		}
+
+		// Save round trip: the bare-id gallery is kept, stored as full entries.
+		$_POST = array(
+			'mhmrentiva_gallery_images_nonce' => wp_create_nonce( 'mhmrentiva_gallery_images' ),
+			'mhmrentiva_gallery_images'       => wp_slash( (string) wp_json_encode( array( $own ) ) ),
+		);
+		VehicleGallery::save_gallery_images( $this->vehicle );
+		$_POST  = array();
+		$stored = json_decode( (string) get_post_meta( $this->vehicle, self::META_KEY, true ), true );
+		$this->assertSame( $own, (int) $stored[0]['id'] );
+		$this->assertArrayHasKey( 'url', $stored[0] );
+		$this->assertSame( '', $stored[0]['alt'] );
 	}
 
 	public function test_stored_url_is_the_medium_rendition(): void

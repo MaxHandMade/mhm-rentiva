@@ -145,7 +145,21 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * Render gallery meta box
 	 */
 	public static function render_gallery_meta_box( \WP_Post $post ): void {
-		$gallery_images = self::get_gallery_images( $post->ID );
+		$gallery_images = array();
+		foreach ( self::get_gallery_images( $post->ID ) as $entry ) {
+			$id = self::entry_id( $entry );
+			if ( $id <= 0 ) {
+				continue;
+			}
+
+			$url              = self::entry_text( $entry, 'url' );
+			$gallery_images[] = array(
+				'id'    => $id,
+				'url'   => '' !== $url ? $url : self::rendition_url( $id ),
+				'alt'   => self::entry_text( $entry, 'alt' ),
+				'title' => self::entry_text( $entry, 'title' ),
+			);
+		}
 
 		include MHMRENTIVA_PLUGIN_PATH . 'src/Admin/Vehicle/Templates/vehicle-gallery.php';
 	}
@@ -354,20 +368,16 @@ final class VehicleGallery extends AbstractMetaBox {
 		$kept = array();
 
 		foreach ( $entries as $entry ) {
-			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
-				continue;
-			}
-
-			$id = (int) $entry['id'];
-			if ( ! self::is_allowed_image( $vehicle_id, $id, $actor_id ) ) {
+			$id = self::entry_id( $entry );
+			if ( $id <= 0 || ! self::is_allowed_image( $vehicle_id, $id, $actor_id ) ) {
 				continue;
 			}
 
 			$kept[] = array(
 				'id'    => $id,
 				'url'   => self::rendition_url( $id ),
-				'alt'   => sanitize_text_field( (string) ( $entry['alt'] ?? '' ) ),
-				'title' => sanitize_text_field( (string) ( $entry['title'] ?? '' ) ),
+				'alt'   => sanitize_text_field( self::entry_text( $entry, 'alt' ) ),
+				'title' => sanitize_text_field( self::entry_text( $entry, 'title' ) ),
 			);
 		}
 
@@ -389,12 +399,13 @@ final class VehicleGallery extends AbstractMetaBox {
 
 		$sanitized_images = array();
 		foreach ( $images as $image ) {
-			if ( isset( $image['id'] ) && is_numeric( $image['id'] ) ) {
+			$id = self::entry_id( $image );
+			if ( $id > 0 ) {
 				$sanitized_images[] = array(
-					'id'    => intval( $image['id'] ),
-					'url'   => esc_url_raw( $image['url'] ?? '' ),
-					'alt'   => sanitize_text_field( (string) ( $image['alt'] ?? '' ) ),
-					'title' => sanitize_text_field( (string) ( $image['title'] ?? '' ) ),
+					'id'    => $id,
+					'url'   => esc_url_raw( self::entry_text( $image, 'url' ) ),
+					'alt'   => sanitize_text_field( self::entry_text( $image, 'alt' ) ),
+					'title' => sanitize_text_field( self::entry_text( $image, 'title' ) ),
 				);
 			}
 		}
@@ -614,6 +625,18 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * A text field of a stored gallery entry as a string; '' for scalar entries,
+	 * missing keys and non-scalar values.
+	 *
+	 * @param mixed  $entry Gallery entry.
+	 * @param string $key   Field name.
+	 */
+	private static function entry_text( $entry, string $key ): string {
+		$value = is_array( $entry ) ? ( $entry[ $key ] ?? '' ) : '';
+		return is_scalar( $value ) ? (string) $value : '';
+	}
+
+	/**
 	 * Get gallery images
 	 */
 	public static function get_gallery_images( int $post_id ): array {
@@ -622,6 +645,8 @@ final class VehicleGallery extends AbstractMetaBox {
 
 	/**
 	 * Get gallery images for frontend use
+	 *
+	 * `alt` and `title` come back unescaped; the consumer must escape them for its context.
 	 */
 	public static function get_gallery_for_frontend( int $post_id, string $size = 'medium' ): array {
 		$gallery_images  = self::get_gallery_images( $post_id );
@@ -638,8 +663,8 @@ final class VehicleGallery extends AbstractMetaBox {
 				$frontend_images[] = array(
 					'id'            => $image_id,
 					'url'           => $image_url,
-					'alt'           => is_array( $image ) ? (string) ( $image['alt'] ?? '' ) : '',
-					'title'         => is_array( $image ) ? (string) ( $image['title'] ?? '' ) : '',
+					'alt'           => self::entry_text( $image, 'alt' ),
+					'title'         => self::entry_text( $image, 'title' ),
 					'full_url'      => wp_get_attachment_image_url( $image_id, 'full' ),
 					'thumbnail_url' => wp_get_attachment_image_url( $image_id, 'thumbnail' ),
 				);
