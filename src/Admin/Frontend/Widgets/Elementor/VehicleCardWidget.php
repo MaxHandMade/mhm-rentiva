@@ -468,6 +468,16 @@ class VehicleCardWidget extends ElementorWidgetBase {
 	}
 
 	/**
+	 * The card always renders one vehicle in one column (prepare_shortcode_attributes()
+	 * forces both), so parity controls for them would be dead.
+	 *
+	 * @return string[]
+	 */
+	protected function get_parity_exclusions(): array {
+		return array( 'limit', 'columns' );
+	}
+
+	/**
 	 * Map the card's controls onto the Vehicles List shortcode.
 	 *
 	 * The card has no shortcode of its own: it renders Vehicles List pinned to a

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Elementor;
 
 use MHMRentiva\Admin\Frontend\Widgets\Base\WidgetAttributeBridge;
+use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehiclesListWidget;
 use MHMRentiva\Core\Attribute\AllowlistRegistry;
 use MHMRentiva\Core\Attribute\KeyNormalizer;
@@ -136,5 +137,24 @@ final class ParityControlsTest extends WP_UnitTestCase
 
 		$atts = WidgetAttributeBridge::to_canonical( 'rentiva_vehicles_list', $settings, array() );
 		$this->assertSame( '0', $atts['show_price'] );
+	}
+
+	/**
+	 * The card forces limit=1 / columns=1 in its explicit mapping, so it opts those
+	 * keys out of parity (get_parity_exclusions()); the list widget, built from the
+	 * same block.json, still has them. Pins that the exclusion is the only cause.
+	 */
+	public function test_vehicle_card_excludes_limit_and_columns_from_parity(): void
+	{
+		$card = WidgetFactory::make( VehicleCardWidget::class );
+		\Elementor\Plugin::$instance->controls_manager->delete_stack( $card );
+		$card_ids = $this->own_control_ids( $card );
+
+		$this->assertNotContains( 'limit', $card_ids );
+		$this->assertNotContains( 'columns', $card_ids );
+
+		$list_ids = $this->own_control_ids( WidgetFactory::make( VehiclesListWidget::class ) );
+		$this->assertContains( 'limit', $list_ids );
+		$this->assertContains( 'columns', $list_ids );
 	}
 }

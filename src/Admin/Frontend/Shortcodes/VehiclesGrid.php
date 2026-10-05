@@ -700,20 +700,18 @@ class VehiclesGrid extends AbstractShortcode {
 
 	/**
 	 * Disables cache (for development)
+	 *
+	 * The grid's own default (off under WP_DEBUG and for administrators) still goes
+	 * through the same `mhmrentiva_shortcode_html_cache_enabled` seam as every other
+	 * shortcode (AbstractShortcode::is_caching_enabled()), so a site or a test can
+	 * force it either way.
 	 */
 	protected static function is_caching_enabled(): bool
 	{
-		// Turn off cache in development environment
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			return false;
-		}
+		$enabled = ! ( defined('WP_DEBUG') && WP_DEBUG )
+			&& ! ( is_admin() || current_user_can('manage_options') );
 
-		// Turn off cache for administrators using capability-based gating.
-		if (is_admin() || current_user_can('manage_options')) {
-			return false;
-		}
-
-		return true;
+		return (bool) apply_filters('mhmrentiva_shortcode_html_cache_enabled', $enabled, static::get_shortcode_tag());
 	}
 
 

@@ -364,7 +364,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 				$existing_canonical[ KeyNormalizer::normalize( (string) $existing_id, $schema ) ] = true;
 			}
 		}
-		$missing = array();
+		$missing  = array();
+		$excluded = array_fill_keys( $this->get_parity_exclusions(), true );
 
 		foreach ( $block_json['attributes'] as $attr_name => $attr_config ) {
 			if ( ! is_string( $attr_name ) || '' === $attr_name || ! is_array( $attr_config ) ) {
@@ -377,7 +378,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			}
 
 			$canonical = KeyNormalizer::normalize( $attr_name, $schema );
-			if ( ! isset( $schema[ $canonical ] ) || isset( $existing_canonical[ $canonical ] ) ) {
+			if ( ! isset( $schema[ $canonical ] ) || isset( $existing_canonical[ $canonical ] ) || isset( $excluded[ $canonical ] ) ) {
 				continue;
 			}
 
@@ -403,6 +404,19 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		}
 
 		$this->end_controls_section();
+	}
+
+	/**
+	 * Canonical keys the parity feature must not add for this widget.
+	 *
+	 * For a widget whose explicit mapping always overrides a key (the vehicle card
+	 * renders exactly one card), a parity control for that key could never change
+	 * anything: the user would see a dead control.
+	 *
+	 * @return string[]
+	 */
+	protected function get_parity_exclusions(): array {
+		return array();
 	}
 
 	/**
