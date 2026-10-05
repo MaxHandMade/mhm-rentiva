@@ -352,9 +352,19 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			return;
 		}
 
-		$schema            = AllowlistRegistry::get_schema( $shortcode_tag );
-		$existing_controls = array_keys( $this->get_controls() );
-		$missing           = array();
+		$schema = AllowlistRegistry::get_schema( $shortcode_tag );
+
+		// Existing own-stack controls, compared by canonical key: a snake_case control
+		// and a camelCase block attribute are the same setting, so a second control
+		// for it would be a dead twin (its saved value never reaches the shortcode).
+		$existing_canonical = array();
+		$stack              = $this->get_stack( false );
+		foreach ( array( 'controls', 'style_controls' ) as $bucket ) {
+			foreach ( array_keys( (array) ( $stack[ $bucket ] ?? array() ) ) as $existing_id ) {
+				$existing_canonical[ KeyNormalizer::normalize( (string) $existing_id, $schema ) ] = true;
+			}
+		}
+		$missing = array();
 
 		foreach ( $block_json['attributes'] as $attr_name => $attr_config ) {
 			if ( ! is_string( $attr_name ) || '' === $attr_name || ! is_array( $attr_config ) ) {
@@ -366,16 +376,14 @@ abstract class ElementorWidgetBase extends Widget_Base {
 				continue;
 			}
 
-			if ( in_array( $attr_name, $existing_controls, true ) ) {
-				continue;
-			}
-
 			$canonical = KeyNormalizer::normalize( $attr_name, $schema );
-			if ( ! isset( $schema[ $canonical ] ) ) {
+			if ( ! isset( $schema[ $canonical ] ) || isset( $existing_canonical[ $canonical ] ) ) {
 				continue;
 			}
 
-			$missing[ $attr_name ] = $attr_config;
+			// Two block attributes can share a canonical key; register it once.
+			$existing_canonical[ $canonical ] = true;
+			$missing[ $canonical ]            = $attr_config;
 		}
 
 		if ( empty( $missing ) ) {
@@ -390,8 +398,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			)
 		);
 
-		foreach ( $missing as $attr_name => $attr_config ) {
-			$this->add_parity_control_from_schema( $attr_name, $attr_config );
+		foreach ( $missing as $canonical => $attr_config ) {
+			$this->add_parity_control_from_schema( $canonical, $attr_config );
 		}
 
 		$this->end_controls_section();
@@ -401,6 +409,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * Adds one Elementor control derived from block attribute schema.
 	 */
 	private function add_parity_control_from_schema( string $attr_name, array $attr_config ): void {
+		// $attr_name is already the canonical key; it is the control id and the label source.
 		$type    = isset( $attr_config['type'] ) && is_string( $attr_config['type'] ) ? $attr_config['type'] : 'string';
 		$default = $attr_config['default'] ?? '';
 		$label   = $this->format_control_label( $attr_name );
