@@ -27,7 +27,7 @@ final class AllowlistRegistry {
         'limit'                    => [
             'type'    => 'int',
             'group'   => 'pagination',
-            'aliases' => [ 'limit', 'resultsPerPage', 'results_per_page' ],
+            'aliases' => [ 'limit', 'resultsPerPage' ],
         ],
         'columns'                  => [
             'type'    => 'int',
@@ -188,7 +188,7 @@ final class AllowlistRegistry {
         'show_image'               => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => [ 'showImage', 'showImages', 'showVehicleImage' ],
+            'aliases' => [ 'showImage', 'showImages', 'showVehicleImage', 'show_images' ],
         ],
         'show_title'               => [
             'type'    => 'bool',
@@ -203,7 +203,7 @@ final class AllowlistRegistry {
         'show_rating'              => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => [ 'showRating', 'filterRating', 'filter_rating' ],
+            'aliases' => [ 'showRating' ],
         ],
         'show_features'            => [
             'type'    => 'bool',
@@ -218,7 +218,7 @@ final class AllowlistRegistry {
         'show_favorite_button'     => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => [ 'showFavoriteButton', 'showFavoriteBtn', 'show_favorite_btn', 'show_favorite_button' ],
+            'aliases' => [ 'showFavoriteButton', 'showFavoriteBtn', 'show_favorite_btn', 'show_favorite_button', 'show_favorite' ],
         ],
         'show_compare_button'      => [
             'type'    => 'bool',
@@ -1084,8 +1084,9 @@ final class AllowlistRegistry {
             'aliases' => [ 'showDiscounts' ],
         ],
         'rating'                   => [
-            'type'  => 'int',
-            'group' => 'feature',
+            'type'    => 'int',
+            'group'   => 'feature',
+            'aliases' => [ 'filterRating', 'filter_rating' ],
         ],
     ];
 
@@ -1147,7 +1148,6 @@ final class AllowlistRegistry {
             'layout'               => [ 'default' => 'grid' ],
             'show_filters'         => [ 'default' => '1' ],
             'results_per_page'     => [ 'default' => '12' ],
-            'limit'                => [ 'default' => '12' ],
             'show_pagination'      => [ 'default' => '1' ],
             'show_sorting'         => [ 'default' => '1' ],
             'show_view_toggle'     => [ 'default' => '1' ],
@@ -1159,7 +1159,7 @@ final class AllowlistRegistry {
             'show_features'        => [ 'default' => '1' ],
             'show_rating'          => [ 'default' => '1' ],
             'show_badges'          => [ 'default' => '1' ],
-            'default_sort'         => [ 'default' => 'newest' ],
+            'default_sort'         => [ 'default' => 'price_asc' ],
             'class'                => [ 'default' => '' ],
             'show_availability'    => [ 'default' => '1' ],
             'orderby'              => [ 'default' => 'date' ],
@@ -1214,7 +1214,9 @@ final class AllowlistRegistry {
         'rentiva_vehicles_grid'         => [
             'limit',
             'columns',
-            'orderby',
+            'orderby' => [
+                'values' => [ 'price', 'popularity', 'newest', 'capacity', 'title', 'date', 'modified', 'rand', 'post__in', 'rating', 'rating_average', 'rating_count', 'confidence', 'featured' ],
+            ],
             'order',
             'category',
             'featured',
@@ -1380,7 +1382,9 @@ final class AllowlistRegistry {
             'status',
             'limit_results',
             'show_pagination',
-            'orderby',
+            'orderby' => [
+                'values' => [ 'price', 'popularity', 'newest', 'capacity', 'title', 'date', 'modified', 'rand', 'post__in', 'rating', 'rating_average', 'rating_count', 'confidence', 'id' ],
+            ],
             'order',
             'hide_nav',
         ],
