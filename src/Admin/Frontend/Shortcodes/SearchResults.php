@@ -669,13 +669,9 @@ final class SearchResults extends AbstractShortcode {
 			// 1. Prime vehicles and their meta
 			_prime_post_caches($vehicle_ids, true, true);
 
-			// 2. Collect attachment IDs (thumbnails)
-			foreach ($vehicle_ids as $vid) {
-				$tid = get_post_thumbnail_id($vid);
-				if ($tid) {
-					$attachment_ids[] = (int) $tid;
-				}
-			}
+			// 2. Prime the covers (attachments, their meta and uploaders) in one go;
+			// reading get_post_thumbnail_id() here first would judge each cover uncached.
+			\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers(array_map('intval', $vehicle_ids));
 
 			// 3. Collect Booking Page ID for URL cache priming
 			$booking_page_id = ShortcodeUrlManager::get_page_id('rentiva_booking_form');

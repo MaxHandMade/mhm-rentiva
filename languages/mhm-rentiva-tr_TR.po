@@ -17,7 +17,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
-#: mhm-rentiva.php:610
+#: mhm-rentiva.php:629
 #: src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
@@ -58,39 +58,39 @@ msgid "MHM Rentiva requires the PHP mbstring extension, which is not enabled on 
 msgstr "MHM Rentiva, PHP mbstring uzantısını gerektirir; bu sunucuda etkin değil. Lütfen barındırma sağlayıcınızdan etkinleştirmesini isteyin."
 
 #. translators: %s: startup exception message.
-#: mhm-rentiva.php:288
+#: mhm-rentiva.php:307
 #, php-format
 msgid "MHM Rentiva plugin error on startup: %s"
 msgstr "Başlangıçta MHM Rentiva eklentisi hatası: %s"
 
-#: mhm-rentiva.php:300
+#: mhm-rentiva.php:319
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr "MHM Rentiva eklentisi yüklenemedi. Lütfen eklentiyi yeniden yükleyin."
 
-#: mhm-rentiva.php:526
+#: mhm-rentiva.php:545
 msgid "MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again."
 msgstr "MHM Rentiva, gerekli veritabanı tablolarını oluşturamadı. Eklenti etkinleştirilmedi. Veritabanı izinlerini kontrol edip tekrar deneyin."
 
-#: mhm-rentiva.php:527
+#: mhm-rentiva.php:546
 msgid "Database Setup Failed"
 msgstr "Veritabanı Kurulumu Başarısız"
 
-#: mhm-rentiva.php:560
+#: mhm-rentiva.php:579
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr "MHM Rentiva eklentisi PHP 8.1 veya üstü sürüm gerektirir."
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:569
+#: mhm-rentiva.php:588
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir."
 
-#: mhm-rentiva.php:572
+#: mhm-rentiva.php:591
 msgid "Plugin Dependency Check"
 msgstr "Eklenti Bağımlılık Kontrolü"
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:609
+#: mhm-rentiva.php:628
 #, php-format
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir. Bu eklentiyi kullanmak için lütfen WooCommerce'i kurun."
@@ -702,7 +702,7 @@ msgstr "Fiyatlandırma Tipi"
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1567
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:262
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:501
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:710
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:706
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
 msgid "Security check failed."
 msgstr "Güvenlik kontrolü başarısız oldu."
@@ -2808,7 +2808,7 @@ msgstr "E-posta"
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:74
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:72
 #: src-react/admin/customers/components/CustomerPanel.jsx:90
 #: src-react/admin/customers/components/CustomerTable.jsx:83
 msgid "Phone"
@@ -3178,7 +3178,7 @@ msgstr "Evet"
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:112
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:402
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:96
 #: templates/shortcodes/availability-calendar.php:452
 msgid "Loading..."
 msgstr "Yükleniyor..."
@@ -3204,8 +3204,8 @@ msgstr "Emin misiniz?"
 #: src/Admin/Emails/Core/EmailTemplates.php:537
 #: templates/account/account-details.php:189
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:173
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:214
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:183
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:224
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:32
 msgid "Cancel"
 msgstr "İptal"
@@ -3296,7 +3296,7 @@ msgstr "Bu resmi kaldırmak istediğinizden emin misiniz?"
 
 #: src/Admin/Core/AssetManager.php:973
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:129
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:64
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:72
 msgid "Remove Image"
 msgstr "Resmi Kaldır"
 
@@ -4666,197 +4666,197 @@ msgstr "Uygula"
 msgid "Select a city..."
 msgstr "Şehir seçin..."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1732
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1733
 msgid "Database Cleanup Report"
 msgstr "Veritabanı Temizleme Raporu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1737
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1738
 msgid "Category"
 msgstr "Kategori"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1738
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
 msgid "Count"
 msgstr "Sayı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
 msgid "Size"
 msgstr "Boyut"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1740
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1741
 #: src/Admin/Utilities/ListTable/LogColumns.php:75
 msgid "Action"
 msgstr "Eylem"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1745
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1746
 msgid "Orphaned Post Meta"
 msgstr "Yetim Post Meta"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1751
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1766
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1796
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1823
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1752
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1767
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1797
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1824
 msgid "Cleanup Recommended"
 msgstr "Temizlik Önerilir"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1754
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1769
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1799
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1826
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1755
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1770
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1800
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1827
 msgid "Clean"
 msgstr "Temiz"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1760
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
 msgid "Expired Transients"
 msgstr "Süresi dolan geçişler"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1775
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1776
 msgid "Autoload Options"
 msgstr "Otomatik Yükleme Seçenekleri"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1781
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1782
 msgid "Optimization Recommended"
 msgstr "Optimizasyon Önerilir"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1784
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1785
 msgid "Optimized"
 msgstr "İyileştirme"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1791
 msgid "Invalid Meta Keys"
 msgstr "Geçersiz Meta Anahtarları"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1803
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1804
 msgid "All Valid"
 msgstr "Tüm geçerli"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1809
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1810
 msgid "Log Records (>30 days)"
 msgstr "Günlük Kayıtları (>30 gün)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1833
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1834
 msgid "Custom Tables"
 msgstr "Özel Tablolar"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1837
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1838
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:72
 msgid "Table"
 msgstr "Tablo"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1838
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
 msgid "Exists"
 msgstr "Şu var olan"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1839
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1840
 msgid "Rows"
 msgstr "Satırlar"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1840
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1841
 msgid "Size (MB)"
 msgstr "Boyut (MB)"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1853
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1854
 msgid "Repair/Create"
 msgstr "Onarım/Oluşturma"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1881
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1882
 msgid "Analyze Database"
 msgstr "Veritabanını Analiz Et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1886
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1887
 msgid "Clean Orphaned Meta"
 msgstr "Temiz Yetim Meta"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1891
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1892
 msgid "Clean Expired Transients"
 msgstr "Süresi Dolmuş Geçici Dosyaları Temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1896
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1897
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
 msgid "Optimize Autoload"
 msgstr "Otomatik Yüklemeyi Optimize Et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1901
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1902
 msgid "Optimize Tables"
 msgstr "Tabloları Optimize Et"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1906
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1907
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:134
 msgid "Purge Old Logs"
 msgstr "Eski Günlükleri Temizle"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2069
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2070
 msgid "Backup table not found"
 msgstr "Yedekleme tablosu bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2087
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2088
 msgid "This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need."
 msgstr "Bu yedek iki farklı tabloya ait elenmiş meta kayıtlarını tutuyor ve olduğu yere geri yüklenemez. Dışa aktarıp ihtiyacınız olan satırları elle uygulayın."
 
 #. translators: 1: %d; 2: %s.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2133
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2134
 #, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr "%1$d kaydı %2$s olarak geri yüklendi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2151
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2152
 msgid "Not a backup table"
 msgstr "Yedek tablo değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2573
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2161
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2574
 msgid "Backup deleted successfully"
 msgstr "Yedekleme başarıyla silindi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2160
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2161
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:597
 msgid "Failed to delete backup"
 msgstr "Yedekleme silinmedi"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2177
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2178
 msgid "Failed to initialize filesystem."
 msgstr "Dosya sistemini başlatılamadı."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2218
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2219
 msgid "No tables found to backup"
 msgstr "Yedeklenecek tablo bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2268
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2269
 msgid "Failed to write backup file"
 msgstr "Yedekleme dosyası yazılmadı"
 
 #. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2319
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2320
 #, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "Tam yedekleme başarıyla oluşturuldu: %1$d tablo, %2$d satır"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2543
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2544
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:531
 msgid "Invalid backup file path"
 msgstr "Geçersiz yedekleme dosyası yolu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2574
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2575
 msgid "Backup deletion completed with some warnings"
 msgstr "Yedekleme silme işlemi bazı uyarılarla tamamlandı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2628
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2629
 msgid "Filesystem initialization failed"
 msgstr "Dosya sistemi başlatma başarısız"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2638
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2639
 msgid "Backup directory does not exist"
 msgstr "Yedekleme dizini mevcut değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2645
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2646
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ".htaccess dosyası eksik - dizin web erişiminden korunmuyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2649
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2650
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ".htaccess dosyası mevcut ancak erişimi düzgün bir şekilde engellemiyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2656
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2657
 msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
@@ -6487,8 +6487,8 @@ msgstr "Araç kimliği gereklidir."
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1050
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1105
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:740
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:757
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:736
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:753
 msgid "Vehicle not found"
 msgstr "Araç bulunamadı"
 
@@ -6952,7 +6952,7 @@ msgstr "Değerlendirme"
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:163
 #: src-react/admin/contact-messages/components/ContactTable.jsx:53
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:259
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:269
 msgid "Message"
 msgstr "Mesaj"
 
@@ -7035,7 +7035,7 @@ msgstr "Tercih edilen tarih"
 msgid "Attachment"
 msgstr "Ek dosya"
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:51
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:46
 msgid "IP address"
 msgstr "IP adresi"
 
@@ -7317,7 +7317,7 @@ msgid "Gallery Images"
 msgstr "Galeri Resimleri"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:289
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:590
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:586
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:478
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:772
 msgid "Air Conditioning"
@@ -7328,7 +7328,7 @@ msgid "GPS"
 msgstr "GPS"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:291
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:602
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:598
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:487
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:781
 msgid "Bluetooth"
@@ -7347,28 +7347,28 @@ msgid "Sunroof"
 msgstr "Tavan penceresi"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:295
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:591
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:587
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:479
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:773
 msgid "Power Steering"
 msgstr "Hidrolik Direksiyon"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:296
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:594
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:590
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:482
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:776
 msgid "Central Locking"
 msgstr "Merkezi Kilitleme"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:297
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:606
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:602
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:486
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:780
 msgid "Cruise Control"
 msgstr "Hız Sabitleyici"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:298
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:593
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:589
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:481
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:775
 msgid "Airbags"
@@ -7376,7 +7376,7 @@ msgstr "Hava yastıkları"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:299
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:300
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:592
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:588
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:774
 msgid "ABS Brakes"
 msgstr "ABS Frenler"
@@ -7388,7 +7388,7 @@ msgid "Fog Lights"
 msgstr "Sis Farları"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:302
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:596
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:592
 msgid "Parking Sensors"
 msgstr "Park Sensörleri"
 
@@ -7403,14 +7403,14 @@ msgid "Leather Seats"
 msgstr "Deri Koltuklar"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:305
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:603
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:599
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:492
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:786
 msgid "Heated Seats"
 msgstr "Isıtmalı Koltuklar"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:306
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:595
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:591
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:483
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:777
 msgid "Electric Windows"
@@ -7435,7 +7435,7 @@ msgid "Roof Rack"
 msgstr "Tavan Rafı"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:311
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:598
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:594
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:489
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:783
 msgid "Navigation"
@@ -7446,35 +7446,35 @@ msgid "View Gallery"
 msgstr "Galeriyi Görüntüle"
 
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:209
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:719
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:715
 msgid "Vehicle ID required"
 msgstr "Araç kimliği gereklidir"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:597
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:593
 msgid "Rear Camera"
 msgstr "Arka Kamera"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:599
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:595
 msgid "GPS Navigation"
 msgstr "GPS Navigasyon"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:600
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:596
 msgid "Apple CarPlay"
 msgstr "Apple CarPlay"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:601
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:597
 msgid "Android Auto"
 msgstr "Android Otomatik"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:604
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:600
 msgid "ISOFIX"
 msgstr "ISOFIX"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:605
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:601
 msgid "Lane Assist"
 msgstr "Şerit Yardımı"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:607
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:603
 msgid "Electronic Stability"
 msgstr "Elektronik Stabilite"
 
@@ -8016,7 +8016,6 @@ msgstr "Fiyatı Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:147
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:66
 #: assets/blocks/unified-search/index.js:84
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:40
 msgid "Show"
 msgstr "Göster"
 
@@ -8059,7 +8058,6 @@ msgstr "Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:67
 #: assets/blocks/unified-search/index.js:85
 #: src-react/admin/about/components/ChangelogList.jsx:79
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:40
 msgid "Hide"
 msgstr "Gizle"
 
@@ -8950,7 +8948,7 @@ msgid "Copy JSON"
 msgstr "JSON'u kopyala"
 
 #: src/Admin/PostTypes/Logs/MetaBox.php:111
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
 msgid "Copied"
 msgstr "Kopyalandı"
 
@@ -11803,7 +11801,7 @@ msgid "Set as Featured Image"
 msgstr "Öne Çıkarılmış Görsel Olarak Kullan"
 
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:131
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:80
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
 msgid "No images added yet"
 msgstr "Henüz resim eklenmedi"
 
@@ -11825,37 +11823,37 @@ msgstr "Görsel eklenirken hata oluştu"
 msgid "Error occurred while removing image"
 msgstr "Görsel kaldırılırken hata oluştu"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:211
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:276
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:326
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:739
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:817
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:868
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1301
 msgid "Security error"
 msgstr "Güvenlik Hatası"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:221
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:284
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:334
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:749
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:825
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:876
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1315
 msgid "Permission error"
 msgstr "İzin hatası"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:234
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:297
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:347
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:762
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:838
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:889
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1331
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1338
 msgid "Invalid data"
 msgstr "Geçersiz veri"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:264
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:804
 msgid "Images successfully added"
 msgstr "Görüntüler başarıyla eklendi"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:314
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:856
 msgid "Image successfully removed"
 msgstr "Görüntü başarıyla kaldırıldı"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:367
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:909
 msgid "Images successfully reordered"
 msgstr "Görüntüler başarıyla yeniden sıralandı"
 
@@ -12339,11 +12337,11 @@ msgstr "Geçersiz Gönderi"
 msgid "Delete Selected"
 msgstr "Seçilenleri Sil"
 
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:81
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:89
 msgid "Add images for vehicle gallery"
 msgstr "Araç galerisi için resim ekle"
 
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:95
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:103
 msgid "You can add up to 10 images. You can drag and drop images to reorder them."
 msgstr "En fazla 10 resim ekleyebilirsiniz. Resimleri sürükleyip bırakarak yeniden sıralayabilirsiniz."
 
@@ -13400,9 +13398,9 @@ msgstr "5 üzerinden %s oy aldı"
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:240
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:296
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:366
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:228
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:291
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:341
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:756
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:832
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:883
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1326
 #: templates/shortcodes/availability-calendar.php:50
 msgid "Vehicle not found."
@@ -14555,7 +14553,7 @@ msgid "Copy Report"
 msgstr "Raporu Kopyala"
 
 #: src-react/admin/about/components/DeveloperTab.jsx:86
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:310
 msgid "Download"
 msgstr "İndir"
 
@@ -15605,7 +15603,7 @@ msgid "Rollback wrote nothing for this page: the previous manifest no longer res
 msgstr "Bu sayfa için geri alma hiçbir şey yazmadı: önceki manifest artık bu sayfaya çözümlenmiyor."
 
 #. translators: 1: current table-prefix length in characters. 2: maximum supported length in characters.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1213
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1214
 #, php-format
 msgid "This site's table prefix (%1$d characters) is too long for the invalid-meta cleanup to name a backup table within MySQL's 64-character identifier limit (maximum supported: %2$d characters). The cleanup was not run."
 msgstr "Bu sitenin tablo öneki (%1$d karakter), geçersiz meta temizliğinin MySQL'in 64 karakterlik tanımlayıcı sınırı içinde bir yedek tablo adı oluşturması için çok uzun (desteklenen en fazla: %2$d karakter). Temizlik çalıştırılmadı."
@@ -15614,7 +15612,7 @@ msgstr "Bu sitenin tablo öneki (%1$d karakter), geçersiz meta temizliğinin My
 msgid "Cleanup cancelled: this site's table prefix is too long for the cleanup to name a backup table. Nothing was deleted."
 msgstr "Temizlik iptal edildi: bu sitenin tablo öneki, temizliğin bir yedek tablo adı oluşturması için çok uzun. Hiçbir şey silinmedi."
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1030
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1031
 msgid "Cleanup cancelled: the backup table could not be created or filled. Nothing was deleted."
 msgstr "Temizlik iptal edildi: yedek tablo oluşturulamadı ya da doldurulamadı. Hiçbir şey silinmedi."
 
@@ -15794,13 +15792,13 @@ msgstr[0] "%d mesaj seçildi"
 msgstr[1] "%d mesaj seçildi"
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:41
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:164
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:174
 msgid "Restore"
 msgstr "Geri yükle"
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:13
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:166
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:176
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:211
 msgid "Delete permanently"
 msgstr "Kalıcı olarak sil"
 
@@ -15813,13 +15811,13 @@ msgstr[0] "%d mesaj kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
 msgstr[1] "%d mesaj kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:19
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:172
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:182
 msgid "Yes, delete"
 msgstr "Evet, sil"
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:21
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:174
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:184
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:225
 msgid "Deleting…"
 msgstr "Siliniyor…"
 
@@ -15828,13 +15826,13 @@ msgid "Mark as read"
 msgstr "Okundu işaretle"
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:47
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:265
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:283
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:275
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:293
 msgid "Mark as replied"
 msgstr "Yanıtlandı işaretle"
 
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:49
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:201
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:211
 msgid "Move to trash"
 msgstr "Çöpe taşı"
 
@@ -15856,7 +15854,7 @@ msgid "Select all messages"
 msgstr "Tüm mesajları seç"
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:52
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:44
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:47
 msgid "Sender"
 msgstr "Gönderen"
 
@@ -15908,11 +15906,11 @@ msgid_plural "%d messages"
 msgstr[0] "%d mesaj"
 msgstr[1] "%d mesaj"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:51
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
 msgid "E-mail"
 msgstr "E-posta"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:58
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:65
 msgid "Copy"
 msgstr "Kopyala"
 
@@ -15928,96 +15926,96 @@ msgstr[1] "Bu adresten %d mesaj daha"
 msgid "The technical record could not be loaded."
 msgstr "Teknik kayıt yüklenemedi."
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:37
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:36
 msgid "Technical record"
 msgstr "Teknik kayıt"
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:44
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:41
 msgid "The sender's IP address and browser. Only needed when investigating abuse."
 msgstr "Gönderenin IP adresi ve tarayıcı bilgisi. Kötüye kullanım incelemesi dışında gerekmez."
 
-#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:53
+#: src-react/admin/contact-messages/components/TechnicalWidget.jsx:48
 msgid "Browser"
 msgstr "Tarayıcı"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:71
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:73
 msgid "The message could not be marked as read."
 msgstr "Mesaj okundu olarak işaretlenemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:77
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:79
 msgid "The message could not be loaded."
 msgstr "Mesaj yüklenemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:94
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:96
 msgid "The status could not be saved."
 msgstr "Durum kaydedilemedi."
 
 #. translators: %s: enquiry type label.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:126
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:130
 #, js-format
 msgid "Re: %s"
 msgstr "Re: %s"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:196
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:206
 msgid "Delete message"
 msgstr "Mesajı sil"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:198
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:208
 msgid "The message moves to the trash; WordPress empties the trash automatically."
 msgstr "Mesaj çöp kutusuna taşınır; WordPress çöp kutusunu otomatik olarak boşaltır."
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:205
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
 #, js-format
 msgid "Move the message from %s to the trash?"
 msgstr "%s adresinden gelen mesaj çöpe taşınsın mı?"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:223
 msgid "Yes, move to trash"
 msgstr "Evet, çöpe taşı"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:215
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:225
 msgid "Moving…"
 msgstr "Taşınıyor…"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:233
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:243
 msgid "The message could not be moved to the trash."
 msgstr "Mesaj çöpe taşınamadı."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:248
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:258
 msgid "Back to contact messages"
 msgstr "İletişim mesajlarına dön"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:256
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:266
 msgid "Sender and actions"
 msgstr "Gönderen ve işlemler"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:263
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:273
 msgid "Mark unread"
 msgstr "Okunmadı yap"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:269
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:279
 msgid "Reply by e-mail"
 msgstr "E-postayla yanıtla"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:279
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:289
 msgid "Reply reminder"
 msgstr "Yanıt hatırlatması"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:282
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:292
 msgid "Your e-mail app opened a reply draft. Once you have sent it, mark the message as replied."
 msgstr "E-posta uygulamanız bir yanıt taslağı açtı. Gönderdikten sonra mesajı yanıtlandı olarak işaretleyin."
 
 #: src/Admin/ContactMessages/ContactAttachmentDownload.php:40
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:301
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:311
 msgid "File not available"
 msgstr "Dosya kullanılamıyor"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:306
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:317
 msgid "Request details"
 msgstr "Talep ayrıntıları"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:308
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:319
 msgid "No further details were filled in."
 msgstr "Başka ayrıntı girilmemiş."
 
@@ -16057,29 +16055,29 @@ msgstr "İletişim formunu bir sayfaya ekleyin; bu form üzerinden gönderilen h
 msgid "Contact messages pages"
 msgstr "İletişim mesajları sayfaları"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:106
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:111
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:108
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:113
 msgid "The message could not be restored."
 msgstr "Mesaj geri yüklenemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:161
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:171
 msgid "Trashed message"
 msgstr "Çöp kutusundaki mesaj"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:162
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:172
 msgid "This message is in the trash. Restore it, or delete it permanently."
 msgstr "Bu mesaj çöp kutusunda. Geri yükleyin ya da kalıcı olarak silin."
 
 #. translators: %s: sender name.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:169
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:210
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:179
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:220
 #, js-format
 msgid "Delete the message from %s permanently? This cannot be undone."
 msgstr "%s adlı gönderenin mesajı kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:184
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:189
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:234
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:194
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:244
 msgid "The message could not be deleted."
 msgstr "Mesaj silinemedi."
 
@@ -16100,11 +16098,11 @@ msgstr "Toplu işlem tamamlanamadı."
 msgid "The message status could not be saved."
 msgstr "Mesajın durumu kaydedilemedi."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:199
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:209
 msgid "The message is deleted immediately; the trash is disabled on this site."
 msgstr "Mesaj hemen silinir; bu sitede çöp kutusu devre dışı."
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:213
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:223
 msgid "Yes, delete permanently"
 msgstr "Evet, kalıcı olarak sil"
 
@@ -16134,31 +16132,31 @@ msgid "Open this message"
 msgstr "Bu mesajı aç"
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:54
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:133
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:137
 msgid "Related vehicle"
 msgstr "İlgili araç"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:76
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:83
 msgid "This e-mail belongs to a registered customer"
 msgstr "Bu e-posta kayıtlı bir müşteriye ait"
 
-#: src-react/admin/contact-messages/components/SenderWidget.jsx:79
+#: src-react/admin/contact-messages/components/SenderWidget.jsx:86
 msgid "Open customer record"
 msgstr "Müşteri kaydını aç"
 
 #. translators: 1: enquiry type label, 2: date and time, 3: message number line.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:142
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:146
 #, js-format
 msgid "%1$s · %2$s · %3$s"
 msgstr "%1$s · %2$s · %3$s"
 
 #. translators: %d: message number.
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:147
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:151
 #, js-format
 msgid "Message #%d"
 msgstr "Mesaj #%d"
 
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:313
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:324
 msgid "Fields left empty on the form are not shown."
 msgstr "Formda boş bırakılan alanlar gösterilmez."
 
@@ -16175,7 +16173,29 @@ msgid "Go to shortcode pages"
 msgstr "Kısa kod sayfalarına git"
 
 #: src-react/admin/contact-messages/components/ContactTable.jsx:91
-#: src-react/admin/contact-messages/ContactMessageDetail.jsx:290
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:300
 msgctxt "contact message"
 msgid "Attachment"
 msgstr "Ek"
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:649
+msgid "You are not allowed to attach media to this vehicle."
+msgstr "Bu araca medya bağlama yetkiniz yok."
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:803
+msgid "Some images could not be added: only images you uploaded or images attached to this vehicle can be used."
+msgstr "Bazı görseller eklenemedi: yalnızca sizin yüklediğiniz veya bu araca bağlı görseller kullanılabilir."
+
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:61
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:64
+msgid "This image is not shown on the site and will be removed when the gallery is saved."
+msgstr "Bu görsel sitede gösterilmiyor ve galeri kaydedildiğinde kaldırılacak."
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:510
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:63
+msgid "Not shown on the site"
+msgstr "Sitede gösterilmiyor"
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:511
+msgid "This featured image is not shown on the site and will be removed when the vehicle is saved."
+msgstr "Bu öne çıkan görsel sitede gösterilmiyor ve araç kaydedildiğinde kaldırılacak."

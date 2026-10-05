@@ -237,20 +237,10 @@ final class VehiclesList extends AbstractShortcode {
 		$posts    = get_posts($args);
 		$post_ids = wp_list_pluck($posts, 'ID');
 
-		// Performance: Prime attachment caches for all retrieved vehicles.
-		// get_posts() already primes meta/terms for vehicles, but NOT the associated images.
-		if (! empty($post_ids)) {
-			$attachment_ids = array();
-			foreach ($post_ids as $p_id) {
-				$thumb_id = get_post_thumbnail_id($p_id);
-				if ($thumb_id) {
-					$attachment_ids[] = intval($thumb_id);
-				}
-			}
-			if (! empty($attachment_ids)) {
-				_prime_post_caches($attachment_ids, false, true);
-			}
-		}
+		// Performance: Prime the covers (attachments, their meta and uploaders) for all
+		// retrieved vehicles; get_posts() already primes meta/terms for the vehicles.
+		// Reading get_post_thumbnail_id() here first would judge each cover uncached.
+		\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers(array_map('intval', $post_ids));
 
 		$vehicles = array();
 

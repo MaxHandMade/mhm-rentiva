@@ -194,9 +194,17 @@ $allowed_svg_tags = array(
 								</button>
 							<?php endif; ?>
 						</div>
-						<img src="<?php echo esc_url($featured_image['url'] ?? ''); ?>"
-							alt="<?php echo esc_attr($title ?? ''); ?>"
-							class="rv-featured-image">
+						<?php
+						// Without a shown cover the first gallery image takes the main slot;
+						// with neither, no <img> is printed (an empty src is a broken image).
+						$cover_url = (string) ( $featured_image['url'] ?? '' );
+						$main_url  = '' !== $cover_url ? $cover_url : (string) ( $gallery[0]['url_large'] ?? '' );
+						?>
+						<?php if ('' !== $main_url) : ?>
+							<img src="<?php echo esc_url($main_url); ?>"
+								alt="<?php echo esc_attr($title ?? ''); ?>"
+								class="rv-featured-image">
+						<?php endif; ?>
 						<?php if (! empty($gallery) && count($gallery) > 3) : ?>
 							<button type="button" class="rv-vd2-gallery-btn" aria-label="<?php echo esc_attr__('View all photos', 'mhm-rentiva'); ?>">
 								<span aria-hidden="true">▦</span>
@@ -206,14 +214,16 @@ $allowed_svg_tags = array(
 					</div>
 
 					<?php if (! empty($gallery)) : ?>
-						<div class="rv-gallery-thumbnails" data-total="<?php echo esc_attr(count($gallery) + 1); ?>">
-							<div class="rv-thumbnail-item active" data-index="main">
-								<img src="<?php echo esc_url($featured_image['url'] ?? ''); ?>"
-									alt="<?php echo esc_attr($title ?? ''); ?>"
-									data-large="<?php echo esc_url($featured_image['url'] ?? ''); ?>">
-							</div>
+						<div class="rv-gallery-thumbnails" data-total="<?php echo esc_attr(count($gallery) + ( '' !== $cover_url ? 1 : 0 )); ?>">
+							<?php if ('' !== $cover_url) : ?>
+								<div class="rv-thumbnail-item active" data-index="main">
+									<img src="<?php echo esc_url($cover_url); ?>"
+										alt="<?php echo esc_attr($title ?? ''); ?>"
+										data-large="<?php echo esc_url($cover_url); ?>">
+								</div>
+							<?php endif; ?>
 							<?php foreach ($gallery as $index => $image) : ?>
-								<div class="rv-thumbnail-item<?php echo $index >= 3 ? ' rv-thumb-hidden' : ''; ?>" data-index="<?php echo esc_attr($index); ?>">
+								<div class="rv-thumbnail-item<?php echo $index >= 3 ? ' rv-thumb-hidden' : ''; ?><?php echo ( '' === $cover_url && 0 === $index ) ? ' active' : ''; ?>" data-index="<?php echo esc_attr($index); ?>">
 									<img src="<?php echo esc_url($image['url']); ?>"
 										alt="<?php echo esc_attr($image['alt']); ?>"
 										data-large="<?php echo esc_url($image['url_large']); ?>"

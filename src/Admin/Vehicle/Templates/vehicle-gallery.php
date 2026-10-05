@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @package MHMRentiva
  *
  * @var \WP_Post $post
- * @var array<int, array{id:int,url:string,alt:string,title:string}> $gallery_images Normalised entries.
+ * @var array<int, array{id:int,url:string,alt:string,title:string,shown:bool}> $gallery_images Normalised entries; `shown` false = the site does not show it.
  */
 
 // Security check
@@ -50,12 +50,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="mhm-gallery-grid" id="vehicle-gallery-grid">
 		<?php if ( ! empty( $gallery_images ) ) : ?>
 			<?php foreach ( $gallery_images as $index => $image ) : ?>
-				<div class="mhm-gallery-item" data-image-id="<?php echo esc_attr( (string) $image['id'] ); ?>">
+				<div class="mhm-gallery-item<?php echo $image['shown'] ? '' : ' is-hidden-on-site'; ?>" data-image-id="<?php echo esc_attr( (string) $image['id'] ); ?>">
 					<input type="checkbox" class="gallery-item-checkbox" value="<?php echo esc_attr( (string) $image['id'] ); ?>">
 					<div class="mhm-gallery-item-inner">
-						<img src="<?php echo esc_url( $image['url'] ); ?>" 
-							alt="<?php echo esc_attr( $image['alt'] ); ?>" 
+						<?php if ( $image['shown'] ) : ?>
+						<img src="<?php echo esc_url( $image['url'] ); ?>"
+							alt="<?php echo esc_attr( $image['alt'] ); ?>"
 							title="<?php echo esc_attr( $image['title'] ); ?>" />
+						<?php else : ?>
+						<div class="mhm-gallery-item-hidden">
+							<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
+							<span class="mhm-gallery-item-hidden-label"><?php esc_html_e( 'Not shown on the site', 'mhm-rentiva' ); ?></span>
+							<span class="screen-reader-text"><?php esc_html_e( 'This image is not shown on the site and will be removed when the gallery is saved.', 'mhm-rentiva' ); ?></span>
+						</div>
+						<?php endif; ?>
 						<div class="mhm-gallery-item-overlay">
 							<div class="mhm-gallery-item-actions">
 								<button type="button" 

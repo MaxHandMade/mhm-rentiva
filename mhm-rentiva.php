@@ -207,6 +207,13 @@ foreach (array( 'update_post_metadata', 'add_post_metadata' ) as $mhmrentiva_met
 }
 unset($mhmrentiva_meta_hook);
 
+// The featured-image read choke and the attachment re-parent guard are registered
+// the same way, for the same reason: every reader and every writer, on every request.
+add_filter('post_thumbnail_id', array( 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery', 'filter_thumbnail_id' ), 10, 2);
+add_filter('admin_post_thumbnail_html', array( 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery', 'filter_admin_thumbnail_html' ), 10, 3);
+add_filter('wp_insert_attachment_data', array( 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery', 'guard_attachment_parent' ), 10, 4);
+add_filter('rest_pre_insert_attachment', array( 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery', 'guard_rest_attachment_parent' ), 10, 2);
+
 // Register this plugin's bundled copy of ui-core. The highest version across
 // all plugins that bundle it wins at plugins_loaded priority 0.
 $mhmrentiva_uicore_register_file = __DIR__ . '/vendor/mhm/ui-core/register.php';

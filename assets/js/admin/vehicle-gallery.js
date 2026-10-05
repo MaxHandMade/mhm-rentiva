@@ -144,7 +144,7 @@
 					if (response.success) {
 						updateGalleryDisplay(response.data.gallery_images);
 						$(document).trigger('galleryUpdated');
-						showNotification(response.data.message, 'success');
+						showNotification(response.data.message, response.data.rejected > 0 ? 'warning' : 'success');
 						updateBulkToolbar();
 					} else {
 						const errorMsg = response.data || (window.mhmVehicleGallery?.strings?.addImageError || 'Error adding image');
@@ -275,22 +275,31 @@
 	 */
 	function createGalleryItem(image, index) {
 		const removeTitle = window.mhmVehicleGallery?.strings?.removeImage || 'Remove Image';
-		return $(
-			`<div class="mhm-gallery-item" data-image-id="${image.id}">
-				<input type="checkbox" class="gallery-item-checkbox" value="${parseInt(image.id, 10)}">
+		const id = parseInt(image.id, 10);
+		// Server values (url, alt, title) go in through attr(), never into the markup:
+		// alt and title are only sanitize_text_field()ed and may hold quotes.
+		const $item = $(
+			`<div class="mhm-gallery-item">
+				<input type="checkbox" class="gallery-item-checkbox">
 				<div class="mhm-gallery-item-inner">
-					<img src="${image.url}" alt="${image.alt || ''}" title="${image.title || ''}" />
+					<img />
 					<div class="mhm-gallery-item-overlay">
 						<div class="mhm-gallery-item-actions">
-							<button type="button" class="mhm-gallery-remove-btn" data-image-id="${image.id}" title="${removeTitle}">
+							<button type="button" class="mhm-gallery-remove-btn">
 								<span class="dashicons dashicons-trash"></span>
 							</button>
 						</div>
 					</div>
-					<div class="mhm-gallery-item-number">${index + 1}</div>
+					<div class="mhm-gallery-item-number"></div>
 				</div>
 			</div>`
 		);
+		$item.attr('data-image-id', id);
+		$item.find('.gallery-item-checkbox').val(id);
+		$item.find('img').attr({ src: image.url || '', alt: image.alt || '', title: image.title || '' });
+		$item.find('.mhm-gallery-remove-btn').attr({ 'data-image-id': id, title: removeTitle });
+		$item.find('.mhm-gallery-item-number').text(index + 1);
+		return $item;
 	}
 
 	/**
@@ -316,13 +325,14 @@
 		const $preview = $(
 			`<div class="mhm-gallery-preview-overlay">
 				<div class="mhm-gallery-preview-container">
-					<img src="${imageUrl}" alt="Preview" />
+					<img alt="Preview" />
 					<button type="button" class="mhm-gallery-preview-close">
 						<span class="dashicons dashicons-no-alt"></span>
 					</button>
 				</div>
 			</div>`
 		);
+		$preview.find('img').attr('src', imageUrl);
 
 		$('body').append($preview);
 
@@ -353,12 +363,13 @@
 	function showNotification(message, type = 'info') {
 		const $notification = $(
 			`<div class="mhm-gallery-notification mhm-gallery-notification-${type}">
-				<span class="mhm-gallery-notification-message">${message}</span>
+				<span class="mhm-gallery-notification-message"></span>
 				<button type="button" class="mhm-gallery-notification-close">
 					<span class="dashicons dashicons-no-alt"></span>
 				</button>
 			</div>`
 		);
+		$notification.find('.mhm-gallery-notification-message').text(message);
 
 		$('body').append($notification);
 
@@ -389,7 +400,8 @@
 	function showNotice(message, type) {
 		type = type || 'info';
 		const noticeClass = 'notice-' + type;
-		const notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + message + '</strong></p></div>');
+		const notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong></strong></p></div>');
+		notice.find('strong').text(message);
 
 		$('.notice').remove();
 		$('body').append(notice);
