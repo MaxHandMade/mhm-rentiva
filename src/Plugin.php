@@ -257,6 +257,10 @@ final class Plugin {
 			// Featured-image choke: every request, not only wp-admin.
 			add_filter('update_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
 			add_filter('add_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
+
+			// Gallery choke: direct writes of the gallery meta obey the image policy too.
+			add_filter('update_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_gallery' ), 10, 4);
+			add_filter('add_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_gallery' ), 10, 4);
 		}
 	}
 

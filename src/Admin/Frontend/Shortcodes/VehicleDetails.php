@@ -343,10 +343,11 @@ final class VehicleDetails extends AbstractShortcode {
 			return array();
 		}
 
-		$gallery = array();
+		$vehicle_author = (int) get_post_field( 'post_author', $vehicle_id );
+		$gallery        = array();
 		foreach ( $gallery_ids as $item ) {
 			$id = is_array( $item ) ? (int) ( $item['id'] ?? 0 ) : (int) $item;
-			if ( $id > 0 ) {
+			if ( $id > 0 && \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::is_allowed_image( $vehicle_id, $id, $vehicle_author ) ) {
 				$gallery[] = array(
 					'id'        => $id,
 					'url'       => wp_get_attachment_image_url( $id, 'medium' ),

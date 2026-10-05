@@ -250,6 +250,63 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Write guard for a vehicle's gallery (`_mhmrentiva_gallery_images`).
+	 *
+	 * Hooked next to guard_thumbnail() on `update_post_metadata` and
+	 * `add_post_metadata`, so a direct update_post_meta()/add_post_meta() from an
+	 * integration or importer obeys the same image policy as the gallery writers.
+	 * The incoming value is the already-sanitized JSON string (or array); anything
+	 * that is not a list is left to the registered sanitize callback. When there
+	 * is no current user (WP-CLI, cron, importers) the vehicle's author acts, so
+	 * ownership and the `mhmrentiva_gallery_attachment_allowed` filter still apply.
+	 *
+	 * @param mixed  $check      Short-circuit value from earlier filters.
+	 * @param int    $object_id  Post ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Value about to be stored.
+	 * @return mixed `$check` unchanged to allow, `false` to reject.
+	 */
+	public static function guard_gallery( $check, int $object_id, string $meta_key, $meta_value ) {
+		if ( '_mhmrentiva_gallery_images' !== $meta_key || 'mhmrentiva_vehicle' !== get_post_type( $object_id ) ) {
+			return $check;
+		}
+
+		$entries = is_string( $meta_value ) ? json_decode( $meta_value, true ) : $meta_value;
+		if ( ! is_array( $entries ) ) {
+			return $check;
+		}
+
+		$actor_id = get_current_user_id();
+		if ( 0 === $actor_id ) {
+			$actor_id = (int) get_post_field( 'post_author', $object_id );
+		}
+
+		foreach ( $entries as $entry ) {
+			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
+				continue;
+			}
+
+			if ( ! self::is_allowed_image( $object_id, (int) $entry['id'], $actor_id ) ) {
+				return false;
+			}
+		}
+
+		return $check;
+	}
+
+	/**
+	 * Server-built URL stored with a gallery entry: the medium rendition, so the
+	 * edit screen does not download originals; the original when no rendition exists.
+	 */
+	private static function rendition_url( int $id ): string {
+		$url = wp_get_attachment_image_url( $id, 'medium' );
+		if ( ! $url ) {
+			$url = wp_get_attachment_url( $id );
+		}
+		return (string) $url;
+	}
+
+	/**
 	 * Reduce gallery entries to those that pass is_allowed_image().
 	 *
 	 * Ids are resolved with (int) because stored galleries may hold them as
@@ -276,7 +333,7 @@ final class VehicleGallery extends AbstractMetaBox {
 
 			$kept[] = array(
 				'id'    => $id,
-				'url'   => (string) wp_get_attachment_url( $id ),
+				'url'   => self::rendition_url( $id ),
 				'alt'   => sanitize_text_field( (string) ( $entry['alt'] ?? '' ) ),
 				'title' => sanitize_text_field( (string) ( $entry['title'] ?? '' ) ),
 			);
@@ -500,7 +557,13 @@ final class VehicleGallery extends AbstractMetaBox {
 		$gallery_images  = self::get_gallery_images( $post_id );
 		$frontend_images = array();
 
+		$vehicle_author = (int) get_post_field( 'post_author', $post_id );
+
 		foreach ( $gallery_images as $image ) {
+			if ( ! is_array( $image ) || ! isset( $image['id'] ) || ! self::is_allowed_image( $post_id, (int) $image['id'], $vehicle_author ) ) {
+				continue;
+			}
+
 			$image_url = wp_get_attachment_image_url( $image['id'], $size );
 			if ( $image_url ) {
 				$frontend_images[] = array(

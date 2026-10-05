@@ -83,6 +83,16 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	/**
+	 * Store a gallery row the way a historical install holds it, bypassing the write guard.
+	 */
+	private function plant( string $value ): void
+	{
+		remove_filter( 'update_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10 );
+		update_post_meta( $this->vehicle, self::META_KEY, $value );
+		add_filter( 'update_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10, 4 );
+	}
+
 	private function assert_clean( string $writer, int $foreign, int $owned ): void
 	{
 		$stored = $this->stored();
@@ -90,7 +100,7 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assertContains( $owned, $ids, $writer . ': owned entry survives' );
 		$this->assertNotContains( $foreign, $ids, $writer . ': foreign entry dropped' );
 		foreach ( $stored as $entry ) {
-			$this->assertSame( wp_get_attachment_url( (int) $entry['id'] ), $entry['url'], $writer . ': url comes from the server' );
+			$this->assertSame( (string) ( wp_get_attachment_image_url( (int) $entry['id'], 'medium' ) ?: wp_get_attachment_url( (int) $entry['id'] ) ), $entry['url'], $writer . ': url comes from the server' );
 			$this->assertStringNotContainsString( '<', (string) $entry['alt'], $writer . ': alt sanitized' );
 		}
 	}
@@ -227,7 +237,7 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assert_clean( 'save', $foreign, $owned );
 
 		// 2. add: the stored gallery is already poisoned.
-		update_post_meta( $this->vehicle, self::META_KEY, $this->poison( $foreign, $owned ) );
+		$this->plant( $this->poison( $foreign, $owned ) );
 		$_POST = array(
 			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'   => $this->vehicle,
@@ -238,7 +248,7 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assertContains( $extra, array_map( 'intval', array_column( $this->stored(), 'id' ) ) );
 
 		// 3. remove: a different, valid id.
-		update_post_meta( $this->vehicle, self::META_KEY, $this->poison( $foreign, $owned ) );
+		$this->plant( $this->poison( $foreign, $owned ) );
 		$_POST = array(
 			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'  => $this->vehicle,
@@ -248,7 +258,7 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assert_clean( 'remove', $foreign, $owned );
 
 		// 4. reorder: the client even asks for the foreign id.
-		update_post_meta( $this->vehicle, self::META_KEY, $this->poison( $foreign, $owned ) );
+		$this->plant( $this->poison( $foreign, $owned ) );
 		$_POST = array(
 			'nonce'       => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'     => $this->vehicle,
