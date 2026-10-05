@@ -196,6 +196,44 @@ final class CoverReadChokeTest extends WP_UnitTestCase
 		$this->assertDoesNotMatchRegularExpression( '/<img[^>]*\bsrc=""/', $html );
 	}
 
+	/**
+	 * Judging a cover needs the attachment, its meta and its uploader. A list that
+	 * primes its vehicles' covers first must then judge them without one query
+	 * per vehicle, whoever uploaded them.
+	 */
+	public function test_primed_covers_are_judged_without_per_vehicle_queries(): void
+	{
+		global $wpdb;
+
+		$ids = array();
+		for ( $i = 0; $i < 6; $i++ ) {
+			$uploader = self::factory()->user->create( array( 'role' => 'editor' ) );
+			$vehicle  = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_author' => $this->author_id ) );
+			$this->plant_cover( $vehicle, $this->image( $uploader ) );
+			$ids[] = $vehicle;
+		}
+
+		wp_cache_flush();
+		get_posts( array( 'post_type' => 'mhmrentiva_vehicle', 'post__in' => $ids, 'posts_per_page' => -1 ) );
+
+		VehicleGallery::prime_covers( $ids );
+		// Count only reads of what a judgement needs: posts, post meta, users, user
+		// meta. (A cold options cache lets an unrelated plugin option load here.)
+		$reads = array();
+		$probe = static function ( $sql ) use ( &$reads, $wpdb ) {
+			if ( preg_match( '/\b(' . preg_quote( $wpdb->posts, '/' ) . '|' . preg_quote( $wpdb->postmeta, '/' ) . '|' . preg_quote( $wpdb->users, '/' ) . '|' . preg_quote( $wpdb->usermeta, '/' ) . ')\b/', $sql ) ) {
+				$reads[] = $sql;
+			}
+			return $sql;
+		};
+		add_filter( 'query', $probe );
+		foreach ( $ids as $id ) {
+			$this->assertGreaterThan( 0, get_post_thumbnail_id( $id ) );
+		}
+		remove_filter( 'query', $probe );
+		$this->assertSame( array(), $reads, 'every cover judgement is served from the primed caches' );
+	}
+
 	public function test_choke_is_registered_when_the_plugin_file_loads(): void
 	{
 		$class = 'MHMRentiva\Admin\Vehicle\Meta\VehicleGallery';

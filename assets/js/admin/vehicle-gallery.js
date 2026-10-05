@@ -325,13 +325,14 @@
 		const $preview = $(
 			`<div class="mhm-gallery-preview-overlay">
 				<div class="mhm-gallery-preview-container">
-					<img src="${imageUrl}" alt="Preview" />
+					<img alt="Preview" />
 					<button type="button" class="mhm-gallery-preview-close">
 						<span class="dashicons dashicons-no-alt"></span>
 					</button>
 				</div>
 			</div>`
 		);
+		$preview.find('img').attr('src', imageUrl);
 
 		$('body').append($preview);
 
@@ -399,7 +400,8 @@
 	function showNotice(message, type) {
 		type = type || 'info';
 		const noticeClass = 'notice-' + type;
-		const notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + message + '</strong></p></div>');
+		const notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong></strong></p></div>');
+		notice.find('strong').text(message);
 
 		$('.notice').remove();
 		$('body').append(notice);

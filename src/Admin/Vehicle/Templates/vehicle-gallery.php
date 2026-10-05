@@ -58,7 +58,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							alt="<?php echo esc_attr( $image['alt'] ); ?>"
 							title="<?php echo esc_attr( $image['title'] ); ?>" />
 						<?php else : ?>
-						<div class="mhm-gallery-item-hidden" title="<?php esc_attr_e( 'This image is not shown on the site and will be removed when the gallery is saved.', 'mhm-rentiva' ); ?>">
+						<div class="mhm-gallery-item-hidden">
 							<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
 							<span class="mhm-gallery-item-hidden-label"><?php esc_html_e( 'Not shown on the site', 'mhm-rentiva' ); ?></span>
 							<span class="screen-reader-text"><?php esc_html_e( 'This image is not shown on the site and will be removed when the gallery is saved.', 'mhm-rentiva' ); ?></span>

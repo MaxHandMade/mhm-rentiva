@@ -537,14 +537,28 @@ final class VehicleGallery extends AbstractMetaBox {
 		}
 		$primed[ $key ] = true;
 
+		self::prime_covers( array_map( static fn( $item ): int => $item instanceof \WP_Post ? (int) $item->ID : (int) $item, $wp_query->posts ) );
+	}
+
+	/**
+	 * Loads the stored covers of the given vehicles, and their uploaders, in one go,
+	 * so filter_thumbnail_id() judges them from the cache.
+	 *
+	 * Call it with the result of a vehicle query before reading the covers in a
+	 * loop. The vehicles' own meta should be primed already (get_posts() does).
+	 * Ids that are not vehicles are ignored.
+	 *
+	 * @param array<int, int> $vehicle_ids Vehicle IDs.
+	 */
+	public static function prime_covers( array $vehicle_ids ): void {
 		$covers = array();
-		foreach ( $wp_query->posts as $item ) {
-			$item = get_post( $item );
-			if ( $item && 'mhmrentiva_vehicle' === $item->post_type ) {
-				$cover = (int) get_post_meta( $item->ID, '_thumbnail_id', true );
-				if ( $cover > 0 ) {
-					$covers[] = $cover;
-				}
+		foreach ( $vehicle_ids as $vehicle_id ) {
+			if ( 'mhmrentiva_vehicle' !== get_post_type( (int) $vehicle_id ) ) {
+				continue;
+			}
+			$cover = (int) get_post_meta( (int) $vehicle_id, '_thumbnail_id', true );
+			if ( $cover > 0 ) {
+				$covers[] = $cover;
 			}
 		}
 		if ( array() === $covers ) {
