@@ -216,12 +216,16 @@ abstract class ElementorWidgetBase extends Widget_Base {
 
 	/**
 	 * Helper: Add Typography Control
+	 *
+	 * $name is the explicit group control name. Pass it when one widget uses the same
+	 * label more than once (Elementor rejects a redeclared control) or when the name
+	 * must not depend on the translated label.
 	 */
-	protected function add_typography_control( string $selector, string $label ): void {
+	protected function add_typography_control( string $selector, string $label, ?string $name = null ): void {
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			array(
-				'name'     => sanitize_title( $label ) . '_typography',
+				'name'     => $name ?? sanitize_title( $label ) . '_typography',
 				'selector' => '{{WRAPPER}} ' . $selector,
 			)
 		);

@@ -326,7 +326,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_typography_control( '.rv-price-amount', __( 'Typography', 'mhm-rentiva' ) );
+		$this->add_typography_control( '.rv-price-amount', __( 'Typography', 'mhm-rentiva' ), 'price_typography' );
 
 		$this->end_controls_section();
 
@@ -395,7 +395,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_typography_control( '.rv-btn', __( 'Typography', 'mhm-rentiva' ) );
+		$this->add_typography_control( '.rv-btn', __( 'Typography', 'mhm-rentiva' ), 'button_typography' );
 
 		$this->end_controls_section();
 
@@ -452,7 +452,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_typography_control( '.rv-vehicle-card__badge', __( 'Typography', 'mhm-rentiva' ) );
+		$this->add_typography_control( '.rv-vehicle-card__badge', __( 'Typography', 'mhm-rentiva' ), 'badge_typography' );
 
 		$this->end_controls_section();
 	}

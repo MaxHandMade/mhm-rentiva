@@ -9,7 +9,6 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Frontend\Widgets\Base\WidgetAttributeBridge;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
-use MHMRentiva\Tests\Support\IgnoresVehicleCardTypographyNotice;
 use MHMRentiva\Tests\Support\RequestSimulator;
 use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use MHMRentiva\Tests\Support\WidgetFactory;
@@ -22,8 +21,6 @@ use WP_UnitTestCase;
  */
 final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 {
-	use IgnoresVehicleCardTypographyNotice;
-
 	private const CONTACT_STYLE = 'mhm-rentiva-contact-form';
 
 	public function setUp(): void
@@ -164,7 +161,6 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 			)
 		);
 		$settings = $widget->get_bridge_settings('rentiva_vehicles_list');
-		$this->forget_vehicle_card_typography_notice();
 
 		$this->assertArrayNotHasKey('title_color', $settings);
 		$this->assertArrayNotHasKey('price_color', $settings);
@@ -182,7 +178,6 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 			)
 		);
 		$settings = $widget->get_bridge_settings('rentiva_vehicles_list');
-		$this->forget_vehicle_card_typography_notice();
 
 		$method = new \ReflectionMethod($widget, 'prepare_shortcode_attributes');
 		$mapped = $method->invoke($widget, $settings);
