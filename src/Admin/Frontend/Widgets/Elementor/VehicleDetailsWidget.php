@@ -177,17 +177,13 @@ class VehicleDetailsWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		$atts = array(
-			'show_gallery'         => $this->convert_switcher_to_boolean( $settings['show_gallery'] ?? '1' ),
-			'show_features'        => $this->convert_switcher_to_boolean( $settings['show_features'] ?? '1' ),
-			'show_calendar'        => $this->convert_switcher_to_boolean( $settings['show_calendar'] ?? '1' ),
-			'show_pricing'         => $this->convert_switcher_to_boolean( $settings['show_pricing'] ?? '1' ),
-			'show_price'           => $this->convert_switcher_to_boolean( $settings['show_price'] ?? '1' ),
-			'show_booking'         => $this->convert_switcher_to_boolean( $settings['show_booking'] ?? '1' ),
-			'show_booking_button'  => $this->convert_switcher_to_boolean( $settings['show_booking_button'] ?? '1' ),
-			'show_favorite_button' => $this->convert_switcher_to_boolean( $settings['show_favorite_button'] ?? '1' ),
-			'show_compare_button'  => $this->convert_switcher_to_boolean( $settings['show_compare_button'] ?? '1' ),
-		);
+		$atts = array();
+
+		foreach ( array( 'show_gallery', 'show_features', 'show_calendar', 'show_pricing', 'show_price', 'show_booking', 'show_booking_button', 'show_favorite_button', 'show_compare_button' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
+			}
+		}
 
 		if ( ! empty( $settings['vehicle_id'] ) ) {
 			$atts['vehicle_id'] = sanitize_text_field( (string) $settings['vehicle_id'] );
