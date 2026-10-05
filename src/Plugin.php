@@ -73,6 +73,16 @@ final class Plugin {
 	 */
 	private function __construct()
 	{
+		// Meta write chokes: registered at bootstrap, not on `init`, so writes made
+		// during plugins_loaded or an early init priority (importers, migrations,
+		// integrations) obey the image policy too. add_filter() dedupes identical callbacks.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery')) {
+			foreach (array( 'update_post_metadata', 'add_post_metadata' ) as $hook) {
+				add_filter($hook, array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
+				add_filter($hook, array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_gallery' ), 10, 4);
+			}
+		}
+
 		// Ensure theme support for thumbnails
 		add_action('after_setup_theme', array( $this, 'setup_theme_support' ));
 
@@ -253,14 +263,6 @@ final class Plugin {
 
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery')) {
 			add_action('init', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'register_meta_fields' ));
-
-			// Featured-image choke: every request, not only wp-admin.
-			add_filter('update_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
-			add_filter('add_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_thumbnail' ), 10, 4);
-
-			// Gallery choke: direct writes of the gallery meta obey the image policy too.
-			add_filter('update_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_gallery' ), 10, 4);
-			add_filter('add_post_metadata', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'guard_gallery' ), 10, 4);
 		}
 	}
 

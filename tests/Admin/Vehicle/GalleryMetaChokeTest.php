@@ -155,7 +155,9 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$this->assertNotContains( $foreign, $details );
 
 		delete_post_meta( $this->vehicle, self::META_KEY );
+		// prefix-rename:ignore-start
 		$this->raw_insert( '_mhm_gallery_images', $this->json( $good, $sensitive ) );
+		// prefix-rename:ignore-end
 		$legacy = array_column( $method->invoke( null, $this->vehicle ), 'id' );
 		$this->assertContains( $good, $legacy );
 		$this->assertNotContains( $sensitive, $legacy );
@@ -186,6 +188,47 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer ) ) );
 		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $vetoed ) ) );
 		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $foreign ) ) );
+	}
+
+	public function test_guards_are_registered_by_the_plugin_constructor_not_only_on_init(): void
+	{
+		$hooks  = array( 'update_post_metadata', 'add_post_metadata' );
+		$guards = array( 'guard_gallery', 'guard_thumbnail' );
+		foreach ( $hooks as $hook ) {
+			foreach ( $guards as $guard ) {
+				remove_filter( $hook, array( VehicleGallery::class, $guard ), 10 );
+			}
+		}
+
+		// The constructor is what runs on plugins_loaded; init has long fired here.
+		$ref      = new \ReflectionClass( \MHMRentiva\Plugin::class );
+		$instance = $ref->newInstanceWithoutConstructor();
+		$ctor     = $ref->getConstructor();
+		$ctor->setAccessible( true );
+		$ctor->invoke( $instance );
+
+		try {
+			foreach ( $hooks as $hook ) {
+				foreach ( $guards as $guard ) {
+					$this->assertNotFalse( has_filter( $hook, array( VehicleGallery::class, $guard ) ), "$guard on $hook" );
+				}
+			}
+
+			$foreign = $this->image( $this->other_id );
+			$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $foreign ) ) );
+		} finally {
+			// Drop the throwaway instance's own hooks so it cannot act for the rest of the run.
+			global $wp_filter;
+			foreach ( $wp_filter as $tag => $hook_obj ) {
+				foreach ( $hook_obj->callbacks as $priority => $callbacks ) {
+					foreach ( $callbacks as $cb ) {
+						if ( is_array( $cb['function'] ) && $cb['function'][0] === $instance ) {
+							remove_filter( $tag, $cb['function'], $priority );
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public function test_stored_url_is_the_medium_rendition(): void

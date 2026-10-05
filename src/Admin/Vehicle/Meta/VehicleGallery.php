@@ -250,6 +250,13 @@ final class VehicleGallery extends AbstractMetaBox {
 		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $owner );
 	}
 	/**
+	 * Current user ID, or 0 when user functions are not loaded yet (guards run from bootstrap).
+	 */
+	private static function current_actor_id(): int {
+		return function_exists( 'wp_get_current_user' ) ? get_current_user_id() : 0;
+	}
+
+	/**
 	 * The single choke for a vehicle's featured image (`_thumbnail_id`).
 	 *
 	 * Hooked on `update_post_metadata` and `add_post_metadata` on every request,
@@ -270,7 +277,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			return $check;
 		}
 
-		if ( 0 === get_current_user_id() ) {
+		if ( 0 === self::current_actor_id() ) {
 			return $check;
 		}
 
@@ -308,7 +315,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			return $check;
 		}
 
-		$actor_id = get_current_user_id();
+		$actor_id = self::current_actor_id();
 
 		foreach ( $entries as $entry ) {
 			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
