@@ -145,14 +145,16 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$ids = array_column( VehicleGallery::get_gallery_for_frontend( $this->vehicle ), 'id' );
 		$this->assertContains( $good, $ids );
 		$this->assertNotContains( $sensitive, $ids );
-		$this->assertContains( $foreign, $ids, 'Display does not re-decide ownership.' );
+		// Another ordinary vendor's upload has no trusted provenance on this
+		// vehicle, so a stored row naming it is not shown.
+		$this->assertNotContains( $foreign, $ids, 'A stored foreign vendor image is not displayed.' );
 
 		$method = new \ReflectionMethod( VehicleDetails::class, 'get_gallery' );
 		$method->setAccessible( true );
 		$details = array_column( $method->invoke( null, $this->vehicle ), 'id' );
 		$this->assertContains( $good, $details );
 		$this->assertNotContains( $sensitive, $details );
-		$this->assertContains( $foreign, $details );
+		$this->assertNotContains( $foreign, $details );
 
 		delete_post_meta( $this->vehicle, self::META_KEY );
 		// prefix-rename:ignore-start
@@ -413,7 +415,8 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$own = $this->image( $this->author_id );
 		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own ) ) );
 		$this->veto( $own );
-		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own ) ) );
+		// update_post_meta() returns false for an unchanged value, so ask the guard itself.
+		$this->assertFalse( VehicleGallery::guard_gallery( null, $this->vehicle, self::META_KEY, $this->json( $own ) ) );
 		$this->assertSame( array(), VehicleGallery::filter_allowed_entries( $this->vehicle, array( array( 'id' => $own ) ) ) );
 	}
 
@@ -475,5 +478,89 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString( 'evil.example', $html );
 		$expected = wp_get_attachment_image_url( $own, 'medium' ) ?: wp_get_attachment_url( $own );
 		$this->assertStringContainsString( esc_url( (string) $expected ), $html );
+	}
+
+	public function test_stored_image_of_another_ordinary_vendor_is_neither_shown_nor_kept(): void
+	{
+		$own     = $this->image( $this->author_id );
+		$foreign = $this->image( $this->other_id );
+		$this->raw_insert( self::META_KEY, $this->json( $own, $foreign ) );
+
+		$this->assertFalse( VehicleGallery::is_displayable_image( $this->vehicle, $foreign ) );
+		$this->assertTrue( VehicleGallery::is_displayable_image( $this->vehicle, $own ) );
+
+		$method = new \ReflectionMethod( VehicleDetails::class, 'get_gallery' );
+		$method->setAccessible( true );
+		foreach ( array(
+			array_column( VehicleGallery::get_gallery_for_frontend( $this->vehicle ), 'id' ),
+			array_column( $method->invoke( null, $this->vehicle ), 'id' ),
+		) as $ids ) {
+			$this->assertContains( $own, $ids );
+			$this->assertNotContains( $foreign, $ids );
+		}
+
+		// Being stored does not make the entry keepable: the vendor's write that
+		// carries it is refused, and so is a write without a current user.
+		$this->assertFalse( VehicleGallery::guard_gallery( null, $this->vehicle, self::META_KEY, $this->json( $own, $foreign ) ) );
+		$this->assertNull( VehicleGallery::guard_gallery( null, $this->vehicle, self::META_KEY, $this->json( $own ) ) );
+		$this->assertSame( array( $own ), array_column( VehicleGallery::filter_allowed_entries( $this->vehicle, array( array( 'id' => $own ), array( 'id' => $foreign ) ) ), 'id' ) );
+
+		wp_set_current_user( 0 );
+		$this->assertFalse( VehicleGallery::guard_gallery( null, $this->vehicle, self::META_KEY, $this->json( $own, $foreign ) ) );
+		$this->assertFalse( VehicleGallery::guard_thumbnail( null, $this->vehicle, '_thumbnail_id', $foreign ) );
+	}
+
+	public function test_stored_foreign_featured_image_cannot_be_rewritten_by_the_vendor(): void
+	{
+		$foreign = $this->image( $this->other_id );
+		$this->raw_insert( '_thumbnail_id', (string) $foreign );
+
+		$this->assertFalse( VehicleGallery::guard_thumbnail( null, $this->vehicle, '_thumbnail_id', (string) $foreign ) );
+	}
+
+	public function test_trusted_provenances_are_shown_and_kept(): void
+	{
+		$admin    = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$editor   = self::factory()->user->create( array( 'role' => 'editor' ) );
+		$system   = $this->image( 0 );
+		$attached = $this->image( $this->other_id, $this->vehicle );
+		$by_admin = $this->image( $admin );
+		$by_edit  = $this->image( $editor );
+		$own      = $this->image( $this->author_id );
+		$all      = array( $system, $attached, $by_admin, $by_edit, $own );
+
+		$this->raw_insert( self::META_KEY, $this->json( ...$all ) );
+
+		$this->assertSame( $all, array_column( VehicleGallery::get_gallery_for_frontend( $this->vehicle ), 'id' ) );
+		$method = new \ReflectionMethod( VehicleDetails::class, 'get_gallery' );
+		$method->setAccessible( true );
+		$this->assertSame( $all, array_column( $method->invoke( null, $this->vehicle ), 'id' ) );
+
+		// The vendor's write keeps every stored entry of trusted provenance.
+		$this->assertNull( VehicleGallery::guard_gallery( null, $this->vehicle, self::META_KEY, $this->json( ...$all ) ) );
+
+		// A system upload (no uploader) not attached to the vehicle is accepted without a user.
+		delete_post_meta( $this->vehicle, self::META_KEY );
+		wp_set_current_user( 0 );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $system ) ) );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, '_thumbnail_id', $system ) );
+	}
+
+	/**
+	 * Accepted limit: an administrator may put another ordinary vendor's upload
+	 * into a vehicle's gallery, but it has no trusted provenance there, so it is
+	 * neither shown nor kept by a later write.
+	 */
+	public function test_admin_added_foreign_vendor_image_is_stored_but_not_shown(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$foreign = $this->image( $this->other_id );
+
+		wp_set_current_user( $admin );
+		$this->assertTrue( VehicleGallery::is_allowed_image( $this->vehicle, $foreign, $admin ) );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $foreign ) ) );
+
+		$this->assertSame( array(), VehicleGallery::get_gallery_for_frontend( $this->vehicle ) );
+		$this->assertSame( array(), VehicleGallery::filter_allowed_entries( $this->vehicle, array( array( 'id' => $foreign ) ), $this->author_id ) );
 	}
 }

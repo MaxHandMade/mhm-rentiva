@@ -10,7 +10,9 @@ use WP_Ajax_UnitTestCase;
 /**
  * One acceptance rule for every gallery writer: a new id must be an image the
  * actor owns (or may manage) and that no filter marks as sensitive; an id
- * already in the gallery need only be a displayable image.
+ * already in the gallery must be a displayable image, which includes a trusted
+ * provenance on the vehicle (attached to it, or uploaded by its owner, by the
+ * system, or by a user with edit_others_posts).
  *
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::is_allowed_image
  * @covers \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::filter_allowed_entries
@@ -89,9 +91,12 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 	 */
 	private function plant( string $value ): void
 	{
+		// Both hooks: on an empty row update_post_meta() falls through to add_post_meta().
 		remove_filter( 'update_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10 );
+		remove_filter( 'add_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10 );
 		update_post_meta( $this->vehicle, self::META_KEY, $value );
 		add_filter( 'update_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10, 4 );
+		add_filter( 'add_post_metadata', array( VehicleGallery::class, 'guard_gallery' ), 10, 4 );
 	}
 
 	private function assert_clean( string $writer, int $foreign, int $owned ): void
@@ -228,9 +233,10 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$foreign = $this->image( $this->other_id );
 		$owned   = $this->image( $this->author_id );
 		$extra   = $this->image( $this->author_id );
-		// A planted entry is already stored, so it only has to be displayable:
-		// a foreign image would be kept like display keeps it. The stored poison
-		// is therefore a non-image attachment, which no writer may keep.
+		// A planted entry is already stored, so it is judged as displayable. This
+		// test plants a non-image attachment, which no writer may keep; a planted
+		// foreign vendor image is covered by
+		// test_stored_foreign_vendor_image_is_dropped_by_every_writer().
 		$pdf = $this->image( $this->other_id, 0, 'application/pdf', 'doc.pdf' );
 
 		// 1. save_gallery_images: the posted JSON carries the poison (new to this gallery).
@@ -276,7 +282,8 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 	/**
 	 * An admin adds an image they uploaded to a vendor's vehicle; the vendor's
 	 * later writes (save, AJAX add/remove/reorder) keep it, because an entry
-	 * already in the gallery need only be displayable.
+	 * already in the gallery need only be displayable, and an upload by a user
+	 * with edit_others_posts is a trusted provenance.
 	 */
 	public function test_admin_image_already_in_vendor_gallery_survives_every_vendor_writer(): void
 	{
@@ -386,5 +393,58 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		);
 		$this->call( 'mhmrentiva_reorder_gallery_images' );
 		$this->assertSame( array( $owned ), array_map( 'intval', array_column( $this->stored(), 'id' ) ) );
+	}
+
+	/**
+	 * A gallery row planted straight into the database with another ordinary
+	 * vendor's image: being stored does not make it keepable, so every vendor
+	 * writer drops it.
+	 */
+	public function test_stored_foreign_vendor_image_is_dropped_by_every_writer(): void
+	{
+		wp_set_current_user( $this->author_id );
+		$foreign = $this->image( $this->other_id );
+		$owned   = $this->image( $this->author_id );
+		$extra   = $this->image( $this->author_id );
+
+		// 1. save: the posted JSON repeats the stored gallery, foreign entry included.
+		$this->plant( $this->poison( $foreign, $owned ) );
+		$_POST = array(
+			'mhmrentiva_gallery_images_nonce' => wp_create_nonce( 'mhmrentiva_gallery_images' ),
+			'mhmrentiva_gallery_images'       => wp_slash( $this->poison( $foreign, $owned ) ),
+		);
+		VehicleGallery::save_gallery_images( $this->vehicle );
+		$this->assert_clean( 'save', $foreign, $owned );
+
+		// 2. add.
+		$this->plant( $this->poison( $foreign, $owned ) );
+		$_POST = array(
+			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'   => $this->vehicle,
+			'image_ids' => array( $extra ),
+		);
+		$this->call( 'mhmrentiva_add_gallery_image' );
+		$this->assert_clean( 'add', $foreign, $owned );
+		$this->assertContains( $extra, array_map( 'intval', array_column( $this->stored(), 'id' ) ) );
+
+		// 3. remove a different id.
+		$this->plant( $this->poison( $foreign, $owned ) );
+		$_POST = array(
+			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'  => $this->vehicle,
+			'image_id' => $extra,
+		);
+		$this->call( 'mhmrentiva_remove_gallery_image' );
+		$this->assert_clean( 'remove', $foreign, $owned );
+
+		// 4. reorder, asking for the planted id.
+		$this->plant( $this->poison( $foreign, $owned ) );
+		$_POST = array(
+			'nonce'       => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'     => $this->vehicle,
+			'image_order' => array( $foreign, $owned ),
+		);
+		$this->call( 'mhmrentiva_reorder_gallery_images' );
+		$this->assert_clean( 'reorder', $foreign, $owned );
 	}
 }
