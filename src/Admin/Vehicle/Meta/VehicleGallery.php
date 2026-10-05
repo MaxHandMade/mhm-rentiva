@@ -488,6 +488,33 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Core's featured-image box for a vehicle whose stored cover the site does not show.
+	 *
+	 * The box reads `_thumbnail_id` raw, so it would render another user's file
+	 * (possibly a sensitive document) to the editor. Instead it shows the same
+	 * mark as the gallery box, followed by core's empty box, whose field holds -1:
+	 * saving the vehicle clears the cover, as the mark announces.
+	 *
+	 * @param string   $content      Box HTML.
+	 * @param int      $post_id      Post ID.
+	 * @param int|null $thumbnail_id Stored thumbnail ID.
+	 */
+	public static function filter_admin_thumbnail_html( $content, $post_id, $thumbnail_id ): string {
+		$thumbnail_id = (int) $thumbnail_id;
+		if ( $thumbnail_id <= 0 || 'mhmrentiva_vehicle' !== get_post_type( (int) $post_id ) || self::is_displayable_image( (int) $post_id, $thumbnail_id ) ) {
+			return (string) $content;
+		}
+
+		$mark = sprintf(
+			'<p class="mhm-thumbnail-hidden"><span class="dashicons dashicons-hidden" aria-hidden="true"></span> <strong>%1$s</strong><br />%2$s</p>',
+			esc_html__( 'Not shown on the site', 'mhm-rentiva' ),
+			esc_html__( 'This featured image is not shown on the site and will be removed when the vehicle is saved.', 'mhm-rentiva' )
+		);
+
+		return $mark . _wp_post_thumbnail_html( null, (int) $post_id );
+	}
+
+	/**
 	 * Loads the covers of the main query's vehicles, and their uploaders, in one go.
 	 *
 	 * Core's update_post_thumbnail_cache() asks for every post's thumbnail id before

@@ -17,7 +17,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
-#: mhm-rentiva.php:628
+#: mhm-rentiva.php:629
 #: src/Admin/About/Tabs/GeneralTab.php:128
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
@@ -58,39 +58,39 @@ msgid "MHM Rentiva requires the PHP mbstring extension, which is not enabled on 
 msgstr "MHM Rentiva, PHP mbstring uzantısını gerektirir; bu sunucuda etkin değil. Lütfen barındırma sağlayıcınızdan etkinleştirmesini isteyin."
 
 #. translators: %s: startup exception message.
-#: mhm-rentiva.php:306
+#: mhm-rentiva.php:307
 #, php-format
 msgid "MHM Rentiva plugin error on startup: %s"
 msgstr "Başlangıçta MHM Rentiva eklentisi hatası: %s"
 
-#: mhm-rentiva.php:318
+#: mhm-rentiva.php:319
 msgid "MHM Rentiva plugin failed to load. Please reinstall the plugin."
 msgstr "MHM Rentiva eklentisi yüklenemedi. Lütfen eklentiyi yeniden yükleyin."
 
-#: mhm-rentiva.php:544
+#: mhm-rentiva.php:545
 msgid "MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again."
 msgstr "MHM Rentiva, gerekli veritabanı tablolarını oluşturamadı. Eklenti etkinleştirilmedi. Veritabanı izinlerini kontrol edip tekrar deneyin."
 
-#: mhm-rentiva.php:545
+#: mhm-rentiva.php:546
 msgid "Database Setup Failed"
 msgstr "Veritabanı Kurulumu Başarısız"
 
-#: mhm-rentiva.php:578
+#: mhm-rentiva.php:579
 msgid "MHM Rentiva plugin requires PHP 8.1 or higher."
 msgstr "MHM Rentiva eklentisi PHP 8.1 veya üstü sürüm gerektirir."
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:587
+#: mhm-rentiva.php:588
 #, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir."
 
-#: mhm-rentiva.php:590
+#: mhm-rentiva.php:591
 msgid "Plugin Dependency Check"
 msgstr "Eklenti Bağımlılık Kontrolü"
 
 #. translators: %s: Plugin name.
-#: mhm-rentiva.php:627
+#: mhm-rentiva.php:628
 #, php-format
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir. Bu eklentiyi kullanmak için lütfen WooCommerce'i kurun."
@@ -11823,37 +11823,37 @@ msgstr "Görsel eklenirken hata oluştu"
 msgid "Error occurred while removing image"
 msgstr "Görsel kaldırılırken hata oluştu"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:712
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:790
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:841
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:739
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:817
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:868
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1301
 msgid "Security error"
 msgstr "Güvenlik Hatası"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:722
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:798
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:849
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:749
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:825
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:876
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1315
 msgid "Permission error"
 msgstr "İzin hatası"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:735
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:811
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:862
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:762
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:838
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:889
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1331
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1338
 msgid "Invalid data"
 msgstr "Geçersiz veri"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:777
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:804
 msgid "Images successfully added"
 msgstr "Görüntüler başarıyla eklendi"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:829
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:856
 msgid "Image successfully removed"
 msgstr "Görüntü başarıyla kaldırıldı"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:882
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:909
 msgid "Images successfully reordered"
 msgstr "Görüntüler başarıyla yeniden sıralandı"
 
@@ -13398,9 +13398,9 @@ msgstr "5 üzerinden %s oy aldı"
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:240
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:296
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:366
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:729
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:805
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:856
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:756
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:832
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:883
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1326
 #: templates/shortcodes/availability-calendar.php:50
 msgid "Vehicle not found."
@@ -16178,11 +16178,11 @@ msgctxt "contact message"
 msgid "Attachment"
 msgstr "Ek"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:622
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:649
 msgid "You are not allowed to attach media to this vehicle."
 msgstr "Bu araca medya bağlama yetkiniz yok."
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:776
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:803
 msgid "Some images could not be added: only images you uploaded or images attached to this vehicle can be used."
 msgstr "Bazı görseller eklenemedi: yalnızca sizin yüklediğiniz veya bu araca bağlı görseller kullanılabilir."
 
@@ -16191,6 +16191,11 @@ msgstr "Bazı görseller eklenemedi: yalnızca sizin yüklediğiniz veya bu arac
 msgid "This image is not shown on the site and will be removed when the gallery is saved."
 msgstr "Bu görsel sitede gösterilmiyor ve galeri kaydedildiğinde kaldırılacak."
 
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:510
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:63
 msgid "Not shown on the site"
 msgstr "Sitede gösterilmiyor"
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:511
+msgid "This featured image is not shown on the site and will be removed when the vehicle is saved."
+msgstr "Bu öne çıkan görsel sitede gösterilmiyor ve araç kaydedildiğinde kaldırılacak."
