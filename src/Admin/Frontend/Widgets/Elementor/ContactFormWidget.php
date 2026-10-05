@@ -56,7 +56,6 @@ class ContactFormWidget extends ElementorWidgetBase {
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_contact', $atts );
+		$this->render_canonical( 'rentiva_contact' );
 	}
 }

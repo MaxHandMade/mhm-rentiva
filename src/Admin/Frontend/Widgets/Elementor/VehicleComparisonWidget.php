@@ -169,7 +169,6 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_vehicle_comparison', $atts );
+		$this->render_canonical( 'rentiva_vehicle_comparison' );
 	}
 }

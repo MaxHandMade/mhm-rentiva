@@ -78,36 +78,6 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	protected function register_style_controls(): void {}
 
 	/**
-	 * Automated Attribute Preparation
-	 * Converts Elementor settings directly to Shortcode attributes.
-	 *
-	 * @return array
-	 */
-	protected function get_prepared_atts(): array {
-		$settings = $this->get_settings_for_display();
-		$atts     = array();
-
-		foreach ( $settings as $key => $value ) {
-			// Convert 'yes'/'no' to '1'/'0' for shortcode compatibility
-			if ( $value === 'yes' ) {
-				$atts[ $key ] = '1';
-			} elseif ( $value === 'no' ) {
-				$atts[ $key ] = '0';
-			} else {
-				$atts[ $key ] = $value;
-			}
-		}
-
-		// Sanitize everything before usage
-		return array_map(
-			function ( $val ) {
-				return is_string( $val ) ? sanitize_text_field( $val ) : $val;
-			},
-			$atts
-		);
-	}
-
-	/**
 	 * Convert Elementor switcher-like values to canonical shortcode boolean strings.
 	 *
 	 * @param mixed $value Raw widget setting value.
@@ -122,50 +92,89 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
-	 * Render Shortcode Helper
+	 * Widget settings the bridge may turn into shortcode attributes.
+	 *
+	 * Only controls registered on this widget's own stack count: get_stack( false )
+	 * leaves out Elementor's shared "common" widget, so internals such as _title or
+	 * _transform_* and stale saved values of removed controls never reach the shortcode.
+	 * Section entries carry no value. URL controls are flattened to their url string,
+	 * then values meaning "not set" are dropped so schema defaults apply.
+	 *
+	 * Public so tests can inspect it on a real widget instance.
+	 *
+	 * @param string $tag Shortcode tag.
+	 * @return array
+	 */
+	public function get_bridge_settings( string $tag ): array {
+		$controls = $this->get_stack( false )['controls'] ?? array();
+		$own      = array();
+		foreach ( $controls as $id => $control ) {
+			if ( 'section' !== ( $control['type'] ?? '' ) ) {
+				$own[ $id ] = true;
+			}
+		}
+
+		$settings = array_intersect_key( (array) $this->get_settings_for_display(), $own );
+
+		return WidgetAttributeBridge::filter_empty( $tag, WidgetAttributeBridge::flatten_controls( $settings ) );
+	}
+
+	/**
+	 * Render the mapped shortcode from this widget's settings.
+	 *
+	 * The attributes go to the registered callback as an array (no shortcode string is
+	 * assembled), so values containing brackets, quotes or "&" arrive intact.
+	 *
+	 * @param string $tag Shortcode tag.
+	 */
+	protected function render_canonical( string $tag ): void {
+		$settings = $this->get_bridge_settings( $tag );
+		Templates::output_shortcode_atts(
+			$tag,
+			WidgetAttributeBridge::to_canonical( $tag, $settings, $this->prepare_shortcode_attributes( $settings ) )
+		);
+	}
+
+	/**
+	 * Render a shortcode and return its markup.
+	 *
+	 * Kept for add-on widgets that still call it. It no longer builds a shortcode
+	 * string: $atts becomes the explicit mapping on top of this widget's own bridge
+	 * settings, and the result comes from the registered callback. No
+	 * _deprecated_function() notice is raised on purpose, so add-on test suites keep
+	 * passing while they move to render_canonical().
+	 *
+	 * @deprecated 6.1.6 Use render_canonical().
 	 *
 	 * @param string $tag  Shortcode tag.
-	 * @param array  $atts Shortcode attributes.
+	 * @param array  $atts Explicit shortcode attributes.
 	 * @return string
 	 */
 	protected function render_shortcode( string $tag, array $atts = array() ): string {
-		return do_shortcode( self::build_shortcode( $tag, $atts ) );
+		return Templates::render_shortcode_atts(
+			$tag,
+			WidgetAttributeBridge::to_canonical( $tag, $this->get_bridge_settings( $tag ), $atts )
+		);
 	}
 
 	/**
 	 * Render a shortcode straight to the page.
 	 *
-	 * Widgets use this instead of `echo $this->render_shortcode( ... )` so that no widget
-	 * echoes an unescaped value itself. The single unavoidable unescaped echo of assembled
-	 * shortcode markup lives in Templates::output_shortcode(), documented there.
+	 * Same compatibility path as render_shortcode(). The unescaped echo of the markup
+	 * lives in Templates::output_shortcode_atts(), documented there.
+	 *
+	 * @deprecated 6.1.6 Use render_canonical().
 	 *
 	 * @param string $tag  Shortcode tag.
-	 * @param array  $atts Shortcode attributes.
+	 * @param array  $atts Explicit shortcode attributes.
 	 */
 	protected function output_shortcode( string $tag, array $atts = array() ): void {
-		Templates::output_shortcode( self::build_shortcode( $tag, $atts ) );
+		Templates::output_shortcode_atts(
+			$tag,
+			WidgetAttributeBridge::to_canonical( $tag, $this->get_bridge_settings( $tag ), $atts )
+		);
 	}
 
-	/**
-	 * Build the shortcode string, escaping every attribute name and value.
-	 *
-	 * @param string $tag  Shortcode tag.
-	 * @param array  $atts Shortcode attributes.
-	 * @return string
-	 */
-	private static function build_shortcode( string $tag, array $atts = array() ): string {
-		$atts_string = '';
-		foreach ( $atts as $key => $value ) {
-			// Skip non-scalar settings (icon/url/globals arrays) — they can't be
-			// string shortcode attributes and would trigger "Array to string conversion".
-			if ( is_array( $value ) || is_object( $value ) ) {
-				continue;
-			}
-			$atts_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( (string) $value ) );
-		}
-
-		return sprintf( '[%s%s]', $tag, $atts_string );
-	}
 	/**
 	 * Standard Style Controls
 	 * Shared typography and color settings for all MHM widgets.
@@ -239,10 +248,16 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
-	 * Prepare attributes for shortcode (Default implementation)
+	 * Widget-specific explicit mapping, applied over the raw bridge settings.
+	 *
+	 * Receives the already filtered bridge settings. The default maps nothing extra:
+	 * every live control already reaches the shortcode through the bridge.
+	 *
+	 * @param array $settings Filtered bridge settings.
+	 * @return array
 	 */
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		return $this->get_prepared_atts();
+		return array();
 	}
 
 	/**

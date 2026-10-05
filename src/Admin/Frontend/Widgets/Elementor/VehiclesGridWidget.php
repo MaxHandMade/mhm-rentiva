@@ -189,8 +189,7 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_vehicles_grid', $atts );
+		$this->render_canonical( 'rentiva_vehicles_grid' );
 	}
 
 	private static function include_template_with_vars( string $template_path, array $template_data ): void {

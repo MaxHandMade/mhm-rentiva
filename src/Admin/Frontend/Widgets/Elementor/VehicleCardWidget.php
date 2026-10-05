@@ -461,25 +461,37 @@ class VehicleCardWidget extends ElementorWidgetBase {
 	 * Render widget output.
 	 */
 	protected function render(): void {
-		$settings = $this->get_settings_for_display();
+		// Widget wrapper
+		echo '<div class="elementor-widget-rv-vehicle-card">';
+		$this->render_canonical( 'rentiva_vehicles_list' );
+		echo '</div>';
+	}
 
-		// Prepare shortcode attributes
-		$atts = $this->prepare_shortcode_attributes( $settings );
+	/**
+	 * Map the card's controls onto the Vehicles List shortcode.
+	 *
+	 * The card has no shortcode of its own: it renders Vehicles List pinned to a
+	 * single vehicle, so limit and columns are fixed rather than derived from input.
+	 *
+	 * @param array $settings Filtered bridge settings.
+	 * @return array
+	 */
+	protected function prepare_shortcode_attributes( array $settings ): array {
+		$atts = array(
+			'limit'   => '1',
+			'columns' => '1',
+		);
 
 		// Append custom CSS class
 		if ( ! empty( $settings['custom_css_class'] ) ) {
 			$atts['class'] = $settings['custom_css_class'];
 		}
 
-		// Animation toggle
-		if ( $settings['enable_animation'] !== 'yes' ) {
+		// Animation toggle. Only a present value is mapped: a missing/hidden control
+		// must not synthesize "disabled".
+		if ( array_key_exists( 'enable_animation', $settings ) && 'yes' !== $settings['enable_animation'] ) {
 			$atts['disable_animation'] = '1';
 		}
-
-		// Use Vehicles List shortcode with limit=1 and specific ID
-		// This simulates a single vehicle card
-		$atts['limit']   = '1';
-		$atts['columns'] = '1';
 
 		// If vehicle ID is set, use it
 		if ( ! empty( $settings['vehicle_id'] ) ) {
@@ -494,10 +506,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			$atts['price_format'] = $settings['price_format'];
 		}
 
-		// Widget wrapper
-		echo '<div class="elementor-widget-rv-vehicle-card">';
-		$this->output_shortcode( 'rentiva_vehicles_list', $atts );
-		echo '</div>';
+		return $atts;
 	}
 
 	/**
