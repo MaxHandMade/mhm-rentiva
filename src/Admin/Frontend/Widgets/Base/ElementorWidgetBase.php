@@ -97,8 +97,11 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * Only controls registered on this widget's own stack count: get_stack( false )
 	 * leaves out Elementor's shared "common" widget, so internals such as _title or
 	 * _transform_* and stale saved values of removed controls never reach the shortcode.
-	 * Section entries carry no value. URL controls are flattened to their url string,
-	 * then values meaning "not set" are dropped so schema defaults apply.
+	 * Section entries carry no value, and neither do style-only controls (those with a
+	 * "selectors" key: colors, typography, spacing...) because they change CSS, never
+	 * a shortcode attribute, so a style key that shares a name with an attribute cannot
+	 * leak into it. URL controls are flattened to their url string, then values meaning
+	 * "not set" are dropped so schema defaults apply.
 	 *
 	 * Public so tests can inspect it on a real widget instance.
 	 *
@@ -109,9 +112,10 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		$controls = $this->get_stack( false )['controls'] ?? array();
 		$own      = array();
 		foreach ( $controls as $id => $control ) {
-			if ( 'section' !== ( $control['type'] ?? '' ) ) {
-				$own[ $id ] = true;
+			if ( 'section' === ( $control['type'] ?? '' ) || isset( $control['selectors'] ) ) {
+				continue;
 			}
+			$own[ $id ] = true;
 		}
 
 		$settings = array_intersect_key( (array) $this->get_settings_for_display(), $own );
@@ -160,8 +164,10 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	/**
 	 * Render a shortcode straight to the page.
 	 *
-	 * Same compatibility path as render_shortcode(). The unescaped echo of the markup
-	 * lives in Templates::output_shortcode_atts(), documented there.
+	 * Same compatibility path as render_shortcode(). The echo happens in
+	 * Templates::output_shortcode_atts(), which passes the markup through
+	 * wp_kses( ..., Html::allowed_markup() ) (gate G-A allows no bare echo), so this
+	 * shim never prints unescaped output.
 	 *
 	 * @deprecated 6.1.6 Use render_canonical().
 	 *

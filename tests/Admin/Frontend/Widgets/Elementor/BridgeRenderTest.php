@@ -48,19 +48,11 @@ final class BridgeRenderTest extends WP_UnitTestCase
 		$a = ShortcodeFixtures::vehicle();
 		$b = ShortcodeFixtures::vehicle();
 
-		// The payload is built the way a widget builds it (to_canonical() adds the
-		// schema defaults and `_canonical`). A bare ['_canonical' => true] array with
-		// only these two keys needs AbstractShortcode to apply defaults under
-		// `_canonical`, which lands in the next task (spec §2.3).
-		$atts = WidgetAttributeBridge::to_canonical(
-			'rentiva_vehicle_comparison',
-			array(),
-			array(
-				'title'       => 'Karşılaştır [7/24] & "biz"',
-				'vehicle_ids' => "$a,$b",
-			)
+		$atts = array(
+			'title'       => 'Karşılaştır [7/24] & "biz"',
+			'vehicle_ids' => "$a,$b",
+			'_canonical'  => true,
 		);
-		$this->assertTrue($atts['_canonical']);
 
 		$html = Templates::render_shortcode_atts('rentiva_vehicle_comparison', $atts);
 
