@@ -161,6 +161,33 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$this->assertNotContains( $sensitive, $legacy );
 	}
 
+	public function test_admin_uploaded_image_is_displayed_and_accepted_for_user_zero(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$adminer = $this->image( $admin );
+		$foreign = $this->image( $this->other_id );
+		$vetoed  = $this->image( $admin );
+		$this->veto( $vetoed );
+
+		$this->raw_insert( self::META_KEY, $this->json( $adminer, $vetoed, $foreign ) );
+		$method = new \ReflectionMethod( VehicleDetails::class, 'get_gallery' );
+		$method->setAccessible( true );
+		foreach ( array(
+			array_column( VehicleGallery::get_gallery_for_frontend( $this->vehicle ), 'id' ),
+			array_column( $method->invoke( null, $this->vehicle ), 'id' ),
+		) as $ids ) {
+			$this->assertContains( $adminer, $ids );
+			$this->assertNotContains( $vetoed, $ids );
+			$this->assertNotContains( $foreign, $ids );
+		}
+
+		delete_post_meta( $this->vehicle, self::META_KEY );
+		wp_set_current_user( 0 );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer ) ) );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $vetoed ) ) );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer, $foreign ) ) );
+	}
+
 	public function test_stored_url_is_the_medium_rendition(): void
 	{
 		$id = $this->image( $this->author_id );

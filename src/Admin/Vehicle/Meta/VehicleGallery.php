@@ -218,6 +218,38 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Whether a stored gallery image may be shown or written without a person acting.
+	 *
+	 * Judges the image on its own: an image attachment that belongs to the vehicle,
+	 * was uploaded by the vehicle's author, or was uploaded by someone who may
+	 * manage any post (an admin curating a vendor's gallery), and that the
+	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto (the vehicle's
+	 * author is passed as the actor). Writes by a signed-in user use
+	 * is_allowed_image() instead.
+	 *
+	 * @param int $vehicle_id Vehicle ID.
+	 * @param int $id         Attachment ID.
+	 */
+	public static function is_displayable_image( int $vehicle_id, int $id ): bool {
+		if ( $id <= 0 || 'attachment' !== get_post_type( $id ) || ! wp_attachment_is_image( $id ) ) {
+			return false;
+		}
+
+		$owner      = (int) get_post_field( 'post_author', $vehicle_id );
+		$attachment = get_post( $id );
+		if ( ! $attachment ) {
+			return false;
+		}
+
+		$uploader = (int) $attachment->post_author;
+		if ( (int) $attachment->post_parent !== $vehicle_id && $uploader !== $owner && ! user_can( $uploader, 'edit_others_posts' ) ) {
+			return false;
+		}
+
+		/** This filter is documented in is_allowed_image(). */
+		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $owner );
+	}
+	/**
 	 * The single choke for a vehicle's featured image (`_thumbnail_id`).
 	 *
 	 * Hooked on `update_post_metadata` and `add_post_metadata` on every request,
@@ -257,8 +289,8 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * integration or importer obeys the same image policy as the gallery writers.
 	 * The incoming value is the already-sanitized JSON string (or array); anything
 	 * that is not a list is left to the registered sanitize callback. When there
-	 * is no current user (WP-CLI, cron, importers) the vehicle's author acts, so
-	 * ownership and the `mhmrentiva_gallery_attachment_allowed` filter still apply.
+	 * is no current user (WP-CLI, cron, importers) is_displayable_image() judges the
+	 * entry, so the filter veto still applies.
 	 *
 	 * @param mixed  $check      Short-circuit value from earlier filters.
 	 * @param int    $object_id  Post ID.
@@ -277,16 +309,16 @@ final class VehicleGallery extends AbstractMetaBox {
 		}
 
 		$actor_id = get_current_user_id();
-		if ( 0 === $actor_id ) {
-			$actor_id = (int) get_post_field( 'post_author', $object_id );
-		}
 
 		foreach ( $entries as $entry ) {
 			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
 				continue;
 			}
 
-			if ( ! self::is_allowed_image( $object_id, (int) $entry['id'], $actor_id ) ) {
+			$allowed = 0 === $actor_id
+				? self::is_displayable_image( $object_id, (int) $entry['id'] )
+				: self::is_allowed_image( $object_id, (int) $entry['id'], $actor_id );
+			if ( ! $allowed ) {
 				return false;
 			}
 		}
@@ -557,10 +589,8 @@ final class VehicleGallery extends AbstractMetaBox {
 		$gallery_images  = self::get_gallery_images( $post_id );
 		$frontend_images = array();
 
-		$vehicle_author = (int) get_post_field( 'post_author', $post_id );
-
 		foreach ( $gallery_images as $image ) {
-			if ( ! is_array( $image ) || ! isset( $image['id'] ) || ! self::is_allowed_image( $post_id, (int) $image['id'], $vehicle_author ) ) {
+			if ( ! is_array( $image ) || ! isset( $image['id'] ) || ! self::is_displayable_image( $post_id, (int) $image['id'] ) ) {
 				continue;
 			}
 
