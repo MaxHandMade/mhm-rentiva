@@ -9,6 +9,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Frontend\Widgets\Base\WidgetAttributeBridge;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Tests\Support\IgnoresVehicleCardTypographyNotice;
 use MHMRentiva\Tests\Support\RequestSimulator;
 use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use MHMRentiva\Tests\Support\WidgetFactory;
@@ -21,6 +22,8 @@ use WP_UnitTestCase;
  */
 final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 {
+	use IgnoresVehicleCardTypographyNotice;
+
 	private const CONTACT_STYLE = 'mhm-rentiva-contact-form';
 
 	public function setUp(): void
@@ -121,6 +124,27 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 		$this->assertContains('mhm-rentiva-css-variables', wp_styles()->to_do);
 	}
 
+	public function test_request_simulator_save_restore_round_trip(): void
+	{
+		wp_register_script('rv-sim-probe', 'https://example.test/probe.js', array(), '1');
+		wp_add_inline_script('rv-sim-probe', 'window.a=1;', 'before');
+		wp_enqueue_script('rv-sim-probe?ver9');
+
+		$state = RequestSimulator::save(array( 'rv-sim-probe' ));
+
+		RequestSimulator::new_request(array( 'rv-sim-probe' ));
+		$this->assertNotContains('rv-sim-probe', wp_scripts()->queue);
+		$this->assertArrayNotHasKey('before', wp_scripts()->registered['rv-sim-probe']->extra);
+
+		RequestSimulator::restore($state);
+		$this->assertContains('rv-sim-probe', wp_scripts()->queue);
+		$this->assertSame('ver9', wp_scripts()->args['rv-sim-probe']);
+		$this->assertTrue(wp_scripts()->query('rv-sim-probe', 'enqueued'));
+		$this->assertContains('window.a=1;', wp_scripts()->registered['rv-sim-probe']->extra['before'] ?? array());
+
+		wp_deregister_script('rv-sim-probe');
+	}
+
 	public function test_cache_seam_overrides_default(): void
 	{
 		$this->assertFalse(CanonicalProbeShortcode::caching_enabled());
@@ -131,25 +155,20 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 
 	public function test_bridge_settings_exclude_style_only_controls(): void
 	{
-		// VehicleCardWidget re-declares its typography controls under one id (a
-		// pre-existing widget defect, outside this task); Elementor reports it once
-		// per process, from whichever test builds the card first. Drop that notice
-		// so this test does not depend on test order.
-		$this->caught_doing_it_wrong = array();
-
 		$widget   = WidgetFactory::make(
 			VehicleCardWidget::class,
 			array(
 				'title_color' => '#ff0000',
+				'price_color' => '#00ff00',
 				'vehicle_id'  => '12',
 			)
 		);
 		$settings = $widget->get_bridge_settings('rentiva_vehicles_list');
+		$this->forget_vehicle_card_typography_notice();
 
 		$this->assertArrayNotHasKey('title_color', $settings);
 		$this->assertArrayNotHasKey('price_color', $settings);
 		$this->assertArrayHasKey('vehicle_id', $settings);
-		$this->caught_doing_it_wrong = array();
 	}
 
 	public function test_vehicle_card_mapping(): void
@@ -163,6 +182,7 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 			)
 		);
 		$settings = $widget->get_bridge_settings('rentiva_vehicles_list');
+		$this->forget_vehicle_card_typography_notice();
 
 		$method = new \ReflectionMethod($widget, 'prepare_shortcode_attributes');
 		$mapped = $method->invoke($widget, $settings);
