@@ -155,6 +155,62 @@ final class GalleryAllowedImageTest extends WP_Ajax_UnitTestCase
 		$this->assertTrue( VehicleGallery::is_allowed_image( $this->vehicle, $own, $this->author_id ) );
 	}
 
+	public function test_non_ascii_and_quotes_survive_the_save_and_ajax_writers(): void
+	{
+		wp_set_current_user( $this->author_id );
+		$owned = $this->image( $this->author_id );
+		$extra = $this->image( $this->author_id );
+		$alt   = 'Şık "araç"';
+		$title = 'Ğüzel \\ araç';
+		$json  = (string) wp_json_encode( array( array( 'id' => $owned, 'url' => '', 'alt' => $alt, 'title' => $title ) ) );
+
+		$check = function ( string $writer ) use ( $owned, $alt, $title ): void {
+			$stored = $this->stored();
+			$this->assertNotEmpty( $stored, $writer . ': meta decodes' );
+			$this->assertSame( $owned, (int) $stored[0]['id'], $writer );
+			$this->assertSame( $alt, $stored[0]['alt'], $writer . ': alt round trip' );
+			$this->assertSame( $title, $stored[0]['title'], $writer . ': title round trip' );
+		};
+
+		// save: $_POST is slashed by WordPress before it reaches the handler.
+		$_POST = array(
+			'mhmrentiva_gallery_images_nonce' => wp_create_nonce( 'mhmrentiva_gallery_images' ),
+			'mhmrentiva_gallery_images'       => wp_slash( $json ),
+		);
+		VehicleGallery::save_gallery_images( $this->vehicle );
+		$check( 'save' );
+
+		// add rewrites the whole gallery.
+		update_post_meta( $this->vehicle, self::META_KEY, wp_slash( $json ) );
+		$_POST = array(
+			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'   => $this->vehicle,
+			'image_ids' => array( $extra ),
+		);
+		$this->call( 'mhmrentiva_add_gallery_image' );
+		$check( 'add' );
+
+		// remove.
+		update_post_meta( $this->vehicle, self::META_KEY, wp_slash( $json ) );
+		$_POST = array(
+			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'  => $this->vehicle,
+			'image_id' => $extra,
+		);
+		$this->call( 'mhmrentiva_remove_gallery_image' );
+		$check( 'remove' );
+
+		// reorder.
+		update_post_meta( $this->vehicle, self::META_KEY, wp_slash( $json ) );
+		$_POST = array(
+			'nonce'       => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
+			'post_id'     => $this->vehicle,
+			'image_order' => array( $owned ),
+		);
+		$this->call( 'mhmrentiva_reorder_gallery_images' );
+		$check( 'reorder' );
+	}
+
 	public function test_string_ids_and_poisoned_gallery_are_filtered_on_every_writer(): void
 	{
 		wp_set_current_user( $this->author_id );

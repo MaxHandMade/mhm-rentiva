@@ -172,7 +172,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			$gallery_images = sanitize_text_field( wp_unslash( (string) $_POST['mhmrentiva_gallery_images'] ) );
 			$decoded        = json_decode( $gallery_images, true );
 			$entries        = self::filter_allowed_entries( $post_id, is_array( $decoded ) ? $decoded : array() );
-			update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_json_encode( $entries ) );
+			update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_slash( wp_json_encode( $entries ) ) );
 		}
 	}
 
@@ -245,8 +245,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			$kept[] = array(
 				'id'    => $id,
 				'url'   => (string) wp_get_attachment_url( $id ),
-				'alt'   => self::sanitize_text_field_safe( $entry['alt'] ?? '' ),
-				'title' => self::sanitize_text_field_safe( $entry['title'] ?? '' ),
+				'alt'   => sanitize_text_field( (string) ( $entry['alt'] ?? '' ) ),
+				'title' => sanitize_text_field( (string) ( $entry['title'] ?? '' ) ),
 			);
 		}
 
@@ -272,8 +272,8 @@ final class VehicleGallery extends AbstractMetaBox {
 				$sanitized_images[] = array(
 					'id'    => intval( $image['id'] ),
 					'url'   => esc_url_raw( $image['url'] ?? '' ),
-					'alt'   => self::sanitize_text_field_safe( $image['alt'] ?? '' ),
-					'title' => self::sanitize_text_field_safe( $image['title'] ?? '' ),
+					'alt'   => sanitize_text_field( (string) ( $image['alt'] ?? '' ) ),
+					'title' => sanitize_text_field( (string) ( $image['title'] ?? '' ) ),
 				);
 			}
 		}
@@ -340,7 +340,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			}
 		}
 
-		update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_json_encode( $gallery_images ) );
+		update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_slash( wp_json_encode( $gallery_images ) ) );
 
 		wp_send_json_success(
 			array(
@@ -390,7 +390,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			}
 		);
 
-		update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_json_encode( array_values( $gallery_images ) ) );
+		update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_slash( wp_json_encode( array_values( $gallery_images ) ) ) );
 
 		wp_send_json_success(
 			array(
@@ -443,7 +443,7 @@ final class VehicleGallery extends AbstractMetaBox {
 			}
 		}
 
-		update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_json_encode( $reordered_images ) );
+		update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_slash( wp_json_encode( $reordered_images ) ) );
 
 		wp_send_json_success(
 			array(
