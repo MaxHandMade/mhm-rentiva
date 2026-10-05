@@ -218,6 +218,38 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * The single choke for a vehicle's featured image (`_thumbnail_id`).
+	 *
+	 * Hooked on `update_post_metadata` and `add_post_metadata` on every request,
+	 * so admin, REST, front-end and add-on writers all pass through it. Returning
+	 * `false` rejects the write; returning the incoming `$check` leaves WordPress
+	 * to carry on (a non-null `$check` would short-circuit the write without
+	 * storing). User 0 (WP-CLI, cron, importers) is not restricted. Deleting the
+	 * meta is never blocked: `delete_post_metadata` is not hooked.
+	 *
+	 * @param mixed  $check      Short-circuit value from earlier filters.
+	 * @param int    $object_id  Post ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Value about to be stored.
+	 * @return mixed `$check` unchanged to allow, `false` to reject.
+	 */
+	public static function guard_thumbnail( $check, int $object_id, string $meta_key, $meta_value ) {
+		if ( '_thumbnail_id' !== $meta_key || 'mhmrentiva_vehicle' !== get_post_type( $object_id ) ) {
+			return $check;
+		}
+
+		if ( 0 === get_current_user_id() ) {
+			return $check;
+		}
+
+		if ( ! is_numeric( $meta_value ) || ! self::is_allowed_image( $object_id, (int) $meta_value ) ) {
+			return false;
+		}
+
+		return $check;
+	}
+
+	/**
 	 * Reduce gallery entries to those that pass is_allowed_image().
 	 *
 	 * Ids are resolved with (int) because stored galleries may hold them as
