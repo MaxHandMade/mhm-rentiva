@@ -170,8 +170,87 @@ final class VehicleGallery extends AbstractMetaBox {
 
 		if ( isset( $_POST['mhmrentiva_gallery_images'] ) ) {
 			$gallery_images = sanitize_text_field( wp_unslash( (string) $_POST['mhmrentiva_gallery_images'] ) );
-			update_post_meta( $post_id, '_mhmrentiva_gallery_images', $gallery_images );
+			$decoded        = json_decode( $gallery_images, true );
+			$entries        = self::filter_allowed_entries( $post_id, is_array( $decoded ) ? $decoded : array() );
+			update_post_meta( $post_id, '_mhmrentiva_gallery_images', wp_json_encode( $entries ) );
 		}
+	}
+
+	/**
+	 * Whether an attachment may enter a vehicle's gallery or become its featured image.
+	 *
+	 * Passes only for an image attachment the actor may use: actors with
+	 * `edit_others_posts` may use any image, everyone else only images attached to
+	 * the vehicle or uploaded by themselves. The filter runs last so an add-on can
+	 * veto an otherwise acceptable image (e.g. a sensitive document).
+	 *
+	 * @param int      $vehicle_id Vehicle the image is destined for.
+	 * @param int      $id         Attachment ID.
+	 * @param int|null $actor_id   Acting user; defaults to the current user.
+	 */
+	public static function is_allowed_image( int $vehicle_id, int $id, ?int $actor_id = null ): bool {
+		if ( $id <= 0 || 'attachment' !== get_post_type( $id ) || ! wp_attachment_is_image( $id ) ) {
+			return false;
+		}
+
+		$actor_id = $actor_id ?? get_current_user_id();
+
+		if ( ! user_can( $actor_id, 'edit_others_posts' ) ) {
+			$attachment = get_post( $id );
+			if ( ! $attachment || ( (int) $attachment->post_parent !== $vehicle_id && (int) $attachment->post_author !== $actor_id ) ) {
+				return false;
+			}
+		}
+
+		/**
+		 * Filters whether an attachment may be used in a vehicle gallery.
+		 *
+		 * Applied only after the type, image and ownership checks have passed.
+		 *
+		 * @since 6.1.6
+		 *
+		 * @param bool $allowed    Whether the attachment is allowed.
+		 * @param int  $id         Attachment ID.
+		 * @param int  $vehicle_id Vehicle ID.
+		 * @param int  $actor_id   Acting user ID.
+		 */
+		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $actor_id );
+	}
+
+	/**
+	 * Reduce gallery entries to those that pass is_allowed_image().
+	 *
+	 * Ids are resolved with (int) because stored galleries may hold them as
+	 * strings. The client-supplied url is never trusted: it is rebuilt from the
+	 * attachment. Rejected entries are dropped silently.
+	 *
+	 * @param int               $vehicle_id Vehicle ID.
+	 * @param array<int, mixed> $entries    Gallery entries (id/url/alt/title).
+	 * @param int|null          $actor_id   Acting user; defaults to the current user.
+	 * @return array<int, array{id:int,url:string,alt:string,title:string}>
+	 */
+	public static function filter_allowed_entries( int $vehicle_id, array $entries, ?int $actor_id = null ): array {
+		$kept = array();
+
+		foreach ( $entries as $entry ) {
+			if ( ! is_array( $entry ) || ! isset( $entry['id'] ) || ! is_numeric( $entry['id'] ) ) {
+				continue;
+			}
+
+			$id = (int) $entry['id'];
+			if ( ! self::is_allowed_image( $vehicle_id, $id, $actor_id ) ) {
+				continue;
+			}
+
+			$kept[] = array(
+				'id'    => $id,
+				'url'   => (string) wp_get_attachment_url( $id ),
+				'alt'   => self::sanitize_text_field_safe( $entry['alt'] ?? '' ),
+				'title' => self::sanitize_text_field_safe( $entry['title'] ?? '' ),
+			);
+		}
+
+		return $kept;
 	}
 
 	/**
@@ -234,8 +313,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
-		$gallery_images = get_post_meta( $post_id, '_mhmrentiva_gallery_images', true );
-		$gallery_images = $gallery_images ? json_decode( $gallery_images, true ) : array();
+		// Re-validate what is already stored: a gallery may have been poisoned earlier.
+		$gallery_images = self::filter_allowed_entries( $post_id, self::get_gallery_images( $post_id ) );
 
 		$existing_ids = array_column( $gallery_images, 'id' );
 
@@ -243,17 +322,21 @@ final class VehicleGallery extends AbstractMetaBox {
 		$limit = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_max_gallery_images', 50 );
 
 		foreach ( $image_ids as $image_id ) {
-			if ( ! in_array( $image_id, $existing_ids ) && count( $gallery_images ) < $limit ) {
-				$image_url   = wp_get_attachment_image_url( $image_id, 'medium' );
-				$image_alt   = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
-				$image_title = get_the_title( $image_id );
-
-				$gallery_images[] = array(
-					'id'    => $image_id,
-					'url'   => $image_url,
-					'alt'   => $image_alt,
-					'title' => $image_title,
+			if ( ! in_array( $image_id, $existing_ids, true ) && count( $gallery_images ) < $limit ) {
+				$new_entry = self::filter_allowed_entries(
+					$post_id,
+					array(
+						array(
+							'id'    => $image_id,
+							'alt'   => get_post_meta( $image_id, '_wp_attachment_image_alt', true ),
+							'title' => get_the_title( $image_id ),
+						),
+					)
 				);
+				if ( $new_entry ) {
+					$gallery_images[] = $new_entry[0];
+					$existing_ids[]   = $image_id;
+				}
 			}
 		}
 
@@ -297,8 +380,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
-		$gallery_images = get_post_meta( $post_id, '_mhmrentiva_gallery_images', true );
-		$gallery_images = $gallery_images ? json_decode( $gallery_images, true ) : array();
+		// Re-validate what stays: a stored gallery may already be poisoned.
+		$gallery_images = self::filter_allowed_entries( $post_id, self::get_gallery_images( $post_id ) );
 
 		$gallery_images = array_filter(
 			$gallery_images,
@@ -347,8 +430,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
-		$gallery_images = get_post_meta( $post_id, '_mhmrentiva_gallery_images', true );
-		$gallery_images = $gallery_images ? json_decode( $gallery_images, true ) : array();
+		// Only entries that pass the rule can be reordered into the result.
+		$gallery_images = self::filter_allowed_entries( $post_id, self::get_gallery_images( $post_id ) );
 
 		$reordered_images = array();
 		foreach ( $image_order as $image_id ) {
