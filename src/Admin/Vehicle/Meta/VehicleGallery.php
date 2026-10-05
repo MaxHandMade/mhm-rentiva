@@ -152,10 +152,10 @@ final class VehicleGallery extends AbstractMetaBox {
 				continue;
 			}
 
-			$url              = self::entry_text( $entry, 'url' );
+			// The stored url is never trusted: it is rebuilt from the attachment.
 			$gallery_images[] = array(
 				'id'    => $id,
-				'url'   => '' !== $url ? $url : self::rendition_url( $id ),
+				'url'   => self::rendition_url( $id ),
 				'alt'   => self::entry_text( $entry, 'alt' ),
 				'title' => self::entry_text( $entry, 'title' ),
 			);
@@ -190,12 +190,16 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
-	 * Whether an attachment may enter a vehicle's gallery or become its featured image.
+	 * Whether an attachment may newly enter a vehicle's gallery or become its featured image.
 	 *
 	 * Passes only for an image attachment the actor may use: actors with
 	 * `edit_others_posts` may use any image, everyone else only images attached to
 	 * the vehicle or uploaded by themselves. The filter runs last so an add-on can
 	 * veto an otherwise acceptable image (e.g. a sensitive document).
+	 *
+	 * Applies to entries that are new to the vehicle. An entry already stored for
+	 * the same vehicle is judged by is_displayable_image() instead, so a vendor's
+	 * write does not silently drop an image an administrator added.
 	 *
 	 * @param int      $vehicle_id Vehicle the image is destined for.
 	 * @param int      $id         Attachment ID.
@@ -220,6 +224,11 @@ final class VehicleGallery extends AbstractMetaBox {
 		 *
 		 * Applied only after the type, image and ownership checks have passed.
 		 *
+		 * The filter is a content veto (e.g. a sensitive attachment). When an image
+		 * is displayed, or an entry already in the gallery is kept on a write, it
+		 * runs with the vehicle's author as `$actor_id`, not the signed-in user, so
+		 * a filter that grants access based on the actor is not supported there.
+		 *
 		 * @since 6.1.6
 		 *
 		 * @param bool $allowed    Whether the attachment is allowed.
@@ -231,16 +240,19 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
-	 * Whether a stored gallery image may be shown, or written without a signed-in user.
+	 * Whether a stored gallery image may be shown, kept on a write, or written without a signed-in user.
 	 *
-	 * The display layer does not re-decide ownership: every writer enforces
-	 * is_allowed_image() (ownership plus the filter veto), so what is stored was
-	 * accepted for someone entitled to curate this gallery. Display therefore asks
-	 * only that the entry is an image attachment and that the
-	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto it (the vehicle's
-	 * author is passed as the actor), so a sensitive document never renders. The
-	 * no-current-user write branch of guard_gallery() (importers, CLI, cron) uses
-	 * the same rule, because those code paths are trusted.
+	 * Ownership is decided once, when an entry first enters the gallery: every
+	 * writer enforces is_allowed_image() (ownership plus the filter veto) for new
+	 * entries, so what is stored was accepted for someone entitled to curate this
+	 * gallery. Display, and keeping an entry already stored for the same vehicle,
+	 * therefore ask only that the entry is an image attachment and that the
+	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto it. The vehicle's
+	 * author is passed as the actor: the filter is a content veto, and a filter
+	 * that grants access based on the actor is not supported here. A sensitive
+	 * document therefore never renders. The no-current-user write branches of
+	 * guard_gallery() and guard_thumbnail() (importers, CLI, cron) use the same
+	 * rule, because those code paths are trusted.
 	 *
 	 * @param int $vehicle_id Vehicle ID.
 	 * @param int $id         Attachment ID.
@@ -257,6 +269,42 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
+	 * Attachment ids already in this vehicle's stored gallery.
+	 *
+	 * Read from the stored value before a write (the meta write filters run
+	 * before the row changes), so the set never holds what the write is adding,
+	 * and never another vehicle's entries.
+	 *
+	 * @param int $vehicle_id Vehicle ID.
+	 * @return array<int, true> Ids as keys.
+	 */
+	private static function stored_gallery_ids( int $vehicle_id ): array {
+		$ids = array();
+		foreach ( self::get_gallery_images( $vehicle_id ) as $entry ) {
+			$id = self::entry_id( $entry );
+			if ( $id > 0 ) {
+				$ids[ $id ] = true;
+			}
+		}
+		return $ids;
+	}
+
+	/**
+	 * Whether a gallery entry may be written: an entry already stored for this
+	 * vehicle needs only is_displayable_image(), a new one needs is_allowed_image().
+	 *
+	 * @param int              $vehicle_id Vehicle ID.
+	 * @param int              $id         Attachment ID.
+	 * @param array<int, true> $stored     Ids already stored for this vehicle.
+	 * @param int|null         $actor_id   Acting user; defaults to the current user.
+	 */
+	private static function may_write_entry( int $vehicle_id, int $id, array $stored, ?int $actor_id ): bool {
+		return isset( $stored[ $id ] )
+			? self::is_displayable_image( $vehicle_id, $id )
+			: self::is_allowed_image( $vehicle_id, $id, $actor_id );
+	}
+
+	/**
 	 * Current user ID, or 0 when user functions are not loaded yet (guards run from bootstrap).
 	 */
 	private static function current_actor_id(): int {
@@ -270,8 +318,13 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * so admin, REST, front-end and add-on writers all pass through it. Returning
 	 * `false` rejects the write; returning the incoming `$check` leaves WordPress
 	 * to carry on (a non-null `$check` would short-circuit the write without
-	 * storing). User 0 (WP-CLI, cron, importers) is not restricted. Deleting the
-	 * meta is never blocked: `delete_post_metadata` is not hooked.
+	 * storing). Clearing values (0, '', -1) always pass, and deleting the meta is
+	 * never blocked: `delete_post_metadata` is not hooked.
+	 *
+	 * Re-writing the id that is already the featured image needs only
+	 * is_displayable_image(); any other id needs is_allowed_image(). User 0
+	 * (WP-CLI, cron, importers) is trusted with ownership, so it needs only
+	 * is_displayable_image(): an image the filter does not veto.
 	 *
 	 * @param mixed  $check      Short-circuit value from earlier filters.
 	 * @param int    $object_id  Post ID.
@@ -284,15 +337,24 @@ final class VehicleGallery extends AbstractMetaBox {
 			return $check;
 		}
 
-		if ( 0 === self::current_actor_id() ) {
+		// Clearing the featured image is never blocked.
+		if ( '' === $meta_value || ( is_numeric( $meta_value ) && in_array( (int) $meta_value, array( 0, -1 ), true ) ) ) {
 			return $check;
 		}
 
-		if ( ! is_numeric( $meta_value ) || ! self::is_allowed_image( $object_id, (int) $meta_value ) ) {
+		if ( ! is_numeric( $meta_value ) ) {
 			return false;
 		}
 
-		return $check;
+		$id       = (int) $meta_value;
+		$actor_id = self::current_actor_id();
+		$current  = (int) get_post_meta( $object_id, '_thumbnail_id', true );
+
+		$allowed = ( 0 === $actor_id || ( $current > 0 && $current === $id ) )
+			? self::is_displayable_image( $object_id, $id )
+			: self::is_allowed_image( $object_id, $id, $actor_id );
+
+		return $allowed ? $check : false;
 	}
 
 	/**
@@ -302,9 +364,11 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * `add_post_metadata`, so a direct update_post_meta()/add_post_meta() from an
 	 * integration or importer obeys the same image policy as the gallery writers.
 	 * The incoming value is the already-sanitized JSON string (or array); anything
-	 * that is not a list is left to the registered sanitize callback. When there
-	 * is no current user (WP-CLI, cron, importers) is_displayable_image() judges the
-	 * entry, so the filter veto still applies.
+	 * that is not a list is left to the registered sanitize callback. An id that
+	 * is already in this vehicle's stored gallery needs only is_displayable_image();
+	 * a new id needs is_allowed_image(). When there is no current user (WP-CLI,
+	 * cron, importers) is_displayable_image() judges every entry, so the filter
+	 * veto still applies.
 	 *
 	 * @param mixed  $check      Short-circuit value from earlier filters.
 	 * @param int    $object_id  Post ID.
@@ -320,6 +384,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		$entries = self::normalize_gallery( $meta_value );
 
 		$actor_id = self::current_actor_id();
+		$stored   = 0 === $actor_id || array() === $entries ? array() : self::stored_gallery_ids( $object_id );
 
 		foreach ( $entries as $entry ) {
 			// An entry that names no attachment is refused, not skipped: a reader
@@ -331,7 +396,7 @@ final class VehicleGallery extends AbstractMetaBox {
 
 			$allowed = 0 === $actor_id
 				? self::is_displayable_image( $object_id, $id )
-				: self::is_allowed_image( $object_id, $id, $actor_id );
+				: self::may_write_entry( $object_id, $id, $stored, $actor_id );
 			if ( ! $allowed ) {
 				return false;
 			}
@@ -353,8 +418,11 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	/**
-	 * Reduce gallery entries to those that pass is_allowed_image().
+	 * Reduce gallery entries to those that may be written.
 	 *
+	 * An id already in this vehicle's stored gallery needs only
+	 * is_displayable_image(), so an image an administrator added survives a
+	 * vendor's save; a new id needs is_allowed_image() (ownership plus veto).
 	 * Ids are resolved with (int) because stored galleries may hold them as
 	 * strings. The client-supplied url is never trusted: it is rebuilt from the
 	 * attachment. Rejected entries are dropped silently.
@@ -365,11 +433,12 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * @return array<int, array{id:int,url:string,alt:string,title:string}>
 	 */
 	public static function filter_allowed_entries( int $vehicle_id, array $entries, ?int $actor_id = null ): array {
-		$kept = array();
+		$kept   = array();
+		$stored = self::stored_gallery_ids( $vehicle_id );
 
 		foreach ( $entries as $entry ) {
 			$id = self::entry_id( $entry );
-			if ( $id <= 0 || ! self::is_allowed_image( $vehicle_id, $id, $actor_id ) ) {
+			if ( $id <= 0 || ! self::may_write_entry( $vehicle_id, $id, $stored, $actor_id ) ) {
 				continue;
 			}
 

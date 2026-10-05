@@ -370,4 +370,110 @@ final class GalleryMetaChokeTest extends WP_UnitTestCase
 		$this->assertSame( wp_get_attachment_image_url( $id, 'medium' ), $entries[0]['url'] );
 		$this->assertStringContainsString( 'photo-300x225.jpg', $entries[0]['url'] );
 	}
+
+	public function test_vendor_direct_write_keeps_registered_admin_image_but_cannot_add_foreign(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$adminer = $this->image( $admin );
+		$own     = $this->image( $this->author_id );
+		$foreign = $this->image( $this->other_id );
+
+		wp_set_current_user( $admin );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer ) ) );
+
+		wp_set_current_user( $this->author_id );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own, $adminer ) ), 'registered admin image may stay' );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own, $adminer, $foreign ) ), 'a new foreign image is refused' );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own ) ), 'the vendor may drop the admin image' );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own, $adminer ) ), 'once dropped, the admin image is new again' );
+	}
+
+	public function test_image_registered_on_another_vehicle_is_not_registered_here(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$adminer = $this->image( $admin );
+		$other_vehicle = self::factory()->post->create(
+			array(
+				'post_type'   => 'mhmrentiva_vehicle',
+				'post_status' => 'publish',
+				'post_author' => $this->author_id,
+			)
+		);
+
+		wp_set_current_user( $admin );
+		$this->assertNotFalse( update_post_meta( $other_vehicle, self::META_KEY, $this->json( $adminer ) ) );
+
+		wp_set_current_user( $this->author_id );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $adminer ) ) );
+		$this->assertSame( array(), VehicleGallery::filter_allowed_entries( $this->vehicle, array( array( 'id' => $adminer ) ) ) );
+	}
+
+	public function test_registered_entry_that_is_now_vetoed_is_refused_by_the_guard(): void
+	{
+		$own = $this->image( $this->author_id );
+		$this->assertNotFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own ) ) );
+		$this->veto( $own );
+		$this->assertFalse( update_post_meta( $this->vehicle, self::META_KEY, $this->json( $own ) ) );
+		$this->assertSame( array(), VehicleGallery::filter_allowed_entries( $this->vehicle, array( array( 'id' => $own ) ) ) );
+	}
+
+	public function test_thumbnail_without_a_user_must_be_a_displayable_image(): void
+	{
+		$image = $this->image( $this->author_id );
+		$pdf   = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'doc.pdf',
+				'post_mime_type' => 'application/pdf',
+				'post_author'    => $this->author_id,
+			)
+		);
+
+		wp_set_current_user( 0 );
+		$this->assertFalse( update_post_meta( $this->vehicle, '_thumbnail_id', $pdf ) );
+		$this->assertFalse( add_post_meta( $this->vehicle, '_thumbnail_id', $pdf ) );
+		$this->assertSame( '', get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
+
+		$this->assertNotFalse( update_post_meta( $this->vehicle, '_thumbnail_id', $image ) );
+		$this->assertSame( $image, (int) get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
+
+		foreach ( array( 0, '', -1, '0', '-1' ) as $empty ) {
+			update_post_meta( $this->vehicle, '_thumbnail_id', $image );
+			$this->assertNotFalse( update_post_meta( $this->vehicle, '_thumbnail_id', $empty ), var_export( $empty, true ) );
+			$this->assertSame( (string) $empty, (string) get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
+		}
+	}
+
+	public function test_thumbnail_rewrite_of_the_current_admin_image_is_allowed_for_the_vendor(): void
+	{
+		$admin   = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$adminer = $this->image( $admin );
+		$other   = $this->image( $admin );
+
+		wp_set_current_user( $admin );
+		$this->assertNotFalse( set_post_thumbnail( $this->vehicle, $adminer ) );
+
+		wp_set_current_user( $this->author_id );
+		// update_post_meta() returns false for an unchanged value, so ask the guard itself.
+		$this->assertNull( VehicleGallery::guard_thumbnail( null, $this->vehicle, '_thumbnail_id', (string) $adminer ) );
+		$this->assertFalse( VehicleGallery::guard_thumbnail( null, $this->vehicle, '_thumbnail_id', $other ) );
+		$this->assertFalse( update_post_meta( $this->vehicle, '_thumbnail_id', $other ) );
+		$this->assertSame( $adminer, (int) get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
+	}
+
+	public function test_meta_box_shows_the_rendition_url_not_the_stored_one(): void
+	{
+		$own = $this->image( $this->author_id );
+		$this->raw_insert(
+			self::META_KEY,
+			(string) wp_json_encode( array( array( 'id' => $own, 'url' => 'http://evil.example/x.jpg', 'alt' => '', 'title' => '' ) ) )
+		);
+
+		ob_start();
+		VehicleGallery::render_gallery_meta_box( get_post( $this->vehicle ) );
+		$html = (string) ob_get_clean();
+
+		$this->assertStringNotContainsString( 'evil.example', $html );
+		$expected = wp_get_attachment_image_url( $own, 'medium' ) ?: wp_get_attachment_url( $own );
+		$this->assertStringContainsString( esc_url( (string) $expected ), $html );
+	}
 }
