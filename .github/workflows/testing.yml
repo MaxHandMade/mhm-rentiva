@@ -505,6 +505,18 @@ jobs:
           unzip -q /tmp/woocommerce.zip -d /tmp/wordpress/wp-content/plugins
           test -f /tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php
 
+      # The Elementor widget bridge is only measurable against real Elementor
+      # widgets. Pinned to the dev site's version; ElementorTestEnvironmentTest
+      # fails loudly if this step is dropped or the download produces nothing.
+      - name: Install Elementor into the test tree
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wordpress/wp-content/plugins
+          curl -sSL --fail -o /tmp/elementor.zip \
+            https://downloads.wordpress.org/plugin/elementor.4.3.2.zip
+          unzip -q /tmp/elementor.zip -d /tmp/wordpress/wp-content/plugins
+          test -f /tmp/wordpress/wp-content/plugins/elementor/elementor.php
+
       - name: Run PHPUnit
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
