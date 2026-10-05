@@ -92,10 +92,17 @@ final class ThumbnailChokeTest extends WP_UnitTestCase
 
 	public function test_user_zero_passes(): void
 	{
+		// Without a current user the write needs a displayable image, which
+		// includes a trusted provenance on the vehicle: a system upload passes,
+		// another ordinary vendor's upload does not.
+		$system  = $this->image( 0 );
 		$foreign = $this->image( $this->other_id );
 		wp_set_current_user( 0 );
-		update_post_meta( $this->vehicle, '_thumbnail_id', $foreign );
-		$this->assertSame( (string) $foreign, get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
+		update_post_meta( $this->vehicle, '_thumbnail_id', $system );
+		$this->assertSame( (string) $system, get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
+
+		$this->assertFalse( update_post_meta( $this->vehicle, '_thumbnail_id', $foreign ) );
+		$this->assertSame( (string) $system, get_post_meta( $this->vehicle, '_thumbnail_id', true ) );
 	}
 
 	public function test_delete_post_meta_thumbnail_is_not_blocked(): void

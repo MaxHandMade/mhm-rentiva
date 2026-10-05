@@ -199,7 +199,10 @@ final class VehicleGallery extends AbstractMetaBox {
 	 *
 	 * Applies to entries that are new to the vehicle. An entry already stored for
 	 * the same vehicle is judged by is_displayable_image() instead, so a vendor's
-	 * write does not silently drop an image an administrator added.
+	 * write does not silently drop an image an administrator uploaded and added.
+	 * The two rules differ on purpose: an administrator may add another ordinary
+	 * user's upload here, but that entry has no trusted provenance on the
+	 * vehicle, so it is then neither displayed nor kept by a later write.
 	 *
 	 * @param int      $vehicle_id Vehicle the image is destined for.
 	 * @param int      $id         Attachment ID.
@@ -226,8 +229,9 @@ final class VehicleGallery extends AbstractMetaBox {
 		 *
 		 * The filter is a content veto (e.g. a sensitive attachment). When an image
 		 * is displayed, or an entry already in the gallery is kept on a write, it
-		 * runs with the vehicle's author as `$actor_id`, not the signed-in user, so
-		 * a filter that grants access based on the actor is not supported there.
+		 * runs after the image and provenance checks, with the vehicle's author as
+		 * `$actor_id` rather than the signed-in user, so a filter that grants access
+		 * based on the actor is not supported there.
 		 *
 		 * @since 6.1.6
 		 *
@@ -242,17 +246,22 @@ final class VehicleGallery extends AbstractMetaBox {
 	/**
 	 * Whether a stored gallery image may be shown, kept on a write, or written without a signed-in user.
 	 *
-	 * Ownership is decided once, when an entry first enters the gallery: every
-	 * writer enforces is_allowed_image() (ownership plus the filter veto) for new
-	 * entries, so what is stored was accepted for someone entitled to curate this
-	 * gallery. Display, and keeping an entry already stored for the same vehicle,
-	 * therefore ask only that the entry is an image attachment and that the
-	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto it. The vehicle's
-	 * author is passed as the actor: the filter is a content veto, and a filter
-	 * that grants access based on the actor is not supported here. A sensitive
-	 * document therefore never renders. The no-current-user write branches of
-	 * guard_gallery() and guard_thumbnail() (importers, CLI, cron) use the same
-	 * rule, because those code paths are trusted.
+	 * A stored row is not proof that its entries were accepted: a row can be
+	 * written straight to the database, by an older version, or by an
+	 * integration. So an entry is shown, or kept when already stored for the same
+	 * vehicle, only when it is an image attachment with a trusted provenance on
+	 * this vehicle (see has_trusted_provenance()) and the
+	 * `mhmrentiva_gallery_attachment_allowed` filter does not veto it. The
+	 * vehicle's author is passed as the actor: the filter is a content veto, and
+	 * a filter that grants access based on the actor is not supported here. A
+	 * sensitive document therefore never renders. The no-current-user write
+	 * branches of guard_gallery() and guard_thumbnail() (importers, CLI, cron)
+	 * use the same rule.
+	 *
+	 * Known limit: an administrator may add another ordinary user's upload to a
+	 * vehicle (is_allowed_image() lets edit_others_posts use any image), but such
+	 * an entry has no trusted provenance here, so it is not displayed and a later
+	 * write drops it. Attaching the image to the vehicle makes it trusted.
 	 *
 	 * @param int $vehicle_id Vehicle ID.
 	 * @param int $id         Attachment ID.
@@ -262,10 +271,42 @@ final class VehicleGallery extends AbstractMetaBox {
 			return false;
 		}
 
+		if ( ! self::has_trusted_provenance( $vehicle_id, $id ) ) {
+			return false;
+		}
+
 		$owner = (int) get_post_field( 'post_author', $vehicle_id );
 
 		/** This filter is documented in is_allowed_image(). */
 		return (bool) apply_filters( 'mhmrentiva_gallery_attachment_allowed', true, $id, $vehicle_id, $owner );
+	}
+
+	/**
+	 * Whether an attachment comes from a source trusted for this vehicle.
+	 *
+	 * Trusted: the attachment is attached to the vehicle, or it was uploaded by
+	 * the vehicle's author, by no user (0: WP-CLI, importers), or by a user with
+	 * `edit_others_posts` (administrators, editors). Another ordinary user's
+	 * upload is not trusted.
+	 *
+	 * @param int $vehicle_id Vehicle ID.
+	 * @param int $id         Attachment ID.
+	 */
+	private static function has_trusted_provenance( int $vehicle_id, int $id ): bool {
+		$attachment = get_post( $id );
+		if ( ! $attachment ) {
+			return false;
+		}
+
+		if ( (int) $attachment->post_parent === $vehicle_id ) {
+			return true;
+		}
+
+		$uploader = (int) $attachment->post_author;
+
+		return 0 === $uploader
+			|| (int) get_post_field( 'post_author', $vehicle_id ) === $uploader
+			|| user_can( $uploader, 'edit_others_posts' );
 	}
 
 	/**
@@ -291,7 +332,8 @@ final class VehicleGallery extends AbstractMetaBox {
 
 	/**
 	 * Whether a gallery entry may be written: an entry already stored for this
-	 * vehicle needs only is_displayable_image(), a new one needs is_allowed_image().
+	 * vehicle needs is_displayable_image() (image, trusted provenance, no veto),
+	 * a new one needs is_allowed_image(). Being stored alone never keeps an entry.
 	 *
 	 * @param int              $vehicle_id Vehicle ID.
 	 * @param int              $id         Attachment ID.
@@ -321,10 +363,11 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * storing). Clearing values (0, '', -1) always pass, and deleting the meta is
 	 * never blocked: `delete_post_metadata` is not hooked.
 	 *
-	 * Re-writing the id that is already the featured image needs only
-	 * is_displayable_image(); any other id needs is_allowed_image(). User 0
-	 * (WP-CLI, cron, importers) is trusted with ownership, so it needs only
-	 * is_displayable_image(): an image the filter does not veto.
+	 * Re-writing the id that is already the featured image needs
+	 * is_displayable_image(); any other id needs is_allowed_image(). A write
+	 * without a current user (WP-CLI, cron, importers) needs is_displayable_image():
+	 * an image with a trusted provenance on the vehicle that the filter does not
+	 * veto.
 	 *
 	 * @param mixed  $check      Short-circuit value from earlier filters.
 	 * @param int    $object_id  Post ID.
@@ -365,10 +408,11 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * integration or importer obeys the same image policy as the gallery writers.
 	 * The incoming value is the already-sanitized JSON string (or array); anything
 	 * that is not a list is left to the registered sanitize callback. An id that
-	 * is already in this vehicle's stored gallery needs only is_displayable_image();
-	 * a new id needs is_allowed_image(). When there is no current user (WP-CLI,
-	 * cron, importers) is_displayable_image() judges every entry, so the filter
-	 * veto still applies.
+	 * is already in this vehicle's stored gallery needs is_displayable_image()
+	 * (image, trusted provenance, no veto); a new id needs is_allowed_image().
+	 * When there is no current user (WP-CLI, cron, importers)
+	 * is_displayable_image() judges every entry, so the provenance rule and the
+	 * filter veto still apply.
 	 *
 	 * @param mixed  $check      Short-circuit value from earlier filters.
 	 * @param int    $object_id  Post ID.
@@ -420,9 +464,11 @@ final class VehicleGallery extends AbstractMetaBox {
 	/**
 	 * Reduce gallery entries to those that may be written.
 	 *
-	 * An id already in this vehicle's stored gallery needs only
-	 * is_displayable_image(), so an image an administrator added survives a
-	 * vendor's save; a new id needs is_allowed_image() (ownership plus veto).
+	 * An id already in this vehicle's stored gallery needs is_displayable_image()
+	 * (image, trusted provenance, no veto), so an image an administrator uploaded
+	 * and added survives a vendor's save while a stored upload of another
+	 * ordinary user does not; a new id needs is_allowed_image() (ownership plus
+	 * veto).
 	 * Ids are resolved with (int) because stored galleries may hold them as
 	 * strings. The client-supplied url is never trusted: it is rebuilt from the
 	 * attachment. Rejected entries are dropped silently.
@@ -514,7 +560,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
-		// Re-validate what is already stored: a gallery may have been poisoned earlier.
+		// Re-validate what is already stored: entries without a trusted provenance,
+		// non-images and vetoed entries are dropped.
 		$gallery_images = self::filter_allowed_entries( $post_id, self::get_gallery_images( $post_id ) );
 
 		$existing_ids = array_column( $gallery_images, 'id' );
@@ -581,7 +628,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
-		// Re-validate what stays: a stored gallery may already be poisoned.
+		// Re-validate what stays: entries without a trusted provenance, non-images
+		// and vetoed entries are dropped.
 		$gallery_images = self::filter_allowed_entries( $post_id, self::get_gallery_images( $post_id ) );
 
 		$gallery_images = array_filter(
