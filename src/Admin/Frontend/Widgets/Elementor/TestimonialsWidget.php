@@ -199,27 +199,35 @@ class TestimonialsWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		$order = strtoupper( sanitize_text_field( (string) ( $settings['order'] ?? 'DESC' ) ) );
-		if ( ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
-			$order = 'DESC';
+		$atts = array();
+
+		if ( array_key_exists( 'limit', $settings ) ) {
+			$atts['limit'] = (string) max( 1, (int) $settings['limit'] );
 		}
 
-		$atts = array(
-			'limit'         => (string) max( 1, (int) ( $settings['limit'] ?? 5 ) ),
-			'layout'        => sanitize_text_field( (string) ( $settings['layout'] ?? 'grid' ) ),
-			'columns'       => sanitize_text_field( (string) ( $settings['columns'] ?? '3' ) ),
-			'orderby'       => sanitize_text_field( (string) ( $settings['orderby'] ?? 'date' ) ),
-			'order'         => $order,
-			'show_rating'   => $this->convert_switcher_to_boolean( $settings['show_rating'] ?? '1' ),
-			'show_date'     => $this->convert_switcher_to_boolean( $settings['show_date'] ?? '1' ),
-			'show_vehicle'  => $this->convert_switcher_to_boolean( $settings['show_vehicle'] ?? '1' ),
-			'show_customer' => $this->convert_switcher_to_boolean( $settings['show_customer'] ?? '1' ),
-			'auto_rotate'   => $this->convert_switcher_to_boolean( $settings['auto_rotate'] ?? '0' ),
-		);
+		foreach ( array( 'layout', 'columns', 'orderby' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
+			}
+		}
 
-		// Only pass rating if it has a value
+		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.
+		if ( array_key_exists( 'order', $settings ) ) {
+			$order = strtoupper( sanitize_text_field( (string) $settings['order'] ) );
+			if ( in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+				$atts['order'] = $order;
+			}
+		}
+
+		foreach ( array( 'show_rating', 'show_date', 'show_vehicle', 'show_customer', 'auto_rotate' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
+			}
+		}
+
+		// Only pass rating if it has a value.
 		$rating = $settings['rating'] ?? null;
-		if ( $rating !== null && $rating !== '' ) {
+		if ( null !== $rating && '' !== $rating ) {
 			$atts['rating'] = (string) (int) $rating;
 		}
 
@@ -227,7 +235,6 @@ class TestimonialsWidget extends ElementorWidgetBase {
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_testimonials', $atts );
+		$this->render_canonical( 'rentiva_testimonials' );
 	}
 }

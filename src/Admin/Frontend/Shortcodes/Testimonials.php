@@ -168,7 +168,17 @@ final class Testimonials extends AbstractShortcode {
 	public static function render(array $atts = array(), ?string $content = null): string
 	{
 		$defaults = self::get_default_attributes();
-		$atts     = shortcode_atts($defaults, $atts, self::SHORTCODE);
+
+		// Same contract as AbstractShortcode::render(): a `_canonical` payload (widgets,
+		// blocks) is already mapped and must not be truncated by shortcode_atts(); it
+		// only needs this shortcode's defaults for the keys it omits. Only boolean true
+		// counts: shortcode text yields strings, so an author cannot forge the flag.
+		if (true !== ( $atts['_canonical'] ?? null )) {
+			unset($atts['_canonical']);
+			$atts = shortcode_atts($defaults, $atts, self::SHORTCODE);
+		} else {
+			$atts = wp_parse_args($atts, $defaults);
+		}
 
 		// Load CSS manually
 		self::enqueue_assets($atts);
@@ -176,8 +186,17 @@ final class Testimonials extends AbstractShortcode {
 		// Prepare template data
 		$data = self::prepare_template_data($atts);
 
+		// The internal guard is not part of the template data or the filter contract.
+		unset($data['atts']['_canonical']);
+		$filter_atts = $atts;
+		unset($filter_atts['_canonical']);
+
 		// Render template
-		return Templates::render(self::get_template_path(), $data, true);
+		$html = Templates::render(self::get_template_path(), $data, true);
+
+		// The public per-tag filter every AbstractShortcode::render() applies; this
+		// override used to skip it.
+		return (string) apply_filters('mhmrentiva_shortcodes_' . self::SHORTCODE . '_html', $html, $filter_atts, $content);
 	}
 
 	protected static function prepare_template_data(array $atts): array

@@ -189,32 +189,39 @@ class SearchResultsWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		$limit = (string) max( 1, (int) ( $settings['limit'] ?? 12 ) );
-		$order = strtoupper( sanitize_text_field( (string) ( $settings['order'] ?? 'DESC' ) ) );
-		if ( ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
-			$order = 'DESC';
+		$atts = array();
+
+		// The Elementor limit control feeds the shortcode's page size; the shortcode has no separate 'limit'.
+		if ( array_key_exists( 'limit', $settings ) ) {
+			$atts['results_per_page'] = (string) max( 1, (int) $settings['limit'] );
 		}
 
-		return array(
-			'limit'                => $limit,
-			'results_per_page'     => $limit,
-			'layout'               => sanitize_text_field( (string) ( $settings['layout'] ?? 'grid' ) ),
-			'orderby'              => sanitize_text_field( (string) ( $settings['orderby'] ?? 'date' ) ),
-			'order'                => $order,
-			'show_filters'         => $this->convert_switcher_to_boolean( $settings['show_filters'] ?? 'yes' ),
-			'show_pagination'      => $this->convert_switcher_to_boolean( $settings['show_pagination'] ?? 'yes' ),
-			'show_sorting'         => $this->convert_switcher_to_boolean( $settings['show_sorting'] ?? 'yes' ),
-			'show_favorite_button' => $this->convert_switcher_to_boolean( $settings['show_favorite_button'] ?? 'yes' ),
-			'show_compare_button'  => $this->convert_switcher_to_boolean( $settings['show_compare_button'] ?? 'yes' ),
-			'show_booking_button'  => $this->convert_switcher_to_boolean( $settings['show_booking_button'] ?? 'yes' ),
-			'show_price'           => $this->convert_switcher_to_boolean( $settings['show_price'] ?? 'yes' ),
-		);
+		foreach ( array( 'layout', 'orderby' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
+			}
+		}
+
+		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.
+		if ( array_key_exists( 'order', $settings ) ) {
+			$order = strtoupper( sanitize_text_field( (string) $settings['order'] ) );
+			if ( in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+				$atts['order'] = $order;
+			}
+		}
+
+		foreach ( array( 'show_filters', 'show_pagination', 'show_sorting', 'show_favorite_button', 'show_compare_button', 'show_booking_button', 'show_price' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
+			}
+		}
+
+		return $atts;
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
 		echo '<div class="elementor-widget-rv-search-results">';
-		$this->output_shortcode( 'rentiva_search_results', $atts );
+		$this->render_canonical( 'rentiva_search_results' );
 		echo '</div>';
 	}
 }

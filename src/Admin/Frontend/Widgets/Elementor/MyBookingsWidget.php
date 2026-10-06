@@ -109,21 +109,30 @@ class MyBookingsWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		$order = strtoupper( sanitize_text_field( (string) ( $settings['order'] ?? 'DESC' ) ) );
-		if ( ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
-			$order = 'DESC';
+		$atts = array();
+
+		if ( array_key_exists( 'limit', $settings ) ) {
+			$atts['limit'] = (string) max( 1, (int) $settings['limit'] );
 		}
 
-		return array(
-			'limit'   => (string) max( 1, (int) ( $settings['limit'] ?? 10 ) ),
-			'status'  => sanitize_text_field( (string) ( $settings['status'] ?? '' ) ),
-			'orderby' => sanitize_text_field( (string) ( $settings['orderby'] ?? 'date' ) ),
-			'order'   => $order,
-		);
+		foreach ( array( 'status', 'orderby' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
+			}
+		}
+
+		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.
+		if ( array_key_exists( 'order', $settings ) ) {
+			$order = strtoupper( sanitize_text_field( (string) $settings['order'] ) );
+			if ( in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+				$atts['order'] = $order;
+			}
+		}
+
+		return $atts;
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_my_bookings', $atts );
+		$this->render_canonical( 'rentiva_my_bookings' );
 	}
 }

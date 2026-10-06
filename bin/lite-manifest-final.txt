@@ -133,6 +133,7 @@ src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
 src/Admin/Frontend/Shortcodes/VehiclesGrid.php
 src/Admin/Frontend/Shortcodes/VehiclesList.php
 src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php
+src/Admin/Frontend/Widgets/Base/WidgetAttributeBridge.php
 src/Admin/Frontend/Widgets/Elementor/AvailabilityCalendarWidget.php
 src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php
 src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php

@@ -202,28 +202,36 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		$order = strtoupper( sanitize_text_field( (string) ( $settings['order'] ?? 'DESC' ) ) );
-		if ( ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
-			$order = 'DESC';
+		$atts = array();
+
+		if ( array_key_exists( 'limit', $settings ) ) {
+			$atts['limit'] = (string) max( 1, (int) $settings['limit'] );
 		}
 
-		return array(
-			'limit'                => (string) max( 1, (int) ( $settings['limit'] ?? 12 ) ),
-			'columns'              => sanitize_text_field( (string) ( $settings['columns'] ?? '3' ) ),
-			'orderby'              => sanitize_text_field( (string) ( $settings['orderby'] ?? 'date' ) ),
-			'order'                => $order,
-			'show_price'           => $this->convert_switcher_to_boolean( $settings['show_price'] ?? '1' ),
-			'show_features'        => $this->convert_switcher_to_boolean( $settings['show_features'] ?? '1' ),
-			'show_rating'          => $this->convert_switcher_to_boolean( $settings['show_rating'] ?? '1' ),
-			'show_booking_button'  => $this->convert_switcher_to_boolean( $settings['show_booking_button'] ?? '1' ),
-			'show_favorite_button' => $this->convert_switcher_to_boolean( $settings['show_favorite_button'] ?? '1' ),
-			'show_remove_button'   => $this->convert_switcher_to_boolean( $settings['show_remove_button'] ?? '1' ),
-			'show_added_date'      => $this->convert_switcher_to_boolean( $settings['show_added_date'] ?? '0' ),
-		);
+		foreach ( array( 'columns', 'orderby' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
+			}
+		}
+
+		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.
+		if ( array_key_exists( 'order', $settings ) ) {
+			$order = strtoupper( sanitize_text_field( (string) $settings['order'] ) );
+			if ( in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+				$atts['order'] = $order;
+			}
+		}
+
+		foreach ( array( 'show_price', 'show_features', 'show_rating', 'show_booking_button', 'show_favorite_button', 'show_remove_button', 'show_added_date' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
+			}
+		}
+
+		return $atts;
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_my_favorites', $atts );
+		$this->render_canonical( 'rentiva_my_favorites' );
 	}
 }

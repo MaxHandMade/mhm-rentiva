@@ -39,13 +39,15 @@ final class SearchResultsWidgetCoverageTest extends WP_UnitTestCase
 	{
 		$widgetSource = $this->read_source_file('src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php');
 
-		$this->assertStringContainsString("'results_per_page'     => \$limit", $widgetSource);
-		$this->assertStringContainsString("'show_pagination'      => \$this->convert_switcher_to_boolean", $widgetSource);
-		$this->assertStringContainsString("'show_sorting'         => \$this->convert_switcher_to_boolean", $widgetSource);
-		$this->assertStringContainsString("'show_favorite_button' => \$this->convert_switcher_to_boolean", $widgetSource);
-		$this->assertStringContainsString("'show_compare_button'  => \$this->convert_switcher_to_boolean", $widgetSource);
-		$this->assertStringContainsString("'show_booking_button'  => \$this->convert_switcher_to_boolean", $widgetSource);
-		$this->assertStringContainsString("'show_price'           => \$this->convert_switcher_to_boolean", $widgetSource);
+		// The limit control feeds results_per_page (the key the shortcode reads), and the
+		// switchers go through the shared converter -- all inside a per-key presence check.
+		$this->assertStringContainsString("array_key_exists( 'limit', \$settings )", $widgetSource);
+		$this->assertStringContainsString("\$atts['results_per_page']", $widgetSource);
+		$this->assertStringContainsString('convert_switcher_to_boolean( $settings[ $key ] )', $widgetSource);
+
+		foreach (array('show_filters', 'show_pagination', 'show_sorting', 'show_favorite_button', 'show_compare_button', 'show_booking_button', 'show_price') as $flag) {
+			$this->assertStringContainsString("'" . $flag . "'", $widgetSource);
+		}
 	}
 
 	public function test_base_widget_declares_shared_switcher_to_boolean_helper(): void

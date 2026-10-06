@@ -421,14 +421,9 @@ class BookingFormWidget extends ElementorWidgetBase {
 	 * Render widget output.
 	 */
 	protected function render(): void {
-		$settings = $this->get_settings_for_display();
-
-		// Prepare shortcode attributes
-		$atts = $this->prepare_shortcode_attributes( $settings );
-
 		// Output widget wrapper
 		echo '<div class="elementor-widget-rv-booking-form">';
-		$this->output_shortcode( 'rentiva_booking_form', $atts );
+		$this->render_canonical( 'rentiva_booking_form' );
 		echo '</div>';
 	}
 

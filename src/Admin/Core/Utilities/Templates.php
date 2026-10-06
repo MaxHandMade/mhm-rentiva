@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
+use MHMRentiva\Helpers\Html;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -34,6 +36,64 @@ final class Templates {
 	 */
 	public static function output_shortcode( string $shortcode ): void {
 		echo do_shortcode( $shortcode );
+	}
+
+	/**
+	 * Run a registered shortcode with an attribute array and return its markup.
+	 *
+	 * Elementor widgets used to serialize their settings into a "[tag a="b"]" string
+	 * for do_shortcode(). Any value containing "]" or a quote broke out of that string
+	 * and leaked raw attribute text onto the page, and esc_attr() encoded "&" twice.
+	 * Calling the registered callback with the array directly removes the parse step.
+	 *
+	 * Deliberate differences from do_shortcode(): an unregistered tag returns '' instead
+	 * of the literal shortcode text; the pre_do_shortcode_tag / do_shortcode_tag filters
+	 * do not run; the temporary wp_get_attachment_image_context filter is not installed.
+	 * The registered Rentiva callback (ShortcodeServiceProvider's wrapper) still applies
+	 * its auth gate and wp_kses() allowlist.
+	 *
+	 * @param string $tag  Shortcode tag.
+	 * @param array  $atts Shortcode attributes.
+	 * @return string
+	 */
+	public static function render_shortcode_atts( string $tag, array $atts ): string {
+		global $shortcode_tags;
+
+		$callback = $shortcode_tags[ $tag ] ?? null;
+		if ( ! is_callable( $callback ) ) {
+			return '';
+		}
+
+		return (string) call_user_func( $callback, $atts, null, $tag );
+	}
+
+	/**
+	 * Run a registered shortcode with an attribute array and send its markup to the page.
+	 *
+	 * The sibling of output_shortcode() above, but escaped at the echo rather than left
+	 * bare. output_shortcode()'s bare echo is accepted because do_shortcode() is on the
+	 * sniffers' auto-escaped list; a direct callback call is not, and gate G-A
+	 * (bin/check-shape-zero.php) allows zero EscapeOutput shapes even under
+	 * --ignore-annotations, so a phpcs:ignore here would not pass.
+	 *
+	 * wp_kses() with the full render allowlist does not flatten the markup the way
+	 * esc_html() would: it is the same allowlist and the same safe_style_css widening
+	 * that ShortcodeServiceProvider::handle_shortcode_execution() already applied to
+	 * Rentiva's own callbacks, so for them this second pass changes nothing, and for any
+	 * other callback registered under the tag it is the only escaping on this path.
+	 *
+	 * @param string $tag  Shortcode tag.
+	 * @param array  $atts Shortcode attributes.
+	 */
+	public static function output_shortcode_atts( string $tag, array $atts ): void {
+		$html = self::render_shortcode_atts( $tag, $atts );
+
+		add_filter( 'safe_style_css', array( Html::class, 'allow_inline_style_props' ) );
+		try {
+			echo wp_kses( $html, Html::allowed_markup() );
+		} finally {
+			remove_filter( 'safe_style_css', array( Html::class, 'allow_inline_style_props' ) );
+		}
 	}
 
 	// Find template and include it. If $return=true, output is buffered and returns string.

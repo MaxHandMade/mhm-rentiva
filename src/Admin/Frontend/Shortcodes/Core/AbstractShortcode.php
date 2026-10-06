@@ -163,11 +163,27 @@ abstract class AbstractShortcode {
 			$tag = static::get_shortcode_tag();
 
 			// 1. Attribute normalization
-			// Canonical payloads come from BlockRegistry/CAM and must not be truncated by shortcode_atts.
-			if (empty($atts['_canonical'])) {
+			// Canonical payloads come from BlockRegistry/CAM and widgets and must not be
+			// truncated by shortcode_atts. They still need this shortcode's own defaults:
+			// a payload that omits a key must behave like a shortcode that omits it.
+			// The `_canonical` flag stays in $atts until prepare_template_data() has seen
+			// it (TransferResults::prepare_template_data() branches on it).
+			// The flag is trusted only as boolean true: the array callers (Templates::
+			// render_shortcode_atts(), WidgetAttributeBridge, BlockRegistry) set it that
+			// way, while shortcode text can only yield strings. A textual `_canonical="1"`
+			// written by a post author must not skip shortcode_atts() and CAM.
+			if (true !== ( $atts['_canonical'] ?? null )) {
+				unset($atts['_canonical']);
 				$atts = shortcode_atts(static::get_default_attributes(), $atts, $tag);
 				$atts = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $atts);
+			} else {
+				$atts = wp_parse_args($atts, static::get_default_attributes());
 			}
+
+			// Load assets (only once). Before the cache lookup on purpose: a cache hit
+			// returns the stored HTML without running any code below, and the page would
+			// then ship markup whose stylesheet/script were never enqueued.
+			static::enqueue_assets_once($atts);
 
 			// Performance: Cache check
 			$cache_key   = static::get_cache_key($atts);
@@ -175,9 +191,6 @@ abstract class AbstractShortcode {
 			if ($cached_html) {
 				return $cached_html;
 			}
-
-			// Load assets (only once)
-			static::enqueue_assets_once($atts);
 
 			// Prepare template data
 			$template_data = static::prepare_template_data($atts);
@@ -211,7 +224,10 @@ abstract class AbstractShortcode {
 			// 'mhmrentiva_shortcodes_rentiva_vehicles/html' -- which still carries
 			// the slash the whole change exists to remove, and would have looked
 			// renamed at a glance.
-			$html = apply_filters('mhmrentiva_shortcodes_' . $tag . '_html', $html, $atts, $content);
+			// The internal `_canonical` guard is not part of the public filter contract.
+			$filter_atts = $atts;
+			unset($filter_atts['_canonical']);
+			$html = apply_filters('mhmrentiva_shortcodes_' . $tag . '_html', $html, $filter_atts, $content);
 
 			// Performance logging - disabled to reduce debug log noise
 			// $render_time = microtime(true) - $start_time;
@@ -591,10 +607,19 @@ abstract class AbstractShortcode {
 
 	/**
 	 * Cache aktif mi kontrol eder
+	 *
+	 * `mhmrentiva_shortcode_html_cache_enabled` is a site/test seam: the default hangs
+	 * on the WP_CACHE constant, which a test cannot toggle, so the filter is the only
+	 * way to exercise the cache-hit path (and lets a site force the cache on or off
+	 * for one shortcode tag).
 	 */
 	protected static function is_caching_enabled(): bool
 	{
-		return defined('WP_CACHE') && WP_CACHE && ! is_user_logged_in();
+		return (bool) apply_filters(
+			'mhmrentiva_shortcode_html_cache_enabled',
+			defined('WP_CACHE') && WP_CACHE && ! is_user_logged_in(),
+			static::get_shortcode_tag()
+		);
 	}
 
 	/**

@@ -156,20 +156,34 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		return array(
-			'vehicle_ids'          => sanitize_text_field( (string) ( $settings['vehicle_ids'] ?? '' ) ),
-			'max_vehicles'         => (string) max( 2, min( 6, (int) ( $settings['max_vehicles'] ?? 4 ) ) ),
-			'layout'               => sanitize_text_field( (string) ( $settings['layout'] ?? 'table' ) ),
-			'show_features'        => sanitize_text_field( (string) ( $settings['show_features'] ?? 'all' ) ),
-			'show_images'          => $this->convert_switcher_to_boolean( $settings['show_images'] ?? '1' ),
-			'show_prices'          => $this->convert_switcher_to_boolean( $settings['show_prices'] ?? '1' ),
-			'show_booking_buttons' => $this->convert_switcher_to_boolean( $settings['show_booking_buttons'] ?? '1' ),
-			'show_remove_buttons'  => $this->convert_switcher_to_boolean( $settings['show_remove_buttons'] ?? '1' ),
-		);
+		$atts = array();
+
+		foreach ( array( 'vehicle_ids' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
+			}
+		}
+
+		if ( array_key_exists( 'max_vehicles', $settings ) ) {
+			$atts['max_vehicles'] = (string) max( 2, min( 6, (int) $settings['max_vehicles'] ) );
+		}
+
+		foreach ( array( 'layout', 'show_features' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
+			}
+		}
+
+		foreach ( array( 'show_images', 'show_prices', 'show_booking_buttons', 'show_remove_buttons' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
+			}
+		}
+
+		return $atts;
 	}
 
 	protected function render(): void {
-		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		$this->output_shortcode( 'rentiva_vehicle_comparison', $atts );
+		$this->render_canonical( 'rentiva_vehicle_comparison' );
 	}
 }

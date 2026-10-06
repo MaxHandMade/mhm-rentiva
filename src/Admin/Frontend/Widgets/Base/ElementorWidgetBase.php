@@ -78,36 +78,6 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	protected function register_style_controls(): void {}
 
 	/**
-	 * Automated Attribute Preparation
-	 * Converts Elementor settings directly to Shortcode attributes.
-	 *
-	 * @return array
-	 */
-	protected function get_prepared_atts(): array {
-		$settings = $this->get_settings_for_display();
-		$atts     = array();
-
-		foreach ( $settings as $key => $value ) {
-			// Convert 'yes'/'no' to '1'/'0' for shortcode compatibility
-			if ( $value === 'yes' ) {
-				$atts[ $key ] = '1';
-			} elseif ( $value === 'no' ) {
-				$atts[ $key ] = '0';
-			} else {
-				$atts[ $key ] = $value;
-			}
-		}
-
-		// Sanitize everything before usage
-		return array_map(
-			function ( $val ) {
-				return is_string( $val ) ? sanitize_text_field( $val ) : $val;
-			},
-			$atts
-		);
-	}
-
-	/**
 	 * Convert Elementor switcher-like values to canonical shortcode boolean strings.
 	 *
 	 * @param mixed $value Raw widget setting value.
@@ -122,50 +92,95 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
-	 * Render Shortcode Helper
+	 * Widget settings the bridge may turn into shortcode attributes.
+	 *
+	 * Only controls registered on this widget's own stack count: get_stack( false )
+	 * leaves out Elementor's shared "common" widget, so internals such as _title or
+	 * _transform_* and stale saved values of removed controls never reach the shortcode.
+	 * Section entries carry no value, and neither do style-only controls (those with a
+	 * "selectors" key: colors, typography, spacing...) because they change CSS, never
+	 * a shortcode attribute, so a style key that shares a name with an attribute cannot
+	 * leak into it. URL controls are flattened to their url string, then values meaning
+	 * "not set" are dropped so schema defaults apply.
+	 *
+	 * Public so tests can inspect it on a real widget instance.
+	 *
+	 * @param string $tag Shortcode tag.
+	 * @return array
+	 */
+	public function get_bridge_settings( string $tag ): array {
+		$controls = $this->get_stack( false )['controls'] ?? array();
+		$own      = array();
+		foreach ( $controls as $id => $control ) {
+			if ( 'section' === ( $control['type'] ?? '' ) || isset( $control['selectors'] ) ) {
+				continue;
+			}
+			$own[ $id ] = true;
+		}
+
+		$settings = array_intersect_key( (array) $this->get_settings_for_display(), $own );
+
+		return WidgetAttributeBridge::filter_empty( $tag, WidgetAttributeBridge::flatten_controls( $settings ) );
+	}
+
+	/**
+	 * Render the mapped shortcode from this widget's settings.
+	 *
+	 * The attributes go to the registered callback as an array (no shortcode string is
+	 * assembled), so values containing brackets, quotes or "&" arrive intact.
+	 *
+	 * @param string $tag Shortcode tag.
+	 */
+	protected function render_canonical( string $tag ): void {
+		$settings = $this->get_bridge_settings( $tag );
+		Templates::output_shortcode_atts(
+			$tag,
+			WidgetAttributeBridge::to_canonical( $tag, $settings, $this->prepare_shortcode_attributes( $settings ) )
+		);
+	}
+
+	/**
+	 * Render a shortcode and return its markup.
+	 *
+	 * Kept for add-on widgets that still call it. It no longer builds a shortcode
+	 * string: $atts becomes the explicit mapping on top of this widget's own bridge
+	 * settings, and the result comes from the registered callback. No
+	 * _deprecated_function() notice is raised on purpose, so add-on test suites keep
+	 * passing while they move to render_canonical().
+	 *
+	 * @deprecated 6.1.6 Use render_canonical().
 	 *
 	 * @param string $tag  Shortcode tag.
-	 * @param array  $atts Shortcode attributes.
+	 * @param array  $atts Explicit shortcode attributes.
 	 * @return string
 	 */
 	protected function render_shortcode( string $tag, array $atts = array() ): string {
-		return do_shortcode( self::build_shortcode( $tag, $atts ) );
+		return Templates::render_shortcode_atts(
+			$tag,
+			WidgetAttributeBridge::to_canonical( $tag, $this->get_bridge_settings( $tag ), $atts )
+		);
 	}
 
 	/**
 	 * Render a shortcode straight to the page.
 	 *
-	 * Widgets use this instead of `echo $this->render_shortcode( ... )` so that no widget
-	 * echoes an unescaped value itself. The single unavoidable unescaped echo of assembled
-	 * shortcode markup lives in Templates::output_shortcode(), documented there.
+	 * Same compatibility path as render_shortcode(). The echo happens in
+	 * Templates::output_shortcode_atts(), which passes the markup through
+	 * wp_kses( ..., Html::allowed_markup() ) (gate G-A allows no bare echo), so this
+	 * shim never prints unescaped output.
+	 *
+	 * @deprecated 6.1.6 Use render_canonical().
 	 *
 	 * @param string $tag  Shortcode tag.
-	 * @param array  $atts Shortcode attributes.
+	 * @param array  $atts Explicit shortcode attributes.
 	 */
 	protected function output_shortcode( string $tag, array $atts = array() ): void {
-		Templates::output_shortcode( self::build_shortcode( $tag, $atts ) );
+		Templates::output_shortcode_atts(
+			$tag,
+			WidgetAttributeBridge::to_canonical( $tag, $this->get_bridge_settings( $tag ), $atts )
+		);
 	}
 
-	/**
-	 * Build the shortcode string, escaping every attribute name and value.
-	 *
-	 * @param string $tag  Shortcode tag.
-	 * @param array  $atts Shortcode attributes.
-	 * @return string
-	 */
-	private static function build_shortcode( string $tag, array $atts = array() ): string {
-		$atts_string = '';
-		foreach ( $atts as $key => $value ) {
-			// Skip non-scalar settings (icon/url/globals arrays) — they can't be
-			// string shortcode attributes and would trigger "Array to string conversion".
-			if ( is_array( $value ) || is_object( $value ) ) {
-				continue;
-			}
-			$atts_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( (string) $value ) );
-		}
-
-		return sprintf( '[%s%s]', $tag, $atts_string );
-	}
 	/**
 	 * Standard Style Controls
 	 * Shared typography and color settings for all MHM widgets.
@@ -201,12 +216,16 @@ abstract class ElementorWidgetBase extends Widget_Base {
 
 	/**
 	 * Helper: Add Typography Control
+	 *
+	 * $name is the explicit group control name. Pass it when one widget uses the same
+	 * label more than once (Elementor rejects a redeclared control) or when the name
+	 * must not depend on the translated label.
 	 */
-	protected function add_typography_control( string $selector, string $label ): void {
+	protected function add_typography_control( string $selector, string $label, ?string $name = null ): void {
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			array(
-				'name'     => sanitize_title( $label ) . '_typography',
+				'name'     => $name ?? sanitize_title( $label ) . '_typography',
 				'selector' => '{{WRAPPER}} ' . $selector,
 			)
 		);
@@ -239,10 +258,16 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
-	 * Prepare attributes for shortcode (Default implementation)
+	 * Widget-specific explicit mapping, applied over the raw bridge settings.
+	 *
+	 * Receives the already filtered bridge settings. The default maps nothing extra:
+	 * every live control already reaches the shortcode through the bridge.
+	 *
+	 * @param array $settings Filtered bridge settings.
+	 * @return array
 	 */
 	protected function prepare_shortcode_attributes( array $settings ): array {
-		return $this->get_prepared_atts();
+		return array();
 	}
 
 	/**
@@ -327,9 +352,20 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			return;
 		}
 
-		$schema            = AllowlistRegistry::get_schema( $shortcode_tag );
-		$existing_controls = array_keys( $this->get_controls() );
-		$missing           = array();
+		$schema = AllowlistRegistry::get_schema( $shortcode_tag );
+
+		// Existing own-stack controls, compared by canonical key: a snake_case control
+		// and a camelCase block attribute are the same setting, so a second control
+		// for it would be a dead twin (its saved value never reaches the shortcode).
+		$existing_canonical = array();
+		$stack              = $this->get_stack( false );
+		foreach ( array( 'controls', 'style_controls' ) as $bucket ) {
+			foreach ( array_keys( (array) ( $stack[ $bucket ] ?? array() ) ) as $existing_id ) {
+				$existing_canonical[ KeyNormalizer::normalize( (string) $existing_id, $schema ) ] = true;
+			}
+		}
+		$missing  = array();
+		$excluded = array_fill_keys( $this->get_parity_exclusions(), true );
 
 		foreach ( $block_json['attributes'] as $attr_name => $attr_config ) {
 			if ( ! is_string( $attr_name ) || '' === $attr_name || ! is_array( $attr_config ) ) {
@@ -341,16 +377,14 @@ abstract class ElementorWidgetBase extends Widget_Base {
 				continue;
 			}
 
-			if ( in_array( $attr_name, $existing_controls, true ) ) {
-				continue;
-			}
-
 			$canonical = KeyNormalizer::normalize( $attr_name, $schema );
-			if ( ! isset( $schema[ $canonical ] ) ) {
+			if ( ! isset( $schema[ $canonical ] ) || isset( $existing_canonical[ $canonical ] ) || isset( $excluded[ $canonical ] ) ) {
 				continue;
 			}
 
-			$missing[ $attr_name ] = $attr_config;
+			// Two block attributes can share a canonical key; register it once.
+			$existing_canonical[ $canonical ] = true;
+			$missing[ $canonical ]            = $attr_config;
 		}
 
 		if ( empty( $missing ) ) {
@@ -365,17 +399,31 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			)
 		);
 
-		foreach ( $missing as $attr_name => $attr_config ) {
-			$this->add_parity_control_from_schema( $attr_name, $attr_config );
+		foreach ( $missing as $canonical => $attr_config ) {
+			$this->add_parity_control_from_schema( $canonical, $attr_config );
 		}
 
 		$this->end_controls_section();
 	}
 
 	/**
+	 * Canonical keys the parity feature must not add for this widget.
+	 *
+	 * For a widget whose explicit mapping always overrides a key (the vehicle card
+	 * renders exactly one card), a parity control for that key could never change
+	 * anything: the user would see a dead control.
+	 *
+	 * @return string[]
+	 */
+	protected function get_parity_exclusions(): array {
+		return array();
+	}
+
+	/**
 	 * Adds one Elementor control derived from block attribute schema.
 	 */
 	private function add_parity_control_from_schema( string $attr_name, array $attr_config ): void {
+		// $attr_name is already the canonical key; it is the control id and the label source.
 		$type    = isset( $attr_config['type'] ) && is_string( $attr_config['type'] ) ? $attr_config['type'] : 'string';
 		$default = $attr_config['default'] ?? '';
 		$label   = $this->format_control_label( $attr_name );

@@ -243,6 +243,59 @@ tests_add_filter('muplugins_loaded', static function () {
 }, 5);
 
 /**
+ * Locate Elementor, or return null when it is genuinely absent.
+ *
+ * Same two environments and same lookup as mhmrentiva_locate_woocommerce():
+ * locally ABSPATH is the dev site's tree with Elementor beside this plugin; in
+ * CI the workflow downloads the pinned zip into /tmp/wordpress. ELEMENTOR_PLUGIN_DIR
+ * stays available as an override for a layout neither anticipates.
+ *
+ * @return string|null Absolute path to elementor.php, or null.
+ */
+function mhmrentiva_locate_elementor(): ?string
+{
+	$candidates = array();
+
+	$override = getenv('ELEMENTOR_PLUGIN_DIR');
+	if (is_string($override) && '' !== trim($override)) {
+		$candidates[] = rtrim($override, '/') . '/elementor.php';
+	}
+
+	// Sibling of the plugin under test.
+	$candidates[] = dirname(__DIR__, 2) . '/elementor/elementor.php';
+
+	if (defined('ABSPATH')) {
+		$candidates[] = rtrim((string) ABSPATH, '/') . '/wp-content/plugins/elementor/elementor.php';
+	}
+
+	foreach ($candidates as $candidate) {
+		if (is_readable($candidate)) {
+			return $candidate;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Load Elementor ahead of the plugin under test.
+ *
+ * Priority 5, like WooCommerce: mhm-rentiva (priority 10) then registers its
+ * widgets against a real Elementor, as in production. Silent when Elementor is
+ * missing; ElementorTestEnvironmentTest turns that silence into one named
+ * failure instead of tests that skip unnoticed.
+ */
+tests_add_filter('muplugins_loaded', static function () {
+	$elementor = mhmrentiva_locate_elementor();
+
+	if (null === $elementor) {
+		return;
+	}
+
+	require_once $elementor;
+}, 5);
+
+/**
  * Install WooCommerce's schema into the test database.
  *
  * Loading the plugin is not installing it. Without this, the first test to

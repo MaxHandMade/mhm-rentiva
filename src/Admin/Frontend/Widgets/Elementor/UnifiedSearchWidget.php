@@ -152,11 +152,15 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	protected function prepare_shortcode_attributes( array $settings ): array {
 		$atts = array();
 
-		$atts['show_rental_tab'] = ( $settings['show_rental_tab'] === 'yes' ) ? '1' : '0';
-		$atts['layout']          = $settings['layout'];
+		foreach ( array( 'show_rental_tab', 'show_location_select', 'show_date_picker' ) as $key ) {
+			if ( array_key_exists( $key, $settings ) ) {
+				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
+			}
+		}
 
-		$atts['show_location_select'] = ( $settings['show_location_select'] === 'yes' ) ? '1' : '0';
-		$atts['show_date_picker']     = ( $settings['show_date_picker'] === 'yes' ) ? '1' : '0';
+		if ( array_key_exists( 'layout', $settings ) ) {
+			$atts['layout'] = sanitize_text_field( (string) $settings['layout'] );
+		}
 
 		return $atts;
 	}
@@ -165,15 +169,10 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	 * Render widget output.
 	 */
 	protected function render(): void {
-		$settings = $this->get_settings_for_display();
-
-		// Prepare shortcode attributes
-		$atts = $this->prepare_shortcode_attributes( $settings );
-
 		// Output widget wrapper. The wrapper used to carry an `rv-style--{glass|solid}`
 		// class from the removed Design Style control; no stylesheet ever matched it.
 		echo '<div class="elementor-widget-rv-unified-search">';
-		$this->output_shortcode( 'rentiva_unified_search', $atts );
+		$this->render_canonical( 'rentiva_unified_search' );
 		echo '</div>';
 	}
 }

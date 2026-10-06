@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Blocks;
 
 use MHMRentiva\Admin\Core\AssetManager;
+use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Helpers\Html;
 
 if (! defined('ABSPATH')) {
@@ -558,41 +559,57 @@ class BlockRegistry {
 			? self::sanitize_css_dimension($attributes['height'])
 			: '';
 
-		// Guard against double mapping (especially when called recursively or via blocks-in-shortcodes)
-		if (! empty($attributes['_canonical'])) {
-			$mapped_attributes = $attributes;
-		} else {
-			// 1. Extract Wrapper Logic (Dimensions) before CAM drops unknown attributes
-			$style_parts = array();
-			if ('' !== $min_width) {
-				$style_parts[] = "min-width:$min_width";
-			}
-			if ('' !== $max_width) {
-				$style_parts[] = "max-width:$max_width";
-			}
-			if ('' !== $height) {
-				$style_parts[] = "height:$height";
-			}
+		// `_canonical` is a trust flag (skip shortcode_atts() and CAM) that only this
+		// method may set. WP_Block_Type::prepare_attributes_for_render() does not drop
+		// unknown attributes, so a hand-written block comment such as
+		// {"_canonical":true,"foo":"bar"} would otherwise bypass CAM. Drop any incoming
+		// copy and always map.
+		unset($attributes['_canonical']);
 
-			if (! empty($style_parts)) {
-				$attributes['style'] = implode(';', $style_parts) . ';';
-			}
-
-			// 2. Canonical Attribute Mapping (Registry + KeyNormalizer driven)
-			//    This is the one-way normalization step from block payload to
-			//    shortcode canonical attributes used by downstream rendering.
-			$mapped_attributes               = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $attributes);
-			$mapped_attributes['_canonical'] = true;
+		// 1. Extract Wrapper Logic (Dimensions) before CAM drops unknown attributes
+		$style_parts = array();
+		if ('' !== $min_width) {
+			$style_parts[] = "min-width:$min_width";
 		}
+		if ('' !== $max_width) {
+			$style_parts[] = "max-width:$max_width";
+		}
+		if ('' !== $height) {
+			$style_parts[] = "height:$height";
+		}
+
+		if (! empty($style_parts)) {
+			$attributes['style'] = implode(';', $style_parts) . ';';
+		}
+
+		// 2. Canonical Attribute Mapping (Registry + KeyNormalizer driven)
+		//    This is the one-way normalization step from block payload to
+		//    shortcode canonical attributes used by downstream rendering.
+		$mapped_attributes = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $attributes);
 
 		// Ensure Search Results runtime JS/localization is always present for block instances.
 		if ($tag === 'rentiva_search_results' && class_exists(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class)) {
 			\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::ensure_runtime_assets($mapped_attributes);
 		}
 
-		$shortcode_attrs_string = self::attributes_to_string($mapped_attributes);
+		// Run the shortcode through the array path rather than a "[tag a=\"b\"]" string:
+		// esc_attr() does not encode "]", so a value such as a title "Bize ulaşın [7/24]"
+		// closed the shortcode early, leaked the remaining attribute text onto the page
+		// and lost the canonical flag. Values are still scalar strings, as the string
+		// path delivered them, so templates see the same types as before.
+		$shortcode_atts = array();
+		foreach ($mapped_attributes as $key => $value) {
+			if (is_bool($value)) {
+				$value = $value ? '1' : '0';
+			}
+			if (is_scalar($value)) {
+				$shortcode_atts[ $key ] = (string) $value;
+			}
+		}
+		// Set after the string conversion: only boolean true is honoured downstream.
+		$shortcode_atts['_canonical'] = true;
 
-		$shortcode_content = do_shortcode('[' . $tag . ' ' . $shortcode_attrs_string . ']');
+		$shortcode_content = Templates::render_shortcode_atts($tag, $shortcode_atts);
 
 		// Prepare wrapper attributes to ensure dimensions are applied to the container
 		$wrapper_args   = array();
@@ -638,26 +655,6 @@ class BlockRegistry {
 		);
 	}
 
-
-	/**
-	 * Convert attributes array to shortcode string
-	 *
-	 * @param array $attributes Block attributes.
-	 * @return string
-	 */
-	private static function attributes_to_string(array $attributes): string
-	{
-		$out = '';
-		foreach ($attributes as $key => $value) {
-			if (is_bool($value)) {
-				$value = $value ? '1' : '0';
-			}
-			if (is_scalar($value)) {
-				$out .= sprintf('%s="%s" ', esc_attr($key), esc_attr( (string) $value));
-			}
-		}
-		return trim($out);
-	}
 
 	/**
 	 * Normalize an untrusted block dimension to a single safe CSS value.
