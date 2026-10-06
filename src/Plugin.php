@@ -630,7 +630,7 @@ final class Plugin {
 		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations_from_hook' ), 10, 0);
 		// Finishes the 4.5.0 Elementor style id step after the migrator (priority 10)
 		// queued it in the same request; Elementor's managers exist by now.
-		add_action('admin_init', array( Admin\Core\Utilities\ElementorStyleIdMigration::class, 'maybe_run_pending' ), 20, 0);
+		add_action('admin_init', array( Admin\Core\Utilities\ElementorStyleIdMigration::class, 'run_pending_from_hook' ), 20, 0);
 
 		// Taxonomy migration (vehicle_cat → vehicle_category)
 		add_action('admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5);

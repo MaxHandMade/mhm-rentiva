@@ -46,11 +46,13 @@ final class ElementorStyleIdMigration {
 			'pattern' => '/^(.+)_typography_(.+)$/',
 			'suffix'  => '_typography',
 			'target'  => 'general-style_typography',
+			'class'   => \MHMRentiva\Admin\Frontend\Widgets\Elementor\UnifiedSearchWidget::class,
 		),
 		'rv-booking-form'   => array(
 			'pattern' => '/^(.+)_shadow_(box_shadow(?:_type|_position)?)$/',
 			'suffix'  => '_shadow',
 			'target'  => 'shadow_shadow',
+			'class'   => \MHMRentiva\Admin\Frontend\Widgets\Elementor\BookingFormWidget::class,
 		),
 	);
 
@@ -125,11 +127,28 @@ final class ElementorStyleIdMigration {
 	}
 
 	/**
-	 * Runs on admin_init (priority 20): finish a pending migration once Elementor is up.
+	 * The admin_init (priority 20) callback, behind the migrator's own request gate.
 	 *
-	 * WordPress also fires admin_init for unauthenticated admin-ajax/admin-post requests, so a
-	 * migration that keeps failing stops after MAX_ATTEMPTS instead of replaying on
-	 * every request; the next database version bump resets the counter.
+	 * WordPress fires admin_init for unauthenticated admin-ajax.php and admin-post.php
+	 * requests too; a visitor's booking-form AJAX must never pay for a full scan and an
+	 * Elementor cache flush. Same gate as DatabaseMigrator::run_migrations_from_hook().
+	 */
+	public static function run_pending_from_hook(): void
+	{
+		if (! DatabaseMigrator::context_allows(is_admin(), wp_doing_ajax(), wp_doing_cron(), defined('WP_CLI') && WP_CLI, 'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' ))) {
+			return;
+		}
+
+		self::maybe_run_pending();
+	}
+
+	/**
+	 * Finish a pending migration once Elementor is up.
+	 *
+	 * A migration that keeps failing stops after MAX_ATTEMPTS instead of replaying on
+	 * every admin request; the next database version bump resets the counter. The
+	 * attempt is spent before the work starts, so a run that dies mid-way (timeout,
+	 * memory) still counts.
 	 */
 	public static function maybe_run_pending(): void
 	{
@@ -145,17 +164,29 @@ final class ElementorStyleIdMigration {
 			return;
 		}
 
-		// Per-page CSS still carries the old selectors and defaults, migrated or not.
-		self::clear_css_cache();
+		++$attempts;
+		update_option(self::ATTEMPTS_OPTION, (string) $attempts, false);
 
-		if (self::run()) {
+		$done = self::run();
+
+		// Per-page CSS still carries the old selectors and defaults, migrated or not.
+		// Cleared after the run: a page CSS rebuilt from not-yet-migrated data while
+		// the run was going would otherwise survive it. clear_cache() fires
+		// elementor/core/files/clear_cache, so a third-party consumer can throw: that
+		// is a failed attempt, never an exception out of admin_init.
+		try {
+			self::clear_css_cache();
+		} catch (\Throwable $e) {
+			self::log('the CSS cache flush failed: ' . get_class($e) . ': ' . $e->getMessage());
+			$done = false;
+		}
+
+		if ($done) {
 			delete_option(self::PENDING_OPTION);
 			delete_option(self::ATTEMPTS_OPTION);
 			return;
 		}
 
-		++$attempts;
-		update_option(self::ATTEMPTS_OPTION, (string) $attempts, false);
 		if (self::MAX_ATTEMPTS === $attempts) {
 			self::log(sprintf('gave up after %d attempts', self::MAX_ATTEMPTS));
 		}
@@ -203,7 +234,13 @@ final class ElementorStyleIdMigration {
 		foreach (array_keys(self::RULES) as $name) {
 			$widget = \Elementor\Plugin::$instance->widgets_manager->get_widget_types($name);
 			if (! $widget instanceof \Elementor\Widget_Base) {
-				return null;
+				// Elementor's Element Manager skips registering a widget the site disabled, but
+				// its saved instances keep the legacy ids. The class still declares the stack.
+				$class = self::RULES[ $name ]['class'];
+				if (! class_exists($class)) {
+					return null;
+				}
+				$widget = new $class();
 			}
 			// get_stack( true ): the common (Advanced tab) controls are only in the full stack.
 			$stack    = $widget->get_stack(true);

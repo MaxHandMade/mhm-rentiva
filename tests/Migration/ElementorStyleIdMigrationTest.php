@@ -36,6 +36,8 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 
 	public function tear_down(): void
 	{
+		// test_hook_does_nothing_on_an_anonymous_ajax_request makes is_admin() true.
+		set_current_screen('front');
 		parent::tear_down();
 		self::forget_migration_lock();
 	}
@@ -533,6 +535,118 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 		$this->assertSame(0, $writes());
 	}
 
+	// ------------------------------------------- final review fixes (I1-I3)
+
+	public function test_hook_does_nothing_on_an_anonymous_ajax_request(): void
+	{
+		$w      = $this->search(array( 'genel-stil_typography_font_family' => 'Lora' ));
+		$id     = $this->page(array( $w ));
+		$before = $this->raw($id);
+		ElementorStyleIdMigration::mark_pending();
+		set_current_screen('dashboard');
+		add_filter('wp_doing_ajax', '__return_true');
+		try {
+			ElementorStyleIdMigration::run_pending_from_hook();
+		} finally {
+			remove_filter('wp_doing_ajax', '__return_true');
+		}
+
+		$this->assertSame($before, $this->raw($id), 'an admin-ajax request ran the migration');
+		$this->assertFalse(get_option(ElementorStyleIdMigration::ATTEMPTS_OPTION));
+		$this->assertSame('1', get_option(ElementorStyleIdMigration::PENDING_OPTION));
+
+		// The same hook on an admin page load does the work.
+		ElementorStyleIdMigration::run_pending_from_hook();
+		$this->assertSame(array( 'general-style_typography_font_family' => 'Lora' ), $this->settings($id, $w['id']));
+		$this->assertFalse(get_option(ElementorStyleIdMigration::PENDING_OPTION));
+	}
+
+	public function test_attempt_is_counted_before_the_work_starts(): void
+	{
+		$this->page(array( $this->search(array( 'genel-stil_typography_font_family' => 'Lora' )) ));
+		ElementorStyleIdMigration::mark_pending();
+		$seen  = array();
+		$probe = static function ($check, $object_id, $meta_key) use (&$seen) {
+			if ('_elementor_data' === $meta_key) {
+				$seen[] = get_option(ElementorStyleIdMigration::ATTEMPTS_OPTION);
+			}
+			return $check;
+		};
+		add_filter('update_post_metadata', $probe, 10, 3);
+		try {
+			ElementorStyleIdMigration::maybe_run_pending();
+		} finally {
+			remove_filter('update_post_metadata', $probe, 10);
+		}
+
+		// A run that dies mid-way (timeout, memory) must already have spent its attempt.
+		$this->assertSame(array( '1' ), $seen);
+		$this->assertFalse(get_option(ElementorStyleIdMigration::ATTEMPTS_OPTION), 'a successful run clears the counter');
+	}
+
+	public function test_css_regenerated_during_the_run_is_cleared_afterwards(): void
+	{
+		$page = $this->page(array( $this->search(array( 'genel-stil_typography_font_family' => 'Lora' )) ));
+		ElementorStyleIdMigration::mark_pending();
+		// A front-end request rebuilds the page CSS from not-yet-migrated data while the run is going.
+		$visitor = static function ($check, $object_id, $meta_key) use ($page) {
+			if ('_elementor_data' === $meta_key && (int) $object_id === $page) {
+				update_post_meta($page, '_elementor_css', array( 'status' => 'file', 'time' => time() ));
+			}
+			return $check;
+		};
+		add_filter('update_post_metadata', $visitor, 10, 3);
+		try {
+			ElementorStyleIdMigration::maybe_run_pending();
+		} finally {
+			remove_filter('update_post_metadata', $visitor, 10);
+		}
+
+		$this->assertSame('', get_post_meta($page, '_elementor_css', true), 'stale CSS built mid-run survived');
+	}
+
+	public function test_a_failing_cache_flush_is_contained_and_counted(): void
+	{
+		$this->page(array( $this->search(array( 'genel-stil_typography_font_family' => 'Lora' )) ));
+		ElementorStyleIdMigration::mark_pending();
+		$calls = 0;
+		$boom  = static function () use (&$calls) {
+			++$calls;
+			throw new \RuntimeException('cache consumer failed');
+		};
+		add_action('elementor/core/files/clear_cache', $boom);
+		try {
+			for ($attempt = 1; $attempt <= 4; $attempt++) {
+				ElementorStyleIdMigration::maybe_run_pending();
+			}
+		} finally {
+			remove_action('elementor/core/files/clear_cache', $boom);
+		}
+
+		$this->assertSame(3, $calls, 'the fourth call flushed the cache again');
+		$this->assertSame(3, (int) get_option(ElementorStyleIdMigration::ATTEMPTS_OPTION));
+		$this->assertSame('1', get_option(ElementorStyleIdMigration::PENDING_OPTION), 'a failed flush finished the job');
+	}
+
+	public function test_a_widget_disabled_in_elementor_still_migrates(): void
+	{
+		$manager = \Elementor\Plugin::$instance->widgets_manager;
+		$search  = $this->search(array( 'genel-stil_typography_font_family' => 'Lora' ));
+		$booking = $this->booking(array( 'golge_shadow_box_shadow_type' => 'yes' ));
+		$id      = $this->page(array( $search, $booking ));
+		// Elementor's Element Manager skips registering a disabled widget.
+		$manager->unregister('rv-booking-form');
+		try {
+			$this->assertNull($manager->get_widget_types('rv-booking-form'));
+			$this->assertTrue(ElementorStyleIdMigration::run());
+		} finally {
+			$manager->register(new \MHMRentiva\Admin\Frontend\Widgets\Elementor\BookingFormWidget());
+		}
+
+		$this->assertSame(array( 'general-style_typography_font_family' => 'Lora' ), $this->settings($id, $search['id']));
+		$this->assertSame(array( 'shadow_shadow_box_shadow_type' => 'yes' ), $this->settings($id, $booking['id']));
+	}
+
 	// ------------------------------------------------- DatabaseMigrator 4.5.0
 
 	/**
@@ -544,8 +658,8 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 	 */
 	private function fire_admin_init_step(): void
 	{
-		$callback = array( ElementorStyleIdMigration::class, 'maybe_run_pending' );
-		$this->assertSame(20, has_action('admin_init', $callback), 'maybe_run_pending is not hooked to admin_init at 20');
+		$callback = array( ElementorStyleIdMigration::class, 'run_pending_from_hook' );
+		$this->assertSame(20, has_action('admin_init', $callback), 'run_pending_from_hook is not hooked to admin_init at 20');
 		$this->assertSame(10, has_action('admin_init', array( DatabaseMigrator::class, 'run_migrations_from_hook' )));
 		ElementorStyleIdMigration::maybe_run_pending();
 	}

@@ -7,10 +7,11 @@ namespace MHMRentiva\Tests\Support;
  * Counts the elements a CSS selector matches in rendered markup.
  *
  * Supports exactly what the widgets' style selectors use: descendant combinator
- * (whitespace), tag names, compound classes (`a.b`, `.a.b`). Pseudo-classes
- * (`:hover`, `:focus` …) are dropped, since a hover rule targets the same element.
- * Anything else (`>`, `+`, `~`, `[attr]`, `#id`, `:not(...)`, `,`) throws, so an
- * unsupported selector can never pass silently.
+ * (whitespace), tag names, compound classes (`a.b`, `.a.b`). User-action
+ * pseudo-classes (`:hover`, `:focus`, `:active` …) are dropped, since such a rule
+ * targets the same element. Anything else (`>`, `+`, `~`, `[attr]`, `#id`,
+ * `:not(...)`, `:first-child`, `::before`, `,`) throws, so an unsupported selector
+ * can never pass silently.
  */
 final class SelectorMatcher
 {
@@ -23,8 +24,10 @@ final class SelectorMatcher
 
 		$xpath = '';
 		foreach (preg_split('/\s+/', $selector) as $compound) {
-			// Drop pseudo-classes and pseudo-elements: `a:hover` → `a`.
-			$compound = (string) preg_replace('/::?[a-z-]+$/i', '', $compound);
+			// Drop user-action pseudo-classes only: `a:hover` targets the same element as `a`.
+			// Anything else (`:first-child`, `::before`, an unknown name) changes what the
+			// selector reaches, so the compound check below rejects it.
+			$compound = (string) preg_replace('/:(?:hover|focus|focus-visible|focus-within|active|visited)$/', '', $compound);
 			if (! preg_match('/^([a-z][a-z0-9-]*)?((?:\.[A-Za-z0-9_-]+)*)$/', $compound, $m) || '' === $compound) {
 				throw new \InvalidArgumentException('Unsupported compound selector: ' . $compound . ' in ' . $selector);
 			}
