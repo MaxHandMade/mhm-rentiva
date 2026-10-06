@@ -138,10 +138,6 @@
             "type": "string",
             "default": "5000"
         },
-        "showBookingButton": {
-            "type": "boolean",
-            "default": true
-        },
         "maxFeatures": {
             "type": "string",
             "default": "5"

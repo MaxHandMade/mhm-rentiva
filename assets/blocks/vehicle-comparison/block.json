@@ -106,10 +106,6 @@
       "type": "boolean",
       "default": true
     },
-    "showBookingButtons": {
-      "type": "boolean",
-      "default": true
-    },
     "show_images": {
       "type": "boolean",
       "default": true

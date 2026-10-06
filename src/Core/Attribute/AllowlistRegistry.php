@@ -1266,14 +1266,16 @@ final class AllowlistRegistry {
         ],
         'rentiva_vehicle_comparison'    => [
             'vehicle_ids'          => [ 'default' => '' ],
-            'show_booking_buttons' => [ 'default' => '1' ],
+            // showBookButton (the block's control) belongs to show_booking_buttons, the key the
+            // template reads first (vehicle-comparison.php:33); listed first, so it wins the alias.
+            'show_booking_buttons' => [ 'default' => '1', 'aliases' => [ 'showBookingButtons', 'showBookButton' ] ],
             'max_vehicles'         => [ 'default' => '4' ],
             'class'                => [ 'default' => '' ],
             'show_technical_specs' => [ 'default' => 'all' ],
             'show_images'          => [ 'default' => '1' ],
             'show_prices'          => [ 'default' => '1' ],
             'show_rating'          => [ 'default' => '1' ],
-            'show_book_button'     => [ 'default' => '1' ],
+            'show_book_button'     => [ 'default' => '1', 'aliases' => [] ],
             'show_category'        => [ 'default' => '1' ],
             'show_fuel_type'       => [ 'default' => '1' ],
             'show_transmission'    => [ 'default' => '1' ],
@@ -1402,7 +1404,9 @@ final class AllowlistRegistry {
             'show_price',
             'show_rating',
             'show_category',
-            'show_book_button',
+            // showBookButton must reach show_booking_button, the key the card reads first
+            // (vehicle-card-base.php:40); emptied here so that alias resolves only there.
+            'show_book_button'     => [ 'aliases' => [] ],
             'show_booking_button',
             'show_features',
             'max_features',
