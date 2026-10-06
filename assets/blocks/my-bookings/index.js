@@ -39,8 +39,9 @@
                             value: filterStatus,
                             options: [
                                 { label: __('All', 'mhm-rentiva'), value: 'all' },
-                                { label: __('Active', 'mhm-rentiva'), value: 'active' },
-                                { label: __('Upcoming', 'mhm-rentiva'), value: 'upcoming' },
+                                { label: __('Pending', 'mhm-rentiva'), value: 'pending' },
+                                { label: __('Confirmed', 'mhm-rentiva'), value: 'confirmed' },
+                                { label: __('In Progress', 'mhm-rentiva'), value: 'in_progress' },
                                 { label: __('Completed', 'mhm-rentiva'), value: 'completed' },
                                 { label: __('Cancelled', 'mhm-rentiva'), value: 'cancelled' }
                             ],
