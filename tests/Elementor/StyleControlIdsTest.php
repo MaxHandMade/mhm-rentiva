@@ -49,7 +49,7 @@ final class StyleControlIdsTest extends WP_UnitTestCase
 		load_textdomain('mhm-rentiva', dirname(__DIR__, 2) . '/languages/mhm-rentiva-tr_TR.mo', 'tr_TR');
 		try {
 			// Without the translated label the run would just repeat en_US.
-			$this->assertSame('Tipografi', __('Typography', 'mhm-rentiva'), 'tr_TR translation did not load; the locale run would prove nothing.');
+			$this->assertSame('Genel Stil', __('General Style', 'mhm-rentiva'), 'tr_TR translation did not load; the locale run would prove nothing.');
 			$turkish = $this->id_sets();
 		} finally {
 			restore_previous_locale();

@@ -25,8 +25,8 @@ if (! defined('ABSPATH')) {
  * managers on init. The migrator only marks the work pending; admin_init does it,
  * with a bounded number of attempts.
  */
-final class ElementorStyleIdMigration
-{
+final class ElementorStyleIdMigration {
+
 	public const DONE_OPTION     = 'mhmrentiva_elementor_style_ids_migrated';
 	public const PENDING_OPTION  = 'mhmrentiva_elementor_style_ids_pending';
 	public const ATTEMPTS_OPTION = 'mhmrentiva_elementor_style_ids_attempts';
@@ -78,6 +78,7 @@ final class ElementorStyleIdMigration
 			foreach (array_keys(self::RULES) as $widget) {
 				$likes[] = '%' . $wpdb->esc_like('"widgetType":"' . $widget . '"') . '%';
 			}
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-shot, version-gated migration; no core API selects post ids by a LIKE on _elementor_data, and the rows change as it runs.
 			$ids = $wpdb->get_col(
 				$wpdb->prepare(
 					"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND ( meta_value LIKE %s OR meta_value LIKE %s )",
@@ -124,9 +125,9 @@ final class ElementorStyleIdMigration
 	}
 
 	/**
-	 * admin_init (priority 20): finish a pending migration once Elementor is up.
+	 * Runs on admin_init (priority 20): finish a pending migration once Elementor is up.
 	 *
-	 * admin_init also fires for unauthenticated admin-ajax/admin-post requests, so a
+	 * WordPress also fires admin_init for unauthenticated admin-ajax/admin-post requests, so a
 	 * migration that keeps failing stops after MAX_ATTEMPTS instead of replaying on
 	 * every request; the next database version bump resets the counter.
 	 */
@@ -165,7 +166,7 @@ final class ElementorStyleIdMigration
 	 */
 	public static function clear_css_cache(): void
 	{
-		if (self::elementor_ready() && isset(\Elementor\Plugin::$instance->files_manager)) {
+		if (self::elementor_ready()) {
 			\Elementor\Plugin::$instance->files_manager->clear_cache();
 			return;
 		}
@@ -174,10 +175,9 @@ final class ElementorStyleIdMigration
 
 	private static function elementor_ready(): bool
 	{
-		$ready = did_action('elementor/init') > 0
-			&& class_exists(\Elementor\Plugin::class)
-			&& isset(\Elementor\Plugin::$instance)
-			&& isset(\Elementor\Plugin::$instance->widgets_manager);
+		// Elementor\Plugin::init() builds widgets_manager and files_manager before it
+		// fires elementor/init, so the action is the readiness signal.
+		$ready = did_action('elementor/init') > 0 && class_exists(\Elementor\Plugin::class);
 
 		// The filter can only narrow: it never declares a missing Elementor ready.
 		return $ready && (bool) apply_filters('mhmrentiva_elementor_style_migration_available', true);
@@ -217,14 +217,14 @@ final class ElementorStyleIdMigration
 					$controls[ $id ] = $control;
 				}
 			}
-			$ids      = array();
-			$groups   = array();
+			$ids    = array();
+			$groups = array();
 			foreach ($controls as $id => $control) {
 				$ids[ (string) $id ] = true;
 				// Elementor sets groupPrefix on a group's popover starter, which typography
 				// and box shadow groups always have.
 				if (isset($control['groupPrefix'])) {
-					$groups[ rtrim((string) $control['groupPrefix'], '_') ] = true;
+					$groups[ rtrim( (string) $control['groupPrefix'], '_') ] = true;
 				}
 			}
 			$out[ $name ] = array(
@@ -309,7 +309,7 @@ final class ElementorStyleIdMigration
 		$legacy = array();
 		foreach ($bags as $bag) {
 			foreach (array_keys(get_object_vars($bag)) as $key) {
-				$prefix = self::legacy_prefix((string) $key, $rule, $registered);
+				$prefix = self::legacy_prefix( (string) $key, $rule, $registered);
 				if (null !== $prefix) {
 					$legacy[ $prefix ] = true;
 				}
@@ -327,7 +327,7 @@ final class ElementorStyleIdMigration
 		$target_prefix = $rule['target'] . '_';
 		foreach ($bags as $bag) {
 			foreach (get_object_vars($bag) as $key => $value) {
-				if (0 === strpos((string) $key, $target_prefix) && null !== $value && '' !== $value) {
+				if (0 === strpos( (string) $key, $target_prefix) && null !== $value && '' !== $value) {
 					return null;
 				}
 			}

@@ -54,7 +54,7 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 
 		try {
 			// Without the translated label the run would just repeat en_US.
-			if ( 'Tipografi' !== __( 'Typography', 'mhm-rentiva' ) ) {
+			if ( 'Genel Stil' !== __( 'General Style', 'mhm-rentiva' ) ) {
 				$this->markTestSkipped( 'tr_TR translation could not be loaded in the test environment.' );
 			}
 
