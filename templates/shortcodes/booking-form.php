@@ -121,8 +121,8 @@ $unique_id = uniqid('rv_booking_');
 								</button>
 								<div class="rv-sv__rating-inline rv-sv__rating-overlay rv-hidden">
 									<span class="rv-sv__rating-star" aria-hidden="true">&#9733;</span>
-									<span class="rv-sv__rating-value">4.8</span>
-									<span class="rv-sv__rating-count"><?php echo esc_html__('(120 reviews)', 'mhm-rentiva'); ?></span>
+									<span class="rv-sv__rating-value"></span>
+									<span class="rv-sv__rating-count"></span>
 								</div>
 							</div>
 							<div class="rv-sv__content">
@@ -159,7 +159,15 @@ $unique_id = uniqid('rv_booking_');
 										data-price="<?php echo esc_attr($vehicle['price_per_day']); ?>"
 										data-category="<?php echo esc_attr($vehicle['category_name'] ?? $vehicle['category'] ?? ''); ?>"
 										data-image="<?php echo esc_attr($vehicle['featured_image']); ?>"
-										data-features="<?php echo esc_attr(wp_json_encode($vehicle['features'] ?? [])); ?>">
+										data-features="<?php echo esc_attr(wp_json_encode($vehicle['features'] ?? [])); ?>"
+										data-rating="<?php echo esc_attr(number_format_i18n( (float) ( $vehicle['rating']['average'] ?? 0 ), 1)); ?>"
+										data-rating-count="<?php echo esc_attr( (string) intval($vehicle['rating']['count'] ?? 0)); ?>"
+										data-rating-label="
+										<?php
+										/* translators: %d: total rating count */
+										echo esc_attr(sprintf(__('(%d reviews)', 'mhm-rentiva'), intval($vehicle['rating']['count'] ?? 0)));
+										?>
+										">
 										<?php echo esc_html($vehicle['title']); ?>
 										(<?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $vehicle['price_per_day'], 0)); ?><?php echo esc_html__('/day', 'mhm-rentiva'); ?>)
 									</option>

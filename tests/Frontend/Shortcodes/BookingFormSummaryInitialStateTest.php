@@ -78,4 +78,33 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 		$this->assertSame(1, preg_match('/class="rv-sv__rating-value">(.*?)<\/span>/s', $html, $m), 'Rating value not rendered.');
 		$this->assertStringStartsWith('ZZ', trim($m[1]));
 	}
+
+	/**
+	 * Generic form (no vehicle preselected): the preview's rating placeholder
+	 * used to read "4.8 (120 reviews)" and was revealed as-is for every vehicle
+	 * picked from the dropdown -- a fabricated score.
+	 */
+	public function test_generic_form_ships_no_fabricated_rating(): void
+	{
+		ShortcodeFixtures::vehicle();
+		$html = do_shortcode('[rentiva_booking_form]');
+
+		$this->assertStringNotContainsString('>4.8<', $html);
+		$this->assertStringNotContainsString('120', wp_strip_all_tags($html));
+	}
+
+	/** Each dropdown option carries the vehicle's real rating for the preview to show. */
+	public function test_vehicle_options_carry_the_real_rating(): void
+	{
+		$rated   = $this->rated_vehicle();
+		$unrated = ShortcodeFixtures::vehicle();
+		$html    = do_shortcode('[rentiva_booking_form]');
+
+		$this->assertSame(1, preg_match('/<option value="' . $rated . '"[^>]*>/', $html, $r), 'Rated option missing.');
+		$this->assertStringContainsString('data-rating-count="3"', $r[0]);
+		$this->assertStringContainsString('data-rating="' . number_format_i18n(4.5, 1) . '"', $r[0]);
+
+		$this->assertSame(1, preg_match('/<option value="' . $unrated . '"[^>]*>/', $html, $u), 'Unrated option missing.');
+		$this->assertStringContainsString('data-rating-count="0"', $u[0]);
+	}
 }
