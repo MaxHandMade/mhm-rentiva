@@ -65,6 +65,8 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 			'mutated directory helper'     => array( 'helper-body-mutated-directory.js', $vendor ),
 			'mutated profile helper'       => array( 'helper-body-mutated-profile.js', $vendor ),
 			'bound setter passed to helper' => array( 'helper-bind.js', $vendor ),
+			'setter aliased to a variable'  => array( 'props-setter-alias.js', $grid ),
+			'setter passed to a function'   => array( 'props-setter-passed.js', $grid ),
 		);
 	}
 
@@ -79,6 +81,15 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 		$caught = array_merge($result['violations'], BlockEditorWriteScanner::unregistered($result, $block_json));
 
 		$this->assertNotSame(array(), $caught, "{$fixture} passed the gate.");
+	}
+
+	/** The destructuring acquisition the spec permits (rule d) is not a violation. */
+	public function test_gate_accepts_destructured_setter(): void
+	{
+		$result = BlockEditorWriteScanner::scan((string) file_get_contents(self::fixtures_dir() . '/props-destructure.js'), 'props-destructure.js');
+
+		$this->assertSame(array(), $result['violations']);
+		$this->assertSame(array( 'className' ), $result['literal_keys']);
 	}
 
 	public function test_gate_accepts_current_pro_helper(): void

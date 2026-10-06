@@ -15,7 +15,7 @@ namespace MHMRentiva\Tests\Support;
  *
  * Every occurrence of the identifier `setAttributes` must be one of:
  *   a call whose single argument is an object literal with plain or quoted keys;
- *   `var setAttributes = props.setAttributes` (or a bare `props.setAttributes` read);
+ *   `var setAttributes = props.setAttributes` or `var { setAttributes } = props`;
  *   the bare 4th argument of a `yesNoToggle(...)` call;
  *   inside the Pro `yesNoToggle` helper, when the helper body matches
  *   HELPER_FINGERPRINT exactly (its parameter and its `setAttributes(update)`).
@@ -62,10 +62,9 @@ final class BlockEditorWriteScanner
 					continue;
 				}
 			}
-			// ... or a bare `props.setAttributes` read used as a statement value.
-			if (self::is($tokens, $i - 1, 'p', '.') && self::is($tokens, $i - 2, 'id', 'props')
-				&& ( self::is($tokens, $i + 1, 'p', ';') || self::is($tokens, $i + 1, 'p', ',') )
-			) {
+			// ... or `var { ..., setAttributes, ... } = props`. Any other read of
+			// `props.setAttributes` (aliasing it, passing it on) is unclassified.
+			if (self::is_destructured_from_props($tokens, $i)) {
 				continue;
 			}
 
@@ -236,6 +235,29 @@ final class BlockEditorWriteScanner
 			$args[] = $current;
 		}
 		return $args;
+	}
+
+	/** `var|let|const { a, setAttributes, b } = props` with $i on `setAttributes`. */
+	private static function is_destructured_from_props(array $tokens, int $i): bool
+	{
+		$open = $i;
+		while ($open > 0 && ( self::is($tokens, $open - 1, 'id', $tokens[ $open - 1 ][1]) || self::is($tokens, $open - 1, 'p', ',') )) {
+			--$open;
+		}
+		if (! self::is($tokens, $open - 1, 'p', '{')) {
+			return false;
+		}
+		$declarer = $tokens[ $open - 2 ] ?? null;
+		if (null === $declarer || 'id' !== $declarer[0] || ! in_array($declarer[1], array( 'var', 'let', 'const' ), true)) {
+			return false;
+		}
+
+		$close = $i;
+		$count = count($tokens);
+		while ($close + 1 < $count && ( 'id' === $tokens[ $close + 1 ][0] || self::is($tokens, $close + 1, 'p', ',') )) {
+			++$close;
+		}
+		return self::is($tokens, $close + 1, 'p', '}') && self::is($tokens, $close + 2, 'p', '=') && self::is($tokens, $close + 3, 'id', 'props');
 	}
 
 	private static function matching(array $tokens, int $open): ?int
