@@ -168,7 +168,12 @@ abstract class AbstractShortcode {
 			// a payload that omits a key must behave like a shortcode that omits it.
 			// The `_canonical` flag stays in $atts until prepare_template_data() has seen
 			// it (TransferResults::prepare_template_data() branches on it).
-			if (empty($atts['_canonical'])) {
+			// The flag is trusted only as boolean true: the array callers (Templates::
+			// render_shortcode_atts(), WidgetAttributeBridge, BlockRegistry) set it that
+			// way, while shortcode text can only yield strings. A textual `_canonical="1"`
+			// written by a post author must not skip shortcode_atts() and CAM.
+			if (true !== ( $atts['_canonical'] ?? null )) {
+				unset($atts['_canonical']);
 				$atts = shortcode_atts(static::get_default_attributes(), $atts, $tag);
 				$atts = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $atts);
 			} else {

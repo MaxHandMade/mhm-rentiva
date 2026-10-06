@@ -171,8 +171,10 @@ final class Testimonials extends AbstractShortcode {
 
 		// Same contract as AbstractShortcode::render(): a `_canonical` payload (widgets,
 		// blocks) is already mapped and must not be truncated by shortcode_atts(); it
-		// only needs this shortcode's defaults for the keys it omits.
-		if (empty($atts['_canonical'])) {
+		// only needs this shortcode's defaults for the keys it omits. Only boolean true
+		// counts: shortcode text yields strings, so an author cannot forge the flag.
+		if (true !== ( $atts['_canonical'] ?? null )) {
+			unset($atts['_canonical']);
 			$atts = shortcode_atts($defaults, $atts, self::SHORTCODE);
 		} else {
 			$atts = wp_parse_args($atts, $defaults);
