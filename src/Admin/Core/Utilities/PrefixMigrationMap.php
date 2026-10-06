@@ -875,5 +875,12 @@ final class PrefixMigrationMap {
         'mhmrentiva_contact_attachments_migrated',
         'mhmrentiva_contact_attachment_unmigrated',
         'mhmrentiva_contact_attachment_pending_sources',
+        // Elementor style id migration (DB schema 4.5.0): a done-flag, the
+        // pending marker DatabaseMigrator writes, and the bounded admin_init
+        // attempt counter -- ElementorStyleIdMigration's DONE_OPTION,
+        // PENDING_OPTION and ATTEMPTS_OPTION. New in 4.5.0, no legacy spelling.
+        'mhmrentiva_elementor_style_ids_migrated',
+        'mhmrentiva_elementor_style_ids_pending',
+        'mhmrentiva_elementor_style_ids_attempts',
     ];
 }

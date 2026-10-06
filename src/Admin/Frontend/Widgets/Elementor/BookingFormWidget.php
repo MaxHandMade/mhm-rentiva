@@ -314,7 +314,7 @@ class BookingFormWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_box_shadow_control( '.rv-booking-form', __( 'Shadow', 'mhm-rentiva' ) );
+		$this->add_box_shadow_control( 'shadow_shadow', '.rv-booking-form' );
 
 		$this->end_controls_section();
 
@@ -333,7 +333,7 @@ class BookingFormWidget extends ElementorWidgetBase {
 				'label'     => __( 'Button Color', 'mhm-rentiva' ),
 				'type'      => 'color',
 				'selectors' => array(
-					'{{WRAPPER}} .rv-btn-submit' => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} .rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary' => 'background-color: {{VALUE}}',
 				),
 			)
 		);
@@ -344,12 +344,12 @@ class BookingFormWidget extends ElementorWidgetBase {
 				'label'     => __( 'Button Hover Color', 'mhm-rentiva' ),
 				'type'      => 'color',
 				'selectors' => array(
-					'{{WRAPPER}} .rv-btn-submit:hover' => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} .rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary:hover' => 'background-color: {{VALUE}}',
 				),
 			)
 		);
 
-		$this->add_typography_control( '.rv-btn-submit', __( 'Button Typography', 'mhm-rentiva' ) );
+		$this->add_typography_control( 'submit_typography', '.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary' );
 
 		$this->end_controls_section();
 	}

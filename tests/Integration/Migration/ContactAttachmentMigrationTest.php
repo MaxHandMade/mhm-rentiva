@@ -614,6 +614,6 @@ final class ContactAttachmentMigrationTest extends WP_UnitTestCase
 		update_option('mhmrentiva_db_version', '4.4.0');
 		DatabaseMigrator::run_migrations();
 		$this->assertNotNull(ContactAttachmentStore::record($id));
-		$this->assertSame('4.4.1', get_option('mhmrentiva_db_version'));
+		$this->assertSame('4.5.0', get_option('mhmrentiva_db_version'));
 	}
 }

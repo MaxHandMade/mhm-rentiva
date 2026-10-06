@@ -31,14 +31,18 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 		$widget = WidgetFactory::make( VehicleCardWidget::class );
 		Plugin::$instance->controls_manager->delete_stack( $widget );
 
-		return $widget->get_stack( false )['style_controls'];
+		// Which bucket Elementor uses is decided once per process (Performance's static
+		// is_frontend cache), so it depends on test order: read both.
+		$stack = $widget->get_stack( false );
+
+		return (array) ( $stack['controls'] ?? array() ) + (array) ( $stack['style_controls'] ?? array() );
 	}
 
 	public function test_vehicle_card_registers_without_incorrect_usage(): void
 	{
 		$controls = $this->fresh_style_controls();
 
-		foreach ( array( 'price_typography_font_family', 'button_typography_font_family', 'badge_typography_font_family' ) as $id ) {
+		foreach ( array( 'title_typography_font_family', 'price_amount_typography_font_family', 'booking_button_typography_font_family' ) as $id ) {
 			$this->assertArrayHasKey( $id, $controls );
 		}
 	}
@@ -50,15 +54,15 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 
 		try {
 			// Without the translated label the run would just repeat en_US.
-			if ( 'Tipografi' !== __( 'Typography', 'mhm-rentiva' ) ) {
+			if ( 'Genel Stil' !== __( 'General Style', 'mhm-rentiva' ) ) {
 				$this->markTestSkipped( 'tr_TR translation could not be loaded in the test environment.' );
 			}
 
 			$controls = $this->fresh_style_controls();
 
-			// The title group keeps its locale-derived id until Slice 2 migrates it.
-			$this->assertArrayHasKey( 'tipografi_typography_font_family', $controls );
-			foreach ( array( 'price_typography_font_family', 'button_typography_font_family', 'badge_typography_font_family' ) as $id ) {
+			// Slice 2: group ids no longer follow the translated label.
+			$this->assertArrayNotHasKey( 'tipografi_typography_font_family', $controls );
+			foreach ( array( 'title_typography_font_family', 'price_amount_typography_font_family', 'booking_button_typography_font_family' ) as $id ) {
 				$this->assertArrayHasKey( $id, $controls );
 			}
 		} finally {

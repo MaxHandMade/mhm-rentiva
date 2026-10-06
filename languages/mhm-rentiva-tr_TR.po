@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-06T11:55:43+00:00\n"
+"POT-Creation-Date: 2026-10-06T15:15:44+00:00\n"
 "PO-Revision-Date: 2026-08-23 16:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -579,7 +579,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:532
 #: src/Admin/Frontend/Account/AccountController.php:268
 #: src/Admin/Frontend/Account/AccountController.php:323
-#: templates/shortcodes/booking-form.php:443
+#: templates/shortcodes/booking-form.php:450
 msgid "Processing..."
 msgstr "İşleniyor..."
 
@@ -1801,7 +1801,7 @@ msgstr "Onayla"
 #: src/Admin/Booking/ListTable/BookingColumns.php:275
 #: src/Admin/Booking/ListTable/BookingColumns.php:385
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:293
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1061
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709 src/Plugin.php:1064
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:5
 #: src-react/admin/dashboard/components/RecentBookings.jsx:62
@@ -1959,7 +1959,7 @@ msgid "Manual entry"
 msgstr "Manuel giriş"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:814
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:320
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:325
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:81
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:63
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1014
@@ -2475,7 +2475,7 @@ msgstr "Manuel"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:199
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:278
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:289
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:280
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:285
 #: src/Admin/Settings/Groups/FrontendSettings.php:350
 #: templates/shortcodes/booking-form.php:153
 msgid "Select Vehicle"
@@ -3116,7 +3116,7 @@ msgid "Daily Price"
 msgstr "Günlük Fiyat"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:211
-#: templates/shortcodes/booking-form.php:370
+#: templates/shortcodes/booking-form.php:377
 msgid "Weekend Difference:"
 msgstr "Hafta sonu farkı:"
 
@@ -3711,18 +3711,18 @@ msgstr "Bakım"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:200
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:188
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:166
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:531
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:573
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:590
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:619
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:663
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:675
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:687
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:699
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:726
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:756
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:768
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:780
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:435
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:477
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:494
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:523
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:567
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:579
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:591
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:603
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:630
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:660
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:672
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:684
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
 #: src-react/admin/about/components/InfoCard.jsx:13
 #: src-react/admin/about/components/SystemTab.jsx:14
@@ -4395,18 +4395,18 @@ msgstr "Bilgi"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:201
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:189
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:167
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:532
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:574
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:591
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:620
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:664
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:676
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:688
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:700
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:727
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:757
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:769
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:781
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:436
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:478
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:495
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:524
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:568
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:580
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:592
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:604
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:631
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:661
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:673
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:685
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:402
 #: src-react/admin/about/components/InfoCard.jsx:14
 #: src-react/admin/about/components/SystemTab.jsx:15
@@ -5454,7 +5454,7 @@ msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
 #. translators: 1: installed add-on version, 2: required add-on version.
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:276
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:283
 #, php-format
 msgid ""
 "MHM Rentiva has paused its database update: MHM Rentiva Pro %1$s is "
@@ -6954,7 +6954,7 @@ msgstr "Araç bulunamadı."
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:182
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:408
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:652
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:543
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:447
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:87
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:88
 #: src/Admin/Settings/Groups/FrontendSettings.php:289
@@ -8010,8 +8010,8 @@ msgid "Mileage"
 msgstr "Kilometre"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:283
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:259
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:308
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:246
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:293
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:459
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:822
 msgid "Color"
@@ -8331,16 +8331,15 @@ msgstr "Fiyat Belirtilmedi"
 msgid "Featured"
 msgstr "Öne Çıkan"
 
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:204
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:426
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:205
 msgid "Text Color"
 msgstr "Metin Rengi"
 
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:301
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:306
 msgid "Select a vehicle"
 msgstr "Bir araç seçin"
 
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:316
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:321
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:55
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:76
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:57
@@ -8359,7 +8358,7 @@ msgstr "Bir araç seçin"
 msgid "Layout"
 msgstr "Düzen"
 
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:321
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:326
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:60
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:80
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:61
@@ -8370,7 +8369,7 @@ msgstr "Düzen"
 msgid "Grid"
 msgstr "Izgara"
 
-#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:397
+#: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:402
 msgid "Parity Controls"
 msgstr "Parite Kontroller"
 
@@ -8518,26 +8517,19 @@ msgid "Form Style"
 msgstr "Form Stili"
 
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:297
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:192
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:414
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:196
 msgid "Background Color"
 msgstr "Arkaplan Rengi"
 
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:308
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:206
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:381
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:438
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:209
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:350
 msgid "Border Radius"
 msgstr "Kenar ovalliği"
 
-#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:317
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:223
-msgid "Shadow"
-msgstr "Gölge"
-
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:325
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:337
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:554
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:320
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:458
 msgid "Button Style"
 msgstr "Buton Stili"
 
@@ -8548,10 +8540,6 @@ msgstr "Buton Rengi"
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:344
 msgid "Button Hover Color"
 msgstr "Düğme Vurgulama Rengi"
-
-#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:352
-msgid "Button Typography"
-msgstr "Buton Tipografi"
 
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:46
 msgid "Displays contact form."
@@ -8675,7 +8663,7 @@ msgstr "Artan"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:113
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:116
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:177
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:724
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:628
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:97
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:76
 #: assets/blocks/featured-vehicles/index.js:92
@@ -8786,7 +8774,7 @@ msgstr "Puanlamayı Göster"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:137
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:128
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:697
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:601
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:81
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:79
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:144
@@ -8810,7 +8798,7 @@ msgstr "Rezervasyon Butonunu Göster"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:161
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:164
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:147
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:571
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:475
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:151
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:120
 #: assets/blocks/featured-vehicles/index.js:107
@@ -8833,7 +8821,7 @@ msgid "Show Compare Button"
 msgstr "Karşılaştırma Düğmesini Göster"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:185
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:685
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:589
 #: assets/blocks/my-favorites/index.js:99
 #: assets/blocks/vehicle-comparison/index.js:87
 msgid "Show Category"
@@ -8915,7 +8903,7 @@ msgstr "Görünürlük"
 
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:152
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:167
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:529
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:433
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:139
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:108
 #: assets/blocks/vehicles-list/index.js:121
@@ -9100,162 +9088,143 @@ msgstr "Bu widget’a özel bir CSS sınıfı ekleyin."
 msgid "Enable Animation"
 msgstr "Animasyonu etkinleştir"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:184
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:188
 msgid "Card Style"
 msgstr "Kart Stili"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:201
-msgid "Border"
-msgstr "Kenarlık"
-
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:228
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:223
 msgid "Padding"
 msgstr "Dolgu"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:251
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:238
 msgid "Title Style"
 msgstr "Başlık Stili"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:271
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:257
 msgid "Hover Color"
 msgstr "Vurgulu Rengi"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:280
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:329
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:398
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:455
-msgid "Typography"
-msgstr "Tipografi"
-
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:285
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:270
 msgid "Margin"
 msgstr "Kenar"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:300
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:285
 msgid "Price Style"
 msgstr "Fiyat Stili"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:320
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:304
 msgid "Period Color"
 msgstr "Dönem Rengi"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:345
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:328
 msgid "Primary Button Color"
 msgstr "Birincil Düğme Rengi"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:357
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:339
 msgid "Primary Button Hover Color"
 msgstr "Birincil Düğme Fareyle Üzerine Gelindiğinde Rengi"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:369
-msgid "Secondary Button Color"
-msgstr "İkincil Düğme Rengi"
-
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:406
-msgid "Badge Style"
-msgstr "Rozet Stili"
-
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:541
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:445
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:85
 #: assets/blocks/vehicles-grid/index.js:185
 msgid "Button Text"
 msgstr "Düğme Metni"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:544
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:448
 msgid "Enter button text"
 msgstr "Buton metni girin"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:558
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:462
 msgid "Primary"
 msgstr "Birincil"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:559
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:463
 msgid "Secondary"
 msgstr "İkincil"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:560
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:464
 msgid "Outlined"
 msgstr "Ana hattı çıkartılmış"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:588
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:492
 #: assets/blocks/vehicle-rating-form/index.js:86
 msgid "Show Star Rating"
 msgstr "Yıldız Puanını Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:600
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:504
 msgid "Rating Position"
 msgstr "Derecelendirme Konumu"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:604
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:508
 msgid "Image Overlay"
 msgstr "Görüntü Kaplaması"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:605
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:509
 msgid "Below Image"
 msgstr "Aşağıdaki Resim"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:606
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:510
 msgid "Footer Area"
 msgstr "Alt Bilgi Alanı"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:617
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:521
 msgid "Show Rating Count"
 msgstr "Derecelendirme Sayısını Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:632
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:536
 msgid "Custom Rating"
 msgstr "Özel Derecelendirme"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:646
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:550
 msgid "0 = Automatic, 0.1-5.0 = Custom value"
 msgstr "0 = Otomatik, 0,1-5,0 = Özel değer"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:661
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:565
 #: assets/blocks/vehicles-grid/index.js:107
 #: assets/blocks/vehicles-list/index.js:87
 msgid "Show Image"
 msgstr "Görseli göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:673
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:577
 #: assets/blocks/vehicles-grid/index.js:112
 #: assets/blocks/vehicles-list/index.js:92
 msgid "Show Title"
 msgstr "Başlığı Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:709
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:613
 msgid "Maximum Feature Count"
 msgstr "Maksimum Özellik Sayısı"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:736
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:640
 msgid "Price Format"
 msgstr "Fiyat Biçimi"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:740
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:644
 msgid "Daily"
 msgstr "Günlük"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:741
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:645
 msgid "Hourly"
 msgstr "Saatlik"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:742
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:646
 msgid "Weekly"
 msgstr "Haftalık"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:743
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:647
 msgid "Monthly"
 msgstr "Aylık"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:754
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:658
 msgid "Show Badges"
 msgstr "Rozetleri Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:766
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:670
 #: assets/blocks/vehicles-list/index.js:97
 msgid "Show Description"
 msgstr "Açıklamayı Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:778
+#: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:682
 #: assets/blocks/vehicle-details/index.js:99
 msgid "Show Availability"
 msgstr "Müsaitliği Göster"
@@ -9347,8 +9316,8 @@ msgstr "Mevcut araç için boş bırakın"
 msgid "MHM Vehicles Grid"
 msgstr "MHM Araçları Şebekesi"
 
-#: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:184
-#: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:105
+#: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:185
+#: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:106
 msgid "Price Tag"
 msgstr "Fiyat etiketi"
 
@@ -10477,7 +10446,7 @@ msgstr "İade Tarihi:"
 #: templates/emails/booking-cancelled.html.php:92
 #: templates/emails/booking-created-admin.html.php:53
 #: templates/emails/booking-created-customer.html.php:40
-#: templates/shortcodes/booking-form.php:386
+#: templates/shortcodes/booking-form.php:393
 msgid "Total Amount:"
 msgstr "Toplam Tutar:"
 
@@ -10870,7 +10839,7 @@ msgid "Make Booking Button"
 msgstr "Rezervasyon Yap Düğmesi"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:291
-#: templates/shortcodes/booking-form.php:437
+#: templates/shortcodes/booking-form.php:444
 msgid "Make Booking"
 msgstr "Rezervasyon Yap"
 
@@ -14025,7 +13994,7 @@ msgstr ""
 "Bu sayfa için geri alma hiçbir şey yazmadı: önceki manifest artık bu sayfaya "
 "çözümlenmiyor."
 
-#: src/Plugin.php:1075
+#: src/Plugin.php:1078
 msgid "Failed to create the customer role."
 msgstr "Müşteri rolü oluşturulamadı."
 
@@ -14501,7 +14470,7 @@ msgstr "Depozito Tutarı:"
 
 #: templates/emails/booking-created-customer.html.php:61
 #: templates/emails/remaining-payment-link-customer.html.php:30
-#: templates/shortcodes/booking-form.php:396
+#: templates/shortcodes/booking-form.php:403
 msgid "Remaining Amount:"
 msgstr "Kalan Miktar:"
 
@@ -14966,27 +14935,27 @@ msgstr "Ödeme Özeti"
 msgid "Daily Price:"
 msgstr "Günlük Fiyat:"
 
-#: templates/shortcodes/booking-form.php:366
+#: templates/shortcodes/booking-form.php:373
 msgid "Number of Days:"
 msgstr "Gün Sayısı:"
 
-#: templates/shortcodes/booking-form.php:374
+#: templates/shortcodes/booking-form.php:381
 msgid "Tax:"
 msgstr "Vergi:"
 
-#: templates/shortcodes/booking-form.php:378
+#: templates/shortcodes/booking-form.php:385
 msgid "Vehicle Total:"
 msgstr "Araç Toplamı:"
 
-#: templates/shortcodes/booking-form.php:382
+#: templates/shortcodes/booking-form.php:389
 msgid "Additional Services:"
 msgstr "Ek Hizmetler:"
 
-#: templates/shortcodes/booking-form.php:392
+#: templates/shortcodes/booking-form.php:399
 msgid "Deposit to Pay:"
 msgstr "Ödenecek depozito:"
 
-#: templates/shortcodes/booking-form.php:447
+#: templates/shortcodes/booking-form.php:454
 msgid ""
 "By clicking the booking button, you accept booking terms and pricing details."
 msgstr ""
@@ -16916,6 +16885,24 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+#~ msgid "Shadow"
+#~ msgstr "Gölge"
+
+#~ msgid "Button Typography"
+#~ msgstr "Buton Tipografi"
+
+#~ msgid "Border"
+#~ msgstr "Kenarlık"
+
+#~ msgid "Typography"
+#~ msgstr "Tipografi"
+
+#~ msgid "Secondary Button Color"
+#~ msgstr "İkincil Düğme Rengi"
+
+#~ msgid "Badge Style"
+#~ msgstr "Rozet Stili"
 
 #~ msgid "(120 reviews)"
 #~ msgstr "(120 yorum)"
