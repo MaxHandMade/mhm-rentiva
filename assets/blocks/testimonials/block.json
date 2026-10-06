@@ -137,10 +137,6 @@
             "type": "boolean",
             "default": false
         },
-        "rating": {
-            "type": "string",
-            "default": ""
-        },
         "className": {
             "type": "string",
             "default": ""

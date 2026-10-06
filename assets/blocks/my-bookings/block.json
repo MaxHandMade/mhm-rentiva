@@ -114,26 +114,6 @@
             "type": "boolean",
             "default": false
         },
-        "show_image": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_status_toggle": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_cancel_btn": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_modify_btn": {
-            "type": "boolean",
-            "default": true
-        },
-        "status": {
-            "type": "string",
-            "default": "all"
-        },
         "className": {
             "type": "string",
             "default": ""

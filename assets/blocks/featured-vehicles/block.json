@@ -126,10 +126,6 @@
             "type": "string",
             "default": ""
         },
-        "category": {
-            "type": "string",
-            "default": ""
-        },
         "autoplay": {
             "type": "boolean",
             "default": true

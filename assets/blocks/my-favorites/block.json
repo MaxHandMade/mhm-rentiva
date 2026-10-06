@@ -128,10 +128,6 @@
             "type": "string",
             "default": ""
         },
-        "show_booking_button": {
-            "type": "boolean",
-            "default": true
-        },
         "className": {
             "type": "string",
             "default": ""

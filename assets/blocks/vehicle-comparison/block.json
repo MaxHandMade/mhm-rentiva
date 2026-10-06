@@ -106,14 +106,6 @@
       "type": "boolean",
       "default": true
     },
-    "show_images": {
-      "type": "boolean",
-      "default": true
-    },
-    "show_prices": {
-      "type": "boolean",
-      "default": true
-    },
     "className": {
       "type": "string",
       "default": ""
