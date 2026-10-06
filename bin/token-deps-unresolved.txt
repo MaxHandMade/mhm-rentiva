@@ -1,4 +1,4 @@
-AbstractShortcode.php:300 -- handle is not a literal
+AbstractShortcode.php:311 -- handle is not a literal
 AssetManager.php:183 -- handle is not a literal
 AvailabilityCalendar.php:166 -- handle is not a literal
 BlockRegistry.php:460 -- handle is not a literal
