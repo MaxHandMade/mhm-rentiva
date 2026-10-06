@@ -145,11 +145,36 @@ if (! $is_available) {
                 <?php endif; ?>
             </div>
 
-            <h3 class="mhm-card-title">
-                <?php if ($show_title) : ?>
-                    <a href="<?php echo esc_url($permalink); ?>"><?php echo esc_html($vehicle_title); ?></a>
+            <div class="mhm-card-title-row">
+                <h3 class="mhm-card-title">
+                    <?php if ($show_title) : ?>
+                        <a href="<?php echo esc_url($permalink); ?>"><?php echo esc_html($vehicle_title); ?></a>
+                    <?php endif; ?>
+                </h3>
+                <?php
+                // Compact rating beside the title ("★ 4,5"), as the Broadsheet
+                // artboard draws it. A vehicle nobody has rated shows nothing:
+                // five empty stars and "(0)" read as a bad score.
+                if ($show_rating && ! empty($vehicle['rating']['count'])) :
+                    $rating_average = (float) ( $vehicle['rating']['average'] ?? 0 );
+                    ?>
+                    <div class="mhm-card-rating" data-testid="mhm-rating" title="
+                    <?php
+                    /* translators: %s: average vehicle rating. */
+                    echo esc_attr(sprintf(esc_html__('Rated %s out of 5', 'mhm-rentiva'), number_format_i18n($rating_average, 1)));
+                    ?>
+                    ">
+                        <span class="mhm-rating-star" aria-hidden="true">&#9733;</span>
+                        <span class="mhm-rating-average"><?php echo esc_html(number_format_i18n($rating_average, 1)); ?></span>
+                        <?php if (! empty($vehicle['rating']['confidence_label'])) : ?>
+                            <span class="mhm-rating-confidence mhm-confidence--<?php echo esc_attr($vehicle['rating']['confidence_key']); ?>"
+                                title="<?php echo esc_attr($vehicle['rating']['confidence_tooltip'] ?? ''); ?>">
+                                <?php echo esc_html($vehicle['rating']['confidence_label']); ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
-            </h3>
+            </div>
 
             <?php if ($show_description && ! empty($excerpt)) : ?>
                 <div class="mhm-card-description">
@@ -163,28 +188,6 @@ if (! $is_available) {
                     <span><?php echo esc_html($location_name); ?></span>
                 </div>
             <?php endif; ?>
-            <?php if ($show_rating && isset($vehicle['rating']['stars'])) : ?>
-                <div class="mhm-card-rating" data-testid="mhm-rating" title="
-                <?php
-                /* translators: %s: average vehicle rating. */
-                echo esc_attr(sprintf(esc_html__('Rated %s out of 5', 'mhm-rentiva'), (string) $vehicle['rating']['average']));
-                ?>
-                                                                                ">
-                    <span class="mhm-stars">
-                        <?php
-                        \MHMRentiva\Helpers\Icons::echo_svg( (string) $vehicle['rating']['stars'], \MHMRentiva\Helpers\Icons::allowed_svg_wrapper());
-                        ?>
-                    </span>
-                    <span class="mhm-rating-count">(<?php echo intval($vehicle['rating']['count']); ?>)</span>
-                    <?php if (! empty($vehicle['rating']['confidence_label'])) : ?>
-                        <span class="mhm-rating-confidence mhm-confidence--<?php echo esc_attr($vehicle['rating']['confidence_key']); ?>"
-                            title="<?php echo esc_attr($vehicle['rating']['confidence_tooltip'] ?? ''); ?>">
-                            <?php echo esc_html($vehicle['rating']['confidence_label']); ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
             <?php
             // Vehicle details (seats, transmission, fuel …) read as a compact
             // spec line — the at-a-glance row directly under the title.
