@@ -143,7 +143,7 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	 * Register style tab controls.
 	 */
 	protected function register_style_controls(): void {
-		$this->register_standard_style_controls( 'main', __( 'General Style', 'mhm-rentiva' ), '.rv-unified-search' );
+		$this->register_standard_style_controls( 'main', __( 'General Style', 'mhm-rentiva' ), '.rv-unified-search', 'general-style_typography' );
 	}
 
 	/**

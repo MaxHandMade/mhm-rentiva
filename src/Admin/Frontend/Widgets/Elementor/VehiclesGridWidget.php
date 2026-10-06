@@ -176,13 +176,15 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 		$this->register_standard_style_controls(
 			'title_style',
 			__( 'Vehicle Title', 'mhm-rentiva' ),
-			'.rv-vehicle-card__title a'
+			'.rv-vehicle-card__title a',
+			'title_style_typography'
 		);
 
 		$this->register_standard_style_controls(
 			'price_style',
 			__( 'Price Tag', 'mhm-rentiva' ),
-			'.rv-price-amount'
+			'.rv-price-amount',
+			'price_style_typography'
 		);
 
 		$this->register_parity_controls_from_block();

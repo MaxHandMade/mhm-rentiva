@@ -314,7 +314,7 @@ class BookingFormWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_box_shadow_control( '.rv-booking-form', __( 'Shadow', 'mhm-rentiva' ) );
+		$this->add_box_shadow_control( 'shadow_shadow', '.rv-booking-form' );
 
 		$this->end_controls_section();
 
@@ -349,7 +349,7 @@ class BookingFormWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_typography_control( '.rv-btn-submit', __( 'Button Typography', 'mhm-rentiva' ) );
+		$this->add_typography_control( 'submit_typography', '.rv-btn-submit' );
 
 		$this->end_controls_section();
 	}

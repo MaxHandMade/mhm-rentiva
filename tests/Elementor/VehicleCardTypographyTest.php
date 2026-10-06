@@ -38,7 +38,7 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 	{
 		$controls = $this->fresh_style_controls();
 
-		foreach ( array( 'price_typography_font_family', 'button_typography_font_family', 'badge_typography_font_family' ) as $id ) {
+		foreach ( array( 'title_typography_font_family', 'price_amount_typography_font_family', 'booking_button_typography_font_family', 'badge_typography_font_family' ) as $id ) {
 			$this->assertArrayHasKey( $id, $controls );
 		}
 	}
@@ -56,9 +56,9 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 
 			$controls = $this->fresh_style_controls();
 
-			// The title group keeps its locale-derived id until Slice 2 migrates it.
-			$this->assertArrayHasKey( 'tipografi_typography_font_family', $controls );
-			foreach ( array( 'price_typography_font_family', 'button_typography_font_family', 'badge_typography_font_family' ) as $id ) {
+			// Slice 2: group ids no longer follow the translated label.
+			$this->assertArrayNotHasKey( 'tipografi_typography_font_family', $controls );
+			foreach ( array( 'title_typography_font_family', 'price_amount_typography_font_family', 'booking_button_typography_font_family', 'badge_typography_font_family' ) as $id ) {
 				$this->assertArrayHasKey( $id, $controls );
 			}
 		} finally {

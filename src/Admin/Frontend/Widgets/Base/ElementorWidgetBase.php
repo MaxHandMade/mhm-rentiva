@@ -185,11 +185,12 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * Standard Style Controls
 	 * Shared typography and color settings for all MHM widgets.
 	 *
-	 * @param string $section_id Section ID.
-	 * @param string $label      Section label.
-	 * @param string $selector   CSS selector.
+	 * @param string $section_id      Section ID.
+	 * @param string $label           Section label.
+	 * @param string $selector        CSS selector.
+	 * @param string $typography_name Typography group name; fixed, never derived from the translated label.
 	 */
-	protected function register_standard_style_controls( string $section_id, string $label, string $selector ): void {
+	protected function register_standard_style_controls( string $section_id, string $label, string $selector, string $typography_name ): void {
 		$this->start_controls_section(
 			$section_id,
 			array(
@@ -209,7 +210,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			)
 		);
 
-		$this->add_typography_control( $selector, $label );
+		$this->add_typography_control( $typography_name, $selector );
 
 		$this->end_controls_section();
 	}
@@ -217,15 +218,15 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	/**
 	 * Helper: Add Typography Control
 	 *
-	 * $name is the explicit group control name. Pass it when one widget uses the same
-	 * label more than once (Elementor rejects a redeclared control) or when the name
-	 * must not depend on the translated label.
+	 * $name is the group control name Elementor stores the user's values under. It is
+	 * always explicit: deriving it from the translated label made a value saved in one
+	 * admin language produce no CSS in another.
 	 */
-	protected function add_typography_control( string $selector, string $label, ?string $name = null ): void {
+	protected function add_typography_control( string $name, string $selector ): void {
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			array(
-				'name'     => $name ?? sanitize_title( $label ) . '_typography',
+				'name'     => $name,
 				'selector' => '{{WRAPPER}} ' . $selector,
 			)
 		);
@@ -233,12 +234,14 @@ abstract class ElementorWidgetBase extends Widget_Base {
 
 	/**
 	 * Helper: Add Border Control
+	 *
+	 * @see add_typography_control() for why $name is explicit.
 	 */
-	protected function add_border_control( string $selector, string $label ): void {
+	protected function add_border_control( string $name, string $selector ): void {
 		$this->add_group_control(
 			\Elementor\Group_Control_Border::get_type(),
 			array(
-				'name'     => sanitize_title( $label ) . '_border',
+				'name'     => $name,
 				'selector' => '{{WRAPPER}} ' . $selector,
 			)
 		);
@@ -246,12 +249,14 @@ abstract class ElementorWidgetBase extends Widget_Base {
 
 	/**
 	 * Helper: Add Box Shadow Control
+	 *
+	 * @see add_typography_control() for why $name is explicit.
 	 */
-	protected function add_box_shadow_control( string $selector, string $label ): void {
+	protected function add_box_shadow_control( string $name, string $selector ): void {
 		$this->add_group_control(
 			\Elementor\Group_Control_Box_Shadow::get_type(),
 			array(
-				'name'     => sanitize_title( $label ) . '_shadow',
+				'name'     => $name,
 				'selector' => '{{WRAPPER}} ' . $selector,
 			)
 		);
