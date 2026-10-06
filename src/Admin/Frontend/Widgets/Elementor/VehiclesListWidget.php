@@ -96,7 +96,7 @@ class VehiclesListWidget extends ElementorWidgetBase {
 		$this->register_standard_style_controls(
 			'title_style',
 			__( 'Vehicle Title', 'mhm-rentiva' ),
-			'.rv-vehicle-card__title a',
+			'.mhm-vehicle-card .mhm-card-title a',
 			'title_style_typography'
 		);
 
@@ -104,7 +104,7 @@ class VehiclesListWidget extends ElementorWidgetBase {
 		$this->register_standard_style_controls(
 			'price_style',
 			__( 'Price Tag', 'mhm-rentiva' ),
-			'.rv-price-amount',
+			'.mhm-vehicle-card .mhm-price-amount',
 			'price_style_typography'
 		);
 
