@@ -549,7 +549,16 @@
                     category.toggleClass('rv-hidden', !vehicleCategory);
                 }
                 if (ratingOverlay.length) {
-                    ratingOverlay.removeClass('rv-hidden');
+                    // The vehicle's real score, preformatted server-side; a vehicle
+                    // nobody has rated shows none (same rule as the card).
+                    const ratingCount = parseInt($option.attr('data-rating-count'), 10) || 0;
+                    if (ratingCount > 0) {
+                        ratingOverlay.find('.rv-sv__rating-value').text($option.attr('data-rating') || '');
+                        ratingOverlay.find('.rv-sv__rating-count').text(($option.attr('data-rating-label') || '').trim());
+                        ratingOverlay.removeClass('rv-hidden');
+                    } else {
+                        ratingOverlay.addClass('rv-hidden');
+                    }
                 }
 
                 if (vehicleImage) {

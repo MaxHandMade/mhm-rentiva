@@ -121,8 +121,8 @@ $unique_id = uniqid('rv_booking_');
 								</button>
 								<div class="rv-sv__rating-inline rv-sv__rating-overlay rv-hidden">
 									<span class="rv-sv__rating-star" aria-hidden="true">&#9733;</span>
-									<span class="rv-sv__rating-value">4.8</span>
-									<span class="rv-sv__rating-count"><?php echo esc_html__('(120 reviews)', 'mhm-rentiva'); ?></span>
+									<span class="rv-sv__rating-value"></span>
+									<span class="rv-sv__rating-count"></span>
 								</div>
 							</div>
 							<div class="rv-sv__content">
@@ -159,7 +159,15 @@ $unique_id = uniqid('rv_booking_');
 										data-price="<?php echo esc_attr($vehicle['price_per_day']); ?>"
 										data-category="<?php echo esc_attr($vehicle['category_name'] ?? $vehicle['category'] ?? ''); ?>"
 										data-image="<?php echo esc_attr($vehicle['featured_image']); ?>"
-										data-features="<?php echo esc_attr(wp_json_encode($vehicle['features'] ?? [])); ?>">
+										data-features="<?php echo esc_attr(wp_json_encode($vehicle['features'] ?? [])); ?>"
+										data-rating="<?php echo esc_attr(number_format_i18n( (float) ( $vehicle['rating']['average'] ?? 0 ), 1)); ?>"
+										data-rating-count="<?php echo esc_attr( (string) intval($vehicle['rating']['count'] ?? 0)); ?>"
+										data-rating-label="
+										<?php
+										/* translators: %d: total rating count */
+										echo esc_attr(sprintf(__('(%d reviews)', 'mhm-rentiva'), intval($vehicle['rating']['count'] ?? 0)));
+										?>
+										">
 										<?php echo esc_html($vehicle['title']); ?>
 										(<?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $vehicle['price_per_day'], 0)); ?><?php echo esc_html__('/day', 'mhm-rentiva'); ?>)
 									</option>
@@ -346,7 +354,20 @@ $unique_id = uniqid('rv_booking_');
 					<div class="rv-card-body rv-price-breakdown">
 						<div class="rv-price-item">
 							<span class="rv-price-label"><?php echo esc_html__('Daily Price:', 'mhm-rentiva'); ?></span>
-							<span class="rv-price-value rv-daily-price" id="rv-daily-price-<?php echo esc_attr($unique_id); ?>">-</span>
+							<?php
+							// The vehicle is already chosen, so its daily price is known before any
+							// date is: lead the summary with it (Broadsheet artboard). The script
+							// rewrites this cell once a price is calculated. Read the same raw meta
+							// the booking calculation reads -- the card's price helper turns a
+							// missing price into a placeholder 1000 the calculation never uses.
+							$initial_daily_amount = ! empty($selected_vehicle['id'])
+								? (float) get_post_meta( (int) $selected_vehicle['id'], '_mhmrentiva_price_per_day', true)
+								: 0.0;
+							$initial_daily        = $initial_daily_amount > 0
+								? \MHMRentiva\Admin\Core\CurrencyHelper::format_price($initial_daily_amount, 0)
+								: '';
+							?>
+							<span class="rv-price-value rv-daily-price" id="rv-daily-price-<?php echo esc_attr($unique_id); ?>"><?php echo esc_html('' !== $initial_daily ? $initial_daily : '-'); ?></span>
 						</div>
 						<div class="rv-price-item">
 							<span class="rv-price-label"><?php echo esc_html__('Number of Days:', 'mhm-rentiva'); ?></span>

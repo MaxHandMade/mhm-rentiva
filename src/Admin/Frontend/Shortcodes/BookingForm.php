@@ -642,6 +642,8 @@ final class BookingForm extends AbstractShortcode {
 				'category_name'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_category($vehicle->ID),
 				'featured_image' => get_the_post_thumbnail_url($vehicle->ID, 'large'),
 				'features'       => $feature_labels,
+				// The real score for the dropdown preview (same source as the card).
+				'rating'         => \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_rating( (int) $vehicle->ID),
 			);
 		}
 

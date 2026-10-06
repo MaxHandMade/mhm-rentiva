@@ -890,6 +890,43 @@
 	font-size: 19px;
 	line-height: 1.2;
 	letter-spacing: -0.01em;
+	/* The card reads in one ink, like the price; the base rule's slate grey
+	   sat outside the skin's palette. */
+	color: var(--rv-ink);
+}
+
+/* Image at 3:2, as both the listing and the home-page artboards draw the card
+   (claude.ai/design "WordPress Araç Pazarı Teması": Kiralik-Araclar, Anasayfa).
+   :where() keeps this at the base rule's weight, so the list layout's own
+   image rules (.mhm-card--list …, .rv-layout-list …) still win. */
+:where(.mhm-vehicle-card) .mhm-card-image {
+	aspect-ratio: 3 / 2;
+}
+
+/* Title row: title on the left, compact rating ("★ 4,5") on the right,
+   baseline-aligned, as the artboard draws it. */
+.mhm-vehicle-card .mhm-card-title-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 10px;
+}
+
+.mhm-vehicle-card .mhm-card-title-row .mhm-card-title {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.mhm-vehicle-card .mhm-card-rating {
+	flex: none;
+	display: inline-flex;
+	align-items: baseline;
+	gap: 4px;
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.2;
+	color: var(--rv-muted);
+	white-space: nowrap;
 }
 
 /* Spec line — vehicle details (seats / transmission / fuel …). Plain, quiet,

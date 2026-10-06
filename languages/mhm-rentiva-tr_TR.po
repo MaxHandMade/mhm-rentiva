@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-06T08:51:27+00:00\n"
+"POT-Creation-Date: 2026-10-06T11:55:43+00:00\n"
 "PO-Revision-Date: 2026-08-23 16:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -579,7 +579,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:532
 #: src/Admin/Frontend/Account/AccountController.php:268
 #: src/Admin/Frontend/Account/AccountController.php:323
-#: templates/shortcodes/booking-form.php:429
+#: templates/shortcodes/booking-form.php:443
 msgid "Processing..."
 msgstr "İşleniyor..."
 
@@ -686,9 +686,9 @@ msgstr "Fiyatlandırma Tipi"
 #: src/Admin/Frontend/Account/AccountController.php:952
 #: src/Admin/Frontend/Account/AccountController.php:1069
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1022
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:847
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1213
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1567
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:849
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1215
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1569
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:262
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:520
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:706
@@ -758,7 +758,7 @@ msgstr "Fiyat başarıyla güncellendi."
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:418
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
 #: templates/account/booking-detail.php:222
-#: templates/shortcodes/booking-form.php:301
+#: templates/shortcodes/booking-form.php:309
 #: src-react/admin/dashboard/components/QuickActions.jsx:19
 msgid "Additional Services"
 msgstr "Ek hizmetler"
@@ -1781,7 +1781,7 @@ msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:513
 #: src/Admin/Booking/Helpers/Util.php:525
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1085
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1087
 msgid ""
 "This vehicle is already booked for the selected dates. Please choose "
 "different dates or select another vehicle."
@@ -3116,7 +3116,7 @@ msgid "Daily Price"
 msgstr "Günlük Fiyat"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:211
-#: templates/shortcodes/booking-form.php:356
+#: templates/shortcodes/booking-form.php:370
 msgid "Weekend Difference:"
 msgstr "Hafta sonu farkı:"
 
@@ -3262,7 +3262,7 @@ msgstr "Zorunlu alanlar eksik."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:579
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:867
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1110
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1112
 msgid "Price could not be calculated."
 msgstr "Fiyat hesaplanamadı."
 
@@ -4440,7 +4440,7 @@ msgstr "Sıfırla"
 #: src/Admin/Core/AssetManager.php:1385
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:290
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1683
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1685
 #: src/Blocks/BlockRegistry.php:242
 #: templates/admin/partials/booking-popup.php:40
 #: src-react/admin/customers/components/CustomerPanel.jsx:78
@@ -4485,7 +4485,7 @@ msgid "Submit"
 msgstr "Gönder"
 
 #: src/Admin/Core/AssetManager.php:1390
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1685
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1687
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
 msgid "Clear"
 msgstr "Temizle"
@@ -4537,7 +4537,7 @@ msgid "Please fill all required fields"
 msgstr "Lütfen Gerekli tüm alanları doldurunuz"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:62
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1684
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1686
 #: src/Blocks/BlockRegistry.php:243
 msgid "Today"
 msgstr "Bugün"
@@ -4545,7 +4545,7 @@ msgstr "Bugün"
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:540
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1225
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1687
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1689
 #: src/Blocks/BlockRegistry.php:244
 msgid "January"
 msgstr "Ocak"
@@ -4553,7 +4553,7 @@ msgstr "Ocak"
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:541
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1226
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1688
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1690
 #: src/Blocks/BlockRegistry.php:244
 msgid "February"
 msgstr "Şubat"
@@ -4561,7 +4561,7 @@ msgstr "Şubat"
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:542
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1227
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1689
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1691
 #: src/Blocks/BlockRegistry.php:244
 msgid "March"
 msgstr "Mart"
@@ -4569,7 +4569,7 @@ msgstr "Mart"
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:543
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1228
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1690
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1692
 #: src/Blocks/BlockRegistry.php:244
 msgid "April"
 msgstr "Nisan"
@@ -4577,8 +4577,8 @@ msgstr "Nisan"
 #: src/Admin/Core/Assets/DatepickerAssets.php:68
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:544
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1229
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1691
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1705
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1693
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1707
 #: src/Blocks/BlockRegistry.php:244
 msgid "May"
 msgstr "Mayıs"
@@ -4586,7 +4586,7 @@ msgstr "Mayıs"
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:545
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1230
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1692
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1694
 #: src/Blocks/BlockRegistry.php:244
 msgid "June"
 msgstr "Haziran"
@@ -4594,7 +4594,7 @@ msgstr "Haziran"
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:546
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1231
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1693
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1695
 #: src/Blocks/BlockRegistry.php:244
 msgid "July"
 msgstr "Temmuz"
@@ -4602,7 +4602,7 @@ msgstr "Temmuz"
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:547
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1232
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1694
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1696
 #: src/Blocks/BlockRegistry.php:244
 msgid "August"
 msgstr "Ağustos"
@@ -4610,7 +4610,7 @@ msgstr "Ağustos"
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:548
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1233
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1695
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1697
 #: src/Blocks/BlockRegistry.php:244
 msgid "September"
 msgstr "Eylül"
@@ -4618,7 +4618,7 @@ msgstr "Eylül"
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:549
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1234
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1696
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1698
 #: src/Blocks/BlockRegistry.php:244
 msgid "October"
 msgstr "Ekim"
@@ -4626,7 +4626,7 @@ msgstr "Ekim"
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:550
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1235
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1697
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1699
 #: src/Blocks/BlockRegistry.php:244
 msgid "November"
 msgstr "Kasım"
@@ -4634,49 +4634,49 @@ msgstr "Kasım"
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:551
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1236
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1698
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1700
 #: src/Blocks/BlockRegistry.php:244
 msgid "December"
 msgstr "Aralık"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:78
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1733
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1735
 #: src/Blocks/BlockRegistry.php:245
 msgid "Su"
 msgstr "Pz"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:79
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1734
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1736
 #: src/Blocks/BlockRegistry.php:245
 msgid "Mo"
 msgstr "Pzt"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:80
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1735
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1737
 #: src/Blocks/BlockRegistry.php:245
 msgid "Tu"
 msgstr "Sal"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:81
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1736
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1738
 #: src/Blocks/BlockRegistry.php:245
 msgid "We"
 msgstr "Ça"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:82
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1737
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1739
 #: src/Blocks/BlockRegistry.php:245
 msgid "Th"
 msgstr "Per"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:83
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1738
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1740
 #: src/Blocks/BlockRegistry.php:245
 msgid "Fr"
 msgstr "Cu"
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:84
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1739
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1741
 #: src/Blocks/BlockRegistry.php:245
 msgid "Sa"
 msgstr "Cmt"
@@ -5145,7 +5145,7 @@ msgid "Too many requests. Please wait."
 msgstr "Çok fazla istek var. Lütfen bekleyin."
 
 #: src/Admin/Core/SecurityHelper.php:372 src/Admin/Core/SecurityHelper.php:405
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:996
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:998
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:278
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:348
 msgid "Invalid vehicle ID."
@@ -7140,56 +7140,56 @@ msgstr "Randevu"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:291
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:290
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:387
-#: templates/partials/vehicle-card.php:267
+#: templates/partials/vehicle-card.php:270
 #: templates/shortcodes/availability-calendar.php:209
-#: templates/shortcodes/booking-form.php:164
+#: templates/shortcodes/booking-form.php:172
 msgid "/day"
 msgstr "/gün"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:292
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1725
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1727
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:298
 msgid "Mon"
 msgstr "Pzt"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:293
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1726
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1728
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:299
 msgid "Tue"
 msgstr "Sal"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:294
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1727
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1729
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:300
 msgid "Wed"
 msgstr "Çar"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:295
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1728
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1730
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:301
 msgid "Thu"
 msgstr "Per"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:296
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1729
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1731
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:302
 msgid "Fri"
 msgstr "Cum"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:297
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1730
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1732
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:303
 msgid "Sat"
 msgstr "Cmt"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:298
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1724
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1726
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:219
 #: templates/shortcodes/availability-calendar.php:304
 msgid "Sun"
@@ -7296,7 +7296,7 @@ msgid "Select This Vehicle"
 msgstr "Bu Aracı Seç"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:259
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1166
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1168
 msgid "Redirecting to payment page..."
 msgstr "Ödeme sayfasına yönlendiriliyor..."
 
@@ -7422,130 +7422,130 @@ msgstr ""
 msgid "I accept the terms of use and privacy policy."
 msgstr "Hizmet şartlarını ve gizlilik politikasını kabul ediyorum."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:858
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:860
 msgid "Too many booking requests. Please wait 5 minutes."
 msgstr "Çok fazla rezervasyon talebi var. Lütfen 5 dakika bekleyin."
 
 #. translators: %s: vehicle status
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:889
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:891
 #, php-format
 msgid "Selected vehicle is not available (Status: %s)."
 msgstr "Seçilen araç mevcut değil (Durum: %s)."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:900
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:902
 msgid "Pickup time is required."
 msgstr "Teslim alma zamanı gereklidir."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1000
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1002
 msgid "Please select dates."
 msgstr "Lütfen tarihleri seçin."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1011
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1013
 msgid "Please fill in contact information."
 msgstr "Lütfen iletişim bilgilerini doldurun."
 
 #. translators: %s: error message
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1190
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1192
 #, php-format
 msgid "Payment gateway error: %s"
 msgstr "Ödeme ağ geçidi hatası: %s"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1196
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1198
 msgid "No payment gateway is available. Please contact the site administrator."
 msgstr ""
 "Kullanılabilir ödeme yöntemi yok. Lütfen site yöneticisiyle iletişime geçin."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1230
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1232
 msgid "Too many price calculation requests. Please wait."
 msgstr "Çok fazla fiyat hesaplama talebi var. Lütfen bekleyin."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1419
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1421
 msgid "Invalid payment type."
 msgstr "Geçersiz ödeme türü."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1585
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1587
 msgid "Too many availability checks. Please wait."
 msgstr "Çok fazla kullanılabilirlik kontrolü var. Lütfen bekleyin."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1614
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1616
 msgid "Invalid data."
 msgstr "Geçersiz veri."
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1701
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1703
 msgid "Jan"
 msgstr "Ocak"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1702
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1704
 msgid "Feb"
 msgstr "Şubat"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1703
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1705
 msgid "Mar"
 msgstr "Mart"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1704
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1706
 msgid "Apr"
 msgstr "Nisan"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1706
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1708
 msgid "Jun"
 msgstr "Haz"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1707
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1709
 msgid "Jul"
 msgstr "Tem"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1708
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1710
 msgid "Aug"
 msgstr "Ağustos"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1709
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1711
 msgid "Sep"
 msgstr "Eyl"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1710
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1712
 msgid "Oct"
 msgstr "Ekim"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1711
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1713
 msgid "Nov"
 msgstr "Kas"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1712
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1714
 msgid "Dec"
 msgstr "Aralık"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1715
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1717
 #: assets/blocks/availability-calendar/index.js:60
 msgid "Sunday"
 msgstr "Pazar"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1716
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1718
 #: assets/blocks/availability-calendar/index.js:59
 msgid "Monday"
 msgstr "Pazartesi"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1717
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1719
 msgid "Tuesday"
 msgstr "Salı"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1718
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1720
 msgid "Wednesday"
 msgstr "Çarşamba"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1719
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1721
 msgid "Thursday"
 msgstr "Perşembe"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1720
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1722
 msgid "Friday"
 msgstr "Cuma"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1721
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1723
 msgid "Saturday"
 msgstr "Cumartesi"
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1741
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1743
 msgid "Wk"
 msgstr "Hf"
 
@@ -10477,7 +10477,7 @@ msgstr "İade Tarihi:"
 #: templates/emails/booking-cancelled.html.php:92
 #: templates/emails/booking-created-admin.html.php:53
 #: templates/emails/booking-created-customer.html.php:40
-#: templates/shortcodes/booking-form.php:372
+#: templates/shortcodes/booking-form.php:386
 msgid "Total Amount:"
 msgstr "Toplam Tutar:"
 
@@ -10870,7 +10870,7 @@ msgid "Make Booking Button"
 msgstr "Rezervasyon Yap Düğmesi"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:291
-#: templates/shortcodes/booking-form.php:423
+#: templates/shortcodes/booking-form.php:437
 msgid "Make Booking"
 msgstr "Rezervasyon Yap"
 
@@ -14501,7 +14501,7 @@ msgstr "Depozito Tutarı:"
 
 #: templates/emails/booking-created-customer.html.php:61
 #: templates/emails/remaining-payment-link-customer.html.php:30
-#: templates/shortcodes/booking-form.php:382
+#: templates/shortcodes/booking-form.php:396
 msgid "Remaining Amount:"
 msgstr "Kalan Miktar:"
 
@@ -14852,12 +14852,13 @@ msgstr "Favorileri aç/kapat"
 
 #. translators: %d: total rating count
 #: templates/partials/selected-vehicle-summary.php:89
+#: templates/shortcodes/booking-form.php:168
 #, php-format
 msgid "(%d reviews)"
 msgstr "(%d yorum)"
 
 #. translators: %s: average vehicle rating.
-#: templates/partials/vehicle-card.php:170
+#: templates/partials/vehicle-card.php:164
 #, php-format
 msgid "Rated %s out of 5"
 msgstr "5 üzerinden %s oy aldı"
@@ -14920,76 +14921,72 @@ msgstr "Toplam Fiyat:"
 msgid "Make Reservation"
 msgstr "Rezervasyon Yap"
 
-#: templates/shortcodes/booking-form.php:125
-msgid "(120 reviews)"
-msgstr "(120 yorum)"
-
 #: templates/shortcodes/booking-form.php:150
 msgid "Vehicle Selection"
 msgstr "Araç Seçimi"
 
-#: templates/shortcodes/booking-form.php:181
+#: templates/shortcodes/booking-form.php:189
 msgid "Date & Time Selection"
 msgstr "Tarih ve Saat Seçimi"
 
-#: templates/shortcodes/booking-form.php:190
+#: templates/shortcodes/booking-form.php:198
 msgid "VEHICLE PICKUP"
 msgstr "ARAÇ TESLİM ALMA"
 
-#: templates/shortcodes/booking-form.php:204
-#: templates/shortcodes/booking-form.php:252
+#: templates/shortcodes/booking-form.php:212
+#: templates/shortcodes/booking-form.php:260
 msgid "Select date"
 msgstr "Tarih Seçiniz"
 
-#: templates/shortcodes/booking-form.php:218
-#: templates/shortcodes/booking-form.php:266
+#: templates/shortcodes/booking-form.php:226
+#: templates/shortcodes/booking-form.php:274
 #: templates/shortcodes/unified-search.php:124
 #: templates/shortcodes/unified-search.php:159
 msgid "Time"
 msgstr "Saat"
 
-#: templates/shortcodes/booking-form.php:235
+#: templates/shortcodes/booking-form.php:243
 msgid "VEHICLE RETURN"
 msgstr "ARAÇ DÖNÜŞ"
 
-#: templates/shortcodes/booking-form.php:236
-#: templates/shortcodes/booking-form.php:285
+#: templates/shortcodes/booking-form.php:244
+#: templates/shortcodes/booking-form.php:293
 msgid "Return time is automatically set to match pickup time."
 msgstr "İade saati otomatik olarak alış saatiyle eşleşecek şekilde ayarlanır."
 
-#: templates/shortcodes/booking-form.php:243
+#: templates/shortcodes/booking-form.php:251
 msgid "Same Pickup Location"
 msgstr "Aynı Teslim Alma Yeri"
 
-#: templates/shortcodes/booking-form.php:342
+#: templates/shortcodes/booking-form.php:350
 msgid "Payment Summary"
 msgstr "Ödeme Özeti"
 
-#: templates/shortcodes/booking-form.php:348
+#: templates/shortcodes/booking-form.php:356
 msgid "Daily Price:"
 msgstr "Günlük Fiyat:"
 
-#: templates/shortcodes/booking-form.php:352
+#: templates/shortcodes/booking-form.php:366
 msgid "Number of Days:"
 msgstr "Gün Sayısı:"
 
-#: templates/shortcodes/booking-form.php:360
+#: templates/shortcodes/booking-form.php:374
 msgid "Tax:"
 msgstr "Vergi:"
 
-#: templates/shortcodes/booking-form.php:364
+#: templates/shortcodes/booking-form.php:378
 msgid "Vehicle Total:"
 msgstr "Araç Toplamı:"
 
-#: templates/shortcodes/booking-form.php:368
+#: templates/shortcodes/booking-form.php:382
 msgid "Additional Services:"
 msgstr "Ek Hizmetler:"
 
-#: templates/shortcodes/booking-form.php:378
+#: templates/shortcodes/booking-form.php:392
 msgid "Deposit to Pay:"
 msgstr "Ödenecek depozito:"
 
-#: templates/shortcodes/booking-form.php:433
+#: templates/shortcodes/booking-form.php:447
 msgid ""
 "By clicking the booking button, you accept booking terms and pricing details."
 msgstr ""
@@ -16919,6 +16916,9 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+#~ msgid "(120 reviews)"
+#~ msgstr "(120 yorum)"
 
 #~ msgid "Form Description"
 #~ msgstr "Form Açıklaması"

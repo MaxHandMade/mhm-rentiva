@@ -6950,3 +6950,169 @@
 		border-bottom: none;
 	}
 }
+
+/* =========================================================================
+   BROADSHEET SKIN — booking form (follows the vehicle card's pilot)
+   =========================================================================
+   The card the visitor clicks "Rezervasyon Yap" on is in the Broadsheet
+   skin; the form it opens was not, so the flow changed visual language
+   mid-way. This brings the form into the same system as claude.ai/design
+   "WordPress Araç Pazarı Teması" → Rezervasyon-Formu draws it.
+
+   Scoped to the form wrapper and reversible, like the card skin. The
+   tokens mirror the card's (vehicle-card.css, BROADSHEET SKIN): keep the two
+   blocks in step. The --mhm-* tokens are NOT redefined here: they have one
+   owner (css-variables.css, enforced by bin/check-token-definitions.php), so
+   each visible element is set to the --rv-* tokens explicitly instead.
+   ========================================================================= */
+.rv-booking-form-wrapper {
+	--rv-surface: var(--wp--preset--color--surface, #f8f4f4);
+	--rv-ink: var(--wp--preset--color--text, #201e1d);
+	--rv-muted: color-mix(in srgb, var(--rv-ink) 60%, transparent);
+	--rv-accent: var(--wp--preset--color--primary, #0088b0);
+	--rv-accent-soft: color-mix(in srgb, var(--rv-accent) 12%, transparent);
+	--rv-accent-ink: color-mix(in srgb, var(--rv-accent) 82%, #000);
+	--rv-hair: color-mix(in srgb, var(--rv-ink) 9%, transparent);
+	--rv-radius: 2px;
+	--rv-display: var(--wp--preset--font-family--heading, Georgia, "Times New Roman", serif);
+}
+
+/* Sections: flat Broadsheet cards on the page, hairline edge, no glow. */
+.rv-booking-form-wrapper .rv-card {
+	background: var(--rv-surface);
+	border: 1px solid var(--rv-hair);
+	border-radius: var(--rv-radius);
+	box-shadow: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
+}
+
+.rv-booking-form-wrapper .rv-card:hover {
+	border-color: var(--rv-hair);
+}
+
+.rv-booking-form-wrapper .rv-card-header {
+	background: none;
+	border-bottom: 1px solid var(--rv-hair);
+	padding-bottom: var(--mhm-space-3, 0.75rem);
+}
+
+/* Section headings in the theme's heading face, like the card title; the
+   artboard draws plain headings, so the accent bar goes. */
+.rv-booking-form-wrapper .rv-section-title {
+	font-family: var(--rv-display);
+	font-weight: 600;
+	color: var(--rv-ink);
+}
+
+.rv-booking-form-wrapper .rv-section-title::before {
+	content: none;
+	display: none;
+}
+
+/* The primary action: flat accent, same as the card's booking button. */
+.rv-booking-form-wrapper .rv-submit-btn,
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn,
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary {
+	background: var(--rv-accent);
+	background-image: none;
+	color: #fff;
+	border: none;
+	border-radius: var(--rv-radius);
+	box-shadow: none;
+	min-height: 44px;
+	font-weight: 600;
+}
+
+.rv-booking-form-wrapper .rv-submit-btn:hover,
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn:hover,
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary:hover {
+	background: var(--rv-accent-ink);
+	background-image: none;
+	box-shadow: none;
+}
+
+/* Inputs, selects and add-on rows keep their structure, at the skin's radius. */
+.rv-booking-form-wrapper .rv-inputs-inner,
+.rv-booking-form-wrapper .rv-select,
+.rv-booking-form-wrapper .rv-addon-item {
+	border-radius: var(--rv-radius);
+}
+
+/* Totals read in the heading face and ink, like the card's price. The total
+   needs the full selector: an earlier rule of the same shape pins it to a
+   fixed blue with a text shadow. */
+.rv-booking-form-wrapper .rv-price-breakdown .rv-price-value,
+.rv-booking-form-wrapper .rv-total-price,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-label {
+	font-family: var(--rv-display);
+	color: var(--rv-ink);
+	text-shadow: none;
+}
+
+/* The selected vehicle's name in the heading face, as on the card. */
+.rv-booking-form-wrapper .rv-sv__title {
+	font-family: var(--rv-display);
+	font-weight: 600;
+	color: var(--rv-ink);
+}
+
+/* Date & time table: the skin's radius and hairline instead of a rounded,
+   shadowed panel; the row-head gradient becomes a flat surface tint. */
+.rv-booking-form-wrapper .rv-bf-datetime-table {
+	border-radius: var(--rv-radius);
+	border-color: var(--rv-hair);
+	box-shadow: none;
+}
+
+.rv-booking-form-wrapper .rv-bf-datetime-rowhead {
+	background: color-mix(in srgb, var(--rv-ink) 4%, var(--rv-surface));
+	background-image: none;
+}
+
+/* Accent-coloured details that read the global primary: point them at the
+   skin's accent (measured: category label, card-header icons, add-on icon). */
+.rv-booking-form-wrapper .rv-sv__category,
+.rv-booking-form-wrapper .rv-card-header .rv-icon {
+	color: var(--rv-accent);
+}
+
+.rv-booking-form-wrapper .rv-addon-icon-circle {
+	color: var(--rv-accent);
+	background: var(--rv-accent-soft);
+}
+
+/* The vehicle image frame: square to the skin, no placeholder gradient. */
+.rv-booking-form-wrapper .rv-sv__media {
+	border-radius: var(--rv-radius) var(--rv-radius) 0 0;
+	background: color-mix(in srgb, var(--rv-ink) 6%, var(--rv-surface));
+	background-image: none;
+}
+
+/* Interaction states that read the global primary. */
+.rv-booking-form-wrapper .rv-addon-item:focus-within,
+.rv-booking-form-wrapper .rv-addon-item:has(.rv-addon-checkbox:checked) {
+	border-color: var(--rv-accent);
+	box-shadow: 0 0 0 1px var(--rv-accent-soft);
+}
+
+.rv-booking-form-wrapper .rv-addon-checkbox:checked {
+	background-color: var(--rv-accent);
+	border-color: var(--rv-accent);
+}
+
+.rv-booking-form-wrapper .rv-error-message,
+.rv-booking-form-wrapper .rv-success-message {
+	border-radius: var(--rv-radius);
+}
+
+.rv-booking-form-wrapper .rv-select:focus,
+.rv-booking-form-wrapper .rv-input:focus,
+.rv-booking-form-wrapper input:focus {
+	border-color: var(--rv-accent);
+	box-shadow: 0 0 0 3px var(--rv-accent-soft);
+}
+
+.rv-booking-form-wrapper input[type="checkbox"],
+.rv-booking-form-wrapper input[type="radio"] {
+	accent-color: var(--rv-accent);
+}
