@@ -153,6 +153,22 @@ final class WidgetContractTest extends WP_UnitTestCase
 		$this->assertSame(array(), $failing, 'Schema-mapped widget controls that do not reach the shortcode:' . "\n" . implode("\n", $failing));
 	}
 
+	public function test_every_widget_contributes_rows(): void
+	{
+		// A schema or normalizer change must not silently drop a whole widget out of
+		// the contract. The dashboard is a retired stub with no schema-mapped controls.
+		$per_widget = array();
+		foreach ($this->probe()['rows'] as $row) {
+			$per_widget[ $row['widget'] ] = ( $per_widget[ $row['widget'] ] ?? 0 ) + 1;
+		}
+		foreach (array_keys(self::WIDGETS) as $short) {
+			if ('UserDashboardWidget' === $short) {
+				continue;
+			}
+			$this->assertGreaterThanOrEqual(1, $per_widget[ $short ] ?? 0, "$short contributes no controls under test; it dropped out of the contract.");
+		}
+	}
+
 	public function test_exceptions_name_existing_controls(): void
 	{
 		$in_scope = array();
@@ -237,7 +253,7 @@ final class WidgetContractTest extends WP_UnitTestCase
 					'received'  => null,
 				);
 
-				foreach ($this->probe_values($id, $control, $schema[ $canonical ], $vehicle) as $value) {
+				foreach ($this->probe_values($canonical, $control, $schema[ $canonical ], $vehicle) as $value) {
 					$received = $this->observe($class, $tag, $base + array( $id => $value ), $canonical);
 					$ok       = $this->value_matches($type, $value, $received);
 					if (null === $row['sent'] || ( $row['ok'] && ! $ok )) {
@@ -274,11 +290,12 @@ final class WidgetContractTest extends WP_UnitTestCase
 	 * one default. int is 7 kept inside the control's own min/max (the editor can not
 	 * save a value outside them).
 	 *
-	 * @param array<string,mixed> $control Control definition.
-	 * @param array<string,mixed> $config  Schema entry.
+	 * @param string              $canonical Canonical schema key (never the raw control id).
+	 * @param array<string,mixed> $control   Control definition.
+	 * @param array<string,mixed> $config    Schema entry.
 	 * @return list<mixed>
 	 */
-	private function probe_values(string $id, array $control, array $config, int $vehicle): array
+	private function probe_values(string $canonical, array $control, array $config, int $vehicle): array
 	{
 		switch ($config['type'] ?? 'string') {
 			case 'bool':
@@ -299,7 +316,7 @@ final class WidgetContractTest extends WP_UnitTestCase
 
 			case 'int':
 			case 'idlist':
-				if (in_array($id, array( 'vehicle_id', 'ids' ), true)) {
+				if (in_array($canonical, array( 'vehicle_id', 'ids' ), true)) {
 					return array( (string) $vehicle );
 				}
 				$value = 7;

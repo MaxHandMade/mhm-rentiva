@@ -219,6 +219,10 @@ final class ShortcodeFixtures
 				$row['marker']       = 'rv-testimonial-card';
 				$row['min_elements'] = 20;
 				break;
+
+			default:
+				// An unknown tag would return an empty marker that every render "contains".
+				throw new \InvalidArgumentException( 'ShortcodeFixtures::for_tag(): unknown tag ' . $tag );
 		}
 
 		return $row;
