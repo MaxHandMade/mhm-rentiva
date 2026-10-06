@@ -7046,12 +7046,16 @@
 	border-radius: var(--rv-radius);
 }
 
-/* Totals read in the heading face, like the card's price. */
+/* Totals read in the heading face and ink, like the card's price. The total
+   needs the full selector: an earlier rule of the same shape pins it to a
+   fixed blue with a text shadow. */
 .rv-booking-form-wrapper .rv-price-breakdown .rv-price-value,
 .rv-booking-form-wrapper .rv-total-price,
-.rv-booking-form-wrapper .rv-price-total .rv-price-value {
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-label {
 	font-family: var(--rv-display);
 	color: var(--rv-ink);
+	text-shadow: none;
 }
 
 /* The selected vehicle's name in the heading face, as on the card. */
