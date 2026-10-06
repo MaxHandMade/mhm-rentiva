@@ -346,7 +346,13 @@ $unique_id = uniqid('rv_booking_');
 					<div class="rv-card-body rv-price-breakdown">
 						<div class="rv-price-item">
 							<span class="rv-price-label"><?php echo esc_html__('Daily Price:', 'mhm-rentiva'); ?></span>
-							<span class="rv-price-value rv-daily-price" id="rv-daily-price-<?php echo esc_attr($unique_id); ?>">-</span>
+							<?php
+							// The vehicle is already chosen, so its daily price is known before any
+							// date is: lead the summary with it (Broadsheet artboard). The script
+							// rewrites this cell once a price is calculated.
+							$initial_daily = (string) ( $selected_vehicle['price']['formatted'] ?? '' );
+							?>
+							<span class="rv-price-value rv-daily-price" id="rv-daily-price-<?php echo esc_attr($unique_id); ?>"><?php echo esc_html('' !== $initial_daily ? $initial_daily : '-'); ?></span>
 						</div>
 						<div class="rv-price-item">
 							<span class="rv-price-label"><?php echo esc_html__('Number of Days:', 'mhm-rentiva'); ?></span>

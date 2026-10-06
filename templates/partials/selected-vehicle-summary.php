@@ -77,10 +77,10 @@ if (! empty($category_name)) {
 				<?php Icons::render('heart', array( 'class' => 'rv-heart-icon' )); ?>
 			</button>
 		<?php endif; ?>
-		<?php if ($show_rating) : ?>
+		<?php if ($show_rating && $rating_count > 0) : // An unrated vehicle shows no rating, as on the card. ?>
 			<div class="rv-sv__rating-inline rv-sv__rating-overlay">
 				<span class="rv-sv__rating-star" aria-hidden="true">&#9733;</span>
-				<span class="rv-sv__rating-value"><?php echo esc_html(number_format( (float) $rating_avg, 1)); ?></span>
+				<span class="rv-sv__rating-value"><?php echo esc_html(number_format_i18n( (float) $rating_avg, 1)); ?></span>
 				<span class="rv-sv__rating-count">
 					<?php
 					echo esc_html(
