@@ -482,7 +482,7 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 		global $wpdb;
 		$this->page(array( $this->search(array( 'genel-stil_typography_font_family' => 'Lora' )) ));
 		$break = static function ($query) {
-			return ( false !== strpos($query, 'rv-vehicle-search') && 0 === stripos(ltrim($query), 'SELECT') ) ? 'SELECT post_id FROM no_such_table_mhm_x' : $query;
+			return ( false !== strpos($query, 'rv-vehicle-search') && 0 === stripos(ltrim($query), 'SELECT') ) ? 'SELECT post_id FROM no_such_table_x' : $query;
 		};
 		add_filter('query', $break);
 		$suppress = $wpdb->suppress_errors(true);
