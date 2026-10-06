@@ -65,6 +65,14 @@ class BookButtonShadowingTest extends WP_UnitTestCase
 		$this->assertStringContainsString((string) $this->v2, $html);
 	}
 
+	private function assertOffHidesWhatOnShows(string $on, string $off, string $button): void
+	{
+		$this->assertRendersBothVehicles($on);
+		$this->assertRendersBothVehicles($off);
+		$this->assertGreaterThan(0, substr_count($on, $button), 'Positive control: the same path shows the button when not switched off.');
+		$this->assertSame(0, substr_count($off, $button));
+	}
+
 	private function comparison_ids(): string
 	{
 		return $this->v1 . ',' . $this->v2;
@@ -112,14 +120,29 @@ class BookButtonShadowingTest extends WP_UnitTestCase
 	{
 		$ids = $this->comparison_ids();
 
-		$this->assertSame(0, substr_count(do_shortcode('[rentiva_featured_vehicles show_book_button="0"]'), self::FEATURED_BUTTON));
-		$this->assertSame(0, substr_count(do_shortcode('[rentiva_vehicle_comparison vehicle_ids="' . $ids . '" show_booking_buttons="0"]'), self::COMPARISON_BUTTON));
+		// Each "off" count is read next to the same path's "on" output, and only
+		// once both fixture vehicles rendered -- an empty or error render must not
+		// pass as "no button".
+		$this->assertOffHidesWhatOnShows(
+			do_shortcode('[rentiva_featured_vehicles]'),
+			do_shortcode('[rentiva_featured_vehicles show_book_button="0"]'),
+			self::FEATURED_BUTTON
+		);
+		$this->assertOffHidesWhatOnShows(
+			do_shortcode('[rentiva_vehicle_comparison vehicle_ids="' . $ids . '"]'),
+			do_shortcode('[rentiva_vehicle_comparison vehicle_ids="' . $ids . '" show_booking_buttons="0"]'),
+			self::COMPARISON_BUTTON
+		);
 
 		if (! class_exists('\Elementor\Widget_Base')) {
 			$this->markTestIncomplete('Elementor absent: widget half of the negative control not run.');
 		}
 
-		$this->assertSame(0, substr_count($this->widget(VehicleComparisonWidget::class, array( 'vehicle_ids' => $ids, 'show_booking_buttons' => '' )), self::COMPARISON_BUTTON));
+		$this->assertOffHidesWhatOnShows(
+			$this->widget(VehicleComparisonWidget::class, array( 'vehicle_ids' => $ids )),
+			$this->widget(VehicleComparisonWidget::class, array( 'vehicle_ids' => $ids, 'show_booking_buttons' => '' )),
+			self::COMPARISON_BUTTON
+		);
 		// Known defect, out of this slice's scope: the Elementor featured switcher does
 		// not hide the button either (same shadowing, widget path). Pinned at today's
 		// value so this slice provably leaves the Elementor path untouched.

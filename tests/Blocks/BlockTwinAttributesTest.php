@@ -141,6 +141,28 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 		$this->assertSame('1', $b['show_booking_button']);
 	}
 
+	/**
+	 * featured-vehicles / vehicle-comparison: before the slice the deleted
+	 * `showBookingButton(s)` and the control's `showBookButton` mapped to two
+	 * different settings and the template preferred the former; now both map to one
+	 * and the later key in the comment wins. A deliberate change (spec R1), reachable
+	 * only by hand-written comments -- the editor never wrote the deleted key.
+	 */
+	public function test_legacy_shadowing_pairs_follow_comment_order(): void
+	{
+		$pairs = array(
+			'featured-vehicles'  => array( 'showBookingButton', 'show_booking_button' ),
+			'vehicle-comparison' => array( 'showBookingButtons', 'show_booking_buttons' ),
+		);
+		foreach ($pairs as $slug => list( $deleted, $canonical )) {
+			$later_on = BlockAttributeGroups::captured_atts($slug, array( $deleted => false, 'showBookButton' => true ));
+			$this->assertSame('1', $later_on[ $canonical ], "{$slug}: later showBookButton=true wins.");
+
+			$later_off = BlockAttributeGroups::captured_atts($slug, array( 'showBookButton' => true, $deleted => false ));
+			$this->assertSame('0', $later_off[ $canonical ], "{$slug}: later {$deleted}=false wins.");
+		}
+	}
+
 	/** The wrapper reads raw `height` before CAM; a saved legacy value still sizes it. */
 	public function test_legacy_raw_height_still_sizes_wrapper(): void
 	{
