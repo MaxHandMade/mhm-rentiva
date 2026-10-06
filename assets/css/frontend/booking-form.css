@@ -6961,9 +6961,9 @@
 
    Scoped to the form wrapper and reversible, like the card skin. The
    tokens mirror the card's (vehicle-card.css, BROADSHEET SKIN): keep the two
-   blocks in step. Rather than rewriting hundreds of rules, the form's own
-   palette and radius tokens are routed through the skin, so every rule that
-   already reads them follows; only what bypasses the tokens is set here.
+   blocks in step. The --mhm-* tokens are NOT redefined here: they have one
+   owner (css-variables.css, enforced by bin/check-token-definitions.php), so
+   each visible element is set to the --rv-* tokens explicitly instead.
    ========================================================================= */
 .rv-booking-form-wrapper {
 	--rv-surface: var(--wp--preset--color--surface, #f8f4f4);
@@ -6975,15 +6975,6 @@
 	--rv-hair: color-mix(in srgb, var(--rv-ink) 9%, transparent);
 	--rv-radius: 2px;
 	--rv-display: var(--wp--preset--font-family--heading, Georgia, "Times New Roman", serif);
-
-	--mhm-primary: var(--rv-accent);
-	--mhm-primary-dark: var(--rv-accent-ink);
-	--mhm-primary-transparent: var(--rv-accent-soft);
-	--mhm-text-primary: var(--rv-ink);
-	--mhm-radius-md: var(--rv-radius);
-	--mhm-radius-lg: var(--rv-radius);
-	--mhm-radius-xl: var(--rv-radius);
-	--mhm-radius-2xl: var(--rv-radius);
 }
 
 /* Sections: flat Broadsheet cards on the page, hairline edge, no glow. */
@@ -7076,4 +7067,52 @@
 .rv-booking-form-wrapper .rv-bf-datetime-rowhead {
 	background: color-mix(in srgb, var(--rv-ink) 4%, var(--rv-surface));
 	background-image: none;
+}
+
+/* Accent-coloured details that read the global primary: point them at the
+   skin's accent (measured: category label, card-header icons, add-on icon). */
+.rv-booking-form-wrapper .rv-sv__category,
+.rv-booking-form-wrapper .rv-card-header .rv-icon {
+	color: var(--rv-accent);
+}
+
+.rv-booking-form-wrapper .rv-addon-icon-circle {
+	color: var(--rv-accent);
+	background: var(--rv-accent-soft);
+}
+
+/* The vehicle image frame: square to the skin, no placeholder gradient. */
+.rv-booking-form-wrapper .rv-sv__media {
+	border-radius: var(--rv-radius) var(--rv-radius) 0 0;
+	background: color-mix(in srgb, var(--rv-ink) 6%, var(--rv-surface));
+	background-image: none;
+}
+
+/* Interaction states that read the global primary. */
+.rv-booking-form-wrapper .rv-addon-item:focus-within,
+.rv-booking-form-wrapper .rv-addon-item:has(.rv-addon-checkbox:checked) {
+	border-color: var(--rv-accent);
+	box-shadow: 0 0 0 1px var(--rv-accent-soft);
+}
+
+.rv-booking-form-wrapper .rv-addon-checkbox:checked {
+	background-color: var(--rv-accent);
+	border-color: var(--rv-accent);
+}
+
+.rv-booking-form-wrapper .rv-error-message,
+.rv-booking-form-wrapper .rv-success-message {
+	border-radius: var(--rv-radius);
+}
+
+.rv-booking-form-wrapper .rv-select:focus,
+.rv-booking-form-wrapper .rv-input:focus,
+.rv-booking-form-wrapper input:focus {
+	border-color: var(--rv-accent);
+	box-shadow: 0 0 0 3px var(--rv-accent-soft);
+}
+
+.rv-booking-form-wrapper input[type="checkbox"],
+.rv-booking-form-wrapper input[type="radio"] {
+	accent-color: var(--rv-accent);
 }
