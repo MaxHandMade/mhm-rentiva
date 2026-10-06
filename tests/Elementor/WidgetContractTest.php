@@ -70,7 +70,7 @@ final class WidgetContractTest extends WP_UnitTestCase
 	 * Probe results for the whole process: rendering ~450 widgets once is enough
 	 * for all assertions in this class.
 	 *
-	 * @var array{rows:list<array<string,mixed>>,excluded_style:int,excluded_style_mapped:int}|null
+	 * @var array{rows:list<array<string,mixed>>,excluded_style:int,excluded_style_mapped:int,excluded_style_mapped_ids:list<string>}|null
 	 */
 	private static ?array $probe = null;
 
@@ -153,6 +153,23 @@ final class WidgetContractTest extends WP_UnitTestCase
 		$this->assertSame(array(), $failing, 'Schema-mapped widget controls that do not reach the shortcode:' . "\n" . implode("\n", $failing));
 	}
 
+	public function test_no_schema_mapped_control_carries_selectors(): void
+	{
+		// Ruling R7: a control with `selectors` is a style control and the bridge never
+		// sends it (ElementorWidgetBase::get_bridge_settings()); the probe skips it the
+		// same way. A data control that later gains a selector would therefore die in
+		// the bridge and vanish from this contract without a single failing row, so the
+		// overlap itself has to be zero.
+		$probe = $this->probe();
+
+		$this->assertSame(
+			array(),
+			$probe['excluded_style_mapped_ids'],
+			"Schema-mapped controls carry `selectors`, so the bridge never sends them. Split the style part into its own control:\n" . implode("\n", $probe['excluded_style_mapped_ids'])
+		);
+		$this->assertSame(0, $probe['excluded_style_mapped']);
+	}
+
 	public function test_every_widget_contributes_rows(): void
 	{
 		// A schema or normalizer change must not silently drop a whole widget out of
@@ -202,7 +219,7 @@ final class WidgetContractTest extends WP_UnitTestCase
 	/**
 	 * Probe every control under test once per process.
 	 *
-	 * @return array{rows:list<array<string,mixed>>,excluded_style:int,excluded_style_mapped:int}
+	 * @return array{rows:list<array<string,mixed>>,excluded_style:int,excluded_style_mapped:int,excluded_style_mapped_ids:list<string>}
 	 */
 	private function probe(): array
 	{
@@ -210,11 +227,12 @@ final class WidgetContractTest extends WP_UnitTestCase
 			return self::$probe;
 		}
 
-		$vehicle  = ShortcodeFixtures::vehicle();
-		$customer = ShortcodeFixtures::customer();
-		$rows     = array();
-		$excluded = 0;
-		$mapped   = 0;
+		$vehicle    = ShortcodeFixtures::vehicle();
+		$customer   = ShortcodeFixtures::customer();
+		$rows       = array();
+		$excluded   = 0;
+		$mapped     = 0;
+		$mapped_ids = array();
 
 		foreach (self::WIDGETS as $short => $tag) {
 			$class  = self::NS . $short;
@@ -234,6 +252,7 @@ final class WidgetContractTest extends WP_UnitTestCase
 					++$excluded;
 					if (isset($schema[ $canonical ])) {
 						++$mapped;
+						$mapped_ids[] = $short . '::' . $id . ' -> ' . $canonical;
 					}
 					continue;
 				}
@@ -272,9 +291,10 @@ final class WidgetContractTest extends WP_UnitTestCase
 		wp_set_current_user(0);
 
 		self::$probe = array(
-			'rows'                  => $rows,
-			'excluded_style'        => $excluded,
-			'excluded_style_mapped' => $mapped,
+			'rows'                      => $rows,
+			'excluded_style'            => $excluded,
+			'excluded_style_mapped'     => $mapped,
+			'excluded_style_mapped_ids' => $mapped_ids,
 		);
 
 		return self::$probe;
