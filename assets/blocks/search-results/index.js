@@ -28,7 +28,6 @@
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
             var limit = attributes.limit;
-            var columns = attributes.columns;
             var className = attributes.className;
 
             return el('div', blockProps,
@@ -79,16 +78,6 @@
                             label: __('Custom CSS Class', 'mhm-rentiva'),
                             value: className,
                             onChange: function (val) { setAttributes({ className: val }); }
-                        }),
-                        (layout === 'grid') && el(SelectControl, {
-                            label: __('Columns', 'mhm-rentiva'),
-                            value: columns,
-                            options: [
-                                { label: '2', value: '2' },
-                                { label: '3', value: '3' },
-                                { label: '4', value: '4' }
-                            ],
-                            onChange: function (val) { setAttributes({ columns: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Pagination', 'mhm-rentiva'),
