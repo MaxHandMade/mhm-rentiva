@@ -31,7 +31,11 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 		$widget = WidgetFactory::make( VehicleCardWidget::class );
 		Plugin::$instance->controls_manager->delete_stack( $widget );
 
-		return $widget->get_stack( false )['style_controls'];
+		// Which bucket Elementor uses is decided once per process (Performance's static
+		// is_frontend cache), so it depends on test order: read both.
+		$stack = $widget->get_stack( false );
+
+		return (array) ( $stack['controls'] ?? array() ) + (array) ( $stack['style_controls'] ?? array() );
 	}
 
 	public function test_vehicle_card_registers_without_incorrect_usage(): void

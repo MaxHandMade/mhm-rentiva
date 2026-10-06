@@ -34,6 +34,13 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.5.0 (2026-10-06): migrate_elementor_style_ids_450() queues
+	 * ElementorStyleIdMigration: the search widget's typography and the booking
+	 * form's shadow move from their language-derived ids to fixed ones, and
+	 * Elementor's page CSS is rebuilt. Own done flag (same reason as 4.4.0). It
+	 * only marks the work pending: this migrator runs on plugins_loaded, before
+	 * Elementor builds its managers on init, so admin_init does the work.
+	 *
 	 * 4.4.1 (2026-09-28): migrate_contact_attachments_441() moves contact-form
 	 * attachments from the public uploads folder into the private store
 	 * (ContactAttachmentMigration). Own done flag, same reason as 4.4.0: the
@@ -59,7 +66,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.4.1';
+	private const CURRENT_VERSION = '4.5.0';
 
 	/**
 	 * Whether migrate_contact_status_440() has already run once.
@@ -477,6 +484,7 @@ final class DatabaseMigrator {
 			self::migrate_vehicle_lifecycle_status();
 			self::migrate_contact_status_440();
 			self::migrate_contact_attachments_441();
+			self::migrate_elementor_style_ids_450();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -1358,6 +1366,17 @@ final class DatabaseMigrator {
 	private static function migrate_contact_attachments_441(): void
 	{
 		\MHMRentiva\Admin\ContactMessages\ContactAttachmentMigration::run();
+	}
+
+	/**
+	 * 4.5.0: Elementor style ids. Only queues the work (Elementor is not up yet on
+	 * plugins_loaded); ElementorStyleIdMigration::maybe_run_pending() finishes it on
+	 * admin_init with a bounded number of attempts, and clears the page CSS even
+	 * when the data was migrated before.
+	 */
+	private static function migrate_elementor_style_ids_450(): void
+	{
+		ElementorStyleIdMigration::mark_pending();
 	}
 
 	/**

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Migration;
 
+use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
 use MHMRentiva\Admin\Core\Utilities\ElementorStyleIdMigration;
 use MHMRentiva\Admin\PostTypes\Logs\PostType as LogPostType;
+use MHMRentiva\Tests\Support\ForgetsMigrationLock;
 use WP_UnitTestCase;
 
 /**
@@ -17,6 +19,8 @@ use WP_UnitTestCase;
  */
 final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 {
+	use ForgetsMigrationLock;
+
 	private const META = '_elementor_data';
 
 	private int $element_seq = 0;
@@ -24,9 +28,16 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 	public function set_up(): void
 	{
 		parent::set_up();
+		self::forget_migration_lock();
 		foreach (array( ElementorStyleIdMigration::DONE_OPTION, ElementorStyleIdMigration::PENDING_OPTION, ElementorStyleIdMigration::ATTEMPTS_OPTION ) as $option) {
 			delete_option($option);
 		}
+	}
+
+	public function tear_down(): void
+	{
+		parent::tear_down();
+		self::forget_migration_lock();
 	}
 
 	// ---------------------------------------------------------------- fixtures
@@ -520,5 +531,64 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 		delete_option(ElementorStyleIdMigration::DONE_OPTION);
 		$this->assertTrue(ElementorStyleIdMigration::run());
 		$this->assertSame(0, $writes());
+	}
+
+	// ------------------------------------------------- DatabaseMigrator 4.5.0
+
+	/**
+	 * The step's admin_init callback, as Plugin.php registers it.
+	 *
+	 * A bare do_action( 'admin_init' ) outside wp-admin trips unrelated core
+	 * callbacks (wp_add_privacy_policy_content's is_admin() notice), so the test
+	 * proves the registration and then runs exactly that callback.
+	 */
+	private function fire_admin_init_step(): void
+	{
+		$callback = array( ElementorStyleIdMigration::class, 'maybe_run_pending' );
+		$this->assertSame(20, has_action('admin_init', $callback), 'maybe_run_pending is not hooked to admin_init at 20');
+		$this->assertSame(10, has_action('admin_init', array( DatabaseMigrator::class, 'run_migrations_from_hook' )));
+		ElementorStyleIdMigration::maybe_run_pending();
+	}
+
+	public function test_migrator_marks_the_step_pending_on_upgrade(): void
+	{
+		$w  = $this->search(array( 'genel-stil_typography_font_family' => 'Lora' ));
+		$id = $this->page(array( $w ));
+		update_option('mhmrentiva_db_version', '4.4.1');
+
+		DatabaseMigrator::run_migrations();
+
+		$this->assertSame('4.5.0', get_option('mhmrentiva_db_version'));
+		$this->assertSame('1', get_option(ElementorStyleIdMigration::PENDING_OPTION));
+		// Elementor's managers do not exist yet on plugins_loaded: the step only queues.
+		$this->assertSame(array( 'genel-stil_typography_font_family' => 'Lora' ), $this->settings($id, $w['id']));
+	}
+
+	public function test_admin_init_completes_the_pending_migration(): void
+	{
+		$w  = $this->search(array( 'genel-stil_typography_font_family' => 'Lora' ));
+		$id = $this->page(array( $w ));
+		update_option('mhmrentiva_db_version', '4.4.1');
+		DatabaseMigrator::run_migrations();
+
+		$this->fire_admin_init_step();
+
+		$this->assertSame(array( 'general-style_typography_font_family' => 'Lora' ), $this->settings($id, $w['id']));
+		$this->assertSame('1', get_option(ElementorStyleIdMigration::DONE_OPTION));
+		$this->assertFalse(get_option(ElementorStyleIdMigration::PENDING_OPTION));
+	}
+
+	public function test_cache_is_cleared_even_when_done(): void
+	{
+		update_option(ElementorStyleIdMigration::DONE_OPTION, '1');
+		$page = $this->page(array( $this->search(array()) ));
+		update_post_meta($page, '_elementor_css', array( 'status' => 'file', 'time' => time() ));
+		update_option('mhmrentiva_db_version', '4.4.1');
+
+		DatabaseMigrator::run_migrations();
+		$this->fire_admin_init_step();
+
+		$this->assertSame('', get_post_meta($page, '_elementor_css', true));
+		$this->assertFalse(get_option(ElementorStyleIdMigration::PENDING_OPTION));
 	}
 }

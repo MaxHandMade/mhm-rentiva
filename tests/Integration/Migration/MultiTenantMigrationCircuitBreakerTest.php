@@ -61,7 +61,7 @@ final class MultiTenantMigrationCircuitBreakerTest extends \WP_UnitTestCase {
 		$blocked = get_option( 'mhmrentiva_multi_tenant_migration_blocked', array() );
 		$this->assertSame( 3, $calls );
 		$this->assertIsArray( $blocked );
-		$this->assertSame( '4.4.1', $blocked['version'] ?? '' );
+		$this->assertSame( '4.5.0', $blocked['version'] ?? '' );
 		$this->assertGreaterThan( time(), $blocked['retry_after'] ?? 0 );
 
 		$this->assertFalse(
