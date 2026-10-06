@@ -39,6 +39,20 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 		$this->assertStringContainsString('100', $cell);
 	}
 
+	/**
+	 * Codex P2 (PR #90): the card-side price helper turns a missing/zero price
+	 * into a hard-coded 1000, while the booking calculator reads the raw meta.
+	 * The summary must not quote a price the calculation will not use.
+	 */
+	public function test_vehicle_without_a_price_keeps_the_dash(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		update_post_meta($vehicle, '_mhmrentiva_price_per_day', '0');
+		$html = do_shortcode('[rentiva_booking_form vehicle_id="' . $vehicle . '"]');
+
+		$this->assertSame('-', $this->daily_price_cell($html));
+	}
+
 	public function test_without_a_vehicle_the_daily_price_stays_a_dash(): void
 	{
 		$html = do_shortcode('[rentiva_booking_form]');

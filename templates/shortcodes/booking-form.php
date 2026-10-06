@@ -357,8 +357,15 @@ $unique_id = uniqid('rv_booking_');
 							<?php
 							// The vehicle is already chosen, so its daily price is known before any
 							// date is: lead the summary with it (Broadsheet artboard). The script
-							// rewrites this cell once a price is calculated.
-							$initial_daily = (string) ( $selected_vehicle['price']['formatted'] ?? '' );
+							// rewrites this cell once a price is calculated. Read the same raw meta
+							// the booking calculation reads -- the card's price helper turns a
+							// missing price into a placeholder 1000 the calculation never uses.
+							$initial_daily_amount = ! empty($selected_vehicle['id'])
+								? (float) get_post_meta( (int) $selected_vehicle['id'], '_mhmrentiva_price_per_day', true)
+								: 0.0;
+							$initial_daily        = $initial_daily_amount > 0
+								? \MHMRentiva\Admin\Core\CurrencyHelper::format_price($initial_daily_amount, 0)
+								: '';
 							?>
 							<span class="rv-price-value rv-daily-price" id="rv-daily-price-<?php echo esc_attr($unique_id); ?>"><?php echo esc_html('' !== $initial_daily ? $initial_daily : '-'); ?></span>
 						</div>
