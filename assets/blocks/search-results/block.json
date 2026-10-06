@@ -125,10 +125,6 @@
             "type": "boolean",
             "default": true
         },
-        "resultsPerPage": {
-            "type": "string",
-            "default": "12"
-        },
         "defaultSort": {
             "type": "string",
             "default": "price_asc",

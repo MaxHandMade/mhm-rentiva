@@ -139,10 +139,6 @@
             "type": "string",
             "default": "1"
         },
-        "category": {
-            "type": "string",
-            "default": ""
-        },
         "featured": {
             "type": "boolean",
             "default": false
@@ -166,10 +162,6 @@
         "customCssClass": {
             "type": "string",
             "default": ""
-        },
-        "show_booking_button": {
-            "type": "boolean",
-            "default": true
         }
     },
     "editorStyle": [

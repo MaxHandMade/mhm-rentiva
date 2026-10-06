@@ -118,18 +118,6 @@
             "type": "boolean",
             "default": true
         },
-        "show_month_nav": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_today_btn": {
-            "type": "boolean",
-            "default": true
-        },
-        "height": {
-            "type": "string",
-            "default": "auto"
-        },
         "className": {
             "type": "string",
             "default": ""

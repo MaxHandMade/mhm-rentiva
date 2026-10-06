@@ -106,10 +106,6 @@
             "type": "boolean",
             "default": false
         },
-        "status": {
-            "type": "string",
-            "default": "all"
-        },
         "className": {
             "type": "string",
             "default": ""

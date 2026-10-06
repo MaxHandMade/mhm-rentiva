@@ -118,10 +118,6 @@
             "type": "boolean",
             "default": true
         },
-        "show_share_btns": {
-            "type": "boolean",
-            "default": true
-        },
         "className": {
             "type": "string",
             "default": ""

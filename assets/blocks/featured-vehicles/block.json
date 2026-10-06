@@ -126,10 +126,6 @@
             "type": "string",
             "default": ""
         },
-        "category": {
-            "type": "string",
-            "default": ""
-        },
         "autoplay": {
             "type": "boolean",
             "default": true
@@ -137,10 +133,6 @@
         "interval": {
             "type": "string",
             "default": "5000"
-        },
-        "showBookingButton": {
-            "type": "boolean",
-            "default": true
         },
         "maxFeatures": {
             "type": "string",
