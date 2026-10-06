@@ -605,6 +605,23 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 		$this->assertSame('', get_post_meta($page, '_elementor_css', true), 'stale CSS built mid-run survived');
 	}
 
+	public function test_run_invalidates_the_css_of_each_page_it_rewrites(): void
+	{
+		// Without relying on the global flush: with Elementor's e_optimized_css_files
+		// experiment a second clear_cache() in one request is a no-op, so CSS built from
+		// not-yet-migrated data mid-run could otherwise survive.
+		$migrated  = $this->page(array( $this->search(array( 'genel-stil_typography_font_family' => 'Lora' )) ));
+		$untouched = $this->page(array( $this->search(array( 'general-style_typography_font_family' => 'Inter' )) ));
+		foreach (array( $migrated, $untouched ) as $id) {
+			update_post_meta($id, '_elementor_css', array( 'status' => 'file', 'time' => time() ));
+		}
+
+		$this->assertTrue(ElementorStyleIdMigration::run());
+
+		$this->assertSame('', get_post_meta($migrated, '_elementor_css', true), 'the rewritten page kept CSS built from its old data');
+		$this->assertNotSame('', get_post_meta($untouched, '_elementor_css', true), 'a page that needed no rewrite lost its CSS');
+	}
+
 	public function test_a_failing_cache_flush_is_contained_and_counted(): void
 	{
 		$this->page(array( $this->search(array( 'genel-stil_typography_font_family' => 'Lora' )) ));

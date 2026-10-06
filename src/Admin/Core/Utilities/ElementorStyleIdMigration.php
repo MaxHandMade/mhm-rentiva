@@ -303,7 +303,17 @@ final class ElementorStyleIdMigration {
 			return false;
 		}
 
-		return get_metadata('post', $post_id, self::META, true) === $json;
+		if (get_metadata('post', $post_id, self::META, true) !== $json) {
+			return false;
+		}
+		// This row's page CSS may have been built from the old data while the run was
+		// going. The global flush after the run does not always reach it: with
+		// Elementor's e_optimized_css_files experiment a second clear_cache() in the
+		// same request is a no-op. Dropping the row's own CSS meta makes Elementor
+		// rebuild it on the next view.
+		delete_metadata('post', $post_id, '_elementor_css');
+
+		return true;
 	}
 
 	/**
