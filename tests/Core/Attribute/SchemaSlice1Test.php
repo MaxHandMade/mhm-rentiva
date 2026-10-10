@@ -49,10 +49,15 @@ final class SchemaSlice1Test extends WP_UnitTestCase
 		$this->assertSame('featured', $mapped['orderby']);
 	}
 
-	public function test_my_bookings_orderby_id_survives_map(): void
+	/**
+	 * Slice 3A Task 7a removed my-bookings `orderby` (every option collapsed to
+	 * date); the slice 1 per-tag 'id' value went with it. A saved value is dropped.
+	 */
+	public function test_my_bookings_orderby_is_removed(): void
 	{
+		$this->assertArrayNotHasKey('orderby', AllowlistRegistry::get_schema('rentiva_my_bookings'));
 		$mapped = CanonicalAttributeMapper::map('rentiva_my_bookings', array( 'orderby' => 'id' ));
-		$this->assertSame('id', $mapped['orderby']);
+		$this->assertArrayNotHasKey('orderby', $mapped);
 	}
 
 	public function test_shared_orderby_values_unchanged(): void

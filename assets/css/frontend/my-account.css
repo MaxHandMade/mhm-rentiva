@@ -439,6 +439,15 @@
 	font-family: system-ui;
 }
 
+/* The bookings pager's buttons carry their own arrows (← Previous, Next →). */
+.mhm-rentiva-account-page .rv-bookings-page .mhm-pagination .btn-secondary::after {
+	content: none;
+}
+
+.mhm-rentiva-account-page .rv-bookings-page .mhm-pagination > span:not(.btn) {
+	white-space: nowrap;
+}
+
 .mhm-account-content .rv-vehicles-grid-container {
 	padding: 0;
 }

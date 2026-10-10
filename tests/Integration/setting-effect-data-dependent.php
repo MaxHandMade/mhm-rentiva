@@ -26,6 +26,10 @@ return array(
 	// rentiva_my_bookings.
 	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'hide_nav', 'fixture' => 'without_woocommerce', 'reason' => 'AccountRenderer::get_navigation() returns [] whenever WooCommerce is active' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'hide_nav', 'fixture' => 'without_woocommerce', 'reason' => 'AccountRenderer::get_navigation() returns [] whenever WooCommerce is active' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_image', 'fixture' => 'without_woocommerce', 'reason' => 'the Img column renders only on a page that is not integrated (bookings.php), and get_navigation() returns [] whenever WooCommerce is active; added by Task 7a (table: extend ! $is_integrated with show_image)' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_image', 'fixture' => 'without_woocommerce', 'reason' => 'the Img column renders only on a page that is not integrated (bookings.php), and get_navigation() returns [] whenever WooCommerce is active; added by Task 7a (table: extend ! $is_integrated with show_image)' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_pagination', 'fixture' => 'one_booking_per_page', 'reason' => 'the pager renders only when there is more than one page; added by Task 7a' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_pagination', 'fixture' => 'one_booking_per_page', 'reason' => 'the pager renders only when there is more than one page; added by Task 7a' ),
 
 	// rentiva_my_favorites.
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'order', 'fixture' => 'favorites_sorted_by_title', 'reason' => 'order applies only when orderby is not \'date\' (MyFavorites.php:80), the widget default; table status \'now live\' (block path)' ),

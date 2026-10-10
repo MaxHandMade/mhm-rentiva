@@ -28,8 +28,11 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * showWeekNumbers toggles removed, "Show Booking Links" repointed to
 	 * showBookingButton; booking-form: show_date_picker, show_insurance,
 	 * defaultPayment, minDays and maxDays controls removed).
+	 * Slice 3A Task 7a: 167 (my-bookings: sortBy select and the showCancelButton,
+	 * showModifyButton, showDetailsLink toggles removed; "Limit Results"
+	 * repointed from limitResults to limit, same count).
 	 */
-	private const LITE_LITERAL_KEYS = 171;
+	private const LITE_LITERAL_KEYS = 167;
 
 	private static function blocks_dir(): string
 	{

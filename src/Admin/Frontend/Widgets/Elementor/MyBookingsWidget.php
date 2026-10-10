@@ -75,18 +75,8 @@ class MyBookingsWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'orderby',
-			array(
-				'label'   => __( 'Order By', 'mhm-rentiva' ),
-				'type'    => Controls_Manager::SELECT,
-				'default' => 'date',
-				'options' => array(
-					'date' => __( 'Date', 'mhm-rentiva' ),
-					'id'   => __( 'ID', 'mhm-rentiva' ),
-				),
-			)
-		);
+		// Spec 3A Task 7a: the "Order By" control is gone; the list is ordered by
+		// date only (its 'id' option fell back to date in WP_Query).
 
 		$this->add_control(
 			'order',
@@ -115,10 +105,8 @@ class MyBookingsWidget extends ElementorWidgetBase {
 			$atts['limit'] = (string) max( 1, (int) $settings['limit'] );
 		}
 
-		foreach ( array( 'status', 'orderby' ) as $key ) {
-			if ( array_key_exists( $key, $settings ) ) {
-				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
-			}
+		if ( array_key_exists( 'status', $settings ) ) {
+			$atts['status'] = sanitize_text_field( (string) $settings['status'] );
 		}
 
 		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.

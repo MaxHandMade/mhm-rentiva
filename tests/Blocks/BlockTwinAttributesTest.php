@@ -35,8 +35,10 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	 * integratePricing) and six from booking-form (show_insurance,
 	 * show_payment_options, show_date_picker, minDays, maxDays, defaultPayment).
 	 * Ruling T6-1: 230, availability-calendar showDiscounts.
+	 * Slice 3A Task 7a: 225, five removed from my-bookings (showCancelButton,
+	 * showModifyButton, showDetailsLink, sortBy, limitResults).
 	 */
-	private const LITE_ATTRIBUTE_COUNT = 230;
+	private const LITE_ATTRIBUTE_COUNT = 225;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(
@@ -58,8 +60,8 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 		array( 'featured-vehicles', 'showBookButton' ),
 		array( 'my-bookings', 'showVehicleImage' ),
 		array( 'my-bookings', 'showStatus' ),
-		array( 'my-bookings', 'showCancelButton' ),
-		array( 'my-bookings', 'showModifyButton' ),
+		// Slice 3A Task 7a: showCancelButton and showModifyButton removed (no such
+		// feature on the list).
 		array( 'my-bookings', 'filterStatus' ),
 		array( 'my-favorites', 'showBookButton' ),
 		array( 'payment-history', 'filterStatus' ),
@@ -103,7 +105,8 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 			}
 		}
 		// 21: vehicle-details showShareButtons was removed (slice 3A Task 4, no share feature).
-		$this->assertSame(21, $probed);
+		// 19: my-bookings showCancelButton and showModifyButton rows removed (slice 3A Task 7a).
+		$this->assertSame(19, $probed);
 	}
 
 	/**

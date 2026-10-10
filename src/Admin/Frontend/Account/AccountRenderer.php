@@ -169,22 +169,88 @@ final class AccountRenderer {
 	{
 		$user = wp_get_current_user();
 
+		// Spec 3A Task 7a: the list is ordered by date only (the removed `orderby`
+		// collapsed to it for every option); Sort Order stays live.
 		$args = array(
 			'limit'   => (int) ( $atts['limit'] ?? 10 ),
 			'status'  => self::sanitize_text_field_safe($atts['status'] ?? ''),
-			'orderby' => self::sanitize_text_field_safe($atts['orderby'] ?? 'date'),
+			'orderby' => 'date',
 			'order'   => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
 		);
 
-		$bookings = self::get_user_bookings($user->ID, $args);
+		// Pagination (show_pagination, on unless turned off): the page comes from
+		// the public query var; a page past the end shows the last one. Off is
+		// today's list -- the first `limit` bookings, the page var ignored.
+		$paginate    = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
+		$page        = $paginate ? self::current_page() : 1;
+		$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
+		$total_pages = $paginate ? max(1, (int) $query->max_num_pages) : 1;
+
+		if ($paginate && $page > 1 && array() === $query->posts) {
+			// WP_Query leaves found_posts at 0 for an empty page; count on page 1.
+			$total_pages = max(1, (int) self::query_user_bookings($user->ID, $args + array( 'page' => 1 ))->max_num_pages);
+			$page        = $total_pages;
+			$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
+		}
 
 		$data = array(
-			'user'       => $user,
-			'bookings'   => $bookings,
-			'navigation' => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'user'               => $user,
+			'bookings'           => $query->posts,
+			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'atts'               => $atts,
+			// Column toggles: missing means on, the columns were unconditional.
+			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
+			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
+			'show_status'        => self::flag_is_on($atts['show_status_toggle'] ?? '1'),
+			'show_price'         => self::flag_is_on($atts['show_price'] ?? '1'),
+			'show_pagination'    => $paginate,
+			'current_page'       => $page,
+			'total_pages'        => $total_pages,
 		);
 
 		return array( 'data' => $data );
+	}
+
+	/**
+	 * The account list page asked for: the public query var `mhmrentiva_page`
+	 * (AccountController::PUBLIC_QUERY_VARS). Anything but a positive whole
+	 * number -- zero, negative, letters, an array -- is page 1.
+	 */
+	public static function current_page(): int
+	{
+		$raw = get_query_var('mhmrentiva_page', '');
+		if (is_int($raw)) {
+			$raw = (string) $raw;
+		}
+		if (! is_string($raw) || '' === $raw || ! ctype_digit($raw)) {
+			return 1;
+		}
+
+		return max(1, absint($raw));
+	}
+
+	/**
+	 * URL of account list page $page: the current URL with `mhmrentiva_page`
+	 * set, so the list's filter vars (mhmrentiva_status_filter,
+	 * mhmrentiva_search_booking, ...) stay. Page 1 drops the var.
+	 */
+	public static function page_url(int $page): string
+	{
+		if ($page <= 1) {
+			return remove_query_arg('mhmrentiva_page');
+		}
+
+		return add_query_arg('mhmrentiva_page', $page);
+	}
+
+	/**
+	 * A visibility flag: on unless explicitly off (CAM sends '0' for off).
+	 *
+	 * @param mixed $value Attribute value.
+	 */
+	private static function flag_is_on($value): bool
+	{
+		return ! in_array($value, array( '0', 0, false, 'false', 'no' ), true);
 	}
 
 	/**
@@ -516,13 +582,21 @@ final class AccountRenderer {
 	 */
 	private static function get_user_bookings(int $user_id, array $args = array()): array
 	{
-		global $wpdb;
+		return self::query_user_bookings($user_id, $args)->posts;
+	}
 
+	/**
+	 * The query behind get_user_bookings(), for callers that page through it
+	 * (`page`, 1-based; max_num_pages on the result).
+	 */
+	private static function query_user_bookings(int $user_id, array $args = array()): \WP_Query
+	{
 		$defaults = array(
 			'limit'   => 10,
 			'status'  => '',
 			'orderby' => 'date',
 			'order'   => 'DESC',
+			'page'    => 1,
 		);
 
 		$args = wp_parse_args($args, $defaults);
@@ -552,11 +626,10 @@ final class AccountRenderer {
 			'orderby'        => self::sanitize_text_field_safe($args['orderby']),
 			'order'          => self::sanitize_text_field_safe($args['order']),
 			'meta_query'     => $meta_query,
+			'paged'          => max(1, (int) $args['page']),
 		);
 
-		$query = new \WP_Query($query_args);
-
-		return $query->posts;
+		return new \WP_Query($query_args);
 	}
 
 	/**

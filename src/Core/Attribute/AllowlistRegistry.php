@@ -290,11 +290,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showDownloadPDF' ],
         ],
-        'show_cancel_btn'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showCancelButton', 'showCancelBtn' ],
-        ],
         'show_booking_id_field'    => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -349,11 +344,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showStatus' ],
-        ],
-        'show_modify_btn'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showModifyButton', 'showModifyBtn' ],
         ],
         'show_added_date'          => [
             'type'    => 'bool',
@@ -469,11 +459,6 @@ final class AllowlistRegistry {
             'type'    => 'string',
             'group'   => 'workflow',
             'aliases' => [ 'successMessage' ],
-        ],
-        'show_details_link'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showDetailsLink' ],
         ],
         'show_star_rating'         => [
             'type'    => 'bool',
@@ -1264,15 +1249,10 @@ final class AllowlistRegistry {
             'show_booking_dates',
             'show_price',
             'show_status_toggle',
-            'show_cancel_btn',
-            'show_modify_btn',
-            'show_details_link',
             'status',
-            'limit_results',
             'show_pagination',
-            'orderby' => [
-                'values' => [ 'price', 'popularity', 'newest', 'capacity', 'title', 'date', 'modified', 'rand', 'post__in', 'rating', 'rating_average', 'rating_count', 'confidence', 'id' ],
-            ],
+            // orderby, limit_results, show_cancel_btn, show_modify_btn and
+            // show_details_link were removed (spec 3A Task 7a).
             'order',
             'hide_nav',
         ],

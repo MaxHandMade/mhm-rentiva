@@ -52,10 +52,15 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * hide_nav: AccountRenderer::get_navigation() returns [] whenever WooCommerce is
 	 * loaded, so these rows can not render an effect here; HideNavHasEffectTest
 	 * proves it link by link. Pinned by equality (SettingHasEffectGate).
+	 * my-bookings show_image (Task 7a): the Img column needs the same non-integrated
+	 * page; MyBookingsSettingsTest::test_columns_follow_flags proves it on the
+	 * template with that navigation, and that each surface hands the flag over.
 	 */
 	public const UNAVAILABLE_UNDER_WOOCOMMERCE = array(
 		'block|rentiva_my_bookings|hide_nav',
 		'elementor|rentiva_my_bookings|hide_nav',
+		'block|rentiva_my_bookings|show_image',
+		'elementor|rentiva_my_bookings|show_image',
 		'block|rentiva_payment_history|hide_nav',
 		'elementor|rentiva_payment_history|hide_nav',
 	);
@@ -102,12 +107,16 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * show_insurance, show_date_picker parity controls).
 	 * Ruling T6-1: block -1 / Elementor -1 more (calendar showDiscounts and its
 	 * parity control; no discount data source).
+	 * Task 7a (my bookings): block -5 (showCancelButton, showModifyButton,
+	 * showDetailsLink, sortBy, limitResults -- its "Limit Results" control now
+	 * writes limit) and Elementor -5 (own orderby select; show_cancel_btn,
+	 * show_modify_btn, show_details_link and limit_results parity controls).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 229,
-			'elementor' => 255,
+			'block'     => 224,
+			'elementor' => 250,
 		);
 	}
 

@@ -569,6 +569,12 @@ final class ShortcodeFixtures
 				}
 				return $row;
 
+			case 'one_booking_per_page':
+				// The account bookings pager renders only when there is more than one
+				// page; the base fixture has three bookings (spec 3A Task 7a).
+				$row['atts']['limit'] = '1';
+				return $row;
+
 			case 'one_result_per_page':
 				// Pagination renders only when there is more than one page.
 				$row['atts']['results_per_page'] = '1';

@@ -129,4 +129,15 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_booking_form', 'key' => 'show_insurance', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_booking_form', 'key' => 'show_payment_options', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_booking_form', 'key' => 'show_payment_options', 'decision' => 'REMOVE' ),
+	// rentiva_my_bookings (Task 7a). limit_results: its editor control now writes `limit` (rule 2).
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'orderby', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'orderby', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_cancel_btn', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_cancel_btn', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_details_link', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_details_link', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_modify_btn', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_modify_btn', 'decision' => 'REMOVE' ),
 );

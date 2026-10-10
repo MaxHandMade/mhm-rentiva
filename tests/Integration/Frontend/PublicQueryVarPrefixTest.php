@@ -186,13 +186,19 @@ class PublicQueryVarPrefixTest extends WP_UnitTestCase
     /**
      * Core's `page` must stay unregistered and unprefixed: it is core's own
      * public query var, and paginate_links() emits `?page=N` hrefs against it.
+     *
+     * `mhmrentiva_page` is not a prefixed copy of it: it is the account lists'
+     * own page number (spec 2026-10-10 slice 3A §2.5), registered beside the
+     * bookings filter vars, because redirect_canonical() moves core `paged` into
+     * the path on a WooCommerce endpoint (AccountPageVarTest). Core `page` keeps
+     * resolving with it registered.
      */
     public function test_core_page_var_is_neither_claimed_nor_prefixed(): void
     {
         $added = $this->query_vars_added_by_this_plugin();
 
         $this->assertNotContains('page', $added, 'The plugin must not re-register core\'s `page` var.');
-        $this->assertNotContains('mhmrentiva_page', $added, '`page` belongs to core and must not be prefixed.');
+        $this->assertContains('mhmrentiva_page', $added, 'The account lists\' page var (slice 3A §2.5).');
 
         $this->go_to('/?page=2');
         $this->assertSame(2, (int) get_query_var('page'), 'Core pagination must keep resolving.');

@@ -13,28 +13,6 @@
 declare(strict_types=1);
 
 return array(
-	// rentiva_my_bookings.
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'orderby', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'orderby', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_booking_dates', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_booking_dates', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_cancel_btn', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_cancel_btn', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_details_link', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_details_link', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_image', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_image', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_modify_btn', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_modify_btn', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_pagination', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_pagination', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_price', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_price', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_status_toggle', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_status_toggle', 'decision' => 'APPLY' ),
-
 	// rentiva_my_favorites.
 	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'layout', 'decision' => 'APPLY' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'layout', 'decision' => 'APPLY' ),

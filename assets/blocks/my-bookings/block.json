@@ -58,18 +58,6 @@
             "type": "boolean",
             "default": true
         },
-        "showCancelButton": {
-            "type": "boolean",
-            "default": true
-        },
-        "showModifyButton": {
-            "type": "boolean",
-            "default": true
-        },
-        "showDetailsLink": {
-            "type": "boolean",
-            "default": true
-        },
         "filterStatus": {
             "type": "string",
             "default": "all",
@@ -82,15 +70,6 @@
                 "cancelled"
             ]
         },
-        "sortBy": {
-            "type": "string",
-            "default": "date",
-            "enum": [
-                "date",
-                "status",
-                "price"
-            ]
-        },
         "sortOrder": {
             "type": "string",
             "default": "desc",
@@ -98,10 +77,6 @@
                 "asc",
                 "desc"
             ]
-        },
-        "limitResults": {
-            "type": "string",
-            "default": "10"
         },
         "showPagination": {
             "type": "boolean",

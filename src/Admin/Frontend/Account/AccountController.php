@@ -84,11 +84,20 @@ final class AccountController {
 	 * rather than a static front page. Inner pages -- including every URL these
 	 * two params actually appear on -- resolve unchanged.
 	 *
+	 * `mhmrentiva_page` is the account lists' page number (spec 2026-10-10 slice
+	 * 3A §2.5; read by AccountRenderer::current_page()). Core `paged` can not do
+	 * it: on a WooCommerce account endpoint redirect_canonical() rewrites
+	 * `?paged=2` to `/page/2/`, which the endpoint rule then takes as the
+	 * endpoint's value, so every "Next" landed on page 1. redirect_canonical()
+	 * leaves plugin vars alone. Pager links always point at the list's own page,
+	 * never the site root, so the side effect above does not reach them.
+	 *
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
 		'mhmrentiva_status_filter',
 		'mhmrentiva_search_booking',
+		'mhmrentiva_page',
 	);
 
 	/**
