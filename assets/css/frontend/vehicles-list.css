@@ -112,6 +112,56 @@
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+/*
+ * In two or more columns a list card is too narrow for its row layout (220px
+ * image beside the content, price and button on one line): the button was
+ * clipped at the card edge. It stacks like the mobile list card instead, and the
+ * price / button row may wrap. The !important flags match vehicle-card.css.
+ */
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list {
+	flex-direction: column !important;
+	min-height: auto;
+}
+
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-image,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list .mhm-card-image,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-card-image {
+	width: 100% !important;
+	min-width: 100%;
+	max-width: 100%;
+	flex: 0 0 auto;
+	aspect-ratio: 16 / 9;
+	border-radius: var(--mhm-card-radius) var(--mhm-card-radius) 0 0;
+}
+
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-image img,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list .mhm-card-image img,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-card-image img {
+	min-height: unset;
+}
+
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-content,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list .mhm-card-content,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-card-content {
+	max-width: 100%;
+	padding: 1rem;
+}
+
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-footer,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list .mhm-card-footer,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-card-footer {
+	flex-wrap: wrap;
+}
+
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-btn-booking,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list .mhm-btn-booking,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-btn-booking {
+	min-width: 0;
+	max-width: 100%;
+}
+
 @media (max-width: 1024px) {
 
 	.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3,
