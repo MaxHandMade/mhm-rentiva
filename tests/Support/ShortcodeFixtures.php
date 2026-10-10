@@ -11,6 +11,9 @@ use MHMRentiva\Admin\Services\FavoritesService;
  */
 final class ShortcodeFixtures
 {
+	/** Sequence for vehicle() titles. */
+	private static int $vehicle_seq = 0;
+
 	/**
 	 * A published vehicle the comparison shortcode counts as comparable:
 	 * VehicleComparison::get_vehicle_data() skips anything that is not a
@@ -22,7 +25,9 @@ final class ShortcodeFixtures
 			array(
 				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
-				'post_title'  => 'Fixture Vehicle ' . wp_generate_password(4, false),
+				// A counter, not a random suffix: titles sort, and a list sorted by title
+				// must pick the same vehicle on every run.
+				'post_title'  => sprintf('Fixture Vehicle %03d', ++self::$vehicle_seq),
 			)
 		);
 
@@ -598,11 +603,18 @@ final class ShortcodeFixtures
 			case 'card_without_vehicle':
 				// The vehicle card widget maps its chosen vehicle to `ids` with limit 1
 				// (VehicleCardWidget::prepare_shortcode_attributes()), so the list's
-				// filters and sort pick the card's vehicle only when none is chosen. The
-				// newest catalog vehicle (Alpha: 4.5 from 12 reviews) passes 2/4 and
-				// 2/4 alike; 5 and 20 hand the card to Charlie.
+				// filters and sort pick the card's vehicle only when none is chosen.
+				// The card shows the first vehicle by the list's sort (orderby title,
+				// vehicles-list/block.json). Every other fixture vehicle of the process
+				// would compete for that first place, so the candidates are pinned to
+				// the catalog (`ids`) and the sort to title: Alpha (4.5 from 12 reviews)
+				// comes first, Bravo (2 from 3) second, Charlie (5 from 30) last. A
+				// minimum of 1 keeps Alpha, 5 (rating) or 20 (reviews) leaves Charlie;
+				// asc / desc puts Alpha / Charlie first.
 				unset($row['atts']['vehicle_id']);
-				$row['pairs'] = array(
+				$row['atts']['ids']     = implode(',', $catalog);
+				$row['atts']['orderby'] = 'title';
+				$row['pairs']           = array(
 					'min_rating'  => array( '1', '5' ),
 					'min_reviews' => array( '1', '20' ),
 				);
