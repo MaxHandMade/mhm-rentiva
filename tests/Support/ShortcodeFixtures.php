@@ -434,11 +434,13 @@ final class ShortcodeFixtures
 				break;
 
 			case 'rentiva_testimonials':
-				// Three rated reviews (5, 4, 2) on three vehicles of their own, a day
+				// Three rated reviews (4, 5, 2) on three vehicles of their own, a day
 				// apart: a review recalculates its vehicle's rating, and the catalog's
 				// ratings must stay as the rating filters of the lists expect them.
+				// Newest is not highest, so the rating sort differs from the date
+				// sort (Task 8).
 				$reviewed = array();
-				foreach (array( 5, 4, 2 ) as $i => $rating) {
+				foreach (array( 4, 5, 2 ) as $i => $rating) {
 					$reviewed[] = self::vehicle();
 					$comment    = (int) wp_insert_comment(
 						array(

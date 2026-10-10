@@ -117,12 +117,18 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * showAddedDate, showBadges) and Elementor -6 (parity show_invoice_download,
 	 * show_transaction_id, limit_results, show_badges; own show_remove_button and
 	 * show_added_date).
+	 * Task 8 (testimonials, vehicle rating form): block -15 (testimonials autoplay,
+	 * category, limitItems, showAuthorName, showVehicleName -- the four twins'
+	 * controls now write autoRotate, limit, showCustomer and showVehicle; rating
+	 * form showStarRating, showTextReview, showCategoryRatings, showPhotoUpload,
+	 * showVehiclePreview, showRecommendToggle, requireLogin, requireBooking,
+	 * maxPhotos, minReviewLength) and Elementor -15 (their fifteen parity controls).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 218,
-			'elementor' => 244,
+			'block'     => 203,
+			'elementor' => 229,
 		);
 	}
 

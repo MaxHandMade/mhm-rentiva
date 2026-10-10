@@ -19,16 +19,16 @@
             var layout = attributes.layout;
             var showDate = attributes.showDate;
             var showAuthorAvatar = attributes.showAuthorAvatar;
-            var showAuthorName = attributes.showAuthorName;
+            var showCustomer = attributes.showCustomer;
             var showRating = attributes.showRating;
-            var showVehicleName = attributes.showVehicleName;
+            var showVehicle = attributes.showVehicle;
             var showQuotes = attributes.showQuotes;
             var filterRating = attributes.filterRating;
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
-            var limitItems = attributes.limitItems;
+            var limit = attributes.limit;
             var columns = attributes.columns;
-            var autoplay = attributes.autoplay;
+            var autoRotate = attributes.autoRotate;
             var className = attributes.className;
 
             return el('div', blockProps,
@@ -76,9 +76,9 @@
                         }),
                         el(TextControl, {
                             label: __('Limit Items', 'mhm-rentiva'),
-                            value: limitItems,
+                            value: limit,
                             type: 'number',
-                            onChange: function (val) { setAttributes({ limitItems: val }); }
+                            onChange: function (val) { setAttributes({ limit: val }); }
                         })
                     ),
 
@@ -101,8 +101,8 @@
                         }),
                         (layout === 'carousel') && el(ToggleControl, {
                             label: __('Autoplay', 'mhm-rentiva'),
-                            checked: autoplay,
-                            onChange: function (val) { setAttributes({ autoplay: val }); }
+                            checked: autoRotate,
+                            onChange: function (val) { setAttributes({ autoRotate: val }); }
                         })
                     ),
 
@@ -120,8 +120,8 @@
                         }),
                         el(ToggleControl, {
                             label: __('Show Author Name', 'mhm-rentiva'),
-                            checked: showAuthorName,
-                            onChange: function (val) { setAttributes({ showAuthorName: val }); }
+                            checked: showCustomer,
+                            onChange: function (val) { setAttributes({ showCustomer: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Rating', 'mhm-rentiva'),
@@ -130,8 +130,8 @@
                         }),
                         el(ToggleControl, {
                             label: __('Show Vehicle Name', 'mhm-rentiva'),
-                            checked: showVehicleName,
-                            onChange: function (val) { setAttributes({ showVehicleName: val }); }
+                            checked: showVehicle,
+                            onChange: function (val) { setAttributes({ showVehicle: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Quotes', 'mhm-rentiva'),

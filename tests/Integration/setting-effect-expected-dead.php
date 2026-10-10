@@ -12,45 +12,4 @@
 
 declare(strict_types=1);
 
-return array(
-	// rentiva_testimonials.
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'autoplay', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'autoplay', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'category', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'category', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'limit_items', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'limit_items', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'orderby', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'orderby', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'show_author_avatar', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'show_author_avatar', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'show_author_name', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'show_author_name', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'show_quotes', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'show_quotes', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'show_vehicle_name', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'show_vehicle_name', 'decision' => 'REMOVE' ),
-
-	// rentiva_vehicle_rating_form.
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'max_photos', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'max_photos', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'min_review_length', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'min_review_length', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'require_booking', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'require_booking', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'require_login', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'require_login', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_category_ratings', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_category_ratings', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_photo_upload', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_photo_upload', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_recommend_toggle', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_recommend_toggle', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_star_rating', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_star_rating', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_text_review', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_text_review', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_vehicle_preview', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_vehicle_preview', 'decision' => 'REMOVE' ),
-
-);
+return array();

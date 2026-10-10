@@ -46,46 +46,6 @@
             "type": "string",
             "default": ""
         },
-        "showStarRating": {
-            "type": "boolean",
-            "default": true
-        },
-        "showTextReview": {
-            "type": "boolean",
-            "default": true
-        },
-        "showCategoryRatings": {
-            "type": "boolean",
-            "default": true
-        },
-        "showPhotoUpload": {
-            "type": "boolean",
-            "default": true
-        },
-        "showVehiclePreview": {
-            "type": "boolean",
-            "default": true
-        },
-        "showRecommendToggle": {
-            "type": "boolean",
-            "default": true
-        },
-        "requireLogin": {
-            "type": "boolean",
-            "default": true
-        },
-        "requireBooking": {
-            "type": "boolean",
-            "default": true
-        },
-        "maxPhotos": {
-            "type": "string",
-            "default": "3"
-        },
-        "minReviewLength": {
-            "type": "string",
-            "default": "50"
-        },
         "showRatingDisplay": {
             "type": "boolean",
             "default": true

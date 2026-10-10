@@ -76,19 +76,23 @@ final class Testimonials extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'         => apply_filters('mhmrentiva_testimonials_limit', '5'),
-			'rating'        => apply_filters('mhmrentiva_testimonials_rating', ''),
-			'vehicle_id'    => apply_filters('mhmrentiva_testimonials_vehicle_id', ''),
-			'orderby'       => apply_filters('mhmrentiva_testimonials_orderby', 'date'),
-			'order'         => apply_filters('mhmrentiva_testimonials_order', 'DESC'),
-			'show_rating'   => apply_filters('mhmrentiva_testimonials_show_rating', '1'),
-			'show_date'     => apply_filters('mhmrentiva_testimonials_show_date', '1'),
-			'show_vehicle'  => apply_filters('mhmrentiva_testimonials_show_vehicle', '1'),
-			'show_customer' => apply_filters('mhmrentiva_testimonials_show_customer', '1'),
-			'layout'        => apply_filters('mhmrentiva_testimonials_layout', 'grid'),
-			'columns'       => apply_filters('mhmrentiva_testimonials_columns', '3'),
-			'auto_rotate'   => apply_filters('mhmrentiva_testimonials_auto_rotate', '0'),
-			'class'         => apply_filters('mhmrentiva_testimonials_class', ''),
+			'limit'              => apply_filters('mhmrentiva_testimonials_limit', '5'),
+			'rating'             => apply_filters('mhmrentiva_testimonials_rating', ''),
+			'vehicle_id'         => apply_filters('mhmrentiva_testimonials_vehicle_id', ''),
+			'orderby'            => apply_filters('mhmrentiva_testimonials_orderby', 'date'),
+			'order'              => apply_filters('mhmrentiva_testimonials_order', 'DESC'),
+			'show_rating'        => apply_filters('mhmrentiva_testimonials_show_rating', '1'),
+			'show_date'          => apply_filters('mhmrentiva_testimonials_show_date', '1'),
+			'show_vehicle'       => apply_filters('mhmrentiva_testimonials_show_vehicle', '1'),
+			'show_customer'      => apply_filters('mhmrentiva_testimonials_show_customer', '1'),
+			'layout'             => apply_filters('mhmrentiva_testimonials_layout', 'grid'),
+			'columns'            => apply_filters('mhmrentiva_testimonials_columns', '3'),
+			'auto_rotate'        => apply_filters('mhmrentiva_testimonials_auto_rotate', '0'),
+			'class'              => apply_filters('mhmrentiva_testimonials_class', ''),
+			// The initial-letter avatar and the cards' quote icon (spec 3A Task 8);
+			// both rendered unconditionally before, so both default on.
+			'show_author_avatar' => '1',
+			'show_quotes'        => '1',
 		);
 	}
 
@@ -232,12 +236,12 @@ final class Testimonials extends AbstractShortcode {
 
 		// How many rows each source may return. Both sources are sorted newest
 		// first, so for a date ordering the newest $limit of each is guaranteed
-		// to contain the newest $limit of the merge. A random ordering needs a
-		// pool to draw from, and an unlimited `limit` still needs a ceiling --
-		// both use the same maximum the testimonials endpoint already enforces.
-		// A paged read has to fetch past its own start, or the slice below has
-		// nothing left to take.
-		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby )
+		// to contain the newest $limit of the merge. A random or a rating
+		// ordering needs a pool to draw from, and an unlimited `limit` still
+		// needs a ceiling -- all use the same maximum the testimonials endpoint
+		// already enforces. A paged read has to fetch past its own start, or
+		// the slice below has nothing left to take.
+		$fetch_limit = ( $limit > 0 && 'date' === $orderby )
 			? min( self::MAX_ROWS, $offset + $limit )
 			: self::MAX_ROWS;
 
@@ -249,6 +253,18 @@ final class Testimonials extends AbstractShortcode {
 
 		if ('rand' === $orderby) {
 			shuffle($testimonials);
+		} elseif ('rating' === $orderby) {
+			// Highest first for DESC, lowest first for ASC. A review without a
+			// rating (0) goes last in both orders; ties keep the newest first.
+			usort($testimonials, static function (array $a, array $b) use ($order): int {
+				$ra = (int) ( $a['rating'] ?? 0 );
+				$rb = (int) ( $b['rating'] ?? 0 );
+				if (( $ra > 0 ) !== ( $rb > 0 )) {
+					return $ra > 0 ? -1 : 1;
+				}
+				$cmp = 'ASC' === $order ? $ra <=> $rb : $rb <=> $ra;
+				return 0 !== $cmp ? $cmp : strcmp( (string) ( $b['date'] ?? '' ), (string) ( $a['date'] ?? '' ));
+			});
 		} else {
 			usort($testimonials, static function (array $a, array $b) use ($order): int {
 				$cmp = strcmp( (string) ( $a['date'] ?? '' ), (string) ( $b['date'] ?? '' ));
@@ -400,10 +416,14 @@ final class Testimonials extends AbstractShortcode {
 
 	/**
 	 * Sanitize orderby value for testimonial queries.
+	 *
+	 * The orders the list applies (the schema's values). Anything else --
+	 * including the Elementor control's old title/modified options, which never
+	 * sorted by anything but date -- is the date order.
 	 */
 	private static function sanitize_orderby(string $value): string
 	{
-		$allowed = array( 'date', 'title', 'rand', 'modified' );
+		$allowed = array( 'date', 'rating', 'rand' );
 		$value   = strtolower($value);
 		return in_array($value, $allowed, true) ? $value : 'date';
 	}

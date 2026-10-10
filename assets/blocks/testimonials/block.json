@@ -59,15 +59,7 @@
             "type": "boolean",
             "default": true
         },
-        "showAuthorName": {
-            "type": "boolean",
-            "default": true
-        },
         "showRating": {
-            "type": "boolean",
-            "default": true
-        },
-        "showVehicleName": {
             "type": "boolean",
             "default": true
         },
@@ -101,25 +93,13 @@
                 "desc"
             ]
         },
-        "limitItems": {
-            "type": "string",
-            "default": "5"
-        },
         "columns": {
             "type": "string",
             "default": "3"
         },
-        "autoplay": {
-            "type": "boolean",
-            "default": false
-        },
         "limit": {
             "type": "string",
             "default": "5"
-        },
-        "category": {
-            "type": "string",
-            "default": ""
         },
         "vehicleId": {
             "type": "string",

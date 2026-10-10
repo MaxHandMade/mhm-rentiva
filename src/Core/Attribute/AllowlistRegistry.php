@@ -385,51 +385,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showBreadcrumb' ],
         ],
-        'show_text_review'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTextReview' ],
-        ],
-        'show_category_ratings'    => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showCategoryRatings' ],
-        ],
-        'show_photo_upload'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPhotoUpload' ],
-        ],
-        'show_vehicle_preview'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showVehiclePreview' ],
-        ],
-        'show_recommend_toggle'    => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showRecommendToggle' ],
-        ],
-        'require_login'            => [
-            'type'    => 'bool',
-            'group'   => 'workflow',
-            'aliases' => [ 'requireLogin' ],
-        ],
-        'require_booking'          => [
-            'type'    => 'bool',
-            'group'   => 'workflow',
-            'aliases' => [ 'requireBooking' ],
-        ],
-        'max_photos'               => [
-            'type'    => 'int',
-            'group'   => 'feature',
-            'aliases' => [ 'maxPhotos' ],
-        ],
-        'min_review_length'        => [
-            'type'    => 'int',
-            'group'   => 'feature',
-            'aliases' => [ 'minReviewLength' ],
-        ],
         'similar_vehicles_limit'   => [
             'type'    => 'int',
             'group'   => 'feature',
@@ -439,11 +394,6 @@ final class AllowlistRegistry {
             'type'    => 'string',
             'group'   => 'workflow',
             'aliases' => [ 'successMessage' ],
-        ],
-        'show_star_rating'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showStarRating' ],
         ],
         'show_vehicle_details'     => [
             'type'    => 'bool',
@@ -469,16 +419,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showAuthorAvatar', 'showAvatar' ],
-        ],
-        'show_author_name'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showAuthorName' ],
-        ],
-        'show_vehicle_name'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showVehicleName' ],
         ],
         'show_quotes'              => [
             'type'    => 'bool',
@@ -1104,16 +1044,11 @@ final class AllowlistRegistry {
         'rentiva_vehicle_rating_form'   => [
             'vehicle_id',
             'class',
-            'show_star_rating',
-            'show_text_review',
-            'show_category_ratings',
-            'show_photo_upload',
-            'show_vehicle_preview',
-            'show_recommend_toggle',
-            'require_login',
-            'require_booking',
-            'max_photos',
-            'min_review_length',
+            // show_star_rating, show_text_review, show_category_ratings,
+            // show_photo_upload, show_vehicle_preview, show_recommend_toggle,
+            // require_login, require_booking, max_photos and min_review_length were
+            // removed (spec 3A Task 8): never read; login and review length are the
+            // global Comments settings, applied server side.
             'show_rating_display',
             'show_form',
             'show_ratings_list',
@@ -1158,27 +1093,29 @@ final class AllowlistRegistry {
         ],
         'rentiva_testimonials'          => [
             'limit',
-            'category',
             'rating',
             'vehicle_id',
-            'orderby',
+            // The orders Testimonials::get_testimonials() applies; anything else
+            // (the Elementor control's old title/modified) is the date order.
+            'orderby' => [
+                'values' => [ 'date', 'rating', 'rand' ],
+            ],
             'order',
             'show_rating',
             'show_date',
             'show_vehicle',
-            'show_vehicle_name',
             'show_customer',
             'layout',
             'columns',
             'auto_rotate',
             'class',
             'show_author_avatar',
-            'show_author_name',
             'show_quotes',
             'sort_by',
             'sort_order',
-            'limit_items',
-            'autoplay',
+            // category, show_vehicle_name, show_author_name, limit_items and autoplay
+            // were removed (spec 3A Task 8); the editor controls of the four twins
+            // write show_vehicle, show_customer, limit and auto_rotate.
         ],
         'rentiva_payment_history'       => [
             'limit',

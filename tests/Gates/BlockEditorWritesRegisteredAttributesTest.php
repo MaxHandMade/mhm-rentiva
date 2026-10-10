@@ -35,8 +35,11 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * showTransactionId toggles removed, "Limit Results" repointed to limit;
 	 * my-favorites: showAddedDate toggle removed, "Show Remove Button" repointed to
 	 * showFavoriteButton).
+	 * Slice 3A Task 8: 154 (vehicle-rating-form: its ten setting controls removed;
+	 * testimonials: Autoplay, Limit Items, Show Author Name and Show Vehicle Name
+	 * repointed to autoRotate, limit, showCustomer and showVehicle, same count).
 	 */
-	private const LITE_LITERAL_KEYS = 164;
+	private const LITE_LITERAL_KEYS = 154;
 
 	private static function blocks_dir(): string
 	{
