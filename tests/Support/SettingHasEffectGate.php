@@ -16,9 +16,10 @@ use MHMRentiva\Core\Attribute\AllowlistRegistry;
  * (SettingProbe); same normalized HTML = dead. The dead surfaces known today are
  * listed in setting-effect-expected-dead.php, one row per (surface, tag, key),
  * with the decision of the 2026-10-10 decision table (APPLY / REMOVE). Each task
- * of the slice deletes its own rows; the file is empty and deleted at the end
- * (T10). Settings whose effect needs data the base fixture lacks are in
- * setting-effect-data-dependent.php with a named fixture, and are rendered with it.
+ * of slice 3A deleted its own rows and T10 deleted the empty file; a missing file
+ * is an empty list (a future slice may add it back with new rows). Settings whose
+ * effect needs data the base fixture lacks are in setting-effect-data-dependent.php
+ * with a named fixture, and are rendered with it.
  *
  * Both directions break: a dead surface outside the lists, and a listed row that
  * is no longer dead (stale) or a data-dependent row that shows no effect even
@@ -392,7 +393,9 @@ SettingHasEffectTest: unmapped data controls with an explicit widget mapping: " 
 	 */
 	protected function expected_dead(): array
 	{
-		return require $this->gate_dir() . '/setting-effect-expected-dead.php';
+		// T10 deleted the file once it was empty; a missing file is an empty list.
+		$file = $this->gate_dir() . '/setting-effect-expected-dead.php';
+		return is_readable($file) ? require $file : array();
 	}
 
 	/**

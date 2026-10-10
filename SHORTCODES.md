@@ -70,47 +70,47 @@ Note:
 ### 3.1 Reservation
 
 #### `[rentiva_booking_form]`
-`class`, `default_days`, `default_payment`, `enable_deposit`, `end_date`, `form_title`, `max_days`, `min_days`, `redirect_url`, `show_addons`, `show_date_picker`, `show_insurance`, `show_payment_options`, `show_time_select`, `show_vehicle_info`, `show_vehicle_selector`, `start_date`, `vehicle_id`
+`class`, `default_days`, `enable_deposit`, `end_date`, `form_title`, `redirect_url`, `show_addons`, `show_time_select`, `show_vehicle_info`, `show_vehicle_selector`, `start_date`, `vehicle_id`
 
 #### `[rentiva_availability_calendar]`
-`class`, `height`, `integrate_pricing`, `months_to_show`, `show_booking_btn`, `show_booking_links`, `show_discounts`, `show_legend`, `show_month_nav`, `show_pricing`, `show_seasonal_prices`, `show_today_btn`, `show_vehicle_selector`, `show_week_numbers`, `start_date`, `start_month`, `start_week_on`, `theme`, `vehicle_id`
+`class`, `height`, `months_to_show`, `show_booking_button`, `show_legend`, `show_month_nav`, `show_pricing`, `show_vehicle_selector`, `start_month`, `start_week_on`, `theme`, `vehicle_id`
 
 ### 3.2 Vehicle
 
 #### `[rentiva_vehicle_details]`
-`class`, `show_availability`, `show_booking`, `show_booking_button`, `show_booking_form`, `show_breadcrumb`, `show_calendar`, `show_favorite_button`, `show_features`, `show_gallery`, `show_price`, `show_pricing`, `show_rating`, `show_reviews`, `show_share_btns`, `show_similar_vehicles`, `show_technical_specs`, `similar_vehicles_limit`, `vehicle_id`
+`class`, `show_booking`, `show_booking_button`, `show_calendar`, `show_favorite_button`, `show_features`, `show_gallery`, `show_price`, `show_pricing`, `show_rating`, `show_reviews`, `show_similar_vehicles`, `similar_vehicles_limit`, `vehicle_id`
 
 #### `[rentiva_vehicles_list]`
-`category`, `class`, `columns`, `custom_css_class`, `featured`, `ids`, `image_size`, `limit`, `max_features`, `min_rating`, `min_reviews`, `order`, `orderby`, `price_format`, `show_availability`, `show_badges`, `show_booking_btn`, `show_brand`, `show_category`, `show_compare_btn`, `show_compare_button`, `show_description`, `show_favorite_btn`, `show_favorite_button`, `show_features`, `show_image`, `show_price`, `show_rating`, `show_title`
+`button_text`, `category`, `class`, `columns`, `custom_css_class`, `featured`, `ids`, `image_size`, `layout`, `limit`, `max_features`, `min_rating`, `min_reviews`, `order`, `orderby`, `show_booking_btn`, `show_brand`, `show_category`, `show_compare_btn`, `show_compare_button`, `show_description`, `show_favorite_btn`, `show_favorite_button`, `show_features`, `show_image`, `show_price`, `show_rating`, `show_rating_count`, `show_title`
 
 #### `[rentiva_featured_vehicles]`
-`autoplay`, `category`, `class`, `columns`, `filter_categories`, `ids`, `image_size`, `interval`, `layout`, `limit`, `max_features`, `order`, `orderby`, `price_format`, `service_type`, `show_availability`, `show_badges`, `show_book_button`, `show_booking_button`, `show_brand`, `show_category`, `show_compare_button`, `show_favorite_button`, `show_features`, `show_price`, `show_rating`, `title`
+`autoplay`, `category`, `class`, `columns`, `filter_categories`, `ids`, `image_size`, `interval`, `layout`, `limit`, `max_features`, `order`, `orderby`, `service_type`, `show_booking_button`, `show_brand`, `show_category`, `show_compare_button`, `show_favorite_button`, `show_features`, `show_price`, `show_rating`
 
 #### `[rentiva_vehicles_grid]`
-`category`, `class`, `columns`, `columns_mobile`, `columns_tablet`, `custom_css_class`, `featured`, `filter_categories`, `image_size`, `layout`, `limit`, `min_rating`, `min_reviews`, `order`, `orderby`, `show_availability`, `show_badges`, `show_booking_btn`, `show_brand`, `show_category`, `show_compare_btn`, `show_compare_button`, `show_description`, `show_favorite_btn`, `show_favorite_button`, `show_features`, `show_image`, `show_price`, `show_rating`, `show_title`
+`category`, `class`, `columns`, `columns_mobile`, `columns_tablet`, `custom_css_class`, `featured`, `filter_categories`, `image_size`, `layout`, `limit`, `min_rating`, `min_reviews`, `order`, `orderby`, `show_booking_btn`, `show_brand`, `show_category`, `show_compare_btn`, `show_compare_button`, `show_favorite_btn`, `show_favorite_button`, `show_features`, `show_image`, `show_price`, `show_rating`, `show_title`
 
 #### `[rentiva_search_results]`
-`button_text`, `class`, `default_sort`, `layout`, `limit`, `order`, `orderby`, `results_per_page`, `show_availability`, `show_badges`, `show_booking_btn`, `show_compare_button`, `show_dropoff`, `show_favorite_button`, `show_features`, `show_filters`, `show_pagination`, `show_pickup`, `show_price`, `show_rating`, `show_sorting`, `show_title`, `show_view_toggle`
+`button_text`, `class`, `default_sort`, `layout`, `limit`, `results_per_page`, `show_badges`, `show_booking_btn`, `show_compare_button`, `show_dropoff`, `show_favorite_button`, `show_features`, `show_filters`, `show_pagination`, `show_pickup`, `show_price`, `show_rating`, `show_sorting`, `show_title`, `show_view_toggle`
 
 #### `[rentiva_vehicle_comparison]`
-`class`, `layout`, `manual_add`, `max_vehicles`, `show_add_vehicle`, `show_book_button`, `show_booking_buttons`, `show_category`, `show_features`, `show_fuel_type`, `show_images`, `show_prices`, `show_rating`, `show_remove_buttons`, `show_seats`, `show_technical_specs`, `show_transmission`, `title`, `vehicle_ids`
+`class`, `layout`, `manual_add`, `max_vehicles`, `show_add_vehicle`, `show_book_button`, `show_booking_buttons`, `show_images`, `show_prices`, `show_remove_buttons`, `title`, `vehicle_ids`
 
 #### `[rentiva_unified_search]`
-`class`, `default_tab`, `filter_categories`, `layout`, `maxwidth`, `minwidth`, `redirect_page`, `search_layout`, `service_type`, `show_date_picker`, `show_dropoff_location`, `show_location_select`, `show_luggage`, `show_pax`, `show_rental_tab`, `show_time_select`, `show_transfer_tab`
+`class`, `default_tab`, `redirect_page`, `search_layout`, `service_type`, `show_date_picker`, `show_dropoff_location`, `show_location_select`, `show_luggage`, `show_pax`, `show_rental_tab`, `show_time_select`, `show_transfer_tab`
 
 ### 3.3 Account
 
 #### `[rentiva_my_bookings]`
-`class`, `hide_nav`, `limit`, `limit_results`, `order`, `orderby`, `show_booking_dates`, `show_cancel_btn`, `show_details_link`, `show_image`, `show_modify_btn`, `show_pagination`, `show_price`, `show_status_toggle`, `status`
+`class`, `hide_nav`, `limit`, `order`, `show_booking_dates`, `show_image`, `show_pagination`, `show_price`, `show_status_toggle`, `status`
 
 #### `[rentiva_my_favorites]`
-`class`, `columns`, `layout`, `limit`, `no_results_text`, `order`, `orderby`, `show_added_date`, `show_availability_status`, `show_badges`, `show_booking_btn`, `show_booking_button`, `show_category`, `show_favorite_btn`, `show_features`, `show_image`, `show_price`, `show_rating`, `show_remove_button`, `show_title`
+`class`, `columns`, `layout`, `limit`, `no_results_text`, `order`, `orderby`, `show_availability_status`, `show_booking_btn`, `show_booking_button`, `show_category`, `show_favorite_btn`, `show_features`, `show_image`, `show_price`, `show_rating`, `show_title`
 
 #### `[rentiva_payment_history]`
-`class`, `hide_nav`, `limit`, `limit_results`, `order`, `orderby`, `show_booking_link`, `show_date`, `show_invoice_download`, `show_pagination`, `show_payment_method`, `show_transaction_id`, `status`
+`class`, `hide_nav`, `limit`, `order`, `orderby`, `show_booking_link`, `show_date`, `show_pagination`, `show_payment_method`, `status`
 
 #### `[rentiva_messages]`
-`class`, `hide_nav`, `limit`, `limit_items`, `order`, `orderby`, `show_author_avatar`, `show_avatar`, `show_booking_link`, `show_date`, `show_pagination`, `show_reply_btn`, `show_thread_preview`, `show_unread_badge`, `status`
+`class`, `hide_nav`, `show_avatar`, `show_thread_preview`
 
 ### 3.4 Transfer
 
@@ -118,21 +118,90 @@ Note:
 `button_text`, `class`, `layout`, `show_dropoff`, `show_pickup`
 
 #### `[rentiva_transfer_results]`
-`class`, `columns`, `layout`, `limit`, `order`, `orderby`, `show_booking_button`, `show_compare_button`, `show_favorite_button`, `show_luggage_info`, `show_passenger_count`, `show_price`, `show_route_info`, `show_vehicle_details`
+`class`, `columns`, `layout`, `limit`, `order`, `show_booking_button`, `show_compare_button`, `show_favorite_button`, `show_luggage_info`, `show_passenger_count`, `show_price`, `show_route_info`, `show_vehicle_details`
 
 ### 3.5 Support
 
 #### `[rentiva_contact]`
-`auto_reply`, `class`, `description`, `email_to`, `recipient_email`, `redirect_url`, `show_attachment`, `show_booking_id_field`, `show_company`, `show_company_info`, `show_map`, `show_phone`, `show_phone_field`, `show_priority`, `show_social_links`, `show_subject_field`, `show_vehicle_select`, `show_vehicle_selector`, `subject_prefix`, `success_message`, `theme`, `title`, `type`
+`auto_reply`, `class`, `description`, `email_to`, `redirect_url`, `show_attachment`, `show_booking_id_field`, `show_company`, `show_company_info`, `show_phone`, `show_priority`, `show_vehicle_selector`, `success_message`, `theme`, `title`, `type`
 
 #### `[rentiva_testimonials]`
-`auto_rotate`, `autoplay`, `class`, `columns`, `filter_rating`, `layout`, `limit`, `limit_items`, `rating`, `show_author_avatar`, `show_author_name`, `show_customer`, `show_date`, `show_quotes`, `show_rating`, `show_vehicle`, `show_vehicle_name`, `sort_by`, `sort_order`, `vehicle_id`
+`auto_rotate`, `class`, `columns`, `filter_rating`, `layout`, `limit`, `rating`, `show_author_avatar`, `show_customer`, `show_date`, `show_quotes`, `show_rating`, `show_vehicle`, `sort_by`, `sort_order`, `vehicle_id`
 
 #### `[rentiva_vehicle_rating_form]`
-`class`, `max_photos`, `min_review_length`, `require_booking`, `require_login`, `show_category_ratings`, `show_form`, `show_photo_upload`, `show_rating_display`, `show_ratings_list`, `show_recommend_toggle`, `show_star_rating`, `show_text_review`, `show_vehicle_preview`, `vehicle_id`
+`class`, `show_form`, `show_rating_display`, `show_ratings_list`, `vehicle_id`
 
 #### `[rentiva_home_poc]`
 No canonical schema entry found in current `AllowlistRegistry` (experimental).
+
+### 3.6 Settings applied or re-bound in Elementor bridge slice 3A
+
+Slice 3A (2026-10) made saved-but-ignored settings take effect and removed the ones that had no
+effect. The defaults below reproduce the render from before the slice; a page only changes when a
+value was set. Removed attributes are no longer read anywhere (no alias is kept): a removed key in
+hand-written shortcode text is ignored, and a saved value of a removed block or Elementor control
+renders like the default.
+
+| Shortcode | Attribute | Default | Behaviour |
+| :--- | :--- | :--- | :--- |
+| `rentiva_booking_form` | `default_days` | `""` | When greater than 0 (clamped to 365), an empty return date is prefilled with pickup + N days. A return date already chosen is never overwritten. Empty = no prefill. |
+| `rentiva_booking_form` | `form_title` | `""` | `<h2 class="rv-booking-form-title">` above the form, only when set. |
+| `rentiva_availability_calendar` | `height` | `""` | Block `calendarHeight` sets the wrapper height (e.g. `600px`); an older block saved with `height` keeps using it while `calendarHeight` is empty. `""` and `auto` write no style. |
+| `rentiva_availability_calendar` | `show_legend` | `1` | Shows the legend. |
+| `rentiva_availability_calendar` | `show_month_nav` | `1` | Shows the previous/next month controls. |
+| `rentiva_availability_calendar` | `show_vehicle_selector` | `1` | Shows the "Change Vehicle" / "Choose Another Vehicle" switch (only when there is more than one vehicle). |
+| `rentiva_availability_calendar` | `start_week_on` | `1` | `1` = Monday, `0` = Sunday (header and grid). |
+| `rentiva_availability_calendar` | `show_booking_button` | `1` | Re-bound: the block's "Show Booking Button" toggle (formerly writing `show_booking_links`) now writes this key. |
+| `rentiva_vehicle_details` | `show_rating` | `1` | The star line in the sidebar. |
+| `rentiva_vehicle_details` | `show_reviews` | `1` | The "Ratings & Reviews" section (it followed `show_booking_form` before). |
+| `rentiva_vehicle_details` | `show_similar_vehicles` | `1` | The similar vehicles section. |
+| `rentiva_vehicle_details` | `similar_vehicles_limit` | `""` | Empty/0 keeps 6 (mobile slider) / 3 (desktop grid); 1–12 sets both (larger values are capped at 12). |
+| `rentiva_vehicle_details` | `show_booking` | `1` | Re-bound: the block's "Show Booking Section" toggle (formerly `show_booking_form`) writes this key; it hides the booking call to action. |
+| `rentiva_vehicles_list` | `columns` | `1` | `rv-vehicles-list--columns-N` (1–4): 2–4 are a grid (3/4 drop to 2 at ≤1024px, all to 1 at ≤782px). Elementor default is now `1`. |
+| `rentiva_vehicles_list` | `layout` | `list` | Card layout, `list` or `grid` (Elementor vehicle card). |
+| `rentiva_vehicles_list` | `custom_css_class` | `""` | Extra wrapper classes (each passed through `sanitize_html_class`). |
+| `rentiva_vehicles_list` | `button_text` | `""` | Booking button label. Order: "Unavailable" when the vehicle is down, else `button_text`, else the global "Book Now Button" text setting, else "Book Now". Elementor "Button Text" now writes this key. |
+| `rentiva_vehicles_list` | `show_rating_count` | `0` | Adds `(N)` after the average rating. |
+| `rentiva_vehicles_grid` | `columns_tablet` / `columns_mobile` | `2` / `1` | Columns at ≤1024px / ≤782px (1–4). |
+| `rentiva_featured_vehicles` | `show_booking_button` | `1` | The Elementor switcher now writes this key. **`show_book_button` is no longer read** — use `show_booking_button="0"`. |
+| `rentiva_search_results` | `default_sort` | `price_asc` | One sort control on block and Elementor (replaces Sort By / Sort Order). Values: `relevance`, `price_asc`, `price_desc`, `name_asc`, `name_desc`, `year_desc`. |
+| `rentiva_vehicle_comparison` | `show_images` / `show_remove_buttons` | `1` / `1` | Vehicle images / remove buttons in all layouts. |
+| `rentiva_unified_search` | `redirect_page` | `default` | A published page ID or a same-site URL sets the form action; anything else (including `0`) falls back to the global search results page. |
+| `rentiva_unified_search` | `search_layout` | `horizontal` | `horizontal` / `vertical`. The Elementor "Layout Style" control writes this key. **`layout` is no longer read** — use `search_layout`. |
+| `rentiva_my_bookings` | `show_booking_dates`, `show_status_toggle`, `show_price` | `1` | Columns of both tables. |
+| `rentiva_my_bookings` | `show_image` | `1` | The image column. **Takes effect only outside the WooCommerce account page** (the integrated page never shows it). |
+| `rentiva_my_bookings` | `show_pagination` | `1` | Pager over `limit`; the page comes from `?mhmrentiva_page=N` (out of range shows the last page; invalid shows page 1). The status/search filters run before paging. The block's "Limit Results" control now writes `limit`. |
+| `rentiva_my_favorites` | `orderby` | `added` | `added` (saved order; `order` does not apply), `name`, `price` (favourites without a price go last). Legacy `date` = `added`, `title` = `name`. |
+| `rentiva_my_favorites` | `layout` | `grid` | `grid` or `list` (one card per row). |
+| `rentiva_my_favorites` | `no_results_text` | `""` | Replaces the empty-state text when set. |
+| `rentiva_my_favorites` | `show_availability_status` | `0` | Shows Available / Out of Order on the card. The block's "Show Remove Button" control now writes `show_favorite_button`. |
+| `rentiva_payment_history` | `limit` | `10` | Rows per page (0 or negative = 10). The block's "Limit Results" control now writes this key. |
+| `rentiva_payment_history` | `orderby` / `order` | `date` / `desc` | `date` or `amount`; a payment without a date or amount goes last. |
+| `rentiva_payment_history` | `status` | `""` | `""` (all), `pending`, `completed`, `cancelled`; filtered before paging. |
+| `rentiva_payment_history` | `show_date`, `show_payment_method`, `show_pagination` | `1` | Pager uses `?mhmrentiva_page=N`. |
+| `rentiva_payment_history` | `show_booking_link` | `0` | Links the payment title to its booking. |
+| `rentiva_contact` | `type` | `general` | `general`, `booking`, `support`, `feedback` — now applied (the template read a variable that never existed). |
+| `rentiva_contact` | `title` / `description` | `""` | Heading and intro, only when set. |
+| `rentiva_contact` | `show_phone`, `show_company`, `show_vehicle_selector`, `show_priority`, `show_attachment` | `1`, `0`, `0`, `0`, `1` | Form fields. Block "Show Phone Field" / "Show Vehicle Select" write `show_phone` / `show_vehicle_selector`. |
+| `rentiva_contact` | `show_company_info` | `1` | The "Contact Information" box. |
+| `rentiva_contact` | `show_booking_id_field` | `0` | Booking ID field; linked to the message only for the logged-in owner of the booking. |
+| `rentiva_contact` | `success_message` | `""` | Replaces the success text. |
+| `rentiva_contact` | `redirect_url` | `""` | Same-site URL only; the redirect happens 1.5 s after the success message is shown. |
+| `rentiva_contact` | `email_to` | `""` | Recipient override, sent as an encrypted token (the address is not in the page source). Used only when the page's author can edit others' posts; otherwise the global recipient is used and `mhmrentiva_contact_recipient_fallback` fires. Block "Recipient Email" writes this key. |
+| `rentiva_contact` | `theme` / `auto_reply` | `default` / `1` | Now applied with the `type` fix. |
+| `rentiva_testimonials` | `orderby` | `date` | `date`, `rating` (unrated last), `rand`. Load More continues the same order, filters and display flags. |
+| `rentiva_testimonials` | `show_author_avatar` / `show_quotes` | `1` / `1` | Avatar and quote icon. Block "Autoplay", "Limit Items", "Show Author Name", "Show Vehicle Name" write `auto_rotate`, `limit`, `show_customer`, `show_vehicle`. |
+| `rentiva_messages` (Pro) | `show_thread_preview` | `0` | Message preview under the subject. |
+| `rentiva_transfer_search` (Pro) | `layout` | `horizontal` | `horizontal` / `vertical` (stacked fields). `compact` is gone (renders horizontal). |
+| `rentiva_transfer_results` (Pro) | `order` | `asc` | Results are always ordered by price; `order` sets the direction. `layout` is `list` / `grid` (`compact` renders `list`). |
+| `rentiva_popular_routes` (Pro) | `filter_origin_type` | `""` | Options are the stored location types (station, port, …); station 🚆 and port ⛵ icons show. |
+| `rentiva_vendor_profile` (Pro) | `vehicle_sort` | `rating-newest` | `rating-newest`, `newest`, `price-asc`, `price-desc` (vehicles without a price go last). |
+
+Notes:
+- `show_book_button` on `[rentiva_featured_vehicles]` → use `show_booking_button`.
+- `layout` on `[rentiva_unified_search]` → use `search_layout`.
+- `[rentiva_my_bookings]` `show_image` only takes effect outside the WooCommerce account page.
+- Account lists page with the public query var `mhmrentiva_page` (core `paged` is redirected away on the WooCommerce endpoint).
 
 ---
 
@@ -142,24 +211,24 @@ No canonical schema entry found in current `AllowlistRegistry` (experimental).
 
 | Block | Shortcode | Inspector Attributes (`block.json`) |
 | :--- | :--- | :--- |
-| `mhm-rentiva/availability-calendar` | `rentiva_availability_calendar` | `vehicleId`, `showVehicleSelector`, `showLegend`, `showPricing`, `showBookingLinks`, `showMonthNavigation`, `showTodayButton`, `showWeekNumbers`, `monthsToShow`, `startWeekOn`, `calendarHeight`, `className` |
-| `mhm-rentiva/booking-form` | `rentiva_booking_form` | `vehicle_id`, `show_insurance`, `show_addons`, `show_vehicle_selector`, `form_title`, `enable_deposit`, `show_vehicle_info`, `show_payment_options`, `show_date_picker`, `show_time_select`, `className`, `startDate`, `endDate`, `defaultDays`, `minDays`, `maxDays`, `redirectUrl`, `defaultPayment` |
-| `mhm-rentiva/contact` | `rentiva_contact` | `showPhoneField`, `showSubjectField`, `showBookingIdField`, `showVehicleSelect`, `showCompanyInfo`, `showMap`, `showSocialLinks`, `recipientEmail`, `subjectPrefix`, `successMessage`, `className` |
-| `mhm-rentiva/featured-vehicles` | `rentiva_featured_vehicles` | `layout`, `showPrice`, `showRating`, `showCategory`, `showBookButton`, `showFeatures`, `showBrand`, `showAvailability`, `showCompareButton`, `showBadges`, `showFavoriteButton`, `serviceType`, `filterCategories`, `sortBy`, `sortOrder`, `limit`, `columns`, `className` |
-| `mhm-rentiva/messages` | `rentiva_messages` | `showDate`, `showAuthorAvatar`, `showUnreadBadge`, `showThreadPreview`, `showBookingLink`, `showReplyButton`, `filterStatus`, `sortBy`, `sortOrder`, `limitItems`, `showPagination`, `className` |
-| `mhm-rentiva/my-bookings` | `rentiva_my_bookings` | `showVehicleImage`, `showBookingDates`, `showPrice`, `showStatus`, `showCancelButton`, `showModifyButton`, `showDetailsLink`, `filterStatus`, `sortBy`, `sortOrder`, `limitResults`, `showPagination`, `className` |
-| `mhm-rentiva/my-favorites` | `rentiva_my_favorites` | `layout`, `showPrice`, `showAvailabilityStatus`, `showCategory`, `showRemoveButton`, `showBookButton`, `showRating`, `showAddedDate`, `sortBy`, `sortOrder`, `columns`, `className` |
-| `mhm-rentiva/payment-history` | `rentiva_payment_history` | `showInvoiceDownload`, `showPaymentMethod`, `showTransactionId`, `showDate`, `showBookingLink`, `filterStatus`, `sortBy`, `sortOrder`, `limitResults`, `showPagination`, `className` |
-| `mhm-rentiva/search-results` | `rentiva_search_results` | `layout`, `showPrice`, `showRating`, `showFilters`, `showSorting`, `showPagination`, `showAvailability`, `sortBy`, `sortOrder`, `limit`, `showFavoriteButton`, `showCompareButton`, `className` |
-| `mhm-rentiva/testimonials` | `rentiva_testimonials` | `layout`, `showDate`, `showAuthorAvatar`, `showAuthorName`, `showRating`, `showVehicleName`, `showQuotes`, `filterRating`, `sortBy`, `sortOrder`, `limitItems`, `columns`, `autoplay`, `className` |
-| `mhm-rentiva/transfer-results` | `rentiva_transfer_results` | `layout`, `showPrice`, `showVehicleDetails`, `showLuggageInfo`, `showPassengerCount`, `showBookButton`, `showRouteInfo`, `sortBy`, `sortOrder`, `limit`, `showFavoriteButton`, `showCompareButton`, `className` |
+| `mhm-rentiva/availability-calendar` | `rentiva_availability_calendar` | `vehicleId`, `showVehicleSelector`, `showLegend`, `showPricing`, `showMonthNavigation`, `monthsToShow`, `startWeekOn`, `calendarHeight`, `className`, `theme`, `startMonth`, `showBookingButton` |
+| `mhm-rentiva/booking-form` | `rentiva_booking_form` | `vehicle_id`, `show_addons`, `show_vehicle_selector`, `form_title`, `enable_deposit`, `show_vehicle_info`, `show_time_select`, `className`, `startDate`, `endDate`, `defaultDays`, `redirectUrl` |
+| `mhm-rentiva/contact` | `rentiva_contact` | `showBookingIdField`, `showCompanyInfo`, `successMessage`, `className`, `type`, `title`, `description`, `showPhone`, `showCompany`, `showVehicleSelector`, `showPriority`, `showAttachment`, `redirectUrl`, `emailTo`, `autoReply`, `theme` |
+| `mhm-rentiva/featured-vehicles` | `rentiva_featured_vehicles` | `layout`, `showPrice`, `showRating`, `showCategory`, `showBookButton`, `showFeatures`, `showBrand`, `showCompareButton`, `showFavoriteButton`, `serviceType`, `filterCategories`, `sortBy`, `sortOrder`, `limit`, `columns`, `className`, `ids`, `autoplay`, `interval`, `maxFeatures`, `imageSize`, `viewAllUrl`, `viewAllText` |
+| `mhm-rentiva/messages` | `rentiva_messages` | `showThreadPreview`, `className`, `hideNav` |
+| `mhm-rentiva/my-bookings` | `rentiva_my_bookings` | `showVehicleImage`, `showBookingDates`, `showPrice`, `showStatus`, `filterStatus`, `sortOrder`, `showPagination`, `className`, `limit`, `hideNav` |
+| `mhm-rentiva/my-favorites` | `rentiva_my_favorites` | `layout`, `showPrice`, `showAvailabilityStatus`, `showCategory`, `showBookButton`, `showRating`, `sortBy`, `sortOrder`, `columns`, `className`, `limit`, `showFavoriteButton`, `showImage`, `showTitle`, `showFeatures`, `noResultsText` |
+| `mhm-rentiva/payment-history` | `rentiva_payment_history` | `showPaymentMethod`, `showDate`, `showBookingLink`, `filterStatus`, `sortBy`, `sortOrder`, `showPagination`, `className`, `limit`, `hideNav` |
+| `mhm-rentiva/search-results` | `rentiva_search_results` | `layout`, `showPrice`, `showRating`, `showFilters`, `showSorting`, `showPagination`, `limit`, `showFavoriteButton`, `showCompareButton`, `className`, `showBookingButton`, `showTitle`, `showFeatures`, `showBadges`, `showViewToggle`, `defaultSort` |
+| `mhm-rentiva/testimonials` | `rentiva_testimonials` | `layout`, `showDate`, `showAuthorAvatar`, `showRating`, `showQuotes`, `filterRating`, `sortBy`, `sortOrder`, `columns`, `className`, `limit`, `vehicleId`, `showVehicle`, `showCustomer`, `autoRotate` |
+| `mhm-rentiva/transfer-results` | `rentiva_transfer_results` | `layout`, `showPrice`, `showVehicleDetails`, `showLuggageInfo`, `showPassengerCount`, `showBookButton`, `showRouteInfo`, `sortOrder`, `limit`, `showFavoriteButton`, `showCompareButton`, `className`, `columns` |
 | `mhm-rentiva/transfer-search` | `rentiva_transfer_search` | `layout`, `buttonText`, `showPickup`, `showDropoff`, `className` |
-| `mhm-rentiva/unified-search` | `rentiva_unified_search` | `search_layout`, `default_tab`, `show_rental_tab`, `show_transfer_tab`, `show_location_select`, `show_time_select`, `show_date_picker`, `show_dropoff_location`, `show_pax`, `show_luggage`, `service_type`, `filter_categories`, `redirect_page`, `min_width`, `max_width`, `className`, `style` |
-| `mhm-rentiva/vehicle-comparison` | `rentiva_vehicle_comparison` | `vehicleIds`, `showTechnicalSpecs`, `showComparisonImages`, `showPrice`, `showRating`, `showFeatures`, `showBookButton`, `showCategory`, `showFuelType`, `showTransmission`, `showSeats`, `maxVehicles`, `className` |
-| `mhm-rentiva/vehicle-details` | `rentiva_vehicle_details` | `vehicleId`, `showGallery`, `showPrice`, `showRating`, `showReviews`, `showFeatures`, `showTechnicalSpecs`, `showAvailability`, `showBookingForm`, `showSimilarVehicles`, `showShareButtons`, `showFavoriteButton`, `showBreadcrumb`, `similarVehiclesLimit`, `className` |
-| `mhm-rentiva/vehicle-rating-form` | `rentiva_vehicle_rating_form` | `vehicleId`, `showStarRating`, `showTextReview`, `showCategoryRatings`, `showPhotoUpload`, `showVehiclePreview`, `showRecommendToggle`, `requireLogin`, `requireBooking`, `maxPhotos`, `minReviewLength`, `className` |
-| `mhm-rentiva/vehicles-grid` | `rentiva_vehicles_grid` | `layout`, `showImage`, `showTitle`, `showPrice`, `showRating`, `showCategory`, `showBrand`, `showAvailability`, `showFavoriteButton`, `showCompareButton`, `showBookButton`, `showFeatures`, `filterCategories`, `sortBy`, `sortOrder`, `limit`, `columns`, `className`, `minRating`, `minReviews` |
-| `mhm-rentiva/vehicles-list` | `rentiva_vehicles_list` | `showPrice`, `showRating`, `showCategory`, `showBrand`, `showBookButton`, `showDescription`, `showFeatures`, `showImage`, `showTitle`, `showBadges`, `showFavoriteButton`, `showAvailability`, `showCompareButton`, `filterCategories`, `orderby`, `order`, `limit`, `className`, `minRating`, `minReviews` |
+| `mhm-rentiva/unified-search` | `rentiva_unified_search` | `search_layout`, `default_tab`, `show_rental_tab`, `show_transfer_tab`, `show_location_select`, `show_time_select`, `show_date_picker`, `show_dropoff_location`, `show_pax`, `show_luggage`, `service_type`, `redirect_page`, `className`, `style`, `locationRequired`, `fieldsRequired` |
+| `mhm-rentiva/vehicle-comparison` | `rentiva_vehicle_comparison` | `vehicleIds`, `showComparisonImages`, `showPrice`, `showBookButton`, `maxVehicles`, `className`, `layout`, `title`, `showRemoveButtons` |
+| `mhm-rentiva/vehicle-details` | `rentiva_vehicle_details` | `vehicleId`, `showGallery`, `showPrice`, `showRating`, `showReviews`, `showFeatures`, `showSimilarVehicles`, `showFavoriteButton`, `similarVehiclesLimit`, `className`, `showPricing`, `showBooking`, `showCalendar`, `showBookingButton`, `showCompareButton` |
+| `mhm-rentiva/vehicle-rating-form` | `rentiva_vehicle_rating_form` | `vehicleId`, `className`, `showRatingDisplay`, `showForm`, `showRatingsList` |
+| `mhm-rentiva/vehicles-grid` | `rentiva_vehicles_grid` | `layout`, `showImage`, `showTitle`, `showPrice`, `showRating`, `showCategory`, `showBrand`, `showFavoriteButton`, `showCompareButton`, `showBookButton`, `showFeatures`, `filterCategories`, `sortBy`, `sortOrder`, `limit`, `columns`, `className`, `minRating`, `minReviews`, `featured`, `imageSize`, `customCssClass`, `columns_tablet`, `columns_mobile`, `viewAllUrl`, `viewAllText` |
+| `mhm-rentiva/vehicles-list` | `rentiva_vehicles_list` | `showPrice`, `showRating`, `showCategory`, `showBrand`, `showBookButton`, `showDescription`, `showFeatures`, `showImage`, `showTitle`, `showFavoriteButton`, `showCompareButton`, `filterCategories`, `orderby`, `order`, `limit`, `className`, `minRating`, `minReviews`, `columns`, `featured`, `imageSize`, `ids`, `maxFeatures`, `customCssClass` |
 
 
 ### 4.2 3-Layer Default Comparison Matrix
@@ -171,21 +240,15 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | :--- | :--- | :--- | :--- | :--- |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `defaultPayment` | `deposit` | *N/A* | Schema: enum (maps to `default_payment`) | ⚠️ Block Only |
-| `default_days` | *N/A* | `1` | Schema: int | ⚠️ SC Only |
-| `default_payment` | *N/A* | `deposit` | Schema: enum | ⚠️ SC Only |
+| `defaultDays` | `""` | *N/A* | Schema: int (maps to `default_days`) | ⚠️ Block Only |
+| `default_days` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
 | `enable_deposit` | `true` | `1` | Schema: bool | ✅ (Bool->Str) |
 | `endDate` | `""` | *N/A* | Schema: string (maps to `end_date`) | ⚠️ Block Only |
 | `end_date` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `form_title` | `""` | `""` | Schema: string | ✅ |
-| `max_days` | *N/A* | `30` | Schema: int | ⚠️ SC Only |
-| `min_days` | *N/A* | `1` | Schema: int | ⚠️ SC Only |
 | `redirectUrl` | `""` | *N/A* | Schema: string (maps to `redirect_url`) | ⚠️ Block Only |
 | `redirect_url` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `show_addons` | `true` | `1` | Schema: bool | ✅ (Bool->Str) |
-| `show_date_picker` | `true` | *N/A* | Schema: bool | ⚠️ Block Only |
-| `show_insurance` | `true` | *N/A* | Schema: bool | ⚠️ Block Only |
-| `show_payment_options` | `true` | `1` | Schema: bool | ✅ (Bool->Str) |
 | `show_time_select` | `true` | `1` | Schema: bool | ✅ (Bool->Str) |
 | `show_vehicle_info` | `true` | `1` | Schema: bool | ✅ (Bool->Str) |
 | `show_vehicle_selector` | `true` | `1` | Schema: bool | ✅ (Bool->Str) |
@@ -196,26 +259,24 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 #### `mhm-rentiva/availability-calendar` -> `[rentiva_availability_calendar]`
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
 | :--- | :--- | :--- | :--- | :--- |
-| `calendarHeight` | `auto` | *N/A* | Schema: string (maps to `height`) | ⚠️ Block Only |
+| `calendarHeight` | `""` | *N/A* | Schema: string (maps to `height`; legacy `height` used when empty) | ⚠️ Block Only |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `integrate_pricing` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `monthsToShow` | `2` | *N/A* | Schema: int (maps to `months_to_show`) | ⚠️ Block Only |
 | `months_to_show` | *N/A* | `1` | Schema: int | ⚠️ SC Only |
-| `showBookingLinks` | `true` | *N/A* | Schema: bool (maps to `show_booking_links`) | ⚠️ Block Only |
+| `showBookingButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
 | `showLegend` | `true` | *N/A* | Schema: bool (maps to `show_legend`) | ⚠️ Block Only |
 | `showMonthNavigation` | `true` | *N/A* | Schema: bool (maps to `show_month_nav`) | ⚠️ Block Only |
 | `showPricing` | `true` | *N/A* | Schema: bool (maps to `show_pricing`) | ⚠️ Block Only |
-| `showTodayButton` | `true` | *N/A* | Schema: bool (maps to `show_today_btn`) | ⚠️ Block Only |
-| `showVehicleSelector` | `true` | *N/A* | Schema: bool (maps to `show_vehicle_select`) | ⚠️ Block Only |
-| `showWeekNumbers` | `false` | *N/A* | Schema: bool (maps to `show_week_numbers`) | ⚠️ Block Only |
-| `show_booking_btn` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `show_discounts` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `showVehicleSelector` | `true` | *N/A* | Schema: bool (maps to `show_vehicle_selector`) | ⚠️ Block Only |
+| `show_booking_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_legend` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_month_nav` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_pricing` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `show_seasonal_prices` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_vehicle_selector` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `startWeekOn` | `1` | *N/A* | Schema: int (maps to `start_week_on`) | ⚠️ Block Only |
-| `start_date` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `start_month` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
+| `start_week_on` | *N/A* | `1` | Schema: int | ⚠️ SC Only |
 | `theme` | *N/A* | `default` | Schema: string | ⚠️ SC Only |
 | `vehicleId` | `""` | *N/A* | Schema: int (maps to `vehicle_id`) | ⚠️ Block Only |
 | `vehicle_id` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
@@ -225,18 +286,14 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | :--- | :--- | :--- | :--- | :--- |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `showAvailability` | `true` | *N/A* | Schema: bool (maps to `show_availability`) | ⚠️ Block Only |
-| `showBookingForm` | `true` | *N/A* | *Unregistered* | ⚠️ Block Only 🚫 Not in Allowlist! |
-| `showBreadcrumb` | `true` | *N/A* | Schema: bool (maps to `show_breadcrumb`) | ⚠️ Block Only |
+| `showBooking` | `true` | *N/A* | Schema: bool (maps to `show_booking`) | ⚠️ Block Only |
 | `showFavoriteButton` | `true` | *N/A* | Schema: bool (maps to `show_favorite_button`) | ⚠️ Block Only |
 | `showFeatures` | `true` | *N/A* | Schema: bool (maps to `show_features`) | ⚠️ Block Only |
 | `showGallery` | `true` | *N/A* | Schema: bool (maps to `show_gallery`) | ⚠️ Block Only |
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
 | `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
 | `showReviews` | `true` | *N/A* | Schema: bool (maps to `show_reviews`) | ⚠️ Block Only |
-| `showShareButtons` | `true` | *N/A* | Schema: bool (maps to `show_share_btns`) | ⚠️ Block Only |
 | `showSimilarVehicles` | `true` | *N/A* | Schema: bool (maps to `show_similar_vehicles`) | ⚠️ Block Only |
-| `showTechnicalSpecs` | `true` | *N/A* | Schema: bool (maps to `show_features`) | ⚠️ Block Only |
 | `show_booking` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_booking_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_calendar` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -244,22 +301,29 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `show_gallery` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_price` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_pricing` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `similarVehiclesLimit` | `4` | *N/A* | Schema: int (maps to `similar_vehicles_limit`) | ⚠️ Block Only |
+| `show_rating` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_reviews` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_similar_vehicles` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `similarVehiclesLimit` | `""` | *N/A* | Schema: int (maps to `similar_vehicles_limit`) | ⚠️ Block Only |
+| `similar_vehicles_limit` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
 | `vehicleId` | `""` | *N/A* | Schema: int (maps to `vehicle_id`) | ⚠️ Block Only |
 | `vehicle_id` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
 
 #### `mhm-rentiva/vehicles-list` -> `[rentiva_vehicles_list]`
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
 | :--- | :--- | :--- | :--- | :--- |
+| `button_text` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `category` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `columns` | *N/A* | `1` | Schema: int | ⚠️ SC Only |
+| `columns` | `1` | `1` | Schema: int | ✅ |
+| `customCssClass` | `""` | *N/A* | Schema: string (maps to `custom_css_class`) | ⚠️ Block Only |
 | `custom_css_class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `featured` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `filterCategories` | `""` | *N/A* | Schema: string (maps to `category`) | ⚠️ Block Only |
 | `ids` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `image_size` | *N/A* | `medium` | Schema: string | ⚠️ SC Only |
+| `layout` | *N/A* | `list` | Schema: enum (`list`, `grid`) | ⚠️ SC Only |
 | `limit` | `12` | `12` | Schema: int | ✅ |
 | `max_features` | *N/A* | `5` | Schema: int | ⚠️ SC Only |
 | `minRating` | `""` | *N/A* | Schema: int (maps to `min_rating`) | ⚠️ Block Only |
@@ -268,9 +332,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `min_reviews` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
 | `order` | `asc` | `ASC` | Schema: enum | ❌ |
 | `orderby` | `title` | `title` | Schema: enum | ✅ |
-| `price_format` | *N/A* | `daily` | Schema: string | ⚠️ SC Only |
-| `showAvailability` | `false` | *N/A* | Schema: bool (maps to `show_availability`) | ⚠️ Block Only |
-| `showBadges` | `true` | *N/A* | Schema: bool (maps to `show_badges`) | ⚠️ Block Only |
 | `showBookButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
 | `showBrand` | `false` | *N/A* | Schema: bool (maps to `show_brand`) | ⚠️ Block Only |
 | `showCategory` | `true` | *N/A* | Schema: bool (maps to `show_category`) | ⚠️ Block Only |
@@ -282,8 +343,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
 | `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
 | `showTitle` | `true` | *N/A* | Schema: bool (maps to `show_title`) | ⚠️ Block Only |
-| `show_availability` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
-| `show_badges` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_booking_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_brand` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_category` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -296,6 +355,7 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `show_image` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_price` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_rating` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_rating_count` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_title` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 
 #### `mhm-rentiva/featured-vehicles` -> `[rentiva_featured_vehicles]`
@@ -315,10 +375,7 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `max_features` | *N/A* | `5` | Schema: int | ⚠️ SC Only |
 | `order` | *N/A* | `DESC` | Schema: enum | ⚠️ SC Only |
 | `orderby` | *N/A* | `date` | Schema: enum | ⚠️ SC Only |
-| `price_format` | *N/A* | `daily` | Schema: string | ⚠️ SC Only |
 | `serviceType` | `rental` | *N/A* | Schema: enum (maps to `service_type`) | ⚠️ Block Only |
-| `showAvailability` | `false` | *N/A* | Schema: bool (maps to `show_availability`) | ⚠️ Block Only |
-| `showBadges` | `true` | *N/A* | Schema: bool (maps to `show_badges`) | ⚠️ Block Only |
 | `showBookButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
 | `showBrand` | `false` | *N/A* | Schema: bool (maps to `show_brand`) | ⚠️ Block Only |
 | `showCategory` | `true` | *N/A* | Schema: bool (maps to `show_category`) | ⚠️ Block Only |
@@ -327,9 +384,7 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `showFeatures` | `true` | *N/A* | Schema: bool (maps to `show_features`) | ⚠️ Block Only |
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
 | `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
-| `show_availability` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
-| `show_badges` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `show_book_button` | *N/A* | `1` | *Unregistered* | ⚠️ SC Only 🚫 Not in Allowlist! |
+| `show_booking_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_brand` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_category` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_compare_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -339,7 +394,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `show_rating` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `sortBy` | `date` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
 | `sortOrder` | `desc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
-| `title` | *N/A* | `Featured Vehicles` | Schema: string | ⚠️ SC Only |
 
 #### `mhm-rentiva/vehicles-grid` -> `[rentiva_vehicles_grid]`
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
@@ -348,6 +402,8 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `columns` | `2` | `2` | Schema: int | ✅ |
+| `columns_mobile` | `1` | `1` | Schema: int | ✅ |
+| `columns_tablet` | `2` | `2` | Schema: int | ✅ |
 | `custom_css_class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `featured` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `filterCategories` | `""` | *N/A* | Schema: string (maps to `category`) | ⚠️ Block Only |
@@ -360,7 +416,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `min_reviews` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
 | `order` | *N/A* | `ASC` | Schema: enum | ⚠️ SC Only |
 | `orderby` | *N/A* | `title` | Schema: enum | ⚠️ SC Only |
-| `showAvailability` | `false` | *N/A* | Schema: bool (maps to `show_availability`) | ⚠️ Block Only |
 | `showBookButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
 | `showBrand` | `false` | *N/A* | Schema: bool (maps to `show_brand`) | ⚠️ Block Only |
 | `showCategory` | `true` | *N/A* | Schema: bool (maps to `show_category`) | ⚠️ Block Only |
@@ -371,14 +426,11 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
 | `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
 | `showTitle` | `true` | *N/A* | Schema: bool (maps to `show_title`) | ⚠️ Block Only |
-| `show_availability` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
-| `show_badges` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_booking_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_brand` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_category` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_compare_btn` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_compare_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `show_description` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_favorite_btn` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_favorite_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_features` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -394,11 +446,11 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | :--- | :--- | :--- | :--- | :--- |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `default_sort` | *N/A* | `price_asc` | Schema: string | ⚠️ SC Only |
+| `defaultSort` | `price_asc` | *N/A* | Schema: string (maps to `default_sort`) | ⚠️ Block Only |
+| `default_sort` | *N/A* | `price_asc` | Schema: string (values `relevance`, `price_asc`, `price_desc`, `name_asc`, `name_desc`, `year_desc`) | ⚠️ SC Only |
 | `layout` | `grid` | `grid` | Schema: string | ✅ |
 | `limit` | `12` | *N/A* | Schema: int | ⚠️ Block Only |
 | `results_per_page` | *N/A* | `12` | Schema: int | ⚠️ SC Only |
-| `showAvailability` | `true` | *N/A* | Schema: bool (maps to `show_availability`) | ⚠️ Block Only |
 | `showCompareButton` | `true` | *N/A* | Schema: bool (maps to `show_compare_button`) | ⚠️ Block Only |
 | `showFavoriteButton` | `true` | *N/A* | Schema: bool (maps to `show_favorite_button`) | ⚠️ Block Only |
 | `showFilters` | `true` | *N/A* | Schema: bool (maps to `show_filters`) | ⚠️ Block Only |
@@ -418,8 +470,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `show_sorting` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_title` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_view_toggle` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `sortBy` | `price` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
-| `sortOrder` | `asc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
 
 #### `mhm-rentiva/vehicle-comparison` -> `[rentiva_vehicle_comparison]`
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
@@ -431,18 +481,11 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `maxVehicles` | `4` | *N/A* | Schema: int (maps to `max_vehicles`) | ⚠️ Block Only |
 | `max_vehicles` | *N/A* | `4` | Schema: int | ⚠️ SC Only |
 | `showBookButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
-| `showCategory` | `true` | *N/A* | Schema: bool (maps to `show_category`) | ⚠️ Block Only |
 | `showComparisonImages` | `true` | *N/A* | Schema: bool (maps to `show_images`) | ⚠️ Block Only |
-| `showFeatures` | `true` | *N/A* | Schema: bool (maps to `show_features`) | ⚠️ Block Only |
-| `showFuelType` | `true` | *N/A* | Schema: bool (maps to `show_fuel_type`) | ⚠️ Block Only |
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
-| `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
-| `showSeats` | `true` | *N/A* | Schema: bool (maps to `show_seats`) | ⚠️ Block Only |
-| `showTechnicalSpecs` | `true` | *N/A* | Schema: bool (maps to `show_features`) | ⚠️ Block Only |
-| `showTransmission` | `true` | *N/A* | Schema: bool (maps to `show_transmission`) | ⚠️ Block Only |
+| `showRemoveButtons` | `true` | *N/A* | Schema: bool (maps to `show_remove_buttons`) | ⚠️ Block Only |
 | `show_add_vehicle` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_booking_buttons` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `show_features` | *N/A* | `all` | Schema: bool | ⚠️ SC Only |
 | `show_images` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_prices` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_remove_buttons` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -456,12 +499,8 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `default_tab` | `default` | `default` | Schema: string | ✅ |
-| `filter_categories` | `""` | `""` | Schema: string | ✅ |
-| `layout` | *N/A* | `horizontal` | Schema: string | ⚠️ SC Only |
-| `max_width` | `""` | *N/A* | Schema: string (maps to `maxwidth`) | ⚠️ Block Only |
-| `min_width` | `""` | *N/A* | Schema: string (maps to `minwidth`) | ⚠️ Block Only |
 | `redirect_page` | `default` | `default` | Schema: string | ✅ |
-| `search_layout` | `horizontal` | `""` | Schema: string | ❌ |
+| `search_layout` | `horizontal` | `horizontal` | Schema: string | ✅ |
 | `service_type` | `both` | `both` | Schema: enum | ✅ |
 | `show_date_picker` | `default` | `default` | Schema: bool | ✅ |
 | `show_dropoff_location` | `default` | `default` | Schema: bool | ✅ |
@@ -478,19 +517,18 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `filterStatus` | `all` | *N/A* | Schema: enum (maps to `status`) | ⚠️ Block Only |
 | `hide_nav` | *N/A* | `false` | Schema: bool | ⚠️ SC Only |
-| `limit` | *N/A* | `10` | Schema: int | ⚠️ SC Only |
-| `limitResults` | `10` | *N/A* | Schema: int (maps to `limit_results`) | ⚠️ Block Only |
+| `limit` | `10` | `10` | Schema: int | ✅ |
 | `order` | *N/A* | `DESC` | Schema: enum | ⚠️ SC Only |
-| `orderby` | *N/A* | `date` | Schema: enum | ⚠️ SC Only |
 | `showBookingDates` | `true` | *N/A* | Schema: bool (maps to `show_booking_dates`) | ⚠️ Block Only |
-| `showCancelButton` | `true` | *N/A* | Schema: bool (maps to `show_cancel_btn`) | ⚠️ Block Only |
-| `showDetailsLink` | `true` | *N/A* | Schema: bool (maps to `show_details_link`) | ⚠️ Block Only |
-| `showModifyButton` | `true` | *N/A* | Schema: bool (maps to `show_modify_btn`) | ⚠️ Block Only |
 | `showPagination` | `true` | *N/A* | Schema: bool (maps to `show_pagination`) | ⚠️ Block Only |
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
 | `showStatus` | `true` | *N/A* | Schema: bool (maps to `show_status_toggle`) | ⚠️ Block Only |
 | `showVehicleImage` | `true` | *N/A* | Schema: bool (maps to `show_image`) | ⚠️ Block Only |
-| `sortBy` | `date` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
+| `show_booking_dates` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_image` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_pagination` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_price` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_status_toggle` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `sortOrder` | `desc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
 | `status` | *N/A* | `""` | Schema: enum | ⚠️ SC Only |
 
@@ -500,26 +538,24 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `columns` | `3` | `3` | Schema: int | ✅ |
 | `layout` | `grid` | `grid` | Schema: string | ✅ |
-| `limit` | *N/A* | `12` | Schema: int | ⚠️ SC Only |
-| `no_results_text` | *N/A* | `You have no favorite vehicles yet.` | Schema: string | ⚠️ SC Only |
+| `limit` | `12` | `12` | Schema: int | ✅ |
+| `noResultsText` | `""` | *N/A* | Schema: string (maps to `no_results_text`) | ⚠️ Block Only |
+| `no_results_text` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `order` | *N/A* | `DESC` | Schema: enum | ⚠️ SC Only |
-| `orderby` | *N/A* | `date` | Schema: enum | ⚠️ SC Only |
-| `showAddedDate` | `false` | *N/A* | Schema: bool (maps to `show_added_date`) | ⚠️ Block Only |
-| `showAvailabilityStatus` | `true` | *N/A* | Schema: bool (maps to `show_availability_status`) | ⚠️ Block Only |
+| `orderby` | *N/A* | `added` | Schema: enum (`added`, `name`, `price`; legacy `date`, `title`) | ⚠️ SC Only |
+| `showAvailabilityStatus` | `false` | *N/A* | Schema: bool (maps to `show_availability_status`) | ⚠️ Block Only |
 | `showBookButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
 | `showCategory` | `true` | *N/A* | Schema: bool (maps to `show_category`) | ⚠️ Block Only |
+| `showFavoriteButton` | `true` | *N/A* | Schema: bool (maps to `show_favorite_button`) | ⚠️ Block Only |
 | `showPrice` | `true` | *N/A* | Schema: bool (maps to `show_price`) | ⚠️ Block Only |
 | `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
-| `showRemoveButton` | `true` | *N/A* | Schema: bool (maps to `show_remove_button`) | ⚠️ Block Only |
-| `show_added_date` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
-| `show_badges` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_availability_status` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_booking_btn` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_favorite_btn` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_features` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_image` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_price` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_rating` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `show_remove_button` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_title` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `sortBy` | `added` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
 | `sortOrder` | `desc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
@@ -530,16 +566,20 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `filterStatus` | `all` | *N/A* | Schema: enum (maps to `status`) | ⚠️ Block Only |
 | `hide_nav` | *N/A* | `false` | Schema: bool | ⚠️ SC Only |
-| `limit` | *N/A* | `20` | Schema: int | ⚠️ SC Only |
-| `limitResults` | `20` | *N/A* | Schema: int (maps to `limit_results`) | ⚠️ Block Only |
-| `showBookingLink` | `true` | *N/A* | Schema: bool (maps to `show_booking_link`) | ⚠️ Block Only |
+| `limit` | `10` | `10` | Schema: int | ✅ |
+| `order` | *N/A* | `desc` | Schema: enum | ⚠️ SC Only |
+| `orderby` | *N/A* | `date` | Schema: enum (`date`, `amount`) | ⚠️ SC Only |
+| `showBookingLink` | `false` | *N/A* | Schema: bool (maps to `show_booking_link`) | ⚠️ Block Only |
 | `showDate` | `true` | *N/A* | Schema: bool (maps to `show_date`) | ⚠️ Block Only |
-| `showInvoiceDownload` | `true` | *N/A* | Schema: bool (maps to `show_invoice_download`) | ⚠️ Block Only |
 | `showPagination` | `true` | *N/A* | Schema: bool (maps to `show_pagination`) | ⚠️ Block Only |
 | `showPaymentMethod` | `true` | *N/A* | Schema: bool (maps to `show_payment_method`) | ⚠️ Block Only |
-| `showTransactionId` | `true` | *N/A* | Schema: bool (maps to `show_transaction_id`) | ⚠️ Block Only |
+| `show_booking_link` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
+| `show_date` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_pagination` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_payment_method` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `sortBy` | `date` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
 | `sortOrder` | `desc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
+| `status` | *N/A* | `""` | Schema: enum (`""`, `pending`, `completed`, `cancelled`) | ⚠️ SC Only |
 
 #### `mhm-rentiva/transfer-search` -> `[rentiva_transfer_search]`
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
@@ -547,7 +587,7 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `buttonText` | `""` | *N/A* | Schema: string (maps to `button_text`) | ⚠️ Block Only |
 | `button_text` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `layout` | `horizontal` | `horizontal` | Schema: string | ✅ |
+| `layout` | `horizontal` | `horizontal` | Schema: enum (`horizontal`, `vertical`) | ✅ |
 | `showDropoff` | `true` | *N/A* | Schema: bool (maps to `show_dropoff`) | ⚠️ Block Only |
 | `showPickup` | `true` | *N/A* | Schema: bool (maps to `show_pickup`) | ⚠️ Block Only |
 | `show_dropoff` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -559,10 +599,9 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `columns` | *N/A* | `2` | Schema: int | ⚠️ SC Only |
-| `layout` | `list` | `list` | Schema: string | ✅ |
+| `layout` | `list` | `list` | Schema: enum (`list`, `grid`) | ✅ |
 | `limit` | `10` | `10` | Schema: int | ✅ |
 | `order` | *N/A* | `asc` | Schema: enum | ⚠️ SC Only |
-| `orderby` | *N/A* | `price` | Schema: enum | ⚠️ SC Only |
 | `showBookButton` | `true` | *N/A* | Schema: bool (maps to `show_booking_button`) | ⚠️ Block Only |
 | `showCompareButton` | `true` | *N/A* | Schema: bool (maps to `show_compare_button`) | ⚠️ Block Only |
 | `showFavoriteButton` | `true` | *N/A* | Schema: bool (maps to `show_favorite_button`) | ⚠️ Block Only |
@@ -579,7 +618,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `show_price` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_route_info` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_vehicle_details` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
-| `sortBy` | `price` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
 | `sortOrder` | `asc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
 
 #### `mhm-rentiva/contact` -> `[rentiva_contact]`
@@ -589,23 +627,22 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `description` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
+| `emailTo` | `""` | *N/A* | Schema: string (maps to `email_to`) | ⚠️ Block Only |
 | `email_to` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
-| `recipientEmail` | `""` | *N/A* | Schema: string (maps to `recipient_email`) | ⚠️ Block Only |
 | `redirect_url` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `showBookingIdField` | `false` | *N/A* | Schema: bool (maps to `show_booking_id_field`) | ⚠️ Block Only |
 | `showCompanyInfo` | `true` | *N/A* | Schema: bool (maps to `show_company_info`) | ⚠️ Block Only |
-| `showMap` | `true` | *N/A* | Schema: bool (maps to `show_map`) | ⚠️ Block Only |
-| `showPhoneField` | `true` | *N/A* | Schema: bool (maps to `show_phone_field`) | ⚠️ Block Only |
-| `showSocialLinks` | `true` | *N/A* | Schema: bool (maps to `show_social_links`) | ⚠️ Block Only |
-| `showSubjectField` | `true` | *N/A* | Schema: bool (maps to `show_subject_field`) | ⚠️ Block Only |
-| `showVehicleSelect` | `false` | *N/A* | Schema: bool (maps to `show_vehicle_select`) | ⚠️ Block Only |
+| `showPhone` | `true` | *N/A* | Schema: bool (maps to `show_phone`) | ⚠️ Block Only |
+| `showVehicleSelector` | `false` | *N/A* | Schema: bool (maps to `show_vehicle_selector`) | ⚠️ Block Only |
 | `show_attachment` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_booking_id_field` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_company` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
+| `show_company_info` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_phone` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_priority` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 | `show_vehicle_selector` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
-| `subjectPrefix` | `""` | *N/A* | Schema: string (maps to `subject_prefix`) | ⚠️ Block Only |
 | `successMessage` | `""` | *N/A* | Schema: string (maps to `success_message`) | ⚠️ Block Only |
+| `success_message` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `theme` | *N/A* | `default` | Schema: string | ⚠️ SC Only |
 | `title` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `type` | *N/A* | `general` | Schema: enum | ⚠️ SC Only |
@@ -613,26 +650,27 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 #### `mhm-rentiva/testimonials` -> `[rentiva_testimonials]`
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
 | :--- | :--- | :--- | :--- | :--- |
+| `autoRotate` | `false` | *N/A* | Schema: bool (maps to `auto_rotate`) | ⚠️ Block Only |
 | `auto_rotate` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
-| `autoplay` | `false` | *N/A* | Schema: bool | ⚠️ Block Only |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `columns` | `3` | `3` | Schema: int | ✅ |
 | `filterRating` | `""` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
 | `layout` | `grid` | `grid` | Schema: string | ✅ |
-| `limit` | *N/A* | `5` | Schema: int | ⚠️ SC Only |
-| `limitItems` | `5` | *N/A* | Schema: int (maps to `limit_items`) | ⚠️ Block Only |
+| `limit` | `5` | `5` | Schema: int | ✅ |
 | `order` | *N/A* | `DESC` | Schema: enum | ⚠️ SC Only |
-| `orderby` | *N/A* | `date` | Schema: enum | ⚠️ SC Only |
+| `orderby` | *N/A* | `date` | Schema: enum (`date`, `rating`, `rand`) | ⚠️ SC Only |
 | `rating` | *N/A* | `""` | Schema: int | ⚠️ SC Only |
 | `showAuthorAvatar` | `true` | *N/A* | Schema: bool (maps to `show_author_avatar`) | ⚠️ Block Only |
-| `showAuthorName` | `true` | *N/A* | Schema: bool (maps to `show_author_name`) | ⚠️ Block Only |
+| `showCustomer` | `true` | *N/A* | Schema: bool (maps to `show_customer`) | ⚠️ Block Only |
 | `showDate` | `true` | *N/A* | Schema: bool (maps to `show_date`) | ⚠️ Block Only |
 | `showQuotes` | `true` | *N/A* | Schema: bool (maps to `show_quotes`) | ⚠️ Block Only |
 | `showRating` | `true` | *N/A* | Schema: bool (maps to `show_rating`) | ⚠️ Block Only |
-| `showVehicleName` | `true` | *N/A* | Schema: bool (maps to `show_vehicle_name`) | ⚠️ Block Only |
+| `showVehicle` | `true` | *N/A* | Schema: bool (maps to `show_vehicle`) | ⚠️ Block Only |
+| `show_author_avatar` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_customer` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_date` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
+| `show_quotes` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_rating` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_vehicle` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `sortBy` | `date` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
@@ -644,16 +682,6 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | :--- | :--- | :--- | :--- | :--- |
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `maxPhotos` | `3` | *N/A* | Schema: int (maps to `max_photos`) | ⚠️ Block Only |
-| `minReviewLength` | `50` | *N/A* | Schema: int (maps to `min_review_length`) | ⚠️ Block Only |
-| `requireBooking` | `true` | *N/A* | Schema: bool (maps to `require_booking`) | ⚠️ Block Only |
-| `requireLogin` | `true` | *N/A* | Schema: bool (maps to `require_login`) | ⚠️ Block Only |
-| `showCategoryRatings` | `true` | *N/A* | Schema: bool (maps to `show_category_ratings`) | ⚠️ Block Only |
-| `showPhotoUpload` | `true` | *N/A* | Schema: bool (maps to `show_photo_upload`) | ⚠️ Block Only |
-| `showRecommendToggle` | `true` | *N/A* | Schema: bool (maps to `show_recommend_toggle`) | ⚠️ Block Only |
-| `showStarRating` | `true` | *N/A* | Schema: bool (maps to `show_star_rating`) | ⚠️ Block Only |
-| `showTextReview` | `true` | *N/A* | Schema: bool (maps to `show_text_review`) | ⚠️ Block Only |
-| `showVehiclePreview` | `true` | *N/A* | Schema: bool (maps to `show_vehicle_preview`) | ⚠️ Block Only |
 | `show_form` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_rating_display` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
 | `show_ratings_list` | *N/A* | `1` | Schema: bool | ⚠️ SC Only |
@@ -664,18 +692,9 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | Attribute | Block (`block.json`) | Shortcode Class | Canonical `Allowlist` | Match |
 | :--- | :--- | :--- | :--- | :--- |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
-| `filterStatus` | `all` | *N/A* | Schema: enum (maps to `status`) | ⚠️ Block Only |
 | `hide_nav` | *N/A* | `false` | Schema: bool | ⚠️ SC Only |
-| `limitItems` | `20` | *N/A* | Schema: int (maps to `limit_items`) | ⚠️ Block Only |
-| `showAuthorAvatar` | `true` | *N/A* | Schema: bool (maps to `show_author_avatar`) | ⚠️ Block Only |
-| `showBookingLink` | `true` | *N/A* | Schema: bool (maps to `show_booking_link`) | ⚠️ Block Only |
-| `showDate` | `true` | *N/A* | Schema: bool (maps to `show_date`) | ⚠️ Block Only |
-| `showPagination` | `true` | *N/A* | Schema: bool (maps to `show_pagination`) | ⚠️ Block Only |
-| `showReplyButton` | `true` | *N/A* | Schema: bool (maps to `show_reply_btn`) | ⚠️ Block Only |
-| `showThreadPreview` | `true` | *N/A* | Schema: bool (maps to `show_thread_preview`) | ⚠️ Block Only |
-| `showUnreadBadge` | `true` | *N/A* | Schema: bool (maps to `show_unread_badge`) | ⚠️ Block Only |
-| `sortBy` | `date` | *N/A* | Schema: enum (maps to `orderby`) | ⚠️ Block Only |
-| `sortOrder` | `desc` | *N/A* | Schema: enum (maps to `order`) | ⚠️ Block Only |
+| `showThreadPreview` | `false` | *N/A* | Schema: bool (maps to `show_thread_preview`) | ⚠️ Block Only |
+| `show_thread_preview` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
 
 
 
@@ -698,8 +717,6 @@ These are common block-to-shortcode mappings used by CAM:
 | `vehicleId` | `vehicle_id` | `vehicleId: 88` -> `vehicle_id=\"88\"` |
 | `defaultTab` | `default_tab` | `defaultTab: \"rental\"` -> `default_tab=\"rental\"` |
 | `searchLayout` | `search_layout` | `searchLayout: \"compact\"` -> `search_layout=\"compact\"` |
-| `minWidth` | `minwidth` | `minWidth: 360` -> `minwidth=\"360\"` |
-| `maxWidth` | `maxwidth` | `maxWidth: 1200` -> `maxwidth=\"1200\"` |
 
 Important:
 - Mapping is alias-driven first, then camelCase to snake_case normalization.
@@ -793,6 +810,22 @@ Alias behavior:
 | `search_layout` | `searchLayout` | Active | N/A | Unified search block bridge |
 | `redirect_page` | `redirect_url`, `redirectPage`, `redirectUrl` | Active | N/A | Contract bridge for URL/page routing |
 
+Removed without an alias in Elementor bridge slice 3A (2026-10): these keys had a working twin, so a
+saved or hand-written value is now ignored instead of being mapped.
+
+| Removed Attribute | Tag | Use Instead |
+| :--- | :--- | :--- |
+| `show_book_button` | `rentiva_featured_vehicles` | `show_booking_button` |
+| `layout` | `rentiva_unified_search` | `search_layout` |
+| `minwidth`, `maxwidth` (aliases `minWidth`, `maxWidth`, `min_width`, `max_width`) | `rentiva_unified_search` | Theme / block layout styles |
+| `limit_results` (block `limitResults`) | `rentiva_my_bookings`, `rentiva_payment_history` | `limit` |
+| `show_remove_button` (block `showRemoveButton`) | `rentiva_my_favorites` | `show_favorite_button` |
+| `recipient_email`, `show_phone_field`, `show_vehicle_select` | `rentiva_contact` | `email_to`, `show_phone`, `show_vehicle_selector` |
+| `autoplay`, `limit_items`, `show_author_name`, `show_vehicle_name` | `rentiva_testimonials` | `auto_rotate`, `limit`, `show_customer`, `show_vehicle` |
+| `show_booking_form` | `rentiva_vehicle_details` | `show_booking` (reviews follow `show_reviews`) |
+| `show_booking_links` | `rentiva_availability_calendar` | `show_booking_button` |
+| `orderby`, `order` | `rentiva_search_results` | `default_sort` |
+
 Deprecation workflow rule:
 - Mark status as `Deprecated` first.
 - Keep alias for at least one minor release cycle with changelog note.
@@ -828,6 +861,14 @@ Enum value sets (v4.20.3):
 - `orderby`: `price`, `popularity`, `newest`, `capacity`, `title`, `date`, `modified`, `rand`, `post__in`, `rating`, `rating_average`, `rating_count`, `confidence`
 - `sort_by`: `price`, `popularity`, `newest`, `capacity`, `title`, `date`, `modified`, `rand`, `rating`, `rating_average`, `rating_count`, `confidence`
 
+Per-tag value sets narrowed in slice 3A (the tag schema overrides the global set):
+- `rentiva_testimonials` `orderby`: `date`, `rating`, `rand`
+- `rentiva_my_favorites` `orderby`: `added`, `name`, `price` (legacy `date`, `title` accepted)
+- `rentiva_payment_history` `orderby`: `date`, `amount`; `status`: `""`, `pending`, `completed`, `cancelled`
+- `rentiva_search_results` `default_sort`: `relevance`, `price_asc`, `price_desc`, `name_asc`, `name_desc`, `year_desc`
+- `rentiva_vehicles_list` `layout`: `list`, `grid`; `rentiva_transfer_results` `layout`: `list`, `grid`; `rentiva_transfer_search` `layout`: `horizontal`, `vertical`
+- `rentiva_vendor_profile` `vehicle_sort`: `rating-newest`, `newest`, `price-asc`, `price-desc`
+
 Strict mapping contract:
 - `CanonicalAttributeMapper::map(..., true)` drops unknown keys.
 - If strict is `false`, unknown keys pass through after normalization.
@@ -844,16 +885,14 @@ This matrix shows high-impact aliases that are actively used for block/classic p
 | `rentiva_transfer_results` | `show_favorite_button` | `showFavoriteButton`, `show_favorite_button` | Favorite control bridge |
 | `rentiva_transfer_results` | `show_compare_button` | `showCompareButton`, `show_compare_button` | Compare control bridge |
 | `rentiva_transfer_results` | `show_route_info` | `showRouteInfo`, `show_route_info` | Route summary visibility |
-| `rentiva_search_results` | `orderby` | `sortBy`, `orderby` | Enum validated |
-| `rentiva_search_results` | `order` | `sortOrder`, `order` | Enum validated |
+| `rentiva_search_results` | `default_sort` | `defaultSort`, `default_sort` | Values: `relevance`, `price_asc`, `price_desc`, `name_asc`, `name_desc`, `year_desc` |
 | `rentiva_search_results` | `results_per_page` | `resultsPerPage`, `results_per_page`, `limit` | Coexists with canonical `limit` |
 | `rentiva_vehicles_grid` | `show_booking_btn` | `showBookButton`, `show_book_btn` (via normalization) | Legacy/canonical key in grid context |
 | `rentiva_vehicles_grid` | `show_favorite_button` | `showFavoriteButton`, `show_favorite_button` | Used by block inspector |
 | `rentiva_unified_search` | `default_tab` | `defaultTab`, `default_tab` | Workflow routing key |
-| `rentiva_unified_search` | `search_layout` | `searchLayout`, `search_layout` | Layout mode bridge |
+| `rentiva_unified_search` | `search_layout` | `searchLayout`, `search_layout` | Layout mode bridge; the old `layout` key is no longer read |
 | `rentiva_unified_search` | `redirect_page` | `redirect_url`, `redirectPage`, `redirectUrl` | URL/page compatibility bridge |
 | `rentiva_booking_form` | `vehicle_id` | `vehicleId`, `vehicle_id` | Primary entity binding |
-| `rentiva_booking_form` | `show_date_picker` | `showDatePicker`, `show_date_picker` | UI control toggle |
 
 Maintenance note:
 - When a new block attribute is introduced, add its canonical target and accepted aliases here.
@@ -891,6 +930,9 @@ Use this section to record contract-level changes affecting shortcodes and block
 | 2026-02-20 | `rentiva_transfer_results` | Fix | Grid/list and column behavior moved to inner results container so route summary is not treated as a grid item | Compatible | Clear cache/regenerate assets if needed |
 | 2026-02-25 | `AllowlistRegistry` | Audit Finding | v4.20.1 X-Ray: Detected 10 duplicate PHP array keys in `ALLOWLIST` constant. Aliases for `show_booking_button`, `show_favorite_btn`, `show_compare_btn`, `redirect_page`, `ids` affected. Section 8 alias table reflects first definitions; runtime uses second definitions. Code fix required in separate authorized task. | Breaking Risk | See Section 12 — C1 finding |
 | 2026-02-25 | `rentiva_home_poc` | Audit Finding | v4.20.1 X-Ray: Confirmed SC-Only with no AllowlistRegistry schema and no Block equivalent. Experimental status. | Compatible | No action required (by design) |
+| 2026-10-11 | Lite + Pro shortcodes, blocks, Elementor widgets | Fix | Elementor bridge slice 3A: 61 saved-but-ignored block/Elementor settings now apply (defaults keep the old render); see Section 3.6 | Conditional (appearance changes only where a value was set) | Review pages that set these values |
+| 2026-10-11 | Lite + Pro shortcodes, blocks, Elementor widgets | Removed | Settings with no effect removed from block.json, Elementor, the tag schema and the aliases; twin controls re-bound to the live key (Sections 3, 4, 8) | Compatible (saved values are ignored as before) except `show_book_button` and unified-search `layout` in shortcode text | Use `show_booking_button` / `search_layout` |
+| 2026-10-11 | Account lists | Added | Public query var `mhmrentiva_page` pages my-bookings and payment-history (also on the WooCommerce endpoint) | Compatible | None |
 | YYYY-MM-DD | shortcode/block name | Added/Changed/Deprecated/Removed/Fix | Describe what changed | Compatible/Conditional/Breaking | Migration/test notes |
 
 Maintenance rules:
@@ -900,7 +942,7 @@ Maintenance rules:
 
 ---
 
-Last updated: 2026-02-25
+Last updated: 2026-10-11
 
 ---
 
