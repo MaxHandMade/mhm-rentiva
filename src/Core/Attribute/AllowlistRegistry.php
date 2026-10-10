@@ -61,11 +61,6 @@ final class AllowlistRegistry {
             'group'   => 'sorting',
             'aliases' => [ 'showSorting' ],
         ],
-        'limit_items'              => [
-            'type'    => 'int',
-            'group'   => 'pagination',
-            'aliases' => [ 'limitItems' ],
-        ],
 
         // Dimension Mappings
         'width'                    => [
@@ -290,11 +285,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showBookingIdField' ],
         ],
-        'show_unread_badge'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showUnreadBadge' ],
-        ],
         'show_thread_preview'      => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -304,11 +294,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showBookingLink' ],
-        ],
-        'show_reply_btn'           => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showReplyButton', 'showReplyBtn' ],
         ],
         'show_booking_dates'       => [
             'type'    => 'bool',
