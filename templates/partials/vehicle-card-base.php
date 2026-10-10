@@ -52,7 +52,7 @@ $show_rating_count = $is_switched_on($atts['show_rating_count'] ?? false);
 // the lists' show_availability is not (spec 3A §2.2 -- its defaults are on and
 // would change every untouched card).
 $show_availability_status = $is_switched_on($atts['show_availability_status'] ?? false);
-// The booking button label. Empty keeps today's Book Now / Unavailable.
+// The instance's booking button label (see $booking_text below).
 $button_text = trim( (string) ( $atts['button_text'] ?? '' ) );
 
 // Data extraction with safe fallbacks
@@ -244,14 +244,18 @@ $allowed_svg_tags = array(
 $allowed_svg = $allowed_svg_tags;
 $btn_url     = $booking_btn_url;
 
-// An unavailable vehicle's button is disabled and always says so; a custom label
-// applies to the bookable state only. booking_btn_text (injected by the list
-// shortcodes from the global text setting) is still not read: the card never
-// printed it, and an untouched card must keep today's label (spec 3A §2.2).
+// Booking button label (spec 3A §2.2 exception 3). An unavailable vehicle's
+// button is disabled and always says so. Otherwise: the instance's button_text,
+// then booking_btn_text -- an internal carrier with no editor control, filled by
+// the grid/list shortcodes from the global mhmrentiva_text_book_now setting --
+// then today's Book Now.
+$booking_btn_text = trim( (string) ( $atts['booking_btn_text'] ?? '' ) );
 if (! $is_available) {
 	$booking_text = __('Unavailable', 'mhm-rentiva');
 } elseif ('' !== $button_text) {
 	$booking_text = $button_text;
+} elseif ('' !== $booking_btn_text) {
+	$booking_text = $booking_btn_text;
 } else {
 	$booking_text = __('Book Now', 'mhm-rentiva');
 }

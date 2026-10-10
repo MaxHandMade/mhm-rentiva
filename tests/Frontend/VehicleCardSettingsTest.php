@@ -81,9 +81,21 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 		$this->assertSame('Book Now', $this->button_label($this->card($this->catalog[0], array())));
 		$this->assertSame('Book Now', $this->button_label($this->card($this->catalog[0], array( 'button_text' => '' ))));
 
-		// The list shortcodes inject booking_btn_text from the global text setting;
-		// today the card never printed it, and an untouched card must not start to.
-		$this->assertSame('Book Now', $this->button_label($this->card($this->catalog[0], array( 'booking_btn_text' => 'Zz Global' ))));
+		// booking_btn_text (the global setting's carrier) is the fallback; button_text wins.
+		$this->assertSame('Zz Global', $this->button_label($this->card($this->catalog[0], array( 'booking_btn_text' => 'Zz Global' ))));
+		$this->assertSame(
+			'Zz Own',
+			$this->button_label(
+				$this->card(
+					$this->catalog[0],
+					array(
+						'booking_btn_text' => 'Zz Global',
+						'button_text'      => 'Zz Own',
+					)
+				)
+			)
+		);
+		$this->assertSame('Book Now', $this->button_label($this->card($this->catalog[0], array( 'booking_btn_text' => '' ))));
 
 		// An unavailable vehicle keeps "Unavailable" (its button is disabled), with or
 		// without a custom label.
@@ -95,6 +107,35 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 		// Vehicle card widget with its control left at the default.
 		$widget = $this->widget(VehicleCardWidget::class, array( 'vehicle_id' => (string) $this->catalog[0] ));
 		$this->assertSame('Book Now', $this->button_label($widget));
+	}
+
+	/**
+	 * Spec 3A Â§2.2 exception 3 (bug fix, changelog): the global "Book Now" text
+	 * setting reaches the card through the list/grid shortcodes' booking_btn_text.
+	 * With the option empty the label stays Book Now (the G2 goldens).
+	 */
+	public function test_exception_3_global_book_now_text_reaches_the_card(): void
+	{
+		$ids = implode(',', $this->catalog);
+		$set = static function ($settings) {
+			$settings = is_array($settings) ? $settings : array();
+			$settings['mhmrentiva_text_book_now'] = 'Zz Rent now';
+			return $settings;
+		};
+		$option = 'option_' . \MHMRentiva\Admin\Settings\Core\SettingsCore::OPTION_NAME;
+
+		$this->assertSame('Book Now', $this->button_label(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '"]')));
+
+		add_filter($option, $set);
+		try {
+			$this->assertSame('Zz Rent now', $this->button_label(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '"]')));
+			$this->assertSame('Zz Rent now', $this->button_label(do_shortcode('[rentiva_vehicles_grid]')));
+			$this->assertSame('Zz Rent now', $this->button_label($this->widget(VehicleCardWidget::class, array( 'vehicle_id' => (string) $this->catalog[0] ))));
+			// The instance's own button_text still wins over the global text.
+			$this->assertSame('Zz Mine', $this->button_label(do_shortcode('[rentiva_vehicles_list ids="' . $this->catalog[0] . '" button_text="Zz Mine"]')));
+		} finally {
+			remove_filter($option, $set);
+		}
 	}
 
 	public function test_rating_count_shows_when_on(): void
