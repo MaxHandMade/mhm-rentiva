@@ -21,7 +21,7 @@
             var showRating = attributes.showRating;
             var showReviews = attributes.showReviews;
             var showFeatures = attributes.showFeatures;
-            var showBookingForm = attributes.showBookingForm;
+            var showBooking = attributes.showBooking;
             var showSimilarVehicles = attributes.showSimilarVehicles;
             var showFavoriteButton = attributes.showFavoriteButton;
             var similarVehiclesLimit = attributes.similarVehiclesLimit;
@@ -83,8 +83,8 @@
                         }),
                         el(ToggleControl, {
                             label: __('Show Booking Form', 'mhm-rentiva'),
-                            checked: showBookingForm,
-                            onChange: function (val) { setAttributes({ showBookingForm: val }); }
+                            checked: showBooking,
+                            onChange: function (val) { setAttributes({ showBooking: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Similar Vehicles', 'mhm-rentiva'),

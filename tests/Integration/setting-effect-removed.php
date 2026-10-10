@@ -80,4 +80,8 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_share_btns', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_technical_specs', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_technical_specs', 'decision' => 'REMOVE' ),
+	// Not a table row: its only reader (the reviews gate) moved to show_reviews (exception 2);
+	// the block toggle was rebound to show_booking (ruling T4-1, rule 2).
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
 );

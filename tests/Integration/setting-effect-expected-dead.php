@@ -154,12 +154,6 @@ return array(
 	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'redirect_page', 'decision' => 'APPLY' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'redirect_page', 'decision' => 'APPLY' ),
 
-	// rentiva_vehicle_details. Not a table row: show_booking_form gated only the reviews
-	// section, which now follows show_reviews (spec 3A §2.2 exception 2), so the key is
-	// left with no reader. Provisional until the controller rules (Task 4 report).
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
-
 	// rentiva_vehicle_rating_form.
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'max_photos', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'max_photos', 'decision' => 'REMOVE' ),

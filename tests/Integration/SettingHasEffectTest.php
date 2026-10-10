@@ -82,13 +82,15 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * showBreadcrumb, showShareButtons, showTechnicalSpecs; comparison showCategory,
 	 * showFeatures, showFuelType, showRating, showSeats, showTechnicalSpecs,
 	 * showTransmission) and Elementor -11 (ten parity controls plus the comparison
-	 * "Show Features" select).
+	 * "Show Features" select). Ruling T4-1: block -1 / Elementor -1 more
+	 * (details showBookingForm and its parity control; the editor toggle now
+	 * writes showBooking, which Elementor already has as its own switcher).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 250,
-			'elementor' => 277,
+			'block'     => 249,
+			'elementor' => 276,
 		);
 	}
 

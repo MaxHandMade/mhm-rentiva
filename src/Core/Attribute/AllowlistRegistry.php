@@ -1173,7 +1173,6 @@ final class AllowlistRegistry {
             'class',
             'show_rating',
             'show_reviews',
-            'show_booking_form',
             'show_similar_vehicles',
             'show_favorite_button',
             'show_compare_button',

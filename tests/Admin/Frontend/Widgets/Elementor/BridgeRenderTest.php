@@ -126,7 +126,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 			'shortcodes/vehicle-details',
 			array(
 				'vehicle_id' => $vehicle,
-				'atts'       => array( 'show_booking_form' => '1' ),
+				'atts'       => array( 'show_reviews' => '1' ),
 			),
 			true
 		);

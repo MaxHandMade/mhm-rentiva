@@ -73,14 +73,51 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString($reviews, $this->shortcode(''));
 		$this->assertStringNotContainsString($reviews, $this->shortcode('show_reviews="0"'));
-		$this->assertStringContainsString($reviews, $this->shortcode('show_booking_form="0"'), 'show_booking_form must no longer hide the reviews (exception 2).');
+		$this->assertStringContainsString($reviews, $this->shortcode('show_booking="0"'), 'Hiding the booking section must not hide the reviews (exception 2).');
 
 		$this->assertStringContainsString($reviews, $this->block(array( 'vehicleId' => $id )));
 		$this->assertStringNotContainsString($reviews, $this->block(array( 'vehicleId' => $id, 'showReviews' => false )));
-		$this->assertStringContainsString($reviews, $this->block(array( 'vehicleId' => $id, 'showBookingForm' => false )));
+		$this->assertStringContainsString($reviews, $this->block(array( 'vehicleId' => $id, 'showBooking' => false )));
 
 		$this->assertStringContainsString($reviews, $this->widget(array( 'vehicle_id' => $id )));
 		$this->assertStringNotContainsString($reviews, $this->widget(array( 'vehicle_id' => $id, 'show_reviews' => '' )));
+	}
+
+	/**
+	 * Ruling T4-1 (rule 2, spec §2.3): the block's "Show Booking Form" toggle writes the
+	 * live show_booking (the booking section); show_booking_form is removed. One control
+	 * per key: Elementor keeps its own show_booking switcher only.
+	 */
+	public function test_booking_form_toggle_drives_booking_section(): void
+	{
+		$cta     = 'rv-cta-container';
+		$reviews = 'rv-vd2-ratings-card';
+		$id      = (string) $this->catalog[0];
+
+		$js = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/blocks/vehicle-details/index.js'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
+		$this->assertMatchesRegularExpression("/label: __\('Show Booking Form', 'mhm-rentiva'\),\s*checked: showBooking,\s*onChange: function \(val\) \{ setAttributes\(\{ showBooking: val \}\); \}/", $js);
+		$this->assertStringNotContainsString('showBookingForm', $js);
+		$this->assertSame(array(), $this->block_json_attribute('showBookingForm'));
+		$this->assertTrue($this->block_json_attribute('showBooking')['default'] ?? null);
+
+		$on  = $this->block(array( 'vehicleId' => $id ));
+		$off = $this->block(array( 'vehicleId' => $id, 'showBooking' => false ));
+		$this->assertStringContainsString($cta, $on);
+		$this->assertStringNotContainsString($cta, $off);
+		$this->assertStringContainsString($reviews, $off, 'The booking toggle leaves the reviews alone.');
+		$this->assertStringContainsString('rv-vd2-booking-card', $off, 'Title and price stay; only the booking call to action goes.');
+
+		// A saved showBookingForm value is inert (spec §2.4).
+		$this->assertSame(
+			RenderNormalizer::normalize($on),
+			RenderNormalizer::normalize($this->block(array( 'vehicleId' => $id, 'showBookingForm' => false )))
+		);
+
+		$controls = WidgetFactory::make(VehicleDetailsWidget::class)->get_controls();
+		$this->assertArrayHasKey('show_booking', $controls);
+		$this->assertArrayNotHasKey('show_booking_form', $controls);
+		$this->assertStringNotContainsString($cta, $this->widget(array( 'vehicle_id' => $id, 'show_booking' => '' )));
+		$this->assertStringNotContainsString($cta, $this->shortcode('show_booking="0"'));
 	}
 
 	public function test_rating_line_follows_show_rating(): void
