@@ -122,8 +122,11 @@
     background-color: var(--mhm-error, #ef4444);
 }
 
-/* Favorite Button (Top Right) */
-.mhm-vehicle-card .mhm-card-favorite {
+/* Favorite Button (Top Right). Scoped by the vehicle card or by the shared
+   actions overlay, so every card that uses the overlay (the add-on's transfer
+   card too) gets the same 32px circle instead of the theme's button style. */
+.mhm-vehicle-card .mhm-card-favorite,
+.mhm-card-actions-overlay > .mhm-card-favorite {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -210,8 +213,9 @@
     /* Re-enable on child buttons */
 }
 
-/* Compare Button (Below Favorite, Top Right) */
-.mhm-vehicle-card .mhm-card-compare {
+/* Compare Button (Below Favorite, Top Right); scoped like the favorite button. */
+.mhm-vehicle-card .mhm-card-compare,
+.mhm-card-actions-overlay > .mhm-card-compare {
     position: absolute;
     top: 52px;
     right: 12px;
