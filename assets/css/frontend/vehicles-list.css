@@ -147,6 +147,9 @@
 .rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-card-content {
 	max-width: 100%;
 	padding: 1rem;
+	/* The row layout's min-height: 100% (vehicle-card.css) made the content as
+	   tall as the whole card, below the image: the footer fell outside the card. */
+	min-height: 0;
 }
 
 .rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-footer,
