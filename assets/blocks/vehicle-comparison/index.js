@@ -16,16 +16,9 @@
             var blockProps = useBlockProps();
 
             var vehicleIds = attributes.vehicleIds;
-            var showTechnicalSpecs = attributes.showTechnicalSpecs;
             var showComparisonImages = attributes.showComparisonImages;
             var showPrice = attributes.showPrice;
-            var showRating = attributes.showRating;
-            var showFeatures = attributes.showFeatures;
             var showBookButton = attributes.showBookButton;
-            var showCategory = attributes.showCategory;
-            var showFuelType = attributes.showFuelType;
-            var showTransmission = attributes.showTransmission;
-            var showSeats = attributes.showSeats;
             var maxVehicles = attributes.maxVehicles;
             var className = attributes.className;
 
@@ -67,41 +60,6 @@
                             label: __('Show Price', 'mhm-rentiva'),
                             checked: showPrice,
                             onChange: function (val) { setAttributes({ showPrice: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Rating', 'mhm-rentiva'),
-                            checked: showRating,
-                            onChange: function (val) { setAttributes({ showRating: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Technical Specs', 'mhm-rentiva'),
-                            checked: showTechnicalSpecs,
-                            onChange: function (val) { setAttributes({ showTechnicalSpecs: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Features', 'mhm-rentiva'),
-                            checked: showFeatures,
-                            onChange: function (val) { setAttributes({ showFeatures: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Category', 'mhm-rentiva'),
-                            checked: showCategory,
-                            onChange: function (val) { setAttributes({ showCategory: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Fuel Type', 'mhm-rentiva'),
-                            checked: showFuelType,
-                            onChange: function (val) { setAttributes({ showFuelType: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Transmission', 'mhm-rentiva'),
-                            checked: showTransmission,
-                            onChange: function (val) { setAttributes({ showTransmission: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Seats', 'mhm-rentiva'),
-                            checked: showSeats,
-                            onChange: function (val) { setAttributes({ showSeats: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Book Button', 'mhm-rentiva'),

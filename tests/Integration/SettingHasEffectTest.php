@@ -78,12 +78,17 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * priceFormat, showAvailability, showBadges, title) and Elementor -11 (their ten
 	 * parity controls, plus featured show_book_button rebound to show_booking_button,
 	 * which replaces that key's parity control).
+	 * Task 4 (details, comparison): block -11 (details showAvailability,
+	 * showBreadcrumb, showShareButtons, showTechnicalSpecs; comparison showCategory,
+	 * showFeatures, showFuelType, showRating, showSeats, showTechnicalSpecs,
+	 * showTransmission) and Elementor -11 (ten parity controls plus the comparison
+	 * "Show Features" select).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 261,
-			'elementor' => 288,
+			'block'     => 250,
+			'elementor' => 277,
 		);
 	}
 

@@ -21,8 +21,9 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * setAttributes object-literal keys across Lite's editor scripts after the slice.
 	 * Slice 3A Task 1: 190 (contact: subjectPrefix, showSubjectField, showMap and
 	 * showSocialLinks controls removed; the three twins repointed, same count).
+	 * Slice 3A Task 4: 179 (vehicle-details: 4 controls removed; vehicle-comparison: 7).
 	 */
-	private const LITE_LITERAL_KEYS = 190;
+	private const LITE_LITERAL_KEYS = 179;
 
 	private static function blocks_dir(): string
 	{

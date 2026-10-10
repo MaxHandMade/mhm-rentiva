@@ -66,14 +66,6 @@
             "type": "boolean",
             "default": true
         },
-        "showTechnicalSpecs": {
-            "type": "boolean",
-            "default": true
-        },
-        "showAvailability": {
-            "type": "boolean",
-            "default": true
-        },
         "showBookingForm": {
             "type": "boolean",
             "default": true
@@ -82,21 +74,13 @@
             "type": "boolean",
             "default": true
         },
-        "showShareButtons": {
-            "type": "boolean",
-            "default": true
-        },
         "showFavoriteButton": {
-            "type": "boolean",
-            "default": true
-        },
-        "showBreadcrumb": {
             "type": "boolean",
             "default": true
         },
         "similarVehiclesLimit": {
             "type": "string",
-            "default": "4"
+            "default": ""
         },
         "showPricing": {
             "type": "boolean",

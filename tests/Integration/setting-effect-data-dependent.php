@@ -61,6 +61,8 @@ return array(
 	// rentiva_vehicle_details.
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_features', 'fixture' => 'card_feature_items', 'reason' => 'show_features toggles card items of the feature type, not the default detail fields' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_features', 'fixture' => 'card_feature_items', 'reason' => 'show_features toggles card items of the feature type, not the default detail fields' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'similar_vehicles_limit', 'fixture' => 'vehicle_without_category', 'reason' => 'similar vehicles are the featured ones of the shown vehicle category; each catalog vehicle is alone in its category, so a limit has nothing to cut (added by Task 4)' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'similar_vehicles_limit', 'fixture' => 'vehicle_without_category', 'reason' => 'similar vehicles are the featured ones of the shown vehicle category; each catalog vehicle is alone in its category, so a limit has nothing to cut (added by Task 4)' ),
 
 	// rentiva_vehicles_grid.
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'category', 'fixture' => 'category_slugs', 'reason' => 'the category filter matches term slugs; sentinel values match nothing' ),

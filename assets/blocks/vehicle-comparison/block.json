@@ -46,10 +46,6 @@
       "type": "string",
       "default": ""
     },
-    "showTechnicalSpecs": {
-      "type": "boolean",
-      "default": true
-    },
     "showComparisonImages": {
       "type": "boolean",
       "default": true
@@ -58,31 +54,7 @@
       "type": "boolean",
       "default": true
     },
-    "showRating": {
-      "type": "boolean",
-      "default": true
-    },
-    "showFeatures": {
-      "type": "boolean",
-      "default": true
-    },
     "showBookButton": {
-      "type": "boolean",
-      "default": true
-    },
-    "showCategory": {
-      "type": "boolean",
-      "default": true
-    },
-    "showFuelType": {
-      "type": "boolean",
-      "default": true
-    },
-    "showTransmission": {
-      "type": "boolean",
-      "default": true
-    },
-    "showSeats": {
       "type": "boolean",
       "default": true
     },

@@ -592,6 +592,14 @@ final class ShortcodeFixtures
 				);
 				return $row;
 
+			case 'vehicle_without_category':
+				// Vehicle details lists the featured vehicles of the shown vehicle's
+				// category as "similar". Each catalog vehicle is alone in its category,
+				// so a limit has one card to cut; a vehicle without a category gets
+				// every featured vehicle (the catalog's three at least).
+				$row['atts']['vehicle_id'] = (string) self::vehicle();
+				return $row;
+
 			case 'one_vehicle_not_featured':
 				// The catalog is all featured; "featured only" needs one that is not.
 				// The vehicle card filters only when no vehicle is chosen.

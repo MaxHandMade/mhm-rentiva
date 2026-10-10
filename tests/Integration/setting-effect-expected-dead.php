@@ -154,43 +154,11 @@ return array(
 	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'redirect_page', 'decision' => 'APPLY' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'redirect_page', 'decision' => 'APPLY' ),
 
-	// rentiva_vehicle_comparison.
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_category', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_category', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_features', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_features', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_fuel_type', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_fuel_type', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_images', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_images', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_rating', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_rating', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_remove_buttons', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_remove_buttons', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_seats', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_seats', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_technical_specs', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_technical_specs', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_transmission', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_comparison', 'key' => 'show_transmission', 'decision' => 'REMOVE' ),
-
-	// rentiva_vehicle_details.
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_breadcrumb', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_breadcrumb', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_rating', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_rating', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_reviews', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_reviews', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_share_btns', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_share_btns', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_similar_vehicles', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_similar_vehicles', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_technical_specs', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_technical_specs', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'similar_vehicles_limit', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'similar_vehicles_limit', 'decision' => 'APPLY' ),
+	// rentiva_vehicle_details. Not a table row: show_booking_form gated only the reviews
+	// section, which now follows show_reviews (spec 3A §2.2 exception 2), so the key is
+	// left with no reader. Provisional until the controller rules (Task 4 report).
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
 
 	// rentiva_vehicle_rating_form.
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'max_photos', 'decision' => 'REMOVE' ),
