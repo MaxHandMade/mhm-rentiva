@@ -41,6 +41,8 @@
                             label: __('Similar Vehicles Limit', 'mhm-rentiva'),
                             value: similarVehiclesLimit,
                             type: 'number',
+                            min: 1,
+                            max: 12,
                             onChange: function (val) { setAttributes({ similarVehiclesLimit: val }); }
                         })
                     ),
@@ -82,7 +84,7 @@
                             onChange: function (val) { setAttributes({ showFeatures: val }); }
                         }),
                         el(ToggleControl, {
-                            label: __('Show Booking Form', 'mhm-rentiva'),
+                            label: __('Show Booking Section', 'mhm-rentiva'),
                             checked: showBooking,
                             onChange: function (val) { setAttributes({ showBooking: val }); }
                         }),

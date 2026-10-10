@@ -231,6 +231,26 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * T10a item 4: only the favourites list variant is pinned to one column at
+	 * every width; a hand-typed columns="1" vehicles grid follows the tablet /
+	 * mobile rules like any other column count.
+	 */
+	public function test_one_column_pin_is_scoped_to_favourites_list(): void
+	{
+		$this->save($this->catalog);
+
+		foreach (array( 'shortcode' => $this->shortcode('layout="list"'), 'block' => $this->block(array( 'layout' => 'list' )), 'widget' => $this->widget(array( 'layout' => 'list' )) ) as $surface => $html) {
+			$this->assertStringContainsString('rv-vehicles-grid--columns-1 rv-vehicles-grid--list"', $html, "$surface: list variant class.");
+		}
+		$this->assertStringNotContainsString('rv-vehicles-grid--list', $this->shortcode(''));
+		$this->assertStringNotContainsString('rv-vehicles-grid--list', do_shortcode('[rentiva_vehicles_grid columns="1"]'));
+
+		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/vehicles-grid.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
+		$this->assertMatchesRegularExpression('/\.rv-vehicles-grid\.rv-vehicles-grid--list\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\) !important;/', $css);
+		$this->assertStringNotContainsString('.rv-vehicles-grid.rv-vehicles-grid--columns-1', $css);
+	}
+
+	/**
 	 * no_results_text is the empty state; empty (the default) is today's text.
 	 */
 	public function test_no_results_text_is_used(): void

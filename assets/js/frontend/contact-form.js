@@ -158,9 +158,12 @@
                         this.showSuccessMessage(form, custom || (data.data && data.data.message) || mhmContactForm.messages.success);
 
                         // Same-site only: the server validated it (wp_validate_redirect) before printing it.
+                        // Left after a short delay, so the success message above is seen first.
                         const redirect = wrapper ? wrapper.dataset.redirectUrl : '';
                         if (redirect) {
-                            window.location.assign(redirect);
+                            setTimeout(() => {
+                                window.location.assign(redirect);
+                            }, 1500);
                         }
                     } else {
                         const errorMessage = (data.data && data.data.message) || mhmContactForm.messages.error;

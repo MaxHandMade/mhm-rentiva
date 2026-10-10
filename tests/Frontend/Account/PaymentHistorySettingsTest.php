@@ -142,6 +142,44 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * T10a item 5: a limit of 0, empty or negative is not a page size of 1 row;
+	 * it falls back to today's 10.
+	 */
+	public function test_non_positive_limit_falls_back_to_ten(): void
+	{
+		$this->more_payments(9); // 12 in all.
+
+		$renders = array(
+			'shortcode 0'     => $this->shortcode('limit="0"'),
+			'shortcode empty' => $this->shortcode('limit=""'),
+			'shortcode -3'    => $this->shortcode('limit="-3"'),
+			'block 0'         => $this->block(array( 'limit' => '0' )),
+			'widget empty'    => $this->widget(array( 'limit' => '' )),
+		);
+		foreach ($renders as $surface => $html) {
+			$this->assertCount(10, $this->rows($html), "$surface: 10 per page.");
+			$this->assertStringContainsString('Page 1 / 2', $html, "$surface pager.");
+		}
+	}
+
+	/**
+	 * T10a item 6 (plan ruling "missing values last"): a payment without an
+	 * amount goes last in both amount orders, as an undated one does by date.
+	 */
+	public function test_missing_amount_goes_last_in_both_orders(): void
+	{
+		$unpriced = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '50', -2);
+		delete_post_meta($unpriced, '_mhmrentiva_total_price');
+		$this->assertSame('', get_post_meta($unpriced, '_mhmrentiva_total_price', true));
+
+		foreach (array( 'desc', 'asc' ) as $order) {
+			$rows = $this->rows($this->shortcode('orderby="amount" order="' . $order . '"'));
+			$this->assertCount(4, $rows);
+			$this->assertSame($unpriced, end($rows), "amount $order: the payment without an amount is last.");
+		}
+	}
+
+	/**
 	 * Exception 5: the pager reads and writes mhmrentiva_page; core `paged` (which
 	 * redirect_canonical() moves into the endpoint path) is not read any more.
 	 * show_pagination off is today's first page without a pager.

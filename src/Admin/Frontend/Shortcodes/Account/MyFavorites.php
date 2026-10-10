@@ -119,7 +119,8 @@ class MyFavorites extends AbstractShortcode {
 			'total_vehicles'  => count($vehicles),
 			'has_vehicles'    => ! empty($vehicles),
 			'layout_class'    => $layout_class,
-			'columns_class'   => $layout_class . '--columns-' . $columns,
+			// The list variant is pinned to one column at every width (vehicles-grid.css).
+			'columns_class'   => $layout_class . '--columns-' . $columns . ( 'list' === $card_layout ? ' rv-vehicles-grid--list' : '' ),
 			'card_layout'     => $card_layout,
 			'wrapper_class'   => 'mhm-rentiva-my-favorites mhm-my-favorites-container rv-my-favorites-wrapper ' . ( $atts['class'] ?? '' ),
 			'no_results_text' => (string) ( $atts['no_results_text'] ?? '' ),

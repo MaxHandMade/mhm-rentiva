@@ -381,8 +381,10 @@ final class AccountRenderer {
 		// mhmrentiva_page (exception 5): core `paged` is moved into the path by
 		// redirect_canonical() on a WooCommerce endpoint, so "Next" always showed
 		// page 1. Pagination off is today's first page, the page var ignored.
+		// A limit of 0, empty or negative is not a page size: today's 10.
 		$user     = wp_get_current_user();
-		$per_page = max(1, (int) ( $atts['limit'] ?? 10 ));
+		$per_page = (int) ( $atts['limit'] ?? 10 );
+		$per_page = $per_page > 0 ? $per_page : 10;
 		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1');
 
 		$args = array(
@@ -737,9 +739,13 @@ final class AccountRenderer {
 			$payment_status  = get_post_meta($booking->ID, '_mhmrentiva_payment_status', true);
 			$payment_method  = get_post_meta($booking->ID, '_mhmrentiva_payment_method', true);
 			$payment_gateway = get_post_meta($booking->ID, '_mhmrentiva_payment_gateway', true);
-			$total_price     = (float) get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
-			$deposit_amount  = (float) get_post_meta($booking->ID, '_mhmrentiva_deposit_amount', true);
+			$total_raw       = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
+			$deposit_raw     = get_post_meta($booking->ID, '_mhmrentiva_deposit_amount', true);
+			$total_price     = (float) $total_raw;
+			$deposit_amount  = (float) $deposit_raw;
 			$payment_type    = get_post_meta($booking->ID, '_mhmrentiva_payment_type', true);
+			// No amount meta at all (not a zero amount): sorted last by amount.
+			$has_amount = '' !== ( $payment_type === 'deposit' ? $deposit_raw : $total_raw );
 
 			// Normalize status values from various sources
 			$status_key = strtolower( (string) $payment_status);
@@ -832,6 +838,7 @@ final class AccountRenderer {
 					'status_label'  => $status_label,
 					'method'        => $method_display,
 					'amount'        => $payment_type === 'deposit' ? $deposit_amount : $total_price,
+					'has_amount'    => $has_amount,
 					'total'         => $total_price,
 					'type'          => $payment_type,
 					'receipt'       => array(
@@ -861,14 +868,18 @@ final class AccountRenderer {
 			);
 		}
 
-		// Latest payments first by default. A payment without a date goes last in
-		// both orders (stable sort: ties keep the booking query's order).
+		// Latest payments first by default. A payment without a date (by date) or
+		// without an amount (by amount) goes last in both orders (stable sort:
+		// ties keep the booking query's order).
 		$by_amount = 'amount' === $args['orderby'];
 		$sign      = 'asc' === $args['order'] ? 1 : -1;
 		usort(
 			$payments,
 			static function ($a, $b) use ($by_amount, $sign) {
 				if ($by_amount) {
+					if (! $a['has_amount'] || ! $b['has_amount']) {
+						return ( ! $a['has_amount'] ) <=> ( ! $b['has_amount'] );
+					}
 					return $sign * ( $a['amount'] <=> $b['amount'] );
 				}
 				if (0 === $a['sort_ts'] || 0 === $b['sort_ts']) {

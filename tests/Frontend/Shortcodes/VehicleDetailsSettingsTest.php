@@ -84,7 +84,8 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Ruling T4-1 (rule 2, spec §2.3): the block's "Show Booking Form" toggle writes the
+	 * Ruling T4-1 (rule 2, spec §2.3): the block's "Show Booking Section" toggle (same
+	 * msgid as Elementor's switcher, T10a item 1) writes the
 	 * live show_booking (the booking section); show_booking_form is removed. One control
 	 * per key: Elementor keeps its own show_booking switcher only.
 	 */
@@ -95,7 +96,7 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 		$id      = (string) $this->catalog[0];
 
 		$js = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/blocks/vehicle-details/index.js'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
-		$this->assertMatchesRegularExpression("/label: __\('Show Booking Form', 'mhm-rentiva'\),\s*checked: showBooking,\s*onChange: function \(val\) \{ setAttributes\(\{ showBooking: val \}\); \}/", $js);
+		$this->assertMatchesRegularExpression("/label: __\('Show Booking Section', 'mhm-rentiva'\),\s*checked: showBooking,\s*onChange: function \(val\) \{ setAttributes\(\{ showBooking: val \}\); \}/", $js);
 		$this->assertStringNotContainsString('showBookingForm', $js);
 		$this->assertSame(array(), $this->block_json_attribute('showBookingForm'));
 		$this->assertTrue($this->block_json_attribute('showBooking')['default'] ?? null);
@@ -190,6 +191,23 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 		$_SERVER['HTTP_USER_AGENT'] = self::MOBILE_UA;
 		$this->assertSame(array( 'slider', '5', '1' ), $this->featured_shape(fn() => $this->shortcode('similar_vehicles_limit="5"')));
 		$this->assertSame(array( 'slider', '2', '1' ), $this->featured_shape(fn() => $this->block(array( 'vehicleId' => $id, 'similarVehiclesLimit' => '2' ))));
+	}
+
+	/**
+	 * T10a item 2: a set limit is clamped to 1..12 (empty/non-positive keeps the
+	 * 3/6 branch); the block control carries the same bounds.
+	 */
+	public function test_similar_limit_clamped_to_twelve(): void
+	{
+		$id = (string) $this->catalog[0];
+
+		$this->assertSame(array( 'grid', '12', '3' ), $this->featured_shape(fn() => $this->shortcode('similar_vehicles_limit="50"')));
+		$this->assertSame(array( 'grid', '12', '3' ), $this->featured_shape(fn() => $this->block(array( 'vehicleId' => $id, 'similarVehiclesLimit' => '999' ))));
+		$this->assertSame(array( 'grid', '12', '3' ), $this->featured_shape(fn() => $this->shortcode('similar_vehicles_limit="12"')));
+		$this->assertSame(array( 'grid', '1', '3' ), $this->featured_shape(fn() => $this->shortcode('similar_vehicles_limit="1"')));
+
+		$js = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/blocks/vehicle-details/index.js'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
+		$this->assertMatchesRegularExpression("/label: __\('Similar Vehicles Limit', 'mhm-rentiva'\),\s*value: similarVehiclesLimit,\s*type: 'number',\s*min: 1,\s*max: 12,/", $js);
 	}
 
 	/**

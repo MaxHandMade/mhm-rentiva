@@ -103,7 +103,7 @@ final class UnifiedSearch extends AbstractShortcode {
 			'location_required'     => self::resolve_bool($atts['location_required'], 'mhmrentiva_location_required', true),
 			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true),
 
-			'form_action'           => self::form_action(self::resolve_default($atts['redirect_page'], 'mhmrentiva_search_results_page')),
+			'form_action'           => self::form_action(self::resolve_default(self::page_id_or_empty($atts['redirect_page']), 'mhmrentiva_search_results_page')),
 			'layout'                => $layout,
 		);
 	}
@@ -127,7 +127,8 @@ final class UnifiedSearch extends AbstractShortcode {
 		}
 
 		if (ctype_digit($redirect)) {
-			$page = get_post( (int) $redirect);
+			// get_post(0) returns the global post: 0 is not a page id.
+			$page = (int) $redirect > 0 ? get_post( (int) $redirect) : null;
 			if ($page instanceof \WP_Post && 'publish' === $page->post_status && is_post_type_viewable($page->post_type)) {
 				return (string) get_permalink($page);
 			}
@@ -136,6 +137,20 @@ final class UnifiedSearch extends AbstractShortcode {
 
 		$url = wp_validate_redirect(esc_url_raw($redirect), '');
 		return '' !== $url ? $url : $fallback;
+	}
+
+	/**
+	 * A redirect_page attribute of 0 means "not set": it falls through to the
+	 * global setting exactly like an empty value does.
+	 *
+	 * @param mixed $value Raw redirect_page attribute.
+	 */
+	private static function page_id_or_empty(mixed $value): mixed
+	{
+		if (is_scalar($value) && ctype_digit(trim( (string) $value)) && 0 === (int) $value) {
+			return '';
+		}
+		return $value;
 	}
 
 	/**

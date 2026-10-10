@@ -233,7 +233,9 @@ final class Testimonials extends AbstractShortcode {
 		return array(
 			'atts'             => $atts,
 			'testimonials'     => $testimonials,
-			'total_count'      => self::get_testimonials_count($atts),
+			// What can be served, not every review: "Load More" is offered only
+			// while there is more of the pool to show.
+			'total_count'      => self::servable_count(self::get_testimonials_count($atts)),
 			'has_testimonials' => ! empty($testimonials),
 			'load_more'        => self::load_more_attributes($atts),
 		);
@@ -296,23 +298,23 @@ final class Testimonials extends AbstractShortcode {
 		// first page and appended the reviews already on screen.
 		$offset = max(0, (int) ( $atts['offset'] ?? 0 ));
 
-		// How many rows each source may return. Both sources are sorted newest
-		// first, so for a newest-first ordering the newest $limit of each is
-		// guaranteed to contain the newest $limit of the merge. An oldest-first,
-		// a random or a rating ordering needs a pool to draw from (the newest N
-		// of each source hold no oldest review), and an unlimited `limit` still
-		// needs a ceiling -- all use the same maximum the testimonials endpoint
-		// already enforces. A paged read has to fetch past its own start, or
-		// the slice below has nothing left to take.
-		$fetch_limit = ( $limit > 0 && 'date' === $orderby && 'DESC' === $order )
+		// How many rows each source may return. Each source is read in the
+		// requested order (date either way, or rating with unrated last), so the
+		// first N of each are guaranteed to contain the first N of the merge. A
+		// random order draws from a fixed pool (the newest of each source) that
+		// must be the same on every page, and an unlimited `limit` still needs a
+		// ceiling -- both use the same maximum the testimonials endpoint already
+		// enforces. A paged read has to fetch past its own start, or the slice
+		// below has nothing left to take.
+		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby )
 			? min( self::MAX_ROWS, $offset + $limit )
 			: self::MAX_ROWS;
 
 		// Source 1: Booking post meta reviews
-		$testimonials = self::get_booking_reviews($atts, $fetch_limit);
+		$testimonials = self::get_booking_reviews($atts, $fetch_limit, $orderby, $order);
 
 		// Source 2: Approved WordPress comments on vehicle posts
-		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts, $fetch_limit));
+		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts, $fetch_limit, $orderby, $order));
 
 		if ('rand' === $orderby) {
 			// A seeded draw: the same seed gives the same order, so a later page
@@ -344,10 +346,90 @@ final class Testimonials extends AbstractShortcode {
 			});
 		}
 
+		// A later page never reads past the pool: only its first MAX_ROWS rows
+		// are known to be the right ones (servable_count()).
+		if ($offset > 0) {
+			$testimonials = \array_slice($testimonials, 0, self::MAX_ROWS);
+		}
+
 		// Apply offset and limit on the merged set
 		$testimonials = \array_slice($testimonials, $offset, $limit > 0 ? $limit : null);
 
 		return $testimonials;
+	}
+
+	/**
+	 * How many of $total reviews the list can serve: each source is read up to
+	 * MAX_ROWS rows, so only the first MAX_ROWS of the merged order are known
+	 * to be right. "Load More" stops there instead of promising pages it would
+	 * serve empty (or out of order).
+	 */
+	private static function servable_count(int $total): int
+	{
+		return min($total, self::MAX_ROWS);
+	}
+
+	/**
+	 * Read one source in the list's order (spec 3A Task 10a item 7).
+	 *
+	 * Date: by date in the requested direction. Rating: the rated rows (a
+	 * rating of 1 or more) by rating in the requested direction, newest first
+	 * on a tie -- topped up with the unrated rows, newest first, only when
+	 * fewer than $fetch_limit rated rows came back, so unrated go last in both
+	 * directions, as the merge sorts them. Random: newest first (the pool).
+	 * Every orderby value is a constant; $order is already allowlisted.
+	 *
+	 * @param callable $read       fn(?array $rating_clause, array $sort, int $rows): list<row>.
+	 * @param string   $date_key   The source's date orderby key.
+	 * @param string   $rating_key The source's rating meta key.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function read_in_order(callable $read, int $fetch_limit, string $orderby, string $order, string $date_key, string $rating_key): array
+	{
+		if ('rating' !== $orderby) {
+			return $read(null, array( $date_key => 'date' === $orderby ? $order : 'DESC' ), $fetch_limit);
+		}
+
+		$rated = $read(
+			array(
+				'rating_sort' => array(
+					'key'     => $rating_key,
+					'value'   => 1,
+					'compare' => '>=',
+					'type'    => 'NUMERIC',
+				),
+			),
+			array(
+				'rating_sort' => $order,
+				$date_key     => 'DESC',
+			),
+			$fetch_limit
+		);
+		if (count($rated) >= $fetch_limit) {
+			return $rated;
+		}
+
+		$unrated = $read(
+			array(
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => $rating_key,
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => $rating_key,
+						'value'   => 1,
+						'compare' => '<',
+						'type'    => 'NUMERIC',
+					),
+				),
+			),
+			array( $date_key => 'DESC' ),
+			$fetch_limit - count($rated)
+		);
+
+		return array_merge($rated, $unrated);
 	}
 
 	/**
@@ -356,7 +438,24 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_booking_reviews(array $atts, int $fetch_limit = self::MAX_ROWS): array
+	private static function get_booking_reviews(array $atts, int $fetch_limit = self::MAX_ROWS, string $orderby = 'date', string $order = 'DESC'): array
+	{
+		$read = static function (?array $rating_clause, array $sort, int $rows) use ($atts): array {
+			return self::read_booking_reviews($atts, $rows, $sort, $rating_clause);
+		};
+		return self::read_in_order($read, $fetch_limit, $orderby, $order, 'date', '_mhmrentiva_customer_rating');
+	}
+
+	/**
+	 * One booking-review read.
+	 *
+	 * @param array                     $atts          Shortcode attributes.
+	 * @param int                       $fetch_limit   Rows to read.
+	 * @param array<string,string>      $sort          WP_Query orderby (constants only).
+	 * @param array<int|string,mixed>|null $rating_clause Extra meta_query clauses for the rating order.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function read_booking_reviews(array $atts, int $fetch_limit, array $sort, ?array $rating_clause): array
 	{
 		$args = array(
 			'post_type'      => 'mhmrentiva_booking',
@@ -364,8 +463,7 @@ final class Testimonials extends AbstractShortcode {
 			// Bounded: this runs on a public page and the caller slices to the
 			// displayed count anyway.
 			'posts_per_page' => max(1, min($fetch_limit, self::MAX_ROWS)),
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'orderby'        => $sort,
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -394,6 +492,10 @@ final class Testimonials extends AbstractShortcode {
 				'value'   => (int) $atts['vehicle_id'],
 				'compare' => '=',
 			);
+		}
+
+		if (null !== $rating_clause) {
+			$args['meta_query'] = array_merge($args['meta_query'], $rating_clause);
 		}
 
 		$bookings     = get_posts($args);
@@ -426,7 +528,24 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS): array
+	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS, string $orderby = 'date', string $order = 'DESC'): array
+	{
+		$read = static function (?array $rating_clause, array $sort, int $rows) use ($atts): array {
+			return self::read_vehicle_comments($atts, $rows, $sort, $rating_clause);
+		};
+		return self::read_in_order($read, $fetch_limit, $orderby, $order, 'comment_date', 'mhmrentiva_rating');
+	}
+
+	/**
+	 * One vehicle-comment read.
+	 *
+	 * @param array                        $atts          Shortcode attributes.
+	 * @param int                          $fetch_limit   Rows to read.
+	 * @param array<string,string>         $sort          WP_Comment_Query orderby (constants only).
+	 * @param array<int|string,mixed>|null $rating_clause Extra meta_query clauses for the rating order.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function read_vehicle_comments(array $atts, int $fetch_limit, array $sort, ?array $rating_clause): array
 	{
 		$comment_args = array(
 			'post_type'   => 'mhmrentiva_vehicle',
@@ -437,8 +556,7 @@ final class Testimonials extends AbstractShortcode {
 			'status'      => 'approve',
 			// Bounded for the same reason as the booking read above.
 			'number'      => max(1, min($fetch_limit, self::MAX_ROWS)),
-			'orderby'     => 'comment_date',
-			'order'       => 'DESC',
+			'orderby'     => $sort,
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -454,6 +572,10 @@ final class Testimonials extends AbstractShortcode {
 					'type'    => 'NUMERIC',
 				),
 			);
+		}
+
+		if (null !== $rating_clause) {
+			$comment_args['meta_query'] = array_merge($comment_args['meta_query'] ?? array(), $rating_clause);
 		}
 
 		$comments     = get_comments($comment_args);
@@ -663,7 +785,9 @@ final class Testimonials extends AbstractShortcode {
 			array(
 				'testimonials' => $testimonials,
 				'total_count'  => $total_count,
-				'has_more'     => ( $page * $limit ) < $total_count,
+				// Up to what can be served (servable_count()), not every review:
+				// past the pool the button stayed and served empty pages.
+				'has_more'     => ( $page * $limit ) < self::servable_count($total_count),
 				'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
 			)
 		);

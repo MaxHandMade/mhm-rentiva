@@ -30,8 +30,10 @@
 	grid-template-columns: repeat(4, 1fr) !important;
 }
 
-/* A list of cards (my favourites, layout "list"): one per row at every width. */
-.rv-vehicles-grid.rv-vehicles-grid--columns-1 {
+/* A list of cards (my favourites, layout "list"): one per row at every width.
+   Scoped to the list variant: a hand-typed columns="1" grid follows the tablet /
+   mobile rules below like any other column count. */
+.rv-vehicles-grid.rv-vehicles-grid--list {
 	grid-template-columns: minmax(0, 1fr) !important;
 }
 
@@ -39,7 +41,7 @@
    min-height: 100% (vehicle-card.css, for the side-by-side row) would make it as
    tall as the whole card under the image and push the price and button out. */
 @media (max-width: 782px) {
-	.rv-vehicles-grid--columns-1 .mhm-card--list .mhm-card-content {
+	.rv-vehicles-grid--list .mhm-card--list .mhm-card-content {
 		min-height: 0;
 	}
 }

@@ -178,6 +178,50 @@ final class SearchSettingsTest extends WP_UnitTestCase
 		$this->assertSame($fallback, $this->action($this->unified_shortcode('redirect_page="' . $draft . '"')));
 	}
 
+	/**
+	 * T10a item 3: redirect_page="0" is not a page id. get_post(0) returns the
+	 * global post, so the form used to submit to the current page; 0 now behaves
+	 * like empty (global setting, else the search results page).
+	 */
+	public function test_redirect_page_zero_behaves_like_empty(): void
+	{
+		$current  = self::factory()->post->create(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Zz Current Page',
+			)
+		);
+		$fallback = esc_url(ShortcodeUrlManager::get_page_url('rentiva_search_results'));
+		$GLOBALS['post'] = get_post($current); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- simulate a page in the loop.
+		setup_postdata($GLOBALS['post']);
+
+		$this->assertSame($fallback, $this->action($this->unified_shortcode('redirect_page="0"')));
+		$this->assertSame($fallback, $this->action($this->unified_block(array( 'redirect_page' => '0' ))));
+		$this->assertSame($fallback, $this->action($this->unified_widget(array( 'redirect_page' => '0' ))));
+
+		// 0 falls through to the global setting, as empty does.
+		$global   = self::factory()->post->create(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Zz Global Results',
+			)
+		);
+		$settings = get_option('mhmrentiva_settings', array());
+		$settings = is_array($settings) ? $settings : array();
+		$settings['mhmrentiva_search_results_page'] = (string) $global;
+		update_option('mhmrentiva_settings', $settings);
+		$this->assertSame(esc_url((string) get_permalink($global)), $this->action($this->unified_shortcode('redirect_page="0"')));
+
+		// A global setting of 0 is not a page id either.
+		$settings['mhmrentiva_search_results_page'] = '0';
+		update_option('mhmrentiva_settings', $settings);
+		$this->assertSame($fallback, $this->action($this->unified_shortcode('')));
+
+		wp_reset_postdata();
+	}
+
 	public function test_wrapper_has_no_min_max_width_style(): void
 	{
 		$attributes = SettingProbe::block_json('unified-search', array())['attributes'];
