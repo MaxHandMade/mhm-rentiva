@@ -66,14 +66,16 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Surface counts on 2026-10-10 (Task 0). Lower them only together with a
-	 * deliberate removal of settings.
+	 * Surface counts on 2026-10-10 (Task 0: 278 / 313). Lower them only together
+	 * with a deliberate removal of settings.
+	 * Task 1 (contact): -7 / -7, the seven REMOVE keys (block attribute and its
+	 * Elementor parity control each).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 278,
-			'elementor' => 313,
+			'block'     => 271,
+			'elementor' => 306,
 		);
 	}
 

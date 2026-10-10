@@ -11,4 +11,20 @@
 
 declare(strict_types=1);
 
-return array();
+return array(
+	// rentiva_contact (Task 1).
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'recipient_email', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'recipient_email', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'show_map', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'show_map', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'show_phone_field', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'show_phone_field', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'show_social_links', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'show_social_links', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'show_subject_field', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'show_subject_field', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'show_vehicle_select', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'show_vehicle_select', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'subject_prefix', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'subject_prefix', 'decision' => 'REMOVE' ),
+);

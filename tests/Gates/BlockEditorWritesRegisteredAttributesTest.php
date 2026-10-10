@@ -17,8 +17,12 @@ use WP_UnitTestCase;
  */
 class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 {
-	/** setAttributes object-literal keys across Lite's editor scripts after the slice. */
-	private const LITE_LITERAL_KEYS = 194;
+	/**
+	 * setAttributes object-literal keys across Lite's editor scripts after the slice.
+	 * Slice 3A Task 1: 190 (contact: subjectPrefix, showSubjectField, showMap and
+	 * showSocialLinks controls removed; the three twins repointed, same count).
+	 */
+	private const LITE_LITERAL_KEYS = 190;
 
 	private static function blocks_dir(): string
 	{

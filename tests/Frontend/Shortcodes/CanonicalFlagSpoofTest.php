@@ -180,7 +180,8 @@ final class CanonicalFlagSpoofTest extends WP_UnitTestCase
 		// The canonical branch skips shortcode_atts(); the block path must take it.
 		$this->assertSame(0, $truncations, 'The block path did not take the canonical branch.');
 		$this->assertStringNotContainsString('_canonical', $html);
-		$this->assertStringNotContainsString('[7/24]', $html);
+		// Since slice 3A Task 1 the title renders (it was a dead setting): intact, as heading text.
+		$this->assertStringContainsString('<h3 class="rv-contact-title">Bize ulaşın [7/24]</h3>', $html);
 		$this->assertStringContainsString('id="rv-contact-form"', $html);
 	}
 }

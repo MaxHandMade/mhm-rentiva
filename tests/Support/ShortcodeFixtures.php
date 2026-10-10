@@ -458,7 +458,17 @@ final class ShortcodeFixtures
 			case 'rentiva_search_results':
 			case 'rentiva_featured_vehicles':
 			case 'rentiva_unified_search':
+				break;
+
 			case 'rentiva_contact':
+				// email_to: the address only ever reaches the page as an encrypted payload
+				// with a random nonce, so two addresses differ on every render (noisy); the
+				// observable effect is the payload field appearing at all (spec 3A §2.5 b).
+				// redirect_url: only a same-site URL survives wp_validate_redirect().
+				$row['pairs'] = array(
+					'email_to'     => array( '', 'zza@example.com' ),
+					'redirect_url' => array( '', home_url('/zz-thanks/') ),
+				);
 				break;
 
 			default:

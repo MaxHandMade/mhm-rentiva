@@ -20,8 +20,11 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	/** Lite blocks registered by the plugin's own init hook. */
 	private const LITE_BLOCK_COUNT = 16;
 
-	/** Non-support attributes after the slice (300 before: 2 shadowing + 20 twin deletions). */
-	private const LITE_ATTRIBUTE_COUNT = 278;
+	/**
+	 * Non-support attributes after the slice (300 before: 2 shadowing + 20 twin deletions).
+	 * Slice 3A Task 1: 271, the contact block's seven removed attributes.
+	 */
+	private const LITE_ATTRIBUTE_COUNT = 271;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(

@@ -15,16 +15,15 @@
             var setAttributes = props.setAttributes;
             var blockProps = useBlockProps();
 
-            var recipientEmail = attributes.recipientEmail;
-            var subjectPrefix = attributes.subjectPrefix;
+            // Each control writes the live attribute its shortcode key reads
+            // (slice 3A: "Recipient Email" -> emailTo, "Show Phone Field" -> showPhone,
+            // "Show Vehicle Select" -> showVehicleSelector).
+            var emailTo = attributes.emailTo;
             var successMessage = attributes.successMessage;
-            var showPhoneField = attributes.showPhoneField;
-            var showSubjectField = attributes.showSubjectField;
+            var showPhone = attributes.showPhone;
             var showBookingIdField = attributes.showBookingIdField;
-            var showVehicleSelect = attributes.showVehicleSelect;
+            var showVehicleSelector = attributes.showVehicleSelector;
             var showCompanyInfo = attributes.showCompanyInfo;
-            var showMap = attributes.showMap;
-            var showSocialLinks = attributes.showSocialLinks;
             var className = attributes.className;
 
             return el('div', blockProps,
@@ -33,14 +32,9 @@
                     el(PanelBody, { title: __('General Settings', 'mhm-rentiva'), initialOpen: true },
                         el(TextControl, {
                             label: __('Recipient Email', 'mhm-rentiva'),
-                            value: recipientEmail,
-                            onChange: function (val) { setAttributes({ recipientEmail: val }); },
-                            help: __('Overrides global setting.', 'mhm-rentiva')
-                        }),
-                        el(TextControl, {
-                            label: __('Subject Prefix', 'mhm-rentiva'),
-                            value: subjectPrefix,
-                            onChange: function (val) { setAttributes({ subjectPrefix: val }); }
+                            value: emailTo,
+                            onChange: function (val) { setAttributes({ emailTo: val }); },
+                            help: __("Overrides the global address only when this page's author can edit others' posts.", 'mhm-rentiva')
                         }),
                         el(TextControl, {
                             label: __('Success Message', 'mhm-rentiva'),
@@ -62,13 +56,8 @@
                     el(PanelBody, { title: __('Visibility Controls', 'mhm-rentiva'), initialOpen: false },
                         el(ToggleControl, {
                             label: __('Show Phone Field', 'mhm-rentiva'),
-                            checked: showPhoneField,
-                            onChange: function (val) { setAttributes({ showPhoneField: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Subject Field', 'mhm-rentiva'),
-                            checked: showSubjectField,
-                            onChange: function (val) { setAttributes({ showSubjectField: val }); }
+                            checked: showPhone,
+                            onChange: function (val) { setAttributes({ showPhone: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Booking ID Field', 'mhm-rentiva'),
@@ -77,23 +66,13 @@
                         }),
                         el(ToggleControl, {
                             label: __('Show Vehicle Select', 'mhm-rentiva'),
-                            checked: showVehicleSelect,
-                            onChange: function (val) { setAttributes({ showVehicleSelect: val }); }
+                            checked: showVehicleSelector,
+                            onChange: function (val) { setAttributes({ showVehicleSelector: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Company Info', 'mhm-rentiva'),
                             checked: showCompanyInfo,
                             onChange: function (val) { setAttributes({ showCompanyInfo: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Map', 'mhm-rentiva'),
-                            checked: showMap,
-                            onChange: function (val) { setAttributes({ showMap: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Social Links', 'mhm-rentiva'),
-                            checked: showSocialLinks,
-                            onChange: function (val) { setAttributes({ showSocialLinks: val }); }
                         })
                     )
                 ),

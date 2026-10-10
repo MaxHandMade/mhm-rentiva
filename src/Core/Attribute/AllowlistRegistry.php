@@ -334,25 +334,10 @@ final class AllowlistRegistry {
             'type'  => 'bool',
             'group' => 'visibility',
         ],
-        'show_subject_field'       => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showSubjectField' ],
-        ],
         'show_booking_id_field'    => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showBookingIdField' ],
-        ],
-        'show_map'                 => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showMap' ],
-        ],
-        'show_social_links'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showSocialLinks' ],
         ],
         'show_unread_badge'        => [
             'type'    => 'bool',
@@ -519,16 +504,6 @@ final class AllowlistRegistry {
             'group'   => 'feature',
             'aliases' => [ 'similarVehiclesLimit' ],
         ],
-        'recipient_email'          => [
-            'type'    => 'string',
-            'group'   => 'workflow',
-            'aliases' => [ 'recipientEmail' ],
-        ],
-        'subject_prefix'           => [
-            'type'    => 'string',
-            'group'   => 'workflow',
-            'aliases' => [ 'subjectPrefix' ],
-        ],
         'success_message'          => [
             'type'    => 'string',
             'group'   => 'workflow',
@@ -559,20 +534,10 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showPassengerCount' ],
         ],
-        'show_phone_field'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPhoneField', 'showPhone' ],
-        ],
         'show_company_info'        => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showCompanyInfo', 'showCompany' ],
-        ],
-        'show_vehicle_select'      => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showVehicleSelect', 'showVehicleSelector' ],
         ],
         'show_author_avatar'       => [
             'type'    => 'bool',
@@ -1305,15 +1270,8 @@ final class AllowlistRegistry {
             'auto_reply',
             'theme',
             'class',
-            'show_phone_field',
-            'show_subject_field',
             'show_booking_id_field',
-            'show_vehicle_select',
             'show_company_info',
-            'show_map',
-            'show_social_links',
-            'recipient_email',
-            'subject_prefix',
             'success_message',
         ],
         'rentiva_testimonials'          => [
