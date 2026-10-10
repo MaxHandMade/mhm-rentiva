@@ -33,4 +33,16 @@ final class RenderNormalizer
 		$html = (string) preg_replace('/rv_(contact|booking|unified)_[a-z0-9]{13,}/', 'rv_$1_UNIQ', $html);
 		return $html;
 	}
+
+	/**
+	 * normalize(), plus what differs between two runs on different days: the
+	 * year/month upload folder of fixture images (`/uploads/2026/10/` becomes
+	 * `/uploads/Y/M/`; fixture images take the current month). For the recorded
+	 * golden renders (G2) only; G1 compares two renders of one run and keeps
+	 * normalize() alone, so its measured dead set is untouched.
+	 */
+	public static function golden(string $html): string
+	{
+		return (string) preg_replace('#/uploads/\d{4}/\d{2}/#', '/uploads/Y/M/', self::normalize($html));
+	}
 }

@@ -297,7 +297,7 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 			static fn(array $m): string => $map[ (int) $m[1] ] ?? $m[1],
 			$html
 		);
-		$html = RenderNormalizer::normalize($html);
+		$html = RenderNormalizer::golden($html);
 		// Whitespace between tags is not part of the look.
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
