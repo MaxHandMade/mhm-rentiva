@@ -984,6 +984,14 @@ Notes:
 
 ## 12. Ecosystem Audit Findings — v4.20.1 X-Ray (2026-02-25)
 
+> **Historical record, not the current contract.** This section is the audit as it stood on
+> 2026-02-25 (v4.20.1). Its findings were resolved in v4.20.2 (see *v4.20.2 Resolution Status* at
+> the end of this section), and Elementor bridge slice 3A (2026-10-11) later reworked the settings
+> it names: `min_days` / `max_days` are no longer registry keys, `show_booking_form` was removed
+> in favour of `show_booking`, and featured vehicles' `show_book_button` in favour of
+> `show_booking_button`. None of the rows below is a live gap; the current keys, defaults and
+> removals are in Sections 3 (3.6), 4 and 8.
+
 > Instruction: V4.20.1-ECOSYSTEM-AUDIT
 > Evidence Plan: `docs/plans/2026-02-25-v4201-ecosystem-audit.md`
 

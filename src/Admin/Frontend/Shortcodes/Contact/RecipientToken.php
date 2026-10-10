@@ -20,13 +20,16 @@ use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
  * resolve() then re-checks what the payload claims against the site as it is now:
  * the source post must still exist, its author must still hold `edit_others_posts`
  * (a contributor or author could otherwise route visitors' messages to themselves),
- * the type must be the submitted form's own, the address must be valid. There is no
- * expiry: binding to the post is the revocation (remove `email_to`, delete the post
- * or demote the author and the payload stops working), and a cached page stays
- * usable for as long as the AJAX nonce does.
+ * the address must still be on that post (its content for a block or shortcode,
+ * its `_elementor_data` for an Elementor document), the type must be the submitted
+ * form's own, the address must be valid. There is no expiry: binding to the post is
+ * the revocation (remove `email_to`, delete the post or demote the author and the
+ * payload stops working), and a cached page stays usable for as long as the AJAX
+ * nonce does.
  *
  * Every refusal falls back to the global recipient and says so: the
- * `mhmrentiva_contact_recipient_fallback` action plus an error log line.
+ * `mhmrentiva_contact_recipient_fallback` action, plus an error log line when
+ * WP_DEBUG_LOG is on (the AJAX nonce is public, so the log must not be floodable).
  *
  * Spec 2026-10-10-elementor-kopru-dilim-3a §2.5 (a)-(d), R3.
  */
@@ -107,11 +110,51 @@ final class RecipientToken {
 			return self::fallback('author_not_allowed');
 		}
 
+		if (! self::still_on_post($payload['email'], $post)) {
+			return self::fallback('recipient_removed');
+		}
+
 		if (! is_email($payload['email'])) {
 			return self::fallback('invalid_email');
 		}
 
 		return $payload['email'];
+	}
+
+	/**
+	 * Whether the source post still configures $email: in its content (shortcode
+	 * text, or a block attribute JSON-encoded in the block comment) or in its
+	 * Elementor data (JSON). Each form the address can take there is looked for.
+	 *
+	 * @param string   $email The address the payload carries.
+	 * @param \WP_Post $post  The source post.
+	 */
+	private static function still_on_post(string $email, \WP_Post $post): bool
+	{
+		if ('' === $email) {
+			return false;
+		}
+
+		$haystack = (string) $post->post_content . "\n" . (string) get_post_meta($post->ID, '_elementor_data', true);
+
+		// As typed, or entity-encoded (kses runs over block attributes when the saving
+		// user lacks unfiltered_html: '&' is stored as '&amp;'); each one raw, as the
+		// JSON encoder writes it (Elementor: '/' and non-ASCII escaped) and as a block
+		// comment writes it (serialize_block_attributes() also escapes - < > & ").
+		foreach (array_unique(array( $email, esc_html($email) )) as $base) {
+			$forms = array(
+				$base,
+				substr( (string) wp_json_encode($base), 1, -1),
+				substr(serialize_block_attributes(array( $base )), 2, -2),
+			);
+			foreach (array_unique($forms) as $form) {
+				if ('' !== $form && str_contains($haystack, $form)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -136,10 +179,15 @@ final class RecipientToken {
 		 *
 		 * @param string $reason invalid_base64 | too_short | sodium_error | auth_failed |
 		 *                       malformed | type_mismatch | missing_post |
-		 *                       author_not_allowed | invalid_email.
+		 *                       author_not_allowed | recipient_removed | invalid_email.
 		 */
 		do_action('mhmrentiva_contact_recipient_fallback', $reason);
-		error_log('MHM Rentiva contact form: recipient payload refused (' . $reason . '); using the global recipient.'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- spec 3A §2.5 (c): the fallback must not be silent.
+
+		// Anyone with the public AJAX nonce can post refused payloads: log only on a
+		// site that asked for a debug log, so the PHP log cannot be flooded.
+		if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+			error_log('MHM Rentiva contact form: recipient payload refused (' . $reason . '); using the global recipient.'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- spec 3A §2.5 (c): the fallback must not be silent; gated on WP_DEBUG_LOG.
+		}
 
 		return null;
 	}

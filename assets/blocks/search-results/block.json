@@ -105,15 +105,7 @@
         },
         "defaultSort": {
             "type": "string",
-            "default": "price_asc",
-            "enum": [
-                "relevance",
-                "price_asc",
-                "price_desc",
-                "name_asc",
-                "name_desc",
-                "year_desc"
-            ]
+            "default": "price_asc"
         },
         "className": {
             "type": "string",

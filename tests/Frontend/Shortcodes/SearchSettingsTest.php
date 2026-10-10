@@ -87,7 +87,7 @@ final class SearchSettingsTest extends WP_UnitTestCase
 
 	/**
 	 * Every place that offers a default sort offers exactly the switch's values:
-	 * block.json enum, the block editor select, the Elementor select, the tag
+	 * the block editor select, the Elementor select, the tag
 	 * schema and the visitor's sort dropdown. newest/popularity/rating fell to
 	 * relevance and are gone (spec §2.5 E, no new sort feature).
 	 */
@@ -95,8 +95,11 @@ final class SearchSettingsTest extends WP_UnitTestCase
 	{
 		$this->assertSame(self::SWITCH_VALUES, $this->switch_cases(), 'The sort switch changed; update the default sort options with it.');
 
+		// No block.json enum: WP's attribute validation would turn a saved off-list value
+		// (newest) into price_asc, where the shortcode and the widget keep relevance.
+		// The editor select is held to the schema values by G3 instead.
 		$block = SettingProbe::block_json('search-results', array());
-		$this->assertSame(self::SWITCH_VALUES, $block['attributes']['defaultSort']['enum'] ?? null, 'block.json defaultSort enum');
+		$this->assertArrayNotHasKey('enum', $block['attributes']['defaultSort'], 'block.json defaultSort carries no enum');
 		$this->assertSame('price_asc', $block['attributes']['defaultSort']['default'] ?? null);
 
 		$this->assertSame(self::SWITCH_VALUES, SettingProbe::editor_options('search-results')['defaultSort'] ?? null, 'block editor defaultSort select');
@@ -138,6 +141,21 @@ final class SearchSettingsTest extends WP_UnitTestCase
 			RenderNormalizer::normalize($this->results_block(array( 'sortBy' => 'newest', 'sortOrder' => 'desc', 'showAvailability' => false )))
 		);
 		$this->assertSame(array( 'Alpha', 'Bravo', 'Charlie' ), $this->order($this->results_widget(array( 'default_sort' => 'newest' ))));
+	}
+
+	/**
+	 * A block saved with a removed sort option (newest) orders like the shortcode
+	 * and the widget with the same value: the switch's relevance branch, not the
+	 * block.json default price_asc (final audit, Important 1).
+	 */
+	public function test_block_saved_with_removed_sort_value_falls_to_relevance(): void
+	{
+		$relevance = $this->order($this->results_shortcode('default_sort="newest"'));
+		$this->assertSame(array( 'Alpha', 'Bravo', 'Charlie' ), $relevance);
+		$this->assertSame($relevance, $this->order($this->results_widget(array( 'default_sort' => 'newest' ))));
+		foreach (array( 'newest', 'popularity', 'rating' ) as $removed) {
+			$this->assertSame($relevance, $this->order($this->results_block(array( 'defaultSort' => $removed ))), "block defaultSort=$removed");
+		}
 	}
 
 	public function test_redirect_page_sets_form_action(): void

@@ -86,9 +86,50 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		parent::tearDown();
 	}
 
-	private function page_by(int $user): int
+	/**
+	 * A page by $user that carries the form with the custom recipient (the address
+	 * has to stay on the source post for the payload to vouch for it).
+	 */
+	private function page_by(int $user, ?string $content = null): int
 	{
-		return (int) self::factory()->post->create(array( 'post_type' => 'page', 'post_status' => 'publish', 'post_author' => $user ));
+		return (int) self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_author'  => $user,
+				// wp_insert_post() unslashes: a block comment's \u0026 would lose its backslash.
+				'post_content' => wp_slash($content ?? '[rentiva_contact email_to="' . self::CUSTOM . '"]'),
+			)
+		);
+	}
+
+	/**
+	 * The contact block's markup with $email as its emailTo attribute.
+	 */
+	private static function contact_block(string $email): string
+	{
+		return serialize_block(
+			array(
+				'blockName'    => 'mhm-rentiva/contact',
+				'attrs'        => array( 'emailTo' => $email ),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
+	}
+
+	/**
+	 * Whether a refused payload reached the PHP log, as the logging rule says it should.
+	 */
+	private function assert_log_matches_debug_log(string $reason): void
+	{
+		$log = (string) file_get_contents($this->log_file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test temp file.
+		if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+			$this->assertStringContainsString($reason, $log, 'With WP_DEBUG_LOG the fallback is written to the error log.');
+		} else {
+			$this->assertSame('', $log, 'Without WP_DEBUG_LOG a refused payload writes nothing to the PHP log.');
+		}
 	}
 
 	/**
@@ -154,7 +195,7 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 	private function assert_fell_back(string $reason): void
 	{
 		$this->assertContains($reason, $this->reasons, 'The fallback hook fired with its reason.');
-		$this->assertStringContainsString($reason, (string) file_get_contents($this->log_file), 'The fallback is written to the error log.'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test temp file.
+		$this->assert_log_matches_debug_log($reason);
 	}
 
 	public function test_author_with_edit_others_posts_gets_custom_recipient(): void
@@ -314,6 +355,114 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		$this->submit(array( 'recipient_token' => $token ));
 		$this->assertSame(array( get_option('admin_email') ), $this->notification_to());
 		$this->assert_fell_back('missing_post');
+	}
+
+	/**
+	 * Spec §2.5 (c): removing `email_to` from the source post revokes the payload a
+	 * cached page still carries (final audit, Important 2).
+	 */
+	public function test_removed_email_to_revokes_token(): void
+	{
+		// Shortcode text.
+		$page  = $this->page_by($this->editor);
+		$token = $this->token_from_render($page);
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'));
+
+		wp_update_post(array( 'ID' => $page, 'post_content' => '[rentiva_contact]' ));
+		$this->assertNull(RecipientToken::resolve($token, 'general'), 'email_to removed from the shortcode.');
+		$this->assert_fell_back('recipient_removed');
+
+		$response = $this->submit(array( 'recipient_token' => $token ));
+		$this->assertTrue($response['success']);
+		$this->assertSame(array( get_option('admin_email') ), $this->notification_to());
+
+		// Block markup: the address sits JSON-encoded in the block comment.
+		$this->reasons = array();
+		$page          = $this->page_by($this->editor, self::contact_block(self::CUSTOM));
+		$token         = RecipientToken::issue(self::CUSTOM, $page, 'general');
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'), 'The block attribute vouches for the address.');
+
+		wp_update_post(array( 'ID' => $page, 'post_content' => '<!-- wp:mhm-rentiva/contact /-->' ));
+		$this->assertNull(RecipientToken::resolve($token, 'general'), 'emailTo removed from the block.');
+		$this->assert_fell_back('recipient_removed');
+
+		// Another address on the page does not vouch for this one.
+		$this->reasons = array();
+		wp_update_post(array( 'ID' => $page, 'post_content' => '[rentiva_contact email_to="other-desk@example.com"]' ));
+		$this->assertNull(RecipientToken::resolve($token, 'general'));
+		$this->assert_fell_back('recipient_removed');
+	}
+
+	/**
+	 * An address with a character the block comment escapes (& as \u0026) is still
+	 * found on the source post: saved by a user with unfiltered_html (stored as
+	 * \u0026) and without it (kses runs over block attributes: \u0026amp;).
+	 */
+	public function test_block_encoded_address_still_vouches(): void
+	{
+		$email = 'sales&desk@example.com';
+		$this->assertNotFalse(is_email($email));
+		$block = self::contact_block($email);
+		$this->assertStringNotContainsString($email, $block, 'Precondition: the block comment escapes the address.');
+
+		$page = $this->page_by($this->editor, $block);
+		$this->assertStringContainsString('\u0026amp;', get_post($page)->post_content, 'Precondition: saved through kses.');
+		$this->assertSame($email, RecipientToken::resolve(RecipientToken::issue($email, $page, 'general'), 'general'));
+
+		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
+		if (is_multisite()) {
+			grant_super_admin(get_current_user_id());
+		}
+		$page = $this->page_by($this->editor, $block);
+		$this->assertStringContainsString('sales\u0026desk', get_post($page)->post_content, 'Precondition: saved unfiltered.');
+		$this->assertSame($email, RecipientToken::resolve(RecipientToken::issue($email, $page, 'general'), 'general'));
+		$this->assertSame(array(), $this->reasons);
+	}
+
+	/**
+	 * An Elementor document keeps its widgets in `_elementor_data` (JSON), not in
+	 * post_content: that is where the address has to remain.
+	 */
+	public function test_removed_email_to_revokes_elementor_document_token(): void
+	{
+		$page = $this->page_by($this->editor, '');
+		$data = static function (array $settings): string {
+			return (string) wp_json_encode(
+				array(
+					array(
+						'id'         => 'a1b2c3d',
+						'elType'     => 'widget',
+						'widgetType' => 'rv-contact-form',
+						'settings'   => $settings,
+						'elements'   => array(),
+					),
+				)
+			);
+		};
+		update_post_meta($page, '_elementor_edit_mode', 'builder');
+		update_post_meta($page, '_elementor_data', wp_slash($data(array( 'email_to' => self::CUSTOM ))));
+
+		$token = RecipientToken::issue(self::CUSTOM, $page, 'general');
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'), 'The Elementor widget setting vouches for the address.');
+		$this->assertSame(array(), $this->reasons);
+
+		update_post_meta($page, '_elementor_data', wp_slash($data(array())));
+		$this->assertNull(RecipientToken::resolve($token, 'general'), 'email_to removed from the Elementor widget.');
+		$this->assert_fell_back('recipient_removed');
+	}
+
+	/**
+	 * Hygiene (final audit, Minor 3): anyone holding the public AJAX nonce can post
+	 * refused payloads; without WP_DEBUG_LOG they must not reach the PHP log. The
+	 * hook still fires every time.
+	 */
+	public function test_refused_payload_logs_only_with_debug_log(): void
+	{
+		for ($i = 0; $i < 3; $i++) {
+			$this->assertNull(RecipientToken::resolve('%%%not base64%%%', 'general'));
+		}
+		$this->assertSame(array( 'invalid_base64', 'invalid_base64', 'invalid_base64' ), $this->reasons);
+		$this->assert_log_matches_debug_log('invalid_base64');
 	}
 
 	public function test_elementor_document_is_the_source_post(): void

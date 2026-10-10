@@ -950,9 +950,10 @@ final class AllowlistRegistry {
             'show_badges'          => [ 'default' => '1' ],
             // The first request's order. `values` are the sorts SearchResults'
             // switch applies (get_sorting_options()), the list every editor offers
-            // (spec 3A §2.5 E, gate G3). The type stays 'string': a value saved from
-            // a removed option (newest/popularity/rating) keeps falling to the
-            // switch's relevance branch as today, instead of becoming price_asc.
+            // (spec 3A §2.5 E, gate G3). The type stays 'string' and block.json
+            // carries no enum: a value saved from a removed option (newest/
+            // popularity/rating) keeps falling to the switch's relevance branch as
+            // today on every surface, instead of becoming price_asc.
             'default_sort'         => [
                 'default' => 'price_asc',
                 'values'  => [ 'relevance', 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc' ],
