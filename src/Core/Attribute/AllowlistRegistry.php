@@ -988,11 +988,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showComparisonImages' ],
         ],
-        'show_discounts'           => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showDiscounts' ],
-        ],
         'rating'                   => [
             'type'    => 'int',
             'group'   => 'feature',
@@ -1094,7 +1089,6 @@ final class AllowlistRegistry {
             'start_week_on'         => [ 'default' => '1' ],
             'start_month'           => [ 'default' => '' ],
             'height'                => [ 'default' => '' ],
-            'show_discounts'        => [ 'default' => '1' ],
             'show_booking_button'   => [ 'default' => '1' ],
         ],
         'rentiva_vehicle_details'       => [

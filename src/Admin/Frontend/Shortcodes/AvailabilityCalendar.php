@@ -95,7 +95,6 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		return array(
 			'vehicle_id'            => '',
 			'show_pricing'          => apply_filters('mhmrentiva_availability_calendar_show_pricing', '1'),
-			'show_discounts'        => apply_filters('mhmrentiva_availability_calendar_show_discounts', '1'),
 			'show_booking_button'   => apply_filters(
 				'mhmrentiva_availability_calendar_show_booking_button',
 				apply_filters('mhmrentiva_availability_calendar_show_booking_btn', '1')

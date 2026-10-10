@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
-use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\AvailabilityCalendarWidget;
 use MHMRentiva\Core\Attribute\AllowlistRegistry;
 use MHMRentiva\Tests\Support\RenderNormalizer;
@@ -19,9 +18,10 @@ use WP_UnitTestCase;
  * APPLY: calendarHeight (the wrapper read `height`, the block sends
  * `calendarHeight`; read `calendarHeight ?? height`, exception 4 -- a calendar saved
  * before slice 1 with "height":"500px" keeps its height), show_legend,
- * show_month_nav, show_vehicle_selector, start_week_on, show_discounts.
+ * show_month_nav, show_vehicle_selector, start_week_on.
  * REMOVE: integrate_pricing, show_booking_links (its editor toggle now writes the
- * live showBookingButton, Rule 2), show_seasonal_prices, show_today_btn,
+ * live showBookingButton, Rule 2), show_discounts (ruling T6-1: no Lite/Pro code
+ * supplies discount data), show_seasonal_prices, show_today_btn,
  * show_week_numbers, start_date. The Elementor `height` parity control is excluded
  * (the widget has no BlockRegistry wrapper; Elementor has its own sizing).
  *
@@ -159,67 +159,6 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Lite has no discount source yet (get_vehicle_discounts() returns []), so the
-	 * badge is exercised on the template with pricing data that carries one.
-	 */
-	public function test_discount_badge_follows_flag(): void
-	{
-		$vehicle = $this->catalog[0];
-		$month   = gmdate('Y-m');
-		$date    = $month . '-15';
-		$data    = array(
-			'selected_vehicle'  => null,
-			'vehicle_id'        => $vehicle,
-			'vehicles_list'     => array(
-				array(
-					'id'    => $vehicle,
-					'title' => 'Zz',
-				),
-			),
-			'start_month'       => $month,
-			'months_to_show'    => 1,
-			'availability_data' => array(
-				$month => array(
-					'days' => array(
-						$date => array(
-							'status'     => 'available',
-							'is_weekend' => false,
-							'is_today'   => false,
-							'is_past'    => false,
-							'day_number' => 15,
-							'occupancy'  => 0,
-						),
-					),
-				),
-			),
-			'pricing_data'      => array(
-				$month => array(
-					'days' => array(
-						$date => array(
-							'base_price'      => 200.0,
-							'day_price'       => 150.0,
-							'has_discount'    => true,
-							'discount_amount' => 50.0,
-						),
-					),
-				),
-			),
-		);
-
-		$on = (string) Templates::render('shortcodes/availability-calendar', $data + array( 'atts' => array( 'show_pricing' => '1', 'show_discounts' => '1' ) ), true);
-		$this->assertStringContainsString('rv-discount-badge', $on);
-		$this->assertStringNotContainsString('data-show-discounts', $on, 'Default markup is today\'s.');
-
-		$off = (string) Templates::render('shortcodes/availability-calendar', $data + array( 'atts' => array( 'show_pricing' => '1', 'show_discounts' => '0' ) ), true);
-		$this->assertStringNotContainsString('rv-discount-badge', $off);
-		$this->assertStringContainsString('rv-price-amount', $off, 'The price itself stays.');
-		$this->assertStringContainsString('data-show-discounts="0"', $off, 'The JS price refresh is told too.');
-
-		$js = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/js/frontend/availability-calendar.js'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local asset.
-		$this->assertStringContainsString("data('show-discounts')", $js, 'The JS price refresh reads the flag.');
-	}
-
-	/**
 	 * Rule 2: the "Show Booking Links" toggle had no markup behind it; the same
 	 * promise is the live booking button, so the toggle now writes it.
 	 */
@@ -238,13 +177,13 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	 */
 	public function test_saved_value_of_removed_control_is_inert(): void
 	{
-		$gone_block = array( 'showBookingLinks', 'showTodayButton', 'showWeekNumbers', 'startDate', 'showSeasonalPrices', 'integratePricing' );
+		$gone_block = array( 'showBookingLinks', 'showTodayButton', 'showWeekNumbers', 'startDate', 'showSeasonalPrices', 'integratePricing', 'showDiscounts' );
 		$attributes = SettingProbe::block_json('availability-calendar', array())['attributes'];
 		foreach ($gone_block as $gone) {
 			$this->assertArrayNotHasKey($gone, $attributes, "block.json $gone");
 		}
 		$controls = SettingProbe::data_controls('AvailabilityCalendarWidget');
-		foreach (array( 'show_booking_links', 'show_today_btn', 'show_week_numbers', 'start_date', 'show_seasonal_prices', 'integrate_pricing' ) as $gone) {
+		foreach (array( 'show_booking_links', 'show_today_btn', 'show_week_numbers', 'start_date', 'show_seasonal_prices', 'integrate_pricing', 'show_discounts' ) as $gone) {
 			$this->assertArrayNotHasKey($gone, $controls, "Elementor $gone");
 		}
 
@@ -259,6 +198,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 						'start_date'           => '2030-01-01',
 						'show_seasonal_prices' => '',
 						'integrate_pricing'    => '',
+						'show_discounts'       => '',
 						'height'               => '700px',
 					)
 				)
@@ -275,6 +215,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 						'startDate'          => '2030-01-01',
 						'showSeasonalPrices' => false,
 						'integratePricing'   => false,
+						'showDiscounts'      => false,
 					)
 				)
 			)

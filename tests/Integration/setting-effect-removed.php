@@ -105,6 +105,9 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_availability_calendar', 'key' => 'integrate_pricing', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_booking_links', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_booking_links', 'decision' => 'REMOVE' ),
+	// show_discounts: table APPLY, ruling T6-1 REMOVE (no discount data source).
+	array( 'surface' => 'block', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_discounts', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_discounts', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_seasonal_prices', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_seasonal_prices', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_availability_calendar', 'key' => 'show_today_btn', 'decision' => 'REMOVE' ),

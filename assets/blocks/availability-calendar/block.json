@@ -86,10 +86,6 @@
             "type": "string",
             "default": ""
         },
-        "showDiscounts": {
-            "type": "boolean",
-            "default": true
-        },
         "showBookingButton": {
             "type": "boolean",
             "default": true

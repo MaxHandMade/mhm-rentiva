@@ -34,8 +34,9 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	 * showTodayButton, showWeekNumbers, startDate, showSeasonalPrices,
 	 * integratePricing) and six from booking-form (show_insurance,
 	 * show_payment_options, show_date_picker, minDays, maxDays, defaultPayment).
+	 * Ruling T6-1: 230, availability-calendar showDiscounts.
 	 */
-	private const LITE_ATTRIBUTE_COUNT = 231;
+	private const LITE_ATTRIBUTE_COUNT = 230;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(

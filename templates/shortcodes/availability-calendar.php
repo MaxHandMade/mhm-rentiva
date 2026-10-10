@@ -29,7 +29,6 @@ $current_user      = $current_user ?? null;
 
 // Shortcode parameters
 $show_pricing     = $atts['show_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_show_pricing', '1');
-$show_discounts   = $atts['show_discounts'] ?? apply_filters('mhmrentiva_availability_calendar_show_discounts', '1');
 $show_booking_btn = $atts['show_booking_button']
 	?? $atts['show_booking_btn']
 	?? apply_filters(
@@ -47,7 +46,6 @@ $flag_is_on            = static function ($value): bool {
 $show_legend           = $flag_is_on($atts['show_legend'] ?? '1');
 $show_month_nav        = $flag_is_on($atts['show_month_nav'] ?? '1');
 $show_vehicle_selector = $flag_is_on($atts['show_vehicle_selector'] ?? '1');
-$discounts_on          = $flag_is_on($show_discounts);
 // 1 = Monday (today's grid), 0 = Sunday.
 $week_starts_sunday = '0' === (string) ( $atts['start_week_on'] ?? '1' );
 
@@ -111,14 +109,11 @@ if ($vehicle_id > 0) {
 	data-months-to-show="<?php echo esc_attr($months_to_show); ?>"
 	data-location-id="<?php echo esc_attr($vehicle_location_id ?? 0); ?>"
 	<?php
-	// Only the non-default states are written, so an untouched calendar keeps
-	// today's markup; availability-calendar.js reads both when it rebuilds a month.
+	// Written only when not the default, so an untouched calendar keeps today's
+	// markup; availability-calendar.js reads it when it rebuilds a month.
 	if ($week_starts_sunday) :
 		?>
 	data-start-week-on="0"
-	<?php endif; ?>
-	<?php if (! $discounts_on) : ?>
-	data-show-discounts="0"
 	<?php endif; ?>>
 
 	<!-- Calendar Header -->
@@ -405,7 +400,7 @@ if ($vehicle_id > 0) {
 							$price_data = $pricing_data[ $month_key ]['days'][ $date ];
 							echo '<div class="rv-day-price">';
 							echo '<span class="rv-price-amount">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $price_data['day_price'], 0)) . '</span>';
-							if ($discounts_on && $price_data['has_discount']) {
+							if ($price_data['has_discount']) {
 								echo '<span class="rv-discount-badge">%' . esc_html(round(( $price_data['discount_amount'] / $price_data['base_price'] ) * 100)) . '</span>';
 							}
 							echo '</div>';

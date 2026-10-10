@@ -100,12 +100,14 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * control, now excluded -- a widget has no BlockRegistry wrapper; booking form
 	 * own min_days, max_days, default_payment, show_payment_options and the
 	 * show_insurance, show_date_picker parity controls).
+	 * Ruling T6-1: block -1 / Elementor -1 more (calendar showDiscounts and its
+	 * parity control; no discount data source).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 230,
-			'elementor' => 256,
+			'block'     => 229,
+			'elementor' => 255,
 		);
 	}
 

@@ -107,8 +107,6 @@
             this.monthsToShow = parseInt(this.calendar.data('months-to-show')) || 3;
             // Written only when not the default: 0 = the week starts on Sunday (else Monday).
             this.weekStartsSunday = String(this.calendar.data('start-week-on')) === '0';
-            // Written only when the discount badge is turned off.
-            this.showDiscounts = String(this.calendar.data('show-discounts')) !== '0';
 
             this.updateSelectedDatesDisplay();
             this.loadAvailabilityData();
@@ -716,13 +714,13 @@
                         $day.append(`
                             <div class="rv-day-price">
                                 <span class="rv-price-amount">${this.formatMoney(priceData.day_price)}</span>
-                                ${this.showDiscounts && priceData.has_discount ? `<span class="rv-discount-badge">%${Math.round((priceData.discount_amount / priceData.base_price) * 100)}</span>` : ''}
+                                ${priceData.has_discount ? `<span class="rv-discount-badge">%${Math.round((priceData.discount_amount / priceData.base_price) * 100)}</span>` : ''}
                             </div>
                         `);
                     } else {
                         $priceContainer.find('.rv-price-amount').text(this.formatMoney(priceData.day_price));
 
-                        if (this.showDiscounts && priceData.has_discount) {
+                        if (priceData.has_discount) {
                             const discountPercent = Math.round((priceData.discount_amount / priceData.base_price) * 100);
                             $priceContainer.find('.rv-discount-badge').text(`%${discountPercent}`).show();
                         } else {
