@@ -24,8 +24,12 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * Slice 3A Task 4: 179 (vehicle-details: 4 controls removed; vehicle-comparison: 7).
 	 * Slice 3A Task 5: 178 (search-results: the sortBy and sortOrder selects became
 	 * one defaultSort select).
+	 * Slice 3A Task 6: 171 (availability-calendar: showTodayButton and
+	 * showWeekNumbers toggles removed, "Show Booking Links" repointed to
+	 * showBookingButton; booking-form: show_date_picker, show_insurance,
+	 * defaultPayment, minDays and maxDays controls removed).
 	 */
-	private const LITE_LITERAL_KEYS = 178;
+	private const LITE_LITERAL_KEYS = 171;
 
 	private static function blocks_dir(): string
 	{

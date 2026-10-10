@@ -105,6 +105,10 @@
             this.currentLocationId = parseInt(this.calendar.data('location-id')) || 0;
             this.currentStartMonth = this.calendar.data('start-month') || this.getCurrentMonth();
             this.monthsToShow = parseInt(this.calendar.data('months-to-show')) || 3;
+            // Written only when not the default: 0 = the week starts on Sunday (else Monday).
+            this.weekStartsSunday = String(this.calendar.data('start-week-on')) === '0';
+            // Written only when the discount badge is turned off.
+            this.showDiscounts = String(this.calendar.data('show-discounts')) !== '0';
 
             this.updateSelectedDatesDisplay();
             this.loadAvailabilityData();
@@ -712,13 +716,13 @@
                         $day.append(`
                             <div class="rv-day-price">
                                 <span class="rv-price-amount">${this.formatMoney(priceData.day_price)}</span>
-                                ${priceData.has_discount ? `<span class="rv-discount-badge">%${Math.round((priceData.discount_amount / priceData.base_price) * 100)}</span>` : ''}
+                                ${this.showDiscounts && priceData.has_discount ? `<span class="rv-discount-badge">%${Math.round((priceData.discount_amount / priceData.base_price) * 100)}</span>` : ''}
                             </div>
                         `);
                     } else {
                         $priceContainer.find('.rv-price-amount').text(this.formatMoney(priceData.day_price));
 
-                        if (priceData.has_discount) {
+                        if (this.showDiscounts && priceData.has_discount) {
                             const discountPercent = Math.round((priceData.discount_amount / priceData.base_price) * 100);
                             $priceContainer.find('.rv-discount-badge').text(`%${discountPercent}`).show();
                         } else {
@@ -740,7 +744,8 @@
             const monthParts = monthKey.split('-');
             const firstDay = new Date(parseInt(monthParts[0]), parseInt(monthParts[1]) - 1, 1);
             const firstDayOfWeek = firstDay.getDay(); // Sunday = 0, Monday = 1
-            const adjustedFirstDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Monday = 0, Sunday = 6
+            // Blank cells before the 1st, counted from the week's first day.
+            const adjustedFirstDay = this.weekStartsSunday ? firstDayOfWeek : (firstDayOfWeek + 6) % 7;
 
             let html = '';
 
@@ -748,14 +753,22 @@
             const i18n = window.mhmRentivaAvailability?.strings || {};
             const translatedDays = i18n;
 
+            const weekdays = [
+                translatedDays.monday || 'Mon',
+                translatedDays.tuesday || 'Tue',
+                translatedDays.wednesday || 'Wed',
+                translatedDays.thursday || 'Thu',
+                translatedDays.friday || 'Fri',
+                translatedDays.saturday || 'Sat',
+                translatedDays.sunday || 'Sun'
+            ];
+            if (this.weekStartsSunday) {
+                weekdays.unshift(weekdays.pop());
+            }
             html += '<div class="rv-calendar-weekdays">';
-            html += '<div class="rv-weekday">' + (translatedDays.monday || 'Mon') + '</div>';
-            html += '<div class="rv-weekday">' + (translatedDays.tuesday || 'Tue') + '</div>';
-            html += '<div class="rv-weekday">' + (translatedDays.wednesday || 'Wed') + '</div>';
-            html += '<div class="rv-weekday">' + (translatedDays.thursday || 'Thu') + '</div>';
-            html += '<div class="rv-weekday">' + (translatedDays.friday || 'Fri') + '</div>';
-            html += '<div class="rv-weekday">' + (translatedDays.saturday || 'Sat') + '</div>';
-            html += '<div class="rv-weekday">' + (translatedDays.sunday || 'Sun') + '</div>';
+            weekdays.forEach(label => {
+                html += '<div class="rv-weekday">' + label + '</div>';
+            });
             html += '</div>';
 
             // Calendar days

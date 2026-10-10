@@ -20,10 +20,8 @@
             var showVehicleSelector = attributes.showVehicleSelector;
             var showLegend = attributes.showLegend;
             var showPricing = attributes.showPricing;
-            var showBookingLinks = attributes.showBookingLinks;
+            var showBookingButton = attributes.showBookingButton;
             var showMonthNavigation = attributes.showMonthNavigation;
-            var showTodayButton = attributes.showTodayButton;
-            var showWeekNumbers = attributes.showWeekNumbers;
             var monthsToShow = attributes.monthsToShow;
             var startWeekOn = attributes.startWeekOn;
             var calendarHeight = attributes.calendarHeight;
@@ -96,24 +94,14 @@
                             onChange: function (val) { setAttributes({ showPricing: val }); }
                         }),
                         el(ToggleControl, {
-                            label: __('Show Booking Links', 'mhm-rentiva'),
-                            checked: showBookingLinks,
-                            onChange: function (val) { setAttributes({ showBookingLinks: val }); }
+                            label: __('Show Booking Button', 'mhm-rentiva'),
+                            checked: showBookingButton,
+                            onChange: function (val) { setAttributes({ showBookingButton: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Month Navigation', 'mhm-rentiva'),
                             checked: showMonthNavigation,
                             onChange: function (val) { setAttributes({ showMonthNavigation: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Today Button', 'mhm-rentiva'),
-                            checked: showTodayButton,
-                            onChange: function (val) { setAttributes({ showTodayButton: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Week Numbers', 'mhm-rentiva'),
-                            checked: showWeekNumbers,
-                            onChange: function (val) { setAttributes({ showWeekNumbers: val }); }
                         })
                     )
                 ),

@@ -58,21 +58,9 @@
             "type": "boolean",
             "default": true
         },
-        "showBookingLinks": {
-            "type": "boolean",
-            "default": true
-        },
         "showMonthNavigation": {
             "type": "boolean",
             "default": true
-        },
-        "showTodayButton": {
-            "type": "boolean",
-            "default": true
-        },
-        "showWeekNumbers": {
-            "type": "boolean",
-            "default": false
         },
         "monthsToShow": {
             "type": "string",
@@ -88,33 +76,21 @@
         },
         "calendarHeight": {
             "type": "string",
-            "default": "auto"
+            "default": ""
         },
         "theme": {
             "type": "string",
             "default": "default"
         },
-        "startDate": {
-            "type": "string",
-            "default": ""
-        },
         "startMonth": {
             "type": "string",
             "default": ""
-        },
-        "showSeasonalPrices": {
-            "type": "boolean",
-            "default": true
         },
         "showDiscounts": {
             "type": "boolean",
             "default": true
         },
         "showBookingButton": {
-            "type": "boolean",
-            "default": true
-        },
-        "integratePricing": {
             "type": "boolean",
             "default": true
         },

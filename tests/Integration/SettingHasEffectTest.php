@@ -92,12 +92,20 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * show_availability parity control; unified search "Layout Style" rebound from
 	 * layout to search_layout, which replaces that key's parity control, and the
 	 * filter_categories, minwidth and maxwidth parity controls).
+	 * Task 6 (availability calendar, booking form): block -12 (calendar
+	 * showBookingLinks, showTodayButton, showWeekNumbers, startDate,
+	 * showSeasonalPrices, integratePricing; booking form show_insurance,
+	 * show_payment_options, show_date_picker, minDays, maxDays, defaultPayment) and
+	 * Elementor -13 (the calendar's six parity controls plus its `height` parity
+	 * control, now excluded -- a widget has no BlockRegistry wrapper; booking form
+	 * own min_days, max_days, default_payment, show_payment_options and the
+	 * show_insurance, show_date_picker parity controls).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 242,
-			'elementor' => 269,
+			'block'     => 230,
+			'elementor' => 256,
 		);
 	}
 

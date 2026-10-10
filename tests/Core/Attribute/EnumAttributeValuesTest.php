@@ -10,26 +10,24 @@ use WP_UnitTestCase;
 
 final class EnumAttributeValuesTest extends WP_UnitTestCase
 {
-	public function test_status_and_default_payment_have_required_values(): void
+	/**
+	 * default_payment was removed in slice 3A Task 6 (the booking form has no payment
+	 * choice; payment type is chosen at the WooCommerce checkout).
+	 */
+	public function test_status_has_required_values(): void
 	{
 		$allowlist = (new ReflectionClass(AllowlistRegistry::class))
 			->getReflectionConstant('ALLOWLIST')
 			->getValue();
 
 		$this->assertArrayHasKey('status', $allowlist);
-		$this->assertArrayHasKey('default_payment', $allowlist);
+		$this->assertArrayNotHasKey('default_payment', $allowlist);
 
 		$statusValues = $allowlist['status']['values'] ?? array();
 		$this->assertContains('active', $statusValues);
 		$this->assertContains('inactive', $statusValues);
 		$this->assertContains('pending', $statusValues);
 		$this->assertContains('draft', $statusValues);
-
-		$paymentValues = $allowlist['default_payment']['values'] ?? array();
-		$this->assertContains('cash', $paymentValues);
-		$this->assertContains('credit_card', $paymentValues);
-		$this->assertContains('bank_transfer', $paymentValues);
-		$this->assertContains('none', $paymentValues);
 	}
 
 	/**

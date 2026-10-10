@@ -63,6 +63,16 @@ class AvailabilityCalendarWidget extends ElementorWidgetBase {
 		return $atts;
 	}
 
+	/**
+	 * The block's calendarHeight sizes BlockRegistry's wrapper, which a widget does
+	 * not have; Elementor has its own sizing (spec 3A Task 6).
+	 *
+	 * @return string[]
+	 */
+	protected function get_parity_exclusions(): array {
+		return array( 'height' );
+	}
+
 	protected function render(): void {
 		$this->render_canonical( 'rentiva_availability_calendar' );
 	}

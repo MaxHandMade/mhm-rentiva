@@ -552,9 +552,7 @@ class BlockRegistry {
 		// unified-search attributes were lowercase and unexposed), and Elementor has
 		// its own width controls -- removed in spec 3A Task 5.
 		$tag    = $config['tag'];
-		$height = ! empty($attributes['height'])
-			? self::sanitize_css_dimension($attributes['height'])
-			: '';
+		$height = self::wrapper_height($attributes);
 
 		// `_canonical` is a trust flag (skip shortcode_atts() and CAM) that only this
 		// method may set. WP_Block_Type::prepare_attributes_for_render() does not drop
@@ -635,6 +633,32 @@ class BlockRegistry {
 		);
 	}
 
+
+	/**
+	 * The wrapper height: the calendar's `calendarHeight`, else a raw `height`.
+	 *
+	 * The editor writes `calendarHeight`; this used to read only `height`, so the
+	 * control never applied (spec 3A Task 6). A calendar saved before Gutenberg slice
+	 * 1 still carries "height":"500px" and keeps working (spec §2.2 exception 4). WP
+	 * fills a missing calendarHeight with its block.json default (''), so "set" means
+	 * non-empty here, not isset. 'auto' (the old default) writes no style: it is a
+	 * div's own height.
+	 *
+	 * @param array<string,mixed> $attributes Raw block attributes, before CAM.
+	 * @return string Safe CSS height, or '' for no style.
+	 */
+	private static function wrapper_height(array $attributes): string
+	{
+		$height = '';
+		foreach (array( 'calendarHeight', 'height' ) as $key) {
+			$height = self::sanitize_css_dimension($attributes[ $key ] ?? '');
+			if ('' !== $height && 'auto' !== $height) {
+				return $height;
+			}
+		}
+
+		return '';
+	}
 
 	/**
 	 * Normalize an untrusted block dimension to a single safe CSS value.

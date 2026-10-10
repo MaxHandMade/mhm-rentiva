@@ -83,8 +83,19 @@ final class BlockDimensionStyleValidationTest extends WP_UnitTestCase
 			'unitless numeric values become pixels' => array('height', '320', 'height:320px'),
 			'percentages remain percentages'         => array('height', '75%', 'height:75%'),
 			'rem lengths remain rem lengths'          => array('height', '12.5rem', 'height:12.5rem'),
-			'auto remains an intentional keyword'     => array('height', 'auto', 'height:auto'),
 		);
+	}
+
+	/**
+	 * 'auto' (the calendar's old calendarHeight default) is a div's own height and
+	 * writes no style (spec 3A Task 6).
+	 */
+	public function test_auto_height_writes_no_style(): void
+	{
+		$wrapper_attributes = $this->render_wrapper_attributes(array('height' => 'auto'));
+
+		$this->assertStringNotContainsString('height:', $wrapper_attributes);
+		$this->assertArrayNotHasKey('style', $this->rendered_shortcode_attributes);
 	}
 
 	/**

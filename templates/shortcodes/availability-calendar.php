@@ -28,18 +28,28 @@ $current_user      = $current_user ?? null;
 
 
 // Shortcode parameters
-$show_pricing         = $atts['show_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_show_pricing', '1');
-$show_seasonal_prices = $atts['show_seasonal_prices'] ?? apply_filters('mhmrentiva_availability_calendar_show_seasonal_prices', '1');
-$show_discounts       = $atts['show_discounts'] ?? apply_filters('mhmrentiva_availability_calendar_show_discounts', '1');
-$show_booking_btn     = $atts['show_booking_button']
+$show_pricing     = $atts['show_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_show_pricing', '1');
+$show_discounts   = $atts['show_discounts'] ?? apply_filters('mhmrentiva_availability_calendar_show_discounts', '1');
+$show_booking_btn = $atts['show_booking_button']
 	?? $atts['show_booking_btn']
 	?? apply_filters(
 		'mhmrentiva_availability_calendar_show_booking_button',
 		apply_filters('mhmrentiva_availability_calendar_show_booking_btn', '1')
 	);
-$theme                = $atts['theme'] ?? apply_filters('mhmrentiva_availability_calendar_theme', 'default');
-$class                = $atts['class'] ?? '';
-$integrate_pricing    = $atts['integrate_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_integrate_pricing', '1');
+$theme            = $atts['theme'] ?? apply_filters('mhmrentiva_availability_calendar_theme', 'default');
+$class            = $atts['class'] ?? '';
+
+// Visibility flags (spec 3A Task 6). Missing means on: the markup they gate was
+// unconditional before, and their schema defaults are '1'.
+$flag_is_on            = static function ($value): bool {
+	return ! in_array($value, array( '0', 0, false, 'false', 'no' ), true);
+};
+$show_legend           = $flag_is_on($atts['show_legend'] ?? '1');
+$show_month_nav        = $flag_is_on($atts['show_month_nav'] ?? '1');
+$show_vehicle_selector = $flag_is_on($atts['show_vehicle_selector'] ?? '1');
+$discounts_on          = $flag_is_on($show_discounts);
+// 1 = Monday (today's grid), 0 = Sunday.
+$week_starts_sunday = '0' === (string) ( $atts['start_week_on'] ?? '1' );
 
 // If vehicle_id is provided, get the vehicle object
 if ($vehicle_id > 0 && ! $vehicle) {
@@ -99,7 +109,17 @@ if ($vehicle_id > 0) {
 	data-vehicle-price="<?php echo esc_attr($vehicle_price); ?>"
 	data-start-month="<?php echo esc_attr($start_month); ?>"
 	data-months-to-show="<?php echo esc_attr($months_to_show); ?>"
-	data-location-id="<?php echo esc_attr($vehicle_location_id ?? 0); ?>">
+	data-location-id="<?php echo esc_attr($vehicle_location_id ?? 0); ?>"
+	<?php
+	// Only the non-default states are written, so an untouched calendar keeps
+	// today's markup; availability-calendar.js reads both when it rebuilds a month.
+	if ($week_starts_sunday) :
+		?>
+	data-start-week-on="0"
+	<?php endif; ?>
+	<?php if (! $discounts_on) : ?>
+	data-show-discounts="0"
+	<?php endif; ?>>
 
 	<!-- Calendar Header -->
 
@@ -213,7 +233,7 @@ if ($vehicle_id > 0) {
 				</div>
 
 				<!-- Vehicle Switcher -->
-				<?php if (count($vehicles_list) > 1) : ?>
+				<?php if ($show_vehicle_selector && count($vehicles_list) > 1) : ?>
 					<div class="rv-vehicle-switcher-modern">
 						<button class="rv-switch-vehicle-btn" type="button" data-vehicles='<?php echo esc_attr(wp_json_encode($vehicles_list)); ?>'>
 							<?php Icons::render('chevron-down'); ?>
@@ -226,6 +246,7 @@ if ($vehicle_id > 0) {
 	<?php endif; ?>
 
 
+	<?php if ($show_legend) : ?>
 	<!-- Status Legend (Top per image) -->
 	<div class="rv-availability-legend rv-legend-modern" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
 		<div class="rv-legend-item">
@@ -241,6 +262,7 @@ if ($vehicle_id > 0) {
 			<span class="rv-legend-text"><?php esc_html_e('Reserved', 'mhm-rentiva'); ?></span>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Calendar Grid Hint -->
 	<div class="rv-calendar-hint" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
@@ -248,6 +270,7 @@ if ($vehicle_id > 0) {
 		<?php echo esc_html__('Click on start and end dates to select your rental period.', 'mhm-rentiva'); ?>
 	</div>
 
+	<?php if ($show_month_nav) : ?>
 	<!-- Calendar Controls (Month & Navigation) -->
 	<div class="rv-calendar-controls" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
 		<button type="button" class="rv-control-btn rv-prev-months" data-action="prev">
@@ -264,6 +287,7 @@ if ($vehicle_id > 0) {
 			<?php Icons::render('chevron-right'); ?>
 		</button>
 	</div>
+	<?php endif; ?>
 
 	<div class="rv-availability-grid" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
 		<?php if (empty($availability_data)) : ?>
@@ -295,26 +319,34 @@ if ($vehicle_id > 0) {
 			<div class="rv-month-container" data-month="<?php echo esc_attr($month_key); ?>">
 				<!-- Weekday Headers -->
 				<div class="rv-calendar-weekdays">
-					<div class="rv-weekday"><?php echo esc_html__('Mon', 'mhm-rentiva'); ?></div>
-					<div class="rv-weekday"><?php echo esc_html__('Tue', 'mhm-rentiva'); ?></div>
-					<div class="rv-weekday"><?php echo esc_html__('Wed', 'mhm-rentiva'); ?></div>
-					<div class="rv-weekday"><?php echo esc_html__('Thu', 'mhm-rentiva'); ?></div>
-					<div class="rv-weekday"><?php echo esc_html__('Fri', 'mhm-rentiva'); ?></div>
-					<div class="rv-weekday"><?php echo esc_html__('Sat', 'mhm-rentiva'); ?></div>
-					<div class="rv-weekday"><?php echo esc_html__('Sun', 'mhm-rentiva'); ?></div>
+					<?php
+					$weekday_labels = array(
+						__('Mon', 'mhm-rentiva'),
+						__('Tue', 'mhm-rentiva'),
+						__('Wed', 'mhm-rentiva'),
+						__('Thu', 'mhm-rentiva'),
+						__('Fri', 'mhm-rentiva'),
+						__('Sat', 'mhm-rentiva'),
+						__('Sun', 'mhm-rentiva'),
+					);
+					if ($week_starts_sunday) {
+						array_unshift($weekday_labels, array_pop($weekday_labels));
+					}
+					foreach ($weekday_labels as $weekday_label) :
+						?>
+					<div class="rv-weekday"><?php echo esc_html($weekday_label); ?></div>
+					<?php endforeach; ?>
 				</div>
 
 				<!-- Calendar Days -->
 				<div class="rv-calendar-days">
 					<?php
-					// Find which day of the week the first day of the month is
-					$first_day = (int) gmdate('N', strtotime( (string) $month_key . '-01')); // Monday = 1, Sunday = 7
-					$first_day = $first_day === 7 ? 0 : $first_day; // Adjusted for simplified loop below if needed, but keeping current logic:
-					$first_day = ( $first_day === 7 ) ? 0 : $first_day - 1; // Monday = 0, Sunday = 6 actually?
-					// Wait, standard WP calendar logic: Sunday is 0 if needed, but here it says Monday=0.
-					// Let's stick closer to core but fix date() -> gmdate()
-					$first_day = (int) gmdate('N', strtotime($month_key . '-01'));
-					$first_day = ( $first_day === 7 ) ? 0 : $first_day - 1;
+					// Blank cells before the 1st: its weekday counted from the week's first day.
+					// gmdate('w'): Sunday = 0 ... Saturday = 6.
+					$first_day = (int) gmdate('w', (int) strtotime( (string) $month_key . '-01'));
+					if (! $week_starts_sunday) {
+						$first_day = ( $first_day + 6 ) % 7; // Monday first: Monday = 0 ... Sunday = 6.
+					}
 
 
 					// Placeholder for empty days
@@ -373,7 +405,7 @@ if ($vehicle_id > 0) {
 							$price_data = $pricing_data[ $month_key ]['days'][ $date ];
 							echo '<div class="rv-day-price">';
 							echo '<span class="rv-price-amount">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $price_data['day_price'], 0)) . '</span>';
-							if ($price_data['has_discount']) {
+							if ($discounts_on && $price_data['has_discount']) {
 								echo '<span class="rv-discount-badge">%' . esc_html(round(( $price_data['discount_amount'] / $price_data['base_price'] ) * 100)) . '</span>';
 							}
 							echo '</div>';
@@ -403,7 +435,7 @@ if ($vehicle_id > 0) {
 		<div style="font-size: 48px; margin-bottom: 20px;">&#9888;</div>
 		<h3 style="color: #e74c3c; margin-bottom: 10px;"><?php echo esc_html__('Vehicle Unavailable', 'mhm-rentiva'); ?></h3>
 		<p><?php echo esc_html__('This vehicle is currently out of order and cannot be booked. Please choose another vehicle.', 'mhm-rentiva'); ?></p>
-		<?php if (count($vehicles_list) > 1) : ?>
+		<?php if ($show_vehicle_selector && count($vehicles_list) > 1) : ?>
 			<button class="rv-switch-vehicle-btn rv-btn rv-btn-primary" type="button" data-vehicles='<?php echo esc_attr(wp_json_encode($vehicles_list)); ?>' style="margin-top: 20px;">
 				<?php echo esc_html__('Choose Another Vehicle', 'mhm-rentiva'); ?>
 			</button>

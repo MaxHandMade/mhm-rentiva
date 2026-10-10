@@ -29,38 +29,19 @@
                     /* PANEL 3: VISIBILITY CONTROLS */
                     el(PanelBody, { title: __('Visibility Controls', 'mhm-rentiva'), initialOpen: false },
                         el(ToggleControl, {
-                            label: __('Show Date Picker', 'mhm-rentiva'),
-                            checked: attributes.show_date_picker,
-                            onChange: function (val) { setAttributes({ show_date_picker: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Insurance Options', 'mhm-rentiva'),
-                            checked: attributes.show_insurance,
-                            onChange: function (val) { setAttributes({ show_insurance: val }); }
-                        }),
-                        el(ToggleControl, {
                             label: __('Show Extras', 'mhm-rentiva'),
                             checked: attributes.show_addons,
                             onChange: function (val) { setAttributes({ show_addons: val }); }
                         })
                     ),
 
-                    /* PANEL 4: REDIRECT & PAYMENT */
-                    el(PanelBody, { title: __('Redirect & Payment', 'mhm-rentiva'), initialOpen: false },
+                    /* PANEL 4: REDIRECT */
+                    el(PanelBody, { title: __('Advanced Settings', 'mhm-rentiva'), initialOpen: false },
                         el(TextControl, {
                             label: __('Redirect URL', 'mhm-rentiva'),
                             help: __('URL to redirect after successful booking.', 'mhm-rentiva'),
                             value: attributes.redirectUrl,
                             onChange: function (val) { setAttributes({ redirectUrl: val }); }
-                        }),
-                        el(components.SelectControl, {
-                            label: __('Default Payment', 'mhm-rentiva'),
-                            value: attributes.defaultPayment,
-                            options: [
-                                { label: __('Deposit', 'mhm-rentiva'), value: 'deposit' },
-                                { label: __('Full Payment', 'mhm-rentiva'), value: 'full' }
-                            ],
-                            onChange: function (val) { setAttributes({ defaultPayment: val }); }
                         })
                     ),
 
@@ -80,21 +61,11 @@
                         }),
                         el(TextControl, {
                             label: __('Default Days', 'mhm-rentiva'),
+                            help: __('Prefills the return date this many days after the chosen pickup date. Leave empty for no prefill.', 'mhm-rentiva'),
                             type: 'number',
+                            min: 1,
                             value: attributes.defaultDays,
                             onChange: function (val) { setAttributes({ defaultDays: val }); }
-                        }),
-                        el(TextControl, {
-                            label: __('Min Days', 'mhm-rentiva'),
-                            type: 'number',
-                            value: attributes.minDays,
-                            onChange: function (val) { setAttributes({ minDays: val }); }
-                        }),
-                        el(TextControl, {
-                            label: __('Max Days', 'mhm-rentiva'),
-                            type: 'number',
-                            value: attributes.maxDays,
-                            onChange: function (val) { setAttributes({ maxDays: val }); }
                         })
                     )
                 ),

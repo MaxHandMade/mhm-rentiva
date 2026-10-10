@@ -1,0 +1,257 @@
+<div class="wp-block-mhm-rentiva-booking-form"><div class="rv-booking-form-wrapper mhm-rentiva-booking-form alignwide " data-testid="X" data-redirect-url="">
+<div class="rv-booking-form">
+<form class="rv-booking-form-content rv-checkout-layout" id="X" method="post">
+<!-- Left Column: Vehicle Summary -->
+<aside class="rv-checkout-sidebar rv-checkout-vehicle rv-hidden" id="X">
+<!-- Case B: JS Dynamically populated Summary (Generic Shortcode Context) -->
+<div class="rv-selected-vehicle-preview rv-selected-vehicle rv-card rv-vehicle-summary rv-hidden">
+<div class="rv-sv__media">
+<img class="rv-sv__img rv-vehicle-image" src="" alt="">
+<button type="button" class="rv-sv__favorite rv-sv__favorite-placeholder" aria-label="X">
+<span class="rv-heart-icon">&#10084;</span>
+</button>
+<div class="rv-sv__rating-inline rv-sv__rating-overlay rv-hidden">
+<span class="rv-sv__rating-star" aria-hidden="X">&#9733;</span>
+<span class="rv-sv__rating-value"></span>
+<span class="rv-sv__rating-count"></span>
+</div>
+</div>
+<div class="rv-sv__content">
+<div class="rv-sv__top">
+<div class="rv-sv__category rv-vehicle-category"></div>
+</div>
+<div class="rv-sv__title-wrap">
+<h4 class="rv-sv__title rv-vehicle-title"></h4>
+</div>
+<div class="rv-sv__meta">
+<span class="rv-sv__chip rv-chip">Automatic</span>
+<span class="rv-sv__chip rv-chip">Petrol</span>
+<span class="rv-sv__chip rv-chip">4 Seats</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Left Column: Main Checkout Steps -->
+<div class="rv-form-main-content rv-checkout-main">
+<!-- Vehicle Selection -->
+<div class="rv-form-section rv-vehicle-selection">
+<h3 class="rv-section-title">Vehicle Selection</h3>
+<div class="rv-field-group">
+<label for="X" class="rv-label"> Select Vehicle <span class="required">*</span>
+</label>
+<select name="vehicle_id" id="X" class="rv-select rv-vehicle-select" required>
+<option value="">Select vehicle...</option>
+<option value="VEHICLE0" data-price="250" data-category="Sedan" data-image="http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-1024x683.jpg" data-features="[&quot;Petrol&quot;,&quot;Manual&quot;,&quot;4 People&quot;,&quot;45.250 km&quot;]" data-rating="4.5" data-rating-count="12" data-rating-label=" (12 reviews) "> Zz Alpha Sedan ($250/day) </option>
+<option value="VEHICLE1" data-price="400" data-category="Coupe" data-image="http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-1024x683.jpg" data-features="[&quot;Diesel&quot;,&quot;Automatic&quot;,&quot;2 People&quot;,&quot;12.000 km&quot;]" data-rating="2.0" data-rating-count="3" data-rating-label=" (3 reviews) "> Zz Bravo Coupe ($400/day) </option>
+<option value="VEHICLE2" data-price="100" data-category="Van" data-image="http://example.org/wp-content/uploads/Y/M/zz-charlie-van-1024x683.jpg" data-features="[&quot;Electric&quot;,&quot;Automatic&quot;,&quot;9 People&quot;,&quot;800 km&quot;]" data-rating="5.0" data-rating-count="30" data-rating-label=" (30 reviews) "> Zz Charlie Van ($100/day) </option>
+</select>
+</div>
+<!-- Selected Vehicle Preview Moved to Sidebar -->
+</div>
+<!-- Date, Time and Location Section -->
+<div class="rv-form-section rv-dates-times rv-card">
+<div class="rv-card-header">
+<span class="rv-icon rv-icon-calendar"></span>
+<h3 class="rv-section-title">Date &amp; Time Selection</h3>
+</div>
+<div class="rv-card-body">
+<div class="rv-bf-datetime-table">
+<!-- Pickup Row -->
+<div class="rv-bf-datetime-row rv-bf-datetime-row--pickup">
+<div class="rv-bf-datetime-rowhead">
+<span class="rv-bf-datetime-rowtitle">VEHICLE PICKUP</span>
+</div>
+<div class="rv-bf-datetime-cell rv-bf-datetime-cell--date">
+<input type="text" id="X" name="pickup_date" data-testid="X" class="rv-input-ghost rv-date-input rv-pickup-date" placeholder="Select date" value="" readonly required>
+<span class="rv-bf-datetime-cal-icon" aria-hidden="X">
+<svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+</span>
+</div>
+<div class="rv-bf-datetime-cell rv-bf-datetime-cell--time">
+<span class="rv-bf-datetime-clock-icon" aria-hidden="X">
+<svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+</span>
+<select id="X" name="pickup_time" class="rv-select-ghost rv-pickup-time rv-select" required>
+<option value="">Time</option>
+<option value="00:00"> 00:00 </option>
+<option value="01:00"> 01:00 </option>
+<option value="02:00"> 02:00 </option>
+<option value="03:00"> 03:00 </option>
+<option value="04:00"> 04:00 </option>
+<option value="05:00"> 05:00 </option>
+<option value="06:00"> 06:00 </option>
+<option value="07:00"> 07:00 </option>
+<option value="08:00"> 08:00 </option>
+<option value="09:00"> 09:00 </option>
+<option value="10:00"> 10:00 </option>
+<option value="11:00"> 11:00 </option>
+<option value="12:00"> 12:00 </option>
+<option value="13:00"> 13:00 </option>
+<option value="14:00"> 14:00 </option>
+<option value="15:00"> 15:00 </option>
+<option value="16:00"> 16:00 </option>
+<option value="17:00"> 17:00 </option>
+<option value="18:00"> 18:00 </option>
+<option value="19:00"> 19:00 </option>
+<option value="20:00"> 20:00 </option>
+<option value="21:00"> 21:00 </option>
+<option value="22:00"> 22:00 </option>
+<option value="23:00"> 23:00 </option>
+</select>
+</div>
+</div>
+<!-- Return Row -->
+<div class="rv-bf-datetime-row rv-bf-datetime-row--return">
+<div class="rv-bf-datetime-rowhead">
+<span class="rv-bf-datetime-rowtitle"> VEHICLE RETURN <span class="rv-info-icon-wrapper" title="Return time is automatically set to match pickup time.">
+<svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+</span>
+</span>
+</div>
+<div class="rv-bf-datetime-cell rv-bf-datetime-cell--date">
+<input type="text" id="X" name="dropoff_date" class="rv-input-ghost rv-date-input rv-dropoff-date" placeholder="Select date" value="" readonly required>
+<span class="rv-bf-datetime-cal-icon" aria-hidden="X">
+<svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+</span>
+</div>
+<div class="rv-bf-datetime-cell rv-bf-datetime-cell--time">
+<span class="rv-bf-datetime-clock-icon" aria-hidden="X">
+<svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+</span>
+<select id="X" name="dropoff_time" class="rv-select-ghost rv-select-disabled rv-dropoff-time rv-select" disabled readonly>
+<option value="">Time</option>
+<option value="00:00"> 00:00 </option>
+<option value="01:00"> 01:00 </option>
+<option value="02:00"> 02:00 </option>
+<option value="03:00"> 03:00 </option>
+<option value="04:00"> 04:00 </option>
+<option value="05:00"> 05:00 </option>
+<option value="06:00"> 06:00 </option>
+<option value="07:00"> 07:00 </option>
+<option value="08:00"> 08:00 </option>
+<option value="09:00"> 09:00 </option>
+<option value="10:00"> 10:00 </option>
+<option value="11:00"> 11:00 </option>
+<option value="12:00"> 12:00 </option>
+<option value="13:00"> 13:00 </option>
+<option value="14:00"> 14:00 </option>
+<option value="15:00"> 15:00 </option>
+<option value="16:00"> 16:00 </option>
+<option value="17:00"> 17:00 </option>
+<option value="18:00"> 18:00 </option>
+<option value="19:00"> 19:00 </option>
+<option value="20:00"> 20:00 </option>
+<option value="21:00"> 21:00 </option>
+<option value="22:00"> 22:00 </option>
+<option value="23:00"> 23:00 </option>
+</select>
+</div>
+</div>
+</div><!-- /.rv-bf-datetime-table -->
+<input type="hidden" id="X" name="dropoff_time" class="rv-dropoff-time-hidden" value="">
+<small class="rv-description-hint-premium"> Return time is automatically set to match pickup time. </small>
+<!-- Availability Status -->
+<div id="X" class="rv-availability-status hidden">
+<div class="status-message"></div>
+</div>
+</div>
+<!-- rv-card-body -->
+</div>
+<!-- Additional Services -->
+<div class="rv-form-section rv-addons rv-card">
+<div class="rv-card-header">
+<span class="rv-icon rv-icon-addons"></span>
+<h3 class="rv-section-title">Additional Services</h3>
+</div>
+<div class="rv-card-body rv-addons-list">
+<label class="rv-addon-item">
+<div class="rv-addon-icon-circle">
+<svg class="rv-addon-generic-icon" width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="X" focusable="false">
+<path d="M12 3L4 7v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V7l-8-4z"></path>
+<path d="M9.5 12.5l1.8 1.8 3.7-3.7"></path>
+</svg>
+</div>
+<div class="rv-addon-content">
+<div class="rv-addon-title">Zz Child Seat</div>
+<div class="rv-addon-description">Fixture additional service.</div>
+</div>
+<div class="rv-addon-actions">
+<div class="rv-addon-price"> $15 </div>
+<input type="checkbox" name="selected_addons[]" value="ID" class="rv-addon-checkbox" data-price="15">
+</div>
+</label>
+</div>
+</div>
+</div>
+<!-- .rv-checkout-main -->
+<!-- Right Column: Sticky Payment Summary -->
+<aside class="rv-checkout-summary">
+<!-- Price Calculation (Payment Summary Card) -->
+<div class="rv-form-section rv-price-calculation rv-card" data-testid="X">
+<div class="rv-card-header">
+<span class="rv-icon rv-icon-receipt"></span>
+<h3 class="rv-section-title">Payment Summary</h3>
+</div>
+<!-- Card Body for line items -->
+<div class="rv-card-body rv-price-breakdown">
+<div class="rv-price-item">
+<span class="rv-price-label">Daily Price:</span>
+<span class="rv-price-value rv-daily-price" id="X">-</span>
+</div>
+<div class="rv-price-item">
+<span class="rv-price-label">Number of Days:</span>
+<span class="rv-price-value rv-days-count" id="X">-</span>
+</div>
+<div class="rv-price-item rv-weekend-summary rv-hidden">
+<span class="rv-price-label">Weekend Difference:</span>
+<span class="rv-price-value rv-weekend-diff-amount" id="X">-</span>
+</div>
+<div class="rv-price-item rv-tax-summary rv-hidden">
+<span class="rv-price-label rv-tax-label" id="X">Tax:</span>
+<span class="rv-price-value rv-tax-amount" id="X">-</span>
+</div>
+<div class="rv-price-item rv-vehicle-total-detailed rv-hidden">
+<span class="rv-price-label">Vehicle Total:</span>
+<span class="rv-price-value rv-vehicle-total" id="X">-</span>
+</div>
+<div class="rv-price-item rv-addons-price rv-hidden">
+<span class="rv-price-label">Additional Services:</span>
+<span class="rv-price-value rv-addons-total" id="X">-</span>
+</div>
+<div class="rv-price-item rv-total-price">
+<span class="rv-price-label">Total Amount:</span>
+<span class="rv-price-value rv-total-amount rv-price-large" id="X" data-testid="X">-</span>
+</div>
+<div class="rv-price-item rv-deposit-summary rv-hidden">
+<span class="rv-price-label">Deposit to Pay:</span>
+<span class="rv-price-value rv-deposit-amount" id="X" data-testid="X">-</span>
+</div>
+<div class="rv-price-item rv-remaining-summary rv-hidden">
+<span class="rv-price-label">Remaining Amount:</span>
+<span class="rv-price-value rv-remaining-amount" id="X">-</span>
+</div>
+</div>
+<!-- Hidden fields for logged-in users (Payment gateway will handle guest users) -->
+<input type="hidden" name="payment_type" value="deposit">
+<input type="hidden" name="redirect_url" value="">
+<!-- Form Buttons -->
+<div class="rv-card-footer rv-form-actions">
+<button type="button" class="rv-submit-btn rv-btn rv-btn-primary rv-cta-primary" data-testid="X">
+<span class="rv-btn-text"> Make Booking </span>
+<span class="rv-btn-loading rv-hidden">
+<span class="rv-spinner"></span>
+</span>
+</button>
+<p class="rv-payment-disclaimer"> By clicking the booking button, you accept booking terms and pricing details. </p>
+</div>
+</div>
+</aside>
+<!-- .rv-checkout-summary -->
+</form>
+<!-- Messages -->
+<div class="rv-messages">
+<div class="rv-success-message rv-hidden"></div>
+<div class="rv-error-message rv-hidden"></div>
+</div>
+</div>
+</div></div>

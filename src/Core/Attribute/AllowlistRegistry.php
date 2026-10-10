@@ -99,16 +99,6 @@ final class AllowlistRegistry {
             'group'   => 'workflow',
             'aliases' => [ 'defaultDays' ],
         ],
-        'min_days'                 => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => [ 'minDays' ],
-        ],
-        'max_days'                 => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => [ 'maxDays' ],
-        ],
 
         // Layout & Styles
         'layout'                   => [
@@ -260,25 +250,10 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showLegend' ],
         ],
-        'show_booking_links'       => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showBookingLinks' ],
-        ],
         'show_month_nav'           => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showMonthNavigation' ],
-        ],
-        'show_today_btn'           => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTodayButton' ],
-        ],
-        'show_week_numbers'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showWeekNumbers' ],
         ],
         'months_to_show'           => [
             'type'    => 'int',
@@ -319,10 +294,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showCancelButton', 'showCancelBtn' ],
-        ],
-        'show_insurance'           => [
-            'type'  => 'bool',
-            'group' => 'visibility',
         ],
         'show_booking_id_field'    => [
             'type'    => 'bool',
@@ -781,17 +752,6 @@ final class AllowlistRegistry {
             'group'   => 'feature',
             'aliases' => [ 'enableDeposit' ],
         ],
-        'show_payment_options'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPaymentOptions' ],
-        ],
-        'default_payment'          => [
-            'type'    => 'enum',
-            'group'   => 'workflow',
-            'aliases' => [ 'defaultPayment' ],
-            'values'  => [ 'deposit', 'full', 'cash', 'credit_card', 'bank_transfer', 'none' ],
-        ],
         'redirect_url'             => [
             'type'    => 'string',
             'group'   => 'workflow',
@@ -1028,16 +988,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showComparisonImages' ],
         ],
-        'integrate_pricing'        => [
-            'type'    => 'bool',
-            'group'   => 'feature',
-            'aliases' => [ 'integratePricing' ],
-        ],
-        'show_seasonal_prices'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showSeasonalPrices' ],
-        ],
         'show_discounts'           => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -1061,19 +1011,13 @@ final class AllowlistRegistry {
             'end_date',
             'show_vehicle_selector',
             'default_days',
-            'min_days',
-            'max_days',
-            'show_payment_options',
             'show_addons',
             'class',
             'redirect_url',
             'enable_deposit',
-            'default_payment',
             'form_title',
             'show_vehicle_info',
             'show_time_select',
-            'show_insurance',
-            'show_date_picker',
         ],
         'rentiva_vehicles_list'         => [
             'limit',
@@ -1142,22 +1086,16 @@ final class AllowlistRegistry {
             'vehicle_id'            => [ 'default' => '' ],
             'show_pricing'          => [ 'default' => '1' ],
             'theme'                 => [ 'default' => 'default' ],
-            'start_date'            => [ 'default' => '' ],
             'class'                 => [ 'default' => '' ],
-            'show_vehicle_selector' => [ 'default' => '0' ],
+            'show_vehicle_selector' => [ 'default' => '1' ],
             'show_legend'           => [ 'default' => '1' ],
-            'show_booking_links'    => [ 'default' => '1' ],
             'show_month_nav'        => [ 'default' => '1' ],
-            'show_today_btn'        => [ 'default' => '1' ],
-            'show_week_numbers'     => [ 'default' => '0' ],
             'months_to_show'        => [ 'default' => '1' ],
             'start_week_on'         => [ 'default' => '1' ],
             'start_month'           => [ 'default' => '' ],
-            'height'                => [ 'default' => 'auto' ],
-            'show_seasonal_prices'  => [ 'default' => '1' ],
+            'height'                => [ 'default' => '' ],
             'show_discounts'        => [ 'default' => '1' ],
             'show_booking_button'   => [ 'default' => '1' ],
-            'integrate_pricing'     => [ 'default' => '1' ],
         ],
         'rentiva_vehicle_details'       => [
             'vehicle_id',

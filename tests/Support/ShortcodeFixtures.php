@@ -392,8 +392,14 @@ final class ShortcodeFixtures
 		);
 
 		switch ($tag) {
-			case 'rentiva_booking_form':
 			case 'rentiva_availability_calendar':
+				$row['atts'] = array( 'vehicle_id' => (string) $catalog[0] );
+				// height (block calendarHeight): only a CSS length sizes the wrapper
+				// (spec 3A Task 6); the probe's text sentinels are rejected by design.
+				$row['pairs'] = array( 'height' => array( '', '600px' ) );
+				break;
+
+			case 'rentiva_booking_form':
 			case 'rentiva_vehicle_details':
 			case 'rentiva_vehicle_rating_form':
 				$row['atts'] = array( 'vehicle_id' => (string) $catalog[0] );

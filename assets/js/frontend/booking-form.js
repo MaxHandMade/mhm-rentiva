@@ -327,6 +327,15 @@
                         if (dropoffVal && dropoffVal <= dateObj) {
                             dropoffDate.val('').datepicker('setDate', null);
                         }
+
+                        // Per-form "Default Days": prefill an empty return date N days
+                        // after the pickup. Never overwrites a return date already chosen.
+                        const defaultDays = parseInt(this.container.data('default-days'), 10) || 0;
+                        if (defaultDays > 0 && !dropoffDate.val()) {
+                            const prefill = new Date(dateObj);
+                            prefill.setDate(prefill.getDate() + defaultDays);
+                            dropoffDate.datepicker('setDate', prefill);
+                        }
                     }
                 }
 

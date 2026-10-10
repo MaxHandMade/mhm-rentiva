@@ -30,8 +30,12 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	 * showAvailability) and three from unified-search (filter_categories, minwidth,
 	 * maxwidth); its block.json `layout` was removed too, but the block keeps the
 	 * `layout` attribute core adds for `supports.layout`, so the count drops by six.
+	 * Slice 3A Task 6: 231, six removed from availability-calendar (showBookingLinks,
+	 * showTodayButton, showWeekNumbers, startDate, showSeasonalPrices,
+	 * integratePricing) and six from booking-form (show_insurance,
+	 * show_payment_options, show_date_picker, minDays, maxDays, defaultPayment).
 	 */
-	private const LITE_ATTRIBUTE_COUNT = 243;
+	private const LITE_ATTRIBUTE_COUNT = 231;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(
@@ -41,7 +45,9 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 		array( 'vehicle-comparison', 'showBookButton' ),
 		array( 'testimonials', 'filterRating' ),
 		array( 'availability-calendar', 'showMonthNavigation' ),
-		array( 'availability-calendar', 'showTodayButton' ),
+		// Slice 3A Task 6: showTodayButton removed; the "Show Booking Links" toggle
+		// now writes showBookingButton (rule 2).
+		array( 'availability-calendar', 'showBookingButton' ),
 		array( 'availability-calendar', 'calendarHeight' ),
 		array( 'vehicles-grid', 'showBookButton' ),
 		array( 'vehicles-grid', 'filterCategories' ),
