@@ -17,7 +17,7 @@ if (! defined('ABSPATH')) {
 
 
 
-// Filtering with proper sanitization.
+// The list's filter form values, with proper sanitization.
 // Both params are read off WordPress's `query_vars` whitelist, where
 // AccountController::PUBLIC_QUERY_VARS registers them; this is a front-end
 // screen, so wp() runs WP::parse_request() and fills them. No superglobal is
@@ -30,7 +30,6 @@ $search_query_raw  = get_query_var('mhmrentiva_search_booking', null);
 $status_filter     = ( null === $status_filter_raw || is_array($status_filter_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $status_filter_raw));
 $search_query      = ( null === $search_query_raw || is_array($search_query_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $search_query_raw));
 
-// Filter bookings
 $bookings      = $data['bookings'] ?? array();
 $navigation    = $data['navigation'] ?? array();
 $is_integrated = empty($navigation);
@@ -45,26 +44,10 @@ $current_list_page  = (int) ( $data['current_page'] ?? 1 );
 $total_list_pages   = (int) ( $data['total_pages'] ?? 1 );
 $show_pager         = ! empty($data['show_pagination']) && $total_list_pages > 1;
 
+// The status and search filters narrow the query itself
+// (AccountRenderer::get_bookings_data()), so the rows and the pager agree;
+// the values above only refill the form.
 $filtered_bookings = $bookings;
-
-if ($status_filter && $status_filter !== 'all') {
-	$filtered_bookings = array_filter(
-		$filtered_bookings,
-		function ($booking) use ($status_filter) {
-			$status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
-			return $status === $status_filter;
-		}
-	);
-}
-
-if ($search_query) {
-	$filtered_bookings = array_filter(
-		$filtered_bookings,
-		function ($booking) use ($search_query) {
-			return strpos( (string) $booking->ID, $search_query) !== false;
-		}
-	);
-}
 
 // Separate upcoming and past bookings
 $today             = current_time('Y-m-d');

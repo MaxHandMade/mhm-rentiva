@@ -75,6 +75,8 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 		wp_set_current_user(0);
 		set_query_var('mhmrentiva_page', '');
+		set_query_var('mhmrentiva_status_filter', '');
+		set_query_var('mhmrentiva_search_booking', '');
 		RequestSimulator::new_request();
 		parent::tearDown();
 	}
@@ -225,6 +227,104 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 
 		// One page: no pager (the default render, as the goldens pin).
 		$this->assertStringNotContainsString('mhm-pagination', $this->shortcode(''));
+	}
+
+	/**
+	 * Ruling T7a-1: the list's status filter narrows the query, so the rows and
+	 * the page count both follow it. 12 completed among 25 bookings, limit 10:
+	 * page 1 has 10 completed, page 2 the other 2, and the pager says 2 pages.
+	 */
+	public function test_status_filter_spans_pages(): void
+	{
+		$completed = $this->many_bookings(25, static fn(int $i): string => 0 === $i % 2 ? 'completed' : 'confirmed');
+		$this->assertCount(13, $completed, 'Fixture: every other one of 25 is completed (13).');
+		array_pop($completed); // 12 completed: turn the oldest one into a cancelled one.
+		$oldest = $this->many_ids[24];
+		update_post_meta($oldest, '_mhmrentiva_status', 'cancelled');
+		$completed = array_values(array_diff($completed, array( $oldest )));
+		$this->assertCount(12, $completed);
+
+		set_query_var('mhmrentiva_status_filter', 'completed');
+		$first = $this->shortcode('limit="10"');
+		$this->assertSame(array_slice($completed, 0, 10), $this->ids($first), 'Page 1: the 10 newest completed.');
+		$this->assertStringContainsString('Page 1 / 2', $first);
+		$this->assertStringNotContainsString('No Bookings Found', $first);
+
+		set_query_var('mhmrentiva_page', '2');
+		$second = $this->shortcode('limit="10"');
+		$this->assertSame(array_slice($completed, 10), $this->ids($second), 'Page 2: the other 2 completed.');
+		$this->assertStringContainsString('Page 2 / 2', $second);
+
+		// The data agrees with the render, and 'all' is no filter.
+		set_query_var('mhmrentiva_page', '');
+		$this->assertSame(2, AccountRenderer::get_bookings_data(array( 'limit' => '10' ))['data']['total_pages']);
+		set_query_var('mhmrentiva_status_filter', 'all');
+		$this->assertSame(3, AccountRenderer::get_bookings_data(array( 'limit' => '10' ))['data']['total_pages'], '25 bookings, no filter: 3 pages.');
+		set_query_var('mhmrentiva_status_filter', '');
+	}
+
+	/**
+	 * Ruling T7a-1: a search by reservation ID finds a booking that lives on page 3.
+	 */
+	public function test_search_finds_booking_on_later_page(): void
+	{
+		$this->many_bookings(25, static fn(int $i): string => 'confirmed');
+		$target = $this->many_ids[23]; // Newest first, limit 10: page 3.
+		$this->assertSame(array( $target ), array_values(array_slice($this->ids($this->page_of(3)), 3, 1)), 'Fixture: the target is on page 3 unfiltered.');
+
+		set_query_var('mhmrentiva_search_booking', (string) $target);
+		$html = $this->shortcode('limit="10"');
+		$this->assertContains($target, $this->ids($html), 'The search finds it from page 1.');
+		$this->assertStringNotContainsString('No Bookings Found', $html);
+		$this->assertStringNotContainsString('mhm-pagination', $html, 'One page of matches, no pager.');
+		foreach ($this->ids($html) as $id) {
+			$this->assertStringContainsString((string) $target, (string) $id, 'Only IDs containing the search text.');
+		}
+
+		set_query_var('mhmrentiva_search_booking', '999999999');
+		$this->assertStringContainsString('No Bookings Found', $this->shortcode('limit="10"'), 'No match: the empty state, not someone else\'s bookings.');
+		set_query_var('mhmrentiva_search_booking', '');
+	}
+
+	/** @var list<int> Bookings of many_bookings(), newest first. */
+	private array $many_ids = array();
+
+	/**
+	 * $n bookings for a fresh customer (logged in), newest first, status by index.
+	 *
+	 * @return list<int> The completed ones, newest first.
+	 */
+	private function many_bookings(int $n, callable $status): array
+	{
+		$user           = ShortcodeFixtures::customer();
+		$vehicle        = ShortcodeFixtures::vehicle();
+		$this->many_ids = array();
+		$completed      = array();
+		for ($i = 0; $i < $n; $i++) {
+			$id   = ShortcodeFixtures::booking($user, $vehicle, $status($i), '100', 10);
+			$date = gmdate('Y-m-d H:i:s', time() - ( $i + 1 ) * HOUR_IN_SECONDS);
+			wp_update_post(
+				array(
+					'ID'            => $id,
+					'post_date'     => $date,
+					'post_date_gmt' => $date,
+				)
+			);
+			$this->many_ids[] = $id;
+			if ('completed' === $status($i)) {
+				$completed[] = $id;
+			}
+		}
+		wp_set_current_user($user);
+		return $completed;
+	}
+
+	private function page_of(int $page): string
+	{
+		set_query_var('mhmrentiva_page', (string) $page);
+		$html = $this->shortcode('limit="10"');
+		set_query_var('mhmrentiva_page', '');
+		return $html;
 	}
 
 	/**

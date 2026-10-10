@@ -181,15 +181,31 @@ final class AccountRenderer {
 		// Pagination (show_pagination, on unless turned off): the page comes from
 		// the public query var; a page past the end shows the last one. Off is
 		// today's list -- the first `limit` bookings, the page var ignored.
-		$paginate    = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
-		$page        = $paginate ? self::current_page() : 1;
+		//
+		// The list's own filter form (mhmrentiva_status_filter,
+		// mhmrentiva_search_booking) narrows the query itself, so the rows and the
+		// page count both follow it (T7a-1). It used to filter the fetched page in
+		// the template, which left pages empty under a pager that counted every
+		// booking, and a search only saw the current page.
+		$args['status_filter'] = self::list_filter_var('mhmrentiva_status_filter');
+		if ('all' === $args['status_filter']) {
+			$args['status_filter'] = '';
+		}
+		$args['search'] = self::list_filter_var('mhmrentiva_search_booking');
+
+		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
+		// Capped so the query's offset ((page - 1) * limit) stays an integer: an
+		// overflowing page number would reach SQL as a float.
+		$page        = $paginate ? min(self::current_page(), intdiv(PHP_INT_MAX, $args['limit'])) : 1;
 		$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
 		$total_pages = $paginate ? max(1, (int) $query->max_num_pages) : 1;
 
-		if ($paginate && $page > 1 && array() === $query->posts) {
-			// WP_Query leaves found_posts at 0 for an empty page; count on page 1.
+		// Past the last page (Review Focus 2), however large the number, shows the
+		// last page. WP_Query leaves found_posts at 0 for an empty page, so count
+		// on page 1.
+		if ($paginate && $page > 1 && ( array() === $query->posts || $page > $total_pages )) {
 			$total_pages = max(1, (int) self::query_user_bookings($user->ID, $args + array( 'page' => 1 ))->max_num_pages);
-			$page        = $total_pages;
+			$page        = min($page, $total_pages);
 			$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
 		}
 
@@ -241,6 +257,20 @@ final class AccountRenderer {
 		}
 
 		return add_query_arg('mhmrentiva_page', $page);
+	}
+
+	/**
+	 * A filter param of the bookings list off WordPress's query_vars whitelist
+	 * (AccountController::PUBLIC_QUERY_VARS); '' when absent or an array.
+	 */
+	private static function list_filter_var(string $name): string
+	{
+		$raw = get_query_var($name, null);
+		if (null === $raw || is_array($raw)) {
+			return '';
+		}
+
+		return sanitize_text_field(wp_unslash( (string) $raw));
 	}
 
 	/**
@@ -592,11 +622,13 @@ final class AccountRenderer {
 	private static function query_user_bookings(int $user_id, array $args = array()): \WP_Query
 	{
 		$defaults = array(
-			'limit'   => 10,
-			'status'  => '',
-			'orderby' => 'date',
-			'order'   => 'DESC',
-			'page'    => 1,
+			'limit'         => 10,
+			'status'        => '',
+			'orderby'       => 'date',
+			'order'         => 'DESC',
+			'page'          => 1,
+			'status_filter' => '',
+			'search'        => '',
 		);
 
 		$args = wp_parse_args($args, $defaults);
@@ -619,6 +651,15 @@ final class AccountRenderer {
 			);
 		}
 
+		// The list's own status filter, on top of the configured one (both must hold).
+		if (! empty($args['status_filter'])) {
+			$meta_query[] = array(
+				'key'     => '_mhmrentiva_status',
+				'value'   => self::sanitize_text_field_safe($args['status_filter']),
+				'compare' => '=',
+			);
+		}
+
 		$query_args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
@@ -628,6 +669,31 @@ final class AccountRenderer {
 			'meta_query'     => $meta_query,
 			'paged'          => max(1, (int) $args['page']),
 		);
+
+		// Search by reservation ID (the list's form): a booking whose ID contains
+		// the text, as the template matched it. The candidate IDs are this
+		// customer's (already narrowed) bookings, so the page count follows it.
+		$search = (string) ( $args['search'] ?? '' );
+		if ('' !== $search) {
+			$ids                    = get_posts(
+				array_merge(
+					$query_args,
+					array(
+						'posts_per_page' => -1,
+						'paged'          => 1,
+						'fields'         => 'ids',
+						'no_found_rows'  => true,
+					)
+				)
+			);
+			$matched                = array_values(
+				array_filter(
+					array_map('intval', $ids),
+					static fn(int $id): bool => false !== strpos( (string) $id, $search)
+				)
+			);
+			$query_args['post__in'] = array() !== $matched ? $matched : array( 0 );
+		}
 
 		return new \WP_Query($query_args);
 	}

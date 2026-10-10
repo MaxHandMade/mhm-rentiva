@@ -107,6 +107,8 @@ final class AccountPageVarTest extends WP_UnitTestCase
 		wp_set_current_user($user);
 
 		$expect = array(
+			// Overflows PHP_INT_MAX; WP_Query's offset wraps it back to a full page.
+			'99999999999999999999' => array( $bookings[2] ),
 			'999'  => array( $bookings[2] ),
 			'3'    => array( $bookings[2] ),
 			'2'    => array( $bookings[1] ),
@@ -121,10 +123,23 @@ final class AccountPageVarTest extends WP_UnitTestCase
 			$data = AccountRenderer::get_bookings_data(array( 'limit' => '1' ))['data'];
 			$this->assertSame($ids, wp_list_pluck($data['bookings'], 'ID'), "mhmrentiva_page=$var");
 			$this->assertSame(3, $data['total_pages'], "mhmrentiva_page=$var total");
+			$this->assertLessThanOrEqual(3, $data['current_page'], "mhmrentiva_page=$var current page");
 
 			$html = do_shortcode('[rentiva_my_bookings limit="1"]');
 			$this->assertStringContainsString('#' . $ids[0] . '<', $html, "mhmrentiva_page=$var renders the booking");
 			$this->assertStringNotContainsString('No Bookings Found', $html, "mhmrentiva_page=$var is not an empty page");
+			$this->assertMatchesRegularExpression('#Page [123] / 3#', $html, "mhmrentiva_page=$var pager label");
+		}
+
+		// limit 2: (page - 1) * limit overflows to a float, and WP_Query's offset
+		// wraps back to a full first page -- not empty, so only the page count
+		// can catch it (T7a-1).
+		foreach (array( '99999999999999999999', (string) PHP_INT_MAX, '4611686018427387905' ) as $var) {
+			set_query_var('mhmrentiva_page', $var);
+			$data = AccountRenderer::get_bookings_data(array( 'limit' => '2' ))['data'];
+			$this->assertSame(2, $data['current_page'], "mhmrentiva_page=$var at limit 2");
+			$this->assertSame(array( $bookings[2] ), wp_list_pluck($data['bookings'], 'ID'), "mhmrentiva_page=$var at limit 2 shows the last page");
+			$this->assertStringContainsString('Page 2 / 2', do_shortcode('[rentiva_my_bookings limit="2"]'));
 		}
 
 		foreach (array( '0' => 1, '-2' => 1, 'abc' => 1, '' => 1, '7' => 7 ) as $var => $page) {
