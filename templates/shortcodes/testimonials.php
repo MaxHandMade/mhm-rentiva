@@ -22,6 +22,12 @@ $atts             = $atts ?? array();
 $testimonials     = $testimonials ?? array();
 $total_count      = $total_count ?? 0;
 $has_testimonials = $has_testimonials ?? false;
+// The order, filters and card flags "Load More" continues with; only the values
+// that differ from the defaults (Testimonials::load_more_attributes()).
+$load_more_attrs = '';
+foreach ( (array) ( $load_more ?? array() ) as $load_more_name => $load_more_value) {
+	$load_more_attrs .= ' data-' . esc_attr( (string) $load_more_name) . '="' . esc_attr( (string) $load_more_value) . '"';
+}
 
 // Shortcode attributes
 $limit         = intval($atts['limit'] ?? apply_filters('mhmrentiva_testimonials_limit', 5));
@@ -57,7 +63,7 @@ $format_name = static function (string $full_name): string {
 <div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>"
 	data-limit="<?php echo esc_attr($limit); ?>"
 	data-layout="<?php echo esc_attr($layout); ?>"
-	data-auto-rotate="<?php echo $auto_rotate ? '1' : '0'; ?>">
+	data-auto-rotate="<?php echo $auto_rotate ? '1' : '0'; ?>"<?php echo $load_more_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every name and value went through esc_attr() above. ?>>
 
 	<?php if ($has_testimonials) : ?>
 

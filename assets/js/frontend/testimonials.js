@@ -13,8 +13,6 @@ class Testimonials {
         }
 
         this.container = jQuery('.rv-testimonials');
-        this.currentPage = 1;
-        this.isLoading = false;
         this.carouselInterval = null;
 
         if (this.container.length === 0) return;
@@ -32,7 +30,9 @@ class Testimonials {
         // Load More Button
         jQuery(document).on('click', '.rv-load-more-btn', (e) => {
             e.preventDefault();
-            this.loadMoreTestimonials();
+            // The block the button belongs to: a page can carry several, each
+            // with its own order, filters and flags.
+            this.loadMoreTestimonials(jQuery(e.currentTarget).closest('.rv-testimonials'));
         });
 
         // Carousel Controls
@@ -153,67 +153,77 @@ class Testimonials {
         }
     }
 
-    loadMoreTestimonials() {
-        if (this.isLoading) return;
+    /**
+     * A setting the template prints only when it differs from its default
+     * (so a default render keeps today's markup). Read as a string: jQuery's
+     * .data() would turn '0' into a number.
+     */
+    setting($root, name, fallback) {
+        const value = $root.attr('data-' + name);
+        return (value === undefined || value === '') ? fallback : String(value);
+    }
 
-        this.isLoading = true;
-        const $loadMoreBtn = this.container.find('.rv-load-more-btn');
+    loadMoreTestimonials($root) {
+        $root = ($root && $root.length) ? $root : this.container.first();
+        if ($root.data('rvLoading')) return;
+
+        $root.data('rvLoading', true);
+        const $loadMoreBtn = $root.find('.rv-load-more-btn');
         const $spinner = $loadMoreBtn.find('.rv-loading-spinner');
+        const stored = parseInt($root.data('rvPage'), 10);
+        const page = Number.isNaN(stored) ? 1 : stored;
 
         // Show loading state
         $loadMoreBtn.prop('disabled', true);
         $spinner.show();
 
-        // Get current parameters
-        const limit = this.container.data('limit') || 5;
-        const rating = this.container.data('rating') || '';
-        const vehicleId = this.container.data('vehicle-id') || '';
-
-        // AJAX request
+        // The next page in the same order, with the same filters, as the first.
         jQuery.ajax({
             url: window.mhmRentivaTestimonials?.ajaxUrl || window.ajaxurl || '',
             type: 'POST',
             data: {
                 action: 'mhmrentiva_load_testimonials',
                 nonce: window.mhmRentivaTestimonials?.nonce || '',
-                page: this.currentPage + 1,
-                limit: limit,
-                rating: rating,
-                vehicle_id: vehicleId
+                page: page + 1,
+                limit: this.setting($root, 'limit', '5'),
+                rating: this.setting($root, 'rating', ''),
+                vehicle_id: this.setting($root, 'vehicle-id', ''),
+                orderby: this.setting($root, 'orderby', 'date'),
+                order: this.setting($root, 'order', 'DESC'),
+                seed: this.setting($root, 'seed', '')
             },
             success: (response) => {
                 if (response.success) {
-                    this.appendTestimonials(response.data.testimonials);
-                    this.currentPage++;
+                    this.appendTestimonials($root, response.data.testimonials);
+                    $root.data('rvPage', page + 1);
 
                     // Hide load more button if no more testimonials
                     if (!response.data.has_more) {
                         $loadMoreBtn.closest('.rv-testimonials-load-more').hide();
                     }
                 } else {
-                    this.showError(response.data?.message || (window.mhmRentivaTestimonials?.strings?.error || 'Testimonials could not be loaded'));
+                    this.showError($root, response.data?.message || (window.mhmRentivaTestimonials?.strings?.error || 'Testimonials could not be loaded'));
                 }
             },
             error: () => {
-                this.showError(window.mhmRentivaTestimonials?.strings?.error || 'An error occurred while loading testimonials');
+                this.showError($root, window.mhmRentivaTestimonials?.strings?.error || 'An error occurred while loading testimonials');
             },
             complete: () => {
-                this.isLoading = false;
+                $root.data('rvLoading', false);
                 $loadMoreBtn.prop('disabled', false);
                 $spinner.hide();
             }
         });
     }
 
-    appendTestimonials(testimonials) {
+    appendTestimonials($root, testimonials) {
         if (!testimonials || testimonials.length === 0) return;
 
-        const layout = this.container.data('layout') || 'grid';
-        const $container = this.container.find(`.rv-testimonials-${layout}`);
+        const layout = $root.attr('data-layout') || 'grid';
+        const $container = $root.find(`.rv-testimonials-${layout}`);
 
         testimonials.forEach(testimonial => {
-            const $testimonialItem = this.createTestimonialElement(testimonial);
-            $container.append($testimonialItem);
+            $container.append(this.createTestimonialElement($root, testimonial));
         });
 
         // Re-initialize carousel if needed
@@ -222,47 +232,71 @@ class Testimonials {
         }
 
         // Animate new items
-        this.animateNewItems();
+        this.animateNewItems($root);
     }
 
-    createTestimonialElement(testimonial) {
-        const $item = jQuery('<div class="rv-testimonial-item"></div>');
+    /**
+     * One card: the markup of templates/shortcodes/testimonials.php, under the
+     * same display flags.
+     */
+    createTestimonialElement($root, testimonial) {
+        const show = (name) => this.setting($root, name, '1') === '1';
+        const icons = window.mhmRentivaTestimonials?.icons || {};
+        const rating = parseInt(testimonial.rating, 10) || 0;
+        const name = String(testimonial.customer_name || '');
 
-        let content = '<div class="rv-testimonial-content">';
+        let content = '<div class="rv-testimonial-card">';
 
-        // Rating
-        if (testimonial.rating > 0) {
+        if (show('show-quotes')) {
+            content += `<div class="rv-quote-icon" aria-hidden="true">${icons.card_quote || ''}</div>`;
+        }
+
+        if (show('show-rating') && rating > 0) {
             content += '<div class="rv-testimonial-rating">';
             for (let i = 1; i <= 5; i++) {
-                const filled = i <= testimonial.rating ? 'filled' : 'empty';
-                content += `<span class="rv-star ${filled}">${window.mhmRentivaTestimonials.icons?.star || ''}</span>`;
+                content += `<span class="rv-star ${i <= rating ? 'filled' : 'empty'}">${icons.card_star || ''}</span>`;
             }
-            content += `<span class="rv-rating-text">(${testimonial.rating}/5)</span></div>`;
+            content += '</div>';
         }
 
         // Review text - escape to prevent XSS
-        content += `<div class="rv-testimonial-text"><blockquote>"${this.escapeHtml(testimonial.review)}"</blockquote></div>`;
+        content += `<div class="rv-testimonial-text"><p>&ldquo;${this.escapeHtml(testimonial.review)}&rdquo;</p></div>`;
 
-        // Meta info
-        content += '<div class="rv-testimonial-meta">';
-
-        if (testimonial.customer_name) {
-            content += `<div class="rv-customer-name"><strong>${this.escapeHtml(testimonial.customer_name)}</strong></div>`;
+        content += '<div class="rv-testimonial-author">';
+        if (show('show-customer') && name !== '') {
+            if (show('show-author-avatar')) {
+                content += `<div class="rv-author-avatar"><span class="rv-avatar-placeholder" aria-hidden="true">${this.escapeHtml(this.initialLetter(name))}</span></div>`;
+            }
+            content += '<div class="rv-author-info">';
+            content += `<span class="rv-author-name">${this.escapeHtml(this.formatName(name))}</span>`;
+            if (show('show-vehicle') && testimonial.vehicle_name) {
+                content += `<span class="rv-author-title">${this.escapeHtml(testimonial.vehicle_name)}</span>`;
+            }
+            if (show('show-date') && testimonial.date_display) {
+                content += `<span class="rv-author-date">${this.escapeHtml(testimonial.date_display)}</span>`;
+            }
+            content += '</div>';
         }
-
-        if (testimonial.vehicle_name) {
-            content += `<div class="rv-vehicle-name">${window.mhmRentivaTestimonials.icons?.car || ''}${this.escapeHtml(testimonial.vehicle_name)}</div>`;
-        }
-
-        if (testimonial.date) {
-            const formattedDate = new Date(testimonial.date).toLocaleDateString(window.mhmRentivaTestimonials?.locale || 'en-US');
-            content += `<div class="rv-review-date">${window.mhmRentivaTestimonials.icons?.calendar || ''}${formattedDate}</div>`;
-        }
-
         content += '</div></div>';
 
+        const $item = jQuery('<div class="rv-testimonial-item"></div>');
         $item.html(content);
         return $item;
+    }
+
+    /** "Mehmet Demir" -> "Mehmet D.", as the template's $format_name. */
+    formatName(fullName) {
+        const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+        if (parts.length < 2) {
+            return String(fullName);
+        }
+        return parts[0] + ' ' + Array.from(parts[parts.length - 1])[0].toLocaleUpperCase() + '.';
+    }
+
+    /** As mhmrentiva_initial_avatar_letter(). */
+    initialLetter(name) {
+        const first = Array.from(String(name).trim())[0] || '';
+        return first.toLocaleUpperCase();
     }
 
     escapeHtml(text) {
@@ -275,8 +309,8 @@ class Testimonials {
             .replace(/'/g, "&#039;");
     }
 
-    animateNewItems() {
-        this.container.find('.rv-testimonial-item').each((index, element) => {
+    animateNewItems($root) {
+        ($root || this.container).find('.rv-testimonial-item').each((index, element) => {
             if (!jQuery(element).hasClass('rv-animated')) {
                 jQuery(element).addClass('rv-animated');
                 jQuery(element).css({
@@ -289,11 +323,11 @@ class Testimonials {
         });
     }
 
-    showError(message) {
+    showError($root, message) {
         const $errorDiv = jQuery('<div class="rv-testimonials-error" style="background: #e74c3c; color: white; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;"></div>');
         $errorDiv.text(message);
 
-        this.container.find('.rv-testimonials-load-more').before($errorDiv);
+        $root.find('.rv-testimonials-load-more').before($errorDiv);
 
         // Auto-hide after 5 seconds
         setTimeout(() => {
@@ -303,19 +337,21 @@ class Testimonials {
 
     // Public methods for external use
     refresh() {
-        this.currentPage = 1;
-        this.container.find('.rv-testimonials-load-more').show();
-        this.container.find('.rv-testimonials-grid, .rv-testimonials-list').empty();
-        this.loadMoreTestimonials();
+        const $root = this.container.first();
+        // Page 0, so the next request asks for page 1.
+        $root.data('rvPage', 0);
+        $root.find('.rv-testimonials-load-more').show();
+        $root.find('.rv-testimonials-grid, .rv-testimonials-list').empty();
+        this.loadMoreTestimonials($root);
     }
 
     filterByRating(rating) {
-        this.container.data('rating', rating);
+        this.container.first().attr('data-rating', rating);
         this.refresh();
     }
 
     filterByVehicle(vehicleId) {
-        this.container.data('vehicle-id', vehicleId);
+        this.container.first().attr('data-vehicle-id', vehicleId);
         this.refresh();
     }
 }
