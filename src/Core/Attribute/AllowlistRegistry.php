@@ -1101,14 +1101,11 @@ final class AllowlistRegistry {
             'show_favorite_button',
             'show_category',
             'show_brand',
-            'show_badges',
             'show_description',
-            'show_availability',
             'show_compare_button',
             'image_size',
             'ids',
             'max_features',
-            'price_format',
             'class',
             'custom_css_class',
             'min_rating',
@@ -1116,6 +1113,11 @@ final class AllowlistRegistry {
             // Card inputs of the vehicle card widget (spec 3A Task 2).
             'button_text',
             'show_rating_count',
+            // The card's layout (vehicle card widget), spec 3A Task 3.
+            'layout' => [
+                'default' => 'list',
+                'values'  => [ 'list', 'grid' ],
+            ],
         ],
         'rentiva_search_results'        => [
             'layout'               => [ 'default' => 'grid' ],
@@ -1202,9 +1204,6 @@ final class AllowlistRegistry {
             'show_favorite_button',
             'show_category',
             'show_brand',
-            'show_badges',
-            'show_description',
-            'show_availability',
             'show_compare_button',
             'image_size',
             'class',
@@ -1363,7 +1362,6 @@ final class AllowlistRegistry {
             'hide_nav',
         ],
         'rentiva_featured_vehicles'     => [
-            'title',
             'ids',
             'category',
             'limit',
@@ -1376,19 +1374,15 @@ final class AllowlistRegistry {
             'show_price',
             'show_rating',
             'show_category',
-            // showBookButton must reach show_booking_button, the key the card reads first
-            // (vehicle-card-base.php:40); emptied here so that alias resolves only there.
-            'show_book_button' => [ 'aliases' => [] ],
+            // The card reads show_booking_button (vehicle-card-base.php:40); its alias
+            // showBookButton is the block toggle. show_book_button was removed (spec 3A T3).
             'show_booking_button',
             'show_features',
             'max_features',
             'show_brand',
-            'show_availability',
             'show_compare_button',
             'show_favorite_button',
-            'show_badges',
             'image_size',
-            'price_format',
             'class',
             'filter_categories',
             'view_all_url',

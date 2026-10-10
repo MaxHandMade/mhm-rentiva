@@ -87,8 +87,13 @@ trait RemovedSettingsGate
 			$this->assertGreaterThan(0, $count, "The $layer detector finds none of " . count($sample) . ' live settings.');
 		}
 
-		// The alias detector, on a live alias: search results `sortBy` is an alias of `orderby`.
-		$this->assertNotSame(array(), SettingGates::layers('rentiva_search_results', 'sort_by')['alias'], 'The alias detector does not see orderby <- sortBy.');
+		// The alias detector, on live aliases. Literal: `show_book_btn` is an alias of
+		// `show_booking_button`. camelCase: `resultsPerPage` is an alias of `limit`, and
+		// the vehicles-list block has no such attribute. (A camelCase alias that IS a
+		// live block attribute of the tag, like search results `sortBy` -> `orderby`,
+		// belongs to its canonical -- SettingGates::layers().)
+		$this->assertNotSame(array(), SettingGates::layers('rentiva_featured_vehicles', 'show_book_btn')['alias'], 'The alias detector does not see show_booking_button <- show_book_btn.');
+		$this->assertNotSame(array(), SettingGates::layers('rentiva_vehicles_list', 'results_per_page')['alias'], 'The alias detector does not see limit <- resultsPerPage.');
 	}
 
 	/**

@@ -363,15 +363,10 @@ class VehicleCardWidget extends ElementorWidgetBase {
 	 * The card always renders one vehicle in one column (prepare_shortcode_attributes()
 	 * forces both), so parity controls for them would be dead.
 	 *
-	 * Also show_badges, price_format and show_availability: the card has no badge slot,
-	 * prints only the daily price and reads only show_availability_status (spec 3A
-	 * §2.2), so they were removed from this widget; until the list removes them
-	 * from its schema and block.json, parity would add them back as dead controls.
-	 *
 	 * @return string[]
 	 */
 	protected function get_parity_exclusions(): array {
-		return array( 'limit', 'columns', 'show_badges', 'price_format', 'show_availability' );
+		return array( 'limit', 'columns' );
 	}
 
 	/**

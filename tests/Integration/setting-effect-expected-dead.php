@@ -57,18 +57,6 @@ return array(
 	array( 'surface' => 'block', 'tag' => 'rentiva_booking_form', 'key' => 'show_payment_options', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_booking_form', 'key' => 'show_payment_options', 'decision' => 'REMOVE' ),
 
-
-	// rentiva_featured_vehicles.
-	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'price_format', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'price_format', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_book_button', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'title', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'title', 'decision' => 'REMOVE' ),
-
 	// rentiva_my_bookings.
 	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
@@ -226,29 +214,4 @@ return array(
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_vehicle_preview', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_rating_form', 'key' => 'show_vehicle_preview', 'decision' => 'REMOVE' ),
 
-	// rentiva_vehicles_grid.
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'columns_mobile', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'columns_mobile', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'columns_tablet', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'columns_tablet', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_description', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_description', 'decision' => 'REMOVE' ),
-
-	// rentiva_vehicles_list.
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'booking_btn_text', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'columns', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'columns', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'custom_css_class', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'custom_css_class', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'layout', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'price_format', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'price_format', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
 );

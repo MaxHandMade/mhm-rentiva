@@ -70,15 +70,7 @@
             "type": "boolean",
             "default": false
         },
-        "showAvailability": {
-            "type": "boolean",
-            "default": false
-        },
         "showCompareButton": {
-            "type": "boolean",
-            "default": true
-        },
-        "showBadges": {
             "type": "boolean",
             "default": true
         },
@@ -118,10 +110,6 @@
             "type": "string",
             "default": "3"
         },
-        "title": {
-            "type": "string",
-            "default": ""
-        },
         "ids": {
             "type": "string",
             "default": ""
@@ -141,10 +129,6 @@
         "imageSize": {
             "type": "string",
             "default": "large"
-        },
-        "priceFormat": {
-            "type": "string",
-            "default": "daily"
         },
         "viewAllUrl": {
             "type": "string",

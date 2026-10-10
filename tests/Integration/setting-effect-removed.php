@@ -32,4 +32,28 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'custom_rating', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'enable_animation', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'rating_position', 'decision' => 'REMOVE' ),
+	// rentiva_featured_vehicles (Task 3).
+	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'price_format', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'price_format', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'show_book_button', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_featured_vehicles', 'key' => 'title', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_featured_vehicles', 'key' => 'title', 'decision' => 'REMOVE' ),
+	// rentiva_vehicles_grid (Task 3).
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_description', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_grid', 'key' => 'show_description', 'decision' => 'REMOVE' ),
+	// rentiva_vehicles_list (Task 3).
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'price_format', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'price_format', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
 );

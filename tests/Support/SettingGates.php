@@ -88,12 +88,14 @@ final class SettingGates
 		$schema = AllowlistRegistry::get_schema($tag);
 		$found  = array_fill_keys(self::LAYERS, array());
 
-		$slugs = array();
+		$slugs       = array();
+		$block_attrs = array();
 		foreach (SettingProbe::block_surfaces($blocks) as $surface) {
 			if ($surface['tag'] !== $tag) {
 				continue;
 			}
-			$slugs[ $surface['block'] ] = true;
+			$slugs[ $surface['block'] ]      = true;
+			$block_attrs[ $surface['attr'] ] = true;
 			if (KeyNormalizer::normalize($surface['attr'], $schema) === $key) {
 				$found['block.json'][] = $surface['block'] . '/' . $surface['attr'];
 			}
@@ -128,6 +130,13 @@ final class SettingGates
 				continue;
 			}
 			foreach ((array) ( $config['aliases'] ?? array() ) as $alias) {
+				// A camelCase alias that is a live block attribute of this tag belongs to
+				// the canonical it resolves to (the rule-2 rebind of a twin: featured
+				// showBookButton -> show_booking_button after show_book_button was
+				// removed); the block.json layer above already proved it is not $key's.
+				if ($alias === $camel && $alias !== $key && isset($block_attrs[ $alias ])) {
+					continue;
+				}
 				if ($alias === $key || $alias === $camel) {
 					$found['alias'][] = $canonical . ' <- ' . $alias;
 				}

@@ -57,6 +57,8 @@ class VehiclesGrid extends AbstractShortcode {
 		return array(
 			'limit'                => '12',
 			'columns'              => '2', // 2, 3, 4
+			'columns_tablet'       => '2', // Up to 1024px; vehicles-grid.css default.
+			'columns_mobile'       => '1', // Up to 782px; vehicles-grid.css default.
 			'orderby'              => 'title', // title, date, price, featured
 			'order'                => 'ASC', // ASC, DESC
 			'category'             => '', // Vehicle category
@@ -70,9 +72,6 @@ class VehiclesGrid extends AbstractShortcode {
 			'show_favorite_button' => '1',
 			'show_category'        => '1',
 			'show_brand'           => '0',
-			'show_badges'          => '1',
-			'show_description'     => '0',
-			'show_availability'    => '0',
 			'show_compare_button'  => '1',
 			'image_size'           => 'large',
 			'view_all_url'         => '',
@@ -167,10 +166,34 @@ class VehiclesGrid extends AbstractShortcode {
 			'total_vehicles' => count($vehicles),
 			'has_vehicles'   => ! empty($vehicles),
 			'layout_class'   => $layout_class,
-			'columns_class'  => $layout_class . '--columns-' . $atts['columns'],
+			'columns_class'  => $layout_class . '--columns-' . $atts['columns'] . self::breakpoint_columns_class($atts),
 			'wrapper_class'  => self::get_wrapper_class($atts),
 			'booking_url'    => self::get_booking_url(),
 		);
+	}
+
+	/**
+	 * Classes for the tablet and mobile column counts.
+	 *
+	 * Each class sets the custom property vehicles-grid.css reads in its breakpoints.
+	 * A value equal to the stylesheet's fallback (2 tablet, 1 mobile) or outside 1-4
+	 * adds nothing, so an untouched grid prints today's markup.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 */
+	private static function breakpoint_columns_class(array $atts): string
+	{
+		$classes = '';
+		foreach (array(
+			'tablet' => 2,
+			'mobile' => 1,
+		) as $breakpoint => $default) {
+			$value = absint($atts[ 'columns_' . $breakpoint ] ?? $default);
+			if ($value >= 1 && $value <= 4 && $value !== $default) {
+				$classes .= ' rv-vehicles-grid--' . $breakpoint . '-' . $value;
+			}
+		}
+		return $classes;
 	}
 
 	/**

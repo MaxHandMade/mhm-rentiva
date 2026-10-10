@@ -30,6 +30,20 @@
 	grid-template-columns: repeat(4, 1fr) !important;
 }
 
+/*
+ * Tablet / mobile columns (columns_tablet, columns_mobile). The shortcode adds a
+ * class only when a value differs from the default, so the fallbacks below are
+ * the defaults: 2 columns up to 1024px, 1 column up to 782px.
+ */
+.rv-vehicles-grid--tablet-1 { --rv-grid-columns-tablet: 1; }
+.rv-vehicles-grid--tablet-2 { --rv-grid-columns-tablet: 2; }
+.rv-vehicles-grid--tablet-3 { --rv-grid-columns-tablet: 3; }
+.rv-vehicles-grid--tablet-4 { --rv-grid-columns-tablet: 4; }
+.rv-vehicles-grid--mobile-1 { --rv-grid-columns-mobile: 1; }
+.rv-vehicles-grid--mobile-2 { --rv-grid-columns-mobile: 2; }
+.rv-vehicles-grid--mobile-3 { --rv-grid-columns-mobile: 3; }
+.rv-vehicles-grid--mobile-4 { --rv-grid-columns-mobile: 4; }
+
 /* Responsive Grid */
 @media (max-width: 1024px) {
 
@@ -37,7 +51,7 @@
 	.rv-vehicles-grid--columns-2,
 	.rv-vehicles-grid--columns-3,
 	.rv-vehicles-grid--columns-4 {
-		grid-template-columns: repeat(2, 1fr) !important;
+		grid-template-columns: repeat(var(--rv-grid-columns-tablet, 2), 1fr) !important;
 	}
 }
 
@@ -47,7 +61,7 @@
 	.rv-vehicles-grid--columns-2,
 	.rv-vehicles-grid--columns-3,
 	.rv-vehicles-grid--columns-4 {
-		grid-template-columns: 1fr !important;
+		grid-template-columns: repeat(var(--rv-grid-columns-mobile, 1), 1fr) !important;
 	}
 
 	.rv-vehicles-grid-container {
@@ -88,7 +102,7 @@
 	.rv-vehicles-masonry--columns-2,
 	.rv-vehicles-masonry--columns-3,
 	.rv-vehicles-masonry--columns-4 {
-		column-count: 2 !important;
+		column-count: var(--rv-grid-columns-tablet, 2) !important;
 	}
 }
 

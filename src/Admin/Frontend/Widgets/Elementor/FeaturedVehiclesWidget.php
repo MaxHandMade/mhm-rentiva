@@ -143,8 +143,9 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 			)
 		);
 
+		// The card reads show_booking_button; this control writes it (spec 3A §2.3).
 		$this->add_control(
-			'show_book_button',
+			'show_booking_button',
 			array(
 				'label'        => __( 'Show Book Button', 'mhm-rentiva' ),
 				'type'         => Controls_Manager::SWITCHER,

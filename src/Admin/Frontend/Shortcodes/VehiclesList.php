@@ -133,14 +133,12 @@ final class VehiclesList extends AbstractShortcode {
 			'show_favorite_button' => '1',
 			'show_category'        => '1',
 			'show_brand'           => '0',
-			'show_badges'          => '1',
 			'show_description'     => '1',
-			'show_availability'    => '0',
 			'show_compare_button'  => '1',
 			'image_size'           => 'large',
 			'ids'                  => '', // Comma separated vehicle IDs
 			'max_features'         => '5',
-			'price_format'         => 'daily',
+			'layout'               => 'list', // Card layout: list, grid.
 			'class'                => '',
 			'custom_css_class'     => '',
 			'min_rating'           => '',
@@ -182,12 +180,21 @@ final class VehiclesList extends AbstractShortcode {
 		$atts['booking_btn_text']      = $atts['booking_btn_text'] ?? $text_settings['book_now'];
 		$atts['view_details_btn_text'] = $atts['view_details_btn_text'] ?? $text_settings['view_details'];
 
+		// 1-4 columns; anything else is today's single column. The class is styled in
+		// vehicles-list.css (data-columns alone is read by nothing).
+		$columns = absint($atts['columns'] ?? 1);
+		if ($columns < 1 || $columns > 4) {
+			$columns = 1;
+		}
+
 		return array(
 			'atts'           => $atts,
 			'vehicles'       => $vehicles,
 			'total_vehicles' => count($vehicles),
 			'has_vehicles'   => ! empty($vehicles),
-			'columns'        => intval($atts['columns'] ?? 1),
+			'columns'        => $columns,
+			'columns_class'  => 'rv-vehicles-list--columns-' . $columns,
+			'card_layout'    => 'grid' === ( $atts['layout'] ?? 'list' ) ? 'grid' : 'list',
 			// Standard wrapper class
 			'wrapper_class'  => self::get_wrapper_class($atts),
 			'booking_url'    => self::get_booking_url(),
@@ -373,7 +380,6 @@ final class VehiclesList extends AbstractShortcode {
 			'badge'         => self::get_vehicle_badge($vehicle_id),
 			'is_featured'   => get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true) === '1',
 			'is_favorite'   => self::is_favorite($vehicle_id),
-			'price_format'  => $atts['price_format'] ?? 'daily',
 			'location_name' => $vehicle_location_name,
 			'location_id'   => $vehicle_location_id,
 		);
@@ -597,7 +603,16 @@ final class VehiclesList extends AbstractShortcode {
 			$classes[] = sanitize_html_class($atts['class']);
 		}
 
-		return implode(' ', $classes);
+		// custom_css_class may hold several classes. The vehicle card widget maps the
+		// same control to `class` as well, so duplicates are printed once.
+		foreach (preg_split('/\s+/', (string) ( $atts['custom_css_class'] ?? '' )) ?: array() as $custom) {
+			$custom = sanitize_html_class($custom);
+			if ('' !== $custom) {
+				$classes[] = $custom;
+			}
+		}
+
+		return implode(' ', array_unique($classes));
 	}
 
 	/**

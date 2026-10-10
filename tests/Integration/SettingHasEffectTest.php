@@ -73,12 +73,17 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * Task 2 (card): Elementor -7, the vehicle card widget's button_style,
 	 * custom_rating, enable_animation, rating_position, price_format, show_badges
 	 * and show_availability controls.
+	 * Task 3 (list, grid, featured): block -10 (list priceFormat, showBadges,
+	 * showAvailability; grid showAvailability, showBadges, showDescription; featured
+	 * priceFormat, showAvailability, showBadges, title) and Elementor -11 (their ten
+	 * parity controls, plus featured show_book_button rebound to show_booking_button,
+	 * which replaces that key's parity control).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 271,
-			'elementor' => 299,
+			'block'     => 261,
+			'elementor' => 288,
 		);
 	}
 
