@@ -37,8 +37,11 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	 * Ruling T6-1: 230, availability-calendar showDiscounts.
 	 * Slice 3A Task 7a: 225, five removed from my-bookings (showCancelButton,
 	 * showModifyButton, showDetailsLink, sortBy, limitResults).
+	 * Slice 3A Task 7b: 219, three removed from payment-history (showInvoiceDownload,
+	 * showTransactionId, limitResults) and three from my-favorites (showRemoveButton,
+	 * showAddedDate, showBadges).
 	 */
-	private const LITE_ATTRIBUTE_COUNT = 225;
+	private const LITE_ATTRIBUTE_COUNT = 219;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(

@@ -21,11 +21,18 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 $currency_code   = SettingsCore::get('mhmrentiva_currency', 'USD');
 $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
-$payments          = $data['payments'] ?? array();
-$navigation        = $data['navigation'] ?? array();
-$total             = $data['total'] ?? 0;
-$total_pages       = $data['total_pages'] ?? 1;
-$current_page      = $data['current_page'] ?? 1;
+$payments     = $data['payments'] ?? array();
+$navigation   = $data['navigation'] ?? array();
+$total        = $data['total'] ?? 0;
+$total_pages  = $data['total_pages'] ?? 1;
+$current_page = $data['current_page'] ?? 1;
+
+// Spec 3A Task 7b: column and pager settings; missing means today's markup.
+$show_date           = $data['show_date'] ?? true;
+$show_payment_method = $data['show_payment_method'] ?? true;
+$show_booking_link   = $data['show_booking_link'] ?? false;
+$show_pagination     = $data['show_pagination'] ?? true;
+
 $vehicles_page_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
 $vehicles_page_url = (string) apply_filters('mhmrentiva_vehicles_page_url', $vehicles_page_url);
@@ -81,11 +88,19 @@ if (empty($navigation)) {
 							<div class="payment-header">
 								<div class="payment-info">
 									<h3 class="payment-title">
-										<?php echo esc_html($payment['booking_title']); ?>
+										<?php
+										if ($show_booking_link) {
+											printf('<a class="payment-booking-link" href="%1$s">%2$s</a>', esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( (int) $payment['booking_id'])), esc_html($payment['booking_title']));
+										} else {
+											echo esc_html($payment['booking_title']);
+										}
+										?>
 									</h3>
+									<?php if ($show_date) : ?>
 									<span class="payment-date">
 										<?php echo esc_html($payment['date']); ?>
 									</span>
+									<?php endif; ?>
 								</div>
 								<div class="payment-amount">
 									<span class="amount"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $payment['amount'] ?? 0 ), 2)); ?></span>
@@ -106,7 +121,7 @@ if (empty($navigation)) {
 										</span>
 									</div>
 
-									<?php if (! empty($payment['method'])) : ?>
+									<?php if ($show_payment_method && ! empty($payment['method'])) : ?>
 										<div class="meta-item">
 											<span class="meta-label"><?php esc_html_e('Payment Method:', 'mhm-rentiva'); ?></span>
 											<span class="payment-method">
@@ -166,13 +181,10 @@ if (empty($navigation)) {
 					<?php endforeach; ?>
 				</div>
 
-			<?php if ( $total_pages > 1 ) : ?>
+			<?php if ( $show_pagination && $total_pages > 1 ) : ?>
 				<div class="mhm-pagination" style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
-					<?php
-					$base_url = remove_query_arg( 'paged' );
-					?>
 					<?php if ( $current_page > 1 ) : ?>
-						<a href="<?php echo esc_url( add_query_arg( 'paged', $current_page - 1, $base_url ) ); ?>" class="btn btn-secondary btn-sm">
+						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( (int) $current_page - 1 ) ); ?>" class="btn btn-secondary btn-sm">
 							&larr; <?php esc_html_e( 'Previous', 'mhm-rentiva' ); ?>
 						</a>
 					<?php else : ?>
@@ -187,7 +199,7 @@ if (empty($navigation)) {
 					</span>
 
 					<?php if ( $current_page < $total_pages ) : ?>
-						<a href="<?php echo esc_url( add_query_arg( 'paged', $current_page + 1, $base_url ) ); ?>" class="btn btn-secondary btn-sm">
+						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( (int) $current_page + 1 ) ); ?>" class="btn btn-secondary btn-sm">
 							<?php esc_html_e( 'Next', 'mhm-rentiva' ); ?> &rarr;
 						</a>
 					<?php else : ?>

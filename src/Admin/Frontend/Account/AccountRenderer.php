@@ -26,8 +26,11 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  */
 final class AccountRenderer {
 
-
-
+	/**
+	 * The normalized payment statuses (get_user_payments()); the payment history
+	 * `status` filter takes one of them, anything else is no filter.
+	 */
+	public const PAYMENT_STATUSES = array( 'pending', 'completed', 'cancelled' );
 
 	/**
 	 * Safe sanitize text field that handles null values
@@ -374,24 +377,37 @@ final class AccountRenderer {
 	 */
 	public static function get_payment_history_data(array $atts = array()): array
 	{
-		// `paged` is one of WordPress core's own public query vars, so on the
-		// frontend -- the only place this runs (a WooCommerce My Account
-		// endpoint callback and the [rentiva_payment_history] shortcode) --
-		// WP::parse_request() has already populated it. No registration needed,
-		// and no superglobal read.
+		// Spec 3A Task 7b. The page comes from the public query var
+		// mhmrentiva_page (exception 5): core `paged` is moved into the path by
+		// redirect_canonical() on a WooCommerce endpoint, so "Next" always showed
+		// page 1. Pagination off is today's first page, the page var ignored.
 		$user     = wp_get_current_user();
-		$per_page = 10;
-		$page     = max( 1, (int) get_query_var( 'paged' ) );
+		$per_page = max(1, (int) ( $atts['limit'] ?? 10 ));
+		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1');
 
-		$result = self::get_user_payments($user->ID, $per_page, $page);
+		$args = array(
+			'orderby' => 'amount' === ( $atts['orderby'] ?? '' ) ? 'amount' : 'date',
+			'order'   => 'asc' === strtolower( (string) ( $atts['order'] ?? '' )) ? 'asc' : 'desc',
+			'status'  => in_array($atts['status'] ?? '', self::PAYMENT_STATUSES, true) ? (string) $atts['status'] : '',
+		);
+
+		// Capped so the offset ((page - 1) * per_page) stays an integer.
+		$page   = $paginate ? min(self::current_page(), intdiv(PHP_INT_MAX, $per_page)) : 1;
+		$result = self::get_user_payments($user->ID, $per_page, $page, $args);
 
 		$data = array(
-			'user'         => $user,
-			'payments'     => $result['items'],
-			'total'        => $result['total'],
-			'total_pages'  => $result['total_pages'],
-			'current_page' => $result['current_page'],
-			'navigation'   => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'user'                => $user,
+			'payments'            => $result['items'],
+			'total'               => $result['total'],
+			'total_pages'         => $result['total_pages'],
+			'current_page'        => $result['current_page'],
+			'navigation'          => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'atts'                => $atts,
+			// Columns: missing means today's (date and method shown, title not a link).
+			'show_date'           => self::flag_is_on($atts['show_date'] ?? '1'),
+			'show_payment_method' => self::flag_is_on($atts['show_payment_method'] ?? '1'),
+			'show_booking_link'   => self::flag_is_on($atts['show_booking_link'] ?? '0'),
+			'show_pagination'     => $paginate,
 		);
 
 		return array( 'data' => $data );
@@ -701,8 +717,17 @@ final class AccountRenderer {
 	/**
 	 * Get user payments
 	 */
-	private static function get_user_payments(int $user_id, int $per_page = 10, int $page = 1): array
+	private static function get_user_payments(int $user_id, int $per_page = 10, int $page = 1, array $args = array()): array
 	{
+		$args = wp_parse_args(
+			$args,
+			array(
+				'orderby' => 'date',
+				'order'   => 'desc',
+				'status'  => '',
+			)
+		);
+
 		// Get all user bookings
 		$bookings = self::get_user_bookings($user_id, array( 'limit' => -1 ));
 
@@ -823,21 +848,46 @@ final class AccountRenderer {
 			}
 		}
 
-		// Latest payments first
+		// The status filter runs before the sort and the page cut, so the rows,
+		// the total and the page count all follow it.
+		if ('' !== $args['status']) {
+			$payments = array_values(
+				array_filter(
+					$payments,
+					static function ($payment) use ($args) {
+						return $payment['status'] === $args['status'];
+					}
+				)
+			);
+		}
+
+		// Latest payments first by default. A payment without a date goes last in
+		// both orders (stable sort: ties keep the booking query's order).
+		$by_amount = 'amount' === $args['orderby'];
+		$sign      = 'asc' === $args['order'] ? 1 : -1;
 		usort(
 			$payments,
-			function ($a, $b) {
-				return $b['sort_ts'] - $a['sort_ts'];
+			static function ($a, $b) use ($by_amount, $sign) {
+				if ($by_amount) {
+					return $sign * ( $a['amount'] <=> $b['amount'] );
+				}
+				if (0 === $a['sort_ts'] || 0 === $b['sort_ts']) {
+					return ( 0 === $a['sort_ts'] ) <=> ( 0 === $b['sort_ts'] );
+				}
+				return $sign * ( $a['sort_ts'] <=> $b['sort_ts'] );
 			}
 		);
 
-		$total  = count($payments);
+		$total       = count($payments);
+		$total_pages = max(1, (int) ceil($total / max(1, $per_page)));
+		// Past the last page (Review Focus 2) shows the last page.
+		$page   = min(max(1, $page), $total_pages);
 		$offset = ( $page - 1 ) * $per_page;
 
 		return array(
 			'items'        => array_slice($payments, $offset, $per_page),
 			'total'        => $total,
-			'total_pages'  => $per_page > 0 ? (int) ceil($total / $per_page) : 1,
+			'total_pages'  => $total_pages,
 			'current_page' => $page,
 			'per_page'     => $per_page,
 		);

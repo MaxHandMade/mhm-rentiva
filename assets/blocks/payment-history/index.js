@@ -16,15 +16,13 @@
             var setAttributes = props.setAttributes;
             var blockProps = useBlockProps();
 
-            var showInvoiceDownload = attributes.showInvoiceDownload;
             var showPaymentMethod = attributes.showPaymentMethod;
-            var showTransactionId = attributes.showTransactionId;
             var showDate = attributes.showDate;
             var showBookingLink = attributes.showBookingLink;
             var filterStatus = attributes.filterStatus;
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
-            var limitResults = attributes.limitResults;
+            var limit = attributes.limit;
             var showPagination = attributes.showPagination;
             var className = attributes.className;
 
@@ -37,10 +35,9 @@
                             value: filterStatus,
                             options: [
                                 { label: __('All', 'mhm-rentiva'), value: 'all' },
-                                { label: __('Paid', 'mhm-rentiva'), value: 'paid' },
                                 { label: __('Pending', 'mhm-rentiva'), value: 'pending' },
-                                { label: __('Refunded', 'mhm-rentiva'), value: 'refunded' },
-                                { label: __('Failed', 'mhm-rentiva'), value: 'failed' }
+                                { label: __('Completed', 'mhm-rentiva'), value: 'completed' },
+                                { label: __('Cancelled', 'mhm-rentiva'), value: 'cancelled' }
                             ],
                             onChange: function (val) { setAttributes({ filterStatus: val }); }
                         }),
@@ -49,8 +46,7 @@
                             value: sortBy,
                             options: [
                                 { label: __('Date', 'mhm-rentiva'), value: 'date' },
-                                { label: __('Amount', 'mhm-rentiva'), value: 'amount' },
-                                { label: __('Status', 'mhm-rentiva'), value: 'status' }
+                                { label: __('Amount', 'mhm-rentiva'), value: 'amount' }
                             ],
                             onChange: function (val) { setAttributes({ sortBy: val }); }
                         }),
@@ -63,11 +59,13 @@
                             ],
                             onChange: function (val) { setAttributes({ sortOrder: val }); }
                         }),
+                        // Spec 3A Task 7b (rule 2): this control wrote a twin key
+                        // which nothing read; it now writes the live page size.
                         el(TextControl, {
                             label: __('Limit Results', 'mhm-rentiva'),
-                            value: limitResults,
+                            value: limit,
                             type: 'number',
-                            onChange: function (val) { setAttributes({ limitResults: val }); }
+                            onChange: function (val) { setAttributes({ limit: val }); }
                         })
                     ),
 
@@ -88,19 +86,9 @@
                     /* PANEL 3: VISIBILITY */
                     el(PanelBody, { title: __('Visibility Controls', 'mhm-rentiva'), initialOpen: false },
                         el(ToggleControl, {
-                            label: __('Show Invoice Download', 'mhm-rentiva'),
-                            checked: showInvoiceDownload,
-                            onChange: function (val) { setAttributes({ showInvoiceDownload: val }); }
-                        }),
-                        el(ToggleControl, {
                             label: __('Show Payment Method', 'mhm-rentiva'),
                             checked: showPaymentMethod,
                             onChange: function (val) { setAttributes({ showPaymentMethod: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Transaction ID', 'mhm-rentiva'),
-                            checked: showTransactionId,
-                            onChange: function (val) { setAttributes({ showTransactionId: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Date', 'mhm-rentiva'),

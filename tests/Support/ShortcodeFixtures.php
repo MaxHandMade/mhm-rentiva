@@ -570,8 +570,9 @@ final class ShortcodeFixtures
 				return $row;
 
 			case 'one_booking_per_page':
-				// The account bookings pager renders only when there is more than one
-				// page; the base fixture has three bookings (spec 3A Task 7a).
+				// The account bookings and payment history pagers render only when
+				// there is more than one page; the base fixture has three bookings
+				// (spec 3A Task 7a, 7b).
 				$row['atts']['limit'] = '1';
 				return $row;
 
@@ -653,10 +654,15 @@ final class ShortcodeFixtures
 				$row['atts']['view_all_url'] = 'https://example.test/all-vehicles';
 				return $row;
 
-			case 'favorites_sorted_by_title':
-				// MyFavorites applies `order` only when `orderby` is not 'date'
-				// (MyFavorites.php:80), and the widget's default is 'date'.
-				$row['atts']['orderby'] = 'title';
+			case 'favorites_sorted_by_name':
+				// `order` turns the name and price sorts; the default 'added' is the
+				// saved order, which it leaves alone (spec 3A Task 7b).
+				$row['atts']['orderby'] = 'name';
+				return $row;
+
+			case 'no_favorites':
+				// no_results_text is the empty state: a customer who saved nothing.
+				$row['user'] = self::customer();
 				return $row;
 
 			default:

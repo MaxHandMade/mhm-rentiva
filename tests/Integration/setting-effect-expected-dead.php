@@ -13,43 +13,6 @@
 declare(strict_types=1);
 
 return array(
-	// rentiva_my_favorites.
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'layout', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'layout', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'no_results_text', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'no_results_text', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'orderby', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_added_date', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_added_date', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_remove_button', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_remove_button', 'decision' => 'REMOVE' ),
-
-	// rentiva_payment_history.
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'limit', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'limit', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'order', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'order', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'orderby', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'orderby', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_booking_link', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_booking_link', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_date', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_date', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_invoice_download', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_invoice_download', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_pagination', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_pagination', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_payment_method', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_payment_method', 'decision' => 'APPLY' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_transaction_id', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_transaction_id', 'decision' => 'REMOVE' ),
-	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'status', 'decision' => 'APPLY' ),
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'status', 'decision' => 'APPLY' ),
-
 	// rentiva_testimonials.
 	array( 'surface' => 'block', 'tag' => 'rentiva_testimonials', 'key' => 'autoplay', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_testimonials', 'key' => 'autoplay', 'decision' => 'REMOVE' ),

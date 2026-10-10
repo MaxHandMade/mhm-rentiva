@@ -29,6 +29,10 @@ $layout_class   = $layout_class ?? 'rv-vehicles-grid';
 $columns_class  = $columns_class ?? 'rv-vehicles-grid--columns-3';
 $wrapper_class  = $wrapper_class ?? '';
 $booking_url    = $booking_url ?? '';
+// Set by the favourites shortcode only (spec 3A Task 7b); the vehicles grid keeps
+// grid cards and its own empty state.
+$card_layout     = $card_layout ?? 'grid';
+$no_results_text = $no_results_text ?? '';
 ?>
 
 <div class="rv-vehicles-grid-container <?php echo esc_attr($wrapper_class); ?>">
@@ -47,7 +51,7 @@ $booking_url    = $booking_url ?? '';
 				// each dynamic value at its own output site, so nothing is echoed unescaped here.
 				\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 					'vehicle' => $vehicle,
-					'layout'  => 'grid',
+					'layout'  => $card_layout,
 					'atts'    => $atts,
 				));
 				?>
@@ -57,7 +61,7 @@ $booking_url    = $booking_url ?? '';
 	<?php else : ?>
 
 		<div class="rv-vehicles-grid__empty">
-			<p><?php echo esc_html__('No vehicles found yet.', 'mhm-rentiva'); ?></p>
+			<p><?php echo esc_html('' !== $no_results_text ? $no_results_text : __('No vehicles found yet.', 'mhm-rentiva')); ?></p>
 		</div>
 
 	<?php endif; ?>

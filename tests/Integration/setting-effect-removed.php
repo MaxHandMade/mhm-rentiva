@@ -140,4 +140,19 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_details_link', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_my_bookings', 'key' => 'show_modify_btn', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_modify_btn', 'decision' => 'REMOVE' ),
+	// rentiva_my_favorites (Task 7b). show_remove_button: twin of show_favorite_button; the block's
+	// "Show Remove Button" control now writes it (rule 2), Elementor already had one.
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_added_date', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_added_date', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_badges', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_remove_button', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_remove_button', 'decision' => 'REMOVE' ),
+	// rentiva_payment_history (Task 7b). limit_results: its editor control now writes `limit` (rule 2).
+	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'limit_results', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_invoice_download', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_invoice_download', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_transaction_id', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_transaction_id', 'decision' => 'REMOVE' ),
 );

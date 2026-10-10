@@ -31,8 +31,12 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * Slice 3A Task 7a: 167 (my-bookings: sortBy select and the showCancelButton,
 	 * showModifyButton, showDetailsLink toggles removed; "Limit Results"
 	 * repointed from limitResults to limit, same count).
+	 * Slice 3A Task 7b: 164 (payment-history: showInvoiceDownload and
+	 * showTransactionId toggles removed, "Limit Results" repointed to limit;
+	 * my-favorites: showAddedDate toggle removed, "Show Remove Button" repointed to
+	 * showFavoriteButton).
 	 */
-	private const LITE_LITERAL_KEYS = 167;
+	private const LITE_LITERAL_KEYS = 164;
 
 	private static function blocks_dir(): string
 	{

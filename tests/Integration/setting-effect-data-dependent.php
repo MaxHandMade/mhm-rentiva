@@ -32,13 +32,18 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_bookings', 'key' => 'show_pagination', 'fixture' => 'one_booking_per_page', 'reason' => 'the pager renders only when there is more than one page; added by Task 7a' ),
 
 	// rentiva_my_favorites.
-	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'order', 'fixture' => 'favorites_sorted_by_title', 'reason' => 'order applies only when orderby is not \'date\' (MyFavorites.php:80), the widget default; table status \'now live\' (block path)' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'order', 'fixture' => 'favorites_sorted_by_name', 'reason' => 'order applies to the name and price sorts; the default \'added\' is the saved order (Task 7b)' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'order', 'fixture' => 'favorites_sorted_by_name', 'reason' => 'order applies to the name and price sorts; the default \'added\' is the saved order (Task 7b)' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'no_results_text', 'fixture' => 'no_favorites', 'reason' => 'the text is the empty state, shown only without favourites; added by Task 7b' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'no_results_text', 'fixture' => 'no_favorites', 'reason' => 'the text is the empty state, shown only without favourites; added by Task 7b' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_my_favorites', 'key' => 'show_features', 'fixture' => 'card_feature_items', 'reason' => 'show_features toggles card items of the feature type, not the default detail fields' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_my_favorites', 'key' => 'show_features', 'fixture' => 'card_feature_items', 'reason' => 'show_features toggles card items of the feature type, not the default detail fields' ),
 
 	// rentiva_payment_history.
 	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'hide_nav', 'fixture' => 'without_woocommerce', 'reason' => 'AccountRenderer::get_navigation() returns [] whenever WooCommerce is active' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'hide_nav', 'fixture' => 'without_woocommerce', 'reason' => 'AccountRenderer::get_navigation() returns [] whenever WooCommerce is active' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_payment_history', 'key' => 'show_pagination', 'fixture' => 'one_booking_per_page', 'reason' => 'the pager renders only when there is more than one page; added by Task 7b' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_payment_history', 'key' => 'show_pagination', 'fixture' => 'one_booking_per_page', 'reason' => 'the pager renders only when there is more than one page; added by Task 7b' ),
 
 	// rentiva_search_results.
 	array( 'surface' => 'block', 'tag' => 'rentiva_search_results', 'key' => 'show_pagination', 'fixture' => 'one_result_per_page', 'reason' => 'the pager renders only when there is more than one page' ),

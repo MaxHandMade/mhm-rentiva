@@ -17,9 +17,14 @@ final class SettingGates
 {
 	/**
 	 * Live option translations applied before the schema sees the value (spec G3,
-	 * Fable I2): my-bookings `filterStatus` 'all' => '' (assets/blocks/my-bookings/index.js:40).
+	 * Fable I2): my-bookings `filterStatus` 'all' => '' (assets/blocks/my-bookings/index.js:40),
+	 * and payment history's the same way (spec 3A Task 7b). 'all' is outside both schemas'
+	 * `values`, whose first value '' is what Transformers::to_enum() gives it: no filter.
 	 */
-	public const ALIASES = array( 'rentiva_my_bookings' => array( 'status' => array( 'all' => '' ) ) );
+	public const ALIASES = array(
+		'rentiva_my_bookings'     => array( 'status' => array( 'all' => '' ) ),
+		'rentiva_payment_history' => array( 'status' => array( 'all' => '' ) ),
+	);
 
 	public const LAYERS = array( 'block.json', 'editor control', 'elementor control', 'schema', 'alias' );
 

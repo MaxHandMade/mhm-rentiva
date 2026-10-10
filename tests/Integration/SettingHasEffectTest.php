@@ -111,12 +111,18 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * showDetailsLink, sortBy, limitResults -- its "Limit Results" control now
 	 * writes limit) and Elementor -5 (own orderby select; show_cancel_btn,
 	 * show_modify_btn, show_details_link and limit_results parity controls).
+	 * Task 7b (payment history, my favourites): block -6 (showInvoiceDownload,
+	 * showTransactionId, limitResults -- its "Limit Results" control now writes
+	 * limit; showRemoveButton -- its control now writes showFavoriteButton;
+	 * showAddedDate, showBadges) and Elementor -6 (parity show_invoice_download,
+	 * show_transaction_id, limit_results, show_badges; own show_remove_button and
+	 * show_added_date).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 224,
-			'elementor' => 250,
+			'block'     => 218,
+			'elementor' => 244,
 		);
 	}
 

@@ -61,11 +61,6 @@ final class AllowlistRegistry {
             'group'   => 'sorting',
             'aliases' => [ 'showSorting' ],
         ],
-        'limit_results'            => [
-            'type'    => 'int',
-            'group'   => 'pagination',
-            'aliases' => [ 'limitResults' ],
-        ],
         'limit_items'              => [
             'type'    => 'int',
             'group'   => 'pagination',
@@ -345,25 +340,10 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showStatus' ],
         ],
-        'show_added_date'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showAddedDate' ],
-        ],
-        'show_invoice_download'    => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showInvoiceDownload' ],
-        ],
         'show_payment_method'      => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showPaymentMethod' ],
-        ],
-        'show_transaction_id'      => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTransactionId' ],
         ],
         'show_route_info'          => [
             'type'    => 'bool',
@@ -577,11 +557,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'feature',
             'aliases' => [ 'featuredOnly' ],
-        ],
-        'show_remove_button'       => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showRemoveButton' ],
         ],
         'show_addons'              => [
             'type'    => 'bool',
@@ -1208,28 +1183,35 @@ final class AllowlistRegistry {
         'rentiva_payment_history'       => [
             'limit',
             'class',
-            'show_invoice_download',
             'show_payment_method',
-            'show_transaction_id',
             'show_date',
             'show_booking_link',
-            'status',
-            'orderby',
+            // The normalized payment statuses (AccountRenderer::PAYMENT_STATUSES);
+            // '' is no filter (the editors' "All").
+            'status'  => [
+                'values' => [ '', 'pending', 'completed', 'cancelled' ],
+            ],
+            'orderby' => [
+                'values' => [ 'date', 'amount' ],
+            ],
             'order',
-            'limit_results',
             'show_pagination',
             'hide_nav',
+            // show_invoice_download, show_transaction_id and limit_results were
+            // removed (spec 3A Task 7b).
         ],
         'rentiva_my_favorites'          => [
             'limit',
             'class',
             'show_availability_status',
             'show_category',
-            'show_remove_button',
             'show_booking_button',
             'show_favorite_button',
-            'show_added_date',
-            'orderby',
+            // added: the saved favourites order; 'date' and 'title' are the values
+            // the Elementor control saved before (MyFavorites::sort_mode()).
+            'orderby' => [
+                'values' => [ 'added', 'name', 'price', 'date', 'title' ],
+            ],
             'order',
             'columns',
             'show_image',
@@ -1238,9 +1220,10 @@ final class AllowlistRegistry {
             'show_features',
             'show_rating',
             'show_booking_button',
-            'show_badges',
             'layout',
             'no_results_text',
+            // show_badges, show_remove_button and show_added_date were removed
+            // (spec 3A Task 7b).
         ],
         'rentiva_my_bookings'           => [
             'limit',

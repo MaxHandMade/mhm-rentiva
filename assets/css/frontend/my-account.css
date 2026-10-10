@@ -439,12 +439,24 @@
 	font-family: system-ui;
 }
 
-/* The bookings pager's buttons carry their own arrows (← Previous, Next →). */
-.mhm-rentiva-account-page .rv-bookings-page .mhm-pagination .btn-secondary::after {
+/* The account pagers' buttons (bookings, payment history) carry their own arrows (← Previous, Next →). */
+.mhm-rentiva-account-page .mhm-pagination .btn-secondary::after {
 	content: none;
 }
 
-.mhm-rentiva-account-page .rv-bookings-page .mhm-pagination > span:not(.btn) {
+.mhm-rentiva-account-page .mhm-pagination > span:not(.btn) {
+	white-space: nowrap;
+}
+
+/* Narrow screens: the buttons keep their words whole; the pager wraps instead. */
+.mhm-rentiva-account-page .mhm-pagination {
+	flex-wrap: wrap;
+}
+
+/* Beats the integrated pages' full-width .btn on phones (below). */
+.mhm-rentiva-account-page .mhm-pagination > .btn.btn-sm {
+	width: auto;
+	flex: 0 0 auto;
 	white-space: nowrap;
 }
 
