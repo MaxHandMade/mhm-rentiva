@@ -885,6 +885,19 @@
 	color: var(--rv-faint);
 }
 
+/* Availability text (show_availability_status): a quiet tag after the eyebrow;
+   an unavailable vehicle takes the disabled button's error colour. */
+.mhm-vehicle-card .mhm-card-availability {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--rv-muted);
+}
+
+.mhm-vehicle-card .mhm-card-availability.is-unavailable {
+	color: var(--mhm-error, #b32d2e);
+}
+
 .mhm-vehicle-card .mhm-card-title {
 	font-family: var(--rv-display);
 	font-size: 19px;

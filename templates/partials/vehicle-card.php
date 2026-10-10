@@ -143,6 +143,12 @@ if (! $is_available) {
                         <?php echo esc_html($brand_name); ?>
                     </div>
                 <?php endif; ?>
+
+                <?php if ($show_availability_status && $status_text !== '') : ?>
+                    <span class="mhm-card-availability <?php echo esc_attr($is_available ? 'is-available' : 'is-unavailable'); ?>" data-testid="mhm-availability">
+                        <?php echo esc_html($status_text); ?>
+                    </span>
+                <?php endif; ?>
             </div>
 
             <div class="mhm-card-title-row">
@@ -166,6 +172,9 @@ if (! $is_available) {
                     ">
                         <span class="mhm-rating-star" aria-hidden="true">&#9733;</span>
                         <span class="mhm-rating-average"><?php echo esc_html(number_format_i18n($rating_average, 1)); ?></span>
+                        <?php if ($show_rating_count) : ?>
+                            <span class="mhm-rating-count">(<?php echo esc_html(number_format_i18n($rating_count)); ?>)</span>
+                        <?php endif; ?>
                         <?php if (! empty($vehicle['rating']['confidence_label'])) : ?>
                             <span class="mhm-rating-confidence mhm-confidence--<?php echo esc_attr($vehicle['rating']['confidence_key']); ?>"
                                 title="<?php echo esc_attr($vehicle['rating']['confidence_tooltip'] ?? ''); ?>">

@@ -27,4 +27,9 @@ return array(
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'show_vehicle_select', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'subject_prefix', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'subject_prefix', 'decision' => 'REMOVE' ),
+	// rentiva_vehicles_list, vehicle card widget only (Task 2).
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'button_style', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'custom_rating', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'enable_animation', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicles_list', 'key' => 'rating_position', 'decision' => 'REMOVE' ),
 );

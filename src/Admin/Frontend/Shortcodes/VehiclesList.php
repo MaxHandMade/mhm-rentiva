@@ -145,6 +145,8 @@ final class VehiclesList extends AbstractShortcode {
 			'custom_css_class'     => '',
 			'min_rating'           => '',
 			'min_reviews'          => '',
+			'button_text'          => '', // Empty: the card's own Book Now / Unavailable.
+			'show_rating_count'    => '0',
 		);
 	}
 

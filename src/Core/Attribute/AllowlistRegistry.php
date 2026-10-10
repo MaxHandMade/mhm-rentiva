@@ -657,6 +657,11 @@ final class AllowlistRegistry {
             'group'   => 'content',
             'aliases' => [ 'buttonText' ],
         ],
+        'show_rating_count'        => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showRatingCount' ],
+        ],
 
         // Vendor profile attributes
         'slug'                     => [
@@ -1108,6 +1113,9 @@ final class AllowlistRegistry {
             'custom_css_class',
             'min_rating',
             'min_reviews',
+            // Card inputs of the vehicle card widget (spec 3A Task 2).
+            'button_text',
+            'show_rating_count',
         ],
         'rentiva_search_results'        => [
             'layout'               => [ 'default' => 'grid' ],

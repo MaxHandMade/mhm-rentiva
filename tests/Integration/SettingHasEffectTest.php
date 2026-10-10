@@ -70,12 +70,15 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * with a deliberate removal of settings.
 	 * Task 1 (contact): -7 / -7, the seven REMOVE keys (block attribute and its
 	 * Elementor parity control each).
+	 * Task 2 (card): Elementor -7, the vehicle card widget's button_style,
+	 * custom_rating, enable_animation, rating_position, price_format, show_badges
+	 * and show_availability controls.
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
 			'block'     => 271,
-			'elementor' => 306,
+			'elementor' => 299,
 		);
 	}
 

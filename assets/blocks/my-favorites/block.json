@@ -56,7 +56,7 @@
         },
         "showAvailabilityStatus": {
             "type": "boolean",
-            "default": true
+            "default": false
         },
         "showCategory": {
             "type": "boolean",
