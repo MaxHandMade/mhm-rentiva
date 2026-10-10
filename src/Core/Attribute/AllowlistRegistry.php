@@ -73,16 +73,6 @@ final class AllowlistRegistry {
         ],
 
         // Dimension Mappings
-        'minwidth'                 => [
-            'type'    => 'string',
-            'group'   => 'layout',
-            'aliases' => [ 'minWidth', 'min_width' ],
-        ],
-        'maxwidth'                 => [
-            'type'    => 'string',
-            'group'   => 'layout',
-            'aliases' => [ 'maxWidth', 'max_width' ],
-        ],
         'width'                    => [
             'type'  => 'string',
             'group' => 'layout',
@@ -1134,11 +1124,16 @@ final class AllowlistRegistry {
             'show_features'        => [ 'default' => '1' ],
             'show_rating'          => [ 'default' => '1' ],
             'show_badges'          => [ 'default' => '1' ],
-            'default_sort'         => [ 'default' => 'price_asc' ],
+            // The first request's order. `values` are the sorts SearchResults'
+            // switch applies (get_sorting_options()), the list every editor offers
+            // (spec 3A §2.5 E, gate G3). The type stays 'string': a value saved from
+            // a removed option (newest/popularity/rating) keeps falling to the
+            // switch's relevance branch as today, instead of becoming price_asc.
+            'default_sort'         => [
+                'default' => 'price_asc',
+                'values'  => [ 'relevance', 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc' ],
+            ],
             'class'                => [ 'default' => '' ],
-            'show_availability'    => [ 'default' => '1' ],
-            'orderby'              => [ 'default' => 'date' ],
-            'order'                => [ 'default' => 'DESC' ],
             'button_text'          => [ 'default' => '' ],
             'show_pickup'          => [ 'default' => '1' ],
             'show_dropoff'         => [ 'default' => '1' ],
@@ -1384,13 +1379,9 @@ final class AllowlistRegistry {
             'show_dropoff_location',
             'location_required',
             'fields_required',
-            'filter_categories',
             'redirect_page',
-            'layout',
             'search_layout',
             'class',
-            'minwidth',
-            'maxwidth',
         ],
         'rentiva_user_dashboard'        => [
             'class',

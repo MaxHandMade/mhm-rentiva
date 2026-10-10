@@ -53,11 +53,11 @@ class SearchResultsDefaultsParityTest extends WP_UnitTestCase
         $block_json = json_decode((string) file_get_contents($block_json_path), true);
         $block_attrs = $block_json['attributes'] ?? [];
 
-        $sort_by = strtolower((string) ($block_attrs['sortBy']['default'] ?? ''));
-        $sort_order = strtolower((string) ($block_attrs['sortOrder']['default'] ?? ''));
-        $derived = $sort_by . '_' . $sort_order;
-
-        $this->assertSame((string) $shortcode_defaults['default_sort'], $derived);
+        // The block writes default_sort directly since spec 3A Task 5 (its
+        // sortBy/sortOrder pair never reached the query and is gone).
+        $this->assertArrayNotHasKey('sortBy', $block_attrs);
+        $this->assertArrayNotHasKey('sortOrder', $block_attrs);
+        $this->assertSame((string) $shortcode_defaults['default_sort'], (string) ($block_attrs['defaultSort']['default'] ?? ''));
     }
 }
 

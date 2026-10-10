@@ -247,7 +247,7 @@ final class SearchResults extends AbstractShortcode {
 			'show_features'        => '1',        // 1/0
 			'show_rating'          => '1',        // 1/0
 			'show_badges'          => '1',        // 1/0
-			'default_sort'         => 'price_asc', // relevance/price_asc/price_desc/name_asc/name_desc
+			'default_sort'         => 'price_asc', // A get_sorting_options() key.
 			'class'                => '',         // Custom CSS class
 		);
 	}
@@ -944,9 +944,15 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
-	 * Gets sorting options
+	 * The sorts the visitor can pick, value => label.
+	 *
+	 * The keys are exactly the values the sort switch in perform_search() applies
+	 * (relevance is its default branch). The editors' default sort controls offer
+	 * the same list (spec 3A §2.5 E).
+	 *
+	 * @return array<string,string>
 	 */
-	private static function get_sorting_options(): array
+	public static function get_sorting_options(): array
 	{
 		return array(
 			'relevance'  => __('Most Relevant', 'mhm-rentiva'),

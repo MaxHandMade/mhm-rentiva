@@ -548,14 +548,11 @@ class BlockRegistry {
 			}
 		}
 
-		$tag       = $config['tag'];
-		$min_width = ! empty($attributes['minWidth'])
-			? self::sanitize_css_dimension($attributes['minWidth'])
-			: '';
-		$max_width = ! empty($attributes['maxWidth'])
-			? self::sanitize_css_dimension($attributes['maxWidth'])
-			: '';
-		$height    = ! empty($attributes['height'])
+		// minWidth/maxWidth used to be read here too; no block declared them (the
+		// unified-search attributes were lowercase and unexposed), and Elementor has
+		// its own width controls -- removed in spec 3A Task 5.
+		$tag    = $config['tag'];
+		$height = ! empty($attributes['height'])
 			? self::sanitize_css_dimension($attributes['height'])
 			: '';
 
@@ -568,12 +565,6 @@ class BlockRegistry {
 
 		// 1. Extract Wrapper Logic (Dimensions) before CAM drops unknown attributes
 		$style_parts = array();
-		if ('' !== $min_width) {
-			$style_parts[] = "min-width:$min_width";
-		}
-		if ('' !== $max_width) {
-			$style_parts[] = "max-width:$max_width";
-		}
 		if ('' !== $height) {
 			$style_parts[] = "height:$height";
 		}
@@ -614,17 +605,6 @@ class BlockRegistry {
 		// Prepare wrapper attributes to ensure dimensions are applied to the container
 		$wrapper_args   = array();
 		$wrapper_styles = array();
-
-		if ('' !== $max_width) {
-			$wrapper_styles[] = "max-width:$max_width";
-			$wrapper_styles[] = 'width:100%';
-			$wrapper_styles[] = 'margin-left:auto';
-			$wrapper_styles[] = 'margin-right:auto';
-		}
-
-		if ('' !== $min_width) {
-			$wrapper_styles[] = "min-width:$min_width";
-		}
 
 		if ('' !== $height) {
 			$wrapper_styles[] = "height:$height";

@@ -84,4 +84,20 @@ return array(
 	// the block toggle was rebound to show_booking (ruling T4-1, rule 2).
 	array( 'surface' => 'block', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_vehicle_details', 'key' => 'show_booking_form', 'decision' => 'REMOVE' ),
+	// rentiva_search_results (Task 5).
+	array( 'surface' => 'block', 'tag' => 'rentiva_search_results', 'key' => 'order', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_search_results', 'key' => 'order', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_search_results', 'key' => 'orderby', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_search_results', 'key' => 'orderby', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_search_results', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_search_results', 'key' => 'show_availability', 'decision' => 'REMOVE' ),
+	// rentiva_unified_search (Task 5).
+	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'filter_categories', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'filter_categories', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'layout', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'layout', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'maxwidth', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'maxwidth', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'minwidth', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'minwidth', 'decision' => 'REMOVE' ),
 );

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 use Elementor\Controls_Manager;
 
@@ -84,30 +85,16 @@ class SearchResultsWidget extends ElementorWidgetBase {
 			)
 		);
 
+		// The first request's order. Its options are the values the shortcode's sort
+		// switch applies; the former Order By / Order selects never reached it
+		// (spec 3A §2.5 E).
 		$this->add_control(
-			'orderby',
+			'default_sort',
 			array(
-				'label'   => __( 'Order By', 'mhm-rentiva' ),
+				'label'   => __( 'Default Sort Order', 'mhm-rentiva' ),
 				'type'    => 'select',
-				'default' => 'date',
-				'options' => array(
-					'date'  => __( 'Date', 'mhm-rentiva' ),
-					'title' => __( 'Title', 'mhm-rentiva' ),
-					'price' => __( 'Price', 'mhm-rentiva' ),
-				),
-			)
-		);
-
-		$this->add_control(
-			'order',
-			array(
-				'label'   => __( 'Order', 'mhm-rentiva' ),
-				'type'    => 'select',
-				'default' => 'DESC',
-				'options' => array(
-					'ASC'  => __( 'Ascending', 'mhm-rentiva' ),
-					'DESC' => __( 'Descending', 'mhm-rentiva' ),
-				),
+				'default' => 'price_asc',
+				'options' => SearchResults::get_sorting_options(),
 			)
 		);
 
@@ -196,17 +183,10 @@ class SearchResultsWidget extends ElementorWidgetBase {
 			$atts['results_per_page'] = (string) max( 1, (int) $settings['limit'] );
 		}
 
-		foreach ( array( 'layout', 'orderby' ) as $key ) {
+		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.
+		foreach ( array( 'layout', 'default_sort' ) as $key ) {
 			if ( array_key_exists( $key, $settings ) ) {
 				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
-			}
-		}
-
-		// Map only keys Elementor delivered; an absent key must fall through to the shortcode default.
-		if ( array_key_exists( 'order', $settings ) ) {
-			$order = strtoupper( sanitize_text_field( (string) $settings['order'] ) );
-			if ( in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
-				$atts['order'] = $order;
 			}
 		}
 

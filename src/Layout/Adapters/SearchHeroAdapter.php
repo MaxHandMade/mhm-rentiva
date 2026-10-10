@@ -31,6 +31,14 @@ final class SearchHeroAdapter extends BaseAdapter {
      */
     public function render(array $attributes, string $instance_id): string
     {
+        // 0. A manifest's `layout` is the search form's layout. The shortcode's
+        //    `layout` twin was removed (spec 3A Task 5), so it goes to the live
+        //    search_layout instead of being dropped by CAM.
+        if (isset($attributes['layout']) && ! isset($attributes['search_layout'])) {
+            $attributes['search_layout'] = $attributes['layout'];
+        }
+        unset($attributes['layout']);
+
         // 1. Normalize attributes through CAM
         $normalized = $this->normalize(self::TAG, $attributes);
 

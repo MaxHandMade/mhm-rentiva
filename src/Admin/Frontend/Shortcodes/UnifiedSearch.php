@@ -57,16 +57,17 @@ final class UnifiedSearch extends AbstractShortcode {
 			'location_required'     => 'default', // Whether pickup_location select is required
 			'fields_required'       => 'default', // Whether date fields are required (false = browse all vehicles)
 
-			// Query filters
-			'filter_categories'     => '',
+			// Where the form submits: a page id or a same-site URL; 'default' is the
+			// search results page (see form_action()).
 			'redirect_page'         => 'default',
 
 			// Layout & Styling
 			// 'horizontal' is the base layout; 'vertical' stacks the fields. A third
 			// value, 'compact', was documented for years but never had a stylesheet
 			// behind it, so it rendered as plain horizontal -- it is no longer offered.
-			'layout'                => 'horizontal', // 'horizontal', 'vertical'
-			'search_layout'         => '',           // Block editor uses this
+			// A `layout` twin was removed (spec 3A): search_layout always won it on the
+			// block and Elementor surfaces.
+			'search_layout'         => 'horizontal', // 'horizontal', 'vertical'
 			'class'                 => '',
 		);
 	}
@@ -82,8 +83,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Resolve initial visibility
 		$show_rental = self::resolve_bool($atts['show_rental_tab'], 'mhmrentiva_show_rental_tab', true);
 
-		// Resolve layout: Check search_layout first (Block), then layout (Shortcode)
-		$layout = ! empty($atts['search_layout']) ? $atts['search_layout'] : $atts['layout'];
+		$layout = ! empty($atts['search_layout']) ? (string) $atts['search_layout'] : 'horizontal';
 
 		return array(
 			'locations'             => $locations,
@@ -103,11 +103,39 @@ final class UnifiedSearch extends AbstractShortcode {
 			'location_required'     => self::resolve_bool($atts['location_required'], 'mhmrentiva_location_required', true),
 			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true),
 
-			// Query filters
-			'filter_categories'     => $atts['filter_categories'],
-			'redirect_page'         => self::resolve_default($atts['redirect_page'], 'mhmrentiva_search_results_page'),
+			'form_action'           => self::form_action(self::resolve_default($atts['redirect_page'], 'mhmrentiva_search_results_page')),
 			'layout'                => $layout,
 		);
+	}
+
+	/**
+	 * The rental form's action URL for a resolved redirect_page value.
+	 *
+	 * A page id becomes that page's permalink when the page is published and
+	 * public; a URL is kept only when it is on this site (wp_validate_redirect()).
+	 * Anything else -- not set, another site, a missing or draft page -- keeps the
+	 * search results page the form has always submitted to.
+	 *
+	 * @param mixed $redirect Resolved redirect_page (attribute, else global setting).
+	 */
+	private static function form_action(mixed $redirect): string
+	{
+		$fallback = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results');
+		$redirect = is_scalar($redirect) ? trim( (string) $redirect) : '';
+		if ('' === $redirect) {
+			return $fallback;
+		}
+
+		if (ctype_digit($redirect)) {
+			$page = get_post( (int) $redirect);
+			if ($page instanceof \WP_Post && 'publish' === $page->post_status && is_post_type_viewable($page->post_type)) {
+				return (string) get_permalink($page);
+			}
+			return $fallback;
+		}
+
+		$url = wp_validate_redirect(esc_url_raw($redirect), '');
+		return '' !== $url ? $url : $fallback;
 	}
 
 	/**

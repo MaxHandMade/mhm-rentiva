@@ -22,8 +22,10 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * Slice 3A Task 1: 190 (contact: subjectPrefix, showSubjectField, showMap and
 	 * showSocialLinks controls removed; the three twins repointed, same count).
 	 * Slice 3A Task 4: 179 (vehicle-details: 4 controls removed; vehicle-comparison: 7).
+	 * Slice 3A Task 5: 178 (search-results: the sortBy and sortOrder selects became
+	 * one defaultSort select).
 	 */
-	private const LITE_LITERAL_KEYS = 179;
+	private const LITE_LITERAL_KEYS = 178;
 
 	private static function blocks_dir(): string
 	{

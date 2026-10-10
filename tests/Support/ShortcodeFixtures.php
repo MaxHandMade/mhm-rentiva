@@ -462,7 +462,15 @@ final class ShortcodeFixtures
 			case 'rentiva_vehicles_grid':
 			case 'rentiva_search_results':
 			case 'rentiva_featured_vehicles':
+				break;
+
 			case 'rentiva_unified_search':
+				// redirect_page: the form action takes only a published page id or a
+				// same-site URL (spec 3A Task 5); the probe's off-site sentinels fall
+				// back to the search results page by design.
+				$row['pairs'] = array(
+					'redirect_page' => array( 'default', home_url('/zz-results/') ),
+				);
 				break;
 
 			case 'rentiva_contact':

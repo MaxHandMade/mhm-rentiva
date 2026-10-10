@@ -186,17 +186,17 @@ final class KeyNormalizerTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * 'minWidth' alias maps to canonical key 'minwidth' (no underscore).
-	 * The regex alone would produce 'min_width' — alias must override.
+	 * 'minWidth' has no alias since spec 3A Task 5 removed the unified-search
+	 * minwidth/maxwidth settings: it takes the regex fallback, which no schema knows.
 	 */
-	public function test_min_width_alias_wins_over_regex_fallback(): void
+	public function test_min_width_has_no_alias_after_removal(): void
 	{
 		$schema = AllowlistRegistry::ALLOWLIST;
 
-		$result = KeyNormalizer::normalize('minWidth', $schema);
-
-		$this->assertSame('minwidth', $result, "'minWidth' alias should resolve to canonical 'minwidth', not regex-derived 'min_width'");
-		$this->assertNotSame('min_width', $result, "Regex fallback 'min_width' must NOT be returned when alias is defined");
+		$this->assertArrayNotHasKey('minwidth', $schema);
+		$this->assertArrayNotHasKey('maxwidth', $schema);
+		$this->assertSame('min_width', KeyNormalizer::normalize('minWidth', $schema));
+		$this->assertArrayNotHasKey('min_width', $schema);
 	}
 
 	/**

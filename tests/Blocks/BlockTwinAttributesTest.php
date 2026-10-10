@@ -26,8 +26,12 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	 * Slice 3A Task 3: 261, ten removed from vehicles-list, vehicles-grid, featured-vehicles.
 	 * Slice 3A Task 4: 249, five removed from vehicle-details (incl. showBookingForm,
 	 * ruling T4-1), seven from vehicle-comparison.
+	 * Slice 3A Task 5: 243, three removed from search-results (sortBy, sortOrder,
+	 * showAvailability) and three from unified-search (filter_categories, minwidth,
+	 * maxwidth); its block.json `layout` was removed too, but the block keeps the
+	 * `layout` attribute core adds for `supports.layout`, so the count drops by six.
 	 */
-	private const LITE_ATTRIBUTE_COUNT = 249;
+	private const LITE_ATTRIBUTE_COUNT = 243;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(

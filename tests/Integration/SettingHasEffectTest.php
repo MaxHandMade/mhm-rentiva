@@ -85,12 +85,19 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * "Show Features" select). Ruling T4-1: block -1 / Elementor -1 more
 	 * (details showBookingForm and its parity control; the editor toggle now
 	 * writes showBooking, which Elementor already has as its own switcher).
+	 * Task 5 (search results, unified search): block -7 (search-results sortBy,
+	 * sortOrder, showAvailability; unified-search filter_categories, layout,
+	 * minwidth, maxwidth) and Elementor -7 (search results orderby and order, which
+	 * one own default_sort select replaces in place of its parity control, and the
+	 * show_availability parity control; unified search "Layout Style" rebound from
+	 * layout to search_layout, which replaces that key's parity control, and the
+	 * filter_categories, minwidth and maxwidth parity controls).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 249,
-			'elementor' => 276,
+			'block'     => 242,
+			'elementor' => 269,
 		);
 	}
 

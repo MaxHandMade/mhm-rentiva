@@ -78,8 +78,10 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 			)
 		);
 
+		// Writes the live search_layout (spec 3A §2.3). As `layout` its value never
+		// won: the search_layout parity control always sent 'horizontal' first.
 		$this->add_control(
-			'layout',
+			'search_layout',
 			array(
 				'label'   => __( 'Layout Style', 'mhm-rentiva' ),
 				'type'    => 'select',
@@ -158,8 +160,8 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 			}
 		}
 
-		if ( array_key_exists( 'layout', $settings ) ) {
-			$atts['layout'] = sanitize_text_field( (string) $settings['layout'] );
+		if ( array_key_exists( 'search_layout', $settings ) ) {
+			$atts['search_layout'] = sanitize_text_field( (string) $settings['search_layout'] );
 		}
 
 		return $atts;

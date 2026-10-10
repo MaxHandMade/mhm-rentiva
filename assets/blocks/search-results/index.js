@@ -22,11 +22,9 @@
             var showFilters = attributes.showFilters;
             var showSorting = attributes.showSorting;
             var showPagination = attributes.showPagination;
-            var showAvailability = attributes.showAvailability;
             var showFavoriteButton = attributes.showFavoriteButton;
             var showCompareButton = attributes.showCompareButton;
-            var sortBy = attributes.sortBy;
-            var sortOrder = attributes.sortOrder;
+            var defaultSort = attributes.defaultSort;
             var limit = attributes.limit;
             var className = attributes.className;
 
@@ -44,25 +42,20 @@
                             ],
                             onChange: function (val) { setAttributes({ layout: val }); }
                         }),
+                        // The first request's order (default_sort). The options are exactly
+                        // the values SearchResults' sort switch applies (spec 3A §2.5 E).
                         el(SelectControl, {
-                            label: __('Sort By', 'mhm-rentiva'),
-                            value: sortBy,
+                            label: __('Default Sort Order', 'mhm-rentiva'),
+                            value: defaultSort,
                             options: [
-                                { label: __('Price', 'mhm-rentiva'), value: 'price' },
-                                { label: __('Popularity', 'mhm-rentiva'), value: 'popularity' },
-                                { label: __('Newest', 'mhm-rentiva'), value: 'newest' },
-                                { label: __('Rating', 'mhm-rentiva'), value: 'rating' }
+                                { label: __('Most Relevant', 'mhm-rentiva'), value: 'relevance' },
+                                { label: __('Price: Low to High', 'mhm-rentiva'), value: 'price_asc' },
+                                { label: __('Price: High to Low', 'mhm-rentiva'), value: 'price_desc' },
+                                { label: __('Name: A to Z', 'mhm-rentiva'), value: 'name_asc' },
+                                { label: __('Name: Z to A', 'mhm-rentiva'), value: 'name_desc' },
+                                { label: __('Newest First', 'mhm-rentiva'), value: 'year_desc' }
                             ],
-                            onChange: function (val) { setAttributes({ sortBy: val }); }
-                        }),
-                        el(SelectControl, {
-                            label: __('Sort Order', 'mhm-rentiva'),
-                            value: sortOrder,
-                            options: [
-                                { label: __('Ascending', 'mhm-rentiva'), value: 'asc' },
-                                { label: __('Descending', 'mhm-rentiva'), value: 'desc' },
-                            ],
-                            onChange: function (val) { setAttributes({ sortOrder: val }); }
+                            onChange: function (val) { setAttributes({ defaultSort: val }); }
                         }),
                         el(TextControl, {
                             label: __('Limit Results', 'mhm-rentiva'),
