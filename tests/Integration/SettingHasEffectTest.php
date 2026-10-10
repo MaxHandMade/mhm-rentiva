@@ -47,4 +47,38 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	{
 		return __DIR__;
 	}
+
+	/**
+	 * hide_nav: AccountRenderer::get_navigation() returns [] whenever WooCommerce is
+	 * loaded, so these rows can not render an effect here; HideNavHasEffectTest
+	 * proves it link by link. Pinned by equality (SettingHasEffectGate).
+	 */
+	public const UNAVAILABLE_UNDER_WOOCOMMERCE = array(
+		'block|rentiva_my_bookings|hide_nav',
+		'elementor|rentiva_my_bookings|hide_nav',
+		'block|rentiva_payment_history|hide_nav',
+		'elementor|rentiva_payment_history|hide_nav',
+	);
+
+	protected function gate_unavailable(): array
+	{
+		return self::UNAVAILABLE_UNDER_WOOCOMMERCE;
+	}
+
+	/**
+	 * Surface counts on 2026-10-10 (Task 0). Lower them only together with a
+	 * deliberate removal of settings.
+	 */
+	protected function gate_floors(): array
+	{
+		return array(
+			'block'     => 278,
+			'elementor' => 313,
+		);
+	}
+
+	protected function gate_without_settings(): array
+	{
+		return array( 'user-dashboard', 'UserDashboardWidget' );
+	}
 }

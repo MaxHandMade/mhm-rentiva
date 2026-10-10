@@ -47,6 +47,28 @@ trait SettingHasEffectGate
 	abstract protected function gate_dir(): string;
 
 	/**
+	 * The data-dependent groups ("surface|tag|key") whose fixture can not be built
+	 * while WooCommerce is loaded (hide_nav); pinned by equality.
+	 *
+	 * @return list<string>
+	 */
+	abstract protected function gate_unavailable(): array;
+
+	/**
+	 * Today's surface counts; the floor G1 never drops below without a deliberate edit.
+	 *
+	 * @return array{block:int,elementor:int}
+	 */
+	abstract protected function gate_floors(): array;
+
+	/**
+	 * Block slugs / widget short names that have no setting at all.
+	 *
+	 * @return list<string>
+	 */
+	abstract protected function gate_without_settings(): array;
+
+	/**
 	 * @var array{rows:list<array<string,mixed>>,data:list<array<string,mixed>>,seconds:float}|null
 	 */
 	private static ?array $measured = null;
@@ -120,28 +142,79 @@ trait SettingHasEffectGate
 		foreach ($this->measure()['data'] as $row) {
 			$seen[ $row['group'] ] = true;
 			if ('' !== $row['unavailable']) {
-				// The precondition can not be met in this process (named in the
-				// fixture); say so on every run rather than pass in silence.
-				$unavailable[] = $this->describe($row) . ' fixture=' . $row['fixture'] . ': ' . $row['unavailable'];
+				$unavailable[ $row['group'] ] = $this->describe($row) . ' fixture=' . $row['fixture'] . ': ' . $row['unavailable'];
 				continue;
 			}
 			if (! $row['effect']) {
 				$failing[] = $this->describe($row) . ' fixture=' . $row['fixture'];
 			}
 		}
-		if (array() !== $unavailable) {
-			fwrite(STDERR, "
-SettingHasEffectTest: data-dependent rows whose fixture this environment can not build (" . count($unavailable) . "):
-" . implode("
-", $unavailable) . "
-"); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- test diagnostics.
-		}
 		foreach ($this->data_dependent() as $i => $row) {
 			if (! isset($seen[ $this->group_of($row) ])) {
 				$failing[] = "  row $i " . $this->group_of($row) . ': no such surface';
 			}
 		}
-		$this->assertSame(array(), $failing, "Data-dependent settings with no effect even on their fixture:\n" . implode("\n", $failing));
+		$this->assertSame(array(), $failing, "Data-dependent settings with no effect even on their fixture:
+" . implode("
+", $failing));
+
+		// A fixture may report "unavailable" only for the rows pinned in
+		// gate_unavailable(), and only while WooCommerce is loaded; then all of them
+		// must be reported. Their effect is proven by HideNavHasEffectTest instead.
+		// Any other unavailable row -- or a pinned one that renders -- fails.
+		$expected = class_exists('WooCommerce') ? $this->gate_unavailable() : array();
+		$actual   = array_keys($unavailable);
+		sort($expected);
+		sort($actual);
+		fwrite(STDERR, "
+SettingHasEffectTest: data-dependent rows not rendered here (" . count($unavailable) . ", proven by HideNavHasEffectTest):
+" . implode("
+", $unavailable) . "
+"); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- test diagnostics.
+		$this->assertSame($expected, $actual, 'The set of data-dependent rows reported as unavailable must equal gate_unavailable() exactly (WooCommerce loaded) or be empty (WooCommerce absent).');
+	}
+
+	public function test_surface_counts_do_not_drop_below_the_recorded_floor(): void
+	{
+		// An empty surface list would turn every other G1 test green. Each repo
+		// records today's counts; a task that removes settings lowers the floor in
+		// the same commit, on purpose.
+		$block     = SettingProbe::block_surfaces($this->gate_blocks());
+		$elementor = SettingProbe::elementor_surfaces($this->gate_widgets());
+		$floor     = $this->gate_floors();
+
+		$this->assertGreaterThan(0, count($block), 'No block surface found: the probe measures nothing.');
+		$this->assertGreaterThan(0, count($elementor), 'No Elementor surface found: the probe measures nothing.');
+		$this->assertGreaterThanOrEqual($floor['block'], count($block), sprintf('Block surfaces dropped to %d (floor %d). If settings were removed on purpose, lower the floor in gate_floors() deliberately, in the same commit.', count($block), $floor['block']));
+		$this->assertGreaterThanOrEqual($floor['elementor'], count($elementor), sprintf('Elementor surfaces dropped to %d (floor %d). If settings were removed on purpose, lower the floor in gate_floors() deliberately, in the same commit.', count($elementor), $floor['elementor']));
+
+		// Every block and every widget of the suite contributes at least one surface,
+		// except the ones declared to have no settings.
+		$owners = array();
+		foreach ($block as $surface) {
+			$owners[ $surface['block'] ] = true;
+		}
+		foreach ($elementor as $surface) {
+			$owners[ $surface['widget'] ] = true;
+		}
+		$blocks = $this->gate_blocks();
+		if (null === $blocks) {
+			$ref = new \ReflectionMethod(\MHMRentiva\Blocks\BlockRegistry::class, 'get_block_config');
+			$ref->setAccessible(true);
+			$blocks = (array) $ref->invoke(null);
+		}
+		$missing = array();
+		foreach (array_merge(array_keys($blocks), array_keys($this->gate_widgets() ?? SettingProbe::LITE_WIDGETS)) as $owner) {
+			if (! isset($owners[ $owner ]) && ! in_array($owner, $this->gate_without_settings(), true)) {
+				$missing[] = (string) $owner;
+			}
+		}
+		$this->assertSame(array(), $missing, 'Blocks/widgets that contribute no surface (dropped out of the gate):
+' . implode("
+", $missing));
+		foreach ($this->gate_without_settings() as $owner) {
+			$this->assertArrayNotHasKey($owner, $owners, "$owner is declared settings-free but has surfaces; remove it from gate_without_settings().");
+		}
 	}
 
 	public function test_no_dead_surface_outside_the_expected_list(): void
