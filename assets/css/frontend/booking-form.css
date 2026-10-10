@@ -7182,3 +7182,37 @@
 		border-radius: 14px;
 	}
 }
+
+/* Single column at the details page's breakpoint and in its order (ruling T6-2):
+   vehicle-details.css stacks .rv-vd2-layout at a <=1100px viewport, content
+   first and the booking card after it, 16px apart. The form's own container
+   query above would keep two columns down to a 760px wrapper; the viewport
+   query wins here so both pages switch at the same width. */
+@media (max-width: 1100px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-vehicle,
+	.rv-booking-form-wrapper .rv-checkout-main,
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		grid-column: auto;
+		grid-row: auto;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+		position: static;
+		top: auto;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-main {
+		order: 1;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		order: 2;
+	}
+}
