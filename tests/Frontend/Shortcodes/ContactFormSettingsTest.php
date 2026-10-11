@@ -210,6 +210,57 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
+	 * Codex P1 on Lite #92: a field the form type requires is always rendered, so
+	 * its show_* toggle can no longer produce a form the server always refuses.
+	 */
+	public function test_booking_form_renders_phone_even_when_show_phone_is_off(): void
+	{
+		add_filter('pre_wp_mail', '__return_true');
+
+		$shortcode = $this->render('[rentiva_contact type="booking" show_phone="0"]');
+		$this->assertStringContainsString('name="phone"', $shortcode, 'Booking requires phone, so show_phone cannot hide it.');
+		$block = $this->render_block(array( 'type' => 'booking', 'showPhone' => false ));
+		$this->assertStringContainsString('name="phone"', $block);
+
+		// show_phone still applies where phone is optional.
+		$this->assertStringNotContainsString('name="phone"', $this->render('[rentiva_contact type="support" show_phone="0"]'));
+
+		$ok = $this->submit(array( 'type' => 'booking', 'phone' => '+90 555 123 45 67' ));
+		$this->assertTrue($ok['success'], 'A booking form filled as rendered is accepted.');
+
+		$missing = $this->submit(array( 'type' => 'booking' ));
+		$this->assertFalse($missing['success'], 'Server validation unchanged: booking still requires phone.');
+	}
+
+	public function test_support_form_with_default_atts_renders_priority_and_accepts_it(): void
+	{
+		add_filter('pre_wp_mail', '__return_true');
+
+		$html = $this->render('[rentiva_contact type="support"]');
+		$this->assertStringContainsString('name="priority"', $html, 'Support requires priority, so the default show_priority=0 cannot hide it.');
+		$this->assertStringContainsString('name="priority"', $this->render_block(array( 'type' => 'support' )));
+		$this->assertStringNotContainsString('name="priority"', $this->render('[rentiva_contact]'), 'show_priority still applies to the general form.');
+
+		$ok = $this->submit(array( 'type' => 'support', 'priority' => 'medium' ));
+		$this->assertTrue($ok['success'], 'A support form filled as rendered is accepted.');
+		$this->assertSame('medium', get_post_meta((int) $ok['data']['message_id'], '_mhmrentiva_contact_priority', true));
+
+		$missing = $this->submit(array( 'type' => 'support' ));
+		$this->assertFalse($missing['success'], 'Server validation unchanged: support still requires priority while priorities exist.');
+	}
+
+	public function test_support_form_without_configured_priorities_does_not_require_priority(): void
+	{
+		add_filter('pre_wp_mail', '__return_true');
+		add_filter('mhmrentiva_contact_priority_options', '__return_empty_array');
+
+		$this->assertStringNotContainsString('name="priority"', $this->render('[rentiva_contact type="support"]'));
+
+		$ok = $this->submit(array( 'type' => 'support' ));
+		$this->assertTrue($ok['success'], 'No priorities configured: the support form stays submittable.');
+	}
+
+	/**
 	 * @param array<string,string> $fields Extra POST fields.
 	 * @return array<string,mixed>
 	 */

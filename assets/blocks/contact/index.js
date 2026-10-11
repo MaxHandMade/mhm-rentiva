@@ -57,7 +57,8 @@
                         el(ToggleControl, {
                             label: __('Show Phone Field', 'mhm-rentiva'),
                             checked: showPhone,
-                            onChange: function (val) { setAttributes({ showPhone: val }); }
+                            onChange: function (val) { setAttributes({ showPhone: val }); },
+                            help: __('Booking forms always show the phone field because they require it.', 'mhm-rentiva')
                         }),
                         el(ToggleControl, {
                             label: __('Show Booking ID Field', 'mhm-rentiva'),

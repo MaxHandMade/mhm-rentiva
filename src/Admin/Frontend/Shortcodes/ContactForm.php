@@ -130,6 +130,16 @@ final class ContactForm extends AbstractShortcode {
 		$atts['type'] = $type;
 		$form_config  = self::get_form_config($type);
 
+		// A field the type requires is always rendered: its show_* toggle only applies
+		// where the field is optional, so no setting yields a form the server refuses.
+		$required = self::get_required_fields($type);
+		if (in_array('phone', $required, true)) {
+			$atts['show_phone'] = '1';
+		}
+		if (in_array('priority', $required, true)) {
+			$atts['show_priority'] = '1';
+		}
+
 		// Vehicle list (for booking form)
 		$vehicles = array();
 		if (( $atts['show_vehicle_selector'] ?? '0' ) === '1') {
@@ -258,7 +268,34 @@ final class ContactForm extends AbstractShortcode {
 		return $vehicle_list;
 	}
 
+	/**
+	 * Priority choices. Filterable (mhmrentiva_contact_priority_options) down to a
+	 * subset of ContactMessagePostType::PRIORITIES -- the only values a submission
+	 * keeps. With none left, the support form drops the field and stops requiring it.
+	 *
+	 * @return array<string,array{label:string,description:string,color:string}>
+	 */
 	private static function get_priority_options(): array
+	{
+		$options  = self::default_priority_options();
+		$filtered = apply_filters('mhmrentiva_contact_priority_options', $options);
+		if (! is_array($filtered)) {
+			return $options;
+		}
+
+		$allowed = array();
+		foreach ($filtered as $key => $option) {
+			if (in_array( (string) $key, ContactMessagePostType::PRIORITIES, true ) && is_array($option)) {
+				$allowed[ (string) $key ] = array_merge($options[ (string) $key ], array_intersect_key($option, $options[ (string) $key ]));
+			}
+		}
+		return $allowed;
+	}
+
+	/**
+	 * @return array<string,array{label:string,description:string,color:string}>
+	 */
+	private static function default_priority_options(): array
 	{
 		return array(
 			'low'    => array(
@@ -645,7 +682,14 @@ final class ContactForm extends AbstractShortcode {
 			'feedback' => array( 'name', 'email', 'rating', 'message' ),
 		);
 
-		return $configs[ $type ] ?? $configs['general'];
+		$fields = $configs[ $type ] ?? $configs['general'];
+
+		// No priorities configured: nothing to choose from, so nothing to require.
+		if (in_array('priority', $fields, true) && array() === self::get_priority_options()) {
+			$fields = array_values(array_diff($fields, array( 'priority' )));
+		}
+
+		return $fields;
 	}
 
 	private static function get_field_label(string $field): string
