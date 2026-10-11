@@ -2,7 +2,7 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicles-grid",
-    "title": "MHM Vehicles Grid",
+    "title": "Vehicles Grid",
     "category": "rentiva",
     "icon": "car",
     "description": "Display vehicles in a responsive grid layout.",

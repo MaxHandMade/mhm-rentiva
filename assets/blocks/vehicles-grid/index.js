@@ -9,6 +9,7 @@
     var SelectControl = components.SelectControl;
     var ServerSideRender = serverSideRender;
     var __ = i18n.__;
+    var _x = i18n._x;
 
     blocks.registerBlockType('mhm-rentiva/vehicles-grid', {
         edit: function (props) {
@@ -56,7 +57,7 @@
                             onChange: function (val) { setAttributes({ sortBy: val }); }
                         }),
                         el(SelectControl, {
-                            label: __('Order', 'mhm-rentiva'),
+                            label: _x('Order', 'sort direction', 'mhm-rentiva'),
                             value: sortOrder,
                             options: [
                                 { label: __('Descending', 'mhm-rentiva'), value: 'desc' },

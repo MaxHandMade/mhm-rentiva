@@ -1380,7 +1380,7 @@ final class AssetManager {
 			'Add'                              => __('Add', 'mhm-rentiva'),
 			'Update'                           => __('Update', 'mhm-rentiva'),
 			'Search'                           => __('Search', 'mhm-rentiva'),
-			'Filter'                           => __('Filter', 'mhm-rentiva'),
+			'Filter'                           => _x('Filter', 'verb: apply filter', 'mhm-rentiva'),
 			'Reset'                            => __('Reset', 'mhm-rentiva'),
 			'Close'                            => __('Close', 'mhm-rentiva'),
 			'Back'                             => __('Back', 'mhm-rentiva'),

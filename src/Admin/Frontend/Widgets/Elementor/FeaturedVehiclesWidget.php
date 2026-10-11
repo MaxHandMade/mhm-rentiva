@@ -25,7 +25,7 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 	}
 
 	public function get_title(): string {
-		return __( 'MHM Featured Vehicles', 'mhm-rentiva' );
+		return __( 'Featured Vehicles', 'mhm-rentiva' );
 	}
 
 	public function get_icon(): string {
@@ -97,7 +97,7 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 		$this->add_control(
 			'order',
 			array(
-				'label'   => __( 'Order', 'mhm-rentiva' ),
+				'label'   => _x( 'Order', 'sort direction', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'DESC',
 				'options' => array(

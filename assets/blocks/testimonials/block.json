@@ -2,7 +2,7 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "mhm-rentiva/testimonials",
-    "title": "MHM Testimonials",
+    "title": "Testimonials",
     "category": "rentiva",
     "icon": "format-quote",
     "description": "Display customer testimonials.",

@@ -2,7 +2,7 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicle-details",
-    "title": "MHM Vehicle Details",
+    "title": "Vehicle Details",
     "category": "rentiva",
     "icon": "car",
     "description": "Display single vehicle details page.",

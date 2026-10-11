@@ -2,7 +2,7 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "mhm-rentiva/contact",
-    "title": "MHM Contact Form",
+    "title": "Contact Form",
     "category": "rentiva",
     "icon": "email",
     "description": "Contact form for customer inquiries.",
