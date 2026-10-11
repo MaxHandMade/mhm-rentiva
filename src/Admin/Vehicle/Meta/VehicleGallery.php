@@ -240,7 +240,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		 * `$actor_id` rather than the signed-in user, so a filter that grants access
 		 * based on the actor is not supported there.
 		 *
-		 * @since 6.1.6
+		 * @since 6.2.0
 		 *
 		 * @param bool $allowed    Whether the attachment is allowed.
 		 * @param int  $id         Attachment ID.

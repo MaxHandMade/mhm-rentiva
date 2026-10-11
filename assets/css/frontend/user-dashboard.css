@@ -1,7 +1,7 @@
 /*
- * What is left here styles the vendor ledger table, which Pro renders and
- * enqueues this file for (VendorLedger.php). The customer dashboard this file
- * was written for was retired in 6.2.0; its rules went with it.
+ * Account table styles (.mhm-rentiva-dashboard__table). The customer
+ * dashboard this file was written for was retired in 6.2.0; its rules went
+ * with it.
  */
 
 .rv-shortcode-wrapper,

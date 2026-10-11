@@ -123,8 +123,8 @@
 }
 
 /* Favorite Button (Top Right). Scoped by the vehicle card or by the shared
-   actions overlay, so every card that uses the overlay (the add-on's transfer
-   card too) gets the same 32px circle instead of the theme's button style. */
+   actions overlay, so every card that uses the overlay gets the same 32px
+   circle instead of the theme's button style. */
 .mhm-vehicle-card .mhm-card-favorite,
 .mhm-card-actions-overlay > .mhm-card-favorite {
     position: absolute;
@@ -177,8 +177,8 @@
        WITHOUT !important -- so the heart won at 18 and the compare icon lost
        to Icons::get()'s inline 20px default, and two different sizes sat in
        identical 32px circles. The size is now stated once, at the call site
-       (templates/partials/vehicle-card.php, templates/shortcodes/vehicle-details.php,
-       and the add-on's templates/partials/transfer-card.php), where an inline
+       (templates/partials/vehicle-card.php, templates/shortcodes/vehicle-details.php
+       and any other card on the shared overlay), where an inline
        style wins without anyone having to out-!important anyone. The resets
        above stay: they defend against theme rules like `svg { max-width: 100% }`,
        which an inline width alone would not survive. */

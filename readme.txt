@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.5
+Stable tag:        6.2.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -27,7 +27,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **Customer Management:** Customer records, booking history, and CSV export of your customer list.
 *   **Email Notifications:** Editable email templates for booking confirmations, cancellations, refunds and reminders.
 *   **Customer Account Pages:** Bookings, favourites and payment history in the customer's WooCommerce account area.
-*   **16 Shortcodes:** Search, results, vehicle grids and lists, vehicle details, booking form, availability calendar, comparison, testimonials, ratings, contact form, and the customer account views.
+*   **16 Shortcodes:** (one of them, the customer dashboard, retired in 6.2.0 and now only points to My Account) Search, results, vehicle grids and lists, vehicle details, booking form, availability calendar, comparison, testimonials, ratings, contact form, and the customer account views.
 *   **16 Gutenberg Blocks:** One for each frontend shortcode, built on a Render Parity architecture — a block, its Elementor widget and its shortcode all delegate to the same renderer, so they produce identical output.
 *   **17 Elementor Widgets:** The same components as Elementor widgets, with Elementor's own controls and live preview. (Two of the seventeen — Vehicle Card and Vehicles List — render the same underlying component with different presets, so the seventeen widgets cover sixteen distinct components.)
 *   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data.
@@ -55,7 +55,7 @@ MHM Rentiva stores its booking and customer records (such as names, e-mail addre
 
 Four other things it keeps are worth naming; three of them record an IP address, which in most jurisdictions counts as personal data in its own right.
 
-If you publish the plugin's **contact form**, each submission is saved as a private record holding the sender's name, e-mail address, telephone number, company, the message itself, any file they attached, and the **IP address** and **browser user-agent** it was sent from. The record also keeps the rest of what the form submitted: which vehicle the enquiry was about, a preferred date, a priority, a rating, and which variant of the form was used. These records have no retention setting and are never removed automatically; you read and delete them yourself under MHM Rentiva → Contact Messages. Files attached to a contact message are stored in a plugin-owned folder inside your uploads directory (`wp-content/uploads/mhm-rentiva-private/contact/`) under a random name with no file extension. They are **not encrypted**. On Apache the folder ships with an `.htaccess` that denies direct access; on nginx you must add a `location ^~ /wp-content/uploads/mhm-rentiva-private/ { deny all; }` rule yourself, otherwise the only protection is the unguessable name and the folder's empty index page. If you use a plugin that copies every upload to external storage (a CDN or cloud offload plugin), exclude the `mhm-rentiva-private` folder in its settings, or it may copy these files as well — or, if it moves files away from your server, contact attachments may fail to upload. The file is deleted when the message is permanently deleted, and when the plugin is deleted with its "Wipe all data on uninstall" setting turned on. A copy is also sent as an attachment of the notification e-mail, which this plugin does not control once sent. Attachments saved by earlier versions were public files in the normal uploads folder; updating moves those it can positively identify into the private folder and lists the rest in an admin notice.
+If you publish the plugin's **contact form**, each submission is saved as a private record holding the sender's name, e-mail address, telephone number, company, the message itself, any file they attached, and the **IP address** and **browser user-agent** it was sent from. The record also keeps the rest of what the form submitted: which vehicle the enquiry was about, a preferred date, a priority, a rating, and which variant of the form was used. These records have no retention setting and are never removed automatically; you read and delete them yourself under MHM Rentiva → Contact Messages. Files attached to a contact message are stored in a plugin-owned folder inside your uploads directory (`wp-content/uploads/mhm-rentiva-private/contact/`) under a random name with no file extension. They are **not encrypted**. On Apache the folder ships with an `.htaccess` that denies direct access; on nginx you must add a `location ^~ /wp-content/uploads/mhm-rentiva-private/ { deny all; }` rule yourself, otherwise the only protection is the unguessable name and the folder's empty index page. If you use a plugin that copies every upload to external storage (a CDN or cloud offload plugin), exclude the `mhm-rentiva-private` folder in its settings, or it may copy these files as well — or, if it moves files away from your server, contact attachments may fail to upload. The file is deleted when the message is permanently deleted, and when the plugin is deleted with its "Wipe all data on uninstall" setting turned on. On a multisite network that wipe covers the main site only: delete the other sites' `mhm-rentiva-private/contact/` folders by hand. A copy is also sent as an attachment of the notification e-mail, which this plugin does not control once sent. Attachments saved by earlier versions were public files in the normal uploads folder; updating moves those it can positively identify into the private folder and lists the rest in an admin notice.
 
 If you publish the plugin's **rating form**, each review is stored as an ordinary WordPress comment, so WordPress itself records the reviewer's IP address and browser user-agent alongside it, exactly as it does for any comment — and for a review left by someone who is not logged in, the name and e-mail address they typed. Those guest reviews are reachable through Tools → Export/Erase Personal Data, which matches comments by e-mail address. From version 6.0.1, a review left by a logged-in customer is saved the same way WordPress saves any comment from a signed-in visitor: against their user ID, and with the display name, e-mail address and website address from their profile written onto the comment. Those reviews are matched by the same Export/Erase tools, on the account's e-mail address. Reviews that logged-in customers left in earlier versions carry no name and no e-mail address on the comment, and updating does not fill them in, so the Export/Erase tools — which look comments up by e-mail address — do not return those older ones; remove them from the Comments screen instead.
 
@@ -84,7 +84,7 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 Most of this plugin is plain, human-readable PHP with no build step.
 
-Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is plain CSS: the four screens' stylesheets and the shared admin stylesheet (`src-react/shared/admin.css`) that the vehicle, booking and add-on list screens load directly. No obfuscated code is bundled.
+Five admin screens (Dashboard, Customers, Contact Messages, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is plain CSS: the five screens' stylesheets and the shared admin stylesheet (`src-react/shared/admin.css`) that the vehicle, booking and add-on list screens load directly. No obfuscated code is bundled.
 
 The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
@@ -189,6 +189,17 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.2.0 =
+* New: Contact Messages has its own screen with tabs, search, bulk actions and reply by e-mail; attachments move to a private folder only an administrator can download from. On nginx, add the deny rule from the privacy section.
+* Changed: the customer dashboard is retired. Its shortcode, block and Elementor widget now point logged-in customers to My Account.
+* Fixed: block and Elementor widget settings that were saved but never reached the page now apply, and Elementor style controls for cards, lists, grids and the booking button now style the page. A page changes only where such a setting had been changed.
+* Removed: block, widget and shortcode settings that had no effect; a saved value is ignored. The full list is in changelog.json.
+* Changed: vehicle cards show a 3:2 image and the real rating; the booking form matches the vehicle details layout.
+* Security: vehicle galleries accept and show only images their author may use, never a sensitive document.
+* Fixed: Customers screen spending figures count only completed or confirmed bookings, and WooCommerce customers show their phone and address.
+* Fixed: Payment History page 2 on the WooCommerce account page, contact form type and fields, Testimonials "Load More".
+* BREAKING: ten hooks and the customer dashboard classes were removed (see changelog.json). Rentiva Pro 6.1.0 or older stops working beside this release on the vendor panel: update Rentiva Pro to 6.3.0.
+
 = 6.1.5 =
 * Fixed: the Bookings list's Pending chip never finished loading on sites with real booking data; every status chip now looks its bookings up once, by the same rule as its count.
 * Fixed: admin notices such as the licence warning pushed most admin screens down after they had drawn, showed twice on Settings > Notification Templates and vanished as a pop-up on Settings.
@@ -200,15 +211,10 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Security: the search filter's AJAX "No vehicles found" message is now escaped, as the shortcode path already was.
 * Changed: unused e-mail screen JavaScript calling four non-existent admin actions was removed; mhm/ui-core is 0.10.0.
 
-= 6.1.4 =
-* Fixed: on the Customers screen, a booking linked by ID rather than e-mail did not count on the customer's row, was missing from their detail panel and summary cards, and did not show behind "View Bookings".
-* Fixed: multisite activation stopped at the hundredth site and skipped private sites; both now get their tables. A subsite reads its own language for URL slugs, not the network's.
-* Fixed: a page rollback in the layout tool could overwrite an unrelated post with layout markup via a stale ID; it can no longer touch a post it was not meant to.
-* Fixed: on hosting with an external cache (Redis/Memcached), saving a customer, booking or vehicle left its list stale until the cache expired.
-* Changed: the ZIP no longer ships React source files WordPress never runs, so the download is smaller.
-* Changed: the admin menu moved back above WordPress's own Appearance, Plugins, Users and Tools items, just below WooCommerce.
-
 == Upgrade Notice ==
+
+= 6.2.0 =
+Contact attachments move to a private folder and the customer dashboard is retired. Ten hooks were removed: custom code using them stops working. Rentiva Pro 6.1.0 or older breaks on the vendor panel: update Rentiva Pro to 6.3.0.
 
 = 6.0.1 =
 Cleanup and bug-fix release. No action required; an automatic one-time migration removes some internal database indexes. If you build pages with this plugin's blocks, this release repairs the favourite and compare buttons on them.

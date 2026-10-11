@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental Booking for WordPress" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-6.1.5-blue.svg)
+![Version](https://img.shields.io/badge/version-6.2.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -356,7 +356,7 @@ wp mhm-rentiva cleanup full --execute   # Full cleanup
 
 ### 🧩 Gutenberg Blocks Integration
 
-**20 Available Blocks:**
+**16 blocks** (15 in the inserter; User Dashboard is retired in 6.2.0 and hidden):
 - Availability Calendar, Booking Form, Contact, Featured Vehicles
 - My Bookings, My Favorites, Payment History, Search Results
 - Testimonials, Unified Search, User Dashboard, Vehicle Comparison
@@ -391,7 +391,7 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 - **Booking Form Widget**: Complete booking form with vehicle selection, addons, and payment options
 
 **Account Widgets (4):**
-- **User Dashboard Widget**: Customer account dashboard
+- **User Dashboard Widget**: retired in 6.2.0 -- shows logged-in customers a link to My Account
 - **My Bookings Widget**: Customer booking history
 - **My Favorites Widget**: Favorite vehicles management
 - **Payment History Widget**: Payment transaction history
@@ -431,7 +431,7 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 2,661 tests / 12,287 assertions (v6.1.5)
+- **PHPUnit**: 3,421 tests / 16,950 assertions (v6.2.0)
 - **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check), all on a single pinned PHP 8.2 — no PHP/WP version matrix
 - **PHPCS**: WordPress Coding Standards via a custom ruleset (43 documented exclusions), 0 errors
 - **Test Admin Page**: Accessible from Rentiva menu
@@ -707,7 +707,7 @@ mhm-rentiva/
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (2,661 tests, 12,287 assertions)
+├── tests/                  # PHPUnit suite (3,421 tests, 16,950 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
@@ -785,7 +785,7 @@ define('SCRIPT_DEBUG', true);
 - Test email notifications
 
 **Automated Testing**:
-- PHPUnit suite: 2,661 tests / 12,287 assertions (unit + WP_UnitTestCase integration)
+- PHPUnit suite: 3,421 tests / 16,950 assertions (unit + WP_UnitTestCase integration)
 
 ---
 

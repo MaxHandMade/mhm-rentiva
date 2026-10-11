@@ -148,7 +148,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * _deprecated_function() notice is raised on purpose, so add-on test suites keep
 	 * passing while they move to render_canonical().
 	 *
-	 * @deprecated 6.1.6 Use render_canonical().
+	 * @deprecated 6.2.0 Use render_canonical().
 	 *
 	 * @param string $tag  Shortcode tag.
 	 * @param array  $atts Explicit shortcode attributes.
@@ -169,7 +169,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * wp_kses( ..., Html::allowed_markup() ) (gate G-A allows no bare echo), so this
 	 * shim never prints unescaped output.
 	 *
-	 * @deprecated 6.1.6 Use render_canonical().
+	 * @deprecated 6.2.0 Use render_canonical().
 	 *
 	 * @param string $tag  Shortcode tag.
 	 * @param array  $atts Explicit shortcode attributes.

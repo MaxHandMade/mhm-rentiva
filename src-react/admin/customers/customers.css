@@ -315,7 +315,7 @@
 	color: #6b2fa0;
 }
 
-/* Badges an add-on reports (Pro: Vendor). A role, not a state, so no tone. */
+/* Badges reported through mhmrentiva_customer_badges. A role, not a state, so no tone. */
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-badges {
 	display: inline-flex;
 	gap: 4px;
