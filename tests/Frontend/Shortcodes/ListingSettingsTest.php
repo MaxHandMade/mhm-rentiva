@@ -152,9 +152,14 @@ final class ListingSettingsTest extends WP_UnitTestCase
 
 	public function test_grid_tablet_and_mobile_columns_emit_vars(): void
 	{
-		// Defaults (today's 2 / 1) add nothing: the stylesheet's fallbacks are today's values.
+		// Defaults (tablet 2, mobile unset) add nothing: the stylesheet's fallbacks are today's values.
 		$this->assertSame(array(), $this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid]')));
-		$this->assertSame(array(), $this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid columns_tablet="2" columns_mobile="1"]')));
+		$this->assertSame(array(), $this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid columns_tablet="2"]')));
+		// An explicit mobile 1 is printed (masonry needs it); on the grid it equals the fallback.
+		$this->assertSame(
+			array( 'rv-vehicles-grid--mobile-1' ),
+			$this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid columns_tablet="2" columns_mobile="1"]'))
+		);
 		$this->assertSame(array(), $this->grid_breakpoint_classes($this->block('vehicles-grid', array())));
 		$this->assertSame(array(), $this->grid_breakpoint_classes($this->widget(VehiclesGridWidget::class, array())));
 
@@ -190,6 +195,22 @@ final class ListingSettingsTest extends WP_UnitTestCase
 		$html = do_shortcode('[rentiva_vehicles_grid layout="masonry" columns_mobile="3"]');
 		$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $html, $m), 'No masonry in the render.');
 		$this->assertContains('rv-vehicles-grid--mobile-3', preg_split('/\s+/', $m[1]));
+
+		// An explicit 1 is reachable: it prints its class, so phones show one column
+		// instead of the tablet fallback (Fable, Lite #92).
+		$html = do_shortcode('[rentiva_vehicles_grid layout="masonry" columns_mobile="1"]');
+		$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $html, $m), 'No masonry in the render.');
+		$this->assertContains('rv-vehicles-grid--mobile-1', preg_split('/\s+/', $m[1]));
+
+		// Untouched masonry (shortcode, block, widget) prints no breakpoint class: phones keep the tablet count.
+		foreach (array(
+			do_shortcode('[rentiva_vehicles_grid layout="masonry"]'),
+			$this->block('vehicles-grid', array( 'layout' => 'masonry' )),
+			$this->widget(VehiclesGridWidget::class, array( 'layout' => 'masonry' )),
+		) as $untouched) {
+			$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $untouched, $m), 'No masonry in the render.');
+			$this->assertSame(array(), preg_grep('/^rv-vehicles-grid--(tablet|mobile)-/', preg_split('/\s+/', $m[1])));
+		}
 
 		// Phones read the mobile property; unset, masonry keeps today's phone layout
 		// (the tablet column count, 2 by default) instead of dropping to the grid's 1.

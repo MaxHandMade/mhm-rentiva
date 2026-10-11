@@ -58,7 +58,7 @@ class VehiclesGrid extends AbstractShortcode {
 			'limit'                => '12',
 			'columns'              => '2', // 2, 3, 4
 			'columns_tablet'       => '2', // Up to 1024px; vehicles-grid.css default.
-			'columns_mobile'       => '1', // Up to 782px; vehicles-grid.css default.
+			'columns_mobile'       => '', // Up to 782px; unset = vehicles-grid.css fallback (grid 1, masonry the tablet count).
 			'orderby'              => 'title', // title, date, price, featured
 			'order'                => 'ASC', // ASC, DESC
 			'category'             => '', // Vehicle category
@@ -176,8 +176,11 @@ class VehiclesGrid extends AbstractShortcode {
 	 * Classes for the tablet and mobile column counts.
 	 *
 	 * Each class sets the custom property vehicles-grid.css reads in its breakpoints.
-	 * A value equal to the stylesheet's fallback (2 tablet, 1 mobile) or outside 1-4
-	 * adds nothing, so an untouched grid prints today's markup.
+	 * A value outside 1-4 adds nothing. Tablet 2 is the stylesheet's fallback for both
+	 * layouts and adds nothing either. Mobile defaults to unset (''), so any explicit
+	 * 1-4 prints its class: the fallback differs by layout (grid 1, masonry the tablet
+	 * count), and an explicit 1 must reach masonry. An untouched grid or masonry
+	 * prints today's markup.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 */
@@ -186,10 +189,10 @@ class VehiclesGrid extends AbstractShortcode {
 		$classes = '';
 		foreach (array(
 			'tablet' => 2,
-			'mobile' => 1,
-		) as $breakpoint => $default) {
-			$value = absint($atts[ 'columns_' . $breakpoint ] ?? $default);
-			if ($value >= 1 && $value <= 4 && $value !== $default) {
+			'mobile' => 0,
+		) as $breakpoint => $silent) {
+			$value = absint($atts[ 'columns_' . $breakpoint ] ?? 0);
+			if ($value >= 1 && $value <= 4 && $value !== $silent) {
 				$classes .= ' rv-vehicles-grid--' . $breakpoint . '-' . $value;
 			}
 		}

@@ -153,7 +153,7 @@
         },
         "columns_mobile": {
             "type": "string",
-            "default": "1"
+            "default": ""
         },
         "viewAllUrl": {
             "type": "string",

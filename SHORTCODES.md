@@ -162,7 +162,7 @@ renders like the default.
 | `rentiva_vehicles_list` | `custom_css_class` | `""` | Extra wrapper classes (each passed through `sanitize_html_class`). |
 | `rentiva_vehicles_list` | `button_text` | `""` | Booking button label. Order: "Unavailable" when the vehicle is down, else `button_text`, else the global "Book Now Button" text setting, else "Book Now". Elementor "Button Text" now writes this key. |
 | `rentiva_vehicles_list` | `show_rating_count` | `0` | Adds `(N)` after the average rating. |
-| `rentiva_vehicles_grid` | `columns_tablet` / `columns_mobile` | `2` / `1` | Columns at ≤1024px / ≤782px (1–4). |
+| `rentiva_vehicles_grid` | `columns_tablet` / `columns_mobile` | `2` / `""` | Columns at ≤1024px / ≤782px (1–4). Unset `columns_mobile` keeps the layout's phone fallback (grid 1, masonry the tablet count); any explicit 1–4, including `1`, applies to both layouts. |
 | `rentiva_featured_vehicles` | `show_booking_button` | `1` | The Elementor switcher now writes this key. **`show_book_button` is no longer read** — use `show_booking_button="0"`. |
 | `rentiva_search_results` | `default_sort` | `price_asc` | One sort control on block and Elementor (replaces Sort By / Sort Order). Values: `relevance`, `price_asc`, `price_desc`, `name_asc`, `name_desc`, `year_desc`. |
 | `rentiva_vehicle_comparison` | `show_images` / `show_remove_buttons` | `1` / `1` | Vehicle images / remove buttons in all layouts. |
@@ -402,7 +402,7 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `className` | `""` | *N/A* | Schema: string (maps to `class`) | ⚠️ Block Only |
 | `columns` | `2` | `2` | Schema: int | ✅ |
-| `columns_mobile` | `1` | `1` | Schema: int | ✅ |
+| `columns_mobile` | `""` | `""` | Schema: int | ✅ |
 | `columns_tablet` | `2` | `2` | Schema: int | ✅ |
 | `custom_css_class` | *N/A* | `""` | Schema: string | ⚠️ SC Only |
 | `featured` | *N/A* | `0` | Schema: bool | ⚠️ SC Only |
