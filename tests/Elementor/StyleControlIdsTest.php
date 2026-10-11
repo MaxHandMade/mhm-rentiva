@@ -48,8 +48,11 @@ final class StyleControlIdsTest extends WP_UnitTestCase
 		switch_to_locale('tr_TR');
 		load_textdomain('mhm-rentiva', dirname(__DIR__, 2) . '/languages/mhm-rentiva-tr_TR.mo', 'tr_TR');
 		try {
-			// Without the translated label the run would just repeat en_US.
-			$this->assertSame('Genel Stil', __('General Style', 'mhm-rentiva'), 'tr_TR translation did not load; the locale run would prove nothing.');
+			// Without the translated label the run would just repeat en_US. The
+			// check is "translated at all", not a fixed wording: pinning the
+			// msgstr ('Genel Stil') broke when 3B-1 moved TR labels to sentence
+			// case ('Genel stil') -- a catalog edit is not this test's subject.
+			$this->assertNotSame('General Style', __('General Style', 'mhm-rentiva'), 'tr_TR translation did not load; the locale run would prove nothing.');
 			$turkish = $this->id_sets();
 		} finally {
 			restore_previous_locale();

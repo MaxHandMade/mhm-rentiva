@@ -34,7 +34,7 @@ final class WidgetTitlesTest extends WP_UnitTestCase
 	/**
 	 * @dataProvider widget_classes
 	 */
-	public function test_widget_title_has_no_mhm_prefix( string $short ): void
+	public function test_widget_title_has_no_brand_prefix( string $short ): void
 	{
 		$class = self::NS . $short;
 		if ( ! class_exists( $class ) || ( new \ReflectionClass( $class ) )->isAbstract() ) {
@@ -44,7 +44,7 @@ final class WidgetTitlesTest extends WP_UnitTestCase
 		$this->assertStringStartsNotWith( 'MHM ', $widget->get_title(), $short );
 	}
 
-	public function test_all_lite_block_titles_have_no_mhm_prefix(): void
+	public function test_all_lite_block_titles_have_no_brand_prefix(): void
 	{
 		$files = glob( dirname( __DIR__, 2 ) . '/assets/blocks/*/block.json' );
 		$this->assertCount( 16, $files );
