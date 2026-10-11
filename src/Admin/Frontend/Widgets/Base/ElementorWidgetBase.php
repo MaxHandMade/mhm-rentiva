@@ -399,13 +399,13 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		$this->start_controls_section(
 			'mhmrentiva_parity_section',
 			array(
-				'label' => __( 'Parity Controls', 'mhm-rentiva' ),
+				'label' => ParityLabels::section_label(),
 				'tab'   => 'content',
 			)
 		);
 
 		foreach ( $missing as $canonical => $attr_config ) {
-			$this->add_parity_control_from_schema( $canonical, $attr_config );
+			$this->add_parity_control_from_schema( $canonical, $attr_config, $block_slug );
 		}
 
 		$this->end_controls_section();
@@ -426,12 +426,17 @@ abstract class ElementorWidgetBase extends Widget_Base {
 
 	/**
 	 * Adds one Elementor control derived from block attribute schema.
+	 *
+	 * @param string $attr_name   Canonical key (the control id).
+	 * @param array  $attr_config block.json attribute config.
+	 * @param string $block_slug  Block the attribute comes from (selects block-qualified labels).
 	 */
-	private function add_parity_control_from_schema( string $attr_name, array $attr_config ): void {
-		// $attr_name is already the canonical key; it is the control id and the label source.
+	private function add_parity_control_from_schema( string $attr_name, array $attr_config, string $block_slug = '' ): void {
+		// $attr_name is already the canonical key; it is the control id. The label comes from
+		// the translatable dictionary; format_control_label() is only a fallback for unknown keys.
 		$type    = isset( $attr_config['type'] ) && is_string( $attr_config['type'] ) ? $attr_config['type'] : 'string';
 		$default = $attr_config['default'] ?? '';
-		$label   = $this->format_control_label( $attr_name );
+		$label   = ParityLabels::label( $attr_name, $block_slug ) ?? $this->format_control_label( $attr_name );
 
 		if ( 'boolean' === $type ) {
 			$this->add_control(
@@ -447,13 +452,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		}
 
 		if ( ( 'integer' === $type || 'number' === $type ) && isset( $attr_config['enum'] ) && is_array( $attr_config['enum'] ) ) {
-			$options = array();
-			foreach ( $attr_config['enum'] as $enum_value ) {
-				if ( is_scalar( $enum_value ) ) {
-					$enum_key             = (string) $enum_value;
-					$options[ $enum_key ] = $enum_key;
-				}
-			}
+			// Keys stay the block.json enum values (saved settings); only the labels are translated.
+			$options = ParityLabels::select_options( $attr_name, $attr_config['enum'], $block_slug );
 
 			$this->add_control(
 				$attr_name,
@@ -468,13 +468,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		}
 
 		if ( ( 'string' === $type || 'integer' === $type || 'number' === $type ) && isset( $attr_config['enum'] ) && is_array( $attr_config['enum'] ) ) {
-			$options = array();
-			foreach ( $attr_config['enum'] as $enum_value ) {
-				if ( is_scalar( $enum_value ) ) {
-					$enum_key             = (string) $enum_value;
-					$options[ $enum_key ] = $enum_key;
-				}
-			}
+			// Keys stay the block.json enum values (saved settings); only the labels are translated.
+			$options = ParityLabels::select_options( $attr_name, $attr_config['enum'], $block_slug );
 
 			$this->add_control(
 				$attr_name,
