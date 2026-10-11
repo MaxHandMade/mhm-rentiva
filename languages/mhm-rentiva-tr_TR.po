@@ -6219,7 +6219,7 @@ msgstr "onaylandı"
 #: src/Admin/Emails/Core/EmailTemplates.php:440
 #: src/Admin/Emails/Core/EmailTemplates.php:449
 msgid "pending"
-msgstr "bekleyen"
+msgstr "bekliyor"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:448
 msgid "credit_card"
@@ -6495,7 +6495,7 @@ msgstr ""
 #: assets/blocks/unified-search/index.js:114
 #: assets/blocks/unified-search/index.js:124
 msgid "Enabled"
-msgstr "Etkinleştirildi"
+msgstr "Etkin"
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:55
 #: src/Admin/Settings/Groups/EmailSettings.php:92
@@ -7348,7 +7348,7 @@ msgstr "Ödeme başarıyla tamamlandı!"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:261
 msgid "Payment cancelled. Your booking is in pending status."
-msgstr "Ödeme iptal edildi. Rezervasyonunuz bekleyen durumunda."
+msgstr "Ödeme iptal edildi. Rezervasyonunuz beklemede."
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:262
 msgid "Payment status is unknown. Please check."
@@ -8925,7 +8925,7 @@ msgstr "Genel varsayılan"
 #: assets/blocks/unified-search/index.js:115
 #: assets/blocks/unified-search/index.js:125
 msgid "Disabled"
-msgstr "Etkisizleştirildi"
+msgstr "Etkin değil"
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:259
 #: assets/blocks/featured-vehicles/index.js:27
@@ -13906,7 +13906,7 @@ msgstr "Aracın donanımını seçin"
 
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:164
 msgid "Pending Review"
-msgstr "İnceleme bekleyen"
+msgstr "İnceleme bekliyor"
 
 #: src/Helpers/NotificationHelper.php:96
 msgid "A cancelled reservation still holds paid money"
@@ -14649,7 +14649,7 @@ msgid ""
 "vehicles you like."
 msgstr ""
 "Beğendiğiniz araçların üzerindeki kalp simgesine tıklayarak araçları "
-"favorilerinize ekleyebilirsiniz."
+"beğenilerinize ekleyebilirsiniz."
 
 #: templates/account/favorites.php:63 templates/account/payment-history.php:76
 msgid "View Vehicles"
