@@ -114,35 +114,42 @@ final class NoProMentionInLiteTest extends TestCase
      * opening with "styles the vendor ledger table, which Pro renders" and two
      * vehicle-card comments naming "the add-on's transfer card" -- copy a reviewer's
      * grep of the free ZIP reads as an edition seam. The upsell patterns above
-     * never looked at CSS. The scan covers every CSS path `.distignore` ships
-     * (`assets/css`, the `src-react` stylesheets, the built `build/admin` ones):
-     * rooted at `assets/css` alone it missed `src-react/admin/customers/customers.css`
-     * (delta re-audit 1). Lite's own "Add-on Services" vocabulary does not match.
+     * never looked at CSS.
+     *
+     * The list is the pinned shipped surface (`bin/shipped-surface-final.txt`, which
+     * check-shipped-surface.php holds equal to the ZIP), not directories named here:
+     * hard-coded roots missed `src-react/admin/customers/customers.css` (delta
+     * re-audit 1) and then five more shipped stylesheets (delta re-audit 2).
+     *
+     * One named exception: `vendor/mhm/ui-core/`, a Composer package Lite cannot edit
+     * in-tree; its `assets/react/admin.css` comment mentions `pro.css`. That is fixed
+     * upstream in ui-core together with the ElementorWidgetFactory escape (6.2.0
+     * release debts). Lite's own "Add-on Services" vocabulary does not match.
      */
     public function test_no_shipped_stylesheet_names_the_add_on(): void
     {
-        $plugin   = dirname(__DIR__, 2);
-        $scanned  = 0;
-        $offences = array();
-        foreach ( array( 'assets/css', 'src-react', 'build/admin' ) as $relative ) {
-            if ( ! is_dir($plugin . '/' . $relative) ) {
+        $plugin = dirname(__DIR__, 2);
+        $pinned = (array) file($plugin . '/bin/shipped-surface-final.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $sheets = array();
+        foreach ( $pinned as $entry ) {
+            $entry = trim((string) $entry);
+            if ( '' === $entry || '#' === $entry[0] || '.css' !== substr($entry, -4) || 0 === strpos($entry, 'vendor/mhm/ui-core/') ) {
                 continue;
             }
-            $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($plugin . '/' . $relative, RecursiveDirectoryIterator::SKIP_DOTS));
-            foreach ( $iterator as $file ) {
-                if ( 'css' !== $file->getExtension() ) {
-                    continue;
-                }
-                ++$scanned;
-                foreach ( (array) file($file->getPathname()) as $number => $line ) {
-                    if ( 1 === preg_match('/\bPro\b|add-on\'s|\b(?:the|paid|premium) add-on\b/i', (string) $line) ) {
-                        $offences[] = $this->relative($file->getPathname()) . ':' . ($number + 1) . ' ' . trim((string) $line);
-                    }
+            $sheets[] = $entry;
+        }
+
+        $offences = array();
+        foreach ( $sheets as $relative ) {
+            $this->assertFileExists($plugin . '/' . $relative, 'A pinned stylesheet is missing from the tree; the pin and the tree disagree.');
+            foreach ( (array) file($plugin . '/' . $relative) as $number => $line ) {
+                if ( 1 === preg_match('/\bPro\b|add-on\'s|\b(?:paid|premium) add-on\b/i', (string) $line) ) {
+                    $offences[] = $relative . ':' . ($number + 1) . ' ' . trim((string) $line);
                 }
             }
         }
 
-        $this->assertGreaterThan(20, $scanned, 'The CSS scan found implausibly few stylesheets.');
+        $this->assertGreaterThan(60, count($sheets), 'The pinned surface yielded implausibly few stylesheets.');
         $this->assertSame(array(), $offences, "Shipped CSS names the add-on:\n" . implode("\n", $offences));
     }
 
