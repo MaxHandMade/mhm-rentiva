@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "POT-Creation-Date: 2026-10-11T20:53:14+00:00\n"
-"PO-Revision-Date: 2026-10-11 22:17+0000\n"
+"PO-Revision-Date: 2026-10-12 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -15739,7 +15739,7 @@ msgstr "Virgülle ayrılmış kimlikler"
 
 #: assets/blocks/featured-vehicles/index.js:58
 msgid "Carousel Options"
-msgstr "Dönme dolap seçenekleri"
+msgstr "Kaydırıcı seçenekleri"
 
 #: assets/blocks/featured-vehicles/index.js:60
 msgid "Visible Slides"
@@ -15748,8 +15748,8 @@ msgstr "Görünür slayt sayısı"
 #: assets/blocks/featured-vehicles/index.js:74
 msgid "Adds a \"View All\" link below the carousel. Leave empty to hide."
 msgstr ""
-"Dönme dolabın altına \"Tümünü görüntüle\" bağlantısı ekler. Gizlemek için "
-"boş bırakın."
+"Kaydırıcının altına \"Tümünü görüntüle\" bağlantısı ekler. Gizlemek için boş"
+" bırakın."
 
 #: assets/blocks/my-bookings/index.js:50
 msgid "Descending (Newest First)"
@@ -15769,7 +15769,7 @@ msgstr "Sıralama seçeneklerini göster"
 
 #: assets/blocks/testimonials/index.js:42
 msgid "Carousel"
-msgstr "Dönme dolap"
+msgstr "Kaydırıcı"
 
 #: assets/blocks/testimonials/index.js:49
 msgid "Filter by Rating"
@@ -16794,7 +16794,7 @@ msgstr "Öne çıkarılmış araçlar"
 #: assets/blocks/featured-vehicles/block.json
 msgctxt "block description"
 msgid "Display featured vehicles as a carousel."
-msgstr "Öne çıkarılmış araçları dönme dolap olarak görüntüleyin."
+msgstr "Öne çıkarılmış araçları kaydırıcı olarak görüntüleyin."
 
 #: assets/blocks/my-bookings/block.json
 msgctxt "block title"
