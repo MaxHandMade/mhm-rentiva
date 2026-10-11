@@ -409,10 +409,13 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('\u0026amp;', get_post($page)->post_content, 'Precondition: saved through kses.');
 		$this->assertSame($email, RecipientToken::resolve(RecipientToken::issue($email, $page, 'general'), 'general'));
 
-		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
+		// kses is installed on set_current_user from the *current user's* unfiltered_html
+		// (not the post author's); multisite needs super admin for it, so grant it first.
+		$admin = (int) self::factory()->user->create(array( 'role' => 'administrator' ));
 		if (is_multisite()) {
-			grant_super_admin(get_current_user_id());
+			grant_super_admin($admin);
 		}
+		wp_set_current_user($admin);
 		$page = $this->page_by($this->editor, $block);
 		$this->assertStringContainsString('sales\u0026desk', get_post($page)->post_content, 'Precondition: saved unfiltered.');
 		$this->assertSame($email, RecipientToken::resolve(RecipientToken::issue($email, $page, 'general'), 'general'));
