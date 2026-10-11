@@ -114,22 +114,30 @@ final class NoProMentionInLiteTest extends TestCase
      * opening with "styles the vendor ledger table, which Pro renders" and two
      * vehicle-card comments naming "the add-on's transfer card" -- copy a reviewer's
      * grep of the free ZIP reads as an edition seam. The upsell patterns above
-     * never looked at CSS.
+     * never looked at CSS. The scan covers every CSS path `.distignore` ships
+     * (`assets/css`, the `src-react` stylesheets, the built `build/admin` ones):
+     * rooted at `assets/css` alone it missed `src-react/admin/customers/customers.css`
+     * (delta re-audit 1). Lite's own "Add-on Services" vocabulary does not match.
      */
     public function test_no_shipped_stylesheet_names_the_add_on(): void
     {
-        $root     = dirname(__DIR__, 2) . '/assets/css';
+        $plugin   = dirname(__DIR__, 2);
         $scanned  = 0;
         $offences = array();
-        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS));
-        foreach ( $iterator as $file ) {
-            if ( 'css' !== $file->getExtension() ) {
+        foreach ( array( 'assets/css', 'src-react', 'build/admin' ) as $relative ) {
+            if ( ! is_dir($plugin . '/' . $relative) ) {
                 continue;
             }
-            ++$scanned;
-            foreach ( (array) file($file->getPathname()) as $number => $line ) {
-                if ( 1 === preg_match('/\bPro\b|\bRentiva Pro\b|add-on\'s/', (string) $line) ) {
-                    $offences[] = $this->relative($file->getPathname()) . ':' . ($number + 1) . ' ' . trim((string) $line);
+            $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($plugin . '/' . $relative, RecursiveDirectoryIterator::SKIP_DOTS));
+            foreach ( $iterator as $file ) {
+                if ( 'css' !== $file->getExtension() ) {
+                    continue;
+                }
+                ++$scanned;
+                foreach ( (array) file($file->getPathname()) as $number => $line ) {
+                    if ( 1 === preg_match('/\bPro\b|add-on\'s|\b(?:the|paid|premium) add-on\b/i', (string) $line) ) {
+                        $offences[] = $this->relative($file->getPathname()) . ':' . ($number + 1) . ' ' . trim((string) $line);
+                    }
                 }
             }
         }
