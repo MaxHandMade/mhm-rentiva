@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regenerate languages/mhm-rentiva.pot.
+# Regenerate languages/<slug>.pot (default: Lite, languages/mhm-rentiva.pot).
 #
 # WHY THIS FILE EXISTS AT ALL
 # ---------------------------
@@ -36,25 +36,53 @@
 #
 set -euo pipefail
 
+# PARAMETERS (defaults are Lite's scope -- running with no flags builds exactly
+# what this script always built; Pro passes its own plugin dir, slug, exclude):
+#
+#   bash bin/make-pot.sh [--probe] [--plugin-dir <container path>] [--slug <domain>] [--exclude <list>]
+#
+#   Pro:  bash ../mhm-rentiva/bin/make-pot.sh \
+#           --plugin-dir /var/www/html/wp-content/plugins/mhm-rentiva-pro \
+#           --slug mhm-rentiva-pro --exclude bin,tests,vendor,node_modules,build,languages
+#
+# The probe compares against the catalog of the plugin being probed, e.g. for Pro
+# languages/mhm-rentiva-pro.pot (the probe file lands in the container's /tmp).
+#
+# No --allow-root: the wpcli container runs as www-data, not root.
+
 CONTAINER="${MHM_WPCLI_CONTAINER:-rentiva-dev-wpcli-1}"
 PLUGIN_PATH="/var/www/html/wp-content/plugins/mhm-rentiva"
+SLUG="mhm-rentiva"
 EXCLUDE="bin,tests,vendor,node_modules,build,carveout,languages"
+PROBE=0
 
-OUT="languages/mhm-rentiva.pot"
-if [[ "${1:-}" == "--probe" ]]; then
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--probe) PROBE=1; shift ;;
+		--plugin-dir) PLUGIN_PATH="${2:?--plugin-dir needs a value}"; shift 2 ;;
+		--slug) SLUG="${2:?--slug needs a value}"; shift 2 ;;
+		--exclude) EXCLUDE="${2:?--exclude needs a value}"; shift 2 ;;
+		*) echo "unknown argument: $1" >&2; exit 2 ;;
+	esac
+done
+
+OUT="languages/$SLUG.pot"
+if [[ "$PROBE" == 1 ]]; then
 	OUT="/tmp/probe.pot"
-	echo "PROBE MODE: writing $OUT, leaving the committed catalog alone"
+	echo "PROBE MODE: writing $OUT (inside the container), leaving the committed catalog alone"
 fi
 
-docker exec "$CONTAINER" sh -lc "cd $PLUGIN_PATH && php -d memory_limit=1024M \"\$(command -v wp)\" --allow-root \
-	i18n make-pot . $OUT --slug=mhm-rentiva --exclude=$EXCLUDE"
+# Git Bash would rewrite the container paths below into Windows paths.
+export MSYS_NO_PATHCONV=1
+docker exec "$CONTAINER" sh -lc "cd $PLUGIN_PATH && php -d memory_limit=1024M \"\$(command -v wp)\" \
+	i18n make-pot . $OUT --slug=$SLUG --exclude=$EXCLUDE"
 
 echo
 echo "Scope used: --exclude=$EXCLUDE"
 echo "Next: msgmerge the locale catalogs and recompile --"
-echo "  wp i18n update-po languages/mhm-rentiva.pot languages/mhm-rentiva-tr_TR.po"
-echo "  wp i18n make-mo   languages/mhm-rentiva-tr_TR.po languages/"
-echo "  wp i18n make-php  languages/mhm-rentiva-tr_TR.po languages/"
+echo "  msgmerge --update --no-fuzzy-matching --backup=none languages/$SLUG-tr_TR.po languages/$SLUG.pot"
+echo "  wp i18n make-mo   languages/$SLUG-tr_TR.po languages/"
+echo "  wp i18n make-php  languages/$SLUG-tr_TR.po languages/"
 echo "  python bin/build-i18n.py     # React JSON catalogs; needs Docker"
 echo
 echo "Then translate any new msgid into Turkish before committing: the house rule"
