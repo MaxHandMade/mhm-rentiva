@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-11T08:54:53+00:00\n"
+"POT-Creation-Date: 2026-10-11T09:17:26+00:00\n"
 "PO-Revision-Date: 2026-08-23 16:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -365,7 +365,7 @@ msgstr "İletişim Formu"
 #: src/Admin/Booking/Meta/BookingMeta.php:648
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:815
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:799
 #: templates/emails/booking-created-admin.html.php:20
 #: templates/emails/booking-status-changed-admin.html.php:21
 #: templates/emails/refund-admin.html.php:21
@@ -379,7 +379,7 @@ msgid "+90 538 556 4158"
 msgstr "+90 538 556 4158"
 
 #: src/Admin/About/Tabs/SupportTab.php:123
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:818
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:802
 #: templates/emails/booking-created-admin.html.php:24
 #: src-react/admin/about/components/DeveloperTab.jsx:143
 #: src-react/admin/about/components/SupportTab.jsx:27
@@ -688,7 +688,7 @@ msgstr "Fiyatlandırma Tipi"
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:846
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1212
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1566
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:342
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:315
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:745
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:712
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
@@ -1516,7 +1516,7 @@ msgstr "Rezervasyon İptal Edildi"
 #. translators: %s: customer name.
 #. translators: %s: customer name
 #: src/Admin/Booking/Helpers/CancellationHandler.php:655
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:872
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:856
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
 #, php-format
@@ -1532,7 +1532,7 @@ msgid "Booking Details:"
 msgstr "Rezervasyon Detayları:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:660
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:832
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:816
 #: src/Admin/Settings/Groups/EmailSettings.php:176
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/emails/booking-cancelled.html.php:59
@@ -1542,7 +1542,7 @@ msgstr "Rezervasyon ID:"
 #: src/Admin/Booking/Helpers/CancellationHandler.php:661
 #: src/Admin/Booking/Meta/BookingMeta.php:374
 #: src/Admin/Booking/Meta/BookingMeta.php:450
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:827
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:811
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
 #: src/Admin/Settings/Groups/EmailSettings.php:226
@@ -1819,7 +1819,7 @@ msgstr "Rezervasyon ID"
 #: src/Admin/Booking/ListTable/BookingColumns.php:278
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:702
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:686
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:460
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:514
@@ -2573,9 +2573,9 @@ msgid "Proceed with refund?"
 msgstr "İade işlemine devam etmek ister misiniz?"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:189
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:522
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:542
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:543
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:495
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:515
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:516
 #: templates/shortcodes/contact-form.php:264
 msgid "Sending..."
 msgstr "Gönderiliyor..."
@@ -2726,7 +2726,7 @@ msgid "Email subject..."
 msgstr "E-posta konusu..."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:675
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:849
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:833
 msgid "Message:"
 msgstr "Mesaj:"
 
@@ -3125,9 +3125,9 @@ msgid "Drop-off date must be after pick-up date."
 msgstr "Teslim tarihi, alış tarihinden sonra olmalıdır."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:215
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:525
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:546
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:547
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:498
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:519
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:520
 msgid "Please fill in all required fields."
 msgstr "Lütfen gerekli tüm alanları doldurun."
 
@@ -3207,7 +3207,7 @@ msgstr "Soyadı"
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:699
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:683
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:102
@@ -3219,7 +3219,7 @@ msgstr "E-posta"
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:700
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:684
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:115
@@ -3356,12 +3356,12 @@ msgstr[1] ""
 "kaldırıldı; dosyaların kendisine dokunulmadı:"
 
 #: src/Admin/ContactMessages/ContactAttachmentStore.php:425
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:890
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:874
 msgid "The file could not be uploaded."
 msgstr "Dosya yüklenemedi."
 
 #: src/Admin/ContactMessages/ContactAttachmentValidator.php:94
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:549
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:522
 msgid "Invalid file type."
 msgstr "Tanımlanamayan dosya tipi."
 
@@ -3425,7 +3425,7 @@ msgid "Enquiry type"
 msgstr "Talep türü"
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:429
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:704
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:688
 #: templates/shortcodes/contact-form.php:180
 msgid "Priority"
 msgstr "Öncelik"
@@ -3439,13 +3439,13 @@ msgid "Preferred date"
 msgstr "Tercih edilen tarih"
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:432
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:701
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:685
 #: templates/shortcodes/contact-form.php:130
 msgid "Company"
 msgstr "Şirket"
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:433
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:705
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:689
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:93
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
 #: templates/shortcodes/contact-form.php:198
@@ -3723,7 +3723,7 @@ msgstr "Evet"
 #: src/Admin/Frontend/Account/AccountRenderer.php:345
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:302
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:550
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:523
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:547
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:376
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:182
@@ -5673,12 +5673,12 @@ msgid "This field is required."
 msgstr "Bu alan gereklidir."
 
 #: src/Admin/Core/Utilities/UXHelper.php:126
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:656
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:629
 msgid "Please enter a valid email address."
 msgstr "Lütfen geçerli bir e-posta adresi girin."
 
 #: src/Admin/Core/Utilities/UXHelper.php:127
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:661
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:634
 msgid "Please enter a valid phone number."
 msgstr "Geçerli bir telefon numarası giriniz."
 
@@ -7571,90 +7571,90 @@ msgid "Share your experience with us. Your feedback is valuable to us."
 msgstr ""
 "Deneyiminizi bizimle paylaşın. Geri bildiriminiz bizim için değerlidir."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:302
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:275
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:70
 msgid "Low"
 msgstr "Düşük"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:303
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:276
 msgid "General inquiries"
 msgstr "Genel sorular"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:307
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:280
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:72
 msgid "Medium"
 msgstr "Orta"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:308
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:281
 msgid "Important issues"
 msgstr "Önemli konular"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:312
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:285
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:74
 msgid "High"
 msgstr "Yüksek"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:313
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:286
 msgid "Emergency cases"
 msgstr "Acil durumlar"
 
 #. translators: %d: number of minutes.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:360
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:333
 #, php-format
 msgid "You have sent too many contact forms. Please wait %d minute."
 msgid_plural "You have sent too many contact forms. Please wait %d minutes."
 msgstr[0] "Çok fazla iletişim formu gönderdiniz. Lütfen %d dakika bekleyin."
 msgstr[1] "Çok fazla iletişim formu gönderdiniz. Lütfen %d dakika bekleyin."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:422
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:544
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:395
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:517
 msgid "Your message has been sent successfully!"
 msgstr "Mesajınız başarıyla gönderildi!"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:523
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:496
 msgid "Your message has been sent successfully."
 msgstr "Mesajınız başarıyla gönderildi."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:524
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:545
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:497
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:518
 msgid "An error occurred while sending message."
 msgstr "Mesaj gönderilirken bir hata oluştu."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:526
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:551
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:499
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:524
 msgid "Are you sure you want to reset the form?"
 msgstr "Formu sıfırlamak istediğinizden emin misiniz?"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:548
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:905
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:521
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:889
 msgid "File size is too large."
 msgstr "Dosya boyutu çok büyük."
 
 #. translators: %s: field label.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:650
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:623
 #, php-format
 msgid "%s field is required."
 msgstr "%s alanı zorunludur."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:666
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:639
 msgid "Please rate between 1-5."
 msgstr "Lütfen 1-5 arasında puan verin."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:672
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:645
 msgid "Please fix form errors."
 msgstr "Lütfen form hatalarını düzeltin."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:698
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:682
 #: templates/shortcodes/contact-form.php:93
 msgid "Full Name"
 msgstr "Ad Soyad"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:703
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:687
 #: templates/shortcodes/contact-form.php:170
 msgid "Preferred Date"
 msgstr "Tercih Edilen Tarih"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:706
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:690
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:215
 #: src-react/admin/contact-messages/components/ContactTable.jsx:53
@@ -7663,78 +7663,78 @@ msgid "Message"
 msgstr "Mesaj"
 
 #. translators: %s: customer name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:720
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:704
 #, php-format
 msgid "Contact Message - %s"
 msgstr "İletişim Mesajı - %s"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:763
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:747
 msgid "Unable to save the message."
 msgstr "Mesajı kaydedilemiyor."
 
 #. translators: 1: Site name, 2: Form title, 3: Message subject
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:776
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:760
 #, php-format
 msgid "[%1$s] %2$s - %3$s"
 msgstr "[%1$s] %2$s - %3$s"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:813
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:797
 msgid "Message ID:"
 msgstr "Mesaj Kimliği:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:814
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:798
 msgid "From:"
 msgstr "Gönderen:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:822
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:806
 msgid "Company:"
 msgstr "Şirket:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:836
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:820
 msgid "Preferred Date:"
 msgstr "Tercih Edilen Tarih:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:842
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:826
 msgid "Priority:"
 msgstr "Öncelik:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:846
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:830
 msgid "Rating:"
 msgstr "Değerlendirme:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:853
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:837
 msgid "Attachment:"
 msgstr "Ek:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:857
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:841
 msgid "Sent Date:"
 msgstr "Gönderilme Tarihi:"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:858
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:842
 msgid "Open in the admin panel"
 msgstr "Yönetim panelinde aç"
 
 #. translators: %s: site name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:867
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:851
 #, php-format
 msgid "[%s] Your Message Received"
 msgstr "[%s] Mesajınız alındı"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:870
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:854
 msgid "Your Message Received"
 msgstr "Mesajınız alındı"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:873
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:857
 msgid ""
 "Your message has been successfully received. We will get back to you as soon "
 "as possible."
 msgstr "Mesajınız başarıyla alındı. En kısa sürede size geri dönüş yapacağız."
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:874
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:858
 msgid "Thank you,"
 msgstr "Teşekkür ederiz,"
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:899
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:883
 msgid "The file is empty."
 msgstr "Dosya boş."
 
@@ -15292,7 +15292,9 @@ msgstr "Telefon Alanını Göster"
 
 #: assets/blocks/contact/index.js:61
 msgid "Booking forms always show the phone field because they require it."
-msgstr "Rezervasyon formları telefon alanını zorunlu tuttukları için her zaman gösterir."
+msgstr ""
+"Rezervasyon formları telefon alanını zorunlu tuttukları için her zaman "
+"gösterir."
 
 #: assets/blocks/contact/index.js:64
 msgid "Show Booking ID Field"

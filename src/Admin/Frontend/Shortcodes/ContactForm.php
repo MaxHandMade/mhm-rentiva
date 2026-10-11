@@ -268,34 +268,7 @@ final class ContactForm extends AbstractShortcode {
 		return $vehicle_list;
 	}
 
-	/**
-	 * Priority choices. Filterable (mhmrentiva_contact_priority_options) down to a
-	 * subset of ContactMessagePostType::PRIORITIES -- the only values a submission
-	 * keeps. With none left, the support form drops the field and stops requiring it.
-	 *
-	 * @return array<string,array{label:string,description:string,color:string}>
-	 */
 	private static function get_priority_options(): array
-	{
-		$options  = self::default_priority_options();
-		$filtered = apply_filters('mhmrentiva_contact_priority_options', $options);
-		if (! is_array($filtered)) {
-			return $options;
-		}
-
-		$allowed = array();
-		foreach ($filtered as $key => $option) {
-			if (in_array( (string) $key, ContactMessagePostType::PRIORITIES, true ) && is_array($option)) {
-				$allowed[ (string) $key ] = array_merge($options[ (string) $key ], array_intersect_key($option, $options[ (string) $key ]));
-			}
-		}
-		return $allowed;
-	}
-
-	/**
-	 * @return array<string,array{label:string,description:string,color:string}>
-	 */
-	private static function default_priority_options(): array
 	{
 		return array(
 			'low'    => array(
@@ -682,13 +655,24 @@ final class ContactForm extends AbstractShortcode {
 			'feedback' => array( 'name', 'email', 'rating', 'message' ),
 		);
 
-		$fields = $configs[ $type ] ?? $configs['general'];
+		return self::drop_priority_without_options($configs[ $type ] ?? $configs['general'], self::get_priority_options());
+	}
 
-		// No priorities configured: nothing to choose from, so nothing to require.
-		if (in_array('priority', $fields, true) && array() === self::get_priority_options()) {
-			$fields = array_values(array_diff($fields, array( 'priority' )));
+	/**
+	 * With no priority to choose from, priority is neither required nor (through
+	 * prepare_template_data_legacy()) rendered, so the form stays submittable.
+	 * Unreachable today -- get_priority_options() is hard-coded -- but kept so a
+	 * future empty list cannot recreate an unsubmittable support form.
+	 *
+	 * @param string[]            $fields     Required fields for the type.
+	 * @param array<string,mixed> $priorities Priority options.
+	 * @return string[]
+	 */
+	private static function drop_priority_without_options(array $fields, array $priorities): array
+	{
+		if (array() === $priorities) {
+			return array_values(array_diff($fields, array( 'priority' )));
 		}
-
 		return $fields;
 	}
 

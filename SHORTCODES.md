@@ -182,7 +182,7 @@ renders like the default.
 | `rentiva_payment_history` | `show_booking_link` | `0` | Links the payment title to its booking. |
 | `rentiva_contact` | `type` | `general` | `general`, `booking`, `support`, `feedback` — now applied (the template read a variable that never existed). |
 | `rentiva_contact` | `title` / `description` | `""` | Heading and intro, only when set. |
-| `rentiva_contact` | `show_phone`, `show_company`, `show_vehicle_selector`, `show_priority`, `show_attachment` | `1`, `0`, `0`, `0`, `1` | Form fields. Block "Show Phone Field" / "Show Vehicle Select" write `show_phone` / `show_vehicle_selector`. A field the form `type` requires is always shown: `show_phone` does not hide phone on `booking`, `show_priority` does not hide priority on `support` (with no priorities configured via `mhmrentiva_contact_priority_options`, support neither shows nor requires it). |
+| `rentiva_contact` | `show_phone`, `show_company`, `show_vehicle_selector`, `show_priority`, `show_attachment` | `1`, `0`, `0`, `0`, `1` | Form fields. Block "Show Phone Field" / "Show Vehicle Select" write `show_phone` / `show_vehicle_selector`. A field the form `type` requires is always shown: `show_phone` does not hide phone on `booking`, `show_priority` does not hide priority on `support`. |
 | `rentiva_contact` | `show_company_info` | `1` | The "Contact Information" box. |
 | `rentiva_contact` | `show_booking_id_field` | `0` | Booking ID field; linked to the message only for the logged-in owner of the booking. |
 | `rentiva_contact` | `success_message` | `""` | Replaces the success text. |

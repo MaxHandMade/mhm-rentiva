@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-11T08:54:53+00:00\n"
+"POT-Creation-Date: 2026-10-11T09:17:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -357,7 +357,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:648
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:815
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:799
 #: templates/emails/booking-created-admin.html.php:20
 #: templates/emails/booking-status-changed-admin.html.php:21
 #: templates/emails/refund-admin.html.php:21
@@ -371,7 +371,7 @@ msgid "+90 538 556 4158"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:123
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:818
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:802
 #: templates/emails/booking-created-admin.html.php:24
 #: src-react/admin/about/components/DeveloperTab.jsx:143
 #: src-react/admin/about/components/SupportTab.jsx:27
@@ -702,7 +702,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:846
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1212
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1566
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:342
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:315
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:745
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:712
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
@@ -1502,7 +1502,7 @@ msgstr ""
 #. translators: %s: customer name.
 #. translators: %s: customer name
 #: src/Admin/Booking/Helpers/CancellationHandler.php:655
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:872
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:856
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
 #, php-format
@@ -1518,7 +1518,7 @@ msgid "Booking Details:"
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:660
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:832
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:816
 #: src/Admin/Settings/Groups/EmailSettings.php:176
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/emails/booking-cancelled.html.php:59
@@ -1528,7 +1528,7 @@ msgstr ""
 #: src/Admin/Booking/Helpers/CancellationHandler.php:661
 #: src/Admin/Booking/Meta/BookingMeta.php:374
 #: src/Admin/Booking/Meta/BookingMeta.php:450
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:827
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:811
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
 #: src/Admin/Settings/Groups/EmailSettings.php:226
@@ -1746,7 +1746,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:278
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:702
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:686
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:460
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:514
@@ -2480,9 +2480,9 @@ msgid "Proceed with refund?"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:189
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:522
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:542
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:543
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:495
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:515
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:516
 #: templates/shortcodes/contact-form.php:264
 msgid "Sending..."
 msgstr ""
@@ -2633,7 +2633,7 @@ msgid "Email subject..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:675
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:849
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:833
 msgid "Message:"
 msgstr ""
 
@@ -2992,9 +2992,9 @@ msgid "Drop-off date must be after pick-up date."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:215
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:525
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:546
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:547
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:498
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:519
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:520
 msgid "Please fill in all required fields."
 msgstr ""
 
@@ -3074,7 +3074,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:699
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:683
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: templates/admin/partials/booking-popup.php:60
 #: templates/shortcodes/contact-form.php:102
@@ -3086,7 +3086,7 @@ msgstr ""
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:700
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:684
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: templates/admin/partials/booking-popup.php:64
 #: templates/shortcodes/contact-form.php:115
@@ -3205,12 +3205,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Admin/ContactMessages/ContactAttachmentStore.php:425
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:890
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:874
 msgid "The file could not be uploaded."
 msgstr ""
 
 #: src/Admin/ContactMessages/ContactAttachmentValidator.php:94
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:549
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:522
 msgid "Invalid file type."
 msgstr ""
 
@@ -3274,7 +3274,7 @@ msgid "Enquiry type"
 msgstr ""
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:429
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:704
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:688
 #: templates/shortcodes/contact-form.php:180
 msgid "Priority"
 msgstr ""
@@ -3288,13 +3288,13 @@ msgid "Preferred date"
 msgstr ""
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:432
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:701
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:685
 #: templates/shortcodes/contact-form.php:130
 msgid "Company"
 msgstr ""
 
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:433
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:705
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:689
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:93
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
 #: templates/shortcodes/contact-form.php:198
@@ -3580,7 +3580,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:345
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:302
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:550
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:523
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:547
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:376
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:182
@@ -5477,12 +5477,12 @@ msgid "This field is required."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:126
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:656
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:629
 msgid "Please enter a valid email address."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:127
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:661
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:634
 msgid "Please enter a valid phone number."
 msgstr ""
 
@@ -7272,90 +7272,90 @@ msgstr ""
 msgid "Share your experience with us. Your feedback is valuable to us."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:302
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:275
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:70
 msgid "Low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:303
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:276
 msgid "General inquiries"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:307
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:280
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:72
 msgid "Medium"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:308
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:281
 msgid "Important issues"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:312
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:285
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:74
 msgid "High"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:313
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:286
 msgid "Emergency cases"
 msgstr ""
 
 #. translators: %d: number of minutes.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:360
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:333
 #, php-format
 msgid "You have sent too many contact forms. Please wait %d minute."
 msgid_plural "You have sent too many contact forms. Please wait %d minutes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:422
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:544
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:395
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:517
 msgid "Your message has been sent successfully!"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:523
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:496
 msgid "Your message has been sent successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:524
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:545
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:497
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:518
 msgid "An error occurred while sending message."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:526
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:551
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:499
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:524
 msgid "Are you sure you want to reset the form?"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:548
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:905
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:521
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:889
 msgid "File size is too large."
 msgstr ""
 
 #. translators: %s: field label.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:650
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:623
 #, php-format
 msgid "%s field is required."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:666
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:639
 msgid "Please rate between 1-5."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:672
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:645
 msgid "Please fix form errors."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:698
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:682
 #: templates/shortcodes/contact-form.php:93
 msgid "Full Name"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:703
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:687
 #: templates/shortcodes/contact-form.php:170
 msgid "Preferred Date"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:706
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:690
 #: src/Admin/Utilities/ListTable/LogColumns.php:79
 #: templates/shortcodes/contact-form.php:215
 #: src-react/admin/contact-messages/components/ContactTable.jsx:53
@@ -7364,76 +7364,76 @@ msgid "Message"
 msgstr ""
 
 #. translators: %s: customer name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:720
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:704
 #, php-format
 msgid "Contact Message - %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:763
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:747
 msgid "Unable to save the message."
 msgstr ""
 
 #. translators: 1: Site name, 2: Form title, 3: Message subject
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:776
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:760
 #, php-format
 msgid "[%1$s] %2$s - %3$s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:813
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:797
 msgid "Message ID:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:814
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:798
 msgid "From:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:822
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:806
 msgid "Company:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:836
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:820
 msgid "Preferred Date:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:842
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:826
 msgid "Priority:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:846
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:830
 msgid "Rating:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:853
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:837
 msgid "Attachment:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:857
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:841
 msgid "Sent Date:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:858
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:842
 msgid "Open in the admin panel"
 msgstr ""
 
 #. translators: %s: site name.
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:867
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:851
 #, php-format
 msgid "[%s] Your Message Received"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:870
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:854
 msgid "Your Message Received"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:873
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:857
 msgid "Your message has been successfully received. We will get back to you as soon as possible."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:874
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:858
 msgid "Thank you,"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:899
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:883
 msgid "The file is empty."
 msgstr ""
 

@@ -249,15 +249,23 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse($missing['success'], 'Server validation unchanged: support still requires priority while priorities exist.');
 	}
 
+	/**
+	 * Priorities are hard-coded today, so a support form with none configured
+	 * cannot be built through the public path; the guard is reached directly
+	 * (ruling CX-2: no new public hook for the test).
+	 */
 	public function test_support_form_without_configured_priorities_does_not_require_priority(): void
 	{
-		add_filter('pre_wp_mail', '__return_true');
-		add_filter('mhmrentiva_contact_priority_options', '__return_empty_array');
+		$guard = new \ReflectionMethod(ContactForm::class, 'drop_priority_without_options');
+		$guard->setAccessible(true);
 
-		$this->assertStringNotContainsString('name="priority"', $this->render('[rentiva_contact type="support"]'));
+		$support = array( 'name', 'email', 'priority', 'message' );
+		$this->assertSame(array( 'name', 'email', 'message' ), $guard->invoke(null, $support, array()), 'No priorities: priority is not required.');
+		$this->assertSame($support, $guard->invoke(null, $support, array( 'low' => array() )), 'With priorities: unchanged.');
 
-		$ok = $this->submit(array( 'type' => 'support' ));
-		$this->assertTrue($ok['success'], 'No priorities configured: the support form stays submittable.');
+		$required = new \ReflectionMethod(ContactForm::class, 'get_required_fields');
+		$required->setAccessible(true);
+		$this->assertContains('priority', $required->invoke(null, 'support'), 'Today priorities exist, so support requires one.');
 	}
 
 	/**
