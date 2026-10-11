@@ -455,6 +455,153 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
+	 * Codex P1 on PR #92: revocation reads the form's own recipient setting, not any
+	 * occurrence of the address on the page. After email_to is removed, the address
+	 * left in a mailto link or plain text no longer vouches for the payload.
+	 */
+	public function test_address_elsewhere_on_page_does_not_vouch(): void
+	{
+		$mailto = '<!-- wp:paragraph --><p>Write to <a href="mailto:' . self::CUSTOM . '">' . self::CUSTOM . '</a></p><!-- /wp:paragraph -->';
+
+		// Block: emailTo removed, the address stays in a mailto link and in text.
+		$page  = $this->page_by($this->editor, self::contact_block(self::CUSTOM) . $mailto);
+		$token = RecipientToken::issue(self::CUSTOM, $page, 'general');
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'), 'The block attribute vouches, a mailto link beside it changes nothing.');
+
+		wp_update_post(array( 'ID' => $page, 'post_content' => wp_slash('<!-- wp:mhm-rentiva/contact /-->' . $mailto) ));
+		$this->assertStringContainsString(self::CUSTOM, get_post($page)->post_content, 'Precondition: the address is still on the page.');
+		$this->assertNull(RecipientToken::resolve($token, 'general'), 'A mailto link is not the form recipient.');
+		$this->assert_fell_back('recipient_removed');
+
+		// Shortcode: email_to removed, the address stays in the text around it.
+		$this->reasons = array();
+		$page          = $this->page_by($this->editor, 'Questions? ' . self::CUSTOM . ' [rentiva_contact type="general"]');
+		$this->assertNull(RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'Text next to the shortcode is not its email_to.');
+		$this->assert_fell_back('recipient_removed');
+
+		// Another block's attribute carrying the address is not the contact form's.
+		$this->reasons = array();
+		$other         = serialize_block(
+			array(
+				'blockName'    => 'core/button',
+				'attrs'        => array(
+					'url'     => 'mailto:' . self::CUSTOM,
+					'emailTo' => self::CUSTOM,
+				),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
+		$page          = $this->page_by($this->editor, $other . '<!-- wp:mhm-rentiva/contact /-->');
+		$this->assertNull(RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'Only mhm-rentiva/contact attributes count.');
+		$this->assert_fell_back('recipient_removed');
+
+		// An escaped shortcode ([[...]]) prints as text and configures no form.
+		$this->reasons = array();
+		$page          = $this->page_by($this->editor, '[[rentiva_contact email_to="' . self::CUSTOM . '"]] [rentiva_contact]');
+		$this->assertNull(RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'An escaped shortcode is not a form.');
+		$this->assert_fell_back('recipient_removed');
+
+		// recipient_email was removed in 3A: it does not configure a recipient.
+		$this->reasons = array();
+		$page          = $this->page_by($this->editor, '[rentiva_contact recipient_email="' . self::CUSTOM . '"]');
+		$this->assertNull(RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'recipient_email is not an email_to alias.');
+		$this->assert_fell_back('recipient_removed');
+	}
+
+	/**
+	 * The recipient setting is found wherever the form itself can sit: a nested
+	 * block, a shortcode in a Shortcode block, a different letter case.
+	 */
+	public function test_form_recipient_setting_vouches_wherever_the_form_sits(): void
+	{
+		$nested = serialize_block(
+			array(
+				'blockName'    => 'core/group',
+				'attrs'        => array(),
+				'innerBlocks'  => array(
+					array(
+						'blockName'    => 'mhm-rentiva/contact',
+						'attrs'        => array( 'emailTo' => self::CUSTOM ),
+						'innerBlocks'  => array(),
+						'innerHTML'    => '',
+						'innerContent' => array(),
+					),
+				),
+				'innerHTML'    => '<div class="wp-block-group"></div>',
+				'innerContent' => array( '<div class="wp-block-group">', null, '</div>' ),
+			)
+		);
+		$page   = $this->page_by($this->editor, $nested);
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'A contact block inside a group vouches.');
+
+		$page = $this->page_by($this->editor, '<!-- wp:shortcode -->[rentiva_contact type="general" email_to="' . self::CUSTOM . '"]<!-- /wp:shortcode -->');
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'The shortcode in a Shortcode block vouches.');
+
+		$page = $this->page_by($this->editor, '[rentiva_contact email_to=" ' . strtoupper(self::CUSTOM) . ' "]');
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve(RecipientToken::issue(self::CUSTOM, $page, 'general'), 'general'), 'Compared trimmed and case-insensitively.');
+
+		$this->assertSame(array(), $this->reasons);
+	}
+
+	/**
+	 * Elementor: only the contact widget's own email_to (or a contact shortcode in a
+	 * widget) vouches; the address in a text editor widget does not.
+	 */
+	public function test_elementor_only_the_contact_widget_setting_vouches(): void
+	{
+		$widget = static function (string $type, array $settings): array {
+			return array(
+				'id'         => substr(md5($type . wp_json_encode($settings)), 0, 7),
+				'elType'     => 'widget',
+				'widgetType' => $type,
+				'settings'   => $settings,
+				'elements'   => array(),
+			);
+		};
+		$doc    = static function (array ...$widgets): string {
+			return (string) wp_json_encode(
+				array(
+					array(
+						'id'       => 'c0ffee1',
+						'elType'   => 'container',
+						'settings' => array(),
+						'elements' => $widgets,
+					),
+				)
+			);
+		};
+
+		$page = $this->page_by($this->editor, '');
+		update_post_meta($page, '_elementor_edit_mode', 'builder');
+		update_post_meta($page, '_elementor_data', wp_slash($doc($widget('rv-contact-form', array( 'email_to' => self::CUSTOM )))));
+		$token = RecipientToken::issue(self::CUSTOM, $page, 'general');
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'), 'The nested contact widget email_to vouches.');
+		$this->assertSame(array(), $this->reasons);
+
+		update_post_meta(
+			$page,
+			'_elementor_data',
+			wp_slash(
+				$doc(
+					$widget('text-editor', array( 'editor' => '<p><a href="mailto:' . self::CUSTOM . '">' . self::CUSTOM . '</a></p>' )),
+					$widget('rv-contact-form', array( 'email_to' => '' ))
+				)
+			)
+		);
+		$this->assertStringContainsString(self::CUSTOM, (string) get_post_meta($page, '_elementor_data', true), 'Precondition: the address is still in the document.');
+		$this->assertNull(RecipientToken::resolve($token, 'general'), 'A text editor widget is not the form recipient.');
+		$this->assert_fell_back('recipient_removed');
+
+		// A contact shortcode placed in Elementor's shortcode widget is a form too.
+		$this->reasons = array();
+		update_post_meta($page, '_elementor_data', wp_slash($doc($widget('shortcode', array( 'shortcode' => '[rentiva_contact email_to="' . self::CUSTOM . '"]' )))));
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'), 'The contact shortcode in a shortcode widget vouches.');
+		$this->assertSame(array(), $this->reasons);
+	}
+
+	/**
 	 * Hygiene (final audit, Minor 3): anyone holding the public AJAX nonce can post
 	 * refused payloads; without WP_DEBUG_LOG they must not reach the PHP log. The
 	 * hook still fires every time.
