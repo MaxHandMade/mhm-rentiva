@@ -64,20 +64,21 @@ declare(strict_types=1);
  * they never gain a msgid. The header is the entry whose joined msgid and
  * context are both empty; callers decide what to do with it.
  *
- * @return array<int, array{context: string, msgid: string, plural: bool, msgstr: string, has_msgstr: bool, forms: array<int, string>, fuzzy: bool}>
+ * @return array<int, array{context: string, msgid: string, plural: bool, msgid_plural: string, msgstr: string, has_msgstr: bool, forms: array<int, string>, fuzzy: bool}>
  */
 function mhmrentiva_po_entries(string $contents): array
 {
     $blank = static function (): array {
         return [
-            'context'    => '',
-            'msgid'      => '',
-            'has_msgid'  => false,
-            'plural'     => false,
-            'msgstr'     => '',
-            'has_msgstr' => false,
-            'forms'      => [],
-            'fuzzy'      => false,
+            'context'      => '',
+            'msgid'        => '',
+            'has_msgid'    => false,
+            'plural'       => false,
+            'msgid_plural' => '',
+            'msgstr'       => '',
+            'has_msgstr'   => false,
+            'forms'        => [],
+            'fuzzy'        => false,
         ];
     };
 
@@ -127,9 +128,11 @@ function mhmrentiva_po_entries(string $contents): array
                 $target            = 'context';
                 $entry['context'] .= $value;
             } elseif ($keyword === 'msgid_plural') {
-                // The plural source is not judged; its msgstr[N] lines are.
-                $entry['plural'] = true;
-                $target          = null;
+                // This gate judges the msgstr[N] lines, not the plural source;
+                // check-i18n-markup.php compares msgstr[N>0] against it.
+                $entry['plural']        = true;
+                $target                 = 'msgid_plural';
+                $entry['msgid_plural'] .= $value;
             } elseif ($keyword === 'msgid') {
                 $entry['has_msgid'] = true;
                 $target             = 'msgid';

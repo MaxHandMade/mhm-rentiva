@@ -576,6 +576,12 @@ bin/*
 # words around it. Seven Turkish e-mail subjects shipped {{booking.id}} where
 # the source says {{booking.order_id}}.
 !bin/check-i18n-placeholders.php
+# Translation markup gate, the placeholder gate's sibling. `composer
+# check-i18n-markup`, the CI step in both plugins and
+# tests/Gates/I18nMarkupParityTest.php run it: HTML tags, entities and URLs
+# must survive translation in the same number and form. Untracked, the suite
+# fails in every clean clone and Pro's CI line points at nothing.
+!bin/check-i18n-markup.php
 # Untranslated-entry gate. `composer check-po-untranslated` and the CI step run
 # it, tests/Gates/PoUntranslatedGateTest.php require()s it, and Pro's
 # `composer po-untranslated` runs it against Pro's catalog with --plugin-dir.

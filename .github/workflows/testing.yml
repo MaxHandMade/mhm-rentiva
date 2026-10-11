@@ -282,7 +282,10 @@ jobs:
       # old assertion checked only that a file existed. Five already-translated
       # strings shipped in English. An existence check cannot see that; this one
       # compares the catalogs' revision date and contents against the .po.
-      - name: React translation catalogs (languages/*.json vs the committed .po)
+      # Since 3B-1 it also covers every assets/blocks/*/index.js (block editor
+      # catalogs: md5 name, source, revision date, msgid completeness; a block
+      # with no catalog fails) and reports any stray JSON WordPress never loads.
+      - name: React + block translation catalogs (languages/*.json vs the committed .po)
         run: python3 bin/build-i18n.py --verify-only
 
       # Translation placeholder parity. A translator may change the words; a
@@ -300,6 +303,15 @@ jobs:
       # customer.
       - name: Translation placeholder parity (msgstr keeps msgid's placeholders)
         run: composer check-i18n-placeholders
+
+      # The placeholder gate's sibling for markup. A dropped </a> or </strong>
+      # swallows the rest of the screen into the element, a changed URL sends
+      # the reader elsewhere, a dropped &nbsp; re-wraps a price -- and msgfmt -c,
+      # the placeholder gate and build-i18n.py all see none of it. Tags (by name
+      # and direction), entities and URLs must match as multisets per entry,
+      # each plural form against its own source.
+      - name: Translation markup parity (msgstr keeps msgid's tags, entities, URLs)
+        run: composer check-i18n-markup
 
       # The gate the placeholder check's own docblock promised ("an empty msgstr
       # is a different finding with its own gate") and nobody had written. An
