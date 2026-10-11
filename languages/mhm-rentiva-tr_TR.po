@@ -9183,7 +9183,7 @@ msgstr "İçerik ayarları"
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:59
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:62
 msgid "Slider"
-msgstr "Slayt gösterisi aracı"
+msgstr "Slayt gösterisi"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:68
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:64
@@ -9297,7 +9297,7 @@ msgstr "Rezervasyon düğmesini göster"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:198
 msgid "Autoplay Slider"
-msgstr "Slayt gösterisi aracını otomatik oynat"
+msgstr "Slayt gösterisini otomatik oynat"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:213
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:156
