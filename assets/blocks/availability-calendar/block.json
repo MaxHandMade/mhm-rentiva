@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/availability-calendar",
     "title": "MHM Availability Calendar",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "calendar-alt",
     "description": "Display vehicle availability calendar.",
     "textdomain": "mhm-rentiva",

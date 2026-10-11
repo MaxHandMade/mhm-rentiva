@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "mhm-rentiva/vehicle-comparison",
   "title": "MHM Vehicle Comparison",
-  "category": "widgets",
+  "category": "rentiva",
   "icon": "columns",
   "description": "Compare multiple vehicles side by side.",
   "textdomain": "mhm-rentiva",

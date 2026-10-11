@@ -6,6 +6,7 @@ namespace MHMRentiva\Blocks;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Helpers\Html;
+use MHMRentiva\I18n\LanguagePackPreference;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -132,7 +133,7 @@ class BlockRegistry {
 			'tag'   => 'rentiva_user_dashboard',
 			'title' => 'User Dashboard',
 			// Retired surface: the stub needs no stylesheet. The key stays --
-			// registration reads $config['css'] without isset() (see :434).
+			// registration reads $config['css'] without isset() (see register_block()).
 			'css'   => array(),
 		),
 	);
@@ -145,6 +146,12 @@ class BlockRegistry {
 	public static function init(): void
 	{
 		add_action('init', array( self::class, 'register_blocks' ));
+
+		// One "Rentiva" inserter category for every block (Lite and contributed).
+		add_filter('block_categories_all', array( self::class, 'register_category' ));
+
+		// Script catalogues: prefer the WP.org language pack over the bundled JSON.
+		LanguagePackPreference::register();
 
 		// Assets that should load in both frontend and editor (iframe)
 		add_action('enqueue_block_assets', array( self::class, 'enqueue_block_assets' ));
@@ -410,75 +417,129 @@ class BlockRegistry {
 		AssetManager::register_core_styles();
 
 		foreach (self::get_block_config() as $slug => $config) {
-			// A contributor's `assets/blocks/<slug>/` (block.json, editor script)
-			// AND its block-level CSS (below) may live outside this plugin -- e.g.
-			// the add-on's own blocks ship from the add-on. Default to Lite's own
-			// constants so Lite's blocks are unaffected. Block-level CSS used to
-			// resolve from THIS plugin's URL regardless of base_url, on the theory
-			// that a contributor's stylesheets stayed Lite-hosted; that stopped
-			// being true once the add-on's own CSS carve-out moved those files out of
-			// Lite, so CSS now honours base_url exactly like the editor script does.
-			$base_url = $config['base_url'] ?? MHMRENTIVA_PLUGIN_URL;
-			$base_dir = $config['base_dir'] ?? MHMRENTIVA_PLUGIN_DIR;
+			self::register_block( (string) $slug, (array) $config );
+		}
+	}
 
-			$script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
+	/**
+	 * Register one block: editor script (with its translations), block-level
+	 * styles, then the block type from its block.json.
+	 *
+	 * Public so a consumer that registers a block outside the `init` loop (the
+	 * add-on's test support) goes through the same path as the real boot.
+	 *
+	 * @param string               $slug   Block slug (`mhm-rentiva/<slug>`).
+	 * @param array<string, mixed> $config Block config entry (see $blocks); may carry
+	 *                                     `base_url`, `base_dir` and `textdomain`
+	 *                                     (default `mhm-rentiva`).
+	 * @return void
+	 */
+	public static function register_block( string $slug, array $config ): void
+	{
+		// A contributor's `assets/blocks/<slug>/` (block.json, editor script)
+		// AND its block-level CSS (below) may live outside this plugin -- e.g.
+		// the add-on's own blocks ship from the add-on. Default to Lite's own
+		// constants so Lite's blocks are unaffected. Block-level CSS used to
+		// resolve from THIS plugin's URL regardless of base_url, on the theory
+		// that a contributor's stylesheets stayed Lite-hosted; that stopped
+		// being true once the add-on's own CSS carve-out moved those files out of
+		// Lite, so CSS now honours base_url exactly like the editor script does.
+		$base_url = $config['base_url'] ?? MHMRENTIVA_PLUGIN_URL;
+		$base_dir = $config['base_dir'] ?? MHMRENTIVA_PLUGIN_DIR;
 
-			// 1. Register Editor Script (Shared requirements)
-			wp_register_script(
-				$script_handle,
-				$base_url . 'assets/blocks/' . $slug . '/index.js',
-				array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-server-side-render', 'wp-block-editor' ),
-				self::get_asset_version('assets/blocks/' . $slug . '/index.js', $base_dir),
-				true
-			);
+		$script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
 
-			// 2. Register Block Styles (Support String or Array)
-			$style_handles = array();
-			$css_files     = is_array($config['css']) ? $config['css'] : array( $config['css'] );
+		// 1. Register Editor Script (Shared requirements)
+		wp_register_script(
+			$script_handle,
+			$base_url . 'assets/blocks/' . $slug . '/index.js',
+			array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-server-side-render', 'wp-block-editor' ),
+			self::get_asset_version('assets/blocks/' . $slug . '/index.js', $base_dir),
+			true
+		);
 
-			foreach ($css_files as $index => $css_file) {
-				// SHARED ASSET CHECK: Use consistent handles for common files to prevent duplicates
-				if ($css_file === 'datepicker-custom.css') {
-					$style_handle = 'mhm-rentiva-datepicker-custom';
-				} elseif ($css_file === 'vehicle-card.css') {
-					$style_handle = 'mhm-vehicle-card-css';
-				} elseif (isset($config['tag']) && $index === 0) {
-					// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
-					$style_handle = 'mhm-' . str_replace('_', '-', $config['tag']);
-				} else {
-					// Fallback to block slug
-					$style_handle = ( count($css_files) === 1 )
-						? 'mhm-rentiva-block-' . $slug . '-style'
-						: 'mhm-rentiva-block-' . $slug . '-style-' . $index;
-				}
+		// The editor script's catalogue lives in its OWNER's languages/ directory
+		// under its owner's text domain (the add-on passes its own). The path is
+		// derived from base_dir, never a fixed Lite path. wp_set_script_translations()
+		// adds the `wp-i18n` dependency itself.
+		wp_set_script_translations(
+			$script_handle,
+			(string) ( $config['textdomain'] ?? 'mhm-rentiva' ),
+			trailingslashit($base_dir) . 'languages/'
+		);
 
-				// Merge dependencies: Core variables + Specific block deps
-				$deps = array_merge(array( 'mhm-rentiva-css-variables' ), $config['deps'] ?? array());
+		// 2. Register Block Styles (Support String or Array)
+		$style_handles = array();
+		$css_files     = is_array($config['css']) ? $config['css'] : array( $config['css'] );
 
-				// Only register if not already registered (especially for shared handles)
-				if (! wp_style_is($style_handle, 'registered')) {
-					$path = ( strpos($css_file, 'assets/') === 0 ) ? $css_file : 'assets/css/frontend/' . $css_file;
-					wp_register_style(
-						$style_handle,
-						$base_url . $path,
-						$deps,
-						self::get_asset_version($path, $base_dir)
-					);
-				}
-
-				$style_handles[] = $style_handle;
+		foreach ($css_files as $index => $css_file) {
+			// SHARED ASSET CHECK: Use consistent handles for common files to prevent duplicates
+			if ($css_file === 'datepicker-custom.css') {
+				$style_handle = 'mhm-rentiva-datepicker-custom';
+			} elseif ($css_file === 'vehicle-card.css') {
+				$style_handle = 'mhm-vehicle-card-css';
+			} elseif (isset($config['tag']) && $index === 0) {
+				// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
+				$style_handle = 'mhm-' . str_replace('_', '-', $config['tag']);
+			} else {
+				// Fallback to block slug
+				$style_handle = ( count($css_files) === 1 )
+					? 'mhm-rentiva-block-' . $slug . '-style'
+					: 'mhm-rentiva-block-' . $slug . '-style-' . $index;
 			}
 
-			// 3. Register Block Type via block.json
-			register_block_type(
-				$base_dir . 'assets/blocks/' . $slug . '/block.json',
-				array(
-					'render_callback' => array( self::class, 'render_callback' ),
-					'editor_script'   => $script_handle,
-					'style'           => $style_handles,
-				)
-			);
+			// Merge dependencies: Core variables + Specific block deps
+			$deps = array_merge(array( 'mhm-rentiva-css-variables' ), $config['deps'] ?? array());
+
+			// Only register if not already registered (especially for shared handles)
+			if (! wp_style_is($style_handle, 'registered')) {
+				$path = ( strpos($css_file, 'assets/') === 0 ) ? $css_file : 'assets/css/frontend/' . $css_file;
+				wp_register_style(
+					$style_handle,
+					$base_url . $path,
+					$deps,
+					self::get_asset_version($path, $base_dir)
+				);
+			}
+
+			$style_handles[] = $style_handle;
 		}
+
+		// 3. Register Block Type via block.json
+		register_block_type(
+			$base_dir . 'assets/blocks/' . $slug . '/block.json',
+			array(
+				'render_callback' => array( self::class, 'render_callback' ),
+				'editor_script'   => $script_handle,
+				'style'           => $style_handles,
+			)
+		);
+	}
+
+	/**
+	 * Add the "Rentiva" block inserter category, once.
+	 *
+	 * @param array<int, array<string, mixed>> $categories Registered categories.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function register_category( array $categories ): array
+	{
+		foreach ($categories as $category) {
+			if (is_array($category) && isset($category['slug']) && 'rentiva' === $category['slug']) {
+				return $categories;
+			}
+		}
+
+		array_unshift(
+			$categories,
+			array(
+				'slug'  => 'rentiva',
+				'title' => __('Rentiva', 'mhm-rentiva'),
+				'icon'  => null,
+			)
+		);
+
+		return $categories;
 	}
 
 	/**

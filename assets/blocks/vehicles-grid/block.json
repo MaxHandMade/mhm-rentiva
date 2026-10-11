@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicles-grid",
     "title": "MHM Vehicles Grid",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "car",
     "description": "Display vehicles in a responsive grid layout.",
     "textdomain": "mhm-rentiva",

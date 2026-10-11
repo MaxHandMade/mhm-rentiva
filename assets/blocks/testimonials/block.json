@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/testimonials",
     "title": "MHM Testimonials",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "format-quote",
     "description": "Display customer testimonials.",
     "textdomain": "mhm-rentiva",

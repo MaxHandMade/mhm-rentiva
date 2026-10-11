@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/my-favorites",
     "title": "MHM My Favorites",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "heart",
     "description": "Display user's favorite vehicles.",
     "textdomain": "mhm-rentiva",

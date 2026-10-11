@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/search-results",
     "title": "MHM Search Results",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "car",
     "description": "Display vehicle search results with filters.",
     "textdomain": "mhm-rentiva",

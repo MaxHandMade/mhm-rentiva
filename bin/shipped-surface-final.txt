@@ -475,6 +475,7 @@ src/Core/Tenancy/TenantResolver.php
 src/Helpers/Html.php
 src/Helpers/Icons.php
 src/Helpers/NotificationHelper.php
+src/I18n/LanguagePackPreference.php
 src/Layout/Adapters/BaseAdapter.php
 src/Layout/Adapters/ReviewsAdapter.php
 src/Layout/Adapters/SearchHeroAdapter.php

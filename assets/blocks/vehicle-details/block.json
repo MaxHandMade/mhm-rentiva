@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicle-details",
     "title": "MHM Vehicle Details",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "car",
     "description": "Display single vehicle details page.",
     "textdomain": "mhm-rentiva",

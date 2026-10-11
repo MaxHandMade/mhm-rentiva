@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/my-bookings",
     "title": "MHM My Bookings",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "clipboard",
     "description": "Display user's booking history.",
     "textdomain": "mhm-rentiva",

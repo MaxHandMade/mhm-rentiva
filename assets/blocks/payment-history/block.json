@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/payment-history",
     "title": "MHM Payment History",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "money-alt",
     "description": "Display user's payment history.",
     "textdomain": "mhm-rentiva",

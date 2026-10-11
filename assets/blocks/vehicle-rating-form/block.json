@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicle-rating-form",
     "title": "MHM Vehicle Rating Form",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "star-half",
     "description": "Vehicle rating and review form.",
     "textdomain": "mhm-rentiva",

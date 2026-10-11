@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/featured-vehicles",
     "title": "MHM Featured Vehicles",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "star-filled",
     "description": "Display featured vehicles as a carousel.",
     "textdomain": "mhm-rentiva",

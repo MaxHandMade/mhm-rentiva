@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/booking-form",
     "title": "MHM Booking Form",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "clipboard",
     "description": "Vehicle booking form with date selection and extras.",
     "textdomain": "mhm-rentiva",

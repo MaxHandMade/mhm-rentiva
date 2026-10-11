@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/contact",
     "title": "MHM Contact Form",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "email",
     "description": "Contact form for customer inquiries.",
     "textdomain": "mhm-rentiva",

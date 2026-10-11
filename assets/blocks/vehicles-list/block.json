@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicles-list",
     "title": "MHM Vehicles List",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "car",
     "description": "Display vehicles in a list layout.",
     "textdomain": "mhm-rentiva",

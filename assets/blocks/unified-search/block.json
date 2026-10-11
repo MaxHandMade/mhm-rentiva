@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/unified-search",
     "title": "MHM Unified Search",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "search",
     "description": "Vehicle rental search widget with date picker and location selection.",
     "textdomain": "mhm-rentiva",

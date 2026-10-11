@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "mhm-rentiva/user-dashboard",
     "title": "MHM User Dashboard (deprecated)",
-    "category": "widgets",
+    "category": "rentiva",
     "icon": "admin-users",
     "description": "Deprecated: this block renders a notice pointing customers to the WooCommerce account page. It will be removed in 7.0.",
     "textdomain": "mhm-rentiva",
