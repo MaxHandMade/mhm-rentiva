@@ -184,6 +184,22 @@ final class ListingSettingsTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/@media \(max-width: 782px\)\s*\{[^@]*repeat\(var\(--rv-grid-columns-mobile, 1\), 1fr\)/', $css);
 	}
 
+	public function test_masonry_mobile_columns_are_read_on_phones(): void
+	{
+		// Masonry carries the same breakpoint classes as the grid.
+		$html = do_shortcode('[rentiva_vehicles_grid layout="masonry" columns_mobile="3"]');
+		$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $html, $m), 'No masonry in the render.');
+		$this->assertContains('rv-vehicles-grid--mobile-3', preg_split('/\s+/', $m[1]));
+
+		// Phones read the mobile property; unset, masonry keeps today's phone layout
+		// (the tablet column count, 2 by default) instead of dropping to the grid's 1.
+		$css = $this->asset('assets/css/frontend/vehicles-grid.css');
+		$this->assertMatchesRegularExpression(
+			'/@media \(max-width: 782px\)\s*\{[^@]*\.rv-vehicles-masonry--columns-4\s*\{\s*column-count:\s*var\(--rv-grid-columns-mobile, var\(--rv-grid-columns-tablet, 2\)\) !important;/',
+			$css
+		);
+	}
+
 	public function test_featured_book_button_control_writes_the_live_key(): void
 	{
 		$controls = WidgetFactory::make(FeaturedVehiclesWidget::class)->get_controls();

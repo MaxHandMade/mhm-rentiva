@@ -330,7 +330,7 @@
 
                         // Per-form "Default Days": prefill an empty return date N days
                         // after the pickup. Never overwrites a return date already chosen.
-                        const defaultDays = parseInt(this.container.data('default-days'), 10) || 0;
+                        const defaultDays = this.defaultReturnDays();
                         if (defaultDays > 0 && !dropoffDate.val()) {
                             const prefill = new Date(dateObj);
                             prefill.setDate(prefill.getDate() + defaultDays);
@@ -892,6 +892,21 @@
             }
         }
 
+
+        // The form's "Default Days", clamped into the rental limits
+        // validateRentalLimits() enforces, so the return date the form fills in
+        // never disables submit. 0 = no prefill (unset, or limits that cannot be met).
+        defaultReturnDays() {
+            const days = parseInt(this.container.data('default-days'), 10) || 0;
+            if (days <= 0) return 0;
+
+            const minDays = window.mhmRentivaBookingForm?.config?.min_days || 1;
+            const maxDays = window.mhmRentivaBookingForm?.config?.max_days || 30;
+            if (maxDays > 0 && minDays > maxDays) return 0;
+
+            const raised = Math.max(days, minDays);
+            return maxDays > 0 ? Math.min(raised, maxDays) : raised;
+        }
 
         validateRentalLimits() {
             const pickupDate = this.container.find('.rv-pickup-date').val();

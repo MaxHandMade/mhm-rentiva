@@ -122,6 +122,20 @@
 	}
 }
 
+/*
+ * Phones read columns_mobile. Unset, masonry keeps its tablet count (today's
+ * phone layout) rather than the grid's 1-column fallback.
+ */
+@media (max-width: 782px) {
+
+	.rv-vehicles-masonry,
+	.rv-vehicles-masonry--columns-2,
+	.rv-vehicles-masonry--columns-3,
+	.rv-vehicles-masonry--columns-4 {
+		column-count: var(--rv-grid-columns-mobile, var(--rv-grid-columns-tablet, 2)) !important;
+	}
+}
+
 /* Vehicle Card styles are now handled by core/vehicle-card.css */
 
 /* Empty State */
