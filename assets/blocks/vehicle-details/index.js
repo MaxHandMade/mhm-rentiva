@@ -21,13 +21,9 @@
             var showRating = attributes.showRating;
             var showReviews = attributes.showReviews;
             var showFeatures = attributes.showFeatures;
-            var showTechnicalSpecs = attributes.showTechnicalSpecs;
-            var showAvailability = attributes.showAvailability;
-            var showBookingForm = attributes.showBookingForm;
+            var showBooking = attributes.showBooking;
             var showSimilarVehicles = attributes.showSimilarVehicles;
-            var showShareButtons = attributes.showShareButtons;
             var showFavoriteButton = attributes.showFavoriteButton;
-            var showBreadcrumb = attributes.showBreadcrumb;
             var similarVehiclesLimit = attributes.similarVehiclesLimit;
             var className = attributes.className;
 
@@ -45,6 +41,8 @@
                             label: __('Similar Vehicles Limit', 'mhm-rentiva'),
                             value: similarVehiclesLimit,
                             type: 'number',
+                            min: 1,
+                            max: 12,
                             onChange: function (val) { setAttributes({ similarVehiclesLimit: val }); }
                         })
                     ),
@@ -55,11 +53,6 @@
                             label: __('Custom CSS Class', 'mhm-rentiva'),
                             value: className,
                             onChange: function (val) { setAttributes({ className: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Breadcrumb', 'mhm-rentiva'),
-                            checked: showBreadcrumb,
-                            onChange: function (val) { setAttributes({ showBreadcrumb: val }); }
                         })
                     ),
 
@@ -91,29 +84,14 @@
                             onChange: function (val) { setAttributes({ showFeatures: val }); }
                         }),
                         el(ToggleControl, {
-                            label: __('Show Technical Specs', 'mhm-rentiva'),
-                            checked: showTechnicalSpecs,
-                            onChange: function (val) { setAttributes({ showTechnicalSpecs: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Availability', 'mhm-rentiva'),
-                            checked: showAvailability,
-                            onChange: function (val) { setAttributes({ showAvailability: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Booking Form', 'mhm-rentiva'),
-                            checked: showBookingForm,
-                            onChange: function (val) { setAttributes({ showBookingForm: val }); }
+                            label: __('Show Booking Section', 'mhm-rentiva'),
+                            checked: showBooking,
+                            onChange: function (val) { setAttributes({ showBooking: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Similar Vehicles', 'mhm-rentiva'),
                             checked: showSimilarVehicles,
                             onChange: function (val) { setAttributes({ showSimilarVehicles: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Share Buttons', 'mhm-rentiva'),
-                            checked: showShareButtons,
-                            onChange: function (val) { setAttributes({ showShareButtons: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Favorite Button', 'mhm-rentiva'),

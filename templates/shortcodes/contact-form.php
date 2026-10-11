@@ -4,7 +4,19 @@
 /**
  * Contact Form Template
  *
- * @var array $args Template data
+ * Templates::include_template_with_vars() hands each template var over as its own
+ * variable ($atts, $vehicles, ...). There is no $args here: reading $args['atts']
+ * used to overwrite every setting with an empty array (spec 3A §1).
+ *
+ * @var array         $atts            Shortcode attributes (canonical, with defaults).
+ * @var array         $vehicles        Vehicle list for the selector.
+ * @var array         $priorities      Priority options.
+ * @var string        $recipient_token Encrypted email_to payload, '' when unset.
+ * @var string        $redirect_url    Validated same-site redirect, '' for none.
+ * @var WP_User|null  $current_user    Current user.
+ * @var string        $support_email   Contact box e-mail.
+ * @var string        $support_phone   Contact box phone.
+ * @var string        $support_hours   Contact box hours.
  */
 
 if (! defined('ABSPATH')) {
@@ -15,13 +27,13 @@ use MHMRentiva\Helpers\Icons;
 
 
 
-// Get template data
-$atts             = $args['atts'] ?? array();
-$form_config      = $args['form_config'] ?? array();
-$vehicles         = $args['vehicles'] ?? array();
-$priorities       = $args['priorities'] ?? array();
-$email_recipients = $args['email_recipients'] ?? array();
-$current_user     = $args['current_user'] ?? null;
+// Template data (unpacked by Templates::include_template_with_vars()).
+$atts            = isset($atts) && is_array($atts) ? $atts : array();
+$vehicles        = isset($vehicles) && is_array($vehicles) ? $vehicles : array();
+$priorities      = isset($priorities) && is_array($priorities) ? $priorities : array();
+$recipient_token = isset($recipient_token) ? (string) $recipient_token : '';
+$redirect_url    = isset($redirect_url) ? (string) $redirect_url : '';
+$current_user    = $current_user ?? null;
 
 // Shortcode parameters
 $type                  = $atts['type'] ?? 'general';
@@ -30,14 +42,39 @@ $show_company          = $atts['show_company'] ?? '0';
 $show_vehicle_selector = $atts['show_vehicle_selector'] ?? '0';
 $show_priority         = $atts['show_priority'] ?? '0';
 $show_attachment       = $atts['show_attachment'] ?? '1';
-$show_captcha          = $atts['show_captcha'] ?? '1';
+$show_booking_id_field = $atts['show_booking_id_field'] ?? '0';
+$show_company_info     = $atts['show_company_info'] ?? '1';
+$form_title            = (string) ( $atts['title'] ?? '' );
+$form_description      = (string) ( $atts['description'] ?? '' );
+$success_message       = (string) ( $atts['success_message'] ?? '' );
 $theme                 = $atts['theme'] ?? 'default';
 $class                 = $atts['class'] ?? '';
 $unique_id             = uniqid('rv_contact_');
 ?>
 
 <div class="rv-contact-form rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>"
-	data-form-type="<?php echo esc_attr($type); ?>">
+	data-form-type="<?php echo esc_attr($type); ?>"
+	<?php
+	// Read by contact-form.js (dataset.successMessage / dataset.redirectUrl); printed only when set.
+	if ('' !== $success_message) {
+		printf(' data-success-message="%s"', esc_attr($success_message));
+	}
+	if ('' !== $redirect_url) {
+		printf(' data-redirect-url="%s"', esc_url($redirect_url));
+	}
+	?>
+>
+
+	<?php if ('' !== $form_title || '' !== $form_description) : ?>
+		<div class="rv-contact-header">
+			<?php if ('' !== $form_title) : ?>
+				<h3 class="rv-contact-title"><?php echo esc_html($form_title); ?></h3>
+			<?php endif; ?>
+			<?php if ('' !== $form_description) : ?>
+				<p class="rv-contact-description"><?php echo esc_html($form_description); ?></p>
+			<?php endif; ?>
+		</div>
+	<?php endif; ?>
 
 	<div class="rv-contact-form-container">
 		<form id="rv-contact-form" class="rv-form" enctype="multipart/form-data">
@@ -45,6 +82,9 @@ $unique_id             = uniqid('rv_contact_');
 
 			<input type="hidden" name="type" value="<?php echo esc_attr($type); ?>">
 			<input type="hidden" name="auto_reply" value="<?php echo esc_attr($atts['auto_reply'] ?? '1'); ?>">
+			<?php if ('' !== $recipient_token) : ?>
+				<input type="hidden" name="recipient_token" value="<?php echo esc_attr($recipient_token); ?>">
+			<?php endif; ?>
 
 			<div class="rv-form-row">
 				<div class="rv-form-group">
@@ -66,8 +106,9 @@ $unique_id             = uniqid('rv_contact_');
 				</div>
 			</div>
 
-			<?php if ($show_phone === '1') : ?>
+			<?php if ($show_phone === '1' || $show_company === '1') : ?>
 				<div class="rv-form-row">
+					<?php if ($show_phone === '1') : ?>
 					<div class="rv-form-group">
 						<label for="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
 							<?php Icons::render('phone'); ?>
@@ -80,6 +121,7 @@ $unique_id             = uniqid('rv_contact_');
 						<input type="tel" id="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" name="phone" class="rv-form-input"
 							placeholder="<?php echo esc_attr__('+90 5XX XXX XX XX', 'mhm-rentiva'); ?>">
 					</div>
+					<?php endif; ?>
 
 					<?php if ($show_company === '1') : ?>
 						<div class="rv-form-group">
@@ -108,6 +150,16 @@ $unique_id             = uniqid('rv_contact_');
 							</option>
 						<?php endforeach; ?>
 					</select>
+				</div>
+			<?php endif; ?>
+
+			<?php if ($show_booking_id_field === '1') : ?>
+				<div class="rv-form-group">
+					<label for="rv-contact-booking-id-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
+						<?php Icons::render('calendar'); ?>
+						<?php echo esc_html__('Booking ID', 'mhm-rentiva'); ?>
+					</label>
+					<input type="number" id="rv-contact-booking-id-<?php echo esc_attr($unique_id); ?>" name="booking_id" class="rv-form-input" min="1" step="1" inputmode="numeric">
 				</div>
 			<?php endif; ?>
 
@@ -236,6 +288,7 @@ $unique_id             = uniqid('rv_contact_');
 		</div>
 	</div>
 
+	<?php if ($show_company_info === '1') : ?>
 	<!-- Contact Info -->
 	<div class="rv-contact-info">
 		<h4><?php echo esc_html__('Contact Information', 'mhm-rentiva'); ?></h4>
@@ -254,6 +307,7 @@ $unique_id             = uniqid('rv_contact_');
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 </div>
 
 <?php

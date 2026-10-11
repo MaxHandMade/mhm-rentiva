@@ -43,7 +43,10 @@ $show_pricing         = $flag($atts['show_pricing'] ?? '1', true);
 $show_price           = $flag($atts['show_price'] ?? '1', true);
 $show_booking         = $flag($atts['show_booking'] ?? '1', true);
 $show_booking_button  = $flag($atts['show_booking_button'] ?? '1', true);
-$show_booking_form    = $flag($atts['show_booking_form'] ?? '1', true);
+$show_rating          = $flag($atts['show_rating'] ?? '1', true);
+// Spec 3A §2.2 exception 2: the reviews section follows show_reviews (it was gated by show_booking_form).
+$show_reviews         = $flag($atts['show_reviews'] ?? '1', true);
+$show_similar         = $flag($atts['show_similar_vehicles'] ?? '1', true);
 $show_calendar        = $flag($atts['show_calendar'] ?? '1', true);
 $show_favorite_button = $flag($atts['show_favorite_button'] ?? ( $atts['show_favorite_btn'] ?? '1' ), true);
 $show_compare_button  = $flag($atts['show_compare_button'] ?? ( $atts['show_compare_btn'] ?? '1' ), true);
@@ -282,7 +285,7 @@ $allowed_svg_tags = array(
 				</ul>
 			</section>
 
-			<?php if ($show_booking_form) : ?>
+			<?php if ($show_reviews) : ?>
 				<section class="rv-vd2-card rv-vd2-ratings-card">
 					<h3 class="rv-vd2-section-title"><?php esc_html_e('Ratings & Reviews', 'mhm-rentiva'); ?></h3>
 					<div class="rv-integrated-reviews-section">
@@ -299,11 +302,13 @@ $allowed_svg_tags = array(
 					<h1 class="rv-vehicle-title"><?php echo esc_html($title ?? ''); ?></h1>
 				</div>
 
-				<div class="rv-vd2-rating-line">
-					<span class="rv-vd2-star" aria-hidden="true">★</span>
-					<span class="rv-vd2-rating-value"><?php echo esc_html($rating_average > 0 ? number_format($rating_average, 1) : '0.0'); ?></span>
-					<span class="rv-vd2-rating-count">(<?php echo esc_html($rating_count); ?> <?php esc_html_e('reviews', 'mhm-rentiva'); ?>)</span>
-				</div>
+				<?php if ($show_rating) : ?>
+					<div class="rv-vd2-rating-line">
+						<span class="rv-vd2-star" aria-hidden="true">★</span>
+						<span class="rv-vd2-rating-value"><?php echo esc_html($rating_average > 0 ? number_format($rating_average, 1) : '0.0'); ?></span>
+						<span class="rv-vd2-rating-count">(<?php echo esc_html($rating_count); ?> <?php esc_html_e('reviews', 'mhm-rentiva'); ?>)</span>
+					</div>
+				<?php endif; ?>
 
 				<div class="rv-vd2-meta-row">
 					<?php if (! empty($meta_chips)) : ?>
@@ -367,20 +372,26 @@ $allowed_svg_tags = array(
 		</aside>
 	</div>
 
-	<section class="rv-vd2-related">
-		<h3 class="rv-vd2-related-title"><?php esc_html_e('Similar Premium Vehicles', 'mhm-rentiva'); ?></h3>
-		<p class="rv-vd2-related-subtitle"><?php esc_html_e('Users who viewed this vehicle also checked these.', 'mhm-rentiva'); ?></p>
-		<?php
-		$is_mobile_view    = wp_is_mobile();
-		$related_shortcode = $is_mobile_view
-			? '[rentiva_featured_vehicles title="" layout="slider" limit="6" columns="1" autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
-			: '[rentiva_featured_vehicles title="" layout="grid" limit="3" columns="3" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
-		if (! empty($safe_category_slug)) {
+	<?php if ($show_similar) : ?>
+		<section class="rv-vd2-related">
+			<h3 class="rv-vd2-related-title"><?php esc_html_e('Similar Premium Vehicles', 'mhm-rentiva'); ?></h3>
+			<p class="rv-vd2-related-subtitle"><?php esc_html_e('Users who viewed this vehicle also checked these.', 'mhm-rentiva'); ?></p>
+			<?php
+			// An empty (or non-positive) similar_vehicles_limit keeps today's branch:
+			// 6 in the mobile slider, 3 in the desktop grid. A set value replaces the
+			// limit on both, capped at 12; the layout stays (spec 3A §2.2).
+			$is_mobile_view = wp_is_mobile();
+			$similar_limit  = absint($atts['similar_vehicles_limit'] ?? 0);
+			if ($similar_limit < 1) {
+				$similar_limit = $is_mobile_view ? 6 : 3;
+			}
+			$similar_limit     = min(12, $similar_limit);
+			$similar_category  = ! empty($safe_category_slug) ? ' category="' . esc_attr($safe_category_slug) . '"' : '';
 			$related_shortcode = $is_mobile_view
-				? '[rentiva_featured_vehicles title="" layout="slider" limit="6" columns="1" category="' . esc_attr($safe_category_slug) . '" autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
-				: '[rentiva_featured_vehicles title="" layout="grid" limit="3" columns="3" category="' . esc_attr($safe_category_slug) . '" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
-		}
-		?>
-		<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode($related_shortcode); ?>
-	</section>
+				? '[rentiva_featured_vehicles layout="slider" limit="' . $similar_limit . '" columns="1"' . $similar_category . ' autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
+				: '[rentiva_featured_vehicles layout="grid" limit="' . $similar_limit . '" columns="3"' . $similar_category . ' show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
+			?>
+			<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode($related_shortcode); ?>
+		</section>
+	<?php endif; ?>
 </div>

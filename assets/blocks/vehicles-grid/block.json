@@ -74,10 +74,6 @@
             "type": "boolean",
             "default": false
         },
-        "showAvailability": {
-            "type": "boolean",
-            "default": false
-        },
         "showFavoriteButton": {
             "type": "boolean",
             "default": true
@@ -143,14 +139,6 @@
             "type": "boolean",
             "default": false
         },
-        "showBadges": {
-            "type": "boolean",
-            "default": true
-        },
-        "showDescription": {
-            "type": "boolean",
-            "default": false
-        },
         "imageSize": {
             "type": "string",
             "default": "large"
@@ -165,7 +153,7 @@
         },
         "columns_mobile": {
             "type": "string",
-            "default": "1"
+            "default": ""
         },
         "viewAllUrl": {
             "type": "string",

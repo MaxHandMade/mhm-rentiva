@@ -50,17 +50,23 @@ final class VehicleDetails extends AbstractShortcode {
 
 	protected static function get_default_attributes(): array {
 		return array(
-			'vehicle_id'           => '',
-			'show_gallery'         => '1',
-			'show_features'        => '1',
-			'show_pricing'         => '1',
-			'show_booking'         => '1',
-			'show_calendar'        => '1',
-			'show_price'           => '1',
-			'show_booking_button'  => '1',
-			'show_favorite_button' => '1',
-			'show_compare_button'  => '1',
-			'class'                => '',
+			'vehicle_id'             => '',
+			'show_gallery'           => '1',
+			'show_features'          => '1',
+			'show_pricing'           => '1',
+			'show_booking'           => '1',
+			'show_calendar'          => '1',
+			'show_price'             => '1',
+			'show_booking_button'    => '1',
+			'show_favorite_button'   => '1',
+			'show_compare_button'    => '1',
+			// Spec 3A Task 4: the rating line, the reviews section (exception 2) and the
+			// similar section; an empty limit keeps the template's mobile 6 / desktop 3.
+			'show_rating'            => '1',
+			'show_reviews'           => '1',
+			'show_similar_vehicles'  => '1',
+			'similar_vehicles_limit' => '',
+			'class'                  => '',
 		);
 	}
 

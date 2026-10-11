@@ -35,6 +35,11 @@ $show_booking_buttons = in_array(
 	true
 );
 $custom_class         = trim($atts['class'] ?? '');
+$comparison_flag      = static function ($value): bool {
+	return in_array(strtolower( (string) $value), array( '1', 'true', 'yes', 'on' ), true);
+};
+$show_images          = $comparison_flag($atts['show_images'] ?? '1');
+$show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 
 ?>
 
@@ -78,14 +83,18 @@ $custom_class         = trim($atts['class'] ?? '');
 								<?php foreach ($vehicles as $vehicle) : ?>
 									<th class="rv-vehicle-column" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
 										<div class="rv-vehicle-header">
-											<div class="rv-vehicle-image-container">
-												<?php if (! empty($vehicle['image_url'])) : ?>
-													<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" class="rv-vehicle-image">
-												<?php endif; ?>
-											</div>
-											<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
-												<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
-											</button>
+											<?php if ($show_images) : ?>
+												<div class="rv-vehicle-image-container">
+													<?php if (! empty($vehicle['image_url'])) : ?>
+														<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" class="rv-vehicle-image">
+													<?php endif; ?>
+												</div>
+											<?php endif; ?>
+											<?php if ($show_remove_buttons) : ?>
+												<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
+													<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
+												</button>
+											<?php endif; ?>
 
 											<div class="rv-vehicle-status-container">
 												<?php
@@ -178,11 +187,13 @@ $custom_class         = trim($atts['class'] ?? '');
 						<div class="rv-mobile-card-item" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
 
 							<div class="rv-mobile-card-header-wrapper">
-								<div class="rv-mobile-card-image">
-									<?php if (! empty($vehicle['image_url'])) : ?>
-										<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
-									<?php endif; ?>
-								</div>
+								<?php if ($show_images) : ?>
+									<div class="rv-mobile-card-image">
+										<?php if (! empty($vehicle['image_url'])) : ?>
+											<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
+										<?php endif; ?>
+									</div>
+								<?php endif; ?>
 
 								<div class="rv-mobile-card-info">
 									<h4 class="rv-mobile-title"><?php echo esc_html($vehicle['title']); ?></h4>
@@ -208,12 +219,14 @@ $custom_class         = trim($atts['class'] ?? '');
 									<?php endif; ?>
 								</div>
 
-								<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
-									<svg class="rv-icon-remove" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
-										<line x1="18" y1="6" x2="6" y2="18"></line>
-										<line x1="6" y1="6" x2="18" y2="18"></line>
-									</svg>
-								</button>
+								<?php if ($show_remove_buttons) : ?>
+									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
+										<svg class="rv-icon-remove" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+											<line x1="18" y1="6" x2="6" y2="18"></line>
+											<line x1="6" y1="6" x2="18" y2="18"></line>
+										</svg>
+									</button>
+								<?php endif; ?>
 							</div>
 
 							<?php
@@ -290,13 +303,15 @@ $custom_class         = trim($atts['class'] ?? '');
 					<?php foreach ($vehicles as $vehicle) : ?>
 						<div class="rv-vehicle-card" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
 							<div class="rv-card-header">
-								<?php if (! empty($vehicle['image_url'])) : ?>
+								<?php if ($show_images && ! empty($vehicle['image_url'])) : ?>
 									<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" class="rv-card-image">
 								<?php endif; ?>
 								<h4><?php echo esc_html($vehicle['title']); ?></h4>
-								<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
-									<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
-								</button>
+								<?php if ($show_remove_buttons) : ?>
+									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
+										<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
+									</button>
+								<?php endif; ?>
 								<?php
 								$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
 								$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');

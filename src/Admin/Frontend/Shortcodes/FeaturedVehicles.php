@@ -95,7 +95,6 @@ final class FeaturedVehicles extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'title'                => __('Featured Vehicles', 'mhm-rentiva'),
 			'ids'                  => '',      // Comma separated IDs
 			'category'             => '',      // Category slug
 			'limit'                => '6',
@@ -108,16 +107,13 @@ final class FeaturedVehicles extends AbstractShortcode {
 			'show_price'           => '1',
 			'show_rating'          => '1',
 			'show_category'        => '1',
-			'show_book_button'     => '1',
+			'show_booking_button'  => '1',
 			'show_features'        => '1',
 			'max_features'         => '5',
 			'show_brand'           => '0',
-			'show_availability'    => '0',
 			'show_compare_button'  => '1',
-			'show_badges'          => '1',
 			'show_favorite_button' => '1',
 			'image_size'           => 'large',
-			'price_format'         => 'daily',
 			'filter_categories'    => '',
 			'view_all_url'         => '',
 			'view_all_text'        => '',

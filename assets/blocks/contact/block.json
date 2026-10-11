@@ -42,19 +42,7 @@
         }
     },
     "attributes": {
-        "showPhoneField": {
-            "type": "boolean",
-            "default": true
-        },
-        "showSubjectField": {
-            "type": "boolean",
-            "default": true
-        },
         "showBookingIdField": {
-            "type": "boolean",
-            "default": false
-        },
-        "showVehicleSelect": {
             "type": "boolean",
             "default": false
         },
@@ -62,28 +50,18 @@
             "type": "boolean",
             "default": true
         },
-        "showMap": {
-            "type": "boolean",
-            "default": true
-        },
-        "showSocialLinks": {
-            "type": "boolean",
-            "default": true
-        },
-        "recipientEmail": {
-            "type": "string",
-            "default": ""
-        },
-        "subjectPrefix": {
-            "type": "string",
-            "default": ""
-        },
         "successMessage": {
             "type": "string",
             "default": ""
         },
         "type": {
             "type": "string",
+            "enum": [
+                "general",
+                "booking",
+                "support",
+                "feedback"
+            ],
             "default": "general"
         },
         "title": {

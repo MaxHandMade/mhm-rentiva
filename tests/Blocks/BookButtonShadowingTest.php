@@ -113,10 +113,14 @@ class BookButtonShadowingTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Negative control: the shortcode text and Elementor paths keep today's
-	 * behaviour (measured before the change, ledger Task 0).
+	 * The shortcode text and Elementor paths.
+	 *
+	 * Featured vehicles: spec 3A Task 3 removed the twin `show_book_button` and bound
+	 * the Elementor switcher to `show_booking_button` (rule 2), so the switcher now
+	 * hides the button, and shortcode text uses the canonical key like every other
+	 * tag. Comparison is unchanged.
 	 */
-	public function test_shortcode_and_elementor_paths_unchanged(): void
+	public function test_shortcode_and_elementor_paths(): void
 	{
 		$ids = $this->comparison_ids();
 
@@ -125,7 +129,7 @@ class BookButtonShadowingTest extends WP_UnitTestCase
 		// pass as "no button".
 		$this->assertOffHidesWhatOnShows(
 			do_shortcode('[rentiva_featured_vehicles]'),
-			do_shortcode('[rentiva_featured_vehicles show_book_button="0"]'),
+			do_shortcode('[rentiva_featured_vehicles show_booking_button="0"]'),
 			self::FEATURED_BUTTON
 		);
 		$this->assertOffHidesWhatOnShows(
@@ -143,10 +147,14 @@ class BookButtonShadowingTest extends WP_UnitTestCase
 			$this->widget(VehicleComparisonWidget::class, array( 'vehicle_ids' => $ids, 'show_booking_buttons' => '' )),
 			self::COMPARISON_BUTTON
 		);
-		// Known defect, out of this slice's scope: the Elementor featured switcher does
-		// not hide the button either (same shadowing, widget path). Pinned at today's
-		// value so this slice provably leaves the Elementor path untouched.
+		$this->assertOffHidesWhatOnShows(
+			$this->widget(FeaturedVehiclesWidget::class, array()),
+			$this->widget(FeaturedVehiclesWidget::class, array( 'show_booking_button' => '' )),
+			self::FEATURED_BUTTON
+		);
+		// The removed key is inert: a saved value or shortcode text changes nothing.
 		$this->assertSame(2, substr_count($this->widget(FeaturedVehiclesWidget::class, array( 'show_book_button' => '' )), self::FEATURED_BUTTON));
+		$this->assertSame(2, substr_count(do_shortcode('[rentiva_featured_vehicles show_book_button="0"]'), self::FEATURED_BUTTON));
 	}
 
 	public function test_alias_routing(): void

@@ -10,6 +10,7 @@
  * @var bool $has_vehicles Whether vehicles exist
  * @var string $layout_class Layout CSS class
  * @var string $columns_class Columns CSS class
+ * @var string $card_layout Card layout: list or grid
  * @var array $context Global settings context
  */
 
@@ -24,6 +25,7 @@ $has_vehicles  = $has_vehicles ?? false;
 $layout_class  = $layout_class ?? 'rv-vehicles-list';
 $columns_class = $columns_class ?? 'rv-vehicles-list--columns-1';
 $wrapper_class = $wrapper_class ?? '';
+$card_layout   = $card_layout ?? 'list';
 ?>
 
 <div class="rv-vehicles-list-container <?php echo esc_attr($wrapper_class); ?>">
@@ -39,7 +41,7 @@ $wrapper_class = $wrapper_class ?? '';
 				// each dynamic value at its own output site, so nothing is echoed unescaped here.
 				\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 					'vehicle' => $vehicle,
-					'layout'  => 'list',
+					'layout'  => $card_layout,
 					'atts'    => $atts,
 				));
 				?>

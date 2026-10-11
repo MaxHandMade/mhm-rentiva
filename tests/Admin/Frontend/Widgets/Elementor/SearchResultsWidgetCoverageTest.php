@@ -19,8 +19,9 @@ final class SearchResultsWidgetCoverageTest extends WP_UnitTestCase
 
 		$expected = array(
 			'limit',
-			'orderby',
-			'order',
+			// One default_sort select replaced orderby/order (spec 3A Task 5).
+			'default_sort',
+			'show_filters',
 			'show_pagination',
 			'show_sorting',
 			'show_favorite_button',

@@ -26,8 +26,11 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  */
 final class AccountRenderer {
 
-
-
+	/**
+	 * The normalized payment statuses (get_user_payments()); the payment history
+	 * `status` filter takes one of them, anything else is no filter.
+	 */
+	public const PAYMENT_STATUSES = array( 'pending', 'completed', 'cancelled' );
 
 	/**
 	 * Safe sanitize text field that handles null values
@@ -169,22 +172,118 @@ final class AccountRenderer {
 	{
 		$user = wp_get_current_user();
 
+		// Spec 3A Task 7a: the list is ordered by date only (the removed `orderby`
+		// collapsed to it for every option); Sort Order stays live.
 		$args = array(
 			'limit'   => (int) ( $atts['limit'] ?? 10 ),
 			'status'  => self::sanitize_text_field_safe($atts['status'] ?? ''),
-			'orderby' => self::sanitize_text_field_safe($atts['orderby'] ?? 'date'),
+			'orderby' => 'date',
 			'order'   => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
 		);
 
-		$bookings = self::get_user_bookings($user->ID, $args);
+		// Pagination (show_pagination, on unless turned off): the page comes from
+		// the public query var; a page past the end shows the last one. Off is
+		// today's list -- the first `limit` bookings, the page var ignored.
+		//
+		// The list's own filter form (mhmrentiva_status_filter,
+		// mhmrentiva_search_booking) narrows the query itself, so the rows and the
+		// page count both follow it (T7a-1). It used to filter the fetched page in
+		// the template, which left pages empty under a pager that counted every
+		// booking, and a search only saw the current page.
+		$args['status_filter'] = self::list_filter_var('mhmrentiva_status_filter');
+		if ('all' === $args['status_filter']) {
+			$args['status_filter'] = '';
+		}
+		$args['search'] = self::list_filter_var('mhmrentiva_search_booking');
+
+		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
+		// Capped so the query's offset ((page - 1) * limit) stays an integer: an
+		// overflowing page number would reach SQL as a float.
+		$page        = $paginate ? min(self::current_page(), intdiv(PHP_INT_MAX, $args['limit'])) : 1;
+		$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
+		$total_pages = $paginate ? max(1, (int) $query->max_num_pages) : 1;
+
+		// Past the last page (Review Focus 2), however large the number, shows the
+		// last page. WP_Query leaves found_posts at 0 for an empty page, so count
+		// on page 1.
+		if ($paginate && $page > 1 && ( array() === $query->posts || $page > $total_pages )) {
+			$total_pages = max(1, (int) self::query_user_bookings($user->ID, $args + array( 'page' => 1 ))->max_num_pages);
+			$page        = min($page, $total_pages);
+			$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
+		}
 
 		$data = array(
-			'user'       => $user,
-			'bookings'   => $bookings,
-			'navigation' => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'user'               => $user,
+			'bookings'           => $query->posts,
+			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'atts'               => $atts,
+			// Column toggles: missing means on, the columns were unconditional.
+			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
+			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
+			'show_status'        => self::flag_is_on($atts['show_status_toggle'] ?? '1'),
+			'show_price'         => self::flag_is_on($atts['show_price'] ?? '1'),
+			'show_pagination'    => $paginate,
+			'current_page'       => $page,
+			'total_pages'        => $total_pages,
 		);
 
 		return array( 'data' => $data );
+	}
+
+	/**
+	 * The account list page asked for: the public query var `mhmrentiva_page`
+	 * (AccountController::PUBLIC_QUERY_VARS). Anything but a positive whole
+	 * number -- zero, negative, letters, an array -- is page 1.
+	 */
+	public static function current_page(): int
+	{
+		$raw = get_query_var('mhmrentiva_page', '');
+		if (is_int($raw)) {
+			$raw = (string) $raw;
+		}
+		if (! is_string($raw) || '' === $raw || ! ctype_digit($raw)) {
+			return 1;
+		}
+
+		return max(1, absint($raw));
+	}
+
+	/**
+	 * URL of account list page $page: the current URL with `mhmrentiva_page`
+	 * set, so the list's filter vars (mhmrentiva_status_filter,
+	 * mhmrentiva_search_booking, ...) stay. Page 1 drops the var.
+	 */
+	public static function page_url(int $page): string
+	{
+		if ($page <= 1) {
+			return remove_query_arg('mhmrentiva_page');
+		}
+
+		return add_query_arg('mhmrentiva_page', $page);
+	}
+
+	/**
+	 * A filter param of the bookings list off WordPress's query_vars whitelist
+	 * (AccountController::PUBLIC_QUERY_VARS); '' when absent or an array.
+	 */
+	private static function list_filter_var(string $name): string
+	{
+		$raw = get_query_var($name, null);
+		if (null === $raw || is_array($raw)) {
+			return '';
+		}
+
+		return sanitize_text_field(wp_unslash( (string) $raw));
+	}
+
+	/**
+	 * A visibility flag: on unless explicitly off (CAM sends '0' for off).
+	 *
+	 * @param mixed $value Attribute value.
+	 */
+	private static function flag_is_on($value): bool
+	{
+		return ! in_array($value, array( '0', 0, false, 'false', 'no' ), true);
 	}
 
 	/**
@@ -278,24 +377,39 @@ final class AccountRenderer {
 	 */
 	public static function get_payment_history_data(array $atts = array()): array
 	{
-		// `paged` is one of WordPress core's own public query vars, so on the
-		// frontend -- the only place this runs (a WooCommerce My Account
-		// endpoint callback and the [rentiva_payment_history] shortcode) --
-		// WP::parse_request() has already populated it. No registration needed,
-		// and no superglobal read.
+		// Spec 3A Task 7b. The page comes from the public query var
+		// mhmrentiva_page (exception 5): core `paged` is moved into the path by
+		// redirect_canonical() on a WooCommerce endpoint, so "Next" always showed
+		// page 1. Pagination off is today's first page, the page var ignored.
+		// A limit of 0, empty or negative is not a page size: today's 10.
 		$user     = wp_get_current_user();
-		$per_page = 10;
-		$page     = max( 1, (int) get_query_var( 'paged' ) );
+		$per_page = (int) ( $atts['limit'] ?? 10 );
+		$per_page = $per_page > 0 ? $per_page : 10;
+		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1');
 
-		$result = self::get_user_payments($user->ID, $per_page, $page);
+		$args = array(
+			'orderby' => 'amount' === ( $atts['orderby'] ?? '' ) ? 'amount' : 'date',
+			'order'   => 'asc' === strtolower( (string) ( $atts['order'] ?? '' )) ? 'asc' : 'desc',
+			'status'  => in_array($atts['status'] ?? '', self::PAYMENT_STATUSES, true) ? (string) $atts['status'] : '',
+		);
+
+		// Capped so the offset ((page - 1) * per_page) stays an integer.
+		$page   = $paginate ? min(self::current_page(), intdiv(PHP_INT_MAX, $per_page)) : 1;
+		$result = self::get_user_payments($user->ID, $per_page, $page, $args);
 
 		$data = array(
-			'user'         => $user,
-			'payments'     => $result['items'],
-			'total'        => $result['total'],
-			'total_pages'  => $result['total_pages'],
-			'current_page' => $result['current_page'],
-			'navigation'   => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'user'                => $user,
+			'payments'            => $result['items'],
+			'total'               => $result['total'],
+			'total_pages'         => $result['total_pages'],
+			'current_page'        => $result['current_page'],
+			'navigation'          => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'atts'                => $atts,
+			// Columns: missing means today's (date and method shown, title not a link).
+			'show_date'           => self::flag_is_on($atts['show_date'] ?? '1'),
+			'show_payment_method' => self::flag_is_on($atts['show_payment_method'] ?? '1'),
+			'show_booking_link'   => self::flag_is_on($atts['show_booking_link'] ?? '0'),
+			'show_pagination'     => $paginate,
 		);
 
 		return array( 'data' => $data );
@@ -516,13 +630,23 @@ final class AccountRenderer {
 	 */
 	private static function get_user_bookings(int $user_id, array $args = array()): array
 	{
-		global $wpdb;
+		return self::query_user_bookings($user_id, $args)->posts;
+	}
 
+	/**
+	 * The query behind get_user_bookings(), for callers that page through it
+	 * (`page`, 1-based; max_num_pages on the result).
+	 */
+	private static function query_user_bookings(int $user_id, array $args = array()): \WP_Query
+	{
 		$defaults = array(
-			'limit'   => 10,
-			'status'  => '',
-			'orderby' => 'date',
-			'order'   => 'DESC',
+			'limit'         => 10,
+			'status'        => '',
+			'orderby'       => 'date',
+			'order'         => 'DESC',
+			'page'          => 1,
+			'status_filter' => '',
+			'search'        => '',
 		);
 
 		$args = wp_parse_args($args, $defaults);
@@ -545,6 +669,15 @@ final class AccountRenderer {
 			);
 		}
 
+		// The list's own status filter, on top of the configured one (both must hold).
+		if (! empty($args['status_filter'])) {
+			$meta_query[] = array(
+				'key'     => '_mhmrentiva_status',
+				'value'   => self::sanitize_text_field_safe($args['status_filter']),
+				'compare' => '=',
+			);
+		}
+
 		$query_args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
@@ -552,18 +685,51 @@ final class AccountRenderer {
 			'orderby'        => self::sanitize_text_field_safe($args['orderby']),
 			'order'          => self::sanitize_text_field_safe($args['order']),
 			'meta_query'     => $meta_query,
+			'paged'          => max(1, (int) $args['page']),
 		);
 
-		$query = new \WP_Query($query_args);
+		// Search by reservation ID (the list's form): a booking whose ID contains
+		// the text, as the template matched it. The candidate IDs are this
+		// customer's (already narrowed) bookings, so the page count follows it.
+		$search = (string) ( $args['search'] ?? '' );
+		if ('' !== $search) {
+			$ids                    = get_posts(
+				array_merge(
+					$query_args,
+					array(
+						'posts_per_page' => -1,
+						'paged'          => 1,
+						'fields'         => 'ids',
+						'no_found_rows'  => true,
+					)
+				)
+			);
+			$matched                = array_values(
+				array_filter(
+					array_map('intval', $ids),
+					static fn(int $id): bool => false !== strpos( (string) $id, $search)
+				)
+			);
+			$query_args['post__in'] = array() !== $matched ? $matched : array( 0 );
+		}
 
-		return $query->posts;
+		return new \WP_Query($query_args);
 	}
 
 	/**
 	 * Get user payments
 	 */
-	private static function get_user_payments(int $user_id, int $per_page = 10, int $page = 1): array
+	private static function get_user_payments(int $user_id, int $per_page = 10, int $page = 1, array $args = array()): array
 	{
+		$args = wp_parse_args(
+			$args,
+			array(
+				'orderby' => 'date',
+				'order'   => 'desc',
+				'status'  => '',
+			)
+		);
+
 		// Get all user bookings
 		$bookings = self::get_user_bookings($user_id, array( 'limit' => -1 ));
 
@@ -573,9 +739,13 @@ final class AccountRenderer {
 			$payment_status  = get_post_meta($booking->ID, '_mhmrentiva_payment_status', true);
 			$payment_method  = get_post_meta($booking->ID, '_mhmrentiva_payment_method', true);
 			$payment_gateway = get_post_meta($booking->ID, '_mhmrentiva_payment_gateway', true);
-			$total_price     = (float) get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
-			$deposit_amount  = (float) get_post_meta($booking->ID, '_mhmrentiva_deposit_amount', true);
+			$total_raw       = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
+			$deposit_raw     = get_post_meta($booking->ID, '_mhmrentiva_deposit_amount', true);
+			$total_price     = (float) $total_raw;
+			$deposit_amount  = (float) $deposit_raw;
 			$payment_type    = get_post_meta($booking->ID, '_mhmrentiva_payment_type', true);
+			// No amount meta at all (not a zero amount): sorted last by amount.
+			$has_amount = '' !== ( $payment_type === 'deposit' ? $deposit_raw : $total_raw );
 
 			// Normalize status values from various sources
 			$status_key = strtolower( (string) $payment_status);
@@ -668,6 +838,7 @@ final class AccountRenderer {
 					'status_label'  => $status_label,
 					'method'        => $method_display,
 					'amount'        => $payment_type === 'deposit' ? $deposit_amount : $total_price,
+					'has_amount'    => $has_amount,
 					'total'         => $total_price,
 					'type'          => $payment_type,
 					'receipt'       => array(
@@ -684,21 +855,50 @@ final class AccountRenderer {
 			}
 		}
 
-		// Latest payments first
+		// The status filter runs before the sort and the page cut, so the rows,
+		// the total and the page count all follow it.
+		if ('' !== $args['status']) {
+			$payments = array_values(
+				array_filter(
+					$payments,
+					static function ($payment) use ($args) {
+						return $payment['status'] === $args['status'];
+					}
+				)
+			);
+		}
+
+		// Latest payments first by default. A payment without a date (by date) or
+		// without an amount (by amount) goes last in both orders (stable sort:
+		// ties keep the booking query's order).
+		$by_amount = 'amount' === $args['orderby'];
+		$sign      = 'asc' === $args['order'] ? 1 : -1;
 		usort(
 			$payments,
-			function ($a, $b) {
-				return $b['sort_ts'] - $a['sort_ts'];
+			static function ($a, $b) use ($by_amount, $sign) {
+				if ($by_amount) {
+					if (! $a['has_amount'] || ! $b['has_amount']) {
+						return ( ! $a['has_amount'] ) <=> ( ! $b['has_amount'] );
+					}
+					return $sign * ( $a['amount'] <=> $b['amount'] );
+				}
+				if (0 === $a['sort_ts'] || 0 === $b['sort_ts']) {
+					return ( 0 === $a['sort_ts'] ) <=> ( 0 === $b['sort_ts'] );
+				}
+				return $sign * ( $a['sort_ts'] <=> $b['sort_ts'] );
 			}
 		);
 
-		$total  = count($payments);
+		$total       = count($payments);
+		$total_pages = max(1, (int) ceil($total / max(1, $per_page)));
+		// Past the last page (Review Focus 2) shows the last page.
+		$page   = min(max(1, $page), $total_pages);
 		$offset = ( $page - 1 ) * $per_page;
 
 		return array(
 			'items'        => array_slice($payments, $offset, $per_page),
 			'total'        => $total,
-			'total_pages'  => $per_page > 0 ? (int) ceil($total / $per_page) : 1,
+			'total_pages'  => $total_pages,
 			'current_page' => $page,
 			'per_page'     => $per_page,
 		);

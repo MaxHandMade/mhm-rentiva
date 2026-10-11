@@ -11,7 +11,7 @@
  * @var bool   $show_time_select     Whether to show time selection
  * @var bool   $show_date_picker     Whether to show date picker
  * @var bool   $show_dropoff_location Whether to show drop-off location field
- * @var string $filter_categories    Comma-separated category IDs to filter
+ * @var string $form_action          Where the rental form submits (resolved redirect_page)
  * @var string $layout               Layout: 'horizontal', 'vertical'
  */
 if (! defined('ABSPATH')) {
@@ -69,7 +69,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
             id="<?php echo esc_attr($uid); ?>_panel_rental"
             role="tabpanel">
 
-            <form class="rv-unified-search__form" action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>" method="GET" data-testid="rental-search-form">
+            <form class="rv-unified-search__form" action="<?php echo esc_url($form_action ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>" method="GET" data-testid="rental-search-form">
 
                 <!-- Locations -->
                 <?php if ($show_location_select) : ?>

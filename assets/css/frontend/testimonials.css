@@ -263,6 +263,9 @@
 	border-radius: 50%;
 	width: 32px;
 	height: 32px;
+	/* A theme's button padding (17px 40px on the dev theme) widened the circle to
+	   82px over the card's author row (spec 3A Task 8 browser check). */
+	padding: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -429,6 +432,12 @@
 
 	.rv-carousel-next {
 		right: 4px;
+	}
+
+	/* The arrows sit inside the card here; keep the text clear of them. */
+	.rv-carousel-slide .rv-testimonial-card {
+		padding-left: 2.75rem;
+		padding-right: 2.75rem;
 	}
 }
 

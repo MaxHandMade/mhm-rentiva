@@ -22,6 +22,16 @@ $atts             = $atts ?? array();
 $testimonials     = $testimonials ?? array();
 $total_count      = $total_count ?? 0;
 $has_testimonials = $has_testimonials ?? false;
+// The order, filters and card flags "Load More" continues with; only the values
+// that differ from the defaults (Testimonials::load_more_attributes()). Printed
+// as data-* attributes on the wrapper, each name and value escaped where echoed;
+// an empty list prints nothing, so a default render keeps its markup.
+$load_more_attrs       = (array) ( $load_more ?? array() );
+$print_load_more_attrs = static function (array $attrs): void {
+	foreach ($attrs as $name => $value) {
+		echo ' data-' . esc_attr( (string) $name) . '="' . esc_attr( (string) $value) . '"';
+	}
+};
 
 // Shortcode attributes
 $limit         = intval($atts['limit'] ?? apply_filters('mhmrentiva_testimonials_limit', 5));
@@ -32,6 +42,8 @@ $show_customer = ( $atts['show_customer'] ?? '1' ) === '1';
 $layout        = $atts['layout'] ?? 'grid';
 $columns       = intval($atts['columns'] ?? 3);
 $auto_rotate   = ( $atts['auto_rotate'] ?? '0' ) === '1';
+$show_avatar   = ( $atts['show_author_avatar'] ?? '1' ) === '1';
+$show_quotes   = ( $atts['show_quotes'] ?? '1' ) === '1';
 $class         = $atts['class'] ?? '';
 
 // 'carousel', 'slider', and 'vip' all render as the slider/carousel layout.
@@ -55,7 +67,7 @@ $format_name = static function (string $full_name): string {
 <div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>"
 	data-limit="<?php echo esc_attr($limit); ?>"
 	data-layout="<?php echo esc_attr($layout); ?>"
-	data-auto-rotate="<?php echo $auto_rotate ? '1' : '0'; ?>">
+	data-auto-rotate="<?php echo $auto_rotate ? '1' : '0'; ?>"<?php $print_load_more_attrs($load_more_attrs); ?>>
 
 	<?php if ($has_testimonials) : ?>
 
@@ -71,6 +83,7 @@ $format_name = static function (string $full_name): string {
 								<div class="rv-testimonial-item rv-carousel-slide">
 									<div class="rv-testimonial-card">
 
+										<?php if ($show_quotes) : ?>
 										<!-- Quote Icon -->
 										<div class="rv-quote-icon" aria-hidden="true">
 											<?php
@@ -81,6 +94,7 @@ $format_name = static function (string $full_name): string {
 											));
 											?>
 										</div>
+										<?php endif; ?>
 
 										<!-- Rating -->
 										<?php if ($show_rating && $testimonial['rating'] > 0) : ?>
@@ -106,11 +120,13 @@ $format_name = static function (string $full_name): string {
 										<!-- Customer Info -->
 										<div class="rv-testimonial-author">
 											<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
+												<?php if ($show_avatar) : ?>
 												<div class="rv-author-avatar">
 													<span class="rv-avatar-placeholder" aria-hidden="true">
 														<?php echo esc_html(mhmrentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
 													</span>
 												</div>
+												<?php endif; ?>
 												<div class="rv-author-info">
 													<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
 													<?php if ($show_vehicle && ! empty($testimonial['vehicle_name'])) : ?>
@@ -156,6 +172,7 @@ $format_name = static function (string $full_name): string {
 						<div class="rv-testimonial-item">
 							<div class="rv-testimonial-card">
 
+								<?php if ($show_quotes) : ?>
 								<!-- Quote Icon -->
 								<div class="rv-quote-icon" aria-hidden="true">
 									<?php
@@ -166,6 +183,7 @@ $format_name = static function (string $full_name): string {
 									));
 									?>
 								</div>
+								<?php endif; ?>
 
 								<!-- Rating -->
 								<?php if ($show_rating && $testimonial['rating'] > 0) : ?>
@@ -191,11 +209,13 @@ $format_name = static function (string $full_name): string {
 								<!-- Customer Info -->
 								<div class="rv-testimonial-author">
 									<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
+										<?php if ($show_avatar) : ?>
 										<div class="rv-author-avatar">
 											<span class="rv-avatar-placeholder" aria-hidden="true">
 												<?php echo esc_html(mhmrentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
 											</span>
 										</div>
+										<?php endif; ?>
 										<div class="rv-author-info">
 											<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
 											<?php if ($show_vehicle && ! empty($testimonial['vehicle_name'])) : ?>

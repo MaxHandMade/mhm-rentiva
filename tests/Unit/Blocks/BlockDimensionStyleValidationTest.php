@@ -80,11 +80,34 @@ final class BlockDimensionStyleValidationTest extends WP_UnitTestCase
 	public function valid_dimension_provider(): array
 	{
 		return array(
-			'unitless numeric values become pixels' => array('minWidth', '320', 'min-width:320px'),
-			'percentages remain percentages'         => array('maxWidth', '75%', 'max-width:75%'),
+			'unitless numeric values become pixels' => array('height', '320', 'height:320px'),
+			'percentages remain percentages'         => array('height', '75%', 'height:75%'),
 			'rem lengths remain rem lengths'          => array('height', '12.5rem', 'height:12.5rem'),
-			'auto remains an intentional keyword'     => array('height', 'auto', 'height:auto'),
 		);
+	}
+
+	/**
+	 * 'auto' (the calendar's old calendarHeight default) is a div's own height and
+	 * writes no style (spec 3A Task 6).
+	 */
+	public function test_auto_height_writes_no_style(): void
+	{
+		$wrapper_attributes = $this->render_wrapper_attributes(array('height' => 'auto'));
+
+		$this->assertStringNotContainsString('height:', $wrapper_attributes);
+		$this->assertArrayNotHasKey('style', $this->rendered_shortcode_attributes);
+	}
+
+	/**
+	 * minWidth/maxWidth are no wrapper dimensions any more (spec 3A Task 5).
+	 */
+	public function test_min_and_max_width_are_not_wrapper_dimensions(): void
+	{
+		$wrapper_attributes = $this->render_wrapper_attributes(array('minWidth' => '320', 'maxWidth' => '75%'));
+
+		$this->assertStringNotContainsString('min-width', $wrapper_attributes);
+		$this->assertStringNotContainsString('max-width', $wrapper_attributes);
+		$this->assertArrayNotHasKey('style', $this->rendered_shortcode_attributes);
 	}
 
 	public function test_css_declaration_injection_values_do_not_reach_shortcode_style(): void

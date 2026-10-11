@@ -21,7 +21,10 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
  *
  * Comparison table for multiple vehicles
  *
- * Usage: [rentiva_vehicle_comparison vehicle_ids="123,456,789" show_features="all" max_vehicles="4"]
+ * Usage: [rentiva_vehicle_comparison vehicle_ids="123,456,789" max_vehicles="4"]
+ *
+ * The rows are the admin's comparison_fields selection (Field Definitions), not
+ * per-instance toggles.
  */
 final class VehicleComparison extends AbstractShortcode {
 
@@ -51,7 +54,6 @@ final class VehicleComparison extends AbstractShortcode {
 	{
 		return array(
 			'vehicle_ids'          => '', // Vehicle IDs (comma-separated)
-			'show_features'        => 'all', // Features to show: all, basic, detailed
 			'max_vehicles'         => '4', // Maximum number of vehicles
 			'show_remove_buttons'  => '1', // Show remove buttons
 			'show_prices'          => '1', // Show prices
@@ -134,7 +136,7 @@ final class VehicleComparison extends AbstractShortcode {
 		}
 
 		$vehicles     = self::get_vehicles_data($vehicle_ids);
-		$features     = self::get_comparison_features($atts['show_features'], $vehicles);
+		$features     = self::get_comparison_features($vehicles);
 		$all_vehicles = array();
 
 		return array(
@@ -438,7 +440,7 @@ final class VehicleComparison extends AbstractShortcode {
 	 * Get comparison features based on vehicles.
 	 * Returns flat associative array: [ 'brand' => 'Brand', 'model' => 'Model', ... ]
 	 */
-	private static function get_comparison_features(string $show_features, array $vehicles): array
+	private static function get_comparison_features(array $vehicles): array
 	{
 		return self::get_dynamic_features($vehicles);
 	}

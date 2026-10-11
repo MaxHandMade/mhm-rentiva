@@ -93,26 +93,27 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'vehicle_id'           => '',
-			'show_pricing'         => apply_filters('mhmrentiva_availability_calendar_show_pricing', '1'),
-			'show_seasonal_prices' => apply_filters('mhmrentiva_availability_calendar_show_seasonal_prices', '1'),
-			'show_discounts'       => apply_filters('mhmrentiva_availability_calendar_show_discounts', '1'),
-			'show_booking_button'  => apply_filters(
+			'vehicle_id'            => '',
+			'show_pricing'          => apply_filters('mhmrentiva_availability_calendar_show_pricing', '1'),
+			'show_booking_button'   => apply_filters(
 				'mhmrentiva_availability_calendar_show_booking_button',
 				apply_filters('mhmrentiva_availability_calendar_show_booking_btn', '1')
 			),
-			'theme'                => apply_filters('mhmrentiva_availability_calendar_theme', 'default'),
-			'start_date'           => '',
+			'theme'                 => apply_filters('mhmrentiva_availability_calendar_theme', 'default'),
 			// `months_ahead` used to sit beside `months_to_show` but nothing ever
 			// read it -- the render span comes from `months_to_show` alone. Its
 			// siblings `show_weekends`/`show_past_dates` were dead the same way, and
 			// their declared defaults ('1'/'0') contradicted what the calendar
 			// actually renders, so honouring them would have silently changed every
 			// existing calendar. All three are gone rather than back-fitted.
-			'months_to_show'       => apply_filters('mhmrentiva_availability_calendar_months_to_show', '1'),
-			'start_month'          => '',
-			'integrate_pricing'    => apply_filters('mhmrentiva_availability_calendar_integrate_pricing', '1'),
-			'class'                => '',
+			'months_to_show'        => apply_filters('mhmrentiva_availability_calendar_months_to_show', '1'),
+			'start_month'           => '',
+			// Spec 3A Task 6: these gate markup that was unconditional, so on by default.
+			'show_legend'           => '1',
+			'show_month_nav'        => '1',
+			'show_vehicle_selector' => '1',
+			'start_week_on'         => '1', // 1 = Monday, 0 = Sunday.
+			'class'                 => '',
 		);
 	}
 

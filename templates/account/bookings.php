@@ -17,7 +17,7 @@ if (! defined('ABSPATH')) {
 
 
 
-// Filtering with proper sanitization.
+// The list's filter form values, with proper sanitization.
 // Both params are read off WordPress's `query_vars` whitelist, where
 // AccountController::PUBLIC_QUERY_VARS registers them; this is a front-end
 // screen, so wp() runs WP::parse_request() and fills them. No superglobal is
@@ -30,31 +30,24 @@ $search_query_raw  = get_query_var('mhmrentiva_search_booking', null);
 $status_filter     = ( null === $status_filter_raw || is_array($status_filter_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $status_filter_raw));
 $search_query      = ( null === $search_query_raw || is_array($search_query_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $search_query_raw));
 
-// Filter bookings
 $bookings      = $data['bookings'] ?? array();
 $navigation    = $data['navigation'] ?? array();
 $is_integrated = empty($navigation);
 
+// Column toggles and pager (spec 3A Task 7a). The renderer resolves them; a
+// caller that hands no flags gets today's table: every column, no pager.
+$show_image         = ! $is_integrated && (bool) ( $data['show_image'] ?? true );
+$show_booking_dates = (bool) ( $data['show_booking_dates'] ?? true );
+$show_status        = (bool) ( $data['show_status'] ?? true );
+$show_price         = (bool) ( $data['show_price'] ?? true );
+$current_list_page  = (int) ( $data['current_page'] ?? 1 );
+$total_list_pages   = (int) ( $data['total_pages'] ?? 1 );
+$show_pager         = ! empty($data['show_pagination']) && $total_list_pages > 1;
+
+// The status and search filters narrow the query itself
+// (AccountRenderer::get_bookings_data()), so the rows and the pager agree;
+// the values above only refill the form.
 $filtered_bookings = $bookings;
-
-if ($status_filter && $status_filter !== 'all') {
-	$filtered_bookings = array_filter(
-		$filtered_bookings,
-		function ($booking) use ($status_filter) {
-			$status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
-			return $status === $status_filter;
-		}
-	);
-}
-
-if ($search_query) {
-	$filtered_bookings = array_filter(
-		$filtered_bookings,
-		function ($booking) use ($search_query) {
-			return strpos( (string) $booking->ID, $search_query) !== false;
-		}
-	);
-}
 
 // Separate upcoming and past bookings
 $today             = current_time('Y-m-d');
@@ -159,13 +152,19 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							<thead>
 								<tr>
 									<th style="width: 50px;"><?php esc_html_e('ID', 'mhm-rentiva'); ?></th>
-									<?php if (! $is_integrated) : ?>
+									<?php if ($show_image) : ?>
 										<th style="width: 60px;"><?php esc_html_e('Img', 'mhm-rentiva'); ?></th>
 									<?php endif; ?>
 									<th><?php esc_html_e('Service', 'mhm-rentiva'); ?></th>
-									<th style="white-space: nowrap;"><?php esc_html_e('Date/Time', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Fee', 'mhm-rentiva'); ?></th>
+									<?php if ($show_booking_dates) : ?>
+										<th style="white-space: nowrap;"><?php esc_html_e('Date/Time', 'mhm-rentiva'); ?></th>
+									<?php endif; ?>
+									<?php if ($show_status) : ?>
+										<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
+									<?php endif; ?>
+									<?php if ($show_price) : ?>
+										<th><?php esc_html_e('Fee', 'mhm-rentiva'); ?></th>
+									<?php endif; ?>
 									<th style="text-align: center; width: 60px;"><?php esc_html_e('Act', 'mhm-rentiva'); ?></th>
 								</tr>
 							</thead>
@@ -219,18 +218,23 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									?>
 									<tr>
 										<td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
-										<?php if (! $is_integrated) : ?>
+										<?php if ($show_image) : ?>
 											<td class="rv-vehicle-thumb">
 												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title ?? ''); ?>">
 											</td>
 										<?php endif; ?>
 										<td class="rv-vehicle-name"><?php echo esc_html($vehicle->post_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
-										<td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
+										<?php if ($show_booking_dates) : ?>
+											<td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
+										<?php endif; ?>
+										<?php if ($show_status) : ?>
 										<td class="rv-booking-status">
 											<span class="status-badge <?php echo esc_attr($status_class); ?>">
 												<?php echo esc_html($status_label); ?>
 											</span>
 										</td>
+										<?php endif; ?>
+										<?php if ($show_price) : ?>
 										<td class="rv-booking-price">
 											<span class="rv-price-badge">
 												<?php
@@ -241,6 +245,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 												?>
 											</span>
 										</td>
+										<?php endif; ?>
 										<td class="rv-booking-actions">
 											<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>"
 												class="btn btn-secondary rv-btn-icon-only" title="<?php esc_attr_e('View Details', 'mhm-rentiva'); ?>">
@@ -270,13 +275,19 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							<thead>
 								<tr>
 									<th style="width: 50px;"><?php esc_html_e('ID', 'mhm-rentiva'); ?></th>
-									<?php if (! $is_integrated) : ?>
+									<?php if ($show_image) : ?>
 										<th style="width: 60px;"><?php esc_html_e('Img', 'mhm-rentiva'); ?></th>
 									<?php endif; ?>
 									<th><?php esc_html_e('Service', 'mhm-rentiva'); ?></th>
-									<th style="white-space: nowrap;"><?php esc_html_e('Date/Time', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Fee', 'mhm-rentiva'); ?></th>
+									<?php if ($show_booking_dates) : ?>
+										<th style="white-space: nowrap;"><?php esc_html_e('Date/Time', 'mhm-rentiva'); ?></th>
+									<?php endif; ?>
+									<?php if ($show_status) : ?>
+										<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
+									<?php endif; ?>
+									<?php if ($show_price) : ?>
+										<th><?php esc_html_e('Fee', 'mhm-rentiva'); ?></th>
+									<?php endif; ?>
 									<th style="text-align: center; width: 60px;"><?php esc_html_e('Act', 'mhm-rentiva'); ?></th>
 								</tr>
 							</thead>
@@ -330,18 +341,23 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									?>
 									<tr>
 										<td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
-										<?php if (! $is_integrated) : ?>
+										<?php if ($show_image) : ?>
 											<td class="rv-vehicle-thumb">
 												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title ?? ''); ?>">
 											</td>
 										<?php endif; ?>
 										<td class="rv-vehicle-name"><?php echo esc_html($vehicle->post_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
-										<td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
+										<?php if ($show_booking_dates) : ?>
+											<td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
+										<?php endif; ?>
+										<?php if ($show_status) : ?>
 										<td class="rv-booking-status">
 											<span class="status-badge <?php echo esc_attr($status_class); ?>">
 												<?php echo esc_html($status_label); ?>
 											</span>
 										</td>
+										<?php endif; ?>
+										<?php if ($show_price) : ?>
 										<td class="rv-booking-price">
 											<span class="rv-price-badge">
 												<?php
@@ -352,6 +368,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 												?>
 											</span>
 										</td>
+										<?php endif; ?>
 										<td class="rv-booking-actions">
 											<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>"
 												class="btn btn-secondary rv-btn-icon-only" title="<?php esc_attr_e('View Details', 'mhm-rentiva'); ?>">
@@ -366,6 +383,37 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							</tbody>
 						</table>
 					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ($show_pager) : ?>
+				<?php
+				// Pager over `limit` (spec 3A Task 7a): the payment history pager's
+				// markup, on the public query var mhmrentiva_page.
+				?>
+				<div class="mhm-pagination" style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
+					<?php if ($current_list_page > 1) : ?>
+						<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url($current_list_page - 1)); ?>" class="btn btn-secondary btn-sm">
+							&larr; <?php esc_html_e('Previous', 'mhm-rentiva'); ?>
+						</a>
+					<?php else : ?>
+						<span class="btn btn-secondary btn-sm" style="opacity:.4;pointer-events:none;">&larr; <?php esc_html_e('Previous', 'mhm-rentiva'); ?></span>
+					<?php endif; ?>
+
+					<span style="font-size:14px;color:#666;">
+						<?php
+						/* translators: 1: current page, 2: total pages */
+						echo esc_html(sprintf(__('Page %1$d / %2$d', 'mhm-rentiva'), $current_list_page, $total_list_pages));
+						?>
+					</span>
+
+					<?php if ($current_list_page < $total_list_pages) : ?>
+						<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url($current_list_page + 1)); ?>" class="btn btn-secondary btn-sm">
+							<?php esc_html_e('Next', 'mhm-rentiva'); ?> &rarr;
+						</a>
+					<?php else : ?>
+						<span class="btn btn-secondary btn-sm" style="opacity:.4;pointer-events:none;"><?php esc_html_e('Next', 'mhm-rentiva'); ?> &rarr;</span>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 

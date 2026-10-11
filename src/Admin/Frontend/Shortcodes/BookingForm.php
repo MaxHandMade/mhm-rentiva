@@ -162,16 +162,16 @@ final class BookingForm extends AbstractShortcode {
 			'start_date'            => '',        // Start date
 			'end_date'              => '',        // End date
 			'show_vehicle_selector' => '1',       // Show vehicle selector
-			'default_days'          => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1), // Default number of days from settings
-			'min_days'              => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1), // Minimum number of days from settings
-			'max_days'              => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30), // Maximum number of days from settings
-			'show_payment_options'  => '1',       // Show payment options
+			// Return date prefill, N days after the chosen pickup (booking-form.js).
+			// Empty = no prefill, as before it was applied (spec 3A Task 6, Rule 1).
+			// The rental day limits are the Settings > Booking values (get_js_config()
+			// and the server validation), not per form.
+			'default_days'          => '',
 			'show_addons'           => '1',       // Show add-ons
 			'class'                 => '',        // Custom CSS class
 			'redirect_url'          => '',        // Redirect after success
 			'enable_deposit'        => '1',       // Deposit system active
-			'default_payment'       => 'deposit', // Default payment type
-			'form_title'            => '',        // Form title
+			'form_title'            => '',        // Heading above the form; none when empty
 			'show_vehicle_info'     => '1',       // Show vehicle information
 			'show_time_select'      => '1',       // Show time selection inputs
 		);
@@ -461,15 +461,12 @@ final class BookingForm extends AbstractShortcode {
 			'time_options'          => self::get_time_options(),
 			'addons'                => self::get_available_addons(),
 			'enable_deposit'        => filter_var($atts['enable_deposit'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-			'default_payment'       => $atts['default_payment'] ?? 'deposit',
 			'show_vehicle_selector' => filter_var($atts['show_vehicle_selector'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_addons'           => filter_var($atts['show_addons'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-			'show_payment_options'  => filter_var($atts['show_payment_options'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_vehicle_info'     => filter_var($atts['show_vehicle_info'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_time_select'      => filter_var($atts['show_time_select'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-			'default_days'          => (int) ( $atts['default_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1) ),
-			'min_days'              => (int) ( $atts['min_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1) ),
-			'max_days'              => (int) ( $atts['max_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30) ),
+			'default_days'          => max(0, min(365, (int) ( $atts['default_days'] ?? 0 ))),
+			'form_title'            => (string) ( $atts['form_title'] ?? '' ),
 			// ⭐ User data and validation (moved from template)
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,

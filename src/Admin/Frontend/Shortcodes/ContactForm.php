@@ -8,6 +8,8 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
+use MHMRentiva\Admin\Customers\CustomerIdentity;
+use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RecipientToken;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use Exception;
 
@@ -61,8 +63,11 @@ final class ContactForm extends AbstractShortcode {
 			'show_vehicle_selector' => '0',          // Show vehicle selector (for booking)
 			'show_priority'         => '0',           // Show priority selector (for support)
 			'show_attachment'       => '1',           // Show file attachment
-			'redirect_url'          => '',            // Redirect after success
-			'email_to'              => '',            // Custom email address
+			'show_booking_id_field' => '0',           // Show booking number field
+			'show_company_info'     => '1',           // Show the contact information box
+			'redirect_url'          => '',            // Redirect after success (same site only)
+			'success_message'       => '',            // Replaces the success text when set
+			'email_to'              => '',            // Custom recipient (see Contact\RecipientToken)
 			'auto_reply'            => '1',           // Send auto reply
 			'theme'                 => 'default',     // Theme (default, compact, detailed)
 			'class'                 => '',            // Custom CSS class
@@ -121,7 +126,19 @@ final class ContactForm extends AbstractShortcode {
 	 */
 	private static function prepare_template_data_legacy(array $atts): array
 	{
-		$form_config = self::get_form_config( (string) ( $atts['type'] ?? 'general' ));
+		$type         = self::normalize_type( (string) ( $atts['type'] ?? 'general' ));
+		$atts['type'] = $type;
+		$form_config  = self::get_form_config($type);
+
+		// A field the type requires is always rendered: its show_* toggle only applies
+		// where the field is optional, so no setting yields a form the server refuses.
+		$required = self::get_required_fields($type);
+		if (in_array('phone', $required, true)) {
+			$atts['show_phone'] = '1';
+		}
+		if (in_array('priority', $required, true)) {
+			$atts['show_priority'] = '1';
+		}
 
 		// Vehicle list (for booking form)
 		$vehicles = array();
@@ -135,20 +152,56 @@ final class ContactForm extends AbstractShortcode {
 			$priorities = self::get_priority_options();
 		}
 
-		// Email recipients
-		$email_recipients = self::get_email_recipients( (string) ( $atts['type'] ?? 'general' ), (string) ( $atts['email_to'] ?? '' ));
+		// The custom recipient never reaches the page as an address: it travels as an
+		// encrypted payload bound to the source post and is re-checked on submit.
+		$email_to        = trim( (string) ( $atts['email_to'] ?? '' ));
+		$recipient_token = '' !== $email_to ? RecipientToken::issue($email_to, self::resolve_source_post_id(), $type) : '';
+
+		// Same site only; anything else means "no redirect" (not admin_url()).
+		$redirect_url = (string) wp_validate_redirect(esc_url_raw( (string) ( $atts['redirect_url'] ?? '' )), '');
 
 		return array(
-			'atts'             => $atts,
-			'form_config'      => $form_config,
-			'vehicles'         => $vehicles,
-			'priorities'       => $priorities,
-			'email_recipients' => $email_recipients,
-			'current_user'     => wp_get_current_user(),
-			'support_phone'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_phone', '+90 555 555 55 55'),
-			'support_hours'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
-			'support_email'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_support_email', get_option('admin_email')),
+			'atts'            => $atts,
+			'form_config'     => $form_config,
+			'vehicles'        => $vehicles,
+			'priorities'      => $priorities,
+			'recipient_token' => $recipient_token,
+			'redirect_url'    => $redirect_url,
+			'current_user'    => wp_get_current_user(),
+			'support_phone'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_phone', '+90 555 555 55 55'),
+			'support_hours'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
+			'support_email'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_support_email', get_option('admin_email')),
 		);
+	}
+
+	/**
+	 * The post the form is placed on, for the recipient payload's binding.
+	 *
+	 * Inside an Elementor render it is the document being rendered (for a Theme
+	 * Builder template: the template, not the post it is shown on); otherwise the
+	 * displayed post -- for a block or shortcode in a sidebar that is the post on
+	 * screen, whose author then has to qualify (the safe side). 0 when there is none.
+	 */
+	public static function resolve_source_post_id(): int
+	{
+		// Elementor fills Plugin::$instance->documents on init; before that (or without
+		// Elementor) there is no document to ask.
+		$elementor = class_exists('\Elementor\Plugin') ? \Elementor\Plugin::$instance : null;
+		$documents = null !== $elementor ? $elementor->documents : null;
+		if ($documents instanceof \Elementor\Core\Documents_Manager) {
+			$document = $documents->get_current();
+			if (null !== $document) {
+				return (int) $document->get_main_id();
+			}
+		}
+
+		$id = get_the_ID();
+		return false === $id ? 0 : (int) $id;
+	}
+
+	private static function normalize_type(string $type): string
+	{
+		return in_array($type, ContactMessagePostType::TYPES, true) ? $type : 'general';
 	}
 
 	private static function get_form_config(string $type): array
@@ -295,21 +348,25 @@ final class ContactForm extends AbstractShortcode {
 			// this is deliberate double-sanitization-at-the-boundary, not a
 			// change to the real business-logic sanitizers/validators.
 			$post_data = array(
-				'type'           => isset($_POST['type']) ? sanitize_text_field(wp_unslash( (string) $_POST['type'])) : 'general',
-				'name'           => isset($_POST['name']) ? sanitize_text_field(wp_unslash( (string) $_POST['name'])) : '',
-				'email'          => isset($_POST['email']) ? sanitize_email(wp_unslash( (string) $_POST['email'])) : '',
-				'phone'          => isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '',
-				'company'        => isset($_POST['company']) ? sanitize_text_field(wp_unslash( (string) $_POST['company'])) : '',
-				'vehicle_id'     => isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0,
-				'preferred_date' => isset($_POST['preferred_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['preferred_date'])) : '',
-				'priority'       => isset($_POST['priority']) ? sanitize_text_field(wp_unslash( (string) $_POST['priority'])) : '',
-				'rating'         => isset($_POST['rating']) ? absint(wp_unslash($_POST['rating'])) : 0,
-				'message'        => isset($_POST['message']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['message'])) : '',
+				'type'            => isset($_POST['type']) ? sanitize_text_field(wp_unslash( (string) $_POST['type'])) : 'general',
+				'name'            => isset($_POST['name']) ? sanitize_text_field(wp_unslash( (string) $_POST['name'])) : '',
+				'email'           => isset($_POST['email']) ? sanitize_email(wp_unslash( (string) $_POST['email'])) : '',
+				'phone'           => isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '',
+				'company'         => isset($_POST['company']) ? sanitize_text_field(wp_unslash( (string) $_POST['company'])) : '',
+				'vehicle_id'      => isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0,
+				'preferred_date'  => isset($_POST['preferred_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['preferred_date'])) : '',
+				'priority'        => isset($_POST['priority']) ? sanitize_text_field(wp_unslash( (string) $_POST['priority'])) : '',
+				'rating'          => isset($_POST['rating']) ? absint(wp_unslash($_POST['rating'])) : 0,
+				'message'         => isset($_POST['message']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['message'])) : '',
 				// Never from the request: before 4.4.0 a typed URL landed here
 				// and became a link in the admin screen and a path fed to the
 				// admin e-mail. Only handle_file_upload() below sets it.
-				'attachment'     => '',
-				'auto_reply'     => isset($_POST['auto_reply']) ? sanitize_text_field(wp_unslash( (string) $_POST['auto_reply'])) : '1',
+				'attachment'      => '',
+				'auto_reply'      => isset($_POST['auto_reply']) ? sanitize_text_field(wp_unslash( (string) $_POST['auto_reply'])) : '1',
+				'booking_id'      => isset($_POST['booking_id']) ? absint(wp_unslash($_POST['booking_id'])) : 0,
+				// Opaque: only RecipientToken::resolve() gives it meaning. A plain
+				// address posted here (or as email_to) is never used as a recipient.
+				'recipient_token' => isset($_POST['recipient_token']) ? sanitize_text_field(wp_unslash( (string) $_POST['recipient_token'])) : '',
 			);
 
 			$attachment_file = null;
@@ -371,6 +428,15 @@ final class ContactForm extends AbstractShortcode {
 				'errors'  => $validation['errors'],
 			);
 		}
+
+		// After sanitization, so the payload is checked against the normalized type.
+		$form_data['recipient'] = '' !== $form_data['recipient_token']
+			? (string) RecipientToken::resolve($form_data['recipient_token'], $form_data['type'])
+			: '';
+
+		// Linked only to the signed-in renter's own booking. The answer to the
+		// visitor is the same either way, so the field reveals nothing.
+		$form_data['linked_booking_id'] = self::own_booking_id($form_data['booking_id']);
 
 		$record = null;
 		if (null !== $file) {
@@ -467,22 +533,52 @@ final class ContactForm extends AbstractShortcode {
 	private static function sanitize_contact_form_data(array $data): array
 	{
 		return array(
-			'type'           => in_array( (string) ( $data['type'] ?? '' ), ContactMessagePostType::TYPES, true ) ? (string) $data['type'] : 'general',
-			'name'           => self::sanitize_text_field_safe($data['name'] ?? ''),
-			'email'          => \MHMRentiva\Admin\Core\SecurityHelper::validate_email($data['email'] ?? ''),
-			'phone'          => \MHMRentiva\Admin\Core\SecurityHelper::validate_phone($data['phone'] ?? ''),
-			'company'        => self::sanitize_text_field_safe($data['company'] ?? ''),
-			'vehicle_id'     => self::vehicle_id_or_zero( (int) ( $data['vehicle_id'] ?? 0 )),
-			'preferred_date' => self::date_or_empty( (string) ( $data['preferred_date'] ?? '' )),
-			'priority'       => in_array( (string) ( $data['priority'] ?? '' ), ContactMessagePostType::PRIORITIES, true ) ? (string) $data['priority'] : '',
-			'rating'         => max(0, min(5, (int) ( $data['rating'] ?? 0 ))),
-			'message'        => ( $data['message'] ?? '' ) !== null ? sanitize_textarea_field( (string) ( $data['message'] ?? '' )) : '',
-			'attachment'     => '',
-			'auto_reply'     => self::sanitize_text_field_safe($data['auto_reply'] ?? '1'),
-			'ip_address'     => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '')),
-			'user_agent'     => sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'] ?? '')),
-			'timestamp'      => current_time('mysql'),
+			'type'            => in_array( (string) ( $data['type'] ?? '' ), ContactMessagePostType::TYPES, true ) ? (string) $data['type'] : 'general',
+			'name'            => self::sanitize_text_field_safe($data['name'] ?? ''),
+			'email'           => \MHMRentiva\Admin\Core\SecurityHelper::validate_email($data['email'] ?? ''),
+			'phone'           => \MHMRentiva\Admin\Core\SecurityHelper::validate_phone($data['phone'] ?? ''),
+			'company'         => self::sanitize_text_field_safe($data['company'] ?? ''),
+			'vehicle_id'      => self::vehicle_id_or_zero( (int) ( $data['vehicle_id'] ?? 0 )),
+			'preferred_date'  => self::date_or_empty( (string) ( $data['preferred_date'] ?? '' )),
+			'priority'        => in_array( (string) ( $data['priority'] ?? '' ), ContactMessagePostType::PRIORITIES, true ) ? (string) $data['priority'] : '',
+			'rating'          => max(0, min(5, (int) ( $data['rating'] ?? 0 ))),
+			'message'         => ( $data['message'] ?? '' ) !== null ? sanitize_textarea_field( (string) ( $data['message'] ?? '' )) : '',
+			'attachment'      => '',
+			'auto_reply'      => self::sanitize_text_field_safe($data['auto_reply'] ?? '1'),
+			'booking_id'      => absint($data['booking_id'] ?? 0),
+			'recipient_token' => self::sanitize_text_field_safe($data['recipient_token'] ?? ''),
+			'ip_address'      => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '')),
+			'user_agent'      => sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'] ?? '')),
+			'timestamp'       => current_time('mysql'),
 		);
+	}
+
+	/**
+	 * The booking number when it is the signed-in user's own booking, else 0.
+	 * Guests are never linked to any record.
+	 */
+	private static function own_booking_id(int $booking_id): int
+	{
+		$user = wp_get_current_user();
+		if ($booking_id <= 0 || $user->ID <= 0) {
+			return 0;
+		}
+
+		$found = get_posts(
+			array(
+				'post_type'        => 'mhmrentiva_booking',
+				'post_status'      => 'any',
+				'p'                => $booking_id,
+				'fields'           => 'ids',
+				'posts_per_page'   => 1,
+				'no_found_rows'    => true,
+				'suppress_filters' => true,
+				// One post by ID, filtered by the house ownership rule (user ID or account e-mail).
+				'meta_query'       => CustomerIdentity::meta_query_owned_by( (int) $user->ID, (string) $user->user_email), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- bounded to one post ID.
+			)
+		);
+
+		return array() !== $found ? $booking_id : 0;
 	}
 
 	private static function vehicle_id_or_zero(int $id): int
@@ -559,7 +655,25 @@ final class ContactForm extends AbstractShortcode {
 			'feedback' => array( 'name', 'email', 'rating', 'message' ),
 		);
 
-		return $configs[ $type ] ?? $configs['general'];
+		return self::drop_priority_without_options($configs[ $type ] ?? $configs['general'], self::get_priority_options());
+	}
+
+	/**
+	 * With no priority to choose from, priority is neither required nor (through
+	 * prepare_template_data_legacy()) rendered, so the form stays submittable.
+	 * Unreachable today -- get_priority_options() is hard-coded -- but kept so a
+	 * future empty list cannot recreate an unsubmittable support form.
+	 *
+	 * @param string[]            $fields     Required fields for the type.
+	 * @param array<string,mixed> $priorities Priority options.
+	 * @return string[]
+	 */
+	private static function drop_priority_without_options(array $fields, array $priorities): array
+	{
+		if (array() === $priorities) {
+			return array_values(array_diff($fields, array( 'priority' )));
+		}
+		return $fields;
 	}
 
 	private static function get_field_label(string $field): string
@@ -613,6 +727,10 @@ final class ContactForm extends AbstractShortcode {
 			),
 		);
 
+		if (( $data['linked_booking_id'] ?? 0 ) > 0) {
+			$post_data['meta_input']['_mhmrentiva_contact_booking_id'] = (int) $data['linked_booking_id'];
+		}
+
 		if (is_array($data['attachment']) && array() !== $data['attachment']) {
 			$post_data['meta_input'][ ContactAttachmentStore::META_KEY ]  = $data['attachment'];
 			$post_data['meta_input'][ ContactAttachmentStore::FILE_META ] = $data['attachment']['file'];
@@ -635,7 +753,7 @@ final class ContactForm extends AbstractShortcode {
 	private static function send_contact_email(array $data, int $message_id): bool
 	{
 		$form_config      = self::get_form_config($data['type']);
-		$email_recipients = self::get_email_recipients($data['type']);
+		$email_recipients = self::get_email_recipients($data['type'], (string) ( $data['recipient'] ?? '' ));
 
 		$subject = sprintf(
 			/* translators: 1: Site name, 2: Form title, 3: Message subject */
@@ -691,6 +809,11 @@ final class ContactForm extends AbstractShortcode {
 		if (! empty($data['vehicle_id'])) {
 			$vehicle  = get_post($data['vehicle_id']);
 			$message .= '<p><strong>' . __('Vehicle:', 'mhm-rentiva') . '</strong> ' . esc_html($vehicle->post_title ?? '') . '</p>';
+		}
+
+		if (! empty($data['booking_id'])) {
+			// The number as typed (absint); linked to the record only when it is the sender's own.
+			$message .= '<p><strong>' . esc_html__('Booking ID:', 'mhm-rentiva') . '</strong> #' . (int) $data['booking_id'] . '</p>';
 		}
 
 		if (! empty($data['preferred_date'])) {

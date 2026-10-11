@@ -20,13 +20,9 @@
             var showBookingDates = attributes.showBookingDates;
             var showPrice = attributes.showPrice;
             var showStatus = attributes.showStatus;
-            var showCancelButton = attributes.showCancelButton;
-            var showModifyButton = attributes.showModifyButton;
-            var showDetailsLink = attributes.showDetailsLink;
             var filterStatus = attributes.filterStatus;
-            var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
-            var limitResults = attributes.limitResults;
+            var limit = attributes.limit;
             var showPagination = attributes.showPagination;
             var className = attributes.className;
 
@@ -48,16 +44,6 @@
                             onChange: function (val) { setAttributes({ filterStatus: val }); }
                         }),
                         el(SelectControl, {
-                            label: __('Sort By', 'mhm-rentiva'),
-                            value: sortBy,
-                            options: [
-                                { label: __('Date', 'mhm-rentiva'), value: 'date' },
-                                { label: __('Status', 'mhm-rentiva'), value: 'status' },
-                                { label: __('Price', 'mhm-rentiva'), value: 'price' },
-                            ],
-                            onChange: function (val) { setAttributes({ sortBy: val }); }
-                        }),
-                        el(SelectControl, {
                             label: __('Sort Order', 'mhm-rentiva'),
                             value: sortOrder,
                             options: [
@@ -66,11 +52,13 @@
                             ],
                             onChange: function (val) { setAttributes({ sortOrder: val }); }
                         }),
+                        // Spec 3A Task 7a (rule 2): this control wrote a twin key
+                        // which nothing read; it now writes the live page size.
                         el(TextControl, {
                             label: __('Limit Results', 'mhm-rentiva'),
-                            value: limitResults,
+                            value: limit,
                             type: 'number',
-                            onChange: function (val) { setAttributes({ limitResults: val }); }
+                            onChange: function (val) { setAttributes({ limit: val }); }
                         })
                     ),
 
@@ -109,21 +97,6 @@
                             label: __('Show Status', 'mhm-rentiva'),
                             checked: showStatus,
                             onChange: function (val) { setAttributes({ showStatus: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Cancel Button', 'mhm-rentiva'),
-                            checked: showCancelButton,
-                            onChange: function (val) { setAttributes({ showCancelButton: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Modify Button', 'mhm-rentiva'),
-                            checked: showModifyButton,
-                            onChange: function (val) { setAttributes({ showModifyButton: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Details Link', 'mhm-rentiva'),
-                            checked: showDetailsLink,
-                            onChange: function (val) { setAttributes({ showDetailsLink: val }); }
                         })
                     )
                 ),

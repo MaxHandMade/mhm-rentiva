@@ -71,28 +71,6 @@
             "type": "boolean",
             "default": true
         },
-        "showAvailability": {
-            "type": "boolean",
-            "default": true
-        },
-        "sortBy": {
-            "type": "string",
-            "default": "price",
-            "enum": [
-                "price",
-                "popularity",
-                "newest",
-                "rating"
-            ]
-        },
-        "sortOrder": {
-            "type": "string",
-            "default": "asc",
-            "enum": [
-                "asc",
-                "desc"
-            ]
-        },
         "limit": {
             "type": "string",
             "default": "12"
@@ -127,14 +105,7 @@
         },
         "defaultSort": {
             "type": "string",
-            "default": "price_asc",
-            "enum": [
-                "price_asc",
-                "price_desc",
-                "newest",
-                "popularity",
-                "rating"
-            ]
+            "default": "price_asc"
         },
         "className": {
             "type": "string",

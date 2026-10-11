@@ -8,7 +8,6 @@ use MHMRentiva\Admin\Frontend\Shortcodes\ContactForm;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Frontend\Widgets\Base\WidgetAttributeBridge;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget;
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Tests\Support\RequestSimulator;
 use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use MHMRentiva\Tests\Support\WidgetFactory;
@@ -50,10 +49,13 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 		$this->assertFalse(wp_styles()->query('mhm-rentiva-css-variables', 'enqueued'));
 	}
 
+	/**
+	 * Slice 3A Task 6: default_days used to default to a setting (and was never
+	 * read); it now defaults to '' (no prefill). The mechanism is the same with a
+	 * static default: the payload omits the key, the shortcode's default fills it.
+	 */
 	public function test_canonical_missing_key_gets_shortcode_default(): void
 	{
-		SettingsCore::set('mhmrentiva_default_rental_days', 4);
-
 		$seen    = null;
 		$capture = static function ($html, $atts) use (&$seen) {
 			$seen = $atts;
@@ -64,7 +66,9 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 		Templates::render_shortcode_atts('rentiva_booking_form', array( '_canonical' => true ));
 
 		$this->assertIsArray($seen);
-		$this->assertSame(4, (int) $seen['default_days']);
+		$this->assertArrayHasKey('default_days', $seen);
+		$this->assertSame('', $seen['default_days']);
+		$this->assertSame('1', $seen['show_time_select'] ?? null);
 	}
 
 	public function test_canonical_flag_never_reaches_filter_or_template(): void

@@ -23,7 +23,6 @@
             var showRating = attributes.showRating;
             var showCategory = attributes.showCategory;
             var showBrand = attributes.showBrand;
-            var showAvailability = attributes.showAvailability;
             var showCompareButton = attributes.showCompareButton;
             var showFavoriteButton = attributes.showFavoriteButton;
             var showBookButton = attributes.showBookButton;

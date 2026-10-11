@@ -76,19 +76,23 @@ final class Testimonials extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'         => apply_filters('mhmrentiva_testimonials_limit', '5'),
-			'rating'        => apply_filters('mhmrentiva_testimonials_rating', ''),
-			'vehicle_id'    => apply_filters('mhmrentiva_testimonials_vehicle_id', ''),
-			'orderby'       => apply_filters('mhmrentiva_testimonials_orderby', 'date'),
-			'order'         => apply_filters('mhmrentiva_testimonials_order', 'DESC'),
-			'show_rating'   => apply_filters('mhmrentiva_testimonials_show_rating', '1'),
-			'show_date'     => apply_filters('mhmrentiva_testimonials_show_date', '1'),
-			'show_vehicle'  => apply_filters('mhmrentiva_testimonials_show_vehicle', '1'),
-			'show_customer' => apply_filters('mhmrentiva_testimonials_show_customer', '1'),
-			'layout'        => apply_filters('mhmrentiva_testimonials_layout', 'grid'),
-			'columns'       => apply_filters('mhmrentiva_testimonials_columns', '3'),
-			'auto_rotate'   => apply_filters('mhmrentiva_testimonials_auto_rotate', '0'),
-			'class'         => apply_filters('mhmrentiva_testimonials_class', ''),
+			'limit'              => apply_filters('mhmrentiva_testimonials_limit', '5'),
+			'rating'             => apply_filters('mhmrentiva_testimonials_rating', ''),
+			'vehicle_id'         => apply_filters('mhmrentiva_testimonials_vehicle_id', ''),
+			'orderby'            => apply_filters('mhmrentiva_testimonials_orderby', 'date'),
+			'order'              => apply_filters('mhmrentiva_testimonials_order', 'DESC'),
+			'show_rating'        => apply_filters('mhmrentiva_testimonials_show_rating', '1'),
+			'show_date'          => apply_filters('mhmrentiva_testimonials_show_date', '1'),
+			'show_vehicle'       => apply_filters('mhmrentiva_testimonials_show_vehicle', '1'),
+			'show_customer'      => apply_filters('mhmrentiva_testimonials_show_customer', '1'),
+			'layout'             => apply_filters('mhmrentiva_testimonials_layout', 'grid'),
+			'columns'            => apply_filters('mhmrentiva_testimonials_columns', '3'),
+			'auto_rotate'        => apply_filters('mhmrentiva_testimonials_auto_rotate', '0'),
+			'class'              => apply_filters('mhmrentiva_testimonials_class', ''),
+			// The initial-letter avatar and the cards' quote icon (spec 3A Task 8);
+			// both rendered unconditionally before, so both default on.
+			'show_author_avatar' => '1',
+			'show_quotes'        => '1',
 		);
 	}
 
@@ -148,9 +152,26 @@ final class Testimonials extends AbstractShortcode {
 		$data['nonce'] = wp_create_nonce('mhmrentiva_testimonials_nonce');
 
 		$data['icons'] = array(
-			'star'     => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
-			'car'      => \MHMRentiva\Helpers\Icons::get('car', array( 'class' => 'rv-icon-car' )),
-			'calendar' => \MHMRentiva\Helpers\Icons::get('calendar', array( 'class' => 'rv-icon-calendar' )),
+			// The two icons of a card, as the template renders them; the cards
+			// "Load More" adds use these.
+			'card_quote' => \MHMRentiva\Helpers\Icons::get(
+				'quote',
+				array(
+					'width'  => '32px',
+					'height' => '32px',
+					'class'  => 'rv-icon rv-icon-quote-deco',
+				)
+			),
+			'card_star'  => \MHMRentiva\Helpers\Icons::get(
+				'star',
+				array(
+					'width'  => '15px',
+					'height' => '15px',
+				)
+			),
+			'star'       => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
+			'car'        => \MHMRentiva\Helpers\Icons::get('car', array( 'class' => 'rv-icon-car' )),
+			'calendar'   => \MHMRentiva\Helpers\Icons::get('calendar', array( 'class' => 'rv-icon-calendar' )),
 		);
 		return $data;
 	}
@@ -201,14 +222,61 @@ final class Testimonials extends AbstractShortcode {
 
 	protected static function prepare_template_data(array $atts): array
 	{
+		// A random order is drawn from a seed, so "Load More" can ask for the
+		// next page of the same draw instead of a new one.
+		if ('rand' === self::sanitize_orderby( (string) ( $atts['orderby'] ?? 'date' ))) {
+			$atts['seed'] = (string) wp_rand(1, 2147483647);
+		}
+
 		$testimonials = self::get_testimonials($atts);
 
 		return array(
 			'atts'             => $atts,
 			'testimonials'     => $testimonials,
-			'total_count'      => self::get_testimonials_count($atts),
+			// What can be served, not every review: "Load More" is offered only
+			// while there is more of the pool to show.
+			'total_count'      => self::servable_count(self::get_testimonials_count($atts)),
 			'has_testimonials' => ! empty($testimonials),
+			'load_more'        => self::load_more_attributes($atts),
 		);
+	}
+
+	/**
+	 * What "Load More" needs to ask for the next page of this list: the order,
+	 * the filters and the display flags of the cards it renders. Only values
+	 * that differ from the defaults are listed (the script falls back to the
+	 * defaults), so a default render keeps its markup.
+	 *
+	 * @param array<string,mixed> $atts Resolved attributes.
+	 * @return array<string,string> data-attribute name (without "data-") => value
+	 */
+	public static function load_more_attributes(array $atts): array
+	{
+		$out = array();
+
+		$orderby = self::sanitize_orderby( (string) ( $atts['orderby'] ?? 'date' ));
+		if ('date' !== $orderby) {
+			$out['orderby'] = $orderby;
+		}
+		if ('ASC' === self::sanitize_order( (string) ( $atts['order'] ?? 'DESC' ))) {
+			$out['order'] = 'ASC';
+		}
+		if ('rand' === $orderby && ! empty($atts['seed'])) {
+			$out['seed'] = (string) absint($atts['seed']);
+		}
+		if (! empty($atts['rating']) && (int) $atts['rating'] > 0) {
+			$out['rating'] = (string) (int) $atts['rating'];
+		}
+		if (! empty($atts['vehicle_id']) && (int) $atts['vehicle_id'] > 0) {
+			$out['vehicle-id'] = (string) (int) $atts['vehicle_id'];
+		}
+		foreach (array( 'show_rating', 'show_date', 'show_vehicle', 'show_customer', 'show_author_avatar', 'show_quotes' ) as $flag) {
+			if ('1' !== (string) ( $atts[ $flag ] ?? '1' )) {
+				$out[ str_replace('_', '-', $flag) ] = '0';
+			}
+		}
+
+		return $out;
 	}
 
 	/**
@@ -230,30 +298,58 @@ final class Testimonials extends AbstractShortcode {
 		// first page and appended the reviews already on screen.
 		$offset = max(0, (int) ( $atts['offset'] ?? 0 ));
 
-		// How many rows each source may return. Both sources are sorted newest
-		// first, so for a date ordering the newest $limit of each is guaranteed
-		// to contain the newest $limit of the merge. A random ordering needs a
-		// pool to draw from, and an unlimited `limit` still needs a ceiling --
-		// both use the same maximum the testimonials endpoint already enforces.
-		// A paged read has to fetch past its own start, or the slice below has
-		// nothing left to take.
+		// How many rows each source may return. Each source is read in the
+		// requested order (date either way, or rating with unrated last), so the
+		// first N of each are guaranteed to contain the first N of the merge. A
+		// random order draws from a fixed pool (the newest of each source) that
+		// must be the same on every page, and an unlimited `limit` still needs a
+		// ceiling -- both use the same maximum the testimonials endpoint already
+		// enforces. A paged read has to fetch past its own start, or the slice
+		// below has nothing left to take.
 		$fetch_limit = ( $limit > 0 && 'rand' !== $orderby )
 			? min( self::MAX_ROWS, $offset + $limit )
 			: self::MAX_ROWS;
 
 		// Source 1: Booking post meta reviews
-		$testimonials = self::get_booking_reviews($atts, $fetch_limit);
+		$testimonials = self::get_booking_reviews($atts, $fetch_limit, $orderby, $order);
 
 		// Source 2: Approved WordPress comments on vehicle posts
-		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts, $fetch_limit));
+		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts, $fetch_limit, $orderby, $order));
 
 		if ('rand' === $orderby) {
-			shuffle($testimonials);
+			// A seeded draw: the same seed gives the same order, so a later page
+			// continues it. Without a seed (no caller passes none today) one is
+			// drawn here.
+			$seed = isset($atts['seed']) && absint($atts['seed']) > 0 ? (string) absint($atts['seed']) : (string) wp_rand(1, 2147483647);
+			usort($testimonials, static function (array $a, array $b) use ($seed): int {
+				return strcmp(
+					md5($seed . '|' . ( $a['id'] ?? '' ) . '|' . ( $a['date'] ?? '' )),
+					md5($seed . '|' . ( $b['id'] ?? '' ) . '|' . ( $b['date'] ?? '' ))
+				);
+			});
+		} elseif ('rating' === $orderby) {
+			// Highest first for DESC, lowest first for ASC. A review without a
+			// rating (0) goes last in both orders; ties keep the newest first.
+			usort($testimonials, static function (array $a, array $b) use ($order): int {
+				$ra = (int) ( $a['rating'] ?? 0 );
+				$rb = (int) ( $b['rating'] ?? 0 );
+				if (( $ra > 0 ) !== ( $rb > 0 )) {
+					return $ra > 0 ? -1 : 1;
+				}
+				$cmp = 'ASC' === $order ? $ra <=> $rb : $rb <=> $ra;
+				return 0 !== $cmp ? $cmp : strcmp( (string) ( $b['date'] ?? '' ), (string) ( $a['date'] ?? '' ));
+			});
 		} else {
 			usort($testimonials, static function (array $a, array $b) use ($order): int {
 				$cmp = strcmp( (string) ( $a['date'] ?? '' ), (string) ( $b['date'] ?? '' ));
 				return 'ASC' === $order ? $cmp : -$cmp;
 			});
+		}
+
+		// A later page never reads past the pool: only its first MAX_ROWS rows
+		// are known to be the right ones (servable_count()).
+		if ($offset > 0) {
+			$testimonials = \array_slice($testimonials, 0, self::MAX_ROWS);
 		}
 
 		// Apply offset and limit on the merged set
@@ -263,12 +359,103 @@ final class Testimonials extends AbstractShortcode {
 	}
 
 	/**
+	 * How many of $total reviews the list can serve: each source is read up to
+	 * MAX_ROWS rows, so only the first MAX_ROWS of the merged order are known
+	 * to be right. "Load More" stops there instead of promising pages it would
+	 * serve empty (or out of order).
+	 */
+	private static function servable_count(int $total): int
+	{
+		return min($total, self::MAX_ROWS);
+	}
+
+	/**
+	 * Read one source in the list's order (spec 3A Task 10a item 7).
+	 *
+	 * Date: by date in the requested direction. Rating: the rated rows (a
+	 * rating of 1 or more) by rating in the requested direction, newest first
+	 * on a tie -- topped up with the unrated rows, newest first, only when
+	 * fewer than $fetch_limit rated rows came back, so unrated go last in both
+	 * directions, as the merge sorts them. Random: newest first (the pool).
+	 * Every orderby value is a constant; $order is already allowlisted.
+	 *
+	 * @param callable $read       fn(?array $rating_clause, array $sort, int $rows): list<row>.
+	 * @param string   $date_key   The source's date orderby key.
+	 * @param string   $rating_key The source's rating meta key.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function read_in_order(callable $read, int $fetch_limit, string $orderby, string $order, string $date_key, string $rating_key): array
+	{
+		if ('rating' !== $orderby) {
+			return $read(null, array( $date_key => 'date' === $orderby ? $order : 'DESC' ), $fetch_limit);
+		}
+
+		$rated = $read(
+			array(
+				'rating_sort' => array(
+					'key'     => $rating_key,
+					'value'   => 1,
+					'compare' => '>=',
+					'type'    => 'NUMERIC',
+				),
+			),
+			array(
+				'rating_sort' => $order,
+				$date_key     => 'DESC',
+			),
+			$fetch_limit
+		);
+		if (count($rated) >= $fetch_limit) {
+			return $rated;
+		}
+
+		$unrated = $read(
+			array(
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => $rating_key,
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => $rating_key,
+						'value'   => 1,
+						'compare' => '<',
+						'type'    => 'NUMERIC',
+					),
+				),
+			),
+			array( $date_key => 'DESC' ),
+			$fetch_limit - count($rated)
+		);
+
+		return array_merge($rated, $unrated);
+	}
+
+	/**
 	 * Get reviews stored as vehicle_booking post meta.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_booking_reviews(array $atts, int $fetch_limit = self::MAX_ROWS): array
+	private static function get_booking_reviews(array $atts, int $fetch_limit = self::MAX_ROWS, string $orderby = 'date', string $order = 'DESC'): array
+	{
+		$read = static function (?array $rating_clause, array $sort, int $rows) use ($atts): array {
+			return self::read_booking_reviews($atts, $rows, $sort, $rating_clause);
+		};
+		return self::read_in_order($read, $fetch_limit, $orderby, $order, 'date', '_mhmrentiva_customer_rating');
+	}
+
+	/**
+	 * One booking-review read.
+	 *
+	 * @param array                     $atts          Shortcode attributes.
+	 * @param int                       $fetch_limit   Rows to read.
+	 * @param array<string,string>      $sort          WP_Query orderby (constants only).
+	 * @param array<int|string,mixed>|null $rating_clause Extra meta_query clauses for the rating order.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function read_booking_reviews(array $atts, int $fetch_limit, array $sort, ?array $rating_clause): array
 	{
 		$args = array(
 			'post_type'      => 'mhmrentiva_booking',
@@ -276,8 +463,7 @@ final class Testimonials extends AbstractShortcode {
 			// Bounded: this runs on a public page and the caller slices to the
 			// displayed count anyway.
 			'posts_per_page' => max(1, min($fetch_limit, self::MAX_ROWS)),
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'orderby'        => $sort,
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -308,6 +494,10 @@ final class Testimonials extends AbstractShortcode {
 			);
 		}
 
+		if (null !== $rating_clause) {
+			$args['meta_query'] = array_merge($args['meta_query'], $rating_clause);
+		}
+
 		$bookings     = get_posts($args);
 		$testimonials = array();
 
@@ -323,6 +513,7 @@ final class Testimonials extends AbstractShortcode {
 				// template or the script ever read this field -- it existed only
 				// on the wire.
 				'date'          => $booking->post_date,
+				'date_display'  => self::date_display( (string) $booking->post_date),
 				'vehicle_id'    => $vid,
 				'vehicle_name'  => self::get_vehicle_name($vid),
 			);
@@ -337,7 +528,24 @@ final class Testimonials extends AbstractShortcode {
 	 * @param array $atts Shortcode attributes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS): array
+	private static function get_vehicle_comments(array $atts, int $fetch_limit = self::MAX_ROWS, string $orderby = 'date', string $order = 'DESC'): array
+	{
+		$read = static function (?array $rating_clause, array $sort, int $rows) use ($atts): array {
+			return self::read_vehicle_comments($atts, $rows, $sort, $rating_clause);
+		};
+		return self::read_in_order($read, $fetch_limit, $orderby, $order, 'comment_date', 'mhmrentiva_rating');
+	}
+
+	/**
+	 * One vehicle-comment read.
+	 *
+	 * @param array                        $atts          Shortcode attributes.
+	 * @param int                          $fetch_limit   Rows to read.
+	 * @param array<string,string>         $sort          WP_Comment_Query orderby (constants only).
+	 * @param array<int|string,mixed>|null $rating_clause Extra meta_query clauses for the rating order.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function read_vehicle_comments(array $atts, int $fetch_limit, array $sort, ?array $rating_clause): array
 	{
 		$comment_args = array(
 			'post_type'   => 'mhmrentiva_vehicle',
@@ -348,8 +556,7 @@ final class Testimonials extends AbstractShortcode {
 			'status'      => 'approve',
 			// Bounded for the same reason as the booking read above.
 			'number'      => max(1, min($fetch_limit, self::MAX_ROWS)),
-			'orderby'     => 'comment_date',
-			'order'       => 'DESC',
+			'orderby'     => $sort,
 		);
 
 		if (! empty($atts['vehicle_id'])) {
@@ -365,6 +572,10 @@ final class Testimonials extends AbstractShortcode {
 					'type'    => 'NUMERIC',
 				),
 			);
+		}
+
+		if (null !== $rating_clause) {
+			$comment_args['meta_query'] = array_merge($comment_args['meta_query'] ?? array(), $rating_clause);
 		}
 
 		$comments     = get_comments($comment_args);
@@ -390,6 +601,7 @@ final class Testimonials extends AbstractShortcode {
 				'customer_name' => $customer_name ?: '',
 				// See the booking builder above: this payload is public.
 				'date'          => $comment->comment_date,
+				'date_display'  => self::date_display( (string) $comment->comment_date),
 				'vehicle_id'    => $vehicle_id,
 				'vehicle_name'  => self::get_vehicle_name($vehicle_id),
 			);
@@ -400,10 +612,14 @@ final class Testimonials extends AbstractShortcode {
 
 	/**
 	 * Sanitize orderby value for testimonial queries.
+	 *
+	 * The orders the list applies (the schema's values). Anything else --
+	 * including the Elementor control's old title/modified options, which never
+	 * sorted by anything but date -- is the date order.
 	 */
 	private static function sanitize_orderby(string $value): string
 	{
-		$allowed = array( 'date', 'title', 'rand', 'modified' );
+		$allowed = array( 'date', 'rating', 'rand' );
 		$value   = strtolower($value);
 		return in_array($value, $allowed, true) ? $value : 'date';
 	}
@@ -490,6 +706,15 @@ final class Testimonials extends AbstractShortcode {
 		return $booking_count + $comment_count;
 	}
 
+	/**
+	 * The date as the template prints it, for cards "Load More" renders.
+	 */
+	private static function date_display(string $date): string
+	{
+		$time = strtotime($date);
+		return false === $time ? '' : (string) date_i18n( (string) get_option('date_format', 'd.m.Y'), $time);
+	}
+
 	private static function get_vehicle_name(int $vehicle_id): string
 	{
 		if ($vehicle_id <= 0) {
@@ -528,10 +753,19 @@ final class Testimonials extends AbstractShortcode {
 		$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
 		$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
 
+		// The first page's order: get_testimonials() maps them onto its allowlists
+		// (sanitize_orderby / sanitize_order); the seed continues a random draw.
+		$orderby = isset($_POST['orderby']) ? sanitize_key(wp_unslash( (string) $_POST['orderby'])) : 'date';
+		$order   = isset($_POST['order']) ? sanitize_key(wp_unslash( (string) $_POST['order'])) : 'desc';
+		$seed    = isset($_POST['seed']) ? absint(wp_unslash( (string) $_POST['seed'])) : 0;
+
 		$atts = array(
 			'limit'      => $limit,
 			'rating'     => $rating,
 			'vehicle_id' => $vehicle_id,
+			'orderby'    => $orderby,
+			'order'      => $order,
+			'seed'       => $seed,
 			// Without this the page number only ever reached has_more, and every
 			// click re-sent the first page.
 			'offset'     => ( max(1, $page) - 1 ) * $limit,
@@ -551,7 +785,9 @@ final class Testimonials extends AbstractShortcode {
 			array(
 				'testimonials' => $testimonials,
 				'total_count'  => $total_count,
-				'has_more'     => ( $page * $limit ) < $total_count,
+				// Up to what can be served (servable_count()), not every review:
+				// past the pool the button stayed and served empty pages.
+				'has_more'     => ( $page * $limit ) < self::servable_count($total_count),
 				'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
 			)
 		);

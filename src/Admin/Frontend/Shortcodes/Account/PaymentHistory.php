@@ -29,8 +29,18 @@ final class PaymentHistory extends AbstractAccountShortcode {
 
 	protected static function get_default_attributes(): array {
 		return array(
-			'limit'    => '20',
-			'hide_nav' => false,
+			// Spec 3A Task 7b: '10' is the page size the list always had (Rule 1);
+			// the '20' here was never read.
+			'limit'               => '10',
+			'hide_nav'            => false,
+			'orderby'             => 'date',
+			'order'               => 'desc',
+			'status'              => '',
+			// Today's markup: date and method shown, the title not a link.
+			'show_date'           => '1',
+			'show_payment_method' => '1',
+			'show_booking_link'   => '0',
+			'show_pagination'     => '1',
 		);
 	}
 

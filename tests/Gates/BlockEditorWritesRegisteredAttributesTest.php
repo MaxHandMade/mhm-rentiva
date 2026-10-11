@@ -17,8 +17,29 @@ use WP_UnitTestCase;
  */
 class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 {
-	/** setAttributes object-literal keys across Lite's editor scripts after the slice. */
-	private const LITE_LITERAL_KEYS = 194;
+	/**
+	 * setAttributes object-literal keys across Lite's editor scripts after the slice.
+	 * Slice 3A Task 1: 190 (contact: subjectPrefix, showSubjectField, showMap and
+	 * showSocialLinks controls removed; the three twins repointed, same count).
+	 * Slice 3A Task 4: 179 (vehicle-details: 4 controls removed; vehicle-comparison: 7).
+	 * Slice 3A Task 5: 178 (search-results: the sortBy and sortOrder selects became
+	 * one defaultSort select).
+	 * Slice 3A Task 6: 171 (availability-calendar: showTodayButton and
+	 * showWeekNumbers toggles removed, "Show Booking Links" repointed to
+	 * showBookingButton; booking-form: show_date_picker, show_insurance,
+	 * defaultPayment, minDays and maxDays controls removed).
+	 * Slice 3A Task 7a: 167 (my-bookings: sortBy select and the showCancelButton,
+	 * showModifyButton, showDetailsLink toggles removed; "Limit Results"
+	 * repointed from limitResults to limit, same count).
+	 * Slice 3A Task 7b: 164 (payment-history: showInvoiceDownload and
+	 * showTransactionId toggles removed, "Limit Results" repointed to limit;
+	 * my-favorites: showAddedDate toggle removed, "Show Remove Button" repointed to
+	 * showFavoriteButton).
+	 * Slice 3A Task 8: 154 (vehicle-rating-form: its ten setting controls removed;
+	 * testimonials: Autoplay, Limit Items, Show Author Name and Show Vehicle Name
+	 * repointed to autoRotate, limit, showCustomer and showVehicle, same count).
+	 */
+	private const LITE_LITERAL_KEYS = 154;
 
 	private static function blocks_dir(): string
 	{

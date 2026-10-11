@@ -40,7 +40,9 @@ final class BridgeRenderTest extends WP_UnitTestCase
 		$this->assertStringContainsString('id="rv-contact-form"', $html);
 		$this->assertStringNotContainsString('_transform_', $html);
 		$this->assertStringNotContainsString('title=', $html);
-		$this->assertStringNotContainsString('[7/24]', $html);
+		// Since slice 3A Task 1 the title renders (it was a dead setting): intact,
+		// escaped once, as text in the heading -- never as shortcode text.
+		$this->assertStringContainsString('<h3 class="rv-contact-title">Bize ulaşın [7/24] &amp; &quot;biz&quot;</h3>', $html);
 	}
 
 	public function test_bracket_ampersand_quote_value_survives(): void
@@ -124,7 +126,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 			'shortcodes/vehicle-details',
 			array(
 				'vehicle_id' => $vehicle,
-				'atts'       => array( 'show_booking_form' => '1' ),
+				'atts'       => array( 'show_reviews' => '1' ),
 			),
 			true
 		);

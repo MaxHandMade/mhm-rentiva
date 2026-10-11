@@ -96,7 +96,9 @@ class BookingFormWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Form Title', 'mhm-rentiva' ),
 				'type'    => 'text',
-				'default' => __( 'Booking Form', 'mhm-rentiva' ),
+				// Empty: the title is shown only when set (spec 3A Task 6), so an
+				// untouched widget gains no heading.
+				'default' => '',
 			)
 		);
 
@@ -153,18 +155,6 @@ class BookingFormWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'show_payment_options',
-			array(
-				'label'        => __( 'Show Payment Options', 'mhm-rentiva' ),
-				'type'         => 'switcher',
-				'label_on'     => __( 'Yes', 'mhm-rentiva' ),
-				'label_off'    => __( 'No', 'mhm-rentiva' ),
-				'return_value' => 'yes',
-				'default'      => 'yes',
-			)
-		);
-
 		$this->end_controls_section();
 
 		// Booking Settings
@@ -179,33 +169,13 @@ class BookingFormWidget extends ElementorWidgetBase {
 		$this->add_control(
 			'default_days',
 			array(
-				'label'   => __( 'Default Number of Days', 'mhm-rentiva' ),
-				'type'    => 'number',
-				'min'     => 1,
-				'max'     => 365,
-				'default' => 3,
-			)
-		);
-
-		$this->add_control(
-			'min_days',
-			array(
-				'label'   => __( 'Minimum Number of Days', 'mhm-rentiva' ),
-				'type'    => 'number',
-				'min'     => 1,
-				'max'     => 365,
-				'default' => 1,
-			)
-		);
-
-		$this->add_control(
-			'max_days',
-			array(
-				'label'   => __( 'Maximum Number of Days', 'mhm-rentiva' ),
-				'type'    => 'number',
-				'min'     => 1,
-				'max'     => 365,
-				'default' => 30,
+				'label'       => __( 'Default Number of Days', 'mhm-rentiva' ),
+				'type'        => 'number',
+				'min'         => 1,
+				'max'         => 365,
+				// Empty: no return date prefill, as before the setting was applied.
+				'default'     => '',
+				'description' => __( 'Prefills the return date this many days after the chosen pickup date. Leave empty for no prefill.', 'mhm-rentiva' ),
 			)
 		);
 
@@ -229,19 +199,6 @@ class BookingFormWidget extends ElementorWidgetBase {
 				'label_off'    => __( 'No', 'mhm-rentiva' ),
 				'return_value' => 'yes',
 				'default'      => 'yes',
-			)
-		);
-
-		$this->add_control(
-			'default_payment',
-			array(
-				'label'   => __( 'Default Payment Type', 'mhm-rentiva' ),
-				'type'    => 'select',
-				'default' => 'deposit',
-				'options' => array(
-					'deposit' => __( 'Deposit', 'mhm-rentiva' ),
-					'full'    => __( 'Full Payment', 'mhm-rentiva' ),
-				),
 			)
 		);
 
@@ -363,10 +320,7 @@ class BookingFormWidget extends ElementorWidgetBase {
 	protected function prepare_shortcode_attributes( array $settings ): array {
 		$atts = array();
 
-		// General
-		if ( ! empty( $settings['form_title'] ) ) {
-			$atts['title'] = $settings['form_title'];
-		}
+		// General (form_title reaches the shortcode as a bridge setting of its own name)
 		if ( ! empty( $settings['vehicle_id'] ) ) {
 			$atts['vehicle_id'] = $settings['vehicle_id'];
 		}
@@ -376,7 +330,6 @@ class BookingFormWidget extends ElementorWidgetBase {
 			'show_vehicle_selector',
 			'show_vehicle_info',
 			'show_addons',
-			'show_payment_options',
 		);
 
 		foreach ( $display_options as $option ) {
@@ -390,20 +343,11 @@ class BookingFormWidget extends ElementorWidgetBase {
 		if ( ! empty( $settings['default_days'] ) ) {
 			$atts['default_days'] = $settings['default_days'];
 		}
-		if ( ! empty( $settings['min_days'] ) ) {
-			$atts['min_days'] = $settings['min_days'];
-		}
-		if ( ! empty( $settings['max_days'] ) ) {
-			$atts['max_days'] = $settings['max_days'];
-		}
 
 		// Payment settings
 		if ( isset( $settings['enable_deposit'] ) ) {
 			$val                    = $settings['enable_deposit'];
 			$atts['enable_deposit'] = ( $val === 'yes' || $val === '1' || $val === 1 || $val === true ) ? '1' : '0';
-		}
-		if ( ! empty( $settings['default_payment'] ) ) {
-			$atts['default_payment'] = $settings['default_payment'];
 		}
 
 		// Advanced

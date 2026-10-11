@@ -20,8 +20,30 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	/** Lite blocks registered by the plugin's own init hook. */
 	private const LITE_BLOCK_COUNT = 16;
 
-	/** Non-support attributes after the slice (300 before: 2 shadowing + 20 twin deletions). */
-	private const LITE_ATTRIBUTE_COUNT = 278;
+	/**
+	 * Non-support attributes after the slice (300 before: 2 shadowing + 20 twin deletions).
+	 * Slice 3A Task 1: 271, the contact block's seven removed attributes.
+	 * Slice 3A Task 3: 261, ten removed from vehicles-list, vehicles-grid, featured-vehicles.
+	 * Slice 3A Task 4: 249, five removed from vehicle-details (incl. showBookingForm,
+	 * ruling T4-1), seven from vehicle-comparison.
+	 * Slice 3A Task 5: 243, three removed from search-results (sortBy, sortOrder,
+	 * showAvailability) and three from unified-search (filter_categories, minwidth,
+	 * maxwidth); its block.json `layout` was removed too, but the block keeps the
+	 * `layout` attribute core adds for `supports.layout`, so the count drops by six.
+	 * Slice 3A Task 6: 231, six removed from availability-calendar (showBookingLinks,
+	 * showTodayButton, showWeekNumbers, startDate, showSeasonalPrices,
+	 * integratePricing) and six from booking-form (show_insurance,
+	 * show_payment_options, show_date_picker, minDays, maxDays, defaultPayment).
+	 * Ruling T6-1: 230, availability-calendar showDiscounts.
+	 * Slice 3A Task 7a: 225, five removed from my-bookings (showCancelButton,
+	 * showModifyButton, showDetailsLink, sortBy, limitResults).
+	 * Slice 3A Task 7b: 219, three removed from payment-history (showInvoiceDownload,
+	 * showTransactionId, limitResults) and three from my-favorites (showRemoveButton,
+	 * showAddedDate, showBadges).
+	 * Slice 3A Task 8: 204, five removed from testimonials (autoplay, category,
+	 * limitItems, showAuthorName, showVehicleName) and ten from vehicle-rating-form.
+	 */
+	private const LITE_ATTRIBUTE_COUNT = 204;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(
@@ -31,9 +53,10 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 		array( 'vehicle-comparison', 'showBookButton' ),
 		array( 'testimonials', 'filterRating' ),
 		array( 'availability-calendar', 'showMonthNavigation' ),
-		array( 'availability-calendar', 'showTodayButton' ),
+		// Slice 3A Task 6: showTodayButton removed; the "Show Booking Links" toggle
+		// now writes showBookingButton (rule 2).
+		array( 'availability-calendar', 'showBookingButton' ),
 		array( 'availability-calendar', 'calendarHeight' ),
-		array( 'vehicle-details', 'showShareButtons' ),
 		array( 'vehicles-grid', 'showBookButton' ),
 		array( 'vehicles-grid', 'filterCategories' ),
 		array( 'vehicles-list', 'showBookButton' ),
@@ -42,8 +65,8 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 		array( 'featured-vehicles', 'showBookButton' ),
 		array( 'my-bookings', 'showVehicleImage' ),
 		array( 'my-bookings', 'showStatus' ),
-		array( 'my-bookings', 'showCancelButton' ),
-		array( 'my-bookings', 'showModifyButton' ),
+		// Slice 3A Task 7a: showCancelButton and showModifyButton removed (no such
+		// feature on the list).
 		array( 'my-bookings', 'filterStatus' ),
 		array( 'my-favorites', 'showBookButton' ),
 		array( 'payment-history', 'filterStatus' ),
@@ -86,7 +109,9 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 				++$probed;
 			}
 		}
-		$this->assertSame(22, $probed);
+		// 21: vehicle-details showShareButtons was removed (slice 3A Task 4, no share feature).
+		// 19: my-bookings showCancelButton and showModifyButton rows removed (slice 3A Task 7a).
+		$this->assertSame(19, $probed);
 	}
 
 	/**

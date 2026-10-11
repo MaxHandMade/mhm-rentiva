@@ -44,12 +44,10 @@ final class TestimonialsCanonicalTest extends WP_UnitTestCase
 
 	public function test_widget_value_outside_shortcode_defaults_reaches_the_filter(): void
 	{
-		// `category` and `show_quotes` are not keys of Testimonials::get_default_attributes();
-		// shortcode_atts() used to drop them on the widget path.
+		// The widget's values arrive mapped (_canonical) and reach the filter.
 		$widget = WidgetFactory::make(
 			TestimonialsWidget::class,
 			array(
-				'category'    => 'zz-probe',
 				'show_quotes' => '',
 			)
 		);
@@ -60,11 +58,25 @@ final class TestimonialsCanonicalTest extends WP_UnitTestCase
 
 		$this->assertCount(1, $this->seen, 'The testimonials _html filter did not fire on the widget path.');
 		$atts = $this->seen[0];
-		$this->assertSame('zz-probe', $atts['category'] ?? null);
 		$this->assertSame('0', $atts['show_quotes'] ?? null);
 		$this->assertArrayNotHasKey('_canonical', $atts);
 		// An omitted key still gets the shortcode's own default.
 		$this->assertSame('3', (string) ( $atts['columns'] ?? '' ));
+
+		// A mapped key that is not one of Testimonials::get_default_attributes()
+		// (`sort_by` is in the schema only) is not truncated by shortcode_atts().
+		// Since slice 3A Task 8 every key a widget control writes is a default
+		// (`category` was removed, `show_quotes` became one), so the canonical
+		// payload is handed over directly.
+		\MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::render(
+			array(
+				'_canonical' => true,
+				'sort_by'    => 'zz-probe',
+			)
+		);
+		$this->assertCount(2, $this->seen);
+		$this->assertSame('zz-probe', $this->seen[1]['sort_by'] ?? null);
+		$this->assertArrayNotHasKey('_canonical', $this->seen[1]);
 	}
 
 	public function test_shortcode_path_still_truncates_to_defaults(): void

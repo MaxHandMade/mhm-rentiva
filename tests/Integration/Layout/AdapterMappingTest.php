@@ -40,7 +40,9 @@ final class AdapterMappingTest extends TestCase
         $output = $adapter->render($attributes, 'inst_1');
 
         $this->assertStringContainsString('[rentiva_unified_search', $output);
-        $this->assertStringContainsString('layout="horizontal"', $output);
+        // The manifest's layout reaches the live search_layout (spec 3A Task 5).
+        $this->assertStringContainsString('search_layout="horizontal"', $output);
+        $this->assertStringNotContainsString(' layout=', $output);
         $this->assertStringNotContainsString('style=', $output);
     }
 

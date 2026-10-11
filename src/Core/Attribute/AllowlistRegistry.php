@@ -61,28 +61,8 @@ final class AllowlistRegistry {
             'group'   => 'sorting',
             'aliases' => [ 'showSorting' ],
         ],
-        'limit_results'            => [
-            'type'    => 'int',
-            'group'   => 'pagination',
-            'aliases' => [ 'limitResults' ],
-        ],
-        'limit_items'              => [
-            'type'    => 'int',
-            'group'   => 'pagination',
-            'aliases' => [ 'limitItems' ],
-        ],
 
         // Dimension Mappings
-        'minwidth'                 => [
-            'type'    => 'string',
-            'group'   => 'layout',
-            'aliases' => [ 'minWidth', 'min_width' ],
-        ],
-        'maxwidth'                 => [
-            'type'    => 'string',
-            'group'   => 'layout',
-            'aliases' => [ 'maxWidth', 'max_width' ],
-        ],
         'width'                    => [
             'type'  => 'string',
             'group' => 'layout',
@@ -108,16 +88,6 @@ final class AllowlistRegistry {
             'type'    => 'int',
             'group'   => 'workflow',
             'aliases' => [ 'defaultDays' ],
-        ],
-        'min_days'                 => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => [ 'minDays' ],
-        ],
-        'max_days'                 => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => [ 'maxDays' ],
         ],
 
         // Layout & Styles
@@ -270,25 +240,10 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showLegend' ],
         ],
-        'show_booking_links'       => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showBookingLinks' ],
-        ],
         'show_month_nav'           => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showMonthNavigation' ],
-        ],
-        'show_today_btn'           => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTodayButton' ],
-        ],
-        'show_week_numbers'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showWeekNumbers' ],
         ],
         'months_to_show'           => [
             'type'    => 'int',
@@ -325,39 +280,10 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showDownloadPDF' ],
         ],
-        'show_cancel_btn'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showCancelButton', 'showCancelBtn' ],
-        ],
-        'show_insurance'           => [
-            'type'  => 'bool',
-            'group' => 'visibility',
-        ],
-        'show_subject_field'       => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showSubjectField' ],
-        ],
         'show_booking_id_field'    => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showBookingIdField' ],
-        ],
-        'show_map'                 => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showMap' ],
-        ],
-        'show_social_links'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showSocialLinks' ],
-        ],
-        'show_unread_badge'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showUnreadBadge' ],
         ],
         'show_thread_preview'      => [
             'type'    => 'bool',
@@ -368,11 +294,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showBookingLink' ],
-        ],
-        'show_reply_btn'           => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showReplyButton', 'showReplyBtn' ],
         ],
         'show_booking_dates'       => [
             'type'    => 'bool',
@@ -404,30 +325,10 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showStatus' ],
         ],
-        'show_modify_btn'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showModifyButton', 'showModifyBtn' ],
-        ],
-        'show_added_date'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showAddedDate' ],
-        ],
-        'show_invoice_download'    => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showInvoiceDownload' ],
-        ],
         'show_payment_method'      => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showPaymentMethod' ],
-        ],
-        'show_transaction_id'      => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTransactionId' ],
         ],
         'show_route_info'          => [
             'type'    => 'bool',
@@ -469,80 +370,15 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showBreadcrumb' ],
         ],
-        'show_text_review'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTextReview' ],
-        ],
-        'show_category_ratings'    => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showCategoryRatings' ],
-        ],
-        'show_photo_upload'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPhotoUpload' ],
-        ],
-        'show_vehicle_preview'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showVehiclePreview' ],
-        ],
-        'show_recommend_toggle'    => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showRecommendToggle' ],
-        ],
-        'require_login'            => [
-            'type'    => 'bool',
-            'group'   => 'workflow',
-            'aliases' => [ 'requireLogin' ],
-        ],
-        'require_booking'          => [
-            'type'    => 'bool',
-            'group'   => 'workflow',
-            'aliases' => [ 'requireBooking' ],
-        ],
-        'max_photos'               => [
-            'type'    => 'int',
-            'group'   => 'feature',
-            'aliases' => [ 'maxPhotos' ],
-        ],
-        'min_review_length'        => [
-            'type'    => 'int',
-            'group'   => 'feature',
-            'aliases' => [ 'minReviewLength' ],
-        ],
         'similar_vehicles_limit'   => [
             'type'    => 'int',
             'group'   => 'feature',
             'aliases' => [ 'similarVehiclesLimit' ],
         ],
-        'recipient_email'          => [
-            'type'    => 'string',
-            'group'   => 'workflow',
-            'aliases' => [ 'recipientEmail' ],
-        ],
-        'subject_prefix'           => [
-            'type'    => 'string',
-            'group'   => 'workflow',
-            'aliases' => [ 'subjectPrefix' ],
-        ],
         'success_message'          => [
             'type'    => 'string',
             'group'   => 'workflow',
             'aliases' => [ 'successMessage' ],
-        ],
-        'show_details_link'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showDetailsLink' ],
-        ],
-        'show_star_rating'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showStarRating' ],
         ],
         'show_vehicle_details'     => [
             'type'    => 'bool',
@@ -559,35 +395,15 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showPassengerCount' ],
         ],
-        'show_phone_field'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPhoneField', 'showPhone' ],
-        ],
         'show_company_info'        => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showCompanyInfo', 'showCompany' ],
         ],
-        'show_vehicle_select'      => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showVehicleSelect', 'showVehicleSelector' ],
-        ],
         'show_author_avatar'       => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showAuthorAvatar', 'showAvatar' ],
-        ],
-        'show_author_name'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showAuthorName' ],
-        ],
-        'show_vehicle_name'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showVehicleName' ],
         ],
         'show_quotes'              => [
             'type'    => 'bool',
@@ -667,11 +483,6 @@ final class AllowlistRegistry {
             'group'   => 'feature',
             'aliases' => [ 'featuredOnly' ],
         ],
-        'show_remove_button'       => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showRemoveButton' ],
-        ],
         'show_addons'              => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -691,6 +502,11 @@ final class AllowlistRegistry {
             'type'    => 'string',
             'group'   => 'content',
             'aliases' => [ 'buttonText' ],
+        ],
+        'show_rating_count'        => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showRatingCount' ],
         ],
 
         // Vendor profile attributes
@@ -820,17 +636,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'feature',
             'aliases' => [ 'enableDeposit' ],
-        ],
-        'show_payment_options'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPaymentOptions' ],
-        ],
-        'default_payment'          => [
-            'type'    => 'enum',
-            'group'   => 'workflow',
-            'aliases' => [ 'defaultPayment' ],
-            'values'  => [ 'deposit', 'full', 'cash', 'credit_card', 'bank_transfer', 'none' ],
         ],
         'redirect_url'             => [
             'type'    => 'string',
@@ -1068,21 +873,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showComparisonImages' ],
         ],
-        'integrate_pricing'        => [
-            'type'    => 'bool',
-            'group'   => 'feature',
-            'aliases' => [ 'integratePricing' ],
-        ],
-        'show_seasonal_prices'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showSeasonalPrices' ],
-        ],
-        'show_discounts'           => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showDiscounts' ],
-        ],
         'rating'                   => [
             'type'    => 'int',
             'group'   => 'feature',
@@ -1101,19 +891,13 @@ final class AllowlistRegistry {
             'end_date',
             'show_vehicle_selector',
             'default_days',
-            'min_days',
-            'max_days',
-            'show_payment_options',
             'show_addons',
             'class',
             'redirect_url',
             'enable_deposit',
-            'default_payment',
             'form_title',
             'show_vehicle_info',
             'show_time_select',
-            'show_insurance',
-            'show_date_picker',
         ],
         'rentiva_vehicles_list'         => [
             'limit',
@@ -1131,18 +915,23 @@ final class AllowlistRegistry {
             'show_favorite_button',
             'show_category',
             'show_brand',
-            'show_badges',
             'show_description',
-            'show_availability',
             'show_compare_button',
             'image_size',
             'ids',
             'max_features',
-            'price_format',
             'class',
             'custom_css_class',
             'min_rating',
             'min_reviews',
+            // Card inputs of the vehicle card widget (spec 3A Task 2).
+            'button_text',
+            'show_rating_count',
+            // The card's layout (vehicle card widget), spec 3A Task 3.
+            'layout' => [
+                'default' => 'list',
+                'values'  => [ 'list', 'grid' ],
+            ],
         ],
         'rentiva_search_results'        => [
             'layout'               => [ 'default' => 'grid' ],
@@ -1159,11 +948,17 @@ final class AllowlistRegistry {
             'show_features'        => [ 'default' => '1' ],
             'show_rating'          => [ 'default' => '1' ],
             'show_badges'          => [ 'default' => '1' ],
-            'default_sort'         => [ 'default' => 'price_asc' ],
+            // The first request's order. `values` are the sorts SearchResults'
+            // switch applies (get_sorting_options()), the list every editor offers
+            // (spec 3A §2.5 E, gate G3). The type stays 'string' and block.json
+            // carries no enum: a value saved from a removed option (newest/
+            // popularity/rating) keeps falling to the switch's relevance branch as
+            // today on every surface, instead of becoming price_asc.
+            'default_sort'         => [
+                'default' => 'price_asc',
+                'values'  => [ 'relevance', 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc' ],
+            ],
             'class'                => [ 'default' => '' ],
-            'show_availability'    => [ 'default' => '1' ],
-            'orderby'              => [ 'default' => 'date' ],
-            'order'                => [ 'default' => 'DESC' ],
             'button_text'          => [ 'default' => '' ],
             'show_pickup'          => [ 'default' => '1' ],
             'show_dropoff'         => [ 'default' => '1' ],
@@ -1172,22 +967,15 @@ final class AllowlistRegistry {
             'vehicle_id'            => [ 'default' => '' ],
             'show_pricing'          => [ 'default' => '1' ],
             'theme'                 => [ 'default' => 'default' ],
-            'start_date'            => [ 'default' => '' ],
             'class'                 => [ 'default' => '' ],
-            'show_vehicle_selector' => [ 'default' => '0' ],
+            'show_vehicle_selector' => [ 'default' => '1' ],
             'show_legend'           => [ 'default' => '1' ],
-            'show_booking_links'    => [ 'default' => '1' ],
             'show_month_nav'        => [ 'default' => '1' ],
-            'show_today_btn'        => [ 'default' => '1' ],
-            'show_week_numbers'     => [ 'default' => '0' ],
             'months_to_show'        => [ 'default' => '1' ],
             'start_week_on'         => [ 'default' => '1' ],
             'start_month'           => [ 'default' => '' ],
-            'height'                => [ 'default' => 'auto' ],
-            'show_seasonal_prices'  => [ 'default' => '1' ],
-            'show_discounts'        => [ 'default' => '1' ],
+            'height'                => [ 'default' => '' ],
             'show_booking_button'   => [ 'default' => '1' ],
-            'integrate_pricing'     => [ 'default' => '1' ],
         ],
         'rentiva_vehicle_details'       => [
             'vehicle_id',
@@ -1198,14 +986,9 @@ final class AllowlistRegistry {
             'class',
             'show_rating',
             'show_reviews',
-            'show_technical_specs',
-            'show_availability',
-            'show_booking_form',
             'show_similar_vehicles',
-            'show_share_btns',
             'show_favorite_button',
             'show_compare_button',
-            'show_breadcrumb',
             'similar_vehicles_limit',
             'show_calendar',
             'show_price',
@@ -1229,9 +1012,6 @@ final class AllowlistRegistry {
             'show_favorite_button',
             'show_category',
             'show_brand',
-            'show_badges',
-            'show_description',
-            'show_availability',
             'show_compare_button',
             'image_size',
             'class',
@@ -1250,16 +1030,11 @@ final class AllowlistRegistry {
         'rentiva_vehicle_rating_form'   => [
             'vehicle_id',
             'class',
-            'show_star_rating',
-            'show_text_review',
-            'show_category_ratings',
-            'show_photo_upload',
-            'show_vehicle_preview',
-            'show_recommend_toggle',
-            'require_login',
-            'require_booking',
-            'max_photos',
-            'min_review_length',
+            // show_star_rating, show_text_review, show_category_ratings,
+            // show_photo_upload, show_vehicle_preview, show_recommend_toggle,
+            // require_login, require_booking, max_photos and min_review_length were
+            // removed (spec 3A Task 8): never read; login and review length are the
+            // global Comments settings, applied server side.
             'show_rating_display',
             'show_form',
             'show_ratings_list',
@@ -1274,19 +1049,12 @@ final class AllowlistRegistry {
             ],
             'max_vehicles'         => [ 'default' => '4' ],
             'class'                => [ 'default' => '' ],
-            'show_technical_specs' => [ 'default' => 'all' ],
             'show_images'          => [ 'default' => '1' ],
             'show_prices'          => [ 'default' => '1' ],
-            'show_rating'          => [ 'default' => '1' ],
             'show_book_button'     => [
                 'default' => '1',
                 'aliases' => [],
             ],
-            'show_category'        => [ 'default' => '1' ],
-            'show_fuel_type'       => [ 'default' => '1' ],
-            'show_transmission'    => [ 'default' => '1' ],
-            'show_seats'           => [ 'default' => '1' ],
-            'show_features'        => [ 'default' => 'all' ],
             'show_remove_buttons'  => [ 'default' => '1' ],
             'layout'               => [ 'default' => 'table' ],
             'title'                => [ 'default' => '' ],
@@ -1305,66 +1073,68 @@ final class AllowlistRegistry {
             'auto_reply',
             'theme',
             'class',
-            'show_phone_field',
-            'show_subject_field',
             'show_booking_id_field',
-            'show_vehicle_select',
             'show_company_info',
-            'show_map',
-            'show_social_links',
-            'recipient_email',
-            'subject_prefix',
             'success_message',
         ],
         'rentiva_testimonials'          => [
             'limit',
-            'category',
             'rating',
             'vehicle_id',
-            'orderby',
+            // The orders Testimonials::get_testimonials() applies; anything else
+            // (the Elementor control's old title/modified) is the date order.
+            'orderby' => [
+                'values' => [ 'date', 'rating', 'rand' ],
+            ],
             'order',
             'show_rating',
             'show_date',
             'show_vehicle',
-            'show_vehicle_name',
             'show_customer',
             'layout',
             'columns',
             'auto_rotate',
             'class',
             'show_author_avatar',
-            'show_author_name',
             'show_quotes',
             'sort_by',
             'sort_order',
-            'limit_items',
-            'autoplay',
+            // category, show_vehicle_name, show_author_name, limit_items and autoplay
+            // were removed (spec 3A Task 8); the editor controls of the four twins
+            // write show_vehicle, show_customer, limit and auto_rotate.
         ],
         'rentiva_payment_history'       => [
             'limit',
             'class',
-            'show_invoice_download',
             'show_payment_method',
-            'show_transaction_id',
             'show_date',
             'show_booking_link',
-            'status',
-            'orderby',
+            // The normalized payment statuses (AccountRenderer::PAYMENT_STATUSES);
+            // '' is no filter (the editors' "All").
+            'status'  => [
+                'values' => [ '', 'pending', 'completed', 'cancelled' ],
+            ],
+            'orderby' => [
+                'values' => [ 'date', 'amount' ],
+            ],
             'order',
-            'limit_results',
             'show_pagination',
             'hide_nav',
+            // show_invoice_download, show_transaction_id and limit_results were
+            // removed (spec 3A Task 7b).
         ],
         'rentiva_my_favorites'          => [
             'limit',
             'class',
             'show_availability_status',
             'show_category',
-            'show_remove_button',
             'show_booking_button',
             'show_favorite_button',
-            'show_added_date',
-            'orderby',
+            // added: the saved favourites order; 'date' and 'title' are the values
+            // the Elementor control saved before (MyFavorites::sort_mode()).
+            'orderby' => [
+                'values' => [ 'added', 'name', 'price', 'date', 'title' ],
+            ],
             'order',
             'columns',
             'show_image',
@@ -1373,9 +1143,10 @@ final class AllowlistRegistry {
             'show_features',
             'show_rating',
             'show_booking_button',
-            'show_badges',
             'layout',
             'no_results_text',
+            // show_badges, show_remove_button and show_added_date were removed
+            // (spec 3A Task 7b).
         ],
         'rentiva_my_bookings'           => [
             'limit',
@@ -1384,20 +1155,14 @@ final class AllowlistRegistry {
             'show_booking_dates',
             'show_price',
             'show_status_toggle',
-            'show_cancel_btn',
-            'show_modify_btn',
-            'show_details_link',
             'status',
-            'limit_results',
             'show_pagination',
-            'orderby' => [
-                'values' => [ 'price', 'popularity', 'newest', 'capacity', 'title', 'date', 'modified', 'rand', 'post__in', 'rating', 'rating_average', 'rating_count', 'confidence', 'id' ],
-            ],
+            // orderby, limit_results, show_cancel_btn, show_modify_btn and
+            // show_details_link were removed (spec 3A Task 7a).
             'order',
             'hide_nav',
         ],
         'rentiva_featured_vehicles'     => [
-            'title',
             'ids',
             'category',
             'limit',
@@ -1410,19 +1175,15 @@ final class AllowlistRegistry {
             'show_price',
             'show_rating',
             'show_category',
-            // showBookButton must reach show_booking_button, the key the card reads first
-            // (vehicle-card-base.php:40); emptied here so that alias resolves only there.
-            'show_book_button' => [ 'aliases' => [] ],
+            // The card reads show_booking_button (vehicle-card-base.php:40); its alias
+            // showBookButton is the block toggle. show_book_button was removed (spec 3A T3).
             'show_booking_button',
             'show_features',
             'max_features',
             'show_brand',
-            'show_availability',
             'show_compare_button',
             'show_favorite_button',
-            'show_badges',
             'image_size',
-            'price_format',
             'class',
             'filter_categories',
             'view_all_url',
@@ -1436,13 +1197,9 @@ final class AllowlistRegistry {
             'show_dropoff_location',
             'location_required',
             'fields_required',
-            'filter_categories',
             'redirect_page',
-            'layout',
             'search_layout',
             'class',
-            'minwidth',
-            'maxwidth',
         ],
         'rentiva_user_dashboard'        => [
             'class',

@@ -42,15 +42,7 @@
         }
     },
     "attributes": {
-        "showInvoiceDownload": {
-            "type": "boolean",
-            "default": true
-        },
         "showPaymentMethod": {
-            "type": "boolean",
-            "default": true
-        },
-        "showTransactionId": {
             "type": "boolean",
             "default": true
         },
@@ -60,17 +52,16 @@
         },
         "showBookingLink": {
             "type": "boolean",
-            "default": true
+            "default": false
         },
         "filterStatus": {
             "type": "string",
             "default": "all",
             "enum": [
                 "all",
-                "paid",
                 "pending",
-                "refunded",
-                "failed"
+                "completed",
+                "cancelled"
             ]
         },
         "sortBy": {
@@ -78,8 +69,7 @@
             "default": "date",
             "enum": [
                 "date",
-                "amount",
-                "status"
+                "amount"
             ]
         },
         "sortOrder": {
@@ -90,17 +80,13 @@
                 "desc"
             ]
         },
-        "limitResults": {
-            "type": "string",
-            "default": "20"
-        },
         "showPagination": {
             "type": "boolean",
             "default": true
         },
         "limit": {
             "type": "string",
-            "default": "20"
+            "default": "10"
         },
         "hideNav": {
             "type": "boolean",

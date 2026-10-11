@@ -540,6 +540,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_booking_vehicle_id',
 			'_mhmrentiva_contact_attachment',
 			'_mhmrentiva_contact_attachment_file',
+			'_mhmrentiva_contact_booking_id',
 			'_mhmrentiva_contact_company',
 			'_mhmrentiva_contact_email',
 			'_mhmrentiva_contact_ip_address',

@@ -48,7 +48,8 @@ class VehiclesListWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Columns', 'mhm-rentiva' ),
 				'type'    => 'select',
-				'default' => '3',
+				// One column: what the list has always shown (spec 3A §2.2).
+				'default' => '1',
 				'options' => array(
 					'1' => '1',
 					'2' => '2',
@@ -79,13 +80,15 @@ class VehiclesListWidget extends ElementorWidgetBase {
 			)
 		);
 
+		// Writes the canonical button_text. Empty falls back to the global "Book Now"
+		// text (booking_btn_text, filled by the shortcode -- never an editor control).
 		$this->add_control(
-			'booking_btn_text',
+			'button_text',
 			array(
 				'label'       => __( 'Button Text', 'mhm-rentiva' ),
 				'type'        => 'text',
 				'placeholder' => __( 'Book Now', 'mhm-rentiva' ),
-				'default'     => __( 'Book Now', 'mhm-rentiva' ),
+				'default'     => '',
 			)
 		);
 

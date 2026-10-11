@@ -75,20 +75,6 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'show_features',
-			array(
-				'label'   => __( 'Show Features', 'mhm-rentiva' ),
-				'type'    => Controls_Manager::SELECT,
-				'default' => 'all',
-				'options' => array(
-					'all'      => __( 'All', 'mhm-rentiva' ),
-					'basic'    => __( 'Basic', 'mhm-rentiva' ),
-					'detailed' => __( 'Detailed', 'mhm-rentiva' ),
-				),
-			)
-		);
-
 		$this->end_controls_section();
 
 		// --- Visibility section ---
@@ -168,7 +154,7 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 			$atts['max_vehicles'] = (string) max( 2, min( 6, (int) $settings['max_vehicles'] ) );
 		}
 
-		foreach ( array( 'layout', 'show_features' ) as $key ) {
+		foreach ( array( 'layout' ) as $key ) {
 			if ( array_key_exists( $key, $settings ) ) {
 				$atts[ $key ] = sanitize_text_field( (string) $settings[ $key ] );
 			}

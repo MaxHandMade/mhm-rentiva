@@ -29,9 +29,14 @@ class UnifiedSearchTest extends WP_UnitTestCase
         $this->assertStringContainsString('rv-unified-search--horizontal', $output);
     }
 
+    /**
+     * The layout attribute is search_layout. Its `layout` twin was removed in spec
+     * 3A Task 5 (search_layout always won it on the block and Elementor surfaces);
+     * a hand-written layout="vertical" is now ignored like any unknown attribute.
+     */
     public function test_vertical_layout_attribute()
     {
-        $output = do_shortcode('[rentiva_unified_search layout="vertical"]');
+        $output = do_shortcode('[rentiva_unified_search search_layout="vertical"]');
 
         $this->assertStringContainsString('rv-unified-search--vertical', $output);
         $this->assertStringNotContainsString('rv-unified-search--horizontal', $output);

@@ -46,10 +46,6 @@
             "type": "string",
             "default": ""
         },
-        "show_insurance": {
-            "type": "boolean",
-            "default": true
-        },
         "show_addons": {
             "type": "boolean",
             "default": true
@@ -67,14 +63,6 @@
             "default": true
         },
         "show_vehicle_info": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_payment_options": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_date_picker": {
             "type": "boolean",
             "default": true
         },
@@ -98,21 +86,9 @@
             "type": "string",
             "default": ""
         },
-        "minDays": {
-            "type": "string",
-            "default": ""
-        },
-        "maxDays": {
-            "type": "string",
-            "default": ""
-        },
         "redirectUrl": {
             "type": "string",
             "default": ""
-        },
-        "defaultPayment": {
-            "type": "string",
-            "default": "deposit"
         }
     },
     "editorStyle": [

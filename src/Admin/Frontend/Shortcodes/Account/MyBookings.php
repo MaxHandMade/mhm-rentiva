@@ -29,11 +29,16 @@ final class MyBookings extends AbstractAccountShortcode {
 
 	protected static function get_default_attributes(): array {
 		return array(
-			'limit'    => '10',
-			'status'   => '',
-			'orderby'  => 'date',
-			'order'    => 'DESC',
-			'hide_nav' => false,
+			'limit'              => '10',
+			'status'             => '',
+			'order'              => 'DESC',
+			'hide_nav'           => false,
+			// Spec 3A Task 7a: these gate markup that was unconditional, so on by default.
+			'show_image'         => '1',
+			'show_booking_dates' => '1',
+			'show_status_toggle' => '1',
+			'show_price'         => '1',
+			'show_pagination'    => '1',
 		);
 	}
 

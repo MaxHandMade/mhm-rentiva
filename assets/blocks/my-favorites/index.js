@@ -20,10 +20,9 @@
             var showPrice = attributes.showPrice;
             var showAvailabilityStatus = attributes.showAvailabilityStatus;
             var showCategory = attributes.showCategory;
-            var showRemoveButton = attributes.showRemoveButton;
+            var showFavoriteButton = attributes.showFavoriteButton;
             var showBookButton = attributes.showBookButton;
             var showRating = attributes.showRating;
-            var showAddedDate = attributes.showAddedDate;
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
             var columns = attributes.columns;
@@ -47,9 +46,8 @@
                             value: sortBy,
                             options: [
                                 { label: __('Date Added', 'mhm-rentiva'), value: 'added' },
-                                { label: __('Price', 'mhm-rentiva'), value: 'price' },
                                 { label: __('Name', 'mhm-rentiva'), value: 'name' },
-                                { label: __('Rating', 'mhm-rentiva'), value: 'rating' }
+                                { label: __('Price', 'mhm-rentiva'), value: 'price' }
                             ],
                             onChange: function (val) { setAttributes({ sortBy: val }); }
                         }),
@@ -100,10 +98,12 @@
                             checked: showCategory,
                             onChange: function (val) { setAttributes({ showCategory: val }); }
                         }),
+                        // Spec 3A Task 7b (rule 2): on favourites the heart is the
+                        // remove button; this control wrote a twin key nothing read.
                         el(ToggleControl, {
                             label: __('Show Remove Button', 'mhm-rentiva'),
-                            checked: showRemoveButton,
-                            onChange: function (val) { setAttributes({ showRemoveButton: val }); }
+                            checked: showFavoriteButton,
+                            onChange: function (val) { setAttributes({ showFavoriteButton: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Book Button', 'mhm-rentiva'),
@@ -114,11 +114,6 @@
                             label: __('Show Rating', 'mhm-rentiva'),
                             checked: showRating,
                             onChange: function (val) { setAttributes({ showRating: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Added Date', 'mhm-rentiva'),
-                            checked: showAddedDate,
-                            onChange: function (val) { setAttributes({ showAddedDate: val }); }
                         })
                     )
                 ),

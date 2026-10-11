@@ -77,10 +77,12 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Order By', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::SELECT,
-				'default' => 'date',
+				// Spec 3A Task 7b: the schema's values. A value saved before
+				// ('date', 'title') keeps its meaning (MyFavorites::sort_mode()).
+				'default' => 'added',
 				'options' => array(
-					'date'  => __( 'Date Added', 'mhm-rentiva' ),
-					'title' => __( 'Title', 'mhm-rentiva' ),
+					'added' => __( 'Date Added', 'mhm-rentiva' ),
+					'name'  => __( 'Name', 'mhm-rentiva' ),
 					'price' => __( 'Price', 'mhm-rentiva' ),
 				),
 			)
@@ -170,29 +172,8 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'show_remove_button',
-			array(
-				'label'        => __( 'Show Remove Button', 'mhm-rentiva' ),
-				'type'         => Controls_Manager::SWITCHER,
-				'default'      => '1',
-				'label_on'     => __( 'Show', 'mhm-rentiva' ),
-				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
-				'return_value' => '1',
-			)
-		);
-
-		$this->add_control(
-			'show_added_date',
-			array(
-				'label'        => __( 'Show Date Added', 'mhm-rentiva' ),
-				'type'         => Controls_Manager::SWITCHER,
-				'default'      => '0',
-				'label_on'     => __( 'Show', 'mhm-rentiva' ),
-				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
-				'return_value' => '1',
-			)
-		);
+		// Spec 3A Task 7b: "Show Remove Button" (twin of Show Favorite Button, the
+		// heart that removes) and "Show Date Added" (no per-favourite date) are gone.
 
 		$this->end_controls_section();
 	}
@@ -222,7 +203,7 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 			}
 		}
 
-		foreach ( array( 'show_price', 'show_features', 'show_rating', 'show_booking_button', 'show_favorite_button', 'show_remove_button', 'show_added_date' ) as $key ) {
+		foreach ( array( 'show_price', 'show_features', 'show_rating', 'show_booking_button', 'show_favorite_button' ) as $key ) {
 			if ( array_key_exists( $key, $settings ) ) {
 				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
 			}

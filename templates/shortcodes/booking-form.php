@@ -40,11 +40,11 @@ if (isset($error)) {
 // Get shortcode properties
 $show_vehicle_selector = $show_vehicle_selector ?? true;
 $show_addons           = $show_addons ?? true;
-$show_payment_options  = $show_payment_options ?? true;
 $show_vehicle_info     = $show_vehicle_info ?? true;
 $show_time_select      = $show_time_select ?? true;
 $enable_deposit        = $enable_deposit ?? true;
-$default_payment       = $default_payment ?? 'deposit';
+$default_days          = (int) ( $default_days ?? 0 );
+$form_title            = (string) ( $form_title ?? '' );
 $class                 = $atts['class'] ?? '';
 $redirect_url          = $atts['redirect_url'] ?? '';
 
@@ -76,11 +76,21 @@ $unique_id = uniqid('rv_booking_');
 	data-testid="booking-form-wrapper"
 	data-redirect-url="<?php echo esc_url($redirect_url); ?>"
 	<?php
+	// Return date prefill (booking-form.js); written only when set, so an
+	// untouched form keeps today's markup.
+	if ($default_days > 0) :
+		?>
+	data-default-days="<?php echo esc_attr( (string) $default_days); ?>"
+	<?php endif; ?>
+	<?php
 	if (! empty($selected_vehicle['id'])) :
 		?>
 	data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>" <?php endif; ?>>
 
 	<div class="rv-booking-form">
+		<?php if ('' !== $form_title) : ?>
+			<h2 class="rv-booking-form-title"><?php echo esc_html($form_title); ?></h2>
+		<?php endif; ?>
 		<?php
 		// No inline `onsubmit` -- wp_kses() (now wrapping this template's output
 		// at the dispatcher, see

@@ -152,7 +152,19 @@
                 .then(data => {
                     if (data.success) {
                         this.resetForm(form);
-                        this.showSuccessMessage(form, (data.data && data.data.message) || mhmContactForm.messages.success);
+                        // The block/widget "Success Message" setting wins over the server text.
+                        const wrapper = form.closest('.rv-contact-form');
+                        const custom = wrapper ? wrapper.dataset.successMessage : '';
+                        this.showSuccessMessage(form, custom || (data.data && data.data.message) || mhmContactForm.messages.success);
+
+                        // Same-site only: the server validated it (wp_validate_redirect) before printing it.
+                        // Left after a short delay, so the success message above is seen first.
+                        const redirect = wrapper ? wrapper.dataset.redirectUrl : '';
+                        if (redirect) {
+                            setTimeout(() => {
+                                window.location.assign(redirect);
+                            }, 1500);
+                        }
                     } else {
                         const errorMessage = (data.data && data.data.message) || mhmContactForm.messages.error;
                         this.showErrorMessage(form, errorMessage);
@@ -175,10 +187,7 @@
         showSuccessMessage(form, message) {
             this.clearMessages(form);
 
-            const successDiv = document.createElement('div');
-            successDiv.className = 'rv-form-message rv-success';
-            successDiv.innerHTML = (mhmContactForm.icons?.success || '') + ' <span class="rv-msg-text"></span>';
-            successDiv.querySelector('.rv-msg-text').textContent = message;
+            const successDiv = this.buildMessage('rv-form-message rv-success', mhmContactForm.icons?.success, message);
 
             const actionsDiv = form.querySelector('.rv-form-actions');
             if (actionsDiv) {
@@ -199,10 +208,7 @@
         showErrorMessage(form, message) {
             this.clearMessages(form);
 
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'rv-form-message rv-error';
-            errorDiv.innerHTML = (mhmContactForm.icons?.warning || '') + ' <span class="rv-msg-text"></span>';
-            errorDiv.querySelector('.rv-msg-text').textContent = message;
+            const errorDiv = this.buildMessage('rv-form-message rv-error', mhmContactForm.icons?.warning, message);
 
             const actionsDiv = form.querySelector('.rv-form-actions');
             if (actionsDiv) {
@@ -210,6 +216,31 @@
             } else {
                 form.insertBefore(errorDiv, form.firstChild);
             }
+        }
+
+        /**
+         * A message box: the server's icon SVG, then the text. The message (custom
+         * setting or AJAX response) is only ever set as text, never parsed as markup.
+         */
+        buildMessage(className, iconSvg, message) {
+            const box = document.createElement('div');
+            box.className = className;
+
+            if (iconSvg) {
+                // Server-built icon markup (Icons::get), parsed inert: DOMParser runs no scripts.
+                const icon = new DOMParser().parseFromString(iconSvg, 'text/html').body.firstElementChild;
+                if (icon) {
+                    box.appendChild(document.importNode(icon, true));
+                    box.appendChild(document.createTextNode(' '));
+                }
+            }
+
+            const text = document.createElement('span');
+            text.className = 'rv-msg-text';
+            text.textContent = message;
+            box.appendChild(text);
+
+            return box;
         }
 
         /**

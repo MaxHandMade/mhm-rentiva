@@ -7116,3 +7116,103 @@
 .rv-booking-form-wrapper input[type="radio"] {
 	accent-color: var(--rv-accent);
 }
+
+/* =========================================================================
+   DETAILS-ALIGNED LAYOUT (spec 3A Task 6, user ruling U-1)
+   =========================================================================
+   The booking form and the vehicle-details page's booking area are one flow,
+   so the two-column form uses the details grid (vehicle-details.css
+   .rv-vehicle-details-wrapper / .rv-vd2-layout / .rv-vd2-booking-card):
+   the same side gutter, a 1fr main column, a 330px summary column, a 24px
+   gap, and the summary card on the booking card's surface. Last in the file
+   on purpose: earlier phases of this stylesheet set other grids. The
+   single-column cases (narrow container, <=782px viewport) keep their
+   layout; only their side gutter follows the details page.
+   ========================================================================= */
+/* Side gutter: the details wrapper's (.rv-vehicle-details-wrapper, and .rv-vd2
+   at <=782px), so both pages' edges line up at every width. */
+.rv-booking-form-wrapper {
+	padding-left: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+	padding-right: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+}
+
+@media (max-width: 782px) {
+	.rv-booking-form-wrapper {
+		padding-left: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+		padding-right: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+	}
+}
+
+@container rv-booking-form (min-width: 760px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: minmax(0, 1fr) 330px;
+		gap: 24px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		max-width: 330px;
+	}
+}
+
+/* The summary card on the details booking card's surface (.rv-vd2-booking-card). */
+.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation,
+.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation:hover {
+	background: #fff;
+	border: 1px solid #e7ecf3;
+	border-radius: 16px;
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+	transform: none;
+}
+
+/* The rounded card clips its content (overflow: hidden): keep the disclaimer
+   off the bottom corners, which the earlier 2px skin radius never reached. */
+.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation .rv-form-actions {
+	padding-bottom: 16px;
+}
+
+.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation .rv-payment-disclaimer {
+	box-sizing: border-box;
+	padding-left: 16px;
+	padding-right: 16px;
+}
+
+@media (max-width: 782px) {
+	.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation,
+	.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation:hover {
+		border-radius: 14px;
+	}
+}
+
+/* Single column at the details page's breakpoint and in its order (ruling T6-2):
+   vehicle-details.css stacks .rv-vd2-layout at a <=1100px viewport, content
+   first and the booking card after it, 16px apart. The form's own container
+   query above would keep two columns down to a 760px wrapper; the viewport
+   query wins here so both pages switch at the same width. */
+@media (max-width: 1100px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-vehicle,
+	.rv-booking-form-wrapper .rv-checkout-main,
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		grid-column: auto;
+		grid-row: auto;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+		position: static;
+		top: auto;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-main {
+		order: 1;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		order: 2;
+	}
+}

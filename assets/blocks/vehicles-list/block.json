@@ -78,17 +78,9 @@
             "type": "boolean",
             "default": true
         },
-        "showBadges": {
-            "type": "boolean",
-            "default": true
-        },
         "showFavoriteButton": {
             "type": "boolean",
             "default": true
-        },
-        "showAvailability": {
-            "type": "boolean",
-            "default": false
         },
         "showCompareButton": {
             "type": "boolean",
@@ -154,10 +146,6 @@
         "maxFeatures": {
             "type": "string",
             "default": "5"
-        },
-        "priceFormat": {
-            "type": "string",
-            "default": "daily"
         },
         "customCssClass": {
             "type": "string",

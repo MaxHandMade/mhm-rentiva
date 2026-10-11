@@ -38,8 +38,22 @@ $show_price       = $normalize_toggle($atts['show_price'] ?? true);
 $show_title       = $normalize_toggle($atts['show_title'] ?? true);
 $show_rating      = $normalize_toggle($atts['show_rating'] ?? true);
 $show_booking     = $normalize_toggle($atts['show_booking_button'] ?? ( $atts['show_book_button'] ?? true ));
-$booking_text     = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
 $show_description = $normalize_toggle($atts['show_description'] ?? false);
+
+// Opt-in inputs: only an explicit "on" switches them on. $normalize_toggle reads
+// any unknown value -- an empty string included -- as on, which would show them
+// on cards whose caller never asked.
+$is_switched_on = static function ($val): bool {
+	return in_array($val, array( true, 1, '1', 'yes', 'true', 'on' ), true);
+};
+// "4.5 (12)": the review count beside the average. Off unless asked for.
+$show_rating_count = $is_switched_on($atts['show_rating_count'] ?? false);
+// The availability text ("Available" / "Out of Order"). Only this key is read:
+// the lists' show_availability is not (spec 3A §2.2 -- its defaults are on and
+// would change every untouched card).
+$show_availability_status = $is_switched_on($atts['show_availability_status'] ?? false);
+// The instance's booking button label (see $booking_text below).
+$button_text = trim( (string) ( $atts['button_text'] ?? '' ) );
 
 // Data extraction with safe fallbacks
 $vehicle_id    = $vehicle['id'] ?? 0;
@@ -227,8 +241,21 @@ $allowed_svg_tags = array(
 );
 
 // Template-level aliases (vehicle-card.php references these short names)
-$allowed_svg  = $allowed_svg_tags;
-$btn_url      = $booking_btn_url;
-$booking_text = $is_available
-	? __('Book Now', 'mhm-rentiva')
-	: __('Unavailable', 'mhm-rentiva');
+$allowed_svg = $allowed_svg_tags;
+$btn_url     = $booking_btn_url;
+
+// Booking button label (spec 3A §2.2 exception 3). An unavailable vehicle's
+// button is disabled and always says so. Otherwise: the instance's button_text,
+// then booking_btn_text -- an internal carrier with no editor control, filled by
+// the grid/list shortcodes from the global mhmrentiva_text_book_now setting --
+// then today's Book Now.
+$booking_btn_text = trim( (string) ( $atts['booking_btn_text'] ?? '' ) );
+if (! $is_available) {
+	$booking_text = __('Unavailable', 'mhm-rentiva');
+} elseif ('' !== $button_text) {
+	$booking_text = $button_text;
+} elseif ('' !== $booking_btn_text) {
+	$booking_text = $booking_btn_text;
+} else {
+	$booking_text = __('Book Now', 'mhm-rentiva');
+}
