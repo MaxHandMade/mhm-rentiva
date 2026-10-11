@@ -133,7 +133,8 @@
 	max-width: 100%;
 	flex: 0 0 auto;
 	aspect-ratio: 16 / 9;
-	border-radius: var(--mhm-card-radius) var(--mhm-card-radius) 0 0;
+	/* Top-only corner radius lives in vehicle-card.css: --mhm-card-radius is
+	   that file's component-private token (bin/check-token-definitions.php). */
 }
 
 .rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-image img,

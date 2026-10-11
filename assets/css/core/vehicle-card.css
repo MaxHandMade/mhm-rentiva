@@ -1047,3 +1047,15 @@
 	border-color: var(--rv-hair);
 	color: var(--mhm-error, #b32d2e);
 }
+
+/*
+ * Multi-column list layout (vehicles-list.css stacks the list card when
+ * rv-vehicles-list--columns-N >= 2): the stacked image keeps only its top
+ * corners rounded. Declared here, not in vehicles-list.css, because
+ * --mhm-card-radius is this file's component-private token.
+ */
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .mhm-card--list .mhm-card-image,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-3 .mhm-card--list .mhm-card-image,
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-4 .mhm-card--list .mhm-card-image {
+	border-radius: var(--mhm-card-radius) var(--mhm-card-radius) 0 0;
+}
