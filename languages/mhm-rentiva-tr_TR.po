@@ -1535,7 +1535,7 @@ msgstr "Rezervasyon iptal onayı - %s"
 #: src/Admin/Booking/Helpers/CancellationHandler.php:623
 #, php-format
 msgid "[ADMIN] Booking Cancelled - #%d"
-msgstr "[ADMIN] rezervasyon iptal edildi - #%d"
+msgstr "[ADMIN] Rezervasyon iptal edildi - #%d"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:653
 #: src/Admin/Booking/Meta/BookingMeta.php:664
@@ -4344,7 +4344,7 @@ msgstr "Bu kategoride aktif alan yok."
 
 #: src/Admin/Core/AssetManager.php:1272
 msgid "Switch to \"All\" to reorder"
-msgstr "Sıralama için \"tümü\" görünümüne geçin"
+msgstr "Sıralama için \"Tümü\" görünümüne geçin"
 
 #: src/Admin/Core/AssetManager.php:1274
 msgid "Live preview"
@@ -6720,7 +6720,7 @@ msgstr "Yönetici geri ödeme e-postası"
 #: src/Admin/Emails/Templates/RefundEmails.php:80
 #: src/Admin/Settings/Groups/EmailSettings.php:114
 msgid "Refund Alert: Booking #{booking_id}"
-msgstr "İade uyarısı: Rezervasyon no. {booking_id}"
+msgstr "İade uyarısı: Rezervasyon No. {booking_id}"
 
 #: src/Admin/Frontend/Account/AccountController.php:272
 msgid ""
@@ -10041,7 +10041,7 @@ msgstr "(kdv dahil)"
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:581
 #, php-format
 msgid "[MHM Rentiva] Critical Error: %s"
-msgstr "[MHM Rentiva] kritik hata: %s"
+msgstr "[MHM Rentiva] Kritik hata: %s"
 
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:586
 msgid "A critical error was detected on your site."
@@ -14937,7 +14937,7 @@ msgstr ""
 #: templates/emails/offline-receipt-uploaded-admin.html.php:11
 #, php-format
 msgid "New Receipt · Booking #%s"
-msgstr "Yeni makbuz · rezervasyon no %s"
+msgstr "Yeni makbuz · Rezervasyon No %s"
 
 #: templates/emails/offline-receipt-uploaded-admin.html.php:30
 msgid "Receipt Uploaded (Admin)"
@@ -15020,7 +15020,7 @@ msgstr "Bu e-posta otomatik olarak gönderilmiştir. Lütfen cevap vermeyiniz."
 #: templates/emails/offline-verified-rejected-customer.html.php:11
 #, php-format
 msgid "Payment Verification Failed · Booking #%s"
-msgstr "Ödeme doğrulama başarısız · rezervasyon no %s"
+msgstr "Ödeme doğrulama başarısız · Rezervasyon No %s"
 
 #: templates/emails/offline-verified-rejected-customer.html.php:26
 msgid "Payment Could Not Be Verified"
@@ -15953,7 +15953,7 @@ msgstr "Otel, restoran, araç kiralama ve etkinlik rezervasyonları"
 
 #: src-react/admin/about/components/DeveloperTab.jsx:21
 msgid "MHM E-commerce Package"
-msgstr "MHM e-ticaret paketi"
+msgstr "MHM E-ticaret Paketi"
 
 #: src-react/admin/about/components/DeveloperTab.jsx:22
 msgid "Comprehensive WooCommerce-based e-commerce solution"
@@ -15961,7 +15961,7 @@ msgstr "Kapsamlı WooCommerce tabanlı e-ticaret çözümü"
 
 #: src-react/admin/about/components/DeveloperTab.jsx:25
 msgid "MHM Vehicle Reservation"
-msgstr "MHM araç rezervasyonu"
+msgstr "MHM Araç Rezervasyonu"
 
 #: src-react/admin/about/components/DeveloperTab.jsx:26
 msgid "Professional vehicle rental and reservation management system."
@@ -16640,7 +16640,7 @@ msgstr "Önümüzdeki 7 günde yaklaşan operasyon yok."
 
 #: src-react/admin/dashboard/DashboardPage.jsx:38
 msgid "MHM Rentiva · Overview"
-msgstr "MHM Rentiva · genel bakış"
+msgstr "MHM Rentiva · Genel bakış"
 
 #: src-react/admin/dashboard/DashboardPage.jsx:42
 msgid "Date range"
