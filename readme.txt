@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.1.5
+Stable tag:        6.2.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -84,7 +84,7 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 Most of this plugin is plain, human-readable PHP with no build step.
 
-Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is plain CSS: the four screens' stylesheets and the shared admin stylesheet (`src-react/shared/admin.css`) that the vehicle, booking and add-on list screens load directly. No obfuscated code is bundled.
+Five admin screens (Dashboard, Customers, Contact Messages, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/`. They are generated from un-minified React sources that are NOT part of this ZIP: those live in the public GitHub repository linked below, under `src-react/`, next to the build tooling. What does ship under `src-react/` is plain CSS: the five screens' stylesheets and the shared admin stylesheet (`src-react/shared/admin.css`) that the vehicle, booking and add-on list screens load directly. No obfuscated code is bundled.
 
 The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
@@ -189,6 +189,17 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.2.0 =
+* New: Contact Messages has its own screen with tabs, search, bulk actions and reply by e-mail; attachments move to a private folder only an administrator can download from. On nginx, add the deny rule from the privacy section.
+* Changed: the customer dashboard is retired. Its shortcode, block and Elementor widget now point logged-in customers to My Account.
+* Fixed: block and Elementor widget settings that were saved but never reached the page now apply, and Elementor style controls for cards, lists, grids and the booking button now style the page. A page changes only where such a setting had been changed.
+* Removed: block, widget and shortcode settings that had no effect; a saved value is ignored. The full list is in changelog.json.
+* Changed: vehicle cards show a 3:2 image and the real rating; the booking form matches the vehicle details layout.
+* Security: vehicle galleries accept and show only images their author may use, never a sensitive document.
+* Fixed: Customers screen spending figures count only completed or confirmed bookings, and WooCommerce customers show their phone and address.
+* Fixed: Payment History page 2 on the WooCommerce account page, contact form type and fields, Testimonials "Load More".
+* BREAKING: ten hooks and the customer dashboard classes were removed (see changelog.json). Rentiva Pro 6.1.0 or older stops working beside this release on the vendor panel: update Rentiva Pro to 6.3.0.
+
 = 6.1.5 =
 * Fixed: the Bookings list's Pending chip never finished loading on sites with real booking data; every status chip now looks its bookings up once, by the same rule as its count.
 * Fixed: admin notices such as the licence warning pushed most admin screens down after they had drawn, showed twice on Settings > Notification Templates and vanished as a pop-up on Settings.
@@ -200,15 +211,10 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Security: the search filter's AJAX "No vehicles found" message is now escaped, as the shortcode path already was.
 * Changed: unused e-mail screen JavaScript calling four non-existent admin actions was removed; mhm/ui-core is 0.10.0.
 
-= 6.1.4 =
-* Fixed: on the Customers screen, a booking linked by ID rather than e-mail did not count on the customer's row, was missing from their detail panel and summary cards, and did not show behind "View Bookings".
-* Fixed: multisite activation stopped at the hundredth site and skipped private sites; both now get their tables. A subsite reads its own language for URL slugs, not the network's.
-* Fixed: a page rollback in the layout tool could overwrite an unrelated post with layout markup via a stale ID; it can no longer touch a post it was not meant to.
-* Fixed: on hosting with an external cache (Redis/Memcached), saving a customer, booking or vehicle left its list stale until the cache expired.
-* Changed: the ZIP no longer ships React source files WordPress never runs, so the download is smaller.
-* Changed: the admin menu moved back above WordPress's own Appearance, Plugins, Users and Tools items, just below WooCommerce.
-
 == Upgrade Notice ==
+
+= 6.2.0 =
+Contact attachments move to a private folder and the customer dashboard is retired. Ten hooks were removed: custom code using them stops working. Rentiva Pro 6.1.0 or older breaks on the vendor panel: update Rentiva Pro to 6.3.0.
 
 = 6.0.1 =
 Cleanup and bug-fix release. No action required; an automatic one-time migration removes some internal database indexes. If you build pages with this plugin's blocks, this release repairs the favourite and compare buttons on them.
