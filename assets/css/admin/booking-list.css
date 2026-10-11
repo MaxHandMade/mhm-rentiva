@@ -690,7 +690,7 @@
    Refined skin now lives in occupancy-matrix.css (Faz 2 Task 8), shared
    with the Vehicles screen's identical toggle — the minimal placeholder
    that used to be here is gone. `.rv-bkl-toolbar-row` only exists when a
-   Pro toolbar subscriber is present (JS wraps toggle + toolbar together
+   toolbar subscriber is present (JS wraps toggle + toolbar together
    in that case); with no subscriber the toggle renders standalone. */
 .mhm-booking-list .rv-bkl-toolbar-row {
 	display: flex;

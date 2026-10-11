@@ -109,6 +109,36 @@ final class NoProMentionInLiteTest extends TestCase
     }
 
     /**
+     * A shipped stylesheet must not describe itself as existing for the paid
+     * add-on. 6.2.0's pre-ZIP audit (Fable L2 I-1) found `user-dashboard.css`
+     * opening with "styles the vendor ledger table, which Pro renders" and two
+     * vehicle-card comments naming "the add-on's transfer card" -- copy a reviewer's
+     * grep of the free ZIP reads as an edition seam. The upsell patterns above
+     * never looked at CSS.
+     */
+    public function test_no_shipped_stylesheet_names_the_add_on(): void
+    {
+        $root     = dirname(__DIR__, 2) . '/assets/css';
+        $scanned  = 0;
+        $offences = array();
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS));
+        foreach ( $iterator as $file ) {
+            if ( 'css' !== $file->getExtension() ) {
+                continue;
+            }
+            ++$scanned;
+            foreach ( (array) file($file->getPathname()) as $number => $line ) {
+                if ( 1 === preg_match('/\bPro\b|\bRentiva Pro\b|add-on\'s/', (string) $line) ) {
+                    $offences[] = $this->relative($file->getPathname()) . ':' . ($number + 1) . ' ' . trim((string) $line);
+                }
+            }
+        }
+
+        $this->assertGreaterThan(20, $scanned, 'The CSS scan found implausibly few stylesheets.');
+        $this->assertSame(array(), $offences, "Shipped CSS names the add-on:\n" . implode("\n", $offences));
+    }
+
+    /**
      * The same rule, applied to the docs.
      *
      * README.md shipped a full crippleware-era comparison table ("Maximum 5
