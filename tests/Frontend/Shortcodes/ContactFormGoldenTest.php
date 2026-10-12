@@ -31,6 +31,10 @@ final class ContactFormGoldenTest extends WP_UnitTestCase
 		parent::setUp();
 		$this->assertTrue(defined('ELEMENTOR_VERSION'), 'Elementor is not loaded; the widget renders would measure an absence.');
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		// The "Max: N MB" help text is min(PHP limit, network fileupload_maxk); both vary by environment
+		// (multisite caps at 1500 KB). Pin both to the 2 MB the goldens record.
+		add_filter('upload_size_limit', array($this, 'pin_upload_limit'), 999);
+		add_filter('pre_site_option_fileupload_maxk', array($this, 'pin_network_upload_kb'), 999);
 		// wp_nonce_field() prints the request URI as _wp_http_referer; an earlier test leaves its own behind.
 		$this->request_uri      = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- test state.
 		$_SERVER['REQUEST_URI'] = '';
@@ -38,9 +42,21 @@ final class ContactFormGoldenTest extends WP_UnitTestCase
 		RequestSimulator::new_request();
 	}
 
+	public function pin_upload_limit(): int
+	{
+		return 2 * MB_IN_BYTES;
+	}
+
+	public function pin_network_upload_kb(): int
+	{
+		return 2 * 1024;
+	}
+
 	public function tearDown(): void
 	{
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		remove_filter('upload_size_limit', array($this, 'pin_upload_limit'), 999);
+		remove_filter('pre_site_option_fileupload_maxk', array($this, 'pin_network_upload_kb'), 999);
 		if (null === $this->request_uri) {
 			unset($_SERVER['REQUEST_URI']);
 		} else {
