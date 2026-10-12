@@ -40,7 +40,7 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 	 * a localized nonce when the markup nonce is missing). In a preview each
 	 * must be `disabled`, so no click event ever reaches the delegated handler.
 	 */
-	private const ACTION_CONTROL = '/(mhm-vehicle-favorite-btn|mhm-vehicle-compare-btn|rv-remove-vehicle|rv-vcal-favorite-btn|rv-sv__favorite|id="(?:export-data|withdraw-consent|delete-account|clear-all-favorites|cancel-booking-btn|confirm-cancellation)"|rv-edit-comment-btn|rv-delete-comment-btn|rv-delete-rating|remove-receipt-btn|mhm-upload-receipt)/';
+	private const ACTION_CONTROL = '/(mhm-vehicle-favorite-btn|mhm-vehicle-compare-btn|rv-remove-vehicle|rv-vcal-favorite-btn|rv-sv__favorite|\bid="(?:export-data|withdraw-consent|delete-account|clear-all-favorites|cancel-booking-btn|confirm-cancellation)"|rv-edit-comment-btn|rv-delete-comment-btn|rv-delete-rating|remove-receipt-btn|mhm-upload-receipt)/';
 
 	public function set_up(): void
 	{
@@ -116,6 +116,17 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		$this->assertNotSame('', trim($html), "$tag rendered nothing in preview.");
 		$this->assert_inert($html, $tag);
 		$this->assertGreaterThanOrEqual($min_forms, preg_match_all('/<form\b/', $html), "$tag: expected the form to render in preview.");
+	}
+
+	/**
+	 * Positive control for ACTION_CONTROL itself: every account-control id in the
+	 * alternation must match (a corrupted regex byte once made them match nothing).
+	 */
+	public function test_action_control_matches_each_account_control_id(): void
+	{
+		foreach (array( 'export-data', 'withdraw-consent', 'delete-account', 'clear-all-favorites', 'cancel-booking-btn', 'confirm-cancellation' ) as $id) {
+			$this->assertSame(1, preg_match(self::ACTION_CONTROL, '<button id="' . $id . '">'), $id);
+		}
 	}
 
 	/**

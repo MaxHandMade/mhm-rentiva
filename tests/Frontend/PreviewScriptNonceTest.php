@@ -232,6 +232,28 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 		}
 	}
 
+	/**
+	 * The GDPR script (loaded site-wide when the Pro add-on is active and no
+	 * endpoint is set) must not carry the real nonce into the preview iframe.
+	 */
+	public function test_gdpr_script_nonce_follows_the_context(): void
+	{
+		wp_set_current_user(ShortcodeFixtures::customer());
+		$noop = static function (): void {};
+		add_action('wp_ajax_mhmrentiva_data_export', $noop);
+		try {
+			$front = $this->collect(static fn () => AccountController::enqueue_assets());
+			$this->assertSame(wp_create_nonce('mhmrentiva_gdpr_nonce'), $front['mhmRentivaPrivacy.nonce'] ?? null);
+
+			\Elementor\Plugin::$instance->editor->set_edit_mode(true);
+			$preview = $this->collect(static fn () => AccountController::enqueue_assets());
+			$this->assertArrayHasKey('mhmRentivaPrivacy.nonce', $preview);
+			$this->assertSame('', $preview['mhmRentivaPrivacy.nonce']);
+		} finally {
+			remove_action('wp_ajax_mhmrentiva_data_export', $noop);
+		}
+	}
+
 	public function test_script_nonce_helper(): void
 	{
 		$this->assertSame(wp_create_nonce('zz_action'), RenderContext::script_nonce('zz_action'));

@@ -272,7 +272,7 @@ final class AccountController {
 				'mhmRentivaPrivacy',
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhmrentiva_gdpr_nonce'),
+					'nonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_gdpr_nonce'),
 					'homeUrl' => home_url(),
 					'i18n'    => array(
 						'confirmExport'       => __('Are you sure you want to export your data? This may take a few minutes.', 'mhm-rentiva'),
