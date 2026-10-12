@@ -256,6 +256,23 @@ class RenderContextTest extends WP_UnitTestCase
 		$this->assertSame('elementor', RenderContext::current()->source());
 	}
 
+	public function test_elementor_before_init_is_front(): void
+	{
+		global $wp_actions;
+		$saved = $wp_actions['elementor/init'] ?? null;
+		\Elementor\Plugin::$instance->editor->set_edit_mode(true);
+		try {
+			unset($wp_actions['elementor/init']);
+			$this->assertSame(0, did_action('elementor/init'));
+			$this->assertSame('front', RenderContext::current()->source());
+		} finally {
+			if (null !== $saved) {
+				$wp_actions['elementor/init'] = $saved;
+			}
+		}
+		$this->assertSame('elementor', RenderContext::current()->source());
+	}
+
 	public function test_hooks_pass_response_through_untouched(): void
 	{
 		$response = new \WP_REST_Response(array( 'a' => 1 ));

@@ -16,6 +16,11 @@ namespace MHMRentiva\Frontend;
  * `is_editor_or_preview()` are deliberately NOT consulted: they resolve to
  * `front`.
  *
+ * The Elementor guard waits for `elementor/init`, not `elementor/loaded`:
+ * Elementor fires `elementor/loaded` before it assigns `Plugin::$editor` and
+ * `Plugin::$preview` (they exist from the `init` hook on, and `elementor/init`
+ * fires right after they are built), so earlier a direct call would fatal.
+ *
  * Known limit: if a REST callback throws, `rest_request_after_callbacks` does
  * not run and the block stack stays populated for the rest of that PHP process
  * (`rest_post_dispatch` does not fire on the internal rest_do_request() path,
@@ -176,7 +181,7 @@ final class RenderContext {
 	 */
 	private static function elementor_is_previewing(): bool
 	{
-		if (! did_action('elementor/loaded') || ! class_exists('\Elementor\Plugin')) {
+		if (! did_action('elementor/init') || ! class_exists('\Elementor\Plugin')) {
 			return false;
 		}
 		$plugin = \Elementor\Plugin::$instance;
