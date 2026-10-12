@@ -33,6 +33,14 @@ final class AccountRenderer {
 	public const PAYMENT_STATUSES = array( 'pending', 'completed', 'cancelled' );
 
 	/**
+	 * Public query vars carrying the page of each account list. Two lists on one
+	 * page (or one account page with both) must not page together. The bookings
+	 * var is the original `mhmrentiva_page`, so existing links keep working.
+	 */
+	public const PAGE_VAR_BOOKINGS = 'mhmrentiva_page';
+	public const PAGE_VAR_PAYMENTS = 'mhmrentiva_payments_page';
+
+	/**
 	 * Safe sanitize text field that handles null values
 	 */
 	public static function sanitize_text_field_safe($value)
@@ -199,7 +207,7 @@ final class AccountRenderer {
 		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
 		// Capped so the query's offset ((page - 1) * limit) stays an integer: an
 		// overflowing page number would reach SQL as a float.
-		$page        = $paginate ? min(self::current_page(), intdiv(PHP_INT_MAX, $args['limit'])) : 1;
+		$page        = $paginate ? min(self::current_page(self::PAGE_VAR_BOOKINGS), intdiv(PHP_INT_MAX, $args['limit'])) : 1;
 		$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
 		$total_pages = $paginate ? max(1, (int) $query->max_num_pages) : 1;
 
@@ -304,13 +312,15 @@ final class AccountRenderer {
 	}
 
 	/**
-	 * The account list page asked for: the public query var `mhmrentiva_page`
-	 * (AccountController::PUBLIC_QUERY_VARS). Anything but a positive whole
+	 * The page of an account list the request asked for: the public query var
+	 * $var (AccountController::PUBLIC_QUERY_VARS). Anything but a positive whole
 	 * number -- zero, negative, letters, an array -- is page 1.
+	 *
+	 * @param string $var The list's page variable: PAGE_VAR_BOOKINGS or PAGE_VAR_PAYMENTS.
 	 */
-	public static function current_page(): int
+	public static function current_page(string $var): int
 	{
-		$raw = get_query_var('mhmrentiva_page', '');
+		$raw = get_query_var($var, '');
 		if (is_int($raw)) {
 			$raw = (string) $raw;
 		}
@@ -322,17 +332,21 @@ final class AccountRenderer {
 	}
 
 	/**
-	 * URL of account list page $page: the current URL with `mhmrentiva_page`
-	 * set, so the list's filter vars (mhmrentiva_status_filter,
-	 * mhmrentiva_search_booking, ...) stay. Page 1 drops the var.
+	 * URL of page $page of the account list that pages on $var: the current URL
+	 * with that variable set, so the list's filter vars (mhmrentiva_status_filter,
+	 * mhmrentiva_search_booking, ...) and the other list's page stay. Page 1 drops
+	 * the var.
+	 *
+	 * @param string $var  The list's page variable: PAGE_VAR_BOOKINGS or PAGE_VAR_PAYMENTS.
+	 * @param int    $page Page number.
 	 */
-	public static function page_url(int $page): string
+	public static function page_url(string $var, int $page): string
 	{
 		if ($page <= 1) {
-			return remove_query_arg('mhmrentiva_page');
+			return remove_query_arg($var);
 		}
 
-		return add_query_arg('mhmrentiva_page', $page);
+		return add_query_arg($var, $page);
 	}
 
 	/**
@@ -450,8 +464,9 @@ final class AccountRenderer {
 	 */
 	public static function get_payment_history_data(array $atts = array()): array
 	{
-		// Spec 3A Task 7b. The page comes from the public query var
-		// mhmrentiva_page (exception 5): core `paged` is moved into the path by
+		// Spec 3A Task 7b. The page comes from its own public query var
+		// mhmrentiva_payments_page (exception 5; 3B-2a U5-2: it used to share
+		// mhmrentiva_page with the bookings list): core `paged` is moved into the path by
 		// redirect_canonical() on a WooCommerce endpoint, so "Next" always showed
 		// page 1. Pagination off is today's first page, the page var ignored.
 		// A limit of 0, empty or negative is not a page size: today's 10.
@@ -467,7 +482,7 @@ final class AccountRenderer {
 		);
 
 		// Capped so the offset ((page - 1) * per_page) stays an integer.
-		$page   = $paginate ? min(self::current_page(), intdiv(PHP_INT_MAX, $per_page)) : 1;
+		$page   = $paginate ? min(self::current_page(self::PAGE_VAR_PAYMENTS), intdiv(PHP_INT_MAX, $per_page)) : 1;
 		$result = self::get_user_payments($user->ID, $per_page, $page, $args);
 
 		$data = array(

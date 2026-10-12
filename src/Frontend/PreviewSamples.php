@@ -9,7 +9,12 @@ use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle;
 
 /**
- * Sample data for editor previews (Elementor, block editor).
+ * Sample data and vehicle-context resolution for editor previews (Elementor,
+ * block editor).
+ *
+ * Besides the samples, this class owns resolve_vehicle(): the one rule that
+ * decides which vehicle a vehicle-bound widget shows (explicit id, routed id,
+ * page vehicle, else a preview sample).
  *
  * Nothing here writes to the database, an option, an Elementor setting or a
  * block attribute: vehicles are read from existing posts, account rows are

@@ -26,7 +26,7 @@ use WP_UnitTestCase;
  * value), limit_results (twin of `limit`; its editor control now writes `limit`).
  * Exception 5 (spec §2.2): the pager moves from core `paged` -- which
  * redirect_canonical() moves into the path on a WooCommerce endpoint -- to
- * mhmrentiva_page.
+ * mhmrentiva_payments_page.
  *
  * G2 (Rule 1): the default renders (shortcode text, block, widget, WooCommerce
  * endpoint) with fewer payments than the page size stay today's, recorded before
@@ -73,7 +73,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	{
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 		wp_set_current_user(0);
-		set_query_var('mhmrentiva_page', '');
+		set_query_var('mhmrentiva_payments_page', '');
 		set_query_var('paged', '');
 		RequestSimulator::new_request();
 		parent::tearDown();
@@ -180,7 +180,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Exception 5: the pager reads and writes mhmrentiva_page; core `paged` (which
+	 * Exception 5: the pager reads and writes mhmrentiva_payments_page; core `paged` (which
 	 * redirect_canonical() moves into the endpoint path) is not read any more.
 	 * show_pagination off is today's first page without a pager.
 	 */
@@ -189,35 +189,35 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		$this->more_payments(9); // 12 in all, limit 10: 2 on page 2.
 
 		$first = $this->shortcode('');
-		$this->assertStringContainsString('mhmrentiva_page=2', $first, 'Next links to mhmrentiva_page=2.');
+		$this->assertStringContainsString('mhmrentiva_payments_page=2', $first, 'Next links to mhmrentiva_payments_page=2.');
 		$this->assertStringNotContainsString('paged=', $first, 'No core paged link.');
 
-		set_query_var('mhmrentiva_page', '2');
+		set_query_var('mhmrentiva_payments_page', '2');
 		foreach (array( 'shortcode', 'block', 'widget', 'endpoint' ) as $surface) {
 			$html = $this->render_surface($surface, array());
 			$this->assertCount(2, $this->rows($html), "$surface page 2.");
 			$this->assertStringContainsString('Page 2 / 2', $html, "$surface page 2 label.");
-			$this->assertStringNotContainsString('mhmrentiva_page=1', $html, "$surface: Previous goes to the bare URL.");
+			$this->assertStringNotContainsString('mhmrentiva_payments_page=1', $html, "$surface: Previous goes to the bare URL.");
 		}
 
 		// Past the end: the last page (Review Focus 2).
-		set_query_var('mhmrentiva_page', '999');
+		set_query_var('mhmrentiva_payments_page', '999');
 		$this->assertStringContainsString('Page 2 / 2', $this->shortcode(''));
-		set_query_var('mhmrentiva_page', '99999999999999999999');
+		set_query_var('mhmrentiva_payments_page', '99999999999999999999');
 		$this->assertStringContainsString('Page 2 / 2', $this->shortcode(''));
 
 		// Core paged is not the page any more.
-		set_query_var('mhmrentiva_page', '');
+		set_query_var('mhmrentiva_payments_page', '');
 		set_query_var('paged', 2);
 		$this->assertStringContainsString('Page 1 / 2', $this->shortcode(''));
 		set_query_var('paged', '');
 
 		// The links keep the other vars of the current URL.
 		$_SERVER['REQUEST_URI'] = '/account/odeme-gecmisi/?zz_keep=1';
-		$this->assertMatchesRegularExpression('#href="[^"]*zz_keep=1[^"]*mhmrentiva_page=2#', html_entity_decode($this->shortcode('')));
+		$this->assertMatchesRegularExpression('#href="[^"]*zz_keep=1[^"]*mhmrentiva_payments_page=2#', html_entity_decode($this->shortcode('')));
 
 		// Off: no pager, and the page var is ignored (today's first page).
-		set_query_var('mhmrentiva_page', '2');
+		set_query_var('mhmrentiva_payments_page', '2');
 		$off = array(
 			'shortcode' => $this->shortcode('show_pagination="0"'),
 			'block'     => $this->block(array( 'showPagination' => false )),
@@ -227,7 +227,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 			$this->assertStringNotContainsString('mhm-pagination', $html, "$surface: show_pagination off.");
 			$this->assertCount(10, $this->rows($html), "$surface: the first page only.");
 		}
-		set_query_var('mhmrentiva_page', '');
+		set_query_var('mhmrentiva_payments_page', '');
 	}
 
 	/**
@@ -277,9 +277,9 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		}
 
 		// Sorted before paging: page 2 of amount asc at limit 2 holds the two largest.
-		set_query_var('mhmrentiva_page', '2');
+		set_query_var('mhmrentiva_payments_page', '2');
 		$this->assertSame(array( $n, $big ), $this->rows($this->shortcode('orderby="amount" order="asc" limit="2"')));
-		set_query_var('mhmrentiva_page', '');
+		set_query_var('mhmrentiva_payments_page', '');
 
 		// Missing pickup date: last in both date orders.
 		$undated = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '50', 1);
@@ -329,12 +329,12 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		$first = $this->shortcode('status="pending"');
 		$this->assertCount(10, $this->rows($first));
 		$this->assertStringContainsString('Page 1 / 2', $first);
-		set_query_var('mhmrentiva_page', '2');
+		set_query_var('mhmrentiva_payments_page', '2');
 		$second = $this->shortcode('status="pending"');
 		$this->assertCount(2, $this->rows($second));
 		$this->assertStringContainsString('Page 2 / 2', $second);
 		$this->assertStringContainsString('12 payments total', $second);
-		set_query_var('mhmrentiva_page', '');
+		set_query_var('mhmrentiva_payments_page', '');
 		$this->assertStringNotContainsString('mhm-pagination', $this->shortcode('status="completed"'), 'One completed payment, no pager.');
 	}
 

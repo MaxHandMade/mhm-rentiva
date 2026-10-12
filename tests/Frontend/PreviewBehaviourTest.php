@@ -408,6 +408,8 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 			$this->assertStringContainsString(esc_html(self::BADGE_INVALID_VEH), $html, "id $bad");
 			$this->assertStringNotContainsString('rv-vehicle-details-wrapper', $html, "id $bad");
 			$this->assertStringNotContainsString($this->sentinel_title, $html, "id $bad");
+			$this->assertStringNotContainsString('No vehicle selected', $html, "id $bad: the badge already says what to check.");
+			$this->assertStringNotContainsString('rv-vehicle-details-empty', $html, "id $bad");
 		}
 
 		// Front end: the visitor's neutral state, no badge, no wrapper, no editor text.
@@ -468,6 +470,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 
 		$this->assertSame(1, substr_count($html, 'data-rv-render="preview"'));
 		$this->assertStringContainsString('rv-rating-summary', $html, 'The nested rating form is drawn.');
+		$this->assertStringContainsString('mhm-rentiva-featured-wrapper', $html, 'The nested featured list is drawn.');
 		foreach (self::FORBIDDEN as $needle) {
 			$this->assertSame(0, substr_count($html, $needle), "nested preview prints `$needle`.");
 		}

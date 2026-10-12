@@ -96,6 +96,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 	{
 		return array(
 			'ids'                  => '',      // Comma separated IDs
+			'exclude'              => '',      // Comma separated IDs left out of the list
 			'category'             => '',      // Category slug
 			'limit'                => '6',
 			'layout'               => 'slider', // slider, grid
@@ -144,6 +145,12 @@ final class FeaturedVehicles extends AbstractShortcode {
 		} else {
 			// MUST filter by featured meta if no IDs provided.
 			$args['meta_query'][] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_featured_meta_query('1');
+		}
+
+		// Leave out the given vehicles (the similar-vehicles list drops its own page's vehicle).
+		$excluded = array_values(array_filter(array_map('absint', explode(',', (string) ( $atts['exclude'] ?? '' )))));
+		if (! empty($excluded)) {
+			$args['post__not_in'] = $excluded;
 		}
 
 		// Filter by Category

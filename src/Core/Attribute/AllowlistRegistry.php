@@ -149,6 +149,13 @@ final class AllowlistRegistry {
             'group'   => 'data',
             'aliases' => [ 'ids', 'vehicleIds', 'vehicle_ids' ],
         ],
+        // Vehicle ids a list leaves out (featured list: the similar-vehicles
+        // section of a vehicle page excludes the page's own vehicle).
+        'exclude'                  => [
+            'type'    => 'idlist',
+            'group'   => 'data',
+            'aliases' => [ 'exclude' ],
+        ],
         'redirect_page'            => [
             'type'    => 'string',
             'group'   => 'workflow',
@@ -1164,6 +1171,7 @@ final class AllowlistRegistry {
         ],
         'rentiva_featured_vehicles'     => [
             'ids',
+            'exclude',
             'category',
             'limit',
             'layout',

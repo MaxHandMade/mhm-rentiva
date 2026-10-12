@@ -97,7 +97,8 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 			$html = $this->render(' vehicle_id="' . $bad . '"');
 			$this->assertStringContainsString(self::INVALID_BADGE, $html, "preview, id $bad");
 			$this->assertStringNotContainsString(self::SAMPLE_BADGE, $html, "preview, id $bad");
-			$this->assertStringContainsString('rv-rating-form-error', $html, "preview, id $bad");
+			$this->assertStringNotContainsString('No vehicle selected', $html, "preview, id $bad: the badge already says what to check.");
+			$this->assertStringNotContainsString('rv-rating-form-error', $html, "preview, id $bad");
 			$this->assertStringNotContainsString('data-vehicle-id="' . $sample . '"', $html, "preview, id $bad must not fall to the sample");
 		}
 	}
@@ -119,7 +120,8 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 		$html = $this->render(' vehicle_id="999999"');
 		$this->assertStringContainsString(self::INVALID_BADGE, $html);
 		$this->assertStringNotContainsString('data-vehicle-id="' . $vehicle . '"', $html);
-		$this->assertStringContainsString('Set a vehicle ID', $html, 'Preview keeps the instruction.');
+		$this->assertStringNotContainsString('Set a vehicle ID', $html, 'The invalid-vehicle badge already says what to check.');
+		$this->assertStringNotContainsString('No vehicle selected', $html);
 	}
 
 	public function test_vehicle_page_binds_vehicle(): void
@@ -136,6 +138,27 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 		$other = ShortcodeFixtures::vehicle();
 		$html  = $this->render(' vehicle_id="' . $other . '"');
 		$this->assertStringContainsString('data-vehicle-id="' . $other . '"', $html);
+	}
+
+	/**
+	 * No id and no sample vehicle at all: the instruction text stays (the badge
+	 * only exists when there is something to say about a vehicle).
+	 */
+	public function test_preview_without_any_vehicle_keeps_the_instruction(): void
+	{
+		$this->set_preview(true);
+		$html = $this->render();
+		$this->assertStringContainsString('No vehicle selected', $html);
+		$this->assertStringNotContainsString('mhm-rv-preview-badge', $html);
+	}
+
+	public function test_details_preview_without_any_vehicle_keeps_the_instruction(): void
+	{
+		$this->set_preview(true);
+		RequestSimulator::new_request();
+		$html = do_shortcode('[rentiva_vehicle_details]');
+		$this->assertStringContainsString('No vehicle selected', $html);
+		$this->assertStringNotContainsString('mhm-rv-preview-badge', $html);
 	}
 
 	public function test_preview_without_context_uses_sample(): void

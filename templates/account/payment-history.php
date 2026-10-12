@@ -190,7 +190,7 @@ if (empty($navigation)) {
 			<?php if ( $show_pagination && $total_pages > 1 ) : ?>
 				<div class="mhm-pagination" style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
 					<?php if ( $current_page > 1 ) : ?>
-						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( (int) $current_page - 1 ) ); ?>" class="btn btn-secondary btn-sm">
+						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::PAGE_VAR_PAYMENTS, (int) $current_page - 1 ) ); ?>" class="btn btn-secondary btn-sm">
 							&larr; <?php esc_html_e( 'Previous', 'mhm-rentiva' ); ?>
 						</a>
 					<?php else : ?>
@@ -205,7 +205,7 @@ if (empty($navigation)) {
 					</span>
 
 					<?php if ( $current_page < $total_pages ) : ?>
-						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( (int) $current_page + 1 ) ); ?>" class="btn btn-secondary btn-sm">
+						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::PAGE_VAR_PAYMENTS, (int) $current_page + 1 ) ); ?>" class="btn btn-secondary btn-sm">
 							<?php esc_html_e( 'Next', 'mhm-rentiva' ); ?> &rarr;
 						</a>
 					<?php else : ?>

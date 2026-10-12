@@ -184,6 +184,16 @@ final class VehicleRatingForm extends AbstractShortcode {
 		$badge = (string) ( $template_data['badge_message'] ?? '' );
 		unset($template_data['badge_message']);
 
+		// A badge with no vehicle is the invalid-vehicle badge: it already says what
+		// to check, so the template's "No vehicle selected" instruction is left out.
+		// (Outside a preview RenderContext::badge() is '' and the template's state shows.)
+		if ('' !== $badge && (int) ( $template_data['vehicle_id'] ?? 0 ) <= 0) {
+			$badge_html = RenderContext::badge($badge);
+			if ('' !== $badge_html) {
+				return $badge_html;
+			}
+		}
+
 		$html = parent::render_template($template_data);
 		if ('' === $html || '' === $badge) {
 			return $html;

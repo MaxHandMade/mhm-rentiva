@@ -92,12 +92,18 @@ final class AccountController {
 	 * leaves plugin vars alone. Pager links always point at the list's own page,
 	 * never the site root, so the side effect above does not reach them.
 	 *
+	 * `mhmrentiva_payments_page` is the payment history's own page number (3B-2a
+	 * U5-2): it used to share `mhmrentiva_page` with the bookings list, so paging
+	 * one paged the other. `mhmrentiva_page` stays the bookings list's variable,
+	 * so existing links keep working.
+	 *
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
 		'mhmrentiva_status_filter',
 		'mhmrentiva_search_booking',
 		'mhmrentiva_page',
+		'mhmrentiva_payments_page',
 	);
 
 	/**

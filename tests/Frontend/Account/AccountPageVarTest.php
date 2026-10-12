@@ -51,7 +51,7 @@ final class AccountPageVarTest extends WP_UnitTestCase
 		$this->go_to(add_query_arg('mhmrentiva_page', '3', get_permalink($page)));
 		$this->assertSame('3', get_query_var('mhmrentiva_page'), 'WP::parse_request() fills it on a page.');
 		$this->assertTrue(is_page($page), 'The page still resolves.');
-		$this->assertSame(3, AccountRenderer::current_page());
+		$this->assertSame(3, AccountRenderer::current_page('mhmrentiva_page'));
 	}
 
 	public function test_redirect_canonical_keeps_page_var_on_endpoint(): void
@@ -65,7 +65,7 @@ final class AccountPageVarTest extends WP_UnitTestCase
 
 		$redirect = redirect_canonical($url, false);
 		$this->assertTrue(null === $redirect || false === $redirect || false !== strpos((string) $redirect, 'mhmrentiva_page=2'), 'redirect_canonical() dropped mhmrentiva_page: ' . var_export($redirect, true));
-		$this->assertSame(2, AccountRenderer::current_page());
+		$this->assertSame(2, AccountRenderer::current_page('mhmrentiva_page'));
 	}
 
 	/**
@@ -144,23 +144,23 @@ final class AccountPageVarTest extends WP_UnitTestCase
 
 		foreach (array( '0' => 1, '-2' => 1, 'abc' => 1, '' => 1, '7' => 7 ) as $var => $page) {
 			set_query_var('mhmrentiva_page', $var);
-			$this->assertSame($page, AccountRenderer::current_page(), "current_page() for '$var'");
+			$this->assertSame($page, AccountRenderer::current_page('mhmrentiva_page'), "current_page('mhmrentiva_page') for '$var'");
 		}
 		set_query_var('mhmrentiva_page', array( '2' ));
-		$this->assertSame(1, AccountRenderer::current_page(), 'An array value is page 1.');
+		$this->assertSame(1, AccountRenderer::current_page('mhmrentiva_page'), 'An array value is page 1.');
 	}
 
 	public function test_page_url_keeps_filter_vars(): void
 	{
 		$_SERVER['REQUEST_URI'] = '/hesabim/rezervasyonlarim/?mhmrentiva_status_filter=pending&mhmrentiva_search_booking=12&mhmrentiva_page=3';
 
-		$two = AccountRenderer::page_url(2);
+		$two = AccountRenderer::page_url('mhmrentiva_page', 2);
 		$this->assertStringContainsString('mhmrentiva_status_filter=pending', $two);
 		$this->assertStringContainsString('mhmrentiva_search_booking=12', $two);
 		$this->assertStringContainsString('mhmrentiva_page=2', $two);
 		$this->assertStringNotContainsString('mhmrentiva_page=3', $two);
 
-		$one = AccountRenderer::page_url(1);
+		$one = AccountRenderer::page_url('mhmrentiva_page', 1);
 		$this->assertStringNotContainsString('mhmrentiva_page', $one, 'Page 1 is the URL without the var.');
 		$this->assertStringContainsString('mhmrentiva_status_filter=pending', $one);
 	}

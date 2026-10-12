@@ -195,14 +195,20 @@ final class VehicleDetails extends AbstractShortcode {
 			return parent::render_template( $template_data );
 		}
 
+		// A badge with no vehicle is the invalid-vehicle badge: it already says what
+		// to check, so no second, contradictory instruction follows it. (Outside a
+		// preview the badge is '' and the visitor's neutral state below is drawn.)
+		$badge = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
+		if ( '' !== $badge && '' !== RenderContext::badge( $badge ) ) {
+			return RenderContext::badge( $badge );
+		}
+
 		$is_preview = RenderContext::current()->is_preview();
 		$text       = $is_preview
 			? __( 'No vehicle selected. Set a vehicle ID in the widget settings, or place this widget on a vehicle page.', 'mhm-rentiva' )
 			: __( 'Vehicle details are not available here.', 'mhm-rentiva' );
-		$badge      = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
 
-		return ( '' === $badge ? '' : RenderContext::badge( $badge ) )
-			. '<div class="rv-vehicle-details-empty">' . esc_html( $text ) . '</div>';
+		return '<div class="rv-vehicle-details-empty">' . esc_html( $text ) . '</div>';
 	}
 
 	/**
