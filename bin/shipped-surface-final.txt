@@ -473,6 +473,7 @@ src/Core/Services/TrendMath.php
 src/Core/Tenancy/Exceptions/TenantResolutionException.php
 src/Core/Tenancy/TenantContext.php
 src/Core/Tenancy/TenantResolver.php
+src/Frontend/RenderContext.php
 src/Helpers/Html.php
 src/Helpers/Icons.php
 src/Helpers/NotificationHelper.php
