@@ -137,9 +137,7 @@ class RenderContextTest extends WP_UnitTestCase
 	{
 		$this->login_admin();
 		$seen = $this->dispatch_block(self::BLOCK_ROUTE, 'GET', 'view', static fn () => RenderContext::current()->source());
-		foreach ($seen as $source) {
-			$this->assertSame('front', $source);
-		}
+		$this->assertSame(array(), $seen, 'core rejects context=view at validation, before any block renders');
 
 		// Whatever the controller does with a non-edit context, the hook itself must not push.
 		$request = new WP_REST_Request('GET', self::BLOCK_ROUTE);

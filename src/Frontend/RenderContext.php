@@ -20,7 +20,9 @@ namespace MHMRentiva\Frontend;
  * not run and the block stack stays populated for the rest of that PHP process
  * (`rest_post_dispatch` does not fire on the internal rest_do_request() path,
  * so it cannot serve as a fallback). Over HTTP the process ends with the
- * request; tests clear the stack with reset().
+ * request; tests clear the stack with reset(). A stale entry can share its
+ * spl_object_id with a later request object, which then pops it: harmless
+ * self-heal.
  *
  * @package MHMRentiva\Frontend
  */
@@ -181,10 +183,10 @@ final class RenderContext {
 		if (! is_object($plugin)) {
 			return false;
 		}
-		if (isset($plugin->editor) && is_object($plugin->editor) && $plugin->editor->is_edit_mode()) {
+		if ($plugin->editor->is_edit_mode()) {
 			return true;
 		}
-		return isset($plugin->preview) && is_object($plugin->preview) && $plugin->preview->is_preview_mode();
+		return $plugin->preview->is_preview_mode();
 	}
 
 	/**
