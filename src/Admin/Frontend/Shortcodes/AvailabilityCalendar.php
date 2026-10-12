@@ -356,7 +356,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		 * 2. favoriteNonce: Used for favorite toggling (mhmrentiva_vehicles_list)
 		 */
 		$data['nonce']         = wp_create_nonce('mhmrentiva_availability_nonce');
-		$data['favoriteNonce'] = wp_create_nonce('mhmrentiva_toggle_favorite'); // Use toggle_favorite specifically
+		$data['favoriteNonce'] = \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'); // Use toggle_favorite specifically
 		$data['accountNonce']  = $data['favoriteNonce'];
 
 		return $data;

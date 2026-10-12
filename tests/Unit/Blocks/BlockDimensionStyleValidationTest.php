@@ -68,10 +68,9 @@ final class BlockDimensionStyleValidationTest extends WP_UnitTestCase
 		$wrapper_attributes = $this->render_wrapper_attributes(array($attribute => $value));
 
 		$this->assertStringContainsString($expected_declaration, $wrapper_attributes);
-		$this->assertStringContainsString(
-			$expected_declaration,
-			(string) ($this->rendered_shortcode_attributes['style'] ?? '')
-		);
+		// 3B-2a U5-5: the wrapper builds the style itself; the shortcode never got to
+		// read the `style` attribute the registry used to hand it (dead branch removed).
+		$this->assertArrayNotHasKey('style', $this->rendered_shortcode_attributes);
 	}
 
 	/**

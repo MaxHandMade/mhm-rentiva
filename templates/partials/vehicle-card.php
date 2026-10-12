@@ -11,6 +11,7 @@ declare(strict_types=1);
  * @var array  $atts     Shortcode/Block attributes.
  */
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 if (! defined('ABSPATH')) {
@@ -74,11 +75,11 @@ if (! $is_available) {
                 <?php if ($show_fav) : ?>
                     <button class="mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-                        data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_favorite')); ?>"
+                        <?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
                         data-testid="vehicle-favorite-btn"
                         title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-                        aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
+                        aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
                         <?php
 						// Icons::get() writes an inline style="width:..;height:.."
 						// on every SVG and defaults it to 20px. The heart's CSS
@@ -105,11 +106,11 @@ if (! $is_available) {
                 <?php if ($show_compare) : ?>
                     <button class="mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-                        data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_compare')); ?>"
+                        <?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_compare'); ?>
                         data-testid="vehicle-compare-btn"
                         title="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
-                        aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
+                        aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
                         <?php
                         Icons::render(
                             'compare',

@@ -102,7 +102,7 @@ final class VehicleComparison extends AbstractShortcode {
 		return array(
 			'ajax_url'                   => admin_url('admin-ajax.php'),
 			'nonce'                      => wp_create_nonce('mhmrentiva_vehicle_comparison_nonce'),
-			'toggle_nonce'               => wp_create_nonce('mhmrentiva_toggle_compare'),
+			'toggle_nonce'               => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
 			'loading'                    => __('Loading...', 'mhm-rentiva'),
 			'error'                      => __('An error occurred', 'mhm-rentiva'),
 			'vehicleAdded'               => __('Vehicle added to comparison', 'mhm-rentiva'),
@@ -125,8 +125,16 @@ final class VehicleComparison extends AbstractShortcode {
 		$vehicle_ids  = self::parse_vehicle_ids($atts['vehicle_ids'] ?? '');
 		$max_vehicles = intval($atts['max_vehicles'] ?? 3);
 
+		// An editor preview without explicit vehicle_ids shows sample vehicles,
+		// never the editing user's own comparison list (spec 3B-2a §2.1). Explicit
+		// ids are the editor's choice: those vehicles, no badge.
+		$sample = empty($vehicle_ids) && \MHMRentiva\Frontend\RenderContext::current()->allows_sample();
+		if ($sample) {
+			$vehicle_ids = \MHMRentiva\Frontend\PreviewSamples::vehicle_ids(3);
+		}
+
 		// Canonical Source of Truth: Get from CompareService if shortcode IDs are empty
-		if (empty($vehicle_ids) && class_exists('\MHMRentiva\Admin\Services\CompareService')) {
+		if (! $sample && empty($vehicle_ids) && class_exists('\MHMRentiva\Admin\Services\CompareService')) {
 			$vehicle_ids = \MHMRentiva\Admin\Services\CompareService::get_list();
 		}
 
@@ -139,7 +147,7 @@ final class VehicleComparison extends AbstractShortcode {
 		$features     = self::get_comparison_features($vehicles);
 		$all_vehicles = array();
 
-		return array(
+		$data = array(
 			'atts'         => $atts,
 			'vehicles'     => $vehicles,
 			'features'     => $features,
@@ -148,6 +156,13 @@ final class VehicleComparison extends AbstractShortcode {
 			'has_vehicles' => count($vehicles) >= 2, // At least 2 vehicles needed for comparison UX
 			'can_add_more' => count($vehicles) < $max_vehicles,
 		);
+
+		// Too few sample vehicles: the template's own empty state, without a badge.
+		if ($sample && $data['has_vehicles']) {
+			$data[ self::PREVIEW_BADGE_KEY ] = __('Preview: sample data. Logged-in customers see their own records.', 'mhm-rentiva');
+		}
+
+		return $data;
 	}
 	// ...
 	// ...

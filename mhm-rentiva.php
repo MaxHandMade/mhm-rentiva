@@ -659,6 +659,11 @@ if (class_exists('MHMRentiva\\Blocks\\BlockRegistry')) {
 	\MHMRentiva\Blocks\BlockRegistry::init();
 }
 
+// Editor-preview detection (Elementor / block editor server-side render).
+if (class_exists('MHMRentiva\\Frontend\\RenderContext')) {
+	\MHMRentiva\Frontend\RenderContext::register();
+}
+
 /*
  * WooCommerce feature compatibility.
  *

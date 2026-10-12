@@ -28,9 +28,9 @@ class VehicleRatingFormTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_vehicle_rating_form]');
 
         $this->assertNotEmpty($output);
-        // Template's `return` inside ob_start is discarded (include does not capture return value),
-        // so empty buffer triggers get_fallback_html() which emits the shortcode-error wrapper.
-        $this->assertStringContainsString('mhm-rentiva-shortcode-error', $output);
+        // The controller finds no vehicle, so the template prints the short empty state
+        // (no internal path: FallbackNoPathLeakTest).
+        $this->assertStringContainsString('rv-rating-form-error', $output);
     }
 
     public function test_renders_rating_form_with_valid_vehicle()

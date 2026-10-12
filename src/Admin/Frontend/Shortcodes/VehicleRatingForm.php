@@ -9,9 +9,14 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Frontend\PreviewSamples;
+use MHMRentiva\Frontend\RenderContext;
 
 /**
  * Vehicle Rating Form Shortcode
+ *
+ * Known limit: a non-numeric explicit `vehicle_id` (e.g. "abc") arrives as 0 from
+ * the attribute mapper and is therefore treated as "not given".
  */
 final class VehicleRatingForm extends AbstractShortcode {
 
@@ -84,7 +89,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		return array_merge(
 			$data,
 			array(
-				'nonce'         => wp_create_nonce('mhmrentiva_rating_nonce'),
+				'nonce'         => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_rating_nonce'),
 				'is_logged_in'  => is_user_logged_in(),
 				// The list renderer reads these two from the object root, not
 				// from the strings sub-object the other keys live in.
@@ -126,9 +131,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 	protected static function prepare_template_data(array $atts): array
 	{
-		$vehicle_id = intval($atts['vehicle_id'] ?? get_the_ID());
+		[ $vehicle_id, $badge ] = self::resolve_vehicle($atts);
 		if ($vehicle_id <= 0) {
-			return array( 'vehicle_id' => 0 );
+			return array(
+				'vehicle_id'    => 0,
+				'badge_message' => $badge,
+			);
 		}
 
 		// These three toggles have been part of the shortcode's documented API --
@@ -142,12 +150,56 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 		return array(
 			'vehicle_id'          => $vehicle_id,
+			'badge_message'       => $badge,
 			'vehicle_rating'      => self::get_vehicle_rating($vehicle_id),
 			'user_rating'         => is_user_logged_in() ? self::get_user_rating($vehicle_id) : null,
 			'show_rating_display' => $to_bool($atts['show_rating_display'] ?? '1'),
 			'show_form'           => $to_bool($atts['show_form'] ?? '1'),
 			'show_ratings_list'   => $to_bool($atts['show_ratings_list'] ?? '1'),
 		);
+	}
+
+	/**
+	 * Which vehicle the form binds to: the shared rule in
+	 * PreviewSamples::resolve_vehicle() (explicit id must be publicly readable,
+	 * else the page's vehicle, else a preview sample). The template never looks
+	 * for an id of its own.
+	 *
+	 * @param array<string,mixed> $atts Normalised shortcode attributes.
+	 * @return array{0:int,1:string} Vehicle ID (0 = none) and the preview badge text ('' = no badge).
+	 */
+	private static function resolve_vehicle(array $atts): array
+	{
+		// CanonicalAttributeMapper types vehicle_id as int, so "not given" arrives as 0.
+		return PreviewSamples::resolve_vehicle( (int) ( $atts['vehicle_id'] ?? 0 ) );
+	}
+
+	/**
+	 * Prefixes the preview badge (empty on the front end) to the rendered form.
+	 *
+	 * @param array<string,mixed> $template_data Prepared template data.
+	 */
+	protected static function render_template(array $template_data): string
+	{
+		$badge = (string) ( $template_data['badge_message'] ?? '' );
+		unset($template_data['badge_message']);
+
+		// A badge with no vehicle is the invalid-vehicle badge: it already says what
+		// to check, so the template's "No vehicle selected" instruction is left out.
+		// (Outside a preview RenderContext::badge() is '' and the template's state shows.)
+		if ('' !== $badge && (int) ( $template_data['vehicle_id'] ?? 0 ) <= 0) {
+			$badge_html = RenderContext::badge($badge);
+			if ('' !== $badge_html) {
+				return $badge_html;
+			}
+		}
+
+		$html = parent::render_template($template_data);
+		if ('' === $html || '' === $badge) {
+			return $html;
+		}
+
+		return RenderContext::badge($badge) . $html;
 	}
 
 	public static function get_vehicle_rating(int $vehicle_id): array

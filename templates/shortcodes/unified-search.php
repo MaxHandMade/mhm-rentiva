@@ -18,6 +18,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 $uid       = $wrapper_id;
@@ -69,7 +70,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
             id="<?php echo esc_attr($uid); ?>_panel_rental"
             role="tabpanel">
 
-            <form class="rv-unified-search__form" action="<?php echo esc_url($form_action ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>" method="GET" data-testid="rental-search-form">
+            <form class="rv-unified-search__form"<?php echo RenderContext::current()->is_preview() ? '' : ' action="' . esc_url($form_action ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(). ?> method="GET" data-testid="rental-search-form">
 
                 <!-- Locations -->
                 <?php if ($show_location_select) : ?>
@@ -179,7 +180,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
 
                 <!-- Action -->
                 <div class="rv-unified-search__action">
-                    <button type="submit" class="rv-btn rv-btn--primary" data-testid="search-submit-rental">
+                    <button type="submit" class="rv-btn rv-btn--primary" data-testid="search-submit-rental"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
                         <?php Icons::render('search', [ 'class' => 'rv-icon-search' ]); ?>
                         <?php esc_html_e('Search', 'mhm-rentiva'); ?>
                     </button>

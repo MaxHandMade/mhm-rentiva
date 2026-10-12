@@ -5,6 +5,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 $vehicle_id              = isset($vehicle_id) ? intval($vehicle_id) : 0;
@@ -154,10 +155,10 @@ $allowed_svg_tags = array(
 							<?php if ($show_favorite_button) : ?>
 								<button class="rv-vd2-action-btn rv-vd2-favorite mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
 									data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-									data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_favorite')); ?>"
+									<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
 									title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
 									aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
+									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 									<?php
 									// Explicit size at the call site: Icons::get()'s inline
 									// style defaults to 20px, which used to beat this page's
@@ -179,10 +180,10 @@ $allowed_svg_tags = array(
 							<?php if ($show_compare_button) : ?>
 								<button class="rv-vd2-action-btn rv-vd2-compare mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
 									data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-									data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_compare')); ?>"
+									<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_compare'); ?>
 									title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
 									aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
-									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
+									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 									<?php
 									Icons::render(
 										'compare',
@@ -385,11 +386,13 @@ $allowed_svg_tags = array(
 			if ($similar_limit < 1) {
 				$similar_limit = $is_mobile_view ? 6 : 3;
 			}
-			$similar_limit     = min(12, $similar_limit);
-			$similar_category  = ! empty($safe_category_slug) ? ' category="' . esc_attr($safe_category_slug) . '"' : '';
+			$similar_limit = min(12, $similar_limit);
+			$similar_args  = ! empty($safe_category_slug) ? ' category="' . esc_attr($safe_category_slug) . '"' : '';
+			// The vehicle on show is not "similar" to itself.
+			$similar_args     .= $vehicle_id > 0 ? ' exclude="' . $vehicle_id . '"' : '';
 			$related_shortcode = $is_mobile_view
-				? '[rentiva_featured_vehicles layout="slider" limit="' . $similar_limit . '" columns="1"' . $similar_category . ' autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
-				: '[rentiva_featured_vehicles layout="grid" limit="' . $similar_limit . '" columns="3"' . $similar_category . ' show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
+				? '[rentiva_featured_vehicles layout="slider" limit="' . $similar_limit . '" columns="1"' . $similar_args . ' autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
+				: '[rentiva_featured_vehicles layout="grid" limit="' . $similar_limit . '" columns="3"' . $similar_args . ' show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
 			?>
 			<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode($related_shortcode); ?>
 		</section>

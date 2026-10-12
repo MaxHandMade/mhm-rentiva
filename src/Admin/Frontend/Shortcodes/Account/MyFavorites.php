@@ -13,6 +13,8 @@ use MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 use WP_Query;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
+use MHMRentiva\Frontend\PreviewSamples;
+use MHMRentiva\Frontend\RenderContext;
 
 /**
  * My Favorites Shortcode
@@ -60,10 +62,14 @@ class MyFavorites extends AbstractShortcode {
 
 	protected static function prepare_template_data(array $atts): array
 	{
-		$user_id = get_current_user_id();
+		// An editor preview always shows sample vehicles, never the editing
+		// user's own favourites (spec 3B-2a §2.1, account class).
+		$is_preview = RenderContext::current()->allows_sample();
 
 		// 1. Get Favorite IDs
-		$favorite_ids = FavoritesService::get_user_favorites($user_id);
+		$favorite_ids = $is_preview
+			? PreviewSamples::vehicle_ids(3)
+			: FavoritesService::get_user_favorites(get_current_user_id());
 
 		$vehicles = array();
 
@@ -102,7 +108,13 @@ class MyFavorites extends AbstractShortcode {
 				$GLOBALS['post'] = $vehicle_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restored by wp_reset_postdata() below.
 				setup_postdata($vehicle_post);
 				// Use reusable helper from VehiclesList to ensure consistency
-				$vehicles[] = VehiclesList::get_vehicle_data_for_shortcode( (int) $vehicle_post->ID, $atts);
+				$vehicle_data = VehiclesList::get_vehicle_data_for_shortcode( (int) $vehicle_post->ID, $atts);
+				if ($is_preview) {
+					// The card must not look up the editing user's favourites or
+					// comparison list (templates/partials/vehicle-card-base.php).
+					$vehicle_data['preview_neutral'] = true;
+				}
+				$vehicles[] = $vehicle_data;
 			}
 			wp_reset_postdata();
 		}
@@ -113,7 +125,7 @@ class MyFavorites extends AbstractShortcode {
 		// A list card takes the whole row: one column.
 		$columns = 'list' === $card_layout ? 1 : ( $atts['columns'] ?? 3 );
 
-		return array(
+		$data = array(
 			'atts'            => $atts,
 			'vehicles'        => $vehicles,
 			'total_vehicles'  => count($vehicles),
@@ -125,6 +137,13 @@ class MyFavorites extends AbstractShortcode {
 			'wrapper_class'   => 'mhm-rentiva-my-favorites mhm-my-favorites-container rv-my-favorites-wrapper ' . ( $atts['class'] ?? '' ),
 			'no_results_text' => (string) ( $atts['no_results_text'] ?? '' ),
 		);
+
+		// No sample vehicle: the grid's own empty state, without a badge.
+		if ($is_preview && ! empty($vehicles)) {
+			$data[ self::PREVIEW_BADGE_KEY ] = __('Preview: sample data. Logged-in customers see their own records.', 'mhm-rentiva');
+		}
+
+		return $data;
 	}
 
 	/**

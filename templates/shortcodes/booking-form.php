@@ -13,6 +13,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
+
 
 // Get template variables
 $atts             = $atts ?? array();
@@ -447,7 +449,7 @@ $unique_id = uniqid('rv_booking_');
 					<!-- Form Buttons -->
 
 					<div class="rv-card-footer rv-form-actions">
-						<button type="button" class="rv-submit-btn rv-btn rv-btn-primary rv-cta-primary" data-testid="booking-submit-btn">
+						<button type="button" class="rv-submit-btn rv-btn rv-btn-primary rv-cta-primary" data-testid="booking-submit-btn"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 							<span class="rv-btn-text">
 								<?php
 								$make_booking_text = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_text_make_booking', '');

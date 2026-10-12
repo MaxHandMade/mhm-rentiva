@@ -20,6 +20,7 @@ use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use Exception;
 
 use MHMRentiva\Admin\Core\QueryHelper;
+use MHMRentiva\Frontend\RenderContext;
 
 
 
@@ -292,7 +293,7 @@ final class SearchResults extends AbstractShortcode {
 			'filter_options'  => $filter_options,
 			'pagination'      => $results['pagination'] ?? array(),
 			'sorting_options' => self::get_sorting_options(),
-			'nonce_field'     => wp_nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce', true, false),
+			'nonce_field'     => RenderContext::nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce'),
 		);
 	}
 
@@ -369,7 +370,10 @@ final class SearchResults extends AbstractShortcode {
 			'mhmRentivaSearchResults',
 			array(
 				'ajax_url'        => admin_url('admin-ajax.php'),
-				'nonce'           => wp_create_nonce('mhmrentiva_search_results'),
+				// '' in an editor preview although the filter is a public read: its
+				// response is cards rendered in a front context, with live
+				// favourite/compare buttons and their real nonces.
+				'nonce'           => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_search_results'),
 				'current_url'     => home_url(add_query_arg(null, null)),
 				'search_page_url' => ShortcodeUrlManager::get_page_url('rentiva_search'),
 				'i18n'            => array(
@@ -398,7 +402,7 @@ final class SearchResults extends AbstractShortcode {
 					/* translators: %d: number of vehicles. */
 					'vehicles_found'         => __('%d vehicles found', 'mhm-rentiva'),
 				),
-				'favorite_nonce'  => wp_create_nonce('mhmrentiva_toggle_favorite'),
+				'favorite_nonce'  => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'),
 				'icons'           => array(
 					'heart' => \MHMRentiva\Helpers\Icons::get('heart'),
 				),

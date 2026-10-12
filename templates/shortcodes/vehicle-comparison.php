@@ -8,6 +8,7 @@
  * @since 1.0.0
  */
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 
@@ -91,7 +92,7 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 												</div>
 											<?php endif; ?>
 											<?php if ($show_remove_buttons) : ?>
-												<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
+												<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 													<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
 												</button>
 											<?php endif; ?>
@@ -220,7 +221,7 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 								</div>
 
 								<?php if ($show_remove_buttons) : ?>
-									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
+									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 										<svg class="rv-icon-remove" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
 											<line x1="18" y1="6" x2="6" y2="18"></line>
 											<line x1="6" y1="6" x2="18" y2="18"></line>
@@ -308,7 +309,7 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 								<?php endif; ?>
 								<h4><?php echo esc_html($vehicle['title']); ?></h4>
 								<?php if ($show_remove_buttons) : ?>
-									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
+									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 										<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
 									</button>
 								<?php endif; ?>

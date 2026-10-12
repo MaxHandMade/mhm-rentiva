@@ -622,17 +622,7 @@ class BlockRegistry {
 		// copy and always map.
 		unset($attributes['_canonical']);
 
-		// 1. Extract Wrapper Logic (Dimensions) before CAM drops unknown attributes
-		$style_parts = array();
-		if ('' !== $height) {
-			$style_parts[] = "height:$height";
-		}
-
-		if (! empty($style_parts)) {
-			$attributes['style'] = implode(';', $style_parts) . ';';
-		}
-
-		// 2. Canonical Attribute Mapping (Registry + KeyNormalizer driven)
+		// 1. Canonical Attribute Mapping (Registry + KeyNormalizer driven)
 		//    This is the one-way normalization step from block payload to
 		//    shortcode canonical attributes used by downstream rendering.
 		$mapped_attributes = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $attributes);

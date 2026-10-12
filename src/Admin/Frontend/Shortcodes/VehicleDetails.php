@@ -21,6 +21,8 @@ use MHMRentiva\Admin\Services\CompareService;
 use DateTime;
 use DateInterval;
 use MHMRentiva\Admin\Core\AssetManager;
+use MHMRentiva\Frontend\PreviewSamples;
+use MHMRentiva\Frontend\RenderContext;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -99,9 +101,17 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	protected static function prepare_template_data( array $atts ): array {
-		$vehicle_id = self::get_vehicle_id( $atts );
-		if ( ! $vehicle_id ) {
-			return array();
+		// An explicit id is checked by the shared rule; the URL slug is only consulted
+		// when none is given. Neither a rejected id nor a missing context renders the
+		// page skeleton: render_template() draws a short empty state instead.
+		$given = (int) ( $atts['vehicle_id'] ?? 0 );
+
+		[ $vehicle_id, $badge ] = PreviewSamples::resolve_vehicle( $given, 0 === $given ? self::get_routed_vehicle_id() : 0 );
+		if ( $vehicle_id <= 0 ) {
+			return array(
+				'vehicle_id'            => 0,
+				self::PREVIEW_BADGE_KEY => $badge,
+			);
 		}
 
 		// Cache disabled for real-time rating updates
@@ -169,13 +179,43 @@ final class VehicleDetails extends AbstractShortcode {
 			VehicleFeatureHelper::get_selected_detail_fields()
 		);
 
+		$template_data[ self::PREVIEW_BADGE_KEY ] = $badge;
+
 		return $template_data;
 	}
 
-	private static function get_vehicle_id( array $atts ): int {
-		if ( ! empty( $atts['vehicle_id'] ) ) {
-			return absint( $atts['vehicle_id'] );
+	/**
+	 * The badge (if any) is prefixed by the base class; a missing vehicle is a short
+	 * empty state, never the page skeleton and never an internal path.
+	 *
+	 * @param array<string,mixed> $template_data Prepared template data.
+	 */
+	protected static function render_template( array $template_data ): string {
+		if ( (int) ( $template_data['vehicle_id'] ?? 0 ) > 0 ) {
+			return parent::render_template( $template_data );
 		}
+
+		// A badge with no vehicle is the invalid-vehicle badge: it already says what
+		// to check, so no second, contradictory instruction follows it. (Outside a
+		// preview the badge is '' and the visitor's neutral state below is drawn.)
+		$badge      = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
+		$badge_html = '' !== $badge ? RenderContext::badge( $badge ) : '';
+		if ( '' !== $badge_html ) {
+			return $badge_html;
+		}
+
+		$is_preview = RenderContext::current()->is_preview();
+		$text       = $is_preview
+			? __( 'No vehicle selected. Set a vehicle ID in the widget settings, or place this widget on a vehicle page.', 'mhm-rentiva' )
+			: __( 'Vehicle details are not available here.', 'mhm-rentiva' );
+
+		return '<div class="rv-vehicle-details-empty">' . esc_html( $text ) . '</div>';
+	}
+
+	/**
+	 * The vehicle the URL names (SEO sub-path slug), or 0.
+	 */
+	private static function get_routed_vehicle_id(): int {
 		// Support SEO-friendly sub-path routing: /vehicle-details/car-slug/ → mhmrentiva_vehicle_slug
 		// query var, registered via Plugin::register_vehicle_rewrite_rules() +
 		// add_rewrite_tag('%mhmrentiva_vehicle_slug%', ...). The URL itself is unchanged;
@@ -198,14 +238,6 @@ final class VehicleDetails extends AbstractShortcode {
 			if ( ! empty( $matches ) ) {
 				return (int) $matches[0];
 			}
-		}
-		global $post;
-		if ( $post && $post->post_type === 'mhmrentiva_vehicle' ) {
-			return $post->ID;
-		}
-		$current_id = get_the_ID();
-		if ( $current_id && get_post_type( $current_id ) === 'mhmrentiva_vehicle' ) {
-			return $current_id;
 		}
 		return 0;
 	}
@@ -754,10 +786,7 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	private static function get_default_template_data( array $atts ): array {
-		return array(
-			'vehicle_id' => 0,
-			'title'      => __( 'Vehicle not found', 'mhm-rentiva' ),
-			'atts'       => $atts,
-		);
+		unset( $atts );
+		return array( 'vehicle_id' => 0 );
 	}
 }

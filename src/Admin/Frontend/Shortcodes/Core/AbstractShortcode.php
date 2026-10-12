@@ -37,6 +37,11 @@ abstract class AbstractShortcode {
 	public const QUERY_VAR_PREFIX = 'mhmrentiva_';
 
 	/**
+	 * Template-data key carrying the preview badge text (see render_template()).
+	 */
+	public const PREVIEW_BADGE_KEY = '_preview_badge';
+
+	/**
 	 * Maps a logical filter key to the name it carries on the wire.
 	 *
 	 * This is the single mapping point between the readable keys used inside the
@@ -157,7 +162,27 @@ abstract class AbstractShortcode {
 	 */
 	public static function render(array $atts = array(), ?string $content = null): string
 	{
+		// In an editor preview the output gets the root marker (outermost scope
+		// only; nested shortcodes share it). On the front end this is a pass-through.
+		return \MHMRentiva\Frontend\RenderContext::render_preview_scope(
+			static fn (): string => self::render_in_scope($atts, $content)
+		);
+	}
+
+	/**
+	 * The render pipeline proper, run inside the preview scope.
+	 *
+	 * @param array       $atts    Shortcode attributes
+	 * @param string|null $content Shortcode content
+	 * @return string Rendered HTML
+	 */
+	private static function render_in_scope(array $atts, ?string $content): string
+	{
 		$start_time = microtime(true);
+
+		// A preview neither reads nor writes the shortcode HTML cache: the front-end
+		// entry must not reach the editor, and sample markup must not reach visitors.
+		$is_preview = \MHMRentiva\Frontend\RenderContext::current()->is_preview();
 
 		try {
 			$tag = static::get_shortcode_tag();
@@ -186,10 +211,15 @@ abstract class AbstractShortcode {
 			static::enqueue_assets_once($atts);
 
 			// Performance: Cache check
-			$cache_key   = static::get_cache_key($atts);
-			$cached_html = static::get_cached_html($cache_key);
-			if ($cached_html) {
-				return $cached_html;
+			// The key is not even computed in a preview: get_cache_key() creates the
+			// version transient when it is missing, which would be a write.
+			$cache_key = '';
+			if (! $is_preview) {
+				$cache_key   = static::get_cache_key($atts);
+				$cached_html = static::get_cached_html($cache_key);
+				if ($cached_html) {
+					return $cached_html;
+				}
 			}
 
 			// Prepare template data
@@ -201,8 +231,10 @@ abstract class AbstractShortcode {
 			// Render template
 			$html = static::render_template($template_data);
 
-			// Empty HTML check
-			if (empty($html)) {
+			// Empty HTML check. A template that is missing is told apart from one that
+			// rendered nothing on purpose: only the missing one gets the generic state.
+			$template_path = static::get_template_path();
+			if (empty($html) && '' !== $template_path && null === Templates::locate($template_path)) {
 				$html = static::get_fallback_html($atts);
 			}
 
@@ -215,7 +247,9 @@ abstract class AbstractShortcode {
 			$html = str_replace(array( "\r\n", "\r", "\n", "\t" ), '', $html);
 
 			// Performance: Cache HTML (now stores the already-minified output)
-			static::cache_html($cache_key, $html);
+			if (! $is_preview) {
+				static::cache_html($cache_key, $html);
+			}
 
 			// Filter hook
 			// Both halves move together. The sweep could only reach the literal in
@@ -240,10 +274,23 @@ abstract class AbstractShortcode {
 
 	/**
 	 * Template rendering (can be overridden)
+	 *
+	 * A non-empty `PREVIEW_BADGE_KEY` entry in the template data (set by a
+	 * subclass that drew sample data) is taken out before the template sees it
+	 * and its text is prefixed as the preview badge. The badge is '' outside a
+	 * preview, so the front-end output is the template's own.
 	 */
 	protected static function render_template(array $template_data): string
 	{
-		return Templates::render(static::get_template_path(), $template_data, true);
+		$badge = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
+		unset($template_data[ self::PREVIEW_BADGE_KEY ]);
+
+		$html = Templates::render(static::get_template_path(), $template_data, true);
+		if ('' === $badge || '' === $html) {
+			return $html;
+		}
+
+		return \MHMRentiva\Frontend\RenderContext::badge($badge) . $html;
 	}
 
 	/**
@@ -640,20 +687,16 @@ abstract class AbstractShortcode {
 	}
 
 	/**
-	 * Returns fallback HTML (if template not found)
+	 * Returns fallback HTML when the template file cannot be located.
+	 * A template that rendered nothing on purpose does not come here, and neither does a shortcode that
+	 * has no template file at all (empty template path).
 	 * Can be overridden
 	 */
 	protected static function get_fallback_html(array $atts): string
 	{
-		return sprintf(
-			'<div class="mhm-rentiva-shortcode-error">
-                <p>%s</p>
-                <small>Shortcode: %s | Template: %s</small>
-            </div>',
-			__('Template file not found.', 'mhm-rentiva'),
-			static::get_shortcode_tag(),
-			static::get_template_path()
-		);
+		// No path, template name or file wording here, for administrators either:
+		// the detail line comes from get_error_html(), behind manage_options.
+		return static::get_error_html(__('No template is available for this shortcode.', 'mhm-rentiva'));
 	}
 
 	/**

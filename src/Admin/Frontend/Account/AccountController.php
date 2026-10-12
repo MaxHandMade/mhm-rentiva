@@ -92,12 +92,18 @@ final class AccountController {
 	 * leaves plugin vars alone. Pager links always point at the list's own page,
 	 * never the site root, so the side effect above does not reach them.
 	 *
+	 * `mhmrentiva_payments_page` is the payment history's own page number (3B-2a
+	 * U5-2): it used to share `mhmrentiva_page` with the bookings list, so paging
+	 * one paged the other. `mhmrentiva_page` stays the bookings list's variable,
+	 * so existing links keep working.
+	 *
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
 		'mhmrentiva_status_filter',
 		'mhmrentiva_search_booking',
 		'mhmrentiva_page',
+		'mhmrentiva_payments_page',
 	);
 
 	/**
@@ -266,7 +272,7 @@ final class AccountController {
 				'mhmRentivaPrivacy',
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhmrentiva_gdpr_nonce'),
+					'nonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_gdpr_nonce'),
 					'homeUrl' => home_url(),
 					'i18n'    => array(
 						'confirmExport'       => __('Are you sure you want to export your data? This may take a few minutes.', 'mhm-rentiva'),
@@ -389,10 +395,10 @@ final class AccountController {
 			array(
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
 				'restUrl'     => rest_url('mhm-rentiva/v1/'),
-				'nonce'       => wp_create_nonce('mhmrentiva_account'),
+				'nonce'       => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_account'),
 				// wp_ajax_-only handler: no point minting/printing it for a logged-out visitor.
-				'uploadNonce' => is_user_logged_in() ? wp_create_nonce('mhmrentiva_upload_receipt') : '',
-				'restNonce'   => wp_create_nonce('wp_rest'),
+				'uploadNonce' => is_user_logged_in() ? \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_upload_receipt') : '',
+				'restNonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce('wp_rest'),
 				'i18n'        => array(
 					'loading'                => __('Loading...', 'mhm-rentiva'),
 					'error'                  => __('An error occurred.', 'mhm-rentiva'),

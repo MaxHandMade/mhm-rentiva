@@ -188,6 +188,19 @@ final class Testimonials extends AbstractShortcode {
 
 	public static function render(array $atts = array(), ?string $content = null): string
 	{
+		// This class does not go through AbstractShortcode::render(), so it opens the
+		// preview scope itself (a pass-through on the front end).
+		return \MHMRentiva\Frontend\RenderContext::render_preview_scope(
+			static fn (): string => self::render_in_scope($atts, $content)
+		);
+	}
+
+	/**
+	 * @param array<string,mixed> $atts    Shortcode attributes.
+	 * @param string|null         $content Shortcode content.
+	 */
+	private static function render_in_scope(array $atts, ?string $content): string
+	{
 		$defaults = self::get_default_attributes();
 
 		// Same contract as AbstractShortcode::render(): a `_canonical` payload (widgets,

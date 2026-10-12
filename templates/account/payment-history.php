@@ -33,6 +33,10 @@ $show_payment_method = $data['show_payment_method'] ?? true;
 $show_booking_link   = $data['show_booking_link'] ?? false;
 $show_pagination     = $data['show_pagination'] ?? true;
 
+// Sample rows (editor preview, AccountRenderer::get_payment_history_preview_data()):
+// no link to a booking, no receipt upload.
+$is_sample = ! empty($data['is_sample']);
+
 $vehicles_page_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
 $vehicles_page_url = (string) apply_filters('mhmrentiva_vehicles_page_url', $vehicles_page_url);
@@ -89,7 +93,9 @@ if (empty($navigation)) {
 								<div class="payment-info">
 									<h3 class="payment-title">
 										<?php
-										if ($show_booking_link) {
+										if ($show_booking_link && $is_sample) {
+											printf('<a class="payment-booking-link">%s</a>', esc_html($payment['booking_title']));
+										} elseif ($show_booking_link) {
 											printf('<a class="payment-booking-link" href="%1$s">%2$s</a>', esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( (int) $payment['booking_id'])), esc_html($payment['booking_title']));
 										} else {
 											echo esc_html($payment['booking_title']);
@@ -172,7 +178,7 @@ if (empty($navigation)) {
 										?>
 										<label class="btn btn-primary btn-sm mhm-upload-label <?php echo $is_paid ? 'disabled' : ''; ?>" style="margin-left:8px;">
 											<?php esc_html_e('Upload Receipt', 'mhm-rentiva'); ?>
-											<input type="file" class="mhm-upload-receipt" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" accept="image/*,.pdf" style="display: none;" <?php disabled($is_paid); ?>>
+											<input type="file" class="mhm-upload-receipt" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" accept="image/*,.pdf" style="display: none;" <?php disabled($is_paid || $is_sample); ?>>
 										</label>
 									<?php endif; ?>
 								</div>
@@ -184,7 +190,7 @@ if (empty($navigation)) {
 			<?php if ( $show_pagination && $total_pages > 1 ) : ?>
 				<div class="mhm-pagination" style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
 					<?php if ( $current_page > 1 ) : ?>
-						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( (int) $current_page - 1 ) ); ?>" class="btn btn-secondary btn-sm">
+						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::PAGE_VAR_PAYMENTS, (int) $current_page - 1 ) ); ?>" class="btn btn-secondary btn-sm">
 							&larr; <?php esc_html_e( 'Previous', 'mhm-rentiva' ); ?>
 						</a>
 					<?php else : ?>
@@ -199,7 +205,7 @@ if (empty($navigation)) {
 					</span>
 
 					<?php if ( $current_page < $total_pages ) : ?>
-						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( (int) $current_page + 1 ) ); ?>" class="btn btn-secondary btn-sm">
+						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::PAGE_VAR_PAYMENTS, (int) $current_page + 1 ) ); ?>" class="btn btn-secondary btn-sm">
 							<?php esc_html_e( 'Next', 'mhm-rentiva' ); ?> &rarr;
 						</a>
 					<?php else : ?>

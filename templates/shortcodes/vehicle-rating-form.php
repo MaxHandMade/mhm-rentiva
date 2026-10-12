@@ -16,6 +16,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 
@@ -29,7 +30,7 @@ $data = $data ?? array();
 
 // Get data from vars array
 $vars           = $vars ?? array();
-$vehicle_id     = $data['vehicle_id'] ?? $vars['vehicle_id'] ?? get_the_ID();
+$vehicle_id     = (int) ( $data['vehicle_id'] ?? $vars['vehicle_id'] ?? 0 );
 $vehicle_rating = $data['vehicle_rating'] ?? $vars['vehicle_rating'] ?? array();
 $user_rating    = $data['user_rating'] ?? $vars['user_rating'] ?? null;
 $is_logged_in   = $data['is_logged_in'] ?? $vars['is_logged_in'] ?? is_user_logged_in();
@@ -40,15 +41,14 @@ $show_rating_display = $data['show_rating_display'] ?? $vars['show_rating_displa
 $show_ratings_list   = $data['show_ratings_list'] ?? $vars['show_ratings_list'] ?? true;
 $show_form           = $data['show_form'] ?? $vars['show_form'] ?? true;
 
-// If vehicle_id still not available, get from global
-if (! $vehicle_id || $vehicle_id <= 0) {
-	global $post;
-	$vehicle_id = $post->ID ?? 0;
-}
-
-// CRITICAL: If vehicle ID is not available, render the template
-if (! $vehicle_id || $vehicle_id <= 0) {
-	return '<div class="rv-rating-form-error">' . esc_html__('Vehicle ID not found', 'mhm-rentiva') . '</div>';
+// The controller resolves the vehicle (VehicleRatingForm::resolve_vehicle()); the
+// template never looks for an id of its own. No vehicle: a short, helpful state.
+if ($vehicle_id <= 0) {
+	$empty_text = RenderContext::current()->is_preview()
+		? __('No vehicle selected. Set a vehicle ID in the widget settings, or place this form on a vehicle page.', 'mhm-rentiva')
+		: __('Vehicle ratings are not available here.', 'mhm-rentiva');
+	echo '<div class="rv-rating-form-error">' . esc_html($empty_text) . '</div>';
+	return;
 }
 
 // Get comment settings
@@ -123,14 +123,9 @@ $allowed_rating_svg_tags = array(
 	),
 );
 
-// Debug: Check user rating information
-if (defined('WP_DEBUG') && WP_DEBUG) {
-	echo '<!-- Debug: User rating data: ' . esc_html( (string) wp_json_encode($user_rating)) . ' -->';
-}
-
 ?>
 
-<div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr( (string) microtime(true)); ?>">
+<div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
 
 	<!-- Current Rating Display -->
 	<?php if ($show_rating_display) : ?>
@@ -190,11 +185,6 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				'cache_results'             => false,
 			)
 		);
-
-		// Debug: Check comment count
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			echo '<!-- Debug: Found ' . esc_html( (string) count($comments)) . ' approved comments for vehicle ' . esc_html( (string) $vehicle_id) . ' -->';
-		}
 
 		if (! empty($comments)) :
 			// Batch fetch verified review IDs (single query, no N+1)
@@ -287,13 +277,13 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 								<?php if ($show_actions) : ?>
 									<div class="rv-review-actions">
 										<?php if ($display_settings['allow_editing'] ?? true) : ?>
-											<button class="rv-edit-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>" data-rating="<?php echo esc_attr($rating); ?>" data-comment="<?php echo esc_attr($comment->comment_content); ?>">
+											<button class="rv-edit-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>" data-rating="<?php echo esc_attr($rating); ?>" data-comment="<?php echo esc_attr($comment->comment_content); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 												<?php Icons::render('edit'); ?>
 												<?php echo esc_html__('Edit', 'mhm-rentiva'); ?>
 											</button>
 										<?php endif; ?>
 										<?php if ($display_settings['allow_deletion'] ?? true) : ?>
-											<button class="rv-delete-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>">
+											<button class="rv-delete-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 												<?php Icons::render('trash'); ?>
 												<?php echo esc_html__('Delete', 'mhm-rentiva'); ?>
 											</button>
@@ -322,7 +312,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			<h4 class="rv-rating-form-title"><?php echo esc_html__('Rate This Vehicle', 'mhm-rentiva'); ?></h4>
 
 			<form class="rv-rating-form-content" id="rating-form-<?php echo esc_attr($vehicle_id); ?>">
-				<?php wp_nonce_field('mhmrentiva_nonce', 'rating_nonce'); ?>
+				<?php RenderContext::the_nonce_field('mhmrentiva_nonce', 'rating_nonce'); ?>
 				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($vehicle_id); ?>">
 
 				<?php if (! $is_logged_in && $allow_guest_comments) : ?>
@@ -388,15 +378,15 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				</div>
 
 				<!-- Nonce Field -->
-				<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('mhmrentiva_rating_nonce')); ?>">
+				<?php RenderContext::the_nonce_input_line('mhmrentiva_rating_nonce', 'nonce'); ?>
 
 				<!-- Submit Button -->
 				<div class="rv-rating-submit">
-					<button type="submit" class="rv-btn rv-btn-primary">
+					<button type="submit" class="rv-btn rv-btn-primary"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 						<?php echo $user_rating ? esc_html__('Update Rating', 'mhm-rentiva') : esc_html__('Submit Rating', 'mhm-rentiva'); ?>
 					</button>
 					<?php if ($user_rating) : ?>
-						<button type="button" class="rv-btn rv-btn-danger rv-delete-rating" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
+						<button type="button" class="rv-btn rv-btn-danger rv-delete-rating" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 							<?php echo esc_html__('Delete Rating', 'mhm-rentiva'); ?>
 						</button>
 					<?php endif; ?>

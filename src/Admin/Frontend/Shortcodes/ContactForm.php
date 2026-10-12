@@ -11,6 +11,7 @@ use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
 use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RecipientToken;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Frontend\RenderContext;
 use Exception;
 
 
@@ -154,8 +155,11 @@ final class ContactForm extends AbstractShortcode {
 
 		// The custom recipient never reaches the page as an address: it travels as an
 		// encrypted payload bound to the source post and is re-checked on submit.
+		// A preview prints no token and issues none (RecipientToken::issue() has side effects).
 		$email_to        = trim( (string) ( $atts['email_to'] ?? '' ));
-		$recipient_token = '' !== $email_to ? RecipientToken::issue($email_to, self::resolve_source_post_id(), $type) : '';
+		$recipient_token = ( '' !== $email_to && ! RenderContext::current()->is_preview() )
+			? RecipientToken::issue($email_to, self::resolve_source_post_id(), $type)
+			: '';
 
 		// Same site only; anything else means "no redirect" (not admin_url()).
 		$redirect_url = (string) wp_validate_redirect(esc_url_raw( (string) ( $atts['redirect_url'] ?? '' )), '');
@@ -488,7 +492,7 @@ final class ContactForm extends AbstractShortcode {
 	{
 		return array(
 			'ajaxUrl'          => admin_url('admin-ajax.php'),
-			'nonce'            => wp_create_nonce('mhmrentiva_contact_form_nonce'),
+			'nonce'            => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_contact_form_nonce'),
 			'maxFileSize'      => self::max_attachment_bytes(),
 			'allowedFileTypes' => array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' ),
 			'messages'         => array(

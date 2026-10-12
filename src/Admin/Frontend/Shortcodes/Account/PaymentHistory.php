@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
+use MHMRentiva\Frontend\RenderContext;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -45,6 +46,14 @@ final class PaymentHistory extends AbstractAccountShortcode {
 	}
 
 	protected static function prepare_template_data( array $atts ): array {
+		// An editor preview always shows the fixed sample rows, never the
+		// editing user's own payments (spec 3B-2a §2.1, account class).
+		if ( RenderContext::current()->allows_sample() ) {
+			$data                            = AccountRenderer::get_payment_history_preview_data( $atts );
+			$data[ self::PREVIEW_BADGE_KEY ] = __( 'Preview: sample data. Logged-in customers see their own records.', 'mhm-rentiva' );
+			return $data;
+		}
+
 		return AccountRenderer::get_payment_history_data( $atts );
 	}
 }

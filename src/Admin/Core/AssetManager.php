@@ -350,9 +350,9 @@ final class AssetManager {
 			'mhmrentiva_vars',
 			array(
 				'ajax_url'           => admin_url('admin-ajax.php'),
-				'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'), // Fallback generic
-				'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
-				'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
+				'nonce'              => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'), // Fallback generic
+				'fav_nonce'          => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'),
+				'compare_nonce'      => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
 				'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 				'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
 				'i18n'               => array(
