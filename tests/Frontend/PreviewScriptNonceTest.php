@@ -102,13 +102,97 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 			$this->assertNotSame('', $value, "$tag: front nonce `$path` is empty.");
 		}
 
+		$public = $this->public_read_nonces();
+		$denied = $this->state_or_private_nonces();
+
 		$preview = $this->localized_nonces($tag, true);
 		$this->assertNotEmpty($preview, "$tag: the preview localized no nonce key at all (render did not enqueue).");
-		foreach ($preview as $path => $value) {
-			$this->assertSame('', $value, "$tag: preview localizes a real nonce at `$path`.");
-		}
 		// Same keys on both sides: only the values change.
 		$this->assertSame(array_keys($front), array_keys($preview), "$tag: the preview changes the localized key set.");
+
+		foreach ($preview as $path => $value) {
+			$this->assertArrayNotHasKey($value, $denied, sprintf('%s: preview localizes a state-change/private nonce (%s) at `%s`.', $tag, $denied[ $value ] ?? '', $path));
+			if (isset($public[ $front[ $path ] ])) {
+				// A public-read nonce works in the preview exactly as on the front.
+				$this->assertSame($front[ $path ], $value, sprintf('%s: public-read nonce `%s` (%s) changed in the preview.', $tag, $path, $public[ $front[ $path ] ]));
+			} else {
+				$this->assertSame('', $value, "$tag: `$path` is neither a public-read nonce nor empty in the preview.");
+			}
+		}
+	}
+
+	/**
+	 * The public-read nonces must be the real ones in a preview (spec 2.1: catalog
+	 * widgets show real public data): the availability calendar loads its month on
+	 * init and would otherwise show an error toast in the editor.
+	 */
+	public function test_public_read_nonces_survive_the_preview(): void
+	{
+		$this->login_for('rentiva_availability_calendar');
+		$preview = $this->localized_nonces('rentiva_availability_calendar', true);
+		$this->assertSame(wp_create_nonce('mhmrentiva_availability_nonce'), $preview['mhmRentivaAvailability.nonce'] ?? null);
+		$this->assertSame('', $preview['mhmRentivaAvailability.favoriteNonce'] ?? null);
+
+		$this->login_for('rentiva_testimonials');
+		$preview = $this->localized_nonces('rentiva_testimonials', true);
+		$this->assertSame(wp_create_nonce('mhmrentiva_testimonials_nonce'), $preview['mhmRentivaTestimonials.nonce'] ?? null);
+
+		$this->login_for('rentiva_vehicle_details');
+		$preview = $this->localized_nonces('rentiva_vehicle_details', true);
+		$this->assertSame(wp_create_nonce('mhmrentiva_calendar_nonce'), $preview['mhmRentivaVehicleDetails.nonce'] ?? null);
+		$this->assertSame('', $preview['mhmVehicleRating.nonce'] ?? null, 'The rating nonce also authorizes submit/delete.');
+	}
+
+	/**
+	 * Nonce value => action, for the actions that authorize only a public read
+	 * (or nothing at all) and therefore stay as on the front.
+	 *
+	 * @return array<string,string>
+	 */
+	private function public_read_nonces(): array
+	{
+		$actions = array(
+			'mhmrentiva_availability_nonce',       // availability_unified + get_vehicle_info (JSON, nopriv).
+			'mhmrentiva_testimonials_nonce',       // load more reviews (JSON, nopriv).
+			'mhmrentiva_calendar_nonce',           // vehicle-details month (HTML without controls, nopriv).
+			'mhmrentiva_vehicle_comparison_nonce', // verified by no handler.
+			'mhmrentiva_ajax_nonce',               // verified by no handler.
+		);
+		foreach (array_keys($this->tags()) as $label) {
+			// AbstractShortcode's default per-tag nonce: verified by no handler.
+			$actions[] = 'mhmrentiva_' . $this->tags()[ $label ][0] . '_nonce';
+		}
+		$out = array();
+		foreach ($actions as $action) {
+			$out[ wp_create_nonce($action) ] = $action;
+		}
+		return $out;
+	}
+
+	/**
+	 * Nonce value => action, for the actions that authorize a state change or a
+	 * read of the current user's private data. None may reach a preview.
+	 *
+	 * @return array<string,string>
+	 */
+	private function state_or_private_nonces(): array
+	{
+		$out = array();
+		foreach (array(
+			'mhmrentiva_toggle_favorite',
+			'mhmrentiva_toggle_compare',
+			'mhmrentiva_vehicles_list',
+			'mhmrentiva_account',
+			'mhmrentiva_upload_receipt',
+			'wp_rest',
+			'mhmrentiva_booking_form_nonce',
+			'mhmrentiva_contact_form_nonce',
+			'mhmrentiva_search_results',
+			'mhmrentiva_rating_nonce',
+		) as $action) {
+			$out[ wp_create_nonce($action) ] = $action;
+		}
+		return $out;
 	}
 
 	/**

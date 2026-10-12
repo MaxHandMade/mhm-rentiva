@@ -88,7 +88,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		return array(
 			'locations'             => $locations,
 			'wrapper_id'            => uniqid('rv_unified_'),
-			'nonce'                 => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_unified_search'),
+			'nonce'                 => wp_create_nonce('mhmrentiva_unified_search'),
 
 			// Visibility controls
 			'show_rental_tab'       => $show_rental,

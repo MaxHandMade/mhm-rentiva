@@ -370,6 +370,9 @@ final class SearchResults extends AbstractShortcode {
 			'mhmRentivaSearchResults',
 			array(
 				'ajax_url'        => admin_url('admin-ajax.php'),
+				// '' in an editor preview although the filter is a public read: its
+				// response is cards rendered in a front context, with live
+				// favourite/compare buttons and their real nonces.
 				'nonce'           => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_search_results'),
 				'current_url'     => home_url(add_query_arg(null, null)),
 				'search_page_url' => ShortcodeUrlManager::get_page_url('rentiva_search'),

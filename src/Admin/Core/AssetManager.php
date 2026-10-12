@@ -1335,7 +1335,7 @@ final class AssetManager {
 			'mhmrentiva_config',
 			array(
 				'ajax_url'    => admin_url('admin-ajax.php'),
-				'nonce'       => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_ajax_nonce'),
+				'nonce'       => wp_create_nonce('mhmrentiva_ajax_nonce'),
 				'baseUrl'     => MHMRENTIVA_PLUGIN_URL, // Fixed as camelCase
 				'base_url'    => MHMRENTIVA_PLUGIN_URL, // backward compatibility
 				'locale'      => get_locale(),

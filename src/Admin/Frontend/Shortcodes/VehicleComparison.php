@@ -101,7 +101,7 @@ final class VehicleComparison extends AbstractShortcode {
 	{
 		return array(
 			'ajax_url'                   => admin_url('admin-ajax.php'),
-			'nonce'                      => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_vehicle_comparison_nonce'),
+			'nonce'                      => wp_create_nonce('mhmrentiva_vehicle_comparison_nonce'),
 			'toggle_nonce'               => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
 			'loading'                    => __('Loading...', 'mhm-rentiva'),
 			'error'                      => __('An error occurred', 'mhm-rentiva'),

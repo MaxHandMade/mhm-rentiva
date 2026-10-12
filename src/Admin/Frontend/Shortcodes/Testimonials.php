@@ -149,7 +149,7 @@ final class Testimonials extends AbstractShortcode {
 		 * checks a nonce of its own overrides it here the same way
 		 * (AvailabilityCalendar, VehicleDetails, BookingForm, ...).
 		 */
-		$data['nonce'] = \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_testimonials_nonce');
+		$data['nonce'] = wp_create_nonce('mhmrentiva_testimonials_nonce');
 
 		$data['icons'] = array(
 			// The two icons of a card, as the template renders them; the cards

@@ -214,6 +214,8 @@ final class BookingForm extends AbstractShortcode {
 			'ajax_url'           => admin_url('admin-ajax.php'), // ⭐ Changed from ajaxUrl to ajax_url for consistency
 			'ajaxUrl'            => admin_url('admin-ajax.php'), // Keep both for backward compatibility
 			'restUrl'            => rest_url('mhm-rentiva/v1/'),
+			// '' in an editor preview: the same action authorizes the price/availability
+			// quotes AND the booking submit, so the quotes are refused there too.
 			'nonce'              => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_booking_form_nonce'), // Correct nonce
 			'strings'            => self::get_localized_strings(),
 			'config'             => self::get_js_config(),
