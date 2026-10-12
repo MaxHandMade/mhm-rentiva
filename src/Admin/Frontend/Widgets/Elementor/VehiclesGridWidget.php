@@ -25,7 +25,7 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 	}
 
 	public function get_title(): string {
-		return __( 'MHM Vehicles Grid', 'mhm-rentiva' );
+		return __( 'Vehicles Grid', 'mhm-rentiva' );
 	}
 
 	public function get_icon(): string {
@@ -81,7 +81,7 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 		$this->add_control(
 			'order',
 			array(
-				'label'   => __( 'Order', 'mhm-rentiva' ),
+				'label'   => _x( 'Order', 'sort direction', 'mhm-rentiva' ),
 				'type'    => 'select',
 				'default' => 'ASC',
 				'options' => array(

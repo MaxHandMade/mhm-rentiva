@@ -135,6 +135,7 @@ src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
 src/Admin/Frontend/Shortcodes/VehiclesGrid.php
 src/Admin/Frontend/Shortcodes/VehiclesList.php
 src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php
+src/Admin/Frontend/Widgets/Base/ParityLabels.php
 src/Admin/Frontend/Widgets/Base/WidgetAttributeBridge.php
 src/Admin/Frontend/Widgets/Elementor/AvailabilityCalendarWidget.php
 src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php
@@ -261,6 +262,7 @@ src/Core/Tenancy/TenantResolver.php
 src/Helpers/Html.php
 src/Helpers/Icons.php
 src/Helpers/NotificationHelper.php
+src/I18n/LanguagePackPreference.php
 src/Layout/Adapters/BaseAdapter.php
 src/Layout/Adapters/ReviewsAdapter.php
 src/Layout/Adapters/SearchHeroAdapter.php

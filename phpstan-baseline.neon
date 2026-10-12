@@ -1212,6 +1212,12 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
+			count: 1
+			path: src/I18n/LanguagePackPreference.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
+			identifier: constant.notFound
 			count: 2
 			path: src/Plugin.php
 

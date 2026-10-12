@@ -107,7 +107,7 @@ class ElementorIntegration {
 		$manager->add_category(
 			'mhm-rentiva',
 			array(
-				'title' => __( 'MHM Rentiva', 'mhm-rentiva' ),
+				'title' => __( 'Rentiva', 'mhm-rentiva' ),
 				'icon'  => 'fa fa-car',
 			),
 			1 // Position (1 = at the beginning)

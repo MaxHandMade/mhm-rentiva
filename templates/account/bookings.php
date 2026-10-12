@@ -98,7 +98,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 
 			<!-- Filter Section -->
 			<div class="rv-filter-section">
-				<h3><?php esc_html_e('Filter', 'mhm-rentiva'); ?></h3>
+				<h3><?php echo esc_html_x('Filter', 'noun: filter panel heading', 'mhm-rentiva'); ?></h3>
 
 				<form method="get" action="<?php echo esc_url($current_page_url); ?>" class="rv-filter-form" data-testid="bookings-filter-form">
 					<input type="hidden" name="endpoint" value="bookings">
@@ -135,7 +135,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 						// escaping closes off). Without this button the form had no other
 						// way to submit at all.
 						?>
-						<button type="submit" class="rv-filter-submit button"><?php esc_html_e('Filter', 'mhm-rentiva'); ?></button>
+						<button type="submit" class="rv-filter-submit button"><?php echo esc_html_x('Filter', 'verb: apply filter', 'mhm-rentiva'); ?></button>
 					</div>
 				</form>
 			</div>

@@ -27,7 +27,7 @@ class VehiclesListWidget extends ElementorWidgetBase {
 	}
 
 	public function get_title(): string {
-		return __( 'MHM Vehicles List', 'mhm-rentiva' );
+		return __( 'Vehicles List', 'mhm-rentiva' );
 	}
 
 	public function get_icon(): string {

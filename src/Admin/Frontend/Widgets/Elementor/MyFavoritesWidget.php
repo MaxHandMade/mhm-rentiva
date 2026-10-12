@@ -91,7 +91,7 @@ class MyFavoritesWidget extends ElementorWidgetBase {
 		$this->add_control(
 			'order',
 			array(
-				'label'   => __( 'Order', 'mhm-rentiva' ),
+				'label'   => _x( 'Order', 'sort direction', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'DESC',
 				'options' => array(
