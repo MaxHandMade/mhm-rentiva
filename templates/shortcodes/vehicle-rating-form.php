@@ -389,7 +389,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				</div>
 
 				<!-- Nonce Field -->
-				<?php echo RenderContext::nonce_field('mhmrentiva_rating_nonce', 'nonce', false); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hidden input built and escaped by the helper. ?>
+				<?php echo RenderContext::nonce_field('mhmrentiva_rating_nonce', 'nonce', false) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hidden input built and escaped by the helper. ?>
 
 				<!-- Submit Button -->
 				<div class="rv-rating-submit">
