@@ -188,6 +188,36 @@ class PreviewInfrastructureTest extends WP_UnitTestCase
 		$this->assertSame('', RenderContext::nonce_attr('a'));
 	}
 
+	/**
+	 * The printing template tags emit exactly what the templates echoed
+	 * before (`echo nonce_field(..)`, `echo nonce_field(.., false) . "\n"`,
+	 * `echo ltrim( nonce_attr(..) ) . "\n"`), on the front end and in a preview.
+	 */
+	public function test_printing_nonce_helpers_match_the_returning_ones(): void
+	{
+		foreach (array( false, true ) as $preview) {
+			$this->set_preview($preview);
+			$label = $preview ? 'preview' : 'front';
+
+			$this->assertSame(RenderContext::nonce_field('act_x', 'fld_x'), $this->printed(static fn () => RenderContext::the_nonce_field('act_x', 'fld_x')), $label);
+			$this->assertSame(RenderContext::nonce_field('act_x', 'fld_x', false) . "\n", $this->printed(static fn () => RenderContext::the_nonce_input_line('act_x', 'fld_x')), $label);
+			$this->assertSame(ltrim(RenderContext::nonce_attr('act_y')) . "\n", $this->printed(static fn () => RenderContext::the_nonce_attr_line('act_y')), $label);
+		}
+		$this->assertSame("\n", $this->printed(static fn () => RenderContext::the_nonce_attr_line('act_y')), 'preview prints the newline alone');
+		$this->assertSame("\n", $this->printed(static fn () => RenderContext::the_nonce_input_line('act_x', 'fld_x')), 'preview prints the newline alone');
+		$this->assertSame('', $this->printed(static fn () => RenderContext::the_nonce_field('act_x', 'fld_x')), 'preview prints no field');
+	}
+
+	/**
+	 * @param callable(): void $print
+	 */
+	private function printed(callable $print): string
+	{
+		ob_start();
+		$print();
+		return (string) ob_get_clean();
+	}
+
 	public function test_badge_empty_on_front(): void
 	{
 		$this->assertSame('', RenderContext::badge('Preview: x'));

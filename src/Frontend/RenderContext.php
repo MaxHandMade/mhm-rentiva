@@ -193,6 +193,52 @@ final class RenderContext {
 	}
 
 	/**
+	 * Print `nonce_field( $action, $name )` in place: wp_nonce_field() with the
+	 * referer field on the front end, nothing in a preview. Template tag:
+	 * wp_nonce_field() escapes and prints the markup itself.
+	 */
+	public static function the_nonce_field(string $action, string $name): void
+	{
+		if (self::current()->is_preview()) {
+			return;
+		}
+		wp_nonce_field($action, $name, true, true);
+	}
+
+	/**
+	 * Print the plain, id-less hidden input of `nonce_field( $action, $name,
+	 * false )` as a line of its own: the input and a newline on the front end,
+	 * the newline alone in a preview. Same bytes as
+	 * `nonce_field( $action, $name, false ) . "\n"`; the newline stands in for
+	 * the one PHP drops after the closing `?>`. Template tag: the output is
+	 * escaped here, at the echo point.
+	 */
+	public static function the_nonce_input_line(string $action, string $name): void
+	{
+		if (self::current()->is_preview()) {
+			echo "\n";
+			return;
+		}
+		echo '<input type="hidden" name="' . esc_attr($name) . '" value="' . esc_attr(wp_create_nonce($action)) . '">' . "\n";
+	}
+
+	/**
+	 * Print the attribute as a line of its own inside a start tag:
+	 * `data-nonce="…"` and a newline on the front end, the newline alone in a
+	 * preview. Same bytes as `ltrim( nonce_attr( $action ) ) . "\n"`; the
+	 * newline stands in for the one PHP drops after the closing `?>`.
+	 * Template tag: the output is escaped here, at the echo point.
+	 */
+	public static function the_nonce_attr_line(string $action): void
+	{
+		if (self::current()->is_preview()) {
+			echo "\n";
+			return;
+		}
+		echo 'data-nonce="' . esc_attr(wp_create_nonce($action)) . '"' . "\n";
+	}
+
+	/**
 	 * The preview badge markup, or '' outside a preview.
 	 */
 	public static function badge(string $message): string
@@ -265,12 +311,16 @@ final class RenderContext {
 	 * Elementor edit mode (AJAX re-render) or preview iframe. False whenever
 	 * Elementor is not loaded or has no instance yet.
 	 *
-	 * The preview id from the URL is passed to Elementor explicitly instead of
+	 * The edited document id is passed to Elementor explicitly instead of
 	 * letting it fall back to get_the_ID(): Elementor Pro's Theme Builder
-	 * previews a template over a sample page, so the queried post is not the
-	 * document being edited and the fallback would call the iframe `front`.
-	 * Elementor still checks the edit capability for THAT post id and that it
-	 * equals the URL value (Preview::is_preview_mode()).
+	 * previews a template over a sample page, so while the widgets render the
+	 * queried post is not the document being edited and the fallback would call
+	 * the iframe `front`. The id is the one Elementor itself recorded in
+	 * Preview::init() (template_redirect, priority 0) after accepting the
+	 * request as its preview, before any preview-as query switch. Elementor
+	 * still checks the edit capability for that id and that it equals the URL
+	 * value (Preview::is_preview_mode()). Before Preview::init() has accepted
+	 * the request there is no recorded id and Elementor's own fallback applies.
 	 */
 	private static function elementor_is_previewing(): bool
 	{
@@ -284,13 +334,11 @@ final class RenderContext {
 		if ($plugin->editor->is_edit_mode()) {
 			return true;
 		}
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only editor-iframe detection; Elementor verifies edit capability for this post id.
-		if (! isset($_GET['elementor-preview'])) {
-			return false;
+		$edited_id = (int) $plugin->preview->get_post_id();
+		if ($edited_id > 0) {
+			return $plugin->preview->is_preview_mode($edited_id);
 		}
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- See above.
-		$preview_id = absint(wp_unslash($_GET['elementor-preview']));
-		return $preview_id > 0 && $plugin->preview->is_preview_mode($preview_id);
+		return $plugin->preview->is_preview_mode();
 	}
 
 	/**

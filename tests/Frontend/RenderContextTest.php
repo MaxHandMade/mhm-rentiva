@@ -36,11 +36,41 @@ class RenderContextTest extends WP_UnitTestCase
 		unset($GLOBALS['post']);
 		if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance) {
 			\Elementor\Plugin::$instance->editor->set_edit_mode(false);
+			$this->forget_elementor_preview();
 		}
 		remove_all_filters('mhmrentiva_render_context');
 		remove_all_filters('pre_render_block');
 		wp_set_current_user(0);
 		$this->reset_context_and_tear_down();
+	}
+
+	/**
+	 * Undo what Preview::init() recorded (post id, preview flag): the Elementor
+	 * instance outlives the test. Its hooks are restored by WP_UnitTestCase.
+	 */
+	private function forget_elementor_preview(): void
+	{
+		$preview = \Elementor\Plugin::$instance->preview;
+		foreach (array( 'post_id', 'is_preview' ) as $prop) {
+			$ref = new \ReflectionProperty($preview, $prop);
+			$ref->setAccessible(true);
+			$ref->setValue($preview, null);
+		}
+	}
+
+	/**
+	 * The iframe request as Elementor serves it: the URL names $edited, the
+	 * main query is $edited when template_redirect runs Preview::init() (the
+	 * real method, which records the id only if it accepts the request), then
+	 * Theme Builder's preview-as switches the queried post to $sample before
+	 * the widgets render.
+	 */
+	private function enter_theme_builder_preview(int $edited, int $sample): void
+	{
+		$_GET['elementor-preview'] = (string) $edited;
+		$GLOBALS['post']           = get_post($edited);
+		\Elementor\Plugin::$instance->preview->init();
+		$GLOBALS['post'] = get_post($sample);
 	}
 
 	private function login_admin(): int
@@ -108,21 +138,29 @@ class RenderContextTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Theme Builder previews a template over a sample page: the queried post is
-	 * not the edited document. The preview id must be passed explicitly.
+	 * Theme Builder previews a template over a sample page: while the widgets
+	 * render, the queried post is not the edited document. The id Elementor
+	 * recorded in Preview::init() must be passed explicitly; without it the
+	 * get_the_ID() fallback calls this iframe `front`.
 	 */
 	public function test_preview_id_differs_from_queried_post_is_elementor(): void
 	{
 		$this->login_admin();
-		$edited                    = self::factory()->post->create();
-		$sample                    = self::factory()->post->create();
-		$GLOBALS['post']           = get_post($sample);
-		$_GET['elementor-preview'] = (string) $edited;
+		$edited = self::factory()->post->create();
+		$sample = self::factory()->post->create();
+		$this->enter_theme_builder_preview($edited, $sample);
 
+		$this->assertSame($edited, \Elementor\Plugin::$instance->preview->get_post_id(), 'Preview::init() accepted the request');
 		$this->assertNotSame($edited, get_the_ID());
+		$this->assertFalse(\Elementor\Plugin::$instance->preview->is_preview_mode(), 'control: the get_the_ID() fallback misses this iframe');
 		$this->assertSame('elementor', RenderContext::current()->source());
 	}
 
+	/**
+	 * Without the edit capability on the edited document Elementor does not
+	 * accept the request, records no id, and the fallback finds the sample
+	 * page: `front`.
+	 */
 	public function test_preview_id_without_edit_capability_on_that_post_is_front(): void
 	{
 		$admin  = self::factory()->user->create(array( 'role' => 'administrator' ));
@@ -130,9 +168,25 @@ class RenderContextTest extends WP_UnitTestCase
 		$sample = self::factory()->post->create();
 
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'author' )));
-		$GLOBALS['post']           = get_post($sample);
-		$_GET['elementor-preview'] = (string) $edited;
+		$this->enter_theme_builder_preview($edited, $sample);
 
+		$this->assertNull(\Elementor\Plugin::$instance->preview->get_post_id(), 'Preview::init() rejected the request');
+		$this->assertSame('front', RenderContext::current()->source());
+	}
+
+	/**
+	 * The recorded id does not bypass Elementor's checks: the capability is
+	 * asked again for that id on every call.
+	 */
+	public function test_recorded_preview_id_still_requires_edit_capability(): void
+	{
+		$this->login_admin();
+		$edited = self::factory()->post->create();
+		$sample = self::factory()->post->create();
+		$this->enter_theme_builder_preview($edited, $sample);
+		$this->assertSame('elementor', RenderContext::current()->source());
+
+		wp_set_current_user(self::factory()->user->create(array( 'role' => 'subscriber' )));
 		$this->assertSame('front', RenderContext::current()->source());
 	}
 

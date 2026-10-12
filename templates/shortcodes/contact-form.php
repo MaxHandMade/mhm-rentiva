@@ -79,7 +79,7 @@ $unique_id             = uniqid('rv_contact_');
 
 	<div class="rv-contact-form-container">
 		<form id="rv-contact-form" class="rv-form" enctype="multipart/form-data">
-			<?php echo RenderContext::nonce_field('mhmrentiva_contact_nonce', 'rv_contact_nonce'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_nonce_field() markup, built by the helper. ?>
+			<?php RenderContext::the_nonce_field('mhmrentiva_contact_nonce', 'rv_contact_nonce'); ?>
 
 			<input type="hidden" name="type" value="<?php echo esc_attr($type); ?>">
 			<input type="hidden" name="auto_reply" value="<?php echo esc_attr($atts['auto_reply'] ?? '1'); ?>">

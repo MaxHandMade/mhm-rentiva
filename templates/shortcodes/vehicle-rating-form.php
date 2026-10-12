@@ -317,7 +317,7 @@ $allowed_rating_svg_tags = array(
 			<h4 class="rv-rating-form-title"><?php echo esc_html__('Rate This Vehicle', 'mhm-rentiva'); ?></h4>
 
 			<form class="rv-rating-form-content" id="rating-form-<?php echo esc_attr($vehicle_id); ?>">
-				<?php echo RenderContext::nonce_field('mhmrentiva_nonce', 'rating_nonce'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_nonce_field() markup, built by the helper. ?>
+				<?php RenderContext::the_nonce_field('mhmrentiva_nonce', 'rating_nonce'); ?>
 				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($vehicle_id); ?>">
 
 				<?php if (! $is_logged_in && $allow_guest_comments) : ?>
@@ -383,7 +383,7 @@ $allowed_rating_svg_tags = array(
 				</div>
 
 				<!-- Nonce Field -->
-				<?php echo RenderContext::nonce_field('mhmrentiva_rating_nonce', 'nonce', false) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hidden input built and escaped by the helper. ?>
+				<?php RenderContext::the_nonce_input_line('mhmrentiva_rating_nonce', 'nonce'); ?>
 
 				<!-- Submit Button -->
 				<div class="rv-rating-submit">
