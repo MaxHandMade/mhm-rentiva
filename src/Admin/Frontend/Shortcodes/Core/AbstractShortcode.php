@@ -157,7 +157,27 @@ abstract class AbstractShortcode {
 	 */
 	public static function render(array $atts = array(), ?string $content = null): string
 	{
+		// In an editor preview the output gets the root marker (outermost scope
+		// only; nested shortcodes share it). On the front end this is a pass-through.
+		return \MHMRentiva\Frontend\RenderContext::render_preview_scope(
+			static fn (): string => self::render_in_scope($atts, $content)
+		);
+	}
+
+	/**
+	 * The render pipeline proper, run inside the preview scope.
+	 *
+	 * @param array       $atts    Shortcode attributes
+	 * @param string|null $content Shortcode content
+	 * @return string Rendered HTML
+	 */
+	private static function render_in_scope(array $atts, ?string $content): string
+	{
 		$start_time = microtime(true);
+
+		// A preview neither reads nor writes the shortcode HTML cache: the front-end
+		// entry must not reach the editor, and sample markup must not reach visitors.
+		$is_preview = \MHMRentiva\Frontend\RenderContext::current()->is_preview();
 
 		try {
 			$tag = static::get_shortcode_tag();
@@ -186,10 +206,12 @@ abstract class AbstractShortcode {
 			static::enqueue_assets_once($atts);
 
 			// Performance: Cache check
-			$cache_key   = static::get_cache_key($atts);
-			$cached_html = static::get_cached_html($cache_key);
-			if ($cached_html) {
-				return $cached_html;
+			$cache_key = static::get_cache_key($atts);
+			if (! $is_preview) {
+				$cached_html = static::get_cached_html($cache_key);
+				if ($cached_html) {
+					return $cached_html;
+				}
 			}
 
 			// Prepare template data
@@ -215,7 +237,9 @@ abstract class AbstractShortcode {
 			$html = str_replace(array( "\r\n", "\r", "\n", "\t" ), '', $html);
 
 			// Performance: Cache HTML (now stores the already-minified output)
-			static::cache_html($cache_key, $html);
+			if (! $is_preview) {
+				static::cache_html($cache_key, $html);
+			}
 
 			// Filter hook
 			// Both halves move together. The sweep could only reach the literal in

@@ -47,6 +47,11 @@ final class RenderContext {
 	 */
 	private static array $block_stack = array();
 
+	/**
+	 * Open render_preview_scope() calls; the outermost one wraps.
+	 */
+	private static int $scope_depth = 0;
+
 	private string $source;
 
 	private function __construct(string $source)
@@ -118,14 +123,91 @@ final class RenderContext {
 		return ! $this->is_preview();
 	}
 
+
 	/**
-	 * Empty the block stack. For tests only: see the class note on exceptions.
+	 * Wrap preview markup in the root marker. Previews only: on the front end
+	 * the markup is returned untouched. Callers that may be nested use
+	 * render_preview_scope(), which wraps the outermost call only.
+	 */
+	public static function wrap_preview(string $html): string
+	{
+		if (! self::current()->is_preview()) {
+			return $html;
+		}
+		return '<div class="mhm-rv-preview" data-rv-render="preview">' . $html . '</div>';
+	}
+
+	/**
+	 * Run $render and, in a preview, wrap its output in the root marker unless
+	 * another scope is already open (nested widgets wrap once, outermost only).
+	 * The depth counter is restored in `finally`, so a throw cannot leave it
+	 * raised. On the front end the callback's output is returned as is.
+	 *
+	 * @param callable(): string $render Produces the HTML.
+	 */
+	public static function render_preview_scope(callable $render): string
+	{
+		$outermost = 0 === self::$scope_depth;
+		++self::$scope_depth;
+		try {
+			$html = (string) $render();
+		} finally {
+			--self::$scope_depth;
+		}
+		return $outermost ? self::wrap_preview($html) : $html;
+	}
+
+	/**
+	 * A nonce hidden field, or '' in a preview (a preview must not mint nonces).
+	 *
+	 * Front end: `$referer = true` returns exactly
+	 * `wp_nonce_field( $action, $name, true, false )`. `$referer = false`
+	 * deliberately DIFFERS from wp_nonce_field() semantics: it returns the plain,
+	 * id-less `<input type="hidden" name="$name" value="…">` the rating form
+	 * prints today (wp_nonce_field() would add `id="$name"`).
+	 */
+	public static function nonce_field(string $action, string $name, bool $referer = true): string
+	{
+		if (self::current()->is_preview()) {
+			return '';
+		}
+		if ($referer) {
+			return wp_nonce_field($action, $name, true, false);
+		}
+		return '<input type="hidden" name="' . esc_attr($name) . '" value="' . esc_attr(wp_create_nonce($action)) . '">';
+	}
+
+	/**
+	 * The whole ` data-nonce="…"` attribute (leading space), or '' in a preview,
+	 * so no empty `data-nonce=""` is left behind.
+	 */
+	public static function nonce_attr(string $action): string
+	{
+		if (self::current()->is_preview()) {
+			return '';
+		}
+		return ' data-nonce="' . esc_attr(wp_create_nonce($action)) . '"';
+	}
+
+	/**
+	 * The preview badge markup, or '' outside a preview.
+	 */
+	public static function badge(string $message): string
+	{
+		if (! self::current()->is_preview()) {
+			return '';
+		}
+		return (string) \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/preview-badge', array( 'message' => $message ), true);
+	}
+	/**
+	 * Empty the block stack and the scope depth. For tests only: see the class note on exceptions.
 	 *
 	 * @internal
 	 */
 	public static function reset(): void
 	{
 		self::$block_stack = array();
+		self::$scope_depth = 0;
 	}
 
 	/**

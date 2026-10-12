@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Support;
 
+use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
 
 /**
@@ -20,6 +21,7 @@ trait ResetsRenderContext
 	public function tear_down(): void
 	{
 		RenderContext::reset();
+		PreviewSamples::reset();
 		parent::tear_down();
 	}
 }

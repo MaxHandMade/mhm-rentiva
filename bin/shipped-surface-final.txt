@@ -473,6 +473,7 @@ src/Core/Services/TrendMath.php
 src/Core/Tenancy/Exceptions/TenantResolutionException.php
 src/Core/Tenancy/TenantContext.php
 src/Core/Tenancy/TenantResolver.php
+src/Frontend/PreviewSamples.php
 src/Frontend/RenderContext.php
 src/Helpers/Html.php
 src/Helpers/Icons.php
@@ -515,6 +516,7 @@ templates/emails/refund-admin.html.php
 templates/emails/refund-customer.html.php
 templates/emails/remaining-payment-link-customer.html.php
 templates/emails/welcome-customer.html.php
+templates/partials/preview-badge.php
 templates/partials/selected-vehicle-summary.php
 templates/partials/vehicle-card-base.php
 templates/partials/vehicle-card.php
