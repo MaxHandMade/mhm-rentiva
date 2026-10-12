@@ -74,7 +74,7 @@ if (! empty($category_name)) {
 			<button class="rv-sv__favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
 				data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
 				<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
-				aria-label="<?php echo esc_attr__('Toggle favorite', 'mhm-rentiva'); ?>">
+				aria-label="<?php echo esc_attr__('Toggle favorite', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 				<?php Icons::render('heart', array( 'class' => 'rv-heart-icon' )); ?>
 			</button>
 		<?php endif; ?>

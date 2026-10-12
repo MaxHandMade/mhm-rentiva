@@ -35,6 +35,13 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		'name="mhmrentiva_account_nonce"',
 	);
 
+	/**
+	 * Controls whose click handler posts an AJAX state change (some fall back to
+	 * a localized nonce when the markup nonce is missing). In a preview each
+	 * must be `disabled`, so no click event ever reaches the delegated handler.
+	 */
+	private const ACTION_CONTROL = '/(mhm-vehicle-favorite-btn|mhm-vehicle-compare-btn|rv-remove-vehicle|rv-vcal-favorite-btn|rv-sv__favorite|bid="(?:export-data|withdraw-consent|delete-account|clear-all-favorites|cancel-booking-btn|confirm-cancellation)"|rv-edit-comment-btn|rv-delete-comment-btn|rv-delete-rating|remove-receipt-btn|mhm-upload-receipt)/';
+
 	public function set_up(): void
 	{
 		parent::set_up();
@@ -142,6 +149,59 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/<form\b[^>]*\baction=/', $search);
 	}
 
+	/**
+	 * Positive control for the `disabled` markup: the front end keeps the
+	 * favourite/compare/remove buttons live.
+	 */
+	public function test_front_action_buttons_are_not_disabled(): void
+	{
+		wp_set_current_user(ShortcodeFixtures::customer());
+		ShortcodeFixtures::vehicle();
+		$seen = 0;
+		foreach (array( 'rentiva_vehicles_grid', 'rentiva_vehicle_comparison', 'rentiva_vehicle_details' ) as $tag) {
+			$fixture = ShortcodeFixtures::for_tag($tag);
+			$html    = $this->shortcode($tag, $fixture['atts']);
+			preg_match_all('/<(?:button|input|a)\b[^>]*>/', $html, $controls);
+			foreach ($controls[0] as $control) {
+				if (preg_match(self::ACTION_CONTROL, $control)) {
+					++$seen;
+					$this->assertDoesNotMatchRegularExpression('/\sdisabled\b/', $control, "$tag: front control must stay live: $control");
+				}
+			}
+		}
+		$this->assertGreaterThan(0, $seen, 'No action control rendered on the front end; the control proves nothing.');
+	}
+
+	/**
+	 * The review list's edit/delete buttons act on real comments with a localized
+	 * nonce fallback: in a preview they are disabled, on the front end live.
+	 */
+	public function test_rating_form_comment_actions_follow_the_context(): void
+	{
+		$user    = ShortcodeFixtures::customer();
+		$vehicle = ShortcodeFixtures::vehicle();
+		wp_set_current_user($user);
+		wp_insert_comment(
+			array(
+				'comment_post_ID'  => $vehicle,
+				'user_id'          => $user,
+				'comment_content'  => 'zz review body',
+				'comment_approved' => 1,
+			)
+		);
+		$atts = array( 'vehicle_id' => (string) $vehicle );
+
+		$front = $this->shortcode('rentiva_vehicle_rating_form', $atts);
+		$this->assertMatchesRegularExpression('/<button class="rv-delete-comment-btn"[^>]*>/', $front, 'The review actions must render for this control to mean anything.');
+		$this->assertDoesNotMatchRegularExpression('/<button class="rv-(?:edit|delete)-comment-btn"[^>]*\sdisabled\b/', $front);
+
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_vehicle_rating_form', $atts);
+		$this->assertMatchesRegularExpression('/<button class="rv-delete-comment-btn"[^>]*\sdisabled\b[^>]*>/', $html);
+		$this->assertMatchesRegularExpression('/<button class="rv-edit-comment-btn"[^>]*\sdisabled\b[^>]*>/', $html);
+		$this->assert_inert($html, 'rating form with comment');
+	}
+
 	public function test_contact_preview_does_not_issue_a_token(): void
 	{
 		global $wpdb;
@@ -187,6 +247,13 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		foreach ($buttons[0] as $button) {
 			if (str_contains($button, 'type="submit"') || str_contains($button, 'data-testid="booking-submit-btn"')) {
 				$this->assertMatchesRegularExpression('/\bdisabled\b/', $button, "$label: submit button is not disabled: $button");
+			}
+		}
+
+		preg_match_all('/<(?:button|input|a)\b[^>]*>/', $html, $controls);
+		foreach ($controls[0] as $control) {
+			if (preg_match(self::ACTION_CONTROL, $control)) {
+				$this->assertMatchesRegularExpression('/\sdisabled\b/', $control, "$label: AJAX action control is not disabled: $control");
 			}
 		}
 

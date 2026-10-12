@@ -186,11 +186,6 @@ $allowed_rating_svg_tags = array(
 			)
 		);
 
-		// Debug: Check comment count
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			echo '<!-- Debug: Found ' . esc_html( (string) count($comments)) . ' approved comments for vehicle ' . esc_html( (string) $vehicle_id) . ' -->';
-		}
-
 		if (! empty($comments)) :
 			// Batch fetch verified review IDs (single query, no N+1)
 			$verified_ids = \MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper::get_verified_comment_ids_for_vehicle( (int) $vehicle_id);
@@ -282,13 +277,13 @@ $allowed_rating_svg_tags = array(
 								<?php if ($show_actions) : ?>
 									<div class="rv-review-actions">
 										<?php if ($display_settings['allow_editing'] ?? true) : ?>
-											<button class="rv-edit-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>" data-rating="<?php echo esc_attr($rating); ?>" data-comment="<?php echo esc_attr($comment->comment_content); ?>">
+											<button class="rv-edit-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>" data-rating="<?php echo esc_attr($rating); ?>" data-comment="<?php echo esc_attr($comment->comment_content); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 												<?php Icons::render('edit'); ?>
 												<?php echo esc_html__('Edit', 'mhm-rentiva'); ?>
 											</button>
 										<?php endif; ?>
 										<?php if ($display_settings['allow_deletion'] ?? true) : ?>
-											<button class="rv-delete-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>">
+											<button class="rv-delete-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 												<?php Icons::render('trash'); ?>
 												<?php echo esc_html__('Delete', 'mhm-rentiva'); ?>
 											</button>
@@ -391,7 +386,7 @@ $allowed_rating_svg_tags = array(
 						<?php echo $user_rating ? esc_html__('Update Rating', 'mhm-rentiva') : esc_html__('Submit Rating', 'mhm-rentiva'); ?>
 					</button>
 					<?php if ($user_rating) : ?>
-						<button type="button" class="rv-btn rv-btn-danger rv-delete-rating" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
+						<button type="button" class="rv-btn rv-btn-danger rv-delete-rating" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 							<?php echo esc_html__('Delete Rating', 'mhm-rentiva'); ?>
 						</button>
 					<?php endif; ?>

@@ -79,7 +79,7 @@ if (! $is_available) {
                         data-testid="vehicle-favorite-btn"
                         title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-                        aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
+                        aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
                         <?php
 						// Icons::get() writes an inline style="width:..;height:.."
 						// on every SVG and defaults it to 20px. The heart's CSS
@@ -110,7 +110,7 @@ if (! $is_available) {
                         data-testid="vehicle-compare-btn"
                         title="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
-                        aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
+                        aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
                         <?php
                         Icons::render(
                             'compare',

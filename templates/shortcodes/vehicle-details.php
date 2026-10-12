@@ -158,7 +158,7 @@ $allowed_svg_tags = array(
 									<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
 									title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
 									aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
+									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 									<?php
 									// Explicit size at the call site: Icons::get()'s inline
 									// style defaults to 20px, which used to beat this page's
@@ -183,7 +183,7 @@ $allowed_svg_tags = array(
 									<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_compare'); ?>
 									title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
 									aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
-									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
+									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 									<?php
 									Icons::render(
 										'compare',

@@ -11,6 +11,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 
@@ -128,7 +129,7 @@ if ($vehicle_id > 0) {
 					class="rv-vcal-favorite-btn <?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'favorited is-favorited' : ''; ?>"
 					data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>"
 					aria-label="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
-					aria-pressed="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'true' : 'false'; ?>">
+					aria-pressed="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 					<?php
 					Icons::render('heart', [
 						'width'  => '20',
