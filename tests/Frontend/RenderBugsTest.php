@@ -76,6 +76,69 @@ final class RenderBugsTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The only featured vehicle is the page's own: the similar list would be empty,
+	 * so the section (heading and all) is not drawn.
+	 */
+	public function test_similar_section_hidden_when_no_other_featured_vehicle(): void
+	{
+		$current = ShortcodeFixtures::vehicle();
+		update_post_meta($current, MetaKeys::VEHICLE_FEATURED, '1');
+
+		$GLOBALS['post'] = get_post($current);
+		setup_postdata($GLOBALS['post']);
+		RequestSimulator::new_request();
+		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $current . '"]');
+
+		$this->assertNotSame('', $html, 'The vehicle page itself is drawn.');
+		$this->assertStringNotContainsString('rv-vd2-related-title', $html, 'An empty similar list still draws its heading.');
+		$this->assertStringNotContainsString('rv-vd2-related', $html, 'An empty similar list still draws its section.');
+		$this->assertStringNotContainsString('No featured vehicles found', $html, 'The empty state leaks onto the vehicle page.');
+	}
+
+	/**
+	 * With another featured vehicle the section is drawn (heading included).
+	 */
+	public function test_similar_section_drawn_when_another_featured_vehicle_exists(): void
+	{
+		$current = ShortcodeFixtures::vehicle();
+		$other   = ShortcodeFixtures::vehicle();
+		update_post_meta($current, MetaKeys::VEHICLE_FEATURED, '1');
+		update_post_meta($other, MetaKeys::VEHICLE_FEATURED, '1');
+
+		$GLOBALS['post'] = get_post($current);
+		setup_postdata($GLOBALS['post']);
+		RequestSimulator::new_request();
+		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $current . '"]');
+
+		$this->assertStringContainsString('rv-vd2-related-title', $html);
+		$this->assertStringNotContainsString('No featured vehicles found', $html);
+	}
+
+	/**
+	 * The drawn state, pinned: the section is section > h3 + subtitle + the featured
+	 * wrapper, and the featured output reaches the page through
+	 * Templates::output_rendered_html() byte for byte (its kses pass is a no-op).
+	 */
+	public function test_similar_section_drawn_state_is_pinned(): void
+	{
+		$current = ShortcodeFixtures::vehicle();
+		$other   = ShortcodeFixtures::vehicle();
+		update_post_meta($current, MetaKeys::VEHICLE_FEATURED, '1');
+		update_post_meta($other, MetaKeys::VEHICLE_FEATURED, '1');
+
+		$GLOBALS['post'] = get_post($current);
+		setup_postdata($GLOBALS['post']);
+		RequestSimulator::new_request();
+		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $current . '"]');
+		RequestSimulator::new_request();
+		$raw = do_shortcode('[rentiva_featured_vehicles layout="grid" limit="3" columns="3" exclude="' . $current . '" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]');
+
+		$this->assertStringContainsString('mhm-rentiva-featured-wrapper', $raw, 'The reference featured output is not a list.');
+		$this->assertSame(1, preg_match('#<section class="rv-vd2-related">\s*<h3 class="rv-vd2-related-title">[^<]+</h3>\s*<p class="rv-vd2-related-subtitle">[^<]+</p>\s*(.*?)\s*</section>#s', $html, $m), 'The related section lost its shape.');
+		$this->assertSame(trim($raw), trim($m[1]), 'The featured output changed on its way through output_rendered_html().');
+	}
+
+	/**
 	 * The attribute must reach the query: it is a default of the shortcode and
 	 * in the featured schema, or CanonicalAttributeMapper (strict) drops it.
 	 */

@@ -143,6 +143,11 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 		$section = 'rv-vd2-related';
 		$id      = (string) $this->catalog[0];
 
+		// The section is drawn only when a featured vehicle other than the page's exists.
+		// The list keeps to the page's category.
+		$other = ShortcodeFixtures::vehicle();
+		update_post_meta($other, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, '1');
+		wp_set_object_terms($other, 'sedan', 'mhmrentiva_vehicle_category');
 		$this->assertStringContainsString($section, $this->shortcode(''));
 		$this->assertStringNotContainsString($section, $this->shortcode('show_similar_vehicles="0"'));
 		$this->assertStringNotContainsString($section, $this->block(array( 'vehicleId' => $id, 'showSimilarVehicles' => false )));

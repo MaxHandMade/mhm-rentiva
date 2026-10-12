@@ -86,8 +86,27 @@ final class Templates {
 	 * @param array  $atts Shortcode attributes.
 	 */
 	public static function output_shortcode_atts( string $tag, array $atts ): void {
-		$html = self::render_shortcode_atts( $tag, $atts );
+		self::output_rendered_html( self::render_shortcode_atts( $tag, $atts ) );
+	}
 
+	/**
+	 * Run a shortcode string and return its markup, for a caller that must look at the
+	 * result before deciding whether to draw the frame around it. Send the markup on
+	 * with output_rendered_html().
+	 *
+	 * @param string $shortcode Full shortcode text, e.g. '[tag a="b"]'.
+	 */
+	public static function render_shortcode( string $shortcode ): string {
+		return (string) do_shortcode( $shortcode );
+	}
+
+	/**
+	 * Send already-rendered shortcode markup to the page, escaped at the echo with the
+	 * render allowlist (see output_shortcode_atts()).
+	 *
+	 * @param string $html Markup returned by render_shortcode() / render_shortcode_atts().
+	 */
+	public static function output_rendered_html( string $html ): void {
 		add_filter( 'safe_style_css', array( Html::class, 'allow_inline_style_props' ) );
 		try {
 			echo wp_kses( $html, Html::allowed_markup() );
