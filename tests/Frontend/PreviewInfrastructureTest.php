@@ -218,7 +218,12 @@ class PreviewInfrastructureTest extends WP_UnitTestCase
 		$reads  = PreviewCacheProbeShortcode::$reads;
 		$writes = PreviewCacheProbeShortcode::$writes;
 		$this->set_preview(true);
+		delete_transient('mhmrentiva_rv_cache_v_rentiva_preview_cache_probe');
 		$p1 = PreviewCacheProbeShortcode::render(array());
+		$this->assertFalse(
+			get_transient('mhmrentiva_rv_cache_v_rentiva_preview_cache_probe'),
+			'a preview must not recreate the cache version transient'
+		);
 		$p2 = PreviewCacheProbeShortcode::render(array());
 		$this->assertSame($reads, PreviewCacheProbeShortcode::$reads);
 		$this->assertSame($writes, PreviewCacheProbeShortcode::$writes);

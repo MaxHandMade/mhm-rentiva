@@ -123,7 +123,6 @@ final class RenderContext {
 		return ! $this->is_preview();
 	}
 
-
 	/**
 	 * Wrap preview markup in the root marker. Previews only: on the front end
 	 * the markup is returned untouched. Callers that may be nested use
@@ -199,6 +198,7 @@ final class RenderContext {
 		}
 		return (string) \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/preview-badge', array( 'message' => $message ), true);
 	}
+
 	/**
 	 * Empty the block stack and the scope depth. For tests only: see the class note on exceptions.
 	 *

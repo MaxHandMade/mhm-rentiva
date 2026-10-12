@@ -206,8 +206,11 @@ abstract class AbstractShortcode {
 			static::enqueue_assets_once($atts);
 
 			// Performance: Cache check
-			$cache_key = static::get_cache_key($atts);
+			// The key is not even computed in a preview: get_cache_key() creates the
+			// version transient when it is missing, which would be a write.
+			$cache_key = '';
 			if (! $is_preview) {
+				$cache_key   = static::get_cache_key($atts);
 				$cached_html = static::get_cached_html($cache_key);
 				if ($cached_html) {
 					return $cached_html;
