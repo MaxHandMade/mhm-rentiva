@@ -60,6 +60,47 @@ final class PreviewSamples {
 	}
 
 	/**
+	 * The one rule that decides which vehicle a vehicle-bound widget shows.
+	 *
+	 * An explicit id is used only when it names a publicly readable vehicle;
+	 * otherwise it is rejected, never replaced by a routed id, the page or a
+	 * sample. Without one: the routed vehicle (URL slug), then the current post
+	 * if it is a vehicle. In an editor preview with none of these, the
+	 * lowest-ID sample vehicle stands in, with its badge.
+	 *
+	 * @param int $given  The widget's explicit vehicle id (0 = not given; any other value is explicit).
+	 * @param int $routed A vehicle id the URL already resolved (0 = none).
+	 * @return array{0:int,1:string} Vehicle ID (0 = none) and the preview badge text ('' = no badge).
+	 */
+	public static function resolve_vehicle(int $given, int $routed = 0): array
+	{
+		if (0 !== $given) {
+			if ($given > 0 && VehicleDataHelper::is_publicly_readable($given)) {
+				return array( $given, '' );
+			}
+			return array( 0, __('Preview: invalid vehicle. Check the vehicle ID in the widget settings.', 'mhm-rentiva') );
+		}
+
+		if ($routed > 0) {
+			return array( $routed, '' );
+		}
+
+		$page_id = (int) get_the_ID();
+		if ($page_id > 0 && Vehicle::POST_TYPE === get_post_type($page_id)) {
+			return array( $page_id, '' );
+		}
+
+		if (RenderContext::current()->allows_sample()) {
+			$sample = self::vehicle_id();
+			if ($sample > 0) {
+				return array( $sample, __('Preview: sample vehicle. On a vehicle page it shows that vehicle.', 'mhm-rentiva') );
+			}
+		}
+
+		return array( 0, '' );
+	}
+
+	/**
 	 * Sample rows for the "My Reservations" list.
 	 *
 	 * Plain rows, one per booking, with exactly the values templates/account/

@@ -33,6 +33,8 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 
 	public const BADGE_SAMPLE_DATA = 'Preview: sample data. Logged-in customers see their own records.';
 	public const BADGE_NOTICE      = 'Preview: the notice a customer will see.';
+	public const BADGE_SAMPLE_VEH  = 'Preview: sample vehicle. On a vehicle page it shows that vehicle.';
+	public const BADGE_INVALID_VEH = 'Preview: invalid vehicle. Check the vehicle ID in the widget settings.';
 
 	/** Fragments a preview must not print (nonces and tokens). */
 	private const FORBIDDEN = array(
@@ -118,29 +120,63 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 	/**
 	 * Widget => [shortcode tag, attributes, badge text ('' = no badge), what the
 	 * front end shows of the seed: 'sentinel' (vehicle title), 'reference'
-	 * (booking title) or '' (shows no seeded record)].
+	 * (booking title) or '' (shows no seeded record), class]. The class is
+	 * 'account' (always samples), 'context' (a sample only without a vehicle) or
+	 * 'catalog' (real public data, no badge). 5 + 2 + 10 = the 17 Lite widgets.
 	 *
-	 * @return array<string,array{0:string,1:array<string,string>,2:string,3:string}>
+	 * @return array<string,array{0:string,1:array<string,string>,2:string,3:string,4:string}>
 	 */
 	public function widgets(): array
 	{
 		return array(
-			'comparison'      => array( 'rentiva_vehicle_comparison', array(), self::BADGE_SAMPLE_DATA, 'sentinel' ),
-			'my bookings'     => array( 'rentiva_my_bookings', array(), self::BADGE_SAMPLE_DATA, 'sentinel' ),
-			'my favorites'    => array( 'rentiva_my_favorites', array(), self::BADGE_SAMPLE_DATA, 'sentinel' ),
-			'payment history' => array( 'rentiva_payment_history', array(), self::BADGE_SAMPLE_DATA, 'reference' ),
-			'user dashboard'  => array( 'rentiva_user_dashboard', array(), self::BADGE_NOTICE, '' ),
+			'comparison'        => array( 'rentiva_vehicle_comparison', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
+			'my bookings'       => array( 'rentiva_my_bookings', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
+			'my favorites'      => array( 'rentiva_my_favorites', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
+			'payment history'   => array( 'rentiva_payment_history', array(), self::BADGE_SAMPLE_DATA, 'reference', 'account' ),
+			'user dashboard'    => array( 'rentiva_user_dashboard', array(), self::BADGE_NOTICE, '', 'account' ),
+			'vehicle details'   => array( 'rentiva_vehicle_details', array(), self::BADGE_SAMPLE_VEH, '', 'context' ),
+			'rating form'       => array( 'rentiva_vehicle_rating_form', array(), self::BADGE_SAMPLE_VEH, '', 'context' ),
+			'unified search'    => array( 'rentiva_unified_search', array(), '', '', 'catalog' ),
+			'search results'    => array( 'rentiva_search_results', array(), '', '', 'catalog' ),
+			'vehicles list'     => array( 'rentiva_vehicles_list', array(), '', '', 'catalog' ),
+			'vehicles grid'     => array( 'rentiva_vehicles_grid', array(), '', '', 'catalog' ),
+			'featured vehicles' => array( 'rentiva_featured_vehicles', array(), '', '', 'catalog' ),
+			'vehicle card'      => array( 'rentiva_vehicles_list', array( 'limit' => '1', 'columns' => '1', '_marker' => 'data-testid="vehicle-card"' ), '', '', 'catalog' ),
+			'availability'      => array( 'rentiva_availability_calendar', array(), '', '', 'catalog' ),
+			'booking form'      => array( 'rentiva_booking_form', array(), '', '', 'catalog' ),
+			'testimonials'      => array( 'rentiva_testimonials', array(), '', '', 'catalog' ),
+			'contact'           => array( 'rentiva_contact', array(), '', '', 'catalog' ),
 		);
+	}
+
+	/**
+	 * Attributes for a render: the fixture's own for the catalog rows (so there
+	 * is real data to find), the row's on top.
+	 *
+	 * @param array<string,string> $atts
+	 * @return array{0:array<string,string>,1:string}
+	 */
+	private function fixture_atts(string $tag, array $atts, string $class): array
+	{
+		if ('catalog' !== $class) {
+			return array( $atts, '' );
+		}
+		$fixture = ShortcodeFixtures::for_tag($tag);
+		// A row that narrows the list (the card shows one vehicle) names its own marker.
+		$marker = $atts['_marker'] ?? (string) $fixture['marker'];
+		unset($atts['_marker']);
+		return array( array_merge($fixture['atts'], $atts), $marker );
 	}
 
 	/**
 	 * @param array<string,string> $atts
 	 * @dataProvider widgets
 	 */
-	public function test_preview_shows_samples_not_real_data(string $tag, array $atts, string $badge, string $front_seed): void
+	public function test_preview_shows_samples_not_real_data(string $tag, array $atts, string $badge, string $front_seed, string $class): void
 	{
 		$this->assert_sentinel_outside_sample_set();
 
+		[ $atts, $marker ] = $this->fixture_atts($tag, $atts, $class);
 		$this->set_preview(true);
 		$html = $this->shortcode($tag, $atts);
 
@@ -154,12 +190,19 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 			$this->assertStringContainsString(esc_html($badge), $html, "$tag: wrong badge text.");
 		}
 
-		$this->assertSame(0, substr_count($html, $this->sentinel_title), "$tag: preview prints the administrator's sentinel vehicle.");
-		$this->assertSame(0, substr_count($html, $this->reference), "$tag: preview prints the administrator's booking reference.");
-		$this->assertSame(0, substr_count($html, '#' . $this->booking . '<'), "$tag: preview prints the administrator's booking id.");
 		foreach (self::FORBIDDEN as $needle) {
 			$this->assertSame(0, substr_count($html, $needle), "$tag: preview prints `$needle`.");
 		}
+
+		if ('catalog' === $class) {
+			// Real public data, not an empty state: the fixture's marker is on the page.
+			$this->assertStringContainsString($marker, $html, "$tag: the catalog preview does not show real data.");
+			return;
+		}
+
+		$this->assertSame(0, substr_count($html, $this->sentinel_title), "$tag: preview prints the administrator's sentinel vehicle.");
+		$this->assertSame(0, substr_count($html, $this->reference), "$tag: preview prints the administrator's booking reference.");
+		$this->assertSame(0, substr_count($html, '#' . $this->booking . '<'), "$tag: preview prints the administrator's booking id.");
 	}
 
 	/**
@@ -169,10 +212,15 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 	 * @param array<string,string> $atts
 	 * @dataProvider widgets
 	 */
-	public function test_front_shows_the_seed(string $tag, array $atts, string $badge, string $front_seed): void
+	public function test_front_shows_the_seed(string $tag, array $atts, string $badge, string $front_seed, string $class): void
 	{
 		unset($badge);
-		$html = $this->shortcode($tag, $atts);
+		[ $atts, $marker ] = $this->fixture_atts($tag, $atts, $class);
+		$html              = $this->shortcode($tag, $atts);
+
+		if ('catalog' === $class) {
+			$this->assertStringContainsString($marker, $html, "$tag: the front end lost its real data.");
+		}
 
 		$this->assertStringNotContainsString('data-rv-render', $html, "$tag: front output carries the preview marker.");
 		$this->assertStringNotContainsString('mhm-rv-preview-badge', $html, "$tag: front output carries a badge.");
@@ -299,6 +347,162 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 		$guest = $this->shortcode('rentiva_user_dashboard', array());
 		$this->assertStringContainsString(esc_html(self::BADGE_NOTICE), $dashboard);
 		$this->assertStringContainsString('mhm-rentiva-retired-dashboard', $guest, 'A preview always shows the notice, even with nobody logged in.');
+	}
+
+	/**
+	 * Vehicle details without any context: the lowest sample vehicle and its badge.
+	 */
+	public function test_details_in_preview_without_context_shows_the_sample_vehicle(): void
+	{
+		$sample = PreviewSamples::vehicle_id();
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_vehicle_details', array());
+
+		$this->assertSame(1, substr_count($html, 'data-rv-render="preview"'));
+		$this->assertSame(1, substr_count($html, 'mhm-rv-preview-badge'));
+		$this->assertStringContainsString(esc_html(self::BADGE_SAMPLE_VEH), $html);
+		$this->assertStringContainsString(esc_html(get_the_title($sample)), $html);
+		$this->assertStringContainsString('rv-vehicle-details-wrapper', $html);
+		$this->assertStringNotContainsString($this->sentinel_title, $html);
+	}
+
+	/**
+	 * On a vehicle page the page's vehicle shows, without a badge.
+	 */
+	public function test_details_on_a_vehicle_page_shows_that_vehicle_without_badge(): void
+	{
+		$GLOBALS['post'] = get_post($this->sentinel);
+		setup_postdata($GLOBALS['post']);
+
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_vehicle_details', array());
+
+		$this->assertStringContainsString(esc_html($this->sentinel_title), $html);
+		$this->assertSame(0, substr_count($html, 'mhm-rv-preview-badge'));
+	}
+
+	public function test_details_with_an_explicit_valid_id_shows_it_without_badge(): void
+	{
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_vehicle_details', array( 'vehicle_id' => (string) $this->sentinel ));
+
+		$this->assertStringContainsString(esc_html($this->sentinel_title), $html);
+		$this->assertSame(0, substr_count($html, 'mhm-rv-preview-badge'));
+	}
+
+	/**
+	 * An explicit id that is not a readable vehicle is rejected, never replaced
+	 * by the page's vehicle or a sample.
+	 */
+	public function test_details_with_an_explicit_invalid_id_is_rejected(): void
+	{
+		$draft = ShortcodeFixtures::vehicle();
+		wp_update_post(array( 'ID' => $draft, 'post_status' => 'draft' ));
+		$GLOBALS['post'] = get_post($this->sentinel);
+		setup_postdata($GLOBALS['post']);
+
+		$this->set_preview(true);
+		foreach (array( '999999', (string) $draft ) as $bad) {
+			$html = $this->shortcode('rentiva_vehicle_details', array( 'vehicle_id' => $bad ));
+			$this->assertSame(1, substr_count($html, 'mhm-rv-preview-badge'), "id $bad");
+			$this->assertStringContainsString(esc_html(self::BADGE_INVALID_VEH), $html, "id $bad");
+			$this->assertStringNotContainsString('rv-vehicle-details-wrapper', $html, "id $bad");
+			$this->assertStringNotContainsString($this->sentinel_title, $html, "id $bad");
+		}
+
+		// Front end: the visitor's neutral state, no badge, no wrapper, no editor text.
+		$this->set_preview(false);
+		$front = $this->shortcode('rentiva_vehicle_details', array( 'vehicle_id' => '999999' ));
+		$this->assertNotSame('', trim($front));
+		$this->assertStringNotContainsString('mhm-rv-preview', $front);
+		$this->assertStringNotContainsString('rv-vehicle-details-wrapper', $front);
+		$this->assertStringNotContainsString('widget settings', $front);
+	}
+
+	/**
+	 * Front end without a vehicle context: a helpful neutral state, no internal path.
+	 */
+	public function test_details_on_the_front_without_context_is_a_neutral_empty_state(): void
+	{
+		wp_set_current_user(0);
+		$html = $this->shortcode('rentiva_vehicle_details', array());
+
+		$this->assertNotSame('', trim($html));
+		$this->assertStringNotContainsString('rv-vehicle-details-wrapper', $html);
+		$this->assertStringNotContainsString('data-rv-render', $html);
+		$this->assertStringNotContainsString('widget settings', $html, 'The visitor gets no editor instruction.');
+		foreach (array( 'shortcodes/', 'Template:', 'Template file not found' ) as $needle) {
+			$this->assertStringNotContainsString($needle, $html);
+		}
+	}
+
+	/**
+	 * No vehicle to sample either: the preview says what to do, still wrapped.
+	 */
+	public function test_details_in_preview_with_no_vehicle_gives_the_instruction(): void
+	{
+		$ids = get_posts(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids' ));
+		foreach ($ids as $id) {
+			wp_delete_post((int) $id, true);
+		}
+		PreviewSamples::reset();
+
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_vehicle_details', array());
+
+		$this->assertSame(1, substr_count($html, 'data-rv-render="preview"'));
+		$this->assertSame(0, substr_count($html, 'mhm-rv-preview-badge'));
+		$this->assertStringContainsString('widget settings', $html);
+		$this->assertStringNotContainsString('rv-vehicle-details-wrapper', $html);
+	}
+
+	/**
+	 * Details nests the rating form and the featured list: one root marker, and
+	 * the inner form carries no nonce.
+	 */
+	public function test_nested_preview_wraps_once_and_inner_form_inert(): void
+	{
+		wp_set_current_user(ShortcodeFixtures::customer());
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_vehicle_details', array( 'vehicle_id' => (string) PreviewSamples::vehicle_id() ));
+
+		$this->assertSame(1, substr_count($html, 'data-rv-render="preview"'));
+		$this->assertStringContainsString('rv-rating-summary', $html, 'The nested rating form is drawn.');
+		foreach (self::FORBIDDEN as $needle) {
+			$this->assertSame(0, substr_count($html, $needle), "nested preview prints `$needle`.");
+		}
+		$this->assertSame(0, substr_count($html, 'name="rating_nonce"'));
+	}
+
+	/**
+	 * Elementor skips the server render when content_template() prints anything,
+	 * so these two stay empty (spec 2.4).
+	 *
+	 * @dataProvider content_template_widgets
+	 */
+	public function test_content_template_stays_empty(string $class): void
+	{
+		$method = new \ReflectionMethod($class, 'content_template');
+		$lines  = array_slice((array) file((string) $method->getFileName()), $method->getStartLine() - 1, $method->getEndLine() - $method->getStartLine() + 1);
+		$code   = '';
+		foreach (token_get_all('<?php ' . implode('', $lines)) as $token) {
+			if (is_array($token) && in_array($token[0], array( T_COMMENT, T_DOC_COMMENT, T_WHITESPACE, T_OPEN_TAG ), true)) {
+				continue;
+			}
+			$code .= is_array($token) ? $token[1] : $token;
+		}
+		$this->assertSame('protectedfunctioncontent_template():void{}', str_replace(' ', '', $code));
+	}
+
+	/**
+	 * @return array<string,array{0:string}>
+	 */
+	public function content_template_widgets(): array
+	{
+		return array(
+			'booking form' => array( \MHMRentiva\Admin\Frontend\Widgets\Elementor\BookingFormWidget::class ),
+			'vehicle card' => array( \MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget::class ),
+		);
 	}
 
 	private function assert_sentinel_outside_sample_set(): void

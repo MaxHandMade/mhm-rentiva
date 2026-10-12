@@ -9,8 +9,6 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
-use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
-use MHMRentiva\Admin\Vehicle\PostType\Vehicle;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
 
@@ -162,13 +160,10 @@ final class VehicleRatingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * The one place that decides which vehicle the form binds to.
-	 *
-	 * An explicit `vehicle_id` is used only when it names a publicly readable
-	 * vehicle; otherwise it is rejected, never replaced by the page or a sample.
-	 * Without one, the current post counts only if it is a vehicle. In an editor
-	 * preview with neither, the lowest-ID sample vehicle stands in. The template
-	 * never looks for an id of its own.
+	 * Which vehicle the form binds to: the shared rule in
+	 * PreviewSamples::resolve_vehicle() (explicit id must be publicly readable,
+	 * else the page's vehicle, else a preview sample). The template never looks
+	 * for an id of its own.
 	 *
 	 * @param array<string,mixed> $atts Normalised shortcode attributes.
 	 * @return array{0:int,1:string} Vehicle ID (0 = none) and the preview badge text ('' = no badge).
@@ -176,28 +171,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 	private static function resolve_vehicle(array $atts): array
 	{
 		// CanonicalAttributeMapper types vehicle_id as int, so "not given" arrives as 0.
-		// Any other value (negative included) is an explicit id and must be valid.
-		$given = (int) ( $atts['vehicle_id'] ?? 0 );
-		if (0 !== $given) {
-			if ($given > 0 && VehicleDataHelper::is_publicly_readable($given)) {
-				return array( $given, '' );
-			}
-			return array( 0, __('Preview: invalid vehicle. Check the vehicle ID in the widget settings.', 'mhm-rentiva') );
-		}
-
-		$page_id = (int) get_the_ID();
-		if ($page_id > 0 && Vehicle::POST_TYPE === get_post_type($page_id)) {
-			return array( $page_id, '' );
-		}
-
-		if (RenderContext::current()->allows_sample()) {
-			$sample = PreviewSamples::vehicle_id();
-			if ($sample > 0) {
-				return array( $sample, __('Preview: sample vehicle. On a vehicle page it shows that vehicle.', 'mhm-rentiva') );
-			}
-		}
-
-		return array( 0, '' );
+		return PreviewSamples::resolve_vehicle( (int) ( $atts['vehicle_id'] ?? 0 ) );
 	}
 
 	/**
