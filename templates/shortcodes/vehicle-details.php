@@ -393,7 +393,7 @@ $allowed_svg_tags = array(
 		// Render first: with no other featured vehicle the shortcode answers with its
 		// empty-state paragraph, and a heading over "No featured vehicles found." is noise.
 		$related_html = \MHMRentiva\Admin\Core\Utilities\Templates::render_shortcode($related_shortcode);
-		if ('' !== trim($related_html) && false === strpos($related_html, 'mhm-rentiva-no-vehicles')) :
+		if ('' !== trim($related_html) && false === strpos($related_html, 'class="mhm-rentiva-no-vehicles"')) :
 			?>
 		<section class="rv-vd2-related">
 			<h3 class="rv-vd2-related-title"><?php esc_html_e('Similar Premium Vehicles', 'mhm-rentiva'); ?></h3>

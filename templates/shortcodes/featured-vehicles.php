@@ -24,6 +24,7 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
     data-interval="<?php echo esc_attr($atts['interval'] ?? '5000'); ?>">
 
     <?php if (empty($vehicles)) : ?>
+        <?php // Contract: vehicle-details hides its "Similar Premium Vehicles" section by looking for class="mhm-rentiva-no-vehicles" in this output. Theme overrides must keep this exact class on the empty state. ?>
         <p class="mhm-rentiva-no-vehicles"><?php esc_html_e('No featured vehicles found.', 'mhm-rentiva'); ?></p>
     <?php else : ?>
 
