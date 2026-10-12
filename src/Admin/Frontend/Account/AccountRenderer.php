@@ -231,6 +231,79 @@ final class AccountRenderer {
 	}
 
 	/**
+	 * The bookings list for an editor preview: the shape get_bookings_data()
+	 * returns, with no booking queried. The rows are PreviewSamples::bookings_rows()
+	 * as view rows (booking_view_row()) in `booking_rows`; a sample row has no
+	 * view link. One page, so no pager.
+	 *
+	 * @param array<string,mixed> $atts Shortcode attributes.
+	 * @return array{data: array<string,mixed>}
+	 */
+	public static function get_bookings_preview_data(array $atts = array()): array
+	{
+		$rows = array();
+		foreach (\MHMRentiva\Frontend\PreviewSamples::bookings_rows() as $sample) {
+			$rows[] = $sample + array( 'view_url' => '' );
+		}
+
+		$data = array(
+			'user'               => wp_get_current_user(),
+			'bookings'           => array(),
+			'booking_rows'       => $rows,
+			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'atts'               => $atts,
+			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
+			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
+			'show_status'        => self::flag_is_on($atts['show_status_toggle'] ?? '1'),
+			'show_price'         => self::flag_is_on($atts['show_price'] ?? '1'),
+			'show_pagination'    => false,
+			'current_page'       => 1,
+			'total_pages'        => 1,
+		);
+
+		return array( 'data' => $data );
+	}
+
+	/**
+	 * One row of templates/account/bookings.php: the values the template prints
+	 * for a booking, read exactly as the template used to read them per row
+	 * (same metas, same fallbacks, raw values; the template formats them).
+	 *
+	 * `vehicle_title` is null when the vehicle post is missing (the template
+	 * prints "N/A"); `vehicle_image` is the thumbnail URL or '' (the template
+	 * falls back to the placeholder); `view_url` is '' for a row without a
+	 * details page (preview samples).
+	 *
+	 * @return array{id:int,vehicle_title:?string,vehicle_image:string,status:mixed,pickup_date:mixed,pickup_time:mixed,dropoff_date:mixed,total_price:mixed,view_url:string}
+	 */
+	public static function booking_view_row(\WP_Post $booking): array
+	{
+		$vehicle_id = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
+		$vehicle    = get_post($vehicle_id);
+		// Pickup time with fallbacks.
+		$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
+		if (! $pickup_time) {
+			$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
+		}
+		if (! $pickup_time) {
+			$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
+		}
+		$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
+
+		return array(
+			'id'            => (int) $booking->ID,
+			'vehicle_title' => $vehicle instanceof \WP_Post ? $vehicle->post_title : null,
+			'vehicle_image' => is_string($vehicle_image) ? $vehicle_image : '',
+			'status'        => get_post_meta($booking->ID, '_mhmrentiva_status', true),
+			'pickup_date'   => get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true),
+			'pickup_time'   => $pickup_time,
+			'dropoff_date'  => get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true),
+			'total_price'   => get_post_meta($booking->ID, '_mhmrentiva_total_price', true),
+			'view_url'      => AccountController::get_booking_view_url( (int) $booking->ID),
+		);
+	}
+
+	/**
 	 * The account list page asked for: the public query var `mhmrentiva_page`
 	 * (AccountController::PUBLIC_QUERY_VARS). Anything but a positive whole
 	 * number -- zero, negative, letters, an array -- is page 1.
@@ -410,6 +483,35 @@ final class AccountRenderer {
 			'show_payment_method' => self::flag_is_on($atts['show_payment_method'] ?? '1'),
 			'show_booking_link'   => self::flag_is_on($atts['show_booking_link'] ?? '0'),
 			'show_pagination'     => $paginate,
+		);
+
+		return array( 'data' => $data );
+	}
+
+	/**
+	 * The payment history for an editor preview: the shape
+	 * get_payment_history_data() returns, with PreviewSamples::payment_rows()
+	 * as the payments and no booking queried. One page, so no pager.
+	 *
+	 * @param array<string,mixed> $atts Shortcode attributes.
+	 * @return array{data: array<string,mixed>}
+	 */
+	public static function get_payment_history_preview_data(array $atts = array()): array
+	{
+		$payments = \MHMRentiva\Frontend\PreviewSamples::payment_rows();
+
+		$data = array(
+			'user'                => wp_get_current_user(),
+			'payments'            => $payments,
+			'total'               => count($payments),
+			'total_pages'         => 1,
+			'current_page'        => 1,
+			'navigation'          => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
+			'atts'                => $atts,
+			'show_date'           => self::flag_is_on($atts['show_date'] ?? '1'),
+			'show_payment_method' => self::flag_is_on($atts['show_payment_method'] ?? '1'),
+			'show_booking_link'   => self::flag_is_on($atts['show_booking_link'] ?? '0'),
+			'show_pagination'     => false,
 		);
 
 		return array( 'data' => $data );

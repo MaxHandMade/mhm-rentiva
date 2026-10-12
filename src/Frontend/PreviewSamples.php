@@ -65,8 +65,8 @@ final class PreviewSamples {
 	 * Plain rows, one per booking, with exactly the values templates/account/
 	 * bookings.php displays per row:
 	 *
-	 *  - id            int    booking ID (shown as #id; the view link is built from it)
-	 *  - vehicle_title string vehicle name column ('' shows "N/A")
+	 *  - id            int    booking ID (shown as #id; a sample row gets no view link)
+	 *  - vehicle_title string vehicle name column
 	 *  - vehicle_image string thumbnail URL ('' falls back to the vehicle placeholder)
 	 *  - status        string pending|confirmed|in_progress|completed|cancelled
 	 *  - pickup_date   string Y-m-d

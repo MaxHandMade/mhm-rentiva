@@ -56,12 +56,18 @@ $today             = current_time('Y-m-d');
 $upcoming_bookings = array();
 $past_bookings     = array();
 
-foreach ($filtered_bookings as $booking) {
-	$dropoff_date = get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true);
-	if ($dropoff_date >= $today) {
-		$upcoming_bookings[] = $booking;
+// One view row per booking (AccountRenderer::booking_view_row()). An editor
+// preview hands its sample rows ready-made in `booking_rows`; otherwise they are
+// built here from the booking posts, with the values this template used to read.
+$booking_rows = isset($data['booking_rows']) && is_array($data['booking_rows'])
+	? $data['booking_rows']
+	: array_map(array( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::class, 'booking_view_row' ), $filtered_bookings);
+
+foreach ($booking_rows as $booking_row) {
+	if ($booking_row['dropoff_date'] >= $today) {
+		$upcoming_bookings[] = $booking_row;
 	} else {
-		$past_bookings[] = $booking;
+		$past_bookings[] = $booking_row;
 	}
 }
 
@@ -172,27 +178,20 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							</thead>
 							<tbody>
 								<?php
-								foreach ($upcoming_bookings as $booking) :
-									$vehicle_id     = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
-									$vehicle        = get_post($vehicle_id);
-									$booking_status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
-									$pickup_date    = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
-									// Get pickup time with fallbacks
-									$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
-									if (! $pickup_time) {
-										$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
-									}
-									if (! $pickup_time) {
-										$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
-									}
-									$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
+								foreach ($upcoming_bookings as $booking_row) :
+									$vehicle_title  = $booking_row['vehicle_title'];
+									$booking_status = $booking_row['status'];
+									$pickup_date    = $booking_row['pickup_date'];
+									$pickup_time    = $booking_row['pickup_time'];
+									$total_price    = $booking_row['total_price'];
+									$view_url       = $booking_row['view_url'];
 
 									// Vehicle image. The fallback used to hardcode
 									// assets/images/no-image.png, a file this plugin has never
 									// shipped -- a broken <img> for every vehicle with no
 									// featured image. VehicleDataHelper owns the same
 									// placeholder the vehicle grid and list already used.
-									$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
+									$vehicle_image = $booking_row['vehicle_image'];
 									if (! $vehicle_image) {
 										$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 									}
@@ -219,13 +218,13 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									$formatted_date  = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
 									?>
 									<tr>
-										<td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
+										<td class="rv-booking-id">#<?php echo esc_html($booking_row['id']); ?></td>
 										<?php if ($show_image) : ?>
 											<td class="rv-vehicle-thumb">
-												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title ?? ''); ?>">
+												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle_title ?? ''); ?>">
 											</td>
 										<?php endif; ?>
-										<td class="rv-vehicle-name"><?php echo esc_html($vehicle->post_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
+										<td class="rv-vehicle-name"><?php echo esc_html($vehicle_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
 										<?php if ($show_booking_dates) : ?>
 											<td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
 										<?php endif; ?>
@@ -249,7 +248,8 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										</td>
 										<?php endif; ?>
 										<td class="rv-booking-actions">
-											<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>"
+											<a<?php echo '' === $view_url ? '' : ' href="' . esc_url($view_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(); a sample row has no link. ?>
+
 												class="btn btn-secondary rv-btn-icon-only" title="<?php esc_attr_e('View Details', 'mhm-rentiva'); ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -295,27 +295,20 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							</thead>
 							<tbody>
 								<?php
-								foreach ($past_bookings as $booking) :
-									$vehicle_id     = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
-									$vehicle        = get_post($vehicle_id);
-									$booking_status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
-									$pickup_date    = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
-									// Get pickup time with fallbacks
-									$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
-									if (! $pickup_time) {
-										$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
-									}
-									if (! $pickup_time) {
-										$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
-									}
-									$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
+								foreach ($past_bookings as $booking_row) :
+									$vehicle_title  = $booking_row['vehicle_title'];
+									$booking_status = $booking_row['status'];
+									$pickup_date    = $booking_row['pickup_date'];
+									$pickup_time    = $booking_row['pickup_time'];
+									$total_price    = $booking_row['total_price'];
+									$view_url       = $booking_row['view_url'];
 
 									// Vehicle image. The fallback used to hardcode
 									// assets/images/no-image.png, a file this plugin has never
 									// shipped -- a broken <img> for every vehicle with no
 									// featured image. VehicleDataHelper owns the same
 									// placeholder the vehicle grid and list already used.
-									$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
+									$vehicle_image = $booking_row['vehicle_image'];
 									if (! $vehicle_image) {
 										$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 									}
@@ -342,13 +335,13 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									$formatted_date  = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
 									?>
 									<tr>
-										<td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
+										<td class="rv-booking-id">#<?php echo esc_html($booking_row['id']); ?></td>
 										<?php if ($show_image) : ?>
 											<td class="rv-vehicle-thumb">
-												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title ?? ''); ?>">
+												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle_title ?? ''); ?>">
 											</td>
 										<?php endif; ?>
-										<td class="rv-vehicle-name"><?php echo esc_html($vehicle->post_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
+										<td class="rv-vehicle-name"><?php echo esc_html($vehicle_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
 										<?php if ($show_booking_dates) : ?>
 											<td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
 										<?php endif; ?>
@@ -372,7 +365,8 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										</td>
 										<?php endif; ?>
 										<td class="rv-booking-actions">
-											<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>"
+											<a<?php echo '' === $view_url ? '' : ' href="' . esc_url($view_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(); a sample row has no link. ?>
+
 												class="btn btn-secondary rv-btn-icon-only" title="<?php esc_attr_e('View Details', 'mhm-rentiva'); ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>

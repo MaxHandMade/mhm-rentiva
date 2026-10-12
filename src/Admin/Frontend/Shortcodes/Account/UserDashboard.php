@@ -42,6 +42,25 @@ final class UserDashboard {
 	{
 		unset($atts);
 
+		// An editor preview always shows what a customer will see, with a badge
+		// saying so, inside the preview root marker; the front end is unchanged.
+		return \MHMRentiva\Frontend\RenderContext::render_preview_scope(
+			static function (): string {
+				if (\MHMRentiva\Frontend\RenderContext::current()->is_preview()) {
+					return \MHMRentiva\Frontend\RenderContext::badge(__('Preview: the notice a customer will see.', 'mhm-rentiva'))
+						. self::customer_notice();
+				}
+				return self::notice_for_current_user();
+			}
+		);
+	}
+
+	/**
+	 * The notice for the user on the page: none for a guest, the customer notice,
+	 * plus the administrator sentence for an administrator.
+	 */
+	private static function notice_for_current_user(): string
+	{
 		if (! is_user_logged_in()) {
 			// A guest has nothing to be told here: the page they landed on is
 			// someone else's layout decision, and the login form lives on the
@@ -49,22 +68,7 @@ final class UserDashboard {
 			return '';
 		}
 
-		$account_url = function_exists('wc_get_page_permalink')
-			? (string) call_user_func('wc_get_page_permalink', 'myaccount')
-			: '';
-
-		$html = sprintf(
-			'<div class="mhm-rentiva-retired-dashboard"><p>%1$s</p>%2$s</div>',
-			esc_html__('Your account has moved. Everything you had here — bookings, favorites and payments — is now on your account page.', 'mhm-rentiva'),
-			'' === $account_url
-				? ''
-				: sprintf(
-					'<p><a class="mhm-rentiva-retired-dashboard__link" href="%1$s">%2$s</a></p>',
-					esc_url($account_url),
-					esc_html__('Go to my account', 'mhm-rentiva')
-				)
-		);
-
+		$html = self::markup();
 		$role = 'customer';
 
 		// Administrators get the sentence that tells them what to DO about it.
@@ -108,6 +112,38 @@ final class UserDashboard {
 		 * @param string $role 'customer' or 'admin'.
 		 */
 		return (string) apply_filters('mhmrentiva_retired_dashboard_notice', $html, $role);
+	}
+
+	/**
+	 * The customer's notice, as a logged-in customer gets it (filter included):
+	 * what an editor preview shows, whoever is editing.
+	 */
+	private static function customer_notice(): string
+	{
+		/** This filter is documented in notice_for_current_user(). */
+		return (string) apply_filters('mhmrentiva_retired_dashboard_notice', self::markup(), 'customer');
+	}
+
+	/**
+	 * The notice every logged-in user gets: the message and the account link.
+	 */
+	private static function markup(): string
+	{
+		$account_url = function_exists('wc_get_page_permalink')
+			? (string) call_user_func('wc_get_page_permalink', 'myaccount')
+			: '';
+
+		return sprintf(
+			'<div class="mhm-rentiva-retired-dashboard"><p>%1$s</p>%2$s</div>',
+			esc_html__('Your account has moved. Everything you had here — bookings, favorites and payments — is now on your account page.', 'mhm-rentiva'),
+			'' === $account_url
+				? ''
+				: sprintf(
+					'<p><a class="mhm-rentiva-retired-dashboard__link" href="%1$s">%2$s</a></p>',
+					esc_url($account_url),
+					esc_html__('Go to my account', 'mhm-rentiva')
+				)
+		);
 	}
 
 	/**

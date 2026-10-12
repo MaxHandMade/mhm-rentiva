@@ -37,6 +37,11 @@ abstract class AbstractShortcode {
 	public const QUERY_VAR_PREFIX = 'mhmrentiva_';
 
 	/**
+	 * Template-data key carrying the preview badge text (see render_template()).
+	 */
+	public const PREVIEW_BADGE_KEY = '_preview_badge';
+
+	/**
 	 * Maps a logical filter key to the name it carries on the wire.
 	 *
 	 * This is the single mapping point between the readable keys used inside the
@@ -269,10 +274,23 @@ abstract class AbstractShortcode {
 
 	/**
 	 * Template rendering (can be overridden)
+	 *
+	 * A non-empty `PREVIEW_BADGE_KEY` entry in the template data (set by a
+	 * subclass that drew sample data) is taken out before the template sees it
+	 * and its text is prefixed as the preview badge. The badge is '' outside a
+	 * preview, so the front-end output is the template's own.
 	 */
 	protected static function render_template(array $template_data): string
 	{
-		return Templates::render(static::get_template_path(), $template_data, true);
+		$badge = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
+		unset($template_data[ self::PREVIEW_BADGE_KEY ]);
+
+		$html = Templates::render(static::get_template_path(), $template_data, true);
+		if ('' === $badge || '' === $html) {
+			return $html;
+		}
+
+		return \MHMRentiva\Frontend\RenderContext::badge($badge) . $html;
 	}
 
 	/**
