@@ -107,6 +107,35 @@ class RenderContextTest extends WP_UnitTestCase
 		$this->assertSame('elementor', RenderContext::current()->source());
 	}
 
+	/**
+	 * Theme Builder previews a template over a sample page: the queried post is
+	 * not the edited document. The preview id must be passed explicitly.
+	 */
+	public function test_preview_id_differs_from_queried_post_is_elementor(): void
+	{
+		$this->login_admin();
+		$edited                    = self::factory()->post->create();
+		$sample                    = self::factory()->post->create();
+		$GLOBALS['post']           = get_post($sample);
+		$_GET['elementor-preview'] = (string) $edited;
+
+		$this->assertNotSame($edited, get_the_ID());
+		$this->assertSame('elementor', RenderContext::current()->source());
+	}
+
+	public function test_preview_id_without_edit_capability_on_that_post_is_front(): void
+	{
+		$admin  = self::factory()->user->create(array( 'role' => 'administrator' ));
+		$edited = self::factory()->post->create(array( 'post_author' => $admin ));
+		$sample = self::factory()->post->create();
+
+		wp_set_current_user(self::factory()->user->create(array( 'role' => 'author' )));
+		$GLOBALS['post']           = get_post($sample);
+		$_GET['elementor-preview'] = (string) $edited;
+
+		$this->assertSame('front', RenderContext::current()->source());
+	}
+
 	public function test_preview_query_arg_without_capability_is_front(): void
 	{
 		$post_id                   = self::factory()->post->create();

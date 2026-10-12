@@ -102,6 +102,20 @@ final class RenderBugsTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * `exclude` must also apply when `ids` is set (WP_Query ignores
+	 * post__not_in once post__in is present).
+	 */
+	public function test_exclude_applies_when_ids_given(): void
+	{
+		$a = ShortcodeFixtures::vehicle();
+		$b = ShortcodeFixtures::vehicle();
+		RequestSimulator::new_request();
+		$html = do_shortcode('[rentiva_featured_vehicles ids="' . $a . ',' . $b . '" exclude="' . $a . '" layout="grid"]');
+		$this->assertStringContainsString(get_the_title($b), $html);
+		$this->assertStringNotContainsString(get_the_title($a), $html);
+	}
+
+	/**
 	 * U5-2: bookings and payments page separately; an old `mhmrentiva_page`
 	 * link keeps paging the bookings list.
 	 */

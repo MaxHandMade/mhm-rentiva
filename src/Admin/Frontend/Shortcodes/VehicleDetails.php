@@ -198,9 +198,10 @@ final class VehicleDetails extends AbstractShortcode {
 		// A badge with no vehicle is the invalid-vehicle badge: it already says what
 		// to check, so no second, contradictory instruction follows it. (Outside a
 		// preview the badge is '' and the visitor's neutral state below is drawn.)
-		$badge = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
-		if ( '' !== $badge && '' !== RenderContext::badge( $badge ) ) {
-			return RenderContext::badge( $badge );
+		$badge      = (string) ( $template_data[ self::PREVIEW_BADGE_KEY ] ?? '' );
+		$badge_html = '' !== $badge ? RenderContext::badge( $badge ) : '';
+		if ( '' !== $badge_html ) {
+			return $badge_html;
 		}
 
 		$is_preview = RenderContext::current()->is_preview();

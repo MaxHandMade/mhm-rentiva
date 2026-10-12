@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Frontend;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 /**
  * Tells a widget whether it is being drawn for a visitor (`front`) or for an
  * editor preview: Elementor (`elementor`) or the block editor (`block`).
@@ -260,6 +264,13 @@ final class RenderContext {
 	/**
 	 * Elementor edit mode (AJAX re-render) or preview iframe. False whenever
 	 * Elementor is not loaded or has no instance yet.
+	 *
+	 * The preview id from the URL is passed to Elementor explicitly instead of
+	 * letting it fall back to get_the_ID(): Elementor Pro's Theme Builder
+	 * previews a template over a sample page, so the queried post is not the
+	 * document being edited and the fallback would call the iframe `front`.
+	 * Elementor still checks the edit capability for THAT post id and that it
+	 * equals the URL value (Preview::is_preview_mode()).
 	 */
 	private static function elementor_is_previewing(): bool
 	{
@@ -273,7 +284,13 @@ final class RenderContext {
 		if ($plugin->editor->is_edit_mode()) {
 			return true;
 		}
-		return $plugin->preview->is_preview_mode();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only editor-iframe detection; Elementor verifies edit capability for this post id.
+		if (! isset($_GET['elementor-preview'])) {
+			return false;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- See above.
+		$preview_id = absint(wp_unslash($_GET['elementor-preview']));
+		return $preview_id > 0 && $plugin->preview->is_preview_mode($preview_id);
 	}
 
 	/**

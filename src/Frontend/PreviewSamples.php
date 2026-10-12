@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Frontend;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 use MHMRentiva\Admin\Core\Utilities\MetaQueryHelper;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle;
