@@ -226,8 +226,9 @@ abstract class AbstractShortcode {
 			// Render template
 			$html = static::render_template($template_data);
 
-			// Empty HTML check
-			if (empty($html)) {
+			// Empty HTML check. A template that is missing is told apart from one that
+			// rendered nothing on purpose: only the missing one gets the generic state.
+			if (empty($html) && null === Templates::locate(static::get_template_path())) {
 				$html = static::get_fallback_html($atts);
 			}
 
@@ -667,20 +668,15 @@ abstract class AbstractShortcode {
 	}
 
 	/**
-	 * Returns fallback HTML (if template not found)
+	 * Returns fallback HTML when the template file cannot be located.
+	 * A template that rendered nothing on purpose does not come here.
 	 * Can be overridden
 	 */
 	protected static function get_fallback_html(array $atts): string
 	{
-		return sprintf(
-			'<div class="mhm-rentiva-shortcode-error">
-                <p>%s</p>
-                <small>Shortcode: %s | Template: %s</small>
-            </div>',
-			__('Template file not found.', 'mhm-rentiva'),
-			static::get_shortcode_tag(),
-			static::get_template_path()
-		);
+		// No path, template name or file wording here, for administrators either:
+		// the detail line comes from get_error_html(), behind manage_options.
+		return static::get_error_html(__('No template is available for this shortcode.', 'mhm-rentiva'));
 	}
 
 	/**

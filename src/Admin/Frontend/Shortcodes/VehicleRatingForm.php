@@ -9,6 +9,10 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
+use MHMRentiva\Admin\Vehicle\PostType\Vehicle;
+use MHMRentiva\Frontend\PreviewSamples;
+use MHMRentiva\Frontend\RenderContext;
 
 /**
  * Vehicle Rating Form Shortcode
@@ -126,9 +130,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 	protected static function prepare_template_data(array $atts): array
 	{
-		$vehicle_id = intval($atts['vehicle_id'] ?? get_the_ID());
+		[ $vehicle_id, $badge ] = self::resolve_vehicle($atts);
 		if ($vehicle_id <= 0) {
-			return array( 'vehicle_id' => 0 );
+			return array(
+				'vehicle_id'    => 0,
+				'badge_message' => $badge,
+			);
 		}
 
 		// These three toggles have been part of the shortcode's documented API --
@@ -142,12 +149,69 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 		return array(
 			'vehicle_id'          => $vehicle_id,
+			'badge_message'       => $badge,
 			'vehicle_rating'      => self::get_vehicle_rating($vehicle_id),
 			'user_rating'         => is_user_logged_in() ? self::get_user_rating($vehicle_id) : null,
 			'show_rating_display' => $to_bool($atts['show_rating_display'] ?? '1'),
 			'show_form'           => $to_bool($atts['show_form'] ?? '1'),
 			'show_ratings_list'   => $to_bool($atts['show_ratings_list'] ?? '1'),
 		);
+	}
+
+	/**
+	 * The one place that decides which vehicle the form binds to.
+	 *
+	 * An explicit `vehicle_id` is used only when it names a publicly readable
+	 * vehicle; otherwise it is rejected, never replaced by the page or a sample.
+	 * Without one, the current post counts only if it is a vehicle. In an editor
+	 * preview with neither, the lowest-ID sample vehicle stands in. The template
+	 * never looks for an id of its own.
+	 *
+	 * @param array<string,mixed> $atts Normalised shortcode attributes.
+	 * @return array{0:int,1:string} Vehicle ID (0 = none) and the preview badge text ('' = no badge).
+	 */
+	private static function resolve_vehicle(array $atts): array
+	{
+		// CanonicalAttributeMapper types vehicle_id as int, so "not given" arrives as 0.
+		$given = absint($atts['vehicle_id'] ?? 0);
+		if ($given > 0) {
+			if (VehicleDataHelper::is_publicly_readable($given)) {
+				return array( $given, '' );
+			}
+			return array( 0, __('Preview: invalid vehicle. Check the vehicle ID in the widget settings.', 'mhm-rentiva') );
+		}
+
+		$page_id = (int) get_the_ID();
+		if ($page_id > 0 && Vehicle::POST_TYPE === get_post_type($page_id)) {
+			return array( $page_id, '' );
+		}
+
+		if (RenderContext::current()->allows_sample()) {
+			$sample = PreviewSamples::vehicle_id();
+			if ($sample > 0) {
+				return array( $sample, __('Preview: sample vehicle. On a vehicle page it shows that vehicle.', 'mhm-rentiva') );
+			}
+		}
+
+		return array( 0, '' );
+	}
+
+	/**
+	 * Prefixes the preview badge (empty on the front end) to the rendered form.
+	 *
+	 * @param array<string,mixed> $template_data Prepared template data.
+	 */
+	protected static function render_template(array $template_data): string
+	{
+		$badge = (string) ( $template_data['badge_message'] ?? '' );
+		unset($template_data['badge_message']);
+
+		$html = parent::render_template($template_data);
+		if ('' === $html || '' === $badge) {
+			return $html;
+		}
+
+		return RenderContext::badge($badge) . $html;
 	}
 
 	public static function get_vehicle_rating(int $vehicle_id): array

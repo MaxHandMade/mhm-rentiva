@@ -30,7 +30,7 @@ $data = $data ?? array();
 
 // Get data from vars array
 $vars           = $vars ?? array();
-$vehicle_id     = $data['vehicle_id'] ?? $vars['vehicle_id'] ?? get_the_ID();
+$vehicle_id     = (int) ( $data['vehicle_id'] ?? $vars['vehicle_id'] ?? 0 );
 $vehicle_rating = $data['vehicle_rating'] ?? $vars['vehicle_rating'] ?? array();
 $user_rating    = $data['user_rating'] ?? $vars['user_rating'] ?? null;
 $is_logged_in   = $data['is_logged_in'] ?? $vars['is_logged_in'] ?? is_user_logged_in();
@@ -41,15 +41,11 @@ $show_rating_display = $data['show_rating_display'] ?? $vars['show_rating_displa
 $show_ratings_list   = $data['show_ratings_list'] ?? $vars['show_ratings_list'] ?? true;
 $show_form           = $data['show_form'] ?? $vars['show_form'] ?? true;
 
-// If vehicle_id still not available, get from global
-if (! $vehicle_id || $vehicle_id <= 0) {
-	global $post;
-	$vehicle_id = $post->ID ?? 0;
-}
-
-// CRITICAL: If vehicle ID is not available, render the template
-if (! $vehicle_id || $vehicle_id <= 0) {
-	return '<div class="rv-rating-form-error">' . esc_html__('Vehicle ID not found', 'mhm-rentiva') . '</div>';
+// The controller resolves the vehicle (VehicleRatingForm::resolve_vehicle()); the
+// template never looks for an id of its own. No vehicle: a short, helpful state.
+if ($vehicle_id <= 0) {
+	echo '<div class="rv-rating-form-error">' . esc_html__('No vehicle selected. Set a vehicle ID in the widget settings, or place this form on a vehicle page.', 'mhm-rentiva') . '</div>';
+	return;
 }
 
 // Get comment settings
@@ -124,14 +120,9 @@ $allowed_rating_svg_tags = array(
 	),
 );
 
-// Debug: Check user rating information
-if (defined('WP_DEBUG') && WP_DEBUG) {
-	echo '<!-- Debug: User rating data: ' . esc_html( (string) wp_json_encode($user_rating)) . ' -->';
-}
-
 ?>
 
-<div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr( (string) microtime(true)); ?>">
+<div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
 
 	<!-- Current Rating Display -->
 	<?php if ($show_rating_display) : ?>
