@@ -465,6 +465,8 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 	public function test_nested_preview_wraps_once_and_inner_form_inert(): void
 	{
 		wp_set_current_user(ShortcodeFixtures::customer());
+		// The nested featured list is drawn only when a featured vehicle other than the shown one exists.
+		update_post_meta(ShortcodeFixtures::vehicle(), \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, '1');
 		$this->set_preview(true);
 		$html = $this->shortcode('rentiva_vehicle_details', array( 'vehicle_id' => (string) PreviewSamples::vehicle_id() ));
 

@@ -121,6 +121,8 @@ final class BridgeRenderTest extends WP_UnitTestCase
 	public function test_template_string_callers_still_render(): void
 	{
 		$vehicle = ShortcodeFixtures::vehicle();
+		// The similar section is drawn only when another featured vehicle exists.
+		update_post_meta(ShortcodeFixtures::vehicle(), \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, '1');
 
 		$html = (string) Templates::render(
 			'shortcodes/vehicle-details',

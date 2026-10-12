@@ -373,28 +373,33 @@ $allowed_svg_tags = array(
 		</aside>
 	</div>
 
-	<?php if ($show_similar) : ?>
+	<?php
+	if ($show_similar) :
+		// An empty (or non-positive) similar_vehicles_limit keeps today's branch:
+		// 6 in the mobile slider, 3 in the desktop grid. A set value replaces the
+		// limit on both, capped at 12; the layout stays (spec 3A §2.2).
+		$is_mobile_view = wp_is_mobile();
+		$similar_limit  = absint($atts['similar_vehicles_limit'] ?? 0);
+		if ($similar_limit < 1) {
+			$similar_limit = $is_mobile_view ? 6 : 3;
+		}
+		$similar_limit = min(12, $similar_limit);
+		$similar_args  = ! empty($safe_category_slug) ? ' category="' . esc_attr($safe_category_slug) . '"' : '';
+		// The vehicle on show is not "similar" to itself.
+		$similar_args     .= $vehicle_id > 0 ? ' exclude="' . $vehicle_id . '"' : '';
+		$related_shortcode = $is_mobile_view
+			? '[rentiva_featured_vehicles layout="slider" limit="' . $similar_limit . '" columns="1"' . $similar_args . ' autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
+			: '[rentiva_featured_vehicles layout="grid" limit="' . $similar_limit . '" columns="3"' . $similar_args . ' show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
+		// Render first: with no other featured vehicle the shortcode answers with its
+		// empty-state paragraph, and a heading over "No featured vehicles found." is noise.
+		$related_html = \MHMRentiva\Admin\Core\Utilities\Templates::render_shortcode($related_shortcode);
+		if ('' !== trim($related_html) && false === strpos($related_html, 'mhm-rentiva-no-vehicles')) :
+			?>
 		<section class="rv-vd2-related">
 			<h3 class="rv-vd2-related-title"><?php esc_html_e('Similar Premium Vehicles', 'mhm-rentiva'); ?></h3>
 			<p class="rv-vd2-related-subtitle"><?php esc_html_e('Users who viewed this vehicle also checked these.', 'mhm-rentiva'); ?></p>
-			<?php
-			// An empty (or non-positive) similar_vehicles_limit keeps today's branch:
-			// 6 in the mobile slider, 3 in the desktop grid. A set value replaces the
-			// limit on both, capped at 12; the layout stays (spec 3A §2.2).
-			$is_mobile_view = wp_is_mobile();
-			$similar_limit  = absint($atts['similar_vehicles_limit'] ?? 0);
-			if ($similar_limit < 1) {
-				$similar_limit = $is_mobile_view ? 6 : 3;
-			}
-			$similar_limit = min(12, $similar_limit);
-			$similar_args  = ! empty($safe_category_slug) ? ' category="' . esc_attr($safe_category_slug) . '"' : '';
-			// The vehicle on show is not "similar" to itself.
-			$similar_args     .= $vehicle_id > 0 ? ' exclude="' . $vehicle_id . '"' : '';
-			$related_shortcode = $is_mobile_view
-				? '[rentiva_featured_vehicles layout="slider" limit="' . $similar_limit . '" columns="1"' . $similar_args . ' autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
-				: '[rentiva_featured_vehicles layout="grid" limit="' . $similar_limit . '" columns="3"' . $similar_args . ' show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
-			?>
-			<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode($related_shortcode); ?>
+			<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_rendered_html($related_html); ?>
 		</section>
+		<?php endif; ?>
 	<?php endif; ?>
 </div>
