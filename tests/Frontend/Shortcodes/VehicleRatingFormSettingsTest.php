@@ -76,13 +76,18 @@ final class VehicleRatingFormSettingsTest extends WP_UnitTestCase
 				'post_title'  => 'Rating Form Vehicle',
 			)
 		);
-		$comment       = (int) wp_insert_comment(
+		// Exactly 210 days old: the template prints human_time_diff() against time(), so
+		// a fixed date would drift ("7 months ago" -> "8 months ago"). The template parses
+		// comment_date with strtotime() (UTC), hence both columns carry the UTC value.
+		$review_date = gmdate('Y-m-d H:i:s', time() - 210 * DAY_IN_SECONDS);
+		$comment     = (int) wp_insert_comment(
 			array(
 				'comment_post_ID'  => $this->vehicle,
 				'comment_author'   => 'Ayse Yilmaz',
 				'comment_content'  => 'A rated review of the form vehicle.',
 				'comment_approved' => 1,
-				'comment_date'     => '2026-03-01 10:00:00',
+				'comment_date'     => $review_date,
+				'comment_date_gmt' => $review_date,
 			)
 		);
 		update_comment_meta($comment, 'mhmrentiva_rating', 4);
