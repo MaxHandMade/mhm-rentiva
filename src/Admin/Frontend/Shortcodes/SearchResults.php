@@ -20,6 +20,7 @@ use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use Exception;
 
 use MHMRentiva\Admin\Core\QueryHelper;
+use MHMRentiva\Frontend\RenderContext;
 
 
 
@@ -292,7 +293,7 @@ final class SearchResults extends AbstractShortcode {
 			'filter_options'  => $filter_options,
 			'pagination'      => $results['pagination'] ?? array(),
 			'sorting_options' => self::get_sorting_options(),
-			'nonce_field'     => wp_nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce', true, false),
+			'nonce_field'     => RenderContext::nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce'),
 		);
 	}
 

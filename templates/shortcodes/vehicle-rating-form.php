@@ -16,6 +16,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 
@@ -322,7 +323,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			<h4 class="rv-rating-form-title"><?php echo esc_html__('Rate This Vehicle', 'mhm-rentiva'); ?></h4>
 
 			<form class="rv-rating-form-content" id="rating-form-<?php echo esc_attr($vehicle_id); ?>">
-				<?php wp_nonce_field('mhmrentiva_nonce', 'rating_nonce'); ?>
+				<?php echo RenderContext::nonce_field('mhmrentiva_nonce', 'rating_nonce'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_nonce_field() markup, built by the helper. ?>
 				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($vehicle_id); ?>">
 
 				<?php if (! $is_logged_in && $allow_guest_comments) : ?>
@@ -388,11 +389,11 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				</div>
 
 				<!-- Nonce Field -->
-				<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('mhmrentiva_rating_nonce')); ?>">
+				<?php echo RenderContext::nonce_field('mhmrentiva_rating_nonce', 'nonce', false); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hidden input built and escaped by the helper. ?>
 
 				<!-- Submit Button -->
 				<div class="rv-rating-submit">
-					<button type="submit" class="rv-btn rv-btn-primary">
+					<button type="submit" class="rv-btn rv-btn-primary"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
 						<?php echo $user_rating ? esc_html__('Update Rating', 'mhm-rentiva') : esc_html__('Submit Rating', 'mhm-rentiva'); ?>
 					</button>
 					<?php if ($user_rating) : ?>

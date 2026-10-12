@@ -15,6 +15,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Frontend\RenderContext;
+
 
 
 // The list's filter form values, with proper sanitization.
@@ -100,7 +102,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 			<div class="rv-filter-section">
 				<h3><?php echo esc_html_x('Filter', 'noun: filter panel heading', 'mhm-rentiva'); ?></h3>
 
-				<form method="get" action="<?php echo esc_url($current_page_url); ?>" class="rv-filter-form" data-testid="bookings-filter-form">
+				<form method="get"<?php echo RenderContext::current()->is_preview() ? '' : ' action="' . esc_url($current_page_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(). ?> class="rv-filter-form" data-testid="bookings-filter-form">
 					<input type="hidden" name="endpoint" value="bookings">
 
 					<div class="rv-filter-row">
@@ -135,7 +137,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 						// escaping closes off). Without this button the form had no other
 						// way to submit at all.
 						?>
-						<button type="submit" class="rv-filter-submit button"><?php echo esc_html_x('Filter', 'verb: apply filter', 'mhm-rentiva'); ?></button>
+						<button type="submit" class="rv-filter-submit button"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>><?php echo esc_html_x('Filter', 'verb: apply filter', 'mhm-rentiva'); ?></button>
 					</div>
 				</form>
 			</div>

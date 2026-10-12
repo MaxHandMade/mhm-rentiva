@@ -13,6 +13,7 @@
  * @package MHMRentiva
  */
 
+use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
 if (! defined('ABSPATH')) {
@@ -72,7 +73,7 @@ if (! empty($category_name)) {
 		<?php if ($show_fav) : ?>
 			<button class="rv-sv__favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
 				data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-				data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_favorite')); ?>"
+				<?php echo RenderContext::nonce_attr('mhmrentiva_toggle_favorite'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute built and escaped by the helper. ?>
 				aria-label="<?php echo esc_attr__('Toggle favorite', 'mhm-rentiva'); ?>">
 				<?php Icons::render('heart', array( 'class' => 'rv-heart-icon' )); ?>
 			</button>
