@@ -102,6 +102,26 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 		}
 	}
 
+	public function test_explicit_invalid_id_does_not_fall_to_page_vehicle(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		$this->on_page($vehicle);
+
+		foreach (array( '999999', '-5' ) as $bad) {
+			$front = $this->render(' vehicle_id="' . $bad . '"');
+			$this->assertStringNotContainsString('data-vehicle-id', $front, "front, id $bad");
+			$this->assertStringContainsString('rv-rating-form-error', $front, "front, id $bad");
+			$this->assertStringContainsString('Vehicle ratings are not available here.', $front);
+			$this->assertStringNotContainsString('Set a vehicle ID', $front, 'Visitors get no editor instruction.');
+		}
+
+		$this->set_preview(true);
+		$html = $this->render(' vehicle_id="999999"');
+		$this->assertStringContainsString(self::INVALID_BADGE, $html);
+		$this->assertStringNotContainsString('data-vehicle-id="' . $vehicle . '"', $html);
+		$this->assertStringContainsString('Set a vehicle ID', $html, 'Preview keeps the instruction.');
+	}
+
 	public function test_vehicle_page_binds_vehicle(): void
 	{
 		$vehicle = ShortcodeFixtures::vehicle();

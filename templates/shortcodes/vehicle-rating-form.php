@@ -44,7 +44,10 @@ $show_form           = $data['show_form'] ?? $vars['show_form'] ?? true;
 // The controller resolves the vehicle (VehicleRatingForm::resolve_vehicle()); the
 // template never looks for an id of its own. No vehicle: a short, helpful state.
 if ($vehicle_id <= 0) {
-	echo '<div class="rv-rating-form-error">' . esc_html__('No vehicle selected. Set a vehicle ID in the widget settings, or place this form on a vehicle page.', 'mhm-rentiva') . '</div>';
+	$empty_text = RenderContext::current()->is_preview()
+		? __('No vehicle selected. Set a vehicle ID in the widget settings, or place this form on a vehicle page.', 'mhm-rentiva')
+		: __('Vehicle ratings are not available here.', 'mhm-rentiva');
+	echo '<div class="rv-rating-form-error">' . esc_html($empty_text) . '</div>';
 	return;
 }
 

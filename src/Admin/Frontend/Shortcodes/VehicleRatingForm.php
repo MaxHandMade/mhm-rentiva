@@ -16,6 +16,9 @@ use MHMRentiva\Frontend\RenderContext;
 
 /**
  * Vehicle Rating Form Shortcode
+ *
+ * Known limit: a non-numeric explicit `vehicle_id` (e.g. "abc") arrives as 0 from
+ * the attribute mapper and is therefore treated as "not given".
  */
 final class VehicleRatingForm extends AbstractShortcode {
 
@@ -173,9 +176,10 @@ final class VehicleRatingForm extends AbstractShortcode {
 	private static function resolve_vehicle(array $atts): array
 	{
 		// CanonicalAttributeMapper types vehicle_id as int, so "not given" arrives as 0.
-		$given = absint($atts['vehicle_id'] ?? 0);
-		if ($given > 0) {
-			if (VehicleDataHelper::is_publicly_readable($given)) {
+		// Any other value (negative included) is an explicit id and must be valid.
+		$given = (int) ( $atts['vehicle_id'] ?? 0 );
+		if (0 !== $given) {
+			if ($given > 0 && VehicleDataHelper::is_publicly_readable($given)) {
 				return array( $given, '' );
 			}
 			return array( 0, __('Preview: invalid vehicle. Check the vehicle ID in the widget settings.', 'mhm-rentiva') );

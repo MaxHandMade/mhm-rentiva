@@ -228,7 +228,8 @@ abstract class AbstractShortcode {
 
 			// Empty HTML check. A template that is missing is told apart from one that
 			// rendered nothing on purpose: only the missing one gets the generic state.
-			if (empty($html) && null === Templates::locate(static::get_template_path())) {
+			$template_path = static::get_template_path();
+			if (empty($html) && '' !== $template_path && null === Templates::locate($template_path)) {
 				$html = static::get_fallback_html($atts);
 			}
 
@@ -669,7 +670,8 @@ abstract class AbstractShortcode {
 
 	/**
 	 * Returns fallback HTML when the template file cannot be located.
-	 * A template that rendered nothing on purpose does not come here.
+	 * A template that rendered nothing on purpose does not come here, and neither does a shortcode that
+	 * has no template file at all (empty template path).
 	 * Can be overridden
 	 */
 	protected static function get_fallback_html(array $atts): string

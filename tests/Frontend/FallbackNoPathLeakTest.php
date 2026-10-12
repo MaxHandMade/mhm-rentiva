@@ -91,10 +91,61 @@ final class FallbackNoPathLeakTest extends WP_UnitTestCase
 			999
 		);
 
-		$html = $this->render_rating(' vehicle_id="' . $vehicle . '"');
-
-		unlink($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- test fixture.
-		rmdir($dir); // phpcs:ignore WordPress.WP.AlternativeFunctions.rmdir_rmdir -- test fixture.
+		try {
+			$html = $this->render_rating(' vehicle_id="' . $vehicle . '"');
+		} finally {
+			unlink($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- test fixture.
+			rmdir($dir); // phpcs:ignore WordPress.WP.AlternativeFunctions.rmdir_rmdir -- test fixture.
+		}
 		$this->assertSame('', $html);
+	}
+
+	public function test_shortcode_without_template_file_may_return_empty(): void
+	{
+		// Empty template path + render_template() returning '' on purpose (the Pro
+		// VendorBookings shape) is "intentionally empty", not "missing".
+		$tag = 'rv_test_no_template';
+		EmptyNoTemplateStub::register_for_test($tag);
+		try {
+			wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
+			$this->assertSame('', do_shortcode('[' . $tag . ']'));
+			wp_set_current_user(0);
+			$this->assertSame('', do_shortcode('[' . $tag . ']'));
+		} finally {
+			remove_shortcode($tag);
+		}
+	}
+}
+
+final class EmptyNoTemplateStub extends \MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode
+{
+	public static function register_for_test(string $tag): void
+	{
+		add_shortcode($tag, array( self::class, 'render' ));
+	}
+
+	protected static function get_shortcode_tag(): string
+	{
+		return 'rv_test_no_template';
+	}
+
+	protected static function get_template_path(): string
+	{
+		return '';
+	}
+
+	protected static function get_default_attributes(): array
+	{
+		return array();
+	}
+
+	protected static function prepare_template_data(array $atts): array
+	{
+		return array();
+	}
+
+	protected static function render_template(array $template_data): string
+	{
+		return '';
 	}
 }
