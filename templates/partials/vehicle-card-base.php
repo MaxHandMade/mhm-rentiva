@@ -113,8 +113,15 @@ if (is_array($brand_raw)) {
 }
 $location_name = (string) ( $vehicle['location_name'] ?? '' );
 
+// A sample card in the favourites preview (MyFavorites sets `preview_neutral`)
+// must not reveal the editing user's own lists: it shows the state the
+// "My favourites" page always shows -- favourite, not compared.
+$preview_neutral = ! empty($vehicle['preview_neutral']);
+
 // Check Favorites Service
-if (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
+if ($preview_neutral) {
+	$is_favorite = true;
+} elseif (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
 	$current_user_id = get_current_user_id();
 	if ($current_user_id) {
 		$is_favorite = \MHMRentiva\Admin\Services\FavoritesService::is_favorite($current_user_id, $vehicle_id);
@@ -123,7 +130,7 @@ if (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
 
 // Check Compare Service
 $is_in_compare = false;
-if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
+if (! $preview_neutral && class_exists('\MHMRentiva\Admin\Services\CompareService')) {
 	$is_in_compare = \MHMRentiva\Admin\Services\CompareService::is_in_compare($vehicle_id);
 }
 

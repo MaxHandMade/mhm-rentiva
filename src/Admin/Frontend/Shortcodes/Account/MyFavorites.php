@@ -108,7 +108,13 @@ class MyFavorites extends AbstractShortcode {
 				$GLOBALS['post'] = $vehicle_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restored by wp_reset_postdata() below.
 				setup_postdata($vehicle_post);
 				// Use reusable helper from VehiclesList to ensure consistency
-				$vehicles[] = VehiclesList::get_vehicle_data_for_shortcode( (int) $vehicle_post->ID, $atts);
+				$vehicle_data = VehiclesList::get_vehicle_data_for_shortcode( (int) $vehicle_post->ID, $atts);
+				if ($is_preview) {
+					// The card must not look up the editing user's favourites or
+					// comparison list (templates/partials/vehicle-card-base.php).
+					$vehicle_data['preview_neutral'] = true;
+				}
+				$vehicles[] = $vehicle_data;
 			}
 			wp_reset_postdata();
 		}

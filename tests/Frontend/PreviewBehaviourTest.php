@@ -205,6 +205,42 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The favourites preview cards do not reveal the editing user's own lists:
+	 * a sample vehicle the administrator saved and compares looks like the
+	 * others -- every heart active (as on the real "My favourites" page), no
+	 * compare button active.
+	 */
+	public function test_favorites_preview_cards_do_not_show_the_editors_state(): void
+	{
+		$samples = PreviewSamples::vehicle_ids(3);
+		$this->assertCount(3, $samples);
+		FavoritesService::add($this->admin, $samples[0]);
+		CompareService::add($samples[0]);
+		$this->assertTrue(CompareService::is_in_compare($samples[0]), 'Fixture: the sample vehicle is in the comparison list.');
+
+		$this->set_preview(true);
+		$html = $this->shortcode('rentiva_my_favorites', array());
+
+		preg_match_all('/<button\b[^>]*\bmhm-vehicle-favorite-btn\b[^>]*>/', $html, $hearts);
+		$this->assertCount(3, $hearts[0], 'One favourite button per sample card.');
+		foreach ($hearts[0] as $heart) {
+			$this->assertStringContainsString('is-active', $heart, "Heart not active: $heart");
+			$this->assertStringContainsString('aria-pressed="true"', $heart);
+		}
+
+		preg_match_all('/<button\b[^>]*\bmhm-vehicle-compare-btn\b[^>]*>/', $html, $compares);
+		$this->assertCount(3, $compares[0], 'One compare button per sample card.');
+		foreach ($compares[0] as $compare) {
+			$this->assertStringNotContainsString('is-active', $compare, "Compare button active: $compare");
+			$this->assertStringContainsString('aria-pressed="false"', $compare);
+		}
+
+		// Control: the catalog grid still shows the editor's real state.
+		$grid = $this->shortcode('rentiva_vehicles_grid', array( 'ids' => implode(',', $samples) ));
+		$this->assertMatchesRegularExpression('/<button\b[^>]*\bmhm-vehicle-compare-btn\b[^>]*\bis-active\b/', $grid, 'Catalog cards keep the real compare state.');
+	}
+
+	/**
 	 * Sample rows are drawn: the preview is not an empty state.
 	 */
 	public function test_previews_draw_sample_rows(): void
@@ -246,7 +282,8 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * A guest in the editor (no customer records at all) still gets the samples.
+	 * A customer without any records, and a guest, still get the samples in a
+	 * preview (bookings rows, dashboard notice).
 	 */
 	public function test_preview_shows_samples_for_a_user_without_records(): void
 	{

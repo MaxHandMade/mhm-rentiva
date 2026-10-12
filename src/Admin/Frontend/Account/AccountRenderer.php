@@ -512,6 +512,8 @@ final class AccountRenderer {
 			'show_payment_method' => self::flag_is_on($atts['show_payment_method'] ?? '1'),
 			'show_booking_link'   => self::flag_is_on($atts['show_booking_link'] ?? '0'),
 			'show_pagination'     => false,
+			// Sample rows: no link to a booking, no receipt upload.
+			'is_sample'           => true,
 		);
 
 		return array( 'data' => $data );

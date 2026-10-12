@@ -248,7 +248,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										</td>
 										<?php endif; ?>
 										<td class="rv-booking-actions">
-											<a<?php echo '' === $view_url ? '' : ' href="' . esc_url($view_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(); a sample row has no link. ?>
+											<a<?php echo '' === $view_url ? '' : ' href="' . esc_url($view_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(); a sample row has no link. The empty line below is deliberate: PHP drops the newline after this closing tag, the blank line restores it (front bytes unchanged). ?>
 
 												class="btn btn-secondary rv-btn-icon-only" title="<?php esc_attr_e('View Details', 'mhm-rentiva'); ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -365,7 +365,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										</td>
 										<?php endif; ?>
 										<td class="rv-booking-actions">
-											<a<?php echo '' === $view_url ? '' : ' href="' . esc_url($view_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(); a sample row has no link. ?>
+											<a<?php echo '' === $view_url ? '' : ' href="' . esc_url($view_url) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(); a sample row has no link. The empty line below is deliberate: PHP drops the newline after this closing tag, the blank line restores it (front bytes unchanged). ?>
 
 												class="btn btn-secondary rv-btn-icon-only" title="<?php esc_attr_e('View Details', 'mhm-rentiva'); ?>">
 												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
