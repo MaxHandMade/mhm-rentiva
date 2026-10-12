@@ -58,10 +58,10 @@ abstract class AbstractAccountShortcode extends AbstractShortcode {
 			array(
 				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
 				'restUrl'     => rest_url( 'mhm-rentiva/v1/' ),
-				'nonce'       => wp_create_nonce( 'mhmrentiva_account' ),
+				'nonce'       => \MHMRentiva\Frontend\RenderContext::script_nonce( 'mhmrentiva_account' ),
 				// wp_ajax_-only handler: no point minting/printing it for a logged-out visitor.
-				'uploadNonce' => is_user_logged_in() ? wp_create_nonce( 'mhmrentiva_upload_receipt' ) : '',
-				'restNonce'   => wp_create_nonce( 'wp_rest' ),
+				'uploadNonce' => is_user_logged_in() ? \MHMRentiva\Frontend\RenderContext::script_nonce( 'mhmrentiva_upload_receipt' ) : '',
+				'restNonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce( 'wp_rest' ),
 				'i18n'        => array(
 					'loading'                => __( 'Loading...', 'mhm-rentiva' ),
 					'error'                  => __( 'An error occurred.', 'mhm-rentiva' ),

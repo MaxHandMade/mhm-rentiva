@@ -96,7 +96,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 	protected static function get_localized_data(): array {
 		$data          = parent::get_localized_data();
-		$data['nonce'] = wp_create_nonce( 'mhmrentiva_calendar_nonce' );
+		$data['nonce'] = \MHMRentiva\Frontend\RenderContext::script_nonce( 'mhmrentiva_calendar_nonce' );
 		return $data;
 	}
 

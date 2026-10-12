@@ -85,7 +85,9 @@ final class ShortcodeNonceHandshakeTest extends WP_UnitTestCase
 			 */
 			$mints = array();
 
-			if ( preg_match_all( "/wp_localize_script\s*\((?:[^;]*?)wp_create_nonce\(\s*'([^']+)'/s", $source, $m ) ) {
+			// RenderContext::script_nonce() is wp_create_nonce() on the front end
+			// ('' only in an editor preview), so it mints the same front token.
+			if ( preg_match_all( "/wp_localize_script\s*\((?:[^;]*?)(?:wp_create_nonce|RenderContext::script_nonce)\(\s*'([^']+)'/s", $source, $m ) ) {
 				$mints = array_merge( $mints, $m[1] );
 			}
 

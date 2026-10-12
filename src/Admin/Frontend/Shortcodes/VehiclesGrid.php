@@ -423,7 +423,7 @@ class VehiclesGrid extends AbstractShortcode {
 			'mhmRentivaVehiclesGrid',
 			array(
 				'ajaxUrl'        => admin_url('admin-ajax.php'),
-				'nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
+				'nonce'          => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'),
 				'bookingUrl'     => self::get_booking_url(),
 				'loginUrl'       => self::get_login_url(),
 				'isUserLoggedIn' => is_user_logged_in(),

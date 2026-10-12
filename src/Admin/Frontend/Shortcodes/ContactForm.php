@@ -492,7 +492,7 @@ final class ContactForm extends AbstractShortcode {
 	{
 		return array(
 			'ajaxUrl'          => admin_url('admin-ajax.php'),
-			'nonce'            => wp_create_nonce('mhmrentiva_contact_form_nonce'),
+			'nonce'            => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_contact_form_nonce'),
 			'maxFileSize'      => self::max_attachment_bytes(),
 			'allowedFileTypes' => array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' ),
 			'messages'         => array(

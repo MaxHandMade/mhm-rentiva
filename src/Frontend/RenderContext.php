@@ -193,6 +193,21 @@ final class RenderContext {
 	}
 
 	/**
+	 * A nonce for script data (wp_localize_script() / inline config), or '' in
+	 * a preview. The key stays in the payload so the script sees the same shape;
+	 * a request it sends from the preview then fails the server-side nonce check
+	 * (wp_verify_nonce('') is false; an empty X-WP-Nonce is refused by REST
+	 * cookie auth). On the front end: exactly wp_create_nonce( $action ).
+	 */
+	public static function script_nonce(string $action): string
+	{
+		if (self::current()->is_preview()) {
+			return '';
+		}
+		return wp_create_nonce($action);
+	}
+
+	/**
 	 * Print `nonce_field( $action, $name )` in place: wp_nonce_field() with the
 	 * referer field on the front end, nothing in a preview. Template tag:
 	 * wp_nonce_field() escapes and prints the markup itself.

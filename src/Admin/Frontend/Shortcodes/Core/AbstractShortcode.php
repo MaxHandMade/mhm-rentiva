@@ -570,7 +570,7 @@ abstract class AbstractShortcode {
 			'ajaxUrl'  => admin_url('admin-ajax.php'),
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'restUrl'  => rest_url('mhm-rentiva/v1/'),
-			'nonce'    => wp_create_nonce('mhmrentiva_' . static::get_shortcode_tag() . '_nonce'),
+			'nonce'    => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_' . static::get_shortcode_tag() . '_nonce'),
 			'strings'  => static::get_localized_strings(),
 			'config'   => static::get_js_config(),
 		);

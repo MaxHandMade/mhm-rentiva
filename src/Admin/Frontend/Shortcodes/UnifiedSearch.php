@@ -88,7 +88,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		return array(
 			'locations'             => $locations,
 			'wrapper_id'            => uniqid('rv_unified_'),
-			'nonce'                 => wp_create_nonce('mhmrentiva_unified_search'),
+			'nonce'                 => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_unified_search'),
 
 			// Visibility controls
 			'show_rental_tab'       => $show_rental,
@@ -185,7 +185,7 @@ final class UnifiedSearch extends AbstractShortcode {
 			'mhmUnifiedSearch',
 			array(
 				'restUrl'   => get_rest_url(null, 'mhm-rentiva/v1/locations'),
-				'restNonce' => wp_create_nonce('wp_rest'),
+				'restNonce' => \MHMRentiva\Frontend\RenderContext::script_nonce('wp_rest'),
 				'settings'  => array(
 					'minRentalDays'     => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_min_rental_days', 1),
 					'defaultRentalDays' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1),

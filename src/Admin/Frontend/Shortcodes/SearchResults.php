@@ -370,7 +370,7 @@ final class SearchResults extends AbstractShortcode {
 			'mhmRentivaSearchResults',
 			array(
 				'ajax_url'        => admin_url('admin-ajax.php'),
-				'nonce'           => wp_create_nonce('mhmrentiva_search_results'),
+				'nonce'           => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_search_results'),
 				'current_url'     => home_url(add_query_arg(null, null)),
 				'search_page_url' => ShortcodeUrlManager::get_page_url('rentiva_search'),
 				'i18n'            => array(
@@ -399,7 +399,7 @@ final class SearchResults extends AbstractShortcode {
 					/* translators: %d: number of vehicles. */
 					'vehicles_found'         => __('%d vehicles found', 'mhm-rentiva'),
 				),
-				'favorite_nonce'  => wp_create_nonce('mhmrentiva_toggle_favorite'),
+				'favorite_nonce'  => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'),
 				'icons'           => array(
 					'heart' => \MHMRentiva\Helpers\Icons::get('heart'),
 				),

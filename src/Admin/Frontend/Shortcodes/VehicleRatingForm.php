@@ -89,7 +89,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		return array_merge(
 			$data,
 			array(
-				'nonce'         => wp_create_nonce('mhmrentiva_rating_nonce'),
+				'nonce'         => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_rating_nonce'),
 				'is_logged_in'  => is_user_logged_in(),
 				// The list renderer reads these two from the object root, not
 				// from the strings sub-object the other keys live in.
