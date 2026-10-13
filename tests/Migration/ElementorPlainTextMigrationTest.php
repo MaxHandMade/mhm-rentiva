@@ -33,7 +33,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		parent::set_up();
 		$this->assertTrue(defined('ELEMENTOR_VERSION'), 'Elementor is not loaded; the job would measure an absence.');
 		self::forget_migration_lock();
-		foreach (array( ElementorPlainTextMigration::DONE_OPTION, ElementorPlainTextMigration::PENDING_OPTION, ElementorPlainTextMigration::ATTEMPTS_OPTION, ElementorPlainTextMigration::CURSOR_OPTION ) as $option) {
+		foreach (array( ElementorPlainTextMigration::DONE_OPTION, ElementorPlainTextMigration::PENDING_OPTION, ElementorPlainTextMigration::ATTEMPTS_OPTION, ElementorPlainTextMigration::CURSOR_OPTION, ElementorPlainTextMigration::STALLED_SINCE_OPTION, ElementorPlainTextMigration::RETRY_AT_OPTION, ElementorPlainTextMigration::STOPPED_OPTION ) as $option) {
 			delete_option($option);
 		}
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
@@ -77,6 +77,33 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		} finally {
 			remove_filter('wp_doing_cron', '__return_true');
 		}
+	}
+
+	/**
+	 * Make the cron chain look dead to the admin fallback: no event queued.
+	 */
+	private function cron_missing(): void
+	{
+		wp_unschedule_hook(ElementorPlainTextMigration::CRON_HOOK);
+	}
+
+	/**
+	 * Make the candidate query fail, as a database error would.
+	 */
+	private function break_candidate_query(): \Closure
+	{
+		global $wpdb;
+		$break = static function ($query) {
+			return ( false !== strpos( (string) $query, 'widgetType') && 0 === stripos(ltrim( (string) $query), 'SELECT') ) ? 'SELECT ID FROM no_such_table_x' : $query;
+		};
+		add_filter('query', $break);
+		$suppress = $wpdb->suppress_errors(true);
+
+		return static function () use ($break, $suppress): void {
+			global $wpdb;
+			remove_filter('query', $break);
+			$wpdb->suppress_errors($suppress);
+		};
 	}
 
 	/**
@@ -358,28 +385,208 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		$this->assertFalse(get_option(ElementorPlainTextMigration::PENDING_OPTION));
 	}
 
-	public function test_query_error_keeps_the_job_pending_with_bounded_attempts(): void
+	/**
+	 * C2: a failed batch is retried after 5 min, 30 min, 2 h, then every 6 h -- never
+	 * abandoned after a short burst. Inside the backoff window nothing runs and the
+	 * lock is not taken.
+	 */
+	public function test_failed_batches_back_off_and_keep_retrying(): void
 	{
-		global $wpdb;
-		$this->page(array( $this->widget('rv-my-bookings') ));
+		$id = $this->page(array( $this->widget('rv-my-bookings') ));
 		ElementorPlainTextMigration::mark_pending();
-		$break = static function ($query) {
-			return ( false !== strpos( (string) $query, 'widgetType') && 0 === stripos(ltrim( (string) $query), 'SELECT') ) ? 'SELECT ID FROM no_such_table_x' : $query;
-		};
-		add_filter('query', $break);
-		$suppress = $wpdb->suppress_errors(true);
+		$expected = array( 300, 1800, 7200, 21600, 21600, 21600 );
+
+		$release = $this->break_candidate_query();
 		try {
-			for ($attempt = 1; $attempt <= ElementorPlainTextMigration::MAX_ATTEMPTS + 1; $attempt++) {
-				ElementorPlainTextMigration::maybe_run_pending();
+			foreach ($expected as $i => $delay) {
+				update_option(ElementorPlainTextMigration::RETRY_AT_OPTION, (string) ( time() - 1 ), false);
+				$this->fire_cron();
+
+				$retry_at = (int) get_option(ElementorPlainTextMigration::RETRY_AT_OPTION);
+				$this->assertEqualsWithDelta(time() + $delay, $retry_at, 2, 'Failure ' . ( $i + 1 ) . ' has the wrong backoff.');
+				$this->assertSame($i + 1, (int) get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION));
+				$this->assertSame(1, $this->queued(), 'The retry was not queued.');
+				$this->assertSame($retry_at, wp_next_scheduled(ElementorPlainTextMigration::CRON_HOOK), 'The event is not at the retry time.');
 			}
+
+			// Inside the window: no batch, no lock, no failure counted.
+			$this->hold_lock();
+			$this->fire_cron();
+			$this->assertSame(count($expected), (int) get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION));
+			$this->assertSame(1, $this->queued());
+			self::forget_migration_lock();
 		} finally {
-			remove_filter('query', $break);
-			$wpdb->suppress_errors($suppress);
+			$release();
+		}
+		$this->assertFalse(get_option(ElementorPlainTextMigration::STOPPED_OPTION));
+		$this->assertSame('1', get_option(ElementorPlainTextMigration::PENDING_OPTION));
+
+		// The database is back: the next due retry finishes the job and clears the state.
+		update_option(ElementorPlainTextMigration::RETRY_AT_OPTION, (string) ( time() - 1 ), false);
+		$this->fire_cron();
+		$this->assertStringNotContainsString('LEAKED', $this->content($id));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::PENDING_OPTION));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::RETRY_AT_OPTION));
+		$this->assertSame(0, $this->queued());
+	}
+
+	public function test_backoff_schedule(): void
+	{
+		$this->assertSame(
+			array( 300, 1800, 7200, 21600, 21600, 21600 ),
+			array_map(array( ElementorPlainTextMigration::class, 'backoff' ), array( 1, 2, 3, 4, 5, 40 ))
+		);
+		$this->assertSame(7 * DAY_IN_SECONDS, ElementorPlainTextMigration::MAX_STALL);
+	}
+
+	/**
+	 * The retry event is queued before the batch works, so a batch that dies mid-way
+	 * (timeout, fatal -- after wp-cron already removed the event) still has a next one.
+	 */
+	public function test_retry_is_queued_before_the_batch_runs(): void
+	{
+		$this->page(array( $this->widget('heading', array( 'title' => 'PROBE' )), $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		$seen  = null;
+		$probe = static function ($widget) use (&$seen): void {
+			if ($widget instanceof \Elementor\Widget_Base && 'PROBE' === $widget->get_settings('title')) {
+				$seen = wp_next_scheduled(ElementorPlainTextMigration::CRON_HOOK);
+			}
+		};
+		add_action('elementor/widget/before_render_content', $probe);
+		try {
+			$this->fire_cron();
+		} finally {
+			remove_action('elementor/widget/before_render_content', $probe);
 		}
 
-		$this->assertSame(ElementorPlainTextMigration::MAX_ATTEMPTS, (int) get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION));
-		$this->assertSame('1', get_option(ElementorPlainTextMigration::PENDING_OPTION));
-		$this->assertFalse(get_option(ElementorPlainTextMigration::DONE_OPTION));
+		$this->assertIsInt($seen, 'No event was queued while the batch ran.');
+		$this->assertEqualsWithDelta(time() + 300, $seen, 2);
+	}
+
+	/**
+	 * The cap: a job with no progress for MAX_STALL stops, logs it and stops queuing;
+	 * the next stamp bump (mark_pending) restarts it.
+	 */
+	public function test_job_stalled_for_seven_days_stops_and_logs(): void
+	{
+		$id = $this->page(array( $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		update_option(ElementorPlainTextMigration::ATTEMPTS_OPTION, '30', false);
+		update_option(ElementorPlainTextMigration::STALLED_SINCE_OPTION, (string) ( time() - ElementorPlainTextMigration::MAX_STALL - 1 ), false);
+		update_option(ElementorPlainTextMigration::RETRY_AT_OPTION, (string) ( time() - 1 ), false);
+		$this->fire_cron();
+
+		$this->assertNotFalse(get_option(ElementorPlainTextMigration::STOPPED_OPTION));
+		$this->assertSame(0, $this->queued(), 'A stopped job keeps re-queuing itself.');
+		$this->assertSame(self::LEAK, $this->content($id));
+		$logged = get_posts(
+			array(
+				'post_type'   => \MHMRentiva\Admin\PostTypes\Logs\PostType::TYPE,
+				'post_status' => 'any',
+				'numberposts' => -1,
+				's'           => 'plain text rebuild',
+			)
+		);
+		$this->assertNotEmpty(array_filter($logged, static fn($p) => false !== strpos( (string) $p->post_title, 'stopped')), 'The stop was not logged.');
+
+		// Stopped means stopped: the admin fallback does nothing either.
+		set_current_screen('dashboard');
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->assertSame(self::LEAK, $this->content($id));
+
+		// A later database update restarts it.
+		ElementorPlainTextMigration::mark_pending();
+		$this->assertFalse(get_option(ElementorPlainTextMigration::STOPPED_OPTION));
+		$this->fire_cron();
+		$this->assertStringNotContainsString('LEAKED', $this->content($id));
+	}
+
+	/**
+	 * R1: the admin fallback stays out of the way while cron is on time, and steps in
+	 * when the event is overdue by more than OVERDUE_AFTER or missing.
+	 */
+	public function test_admin_fallback_runs_only_when_cron_is_overdue(): void
+	{
+		$id = $this->page(array( $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		set_current_screen('dashboard');
+
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->assertSame(self::LEAK, $this->content($id), 'The admin page load ran a batch while cron was on time.');
+
+		$this->cron_missing();
+		wp_schedule_single_event(time() - ElementorPlainTextMigration::OVERDUE_AFTER + 60, ElementorPlainTextMigration::CRON_HOOK);
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->assertSame(self::LEAK, $this->content($id), 'An event late by less than OVERDUE_AFTER counted as overdue.');
+
+		$this->cron_missing();
+		wp_schedule_single_event(time() - ElementorPlainTextMigration::OVERDUE_AFTER - 60, ElementorPlainTextMigration::CRON_HOOK);
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->assertStringNotContainsString('LEAKED', $this->content($id));
+	}
+
+	/**
+	 * R7: the markdown cache goes after the UPDATE of post_content, not before it.
+	 */
+	public function test_markdown_cache_is_dropped_after_the_update(): void
+	{
+		global $wpdb;
+		$id    = $this->page(array( $this->heading(), $this->widget('rv-my-bookings') ));
+		$order = array();
+		$spy   = static function ($query) use (&$order, $wpdb) {
+			$q = ltrim( (string) $query);
+			if (0 === stripos($q, 'UPDATE') && false !== strpos($q, $wpdb->posts) && false !== strpos($q, 'post_content')) {
+				$order[] = 'update';
+			}
+			if (0 === stripos($q, 'DELETE') && false !== strpos($q, $wpdb->postmeta) && false !== strpos($q, 'meta_id')) {
+				$order[] = 'delete-meta';
+			}
+			return $query;
+		};
+		add_filter('query', $spy);
+		try {
+			$this->assertTrue(ElementorPlainTextMigration::run());
+		} finally {
+			remove_filter('query', $spy);
+		}
+
+		$this->assertSame(array( 'update', 'delete-meta' ), $order);
+		$this->assertSame('', (string) get_post_meta($id, '_elementor_markdown_cache', true));
+	}
+
+	/**
+	 * R6: the add-on's names in the hardcoded list match the add-on's own get_name()
+	 * values, read from its source when the add-on tree sits next to this plugin.
+	 */
+	public function test_addon_widget_names_match_the_addon_source(): void
+	{
+		$plugins = dirname(__DIR__, 3);
+		$addon   = $plugins . '/mhm-rentiva-pro/src/Admin/Frontend/Widgets/Elementor';
+		if (! is_dir($addon)) {
+			$this->markTestSkipped('The add-on tree is not next to this plugin.');
+		}
+
+		$names = static function (string $dir): array {
+			$out = array();
+			foreach ( (array) glob($dir . '/*.php') as $file) {
+				$src = (string) file_get_contents( (string) $file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads plugin source.
+				if (false !== strpos($src, 'extends ElementorWidgetBase') && preg_match("/function\\s+get_name\\s*\\(\\)[^{]*\\{\\s*return\\s+'([^']+)'/", $src, $m)) {
+					$out[] = $m[1];
+				}
+			}
+			sort($out);
+			return $out;
+		};
+		$lite     = $names(dirname(__DIR__, 2) . '/src/Admin/Frontend/Widgets/Elementor');
+		$expected = $names($addon);
+		$listed   = array_values(array_diff(ElementorPlainTextMigration::widget_names(), $lite));
+		sort($listed);
+
+		$this->assertCount(17, $lite, 'The Lite widget source was not read.');
+		$this->assertNotEmpty($expected, 'The add-on widget source was not read.');
+		$this->assertSame($expected, $listed, 'The add-on widget names and the hardcoded list differ.');
 	}
 
 	public function test_hook_is_registered_after_the_migrator_and_skips_anonymous_ajax(): void
@@ -397,6 +604,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		}
 		$this->assertSame(self::LEAK, $this->content($id));
 
+		$this->cron_missing();
 		ElementorPlainTextMigration::run_pending_from_hook();
 		$this->assertStringNotContainsString('LEAKED', $this->content($id));
 	}
@@ -465,6 +673,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		$this->hold_lock();
 
 		set_current_screen('dashboard');
+		$this->cron_missing();
 		ElementorPlainTextMigration::run_pending_from_hook();
 		$this->fire_cron();
 
@@ -474,6 +683,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		$this->assertNotFalse(get_option(DatabaseMigrator::LOCK_OPTION), 'The lock of the other request was released.');
 
 		self::forget_migration_lock();
+		$this->cron_missing();
 		ElementorPlainTextMigration::run_pending_from_hook();
 		$this->assertStringNotContainsString('LEAKED', $this->content($id));
 		$this->assertSame(0, $this->queued(), 'The admin fallback finished the job but left the event.');
@@ -499,28 +709,6 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		set_current_screen('dashboard');
 		ElementorPlainTextMigration::run_pending_from_hook();
 		$this->assertStringNotContainsString('LEAKED', $this->content($id));
-	}
-
-	public function test_exhausted_attempts_stop_the_cron_chain(): void
-	{
-		global $wpdb;
-		$this->page(array( $this->widget('rv-my-bookings') ));
-		ElementorPlainTextMigration::mark_pending();
-		update_option(ElementorPlainTextMigration::ATTEMPTS_OPTION, (string) ( ElementorPlainTextMigration::MAX_ATTEMPTS - 1 ), false);
-		$break = static function ($query) {
-			return ( false !== strpos( (string) $query, 'widgetType') && 0 === stripos(ltrim( (string) $query), 'SELECT') ) ? 'SELECT ID FROM no_such_table_x' : $query;
-		};
-		add_filter('query', $break);
-		$suppress = $wpdb->suppress_errors(true);
-		try {
-			$this->fire_cron();
-		} finally {
-			remove_filter('query', $break);
-			$wpdb->suppress_errors($suppress);
-		}
-
-		$this->assertSame(ElementorPlainTextMigration::MAX_ATTEMPTS, (int) get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION));
-		$this->assertSame(0, $this->queued(), 'A job that gave up keeps re-queuing itself.');
 	}
 
 	public function test_migrator_marks_the_step_pending_on_upgrade(): void

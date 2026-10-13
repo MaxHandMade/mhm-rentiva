@@ -182,6 +182,68 @@ final class PersistedRenderLeakTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * Elementor's document element cache (`_elementor_element_cache`, on by default,
+	 * 24 h) stores what print_element() prints while `should_render_shortcode` is on.
+	 * Advanced -> Cache Settings = "Active" (`_element_cache` = 'no') makes Elementor
+	 * store the widget's rendered HTML -- the first viewer's data, served to everyone.
+	 * A Rentiva widget must always be stored as the [elementor-element] placeholder,
+	 * which renders fresh for each viewer.
+	 */
+	public function test_element_cache_setting_cannot_store_a_rentiva_render(): void
+	{
+		$data = array(
+			'id'         => 'ec' . ( ++$this->element_seq ),
+			'elType'     => 'widget',
+			'widgetType' => 'rv-my-bookings',
+			'settings'   => array( '_element_cache' => 'no' ),
+			'elements'   => array(),
+		);
+		$control = array(
+			'id'         => 'ec' . ( ++$this->element_seq ),
+			'elType'     => 'widget',
+			'widgetType' => 'heading',
+			'settings'   => array(
+				'title'          => self::HEADING,
+				'_element_cache' => 'no',
+			),
+			'elements'   => array(),
+		);
+		$elements = \Elementor\Plugin::$instance->elements_manager;
+
+		add_filter('elementor/element/should_render_shortcode', '__return_true');
+		try {
+			ob_start();
+			$elements->create_element_instance($control)->print_element();
+			$control_html = (string) ob_get_clean();
+
+			ob_start();
+			$elements->create_element_instance($data)->print_element();
+			$cached = (string) ob_get_clean();
+		} finally {
+			remove_filter('elementor/element/should_render_shortcode', '__return_true');
+		}
+
+		// Premise: "Active" really does make Elementor store rendered HTML.
+		$this->assertStringContainsString(self::HEADING, $control_html, 'The cache setting no longer stores rendered HTML; the test would prove nothing.');
+
+		$this->assertStringStartsWith('[elementor-element ', $cached, 'The Rentiva render itself went into the shared cache.');
+		$this->assertStringNotContainsString(get_the_title($this->vehicle), $cached);
+		$this->assertStringNotContainsString($this->email, $cached);
+
+		// Served from the cache, the placeholder renders each viewer's own data.
+		$this->assertStringContainsString(get_the_title($this->vehicle), do_shortcode($cached), 'The placeholder lost the first viewer\'s own render.');
+
+		$other_vehicle = ShortcodeFixtures::vehicle();
+		$other         = ShortcodeFixtures::customer();
+		ShortcodeFixtures::booking($other, $other_vehicle);
+		wp_set_current_user($other);
+		RequestSimulator::new_request();
+		$second = do_shortcode($cached);
+		$this->assertStringContainsString(get_the_title($other_vehicle), $second);
+		$this->assertStringNotContainsString(get_the_title($this->vehicle), $second, 'The second viewer saw the first viewer\'s booking.');
+	}
+
+	/**
 	 * @return array<string,array{0:class-string<\Elementor\Widget_Base>}>
 	 */
 	public function account_widgets(): array
@@ -207,6 +269,13 @@ final class PersistedRenderLeakTest extends WP_UnitTestCase
 
 		$this->assertSame('', $method->invoke($widget));
 		$this->assertSame('', $widget->render_markdown());
+		// Elementor 4.1.x (the vendored copy) calls render_content() from
+		// render_markdown() itself and never reaches the protected hook; this suite
+		// loads 4.3.x, so pin that the public entry is overridden too.
+		$this->assertSame(
+			\MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase::class,
+			( new \ReflectionMethod($widget, 'render_markdown') )->getDeclaringClass()->getName()
+		);
 	}
 
 	/**

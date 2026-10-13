@@ -80,6 +80,41 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * Markdown render, public entry: empty.
+	 *
+	 * Elementor 4.1.x renders a widget's markdown straight from render_markdown()
+	 * (render_content() + wp_strip_all_tags()), without the protected hook above; 4.3.x
+	 * routes it through get_render_content_for_markdown(). Overriding both keeps every
+	 * version's cached markdown free of per-viewer data. Same signature in both.
+	 */
+	public function render_markdown(): string {
+		return '';
+	}
+
+	/**
+	 * Element cache: always the per-request placeholder, never the rendered HTML.
+	 *
+	 * While Elementor builds its document element cache (`_elementor_element_cache`,
+	 * on by default, shared by every viewer for the TTL) it turns the
+	 * `elementor/element/should_render_shortcode` filter on, and each element answers
+	 * whether it is stored as an `[elementor-element]` placeholder (rendered fresh per
+	 * request) or as its rendered HTML. Element_Base lets the Advanced -> Cache
+	 * Settings control (`_element_cache`) decide first; "Active" would store the first
+	 * viewer's bookings, e-mail and nonces for everyone. A Rentiva widget is always
+	 * per-viewer, so the setting is ignored: whenever Elementor asks, the answer is
+	 * the placeholder. Outside cache building the filter is off and this is false,
+	 * exactly as in Element_Base.
+	 *
+	 * No return type: Element_Base::should_render_shortcode() declares none.
+	 *
+	 * @return bool
+	 */
+	protected function should_render_shortcode() {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Elementor's own filter, read exactly as Element_Base::should_render_shortcode() reads it; Elementor turns it on while it builds the element cache. Not a hook this plugin defines.
+		return (bool) apply_filters( 'elementor/element/should_render_shortcode', false );
+	}
+
+	/**
 	 * Elementor lifecycle entrypoint for controls.
 	 * Child widgets may either override this method directly or implement
 	 * register_content_controls/register_style_controls hooks.

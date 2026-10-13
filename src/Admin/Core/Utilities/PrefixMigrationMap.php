@@ -905,5 +905,9 @@ final class PrefixMigrationMap {
         'mhmrentiva_elementor_plain_text_pending',
         'mhmrentiva_elementor_plain_text_attempts',
         'mhmrentiva_elementor_plain_text_cursor',
+        // Backoff state (STALLED_SINCE_OPTION, RETRY_AT_OPTION, STOPPED_OPTION).
+        'mhmrentiva_elementor_plain_text_stalled_since',
+        'mhmrentiva_elementor_plain_text_retry_at',
+        'mhmrentiva_elementor_plain_text_stopped',
     ];
 }

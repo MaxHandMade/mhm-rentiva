@@ -25,8 +25,10 @@ if (! defined('ABSPATH')) {
  *
  * DatabaseMigrator (plugins_loaded, before Elementor is up) only marks the work
  * pending and queues a WP-Cron event; each event runs one batch and queues the next
- * while work remains. admin_init is the fallback lane (as for ElementorStyleIdMigration).
- * Both share DatabaseMigrator's lock and a bounded number of attempts per batch.
+ * while work remains. admin_init is the fallback lane, used only when the event is
+ * missing or overdue. Both share DatabaseMigrator's lock. A batch that makes no
+ * progress is retried with a growing delay (BACKOFF), not abandoned after a burst;
+ * only a job stalled for MAX_STALL stops, and says so in the log.
  */
 final class ElementorPlainTextMigration {
 
@@ -34,8 +36,24 @@ final class ElementorPlainTextMigration {
 	public const PENDING_OPTION  = 'mhmrentiva_elementor_plain_text_pending';
 	public const ATTEMPTS_OPTION = 'mhmrentiva_elementor_plain_text_attempts';
 	public const CURSOR_OPTION   = 'mhmrentiva_elementor_plain_text_cursor';
-	public const MAX_ATTEMPTS    = 3;
 	public const BATCH           = 50;
+
+	/** When the current run of failed batches began (unix time). */
+	public const STALLED_SINCE_OPTION = 'mhmrentiva_elementor_plain_text_stalled_since';
+	/** No batch before this time (unix time): the backoff gate. */
+	public const RETRY_AT_OPTION = 'mhmrentiva_elementor_plain_text_retry_at';
+	/** Set (unix time) when the job stopped after MAX_STALL without progress. */
+	public const STOPPED_OPTION = 'mhmrentiva_elementor_plain_text_stopped';
+
+	/**
+	 * Delay before the next try after the 1st, 2nd, 3rd and every later failed batch:
+	 * 5 minutes, 30 minutes, 2 hours, then every 6 hours.
+	 */
+	public const BACKOFF = array( 300, 1800, 7200, 21600 );
+	/** A job that has made no progress for this long stops (and logs it). */
+	public const MAX_STALL = 7 * DAY_IN_SECONDS;
+	/** The admin fallback runs only when the cron event is this late, or missing. */
+	public const OVERDUE_AFTER = 10 * MINUTE_IN_SECONDS;
 
 	/** The hook WP-Cron fires; registered in Plugin::initialize_system_services(). */
 	public const CRON_HOOK = 'mhmrentiva_rebuild_elementor_plain_text';
@@ -140,23 +158,26 @@ final class ElementorPlainTextMigration {
 	}
 
 	/**
-	 * Called by DatabaseMigrator's 4.6.0 step: queue the work, reset the attempts and
+	 * Called by DatabaseMigrator's 4.6.0 step: queue the work from a clean state and
 	 * start the WP-Cron chain.
 	 *
 	 * The migrator replays every step on each later stamp bump; a finished job stays
-	 * finished (run() returns at once on DONE_OPTION), an unfinished one restarts.
+	 * finished (run() returns at once on DONE_OPTION), an unfinished or stopped one
+	 * restarts.
 	 */
 	public static function mark_pending(): void
 	{
 		update_option(self::PENDING_OPTION, '1', false);
-		delete_option(self::ATTEMPTS_OPTION);
-		delete_option(self::CURSOR_OPTION);
-		self::schedule(0);
+		foreach (array( self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION, self::STOPPED_OPTION ) as $option) {
+			delete_option($option);
+		}
+		// A retry queued hours ahead by an earlier run must not delay the restart.
+		self::unschedule();
+		self::schedule_at(time());
 	}
 
 	/**
-	 * The WP-Cron callback, the primary driver: one batch, then the next event while
-	 * work remains.
+	 * The WP-Cron callback, the primary driver: one batch, then the next event.
 	 *
 	 * An auto-updated site may see no admin visit for weeks, and the leaked text stays
 	 * searchable meanwhile, so the job must not wait for wp-admin. Elementor hooks its
@@ -170,10 +191,18 @@ final class ElementorPlainTextMigration {
 
 	/**
 	 * The admin_init (priority 20) fallback, behind the migrator's own request gate.
+	 *
+	 * Only when the cron chain looks dead (event missing, or more than OVERDUE_AFTER
+	 * late: WP-Cron disabled, no traffic, a fatal mid-batch): an admin page load must
+	 * not pay for up to BATCH Elementor renders while cron is doing the job.
 	 */
 	public static function run_pending_from_hook(): void
 	{
 		if (! DatabaseMigrator::context_allows(is_admin(), wp_doing_ajax(), wp_doing_cron(), defined('WP_CLI') && WP_CLI, 'admin-post.php' === ( $GLOBALS['pagenow'] ?? '' ))) {
+			return;
+		}
+		$next = wp_next_scheduled(self::CRON_HOOK);
+		if (false !== $next && $next > time() - self::OVERDUE_AFTER) {
 			return;
 		}
 
@@ -181,93 +210,126 @@ final class ElementorPlainTextMigration {
 	}
 
 	/**
-	 * Run one pending batch once Elementor is up, then keep the cron chain going.
+	 * Run one pending batch once Elementor is up, and keep the cron chain going.
 	 *
-	 * Both drivers share this method and DatabaseMigrator's lock, so a cron batch and
-	 * an admin batch (or a batch and the migration) never overlap; a busy lock spends
-	 * no attempt and only re-arms the event. A batch that keeps failing stops after
-	 * MAX_ATTEMPTS instead of replaying forever; a batch that moved forward resets the
-	 * counter, so a long job is not cut short. The attempt is spent before the work
-	 * starts, so a run that dies mid-way counts.
+	 * Cheap checks first, without the lock: nothing pending, stopped, Elementor off, or
+	 * still inside the backoff window. Then the batch runs under DatabaseMigrator's
+	 * lock, which cron, the admin fallback and the migration itself share; a busy lock
+	 * only re-arms the event a minute later.
 	 */
 	public static function maybe_run_pending(): void
 	{
-		if ('1' !== get_option(self::PENDING_OPTION)) {
+		if ('1' !== get_option(self::PENDING_OPTION) || false !== get_option(self::STOPPED_OPTION)) {
 			self::unschedule();
 			return;
 		}
-		// Elementor off: wait for it without spending an attempt. No new event: an
+		// Elementor off: wait for it without counting a failure. No new event: an
 		// inactive Elementor would keep one firing for nothing. The admin fallback, or
 		// the next stamp bump, picks the job up again.
 		if (! self::elementor_ready()) {
 			return;
 		}
+		$retry_at = (int) get_option(self::RETRY_AT_OPTION, 0);
+		if ($retry_at > time()) {
+			self::schedule_at($retry_at);
+			return;
+		}
 
-		$more = false;
-		$ran  = DatabaseMigrator::run_exclusive(static function () use (&$more): void {
-			$more = self::run_locked_batch();
+		$next = null;
+		$ran  = DatabaseMigrator::run_exclusive(static function () use (&$next): void {
+			$next = self::run_locked_batch();
 		});
 		if (! $ran) {
-			self::schedule(MINUTE_IN_SECONDS);
+			self::schedule_at(time() + MINUTE_IN_SECONDS);
 			return;
 		}
 
-		if ($more) {
-			self::schedule(0);
+		if (null === $next) {
+			self::unschedule();
 			return;
 		}
-		self::unschedule();
+		if (0 === $next) {
+			// Progress: replace the pessimistic retry event with an immediate one.
+			self::unschedule();
+		}
+		self::schedule_at(time() + $next);
 	}
 
 	/**
-	 * One batch with its attempt bookkeeping. Runs only under DatabaseMigrator's lock.
+	 * One batch with its retry bookkeeping. Runs only under DatabaseMigrator's lock.
 	 *
-	 * @return bool True when another batch should run (work left, attempts left).
+	 * Pessimistic: before the work starts the batch is recorded as failed and the
+	 * retry event is queued, so a batch that dies mid-way (timeout, fatal) still
+	 * counts and the chain survives it. A batch that moves the cursor clears that.
+	 *
+	 * @return int|null Seconds until the next batch, or null when the job is over
+	 *                  (finished, stopped, or no longer pending).
 	 */
-	private static function run_locked_batch(): bool
+	private static function run_locked_batch(): ?int
 	{
 		// Read fresh: the other driver may have finished or advanced the job while
 		// this request waited for the lock.
-		foreach (array( self::PENDING_OPTION, self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::DONE_OPTION ) as $option) {
+		foreach (array( self::PENDING_OPTION, self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::DONE_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION, self::STOPPED_OPTION ) as $option) {
 			wp_cache_delete($option, 'options');
 		}
-		if ('1' !== get_option(self::PENDING_OPTION)) {
-			return false;
+		if ('1' !== get_option(self::PENDING_OPTION) || false !== get_option(self::STOPPED_OPTION)) {
+			return null;
 		}
-		$attempts = (int) get_option(self::ATTEMPTS_OPTION, 0);
-		if ($attempts >= self::MAX_ATTEMPTS) {
-			return false;
+		$now      = time();
+		$retry_at = (int) get_option(self::RETRY_AT_OPTION, 0);
+		if ($retry_at > $now) {
+			return $retry_at - $now;
 		}
-		update_option(self::ATTEMPTS_OPTION, (string) ( $attempts + 1 ), false);
+
+		$failures = (int) get_option(self::ATTEMPTS_OPTION, 0);
+		$since    = (int) get_option(self::STALLED_SINCE_OPTION, 0);
+		if ($failures > 0 && $since > 0 && $now - $since >= self::MAX_STALL) {
+			update_option(self::STOPPED_OPTION, (string) $now, false);
+			self::log(sprintf('stopped: %d batches in a row made no progress over %d days; the next database update restarts it', $failures, (int) ( self::MAX_STALL / DAY_IN_SECONDS )));
+			return null;
+		}
+
+		$delay = self::backoff($failures + 1);
+		update_option(self::ATTEMPTS_OPTION, (string) ( $failures + 1 ), false);
+		update_option(self::STALLED_SINCE_OPTION, (string) ( $since > 0 ? $since : $now ), false);
+		update_option(self::RETRY_AT_OPTION, (string) ( $now + $delay ), false);
+		self::schedule_at($now + $delay);
 
 		$cursor = (int) get_option(self::CURSOR_OPTION, 0);
 		$done   = self::run();
 
-		if ($done) {
-			delete_option(self::PENDING_OPTION);
-			delete_option(self::ATTEMPTS_OPTION);
-			return false;
-		}
-		// The batch moved forward: the next one starts with a fresh budget.
-		if ( (int) get_option(self::CURSOR_OPTION, 0) > $cursor) {
-			delete_option(self::ATTEMPTS_OPTION);
-			return true;
-		}
-		if (self::MAX_ATTEMPTS === $attempts + 1) {
-			self::log(sprintf('gave up after %d attempts', self::MAX_ATTEMPTS));
-			return false;
+		if ($done || (int) get_option(self::CURSOR_OPTION, 0) > $cursor) {
+			foreach (array( self::ATTEMPTS_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION ) as $option) {
+				delete_option($option);
+			}
+			if ($done) {
+				delete_option(self::PENDING_OPTION);
+				return null;
+			}
+			return 0;
 		}
 
-		return true;
+		self::log(sprintf('batch %d made no progress; retrying in %d minutes', $failures + 1, (int) ( $delay / MINUTE_IN_SECONDS )));
+		return $delay;
 	}
 
 	/**
-	 * Queue the next batch unless one is already queued.
+	 * Delay after the $failures-th failed batch in a row (1-based).
 	 */
-	private static function schedule(int $delay): void
+	public static function backoff(int $failures): int
+	{
+		$index = min(max(1, $failures), count(self::BACKOFF)) - 1;
+
+		return self::BACKOFF[ $index ];
+	}
+
+	/**
+	 * Queue the next batch at $timestamp unless one is already queued.
+	 */
+	private static function schedule_at(int $timestamp): void
 	{
 		if (false === wp_next_scheduled(self::CRON_HOOK)) {
-			wp_schedule_single_event(time() + $delay, self::CRON_HOOK);
+			wp_schedule_single_event($timestamp, self::CRON_HOOK);
 		}
 	}
 
@@ -349,18 +411,20 @@ final class ElementorPlainTextMigration {
 			$dynamic_tags->set_parsing_mode($parsing_mode);
 		}
 
-		delete_post_meta($post_id, self::MARKDOWN_META);
-
-		if (get_post_field('post_content', $post_id, 'raw') === $plain_text) {
-			return true;
+		$updated = true;
+		if (get_post_field('post_content', $post_id, 'raw') !== $plain_text) {
+			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deliberately not wp_update_post(): the page must keep its post_modified, get no revision and fire no save_post. clean_post_cache() follows.
+			$updated = false !== $wpdb->update($wpdb->posts, array( 'post_content' => $plain_text ), array( 'ID' => $post_id ), array( '%s' ), array( '%d' ));
+			clean_post_cache($post_id);
 		}
 
-		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deliberately not wp_update_post(): the page must keep its post_modified, get no revision and fire no save_post. clean_post_cache() follows.
-		$updated = $wpdb->update($wpdb->posts, array( 'post_content' => $plain_text ), array( 'ID' => $post_id ), array( '%s' ), array( '%d' ));
-		clean_post_cache($post_id);
+		// After the UPDATE: a markdown request in between would otherwise re-cache the
+		// old excerpt. Dropped even when the UPDATE failed -- the cache is a leaked
+		// render either way.
+		delete_post_meta($post_id, self::MARKDOWN_META);
 
-		return false !== $updated;
+		return $updated;
 	}
 
 	private static function elementor_ready(): bool
