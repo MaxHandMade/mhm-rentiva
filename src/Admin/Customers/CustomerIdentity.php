@@ -269,6 +269,59 @@ final class CustomerIdentity {
 	}
 
 	/**
+	 * The same rule for ONE booking, answered without a query.
+	 *
+	 * For callers that already hold a booking ID and only need yes/no. It
+	 * reads the post and its two link meta keys directly, so no
+	 * pre_get_posts / posts_where / posts_pre_query callback can widen the
+	 * answer -- a WP_Query, even with suppress_filters, still runs
+	 * pre_get_posts and posts_pre_query.
+	 *
+	 * Mirrors meta_query_owned_by() under WP_Query's `post_status => 'any'`:
+	 * the post must be a booking whose status is not exclude_from_search
+	 * (trash, auto-draft), and any stored value of either key may match. The
+	 * e-mail is compared case-insensitively, as the `_ci` collation of the
+	 * postmeta table did for the meta_query.
+	 *
+	 * @param int    $booking_id Candidate booking ID.
+	 * @param int    $user_id    Account ID, 0 drops the user-id branch.
+	 * @param string $email      Account e-mail, '' drops the e-mail branch.
+	 * @return bool
+	 */
+	public static function booking_is_owned_by( int $booking_id, int $user_id, string $email ): bool {
+		if ( $booking_id <= 0 ) {
+			return false;
+		}
+
+		$post = get_post( $booking_id );
+		if ( ! $post instanceof \WP_Post || 'mhmrentiva_booking' !== $post->post_type ) {
+			return false;
+		}
+
+		if ( in_array( $post->post_status, get_post_stati( array( 'exclude_from_search' => true ) ), true ) ) {
+			return false;
+		}
+
+		if ( $user_id > 0 ) {
+			foreach ( (array) get_post_meta( $booking_id, MetaKeys::BOOKING_CUSTOMER_USER_ID, false ) as $value ) {
+				if ( is_scalar( $value ) && (string) $user_id === rtrim( (string) $value, ' ' ) ) {
+					return true;
+				}
+			}
+		}
+
+		if ( '' !== $email ) {
+			foreach ( (array) get_post_meta( $booking_id, MetaKeys::BOOKING_CUSTOMER_EMAIL, false ) as $value ) {
+				if ( is_scalar( $value ) && 0 === strcasecmp( $email, rtrim( (string) $value, ' ' ) ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * The same question as is_customer(), expressed as a SQL condition.
 	 *
 	 * The Customers list needs this in SQL rather than in PHP: it paginates with
