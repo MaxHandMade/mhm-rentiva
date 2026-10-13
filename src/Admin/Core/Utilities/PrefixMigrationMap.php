@@ -909,5 +909,7 @@ final class PrefixMigrationMap {
         'mhmrentiva_elementor_plain_text_stalled_since',
         'mhmrentiva_elementor_plain_text_retry_at',
         'mhmrentiva_elementor_plain_text_stopped',
+        // FAILED_OPTION: pages waiting for a retry (post id => attempts).
+        'mhmrentiva_elementor_plain_text_failed',
     ];
 }

@@ -33,7 +33,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		parent::set_up();
 		$this->assertTrue(defined('ELEMENTOR_VERSION'), 'Elementor is not loaded; the job would measure an absence.');
 		self::forget_migration_lock();
-		foreach (array( ElementorPlainTextMigration::DONE_OPTION, ElementorPlainTextMigration::PENDING_OPTION, ElementorPlainTextMigration::ATTEMPTS_OPTION, ElementorPlainTextMigration::CURSOR_OPTION, ElementorPlainTextMigration::STALLED_SINCE_OPTION, ElementorPlainTextMigration::RETRY_AT_OPTION, ElementorPlainTextMigration::STOPPED_OPTION ) as $option) {
+		foreach (array( ElementorPlainTextMigration::DONE_OPTION, ElementorPlainTextMigration::PENDING_OPTION, ElementorPlainTextMigration::ATTEMPTS_OPTION, ElementorPlainTextMigration::CURSOR_OPTION, ElementorPlainTextMigration::STALLED_SINCE_OPTION, ElementorPlainTextMigration::RETRY_AT_OPTION, ElementorPlainTextMigration::STOPPED_OPTION, ElementorPlainTextMigration::FAILED_OPTION ) as $option) {
 			delete_option($option);
 		}
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
@@ -351,7 +351,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		add_action('elementor/widget/before_render_content', $throw);
 		$level = ob_get_level();
 		try {
-			$this->assertTrue(ElementorPlainTextMigration::run());
+			$this->assertFalse(ElementorPlainTextMigration::run(), 'The job finished with a page it could not rebuild.');
 		} finally {
 			remove_action('elementor/widget/before_render_content', $throw);
 		}
@@ -359,6 +359,148 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		$this->assertSame($level, ob_get_level(), 'An output buffer was left open.');
 		$this->assertSame(self::LEAK, $this->content($broken));
 		$this->assertStringNotContainsString('LEAKED', $this->content($fine));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::DONE_OPTION));
+		$this->assertSame(array( $broken ), array_keys( (array) get_option(ElementorPlainTextMigration::FAILED_OPTION)));
+	}
+
+	/**
+	 * Counts renders of headings by title while the returned closure is not called.
+	 *
+	 * @param array<string,int> $renders
+	 * @param array<string,int> $throw_first Title => how many renders throw before it works.
+	 */
+	private function watch_headings(array &$renders, array $throw_first): \Closure
+	{
+		$watch = static function ($widget) use (&$renders, &$throw_first): void {
+			if (! $widget instanceof \Elementor\Widget_Base || 'heading' !== $widget->get_name()) {
+				return;
+			}
+			$title              = (string) $widget->get_settings('title');
+			$renders[ $title ] = ( $renders[ $title ] ?? 0 ) + 1;
+			if (isset($throw_first[ $title ]) && $throw_first[ $title ] > 0) {
+				--$throw_first[ $title ];
+				throw new \RuntimeException('third-party widget failed for ' . $title);
+			}
+		};
+		add_action('elementor/widget/before_render_content', $watch);
+
+		return static function () use ($watch): void {
+			remove_action('elementor/widget/before_render_content', $watch);
+		};
+	}
+
+	/**
+	 * Codex P1 on #97: a page that fails once must be retried on a later run, and the
+	 * job must not be DONE in between. Pages that were rebuilt are not rendered again.
+	 */
+	public function test_page_that_fails_once_is_retried_and_the_job_waits_for_it(): void
+	{
+		$flaky   = $this->page(array( $this->widget('heading', array( 'title' => 'FLAKY' )), $this->widget('rv-my-bookings') ));
+		$good    = $this->page(array( $this->widget('heading', array( 'title' => 'GOOD' )), $this->widget('rv-my-bookings') ));
+		$renders = array();
+		$stop    = $this->watch_headings($renders, array( 'FLAKY' => 1 ));
+		try {
+			$this->assertFalse(ElementorPlainTextMigration::run());
+			$this->assertSame(self::LEAK, $this->content($flaky));
+			$this->assertStringNotContainsString('LEAKED', $this->content($good));
+			$this->assertFalse(get_option(ElementorPlainTextMigration::DONE_OPTION), 'DONE was set with a page left unrebuilt.');
+
+			$this->assertTrue(ElementorPlainTextMigration::run());
+		} finally {
+			$stop();
+		}
+
+		$this->assertStringNotContainsString('LEAKED', $this->content($flaky));
+		$this->assertSame('1', get_option(ElementorPlainTextMigration::DONE_OPTION));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::FAILED_OPTION));
+		$this->assertSame(1, $renders['GOOD'], 'A rebuilt page was processed again.');
+		$this->assertSame(2, $renders['FLAKY']);
+	}
+
+	/**
+	 * A page that never rebuilds is retried up to PAGE_MAX_ATTEMPTS, then logged with
+	 * its id and reason and dropped, so the job can complete.
+	 */
+	public function test_page_that_always_fails_is_dropped_after_the_cap_and_logged(): void
+	{
+		$broken  = $this->page(array( $this->widget('heading', array( 'title' => 'BOOM' )), $this->widget('rv-my-bookings') ));
+		$renders = array();
+		$stop    = $this->watch_headings($renders, array( 'BOOM' => PHP_INT_MAX ));
+		try {
+			for ($run = 1; $run < ElementorPlainTextMigration::PAGE_MAX_ATTEMPTS; $run++) {
+				$this->assertFalse(ElementorPlainTextMigration::run(), "Run $run finished the job.");
+				$this->assertSame($run, (int) ( (array) get_option(ElementorPlainTextMigration::FAILED_OPTION) )[ $broken ]);
+			}
+			$this->assertTrue(ElementorPlainTextMigration::run(), 'The job did not complete after the cap.');
+		} finally {
+			$stop();
+		}
+
+		$this->assertSame(ElementorPlainTextMigration::PAGE_MAX_ATTEMPTS, $renders['BOOM']);
+		$this->assertSame(self::LEAK, $this->content($broken));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::FAILED_OPTION));
+		$logged = array_filter(
+			get_posts(
+				array(
+					'post_type'   => \MHMRentiva\Admin\PostTypes\Logs\PostType::TYPE,
+					'post_status' => 'any',
+					'numberposts' => -1,
+					's'           => 'plain text rebuild',
+				)
+			),
+			static fn($p) => false !== strpos( (string) $p->post_title, 'gave up on page ' . $broken)
+		);
+		$this->assertNotEmpty($logged, 'The dropped page was not logged with its id.');
+	}
+
+	/**
+	 * A page Elementor cannot build a document for is a failure too, never an empty
+	 * rewrite of its post_content.
+	 */
+	public function test_page_without_a_document_counts_as_failed(): void
+	{
+		$id       = $this->page(array( $this->widget('rv-my-bookings') ));
+		$redirect = static function ($post_id) use ($id) {
+			return (int) $post_id === $id ? PHP_INT_MAX : $post_id;
+		};
+		add_filter('elementor/documents/get/post_id', $redirect);
+		try {
+			$this->assertFalse(ElementorPlainTextMigration::run());
+		} finally {
+			remove_filter('elementor/documents/get/post_id', $redirect);
+		}
+
+		$this->assertSame(self::LEAK, $this->content($id));
+		$this->assertSame(array( $id ), array_keys( (array) get_option(ElementorPlainTextMigration::FAILED_OPTION)));
+		$this->assertTrue(ElementorPlainTextMigration::run());
+		$this->assertStringNotContainsString('LEAKED', $this->content($id));
+	}
+
+	/**
+	 * Through cron a failing retry pass backs off like any failed batch; a retry that
+	 * clears the list counts as progress.
+	 */
+	public function test_retry_pass_uses_the_backoff(): void
+	{
+		$broken  = $this->page(array( $this->widget('heading', array( 'title' => 'BOOM' )), $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		$renders = array();
+		$stop    = $this->watch_headings($renders, array( 'BOOM' => 2 ));
+		try {
+			$this->fire_cron(); // main pass: cursor moves, the page fails.
+			$this->assertFalse(get_option(ElementorPlainTextMigration::RETRY_AT_OPTION), 'A pass that moved the cursor counted as failed.');
+			$this->fire_cron(); // retry pass: fails again, nothing moved.
+			$this->assertEqualsWithDelta(time() + 300, (int) get_option(ElementorPlainTextMigration::RETRY_AT_OPTION), 2);
+
+			update_option(ElementorPlainTextMigration::RETRY_AT_OPTION, (string) ( time() - 1 ), false);
+			$this->fire_cron(); // retry pass: works.
+		} finally {
+			$stop();
+		}
+
+		$this->assertStringNotContainsString('LEAKED', $this->content($broken));
+		$this->assertFalse(get_option(ElementorPlainTextMigration::PENDING_OPTION));
+		$this->assertSame(0, $this->queued());
 	}
 
 	public function test_without_elementor_nothing_is_touched_and_the_job_stays_pending(): void

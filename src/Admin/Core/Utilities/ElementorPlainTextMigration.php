@@ -38,6 +38,16 @@ final class ElementorPlainTextMigration {
 	public const CURSOR_OPTION   = 'mhmrentiva_elementor_plain_text_cursor';
 	public const BATCH           = 50;
 
+	/**
+	 * Pages whose rebuild failed: post id => failed attempts. They are retried after
+	 * the main pass; the job is not DONE while any remain.
+	 */
+	public const FAILED_OPTION = 'mhmrentiva_elementor_plain_text_failed';
+	/** A page that fails this many times is logged with its id and dropped. */
+	public const PAGE_MAX_ATTEMPTS = 5;
+	/** Upper bound on the failed list; a page beyond it is logged and dropped at once. */
+	public const MAX_FAILED = 1000;
+
 	/** When the current run of failed batches began (unix time). */
 	public const STALLED_SINCE_OPTION = 'mhmrentiva_elementor_plain_text_stalled_since';
 	/** No batch before this time (unix time): the backoff gate. */
@@ -110,7 +120,14 @@ final class ElementorPlainTextMigration {
 	}
 
 	/**
-	 * Rebuild one batch. True when no candidate is left after it.
+	 * Rebuild one batch. True when the job is complete.
+	 *
+	 * Main pass: the next $batch candidates after the cursor. A page whose rebuild
+	 * fails (a widget that throws, no Elementor document, a failed UPDATE) goes on
+	 * FAILED_OPTION and the cursor moves on, so one page cannot hold up the rest.
+	 * Once the main pass is exhausted, later runs retry the failed pages; the job is
+	 * never DONE while one remains. A page that fails PAGE_MAX_ATTEMPTS times is
+	 * logged with its id and reason and dropped.
 	 *
 	 * @param int $batch Pages per run.
 	 */
@@ -124,37 +141,106 @@ final class ElementorPlainTextMigration {
 		}
 
 		try {
-			$ids = self::candidates( (int) get_option(self::CURSOR_OPTION, 0), max(1, $batch));
+			$limit = max(1, $batch);
+			$ids   = self::candidates( (int) get_option(self::CURSOR_OPTION, 0), $limit);
 			if (null === $ids) {
 				return false;
 			}
 
-			// A page that cannot be rebuilt (a widget that throws, a failed UPDATE) is
-			// logged and passed over, so it cannot hold up every page after it.
-			foreach ($ids as $post_id) {
-				try {
-					$rebuilt = self::rebuild($post_id);
-				} catch (\Throwable $e) {
-					$rebuilt = false;
-					self::log(sprintf('page %d: %s: %s', $post_id, get_class($e), $e->getMessage()));
+			if (array() !== $ids) {
+				foreach ($ids as $post_id) {
+					self::attempt($post_id);
+					update_option(self::CURSOR_OPTION, (string) $post_id, false);
 				}
-				if (! $rebuilt) {
-					self::log(sprintf('page %d could not be rebuilt', $post_id));
+				// More candidates, or failed pages to retry on a later run.
+				if (count($ids) >= $limit || array() !== self::failed()) {
+					return false;
 				}
-				update_option(self::CURSOR_OPTION, (string) $post_id, false);
-			}
-
-			if (count($ids) >= max(1, $batch)) {
-				return false;
+			} else {
+				foreach (array_slice(array_keys(self::failed()), 0, $limit) as $post_id) {
+					self::attempt( (int) $post_id);
+				}
+				if (array() !== self::failed()) {
+					return false;
+				}
 			}
 
 			update_option(self::DONE_OPTION, '1', false);
 			delete_option(self::CURSOR_OPTION);
+			delete_option(self::FAILED_OPTION);
 			return true;
 		} catch (\Throwable $e) {
 			self::log('stopped by ' . get_class($e) . ': ' . $e->getMessage());
 			return false;
 		}
+	}
+
+	/**
+	 * Rebuild one page and keep FAILED_OPTION in step with the outcome.
+	 */
+	private static function attempt(int $post_id): void
+	{
+		if (! get_post($post_id) instanceof \WP_Post) {
+			// Deleted since it failed: nothing left to leak.
+			self::forget_failure($post_id);
+			return;
+		}
+		try {
+			self::rebuild($post_id);
+			self::forget_failure($post_id);
+		} catch (\Throwable $e) {
+			self::record_failure($post_id, get_class($e) . ': ' . $e->getMessage());
+		}
+	}
+
+	/**
+	 * Failed pages: post id => failed attempts.
+	 *
+	 * @return array<int,int>
+	 */
+	private static function failed(): array
+	{
+		$failed = get_option(self::FAILED_OPTION, array());
+
+		return is_array($failed) ? array_map('intval', $failed) : array();
+	}
+
+	/**
+	 * @param array<int,int> $failed
+	 */
+	private static function save_failed(array $failed): void
+	{
+		if (array() === $failed) {
+			delete_option(self::FAILED_OPTION);
+			return;
+		}
+		update_option(self::FAILED_OPTION, $failed, false);
+	}
+
+	private static function forget_failure(int $post_id): void
+	{
+		$failed = self::failed();
+		if (isset($failed[ $post_id ])) {
+			unset($failed[ $post_id ]);
+			self::save_failed($failed);
+		}
+	}
+
+	private static function record_failure(int $post_id, string $reason): void
+	{
+		$failed   = self::failed();
+		$attempts = ( $failed[ $post_id ] ?? 0 ) + 1;
+
+		if ($attempts >= self::PAGE_MAX_ATTEMPTS) {
+			unset($failed[ $post_id ]);
+			self::log(sprintf('gave up on page %d after %d attempts; its post_content keeps the old text until it is saved again: %s', $post_id, $attempts, $reason));
+		} elseif (! isset($failed[ $post_id ]) && count($failed) >= self::MAX_FAILED) {
+			self::log(sprintf('gave up on page %d: %d pages are already waiting for a retry: %s', $post_id, self::MAX_FAILED, $reason));
+		} else {
+			$failed[ $post_id ] = $attempts;
+			self::log(sprintf('page %d could not be rebuilt (attempt %d of %d): %s', $post_id, $attempts, self::PAGE_MAX_ATTEMPTS, $reason));
+		}
+		self::save_failed($failed);
 	}
 
 	/**
@@ -168,7 +254,7 @@ final class ElementorPlainTextMigration {
 	public static function mark_pending(): void
 	{
 		update_option(self::PENDING_OPTION, '1', false);
-		foreach (array( self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION, self::STOPPED_OPTION ) as $option) {
+		foreach (array( self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION, self::STOPPED_OPTION, self::FAILED_OPTION ) as $option) {
 			delete_option($option);
 		}
 		// A retry queued hours ahead by an earlier run must not delay the restart.
@@ -269,7 +355,7 @@ final class ElementorPlainTextMigration {
 	{
 		// Read fresh: the other driver may have finished or advanced the job while
 		// this request waited for the lock.
-		foreach (array( self::PENDING_OPTION, self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::DONE_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION, self::STOPPED_OPTION ) as $option) {
+		foreach (array( self::PENDING_OPTION, self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::DONE_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION, self::STOPPED_OPTION, self::FAILED_OPTION ) as $option) {
 			wp_cache_delete($option, 'options');
 		}
 		if ('1' !== get_option(self::PENDING_OPTION) || false !== get_option(self::STOPPED_OPTION)) {
@@ -295,10 +381,13 @@ final class ElementorPlainTextMigration {
 		update_option(self::RETRY_AT_OPTION, (string) ( $now + $delay ), false);
 		self::schedule_at($now + $delay);
 
-		$cursor = (int) get_option(self::CURSOR_OPTION, 0);
-		$done   = self::run();
+		$cursor  = (int) get_option(self::CURSOR_OPTION, 0);
+		$waiting = count(self::failed());
+		$done    = self::run();
 
-		if ($done || (int) get_option(self::CURSOR_OPTION, 0) > $cursor) {
+		// Progress: the cursor moved, or the retry list shrank (a page was rebuilt or
+		// dropped after its cap). A retry pass that changed nothing backs off.
+		if ($done || (int) get_option(self::CURSOR_OPTION, 0) > $cursor || count(self::failed()) < $waiting) {
 			foreach (array( self::ATTEMPTS_OPTION, self::STALLED_SINCE_OPTION, self::RETRY_AT_OPTION ) as $option) {
 				delete_option($option);
 			}
@@ -385,10 +474,20 @@ final class ElementorPlainTextMigration {
 
 	/**
 	 * Replace one page's stored plain text and drop its markdown cache.
+	 *
+	 * @throws \RuntimeException When Elementor has no document for the page or the
+	 *                           UPDATE fails; a widget's own exception passes through.
 	 */
-	private static function rebuild(int $post_id): bool
+	private static function rebuild(int $post_id): void
 	{
-		$elementor    = \Elementor\Plugin::$instance;
+		$elementor = \Elementor\Plugin::$instance;
+		$document  = $elementor->documents->get($post_id);
+		// Without a document get_plain_text() returns '' and the page's text would be
+		// wiped: a failure, not an empty page.
+		if (! $document || ! $document->get_post() instanceof \WP_Post) {
+			throw new \RuntimeException('Elementor has no document for this page');
+		}
+
 		$dynamic_tags = $elementor->dynamic_tags;
 		$parsing_mode = $dynamic_tags->get_parsing_mode();
 		$editor       = $elementor->editor;
@@ -424,7 +523,11 @@ final class ElementorPlainTextMigration {
 		// render either way.
 		delete_post_meta($post_id, self::MARKDOWN_META);
 
-		return $updated;
+		if (! $updated) {
+			global $wpdb;
+			// The message only reaches AdvancedLogger, but escape it like any output.
+			throw new \RuntimeException(esc_html('the posts table update failed: ' . $wpdb->last_error));
+		}
 	}
 
 	private static function elementor_ready(): bool
