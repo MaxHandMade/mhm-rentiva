@@ -51,6 +51,35 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * Plain-text render: nothing, on purpose.
+	 *
+	 * Elementor's DB::save_plain_text() calls this for every widget when a page is
+	 * saved and stores the output in wp_posts.post_content, where search, excerpts,
+	 * feeds and the REST API serve it to any visitor. That render runs as the saving
+	 * admin, and Rentiva widgets render per-viewer data: bookings, payments,
+	 * favourites, the e-mail address, live nonces. A stored, shared copy must never
+	 * carry any of it. Visitors see no change: the page itself is rendered from
+	 * _elementor_data on every view, for the viewer at hand.
+	 *
+	 * No return type: Widget_Base::render_plain_content() declares none.
+	 *
+	 * @return void
+	 */
+	public function render_plain_content() {}
+
+	/**
+	 * Markdown render: empty, for the same reason as render_plain_content().
+	 *
+	 * Elementor's markdown-render module caches this output of the first requester
+	 * in the `_elementor_markdown_cache` post meta and serves it to every crawler.
+	 * Returning '' makes Widget_Base::render_markdown() skip the widget. On an
+	 * Elementor without that module this is an unused method.
+	 */
+	protected function get_render_content_for_markdown(): string {
+		return '';
+	}
+
+	/**
 	 * Elementor lifecycle entrypoint for controls.
 	 * Child widgets may either override this method directly or implement
 	 * register_content_controls/register_style_controls hooks.
