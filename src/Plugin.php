@@ -631,6 +631,8 @@ final class Plugin {
 		// Finishes the 4.5.0 Elementor style id step after the migrator (priority 10)
 		// queued it in the same request; Elementor's managers exist by now.
 		add_action('admin_init', array( Admin\Core\Utilities\ElementorStyleIdMigration::class, 'run_pending_from_hook' ), 20, 0);
+		// Same lane for the 4.6.0 plain text rebuild (one batch per admin request).
+		add_action('admin_init', array( Admin\Core\Utilities\ElementorPlainTextMigration::class, 'run_pending_from_hook' ), 20, 0);
 
 		// Taxonomy migration (vehicle_cat → vehicle_category)
 		add_action('admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5);

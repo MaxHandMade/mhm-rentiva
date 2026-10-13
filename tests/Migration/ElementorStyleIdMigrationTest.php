@@ -689,7 +689,7 @@ final class ElementorStyleIdMigrationTest extends WP_UnitTestCase
 
 		DatabaseMigrator::run_migrations();
 
-		$this->assertSame('4.5.0', get_option('mhmrentiva_db_version'));
+		$this->assertSame('4.6.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('1', get_option(ElementorStyleIdMigration::PENDING_OPTION));
 		// Elementor's managers do not exist yet on plugins_loaded: the step only queues.
 		$this->assertSame(array( 'genel-stil_typography_font_family' => 'Lora' ), $this->settings($id, $w['id']));

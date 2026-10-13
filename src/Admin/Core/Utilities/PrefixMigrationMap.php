@@ -882,5 +882,12 @@ final class PrefixMigrationMap {
         'mhmrentiva_elementor_style_ids_migrated',
         'mhmrentiva_elementor_style_ids_pending',
         'mhmrentiva_elementor_style_ids_attempts',
+        // Elementor plain text rebuild (DB schema 4.6.0): ElementorPlainTextMigration's
+        // DONE_OPTION, PENDING_OPTION, ATTEMPTS_OPTION and the batch CURSOR_OPTION.
+        // New in 4.6.0, no legacy spelling.
+        'mhmrentiva_elementor_plain_text_rebuilt',
+        'mhmrentiva_elementor_plain_text_pending',
+        'mhmrentiva_elementor_plain_text_attempts',
+        'mhmrentiva_elementor_plain_text_cursor',
     ];
 }
