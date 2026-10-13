@@ -37,6 +37,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 			delete_option($option);
 		}
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		wp_unschedule_hook(ElementorPlainTextMigration::CRON_HOOK);
 	}
 
 	public function tear_down(): void
@@ -45,8 +46,45 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		wp_set_current_user(0);
 		set_current_screen('front');
 		RequestSimulator::new_request();
+		wp_unschedule_hook(ElementorPlainTextMigration::CRON_HOOK);
 		parent::tear_down();
 		self::forget_migration_lock();
+	}
+
+	/**
+	 * How many events of the rebuild hook are queued.
+	 */
+	private function queued(): int
+	{
+		$count = 0;
+		foreach ( (array) _get_cron_array() as $hooks) {
+			$count += isset($hooks[ ElementorPlainTextMigration::CRON_HOOK ]) ? count($hooks[ ElementorPlainTextMigration::CRON_HOOK ]) : 0;
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Fire the event the way wp-cron.php does: the event is unscheduled first, then
+	 * its hook runs (so the callback can queue the next one).
+	 */
+	private function fire_cron(): void
+	{
+		wp_unschedule_hook(ElementorPlainTextMigration::CRON_HOOK);
+		add_filter('wp_doing_cron', '__return_true');
+		try {
+			do_action(ElementorPlainTextMigration::CRON_HOOK);
+		} finally {
+			remove_filter('wp_doing_cron', '__return_true');
+		}
+	}
+
+	/**
+	 * Hold DatabaseMigrator's lock as another request would.
+	 */
+	private function hold_lock(): void
+	{
+		add_option(DatabaseMigrator::LOCK_OPTION, (string) time(), '', false);
 	}
 
 	// ---------------------------------------------------------------- fixtures
@@ -380,6 +418,111 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 		$this->assertSame(array(), array_values(array_diff($registered, ElementorPlainTextMigration::widget_names())));
 	}
 
+	public function test_queued_job_schedules_one_event(): void
+	{
+		ElementorPlainTextMigration::mark_pending();
+		ElementorPlainTextMigration::mark_pending();
+
+		$this->assertNotFalse(wp_next_scheduled(ElementorPlainTextMigration::CRON_HOOK));
+		$this->assertSame(1, $this->queued());
+		$this->assertSame(10, has_action(ElementorPlainTextMigration::CRON_HOOK, array( ElementorPlainTextMigration::class, 'run_from_cron' )));
+		$this->assertContains(ElementorPlainTextMigration::CRON_HOOK, \MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::plugin_cron_hooks(), 'Deactivation and uninstall would leave the event behind.');
+	}
+
+	/**
+	 * Cron is the primary driver: each event runs one batch of BATCH pages and queues
+	 * the next while work remains; the last one finishes the job and queues nothing.
+	 */
+	public function test_cron_runs_batches_and_reschedules_until_done(): void
+	{
+		$ids = array();
+		for ($i = 0; $i <= ElementorPlainTextMigration::BATCH; $i++) {
+			$ids[] = $this->page(array( $this->heading(), $this->widget('rv-vehicle-card') ));
+		}
+		ElementorPlainTextMigration::mark_pending();
+
+		$this->fire_cron();
+
+		$this->assertStringNotContainsString('LEAKED', $this->content($ids[ ElementorPlainTextMigration::BATCH - 1 ]));
+		$this->assertSame(self::LEAK, $this->content($ids[ ElementorPlainTextMigration::BATCH ]), 'One event ran more than one batch.');
+		$this->assertSame('1', get_option(ElementorPlainTextMigration::PENDING_OPTION));
+		$this->assertSame(1, $this->queued(), 'Work remains but no next event was queued.');
+
+		$this->fire_cron();
+
+		$content = $this->content($ids[ ElementorPlainTextMigration::BATCH ]);
+		$this->assertStringNotContainsString('LEAKED', $content);
+		$this->assertStringContainsString(self::HEADING, $content, 'The cron render lost the core widgets.');
+		$this->assertFalse(get_option(ElementorPlainTextMigration::PENDING_OPTION));
+		$this->assertSame('1', get_option(ElementorPlainTextMigration::DONE_OPTION));
+		$this->assertSame(0, $this->queued(), 'The finished job left an event queued.');
+	}
+
+	public function test_both_drivers_are_no_ops_while_the_lock_is_held(): void
+	{
+		$id = $this->page(array( $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		$this->hold_lock();
+
+		set_current_screen('dashboard');
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->fire_cron();
+
+		$this->assertSame(self::LEAK, $this->content($id), 'A batch ran under another request lock.');
+		$this->assertFalse(get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION), 'A busy lock spent an attempt.');
+		$this->assertSame(1, $this->queued(), 'A busy lock must re-arm the event, once.');
+		$this->assertNotFalse(get_option(DatabaseMigrator::LOCK_OPTION), 'The lock of the other request was released.');
+
+		self::forget_migration_lock();
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->assertStringNotContainsString('LEAKED', $this->content($id));
+		$this->assertSame(0, $this->queued(), 'The admin fallback finished the job but left the event.');
+		$this->assertFalse(get_option(DatabaseMigrator::LOCK_OPTION), 'The batch did not release its lock.');
+	}
+
+	public function test_cron_without_elementor_waits_without_rearming(): void
+	{
+		$id = $this->page(array( $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		add_filter('mhmrentiva_elementor_plain_text_migration_available', '__return_false');
+		try {
+			$this->fire_cron();
+		} finally {
+			remove_filter('mhmrentiva_elementor_plain_text_migration_available', '__return_false');
+		}
+
+		$this->assertSame(self::LEAK, $this->content($id));
+		$this->assertSame('1', get_option(ElementorPlainTextMigration::PENDING_OPTION));
+		$this->assertSame(0, $this->queued(), 'An inactive Elementor would keep an event firing for nothing.');
+
+		// The admin fallback picks it up once Elementor is back.
+		set_current_screen('dashboard');
+		ElementorPlainTextMigration::run_pending_from_hook();
+		$this->assertStringNotContainsString('LEAKED', $this->content($id));
+	}
+
+	public function test_exhausted_attempts_stop_the_cron_chain(): void
+	{
+		global $wpdb;
+		$this->page(array( $this->widget('rv-my-bookings') ));
+		ElementorPlainTextMigration::mark_pending();
+		update_option(ElementorPlainTextMigration::ATTEMPTS_OPTION, (string) ( ElementorPlainTextMigration::MAX_ATTEMPTS - 1 ), false);
+		$break = static function ($query) {
+			return ( false !== strpos( (string) $query, 'widgetType') && 0 === stripos(ltrim( (string) $query), 'SELECT') ) ? 'SELECT ID FROM no_such_table_x' : $query;
+		};
+		add_filter('query', $break);
+		$suppress = $wpdb->suppress_errors(true);
+		try {
+			$this->fire_cron();
+		} finally {
+			remove_filter('query', $break);
+			$wpdb->suppress_errors($suppress);
+		}
+
+		$this->assertSame(ElementorPlainTextMigration::MAX_ATTEMPTS, (int) get_option(ElementorPlainTextMigration::ATTEMPTS_OPTION));
+		$this->assertSame(0, $this->queued(), 'A job that gave up keeps re-queuing itself.');
+	}
+
 	public function test_migrator_marks_the_step_pending_on_upgrade(): void
 	{
 		$id = $this->page(array( $this->widget('rv-my-bookings') ));
@@ -389,6 +532,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 
 		$this->assertSame('4.6.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('1', get_option(ElementorPlainTextMigration::PENDING_OPTION));
+		$this->assertNotFalse(wp_next_scheduled(ElementorPlainTextMigration::CRON_HOOK), 'The upgrade did not start the cron chain.');
 		// Elementor's managers do not exist yet on plugins_loaded: the step only queues.
 		$this->assertSame(self::LEAK, $this->content($id));
 	}

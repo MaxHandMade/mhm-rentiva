@@ -3305,6 +3305,30 @@ final class DatabaseMigrator {
 	}
 
 	/**
+	 * Run $work while holding LOCK_OPTION; false (and $work not run) when another
+	 * request holds it.
+	 *
+	 * For background lanes that must never overlap each other or the migration
+	 * itself -- ElementorPlainTextMigration's batch is driven by both WP-Cron and
+	 * admin_init. Not re-entrant: called inside run_migrations() it reports busy.
+	 *
+	 * @param callable():void $work
+	 */
+	public static function run_exclusive(callable $work): bool
+	{
+		if ('' !== self::$held_lock || ! self::acquire_lock()) {
+			return false;
+		}
+		try {
+			$work();
+		} finally {
+			self::release_lock();
+		}
+
+		return true;
+	}
+
+	/**
 	 * Take LOCK_OPTION. INSERT IGNORE is atomic; an expired lock is taken over
 	 * with a conditional UPDATE so exactly one racer wins. Same primitives as
 	 * the add-on's ProDatabaseMigrator::acquire_lock().

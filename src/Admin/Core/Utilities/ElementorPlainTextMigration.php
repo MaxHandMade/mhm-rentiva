@@ -23,9 +23,10 @@ if (! defined('ABSPATH')) {
  * keeps its post_modified, gets no revision and fires no save_post; then the
  * markdown cache is dropped. Revisions are not touched.
  *
- * Same lane as ElementorStyleIdMigration: DatabaseMigrator (plugins_loaded, before
- * Elementor is up) only marks the work pending; admin_init does it, one batch per
- * request, with a bounded number of attempts per batch.
+ * DatabaseMigrator (plugins_loaded, before Elementor is up) only marks the work
+ * pending and queues a WP-Cron event; each event runs one batch and queues the next
+ * while work remains. admin_init is the fallback lane (as for ElementorStyleIdMigration).
+ * Both share DatabaseMigrator's lock and a bounded number of attempts per batch.
  */
 final class ElementorPlainTextMigration {
 
@@ -35,6 +36,9 @@ final class ElementorPlainTextMigration {
 	public const CURSOR_OPTION   = 'mhmrentiva_elementor_plain_text_cursor';
 	public const MAX_ATTEMPTS    = 3;
 	public const BATCH           = 50;
+
+	/** The hook WP-Cron fires; registered in Plugin::initialize_system_services(). */
+	public const CRON_HOOK = 'mhmrentiva_rebuild_elementor_plain_text';
 
 	private const DATA_META     = '_elementor_data';
 	private const MODE_META     = '_elementor_edit_mode';
@@ -136,7 +140,8 @@ final class ElementorPlainTextMigration {
 	}
 
 	/**
-	 * Called by DatabaseMigrator's 4.6.0 step: queue the work and reset the attempts.
+	 * Called by DatabaseMigrator's 4.6.0 step: queue the work, reset the attempts and
+	 * start the WP-Cron chain.
 	 *
 	 * The migrator replays every step on each later stamp bump; a finished job stays
 	 * finished (run() returns at once on DONE_OPTION), an unfinished one restarts.
@@ -146,10 +151,25 @@ final class ElementorPlainTextMigration {
 		update_option(self::PENDING_OPTION, '1', false);
 		delete_option(self::ATTEMPTS_OPTION);
 		delete_option(self::CURSOR_OPTION);
+		self::schedule(0);
 	}
 
 	/**
-	 * The admin_init (priority 20) callback, behind the migrator's own request gate.
+	 * The WP-Cron callback, the primary driver: one batch, then the next event while
+	 * work remains.
+	 *
+	 * An auto-updated site may see no admin visit for weeks, and the leaked text stays
+	 * searchable meanwhile, so the job must not wait for wp-admin. Elementor hooks its
+	 * own init at `init` priority 0 and wp-cron.php runs events after `init`, so
+	 * Elementor is up here whenever it is active; elementor_ready() still checks.
+	 */
+	public static function run_from_cron(): void
+	{
+		self::maybe_run_pending();
+	}
+
+	/**
+	 * The admin_init (priority 20) fallback, behind the migrator's own request gate.
 	 */
 	public static function run_pending_from_hook(): void
 	{
@@ -161,24 +181,62 @@ final class ElementorPlainTextMigration {
 	}
 
 	/**
-	 * Run one pending batch once Elementor is up.
+	 * Run one pending batch once Elementor is up, then keep the cron chain going.
 	 *
-	 * A batch that keeps failing stops after MAX_ATTEMPTS instead of replaying on every
-	 * admin request; a finished batch resets the counter, so a long job is not cut short.
-	 * The attempt is spent before the work starts, so a run that dies mid-way counts.
+	 * Both drivers share this method and DatabaseMigrator's lock, so a cron batch and
+	 * an admin batch (or a batch and the migration) never overlap; a busy lock spends
+	 * no attempt and only re-arms the event. A batch that keeps failing stops after
+	 * MAX_ATTEMPTS instead of replaying forever; a batch that moved forward resets the
+	 * counter, so a long job is not cut short. The attempt is spent before the work
+	 * starts, so a run that dies mid-way counts.
 	 */
 	public static function maybe_run_pending(): void
 	{
 		if ('1' !== get_option(self::PENDING_OPTION)) {
+			self::unschedule();
 			return;
 		}
-		// Elementor off: wait for it without spending an attempt.
+		// Elementor off: wait for it without spending an attempt. No new event: an
+		// inactive Elementor would keep one firing for nothing. The admin fallback, or
+		// the next stamp bump, picks the job up again.
 		if (! self::elementor_ready()) {
 			return;
 		}
+
+		$more = false;
+		$ran  = DatabaseMigrator::run_exclusive(static function () use (&$more): void {
+			$more = self::run_locked_batch();
+		});
+		if (! $ran) {
+			self::schedule(MINUTE_IN_SECONDS);
+			return;
+		}
+
+		if ($more) {
+			self::schedule(0);
+			return;
+		}
+		self::unschedule();
+	}
+
+	/**
+	 * One batch with its attempt bookkeeping. Runs only under DatabaseMigrator's lock.
+	 *
+	 * @return bool True when another batch should run (work left, attempts left).
+	 */
+	private static function run_locked_batch(): bool
+	{
+		// Read fresh: the other driver may have finished or advanced the job while
+		// this request waited for the lock.
+		foreach (array( self::PENDING_OPTION, self::ATTEMPTS_OPTION, self::CURSOR_OPTION, self::DONE_OPTION ) as $option) {
+			wp_cache_delete($option, 'options');
+		}
+		if ('1' !== get_option(self::PENDING_OPTION)) {
+			return false;
+		}
 		$attempts = (int) get_option(self::ATTEMPTS_OPTION, 0);
 		if ($attempts >= self::MAX_ATTEMPTS) {
-			return;
+			return false;
 		}
 		update_option(self::ATTEMPTS_OPTION, (string) ( $attempts + 1 ), false);
 
@@ -188,15 +246,35 @@ final class ElementorPlainTextMigration {
 		if ($done) {
 			delete_option(self::PENDING_OPTION);
 			delete_option(self::ATTEMPTS_OPTION);
-			return;
+			return false;
 		}
 		// The batch moved forward: the next one starts with a fresh budget.
 		if ( (int) get_option(self::CURSOR_OPTION, 0) > $cursor) {
 			delete_option(self::ATTEMPTS_OPTION);
-			return;
+			return true;
 		}
 		if (self::MAX_ATTEMPTS === $attempts + 1) {
 			self::log(sprintf('gave up after %d attempts', self::MAX_ATTEMPTS));
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Queue the next batch unless one is already queued.
+	 */
+	private static function schedule(int $delay): void
+	{
+		if (false === wp_next_scheduled(self::CRON_HOOK)) {
+			wp_schedule_single_event(time() + $delay, self::CRON_HOOK);
+		}
+	}
+
+	private static function unschedule(): void
+	{
+		if (false !== wp_next_scheduled(self::CRON_HOOK)) {
+			wp_unschedule_hook(self::CRON_HOOK);
 		}
 	}
 
