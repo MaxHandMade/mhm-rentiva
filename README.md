@@ -431,8 +431,8 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 3,421 tests / 16,950 assertions (v6.2.0)
-- **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check), all on a single pinned PHP 8.2 — no PHP/WP version matrix
+- **PHPUnit**: 3,672 tests / 19,619 assertions (v6.2.1)
+- **CI Matrix**: 4 jobs (PHPCS, PHPStan, PHPUnit, Plugin Check). PHPCS, PHPStan and Plugin Check run on PHP 8.2; PHPUnit runs on PHP 8.1, 8.2, 8.3 and 8.4 on ubuntu-latest, plus a PHP 8.1 canary row on ubuntu-26.04, and every PHPUnit row also runs the whole suite as multisite. WordPress is always the latest release — no WP version matrix
 - **PHPCS**: WordPress Coding Standards via a custom ruleset (43 documented exclusions), 0 errors
 - **Test Admin Page**: Accessible from Rentiva menu
 - **Test Reports**: Downloadable test reports
@@ -707,7 +707,7 @@ mhm-rentiva/
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (3,421 tests, 16,950 assertions)
+├── tests/                  # PHPUnit suite (3,672 tests, 19,619 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
@@ -785,7 +785,7 @@ define('SCRIPT_DEBUG', true);
 - Test email notifications
 
 **Automated Testing**:
-- PHPUnit suite: 3,421 tests / 16,950 assertions (unit + WP_UnitTestCase integration)
+- PHPUnit suite: 3,672 tests / 19,619 assertions (unit + WP_UnitTestCase integration, v6.2.1)
 
 ---
 
