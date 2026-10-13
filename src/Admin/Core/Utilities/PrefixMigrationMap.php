@@ -833,6 +833,22 @@ final class PrefixMigrationMap {
     ];
 
     /**
+     * Cron hooks born AFTER the 6.0.0 rename, with no older spelling: the
+     * NO_LEGACY_SPELLING_OPTIONS reasoning applied to CRON_HOOKS (an identity
+     * pair there would make the rename step re-key a hook onto itself).
+     * bin/check-prefix-inventory.php's mode 6 (cron-hook-coverage) reads this
+     * list alongside CRON_HOOKS, and Uninstaller::plugin_cron_hooks() includes
+     * it, so deactivation and uninstall clear these events too.
+     *
+     * @var array<int,string>
+     */
+    public const NO_LEGACY_SPELLING_CRON_HOOKS = [
+        // ElementorPlainTextMigration::CRON_HOOK (DB schema 4.6.0): the single
+        // event that drives the plain text rebuild batch by batch.
+        'mhmrentiva_rebuild_elementor_plain_text',
+    ];
+
+    /**
      * Options born AFTER the 6.0.0 rename that never carried an older
      * mhm_/mhm_rentiva_ spelling -- there is no prior version of these under
      * ANY name, so they are not a rename pair and do not belong in OPTIONS
@@ -882,5 +898,18 @@ final class PrefixMigrationMap {
         'mhmrentiva_elementor_style_ids_migrated',
         'mhmrentiva_elementor_style_ids_pending',
         'mhmrentiva_elementor_style_ids_attempts',
+        // Elementor plain text rebuild (DB schema 4.6.0): ElementorPlainTextMigration's
+        // DONE_OPTION, PENDING_OPTION, ATTEMPTS_OPTION and the batch CURSOR_OPTION.
+        // New in 4.6.0, no legacy spelling.
+        'mhmrentiva_elementor_plain_text_rebuilt',
+        'mhmrentiva_elementor_plain_text_pending',
+        'mhmrentiva_elementor_plain_text_attempts',
+        'mhmrentiva_elementor_plain_text_cursor',
+        // Backoff state (STALLED_SINCE_OPTION, RETRY_AT_OPTION, STOPPED_OPTION).
+        'mhmrentiva_elementor_plain_text_stalled_since',
+        'mhmrentiva_elementor_plain_text_retry_at',
+        'mhmrentiva_elementor_plain_text_stopped',
+        // FAILED_OPTION: pages waiting for a retry (post id => attempts).
+        'mhmrentiva_elementor_plain_text_failed',
     ];
 }

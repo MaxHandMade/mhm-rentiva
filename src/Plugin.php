@@ -631,6 +631,11 @@ final class Plugin {
 		// Finishes the 4.5.0 Elementor style id step after the migrator (priority 10)
 		// queued it in the same request; Elementor's managers exist by now.
 		add_action('admin_init', array( Admin\Core\Utilities\ElementorStyleIdMigration::class, 'run_pending_from_hook' ), 20, 0);
+		// The 4.6.0 plain text rebuild: WP-Cron drives it (one batch per event, the
+		// event re-queues itself); admin_init is the fallback lane. Registered in
+		// every request context, since cron requests are neither admin nor front.
+		add_action(Admin\Core\Utilities\ElementorPlainTextMigration::CRON_HOOK, array( Admin\Core\Utilities\ElementorPlainTextMigration::class, 'run_from_cron' ), 10, 0);
+		add_action('admin_init', array( Admin\Core\Utilities\ElementorPlainTextMigration::class, 'run_pending_from_hook' ), 20, 0);
 
 		// Taxonomy migration (vehicle_cat → vehicle_category)
 		add_action('admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5);

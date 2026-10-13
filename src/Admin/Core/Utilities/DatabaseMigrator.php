@@ -34,6 +34,12 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.6.0 (2026-10-13): rebuild_elementor_plain_text_460() queues
+	 * ElementorPlainTextMigration: Elementor pages holding a Rentiva widget get
+	 * their stored plain text (post_content) rebuilt and their markdown cache
+	 * dropped, removing the saving admin's data those copies leaked. Own done
+	 * flag; queued only, like 4.5.0, because Elementor is not up yet here.
+	 *
 	 * 4.5.0 (2026-10-06): migrate_elementor_style_ids_450() queues
 	 * ElementorStyleIdMigration: the search widget's typography and the booking
 	 * form's shadow move from their language-derived ids to fixed ones, and
@@ -66,7 +72,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.5.0';
+	private const CURRENT_VERSION = '4.6.0';
 
 	/**
 	 * Whether migrate_contact_status_440() has already run once.
@@ -485,6 +491,7 @@ final class DatabaseMigrator {
 			self::migrate_contact_status_440();
 			self::migrate_contact_attachments_441();
 			self::migrate_elementor_style_ids_450();
+			self::rebuild_elementor_plain_text_460();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -1377,6 +1384,16 @@ final class DatabaseMigrator {
 	private static function migrate_elementor_style_ids_450(): void
 	{
 		ElementorStyleIdMigration::mark_pending();
+	}
+
+	/**
+	 * 4.6.0: Elementor plain text. Only queues the work (Elementor is not up yet on
+	 * plugins_loaded); ElementorPlainTextMigration::maybe_run_pending() rebuilds the
+	 * pages on admin_init, one batch per request.
+	 */
+	private static function rebuild_elementor_plain_text_460(): void
+	{
+		ElementorPlainTextMigration::mark_pending();
 	}
 
 	/**
@@ -3285,6 +3302,30 @@ final class DatabaseMigrator {
 		}
 
 		return $changed;
+	}
+
+	/**
+	 * Run $work while holding LOCK_OPTION; false (and $work not run) when another
+	 * request holds it.
+	 *
+	 * For background lanes that must never overlap each other or the migration
+	 * itself -- ElementorPlainTextMigration's batch is driven by both WP-Cron and
+	 * admin_init. Not re-entrant: called inside run_migrations() it reports busy.
+	 *
+	 * @param callable():void $work
+	 */
+	public static function run_exclusive(callable $work): bool
+	{
+		if ('' !== self::$held_lock || ! self::acquire_lock()) {
+			return false;
+		}
+		try {
+			$work();
+		} finally {
+			self::release_lock();
+		}
+
+		return true;
 	}
 
 	/**

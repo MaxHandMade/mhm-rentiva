@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.2.0
+Stable tag:        6.2.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -189,6 +189,10 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.2.1 =
+* Security: Rentiva Elementor widgets wrote the saving user's bookings, payment history, favourites, e-mail address and security tokens into the plain-text copy Elementor stores in the post content, which the site search could find on published pages. They now write nothing into Elementor's plain-text and markdown copies and are never stored in Elementor's shared element cache.
+* Fixed: a one-time background job rebuilds the stored plain text of affected Elementor pages in batches through WP-Cron, without changing their modified date or creating revisions. Purge page caches and search indexes after updating. Older revisions keep the old text and are visible only to users who can edit the page.
+
 = 6.2.0 =
 * New: Contact Messages has its own screen with tabs, search, bulk actions and reply by e-mail; attachments move to a private folder only an administrator can download from. On nginx, add the deny rule from the privacy section.
 * Changed: the customer dashboard is retired. Its shortcode, block and Elementor widget now point logged-in customers to My Account.
@@ -200,18 +204,10 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Fixed: Payment History page 2 on the WooCommerce account page, contact form type and fields, Testimonials "Load More".
 * BREAKING: ten hooks and the customer dashboard classes were removed (see changelog.json). Rentiva Pro 6.1.0 or older stops working beside this release on the vendor panel: update Rentiva Pro to 6.3.0.
 
-= 6.1.5 =
-* Fixed: the Bookings list's Pending chip never finished loading on sites with real booking data; every status chip now looks its bookings up once, by the same rule as its count.
-* Fixed: admin notices such as the licence warning pushed most admin screens down after they had drawn, showed twice on Settings > Notification Templates and vanished as a pop-up on Settings.
-* Changed: the admin menu now sits directly above WooCommerce; the Vehicle Settings live preview shows your first vehicle with a featured image.
-* Fixed: the invalid-meta cleanup under Settings > Database Cleanup deleted MHM Currency Switcher's product fixed prices and, where orders are stored as posts, each order's recorded currency and exchange rate. Keys under _mhmcs_ are left alone.
-* Fixed: the invalid-meta, orphaned-meta and old-log cleanups deleted rows even when their backup table could not be created or filled. They now delete nothing, say why, and remove a backup table left empty.
-* Fixed: two invalid-meta cleanups in the same second shared a backup table, and a table prefix over 14 characters broke its name. The name now fits up to a 29-character prefix, keeps its date where it fits, and a run without a free name deletes nothing.
-* Fixed: a cancelled cleanup showed "[object Object]" or the wrong reason instead of its own.
-* Security: the search filter's AJAX "No vehicles found" message is now escaped, as the shortcode path already was.
-* Changed: unused e-mail screen JavaScript calling four non-existent admin actions was removed; mhm/ui-core is 0.10.0.
-
 == Upgrade Notice ==
+
+= 6.2.1 =
+Privacy fix: Elementor pages with Rentiva widgets could expose the saving user's account data to site search. A background job cleans affected pages. Purge page caches and search indexes after updating.
 
 = 6.2.0 =
 Contact attachments move to a private folder and the customer dashboard is retired. Ten hooks were removed: custom code using them stops working. Rentiva Pro 6.1.0 or older breaks on the vendor panel: update Rentiva Pro to 6.3.0.

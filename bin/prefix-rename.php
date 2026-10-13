@@ -922,6 +922,12 @@ class PrefixRenamer {
 				14 => array( 'mhm_rentiva_featured_vehicles', 'mhm_rentiva_vehicles_grid', 'mhm_rentiva_vehicles_list', 'mhmrentiva_featured_vehicles', 'mhmrentiva_vehicles_grid', 'mhmrentiva_vehicles_list' ),
 			),
 		),
+		'src/Admin/Core/Utilities/ElementorPlainTextMigration.php' => array(
+			'why'      => 'the 4.6.0 plain text rebuild finds pages by the widget names stored in _elementor_data; the add-on registers its six widgets under the pre-6.0.0 spelling, so those are the only names its saved pages contain -- a swept name finds nothing and leaves the leaked post_content in place',
+			'regions'  => array(
+				0 => array( 'mhm_rentiva_messages', 'mhm_rentiva_popular_routes', 'mhm_rentiva_transfer_results', 'mhm_rentiva_transfer_search', 'mhm_rentiva_vendor_directory', 'mhm_rentiva_vendor_profile' ),
+			),
+		),
 		'src/Admin/Core/Utilities/RetiredIndexes.php' => array(
 			'why'      => 'this class exists to retire the 35 indexes still carrying pre-6.0.0 names, so its docblock and its LIST constant both have to NAME those old index names literally -- a class that could not spell the names it retires could not retire them',
 			'regions'  => array(

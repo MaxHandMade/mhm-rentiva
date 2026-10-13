@@ -146,7 +146,8 @@ final class Uninstaller {
 				array_merge(
 					$hooks,
 					array_keys( PrefixMigrationMap::CRON_HOOKS ),
-					array_values( PrefixMigrationMap::CRON_HOOKS )
+					array_values( PrefixMigrationMap::CRON_HOOKS ),
+					PrefixMigrationMap::NO_LEGACY_SPELLING_CRON_HOOKS
 				)
 			)
 		);

@@ -51,6 +51,70 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * Plain-text render: nothing, on purpose.
+	 *
+	 * Elementor's DB::save_plain_text() calls this for every widget when a page is
+	 * saved and stores the output in wp_posts.post_content, where search, excerpts,
+	 * feeds and the REST API serve it to any visitor. That render runs as the saving
+	 * admin, and Rentiva widgets render per-viewer data: bookings, payments,
+	 * favourites, the e-mail address, live nonces. A stored, shared copy must never
+	 * carry any of it. Visitors see no change: the page itself is rendered from
+	 * _elementor_data on every view, for the viewer at hand.
+	 *
+	 * No return type: Widget_Base::render_plain_content() declares none.
+	 *
+	 * @return void
+	 */
+	public function render_plain_content() {}
+
+	/**
+	 * Markdown render: empty, for the same reason as render_plain_content().
+	 *
+	 * Elementor's markdown-render module caches this output of the first requester
+	 * in the `_elementor_markdown_cache` post meta and serves it to every crawler.
+	 * Returning '' makes Widget_Base::render_markdown() skip the widget. On an
+	 * Elementor without that module this is an unused method.
+	 */
+	protected function get_render_content_for_markdown(): string {
+		return '';
+	}
+
+	/**
+	 * Markdown render, public entry: empty.
+	 *
+	 * Elementor 4.1.x renders a widget's markdown straight from render_markdown()
+	 * (render_content() + wp_strip_all_tags()), without the protected hook above; 4.3.x
+	 * routes it through get_render_content_for_markdown(). Overriding both keeps every
+	 * version's cached markdown free of per-viewer data. Same signature in both.
+	 */
+	public function render_markdown(): string {
+		return '';
+	}
+
+	/**
+	 * Element cache: always the per-request placeholder, never the rendered HTML.
+	 *
+	 * While Elementor builds its document element cache (`_elementor_element_cache`,
+	 * on by default, shared by every viewer for the TTL) it turns the
+	 * `elementor/element/should_render_shortcode` filter on, and each element answers
+	 * whether it is stored as an `[elementor-element]` placeholder (rendered fresh per
+	 * request) or as its rendered HTML. Element_Base lets the Advanced -> Cache
+	 * Settings control (`_element_cache`) decide first; "Active" would store the first
+	 * viewer's bookings, e-mail and nonces for everyone. A Rentiva widget is always
+	 * per-viewer, so the setting is ignored: whenever Elementor asks, the answer is
+	 * the placeholder. Outside cache building the filter is off and this is false,
+	 * exactly as in Element_Base.
+	 *
+	 * No return type: Element_Base::should_render_shortcode() declares none.
+	 *
+	 * @return bool
+	 */
+	protected function should_render_shortcode() {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Elementor's own filter, read exactly as Element_Base::should_render_shortcode() reads it; Elementor turns it on while it builds the element cache. Not a hook this plugin defines.
+		return (bool) apply_filters( 'elementor/element/should_render_shortcode', false );
+	}
+
+	/**
 	 * Elementor lifecycle entrypoint for controls.
 	 * Child widgets may either override this method directly or implement
 	 * register_content_controls/register_style_controls hooks.

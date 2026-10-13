@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.2.1",
+    "date": "2026-10-13",
+    "type": "patch",
+    "title": "Rentiva Elementor bileşenleri sayfayı kaydeden kullanıcının hesap verisini artık sayfanın saklanan metnine yazmıyor",
+    "summary": "6.2.1, sayfalarını Elementor ile oluşturan siteler için bir gizlilik düzeltmesi. Rentiva Elementor bileşeni içeren bir sayfa, yazı ya da şablon kaydedildiğinde Elementor yazı içeriğine sayfanın düz metin bir kopyasını da kaydediyordu ve Rentiva bileşenleri bu kopyaya kaydeden kişinin gördüklerini yazıyordu: rezervasyonlarını, ödeme geçmişini, favorilerini, e-posta adresini ve güvenlik belirteçlerini. Site araması bu kopyayı okuduğu için yayımlanmış bir sayfada bu veriyi herkes bulabiliyordu. Rentiva bileşenleri artık Elementor'un saklanan düz metin ve markdown kopyalarına hiçbir şey yazmıyor ve Elementor'un ortak öğe önbelleğine hiç alınmıyor. Güncellemeden sonra tek seferlik bir arka plan işi etkilenen her Elementor sayfasının saklanan düz metnini yeniden üretiyor; WP-Cron ile küçük partiler hâlinde çalışıyor, başarısız olan sayfaları yeniden deniyor, sayfanın değiştirilme tarihini değiştirmiyor ve revizyon oluşturmuyor. Güncellemeden sonra sayfa önbelleğinizi temizleyin ve bir arama eklentisi kullanıyorsanız dizinini yeniden oluşturun. Etkilenen bir sayfanın eski revizyonları eski metni hâlâ içeriyor; bunları yalnız o sayfayı düzenleyebilen kullanıcılar görebiliyor.",
+    "changes": [
+      "Güvenlik: Rentiva Elementor bileşenleri, bir sayfa kaydedilirken Elementor'un yazı içeriğinde sakladığı düz metin kopyaya artık hiçbir şey yazmıyor. Bu kopya sayfayı kaydeden kullanıcının rezervasyonlarını, ödeme geçmişini, favorilerini, e-posta adresini ve güvenlik belirteçlerini taşıyordu ve site araması yayımlanmış sayfalarda onu buluyordu. Ziyaretçiler bir fark görmüyor: sayfanın kendisi her ziyaretçiye yine kendi verisini gösteriyor.",
+      "Güvenlik: Rentiva Elementor bileşenleri Elementor'un markdown kopyasını da boş bırakıyor ve bir bileşenin Önbellek Ayarları Etkin olsa bile Elementor'un ortak öğe önbelleğine hiç alınmıyor.",
+      "Düzeltildi: güncellemeden sonra tek seferlik bir arka plan işi, Rentiva bileşeni içeren her Elementor sayfasının, yazısının ve şablonunun (taslaklar dahil) saklanan düz metnini yeniden üretiyor ve önbelleğe alınmış markdown kopyasını siliyor. İş WP-Cron ile 50'şerlik partiler hâlinde çalışıyor, başarısız olan sayfaları yeniden deniyor ve ilerleyemediği sürece denemeler arasında giderek daha uzun bekliyor. Sayfanın değiştirilme tarihini değiştirmiyor ve revizyon oluşturmuyor. Güncellemeden sonra sayfa önbelleğinizi temizleyin ve bir arama eklentisinin dizinini yeniden oluşturun; Elementor'un kendi önbelleği Elementor > Araçlar > Dosyaları ve verileri temizle altından temizlenebilir. Etkilenen bir sayfanın eski revizyonları eski metni hâlâ içeriyor ve yalnız o sayfayı düzenleyebilen kullanıcılar tarafından görülebiliyor."
+    ]
+  },
+  {
     "version": "6.2.0",
     "date": "2026-10-11",
     "type": "minor",

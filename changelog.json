@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.2.1",
+    "date": "2026-10-13",
+    "type": "patch",
+    "title": "Rentiva Elementor widgets no longer write the saving user's account data into a page's stored text",
+    "summary": "6.2.1 is a privacy fix for sites that build pages with Elementor. When a page, post or template holding a Rentiva Elementor widget was saved, Elementor also stored a plain-text copy of it in the post content, and the Rentiva widgets wrote into that copy what the person saving it saw: their bookings, payment history, favourites, e-mail address and security tokens. The site search reads that copy, so on a published page anyone could find this data. Rentiva widgets now write nothing into Elementor's stored plain-text and markdown copies, and they are never stored in Elementor's shared element cache. After the update, a one-time background job rebuilds the stored plain text of every affected Elementor page; it runs in small batches through WP-Cron, retries pages that fail, and does not change a page's modified date or create a revision. After updating, purge your page cache and, if you use a search plugin, rebuild its index. Older revisions of an affected page still hold the old text; only users who can edit that page can see them.",
+    "changes": [
+      "Security: Rentiva Elementor widgets no longer write anything into the plain-text copy Elementor stores in the post content when a page is saved. That copy carried the saving user's bookings, payment history, favourites, e-mail address and security tokens, and the site search found it on published pages. Visitors see no change: the page itself still shows each visitor their own data.",
+      "Security: Rentiva Elementor widgets also leave Elementor's markdown copy empty and are never stored in Elementor's shared element cache, even when a widget's Cache Settings is set to Active.",
+      "Fixed: after the update, a one-time background job rebuilds the stored plain text of every Elementor page, post and template that holds a Rentiva widget, drafts included, and drops its cached markdown copy. It runs through WP-Cron in batches of 50, retries pages that fail and waits longer between tries while it cannot make progress. It does not change a page's modified date or create a revision. Purge your page cache and rebuild a search plugin's index after updating; Elementor's own cache can be cleared under Elementor > Tools > Clear Files & Data. Older revisions of an affected page still contain the old text and are visible only to users who can edit that page."
+    ]
+  },
+  {
     "version": "6.2.0",
     "date": "2026-10-11",
     "type": "minor",

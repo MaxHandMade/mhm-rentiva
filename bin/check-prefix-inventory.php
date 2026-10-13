@@ -897,6 +897,9 @@ function runMode6(string $root): array
 {
     $violations = [];
     $cronHooks = Map::CRON_HOOKS;
+    // Hooks born after the rename have no old key; they are accounted for by
+    // NO_LEGACY_SPELLING_CRON_HOOKS, as mode 5 reads NO_LEGACY_SPELLING_OPTIONS.
+    $noLegacy = Map::NO_LEGACY_SPELLING_CRON_HOOKS;
 
     $files = [];
     exec('grep -rlE ' . escapeshellarg('wp_schedule_(single_)?event\\(') . ' ' . escapeshellarg($root . '/src') . ' --include=*.php', $files);
@@ -909,8 +912,8 @@ function runMode6(string $root): array
 
     foreach ($allFound as $name) {
         // Old key or new value -- same reasoning as mode 5.
-        if (! array_key_exists($name, $cronHooks) && ! in_array($name, $cronHooks, true)) {
-            $violations[] = "cron hook '$name' is scheduled via wp_schedule_event()/wp_schedule_single_event() but has no PrefixMigrationMap::CRON_HOOKS entry (neither old key nor new value)";
+        if (! array_key_exists($name, $cronHooks) && ! in_array($name, $cronHooks, true) && ! in_array($name, $noLegacy, true)) {
+            $violations[] = "cron hook '$name' is scheduled via wp_schedule_event()/wp_schedule_single_event() but has no PrefixMigrationMap::CRON_HOOKS entry (neither old key nor new value) and is not in NO_LEGACY_SPELLING_CRON_HOOKS";
         }
     }
     return $violations;

@@ -568,21 +568,9 @@ final class ContactForm extends AbstractShortcode {
 			return 0;
 		}
 
-		$found = get_posts(
-			array(
-				'post_type'        => 'mhmrentiva_booking',
-				'post_status'      => 'any',
-				'p'                => $booking_id,
-				'fields'           => 'ids',
-				'posts_per_page'   => 1,
-				'no_found_rows'    => true,
-				'suppress_filters' => true,
-				// One post by ID, filtered by the house ownership rule (user ID or account e-mail).
-				'meta_query'       => CustomerIdentity::meta_query_owned_by( (int) $user->ID, (string) $user->user_email), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- bounded to one post ID.
-			)
-		);
-
-		return array() !== $found ? $booking_id : 0;
+		// One post by ID against the house ownership rule (user ID or account
+		// e-mail), read directly so no query filter can widen the answer.
+		return CustomerIdentity::booking_is_owned_by($booking_id, (int) $user->ID, (string) $user->user_email) ? $booking_id : 0;
 	}
 
 	private static function vehicle_id_or_zero(int $id): int
