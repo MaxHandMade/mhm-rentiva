@@ -572,7 +572,7 @@ mhm-rentiva/
 - **CI Matrisi**: 4 iş (PHPCS, PHPStan, PHPUnit, Plugin Check). PHPCS, PHPStan ve Plugin Check PHP 8.2 üzerinde çalışır; PHPUnit ubuntu-latest üzerinde PHP 8.1, 8.2, 8.3 ve 8.4 ile, ayrıca ubuntu-26.04 üzerinde bir PHP 8.1 öncü satırıyla çalışır ve her PHPUnit satırı tüm süiti multisite olarak da koşar. WordPress her zaman son sürümdür — WP sürüm matrisi yok.
 - **PHPCS**: Kendi ruleset'i üzerinden WordPress Coding Standards uygulanır (43 belgelenmiş istisna), 0 hata.
 - **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.
-- **Belgelenmiş Baseline**: 0 hata, 16 atlanan test (her biri gerekçeli).
+- **Belgelenmiş Baseline**: 0 hata; atlanan test: 23 (tek site), 8 (tüm süit multisite olarak) — v6.2.1 CI ölçümü.
 
 ### ⚓ Geliştirici Kancaları (Hooks)
 
