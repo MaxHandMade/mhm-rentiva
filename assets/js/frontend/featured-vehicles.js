@@ -38,9 +38,12 @@
             const slideCount = container.find('.swiper-slide').length;
             const enableLoop = slideCount > columns * 2;
 
-            // Mount by selector string: in the Elementor editor the node lives in the
-            // preview iframe while this code runs in the parent realm, so Swiper's
-            // `instanceof HTMLElement` check on an element argument fails silently.
+            // Mount by selector string. In the Elementor editor the widget nodes are
+            // created in the parent (top) editor window realm and then moved into the
+            // preview iframe, while this script and Swiper run inside the iframe. So
+            // Swiper's `instanceof HTMLElement` (the iframe's HTMLElement) rejects the
+            // parent-realm node and an element argument fails silently. The selector
+            // branch uses document.querySelector and has no instanceof check.
             const id = nextId();
             el.setAttribute('data-rv-swiper', id);
             const selector = '[data-rv-swiper="' + id + '"]';

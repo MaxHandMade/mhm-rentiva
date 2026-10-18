@@ -4,9 +4,11 @@
 
 /**
  * Featured vehicles: Swiper is mounted with a selector string, not an element.
- * In the Elementor editor the widget nodes live in the preview iframe while the
- * jQuery wrappers come from the parent realm, so Swiper's `instanceof HTMLElement`
- * check on an element argument fails silently. The selector branch has no such check.
+ * In the Elementor editor the widget nodes are created in the parent (top) editor
+ * window realm and then moved into the preview iframe, while this script and Swiper
+ * run inside the iframe. Swiper's `instanceof HTMLElement` (the iframe's) rejects the
+ * parent-realm node, so an element argument fails silently. The selector branch uses
+ * document.querySelector and has no instanceof check.
  */
 describe( 'featured vehicles swiper init', () => {
 	let $;
