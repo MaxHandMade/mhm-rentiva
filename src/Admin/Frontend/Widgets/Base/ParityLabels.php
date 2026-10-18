@@ -142,6 +142,10 @@ final class ParityLabels {
 	 * Identity of the callbacks hooked to the filter: priority => unique ids, in
 	 * execution order. Changes whenever a callback is added, removed, replaced or
 	 * reordered, which a plain count would miss.
+	 *
+	 * Accepted limit: a freed closure's object id can be reused by a new closure at
+	 * the same priority, which then yields the same signature (registrations happen
+	 * once at boot).
 	 */
 	private static function hook_signature(): string {
 		$hook = $GLOBALS['wp_filter']['mhmrentiva_parity_labels'] ?? null;

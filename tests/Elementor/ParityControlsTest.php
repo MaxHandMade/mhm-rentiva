@@ -250,6 +250,7 @@ final class ParityControlsTest extends WP_UnitTestCase
 			// (b) Foreign block.json whose key is not in the shortcode schema: no section, no fatal.
 			wp_mkdir_p( $temp_dir );
 			file_put_contents( $temp_json, '{"attributes":{"showZz":{"type":"boolean","default":true}}}' );
+			$this->assertFileExists( $temp_json );
 			$manager->delete_stack( $foreign );
 			$this->assertArrayNotHasKey( 'mhmrentiva_parity_section', $foreign->get_stack( false )['controls'] ?? array() );
 
