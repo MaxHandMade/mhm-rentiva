@@ -157,4 +157,119 @@ final class ParityControlsTest extends WP_UnitTestCase
 		$this->assertContains( 'limit', $list_ids );
 		$this->assertContains( 'columns', $list_ids );
 	}
+
+	/**
+	 * The block.json the parity feature reads comes from an overridable method
+	 * (Pro widgets point it at their own assets). Each probe has its own name so
+	 * Elementor's per-name controls-stack cache never touches the real widget.
+	 */
+	public function test_parity_source_is_overridable(): void
+	{
+		$data = array(
+			'id'       => 'tprobe',
+			'elType'   => 'widget',
+			'settings' => array(),
+		);
+
+		$empty = new class( $data, array() ) extends VehiclesListWidget {
+			public function get_name(): string
+			{
+				return 'zz_parity_probe_a';
+			}
+
+			protected function get_mapped_shortcode_tag(): string
+			{
+				return 'rentiva_vehicles_list';
+			}
+
+			protected function get_parity_block_json_path(): string
+			{
+				return '';
+			}
+		};
+
+		$temp_dir  = trailingslashit( get_temp_dir() ) . 'zz-probe';
+		$temp_json = $temp_dir . '/block.json';
+
+		$foreign = new class( $data, array() ) extends VehiclesListWidget {
+			public string $path = '';
+
+			public function get_name(): string
+			{
+				return 'zz_parity_probe_b';
+			}
+
+			protected function get_mapped_shortcode_tag(): string
+			{
+				return 'rentiva_vehicles_list';
+			}
+
+			protected function get_parity_block_json_path(): string
+			{
+				return $this->path;
+			}
+		};
+		$foreign->path = $temp_json;
+
+		$lite = new class( $data, array() ) extends VehiclesListWidget {
+			public function get_name(): string
+			{
+				return 'zz_parity_probe_c';
+			}
+
+			protected function get_mapped_shortcode_tag(): string
+			{
+				return 'rentiva_vehicles_list';
+			}
+
+			protected function get_parity_block_json_path(): string
+			{
+				return trailingslashit( MHMRENTIVA_PLUGIN_DIR ) . 'assets/blocks/vehicles-list/block.json';
+			}
+		};
+
+		$manager = \Elementor\Plugin::$instance->controls_manager;
+		$parity  = static function ( \Elementor\Widget_Base $widget ) use ( $manager ): array {
+			$manager->delete_stack( $widget );
+			$stack = $widget->get_stack( false );
+			$ids   = array();
+			foreach ( (array) ( $stack['controls'] ?? array() ) as $id => $control ) {
+				if ( 'mhmrentiva_parity_section' === ( $control['section'] ?? '' ) && 'section' !== ( $control['type'] ?? '' ) ) {
+					$ids[] = (string) $id;
+				}
+			}
+			sort( $ids );
+			return $ids;
+		};
+
+		try {
+			// (a) Empty path: no parity section at all.
+			$manager->delete_stack( $empty );
+			$this->assertArrayNotHasKey( 'mhmrentiva_parity_section', $empty->get_stack( false )['controls'] ?? array() );
+
+			// (b) Foreign block.json whose key is not in the shortcode schema: no section, no fatal.
+			wp_mkdir_p( $temp_dir );
+			file_put_contents( $temp_json, '{"attributes":{"showZz":{"type":"boolean","default":true}}}' );
+			$manager->delete_stack( $foreign );
+			$this->assertArrayNotHasKey( 'mhmrentiva_parity_section', $foreign->get_stack( false )['controls'] ?? array() );
+
+			// (c) Lite's own block.json: the path is really read and matches the real widget.
+			$manager->delete_stack( $lite );
+			$this->assertArrayHasKey( 'mhmrentiva_parity_section', $lite->get_stack( false )['controls'] ?? array() );
+			$real_ids = $parity( WidgetFactory::make( VehiclesListWidget::class ) );
+			$this->assertNotEmpty( $real_ids );
+			$this->assertSame( $real_ids, $parity( $lite ) );
+		} finally {
+			if ( file_exists( $temp_json ) ) {
+				unlink( $temp_json );
+			}
+			if ( is_dir( $temp_dir ) ) {
+				rmdir( $temp_dir );
+			}
+			foreach ( array( $empty, $foreign, $lite ) as $probe ) {
+				$manager->delete_stack( $probe );
+			}
+			$manager->delete_stack( WidgetFactory::make( VehiclesListWidget::class ) );
+		}
+	}
 }
