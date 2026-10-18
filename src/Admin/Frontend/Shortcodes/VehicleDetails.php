@@ -12,9 +12,8 @@ if (!defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
-use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Services\CompareService;
@@ -695,27 +694,7 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	private static function get_booking_url( int $vehicle_id ): string {
-		$url = (string) SettingsCore::get( 'mhmrentiva_booking_url', '' );
-		if ( ! $url && class_exists( '\MHMRentiva\Admin\Core\ShortcodeUrlManager' ) ) {
-			$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url( 'rentiva_booking_form' );
-		}
-
-		$params = array( 'vehicle_id' => $vehicle_id );
-
-		// Resolve pickup location: vehicle → vendor → global default (same hierarchy as QueryHelper).
-		$location_id = (int) get_post_meta( $vehicle_id, '_mhmrentiva_location_id', true );
-		if ( ! $location_id ) {
-			$vendor_id   = (int) get_post_field( 'post_author', $vehicle_id );
-			$location_id = (int) get_user_meta( $vendor_id, '_mhmrentiva_vendor_location_id', true );
-		}
-		if ( ! $location_id ) {
-			$location_id = (int) SettingsCore::get( 'mhmrentiva_default_rental_location', 0 );
-		}
-		if ( $location_id > 0 ) {
-			$params['pickup_location'] = $location_id;
-		}
-
-		return (string) add_query_arg( $params, $url ?: home_url( '/' ) );
+		return BookingUrl::for_vehicle( $vehicle_id );
 	}
 
 	private static function get_vehicle_rating( int $vehicle_id ): array {

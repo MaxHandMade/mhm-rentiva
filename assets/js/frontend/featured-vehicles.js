@@ -5,6 +5,18 @@
     /**
      * Featured Vehicles Slider Initialization
      */
+    let idCounter = 0;
+
+    // Fresh, document-unique id for every mount. A re-rendered Elementor node is a
+    // copy that still carries the previous id, so an existing attribute is overwritten.
+    const nextId = () => {
+        let id;
+        do {
+            id = Date.now().toString(36) + '-' + (++idCounter);
+        } while (document.querySelector('[data-rv-swiper="' + id + '"]'));
+        return id;
+    };
+
     const initFeaturedVehicles = () => {
         $('.mhm-featured-swiper').each(function () {
             const container = $(this);
@@ -26,8 +38,18 @@
             const slideCount = container.find('.swiper-slide').length;
             const enableLoop = slideCount > columns * 2;
 
+            // Mount by selector string. In the Elementor editor the widget nodes are
+            // created in the parent (top) editor window realm and then moved into the
+            // preview iframe, while this script and Swiper run inside the iframe. So
+            // Swiper's `instanceof HTMLElement` (the iframe's HTMLElement) rejects the
+            // parent-realm node and an element argument fails silently. The selector
+            // branch uses document.querySelector and has no instanceof check.
+            const id = nextId();
+            el.setAttribute('data-rv-swiper', id);
+            const selector = '[data-rv-swiper="' + id + '"]';
+
             try {
-                new Swiper(container[0], {
+                const result = new Swiper(selector, {
                     loop: enableLoop,
                     speed: 600,
                     autoplay: autoplayEnabled ? {
@@ -36,7 +58,7 @@
                         pauseOnMouseEnter: true,
                     } : false,
                     pagination: {
-                        el: container.find('.swiper-pagination')[0],
+                        el: selector + ' .swiper-pagination',
                         clickable: true,
                     },
                     breakpoints: {
@@ -54,6 +76,9 @@
                         },
                     },
                 });
+                if (Array.isArray(result) || !result || !result.initialized) {
+                    console.warn('MHM Rentiva: Swiper did not initialise', selector);
+                }
             } catch (e) {
                 console.warn('MHM Rentiva: Swiper initialization failed', e);
             }

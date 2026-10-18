@@ -16,6 +16,7 @@ use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl;
 use Exception;
 
 
@@ -314,7 +315,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		$data['dateFormat']       = get_option('date_format', 'd.m.Y');
 		$data['timeFormat']       = get_option('time_format', 'H:i');
 		$data['locale']           = get_locale();
-		$data['bookingPageUrl']   = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
+		$data['bookingPageUrl']   = BookingUrl::base_url();
 
 		// Add messages for fallback
 		$data['messages'] = array(

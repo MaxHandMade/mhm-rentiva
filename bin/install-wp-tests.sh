@@ -19,7 +19,17 @@ download() {
 }
 
 if [[ $WP_VERSION == 'latest' ]]; then
-	WP_TESTS_TAG="trunk"
+	# `latest` downloads the newest RELEASED core, so the test library must come
+	# from that release's tag. Trunk's test bootstrap can require APIs the released
+	# core lacks. Resolve the real version number (as wp-cli's scaffold does).
+	rm -f /tmp/wp-latest.json
+	download https://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
+	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | head -n 1 | sed 's/"version":"//')
+	if [[ -z "$LATEST_VERSION" ]]; then
+		echo "Latest WordPress version could not be found (api.wordpress.org/core/version-check/1.7/)." >&2
+		exit 1
+	fi
+	WP_TESTS_TAG="tags/$LATEST_VERSION"
 else
 	WP_TESTS_TAG="tags/$WP_VERSION"
 fi
