@@ -739,7 +739,9 @@
                 payment_type: this.form.find('input[name="payment_type"]:checked').val() || this.form.find('input[name="payment_type"][type="hidden"]').val() || 'deposit',
                 payment_method: this.form.find('input[name="payment_method"]:checked').val(),
                 payment_gateway: this.form.find('input[name="payment_gateway"]:checked').val(),
-                redirect_url: this.container.attr('data-redirect-url')
+                redirect_url: this.container.attr('data-redirect-url'),
+                // Prefilled pickup location (hidden input rendered by booking-form.php); 0 when absent, as the server's int read.
+                pickup_location_id: parseInt(this.container.find('input[name="pickup_location_id"]').val(), 10) || 0
             };
 
             // Post-process dates to ISO format for server compatibility
