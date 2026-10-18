@@ -33,9 +33,25 @@
         console.warn('mhmRentivaAvailability object not defined in template, using default values');
     }
 
+    const ROOT_SELECTOR = '.rv-availability-calendar';
+    const PREVIEW_SELECTOR = '[data-rv-render="preview"]';
+    const INSTANCE_KEY = 'rvCalendar';
+
+    /**
+     * One instance per .rv-availability-calendar root. Every DOM read and write
+     * goes through this.$root (or this.$modal, the vehicle picker this
+     * instance appended to <body>), so two calendars on one page never touch
+     * each other's markup or state.
+     */
     class AvailabilityCalendar {
-        constructor() {
-            this.calendar = null;
+        /**
+         * @param {jQuery} $root The .rv-availability-calendar element.
+         */
+        constructor($root) {
+            this.$root = $root;
+            this.$modal = null;
+            // Kept for code that reads data-* off the calendar element.
+            this.calendar = $root;
             this.selectedDates = [];
             this.currentVehicleId = 0;
             this.currentLocationId = 0;
@@ -53,11 +69,74 @@
                 return new Date(dateStr);
             };
 
+            this.$root.data(INSTANCE_KEY, this);
             this.init();
         }
 
+        /**
+         * Builds an instance for every calendar root on the page that has none
+         * yet. Roots inside an editor preview root are left alone: the preview
+         * is display-only (no bindings, no requests).
+         */
+        static initAll() {
+            $(ROOT_SELECTOR).each(function () {
+                const $root = $(this);
+                if ($root.closest(PREVIEW_SELECTOR).length || $root.data(INSTANCE_KEY)) {
+                    return;
+                }
+                new AvailabilityCalendar($root);
+            });
+        }
+
+        /**
+         * The instance owning the element an event was delegated to.
+         *
+         * @param {Event} e jQuery event from a delegated handler.
+         * @return {AvailabilityCalendar|null} null when the element is not inside an initialised calendar.
+         */
+        static forEvent(e) {
+            return $(e.currentTarget).closest(ROOT_SELECTOR).data(INSTANCE_KEY) || null;
+        }
+
+        /**
+         * Document-level delegates, bound once for every instance. Each handler
+         * first resolves its instance and leaves the event untouched (no
+         * preventDefault) when there is none: same class names are printed by
+         * other components (vehicle comparison's .rv-book-now-btn links,
+         * vehicle details' .rv-calendar-day cells).
+         */
+        static bindDelegates() {
+            const delegate = (event, selector, method) => {
+                $(document).on(event, selector, (e) => {
+                    const cal = AvailabilityCalendar.forEvent(e);
+                    if (!cal) return;
+                    cal[method](e);
+                });
+            };
+
+            // Vehicle change (the no-data fallback <select> carries this class too).
+            delegate('change', '.rv-vehicle-dropdown', 'handleVehicleChange');
+
+            // Change Vehicle button
+            delegate('click', '.rv-switch-vehicle-btn', 'handleVehicleSwitch');
+
+            // Month navigation
+            delegate('click', '.rv-control-btn', 'handleMonthNavigation');
+
+            // Date selection
+            delegate('click', '.rv-calendar-day:not(.rv-day-empty):not(.rv-past):not(.rv-status-booked):not(.rv-status-maintenance)', 'handleDateClick');
+
+            // Booking button
+            delegate('click', '.rv-book-now-btn', 'handleBookingClick');
+
+            // Keyboard navigation
+            delegate('keydown', '.rv-calendar-day', 'handleKeyboardNavigation');
+
+            // Favorite button
+            delegate('click', '.rv-vcal-favorite-btn', 'handleFavoriteClick');
+        }
+
         init() {
-            this.bindEvents();
             this.initializeCalendar();
         }
 
@@ -71,36 +150,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        bindEvents() {
-            // Vehicle change
-            $(document).on('change', '.rv-vehicle-dropdown', (e) => this.handleVehicleChange(e));
-
-            // Change Vehicle button
-            $(document).on('click', '.rv-switch-vehicle-btn', (e) => this.handleVehicleSwitch(e));
-
-            // Fallback vehicle selector
-            $(document).on('change', '#rv-availability-vehicle-select-fallback', (e) => this.handleVehicleChange(e));
-
-            // Month navigation
-            $(document).on('click', '.rv-control-btn', (e) => this.handleMonthNavigation(e));
-
-            // Date selection
-            $(document).on('click', '.rv-calendar-day:not(.rv-day-empty):not(.rv-past):not(.rv-status-booked):not(.rv-status-maintenance)', (e) => this.handleDateClick(e));
-
-            // Booking button
-            $(document).on('click', '.rv-book-now-btn', (e) => this.handleBookingClick(e));
-
-            // Keyboard navigation
-            $(document).on('keydown', '.rv-calendar-day', (e) => this.handleKeyboardNavigation(e));
-
-            // Favorite button
-            $(document).on('click', '.rv-vcal-favorite-btn', (e) => this.handleFavoriteClick(e));
-        }
-
         initializeCalendar() {
-            this.calendar = $('.rv-availability-calendar');
-            if (this.calendar.length === 0) return;
-
             this.currentVehicleId = parseInt(this.calendar.data('vehicle-id')) || 0;
             this.currentLocationId = parseInt(this.calendar.data('location-id')) || 0;
             this.currentStartMonth = this.calendar.data('start-month') || this.getCurrentMonth();
@@ -113,20 +163,20 @@
         }
 
         handleVehicleChange(e) {
-            const vehicleId = parseInt($(e.target).val());
+            const vehicleId = parseInt($(e.currentTarget).val()) || 0;
             if (vehicleId === this.currentVehicleId) return;
 
             this.currentVehicleId = vehicleId;
             this.selectedDates = [];
-
-            // Update vehicle name
-            this.updateVehicleName(vehicleId);
+            // No vehicle data on this path, so the new vehicle's location is
+            // unknown: send none rather than the previous vehicle's.
+            this.currentLocationId = 0;
 
             this.loadAvailabilityData();
         }
 
         handleVehicleSwitch(event) {
-            const $btn = $(event.target).closest('.rv-switch-vehicle-btn');
+            const $btn = $(event.currentTarget);
             const vehiclesData = $btn.data('vehicles');
 
             if (vehiclesData && vehiclesData.length > 1) {
@@ -196,10 +246,13 @@
                 </div>
             `;
 
-            $('body').append(modalHtml);
+            // The modal lives outside the root (appended to <body>), so this
+            // instance keeps its own node instead of querying for it.
+            this.closeVehicleSelectionModal();
+            this.$modal = $(modalHtml).appendTo('body');
 
             // Bind events
-            $('.rv-vehicle-option').on('click', (e) => {
+            this.$modal.find('.rv-vehicle-option').on('click', (e) => {
                 const vehicleId = $(e.currentTarget).data('vehicle-id');
                 this.currentVehicleId = vehicleId;
 
@@ -209,19 +262,26 @@
                 // Load calendar data
                 this.loadAvailabilityData();
 
-                $('.rv-vehicle-selection-modal').remove();
+                this.closeVehicleSelectionModal();
             });
 
-            $('.rv-close-modal').on('click', () => {
-                $('.rv-vehicle-selection-modal').remove();
+            this.$modal.find('.rv-close-modal').on('click', () => {
+                this.closeVehicleSelectionModal();
             });
 
             // Close on backdrop click
-            $('.rv-vehicle-selection-modal').on('click', (e) => {
+            this.$modal.on('click', (e) => {
                 if (e.target === e.currentTarget) {
-                    $('.rv-vehicle-selection-modal').remove();
+                    this.closeVehicleSelectionModal();
                 }
             });
+        }
+
+        closeVehicleSelectionModal() {
+            if (this.$modal) {
+                this.$modal.remove();
+                this.$modal = null;
+            }
         }
 
         updateVehicleInfo(vehicleId) {
@@ -245,21 +305,22 @@
 
         updateVehicleDisplay(vehicleData) {
             // Track location for booking URL
-            if (vehicleData.location_id) { this.currentLocationId = parseInt(vehicleData.location_id) || 0; }
+            // Unconditional: a vehicle without a location must not keep the previous one's.
+            this.currentLocationId = parseInt(vehicleData.location_id) || 0;
             // Update vehicle image
             if (vehicleData.image) {
-                $('.rv-vehicle-image').attr('src', vehicleData.image);
-                $('.rv-vehicle-image').attr('alt', vehicleData.title || '');
+                this.$root.find('.rv-vehicle-image').attr('src', vehicleData.image);
+                this.$root.find('.rv-vehicle-image').attr('alt', vehicleData.title || '');
             }
 
             // Update vehicle name
             if (vehicleData.title) {
-                $('.rv-vehicle-title').text(vehicleData.title);
+                this.$root.find('.rv-vehicle-title').text(vehicleData.title);
             }
 
             // Update excerpt
             if (vehicleData.excerpt) {
-                $('.rv-vehicle-excerpt').text(vehicleData.excerpt);
+                this.$root.find('.rv-vehicle-excerpt').text(vehicleData.excerpt);
             }
 
             // Update Rating
@@ -268,7 +329,7 @@
                 const count = parseInt(vehicleData.rating.count || 0);
 
                 if (count > 0) {
-                    $('.rv-stars svg').each(function (index) {
+                    this.$root.find('.rv-stars svg').each(function (index) {
                         const starPos = index + 1;
                         if (starPos <= Math.floor(avg)) {
                             $(this).attr('fill', '#fbbf24').attr('stroke', '#d97706');
@@ -279,10 +340,10 @@
                             $(this).attr('fill', 'none').attr('stroke', '#cbd5e1');
                         }
                     });
-                    $('.rv-rating-count').text('(' + count + ')');
-                    $('.rv-vehicle-rating-block').show();
+                    this.$root.find('.rv-rating-count').text('(' + count + ')');
+                    this.$root.find('.rv-vehicle-rating-block').show();
                 } else {
-                    $('.rv-vehicle-rating-block').hide();
+                    this.$root.find('.rv-vehicle-rating-block').hide();
                 }
             }
 
@@ -296,21 +357,21 @@
                         </div>
                     `)
                     .join('');
-                $('.rv-vehicle-features').html(featuresHtml);
+                this.$root.find('.rv-vehicle-features').html(featuresHtml);
             }
 
             // Update price
             if (vehicleData.price !== undefined || vehicleData.formatted_price) {
                 const perDay = (window.mhmRentivaAvailability?.strings?.per_day || '/day');
                 const formatted = vehicleData.formatted_price || this.formatMoney(vehicleData.price || 0, vehicleData.currency_symbol);
-                $('.rv-vehicle-price').html(`${formatted} ${perDay}`);
+                this.$root.find('.rv-vehicle-price').html(`${formatted} ${perDay}`);
             }
 
             // Update data attributes
-            $('.rv-availability-calendar').attr('data-vehicle-id', vehicleData.id);
+            this.$root.attr('data-vehicle-id', vehicleData.id);
 
             // Update Favorite Button Status
-            const $favBtn = $('.rv-vcal-favorite-btn');
+            const $favBtn = this.$root.find('.rv-vcal-favorite-btn');
             $favBtn.data('vehicle-id', vehicleData.id); // Update ID on button
 
             if (vehicleData.is_favorite) {
@@ -328,12 +389,12 @@
         }
 
         updateAvailabilityStatus(vehicleData) {
-            const $container = $('.rv-availability-calendar');
+            const $container = this.$root;
             // Changed selector to look in header
-            const $badgeWrapper = $('.rv-vehicle-header .rv-badge-wrapper');
+            const $badgeWrapper = this.$root.find('.rv-vehicle-header .rv-badge-wrapper');
             // Updated selector to find grid items directly (wrapper removed)
             const $calendarItems = $container.find('.rv-availability-grid, .rv-calendar-hint, .rv-calendar-controls, .rv-availability-legend');
-            const $unavailableMessage = $('.rv-calendar-unavailable-message');
+            const $unavailableMessage = this.$root.find('.rv-calendar-unavailable-message');
 
             // Update or Create Badge
             if (vehicleData.is_available === false) {
@@ -349,12 +410,12 @@
                     `;
 
                     // Insert before the favorite button in the header
-                    const $favoriteBtn = $('.rv-favorite-btn');
+                    const $favoriteBtn = this.$root.find('.rv-favorite-btn');
                     if ($favoriteBtn.length > 0) {
                         $(badgeHtml).insertBefore($favoriteBtn);
                     } else {
                         // Fallback if no favorite button
-                        $('.rv-vehicle-header').append(badgeHtml);
+                        this.$root.find('.rv-vehicle-header').append(badgeHtml);
                     }
                 } else {
                     $badgeWrapper.find('.rv-badge').text(vehicleData.status_text);
@@ -393,7 +454,7 @@
 
         getSwitchVehicleButtonHtml() {
             // Retrieve vehicles list from existing button if available, or we might need it from data
-            const existingBtn = $('.rv-switch-vehicle-btn').first();
+            const existingBtn = this.$root.find('.rv-switch-vehicle-btn').first();
             if (existingBtn.length > 0) {
                 const vehiclesData = existingBtn.attr('data-vehicles'); // use attr to get string
                 if (vehiclesData) {
@@ -479,13 +540,13 @@
                 } else {
                     // New start date
                     this.selectedDates = [date];
-                    $('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
+                    this.$root.find('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
                     $day.addClass('rv-selected rv-selected-start');
                 }
             } else {
                 // Start new selection
                 this.selectedDates = [date];
-                $('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
+                this.$root.find('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
                 $day.addClass('rv-selected rv-selected-start');
             }
 
@@ -520,14 +581,14 @@
         }
 
         updateDateRangeSelection() {
-            $('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
+            this.$root.find('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
 
             if (this.selectedDates.length === 2) {
                 const startDate = this.selectedDates[0];
                 const endDate = this.selectedDates[1];
 
-                $(`.rv-calendar-day[data-date="${startDate}"]`).addClass('rv-selected rv-selected-start');
-                $(`.rv-calendar-day[data-date="${endDate}"]`).addClass('rv-selected rv-selected-end');
+                this.$root.find(`.rv-calendar-day[data-date="${startDate}"]`).addClass('rv-selected rv-selected-start');
+                this.$root.find(`.rv-calendar-day[data-date="${endDate}"]`).addClass('rv-selected rv-selected-end');
 
                 // Mark days in range
                 const start = this.parseDate(startDate);
@@ -536,14 +597,14 @@
                 for (let d = new Date(start.getTime()); d <= end; d.setDate(d.getDate() + 1)) {
                     const dateStr = this.formatDate(d);
                     if (dateStr !== startDate && dateStr !== endDate) {
-                        $(`.rv-calendar-day[data-date="${dateStr}"]`).addClass('rv-selected rv-selected-range');
+                        this.$root.find(`.rv-calendar-day[data-date="${dateStr}"]`).addClass('rv-selected rv-selected-range');
                     }
                 }
             }
         }
 
         updateSelectedDatesDisplay() {
-            const $selectedDates = $('.rv-selected-dates');
+            const $selectedDates = this.$root.find('.rv-selected-dates');
 
             if (this.selectedDates.length === 0) {
                 $selectedDates.hide();
@@ -556,18 +617,18 @@
             const endDate = this.selectedDates[1] || startDate;
 
             // Show date range
-            $('.rv-start-date').text(this.formatDisplayDate(startDate));
-            $('.rv-end-date').text(this.formatDisplayDate(endDate));
+            this.$root.find('.rv-start-date').text(this.formatDisplayDate(startDate));
+            this.$root.find('.rv-end-date').text(this.formatDisplayDate(endDate));
 
             // Calculate day count
             const daysCount = this.calculateDaysBetween(startDate, endDate);
-            $('.rv-days-count').text(daysCount);
+            this.$root.find('.rv-days-count').text(daysCount);
 
             // Calculate total price
             this.calculateTotalPrice(startDate, endDate);
 
             // Enable booking button
-            $('.rv-book-now-btn').prop('disabled', false);
+            this.$root.find('.rv-book-now-btn').prop('disabled', false);
         }
 
         calculateTotalPrice(startDate, endDate) {
@@ -591,7 +652,7 @@
                 totalPrice = daysDiff * vehiclePrice;
             }
 
-            $('.rv-price-total').text(this.formatMoney(totalPrice));
+            this.$root.find('.rv-price-total').text(this.formatMoney(totalPrice));
         }
 
         loadAvailabilityData() {
@@ -638,11 +699,11 @@
                 // Period title removed
 
                 // Update month container
-                let $monthContainer = $('.rv-month-container');
+                let $monthContainer = this.$root.find('.rv-month-container');
 
                 // If container doesn't exist (e.g. was empty state), create it
                 if ($monthContainer.length === 0) {
-                    const $grid = $('.rv-availability-grid');
+                    const $grid = this.$root.find('.rv-availability-grid');
                     // Remove no data message if exists
                     $grid.find('.rv-no-data-message').remove();
 
@@ -657,7 +718,7 @@
 
                 // Update month title
                 if (monthData.month_name && monthData.year) {
-                    $('.rv-month-name').text(monthData.month_name + ' ' + monthData.year);
+                    this.$root.find('.rv-month-name').text(monthData.month_name + ' ' + monthData.year);
                 }
 
                 // Update general statistics
@@ -691,7 +752,7 @@
         updatePricingDisplay(pricingData) {
             Object.keys(pricingData).forEach(monthKey => {
                 const monthData = pricingData[monthKey];
-                const $monthContainer = $(`.rv-month-container[data-month="${monthKey}"]`);
+                const $monthContainer = this.$root.find(`.rv-month-container[data-month="${monthKey}"]`);
 
                 if ($monthContainer.length === 0) return;
 
@@ -803,8 +864,8 @@
         }
 
         showLoading(show) {
-            const $loading = $('.rv-availability-loading');
-            const $calendar = $('.rv-availability-grid');
+            const $loading = this.$root.find('.rv-availability-loading');
+            const $calendar = this.$root.find('.rv-availability-grid');
 
             if (show) {
                 $loading.show();
@@ -989,9 +1050,12 @@
         MHMRentivaToast.show(message, { type: type });
     }
 
+    // Delegates are bound once, at load, and serve every instance.
+    AvailabilityCalendar.bindDelegates();
+
     // Initialize when page loads
     $(document).ready(function () {
-        const vCal = new AvailabilityCalendar();
+        AvailabilityCalendar.initAll();
 
         // Expose to global for coordination
         window.mhmRentivaAvailability = window.mhmRentivaAvailability || {};
