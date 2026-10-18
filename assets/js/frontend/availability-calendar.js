@@ -526,16 +526,9 @@
                     this.updateDateRangeSelection();
 
                     // Redirect to booking form
-                    // Param names carry the mhmrentiva_ prefix: they are public
-                    // query vars on WordPress's global whitelist, and the booking
-                    // page reads them back under exactly these names
-                    // (BookingForm::PUBLIC_QUERY_VARS / SearchResults::PUBLIC_QUERY_VARS).
-                    const baseUrl = window.mhmRentivaAvailability.bookingPageUrl;
-                    const redirectUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}mhmrentiva_vehicle_id=${this.currentVehicleId}&mhmrentiva_start_date=${startDate}&mhmrentiva_end_date=${date}`;
-                    if (this.currentLocationId > 0) {
-                        window.location.href = redirectUrl + '&mhmrentiva_pickup_location=' + this.currentLocationId;
-                    } else {
-                        window.location.href = redirectUrl;
+                    const url = this.buildBookingUrl();
+                    if (url) {
+                        window.location.assign(url);
                     }
                 } else {
                     // New start date
@@ -572,12 +565,58 @@
                 return;
             }
 
-            // Open booking form modal
-            const startDate = this.selectedDates[0];
-            const endDate = this.selectedDates[1] || startDate;
-            const vehicleId = this.currentVehicleId;
+            const url = this.buildBookingUrl();
+            if (url) {
+                window.location.assign(url);
+            }
+        }
 
-            this.openBookingModal(vehicleId, startDate, endDate);
+        /**
+         * The booking form URL for the current selection: the one place the
+         * redirect URL is built.
+         *
+         * Param names carry the mhmrentiva_ prefix: they are public query vars
+         * on WordPress's global whitelist, and the booking page reads them back
+         * under exactly these names (BookingForm::PUBLIC_QUERY_VARS /
+         * SearchResults::PUBLIC_QUERY_VARS). The end date is sent only for two
+         * distinct days: the booking form rejects a same-day range, so a single
+         * day sends the start date and the visitor picks the return date there.
+         *
+         * @return {string|null} null when the base URL is missing, unparsable or not http(s).
+         */
+        buildBookingUrl() {
+            const base = window.mhmRentivaAvailability?.bookingPageUrl;
+            if (typeof base !== 'string' || base === '') {
+                console.warn('mhmRentivaAvailability.bookingPageUrl is empty; no booking redirect.');
+                return null;
+            }
+
+            let url;
+            try {
+                url = new URL(base, window.location.href);
+            } catch (err) {
+                console.warn('mhmRentivaAvailability.bookingPageUrl is not a valid URL; no booking redirect.');
+                return null;
+            }
+
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+                console.warn('mhmRentivaAvailability.bookingPageUrl is not an http(s) URL; no booking redirect.');
+                return null;
+            }
+
+            const startDate = this.selectedDates[0];
+            const endDate = this.selectedDates[this.selectedDates.length - 1];
+
+            url.searchParams.set('mhmrentiva_vehicle_id', String(this.currentVehicleId));
+            url.searchParams.set('mhmrentiva_start_date', startDate);
+            if (endDate && endDate !== startDate) {
+                url.searchParams.set('mhmrentiva_end_date', endDate);
+            }
+            if (this.currentLocationId > 0) {
+                url.searchParams.set('mhmrentiva_pickup_location', String(this.currentLocationId));
+            }
+
+            return url.toString();
         }
 
         updateDateRangeSelection() {
