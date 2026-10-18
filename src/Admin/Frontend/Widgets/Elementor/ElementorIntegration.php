@@ -135,32 +135,6 @@ class ElementorIntegration {
 	}
 
 	/**
-	 * Load Elementor JavaScript files
-	 */
-	public static function enqueue_scripts(): void {
-		if ( ! self::is_elementor_active() ) {
-			return;
-		}
-
-		// Load JS file if exists
-		$js_file = MHMRENTIVA_PLUGIN_DIR . 'assets/js/frontend/elementor-widgets.js';
-		if ( file_exists( $js_file ) ) {
-			wp_enqueue_script(
-				'mhm-rentiva-elementor',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/elementor-widgets.js',
-				array( 'elementor-frontend', 'mhm-rentiva-core-js' ),
-				MHMRENTIVA_VERSION,
-				true
-			);
-
-			// The mhmRentivaElementor localize call (and the nonce it minted)
-			// formerly here were removed: elementor-widgets.js contains only
-			// empty handler stubs and never
-			// referenced this object.
-		}
-	}
-
-	/**
 	 * Load Elementor editor CSS files
 	 */
 	public static function enqueue_editor_styles(): void {
@@ -252,9 +226,8 @@ class ElementorIntegration {
 		// Register category
 		add_action( 'elementor/elements/categories_registered', array( self::class, 'register_category' ), 10 );
 
-		// Load CSS/JS
+		// Load CSS
 		add_action( 'elementor/frontend/after_enqueue_styles', array( self::class, 'enqueue_styles' ), 10 );
-		add_action( 'elementor/frontend/after_enqueue_scripts', array( self::class, 'enqueue_scripts' ), 10 );
 		add_action( 'elementor/editor/before_enqueue_styles', array( self::class, 'enqueue_editor_styles' ), 10 );
 		add_action( 'elementor/editor/before_enqueue_scripts', array( self::class, 'enqueue_editor_scripts' ), 10 );
 

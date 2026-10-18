@@ -14,6 +14,8 @@
             const self = this;
 
             $(document).on('click', '#clear-all-favorites', function (event) {
+                // Elementor preview root: inert (3B-2b).
+                if ($(event.currentTarget).closest('[data-rv-render="preview"]').length) { return; }
                 event.preventDefault();
                 self.clearAllFavorites($(this));
             });
@@ -183,6 +185,7 @@
          * Upload receipt via AJAX
          */
         handleReceiptUpload(e) {
+            if ($(e.currentTarget).closest('[data-rv-render="preview"]').length) { return; }
             const input = e.currentTarget;
             const bookingId = $(input).data('booking-id');
             const file = input.files[0];
@@ -228,6 +231,7 @@
          * Remove receipt
          */
         handleReceiptRemove(e) {
+            if ($(e.currentTarget).closest('[data-rv-render="preview"]').length) { return; }
             e.preventDefault();
 
             if (!confirm(this.config.i18n.confirm_remove_receipt || 'Are you sure you want to remove this receipt?')) {

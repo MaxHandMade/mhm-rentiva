@@ -133,7 +133,6 @@ assets/js/frontend/booking-cancellation.js
 assets/js/frontend/booking-form.js
 assets/js/frontend/checkout-payment-type.js
 assets/js/frontend/contact-form.js
-assets/js/frontend/elementor-widgets.js
 assets/js/frontend/featured-vehicles.js
 assets/js/frontend/my-account.js
 assets/js/frontend/search-results.js
@@ -340,6 +339,7 @@ src/Admin/Frontend/Shortcodes/Contact/RecipientToken.php
 src/Admin/Frontend/Shortcodes/ContactForm.php
 src/Admin/Frontend/Shortcodes/ContactMessagePostType.php
 src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
+src/Admin/Frontend/Shortcodes/Core/BookingUrl.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 src/Admin/Frontend/Shortcodes/SearchResults.php
 src/Admin/Frontend/Shortcodes/Testimonials.php
