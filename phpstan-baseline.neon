@@ -720,13 +720,13 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
-			count: 4
+			count: 3
 			path: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 6
+			count: 5
 			path: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php
 
 		-
