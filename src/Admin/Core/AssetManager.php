@@ -200,7 +200,7 @@ final class AssetManager {
 				'mhm-rentiva-swiper',
 				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.js',
 				array(),
-				'11.0.0',
+				'14.1.0',
 				true
 			);
 		}
@@ -211,7 +211,7 @@ final class AssetManager {
 				'mhm-rentiva-swiper-css',
 				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.css',
 				array(),
-				'11.0.0'
+				'14.1.0'
 			);
 		}
 		// The bundled Plus Jakarta Sans webfont is registered by
