@@ -116,6 +116,28 @@ final class ParityLabelsMemoizeTest extends WP_UnitTestCase
 		$this->assertNotSame( $a, $b );
 	}
 
+	public function test_same_callback_accepted_args_change_applies(): void
+	{
+		$callback = static function ( $dictionary = null ): array {
+			if ( is_array( $dictionary ) ) {
+				$dictionary['labels']['x'] = 'one-arg';
+				return $dictionary;
+			}
+			return array(
+				'labels'  => array( 'x' => 'zero-args' ),
+				'options' => array(),
+			);
+		};
+
+		add_filter( self::FILTER, $callback, 10, 1 );
+		$this->assertSame( 'one-arg', ParityLabels::label( 'x' ) );
+
+		// Same callback + priority: WordPress overwrites the registration in place.
+		add_filter( self::FILTER, $callback, 10, 0 );
+
+		$this->assertSame( 'zero-args', ParityLabels::label( 'x' ) );
+	}
+
 	public function test_locale_switch_uses_other_dictionary(): void
 	{
 		add_filter(

@@ -139,9 +139,11 @@ final class ParityLabels {
 	}
 
 	/**
-	 * Identity of the callbacks hooked to the filter: priority => unique ids, in
-	 * execution order. Changes whenever a callback is added, removed, replaced or
-	 * reordered, which a plain count would miss.
+	 * Identity of the callbacks hooked to the filter: priority => callback id =>
+	 * accepted_args, in execution order. Changes whenever a callback is added,
+	 * removed, replaced, reordered or re-registered with a different accepted_args
+	 * (WordPress overwrites that registration in place), which a plain count would
+	 * miss.
 	 *
 	 * Accepted limit: a freed closure's object id can be reused by a new closure at
 	 * the same priority, which then yields the same signature (registrations happen
@@ -153,7 +155,14 @@ final class ParityLabels {
 			return '';
 		}
 
-		return (string) wp_json_encode( array_map( 'array_keys', $hook->callbacks ) );
+		$signature = array();
+		foreach ( $hook->callbacks as $priority => $entries ) {
+			foreach ( $entries as $id => $entry ) {
+				$signature[ $priority ][ $id ] = (int) ( $entry['accepted_args'] ?? 0 );
+			}
+		}
+
+		return (string) wp_json_encode( $signature );
 	}
 
 	/**
