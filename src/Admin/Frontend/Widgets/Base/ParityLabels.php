@@ -35,6 +35,14 @@ final class ParityLabels {
 	private static array $cache = array();
 
 	/**
+	 * Filtered dictionary of the last lookup. Single slot, replaced when the key
+	 * (locale + hook signature) changes.
+	 *
+	 * @var array{key:string,dictionary:array{labels:array<string,string>,options:array<string,array<array-key,string>>}}|null
+	 */
+	private static ?array $filtered = null;
+
+	/**
 	 * Label of the parity section in the Elementor panel.
 	 */
 	public static function section_label(): string {
@@ -96,12 +104,18 @@ final class ParityLabels {
 	}
 
 	/**
-	 * Filtered dictionary.
+	 * Filtered dictionary, memoised per locale and per hooked callback set.
 	 *
 	 * @return array{labels:array<string,string>,options:array<string,array<array-key,string>>}
 	 */
 	private static function dictionary(): array {
 		$locale = determine_locale();
+		$key    = $locale . '|' . self::hook_signature();
+
+		if ( null !== self::$filtered && self::$filtered['key'] === $key ) {
+			return self::$filtered['dictionary'];
+		}
+
 		if ( ! isset( self::$cache[ $locale ] ) ) {
 			self::$cache[ $locale ] = self::build();
 		}
@@ -113,10 +127,51 @@ final class ParityLabels {
 		 * @param array{labels:array<string,string>,options:array<string,array<array-key,string>>} $dictionary
 		 */
 		$filtered = apply_filters( 'mhmrentiva_parity_labels', $base );
-		if ( ! is_array( $filtered ) ) {
-			return $base;
+
+		$dictionary = is_array( $filtered ) ? self::normalise( $filtered ) : $base;
+
+		self::$filtered = array(
+			'key'        => $key,
+			'dictionary' => $dictionary,
+		);
+
+		return $dictionary;
+	}
+
+	/**
+	 * Identity of the callbacks hooked to the filter: priority => callback id =>
+	 * accepted_args, in execution order. Changes whenever a callback is added,
+	 * removed, replaced, reordered or re-registered with a different accepted_args
+	 * (WordPress overwrites that registration in place), which a plain count would
+	 * miss.
+	 *
+	 * Accepted limit: a freed closure's object id can be reused by a new closure at
+	 * the same priority, which then yields the same signature (registrations happen
+	 * once at boot).
+	 */
+	private static function hook_signature(): string {
+		$hook = $GLOBALS['wp_filter']['mhmrentiva_parity_labels'] ?? null;
+		if ( ! $hook instanceof \WP_Hook ) {
+			return '';
 		}
 
+		$signature = array();
+		foreach ( $hook->callbacks as $priority => $entries ) {
+			foreach ( $entries as $id => $entry ) {
+				$signature[ $priority ][ $id ] = (int) ( $entry['accepted_args'] ?? 0 );
+			}
+		}
+
+		return (string) wp_json_encode( $signature );
+	}
+
+	/**
+	 * Keep only string labels / option labels from a filtered dictionary.
+	 *
+	 * @param array<mixed> $filtered Result of the filter.
+	 * @return array{labels:array<string,string>,options:array<string,array<array-key,string>>}
+	 */
+	private static function normalise( array $filtered ): array {
 		$labels = array();
 		foreach ( (array) ( $filtered['labels'] ?? array() ) as $key => $label ) {
 			if ( is_string( $label ) ) {

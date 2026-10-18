@@ -403,15 +403,13 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			return;
 		}
 
-		$block_slug = self::get_block_slug_by_shortcode_tag( $shortcode_tag );
-		if ( '' === $block_slug ) {
+		$json_path = $this->get_parity_block_json_path();
+		if ( '' === $json_path || ! file_exists( $json_path ) ) {
 			return;
 		}
 
-		$json_path = trailingslashit( MHMRENTIVA_PLUGIN_DIR ) . 'assets/blocks/' . $block_slug . '/block.json';
-		if ( ! file_exists( $json_path ) ) {
-			return;
-		}
+		// The block slug only qualifies control labels; it is the directory the file lives in.
+		$block_slug = basename( dirname( wp_normalize_path( $json_path ) ) );
 
 		// Local read of plugin-owned block metadata, through core's own block.json
 		// reader rather than file_get_contents() + json_decode(). Same result, one
@@ -473,6 +471,28 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		}
 
 		$this->end_controls_section();
+	}
+
+	/**
+	 * Absolute path of the block.json that feeds the parity controls.
+	 *
+	 * Lite resolves it from its own block directory through the shortcode tag map;
+	 * an add-on widget overrides this to point at its own block.json.
+	 *
+	 * @return string Path, or '' when the widget has no parity source.
+	 */
+	protected function get_parity_block_json_path(): string {
+		$shortcode_tag = $this->get_mapped_shortcode_tag();
+		if ( '' === $shortcode_tag ) {
+			return '';
+		}
+
+		$block_slug = self::get_block_slug_by_shortcode_tag( $shortcode_tag );
+		if ( '' === $block_slug ) {
+			return '';
+		}
+
+		return trailingslashit( MHMRENTIVA_PLUGIN_DIR ) . 'assets/blocks/' . $block_slug . '/block.json';
 	}
 
 	/**
