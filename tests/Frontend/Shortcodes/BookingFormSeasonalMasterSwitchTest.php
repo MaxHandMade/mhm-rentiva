@@ -64,9 +64,10 @@ final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
             'post_status' => 'publish',
         ));
         update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '1000');
-        // No `_mhmrentiva_deposit` meta -> ajax_calculate_price() forces
-        // payment_type='full' internally; deposit/remaining are not asserted
-        // on here and do not feed vehicle_total/total_price either way.
+        // No `_mhmrentiva_deposit` meta -> the deposit follows the global
+        // rental setting (DepositCalculator::resolve_rate()); deposit/remaining
+        // are not asserted on here and do not feed vehicle_total/total_price
+        // either way.
 
         $this->sandbox_option('woocommerce_calc_taxes', 'no');
     }

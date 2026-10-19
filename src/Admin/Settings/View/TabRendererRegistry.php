@@ -134,17 +134,18 @@ final class TabRendererRegistry {
 			)
 		);
 
-		// Payment tab logic moved to a filter-compliant structure
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			$this->register(
-				new BaseSettingsTabRenderer(
-					__( 'Payment Settings', 'mhm-rentiva' ),
-					'payment',
-					__( 'Configure manual payment methods and currency settings.', 'mhm-rentiva' ),
-					'\MHMRentiva\Admin\Settings\Groups\PaymentSettings'
-				)
-			);
-		}
+		// Registered whether or not WooCommerce is active: the tab carries the
+		// rental deposit setting, which matters most on a site that takes
+		// payments through WooCommerce. Its section header reports the
+		// WooCommerce status either way.
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Payment Settings', 'mhm-rentiva' ),
+				'payment',
+				__( 'Configure manual payment methods and currency settings.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\PaymentSettings'
+			)
+		);
 
 		$this->register(
 			new BaseSettingsTabRenderer(

@@ -78,7 +78,10 @@ final class SettingsSanitizer {
 				self::sanitize_email_brand_settings( $input, $defaults ),
 				self::sanitize_email_sending_settings( $input, $defaults )
 			),
-			'payment'     => self::sanitize_offline_settings( $input, $defaults ),
+			'payment'     => array_merge(
+				self::sanitize_offline_settings( $input, $defaults ),
+				self::sanitize_rental_deposit_settings( $input )
+			),
 			'system'      => self::sanitize_system_settings( $input, $defaults ),
 			'frontend'    => self::sanitize_frontend_settings( $input, $defaults ),
 			'transfer'    => self::sanitize_transfer_settings( $input, $defaults ),
@@ -601,6 +604,20 @@ final class SettingsSanitizer {
 		return array(
 			'mhmrentiva_offline_instructions' => SettingsHelper::sanitize_field( $input['mhmrentiva_offline_instructions'] ?? '', 'textarea' ),
 			'mhmrentiva_offline_accounts'     => \wp_kses_post( $input['mhmrentiva_offline_accounts'] ?? '' ),
+		);
+	}
+
+	/**
+	 * The site-wide rental deposit (Payment tab). Same shape as the transfer
+	 * deposit: an enum and a 1-100 integer rate.
+	 *
+	 * @param array<string, mixed> $input Input data.
+	 * @return array<string, mixed>
+	 */
+	private static function sanitize_rental_deposit_settings( array $input ): array {
+		return array(
+			'mhmrentiva_rental_deposit_type' => self::validate_enum( (string) ( $input['mhmrentiva_rental_deposit_type'] ?? '' ), array( 'full_payment', 'percentage' ), 'percentage' ),
+			'mhmrentiva_rental_deposit_rate' => self::get_int( $input, 'mhmrentiva_rental_deposit_rate', 10, 1, 100 ),
 		);
 	}
 

@@ -870,6 +870,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Price could not be calculated.', 'mhm-rentiva') ));
 		}
 
+		// Store the payment that was priced: a "deposit" request for a vehicle
+		// that takes no deposit (rate 0) was priced as a full payment.
+		$payment_type = (string) $deposit_result['payment_type'];
+
 		// Create booking
 		$booking_data = array(
 			'post_type'    => 'mhmrentiva_booking',

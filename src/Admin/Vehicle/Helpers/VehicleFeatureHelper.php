@@ -394,6 +394,11 @@ final class VehicleFeatureHelper {
 				if (( $raw === '' || $raw === null ) && $key === 'year') {
 					$raw = $details_meta['_mhmrentiva_model_year'] ?? $details_meta['_mhmrentiva_year'] ?? '';
 				}
+				// The deposit shown is the one charged: the vehicle's own rate or,
+				// when its field is empty, the global setting ('' = full payment).
+				if ($key === 'deposit') {
+					$raw = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::get_vehicle_deposit_value($vehicle_id);
+				}
 				$formatted = self::format_detail_value($key, $raw, $details_meta);
 
 				if ($formatted !== null) {

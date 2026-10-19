@@ -363,13 +363,23 @@ final class VehicleMeta extends AbstractMetaBox {
 		foreach ($available_details as $key => $label) {
 			$detail_values[ $key ] = $meta_data[ '_mhmrentiva_' . $key ] ?? '';
 
-			// Default Deposit: 10% (v4.9.0)
-			// Treat empty, null, or '0' as 10 to ensure persistence and visual clarity
-			if ($key === 'deposit' && ( $detail_values[ $key ] === '' || $detail_values[ $key ] === null || $detail_values[ $key ] === '0' || $detail_values[ $key ] === 0 )) {
-				$detail_values[ $key ] = '10';
+			// An empty (or legacy '0') deposit field is not an override: show it
+			// empty, so saving the screen does not pin today's global value.
+			if ($key === 'deposit' && '' === \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::normalize_vehicle_rate($detail_values[ $key ])) {
+				$detail_values[ $key ] = '';
 			}
-
 		}
+
+		// What an empty deposit field falls back to, named next to the field.
+		$global_rate         = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::global_rate();
+		$deposit_global_rate = $global_rate > 0 ? (string) $global_rate : '';
+		$deposit_global_hint = sprintf(
+			/* translators: %s: the global rental deposit, e.g. "%10" or "Full Payment". */
+			__('Leave empty to use the global setting: %s', 'mhm-rentiva'),
+			'' !== $deposit_global_rate
+				? \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::format_deposit_display($deposit_global_rate)
+				: __('Full Payment', 'mhm-rentiva')
+		);
 
 		return array(
 			'post'                  => $post,
@@ -397,6 +407,8 @@ final class VehicleMeta extends AbstractMetaBox {
 			'saved_features_order'  => $meta_data['_mhmrentiva_features_order'] ?? array(),
 			'saved_equipment_order' => $meta_data['_mhmrentiva_equipment_order'] ?? array(),
 			'detail_values'         => $detail_values,
+			'deposit_global_rate'   => $deposit_global_rate,
+			'deposit_global_hint'   => $deposit_global_hint,
 			'field_meta'            => $field_meta,
 			'location_id'           => get_post_meta($post->ID, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true),
 			// Locations come from an add-on via the filter. Empty here hides the
@@ -716,15 +728,8 @@ final class VehicleMeta extends AbstractMetaBox {
 				return self::sanitize_text_field_safe($value);
 
 			case 'mhmrentiva_deposit':
-				$clean_value = str_replace(array( '%', ' ' ), '', (string) $value);
-
-				// If empty, force the default deposit value.
-				if ($clean_value === '') {
-					return 10.0;
-				}
-
-				$deposit = floatval($clean_value);
-				return max(0, min(50, $deposit));
+				// '' = use the global rental deposit setting; otherwise 1-100.
+				return \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::normalize_vehicle_rate($value);
 
 			case 'mhmrentiva_available':
 				return self::normalize_availability($value);
@@ -817,6 +822,10 @@ final class VehicleMeta extends AbstractMetaBox {
 		foreach ($meta_fields as $field) {
 			if ($req->has($field)) {
 				$value = $req->text($field);
+				if (\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_DEPOSIT === $field) {
+					// Same rule as the meta box: '' = global setting, else 1-100.
+					$value = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::normalize_vehicle_rate($value);
+				}
 				update_post_meta($post_id, $field, $value);
 			}
 		}

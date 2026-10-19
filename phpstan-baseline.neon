@@ -478,12 +478,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
-			message: '#^Offset ''deposit_amount'' on array\{success\: true, payment_type\: ''deposit''\|''full'', deposit_amount\: float, total_amount\: float, remaining_amount\: float, deposit_type\: string\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/BookingForm.php
-
-		-
 			message: '#^Offset ''pickup_location_name'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
@@ -491,12 +485,6 @@ parameters:
 
 		-
 			message: '#^Offset ''pickup_time'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/BookingForm.php
-
-		-
-			message: '#^Offset ''remaining_amount'' on array\{success\: true, payment_type\: ''deposit''\|''full'', deposit_amount\: float, total_amount\: float, remaining_amount\: float, deposit_type\: string\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
@@ -1057,12 +1045,6 @@ parameters:
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
-			path: src/Admin/Vehicle/Meta/VehicleMeta.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
 			path: src/Admin/Vehicle/Meta/VehicleMeta.php
 
 		-

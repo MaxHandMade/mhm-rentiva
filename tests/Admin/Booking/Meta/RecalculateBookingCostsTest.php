@@ -95,6 +95,29 @@ final class RecalculateBookingCostsTest extends WP_UnitTestCase
 		$this->assertSame( 2700.0, $this->meta( $booking_id, '_mhmrentiva_remaining_amount' ) );
 	}
 
+	public function test_a_deposit_booking_keeps_its_deposit_when_the_rate_now_resolves_to_full_payment(): void
+	{
+		// The site switched rentals to "Full payment" after this booking paid a
+		// 10% deposit. Re-pricing it must not mark the rest as paid.
+		$filter = static fn () => array( 'mhmrentiva_rental_deposit_type' => 'full_payment' );
+		add_filter( 'pre_option_mhmrentiva_settings', $filter );
+		$booking_id = $this->booking(
+			'deposit',
+			array(
+				'_mhmrentiva_deposit_amount'   => '200',
+				'_mhmrentiva_remaining_amount' => '1800',
+			)
+		);
+
+		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-02', '2026-11-05' );
+		remove_filter( 'pre_option_mhmrentiva_settings', $filter );
+
+		$this->assertSame( 3000.0, $this->meta( $booking_id, '_mhmrentiva_total_price' ) );
+		$this->assertSame( 200.0, $this->meta( $booking_id, '_mhmrentiva_deposit_amount' ), 'The deposit already taken stays.' );
+		$this->assertSame( 2800.0, $this->meta( $booking_id, '_mhmrentiva_remaining_amount' ), 'The rest of the new total is still owed.' );
+		$this->assertSame( 'deposit', get_post_meta( $booking_id, '_mhmrentiva_payment_type', true ) );
+	}
+
 	public function test_weekend_days_are_priced_like_the_booking_form_prices_them(): void
 	{
 		$booking_id = $this->booking( 'deposit' );

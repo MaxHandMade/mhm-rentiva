@@ -1168,7 +1168,14 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($booking_id, '_mhmrentiva_addon_total', $result['addon_total']);
 		update_post_meta($booking_id, '_mhmrentiva_total_price', $total_price);
 
-		if ('deposit' === $payment_type || 'full' === $payment_type) {
+		if ('deposit' === $payment_type && 'full' === ( $result['payment_type'] ?? '' )) {
+			// The deposit rate now resolves to "full payment" (the site or the
+			// vehicle changed after this booking was taken). The calculator would
+			// call the whole total paid; keep the deposit the booking actually
+			// carries and leave the rest owed.
+			$deposit_amount = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', max(0.0, round($total_price - $deposit_amount, 2)));
+		} elseif ('deposit' === $payment_type || 'full' === $payment_type) {
 			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', $result['deposit_amount']);
 			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', $result['remaining_amount']);
 		}

@@ -864,7 +864,12 @@
                 window.mhmRentivaBookingForm?.enable_deposit !== '0' &&
                 window.mhmRentivaBookingForm?.enable_deposit !== 0;
 
-            if (depositEnabled && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
+            // The quote says 'full' when no deposit applies to this vehicle (its
+            // rate, else the global setting, is 0): the whole total is charged,
+            // so there is no deposit to show.
+            const depositApplies = data.payment_type !== 'full';
+
+            if (depositEnabled && depositApplies && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
                 data.deposit_amount !== undefined && data.deposit_amount > 0) {
                 this.priceElements.depositAmount.text(this.formatMoney(data.deposit_amount, currencySymbol));
                 this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
