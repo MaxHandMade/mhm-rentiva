@@ -117,6 +117,26 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 			$this->assertArrayNotHasKey( 'new_allowed_options', $GLOBALS );
 			$this->assertArrayNotHasKey( 'new_whitelist_options', $GLOBALS );
 		} finally {
+			// Consume any snapshot a failed assertion left pending first, or tear_down() would
+			// apply it again after the real state is back.
+			$this->tear_down_settings_globals();
+			self::restore_settings_globals( $real );
+		}
+	}
+
+	/** Core links the two option-group names by reference; the fixture must leave them linked. */
+	public function test_the_fixture_keeps_the_option_group_alias_linked(): void {
+		$real                              = self::snapshot_settings_globals();
+		$GLOBALS['new_allowed_options']    = array( 'probe_group' => array( 'probe_option' ) );
+		$GLOBALS['new_whitelist_options']  = &$GLOBALS['new_allowed_options'];
+
+		try {
+			$this->assert_fixture_leaves_globals_as_found();
+
+			$GLOBALS['new_allowed_options']['probe_link'] = array();
+			$this->assertArrayHasKey( 'probe_link', $GLOBALS['new_whitelist_options'], 'new_whitelist_options is no longer a reference to new_allowed_options.' );
+		} finally {
+			$this->tear_down_settings_globals();
 			self::restore_settings_globals( $real );
 		}
 	}
