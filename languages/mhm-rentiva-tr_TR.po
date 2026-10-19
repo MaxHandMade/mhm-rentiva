@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-19T01:47:51+00:00\n"
+"POT-Creation-Date: 2026-10-19T01:59:21+00:00\n"
 "PO-Revision-Date: 2026-10-12 16:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -670,9 +670,9 @@ msgstr "Fiyatlandırma türü"
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
 #: src/Admin/Booking/Meta/BookingMeta.php:719
 #: src/Admin/Booking/Meta/BookingMeta.php:995
-#: src/Admin/Booking/Meta/BookingMeta.php:1462
-#: src/Admin/Booking/Meta/BookingMeta.php:1510
-#: src/Admin/Booking/Meta/BookingMeta.php:1600
+#: src/Admin/Booking/Meta/BookingMeta.php:1517
+#: src/Admin/Booking/Meta/BookingMeta.php:1565
+#: src/Admin/Booking/Meta/BookingMeta.php:1655
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:519
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:632
@@ -1061,9 +1061,9 @@ msgstr "Geçersiz rezervasyon kimliği."
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
 #: src/Admin/Booking/Meta/BookingMeta.php:737
 #: src/Admin/Booking/Meta/BookingMeta.php:1013
-#: src/Admin/Booking/Meta/BookingMeta.php:1484
-#: src/Admin/Booking/Meta/BookingMeta.php:1532
-#: src/Admin/Booking/Meta/BookingMeta.php:1622
+#: src/Admin/Booking/Meta/BookingMeta.php:1539
+#: src/Admin/Booking/Meta/BookingMeta.php:1587
+#: src/Admin/Booking/Meta/BookingMeta.php:1677
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:48
 #: src/Admin/Emails/Templates/EmailPreview.php:123
@@ -1287,7 +1287,7 @@ msgstr "Bekleyen ödeme"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1194
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:484
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
-#: src/Admin/Booking/Meta/BookingMeta.php:1335
+#: src/Admin/Booking/Meta/BookingMeta.php:1387
 #: src/Admin/Core/AssetManager.php:924
 #: src/Admin/Emails/Core/EmailTemplates.php:474
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
@@ -1308,7 +1308,7 @@ msgstr "Bekleyen"
 
 #: src/Admin/Booking/Core/Status.php:125
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
-#: src/Admin/Booking/Meta/BookingMeta.php:1336
+#: src/Admin/Booking/Meta/BookingMeta.php:1388
 #: src/Admin/Core/AssetManager.php:925
 #: src/Admin/Emails/Core/EmailTemplates.php:475
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
@@ -1323,7 +1323,7 @@ msgstr "Onaylandı"
 
 #: src/Admin/Booking/Core/Status.php:126
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:253
-#: src/Admin/Booking/Meta/BookingMeta.php:1337
+#: src/Admin/Booking/Meta/BookingMeta.php:1389
 #: src/Admin/Core/AssetManager.php:926
 #: src/Admin/Emails/Notifications/BookingNotifications.php:155
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:71
@@ -1337,7 +1337,7 @@ msgstr "Devam ediyor"
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1207
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
-#: src/Admin/Booking/Meta/BookingMeta.php:1338
+#: src/Admin/Booking/Meta/BookingMeta.php:1390
 #: src/Admin/Core/AssetManager.php:927
 #: src/Admin/Emails/Notifications/BookingNotifications.php:156
 #: src/Admin/Frontend/Account/AccountRenderer.php:921
@@ -1358,7 +1358,7 @@ msgstr "Tamamlandı"
 #: src/Admin/Booking/Core/Status.php:128
 #: src/Admin/Booking/ListTable/BookingColumns.php:1089
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:255
-#: src/Admin/Booking/Meta/BookingMeta.php:1339
+#: src/Admin/Booking/Meta/BookingMeta.php:1391
 #: src/Admin/Core/AssetManager.php:928
 #: src/Admin/Emails/Notifications/BookingNotifications.php:157
 #: src/Admin/Emails/Templates/EmailPreview.php:241
@@ -1379,7 +1379,7 @@ msgstr "İptal edildi"
 #: src/Admin/Booking/Core/Status.php:129
 #: src/Admin/Booking/ListTable/BookingColumns.php:1085
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:486
-#: src/Admin/Booking/Meta/BookingMeta.php:1365
+#: src/Admin/Booking/Meta/BookingMeta.php:1417
 #: templates/emails/booking-created-admin.html.php:68
 msgid "Refunded"
 msgstr "İade edildi"
@@ -1946,7 +1946,7 @@ msgstr[1] "%d gün"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1084
 #: src/Admin/Booking/ListTable/BookingColumns.php:1092
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:485
-#: src/Admin/Booking/Meta/BookingMeta.php:1363
+#: src/Admin/Booking/Meta/BookingMeta.php:1415
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:94
 msgid "Paid"
 msgstr "Ödendi"
@@ -1954,7 +1954,7 @@ msgstr "Ödendi"
 #: src/Admin/Booking/ListTable/BookingColumns.php:577
 #: src/Admin/Booking/ListTable/BookingColumns.php:1083
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:483
-#: src/Admin/Booking/Meta/BookingMeta.php:1361
+#: src/Admin/Booking/Meta/BookingMeta.php:1413
 msgid "Unpaid"
 msgstr "Ödenmemiş"
 
@@ -2019,7 +2019,7 @@ msgstr "Başarısız"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1087
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:490
-#: src/Admin/Booking/Meta/BookingMeta.php:1362
+#: src/Admin/Booking/Meta/BookingMeta.php:1414
 msgid "Pending Verification"
 msgstr "Bekleyen doğrulama"
 
@@ -2408,7 +2408,7 @@ msgid "Process Refund"
 msgstr "İadeyi işle"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:489
-#: src/Admin/Booking/Meta/BookingMeta.php:1364
+#: src/Admin/Booking/Meta/BookingMeta.php:1416
 msgid "Partially Paid"
 msgstr "Kısmen ödendi"
 
@@ -2596,8 +2596,8 @@ msgid "Sending..."
 msgstr "Gönderiliyor..."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:190
-#: src/Admin/Booking/Meta/BookingMeta.php:1435
-#: src/Admin/Booking/Meta/BookingMeta.php:1586
+#: src/Admin/Booking/Meta/BookingMeta.php:1487
+#: src/Admin/Booking/Meta/BookingMeta.php:1641
 msgid "Email sent successfully!"
 msgstr "E-posta başarıyla gönderildi!"
 
@@ -2755,7 +2755,7 @@ msgid "You do not have permission to send emails."
 msgstr "E-posta gönderme izniniz yok."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:750
-#: src/Admin/Booking/Meta/BookingMeta.php:1553
+#: src/Admin/Booking/Meta/BookingMeta.php:1608
 msgid "Customer email not found."
 msgstr "Müşteri e-postası bulunamadı."
 
@@ -2917,30 +2917,30 @@ msgstr "Not ekleme izniniz yok."
 msgid "Invalid booking ID or empty note."
 msgstr "Geçersiz rezervasyon kimliği veya boş not."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1322
+#: src/Admin/Booking/Meta/BookingMeta.php:1374
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:977
 msgid "Booking created"
 msgstr "Rezervasyon oluşturuldu"
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1347
+#: src/Admin/Booking/Meta/BookingMeta.php:1399
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr "Durum değişti: %1$s → %2$s"
 
 #. translators: 1: old payment status, 2: new payment status
-#: src/Admin/Booking/Meta/BookingMeta.php:1373
+#: src/Admin/Booking/Meta/BookingMeta.php:1425
 #, php-format
 msgid "Payment status changed from %1$s to %2$s"
 msgstr "Ödeme durumu değişti: %1$s → %2$s"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1438
-#: src/Admin/Booking/Meta/BookingMeta.php:1637
+#: src/Admin/Booking/Meta/BookingMeta.php:1490
+#: src/Admin/Booking/Meta/BookingMeta.php:1692
 msgid "Note added successfully!"
 msgstr "Not başarıyla eklendi!"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1441
+#: src/Admin/Booking/Meta/BookingMeta.php:1493
 msgid ""
 "The vehicle is already booked for these dates. The booking details were not "
 "saved."
@@ -2948,9 +2948,17 @@ msgstr ""
 "Araç bu tarihler için zaten rezerve edilmiş. Rezervasyon bilgileri "
 "kaydedilmedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1474
-#: src/Admin/Booking/Meta/BookingMeta.php:1522
-#: src/Admin/Booking/Meta/BookingMeta.php:1612
+#: src/Admin/Booking/Meta/BookingMeta.php:1496
+msgid ""
+"Vehicle availability could not be checked. The booking details were not "
+"saved. Please try again."
+msgstr ""
+"Araç müsaitliği kontrol edilemedi. Rezervasyon bilgileri kaydedilmedi. "
+"Lütfen yeniden deneyin."
+
+#: src/Admin/Booking/Meta/BookingMeta.php:1529
+#: src/Admin/Booking/Meta/BookingMeta.php:1577
+#: src/Admin/Booking/Meta/BookingMeta.php:1667
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:27
@@ -2958,19 +2966,19 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr "Bu eylemi gerçekleştirmek için izniniz yok."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1490
-#: src/Admin/Booking/Meta/BookingMeta.php:1542
-#: src/Admin/Booking/Meta/BookingMeta.php:1629
+#: src/Admin/Booking/Meta/BookingMeta.php:1545
+#: src/Admin/Booking/Meta/BookingMeta.php:1597
+#: src/Admin/Booking/Meta/BookingMeta.php:1684
 msgid "Missing required fields."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1588
+#: src/Admin/Booking/Meta/BookingMeta.php:1643
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 "E-posta gönderilemedi. Lütfen WordPress e-posta yapılandırmanızı kontrol "
 "edin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1639
+#: src/Admin/Booking/Meta/BookingMeta.php:1694
 msgid "Failed to add note."
 msgstr "Not eklenemedi."
 

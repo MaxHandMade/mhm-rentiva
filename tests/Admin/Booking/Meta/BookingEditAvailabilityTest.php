@@ -60,6 +60,13 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		foreach ($this->created as $post_id) {
 			wp_delete_post($post_id, true);
 		}
+		$user_id = get_current_user_id();
+		delete_transient('mhmrentiva_booking_notice_' . $user_id);
+		if ($user_id > 0) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+			wp_delete_user($user_id);
+		}
+		remove_all_filters('query');
 		BookingMeta::reset_edit_availability_verdicts();
 		parent::tearDown();
 	}
@@ -205,6 +212,69 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		$this->admin_save($cancelled, array( 'mhmrentiva_edit_status' => 'confirmed' ));
 
 		$this->assertSame('confirmed', get_post_meta($cancelled, '_mhmrentiva_status', true));
+	}
+
+	public function test_moving_a_booking_to_a_vehicle_that_is_busy_on_its_dates_is_refused(): void
+	{
+		$other_vehicle = $this->track(
+			self::factory()->post->create(
+				array(
+					'post_type'   => 'mhmrentiva_vehicle',
+					'post_status' => 'publish',
+				)
+			)
+		);
+		update_post_meta($other_vehicle, '_mhmrentiva_price_per_day', '1000');
+		$taken = $this->booking('confirmed', '2027-03-10', '2027-03-13');
+		update_post_meta($taken, '_mhmrentiva_vehicle_id', $other_vehicle);
+
+		$moved = $this->booking('confirmed', '2027-03-10', '2027-03-13');
+
+		$this->admin_save($moved, array( 'mhmrentiva_edit_vehicle_id' => (string) $other_vehicle ));
+
+		$this->assertSame((string) $this->vehicle_id, (string) get_post_meta($moved, '_mhmrentiva_vehicle_id', true));
+	}
+
+	public function test_confirming_a_pending_booking_whose_payment_window_lapsed_is_checked(): void
+	{
+		// The overlap query ignores a pending booking past its payment deadline, so
+		// its dates could be sold while it waited. Confirming it later must not be
+		// waved through as "nothing changed".
+		$lapsed = $this->booking('pending_payment', '2027-03-11', '2027-03-14');
+		update_post_meta($lapsed, '_mhmrentiva_payment_deadline', gmdate('Y-m-d H:i:s', time() - DAY_IN_SECONDS));
+		$this->booking('confirmed', '2027-03-10', '2027-03-13');
+
+		$this->admin_save($lapsed, array( 'mhmrentiva_edit_status' => 'confirmed' ));
+
+		$this->assertSame('pending_payment', get_post_meta($lapsed, '_mhmrentiva_status', true));
+	}
+
+	public function test_a_failed_availability_query_refuses_the_edit(): void
+	{
+		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
+
+		// Break only the guard's locked COUNT query.
+		add_filter(
+			'query',
+			static function (string $query): string {
+				return ( str_contains($query, 'SELECT COUNT(*)') && str_contains($query, 'p.ID <>') ) ? 'SELECT broken FROM' : $query;
+			}
+		);
+		$suppress = $GLOBALS['wpdb']->suppress_errors(true);
+
+		$this->admin_save(
+			$booking_id,
+			array(
+				'mhmrentiva_edit_pickup_date'  => '2027-03-25',
+				'mhmrentiva_edit_dropoff_date' => '2027-03-27',
+			)
+		);
+
+		$GLOBALS['wpdb']->suppress_errors($suppress);
+		remove_all_filters('query');
+
+		$this->assertSame('2027-03-20', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true), 'An unverifiable edit must not be saved.');
+		$this->assertSame('availability_unverified', get_transient('mhmrentiva_booking_notice_' . get_current_user_id()));
 	}
 
 	public function test_an_unrelated_edit_on_an_already_conflicting_booking_still_saves(): void

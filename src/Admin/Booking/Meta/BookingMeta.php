@@ -1185,12 +1185,16 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function guard_edit_availability(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, string $new_status): bool
 	{
 		if (! isset(self::$edit_availability_verdicts[ $booking_id ])) {
-			$allowed = self::edit_keeps_vehicle_free($booking_id, $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $new_status);
+			$verdict = self::edit_availability_verdict($booking_id, $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $new_status);
+			$allowed = 'free' === $verdict;
 
 			self::$edit_availability_verdicts[ $booking_id ] = $allowed;
 
 			if (! $allowed) {
-				self::queue_admin_notice('availability_conflict');
+				// 'conflict' or 'unverified': a check that could not run refuses
+				// too, because it is the only thing between this edit and a
+				// double booking.
+				self::queue_admin_notice('unverified' === $verdict ? 'availability_unverified' : 'availability_conflict');
 
 				// Core would still add ?message=1 and show "Booking updated." next to
 				// our refusal. Drop it for this booking only.
@@ -1218,13 +1222,16 @@ final class BookingMeta extends AbstractMetaBox {
 		self::$edit_availability_verdicts = array();
 	}
 
-	private static function edit_keeps_vehicle_free(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, string $new_status): bool
+	/**
+	 * @return string 'free', 'conflict', or 'unverified' when the locked query failed.
+	 */
+	private static function edit_availability_verdict(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, string $new_status): string
 	{
 		$old_status = Status::get($booking_id);
 		$status     = ( '' !== $new_status && Status::can_transition($old_status, $new_status) ) ? $new_status : $old_status;
 
 		if (! in_array($status, self::BLOCKING_STATUSES, true)) {
-			return true;
+			return 'free';
 		}
 
 		// Same rule BookingEditMetaBox applies before it writes a new vehicle.
@@ -1233,14 +1240,14 @@ final class BookingMeta extends AbstractMetaBox {
 			$vehicle_id = $old_vehicle_id;
 		}
 		if ($vehicle_id <= 0) {
-			return true;
+			return 'free';
 		}
 
 		$new_range = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 		if (is_wp_error($new_range)) {
 			// Unparseable dates were never checked here; refusing them now would
 			// be a behaviour change outside this guard's job.
-			return true;
+			return 'free';
 		}
 
 		$old_range = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes(
@@ -1253,9 +1260,9 @@ final class BookingMeta extends AbstractMetaBox {
 		$unchanged = $vehicle_id === $old_vehicle_id
 			&& ! is_wp_error($old_range)
 			&& $old_range === $new_range
-			&& in_array($old_status, self::BLOCKING_STATUSES, true);
+			&& self::status_holds_vehicle($booking_id, $old_status);
 		if ($unchanged) {
-			return true;
+			return 'free';
 		}
 
 		// Read the database, not a request cache filled before the lock.
@@ -1263,12 +1270,51 @@ final class BookingMeta extends AbstractMetaBox {
 			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
 		}
 
-		$conflict = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+		$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
 			$vehicle_id,
-			static fn() => \MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id)
+			static function () use ($vehicle_id, $new_range, $booking_id): array {
+				global $wpdb;
+
+				$conflict = \MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id);
+
+				// has_overlap_locked() casts a failed COUNT (null) to "no
+				// overlap". Its COUNT is the last query it runs, so last_error
+				// still belongs to it here, before Locker's COMMIT resets it.
+				return array(
+					'conflict' => $conflict,
+					'failed'   => '' !== $wpdb->last_error,
+				);
+			}
 		);
 
-		return ! $conflict;
+		if ($outcome['failed']) {
+			return 'unverified';
+		}
+
+		return $outcome['conflict'] ? 'conflict' : 'free';
+	}
+
+	/**
+	 * Does a booking in this status hold its vehicle right now?
+	 *
+	 * Mirrors Util::has_overlap_locked(): a pending booking whose payment
+	 * deadline has passed is not counted there, so its dates may already have
+	 * been sold. Re-confirming it is a change, not a no-op.
+	 */
+	private static function status_holds_vehicle(int $booking_id, string $status): bool
+	{
+		if (! in_array($status, self::BLOCKING_STATUSES, true)) {
+			return false;
+		}
+
+		if (in_array($status, array( 'pending_payment', 'pending' ), true)) {
+			$deadline = (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
+			if ('' !== $deadline && $deadline <= current_time('mysql', true)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -1278,6 +1324,12 @@ final class BookingMeta extends AbstractMetaBox {
 	 * before it falls back to the date and time fields, so a booking whose
 	 * dates were edited without these kept occupying its OLD dates and left
 	 * the new ones open for sale.
+	 *
+	 * Timestamps are derived in the site timezone (Util::parse_datetimes()), as
+	 * the booking form and the overlap query's date fallback read them. The
+	 * WooCommerce checkout path derives them with strtotime() under WordPress's
+	 * UTC PHP timezone, so on a site with a non-zero offset any admin save of
+	 * such a booking moves its stored timestamps to the site-local reading.
 	 */
 	public static function sync_booking_timestamps(int $booking_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): void
 	{
@@ -1439,6 +1491,9 @@ final class BookingMeta extends AbstractMetaBox {
 				break;
 			case 'availability_conflict':
 				echo '<div class="notice notice-error"><p>' . esc_html__('The vehicle is already booked for these dates. The booking details were not saved.', 'mhm-rentiva') . '</p></div>';
+				break;
+			case 'availability_unverified':
+				echo '<div class="notice notice-error"><p>' . esc_html__('Vehicle availability could not be checked. The booking details were not saved. Please try again.', 'mhm-rentiva') . '</p></div>';
 				break;
 		}
 	}
