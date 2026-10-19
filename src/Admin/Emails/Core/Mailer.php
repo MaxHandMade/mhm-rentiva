@@ -272,6 +272,9 @@ final class Mailer {
 			'booking'  => array(
 				'id'               => $booking_id,
 				'order_id'         => $wc_order_id ?: $booking_id,
+				// The number every screen shows (the order number when there is
+				// one); templates print this, not the raw post ID.
+				'display_id'       => mhmrentiva_get_display_id( (int) $booking_id ),
 				'title'            => $post->post_title,
 				'status'           => $post->post_status,
 				'service_type'     => $service_type,
@@ -301,8 +304,14 @@ final class Mailer {
 				'featured_image' => $vehicle_info['featured_image'] ?? '',
 			),
 			'transfer' => $transfer_context,
+			// /panel/ was retired (it now redirects to the account page); custom
+			// bodies that still read panel.url get the account URL directly.
 			'panel'    => array(
-				'url' => home_url( '/panel/' ),
+				'url' => \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url(),
+			),
+			'account'  => array(
+				'url'         => \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url(),
+				'booking_url' => \MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( (int) $booking_id ),
 			),
 			'site'     => array(
 				'name'        => get_bloginfo( 'name' ),

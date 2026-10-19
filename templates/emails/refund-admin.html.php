@@ -11,7 +11,7 @@
 	<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
 		<tr>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777; width: 40%;"><strong><?php esc_html_e( 'Booking No:', 'mhm-rentiva' ); ?></strong></td>
-			<td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;">#<?php echo esc_html( (string) ( $data['booking']['id'] ?? '' ) ); ?></td>
+			<td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;">#<?php echo esc_html( (string) ( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ) ); ?></td>
 		</tr>
 		<tr>
 			<td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e( 'Customer:', 'mhm-rentiva' ); ?></strong></td>

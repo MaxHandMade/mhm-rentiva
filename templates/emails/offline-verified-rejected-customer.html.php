@@ -8,7 +8,7 @@
 	<title>
 		<?php
 		/* translators: %s: booking ID. */
-		echo esc_html( sprintf( __( 'Payment Verification Failed · Booking #%s', 'mhm-rentiva' ), (string) ( $data['booking']['id'] ?? '' ) ) );
+		echo esc_html( sprintf( __( 'Payment Verification Failed · Booking #%s', 'mhm-rentiva' ), (string) ( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ) ) );
 		?>
 	</title>
 	<style>
@@ -28,7 +28,7 @@
 		<div class="content">
 			<p><?php esc_html_e( 'We could not verify your payment receipt for the booking below.', 'mhm-rentiva' ); ?></p>
 			<p class="alert"><?php esc_html_e( 'Please reply to this email with a clear receipt image or contact us for assistance.', 'mhm-rentiva' ); ?></p>
-			<p><strong><?php esc_html_e( 'Booking No:', 'mhm-rentiva' ); ?></strong> #<?php echo esc_html( (string) ( $data['booking']['id'] ?? '' ) ); ?></p>
+			<p><strong><?php esc_html_e( 'Booking No:', 'mhm-rentiva' ); ?></strong> #<?php echo esc_html( (string) ( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ) ); ?></p>
 		</div>
 	</div>
 </body>

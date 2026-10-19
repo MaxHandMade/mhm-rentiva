@@ -141,8 +141,9 @@ final class RefundNotifications {
 
 		$context = array(
 			'booking'         => array(
-				'id'       => (int) $booking_id,
-				'order_id' => $wc_order_id ?: (int) $booking_id,
+				'id'         => (int) $booking_id,
+				'order_id'   => $wc_order_id ?: (int) $booking_id,
+				'display_id' => mhmrentiva_get_display_id( (int) $booking_id ),
 				'title'    => get_the_title( $booking_id ),
 				'status'   => (string) get_post_meta( $booking_id, '_mhmrentiva_status', true ),
 				'payment'  => array(

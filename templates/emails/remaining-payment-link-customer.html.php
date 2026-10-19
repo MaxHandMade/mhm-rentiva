@@ -24,7 +24,7 @@
 	<div class="booking-details" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
 		<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 			<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Reservation No:', 'mhm-rentiva' ); ?></span>
-			<span class="detail-value" style="color: #333;">#<?php echo esc_html( $data['booking']['order_id'] ?? $data['booking']['id'] ?? '' ); ?></span>
+			<span class="detail-value" style="color: #333;">#<?php echo esc_html( $data['booking']['order_id'] ?? $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ); ?></span>
 		</div>
 		<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 			<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Remaining Amount:', 'mhm-rentiva' ); ?></span>
