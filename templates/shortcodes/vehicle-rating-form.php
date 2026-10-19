@@ -61,38 +61,13 @@ $can_comment          = $is_logged_in || ( ! $require_login && $allow_guest_comm
 $current_user_rating  = $user_rating ? floatval($user_rating['rating']) : 0;
 $current_user_comment = $user_rating ? $user_rating['comment'] : '';
 
-// Premium rating distribution (5 / 4 / 3) for summary bars.
-$rating_distribution = array(
-	5 => 0,
-	4 => 0,
-	3 => 0,
-);
-$rating_total        = max(0, intval($vehicle_rating['count'] ?? 0));
-if ($vehicle_id > 0) {
-	global $wpdb;
-	$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded aggregate query for one vehicle rating summary.
-		$wpdb->prepare(
-			"SELECT CAST(cm.meta_value AS UNSIGNED) AS rating_value, COUNT(*) AS total
-			FROM {$wpdb->comments} c
-			INNER JOIN {$wpdb->commentmeta} cm ON c.comment_ID = cm.comment_id
-			WHERE c.comment_post_ID = %d
-				AND c.comment_approved = '1'
-				AND c.comment_type = 'review'
-				AND cm.meta_key = 'mhmrentiva_rating'
-				AND cm.meta_value IN ('3','4','5')
-			GROUP BY rating_value",
-			$vehicle_id
-		)
-	);
-	if (is_array($rows)) {
-		foreach ($rows as $row) {
-			$key = intval($row->rating_value ?? 0);
-			if (isset($rating_distribution[ $key ])) {
-				$rating_distribution[ $key ] = intval($row->total ?? 0);
-			}
-		}
-	}
-}
+// Rating distribution for the summary bars, 5 down to 1 star. Counted by
+// RatingHelper from the same approved reviews the average uses; bars are a
+// share of those reviews.
+$rating_distribution = $vehicle_id > 0
+	? \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_distribution( (int) $vehicle_id )
+	: array_fill_keys( array( 5, 4, 3, 2, 1 ), 0 );
+$rating_total        = array_sum( $rating_distribution );
 
 // Get settings for character limits
 $full_comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
@@ -145,7 +120,7 @@ $allowed_rating_svg_tags = array(
 				</div>
 			</div>
 			<div class="rv-rating-summary-right">
-				<?php foreach (array( 5, 4, 3 ) as $score) : ?>
+				<?php foreach (array_keys( $rating_distribution ) as $score) : ?>
 					<?php
 					$score_count = intval($rating_distribution[ $score ] ?? 0);
 					$percent     = $rating_total > 0 ? (int) round(( $score_count / $rating_total ) * 100) : 0;
