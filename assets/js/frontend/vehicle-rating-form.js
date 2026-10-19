@@ -232,7 +232,7 @@
                 data: formData,
                 timeout: 10000,
                 beforeSend: () => {
-                    $form.find('button[type="submit"]').prop('disabled', true).text('Submitting...');
+                    $form.find('button[type="submit"]').prop('disabled', true).text(window.mhmVehicleRating?.strings?.submitting || 'Submitting...');
                 },
                 success: (response) => {
                     if (response.success) {
@@ -482,7 +482,7 @@
             $form.data('comment-id', commentId);
 
             // Update submit button text
-            $form.find('button[type="submit"]').text('Update Rating');
+            $form.find('button[type="submit"]').text(window.mhmVehicleRating?.strings?.update_rating || 'Update Rating');
 
             // Scroll to form
             $('html, body').animate({

@@ -130,8 +130,13 @@ export default function CustomersPage() {
 
 						{ selected.length > 0 && (
 							<div className="rv-cust-bulk-bar">
-								{ /* translators: %d = number of selected customers. */ }
-								<span>{ sprintf( _n( '%d selected', '%d selected', selected.length, 'mhm-rentiva' ), selected.length ) }</span>
+								<span>
+									{ sprintf(
+										/* translators: %d = number of selected customers. */
+										_n( '%d selected', '%d selected', selected.length, 'mhm-rentiva' ),
+										selected.length
+									) }
+								</span>
 								<button type="button" className="button button-link-delete" onClick={ handleBulkDelete }>
 									{ __( 'Delete Selected', 'mhm-rentiva' ) }
 								</button>

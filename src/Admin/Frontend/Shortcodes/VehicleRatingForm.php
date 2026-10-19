@@ -132,6 +132,8 @@ final class VehicleRatingForm extends AbstractShortcode {
 			'submit_rating'      => __('Submit Rating', 'mhm-rentiva'),
 			'delete_rating'      => __('Are you sure you want to delete your rating?', 'mhm-rentiva'),
 			'connection_error'   => __('Connection error. Please try again.', 'mhm-rentiva'),
+			'submitting'         => __('Submitting...', 'mhm-rentiva'),
+			'update_rating'      => __('Update Rating', 'mhm-rentiva'),
 		);
 	}
 

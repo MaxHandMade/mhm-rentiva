@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-19T13:39:31+00:00\n"
+"POT-Creation-Date: 2026-10-19T14:05:47+00:00\n"
 "PO-Revision-Date: 2026-10-12 16:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -897,8 +897,9 @@ msgid "Move “%s” to the trash?"
 msgstr "“%s” çöpe taşınsın mı?"
 
 #. translators: %d: number of selected services.
+#. translators: %d = number of selected customers.
 #: src/Admin/Addons/AddonScreen.php:124
-#: src-react/admin/customers/CustomersPage.jsx:134
+#: src-react/admin/customers/CustomersPage.jsx:136
 #, php-format
 msgid "%d selected"
 msgid_plural "%d selected"
@@ -7272,9 +7273,9 @@ msgid "Calendar data updated."
 msgstr "Takvim verileri güncellendi."
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:243
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:407
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:468
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:245
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:409
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:470
 #: src/Admin/Services/CompareService.php:222
 #: src/Admin/Services/FavoritesService.php:149
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1436
@@ -7434,6 +7435,7 @@ msgid "Tax (included)"
 msgstr "Vergi (dahil)"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:306
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:135
 msgid "Submitting..."
 msgstr "Gönderiliyor..."
 
@@ -8251,7 +8253,7 @@ msgid "Reviews"
 msgstr "Yorumlar"
 
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:119
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:391
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:393
 msgid "Rating submitted successfully"
 msgstr "Puan başarıyla gönderildi"
 
@@ -8300,64 +8302,69 @@ msgstr "Puanınızı silmek istediğinizden emin misiniz?"
 msgid "Connection error. Please try again."
 msgstr "Bağlantı hatası. Lütfen yeniden deneyin."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:252
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:260
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:136
+#: templates/shortcodes/vehicle-rating-form.php:361
+msgid "Update Rating"
+msgstr "Puanı güncelle"
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:254
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:262
 msgid "Invalid vehicle or rating value"
 msgstr "Geçersiz araç veya puan değeri"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:268
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:270
 msgid "Login required to post a review"
 msgstr "Yorum göndermek için giriş gerekli"
 
 #. translators: %d: minimum character count
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:282
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:284
 #, php-format
 msgid "Comment is too short. Please write at least %d characters."
 msgstr "Yorum çok kısa. Lütfen en az %d karakter yazın."
 
 #. translators: %d: maximum character count
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:294
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:296
 #, php-format
 msgid "Comment is too long. Maximum %d characters allowed."
 msgstr "Yorum çok uzun. En fazla %d karaktere izin verilir."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:318
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:320
 msgid ""
 "Your comment could not be submitted. Please wait a moment before trying "
 "again."
 msgstr "Yorumunuz gönderilemedi. Lütfen bir süre bekleyip yeniden deneyin."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:340
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:342
 msgid "Rating updated successfully"
 msgstr "Puan başarıyla güncellendi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:368
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:370
 msgid "Name and email are required for guests"
 msgstr "Misafirler için ad ve e-posta adresi gereklidir"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:392
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:394
 msgid "Rating submitted and awaiting approval"
 msgstr "Puan gönderildi ve onay bekliyor"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:400
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:402
 msgid "Failed to submit rating"
 msgstr "Puan gönderilemedi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:412
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:414
 msgid "Login required"
 msgstr "Giriş gerekli"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:434
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:439
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:447
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:436
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:441
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:449
 msgid "Comment not found"
 msgstr "Yorum bulunamadı"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:458
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:460
 msgid "Rating deleted successfully"
 msgstr "Puan başarıyla silindi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:461
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:463
 #: src/Admin/Settings/Core/SettingsCore.php:562
 #: src/Admin/Utilities/Cron/CronMonitor.php:150
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:33
@@ -8382,8 +8389,8 @@ msgstr "Puan başarıyla silindi"
 msgid "Permission denied"
 msgstr "İzin verilmedi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:473
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:493
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:475
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:495
 msgid "Invalid vehicle"
 msgstr "Geçersiz araç"
 
@@ -13837,7 +13844,7 @@ msgid "Invalid post"
 msgstr "Geçersiz gönderi"
 
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:44
-#: src-react/admin/customers/CustomersPage.jsx:136
+#: src-react/admin/customers/CustomersPage.jsx:141
 msgid "Delete Selected"
 msgstr "Seçilenleri sil"
 
@@ -15659,10 +15666,6 @@ msgstr "Araç hakkındaki düşüncelerinizi paylaşın..."
 msgid "min %d"
 msgstr "min %d"
 
-#: templates/shortcodes/vehicle-rating-form.php:361
-msgid "Update Rating"
-msgstr "Puanı güncelle"
-
 #: templates/shortcodes/vehicle-rating-form.php:365
 msgid "Delete Rating"
 msgstr "Puanı sil"
@@ -16490,7 +16493,7 @@ msgid "Select a customer to see the details"
 msgstr "Detayları görmek için bir müşteri seçin"
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:119
-#: src-react/admin/customers/CustomersPage.jsx:142
+#: src-react/admin/customers/CustomersPage.jsx:147
 msgid "Loading…"
 msgstr "Yükleniyor…"
 
