@@ -132,8 +132,8 @@ if ($is_integrated) {
 										<h4><?php echo $vehicle ? esc_html($vehicle->post_title) : esc_html__('Vehicle Not Found', 'mhm-rentiva'); ?></h4>
 										<p class="booking-number">
 											<?php
-											/* translators: %s: booking post ID. */
-											printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html($booking->ID));
+											/* translators: %s: booking number shown to the customer (the order number when there is one). */
+											printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html(mhmrentiva_get_display_id( (int) $booking->ID)));
 											?>
 										</p>
 									</div>
