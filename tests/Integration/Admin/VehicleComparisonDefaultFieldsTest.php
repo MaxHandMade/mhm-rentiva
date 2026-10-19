@@ -23,12 +23,19 @@ use WP_UnitTestCase;
  */
 final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 
-	private bool $sanitizer_registered = false;
+	/**
+	 * Settings-API globals as they were before init_settings_registration() ran; it registers
+	 * more than the main option (dark mode, add-ons, REST, every group's sections and fields),
+	 * so the fixture restores all of them, not just the one setting it cares about.
+	 *
+	 * @var array<string,mixed>|null
+	 */
+	private ?array $settings_globals = null;
+
+	private const SETTINGS_GLOBALS = array( 'wp_registered_settings', 'new_allowed_options', 'wp_settings_sections', 'wp_settings_fields' );
 
 	public function tear_down(): void {
-		if ( $this->sanitizer_registered ) {
-			unregister_setting( SettingsCore::GROUP, SettingsCore::OPTION_NAME );
-		}
+		$this->tear_down_settings_globals();
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
 		unset( $_POST['tab'], $_POST['nonce'], $_POST['sub_action'], $_POST['comparison_fields'], $_POST['mhmrentiva_vehicle_matrix_order'], $_REQUEST['nonce'] );
@@ -42,8 +49,40 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 		} else {
 			update_option( SettingsCore::OPTION_NAME, $settings );
 		}
+		$this->settings_globals = array();
+		foreach ( self::SETTINGS_GLOBALS as $name ) {
+			$this->settings_globals[ $name ] = $GLOBALS[ $name ] ?? null;
+		}
 		SettingsCore::init_settings_registration();
-		$this->sanitizer_registered = true;
+	}
+
+	/** The fixture leaves the Settings API globals exactly as it found them. */
+	public function test_the_fixture_restores_the_settings_api_globals(): void {
+		$before = array();
+		foreach ( self::SETTINGS_GLOBALS as $name ) {
+			$before[ $name ] = $GLOBALS[ $name ] ?? null;
+		}
+
+		for ( $i = 0; $i < 2; $i++ ) {
+			$this->seed_then_register_sanitizer( null );
+			$this->assertArrayHasKey( SettingsCore::OPTION_NAME, $GLOBALS['wp_registered_settings'] );
+			$this->tear_down_settings_globals();
+		}
+
+		foreach ( self::SETTINGS_GLOBALS as $name ) {
+			$this->assertSame( $before[ $name ], $GLOBALS[ $name ] ?? null, "$name changed across the fixture" );
+		}
+	}
+
+	private function tear_down_settings_globals(): void {
+		foreach ( (array) $this->settings_globals as $name => $value ) {
+			if ( null === $value ) {
+				unset( $GLOBALS[ $name ] );
+			} else {
+				$GLOBALS[ $name ] = $value;
+			}
+		}
+		$this->settings_globals = null;
 	}
 
 	/** Default rows that pass the Active-field gate (a Passive field is never a row). */
