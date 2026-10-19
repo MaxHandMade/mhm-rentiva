@@ -653,6 +653,24 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * The size part of an image's class, as wp_get_attachment_image() builds it.
+	 *
+	 * WooCommerce's order emails request the product image with an array size
+	 * (width, height). Running esc_attr() on that array logged "Array to string
+	 * conversion" on every order email and produced the class "attachment-Array".
+	 *
+	 * @param string|int[] $size Registered size name or [width, height].
+	 */
+	private static function image_size_class($size): string
+	{
+		if (is_array($size)) {
+			return implode('x', array_map('intval', $size));
+		}
+
+		return sanitize_html_class( (string) $size);
+	}
+
+	/**
 	 * ⭐ Filter product image for cart context (WooCommerce Blocks compatibility)
 	 *
 	 * @param string $image The product image HTML
@@ -697,7 +715,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 							$thumbnail_id = get_post_thumbnail_id($vehicle_id);
 							if ($thumbnail_id) {
 								return wp_get_attachment_image($thumbnail_id, $size, false, array(
-									'class' => 'mhm-vehicle-thumbnail attachment-' . esc_attr($size) . ' size-' . esc_attr($size),
+									'class' => 'mhm-vehicle-thumbnail attachment-' . self::image_size_class($size) . ' size-' . self::image_size_class($size),
 									'style' => 'width: 80px; height: 80px; object-fit: cover; border-radius: 8px;',
 									'alt'   => esc_attr(get_the_title($vehicle_id)),
 								));
