@@ -426,7 +426,72 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$cart_item['mhmrentiva_booking_price']   = $values['mhmrentiva_booking_price'];
 			$cart_item['mhmrentiva_booking_pending'] = $values['mhmrentiva_booking_pending'] ?? true;
 		}
+
+		self::name_booking_line($cart_item);
+
 		return $cart_item;
+	}
+
+	/**
+	 * Put the booking's own name on its cart line's product object.
+	 *
+	 * Every booking rides on one hidden product (PRODUCT_SKU), whose stored title
+	 * says nothing about what was booked. WooCommerce loads a separate product
+	 * object for each cart line (WC_Cart_Session::get_cart_from_session(),
+	 * WC_Cart::add_to_cart()), so naming that object changes only this line and
+	 * never the stored product. Every surface reads it from there: the block and
+	 * mini cart (Store API CartItemSchema, `get_title()`), the classic cart and
+	 * checkout (`get_name()`), and the order line saved at checkout
+	 * (WC_Checkout::create_order_line_items(), `'name' => $product->get_name()`),
+	 * which order-received, My Account, emails and the admin order screen show.
+	 *
+	 * @param array<string, mixed> $cart_item Cart line with its `data` product.
+	 */
+	private static function name_booking_line(array $cart_item): void
+	{
+		if (! isset($cart_item['data']) || ! ( $cart_item['data'] instanceof \WC_Product )) {
+			return;
+		}
+		if (! isset($cart_item['mhmrentiva_booking_data']) && ! isset($cart_item['mhmrentiva_booking_id'])) {
+			return;
+		}
+
+		$cart_item['data']->set_name(self::booking_line_name($cart_item));
+	}
+
+	/**
+	 * The name a booking's cart and order line carries.
+	 *
+	 * A rental is named after its vehicle. Lite cannot name a transfer (its
+	 * locations belong to the Pro add-on), so a transfer -- like a line whose
+	 * vehicle is gone -- keeps the generic booking name until a filter answers.
+	 *
+	 * @param array<string, mixed> $cart_item Cart line.
+	 */
+	public static function booking_line_name(array $cart_item): string
+	{
+		$normalized   = self::get_normalized_booking_data($cart_item);
+		$booking_data = is_array($normalized['booking_data']) ? $normalized['booking_data'] : array();
+		$vehicle_id   = (int) $normalized['vehicle_id'];
+		$vehicle_name = $vehicle_id > 0 ? (string) get_post_field('post_title', $vehicle_id, 'raw') : '';
+		$is_transfer  = 'transfer' === (string) ( $booking_data['booking_type'] ?? '' );
+
+		$name = __('Vehicle Rental Booking', 'mhm-rentiva');
+		if (! $is_transfer && '' !== $vehicle_name) {
+			/* translators: %s: vehicle name */
+			$name = sprintf(__('%s rental', 'mhm-rentiva'), $vehicle_name);
+		}
+
+		/**
+		 * Filters the name of a booking's cart line, which becomes its order line name at checkout.
+		 *
+		 * @param string               $name         Default name.
+		 * @param array<string, mixed> $booking_data Pending booking data (empty for a line that carries only a booking ID).
+		 * @param array<string, mixed> $cart_item    The WooCommerce cart line.
+		 */
+		$filtered = apply_filters('mhmrentiva_cart_item_name', $name, $booking_data, $cart_item);
+
+		return is_string($filtered) && '' !== $filtered ? $filtered : $name;
 	}
 
 	/**
@@ -584,6 +649,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if (isset($cart_item['mhmrentiva_booking_price'])) {
 				// Set cart item price to deposit amount (for payment)
 				$cart_item['data']->set_price($cart_item['mhmrentiva_booking_price']);
+				self::name_booking_line($cart_item);
 
 				// ⭐ Store total price in cart item data for tax calculation
 				if (isset($cart_item['mhmrentiva_booking_data'])) {
@@ -776,6 +842,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * This filter modifies the image data sent to the Cart Block via Store API.
 	 *
+	 * WooCommerce reads each entry as an object (CartItemSchema::get_cart_images()
+	 * skips any entry without `->id` and falls back to the product's own images),
+	 * so the vehicle image is built in ImageAttachmentSchema::get_item_response()'s
+	 * shape. A vehicle without an image leaves WooCommerce's images as they are.
+	 *
 	 * @param array $images The current images array
 	 * @param array $cart_item The cart item data
 	 * @param string $cart_item_key The cart item key
@@ -803,26 +874,27 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return $images;
 		}
 
-		// Get image URLs for various sizes
-		$thumbnail_src = wp_get_attachment_image_src($thumbnail_id, 'woocommerce_thumbnail');
 		$full_src      = wp_get_attachment_image_src($thumbnail_id, 'full');
-
-		if ($thumbnail_src) {
-			// Replace images array with vehicle image
-			$images = array(
-				array(
-					'id'        => $thumbnail_id,
-					'src'       => $full_src ? $full_src[0] : $thumbnail_src[0],
-					'thumbnail' => $thumbnail_src[0],
-					'srcset'    => wp_get_attachment_image_srcset($thumbnail_id, 'woocommerce_thumbnail') ?: '',
-					'sizes'     => wp_get_attachment_image_sizes($thumbnail_id, 'woocommerce_thumbnail') ?: '',
-					'name'      => get_the_title($vehicle_id),
-					'alt'       => get_the_title($vehicle_id),
-				),
-			);
+		$thumbnail_src = wp_get_attachment_image_src($thumbnail_id, 'woocommerce_thumbnail');
+		if (! $full_src || ! $thumbnail_src) {
+			return $images;
 		}
 
-		return $images;
+		$vehicle_name = (string) get_post_field('post_title', $vehicle_id, 'raw');
+
+		return array(
+			(object) array(
+				'id'               => (int) $thumbnail_id,
+				'src'              => $full_src[0],
+				'thumbnail'        => $thumbnail_src[0],
+				'srcset'           => (string) wp_get_attachment_image_srcset($thumbnail_id, 'full'),
+				'sizes'            => (string) wp_get_attachment_image_sizes($thumbnail_id, 'full'),
+				'thumbnail_srcset' => (string) wp_get_attachment_image_srcset($thumbnail_id, 'woocommerce_thumbnail'),
+				'thumbnail_sizes'  => (string) wp_get_attachment_image_sizes($thumbnail_id, 'woocommerce_thumbnail'),
+				'name'             => $vehicle_name,
+				'alt'              => $vehicle_name,
+			),
+		);
 	}
 
 	/**
@@ -921,6 +993,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * A stored booking date (Y-m-d) in the site's date format, as the cart shows it.
+	 */
+	private static function format_booking_date(string $date): string
+	{
+		$timestamp = '' !== $date ? strtotime($date) : false;
+
+		// date_i18n() returns an int for the 'U' format.
+		return false !== $timestamp ? (string) date_i18n( (string) get_option('date_format'), $timestamp) : $date;
+	}
+
+	/**
 	 * Save booking ID or booking data to order item meta
 	 */
 	public static function add_order_item_meta($item, $cart_item_key, $values, $order)
@@ -948,8 +1031,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 			// 2. Dates
 			if (! empty($booking_data['pickup_date'])) {
-				$pickup  = $booking_data['pickup_date'] . ' ' . ( $booking_data['pickup_time'] ?? '' );
-				$dropoff = $booking_data['dropoff_date'] . ' ' . ( $booking_data['dropoff_time'] ?? '' );
+				$pickup  = self::format_booking_date( (string) $booking_data['pickup_date']) . ' ' . ( $booking_data['pickup_time'] ?? '' );
+				$dropoff = self::format_booking_date( (string) ( $booking_data['dropoff_date'] ?? '' )) . ' ' . ( $booking_data['dropoff_time'] ?? '' );
 
 				$item->add_meta_data(__('Pickup', 'mhm-rentiva'), trim($pickup));
 				$item->add_meta_data(__('Dropoff', 'mhm-rentiva'), trim($dropoff));
