@@ -277,6 +277,35 @@ class BlockTranslationsTest extends WP_UnitTestCase
         $this->assertSame('nplurals=2; plural=(n > 1);', $messages['']['plural-forms'] ?? null, 'The header stays the pack\'s.');
     }
 
+    /**
+     * Core reads `locale_data[$domain]` before `locale_data.messages`
+     * (WP_Scripts::print_translations); tools such as Loco write the domain key.
+     * Each catalogue's active key is chosen the core's way and the result goes under
+     * the pack's key.
+     */
+    public function test_a_catalogue_keyed_by_text_domain_is_merged_too(): void
+    {
+        $handle = 'mhm-rentiva-test-merge-domainkey';
+        $this->register_rentiva_handle($handle);
+        $bundled = $this->bundled_file('merge-domainkey.js');
+        $this->write_file($bundled, (string) wp_json_encode(array(
+            'domain'      => 'mhm-rentiva',
+            'locale_data' => array(
+                'mhm-rentiva' => array(
+                    ''             => array( 'domain' => 'mhm-rentiva', 'lang' => 'tr_TR' ),
+                    'Only bundled' => array( 'Yalnız pakette yok' ),
+                ),
+            ),
+        )));
+        $this->write_file($this->pack_file_for($bundled), $this->catalogue('nplurals=2; plural=(n > 1);', array( 'Both' => array( 'Paket' ) )));
+
+        $loaded   = json_decode((string) load_script_translations($bundled, $handle, 'mhm-rentiva'), true);
+        $messages = $loaded['locale_data']['messages'] ?? array();
+
+        $this->assertSame(array( 'Yalnız pakette yok' ), $messages['Only bundled'] ?? null);
+        $this->assertSame(array( 'Paket' ), $messages['Both'] ?? null);
+    }
+
     public function test_without_a_bundled_catalogue_the_pack_is_untouched(): void
     {
         $handle = 'mhm-rentiva-test-merge-nobundle';
@@ -288,7 +317,7 @@ class BlockTranslationsTest extends WP_UnitTestCase
         $this->assertSame($pack, apply_filters('load_script_translations', $pack, $this->pack_file_for($bundled), $handle, 'mhm-rentiva'));
     }
 
-    public function test_an_unreadable_bundled_catalogue_leaves_the_pack_untouched(): void
+    public function test_an_invalid_bundled_catalogue_leaves_the_pack_untouched(): void
     {
         $handle = 'mhm-rentiva-test-merge-broken';
         $this->register_rentiva_handle($handle);
@@ -300,15 +329,24 @@ class BlockTranslationsTest extends WP_UnitTestCase
         $this->assertSame($pack, apply_filters('load_script_translations', $pack, $this->pack_file_for($bundled), $handle, 'mhm-rentiva'));
     }
 
+    /**
+     * A handle whose translations_path is not a Rentiva languages/ directory is never merged --
+     * even when a catalogue with the same name sits in that directory (so only the
+     * known-directory guard, not a missing file, keeps it out).
+     */
     public function test_a_foreign_handle_is_not_merged(): void
     {
+        $dir                     = trailingslashit(get_temp_dir()) . 'rv-foreign-plugin-' . wp_generate_password(6, false) . '/languages/';
         $handle                  = 'mhm-rentiva-test-merge-foreign';
         $this->created_handles[] = $handle;
         wp_register_script($handle, 'https://example.test/foreign2.js', array(), '1', true);
-        wp_set_script_translations($handle, 'foreign', '/var/tmp/foreign-plugin/languages/');
+        wp_set_script_translations($handle, 'foreign', $dir);
+
+        $name = 'foreign-tr_TR-' . md5('foreign2.js') . '.json';
+        $this->write_file($dir . $name, $this->catalogue('nplurals=2; plural=n != 1;', array( 'Only foreign' => array( 'x' ) )));
         $pack = $this->catalogue('nplurals=2; plural=(n > 1);', array( 'A' => array( 'a' ) ));
 
-        $this->assertSame($pack, apply_filters('load_script_translations', $pack, WP_LANG_DIR . '/plugins/foreign-tr_TR-x.json', $handle, 'foreign'));
+        $this->assertSame($pack, apply_filters('load_script_translations', $pack, WP_LANG_DIR . '/plugins/' . $name, $handle, 'foreign'));
     }
 
     public function test_react_handle_goes_through_filter(): void

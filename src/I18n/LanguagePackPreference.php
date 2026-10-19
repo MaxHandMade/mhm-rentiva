@@ -65,8 +65,6 @@ final class LanguagePackPreference {
 	 */
 	public static function complete_from_bundled( $translations, $file, string $handle, string $domain )
 	{
-		unset($domain);
-
 		if (! is_string($translations) || ! is_string($file) || '' === $file) {
 			return $translations;
 		}
@@ -90,20 +88,43 @@ final class LanguagePackPreference {
 			return $translations;
 		}
 
-		$pack             = json_decode($translations, true);
-		$bundled          = json_decode( (string) file_get_contents($bundled_file), true); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local translation file.
-		$pack_messages    = is_array($pack) ? ( $pack['locale_data']['messages'] ?? null ) : null;
-		$bundled_messages = is_array($bundled) ? ( $bundled['locale_data']['messages'] ?? null ) : null;
-		if (! is_array($pack_messages) || ! is_array($bundled_messages)) {
+		$pack        = json_decode($translations, true);
+		$bundled     = json_decode( (string) file_get_contents($bundled_file), true); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local translation file.
+		$pack_key    = self::locale_data_key($pack, $domain);
+		$bundled_key = self::locale_data_key($bundled, $domain);
+		if (null === $pack_key || null === $bundled_key) {
 			return $translations;
 		}
 
 		// Pack keys (and its '' header) override; bundled keys fill the gaps.
-		$pack['locale_data']['messages'] = array_replace($bundled_messages, $pack_messages);
+		$pack['locale_data'][ $pack_key ] = array_replace($bundled['locale_data'][ $bundled_key ], $pack['locale_data'][ $pack_key ]);
 
 		$merged = wp_json_encode($pack);
 
 		return is_string($merged) ? $merged : $translations;
+	}
+
+	/**
+	 * The `locale_data` key a catalogue's strings live under, chosen the way core reads it
+	 * (WP_Scripts::print_translations): the text domain first, then `messages`.
+	 *
+	 * @param mixed  $catalogue Decoded JSON catalogue.
+	 * @param string $domain    Text domain.
+	 * @return string|null The key, or null when the catalogue has neither.
+	 */
+	private static function locale_data_key( $catalogue, string $domain ): ?string
+	{
+		if (! is_array($catalogue) || ! isset($catalogue['locale_data']) || ! is_array($catalogue['locale_data'])) {
+			return null;
+		}
+
+		foreach (array( $domain, 'messages' ) as $key) {
+			if (isset($catalogue['locale_data'][ $key ]) && is_array($catalogue['locale_data'][ $key ])) {
+				return $key;
+			}
+		}
+
+		return null;
 	}
 
 	/**
