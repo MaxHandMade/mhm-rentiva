@@ -64,10 +64,12 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 		$.ajax = jest.fn( ( options ) => options.success( response ) );
 	};
 
+	const TAKEN = { success: false, data: { ok: false, code: 'unavailable', message: 'taken' } };
+
 	test( 'a price response arriving after "unavailable" does not re-enable submit', () => {
 		const form = setup();
 
-		respondWith( { success: false, data: { message: 'taken' } } );
+		respondWith( TAKEN );
 		form.checkAvailability();
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
 
@@ -80,29 +82,59 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 	test( 'ticking the terms box does not re-enable submit for an unavailable vehicle', () => {
 		const form = setup();
 
-		respondWith( { success: false, data: { message: 'taken' } } );
+		respondWith( TAKEN );
 		form.checkAvailability();
 		form.updateButtonState();
 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
 	} );
 
-	test( 'a failed availability request keeps submit blocked', () => {
+	test( 'a request that never got an answer does not lock the sale', () => {
+		// The server re-checks under a lock at checkout, so an unknown answer must
+		// not leave a visitor unable to book dates that may well be free.
 		const form = setup();
 
+		respondWith( TAKEN );
+		form.checkAvailability();
 		$.ajax = jest.fn( ( options ) => options.error( {}, 'error', 'boom' ) );
 		form.checkAvailability();
 		form.showLoading( false );
 
-		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
+		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
 		// The error handler logs the failed request.
 		expect( console ).toHaveErrored();
+	} );
+
+	test( 'a refusal without an availability code (rate limit, nonce) does not lock the sale', () => {
+		const form = setup();
+
+		respondWith( { success: false, data: { message: 'Too many availability checks. Please wait.' } } );
+		form.checkAvailability();
+		form.showLoading( false );
+
+		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
+		expect( form.form.find( '.rv-availability-status' ).text() ).toContain( 'Too many availability checks' );
+	} );
+
+	test( 'an older availability answer arriving late is ignored', () => {
+		const form = setup();
+		const pending = [];
+		$.ajax = jest.fn( ( options ) => pending.push( options ) );
+
+		form.checkAvailability(); // first dates: will turn out taken
+		form.checkAvailability(); // second dates: free
+
+		pending[ 1 ].success( { success: true, data: { ok: true } } );
+		pending[ 0 ].success( TAKEN );
+
+		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
+		expect( form.form.find( '.rv-availability-status' ).hasClass( 'success' ) ).toBe( true );
 	} );
 
 	test( 'an available answer lifts the block again', () => {
 		const form = setup();
 
-		respondWith( { success: false, data: { message: 'taken' } } );
+		respondWith( TAKEN );
 		form.checkAvailability();
 		respondWith( { success: true, data: {} } );
 		form.checkAvailability();
@@ -114,7 +146,7 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 	test( 'the unavailable card is rendered into the form', () => {
 		const form = setup();
 
-		respondWith( { success: false, data: { message: 'taken' } } );
+		respondWith( TAKEN );
 		form.checkAvailability();
 
 		expect( form.form.find( '.rv-availability-status .rv-availability-error' ).length ).toBe( 1 );

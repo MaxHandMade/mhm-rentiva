@@ -1210,11 +1210,19 @@
                 nonce: window.mhmRentivaBookingForm?.nonce || ''
             };
 
+            // Only the newest check may speak: dates can change while an older
+            // request is still in flight, and its late answer must not overwrite
+            // the newer one (in either direction).
+            const requestSeq = this.availabilitySeq = (this.availabilitySeq || 0) + 1;
+
             $.ajax({
                 url: window.mhmRentivaBookingForm?.ajaxUrl || '',
                 type: 'POST',
                 data: ajaxData,
                 success: (response) => {
+                    if (requestSeq !== this.availabilitySeq) {
+                        return;
+                    }
                     availabilityStatus.removeClass('hidden'); // Show in all cases
 
                     if (response.success) {
@@ -1300,9 +1308,14 @@
                                     </div>
                                 `);
 
-                        // ❌ Vehicle not available - disable button
-                        this.availabilityBlocked = true;
-                        this.submitBtn.prop('disabled', true);
+                        // ❌ Block submit only when the server said the vehicle is
+                        // taken. A refusal without one of these codes is a check
+                        // that could not run (rate limit, nonce, bad input): show
+                        // it, but do not lock a sale for dates that may be free --
+                        // checkout re-checks under a lock anyway.
+                        const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found'];
+                        this.availabilityBlocked = takenCodes.includes(response.data?.code);
+                        this.submitBtn.prop('disabled', this.availabilityBlocked);
 
                         // Alternative vehicle selection buttons
                         availabilityStatus.find('.rv-select-alternative-btn').on('click', (e) => {
@@ -1318,6 +1331,9 @@
                     }
                 },
                 error: (xhr, status, error) => {
+                    if (requestSeq !== this.availabilitySeq) {
+                        return;
+                    }
                     console.error('🔍 AJAX Error:', { xhr, status, error });
                     console.error('🔍 Response Text:', xhr.responseText);
                     // Error state - Modern error card
@@ -1331,9 +1347,9 @@
                                 </div>
                             `);
 
-                    // ❌ Availability check failed - disable button
-                    this.availabilityBlocked = true;
-                    this.submitBtn.prop('disabled', true);
+                    // The check did not answer: say so, but leave submit to the
+                    // rest of the form -- checkout re-checks under a lock.
+                    this.availabilityBlocked = false;
                 }
             });
         }
