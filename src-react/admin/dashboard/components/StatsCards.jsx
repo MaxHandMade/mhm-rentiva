@@ -96,20 +96,23 @@ export default function StatsCards( { metrics, deltas = {}, currency } ) {
 			value: fmt( metrics?.total_bookings ),
 			icon: 'bookings',
 			delta: toDelta( deltas.bookings, fmt( metrics?.bookings_this_month ) ),
-			sub: `${ fmt( metrics?.bookings_this_month ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
+			// translators: %s = this month's booking count; the translation decides the word order.
+			sub: sprintf( _x( '%s this month', 'dashboard KPI delta line', 'mhm-rentiva' ), fmt( metrics?.bookings_this_month ) ),
 		},
 		{
 			label: __( 'Total Revenue', 'mhm-rentiva' ),
 			value: fmtMoney( metrics?.total_revenue ),
 			icon: 'revenue',
 			delta: toDelta( deltas.revenue, fmtMoney( metrics?.monthly_revenue ) ),
-			sub: `${ fmtMoney( metrics?.monthly_revenue ) } ${ __( 'this month', 'mhm-rentiva' ) }`,
+			// translators: %s = this month's revenue, formatted.
+			sub: sprintf( _x( '%s this month', 'dashboard KPI delta line', 'mhm-rentiva' ), fmtMoney( metrics?.monthly_revenue ) ),
 		},
 		{
 			label: __( 'Active Vehicles', 'mhm-rentiva' ),
 			value: fmt( metrics?.available_vehicles ),
 			icon: 'active',
-			sub: `${ fmt( metrics?.total_vehicles ) } ${ __( 'total', 'mhm-rentiva' ) }`,
+			// translators: %s = total number of vehicles.
+			sub: sprintf( __( '%s total', 'mhm-rentiva' ), fmt( metrics?.total_vehicles ) ),
 		},
 		{
 			// The value counts people who booked THIS MONTH, not the customer
