@@ -142,6 +142,21 @@ final class RecalculateBookingCostsTest extends WP_UnitTestCase
 		$this->assertSame( 2700.0, $this->meta( $booking_id, '_mhmrentiva_remaining_amount' ) );
 	}
 
+	public function test_a_deposit_booking_with_nothing_stored_is_not_marked_paid_under_full_payment(): void
+	{
+		// Old or hand-edited data: a "deposit" booking with no deposit amount.
+		// Full payment now applies; nothing was taken, so all of it is owed.
+		$filter = static fn () => array( 'mhmrentiva_rental_deposit_type' => 'full_payment' );
+		add_filter( 'pre_option_mhmrentiva_settings', $filter );
+		$booking_id = $this->booking( 'deposit' );
+
+		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-02', '2026-11-05' );
+		remove_filter( 'pre_option_mhmrentiva_settings', $filter );
+
+		$this->assertSame( 0.0, $this->meta( $booking_id, '_mhmrentiva_deposit_amount' ) );
+		$this->assertSame( 3000.0, $this->meta( $booking_id, '_mhmrentiva_remaining_amount' ) );
+	}
+
 	public function test_weekend_days_are_priced_like_the_booking_form_prices_them(): void
 	{
 		$booking_id = $this->booking( 'deposit' );
