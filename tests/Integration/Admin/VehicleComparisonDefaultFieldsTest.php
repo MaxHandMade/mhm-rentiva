@@ -27,12 +27,42 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 	 * Settings-API globals as they were before init_settings_registration() ran; it registers
 	 * more than the main option (dark mode, add-ons, REST, every group's sections and fields),
 	 * so the fixture restores all of them, not just the one setting it cares about.
+	 * Each entry records whether the global existed, not only its value: "undefined" and
+	 * "null" are different states to leave behind.
 	 *
-	 * @var array<string,mixed>|null
+	 * @var array<string,array{set:bool,value:mixed}>|null
 	 */
 	private ?array $settings_globals = null;
 
-	private const SETTINGS_GLOBALS = array( 'wp_registered_settings', 'new_allowed_options', 'wp_settings_sections', 'wp_settings_fields' );
+	/** register_setting() also aliases new_whitelist_options to new_allowed_options by reference. */
+	private const SETTINGS_GLOBALS = array( 'wp_registered_settings', 'new_allowed_options', 'new_whitelist_options', 'wp_settings_sections', 'wp_settings_fields' );
+
+	/** @return array<string,array{set:bool,value:mixed}> */
+	private static function snapshot_settings_globals(): array {
+		$snapshot = array();
+		foreach ( self::SETTINGS_GLOBALS as $name ) {
+			$set               = array_key_exists( $name, $GLOBALS );
+			$snapshot[ $name ] = array(
+				'set'   => $set,
+				'value' => $set ? $GLOBALS[ $name ] : null,
+			);
+		}
+		return $snapshot;
+	}
+
+	/** @param array<string,array{set:bool,value:mixed}> $snapshot */
+	private static function restore_settings_globals( array $snapshot ): void {
+		foreach ( $snapshot as $name => $state ) {
+			unset( $GLOBALS[ $name ] );
+			if ( $state['set'] ) {
+				$GLOBALS[ $name ] = $state['value'];
+			}
+		}
+		// Re-create core's reference alias when both names existed.
+		if ( $snapshot['new_allowed_options']['set'] && $snapshot['new_whitelist_options']['set'] ) {
+			$GLOBALS['new_whitelist_options'] = &$GLOBALS['new_allowed_options'];
+		}
+	}
 
 	public function tear_down(): void {
 		$this->tear_down_settings_globals();
@@ -49,19 +79,20 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 		} else {
 			update_option( SettingsCore::OPTION_NAME, $settings );
 		}
-		$this->settings_globals = array();
-		foreach ( self::SETTINGS_GLOBALS as $name ) {
-			$this->settings_globals[ $name ] = $GLOBALS[ $name ] ?? null;
-		}
+		$this->settings_globals = self::snapshot_settings_globals();
 		SettingsCore::init_settings_registration();
 	}
 
-	/** The fixture leaves the Settings API globals exactly as it found them. */
-	public function test_the_fixture_restores_the_settings_api_globals(): void {
-		$before = array();
-		foreach ( self::SETTINGS_GLOBALS as $name ) {
-			$before[ $name ] = $GLOBALS[ $name ] ?? null;
+	private function tear_down_settings_globals(): void {
+		if ( null !== $this->settings_globals ) {
+			self::restore_settings_globals( $this->settings_globals );
+			$this->settings_globals = null;
 		}
+	}
+
+	/** Run the fixture twice; the Settings API globals (existence and value) must be unchanged. */
+	private function assert_fixture_leaves_globals_as_found(): void {
+		$before = self::snapshot_settings_globals();
 
 		for ( $i = 0; $i < 2; $i++ ) {
 			$this->seed_then_register_sanitizer( null );
@@ -69,20 +100,25 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 			$this->tear_down_settings_globals();
 		}
 
-		foreach ( self::SETTINGS_GLOBALS as $name ) {
-			$this->assertSame( $before[ $name ], $GLOBALS[ $name ] ?? null, "$name changed across the fixture" );
-		}
+		$this->assertSame( $before, self::snapshot_settings_globals() );
 	}
 
-	private function tear_down_settings_globals(): void {
-		foreach ( (array) $this->settings_globals as $name => $value ) {
-			if ( null === $value ) {
-				unset( $GLOBALS[ $name ] );
-			} else {
-				$GLOBALS[ $name ] = $value;
-			}
+	public function test_the_fixture_restores_the_settings_api_globals_as_found(): void {
+		$this->assert_fixture_leaves_globals_as_found();
+	}
+
+	/** The branch where core has not created the option-group globals yet (no rest_api_init). */
+	public function test_the_fixture_restores_the_settings_api_globals_when_they_start_undefined(): void {
+		$real = self::snapshot_settings_globals();
+		unset( $GLOBALS['new_allowed_options'], $GLOBALS['new_whitelist_options'] );
+
+		try {
+			$this->assert_fixture_leaves_globals_as_found();
+			$this->assertArrayNotHasKey( 'new_allowed_options', $GLOBALS );
+			$this->assertArrayNotHasKey( 'new_whitelist_options', $GLOBALS );
+		} finally {
+			self::restore_settings_globals( $real );
 		}
-		$this->settings_globals = null;
 	}
 
 	/** Default rows that pass the Active-field gate (a Passive field is never a row). */
