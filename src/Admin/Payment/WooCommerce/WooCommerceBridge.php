@@ -675,7 +675,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * @param string $image The product image HTML
 	 * @param \WC_Product $product The product object
-	 * @param string $size The image size
+	 * @param string|int[] $size The image size (WooCommerce emails pass [width, height])
 	 * @param array $attr Image attributes
 	 * @param bool $placeholder Whether to show placeholder
 	 * @return string The filtered image HTML
