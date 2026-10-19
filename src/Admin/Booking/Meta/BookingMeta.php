@@ -1053,67 +1053,72 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * ✅ Rezervasyon maliyetlerini yeniden hesapla
+	 * Re-price a rental booking after an admin edit.
+	 *
+	 * Delegates to DepositCalculator::calculate_booking_deposit(), the calculator the
+	 * booking form and the manual booking screen use, so an admin save produces the
+	 * same total a customer would have been quoted: weekend multiplier, add-on
+	 * pricing type and the vehicle's own deposit setting included. This method used
+	 * to keep its own arithmetic and read two keys nothing writes, which dropped the
+	 * add-ons from the total and charged a hard-coded 20% deposit.
+	 *
+	 * Limits: prices are read as they are today (a vehicle or add-on price changed
+	 * since the booking re-prices it), and per-passenger add-ons are counted once,
+	 * as the calculator counts them at checkout. Deposit and remaining are rewritten
+	 * without looking at payments already received.
 	 */
 	public static function recalculate_booking_costs(int $booking_id, string $pickup_date, string $dropoff_date): void
 	{
-
-		// Normalize date format
-		$pickup_timestamp  = strtotime($pickup_date);
-		$dropoff_timestamp = strtotime($dropoff_date);
-
-		if (! $pickup_timestamp || ! $dropoff_timestamp) {
+		// A transfer is priced by route, not by the vehicle's daily rate. Same
+		// detection the mailer uses.
+		$is_transfer_flag = (string) get_post_meta($booking_id, '_mhmrentiva_is_transfer', true);
+		if (
+			(int) get_post_meta($booking_id, '_mhmrentiva_transfer_origin_id', true) > 0
+			|| 'transfer' === (string) get_post_meta($booking_id, '_mhmrentiva_service_type', true)
+			|| in_array($is_transfer_flag, array( '1', 'yes', 'true' ), true)
+		) {
 			return;
 		}
 
-		// Calculate days
-		$days = max(1, ceil(( $dropoff_timestamp - $pickup_timestamp ) / ( 24 * 60 * 60 )));
-
-		// Get vehicle ID
-		$vehicle_id = get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
-
-		if (! $vehicle_id) {
+		$vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+		if ($vehicle_id <= 0) {
 			return;
 		}
 
-		// Get vehicle daily price - CORRECT META KEY
-		$daily_price = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
-
-		if ($daily_price <= 0) {
+		$datetimes = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes(
+			$pickup_date,
+			(string) get_post_meta($booking_id, '_mhmrentiva_start_time', true),
+			$dropoff_date,
+			(string) get_post_meta($booking_id, '_mhmrentiva_end_time', true)
+		);
+		if (is_wp_error($datetimes)) {
 			return;
 		}
 
-		// Calculate total price
-		$total_price = $daily_price * $days;
+		$days         = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($datetimes['start_ts'], $datetimes['end_ts']);
+		$addon_ids    = array_map('intval', (array) ( get_post_meta($booking_id, '_mhmrentiva_selected_addons', true) ?: array() ));
+		$payment_type = (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
 
-		// Get additional services price
-		$additional_services_price = (float) get_post_meta($booking_id, '_mhmrentiva_additional_services_price', true);
-		$total_price              += $additional_services_price;
-
-		// ✅ Deposit calculation
-		$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
-		$deposit_amount   = 0;
-		$remaining_amount = $total_price;
-
-		if ($payment_type === 'deposit') {
-			// Get deposit percentage (default 20%)
-			$deposit_percentage = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_percentage', true);
-			if ($deposit_percentage <= 0) {
-				$deposit_percentage = 20.0; // Default 20%
-			}
-
-			$deposit_amount   = ( $total_price * $deposit_percentage ) / 100;
-			$remaining_amount = $total_price - $deposit_amount;
+		$result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit(
+			$vehicle_id,
+			$days,
+			'full' === $payment_type ? 'full' : 'deposit',
+			$addon_ids,
+			$datetimes['start_ts']
+		);
+		if (empty($result['success'])) {
+			return;
 		}
 
-		// Update meta keys
+		$total_price = $result['total_amount'];
+
 		update_post_meta($booking_id, '_mhmrentiva_rental_days', $days);
+		update_post_meta($booking_id, '_mhmrentiva_addon_total', $result['addon_total']);
 		update_post_meta($booking_id, '_mhmrentiva_total_price', $total_price);
 
-		// ✅ Update deposit meta keys
-		if ($payment_type === 'deposit') {
-			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', $deposit_amount);
-			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', $remaining_amount);
+		if ('deposit' === $payment_type || 'full' === $payment_type) {
+			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', $result['deposit_amount']);
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', $result['remaining_amount']);
 		}
 
 		// Update old meta keys for compatibility
