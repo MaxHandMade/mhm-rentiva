@@ -38,12 +38,12 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 	}
 
 	public function test_empty_comparison_means_nothing_compares(): void {
-		update_option( 'mhmrentiva_settings', array() ); // no comparison_fields at all
+		update_option( 'mhmrentiva_settings', array( 'comparison_fields' => array() ) ); // saved empty
 
 		$state = VehicleSettings::build_settings_state();
 
-		// The comparison table renders exactly the stored comparison_fields keys; an empty set
-		// renders no rows (VehicleComparison::get_dynamic_features()), so compare is OFF for all.
+		// A saved empty selection renders no rows (VehicleComparison::get_dynamic_features()),
+		// so compare is OFF for all. (Never saved -> defaults: VehicleComparisonDefaultFieldsTest.)
 		foreach ( $state['fields'] as $f ) {
 			$this->assertFalse( $f['compare'], "compare should be OFF when comparison_fields is empty for {$f['id']}" );
 		}

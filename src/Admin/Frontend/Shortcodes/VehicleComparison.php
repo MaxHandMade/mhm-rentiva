@@ -33,6 +33,30 @@ final class VehicleComparison extends AbstractShortcode {
 
 	public const SHORTCODE = 'rentiva_vehicle_comparison';
 
+	/**
+	 * Rows a site compares until the admin saves a selection of their own.
+	 */
+	public const DEFAULT_FIELDS = array(
+		'details' => array( 'price_per_day', 'brand', 'model', 'fuel_type', 'transmission', 'seats', 'doors', 'year' ),
+	);
+
+	/**
+	 * The comparison selection in effect: the saved one, or DEFAULT_FIELDS when the site has
+	 * never saved one. A saved empty selection stays empty (the admin chose to compare nothing).
+	 * The frontend table and the admin screen both read this, so they cannot disagree.
+	 *
+	 * @return array<string,mixed> category => key list
+	 */
+	public static function selected_fields_map(): array
+	{
+		$settings = (array) get_option('mhmrentiva_settings', array());
+		if (! array_key_exists('comparison_fields', $settings)) {
+			return self::DEFAULT_FIELDS;
+		}
+
+		return is_array($settings['comparison_fields']) ? $settings['comparison_fields'] : array();
+	}
+
 	public static function register(): void
 	{
 		parent::register();
@@ -205,11 +229,9 @@ final class VehicleComparison extends AbstractShortcode {
 	 */
 	private static function get_dynamic_features(array $vehicles = array()): array
 	{
-		// Get selected fields from settings
-		$settings            = get_option('mhmrentiva_settings', array());
-		$selected_fields_map = $settings['comparison_fields'] ?? array();
+		$selected_fields_map = self::selected_fields_map();
 
-		// If no selection is made in the settings, return empty flat array
+		// The admin saved an empty selection: nothing compares.
 		if (empty($selected_fields_map)) {
 			return array();
 		}
@@ -411,9 +433,8 @@ final class VehicleComparison extends AbstractShortcode {
 			),
 		);
 
-		// Dynamically fetch ALL admin-selected comparison fields
-		$settings            = get_option('mhmrentiva_settings', array());
-		$selected_fields_map = $settings['comparison_fields'] ?? array();
+		// The comparison selection in effect (saved, or the defaults on an unconfigured site).
+		$selected_fields_map = self::selected_fields_map();
 
 		// Flatten selected keys, dropping Passive fields so the per-vehicle value map matches the
 		// gated comparison rows (get_dynamic_features()).
@@ -443,6 +464,13 @@ final class VehicleComparison extends AbstractShortcode {
 				if (in_array($key, $features_array, true) || in_array($key, $equipment_array, true)) {
 					$value = true; // Found in category array
 				}
+			}
+
+			// Coded values print as their labels, the way the vehicle page shows them.
+			if ('fuel_type' === $key && is_string($value) && '' !== $value) {
+				$value = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_fuel_type_label($value);
+			} elseif ('transmission' === $key && is_string($value) && '' !== $value) {
+				$value = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_transmission_label($value);
 			}
 
 			$data['features'][ $key ] = self::normalize_value($value);

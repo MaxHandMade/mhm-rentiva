@@ -340,10 +340,9 @@ final class VehicleSettings {
 		$detail_hidden_value = esc_attr( wp_json_encode( $detail_selected_rows ) );
 
 		// 2. Comparison Fields
-		$settings                    = get_option( 'mhmrentiva_settings', array() );
-		$selected_comparison_fields  = $settings['comparison_fields'] ?? array();
+		// Same source as the frontend table, so the boxes show what actually renders.
+		$selected_comparison_fields  = \MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::selected_fields_map();
 		$available_comparison_fields = self::get_comparison_available_fields();
-		$show_defaults               = empty( $selected_comparison_fields );
 
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" id="vehicle-display-settings-form">
@@ -465,7 +464,7 @@ final class VehicleSettings {
 										<div class="mhm-checkbox-item">
 											<label class="mhm-checkbox-label">
 												<input type="checkbox" name="comparison_fields[<?php echo esc_attr( $category ); ?>][]" value="<?php echo esc_attr( $field_key ); ?>"
-													<?php checked( $show_defaults || ( isset( $selected_comparison_fields[ $category ] ) && in_array( $field_key, $selected_comparison_fields[ $category ] ) ) ); ?>>
+													<?php checked( isset( $selected_comparison_fields[ $category ] ) && in_array( $field_key, $selected_comparison_fields[ $category ] ) ); ?>>
 												<span><?php echo esc_html( $field_label ); ?></span>
 											</label>
 										</div>
@@ -1106,13 +1105,9 @@ final class VehicleSettings {
 		$card_ids   = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_card_fields() );
 		$detail_ids = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
 
-		// The comparison table renders exactly the keys stored in comparison_fields
-		// (VehicleComparison::get_dynamic_features()); an empty set renders NO comparison rows, so
-		// there is no "empty means all" default -- an empty selection means nothing compares.
-		$settings   = (array) get_option( 'mhmrentiva_settings', array() );
-		$comparison = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
-			? $settings['comparison_fields']
-			: array();
+		// Tick exactly what the comparison table renders: the saved selection, or the defaults on a
+		// site that never saved one. A saved empty selection means nothing compares.
+		$comparison = \MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::selected_fields_map();
 
 		$fields = array();
 		foreach ( $universes as $type => $universe ) {
@@ -1644,7 +1639,8 @@ final class VehicleSettings {
 			$settings                                     = get_option( 'mhmrentiva_settings', array() );
 			$settings['mhmrentiva_vehicle_card_fields']   = array();
 			$settings['mhmrentiva_vehicle_detail_fields'] = array();
-			$settings['comparison_fields']                = array();
+			// Unset (not emptied) so the comparison falls back to its default rows.
+			unset( $settings['comparison_fields'] );
 			update_option( 'mhmrentiva_settings', $settings );
 		} else {
 			// Reset Selection Options (Checkboxes) to default values (Definitions Tab)
