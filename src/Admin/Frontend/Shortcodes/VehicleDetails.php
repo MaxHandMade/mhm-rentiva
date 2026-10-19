@@ -159,6 +159,8 @@ final class VehicleDetails extends AbstractShortcode {
 			'card_features'           => VehicleFeatureHelper::collect_items( $vehicle_id ),
 			'categories'              => self::get_categories( $vehicle_id ),
 			'booking_url'             => self::get_booking_url( $vehicle_id ),
+			// A transfer-only vehicle keeps its page but gets no rental booking button.
+			'rental_bookable'         => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( $vehicle_id, 'rental' ),
 			'rating'                  => self::get_vehicle_rating( $vehicle_id ),
 			'is_favorite'             => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::is_favorite( $vehicle_id ),
 			'is_in_compare'           => class_exists( CompareService::class ) ? CompareService::is_in_compare( $vehicle_id ) : false,

@@ -255,6 +255,51 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		$this->assertSame((string) $this->vehicle_id, (string) get_post_meta($moved, '_mhmrentiva_vehicle_id', true));
 	}
 
+	public function test_moving_a_rental_booking_onto_a_transfer_only_vehicle_is_refused(): void
+	{
+		$transfer_only = $this->track(
+			self::factory()->post->create(
+				array(
+					'post_type'   => 'mhmrentiva_vehicle',
+					'post_status' => 'publish',
+				)
+			)
+		);
+		update_post_meta($transfer_only, '_mhmrentiva_price_per_day', '1000');
+		update_post_meta($transfer_only, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SERVICE_TYPE, 'transfer');
+
+		$moved = $this->booking('confirmed', '2027-03-10', '2027-03-13');
+		$this->admin_save($moved, array( 'mhmrentiva_edit_vehicle_id' => (string) $transfer_only ));
+
+		$this->assertSame((string) $this->vehicle_id, (string) get_post_meta($moved, '_mhmrentiva_vehicle_id', true));
+		$this->assertSame('service_unavailable', get_transient('mhmrentiva_booking_notice_' . get_current_user_id()));
+
+		// A transfer booking may move to it: the service gate is for rentals.
+		BookingMeta::reset_edit_availability_verdicts();
+		$transfer = $this->booking('confirmed', '2027-04-10', '2027-04-11');
+		update_post_meta($transfer, '_mhmrentiva_transfer_origin_id', 5);
+		$this->admin_save($transfer, array( 'mhmrentiva_edit_vehicle_id' => (string) $transfer_only ));
+
+		$this->assertSame((string) $transfer_only, (string) get_post_meta($transfer, '_mhmrentiva_vehicle_id', true));
+	}
+
+	public function test_an_existing_booking_on_a_transfer_only_vehicle_can_still_be_edited(): void
+	{
+		// Bookings made before the gate existed must not be locked out of a date fix.
+		update_post_meta($this->vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SERVICE_TYPE, 'transfer');
+		$booking_id = $this->booking('confirmed', '2027-05-10', '2027-05-12');
+
+		$this->admin_save(
+			$booking_id,
+			array(
+				'mhmrentiva_edit_pickup_date'  => '2027-05-11',
+				'mhmrentiva_edit_dropoff_date' => '2027-05-13',
+			)
+		);
+
+		$this->assertSame('2027-05-11', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true));
+	}
+
 	public function test_a_saved_move_drops_cached_availability_of_both_vehicles(): void
 	{
 		// check_availability() returns a cached "unavailable" without rechecking,

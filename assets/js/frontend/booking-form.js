@@ -1313,7 +1313,7 @@
                         // that could not run (rate limit, nonce, bad input): show
                         // it, but do not lock a sale for dates that may be free --
                         // checkout re-checks under a lock anyway.
-                        const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found'];
+                        const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found', 'service_unavailable'];
                         this.availabilityBlocked = takenCodes.includes(response.data?.code);
                         this.submitBtn.prop('disabled', this.availabilityBlocked);
                         if (!this.availabilityBlocked) {

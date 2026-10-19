@@ -470,7 +470,9 @@ final class Util {
 		// 1. Check Primary Vehicle Availability
 		$primary_result = self::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
-		if ($primary_result['ok']) {
+		// A vehicle that is not offered for rental at all is not a date problem: keep that
+		// refusal as it is instead of turning it into "not available, try these".
+		if ($primary_result['ok'] || 'service_unavailable' === ( $primary_result['code'] ?? '' )) {
 			return $primary_result;
 		}
 
@@ -495,6 +497,14 @@ final class Util {
 	}
 
 	/**
+	 * The one sentence every rental entry point answers a transfer-only vehicle with.
+	 */
+	public static function rental_service_refusal(): string
+	{
+		return __('This vehicle is not available for rental. Please select another vehicle.', 'mhm-rentiva');
+	}
+
+	/**
 	 * Checks availability and returns result (with caching)
 	 */
 	public static function check_availability(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
@@ -505,6 +515,19 @@ final class Util {
 				'ok'      => false,
 				'code'    => 'vehicle_not_found',
 				'message' => __('Selected vehicle not found. Please select a valid vehicle.', 'mhm-rentiva'),
+			);
+		}
+
+		// A transfer-only vehicle is not a rental vehicle. Every rental surface
+		// that asks "is it free?" comes through here -- the booking form's
+		// availability AJAX, the public REST route and the admin manual
+		// booking -- so the refusal lives once, before any cached answer.
+		// (The add-on's transfer checkout does not call this method.)
+		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental')) {
+			return array(
+				'ok'      => false,
+				'code'    => 'service_unavailable',
+				'message' => self::rental_service_refusal(),
 			);
 		}
 
@@ -656,6 +679,9 @@ final class Util {
 				),
 			),
 		);
+
+		// Suggestions are rental suggestions: never offer a transfer-only vehicle.
+		$query_args = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($query_args, 'rental');
 
 		// We will prioritize same-category vehicles via calculate_vehicle_similarity later
 		// instead of hard-filtering here, to avoid returning empty suggestions.

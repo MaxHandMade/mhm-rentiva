@@ -579,6 +579,12 @@ final class BookingForm extends AbstractShortcode {
 			return null;
 		}
 
+		// A transfer-only vehicle named in the URL is not preselected; the form
+		// falls back to its (rental-only) vehicle selector.
+		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental')) {
+			return null;
+		}
+
 		// Use standardized VehiclesList data (matches vehicle-card expectation)
 		$atts_placeholder = array_merge($atts, array(
 			'image_size'   => 'large',
@@ -628,6 +634,11 @@ final class BookingForm extends AbstractShortcode {
 			$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle->ID);
 
 			if ($status !== 'active') {
+				continue;
+			}
+
+			// Rental form: transfer-only vehicles are not offered.
+			if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( (int) $vehicle->ID, 'rental')) {
 				continue;
 			}
 
@@ -889,6 +900,12 @@ final class BookingForm extends AbstractShortcode {
 				/* translators: %s: vehicle status */
 				$error_msg = sprintf(esc_html__('Selected vehicle is not available (Status: %s).', 'mhm-rentiva'), $vehicle_status);
 				return self::failed($error_msg);
+			}
+
+			// A transfer-only vehicle is not offered for rental, whatever id the
+			// browser sends.
+			if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental')) {
+				return self::failed(\MHMRentiva\Admin\Booking\Helpers\Util::rental_service_refusal());
 			}
 
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
@@ -1248,6 +1265,13 @@ final class BookingForm extends AbstractShortcode {
 			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
+
+			// Quoting a rental price for a transfer-only vehicle would promise a
+			// booking the submit path refuses.
+			if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental')) {
+				return self::failed(\MHMRentiva\Admin\Booking\Helpers\Util::rental_service_refusal());
+			}
+
 			// Same acceptance the submit path uses, and for the same reason: this
 			// endpoint is nopriv, so the ids arrive from whoever chose to send
 			// them. It was the busiest member of the class and the one the sweep

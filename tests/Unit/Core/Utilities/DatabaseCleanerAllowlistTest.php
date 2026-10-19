@@ -138,7 +138,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		// historical rows. These remain Pro-written data that Lite's unscoped
 		// invalid-meta cleanup must continue protecting.
 		'_mhmrentiva_vehicle_pause_count_month',
-		'_mhmrentiva_vehicle_service_type',
+		// '_mhmrentiva_vehicle_service_type' left this list when Lite gained its
+		// own reader (MetaKeys::VEHICLE_SERVICE_TYPE, the rental/transfer gate):
+		// it is shared now, and the Lite scan itself keeps it protected.
 		'_mhmrentiva_user_agent', // moved home: WP.org T8 Görev 10b deleted Lite's only scanned occurrence (Handler.php's create_booking_atomic()); Pro's Message.php:127 still writes it
 		'_mhmrentiva_vendor_account_holder',
 		'_mhmrentiva_vendor_approved_at',

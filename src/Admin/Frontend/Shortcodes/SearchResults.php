@@ -637,6 +637,7 @@ final class SearchResults extends AbstractShortcode {
 		 * Filters rental vehicle query arguments without coupling Lite to an
 		 * optional service implementation.
 		 */
+		$args = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
 		$args = apply_filters('mhmrentiva_vehicle_query_args', $args, 'search_results', $params, $atts);
 
 		// Optimization: Inject Availability Filter

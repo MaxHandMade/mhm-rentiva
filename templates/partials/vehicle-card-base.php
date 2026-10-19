@@ -71,6 +71,12 @@ $is_featured   = $vehicle['is_featured'] ?? false;
 $is_favorite   = $vehicle['is_favorite'] ?? false;
 $features      = $vehicle['features'] ?? array();
 
+// A transfer-only vehicle is not offered for rental: its card (favourites,
+// single-card widget) carries no rental booking button.
+if ($show_booking && (int) $vehicle_id > 0 && ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( (int) $vehicle_id, 'rental')) {
+	$show_booking = false;
+}
+
 // Partition the card items (see $show_specs / $show_features above). Items with
 // no type fall back to the chip list, which is how they rendered before.
 $spec_items = array();

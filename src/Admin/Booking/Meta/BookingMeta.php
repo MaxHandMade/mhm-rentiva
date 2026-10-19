@@ -1099,6 +1099,18 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
+	 * Is this booking a transfer rather than a rental? Same detection the mailer uses.
+	 */
+	private static function is_transfer_booking(int $booking_id): bool
+	{
+		$is_transfer_flag = (string) get_post_meta($booking_id, '_mhmrentiva_is_transfer', true);
+
+		return (int) get_post_meta($booking_id, '_mhmrentiva_transfer_origin_id', true) > 0
+			|| 'transfer' === (string) get_post_meta($booking_id, '_mhmrentiva_service_type', true)
+			|| in_array($is_transfer_flag, array( '1', 'yes', 'true' ), true);
+	}
+
+	/**
 	 * Re-price a rental booking after an admin edit.
 	 *
 	 * Delegates to DepositCalculator::calculate_booking_deposit(), the calculator the
@@ -1115,14 +1127,8 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function recalculate_booking_costs(int $booking_id, string $pickup_date, string $dropoff_date): void
 	{
-		// A transfer is priced by route, not by the vehicle's daily rate. Same
-		// detection the mailer uses.
-		$is_transfer_flag = (string) get_post_meta($booking_id, '_mhmrentiva_is_transfer', true);
-		if (
-			(int) get_post_meta($booking_id, '_mhmrentiva_transfer_origin_id', true) > 0
-			|| 'transfer' === (string) get_post_meta($booking_id, '_mhmrentiva_service_type', true)
-			|| in_array($is_transfer_flag, array( '1', 'yes', 'true' ), true)
-		) {
+		// A transfer is priced by route, not by the vehicle's daily rate.
+		if (self::is_transfer_booking($booking_id)) {
 			return;
 		}
 
@@ -1216,7 +1222,11 @@ final class BookingMeta extends AbstractMetaBox {
 				// 'conflict' or 'unverified': a check that could not run refuses
 				// too, because it is the only thing between this edit and a
 				// double booking.
-				self::queue_admin_notice('unverified' === $verdict ? 'availability_unverified' : 'availability_conflict');
+				$notices = array(
+					'unverified' => 'availability_unverified',
+					'service'    => 'service_unavailable',
+				);
+				self::queue_admin_notice($notices[ $verdict ] ?? 'availability_conflict');
 
 				// Core would still add ?message=1 and show "Booking updated." next to
 				// our refusal. Drop it for this booking only.
@@ -1245,10 +1255,23 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * @return string 'free', 'conflict', or 'unverified' when the locked query failed.
+	 * @return string 'free', 'conflict', 'service' when a rental booking is moved
+	 *                onto a vehicle not offered for rental, or 'unverified' when the
+	 *                locked query failed.
 	 */
 	private static function edit_availability_verdict(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, string $new_status): string
 	{
+		// Only a vehicle CHANGE is gated: a booking made before the service gate
+		// existed must still accept a date fix on the vehicle it already has.
+		if ($vehicle_id > 0
+			&& $vehicle_id !== (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true)
+			&& 'mhmrentiva_vehicle' === get_post_type($vehicle_id)
+			&& ! self::is_transfer_booking($booking_id)
+			&& ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental')
+		) {
+			return 'service';
+		}
+
 		$old_status = Status::get($booking_id);
 		$status     = ( '' !== $new_status && Status::can_transition($old_status, $new_status) ) ? $new_status : $old_status;
 
@@ -1520,6 +1543,9 @@ final class BookingMeta extends AbstractMetaBox {
 				break;
 			case 'availability_conflict':
 				echo '<div class="notice notice-error"><p>' . esc_html__('The vehicle is already booked for these dates. The booking details were not saved.', 'mhm-rentiva') . '</p></div>';
+				break;
+			case 'service_unavailable':
+				echo '<div class="notice notice-error"><p>' . esc_html__('This vehicle is not available for rental. Please select another vehicle.', 'mhm-rentiva') . '</p></div>';
 				break;
 			case 'availability_unverified':
 				echo '<div class="notice notice-error"><p>' . esc_html__('Vehicle availability could not be checked. The booking details were not saved. Please try again.', 'mhm-rentiva') . '</p></div>';

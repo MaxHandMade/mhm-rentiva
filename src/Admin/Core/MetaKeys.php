@@ -43,6 +43,22 @@ final class MetaKeys {
 	public const VEHICLE_LOCATION_ID      = '_mhmrentiva_location_id';
 	public const VENDOR_LOCATION_ID       = '_mhmrentiva_vendor_location_id';
 
+	/**
+	 * Which services a vehicle is offered for: 'rental', 'transfer' or 'both'.
+	 * Written by the add-on's transfer meta box and vendor vehicle form; read
+	 * through VehicleDataHelper::get_service_type(), never directly. Absent
+	 * means 'rental', so every vehicle on a Lite-only site stays rentable.
+	 */
+	public const VEHICLE_SERVICE_TYPE = '_mhmrentiva_vehicle_service_type';
+	/**
+	 * Pre-6.0.0 spelling of VEHICLE_SERVICE_TYPE, read only as a fallback when
+	 * the current key holds no value. Taken from the migration map rather than
+	 * spelled out: the map is the one record of which old key the 6.0.0
+	 * migration merged into the new one, and an old-prefix literal here would
+	 * be (correctly) flagged by the prefix gate as a missed rename.
+	 */
+	public const VEHICLE_SERVICE_TYPE_LEGACY = \MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap::POSTMETA_MERGE_WINNERS[ self::VEHICLE_SERVICE_TYPE ];
+
 	// Vendor Profile (v4.37.0)
 	public const VENDOR_SLUG         = '_mhmrentiva_vendor_slug';
 	public const VENDOR_SLUG_HISTORY = '_mhmrentiva_vendor_slug_history';

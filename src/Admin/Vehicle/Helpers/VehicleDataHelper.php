@@ -191,6 +191,170 @@ class VehicleDataHelper {
 		return is_post_publicly_viewable($post);
 	}
 
+	/** Service type values stored in MetaKeys::VEHICLE_SERVICE_TYPE. */
+	public const SERVICE_RENTAL   = 'rental';
+	public const SERVICE_TRANSFER = 'transfer';
+	public const SERVICE_BOTH     = 'both';
+
+	/**
+	 * The service type a vehicle is offered for: 'rental', 'transfer' or 'both'.
+	 *
+	 * Single source of truth for every surface that has to tell a rental vehicle
+	 * from a transfer-only one. The current key wins; the pre-6.0.0 key is read
+	 * only when the current one holds no value. Absent, empty or unrecognised
+	 * values answer 'rental': the field is written by the add-on, so on a
+	 * Lite-only site no vehicle has it and every vehicle must stay rentable.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 * @return string One of the SERVICE_* constants.
+	 */
+	public static function get_service_type(int $vehicle_id): string
+	{
+		$value = trim( (string) get_post_meta($vehicle_id, MetaKeys::VEHICLE_SERVICE_TYPE, true));
+		if ('' === $value) {
+			$value = trim( (string) get_post_meta($vehicle_id, MetaKeys::VEHICLE_SERVICE_TYPE_LEGACY, true));
+		}
+
+		$value = strtolower($value);
+
+		return in_array($value, array( self::SERVICE_RENTAL, self::SERVICE_TRANSFER, self::SERVICE_BOTH ), true)
+			? $value
+			: self::SERVICE_RENTAL;
+	}
+
+	/**
+	 * Whether a vehicle may be booked for the given service.
+	 *
+	 * @param int    $vehicle_id Vehicle post ID.
+	 * @param string $service    'rental' or 'transfer'; anything else is refused.
+	 */
+	public static function allows_service(int $vehicle_id, string $service): bool
+	{
+		if (self::SERVICE_RENTAL !== $service && self::SERVICE_TRANSFER !== $service) {
+			return false;
+		}
+
+		$type = self::get_service_type($vehicle_id);
+
+		return $type === $service || self::SERVICE_BOTH === $type;
+	}
+
+	/**
+	 * A WP_Query meta_query clause selecting the vehicles allows_service() admits.
+	 *
+	 * Mirrors get_service_type() in SQL, including its two fallbacks, so a
+	 * listing and a booking endpoint can never disagree about a vehicle:
+	 *
+	 *   - the current key holds a value  -> that value decides;
+	 *   - otherwise the legacy key decides;
+	 *   - neither holds a recognised value -> 'rental'.
+	 *
+	 * @param string $service 'rental' or 'transfer'.
+	 * @return array<int|string, mixed>
+	 */
+	public static function service_meta_query(string $service): array
+	{
+		$current = MetaKeys::VEHICLE_SERVICE_TYPE;
+		$legacy  = MetaKeys::VEHICLE_SERVICE_TYPE_LEGACY;
+
+		$current_is_blank = array(
+			'relation' => 'OR',
+			array(
+				'key'     => $current,
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'   => $current,
+				'value' => '',
+			),
+		);
+
+		if (self::SERVICE_TRANSFER === $service) {
+			$admitted = array( self::SERVICE_TRANSFER, self::SERVICE_BOTH );
+
+			return array(
+				'relation' => 'OR',
+				array(
+					'key'     => $current,
+					'value'   => $admitted,
+					'compare' => 'IN',
+				),
+				array(
+					'relation' => 'AND',
+					$current_is_blank,
+					array(
+						'key'     => $legacy,
+						'value'   => $admitted,
+						'compare' => 'IN',
+					),
+				),
+			);
+		}
+
+		// Rental: everything except an effective 'transfer'. Unrecognised values
+		// count as rental, so the clause excludes rather than includes.
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => $current,
+				'value'   => array( self::SERVICE_TRANSFER, '' ),
+				'compare' => 'NOT IN',
+			),
+			array(
+				'relation' => 'AND',
+				$current_is_blank,
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => $legacy,
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => $legacy,
+						'value'   => self::SERVICE_TRANSFER,
+						'compare' => '!=',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Narrow vehicle query args to the vehicles offered for a service.
+	 *
+	 * The clause is added beside any existing meta_query without changing what
+	 * that query selects: a top-level OR is wrapped so the service clause ANDs
+	 * with it instead of joining its alternatives.
+	 *
+	 * @param array<string, mixed> $args    WP_Query / get_posts() arguments.
+	 * @param string               $service 'rental' or 'transfer'.
+	 * @return array<string, mixed>
+	 */
+	public static function restrict_query_to_service(array $args, string $service): array
+	{
+		$clause   = self::service_meta_query($service);
+		$existing = isset($args['meta_query']) && is_array($args['meta_query']) ? $args['meta_query'] : array();
+
+		if (array() === $existing) {
+			$args['meta_query'] = array( 'mhmrentiva_service_type' => $clause );
+			return $args;
+		}
+
+		if ('OR' === strtoupper( (string) ( $existing['relation'] ?? 'AND' ))) {
+			$args['meta_query'] = array(
+				'relation'                => 'AND',
+				$existing,
+				'mhmrentiva_service_type' => $clause,
+			);
+			return $args;
+		}
+
+		$existing['mhmrentiva_service_type'] = $clause;
+		$args['meta_query']                  = $existing;
+
+		return $args;
+	}
+
 	/**
 	 * Get vehicle status
 	 */
