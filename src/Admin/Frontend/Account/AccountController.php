@@ -585,17 +585,21 @@ final class AccountController {
 	}
 
 	/**
-	 * Where a visitor registers: the WooCommerce account page when it offers registration,
-	 * else the WordPress registration screen.
+	 * Where a visitor registers, or '' when the site offers no way to.
+	 *
+	 * With a WooCommerce account page, wp-login.php (registration included) is sent to that
+	 * page, so registration exists only when WooCommerce's own account registration is on.
+	 * Without one, the WordPress registration screen, when the site allows it.
 	 */
 	public static function get_register_url(): string
 	{
 		$account_url = self::get_woocommerce_account_permalink();
-		if ('' !== $account_url && 'yes' === get_option('woocommerce_enable_myaccount_registration')) {
-			return $account_url;
+		/** This filter is documented in AccountController::register(). */
+		if ('' !== $account_url && (bool) apply_filters('mhmrentiva_takeover_login', true)) {
+			return 'yes' === get_option('woocommerce_enable_myaccount_registration') ? $account_url : '';
 		}
 
-		return wp_registration_url();
+		return get_option('users_can_register') ? wp_registration_url() : '';
 	}
 
 	/**

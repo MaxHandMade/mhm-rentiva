@@ -135,7 +135,28 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 		$this->assertStringContainsString( 'rv-login-actions', $html, 'Fixture guard: the guest prompt renders.' );
 		$this->assertStringNotContainsString( '[rentiva_login_form]', $html );
 		$this->assertStringNotContainsString( '[rentiva_register_form]', $html );
-		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $account ) ) . '"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $account ) ) . '" class="rv-btn rv-btn-primary"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $account ) ) . '" class="rv-btn rv-btn-secondary"', $html );
+	}
+
+	/**
+	 * With a WooCommerce account page, wp-login.php (registration included) is sent to that page,
+	 * so when WooCommerce registration is off there is no way to register: no button, rather than
+	 * a "Register" link that lands on a login form (measured on dev).
+	 */
+	public function test_no_register_button_when_the_site_offers_no_registration(): void
+	{
+		$account = $this->page( '[woocommerce_my_account]', '2020-01-01 00:00:00' );
+		update_option( 'woocommerce_myaccount_page_id', $account );
+		update_option( 'users_can_register', 1 );
+		update_option( 'woocommerce_enable_myaccount_registration', 'no' );
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
+		wp_set_current_user( 0 );
+
+		$this->assertSame( '', \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
+		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $vehicle . '"]' );
+		$this->assertStringContainsString( 'rv-login-actions', $html, 'Fixture guard: the guest prompt renders.' );
+		$this->assertStringNotContainsString( 'rv-btn-secondary', $html );
 	}
 
 	public function test_without_woocommerce_registration_the_register_link_is_the_wordpress_one(): void
@@ -144,6 +165,8 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 		update_option( 'users_can_register', 1 );
 
 		$this->assertSame( wp_registration_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
+		update_option( 'users_can_register', 0 );
+		$this->assertSame( '', \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
 		$this->assertSame( wp_login_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url() );
 	}
 

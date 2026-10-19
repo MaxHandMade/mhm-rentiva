@@ -385,8 +385,9 @@ $allowed_rating_svg_tags = array(
 					<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url()); ?>" class="rv-btn rv-btn-primary">
 						<?php echo esc_html__('Login', 'mhm-rentiva'); ?>
 					</a>
-					<?php if (get_option('users_can_register')) : ?>
-						<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url()); ?>" class="rv-btn rv-btn-secondary">
+					<?php $rv_register_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url(); ?>
+					<?php if ('' !== $rv_register_url) : /* Only when the site really offers registration. */ ?>
+						<a href="<?php echo esc_url($rv_register_url); ?>" class="rv-btn rv-btn-secondary">
 							<?php echo esc_html__('Register', 'mhm-rentiva'); ?>
 						</a>
 					<?php endif; ?>
