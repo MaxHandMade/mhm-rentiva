@@ -472,6 +472,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// Get special notes - always save if field exists
 		$special_notes = $request->textarea( 'mhmrentiva_edit_special_notes' );
 
+		// This handler runs first (priority 5) and writes the vehicle and dates
+		// before anything else does, so the availability check has to come before
+		// that. A refused edit writes nothing; see guard_edit_availability().
+		if ( ! BookingMeta::guard_edit_availability( $post_id, $new_vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $status ) ) {
+			return;
+		}
+
 		// Update vehicle if changed
 		$old_vehicle_id = get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true );
 		if ( $new_vehicle_id > 0 && $new_vehicle_id != $old_vehicle_id ) {
@@ -559,5 +566,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		update_post_meta( $post_id, '_mhmrentiva_booking_dropoff_date', $dropoff_date );
 		update_post_meta( $post_id, '_mhmrentiva_booking_dropoff_time', $dropoff_time );
 		update_post_meta( $post_id, '_mhmrentiva_booking_guests', $guests );
+
+		BookingMeta::sync_booking_timestamps( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 	}
 }

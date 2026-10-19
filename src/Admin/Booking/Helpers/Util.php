@@ -320,8 +320,12 @@ final class Util {
 
 	/**
 	 * Atomic overlap check (with database lock)
+	 *
+	 * @param int $exclude_booking_id A booking to leave out of the check: the one
+	 *                                being edited, which would otherwise conflict
+	 *                                with itself. 0 checks every booking.
 	 */
-	public static function has_overlap_locked(int $vehicle_id, int $start_ts, int $end_ts): bool
+	public static function has_overlap_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): bool
 	{
 		global $wpdb;
 
@@ -383,6 +387,7 @@ final class Util {
              
              WHERE p.post_type = 'mhmrentiva_booking'
              AND p.post_status = 'publish'
+             AND p.ID <> %d
              AND pm_vid.meta_value = %d
              AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
              AND (
@@ -397,6 +402,7 @@ final class Util {
                  pm_deadline.meta_value = '' OR
                  pm_deadline.meta_value > %s
              )",
+				$exclude_booking_id, // 0 excludes nothing: post IDs start at 1.
 				$vehicle_id,
 				$end_ts,
 				$buffer_seconds,
