@@ -113,8 +113,8 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 	{
 		update_option( 'woocommerce_myaccount_page_id', 0 );
 
-		$this->assertSame( wp_login_url(), self::login_url_of( $class ) );
-		$this->assertNotSame( home_url( '/' ), self::login_url_of( $class ) );
+		// Not "equals wp_login_url()": the plugin filters login_url, so that would be a tautology.
+		$this->assertStringContainsString( 'wp-login.php', self::login_url_of( $class ) );
 	}
 
 	/**
@@ -167,7 +167,7 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 		$this->assertSame( wp_registration_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
 		update_option( 'users_can_register', 0 );
 		$this->assertSame( '', \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
-		$this->assertSame( wp_login_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url() );
+		$this->assertStringContainsString( 'wp-login.php', \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url() );
 	}
 
 	/**

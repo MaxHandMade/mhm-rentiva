@@ -548,11 +548,10 @@ final class AccountController {
 	 */
 	private static function get_wc_login_url(): string
 	{
-		if (! function_exists('wc_get_page_permalink')) {
-			return '';
-		}
-		$url = wc_get_page_permalink('myaccount');
-		return ( is_string($url) && $url !== '' ) ? $url : '';
+		// wc_get_page_permalink() returns the home URL when the account page is missing, which
+		// sent wp-login.php (and every login link) to a page with no login form. Only a real
+		// account page counts; otherwise WordPress keeps its own login.
+		return self::get_woocommerce_account_permalink();
 	}
 
 	/**
