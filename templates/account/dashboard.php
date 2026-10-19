@@ -117,8 +117,11 @@ if ($is_integrated) {
 									$status_label = esc_html__('Cancelled', 'mhm-rentiva');
 									break;
 								default:
-									$status_class = 'status-pending';
-									$status_label = esc_html__('Pending', 'mhm-rentiva');
+									// Every other status used to read "Pending" -- a rental in
+									// progress or awaiting payment included. Same class scheme
+									// as the bookings list.
+									$status_class = 'status-' . sanitize_html_class( (string) $booking_status );
+									$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 							}
 							?>
 							<div class="booking-item">
@@ -132,8 +135,8 @@ if ($is_integrated) {
 										<h4><?php echo $vehicle ? esc_html($vehicle->post_title) : esc_html__('Vehicle Not Found', 'mhm-rentiva'); ?></h4>
 										<p class="booking-number">
 											<?php
-											/* translators: %s: booking post ID. */
-											printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html($booking->ID));
+											/* translators: %s: booking number shown to the customer (the order number when there is one). */
+											printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html(mhmrentiva_get_display_id( (int) $booking->ID)));
 											?>
 										</p>
 									</div>

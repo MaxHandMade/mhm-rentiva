@@ -290,6 +290,25 @@
 	color: var(--mhm-warning);
 }
 
+/* Account dashboard cards only: payment-history rows reuse status-<slug>
+   (status-refunded is purple there) and the bookings list has its own
+   palette in bookings-page.css; neither may pick these up. */
+.mhm-rentiva-account-page .booking-status .status-badge.status-pending_payment {
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-warning);
+}
+
+.mhm-rentiva-account-page .booking-status .status-badge.status-in_progress {
+	background: var(--mhm-gray-100);
+	color: var(--mhm-success);
+}
+
+.mhm-rentiva-account-page .booking-status .status-badge.status-refunded,
+.mhm-rentiva-account-page .booking-status .status-badge.status-no_show {
+	background: var(--mhm-gray-100);
+	color: var(--mhm-error);
+}
+
 .booking-price {
 	font-size: 18px;
 	font-weight: bold;

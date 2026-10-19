@@ -207,7 +207,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									if (isset($status_labels[ $booking_status ])) {
 										$status_label = $status_labels[ $booking_status ];
 									} else {
-										$status_label = ucfirst($booking_status);
+										$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 									}
 									$status_class = 'status-' . $booking_status;
 
@@ -218,7 +218,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									$formatted_date  = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
 									?>
 									<tr>
-										<td class="rv-booking-id">#<?php echo esc_html($booking_row['id']); ?></td>
+										<td class="rv-booking-id">#<?php echo esc_html($booking_row['display_id'] ?? $booking_row['id']); ?></td>
 										<?php if ($show_image) : ?>
 											<td class="rv-vehicle-thumb">
 												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle_title ?? ''); ?>">
@@ -324,7 +324,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									if (isset($status_labels[ $booking_status ])) {
 										$status_label = $status_labels[ $booking_status ];
 									} else {
-										$status_label = ucfirst($booking_status);
+										$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 									}
 									$status_class = 'status-' . $booking_status;
 
@@ -335,7 +335,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									$formatted_date  = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
 									?>
 									<tr>
-										<td class="rv-booking-id">#<?php echo esc_html($booking_row['id']); ?></td>
+										<td class="rv-booking-id">#<?php echo esc_html($booking_row['display_id'] ?? $booking_row['id']); ?></td>
 										<?php if ($show_image) : ?>
 											<td class="rv-vehicle-thumb">
 												<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle_title ?? ''); ?>">

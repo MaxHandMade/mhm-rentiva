@@ -43,6 +43,48 @@ $deposit_amount   = get_post_meta($booking_id, '_mhmrentiva_deposit_amount', tru
 $remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
 $selected_addons  = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true);
 
+// Whether money actually arrived, not the amount asked for:
+// _mhmrentiva_deposit_amount is what the booking requires, so labelling it
+// "paid" told a customer with an unpaid booking that their deposit was in.
+$payment_state  = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking_id );
+// paid() is 0 when the deposit and the balance were paid in different
+// currencies (the amounts cannot be summed), so a paid order counts too.
+$money_received = $payment_state->paid() > 0 || array() !== $payment_state->orders();
+
+// The header used to say "successfully completed" whatever the status, so a
+// pending, unpaid or cancelled booking read as confirmed.
+switch ( (string) $booking_status ) {
+	case 'pending_payment':
+		// Nothing moves until the customer pays; an unpaid booking is
+		// auto-cancelled when its payment window closes.
+		$header_title = __( 'Awaiting Payment', 'mhm-rentiva' );
+		$header_text  = __( 'Your booking will be confirmed once your payment is received.', 'mhm-rentiva' );
+		break;
+	case 'pending':
+		$header_title = __( 'Booking Received', 'mhm-rentiva' );
+		$header_text  = __( 'We have received your booking and will confirm it shortly. Please find your booking details below.', 'mhm-rentiva' );
+		break;
+	case 'cancelled':
+	case 'refunded':
+		$header_title = __( 'Booking Cancelled', 'mhm-rentiva' );
+		$header_text  = __( 'This booking has been cancelled.', 'mhm-rentiva' );
+		break;
+	case 'completed':
+		$header_title = __( 'Booking Completed', 'mhm-rentiva' );
+		$header_text  = __( 'This booking has been completed. Thank you for renting with us.', 'mhm-rentiva' );
+		break;
+	case 'confirmed':
+		$header_title = __( 'Booking Confirmation', 'mhm-rentiva' );
+		$header_text  = __( 'Your reservation has been successfully completed. Please find your booking details below.', 'mhm-rentiva' );
+		break;
+	default:
+		$header_title = __( 'Booking Details', 'mhm-rentiva' );
+		$header_text  = '';
+}
+// Pickup instructions only before pickup: in_progress means the vehicle is
+// already with the customer.
+$shows_next_steps = 'confirmed' === (string) $booking_status;
+
 // Payment method from WooCommerce order
 $wc_order_id          = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
 $payment_method_title = '';
@@ -79,7 +121,7 @@ $status_text = array(
 	'cancelled'   => __('Cancelled', 'mhm-rentiva'),
 );
 
-$status_display = $status_text[ $booking_status ] ?? ucfirst($booking_status);
+$status_display = $status_text[ $booking_status ] ?? \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 $status_class   = 'status-' . $booking_status;
 
 $wrapper_class = 'mhm-rentiva-account-page';
@@ -108,8 +150,10 @@ if ($is_integrated) {
 
 		<!-- Header -->
 		<div class="rv-page-header">
-			<h1><?php esc_html_e('Booking Confirmation', 'mhm-rentiva'); ?></h1>
-			<p><?php esc_html_e('Your reservation has been successfully completed. Please find your booking details below.', 'mhm-rentiva'); ?></p>
+			<h1><?php echo esc_html( $header_title ); ?></h1>
+			<?php if ( '' !== $header_text ) : ?>
+				<p><?php echo esc_html( $header_text ); ?></p>
+			<?php endif; ?>
 		</div>
 
 		<!-- Booking Details -->
@@ -179,7 +223,7 @@ if ($is_integrated) {
 				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
 					<!-- Deposit Amount -->
 					<div class="rv-detail-row">
-						<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
+						<div class="rv-detail-label"><?php echo esc_html( $money_received ? __( 'Deposit Paid', 'mhm-rentiva' ) : __( 'Deposit Amount', 'mhm-rentiva' ) ); ?></div>
 						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $deposit_amount, 2)); ?></div>
 					</div>
 
@@ -189,7 +233,7 @@ if ($is_integrated) {
 						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $remaining_amount, 2)); ?></div>
 					</div>
 
-					<?php if ( (float) $remaining_amount > 0 && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
+					<?php if ( (float) $remaining_amount > 0 && ! ( $wc_order_id && ! $money_received ) && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
 						<?php if ( \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::is_hybrid_booking( (int) $booking_id ) ) : ?>
 						<div class="rv-detail-row rv-pay-remaining-row">
 							<div class="rv-detail-label"></div>
@@ -239,11 +283,14 @@ if ($is_integrated) {
 			</div>
 		</div>
 
-		<!-- Next Steps -->
+		<?php if ( $shows_next_steps ) : ?>
+		<!-- Next Steps: only for a booking that is going ahead. The old text also
+		     asked for "the credit card used", which a bank-transfer booking never had. -->
 		<div class="rv-next-steps">
 			<h2><?php esc_html_e('Next Steps', 'mhm-rentiva'); ?></h2>
-			<p><?php esc_html_e('Please arrive at the pickup location 15 minutes prior to your scheduled pickup time. Remember to bring your driver\'s license and the credit card used for the reservation.', 'mhm-rentiva'); ?></p>
+			<p><?php esc_html_e( 'Please arrive at the pickup location 15 minutes before your scheduled pickup time and bring your driver\'s license.', 'mhm-rentiva' ); ?></p>
 		</div>
+		<?php endif; ?>
 
 		<!-- Actions -->
 		<div class="rv-booking-actions">

@@ -300,6 +300,9 @@ final class AccountRenderer {
 
 		return array(
 			'id'            => (int) $booking->ID,
+			// The number every other screen and email shows (the order number
+			// when there is one); the raw post ID made one booking two numbers.
+			'display_id'    => mhmrentiva_get_display_id( (int) $booking->ID),
 			'vehicle_title' => $vehicle instanceof \WP_Post ? $vehicle->post_title : null,
 			'vehicle_image' => is_string($vehicle_image) ? $vehicle_image : '',
 			'status'        => get_post_meta($booking->ID, '_mhmrentiva_status', true),
@@ -823,10 +826,15 @@ final class AccountRenderer {
 					)
 				)
 			);
+			// One query for every candidate's meta, instead of one per candidate
+			// when the display number is resolved below.
+			update_meta_cache('post', array_map('intval', $ids));
 			$matched                = array_values(
 				array_filter(
 					array_map('intval', $ids),
+					// Match the number the customer sees as well as the raw ID.
 					static fn(int $id): bool => false !== strpos( (string) $id, $search)
+						|| false !== strpos( (string) mhmrentiva_get_display_id($id), $search)
 				)
 			);
 			$query_args['post__in'] = array() !== $matched ? $matched : array( 0 );
