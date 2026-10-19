@@ -92,7 +92,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Customer Portal**: Customer account system with booking history, favorites, and payment history
 - **Reporting**: Dashboard with revenue, customer, and vehicle insights
 - **Email System**: Automated email notifications with customizable HTML templates
-- **REST API**: REST API for third-party integrations and mobile apps
+- **REST API**: availability lookups for the booking UI and data for the React admin screens
 
 ### Who Is This For?
 
@@ -503,7 +503,7 @@ All major admin pages have been migrated from legacy jQuery/WP_List_Table to Rea
 | **About** | v5.0.0 | AboutPage, TabNav, GeneralTab, SystemTab, SupportTab, DeveloperTab | `/mhm-rentiva/v1/about` |
 
 **Architecture Highlights:**
-- **REST API First**: All data fetched via authenticated WP REST API endpoints (manage_options capability)
+- **REST API First**: All data fetched via authenticated WP REST API endpoints (administrator-level capabilities)
 - **Shared Component Library**: `shared/admin.css` — stats grid, KPI boxes, status badges, pagination shared across all pages
 - **Zero jQuery Dependency**: All pages use React 18 hooks, fetch API, and wp.i18n for translations
 - **Mobile Responsive**: All admin pages fully responsive at WP admin breakpoints (782px / 480px)
@@ -670,11 +670,9 @@ The plugin registers **16 shortcodes** across booking, account and supporting su
 ```
 
 ### Authentication (Auth)
-Requests are verified by `AuthHelper::verifyAuth()`:
-- **X-WP-Nonce**: the standard WordPress REST nonce (`wp_rest`), sent by the plugin's own pages.
-- **Payment nonce**: guest payment steps carry a booking-bound `mhmrentiva_nonce` in the request body.
+Requests carry the standard WordPress REST nonce (`X-WP-Nonce`, action `wp_rest`), which the plugin's own pages print; the availability routes verify it through `AuthHelper::verifyAuth()`.
 
-There are no API keys or third-party tokens; the REST API serves the plugin's own screens.
+In Lite there are no API keys or third-party tokens; the REST API serves the plugin's own screens.
 
 ### Rate Limiting
 The availability endpoints are limited per IP by `RateLimiter` — 60 requests per minute by default.
@@ -684,7 +682,9 @@ The availability endpoints are limited per IP by `RateLimiter` — 60 requests p
 - `GET|POST /availability/with-alternatives` — The same check, with alternative vehicles when the requested one is taken.
 - `GET /vehicles/{id}/blocked-dates` — Dates a vehicle cannot be booked.
 
-The remaining routes under this namespace back the admin screens (dashboard, customers, contact messages, shortcode pages) and require an administrator. Rentiva Pro adds its own routes (locations, vendor and customer-account features).
+None of these needs a login. The two availability routes require a valid `X-WP-Nonce`; `blocked-dates` needs none.
+
+The remaining routes under this namespace back the admin screens (dashboard, customers, contact messages, shortcode pages, about) and require an administrator-level capability (`manage_options`; customers: `edit_users` / `delete_users`). Rentiva Pro adds its own routes (locations, vendor and customer-account features).
 
 ---
 

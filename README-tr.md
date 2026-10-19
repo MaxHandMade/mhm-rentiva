@@ -95,7 +95,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **WooCommerce Hesabım Entegrasyonu**: Müşteriler standart WooCommerce "Hesabım" sayfasını kullanır; eklenti bu sayfaya Rezervasyonlarım, Favorilerim ve Ödeme Geçmişi sekmelerini ekler
 - **Raporlama**: Gelir, müşteri ve araç içgörüleri ile kontrol paneli
 - **E-posta Sistemi**: Özelleştirilebilir HTML şablonları ile otomatik e-posta bildirimleri
-- **REST API**: Üçüncü taraf entegrasyonları ve mobil uygulamalar için REST API
+- **REST API**: Rezervasyon arayüzü için müsaitlik sorguları ve React yönetim ekranları için veri
 
 ### Bu Eklenti Kimler İçin?
 
@@ -496,21 +496,21 @@ Eklenti, esnek yerleşimler için kapsamlı bir shortcode setine sahiptir.
 ```
 
 ### Kimlik Doğrulama (Auth)
-İstekler `AuthHelper::verifyAuth()` ile doğrulanır:
-- **X-WP-Nonce**: Eklentinin kendi sayfalarının gönderdiği standart WordPress REST nonce'u (`wp_rest`).
-- **Ödeme nonce'u**: Misafir ödeme adımları, istek gövdesinde rezervasyona bağlı bir `mhmrentiva_nonce` taşır.
+İstekler, eklentinin kendi sayfalarının bastığı standart WordPress REST nonce'unu (`X-WP-Nonce`, eylem `wp_rest`) taşır; müsaitlik uçları bunu `AuthHelper::verifyAuth()` ile doğrular.
 
-API anahtarı ya da üçüncü taraf belirteci yoktur; REST API eklentinin kendi ekranlarına hizmet eder.
+Lite'ta API anahtarı ya da üçüncü taraf belirteci yoktur; REST API eklentinin kendi ekranlarına hizmet eder.
 
 ### Hız Sınırlama (Rate Limiting)
 Müsaitlik uçları `RateLimiter` ile IP başına sınırlanır — varsayılan dakikada 60 istek.
 
-### Herkese Açık Uçlar
+### Oturum Gerektirmeyen Uçlar
 - `GET|POST /availability` — Araç verilen tarihlerde müsait mi (durum, fiyat, para birimi).
 - `GET|POST /availability/with-alternatives` — Aynı kontrol; istenen araç doluysa alternatif araçlarla.
 - `GET /vehicles/{id}/blocked-dates` — Aracın rezerve edilemeyeceği tarihler.
 
-Bu ad alanındaki diğer rotalar yönetim ekranlarını (pano, müşteriler, iletişim mesajları, kısa kod sayfaları) besler ve yönetici yetkisi ister. Rentiva Pro kendi rotalarını ekler (lokasyonlar, bayi ve müşteri hesabı özellikleri).
+İlk iki uç geçerli bir `X-WP-Nonce` ister (oturum değil); `blocked-dates` nonce istemez.
+
+Bu ad alanındaki diğer rotalar yönetim ekranlarını (pano, müşteriler, iletişim mesajları, kısa kod sayfaları, hakkında) besler ve yönetici düzeyi yetki ister (`manage_options`; müşteriler: `edit_users` / `delete_users`). Rentiva Pro kendi rotalarını ekler (lokasyonlar, bayi ve müşteri hesabı özellikleri).
 
 ---
 
@@ -599,7 +599,7 @@ Tüm büyük admin sayfaları eski jQuery/WP_List_Table altyapısından REST API
 | **Hakkında** | v5.0.0 | AboutPage, TabNav, GeneralTab, SystemTab, SupportTab, DeveloperTab | `/mhm-rentiva/v1/about` |
 
 **Mimari Öne Çıkanlar:**
-- **REST API Önce**: Tüm veriler kimlik doğrulamalı WP REST API uç noktaları üzerinden alınır (manage_options yetkisi)
+- **REST API Önce**: Tüm veriler kimlik doğrulamalı WP REST API uç noktaları üzerinden alınır (yönetici düzeyi yetkiler)
 - **Paylaşılan Bileşen Kütüphanesi**: `shared/admin.css` — stats grid, KPI kutuları, durum rozetleri, sayfalama tüm sayfalarda ortaklaştırıldı
 - **jQuery Bağımlılığı Yok**: Tüm sayfalar React 18 hook'ları, fetch API ve wp.i18n kullanır
 - **Mobil Duyarlı**: Tüm admin sayfaları WP admin breakpoint'lerinde (782px / 480px) tam duyarlı
