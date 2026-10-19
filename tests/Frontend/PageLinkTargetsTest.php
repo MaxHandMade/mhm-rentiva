@@ -40,6 +40,15 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 		);
 	}
 
+	/** Site registration on/off; on multisite users_can_register is read from the network's 'registration'. */
+	private static function allow_registration( bool $on ): void
+	{
+		update_option( 'users_can_register', $on ? 1 : 0 );
+		if ( is_multisite() ) {
+			update_site_option( 'registration', $on ? 'user' : 'none' );
+		}
+	}
+
 	public function test_a_block_matches_by_its_whole_name_not_a_prefix(): void
 	{
 		$this->page( '<!-- wp:mhm-rentiva/search-results /-->', '2020-01-02 00:00:00' );
@@ -125,7 +134,7 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 	{
 		$account = $this->page( '[woocommerce_my_account]', '2020-01-01 00:00:00' );
 		update_option( 'woocommerce_myaccount_page_id', $account );
-		update_option( 'users_can_register', 1 );
+		self::allow_registration( true );
 		update_option( 'woocommerce_enable_myaccount_registration', 'yes' );
 		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
 		wp_set_current_user( 0 );
@@ -148,7 +157,7 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 	{
 		$account = $this->page( '[woocommerce_my_account]', '2020-01-01 00:00:00' );
 		update_option( 'woocommerce_myaccount_page_id', $account );
-		update_option( 'users_can_register', 1 );
+		self::allow_registration( true );
 		update_option( 'woocommerce_enable_myaccount_registration', 'no' );
 		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
 		wp_set_current_user( 0 );
@@ -162,10 +171,10 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 	public function test_without_woocommerce_registration_the_register_link_is_the_wordpress_one(): void
 	{
 		update_option( 'woocommerce_myaccount_page_id', 0 );
-		update_option( 'users_can_register', 1 );
+		self::allow_registration( true );
 
 		$this->assertSame( wp_registration_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
-		update_option( 'users_can_register', 0 );
+		self::allow_registration( false );
 		$this->assertSame( '', \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
 		$this->assertStringContainsString( 'wp-login.php', \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url() );
 	}
