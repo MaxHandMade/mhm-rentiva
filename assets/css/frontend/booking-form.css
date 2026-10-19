@@ -6423,7 +6423,11 @@
 	color: #ffffff;
 }
 
+/* availability-calendar.css hides an unscoped .rv-availability-error until it
+   gets .show-error. When that stylesheet loads on the same page it hid this
+   card -- and the alternative vehicles inside it -- from the visitor. */
 .rv-booking-form-wrapper .rv-availability-error {
+	display: block;
 	background: transparent !important;
 	color: inherit;
 	box-shadow: none !important;

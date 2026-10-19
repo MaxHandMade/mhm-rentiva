@@ -36,6 +36,10 @@
             // Enable button at form start (terms checkbox will control it)
             this.submitBtn.prop('disabled', false);
 
+            // Set by checkAvailability() when the vehicle is taken or the check
+            // failed; nothing else may re-enable submit while it is set.
+            this.availabilityBlocked = false;
+
             // Deposit system elements
             this.paymentTypeRadios = this.form.find('input[name="payment_type"]');
             this.paymentMethodRadios = this.form.find('input[name="payment_method"]');
@@ -221,7 +225,7 @@
             const termsCheckbox = this.container.find('.rv-terms-checkbox-input');
             if (termsCheckbox.length) {
                 const isChecked = termsCheckbox.is(':checked');
-                this.submitBtn.prop('disabled', !isChecked);
+                this.submitBtn.prop('disabled', !isChecked || !!this.availabilityBlocked);
             }
         }
 
@@ -658,7 +662,9 @@
 
                     if (response.success) {
                         this.updatePriceDisplay(response.data);
-                        this.submitBtn.prop('disabled', false);
+                        // The availability check runs alongside this request; a
+                        // price answer must not undo its "unavailable".
+                        this.submitBtn.prop('disabled', !!this.availabilityBlocked);
                     } else {
                         this.showError(response.data?.message || this.getMessage('error'));
                     }
@@ -1222,6 +1228,7 @@
                                 `);
 
                         // ✅ Vehicle available - enable button
+                        this.availabilityBlocked = false;
                         this.submitBtn.prop('disabled', false);
                     } else {
                         // Not available
@@ -1294,6 +1301,7 @@
                                 `);
 
                         // ❌ Vehicle not available - disable button
+                        this.availabilityBlocked = true;
                         this.submitBtn.prop('disabled', true);
 
                         // Alternative vehicle selection buttons
@@ -1324,6 +1332,7 @@
                             `);
 
                     // ❌ Availability check failed - disable button
+                    this.availabilityBlocked = true;
                     this.submitBtn.prop('disabled', true);
                 }
             });
@@ -1425,7 +1434,7 @@
                 this.submitBtn.find('.rv-btn-loading').removeClass('rv-hidden');
             } else {
                 this.loadingEl.addClass('rv-hidden').addClass('rv-hidden');
-                this.submitBtn.prop('disabled', false);
+                this.submitBtn.prop('disabled', !!this.availabilityBlocked);
                 this.submitBtn.find('.rv-btn-loading').addClass('rv-hidden');
             }
         }
