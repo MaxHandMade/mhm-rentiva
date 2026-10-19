@@ -228,6 +228,89 @@ class BlockTranslationsTest extends WP_UnitTestCase
         $this->assertSame($pack, $this->filter($file, $handle));
     }
 
+    /**
+     * A JSON catalogue in wp make-json shape.
+     *
+     * @param array<string,array<int,string>> $messages
+     */
+    private function catalogue(string $plural_forms, array $messages): string
+    {
+        $locale = array( '' => array( 'domain' => 'messages', 'lang' => 'tr_TR', 'plural-forms' => $plural_forms ) ) + $messages;
+
+        return (string) wp_json_encode(array( 'domain' => 'messages', 'locale_data' => array( 'messages' => $locale ) ));
+    }
+
+    private function register_rentiva_handle(string $handle): void
+    {
+        $this->created_handles[] = $handle;
+        wp_register_script($handle, 'https://example.test/' . $handle . '.js', array(), '1', true);
+        wp_set_script_translations($handle, 'mhm-rentiva', MHMRENTIVA_PLUGIN_DIR . 'languages/');
+    }
+
+    /**
+     * The pack is chosen (it carries translations approved on WP.org after our release),
+     * but it only knows the strings of the last GlotPress import -- strings added since
+     * then showed in English (measured: 119 on the dev site). The pack now wins where it
+     * has a key; the bundled catalogue fills the keys it does not have.
+     */
+    public function test_the_pack_is_completed_from_the_bundled_catalogue(): void
+    {
+        $handle = 'mhm-rentiva-test-merge';
+        $this->register_rentiva_handle($handle);
+        $bundled = $this->bundled_file('merge.js');
+        $this->write_file($bundled, $this->catalogue('nplurals=2; plural=n != 1;', array(
+            'Only bundled' => array( 'Yalnız pakette yok' ),
+            'Both'         => array( 'Eklentideki yazım' ),
+        )));
+        $this->write_file($this->pack_file_for($bundled), $this->catalogue('nplurals=2; plural=(n > 1);', array(
+            'Both'      => array( 'Paketteki yazım' ),
+            'Only pack' => array( 'Yalnız pakette' ),
+        )));
+
+        // The core function, so the file swap and the merge run exactly as on a page load.
+        $loaded = json_decode((string) load_script_translations($bundled, $handle, 'mhm-rentiva'), true);
+        $messages = $loaded['locale_data']['messages'] ?? array();
+
+        $this->assertSame(array( 'Yalnız pakette yok' ), $messages['Only bundled'] ?? null, 'A string the pack lacks comes from the bundled catalogue.');
+        $this->assertSame(array( 'Paketteki yazım' ), $messages['Both'] ?? null, 'Where both have it, the pack wins.');
+        $this->assertSame(array( 'Yalnız pakette' ), $messages['Only pack'] ?? null);
+        $this->assertSame('nplurals=2; plural=(n > 1);', $messages['']['plural-forms'] ?? null, 'The header stays the pack\'s.');
+    }
+
+    public function test_without_a_bundled_catalogue_the_pack_is_untouched(): void
+    {
+        $handle = 'mhm-rentiva-test-merge-nobundle';
+        $this->register_rentiva_handle($handle);
+        $bundled = $this->bundled_file('merge-nobundle.js');
+        $pack    = $this->catalogue('nplurals=2; plural=(n > 1);', array( 'A' => array( 'a' ) ));
+        $this->write_file($this->pack_file_for($bundled), $pack);
+
+        $this->assertSame($pack, apply_filters('load_script_translations', $pack, $this->pack_file_for($bundled), $handle, 'mhm-rentiva'));
+    }
+
+    public function test_an_unreadable_bundled_catalogue_leaves_the_pack_untouched(): void
+    {
+        $handle = 'mhm-rentiva-test-merge-broken';
+        $this->register_rentiva_handle($handle);
+        $bundled = $this->bundled_file('merge-broken.js');
+        $this->write_file($bundled, '{not json');
+        $pack = $this->catalogue('nplurals=2; plural=(n > 1);', array( 'A' => array( 'a' ) ));
+        $this->write_file($this->pack_file_for($bundled), $pack);
+
+        $this->assertSame($pack, apply_filters('load_script_translations', $pack, $this->pack_file_for($bundled), $handle, 'mhm-rentiva'));
+    }
+
+    public function test_a_foreign_handle_is_not_merged(): void
+    {
+        $handle                  = 'mhm-rentiva-test-merge-foreign';
+        $this->created_handles[] = $handle;
+        wp_register_script($handle, 'https://example.test/foreign2.js', array(), '1', true);
+        wp_set_script_translations($handle, 'foreign', '/var/tmp/foreign-plugin/languages/');
+        $pack = $this->catalogue('nplurals=2; plural=(n > 1);', array( 'A' => array( 'a' ) ));
+
+        $this->assertSame($pack, apply_filters('load_script_translations', $pack, WP_LANG_DIR . '/plugins/foreign-tr_TR-x.json', $handle, 'foreign'));
+    }
+
     public function test_react_handle_goes_through_filter(): void
     {
         // A React page handle registered the way ui-core does it: `$base_dir . 'languages/'`.
