@@ -96,9 +96,13 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 
 		respondWith( TAKEN );
 		form.checkAvailability();
-		$.ajax = jest.fn( ( options ) => options.error( {}, 'error', 'boom' ) );
+		// New dates: the price answer lands first (the old lock still stands),
+		// then the availability request fails. Nothing else re-enables submit,
+		// so the failure branch itself must lift the lock.
+		respondWith( { success: true, data: {} } );
+		form.calculatePrice();
+		$.ajax = jest.fn( ( options ) => options.error( { status: 429 }, 'error', 'Too Many Requests' ) );
 		form.checkAvailability();
-		form.showLoading( false );
 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
 		// The error handler logs the failed request.
@@ -108,9 +112,10 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 	test( 'a refusal without an availability code (rate limit, nonce) does not lock the sale', () => {
 		const form = setup();
 
+		respondWith( TAKEN );
+		form.checkAvailability();
 		respondWith( { success: false, data: { message: 'Too many availability checks. Please wait.' } } );
 		form.checkAvailability();
-		form.showLoading( false );
 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
 		expect( form.form.find( '.rv-availability-status' ).text() ).toContain( 'Too many availability checks' );

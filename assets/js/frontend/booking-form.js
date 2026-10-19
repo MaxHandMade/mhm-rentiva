@@ -1316,6 +1316,9 @@
                         const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found'];
                         this.availabilityBlocked = takenCodes.includes(response.data?.code);
                         this.submitBtn.prop('disabled', this.availabilityBlocked);
+                        if (!this.availabilityBlocked) {
+                            this.updateButtonState();
+                        }
 
                         // Alternative vehicle selection buttons
                         availabilityStatus.find('.rv-select-alternative-btn').on('click', (e) => {
@@ -1347,9 +1350,12 @@
                                 </div>
                             `);
 
-                    // The check did not answer: say so, but leave submit to the
-                    // rest of the form -- checkout re-checks under a lock.
+                    // The check did not answer: say so, and lift any lock an
+                    // earlier "taken" left behind -- nothing else will. The terms
+                    // checkbox still applies; checkout re-checks under a lock.
                     this.availabilityBlocked = false;
+                    this.submitBtn.prop('disabled', false);
+                    this.updateButtonState();
                 }
             });
         }
