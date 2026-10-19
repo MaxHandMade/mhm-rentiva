@@ -574,6 +574,46 @@ final class AccountController {
 	}
 
 	/**
+	 * Where a customer signs in: the WooCommerce account page (its login form), else the
+	 * WordPress login. No Rentiva shortcode renders a login form.
+	 */
+	public static function get_login_url(): string
+	{
+		$account_url = self::get_woocommerce_account_permalink();
+
+		return '' !== $account_url ? $account_url : wp_login_url();
+	}
+
+	/**
+	 * Where a visitor registers: the WooCommerce account page when it offers registration,
+	 * else the WordPress registration screen.
+	 */
+	public static function get_register_url(): string
+	{
+		$account_url = self::get_woocommerce_account_permalink();
+		if ('' !== $account_url && 'yes' === get_option('woocommerce_enable_myaccount_registration')) {
+			return $account_url;
+		}
+
+		return wp_registration_url();
+	}
+
+	/**
+	 * Permalink of the WooCommerce account page, or '' when there is none.
+	 */
+	private static function get_woocommerce_account_permalink(): string
+	{
+		if (! function_exists('wc_get_page_id')) {
+			return '';
+		}
+
+		$account_page_id = (int) \wc_get_page_id('myaccount');
+		$permalink       = $account_page_id > 0 ? get_permalink($account_page_id) : false;
+
+		return is_string($permalink) ? $permalink : '';
+	}
+
+	/**
 	 * Get My Account URL
 	 */
 	public static function get_account_url(): string

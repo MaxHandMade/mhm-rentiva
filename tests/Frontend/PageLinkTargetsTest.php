@@ -24,6 +24,8 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 	{
 		parent::set_up();
 		wp_cache_flush();
+		// get_page_url() also memoises per request; do not rely on save_post to clear it.
+		ShortcodeUrlManager::clear_cache();
 	}
 
 	private function page( string $content, string $date ): int
@@ -43,6 +45,14 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 		$this->page( '<!-- wp:mhm-rentiva/search-results /-->', '2020-01-02 00:00:00' );
 
 		$this->assertNull( ShortcodeUrlManager::get_page_id( 'rentiva_search' ) );
+	}
+
+	public function test_a_hand_written_block_with_a_newline_after_its_name_is_found(): void
+	{
+		$grid = $this->page( "<!-- wp:mhm-rentiva/vehicles-grid
+/-->", '2020-01-02 00:00:00' );
+
+		$this->assertSame( $grid, ShortcodeUrlManager::get_page_id( 'rentiva_vehicles_grid' ) );
 	}
 
 	public function test_the_whole_block_name_is_still_found(): void
@@ -105,6 +115,36 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 
 		$this->assertSame( wp_login_url(), self::login_url_of( $class ) );
 		$this->assertNotSame( home_url( '/' ), self::login_url_of( $class ) );
+	}
+
+	/**
+	 * The rating form's guest prompt opened modals filled by [rentiva_login_form] and
+	 * [rentiva_register_form] -- tags nothing registers, so visitors saw the raw text.
+	 */
+	public function test_the_rating_form_sends_guests_to_real_login_and_register_pages(): void
+	{
+		$account = $this->page( '[woocommerce_my_account]', '2020-01-01 00:00:00' );
+		update_option( 'woocommerce_myaccount_page_id', $account );
+		update_option( 'users_can_register', 1 );
+		update_option( 'woocommerce_enable_myaccount_registration', 'yes' );
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
+		wp_set_current_user( 0 );
+
+		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $vehicle . '"]' );
+
+		$this->assertStringContainsString( 'rv-login-actions', $html, 'Fixture guard: the guest prompt renders.' );
+		$this->assertStringNotContainsString( '[rentiva_login_form]', $html );
+		$this->assertStringNotContainsString( '[rentiva_register_form]', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $account ) ) . '"', $html );
+	}
+
+	public function test_without_woocommerce_registration_the_register_link_is_the_wordpress_one(): void
+	{
+		update_option( 'woocommerce_myaccount_page_id', 0 );
+		update_option( 'users_can_register', 1 );
+
+		$this->assertSame( wp_registration_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
+		$this->assertSame( wp_login_url(), \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url() );
 	}
 
 	/**

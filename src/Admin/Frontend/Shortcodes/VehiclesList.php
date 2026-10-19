@@ -649,17 +649,8 @@ final class VehiclesList extends AbstractShortcode {
 		}
 
 		// No login shortcode exists: get_page_url('rentiva_login') fell back to the home page,
-		// so the link never reached a login form. Customers sign in on the WooCommerce account
-		// page; without WooCommerce, the WordPress login.
-		if (function_exists('wc_get_page_id')) {
-			$account_page_id = (int) \wc_get_page_id('myaccount');
-			$account_url     = $account_page_id > 0 ? get_permalink($account_page_id) : false;
-			if (is_string($account_url) && '' !== $account_url) {
-				return $account_url;
-			}
-		}
-
-		return wp_login_url();
+		// so the link never reached a login form.
+		return \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url();
 	}
 
 	/**

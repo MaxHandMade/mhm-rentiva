@@ -382,32 +382,14 @@ $allowed_rating_svg_tags = array(
 				<h4><?php echo esc_html__('Login Required', 'mhm-rentiva'); ?></h4>
 				<p><?php echo esc_html__('You must be logged in to submit a rating and review.', 'mhm-rentiva'); ?></p>
 				<div class="rv-login-actions">
-					<a href="#" class="rv-btn rv-btn-primary rv-show-login-form">
+					<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url()); ?>" class="rv-btn rv-btn-primary">
 						<?php echo esc_html__('Login', 'mhm-rentiva'); ?>
 					</a>
 					<?php if (get_option('users_can_register')) : ?>
-						<a href="#" class="rv-btn rv-btn-secondary rv-show-register-form">
+						<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url()); ?>" class="rv-btn rv-btn-secondary">
 							<?php echo esc_html__('Register', 'mhm-rentiva'); ?>
 						</a>
 					<?php endif; ?>
-				</div>
-
-				<!-- Login Form Modal -->
-				<div class="rv-login-modal" style="display: none;">
-					<div class="rv-modal-content">
-						<span class="rv-modal-close">&times;</span>
-						<h3><?php echo esc_html__('Login', 'mhm-rentiva'); ?></h3>
-						<?php echo wp_kses_post(do_shortcode('[rentiva_login_form]')); ?>
-					</div>
-				</div>
-
-				<!-- Register Form Modal -->
-				<div class="rv-register-modal" style="display: none;">
-					<div class="rv-modal-content">
-						<span class="rv-modal-close">&times;</span>
-						<h3><?php echo esc_html__('Register', 'mhm-rentiva'); ?></h3>
-						<?php echo wp_kses_post(do_shortcode('[rentiva_register_form]')); ?>
-					</div>
 				</div>
 			</div>
 		</div>
