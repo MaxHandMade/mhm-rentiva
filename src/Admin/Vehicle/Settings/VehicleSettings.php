@@ -1636,7 +1636,7 @@ final class VehicleSettings {
 
 		if ( $tab === 'display' ) {
 			// Reset Display Options to their defaults.
-			$settings                                     = get_option( 'mhmrentiva_settings', array() );
+			$settings = get_option( 'mhmrentiva_settings', array() );
 			// An empty card/detail selection means "show nothing", not "defaults"
 			// (VehicleFeatureHelper::get_selected_detail_fields()), so write the defaults.
 			$default_card_fields                          = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields();
