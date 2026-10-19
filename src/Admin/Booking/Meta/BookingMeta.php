@@ -1061,6 +1061,11 @@ final class BookingMeta extends AbstractMetaBox {
 	 * pricing type and the vehicle's own deposit setting included. This method used
 	 * to keep its own arithmetic and read two keys nothing writes, which dropped the
 	 * add-ons from the total and charged a hard-coded 20% deposit.
+	 *
+	 * Limits: prices are read as they are today (a vehicle or add-on price changed
+	 * since the booking re-prices it), and per-passenger add-ons are counted once,
+	 * as the calculator counts them at checkout. Deposit and remaining are rewritten
+	 * without looking at payments already received.
 	 */
 	public static function recalculate_booking_costs(int $booking_id, string $pickup_date, string $dropoff_date): void
 	{

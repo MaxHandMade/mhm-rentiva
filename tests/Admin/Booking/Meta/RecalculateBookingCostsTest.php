@@ -138,17 +138,28 @@ final class RecalculateBookingCostsTest extends WP_UnitTestCase
 			)
 		);
 
-		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-02', '2026-11-02' );
+		// A valid one-day range: without the transfer guard this would be re-priced
+		// at the vehicle's 1000/day, so the date check cannot be what keeps it.
+		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-02', '2026-11-03' );
 
 		$this->assertSame( 1025.0, $this->meta( $booking_id, '_mhmrentiva_total_price' ), 'A transfer is priced by route, not by the daily rate.' );
 		$this->assertSame( 1025.0, $this->meta( $booking_id, '_mhmrentiva_deposit_amount' ) );
+	}
+
+	public function test_reversed_dates_leave_the_booking_untouched(): void
+	{
+		$booking_id = $this->booking( 'deposit', array( '_mhmrentiva_total_price' => '4242' ) );
+
+		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-05', '2026-11-02' );
+
+		$this->assertSame( 4242.0, $this->meta( $booking_id, '_mhmrentiva_total_price' ) );
 	}
 
 	public function test_unparseable_dates_leave_the_booking_untouched(): void
 	{
 		$booking_id = $this->booking( 'deposit', array( '_mhmrentiva_total_price' => '4242' ) );
 
-		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-05', '2026-11-02' );
+		BookingMeta::recalculate_booking_costs( $booking_id, 'not-a-date', '2026-11-02' );
 
 		$this->assertSame( 4242.0, $this->meta( $booking_id, '_mhmrentiva_total_price' ) );
 	}
