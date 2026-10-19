@@ -995,7 +995,7 @@
 		}
 
 		// Reset resets the tab the user is actually on (client-side tab, not the stale ?tab= that
-		// the legacy flow localized once). fields -> definitions defaults, display -> display wiped.
+		// the legacy flow localized once). fields -> definitions defaults, display -> display defaults.
 		function wireReset() {
 			var btn = document.getElementById( 'reset-vehicle-settings' );
 			if ( ! btn ) {

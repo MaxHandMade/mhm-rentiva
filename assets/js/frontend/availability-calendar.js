@@ -353,7 +353,7 @@
                     .map(feature => `
                         <div class="rv-feature-item">
                             ${feature.svg}
-                            <span class="rv-feature-text">${feature.text}</span>
+                            <span class="rv-feature-text">${this.escapeHtml(feature.text)}</span>
                         </div>
                     `)
                     .join('');
