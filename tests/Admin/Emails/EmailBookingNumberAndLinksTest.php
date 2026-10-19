@@ -71,9 +71,31 @@ final class EmailBookingNumberAndLinksTest extends WP_UnitTestCase
 
 	public function test_the_cancellation_email_links_to_the_booking_not_a_dead_my_account_url(): void
 	{
-		$template = (string) file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'templates/emails/booking-cancelled.html.php' );
+		// Render the real template with the variables CancellationHandler passes.
+		$booking_id    = $this->booking_id;
+		$customer_name = 'Test';
+		$vehicle_name  = 'Vehicle';
+		$pickup_date   = '2030-05-10';
+		$dropoff_date  = '2030-05-12';
+		$reason        = '';
+		ob_start();
+		include MHMRENTIVA_PLUGIN_DIR . 'templates/emails/booking-cancelled.html.php';
+		$html = (string) ob_get_clean();
 
-		$this->assertStringNotContainsString( 'mhmrentiva_my_account_url', $template, 'No registered setting backs this key; it always fell back to /my-account/.' );
-		$this->assertStringContainsString( 'AccountController::get_booking_view_url', $template );
+		$this->assertStringContainsString(
+			esc_url( \MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( $this->booking_id ) ),
+			$html
+		);
+		$this->assertStringNotContainsString( '/my-account/', $html, 'No registered setting backed the old URL; it always fell back to /my-account/.' );
+	}
+
+	public function test_the_admin_preview_shows_the_same_number_as_the_real_email(): void
+	{
+		$build = new \ReflectionMethod( \MHMRentiva\Admin\Emails\Templates\EmailPreview::class, 'build_context' );
+		$build->setAccessible( true );
+		$preview = $build->invoke( null, $this->booking_id, 'customer', 'confirmed', 'booking_status_changed_customer' );
+
+		$this->assertSame( $this->order_number, $preview['booking']['display_id'] ?? null );
+		$this->assertSame( $this->order_number, $preview['booking']['order_id'] ?? null );
 	}
 }
