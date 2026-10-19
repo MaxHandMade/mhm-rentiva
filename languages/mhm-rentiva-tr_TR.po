@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-19T04:09:30+00:00\n"
+"POT-Creation-Date: 2026-10-19T04:24:54+00:00\n"
 "PO-Revision-Date: 2026-10-12 16:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -759,7 +759,7 @@ msgstr "Fiyat başarıyla güncellendi."
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:418
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
-#: templates/account/booking-detail.php:257
+#: templates/account/booking-detail.php:263
 #: templates/shortcodes/booking-form.php:321
 #: src-react/admin/dashboard/components/QuickActions.jsx:19
 msgid "Additional Services"
@@ -1291,11 +1291,11 @@ msgstr "Bekleyen ödeme"
 #: src/Admin/Core/AssetManager.php:924
 #: src/Admin/Emails/Core/EmailTemplates.php:474
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
-#: src/Admin/Frontend/Account/AccountRenderer.php:925
+#: src/Admin/Frontend/Account/AccountRenderer.php:928
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:338
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1015
-#: src/Frontend/PreviewSamples.php:208 templates/account/booking-detail.php:108
+#: src/Frontend/PreviewSamples.php:208 templates/account/booking-detail.php:114
 #: templates/account/bookings.php:117 templates/account/bookings.php:201
 #: templates/account/bookings.php:318 templates/account/dashboard.php:121
 #: templates/emails/booking-created-customer.html.php:92
@@ -1314,7 +1314,7 @@ msgstr "Bekleyen"
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1016
-#: templates/account/booking-detail.php:109 templates/account/bookings.php:118
+#: templates/account/booking-detail.php:115 templates/account/bookings.php:118
 #: templates/account/bookings.php:202 templates/account/bookings.php:319
 #: templates/account/dashboard.php:109 assets/blocks/my-bookings/index.js:39
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
@@ -1327,7 +1327,7 @@ msgstr "Onaylandı"
 #: src/Admin/Core/AssetManager.php:926
 #: src/Admin/Emails/Notifications/BookingNotifications.php:155
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:71
-#: templates/account/booking-detail.php:110 templates/account/bookings.php:119
+#: templates/account/booking-detail.php:116 templates/account/bookings.php:119
 #: templates/account/bookings.php:203 templates/account/bookings.php:320
 #: assets/blocks/my-bookings/index.js:40
 #: src-react/admin/dashboard/components/RecentBookings.jsx:12
@@ -1340,10 +1340,10 @@ msgstr "Devam ediyor"
 #: src/Admin/Booking/Meta/BookingMeta.php:1398
 #: src/Admin/Core/AssetManager.php:927
 #: src/Admin/Emails/Notifications/BookingNotifications.php:156
-#: src/Admin/Frontend/Account/AccountRenderer.php:926
+#: src/Admin/Frontend/Account/AccountRenderer.php:929
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:339
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
-#: src/Frontend/PreviewSamples.php:190 templates/account/booking-detail.php:111
+#: src/Frontend/PreviewSamples.php:190 templates/account/booking-detail.php:117
 #: templates/account/bookings.php:120 templates/account/bookings.php:204
 #: templates/account/bookings.php:321 templates/account/dashboard.php:113
 #: templates/emails/booking-created-admin.html.php:65
@@ -1362,11 +1362,11 @@ msgstr "Tamamlandı"
 #: src/Admin/Core/AssetManager.php:928
 #: src/Admin/Emails/Notifications/BookingNotifications.php:157
 #: src/Admin/Emails/Templates/EmailPreview.php:241
-#: src/Admin/Frontend/Account/AccountRenderer.php:927
+#: src/Admin/Frontend/Account/AccountRenderer.php:930
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:340
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:73
 #: src/Admin/Settings/Groups/EmailSettings.php:237
-#: templates/account/booking-detail.php:112 templates/account/bookings.php:121
+#: templates/account/booking-detail.php:118 templates/account/bookings.php:121
 #: templates/account/bookings.php:205 templates/account/bookings.php:322
 #: templates/account/dashboard.php:117
 #: templates/emails/booking-created-admin.html.php:67
@@ -1518,7 +1518,7 @@ msgstr "[ADMIN] Rezervasyon iptal edildi - #%d"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:653
 #: src/Admin/Booking/Meta/BookingMeta.php:689
-#: templates/account/booking-detail.php:61
+#: templates/account/booking-detail.php:66
 msgid "Booking Cancelled"
 msgstr "Rezervasyon iptal edildi"
 
@@ -1839,7 +1839,7 @@ msgstr "Rezervasyon kimliği"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:928
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:211
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
-#: templates/account/booking-detail.php:163
+#: templates/account/booking-detail.php:169
 #: templates/admin/partials/booking-popup.php:77
 #: templates/shortcodes/contact-form.php:144
 #: src-react/admin/dashboard/components/RecentBookings.jsx:61
@@ -1863,7 +1863,7 @@ msgstr "Toplam"
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:240
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:298
-#: templates/account/booking-detail.php:217
+#: templates/account/booking-detail.php:223
 msgid "Deposit Amount"
 msgstr "Kapora tutarı"
 
@@ -1873,7 +1873,7 @@ msgstr "Kapora tutarı"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:505
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:564
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:951
-#: templates/account/booking-detail.php:223
+#: templates/account/booking-detail.php:229
 msgid "Remaining Amount"
 msgstr "Kalan tutar"
 
@@ -1889,7 +1889,7 @@ msgstr "Ödeme"
 #: src/Admin/Setup/SetupWizard.php:466
 #: src/Admin/Utilities/ListTable/LogColumns.php:76
 #: src/Admin/Utilities/ListTable/LogColumns.php:145
-#: templates/account/booking-detail.php:186 templates/account/bookings.php:171
+#: templates/account/booking-detail.php:192 templates/account/bookings.php:171
 #: templates/account/bookings.php:288
 #: src-react/admin/contact-messages/components/ContactTable.jsx:55
 #: src-react/admin/customers/components/CustomerTable.jsx:86
@@ -2232,7 +2232,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:496
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:555
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:945
-#: templates/account/booking-detail.php:194
+#: templates/account/booking-detail.php:200
 msgid "Payment Type"
 msgstr "Ödeme türü"
 
@@ -2256,14 +2256,14 @@ msgstr "Kapora"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1811
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:214
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:255
-#: templates/account/booking-detail.php:196
+#: templates/account/booking-detail.php:202
 msgid "Full Payment"
 msgstr "Tam ödeme"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:221
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:467
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
-#: templates/account/booking-detail.php:203
+#: templates/account/booking-detail.php:209
 msgid "Payment Method"
 msgstr "Ödeme yöntemi"
 
@@ -2400,8 +2400,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:419
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
-#: templates/account/booking-detail.php:300
-#: templates/account/booking-detail.php:331
+#: templates/account/booking-detail.php:306
+#: templates/account/booking-detail.php:337
 msgid "Cancel Booking"
 msgstr "Rezervasyonu iptal et"
 
@@ -2471,7 +2471,7 @@ msgid "BK-"
 msgstr "RZ-"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:166
-#: templates/account/booking-detail.php:157
+#: templates/account/booking-detail.php:163
 msgid "Booking Reference"
 msgstr "Rezervasyon referansı"
 
@@ -2495,8 +2495,8 @@ msgstr "Araç seç"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:216
 #: src/Admin/Booking/Meta/BookingMeta.php:363
 #: src/Admin/Booking/Meta/BookingMeta.php:410
-#: templates/account/booking-detail.php:74
-#: templates/account/booking-detail.php:139
+#: templates/account/booking-detail.php:78
+#: templates/account/booking-detail.php:145
 #: templates/admin/partials/booking-popup.php:34
 #: templates/emails/booking-status-changed-customer.html.php:28
 #: templates/emails/receipt-status-email.html.php:243
@@ -2719,7 +2719,7 @@ msgid "Email Type:"
 msgstr "E-posta türü:"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:686
-#: templates/account/booking-detail.php:70
+#: templates/account/booking-detail.php:74
 msgid "Booking Confirmation"
 msgstr "Rezervasyon onayı"
 
@@ -6777,7 +6777,7 @@ msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
 #: src/Admin/Frontend/Account/AccountController.php:340
-#: templates/account/booking-detail.php:245
+#: templates/account/booking-detail.php:251
 msgid "Pay Remaining Amount"
 msgstr "Kalan tutarı öde"
 
@@ -7041,7 +7041,7 @@ msgstr "Bu rezervasyonu görüntüleme izniniz yok."
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:693
 #: src/Admin/Utilities/Menu/Menu.php:55 src/Admin/Utilities/Menu/Menu.php:56
-#: templates/account/booking-detail.php:135
+#: templates/account/booking-detail.php:141
 #: src-react/admin/dashboard/DashboardPage.jsx:37
 msgid "Dashboard"
 msgstr "Başlangıç ekranı"
@@ -7049,7 +7049,7 @@ msgstr "Başlangıç ekranı"
 #: src/Admin/Frontend/Account/AccountRenderer.php:698
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:25
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:47
-#: templates/account/booking-detail.php:137
+#: templates/account/booking-detail.php:143
 msgid "My Bookings"
 msgstr "Rezervasyonlarım"
 
@@ -9831,13 +9831,13 @@ msgstr "Araç kiralama rezervasyonu"
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:477
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:541
-#: templates/account/booking-detail.php:174
+#: templates/account/booking-detail.php:180
 msgid "Pickup Date & Time"
 msgstr "Teslim alma tarihi ve saati"
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:482
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:546
-#: templates/account/booking-detail.php:180
+#: templates/account/booking-detail.php:186
 msgid "Return Date & Time"
 msgstr "Dönüş tarihi ve saati"
 
@@ -9846,7 +9846,7 @@ msgstr "Dönüş tarihi ve saati"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:943
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1786
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:254
-#: templates/account/booking-detail.php:196
+#: templates/account/booking-detail.php:202
 msgid "Deposit Payment"
 msgstr "Kapora ödemesi"
 
@@ -10726,7 +10726,7 @@ msgstr ""
 "ayrıntılarınız aşağıdadır:"
 
 #: src/Admin/Settings/Groups/EmailSettings.php:132
-#: templates/account/booking-detail.php:152
+#: templates/account/booking-detail.php:158
 #: templates/emails/booking-created-admin.html.php:29
 #: templates/emails/booking-created-customer.html.php:16
 msgid "Reservation Details"
@@ -11300,7 +11300,7 @@ msgid "Back to Bookings Text"
 msgstr "Rezervasyonlara geri dön metni"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:391
-#: templates/account/booking-detail.php:289
+#: templates/account/booking-detail.php:295
 msgid "Back to Bookings"
 msgstr "Rezervasyonlara geri dön"
 
@@ -14384,30 +14384,39 @@ msgstr "büyük harf, küçük harf, rakam ve özel karakter dahil"
 msgid "Confirm New Password"
 msgstr "Yeni parolayı onayla"
 
-#: templates/account/booking-detail.php:56
+#: templates/account/booking-detail.php:57
+msgid "Awaiting Payment"
+msgstr "Ödeme bekleniyor"
+
+#: templates/account/booking-detail.php:58
+msgid "Your booking will be confirmed once your payment is received."
+msgstr "Ödemeniz alındığında rezervasyonunuz onaylanacak."
+
+#: templates/account/booking-detail.php:61
 msgid "Booking Received"
 msgstr "Rezervasyon alındı"
 
-#: templates/account/booking-detail.php:57
+#: templates/account/booking-detail.php:62
 msgid ""
 "We have received your booking and will confirm it shortly. Please find your "
 "booking details below."
 msgstr ""
-"Rezervasyonunuzu aldık, kısa süre içinde onaylayacağız. Rezervasyon bilgileriniz aşağıdadır."
+"Rezervasyonunuzu aldık, kısa süre içinde onaylayacağız. Rezervasyon "
+"bilgileriniz aşağıdadır."
 
-#: templates/account/booking-detail.php:62
+#: templates/account/booking-detail.php:67
 msgid "This booking has been cancelled."
 msgstr "Bu rezervasyon iptal edildi."
 
-#: templates/account/booking-detail.php:65
+#: templates/account/booking-detail.php:70
 msgid "Booking Completed"
 msgstr "Rezervasyon tamamlandı"
 
-#: templates/account/booking-detail.php:66
+#: templates/account/booking-detail.php:71
 msgid "This booking has been completed. Thank you for renting with us."
 msgstr "Bu rezervasyon tamamlandı. Bizi tercih ettiğiniz için teşekkür ederiz."
 
-#: templates/account/booking-detail.php:71
+#: templates/account/booking-detail.php:75
 msgid ""
 "Your reservation has been successfully completed. Please find your booking "
 "details below."
@@ -14415,15 +14424,15 @@ msgstr ""
 "Rezervasyonunuz başarıyla tamamlanmıştır. Rezervasyon ayrıntılarınızı "
 "aşağıda bulabilirsiniz."
 
-#: templates/account/booking-detail.php:210
+#: templates/account/booking-detail.php:216
 msgid "Total Cost"
 msgstr "Toplam tutar"
 
-#: templates/account/booking-detail.php:217
+#: templates/account/booking-detail.php:223
 msgid "Deposit Paid"
 msgstr "Ödenen kapora"
 
-#: templates/account/booking-detail.php:232
+#: templates/account/booking-detail.php:238
 msgid ""
 "Your deposit was paid outside our website, so we will contact you directly "
 "to collect the remaining balance."
@@ -14431,36 +14440,38 @@ msgstr ""
 "Kaporanız web sitemiz dışında ödendiği için, kalan bakiyeyi tahsil etmek "
 "üzere sizinle doğrudan iletişime geçeceğiz."
 
-#: templates/account/booking-detail.php:281
+#: templates/account/booking-detail.php:287
 msgid "Next Steps"
 msgstr "Sonraki adımlar"
 
-#: templates/account/booking-detail.php:282
+#: templates/account/booking-detail.php:288
 msgid ""
 "Please arrive at the pickup location 15 minutes before your scheduled pickup "
 "time and bring your driver's license."
-msgstr "Lütfen teslim alma saatinden 15 dakika önce teslim alma konumunda olun ve ehliyetinizi yanınızda getirin."
+msgstr ""
+"Lütfen teslim alma saatinden 15 dakika önce teslim alma konumunda olun ve "
+"ehliyetinizi yanınızda getirin."
 
-#: templates/account/booking-detail.php:336
+#: templates/account/booking-detail.php:342
 msgid ""
 "Are you sure you want to cancel this booking? This action cannot be undone."
 msgstr ""
 "Bu rezervasyonu iptal etmek istediğinize emin misiniz? Bu eylem geri "
 "alınamaz."
 
-#: templates/account/booking-detail.php:341
+#: templates/account/booking-detail.php:347
 msgid "Reason for cancellation (optional):"
 msgstr "İptal nedeni (isteğe bağlı):"
 
-#: templates/account/booking-detail.php:343
+#: templates/account/booking-detail.php:349
 msgid "Please tell us why you're cancelling..."
 msgstr "Lütfen iptal nedeninizi belirtin..."
 
-#: templates/account/booking-detail.php:349
+#: templates/account/booking-detail.php:355
 msgid "Keep Booking"
 msgstr "Rezervasyonu sürdür"
 
-#: templates/account/booking-detail.php:350
+#: templates/account/booking-detail.php:356
 msgid "Yes, Cancel Booking"
 msgstr "Evet, rezervasyonu iptal et"
 

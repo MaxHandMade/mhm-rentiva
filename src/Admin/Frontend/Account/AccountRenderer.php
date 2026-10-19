@@ -826,6 +826,9 @@ final class AccountRenderer {
 					)
 				)
 			);
+			// One query for every candidate's meta, instead of one per candidate
+			// when the display number is resolved below.
+			update_meta_cache('post', array_map('intval', $ids));
 			$matched                = array_values(
 				array_filter(
 					array_map('intval', $ids),

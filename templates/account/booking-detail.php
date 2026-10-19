@@ -51,8 +51,13 @@ $amount_received = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int
 // The header used to say "successfully completed" whatever the status, so a
 // pending, unpaid or cancelled booking read as confirmed.
 switch ( (string) $booking_status ) {
-	case 'pending':
 	case 'pending_payment':
+		// Nothing moves until the customer pays; an unpaid booking is
+		// auto-cancelled when its payment window closes.
+		$header_title = __( 'Awaiting Payment', 'mhm-rentiva' );
+		$header_text  = __( 'Your booking will be confirmed once your payment is received.', 'mhm-rentiva' );
+		break;
+	case 'pending':
 		$header_title = __( 'Booking Received', 'mhm-rentiva' );
 		$header_text  = __( 'We have received your booking and will confirm it shortly. Please find your booking details below.', 'mhm-rentiva' );
 		break;
@@ -66,7 +71,6 @@ switch ( (string) $booking_status ) {
 		$header_text  = __( 'This booking has been completed. Thank you for renting with us.', 'mhm-rentiva' );
 		break;
 	case 'confirmed':
-	case 'in_progress':
 		$header_title = __( 'Booking Confirmation', 'mhm-rentiva' );
 		$header_text  = __( 'Your reservation has been successfully completed. Please find your booking details below.', 'mhm-rentiva' );
 		break;
@@ -74,7 +78,9 @@ switch ( (string) $booking_status ) {
 		$header_title = __( 'Booking Details', 'mhm-rentiva' );
 		$header_text  = '';
 }
-$shows_next_steps = in_array( (string) $booking_status, array( 'confirmed', 'in_progress' ), true );
+// Pickup instructions only before pickup: in_progress means the vehicle is
+// already with the customer.
+$shows_next_steps = 'confirmed' === (string) $booking_status;
 
 // Payment method from WooCommerce order
 $wc_order_id          = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
@@ -112,7 +118,7 @@ $status_text = array(
 	'cancelled'   => __('Cancelled', 'mhm-rentiva'),
 );
 
-$status_display = $status_text[ $booking_status ] ?? ucfirst($booking_status);
+$status_display = $status_text[ $booking_status ] ?? \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 $status_class   = 'status-' . $booking_status;
 
 $wrapper_class = 'mhm-rentiva-account-page';

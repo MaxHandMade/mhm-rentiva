@@ -207,7 +207,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									if (isset($status_labels[ $booking_status ])) {
 										$status_label = $status_labels[ $booking_status ];
 									} else {
-										$status_label = ucfirst($booking_status);
+										$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 									}
 									$status_class = 'status-' . $booking_status;
 
@@ -324,7 +324,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									if (isset($status_labels[ $booking_status ])) {
 										$status_label = $status_labels[ $booking_status ];
 									} else {
-										$status_label = ucfirst($booking_status);
+										$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
 									}
 									$status_class = 'status-' . $booking_status;
 
