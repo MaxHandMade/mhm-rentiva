@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php esc_html_e( 'Payment Approved', 'mhm-rentiva' ); ?> - #<?php echo esc_html( $data['booking']['id'] ?? '' ); ?></title>
+	<title><?php esc_html_e( 'Payment Approved', 'mhm-rentiva' ); ?> - #<?php echo esc_html( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ); ?></title>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
@@ -120,7 +120,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p>
 				<?php
 				/* translators: %s: booking ID. */
-				printf( esc_html__( 'Your payment for Reservation #%s has been successfully verified.', 'mhm-rentiva' ), esc_html( $data['booking']['id'] ?? '' ) );
+				printf( esc_html__( 'Your payment for Reservation #%s has been successfully verified.', 'mhm-rentiva' ), esc_html( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ) );
 				?>
 			</p>
 			<p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></p>
@@ -145,7 +145,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="booking-details">
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Reservation No:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value">#<?php echo esc_html( $data['booking']['id'] ?? '' ); ?></span>
+					<span class="detail-value">#<?php echo esc_html( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ); ?></span>
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Vehicle:', 'mhm-rentiva' ); ?></span>

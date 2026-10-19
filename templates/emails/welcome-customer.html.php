@@ -15,7 +15,7 @@
 		// ✅ Use WooCommerce native approach instead of ShortcodeUrlManager
 		$account_url = function_exists( 'wc_get_page_permalink' )
 			? wc_get_page_permalink( 'myaccount' )
-			: home_url( '/my-account/' );
+			: \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
 		?>
 		<p style="text-align:center">
 			<a class="cta-button" href="<?php echo esc_url( $account_url ); ?>" style="display: inline-block; background: #2196F3; color: white; padding: 12px 22px; text-decoration: none; border-radius: 6px; margin: 10px 0; font-weight: 600;">

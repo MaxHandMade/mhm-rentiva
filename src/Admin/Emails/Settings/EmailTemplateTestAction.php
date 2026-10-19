@@ -92,6 +92,9 @@ final class EmailTemplateTestAction {
 		return array(
 			'booking'  => array(
 				'id'              => $booking_id,
+				// Same numbers the real email carries (Mailer::getBookingContext).
+				'order_id'        => mhmrentiva_get_display_id( (int) $booking_id ),
+				'display_id'      => mhmrentiva_get_display_id( (int) $booking_id ),
 				'title'           => $post->post_title,
 				'status'          => $post->post_status,
 				'payment_status'  => $payment_status,

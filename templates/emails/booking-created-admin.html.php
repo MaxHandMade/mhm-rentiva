@@ -31,7 +31,7 @@
 		<table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; background: #f8f9fa; border-radius: 8px;">
 			<tr>
 				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; color: #555; width: 35%;"><strong><?php esc_html_e( 'Reservation No:', 'mhm-rentiva' ); ?></strong></td>
-				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">#<?php echo esc_html( $data['booking']['id'] ?? '' ); ?></td>
+				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; text-align: right;">#<?php echo esc_html( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ); ?></td>
 			</tr>
 			<tr>
 				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong><?php esc_html_e( 'Vehicle:', 'mhm-rentiva' ); ?></strong></td>

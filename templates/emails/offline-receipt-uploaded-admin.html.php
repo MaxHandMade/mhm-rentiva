@@ -8,7 +8,7 @@
 	<title>
 		<?php
 		/* translators: %s: booking ID. */
-		echo esc_html( sprintf( __( 'New Receipt · Booking #%s', 'mhm-rentiva' ), (string) ( $data['booking']['id'] ?? '' ) ) );
+		echo esc_html( sprintf( __( 'New Receipt · Booking #%s', 'mhm-rentiva' ), (string) ( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ) ) );
 		?>
 	</title>
 	<style>
@@ -30,7 +30,7 @@
 			<h1><?php esc_html_e( 'Receipt Uploaded (Admin)', 'mhm-rentiva' ); ?></h1>
 		</div>
 		<div class="content">
-			<div class="detail-row"><span class="detail-label"><?php esc_html_e( 'Booking No:', 'mhm-rentiva' ); ?></span><span class="detail-value">#<?php echo esc_html( (string) ( $data['booking']['id'] ?? '' ) ); ?></span></div>
+			<div class="detail-row"><span class="detail-label"><?php esc_html_e( 'Booking No:', 'mhm-rentiva' ); ?></span><span class="detail-value">#<?php echo esc_html( (string) ( $data['booking']['display_id'] ?? $data['booking']['id'] ?? '' ) ); ?></span></div>
 			<div class="detail-row"><span class="detail-label"><?php esc_html_e( 'Customer:', 'mhm-rentiva' ); ?></span><span class="detail-value"><?php echo esc_html( $data['customer']['name'] ?? '' ); ?> (<?php echo esc_html( $data['customer']['email'] ?? '' ); ?>)</span></div>
 			<?php
 			if ( ! empty( $data['receipt_url'] ) ) :

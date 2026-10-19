@@ -155,7 +155,7 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 	<table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
 		<tr>
 			<td align="center">
-				<a href="<?php echo esc_url( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_my_account_url', home_url( '/my-account/' ) ) ); ?>"
+				<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( (int) $booking_id ) ); ?>"
 					style="display: inline-block; padding: 14px 35px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: 600; font-size: 15px;">
 					<?php esc_html_e( 'View My Account', 'mhm-rentiva' ); ?>
 				</a>

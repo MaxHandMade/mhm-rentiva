@@ -709,8 +709,9 @@ final class Templates {
 			}
 		}
 
-		// Final fallback
-		return home_url( '/my-account/' );
+		// Final fallback: the plugin's own account page (or home), never a
+		// guessed /my-account/ path that may not exist.
+		return \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
 	}
 
 

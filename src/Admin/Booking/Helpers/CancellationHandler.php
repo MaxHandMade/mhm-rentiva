@@ -621,7 +621,8 @@ final class CancellationHandler {
 			$admin_subject = sprintf(
 				/* translators: %d placeholder. */
 				__( '[ADMIN] Booking Cancelled - #%d', 'mhm-rentiva' ),
-				$booking_id
+				// The number the customer and every other email show.
+				mhmrentiva_get_display_id( (int) $booking_id )
 			);
 			wp_mail( $admin_email, $admin_subject, $message, $headers );
 		}
