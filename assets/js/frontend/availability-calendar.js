@@ -458,7 +458,9 @@
             if (existingBtn.length > 0) {
                 const vehiclesData = existingBtn.attr('data-vehicles'); // use attr to get string
                 if (vehiclesData) {
-                    return `<button class="rv-switch-vehicle-btn rv-btn rv-btn-primary" type="button" data-vehicles='${vehiclesData}' style="margin-top: 20px;">${window.mhmRentivaAvailability?.strings?.chooseAnother || 'Choose Another Vehicle'}</button>`;
+                    // .attr() returns the decoded JSON; escape it back for the attribute
+                    // (a title with a quote would otherwise end the attribute).
+                    return `<button class="rv-switch-vehicle-btn rv-btn rv-btn-primary" type="button" data-vehicles="${this.escapeHtml(vehiclesData)}" style="margin-top: 20px;">${window.mhmRentivaAvailability?.strings?.chooseAnother || 'Choose Another Vehicle'}</button>`;
                 }
             }
             return '';

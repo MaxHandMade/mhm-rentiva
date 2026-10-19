@@ -75,7 +75,8 @@
             if (plate) {
                 const strings = (window.mhmBookingEdit && window.mhmBookingEdit.text) || {};
                 const label = strings.currentLicensePlate || 'Current License Plate:';
-                $description.html(label + ' <strong>' + plate + '</strong>');
+                // Option text is decoded; the plate is text, never markup.
+                $description.text(label + ' ').append($('<strong>').text(plate));
             } else {
                 $description.html('');
             }

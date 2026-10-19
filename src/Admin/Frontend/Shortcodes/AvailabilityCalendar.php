@@ -1199,11 +1199,13 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			$data['status']       = $status;
 			$data['is_available'] = ( $status === 'active' );
 
+			// Plain text in JSON: the script escapes it (escapeHtml() / .text()), so escaping
+			// here too showed a translated apostrophe as "&#039;".
 			$status_labels       = array(
-				'active'      => esc_html__('Available', 'mhm-rentiva'),
-				'maintenance' => esc_html__('Out of Order', 'mhm-rentiva'),
+				'active'      => __('Available', 'mhm-rentiva'),
+				'maintenance' => __('Out of Order', 'mhm-rentiva'),
 			);
-			$data['status_text'] = $status_labels[ $status ] ?? esc_html__('Unavailable', 'mhm-rentiva');
+			$data['status_text'] = $status_labels[ $status ] ?? __('Unavailable', 'mhm-rentiva');
 		} catch (Exception $e) {
 			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving vehicle information.', 'mhm-rentiva') ));
 		}
