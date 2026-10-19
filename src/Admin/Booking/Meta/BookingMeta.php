@@ -497,44 +497,13 @@ final class BookingMeta extends AbstractMetaBox {
 		return null;
 	}
 
-	public static function save_meta(int $post_id, \WP_Post $post): void
+	/**
+	 * Status and booking-detail fields of an admin save, split out of save_meta()
+	 * so they can be skipped as one unit when guard_edit_availability() refuses.
+	 */
+	private static function save_booking_fields(int $post_id, VerifiedRequest $req, string $new_status): void
 	{
-		// This handler is hooked to the UNTYPED `save_post`, so it runs for every post
-		// type on the site. Nothing further down tells a booking apart from a page: the
-		// nonce check below accepts core's own `update-post_{id}` nonce, which every
-		// classic-editor save of every post type carries, and edit_post is true for an
-		// author editing their own post. Without this line a page carrying
-		// mhmrentiva_edit_status reached Status::update_status() and was given booking
-		// status, history and dates.
-		if ('mhmrentiva_booking' !== $post->post_type) {
-			return;
-		}
-
-		// Autosave and revision check
-		if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
-			return;
-		}
-
-		// A valid nonce is REQUIRED. There used to be a "if our form fields are present, save
-		// anyway" fallback here; it made the nonce effectively optional, so any cross-site POST
-		// naming our fields wrote booking data on behalf of a logged-in editor (CSRF). The
-		// metabox always renders wp_nonce_field() and the classic editor additionally sends
-		// _wpnonce, so every legitimate save carries one of the two.
-		$req = self::verified_save_request($post_id);
-		if (null === $req) {
-			return;
-		}
-
-		// Permission check
-		if (! current_user_can('edit_post', $post_id)) {
-			return;
-		}
-
 		// Status update - Handle both field names from different meta boxes
-		$new_status = $req->text('mhmrentiva_edit_status');
-		if ($new_status === '') {
-			$new_status = $req->text('mhmrentiva_booking_status');
-		}
 		if ($new_status) {
 			$actor_user_id = get_current_user_id();
 
@@ -573,6 +542,62 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_booking_dropoff_date', $dropoff_date);
 		update_post_meta($post_id, '_mhmrentiva_booking_dropoff_time', $dropoff_time);
 		update_post_meta($post_id, '_mhmrentiva_booking_guests', $guests);
+
+		self::sync_booking_timestamps($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		self::invalidate_edit_caches( (int) get_post_meta($post_id, '_mhmrentiva_vehicle_id', true));
+	}
+
+	public static function save_meta(int $post_id, \WP_Post $post): void
+	{
+		// This handler is hooked to the UNTYPED `save_post`, so it runs for every post
+		// type on the site. Nothing further down tells a booking apart from a page: the
+		// nonce check below accepts core's own `update-post_{id}` nonce, which every
+		// classic-editor save of every post type carries, and edit_post is true for an
+		// author editing their own post. Without this line a page carrying
+		// mhmrentiva_edit_status reached Status::update_status() and was given booking
+		// status, history and dates.
+		if ('mhmrentiva_booking' !== $post->post_type) {
+			return;
+		}
+
+		// Autosave and revision check
+		if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
+			return;
+		}
+
+		// A valid nonce is REQUIRED. There used to be a "if our form fields are present, save
+		// anyway" fallback here; it made the nonce effectively optional, so any cross-site POST
+		// naming our fields wrote booking data on behalf of a logged-in editor (CSRF). The
+		// metabox always renders wp_nonce_field() and the classic editor additionally sends
+		// _wpnonce, so every legitimate save carries one of the two.
+		$req = self::verified_save_request($post_id);
+		if (null === $req) {
+			return;
+		}
+
+		// Permission check
+		if (! current_user_can('edit_post', $post_id)) {
+			return;
+		}
+
+		// An edit that would put the booking on dates its vehicle is no longer free
+		// for writes neither its status nor its dates; see guard_edit_availability().
+		$new_status = $req->text('mhmrentiva_edit_status');
+		if ($new_status === '') {
+			$new_status = $req->text('mhmrentiva_booking_status');
+		}
+		$edit_allowed = self::guard_edit_availability(
+			$post_id,
+			$req->int('mhmrentiva_edit_vehicle_id'),
+			$req->text('mhmrentiva_edit_pickup_date'),
+			$req->text('mhmrentiva_edit_pickup_time'),
+			$req->text('mhmrentiva_edit_dropoff_date'),
+			$req->text('mhmrentiva_edit_dropoff_time'),
+			$new_status
+		);
+		if ($edit_allowed) {
+			self::save_booking_fields($post_id, $req, $new_status);
+		}
 
 		// Receipt review processing
 		$receipt_nonce = $req->text('mhmrentiva_receipt_nonce');
@@ -1127,6 +1152,205 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
+	 * Statuses that hold a vehicle. Mirrors the status filter of
+	 * Util::has_overlap_locked().
+	 */
+	private const BLOCKING_STATUSES = array( 'pending_payment', 'pending', 'confirmed', 'in_progress' );
+
+	/**
+	 * One verdict per booking per request, so the two save_post handlers that
+	 * both write an admin edit (BookingEditMetaBox at 5, save_meta at 10) see
+	 * the same answer and only one notice is queued.
+	 *
+	 * @var array<int, bool>
+	 */
+	private static array $edit_availability_verdicts = array();
+
+	/**
+	 * May this admin edit be saved without putting the booking on dates its
+	 * vehicle is no longer free for?
+	 *
+	 * Every other booking-writing path (checkout, manual booking) checks the
+	 * vehicle under Locker::withLock(); an admin edit never did, so a booking
+	 * could be moved onto someone else's dates, or a cancelled booking
+	 * re-confirmed after its dates were sold. Only an edit that changes the
+	 * vehicle, the dates or times, or moves the booking into a status that holds
+	 * the vehicle is checked: an unrelated edit (a note, the guest count) on a
+	 * booking that already overlaps another must not lock the operator out.
+	 *
+	 * The lock is released before the handlers write, so a checkout landing in
+	 * that gap could still pass its own check. Admin edits are rare and the
+	 * window is a few milliseconds; closing it would mean moving both handlers'
+	 * writes inside the lock.
+	 */
+	public static function guard_edit_availability(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, string $new_status): bool
+	{
+		if (! isset(self::$edit_availability_verdicts[ $booking_id ])) {
+			$verdict = self::edit_availability_verdict($booking_id, $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time, $new_status);
+			$allowed = 'free' === $verdict;
+
+			self::$edit_availability_verdicts[ $booking_id ] = $allowed;
+
+			if (! $allowed) {
+				// 'conflict' or 'unverified': a check that could not run refuses
+				// too, because it is the only thing between this edit and a
+				// double booking.
+				self::queue_admin_notice('unverified' === $verdict ? 'availability_unverified' : 'availability_conflict');
+
+				// Core would still add ?message=1 and show "Booking updated." next to
+				// our refusal. Drop it for this booking only.
+				add_filter(
+					'redirect_post_location',
+					static function (string $location, int $post_id) use ($booking_id): string {
+						return $post_id === $booking_id ? remove_query_arg('message', $location) : $location;
+					},
+					10,
+					2
+				);
+			}
+		}
+
+		return self::$edit_availability_verdicts[ $booking_id ];
+	}
+
+	public static function edit_availability_allowed(int $booking_id): bool
+	{
+		return self::$edit_availability_verdicts[ $booking_id ] ?? true;
+	}
+
+	public static function reset_edit_availability_verdicts(): void
+	{
+		self::$edit_availability_verdicts = array();
+	}
+
+	/**
+	 * @return string 'free', 'conflict', or 'unverified' when the locked query failed.
+	 */
+	private static function edit_availability_verdict(int $booking_id, int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time, string $new_status): string
+	{
+		$old_status = Status::get($booking_id);
+		$status     = ( '' !== $new_status && Status::can_transition($old_status, $new_status) ) ? $new_status : $old_status;
+
+		if (! in_array($status, self::BLOCKING_STATUSES, true)) {
+			return 'free';
+		}
+
+		// Same rule BookingEditMetaBox applies before it writes a new vehicle.
+		$old_vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+		if ($vehicle_id <= 0 || 'mhmrentiva_vehicle' !== get_post_type($vehicle_id)) {
+			$vehicle_id = $old_vehicle_id;
+		}
+		if ($vehicle_id <= 0) {
+			return 'free';
+		}
+
+		$new_range = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		if (is_wp_error($new_range)) {
+			// Unparseable dates were never checked here; refusing them now would
+			// be a behaviour change outside this guard's job.
+			return 'free';
+		}
+
+		$old_range = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes(
+			(string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true),
+			(string) ( get_post_meta($booking_id, '_mhmrentiva_start_time', true) ?: get_post_meta($booking_id, '_mhmrentiva_pickup_time', true) ),
+			(string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true),
+			(string) ( get_post_meta($booking_id, '_mhmrentiva_end_time', true) ?: get_post_meta($booking_id, '_mhmrentiva_dropoff_time', true) )
+		);
+
+		$unchanged = $vehicle_id === $old_vehicle_id
+			&& ! is_wp_error($old_range)
+			&& $old_range === $new_range
+			&& self::status_holds_vehicle($booking_id, $old_status);
+		if ($unchanged) {
+			return 'free';
+		}
+
+		// Read the database, not a request cache filled before the lock.
+		if (class_exists(\MHMRentiva\Admin\Booking\Helpers\Cache::class)) {
+			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+		}
+
+		$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+			$vehicle_id,
+			static function () use ($vehicle_id, $new_range, $booking_id): ?int {
+				return \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id);
+			}
+		);
+
+		if (null === $outcome) {
+			return 'unverified';
+		}
+
+		return $outcome > 0 ? 'conflict' : 'free';
+	}
+
+	/**
+	 * Does a booking in this status hold its vehicle right now?
+	 *
+	 * Mirrors Util::has_overlap_locked(): a pending booking whose payment
+	 * deadline has passed is not counted there, so its dates may already have
+	 * been sold. Re-confirming it is a change, not a no-op.
+	 */
+	private static function status_holds_vehicle(int $booking_id, string $status): bool
+	{
+		if (! in_array($status, self::BLOCKING_STATUSES, true)) {
+			return false;
+		}
+
+		if (in_array($status, array( 'pending_payment', 'pending' ), true)) {
+			$deadline = (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
+			if ('' !== $deadline && $deadline <= current_time('mysql', true)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Drop what was cached about the vehicles an admin edit wrote to.
+	 *
+	 * Status changes already clear these through mhmrentiva_booking_status_changed;
+	 * a vehicle or date edit fires no such event. Util::check_availability()
+	 * serves a cached "unavailable" without rechecking, so the vehicle a booking
+	 * left would stay unbookable on dates it no longer holds.
+	 */
+	public static function invalidate_edit_caches(int ...$vehicle_ids): void
+	{
+		foreach (array_unique(array_filter($vehicle_ids)) as $vehicle_id) {
+			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+		}
+
+		\MHMRentiva\Admin\Core\Utilities\OccupancyMapService::invalidate();
+	}
+
+	/**
+	 * Keep the stored timestamps in step with the stored dates.
+	 *
+	 * The overlap query reads `_mhmrentiva_start_ts` / `_mhmrentiva_end_ts`
+	 * before it falls back to the date and time fields, so a booking whose
+	 * dates were edited without these kept occupying its OLD dates and left
+	 * the new ones open for sale.
+	 *
+	 * Timestamps are derived in the site timezone (Util::parse_datetimes()), as
+	 * the booking form and the overlap query's date fallback read them. The
+	 * WooCommerce checkout path derives them with strtotime() under WordPress's
+	 * UTC PHP timezone, so on a site with a non-zero offset any admin save of
+	 * such a booking moves its stored timestamps to the site-local reading.
+	 */
+	public static function sync_booking_timestamps(int $booking_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): void
+	{
+		$range = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		if (is_wp_error($range)) {
+			return;
+		}
+
+		update_post_meta($booking_id, '_mhmrentiva_start_ts', $range['start_ts']);
+		update_post_meta($booking_id, '_mhmrentiva_end_ts', $range['end_ts']);
+	}
+
+	/**
 	 * ✅ WordPress hook listener - Auto calculation when meta is updated
 	 */
 	public static function on_booking_meta_updated(int $post_id, string $pickup_date, string $dropoff_date): void
@@ -1272,6 +1496,12 @@ final class BookingMeta extends AbstractMetaBox {
 				break;
 			case 'note_added':
 				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Note added successfully!', 'mhm-rentiva') . '</p></div>';
+				break;
+			case 'availability_conflict':
+				echo '<div class="notice notice-error"><p>' . esc_html__('The vehicle is already booked for these dates. The booking details were not saved.', 'mhm-rentiva') . '</p></div>';
+				break;
+			case 'availability_unverified':
+				echo '<div class="notice notice-error"><p>' . esc_html__('Vehicle availability could not be checked. The booking details were not saved. Please try again.', 'mhm-rentiva') . '</p></div>';
 				break;
 		}
 	}

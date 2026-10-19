@@ -320,8 +320,29 @@ final class Util {
 
 	/**
 	 * Atomic overlap check (with database lock)
+	 *
+	 * A query that could not run reads as "no overlap" here, as it always has;
+	 * a caller that must not treat that as free uses count_overlaps_locked().
+	 *
+	 * @param int $exclude_booking_id A booking to leave out of the check: the one
+	 *                                being edited, which would otherwise conflict
+	 *                                with itself. 0 checks every booking.
 	 */
-	public static function has_overlap_locked(int $vehicle_id, int $start_ts, int $end_ts): bool
+	public static function has_overlap_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): bool
+	{
+		return (int) self::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $exclude_booking_id) > 0;
+	}
+
+	/**
+	 * The locked overlap count, or null when the query did not produce one.
+	 *
+	 * A query that never ran is not visible in $wpdb->last_error: a `query`
+	 * filter returning an empty string makes wpdb::query() return false before it
+	 * flushes or records anything, and get_var() would then read the previous
+	 * query's leftover result. So the COUNT is run with query(), its false return
+	 * means "unknown", and the value is read only after a success.
+	 */
+	public static function count_overlaps_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): ?int
 	{
 		global $wpdb;
 
@@ -364,7 +385,10 @@ final class Util {
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
 		$buffer_seconds = $buffer_minutes * 60;
 
-		$count = (int) $wpdb->get_var(
+		// Run the COUNT with query() and read it only after a success: when
+		// query() returns false before flush() (e.g. a `query` filter emptied the
+		// SQL), get_var() would still hand back the PREVIOUS query's result.
+		$ran = $wpdb->query(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
@@ -383,6 +407,7 @@ final class Util {
              
              WHERE p.post_type = 'mhmrentiva_booking'
              AND p.post_status = 'publish'
+             AND p.ID <> %d
              AND pm_vid.meta_value = %d
              AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
              AND (
@@ -397,6 +422,7 @@ final class Util {
                  pm_deadline.meta_value = '' OR
                  pm_deadline.meta_value > %s
              )",
+				$exclude_booking_id, // 0 excludes nothing: post IDs start at 1.
 				$vehicle_id,
 				$end_ts,
 				$buffer_seconds,
@@ -405,7 +431,17 @@ final class Util {
 				$current_time_gmt
 			)
 		);
-		return $count > 0;
+		// An ungrouped COUNT(*) yields exactly one row, zero matches included. Any
+		// other row count (false, or 0 after something reran a query on this
+		// connection mid-flight) means the result in hand is not this COUNT's.
+		if (1 !== $ran) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- no SQL is passed; this reads the result of the prepared COUNT above.
+		$count = $wpdb->get_var();
+
+		return null === $count ? null : (int) $count;
 	}
 
 	/**
