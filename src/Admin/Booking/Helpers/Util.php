@@ -321,11 +321,27 @@ final class Util {
 	/**
 	 * Atomic overlap check (with database lock)
 	 *
+	 * A query that could not run reads as "no overlap" here, as it always has;
+	 * a caller that must not treat that as free uses count_overlaps_locked().
+	 *
 	 * @param int $exclude_booking_id A booking to leave out of the check: the one
 	 *                                being edited, which would otherwise conflict
 	 *                                with itself. 0 checks every booking.
 	 */
 	public static function has_overlap_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): bool
+	{
+		return (int) self::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $exclude_booking_id) > 0;
+	}
+
+	/**
+	 * The locked overlap count, or null when the query did not produce one.
+	 *
+	 * The wpdb::get_var() call returns null both on an SQL error and when the query never
+	 * ran (a `query` filter returning an empty string makes wpdb::query() return
+	 * false before it records any error), so null -- not $wpdb->last_error -- is
+	 * the signal that availability is unknown.
+	 */
+	public static function count_overlaps_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): ?int
 	{
 		global $wpdb;
 
@@ -368,7 +384,7 @@ final class Util {
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
 		$buffer_seconds = $buffer_minutes * 60;
 
-		$count = (int) $wpdb->get_var(
+		$count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
@@ -411,7 +427,7 @@ final class Util {
 				$current_time_gmt
 			)
 		);
-		return $count > 0;
+		return null === $count ? null : (int) $count;
 	}
 
 	/**

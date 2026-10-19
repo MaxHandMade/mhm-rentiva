@@ -66,7 +66,6 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 			wp_delete_user($user_id);
 		}
-		remove_all_filters('query');
 		BookingMeta::reset_edit_availability_verdicts();
 		parent::tearDown();
 	}
@@ -249,29 +248,44 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		$this->assertSame('pending_payment', get_post_meta($lapsed, '_mhmrentiva_status', true));
 	}
 
-	public function test_a_failed_availability_query_refuses_the_edit(): void
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function broken_count_queries(): array
+	{
+		return array(
+			'SQL error'        => array( 'SELECT broken FROM' ),
+			// wpdb::query() returns false before recording any error.
+			'query never runs' => array( '' ),
+		);
+	}
+
+	/**
+	 * @dataProvider broken_count_queries
+	 */
+	public function test_an_availability_query_that_cannot_answer_refuses_the_edit(string $replacement): void
 	{
 		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
 
-		// Break only the guard's locked COUNT query.
-		add_filter(
-			'query',
-			static function (string $query): string {
-				return ( str_contains($query, 'SELECT COUNT(*)') && str_contains($query, 'p.ID <>') ) ? 'SELECT broken FROM' : $query;
-			}
-		);
+		// Replace only the guard's locked COUNT query.
+		$break = static function (string $query) use ($replacement): string {
+			return ( str_contains($query, 'SELECT COUNT(*)') && str_contains($query, 'p.ID <>') ) ? $replacement : $query;
+		};
+		add_filter('query', $break);
 		$suppress = $GLOBALS['wpdb']->suppress_errors(true);
 
-		$this->admin_save(
-			$booking_id,
-			array(
-				'mhmrentiva_edit_pickup_date'  => '2027-03-25',
-				'mhmrentiva_edit_dropoff_date' => '2027-03-27',
-			)
-		);
-
-		$GLOBALS['wpdb']->suppress_errors($suppress);
-		remove_all_filters('query');
+		try {
+			$this->admin_save(
+				$booking_id,
+				array(
+					'mhmrentiva_edit_pickup_date'  => '2027-03-25',
+					'mhmrentiva_edit_dropoff_date' => '2027-03-27',
+				)
+			);
+		} finally {
+			$GLOBALS['wpdb']->suppress_errors($suppress);
+			remove_filter('query', $break);
+		}
 
 		$this->assertSame('2027-03-20', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true), 'An unverifiable edit must not be saved.');
 		$this->assertSame('availability_unverified', get_transient('mhmrentiva_booking_notice_' . get_current_user_id()));

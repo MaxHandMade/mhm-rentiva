@@ -1272,26 +1272,16 @@ final class BookingMeta extends AbstractMetaBox {
 
 		$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
 			$vehicle_id,
-			static function () use ($vehicle_id, $new_range, $booking_id): array {
-				global $wpdb;
-
-				$conflict = \MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id);
-
-				// has_overlap_locked() casts a failed COUNT (null) to "no
-				// overlap". Its COUNT is the last query it runs, so last_error
-				// still belongs to it here, before Locker's COMMIT resets it.
-				return array(
-					'conflict' => $conflict,
-					'failed'   => '' !== $wpdb->last_error,
-				);
+			static function () use ($vehicle_id, $new_range, $booking_id): ?int {
+				return \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id);
 			}
 		);
 
-		if ($outcome['failed']) {
+		if (null === $outcome) {
 			return 'unverified';
 		}
 
-		return $outcome['conflict'] ? 'conflict' : 'free';
+		return $outcome > 0 ? 'conflict' : 'free';
 	}
 
 	/**
