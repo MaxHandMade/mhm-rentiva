@@ -135,6 +135,22 @@ final class RentalServiceTypeEnforcementTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	/**
+	 * The booking form asks check_availability_with_alternatives(); a service-type refusal
+	 * must reach the customer as itself, not as "not available ... we can suggest similar
+	 * vehicles" (which reads like a date problem). Fable B1.
+	 */
+	public function test_the_form_check_keeps_the_service_refusal_message(): void
+	{
+		$this->make_vehicle('Alternative Sedan', 'both');
+
+		$result = Util::check_availability_with_alternatives($this->transfer_id, $this->date(10), '10:00', $this->date(12), '10:00');
+
+		$this->assertFalse($result['ok']);
+		$this->assertSame('service_unavailable', $result['code']);
+		$this->assertSame(self::REFUSAL, $result['message']);
+	}
+
 	public function test_alternative_suggestions_never_offer_a_transfer_only_vehicle(): void
 	{
 		$alternatives = Util::get_alternative_vehicles($this->both_id, $this->date(10), '10:00', $this->date(12), '10:00', 20);

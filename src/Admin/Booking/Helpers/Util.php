@@ -470,7 +470,9 @@ final class Util {
 		// 1. Check Primary Vehicle Availability
 		$primary_result = self::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
-		if ($primary_result['ok']) {
+		// A vehicle that is not offered for rental at all is not a date problem: keep that
+		// refusal as it is instead of turning it into "not available, try these".
+		if ($primary_result['ok'] || 'service_unavailable' === ( $primary_result['code'] ?? '' )) {
 			return $primary_result;
 		}
 
