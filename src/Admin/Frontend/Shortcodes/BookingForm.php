@@ -356,7 +356,10 @@ final class BookingForm extends AbstractShortcode {
 			'currency_symbol'      => CurrencyHelper::get_currency_symbol(),
 			'currency_position'    => CurrencyHelper::get_currency_position(),
 			'locale'               => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-			'enable_deposit'       => get_option('mhmrentiva_enable_deposit', '1') === '1',
+			// The deposit summary is driven per vehicle by each price response
+			// ('payment_type' => 'full' when no deposit applies); this flag only
+			// says the summary exists. The option it used to read had no writer.
+			'enable_deposit'       => true,
 			'default_payment'      => get_option('mhmrentiva_default_payment', 'deposit'),
 			'min_days'             => self::min_rental_days(),
 			'max_days'             => self::max_rental_days(),
@@ -992,10 +995,10 @@ final class BookingForm extends AbstractShortcode {
 			}
 			$payment_type = $req->text('payment_type', 'deposit');
 
-			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
-			// This ensures we fallback to full payment instead of 0-deposit (free) booking
-			$deposit_check_value = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
-			if (empty($deposit_check_value)) {
+			// No deposit applies to this vehicle (its own rate, else the global
+			// rental setting, is 0 / "Full payment"): charge the whole total
+			// rather than a 0 "deposit".
+			if (\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::resolve_rate($vehicle_id) <= 0) {
 				$payment_type = 'full';
 			}
 
@@ -1432,10 +1435,10 @@ final class BookingForm extends AbstractShortcode {
 			// Payment type (deposit or full)
 			$payment_type = $req->text('payment_type', 'deposit');
 
-			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
-			// This ensures calculations reflect "No Deposit" as "Full Payment Required"
-			$deposit_check_value = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
-			if (empty($deposit_check_value)) {
+			// The deposit rate this vehicle resolves to (its own, else the global
+			// rental setting). 0 means no deposit: the whole total is due.
+			$deposit_rate = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::resolve_rate($vehicle_id);
+			if ($deposit_rate <= 0) {
 				$payment_type = 'full';
 			}
 
@@ -1446,21 +1449,10 @@ final class BookingForm extends AbstractShortcode {
 
 			// ⭐ Calculate deposit based on FINAL total_price (with tax included)
 			// This ensures deposit and remaining amounts are calculated correctly
-			$deposit_value    = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
-			$deposit_type     = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::get_deposit_type($deposit_value);
-			$deposit_amount   = 0;
-			$remaining_amount = $total_price;
-
-			if ('deposit' === $payment_type && ! empty($deposit_value)) {
-				if ('percentage' === $deposit_type) {
-					$percentage     = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::extract_percentage($deposit_value);
-					$deposit_amount = ( $total_price * $percentage ) / 100;
-				} elseif ('fixed' === $deposit_type) {
-					$deposit_amount = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::extract_fixed_amount($deposit_value);
-				}
-
+			if ('deposit' === $payment_type) {
+				$deposit_amount   = ( $total_price * $deposit_rate ) / 100;
 				$remaining_amount = max(0, $total_price - $deposit_amount);
-			} elseif ('full' === $payment_type) {
+			} else {
 				$deposit_amount   = $total_price;
 				$remaining_amount = 0;
 			}
@@ -1472,7 +1464,6 @@ final class BookingForm extends AbstractShortcode {
 				'deposit_amount'   => round($deposit_amount, 2),
 				'total_amount'     => round($total_price, 2),
 				'remaining_amount' => round($remaining_amount, 2),
-				'deposit_type'     => $deposit_type,
 			);
 
 			// Currency
@@ -1494,8 +1485,11 @@ final class BookingForm extends AbstractShortcode {
 				'currency'              => $currency,
 				'currency_symbol'       => $currency_symbol,
 				'currency_position'     => $currency_position,
-				'deposit_amount'        => $deposit_result['deposit_amount'] ?? 0,
-				'remaining_amount'      => $deposit_result['remaining_amount'] ?? 0,
+				'deposit_amount'        => $deposit_result['deposit_amount'],
+				'remaining_amount'      => $deposit_result['remaining_amount'],
+				// The payment this quote is for: 'full' when the vehicle takes no
+				// deposit, so the form does not label the whole total a deposit.
+				'payment_type'          => $deposit_result['payment_type'],
 				// ⭐ Vehicle Management Settings information
 				'base_price_multiplier' => $base_price_multiplier,
 				'weekend_multiplier'    => $weekend_multiplier,

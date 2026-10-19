@@ -460,6 +460,12 @@ final class VehicleComparison extends AbstractShortcode {
 			$meta_key = '_mhmrentiva_' . $key;
 			$value    = get_post_meta($post->ID, $meta_key, true);
 
+			// The deposit row shows the rate charged: the vehicle's own, else
+			// the global rental setting ('' = full payment).
+			if ('deposit' === $key) {
+				$value = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::get_vehicle_deposit_value($post->ID);
+			}
+
 			// 2. If empty or not found as direct meta, check Features/Equipment arrays
 			if (empty($value) || $value === false) {
 				if (in_array($key, $features_array, true) || in_array($key, $equipment_array, true)) {

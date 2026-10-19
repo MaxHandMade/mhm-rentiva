@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Template variables are passed from VehicleMeta::prepare_template_data()
-// $post, $available, $features, $equipment, $available_details, $available_features, $available_equipment, $removed_details, $custom_details, $saved_order, $saved_features_order, $saved_equipment_order, $detail_values
+// $post, $available, $features, $equipment, $available_details, $available_features, $available_equipment, $removed_details, $custom_details, $saved_order, $saved_features_order, $saved_equipment_order, $detail_values, $deposit_global_rate, $deposit_global_hint
 ?>
 
 <div class="mhm-vehicle-meta-container">
@@ -151,8 +151,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 								echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 							}
 						} elseif ( $key === 'deposit' ) {
-							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="0" max="100" step="0.1" placeholder="10" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="1" max="100" step="0.1" placeholder="' . esc_attr( $deposit_global_rate ?? '' ) . '" title="' . esc_attr( $deposit_global_hint ?? '' ) . '" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">%</span>';
+							echo '<p class="description mhm-detail-hint">' . esc_html( $deposit_global_hint ?? '' ) . '</p>';
 						} else {
 							echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 						}
@@ -215,8 +216,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 								echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 							}
 						} elseif ( $key === 'deposit' ) {
-							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="0" max="100" step="0.1" placeholder="10" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="1" max="100" step="0.1" placeholder="' . esc_attr( $deposit_global_rate ?? '' ) . '" title="' . esc_attr( $deposit_global_hint ?? '' ) . '" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">%</span>';
+							echo '<p class="description mhm-detail-hint">' . esc_html( $deposit_global_hint ?? '' ) . '</p>';
 						} else {
 							echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 						}

@@ -15,7 +15,31 @@ if (! defined('ABSPATH')) {
  */
 final class DepositCalculator {
 
+	public const CONTEXT_RENTAL   = 'rental';
+	public const CONTEXT_TRANSFER = 'transfer';
 
+	public const TYPE_FULL_PAYMENT = 'full_payment';
+	public const TYPE_PERCENTAGE   = 'percentage';
+
+	/**
+	 * Global deposit settings per flow. The transfer defaults are the add-on's
+	 * (TransferSettings::get_default_settings()), so a site without it charges
+	 * transfers in full, as it always has.
+	 */
+	private const GLOBAL_SETTINGS = array(
+		self::CONTEXT_RENTAL   => array(
+			'type'         => 'mhmrentiva_rental_deposit_type',
+			'rate'         => 'mhmrentiva_rental_deposit_rate',
+			'default_type' => self::TYPE_PERCENTAGE,
+			'default_rate' => 10,
+		),
+		self::CONTEXT_TRANSFER => array(
+			'type'         => 'mhmrentiva_transfer_deposit_type',
+			'rate'         => 'mhmrentiva_transfer_deposit_rate',
+			'default_type' => self::TYPE_FULL_PAYMENT,
+			'default_rate' => 20,
+		),
+	);
 
 	/**
 	 * Calculate deposit
@@ -176,8 +200,14 @@ final class DepositCalculator {
 	 */
 	public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = array(), int $start_ts = 0): array
 	{
-		$daily_price   = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true));
-		$deposit_value = self::get_vehicle_deposit_value($vehicle_id);
+		$daily_price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true));
+		$rate        = self::resolve_rate($vehicle_id, self::CONTEXT_RENTAL);
+
+		// No deposit applies: whatever the caller asked for, a "deposit" of 0
+		// would let the booking through unpaid, so the whole total is due.
+		if ($rate <= 0) {
+			$payment_type = 'full';
+		}
 
 		if ($daily_price <= 0) {
 			return array(
@@ -217,14 +247,8 @@ final class DepositCalculator {
 			);
 		}
 
-		$deposit_type   = self::get_deposit_type($deposit_value);
-		$deposit_amount = 0;
-
-		if ($deposit_type === 'percentage') {
-			$percentage     = self::extract_percentage($deposit_value);
-			$deposit_amount = ( $total_amount * $percentage ) / 100;
-		}
-
+		$deposit_type     = self::TYPE_PERCENTAGE;
+		$deposit_amount   = ( $total_amount * $rate ) / 100;
 		$remaining_amount = max(0, $total_amount - $deposit_amount);
 
 		return array(
@@ -338,20 +362,108 @@ final class DepositCalculator {
 	}
 
 	/**
-	 * Get deposit value for a vehicle with universal default fallback
+	 * The vehicle's deposit rate as a string, for callers that still take one.
+	 *
+	 * Kept public for backward compatibility. It used to turn an empty or '0'
+	 * field into a hard-coded 10%; it now reports the rate resolve_rate()
+	 * settles on for the rental flow, and '' when that rate is 0 (full payment).
 	 *
 	 * @param int $vehicle_id Vehicle ID
-	 * @return string Deposit value
+	 * @return string Deposit percentage, or '' for no deposit
 	 */
 	public static function get_vehicle_deposit_value(int $vehicle_id): string
 	{
-		$value = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
+		$rate = self::resolve_rate($vehicle_id, self::CONTEXT_RENTAL);
 
-		// Universal Default: 10% (v4.9.0)
-		if ($value === '' || $value === null || $value === '0' || $value === 0) {
-			return '10';
+		return $rate > 0 ? (string) $rate : '';
+	}
+
+	/**
+	 * The deposit percentage a booking of this vehicle pays up front.
+	 *
+	 * The vehicle's own `_mhmrentiva_deposit` overrides when it holds a number
+	 * in (0, 100], in every flow. Otherwise the flow's global setting applies:
+	 * the rental settings on the Payment tab, or the transfer settings. A
+	 * "Full payment" setting -- and any flow this method does not know --
+	 * resolves to 0, which means no deposit: the whole total is charged.
+	 *
+	 * @param int    $vehicle_id Vehicle ID.
+	 * @param string $context    'rental' or 'transfer'.
+	 * @return float Percentage in [0, 100]; 0 = full payment required.
+	 */
+	public static function resolve_rate(int $vehicle_id, string $context = self::CONTEXT_RENTAL): float
+	{
+		if (! isset(self::GLOBAL_SETTINGS[ $context ])) {
+			return 0.0;
 		}
 
-		return (string) $value;
+		$own = self::vehicle_override_rate($vehicle_id);
+		if (null !== $own) {
+			return $own;
+		}
+
+		return self::global_rate($context);
+	}
+
+	/**
+	 * The flow's site-wide deposit percentage, ignoring any vehicle override.
+	 *
+	 * @param string $context 'rental' or 'transfer'.
+	 * @return float Percentage in [0, 100]; 0 = full payment required.
+	 */
+	public static function global_rate(string $context = self::CONTEXT_RENTAL): float
+	{
+		if (! isset(self::GLOBAL_SETTINGS[ $context ])) {
+			return 0.0;
+		}
+
+		$keys = self::GLOBAL_SETTINGS[ $context ];
+		$type = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get($keys['type'], $keys['default_type']);
+		if (self::TYPE_PERCENTAGE !== $type) {
+			return 0.0;
+		}
+
+		$rate = \MHMRentiva\Admin\Settings\Core\SettingsCore::get($keys['rate'], $keys['default_rate']);
+		if (! is_numeric($rate)) {
+			$rate = $keys['default_rate'];
+		}
+
+		return max(0.0, min(100.0, (float) $rate));
+	}
+
+	/**
+	 * Normalise a vehicle deposit field value before it is stored.
+	 *
+	 * Empty, zero, negative and non-numeric input all mean "use the global
+	 * setting" and are stored as ''. Anything else is clamped to 1-100.
+	 *
+	 * @param mixed $value Raw field value.
+	 * @return string '' or a percentage between 1 and 100.
+	 */
+	public static function normalize_vehicle_rate(mixed $value): string
+	{
+		$clean = is_scalar($value) ? str_replace(array( '%', ' ' ), '', (string) $value) : '';
+		if ('' === $clean || ! is_numeric($clean) || (float) $clean <= 0) {
+			return '';
+		}
+
+		return (string) max(1.0, min(100.0, (float) $clean));
+	}
+
+	/**
+	 * The vehicle's own rate, or null when its field does not override.
+	 */
+	private static function vehicle_override_rate(int $vehicle_id): ?float
+	{
+		$value = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_DEPOSIT, true);
+		$value = is_scalar($value) ? trim(str_replace('%', '', (string) $value)) : '';
+
+		if ('' === $value || ! is_numeric($value)) {
+			return null;
+		}
+
+		$rate = (float) $value;
+
+		return ( $rate > 0 && $rate <= 100 ) ? $rate : null;
 	}
 }
