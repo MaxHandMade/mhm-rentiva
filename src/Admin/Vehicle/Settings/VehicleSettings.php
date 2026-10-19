@@ -1635,10 +1635,13 @@ final class VehicleSettings {
 		$tab = isset( $_POST['tab'] ) ? sanitize_key( $_POST['tab'] ) : 'definitions';
 
 		if ( $tab === 'display' ) {
-			// Reset Display Options to empty arrays
+			// Reset Display Options to their defaults.
 			$settings                                     = get_option( 'mhmrentiva_settings', array() );
-			$settings['mhmrentiva_vehicle_card_fields']   = array();
-			$settings['mhmrentiva_vehicle_detail_fields'] = array();
+			// An empty card/detail selection means "show nothing", not "defaults"
+			// (VehicleFeatureHelper::get_selected_detail_fields()), so write the defaults.
+			$default_card_fields                          = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields();
+			$settings['mhmrentiva_vehicle_card_fields']   = $default_card_fields;
+			$settings['mhmrentiva_vehicle_detail_fields'] = $default_card_fields;
 			// Write the default rows explicitly: the settings sanitizer merges onto the stored
 			// value, so an unset key would come straight back.
 			$settings['comparison_fields'] = \MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::DEFAULT_FIELDS;

@@ -167,6 +167,30 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The same reset used to store empty card/detail selections -- and an explicit empty selection
+	 * means "show nothing" (VehicleFeatureHelper::get_selected_detail_fields()), so "Reset to
+	 * defaults" stripped every feature line from the vehicle cards and the detail page.
+	 */
+	public function test_resetting_the_display_tab_restores_the_default_card_and_detail_fields(): void {
+		$custom = array( array( 'type' => 'detail', 'key' => 'year' ) );
+		$this->seed_then_register_sanitizer(
+			array(
+				'mhmrentiva_vehicle_card_fields'   => $custom,
+				'mhmrentiva_vehicle_detail_fields' => $custom,
+			)
+		);
+
+		$this->run_ajax( array( VehicleSettings::class, 'ajax_reset_settings' ), array( 'tab' => 'display' ) );
+
+		$defaults = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection(
+			\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields()
+		);
+		$this->assertNotEmpty( $defaults );
+		$this->assertSame( $defaults, \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_card_fields() );
+		$this->assertSame( $defaults, \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
+	}
+
+	/**
 	 * @return array<string,array{0:array}>
 	 */
 	public static function saved_selections(): array {
