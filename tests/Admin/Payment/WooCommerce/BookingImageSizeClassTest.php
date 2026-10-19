@@ -56,6 +56,9 @@ final class BookingImageSizeClassTest extends WP_UnitTestCase
 		if ( function_exists( 'WC' ) && WC()->cart ) {
 			WC()->cart->empty_cart();
 		}
+		// The test config shares the dev site's ABSPATH, so uploads land in its
+		// real uploads directory; remove only what this test added.
+		$this->remove_added_uploads();
 		parent::tearDown();
 	}
 
@@ -66,8 +69,9 @@ final class BookingImageSizeClassTest extends WP_UnitTestCase
 
 	public function test_an_email_sized_request_is_answered_without_a_warning(): void
 	{
-		// WP_UnitTestCase turns PHP warnings into failures, so reaching the
-		// assertion is itself the "no Array to string conversion" check.
+		// Before the fix esc_attr() turned the array into "Array" (with the
+		// "Array to string conversion" warning) and the class read
+		// "attachment-Array"; the assertions below tell the two apart.
 		$html = $this->image( array( 32, 32 ) );
 
 		$this->assertStringContainsString( 'attachment-32x32', $html );
