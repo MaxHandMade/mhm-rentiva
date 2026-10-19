@@ -41,7 +41,7 @@ Aşağıdaki **Lite** sütununda yer alan her şey eksiksiz çalışır: araç, 
 | Müşteri hesap sayfaları — rezervasyonlar, favoriler, ödeme geçmişi | ✅ | ✅ |
 | 16 kısa kod · 16 Gutenberg bloğu · 17 Elementor widget'ı | ✅ | ✅ |
 | Değerlendirmeler, yorumlar, araç karşılaştırma, iletişim formu | ✅ | ✅ |
-| REST API — uygunluk, müşteriler, kontrol paneli (+ API anahtarları) | ✅ | ✅ |
+| REST API — uygunluk, müşteriler, kontrol paneli | ✅ | ✅ |
 | **Çok bayili pazaryeri** — bayi başvurusu, bayi paneli, bayi ilanları | — | ✅ |
 | **Bayi hakedişleri, komisyon ve defter (ledger)** | — | ✅ |
 | **Bayi raporları ve itirazlar** | — | ✅ |
@@ -496,23 +496,21 @@ Eklenti, esnek yerleşimler için kapsamlı bir shortcode setine sahiptir.
 ```
 
 ### Kimlik Doğrulama (Auth)
-REST API, `AuthHelper` sınıfı üzerinden yönetilen çok katmanlı bir güvenlik yapısına sahiptir:
-- **X-WP-Nonce**: Oturum açmış kullanıcılar için standart WordPress nonce doğrulaması.
-- **Secure Tokens**: `SecureToken::create_customer_token` ile oluşturulan, zaman aşımına sahip güvenli müşteri belirteçleri.
-- **API Keys**: Üçüncü taraf entegrasyonlar için `Rentiva > Ayarlar` üzerinden yönetilen anahtarlar.
+İstekler `AuthHelper::verifyAuth()` ile doğrulanır:
+- **X-WP-Nonce**: Eklentinin kendi sayfalarının gönderdiği standart WordPress REST nonce'u (`wp_rest`).
+- **Ödeme nonce'u**: Misafir ödeme adımları, istek gövdesinde rezervasyona bağlı bir `mhmrentiva_nonce` taşır.
+
+API anahtarı ya da üçüncü taraf belirteci yoktur; REST API eklentinin kendi ekranlarına hizmet eder.
 
 ### Hız Sınırlama (Rate Limiting)
-`RateLimiter` sistemi ile Brute Force saldırılarına karşı korunmaktadır:
-- **Genel Limit**: Dakikada 60 istek (Varsayılan).
-- **Hassas İşlemler**: Rezervasyon oluşturma ve ödeme gibi işlemler için daha katı sınırlamalar uygulanır.
-- **Headers**: Yanıtlarda `X-RateLimit-*` başlıkları ile kalan kota bilgisi döner.
+Müsaitlik uçları `RateLimiter` ile IP başına sınırlanır — varsayılan dakikada 60 istek.
 
-### Başlıca Endpoint'ler
-- `GET /vehicles` — Araç listeleme ve filtreleme.
-- `GET /availability` — Belirli tarihler için araç müsaitlik kontrolü.
-- `POST /bookings` — Yeni rezervasyon oluşturma.
-- `GET /locations` — Aktif kiralama lokasyonları listesi.
-- `GET /orders` — Müşteri sipariş detayları.
+### Herkese Açık Uçlar
+- `GET|POST /availability` — Araç verilen tarihlerde müsait mi (durum, fiyat, para birimi).
+- `GET|POST /availability/with-alternatives` — Aynı kontrol; istenen araç doluysa alternatif araçlarla.
+- `GET /vehicles/{id}/blocked-dates` — Aracın rezerve edilemeyeceği tarihler.
+
+Bu ad alanındaki diğer rotalar yönetim ekranlarını (pano, müşteriler, iletişim mesajları, kısa kod sayfaları) besler ve yönetici yetkisi ister. Rentiva Pro kendi rotalarını ekler (lokasyonlar, bayi ve müşteri hesabı özellikleri).
 
 ---
 

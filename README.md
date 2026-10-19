@@ -41,7 +41,7 @@ Everything documented here works in full. There are no vehicle, booking or listi
 | Customer account pages — bookings, favourites, payment history | ✅ | ✅ |
 | 16 shortcodes · 16 Gutenberg blocks · 17 Elementor widgets | ✅ | ✅ |
 | Ratings, testimonials, vehicle comparison, contact form | ✅ | ✅ |
-| REST API — availability, customers, dashboard (+ API keys) | ✅ | ✅ |
+| REST API — availability, customers, dashboard | ✅ | ✅ |
 | **Multi-vendor marketplace** — vendor onboarding, vendor panel, vendor listings | — | ✅ |
 | **Vendor payouts, commission & ledger** | — | ✅ |
 | **Vendor reports & disputes** | — | ✅ |
@@ -670,22 +670,21 @@ The plugin registers **16 shortcodes** across booking, account and supporting su
 ```
 
 ### Authentication (Auth)
-The REST API is secured via `AuthHelper` with multiple layers:
-- **X-WP-Nonce**: Standard WordPress nonce for logged-in sessions.
-- **Secure Tokens**: Time-limited customer tokens generated via `SecureToken`.
-- **API Keys**: Manageable via `Rentiva > Settings > Integration` for third-party apps.
+Requests are verified by `AuthHelper::verifyAuth()`:
+- **X-WP-Nonce**: the standard WordPress REST nonce (`wp_rest`), sent by the plugin's own pages.
+- **Payment nonce**: guest payment steps carry a booking-bound `mhmrentiva_nonce` in the request body.
+
+There are no API keys or third-party tokens; the REST API serves the plugin's own screens.
 
 ### Rate Limiting
-Protected against Brute Force via the `RateLimiter` system:
-- **Default Limit**: 60 requests per minute.
-- **Sensitive Endpoints**: Stricter limits for booking creation and payment processing.
+The availability endpoints are limited per IP by `RateLimiter` — 60 requests per minute by default.
 
 ### Key Endpoints
-- `GET /vehicles` — List and filter vehicles.
-- `GET /availability` — Check vehicle availability for specific dates.
-- `POST /bookings` — Create a new booking.
-- `GET /locations` — List active rental locations.
-- `GET /orders` — View customer order details.
+- `GET|POST /availability` — Is a vehicle free for the given dates (status, price, currency).
+- `GET|POST /availability/with-alternatives` — The same check, with alternative vehicles when the requested one is taken.
+- `GET /vehicles/{id}/blocked-dates` — Dates a vehicle cannot be booked.
+
+The remaining routes under this namespace back the admin screens (dashboard, customers, contact messages, shortcode pages) and require an administrator. Rentiva Pro adds its own routes (locations, vendor and customer-account features).
 
 ---
 
