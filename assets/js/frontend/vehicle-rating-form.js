@@ -205,7 +205,7 @@
 
 
             if (!rating) {
-                MHMRentivaToast.show('Please select a rating.', { type: 'error' });
+                MHMRentivaToast.show(window.mhmVehicleRating?.strings?.select_rating || 'Please select a rating.', { type: 'error' });
                 return;
             }
 
@@ -232,7 +232,7 @@
                 data: formData,
                 timeout: 10000,
                 beforeSend: () => {
-                    $form.find('button[type="submit"]').prop('disabled', true).text('Submitting...');
+                    $form.find('button[type="submit"]').prop('disabled', true).text(window.mhmVehicleRating?.strings?.submitting || 'Submitting...');
                 },
                 success: (response) => {
                     if (response.success) {
@@ -254,13 +254,13 @@
                 error: (xhr, textStatus) => {
                     MHMRentivaToast.show(
                         'timeout' === textStatus
-                            ? 'Request timed out. Please try again.'
-                            : 'An error occurred while submitting the rating.',
+                            ? (window.mhmVehicleRating?.strings?.timeout || 'Request timed out. Please try again.')
+                            : (window.mhmVehicleRating?.strings?.submit_error || 'An error occurred while submitting the rating.'),
                         { type: 'error' }
                     );
                 },
                 complete: () => {
-                    $form.find('button[type="submit"]').prop('disabled', false).text('Submit Rating');
+                    $form.find('button[type="submit"]').prop('disabled', false).text(window.mhmVehicleRating?.strings?.submit_rating || 'Submit Rating');
                 }
             });
         }
@@ -274,7 +274,7 @@
         handleDeleteRating(e) {
             e.preventDefault();
 
-            if (!confirm('Are you sure you want to delete your rating?')) {
+            if (!confirm(window.mhmVehicleRating?.strings?.delete_rating || 'Are you sure you want to delete your rating?')) {
                 return;
             }
 
@@ -301,7 +301,7 @@
                     }
                 },
                 error: () => {
-                    MHMRentivaToast.show('Connection error. Please try again.', { type: 'error' });
+                    MHMRentivaToast.show(window.mhmVehicleRating?.strings?.connection_error || 'Connection error. Please try again.', { type: 'error' });
                 }
             });
         }
@@ -482,7 +482,7 @@
             $form.data('comment-id', commentId);
 
             // Update submit button text
-            $form.find('button[type="submit"]').text('Update Rating');
+            $form.find('button[type="submit"]').text(window.mhmVehicleRating?.strings?.update_rating || 'Update Rating');
 
             // Scroll to form
             $('html, body').animate({

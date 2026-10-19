@@ -201,10 +201,31 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Render receipt review meta box
 	 */
+	/**
+	 * Display label for a stored receipt status key; '-' when there is none.
+	 *
+	 * @param string $status Stored key (submitted / approved / rejected).
+	 */
+	public static function receipt_status_label(string $status): string
+	{
+		if ('' === $status) {
+			return '-';
+		}
+
+		$labels = array(
+			'submitted' => __('Submitted', 'mhm-rentiva'),
+			'approved'  => __('Approved', 'mhm-rentiva'),
+			'rejected'  => __('Rejected', 'mhm-rentiva'),
+		);
+
+		return $labels[ $status ] ?? $status;
+	}
+
 	public static function render_receipt_box(\WP_Post $post): void
 	{
 		$attach_id = (int) get_post_meta($post->ID, '_mhmrentiva_receipt_attachment_id', true);
-		$status    = get_post_meta($post->ID, '_mhmrentiva_receipt_status', true);
+		// The stored value is a key (submitted / approved / rejected); show its label.
+		$status = self::receipt_status_label( (string) get_post_meta($post->ID, '_mhmrentiva_receipt_status', true));
 		// Guarded endpoint rather than the raw uploads path: the file is customer
 		// financial data and `private` post status does not gate the file itself.
 		$url  = $attach_id ? \MHMRentiva\Admin\Frontend\Account\AccountController::get_receipt_url( (int) $post->ID) : '';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
 import StatsCards from './components/StatsCards';
 import SearchBar from './components/SearchBar';
@@ -77,8 +77,13 @@ export default function CustomersPage() {
 		if ( selected.length === 0 ) {
 			return;
 		}
-		// translators: %d = number of customers
-		if ( ! window.confirm( `${ __( 'Delete', 'mhm-rentiva' ) } ${ selected.length } ${ __( 'customer(s)? This cannot be undone.', 'mhm-rentiva' ) }` ) ) {
+		if ( ! window.confirm(
+			sprintf(
+				// translators: %d = number of customers to delete.
+				_n( 'Delete %d customer? This cannot be undone.', 'Delete %d customers? This cannot be undone.', selected.length, 'mhm-rentiva' ),
+				selected.length
+			)
+		) ) {
 			return;
 		}
 		rentivaApi.customers.bulkDelete( selected )
@@ -125,7 +130,13 @@ export default function CustomersPage() {
 
 						{ selected.length > 0 && (
 							<div className="rv-cust-bulk-bar">
-								<span>{ selected.length } { __( 'selected', 'mhm-rentiva' ) }</span>
+								<span>
+									{ sprintf(
+										/* translators: %d = number of selected customers. */
+										_n( '%d selected', '%d selected', selected.length, 'mhm-rentiva' ),
+										selected.length
+									) }
+								</span>
 								<button type="button" className="button button-link-delete" onClick={ handleBulkDelete }>
 									{ __( 'Delete Selected', 'mhm-rentiva' ) }
 								</button>
