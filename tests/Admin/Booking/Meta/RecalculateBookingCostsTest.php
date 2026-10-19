@@ -118,6 +118,30 @@ final class RecalculateBookingCostsTest extends WP_UnitTestCase
 		$this->assertSame( 'deposit', get_post_meta( $booking_id, '_mhmrentiva_payment_type', true ) );
 	}
 
+	public function test_a_deposit_booking_keeps_its_deposit_when_the_rate_changes(): void
+	{
+		// 10% was taken; the site later moved rentals to 20%. A routine admin
+		// save must not rewrite the deposit already paid.
+		$filter = static fn () => array(
+			'mhmrentiva_rental_deposit_type' => 'percentage',
+			'mhmrentiva_rental_deposit_rate' => 20,
+		);
+		add_filter( 'pre_option_mhmrentiva_settings', $filter );
+		$booking_id = $this->booking(
+			'deposit',
+			array(
+				'_mhmrentiva_deposit_amount'   => '300',
+				'_mhmrentiva_remaining_amount' => '2700',
+			)
+		);
+
+		BookingMeta::recalculate_booking_costs( $booking_id, '2026-11-02', '2026-11-05' );
+		remove_filter( 'pre_option_mhmrentiva_settings', $filter );
+
+		$this->assertSame( 300.0, $this->meta( $booking_id, '_mhmrentiva_deposit_amount' ) );
+		$this->assertSame( 2700.0, $this->meta( $booking_id, '_mhmrentiva_remaining_amount' ) );
+	}
+
 	public function test_weekend_days_are_priced_like_the_booking_form_prices_them(): void
 	{
 		$booking_id = $this->booking( 'deposit' );

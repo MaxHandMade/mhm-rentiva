@@ -78,10 +78,9 @@ final class SettingsSanitizer {
 				self::sanitize_email_brand_settings( $input, $defaults ),
 				self::sanitize_email_sending_settings( $input, $defaults )
 			),
-			'payment'     => array_merge(
-				self::sanitize_offline_settings( $input, $defaults ),
-				self::sanitize_rental_deposit_settings( $input )
-			),
+			// The tab has no offline-payment fields any more; sanitizing the two
+			// old offline keys here wrote '' over whatever a site still had.
+			'payment'     => self::sanitize_rental_deposit_settings( $input ),
 			'system'      => self::sanitize_system_settings( $input, $defaults ),
 			'frontend'    => self::sanitize_frontend_settings( $input, $defaults ),
 			'transfer'    => self::sanitize_transfer_settings( $input, $defaults ),
@@ -597,13 +596,6 @@ final class SettingsSanitizer {
 			'mhmrentiva_email_log_retention_days'       => self::get_int( $input, 'mhmrentiva_email_log_retention_days', 30, 1, 365 ),
 			'mhmrentiva_customer_welcome_email'         => self::get_bool( $input, 'mhmrentiva_customer_welcome_email' ),
 			'mhmrentiva_customer_booking_notifications' => self::get_bool( $input, 'mhmrentiva_customer_booking_notifications' ),
-		);
-	}
-
-	private static function sanitize_offline_settings( array $input, array $defaults ): array {
-		return array(
-			'mhmrentiva_offline_instructions' => SettingsHelper::sanitize_field( $input['mhmrentiva_offline_instructions'] ?? '', 'textarea' ),
-			'mhmrentiva_offline_accounts'     => \wp_kses_post( $input['mhmrentiva_offline_accounts'] ?? '' ),
 		);
 	}
 

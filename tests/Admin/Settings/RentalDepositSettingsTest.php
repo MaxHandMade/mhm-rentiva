@@ -94,6 +94,23 @@ final class RentalDepositSettingsTest extends WP_UnitTestCase
 		$this->assertSame($stored, $out['mhmrentiva_rental_deposit_rate']);
 	}
 
+	public function test_saving_the_payment_tab_keeps_values_it_does_not_show(): void
+	{
+		// Two offline-payment keys from an older release have no field on this
+		// tab; the tab used to be hidden while WooCommerce was active, so saving
+		// it now must not wipe them.
+		$stored = SettingsCore::get_all();
+		$stored['mhmrentiva_offline_instructions'] = 'Pay at the desk.';
+		$stored['mhmrentiva_offline_accounts']     = 'IBAN TR00';
+		update_option(SettingsCore::OPTION_NAME, $stored);
+
+		$saved = $this->save_payment_tab(array( 'mhmrentiva_rental_deposit_rate' => '25' ));
+
+		$this->assertSame('Pay at the desk.', $saved['mhmrentiva_offline_instructions'] ?? null);
+		$this->assertSame('IBAN TR00', $saved['mhmrentiva_offline_accounts'] ?? null);
+		$this->assertSame(25, $saved['mhmrentiva_rental_deposit_rate']);
+	}
+
 	public function test_both_fields_are_on_the_payment_section(): void
 	{
 		global $wp_settings_fields;
