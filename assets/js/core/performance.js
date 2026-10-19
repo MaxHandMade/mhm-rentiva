@@ -192,12 +192,9 @@
                 case 'image':
                     this.loadLazyImage($el, lazyData);
                     break;
-                case 'content':
-                    this.loadLazyContent($el, lazyData);
-                    break;
-                case 'script':
-                    this.loadLazyScript($el, lazyData);
-                    break;
+                // No "content" ($.get + .html()) or "script" (remote <script src>) types:
+                // nothing emits data-lazy, and wp_kses_post lets authors add data-* attributes,
+                // so those types only ever served as a way to inject markup or a script.
                 case 'component':
                     this.loadLazyComponent($el, lazyData);
                     break;
@@ -227,45 +224,6 @@
                 $el.removeClass('lazy-loading').addClass('lazy-error');
             };
             img.src = lazyData.src;
-        },
-
-        /**
-         * Load lazy content
-         * @param {jQuery} $el - Element
-         * @param {Object} lazyData - Lazy data
-         */
-        loadLazyContent: function ($el, lazyData) {
-            if (lazyData.src) {
-                $.get(lazyData.src)
-                    .done((data) => {
-                        $el.html(data);
-                        $el.removeClass('lazy-loading').addClass('lazy-loaded');
-                        this.triggerLazyCallback($el, lazyData.callback);
-                    })
-                    .fail(() => {
-                        $el.removeClass('lazy-loading').addClass('lazy-error');
-                    });
-            }
-        },
-
-        /**
-         * Load lazy script
-         * @param {jQuery} $el - Element
-         * @param {Object} lazyData - Lazy data
-         */
-        loadLazyScript: function ($el, lazyData) {
-            if (lazyData.src) {
-                const script = document.createElement('script');
-                script.src = lazyData.src;
-                script.onload = () => {
-                    $el.removeClass('lazy-loading').addClass('lazy-loaded');
-                    this.triggerLazyCallback($el, lazyData.callback);
-                };
-                script.onerror = () => {
-                    $el.removeClass('lazy-loading').addClass('lazy-error');
-                };
-                document.head.appendChild(script);
-            }
         },
 
         /**
