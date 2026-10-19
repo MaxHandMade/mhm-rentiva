@@ -375,7 +375,7 @@ final class SearchResults extends AbstractShortcode {
 				// favourite/compare buttons and their real nonces.
 				'nonce'           => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_search_results'),
 				'current_url'     => home_url(add_query_arg(null, null)),
-				'search_page_url' => ShortcodeUrlManager::get_page_url('rentiva_search'),
+				'search_page_url' => ShortcodeUrlManager::get_page_url('rentiva_unified_search'),
 				'i18n'            => array(
 					'loading'                => __('Loading...', 'mhm-rentiva'),
 					'no_results'             => __('No vehicles found', 'mhm-rentiva'),

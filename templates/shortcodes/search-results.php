@@ -333,7 +333,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 							<div class="rv-no-results-icon">&#x1F697;</div>
 							<h3><?php esc_html_e('No vehicles found', 'mhm-rentiva'); ?></h3>
 							<p><?php esc_html_e('Try adjusting your search criteria or filters.', 'mhm-rentiva'); ?></p>
-							<a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search')); ?>" class="rv-back-to-search">
+							<a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_unified_search')); ?>" class="rv-back-to-search">
 								<?php esc_html_e('Back to Search', 'mhm-rentiva'); ?>
 							</a>
 						</div>

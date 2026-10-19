@@ -686,7 +686,7 @@ final class AccountRenderer {
 		}
 
 		// Main account page URL
-		$base_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_account');
+		$base_url = AccountController::get_account_url();
 
 		return array(
 			'dashboard'       => array(

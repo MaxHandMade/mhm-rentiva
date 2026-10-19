@@ -13,7 +13,6 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
-use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
@@ -590,13 +589,8 @@ final class AccountController {
 			}
 		}
 
-		// Use global Shortcode URL Manager
-		$shortcode_url = ShortcodeUrlManager::get_page_url('rentiva_my_account');
-		if (is_string($shortcode_url) && $shortcode_url !== '') {
-			return $shortcode_url;
-		}
-
-		// Fallback to home URL
+		// No Rentiva shortcode renders the account (rentiva_my_account was never registered;
+		// looking it up only returned the home page and raised a "no page found" admin notice).
 		return home_url('/');
 	}
 
