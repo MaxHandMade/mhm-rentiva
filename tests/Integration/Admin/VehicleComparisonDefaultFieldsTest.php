@@ -295,6 +295,25 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Every value the vehicle editor offers prints the editor's own label (VehicleMeta), the way
+	 * the vehicle page shows it -- the helper used to keep a diverging copy (petrol -> "Gasoline",
+	 * cng / hydrogen / cvt printed raw). PR bot P2.
+	 */
+	public function test_every_editor_value_prints_the_editor_label(): void {
+		foreach ( \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types() as $key => $label ) {
+			$this->assertSame( $label, \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_fuel_type_label( $key ), "fuel: $key" );
+		}
+		foreach ( \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types() as $key => $label ) {
+			$this->assertSame( $label, \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_transmission_label( $key ), "transmission: $key" );
+		}
+		// Legacy stored value.
+		$this->assertSame(
+			\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types()['petrol'],
+			\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_fuel_type_label( 'gasoline' )
+		);
+	}
+
 	public function test_fuel_and_transmission_show_their_labels_not_stored_keys(): void {
 		$this->seed_then_register_sanitizer( null );
 		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );

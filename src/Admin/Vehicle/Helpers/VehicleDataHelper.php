@@ -246,14 +246,12 @@ class VehicleDataHelper {
 	 */
 	public static function get_fuel_type_label(string $key): string
 	{
-		$types = array(
-			'gasoline' => __('Gasoline', 'mhm-rentiva'),
-			'petrol'   => __('Gasoline', 'mhm-rentiva'), // Legacy
-			'diesel'   => __('Diesel', 'mhm-rentiva'),
-			'lpg'      => __('LPG', 'mhm-rentiva'),
-			'electric' => __('Electric', 'mhm-rentiva'),
-			'hybrid'   => __('Hybrid', 'mhm-rentiva'),
-		);
+		// The vehicle editor's own list is the single source, so every surface prints the label
+		// the vehicle page shows. 'gasoline' is a legacy stored value for petrol.
+		$types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
+		if ('gasoline' === $key) {
+			$key = 'petrol';
+		}
 
 		return $types[ $key ] ?? $key;
 	}
@@ -266,11 +264,7 @@ class VehicleDataHelper {
 	 */
 	public static function get_transmission_label(string $key): string
 	{
-		$types = array(
-			'manual'    => __('Manual', 'mhm-rentiva'),
-			'auto'      => __('Automatic', 'mhm-rentiva'),
-			'semi_auto' => __('Semi-Automatic', 'mhm-rentiva'),
-		);
+		$types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 
 		return $types[ $key ] ?? $key;
 	}
