@@ -152,9 +152,8 @@ final class CartLineNameAndImageTest extends WP_UnitTestCase
 			)
 		);
 
-		// The booking product is sold individually; WooCommerce's add_to_cart()
-		// refuses a second line for it, so the second line is put in place the
-		// way a restored session does.
+		// The second line is put in place the way a restored session does, so
+		// both lines share the restore path the name hook runs on.
 		$first        = $this->add_booking( $this->rental_data() );
 		$contents     = WC()->cart->get_cart();
 		$second       = $contents[ $first ];
@@ -267,6 +266,23 @@ final class CartLineNameAndImageTest extends WP_UnitTestCase
 		$item = array_values( wc_get_order( $order->get_id() )->get_items() )[0];
 		$this->assertSame( '05/07/2026 10:00', $item->get_meta( 'Pickup' ) );
 		$this->assertSame( '08/07/2026 11:30', $item->get_meta( 'Dropoff' ) );
+	}
+
+	public function test_a_timestamp_date_format_does_not_break_checkout(): void
+	{
+		// date_i18n() returns an int for the 'U' format; a string-typed helper
+		// returning it unconverted threw a TypeError while the order was built.
+		update_option( 'date_format', 'U' );
+
+		$this->add_booking( $this->rental_data() );
+		WC()->cart->calculate_totals();
+
+		$order = wc_create_order();
+		WC()->checkout()->create_order_line_items( $order, WC()->cart );
+		$order->save();
+
+		$item = array_values( wc_get_order( $order->get_id() )->get_items() )[0];
+		$this->assertMatchesRegularExpression( '/^\d+ 10:00$/', (string) $item->get_meta( 'Pickup' ) );
 	}
 
 	/**

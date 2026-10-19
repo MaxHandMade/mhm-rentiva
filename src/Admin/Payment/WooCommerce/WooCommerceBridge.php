@@ -999,7 +999,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$timestamp = '' !== $date ? strtotime($date) : false;
 
-		return false !== $timestamp ? date_i18n( (string) get_option('date_format'), $timestamp) : $date;
+		// date_i18n() returns an int for the 'U' format.
+		return false !== $timestamp ? (string) date_i18n( (string) get_option('date_format'), $timestamp) : $date;
 	}
 
 	/**
