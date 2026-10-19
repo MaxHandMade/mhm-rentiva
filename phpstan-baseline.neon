@@ -424,12 +424,6 @@ parameters:
 			path: src/Admin/Emails/Templates/EmailPreview.php
 
 		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Frontend/Account/AccountController.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 7

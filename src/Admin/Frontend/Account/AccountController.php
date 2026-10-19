@@ -13,7 +13,6 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
-use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Payment\Core\RefundStatus;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
@@ -549,11 +548,10 @@ final class AccountController {
 	 */
 	private static function get_wc_login_url(): string
 	{
-		if (! function_exists('wc_get_page_permalink')) {
-			return '';
-		}
-		$url = wc_get_page_permalink('myaccount');
-		return ( is_string($url) && $url !== '' ) ? $url : '';
+		// wc_get_page_permalink() returns the home URL when the account page is missing, which
+		// sent wp-login.php (and every login link) to a page with no login form. Only a real
+		// account page counts; otherwise WordPress keeps its own login.
+		return self::get_woocommerce_account_permalink();
 	}
 
 	/**
@@ -575,6 +573,50 @@ final class AccountController {
 	}
 
 	/**
+	 * Where a customer signs in: the WooCommerce account page (its login form), else the
+	 * WordPress login. No Rentiva shortcode renders a login form.
+	 */
+	public static function get_login_url(): string
+	{
+		$account_url = self::get_woocommerce_account_permalink();
+
+		return '' !== $account_url ? $account_url : wp_login_url();
+	}
+
+	/**
+	 * Where a visitor registers, or '' when the site offers no way to.
+	 *
+	 * With a WooCommerce account page, wp-login.php (registration included) is sent to that
+	 * page, so registration exists only when WooCommerce's own account registration is on.
+	 * Without one, the WordPress registration screen, when the site allows it.
+	 */
+	public static function get_register_url(): string
+	{
+		$account_url = self::get_woocommerce_account_permalink();
+		/** This filter is documented in AccountController::register(). */
+		if ('' !== $account_url && (bool) apply_filters('mhmrentiva_takeover_login', true)) {
+			return 'yes' === get_option('woocommerce_enable_myaccount_registration') ? $account_url : '';
+		}
+
+		return get_option('users_can_register') ? wp_registration_url() : '';
+	}
+
+	/**
+	 * Permalink of the WooCommerce account page, or '' when there is none.
+	 */
+	private static function get_woocommerce_account_permalink(): string
+	{
+		if (! function_exists('wc_get_page_id')) {
+			return '';
+		}
+
+		$account_page_id = (int) \wc_get_page_id('myaccount');
+		$permalink       = $account_page_id > 0 ? get_permalink($account_page_id) : false;
+
+		return is_string($permalink) ? $permalink : '';
+	}
+
+	/**
 	 * Get My Account URL
 	 */
 	public static function get_account_url(): string
@@ -590,13 +632,8 @@ final class AccountController {
 			}
 		}
 
-		// Use global Shortcode URL Manager
-		$shortcode_url = ShortcodeUrlManager::get_page_url('rentiva_my_account');
-		if (is_string($shortcode_url) && $shortcode_url !== '') {
-			return $shortcode_url;
-		}
-
-		// Fallback to home URL
+		// No Rentiva shortcode renders the account (rentiva_my_account was never registered;
+		// looking it up only returned the home page and raised a "no page found" admin notice).
 		return home_url('/');
 	}
 

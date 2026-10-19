@@ -132,8 +132,9 @@ final class ShortcodeUrlManager {
 		// Search for shortcode ([rentiva_...]) OR Gutenberg Block (<!-- wp:mhm-rentiva/... -->)
 		// Regex explanation:
 		// 1. \[shortcode(\]| |=)  -> Matches [shortcode] or [shortcode attr=...]
-		// 2. <!-- wp:mhm-rentiva/slug -> Matches block definition
-		$regex = '\[' . $shortcode . '(\]| |=)|<!-- wp:mhm-rentiva/' . $block_slug;
+		// 2. <!-- wp:mhm-rentiva/slug + whitespace or / -> the whole block name, never a prefix
+		//    (mhm-rentiva/search must not match mhm-rentiva/search-results)
+		$regex = '\[' . $shortcode . '(\]| |=)|<!-- wp:mhm-rentiva/' . $block_slug . '[[:space:]/]';
 
 		$page_id = $wpdb->get_var(
 			$wpdb->prepare(

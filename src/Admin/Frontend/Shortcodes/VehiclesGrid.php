@@ -668,16 +668,9 @@ class VehiclesGrid extends AbstractShortcode {
 			return $login_url;
 		}
 
-		// ShortcodeUrlManager'dan kontrol et
-		if (class_exists('\MHMRentiva\Admin\Core\ShortcodeUrlManager')) {
-			$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_login');
-			if ($url) {
-				return $url;
-			}
-		}
-
-		// Fallback
-		return wp_login_url();
+		// No login shortcode exists: get_page_url('rentiva_login') fell back to the home page,
+		// so the link never reached a login form.
+		return \MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url();
 	}
 
 	/**
