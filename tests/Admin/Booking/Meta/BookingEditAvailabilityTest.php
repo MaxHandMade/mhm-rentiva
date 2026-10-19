@@ -66,6 +66,10 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 			wp_delete_user($user_id);
 		}
+		// Locker's START TRANSACTION already committed the framework's transaction,
+		// and with autocommit still off the deletes above would sit in a new
+		// implicit one that parent::tearDown()'s ROLLBACK undoes. Commit them.
+		$GLOBALS['wpdb']->query('COMMIT');
 		BookingMeta::reset_edit_availability_verdicts();
 		parent::tearDown();
 	}
