@@ -167,6 +167,23 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 		$this->assertStringContainsString( 'Deposit Paid', $this->detail( $booking_id ) );
 	}
 
+	public function test_a_deposit_paid_in_another_currency_than_the_balance_is_still_paid(): void
+	{
+		// PaymentState::paid() reports 0 for mixed currencies (the amounts cannot
+		// be summed); the deposit was still paid. PR bot P2 on #103.
+		$booking_id = $this->booking( 'confirmed', 'pending' );
+		$deposit    = $this->create_paid_order_for_booking( $booking_id, '100' );
+		$remaining  = $this->create_paid_order_for_booking( $booking_id, '200' );
+		update_post_meta( $booking_id, '_mhmrentiva_remaining_order_id', $remaining->get_id() );
+		$deposit->set_currency( 'TRY' );
+		$deposit->save();
+		$remaining->set_currency( 'EUR' );
+		$remaining->save();
+		$this->assertTrue( PaymentState::forBooking( $booking_id )->isMixedCurrency(), 'Fixture guard: mixed currency.' );
+
+		$this->assertStringContainsString( 'Deposit Paid', $this->detail( $booking_id ) );
+	}
+
 	public function test_an_on_hold_deposit_order_does_not_offer_the_balance(): void
 	{
 		$booking_id = $this->booking( 'pending' );

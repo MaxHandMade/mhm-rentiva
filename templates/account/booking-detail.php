@@ -43,10 +43,13 @@ $deposit_amount   = get_post_meta($booking_id, '_mhmrentiva_deposit_amount', tru
 $remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
 $selected_addons  = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true);
 
-// Money that actually arrived (minor units), not the amount asked for:
+// Whether money actually arrived, not the amount asked for:
 // _mhmrentiva_deposit_amount is what the booking requires, so labelling it
 // "paid" told a customer with an unpaid booking that their deposit was in.
-$amount_received = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking_id )->paid();
+$payment_state  = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking_id );
+// paid() is 0 when the deposit and the balance were paid in different
+// currencies (the amounts cannot be summed), so a paid order counts too.
+$money_received = $payment_state->paid() > 0 || array() !== $payment_state->orders();
 
 // The header used to say "successfully completed" whatever the status, so a
 // pending, unpaid or cancelled booking read as confirmed.
@@ -220,7 +223,7 @@ if ($is_integrated) {
 				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
 					<!-- Deposit Amount -->
 					<div class="rv-detail-row">
-						<div class="rv-detail-label"><?php echo esc_html( $amount_received > 0 ? __( 'Deposit Paid', 'mhm-rentiva' ) : __( 'Deposit Amount', 'mhm-rentiva' ) ); ?></div>
+						<div class="rv-detail-label"><?php echo esc_html( $money_received ? __( 'Deposit Paid', 'mhm-rentiva' ) : __( 'Deposit Amount', 'mhm-rentiva' ) ); ?></div>
 						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $deposit_amount, 2)); ?></div>
 					</div>
 
@@ -230,7 +233,7 @@ if ($is_integrated) {
 						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $remaining_amount, 2)); ?></div>
 					</div>
 
-					<?php if ( (float) $remaining_amount > 0 && ! ( $wc_order_id && $amount_received <= 0 ) && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
+					<?php if ( (float) $remaining_amount > 0 && ! ( $wc_order_id && ! $money_received ) && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
 						<?php if ( \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::is_hybrid_booking( (int) $booking_id ) ) : ?>
 						<div class="rv-detail-row rv-pay-remaining-row">
 							<div class="rv-detail-label"></div>
