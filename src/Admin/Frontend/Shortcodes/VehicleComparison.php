@@ -34,10 +34,11 @@ final class VehicleComparison extends AbstractShortcode {
 	public const SHORTCODE = 'rentiva_vehicle_comparison';
 
 	/**
-	 * Rows a site compares until the admin saves a selection of their own.
+	 * Rows a site compares until the admin saves a selection of their own (also what the Display
+	 * tab's reset writes). Every key is Active on a default install.
 	 */
 	public const DEFAULT_FIELDS = array(
-		'details' => array( 'price_per_day', 'brand', 'model', 'fuel_type', 'transmission', 'seats', 'doors', 'year' ),
+		'details' => array( 'price_per_day', 'brand', 'model', 'fuel_type', 'transmission', 'seats', 'year' ),
 	);
 
 	/**

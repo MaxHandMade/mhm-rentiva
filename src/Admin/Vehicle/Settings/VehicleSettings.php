@@ -1639,8 +1639,9 @@ final class VehicleSettings {
 			$settings                                     = get_option( 'mhmrentiva_settings', array() );
 			$settings['mhmrentiva_vehicle_card_fields']   = array();
 			$settings['mhmrentiva_vehicle_detail_fields'] = array();
-			// Unset (not emptied) so the comparison falls back to its default rows.
-			unset( $settings['comparison_fields'] );
+			// Write the default rows explicitly: the settings sanitizer merges onto the stored
+			// value, so an unset key would come straight back.
+			$settings['comparison_fields'] = \MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::DEFAULT_FIELDS;
 			update_option( 'mhmrentiva_settings', $settings );
 		} else {
 			// Reset Selection Options (Checkboxes) to default values (Definitions Tab)

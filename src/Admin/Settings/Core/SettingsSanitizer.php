@@ -156,6 +156,35 @@ final class SettingsSanitizer {
 	}
 
 	/**
+	 * Keys the plugin's own screens write that have no entry in SettingsCore::get_defaults().
+	 *
+	 * "Known" used to mean "in the defaults or already stored", so the first save of one of these
+	 * on a site that never had it was silently dropped (e.g. the comparison selection: the admin
+	 * saved, the screen said "saved", nothing was stored). comparison_fields must stay out of the
+	 * defaults -- "never saved" falls back to VehicleComparison::DEFAULT_FIELDS -- so it is listed
+	 * here instead. Extensions add their own keys through the filter.
+	 *
+	 * @return string[]
+	 */
+	private static function programmatic_keys(): array {
+		$keys = array(
+			'comparison_fields',
+			'mhmrentiva_vehicle_matrix_order',
+			'mhmrentiva_vehicle_show_features',
+			'mhmrentiva_vehicle_show_availability',
+		);
+
+		/**
+		 * Filters the settings keys a programmatic write may create.
+		 *
+		 * @param string[] $keys Keys accepted on first write.
+		 */
+		$filtered = apply_filters( 'mhmrentiva_settings_programmatic_keys', $keys );
+
+		return is_array( $filtered ) ? array_values( array_filter( $filtered, 'is_string' ) ) : $keys;
+	}
+
+	/**
 	 * A write that did not come from a settings form.
 	 *
 	 * Only keys the plugin already knows are accepted -- anything the caller
@@ -170,7 +199,10 @@ final class SettingsSanitizer {
 	 * @return array<string, mixed>
 	 */
 	private static function sanitize_programmatic_update( array $input, array $current ): array {
-		$known = array_keys( array_merge( SettingsCore::get_defaults(), $current ) );
+		$known = array_merge(
+			array_keys( array_merge( SettingsCore::get_defaults(), $current ) ),
+			self::programmatic_keys()
+		);
 		$out   = array();
 
 		foreach ( $input as $key => $value ) {
