@@ -258,21 +258,28 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 	public static function broken_count_queries(): array
 	{
 		return array(
-			'SQL error'        => array( 'SELECT broken FROM' ),
+			'SQL error'                       => array( 'SELECT broken FROM', false ),
 			// wpdb::query() returns false before recording any error.
-			'query never runs' => array( '' ),
+			'query never runs'                => array( '', false ),
+			// ...and before flush(), so get_var() would read the PREVIOUS
+			// query's result: here a '0' left by the statement just before.
+			'query never runs, stale result' => array( '', true ),
 		);
 	}
 
 	/**
 	 * @dataProvider broken_count_queries
 	 */
-	public function test_an_availability_query_that_cannot_answer_refuses_the_edit(string $replacement): void
+	public function test_an_availability_query_that_cannot_answer_refuses_the_edit(string $replacement, bool $stale_zero): void
 	{
 		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
 
-		// Replace only the guard's locked COUNT query.
-		$break = static function (string $query) use ($replacement): string {
+		// Replace only the guard's locked COUNT query; optionally make the query
+		// that runs just before it leave a '0' in wpdb's last result.
+		$break = static function (string $query) use ($replacement, $stale_zero): string {
+			if ($stale_zero && str_starts_with($query, 'SET time_zone')) {
+				return "SELECT '0'";
+			}
 			return ( str_contains($query, 'SELECT COUNT(*)') && str_contains($query, 'p.ID <>') ) ? $replacement : $query;
 		};
 		add_filter('query', $break);

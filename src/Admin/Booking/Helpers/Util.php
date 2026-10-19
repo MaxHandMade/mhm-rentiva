@@ -336,10 +336,11 @@ final class Util {
 	/**
 	 * The locked overlap count, or null when the query did not produce one.
 	 *
-	 * The wpdb::get_var() call returns null both on an SQL error and when the query never
-	 * ran (a `query` filter returning an empty string makes wpdb::query() return
-	 * false before it records any error), so null -- not $wpdb->last_error -- is
-	 * the signal that availability is unknown.
+	 * A query that never ran is not visible in $wpdb->last_error: a `query`
+	 * filter returning an empty string makes wpdb::query() return false before it
+	 * flushes or records anything, and get_var() would then read the previous
+	 * query's leftover result. So the COUNT is run with query(), its false return
+	 * means "unknown", and the value is read only after a success.
 	 */
 	public static function count_overlaps_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): ?int
 	{
@@ -384,7 +385,10 @@ final class Util {
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
 		$buffer_seconds = $buffer_minutes * 60;
 
-		$count = $wpdb->get_var(
+		// Run the COUNT with query() and read it only after a success: when
+		// query() returns false before flush() (e.g. a `query` filter emptied the
+		// SQL), get_var() would still hand back the PREVIOUS query's result.
+		$ran = $wpdb->query(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
@@ -427,6 +431,13 @@ final class Util {
 				$current_time_gmt
 			)
 		);
+		if (false === $ran) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- no SQL is passed; this reads the result of the prepared COUNT above.
+		$count = $wpdb->get_var();
+
 		return null === $count ? null : (int) $count;
 	}
 
