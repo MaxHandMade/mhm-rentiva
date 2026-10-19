@@ -134,6 +134,23 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		BookingMeta::save_meta($booking_id, get_post($booking_id));
 	}
 
+	/**
+	 * Rows of a vehicle's availability cache in the options table. Read from the
+	 * database, not get_transient(): Cache::invalidateVehicle() deletes rows, and
+	 * within one PHP request get_transient() can still answer from the object cache.
+	 */
+	private function cached_rows(int $vehicle_id): int
+	{
+		global $wpdb;
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s",
+				'%' . $wpdb->esc_like('mhmrentiva_avail_' . $vehicle_id . '_') . '%'
+			)
+		);
+	}
+
 	private function busy(string $pickup, string $dropoff): bool
 	{
 		$range = Util::parse_datetimes($pickup, '10:00', $dropoff, '10:00');
@@ -236,6 +253,48 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		$this->admin_save($moved, array( 'mhmrentiva_edit_vehicle_id' => (string) $other_vehicle ));
 
 		$this->assertSame((string) $this->vehicle_id, (string) get_post_meta($moved, '_mhmrentiva_vehicle_id', true));
+	}
+
+	public function test_a_saved_move_drops_cached_availability_of_both_vehicles(): void
+	{
+		// check_availability() returns a cached "unavailable" without rechecking,
+		// so a move must clear what was cached about the vehicle it left too.
+		$other_vehicle = $this->track(
+			self::factory()->post->create(
+				array(
+					'post_type'   => 'mhmrentiva_vehicle',
+					'post_status' => 'publish',
+				)
+			)
+		);
+		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
+		set_transient('mhmrentiva_avail_' . $this->vehicle_id . '_probe', 'unavailable', HOUR_IN_SECONDS);
+		set_transient('mhmrentiva_avail_' . $other_vehicle . '_probe', 'unavailable', HOUR_IN_SECONDS);
+
+		$this->admin_save($booking_id, array( 'mhmrentiva_edit_vehicle_id' => (string) $other_vehicle ));
+
+		$this->assertSame((string) $other_vehicle, (string) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true));
+		$this->assertSame(0, $this->cached_rows($this->vehicle_id), 'The vehicle the booking left must not keep a cached answer.');
+		$this->assertSame(0, $this->cached_rows($other_vehicle));
+	}
+
+	public function test_a_saved_date_move_leaves_no_cached_availability(): void
+	{
+		// Regression fence: on a same-vehicle date move the guard already clears
+		// the vehicle's cache before its check, and the handlers clear it again
+		// after writing.
+		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
+		set_transient('mhmrentiva_avail_' . $this->vehicle_id . '_probe', 'unavailable', HOUR_IN_SECONDS);
+
+		$this->admin_save(
+			$booking_id,
+			array(
+				'mhmrentiva_edit_pickup_date'  => '2027-03-25',
+				'mhmrentiva_edit_dropoff_date' => '2027-03-27',
+			)
+		);
+
+		$this->assertSame(0, $this->cached_rows($this->vehicle_id));
 	}
 
 	public function test_confirming_a_pending_booking_whose_payment_window_lapsed_is_checked(): void

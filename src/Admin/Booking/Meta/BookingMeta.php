@@ -544,6 +544,7 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_mhmrentiva_booking_guests', $guests);
 
 		self::sync_booking_timestamps($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		self::invalidate_edit_caches( (int) get_post_meta($post_id, '_mhmrentiva_vehicle_id', true));
 	}
 
 	public static function save_meta(int $post_id, \WP_Post $post): void
@@ -1305,6 +1306,23 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Drop what was cached about the vehicles an admin edit wrote to.
+	 *
+	 * Status changes already clear these through mhmrentiva_booking_status_changed;
+	 * a vehicle or date edit fires no such event. Util::check_availability()
+	 * serves a cached "unavailable" without rechecking, so the vehicle a booking
+	 * left would stay unbookable on dates it no longer holds.
+	 */
+	public static function invalidate_edit_caches(int ...$vehicle_ids): void
+	{
+		foreach (array_unique(array_filter($vehicle_ids)) as $vehicle_id) {
+			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+		}
+
+		\MHMRentiva\Admin\Core\Utilities\OccupancyMapService::invalidate();
 	}
 
 	/**
