@@ -285,19 +285,25 @@
 	color: var(--mhm-error);
 }
 
-.mhm-rentiva-account-page .status-pending,
-.mhm-rentiva-account-page .status-pending_payment {
+.mhm-rentiva-account-page .status-pending {
 	background: var(--mhm-bg-secondary);
 	color: var(--mhm-warning);
 }
 
-.mhm-rentiva-account-page .status-in_progress {
+/* Booking status badges only: payment-history rows reuse status-<slug>
+   classes (status-refunded is purple there) and must not pick these up. */
+.mhm-rentiva-account-page .status-badge.status-pending_payment {
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-warning);
+}
+
+.mhm-rentiva-account-page .status-badge.status-in_progress {
 	background: var(--mhm-gray-100);
 	color: var(--mhm-success);
 }
 
-.mhm-rentiva-account-page .status-refunded,
-.mhm-rentiva-account-page .status-no_show {
+.mhm-rentiva-account-page .status-badge.status-refunded,
+.mhm-rentiva-account-page .status-badge.status-no_show {
 	background: var(--mhm-gray-100);
 	color: var(--mhm-error);
 }
