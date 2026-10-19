@@ -195,6 +195,16 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 		$this->assertStringContainsString( '#' . $order_id, AccountRenderer::render_bookings(), 'Searching the number the customer sees must find the booking.' );
 	}
 
+	public function test_the_dashboard_does_not_call_every_other_status_pending(): void
+	{
+		$this->booking( 'in_progress' );
+
+		$dashboard = AccountRenderer::render_dashboard();
+
+		$this->assertStringContainsString( 'In Progress', $dashboard );
+		$this->assertStringNotContainsString( 'status-pending', $dashboard, 'A rental in progress is not pending.' );
+	}
+
 	public function test_the_dashboard_shows_the_same_number_as_the_detail(): void
 	{
 		$booking_id = $this->booking_paid_through_checkout( 'confirmed' );

@@ -285,9 +285,21 @@
 	color: var(--mhm-error);
 }
 
-.mhm-rentiva-account-page .status-pending {
+.mhm-rentiva-account-page .status-pending,
+.mhm-rentiva-account-page .status-pending_payment {
 	background: var(--mhm-bg-secondary);
 	color: var(--mhm-warning);
+}
+
+.mhm-rentiva-account-page .status-in_progress {
+	background: var(--mhm-gray-100);
+	color: var(--mhm-success);
+}
+
+.mhm-rentiva-account-page .status-refunded,
+.mhm-rentiva-account-page .status-no_show {
+	background: var(--mhm-gray-100);
+	color: var(--mhm-error);
 }
 
 .booking-price {
