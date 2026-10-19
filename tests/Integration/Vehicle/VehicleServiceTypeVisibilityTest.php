@@ -319,6 +319,21 @@ final class VehicleServiceTypeVisibilityTest extends WP_UnitTestCase
 		$this->assertNotContains($this->legacy_transfer_id, $ids);
 	}
 
+	public function test_availability_calendar_refuses_a_pinned_transfer_only_vehicle(): void
+	{
+		$method = new ReflectionMethod(AvailabilityCalendar::class, 'prepare_template_data');
+		$method->setAccessible(true);
+		$attributes = new ReflectionMethod(AvailabilityCalendar::class, 'get_default_attributes');
+		$attributes->setAccessible(true);
+		$defaults = array_merge($attributes->invoke(null), array( 'show_pricing' => '0' ));
+
+		$pinned = static fn( int $id ): int => (int) $method->invoke(null, array_merge($defaults, array( 'vehicle_id' => (string) $id )))['vehicle_id'];
+
+		$this->assertNotSame($this->transfer_id, $pinned($this->transfer_id));
+		$this->assertNotSame($this->legacy_transfer_id, $pinned($this->legacy_transfer_id));
+		$this->assertSame($this->both_id, $pinned($this->both_id), 'Positive control: a both-type vehicle stays pinned.');
+	}
+
 	public function test_manual_booking_vehicle_select_omits_transfer_only_vehicles(): void
 	{
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));

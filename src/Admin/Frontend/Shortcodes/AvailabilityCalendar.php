@@ -375,7 +375,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			 * page: pinning a draft vehicle published its title, excerpt, price
 			 * and availability just as effectively as the default-pick did.
 			 */
-			if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( (int) $atts['vehicle_id'])) {
+			// A transfer-only vehicle is not offered for rental, pinned or not.
+			if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( (int) $atts['vehicle_id'])
+				&& \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( (int) $atts['vehicle_id'], 'rental')) {
 				$vehicle_id = intval($atts['vehicle_id']);
 			}
 		} else {
