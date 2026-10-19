@@ -89,6 +89,16 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
 	} );
 
+	test( 'a vehicle the server says is not offered for rental keeps submit locked', () => {
+		const form = setup();
+
+		respondWith( { success: false, data: { ok: false, code: 'service_unavailable', message: 'not for rental' } } );
+		form.checkAvailability();
+		form.updateButtonState();
+
+		expect( form.submitBtn.prop( 'disabled' ) ).toBe( true );
+	} );
+
 	test( 'a request that never got an answer does not lock the sale', () => {
 		// The server re-checks under a lock at checkout, so an unknown answer must
 		// not leave a visitor unable to book dates that may well be free.
