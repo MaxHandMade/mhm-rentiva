@@ -253,7 +253,7 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * @return array<string, array{0: string}>
+	 * @return array<string, array{0: string, 1: bool}>
 	 */
 	public static function broken_count_queries(): array
 	{

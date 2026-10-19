@@ -431,7 +431,10 @@ final class Util {
 				$current_time_gmt
 			)
 		);
-		if (false === $ran) {
+		// An ungrouped COUNT(*) yields exactly one row, zero matches included. Any
+		// other row count (false, or 0 after something reran a query on this
+		// connection mid-flight) means the result in hand is not this COUNT's.
+		if (1 !== $ran) {
 			return null;
 		}
 
