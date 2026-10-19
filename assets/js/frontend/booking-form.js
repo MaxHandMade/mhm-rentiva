@@ -36,6 +36,10 @@
             // Enable button at form start (terms checkbox will control it)
             this.submitBtn.prop('disabled', false);
 
+            // Set by checkAvailability() when the vehicle is taken or the check
+            // failed; nothing else may re-enable submit while it is set.
+            this.availabilityBlocked = false;
+
             // Deposit system elements
             this.paymentTypeRadios = this.form.find('input[name="payment_type"]');
             this.paymentMethodRadios = this.form.find('input[name="payment_method"]');
@@ -221,7 +225,7 @@
             const termsCheckbox = this.container.find('.rv-terms-checkbox-input');
             if (termsCheckbox.length) {
                 const isChecked = termsCheckbox.is(':checked');
-                this.submitBtn.prop('disabled', !isChecked);
+                this.submitBtn.prop('disabled', !isChecked || !!this.availabilityBlocked);
             }
         }
 
@@ -658,7 +662,9 @@
 
                     if (response.success) {
                         this.updatePriceDisplay(response.data);
-                        this.submitBtn.prop('disabled', false);
+                        // The availability check runs alongside this request; a
+                        // price answer must not undo its "unavailable".
+                        this.submitBtn.prop('disabled', !!this.availabilityBlocked);
                     } else {
                         this.showError(response.data?.message || this.getMessage('error'));
                     }
@@ -1204,11 +1210,19 @@
                 nonce: window.mhmRentivaBookingForm?.nonce || ''
             };
 
+            // Only the newest check may speak: dates can change while an older
+            // request is still in flight, and its late answer must not overwrite
+            // the newer one (in either direction).
+            const requestSeq = this.availabilitySeq = (this.availabilitySeq || 0) + 1;
+
             $.ajax({
                 url: window.mhmRentivaBookingForm?.ajaxUrl || '',
                 type: 'POST',
                 data: ajaxData,
                 success: (response) => {
+                    if (requestSeq !== this.availabilitySeq) {
+                        return;
+                    }
                     availabilityStatus.removeClass('hidden'); // Show in all cases
 
                     if (response.success) {
@@ -1222,6 +1236,7 @@
                                 `);
 
                         // ✅ Vehicle available - enable button
+                        this.availabilityBlocked = false;
                         this.submitBtn.prop('disabled', false);
                     } else {
                         // Not available
@@ -1293,8 +1308,17 @@
                                     </div>
                                 `);
 
-                        // ❌ Vehicle not available - disable button
-                        this.submitBtn.prop('disabled', true);
+                        // ❌ Block submit only when the server said the vehicle is
+                        // taken. A refusal without one of these codes is a check
+                        // that could not run (rate limit, nonce, bad input): show
+                        // it, but do not lock a sale for dates that may be free --
+                        // checkout re-checks under a lock anyway.
+                        const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found'];
+                        this.availabilityBlocked = takenCodes.includes(response.data?.code);
+                        this.submitBtn.prop('disabled', this.availabilityBlocked);
+                        if (!this.availabilityBlocked) {
+                            this.updateButtonState();
+                        }
 
                         // Alternative vehicle selection buttons
                         availabilityStatus.find('.rv-select-alternative-btn').on('click', (e) => {
@@ -1310,6 +1334,9 @@
                     }
                 },
                 error: (xhr, status, error) => {
+                    if (requestSeq !== this.availabilitySeq) {
+                        return;
+                    }
                     console.error('🔍 AJAX Error:', { xhr, status, error });
                     console.error('🔍 Response Text:', xhr.responseText);
                     // Error state - Modern error card
@@ -1323,8 +1350,12 @@
                                 </div>
                             `);
 
-                    // ❌ Availability check failed - disable button
-                    this.submitBtn.prop('disabled', true);
+                    // The check did not answer: say so, and lift any lock an
+                    // earlier "taken" left behind -- nothing else will. The terms
+                    // checkbox still applies; checkout re-checks under a lock.
+                    this.availabilityBlocked = false;
+                    this.submitBtn.prop('disabled', false);
+                    this.updateButtonState();
                 }
             });
         }
@@ -1425,7 +1456,7 @@
                 this.submitBtn.find('.rv-btn-loading').removeClass('rv-hidden');
             } else {
                 this.loadingEl.addClass('rv-hidden').addClass('rv-hidden');
-                this.submitBtn.prop('disabled', false);
+                this.submitBtn.prop('disabled', !!this.availabilityBlocked);
                 this.submitBtn.find('.rv-btn-loading').addClass('rv-hidden');
             }
         }
