@@ -95,6 +95,36 @@ class RatingHelper {
 	}
 
 	/**
+	 * How many approved reviews gave each star value, 5 down to 1.
+	 *
+	 * Same review set recalculate_and_save() averages, so the bars add up to
+	 * the reviews behind the average. The summary used to count 5, 4 and 3
+	 * only, so 1- and 2-star reviews moved the average but no bar.
+	 *
+	 * @return array<int, int> star value => review count, keys 5..1.
+	 */
+	public static function get_distribution( int $vehicle_id ): array {
+		$distribution = array_fill_keys( array( 5, 4, 3, 2, 1 ), 0 );
+
+		$comments = get_comments(
+			array(
+				'post_id' => $vehicle_id,
+				'type'    => 'review',
+				'status'  => 'approve',
+			)
+		);
+
+		foreach ( $comments as $comment ) {
+			$rating = (int) get_comment_meta( (int) $comment->comment_ID, 'mhmrentiva_rating', true );
+			if ( isset( $distribution[ $rating ] ) ) {
+				++$distribution[ $rating ];
+			}
+		}
+
+		return $distribution;
+	}
+
+	/**
 	 * Generate Star HTML (Yellow, standard).
 	 *
 	 * @param float $rating
