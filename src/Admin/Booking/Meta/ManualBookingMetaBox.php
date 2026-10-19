@@ -249,7 +249,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Manually filter available ones
 		$available_vehicles = array();
 		foreach ($vehicles as $vehicle) {
-			if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle->ID) === 'active') {
+			// This screen creates RENTAL bookings, so a transfer-only vehicle is
+			// not offered (Util::check_availability() refuses it on submit too).
+			if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle->ID) === 'active'
+				&& \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( (int) $vehicle->ID, 'rental')) {
 				$available_vehicles[] = $vehicle;
 			}
 		}

@@ -392,15 +392,18 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			 * Publish-only is the rule the surface actually needs.
 			 */
 			$vehicles = get_posts(
-				array(
-					'post_type'    => 'mhmrentiva_vehicle',
-					// Public surface: unpublished vehicles stay unpublished, and a
-					// password-protected one is not public either.
-					'post_status'  => 'publish',
-					'has_password' => false,
-					'numberposts'  => 1,
-					'orderby'      => 'date',
-					'order'        => 'DESC',
+				\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service(
+					array(
+						'post_type'    => 'mhmrentiva_vehicle',
+						// Public surface: unpublished vehicles stay unpublished, and a
+						// password-protected one is not public either.
+						'post_status'  => 'publish',
+						'has_password' => false,
+						'numberposts'  => 1,
+						'orderby'      => 'date',
+						'order'        => 'DESC',
+					),
+					'rental'
 				)
 			);
 
@@ -546,7 +549,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		// let a transient cached before deploy keep serving unpublished
 		// vehicles' title/excerpt/price to anonymous visitors until its
 		// tag-based invalidation fired or its 30-minute TTL expired.
-		$cache_key = 'availability_calendar_vehicles_list_v2';
+		// _v3: the list became rental-only (transfer-only vehicles dropped); a
+		// _v2 entry cached before deploy would keep offering them until its TTL.
+		$cache_key = 'availability_calendar_vehicles_list_v3';
 
 		// Check from cache
 		$cached_data = \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key);
@@ -567,16 +572,20 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				 * happened to warm it.
 				 */
 				$vehicles = get_posts(
-					array(
-						'post_type'    => 'mhmrentiva_vehicle',
-						// This list becomes the public vehicle switcher; drafts,
-						// private and password-protected vehicles do not belong
-						// in it.
-						'post_status'  => 'publish',
-						'has_password' => false,
-						'numberposts'  => -1,
-						'orderby'      => 'title',
-						'order'        => 'ASC',
+					\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service(
+						array(
+							'post_type'    => 'mhmrentiva_vehicle',
+							// This list becomes the public vehicle switcher; drafts,
+							// private and password-protected vehicles do not belong
+							// in it -- nor do transfer-only ones: it is a rental
+							// calendar that links to the rental booking form.
+							'post_status'  => 'publish',
+							'has_password' => false,
+							'numberposts'  => -1,
+							'orderby'      => 'title',
+							'order'        => 'ASC',
+						),
+						'rental'
 					)
 				);
 

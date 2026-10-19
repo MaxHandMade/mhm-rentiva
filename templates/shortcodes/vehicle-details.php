@@ -52,6 +52,11 @@ $show_calendar        = $flag($atts['show_calendar'] ?? '1', true);
 $show_favorite_button = $flag($atts['show_favorite_button'] ?? ( $atts['show_favorite_btn'] ?? '1' ), true);
 $show_compare_button  = $flag($atts['show_compare_button'] ?? ( $atts['show_compare_btn'] ?? '1' ), true);
 
+// A transfer-only vehicle is not offered for rental: no booking button (absent flag = bookable).
+if (isset($rental_bookable) && ! $rental_bookable) {
+	$show_booking_button = false;
+}
+
 $primary_category   = ! empty($categories[0]) ? $categories[0] : array();
 $category_name      = (string) ( $primary_category['name'] ?? __('Premium', 'mhm-rentiva') );
 $category_url       = (string) ( $primary_category['url'] ?? '#' );

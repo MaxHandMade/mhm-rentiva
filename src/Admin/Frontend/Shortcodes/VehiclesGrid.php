@@ -314,6 +314,7 @@ class VehiclesGrid extends AbstractShortcode {
 		);
 		RatingSortHelper::apply_filter_args($args, $atts);
 
+		$args     = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
 		$args     = apply_filters('mhmrentiva_vehicle_query_args', $args, 'vehicles_grid', array(), $atts);
 		$posts    = get_posts($args);
 		$vehicles = array();

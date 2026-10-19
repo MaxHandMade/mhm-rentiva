@@ -243,6 +243,10 @@ final class VehiclesList extends AbstractShortcode {
 		RatingSortHelper::apply_sort_args($args, $atts['orderby'] ?? 'title', $atts['order'] ?? 'ASC');
 		RatingSortHelper::apply_filter_args($args, $atts);
 
+		// A rental listing: same service restriction and same extension point as
+		// the grid, featured and search-results queries.
+		$args     = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
+		$args     = apply_filters('mhmrentiva_vehicle_query_args', $args, 'vehicles_list', array(), $atts);
 		$posts    = get_posts($args);
 		$post_ids = wp_list_pluck($posts, 'ID');
 

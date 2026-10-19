@@ -171,6 +171,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 			);
 		}
 
+		$args = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
 		$args = apply_filters('mhmrentiva_vehicle_query_args', $args, 'featured_vehicles', array(), $atts);
 
 		$cache_key   = 'featured_' . md5(wp_json_encode($args));

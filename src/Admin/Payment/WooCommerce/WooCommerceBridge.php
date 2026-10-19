@@ -1135,6 +1135,26 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return null;
 		}
 
+		// Last line of defence for a rental of a transfer-only vehicle (the
+		// checkout validation normally stops it before payment). Refused before
+		// the before-creation hook and the lock: nothing is written, and the
+		// order is cancelled the same way a date conflict cancels it below.
+		if (self::is_refused_rental($booking_data, (int) $booking_data['vehicle_id'])) {
+			AdvancedLogger::error(
+				'Cannot create booking - vehicle is not offered for rental',
+				array(
+					'order_id'   => $order_id,
+					'vehicle_id' => $booking_data['vehicle_id'],
+				),
+				AdvancedLogger::CATEGORY_BOOKING
+			);
+			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
+			if ($order) {
+				$order->update_status('cancelled', __('Booking cancelled: Vehicle is not available for rental.', 'mhm-rentiva'));
+			}
+			return null;
+		}
+
 		// Clear cache first so the conflict check below reads fresh data.
 		if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
 			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($booking_data['vehicle_id']);
@@ -2102,6 +2122,37 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * Is this cart/order item a RENTAL of a vehicle not offered for rental?
+	 *
+	 * The add-on's transfer checkout puts its items through this same cart and
+	 * create_booking_from_data(), marked `booking_type => 'transfer'`; those are
+	 * not rentals and are left to the add-on. Every other item is a rental --
+	 * the booking form sets no booking_type at all.
+	 *
+	 * @param array<string, mixed> $booking_data Pending booking data.
+	 */
+	private static function is_refused_rental(array $booking_data, int $vehicle_id): bool
+	{
+		// Same two markers Mailer uses to recognise a transfer booking. The cart
+		// data is built server-side by the add-on, never taken from the browser.
+		if ('transfer' === (string) ( $booking_data['booking_type'] ?? '' )
+			|| (int) ( $booking_data['transfer_origin_id'] ?? 0 ) > 0) {
+			return false;
+		}
+
+		return ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental');
+	}
+
+	private static function rental_refusal_notice(int $vehicle_id): string
+	{
+		return sprintf(
+			/* translators: %s: Vehicle title */
+			__('Sorry, the vehicle "%s" is not available for rental. Please select another vehicle.', 'mhm-rentiva'),
+			get_the_title($vehicle_id)
+		);
+	}
+
+	/**
 	 * ⭐ Validate cart items availability (runs on cart page)
 	 * Prevents adding unavailable vehicles to cart
 	 */
@@ -2121,6 +2172,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$vehicle_id   = (int) ( $booking_data['vehicle_id'] ?? 0 );
 
 				if (! $vehicle_id) {
+					continue;
+				}
+
+				if (self::is_refused_rental($booking_data, $vehicle_id)) {
+					\wc_add_notice(self::rental_refusal_notice($vehicle_id), 'error');
+					$cart->remove_cart_item($cart_item['key']);
 					continue;
 				}
 
@@ -2223,6 +2280,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$vehicle_id   = (int) ( $booking_data['vehicle_id'] ?? 0 );
 
 				if (! $vehicle_id) {
+					continue;
+				}
+
+				// ⭐ This error STOPS checkout -- no payment is taken for a rental
+				// of a transfer-only vehicle.
+				if (self::is_refused_rental($booking_data, $vehicle_id)) {
+					\wc_add_notice(self::rental_refusal_notice($vehicle_id), 'error');
 					continue;
 				}
 
