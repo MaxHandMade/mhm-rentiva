@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Core\Utilities\SiteLocaleString;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Emails\Core\Templates;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
@@ -58,17 +59,33 @@ final class EmailAjaxHandler {
 		$error     = null;
 
 		try {
-			// Use EmailTemplates::build_context which now supports mock data if booking_id=0
-			$ctx = EmailTemplates::build_context( $template_key, $booking_id );
+			// The preview is what the customer receives, so it is written in
+			// the SITE's language -- the mock context's labels included --
+			// not in the operator's profile language, which is what an
+			// admin-ajax request otherwise runs in. The template's "Enabled"
+			// box is not consulted: a switched-off template can still be
+			// looked at.
+			list( $subject, $full_html ) = SiteLocaleString::in_site_locale(
+				static function () use ( $template_key, $booking_id ): array {
+					// Mock data when booking_id is 0.
+					$ctx = EmailTemplates::build_context( $template_key, $booking_id );
 
-			// Standard compile
-			$subject = Templates::compile_subject( $template_key, $ctx );
-
-			// render_body ALREADY wraps with layout when needed (see Templates.php line 182-184)
-			// Do NOT call wrapWithLayout again - it causes double-wrap and CSS leak!
-			$full_html = Templates::render_body( $template_key, $ctx );
+					// render_body() already wraps with the layout when needed;
+					// wrapping again double-wraps and leaks the CSS.
+					return array(
+						Templates::compile_subject( $template_key, $ctx ),
+						Templates::render_body( $template_key, $ctx ),
+					);
+				}
+			);
 		} catch ( \Throwable $e ) {
-			$error = 'Connection error: ' . $e->getMessage();
+			// The template threw while rendering; nothing failed to connect.
+			// In the operator's language: this is admin UI, not the e-mail.
+			$error = sprintf(
+				/* translators: %s: the error message the template rendering raised. */
+				__( 'Could not render the preview: %s', 'mhm-rentiva' ),
+				$e->getMessage()
+			);
 		}
 
 		if ( null !== $error ) {
@@ -141,11 +158,14 @@ final class EmailAjaxHandler {
 		$error = null;
 
 		try {
-			// Build context
-			$ctx = EmailTemplates::build_context( $template_key, $booking_id );
-
-			// Send
-			$sent = Mailer::send( $template_key, $to, $ctx );
+			// Same language and the same "Enabled"-box rule as the preview:
+			// this is the operator looking at a template, not a customer
+			// notification.
+			$sent = SiteLocaleString::in_site_locale(
+				static function () use ( $template_key, $booking_id, $to ): bool {
+					return Mailer::send_test( $template_key, $to, EmailTemplates::build_context( $template_key, $booking_id ) );
+				}
+			);
 		} catch ( \Throwable $e ) {
 			$error = $e->getMessage();
 		}

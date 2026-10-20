@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Core\Utilities\SiteLocaleString;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Emails\Core\Templates;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
@@ -46,16 +48,36 @@ final class EmailTemplateTestAction {
 			self::redirect( 'failed' );
 		}
 
-		// Build context
+		// The whole composition -- the booking values and the status names as
+		// well as the render -- in the SITE's language, like the AJAX test send
+		// and the preview: the operator's profile language is not the
+		// customer's. A test of the template the operator picked: sent even if
+		// its "Enabled" box is unticked (Mailer::send_test()).
+		$ok = SiteLocaleString::in_site_locale(
+			static function () use ( $template_key, $to, $booking_id, $new_status ): bool {
+				return Mailer::send_test( $template_key, $to, self::test_context( $template_key, $booking_id, $new_status ) );
+			}
+		);
+		self::redirect( $ok ? 'success' : 'failed' );
+	}
+
+	/**
+	 * Context for a test send of $template_key, built from $booking_id when the
+	 * operator picked one. Runs inside the site-locale switch.
+	 */
+	private static function test_context( string $template_key, int $booking_id, string $new_status ): array {
 		$context = array();
 		if ( $booking_id > 0 ) {
 			$context = self::buildBookingContext( $booking_id );
 			if ( $template_key === 'booking_status_changed_customer' || $template_key === 'booking_status_changed_admin' ) {
+				$old = (string) ( $context['booking']['status'] ?? 'pending' );
+				$new = $new_status !== '' ? $new_status : 'confirmed';
+
 				$context['status_change'] = array(
-					'old_status'       => $context['booking']['status'] ?? 'pending',
-					'new_status'       => $new_status !== '' ? $new_status : 'confirmed',
-					'old_status_label' => $context['booking']['status'] ?? 'pending',
-					'new_status_label' => $new_status !== '' ? $new_status : 'confirmed',
+					'old_status'       => $old,
+					'new_status'       => $new,
+					'old_status_label' => Status::get_label( $old ),
+					'new_status_label' => Status::get_label( $new ),
 				);
 			}
 		}
@@ -69,8 +91,7 @@ final class EmailTemplateTestAction {
 			);
 		}
 
-		$ok = Mailer::send( $template_key, $to, $context );
-		self::redirect( $ok ? 'success' : 'failed' );
+		return $context;
 	}
 
 	private static function buildBookingContext( int $booking_id ): array {

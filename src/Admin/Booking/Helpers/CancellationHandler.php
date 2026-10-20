@@ -289,7 +289,11 @@ final class CancellationHandler {
 		$refund   = null;
 
 		try {
-			// Send cancellation email (after commit to ensure data consistency)
+			// The admin copy of the cancellation (after commit to ensure data
+			// consistency). The customer's notice is not sent here: the status
+			// change above already sent it, as the `booking_cancelled`
+			// template (BookingNotifications), and a second one from here was
+			// the customer's second e-mail for one cancellation.
 			self::send_cancellation_email( $booking_id, $reason );
 
 			// Process refund if payment was made. $system is deliberately NOT
@@ -555,11 +559,17 @@ final class CancellationHandler {
 	}
 
 	/**
-	 * Send cancellation email
+	 * Send the admin copy of a cancellation.
+	 *
+	 * This used to mail the customer too, with its own raw wp_mail() -- on top
+	 * of the notice the status change sends, so every cancellation through
+	 * this handler reached the customer twice, and switching the "Booking
+	 * cancelled" template off left this one going out. The customer's notice
+	 * now comes only from BookingNotifications (template `booking_cancelled`).
 	 *
 	 * @param int    $booking_id Booking ID
 	 * @param string $reason Cancellation reason
-	 * @return bool True if email sent, false otherwise
+	 * @return bool True if the admin copy was sent, false otherwise
 	 */
 	private static function send_cancellation_email( int $booking_id, string $reason = '' ): bool {
 		// Check if cancellation emails are enabled
@@ -567,7 +577,8 @@ final class CancellationHandler {
 			return false;
 		}
 
-		// Get customer email
+		// Unchanged gate: the admin copy has always gone out only for a
+		// booking with a customer address on it.
 		$customer_email = get_post_meta( $booking_id, '_mhmrentiva_customer_email', true );
 		if ( empty( $customer_email ) ) {
 			return false;
@@ -579,13 +590,6 @@ final class CancellationHandler {
 		$pickup_date   = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
 		$dropoff_date  = get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true );
 		$customer_name = get_post_meta( $booking_id, '_mhmrentiva_customer_name', true );
-
-		// Email subject
-		$subject = sprintf(
-			/* translators: %s placeholder. */
-			__( 'Booking Cancellation Confirmation - %s', 'mhm-rentiva' ),
-			get_bloginfo( 'name' )
-		);
 
 		// Email template
 		$template_path = MHMRENTIVA_PLUGIN_DIR . 'templates/emails/booking-cancelled.html.php';
@@ -611,8 +615,7 @@ final class CancellationHandler {
 			'Content-Type: text/html; charset=UTF-8',
 		);
 
-		// Send email
-		$sent = wp_mail( $customer_email, $subject, $message, $headers );
+		$sent = false;
 
 		// Send copy to admin if admin notifications are enabled
 		$admin_notifications = SettingsCore::get( 'mhmrentiva_booking_admin_notifications', '1' );
@@ -624,7 +627,7 @@ final class CancellationHandler {
 				// The number the customer and every other email show.
 				mhmrentiva_get_display_id( (int) $booking_id )
 			);
-			wp_mail( $admin_email, $admin_subject, $message, $headers );
+			$sent = wp_mail( $admin_email, $admin_subject, $message, $headers );
 		}
 
 		return $sent;

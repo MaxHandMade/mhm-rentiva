@@ -43,25 +43,11 @@ final class EmailPreview {
 		echo '<div style="flex:1 1 100%"><label>' . esc_html__( 'Template', 'mhm-rentiva' ) . '<br/>';
 		echo '<select id="mhm-preview-template-key" style="width:100%; min-width:260px;">';
 
-		// Extended Friendly Names Map
-		$friendly_names = array(
-			// Booking
-			'booking_created_customer'        => esc_html__( 'Booking Confirmation (Customer)', 'mhm-rentiva' ),
-			'booking_created_admin'           => esc_html__( 'New Booking Alert (Admin)', 'mhm-rentiva' ),
-			'booking_status_changed_admin'    => esc_html__( 'Status Change (Admin)', 'mhm-rentiva' ),
-			'booking_status_changed_customer' => esc_html__( 'Status Change (Customer)', 'mhm-rentiva' ),
-			'booking_cancelled'               => esc_html__( 'Booking Cancelled (Customer)', 'mhm-rentiva' ),
-			'auto_cancel'                     => esc_html__( 'Auto Cancel Notification (Customer)', 'mhm-rentiva' ),
-			'booking_reminder_customer'       => esc_html__( 'Booking Reminder (Customer)', 'mhm-rentiva' ),
-			'welcome_customer'                => esc_html__( 'Welcome Email (Customer)', 'mhm-rentiva' ),
-			'refund_customer'                 => esc_html__( 'Refund Notification (Customer)', 'mhm-rentiva' ),
-			'refund_admin'                    => esc_html__( 'Refund Alert (Admin)', 'mhm-rentiva' ),
-			'remaining_payment_link_customer' => esc_html__( 'Remaining Payment Link (Customer)', 'mhm-rentiva' ),
-		);
-
-		foreach ( $registry as $key => $def ) {
-			$label = $friendly_names[ $key ] ?? ucfirst( str_replace( '_', ' ', $key ) );
-			echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $label ) . '</option>';
+		// One label map for every screen that lists templates; an extension
+		// names its own through `mhmrentiva_email_template_labels`.
+		$labels = Templates::labels();
+		foreach ( array_keys( $registry ) as $key ) {
+			echo '<option value="' . esc_attr( (string) $key ) . '">' . esc_html( Templates::label( (string) $key, $labels ) ) . '</option>';
 		}
 		echo '</select></label></div>';
 

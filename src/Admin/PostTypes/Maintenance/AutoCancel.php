@@ -646,7 +646,17 @@ final class AutoCancel {
 				return;
 			}
 
-			if (! Status::update_status($bid, Status::CANCELLED, 0)) {
+			// One cancellation, one customer e-mail. With the "Auto Cancel
+			// Email" switched on, that e-mail (sent below) is the customer's
+			// notice, so the status change must not also send the generic
+			// `booking_cancelled` one; with it off, the status change's
+			// `booking_cancelled` notice is the only one.
+			$transition = static fn(): bool => Status::update_status($bid, Status::CANCELLED, 0);
+			$cancelled  = \MHMRentiva\Helpers\NotificationHelper::is_auto_cancel_email_enabled()
+				? \MHMRentiva\Admin\Emails\Notifications\BookingNotifications::with_customer_cancel_notice_owned($bid, $transition)
+				: $transition();
+
+			if (! $cancelled) {
 				// The transition matrix refused (e.g. a COMPLETED booking has no
 				// CANCELLED edge). Writing the meta directly would have made the
 				// booking "cancelled" without the transition check and without

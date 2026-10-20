@@ -70,6 +70,59 @@ final class Mailer {
 	}
 
 	/**
+	 * Template key => the option its "Enabled" box on the email-templates
+	 * screen writes ('1' ticked, '0' unticked; EmailTemplates::save_email_fields()).
+	 *
+	 * Only templates the screen draws a box for are listed; any other key
+	 * (booking_status_changed_admin, auto_cancel -- which has its own toggle
+	 * in Booking settings -- and every add-on template) is not gated here.
+	 */
+	private const TEMPLATE_ENABLED_OPTIONS = array(
+		'booking_created_customer'        => 'mhmrentiva_booking_created_enabled',
+		'booking_status_changed_customer' => 'mhmrentiva_booking_status_enabled',
+		'booking_created_admin'           => 'mhmrentiva_booking_admin_enabled',
+		'booking_cancelled'               => 'mhmrentiva_booking_cancelled_enabled',
+		'booking_reminder_customer'       => 'mhmrentiva_booking_reminder_enabled',
+		'refund_customer'                 => 'mhmrentiva_refund_customer_enabled',
+		'refund_admin'                    => 'mhmrentiva_refund_admin_enabled',
+	);
+
+	/**
+	 * The templates "Send Booking Notifications" (Email settings, "booking
+	 * confirmation, reminder, and cancellation emails") covers. The check used
+	 * to name 'booking_confirmation' / 'booking_reminder' /
+	 * 'booking_cancellation', keys no template has, so the toggle -- and the
+	 * customer's own opt-out meta -- stopped nothing. The welcome check had the
+	 * same defect ('welcome' for 'welcome_customer').
+	 */
+	private const BOOKING_NOTIFICATION_KEYS = array(
+		'booking_created_customer',
+		'booking_reminder_customer',
+		'booking_cancelled',
+		'auto_cancel',
+	);
+
+	/**
+	 * Whether the operator left this template's "Enabled" box ticked.
+	 *
+	 * Reads the box exactly as the screen draws it -- get_option( $key, '1' )
+	 * and checked when '1' -- so a box that was never saved, which the screen
+	 * shows ticked, keeps sending. Only an explicit untick ('0') stops it.
+	 *
+	 * @param string $key Template key.
+	 */
+	public static function is_template_enabled( string $key ): bool {
+		$option = self::TEMPLATE_ENABLED_OPTIONS[ $key ] ?? null;
+		if ( null === $option ) {
+			return true;
+		}
+
+		$value = get_option( $option, '1' );
+
+		return '1' === $value || 1 === $value || true === $value;
+	}
+
+	/**
 	 * Central email sending method
 	 *
 	 * @param string $key Template key
@@ -79,6 +132,41 @@ final class Mailer {
 	 * @return bool Success status
 	 */
 	public static function send( string $key, string $to, array $context = array(), array $headers = array() ): bool {
+		// The template's own "Enabled" box. Checked here, at the one door every
+		// automatic sender goes through, so no send path can forget it.
+		if ( ! self::is_template_enabled( $key ) ) {
+			return false;
+		}
+
+		return self::deliver( $key, $to, $context, $headers );
+	}
+
+	/**
+	 * An operator-requested test send of a template.
+	 *
+	 * Ignores the template's "Enabled" box: the box decides what customers
+	 * receive, not which templates the operator may look at (the preview
+	 * ignores it for the same reason). Every global rule -- outgoing mail
+	 * switched off, test mode -- still applies.
+	 *
+	 * @param string $key     Template key.
+	 * @param string $to      Recipient email.
+	 * @param array  $context Template context.
+	 * @param array  $headers Additional headers.
+	 */
+	public static function send_test( string $key, string $to, array $context = array(), array $headers = array() ): bool {
+		return self::deliver( $key, $to, $context, $headers );
+	}
+
+	/**
+	 * Render and hand a template to wp_mail().
+	 *
+	 * @param string $key     Template key.
+	 * @param string $to      Recipient email.
+	 * @param array  $context Template context.
+	 * @param array  $headers Additional headers.
+	 */
+	private static function deliver( string $key, string $to, array $context, array $headers ): bool {
 		if ( empty( $to ) || ! is_email( $to ) ) {
 			return false;
 		}
@@ -94,7 +182,7 @@ final class Mailer {
 			$user = get_user_by( 'email', $to );
 			if ( $user ) {
 				// Welcome email check - both global setting and user preference
-				if ( $key === 'welcome' ) {
+				if ( $key === 'welcome_customer' ) {
 					$global_enabled = self::is_welcome_email_enabled();
 					$user_enabled   = get_user_meta( $user->ID, 'mhmrentiva_welcome_email', true );
 					if ( ! $global_enabled || $user_enabled === '0' ) {
@@ -103,7 +191,7 @@ final class Mailer {
 				}
 
 				// Booking notification check - both global setting and user preference
-				if ( in_array( $key, array( 'booking_confirmation', 'booking_reminder', 'booking_cancellation' ) ) ) {
+				if ( in_array( $key, self::BOOKING_NOTIFICATION_KEYS, true ) ) {
 					$global_enabled = self::is_booking_notifications_enabled();
 					$user_enabled   = get_user_meta( $user->ID, 'mhmrentiva_booking_notifications', true );
 					if ( ! $global_enabled || $user_enabled === '0' ) {
@@ -121,11 +209,11 @@ final class Mailer {
 				}
 			} else {
 				// User not found, check only global settings
-				if ( $key === 'welcome' && ! self::is_welcome_email_enabled() ) {
+				if ( $key === 'welcome_customer' && ! self::is_welcome_email_enabled() ) {
 					return false;
 				}
 
-				if ( in_array( $key, array( 'booking_confirmation', 'booking_reminder', 'booking_cancellation' ) ) && ! self::is_booking_notifications_enabled() ) {
+				if ( in_array( $key, self::BOOKING_NOTIFICATION_KEYS, true ) && ! self::is_booking_notifications_enabled() ) {
 					return false;
 				}
 
@@ -140,9 +228,12 @@ final class Mailer {
 			$to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address();
 		}
 
-		$subject = Templates::compile_subject( $key, $context );
-		$body    = Templates::render_body( $key, $context );
-		$headers = self::normalize_headers( $headers );
+		// Written in the SITE's language, whoever triggered it: inside wp-admin
+		// the request runs in the operator's profile language, and an e-mail
+		// an English-profile operator's status change sent to a Turkish
+		// site's customer used to arrive in English.
+		list( $subject, $body ) = self::render_in_site_locale( $key, $context );
+		$headers                = self::normalize_headers( $headers );
 
 		// Default headers
 		$from_name    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name();
@@ -162,6 +253,27 @@ final class Mailer {
 		do_action( 'mhmrentiva_email_sent', $key, $to, $ok, $subject, $context );
 
 		return $ok;
+	}
+
+	/**
+	 * Subject and body of a template, rendered in the site locale.
+	 *
+	 * The preview uses this too, so what the operator previews is what the
+	 * customer receives.
+	 *
+	 * @param string $key     Template key.
+	 * @param array  $context Template context.
+	 * @return array{0: string, 1: string} Subject, body.
+	 */
+	public static function render_in_site_locale( string $key, array $context ): array {
+		return \MHMRentiva\Admin\Core\Utilities\SiteLocaleString::in_site_locale(
+			static function () use ( $key, $context ): array {
+				return array(
+					Templates::compile_subject( $key, $context ),
+					Templates::render_body( $key, $context ),
+				);
+			}
+		);
 	}
 
 	/**

@@ -29,67 +29,122 @@ final class Templates {
 
 	/**
 	 * Template registry with translatable subjects
+	 *
+	 * Not memoised: the subjects are translated, and an e-mail is rendered in
+	 * the SITE locale (Mailer switches to it when the asker's differs). A
+	 * static copy built in the asker's locale earlier in the same request --
+	 * the preview dropdown builds one -- would hand that switch English
+	 * subjects. Eleven __() lookups are not worth a cache.
 	 */
 	public static function registry(): array {
-		static $registry = null;
-		if ( $registry === null ) {
-			$registry = array(
-				// Booking notifications
-				'booking_created_customer'        => array(
-					'subject' => __( 'Booking #{{booking.order_id}} Confirmed - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-created-customer',
-				),
-				'booking_created_admin'           => array(
-					'subject' => __( 'New Booking Request #{{booking.order_id}} - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-created-admin',
-				),
-				'booking_status_changed_customer' => array(
-					'subject' => __( 'Booking #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-status-changed-customer',
-				),
-				'booking_status_changed_admin'    => array(
-					'subject' => __( 'Booking #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-status-changed-admin',
-				),
-				'booking_reminder_customer'       => array(
-					'subject' => __( 'Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-reminder-customer',
-				),
-				'remaining_payment_link_customer' => array(
-					'subject' => __( 'Complete Your Payment - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'remaining-payment-link-customer',
-				),
-				// Welcome Email (One-time)
-				'welcome_customer'                => array(
-					'subject' => __( 'Welcome to {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'welcome-customer',
-				),
+		$registry = array(
+			// Booking notifications
+			'booking_created_customer'        => array(
+				'subject' => __( 'Booking #{{booking.order_id}} Confirmed - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-created-customer',
+			),
+			'booking_created_admin'           => array(
+				'subject' => __( 'New Booking Request #{{booking.order_id}} - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-created-admin',
+			),
+			'booking_status_changed_customer' => array(
+				'subject' => __( 'Booking #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-status-changed-customer',
+			),
+			'booking_status_changed_admin'    => array(
+				'subject' => __( 'Booking #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-status-changed-admin',
+			),
+			'booking_reminder_customer'       => array(
+				'subject' => __( 'Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-reminder-customer',
+			),
+			'remaining_payment_link_customer' => array(
+				'subject' => __( 'Complete Your Payment - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'remaining-payment-link-customer',
+			),
+			// Welcome Email (One-time)
+			'welcome_customer'                => array(
+				'subject' => __( 'Welcome to {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'welcome-customer',
+			),
 
-				// Manual Cancel
-				'booking_cancelled'               => array(
-					'subject' => __( 'Booking #{{booking.order_id}} Cancelled - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-cancelled',
-				),
+			// Manual Cancel
+			'booking_cancelled'               => array(
+				'subject' => __( 'Booking #{{booking.order_id}} Cancelled - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-cancelled',
+			),
 
-				// Auto Cancel
-				'auto_cancel'                     => array(
-					'subject' => __( 'Booking #{{booking.order_id}} Cancelled - {{site.name}}', 'mhm-rentiva' ),
-					'file'    => 'booking-cancelled',
-				),
+			// Auto Cancel
+			'auto_cancel'                     => array(
+				'subject' => __( 'Booking #{{booking.order_id}} Cancelled - {{site.name}}', 'mhm-rentiva' ),
+				'file'    => 'booking-cancelled',
+			),
 
-				// Refund templates
-				'refund_customer'                 => array(
-					'subject' => __( 'Refund Processed for Booking #{{booking.order_id}}', 'mhm-rentiva' ),
-					'file'    => 'refund-customer',
-				),
-				'refund_admin'                    => array(
-					'subject' => __( 'Refund Alert: Booking #{{booking.order_id}}', 'mhm-rentiva' ),
-					'file'    => 'refund-admin',
-				),
-			);
-		}
+			// Refund templates
+			'refund_customer'                 => array(
+				'subject' => __( 'Refund Processed for Booking #{{booking.order_id}}', 'mhm-rentiva' ),
+				'file'    => 'refund-customer',
+			),
+			'refund_admin'                    => array(
+				'subject' => __( 'Refund Alert: Booking #{{booking.order_id}}', 'mhm-rentiva' ),
+				'file'    => 'refund-admin',
+			),
+		);
 
 		return apply_filters( 'mhmrentiva_email_registry', $registry );
+	}
+
+	/**
+	 * Human names of the templates, for the screens that list them.
+	 *
+	 * Lite names its own; an extension that adds templates to the registry
+	 * names them through `mhmrentiva_email_template_labels`. Before this map
+	 * had a filter, every extension template reached the preview dropdown as
+	 * its key run through ucfirst() -- "Iban change approved" -- an English
+	 * non-label on any site.
+	 *
+	 * @return array<string, string> Template key => translated label (plain text).
+	 */
+	public static function labels(): array {
+		$labels = array(
+			// Booking
+			'booking_created_customer'        => __( 'Booking Confirmation (Customer)', 'mhm-rentiva' ),
+			'booking_created_admin'           => __( 'New Booking Alert (Admin)', 'mhm-rentiva' ),
+			'booking_status_changed_admin'    => __( 'Status Change (Admin)', 'mhm-rentiva' ),
+			'booking_status_changed_customer' => __( 'Status Change (Customer)', 'mhm-rentiva' ),
+			'booking_cancelled'               => __( 'Booking Cancelled (Customer)', 'mhm-rentiva' ),
+			'auto_cancel'                     => __( 'Auto Cancel Notification (Customer)', 'mhm-rentiva' ),
+			'booking_reminder_customer'       => __( 'Booking Reminder (Customer)', 'mhm-rentiva' ),
+			'welcome_customer'                => __( 'Welcome Email (Customer)', 'mhm-rentiva' ),
+			'refund_customer'                 => __( 'Refund Notification (Customer)', 'mhm-rentiva' ),
+			'refund_admin'                    => __( 'Refund Alert (Admin)', 'mhm-rentiva' ),
+			'remaining_payment_link_customer' => __( 'Remaining Payment Link (Customer)', 'mhm-rentiva' ),
+		);
+
+		/**
+		 * Name the templates an extension adds to the registry.
+		 *
+		 * @param array<string, string> $labels Template key => translated, plain-text label.
+		 */
+		$labels = apply_filters( 'mhmrentiva_email_template_labels', $labels );
+
+		return is_array( $labels ) ? $labels : array();
+	}
+
+	/**
+	 * One template's label; its key, made readable, only when nobody named it
+	 * (an older extension that predates the filter).
+	 *
+	 * @param string                     $key    Template key.
+	 * @param array<string, string>|null $labels Labels already fetched by a caller listing many keys.
+	 */
+	public static function label( string $key, ?array $labels = null ): string {
+		$label = ( $labels ?? self::labels() )[ $key ] ?? '';
+
+		return is_string( $label ) && '' !== trim( $label )
+			? $label
+			: ucfirst( str_replace( '_', ' ', $key ) );
 	}
 
 	public static function locate_template( string $slug ): ?string {

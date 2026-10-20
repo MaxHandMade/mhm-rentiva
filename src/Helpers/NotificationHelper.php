@@ -23,6 +23,18 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 class NotificationHelper {
 
 	/**
+	 * Whether the "Auto Cancel Email" (Booking settings) is switched on.
+	 *
+	 * When it is, the auto-cancel sweep's customer notice is that e-mail and
+	 * the generic cancellation notice is held back, so the customer is told
+	 * once (AutoCancel::cancel_booking_with_orders()).
+	 */
+	public static function is_auto_cancel_email_enabled(): bool
+	{
+		return SettingsCore::get('mhmrentiva_send_auto_cancel_email', '0') === '1';
+	}
+
+	/**
 	 * Send Auto Cancellation Email
 	 *
 	 * @param int $booking_id
@@ -31,8 +43,7 @@ class NotificationHelper {
 	public static function send_auto_cancel_email(int $booking_id): bool
 	{
 		// 1. Check if the feature is enabled
-		$enabled = SettingsCore::get('mhmrentiva_send_auto_cancel_email', '0');
-		if ($enabled !== '1') {
+		if (! self::is_auto_cancel_email_enabled()) {
 			return false;
 		}
 

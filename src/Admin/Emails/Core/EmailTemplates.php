@@ -367,6 +367,10 @@ final class EmailTemplates {
 
 			$ctx['booking'] = array(
 				'id'          => $booking_id,
+				// The number every subject prints ({{booking.order_id}}); the
+				// preview showed "Booking #" with no number without it.
+				'order_id'    => mhmrentiva_get_display_id( (int) $booking_id ),
+				'display_id'  => mhmrentiva_get_display_id( (int) $booking_id ),
 				'title'       => get_the_title($booking_id),
 				'status'      => (string) get_post_meta($booking_id, '_mhmrentiva_status', true),
 				'payment'     => array(
@@ -391,8 +395,10 @@ final class EmailTemplates {
 				'name'  => (string) get_post_meta($booking_id, '_mhmrentiva_contact_name', true),
 			);
 			// Include vehicle info if available (simplified for now as context is mostly meta based)
+			// The vehicle's own title. This used to be the English literal
+			// "Vehicle Title (ID: N)", which every preview printed as is.
 			$ctx['vehicle'] = array(
-				'title' => 'Vehicle Title (ID: ' . get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true) . ')',
+				'title' => get_the_title( (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true) ),
 			);
 		} else {
 			// Mock Data for Preview
@@ -412,7 +418,23 @@ final class EmailTemplates {
 			$ctx['status'] = (string) ( $ctx['booking']['payment']['status'] ?? '' );
 			$ctx['reason'] = '';
 		}
-		return $ctx;
+
+		/**
+		 * Sample context for previewing (and test-sending) a template.
+		 *
+		 * Lite's sample covers booking keys only. A template that reads anything
+		 * else -- an extension's vendor name, payout amount, report title --
+		 * previewed with holes ("Hello ,"). The template's owner fills what its
+		 * templates read here. Preview and test send only: real sends build
+		 * their context elsewhere (Mailer::getBookingContext() and the senders).
+		 *
+		 * @param array  $ctx        Sample context so far.
+		 * @param string $key        Template key being previewed.
+		 * @param int    $booking_id Booking the operator picked, or 0 for mock data.
+		 */
+		$filtered = apply_filters('mhmrentiva_email_preview_context', $ctx, $key, $booking_id);
+
+		return is_array($filtered) ? $filtered : $ctx;
 	}
 
 	/**
@@ -434,6 +456,10 @@ final class EmailTemplates {
 		return array(
 			'booking'       => array(
 				'id'               => 9999,
+				// What every subject prints ({{booking.order_id}}); without it
+				// the preview heading read "Booking # Confirmed".
+				'order_id'         => 9999,
+				'display_id'       => '9999',
 				'title'            => __('Mock Booking #9999', 'mhm-rentiva'),
 				'status'           => __('confirmed', 'mhm-rentiva'),
 				'pickup_date'      => gmdate('d.m.Y H:i', strtotime('+1 day')),
@@ -541,7 +567,9 @@ final class EmailTemplates {
 						'cancel'        => __('Cancel', 'mhm-rentiva'),
 						'enterEmail'    => __('Please enter email address', 'mhm-rentiva'),
 						'editTemplate'  => __('Edit Template', 'mhm-rentiva'),
-						'subject'       => __('Subject', 'mhm-rentiva'),
+						'subject'       => __('Subject:', 'mhm-rentiva'),
+						'loading'       => __('Loading...', 'mhm-rentiva'),
+						'preview'       => __('Preview', 'mhm-rentiva'),
 						'content'       => __('Content', 'mhm-rentiva'),
 						'save'          => __('Save', 'mhm-rentiva'),
 						'templateSaved' => __('Template saved successfully!', 'mhm-rentiva'),

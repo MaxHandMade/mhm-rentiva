@@ -159,8 +159,11 @@ jQuery( document ).ready(
 				btn.prop( 'disabled', true ).text( mhmrentiva_email_templates_vars.processing || 'Loading...' );
 				container.css( 'opacity', '0.5' );
 
-				// Optional: Add spinner to container
-				container.html( '<div style="text-align:center; padding:40px;"><span class="spinner is-active" style="float:none; margin:0;"></span> Loading preview...</div>' );
+				// Optional: Add spinner to container. Every word on this panel
+				// comes from the localized payload: hard-coded English here put
+				// "Subject:" over a Turkish e-mail.
+				container.html( '<div style="text-align:center; padding:40px;"><span class="spinner is-active" style="float:none; margin:0;"></span> </div>' );
+				container.children().first().append( document.createTextNode( mhmrentiva_email_templates_vars.strings.loading || '' ) );
 
 				$.ajax(
 					{
@@ -175,24 +178,24 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								// Render HTML
-								var html = '<div style="background: #f9f9f9; border: 1px solid #ddd; padding: 20px;">' +
-								'<h3>Subject: ' + response.data.subject + '</h3>' +
-								'<hr>' +
-								'<div style="background: white; border: 1px solid #ccc; padding: 15px;">' +
-								response.data.html +
-								'</div></div>';
-								container.html( html );
+								// The subject is text: it can carry an
+								// operator-typed override.
+								var heading = $( '<h3></h3>' ).text( ( mhmrentiva_email_templates_vars.strings.subject ? mhmrentiva_email_templates_vars.strings.subject + ' ' : '' ) + response.data.subject );
+								var body    = $( '<div style="background: white; border: 1px solid #ccc; padding: 15px;"></div>' ).html( response.data.html );
+								var panel   = $( '<div style="background: #f9f9f9; border: 1px solid #ddd; padding: 20px;"></div>' )
+									.append( heading, '<hr>', body );
+								container.empty().append( panel );
 							} else {
-								container.html( '<div class="notice notice-error inline"><p>' + (response.data || 'Error loading preview') + '</p></div>' );
-								showNotice( response.data || 'Error loading preview', 'error' );
+								var failed = response.data || mhmrentiva_email_templates_vars.error_occurred || '';
+								container.html( $( '<div class="notice notice-error inline"><p></p></div>' ).find( 'p' ).text( failed ).end() );
+								showNotice( failed, 'error' );
 							}
 						},
 						error: function () {
-							container.html( '<div class="notice notice-error inline"><p>Connection error.</p></div>' );
+							container.html( $( '<div class="notice notice-error inline"><p></p></div>' ).find( 'p' ).text( mhmrentiva_email_templates_vars.error_occurred || '' ).end() );
 						},
 						complete: function () {
-							btn.prop( 'disabled', false ).text( btn.data( 'original-text' ) || 'Preview' );
+							btn.prop( 'disabled', false ).text( btn.data( 'original-text' ) || mhmrentiva_email_templates_vars.strings.preview || '' );
 							container.css( 'opacity', '1' );
 						}
 					}
@@ -208,7 +211,7 @@ jQuery( document ).ready(
 				var originalText = btn.text();
 
 				if ( ! to) {
-					showNotice( 'Please enter an email address.', 'warning' );
+					showNotice( mhmrentiva_email_templates_vars.strings.enterEmail || '', 'warning' );
 					return;
 				}
 
@@ -229,13 +232,13 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								showNotice( response.data || 'Email sent successfully!', 'success' );
+								showNotice( response.data || mhmrentiva_email_templates_vars.test_email_sent || '', 'success' );
 							} else {
-								showNotice( response.data || 'Failed to send email.', 'error' );
+								showNotice( response.data || mhmrentiva_email_templates_vars.test_email_failed || '', 'error' );
 							}
 						},
 						error: function () {
-							showNotice( 'Connection error.', 'error' );
+							showNotice( mhmrentiva_email_templates_vars.error_occurred || '', 'error' );
 						},
 						complete: function () {
 							btn.prop( 'disabled', false ).text( originalText );
