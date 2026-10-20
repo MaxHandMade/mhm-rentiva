@@ -130,7 +130,7 @@ $allowed_rating_svg_tags = array(
 						<div class="rv-rating-dist-track" aria-hidden="true">
 							<span class="rv-rating-dist-fill" style="width: <?php echo esc_attr( (string) $percent); ?>%;"></span>
 						</div>
-						<span class="rv-rating-dist-percent"><?php echo esc_html( (string) $percent); ?>%</span>
+						<span class="rv-rating-dist-percent"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_percentage( (float) $percent)); ?></span>
 					</div>
 				<?php endforeach; ?>
 			</div>

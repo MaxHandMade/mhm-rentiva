@@ -599,6 +599,47 @@ final class AddonManager {
 	}
 
 	/**
+	 * Each selected add-on of a rental, priced for that rental.
+	 *
+	 * The one place a rental's add-on lines are priced: the booking record
+	 * (save_booking_addons) and the cart and order lines read the same figures.
+	 *
+	 * @param array<int|string, mixed> $selected_addons Add-on post IDs.
+	 * @param array<string, mixed>     $booking_data    Booking data (rental_days).
+	 * @return array<int, array{id: int, title: string, price: float, pricing_type: string, multiplier: int, line_total: float}>
+	 */
+	public static function build_addon_details( array $selected_addons, array $booking_data ): array {
+		// The context the rental is charged with (BookingForm quote,
+		// DepositCalculator): days only. With guests in it a per-passenger
+		// add-on's row said price x guests while the order charged it once.
+		$context = array(
+			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
+		);
+
+		$addon_details = array();
+		foreach ( $selected_addons as $addon_id ) {
+			$addon = self::get_addon_by_id( (int) $addon_id );
+			if ( ! $addon ) {
+				continue;
+			}
+			$type = AddonPricingType::sanitize(
+				get_post_meta( (int) $addon_id, '_mhmrentiva_addon_pricing_type', true )
+			);
+
+			$addon_details[] = array(
+				'id'           => (int) $addon['id'],
+				'title'        => (string) $addon['title'],
+				'price'        => (float) $addon['price'],
+				'pricing_type' => $type,
+				'multiplier'   => AddonPricingCalculator::multiplier( $type, $context ),
+				'line_total'   => AddonPricingCalculator::calculate( (int) $addon_id, $context ),
+			);
+		}
+
+		return $addon_details;
+	}
+
+	/**
 	 * Save selected addons for a booking.
 	 *
 	 * @param int   $booking_id Booking ID.
@@ -610,36 +651,8 @@ final class AddonManager {
 			return;
 		}
 
-		$context = array(
-			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
-			'adults'      => (int) ( $booking_data['guests'] ?? 0 ),
-			'children'    => 0,
-		);
-
-		$addon_total   = 0.0;
-		$addon_details = array();
-
-		foreach ( $selected_addons as $addon_id ) {
-			$addon = self::get_addon_by_id( (int) $addon_id );
-			if ( ! $addon ) {
-				continue;
-			}
-			$line_total = AddonPricingCalculator::calculate( (int) $addon_id, $context );
-			$type       = AddonPricingType::sanitize(
-				get_post_meta( (int) $addon_id, '_mhmrentiva_addon_pricing_type', true )
-			);
-			$multiplier = AddonPricingCalculator::multiplier( $type, $context );
-
-			$addon_total    += $line_total;
-			$addon_details[] = array(
-				'id'           => $addon['id'],
-				'title'        => $addon['title'],
-				'price'        => $addon['price'],
-				'pricing_type' => $type,
-				'multiplier'   => $multiplier,
-				'line_total'   => $line_total,
-			);
-		}
+		$addon_details = self::build_addon_details( $selected_addons, $booking_data );
+		$addon_total   = (float) array_sum( array_column( $addon_details, 'line_total' ) );
 
 		update_post_meta( $booking_id, '_mhmrentiva_selected_addons', $selected_addons );
 		update_post_meta( $booking_id, '_mhmrentiva_addon_total', $addon_total );

@@ -121,6 +121,27 @@ final class CurrencyHelper {
 	}
 
 	/**
+	 * A rate as the site's language writes a percentage: "20%" in English,
+	 * "%20" in Turkish. Up to two decimals, trailing zeros dropped, in the
+	 * store's decimal format -- 20 not 20.00, 12,5 where the store writes commas.
+	 *
+	 * Through the catalogue, never `$rate . '%'`: the sign's side is the locale's.
+	 *
+	 * @param float $rate Percentage value (20 for 20%).
+	 * @return string
+	 */
+	public static function format_percentage( float $rate ): string {
+		$plain  = rtrim( rtrim( number_format( $rate, 2, '.', '' ), '0' ), '.' );
+		$number = str_replace( '.', self::get_decimal_separator(), $plain );
+
+		return sprintf(
+			/* translators: %s: a rate such as a tax or deposit rate, a number without the percent sign. */
+			_x( '%s%%', 'A percentage, e.g. a tax or deposit rate', 'mhm-rentiva' ),
+			$number
+		);
+	}
+
+	/**
 	 * Active decimal separator, from WooCommerce when it has an opinion.
 	 *
 	 * @return string

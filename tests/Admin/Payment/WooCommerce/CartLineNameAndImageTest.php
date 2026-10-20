@@ -264,8 +264,8 @@ final class CartLineNameAndImageTest extends WP_UnitTestCase
 		$order->save();
 
 		$item = array_values( wc_get_order( $order->get_id() )->get_items() )[0];
-		$this->assertSame( '05/07/2026 10:00', $item->get_meta( 'Pickup' ) );
-		$this->assertSame( '08/07/2026 11:30', $item->get_meta( 'Dropoff' ) );
+		$this->assertSame( '05/07/2026 10:00', $item->get_meta( 'Pickup Date & Time' ) );
+		$this->assertSame( '08/07/2026 11:30', $item->get_meta( 'Return Date & Time' ) );
 	}
 
 	public function test_a_timestamp_date_format_does_not_break_checkout(): void
@@ -282,7 +282,7 @@ final class CartLineNameAndImageTest extends WP_UnitTestCase
 		$order->save();
 
 		$item = array_values( wc_get_order( $order->get_id() )->get_items() )[0];
-		$this->assertMatchesRegularExpression( '/^\d+ 10:00$/', (string) $item->get_meta( 'Pickup' ) );
+		$this->assertMatchesRegularExpression( '/^\d+ 10:00$/', (string) $item->get_meta( 'Pickup Date & Time' ) );
 	}
 
 	/**

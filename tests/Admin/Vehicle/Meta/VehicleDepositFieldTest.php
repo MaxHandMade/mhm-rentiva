@@ -127,7 +127,8 @@ final class VehicleDepositFieldTest extends WP_UnitTestCase
 		$data = $this->template_data();
 
 		$this->assertSame('30', $data['deposit_global_rate'] ?? null);
-		$this->assertStringContainsString('%30', (string) ( $data['deposit_global_hint'] ?? '' ));
+		// Written as the site's language writes a percentage (an English test site).
+		$this->assertStringContainsString('30%', (string) ( $data['deposit_global_hint'] ?? '' ));
 	}
 
 	public function test_edit_screen_names_global_full_payment(): void

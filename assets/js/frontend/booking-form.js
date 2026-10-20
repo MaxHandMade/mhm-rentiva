@@ -812,10 +812,13 @@
                 const taxRate = data.tax_rate || 0;
                 const taxLabel = window.mhmRentivaBookingForm?.strings?.tax || this.getMessage('tax');
                 const taxIncludedLabel = window.mhmRentivaBookingForm?.strings?.tax_included || this.getMessage('tax_included');
+                // The server writes the rate as the site's language does
+                // ("20%", Turkish "%20"); the bare number is only a fallback.
+                const taxRateText = data.tax_rate_display || (taxRate + '%');
                 const taxLabelText = taxRate > 0
                     ? (data.tax_inclusive
-                        ? taxIncludedLabel + ' (' + taxRate + '%):'
-                        : taxLabel + ' (' + taxRate + '%):')
+                        ? taxIncludedLabel + ' (' + taxRateText + '):'
+                        : taxLabel + ' (' + taxRateText + '):')
                     : taxLabel + ':';
                 this.priceElements.taxLabel.text(taxLabelText);
                 this.priceElements.taxAmount.text(this.formatMoney(data.tax_amount, currencySymbol));

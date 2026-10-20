@@ -318,6 +318,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Empty cart first (optional, depending on business logic)
 		// WC()->cart->empty_cart();
 
+		// The add-on rows as priced now, beside the charge fixed now: an add-on
+		// re-priced, renamed or deleted before checkout keeps its row.
+		if (! isset($booking_data['addon_lines'])) {
+			$booking_data['addon_lines'] = self::price_rental_addon_lines($booking_data);
+		}
+
 		// Store booking data in cart item (will be used to create booking after payment)
 		$cart_item_data = array(
 			'mhmrentiva_booking_data'    => $booking_data, // ⭐ Store full booking data instead of booking_id
@@ -607,10 +613,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'value' => $pickup_display,
 			);
 
-			$item_data[] = array(
-				'key'   => esc_html__('Return Date & Time', 'mhm-rentiva'),
-				'value' => $dropoff_display,
-			);
+			// A transfer has no return: its drop-off is the estimated arrival.
+			if (! self::is_transfer_booking($booking_data)) {
+				$item_data[] = array(
+					'key'   => esc_html__('Return Date & Time', 'mhm-rentiva'),
+					'value' => $dropoff_display,
+				);
+			}
+
+			// One row per add-on with its price -- a rental's; the add-on that
+			// prices transfer add-ons lists a transfer's.
+			foreach (self::rental_addon_lines($booking_data) as $line) {
+				$item_data[] = array(
+					'key'   => esc_html($line['title']),
+					'value' => wp_kses_post(wc_price($line['line_total'])),
+				);
+			}
 
 			// Add Payment Type info
 			$payment_type = $booking_data['payment_type'] ?? 'deposit';
@@ -1034,8 +1052,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$pickup  = self::format_booking_date( (string) $booking_data['pickup_date']) . ' ' . ( $booking_data['pickup_time'] ?? '' );
 				$dropoff = self::format_booking_date( (string) ( $booking_data['dropoff_date'] ?? '' )) . ' ' . ( $booking_data['dropoff_time'] ?? '' );
 
-				$item->add_meta_data(__('Pickup', 'mhm-rentiva'), trim($pickup));
-				$item->add_meta_data(__('Dropoff', 'mhm-rentiva'), trim($dropoff));
+				// The cart's labels, so one row keeps one name from cart to order.
+				$item->add_meta_data(__('Pickup Date & Time', 'mhm-rentiva'), trim($pickup));
+				// A transfer has no return: its drop-off is the estimated arrival.
+				if (! self::is_transfer_booking($booking_data)) {
+					$item->add_meta_data(__('Return Date & Time', 'mhm-rentiva'), trim($dropoff));
+				}
 			}
 
 			// 3. Payment Type
@@ -1049,23 +1071,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if ($payment_type === 'deposit') {
 				$remaining_amount = floatval($booking_data['remaining_amount'] ?? 0);
 				if ($remaining_amount > 0) {
-					$item->add_meta_data(__('Remaining Amount', 'mhm-rentiva'), wc_price($remaining_amount));
+					$item->add_meta_data(__('Remaining Amount', 'mhm-rentiva'), self::order_meta_price($remaining_amount));
 				}
 			}
 
-			// 5. Add-on services
-			$selected_addon_ids = $booking_data['selected_addons'] ?? array();
-			if (! empty($selected_addon_ids) && is_array($selected_addon_ids)) {
-				$addon_names = array();
-				foreach ($selected_addon_ids as $addon_id) {
-					$addon_title = get_the_title( (int) $addon_id);
-					if ($addon_title) {
-						$addon_names[] = $addon_title;
-					}
-				}
-				if (! empty($addon_names)) {
-					$item->add_meta_data(__('Add-on Services', 'mhm-rentiva'), implode(', ', $addon_names));
-				}
+			// 5. Add-on services: one row per add-on with its price, as the cart
+			// shows them. A transfer's are written by the add-on that prices them.
+			foreach (self::rental_addon_lines($booking_data) as $line) {
+				$item->add_meta_data($line['title'], self::order_meta_price($line['line_total']));
 			}
 		} else {
 			// Task 14b item 3: left at warning() deliberately. This hook
@@ -2216,14 +2229,108 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	private static function is_refused_rental(array $booking_data, int $vehicle_id): bool
 	{
-		// Same two markers Mailer uses to recognise a transfer booking. The cart
-		// data is built server-side by the add-on, never taken from the browser.
-		if ('transfer' === (string) ( $booking_data['booking_type'] ?? '' )
-			|| (int) ( $booking_data['transfer_origin_id'] ?? 0 ) > 0) {
+		if (self::is_transfer_booking($booking_data)) {
 			return false;
 		}
 
 		return ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service($vehicle_id, 'rental');
+	}
+
+	/**
+	 * Is this pending booking a transfer (put in the cart by the add-on)?
+	 *
+	 * Same two markers Mailer uses to recognise a transfer booking. The cart
+	 * data is built server-side by the add-on, never taken from the browser.
+	 *
+	 * @param array<string, mixed> $booking_data Pending booking data.
+	 */
+	private static function is_transfer_booking(array $booking_data): bool
+	{
+		return 'transfer' === (string) ( $booking_data['booking_type'] ?? '' )
+			|| (int) ( $booking_data['transfer_origin_id'] ?? 0 ) > 0;
+	}
+
+	/**
+	 * A rental's add-ons, each with its price, for its cart and order rows.
+	 *
+	 * Empty for a transfer: the add-on prices transfer add-ons (per passenger,
+	 * per transfer) and lists them itself; a Lite row beside its row was the
+	 * duplicate the order used to show.
+	 *
+	 * @param array<string, mixed> $booking_data Pending booking data.
+	 * @return array<int, array{title: string, line_total: float}>
+	 */
+	private static function rental_addon_lines(array $booking_data): array
+	{
+		if (self::is_transfer_booking($booking_data)) {
+			return array();
+		}
+
+		// Priced when the booking entered the cart (add_booking_data_to_cart).
+		if (isset($booking_data['addon_lines']) && is_array($booking_data['addon_lines'])) {
+			$lines = array();
+			foreach ($booking_data['addon_lines'] as $line) {
+				if (is_array($line)) {
+					$lines[] = array(
+						'title'      => (string) ( $line['title'] ?? '' ),
+						'line_total' => (float) ( $line['line_total'] ?? 0 ),
+					);
+				}
+			}
+
+			return $lines;
+		}
+
+		// A cart from before the snapshot: price it now.
+		return self::price_rental_addon_lines($booking_data);
+	}
+
+	/**
+	 * A rental's add-ons priced from their current settings.
+	 *
+	 * @param array<string, mixed> $booking_data Pending booking data.
+	 * @return array<int, array{title: string, line_total: float}>
+	 */
+	private static function price_rental_addon_lines(array $booking_data): array
+	{
+		$selected = $booking_data['selected_addons'] ?? array();
+		if (self::is_transfer_booking($booking_data) || ! is_array($selected) || array() === $selected) {
+			return array();
+		}
+
+		$lines = array();
+		foreach (\MHMRentiva\Admin\Addons\AddonManager::build_addon_details($selected, $booking_data) as $detail) {
+			// A charged add-on keeps its row even without a usable name.
+			$lines[] = array(
+				'title'      => self::order_meta_label($detail['title']),
+				'line_total' => $detail['line_total'],
+			);
+		}
+
+		return $lines;
+	}
+
+	/**
+	 * A price for an order line's meta: text, with the symbol as a character.
+	 *
+	 * Order meta is shown as stored; a plain-text email strips tags and a stored
+	 * "&#8378;" entity came out as nothing ("30,00 ").
+	 */
+	private static function order_meta_price(float $amount): string
+	{
+		return html_entity_decode(wp_strip_all_tags(wc_price($amount)), ENT_QUOTES, 'UTF-8');
+	}
+
+	/**
+	 * A name used as an order meta key, kept visible: WooCommerce hides keys
+	 * that start with "_".
+	 */
+	private static function order_meta_label(string $label): string
+	{
+		$visible = ltrim($label, '_ ');
+
+		// Nothing but "_" left nothing to show: name the row as the add-ons it is.
+		return '' !== $visible ? $visible : __('Add-ons', 'mhm-rentiva');
 	}
 
 	private static function rental_refusal_notice(int $vehicle_id): string
