@@ -11,7 +11,7 @@ use WP_UnitTestCase;
 
 /**
  * Spec §2.7: the four typography groups of the vehicle card must not share one
- * control name. Elementor 4.3.2 rejects a redeclared control with a
+ * control name. Elementor 4.3.5 rejects a redeclared control with a
  * _doing_it_wrong, which WP_UnitTestCase turns into a failure.
  */
 final class VehicleCardTypographyTest extends WP_UnitTestCase
@@ -54,7 +54,10 @@ final class VehicleCardTypographyTest extends WP_UnitTestCase
 
 		try {
 			// Without the translated label the run would just repeat en_US.
-			if ( 'Genel Stil' !== __( 'General Style', 'mhm-rentiva' ) ) {
+			// Loaded = translated at all, not one exact wording: pinning the
+			// string skipped this test silently once the TR label became
+			// sentence case ("Genel stil").
+			if ( 'General Style' === __( 'General Style', 'mhm-rentiva' ) ) {
 				$this->markTestSkipped( 'tr_TR translation could not be loaded in the test environment.' );
 			}
 
