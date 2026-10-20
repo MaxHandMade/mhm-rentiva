@@ -22,9 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class AddonBooking {
 
 
+	/**
+	 * Required add-ons are not checked here. The validator that used to be was
+	 * hooked to `mhmrentiva_booking_validation`, a filter nothing applies, so it
+	 * never ran; the booking form asks AddonManager::required_addon_refusal()
+	 * directly on submission and on the price quote.
+	 */
 	public static function register(): void {
 		add_action( 'mhmrentiva_booking_form_after_vehicle', array( self::class, 'render_addon_checkboxes' ) );
-		add_filter( 'mhmrentiva_booking_validation', array( self::class, 'validate_addon_selection' ), 10, 2 );
 		add_action( 'mhmrentiva_booking_summary_addons', array( self::class, 'render_booking_summary_addons' ) );
 		add_action( 'mhmrentiva_admin_booking_meta_addons', array( self::class, 'render_admin_booking_meta' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
@@ -77,35 +82,6 @@ final class AddonBooking {
 
 		// Add JavaScript for dynamic total calculation
 		self::enqueue_addon_scripts();
-	}
-
-	public static function validate_addon_selection( array $errors, array $data ): array {
-		$selected_addons = $data['selected_addons'] ?? array();
-
-		if ( ! is_array( $selected_addons ) ) {
-			$selected_addons = array();
-		}
-
-		// Validate selected addons exist and are enabled
-		$available_addons = AddonManager::get_available_addons();
-		$available_ids    = array_column( $available_addons, 'id' );
-
-		foreach ( $selected_addons as $addon_id ) {
-			if ( ! in_array( (int) $addon_id, $available_ids, true ) ) {
-				$errors[] = __( 'Invalid additional service selection.', 'mhm-rentiva' );
-				break;
-			}
-		}
-
-		// Check required addons are selected
-		foreach ( $available_addons as $addon ) {
-			if ( $addon['required'] && ! in_array( $addon['id'], $selected_addons, true ) ) {
-				/* translators: %s: additional service title */
-				$errors[] = sprintf( __( '"%s" additional service is required.', 'mhm-rentiva' ), $addon['title'] );
-			}
-		}
-
-		return $errors;
 	}
 
 	public static function render_booking_summary_addons( array $booking_data ): void {

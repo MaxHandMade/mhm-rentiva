@@ -248,6 +248,10 @@ class PreviewInfrastructureTest extends WP_UnitTestCase
 		$reads  = PreviewCacheProbeShortcode::$reads;
 		$writes = PreviewCacheProbeShortcode::$writes;
 		$this->set_preview(true);
+		// The version is removed to see that a preview does not recreate it, and
+		// put back afterwards: a recreated version is unique, so the front check
+		// at the end would otherwise miss its own cached entry.
+		$front_version = get_transient('mhmrentiva_rv_cache_v_rentiva_preview_cache_probe');
 		delete_transient('mhmrentiva_rv_cache_v_rentiva_preview_cache_probe');
 		$p1 = PreviewCacheProbeShortcode::render(array());
 		$this->assertFalse(
@@ -263,6 +267,7 @@ class PreviewInfrastructureTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('data-rv-render', $front1);
 
 		// Back on the front, the cached front entry is not a preview wrapper.
+		set_transient('mhmrentiva_rv_cache_v_rentiva_preview_cache_probe', $front_version, DAY_IN_SECONDS);
 		$this->set_preview(false);
 		$this->assertSame($front1, PreviewCacheProbeShortcode::render(array()));
 	}

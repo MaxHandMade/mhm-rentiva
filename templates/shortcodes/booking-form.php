@@ -50,6 +50,18 @@ $form_title            = (string) ( $form_title ?? '' );
 $class                 = $atts['class'] ?? '';
 $redirect_url          = $atts['redirect_url'] ?? '';
 
+// A service the operator marked required is charged on every rental, and the
+// server refuses a booking without it. So it is shown -- selected and locked --
+// even on a form told to hide the optional ones (show_addons="0").
+$listed_addons = array_values(
+	array_filter(
+		$addons,
+		static function ($addon) use ($show_addons): bool {
+			return $show_addons || ! empty($addon['required']);
+		}
+	)
+);
+
 // Location pre-fill variables
 $pickup_location_id   = (int) ( $pickup_location_id ?? 0 );
 $pickup_location_name = (string) ( $pickup_location_name ?? '' );
@@ -313,7 +325,7 @@ $unique_id = uniqid('rv_booking_');
 					</div> <!-- rv-card-body -->
 				</div>
 
-				<?php if ($show_addons && ! empty($addons)) : ?>
+				<?php if (! empty($listed_addons)) : ?>
 					<!-- Additional Services -->
 					<div class="rv-form-section rv-addons rv-card">
 						<div class="rv-card-header">
@@ -321,8 +333,14 @@ $unique_id = uniqid('rv_booking_');
 							<h3 class="rv-section-title"><?php echo esc_html__('Additional Services', 'mhm-rentiva'); ?></h3>
 						</div>
 						<div class="rv-card-body rv-addons-list">
-							<?php foreach ($addons as $addon) : ?>
-								<label class="rv-addon-item">
+							<?php foreach ($listed_addons as $addon) : ?>
+								<?php
+								// A required service is checked and locked. The form's script
+								// collects :checked boxes, disabled or not, so the quote and
+								// the booking carry it from the start.
+								$mhmrentiva_addon_required = ! empty($addon['required']);
+								?>
+								<label class="rv-addon-item<?php echo $mhmrentiva_addon_required ? ' rv-addon-item--required' : ''; ?>">
 									<div class="rv-addon-icon-circle">
 										<svg class="rv-addon-generic-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 											<path d="M12 3L4 7v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V7l-8-4z"></path>
@@ -330,7 +348,7 @@ $unique_id = uniqid('rv_booking_');
 										</svg>
 									</div>
 									<div class="rv-addon-content">
-										<div class="rv-addon-title"><?php echo esc_html($addon['title']); ?></div>
+										<div class="rv-addon-title"><?php echo esc_html($addon['title']); ?><?php echo $mhmrentiva_addon_required ? ' <span class="rv-addon-required">' . esc_html__('Required', 'mhm-rentiva') . '</span>' : ''; ?></div>
 										<?php if ($addon['description']) : ?>
 											<div class="rv-addon-description"><?php echo esc_html($addon['description']); ?></div>
 										<?php endif; ?>
@@ -343,7 +361,7 @@ $unique_id = uniqid('rv_booking_');
 											name="selected_addons[]"
 											value="<?php echo esc_attr($addon['id']); ?>"
 											class="rv-addon-checkbox"
-											data-price="<?php echo esc_attr($addon['price']); ?>">
+											data-price="<?php echo esc_attr($addon['price']); ?>"<?php echo $mhmrentiva_addon_required ? ' checked disabled aria-disabled="true"' : ''; ?>>
 									</div>
 								</label>
 							<?php endforeach; ?>

@@ -4935,6 +4935,28 @@
 	line-height: 1.25;
 }
 
+/* A required service: checked and locked, labelled so it does not read as broken. */
+.rv-addon-required {
+	display: inline-block;
+	margin-inline-start: 6px;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background: #e6effc;
+	color: #1d5fb8;
+	font-size: 0.72rem;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+.rv-addon-item--required {
+	cursor: default;
+}
+
+.rv-addon-item--required .rv-addon-checkbox:disabled {
+	cursor: not-allowed;
+	opacity: 1;
+}
+
 .rv-addon-description {
 	font-size: 0.82rem;
 	color: #64748b;

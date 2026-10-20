@@ -678,6 +678,25 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
+	 * The return time of a rental booked through this form: the pickup time.
+	 *
+	 * The form shows the return time locked to the pickup time and posts a copy
+	 * of it. The copy is not read back, because nothing obliges a request to
+	 * have come from the form. Every endpoint of the form (submission, price
+	 * quote, availability check) takes its return time from here, so the
+	 * interval that is priced, length-checked and blocked is the same one.
+	 *
+	 * Util::rental_days() counts calendar dates and ignores the time of day, so
+	 * this rule is what makes the priced days and the held hours the same here.
+	 * Rentals booked elsewhere (the admin manual booking, an admin edit) may
+	 * keep different times; how those are priced is a separate policy question.
+	 */
+	private static function return_time(string $pickup_time): string
+	{
+		return $pickup_time;
+	}
+
+	/**
 	 * Get available add-ons
 	 *
 	 * @return array
@@ -760,6 +779,7 @@ final class BookingForm extends AbstractShortcode {
 						'title'       => $addon->post_title,
 						'price'       => (string) get_post_meta($addon->ID, 'mhmrentiva_addon_price', true),
 						'description' => $addon->post_excerpt,
+						'required'    => (bool) get_post_meta($addon->ID, 'mhmrentiva_addon_required', true),
 					);
 				}
 			}
@@ -914,17 +934,18 @@ final class BookingForm extends AbstractShortcode {
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
 			$pickup_time  = $req->text('pickup_time');
-			$dropoff_time = $req->text('dropoff_time');
 
 			// Validate pickup time (required)
 			if (empty($pickup_time)) {
 				return self::failed(__('Pickup time is required.', 'mhm-rentiva'));
 			}
 
-			// Ensure dropoff time matches pickup time (security measure)
-			if (empty($dropoff_time)) {
-				$dropoff_time = $pickup_time;
-			}
+			// The form returns the vehicle at the pickup hour, and says so
+			// ("Return time is automatically set to match pickup time."). That
+			// rule used to live in the browser only, so a hand-made request could
+			// return at 09:59 two days after a 10:00 pickup and hold the vehicle
+			// for a day it did not pay for. The posted value is not read.
+			$dropoff_time = self::return_time($pickup_time);
 
 			$guests             = max(1, $req->int('guests', 1));
 			$pickup_location_id = $req->int('pickup_location_id');
@@ -1002,6 +1023,14 @@ final class BookingForm extends AbstractShortcode {
 				$payment_type = 'full';
 			}
 
+			// Same refusal the price quote makes. Anything else used to be
+			// accepted and stored: DepositCalculator read it as a deposit while
+			// the amount below charged the full total, so the booking carried a
+			// remaining balance the customer had already paid.
+			if (! in_array($payment_type, array( 'deposit', 'full' ), true)) {
+				return self::failed(__('Invalid payment type.', 'mhm-rentiva'));
+			}
+
 			// ⭐ WooCommerce only - payment_method and payment_gateway removed
 			$payment_method  = 'woocommerce';
 			$payment_gateway = 'woocommerce';
@@ -1011,6 +1040,11 @@ final class BookingForm extends AbstractShortcode {
 			// But since we're using WooCommerce, validation happens on checkout
 
 			$selected_addons = self::accept_submitted_addons($req);
+
+			$required_refusal = \MHMRentiva\Admin\Addons\AddonManager::required_addon_refusal($selected_addons);
+			if (null !== $required_refusal) {
+				return self::failed($required_refusal);
+			}
 
 			// Validation
 			if ($vehicle_id <= 0) {
@@ -1291,11 +1325,18 @@ final class BookingForm extends AbstractShortcode {
 				}
 			);
 
+			// A quote without a required service would show a total the submit
+			// path then refuses.
+			$required_refusal = \MHMRentiva\Admin\Addons\AddonManager::required_addon_refusal($addons);
+			if (null !== $required_refusal) {
+				return self::failed($required_refusal);
+			}
+
 			// ❌ Removed redundant manual data validation (already handled by SecurityHelper above)
 
 			// 1. Refine times
 			$pickup_time  = $req->text('pickup_time', '10:00');
-			$dropoff_time = $req->text('dropoff_time', $pickup_time);
+			$dropoff_time = self::return_time($pickup_time);
 
 			// 2. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
@@ -1622,7 +1663,7 @@ final class BookingForm extends AbstractShortcode {
 			$pickup_time = $req->text('pickup_time');
 			// Check field names from JavaScript (dropoff_date or return_date)
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date', $req->text('return_date')));
-			$dropoff_time = $req->text('dropoff_time', $req->text('return_time'));
+			$dropoff_time = self::return_time($pickup_time);
 
 			// Defence in depth rather than a live branch: both validators above
 			// throw on anything falsy, so this cannot currently fire. It stays
