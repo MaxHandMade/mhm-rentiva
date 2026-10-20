@@ -6,8 +6,8 @@ namespace MHMRentiva\Tests\Support;
 /**
  * Builds real Elementor widget instances for tests.
  *
- * Elementor 4.3.2 throws when `$data` is non-empty and the second `$args`
- * argument is null (includes/base/widget-base.php:132-138), so every test
+ * Elementor 4.3.5 throws when `$data` is non-empty and the second `$args`
+ * argument is null (includes/base/widget-base.php:143-145), so every test
  * constructs widgets through here instead of `new $class( $data )`.
  */
 final class WidgetFactory

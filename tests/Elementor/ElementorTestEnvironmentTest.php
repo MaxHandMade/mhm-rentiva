@@ -31,9 +31,9 @@ final class ElementorTestEnvironmentTest extends WP_UnitTestCase
 		$this->assertTrue( defined( 'ELEMENTOR_VERSION' ), 'Elementor is not loaded.' );
 
 		$this->assertSame(
-			'4.3.2',
+			'4.3.5',
 			ELEMENTOR_VERSION,
-			'Elementor differs from the version pinned in tests/bootstrap.php and .github/workflows/testing.yml.'
+			'Elementor differs from the pinned version; the pin lives in .github/workflows/testing.yml (Elementor zip URL), this assertion, and WidgetContractTest::setUp().'
 		);
 	}
 }

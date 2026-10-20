@@ -14,7 +14,7 @@ use WP_UnitTestCase;
 /**
  * Spec §3 T2: every schema-mapped control of every Lite widget reaches its shortcode.
  *
- * Each control under test is set alone to a probe value on a real Elementor 4.3.2
+ * Each control under test is set alone to a probe value on a real Elementor 4.3.5
  * widget, the widget is rendered through render_content() (the editor AJAX path),
  * and the attributes the shortcode received are read from its
  * `mhmrentiva_shortcodes_{tag}_html` filter. A control whose value does not arrive
@@ -78,10 +78,10 @@ final class WidgetContractTest extends WP_UnitTestCase
 	{
 		parent::setUp();
 
-		// A stub-backed Widget_Base would not reproduce Elementor 4.3.2's constructor
+		// A stub-backed Widget_Base would not reproduce Elementor 4.3.5's constructor
 		// and stack contract; fail (never skip) when the real one is missing.
 		$this->assertTrue(defined('ELEMENTOR_VERSION'), 'Elementor is not loaded; the contract test would measure an absence.');
-		$this->assertSame('4.3.2', ELEMENTOR_VERSION);
+		$this->assertSame('4.3.5', ELEMENTOR_VERSION);
 
 		wp_set_current_user(0);
 		RequestSimulator::new_request();

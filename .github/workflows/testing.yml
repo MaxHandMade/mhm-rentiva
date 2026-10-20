@@ -525,7 +525,7 @@ jobs:
           set -euo pipefail
           mkdir -p /tmp/wordpress/wp-content/plugins
           curl -sSL --fail -o /tmp/elementor.zip \
-            https://downloads.wordpress.org/plugin/elementor.4.3.2.zip
+            https://downloads.wordpress.org/plugin/elementor.4.3.5.zip
           unzip -q /tmp/elementor.zip -d /tmp/wordpress/wp-content/plugins
           test -f /tmp/wordpress/wp-content/plugins/elementor/elementor.php
 
