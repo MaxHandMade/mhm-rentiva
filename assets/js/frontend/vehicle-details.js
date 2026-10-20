@@ -67,6 +67,8 @@
 
 		// Use correct localized object
 		const ajaxConfig = window.mhmRentivaVehicleDetails || {};
+		// VehicleDetails::get_localized_strings() provides this as error_occurred.
+		const errorMessage = ajaxConfig.strings?.error_occurred || 'An error occurred';
 
 		// Disable navigation buttons
 		$navButtons.prop('disabled', true).addClass('disabled');
@@ -112,11 +114,11 @@
 							$monthYear.text(response.data.month_year);
 						});
 					} else {
-						$container.html('<div class="rv-calendar-error">' + (ajaxConfig.strings?.error || 'Veri yüklenemedi.') + '</div>');
+						$container.empty().append($('<div class="rv-calendar-error"></div>').text(errorMessage));
 					}
 				},
 				error: function () {
-					$container.html('<div class="rv-calendar-error">' + (ajaxConfig.strings?.error || 'Bağlantı hatası.') + '</div>');
+					$container.empty().append($('<div class="rv-calendar-error"></div>').text(errorMessage));
 				},
 				complete: function () {
 					// Re-enable navigation buttons
