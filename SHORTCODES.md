@@ -98,6 +98,8 @@ Note:
 #### `[rentiva_unified_search]`
 `class`, `default_tab`, `redirect_page`, `search_layout`, `service_type`, `show_date_picker`, `show_dropoff_location`, `show_location_select`, `show_luggage`, `show_pax`, `show_rental_tab`, `show_time_select`, `show_transfer_tab`
 
+`show_dropoff_location` is off by default since 6.3.0: the drop-off field only mirrored the pick-up location and nothing read it. Pass `show_dropoff_location="true"` (shortcode, block or Elementor widget) to show it.
+
 ### 3.3 Account
 
 #### `[rentiva_my_bookings]`
@@ -503,7 +505,7 @@ This matrix enforces the Render Parity Rule. It compares the explicit defaults a
 | `search_layout` | `horizontal` | `horizontal` | Schema: string | ✅ |
 | `service_type` | `both` | `both` | Schema: enum | ✅ |
 | `show_date_picker` | `default` | `default` | Schema: bool | ✅ |
-| `show_dropoff_location` | `default` | `default` | Schema: bool | ✅ |
+| `show_dropoff_location` | `default` (off) | `default` (off) | Schema: bool | ✅ |
 | `show_location_select` | `default` | `default` | Schema: bool | ✅ |
 | `show_luggage` | `default` | `default` | Schema: bool | ✅ |
 | `show_pax` | `default` | `default` | Schema: bool | ✅ |

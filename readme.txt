@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.2.1
+Stable tag:        6.3.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -189,22 +189,27 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.3.0 =
+* New: Settings > Payment has a site-wide rental deposit: full payment or a percentage (default 10%, as before). A vehicle's own rate still wins; an empty vehicle field now follows the site setting instead of charging in full.
+* New: in the Elementor and block editors, Rentiva widgets show safe previews: account widgets show sample rows, never your own data, and forms are inert.
+* New: all Rentiva blocks sit in a "Rentiva" category; block settings panels and Elementor "Additional Settings" are translatable, and the Turkish translation was reviewed end to end.
+* Changed: a vehicle whose service type is "transfer only" can no longer be rented; it is hidden from rental lists and the server refuses the booking.
+* Changed: e-mail templates whose "Enabled" box is unticked are no longer sent. On cancellation the customer gets one "Booking Cancelled" e-mail instead of two. Customer e-mails use the site language. The "Admin Email" fields are now used.
+* Changed: the search form hides the drop-off field unless a page turns it on (show_dropoff_location="true").
+* Security: the booking form no longer trusts the browser for the return time, required add-ons or the payment type; vehicle titles and plates are always handled as text in scripts.
+* Fixed: saving or editing a booking in the admin keeps add-ons, the deposit and weekend pricing, and refuses dates the vehicle is not free for.
+* Fixed: the customer's booking page tells the truth about status and payment, and the booking number is the same everywhere.
+* Fixed: the cart shows "<vehicle> rental" with the vehicle image, one priced row per add-on, and no return row on transfers; prices follow the store's currency format.
+* Fixed: unavailable dates show the notice and alternatives; rating bars count 1 and 2 stars; comparison table defaults; login links under reviews; English strings in Turkish admin screens. Full list in changelog.json.
+
 = 6.2.1 =
 * Security: Rentiva Elementor widgets wrote the saving user's bookings, payment history, favourites, e-mail address and security tokens into the plain-text copy Elementor stores in the post content, which the site search could find on published pages. They now write nothing into Elementor's plain-text and markdown copies and are never stored in Elementor's shared element cache.
 * Fixed: a one-time background job rebuilds the stored plain text of affected Elementor pages in batches through WP-Cron, without changing their modified date or creating revisions. Purge page caches and search indexes after updating. Older revisions keep the old text and are visible only to users who can edit the page.
 
-= 6.2.0 =
-* New: Contact Messages has its own screen with tabs, search, bulk actions and reply by e-mail; attachments move to a private folder only an administrator can download from. On nginx, add the deny rule from the privacy section.
-* Changed: the customer dashboard is retired. Its shortcode, block and Elementor widget now point logged-in customers to My Account.
-* Fixed: block and Elementor widget settings that were saved but never reached the page now apply, and Elementor style controls for cards, lists, grids and the booking button now style the page. A page changes only where such a setting had been changed.
-* Removed: block, widget and shortcode settings that had no effect; a saved value is ignored. The full list is in changelog.json.
-* Changed: vehicle cards show a 3:2 image and the real rating; the booking form matches the vehicle details layout.
-* Security: vehicle galleries accept and show only images their author may use, never a sensitive document.
-* Fixed: Customers screen spending figures count only completed or confirmed bookings, and WooCommerce customers show their phone and address.
-* Fixed: Payment History page 2 on the WooCommerce account page, contact form type and fields, Testimonials "Load More".
-* BREAKING: ten hooks and the customer dashboard classes were removed (see changelog.json). Rentiva Pro 6.1.0 or older stops working beside this release on the vendor panel: update Rentiva Pro to 6.3.0.
-
 == Upgrade Notice ==
+
+= 6.3.0 =
+Unticked e-mail templates now really stop sending, and cancelled bookings send the customer one e-mail. Check your e-mail templates and Settings > Payment after updating. Rentiva Pro users: update Pro to 6.4.0 after this.
 
 = 6.2.1 =
 Privacy fix: Elementor pages with Rentiva widgets could expose the saving user's account data to site search. A background job cleans affected pages. Purge page caches and search indexes after updating.
