@@ -735,7 +735,9 @@ final class Plugin {
 		$mofile = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
 
 		if (file_exists($mofile)) {
-			load_textdomain($domain, $mofile);
+			// The locale too, or load_textdomain() resolves its own through
+			// determine_locale() and files the catalogue under that one.
+			load_textdomain($domain, $mofile, $locale);
 		}
 	}
 
