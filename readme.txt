@@ -196,7 +196,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Changed: a vehicle whose service type is "transfer only" can no longer be rented; it is hidden from rental lists and the server refuses the booking.
 * Changed: e-mail templates whose "Enabled" box is unticked are no longer sent. On cancellation the customer gets one "Booking Cancelled" e-mail instead of two. Customer e-mails use the site language. The "Admin Email" fields are now used.
 * Changed: the search form hides the drop-off field unless a page turns it on (show_dropoff_location="true").
-* Security: the booking form no longer trusts the browser for the return time, required add-ons or the payment type; vehicle titles and plates are always handled as text in scripts.
+* Security: the booking form checks the return time, required add-ons and the payment type on the server; vehicle titles and plates are always handled as text in scripts.
 * Fixed: saving or editing a booking in the admin keeps add-ons, the deposit and weekend pricing, and refuses dates the vehicle is not free for.
 * Fixed: the customer's booking page tells the truth about status and payment, and the booking number is the same everywhere.
 * Fixed: the cart shows "<vehicle> rental" with the vehicle image, one priced row per add-on, and no return row on transfers; prices follow the store's currency format.
