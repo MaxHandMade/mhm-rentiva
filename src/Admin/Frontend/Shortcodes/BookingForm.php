@@ -1544,6 +1544,7 @@ final class BookingForm extends AbstractShortcode {
 				'tax_enabled'           => $tax_enabled,
 				'tax_inclusive'         => $tax_inclusive,
 				'tax_rate'              => $tax_rate,
+				'tax_rate_display'      => \MHMRentiva\Admin\Core\CurrencyHelper::format_percentage( (float) $tax_rate), // "20%", Turkish "%20".
 				'tax_amount'            => $tax_amount ?? 0,
 				'weekend_extra'         => $weekend_extra_total,
 				'is_weekend'            => $day_of_week >= 6,

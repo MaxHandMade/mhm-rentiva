@@ -134,8 +134,7 @@ final class DepositCalculator {
 		$type = self::get_deposit_type($deposit_value);
 
 		if ($type === 'percentage') {
-			$percentage = self::extract_percentage($deposit_value);
-			return '%' . $percentage;
+			return \MHMRentiva\Admin\Core\CurrencyHelper::format_percentage(self::extract_percentage($deposit_value));
 		}
 
 		return '';
