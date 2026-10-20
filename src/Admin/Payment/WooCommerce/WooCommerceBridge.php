@@ -1065,14 +1065,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if ($payment_type === 'deposit') {
 				$remaining_amount = floatval($booking_data['remaining_amount'] ?? 0);
 				if ($remaining_amount > 0) {
-					$item->add_meta_data(__('Remaining Amount', 'mhm-rentiva'), wc_price($remaining_amount));
+					$item->add_meta_data(__('Remaining Amount', 'mhm-rentiva'), self::order_meta_price($remaining_amount));
 				}
 			}
 
 			// 5. Add-on services: one row per add-on with its price, as the cart
 			// shows them. A transfer's are written by the add-on that prices them.
 			foreach (self::rental_addon_lines($booking_data) as $line) {
-				$item->add_meta_data($line['title'], wc_price($line['line_total']));
+				$item->add_meta_data(self::order_meta_label($line['title']), self::order_meta_price($line['line_total']));
 			}
 		} else {
 			// Task 14b item 3: left at warning() deliberately. This hook
@@ -2272,6 +2272,28 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		return $lines;
+	}
+
+	/**
+	 * A price for an order line's meta: text, with the symbol as a character.
+	 *
+	 * Order meta is shown as stored; a plain-text email strips tags and a stored
+	 * "&#8378;" entity came out as nothing ("30,00 ").
+	 */
+	private static function order_meta_price(float $amount): string
+	{
+		return html_entity_decode(wp_strip_all_tags(wc_price($amount)), ENT_QUOTES, 'UTF-8');
+	}
+
+	/**
+	 * A name used as an order meta key, kept visible: WooCommerce hides keys
+	 * that start with "_".
+	 */
+	private static function order_meta_label(string $label): string
+	{
+		$visible = ltrim($label, '_ ');
+
+		return '' !== $visible ? $visible : $label;
 	}
 
 	private static function rental_refusal_notice(int $vehicle_id): string

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Payment\WooCommerce;
 
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -29,6 +30,7 @@ use WP_UnitTestCase;
 final class OrderLineBookingMetaTest extends WP_UnitTestCase
 {
 	use WooCommerceFixtures;
+	use WooCommerceOptionSandbox;
 
 	private \WC_Product $product;
 
@@ -59,6 +61,7 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 		if (function_exists('WC') && WC()->cart) {
 			WC()->cart->empty_cart();
 		}
+		$this->restore_sandboxed_options();
 		parent::tearDown();
 	}
 
@@ -210,6 +213,14 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 		return html_entity_decode(wp_strip_all_tags((string) $key), ENT_QUOTES, 'UTF-8');
 	}
 
+	/**
+	 * A price as plain text, its symbol as a character (not an entity).
+	 */
+	private static function plain(string $html): string
+	{
+		return html_entity_decode(wp_strip_all_tags($html), ENT_QUOTES, 'UTF-8');
+	}
+
 	// ------------------------------------------------------------- dates
 
 	public function test_a_rental_order_line_carries_pickup_and_return(): void
@@ -283,9 +294,9 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 		$this->assertNotContains('Add-on Services', $this->keys($rows));
 
 		$by_key = array_column($rows, 1, 0);
-		$this->assertSame(wc_price(25.0), $by_key['Full Insurance']);
+		$this->assertSame(self::plain(wc_price(25.0)), $by_key['Full Insurance']);
 		// Per day, three rental days.
-		$this->assertSame(wc_price(30.0), $by_key['Child Seat']);
+		$this->assertSame(self::plain(wc_price(30.0)), $by_key['Child Seat']);
 	}
 
 	public function test_a_rental_cart_line_shows_each_add_on_with_its_price(): void
@@ -327,5 +338,44 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 
 		$this->assertSame(0, $this->count_rows_naming($rows, 'Full Insurance'), wp_json_encode($rows));
 		$this->assertNotContains('Add-on Services', $this->keys($rows));
+	}
+
+	// ------------------------------------------------- order meta is plain text
+
+	public function test_order_prices_keep_their_symbol_in_a_plain_text_email(): void
+	{
+		// The value is stored as text: a plain-text email strips tags, and a
+		// stored "&#8378;" entity came out as nothing ("30,00 ").
+		$this->sandbox_option('woocommerce_currency', 'TRY');
+		$insurance = $this->addon('Full Insurance', 25.0, 'per_booking');
+
+		$rows   = $this->order_rows(
+			$this->rental_data(
+				array(
+					'selected_addons'  => array( $insurance ),
+					'payment_type'     => 'deposit',
+					'remaining_amount' => 90.0,
+				)
+			)
+		);
+		$by_key = array_column($rows, 1, 0);
+
+		foreach (array( 'Full Insurance', 'Remaining Amount' ) as $label) {
+			$this->assertArrayHasKey($label, $by_key, wp_json_encode($rows));
+			$value = $by_key[ $label ];
+			$this->assertStringNotContainsString('<', $value, $label);
+			$this->assertStringNotContainsString('&', $value, $label);
+			$this->assertStringContainsString('₺', wp_strip_all_tags($value), $label);
+		}
+	}
+
+	public function test_an_add_on_named_with_a_leading_underscore_stays_visible(): void
+	{
+		// WooCommerce hides order meta whose key starts with "_".
+		$addon = $this->addon('_Insurance', 25.0, 'per_booking');
+
+		$rows = $this->order_rows($this->rental_data(array( 'selected_addons' => array( $addon ) )));
+
+		$this->assertContains('Insurance', $this->keys($rows), wp_json_encode($rows));
 	}
 }
