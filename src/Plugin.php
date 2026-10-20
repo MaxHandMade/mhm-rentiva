@@ -721,10 +721,12 @@ final class Plugin {
 	 * name. Do not reintroduce it: PluginTextdomainLocaleTest fails if it comes
 	 * back.
 	 */
-	public function load_textdomain(): void
+	public function load_textdomain($locale = ''): void
 	{
 		$domain = 'mhm-rentiva';
-		$locale = determine_locale();
+		// `change_locale` names the locale switched to; determine_locale() can
+		// answer with the operator's profile language in an admin request.
+		$locale = is_string($locale) && '' !== $locale ? $locale : determine_locale();
 
 		// Force load from the shipped local directory first. Plugin Check
 		// discourages the automatic plugin textdomain loader for
@@ -733,7 +735,9 @@ final class Plugin {
 		$mofile = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
 
 		if (file_exists($mofile)) {
-			load_textdomain($domain, $mofile);
+			// The locale too, or load_textdomain() resolves its own through
+			// determine_locale() and files the catalogue under that one.
+			load_textdomain($domain, $mofile, $locale);
 		}
 	}
 
