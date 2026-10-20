@@ -56,12 +56,17 @@ final class CatalogueFollowsLocaleSwitchTest extends WP_UnitTestCase
         try {
             $this->assertTrue(switch_to_locale('tr_TR'));
             $label = __('Booking Details', 'mhm-rentiva');
+            // The reload must not pull the translation controller back to the
+            // locale determine_locale() names: core and every other plugin
+            // would then render English for the rest of the switch.
+            $controller = \WP_Translation_Controller::get_instance()->get_locale();
             restore_previous_locale();
         } finally {
             remove_filter('determine_locale', $pin, PHP_INT_MAX);
         }
 
         $this->assertSame('Rezervasyon detayları', $label);
+        $this->assertSame('tr_TR', $controller, 'The translation controller left the switched locale.');
         $this->assertSame('Booking Details', __('Booking Details', 'mhm-rentiva'), 'Restoring the locale must bring English back.');
     }
 }
