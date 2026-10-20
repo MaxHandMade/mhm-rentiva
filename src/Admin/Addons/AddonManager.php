@@ -402,6 +402,39 @@ final class AddonManager {
 	}
 
 	/**
+	 * The refusal for a selection that leaves out a required service, or null.
+	 *
+	 * The operator can mark a service "This additional service is required",
+	 * and the transfer checkout has always held that (Pro's
+	 * TransferCartIntegration::validate_required_addons()). The rental form did
+	 * not: its check sat on the `mhmrentiva_booking_validation` filter, which
+	 * nothing ever applied, so a rental went through without the service and
+	 * without its price (audit 2026-10-20, F-2). The booking form's submission
+	 * and its price quote both ask here now.
+	 *
+	 * Only services that may be sold count: a required service that is switched
+	 * off or unpublished blocks nothing. The candidates come from
+	 * get_available_addons(), a get_posts() query, so an edition that scopes
+	 * add-on queries by context (Pro keeps transfer-only services off the rental
+	 * surface through pre_get_posts) scopes this list the same way.
+	 *
+	 * @param array<int, int> $selected_ids Ids already accepted by filter_sellable().
+	 * @return string|null Message naming the first missing service, or null.
+	 */
+	public static function required_addon_refusal( array $selected_ids ): ?string {
+		$selected = array_map( 'intval', $selected_ids );
+
+		foreach ( self::get_available_addons() as $addon ) {
+			if ( $addon['required'] && ! in_array( (int) $addon['id'], $selected, true ) ) {
+				/* translators: %s: additional service title */
+				return sprintf( __( '"%s" additional service is required.', 'mhm-rentiva' ), $addon['title'] );
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get all published and enabled additional services.
 	 *
 	 * @return array List of addons.
