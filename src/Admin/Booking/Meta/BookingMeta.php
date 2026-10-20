@@ -12,6 +12,7 @@ use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Core\Utilities\SiteLocaleString;
 
 
 
@@ -630,10 +631,10 @@ final class BookingMeta extends AbstractMetaBox {
 			if ($action !== '') {
 				if ($action === 'approve') {
 					update_post_meta($post_id, '_mhmrentiva_receipt_status', 'approved');
-					self::email_customer_receipt_status($post_id, 'approved');
+					SiteLocaleString::in_site_locale(static fn() => self::email_customer_receipt_status($post_id, 'approved'));
 				} elseif ($action === 'reject') {
 					update_post_meta($post_id, '_mhmrentiva_receipt_status', 'rejected');
-					self::email_customer_receipt_status($post_id, 'rejected');
+					SiteLocaleString::in_site_locale(static fn() => self::email_customer_receipt_status($post_id, 'rejected'));
 				}
 			}
 		}
@@ -772,16 +773,9 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_die(esc_html__('Customer email not found.', 'mhm-rentiva'));
 		}
 
-		// Prepare subject and message based on email type
-		$email_data = self::prepare_email_content($booking_id, $email_type, $subject, $message);
-
-		// Wrap with premium layout
-		$context   = \MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($booking_id) ?? array();
-		$html_body = \MHMRentiva\Admin\Emails\Core\Templates::wrapWithLayout(
-			$context,
-			$email_data['subject'],
-			$email_data['message']
-		);
+		// Prepare subject and message based on email type, wrapped in the layout
+		$email_data = self::compose_customer_email($booking_id, $email_type, $subject, $message);
+		$html_body  = $email_data['html'];
 
 		// Get sender settings
 		$from_name    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name();
@@ -823,6 +817,30 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Prepares email content
 	 */
+	/**
+	 * A customer e-mail from this screen, subject resolved and body wrapped in
+	 * the layout, written in the SITE's language: the operator sending it may
+	 * have a different profile language, and the defaults and the layout's
+	 * footer used to follow the operator.
+	 *
+	 * @return array{subject: string, message: string, html: string}
+	 */
+	private static function compose_customer_email(int $booking_id, string $email_type, string $subject, string $message): array
+	{
+		return SiteLocaleString::in_site_locale(
+			static function () use ($booking_id, $email_type, $subject, $message): array {
+				$content         = self::prepare_email_content($booking_id, $email_type, $subject, $message);
+				$content['html'] = \MHMRentiva\Admin\Emails\Core\Templates::wrapWithLayout(
+					\MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($booking_id) ?? array(),
+					$content['subject'],
+					$content['message']
+				);
+
+				return $content;
+			}
+		);
+	}
+
 	private static function prepare_email_content(int $booking_id, string $email_type, string $subject, string $message): array
 	{
 		$customer_name = get_post_meta($booking_id, '_mhmrentiva_customer_name', true);
@@ -1611,7 +1629,8 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Get template content (empty subject and message to get defaults)
-		$template = self::prepare_email_content($booking_id, $email_type, '', '');
+		// The defaults the operator edits are the ones the customer will read.
+		$template = SiteLocaleString::in_site_locale(static fn(): array => self::prepare_email_content($booking_id, $email_type, '', ''));
 
 		wp_send_json_success(
 			array(
@@ -1663,7 +1682,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Prepare email content (if subject/message empty, defaults will be used)
-		$email_content = self::prepare_email_content($booking_id, $email_type, $subject, $message);
+		$email_content = self::compose_customer_email($booking_id, $email_type, $subject, $message);
 
 		// Get customer information
 		$customer_email = get_post_meta($booking_id, '_mhmrentiva_customer_email', true);
@@ -1673,13 +1692,7 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// Wrap with premium layout
-		$context   = \MHMRentiva\Admin\Emails\Core\Mailer::getBookingContext($booking_id) ?? array();
-		$html_body = \MHMRentiva\Admin\Emails\Core\Templates::wrapWithLayout(
-			$context,
-			$email_content['subject'],
-			$email_content['message']
-		);
+		$html_body = $email_content['html'];
 
 		// Get sender settings
 		$from_name    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name();

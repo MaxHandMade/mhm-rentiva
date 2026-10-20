@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T07:20:40+00:00\n"
+"POT-Creation-Date: 2026-10-20T13:03:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -354,7 +354,7 @@ msgid "Contact Form"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:121
-#: src/Admin/Booking/Meta/BookingMeta.php:694
+#: src/Admin/Booking/Meta/BookingMeta.php:695
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:810
@@ -572,7 +572,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
 #: src/Admin/Core/AssetManager.php:907
 #: src/Admin/Core/AssetManager.php:1396
-#: src/Admin/Emails/Core/EmailTemplates.php:536
+#: src/Admin/Emails/Core/EmailTemplates.php:562
 #: src/Admin/Frontend/Account/AccountController.php:282
 #: src/Admin/Frontend/Account/AccountController.php:337
 #: templates/shortcodes/booking-form.php:480
@@ -584,7 +584,7 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:112
 #: src/Admin/Core/AssetManager.php:1072
 #: src/Admin/Core/AssetManager.php:1118
-#: src/Admin/Emails/Core/EmailTemplates.php:537
+#: src/Admin/Emails/Core/EmailTemplates.php:563
 #: src/Admin/Frontend/Account/AccountController.php:316
 msgid "An error occurred. Please try again."
 msgstr ""
@@ -601,7 +601,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:88
 #: src/Admin/Addons/AddonManager.php:287
-#: src/Admin/Booking/Meta/BookingMeta.php:192
+#: src/Admin/Booking/Meta/BookingMeta.php:193
 #: src/Admin/Frontend/Account/AccountController.php:291
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:289
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:125
@@ -674,9 +674,9 @@ msgstr ""
 msgid "\"%s\" additional service is required."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:677
-#: src/Admin/Addons/AddonManager.php:857
-#: src/Admin/Addons/AddonManager.php:892
+#: src/Admin/Addons/AddonManager.php:678
+#: src/Admin/Addons/AddonManager.php:858
+#: src/Admin/Addons/AddonManager.php:893
 #: src/Admin/Addons/AddonScreen.php:159
 #: src/Admin/Addons/AddonScreen.php:191
 #: src/Admin/Addons/AddonScreen.php:235
@@ -686,17 +686,17 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:471
 #: src/Admin/Addons/AddonScreen.php:509
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
-#: src/Admin/Booking/Meta/BookingMeta.php:741
-#: src/Admin/Booking/Meta/BookingMeta.php:1017
-#: src/Admin/Booking/Meta/BookingMeta.php:1581
-#: src/Admin/Booking/Meta/BookingMeta.php:1629
-#: src/Admin/Booking/Meta/BookingMeta.php:1719
+#: src/Admin/Booking/Meta/BookingMeta.php:742
+#: src/Admin/Booking/Meta/BookingMeta.php:1035
+#: src/Admin/Booking/Meta/BookingMeta.php:1599
+#: src/Admin/Booking/Meta/BookingMeta.php:1648
+#: src/Admin/Booking/Meta/BookingMeta.php:1732
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:522
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:635
 #: src/Admin/Core/SecurityHelper.php:140
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:35
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:116
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:127
 #: src/Admin/Emails/Core/EmailTemplates.php:182
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
@@ -716,8 +716,8 @@ msgstr ""
 msgid "Security check failed."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:683
-#: src/Admin/Addons/AddonManager.php:899
+#: src/Admin/Addons/AddonManager.php:684
+#: src/Admin/Addons/AddonManager.php:900
 #: src/Admin/Addons/AddonScreen.php:195
 #: src/Admin/Addons/AddonScreen.php:276
 #: src/Admin/Addons/AddonScreen.php:376
@@ -731,47 +731,47 @@ msgstr ""
 msgid "You do not have permission for this action."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:690
+#: src/Admin/Addons/AddonManager.php:691
 #: src/Admin/Booking/Addons/AddonBooking.php:135
 msgid "No additional services selected."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:736
+#: src/Admin/Addons/AddonManager.php:737
 msgid "Invalid action."
 msgstr ""
 
 #. translators: 1: successful process count, 2: failed process count.
-#: src/Admin/Addons/AddonManager.php:751
+#: src/Admin/Addons/AddonManager.php:752
 #, php-format
 msgid "%1$d additional services processed, %2$d additional services failed."
 msgstr ""
 
 #. translators: %d: successful process count.
-#: src/Admin/Addons/AddonManager.php:760
+#: src/Admin/Addons/AddonManager.php:761
 #, php-format
 msgid "%d additional services successfully processed."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:909
+#: src/Admin/Addons/AddonManager.php:910
 msgid "Invalid additional service ID."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:916
+#: src/Admin/Addons/AddonManager.php:917
 #: src/Admin/Addons/AddonScreen.php:389
 msgid "Price cannot be negative."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:924
+#: src/Admin/Addons/AddonManager.php:925
 #: src/Admin/Addons/AddonScreen.php:202
 #: src/Admin/Addons/AddonScreen.php:520
 msgid "Additional service not found."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:939
+#: src/Admin/Addons/AddonManager.php:940
 msgid "Error occurred while updating price."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:945
+#: src/Admin/Addons/AddonManager.php:946
 msgid "Price successfully updated."
 msgstr ""
 
@@ -1089,21 +1089,21 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:683
 #: src/Admin/Frontend/Account/AccountController.php:957
 #: src/Admin/Frontend/Account/AccountController.php:1180
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2833
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2892
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2951
 msgid "Invalid booking ID."
 msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:88
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
-#: src/Admin/Booking/Meta/BookingMeta.php:759
-#: src/Admin/Booking/Meta/BookingMeta.php:1035
-#: src/Admin/Booking/Meta/BookingMeta.php:1603
-#: src/Admin/Booking/Meta/BookingMeta.php:1651
-#: src/Admin/Booking/Meta/BookingMeta.php:1741
+#: src/Admin/Booking/Meta/BookingMeta.php:760
+#: src/Admin/Booking/Meta/BookingMeta.php:1053
+#: src/Admin/Booking/Meta/BookingMeta.php:1621
+#: src/Admin/Booking/Meta/BookingMeta.php:1670
+#: src/Admin/Booking/Meta/BookingMeta.php:1754
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:48
-#: src/Admin/Emails/Templates/EmailPreview.php:123
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
+#: src/Admin/Emails/Templates/EmailPreview.php:109
 #: src/Admin/Frontend/Account/AccountRenderer.php:624
 msgid "Booking not found."
 msgstr ""
@@ -1244,7 +1244,7 @@ msgstr ""
 
 #: src/Admin/Booking/Addons/AddonBooking.php:153
 #: src/Admin/Booking/Addons/AddonBooking.php:173
-#: src/Admin/Booking/Meta/BookingMeta.php:487
+#: src/Admin/Booking/Meta/BookingMeta.php:488
 msgid "Total:"
 msgstr ""
 
@@ -1279,7 +1279,7 @@ msgid "Draft"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:123
-#: src/Admin/Emails/Notifications/BookingNotifications.php:158
+#: src/Admin/Emails/Notifications/BookingNotifications.php:212
 msgid "Pending Payment"
 msgstr ""
 
@@ -1288,10 +1288,10 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1193
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:484
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
-#: src/Admin/Booking/Meta/BookingMeta.php:1448
+#: src/Admin/Booking/Meta/BookingMeta.php:1466
 #: src/Admin/Core/AssetManager.php:924
-#: src/Admin/Emails/Core/EmailTemplates.php:478
-#: src/Admin/Emails/Notifications/BookingNotifications.php:153
+#: src/Admin/Emails/Core/EmailTemplates.php:504
+#: src/Admin/Emails/Notifications/BookingNotifications.php:207
 #: src/Admin/Frontend/Account/AccountRenderer.php:928
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:338
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
@@ -1311,10 +1311,10 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:125
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
-#: src/Admin/Booking/Meta/BookingMeta.php:1449
+#: src/Admin/Booking/Meta/BookingMeta.php:1467
 #: src/Admin/Core/AssetManager.php:925
-#: src/Admin/Emails/Core/EmailTemplates.php:479
-#: src/Admin/Emails/Notifications/BookingNotifications.php:154
+#: src/Admin/Emails/Core/EmailTemplates.php:505
+#: src/Admin/Emails/Notifications/BookingNotifications.php:208
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1016
 #: templates/account/booking-detail.php:118
@@ -1329,9 +1329,9 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:126
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:253
-#: src/Admin/Booking/Meta/BookingMeta.php:1450
+#: src/Admin/Booking/Meta/BookingMeta.php:1468
 #: src/Admin/Core/AssetManager.php:926
-#: src/Admin/Emails/Notifications/BookingNotifications.php:155
+#: src/Admin/Emails/Notifications/BookingNotifications.php:209
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:71
 #: templates/account/booking-detail.php:119
 #: templates/account/bookings.php:119
@@ -1345,9 +1345,9 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1206
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
-#: src/Admin/Booking/Meta/BookingMeta.php:1451
+#: src/Admin/Booking/Meta/BookingMeta.php:1469
 #: src/Admin/Core/AssetManager.php:927
-#: src/Admin/Emails/Notifications/BookingNotifications.php:156
+#: src/Admin/Emails/Notifications/BookingNotifications.php:210
 #: src/Admin/Frontend/Account/AccountRenderer.php:929
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:339
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
@@ -1369,10 +1369,10 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:128
 #: src/Admin/Booking/ListTable/BookingColumns.php:1088
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:255
-#: src/Admin/Booking/Meta/BookingMeta.php:1452
+#: src/Admin/Booking/Meta/BookingMeta.php:1470
 #: src/Admin/Core/AssetManager.php:928
-#: src/Admin/Emails/Notifications/BookingNotifications.php:157
-#: src/Admin/Emails/Templates/EmailPreview.php:245
+#: src/Admin/Emails/Notifications/BookingNotifications.php:211
+#: src/Admin/Emails/Templates/EmailPreview.php:231
 #: src/Admin/Frontend/Account/AccountRenderer.php:930
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:340
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:73
@@ -1392,7 +1392,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:129
 #: src/Admin/Booking/ListTable/BookingColumns.php:1084
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:486
-#: src/Admin/Booking/Meta/BookingMeta.php:1478
+#: src/Admin/Booking/Meta/BookingMeta.php:1496
 #: templates/emails/booking-created-admin.html.php:68
 msgid "Refunded"
 msgstr ""
@@ -1444,64 +1444,58 @@ msgid "Cancellation failed due to an unexpected error. The site administrator ha
 msgstr ""
 
 #. translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:352
+#: src/Admin/Booking/Helpers/CancellationHandler.php:356
 #, php-format
 msgid "Post-commit FAILED status could not be recorded: current refund_status is '%s'. A post-commit cancellation problem occurred, but the refund status could not be updated to reflect it."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:367
+#: src/Admin/Booking/Helpers/CancellationHandler.php:371
 msgid "Refund lock refused while recording a post-commit failure. A post-commit cancellation problem occurred, but the refund lock could not be acquired to record it."
 msgstr ""
 
 #. translators: %s: the message thrown by the post-commit throwable this recovery is handling.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:381
+#: src/Admin/Booking/Helpers/CancellationHandler.php:385
 #, php-format
 msgid "Post-commit failure cancelling booking: %s"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:417
+#: src/Admin/Booking/Helpers/CancellationHandler.php:421
 msgid "Refund-failed notification could not be sent. A post-commit cancellation problem occurred, but the operator notification e-mail could not be sent -- no one has been told."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:455
+#: src/Admin/Booking/Helpers/CancellationHandler.php:459
 msgid "Booking pickup date is missing."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:472
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1379
+#: src/Admin/Booking/Helpers/CancellationHandler.php:476
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1382
 msgid "Invalid pickup date/time format."
 msgstr ""
 
 #. translators: 1: required hours before pickup, 2: hours remaining until pickup.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:491
+#: src/Admin/Booking/Helpers/CancellationHandler.php:495
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %1$d hour before pickup. Only %2$.1f hours remaining."
 msgid_plural "Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:507
+#: src/Admin/Booking/Helpers/CancellationHandler.php:511
 msgid "Failed to check cancellation deadline."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:526
+#: src/Admin/Booking/Helpers/CancellationHandler.php:530
 msgid "Invalid booking data for availability update."
 msgstr ""
 
-#. translators: %s placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:586
-#, php-format
-msgid "Booking Cancellation Confirmation - %s"
-msgstr ""
-
 #. translators: %d placeholder.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:623
+#: src/Admin/Booking/Helpers/CancellationHandler.php:626
 #, php-format
 msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:654
-#: src/Admin/Booking/Meta/BookingMeta.php:710
+#: src/Admin/Booking/Helpers/CancellationHandler.php:657
+#: src/Admin/Booking/Meta/BookingMeta.php:711
 #: templates/account/booking-detail.php:69
 msgid "Booking Cancelled"
 msgstr ""
@@ -1509,7 +1503,7 @@ msgstr ""
 #. translators: %s placeholder.
 #. translators: %s: customer name.
 #. translators: %s: customer name
-#: src/Admin/Booking/Helpers/CancellationHandler.php:656
+#: src/Admin/Booking/Helpers/CancellationHandler.php:659
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:867
 #: templates/emails/booking-cancelled.html.php:37
 #: templates/emails/receipt-status-email.html.php:224
@@ -1517,15 +1511,15 @@ msgstr ""
 msgid "Hello %s,"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:657
+#: src/Admin/Booking/Helpers/CancellationHandler.php:660
 msgid "Your booking has been cancelled successfully."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:660
+#: src/Admin/Booking/Helpers/CancellationHandler.php:663
 msgid "Booking Details:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:661
+#: src/Admin/Booking/Helpers/CancellationHandler.php:664
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:827
 #: src/Admin/Settings/Groups/EmailSettings.php:176
 #: src/Admin/Settings/Groups/EmailSettings.php:237
@@ -1533,9 +1527,9 @@ msgstr ""
 msgid "Booking ID:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:662
-#: src/Admin/Booking/Meta/BookingMeta.php:395
-#: src/Admin/Booking/Meta/BookingMeta.php:471
+#: src/Admin/Booking/Helpers/CancellationHandler.php:665
+#: src/Admin/Booking/Meta/BookingMeta.php:396
+#: src/Admin/Booking/Meta/BookingMeta.php:472
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:822
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
@@ -1550,7 +1544,7 @@ msgstr ""
 msgid "Vehicle:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:663
+#: src/Admin/Booking/Helpers/CancellationHandler.php:666
 #: src/Admin/Settings/Groups/EmailSettings.php:135
 #: templates/emails/booking-cancelled.html.php:75
 #: templates/emails/booking-created-admin.html.php:41
@@ -1561,93 +1555,93 @@ msgstr ""
 msgid "Pickup Date:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:664
+#: src/Admin/Booking/Helpers/CancellationHandler.php:667
 #: templates/emails/booking-cancelled.html.php:83
 msgid "Dropoff Date:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:667
+#: src/Admin/Booking/Helpers/CancellationHandler.php:670
 #: templates/emails/refund-admin.html.php:34
 #: templates/emails/refund-customer.html.php:42
 msgid "Reason:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:671
+#: src/Admin/Booking/Helpers/CancellationHandler.php:674
 #: templates/emails/booking-cancelled.html.php:142
 msgid "If a refund applies to this booking, you will receive a separate refund notice with the amount and how it will reach you."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:672
+#: src/Admin/Booking/Helpers/CancellationHandler.php:675
 #: templates/emails/booking-cancelled.html.php:167
 msgid "Thank you for choosing our service."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:752
+#: src/Admin/Booking/Helpers/CancellationHandler.php:755
 msgid "Refund not attempted: the cancellation was not attributed to a user allowed to move money."
 msgstr ""
 
 #. translators: 1: booking id, 2: the user id attempting the refund.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:891
+#: src/Admin/Booking/Helpers/CancellationHandler.php:894
 #, php-format
 msgid "Refund lock refused for booking #%1$d (actor #%2$d): another refund attempt holds this booking's lock -- refund not attempted."
 msgstr ""
 
 #. translators: %d: booking id.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:956
+#: src/Admin/Booking/Helpers/CancellationHandler.php:959
 #, php-format
 msgid "Mixed-currency refund review notification could not be sent for booking #%d: the booking is parked in needs_review, but no one has been told it is holding money across more than one currency."
 msgstr ""
 
 #. translators: 1: booking id, 2: the booking's current refund_status, which has no outgoing edge to needs_review.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:983
+#: src/Admin/Booking/Helpers/CancellationHandler.php:986
 #, php-format
 msgid "Mixed-currency NEEDS_REVIEW could not be recorded for booking #%1$d: current refund_status is '%2$s'."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1006
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1009
 msgid "Refund not attempted: this booking's payment is split across more than one currency and cannot be totalled automatically. It has been flagged for manual review."
 msgstr ""
 
 #. translators: 1: the surface that attempted this refund, 2: the booking's current refund_status, which has no outgoing edge to PENDING.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1030
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1033
 #, php-format
 msgid "Refund PENDING could not be recorded (surface: %1$s): current refund_status is '%2$s'. Refund not attempted: this booking's refund status changed before the refund could start."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1069
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1072
 msgid "Refund-failed notification could not be sent for a refused PENDING transition -- no one has been told."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1092
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1095
 msgid "Refund not attempted: this booking's refund status changed before the refund could start."
 msgstr ""
 
 #. translators: %s: the message thrown by a mhmrentiva_process_refund listener.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1114
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1117
 #, php-format
 msgid "A mhmrentiva_process_refund listener failed: %s"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1229
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1232
 msgid "Refund partially failed; the rest did not go back."
 msgstr ""
 
 #. translators: %s: the booking's current refund_status, which has no outgoing edge to FAILED.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1247
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1250
 #, php-format
 msgid "Refund FAILED status could not be recorded: current refund_status is '%s'."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1255
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1258
 msgid "Refund failed, but this booking's refund status changed before the failure could be recorded."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1362
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1365
 msgid "Invalid booking data."
 msgstr ""
 
 #. translators: 1: the deadline date and time; 2: how many hours before pickup that is.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1394
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1397
 #, php-format
 msgid "You can cancel until %1$s (%2$d hour before pickup)"
 msgid_plural "You can cancel until %1$s (%2$d hours before pickup)"
@@ -1655,14 +1649,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: how many hours before pickup a booking must be cancelled.
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1406
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1409
 #, php-format
 msgid "Cancellation deadline has passed. Bookings must be cancelled at least %d hour before pickup."
 msgid_plural "Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/Helpers/CancellationHandler.php:1427
+#: src/Admin/Booking/Helpers/CancellationHandler.php:1430
 msgid "Error calculating cancellation deadline."
 msgstr ""
 
@@ -1706,7 +1700,7 @@ msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:504
-#: src/Admin/Booking/Meta/BookingMeta.php:1557
+#: src/Admin/Booking/Meta/BookingMeta.php:1575
 msgid "This vehicle is not available for rental. Please select another vehicle."
 msgstr ""
 
@@ -1742,7 +1736,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:296
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709
-#: src/Plugin.php:1069
+#: src/Plugin.php:1078
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:5
 #: src-react/admin/dashboard/components/RecentBookings.jsx:62
@@ -1751,7 +1745,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:276
 #: src/Admin/Booking/ListTable/BookingColumns.php:1734
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:552
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:558
 #: templates/shortcodes/contact-form.php:161
 msgid "Booking ID"
 msgstr ""
@@ -1761,9 +1755,9 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:697
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:525
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:579
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1041
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:531
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:585
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1047
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:211
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
 #: templates/account/booking-detail.php:172
@@ -1797,9 +1791,9 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:246
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:299
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:570
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:641
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1068
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:576
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:647
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1074
 #: templates/account/booking-detail.php:232
 msgid "Remaining Amount"
 msgstr ""
@@ -1810,7 +1804,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
-#: src/Admin/Booking/Meta/BookingMeta.php:348
+#: src/Admin/Booking/Meta/BookingMeta.php:349
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:479
 #: src/Admin/Setup/SetupWizard.php:164
 #: src/Admin/Setup/SetupWizard.php:205
@@ -1876,7 +1870,7 @@ msgstr[1] ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1083
 #: src/Admin/Booking/ListTable/BookingColumns.php:1091
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:485
-#: src/Admin/Booking/Meta/BookingMeta.php:1476
+#: src/Admin/Booking/Meta/BookingMeta.php:1494
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:94
 msgid "Paid"
 msgstr ""
@@ -1884,7 +1878,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:576
 #: src/Admin/Booking/ListTable/BookingColumns.php:1082
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:483
-#: src/Admin/Booking/Meta/BookingMeta.php:1474
+#: src/Admin/Booking/Meta/BookingMeta.php:1492
 msgid "Unpaid"
 msgstr ""
 
@@ -1949,7 +1943,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1086
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:490
-#: src/Admin/Booking/Meta/BookingMeta.php:1475
+#: src/Admin/Booking/Meta/BookingMeta.php:1493
 msgid "Pending Verification"
 msgstr ""
 
@@ -2140,9 +2134,9 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:209
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:462
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:561
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:632
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1062
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:567
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:638
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1068
 #: templates/account/booking-detail.php:203
 msgid "Payment Type"
 msgstr ""
@@ -2161,10 +2155,10 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:501
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:464
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:558
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:629
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1061
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1939
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:564
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:635
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1067
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1945
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:243
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:278
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:381
@@ -2316,7 +2310,7 @@ msgid "Process Refund"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:489
-#: src/Admin/Booking/Meta/BookingMeta.php:1477
+#: src/Admin/Booking/Meta/BookingMeta.php:1495
 msgid "Partially Paid"
 msgstr ""
 
@@ -2399,8 +2393,8 @@ msgid "Select Vehicle"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:216
-#: src/Admin/Booking/Meta/BookingMeta.php:384
-#: src/Admin/Booking/Meta/BookingMeta.php:431
+#: src/Admin/Booking/Meta/BookingMeta.php:385
+#: src/Admin/Booking/Meta/BookingMeta.php:432
 #: templates/account/booking-detail.php:81
 #: templates/account/booking-detail.php:148
 #: templates/admin/partials/booking-popup.php:34
@@ -2410,32 +2404,32 @@ msgid "Booking Details"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:220
-#: src/Admin/Booking/Meta/BookingMeta.php:435
+#: src/Admin/Booking/Meta/BookingMeta.php:436
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:354
 msgid "Pickup Date"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
-#: src/Admin/Booking/Meta/BookingMeta.php:440
+#: src/Admin/Booking/Meta/BookingMeta.php:441
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:359
 msgid "Pickup Time"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:232
-#: src/Admin/Booking/Meta/BookingMeta.php:447
+#: src/Admin/Booking/Meta/BookingMeta.php:448
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:365
 #: templates/shortcodes/unified-search.php:149
 msgid "Return Date"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
-#: src/Admin/Booking/Meta/BookingMeta.php:452
+#: src/Admin/Booking/Meta/BookingMeta.php:453
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:370
 msgid "Return Time"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:244
-#: src/Admin/Booking/Meta/BookingMeta.php:458
+#: src/Admin/Booking/Meta/BookingMeta.php:459
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:378
 msgid "Number of Guests"
 msgstr ""
@@ -2470,33 +2464,33 @@ msgstr ""
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:494
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1259
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1265
 #, php-format
 msgid "Booking - %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:62
-#: src/Admin/Booking/Meta/BookingMeta.php:69
+#: src/Admin/Booking/Meta/BookingMeta.php:63
+#: src/Admin/Booking/Meta/BookingMeta.php:70
 msgid "Booking Status"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:141
+#: src/Admin/Booking/Meta/BookingMeta.php:142
 msgid "Send Email to Customer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:151
+#: src/Admin/Booking/Meta/BookingMeta.php:152
 msgid "Payment Receipt"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:185
+#: src/Admin/Booking/Meta/BookingMeta.php:186
 msgid "Create a WordPress account for this customer?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:186
+#: src/Admin/Booking/Meta/BookingMeta.php:187
 msgid "Proceed with refund?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:189
+#: src/Admin/Booking/Meta/BookingMeta.php:190
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:518
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:538
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:539
@@ -2504,54 +2498,54 @@ msgstr ""
 msgid "Sending..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:190
-#: src/Admin/Booking/Meta/BookingMeta.php:1548
-#: src/Admin/Booking/Meta/BookingMeta.php:1705
+#: src/Admin/Booking/Meta/BookingMeta.php:191
+#: src/Admin/Booking/Meta/BookingMeta.php:1566
+#: src/Admin/Booking/Meta/BookingMeta.php:1718
 msgid "Email sent successfully!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:191
+#: src/Admin/Booking/Meta/BookingMeta.php:192
 #: src/Admin/Core/AssetManager.php:1198
 msgid "Error:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:193
+#: src/Admin/Booking/Meta/BookingMeta.php:194
 msgid "An error occurred:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:194
+#: src/Admin/Booking/Meta/BookingMeta.php:195
 msgid "Loading template..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:216
+#: src/Admin/Booking/Meta/BookingMeta.php:217
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:430
 msgid "Submitted"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:217
+#: src/Admin/Booking/Meta/BookingMeta.php:218
 msgid "Approved"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:218
+#: src/Admin/Booking/Meta/BookingMeta.php:219
 msgid "Rejected"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:251
+#: src/Admin/Booking/Meta/BookingMeta.php:252
 #: templates/admin/booking-meta/receipt-box.php:24
 msgid "Receipt file:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:252
+#: src/Admin/Booking/Meta/BookingMeta.php:253
 #: templates/admin/booking-meta/receipt-box.php:26
 msgid "View / Download"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:254
+#: src/Admin/Booking/Meta/BookingMeta.php:255
 #: templates/admin/booking-meta/receipt-box.php:30
 msgid "No receipt uploaded."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:257
+#: src/Admin/Booking/Meta/BookingMeta.php:258
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/account/payment-history.php:124
 #: templates/admin/booking-meta/receipt-box.php:34
@@ -2561,36 +2555,36 @@ msgstr ""
 msgid "Status:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:258
-#: src/Admin/Booking/Meta/BookingMeta.php:355
+#: src/Admin/Booking/Meta/BookingMeta.php:259
+#: src/Admin/Booking/Meta/BookingMeta.php:356
 #: templates/admin/booking-meta/receipt-box.php:40
 #: templates/emails/receipt-status-email.html.php:259
 msgid "Admin Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:261
+#: src/Admin/Booking/Meta/BookingMeta.php:262
 #: templates/admin/booking-meta/receipt-box.php:49
 msgid "Approve Receipt"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:262
+#: src/Admin/Booking/Meta/BookingMeta.php:263
 #: templates/admin/booking-meta/receipt-box.php:52
 msgid "Reject Receipt"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:295
-#: src/Admin/Booking/Meta/BookingMeta.php:340
+#: src/Admin/Booking/Meta/BookingMeta.php:296
+#: src/Admin/Booking/Meta/BookingMeta.php:341
 #: templates/emails/receipt-status-email.html.php:26
 msgid "Your payment receipt has been approved"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:296
-#: src/Admin/Booking/Meta/BookingMeta.php:341
+#: src/Admin/Booking/Meta/BookingMeta.php:297
+#: src/Admin/Booking/Meta/BookingMeta.php:342
 #: templates/emails/receipt-status-email.html.php:27
 msgid "Your payment receipt has been rejected"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:346
+#: src/Admin/Booking/Meta/BookingMeta.php:347
 #: src/Admin/Booking/PostType/Booking.php:23
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:344
@@ -2599,26 +2593,26 @@ msgstr ""
 msgid "Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:350
+#: src/Admin/Booking/Meta/BookingMeta.php:351
 #: src/Admin/Core/AssetManager.php:1262
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:447
 msgid "Details"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:389
-#: src/Admin/Booking/Meta/BookingMeta.php:465
+#: src/Admin/Booking/Meta/BookingMeta.php:390
+#: src/Admin/Booking/Meta/BookingMeta.php:466
 msgid "Booking Summary"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:482
+#: src/Admin/Booking/Meta/BookingMeta.php:483
 msgid "Days:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:685
+#: src/Admin/Booking/Meta/BookingMeta.php:686
 msgid "No customer email found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:693
+#: src/Admin/Booking/Meta/BookingMeta.php:694
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
 #: src/Admin/Settings/Groups/EmailSettings.php:177
 #: templates/emails/booking-status-changed-admin.html.php:17
@@ -2627,229 +2621,230 @@ msgstr ""
 msgid "Customer:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:699
-#: src/Admin/Booking/Meta/BookingMeta.php:726
+#: src/Admin/Booking/Meta/BookingMeta.php:700
+#: src/Admin/Booking/Meta/BookingMeta.php:727
 #: src-react/admin/customers/components/CustomerPanel.jsx:157
 msgid "Send Email"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:705
+#: src/Admin/Booking/Meta/BookingMeta.php:706
 msgid "Email Type:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:707
+#: src/Admin/Booking/Meta/BookingMeta.php:708
 #: templates/account/booking-detail.php:77
 msgid "Booking Confirmation"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:708
+#: src/Admin/Booking/Meta/BookingMeta.php:709
 msgid "Payment Reminder"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:709
+#: src/Admin/Booking/Meta/BookingMeta.php:710
 msgid "Booking Reminder"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:711
+#: src/Admin/Booking/Meta/BookingMeta.php:712
 msgid "Custom Message"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:716
-#: src/Admin/Emails/Templates/EmailPreview.php:133
+#: src/Admin/Booking/Meta/BookingMeta.php:717
+#: src/Admin/Emails/Core/EmailTemplates.php:570
+#: src/Admin/Emails/Templates/EmailPreview.php:119
 msgid "Subject:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:717
+#: src/Admin/Booking/Meta/BookingMeta.php:718
 msgid "Email subject..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:721
+#: src/Admin/Booking/Meta/BookingMeta.php:722
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:844
 msgid "Message:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:722
+#: src/Admin/Booking/Meta/BookingMeta.php:723
 msgid "Your message..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:752
+#: src/Admin/Booking/Meta/BookingMeta.php:753
 msgid "You do not have permission to send emails."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:772
-#: src/Admin/Booking/Meta/BookingMeta.php:1672
+#: src/Admin/Booking/Meta/BookingMeta.php:773
+#: src/Admin/Booking/Meta/BookingMeta.php:1691
 msgid "Customer email not found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:819
+#: src/Admin/Booking/Meta/BookingMeta.php:813
 msgid "Failed to send email."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:830
+#: src/Admin/Booking/Meta/BookingMeta.php:848
 #: templates/account/booking-detail.php:33
 msgid "Unknown Vehicle"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:839
+#: src/Admin/Booking/Meta/BookingMeta.php:857
 #, php-format
 msgid "Booking Confirmation - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:841
+#: src/Admin/Booking/Meta/BookingMeta.php:859
 #, php-format
 msgid "Payment Reminder - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:843
+#: src/Admin/Booking/Meta/BookingMeta.php:861
 #, php-format
 msgid "Booking Reminder - %s"
 msgstr ""
 
 #. translators: %s: blog name.
-#: src/Admin/Booking/Meta/BookingMeta.php:845
+#: src/Admin/Booking/Meta/BookingMeta.php:863
 #, php-format
 msgid "Message from %s"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:852
+#: src/Admin/Booking/Meta/BookingMeta.php:870
 #, php-format
 msgid "Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for choosing us!"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:861
+#: src/Admin/Booking/Meta/BookingMeta.php:879
 #, php-format
 msgid "Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>Total Amount: %3$s<br><br>Please complete your payment as soon as possible."
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date.
-#: src/Admin/Booking/Meta/BookingMeta.php:868
+#: src/Admin/Booking/Meta/BookingMeta.php:886
 #, php-format
 msgid "Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br><br>We look forward to serving you!"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name.
-#: src/Admin/Booking/Meta/BookingMeta.php:876
+#: src/Admin/Booking/Meta/BookingMeta.php:894
 #, php-format
 msgid "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has been cancelled.<br><br>If you have any questions, please contact us."
 msgstr ""
 
 #. translators: %s: blog name
-#: src/Admin/Booking/Meta/BookingMeta.php:881
+#: src/Admin/Booking/Meta/BookingMeta.php:899
 #, php-format
 msgid "You have received a message from %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:907
-#: src/Admin/Booking/Meta/BookingMeta.php:930
+#: src/Admin/Booking/Meta/BookingMeta.php:925
+#: src/Admin/Booking/Meta/BookingMeta.php:948
 msgid "Add Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:914
+#: src/Admin/Booking/Meta/BookingMeta.php:932
 #: src/Admin/Settings/Groups/AddonSettings.php:98
 msgid "Note:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:915
+#: src/Admin/Booking/Meta/BookingMeta.php:933
 msgid "Add a note about this booking..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:919
+#: src/Admin/Booking/Meta/BookingMeta.php:937
 msgid "Type:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:921
-#: src/Admin/Booking/Meta/BookingMeta.php:999
-#: src/Admin/Booking/Meta/BookingMeta.php:1006
+#: src/Admin/Booking/Meta/BookingMeta.php:939
+#: src/Admin/Booking/Meta/BookingMeta.php:1017
+#: src/Admin/Booking/Meta/BookingMeta.php:1024
 msgid "Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:922
-#: src/Admin/Booking/Meta/BookingMeta.php:1000
+#: src/Admin/Booking/Meta/BookingMeta.php:940
+#: src/Admin/Booking/Meta/BookingMeta.php:1018
 msgid "Status Change"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:923
-#: src/Admin/Booking/Meta/BookingMeta.php:1001
+#: src/Admin/Booking/Meta/BookingMeta.php:941
+#: src/Admin/Booking/Meta/BookingMeta.php:1019
 msgid "Payment Update"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:924
-#: src/Admin/Booking/Meta/BookingMeta.php:1002
+#: src/Admin/Booking/Meta/BookingMeta.php:942
+#: src/Admin/Booking/Meta/BookingMeta.php:1020
 msgid "Customer Contact"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:925
-#: src/Admin/Booking/Meta/BookingMeta.php:958
-#: src/Admin/Booking/Meta/BookingMeta.php:1003
+#: src/Admin/Booking/Meta/BookingMeta.php:943
+#: src/Admin/Booking/Meta/BookingMeta.php:976
+#: src/Admin/Booking/Meta/BookingMeta.php:1021
 #: src/Layout/CLI/LayoutImportCommand.php:426
 msgid "System"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:942
+#: src/Admin/Booking/Meta/BookingMeta.php:960
 msgid "History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:945
+#: src/Admin/Booking/Meta/BookingMeta.php:963
 msgid "No history found."
 msgstr ""
 
 #. translators: %s: user display name
-#: src/Admin/Booking/Meta/BookingMeta.php:973
+#: src/Admin/Booking/Meta/BookingMeta.php:991
 #, php-format
 msgid "By %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:984
+#: src/Admin/Booking/Meta/BookingMeta.php:1002
 msgid "more entries"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1028
+#: src/Admin/Booking/Meta/BookingMeta.php:1046
 msgid "You do not have permission to add notes."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1042
+#: src/Admin/Booking/Meta/BookingMeta.php:1060
 msgid "Invalid booking ID or empty note."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1435
+#: src/Admin/Booking/Meta/BookingMeta.php:1453
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:984
 msgid "Booking created"
 msgstr ""
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1460
+#: src/Admin/Booking/Meta/BookingMeta.php:1478
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr ""
 
 #. translators: 1: old payment status, 2: new payment status
-#: src/Admin/Booking/Meta/BookingMeta.php:1486
+#: src/Admin/Booking/Meta/BookingMeta.php:1504
 #, php-format
 msgid "Payment status changed from %1$s to %2$s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1551
-#: src/Admin/Booking/Meta/BookingMeta.php:1756
+#: src/Admin/Booking/Meta/BookingMeta.php:1569
+#: src/Admin/Booking/Meta/BookingMeta.php:1769
 msgid "Note added successfully!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1554
+#: src/Admin/Booking/Meta/BookingMeta.php:1572
 msgid "The vehicle is already booked for these dates. The booking details were not saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1560
+#: src/Admin/Booking/Meta/BookingMeta.php:1578
 msgid "Vehicle availability could not be checked. The booking details were not saved. Please try again."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1593
-#: src/Admin/Booking/Meta/BookingMeta.php:1641
-#: src/Admin/Booking/Meta/BookingMeta.php:1731
+#: src/Admin/Booking/Meta/BookingMeta.php:1611
+#: src/Admin/Booking/Meta/BookingMeta.php:1660
+#: src/Admin/Booking/Meta/BookingMeta.php:1744
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:27
@@ -2857,17 +2852,17 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1609
-#: src/Admin/Booking/Meta/BookingMeta.php:1661
-#: src/Admin/Booking/Meta/BookingMeta.php:1748
+#: src/Admin/Booking/Meta/BookingMeta.php:1627
+#: src/Admin/Booking/Meta/BookingMeta.php:1680
+#: src/Admin/Booking/Meta/BookingMeta.php:1761
 msgid "Missing required fields."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1707
+#: src/Admin/Booking/Meta/BookingMeta.php:1720
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1758
+#: src/Admin/Booking/Meta/BookingMeta.php:1771
 msgid "Failed to add note."
 msgstr ""
 
@@ -2907,8 +2902,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:527
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:640
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:39
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:120
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:131
 msgid "Permission denied."
 msgstr ""
 
@@ -3055,6 +3050,7 @@ msgid "Vehicle Total"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:223
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2333
 msgid "Add-ons"
 msgstr ""
 
@@ -3608,6 +3604,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:900
 #: src/Admin/Core/AssetManager.php:1368
+#: src/Admin/Emails/Core/EmailTemplates.php:571
 #: src/Admin/Frontend/Account/AccountController.php:402
 #: src/Admin/Frontend/Account/AccountRenderer.php:435
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
@@ -3644,7 +3641,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1375
 #: src/Admin/Customers/AddCustomerPage.php:167
 #: src/Admin/Customers/CustomersPage.php:577
-#: src/Admin/Emails/Core/EmailTemplates.php:541
+#: src/Admin/Emails/Core/EmailTemplates.php:567
 #: templates/account/account-details.php:189
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:183
@@ -3656,7 +3653,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:905
 #: src/Admin/Core/AssetManager.php:1212
 #: src/Admin/Core/AssetManager.php:1377
-#: src/Admin/Emails/Core/EmailTemplates.php:546
+#: src/Admin/Emails/Core/EmailTemplates.php:574
 msgid "Save"
 msgstr ""
 
@@ -5941,16 +5938,16 @@ msgstr ""
 msgid "ids must be a non-empty array."
 msgstr ""
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:135
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:146
 msgid "Missing parameters."
 msgstr ""
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:158
-#: src/Admin/Emails/Core/EmailTemplates.php:534
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:172
+#: src/Admin/Emails/Core/EmailTemplates.php:560
 msgid "Test email sent successfully!"
 msgstr ""
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:161
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:175
 msgid "Failed to send test email. Check server logs."
 msgstr ""
 
@@ -5983,182 +5980,218 @@ msgid "Refund Emails"
 msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:308
-#: src/Admin/Emails/Core/EmailTemplates.php:532
+#: src/Admin/Emails/Core/EmailTemplates.php:558
 #: src/Admin/Emails/Templates/EmailPreview.php:28
 msgid "Email Preview"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:437
+#: src/Admin/Emails/Core/EmailTemplates.php:463
 msgid "Mock Booking #9999"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:438
+#: src/Admin/Emails/Core/EmailTemplates.php:464
 msgid "confirmed"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:444
-#: src/Admin/Emails/Core/EmailTemplates.php:453
+#: src/Admin/Emails/Core/EmailTemplates.php:470
+#: src/Admin/Emails/Core/EmailTemplates.php:479
 msgid "pending"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:452
+#: src/Admin/Emails/Core/EmailTemplates.php:478
 msgid "credit_card"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:470
+#: src/Admin/Emails/Core/EmailTemplates.php:496
 msgid "Example Message Subject"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:471
+#: src/Admin/Emails/Core/EmailTemplates.php:497
 msgid "This is a sample message content for preview purposes. It demonstrates how long text will appear in the email body."
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:472
+#: src/Admin/Emails/Core/EmailTemplates.php:498
 msgid "This is a sample reply content from the administrator."
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:533
+#: src/Admin/Emails/Core/EmailTemplates.php:559
 msgid "Send Test"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:535
+#: src/Admin/Emails/Core/EmailTemplates.php:561
 msgid "Test email could not be sent."
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:539
-#: src/Admin/Emails/Templates/EmailPreview.php:71
+#: src/Admin/Emails/Core/EmailTemplates.php:565
+#: src/Admin/Emails/Templates/EmailPreview.php:57
 #: src/Admin/Setup/SetupWizard.php:486
 msgid "Send Test Email"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:540
+#: src/Admin/Emails/Core/EmailTemplates.php:566
 #: templates/account/account-details.php:94
 msgid "Email Address"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:542
+#: src/Admin/Emails/Core/EmailTemplates.php:568
 msgid "Please enter email address"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:543
+#: src/Admin/Emails/Core/EmailTemplates.php:569
 msgid "Edit Template"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:544
-#: src/Admin/Emails/Templates/BookingNotifications.php:54
-#: src/Admin/Emails/Templates/BookingNotifications.php:83
-#: src/Admin/Emails/Templates/BookingNotifications.php:119
-#: src/Admin/Emails/Templates/BookingNotifications.php:142
-#: src/Admin/Emails/Templates/BookingNotifications.php:171
-#: src/Admin/Emails/Templates/BookingNotifications.php:200
-#: src/Admin/Emails/Templates/BookingNotifications.php:222
-#: src/Admin/Emails/Templates/RefundEmails.php:51
-#: src/Admin/Emails/Templates/RefundEmails.php:79
-msgid "Subject"
+#: src/Admin/Emails/Core/EmailTemplates.php:572
+#: src/Admin/Emails/Templates/EmailPreview.php:58
+msgid "Preview"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:545
+#: src/Admin/Emails/Core/EmailTemplates.php:573
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:38
 msgid "Content"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:547
+#: src/Admin/Emails/Core/EmailTemplates.php:575
 msgid "Template saved successfully!"
 msgstr ""
 
-#: src/Admin/Emails/Core/EmailTemplates.php:548
+#: src/Admin/Emails/Core/EmailTemplates.php:576
 msgid "Template reset to default!"
 msgstr ""
 
-#: src/Admin/Emails/Core/Mailer.php:358
+#: src/Admin/Emails/Core/Mailer.php:470
 #: templates/shortcodes/vehicle-rating-form.php:191
 msgid "Anonymous"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:39
+#: src/Admin/Emails/Core/Templates.php:43
 msgid "Booking #{{booking.order_id}} Confirmed - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:43
+#: src/Admin/Emails/Core/Templates.php:47
 msgid "New Booking Request #{{booking.order_id}} - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:47
 #: src/Admin/Emails/Core/Templates.php:51
+#: src/Admin/Emails/Core/Templates.php:55
 msgid "Booking #{{booking.order_id}} Status Updated - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:55
+#: src/Admin/Emails/Core/Templates.php:59
 msgid "Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:59
+#: src/Admin/Emails/Core/Templates.php:63
 msgid "Complete Your Payment - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:64
+#: src/Admin/Emails/Core/Templates.php:68
 msgid "Welcome to {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:70
-#: src/Admin/Emails/Core/Templates.php:76
+#: src/Admin/Emails/Core/Templates.php:74
+#: src/Admin/Emails/Core/Templates.php:80
 msgid "Booking #{{booking.order_id}} Cancelled - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:82
+#: src/Admin/Emails/Core/Templates.php:86
 msgid "Refund Processed for Booking #{{booking.order_id}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:86
+#: src/Admin/Emails/Core/Templates.php:90
 msgid "Refund Alert: Booking #{{booking.order_id}}"
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:177
+#: src/Admin/Emails/Core/Templates.php:112
+msgid "Booking Confirmation (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:113
+msgid "New Booking Alert (Admin)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:114
+msgid "Status Change (Admin)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:115
+msgid "Status Change (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:116
+msgid "Booking Cancelled (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:117
+msgid "Auto Cancel Notification (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:118
+msgid "Booking Reminder (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:119
+msgid "Welcome Email (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:120
+msgid "Refund Notification (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:121
+msgid "Refund Alert (Admin)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:122
+msgid "Remaining Payment Link (Customer)"
+msgstr ""
+
+#: src/Admin/Emails/Core/Templates.php:232
 msgid "No content available for this email."
 msgstr ""
 
-#: src/Admin/Emails/Core/Templates.php:411
+#: src/Admin/Emails/Core/Templates.php:466
 msgid "All rights reserved."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:77
+#: src/Admin/Emails/Notifications/RefundNotifications.php:101
 msgid "full refund"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:77
+#: src/Admin/Emails/Notifications/RefundNotifications.php:101
 msgid "partial refund"
 msgstr ""
 
 #. translators: 1: the amount already returned automatically to the customer's original payment method, 2: the amount that will still be transferred to the customer by hand
-#: src/Admin/Emails/Notifications/RefundNotifications.php:110
+#: src/Admin/Emails/Notifications/RefundNotifications.php:134
 #, php-format
 msgid "%1$s was returned to your original payment method automatically; the remaining %2$s will be transferred to you manually."
 msgstr ""
 
 #. translators: 1: the amount the payment gateway already returned automatically, 2: the amount that must still be transferred to the customer manually
-#: src/Admin/Emails/Notifications/RefundNotifications.php:122
+#: src/Admin/Emails/Notifications/RefundNotifications.php:146
 #, php-format
 msgid "The payment gateway already returned %1$s of this refund automatically; only the remaining %2$s must be transferred to the customer manually."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:128
+#: src/Admin/Emails/Notifications/RefundNotifications.php:152
 msgid "The refund will be transferred to you manually; it will not appear on your original payment method automatically."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:129
+#: src/Admin/Emails/Notifications/RefundNotifications.php:153
 msgid "The refund has been sent back to your original payment method."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:136
+#: src/Admin/Emails/Notifications/RefundNotifications.php:160
 msgid "The payment gateway could not process this refund automatically; the amount above must be transferred to the customer manually."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:137
+#: src/Admin/Emails/Notifications/RefundNotifications.php:161
 msgid "The payment gateway processed this refund automatically; no manual transfer is required."
 msgstr ""
 
-#: src/Admin/Emails/Notifications/RefundNotifications.php:180
+#: src/Admin/Emails/Notifications/RefundNotifications.php:204
 msgid "Refund notice not sent: no customer address on this booking."
 msgstr ""
 
@@ -6199,7 +6232,7 @@ msgstr ""
 msgid "No email logs found in Trash."
 msgstr ""
 
-#: src/Admin/Emails/Settings/EmailTestAction.php:42
+#: src/Admin/Emails/Settings/EmailTestAction.php:44
 msgid "Test Email"
 msgstr ""
 
@@ -6232,6 +6265,18 @@ msgstr ""
 #: assets/blocks/unified-search/index.js:114
 #: assets/blocks/unified-search/index.js:124
 msgid "Enabled"
+msgstr ""
+
+#: src/Admin/Emails/Templates/BookingNotifications.php:54
+#: src/Admin/Emails/Templates/BookingNotifications.php:83
+#: src/Admin/Emails/Templates/BookingNotifications.php:119
+#: src/Admin/Emails/Templates/BookingNotifications.php:142
+#: src/Admin/Emails/Templates/BookingNotifications.php:171
+#: src/Admin/Emails/Templates/BookingNotifications.php:200
+#: src/Admin/Emails/Templates/BookingNotifications.php:222
+#: src/Admin/Emails/Templates/RefundEmails.php:51
+#: src/Admin/Emails/Templates/RefundEmails.php:79
+msgid "Subject"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:55
@@ -6356,71 +6401,23 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
-#: src/Admin/Emails/Templates/EmailPreview.php:49
-msgid "Booking Confirmation (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:50
-msgid "New Booking Alert (Admin)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:51
-msgid "Status Change (Admin)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:52
-msgid "Status Change (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:53
-msgid "Booking Cancelled (Customer)"
-msgstr ""
-
 #: src/Admin/Emails/Templates/EmailPreview.php:54
-msgid "Auto Cancel Notification (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:55
-msgid "Booking Reminder (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:56
-msgid "Welcome Email (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:57
-msgid "Refund Notification (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:58
-msgid "Refund Alert (Admin)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:59
-msgid "Remaining Payment Link (Customer)"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:68
 msgid "Send To (optional)"
 msgstr ""
 
-#: src/Admin/Emails/Templates/EmailPreview.php:72
-msgid "Preview"
-msgstr ""
-
-#: src/Admin/Emails/Templates/EmailPreview.php:80
+#: src/Admin/Emails/Templates/EmailPreview.php:66
 msgid "Template email sent."
 msgstr ""
 
-#: src/Admin/Emails/Templates/EmailPreview.php:82
+#: src/Admin/Emails/Templates/EmailPreview.php:68
 msgid "Failed to send template email."
 msgstr ""
 
-#: src/Admin/Emails/Templates/EmailPreview.php:92
+#: src/Admin/Emails/Templates/EmailPreview.php:78
 msgid "Enter a Booking ID and click Preview to see the email."
 msgstr ""
 
-#: src/Admin/Emails/Templates/EmailPreview.php:116
+#: src/Admin/Emails/Templates/EmailPreview.php:102
 msgid "Please enter a valid booking ID."
 msgstr ""
 
@@ -9526,89 +9523,89 @@ msgstr ""
 msgid "Remaining Payment - %1$s #%2$d"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:398
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:479
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:404
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:485
 msgid "Vehicle Rental Booking"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:482
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:488
 #, php-format
 msgid "%s rental"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:542
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:606
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1050
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:548
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:612
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1056
 #: templates/account/booking-detail.php:183
 msgid "Pickup Date & Time"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:547
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:613
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1053
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:553
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:619
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1059
 #: templates/account/booking-detail.php:189
 msgid "Return Date & Time"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:558
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:629
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1060
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1914
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:564
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:635
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1066
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1920
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:277
 #: templates/account/booking-detail.php:205
 msgid "Deposit Payment"
 msgstr ""
 
 #. translators: %d: the WooCommerce order id with no items.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1127
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1133
 #, php-format
 msgid "No items found in order #%d"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1243
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1249
 msgid "Booking cancelled: Vehicle is not available for rental."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1407
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1413
 msgid "Booking created from WooCommerce order"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1435
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1441
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 
 #. translators: 1: the WooCommerce order id that was cancelled/failed, 2: the booking id it belongs to.
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1568
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1574
 #, php-format
 msgid "Order #%1$d was cancelled/failed on booking #%2$d while a sibling order still holds paid money, but the notification e-mail could not be sent -- no one has been told a new payment link may be needed."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1692
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1698
 msgid "Booking completed — rental period ended."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1717
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1723
 msgid "Booking cancelled by customer."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1902
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1908
 msgid "Payment Options"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1917
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1923
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1923
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1929
 msgid "Remaining:"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1942
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1948
 msgid "Pay full amount now"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2046
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2052
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -9632,85 +9629,85 @@ msgstr ""
 msgid "Invalid security nonce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2055
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2061
 msgid "Cart not available"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2146
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2152
 msgid "Booking not found in cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2162
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2168
 msgid "Payment type updated"
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2281
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2340
 #, php-format
 msgid "Sorry, the vehicle \"%s\" is not available for rental. Please select another vehicle."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2334
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2393
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2383
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2489
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2442
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2548
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2430
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2489
 msgid "Invalid booking dates. Please try again."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2449
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2508
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2788
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2847
 #: src/Admin/Setup/SetupWizard.php:885
 msgid "WooCommerce"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2844
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2903
 msgid "Payment already processed by WooCommerce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2862
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2921
 msgid "Redirecting to checkout..."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2869
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2928
 msgid "Failed to add booking to cart."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2885
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2944
 msgid "WooCommerce is not installed or activated."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2900
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2959
 msgid "Invalid payment amount."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2939
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2998
 msgid "City"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2947
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3006
 msgid "District / Neighborhood"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2989
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3048
 msgid "Return to Cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3028
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:3087
 msgid "(incl. tax)"
 msgstr ""
 
@@ -9832,39 +9829,39 @@ msgid "Refund lock refused for booking #%1$d (surface: %2$s): the booking holds 
 msgstr ""
 
 #. translators: %s: the booking's current status, which has no outgoing edge to CANCELLED.
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:666
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:676
 #, php-format
 msgid "Auto-cancel refused for booking: no transition from %s"
 msgstr ""
 
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:690
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:700
 msgid "Reservation time expired."
 msgstr ""
 
 #. translators: %s: the throwable message that interrupted this booking's auto-cancel.
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:727
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:737
 #, php-format
 msgid "Auto-cancel skipped a booking: %s"
 msgstr ""
 
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:942
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:952
 msgid "Booking auto-cancelled — orphan WC order backfill."
 msgstr ""
 
 #. translators: %s: the surface (e.g. sync_orphan_wc_orders) that found paid money it could not park for review.
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:1043
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:1053
 #, php-format
 msgid "Refund lock refused (surface: %s): the booking holds paid money and was not parked for review."
 msgstr ""
 
 #. translators: 1: the surface, 2: the booking's current refund_status, which has no outgoing edge to NEEDS_REVIEW.
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:1069
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:1079
 #, php-format
 msgid "Refund NEEDS_REVIEW could not be recorded (surface: %1$s): current refund_status is '%2$s'."
 msgstr ""
 
 #. translators: %s: the surface that parked this booking for review.
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:1096
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:1106
 #, php-format
 msgid "Refund review notification failed (surface: %s): the booking is parked in needs_review but no one was told."
 msgstr ""
@@ -13348,80 +13345,80 @@ msgstr ""
 msgid "Credit Card"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:96
+#: src/Helpers/NotificationHelper.php:107
 msgid "A cancelled reservation still holds paid money"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:110
+#: src/Helpers/NotificationHelper.php:121
 msgid "This booking's paid orders are in more than one currency, so the amount held cannot be totalled automatically."
 msgstr ""
 
 #. translators: 1: amount held, 2: currency code
-#: src/Helpers/NotificationHelper.php:114
+#: src/Helpers/NotificationHelper.php:125
 #, php-format
 msgid "Amount held: %1$s %2$s"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:123
+#: src/Helpers/NotificationHelper.php:134
 #, php-format
 msgid "Auto-cancel found booking #%d already holding a paid order and left it alone -- it did not cancel the booking or its order."
 msgstr ""
 
 #. translators: %s: link to the booking
-#: src/Helpers/NotificationHelper.php:130
-#: src/Helpers/NotificationHelper.php:209
-#: src/Helpers/NotificationHelper.php:263
-#: src/Helpers/NotificationHelper.php:317
+#: src/Helpers/NotificationHelper.php:141
+#: src/Helpers/NotificationHelper.php:220
+#: src/Helpers/NotificationHelper.php:274
+#: src/Helpers/NotificationHelper.php:328
 #, php-format
 msgid "Review the booking: %s"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:176
+#: src/Helpers/NotificationHelper.php:187
 msgid "A cancelled booking had a problem completing its refund"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:189
+#: src/Helpers/NotificationHelper.php:200
 msgid "This booking's paid orders are in more than one currency, so the amount still owed cannot be totalled automatically."
 msgstr ""
 
 #. translators: 1: amount still owed to the customer, 2: currency code
-#: src/Helpers/NotificationHelper.php:193
+#: src/Helpers/NotificationHelper.php:204
 #, php-format
 msgid "Amount still owed to the customer: %1$s %2$s"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:202
+#: src/Helpers/NotificationHelper.php:213
 #, php-format
 msgid "Booking #%d was cancelled, but something went wrong afterward and the refund may not have completed."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:250
+#: src/Helpers/NotificationHelper.php:261
 msgid "An order was cancelled while another order on the same booking is still paid"
 msgstr ""
 
 #. translators: 1: order id, 2: booking id
-#: src/Helpers/NotificationHelper.php:255
+#: src/Helpers/NotificationHelper.php:266
 #, php-format
 msgid "Order #%1$d on booking #%2$d was cancelled or failed. Another order on this booking still holds paid money -- the order that died was not necessarily the debt."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:260
+#: src/Helpers/NotificationHelper.php:271
 msgid "Review this booking's payment orders and balance before treating it as settled or cancelled."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:305
+#: src/Helpers/NotificationHelper.php:316
 msgid "A cancelled booking needs a manual refund across currencies"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:310
+#: src/Helpers/NotificationHelper.php:321
 #, php-format
 msgid "Booking #%d has been cancelled. Its paid orders are in more than one currency, so the plugin cannot total or move a refund for it automatically."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:314
+#: src/Helpers/NotificationHelper.php:325
 msgid "Please review this booking's paid orders and settle any refund by hand."
 msgstr ""
 
@@ -13715,7 +13712,7 @@ msgstr ""
 msgid "Rollback wrote nothing for this page: the previous manifest no longer resolves to it."
 msgstr ""
 
-#: src/Plugin.php:1083
+#: src/Plugin.php:1092
 msgid "Failed to create the customer role."
 msgstr ""
 

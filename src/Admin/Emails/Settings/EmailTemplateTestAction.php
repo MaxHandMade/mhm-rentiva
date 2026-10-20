@@ -69,7 +69,9 @@ final class EmailTemplateTestAction {
 			);
 		}
 
-		$ok = Mailer::send( $template_key, $to, $context );
+		// A test of the template the operator picked: sent even if its
+		// "Enabled" box is unticked (Mailer::send_test()).
+		$ok = Mailer::send_test( $template_key, $to, $context );
 		self::redirect( $ok ? 'success' : 'failed' );
 	}
 

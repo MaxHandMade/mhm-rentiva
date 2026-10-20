@@ -11,12 +11,22 @@ use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 use MHMRentiva\Admin\Core\Utilities\BookingQueryHelper;
+use MHMRentiva\Admin\Core\Utilities\SiteLocaleString;
+use MHMRentiva\Admin\Booking\Core\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 final class BookingNotifications {
+
+	/**
+	 * Bookings whose cancellation notice to the customer is being sent by the
+	 * caller that cancels them (see with_customer_cancel_notice_owned()).
+	 *
+	 * @var array<int, true>
+	 */
+	private static array $customer_cancel_notice_owned = array();
 
 	public static function register(): void {
 		add_action( 'mhmrentiva_booking_created', array( self::class, 'on_created' ) );
@@ -33,7 +43,11 @@ final class BookingNotifications {
 		if ( ! EmailSettings::is_auto_send_enabled() ) {
 			return;
 		}
-		self::send_new_booking_emails( $booking_id );
+		SiteLocaleString::in_site_locale(
+			static function () use ( $booking_id ): void {
+				self::send_new_booking_emails( $booking_id );
+			}
+		);
 	}
 
 	/**
@@ -48,7 +62,36 @@ final class BookingNotifications {
 		if ( ! EmailSettings::is_auto_send_enabled() ) {
 			return;
 		}
-		self::send_status_change_emails( $booking_id, $old_status, $new_status );
+		// The status labels in the context are translated here, before
+		// Mailer renders; they belong to the e-mail, so to the site locale.
+		SiteLocaleString::in_site_locale(
+			static function () use ( $booking_id, $old_status, $new_status ): void {
+				self::send_status_change_emails( $booking_id, $old_status, $new_status );
+			}
+		);
+	}
+
+	/**
+	 * Run $cancel -- a call that moves $booking_id to CANCELLED -- with the
+	 * customer's cancellation notice left to the caller.
+	 *
+	 * For a canceller that sends its own customer notice for the same event
+	 * (AutoCancel's "Auto Cancel Email"), so the customer gets one e-mail, not
+	 * that one plus `booking_cancelled`. Admin notices are not affected.
+	 *
+	 * @template T
+	 * @param int          $booking_id Booking being cancelled.
+	 * @param callable():T $cancel     The status change.
+	 * @return T
+	 */
+	public static function with_customer_cancel_notice_owned( int $booking_id, callable $cancel ) {
+		self::$customer_cancel_notice_owned[ $booking_id ] = true;
+
+		try {
+			return $cancel();
+		} finally {
+			unset( self::$customer_cancel_notice_owned[ $booking_id ] );
+		}
 	}
 
 	/**
@@ -126,14 +169,25 @@ final class BookingNotifications {
 		);
 
 		// Include cancellation reason when booking is cancelled
-		if ( $new_status === 'cancelled' ) {
+		if ( $new_status === Status::CANCELLED ) {
 			$cancellation_data                         = get_post_meta( $booking_id, '_mhmrentiva_cancellation_data', true );
 			$additional_context['cancellation_reason'] = is_array( $cancellation_data ) ? ( $cancellation_data['cancellation_reason'] ?? '' ) : '';
 		}
 
 		$send_customer = SettingsCore::get( 'mhmrentiva_booking_send_confirmation_emails', '1' ) === '1';
 		if ( $send_customer ) {
-			Mailer::sendBookingEmail( 'booking_status_changed_customer', $booking_id, 'customer', $additional_context );
+			if ( $new_status === Status::CANCELLED ) {
+				// A cancellation gets its own template INSTEAD of "status
+				// updated" (product decision 2026-10-20): one e-mail, never
+				// two. If that template is switched off the customer gets
+				// nothing for this transition -- Mailer::send() refuses it and
+				// there is deliberately no fallback to the generic one.
+				if ( ! isset( self::$customer_cancel_notice_owned[ $booking_id ] ) ) {
+					Mailer::sendBookingEmail( 'booking_cancelled', $booking_id, 'customer', $additional_context );
+				}
+			} else {
+				Mailer::sendBookingEmail( 'booking_status_changed_customer', $booking_id, 'customer', $additional_context );
+			}
 		}
 
 		$send_admin = SettingsCore::get( 'mhmrentiva_booking_admin_notifications', '1' ) === '1';

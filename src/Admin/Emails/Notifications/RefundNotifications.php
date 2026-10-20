@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\Utilities\SiteLocaleString;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Payment\Refunds\RefundValidator;
 
@@ -49,6 +50,29 @@ final class RefundNotifications {
 		string $mode = RefundValidator::MODE_AUTO,
 		int $auto_refunded_kurus = 0,
 		int $manual_refunded_kurus = 0
+	): void {
+		// The amount wording and the mode sentences are translated below,
+		// before Mailer renders; they belong to the e-mail, so to the site
+		// locale, not to the operator who pressed "refund".
+		SiteLocaleString::in_site_locale(
+			static function () use ( $booking_id, $amount_kurus, $currency, $newPayStatus, $reason, $mode, $auto_refunded_kurus, $manual_refunded_kurus ): void {
+				self::compose_and_send( $booking_id, $amount_kurus, $currency, $newPayStatus, $reason, $mode, $auto_refunded_kurus, $manual_refunded_kurus );
+			}
+		);
+	}
+
+	/**
+	 * The body of notify(), run in the site locale.
+	 */
+	private static function compose_and_send(
+		int $booking_id,
+		int $amount_kurus,
+		string $currency,
+		string $newPayStatus,
+		string $reason,
+		string $mode,
+		int $auto_refunded_kurus,
+		int $manual_refunded_kurus
 	): void {
 		// The address every OTHER consumer resolves through: customer_email ->
 		// booking_customer_email -> contact_email. Reading contact_email alone

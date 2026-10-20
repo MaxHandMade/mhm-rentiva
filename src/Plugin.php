@@ -80,6 +80,15 @@ final class Plugin {
 		// Priority 1: Load translations before any output
 		add_action('init', array( $this, 'load_textdomain' ), 1);
 
+		// switch_to_locale() reloads every text domain from the locale's
+		// language-pack path only (WP_Locale_Switcher::load_translations() ->
+		// just-in-time loading), and this plugin's bundled catalogue lives in
+		// its own languages/ directory, which that lookup never searches. On a
+		// site without a WordPress.org pack, every switch -- e-mails rendered in
+		// the site locale for an operator whose profile differs -- came back in
+		// English. Load the bundled file for the switched-to locale as well.
+		add_action('change_locale', array( $this, 'load_textdomain' ));
+
 		// Register Customer role (also for existing installations)
 		// Priority 20: Run after WooCommerce and other plugins that might register customer role
 		add_action('init', array( self::class, 'register_customer_role' ), 20);

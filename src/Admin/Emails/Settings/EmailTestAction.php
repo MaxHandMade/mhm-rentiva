@@ -33,7 +33,9 @@ final class EmailTestAction {
 
 		$to = EmailSettings::is_test_mode() ? EmailSettings::get_test_address() : get_option( 'admin_email' );
 
-		$ok = Mailer::send(
+		// A connection test: it must not fail because the admin alert
+		// template happens to be switched off.
+		$ok = Mailer::send_test(
 			'booking_created_admin',
 			$to,
 			array(

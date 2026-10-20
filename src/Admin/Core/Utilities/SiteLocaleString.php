@@ -38,11 +38,28 @@ final class SiteLocaleString {
 	 * @param callable():string $resolver Returns the translated string.
 	 */
 	public static function resolve( callable $resolver ): string {
+		return (string) self::in_site_locale( $resolver );
+	}
+
+	/**
+	 * Run $work with the site locale in effect and return whatever it returns.
+	 *
+	 * The general form of resolve(), for work that is not a single string: an
+	 * e-mail is written in the site's language whoever triggers it, and inside
+	 * wp-admin (admin-ajax included) the asker is the operator's PROFILE
+	 * language. Nested calls switch once -- the inner call sees the site
+	 * locale already in effect and runs $work directly.
+	 *
+	 * @template T
+	 * @param callable():T $work Work to run in the site locale.
+	 * @return T
+	 */
+	public static function in_site_locale( callable $work ) {
 		$site     = self::site_locale();
 		$switched = determine_locale() !== $site && switch_to_locale( $site );
 
 		try {
-			return (string) $resolver();
+			return $work();
 		} finally {
 			if ( $switched ) {
 				restore_previous_locale();
