@@ -162,9 +162,9 @@ tests_add_filter('muplugins_loaded', static function () {
  *
  * wp_version_check() and wp_maybe_auto_update() fire via admin_init during
  * WP_Ajax_UnitTestCase::_handleAjax(). In a Docker environment without
- * internet access, the HTTP request fails and WP calls trigger_error().
- * PHPUnit (convertNoticesToExceptions="true") converts the notice to a
- * PHPUnit Error, causing non-deterministic failures in AJAX tests.
+ * internet access, the HTTP request fails and WP calls trigger_error(); the
+ * warning text lands in the output, inside the JSON an AJAX test decodes,
+ * causing non-deterministic failures in AJAX tests.
  *
  * Returning a "recently checked" transient object triggers wp_version_check()'s
  * built-in early-return guard (timeout not yet expired) so no HTTP request
@@ -175,11 +175,40 @@ tests_add_filter('muplugins_loaded', static function () {
 		$obj               = new \stdClass();
 		$obj->last_checked = time();
 		$obj->updates      = array();
+		// wp_version_check() discards a transient whose version_checked is not
+		// the running version, so without this the guard above never held.
+		$obj->version_checked = wp_get_wp_version();
 		return $obj;
 	};
 	add_filter('pre_site_transient_update_core',    $fresh, 1);
 	add_filter('pre_site_transient_update_plugins', $fresh, 1);
 	add_filter('pre_site_transient_update_themes',  $fresh, 1);
+
+	// Backstop for the paths the transient does not cover (cron, load-* hooks,
+	// a forced check): answer every api.wordpress.org request locally with an
+	// empty 200 whose body carries every key the core, plugin, theme and
+	// translation parsers read, so no check reaches the network or warns.
+	add_filter(
+		'pre_http_request',
+		static function ($preempt, $args, $url) {
+			if (false !== $preempt || 'api.wordpress.org' !== wp_parse_url((string) $url, PHP_URL_HOST)) {
+				return $preempt;
+			}
+
+			return array(
+				'headers'  => array( 'x-mhmrentiva-test' => 'mhmrentiva-test-offline' ),
+				'body'     => '{"offers":[],"translations":[],"plugins":{},"themes":{},"no_update":{}}',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		},
+		1,
+		3
+	);
 }, 5);
 
 /**
