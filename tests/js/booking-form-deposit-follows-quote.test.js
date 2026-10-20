@@ -20,7 +20,7 @@ describe( 'booking form deposit summary follows the quote', () => {
 			return this;
 		};
 		$.datepicker = { parseDate: () => null, setDefaults: () => {} };
-		window.mhmRentivaBookingForm = { config: {}, strings: {}, enable_deposit: true };
+		window.mhmRentivaBookingForm = { config: { enable_deposit: true }, strings: {} };
 
 		require( '../../assets/js/frontend/booking-form.js' );
 		BookingForm = window.MHMRentivaBookingForm;

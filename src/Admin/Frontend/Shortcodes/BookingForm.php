@@ -356,6 +356,10 @@ final class BookingForm extends AbstractShortcode {
 			'currency_symbol'      => CurrencyHelper::get_currency_symbol(),
 			'currency_position'    => CurrencyHelper::get_currency_position(),
 			'locale'               => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
+			// booking-form.js formatMoney() groups with these, so its prices match
+			// the CurrencyHelper::format_price( $x, 0 ) amounts the template prints.
+			'thousand_separator'   => CurrencyHelper::get_thousand_separator(),
+			'decimal_separator'    => CurrencyHelper::get_decimal_separator(),
 			// The deposit summary is driven per vehicle by each price response
 			// ('payment_type' => 'full' when no deposit applies); this flag only
 			// says the summary exists. The option it used to read had no writer.

@@ -91,7 +91,6 @@
             this.setupDateValidation();
             this.setupVehicleSelection();
             this.setupFormValidation();
-            this.setupDepositSystem();
             this.initializeDefaults();
         }
 
@@ -143,7 +142,6 @@
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
                     this.autoCalculatePrice();
-                    this.updateDepositDisplay();
                 }
             });
 
@@ -152,10 +150,9 @@
                 this.autoCalculatePrice();
             });
 
-            // Update price calculation and deposit fields on payment type change
+            // Update price calculation on payment type change
             this.form.on('change', 'input[name="payment_type"]', () => {
                 this.autoCalculatePrice();
-                this.updateDepositDisplay();
             });
 
             // Automatically update dropoff time when pickup time changes
@@ -188,11 +185,6 @@
                 // Fetch blocked dates for the newly selected vehicle.
                 const selectedVehicleId = $( e.target ).val();
                 this.fetchAndApplyBlockedDates( selectedVehicleId );
-            });
-
-            // Deposit system events
-            this.paymentTypeRadios.on('change', () => {
-                this.updateDepositDisplay();
             });
 
             this.paymentMethodRadios.on('change', () => {
@@ -373,13 +365,6 @@
             // Note: Submit validation is handled in submitForm
         }
 
-        setupDepositSystem() {
-            if (!window.mhmRentivaBookingForm?.enable_deposit) return;
-
-            this.updateDepositDisplay();
-            this.updatePaymentMethodDisplay();
-        }
-
         initializeDatePickers() {
             if (window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.datepicker_options) {
                 const self = this;
@@ -476,7 +461,6 @@
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
                     this.autoCalculatePrice();
-                    this.updateDepositDisplay();
                 }
             }
         }
@@ -807,7 +791,7 @@
         }
 
         updatePriceDisplay(data) {
-            const currencySymbol = data.currency_symbol || window.mhmRentivaBookingForm?.currency_symbol;
+            const currencySymbol = data.currency_symbol || this.getConfig('currency_symbol');
 
             this.priceElements.dailyPrice.text(this.formatMoney(data.vehicle_price, currencySymbol));
 
@@ -860,16 +844,12 @@
             const paymentTypeHidden = this.form.find('input[name="payment_type"][type="hidden"]').val();
             const paymentType = paymentTypeRadio || paymentTypeHidden || 'deposit';
 
-            const depositEnabled = window.mhmRentivaBookingForm?.enable_deposit !== false &&
-                window.mhmRentivaBookingForm?.enable_deposit !== '0' &&
-                window.mhmRentivaBookingForm?.enable_deposit !== 0;
-
             // The quote says 'full' when no deposit applies to this vehicle (its
             // rate, else the global setting, is 0): the whole total is charged,
             // so there is no deposit to show.
             const depositApplies = data.payment_type !== 'full';
 
-            if (depositEnabled && depositApplies && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
+            if (depositApplies && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
                 data.deposit_amount !== undefined && data.deposit_amount > 0) {
                 this.priceElements.depositAmount.text(this.formatMoney(data.deposit_amount, currencySymbol));
                 this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
@@ -885,26 +865,6 @@
                 this.container.find('.rv-remaining-summary').addClass('rv-hidden');
             }
         }
-
-        updateDepositDisplay() {
-            if (!window.mhmRentivaBookingForm?.enable_deposit) return;
-
-            const paymentType = this.form.find('input[name="payment_type"]:checked').val();
-            const formData = this.getFormData();
-
-            if (!formData.vehicle_id || !formData.pickup_date || !formData.dropoff_date) {
-                this.container.find('.rv-deposit-summary, .rv-remaining-summary').addClass('rv-hidden');
-                return;
-            }
-
-            const days = this.calculateDays(formData.pickup_date, formData.dropoff_date);
-
-            if (days <= 0) {
-                this.container.find('.rv-deposit-summary, .rv-remaining-summary').addClass('rv-hidden');
-                return;
-            }
-        }
-
 
         // The form's "Default Days", clamped into the rental limits
         // validateRentalLimits() enforces, so the return date the form fills in
@@ -985,27 +945,6 @@
             }
         }
 
-        updateDepositInfo(data) {
-            const currencySymbol = window.mhmRentivaBookingForm?.currency_symbol;
-            const paymentType = this.form.find('input[name="payment_type"]:checked').val();
-
-            if (paymentType === 'deposit' && data.deposit_amount > 0) {
-                this.priceElements.depositAmount.text(this.formatMoney(data.deposit_amount, currencySymbol));
-                this.priceElements.remainingAmount.text(this.formatMoney(data.remaining_amount, currencySymbol));
-
-                if (data.remaining_amount > 0) {
-                    this.container.find('.rv-remaining-summary').removeClass('rv-hidden');
-                } else {
-                    this.container.find('.rv-remaining-summary').addClass('rv-hidden');
-                }
-
-                this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
-            } else {
-                this.container.find('.rv-deposit-summary').addClass('rv-hidden');
-                this.container.find('.rv-remaining-summary').addClass('rv-hidden');
-            }
-        }
-
         updatePaymentMethodDisplay() {
             const paymentMethod = this.form.find('input[name="payment_method"]:checked').val();
 
@@ -1070,23 +1009,8 @@
                 }
             }
 
-            if (window.mhmRentivaBookingForm?.enable_deposit) {
-                if (!this.form.find('input[name="payment_type"]:checked').length) {
-                    this.showError(this.getMessage('selectPaymentType'));
-                    isValid = false;
-                }
-
-                if (!this.form.find('input[name="payment_method"]:checked').length) {
-                    this.showError(this.getMessage('selectPaymentMethod'));
-                    isValid = false;
-                }
-
-                const paymentMethod = this.form.find('input[name="payment_method"]:checked').val();
-                if (paymentMethod === 'online' && !this.form.find('input[name="payment_gateway"]:checked').length) {
-                    this.showError(this.getMessage('select_payment_gateway'));
-                    isValid = false;
-                }
-            }
+            // The form posts one hidden payment_type and renders no payment
+            // type / method / gateway radios, so there is nothing to require here.
 
             const termsCheckbox = this.container.find('.rv-terms-checkbox-input');
             if (termsCheckbox.length) {
@@ -1257,7 +1181,7 @@
                                     `;
 
                             response.data.alternatives.slice(0, 2).forEach(vehicle => {
-                                const currencySymbol = this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '');
+                                const currencySymbol = this.escapeHtml(this.getConfig('currency_symbol') || '');
                                 const priceLabel = this.escapeHtml(this.getMessage('daily_price') || 'Daily Price');
                                 const compactPrice = vehicle.price_per_day !== undefined
                                     ? this.formatMoney(vehicle.price_per_day, currencySymbol)
@@ -1479,8 +1403,28 @@
             else this.showSuccess(message);
         }
 
+        // A value BookingForm::get_js_config() localizes under `config`. The
+        // top-level read is a fallback for an older localized shape only.
+        getConfig(key) {
+            const data = window.mhmRentivaBookingForm || {};
+            if (data.config && data.config[key] !== undefined) {
+                return data.config[key];
+            }
+            return data[key];
+        }
+
+        // Whole units, like the form's PHP CurrencyHelper::format_price( $x, 0 ),
+        // grouped with WooCommerce's thousand separator. Without one, the
+        // site's JS locale groups instead.
         formatPrice(price) {
-            return new Intl.NumberFormat(window.mhmRentivaBookingForm?.locale || 'en-US', {
+            const thousandSep = this.getConfig('thousand_separator');
+            if (typeof thousandSep === 'string') {
+                const fixed = Math.round(Number(price || 0));
+                const sign = fixed < 0 ? '-' : '';
+                return sign + String(Math.abs(fixed)).replace(/\B(?=(\d{3})+(?!\d))/g, thousandSep);
+            }
+
+            return new Intl.NumberFormat(this.getConfig('locale') || 'en-US', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(Number(price || 0));
@@ -1488,8 +1432,8 @@
 
         formatMoney(price, symbolOverride = null) {
             const amount = this.formatPrice(price);
-            const symbol = symbolOverride || window.mhmRentivaBookingForm?.currency_symbol || '';
-            const position = window.mhmRentivaBookingForm?.currency_position || 'right_space';
+            const symbol = symbolOverride || this.getConfig('currency_symbol') || '';
+            const position = this.getConfig('currency_position') || 'right_space';
 
             switch (position) {
                 case 'left':
