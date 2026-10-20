@@ -162,9 +162,9 @@ tests_add_filter('muplugins_loaded', static function () {
  *
  * wp_version_check() and wp_maybe_auto_update() fire via admin_init during
  * WP_Ajax_UnitTestCase::_handleAjax(). In a Docker environment without
- * internet access, the HTTP request fails and WP calls trigger_error().
- * PHPUnit (convertNoticesToExceptions="true") converts the notice to a
- * PHPUnit Error, causing non-deterministic failures in AJAX tests.
+ * internet access, the HTTP request fails and WP calls trigger_error(); the
+ * warning text lands in the output, inside the JSON an AJAX test decodes,
+ * causing non-deterministic failures in AJAX tests.
  *
  * Returning a "recently checked" transient object triggers wp_version_check()'s
  * built-in early-return guard (timeout not yet expired) so no HTTP request
@@ -184,9 +184,10 @@ tests_add_filter('muplugins_loaded', static function () {
 	add_filter('pre_site_transient_update_plugins', $fresh, 1);
 	add_filter('pre_site_transient_update_themes',  $fresh, 1);
 
-	// Backstop: the plugin and theme checks also run when their "checked" lists
-	// differ from what is installed. Answer every api.wordpress.org request
-	// locally with an empty 200, so no check reaches the network or warns.
+	// Backstop for the paths the transient does not cover (cron, load-* hooks,
+	// a forced check): answer every api.wordpress.org request locally with an
+	// empty 200 whose body carries every key the core, plugin, theme and
+	// translation parsers read, so no check reaches the network or warns.
 	add_filter(
 		'pre_http_request',
 		static function ($preempt, $args, $url) {
@@ -196,7 +197,7 @@ tests_add_filter('muplugins_loaded', static function () {
 
 			return array(
 				'headers'  => array( 'x-mhmrentiva-test' => 'mhmrentiva-test-offline' ),
-				'body'     => '{}',
+				'body'     => '{"offers":[],"translations":[],"plugins":{},"themes":{},"no_update":{}}',
 				'response' => array(
 					'code'    => 200,
 					'message' => 'OK',

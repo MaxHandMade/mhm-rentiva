@@ -40,10 +40,22 @@ final class UpdateChecksStayOfflineTest extends WP_UnitTestCase
 
 	public function test_forced_update_checks_raise_no_warning(): void
 	{
-		wp_version_check(array(), true);
-		wp_update_plugins();
-		wp_update_themes();
+		// phpunit.xml does not turn warnings into exceptions, so collect them.
+		$raised = array();
+		set_error_handler(
+			static function (int $errno, string $errstr, string $errfile, int $errline) use (&$raised): bool {
+				$raised[] = $errstr . ' @ ' . basename($errfile) . ':' . $errline;
+				return true;
+			}
+		);
+		try {
+			wp_version_check(array(), true);
+			wp_update_plugins();
+			wp_update_themes();
+		} finally {
+			restore_error_handler();
+		}
 
-		$this->addToAssertionCount(1);
+		$this->assertSame(array(), $raised);
 	}
 }
