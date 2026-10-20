@@ -430,6 +430,7 @@ final class AddonManager {
 		add_action( 'updated_post_meta', $drop_for_meta, 10, 2 );
 		add_action( 'deleted_post_meta', $drop_for_meta, 10, 2 );
 		add_action( 'set_object_terms', $drop_for_post );
+		add_action( 'deleted_term_relationships', $drop_for_post );
 	}
 
 	/**

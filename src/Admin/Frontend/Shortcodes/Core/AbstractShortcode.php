@@ -609,7 +609,9 @@ abstract class AbstractShortcode {
 		// Use versioning for mass invalidation (The WordPress Way)
 		$version = get_transient('mhmrentiva_rv_cache_v_' . $tag);
 		if (false === $version) {
-			$version = (string) time();
+			// Unique, not time(): a version deleted and rebuilt within the same
+			// second must not hand back the entries it was deleted to retire.
+			$version = wp_generate_uuid4();
 			set_transient('mhmrentiva_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
 		}
 

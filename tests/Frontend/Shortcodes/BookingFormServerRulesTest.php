@@ -281,6 +281,28 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('cached', get_transient($version_key), 'Unrelated posts leave the form cache alone.');
 	}
 
+	/**
+	 * Deleting the version key is not enough on its own: the key used to be
+	 * rebuilt from time(), so a form cached, an add-on changed and the form read
+	 * again within one second came back from the old cache entry.
+	 */
+	public function test_a_cached_form_shows_an_addon_made_required_in_the_same_second(): void
+	{
+		\MHMRentiva\Admin\Addons\AddonManager::register_form_cache_invalidation();
+		wp_set_current_user(0);
+		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true');
+		$addon = $this->addon('Mandatory insurance', '150', false);
+
+		$before = do_shortcode('[rentiva_booking_form vehicle_id="' . $this->vehicle_id . '"]');
+		$this->assertStringNotContainsString('rv-addon-item--required', $before, 'Fixture: nothing is required yet.');
+
+		update_post_meta($addon, 'mhmrentiva_addon_required', '1');
+		$after = do_shortcode('[rentiva_booking_form vehicle_id="' . $this->vehicle_id . '"]');
+
+		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true');
+		$this->assertStringContainsString('rv-addon-item--required', $after, 'The cached form must not hide the now-required add-on.');
+	}
+
 	public function test_a_switched_off_required_addon_does_not_block_booking(): void
 	{
 		$required = $this->addon('Retired insurance', '150', true);
