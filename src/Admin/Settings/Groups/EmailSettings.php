@@ -355,6 +355,69 @@ final class EmailSettings {
 	public static function get_test_address(): string {
 		return (string) SettingsCore::get( 'mhmrentiva_email_test_address', get_option( 'admin_email' ) );
 	}
+
+	/**
+	 * Admin-recipient kind => the option its "Admin Email" field on the
+	 * email-templates screen writes (EmailTemplates::save_booking_notifications()
+	 * / save_refund_emails(); a standalone option, not inside mhmrentiva_settings).
+	 */
+	private const ADMIN_RECIPIENT_OPTIONS = array(
+		'booking' => 'mhmrentiva_booking_admin_to',
+		'refund'  => 'mhmrentiva_refund_admin_to',
+	);
+
+	/**
+	 * The address an administrator-bound e-mail of this kind goes to.
+	 *
+	 * 'booking' and 'refund' read the matching "Admin Email" field; the field
+	 * is a single-address input (type="email", saved through sanitize_email()),
+	 * so one address is accepted, not a list. A never-saved, cleared or invalid
+	 * field -- and any other kind -- resolves to the site's admin_email, which
+	 * is where every admin e-mail went before these fields were read.
+	 *
+	 * Test mode is not applied here: Mailer::deliver() redirects every send it
+	 * makes, this one included. A send that calls wp_mail() itself takes
+	 * admin_delivery_address() instead.
+	 *
+	 * @param string $kind 'booking' or 'refund'.
+	 */
+	public static function admin_recipient( string $kind ): string {
+		$fallback = (string) get_option( 'admin_email' );
+		$option   = self::ADMIN_RECIPIENT_OPTIONS[ $kind ] ?? null;
+		if ( null === $option ) {
+			return $fallback;
+		}
+
+		$configured = trim( (string) get_option( $option, '' ) );
+
+		return ( '' !== $configured && is_email( $configured ) ) ? $configured : $fallback;
+	}
+
+	/**
+	 * The address a mail actually goes to once test mode is applied.
+	 *
+	 * "Production Sandbox (Test Mode)": redirect all outgoing mails to the test
+	 * address. The one place that rule lives -- Mailer::deliver() and every
+	 * send that calls wp_mail() itself go through it.
+	 *
+	 * @param string $to The intended recipient.
+	 */
+	public static function sandbox_recipient( string $to ): string {
+		return self::is_test_mode() ? self::get_test_address() : $to;
+	}
+
+	/**
+	 * The administrator address of this kind, with test mode applied.
+	 *
+	 * The result of admin_recipient() run through sandbox_recipient(), for an
+	 * administrator alert sent with wp_mail() directly rather than through
+	 * Mailer::send().
+	 *
+	 * @param string $kind 'booking' or 'refund'.
+	 */
+	public static function admin_delivery_address( string $kind ): string {
+		return self::sandbox_recipient( self::admin_recipient( $kind ) );
+	}
 	public static function get_template_path(): string {
 		return (string) SettingsCore::get( 'mhmrentiva_email_template_path', 'mhm-rentiva/emails/' );
 	}

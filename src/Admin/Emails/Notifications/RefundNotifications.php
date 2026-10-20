@@ -81,7 +81,7 @@ final class RefundNotifications {
 		$customer = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( $booking_id );
 		$email    = (string) ( $customer['email'] ?? '' );
 		$name     = trim( (string) ( $customer['first_name'] ?? '' ) . ' ' . (string) ( $customer['last_name'] ?? '' ) );
-		$admin    = get_option( 'admin_email' );
+		$admin    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::admin_recipient( 'refund' );
 
 		// The refund carries its own currency code, which may differ from the store
 		// default; the placement still comes from the one house rule. The old

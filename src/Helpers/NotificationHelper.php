@@ -9,6 +9,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 
 
@@ -73,7 +74,7 @@ class NotificationHelper {
 	 */
 	public static function send_refund_needs_review_email(int $booking_id): bool
 	{
-		$admin_email = get_option('admin_email');
+		$admin_email = EmailSettings::admin_delivery_address('refund');
 		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
 			return false;
 		}
@@ -165,7 +166,7 @@ class NotificationHelper {
 	 */
 	public static function send_refund_failed_email(int $booking_id): bool
 	{
-		$admin_email = get_option('admin_email');
+		$admin_email = EmailSettings::admin_delivery_address('refund');
 		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
 			return false;
 		}
@@ -251,7 +252,7 @@ class NotificationHelper {
 	 */
 	public static function send_order_cancelled_on_live_booking_email(int $booking_id, int $order_id): bool
 	{
-		$admin_email = get_option('admin_email');
+		$admin_email = EmailSettings::admin_delivery_address('booking');
 		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
 			return false;
 		}
@@ -303,7 +304,7 @@ class NotificationHelper {
 	 */
 	public static function send_refund_mixed_currency_review_email(int $booking_id): bool
 	{
-		$admin_email = get_option('admin_email');
+		$admin_email = EmailSettings::admin_delivery_address('refund');
 		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
 			return false;
 		}
