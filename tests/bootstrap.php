@@ -175,11 +175,39 @@ tests_add_filter('muplugins_loaded', static function () {
 		$obj               = new \stdClass();
 		$obj->last_checked = time();
 		$obj->updates      = array();
+		// wp_version_check() discards a transient whose version_checked is not
+		// the running version, so without this the guard above never held.
+		$obj->version_checked = wp_get_wp_version();
 		return $obj;
 	};
 	add_filter('pre_site_transient_update_core',    $fresh, 1);
 	add_filter('pre_site_transient_update_plugins', $fresh, 1);
 	add_filter('pre_site_transient_update_themes',  $fresh, 1);
+
+	// Backstop: the plugin and theme checks also run when their "checked" lists
+	// differ from what is installed. Answer every api.wordpress.org request
+	// locally with an empty 200, so no check reaches the network or warns.
+	add_filter(
+		'pre_http_request',
+		static function ($preempt, $args, $url) {
+			if (false !== $preempt || 'api.wordpress.org' !== wp_parse_url((string) $url, PHP_URL_HOST)) {
+				return $preempt;
+			}
+
+			return array(
+				'headers'  => array( 'x-mhmrentiva-test' => 'mhmrentiva-test-offline' ),
+				'body'     => '{}',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		},
+		1,
+		3
+	);
 }, 5);
 
 /**
