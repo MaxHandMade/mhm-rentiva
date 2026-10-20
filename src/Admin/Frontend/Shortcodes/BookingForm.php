@@ -339,8 +339,11 @@ final class BookingForm extends AbstractShortcode {
 	 * independent reads of one setting would be correct today and a silent
 	 * mismatch the first time either moved -- the sentence saying "day" while
 	 * the browser prints 7.
+	 *
+	 * Public because the search surfaces (SearchResults, UnifiedSearch) enforce
+	 * the same minimum and must read it from the same key the Vehicle tab writes.
 	 */
-	private static function min_rental_days(): int
+	public static function min_rental_days(): int
 	{
 		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
 	}

@@ -287,7 +287,7 @@ final class EmailSettings {
 			self::SECTION_ID
 		);
 
-		SettingsHelper::url_field( $page_slug, 'mhmrentiva_email_header_image', __( 'Header Image (Logo URL)', 'mhm-rentiva' ), self::SECTION_ID );
+		SettingsHelper::url_field( $page_slug, 'mhmrentiva_email_header_image', __( 'Header Image (Logo URL)', 'mhm-rentiva' ), '', self::SECTION_ID );
 		SettingsHelper::textarea_field( $page_slug, 'mhmrentiva_email_footer_text', __( 'Footer Text', 'mhm-rentiva' ), 3, '', self::SECTION_ID );
 
 		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_email_send_enabled', __( 'Enable Outgoing Emails', 'mhm-rentiva' ), __( 'Allow system to send automated transaction emails.', 'mhm-rentiva' ), self::SECTION_ID );

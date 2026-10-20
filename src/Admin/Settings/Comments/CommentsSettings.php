@@ -180,6 +180,7 @@ final class CommentsSettings {
 				'comments_limits'          => 'limits',
 				'comments_spam_protection' => 'spam_protection',
 				'comments_display'         => 'display',
+				'comments_notifications'   => 'notifications',
 				'comments_cache'           => 'cache',
 			);
 

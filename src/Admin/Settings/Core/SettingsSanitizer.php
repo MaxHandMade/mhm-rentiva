@@ -438,7 +438,33 @@ final class SettingsSanitizer {
 			$out['mhmrentiva_vehicle_detail_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $input['mhmrentiva_vehicle_detail_fields'] );
 		}
 
+		// The Default Rental Location select is drawn only while a location
+		// provider (the add-on) answers `mhmrentiva_locations`. Same presence rule
+		// as the field selections above: a save from a form without the select
+		// keeps the stored value instead of wiping it.
+		if ( array_key_exists( 'mhmrentiva_default_rental_location', $input ) ) {
+			$out['mhmrentiva_default_rental_location'] = self::sanitize_rental_location( $input['mhmrentiva_default_rental_location'] );
+		}
+
 		return $out;
+	}
+
+	/**
+	 * A location id the provider knows, or '' ("Default (None)").
+	 *
+	 * Asked through the same `mhmrentiva_location_by_id` filter every other
+	 * location lookup uses, so a forged or since-deleted id is not stored as the
+	 * fallback QueryHelper and BookingUrl send every location-less vehicle to.
+	 *
+	 * @param mixed $value Posted select value.
+	 * @return int|string
+	 */
+	private static function sanitize_rental_location( mixed $value ): int|string {
+		$id = \is_scalar( $value ) ? \absint( $value ) : 0;
+		if ( $id > 0 && null !== \apply_filters( 'mhmrentiva_location_by_id', null, $id ) ) {
+			return $id;
+		}
+		return '';
 	}
 
 	private static function sanitize_vehicle_pricing_settings( array $input, array $defaults ): array {

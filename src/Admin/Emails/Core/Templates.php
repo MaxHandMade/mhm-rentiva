@@ -455,6 +455,9 @@ final class Templates {
 			case 'auto_cancel':
 				$opt = 'mhmrentiva_auto_cancel_email_subject';
 				break;
+			case 'booking_cancelled':
+				$opt = 'mhmrentiva_booking_cancelled_subject';
+				break;
 			default:
 				$opt = '';
 		}

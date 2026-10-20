@@ -174,7 +174,7 @@ final class ContactForm extends AbstractShortcode {
 			'current_user'    => wp_get_current_user(),
 			'support_phone'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_phone', '+90 555 555 55 55'),
 			'support_hours'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
-			'support_email'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_support_email', get_option('admin_email')),
+			'support_email'   => self::support_email(),
 		);
 	}
 
@@ -293,6 +293,25 @@ final class ContactForm extends AbstractShortcode {
 		);
 	}
 
+	/**
+	 * The General tab's Support Email: shown in the contact box and the
+	 * recipient of "support" messages, so both read it from one place.
+	 *
+	 * The General tab writes it into the settings array. Before 4.5.3 the field
+	 * was a standalone option, which the 6.0.0 prefix migration renamed to
+	 * `mhmrentiva_support_email` (PrefixMigrationMap) -- that row is used only
+	 * while the settings array has never held the key.
+	 */
+	private static function support_email(): string
+	{
+		$key   = 'mhmrentiva_support_email';
+		$email = \MHMRentiva\Admin\Settings\Core\SettingsCore::has($key)
+			? (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get($key, '')
+			: (string) get_option($key, '');
+
+		return is_email($email) ? $email : (string) get_option('admin_email');
+	}
+
 	private static function get_email_recipients(string $type, string $custom_email = ''): array
 	{
 		if (! empty($custom_email)) {
@@ -302,7 +321,7 @@ final class ContactForm extends AbstractShortcode {
 		$default_emails = array(
 			'general'  => get_option('admin_email'),
 			'booking'  => get_option('mhmrentiva_booking_email', get_option('admin_email')),
-			'support'  => get_option('mhmrentiva_support_email', get_option('admin_email')),
+			'support'  => self::support_email(),
 			'feedback' => get_option('mhmrentiva_feedback_email', get_option('admin_email')),
 		);
 
