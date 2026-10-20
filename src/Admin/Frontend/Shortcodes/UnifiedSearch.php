@@ -99,7 +99,9 @@ final class UnifiedSearch extends AbstractShortcode {
 				&& self::resolve_bool($atts['show_location_select'], 'mhmrentiva_enable_location_select', true),
 			'show_time_select'      => self::resolve_bool($atts['show_time_select'], 'mhmrentiva_enable_time_select', true),
 			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhmrentiva_enable_date_picker', true),
-			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhmrentiva_enable_dropoff', true),
+			// Off unless a page asks for it: no booking, price or record reads a
+			// drop-off location yet, so the field would promise what nothing does.
+			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhmrentiva_enable_dropoff', false),
 			'location_required'     => self::resolve_bool($atts['location_required'], 'mhmrentiva_location_required', true),
 			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true),
 
