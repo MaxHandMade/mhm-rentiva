@@ -1,7 +1,7 @@
 [
   {
     "version": "6.3.0",
-    "date": "2026-10-20",
+    "date": "2026-10-24",
     "type": "minor",
     "title": "Site geneli kiralama kaporası, güvenli editör önizlemeleri, uygulanan e-posta ayarları ve sunucunun denetlediği rezervasyon akışı",
     "summary": "6.3.0, 6.2.1'den bu yana yapılan çalışmayı bir araya getiriyor. Kiralamalar Ayarlar > Ödeme altında site geneli bir kapora ayarı kazandı ve her fiyat ekranı aynı oranı okuyor. Yalnız transfer için ayarlanmış araç artık kiralanamıyor. Elementor ve blok editöründe Rentiva bileşenleri güvenli önizleme çiziyor: hesap bileşenleri sizin rezervasyon ve ödemelerinizi asla göstermiyor, formlar gönderilemiyor. Rezervasyon formu, eskiden tarayıcıdan aldığı dönüş saatini, zorunlu ek hizmetleri ve ödeme türünü artık sunucuda denetliyor. Yönetici düzenlemeleri rezervasyonun fiyatını koruyor ve müsaitliğe uyuyor. Kaydedilip yok sayılan e-posta ayarları artık uygulanıyor: işareti kaldırılan şablon gönderilmiyor, \"Yönetici e-postası\" alanları kullanılıyor, müşteri site dilinde tek bir iptal e-postası alıyor. Sepet, müşterinin rezervasyon sayfası, puan özeti ve karşılaştırma tablosu doğru bilgi gösteriyor; Türkçe ekranlardaki birçok İngilizce kalıntı çevrildi. Güncellemede veritabanı adımı çalışmıyor. Rentiva Pro kullananlar: bu sürümden sonra Pro'yu 6.4.0'a güncelleyin.",

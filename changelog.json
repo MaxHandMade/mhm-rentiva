@@ -1,7 +1,7 @@
 [
   {
     "version": "6.3.0",
-    "date": "2026-10-20",
+    "date": "2026-10-24",
     "type": "minor",
     "title": "A site-wide rental deposit, safe editor previews, e-mail settings that are honoured, and a booking flow the server checks",
     "summary": "6.3.0 gathers the work since 6.2.1. Rentals get a site-wide deposit setting under Settings > Payment, and every price screen reads the same rate. A vehicle set to transfer only can no longer be rented. In the Elementor and block editors, Rentiva widgets render safe previews: account widgets never show your own bookings or payments, and forms cannot be submitted. The booking form now checks on the server what it used to take from the browser: the return time, required add-ons and the payment type. Admin edits keep the booking's price and respect availability. E-mail settings that were saved but ignored now apply. An unticked template is not sent, \"Admin Email\" fields are used, and customers get one cancellation e-mail in the site language. The cart, the customer's booking page, the rating summary and the comparison table show correct information. Many English leftovers in Turkish screens are translated. No database step runs on update. Rentiva Pro users: update Pro to 6.4.0 after this release.",
