@@ -37,7 +37,7 @@ $show_rental_tab       = $show_rental_tab ?? true;
 $show_location_select  = $show_location_select ?? true;
 $show_time_select      = $show_time_select ?? true;
 $show_date_picker      = $show_date_picker ?? true;
-$show_dropoff_location = $show_dropoff_location ?? true;
+$show_dropoff_location = $show_dropoff_location ?? false;
 $fields_required       = $fields_required ?? true;
 // When fields_required is false, no field should be required — override location_required too.
 $location_required = $fields_required ? ( $location_required ?? true ) : false;
