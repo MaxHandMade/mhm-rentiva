@@ -79,7 +79,13 @@ final class EmailAjaxHandler {
 				}
 			);
 		} catch ( \Throwable $e ) {
-			$error = 'Connection error: ' . $e->getMessage();
+			// The template threw while rendering; nothing failed to connect.
+			// In the operator's language: this is admin UI, not the e-mail.
+			$error = sprintf(
+				/* translators: %s: the error message the template rendering raised. */
+				__( 'Could not render the preview: %s', 'mhm-rentiva' ),
+				$e->getMessage()
+			);
 		}
 
 		if ( null !== $error ) {

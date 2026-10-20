@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T13:03:13+00:00\n"
+"POT-Creation-Date: 2026-10-20T13:45:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -696,9 +696,9 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:635
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:127
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:133
 #: src/Admin/Emails/Core/EmailTemplates.php:182
-#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
+#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:34
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
 #: src/Admin/Frontend/Account/AccountController.php:677
 #: src/Admin/Frontend/Account/AccountController.php:813
@@ -2847,7 +2847,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1744
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
-#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:27
+#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
 #: src/Admin/Emails/Settings/EmailTestAction.php:26
 msgid "You do not have permission to perform this action."
 msgstr ""
@@ -2903,7 +2903,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:527
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:640
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:131
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:137
 msgid "Permission denied."
 msgstr ""
 
@@ -5938,16 +5938,22 @@ msgstr ""
 msgid "ids must be a non-empty array."
 msgstr ""
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:146
+#. translators: %s: the error message the template rendering raised.
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:86
+#, php-format
+msgid "Could not render the preview: %s"
+msgstr ""
+
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:152
 msgid "Missing parameters."
 msgstr ""
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:172
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:178
 #: src/Admin/Emails/Core/EmailTemplates.php:560
 msgid "Test email sent successfully!"
 msgstr ""
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:175
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:181
 msgid "Failed to send test email. Check server logs."
 msgstr ""
 

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-20T12:24:55+00:00\n"
+"POT-Creation-Date: 2026-10-20T13:45:31+00:00\n"
 "PO-Revision-Date: 2026-10-12 16:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -579,7 +579,7 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
 #: src/Admin/Core/AssetManager.php:907 src/Admin/Core/AssetManager.php:1396
-#: src/Admin/Emails/Core/EmailTemplates.php:546
+#: src/Admin/Emails/Core/EmailTemplates.php:562
 #: src/Admin/Frontend/Account/AccountController.php:282
 #: src/Admin/Frontend/Account/AccountController.php:337
 #: templates/shortcodes/booking-form.php:480
@@ -589,7 +589,7 @@ msgstr "İşleniyor..."
 #: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:282
 #: src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1072
 #: src/Admin/Core/AssetManager.php:1118
-#: src/Admin/Emails/Core/EmailTemplates.php:547
+#: src/Admin/Emails/Core/EmailTemplates.php:563
 #: src/Admin/Frontend/Account/AccountController.php:316
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen yeniden deneyin."
@@ -684,9 +684,9 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:635
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:127
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:133
 #: src/Admin/Emails/Core/EmailTemplates.php:182
-#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
+#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:34
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
 #: src/Admin/Frontend/Account/AccountController.php:677
 #: src/Admin/Frontend/Account/AccountController.php:813
@@ -1288,7 +1288,7 @@ msgstr "Bekleyen ödeme"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
 #: src/Admin/Booking/Meta/BookingMeta.php:1466
 #: src/Admin/Core/AssetManager.php:924
-#: src/Admin/Emails/Core/EmailTemplates.php:488
+#: src/Admin/Emails/Core/EmailTemplates.php:504
 #: src/Admin/Emails/Notifications/BookingNotifications.php:207
 #: src/Admin/Frontend/Account/AccountRenderer.php:928
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:338
@@ -1309,7 +1309,7 @@ msgstr "Bekleyen"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
 #: src/Admin/Booking/Meta/BookingMeta.php:1467
 #: src/Admin/Core/AssetManager.php:925
-#: src/Admin/Emails/Core/EmailTemplates.php:489
+#: src/Admin/Emails/Core/EmailTemplates.php:505
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1016
@@ -2747,7 +2747,7 @@ msgid "Custom Message"
 msgstr "Özel ileti"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:717
-#: src/Admin/Emails/Core/EmailTemplates.php:554
+#: src/Admin/Emails/Core/EmailTemplates.php:570
 #: src/Admin/Emails/Templates/EmailPreview.php:119
 msgid "Subject:"
 msgstr "Konu:"
@@ -2976,7 +2976,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1744
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
-#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:27
+#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
 #: src/Admin/Emails/Settings/EmailTestAction.php:26
 msgid "You do not have permission to perform this action."
 msgstr "Bu eylemi gerçekleştirmek için izniniz yok."
@@ -3036,7 +3036,7 @@ msgstr "Müşteri hesabı oluştur"
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:527
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:640
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:131
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:137
 msgid "Permission denied."
 msgstr "İzin verilmedi."
 
@@ -3761,7 +3761,7 @@ msgid "Yes"
 msgstr "Evet"
 
 #: src/Admin/Core/AssetManager.php:900 src/Admin/Core/AssetManager.php:1368
-#: src/Admin/Emails/Core/EmailTemplates.php:555
+#: src/Admin/Emails/Core/EmailTemplates.php:571
 #: src/Admin/Frontend/Account/AccountController.php:402
 #: src/Admin/Frontend/Account/AccountRenderer.php:435
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
@@ -3796,7 +3796,7 @@ msgstr "Emin misiniz?"
 #: src/Admin/Core/AssetManager.php:1375
 #: src/Admin/Customers/AddCustomerPage.php:167
 #: src/Admin/Customers/CustomersPage.php:577
-#: src/Admin/Emails/Core/EmailTemplates.php:551
+#: src/Admin/Emails/Core/EmailTemplates.php:567
 #: templates/account/account-details.php:189
 #: src-react/admin/contact-messages/components/ContactBulkBar.jsx:20
 #: src-react/admin/contact-messages/ContactMessageDetail.jsx:183
@@ -3807,7 +3807,7 @@ msgstr "İptal"
 
 #: src/Admin/Core/AssetManager.php:905 src/Admin/Core/AssetManager.php:1212
 #: src/Admin/Core/AssetManager.php:1377
-#: src/Admin/Emails/Core/EmailTemplates.php:558
+#: src/Admin/Emails/Core/EmailTemplates.php:574
 msgid "Save"
 msgstr "Kaydet"
 
@@ -6157,16 +6157,22 @@ msgstr "Müşterileri silme izniniz yok."
 msgid "ids must be a non-empty array."
 msgstr "ids boş olmayan bir dizilim olmalıdır."
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:146
+#. translators: %s: the error message the template rendering raised.
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:86
+#, php-format
+msgid "Could not render the preview: %s"
+msgstr "Ön izleme oluşturulamadı: %s"
+
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:152
 msgid "Missing parameters."
 msgstr "Eksik parametreler."
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:172
-#: src/Admin/Emails/Core/EmailTemplates.php:544
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:178
+#: src/Admin/Emails/Core/EmailTemplates.php:560
 msgid "Test email sent successfully!"
 msgstr "Test e-postası başarıyla gönderildi!"
 
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:175
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:181
 msgid "Failed to send test email. Check server logs."
 msgstr "Test e-postası gönderilemedi. Sunucu günlüklerini kontrol edin."
 
@@ -6203,33 +6209,33 @@ msgid "Refund Emails"
 msgstr "İade e-postaları"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:308
-#: src/Admin/Emails/Core/EmailTemplates.php:542
+#: src/Admin/Emails/Core/EmailTemplates.php:558
 #: src/Admin/Emails/Templates/EmailPreview.php:28
 msgid "Email Preview"
 msgstr "E-posta ön izleme"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:447
+#: src/Admin/Emails/Core/EmailTemplates.php:463
 msgid "Mock Booking #9999"
 msgstr "Örnek rezervasyon #9999"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:448
+#: src/Admin/Emails/Core/EmailTemplates.php:464
 msgid "confirmed"
 msgstr "onaylandı"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:454
-#: src/Admin/Emails/Core/EmailTemplates.php:463
+#: src/Admin/Emails/Core/EmailTemplates.php:470
+#: src/Admin/Emails/Core/EmailTemplates.php:479
 msgid "pending"
 msgstr "bekliyor"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:462
+#: src/Admin/Emails/Core/EmailTemplates.php:478
 msgid "credit_card"
 msgstr "kredi kartı"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:480
+#: src/Admin/Emails/Core/EmailTemplates.php:496
 msgid "Example Message Subject"
 msgstr "Örnek ileti konusu"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:481
+#: src/Admin/Emails/Core/EmailTemplates.php:497
 msgid ""
 "This is a sample message content for preview purposes. It demonstrates how "
 "long text will appear in the email body."
@@ -6237,53 +6243,53 @@ msgstr ""
 "Bu, ön izleme amacıyla kullanılan örnek bir ileti içeriğidir. E-posta "
 "gövdesinde uzun metnin nasıl görüneceğini gösterir."
 
-#: src/Admin/Emails/Core/EmailTemplates.php:482
+#: src/Admin/Emails/Core/EmailTemplates.php:498
 msgid "This is a sample reply content from the administrator."
 msgstr "Bu, yöneticiden gelen örnek bir yanıt içeriğidir."
 
-#: src/Admin/Emails/Core/EmailTemplates.php:543
+#: src/Admin/Emails/Core/EmailTemplates.php:559
 msgid "Send Test"
 msgstr "Test gönder"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:545
+#: src/Admin/Emails/Core/EmailTemplates.php:561
 msgid "Test email could not be sent."
 msgstr "Test e-postası gönderilemedi."
 
-#: src/Admin/Emails/Core/EmailTemplates.php:549
+#: src/Admin/Emails/Core/EmailTemplates.php:565
 #: src/Admin/Emails/Templates/EmailPreview.php:57
 #: src/Admin/Setup/SetupWizard.php:486
 msgid "Send Test Email"
 msgstr "Test e-postası gönder"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:550
+#: src/Admin/Emails/Core/EmailTemplates.php:566
 #: templates/account/account-details.php:94
 msgid "Email Address"
 msgstr "E-posta adresi"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:552
+#: src/Admin/Emails/Core/EmailTemplates.php:568
 msgid "Please enter email address"
 msgstr "Lütfen e-posta adresi girin"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:553
+#: src/Admin/Emails/Core/EmailTemplates.php:569
 msgid "Edit Template"
 msgstr "Şablonu düzenle"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:556
+#: src/Admin/Emails/Core/EmailTemplates.php:572
 #: src/Admin/Emails/Templates/EmailPreview.php:58
 msgid "Preview"
 msgstr "Ön izleme"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:557
+#: src/Admin/Emails/Core/EmailTemplates.php:573
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:38
 msgid "Content"
 msgstr "İçerik"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:559
+#: src/Admin/Emails/Core/EmailTemplates.php:575
 msgid "Template saved successfully!"
 msgstr "Şablon başarıyla kaydedildi!"
 
-#: src/Admin/Emails/Core/EmailTemplates.php:560
+#: src/Admin/Emails/Core/EmailTemplates.php:576
 msgid "Template reset to default!"
 msgstr "Şablon varsayılan ayarlara sıfırlandı!"
 
