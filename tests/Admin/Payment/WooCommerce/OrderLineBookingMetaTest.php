@@ -378,4 +378,27 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 
 		$this->assertContains('Insurance', $this->keys($rows), wp_json_encode($rows));
 	}
+
+	/**
+	 * @dataProvider underscore_only_names
+	 */
+	public function test_an_add_on_named_only_with_underscores_stays_visible(string $title): void
+	{
+		$addon = $this->addon($title, 25.0, 'per_booking');
+
+		$rows = $this->order_rows($this->rental_data(array( 'selected_addons' => array( $addon ) )));
+
+		$this->assertContains('Add-ons', $this->keys($rows), wp_json_encode($rows));
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function underscore_only_names(): array
+	{
+		return array(
+			'underscores'            => array( '___' ),
+			'underscores and spaces' => array( '_ _' ),
+		);
+	}
 }

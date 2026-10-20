@@ -2293,7 +2293,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	{
 		$visible = ltrim($label, '_ ');
 
-		return '' !== $visible ? $visible : $label;
+		// Nothing but "_" left nothing to show: name the row as the add-ons it is.
+		return '' !== $visible ? $visible : __('Add-ons', 'mhm-rentiva');
 	}
 
 	private static function rental_refusal_notice(int $vehicle_id): string
