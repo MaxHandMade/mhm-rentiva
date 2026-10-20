@@ -50,6 +50,21 @@ describe( 'booking form money formatting', () => {
 		expect( form.formatMoney( 1234567 ) ).toBe( '$1.234.567' );
 	} );
 
+	test( 'a separator with replacement-pattern characters is used literally', () => {
+		// WooCommerce takes the separator from a free text field.
+		expect( load( trConfig( { thousand_separator: '$&' } ) ).formatMoney( 1234567 ) ).toBe( '$1$&234$&567' );
+	} );
+
+	test( 'negative and huge amounts round and sign like WooCommerce', () => {
+		const form = load( trConfig() );
+
+		// number_format() rounds half away from zero; wc_price() puts the sign
+		// before the symbol.
+		expect( form.formatMoney( -1234.5 ) ).toBe( '-$1.235' );
+		expect( form.formatMoney( -0.5 ) ).toBe( '-$1' );
+		expect( form.formatMoney( 1e21 ) ).toBe( '$1.000.000.000.000.000.000.000' );
+	} );
+
 	test( 'a right-placed symbol from config', () => {
 		const form = load( trConfig( { currency_symbol: '₺', currency_position: 'right_space' } ) );
 

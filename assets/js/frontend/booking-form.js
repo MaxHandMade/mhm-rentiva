@@ -1417,34 +1417,47 @@
         // grouped with WooCommerce's thousand separator. Without one, the
         // site's JS locale groups instead.
         formatPrice(price) {
+            const value = Number(price || 0);
+            const sign = value < 0 ? '-' : '';
+
+            return sign + this.formatAmount(Math.abs(value));
+        }
+
+        // A non-negative amount in whole units. Rounds half away from zero, like
+        // PHP's number_format(), and never falls into exponent notation.
+        formatAmount(amount) {
+            const whole = Math.round(amount).toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 0 });
             const thousandSep = this.getConfig('thousand_separator');
             if (typeof thousandSep === 'string') {
-                const fixed = Math.round(Number(price || 0));
-                const sign = fixed < 0 ? '-' : '';
-                return sign + String(Math.abs(fixed)).replace(/\B(?=(\d{3})+(?!\d))/g, thousandSep);
+                // A function, not a string: the separator comes from a free WC
+                // text field and must not be read as a replacement pattern.
+                return whole.replace(/\B(?=(\d{3})+(?!\d))/g, () => thousandSep);
             }
 
             return new Intl.NumberFormat(this.getConfig('locale') || 'en-US', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-            }).format(Number(price || 0));
+            }).format(Math.round(amount));
         }
 
         formatMoney(price, symbolOverride = null) {
-            const amount = this.formatPrice(price);
+            const value = Number(price || 0);
+            // wc_price() puts the minus sign before the symbol.
+            const sign = value < 0 ? '-' : '';
+            const amount = this.formatAmount(Math.abs(value));
             const symbol = symbolOverride || this.getConfig('currency_symbol') || '';
             const position = this.getConfig('currency_position') || 'right_space';
 
             switch (position) {
                 case 'left':
-                    return `${symbol}${amount}`;
+                    return `${sign}${symbol}${amount}`;
                 case 'left_space':
-                    return `${symbol} ${amount}`;
+                    return `${sign}${symbol} ${amount}`;
                 case 'right':
-                    return `${amount}${symbol}`;
+                    return `${sign}${amount}${symbol}`;
                 case 'right_space':
                 default:
-                    return `${amount} ${symbol}`;
+                    return `${sign}${amount} ${symbol}`;
             }
         }
 

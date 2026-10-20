@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -16,6 +17,15 @@ use WP_UnitTestCase;
  */
 final class BookingFormCurrencyConfigTest extends WP_UnitTestCase
 {
+    use WooCommerceOptionSandbox;
+
+    public function tearDown(): void
+    {
+        // Store settings are restored explicitly: a rollback is not relied on.
+        $this->restore_sandboxed_options();
+        parent::tearDown();
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -49,16 +59,16 @@ final class BookingFormCurrencyConfigTest extends WP_UnitTestCase
             $this->markTestSkipped('WooCommerce owns the separators only when it is active.');
         }
 
-        update_option('woocommerce_price_thousand_sep', '.');
-        update_option('woocommerce_price_decimal_sep', ',');
+        $this->sandbox_option('woocommerce_price_thousand_sep', '.');
+        $this->sandbox_option('woocommerce_price_decimal_sep', ',');
 
         $config = $this->js_config();
 
         $this->assertSame('.', $config['thousand_separator']);
         $this->assertSame(',', $config['decimal_separator']);
 
-        update_option('woocommerce_price_thousand_sep', ' ');
-        update_option('woocommerce_price_decimal_sep', '.');
+        $this->sandbox_option('woocommerce_price_thousand_sep', ' ');
+        $this->sandbox_option('woocommerce_price_decimal_sep', '.');
 
         $config = $this->js_config();
 
