@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-10-20T00:01:25+00:00\n"
+"POT-Creation-Date: 2026-10-20T01:00:07+00:00\n"
 "PO-Revision-Date: 2026-10-12 16:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -552,23 +552,23 @@ msgstr "Karakter kümesi"
 msgid "Collate"
 msgstr "Karşılaştırma düzeni"
 
-#: src/Admin/Addons/AddonListTable.php:77 src/Admin/Addons/AddonManager.php:275
+#: src/Admin/Addons/AddonListTable.php:77 src/Admin/Addons/AddonManager.php:276
 msgid "No items selected."
 msgstr "Henüz bir öge seçilmemiş."
 
-#: src/Admin/Addons/AddonListTable.php:78 src/Admin/Addons/AddonManager.php:276
+#: src/Admin/Addons/AddonListTable.php:78 src/Admin/Addons/AddonManager.php:277
 msgid "items selected"
 msgstr "öge seçildi"
 
-#: src/Admin/Addons/AddonListTable.php:79 src/Admin/Addons/AddonManager.php:277
+#: src/Admin/Addons/AddonListTable.php:79 src/Admin/Addons/AddonManager.php:278
 msgid "Are you sure you want to enable selected additional services?"
 msgstr "Seçilen ek hizmetleri etkinleştirmek istediğinize emin misiniz?"
 
-#: src/Admin/Addons/AddonListTable.php:80 src/Admin/Addons/AddonManager.php:278
+#: src/Admin/Addons/AddonListTable.php:80 src/Admin/Addons/AddonManager.php:279
 msgid "Are you sure you want to disable selected additional services?"
 msgstr "Seçilen ek hizmetleri etkisizleştirmek istediğinize emin misiniz?"
 
-#: src/Admin/Addons/AddonListTable.php:81 src/Admin/Addons/AddonManager.php:279
+#: src/Admin/Addons/AddonListTable.php:81 src/Admin/Addons/AddonManager.php:280
 msgid ""
 "Are you sure you want to delete selected additional services? This action "
 "cannot be undone."
@@ -576,7 +576,7 @@ msgstr ""
 "Seçili ek hizmetleri silmek istediğinize emin misiniz? Bu eylem geri "
 "alınamaz."
 
-#: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:280
+#: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
 #: src/Admin/Core/AssetManager.php:907 src/Admin/Core/AssetManager.php:1396
 #: src/Admin/Emails/Core/EmailTemplates.php:532
@@ -586,7 +586,7 @@ msgstr ""
 msgid "Processing..."
 msgstr "İşleniyor..."
 
-#: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:281
+#: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:282
 #: src/Admin/Addons/AddonScreen.php:112 src/Admin/Core/AssetManager.php:1072
 #: src/Admin/Core/AssetManager.php:1118
 #: src/Admin/Emails/Core/EmailTemplates.php:533
@@ -594,15 +594,15 @@ msgstr "İşleniyor..."
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen yeniden deneyin."
 
-#: src/Admin/Addons/AddonListTable.php:86 src/Admin/Addons/AddonManager.php:284
+#: src/Admin/Addons/AddonListTable.php:86 src/Admin/Addons/AddonManager.php:285
 msgid "Invalid price value!"
 msgstr "Geçersiz fiyat değeri!"
 
-#: src/Admin/Addons/AddonListTable.php:87 src/Admin/Addons/AddonManager.php:285
+#: src/Admin/Addons/AddonListTable.php:87 src/Admin/Addons/AddonManager.php:286
 msgid "Error updating price"
 msgstr "Fiyat güncellenirken hata oluştu"
 
-#: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:286
+#: src/Admin/Addons/AddonListTable.php:88 src/Admin/Addons/AddonManager.php:287
 #: src/Admin/Booking/Meta/BookingMeta.php:192
 #: src/Admin/Frontend/Account/AccountController.php:291
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:289
@@ -644,7 +644,7 @@ msgstr "Toplam değer"
 msgid "All prices"
 msgstr "Tüm fiyatlar"
 
-#: src/Admin/Addons/AddonManager.php:154 src/Admin/Addons/AddonMeta.php:75
+#: src/Admin/Addons/AddonManager.php:155 src/Admin/Addons/AddonMeta.php:75
 #: src/Admin/Addons/AddonScreen.php:689
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:313
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:91
@@ -657,18 +657,18 @@ msgstr "Tüm fiyatlar"
 msgid "Price"
 msgstr "Fiyat"
 
-#: src/Admin/Addons/AddonManager.php:213 src/Admin/Addons/AddonMeta.php:86
+#: src/Admin/Addons/AddonManager.php:214 src/Admin/Addons/AddonMeta.php:86
 msgid "Pricing Type"
 msgstr "Fiyatlandırma türü"
 
 #. translators: %s: additional service title
-#: src/Admin/Addons/AddonManager.php:430
+#: src/Admin/Addons/AddonManager.php:461
 #, php-format
 msgid "\"%s\" additional service is required."
 msgstr "\"%s\" ek hizmeti gereklidir."
 
-#: src/Admin/Addons/AddonManager.php:633 src/Admin/Addons/AddonManager.php:813
-#: src/Admin/Addons/AddonManager.php:848 src/Admin/Addons/AddonScreen.php:159
+#: src/Admin/Addons/AddonManager.php:664 src/Admin/Addons/AddonManager.php:844
+#: src/Admin/Addons/AddonManager.php:879 src/Admin/Addons/AddonScreen.php:159
 #: src/Admin/Addons/AddonScreen.php:191 src/Admin/Addons/AddonScreen.php:235
 #: src/Admin/Addons/AddonScreen.php:272 src/Admin/Addons/AddonScreen.php:332
 #: src/Admin/Addons/AddonScreen.php:372 src/Admin/Addons/AddonScreen.php:471
@@ -704,7 +704,7 @@ msgstr "\"%s\" ek hizmeti gereklidir."
 msgid "Security check failed."
 msgstr "Güvenlik kontrolü başarısız oldu."
 
-#: src/Admin/Addons/AddonManager.php:639 src/Admin/Addons/AddonManager.php:855
+#: src/Admin/Addons/AddonManager.php:670 src/Admin/Addons/AddonManager.php:886
 #: src/Admin/Addons/AddonScreen.php:195 src/Admin/Addons/AddonScreen.php:276
 #: src/Admin/Addons/AddonScreen.php:376 src/Admin/Addons/AddonScreen.php:513
 #: src/Admin/Booking/Actions/BookingActionGuard.php:93
@@ -716,45 +716,45 @@ msgstr "Güvenlik kontrolü başarısız oldu."
 msgid "You do not have permission for this action."
 msgstr "Bu eylem için izniniz yok."
 
-#: src/Admin/Addons/AddonManager.php:646
+#: src/Admin/Addons/AddonManager.php:677
 #: src/Admin/Booking/Addons/AddonBooking.php:135
 msgid "No additional services selected."
 msgstr "Ek hizmet seçilmedi."
 
-#: src/Admin/Addons/AddonManager.php:692
+#: src/Admin/Addons/AddonManager.php:723
 msgid "Invalid action."
 msgstr "Geçersiz eylem."
 
 #. translators: 1: successful process count, 2: failed process count.
-#: src/Admin/Addons/AddonManager.php:707
+#: src/Admin/Addons/AddonManager.php:738
 #, php-format
 msgid "%1$d additional services processed, %2$d additional services failed."
 msgstr "%1$d ek hizmet işlendi, %2$d ek hizmet başarısız oldu."
 
 #. translators: %d: successful process count.
-#: src/Admin/Addons/AddonManager.php:716
+#: src/Admin/Addons/AddonManager.php:747
 #, php-format
 msgid "%d additional services successfully processed."
 msgstr "%d ek hizmet başarıyla işlendi."
 
-#: src/Admin/Addons/AddonManager.php:865
+#: src/Admin/Addons/AddonManager.php:896
 msgid "Invalid additional service ID."
 msgstr "Geçersiz ek hizmet kimliği."
 
-#: src/Admin/Addons/AddonManager.php:872 src/Admin/Addons/AddonScreen.php:389
+#: src/Admin/Addons/AddonManager.php:903 src/Admin/Addons/AddonScreen.php:389
 msgid "Price cannot be negative."
 msgstr "Fiyat negatif olamaz."
 
-#: src/Admin/Addons/AddonManager.php:880 src/Admin/Addons/AddonScreen.php:202
+#: src/Admin/Addons/AddonManager.php:911 src/Admin/Addons/AddonScreen.php:202
 #: src/Admin/Addons/AddonScreen.php:520
 msgid "Additional service not found."
 msgstr "Ek hizmet bulunamadı."
 
-#: src/Admin/Addons/AddonManager.php:895
+#: src/Admin/Addons/AddonManager.php:926
 msgid "Error occurred while updating price."
 msgstr "Fiyatı güncellerken hata oluştu."
 
-#: src/Admin/Addons/AddonManager.php:901
+#: src/Admin/Addons/AddonManager.php:932
 msgid "Price successfully updated."
 msgstr "Fiyat başarıyla güncellendi."
 
@@ -1747,7 +1747,7 @@ msgstr "Bitiş tarihi başlangıç tarihinden sonra olmalıdır."
 
 #. translators: %d: number of days
 #. translators: %d: minimum days
-#: src/Admin/Booking/Helpers/Util.php:136
+#: src/Admin/Booking/Helpers/Util.php:113
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:317
 #, php-format
 msgid "Minimum rental period is %d day."
@@ -1757,7 +1757,7 @@ msgstr[1] "Minimum kiralama süresi %d gündür."
 
 #. translators: %d: number of days
 #. translators: %d: maximum days
-#: src/Admin/Booking/Helpers/Util.php:144
+#: src/Admin/Booking/Helpers/Util.php:121
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:324
 #, php-format
 msgid "Maximum rental period is %d day."
@@ -1765,41 +1765,41 @@ msgid_plural "Maximum rental period is %d days."
 msgstr[0] "Maksimum kiralama süresi %d gündür."
 msgstr[1] "Maksimum kiralama süresi %d gündür."
 
-#: src/Admin/Booking/Helpers/Util.php:509
+#: src/Admin/Booking/Helpers/Util.php:486
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:255
 msgid "Selected vehicle is not available, but we can suggest similar vehicles:"
 msgstr "Seçilen araç müsait değil, ancak benzer araçlar önerebiliriz:"
 
-#: src/Admin/Booking/Helpers/Util.php:518
+#: src/Admin/Booking/Helpers/Util.php:495
 msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 "Üzgünüz, seçilen tarihlerde uygun araç bulunamadı. Lütfen farklı tarihler "
 "deneyin."
 
-#: src/Admin/Booking/Helpers/Util.php:527
+#: src/Admin/Booking/Helpers/Util.php:504
 #: src/Admin/Booking/Meta/BookingMeta.php:1557
 msgid ""
 "This vehicle is not available for rental. Please select another vehicle."
 msgstr "Bu araç kiralanamaz. Lütfen başka bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:540 src/Admin/REST/Availability.php:206
+#: src/Admin/Booking/Helpers/Util.php:517 src/Admin/REST/Availability.php:206
 msgid "Selected vehicle not found. Please select a valid vehicle."
 msgstr "Seçilen araç bulunamadı. Lütfen geçerli bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:562
+#: src/Admin/Booking/Helpers/Util.php:539
 msgid ""
 "This vehicle is currently not available for rental. Please select another "
 "vehicle."
 msgstr "Bu araç şu anda kiralanamaz. Lütfen başka bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:573
+#: src/Admin/Booking/Helpers/Util.php:550
 msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 "Geçersiz tarih seçimi. Lütfen teslim alma ve dönüş tarihlerinizi kontrol "
 "edin."
 
-#: src/Admin/Booking/Helpers/Util.php:595
-#: src/Admin/Booking/Helpers/Util.php:607
+#: src/Admin/Booking/Helpers/Util.php:572
+#: src/Admin/Booking/Helpers/Util.php:584
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1140
 msgid ""
 "This vehicle is already booked for the selected dates. Please choose "
@@ -1808,7 +1808,7 @@ msgstr ""
 "Bu araç seçilen tarihler için zaten rezerve edilmiştir. Lütfen farklı "
 "tarihler seçin veya başka bir araç seçin."
 
-#: src/Admin/Booking/Helpers/Util.php:618
+#: src/Admin/Booking/Helpers/Util.php:595
 msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr "✅ Harika! Bu araç, seçtiğiniz tarihlerde kiralanabilir."
 

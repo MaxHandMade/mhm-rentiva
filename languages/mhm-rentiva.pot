@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T00:01:25+00:00\n"
+"POT-Creation-Date: 2026-10-20T01:00:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -543,32 +543,32 @@ msgid "Collate"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:77
-#: src/Admin/Addons/AddonManager.php:275
+#: src/Admin/Addons/AddonManager.php:276
 msgid "No items selected."
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:78
-#: src/Admin/Addons/AddonManager.php:276
+#: src/Admin/Addons/AddonManager.php:277
 msgid "items selected"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:79
-#: src/Admin/Addons/AddonManager.php:277
+#: src/Admin/Addons/AddonManager.php:278
 msgid "Are you sure you want to enable selected additional services?"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:80
-#: src/Admin/Addons/AddonManager.php:278
+#: src/Admin/Addons/AddonManager.php:279
 msgid "Are you sure you want to disable selected additional services?"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:81
-#: src/Admin/Addons/AddonManager.php:279
+#: src/Admin/Addons/AddonManager.php:280
 msgid "Are you sure you want to delete selected additional services? This action cannot be undone."
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:82
-#: src/Admin/Addons/AddonManager.php:280
+#: src/Admin/Addons/AddonManager.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:118
 #: src/Admin/Core/AssetManager.php:907
 #: src/Admin/Core/AssetManager.php:1396
@@ -580,7 +580,7 @@ msgid "Processing..."
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:83
-#: src/Admin/Addons/AddonManager.php:281
+#: src/Admin/Addons/AddonManager.php:282
 #: src/Admin/Addons/AddonScreen.php:112
 #: src/Admin/Core/AssetManager.php:1072
 #: src/Admin/Core/AssetManager.php:1118
@@ -590,17 +590,17 @@ msgid "An error occurred. Please try again."
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:86
-#: src/Admin/Addons/AddonManager.php:284
+#: src/Admin/Addons/AddonManager.php:285
 msgid "Invalid price value!"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:87
-#: src/Admin/Addons/AddonManager.php:285
+#: src/Admin/Addons/AddonManager.php:286
 msgid "Error updating price"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:88
-#: src/Admin/Addons/AddonManager.php:286
+#: src/Admin/Addons/AddonManager.php:287
 #: src/Admin/Booking/Meta/BookingMeta.php:192
 #: src/Admin/Frontend/Account/AccountController.php:291
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:289
@@ -649,7 +649,7 @@ msgstr ""
 msgid "All prices"
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:154
+#: src/Admin/Addons/AddonManager.php:155
 #: src/Admin/Addons/AddonMeta.php:75
 #: src/Admin/Addons/AddonScreen.php:689
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:313
@@ -663,20 +663,20 @@ msgstr ""
 msgid "Price"
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:213
+#: src/Admin/Addons/AddonManager.php:214
 #: src/Admin/Addons/AddonMeta.php:86
 msgid "Pricing Type"
 msgstr ""
 
 #. translators: %s: additional service title
-#: src/Admin/Addons/AddonManager.php:430
+#: src/Admin/Addons/AddonManager.php:461
 #, php-format
 msgid "\"%s\" additional service is required."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:633
-#: src/Admin/Addons/AddonManager.php:813
-#: src/Admin/Addons/AddonManager.php:848
+#: src/Admin/Addons/AddonManager.php:664
+#: src/Admin/Addons/AddonManager.php:844
+#: src/Admin/Addons/AddonManager.php:879
 #: src/Admin/Addons/AddonScreen.php:159
 #: src/Admin/Addons/AddonScreen.php:191
 #: src/Admin/Addons/AddonScreen.php:235
@@ -716,8 +716,8 @@ msgstr ""
 msgid "Security check failed."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:639
-#: src/Admin/Addons/AddonManager.php:855
+#: src/Admin/Addons/AddonManager.php:670
+#: src/Admin/Addons/AddonManager.php:886
 #: src/Admin/Addons/AddonScreen.php:195
 #: src/Admin/Addons/AddonScreen.php:276
 #: src/Admin/Addons/AddonScreen.php:376
@@ -731,47 +731,47 @@ msgstr ""
 msgid "You do not have permission for this action."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:646
+#: src/Admin/Addons/AddonManager.php:677
 #: src/Admin/Booking/Addons/AddonBooking.php:135
 msgid "No additional services selected."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:692
+#: src/Admin/Addons/AddonManager.php:723
 msgid "Invalid action."
 msgstr ""
 
 #. translators: 1: successful process count, 2: failed process count.
-#: src/Admin/Addons/AddonManager.php:707
+#: src/Admin/Addons/AddonManager.php:738
 #, php-format
 msgid "%1$d additional services processed, %2$d additional services failed."
 msgstr ""
 
 #. translators: %d: successful process count.
-#: src/Admin/Addons/AddonManager.php:716
+#: src/Admin/Addons/AddonManager.php:747
 #, php-format
 msgid "%d additional services successfully processed."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:865
+#: src/Admin/Addons/AddonManager.php:896
 msgid "Invalid additional service ID."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:872
+#: src/Admin/Addons/AddonManager.php:903
 #: src/Admin/Addons/AddonScreen.php:389
 msgid "Price cannot be negative."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:880
+#: src/Admin/Addons/AddonManager.php:911
 #: src/Admin/Addons/AddonScreen.php:202
 #: src/Admin/Addons/AddonScreen.php:520
 msgid "Additional service not found."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:895
+#: src/Admin/Addons/AddonManager.php:926
 msgid "Error occurred while updating price."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:901
+#: src/Admin/Addons/AddonManager.php:932
 msgid "Price successfully updated."
 msgstr ""
 
@@ -1678,7 +1678,7 @@ msgstr ""
 
 #. translators: %d: number of days
 #. translators: %d: minimum days
-#: src/Admin/Booking/Helpers/Util.php:136
+#: src/Admin/Booking/Helpers/Util.php:113
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:317
 #, php-format
 msgid "Minimum rental period is %d day."
@@ -1688,7 +1688,7 @@ msgstr[1] ""
 
 #. translators: %d: number of days
 #. translators: %d: maximum days
-#: src/Admin/Booking/Helpers/Util.php:144
+#: src/Admin/Booking/Helpers/Util.php:121
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:324
 #, php-format
 msgid "Maximum rental period is %d day."
@@ -1696,40 +1696,40 @@ msgid_plural "Maximum rental period is %d days."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/Helpers/Util.php:509
+#: src/Admin/Booking/Helpers/Util.php:486
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:255
 msgid "Selected vehicle is not available, but we can suggest similar vehicles:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:518
+#: src/Admin/Booking/Helpers/Util.php:495
 msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:527
+#: src/Admin/Booking/Helpers/Util.php:504
 #: src/Admin/Booking/Meta/BookingMeta.php:1557
 msgid "This vehicle is not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:540
+#: src/Admin/Booking/Helpers/Util.php:517
 #: src/Admin/REST/Availability.php:206
 msgid "Selected vehicle not found. Please select a valid vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:562
+#: src/Admin/Booking/Helpers/Util.php:539
 msgid "This vehicle is currently not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:573
+#: src/Admin/Booking/Helpers/Util.php:550
 msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:595
-#: src/Admin/Booking/Helpers/Util.php:607
+#: src/Admin/Booking/Helpers/Util.php:572
+#: src/Admin/Booking/Helpers/Util.php:584
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1140
 msgid "This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:618
+#: src/Admin/Booking/Helpers/Util.php:595
 msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr ""
 

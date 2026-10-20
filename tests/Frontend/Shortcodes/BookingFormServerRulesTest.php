@@ -92,8 +92,8 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 	// ------------------------------------------------- F-1: day arithmetic
 
 	/**
-	 * Util::rental_days() keeps the old whole-day count (24-hour floor) and only
-	 * stops it drifting across daylight-saving changes. Pricing a later return
+	 * Util::rental_days() keeps its whole-day count (24-hour floor; it is not
+	 * changed here, daylight-saving drift included). Pricing a later return
 	 * as another day would change the admin manual booking and edit flows,
 	 * where staff enter different times on purpose -- a pricing-policy decision
 	 * that is not part of this fix. The public form closes F-1 by forcing the
@@ -120,26 +120,6 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$short = Util::parse_datetimes('2026-11-02', '10:00', '2026-11-02', '14:00');
 		$this->assertIsArray($short);
 		$this->assertSame(1, Util::rental_days($short['start_ts'], $short['end_ts']), 'A same-day rental is still one day.');
-	}
-
-	/**
-	 * Days are counted on the site's wall clock. A 10:00 -> 10:00 rental across
-	 * a daylight-saving change is 47 or 49 real hours; neither may change the
-	 * day count -- the old floor() undercharged the spring one by a day.
-	 */
-	public function test_daylight_saving_changes_do_not_move_the_day_count(): void
-	{
-		$this->sandbox_option('timezone_string', 'Europe/Berlin');
-		$this->sandbox_option('gmt_offset', '');
-
-		$spring = Util::parse_datetimes('2026-03-28', '10:00', '2026-03-30', '10:00');
-		$autumn = Util::parse_datetimes('2026-10-24', '10:00', '2026-10-26', '10:00');
-		$this->assertIsArray($spring);
-		$this->assertIsArray($autumn);
-
-		$this->assertSame(47 * HOUR_IN_SECONDS, $spring['end_ts'] - $spring['start_ts'], 'Fixture: the spring range loses an hour.');
-		$this->assertSame(2, Util::rental_days($spring['start_ts'], $spring['end_ts']));
-		$this->assertSame(2, Util::rental_days($autumn['start_ts'], $autumn['end_ts']));
 	}
 
 	public function test_the_maximum_length_counts_whole_days(): void
@@ -275,6 +255,30 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
 		$this->assertSame(array( $required ), array_map('intval', $response['data']['booking_data']['addons']));
 		unset($optional);
+	}
+
+	/**
+	 * The form's HTML is cached for anonymous visitors. A required add-on the
+	 * admin adds or switches on must reach that cache at once, or the cached
+	 * form lacks the box the server now insists on and refuses every booking.
+	 */
+	public function test_an_addon_change_drops_the_cached_booking_form(): void
+	{
+		\MHMRentiva\Admin\Addons\AddonManager::register_form_cache_invalidation();
+		$version_key = 'mhmrentiva_rv_cache_v_rentiva_booking_form';
+		$addon       = $this->addon('Mandatory insurance', '150', false);
+
+		set_transient($version_key, 'cached', DAY_IN_SECONDS);
+		update_post_meta($addon, 'mhmrentiva_addon_required', '1');
+		$this->assertFalse(get_transient($version_key), 'Switching an add-on to required drops the form cache.');
+
+		set_transient($version_key, 'cached', DAY_IN_SECONDS);
+		wp_update_post(array( 'ID' => $addon, 'post_status' => 'draft' ));
+		$this->assertFalse(get_transient($version_key), 'Unpublishing an add-on drops the form cache.');
+
+		set_transient($version_key, 'cached', DAY_IN_SECONDS);
+		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '999');
+		$this->assertSame('cached', get_transient($version_key), 'Unrelated posts leave the form cache alone.');
 	}
 
 	public function test_a_switched_off_required_addon_does_not_block_booking(): void

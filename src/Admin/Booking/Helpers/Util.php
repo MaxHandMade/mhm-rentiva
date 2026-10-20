@@ -72,48 +72,25 @@ final class Util {
 	}
 
 	/**
-	 * Rental days: whole 24-hour days between pickup and return, on the site's
-	 * wall clock (minimum 1).
-	 *
-	 * The calendar-date difference, less one when the return time of day is
-	 * earlier than the pickup time: the same count the old 24-hour floor gave,
-	 * so a later return time adds nothing and an earlier one is a day short.
-	 * The time of day is deliberately not priced here. The public booking form
-	 * returns the vehicle at the pickup hour and its endpoints enforce that on
-	 * the server (BookingForm::return_time(), audit 2026-10-20 F-1), so on that
-	 * path the dates ARE the blocked interval. The admin manual booking and the
-	 * admin edit let staff enter a different return time; whether that should
-	 * cost another day is a pricing-policy decision that has not been made, so
-	 * those flows keep the old count.
-	 *
-	 * Counted on the wall clock, not in seconds: the old floor over real seconds
-	 * turned 10:00 -> 10:00 across the spring daylight-saving change (47 real
-	 * hours) into one day too few. That is the only behaviour change.
+	 * Calculates rental days
 	 */
 	public static function rental_days(int $start_ts, int $end_ts): int
 	{
-		if ($end_ts <= $start_ts) {
-			return 1;
-		}
+		// Convert Unix timestamps to DateTime objects
+		$start_date = new \DateTime();
+		$start_date->setTimestamp($start_ts);
 
-		$tz    = wp_timezone();
-		$start = ( new \DateTimeImmutable('@' . $start_ts) )->setTimezone($tz);
-		$end   = ( new \DateTimeImmutable('@' . $end_ts) )->setTimezone($tz);
+		$end_date = new \DateTime();
+		$end_date->setTimestamp($end_ts);
 
-		// Calendar days between the two local dates, measured in UTC so no
-		// clock change can shorten or stretch a day.
-		$utc           = new \DateTimeZone('UTC');
-		$calendar_days = (int) ( new \DateTimeImmutable($start->format('Y-m-d'), $utc) )
-			->diff(new \DateTimeImmutable($end->format('Y-m-d'), $utc))
-			->days;
+		// Calculate date difference
+		$interval = $start_date->diff($end_date);
 
-		// A return earlier in the day than the pickup has not completed the
-		// last day.
-		if ($end->format('H:i:s') < $start->format('H:i:s')) {
-			--$calendar_days;
-		}
+		// Get number of days (only days, ignore hours)
+		$days = $interval->days;
 
-		return max(1, $calendar_days);
+		// Minimum 1 day
+		return max(1, $days);
 	}
 
 	/**

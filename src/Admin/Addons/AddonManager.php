@@ -50,6 +50,7 @@ final class AddonManager {
 	 * Register hooks.
 	 */
 	public static function register(): void {
+		self::register_form_cache_invalidation();
 		add_action( 'init', array( self::class, 'init' ) );
 		add_action( 'admin_init', array( self::class, 'admin_init' ) );
 
@@ -399,6 +400,36 @@ final class AddonManager {
 		}
 
 		return array_map( 'intval', array_keys( $sellable ) );
+	}
+
+	/**
+	 * Drop the booking form's cached HTML whenever an add-on changes.
+	 *
+	 * The form is cached for anonymous visitors, and the server refuses a rental
+	 * without a required add-on. A cached form built before an add-on was added,
+	 * switched to required or switched on lacks the box the server now asks for.
+	 * AbstractShortcode::cleanup() only clears the cache when caching is active
+	 * for the current request, which it never is for the logged-in admin making
+	 * the change, so the version key is deleted here unconditionally.
+	 */
+	public static function register_form_cache_invalidation(): void {
+		$drop_for_post = static function ( $post_id ): void {
+			if ( AddonPostType::POST_TYPE === get_post_type( (int) $post_id ) ) {
+				delete_transient( 'mhmrentiva_rv_cache_v_rentiva_booking_form' );
+			}
+		};
+		$drop_for_meta = static function ( $meta_id, $object_id ) use ( $drop_for_post ): void {
+			unset( $meta_id );
+			$drop_for_post( $object_id );
+		};
+
+		add_action( 'save_post_' . AddonPostType::POST_TYPE, $drop_for_post );
+		add_action( 'deleted_post', $drop_for_post );
+		add_action( 'trashed_post', $drop_for_post );
+		add_action( 'added_post_meta', $drop_for_meta, 10, 2 );
+		add_action( 'updated_post_meta', $drop_for_meta, 10, 2 );
+		add_action( 'deleted_post_meta', $drop_for_meta, 10, 2 );
+		add_action( 'set_object_terms', $drop_for_post );
 	}
 
 	/**
