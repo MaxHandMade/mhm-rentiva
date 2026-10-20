@@ -318,6 +318,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Empty cart first (optional, depending on business logic)
 		// WC()->cart->empty_cart();
 
+		// The add-on rows as priced now, beside the charge fixed now: an add-on
+		// re-priced, renamed or deleted before checkout keeps its row.
+		if (! isset($booking_data['addon_lines'])) {
+			$booking_data['addon_lines'] = self::price_rental_addon_lines($booking_data);
+		}
+
 		// Store booking data in cart item (will be used to create booking after payment)
 		$cart_item_data = array(
 			'mhmrentiva_booking_data'    => $booking_data, // ⭐ Store full booking data instead of booking_id
@@ -2255,6 +2261,37 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * @return array<int, array{title: string, line_total: float}>
 	 */
 	private static function rental_addon_lines(array $booking_data): array
+	{
+		if (self::is_transfer_booking($booking_data)) {
+			return array();
+		}
+
+		// Priced when the booking entered the cart (add_booking_data_to_cart).
+		if (isset($booking_data['addon_lines']) && is_array($booking_data['addon_lines'])) {
+			$lines = array();
+			foreach ($booking_data['addon_lines'] as $line) {
+				if (is_array($line)) {
+					$lines[] = array(
+						'title'      => (string) ( $line['title'] ?? '' ),
+						'line_total' => (float) ( $line['line_total'] ?? 0 ),
+					);
+				}
+			}
+
+			return $lines;
+		}
+
+		// A cart from before the snapshot: price it now.
+		return self::price_rental_addon_lines($booking_data);
+	}
+
+	/**
+	 * A rental's add-ons priced from their current settings.
+	 *
+	 * @param array<string, mixed> $booking_data Pending booking data.
+	 * @return array<int, array{title: string, line_total: float}>
+	 */
+	private static function price_rental_addon_lines(array $booking_data): array
 	{
 		$selected = $booking_data['selected_addons'] ?? array();
 		if (self::is_transfer_booking($booking_data) || ! is_array($selected) || array() === $selected) {

@@ -436,4 +436,35 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 
 		$this->assertContains('Add-ons', $this->keys($rows), wp_json_encode($rows));
 	}
+
+	public function test_the_order_lists_the_add_on_price_the_cart_was_charged(): void
+	{
+		// The charge is fixed when the booking enters the cart; an add-on
+		// re-priced (or deleted) before checkout must not change its row.
+		$insurance = $this->addon('Full Insurance', 25.0, 'per_booking');
+		$this->assertTrue(
+			\MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::add_booking_data_to_cart(
+				$this->rental_data(array( 'selected_addons' => array( $insurance ) )),
+				50.0
+			)
+		);
+
+		update_post_meta($insurance, 'mhmrentiva_addon_price', '99');
+		wp_update_post(array( 'ID' => $insurance, 'post_title' => 'Renamed' ));
+		WC()->cart->calculate_totals();
+
+		$order = wc_create_order();
+		WC()->checkout()->create_order_line_items($order, WC()->cart);
+		$order->save();
+		$item = array_values(wc_get_order($order->get_id())->get_items())[0];
+
+		$rows = array();
+		foreach ($item->get_meta_data() as $meta) {
+			$data                           = $meta->get_data();
+			$rows[ (string) $data['key'] ] = is_scalar($data['value']) ? (string) $data['value'] : '';
+		}
+
+		$this->assertSame(self::plain(wc_price(25.0)), $rows['Full Insurance'] ?? null, wp_json_encode($rows));
+		$this->assertArrayNotHasKey('Renamed', $rows);
+	}
 }
