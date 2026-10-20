@@ -620,7 +620,7 @@ final class CancellationHandler {
 		// Send copy to admin if admin notifications are enabled
 		$admin_notifications = SettingsCore::get( 'mhmrentiva_booking_admin_notifications', '1' );
 		if ( '1' === $admin_notifications ) {
-			$admin_email   = get_option( 'admin_email' );
+			$admin_email   = \MHMRentiva\Admin\Settings\Groups\EmailSettings::admin_delivery_address( 'booking' );
 			$admin_subject = sprintf(
 				/* translators: %d placeholder. */
 				__( '[ADMIN] Booking Cancelled - #%d', 'mhm-rentiva' ),

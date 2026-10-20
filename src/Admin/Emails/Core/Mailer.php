@@ -224,9 +224,7 @@ final class Mailer {
 		}
 
 		// If in test mode, send to test address
-		if ( \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode() ) {
-			$to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address();
-		}
+		$to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::sandbox_recipient( $to );
 
 		// Written in the SITE's language, whoever triggered it: inside wp-admin
 		// the request runs in the operator's profile language, and an e-mail
@@ -300,7 +298,9 @@ final class Mailer {
 			}
 			return self::send( $template_key, $email, $context );
 		} elseif ( $recipient_type === 'admin' ) {
-			$email = get_option( 'admin_email' );
+			// Every booking template sent with 'admin' is booking-related
+			// (booking_created_admin, booking_status_changed_admin).
+			$email = \MHMRentiva\Admin\Settings\Groups\EmailSettings::admin_recipient( 'booking' );
 			if ( empty( $email ) ) {
 				return false;
 			}
