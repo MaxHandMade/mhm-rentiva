@@ -1072,7 +1072,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// 5. Add-on services: one row per add-on with its price, as the cart
 			// shows them. A transfer's are written by the add-on that prices them.
 			foreach (self::rental_addon_lines($booking_data) as $line) {
-				$item->add_meta_data(self::order_meta_label($line['title']), self::order_meta_price($line['line_total']));
+				$item->add_meta_data($line['title'], self::order_meta_price($line['line_total']));
 			}
 		} else {
 			// Task 14b item 3: left at warning() deliberately. This hook
@@ -2263,12 +2263,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		$lines = array();
 		foreach (\MHMRentiva\Admin\Addons\AddonManager::build_addon_details($selected, $booking_data) as $detail) {
-			if ('' !== $detail['title']) {
-				$lines[] = array(
-					'title'      => $detail['title'],
-					'line_total' => $detail['line_total'],
-				);
-			}
+			// A charged add-on keeps its row even without a usable name.
+			$lines[] = array(
+				'title'      => self::order_meta_label($detail['title']),
+				'line_total' => $detail['line_total'],
+			);
 		}
 
 		return $lines;

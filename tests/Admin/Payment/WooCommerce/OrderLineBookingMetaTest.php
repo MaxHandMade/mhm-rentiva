@@ -401,4 +401,39 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 			'underscores and spaces' => array( '_ _' ),
 		);
 	}
+
+	public function test_a_per_passenger_add_on_shows_what_the_rental_charges(): void
+	{
+		// The rental's price (quote and DepositCalculator) counts an add-on by
+		// days only; the row said price x guests and did not add up to the order.
+		$addon = $this->addon('Driver', 10.0, 'per_passenger');
+		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '100');
+		$data  = $this->rental_data(array( 'selected_addons' => array( $addon ), 'guests' => 3 ));
+
+		$charged = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit(
+			$this->vehicle_id,
+			3,
+			'full',
+			array( $addon ),
+			(int) strtotime('2026-07-05 10:00')
+		);
+		$by_key = array_column($this->order_rows($data), 1, 0);
+
+		$this->assertSame(self::plain(wc_price(10.0)), $by_key['Driver'] ?? null);
+		$this->assertEqualsWithDelta(
+			10.0,
+			(float) $charged['addon_total'],
+			0.001,
+			'the charge counts the add-on once'
+		);
+	}
+
+	public function test_an_add_on_without_a_name_keeps_a_visible_row(): void
+	{
+		$addon = $this->addon('', 25.0, 'per_booking');
+
+		$rows = $this->order_rows($this->rental_data(array( 'selected_addons' => array( $addon ) )));
+
+		$this->assertContains('Add-ons', $this->keys($rows), wp_json_encode($rows));
+	}
 }

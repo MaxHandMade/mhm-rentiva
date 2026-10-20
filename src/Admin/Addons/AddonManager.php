@@ -605,14 +605,15 @@ final class AddonManager {
 	 * (save_booking_addons) and the cart and order lines read the same figures.
 	 *
 	 * @param array<int|string, mixed> $selected_addons Add-on post IDs.
-	 * @param array<string, mixed>     $booking_data    Booking data (rental_days, guests).
+	 * @param array<string, mixed>     $booking_data    Booking data (rental_days).
 	 * @return array<int, array{id: int, title: string, price: float, pricing_type: string, multiplier: int, line_total: float}>
 	 */
 	public static function build_addon_details( array $selected_addons, array $booking_data ): array {
+		// The context the rental is charged with (BookingForm quote,
+		// DepositCalculator): days only. With guests in it a per-passenger
+		// add-on's row said price x guests while the order charged it once.
 		$context = array(
 			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
-			'adults'      => (int) ( $booking_data['guests'] ?? 0 ),
-			'children'    => 0,
 		);
 
 		$addon_details = array();
