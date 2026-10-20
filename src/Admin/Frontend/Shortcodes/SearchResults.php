@@ -461,7 +461,7 @@ final class SearchResults extends AbstractShortcode {
 		$return_date = ! empty($params['return_date']) ? $params['return_date'] : ( ! empty($params['end_date']) ? $params['end_date'] : '' );
 
 		if (! empty($pickup_date) && ! empty($return_date)) {
-			$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_min_rental_days', 1);
+			$min_days = BookingForm::min_rental_days();
 			$start_ts = strtotime($pickup_date);
 			$end_ts   = strtotime($return_date);
 

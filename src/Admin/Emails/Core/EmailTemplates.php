@@ -243,6 +243,10 @@ final class EmailTemplates {
 			// Auto Cancel Email
 			'mhmrentiva_auto_cancel_email_subject' => 'text',
 			'mhmrentiva_auto_cancel_email_content' => 'html',
+			// Manual Cancellation Email
+			'mhmrentiva_booking_cancelled_enabled' => 'checkbox',
+			'mhmrentiva_booking_cancelled_subject' => 'text',
+			'mhmrentiva_booking_cancelled_body'    => 'html',
 			// Reminder & Welcome
 			'mhmrentiva_booking_reminder_enabled'  => 'checkbox',
 			'mhmrentiva_booking_reminder_subject'  => 'text',

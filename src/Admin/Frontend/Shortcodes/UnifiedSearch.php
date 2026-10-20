@@ -187,7 +187,7 @@ final class UnifiedSearch extends AbstractShortcode {
 				'restUrl'   => get_rest_url(null, 'mhm-rentiva/v1/locations'),
 				'restNonce' => \MHMRentiva\Frontend\RenderContext::script_nonce('wp_rest'),
 				'settings'  => array(
-					'minRentalDays'     => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_min_rental_days', 1),
+					'minRentalDays'     => BookingForm::min_rental_days(),
 					'defaultRentalDays' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1),
 				),
 			)

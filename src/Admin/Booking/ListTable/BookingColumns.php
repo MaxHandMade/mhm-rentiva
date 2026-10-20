@@ -12,7 +12,6 @@ if (!defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
@@ -570,7 +569,7 @@ final class BookingColumns {
 				$receiptId = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_offline_receipt_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_offline_receipt_id', true ) );
 
 				if ( '' === $currency ) {
-					$currency = is_callable( array( Settings::class, 'get' ) ) ? (string) Settings::get( 'currency', 'USD' ) : 'USD';
+					$currency = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_code();
 				}
 
 				echo '<div class="payment-info">';

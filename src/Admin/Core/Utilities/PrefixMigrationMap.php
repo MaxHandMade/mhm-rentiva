@@ -192,6 +192,7 @@ final class PrefixMigrationMap {
         'mhm_rentiva_booking_admin_to'                     => 'mhmrentiva_booking_admin_to',
         'mhm_rentiva_booking_cancelled_body'               => 'mhmrentiva_booking_cancelled_body',
         'mhm_rentiva_booking_cancelled_enabled'            => 'mhmrentiva_booking_cancelled_enabled',
+        'mhm_rentiva_booking_cancelled_subject'            => 'mhmrentiva_booking_cancelled_subject',
         'mhm_rentiva_booking_created_body'                 => 'mhmrentiva_booking_created_body',
         'mhm_rentiva_booking_created_enabled'              => 'mhmrentiva_booking_created_enabled',
         'mhm_rentiva_booking_created_subject'              => 'mhmrentiva_booking_created_subject',
