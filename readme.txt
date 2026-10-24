@@ -207,7 +207,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Security: the booking form checks the return time, required add-ons and the payment type on the server; vehicle titles and plates are always handled as text in scripts.
 * Fixed: saving or editing a booking in the admin keeps add-ons, the deposit and weekend pricing, and refuses dates the vehicle is not free for.
 * Fixed: the customer's booking page tells the truth about status and payment, and the booking number is the same everywhere.
-* Fixed: the cart shows "<vehicle> rental" with the vehicle image, one priced row per add-on, and no return row on transfers; prices follow the store's currency format.
+* Fixed: the cart shows "[vehicle name] rental" with the vehicle image, one priced row per add-on, and no return row on transfers; prices follow the store's currency format.
 * Fixed: unavailable dates show the notice and alternatives; rating bars count 1 and 2 stars; comparison table defaults; login links under reviews; English strings in Turkish admin screens. Full list in changelog.json.
 
 = 6.2.1 =
