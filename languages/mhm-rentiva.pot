@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 6.3.0\n"
+"Project-Id-Version: MHM Rentiva 6.3.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-20T13:45:31+00:00\n"
+"POT-Creation-Date: 2026-10-24T18:34:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -309,7 +309,7 @@ msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:78
 #: src/Admin/Core/Traits/AdminHelperTrait.php:119
-#: src/Admin/Core/Utilities/UXHelper.php:504
+#: src/Admin/Core/Utilities/UXHelper.php:506
 #: src/Admin/Setup/SetupWizard.php:82
 #: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
@@ -1736,7 +1736,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:296
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709
-#: src/Plugin.php:1078
+#: src/Plugin.php:1082
 #: templates/admin/partials/booking-popup.php:52
 #: src-react/admin/customers/components/CustomerTable.jsx:5
 #: src-react/admin/dashboard/components/RecentBookings.jsx:62
@@ -5070,17 +5070,17 @@ msgstr ""
 msgid "Support and Contact"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeUrlManager.php:274
+#: src/Admin/Core/ShortcodeUrlManager.php:339
 msgid "MHM Rentiva:"
 msgstr ""
 
 #. translators: %s: shortcode name
-#: src/Admin/Core/ShortcodeUrlManager.php:277
+#: src/Admin/Core/ShortcodeUrlManager.php:342
 #, php-format
 msgid "No page found containing the [%s] shortcode. "
 msgstr ""
 
-#: src/Admin/Core/ShortcodeUrlManager.php:281
+#: src/Admin/Core/ShortcodeUrlManager.php:346
 msgid "Create a new page and add the shortcode."
 msgstr ""
 
@@ -5353,10 +5353,9 @@ msgstr ""
 msgid "An unexpected error occurred. Please try again later."
 msgstr ""
 
-#. translators: %date% is replaced with a runtime value.
+#. translators: {date} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:73
-#, php-format
-msgid "The selected vehicle is not available on %date%. Please select a different date."
+msgid "The selected vehicle is not available on {date}. Please select a different date."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:74
@@ -5371,23 +5370,23 @@ msgstr ""
 msgid "You cannot select a past date. Please select a date after today."
 msgstr ""
 
-#. translators: %num_days% is replaced with a runtime value.
+#. translators: {num_days} is replaced with a number of days.
 #: src/Admin/Core/Utilities/UXHelper.php:78
-msgid "Reservation date is too far in the future. You can make reservations up to %num_days% days in advance."
+msgid "Reservation date is too far in the future. You can make reservations up to {num_days} days in advance."
 msgstr ""
 
-#. translators: %hours% is replaced with a runtime value.
+#. translators: {hours} is replaced with a number of hours.
 #: src/Admin/Core/Utilities/UXHelper.php:80
-msgid "Minimum reservation duration is %hours% hours."
+msgid "Minimum reservation duration is {hours} hours."
 msgstr ""
 
-#. translators: %num_days% is replaced with a runtime value.
+#. translators: {num_days} is replaced with a number of days.
 #: src/Admin/Core/Utilities/UXHelper.php:82
-msgid "Maximum reservation duration is %num_days% days."
+msgid "Maximum reservation duration is {num_days} days."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:83
-msgid "You can make a maximum of %limit% reservations at once."
+msgid "You can make a maximum of {limit} reservations at once."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:84
@@ -5423,7 +5422,7 @@ msgid "Refund process failed. Please contact customer service."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:94
-msgid "Partial refund completed. %amount% has been refunded to your account."
+msgid "Partial refund completed. {amount} has been refunded to your account."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:95
@@ -5438,10 +5437,9 @@ msgstr ""
 msgid "This vehicle is currently in use. Please select a different vehicle."
 msgstr ""
 
-#. translators: %duration% is replaced with a runtime value.
+#. translators: {duration} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:101
-#, php-format
-msgid "Vehicle is under maintenance. Estimated duration: %duration%."
+msgid "Vehicle is under maintenance. Estimated duration: {duration}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:102
@@ -5449,11 +5447,11 @@ msgid "Vehicle is damaged. Booking not available."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:103
-msgid "Vehicle location changed. New location: %location%."
+msgid "Vehicle location changed. New location: {location}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:104
-msgid "Vehicle price updated. New price: %price%."
+msgid "Vehicle price updated. New price: {price}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:107
@@ -5477,7 +5475,7 @@ msgid "Your license has expired. Please upload a current license."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:112
-msgid "You cannot make a reservation due to age restriction. Minimum age: %age%."
+msgid "You cannot make a reservation due to age restriction. Minimum age: {age}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:115
@@ -5488,20 +5486,18 @@ msgstr ""
 msgid "Server error occurred. Please try again later."
 msgstr ""
 
-#. translators: %duration% is replaced with a runtime value.
+#. translators: {duration} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:118
-#, php-format
-msgid "System is under maintenance. Estimated duration: %duration%."
+msgid "System is under maintenance. Estimated duration: {duration}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:119
 msgid "This feature is temporarily disabled."
 msgstr ""
 
-#. translators: %seconds% is replaced with a runtime value.
+#. translators: {seconds} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:121
-#, php-format
-msgid "Too many requests. Please wait %seconds% seconds."
+msgid "Too many requests. Please wait {seconds} seconds."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:122
@@ -5531,7 +5527,7 @@ msgid "Please enter a valid time."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:130
-msgid "Password must be at least %length% characters."
+msgid "Password must be at least {length} characters."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:131
@@ -5540,14 +5536,13 @@ msgstr ""
 msgid "Passwords do not match."
 msgstr ""
 
-#. translators: %size% is replaced with a runtime value.
+#. translators: {size} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:133
-#, php-format
-msgid "File size is too large. Maximum size: %size%."
+msgid "File size is too large. Maximum size: {size}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:134
-msgid "Invalid file type. Allowed types: %types%."
+msgid "Invalid file type. Allowed types: {types}."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:137
@@ -5582,195 +5577,189 @@ msgstr ""
 msgid "Secure connection error. Please try again later."
 msgstr ""
 
-#. translators: %booking_id% is replaced with a runtime value.
-#: src/Admin/Core/Utilities/UXHelper.php:168
-#, php-format
-msgid "Your reservation has been successfully created. Your reservation number: %booking_id%"
-msgstr ""
-
-#: src/Admin/Core/Utilities/UXHelper.php:169
-msgid "Your reservation has been successfully updated."
-msgstr ""
-
+#. translators: {booking_id} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:170
-msgid "Your reservation has been successfully cancelled."
+msgid "Your reservation has been successfully created. Your reservation number: {booking_id}"
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:171
-msgid "Your payment has been successfully completed."
+msgid "Your reservation has been successfully updated."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:172
-msgid "Your profile information has been successfully updated."
+msgid "Your reservation has been successfully cancelled."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:173
-msgid "Your password has been successfully changed."
+msgid "Your payment has been successfully completed."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:174
-msgid "Email sent successfully."
+msgid "Your profile information has been successfully updated."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:175
-msgid "File uploaded successfully."
+msgid "Your password has been successfully changed."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:176
+msgid "Email sent successfully."
+msgstr ""
+
+#: src/Admin/Core/Utilities/UXHelper.php:177
+msgid "File uploaded successfully."
+msgstr ""
+
+#: src/Admin/Core/Utilities/UXHelper.php:178
 msgid "Settings saved successfully."
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:180
+#: src/Admin/Core/Utilities/UXHelper.php:182
 msgid "Operation completed successfully."
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:197
-msgid "Your reservation will end in %time%."
-msgstr ""
-
-#. translators: %date% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:199
-#, php-format
-msgid "Your payment must be made on %date%."
+msgid "Your reservation will end in {time}."
 msgstr ""
 
-#. translators: %date% is replaced with a runtime value.
+#. translators: {date} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:201
-#, php-format
-msgid "You must return the vehicle on %date%."
+msgid "Your payment must be made on {date}."
 msgstr ""
 
-#. translators: %num_days% is replaced with a runtime value.
+#. translators: {date} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:203
-msgid "Your license will expire in %num_days% days."
+msgid "You must return the vehicle on {date}."
 msgstr ""
 
-#. translators: %date% is replaced with a runtime value.
+#. translators: {num_days} is replaced with a number of days.
 #: src/Admin/Core/Utilities/UXHelper.php:205
-#, php-format
-msgid "Vehicle maintenance is scheduled for %date%."
+msgid "Your driver's license will expire in {num_days} days."
 msgstr ""
 
-#. translators: %date% is replaced with a runtime value.
+#. translators: {date} is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:207
-#, php-format
-msgid "Vehicle price will increase from %date%."
+msgid "Vehicle maintenance is scheduled for {date}."
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:211
-msgid "Warning: %message%"
+#. translators: {date} is replaced with a runtime value.
+#: src/Admin/Core/Utilities/UXHelper.php:209
+msgid "Vehicle price will increase from {date}."
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:228
-msgid "Your reservation has been confirmed. Details have been sent via email."
-msgstr ""
-
-#: src/Admin/Core/Utilities/UXHelper.php:229
-msgid "Your payment is being processed. Please wait..."
+#: src/Admin/Core/Utilities/UXHelper.php:213
+msgid "Warning: {message}"
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:230
-msgid "Your vehicle is ready. You can pick it up at the reservation time."
+msgid "Your reservation has been confirmed. Details have been sent via email."
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:231
+msgid "Your payment is being processed. Please wait..."
+msgstr ""
+
+#: src/Admin/Core/Utilities/UXHelper.php:232
+msgid "Your vehicle is ready. You can pick it up at the reservation time."
+msgstr ""
+
+#: src/Admin/Core/Utilities/UXHelper.php:233
 msgid "Vehicle maintenance completed. You can make a reservation."
 msgstr ""
 
-#. translators: %feature% is replaced with a runtime value.
-#: src/Admin/Core/Utilities/UXHelper.php:233
-#, php-format
-msgid "New feature: %feature%. Click for details."
+#. translators: {feature} is replaced with a runtime value.
+#: src/Admin/Core/Utilities/UXHelper.php:235
+msgid "New feature: {feature}. Click for details."
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:234
+#: src/Admin/Core/Utilities/UXHelper.php:236
 msgid "System updated. New features available."
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:238
-msgid "Info: %message%"
-msgstr ""
-
-#: src/Admin/Core/Utilities/UXHelper.php:257
-msgid "Select a different date"
-msgstr ""
-
-#: src/Admin/Core/Utilities/UXHelper.php:258
-msgid "Select a different vehicle"
+#: src/Admin/Core/Utilities/UXHelper.php:240
+msgid "Info: {message}"
 msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:259
-#: src/Admin/Core/Utilities/UXHelper.php:283
-#: src/Admin/Core/Utilities/UXHelper.php:296
+msgid "Select a different date"
+msgstr ""
+
+#: src/Admin/Core/Utilities/UXHelper.php:260
+msgid "Select a different vehicle"
+msgstr ""
+
+#: src/Admin/Core/Utilities/UXHelper.php:261
+#: src/Admin/Core/Utilities/UXHelper.php:285
+#: src/Admin/Core/Utilities/UXHelper.php:298
 msgid "Contact customer service"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:262
+#: src/Admin/Core/Utilities/UXHelper.php:264
 msgid "Check your information"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:263
-#: src/Admin/Core/Utilities/UXHelper.php:282
-#: src/Admin/Core/Utilities/UXHelper.php:294
+#: src/Admin/Core/Utilities/UXHelper.php:265
+#: src/Admin/Core/Utilities/UXHelper.php:284
+#: src/Admin/Core/Utilities/UXHelper.php:296
 msgid "Refresh the page"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:264
+#: src/Admin/Core/Utilities/UXHelper.php:266
 msgid "Try a different browser"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:269
+#: src/Admin/Core/Utilities/UXHelper.php:271
 msgid "Check your card information"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:270
+#: src/Admin/Core/Utilities/UXHelper.php:272
 msgid "Try a different card"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:271
+#: src/Admin/Core/Utilities/UXHelper.php:273
 msgid "Contact your bank"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:274
+#: src/Admin/Core/Utilities/UXHelper.php:276
 msgid "Check your account balance"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:275
+#: src/Admin/Core/Utilities/UXHelper.php:277
 msgid "Try a different payment method"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:276
+#: src/Admin/Core/Utilities/UXHelper.php:278
 msgid "Try partial payment option"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:281
+#: src/Admin/Core/Utilities/UXHelper.php:283
 msgid "Wait a few minutes"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:286
-#: src/Admin/Core/Utilities/UXHelper.php:295
+#: src/Admin/Core/Utilities/UXHelper.php:288
+#: src/Admin/Core/Utilities/UXHelper.php:297
 msgid "Try again later"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:287
+#: src/Admin/Core/Utilities/UXHelper.php:289
 msgid "Try a different device"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:288
+#: src/Admin/Core/Utilities/UXHelper.php:290
 msgid "Check your internet connection"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:360
+#: src/Admin/Core/Utilities/UXHelper.php:362
 msgid "Select Different Date"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:365
-#: src/Admin/Core/Utilities/UXHelper.php:380
+#: src/Admin/Core/Utilities/UXHelper.php:367
+#: src/Admin/Core/Utilities/UXHelper.php:382
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:399
 msgid "Try Again"
 msgstr ""
 
-#: src/Admin/Core/Utilities/UXHelper.php:372
+#: src/Admin/Core/Utilities/UXHelper.php:374
 msgid "Retry Payment"
 msgstr ""
 
@@ -13351,80 +13340,80 @@ msgstr ""
 msgid "Credit Card"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:107
+#: src/Helpers/NotificationHelper.php:108
 msgid "A cancelled reservation still holds paid money"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:121
+#: src/Helpers/NotificationHelper.php:122
 msgid "This booking's paid orders are in more than one currency, so the amount held cannot be totalled automatically."
 msgstr ""
 
 #. translators: 1: amount held, 2: currency code
-#: src/Helpers/NotificationHelper.php:125
+#: src/Helpers/NotificationHelper.php:126
 #, php-format
 msgid "Amount held: %1$s %2$s"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:134
+#: src/Helpers/NotificationHelper.php:135
 #, php-format
 msgid "Auto-cancel found booking #%d already holding a paid order and left it alone -- it did not cancel the booking or its order."
 msgstr ""
 
 #. translators: %s: link to the booking
-#: src/Helpers/NotificationHelper.php:141
-#: src/Helpers/NotificationHelper.php:220
-#: src/Helpers/NotificationHelper.php:274
-#: src/Helpers/NotificationHelper.php:328
+#: src/Helpers/NotificationHelper.php:142
+#: src/Helpers/NotificationHelper.php:221
+#: src/Helpers/NotificationHelper.php:275
+#: src/Helpers/NotificationHelper.php:329
 #, php-format
 msgid "Review the booking: %s"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:187
+#: src/Helpers/NotificationHelper.php:188
 msgid "A cancelled booking had a problem completing its refund"
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:200
+#: src/Helpers/NotificationHelper.php:201
 msgid "This booking's paid orders are in more than one currency, so the amount still owed cannot be totalled automatically."
 msgstr ""
 
 #. translators: 1: amount still owed to the customer, 2: currency code
-#: src/Helpers/NotificationHelper.php:204
+#: src/Helpers/NotificationHelper.php:205
 #, php-format
 msgid "Amount still owed to the customer: %1$s %2$s"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:213
+#: src/Helpers/NotificationHelper.php:214
 #, php-format
 msgid "Booking #%d was cancelled, but something went wrong afterward and the refund may not have completed."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:261
+#: src/Helpers/NotificationHelper.php:262
 msgid "An order was cancelled while another order on the same booking is still paid"
 msgstr ""
 
 #. translators: 1: order id, 2: booking id
-#: src/Helpers/NotificationHelper.php:266
+#: src/Helpers/NotificationHelper.php:267
 #, php-format
 msgid "Order #%1$d on booking #%2$d was cancelled or failed. Another order on this booking still holds paid money -- the order that died was not necessarily the debt."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:271
+#: src/Helpers/NotificationHelper.php:272
 msgid "Review this booking's payment orders and balance before treating it as settled or cancelled."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:316
+#: src/Helpers/NotificationHelper.php:317
 msgid "A cancelled booking needs a manual refund across currencies"
 msgstr ""
 
 #. translators: %d: booking id
-#: src/Helpers/NotificationHelper.php:321
+#: src/Helpers/NotificationHelper.php:322
 #, php-format
 msgid "Booking #%d has been cancelled. Its paid orders are in more than one currency, so the plugin cannot total or move a refund for it automatically."
 msgstr ""
 
-#: src/Helpers/NotificationHelper.php:325
+#: src/Helpers/NotificationHelper.php:326
 msgid "Please review this booking's paid orders and settle any refund by hand."
 msgstr ""
 
@@ -13718,7 +13707,7 @@ msgstr ""
 msgid "Rollback wrote nothing for this page: the previous manifest no longer resolves to it."
 msgstr ""
 
-#: src/Plugin.php:1092
+#: src/Plugin.php:1096
 msgid "Failed to create the customer role."
 msgstr ""
 

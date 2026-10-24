@@ -35,6 +35,29 @@ final class ShortcodeUrlManager {
 	private const CACHE_GROUP = 'mhmrentiva_shortcodes';
 
 	/**
+	 * Rentiva Elementor widget names (get_name()) per shortcode. A page built with
+	 * Elementor keeps these in `_elementor_data`, not in post_content.
+	 */
+	private const ELEMENTOR_WIDGETS = array(
+		'rentiva_availability_calendar' => array( 'rv-availability-calendar' ),
+		'rentiva_booking_form'          => array( 'rv-booking-form' ),
+		'rentiva_contact'               => array( 'rv-contact-form' ),
+		'rentiva_featured_vehicles'     => array( 'mhmrentiva_featured_vehicles' ),
+		'rentiva_my_bookings'           => array( 'rv-my-bookings' ),
+		'rentiva_my_favorites'          => array( 'rv-my-favorites' ),
+		'rentiva_payment_history'       => array( 'rv-payment-history' ),
+		'rentiva_search_results'        => array( 'rv-search-results' ),
+		'rentiva_testimonials'          => array( 'rv-testimonials' ),
+		'rentiva_unified_search'        => array( 'rv-vehicle-search' ),
+		'rentiva_user_dashboard'        => array( 'rv-user-dashboard' ),
+		'rentiva_vehicle_comparison'    => array( 'rv-vehicle-comparison' ),
+		'rentiva_vehicle_details'       => array( 'rv-vehicle-details' ),
+		'rentiva_vehicle_rating_form'   => array( 'rv-vehicle-rating' ),
+		'rentiva_vehicles_grid'         => array( 'mhmrentiva_vehicles_grid' ),
+		'rentiva_vehicles_list'         => array( 'mhmrentiva_vehicles_list' ),
+	);
+
+	/**
 	 * Static cache for the current request.
 	 *
 	 * @var array<string, string>
@@ -106,6 +129,55 @@ final class ShortcodeUrlManager {
 	}
 
 	/**
+	 * A published page built with Elementor that holds the shortcode's Rentiva
+	 * widget, or the shortcode itself inside an Elementor shortcode/text widget.
+	 * Asked only after post_content found nothing, so a classic page still wins.
+	 * Only pages Elementor still renders (_elementor_edit_mode = builder) count: a
+	 * page switched back to the classic editor keeps its stale _elementor_data.
+	 * A page the plugin created wins, then the oldest: Elementor users drop the
+	 * same widget onto later landing pages (often with a fixed vehicle), and the
+	 * newest of those must not take over the site-wide page.
+	 *
+	 * @param string $shortcode Shortcode name.
+	 * @return int Page ID, 0 when none.
+	 */
+	private static function find_elementor_page( string $shortcode ): int {
+		global $wpdb;
+
+		/**
+		 * Elementor widget names (get_name()) that render this shortcode, so an
+		 * add-on can name its own widgets.
+		 *
+		 * @param string[] $names     Widget names.
+		 * @param string   $shortcode Shortcode tag.
+		 */
+		$names = (array) apply_filters( 'mhmrentiva_elementor_widgets_for_shortcode', self::ELEMENTOR_WIDGETS[ $shortcode ] ?? array(), $shortcode );
+		$names = array_values( array_filter( array_map( 'strval', $names ), static fn ( string $n ): bool => 1 === preg_match( '/^[a-z0-9_-]+$/', $n ) ) );
+
+		$regex = '\[' . $shortcode . '(\]| |=)';
+		if ( array() !== $names ) {
+			$regex .= '|"widgetType":"(' . implode( '|', $names ) . ')"';
+		}
+
+		$page_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p
+                  INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_elementor_data'
+                  INNER JOIN {$wpdb->postmeta} e ON e.post_id = p.ID AND e.meta_key = '_elementor_edit_mode' AND e.meta_value = 'builder'
+                  LEFT JOIN {$wpdb->postmeta} a ON a.post_id = p.ID AND a.meta_key = '_mhmrentiva_auto_created'
+                  WHERE p.post_type = 'page'
+                  AND p.post_status = 'publish'
+                  AND m.meta_value REGEXP %s
+                  ORDER BY a.meta_id IS NULL ASC, p.post_date ASC
+                  LIMIT 1",
+				$regex
+			)
+		);
+
+		return $page_id ? (int) $page_id : 0;
+	}
+
+	/**
 	 * Find page ID containing the shortcode OR Gutenberg block.
 	 *
 	 * @param string $shortcode Shortcode name.
@@ -118,6 +190,11 @@ final class ShortcodeUrlManager {
 		$cached_id = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false !== $cached_id ) {
+			// A remembered miss (-1): on an Elementor site the fallback scans every
+			// page's _elementor_data, too costly to repeat on each request.
+			if ( -1 === (int) $cached_id ) {
+				return null;
+			}
 			// Validate that the cached page still exists and is published
 			if ( $cached_id > 0 && 'publish' === get_post_status( $cached_id ) ) {
 				return (int) $cached_id;
@@ -148,8 +225,12 @@ final class ShortcodeUrlManager {
 			)
 		);
 
-		$page_id = $page_id ? (int) $page_id : 0;
-		wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
+		$page_id = $page_id ? (int) $page_id : self::find_elementor_page( $shortcode );
+		if ( $page_id > 0 ) {
+			wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
+		} else {
+			wp_cache_set( $cache_key, -1, self::CACHE_GROUP, 5 * MINUTE_IN_SECONDS );
+		}
 
 		return $page_id > 0 ? $page_id : null;
 	}
@@ -308,6 +389,12 @@ final class ShortcodeUrlManager {
 	 */
 	public static function clear_cache_on_page_update( int $post_id ): void {
 		if ( wp_is_post_revision( $post_id ) || get_post_type( $post_id ) !== 'page' ) {
+			return;
+		}
+
+		// An Elementor page keeps its widgets in meta, often with empty content.
+		if ( 'builder' === get_post_meta( $post_id, '_elementor_edit_mode', true ) ) {
+			self::clear_cache();
 			return;
 		}
 

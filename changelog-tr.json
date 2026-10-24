@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.3.1",
+    "date": "2026-10-24",
+    "type": "patch",
+    "title": "Elementor ile kurulmuş sayfalar bulunuyor; çeviri belirteçleri WordPress.org ile uyumlu",
+    "summary": "6.3.1, Elementor sitelerinde her \"Rezervasyon yap\" düğmesinin ana sayfayı açtığı sayfa bulucuyu ve translate.wordpress.org'daki Türkçe içe aktarımı engelleyen çeviri belirteçlerini düzeltir.",
+    "changes": [
+      "Düzeltildi: Elementor ile kurulmuş sayfalar bulunuyor. Rentiva bileşeni ya da bir Elementor bileşeninin içindeki [rentiva_*] kısa kodu sayfa içeriğinde değil Elementor verisinde durduğu için sayfa bulucu onları göremiyordu: \"Rezervasyon yap\" düğmeleri ve başka bağlantılar ana sayfaya düşüyor, Kısa kod sayfaları ekranı sayfayı eksik gösteriyordu. İçeriğinde kısa kod ya da blok olan sayfa yine önceliklidir. Araç detay sayfası artık bulunan Elementor sitelerinde araç sayfaları o sayfanın altına taşınır (/vehicle/... adresinden 301 ile), blok ve kısa kod sitelerinde olduğu gibi.",
+      "Düzeltildi: bildirimlerdeki çeviri belirteçleri {anahtar} biçiminde. WordPress.org çeviri aracı \"%num_days% days\" ifadesini printf yer tutucusu sanıp doğru çevirileri işaretliyordu. Türkçe katalog translate.wordpress.org'un kullandığı çoğul formülünü kullanıyor.",
+      "Düzeltildi: 6.3.0 notlarındaki bir satırda \"<vehicle>\" ifadesi WordPress.org'da HTML etiketi sanılıp siliniyordu."
+    ]
+  },
+  {
     "version": "6.3.0",
     "date": "2026-10-24",
     "type": "minor",

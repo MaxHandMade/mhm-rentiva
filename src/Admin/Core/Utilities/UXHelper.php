@@ -69,18 +69,18 @@ final class UXHelper {
 	private static function get_error_messages(): array {
 		return array(
 			self::ERROR_TYPE_BOOKING    => array(
-				/* translators: %date% is replaced with a runtime value. */
-				'vehicle_not_available' => __( 'The selected vehicle is not available on %date%. Please select a different date.', 'mhm-rentiva' ),
+				/* translators: {date} is replaced with a runtime value. */
+				'vehicle_not_available' => __( 'The selected vehicle is not available on {date}. Please select a different date.', 'mhm-rentiva' ),
 				'booking_failed'        => __( 'An error occurred while creating reservation. Please check your information and try again.', 'mhm-rentiva' ),
 				'invalid_dates'         => __( 'Invalid date range. Start date must be before end date.', 'mhm-rentiva' ),
 				'past_date'             => __( 'You cannot select a past date. Please select a date after today.', 'mhm-rentiva' ),
-				/* translators: %num_days% is replaced with a runtime value. */
-				'too_far_future'        => __( 'Reservation date is too far in the future. You can make reservations up to %num_days% days in advance.', 'mhm-rentiva' ),
-				/* translators: %hours% is replaced with a runtime value. */
-				'minimum_duration'      => __( 'Minimum reservation duration is %hours% hours.', 'mhm-rentiva' ),
-				/* translators: %num_days% is replaced with a runtime value. */
-				'maximum_duration'      => __( 'Maximum reservation duration is %num_days% days.', 'mhm-rentiva' ),
-				'booking_limit_reached' => __( 'You can make a maximum of %limit% reservations at once.', 'mhm-rentiva' ),
+				/* translators: {num_days} is replaced with a number of days. */
+				'too_far_future'        => __( 'Reservation date is too far in the future. You can make reservations up to {num_days} days in advance.', 'mhm-rentiva' ),
+				/* translators: {hours} is replaced with a number of hours. */
+				'minimum_duration'      => __( 'Minimum reservation duration is {hours} hours.', 'mhm-rentiva' ),
+				/* translators: {num_days} is replaced with a number of days. */
+				'maximum_duration'      => __( 'Maximum reservation duration is {num_days} days.', 'mhm-rentiva' ),
+				'booking_limit_reached' => __( 'You can make a maximum of {limit} reservations at once.', 'mhm-rentiva' ),
 				'customer_not_found'    => __( 'Customer information not found. Please log in or register.', 'mhm-rentiva' ),
 				'payment_required'      => __( 'Payment is required for reservation. Please select your payment method.', 'mhm-rentiva' ),
 			),
@@ -91,17 +91,17 @@ final class UXHelper {
 				'invalid_card'                 => __( 'Invalid card information. Please check your card number and security code.', 'mhm-rentiva' ),
 				'payment_timeout'              => __( 'Payment transaction timed out. Please try again.', 'mhm-rentiva' ),
 				'refund_failed'                => __( 'Refund process failed. Please contact customer service.', 'mhm-rentiva' ),
-				'partial_refund'               => __( 'Partial refund completed. %amount% has been refunded to your account.', 'mhm-rentiva' ),
+				'partial_refund'               => __( 'Partial refund completed. {amount} has been refunded to your account.', 'mhm-rentiva' ),
 				'payment_method_not_supported' => __( 'Selected payment method is not supported. Please try a different method.', 'mhm-rentiva' ),
 			),
 			self::ERROR_TYPE_VEHICLE    => array(
 				'vehicle_not_found'        => __( 'Vehicle not found. Please refresh the page and try again.', 'mhm-rentiva' ),
 				'vehicle_unavailable'      => __( 'This vehicle is currently in use. Please select a different vehicle.', 'mhm-rentiva' ),
-				/* translators: %duration% is replaced with a runtime value. */
-				'vehicle_maintenance'      => __( 'Vehicle is under maintenance. Estimated duration: %duration%.', 'mhm-rentiva' ),
+				/* translators: {duration} is replaced with a runtime value. */
+				'vehicle_maintenance'      => __( 'Vehicle is under maintenance. Estimated duration: {duration}.', 'mhm-rentiva' ),
 				'vehicle_damaged'          => __( 'Vehicle is damaged. Booking not available.', 'mhm-rentiva' ),
-				'vehicle_location_changed' => __( 'Vehicle location changed. New location: %location%.', 'mhm-rentiva' ),
-				'vehicle_price_changed'    => __( 'Vehicle price updated. New price: %price%.', 'mhm-rentiva' ),
+				'vehicle_location_changed' => __( 'Vehicle location changed. New location: {location}.', 'mhm-rentiva' ),
+				'vehicle_price_changed'    => __( 'Vehicle price updated. New price: {price}.', 'mhm-rentiva' ),
 			),
 			self::ERROR_TYPE_CUSTOMER   => array(
 				'customer_not_found'             => __( 'Customer information not found. Please log in.', 'mhm-rentiva' ),
@@ -109,16 +109,16 @@ final class UXHelper {
 				'customer_verification_required' => __( 'You need to verify your account. Please check your email address.', 'mhm-rentiva' ),
 				'customer_profile_incomplete'    => __( 'Your profile information is incomplete. Please complete your information from your profile page.', 'mhm-rentiva' ),
 				'customer_license_expired'       => __( 'Your license has expired. Please upload a current license.', 'mhm-rentiva' ),
-				'customer_age_restriction'       => __( 'You cannot make a reservation due to age restriction. Minimum age: %age%.', 'mhm-rentiva' ),
+				'customer_age_restriction'       => __( 'You cannot make a reservation due to age restriction. Minimum age: {age}.', 'mhm-rentiva' ),
 			),
 			self::ERROR_TYPE_SYSTEM     => array(
 				'database_error'      => __( 'System is temporarily unavailable. Please try again in a few minutes.', 'mhm-rentiva' ),
 				'server_error'        => __( 'Server error occurred. Please try again later.', 'mhm-rentiva' ),
-				/* translators: %duration% is replaced with a runtime value. */
-				'maintenance_mode'    => __( 'System is under maintenance. Estimated duration: %duration%.', 'mhm-rentiva' ),
+				/* translators: {duration} is replaced with a runtime value. */
+				'maintenance_mode'    => __( 'System is under maintenance. Estimated duration: {duration}.', 'mhm-rentiva' ),
 				'feature_disabled'    => __( 'This feature is temporarily disabled.', 'mhm-rentiva' ),
-				/* translators: %seconds% is replaced with a runtime value. */
-				'rate_limit_exceeded' => __( 'Too many requests. Please wait %seconds% seconds.', 'mhm-rentiva' ),
+				/* translators: {seconds} is replaced with a runtime value. */
+				'rate_limit_exceeded' => __( 'Too many requests. Please wait {seconds} seconds.', 'mhm-rentiva' ),
 				'session_expired'     => __( 'Your session has expired. Please log in again.', 'mhm-rentiva' ),
 			),
 			self::ERROR_TYPE_VALIDATION => array(
@@ -127,11 +127,11 @@ final class UXHelper {
 				'invalid_phone'      => __( 'Please enter a valid phone number.', 'mhm-rentiva' ),
 				'invalid_date'       => __( 'Please enter a valid date.', 'mhm-rentiva' ),
 				'invalid_time'       => __( 'Please enter a valid time.', 'mhm-rentiva' ),
-				'password_too_short' => __( 'Password must be at least %length% characters.', 'mhm-rentiva' ),
+				'password_too_short' => __( 'Password must be at least {length} characters.', 'mhm-rentiva' ),
 				'password_mismatch'  => __( 'Passwords do not match.', 'mhm-rentiva' ),
-				/* translators: %size% is replaced with a runtime value. */
-				'file_too_large'     => __( 'File size is too large. Maximum size: %size%.', 'mhm-rentiva' ),
-				'invalid_file_type'  => __( 'Invalid file type. Allowed types: %types%.', 'mhm-rentiva' ),
+				/* translators: {size} is replaced with a runtime value. */
+				'file_too_large'     => __( 'File size is too large. Maximum size: {size}.', 'mhm-rentiva' ),
+				'invalid_file_type'  => __( 'Invalid file type. Allowed types: {types}.', 'mhm-rentiva' ),
 			),
 			self::ERROR_TYPE_PERMISSION => array(
 				'access_denied'         => __( 'You do not have access to this page.', 'mhm-rentiva' ),
@@ -150,11 +150,13 @@ final class UXHelper {
 	}
 
 	/**
-	 * Replace context variables
+	 * Replace context variables. Messages use {key}: GlotPress reads a "%key% d"
+	 * token as the printf placeholder "% d" and flags every translation where the
+	 * next letter differs. %key% is still replaced for filtered messages.
 	 */
 	private static function replace_context_variables( string $message, array $context ): string {
 		foreach ( $context as $key => $value ) {
-			$message = str_replace( '%' . $key . '%', $value, $message );
+			$message = str_replace( array( '{' . $key . '}', '%' . $key . '%' ), (string) $value, $message );
 		}
 		return $message;
 	}
@@ -164,8 +166,8 @@ final class UXHelper {
 	 */
 	public static function get_success_message( string $action_type, array $context = array() ): string {
 		$messages = array(
-			/* translators: %booking_id% is replaced with a runtime value. */
-			'booking_created'   => __( 'Your reservation has been successfully created. Your reservation number: %booking_id%', 'mhm-rentiva' ),
+			/* translators: {booking_id} is replaced with a runtime value. */
+			'booking_created'   => __( 'Your reservation has been successfully created. Your reservation number: {booking_id}', 'mhm-rentiva' ),
 			'booking_updated'   => __( 'Your reservation has been successfully updated.', 'mhm-rentiva' ),
 			'booking_cancelled' => __( 'Your reservation has been successfully cancelled.', 'mhm-rentiva' ),
 			'payment_completed' => __( 'Your payment has been successfully completed.', 'mhm-rentiva' ),
@@ -194,21 +196,21 @@ final class UXHelper {
 	 */
 	public static function get_warning_message( string $warning_type, array $context = array() ): string {
 		$messages = array(
-			'booking_ending_soon'   => __( 'Your reservation will end in %time%.', 'mhm-rentiva' ),
-			/* translators: %date% is replaced with a runtime value. */
-			'payment_due'           => __( 'Your payment must be made on %date%.', 'mhm-rentiva' ),
-			/* translators: %date% is replaced with a runtime value. */
-			'vehicle_return_due'    => __( 'You must return the vehicle on %date%.', 'mhm-rentiva' ),
-			/* translators: %num_days% is replaced with a runtime value. */
-			'license_expiring'      => __( 'Your license will expire in %num_days% days.', 'mhm-rentiva' ),
-			/* translators: %date% is replaced with a runtime value. */
-			'maintenance_scheduled' => __( 'Vehicle maintenance is scheduled for %date%.', 'mhm-rentiva' ),
-			/* translators: %date% is replaced with a runtime value. */
-			'price_increase'        => __( 'Vehicle price will increase from %date%.', 'mhm-rentiva' ),
+			'booking_ending_soon'   => __( 'Your reservation will end in {time}.', 'mhm-rentiva' ),
+			/* translators: {date} is replaced with a runtime value. */
+			'payment_due'           => __( 'Your payment must be made on {date}.', 'mhm-rentiva' ),
+			/* translators: {date} is replaced with a runtime value. */
+			'vehicle_return_due'    => __( 'You must return the vehicle on {date}.', 'mhm-rentiva' ),
+			/* translators: {num_days} is replaced with a number of days. */
+			'license_expiring'      => __( 'Your driver\'s license will expire in {num_days} days.', 'mhm-rentiva' ),
+			/* translators: {date} is replaced with a runtime value. */
+			'maintenance_scheduled' => __( 'Vehicle maintenance is scheduled for {date}.', 'mhm-rentiva' ),
+			/* translators: {date} is replaced with a runtime value. */
+			'price_increase'        => __( 'Vehicle price will increase from {date}.', 'mhm-rentiva' ),
 		);
 
 		if ( ! isset( $messages[ $warning_type ] ) ) {
-			return __( 'Warning: %message%', 'mhm-rentiva' );
+			return __( 'Warning: {message}', 'mhm-rentiva' );
 		}
 
 		$message = $messages[ $warning_type ];
@@ -229,13 +231,13 @@ final class UXHelper {
 			'payment_processing'    => __( 'Your payment is being processed. Please wait...', 'mhm-rentiva' ),
 			'vehicle_ready'         => __( 'Your vehicle is ready. You can pick it up at the reservation time.', 'mhm-rentiva' ),
 			'maintenance_completed' => __( 'Vehicle maintenance completed. You can make a reservation.', 'mhm-rentiva' ),
-			/* translators: %feature% is replaced with a runtime value. */
-			'new_feature'           => __( 'New feature: %feature%. Click for details.', 'mhm-rentiva' ),
+			/* translators: {feature} is replaced with a runtime value. */
+			'new_feature'           => __( 'New feature: {feature}. Click for details.', 'mhm-rentiva' ),
 			'system_update'         => __( 'System updated. New features available.', 'mhm-rentiva' ),
 		);
 
 		if ( ! isset( $messages[ $info_type ] ) ) {
-			return __( 'Info: %message%', 'mhm-rentiva' );
+			return __( 'Info: {message}', 'mhm-rentiva' );
 		}
 
 		$message = $messages[ $info_type ];
