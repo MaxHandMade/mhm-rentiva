@@ -96,6 +96,35 @@ final class ElementorPageDetectionTest extends WP_UnitTestCase
 		$this->assertNull( ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ) );
 	}
 
+	public function test_the_oldest_elementor_page_wins_over_a_later_one(): void
+	{
+		$details  = $this->elementor_page( array( 'widgetType' => 'rv-vehicle-details' ), 'publish', '2020-01-01 00:00:00' );
+		$campaign = $this->elementor_page( array( 'widgetType' => 'rv-vehicle-details', 'settings' => array( 'vehicle_id' => '12' ) ), 'publish', '2021-06-01 00:00:00' );
+
+		$this->assertSame( $details, ShortcodeUrlManager::get_page_id( 'rentiva_vehicle_details' ) );
+		$this->assertNotSame( $campaign, ShortcodeUrlManager::get_page_id( 'rentiva_vehicle_details' ) );
+	}
+
+	public function test_a_page_the_plugin_created_wins(): void
+	{
+		$this->elementor_page( array( 'widgetType' => 'rv-booking-form' ), 'publish', '2019-01-01 00:00:00' );
+		$own = $this->elementor_page( array( 'widgetType' => 'rv-booking-form' ), 'publish', '2022-01-01 00:00:00' );
+		update_post_meta( $own, '_mhmrentiva_auto_created', '1' );
+
+		$this->assertSame( $own, ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ) );
+	}
+
+	public function test_a_miss_is_remembered_until_the_cache_is_cleared(): void
+	{
+		$this->assertNull( ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ) );
+
+		$page = $this->elementor_page( array( 'widgetType' => 'rv-booking-form' ) );
+		$this->assertNull( ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ), 'the miss is cached' );
+
+		ShortcodeUrlManager::clear_cache_on_page_update( $page );
+		$this->assertSame( $page, ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ), 'saving an Elementor page clears it' );
+	}
+
 	public function test_another_widget_does_not_match(): void
 	{
 		$this->elementor_page( array( 'widgetType' => 'mhmrentiva_vehicles_list' ) );

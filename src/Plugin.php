@@ -685,6 +685,10 @@ final class Plugin {
 
 		// Shortcode URL cache temizleme
 		add_action('save_post', array( Admin\Core\ShortcodeUrlManager::class, 'clear_cache_on_page_update' ));
+		// Elementor saves its data after save_post; forget page lookups once it has.
+		add_action('elementor/document/after_save', static function (): void {
+			Admin\Core\ShortcodeUrlManager::clear_cache();
+		});
 		add_action(
 			'delete_post',
 			function ($post_id) {

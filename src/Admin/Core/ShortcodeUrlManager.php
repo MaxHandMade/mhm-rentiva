@@ -134,6 +134,9 @@ final class ShortcodeUrlManager {
 	 * Asked only after post_content found nothing, so a classic page still wins.
 	 * Only pages Elementor still renders (_elementor_edit_mode = builder) count: a
 	 * page switched back to the classic editor keeps its stale _elementor_data.
+	 * A page the plugin created wins, then the oldest: Elementor users drop the
+	 * same widget onto later landing pages (often with a fixed vehicle), and the
+	 * newest of those must not take over the site-wide page.
 	 *
 	 * @param string $shortcode Shortcode name.
 	 * @return int Page ID, 0 when none.
@@ -161,10 +164,11 @@ final class ShortcodeUrlManager {
 				"SELECT p.ID FROM {$wpdb->posts} p
                   INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_elementor_data'
                   INNER JOIN {$wpdb->postmeta} e ON e.post_id = p.ID AND e.meta_key = '_elementor_edit_mode' AND e.meta_value = 'builder'
+                  LEFT JOIN {$wpdb->postmeta} a ON a.post_id = p.ID AND a.meta_key = '_mhmrentiva_auto_created'
                   WHERE p.post_type = 'page'
                   AND p.post_status = 'publish'
                   AND m.meta_value REGEXP %s
-                  ORDER BY p.post_date DESC
+                  ORDER BY a.meta_id IS NULL ASC, p.post_date ASC
                   LIMIT 1",
 				$regex
 			)
@@ -186,6 +190,11 @@ final class ShortcodeUrlManager {
 		$cached_id = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false !== $cached_id ) {
+			// A remembered miss (-1): on an Elementor site the fallback scans every
+			// page's _elementor_data, too costly to repeat on each request.
+			if ( -1 === (int) $cached_id ) {
+				return null;
+			}
 			// Validate that the cached page still exists and is published
 			if ( $cached_id > 0 && 'publish' === get_post_status( $cached_id ) ) {
 				return (int) $cached_id;
@@ -217,7 +226,11 @@ final class ShortcodeUrlManager {
 		);
 
 		$page_id = $page_id ? (int) $page_id : self::find_elementor_page( $shortcode );
-		wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
+		if ( $page_id > 0 ) {
+			wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
+		} else {
+			wp_cache_set( $cache_key, -1, self::CACHE_GROUP, 5 * MINUTE_IN_SECONDS );
+		}
 
 		return $page_id > 0 ? $page_id : null;
 	}
@@ -376,6 +389,12 @@ final class ShortcodeUrlManager {
 	 */
 	public static function clear_cache_on_page_update( int $post_id ): void {
 		if ( wp_is_post_revision( $post_id ) || get_post_type( $post_id ) !== 'page' ) {
+			return;
+		}
+
+		// An Elementor page keeps its widgets in meta, often with empty content.
+		if ( 'builder' === get_post_meta( $post_id, '_elementor_edit_mode', true ) ) {
+			self::clear_cache();
 			return;
 		}
 
