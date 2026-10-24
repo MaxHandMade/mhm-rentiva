@@ -33,6 +33,14 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data.
 *   **Translation Ready:** Ships with a full Turkish translation.
 
+**Documentation and support**
+
+*   [Documentation](https://maxhandmade.github.io/mhm-rentiva-docs/) — setup, shortcodes, blocks and Elementor widgets, in English and Turkish
+*   [Support forum](https://wordpress.org/support/plugin/mhm-rentiva/)
+*   [Source code and issue tracker on GitHub](https://github.com/MaxHandMade/mhm-rentiva)
+*   [wpalemi.com](https://wpalemi.com/) — the author's site
+*   [MaxHandMade on YouTube](https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA) — WordPress and WooCommerce videos from the author
+
 **Requirements:** WooCommerce. It is declared in the plugin header and checked on activation, so the plugin will not activate without it. WooCommerce provides the cart, checkout and payment gateways used for frontend bookings.
 
 = External services =
@@ -194,7 +202,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * New: in the Elementor and block editors, Rentiva widgets show safe previews: account widgets show sample rows, never your own data, and forms are inert.
 * New: all Rentiva blocks sit in a "Rentiva" category; block settings panels and Elementor "Additional Settings" are translatable, and the Turkish translation was reviewed end to end.
 * Changed: a vehicle whose service type is "transfer only" can no longer be rented; it is hidden from rental lists and the server refuses the booking.
-* Changed: e-mail templates whose "Enabled" box is unticked are no longer sent. On cancellation the customer gets one "Booking Cancelled" e-mail instead of two. Customer e-mails use the site language. The "Admin Email" fields are now used.
+* Changed: e-mail templates whose "Enabled" box is unticked are no longer sent. On cancellation the customer gets one "Booking Cancelled" e-mail instead of two. Customer e-mails use the site language. The "Admin Email" fields are now used. The "Send Booking Notifications" switch now really stops the booking confirmation, reminder and cancellation e-mails to customers. The admin alerts sent directly (needs review, refund failed, mixed currency, order cancelled) and the admin copy of a cancellation are still sent when "Enable Outgoing Emails" is off.
 * Changed: the search form hides the drop-off field unless a page turns it on (show_dropoff_location="true").
 * Security: the booking form checks the return time, required add-ons and the payment type on the server; vehicle titles and plates are always handled as text in scripts.
 * Fixed: saving or editing a booking in the admin keeps add-ons, the deposit and weekend pricing, and refuses dates the vehicle is not free for.
@@ -209,7 +217,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 == Upgrade Notice ==
 
 = 6.3.0 =
-Unticked e-mail templates now really stop sending, and cancelled bookings send the customer one e-mail. Check your e-mail templates and Settings > Payment after updating. Rentiva Pro users: update Pro to 6.4.0 after this.
+Unticked e-mail templates and the "Send Booking Notifications" switch now really stop sending, and cancelled bookings send the customer one e-mail. Check your e-mail settings and Settings > Payment after updating. Rentiva Pro users: update Pro to 6.4.0 after this.
 
 = 6.2.1 =
 Privacy fix: Elementor pages with Rentiva widgets could expose the saving user's account data to site search. A background job cleans affected pages. Purge page caches and search indexes after updating.

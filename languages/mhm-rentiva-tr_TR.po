@@ -3509,7 +3509,7 @@ msgstr "Puan"
 #: templates/shortcodes/vehicle-details.php:165
 #: templates/shortcodes/vehicle-details.php:182
 msgid "Add to Favorites"
-msgstr "Beğenilere ekle"
+msgstr "Favorilere ekle"
 
 #: src/Admin/Core/AssetManager.php:360 templates/partials/vehicle-card.php:80
 #: templates/partials/vehicle-card.php:81
@@ -3518,23 +3518,23 @@ msgstr "Beğenilere ekle"
 #: templates/shortcodes/vehicle-details.php:165
 #: templates/shortcodes/vehicle-details.php:182
 msgid "Remove from Favorites"
-msgstr "Beğenilerden çıkar"
+msgstr "Favorilerden çıkar"
 
 #: src/Admin/Core/AssetManager.php:361
 msgid "Adding to favorites..."
-msgstr "Beğenilere ekleniyor..."
+msgstr "Favorilere ekleniyor..."
 
 #: src/Admin/Core/AssetManager.php:362
 msgid "Removing from favorites..."
-msgstr "Beğenilerden kaldırılıyor..."
+msgstr "Favorilerden kaldırılıyor..."
 
 #: src/Admin/Core/AssetManager.php:363
 msgid "Added to favorites."
-msgstr "Beğenilere eklendi."
+msgstr "Favorilere eklendi."
 
 #: src/Admin/Core/AssetManager.php:364
 msgid "Removed from favorites."
-msgstr "Beğenilerden kaldırıldı."
+msgstr "Favorilerden kaldırıldı."
 
 #: src/Admin/Core/AssetManager.php:365 templates/partials/vehicle-card.php:111
 #: templates/partials/vehicle-card.php:112
@@ -3579,7 +3579,7 @@ msgstr "Karşılaştırmayı görüntüle"
 
 #: src/Admin/Core/AssetManager.php:374
 msgid "Go to My Favorites"
-msgstr "Beğenilerime git"
+msgstr "Favorilerime git"
 
 #: src/Admin/Core/AssetManager.php:375
 msgid "Add one more vehicle to compare"
@@ -6085,7 +6085,7 @@ msgstr "toplam"
 #: src/Admin/Customers/CustomersPage.php:385
 #: src-react/admin/customers/components/CustomerPanel.jsx:112
 msgid "favorites"
-msgstr "beğeni"
+msgstr "favoriler"
 
 #: src/Admin/Customers/CustomersPage.php:411
 #: src-react/admin/customers/components/CustomerPanel.jsx:117
@@ -6834,17 +6834,17 @@ msgstr "Hesap bilgileri başarıyla kaydedildi."
 #: src/Admin/Frontend/Account/AccountController.php:411
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 msgid "Vehicle removed from favorites."
-msgstr "Araç beğenilerden kaldırıldı."
+msgstr "Araç favorilerden kaldırıldı."
 
 #: src/Admin/Frontend/Account/AccountController.php:412
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 msgid "Vehicle added to favorites."
-msgstr "Araç beğenilere eklendi."
+msgstr "Araç favorilere eklendi."
 
 #: src/Admin/Frontend/Account/AccountController.php:413
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 msgid "All favorites cleared."
-msgstr "Tüm beğeniler silindi."
+msgstr "Tüm favoriler silindi."
 
 #: src/Admin/Frontend/Account/AccountController.php:415
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
@@ -6854,12 +6854,12 @@ msgstr "Değişiklikleri iptal etmek istediğinize emin misiniz?"
 #: src/Admin/Frontend/Account/AccountController.php:416
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:80
 msgid "No favorite vehicles yet."
-msgstr "Henüz beğenilen araç yok."
+msgstr "Henüz favori araç yok."
 
 #: src/Admin/Frontend/Account/AccountController.php:417
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:81
 msgid "You can add vehicles to favorites using the heart icon."
-msgstr "Kalp simgesini kullanarak araçları beğenilere ekleyebilirsiniz."
+msgstr "Kalp simgesini kullanarak araçları favorilere ekleyebilirsiniz."
 
 #: src/Admin/Frontend/Account/AccountController.php:419
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:83
@@ -6871,12 +6871,12 @@ msgstr "Değişiklikleri kaydet"
 #: src/Admin/Frontend/Account/AccountController.php:420
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:84
 msgid "vehicle in your favorites"
-msgstr "beğenilerinizdeki araç"
+msgstr "favorilerinizdeki araç"
 
 #: src/Admin/Frontend/Account/AccountController.php:421
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:85
 msgid "vehicles in your favorites"
-msgstr "beğenilerinizdeki araçlar"
+msgstr "favorilerinizdeki araçlar"
 
 #: src/Admin/Frontend/Account/AccountController.php:647
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:228
@@ -6891,7 +6891,7 @@ msgstr "Oturum açmalısınız"
 
 #: src/Admin/Frontend/Account/AccountController.php:659
 msgid "All favorites cleared"
-msgstr "Tüm beğeniler silindi"
+msgstr "Tüm favoriler silindi"
 
 #: src/Admin/Frontend/Account/AccountController.php:672
 #: src/Admin/Frontend/Account/AccountController.php:945
@@ -7028,7 +7028,7 @@ msgstr "Ayrıntıları görüntüle"
 #: src/Admin/Services/FavoritesService.php:175
 #: src/Admin/Settings/Groups/FrontendSettings.php:308
 msgid "Added to favorites"
-msgstr "Beğenilere eklendi"
+msgstr "Favorilere eklendi"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:441
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:338
@@ -7040,7 +7040,7 @@ msgstr "Beğenilere eklendi"
 #: src/Admin/Services/FavoritesService.php:171
 #: src/Admin/Settings/Groups/FrontendSettings.php:309
 msgid "Removed from favorites"
-msgstr "Beğenilerden kaldırıldı"
+msgstr "Favorilerden kaldırıldı"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:442
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:336
@@ -7050,7 +7050,7 @@ msgstr "Beğenilerden kaldırıldı"
 #: src/Admin/Services/FavoritesService.php:154
 #: src/Admin/Settings/Groups/FrontendSettings.php:310
 msgid "You must be logged in to add to favorites"
-msgstr "Beğenilere eklemek için oturum açmalısınız"
+msgstr "Favorilere eklemek için oturum açmalısınız"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:638
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:347
@@ -7075,7 +7075,7 @@ msgstr "Rezervasyonlarım"
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:39
 #: templates/account/dashboard.php:59
 msgid "Favorite Vehicles"
-msgstr "Beğenilen araçlar"
+msgstr "Favori araçlar"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:708
 #: src/Admin/Frontend/Widgets/Elementor/PaymentHistoryWidget.php:25
@@ -7158,7 +7158,7 @@ msgid ""
 "payments — is now on your account page."
 msgstr ""
 "Hesabınız taşındı. Burada bulunan her şey — rezervasyonlarınız, "
-"beğenileriniz ve ödemeleriniz — artık hesap sayfanızda."
+"favorileriniz ve ödemeleriniz — artık hesap sayfanızda."
 
 #: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:144
 msgid "Go to my account"
@@ -7251,7 +7251,7 @@ msgstr "Lütfen önce bir tarih seçin."
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:302
 msgid "Please login to add favorites."
-msgstr "Beğenilere eklemek için lütfen giriş yapın."
+msgstr "Favorilere eklemek için lütfen giriş yapın."
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:323
 msgid "Operation successful."
@@ -7378,18 +7378,18 @@ msgstr "Lütfen bir ödeme yöntemi seçin."
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:269
 msgid "Please log in to manage favorites."
-msgstr "Beğenileri yönetmek için lütfen oturum açın."
+msgstr "Favorileri yönetmek için lütfen oturum açın."
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:272
 #: templates/shortcodes/availability-calendar.php:131
 #: templates/shortcodes/booking-form.php:143
 msgid "Add to favorites"
-msgstr "Beğenilere ekle"
+msgstr "Favorilere ekle"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:273
 #: templates/shortcodes/availability-calendar.php:131
 msgid "Remove from favorites"
-msgstr "Beğenilerden çıkar"
+msgstr "Favorilerden çıkar"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:274
 msgid "You must accept the terms and conditions to complete your booking."
@@ -8891,7 +8891,7 @@ msgstr "Açıklamayı göster"
 #: assets/blocks/vehicles-grid/index.js:165
 #: assets/blocks/vehicles-list/index.js:127
 msgid "Show Favorite Button"
-msgstr "Beğeni düğmesini göster"
+msgstr "Favori düğmesini göster"
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:289
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:229
@@ -9386,11 +9386,11 @@ msgstr "Duruma göre süz"
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:25
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:52
 msgid "My Favorites"
-msgstr "Beğenilerim"
+msgstr "Favorilerim"
 
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:45
 msgid "Displays user favorite vehicles."
-msgstr "Kullanıcının beğendiği araçları gösterir."
+msgstr "Kullanıcının favori araçlarını gösterir."
 
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:84
 #: assets/blocks/my-favorites/index.js:48
@@ -10562,7 +10562,7 @@ msgstr "Bildirimler"
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:404
 #: src/Admin/Settings/Groups/MaintenanceSettings.php:70
 msgid "Cache & Performance"
-msgstr "Ön bellek ve başarım"
+msgstr "Önbellek ve başarım"
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:126
 msgid "Configure comment and rating system settings for vehicles."
@@ -10716,19 +10716,19 @@ msgstr "Yorum onaylandığında kullanıcıya e-posta bildirimi gönder."
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:412
 msgid "Enable Comment Cache"
-msgstr "Yorum ön belleğini etkinleştir"
+msgstr "Yorum önbelleğini etkinleştir"
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:413
 msgid "Enable caching for comments to improve performance."
-msgstr "Başarımı iyileştirmek için yorumlarda ön belleklemeyi etkinleştirin."
+msgstr "Başarımı iyileştirmek için yorumlarda önbelleklemeyi etkinleştirin."
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:421
 msgid "Cache Duration (minutes)"
-msgstr "Ön bellek süresi (dakika)"
+msgstr "Önbellek süresi (dakika)"
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:422
 msgid "Cache duration in minutes."
-msgstr "Ön bellek süresi (dakika cinsinden)."
+msgstr "Önbellek süresi (dakika cinsinden)."
 
 #: src/Admin/Settings/Groups/CoreSettings.php:52
 #: src/Admin/Settings/View/TabRendererRegistry.php:184
@@ -10737,35 +10737,35 @@ msgstr "Sistem ve başarım"
 
 #: src/Admin/Settings/Groups/CoreSettings.php:57
 msgid "Enable Object Cache"
-msgstr "Nesne ön belleğini etkinleştir"
+msgstr "Nesne önbelleğini etkinleştir"
 
 #: src/Admin/Settings/Groups/CoreSettings.php:57
 msgid "Active object caching reduces database load significantly."
-msgstr "Etkin nesne ön bellekleme, veritabanı yükünü önemli ölçüde azaltır."
+msgstr "Etkin nesne önbellekleme, veritabanı yükünü önemli ölçüde azaltır."
 
 #: src/Admin/Settings/Groups/CoreSettings.php:58
 msgid "Default Cache TTL (Hours)"
-msgstr "Varsayılan ön bellek TTL (saat)"
+msgstr "Varsayılan önbellek TTL (saat)"
 
 #: src/Admin/Settings/Groups/CoreSettings.php:58
 msgid "How long general data remains cached."
-msgstr "Genel verilerin ön bellekte ne kadar süreyle saklandığı."
+msgstr "Genel verilerin önbellekte ne kadar süreyle saklandığı."
 
 #: src/Admin/Settings/Groups/CoreSettings.php:59
 msgid "Lists Cache TTL (Minutes)"
-msgstr "Listeler ön bellek TTL (dakika)"
+msgstr "Listeler önbellek TTL (dakika)"
 
 #: src/Admin/Settings/Groups/CoreSettings.php:59
 msgid "Cache duration for vehicle and booking lists."
-msgstr "Araç ve rezervasyon listeleri için ön bellek süresi."
+msgstr "Araç ve rezervasyon listeleri için önbellek süresi."
 
 #: src/Admin/Settings/Groups/CoreSettings.php:60
 msgid "Reports Cache TTL (Minutes)"
-msgstr "Rapor ön bellek TTL (dakika)"
+msgstr "Rapor önbellek TTL (dakika)"
 
 #: src/Admin/Settings/Groups/CoreSettings.php:60
 msgid "Cache duration for report calculations."
-msgstr "Rapor hesaplamaları için ön bellek süresi."
+msgstr "Rapor hesaplamaları için önbellek süresi."
 
 #: src/Admin/Settings/Groups/CoreSettings.php:64
 msgid "Configure system optimizations and performance thresholds."
@@ -11216,11 +11216,11 @@ msgstr "Rezervasyonu iptal et düğmesi"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:308
 msgid "Added to Favorites Message"
-msgstr "Beğenilere eklendi iletisi"
+msgstr "Favorilere eklendi iletisi"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:309
 msgid "Removed from Favorites Message"
-msgstr "Beğenilerden kaldırıldı iletisi"
+msgstr "Favorilerden kaldırıldı iletisi"
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:310
 msgid "Login Required Message"
@@ -11564,7 +11564,7 @@ msgstr "Sistem durumu ve bakım araçlarına genel bakış."
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php:112
 msgid "Cache Settings"
-msgstr "Ön bellek ayarları"
+msgstr "Önbellek ayarları"
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php:153
 msgid "Cleanup & Uninstall"
@@ -11834,7 +11834,7 @@ msgstr "Tüm kullanıcı rezervasyonları"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:54
 msgid "User favorite vehicles"
-msgstr "Kullanıcının beğendiği araçlar"
+msgstr "Kullanıcının favori araçları"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:59
 msgid "User payment history"
@@ -12168,7 +12168,7 @@ msgstr "Sahipsiz üst verileri temizle"
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:124
 msgid "Clear System Cache"
-msgstr "Sistem ön belleğini temizle"
+msgstr "Sistem önbelleğini temizle"
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:126
 msgid "Compact Tables"
@@ -13618,7 +13618,7 @@ msgid ""
 "Account favorites grid."
 msgstr ""
 "İpucu: Burada belirlediğiniz sıra araç ızgaralarında, liste görünümlerinde "
-"ve Hesabım beğeniler ızgarasında geçerlidir."
+"ve Hesabım favoriler ızgarasında geçerlidir."
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:393
 msgid "Vehicle Detail Highlighted Features"
@@ -14748,25 +14748,25 @@ msgstr "Hesabınızı ve tüm ilişkili verileri kalıcı olarak silin"
 
 #: templates/account/favorites.php:32
 msgid "My Favorite Vehicles"
-msgstr "Beğendiğim araçlar"
+msgstr "Favori araçlarım"
 
 #. translators: %d: favorite vehicles count.
 #: templates/account/favorites.php:36
 #, php-format
 msgid "%d vehicles in your favorites"
-msgstr "Beğenilerinizde %d araç"
+msgstr "Favorilerinizde %d araç"
 
 #: templates/account/favorites.php:49
 msgid "No favorite vehicles yet"
-msgstr "Henüz beğenilen araç yok"
+msgstr "Henüz favori araç yok"
 
 #: templates/account/favorites.php:50
 msgid ""
 "You can add vehicles to your favorites by clicking the heart icon on "
 "vehicles you like."
 msgstr ""
-"Beğendiğiniz araçların üzerindeki kalp simgesine tıklayarak araçları "
-"beğenilerinize ekleyebilirsiniz."
+"Araçların üzerindeki kalp simgesine tıklayarak araçları "
+"favorilerinize ekleyebilirsiniz."
 
 #: templates/account/favorites.php:63 templates/account/payment-history.php:80
 msgid "View Vehicles"
@@ -14774,7 +14774,7 @@ msgstr "Araçları görüntüle"
 
 #: templates/account/favorites.php:117
 msgid "Clear All Favorites"
-msgstr "Tüm beğenileri temizle"
+msgstr "Tüm favorileri temizle"
 
 #. translators: %d: total payments count.
 #. translators: %d: total number of payments
@@ -15267,7 +15267,7 @@ msgstr "Sizinle birlikte olmaktan mutluluk duyuyoruz."
 
 #: templates/partials/selected-vehicle-summary.php:77
 msgid "Toggle favorite"
-msgstr "Beğeniyi aç/kapat"
+msgstr "Favorilere ekle/çıkar"
 
 #. translators: %d: total rating count
 #: templates/partials/selected-vehicle-summary.php:90
@@ -16796,7 +16796,7 @@ msgstr "Eşleşen kayıt bulunamadı."
 #: src-react/admin/shortcode-pages/components/SystemActions.jsx:7
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
 msgid "Clear Cache"
-msgstr "Ön belleği temizle"
+msgstr "Önbelleği temizle"
 
 #: src-react/admin/shortcode-pages/components/SystemActions.jsx:11
 msgid "Scanning…"
@@ -16828,7 +16828,7 @@ msgstr "Bu sayfa çöpe taşınsın mı?"
 
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Cache will be cleared. Do you want to continue?"
-msgstr "Ön bellek temizlenecek. Devam etmek istiyor musunuz?"
+msgstr "Önbellek temizlenecek. Devam etmek istiyor musunuz?"
 
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
 msgid "Reset All Pages"
@@ -16901,12 +16901,12 @@ msgstr "Kullanıcının rezervasyon geçmişini görüntüleyin."
 #: assets/blocks/my-favorites/block.json
 msgctxt "block title"
 msgid "My Favorites"
-msgstr "Beğenilerim"
+msgstr "Favorilerim"
 
 #: assets/blocks/my-favorites/block.json
 msgctxt "block description"
 msgid "Display user's favorite vehicles."
-msgstr "Kullanıcının beğendiği araçları görüntüleyin."
+msgstr "Kullanıcının favori araçlarını görüntüleyin."
 
 #: assets/blocks/payment-history/block.json
 msgctxt "block title"
