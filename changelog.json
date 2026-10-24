@@ -1,5 +1,17 @@
 [
   {
+    "version": "6.3.1",
+    "date": "2026-10-24",
+    "type": "patch",
+    "title": "Elementor-built pages are found, and translation tokens WordPress.org can check",
+    "summary": "6.3.1 fixes the page finder on Elementor sites, where every \"Book now\" button opened the home page, and the translation tokens that blocked the Turkish import on translate.wordpress.org.",
+    "changes": [
+      "Fixed: pages built with Elementor are found. A Rentiva widget, or a [rentiva_*] shortcode inside an Elementor widget, lives in Elementor's data rather than the page content, so the page finder missed it: \"Book now\" buttons and other links fell back to the home page, and Shortcode Pages listed the page as missing. A page with the shortcode or block in its content still wins. On Elementor sites whose vehicle-details page is now found, vehicle pages move under that page (with a 301 from /vehicle/...), as on block and shortcode sites.",
+      "Fixed: translation tokens in notices are written {key}. WordPress.org's translation tool read \"%num_days% days\" as a printf placeholder and flagged correct translations. The Turkish catalogue uses the plural formula translate.wordpress.org uses.",
+      "Fixed: a booking-confirmation line in the 6.3.0 notes lost \"<vehicle>\" on WordPress.org, which read it as an HTML tag."
+    ]
+  },
+  {
     "version": "6.3.0",
     "date": "2026-10-24",
     "type": "minor",
