@@ -88,6 +88,14 @@ final class ElementorPageDetectionTest extends WP_UnitTestCase
 		$this->assertNull( ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ) );
 	}
 
+	public function test_a_page_switched_back_to_the_classic_editor_is_not_found(): void
+	{
+		$page = $this->elementor_page( array( 'widgetType' => 'rv-booking-form' ) );
+		delete_post_meta( $page, '_elementor_edit_mode' );
+
+		$this->assertNull( ShortcodeUrlManager::get_page_id( 'rentiva_booking_form' ) );
+	}
+
 	public function test_another_widget_does_not_match(): void
 	{
 		$this->elementor_page( array( 'widgetType' => 'mhmrentiva_vehicles_list' ) );

@@ -132,6 +132,8 @@ final class ShortcodeUrlManager {
 	 * A published page built with Elementor that holds the shortcode's Rentiva
 	 * widget, or the shortcode itself inside an Elementor shortcode/text widget.
 	 * Asked only after post_content found nothing, so a classic page still wins.
+	 * Only pages Elementor still renders (_elementor_edit_mode = builder) count: a
+	 * page switched back to the classic editor keeps its stale _elementor_data.
 	 *
 	 * @param string $shortcode Shortcode name.
 	 * @return int Page ID, 0 when none.
@@ -158,6 +160,7 @@ final class ShortcodeUrlManager {
 			$wpdb->prepare(
 				"SELECT p.ID FROM {$wpdb->posts} p
                   INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_elementor_data'
+                  INNER JOIN {$wpdb->postmeta} e ON e.post_id = p.ID AND e.meta_key = '_elementor_edit_mode' AND e.meta_value = 'builder'
                   WHERE p.post_type = 'page'
                   AND p.post_status = 'publish'
                   AND m.meta_value REGEXP %s
