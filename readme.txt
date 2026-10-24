@@ -49,11 +49,11 @@ This plugin does not send your data anywhere. It makes no requests to any third-
 
 For completeness, the plugin's admin screens do contain ordinary hyperlinks to pages outside your site, which open only if you click them and send nothing when you do:
 
-*   Its documentation at https://maxhandmade.github.io/mhm-rentiva-docs/ (source: https://github.com/MaxHandMade/mhm-rentiva-docs)
-*   Its issue tracker at https://github.com/MaxHandMade/mhm-rentiva/issues, linked from the About screen
-*   The author's site and support page at https://wpalemi.com/ — terms: https://wpalemi.com/terms/ , privacy policy: https://wpalemi.com/privacy/
-*   This plugin's own support forum at https://wordpress.org/support/plugin/mhm-rentiva/ and, in the setup wizard's e-mail step, links to the wp-mail-smtp and fluent-smtp plugin pages on WordPress.org
-*   The author's YouTube channel
+*   Its documentation at [https://maxhandmade.github.io/mhm-rentiva-docs/](https://maxhandmade.github.io/mhm-rentiva-docs/) (source: [https://github.com/MaxHandMade/mhm-rentiva-docs](https://github.com/MaxHandMade/mhm-rentiva-docs))
+*   Its issue tracker at [https://github.com/MaxHandMade/mhm-rentiva/issues](https://github.com/MaxHandMade/mhm-rentiva/issues), linked from the About screen
+*   The author's site and support page at [https://wpalemi.com/](https://wpalemi.com/) — terms: [https://wpalemi.com/terms/](https://wpalemi.com/terms/) , privacy policy: [https://wpalemi.com/privacy/](https://wpalemi.com/privacy/)
+*   This plugin's own support forum at [https://wordpress.org/support/plugin/mhm-rentiva/](https://wordpress.org/support/plugin/mhm-rentiva/) and, in the setup wizard's e-mail step, links to the wp-mail-smtp and fluent-smtp plugin pages on WordPress.org
+*   The author's YouTube channel at [https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA](https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA), linked from the About screen
 
 These are links, not integrations: the plugin performs no HTTP request to any of them. A check in our build guards against reintroducing the specific third-party services earlier versions used — geolocation lookups, CDN-hosted fonts and scripts, analytics and Gravatar — by failing if any of those hosts reappears in the PHP we ship.
 
@@ -96,7 +96,7 @@ Five admin screens (Dashboard, Customers, Contact Messages, About and Shortcode 
 
 The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
-https://github.com/MaxHandMade/mhm-rentiva
+[https://github.com/MaxHandMade/mhm-rentiva](https://github.com/MaxHandMade/mhm-rentiva)
 
 To rebuild the admin bundles from source, clone or download that repository and run the following from the repository root:
 
@@ -111,16 +111,16 @@ Three bundled JavaScript libraries and one webfont ship with the plugin -- two o
 
 Two are pre-built (minified) under `assets/vendor/`:
 
-*   **flatpickr** v4.6.13 — date picker, MIT License. Source: https://github.com/flatpickr/flatpickr
-*   **Swiper** 14.1.0 — touch slider, MIT License. Source: https://github.com/nolimits4web/swiper
+*   **flatpickr** v4.6.13 — date picker, MIT License. Source: [https://github.com/flatpickr/flatpickr](https://github.com/flatpickr/flatpickr)
+*   **Swiper** 14.1.0 — touch slider, MIT License. Source: [https://github.com/nolimits4web/swiper](https://github.com/nolimits4web/swiper)
 
 One is compiled into the admin dashboard bundle (`build/admin/dashboard.js`) by the build described above, and is declared as a dependency in `package.json`:
 
-*   **Chart.js** v4.5.1 — dashboard charts, MIT License. Source: https://github.com/chartjs/Chart.js
+*   **Chart.js** v4.5.1 — dashboard charts, MIT License. Source: [https://github.com/chartjs/Chart.js](https://github.com/chartjs/Chart.js)
 
 One webfont is bundled under `assets/vendor/fonts/`, served from your own site rather than from a font CDN:
 
-*   **Plus Jakarta Sans** — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt`. Source: https://github.com/tokotype/PlusJakartaSans
+*   **Plus Jakarta Sans** — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt`. Source: [https://github.com/tokotype/PlusJakartaSans](https://github.com/tokotype/PlusJakartaSans)
 
 None of these libraries is modified from its upstream release; their full source is public on the repositories linked above.
 
