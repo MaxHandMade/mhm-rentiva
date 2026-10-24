@@ -33,6 +33,14 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data.
 *   **Translation Ready:** Ships with a full Turkish translation.
 
+**Documentation and support**
+
+*   [Documentation](https://maxhandmade.github.io/mhm-rentiva-docs/) — setup, shortcodes, blocks and Elementor widgets, in English and Turkish
+*   [Support forum](https://wordpress.org/support/plugin/mhm-rentiva/)
+*   [Source code and issue tracker on GitHub](https://github.com/MaxHandMade/mhm-rentiva)
+*   [wpalemi.com](https://wpalemi.com/) — the author's site
+*   [MaxHandMade on YouTube](https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA) — WordPress and WooCommerce videos from the author
+
 **Requirements:** WooCommerce. It is declared in the plugin header and checked on activation, so the plugin will not activate without it. WooCommerce provides the cart, checkout and payment gateways used for frontend bookings.
 
 = External services =
