@@ -35,6 +35,29 @@ final class ShortcodeUrlManager {
 	private const CACHE_GROUP = 'mhmrentiva_shortcodes';
 
 	/**
+	 * Rentiva Elementor widget names (get_name()) per shortcode. A page built with
+	 * Elementor keeps these in `_elementor_data`, not in post_content.
+	 */
+	private const ELEMENTOR_WIDGETS = array(
+		'rentiva_availability_calendar' => array( 'rv-availability-calendar' ),
+		'rentiva_booking_form'          => array( 'rv-booking-form' ),
+		'rentiva_contact'               => array( 'rv-contact-form' ),
+		'rentiva_featured_vehicles'     => array( 'mhmrentiva_featured_vehicles' ),
+		'rentiva_my_bookings'           => array( 'rv-my-bookings' ),
+		'rentiva_my_favorites'          => array( 'rv-my-favorites' ),
+		'rentiva_payment_history'       => array( 'rv-payment-history' ),
+		'rentiva_search_results'        => array( 'rv-search-results' ),
+		'rentiva_testimonials'          => array( 'rv-testimonials' ),
+		'rentiva_unified_search'        => array( 'rv-vehicle-search' ),
+		'rentiva_user_dashboard'        => array( 'rv-user-dashboard' ),
+		'rentiva_vehicle_comparison'    => array( 'rv-vehicle-comparison' ),
+		'rentiva_vehicle_details'       => array( 'rv-vehicle-details' ),
+		'rentiva_vehicle_rating_form'   => array( 'rv-vehicle-rating' ),
+		'rentiva_vehicles_grid'         => array( 'mhmrentiva_vehicles_grid' ),
+		'rentiva_vehicles_list'         => array( 'mhmrentiva_vehicles_list' ),
+	);
+
+	/**
 	 * Static cache for the current request.
 	 *
 	 * @var array<string, string>
@@ -106,6 +129,48 @@ final class ShortcodeUrlManager {
 	}
 
 	/**
+	 * A published page built with Elementor that holds the shortcode's Rentiva
+	 * widget, or the shortcode itself inside an Elementor shortcode/text widget.
+	 * Asked only after post_content found nothing, so a classic page still wins.
+	 *
+	 * @param string $shortcode Shortcode name.
+	 * @return int Page ID, 0 when none.
+	 */
+	private static function find_elementor_page( string $shortcode ): int {
+		global $wpdb;
+
+		/**
+		 * Elementor widget names (get_name()) that render this shortcode, so an
+		 * add-on can name its own widgets.
+		 *
+		 * @param string[] $names     Widget names.
+		 * @param string   $shortcode Shortcode tag.
+		 */
+		$names = (array) apply_filters( 'mhmrentiva_elementor_widgets_for_shortcode', self::ELEMENTOR_WIDGETS[ $shortcode ] ?? array(), $shortcode );
+		$names = array_values( array_filter( array_map( 'strval', $names ), static fn ( string $n ): bool => 1 === preg_match( '/^[a-z0-9_-]+$/', $n ) ) );
+
+		$regex = '\[' . $shortcode . '(\]| |=)';
+		if ( array() !== $names ) {
+			$regex .= '|"widgetType":"(' . implode( '|', $names ) . ')"';
+		}
+
+		$page_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p
+                  INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_elementor_data'
+                  WHERE p.post_type = 'page'
+                  AND p.post_status = 'publish'
+                  AND m.meta_value REGEXP %s
+                  ORDER BY p.post_date DESC
+                  LIMIT 1",
+				$regex
+			)
+		);
+
+		return $page_id ? (int) $page_id : 0;
+	}
+
+	/**
 	 * Find page ID containing the shortcode OR Gutenberg block.
 	 *
 	 * @param string $shortcode Shortcode name.
@@ -148,7 +213,7 @@ final class ShortcodeUrlManager {
 			)
 		);
 
-		$page_id = $page_id ? (int) $page_id : 0;
+		$page_id = $page_id ? (int) $page_id : self::find_elementor_page( $shortcode );
 		wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
 
 		return $page_id > 0 ? $page_id : null;
