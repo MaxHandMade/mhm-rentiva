@@ -1006,7 +1006,7 @@ msgstr "Hizmet adı"
 
 #: src/Admin/Addons/AddonScreen.php:674
 msgid "e.g. Roadside Assistance"
-msgstr "Örn. yol yardım paketi"
+msgstr "örn. yol yardım paketi"
 
 #: src/Admin/Addons/AddonScreen.php:680
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:227
@@ -3191,7 +3191,7 @@ msgstr "Müşteri bulunamadı."
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:816
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
-msgstr "Manuel rezervasyon oluşturulurken wp_update_user başarısız oldu: %s"
+msgstr "wp_update_user, manuel rezervasyon oluşturulurken başarısız oldu: %s"
 
 #. translators: %s: vehicle title
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:882
@@ -13431,7 +13431,7 @@ msgstr "Lütfen bu rezervasyonun ödenmiş siparişlerini inceleyin ve varsa iad
 
 #: src/Layout/CLI/LayoutImportCommand.php:47
 msgid "mhm/ui-core 0.6.0 or newer is required for layout commands."
-msgstr "Yerleşim komutları için mhm/ui-core 0.6.0 veya üzeri gereklidir."
+msgstr "mhm/ui-core 0.6.0 veya üzeri, yerleşim komutları için gereklidir."
 
 #: src/Layout/CLI/LayoutImportCommand.php:71
 msgid "Missing manifest file path."
