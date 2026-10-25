@@ -7135,6 +7135,19 @@
 	border-color: var(--rv-accent);
 }
 
+/* Quantity beside an add-on sold more than once (Aşama 2 K12). */
+.rv-booking-form-wrapper .rv-addon-qty {
+	width: 4rem;
+	min-height: 36px;
+	padding: 4px 8px;
+	border: 1px solid color-mix(in srgb, var(--rv-ink) 25%, transparent);
+	border-radius: var(--rv-radius);
+	background: var(--rv-surface);
+	color: var(--rv-ink);
+	font: inherit;
+	text-align: center;
+}
+
 .rv-booking-form-wrapper .rv-error-message,
 .rv-booking-form-wrapper .rv-success-message {
 	border-radius: var(--rv-radius);

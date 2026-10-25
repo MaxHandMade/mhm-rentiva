@@ -33,10 +33,11 @@ final class RentalPricing {
 	 * the day count comes from Util::rental_days()).
 	 *
 	 * @param array<int|string, int|string> $addon_ids
+	 * @param array<int|string, int>        $quantities Add-on id => quantity (missing = 1).
 	 */
-	public static function quote(int $vehicle_id, int $start_ts, int $end_ts, array $addon_ids = array()): RentalQuote
+	public static function quote(int $vehicle_id, int $start_ts, int $end_ts, array $addon_ids = array(), array $quantities = array()): RentalQuote
 	{
-		return self::quote_for_days($vehicle_id, Util::rental_days($start_ts, $end_ts), $start_ts, $addon_ids);
+		return self::quote_for_days($vehicle_id, Util::rental_days($start_ts, $end_ts), $start_ts, $addon_ids, $quantities);
 	}
 
 	/**
@@ -47,8 +48,9 @@ final class RentalPricing {
 	 * the base rate -- the same answer Util::total_price() has always given.
 	 *
 	 * @param array<int|string, int|string> $addon_ids
+	 * @param array<int|string, int>        $quantities Add-on id => quantity (missing = 1).
 	 */
-	public static function quote_for_days(int $vehicle_id, int $days, int $start_ts, array $addon_ids = array()): RentalQuote
+	public static function quote_for_days(int $vehicle_id, int $days, int $start_ts, array $addon_ids = array(), array $quantities = array()): RentalQuote
 	{
 		$days = max(0, $days);
 
@@ -97,7 +99,13 @@ final class RentalPricing {
 
 		$addon_total = 0.0;
 		foreach ($addon_ids as $addon_id) {
-			$addon_total += AddonPricingCalculator::calculate( (int) $addon_id, array( 'rental_days' => $days ) );
+			$addon_total += AddonPricingCalculator::calculate(
+				(int) $addon_id,
+				array(
+					'rental_days' => $days,
+					'quantity'    => (int) ( $quantities[ (int) $addon_id ] ?? 1 ),
+				)
+			);
 		}
 
 		return new RentalQuote(

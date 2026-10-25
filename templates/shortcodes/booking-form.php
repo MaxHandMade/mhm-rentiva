@@ -362,6 +362,23 @@ $unique_id = uniqid('rv_booking_');
 											value="<?php echo esc_attr($addon['id']); ?>"
 											class="rv-addon-checkbox"
 											data-price="<?php echo esc_attr($addon['price']); ?>"<?php echo $mhmrentiva_addon_required ? ' checked disabled aria-disabled="true"' : ''; ?>>
+										<?php
+										// Sold more than once: a quantity beside the box. It comes after
+										// the checkbox so the box stays the label's control.
+										$mhmrentiva_addon_max = (int) ( $addon['max_quantity'] ?? 1 );
+										if ($mhmrentiva_addon_max > 1) :
+											?>
+											<input type="number"
+												name="addon_qty[<?php echo esc_attr($addon['id']); ?>]"
+												class="rv-addon-qty"
+												min="1"
+												max="<?php echo esc_attr( (string) $mhmrentiva_addon_max); ?>"
+												step="1"
+												value="1"
+												inputmode="numeric"
+												data-addon-id="<?php echo esc_attr($addon['id']); ?>"
+												aria-label="<?php echo esc_attr(sprintf(/* translators: %s: additional service name. */ __('Quantity: %s', 'mhm-rentiva'), $addon['title'])); ?>">
+										<?php endif; ?>
 									</div>
 								</label>
 							<?php endforeach; ?>

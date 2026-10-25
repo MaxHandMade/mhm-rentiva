@@ -62,7 +62,7 @@
 			$( document ).on( 'change', '#mhmrentiva_manual_payment_type', this.onPaymentTypeChange );
 
 			// Ek hizmetler seçimi değiştiğinde
-			$( document ).on( 'change', '.mhm-addon-checkbox', this.onAddonChange );
+			$( document ).on( 'change', '.mhm-addon-checkbox, .mhm-addon-qty', this.onAddonChange );
 
 			// Müşteri seçimi değiştiğinde
 			$( document ).on( 'change', '#mhmrentiva_manual_customer_id', this.onCustomerChange );
@@ -159,6 +159,24 @@
 			}
 		},
 
+		/**
+		 * Quantities of the ticked add-ons that have a quantity field (sold
+		 * more than once), by add-on id. The server clamps them and reads a
+		 * missing one as 1.
+		 */
+		addonQuantities: function () {
+			const quantities = {};
+			$( '.mhm-addon-checkbox:checked' ).each(
+				function () {
+					const $qty = $( '.mhm-addon-qty[data-addon-id="' + $( this ).val() + '"]' );
+					if ( $qty.length ) {
+						quantities[ $( this ).val() ] = parseInt( $qty.val(), 10 ) || 1;
+					}
+				}
+			);
+			return quantities;
+		},
+
 		calculateAddonTotal: function () {
 			let total             = 0;
 			const $selectedAddons = $( '.mhm-addon-checkbox:checked' );
@@ -177,10 +195,11 @@
 				}
 			}
 
+			const quantities = ManualBooking.addonQuantities();
 			$selectedAddons.each(
 				function () {
 					const price = parseFloat( $( this ).attr( 'data-price' ) ) || 0;
-					total      += price * days; // Günlük hesaplama
+					total      += price * days * ( quantities[ $( this ).val() ] || 1 ); // Günlük hesaplama
 				}
 			);
 
@@ -260,7 +279,8 @@
 						dropoff_date: dropoffDate,
 						dropoff_time: dropoffTime,
 						payment_type: paymentType,
-						selected_addons: selectedAddons
+						selected_addons: selectedAddons,
+						addon_qty: ManualBooking.addonQuantities()
 					},
 					success: function (response) {
 						if (response.success) {
@@ -397,7 +417,8 @@
 				// check.
 				status: $( '#mhmrentiva_manual_booking_status' ).val(),
 				notes: $( '#mhmrentiva_manual_notes' ).val(),
-				selected_addons: selectedAddons
+				selected_addons: selectedAddons,
+				addon_qty: ManualBooking.addonQuantities()
 			};
 
 			// Eğer yeni müşteri seçildiyse bilgilerini ekle

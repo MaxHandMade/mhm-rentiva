@@ -11,6 +11,9 @@ use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Addons\AddonManager;
+use MHMRentiva\Admin\Addons\AddonSelection;
+use MHMRentiva\Admin\Core\MetaKeys;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -267,6 +270,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 	    ?: array();
 
 		$selected_ids = array_map( 'intval', (array) $selected_addons );
+		$selection    = AddonSelection::of( $selected_ids, (array) get_post_meta( $post->ID, MetaKeys::BOOKING_ADDON_QUANTITIES, true ) );
 
 		// Fetch current add-ons
 		$addons = get_posts(
@@ -336,6 +340,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				'price'       => get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ) ?: '0',
 				'description' => $addon->post_excerpt,
 				'required'    => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_required', true ),
+				'max'         => AddonSelection::max_quantity( $addon_id ),
 			);
 		}
 
@@ -372,6 +377,16 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				echo '</div>';
 				if ( ! empty( $addon['description'] ) ) {
 					echo '<div class="mhm-addon-description">' . esc_html( $addon['description'] ) . '</div>';
+				}
+				// Sold more than once: the quantity this booking carries, under
+				// the title (after the checkbox, so the box stays the label's control).
+				// A booked quantity above a maximum lowered since stays editable.
+				$quantity = max( 1, $selection->quantity( (int) $addon['id'] ) );
+				$cap      = max( (int) $addon['max'], $quantity );
+				if ( $cap > 1 ) {
+					echo '<div class="mhm-addon-qty-row">' . esc_html__( 'Quantity', 'mhm-rentiva' ) . ' ';
+					echo '<input type="number" name="mhmrentiva_edit_addon_qty[' . esc_attr( (string) $addon['id'] ) . ']" class="mhm-addon-qty small-text" min="1" max="' . esc_attr( (string) $cap ) . '" step="1" value="' . esc_attr( (string) $quantity ) . '" aria-label="' . esc_attr( sprintf( /* translators: %s: additional service name. */ __( 'Quantity: %s', 'mhm-rentiva' ), $addon['title'] ) ) . '">';
+					echo '</div>';
 				}
 				echo '</div>';
 				echo '</label>';
@@ -508,25 +523,31 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			}
 		}
 
-		// Process selected add-ons
-		$selected_addons = $request->intList( 'mhmrentiva_edit_selected_addons' );
-		$addon_details   = array();
-		$addon_total     = 0;
-
-		if ( ! empty( $selected_addons ) ) {
-			foreach ( $selected_addons as $addon_id ) {
-				$addon_post = get_post( $addon_id );
-				if ( $addon_post && $addon_post->post_type === 'mhmrentiva_addon' ) {
-					$price           = (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true );
-					$addon_details[] = array(
-						'id'    => $addon_id,
-						'title' => $addon_post->post_title,
-						'price' => $price,
-					);
-					$addon_total    += $price;
-				}
+		// Process selected add-ons. Not filter_sellable(): a booking may carry a
+		// service switched off since, and this save must not delete it. Each
+		// quantity is held to its add-on's maximum; the rows are priced for the
+		// rental the way every other path prices them (they used to be written
+		// at the unit price, so a per-day service read as one day).
+		$selected_addons = array();
+		$quantities      = array();
+		$posted_qty      = $request->arr( 'mhmrentiva_edit_addon_qty' );
+		// What the booking already carries is kept: a maximum lowered since
+		// must not re-price a booking on its next unrelated save.
+		$stored = AddonSelection::for_booking( $post_id );
+		foreach ( $request->intList( 'mhmrentiva_edit_selected_addons' ) as $addon_id ) {
+			if ( 'mhmrentiva_addon' !== get_post_type( $addon_id ) || in_array( $addon_id, $selected_addons, true ) ) {
+				continue;
+			}
+			$selected_addons[] = $addon_id;
+			$booked            = $stored->quantity( $addon_id );
+			$raw               = $posted_qty[ $addon_id ] ?? max( 1, $booked );
+			$cap               = max( AddonSelection::max_quantity( $addon_id ), $booked );
+			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, $cap ) ) : max( 1, $booked );
+			if ( $quantity > 1 ) {
+				$quantities[ $addon_id ] = $quantity;
 			}
 		}
+		$selection = AddonSelection::of( $selected_addons, $quantities );
 
 		// Update meta values
 		update_post_meta( $post_id, '_mhmrentiva_pickup_date', $pickup_date );
@@ -547,9 +568,16 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Save add-on meta data
-		update_post_meta( $post_id, '_mhmrentiva_selected_addons', $selected_addons );
+		$addon_details = AddonManager::build_addon_details(
+			$selection->ids(),
+			array(
+				'rental_days'      => (int) get_post_meta( $post_id, '_mhmrentiva_rental_days', true ),
+				'addon_quantities' => $selection->quantities(),
+			)
+		);
+		$selection->store( $post_id );
 		update_post_meta( $post_id, '_mhmrentiva_addon_details', $addon_details );
-		update_post_meta( $post_id, '_mhmrentiva_addon_total', $addon_total );
+		update_post_meta( $post_id, '_mhmrentiva_addon_total', (float) array_sum( array_column( $addon_details, 'line_total' ) ) );
 
 		// Update status
 		$old_status = get_post_meta( $post_id, '_mhmrentiva_status', true );

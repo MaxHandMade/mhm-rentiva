@@ -136,7 +136,11 @@ abstract class AbstractMetaBox {
 	 * Render field
 	 */
 	protected static function render_field( \WP_Post $post, string $field_key, array $field ): void {
-		$value       = get_post_meta( $post->ID, $field_key, true );
+		$value = get_post_meta( $post->ID, $field_key, true );
+		// No row yet: show the value the readers already assume.
+		if ( '' === $value && isset( $field['default'] ) ) {
+			$value = $field['default'];
+		}
 		$field_type  = $field['type'] ?? 'text';
 		$label       = $field['label'] ?? $field_key;
 		$description = $field['description'] ?? '';

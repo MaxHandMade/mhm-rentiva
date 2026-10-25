@@ -231,6 +231,29 @@ describe( 'rvs vehicle page', () => {
 		expect( date.value ).toBe( '2027-07-20' );
 	} );
 
+	test( 'a queued change ignores the older answer entirely', async () => {
+		await boot();
+		const date = document.querySelector( '[data-rvs-return-date]' );
+		change( date );
+		jest.advanceTimersByTime( 300 );
+		date.value = '2027-07-20';
+		change( date );
+		jest.advanceTimersByTime( 300 );
+
+		// A's answer arrives while B is queued: nothing of it is applied.
+		answer( 0, Object.assign( {}, quote, { continue_url: '/book?A', total_html: '<b>A</b>' } ) );
+		const link = document.querySelector( '[data-rvs-vd-continue]' );
+		expect( link.getAttribute( 'aria-disabled' ) ).toBe( 'true' );
+		expect( link.getAttribute( 'href' ) ).toBe( '/book?old' );
+		expect( document.querySelector( '[data-rvs-vd-total]' ).innerHTML ).toBe( 'T0' );
+
+		// B's answer is the one shown.
+		answer( 1, Object.assign( {}, quote, { continue_url: '/book?B', total_html: '<b>B</b>' } ) );
+		expect( link.getAttribute( 'href' ) ).toBe( '/book?B' );
+		expect( link.hasAttribute( 'aria-disabled' ) ).toBe( false );
+		expect( document.querySelector( '[data-rvs-vd-total]' ).innerHTML ).toBe( '<b>B</b>' );
+	} );
+
 	test( 'the window form does not submit', async () => {
 		await boot();
 		const event = new Event( 'submit', { bubbles: true, cancelable: true } );

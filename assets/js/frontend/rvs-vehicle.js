@@ -173,7 +173,11 @@
 				vehicle_id: String( $root.data( 'rvsVehicle' ) ),
 			} ),
 			function ( data ) {
-				applyQuote( $root, data );
+				// A newer change is waiting: this answer is for a window the visitor
+				// already left, so none of it is shown (the queued request follows).
+				if ( ! state.queued ) {
+					applyQuote( $root, data );
+				}
 			},
 			function ( message ) {
 				showMessage( $root, message || t( 'error', 'An error occurred' ) );

@@ -2203,9 +2203,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		$lines = array();
 		foreach (\MHMRentiva\Admin\Addons\AddonManager::build_addon_details($selected, $booking_data) as $detail) {
-			// A charged add-on keeps its row even without a usable name.
-			$lines[] = array(
-				'title'      => self::order_meta_label($detail['title']),
+			// A charged add-on keeps its row even without a usable name; one
+			// taken more than once says so ("Child seat × 2").
+			$detail['title'] = self::order_meta_label($detail['title']);
+			$lines[]         = array(
+				'title'      => \MHMRentiva\Admin\Addons\AddonManager::line_label($detail),
 				'line_total' => $detail['line_total'],
 			);
 		}

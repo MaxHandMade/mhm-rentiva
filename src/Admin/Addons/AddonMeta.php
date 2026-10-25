@@ -94,6 +94,17 @@ final class AddonMeta extends AbstractMetaBox {
 						'sanitize_callback' => array( AddonPricingType::class, 'sanitize' ),
 						'class'             => 'regular-text mhm-addon-pricing-type-select',
 					),
+					\MHMRentiva\Admin\Core\MetaKeys::ADDON_MAX_QUANTITY => array(
+						'type'              => 'number',
+						'label'             => __( 'Maximum quantity', 'mhm-rentiva' ),
+						'description'       => __( 'How many of this service one booking can take. 1 shows a checkbox; more shows a quantity field and multiplies the price.', 'mhm-rentiva' ),
+						'step'              => '1',
+						'min'               => '1',
+						'max'               => (string) AddonSelection::MAX,
+						'default'           => '1',
+						'class'             => 'small-text',
+						'sanitize_callback' => array( AddonSelection::class, 'sanitize_max' ),
+					),
 				),
 			),
 			'addon_settings' => array(

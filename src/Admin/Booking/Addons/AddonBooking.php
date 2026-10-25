@@ -298,9 +298,13 @@ final class AddonBooking {
 
 			if ( is_array( $addon_details ) ) {
 				foreach ( $addon_details as $addon ) {
-					$addon_id               = $addon['id'] ?? 0;
-					$addon_title            = $addon['title'] ?? 'Unknown';
-					$mhmrentiva_addon_price = (float) ( $addon['price'] ?? 0 );
+					$addon_id    = $addon['id'] ?? 0;
+					$addon_title = $addon['title'] ?? 'Unknown';
+					// Units taken and what the booking charged for the line. Rows
+					// stored before quantities and line totals ({id, title, price})
+					// read as one unit at the unit price.
+					$quantity = max( 1, (int) ( $addon['quantity'] ?? 1 ) );
+					$revenue  = isset( $addon['line_total'] ) ? (float) $addon['line_total'] : (float) ( $addon['price'] ?? 0 );
 
 					if ( ! isset( $addon_stats[ $addon_id ] ) ) {
 						$addon_stats[ $addon_id ] = array(
@@ -310,9 +314,9 @@ final class AddonBooking {
 						);
 					}
 
-					++$addon_stats[ $addon_id ]['count'];
-					$addon_stats[ $addon_id ]['revenue'] += $mhmrentiva_addon_price;
-					$total_revenue                       += $mhmrentiva_addon_price;
+					$addon_stats[ $addon_id ]['count']   += $quantity;
+					$addon_stats[ $addon_id ]['revenue'] += $revenue;
+					$total_revenue                       += $revenue;
 				}
 			}
 		}
