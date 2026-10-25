@@ -169,6 +169,22 @@ final class AddonQuantityAdminTest extends WP_UnitTestCase
 		$this->assertStringContainsString('<li>GPS</li>', $html);
 	}
 
+	public function test_max_quantity_field_shows_its_default_on_a_new_addon(): void
+	{
+		$addon_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_addon' ));
+		$fields   = new \ReflectionMethod(\MHMRentiva\Admin\Addons\AddonMeta::class, 'get_fields');
+		$fields->setAccessible(true);
+		$field  = $fields->invoke(null)['addon_details']['fields'][ MetaKeys::ADDON_MAX_QUANTITY ];
+		$render = new \ReflectionMethod(\MHMRentiva\Admin\Addons\AddonMeta::class, 'render_field');
+		$render->setAccessible(true);
+
+		ob_start();
+		$render->invoke(null, get_post($addon_id), MetaKeys::ADDON_MAX_QUANTITY, $field);
+		$html = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression('/name="' . MetaKeys::ADDON_MAX_QUANTITY . '" value="1"/', $html, 'An empty row reads as 1 everywhere; the field must say so.');
+	}
+
 	private function render_edit(int $booking_id): string
 	{
 		ob_start();

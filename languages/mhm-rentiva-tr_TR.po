@@ -1234,7 +1234,7 @@ msgstr "İhtiyacınız olan ek hizmetleri seçin."
 
 #: src/Admin/Booking/Addons/AddonBooking.php:78
 #: src/Admin/Booking/Addons/AddonBooking.php:121
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:393
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:396
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:451
 msgid "Additional Services Total:"
 msgstr "Ek hizmetler toplamı:"
@@ -2451,25 +2451,25 @@ msgstr "%s (pasif)"
 msgid "Select the additional services needed for this booking."
 msgstr "Bu rezervasyon için gerekli olan ek hizmetleri seçin."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:398
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:401
 msgid "No additional services available."
 msgstr "Kullanılabilir ek hizmet yok."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:404
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:407
 msgid "Special Notes / Requests"
 msgstr "Özel notlar / talepler"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:405
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:408
 msgid "Enter any special notes or customer requests..."
 msgstr "Özel notları veya müşteri taleplerini girin..."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:406
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:409
 msgid "Add any special notes or customer requests for this booking."
 msgstr "Bu rezervasyon için özel notlar veya müşteri talepleri ekleyin."
 
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:504
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:507
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1168
 #, php-format
 msgid "Booking - %s"
@@ -16587,9 +16587,13 @@ msgid "How many of this service one booking can take. 1 shows a checkbox; more s
 msgstr "Bir rezervasyonun bu hizmetten kaç adet alabileceği. 1 onay kutusu gösterir; daha fazlası adet alanı gösterir ve fiyatı adetle çarpar."
 
 #. translators: %s: additional service name.
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:375
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:386
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:441
 #: templates/shortcodes/booking-form.php:380
 #, php-format
 msgid "Quantity: %s"
 msgstr "Adet: %s"
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:385
+msgid "Quantity"
+msgstr "Adet"

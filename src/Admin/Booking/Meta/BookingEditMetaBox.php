@@ -369,11 +369,6 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				if ( $is_attached && $addon['required'] ) {
 					echo '<input type="hidden" name="mhmrentiva_edit_selected_addons[]" value="' . esc_attr( (string) $addon['id'] ) . '">';
 				}
-				// Sold more than once: the quantity this booking carries.
-				if ( $addon['max'] > 1 ) {
-					$quantity = max( 1, $selection->quantity( (int) $addon['id'] ) );
-					echo '<input type="number" name="mhmrentiva_edit_addon_qty[' . esc_attr( (string) $addon['id'] ) . ']" class="mhm-addon-qty small-text" min="1" max="' . esc_attr( (string) $addon['max'] ) . '" step="1" value="' . esc_attr( (string) $quantity ) . '" aria-label="' . esc_attr( sprintf( /* translators: %s: additional service name. */ __( 'Quantity: %s', 'mhm-rentiva' ), $addon['title'] ) ) . '">';
-				}
 				echo '<div class="mhm-addon-content">';
 				echo '<div class="mhm-addon-header">';
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
@@ -382,6 +377,14 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				echo '</div>';
 				if ( ! empty( $addon['description'] ) ) {
 					echo '<div class="mhm-addon-description">' . esc_html( $addon['description'] ) . '</div>';
+				}
+				// Sold more than once: the quantity this booking carries, under
+				// the title (after the checkbox, so the box stays the label's control).
+				if ( $addon['max'] > 1 ) {
+					$quantity = max( 1, $selection->quantity( (int) $addon['id'] ) );
+					echo '<div class="mhm-addon-qty-row">' . esc_html__( 'Quantity', 'mhm-rentiva' ) . ' ';
+					echo '<input type="number" name="mhmrentiva_edit_addon_qty[' . esc_attr( (string) $addon['id'] ) . ']" class="mhm-addon-qty small-text" min="1" max="' . esc_attr( (string) $addon['max'] ) . '" step="1" value="' . esc_attr( (string) $quantity ) . '" aria-label="' . esc_attr( sprintf( /* translators: %s: additional service name. */ __( 'Quantity: %s', 'mhm-rentiva' ), $addon['title'] ) ) . '">';
+					echo '</div>';
 				}
 				echo '</div>';
 				echo '</label>';
