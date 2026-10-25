@@ -219,6 +219,16 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertFalse($view['booking']['available']);
 	}
 
+	public function test_edited_window_with_return_before_pickup_is_reported_not_replaced(): void
+	{
+		$booking = $this->view(array( 'pickup_date' => '2027-07-15', 'pickup_time' => '10:00', 'return_date' => '2027-07-12' ))['booking'];
+
+		$this->assertSame('2027-07-15', $booking['window']['pickup_date'], 'The visitor\'s dates are kept, not swapped for the default window.');
+		$this->assertSame('2027-07-12', $booking['window']['return_date']);
+		$this->assertFalse($booking['available']);
+		$this->assertNotSame('', $booking['message']);
+	}
+
 	public function test_pickup_beyond_the_advance_window_is_not_bookable(): void
 	{
 		$settings                                          = get_option('mhmrentiva_settings');

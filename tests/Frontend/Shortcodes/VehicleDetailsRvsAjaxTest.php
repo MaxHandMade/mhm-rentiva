@@ -87,6 +87,7 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('mhmrentiva_pickup_date=2027-07-12', $response['data']['continue_url']);
 		$this->assertStringContainsString('data-rvs-calendar', $response['data']['months_html']);
 		$this->assertSame($view['booking']['breakdown']['total']['html'], $response['data']['total_html']);
+		$this->assertSame('2027-07-15', $response['data']['window']['return_date']);
 	}
 
 	public function test_quote_endpoint_reports_unavailable_window(): void

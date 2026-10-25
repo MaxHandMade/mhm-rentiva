@@ -98,7 +98,10 @@ final class VehicleDetailsView {
 		$pickup   = $date($window['pickup_date'] ?? '');
 		$return   = $date($window['return_date'] ?? '');
 		$in_range = static fn(string $d): bool => '' !== $d && $d >= '2000-01-01' && $d <= '2100-12-31';
-		if (! $in_range($pickup) || ! $in_range($return) || $return <= $pickup) {
+		// Missing or malformed dates: the search strip's window. Two real dates
+		// in the wrong order are the visitor's choice -- kept, and reported as
+		// not bookable by the rules below rather than silently replaced.
+		if (! $in_range($pickup) || ! $in_range($return)) {
 			$pickup = (string) $defaults['pickup_date'];
 			$return = (string) $defaults['return_date'];
 		}

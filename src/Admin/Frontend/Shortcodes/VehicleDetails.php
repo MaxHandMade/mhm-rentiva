@@ -129,6 +129,8 @@ final class VehicleDetails extends AbstractShortcode {
 				'available'      => (bool) $booking['available'],
 				'message'        => (string) $booking['message'],
 				'months_html'    => self::months_html( $months ),
+				// The window actually quoted, so the fields show what the total is for.
+				'window'         => $window,
 			)
 		);
 	}

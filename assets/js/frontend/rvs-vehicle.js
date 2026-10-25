@@ -121,8 +121,22 @@
 		return format.replace( '%s', String( days ) );
 	}
 
+	// Until a quote for the visible window arrives (or after one fails), the
+	// links must not carry the previous window to the booking form.
+	function holdContinue( $root ) {
+		$root.find( '[data-rvs-vd-continue]' ).attr( { 'aria-disabled': 'true', tabindex: '-1' } );
+	}
+
 	function applyQuote( $root, data ) {
 		const state = stateOf( $root );
+		// The server's window is the one quoted: show it in the fields.
+		if ( data.window ) {
+			const $form = $root.find( '[data-rvs-vd-window]' );
+			$form.find( '[data-rvs-pickup-date]' ).val( data.window.pickup_date );
+			$form.find( '[data-rvs-return-date]' ).val( data.window.return_date );
+			$form.find( '[data-rvs-pickup-time]' ).val( data.window.pickup_time );
+			$root.find( '[data-rvs-return-time-display]' ).text( data.window.pickup_time );
+		}
 		$root.find( '[data-rvs-vd-total]' ).html( data.total_html || '' );
 		$root.find( '[data-rvs-vd-days]' ).text( daysLabel( parseInt( data.days, 10 ) || 0 ) );
 		$root.find( '[data-rvs-vd-breakdown]' ).html( data.breakdown_html || '' );
@@ -250,6 +264,7 @@
 			if ( this.hasAttribute( 'data-rvs-pickup-time' ) ) {
 				$root.find( '[data-rvs-return-time-display]' ).text( this.value );
 			}
+			holdContinue( $root );
 			scheduleQuote( $root );
 		} );
 		$root.on( 'click', '[data-rvs-gallery-open]', function () {

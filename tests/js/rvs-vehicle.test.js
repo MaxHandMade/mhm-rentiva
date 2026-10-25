@@ -188,6 +188,31 @@ describe( 'rvs vehicle page', () => {
 		expect( document.querySelector( '[data-rvs-vd-continue]' ).hasAttribute( 'tabindex' ) ).toBe( false );
 	} );
 
+	test( 'continue is disabled while a quote is pending and stays disabled on error', async () => {
+		await boot();
+		change( document.querySelector( '[data-rvs-pickup-date]' ) );
+
+		document.querySelectorAll( '[data-rvs-vd-continue]' ).forEach( ( el ) => expect( el.getAttribute( 'aria-disabled' ) ).toBe( 'true' ) );
+		jest.advanceTimersByTime( 300 );
+		answer( 0, null, false );
+		document.querySelectorAll( '[data-rvs-vd-continue]' ).forEach( ( el ) => {
+			expect( el.getAttribute( 'aria-disabled' ) ).toBe( 'true' );
+			expect( el.getAttribute( 'tabindex' ) ).toBe( '-1' );
+		} );
+	} );
+
+	test( 'the quote writes the server window back into the inputs', async () => {
+		await boot();
+		change( document.querySelector( '[data-rvs-pickup-date]' ) );
+		jest.advanceTimersByTime( 300 );
+		answer( 0, Object.assign( {}, quote, { window: { pickup_date: '2027-07-13', pickup_time: '12:30', return_date: '2027-07-16' } } ) );
+
+		expect( document.querySelector( '[data-rvs-pickup-date]' ).value ).toBe( '2027-07-13' );
+		expect( document.querySelector( '[data-rvs-return-date]' ).value ).toBe( '2027-07-16' );
+		expect( document.querySelector( '[data-rvs-pickup-time]' ).value ).toBe( '12:30' );
+		expect( document.querySelector( '[data-rvs-return-time-display]' ).textContent ).toBe( '12:30' );
+	} );
+
 	test( 'requests queue so the last change wins', async () => {
 		await boot();
 		const date = document.querySelector( '[data-rvs-return-date]' );
