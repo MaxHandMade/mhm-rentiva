@@ -8,6 +8,7 @@
  */
 
 .rvs-shell .rvs-vd {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 30px;
@@ -498,6 +499,34 @@
 /* Phone -------------------------------------------------------------------- */
 
 @media (max-width: 768px) {
+	/* Favourite and compare sit on the photo as icon buttons (canvas
+	   Arac-Detay-Mobil); the same buttons as on desktop, so their state
+	   cannot drift. Without a gallery they stay under the title. */
+	.rvs-shell .rvs-vd:has(> .rvs-vd__gallery) .rvs-vd__actions {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		z-index: 2;
+		gap: 8px;
+	}
+
+	.rvs-shell .rvs-vd__actions .rvs-btn {
+		width: 44px;
+		min-width: 44px;
+		padding: 0;
+		background: var(--rvs-raised);
+		box-shadow: var(--rvs-shadow);
+	}
+
+	.rvs-shell .rvs-vd__action-label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+
 	.rvs-shell .rvs-vd {
 		gap: 24px;
 		padding: 0 16px 96px;
@@ -530,6 +559,11 @@
 		gap: 0;
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+	}
+
+	.rvs-shell .rvs-vd__strip::-webkit-scrollbar {
+		display: none;
 	}
 
 	.rvs-shell .rvs-vd__photo,

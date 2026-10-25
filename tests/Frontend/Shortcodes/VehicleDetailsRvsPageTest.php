@@ -105,6 +105,28 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('rvs-vd__rating', $this->render(' show_rating="0"'));
 	}
 
+	public function test_favourite_and_compare_are_icon_buttons_with_labels(): void
+	{
+		$html = $this->render();
+
+		// One set of buttons (two copies would let their states drift apart); the
+		// label is its own span so the phone layout can show the icon alone.
+		$this->assertSame(1, substr_count($html, 'mhm-vehicle-favorite-btn'));
+		$this->assertSame(1, substr_count($html, 'mhm-vehicle-compare-btn'));
+		$this->assertMatchesRegularExpression('/mhm-vehicle-favorite-btn[^>]*>\s*<svg[^>]*>.*?<\/svg>\s*<span class="rvs-vd__action-label">Favorite<\/span>/s', $html);
+		$this->assertMatchesRegularExpression('/mhm-vehicle-compare-btn[^>]*>\s*<svg[^>]*>.*?<\/svg>\s*<span class="rvs-vd__action-label">Compare<\/span>/s', $html);
+	}
+
+	public function test_phone_puts_the_actions_on_the_photo(): void
+	{
+		$css = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/css/rvs/rvs-vehicle.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped asset.
+		$phone = substr($css, (int) strpos($css, '@media (max-width: 768px)'));
+
+		$this->assertMatchesRegularExpression('/\.rvs-vd__actions \{[^}]*position: absolute;/', $phone);
+		$this->assertMatchesRegularExpression('/\.rvs-vd__action-label \{[^}]*clip: rect\(0, 0, 0, 0\);/', $phone);
+		$this->assertMatchesRegularExpression('/\.rvs-vd__actions \.rvs-btn \{[^}]*width: 44px;/', $phone);
+	}
+
 	public function test_ids_unique_with_two_instances(): void
 	{
 		// The nested rating form keeps its own per-vehicle ids until surface 6

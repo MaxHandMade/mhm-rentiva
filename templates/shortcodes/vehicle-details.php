@@ -113,7 +113,7 @@ $rating        = $view['rating'];
 							)
 						);
 						?>
-						<?php esc_html_e('Favorite', 'mhm-rentiva'); ?>
+						<span class="rvs-vd__action-label"><?php esc_html_e('Favorite', 'mhm-rentiva'); ?></span>
 					</button>
 				<?php endif; ?>
 				<?php if ($show_compare) : ?>
@@ -121,7 +121,17 @@ $rating        = $view['rating'];
 						data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>"
 						<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_compare'); ?>
 						aria-pressed="<?php echo ! empty($is_in_compare) ? 'true' : 'false'; ?>"<?php echo $is_preview ? ' disabled' : ''; ?>>
-						<?php esc_html_e('Compare', 'mhm-rentiva'); ?>
+						<?php
+						Icons::render(
+							'compare',
+							array(
+								'class'  => 'mhm-compare-icon',
+								'width'  => '18px',
+								'height' => '18px',
+							)
+						);
+						?>
+						<span class="rvs-vd__action-label"><?php esc_html_e('Compare', 'mhm-rentiva'); ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
