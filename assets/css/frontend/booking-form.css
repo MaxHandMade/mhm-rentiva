@@ -7251,3 +7251,27 @@
 		order: 2;
 	}
 }
+
+/* Total row: the amount is WooCommerce's (cents and the tax suffix, 6.4.0),
+   so it can be wider than the sidebar leaves next to the label. When it does
+   not fit, it moves under the label, right-aligned, instead of running over
+   it (the label is nowrap and used to overflow into the amount). */
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	column-gap: 12px;
+	row-gap: 4px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-label {
+	flex-shrink: 0;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value {
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	margin-left: auto;
+	text-align: right;
+}
