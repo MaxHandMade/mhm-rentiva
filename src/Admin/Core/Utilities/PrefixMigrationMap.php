@@ -912,5 +912,9 @@ final class PrefixMigrationMap {
         'mhmrentiva_elementor_plain_text_stopped',
         // FAILED_OPTION: pages waiting for a retry (post id => attempts).
         'mhmrentiva_elementor_plain_text_failed',
+        // Booking timestamp rebuild (DB schema 4.8.0): DatabaseMigrator's
+        // BOOKING_TS_DONE_OPTION, written after the last batch and read by
+        // the add-on. New in 4.8.0, no legacy spelling.
+        'mhmrentiva_booking_ts_normalised_480',
     ];
 }

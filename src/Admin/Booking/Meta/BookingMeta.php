@@ -1419,11 +1419,11 @@ final class BookingMeta extends AbstractMetaBox {
 	 * dates were edited without these kept occupying its OLD dates and left
 	 * the new ones open for sale.
 	 *
-	 * Timestamps are derived in the site timezone (Util::parse_datetimes()), as
-	 * the booking form and the overlap query's date fallback read them. The
-	 * WooCommerce checkout path derives them with strtotime() under WordPress's
-	 * UTC PHP timezone, so on a site with a non-zero offset any admin save of
-	 * such a booking moves its stored timestamps to the site-local reading.
+	 * Timestamps are the real instants of the local date and time in the site
+	 * timezone (Util::parse_datetimes() -> SiteTime::instant()), the same
+	 * reading as the booking form, the WooCommerce checkout and the overlap
+	 * query's date fallback. Rows the checkout stored before 4.8.0 (wall time
+	 * read as UTC) are rebuilt by DatabaseMigrator::normalise_booking_timestamps_480().
 	 */
 	public static function sync_booking_timestamps(int $booking_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): void
 	{

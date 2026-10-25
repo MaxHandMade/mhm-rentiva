@@ -34,6 +34,14 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.8.0 (2026-10-26): normalise_booking_timestamps_480() rebuilds every
+	 * booking's `_mhmrentiva_start_ts` / `_mhmrentiva_end_ts` from its stored
+	 * local date and time in the site timezone. WooCommerce checkouts used to
+	 * store the wall time read as UTC; form bookings stored the real instant.
+	 * Own done flag (BOOKING_TS_DONE_OPTION), written only after the last
+	 * batch -- the add-on reads that flag, not this stamp, to know every
+	 * stored stamp is a real instant.
+	 *
 	 * 4.7.0 (2026-10-25): clear_elementor_css_470() queues the Elementor page CSS
 	 * rebuild again (ElementorStyleIdMigration, whose run is idempotent): the
 	 * vehicle card moved to the front-end standard (rvs-card classes and
@@ -78,7 +86,22 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.7.0';
+	private const CURRENT_VERSION = '4.8.0';
+
+	/**
+	 * Set to '1' once normalise_booking_timestamps_480() has gone through
+	 * every booking. Written only after the last batch, so a run that dies
+	 * half-way leaves it absent: the add-on treats stored stamps as real
+	 * instants only while this flag exists.
+	 *
+	 * @see normalise_booking_timestamps_480()
+	 */
+	public const BOOKING_TS_DONE_OPTION = 'mhmrentiva_booking_ts_normalised_480';
+
+	/**
+	 * Bookings read per query by normalise_booking_timestamps_480().
+	 */
+	private const BOOKING_TS_BATCH = 100;
 
 	/**
 	 * Whether migrate_contact_status_440() has already run once.
@@ -499,6 +522,7 @@ final class DatabaseMigrator {
 			self::migrate_elementor_style_ids_450();
 			self::rebuild_elementor_plain_text_460();
 			self::clear_elementor_css_470();
+			self::normalise_booking_timestamps_480();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -1414,6 +1438,128 @@ final class DatabaseMigrator {
 	}
 
 	/**
+	 * 4.8.0: every booking's stored stamps become the real instant its local
+	 * date and time name (SiteTime::instant(), the site timezone).
+	 *
+	 * The dates and times stay the source of truth and are not touched. Times
+	 * are read the way the booking code reads them -- `start_time` before the
+	 * `pickup_time` alias, `end_time` before `dropoff_time`, an empty time
+	 * taking the same filtered default as Util::parse_datetimes() -- and the
+	 * return date is `_mhmrentiva_dropoff_date`, the only one the overlap
+	 * query joins. A row without both dates (or with an unreadable one) and a
+	 * row whose window is inverted (end <= start) are left as they are and
+	 * counted separately. Rerunning finds nothing to change.
+	 *
+	 * Own done flag, written only after the last batch. A write that fails
+	 * leaves the flag unset and logs once; like 4.4.0, the step then runs
+	 * again on the next stamp bump, not on every request.
+	 *
+	 * @return array{changed: int, unchanged: int, inverted: int, dateless: int, failed: int}
+	 */
+	private static function normalise_booking_timestamps_480(): array
+	{
+		$counts = array(
+			'changed'   => 0,
+			'unchanged' => 0,
+			'inverted'  => 0,
+			'dateless'  => 0,
+			'failed'    => 0,
+		);
+
+		if ('1' === get_option(self::BOOKING_TS_DONE_OPTION)) {
+			return $counts;
+		}
+
+		$default_pickup  = (string) apply_filters('mhmrentiva_default_pickup_time', '10:00');
+		$default_dropoff = (string) apply_filters('mhmrentiva_default_dropoff_time', '10:00');
+
+		$paged = 1;
+		do {
+			$ids = get_posts(
+				array(
+					'post_type'      => 'mhmrentiva_booking',
+					'post_status'    => 'any',
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'posts_per_page' => self::BOOKING_TS_BATCH,
+					'paged'          => $paged,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+				)
+			);
+			$ids = array_map('intval', $ids);
+			if (array() !== $ids) {
+				update_meta_cache('post', $ids);
+			}
+
+			foreach ($ids as $id) {
+				$pickup_date  = (string) get_post_meta($id, '_mhmrentiva_pickup_date', true);
+				$dropoff_date = (string) get_post_meta($id, '_mhmrentiva_dropoff_date', true);
+				$pickup_time  = (string) ( get_post_meta($id, '_mhmrentiva_start_time', true) ?: get_post_meta($id, '_mhmrentiva_pickup_time', true) );
+				$dropoff_time = (string) ( get_post_meta($id, '_mhmrentiva_end_time', true) ?: get_post_meta($id, '_mhmrentiva_dropoff_time', true) );
+
+				$start = '' === $pickup_date ? null : \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, '' === $pickup_time ? $default_pickup : $pickup_time);
+				$end   = '' === $dropoff_date ? null : \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($dropoff_date, '' === $dropoff_time ? $default_dropoff : $dropoff_time);
+
+				if (null === $start || null === $end) {
+					++$counts['dateless'];
+					continue;
+				}
+				if ($end <= $start) {
+					++$counts['inverted'];
+					continue;
+				}
+
+				$same_start = (string) $start === (string) get_post_meta($id, '_mhmrentiva_start_ts', true);
+				$same_end   = (string) $end === (string) get_post_meta($id, '_mhmrentiva_end_ts', true);
+				if ($same_start && $same_end) {
+					++$counts['unchanged'];
+					continue;
+				}
+
+				$ok = ( $same_start || false !== update_post_meta($id, '_mhmrentiva_start_ts', $start) )
+					&& ( $same_end || false !== update_post_meta($id, '_mhmrentiva_end_ts', $end) );
+				++$counts[ $ok ? 'changed' : 'failed' ];
+			}
+
+			++$paged;
+			$batch_was_full = self::BOOKING_TS_BATCH === count($ids);
+		} while ($batch_was_full);
+
+		// The per-row meta listeners already ran; clear the derived caches
+		// once more now that every row is final.
+		\MHMRentiva\Admin\Booking\Helpers\Cache::clearAll();
+		OccupancyMapService::invalidate();
+
+		if (0 === $counts['failed']) {
+			update_option(self::BOOKING_TS_DONE_OPTION, '1', false);
+		}
+
+		if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+			if (0 === $counts['failed']) {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
+					'Booking timestamps rebuilt in the site timezone (4.8.0)',
+					array(
+						'changed'   => $counts['changed'],
+						'unchanged' => $counts['unchanged'],
+						'inverted'  => $counts['inverted'],
+						'dateless'  => $counts['dateless'],
+					),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+				);
+			} else {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+					'Booking timestamp rebuild (4.8.0) did not finish: some stamps could not be written; it runs again on the next migration run',
+					$counts,
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+				);
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
 	 * Drop the dead SaaS orchestration tables.
 	 *
 	 * The multi-tenant "Control Plane" scaffolding (OrchestrationMigration) was removed in the
@@ -1470,6 +1616,9 @@ final class DatabaseMigrator {
 	 * no-op returning false — so there is nothing a flag would protect.
 	 * CURRENT_VERSION is bumped to 3.11.0 alongside this method; without that bump
 	 * this code would be dead on every existing site.
+	 * (Steps whose replay is not harmless, or whose completion something else
+	 * reads, do carry one, written only after their last row: 4.4.0
+	 * CONTACT_STATUS_DONE_OPTION, 4.8.0 BOOKING_TS_DONE_OPTION.)
 	 *
 	 * SCOPE — deliberately exactly one key
 	 * ------------------------------------
