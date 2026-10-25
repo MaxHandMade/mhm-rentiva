@@ -190,6 +190,33 @@ class CompareService {
 	}
 
 	/**
+	 * How many vehicles the comparison holds at most.
+	 */
+	public static function max_items(): int {
+		return self::MAX_ITEMS;
+	}
+
+	/**
+	 * The compared vehicles with their titles (the results page's band).
+	 *
+	 * @return list<array{id: int, title: string}>
+	 */
+	public static function items(): array {
+		$items = array();
+		foreach ( self::get_list() as $id ) {
+			$title = get_the_title( (int) $id );
+			if ( '' !== $title ) {
+				$items[] = array(
+					'id'    => (int) $id,
+					'title' => $title,
+				);
+			}
+		}
+
+		return $items;
+	}
+
+	/**
 	 * The submitted toggle request, or null when it carries no nonce that
 	 * authorises it.
 	 *
@@ -251,6 +278,9 @@ class CompareService {
 					'message'       => $message,
 					'is_in_compare' => ( $action === 'added' ),
 					'count'         => count( self::get_list() ),
+					// The results page's comparison band redraws from these.
+					'items'         => self::items(),
+					'max'           => self::MAX_ITEMS,
 				)
 			);
 		} catch ( \Exception $e ) {

@@ -673,13 +673,31 @@ abstract class AbstractShortcode {
 			'is_admin' => is_admin(),
 			'language' => get_locale(),
 			'theme'    => get_template(),
-			// The search window in the request: cards price the period and link
-			// the booking with it, so a guest without it must not get that render.
-			'window'   => self::request_window(),
+			// What the request carries that changes the render (see
+			// cache_request_factors()): a guest without it must not get that render.
+			'request'  => static::cache_request_factors(),
 			'v'        => $version,
 		);
 
 		return 'mhmrentiva_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
+	}
+
+	/**
+	 * Request state beyond the attributes that changes this shortcode's render,
+	 * for the HTML cache key: the search window (cards price the period and link
+	 * the booking with it) and a guest's comparison list (a cookie the cards'
+	 * compare boxes show). A logged-in user's list rides on user_id.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function cache_request_factors(): array
+	{
+		$factors = array( 'window' => self::request_window() );
+		if (! is_user_logged_in() && class_exists(\MHMRentiva\Admin\Services\CompareService::class)) {
+			$factors['compare'] = \MHMRentiva\Admin\Services\CompareService::get_list();
+		}
+
+		return $factors;
 	}
 
 	/**
