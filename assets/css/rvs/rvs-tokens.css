@@ -56,6 +56,20 @@
 	/* Shape and type */
 	--rvs-r: 2px;
 	--rvs-font: "Source Serif 4", Georgia, serif;
+
+	/* Vehicle card (rvs-card.css). The Elementor card controls overwrite these
+	   on the widget's .rvs-shell, which outranks this rule. */
+	--rvs-card-bg: #fbfafa;
+	--rvs-card-radius: 2px;
+	--rvs-card-pad: 15px;
+	--rvs-card-title: #201e1d;
+	--rvs-card-title-hover: #006786;
+	--rvs-card-title-margin: 0;
+	--rvs-card-price: #201e1d;
+	--rvs-card-price-period: #5f5b5a;
+	--rvs-card-btn-bg: #006786;
+	--rvs-card-btn-bg-hover: #004961;
+	--rvs-card-btn-radius: 2px;
 }
 
 @supports (color: color-mix(in srgb, red, blue)) {

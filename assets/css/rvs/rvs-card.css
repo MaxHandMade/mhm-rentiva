@@ -1,0 +1,191 @@
+/**
+ * Rentiva front-end standard -- vehicle card and the card grid.
+ *
+ * Values from the approved canvas (`Arama-Sonuclari`, `Anasayfa`). Colours,
+ * paddings and radii read --rvs-card-* tokens (defaults in rvs-tokens.css), so
+ * the Elementor card controls restyle the card by writing those tokens on the
+ * widget's .rvs-shell.
+ */
+
+/* Grid of cards ------------------------------------------------------------ */
+
+.rvs-shell .rvs-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 20px;
+	margin: 0;
+	padding: 0;
+}
+
+.rvs-shell .rvs-card-list {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+/* Card --------------------------------------------------------------------- */
+
+.rvs-shell .rvs-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+	border-radius: var(--rvs-card-radius);
+	background: var(--rvs-card-bg);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-card__media {
+	position: relative;
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	background: linear-gradient(135deg, #dcd8d6, #c9c4c2);
+}
+
+.rvs-shell .rvs-card__media-link {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.rvs-shell .rvs-card__img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-card__tag {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+}
+
+.rvs-shell .rvs-card__fav {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-card__fav.is-active svg {
+	fill: var(--rvs-alert);
+	stroke: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-card__fav:disabled {
+	cursor: default;
+}
+
+.rvs-shell .rvs-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 8px;
+	padding: var(--rvs-card-pad);
+}
+
+.rvs-shell .rvs-card__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-card__title {
+	margin: var(--rvs-card-title-margin);
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-card__title a {
+	color: var(--rvs-card-title);
+	text-decoration: none;
+}
+
+.rvs-shell .rvs-card__title a:hover {
+	color: var(--rvs-card-title-hover);
+}
+
+.rvs-shell .rvs-card__rating {
+	color: var(--rvs-muted);
+	font-size: 14px;
+	white-space: nowrap;
+}
+
+.rvs-shell .rvs-card__specs {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-card__terms {
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-card__foot {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: auto;
+	padding-top: 8px;
+}
+
+.rvs-shell .rvs-card__amount {
+	color: var(--rvs-card-price);
+	font-size: 26px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.15;
+}
+
+.rvs-shell .rvs-card__per {
+	color: var(--rvs-card-price-period);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-card__select {
+	flex: none;
+	border-radius: var(--rvs-card-btn-radius);
+	background: var(--rvs-card-btn-bg);
+}
+
+.rvs-shell .rvs-card__select:hover {
+	background: var(--rvs-card-btn-bg-hover);
+}
+
+.rvs-shell .rvs-card__select:disabled {
+	background: var(--rvs-card-btn-bg);
+}
+
+.rvs-shell .rvs-card__compare {
+	min-height: 44px;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+/* List layout: photo on the left from tablet up ---------------------------- */
+
+@media (min-width: 769px) {
+	.rvs-shell .rvs-card--list {
+		flex-direction: row;
+	}
+
+	.rvs-shell .rvs-card--list .rvs-card__media {
+		flex: 0 0 38%;
+		aspect-ratio: auto;
+		min-height: 200px;
+	}
+}

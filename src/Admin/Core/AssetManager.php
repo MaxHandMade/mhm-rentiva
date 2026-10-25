@@ -215,6 +215,9 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-primitives', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-primitives', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-primitives.css', array( 'mhm-rentiva-rvs-shell' ), self::get_file_version('assets/css/rvs/rvs-primitives.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-card', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-card', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-card.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-card.css'));
+		}
 	}
 
 	/**
@@ -224,6 +227,15 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-primitives');
+	}
+
+	/**
+	 * The vehicle card on top of the `rvs-` chain.
+	 */
+	public static function enqueue_rvs_card_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-card');
 	}
 
 	/**
