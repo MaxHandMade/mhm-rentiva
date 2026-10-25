@@ -113,6 +113,16 @@ describe( 'rvs search results', () => {
 		expect( data.mhmrentiva_pickup_date ).toBe( '2027-07-12' );
 	} );
 
+	test( 'the keyword chip and clear remove the keyword', async () => {
+		await boot();
+		const chips = document.querySelector( '[data-rvs-chips]' );
+		chips.insertAdjacentHTML( 'beforeend', '<button type="button" id="kw" data-rvs-chip data-name="mhmrentiva_keyword" data-value="golf">golf</button>' );
+		document.getElementById( 'kw' ).click();
+
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.mhmrentiva_keyword ).toBe( '' );
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.mhmrentiva_pickup_date ).toBe( '2027-07-12' );
+	} );
+
 	test( 'a chip click clears its input and reloads', async () => {
 		await boot();
 		document.querySelector( '[data-rvs-chip]' ).click();

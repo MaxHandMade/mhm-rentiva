@@ -175,19 +175,21 @@
 		const $form = $root.find( '[data-rvs-filters]' );
 		$form.find( 'input[type="checkbox"]' ).prop( 'checked', false );
 		$form.find( 'input[type="number"]' ).val( '' );
+		// The keyword rides with the window but is a filter: it clears too.
+		$root.find( '[data-rvs-window] input[name="mhmrentiva_keyword"]' ).val( '' );
 		reload( $root, 1 );
 	}
 
 	function clearChip( $root, name, value ) {
-		const $form = $root.find( '[data-rvs-filters]' );
-		$form.find( '[name]' ).filter( function () {
+		$root.find( '[data-rvs-filters] [name], [data-rvs-window] [name]' ).filter( function () {
 			return this.name === name;
 		} ).each( function () {
 			if ( this.type === 'checkbox' ) {
 				if ( this.value === value ) {
 					this.checked = false;
 				}
-			} else if ( this.type !== 'hidden' ) {
+			} else if ( this.type !== 'hidden' || $( this ).closest( '[data-rvs-window]' ).length ) {
+				// A window field only has a chip when it is a filter (the keyword).
 				this.value = '';
 			}
 		} );

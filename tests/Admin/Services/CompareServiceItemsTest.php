@@ -48,6 +48,11 @@ final class CompareServiceItemsTest extends WP_UnitTestCase
 
 		$this->assertSame(array( $vehicle ), wp_list_pluck($items, 'id'));
 		$this->assertSame('Mercedes & Benz', $items[0]['title'], 'Plain text for the band (the script writes it with .text()).');
+
+		$quoted                        = self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_title' => "Driver's Edition" ));
+		$_COOKIE['mhmrentiva_compare'] = wp_json_encode(array( $quoted ));
+		$this->reset();
+		$this->assertStringNotContainsString('&#', CompareService::items()[0]['title'], 'Texturized entities are decoded.');
 	}
 
 	public function test_max_items_is_the_service_limit(): void
