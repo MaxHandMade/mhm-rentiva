@@ -181,4 +181,24 @@ describe( 'rvs dialog', () => {
 		dialog.close( el( 'dlg' ) );
 		expect( el( 'late' ).hasAttribute( 'tabindex' ) ).toBe( false );
 	} );
+
+	test( 'close restores a pre-existing aria-labelledby', () => {
+		boot( true );
+		el( 'dlg' ).setAttribute( 'aria-labelledby', 'x' );
+		dialog.open( el( 'dlg' ), { opener: el( 'opener' ), labelledBy: 'dlg-title' } );
+		expect( el( 'dlg' ).getAttribute( 'aria-labelledby' ) ).toBe( 'dlg-title' );
+		dialog.close( el( 'dlg' ) );
+		expect( el( 'dlg' ).getAttribute( 'aria-labelledby' ) ).toBe( 'x' );
+	} );
+
+	test( 'summary and contenteditable are hidden from Tab without inert', () => {
+		boot( false );
+		el( 'dlg2' ).innerHTML = '<details><summary id="sum">More</summary></details><div id="ce" contenteditable="true"></div>';
+		dialog.open( el( 'dlg' ), { opener: el( 'opener' ) } );
+		expect( el( 'sum' ).getAttribute( 'tabindex' ) ).toBe( '-1' );
+		expect( el( 'ce' ).getAttribute( 'tabindex' ) ).toBe( '-1' );
+		dialog.close( el( 'dlg' ) );
+		expect( el( 'sum' ).hasAttribute( 'tabindex' ) ).toBe( false );
+		expect( el( 'ce' ).hasAttribute( 'tabindex' ) ).toBe( false );
+	} );
 } );
