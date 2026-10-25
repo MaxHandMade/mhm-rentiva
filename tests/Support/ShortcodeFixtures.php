@@ -201,8 +201,10 @@ final class ShortcodeFixtures
 				break;
 
 			case 'rentiva_unified_search':
-				$row['marker']       = 'rv-unified-search__form';
-				$row['min_elements'] = 70;
+				$row['marker']       = 'rvs-search__form';
+				// The rvs strip has no tab bar or icon wrappers (64 counted elements,
+				// Aşama 2 PR 3); 60 still catches a strip that lost a field.
+				$row['min_elements'] = 60;
 				break;
 
 			case 'rentiva_contact':

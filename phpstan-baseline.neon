@@ -234,7 +234,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 27
+			count: 29
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -534,18 +534,12 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
-			count: 2
+			count: 1
 			path: src/Admin/Frontend/Shortcodes/SearchResults.php
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/SearchResults.php
-
-		-
-			message: '#^Parameter \#1 \$args of function paginate_links expects array\{base\?\: string, format\?\: string, total\?\: int, current\?\: int, aria_current\?\: string, show_all\?\: bool, end_size\?\: int, mid_size\?\: int, \.\.\.\}, array\{base\: ''%%_%%'', total\: int\<2, max\>, current\: int, format\: ''\?page\=%%\#%%'', show_all\: false, end_size\: 1, mid_size\: 2, prev_next\: true, \.\.\.\} given\.$#'
-			identifier: argument.type
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/SearchResults.php
 
@@ -576,7 +570,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 2
+			count: 1
 			path: src/Admin/Frontend/Shortcodes/UnifiedSearch.php
 
 		-
