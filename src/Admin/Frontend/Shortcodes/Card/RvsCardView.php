@@ -76,7 +76,7 @@ final class RvsCardView {
 				'show_count' => $rating_count > 0 && self::toggle($atts, 'show_rating_count', array(), false),
 			),
 			'description'       => self::toggle($atts, 'show_description', array(), false) ? (string) ( $vehicle['excerpt'] ?? '' ) : '',
-			'specs'             => self::specs($vehicle_id),
+			'specs'             => self::specs($vehicle_id, (array) ( $vehicle['features'] ?? array() )),
 			'terms'             => self::terms($vehicle_id),
 			'price'             => self::price($vehicle_id, $dates),
 			'available'         => $available,
@@ -102,7 +102,7 @@ final class RvsCardView {
 				'image'    => $on('show_image', 'show_images'),
 				'title'    => $on('show_title'),
 				'rating'   => $on('show_rating'),
-				'specs'    => $on('show_specs'),
+				'specs'    => $on('show_specs', 'show_features'),
 				'price'    => $on('show_price'),
 				'category' => $on('show_category'),
 			),
@@ -199,9 +199,31 @@ final class RvsCardView {
 	}
 
 	/**
-	 * "5 People · Automatic · Hybrid", straight from the vehicle's meta.
+	 * "5 People · Automatic · Hybrid", straight from the vehicle's meta; a
+	 * vehicle without that meta falls back to its first three prepared
+	 * features (the card data's `features`).
+	 *
+	 * @param array<int, array<string, mixed>> $features
 	 */
-	private static function specs(int $vehicle_id): string
+	private static function specs(int $vehicle_id, array $features = array()): string
+	{
+		$parts = self::specs_from_meta($vehicle_id);
+		if (array() === $parts) {
+			foreach (array_slice($features, 0, 3) as $feature) {
+				$text = trim(wp_strip_all_tags( (string) ( $feature['text'] ?? '' ) ));
+				if ('' !== $text) {
+					$parts[] = $text;
+				}
+			}
+		}
+
+		return implode(' · ', $parts);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private static function specs_from_meta(int $vehicle_id): array
 	{
 		$parts = array();
 		foreach (self::SPEC_META as $key => $meta) {
@@ -215,7 +237,7 @@ final class RvsCardView {
 			}
 		}
 
-		return implode(' · ', $parts);
+		return $parts;
 	}
 
 	/**

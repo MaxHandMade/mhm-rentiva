@@ -78,8 +78,8 @@ class SearchResultsMultiInstanceIsolationTest extends WP_UnitTestCase
             )
         );
 
-        $this->assertStringContainsString('mhm-card-features', $html_with_features);
-        $this->assertStringNotContainsString('mhm-card-features', $html_without_features);
+        $this->assertStringContainsString('rvs-card__specs', $html_with_features);
+        $this->assertStringNotContainsString('rvs-card__specs', $html_without_features);
     }
 }
 

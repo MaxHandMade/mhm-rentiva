@@ -1,4 +1,4 @@
-<div class="rv-search-results " data-rv-instance="rvsr-N" data-show-favorite-button="1" data-show-compare-button="1" data-show-booking-btn="1" data-show-price="1" data-show-title="1" data-show-features="1" data-show-rating="1" data-show-badges="1" data-results-per-page="12" data-default-view="grid">
+<div class="rvs-shell" data-rvs-shortcode="rentiva_search_results"><div class="rv-search-results " data-rv-instance="rvsr-N" data-show-favorite-button="1" data-show-compare-button="1" data-show-booking-btn="1" data-show-price="1" data-show-title="1" data-show-features="1" data-show-rating="1" data-show-badges="1" data-results-per-page="12" data-default-view="grid">
 <!-- Results Header -->
 <div class="rv-results-header">
 <div class="rv-results-info">
@@ -171,165 +171,99 @@
 <div class="rv-results-content-wrapper rv-layout-grid">
 <!-- CONTENT TARGET: AJAX updates replace content inside here -->
 <div class="rv-vehicle-grid-wrapper">
-<div class="mhm-vehicle-card mhm-card--grid" data-id="X" data-testid="X">
-<div class="mhm-card-image">
-<a href="http://example.org/?mhmrentiva_vehicle=zz-charlie-van" class="mhm-card-link" aria-hidden="X" tabindex="-1">
-<img src="http://example.org/wp-content/uploads/Y/M/zz-charlie-van-1024x683.jpg" alt="Zz Charlie Van" loading="lazy" srcset="http://example.org/wp-content/uploads/Y/M/zz-charlie-van-1024x683.jpg 1024w, http://example.org/wp-content/uploads/Y/M/zz-charlie-van-300x200.jpg 300w, http://example.org/wp-content/uploads/Y/M/zz-charlie-van-768x512.jpg 768w, http://example.org/wp-content/uploads/Y/M/zz-charlie-van.jpg 1200w" sizes="(max-width: 782px) 100vw, 500px">
+<article class="rvs-card rvs-card--grid" data-rvs-card data-testid="X" data-id="X">
+<div class="rvs-card__media">
+<a class="rvs-card__media-link" href="http://example.org/?mhmrentiva_vehicle=zz-charlie-van" tabindex="-1" aria-hidden="X">
+<img width="768" height="512" src="http://example.org/wp-content/uploads/Y/M/zz-charlie-van-768x512.jpg" class="rvs-card__img" alt="Zz Charlie Van" loading="lazy" srcset="http://example.org/wp-content/uploads/Y/M/zz-charlie-van-768x512.jpg 768w, http://example.org/wp-content/uploads/Y/M/zz-charlie-van-300x200.jpg 300w, http://example.org/wp-content/uploads/Y/M/zz-charlie-van-1024x683.jpg 1024w, http://example.org/wp-content/uploads/Y/M/zz-charlie-van.jpg 1200w" sizes="auto, (max-width: 768px) 100vw, 768px" />
 </a>
-<div class="mhm-card-actions-overlay">
-<button class="mhm-card-favorite mhm-vehicle-favorite-btn " data-vehicle-id="X" data-nonce="NONCE" data-testid="X" title="Add to Favorites" aria-label="X" aria-pressed="X">
-<svg class="mhm-heart-icon rv-icon-heart" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: 16px;height: 16px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-<span class="text-label sr-only">Add to Favorites</span>
-</button>
-<button class="mhm-card-compare mhm-vehicle-compare-btn " data-vehicle-id="X" data-nonce="NONCE" data-testid="X" title="Compare" aria-label="X" aria-pressed="X">
-<svg class="mhm-compare-icon rv-icon-compare" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: 16px;height: 16px"><polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" /><line x1="4" y1="4" x2="9" y2="9" /></svg>
-<span class="text-label sr-only">Compare</span>
+<span class="rvs-tag rvs-tag--outline rvs-card__tag">Van</span>
+<button type="button" class="rvs-card__fav mhm-vehicle-favorite-btn" data-rvs-fav data-vehicle-id="X" data-nonce="NONCE" data-testid="X" aria-label="X" title="Add to favorites" aria-pressed="X">
+<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="X" focusable="false"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
 </button>
 </div>
+<div class="rvs-card__body">
+<div class="rvs-card__head">
+<h3 class="rvs-card__title"><a href="http://example.org/?mhmrentiva_vehicle=zz-charlie-van">Zz Charlie Van</a></h3>
+<span class="rvs-card__rating"> ★ 5.0 </span>
 </div>
-<div class="mhm-card-content">
-<div class="mhm-content-main">
-<div class="mhm-card-meta-top">
-<div class="mhm-card-category" data-testid="X"> Van </div>
-<div class="mhm-card-brand" data-testid="X"> Ford </div>
+<p class="rvs-card__specs">9 People · Automatic · Electric</p>
+<p class="rvs-card__terms">Deposit 10% · Free cancellation (24 hours)</p>
+<div class="rvs-card__foot">
+<div class="rvs-card__price">
+<div class="rvs-card__amount"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#036;</span>100.00</bdi></span></div>
+<div class="rvs-card__per">per day</div>
 </div>
-<div class="mhm-card-title-row">
-<h3 class="mhm-card-title">
-<a href="http://example.org/?mhmrentiva_vehicle=zz-charlie-van">Zz Charlie Van</a>
-</h3>
-<div class="mhm-card-rating" data-testid="X" title=" Rated 5.0 out of 5 ">
-<span class="mhm-rating-star" aria-hidden="X">&#9733;</span>
-<span class="mhm-rating-average">5.0</span>
-<span class="mhm-rating-confidence mhm-confidence--high" title="This vehicle has been reviewed by many renters."> Highly Reliable </span>
+<a class="rvs-btn rvs-btn--primary rvs-card__select" href="http://example.org/?mhmrentiva_vehicle_id=VEHICLE2" data-testid="X">Book Now</a>
 </div>
+<label class="rvs-check rvs-card__compare">
+<input type="checkbox" data-rvs-compare data-vehicle-id="X" data-nonce="NONCE" data-testid="X">
+<span>Compare</span>
+</label>
 </div>
-<div class="mhm-card-specs" data-testid="X">
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-bolt" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6z" /></svg> Electric </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-gear" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /><path d="M6.34 17.66l-1.41 1.41" /></svg> Automatic </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-people rv-icon-users" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3" /><path d="M3 20v-1a6 6 0 0 1 12 0v1" /><circle cx="17" cy="9" r="2.5" /><path d="M14.5 20v-1a4.5 4.5 0 0 1 4.5-4.5" /></svg> 9 People </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-speedometer" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2" /><path d="M12 20v2" /><path d="M20 12h2" /><path d="M2 12h2" /><path d="M19.07 4.93l-1.41 1.41" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M12 12l4 4" /></svg> 800 km </span>
-</div>
-</div>
-<div class="mhm-card-footer">
-<div class="mhm-card-price" data-testid="X">
-<span class="mhm-price-amount">$100</span>
-<span class="mhm-price-period">/day</span>
-</div>
-<a href="http://example.org/?mhmrentiva_vehicle_id=VEHICLE2" class="mhm-btn-booking" data-testid="X"> Book Now </a>
-</div>
-</div>
-</div>
-<div class="mhm-vehicle-card mhm-card--grid" data-id="X" data-testid="X">
-<div class="mhm-card-image">
-<a href="http://example.org/?mhmrentiva_vehicle=zz-alpha-sedan" class="mhm-card-link" aria-hidden="X" tabindex="-1">
-<img src="http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-1024x683.jpg" alt="Zz Alpha Sedan" loading="lazy" srcset="http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-1024x683.jpg 1024w, http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-300x200.jpg 300w, http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-768x512.jpg 768w, http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan.jpg 1200w" sizes="(max-width: 782px) 100vw, 500px">
+</article>
+<article class="rvs-card rvs-card--grid" data-rvs-card data-testid="X" data-id="X">
+<div class="rvs-card__media">
+<a class="rvs-card__media-link" href="http://example.org/?mhmrentiva_vehicle=zz-alpha-sedan" tabindex="-1" aria-hidden="X">
+<img width="768" height="512" src="http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-768x512.jpg" class="rvs-card__img" alt="Zz Alpha Sedan" loading="lazy" srcset="http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-768x512.jpg 768w, http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-300x200.jpg 300w, http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan-1024x683.jpg 1024w, http://example.org/wp-content/uploads/Y/M/zz-alpha-sedan.jpg 1200w" sizes="auto, (max-width: 768px) 100vw, 768px" />
 </a>
-<div class="mhm-card-actions-overlay">
-<button class="mhm-card-favorite mhm-vehicle-favorite-btn " data-vehicle-id="X" data-nonce="NONCE" data-testid="X" title="Add to Favorites" aria-label="X" aria-pressed="X">
-<svg class="mhm-heart-icon rv-icon-heart" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: 16px;height: 16px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-<span class="text-label sr-only">Add to Favorites</span>
-</button>
-<button class="mhm-card-compare mhm-vehicle-compare-btn " data-vehicle-id="X" data-nonce="NONCE" data-testid="X" title="Compare" aria-label="X" aria-pressed="X">
-<svg class="mhm-compare-icon rv-icon-compare" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: 16px;height: 16px"><polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" /><line x1="4" y1="4" x2="9" y2="9" /></svg>
-<span class="text-label sr-only">Compare</span>
+<span class="rvs-tag rvs-tag--outline rvs-card__tag">Sedan</span>
+<button type="button" class="rvs-card__fav mhm-vehicle-favorite-btn" data-rvs-fav data-vehicle-id="X" data-nonce="NONCE" data-testid="X" aria-label="X" title="Add to favorites" aria-pressed="X">
+<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="X" focusable="false"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
 </button>
 </div>
+<div class="rvs-card__body">
+<div class="rvs-card__head">
+<h3 class="rvs-card__title"><a href="http://example.org/?mhmrentiva_vehicle=zz-alpha-sedan">Zz Alpha Sedan</a></h3>
+<span class="rvs-card__rating"> ★ 4.5 </span>
 </div>
-<div class="mhm-card-content">
-<div class="mhm-content-main">
-<div class="mhm-card-meta-top">
-<div class="mhm-card-category" data-testid="X"> Sedan </div>
-<div class="mhm-card-brand" data-testid="X"> Volkswagen </div>
+<p class="rvs-card__specs">4 People · Manual · Petrol</p>
+<p class="rvs-card__terms">Deposit 10% · Free cancellation (24 hours)</p>
+<div class="rvs-card__foot">
+<div class="rvs-card__price">
+<div class="rvs-card__amount"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#036;</span>250.00</bdi></span></div>
+<div class="rvs-card__per">per day</div>
 </div>
-<div class="mhm-card-title-row">
-<h3 class="mhm-card-title">
-<a href="http://example.org/?mhmrentiva_vehicle=zz-alpha-sedan">Zz Alpha Sedan</a>
-</h3>
-<div class="mhm-card-rating" data-testid="X" title=" Rated 4.5 out of 5 ">
-<span class="mhm-rating-star" aria-hidden="X">&#9733;</span>
-<span class="mhm-rating-average">4.5</span>
-<span class="mhm-rating-confidence mhm-confidence--high" title="This vehicle has been reviewed by many renters."> Highly Reliable </span>
+<a class="rvs-btn rvs-btn--primary rvs-card__select" href="http://example.org/?mhmrentiva_vehicle_id=VEHICLE0" data-testid="X">Book Now</a>
 </div>
+<label class="rvs-check rvs-card__compare">
+<input type="checkbox" data-rvs-compare data-vehicle-id="X" data-nonce="NONCE" data-testid="X">
+<span>Compare</span>
+</label>
 </div>
-<div class="mhm-card-specs" data-testid="X">
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-fuel" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="15" y2="22" /><line x1="4" y1="9" x2="14" y2="9" /><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18" /><path d="M18 13h1a2 2 0 0 0 2-2V8" /><path d="M18 22v-5" /><path d="M22 13v9" /></svg> Petrol </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-gear" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /><path d="M6.34 17.66l-1.41 1.41" /></svg> Manual </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-people rv-icon-users" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3" /><path d="M3 20v-1a6 6 0 0 1 12 0v1" /><circle cx="17" cy="9" r="2.5" /><path d="M14.5 20v-1a4.5 4.5 0 0 1 4.5-4.5" /></svg> 4 People </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-speedometer" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2" /><path d="M12 20v2" /><path d="M20 12h2" /><path d="M2 12h2" /><path d="M19.07 4.93l-1.41 1.41" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M12 12l4 4" /></svg> 45.250 km </span>
-</div>
-</div>
-<div class="mhm-card-footer">
-<div class="mhm-card-price" data-testid="X">
-<span class="mhm-price-amount">$250</span>
-<span class="mhm-price-period">/day</span>
-</div>
-<a href="http://example.org/?mhmrentiva_vehicle_id=VEHICLE0" class="mhm-btn-booking" data-testid="X"> Book Now </a>
-</div>
-</div>
-</div>
-<div class="mhm-vehicle-card mhm-card--grid" data-id="X" data-testid="X">
-<div class="mhm-card-image">
-<a href="http://example.org/?mhmrentiva_vehicle=zz-bravo-coupe" class="mhm-card-link" aria-hidden="X" tabindex="-1">
-<img src="http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-1024x683.jpg" alt="Zz Bravo Coupe" loading="lazy" srcset="http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-1024x683.jpg 1024w, http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-300x200.jpg 300w, http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-768x512.jpg 768w, http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe.jpg 1200w" sizes="(max-width: 782px) 100vw, 500px">
+</article>
+<article class="rvs-card rvs-card--grid" data-rvs-card data-testid="X" data-id="X">
+<div class="rvs-card__media">
+<a class="rvs-card__media-link" href="http://example.org/?mhmrentiva_vehicle=zz-bravo-coupe" tabindex="-1" aria-hidden="X">
+<img width="768" height="512" src="http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-768x512.jpg" class="rvs-card__img" alt="Zz Bravo Coupe" loading="lazy" srcset="http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-768x512.jpg 768w, http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-300x200.jpg 300w, http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe-1024x683.jpg 1024w, http://example.org/wp-content/uploads/Y/M/zz-bravo-coupe.jpg 1200w" sizes="auto, (max-width: 768px) 100vw, 768px" />
 </a>
-<div class="mhm-card-actions-overlay">
-<button class="mhm-card-favorite mhm-vehicle-favorite-btn " data-vehicle-id="X" data-nonce="NONCE" data-testid="X" title="Add to Favorites" aria-label="X" aria-pressed="X">
-<svg class="mhm-heart-icon rv-icon-heart" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: 16px;height: 16px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-<span class="text-label sr-only">Add to Favorites</span>
-</button>
-<button class="mhm-card-compare mhm-vehicle-compare-btn " data-vehicle-id="X" data-nonce="NONCE" data-testid="X" title="Compare" aria-label="X" aria-pressed="X">
-<svg class="mhm-compare-icon rv-icon-compare" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: 16px;height: 16px"><polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" /><polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" /><line x1="4" y1="4" x2="9" y2="9" /></svg>
-<span class="text-label sr-only">Compare</span>
+<span class="rvs-tag rvs-tag--outline rvs-card__tag">Coupe</span>
+<button type="button" class="rvs-card__fav mhm-vehicle-favorite-btn" data-rvs-fav data-vehicle-id="X" data-nonce="NONCE" data-testid="X" aria-label="X" title="Add to favorites" aria-pressed="X">
+<svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="X" focusable="false"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
 </button>
 </div>
+<div class="rvs-card__body">
+<div class="rvs-card__head">
+<h3 class="rvs-card__title"><a href="http://example.org/?mhmrentiva_vehicle=zz-bravo-coupe">Zz Bravo Coupe</a></h3>
+<span class="rvs-card__rating"> ★ 2.0 </span>
 </div>
-<div class="mhm-card-content">
-<div class="mhm-content-main">
-<div class="mhm-card-meta-top">
-<div class="mhm-card-category" data-testid="X"> Coupe </div>
-<div class="mhm-card-brand" data-testid="X"> Audi </div>
+<p class="rvs-card__specs">2 People · Automatic · Diesel</p>
+<p class="rvs-card__terms">Deposit 10% · Free cancellation (24 hours)</p>
+<div class="rvs-card__foot">
+<div class="rvs-card__price">
+<div class="rvs-card__amount"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#036;</span>400.00</bdi></span></div>
+<div class="rvs-card__per">per day</div>
 </div>
-<div class="mhm-card-title-row">
-<h3 class="mhm-card-title">
-<a href="http://example.org/?mhmrentiva_vehicle=zz-bravo-coupe">Zz Bravo Coupe</a>
-</h3>
-<div class="mhm-card-rating" data-testid="X" title=" Rated 2.0 out of 5 ">
-<span class="mhm-rating-star" aria-hidden="X">&#9733;</span>
-<span class="mhm-rating-average">2.0</span>
-<span class="mhm-rating-confidence mhm-confidence--reliable" title="This vehicle has a growing number of reviews."> Reliable </span>
+<a class="rvs-btn rvs-btn--primary rvs-card__select" href="http://example.org/?mhmrentiva_vehicle_id=VEHICLE1" data-testid="X">Book Now</a>
 </div>
+<label class="rvs-check rvs-card__compare">
+<input type="checkbox" data-rvs-compare data-vehicle-id="X" data-nonce="NONCE" data-testid="X">
+<span>Compare</span>
+</label>
 </div>
-<div class="mhm-card-specs" data-testid="X">
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-fuel" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="15" y2="22" /><line x1="4" y1="9" x2="14" y2="9" /><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18" /><path d="M18 13h1a2 2 0 0 0 2-2V8" /><path d="M18 22v-5" /><path d="M22 13v9" /></svg> Diesel </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-gear" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="8" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /><path d="M6.34 17.66l-1.41 1.41" /></svg> Automatic </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-people rv-icon-users" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3" /><path d="M3 20v-1a6 6 0 0 1 12 0v1" /><circle cx="17" cy="9" r="2.5" /><path d="M14.5 20v-1a4.5 4.5 0 0 1 4.5-4.5" /></svg> 2 People </span>
-<span class="mhm-spec-item">
-<svg aria-hidden="X" focusable="false" class="rv-icon rv-icon-speedometer" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2" /><path d="M12 20v2" /><path d="M20 12h2" /><path d="M2 12h2" /><path d="M19.07 4.93l-1.41 1.41" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M12 12l4 4" /></svg> 12.000 km </span>
-</div>
-</div>
-<div class="mhm-card-footer">
-<div class="mhm-card-price" data-testid="X">
-<span class="mhm-price-amount">$400</span>
-<span class="mhm-price-period">/day</span>
-</div>
-<a href="http://example.org/?mhmrentiva_vehicle_id=VEHICLE1" class="mhm-btn-booking" data-testid="X"> Book Now </a>
-</div>
-</div>
-</div>
+</article>
 </div>
 </div>
 <!-- Pagination -->
 </div>
 </div>
-</div>
+</div></div>

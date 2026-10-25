@@ -37,6 +37,9 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 final class SearchResults extends AbstractShortcode {
 
+	/** Renders inside the front-end standard's shell. */
+	protected static bool $rvs_shell = true;
+
 	/**
 	 * Context key for the availability injector filter.
 	 */
@@ -328,11 +331,13 @@ final class SearchResults extends AbstractShortcode {
 			wp_enqueue_style('mhm-rentiva-vehicle-card-css');
 		}
 
-		// Search results CSS
+		// Search results CSS: the page layout (filters, toolbar, pagination) until
+		// the results page moves to the standard (Aşama 2 PR 3); the cards are the
+		// front-end standard's (rvs-card.css), not vehicle-card.css.
 		wp_enqueue_style(
 			'mhm-rentiva-search-results-css',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
-			array( 'mhm-rentiva-vehicle-card-css' ),
+			array( 'mhm-rentiva-rvs-card' ),
 			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
 			'all'
 		);
@@ -1015,7 +1020,9 @@ final class SearchResults extends AbstractShortcode {
 				'results_per_page'     => $req->intRange('per_page', 12, 1, 100),
 				'show_favorite_button' => $req->text('show_favorite_button', '1'),
 				'show_compare_button'  => $req->text('show_compare_button', '1'),
-				'show_booking_button'  => $req->text('show_booking_button', '1'),
+				// The canonical key; search-results.js sent show_booking_btn, which
+				// this handler never read, so every re-render lost the toggle.
+				'show_booking_button'  => $req->text('show_booking_button', $req->text('show_booking_btn', '1')),
 				'show_price'           => $req->text('show_price', '1'),
 				'show_title'           => $req->text('show_title', '1'),
 				'show_features'        => $req->text('show_features', '1'),
@@ -1030,7 +1037,7 @@ final class SearchResults extends AbstractShortcode {
 			// catch around it swallows that terminator and appends a second,
 			// contradictory document after the first.
 			$payload = array(
-				'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts),
+				'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts, self::card_dates($search_params)),
 				'pagination' => self::render_pagination($results['pagination']),
 				'meta'       => array(
 					'total'        => (int) $results['total'],
@@ -1080,7 +1087,7 @@ final class SearchResults extends AbstractShortcode {
 	 * @param string $layout Layout type
 	 * @return string
 	 */
-	private static function render_vehicles_list(array $vehicles, string $layout, array $atts = array()): string
+	private static function render_vehicles_list(array $vehicles, string $layout, array $atts = array(), array $dates = array()): string
 	{
 		if (empty($vehicles)) {
 			// esc_html__ rather than __: this string reaches the browser two ways, and
@@ -1093,7 +1100,7 @@ final class SearchResults extends AbstractShortcode {
 
 		$html = '';
 		foreach ($vehicles as $vehicle) {
-			$html .= self::render_vehicle_card($vehicle, $layout, $atts);
+			$html .= self::render_vehicle_card($vehicle, $layout, $atts, $dates);
 		}
 
 		return $html;
@@ -1102,11 +1109,17 @@ final class SearchResults extends AbstractShortcode {
 	/**
 	 * Renders single vehicle card using canonical partial
 	 *
-	 * @param array $vehicle Standardized vehicle data
-	 * @param string $layout Layout type (grid/list)
+	 * The front-end standard card (templates/partials/rvs-vehicle-card.php).
+	 *
+	 * @param array                 $vehicle Standardized vehicle data
+	 * @param string                $layout  Layout type (grid/list)
+	 * @param array                 $atts    Card toggles
+	 * @param array<string, string> $dates   Search context for the period total and the
+	 *                                       booking link; empty = the request's query vars
+	 *                                       (an AJAX re-render passes it explicitly).
 	 * @return string
 	 */
-	public static function render_vehicle_card(array $vehicle, string $layout, array $atts = array()): string
+	public static function render_vehicle_card(array $vehicle, string $layout, array $atts = array(), array $dates = array()): string
 	{
 		if (empty($vehicle)) {
 			return '';
@@ -1127,17 +1140,35 @@ final class SearchResults extends AbstractShortcode {
 			)
 		);
 
-		// Use the standardized partial directly
-		// All data preparation is already handled by format_vehicle_data/VehiclesList
 		return Templates::render(
-			'partials/vehicle-card',
+			'partials/rvs-vehicle-card',
 			array(
 				'vehicle' => $vehicle,
 				'layout'  => $layout,
 				'atts'    => $card_atts,
+				'dates'   => $dates,
 			),
 			true
 		);
+	}
+
+	/**
+	 * The search window as the card reads it (logical keys, scalars only).
+	 *
+	 * @param array<string, mixed> $search_params
+	 * @return array<string, string>
+	 */
+	private static function card_dates(array $search_params): array
+	{
+		$dates = array();
+		foreach (array( 'pickup_date', 'return_date', 'pickup_time', 'return_time' ) as $key) {
+			$value = $search_params[ $key ] ?? '';
+			if (is_scalar($value) && '' !== (string) $value) {
+				$dates[ $key ] = (string) $value;
+			}
+		}
+
+		return $dates;
 	}
 
 	/**
