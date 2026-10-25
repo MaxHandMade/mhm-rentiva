@@ -122,6 +122,8 @@ class Html {
 			'autocomplete' => true,
 			'accept'       => true,
 			'multiple'     => true,
+			// The results page's number fields ask phones for the numeric keypad.
+			'inputmode'    => true,
 		);
 		$allowed['select']   = $common + array(
 			'name'     => true,

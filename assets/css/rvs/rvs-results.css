@@ -1,0 +1,397 @@
+/**
+ * Rentiva front-end standard -- the search results page.
+ *
+ * Values from the approved canvas (`Arama-Sonuclari`, `Arama-Sonuclari-Mobil`):
+ * a 250 px filter column beside the results, a header line with the sort, the
+ * active-filter chips, the card grid (rvs-card.css), 44×44 page buttons and a
+ * sticky comparison band. At 768 px and below the filter column becomes a
+ * drawer (search-results.js gives it the dialog semantics while it is open).
+ */
+
+.rvs-shell .rvs-results {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding-block: 30px;
+}
+
+/* Layout ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-results__layout {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 40px;
+}
+
+.rvs-shell .rvs-results__filters {
+	display: flex;
+	flex: 0 1 250px;
+	flex-direction: column;
+	gap: 26px;
+	min-width: 230px;
+}
+
+.rvs-shell .rvs-results__main {
+	display: flex;
+	flex: 999 1 560px;
+	flex-direction: column;
+	gap: 20px;
+	min-width: 0;
+}
+
+/* Filter column ------------------------------------------------------------ */
+
+.rvs-shell .rvs-results__filters-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-results__filters-title {
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-results__clear {
+	min-height: 44px;
+}
+
+.rvs-shell .rvs-results__form {
+	display: flex;
+	flex-direction: column;
+	gap: 26px;
+	margin: 0;
+}
+
+.rvs-shell .rvs-results__group {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.rvs-shell .rvs-results__group > legend {
+	margin-bottom: 6px;
+	padding: 0;
+}
+
+.rvs-shell .rvs-results__range {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-results__range .rvs-input {
+	min-width: 0;
+}
+
+.rvs-shell .rvs-results__drawer-close,
+.rvs-shell .rvs-results__drawer-foot {
+	display: none;
+}
+
+/* Header ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-results__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 15px;
+}
+
+.rvs-shell .rvs-results__summary {
+	margin: 0;
+	font-size: 16px;
+}
+
+.rvs-shell .rvs-results__summary-rest {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-results__tools {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-results__sort-label {
+	color: var(--rvs-muted);
+	font-size: 14px;
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-results__sort {
+	width: auto;
+	min-width: 200px;
+}
+
+.rvs-shell .rvs-results__view {
+	display: flex;
+	gap: 4px;
+}
+
+.rvs-shell .rvs-results__view-btn[aria-pressed="true"] {
+	background: var(--rvs-accent-100);
+	color: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-results__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-results__chips:empty,
+.rvs-shell .rvs-results__notice:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-results__notice-box {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 15px;
+	padding: 15px 20px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+}
+
+.rvs-shell .rvs-results__notice-box p {
+	margin: 0;
+}
+
+/* Results ------------------------------------------------------------------ */
+
+/* The canvas grid: 260 px minimum, as many as fit. */
+.rvs-shell .rvs-results__grid.rvs-card-grid {
+	--rvs-cols: 3;
+}
+
+.rvs-shell .rvs-results__grid .rvs-empty {
+	grid-column: 1 / -1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-results__grid .rvs-empty p {
+	margin: 0;
+}
+
+.rvs-shell .rvs-results[aria-busy="true"] .rvs-results__grid {
+	opacity: 0.55;
+	transition: opacity 0.15s ease;
+}
+
+.rvs-shell .rvs-results__pagination {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 6px;
+	margin-top: 20px;
+}
+
+.rvs-shell .rvs-results__pagination:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-results__page {
+	width: 44px;
+	padding: 0;
+}
+
+.rvs-shell .rvs-results__page-gap {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding-inline: 4px;
+	color: var(--rvs-muted);
+}
+
+/* Comparison band ---------------------------------------------------------- */
+
+.rvs-shell .rvs-results__band {
+	position: sticky;
+	bottom: 0;
+	z-index: 20;
+	margin-inline: calc(-1 * clamp(16px, 4vw, 40px));
+	background: var(--rvs-text);
+	color: #fff;
+}
+
+.rvs-shell .rvs-results__band[data-count="0"] {
+	display: none;
+}
+
+.rvs-shell .rvs-results__band-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 20px;
+	padding: 12px clamp(16px, 4vw, 40px);
+}
+
+.rvs-shell .rvs-results__band-names {
+	font-size: 14px;
+	opacity: 0.8;
+}
+
+.rvs-shell .rvs-results__band-link,
+.rvs-shell .rvs-results__band-link:hover {
+	margin-inline-start: auto;
+	background: #fff;
+	color: var(--rvs-text);
+}
+
+/* Mobile ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-results__mobilebar {
+	display: none;
+}
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-results {
+		padding-block: 20px;
+	}
+
+	.rvs-shell .rvs-results__mobilebar {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+	}
+
+	.rvs-shell .rvs-results__summary-card {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		min-height: 52px;
+		padding: 12px 15px;
+		border-radius: var(--rvs-r);
+		background: var(--rvs-raised);
+		box-shadow: var(--rvs-shadow);
+		color: var(--rvs-text);
+		text-decoration: none;
+	}
+
+	.rvs-shell .rvs-results__summary-text {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.rvs-shell .rvs-results__summary-text span {
+		color: var(--rvs-muted);
+		font-size: 14px;
+	}
+
+	.rvs-shell .rvs-results__change {
+		color: var(--rvs-accent-strong);
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	.rvs-shell .rvs-results__filters-open {
+		width: 100%;
+	}
+
+	.rvs-shell .rvs-results__layout {
+		display: block;
+	}
+
+	/* The filter column becomes a full-screen drawer, closed until opened. */
+	.rvs-shell .rvs-results__filters {
+		display: none;
+	}
+
+	.rvs-shell .rvs-results__filters.is-open {
+		position: fixed;
+		inset: 0;
+		z-index: 100000;
+		display: flex;
+		gap: 0;
+		min-width: 0;
+		background: var(--rvs-bg);
+	}
+
+	.rvs-shell .rvs-results__filters.is-open .rvs-results__filters-head {
+		padding: 10px 6px 10px 16px;
+		border-bottom: 1px solid var(--rvs-line);
+	}
+
+	.rvs-shell .rvs-results__filters.is-open .rvs-results__filters-head .rvs-results__clear {
+		display: none;
+	}
+
+	.rvs-shell .rvs-results__filters.is-open .rvs-results__drawer-close {
+		display: inline-flex;
+	}
+
+	.rvs-shell .rvs-results__filters.is-open .rvs-results__form {
+		flex: 1;
+		gap: 22px;
+		padding: 16px;
+		overflow: auto;
+	}
+
+	.rvs-shell .rvs-results__filters.is-open .rvs-check {
+		min-height: 44px;
+		font-size: 16px;
+	}
+
+	/* The apply bar sits under the scrolling list, never over a focused field. */
+	.rvs-shell .rvs-results__filters.is-open .rvs-results__drawer-foot {
+		display: flex;
+		gap: 10px;
+		padding: 12px 16px;
+		border-top: 1px solid var(--rvs-line);
+		background: var(--rvs-raised);
+	}
+
+	.rvs-shell .rvs-results__apply {
+		flex: 1;
+	}
+
+	.rvs-shell .rvs-results__head {
+		gap: 10px;
+	}
+
+	.rvs-shell .rvs-results__tools {
+		width: 100%;
+	}
+
+	.rvs-shell .rvs-results__sort {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.rvs-shell .rvs-results__view {
+		display: none;
+	}
+
+	.rvs-shell .rvs-results__grid.rvs-card-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	/* The band stays one short line on phones: the count and the button. */
+	.rvs-shell .rvs-results__band-names {
+		display: none;
+	}
+
+	.rvs-shell .rvs-results__band-inner {
+		flex-wrap: nowrap;
+		padding-block: 10px;
+	}
+}
+
+/* The page behind an open drawer does not scroll. */
+body.rvs-drawer-open {
+	overflow: hidden;
+}

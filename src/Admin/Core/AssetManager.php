@@ -218,6 +218,12 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-card', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-card', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-card.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-card.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-results', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-results', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-results.css', array( 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/rvs/rvs-results.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-search', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-search', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-search.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-search.css'));
+		}
 	}
 
 	/**
@@ -236,6 +242,24 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-card');
+	}
+
+	/**
+	 * The search results page (filters, header, drawer, band) on top of the card.
+	 */
+	public static function enqueue_rvs_results_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-results');
+	}
+
+	/**
+	 * The search strip on top of the `rvs-` chain.
+	 */
+	public static function enqueue_rvs_search_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-search');
 	}
 
 	/**
