@@ -239,6 +239,9 @@ final class AssetManager {
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
 		}
+		if (! wp_script_is('mhm-rentiva-rvs-vehicle-js', 'registered')) {
+			wp_register_script('mhm-rentiva-rvs-vehicle-js', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-vehicle.js', array( 'jquery', 'mhm-rentiva-rvs-dialog', 'mhm-rentiva-vehicle-interactions' ), self::get_file_version('assets/js/frontend/rvs-vehicle.js'), true);
+		}
 	}
 
 	/**

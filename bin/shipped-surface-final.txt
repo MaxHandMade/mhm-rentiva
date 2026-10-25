@@ -96,6 +96,7 @@ assets/css/rvs/rvs-results.css
 assets/css/rvs/rvs-search.css
 assets/css/rvs/rvs-shell.css
 assets/css/rvs/rvs-tokens.css
+assets/css/rvs/rvs-vehicle.css
 assets/images/mhm-logo.png
 assets/images/placeholder-avatar.svg
 assets/images/placeholder-vehicle.svg
@@ -145,6 +146,7 @@ assets/js/frontend/contact-form.js
 assets/js/frontend/featured-vehicles.js
 assets/js/frontend/my-account.js
 assets/js/frontend/rvs-dialog.js
+assets/js/frontend/rvs-vehicle.js
 assets/js/frontend/search-results.js
 assets/js/frontend/testimonials.js
 assets/js/frontend/toast.js
@@ -366,6 +368,7 @@ src/Admin/Frontend/Shortcodes/Core/BookingUrl.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php
+src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php
 src/Admin/Frontend/Shortcodes/SearchResults.php
 src/Admin/Frontend/Shortcodes/Testimonials.php
 src/Admin/Frontend/Shortcodes/UnifiedSearch.php
@@ -552,6 +555,9 @@ templates/partials/search/rvs-summary.php
 templates/partials/selected-vehicle-summary.php
 templates/partials/vehicle-card-base.php
 templates/partials/vehicle-card.php
+templates/partials/vehicle-details/booking-card.php
+templates/partials/vehicle-details/gallery.php
+templates/partials/vehicle-details/reviews.php
 templates/shortcodes/availability-calendar.php
 templates/shortcodes/booking-form.php
 templates/shortcodes/contact-form.php
