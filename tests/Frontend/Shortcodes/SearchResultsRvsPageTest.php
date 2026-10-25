@@ -207,4 +207,14 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 
 		$this->assertMatchesRegularExpression('/role="region" aria-label="Comparison" data-rvs-compare-band data-count="0" data-max="3"/', $html);
 	}
+
+	public function test_results_script_depends_on_the_shared_dialog(): void
+	{
+		$this->page();
+
+		$this->assertArrayHasKey('mhm-rentiva-rvs-dialog', wp_scripts()->registered);
+		$this->assertContains('mhm-rentiva-rvs-dialog', wp_scripts()->registered['mhm-rentiva-search-results-js']->deps);
+		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-overlay', 'enqueued'));
+		$this->assertSame(array( 'mhm-rentiva-rvs-primitives' ), wp_styles()->registered['mhm-rentiva-rvs-overlay']->deps);
+	}
 }

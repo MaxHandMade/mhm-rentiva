@@ -129,4 +129,35 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/\.rvs-shell \.rvs-check \{[^}]*min-height: 44px;/', $css);
 		$this->assertMatchesRegularExpression('/\.rvs-shell \.rvs-chip \{[^}]*min-height: 44px;/', $css);
 	}
+
+	public function test_calendar_style_sits_on_primitives(): void
+	{
+		$this->assertSame(array( 'mhm-rentiva-rvs-primitives' ), wp_styles()->registered['mhm-rentiva-rvs-calendar']->deps);
+
+		AssetManager::enqueue_rvs_calendar_styles();
+		wp_styles()->all_deps(wp_styles()->queue);
+		foreach (array( 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-primitives', 'mhm-rentiva-rvs-calendar' ) as $handle) {
+			$this->assertContains($handle, wp_styles()->to_do, $handle);
+		}
+	}
+
+	public function test_breakdown_style_sits_on_primitives(): void
+	{
+		$this->assertSame(array( 'mhm-rentiva-rvs-primitives' ), wp_styles()->registered['mhm-rentiva-rvs-breakdown']->deps);
+
+		AssetManager::enqueue_rvs_breakdown_styles();
+		wp_styles()->all_deps(wp_styles()->queue);
+		$this->assertContains('mhm-rentiva-rvs-breakdown', wp_styles()->to_do);
+		$this->assertContains('mhm-rentiva-rvs-tokens', wp_styles()->to_do);
+	}
+
+	public function test_calendar_cells_match_the_canvas(): void
+	{
+		$css = self::css('assets/css/rvs/rvs-calendar.css');
+		$this->assertMatchesRegularExpression('/\.rvs-cal__grid \{[^}]*border-spacing: 4px;/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-cal__day \{[^}]*height: 36px;/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-available \{[^}]*background: var\(--rvs-raised\);/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-booked \{[^}]*background: var\(--rvs-n-200\);/', $css);
+		$this->assertMatchesRegularExpression('/@media \(max-width: 768px\) \{[^@]*\.rvs-cal__day \{[^}]*height: 44px;/', $css);
+	}
 }

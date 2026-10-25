@@ -75,6 +75,8 @@ describe( 'rvs search results', () => {
 				options.complete();
 			}
 		} );
+		delete window.mhmRentivaRvsDialog;
+		require( '../../assets/js/frontend/rvs-dialog.js' );
 		require( '../../assets/js/frontend/search-results.js' );
 		await new Promise( ( resolve ) => jQuery( resolve ) );
 	};

@@ -1,0 +1,83 @@
+/**
+ * Rentiva front-end standard -- modal dialog shell.
+ *
+ * Behaviour: assets/js/frontend/rvs-dialog.js (role, inert background, focus
+ * trap, Escape). Markup: `.rvs-dialog` (hidden until `.is-open`) holding a
+ * `.rvs-dialog__panel` with a `.rvs-dialog__head` (title + 44x44 close
+ * button) and a `.rvs-dialog__body`. The results drawer keeps its own layout
+ * (rvs-results.css); the vehicle gallery viewer builds on this one.
+ */
+
+.rvs-shell .rvs-dialog {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	padding: var(--rvs-s4);
+	background: rgba(17, 17, 17, 0.72);
+}
+
+.rvs-shell .rvs-dialog.is-open {
+	display: flex;
+}
+
+.rvs-shell .rvs-dialog__panel {
+	display: flex;
+	flex-direction: column;
+	width: min(100%, 960px);
+	max-height: 100%;
+	overflow: hidden;
+	border-radius: var(--rvs-card-radius);
+	background: var(--rvs-surface);
+	box-shadow: var(--rvs-shadow-md);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-dialog__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rvs-s3);
+	padding: var(--rvs-s3) var(--rvs-s4);
+	border-bottom: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-dialog__title {
+	margin: 0;
+	font-size: 17px;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-dialog__title:focus {
+	outline: none;
+}
+
+.rvs-shell .rvs-dialog__close {
+	flex: none;
+	min-width: 44px;
+	min-height: 44px;
+}
+
+.rvs-shell .rvs-dialog__body {
+	min-height: 0;
+	padding: var(--rvs-s4);
+	overflow: auto;
+}
+
+body.rvs-dialog-open {
+	overflow: hidden;
+}
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-dialog {
+		padding: 0;
+	}
+
+	.rvs-shell .rvs-dialog__panel {
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+	}
+}

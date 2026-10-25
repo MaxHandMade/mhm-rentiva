@@ -421,6 +421,8 @@ final class SearchResults extends AbstractShortcode {
 		// core vehicle-card sheet are not loaded here any more (Aşama 2 PR 3).
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_core_js();
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_results_styles();
+		// The mobile filter drawer is a modal dialog (shared rvs-dialog module).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_dialog();
 
 		// Search results JavaScript
 		wp_enqueue_script(
@@ -430,7 +432,7 @@ final class SearchResults extends AbstractShortcode {
 			// here even though mhm-rentiva-vehicle-interactions already pulls toast in
 			// transitively, so this handle stays correct even if that transitive chain
 			// ever changes.
-			array( 'jquery', 'mhm-rentiva-vehicle-interactions', 'mhm-rentiva-toast' ),
+			array( 'jquery', 'mhm-rentiva-vehicle-interactions', 'mhm-rentiva-toast', 'mhm-rentiva-rvs-dialog' ),
 			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);

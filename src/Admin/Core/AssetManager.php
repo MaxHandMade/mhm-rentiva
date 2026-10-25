@@ -224,6 +224,18 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-search', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-search', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-search.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-search.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-calendar', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-calendar', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-calendar.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-calendar.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-breakdown', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-breakdown', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-breakdown.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-breakdown.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
+		}
+		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
+			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
+		}
 	}
 
 	/**
@@ -260,6 +272,34 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-search');
+	}
+
+	/**
+	 * The month calendar (RvsCalendar) on top of the `rvs-` chain.
+	 */
+	public static function enqueue_rvs_calendar_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-calendar');
+	}
+
+	/**
+	 * The price breakdown (RvsBreakdown) on top of the `rvs-` chain.
+	 */
+	public static function enqueue_rvs_breakdown_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-breakdown');
+	}
+
+	/**
+	 * The shared modal dialog: its script (rvs-dialog.js) and the dialog shell styles.
+	 */
+	public static function enqueue_rvs_dialog(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-overlay');
+		wp_enqueue_script('mhm-rentiva-rvs-dialog');
 	}
 
 	/**

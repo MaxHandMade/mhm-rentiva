@@ -87,7 +87,10 @@ assets/css/frontend/vehicles-grid.css
 assets/css/frontend/vehicles-list.css
 assets/css/payment/woocommerce-cart.css
 assets/css/payment/woocommerce-checkout.css
+assets/css/rvs/rvs-breakdown.css
+assets/css/rvs/rvs-calendar.css
 assets/css/rvs/rvs-card.css
+assets/css/rvs/rvs-overlay.css
 assets/css/rvs/rvs-primitives.css
 assets/css/rvs/rvs-results.css
 assets/css/rvs/rvs-search.css
@@ -141,6 +144,7 @@ assets/js/frontend/checkout-payment-type.js
 assets/js/frontend/contact-form.js
 assets/js/frontend/featured-vehicles.js
 assets/js/frontend/my-account.js
+assets/js/frontend/rvs-dialog.js
 assets/js/frontend/search-results.js
 assets/js/frontend/testimonials.js
 assets/js/frontend/toast.js
@@ -360,6 +364,8 @@ src/Admin/Frontend/Shortcodes/ContactMessagePostType.php
 src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
 src/Admin/Frontend/Shortcodes/Core/BookingUrl.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
+src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php
+src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php
 src/Admin/Frontend/Shortcodes/SearchResults.php
 src/Admin/Frontend/Shortcodes/Testimonials.php
 src/Admin/Frontend/Shortcodes/UnifiedSearch.php
@@ -538,6 +544,8 @@ templates/emails/remaining-payment-link-customer.html.php
 templates/emails/welcome-customer.html.php
 templates/partials/preview-badge.php
 templates/partials/rvs-vehicle-card.php
+templates/partials/rvs/breakdown.php
+templates/partials/rvs/calendar-month.php
 templates/partials/search/rvs-chips.php
 templates/partials/search/rvs-empty.php
 templates/partials/search/rvs-summary.php
