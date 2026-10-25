@@ -1,5 +1,28 @@
 [
   {
+    "version": "6.4.0",
+    "date": "2026-10-25",
+    "type": "minor",
+    "title": "A new search, results page and vehicle card, and a booking quote that equals the charge",
+    "summary": "6.4.0 redesigns the pages a visitor sees first and makes the price on screen the price charged. The search strip, the results page and the vehicle card follow the new front-end design, with a category filter, filter chips, a comparison bar and a filter drawer on phones; with search dates every card shows the total for the rental. The booking form quotes exactly what WooCommerce charges: seasonal pricing now reaches the payment, and taxes come only from WooCommerce. One database step rebuilds Elementor's generated CSS. Rentiva Pro 6.4.0 works with this release.",
+    "changes": [
+      "New: the search strip is one row: pickup location, pickup date and time, return date (the return time follows the pickup time) and Search, with visible labels. It opens on the visitor's search, or tomorrow 10:00 to three days later (longer if the minimum rental is longer) when dates are required.",
+      "New: the results page has a filter column with a Category filter, removable chips for active filters, a line with the number of vehicles, the dates and the number of days, sorting by total price when dates are set, a grid/list switch and page buttons. Changing a filter, the sort or the page keeps the dates and every filter.",
+      "New: on phones the results page shows a summary card with a \"Change\" link and opens the filters in a full-screen drawer that works with the keyboard.",
+      "New: a comparison bar shows how many vehicles are picked (up to 3), their names and a link to the comparison page.",
+      "New: empty results explain why: no dates chosen yet, no cars free for the dates, the filters left nothing, or no vehicles listed.",
+      "New: the vehicle card is redesigned on vehicle grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the rental, required add-ons included, and the price per day; it lists seats, transmission and fuel, the deposit and the free-cancellation window. Elementor vehicle-card style settings keep working.",
+      "New: the front end uses the bundled Source Serif 4 font, served from your site.",
+      "Fixed: the booking form now quotes exactly what is charged. Seasonal pricing, when enabled, applies to the payment and the stored booking total, not only to the on-screen quote. The deposit and the remaining amount are worked out from the same total.",
+      "Changed: prices on the booking form are shown through WooCommerce's tax display (the \"Display prices in the cart and checkout\" setting and the price display suffix). Rentiva no longer draws its own tax line.",
+      "Removed: Rentiva's own tax settings (Vehicle settings > Tax Inclusive Pricing and Tax Rate (%)). Taxes are configured in WooCommerce > Settings > Tax. The tax charged does not change: WooCommerce has always calculated it. Existing bookings keep their stored totals.",
+      "Changed: the search strip has no tabs; the \"Show Rental Tab\" option is removed from the block and the Elementor widget (a saved value is ignored).",
+      "Changed: on update, Elementor's generated CSS is rebuilt once so saved vehicle-card styles apply to the new card.",
+      "Fixed: with page caching for visitors, the cached results page depends on every filter, the page number, the dates and the visitor's comparison list, so one visitor's results are not shown to another. The filter options are refreshed when a vehicle is saved.",
+      "Fixed: three Turkish translations start lower-case like their originals."
+    ]
+  },
+  {
     "version": "6.3.1",
     "date": "2026-10-24",
     "type": "patch",

@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.1
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.3.1
+Stable tag:        6.4.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -198,28 +198,23 @@ ordinary visitors can also send re-opens the bypass this default closes.
 
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
+= 6.4.0 =
+* New: a redesigned search and results page. The search strip is one row (pickup location, pickup, return) and opens on tomorrow to three days later. Results have a filter column with a new Category filter, removable filter chips, a line with the dates and number of days, and page buttons that keep your filters. On phones the filters open in a drawer.
+* New: a redesigned vehicle card on grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the whole rental, required add-ons included, and the price per day; it lists the deposit and the free-cancellation window.
+* New: a comparison bar on the results page shows the vehicles picked for comparison.
+* Fixed: the booking form quotes exactly what is charged. Seasonal pricing, when enabled, now applies to the payment and the stored booking total, not only to the quote on screen.
+* Changed: booking-form prices follow WooCommerce's tax display. Rentiva's own tax settings (Vehicle settings > Tax Inclusive Pricing, Tax Rate (%)) are removed; taxes are set in WooCommerce > Settings > Tax. The tax charged does not change.
+* Changed: the search strip has no tabs, and its "Show Rental Tab" option is gone from the block and the Elementor widget. Elementor's generated CSS is rebuilt once on update, so saved vehicle-card styles reach the new card.
+* Fixed: with page caching for visitors, one visitor's filtered, paged or dated results are no longer shown to another.
+
 = 6.3.1 =
 * Fixed: pages built with Elementor are found, so "Book now" buttons and other links no longer fall back to the home page and Shortcode Pages no longer lists them as missing. A page with the shortcode or block in its content still wins. On Elementor sites whose vehicle-details page is now found, vehicle pages move under that page, with a 301 from /vehicle/...
 * Fixed: translation tokens in notices are written {key}, which WordPress.org's translation checks accept; the Turkish catalogue uses translate.wordpress.org's plural formula.
 
-= 6.3.0 =
-* New: Settings > Payment has a site-wide rental deposit: full payment or a percentage (default 10%, as before). A vehicle's own rate still wins; an empty vehicle field now follows the site setting instead of charging in full.
-* New: in the Elementor and block editors, Rentiva widgets show safe previews: account widgets show sample rows, never your own data, and forms are inert.
-* New: all Rentiva blocks sit in a "Rentiva" category; block settings panels and Elementor "Additional Settings" are translatable, and the Turkish translation was reviewed end to end.
-* Changed: a vehicle whose service type is "transfer only" can no longer be rented; it is hidden from rental lists and the server refuses the booking.
-* Changed: e-mail templates whose "Enabled" box is unticked are no longer sent. On cancellation the customer gets one "Booking Cancelled" e-mail instead of two. Customer e-mails use the site language. The "Admin Email" fields are now used. The "Send Booking Notifications" switch now really stops the booking confirmation, reminder and cancellation e-mails to customers. The admin alerts sent directly (needs review, refund failed, mixed currency, order cancelled) and the admin copy of a cancellation are still sent when "Enable Outgoing Emails" is off.
-* Changed: the search form hides the drop-off field unless a page turns it on (show_dropoff_location="true").
-* Security: the booking form checks the return time, required add-ons and the payment type on the server; vehicle titles and plates are always handled as text in scripts.
-* Fixed: saving or editing a booking in the admin keeps add-ons, the deposit and weekend pricing, and refuses dates the vehicle is not free for.
-* Fixed: the customer's booking page tells the truth about status and payment, and the booking number is the same everywhere.
-* Fixed: the cart shows "[vehicle name] rental" with the vehicle image, one priced row per add-on, and no return row on transfers; prices follow the store's currency format.
-* Fixed: unavailable dates show the notice and alternatives; rating bars count 1 and 2 stars; comparison table defaults; login links under reviews; English strings in Turkish admin screens. Full list in changelog.json.
-
-= 6.2.1 =
-* Security: Rentiva Elementor widgets wrote the saving user's bookings, payment history, favourites, e-mail address and security tokens into the plain-text copy Elementor stores in the post content, which the site search could find on published pages. They now write nothing into Elementor's plain-text and markdown copies and are never stored in Elementor's shared element cache.
-* Fixed: a one-time background job rebuilds the stored plain text of affected Elementor pages in batches through WP-Cron, without changing their modified date or creating revisions. Purge page caches and search indexes after updating. Older revisions keep the old text and are visible only to users who can edit the page.
-
 == Upgrade Notice ==
+
+= 6.4.0 =
+New search, results and vehicle card design. Taxes now come only from WooCommerce > Settings > Tax (Rentiva's own tax settings are removed), and seasonal prices are charged as shown. Rentiva Pro 6.4.0 works with this release.
 
 = 6.3.1 =
 Elementor-built pages are found: "Book now" buttons open your booking page again. On Elementor sites the vehicle pages may move under your vehicle-details page (old addresses redirect).
