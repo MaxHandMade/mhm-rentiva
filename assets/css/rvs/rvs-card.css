@@ -14,7 +14,7 @@
 .rvs-shell .rvs-card-grid {
 	--rvs-cols: 4;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(max(260px, calc((100% - (var(--rvs-cols) - 1) * 20px) / var(--rvs-cols))), 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, max(260px, calc((100% - (var(--rvs-cols) - 1) * 20px) / var(--rvs-cols)))), 1fr));
 	gap: 20px;
 	margin: 0;
 	padding: 0;
@@ -56,6 +56,8 @@
 }
 
 @media (max-width: 782px) {
+	/* A tablet count with no mobile count falls back to one card per row. */
+	.rvs-shell .rvs-card-grid[class*="rvs-card-grid--tablet-"]:not([class*="rvs-card-grid--mobile-"]) { grid-template-columns: minmax(0, 1fr); }
 	.rvs-shell .rvs-card-grid--mobile-1 { grid-template-columns: minmax(0, 1fr); }
 	.rvs-shell .rvs-card-grid--mobile-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.rvs-shell .rvs-card-grid--mobile-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -83,6 +85,7 @@
 }
 
 @media (max-width: 782px) {
+	.rvs-shell .rvs-card-grid--masonry[class*="rvs-card-grid--tablet-"]:not([class*="rvs-card-grid--mobile-"]) { column-count: 1; }
 	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-1 { column-count: 1; }
 	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-2 { column-count: 2; }
 	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-3 { column-count: 3; }
@@ -143,14 +146,14 @@
 
 .rvs-shell .rvs-card__tag {
 	position: absolute;
-	top: 10px;
-	left: 10px;
+	inset-block-start: 10px;
+	inset-inline-start: 10px;
 }
 
 .rvs-shell .rvs-card__fav {
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	inset-block-start: 10px;
+	inset-inline-end: 10px;
 	display: grid;
 	place-items: center;
 	width: 44px;
@@ -191,6 +194,7 @@
 .rvs-shell .rvs-card__title {
 	margin: var(--rvs-card-title-margin);
 	font-size: 20px;
+	overflow-wrap: anywhere;
 }
 
 .rvs-shell .rvs-card__title a {

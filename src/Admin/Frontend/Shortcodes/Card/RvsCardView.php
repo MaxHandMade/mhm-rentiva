@@ -89,7 +89,10 @@ final class RvsCardView {
 				? (string) ( $vehicle['availability']['text'] ?? ( $available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva') ) )
 				: '',
 			'booking'     => array(
-				'show'  => $on('show_booking_button', 'show_book_button', 'show_booking_btn'),
+				// A transfer-only vehicle is not offered for rental (favourites can
+				// hold one): no rental booking button, as on the old card.
+				'show'  => $on('show_booking_button', 'show_book_button', 'show_booking_btn')
+					&& ( $vehicle_id <= 0 || VehicleDataHelper::allows_service($vehicle_id, 'rental') ),
 				'url'   => VehicleCardLinks::booking_url($vehicle, $atts, $dates),
 				'label' => $available ? self::booking_label($atts) : __('Unavailable', 'mhm-rentiva'),
 			),

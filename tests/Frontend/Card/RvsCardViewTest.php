@@ -78,6 +78,24 @@ final class RvsCardViewTest extends WP_UnitTestCase
 		);
 	}
 
+	public function test_transfer_only_vehicle_has_no_booking_button(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_service_type', 'transfer');
+		$this->assertFalse(RvsCardView::from_vehicle($this->vehicle(), array())['booking']['show']);
+
+		update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_service_type', 'both');
+		$this->assertTrue(RvsCardView::from_vehicle($this->vehicle(), array())['booking']['show']);
+	}
+
+	public function test_brand_image_size_and_feature_cap(): void
+	{
+		$this->assertSame('Hyundai', RvsCardView::from_vehicle($this->vehicle(array( 'brand' => 'Hyundai' )), array())['brand']);
+		$this->assertSame('', RvsCardView::from_vehicle($this->vehicle(array( 'brand' => 'Hyundai' )), array( 'show_brand' => '0' ))['brand']);
+		$this->assertSame('thumbnail', RvsCardView::from_vehicle($this->vehicle(), array( 'image_size' => 'thumbnail' ))['image']['size']);
+		$this->assertSame('medium_large', RvsCardView::from_vehicle($this->vehicle(), array())['image']['size']);
+		$this->assertSame(1, substr_count(RvsCardView::from_vehicle($this->vehicle(), array( 'max_features' => '2' ))['specs'], ' · '));
+	}
+
 	public function test_specs_line_from_vehicle_meta(): void
 	{
 		$view = RvsCardView::from_vehicle($this->vehicle(), array());

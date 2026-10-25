@@ -673,10 +673,31 @@ abstract class AbstractShortcode {
 			'is_admin' => is_admin(),
 			'language' => get_locale(),
 			'theme'    => get_template(),
+			// The search window in the request: cards price the period and link
+			// the booking with it, so a guest without it must not get that render.
+			'window'   => self::request_window(),
 			'v'        => $version,
 		);
 
 		return 'mhmrentiva_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
+	}
+
+	/**
+	 * The search-context query vars the vehicle card reads from the request.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function request_window(): array
+	{
+		$window = array();
+		foreach (\MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::FORWARD_KEYS as $key) {
+			$value = get_query_var(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var($key), '');
+			if (is_scalar($value) && '' !== (string) $value) {
+				$window[ $key ] = (string) $value;
+			}
+		}
+
+		return $window;
 	}
 
 	/**
