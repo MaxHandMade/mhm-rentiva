@@ -129,4 +129,15 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/\.rvs-shell \.rvs-check \{[^}]*min-height: 44px;/', $css);
 		$this->assertMatchesRegularExpression('/\.rvs-shell \.rvs-chip \{[^}]*min-height: 44px;/', $css);
 	}
+
+	public function test_calendar_style_sits_on_primitives(): void
+	{
+		$this->assertSame(array( 'mhm-rentiva-rvs-primitives' ), wp_styles()->registered['mhm-rentiva-rvs-calendar']->deps);
+
+		AssetManager::enqueue_rvs_calendar_styles();
+		wp_styles()->all_deps(wp_styles()->queue);
+		foreach (array( 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-primitives', 'mhm-rentiva-rvs-calendar' ) as $handle) {
+			$this->assertContains($handle, wp_styles()->to_do, $handle);
+		}
+	}
 }

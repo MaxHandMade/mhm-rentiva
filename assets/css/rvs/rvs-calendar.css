@@ -1,0 +1,88 @@
+/**
+ * Rentiva front-end standard -- month calendar.
+ *
+ * Markup: templates/partials/rvs/calendar-month.php (RvsCalendar::month()).
+ * Day states are told by more than colour: a booked day's number is struck
+ * through, a past day is faded, the selected range is filled, today has a ring.
+ * Cells are at least 40 px so a finger can hit them.
+ */
+
+.rvs-shell .rvs-cal {
+	min-width: 0;
+}
+
+.rvs-shell .rvs-cal__title {
+	margin: 0 0 var(--rvs-s3);
+	color: var(--rvs-text);
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.3;
+	text-transform: capitalize;
+}
+
+.rvs-shell .rvs-cal__grid {
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-collapse: separate;
+	border-spacing: 2px;
+	table-layout: fixed;
+}
+
+.rvs-shell .rvs-cal__grid th,
+.rvs-shell .rvs-cal__grid td {
+	padding: 0;
+	border: 0;
+	background: none;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.rvs-shell .rvs-cal__grid th {
+	padding-bottom: var(--rvs-s1);
+	color: var(--rvs-muted);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.rvs-shell .rvs-cal__day {
+	height: 40px;
+	border-radius: var(--rvs-r);
+	color: var(--rvs-text);
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+}
+
+.rvs-shell .rvs-cal__day.is-available {
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-cal__day.is-booked {
+	background: var(--rvs-n-100);
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-cal__day.is-booked .rvs-cal__num {
+	text-decoration: line-through;
+}
+
+.rvs-shell .rvs-cal__day.is-past {
+	color: var(--rvs-n-300);
+}
+
+.rvs-shell .rvs-cal__day.is-selected {
+	background: var(--rvs-accent-strong);
+	color: #fff;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-cal__day.is-today {
+	box-shadow: inset 0 0 0 2px var(--rvs-accent);
+}
+
+@media (max-width: 480px) {
+	.rvs-shell .rvs-cal__day {
+		height: 40px;
+		font-size: 13px;
+	}
+}
