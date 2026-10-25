@@ -149,6 +149,21 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 		$this->assertArrayHasKey('price_suffix', $data);
 	}
 
+	public function test_breakdown_lines_add_up_to_the_displayed_total(): void
+	{
+		$this->ensure_booking_product('1');
+
+		$data  = $this->calculate_price();
+		$lines = $data['display_lines'];
+
+		$this->assertEqualsWithDelta(1200.0, (float) $lines['vehicle_price'], 0.01, 'Daily price shown with tax (1000 x 1.2).');
+		$this->assertEqualsWithDelta(
+			(float) $data['display_total']['amount'],
+			(float) $lines['vehicle_total'] + (float) $lines['addon_total'],
+			0.01
+		);
+	}
+
 	public function test_quote_payload_has_no_tax_keys(): void
 	{
 		$data = $this->calculate_price();

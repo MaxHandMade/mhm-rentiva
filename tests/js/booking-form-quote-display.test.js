@@ -32,7 +32,7 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 				<form class="rv-booking-form-content">
 					<input type="hidden" name="payment_type" value="deposit">
 				</form>
-				<span class="rv-total-amount"></span><span class="rv-price-suffix"></span>
+				<span class="rv-total-amount"></span>
 				<div class="rv-deposit-summary rv-hidden"><span class="rv-deposit-amount"></span></div>
 				<div class="rv-remaining-summary rv-hidden"><span class="rv-remaining-amount"></span></div>
 			</div>`;
@@ -62,21 +62,21 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 		deposit_amount: 300,
 		remaining_amount: 2700,
 		payment_type: 'deposit',
-		display_total: { amount: 3600, html: '', suffix: '' },
-		display_deposit: { amount: 360, html: '', suffix: '' },
-		display_remaining: { amount: 3240, html: '', suffix: '' },
+		display_total: { amount: 3600, html: '<span class="amount">$3.600,00</span>', suffix: '' },
+		display_deposit: { amount: 360.8, html: '<span class="amount">$360,80</span>', suffix: '' },
+		display_remaining: { amount: 3239.2, html: '<span class="amount">$3.239,20</span>', suffix: '' },
 		price_suffix: '<small class="woocommerce-price-suffix">incl. VAT</small>',
 		...extra,
 	} );
 
-	test( 'total, deposit and remaining come from the display amounts', () => {
+	test( 'total, deposit and remaining are WooCommerce markup, decimals kept', () => {
 		const form = setup();
 
 		form.updatePriceDisplay( quote() );
 
-		expect( form.container.find( '.rv-total-amount' ).text() ).toBe( '3600' );
-		expect( form.container.find( '.rv-deposit-amount' ).text() ).toBe( '360' );
-		expect( form.container.find( '.rv-remaining-amount' ).text() ).toBe( '3240' );
+		expect( form.container.find( '.rv-total-amount .amount' ).text() ).toBe( '$3.600,00' );
+		expect( form.container.find( '.rv-deposit-amount .amount' ).text() ).toBe( '$360,80' );
+		expect( form.container.find( '.rv-remaining-amount .amount' ).text() ).toBe( '$3.239,20' );
 	} );
 
 	test( 'WooCommerce price suffix is shown next to the total', () => {
@@ -84,7 +84,7 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 		form.updatePriceDisplay( quote() );
 
-		expect( form.container.find( '.rv-price-suffix .woocommerce-price-suffix' ).text() ).toBe( 'incl. VAT' );
+		expect( form.container.find( '.rv-total-amount .woocommerce-price-suffix' ).text() ).toBe( 'incl. VAT' );
 	} );
 
 	test( 'falls back to the raw amounts when display amounts are absent', () => {
@@ -94,7 +94,24 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 		expect( form.container.find( '.rv-total-amount' ).text() ).toBe( '3000' );
 		expect( form.container.find( '.rv-deposit-amount' ).text() ).toBe( '300' );
-		expect( form.container.find( '.rv-price-suffix' ).html() ).toBe( '' );
+		expect( form.container.find( '.rv-total-amount .woocommerce-price-suffix' ).length ).toBe( 0 );
+	} );
+
+	test( 'breakdown rows use the display amounts so they add up to the total', () => {
+		const form = setup();
+		const seen = {};
+		const capture = ( key ) => ( { text: ( v ) => { seen[ key ] = v; } } );
+		form.priceElements.dailyPrice = capture( 'daily' );
+		form.priceElements.vehicleTotal = capture( 'vehicle' );
+		form.priceElements.addonsTotal = capture( 'addons' );
+
+		form.updatePriceDisplay( quote( {
+			vehicle_total: 3315,
+			addon_total: 25,
+			display_lines: { vehicle_price: 1020, vehicle_total: 3978, addon_total: 30, weekend_extra: 0 },
+		} ) );
+
+		expect( seen ).toEqual( { daily: '1020', vehicle: '3978', addons: '30' } );
 	} );
 
 	test( 'no tax summary is drawn by the form', () => {

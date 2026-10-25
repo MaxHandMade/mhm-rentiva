@@ -418,7 +418,6 @@ $unique_id = uniqid('rv_booking_');
 						<div class="rv-price-item rv-total-price">
 							<span class="rv-price-label"><?php echo esc_html__('Total Amount:', 'mhm-rentiva'); ?></span>
 							<span class="rv-price-value rv-total-amount rv-price-large" id="rv-total-amount-<?php echo esc_attr($unique_id); ?>" data-testid="booking-total-price">-</span>
-							<span class="rv-price-suffix"></span>
 						</div>
 
 						<?php if ($enable_deposit) : ?>

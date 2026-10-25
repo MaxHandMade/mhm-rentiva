@@ -1421,6 +1421,15 @@
 	margin-top: 0.5rem;
 }
 
+/* WooCommerce's price suffix / "(ex. VAT)" label, inline after the total. */
+.rv-total-amount .woocommerce-price-suffix,
+.rv-total-amount .tax_label {
+	margin-left: 0.35em;
+	font-size: 0.6em;
+	font-weight: 500;
+	color: var(--mhm-text-secondary);
+}
+
 /* Special styling for deposit and remaining */
 .rv-price-item.rv-deposit-summary .rv-price-label,
 .rv-price-item.rv-remaining-summary .rv-price-label,
