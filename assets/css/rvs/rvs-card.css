@@ -102,6 +102,8 @@
 
 /* Card --------------------------------------------------------------------- */
 
+/* The card sets its own type: a surface wrapper (the featured slider's, a
+   theme's) can set a font on the way down, and the card must not inherit it. */
 .rvs-shell .rvs-card {
 	position: relative;
 	display: flex;
@@ -111,6 +113,11 @@
 	border-radius: var(--rvs-card-radius);
 	background: var(--rvs-card-bg);
 	box-shadow: var(--rvs-shadow);
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 15px;
+	line-height: 1.55;
+	text-align: start;
 }
 
 .rvs-shell .rvs-card__media {
@@ -216,13 +223,20 @@
 	font-size: 13px;
 }
 
+/* Price and button share a row while they fit; a narrow card (slider, three
+   columns) puts the button under the price instead of past the edge. */
 .rvs-shell .rvs-card__foot {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: flex-end;
 	justify-content: space-between;
 	gap: 10px;
 	margin-top: auto;
 	padding-top: 8px;
+}
+
+.rvs-shell .rvs-card__price {
+	min-width: 0;
 }
 
 .rvs-shell .rvs-card__amount {

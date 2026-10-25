@@ -999,6 +999,8 @@ final class SearchResults extends AbstractShortcode {
 				'keyword'         => $req->text(self::query_var('keyword')),
 				'pickup_date'     => $req->text(self::query_var('pickup_date')),
 				'return_date'     => $req->text(self::query_var('return_date')),
+				// Carried for the cards (booking link); the search itself ignores it.
+				'pickup_time'     => $req->text(self::query_var('pickup_time')),
 				'min_price'       => $req->int(self::query_var('min_price')),
 				'max_price'       => $req->int(self::query_var('max_price')),
 				'fuel_type'       => $req->textOrList(self::query_var('fuel_type')),
