@@ -34,6 +34,12 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.7.0 (2026-10-25): clear_elementor_css_470() queues the Elementor page CSS
+	 * rebuild again (ElementorStyleIdMigration, whose run is idempotent): the
+	 * vehicle card moved to the front-end standard (rvs-card classes and
+	 * --rvs-card-* tokens), so CSS Elementor generated for the old card
+	 * selectors would style nothing until rebuilt.
+	 *
 	 * 4.6.0 (2026-10-13): rebuild_elementor_plain_text_460() queues
 	 * ElementorPlainTextMigration: Elementor pages holding a Rentiva widget get
 	 * their stored plain text (post_content) rebuilt and their markdown cache
@@ -72,7 +78,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.6.0';
+	private const CURRENT_VERSION = '4.7.0';
 
 	/**
 	 * Whether migrate_contact_status_440() has already run once.
@@ -492,6 +498,7 @@ final class DatabaseMigrator {
 			self::migrate_contact_attachments_441();
 			self::migrate_elementor_style_ids_450();
 			self::rebuild_elementor_plain_text_460();
+			self::clear_elementor_css_470();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
@@ -1394,6 +1401,16 @@ final class DatabaseMigrator {
 	private static function rebuild_elementor_plain_text_460(): void
 	{
 		ElementorPlainTextMigration::mark_pending();
+	}
+
+	/**
+	 * 4.7.0: the vehicle card's Elementor controls now write --rvs-card-* tokens
+	 * and target rvs-card classes. Queues the existing bounded run (style-id
+	 * pass, a no-op when done, then the page CSS flush) on admin_init.
+	 */
+	private static function clear_elementor_css_470(): void
+	{
+		ElementorStyleIdMigration::mark_pending();
 	}
 
 	/**
