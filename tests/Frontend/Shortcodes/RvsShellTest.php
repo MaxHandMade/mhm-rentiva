@@ -99,6 +99,7 @@ final class RvsShellTest extends WP_UnitTestCase
 		RvsOuterShortcode::render();
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-primitives', 'enqueued'));
+		$this->assertSame(1, RvsOuterShortcode::$renders, 'The second render came from the cache.');
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-fonts', 'registered'));
 	}
 

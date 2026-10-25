@@ -355,7 +355,7 @@ final class StyleTokenDependencyTest extends WP_UnitTestCase
         )));
     }
 
-    public function test_a_string_canonical_still_checks_only_the_mhm_family(): void
+    public function test_a_string_canonical_still_checks_only_the_original_family(): void
     {
         $root = $this->tree(array(
             'assets/css/b.css' => ".rvs-b { color: var(--rvs-text); }\n",

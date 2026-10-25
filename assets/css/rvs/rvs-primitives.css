@@ -185,7 +185,7 @@
 
 .rvs-shell .rvs-tag--neutral {
 	background: var(--rvs-n-200);
-	color: #2d2b2b;
+	color: var(--rvs-text);
 }
 
 .rvs-shell .rvs-tag--alert {

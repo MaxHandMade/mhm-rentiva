@@ -11,7 +11,7 @@
  * (static instances, not the variable font): 400, 600 and 400 italic -- the
  * three styles the standard uses -- each in two subsets:
  *   - latin      -- the base set (also carries U+0131, dotless i).
- *   - latin-ext  -- required for Turkish (ğ ş ç ö ü and capitals).
+ *   - latin-ext  -- required for Turkish: ğ ş Ğ Ş İ (ç ö ü and ı are in latin).
  * `unicode-range` means a page downloads only the subsets it needs. Served
  * from the plugin, never from a font CDN (readme: no remote assets).
  */
