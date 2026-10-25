@@ -50,10 +50,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// ⭐ WooCommerce Cart Block (Store API) - inject vehicle images
 		add_filter('woocommerce_store_api_cart_item_images', array( self::class, 'inject_vehicle_image_for_blocks' ), 10, 3);
 
-		// ⭐ Override tax calculation for booking items
-		add_filter('woocommerce_cart_item_get_taxes', array( self::class, 'adjust_cart_item_taxes' ), 10, 2);
-		add_action('woocommerce_cart_calculate_fees', array( self::class, 'adjust_tax_calculation' ), 10, 1);
-
 		// Email order item image — replace placeholder with vehicle image
 		add_filter('woocommerce_order_item_thumbnail', array( self::class, 'filter_email_order_item_thumbnail' ), 10, 2);
 
@@ -663,27 +659,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+		foreach ($cart->get_cart() as $cart_item) {
 			if (isset($cart_item['mhmrentiva_booking_price'])) {
 				// Set cart item price to deposit amount (for payment)
 				$cart_item['data']->set_price($cart_item['mhmrentiva_booking_price']);
 				self::name_booking_line($cart_item);
-
-				// ⭐ Store total price in cart item data for tax calculation
-				if (isset($cart_item['mhmrentiva_booking_data'])) {
-					$booking_data = $cart_item['mhmrentiva_booking_data'];
-					$total_price  = (float) ( $booking_data['total_price'] ?? 0 );
-					if ($total_price > 0) {
-						// Store total price for tax calculation
-						$cart->cart_contents[ $cart_item_key ]['mhmrentiva_booking_total_price'] = $total_price;
-					}
-				} elseif (isset($cart_item['mhmrentiva_booking_id'])) {
-					$booking_id  = $cart_item['mhmrentiva_booking_id'];
-					$total_price = (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true);
-					if ($total_price > 0) {
-						$cart->cart_contents[ $cart_item_key ]['mhmrentiva_booking_total_price'] = $total_price;
-					}
-				}
 			}
 		}
 	}
@@ -913,83 +893,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				'alt'              => $vehicle_name,
 			),
 		);
-	}
-
-	/**
-	 * ⭐ Adjust tax calculation - tax should be calculated on total price, not deposit
-	 * Override WooCommerce tax calculation for booking items
-	 */
-	public static function adjust_tax_calculation($cart)
-	{
-		if (is_admin() && ! defined('DOING_AJAX')) {
-			return;
-		}
-
-		if (! wc_tax_enabled()) {
-			return;
-		}
-
-		// Get tax rates
-		$tax_rates = \WC_Tax::get_rates();
-		if (empty($tax_rates)) {
-			return;
-		}
-
-		$tax_inclusive = wc_prices_include_tax();
-		$first_rate    = reset($tax_rates);
-		$rate          = (float) ( $first_rate['rate'] ?? 0 );
-
-		if ($rate <= 0) {
-			return;
-		}
-
-		foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-			if (isset($cart_item['mhmrentiva_booking_total_price']) && isset($cart_item['mhmrentiva_booking_price'])) {
-				$total_price   = (float) $cart_item['mhmrentiva_booking_total_price'];
-				$deposit_price = (float) $cart_item['mhmrentiva_booking_price'];
-
-				// Only adjust if deposit is less than total (deposit payment)
-				if ($total_price > $deposit_price && $total_price > 0) {
-					// Calculate tax on total price
-					if ($tax_inclusive) {
-						// Tax is included in price - extract it
-						$tax_amount_on_total = ( $total_price * $rate ) / ( 100 + $rate );
-					} else {
-						// Tax is added to price
-						$tax_amount_on_total = ( $total_price * $rate ) / 100;
-					}
-
-					// Calculate proportional tax on deposit
-					$tax_proportion = $deposit_price / $total_price;
-					$tax_on_deposit = $tax_amount_on_total * $tax_proportion;
-
-					// Store calculated tax for later use
-					$cart->cart_contents[ $cart_item_key ]['mhmrentiva_calculated_tax'] = $tax_on_deposit;
-					$cart->cart_contents[ $cart_item_key ]['mhmrentiva_total_tax']      = $tax_amount_on_total;
-				}
-			}
-		}
-	}
-
-	/**
-	 * ⭐ Override cart item taxes - use calculated tax from total price
-	 */
-	public static function adjust_cart_item_taxes($taxes, $cart_item)
-	{
-		if (isset($cart_item['mhmrentiva_calculated_tax'])) {
-			// Get tax rates to find rate ID
-			$tax_rates = \WC_Tax::get_rates();
-			if (! empty($tax_rates)) {
-				$first_rate = reset($tax_rates);
-				$rate_id    = $first_rate['id'] ?? 1;
-
-				// Override tax with calculated tax from total price
-				$taxes             = array();
-				$taxes[ $rate_id ] = (float) $cart_item['mhmrentiva_calculated_tax'];
-			}
-		}
-
-		return $taxes;
 	}
 
 	/**

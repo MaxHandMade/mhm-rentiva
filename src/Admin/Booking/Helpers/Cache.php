@@ -19,9 +19,30 @@ final class Cache {
 
 	/**
 	 * Generate cache key
+	 *
+	 * The cached answer carries a total price, so the key also carries a
+	 * fingerprint of everything that price is made of: saving a new multiplier
+	 * or a new daily price lands on a new key instead of serving the old total
+	 * until the entry expires. The `mhmrentiva_avail_<vehicle>_` prefix is
+	 * unchanged, so invalidateVehicle() still matches.
 	 */
 	private static function generateKey( int $vehicle_id, int $start_ts, int $end_ts ): string {
-		return sprintf( 'mhmrentiva_avail_%d_%d_%d', $vehicle_id, $start_ts, $end_ts );
+		return sprintf( 'mhmrentiva_avail_%d_%d_%d_%s', $vehicle_id, $start_ts, $end_ts, self::pricing_fingerprint( $vehicle_id ) );
+	}
+
+	/**
+	 * Short hash of the vehicle's daily price and every setting RentalPricing reads.
+	 */
+	private static function pricing_fingerprint( int $vehicle_id ): string {
+		$pricing = array(
+			\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day( $vehicle_id ),
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_base_price', 1.0 ),
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_weekend_multiplier', 1.2 ),
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_seasonal_pricing', '0' ),
+			\MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multipliers(),
+		);
+
+		return substr( md5( (string) wp_json_encode( $pricing ) ), 0, 8 );
 	}
 
 	/**
@@ -58,38 +79,6 @@ final class Cache {
 				$pattern
 			)
 		);
-	}
-
-	/**
-	 * Clear cache for specific date range
-	 */
-	public static function invalidateDateRange( int $start_ts, int $end_ts ): void {
-		global $wpdb;
-
-		// Find and delete all keys containing this date range
-		$pattern = '%mhmrentiva_avail_%';
-
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$pattern
-			)
-		);
-
-		foreach ( $results as $result ) {
-			$key   = $result->option_name;
-			$parts = explode( '_', $key );
-
-			if ( count( $parts ) >= 4 ) {
-				$key_start = (int) $parts[2];
-				$key_end   = (int) $parts[3];
-
-				// Clear cache if date ranges overlap
-				if ( $key_end > $start_ts && $key_start < $end_ts ) {
-					delete_transient( $key );
-				}
-			}
-		}
 	}
 
 	/**

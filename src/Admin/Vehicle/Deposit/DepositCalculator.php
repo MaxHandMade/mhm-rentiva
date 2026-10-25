@@ -168,7 +168,7 @@ final class DepositCalculator {
 	 */
 	public static function calculate_vehicle_deposit(int $vehicle_id, int $rental_days = 1): array
 	{
-		$daily_price   = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true));
+		$daily_price   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 		$deposit_value = self::get_vehicle_deposit_value($vehicle_id);
 
 		return self::calculate_deposit($deposit_value, $daily_price, $rental_days);
@@ -199,7 +199,8 @@ final class DepositCalculator {
 	 */
 	public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = array(), int $start_ts = 0): array
 	{
-		$daily_price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true));
+		// Same price source RentalPricing reads, so the guard and the amount agree.
+		$daily_price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 		$rate        = self::resolve_rate($vehicle_id, self::CONTEXT_RENTAL);
 
 		// No deposit applies: whatever the caller asked for, a "deposit" of 0
@@ -218,17 +219,11 @@ final class DepositCalculator {
 			);
 		}
 
-		// ⭐ Fix: Use Util::total_price for correct calculation (weekend multipliers etc.)
-		$vehicle_total = \MHMRentiva\Admin\Booking\Helpers\Util::total_price($vehicle_id, $rental_days, $start_ts);
-
-		// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
-		$addon_total = 0;
-		foreach ($addons as $addon_id) {
-			$addon_total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
-				(int) $addon_id,
-				array( 'rental_days' => (int) $rental_days )
-			);
-		}
+		// RentalPricing is the one computation the quote, the cart and the
+		// stored booking total all share (season, weekend, add-ons).
+		$quote         = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $rental_days, $start_ts, $addons);
+		$vehicle_total = $quote->rental_amount;
+		$addon_total   = $quote->addon_total;
 
 		$total_amount = $vehicle_total + $addon_total;
 

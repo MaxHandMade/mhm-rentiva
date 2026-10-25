@@ -46,7 +46,7 @@ final class CrossTabClobberTest extends WP_UnitTestCase
 		$result = SettingsSanitizer::sanitize(
 			array(
 				'current_active_tab'            => 'vehicle',
-				'mhmrentiva_vehicle_tax_rate'  => '18',
+				'mhmrentiva_vehicle_weekend_multiplier' => '1.2',
 			)
 		);
 

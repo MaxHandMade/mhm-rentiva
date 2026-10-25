@@ -127,26 +127,19 @@ final class Util {
 	}
 
 	/**
-	 * Calculates total price with weekend multiplier
+	 * The rental amount for $days starting at $start_ts.
+	 *
+	 * Kept for its callers; the computation lives in RentalPricing so the
+	 * quote, the charge and every other path agree on one number.
 	 */
 	public static function total_price(int $vehicle_id, int $days, int $start_ts = 0): float
 	{
-		return self::price_breakdown($vehicle_id, $days, $start_ts)['total'];
+		return \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $days, $start_ts)->rental_amount;
 	}
 
 	/**
-	 * The vehicle total, itemised.
-	 *
-	 * Same arithmetic total_price() has always performed -- weekend days are
-	 * charged at `mhmrentiva_vehicle_weekend_multiplier` (default 1.2) -- but
-	 * it also reports HOW the total was reached, so a screen can show the
-	 * surcharge instead of leaving the operator to wonder why two days at
-	 * 2800 came to 6720.
-	 *
-	 * total_price() delegates here rather than keeping its own copy of the
-	 * loop: one concept, one computation. A breakdown re-derived in a
-	 * template or in JavaScript is how a screen starts quoting a number the
-	 * charge does not agree with.
+	 * The rental amount, itemised -- a view of RentalPricing's quote in the
+	 * array shape this method has always returned.
 	 *
 	 * @return array{
 	 *     total: float,
@@ -160,77 +153,16 @@ final class Util {
 	 */
 	public static function price_breakdown(int $vehicle_id, int $days, int $start_ts = 0): array
 	{
-		$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
-
-		$empty = array(
-			'total'              => 0.0,
-			'base_price_per_day' => 0.0,
-			'days'               => $days,
-			'weekend_days'       => 0,
-			'weekday_days'       => $days,
-			'weekend_multiplier' => 1.0,
-			'weekend_surcharge'  => 0.0,
-		);
-
-		if ($price_per_day <= 0) {
-			return $empty;
-		}
-
-		// Apply Base Price Multiplier
-		$base_multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_base_price', 1.0);
-		if ($base_multiplier > 0 && 1.0 != $base_multiplier) {
-			$price_per_day = $price_per_day * $base_multiplier;
-		}
-
-		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.2);
-
-		$flat = array(
-			'total'              => $price_per_day * $days,
-			'base_price_per_day' => $price_per_day,
-			'days'               => $days,
-			'weekend_days'       => 0,
-			'weekday_days'       => $days,
-			'weekend_multiplier' => $multiplier,
-			'weekend_surcharge'  => 0.0,
-		);
-
-		// Safety check for multiplier; and without a start date there is no
-		// way to know which days fall on a weekend, so charge flat and say so.
-		if ($multiplier <= 1.0 || $start_ts <= 0) {
-			return $flat;
-		}
-
-		$total        = 0.0;
-		$surcharge    = 0.0;
-		$weekend_days = 0;
-		$current_ts   = $start_ts;
-
-		// Iterate through each day. Rental days are 24h blocks and car rental
-		// charges the day rate for the specific calendar day.
-		for ($i = 0; $i < $days; $i++) {
-			// 0 = Sunday, 6 = Saturday.
-			$day_of_week = (int) gmdate('w', $current_ts);
-
-			if (6 === $day_of_week || 0 === $day_of_week) {
-				$total     += ( $price_per_day * $multiplier );
-				$surcharge += ( $price_per_day * $multiplier ) - $price_per_day;
-				++$weekend_days;
-			} else {
-				$total += $price_per_day;
-			}
-
-			// Advance 24 hours
-			$current_ts += 86400;
-		}
+		$quote = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $days, $start_ts);
 
 		return array(
-			'total'              => $total,
-			'base_price_per_day' => $price_per_day,
+			'total'              => $quote->rental_amount,
+			'base_price_per_day' => $quote->daily_price,
 			'days'               => $days,
-			'weekend_days'       => $weekend_days,
-			'weekday_days'       => $days - $weekend_days,
-			'weekend_multiplier' => $multiplier,
-			'weekend_surcharge'  => $surcharge,
+			'weekend_days'       => $quote->weekend_days,
+			'weekday_days'       => $days - $quote->weekend_days,
+			'weekend_multiplier' => $quote->weekend_multiplier,
+			'weekend_surcharge'  => $quote->weekend_surcharge,
 		);
 	}
 

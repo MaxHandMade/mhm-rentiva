@@ -297,8 +297,6 @@ final class BookingForm extends AbstractShortcode {
 			'total_amount'                          => __('Total Amount', 'mhm-rentiva'),
 			'deposit_amount'                        => __('Deposit Amount', 'mhm-rentiva'),
 			'remaining_amount'                      => __('Remaining Amount', 'mhm-rentiva'),
-			'tax'                                   => __('Tax', 'mhm-rentiva'),
-			'tax_included'                          => __('Tax (included)', 'mhm-rentiva'),
 
 			// Loading and errors
 			'loading'                               => __('Loading...', 'mhm-rentiva'),
@@ -1363,156 +1361,34 @@ final class BookingForm extends AbstractShortcode {
 			// 4. Calculate Final Day Count
 			$days = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($start_ts, $end_ts);
 
-			// Get vehicle price
-			$vehicle_price = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
-
-			// Restore DateTime objects for the pricing loop below
-			$start_date = new \DateTime();
-			$start_date->setTimestamp($start_ts);
-			$end_date = new \DateTime();
-			$end_date->setTimestamp($end_ts);
-
-			// ⭐ Apply Vehicle Management Settings
-			$base_price_multiplier = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_base_price', 1.0);
-			$weekend_multiplier    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.0);
-
-			// ⭐ Tax settings - check WooCommerce first if available
-			$tax_enabled   = false;
-			$tax_inclusive = false;
-			$tax_rate      = 0;
-
-			if (class_exists('WooCommerce')) {
-				// WooCommerce is active - use WooCommerce tax settings
-				$tax_enabled = \wc_tax_enabled();
-				if ($tax_enabled) {
-					$tax_inclusive = \wc_prices_include_tax();
-					// Get default tax rate from WooCommerce
-					// ⭐ Use global namespace for WC_Tax class
-					$tax_rates = \WC_Tax::get_rates();
-					if (! empty($tax_rates)) {
-						// Get first tax rate (usually the default)
-						$first_rate = reset($tax_rates);
-						$tax_rate   = (float) ( $first_rate['rate'] ?? 0 );
-					}
-				}
-			} else {
-				// WooCommerce not active - use plugin settings
-				$tax_inclusive = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_tax_inclusive', '0') === '1';
-				$tax_rate      = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_tax_rate', 0);
-				$tax_enabled   = $tax_rate > 0;
-			}
-
-			// Calculate pricing per day (weekend and seasonal multipliers included)
-			// Calculate pricing per day (weekend and seasonal multipliers included)
-			$seasonal_enabled    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_seasonal_pricing', '0') === '1';
-			$vehicle_total       = 0.0;
-			$weekend_extra_total = 0.0;
-
-			$iter_date = clone $start_date;
-			$day_count = max(0, (int) $days);
-			for ($i = 0; $i < $day_count; $i++) {
-				$day_base_price = $vehicle_price * $base_price_multiplier;
-
-				// Standard Price (Standard + Seasonal) - NO WEEKEND MULTIPLIER in this base calculation
-				$standard_day_price = $day_base_price;
-				if ($seasonal_enabled) {
-					$season_multiplier  = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multiplier_for_date($iter_date->format('Y-m-d'));
-					$standard_day_price = $standard_day_price * (float) $season_multiplier;
-				}
-
-				// Actual Price (Standard + Seasonal + WEEKEND if applicable)
-				$day_price = $standard_day_price;
-
-				// Weekend multiplier; ISO-8601 weekday numbers use 1 for Monday and 7 for Sunday.
-				$dow        = (int) $iter_date->format('N');
-				$is_weekend = ( $dow >= 6 );
-
-				if ($is_weekend && $weekend_multiplier > 1.0) {
-					$day_price = $day_price * $weekend_multiplier;
-					// Calculate how much was added due to weekend multiplier
-					$weekend_extra_total += ( $day_price - $standard_day_price );
-				}
-
-				$vehicle_total += $day_price;
-				$iter_date->modify('+1 day');
-			}
-
-			// Tax calculation - only if tax is enabled
-			$tax_amount       = 0;
-			$vehicle_subtotal = $vehicle_total;
-
-			if ($tax_enabled && $tax_rate > 0) {
-				if ($tax_inclusive) {
-					// ⭐ Tax inclusive pricing:
-					// vehicle_price from meta is ALREADY tax-inclusive
-					// vehicle_total (calculated above) is ALREADY tax-inclusive
-					// We need to EXTRACT tax from the total to show breakdown
-					// Formula: tax = total * (rate / (100 + rate))
-					// Example: If total is 1,200 ₺ with 18% tax included:
-					// tax = 1,200 * (18 / 118) = 183.05 ₺
-					// subtotal = 1,200 - 183.05 = 1,016.95 ₺
-					$tax_amount       = ( $vehicle_total * $tax_rate ) / ( 100 + $tax_rate );
-					$vehicle_subtotal = $vehicle_total - $tax_amount;
-				} else {
-					// ⭐ Tax exclusive pricing:
-					// vehicle_price from meta is tax-exclusive
-					// vehicle_total (calculated above) is tax-exclusive
-					// We need to ADD tax to the total
-					// Formula: tax = total * (rate / 100)
-					// Example: If total is 1,000 ₺ with 18% tax:
-					// tax = 1,000 * 0.18 = 180 ₺
-					// vehicle_total = 1,000 + 180 = 1,180 ₺
-					$vehicle_subtotal = $vehicle_total; // Subtotal is same as vehicle_total before tax
-					$tax_amount       = ( $vehicle_total * $tax_rate ) / 100;
-					$vehicle_total    = $vehicle_total + $tax_amount;
-				}
-			}
-
-			// Addon total price — v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
-			$addon_total = 0;
-			foreach ($addons as $addon_id) {
-				$addon_total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
-					(int) $addon_id,
-					array( 'rental_days' => (int) $days )
-				);
-			}
-
-			// Total price (after tax) - this is what customer will pay
-			$total_price = $vehicle_total + $addon_total;
-
 			// Payment type (deposit or full)
 			$payment_type = $req->text('payment_type', 'deposit');
 
-			// The deposit rate this vehicle resolves to (its own, else the global
-			// rental setting). 0 means no deposit: the whole total is due.
-			$deposit_rate = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::resolve_rate($vehicle_id);
-			if ($deposit_rate <= 0) {
+			// Same order as the submit path: no deposit applies -> full, then refuse
+			// anything else.
+			if (\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::resolve_rate($vehicle_id) <= 0) {
 				$payment_type = 'full';
 			}
-
-			// Payment type validation
 			if (! in_array($payment_type, array( 'deposit', 'full' ), true)) {
 				throw new \InvalidArgumentException(__('Invalid payment type.', 'mhm-rentiva'));
 			}
 
-			// ⭐ Calculate deposit based on FINAL total_price (with tax included)
-			// This ensures deposit and remaining amounts are calculated correctly
-			if ('deposit' === $payment_type) {
-				$deposit_amount   = ( $total_price * $deposit_rate ) / 100;
-				$remaining_amount = max(0, $total_price - $deposit_amount);
-			} else {
-				$deposit_amount   = $total_price;
-				$remaining_amount = 0;
+			// The same calculation the submit path charges: RentalPricing via
+			// DepositCalculator. Tax is not computed here -- WooCommerce adds it
+			// at checkout and the amounts below are shown through its display.
+			$deposit_result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, array_values($addons), $start_ts);
+			if (empty($deposit_result['success'])) {
+				return self::failed(__('Price could not be calculated.', 'mhm-rentiva'));
 			}
 
-			// Format deposit result to match expected structure
-			$deposit_result = array(
-				'success'          => true,
-				'payment_type'     => $payment_type,
-				'deposit_amount'   => round($deposit_amount, 2),
-				'total_amount'     => round($total_price, 2),
-				'remaining_amount' => round($remaining_amount, 2),
-			);
+			$quote = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $days, $start_ts);
+
+			$vehicle_price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
+			$vehicle_total = (float) $deposit_result['vehicle_total'];
+			$addon_total   = (float) $deposit_result['addon_total'];
+			$total_price   = (float) $deposit_result['total_amount'];
+
+			$display_total = \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($total_price);
 
 			// Currency
 			$currency          = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD');
@@ -1525,8 +1401,7 @@ final class BookingForm extends AbstractShortcode {
 
 			$response_data = array(
 				'vehicle_price'         => $vehicle_price,
-				'vehicle_subtotal'      => $vehicle_subtotal, // Subtotal before tax
-				'vehicle_total'         => $vehicle_total, // Total with tax
+				'vehicle_total'         => $vehicle_total,
 				'addon_total'           => $addon_total,
 				'total_price'           => $total_price,
 				'days'                  => $days,
@@ -1538,15 +1413,23 @@ final class BookingForm extends AbstractShortcode {
 				// The payment this quote is for: 'full' when the vehicle takes no
 				// deposit, so the form does not label the whole total a deposit.
 				'payment_type'          => $deposit_result['payment_type'],
-				// ⭐ Vehicle Management Settings information
-				'base_price_multiplier' => $base_price_multiplier,
-				'weekend_multiplier'    => $weekend_multiplier,
-				'tax_enabled'           => $tax_enabled,
-				'tax_inclusive'         => $tax_inclusive,
-				'tax_rate'              => $tax_rate,
-				'tax_rate_display'      => \MHMRentiva\Admin\Core\CurrencyHelper::format_percentage( (float) $tax_rate), // "20%", Turkish "%20".
-				'tax_amount'            => $tax_amount ?? 0,
-				'weekend_extra'         => $weekend_extra_total,
+				'base_price_multiplier' => $quote->base_multiplier,
+				'weekend_multiplier'    => $quote->weekend_multiplier,
+				'weekend_extra'         => $quote->weekend_surcharge,
+				// What the visitor sees, through WooCommerce's own tax display
+				// (the cart setting the checkout uses).
+				'display_total'         => $display_total,
+				'display_deposit'       => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( (float) $deposit_result['deposit_amount'] ),
+				'display_remaining'     => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( (float) $deposit_result['remaining_amount'] ),
+				'price_suffix'          => $display_total['suffix'],
+				// The breakdown rows in the same convention as the total, so they
+				// add up to it on a store that enters prices without tax.
+				'display_lines'         => array(
+					'vehicle_price' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $vehicle_price )['amount'],
+					'vehicle_total' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $vehicle_total )['amount'],
+					'addon_total'   => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $addon_total )['amount'],
+					'weekend_extra' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $quote->weekend_surcharge )['amount'],
+				),
 				'is_weekend'            => $day_of_week >= 6,
 			);
 

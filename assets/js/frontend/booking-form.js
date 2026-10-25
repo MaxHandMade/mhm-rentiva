@@ -50,8 +50,6 @@
                 dailyPrice: this.container.find('.rv-daily-price'),
                 weekendDiffAmount: this.container.find('.rv-weekend-diff-amount'),
                 daysCount: this.container.find('.rv-days-count'),
-                taxLabel: this.container.find('.rv-tax-label'),
-                taxAmount: this.container.find('.rv-tax-amount'),
                 vehicleTotal: this.container.find('.rv-vehicle-total'),
                 addonsTotal: this.container.find('.rv-addons-total'),
                 totalAmount: this.container.find('.rv-total-amount'),
@@ -793,55 +791,56 @@
         updatePriceDisplay(data) {
             const currencySymbol = data.currency_symbol || this.getConfig('currency_symbol');
 
-            this.priceElements.dailyPrice.text(this.formatMoney(data.vehicle_price, currencySymbol));
+            // Breakdown rows in the total's convention (display_lines), so on a
+            // store entering prices without tax they still add up to the total.
+            const line = (key) => (data.display_lines && data.display_lines[key] !== undefined ? data.display_lines[key] : data[key]);
+
+            this.priceElements.dailyPrice.text(this.formatMoney(line('vehicle_price'), currencySymbol));
 
             this.priceElements.daysCount.text(data.days);
 
             if (data.weekend_extra && data.weekend_extra > 0) {
-                this.priceElements.weekendDiffAmount.text(this.formatMoney(data.weekend_extra, currencySymbol));
+                this.priceElements.weekendDiffAmount.text(this.formatMoney(line('weekend_extra'), currencySymbol));
                 this.container.find('.rv-weekend-summary').removeClass('rv-hidden');
             } else {
                 this.container.find('.rv-weekend-summary').addClass('rv-hidden');
             }
 
-            const hasTax = data.tax_enabled && data.tax_amount !== undefined && data.tax_amount > 0;
             const hasAddons = data.addon_total > 0;
-            const showDetailedBreakdown = hasTax || hasAddons;
-
-            if (hasTax) {
-                const taxRate = data.tax_rate || 0;
-                const taxLabel = window.mhmRentivaBookingForm?.strings?.tax || this.getMessage('tax');
-                const taxIncludedLabel = window.mhmRentivaBookingForm?.strings?.tax_included || this.getMessage('tax_included');
-                // The server writes the rate as the site's language does
-                // ("20%", Turkish "%20"); the bare number is only a fallback.
-                const taxRateText = data.tax_rate_display || (taxRate + '%');
-                const taxLabelText = taxRate > 0
-                    ? (data.tax_inclusive
-                        ? taxIncludedLabel + ' (' + taxRateText + '):'
-                        : taxLabel + ' (' + taxRateText + '):')
-                    : taxLabel + ':';
-                this.priceElements.taxLabel.text(taxLabelText);
-                this.priceElements.taxAmount.text(this.formatMoney(data.tax_amount, currencySymbol));
-                this.container.find('.rv-tax-summary').removeClass('rv-hidden');
-            } else {
-                this.container.find('.rv-tax-summary').addClass('rv-hidden');
-            }
+            const showDetailedBreakdown = hasAddons;
 
             if (showDetailedBreakdown) {
-                this.priceElements.vehicleTotal.text(this.formatMoney(data.vehicle_total, currencySymbol));
+                this.priceElements.vehicleTotal.text(this.formatMoney(line('vehicle_total'), currencySymbol));
                 this.container.find('.rv-vehicle-total-detailed').removeClass('rv-hidden');
             } else {
                 this.container.find('.rv-vehicle-total-detailed').addClass('rv-hidden');
             }
 
             if (hasAddons) {
-                this.priceElements.addonsTotal.text(this.formatMoney(data.addon_total, currencySymbol));
+                this.priceElements.addonsTotal.text(this.formatMoney(line('addon_total'), currencySymbol));
                 this.container.find('.rv-addons-price').removeClass('rv-hidden');
             } else {
                 this.container.find('.rv-addons-price').addClass('rv-hidden');
             }
 
-            this.priceElements.totalAmount.text(this.formatMoney(data.total_price, currencySymbol));
+            // The amounts due come through WooCommerce's tax display (display_*):
+            // its wc_price() markup, so the figure reads exactly as the checkout
+            // writes it -- decimals included, which the whole-unit formatter
+            // would round away ("$401" for a $400,80 charge).
+            const putDue = ($el, key, raw) => {
+                if (data[key] && typeof data[key].html === 'string' && data[key].html !== '') {
+                    $el.html(data[key].html);
+                } else {
+                    $el.text(this.formatMoney(raw, currencySymbol));
+                }
+            };
+
+            putDue(this.priceElements.totalAmount, 'display_total', data.total_price);
+            // WooCommerce's own price suffix, inline after the total as WooCommerce
+            // writes it (built server-side: wp_kses_post'd suffix + escaped label).
+            if (data.price_suffix) {
+                this.priceElements.totalAmount.append(data.price_suffix);
+            }
 
             const paymentTypeRadio = this.form.find('input[name="payment_type"]:checked').val();
             const paymentTypeHidden = this.form.find('input[name="payment_type"][type="hidden"]').val();
@@ -854,11 +853,11 @@
 
             if (depositApplies && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
                 data.deposit_amount !== undefined && data.deposit_amount > 0) {
-                this.priceElements.depositAmount.text(this.formatMoney(data.deposit_amount, currencySymbol));
+                putDue(this.priceElements.depositAmount, 'display_deposit', data.deposit_amount);
                 this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
 
                 if (data.remaining_amount !== undefined && data.remaining_amount > 0) {
-                    this.priceElements.remainingAmount.text(this.formatMoney(data.remaining_amount, currencySymbol));
+                    putDue(this.priceElements.remainingAmount, 'display_remaining', data.remaining_amount);
                     this.container.find('.rv-remaining-summary').removeClass('rv-hidden');
                 } else {
                     this.container.find('.rv-remaining-summary').addClass('rv-hidden');
