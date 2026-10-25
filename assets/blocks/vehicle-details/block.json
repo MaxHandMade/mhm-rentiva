@@ -90,6 +90,10 @@
             "type": "boolean",
             "default": true
         },
+        "showConditions": {
+            "type": "boolean",
+            "default": true
+        },
         "showBookingButton": {
             "type": "boolean",
             "default": true

@@ -358,7 +358,7 @@ $allowed_rating_svg_tags = array(
 				<!-- Submit Button -->
 				<div class="rv-rating-submit">
 					<button type="submit" class="rv-btn rv-btn-primary"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-						<?php echo $user_rating ? esc_html__('Update Rating', 'mhm-rentiva') : esc_html__('Submit Rating', 'mhm-rentiva'); ?>
+						<?php echo $user_rating ? esc_html__('Update review', 'mhm-rentiva') : esc_html__('Submit review', 'mhm-rentiva'); ?>
 					</button>
 					<?php if ($user_rating) : ?>
 						<button type="button" class="rv-btn rv-btn-danger rv-delete-rating" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>

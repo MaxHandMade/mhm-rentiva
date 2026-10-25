@@ -129,7 +129,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 			'select_rating'      => __('Please select a rating.', 'mhm-rentiva'),
 			'timeout'            => __('Request timed out. Please try again.', 'mhm-rentiva'),
 			'submit_error'       => __('An error occurred while submitting the rating.', 'mhm-rentiva'),
-			'submit_rating'      => __('Submit Rating', 'mhm-rentiva'),
+			'submit_rating'      => __('Submit review', 'mhm-rentiva'),
 			'delete_rating'      => __('Are you sure you want to delete your rating?', 'mhm-rentiva'),
 			'connection_error'   => __('Connection error. Please try again.', 'mhm-rentiva'),
 			'submitting'         => __('Submitting...', 'mhm-rentiva'),

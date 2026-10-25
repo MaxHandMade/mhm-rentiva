@@ -21,6 +21,7 @@
             var showRating = attributes.showRating;
             var showReviews = attributes.showReviews;
             var showFeatures = attributes.showFeatures;
+            var showConditions = attributes.showConditions;
             var showBooking = attributes.showBooking;
             var showSimilarVehicles = attributes.showSimilarVehicles;
             var showFavoriteButton = attributes.showFavoriteButton;
@@ -82,6 +83,11 @@
                             label: __('Show Features', 'mhm-rentiva'),
                             checked: showFeatures,
                             onChange: function (val) { setAttributes({ showFeatures: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Rental Conditions', 'mhm-rentiva'),
+                            checked: showConditions,
+                            onChange: function (val) { setAttributes({ showConditions: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Booking Section', 'mhm-rentiva'),

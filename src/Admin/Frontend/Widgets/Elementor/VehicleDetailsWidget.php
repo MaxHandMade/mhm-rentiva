@@ -98,6 +98,18 @@ class VehicleDetailsWidget extends ElementorWidgetBase {
 		);
 
 		$this->add_control(
+			'show_conditions',
+			array(
+				'label'        => __( 'Show Rental Conditions', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
 			'show_pricing',
 			array(
 				'label'        => __( 'Show Pricing', 'mhm-rentiva' ),
@@ -179,7 +191,7 @@ class VehicleDetailsWidget extends ElementorWidgetBase {
 	protected function prepare_shortcode_attributes( array $settings ): array {
 		$atts = array();
 
-		foreach ( array( 'show_gallery', 'show_features', 'show_calendar', 'show_pricing', 'show_price', 'show_booking', 'show_booking_button', 'show_favorite_button', 'show_compare_button' ) as $key ) {
+		foreach ( array( 'show_gallery', 'show_features', 'show_calendar', 'show_conditions', 'show_pricing', 'show_price', 'show_booking', 'show_booking_button', 'show_favorite_button', 'show_compare_button' ) as $key ) {
 			if ( array_key_exists( $key, $settings ) ) {
 				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
 			}

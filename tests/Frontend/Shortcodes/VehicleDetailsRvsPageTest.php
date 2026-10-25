@@ -74,6 +74,8 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 			'gallery'   => array( 'show_gallery', 'rvs-vd__gallery' ),
 			'features'  => array( 'show_features', '-highlights"' ),
 			'calendar'  => array( 'show_calendar', 'data-rvs-vd-months' ),
+			// Owner request (PR B review): a site can drop the whole section.
+			'conditions' => array( 'show_conditions', '-conditions"' ),
 			'reviews'   => array( 'show_reviews', '-reviews-title"' ),
 			'booking'   => array( 'show_booking', 'rvs-vd__booking' ),
 			'button'    => array( 'show_booking_button', 'rvs-vd__booking' ),
@@ -92,6 +94,20 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertStringContainsString($needle, $this->render());
 		RequestSimulator::new_request();
 		$this->assertStringNotContainsString($needle, $this->render(' ' . $flag . '="0"'));
+	}
+
+	public function test_show_conditions_reaches_block_and_widget(): void
+	{
+		$block = (string) do_blocks('<!-- wp:mhm-rentiva/vehicle-details {"vehicleId":"' . $this->vehicle_id . '","showConditions":false} /-->');
+		$this->assertStringContainsString('rvs-vd__layout', $block);
+		$this->assertStringNotContainsString('-conditions"', $block);
+
+		$widget   = \MHMRentiva\Tests\Support\WidgetFactory::make(\MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleDetailsWidget::class);
+		$controls = $widget->get_controls();
+		$this->assertArrayHasKey('show_conditions', $controls);
+		$atts = ( new \ReflectionMethod($widget, 'prepare_shortcode_attributes') );
+		$atts->setAccessible(true);
+		$this->assertSame('0', (string) ( $atts->invoke($widget, array( 'show_conditions' => '' ))['show_conditions'] ?? '' ));
 	}
 
 	public function test_rating_line_follows_show_rating(): void

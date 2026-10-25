@@ -164,6 +164,8 @@ final class VehicleDetails extends AbstractShortcode {
 			'show_pricing'           => '1',
 			'show_booking'           => '1',
 			'show_calendar'          => '1',
+			// Aşama 2 PR B (owner request): the Rental conditions section.
+			'show_conditions'        => '1',
 			'show_price'             => '1',
 			'show_booking_button'    => '1',
 			'show_favorite_button'   => '1',

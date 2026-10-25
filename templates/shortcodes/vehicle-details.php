@@ -43,6 +43,7 @@ $show_features = $flag($atts['show_features'] ?? '1');
 $show_price    = $flag($atts['show_pricing'] ?? '1') && $flag($atts['show_price'] ?? '1');
 $show_booking  = $flag($atts['show_booking'] ?? '1') && $flag($atts['show_booking_button'] ?? '1') && ! empty($rental_bookable);
 $show_calendar = $flag($atts['show_calendar'] ?? '1');
+$show_terms    = $flag($atts['show_conditions'] ?? '1');
 $show_rating   = $flag($atts['show_rating'] ?? '1');
 $show_reviews  = $flag($atts['show_reviews'] ?? '1');
 $show_similar  = $flag($atts['show_similar_vehicles'] ?? '1');
@@ -166,7 +167,7 @@ $rating        = $view['rating'];
 				</section>
 			<?php endif; ?>
 
-			<?php if (! empty($view['conditions'])) : ?>
+			<?php if ($show_terms && ! empty($view['conditions'])) : ?>
 				<section class="rvs-vd__section" aria-labelledby="<?php echo esc_attr($uid); ?>-conditions">
 					<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-conditions"><?php esc_html_e('Rental conditions', 'mhm-rentiva'); ?></h2>
 					<div class="rvs-vd__conditions">
