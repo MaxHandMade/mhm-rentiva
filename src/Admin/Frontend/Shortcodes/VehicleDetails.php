@@ -18,6 +18,7 @@ use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -46,13 +47,20 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
-	 * A published vehicle from the request, or a JSON error (and 0).
+	 * The nonce-checked request (VerifiedRequest), or a JSON error.
 	 */
-	private static function requested_vehicle(): int {
+	private static function verified_request(): VerifiedRequest {
 		if ( ! check_ajax_referer( 'mhmrentiva_vd_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
 		}
-		$vehicle_id = isset( $_POST['vehicle_id'] ) ? absint( wp_unslash( (string) $_POST['vehicle_id'] ) ) : 0;
+		return VerifiedRequest::from( $_POST );
+	}
+
+	/**
+	 * A published vehicle from the request, or a JSON error.
+	 */
+	private static function requested_vehicle( VerifiedRequest $req ): int {
+		$vehicle_id = $req->int( 'vehicle_id' );
 		$vehicle    = $vehicle_id > 0 ? get_post( $vehicle_id ) : null;
 		if ( ! $vehicle || 'mhmrentiva_vehicle' !== $vehicle->post_type || 'publish' !== $vehicle->post_status ) {
 			wp_send_json_error( array( 'message' => __( 'Vehicle not found.', 'mhm-rentiva' ) ) );
@@ -75,16 +83,17 @@ final class VehicleDetails extends AbstractShortcode {
 	 * Two months from year/month, for the vehicle page's month navigation.
 	 */
 	public static function ajax_months(): void {
-		$vehicle_id = self::requested_vehicle();
+		$req        = self::verified_request();
+		$vehicle_id = self::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
-		$year  = isset( $_POST['year'] ) ? absint( wp_unslash( (string) $_POST['year'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in requested_vehicle().
-		$month = isset( $_POST['month'] ) ? absint( wp_unslash( (string) $_POST['month'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in requested_vehicle().
+		$year  = $req->int( 'year' );
+		$month = $req->int( 'month' );
 		if ( $year < 2000 || $year > 2100 || $month < 1 || $month > 12 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid month.', 'mhm-rentiva' ) ) );
 		}
-		$window = VehicleDetailsView::window( self::posted_window() );
+		$window = VehicleDetailsView::window( self::posted_window( $req ) );
 		$months = VehicleDetailsView::months( $vehicle_id, sprintf( '%04d-%02d-01', $year, $month ), $window );
 		wp_send_json_success( array( 'html' => self::months_html( $months ) ) );
 	}
@@ -94,7 +103,8 @@ final class VehicleDetails extends AbstractShortcode {
 	 * availability, and the months around it -- the page's own partials.
 	 */
 	public static function ajax_quote(): void {
-		$vehicle_id = self::requested_vehicle();
+		$req        = self::verified_request();
+		$vehicle_id = self::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
@@ -102,7 +112,7 @@ final class VehicleDetails extends AbstractShortcode {
 		// few date ranges fires a request per change.
 		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 
-		$window  = VehicleDetailsView::window( self::posted_window() );
+		$window  = VehicleDetailsView::window( self::posted_window( $req ) );
 		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );
 		$months  = VehicleDetailsView::months( $vehicle_id, $window['pickup_date'], $window );
 
@@ -123,13 +133,14 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
+	 * The posted window; VehicleDetailsView::window() validates each value.
+	 *
 	 * @return array<string, string>
 	 */
-	private static function posted_window(): array {
+	private static function posted_window( VerifiedRequest $req ): array {
 		$window = array();
 		foreach ( array( 'pickup_date', 'pickup_time', 'return_date', 'pickup_location' ) as $key ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in requested_vehicle(); VehicleDetailsView::window() validates each value.
-			$window[ $key ] = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) ) : '';
+			$window[ $key ] = $req->text( $key );
 		}
 		return $window;
 	}
