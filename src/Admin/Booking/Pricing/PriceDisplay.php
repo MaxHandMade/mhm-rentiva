@@ -25,6 +25,9 @@ if (! defined('ABSPATH')) {
  */
 final class PriceDisplay {
 
+	/** Booking product id found earlier in this request (0 = not looked up / none). */
+	private static int $product_id = 0;
+
 	/**
 	 * @return array{amount: float, html: string, suffix: string}
 	 */
@@ -42,15 +45,20 @@ final class PriceDisplay {
 	}
 
 	/**
-	 * @return array{amount: float, html: string, suffix: string}
+	 * `suffix` is WooCommerce's price suffix plus, for a tax-exclusive figure,
+	 * the "(ex. VAT)" label; `tax_label` is that label alone, for rows that
+	 * should say "excluding tax" without repeating the store's suffix.
+	 *
+	 * @return array{amount: float, html: string, suffix: string, tax_label: string}
 	 */
 	private static function display(float $amount, string $context): array
 	{
 		if (! function_exists('wc_get_price_to_display') || ! class_exists('WC_Product_Simple')) {
 			return array(
-				'amount' => $amount,
-				'html'   => self::format($amount),
-				'suffix' => '',
+				'amount'    => $amount,
+				'html'      => self::format($amount),
+				'suffix'    => '',
+				'tax_label' => '',
 			);
 		}
 
@@ -70,20 +78,25 @@ final class PriceDisplay {
 			);
 		}
 
-		$suffix = (string) $product->get_price_suffix( (string) $amount );
-
 		// WooCommerce labels a tax-exclusive figure "(ex. VAT)" in the cart;
 		// without it a visitor would read the amount as the final total.
+		$tax_label = '';
 		if (wc_tax_enabled() && 'excl' === $display_mode && function_exists('WC') && WC()->countries) {
-			$suffix .= ' <small class="tax_label">' . esc_html( wp_strip_all_tags( (string) WC()->countries->ex_tax_or_vat() ) ) . '</small>';
+			$tax_label = ' <small class="tax_label">' . esc_html( wp_strip_all_tags( (string) WC()->countries->ex_tax_or_vat() ) ) . '</small>';
 		}
 
+		// get_price_suffix() returns its filter's result unescaped and the JS
+		// inserts it as HTML. <bdi> is allowed because wc_price() markup -- which
+		// a {price_including_tax} suffix embeds -- uses it.
+		$allowed = wp_kses_allowed_html('post');
+		$allowed['bdi'] = array( 'dir' => true );
+		$suffix         = wp_kses( (string) $product->get_price_suffix( (string) $amount ) . $tax_label, $allowed );
+
 		return array(
-			'amount' => $shown,
-			'html'   => self::format($shown),
-			// get_price_suffix() returns its filter's result unescaped; the JS
-			// inserts this as HTML.
-			'suffix' => wp_kses_post($suffix),
+			'amount'    => $shown,
+			'html'      => self::format($shown),
+			'suffix'    => $suffix,
+			'tax_label' => $tax_label,
 		);
 	}
 
@@ -93,7 +106,11 @@ final class PriceDisplay {
 	 * Mirrors calculate_item_subtotals()/calculate_item_totals()/calculate_totals()
 	 * of WooCommerce 11.1: work in cents, adjust a tax-inclusive price for a
 	 * non-base location, take unrounded taxes off an inclusive price, round
-	 * line tax and the line unless the store rounds at subtotal.
+	 * line tax and the line unless the store rounds at subtotal; a VAT-exempt
+	 * customer pays the price less base tax. Not mirrored, because they need the
+	 * cart and line objects: the woocommerce_cart_totals_get_item_tax_rates,
+	 * woocommerce_calculate_item_totals_taxes, woocommerce_get_discounted_price
+	 * and woocommerce_calculated_total filters, coupons and cart fees.
 	 *
 	 * @return array{total: float, net: float}
 	 */
@@ -108,17 +125,33 @@ final class PriceDisplay {
 
 		$includes_tax = wc_prices_include_tax();
 		$customer     = function_exists('WC') && WC()->customer ? WC()->customer : null;
+		$is_exempt    = $customer && $customer->get_is_vat_exempt();
 		$rates        = \WC_Tax::get_rates($product->get_tax_class(), $customer);
 		$price        = wc_add_number_precision($amount);
 
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce's own filter, read exactly as WC_Cart_Totals::calculate_item_subtotals() reads it so the line agrees with the checkout. Not a hook this plugin defines.
-		if ($includes_tax && apply_filters('woocommerce_adjust_non_base_location_prices', true)) {
+		$adjust_non_base = (bool) apply_filters('woocommerce_adjust_non_base_location_prices', true);
+
+		if ($includes_tax && $is_exempt) {
+			// remove_item_base_taxes(): the exempt customer pays the price less the
+			// shop's base tax, and no tax is added.
+			$remove = $adjust_non_base ? \WC_Tax::get_base_tax_rates($product->get_tax_class('unfiltered')) : $rates;
+			$price  = self::round($price - array_sum(\WC_Tax::calc_tax($price, $remove, true)));
+		} elseif ($includes_tax && $adjust_non_base) {
 			$base_rates = \WC_Tax::get_base_tax_rates($product->get_tax_class('unfiltered'));
 			if ($rates !== $base_rates) {
 				$base_taxes = \WC_Tax::calc_tax($price, $base_rates, true);
 				$new_taxes  = \WC_Tax::calc_tax($price - array_sum($base_taxes), $rates, false);
 				$price      = $price - array_sum($base_taxes) + array_sum($new_taxes);
 			}
+		}
+
+		if ($is_exempt) {
+			$exempt = (float) wc_remove_number_precision(self::round($price));
+			return array(
+				'total' => $exempt,
+				'net'   => $exempt,
+			);
 		}
 
 		$round_at_subtotal = 'yes' === get_option('woocommerce_tax_round_at_subtotal');
@@ -158,9 +191,18 @@ final class PriceDisplay {
 	private static function booking_product(): \WC_Product
 	{
 		if (function_exists('wc_get_product_id_by_sku') && function_exists('wc_get_product')) {
-			$product_id = (int) wc_get_product_id_by_sku(WooCommerceBridge::PRODUCT_SKU);
-			if ($product_id > 0) {
-				$product = wc_get_product($product_id);
+			// One SKU lookup per request (a quote displays seven amounts). The id is
+			// re-checked: a product deleted later in the request is looked up again.
+			if (self::$product_id > 0) {
+				$product = wc_get_product(self::$product_id);
+				if ($product instanceof \WC_Product && WooCommerceBridge::PRODUCT_SKU === $product->get_sku()) {
+					return $product;
+				}
+			}
+
+			self::$product_id = (int) wc_get_product_id_by_sku(WooCommerceBridge::PRODUCT_SKU);
+			if (self::$product_id > 0) {
+				$product = wc_get_product(self::$product_id);
 				if ($product instanceof \WC_Product) {
 					return $product;
 				}
@@ -172,6 +214,6 @@ final class PriceDisplay {
 
 	private static function format(float $amount): string
 	{
-		return function_exists('wc_price') ? (string) wc_price($amount) : \MHMRentiva\Admin\Core\CurrencyHelper::format_price($amount, 2);
+		return function_exists('wc_price') ? (string) wc_price($amount) : esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price($amount, 2));
 	}
 }

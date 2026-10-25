@@ -1425,10 +1425,10 @@ final class BookingForm extends AbstractShortcode {
 				// The breakdown rows in the same convention as the total, so they
 				// add up to it on a store that enters prices without tax.
 				'display_lines'         => array(
-					'vehicle_price' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $vehicle_price )['amount'],
-					'vehicle_total' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $vehicle_total )['amount'],
-					'addon_total'   => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $addon_total )['amount'],
-					'weekend_extra' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $quote->weekend_surcharge )['amount'],
+					'vehicle_price' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $vehicle_price ),
+					'vehicle_total' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $vehicle_total ),
+					'addon_total'   => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $addon_total ),
+					'weekend_extra' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $quote->weekend_surcharge ),
 				),
 				'is_weekend'            => $day_of_week >= 6,
 			);

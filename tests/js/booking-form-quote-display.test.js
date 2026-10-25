@@ -97,10 +97,10 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 		expect( form.container.find( '.rv-total-amount .woocommerce-price-suffix' ).length ).toBe( 0 );
 	} );
 
-	test( 'breakdown rows use the display amounts so they add up to the total', () => {
+	test( 'breakdown rows use the display markup so they add up to the total', () => {
 		const form = setup();
 		const seen = {};
-		const capture = ( key ) => ( { text: ( v ) => { seen[ key ] = v; } } );
+		const capture = ( key ) => ( { html: ( v ) => { seen[ key ] = v; }, text: ( v ) => { seen[ key ] = 'text:' + v; } } );
 		form.priceElements.dailyPrice = capture( 'daily' );
 		form.priceElements.vehicleTotal = capture( 'vehicle' );
 		form.priceElements.addonsTotal = capture( 'addons' );
@@ -108,9 +108,27 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 		form.updatePriceDisplay( quote( {
 			vehicle_total: 3315,
 			addon_total: 25,
-			display_lines: { vehicle_price: 1020, vehicle_total: 3978, addon_total: 30, weekend_extra: 0 },
+			display_lines: {
+				vehicle_price: { amount: 1020, html: '$1.020,00' },
+				vehicle_total: { amount: 3978, html: '$3.978,00' },
+				addon_total: { amount: 30, html: '$30,00' },
+				weekend_extra: { amount: 0, html: '$0,00' },
+			},
 		} ) );
 
-		expect( seen ).toEqual( { daily: '1020', vehicle: '3978', addons: '30' } );
+		expect( seen ).toEqual( { daily: '$1.020,00', vehicle: '$3.978,00', addons: '$30,00' } );
+	} );
+
+	test( 'a tax-exclusive deposit and remaining say so', () => {
+		const form = setup();
+		const label = ' <small class="tax_label">(ex. VAT)</small>';
+
+		form.updatePriceDisplay( quote( {
+			display_deposit: { amount: 300, html: '<span class="amount">$300,00</span>', tax_label: label },
+			display_remaining: { amount: 2700, html: '<span class="amount">$2.700,00</span>', tax_label: label },
+		} ) );
+
+		expect( form.container.find( '.rv-deposit-amount .tax_label' ).text() ).toBe( '(ex. VAT)' );
+		expect( form.container.find( '.rv-remaining-amount .tax_label' ).text() ).toBe( '(ex. VAT)' );
 	} );
 } );
