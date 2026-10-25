@@ -1,0 +1,229 @@
+/**
+ * Rentiva front-end standard -- primitives.
+ *
+ * Button, field, input, check, tag, chip, kicker, help/error text. Values from
+ * the approved canvas (`Main`). Every interactive element is at least 44x44;
+ * inputs are 48 px tall (the search strip's 52 px is `.rvs-input--lg`).
+ * Selectors are scoped to `.rvs-shell` so they outrank a theme's element rules.
+ */
+
+/* Button ------------------------------------------------------------------ */
+
+.rvs-shell .rvs-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-width: 44px;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 20px;
+	border: 1px solid transparent;
+	border-radius: var(--rvs-r);
+	background: transparent;
+	box-shadow: none;
+	color: var(--rvs-text);
+	font-size: 15px;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* White text on --rvs-accent-strong (6.4:1); never on --rvs-accent. */
+.rvs-shell .rvs-btn--primary {
+	background: var(--rvs-accent-strong);
+	color: #fff;
+}
+
+.rvs-shell .rvs-btn--primary:hover {
+	background: var(--rvs-accent-deep);
+	color: #fff;
+}
+
+.rvs-shell .rvs-btn--secondary {
+	border-color: var(--rvs-line);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-btn--secondary:hover {
+	background: var(--rvs-n-200);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-btn--ghost {
+	padding: 0 10px;
+	color: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-btn--ghost:hover {
+	background: var(--rvs-accent-100);
+	color: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-btn--lg {
+	min-height: 52px;
+	padding: 0 28px;
+	font-size: 16px;
+}
+
+.rvs-shell .rvs-btn--icon {
+	width: 44px;
+	padding: 0;
+}
+
+.rvs-shell .rvs-btn:disabled,
+.rvs-shell .rvs-btn[aria-disabled="true"] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+/* Field and input ---------------------------------------------------------- */
+
+.rvs-shell .rvs-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.rvs-shell .rvs-field > label,
+.rvs-shell .rvs-field > legend {
+	margin: 0;
+	padding: 0;
+	color: var(--rvs-text);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-input {
+	display: block;
+	width: 100%;
+	min-height: 48px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: none;
+	color: var(--rvs-text);
+	font-size: 16px;
+}
+
+.rvs-shell textarea.rvs-input {
+	min-height: 110px;
+	padding: 10px 12px;
+}
+
+.rvs-shell .rvs-input--lg {
+	min-height: 52px;
+}
+
+.rvs-shell .rvs-input::placeholder {
+	color: var(--rvs-muted);
+	opacity: 1;
+}
+
+.rvs-shell .rvs-input:hover {
+	border-color: var(--rvs-line-strong);
+}
+
+.rvs-shell .rvs-input[aria-invalid="true"] {
+	border-color: var(--rvs-alert);
+	box-shadow: inset 0 0 0 1px var(--rvs-alert);
+}
+
+.rvs-shell .rvs-help {
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-error {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	color: var(--rvs-alert);
+	font-size: 13px;
+}
+
+/* Check (checkbox / radio row) -------------------------------------------- */
+
+.rvs-shell .rvs-check {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	font-size: 15px;
+	font-weight: 400;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-check input {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	accent-color: var(--rvs-accent-strong);
+}
+
+/* Tag (category, status) --------------------------------------------------- */
+
+.rvs-shell .rvs-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 10px;
+	border-radius: var(--rvs-r);
+	font-size: 12px;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+
+.rvs-shell .rvs-tag--info {
+	background: var(--rvs-accent-100);
+	color: var(--rvs-accent-deep);
+}
+
+.rvs-shell .rvs-tag--neutral {
+	background: var(--rvs-n-200);
+	color: #2d2b2b;
+}
+
+.rvs-shell .rvs-tag--alert {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-tag--outline {
+	border: 1px solid var(--rvs-line);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+}
+
+/* Chip (removable filter) -------------------------------------------------- */
+
+.rvs-shell .rvs-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--rvs-line);
+	border-radius: 999px;
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	font-size: 14px;
+	font-weight: 400;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-chip:hover {
+	border-color: var(--rvs-line-strong);
+}
+
+/* Kicker ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-kicker {
+	color: var(--rvs-muted);
+	font-size: 11px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}

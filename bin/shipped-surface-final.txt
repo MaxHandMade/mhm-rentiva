@@ -87,6 +87,9 @@ assets/css/frontend/vehicles-grid.css
 assets/css/frontend/vehicles-list.css
 assets/css/payment/woocommerce-cart.css
 assets/css/payment/woocommerce-checkout.css
+assets/css/rvs/rvs-primitives.css
+assets/css/rvs/rvs-shell.css
+assets/css/rvs/rvs-tokens.css
 assets/images/mhm-logo.png
 assets/images/placeholder-avatar.svg
 assets/images/placeholder-vehicle.svg
@@ -153,6 +156,14 @@ assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt
 assets/vendor/fonts/plus-jakarta-sans-latin-ext.woff2
 assets/vendor/fonts/plus-jakarta-sans-latin.woff2
 assets/vendor/fonts/plus-jakarta-sans.css
+assets/vendor/fonts/source-serif-4.css
+assets/vendor/fonts/source-serif-4/LICENSE-Source-Serif-4.txt
+assets/vendor/fonts/source-serif-4/source-serif-4-latin-400-italic.woff2
+assets/vendor/fonts/source-serif-4/source-serif-4-latin-400-normal.woff2
+assets/vendor/fonts/source-serif-4/source-serif-4-latin-600-normal.woff2
+assets/vendor/fonts/source-serif-4/source-serif-4-latin-ext-400-italic.woff2
+assets/vendor/fonts/source-serif-4/source-serif-4-latin-ext-400-normal.woff2
+assets/vendor/fonts/source-serif-4/source-serif-4-latin-ext-600-normal.woff2
 assets/vendor/swiper-bundle.min.css
 assets/vendor/swiper-bundle.min.js
 build/admin/about-rtl.css
