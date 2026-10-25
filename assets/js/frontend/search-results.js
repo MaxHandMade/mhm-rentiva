@@ -188,8 +188,13 @@
 				if ( this.value === value ) {
 					this.checked = false;
 				}
-			} else if ( this.type !== 'hidden' || $( this ).closest( '[data-rvs-window]' ).length ) {
-				// A window field only has a chip when it is a filter (the keyword).
+			} else if ( $( this ).closest( '[data-rvs-window]' ).length ) {
+				// A carried filter value (the keyword, or a URL filter without the
+				// filter column): drop that one value, not every value of the field.
+				if ( this.value === value ) {
+					$( this ).remove();
+				}
+			} else if ( this.type !== 'hidden' ) {
 				this.value = '';
 			}
 		} );

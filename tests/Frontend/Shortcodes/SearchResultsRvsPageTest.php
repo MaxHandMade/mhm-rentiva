@@ -185,6 +185,13 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertMatchesRegularExpression('/data-rvs-window hidden>.*name="mhmrentiva_fuel_type\[\]" value="diesel"/s', $html);
 	}
 
+	public function test_an_empty_list_value_is_no_filter(): void
+	{
+		$data = $this->filter(array( 'mhmrentiva_fuel_type' => array( '' ) ));
+
+		$this->assertSame(2, $data['meta']['total'], 'fuel_type[]= must not search for an empty fuel.');
+	}
+
 	public function test_a_vehicle_save_drops_the_facet_cache(): void
 	{
 		set_transient(SearchResults::FILTERS_CACHE_KEY, array( 'brands' => array( 'Stale' ) ), DAY_IN_SECONDS);

@@ -535,6 +535,14 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private static function perform_search(array $params, array $atts): array
 	{
+		// An empty value in a list filter (`fuel_type[]=`) is no filter -- not a
+		// search for vehicles whose fuel is ''.
+		foreach (array( 'fuel_type', 'transmission', 'seats', 'brand' ) as $key) {
+			if (isset($params[ $key ]) && is_array($params[ $key ])) {
+				$params[ $key ] = array_values(array_filter(array_map('strval', $params[ $key ]), static fn(string $v): bool => '' !== $v));
+			}
+		}
+
 		$args = array(
 			'post_type'      => PT_Vehicle::POST_TYPE,
 			'post_status'    => 'publish',

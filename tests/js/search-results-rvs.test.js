@@ -119,8 +119,19 @@ describe( 'rvs search results', () => {
 		chips.insertAdjacentHTML( 'beforeend', '<button type="button" id="kw" data-rvs-chip data-name="mhmrentiva_keyword" data-value="golf">golf</button>' );
 		document.getElementById( 'kw' ).click();
 
-		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.mhmrentiva_keyword ).toBe( '' );
+		// The carried keyword input is gone: no keyword reaches the search.
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.mhmrentiva_keyword ).toBeUndefined();
 		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.mhmrentiva_pickup_date ).toBe( '2027-07-12' );
+	} );
+
+	test( 'a chip for a carried filter drops only that value', async () => {
+		await boot();
+		const win = document.querySelector( '[data-rvs-window]' );
+		win.insertAdjacentHTML( 'beforeend', '<input type="hidden" name="mhmrentiva_fuel_type[]" value="diesel"><input type="hidden" name="mhmrentiva_fuel_type[]" value="petrol">' );
+		document.querySelector( '[data-rvs-chips]' ).insertAdjacentHTML( 'beforeend', '<button type="button" id="fuel" data-rvs-chip data-name="mhmrentiva_fuel_type[]" data-value="diesel">Diesel</button>' );
+		document.getElementById( 'fuel' ).click();
+
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.mhmrentiva_fuel_type ).toEqual( [ 'petrol' ] );
 	} );
 
 	test( 'a chip click clears its input and reloads', async () => {
@@ -142,6 +153,7 @@ describe( 'rvs search results', () => {
 		const data = jQuery.ajax.mock.calls[ 0 ][ 0 ].data;
 		expect( data.mhmrentiva_category ).toBeUndefined();
 		expect( data.mhmrentiva_min_price ).toBe( '' );
+		expect( data.mhmrentiva_keyword ).toBe( '' );
 		expect( data.mhmrentiva_return_date ).toBe( '2027-07-15' );
 	} );
 
