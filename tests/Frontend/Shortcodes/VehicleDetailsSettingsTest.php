@@ -68,7 +68,7 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 	 */
 	public function test_reviews_follow_show_reviews_not_booking_form(): void
 	{
-		$reviews = 'rv-vd2-ratings-card';
+		$reviews = 'rvs-vd__reviews';
 		$id      = (string) $this->catalog[0];
 
 		$this->assertStringContainsString($reviews, $this->shortcode(''));
@@ -91,8 +91,8 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 	 */
 	public function test_booking_form_toggle_drives_booking_section(): void
 	{
-		$cta     = 'rv-cta-container';
-		$reviews = 'rv-vd2-ratings-card';
+		$cta     = 'rvs-vd__booking';
+		$reviews = 'rvs-vd__reviews';
 		$id      = (string) $this->catalog[0];
 
 		$js = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/blocks/vehicle-details/index.js'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
@@ -106,12 +106,14 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 		$this->assertStringContainsString($cta, $on);
 		$this->assertStringNotContainsString($cta, $off);
 		$this->assertStringContainsString($reviews, $off, 'The booking toggle leaves the reviews alone.');
-		$this->assertStringContainsString('rv-vd2-booking-card', $off, 'Title and price stay; only the booking call to action goes.');
+		$this->assertStringContainsString('rvs-vd__title', $off, 'The title stays; the booking card goes (Aşama 2 PR B: the price lives in the card).');
 
 		// A saved showBookingForm value is inert (spec §2.4).
+		// Per-render instance ids (rvs-vd-N) are not part of the comparison.
+		$ids = static fn(string $html): string => (string) preg_replace('#\b(rvs-vd|rvs-cal)-\d+#', '$1-N', RenderNormalizer::normalize($html));
 		$this->assertSame(
-			RenderNormalizer::normalize($on),
-			RenderNormalizer::normalize($this->block(array( 'vehicleId' => $id, 'showBookingForm' => false )))
+			$ids($on),
+			$ids($this->block(array( 'vehicleId' => $id, 'showBookingForm' => false )))
 		);
 
 		$controls = WidgetFactory::make(VehicleDetailsWidget::class)->get_controls();
@@ -123,7 +125,7 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 
 	public function test_rating_line_follows_show_rating(): void
 	{
-		$line = 'rv-vd2-rating-line';
+		$line = 'rvs-vd__rating';
 		$id   = (string) $this->catalog[0];
 
 		$on = $this->shortcode('');
@@ -134,13 +136,13 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 
 		// Only the line goes: the title and the price stay.
 		$off = $this->shortcode('show_rating="0"');
-		$this->assertStringContainsString('rv-vehicle-title', $off);
-		$this->assertStringContainsString('rv-vd2-price-block', $off);
+		$this->assertStringContainsString('rvs-vd__title', $off);
+		$this->assertStringContainsString('data-rvs-vd-total', $off);
 	}
 
 	public function test_similar_section_follows_flag(): void
 	{
-		$section = 'rv-vd2-related';
+		$section = 'rvs-vd__similar';
 		$id      = (string) $this->catalog[0];
 
 		// The section is drawn only when a featured vehicle other than the page's exists.
@@ -223,7 +225,7 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 	public function test_default_renders_unchanged(string $name): void
 	{
 		$html = $this->render_default_surface($name);
-		$this->assertStringContainsString('rv-vd2-gallery-card', $html, "$name rendered no vehicle; the golden would pin an empty render.");
+		$this->assertStringContainsString('rvs-vd__gallery', $html, "$name rendered no vehicle; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -267,13 +269,19 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Normalized, with the run's post and attachment ids replaced by stable names,
-	 * and the availability calendar's month (it moves with the clock) blanked.
+	 * Normalized, with the run's post and attachment ids replaced by stable names.
+	 * What moves with the clock is blanked: the default window is "tomorrow", so
+	 * the months, the booking card (dates, total, link) and the per-render ids
+	 * change daily. Those parts have their own tests (VehicleDetailsViewTest,
+	 * VehicleDetailsRvsPageTest).
 	 */
 	private function golden_form(string $html): string
 	{
-		$html = (string) preg_replace('#(<span id="rv-current-month-year">)[^<]*#', '$1MONTH', $html);
-		$html = (string) preg_replace('#(<div id="rv-calendar-container" class="rv-cal-body">).*?</div></div></div>(\s*</div>)#s', '$1CALENDAR$2', $html);
+		$html = (string) preg_replace('#(<div class="rvs-vd__months" data-rvs-vd-months[^>]*>).*?(</div>\s*<ul class="rvs-vd__legend">)#s', '$1MONTHS$2', $html);
+		$html = (string) preg_replace('#<aside class="rvs-vd__booking".*?</aside>#s', 'BOOKING', $html);
+		$html = (string) preg_replace('#\b(rvs-vd|rvs-cal)-\d+#', '$1-N', $html);
+		// The gallery's JSON carries upload paths with escaped slashes (2026\/10\/).
+		$html = (string) preg_replace('#uploads\\\\/\d{4}\\\\/\d{2}\\\\/#', 'uploads\\/Y\\/M\\/', $html);
 
 		$map = array();
 		foreach ($this->catalog as $i => $id) {
@@ -281,7 +289,7 @@ final class VehicleDetailsSettingsTest extends WP_UnitTestCase
 			$map[ (int) get_post_thumbnail_id($id) ] = 'IMAGE' . $i;
 		}
 		$html = (string) preg_replace_callback(
-			'/(?<=_id=|[?&]p=|vehicle_id=&quot;|vehicle_id=")(\d+)\b/',
+			'/(?<=_id=|[?&]p=|vehicle_id=&quot;|vehicle_id="|data-rvs-vehicle=")(\d+)\b/',
 			static fn(array $m): string => $map[ (int) $m[1] ] ?? $m[1],
 			$html
 		);

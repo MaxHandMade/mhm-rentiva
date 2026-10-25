@@ -132,7 +132,7 @@ final class ShortcodeFixtures
 
 			case 'rentiva_vehicle_details':
 				$row['atts']         = array( 'vehicle_id' => (string) self::vehicle() );
-				$row['marker']       = 'rv-vd2-gallery-card';
+				$row['marker']       = 'rvs-vd__layout';
 				$row['min_elements'] = 80;
 				break;
 

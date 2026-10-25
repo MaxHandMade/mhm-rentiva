@@ -279,9 +279,9 @@ final class VehicleServiceTypeVisibilityTest extends WP_UnitTestCase
 		$transfer = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->transfer_id . '"]');
 		$both     = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->both_id . '"]');
 
-		$this->assertStringContainsString('rv-vehicle-details-wrapper', $transfer, 'The details page itself still renders.');
-		$this->assertStringNotContainsString('rv-cta-container', $transfer);
-		$this->assertStringContainsString('rv-cta-container', $both, 'Positive control: a both-type vehicle keeps its booking button.');
+		$this->assertStringContainsString('class="rvs-vd"', $transfer, 'The details page itself still renders.');
+		$this->assertStringNotContainsString('rvs-vd__booking', $transfer);
+		$this->assertStringContainsString('rvs-vd__booking', $both, 'Positive control: a both-type vehicle keeps its booking button.');
 	}
 
 	public function test_vehicle_card_drops_the_booking_button_for_transfer_only(): void

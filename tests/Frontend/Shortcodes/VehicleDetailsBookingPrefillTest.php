@@ -56,7 +56,7 @@ class VehicleDetailsBookingPrefillTest extends WP_UnitTestCase
 	{
 		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle_id . '"]');
 
-		$this->assertSame(1, preg_match('#<div class="rv-cta-container">\s*<a href="([^"]*)" class="rv-btn-primary"#', $html, $m), 'Book Now link must render.');
+		$this->assertSame(1, preg_match('#data-rvs-vd-continue\s+href="([^"]*)"#', $html, $m), 'The Continue link must render.');
 
 		$href  = wp_specialchars_decode($m[1]);
 		$query = (string) wp_parse_url($href, PHP_URL_QUERY);

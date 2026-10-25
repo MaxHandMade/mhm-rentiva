@@ -290,7 +290,7 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		$response = $this->dispatch_calendar( $this->published_id );
 
 		$this->assertTrue( $response['success'] );
-		$this->assertNotEmpty( $response['data']['calendar_html'] );
+		$this->assertNotEmpty( $response['data']['html'] );
 	}
 
 	// ------------------------------------- surface 6: booking form submission
@@ -434,10 +434,10 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 	private function dispatch_calendar( int $vehicle_id ): array
 	{
 		return $this->dispatch_raw_ajax(
-			'mhmrentiva_get_calendar',
+			'mhmrentiva_vd_months',
 			array(
-				'action'     => 'mhmrentiva_get_calendar',
-				'nonce'      => wp_create_nonce( 'mhmrentiva_calendar_nonce' ),
+				'action'     => 'mhmrentiva_vd_months',
+				'nonce'      => wp_create_nonce( 'mhmrentiva_vd_nonce' ),
 				'vehicle_id' => (string) $vehicle_id,
 				'month'      => gmdate( 'n' ),
 				'year'       => gmdate( 'Y' ),

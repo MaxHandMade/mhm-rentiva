@@ -1,35 +1,33 @@
 <?php
+/**
+ * Vehicle page (`rentiva_vehicle_details`) on the front-end standard.
+ *
+ * Canvas `Arac-Detay` / `Arac-Detay-Mobil` (Aşama 2 PR B). Every value comes
+ * from VehicleDetailsView::build() ($view); this file only prints it. The
+ * booking card, the months and the gallery are partials the page's AJAX
+ * endpoints render too.
+ *
+ * @var array<string, mixed> $view Built by VehicleDetailsView::build().
+ * @var array<string, mixed> $atts Shortcode attributes.
+ */
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+
+declare(strict_types=1);
+
+use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Frontend\RenderContext;
+use MHMRentiva\Helpers\Icons;
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Frontend\RenderContext;
-use MHMRentiva\Helpers\Icons;
-
-$vehicle_id              = isset($vehicle_id) ? intval($vehicle_id) : 0;
-$title                   = isset($title) ? (string) $title : '';
-$content                 = isset($content) ? (string) $content : '';
-$excerpt                 = isset($excerpt) ? (string) $excerpt : '';
-$booking_url             = isset($booking_url) ? (string) $booking_url : '';
-$transmission            = isset($transmission) ? (string) $transmission : '';
-$fuel_type               = isset($fuel_type) ? (string) $fuel_type : '';
-$seats                   = isset($seats) ? (string) $seats : '';
-$price_per_day           = isset($price_per_day) ? floatval($price_per_day) : 0;
-$price_per_day_formatted = isset($price_per_day_formatted) ? (string) $price_per_day_formatted : '';
-$currency_symbol         = isset($currency_symbol) ? (string) $currency_symbol : '$';
-$rating                  = isset($rating) && is_array($rating) ? $rating : array();
-$categories              = isset($categories) && is_array($categories) ? $categories : array();
-$card_features           = isset($card_features) && is_array($card_features) ? $card_features : array();
-$gallery                 = isset($gallery) && is_array($gallery) ? $gallery : array();
-$featured_image          = isset($featured_image) && is_array($featured_image) ? $featured_image : array(
-	'url' => '',
-	'alt' => '',
-);
-$atts                    = isset($atts) && is_array($atts) ? $atts : array();
-$is_favorite             = isset($is_favorite) ? (bool) $is_favorite : false;
-$is_in_compare           = isset($is_in_compare) ? (bool) $is_in_compare : false;
+$view = isset($view) && is_array($view) ? $view : array();
+$atts = isset($atts) && is_array($atts) ? $atts : array();
+if (empty($view['vehicle_id'])) {
+	return;
+}
 
 $flag = static function ($value, bool $default = true): bool {
 	if ($value === null || $value === '') {
@@ -38,373 +36,213 @@ $flag = static function ($value, bool $default = true): bool {
 	return in_array(strtolower( (string) $value), array( '1', 'true', 'yes', 'on' ), true);
 };
 
-$show_gallery_section = $flag($atts['show_gallery'] ?? '1', true);
-$show_features        = $flag($atts['show_features'] ?? '1', true);
-$show_pricing         = $flag($atts['show_pricing'] ?? '1', true);
-$show_price           = $flag($atts['show_price'] ?? '1', true);
-$show_booking         = $flag($atts['show_booking'] ?? '1', true);
-$show_booking_button  = $flag($atts['show_booking_button'] ?? '1', true);
-$show_rating          = $flag($atts['show_rating'] ?? '1', true);
-// Spec 3A §2.2 exception 2: the reviews section follows show_reviews (it was gated by show_booking_form).
-$show_reviews         = $flag($atts['show_reviews'] ?? '1', true);
-$show_similar         = $flag($atts['show_similar_vehicles'] ?? '1', true);
-$show_calendar        = $flag($atts['show_calendar'] ?? '1', true);
-$show_favorite_button = $flag($atts['show_favorite_button'] ?? ( $atts['show_favorite_btn'] ?? '1' ), true);
-$show_compare_button  = $flag($atts['show_compare_button'] ?? ( $atts['show_compare_btn'] ?? '1' ), true);
-
-// A transfer-only vehicle is not offered for rental: no booking button (absent flag = bookable).
-if (isset($rental_bookable) && ! $rental_bookable) {
-	$show_booking_button = false;
-}
-
-$primary_category   = ! empty($categories[0]) ? $categories[0] : array();
-$category_name      = (string) ( $primary_category['name'] ?? __('Premium', 'mhm-rentiva') );
-$category_url       = (string) ( $primary_category['url'] ?? '#' );
-$category_slug      = (string) ( $primary_category['slug'] ?? '' );
-$safe_category_slug = sanitize_title($category_slug);
-
-$rating_average = isset($rating['average']) ? floatval($rating['average']) : 0;
-$rating_count   = isset($rating['count']) ? intval($rating['count']) : 0;
-
-$features_for_showcase        = is_array($card_features) ? array_slice($card_features, 0, 6) : array();
-$detail_features_for_showcase = isset($detail_features) && is_array($detail_features)
-	? array_slice($detail_features, 0, 6)
-	: $features_for_showcase;
-$meta_chips                   = is_array($card_features) ? array_slice($card_features, 0, 3) : array();
-
-$allowed_svg_tags = array(
-	'svg'      => array(
-		'xmlns'           => true,
-		'width'           => true,
-		'height'          => true,
-		'viewbox'         => true,
-		'viewBox'         => true,
-		'fill'            => true,
-		'stroke'          => true,
-		'stroke-width'    => true,
-		'stroke-linecap'  => true,
-		'stroke-linejoin' => true,
-		'class'           => true,
-		'aria-hidden'     => true,
-		'role'            => true,
-		'focusable'       => true,
-		'overflow'        => true,
-		'style'           => true,
-	),
-	'path'     => array(
-		'd'               => true,
-		'fill'            => true,
-		'stroke'          => true,
-		'stroke-width'    => true,
-		'stroke-linecap'  => true,
-		'stroke-linejoin' => true,
-	),
-	'circle'   => array(
-		'cx'           => true,
-		'cy'           => true,
-		'r'            => true,
-		'fill'         => true,
-		'stroke'       => true,
-		'stroke-width' => true,
-	),
-	'line'     => array(
-		'x1'             => true,
-		'y1'             => true,
-		'x2'             => true,
-		'y2'             => true,
-		'stroke'         => true,
-		'stroke-width'   => true,
-		'stroke-linecap' => true,
-	),
-	'polyline' => array(
-		'points'          => true,
-		'fill'            => true,
-		'stroke'          => true,
-		'stroke-width'    => true,
-		'stroke-linecap'  => true,
-		'stroke-linejoin' => true,
-	),
-	'polygon'  => array(
-		'points'          => true,
-		'fill'            => true,
-		'stroke'          => true,
-		'stroke-width'    => true,
-		'stroke-linejoin' => true,
-	),
-	'rect'     => array(
-		'x'            => true,
-		'y'            => true,
-		'width'        => true,
-		'height'       => true,
-		'rx'           => true,
-		'ry'           => true,
-		'fill'         => true,
-		'stroke'       => true,
-		'stroke-width' => true,
-	),
-	'g'        => array(
-		'fill'   => true,
-		'stroke' => true,
-		'class'  => true,
-	),
-);
+$vehicle_id    = (int) $view['vehicle_id'];
+$uid           = (string) $view['uid'];
+$show_gallery  = $flag($atts['show_gallery'] ?? '1');
+$show_features = $flag($atts['show_features'] ?? '1');
+$show_price    = $flag($atts['show_pricing'] ?? '1') && $flag($atts['show_price'] ?? '1');
+$show_booking  = $flag($atts['show_booking'] ?? '1') && $flag($atts['show_booking_button'] ?? '1') && ! empty($rental_bookable);
+$show_calendar = $flag($atts['show_calendar'] ?? '1');
+$show_rating   = $flag($atts['show_rating'] ?? '1');
+$show_reviews  = $flag($atts['show_reviews'] ?? '1');
+$show_similar  = $flag($atts['show_similar_vehicles'] ?? '1');
+$show_favorite = $flag($atts['show_favorite_button'] ?? ( $atts['show_favorite_btn'] ?? '1' ));
+$show_compare  = $flag($atts['show_compare_button'] ?? ( $atts['show_compare_btn'] ?? '1' ));
+$is_preview    = RenderContext::current()->is_preview();
+$booking       = (array) $view['booking'];
+$rating        = $view['rating'];
 ?>
+<div class="rvs-vd" id="<?php echo esc_attr($uid); ?>" data-rvs-vehicle="<?php echo esc_attr( (string) $vehicle_id); ?>">
 
-<div class="rv-vehicle-details-wrapper rv-vd2">
-	<div class="rv-vehicle-details rv-vd2-layout">
-		<div class="rv-vd2-main">
-			<?php if ($show_gallery_section) : ?>
-				<section class="rv-vd2-card rv-vd2-gallery-card">
-					<div class="rv-main-image-wrapper">
-						<div class="rv-vd2-image-actions" aria-label="<?php esc_attr_e('Vehicle actions', 'mhm-rentiva'); ?>">
-							<?php if ($show_favorite_button) : ?>
-								<button class="rv-vd2-action-btn rv-vd2-favorite mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
-									data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-									<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
-									title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-									aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-									<?php
-									// Explicit size at the call site: Icons::get()'s inline
-									// style defaults to 20px, which used to beat this page's
-									// own 16px rule for the compare icon while the card CSS's
-									// !important rule pinned the heart at 18px -- two sizes
-									// in one row of identical badges.
-									Icons::render(
-										'heart',
-										array(
-											'class'  => 'mhm-heart-icon',
-											'width'  => '16px',
-											'height' => '16px',
-										)
-									);
-									?>
-									<span class="text-label sr-only"><?php echo $is_favorite ? esc_html__('Remove from Favorites', 'mhm-rentiva') : esc_html__('Add to Favorites', 'mhm-rentiva'); ?></span>
-								</button>
-							<?php endif; ?>
-							<?php if ($show_compare_button) : ?>
-								<button class="rv-vd2-action-btn rv-vd2-compare mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
-									data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-									<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_compare'); ?>
-									title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
-									aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
-									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-									<?php
-									Icons::render(
-										'compare',
-										array(
-											'class'  => 'mhm-compare-icon',
-											'width'  => '16px',
-											'height' => '16px',
-										)
-									);
-									?>
-									<span class="text-label sr-only"><?php esc_html_e('Compare', 'mhm-rentiva'); ?></span>
-								</button>
-							<?php endif; ?>
-						</div>
-						<?php
-						// Without a shown cover the first gallery image takes the main slot;
-						// with neither, no <img> is printed (an empty src is a broken image).
-						$cover_url = (string) ( $featured_image['url'] ?? '' );
-						$main_url  = '' !== $cover_url ? $cover_url : (string) ( $gallery[0]['url_large'] ?? '' );
-						?>
-						<?php if ('' !== $main_url) : ?>
-							<img src="<?php echo esc_url($main_url); ?>"
-								alt="<?php echo esc_attr($title ?? ''); ?>"
-								class="rv-featured-image">
-						<?php endif; ?>
-						<?php if (! empty($gallery) && count($gallery) > 3) : ?>
-							<button type="button" class="rv-vd2-gallery-btn" aria-label="<?php echo esc_attr__('View all photos', 'mhm-rentiva'); ?>">
-								<span aria-hidden="true">▦</span>
-								<?php esc_html_e('All Photos', 'mhm-rentiva'); ?>
-							</button>
-						<?php endif; ?>
-					</div>
-
-					<?php if (! empty($gallery)) : ?>
-						<div class="rv-gallery-thumbnails" data-total="<?php echo esc_attr(count($gallery) + ( '' !== $cover_url ? 1 : 0 )); ?>">
-							<?php if ('' !== $cover_url) : ?>
-								<div class="rv-thumbnail-item active" data-index="main">
-									<img src="<?php echo esc_url($cover_url); ?>"
-										alt="<?php echo esc_attr($title ?? ''); ?>"
-										data-large="<?php echo esc_url($cover_url); ?>">
-								</div>
-							<?php endif; ?>
-							<?php foreach ($gallery as $index => $image) : ?>
-								<div class="rv-thumbnail-item<?php echo $index >= 3 ? ' rv-thumb-hidden' : ''; ?><?php echo ( '' === $cover_url && 0 === $index ) ? ' active' : ''; ?>" data-index="<?php echo esc_attr($index); ?>">
-									<img src="<?php echo esc_url($image['url']); ?>"
-										alt="<?php echo esc_attr($image['alt']); ?>"
-										data-large="<?php echo esc_url($image['url_large']); ?>"
-										data-full="<?php echo esc_url($image['url_full']); ?>">
-								</div>
-							<?php endforeach; ?>
-						</div>
+	<nav class="rvs-vd__crumbs" aria-label="<?php esc_attr_e('Breadcrumb', 'mhm-rentiva'); ?>">
+		<ol>
+			<?php foreach ( (array) $view['crumbs'] as $crumb) : ?>
+				<li>
+					<?php if ('' !== (string) $crumb['url']) : ?>
+						<a href="<?php echo esc_url( (string) $crumb['url']); ?>"><?php echo esc_html( (string) $crumb['label']); ?></a>
+					<?php else : ?>
+						<span aria-current="page"><?php echo esc_html( (string) $crumb['label']); ?></span>
 					<?php endif; ?>
+				</li>
+			<?php endforeach; ?>
+		</ol>
+	</nav>
+
+	<header class="rvs-vd__head">
+		<div class="rvs-vd__titles">
+			<h1 class="rvs-vd__title"><?php echo esc_html( (string) $view['title']); ?></h1>
+			<div class="rvs-vd__meta">
+				<?php if (! empty($view['category'])) : ?>
+					<span class="rvs-tag"><?php echo esc_html( (string) $view['category']['name']); ?></span>
+				<?php endif; ?>
+				<?php if ($show_rating && is_array($rating)) : ?>
+					<span class="rvs-vd__rating">
+						<span aria-hidden="true">★</span>
+						<?php echo esc_html(number_format_i18n( (float) $rating['average'], 1)); ?> ·
+						<?php if ($show_reviews) : ?>
+							<a href="#<?php echo esc_attr($uid); ?>-reviews">
+						<?php endif; ?>
+						<?php
+						/* translators: %s: number of reviews. */
+						echo esc_html(sprintf(_n('%s review', '%s reviews', (int) $rating['count'], 'mhm-rentiva'), number_format_i18n( (int) $rating['count'])));
+						?>
+						<?php if ($show_reviews) : ?>
+							</a>
+						<?php endif; ?>
+					</span>
+				<?php endif; ?>
+				<?php if ('' !== (string) $view['dealer_line']) : ?>
+					<span class="rvs-vd__dealer"><?php echo esc_html( (string) $view['dealer_line']); ?></span>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php if ($show_favorite || $show_compare) : ?>
+			<div class="rvs-vd__actions">
+				<?php if ($show_favorite) : ?>
+					<button type="button" class="rvs-btn rvs-btn--secondary mhm-vehicle-favorite-btn<?php echo ! empty($is_favorite) ? ' is-active' : ''; ?>"
+						data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>"
+						<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
+						aria-pressed="<?php echo ! empty($is_favorite) ? 'true' : 'false'; ?>"<?php echo $is_preview ? ' disabled' : ''; ?>>
+						<?php
+						Icons::render(
+							'heart',
+							array(
+								'class'  => 'mhm-heart-icon',
+								'width'  => '18px',
+								'height' => '18px',
+							)
+						);
+						?>
+						<?php esc_html_e('Favorite', 'mhm-rentiva'); ?>
+					</button>
+				<?php endif; ?>
+				<?php if ($show_compare) : ?>
+					<button type="button" class="rvs-btn rvs-btn--secondary mhm-vehicle-compare-btn<?php echo ! empty($is_in_compare) ? ' is-active active' : ''; ?>"
+						data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>"
+						<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_compare'); ?>
+						aria-pressed="<?php echo ! empty($is_in_compare) ? 'true' : 'false'; ?>"<?php echo $is_preview ? ' disabled' : ''; ?>>
+						<?php esc_html_e('Compare', 'mhm-rentiva'); ?>
+					</button>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+	</header>
+
+	<?php if ($show_gallery && ! empty($view['gallery'])) : ?>
+		<?php Templates::render('partials/vehicle-details/gallery', array( 'view' => $view ), false); ?>
+	<?php endif; ?>
+
+	<div class="rvs-vd__layout">
+		<div class="rvs-vd__main">
+
+			<?php if ($show_features && ! empty($view['highlights'])) : ?>
+				<section class="rvs-vd__section" aria-labelledby="<?php echo esc_attr($uid); ?>-highlights">
+					<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-highlights"><?php esc_html_e('Highlights', 'mhm-rentiva'); ?></h2>
+					<dl class="rvs-vd__specs">
+						<?php foreach ( (array) $view['highlights'] as $spec) : ?>
+							<div class="rvs-vd__spec">
+								<dt><?php echo esc_html( (string) $spec['label']); ?></dt>
+								<dd><?php echo esc_html( (string) $spec['value']); ?></dd>
+							</div>
+						<?php endforeach; ?>
+					</dl>
 				</section>
 			<?php endif; ?>
 
-			<section class="rv-vd2-card">
-				<h3 class="rv-vd2-section-title"><?php esc_html_e('About Vehicle', 'mhm-rentiva'); ?></h3>
-				<div class="rv-vd2-about">
-					<?php if (! empty($content)) : ?>
-						<?php echo wp_kses_post($content); ?>
-					<?php elseif (! empty($excerpt)) : ?>
-						<?php echo wp_kses_post($excerpt); ?>
-					<?php else : ?>
-						<p><?php esc_html_e('Detailed vehicle information will be available soon.', 'mhm-rentiva'); ?></p>
-					<?php endif; ?>
-				</div>
-			</section>
+			<?php if ('' !== trim( (string) $view['content'])) : ?>
+				<section class="rvs-vd__section rvs-vd__about" aria-labelledby="<?php echo esc_attr($uid); ?>-about">
+					<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-about"><?php esc_html_e('About this vehicle', 'mhm-rentiva'); ?></h2>
+					<div class="rvs-vd__content"><?php echo wp_kses_post(wpautop( (string) $view['content'])); ?></div>
+				</section>
+			<?php endif; ?>
 
-			<?php if ($show_features && ! empty($detail_features_for_showcase)) : ?>
-				<section class="rv-vd2-card">
-					<h3 class="rv-vd2-section-title"><?php esc_html_e('Highlighted Features', 'mhm-rentiva'); ?></h3>
-					<div class="rv-vd2-feature-grid">
-						<?php foreach ($detail_features_for_showcase as $feature) : ?>
-							<div class="rv-vd2-feature-item">
-								<span class="rv-vd2-feature-icon">
-									<?php echo wp_kses( (string) ( $feature['svg'] ?? '' ), $allowed_svg_tags); ?>
-								</span>
-								<span class="rv-vd2-feature-label"><?php echo esc_html( (string) ( $feature['text'] ?? '' )); ?></span>
+			<?php if (! empty($view['conditions'])) : ?>
+				<section class="rvs-vd__section" aria-labelledby="<?php echo esc_attr($uid); ?>-conditions">
+					<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-conditions"><?php esc_html_e('Rental conditions', 'mhm-rentiva'); ?></h2>
+					<div class="rvs-vd__conditions">
+						<?php foreach ( (array) $view['conditions'] as $condition) : ?>
+							<div class="rvs-vd__condition">
+								<strong><?php echo esc_html( (string) $condition['title']); ?></strong>
+								<p><?php echo nl2br(esc_html( (string) $condition['text'])); ?></p>
 							</div>
 						<?php endforeach; ?>
 					</div>
 				</section>
 			<?php endif; ?>
 
-			<section class="rv-vd2-card">
-				<h3 class="rv-vd2-section-title"><?php esc_html_e('Rental Conditions', 'mhm-rentiva'); ?></h3>
-				<ul class="rv-vd2-policy-list">
-					<li>
-						<strong><?php esc_html_e('Age & Driver License', 'mhm-rentiva'); ?></strong>
-						<span><?php esc_html_e('Minimum 25 years old and a valid driving license is required.', 'mhm-rentiva'); ?></span>
-					</li>
-					<li>
-						<strong><?php esc_html_e('Fuel Policy', 'mhm-rentiva'); ?></strong>
-						<span><?php esc_html_e('Vehicle is delivered with full tank and must be returned full tank.', 'mhm-rentiva'); ?></span>
-					</li>
-					<li>
-						<strong><?php esc_html_e('Mileage Limit', 'mhm-rentiva'); ?></strong>
-						<span><?php esc_html_e('Daily mileage limit applies. Extra mileage can be billed.', 'mhm-rentiva'); ?></span>
-					</li>
-				</ul>
-			</section>
+			<?php if ($show_calendar) : ?>
+				<section class="rvs-vd__section" aria-labelledby="<?php echo esc_attr($uid); ?>-availability">
+					<div class="rvs-vd__section-head">
+						<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-availability"><?php esc_html_e('Availability', 'mhm-rentiva'); ?></h2>
+						<div class="rvs-vd__month-nav">
+							<button type="button" class="rvs-btn rvs-btn--icon" data-rvs-month-nav="-1" aria-label="<?php esc_attr_e('Previous month', 'mhm-rentiva'); ?>"><span aria-hidden="true">‹</span></button>
+							<button type="button" class="rvs-btn rvs-btn--icon" data-rvs-month-nav="1" aria-label="<?php esc_attr_e('Next month', 'mhm-rentiva'); ?>"><span aria-hidden="true">›</span></button>
+						</div>
+					</div>
+					<div class="rvs-vd__months" data-rvs-vd-months aria-live="polite">
+						<?php foreach ( (array) $view['months'] as $month) : ?>
+							<?php Templates::render('partials/rvs/calendar-month', array( 'calendar' => $month ), false); ?>
+						<?php endforeach; ?>
+					</div>
+					<ul class="rvs-vd__legend">
+						<li><span class="rvs-vd__swatch rvs-vd__swatch--selected" aria-hidden="true"></span><?php esc_html_e('Selected', 'mhm-rentiva'); ?></li>
+						<li><span class="rvs-vd__swatch rvs-vd__swatch--booked" aria-hidden="true"></span><?php esc_html_e('Booked', 'mhm-rentiva'); ?></li>
+					</ul>
+				</section>
+			<?php endif; ?>
 
 			<?php if ($show_reviews) : ?>
-				<section class="rv-vd2-card rv-vd2-ratings-card">
-					<h3 class="rv-vd2-section-title"><?php esc_html_e('Ratings & Reviews', 'mhm-rentiva'); ?></h3>
-					<div class="rv-integrated-reviews-section">
-						<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . intval($vehicle_id) . '"]'); ?>
-					</div>
-				</section>
+				<?php Templates::render('partials/vehicle-details/reviews', array( 'view' => $view ), false); ?>
 			<?php endif; ?>
 		</div>
 
-		<aside class="rv-vd2-sidebar">
-			<div class="rv-vd2-booking-card">
-				<div class="rv-vd2-booking-head">
-					<span class="rv-vd2-pill"><?php echo esc_html(strtoupper($category_name)); ?></span>
-					<h1 class="rv-vehicle-title"><?php echo esc_html($title ?? ''); ?></h1>
-				</div>
-
-				<?php if ($show_rating) : ?>
-					<div class="rv-vd2-rating-line">
-						<span class="rv-vd2-star" aria-hidden="true">★</span>
-						<span class="rv-vd2-rating-value"><?php echo esc_html($rating_average > 0 ? number_format($rating_average, 1) : '0.0'); ?></span>
-						<span class="rv-vd2-rating-count">(<?php echo esc_html($rating_count); ?> <?php esc_html_e('reviews', 'mhm-rentiva'); ?>)</span>
-					</div>
-				<?php endif; ?>
-
-				<div class="rv-vd2-meta-row">
-					<?php if (! empty($meta_chips)) : ?>
-						<?php foreach ($meta_chips as $chip) : ?>
-							<?php $chip_text = isset($chip['text']) ? (string) $chip['text'] : ''; ?>
-							<?php if ($chip_text === '') : ?>
-								<?php continue; ?>
-							<?php endif; ?>
-							<span>
-								<span class="rv-vd2-meta-icon"><?php echo wp_kses( (string) ( $chip['svg'] ?? '' ), $allowed_svg_tags); ?></span>
-								<?php echo esc_html($chip_text); ?>
-							</span>
-						<?php endforeach; ?>
-					<?php else : ?>
-						<?php if (! empty($transmission)) : ?>
-							<span><?php echo esc_html($transmission); ?></span>
-						<?php endif; ?>
-						<?php if (! empty($fuel_type)) : ?>
-							<span><?php echo esc_html($fuel_type); ?></span>
-						<?php endif; ?>
-						<?php if (! empty($seats)) : ?>
-							<span><?php echo esc_html($seats . ' ' . __('Seats', 'mhm-rentiva')); ?></span>
-						<?php endif; ?>
-					<?php endif; ?>
-				</div>
-
-				<?php if ($show_pricing && $show_price && ( $price_per_day ?? 0 )) : ?>
-					<div class="rv-vd2-price-block">
-						<p class="rv-vd2-price-label"><?php esc_html_e('Daily Rate', 'mhm-rentiva'); ?></p>
-						<p class="rv-vd2-price-main"><?php echo esc_html($price_per_day_formatted !== '' ? $price_per_day_formatted : \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $price_per_day, 0)); ?></p>
-					</div>
-				<?php endif; ?>
-
-				<?php if ($show_booking && $show_booking_button) : ?>
-					<div class="rv-cta-container">
-						<?php $btn_text = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva'); ?>
-						<?php if (isset($is_available) && ! $is_available) : ?>
-							<button class="rv-btn-primary disabled" disabled><span><?php echo esc_html($btn_text); ?></span></button>
-						<?php else : ?>
-							<a href="<?php echo esc_url($booking_url ?? ''); ?>" class="rv-btn-primary"><span><?php echo esc_html($btn_text); ?></span></a>
-						<?php endif; ?>
-						<p class="rv-vd2-cancel-note"><?php esc_html_e('Free cancellation according to conditions.', 'mhm-rentiva'); ?></p>
-					</div>
-				<?php endif; ?>
-				<?php if ($show_calendar && ( intval($vehicle_id ?? 0) ) > 0) : ?>
-					<div class="rv-mini-calendar-widget" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
-						<div class="rv-cal-header">
-							<h4 class="rv-cal-title"><?php esc_html_e('Availability', 'mhm-rentiva'); ?></h4>
-							<div class="rv-cal-nav">
-								<button class="rv-calendar-nav-btn" data-direction="prev" aria-label="<?php echo esc_attr__('Previous month', 'mhm-rentiva'); ?>">‹</button>
-								<span id="rv-current-month-year"><?php echo esc_html(date_i18n('F Y')); ?></span>
-								<button class="rv-calendar-nav-btn" data-direction="next" aria-label="<?php echo esc_attr__('Next month', 'mhm-rentiva'); ?>">›</button>
-							</div>
-						</div>
-						<div id="rv-calendar-container" class="rv-cal-body">
-							<?php echo wp_kses_post(\MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::render_monthly_calendar(intval($vehicle_id))); ?>
-						</div>
-					</div>
-				<?php endif; ?>
-			</div>
-		</aside>
+		<?php if ($show_booking) : ?>
+			<?php
+			Templates::render(
+				'partials/vehicle-details/booking-card',
+				array(
+					'view'       => $view,
+					'atts'       => $atts,
+					'show_price' => $show_price,
+				),
+				false
+			);
+			?>
+		<?php endif; ?>
 	</div>
 
 	<?php
 	if ($show_similar) :
-		// An empty (or non-positive) similar_vehicles_limit keeps today's branch:
-		// 6 in the mobile slider, 3 in the desktop grid. A set value replaces the
-		// limit on both, capped at 12; the layout stays (spec 3A §2.2).
+		// An empty (or non-positive) similar_vehicles_limit keeps the old branch:
+		// 6 in the mobile slider, 3 in the desktop grid; a set value replaces the
+		// limit on both, capped at 12 (spec 3A §2.2).
 		$is_mobile_view = wp_is_mobile();
 		$similar_limit  = absint($atts['similar_vehicles_limit'] ?? 0);
 		if ($similar_limit < 1) {
 			$similar_limit = $is_mobile_view ? 6 : 3;
 		}
 		$similar_limit = min(12, $similar_limit);
-		$similar_args  = ! empty($safe_category_slug) ? ' category="' . esc_attr($safe_category_slug) . '"' : '';
+		$similar_args  = '';
+		if (! empty($view['category']['url'])) {
+			$terms = get_the_terms($vehicle_id, 'mhmrentiva_vehicle_category');
+			if (is_array($terms) && ! empty($terms[0]->slug)) {
+				$similar_args = ' category="' . esc_attr(sanitize_title( (string) $terms[0]->slug)) . '"';
+			}
+		}
 		// The vehicle on show is not "similar" to itself.
-		$similar_args     .= $vehicle_id > 0 ? ' exclude="' . $vehicle_id . '"' : '';
+		$similar_args     .= ' exclude="' . $vehicle_id . '"';
 		$related_shortcode = $is_mobile_view
 			? '[rentiva_featured_vehicles layout="slider" limit="' . $similar_limit . '" columns="1"' . $similar_args . ' autoplay="0" interval="5000" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]'
 			: '[rentiva_featured_vehicles layout="grid" limit="' . $similar_limit . '" columns="3"' . $similar_args . ' show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
-		// Render first: with no other featured vehicle the shortcode answers with its
-		// empty-state paragraph, and a heading over "No featured vehicles found." is noise.
-		$related_html = \MHMRentiva\Admin\Core\Utilities\Templates::render_shortcode($related_shortcode);
+		// Render first: with no other featured vehicle the shortcode answers with
+		// its empty-state paragraph, and a heading over it is noise.
+		$related_html = Templates::render_shortcode($related_shortcode);
 		if ('' !== trim($related_html) && false === strpos($related_html, 'class="mhm-rentiva-no-vehicles"')) :
 			?>
-		<section class="rv-vd2-related">
-			<h3 class="rv-vd2-related-title"><?php esc_html_e('Similar Premium Vehicles', 'mhm-rentiva'); ?></h3>
-			<p class="rv-vd2-related-subtitle"><?php esc_html_e('Users who viewed this vehicle also checked these.', 'mhm-rentiva'); ?></p>
-			<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_rendered_html($related_html); ?>
-		</section>
+			<section class="rvs-vd__similar" aria-labelledby="<?php echo esc_attr($uid); ?>-similar">
+				<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-similar"><?php esc_html_e('Similar vehicles', 'mhm-rentiva'); ?></h2>
+				<?php Templates::output_rendered_html($related_html); ?>
+			</section>
 		<?php endif; ?>
 	<?php endif; ?>
 </div>

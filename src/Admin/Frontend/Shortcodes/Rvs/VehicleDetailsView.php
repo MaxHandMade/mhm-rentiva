@@ -270,9 +270,10 @@ final class VehicleDetailsView {
 	}
 
 	/**
-	 * The admin's selected detail fields, then any K11 count that has a value.
+	 * The admin's selected detail fields, any K11 count that has a value, then
+	 * the vehicle's active features (value "Yes").
 	 *
-	 * @return list<array{label: string, value: string}>
+	 * @return list<array{key: string, label: string, value: string}>
 	 */
 	private static function highlights(int $vehicle_id): array
 	{
@@ -281,6 +282,7 @@ final class VehicleDetailsView {
 		foreach (VehicleFeatureHelper::collect_detail_items($vehicle_id) as $item) {
 			$is_detail = VehicleFeatureHelper::TYPE_DETAIL === $item['type'];
 			$out[]     = array(
+				'key'   => (string) $item['key'],
 				'label' => $is_detail ? (string) $item['label'] : (string) $item['text'],
 				'value' => $is_detail ? (string) $item['text'] : __('Yes', 'mhm-rentiva'),
 			);
@@ -300,11 +302,35 @@ final class VehicleDetailsView {
 			}
 			$formatted = VehicleFeatureHelper::format_detail_value($key, get_post_meta($vehicle_id, $keys[ $key ], true));
 			if (null !== $formatted) {
-				$out[] = array(
+				$out[]  = array(
+					'key'   => $key,
 					'label' => (string) ( $labels[ $key ] ?? $key ),
 					'value' => $formatted['text'],
 				);
+				$seen[] = $key;
 			}
+		}
+
+		// The vehicle's own features, as the old page listed them: a Passive one
+		// (removed in Field Definitions) does not render, a taxonomy-backed key
+		// passes through (D5).
+		$map      = VehicleFeatureHelper::get_available_fields_map();
+		$features = get_post_meta($vehicle_id, '_mhmrentiva_features', true);
+		foreach (is_array($features) ? $features : array() as $feature) {
+			$key = is_array($feature) ? sanitize_key( (string) ( $feature['key'] ?? $feature['slug'] ?? '' )) : sanitize_key( (string) $feature);
+			if ('' === $key || in_array($key, $seen, true)) {
+				continue;
+			}
+			$type = 0 === strpos($key, 'tax_') ? VehicleFeatureHelper::TYPE_TAXONOMY : VehicleFeatureHelper::TYPE_FEATURE;
+			if (! VehicleFeatureHelper::is_field_active($type, $key)) {
+				continue;
+			}
+			$out[]  = array(
+				'key'   => $key,
+				'label' => (string) ( $map[ $type ][ $key ]['label'] ?? ucfirst(str_replace(array( 'tax_', '_' ), array( '', ' ' ), $key)) ),
+				'value' => __('Yes', 'mhm-rentiva'),
+			);
+			$seen[] = $key;
 		}
 		return $out;
 	}

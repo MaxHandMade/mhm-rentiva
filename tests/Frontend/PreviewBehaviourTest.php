@@ -362,7 +362,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 		$this->assertSame(1, substr_count($html, 'mhm-rv-preview-badge'));
 		$this->assertStringContainsString(esc_html(self::BADGE_SAMPLE_VEH), $html);
 		$this->assertStringContainsString(esc_html(get_the_title($sample)), $html);
-		$this->assertStringContainsString('rv-vehicle-details-wrapper', $html);
+		$this->assertStringContainsString('class="rvs-vd"', $html);
 		$this->assertStringNotContainsString($this->sentinel_title, $html);
 	}
 
