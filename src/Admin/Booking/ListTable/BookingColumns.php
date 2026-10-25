@@ -1432,13 +1432,16 @@ final class BookingColumns {
 
 		// Month/year bounds: current year ± 10, same rule the old renderer
 		// used (and VehicleColumns' Calendar face converged on in Task 4).
-		$current_month = self::get_query_int( 'mhmrentiva_month', (int) gmdate( 'n' ) );
-		$current_year  = self::get_query_int( 'mhmrentiva_year', (int) gmdate( 'Y' ) );
+		// The site's month and year, not UTC's.
+		$today         = \MHMRentiva\Admin\Booking\Helpers\SiteTime::today();
+		$this_month    = (int) substr( $today, 5, 2 );
+		$this_year     = (int) substr( $today, 0, 4 );
+		$current_month = self::get_query_int( 'mhmrentiva_month', $this_month );
+		$current_year  = self::get_query_int( 'mhmrentiva_year', $this_year );
 
 		if ( $current_month < 1 || $current_month > 12 ) {
-			$current_month = (int) gmdate( 'n' );
+			$current_month = $this_month;
 		}
-		$this_year = (int) gmdate( 'Y' );
 		if ( $current_year < ( $this_year - 10 ) || $current_year > ( $this_year + 10 ) ) {
 			$current_year = $this_year;
 		}

@@ -428,7 +428,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		// Start month (Fallback precedence: Attribute > Today)
 		$show_pricing   = $atts['show_pricing'] === '1' || $atts['show_pricing'] === true;
 		$months_to_show = (int) $atts['months_to_show'];
-		$start_month    = ! empty($atts['start_month']) ? $atts['start_month'] : gmdate('Y-m');
+		$start_month    = ! empty($atts['start_month']) ? $atts['start_month'] : self::current_month();
 
 		// Get calendar data (if vehicle exists)
 		$availability_data = array();
@@ -650,21 +650,37 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 * gmdate() raises a TypeError rather than quietly rendering January 1970.
 	 * Both public entry points into the calendar accept this value.
 	 */
-	private static function normalize_start_month(string $start_month): string
+	private static function normalize_start_month(string $start_month, ?int $now = null): string
 	{
 		if (preg_match('/^\d{4}-\d{2}$/', $start_month) === 1 && strtotime($start_month . '-01') !== false) {
 			return $start_month;
 		}
 
-		return gmdate('Y-m');
+		return self::current_month($now);
 	}
 
-	private static function get_availability_data(int $vehicle_id, string $start_month, int $months_to_show): array
+	/**
+	 * The site's current month, `Y-m` -- the calendar opens on the visitor's
+	 * site-local month, not UTC's.
+	 *
+	 * @param int|null $now Only for tests; production callers omit it.
+	 */
+	private static function current_month(?int $now = null): string
+	{
+		return substr(\MHMRentiva\Admin\Booking\Helpers\SiteTime::today($now), 0, 7);
+	}
+
+	/**
+	 * @param int|null $now Only for tests; production callers omit it. A
+	 *                      pinned moment bypasses the shared cache.
+	 */
+	private static function get_availability_data(int $vehicle_id, string $start_month, int $months_to_show, ?int $now = null): array
 	{
 		// Defence in depth: both the nopriv handler and the shortcode attribute
 		// reach this loop, and strtotime() returns false for a malformed month
 		// which gmdate() then rejects outright on PHP 8.
-		$start_month    = self::normalize_start_month($start_month);
+		$start_month    = self::normalize_start_month($start_month, $now);
+		$today          = \MHMRentiva\Admin\Booking\Helpers\SiteTime::today($now);
 		$months_to_show = max(1, min($months_to_show, self::MAX_MONTH_SPAN));
 
 		// _v2: this sweep dropped the raw `bookings` (id/post_title/status --
@@ -680,14 +696,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		$cache_key = "availability_data_v2_{$vehicle_id}_{$start_month}_{$months_to_show}";
 
 		// Cache'den kontrol et
-		$cached_data = \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key);
+		$cached_data = null === $now ? \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key) : null;
 		if ($cached_data !== null) {
 			return $cached_data;
 		}
 
 		// Performans monitoring
 		$performance_data = \MHMRentiva\Admin\Core\PerformanceHelper::time_execution(
-			function () use ($vehicle_id, $start_month, $months_to_show) {
+			function () use ($vehicle_id, $start_month, $months_to_show, $today) {
 				global $wpdb;
 
 				$availability_data = array();
@@ -842,8 +858,8 @@ final class AvailabilityCalendar extends AbstractShortcode {
 							'occupancy'  => $day_occupancy,
 							'day_number' => gmdate('j', strtotime($current_date)),
 							'is_weekend' => in_array(gmdate('N', strtotime($current_date)), array( 6, 7 )),
-							'is_today'   => $current_date === gmdate('Y-m-d'),
-							'is_past'    => $current_date < gmdate('Y-m-d'),
+							'is_today'   => $current_date === $today,
+							'is_past'    => $current_date < $today,
 						);
 
 						$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
@@ -893,12 +909,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		$availability_data = $performance_data['result'];
 
 		// Save to cache (60 seconds for better responsiveness)
-		\MHMRentiva\Admin\Core\PerformanceHelper::cache_set(
-			$cache_key,
-			$availability_data,
-			60,
-			array( 'vehicles', 'availability', "vehicle_{$vehicle_id}" )
-		);
+		if (null === $now) {
+			\MHMRentiva\Admin\Core\PerformanceHelper::cache_set(
+				$cache_key,
+				$availability_data,
+				60,
+				array( 'vehicles', 'availability', "vehicle_{$vehicle_id}" )
+			);
+		}
 
 		// Note: a slow-query monitor was previously hooked here for queries over 1s.
 		// The instrumentation moved into the metrics layer; the empty branch is kept
@@ -1038,7 +1056,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 		$request     = VerifiedRequest::from($_POST);
 		$vehicle_id  = $request->int('vehicle_id');
-		$start_month = $request->text('start_month', gmdate('Y-m'));
+		$start_month = $request->text('start_month', self::current_month());
 		// Bounded: the endpoint is nopriv and this value sizes two day-by-day
 		// loops plus the cache key. See self::MAX_MONTH_SPAN.
 		$months_to_show = $request->intRange('months_to_show', 1, 1, self::MAX_MONTH_SPAN);

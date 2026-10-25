@@ -61,7 +61,7 @@ final class AutoComplete {
 		}
 
 		$limit     = 50;
-		$now_ts    = (int) current_time('timestamp');
+		$now_ts    = time(); // A real instant, as _mhmrentiva_end_ts is.
 		$now_local = current_time('mysql'); // Local time — consistent with _mhmrentiva_dropoff_date
 
 		global $wpdb;

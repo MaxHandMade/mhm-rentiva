@@ -402,7 +402,11 @@ class ReportRepository {
 		global $wpdb;
 		$operations = array();
 		$now        = current_time( 'Y-m-d' );
-		$upper      = $days > 0 ? wp_date( 'Y-m-d', strtotime( "+{$days} days", current_time( 'timestamp' ) ) ) : null;
+		// $days ahead on the site's calendar. strtotime() on current_time('timestamp')
+		// and then wp_date() applied the site offset twice.
+		$upper = $days > 0
+			? ( new \DateTimeImmutable( 'now', wp_timezone() ) )->setTime( 12, 0 )->modify( "+{$days} day" )->format( 'Y-m-d' )
+			: null;
 
 		// Optimize: Suppress errors in case return_date column is missing in older DB versions
 		$wpdb->suppress_errors();

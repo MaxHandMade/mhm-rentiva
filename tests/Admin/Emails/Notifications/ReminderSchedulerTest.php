@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Emails\Notifications;
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Emails\Notifications\ReminderScheduler;
+use MHMRentiva\Tests\Support\SiteClock;
 use WP_UnitTestCase;
 
 /**
@@ -18,6 +20,8 @@ use WP_UnitTestCase;
  */
 class ReminderSchedulerTest extends WP_UnitTestCase
 {
+    use SiteClock;
+
     private function booking(string $status): int
     {
         $id = (int) self::factory()->post->create();
@@ -43,5 +47,33 @@ class ReminderSchedulerTest extends WP_UnitTestCase
     public function test_sends_for_confirmed_booking(): void
     {
         $this->assertTrue(ReminderScheduler::should_send_reminder($this->booking(Status::CONFIRMED)));
+    }
+
+    /**
+     * The reminder is due N hours before the local pickup TIME, not before
+     * the UTC midnight that strtotime() makes of the pickup date.
+     *
+     * Next year's 10 November, so the fixture never drifts into the past
+     * (scheduling refuses a moment already gone).
+     */
+    public function test_reminder_fires_relative_to_pickup_time(): void
+    {
+        $this->pin_site_timezone('Europe/Istanbul');
+
+        $date = ((int) gmdate('Y') + 1) . '-11-10';
+        $id   = $this->booking(Status::CONFIRMED);
+        update_post_meta($id, '_mhmrentiva_pickup_date', $date);
+        update_post_meta($id, '_mhmrentiva_pickup_time', '14:00');
+
+        try {
+            ReminderScheduler::schedule_reminder($id);
+
+            $this->assertSame(
+                SiteTime::instant($date, '14:00') - DAY_IN_SECONDS,
+                wp_next_scheduled('mhmrentiva_send_booking_reminder', array( $id ))
+            );
+        } finally {
+            wp_clear_scheduled_hook('mhmrentiva_send_booking_reminder', array( $id ));
+        }
     }
 }

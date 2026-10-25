@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Utilities\Dashboard;
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Core\Services\TrendMath;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -764,14 +765,18 @@ final class DashboardService {
 
 	/**
 	 * Get revenue data for Chart.js
+	 *
+	 * Days and weeks are the site's calendar, as post_date is.
+	 *
+	 * @param int|null $now Only for tests; production callers omit it.
 	 */
-	public static function get_revenue_data(): array {
+	public static function get_revenue_data( ?int $now = null ): array {
 		global $wpdb;
 
 		$revenue_data = array();
 		for ( $i = 6; $i >= 0; $i-- ) {
-			// Use WordPress local time so DATE(post_date) comparison is consistent
-			$date    = wp_date( 'Y-m-d', strtotime( "-{$i} days", current_time( 'timestamp' ) ) );
+			// The site's calendar day, so DATE(post_date) (local) compares like with like
+			$date    = SiteTime::days_ago( $i, $now );
 			$revenue = (float) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
@@ -803,8 +808,9 @@ final class DashboardService {
 			);
 		}
 
-		$this_week_start = wp_date( 'Y-m-d', strtotime( 'monday this week', current_time( 'timestamp' ) ) );
-		$this_week_end   = wp_date( 'Y-m-d', strtotime( 'sunday this week', current_time( 'timestamp' ) ) );
+		$local_now       = ( new \DateTimeImmutable( '@' . ( $now ?? time() ) ) )->setTimezone( wp_timezone() );
+		$this_week_start = $local_now->modify( 'monday this week' )->format( 'Y-m-d' );
+		$this_week_end   = $local_now->modify( 'sunday this week' )->format( 'Y-m-d' );
 
 		$weekly_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
@@ -831,8 +837,8 @@ final class DashboardService {
 			)
 		);
 
-		$last_week_start = wp_date( 'Y-m-d', strtotime( 'monday last week', current_time( 'timestamp' ) ) );
-		$last_week_end   = wp_date( 'Y-m-d', strtotime( 'sunday last week', current_time( 'timestamp' ) ) );
+		$last_week_start = $local_now->modify( 'monday last week' )->format( 'Y-m-d' );
+		$last_week_end   = $local_now->modify( 'sunday last week' )->format( 'Y-m-d' );
 
 		$last_weekly_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
