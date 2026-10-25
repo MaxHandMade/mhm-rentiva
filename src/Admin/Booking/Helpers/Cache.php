@@ -19,9 +19,29 @@ final class Cache {
 
 	/**
 	 * Generate cache key
+	 *
+	 * The cached answer carries a total price, so the key also carries a
+	 * fingerprint of the pricing settings: saving a new multiplier lands on a
+	 * new key instead of serving the old total until the entry expires. The
+	 * `mhmrentiva_avail_<vehicle>_` prefix is unchanged, so invalidateVehicle()
+	 * still matches.
 	 */
 	private static function generateKey( int $vehicle_id, int $start_ts, int $end_ts ): string {
-		return sprintf( 'mhmrentiva_avail_%d_%d_%d', $vehicle_id, $start_ts, $end_ts );
+		return sprintf( 'mhmrentiva_avail_%d_%d_%d_%s', $vehicle_id, $start_ts, $end_ts, self::pricing_fingerprint() );
+	}
+
+	/**
+	 * Short hash of every setting RentalPricing reads.
+	 */
+	private static function pricing_fingerprint(): string {
+		$pricing = array(
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_base_price', 1.0 ),
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_weekend_multiplier', 1.2 ),
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_seasonal_pricing', '0' ),
+			\MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multipliers(),
+		);
+
+		return substr( md5( (string) wp_json_encode( $pricing ) ), 0, 8 );
 	}
 
 	/**
