@@ -26,8 +26,67 @@
                 // Expected on FSE pages where vehicle interactions data is not localized
                 return;
             }
+            // The favourite button keeps .mhm-vehicle-favorite-btn on the front-end
+            // standard card too ([data-rvs-fav]); the old classes also serve the
+            // Pro transfer card and the booking form's vehicle summary.
             $(document).on('click', '.mhm-vehicle-favorite-btn', RentivaInteractions.toggleFavorite);
             $(document).on('click', '.mhm-vehicle-compare-btn', RentivaInteractions.toggleCompare);
+            // The standard card's compare control is a checkbox.
+            $(document).on('change', 'input[data-rvs-compare]', RentivaInteractions.toggleCompareCheckbox);
+        },
+
+        toggleCompareCheckbox: function () {
+            const $box = $(this);
+            const vehicleId = $box.data('vehicle-id');
+            const nonce = $box.data('nonce') || mhmrentiva_vars.nonce;
+            const wanted = $box.prop('checked');
+
+            if ($box.data('busy')) {
+                $box.prop('checked', !wanted);
+                return;
+            }
+            $box.data('busy', true);
+
+            const idempotencyKey = wanted ? `compare:add:${vehicleId}` : `compare:remove:${vehicleId}`;
+            MHMRentivaToast.show(wanted ? t('adding_compare', 'Adding to comparison...') : t('removing_compare', 'Removing from comparison...'), {
+                type: 'info',
+                idempotencyKey: idempotencyKey,
+                duration: 0
+            });
+
+            $.ajax({
+                url: mhmrentiva_vars.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'mhmrentiva_toggle_compare',
+                    vehicle_id: vehicleId,
+                    nonce: nonce
+                },
+                success: function (response) {
+                    $box.data('busy', false);
+                    if (!response.success) {
+                        $box.prop('checked', !wanted);
+                        MHMRentivaToast.show((response.data && response.data.message) || 'Error', { type: 'error' });
+                        return;
+                    }
+                    const isInCompare = !!response.data.is_in_compare;
+                    $box.prop('checked', isInCompare);
+
+                    const options = { type: 'success', idempotencyKey: idempotencyKey, duration: 3000 };
+                    if (isInCompare && mhmrentiva_vars.compare_page_url) {
+                        options.action = {
+                            label: t('view_comparison', 'View comparison'),
+                            href: mhmrentiva_vars.compare_page_url
+                        };
+                    }
+                    MHMRentivaToast.show(isInCompare ? t('added_to_compare', 'Added to comparison.') : t('removed_from_compare', 'Removed from comparison.'), options);
+                },
+                error: function () {
+                    $box.data('busy', false);
+                    $box.prop('checked', !wanted);
+                    MHMRentivaToast.show('Network error', { type: 'error' });
+                }
+            });
         },
 
         toggleFavorite: function (e) {
@@ -81,9 +140,9 @@
                             // Handling "My Favorites" page: Remove card from DOM
                             const $wrapper = $btn.closest('.mhm-my-favorites-container, .rv-my-favorites-wrapper');
                             if ($wrapper.length) {
-                                $btn.closest('.mhm-vehicle-card').fadeOut(400, function () {
+                                $btn.closest('[data-rvs-card], .mhm-vehicle-card').fadeOut(400, function () {
                                     $(this).remove();
-                                    if ($wrapper.find('.mhm-vehicle-card').length === 0) {
+                                    if ($wrapper.find('[data-rvs-card], .mhm-vehicle-card').length === 0) {
                                         location.reload();
                                     }
                                 });
