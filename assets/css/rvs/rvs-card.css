@@ -103,6 +103,23 @@
 	min-height: 0;
 }
 
+/* In a slider (featured vehicles) every slide stretches to the tallest and
+   the card fills its slide, so a two-line title does not leave the other
+   cards short; the price row sits at the bottom of each card. */
+.rvs-shell .swiper-wrapper {
+	align-items: stretch;
+}
+
+.rvs-shell .swiper-slide {
+	display: flex;
+	height: auto;
+}
+
+.rvs-shell .swiper-slide > .rvs-card {
+	flex: 1;
+	width: 100%;
+}
+
 /* Card --------------------------------------------------------------------- */
 
 /* The card sets its own type: a surface wrapper (the featured slider's, a
