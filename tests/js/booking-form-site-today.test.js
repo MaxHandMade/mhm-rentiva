@@ -61,4 +61,56 @@ describe( 'booking form: limits start from the site today', () => {
 		window.mhmRentivaBookingForm = {};
 		expect( BookingForm.siteToday() ).toBe( BookingForm.localIso( new Date() ) );
 	} );
+
+	test( 'advance booking limit counts from the site today', () => {
+		const calls = [];
+		$.fn.datepicker = function ( arg ) {
+			if ( arg && typeof arg === 'object' ) {
+				calls.push( arg );
+			}
+			return this;
+		};
+		window.mhmRentivaBookingForm = {
+			siteToday: '2026-11-02',
+			config: { advance_booking_days: 30 },
+			datepicker_options: { dateFormat: 'yy-mm-dd', minDate: 0, maxDate: 365 },
+		};
+		document.body.innerHTML = '<div class="rv-booking-form-wrapper"><input class="rv-date-input"></div>';
+		const form = Object.create( BookingForm.prototype );
+		form.container = $( '.rv-booking-form-wrapper' );
+		form.initializeDatePickers();
+
+		expect( calls.length ).toBe( 1 );
+		expect( BookingForm.localIso( calls[ 0 ].maxDate ) ).toBe( '2026-12-02' );
+		expect( BookingForm.localIso( calls[ 0 ].minDate ) ).toBe( '2026-11-02' );
+	} );
+
+	test( 'pickup change: return min is pickup + 1 day, default days prefill', () => {
+		const parse = ( v ) => BookingForm.localDate( v );
+		const state = {};
+		$.fn.datepicker = function ( action, a, b ) {
+			if ( action === 'getDate' ) {
+				return this.val() ? parse( this.val() ) : null;
+			}
+			if ( action === 'setDate' ) {
+				this.val( a ? BookingForm.localIso( a ) : '' );
+			}
+			if ( action === 'option' ) {
+				state[ a ] = b;
+			}
+			return this;
+		};
+		document.body.innerHTML = '<div class="rv-booking-form-wrapper"><input class="rv-pickup-date"><input class="rv-dropoff-date"></div>';
+		const form = Object.create( BookingForm.prototype );
+		form.container = $( '.rv-booking-form-wrapper' );
+		form.autoCheckAvailability = jest.fn();
+		form.defaultReturnDays = () => 3;
+		form.setupDateValidation();
+
+		$( '.rv-pickup-date' ).val( '2026-11-02' ).trigger( 'change' );
+
+		expect( $( '.rv-dropoff-date' ).attr( 'min' ) ).toBe( '2026-11-03' );
+		expect( BookingForm.localIso( state.minDate ) ).toBe( '2026-11-03' );
+		expect( $( '.rv-dropoff-date' ).val() ).toBe( '2026-11-05' );
+	} );
 } );

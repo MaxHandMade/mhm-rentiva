@@ -408,7 +408,8 @@
                     const originalValue = $input.val();
 
                     if (window.mhmRentivaBookingForm?.config?.advance_booking_days) {
-                        options.maxDate = '+' + window.mhmRentivaBookingForm.config.advance_booking_days + 'd';
+                        // A '+Nd' string would count from the browser's today.
+                        options.maxDate = MHMRentivaBookingForm.localDate(MHMRentivaBookingForm.addDays(MHMRentivaBookingForm.siteToday(), Number(window.mhmRentivaBookingForm.config.advance_booking_days)));
                     }
 
                     // Destroy existing instances to prevent "Missing instance data" errors
