@@ -133,6 +133,8 @@ src/Admin/Frontend/Shortcodes/ContactMessagePostType.php
 src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
 src/Admin/Frontend/Shortcodes/Core/BookingUrl.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
+src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php
+src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php
 src/Admin/Frontend/Shortcodes/SearchResults.php
 src/Admin/Frontend/Shortcodes/Testimonials.php
 src/Admin/Frontend/Shortcodes/UnifiedSearch.php
