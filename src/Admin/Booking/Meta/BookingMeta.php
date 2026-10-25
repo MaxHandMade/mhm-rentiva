@@ -1167,19 +1167,34 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		$days         = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($datetimes['start_ts'], $datetimes['end_ts']);
-		$addon_ids    = array_map('intval', (array) ( get_post_meta($booking_id, '_mhmrentiva_selected_addons', true) ?: array() ));
+		$selection    = \MHMRentiva\Admin\Addons\AddonSelection::for_booking($booking_id);
 		$payment_type = (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
 
 		$result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit(
 			$vehicle_id,
 			$days,
 			'full' === $payment_type ? 'full' : 'deposit',
-			$addon_ids,
-			$datetimes['start_ts']
+			$selection->ids(),
+			$datetimes['start_ts'],
+			$selection->quantities()
 		);
 		if (empty($result['success'])) {
 			return;
 		}
+
+		// The detail rows follow the new total, so the order, the account page
+		// and the report do not keep the lines of the window before the edit.
+		update_post_meta(
+			$booking_id,
+			'_mhmrentiva_addon_details',
+			\MHMRentiva\Admin\Addons\AddonManager::build_addon_details(
+				$selection->ids(),
+				array(
+					'rental_days'      => $days,
+					'addon_quantities' => $selection->quantities(),
+				)
+			)
+		);
 
 		$total_price = $result['total_amount'];
 

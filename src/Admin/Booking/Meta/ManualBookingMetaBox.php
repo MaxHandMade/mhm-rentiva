@@ -410,6 +410,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				'price'       => get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ) ?: '0',
 				'description' => $addon->post_excerpt,
 				'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
+				'max'         => \MHMRentiva\Admin\Addons\AddonSelection::max_quantity( (int) $addon->ID ),
 			);
 		}
 
@@ -434,6 +435,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
 				echo '<span class="mhm-addon-price-badge">+ ' . esc_html( self::format_addon_price( (float) $addon['price'] ) ) . '</span>';
 				echo '</span>';
+				// Sold more than once: a quantity beside the box (after it, so the
+				// box stays the label's control).
+				if ( $addon['max'] > 1 ) {
+					echo '<input type="number" name="addon_qty[' . esc_attr( (string) $addon['id'] ) . ']" class="mhm-addon-qty small-text" data-addon-id="' . esc_attr( (string) $addon['id'] ) . '" min="1" max="' . esc_attr( (string) $addon['max'] ) . '" step="1" value="1" aria-label="' . esc_attr( sprintf( /* translators: %s: additional service name. */ __( 'Quantity: %s', 'mhm-rentiva' ), $addon['title'] ) ) . '">';
+				}
 				if ( ! empty( $addon['description'] ) ) {
 					echo '<span class="mhm-addon-description">' . esc_html( $addon['description'] ) . '</span>';
 				}
@@ -561,22 +567,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Quoting a price for a service that is switched off would put a figure
 		// on screen the operator cannot then sell. Same refusal as the create
 		// path below, and the same reason the customer form has one.
-		$posted_addons   = isset($_POST['selected_addons']) ? array_map('intval', (array) wp_unslash($_POST['selected_addons'])) : array();
-		$selected_addons = \MHMRentiva\Admin\Addons\AddonManager::filter_sellable($posted_addons);
-		$addon_total     = 0;
+		$posted_addons = isset($_POST['selected_addons']) ? array_map('intval', (array) wp_unslash($_POST['selected_addons'])) : array();
+		$posted_qty    = isset($_POST['addon_qty']) && is_array($_POST['addon_qty']) ? map_deep(wp_unslash($_POST['addon_qty']), 'sanitize_text_field') : array();
+		$selection     = \MHMRentiva\Admin\Addons\AddonSelection::from_input($posted_addons, $posted_qty);
 
-		if (! empty($selected_addons)) {
-			foreach ($selected_addons as $addon_id) {
-				// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
-				$addon_total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
-					(int) $addon_id,
-					array( 'rental_days' => (int) $days )
-				);
-			}
-		}
-
-		// Calculate deposit (including addons)
-		$deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts);
+		// Calculate deposit (including addons and their quantities)
+		$deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selection->ids(), $start_ts, $selection->quantities());
+		$addon_total    = (float) ( $deposit_result['addon_total'] ?? 0 );
 
 		if (! $deposit_result['success']) {
 			wp_send_json_error(array( 'message' => esc_html__('Price could not be calculated.', 'mhm-rentiva') ));
@@ -841,30 +838,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// path is deliberately NOT filtered this way: a booking may already carry
 		// a service switched off since, and filtering there would delete it.
 		$posted_addons   = isset( $_POST['selected_addons'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['selected_addons'] ) ) : array();
-		$selected_addons = \MHMRentiva\Admin\Addons\AddonManager::filter_sellable( $posted_addons );
-		$addon_total     = 0;
-		$addon_details   = array();
-
-		if (! empty($selected_addons)) {
-			foreach ($selected_addons as $addon_id) {
-				// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
-				$line_total             = \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
-					(int) $addon_id,
-					array( 'rental_days' => (int) $days )
-				);
-				$addon_total           += $line_total;
-				$mhmrentiva_addon_price = floatval(get_post_meta($addon_id, 'mhmrentiva_addon_price', true) ?: 0);
-
-				$addon_details[] = array(
-					'id'    => $addon_id,
-					'title' => get_the_title($addon_id),
-					'price' => $mhmrentiva_addon_price,
-				);
-			}
-		}
+		$posted_qty      = isset( $_POST['addon_qty'] ) && is_array( $_POST['addon_qty'] ) ? map_deep( wp_unslash( $_POST['addon_qty'] ), 'sanitize_text_field' ) : array();
+		$selection       = \MHMRentiva\Admin\Addons\AddonSelection::from_input( $posted_addons, $posted_qty );
+		$selected_addons = $selection->ids();
 
 		// Deposit calculation (same as BookingForm.php)
-		$deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts);
+		$deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts, $selection->quantities());
 
 		if (! $deposit_result['success']) {
 			wp_send_json_error(array( 'message' => esc_html__('Price could not be calculated.', 'mhm-rentiva') ));
@@ -985,6 +964,19 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			'system'
 		);
 		update_post_meta($booking_id, '_mhmrentiva_booking_created', '1');
+
+		// The add-on rows, total and quantities, written by the same method the
+		// checkout path reaches through the hook below. That hook receives the
+		// post array here, which has no `selected_addons`, so this screen used
+		// to store no rows at all.
+		\MHMRentiva\Admin\Addons\AddonManager::save_booking_addons(
+			$booking_id,
+			array(
+				'selected_addons'  => $selected_addons,
+				'addon_quantities' => $selection->quantities(),
+				'rental_days'      => $days,
+			)
+		);
 
 		// Trigger email notifications
 		do_action('mhmrentiva_booking_created', $booking_id, $booking_data);

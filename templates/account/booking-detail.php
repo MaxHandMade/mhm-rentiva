@@ -267,11 +267,18 @@ if ($is_integrated) {
 						<div class="rv-detail-value">
 							<ul class="rv-addons-list">
 								<?php
+								$addon_selection = \MHMRentiva\Admin\Addons\AddonSelection::for_booking($booking_id);
 								foreach ($selected_addons as $addon_id) :
 									$addon = get_post($addon_id);
 									if ($addon) :
+										$addon_label = \MHMRentiva\Admin\Addons\AddonManager::line_label(
+											array(
+												'title'    => $addon->post_title,
+												'quantity' => $addon_selection->quantity( (int) $addon_id ),
+											)
+										);
 										?>
-										<li><?php echo esc_html($addon->post_title); ?></li>
+										<li><?php echo esc_html($addon_label); ?></li>
 										<?php
 									endif;
 								endforeach;
