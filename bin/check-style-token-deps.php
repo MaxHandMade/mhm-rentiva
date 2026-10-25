@@ -1,6 +1,8 @@
 <?php
 /**
- * Dependency gate for stylesheets that read `--mhm-*` tokens.
+ * Dependency gate for stylesheets that read `--mhm-*` or `--rvs-*` tokens: a
+ * `--mhm-*` reader must reach mhm-rentiva-css-variables, an `--rvs-*` reader
+ * mhm-rentiva-rvs-tokens (the front-end standard, Aşama 2 PR 1).
  *
  * A stylesheet that reads a token must be guaranteed the file that defines it.
  * Measured 2026-08-27: the paid plugin enqueues the free plugin's
@@ -241,8 +243,15 @@ function mhmrentiva_deps_key(array $tokens): ?array
 }
 
 /**
- * @param list<string>          $roots
- * @param array<string, string> $constants constant name => tree root
+ * $canonical is the handle a token-reading stylesheet must reach, per token
+ * family: a string is the `mhm` family's handle (the original contract); an
+ * array maps family => handle, e.g. array('mhm' => 'mhm-rentiva-css-variables',
+ * 'rvs' => 'mhm-rentiva-rvs-tokens'). A stylesheet that reads both families
+ * must reach both handles. A family with no handle in the map is not checked.
+ *
+ * @param list<string>                 $roots
+ * @param array<string, string>        $constants constant name => tree root
+ * @param string|array<string, string> $canonical
  *
  * @return array{
  *     records: list<array{handle: string, file: string, site: string, deps: list<string>, reaches: bool}>,
@@ -251,15 +260,23 @@ function mhmrentiva_deps_key(array $tokens): ?array
  *     scanned: array{php: int, calls: int, token_reading_css: int}
  * }
  */
-function mhmrentiva_style_dependency_report(array $roots, array $constants, string $canonical_handle): array
+function mhmrentiva_style_dependency_report(array $roots, array $constants, $canonical): array
 {
-    $reads  = array();
-    $counts = array('php' => 0, 'calls' => 0, 'token_reading_css' => 0);
+    $canonical_of = is_array($canonical) ? $canonical : array('mhm' => $canonical);
+    $reads        = array();
+    $counts       = array('php' => 0, 'calls' => 0, 'token_reading_css' => 0);
 
     foreach ($roots as $root) {
         foreach (mhmrentiva_walk(mhmrentiva_real(rtrim($root, '/')), 'css') as $file) {
-            if (mhmrentiva_css_consumptions((string) file_get_contents($file))) {
-                $reads[$file] = true;
+            $families = array();
+            foreach (mhmrentiva_css_consumptions((string) file_get_contents($file)) as $token) {
+                $family = mhmrentiva_token_family($token);
+                if (isset($canonical_of[$family])) {
+                    $families[$family] = true;
+                }
+            }
+            if (array() !== $families) {
+                $reads[$file] = array_keys($families);
                 $counts['token_reading_css']++;
             }
         }
@@ -343,7 +360,13 @@ function mhmrentiva_style_dependency_report(array $roots, array $constants, stri
 
     $failures = array();
     foreach ($records as $index => $record) {
-        $reaches = mhmrentiva_reaches($record['handle'], $canonical_handle, $deps_of);
+        // Every family the file reads; a file that reads none keeps the original
+        // meaning of `reaches` (the mhm handle).
+        $reaches = true;
+        foreach ($reads[$record['file']] ?? array('mhm') as $family) {
+            $seen    = array();
+            $reaches = $reaches && isset($canonical_of[$family]) && mhmrentiva_reaches($record['handle'], $canonical_of[$family], $deps_of, $seen);
+        }
         $records[$index]['reaches'] = $reaches;
 
         if (! $reaches && isset($reads[$record['file']])) {
@@ -463,7 +486,10 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     $report = mhmrentiva_style_dependency_report(
         $paths,
         array('MHMRENTIVA_PLUGIN_URL' => $lite, 'MHMRENTIVA_PRO_URL' => $pro),
-        'mhm-rentiva-css-variables'
+        array(
+            'mhm' => 'mhm-rentiva-css-variables',
+            'rvs' => 'mhm-rentiva-rvs-tokens',
+        )
     );
 
     foreach ($report['failures'] as $failure) {

@@ -500,4 +500,54 @@ const T = array('x' => '--mhmui-bp-intruder');
         $this->assertSame('canonical', $classes['--mhm-text']);
         $this->assertArrayNotHasKey('--mhm-admin-only', $classes);
     }
+
+    /**
+     * Aşama 2 PR 1: the gate sees the front-end standard's `--rvs-*` family too.
+     *
+     * @return array<string, string> token => class
+     */
+    private function classify_with_rvs_home(string $root): array
+    {
+        require_once dirname(__DIR__, 2) . '/bin/check-token-definitions.php';
+
+        $report = mhmrentiva_classify_tokens(
+            array($root),
+            array($root . '/assets/css/core/css-variables.css', $root . '/assets/css/rvs/rvs-tokens.css')
+        );
+
+        return array_map(static fn (array $row): string => $row['class'], $report['tokens']);
+    }
+
+    public function test_rvs_tokens_declared_in_their_home_are_canonical(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-primary: #2271b1; }\n",
+            'assets/css/rvs/rvs-tokens.css'     => ".rvs-shell { --rvs-text: #201e1d; }\n",
+            'assets/css/rvs/rvs-shell.css'      => ".rvs-shell { color: var(--rvs-text); }\n",
+        ));
+
+        $this->assertSame('canonical', $this->classify_with_rvs_home($root)['--rvs-text']);
+    }
+
+    public function test_an_rvs_token_read_but_never_declared_is_an_orphan(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-primary: #2271b1; }\n",
+            'assets/css/rvs/rvs-tokens.css'     => ".rvs-shell { --rvs-text: #201e1d; }\n",
+            'assets/css/rvs/rvs-shell.css'      => ".rvs-shell { color: var(--rvs-missing); }\n",
+        ));
+
+        $this->assertSame('orphan', $this->classify_with_rvs_home($root)['--rvs-missing']);
+    }
+
+    public function test_an_rvs_token_redeclared_outside_its_home_is_shared(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/core/css-variables.css' => ":root { --mhm-primary: #2271b1; }\n",
+            'assets/css/rvs/rvs-tokens.css'     => ".rvs-shell { --rvs-text: #201e1d; }\n",
+            'assets/css/rvs/rvs-card.css'       => ".rvs-card { --rvs-text: #000; color: var(--rvs-text); }\n",
+        ));
+
+        $this->assertSame('shared', $this->classify_with_rvs_home($root)['--rvs-text'], 'A second home is the defect the gate exists to fail.');
+    }
 }
