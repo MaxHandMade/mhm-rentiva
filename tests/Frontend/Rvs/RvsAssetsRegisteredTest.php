@@ -150,4 +150,14 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertContains('mhm-rentiva-rvs-breakdown', wp_styles()->to_do);
 		$this->assertContains('mhm-rentiva-rvs-tokens', wp_styles()->to_do);
 	}
+
+	public function test_calendar_cells_match_the_canvas(): void
+	{
+		$css = self::css('assets/css/rvs/rvs-calendar.css');
+		$this->assertMatchesRegularExpression('/\.rvs-cal__grid \{[^}]*border-spacing: 4px;/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-cal__day \{[^}]*height: 36px;/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-available \{[^}]*background: var\(--rvs-raised\);/', $css);
+		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-booked \{[^}]*background: var\(--rvs-n-200\);/', $css);
+		$this->assertMatchesRegularExpression('/@media \(max-width: 768px\) \{[^@]*\.rvs-cal__day \{[^}]*height: 44px;/', $css);
+	}
 }

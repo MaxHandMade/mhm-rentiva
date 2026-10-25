@@ -40,9 +40,8 @@ $mhmrentiva_cal_title = (string) $mhmrentiva_cal['id'] . '-title';
 							<?php
 							$mhmrentiva_state   = (string) $mhmrentiva_cell['state'];
 							$mhmrentiva_classes = 'rvs-cal__day is-' . $mhmrentiva_state . ( ! empty($mhmrentiva_cell['today']) ? ' is-today' : '' );
-							$mhmrentiva_off     = in_array($mhmrentiva_state, array( 'booked', 'past' ), true);
 							?>
-							<td class="<?php echo esc_attr($mhmrentiva_classes); ?>" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>" aria-label="<?php echo esc_attr( (string) $mhmrentiva_cell['label']); ?>"<?php echo $mhmrentiva_off ? ' aria-disabled="true"' : ''; ?><?php echo ! empty($mhmrentiva_cell['today']) ? ' aria-current="date"' : ''; ?>><span class="rvs-cal__num" aria-hidden="true"><?php echo esc_html( (string) $mhmrentiva_cell['day']); ?></span></td>
+							<td class="<?php echo esc_attr($mhmrentiva_classes); ?>" data-date="<?php echo esc_attr( (string) $mhmrentiva_cell['date']); ?>"<?php echo ! empty($mhmrentiva_cell['today']) ? ' aria-current="date"' : ''; ?>><span class="rvs-cal__num"><?php echo esc_html( (string) $mhmrentiva_cell['day']); ?></span><span class="rvs-sr-only">, <?php echo esc_html( (string) $mhmrentiva_cell['status']); ?></span></td>
 						<?php endif; ?>
 					<?php endforeach; ?>
 				</tr>

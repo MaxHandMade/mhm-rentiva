@@ -115,10 +115,23 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$this->assertStringContainsString('id="' . $cal['id'] . '-title"', $html);
 		$this->assertStringContainsString('aria-labelledby="' . $cal['id'] . '-title"', $html);
 		$this->assertSame(7, substr_count($html, '<th scope="col"'));
-		$this->assertMatchesRegularExpression('/<td[^>]*data-date="2027-07-20"[^>]*aria-disabled="true"/', $html);
-		$this->assertMatchesRegularExpression('/<td[^>]*data-date="2027-07-14"[^>]*aria-disabled="true"/', $html);
-		$this->assertDoesNotMatchRegularExpression('/<td[^>]*data-date="2027-07-22"[^>]*aria-disabled/', $html);
+		// The visible number stays readable; the state is spoken text, not an
+		// attribute a `cell` may not carry (Fable PR A I2).
+		$this->assertStringNotContainsString('aria-hidden', $html);
+		$this->assertStringNotContainsString('aria-disabled', $html);
+		$this->assertMatchesRegularExpression('/data-date="2027-07-20"[^>]*><span class="rvs-cal__num">20<\/span><span class="rvs-sr-only">, Booked<\/span>/', $html);
+		$this->assertMatchesRegularExpression('/data-date="2027-07-14"[^>]*>.*?<span class="rvs-sr-only">, Past<\/span>/s', $html);
 		$this->assertStringContainsString('is-today', $html);
 		$this->assertStringContainsString('data-rvs-calendar', $html);
+	}
+
+	public function test_day_label_keeps_its_date_east_of_utc_plus_12(): void
+	{
+		update_option('timezone_string', 'Pacific/Auckland');
+		$days = self::days(RvsCalendar::month(2027, 7, array(), '2027-07-01'));
+		delete_option('timezone_string');
+
+		$expected = wp_date((string) get_option('date_format'), gmmktime(12, 0, 0, 7, 20, 2027), new \DateTimeZone('UTC'));
+		$this->assertStringStartsWith($expected, $days[20]['label']);
 	}
 }

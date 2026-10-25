@@ -21,12 +21,15 @@ final class RvsCalendar {
 	 * @param array<int, string> $booked   Booked days, `Y-m-d`.
 	 * @param string             $today    Today, `Y-m-d` (the caller's clock, so tests and the site agree).
 	 * @param array<int, string> $selected Start and end, `Y-m-d`; one value selects one day.
-	 * @return array{id: string, year: int, month: int, label: string, weekdays: list<array{short: string, long: string}>, weeks: list<list<array{date: string, day: int, state: string, today: bool, label: string}|null>>}
+	 * @return array{id: string, year: int, month: int, label: string, weekdays: list<array{short: string, long: string}>, weeks: list<list<array{date: string, day: int, state: string, today: bool, status: string, label: string}|null>>}
 	 */
 	public static function month(int $year, int $month, array $booked, string $today, array $selected = array()): array
 	{
 		global $wp_locale;
 
+		// Dates are calendar days, not moments: format them in UTC so a site east of
+		// UTC+12 does not label the 20th as the 21st.
+		$utc        = new \DateTimeZone('UTC');
 		$week_start = (int) get_option('start_of_week', 1);
 		$first      = gmmktime(12, 0, 0, $month, 1, $year);
 		$days       = (int) gmdate('t', $first);
@@ -59,14 +62,15 @@ final class RvsCalendar {
 				$state = 'available';
 			}
 			$cells[] = array(
-				'date'  => $date,
-				'day'   => $day,
-				'state' => $state,
-				'today' => $date === $today,
-				'label' => sprintf(
+				'date'   => $date,
+				'day'    => $day,
+				'state'  => $state,
+				'today'  => $date === $today,
+				'status' => self::state_text($state),
+				'label'  => sprintf(
 					/* translators: 1: a date, 2: its availability (Available, Booked, Selected or Past). */
 					__('%1$s, %2$s', 'mhm-rentiva'),
-					wp_date( (string) get_option('date_format'), gmmktime(12, 0, 0, $month, $day, $year)),
+					wp_date( (string) get_option('date_format'), gmmktime(12, 0, 0, $month, $day, $year), $utc),
 					self::state_text($state)
 				),
 			);
@@ -78,7 +82,7 @@ final class RvsCalendar {
 			'id'       => wp_unique_id('rvs-cal-'),
 			'year'     => $year,
 			'month'    => $month,
-			'label'    => (string) wp_date('F Y', $first),
+			'label'    => (string) wp_date('F Y', $first, $utc),
 			'weekdays' => $weekdays,
 			'weeks'    => array_chunk($cells, 7),
 		);
