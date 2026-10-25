@@ -206,6 +206,7 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Changed: booking-form prices follow WooCommerce's tax display. Rentiva's own tax settings (Vehicle settings > Tax Inclusive Pricing, Tax Rate (%)) are removed; taxes are set in WooCommerce > Settings > Tax. The tax charged does not change.
 * Changed: the search strip has no tabs, and its "Show Rental Tab" option is gone from the block and the Elementor widget. Elementor's generated CSS is rebuilt once on update, so saved vehicle-card styles reach the new card.
 * Fixed: with page caching for visitors, one visitor's filtered, paged or dated results are no longer shown to another.
+* Fixed: the booking form shows the vehicle's seats, transmission and fuel under its name again; the vehicle-details main photo fills its frame on Elementor pages; featured-vehicle slider cards are equally tall.
 
 = 6.3.1 =
 * Fixed: pages built with Elementor are found, so "Book now" buttons and other links no longer fall back to the home page and Shortcode Pages no longer lists them as missing. A page with the shortcode or block in its content still wins. On Elementor sites whose vehicle-details page is now found, vehicle pages move under that page, with a 301 from /vehicle/...
