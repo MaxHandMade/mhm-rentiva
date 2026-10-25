@@ -201,6 +201,102 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 		);
 	}
 
+	/**
+	 * Store base TR 20%, customer in DE 19%, prices entered with tax: WooCommerce
+	 * re-bases the price for the customer's rate (non-base location adjustment).
+	 */
+	public function test_non_base_location_matches_checkout(): void
+	{
+		foreach ($this->rate_ids as $rate_id) {
+			\WC_Tax::_delete_tax_rate($rate_id);
+		}
+		$this->rate_ids   = array();
+		$this->rate_ids[] = $this->insert_country_rate('TR', '20.0000');
+		$this->rate_ids[] = $this->insert_country_rate('DE', '19.0000');
+		$this->sandbox_option('woocommerce_default_country', 'TR');
+		$this->sandbox_option('woocommerce_prices_include_tax', 'yes');
+		$this->sandbox_option('woocommerce_tax_based_on', 'billing');
+		WC()->customer->set_billing_country('DE');
+		WC()->customer->set_shipping_country('DE');
+
+		try {
+			$shown    = PriceDisplay::for_cart(1002.53)['amount'];
+			$checkout = $this->checkout_total(array( 'payment_type' => 'full', 'total_amount' => 1002.53, 'deposit_amount' => 1002.53 ));
+		} finally {
+			WC()->customer->set_billing_country('TR');
+			WC()->customer->set_shipping_country('TR');
+		}
+
+		$this->assertNotEqualsWithDelta(1002.53, $checkout, 0.001, 'Sanity: the adjustment must change the price in this fixture.');
+		$this->assertEqualsWithDelta($checkout, $shown, 0.0001);
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function entry_conventions(): array
+	{
+		return array(
+			'prices with tax'    => array( 'yes' ),
+			'prices without tax' => array( 'no' ),
+		);
+	}
+
+	/**
+	 * @dataProvider entry_conventions
+	 */
+	public function test_vat_exempt_customer_matches_checkout(string $includes): void
+	{
+		$this->sandbox_option('woocommerce_prices_include_tax', $includes);
+		WC()->customer->set_is_vat_exempt(true);
+
+		try {
+			$shown    = PriceDisplay::for_cart(1002.53)['amount'];
+			$checkout = $this->checkout_total(array( 'payment_type' => 'full', 'total_amount' => 1002.53, 'deposit_amount' => 1002.53 ));
+		} finally {
+			WC()->customer->set_is_vat_exempt(false);
+		}
+
+		$this->assertEqualsWithDelta($checkout, $shown, 0.0001);
+	}
+
+	public function test_suffix_keeps_wc_price_bdi_markup(): void
+	{
+		$suffix = static fn() => ' <small class="woocommerce-price-suffix"><bdi>1.200,00</bdi></small>';
+		add_filter('woocommerce_get_price_suffix', $suffix);
+
+		$out = PriceDisplay::for_cart(1000.0)['suffix'];
+
+		remove_filter('woocommerce_get_price_suffix', $suffix);
+
+		$this->assertStringContainsString('<bdi>1.200,00</bdi>', $out);
+	}
+
+	public function test_exclusive_deposit_carries_the_tax_label(): void
+	{
+		$this->sandbox_option('woocommerce_tax_display_cart', 'excl');
+
+		$this->assertStringContainsString('tax_label', PriceDisplay::for_cart(390.0)['tax_label']);
+
+		$this->sandbox_option('woocommerce_tax_display_cart', 'incl');
+		$this->assertSame('', PriceDisplay::for_cart(390.0)['tax_label']);
+	}
+
+	private function insert_country_rate(string $country, string $rate): int
+	{
+		return (int) \WC_Tax::_insert_tax_rate(array(
+			'tax_rate_country'  => $country,
+			'tax_rate_state'    => '',
+			'tax_rate'          => $rate,
+			'tax_rate_name'     => 'VAT ' . $country,
+			'tax_rate_priority' => 1,
+			'tax_rate_compound' => 0,
+			'tax_rate_shipping' => 1,
+			'tax_rate_order'    => 1,
+			'tax_rate_class'    => '',
+		));
+	}
+
 	public function test_full_payment_quote_equals_checkout_total(): void
 	{
 		$quote = $this->quote('full');

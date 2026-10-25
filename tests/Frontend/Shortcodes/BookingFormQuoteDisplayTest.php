@@ -156,10 +156,10 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 		$data  = $this->calculate_price();
 		$lines = $data['display_lines'];
 
-		$this->assertEqualsWithDelta(1200.0, (float) $lines['vehicle_price'], 0.01, 'Daily price shown with tax (1000 x 1.2).');
+		$this->assertEqualsWithDelta(1200.0, (float) $lines['vehicle_price']['amount'], 0.01, 'Daily price shown with tax (1000 x 1.2).');
 		$this->assertEqualsWithDelta(
 			(float) $data['display_total']['amount'],
-			(float) $lines['vehicle_total'] + (float) $lines['addon_total'],
+			(float) $lines['vehicle_total']['amount'] + (float) $lines['addon_total']['amount'],
 			0.01
 		);
 	}

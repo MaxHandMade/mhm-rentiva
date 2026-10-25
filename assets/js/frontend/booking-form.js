@@ -791,16 +791,27 @@
         updatePriceDisplay(data) {
             const currencySymbol = data.currency_symbol || this.getConfig('currency_symbol');
 
-            // Breakdown rows in the total's convention (display_lines), so on a
-            // store entering prices without tax they still add up to the total.
-            const line = (key) => (data.display_lines && data.display_lines[key] !== undefined ? data.display_lines[key] : data[key]);
+            // Every amount comes through WooCommerce's tax display: its wc_price()
+            // markup, so a figure reads exactly as the checkout writes it --
+            // decimals included, which the whole-unit formatter would round away
+            // ("$401" for a $400,80 charge). The breakdown rows (display_lines)
+            // use the same convention as the total, so they add up to it on a
+            // store that enters prices without tax.
+            const put = ($el, shown, raw) => {
+                if (shown && typeof shown.html === 'string' && shown.html !== '') {
+                    $el.html(shown.html);
+                } else {
+                    $el.text(this.formatMoney(raw, currencySymbol));
+                }
+            };
+            const lines = data.display_lines || {};
 
-            this.priceElements.dailyPrice.text(this.formatMoney(line('vehicle_price'), currencySymbol));
+            put(this.priceElements.dailyPrice, lines.vehicle_price, data.vehicle_price);
 
             this.priceElements.daysCount.text(data.days);
 
             if (data.weekend_extra && data.weekend_extra > 0) {
-                this.priceElements.weekendDiffAmount.text(this.formatMoney(line('weekend_extra'), currencySymbol));
+                put(this.priceElements.weekendDiffAmount, lines.weekend_extra, data.weekend_extra);
                 this.container.find('.rv-weekend-summary').removeClass('rv-hidden');
             } else {
                 this.container.find('.rv-weekend-summary').addClass('rv-hidden');
@@ -810,34 +821,31 @@
             const showDetailedBreakdown = hasAddons;
 
             if (showDetailedBreakdown) {
-                this.priceElements.vehicleTotal.text(this.formatMoney(line('vehicle_total'), currencySymbol));
+                put(this.priceElements.vehicleTotal, lines.vehicle_total, data.vehicle_total);
                 this.container.find('.rv-vehicle-total-detailed').removeClass('rv-hidden');
             } else {
                 this.container.find('.rv-vehicle-total-detailed').addClass('rv-hidden');
             }
 
             if (hasAddons) {
-                this.priceElements.addonsTotal.text(this.formatMoney(line('addon_total'), currencySymbol));
+                put(this.priceElements.addonsTotal, lines.addon_total, data.addon_total);
                 this.container.find('.rv-addons-price').removeClass('rv-hidden');
             } else {
                 this.container.find('.rv-addons-price').addClass('rv-hidden');
             }
 
-            // The amounts due come through WooCommerce's tax display (display_*):
-            // its wc_price() markup, so the figure reads exactly as the checkout
-            // writes it -- decimals included, which the whole-unit formatter
-            // would round away ("$401" for a $400,80 charge).
+            // An amount due; a tax-exclusive one also says so ("(ex. VAT)"),
+            // built and escaped server-side.
             const putDue = ($el, key, raw) => {
-                if (data[key] && typeof data[key].html === 'string' && data[key].html !== '') {
-                    $el.html(data[key].html);
-                } else {
-                    $el.text(this.formatMoney(raw, currencySymbol));
+                put($el, data[key], raw);
+                if (data[key] && data[key].tax_label) {
+                    $el.append(data[key].tax_label);
                 }
             };
 
-            putDue(this.priceElements.totalAmount, 'display_total', data.total_price);
-            // WooCommerce's own price suffix, inline after the total as WooCommerce
-            // writes it (built server-side: wp_kses_post'd suffix + escaped label).
+            put(this.priceElements.totalAmount, data.display_total, data.total_price);
+            // WooCommerce's own price suffix (with the ex-tax label when it
+            // applies), inline after the total as WooCommerce writes it.
             if (data.price_suffix) {
                 this.priceElements.totalAmount.append(data.price_suffix);
             }
