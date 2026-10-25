@@ -69,27 +69,34 @@ final class RvsCardView {
 				'average' => $rating_avg,
 				'count'   => $rating_count,
 				'label'   => $rating_count > 0
-					/* translators: 1: average rating, 2: number of reviews. */
-					? sprintf(__('★ %1$s (%2$d)', 'mhm-rentiva'), number_format_i18n($rating_avg, 1), $rating_count)
+					/* translators: %s: average rating, e.g. 4.8. */
+					? sprintf(__('★ %s', 'mhm-rentiva'), number_format_i18n($rating_avg, 1))
 					: __('New', 'mhm-rentiva'),
+				// The review count is the card's show_rating_count setting (default off).
+				'show_count' => $rating_count > 0 && self::toggle($atts, 'show_rating_count', array(), false),
 			),
+			'description'       => self::toggle($atts, 'show_description', array(), false) ? (string) ( $vehicle['excerpt'] ?? '' ) : '',
 			'specs'             => self::specs($vehicle_id),
 			'terms'             => self::terms($vehicle_id),
 			'price'             => self::price($vehicle_id, $dates),
 			'available'         => $available,
+			// The status badge is its own setting (show_availability_status, default
+			// off); `show_availability` is not read, as on the old card.
+			'status'            => self::toggle($atts, 'show_availability_status', array(), false)
+				? (string) ( $vehicle['availability']['text'] ?? ( $available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva') ) )
+				: '',
 			'booking'           => array(
 				'show'  => $on('show_booking_button', 'show_book_button', 'show_booking_btn'),
 				'url'   => VehicleCardLinks::booking_url($vehicle, $atts, $dates),
-				'label' => $available ? self::booking_label($atts) : __('Not available', 'mhm-rentiva'),
+				'label' => $available ? self::booking_label($atts) : __('Unavailable', 'mhm-rentiva'),
 			),
 			'favorite'          => array(
 				'show'   => $on('show_favorite_button', 'show_favorite_btn', 'show_favorite'),
-				'active' => (bool) ( $vehicle['is_favorite'] ?? false ),
+				'active' => self::is_favorite($vehicle, $vehicle_id),
 			),
 			'compare'           => array(
 				'show'   => $on('show_compare_button', 'show_compare_btn'),
-				'active' => $vehicle_id > 0 && class_exists(\MHMRentiva\Admin\Services\CompareService::class)
-					&& \MHMRentiva\Admin\Services\CompareService::is_in_compare($vehicle_id),
+				'active' => self::is_compared($vehicle, $vehicle_id),
 			),
 			'show'              => array(
 				'image'    => $on('show_image', 'show_images'),
@@ -103,12 +110,12 @@ final class RvsCardView {
 	}
 
 	/**
-	 * A toggle read under its canonical name, then its aliases; default on.
+	 * A toggle read under its canonical name, then its aliases; $default when absent.
 	 *
 	 * @param array<string, mixed> $atts
 	 * @param list<string>         $aliases
 	 */
-	private static function toggle(array $atts, string $key, array $aliases): bool
+	private static function toggle(array $atts, string $key, array $aliases, bool $default = true): bool
 	{
 		foreach (array_merge(array( $key ), $aliases) as $name) {
 			if (array_key_exists($name, $atts)) {
@@ -120,7 +127,42 @@ final class RvsCardView {
 			}
 		}
 
-		return true;
+		return $default;
+	}
+
+	/**
+	 * Favourite state, as the old card base decides it: a sample card in the
+	 * favourites preview (`preview_neutral`) shows the state that page always
+	 * shows -- favourite -- without revealing the editor's own list; otherwise
+	 * the signed-in user's favourites.
+	 *
+	 * @param array<string, mixed> $vehicle
+	 */
+	private static function is_favorite(array $vehicle, int $vehicle_id): bool
+	{
+		if (! empty($vehicle['preview_neutral'])) {
+			return true;
+		}
+		$user_id = get_current_user_id();
+		if ($user_id > 0 && $vehicle_id > 0 && class_exists(\MHMRentiva\Admin\Services\FavoritesService::class)) {
+			return \MHMRentiva\Admin\Services\FavoritesService::is_favorite($user_id, $vehicle_id);
+		}
+
+		return (bool) ( $vehicle['is_favorite'] ?? false );
+	}
+
+	/**
+	 * Compare state; never the editor's own list on a preview sample card.
+	 *
+	 * @param array<string, mixed> $vehicle
+	 */
+	private static function is_compared(array $vehicle, int $vehicle_id): bool
+	{
+		if (! empty($vehicle['preview_neutral']) || $vehicle_id <= 0 || ! class_exists(\MHMRentiva\Admin\Services\CompareService::class)) {
+			return false;
+		}
+
+		return \MHMRentiva\Admin\Services\CompareService::is_in_compare($vehicle_id);
 	}
 
 	/**
@@ -283,7 +325,9 @@ final class RvsCardView {
 	}
 
 	/**
-	 * The booking button's label: the shortcode's own text, else the site setting.
+	 * The booking button's label -- the old card's rule, kept: the shortcode's
+	 * own text, else the `booking_btn_text` carrier (the operator's global
+	 * "Book now" text), else that global text, else "Book Now".
 	 *
 	 * @param array<string, mixed> $atts
 	 */
@@ -296,6 +340,8 @@ final class RvsCardView {
 			}
 		}
 
-		return __('Select', 'mhm-rentiva');
+		$setting = trim( (string) SettingsCore::get('mhmrentiva_text_book_now', '') );
+
+		return '' !== $setting ? $setting : __('Book Now', 'mhm-rentiva');
 	}
 }

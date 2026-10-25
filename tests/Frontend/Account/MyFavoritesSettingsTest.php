@@ -240,14 +240,14 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 		$this->save($this->catalog);
 
 		foreach (array( 'shortcode' => $this->shortcode('layout="list"'), 'block' => $this->block(array( 'layout' => 'list' )), 'widget' => $this->widget(array( 'layout' => 'list' )) ) as $surface => $html) {
-			$this->assertStringContainsString('rv-vehicles-grid--columns-1 rv-vehicles-grid--list"', $html, "$surface: list variant class.");
+			// The front-end standard's single-column list (Aşama 2 PR 2).
+			$this->assertStringContainsString('<div class="rvs-card-list"', $html, "$surface: list variant.");
 		}
-		$this->assertStringNotContainsString('rv-vehicles-grid--list', $this->shortcode(''));
-		$this->assertStringNotContainsString('rv-vehicles-grid--list', do_shortcode('[rentiva_vehicles_grid columns="1"]'));
+		$this->assertStringNotContainsString('rvs-card-list', $this->shortcode(''));
+		$this->assertStringNotContainsString('rvs-card-list', do_shortcode('[rentiva_vehicles_grid columns="1"]'));
 
-		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/vehicles-grid.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
-		$this->assertMatchesRegularExpression('/\.rv-vehicles-grid\.rv-vehicles-grid--list\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\) !important;/', $css);
-		$this->assertStringNotContainsString('.rv-vehicles-grid.rv-vehicles-grid--columns-1', $css);
+		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/rvs/rvs-card.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local plugin asset.
+		$this->assertMatchesRegularExpression('/\.rvs-card-list\s*\{[^}]*flex-direction:\s*column/', $css);
 	}
 
 	/**
@@ -284,7 +284,7 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 
 		foreach (array( 'shortcode' => $this->shortcode(''), 'block' => $this->block(array()), 'widget' => $this->widget(array()) ) as $surface => $html) {
 			$this->assertCount(3, $this->cards($html), "$surface rendered the cards.");
-			$this->assertStringNotContainsString('mhm-card-availability', $html, "$surface default: no availability status.");
+			$this->assertStringNotContainsString('rvs-card__status', $html, "$surface default: no availability status.");
 		}
 		$on = array(
 			'shortcode' => $this->shortcode('show_availability_status="1"'),
@@ -292,7 +292,7 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 			'widget'    => $this->widget(array( 'show_availability_status' => 'yes' )),
 		);
 		foreach ($on as $surface => $html) {
-			$this->assertSame(3, substr_count($html, 'class="mhm-card-availability'), "$surface: on shows it.");
+			$this->assertSame(3, substr_count($html, 'rvs-card__status'), "$surface: on shows it.");
 		}
 		$this->assertFalse(SettingProbe::block_json('my-favorites', array())['attributes']['showAvailabilityStatus']['default']);
 	}
@@ -370,7 +370,7 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 	 */
 	private function cards(string $html): array
 	{
-		preg_match_all('#class="mhm-vehicle-card mhm-card--\w+" data-id="(\d+)"#', $html, $m);
+		preg_match_all('#class="rvs-card rvs-card--\w+[^"]*" data-rvs-card data-testid="vehicle-card" data-id="(\d+)"#', $html, $m);
 		return array_map('intval', $m[1]);
 	}
 
@@ -379,7 +379,7 @@ final class MyFavoritesSettingsTest extends WP_UnitTestCase
 	 */
 	private function layouts(string $html): array
 	{
-		preg_match_all('#class="mhm-vehicle-card mhm-card--(\w+)"#', $html, $m);
+		preg_match_all('#class="rvs-card rvs-card--(\w+)[^"]*"#', $html, $m);
 		return $m[1];
 	}
 

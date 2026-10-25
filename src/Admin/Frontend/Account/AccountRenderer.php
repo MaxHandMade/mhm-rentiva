@@ -396,24 +396,10 @@ final class AccountRenderer {
 			$favorites = array();
 		}
 
-		// Load Vehicles Grid CSS (for grid view)
-		wp_enqueue_style(
-			'mhm-rentiva-vehicles-grid',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
-			array(),
-			MHMRENTIVA_VERSION
-		);
-
-		// Ensure standardized card styles are available on My Account favorites endpoint.
-		if (! wp_style_is('mhm-rentiva-vehicle-card-css', 'registered')) {
-			wp_register_style(
-				'mhm-rentiva-vehicle-card-css',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
-		}
-		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
+		// The favourites page renders the front-end standard card inside its own
+		// .rvs-shell (templates/account/favorites.php): the rvs chain + rvs-card.css,
+		// not the old vehicles-grid.css / vehicle-card.css.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_card_styles();
 
 		// Enqueue global interactions (v1.3.3) -- through AssetManager, so the
 		// script always arrives with its one mhmrentiva_vars payload.

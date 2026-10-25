@@ -123,7 +123,7 @@ final class RvsVehicleCardTemplateTest extends WP_UnitTestCase
 		$html = $this->card(array( 'availability' => array( 'is_available' => false ) ), array(), 'list');
 
 		$this->assertStringContainsString('rvs-card--list is-unavailable', $html);
-		$this->assertMatchesRegularExpression('/<button type="button" class="rvs-btn rvs-btn--primary rvs-card__select" data-testid="vehicle-book-btn" disabled>Not available<\/button>/', $html);
+		$this->assertMatchesRegularExpression('/<button type="button" class="rvs-btn rvs-btn--primary rvs-card__select" data-testid="vehicle-book-btn" disabled>Unavailable<\/button>/', $html);
 	}
 
 	public function test_price_keeps_wc_price_markup(): void

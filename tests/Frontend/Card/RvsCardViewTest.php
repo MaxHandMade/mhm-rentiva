@@ -99,7 +99,10 @@ final class RvsCardViewTest extends WP_UnitTestCase
 
 	public function test_rating_label_or_new(): void
 	{
-		$this->assertSame('★ 4.8 (24)', RvsCardView::from_vehicle($this->vehicle(), array())['rating']['label']);
+		$view = RvsCardView::from_vehicle($this->vehicle(), array());
+		$this->assertSame('★ 4.8', $view['rating']['label']);
+		$this->assertFalse($view['rating']['show_count'], 'The review count is off by default (show_rating_count).');
+		$this->assertTrue(RvsCardView::from_vehicle($this->vehicle(), array( 'show_rating_count' => '1' ))['rating']['show_count']);
 
 		$new = RvsCardView::from_vehicle($this->vehicle(array( 'rating' => array( 'average' => 0, 'count' => 0 ) )), array());
 		$this->assertTrue($new['rating']['is_new']);
@@ -172,14 +175,14 @@ final class RvsCardViewTest extends WP_UnitTestCase
 		$view = RvsCardView::from_vehicle($this->vehicle(array( 'availability' => array( 'is_available' => false ) )), array());
 
 		$this->assertFalse($view['available']);
-		$this->assertSame('Not available', $view['booking']['label']);
+		$this->assertSame('Unavailable', $view['booking']['label']);
 		$this->assertSame('javascript:void(0);', $view['booking']['url']);
 	}
 
 	public function test_booking_label_from_shortcode_text(): void
 	{
 		$this->assertSame('Rent now', RvsCardView::from_vehicle($this->vehicle(), array( 'button_text' => 'Rent now' ))['booking']['label']);
-		$this->assertSame('Select', RvsCardView::from_vehicle($this->vehicle(), array())['booking']['label']);
+		$this->assertSame('Book Now', RvsCardView::from_vehicle($this->vehicle(), array())['booking']['label']);
 	}
 
 	public function test_booking_url_forwards_given_dates(): void

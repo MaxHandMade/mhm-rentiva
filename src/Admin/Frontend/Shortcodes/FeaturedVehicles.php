@@ -27,6 +27,8 @@ use WP_Query;
 
 final class FeaturedVehicles extends AbstractShortcode {
 
+	/** Renders inside the front-end standard's shell. */
+	protected static bool $rvs_shell = true;
 
 	public const SHORTCODE = 'rentiva_featured_vehicles';
 
@@ -226,9 +228,13 @@ final class FeaturedVehicles extends AbstractShortcode {
 		return $files;
 	}
 
+	/**
+	 * The slider layout stays in featured-vehicles.css; the card itself is the
+	 * front-end standard's (rvs-card.css), not the old vehicle-card.css.
+	 */
 	protected static function get_css_dependencies(): array
 	{
-		return array( 'mhm-rentiva-vehicle-card-css' );
+		return array( 'mhm-rentiva-rvs-card' );
 	}
 
 	protected static function get_js_files(array $atts = array()): array

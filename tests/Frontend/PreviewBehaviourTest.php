@@ -276,16 +276,16 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 			$this->assertStringContainsString('aria-pressed="true"', $heart);
 		}
 
-		preg_match_all('/<button\b[^>]*\bmhm-vehicle-compare-btn\b[^>]*>/', $html, $compares);
-		$this->assertCount(3, $compares[0], 'One compare button per sample card.');
+		// The front-end standard card's compare control is a checkbox (Aşama 2 PR 2).
+		preg_match_all('/<input\b[^>]*\bdata-rvs-compare\b[^>]*>/', $html, $compares);
+		$this->assertCount(3, $compares[0], 'One compare control per sample card.');
 		foreach ($compares[0] as $compare) {
-			$this->assertStringNotContainsString('is-active', $compare, "Compare button active: $compare");
-			$this->assertStringContainsString('aria-pressed="false"', $compare);
+			$this->assertStringNotContainsString('checked', $compare, "Compare control checked: $compare");
 		}
 
 		// Control: the catalog grid still shows the editor's real state.
 		$grid = $this->shortcode('rentiva_vehicles_grid', array( 'ids' => implode(',', $samples) ));
-		$this->assertMatchesRegularExpression('/<button\b[^>]*\bmhm-vehicle-compare-btn\b[^>]*\bis-active\b/', $grid, 'Catalog cards keep the real compare state.');
+		$this->assertMatchesRegularExpression('/<input\b[^>]*\bdata-rvs-compare\b[^>]*\bchecked\b/', $grid, 'Catalog cards keep the real compare state.');
 	}
 
 	/**

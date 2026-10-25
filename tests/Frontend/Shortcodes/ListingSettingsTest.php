@@ -58,32 +58,27 @@ final class ListingSettingsTest extends WP_UnitTestCase
 	{
 		$ids = implode(',', $this->catalog);
 
-		$this->assertSame(array( 'rv-vehicles-list--columns-1' ), $this->list_columns_classes(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '"]')));
-		$this->assertSame(array( 'rv-vehicles-list--columns-2' ), $this->list_columns_classes(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '" columns="2"]')));
-		$this->assertSame(array( 'rv-vehicles-list--columns-3' ), $this->list_columns_classes($this->block('vehicles-list', array( 'ids' => $ids, 'columns' => '3' ))));
-		$this->assertSame(array( 'rv-vehicles-list--columns-4' ), $this->list_columns_classes($this->widget(VehiclesListWidget::class, array( 'columns' => '4' ))));
+		$this->assertSame(1, $this->list_columns(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '"]')));
+		$this->assertSame(2, $this->list_columns(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '" columns="2"]')));
+		$this->assertSame(3, $this->list_columns($this->block('vehicles-list', array( 'ids' => $ids, 'columns' => '3' ))));
+		$this->assertSame(4, $this->list_columns($this->widget(VehiclesListWidget::class, array( 'columns' => '4' ))));
 		// Out of range falls back to one column.
-		$this->assertSame(array( 'rv-vehicles-list--columns-1' ), $this->list_columns_classes(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '" columns="9"]')));
+		$this->assertSame(1, $this->list_columns(do_shortcode('[rentiva_vehicles_list ids="' . $ids . '" columns="9"]')));
 
 		// Rule 1: the widget's default is today's single column (it was '3', unstyled).
-		$this->assertSame(array( 'rv-vehicles-list--columns-1' ), $this->list_columns_classes($this->widget(VehiclesListWidget::class, array())));
+		$this->assertSame(1, $this->list_columns($this->widget(VehiclesListWidget::class, array())));
 
-		// The class is styled outside Elementor too (the trap: data-columns alone is unstyled).
-		$css = $this->asset('assets/css/frontend/vehicles-list.css');
-		foreach (array( 2, 3, 4 ) as $n) {
-			$this->assertMatchesRegularExpression(
-				'/\.rv-vehicles-list__wrapper\.rv-vehicles-list--columns-' . $n . '\s*\{[^}]*grid-template-columns:\s*repeat\(' . $n . ',/',
-				$css,
-				"vehicles-list.css must lay out --columns-$n."
-			);
-		}
+		// The count is styled outside Elementor too: the front-end standard grid
+		// caps its tracks at --rvs-cols (Aşama 2 PR 2; it was vehicles-list.css).
+		$css = $this->asset('assets/css/rvs/rvs-card.css');
+		$this->assertMatchesRegularExpression('/\.rvs-card-grid\s*\{[^}]*grid-template-columns:[^;]*var\(--rvs-cols\)/', $css, 'rvs-card.css must lay out --rvs-cols.');
 	}
 
 	public function test_list_layout_reaches_card(): void
 	{
 		$vehicle = (string) $this->catalog[0];
 
-		$this->assertStringContainsString('mhm-card--list', $this->widget(VehicleCardWidget::class, array( 'vehicle_id' => $vehicle )));
+		$this->assertStringContainsString('rvs-card--list', $this->widget(VehicleCardWidget::class, array( 'vehicle_id' => $vehicle )));
 		$grid = $this->widget(
 			VehicleCardWidget::class,
 			array(
@@ -91,11 +86,11 @@ final class ListingSettingsTest extends WP_UnitTestCase
 				'layout'     => 'grid',
 			)
 		);
-		$this->assertStringContainsString('mhm-card--grid', $grid);
-		$this->assertStringNotContainsString('mhm-card--list', $grid);
+		$this->assertStringContainsString('rvs-card--grid', $grid);
+		$this->assertStringNotContainsString('rvs-card--list', $grid);
 
-		$this->assertStringContainsString('mhm-card--grid', do_shortcode('[rentiva_vehicles_list ids="' . $vehicle . '" layout="grid"]'));
-		$this->assertStringContainsString('mhm-card--list', do_shortcode('[rentiva_vehicles_list ids="' . $vehicle . '" layout="zz-unknown"]'));
+		$this->assertStringContainsString('rvs-card--grid', do_shortcode('[rentiva_vehicles_list ids="' . $vehicle . '" layout="grid"]'));
+		$this->assertStringContainsString('rvs-card--list', do_shortcode('[rentiva_vehicles_list ids="' . $vehicle . '" layout="zz-unknown"]'));
 	}
 
 	public function test_list_custom_css_class_on_wrapper(): void
@@ -157,22 +152,22 @@ final class ListingSettingsTest extends WP_UnitTestCase
 		$this->assertSame(array(), $this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid columns_tablet="2"]')));
 		// An explicit mobile 1 is printed (masonry needs it); on the grid it equals the fallback.
 		$this->assertSame(
-			array( 'rv-vehicles-grid--mobile-1' ),
+			array( 'rvs-card-grid--mobile-1' ),
 			$this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid columns_tablet="2" columns_mobile="1"]'))
 		);
 		$this->assertSame(array(), $this->grid_breakpoint_classes($this->block('vehicles-grid', array())));
 		$this->assertSame(array(), $this->grid_breakpoint_classes($this->widget(VehiclesGridWidget::class, array())));
 
 		$this->assertSame(
-			array( 'rv-vehicles-grid--tablet-3', 'rv-vehicles-grid--mobile-2' ),
+			array( 'rvs-card-grid--tablet-3', 'rvs-card-grid--mobile-2' ),
 			$this->grid_breakpoint_classes(do_shortcode('[rentiva_vehicles_grid columns_tablet="3" columns_mobile="2"]'))
 		);
 		$this->assertSame(
-			array( 'rv-vehicles-grid--tablet-1' ),
+			array( 'rvs-card-grid--tablet-1' ),
 			$this->grid_breakpoint_classes($this->block('vehicles-grid', array( 'columns_tablet' => '1' )))
 		);
 		$this->assertSame(
-			array( 'rv-vehicles-grid--mobile-2' ),
+			array( 'rvs-card-grid--mobile-2' ),
 			$this->grid_breakpoint_classes($this->widget(VehiclesGridWidget::class, array( 'columns_mobile' => '2' )))
 		);
 		// Out of range is ignored.
@@ -193,14 +188,14 @@ final class ListingSettingsTest extends WP_UnitTestCase
 	{
 		// Masonry carries the same breakpoint classes as the grid.
 		$html = do_shortcode('[rentiva_vehicles_grid layout="masonry" columns_mobile="3"]');
-		$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $html, $m), 'No masonry in the render.');
-		$this->assertContains('rv-vehicles-grid--mobile-3', preg_split('/\s+/', $m[1]));
+		$this->assertSame(1, preg_match('/<div class="rvs-card-grid (rvs-card-grid--masonry[^"]*)"/', $html, $m), 'No masonry in the render.');
+		$this->assertContains('rvs-card-grid--mobile-3', preg_split('/\s+/', $m[1]));
 
 		// An explicit 1 is reachable: it prints its class, so phones show one column
 		// instead of the tablet fallback (Fable, Lite #92).
 		$html = do_shortcode('[rentiva_vehicles_grid layout="masonry" columns_mobile="1"]');
-		$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $html, $m), 'No masonry in the render.');
-		$this->assertContains('rv-vehicles-grid--mobile-1', preg_split('/\s+/', $m[1]));
+		$this->assertSame(1, preg_match('/<div class="rvs-card-grid (rvs-card-grid--masonry[^"]*)"/', $html, $m), 'No masonry in the render.');
+		$this->assertContains('rvs-card-grid--mobile-1', preg_split('/\s+/', $m[1]));
 
 		// Untouched masonry (shortcode, block, widget) prints no breakpoint class: phones keep the tablet count.
 		foreach (array(
@@ -208,8 +203,8 @@ final class ListingSettingsTest extends WP_UnitTestCase
 			$this->block('vehicles-grid', array( 'layout' => 'masonry' )),
 			$this->widget(VehiclesGridWidget::class, array( 'layout' => 'masonry' )),
 		) as $untouched) {
-			$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid (rv-vehicles-masonry [^"]*)"/', $untouched, $m), 'No masonry in the render.');
-			$this->assertSame(array(), preg_grep('/^rv-vehicles-grid--(tablet|mobile)-/', preg_split('/\s+/', $m[1])));
+			$this->assertSame(1, preg_match('/<div class="rvs-card-grid (rvs-card-grid--masonry[^"]*)"/', $untouched, $m), 'No masonry in the render.');
+			$this->assertSame(array(), preg_grep('/^rvs-card-grid--(tablet|mobile)-/', preg_split('/\s+/', $m[1])));
 		}
 
 		// Phones read the mobile property; unset, masonry keeps today's phone layout
@@ -230,7 +225,7 @@ final class ListingSettingsTest extends WP_UnitTestCase
 		$button = 'data-testid="vehicle-book-btn"';
 		$this->assertGreaterThan(0, substr_count($this->widget(FeaturedVehiclesWidget::class, array()), $button));
 		$off = $this->widget(FeaturedVehiclesWidget::class, array( 'show_booking_button' => '' ));
-		$this->assertStringContainsString('mhm-vehicle-card', $off);
+		$this->assertStringContainsString('data-rvs-card', $off);
 		$this->assertSame(0, substr_count($off, $button));
 
 		// Shortcode text: the canonical key now works, like on every other tag.
@@ -246,7 +241,7 @@ final class ListingSettingsTest extends WP_UnitTestCase
 	public function test_default_renders_unchanged(string $name): void
 	{
 		$html = $this->render_default_surface($name);
-		$this->assertStringContainsString('mhm-vehicle-card', $html, "$name rendered no card; the golden would pin an empty render.");
+		$this->assertStringContainsString('data-rvs-card', $html, "$name rendered no card; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -311,10 +306,10 @@ final class ListingSettingsTest extends WP_UnitTestCase
 	/**
 	 * @return list<string>
 	 */
-	private function list_columns_classes(string $html): array
+	private function list_columns(string $html): int
 	{
-		$this->assertSame(1, preg_match('/class="rv-vehicles-list__wrapper ([^"]*)"/', $html, $m), 'No list wrapper in the render.');
-		return array_values(array_filter(preg_split('/\s+/', $m[1]), static fn(string $c): bool => str_starts_with($c, 'rv-vehicles-list--columns-')));
+		$this->assertSame(1, preg_match('/<div class="rvs-card-(?:list|grid)" style="--rvs-cols: (\d)"/', $html, $m), 'No list wrapper in the render.');
+		return (int) $m[1];
 	}
 
 	/**
@@ -322,8 +317,8 @@ final class ListingSettingsTest extends WP_UnitTestCase
 	 */
 	private function grid_breakpoint_classes(string $html): array
 	{
-		$this->assertSame(1, preg_match('/<div class="rv-vehicles-grid ([^"]*)"/', $html, $m), 'No grid in the render.');
-		return array_values(array_filter(preg_split('/\s+/', $m[1]), static fn(string $c): bool => (bool) preg_match('/^rv-vehicles-grid--(tablet|mobile)-/', $c)));
+		$this->assertSame(1, preg_match('/<div class="(rvs-card-grid[^"]*)"/', $html, $m), 'No grid in the render.');
+		return array_values(array_filter(preg_split('/\s+/', $m[1]), static fn(string $c): bool => (bool) preg_match('/^rvs-card-grid--(tablet|mobile)-/', $c)));
 	}
 
 	/**
@@ -331,7 +326,7 @@ final class ListingSettingsTest extends WP_UnitTestCase
 	 */
 	private function container_classes(string $html): array
 	{
-		$this->assertSame(1, preg_match('/<div class="rv-vehicles-list-container ([^"]*)"/', $html, $m), 'No list container in the render.');
+		$this->assertSame(1, preg_match('/<div class="rvs-listing ([^"]*)"/', $html, $m), 'No list container in the render.');
 		return array_values(array_filter(preg_split('/\s+/', trim($m[1]))));
 	}
 
@@ -375,7 +370,8 @@ final class ListingSettingsTest extends WP_UnitTestCase
 
 	private function button_label(string $html): string
 	{
-		$this->assertSame(1, preg_match('#<a [^>]*data-testid="vehicle-book-btn"[^>]*>(.*?)</a>#s', $html, $m), 'No booking button in the render.');
+		$this->assertSame(1, preg_match('#<(a|button) [^>]*data-testid="vehicle-book-btn"[^>]*>(.*?)</\1>#s', $html, $m), 'No booking button in the render.');
+		$m[1] = $m[2];
 		return trim(html_entity_decode(wp_strip_all_tags($m[1])));
 	}
 }

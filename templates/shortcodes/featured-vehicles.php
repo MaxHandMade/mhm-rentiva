@@ -44,7 +44,7 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
                             <?php
                             // Rendered directly to output: the partial echoes its own markup and
                             // escapes each dynamic value at its own output site.
-                            \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+                            \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/rvs-vehicle-card', array(
                                 'vehicle' => $vehicle,
                                 'layout'  => 'grid', // Featured usually looks like grid cards
                                 'atts'    => $atts,
@@ -59,26 +59,23 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
             </div>
         <?php else : ?>
             <!-- Grid Layout -->
-            <div class="mhm-featured-grid" style="--mhm-columns: <?php echo esc_attr($columns); ?>">
+            <div class="rvs-card-grid" style="--rvs-cols: <?php echo esc_attr( (string) max(1, min(6, $columns))); ?>">
                 <?php foreach ($vehicles as $vehicle) : ?>
-                    <div class="mhm-featured-grid-item">
-                        <?php
-                        // Rendered directly to output: the partial echoes its own markup and
-                        // escapes each dynamic value at its own output site.
-                        \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
-                            'vehicle' => $vehicle,
-                            'layout'  => 'grid',
-                            'atts'    => $atts,
-                        ));
-                        ?>
-                    </div>
+                    <?php
+                    // The partial escapes each value at its own output site.
+                    \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/rvs-vehicle-card', array(
+                        'vehicle' => $vehicle,
+                        'layout'  => 'grid',
+                        'atts'    => $atts,
+                    ));
+                    ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
         <?php if ( ! empty( $atts['view_all_url'] ) ) : ?>
-            <div class="rv-featured-vehicles__footer">
-                <a href="<?php echo esc_url( $atts['view_all_url'] ); ?>" class="rv-featured-vehicles__view-all">
+            <div class="rvs-listing__footer">
+                <a href="<?php echo esc_url( $atts['view_all_url'] ); ?>" class="rvs-btn rvs-btn--secondary">
                     <?php echo esc_html( ! empty( $atts['view_all_text'] ) ? $atts['view_all_text'] : __( 'View All Vehicles', 'mhm-rentiva' ) ); ?>
                 </a>
             </div>

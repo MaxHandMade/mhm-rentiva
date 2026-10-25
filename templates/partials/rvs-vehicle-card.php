@@ -33,7 +33,7 @@ $mhmrentiva_preview     = RenderContext::current()->is_preview();
 $mhmrentiva_show        = $mhmrentiva_card['show'];
 $mhmrentiva_fav_label   = $mhmrentiva_card['favorite']['active'] ? __('Remove from favorites', 'mhm-rentiva') : __('Add to favorites', 'mhm-rentiva');
 ?>
-<article class="rvs-card rvs-card--<?php echo esc_attr($mhmrentiva_card_layout); ?><?php echo $mhmrentiva_card['available'] ? '' : ' is-unavailable'; ?>" data-rvs-card data-id="<?php echo esc_attr( (string) $mhmrentiva_card['id']); ?>">
+<article class="rvs-card rvs-card--<?php echo esc_attr($mhmrentiva_card_layout); ?><?php echo $mhmrentiva_card['available'] ? '' : ' is-unavailable'; ?>" data-rvs-card data-testid="vehicle-card" data-id="<?php echo esc_attr( (string) $mhmrentiva_card['id']); ?>">
 	<?php if ($mhmrentiva_show['image']) : ?>
 		<div class="rvs-card__media">
 			<a class="rvs-card__media-link" href="<?php echo esc_url($mhmrentiva_card['permalink']); ?>" tabindex="-1" aria-hidden="true">
@@ -79,10 +79,21 @@ $mhmrentiva_fav_label   = $mhmrentiva_card['favorite']['active'] ? __('Remove fr
 				<h3 class="rvs-card__title"><a href="<?php echo esc_url($mhmrentiva_card['permalink']); ?>"><?php echo esc_html($mhmrentiva_card['title']); ?></a></h3>
 			<?php endif; ?>
 			<?php if ($mhmrentiva_show['rating']) : ?>
-				<span class="rvs-card__rating"><?php echo esc_html($mhmrentiva_card['rating']['label']); ?></span>
+				<span class="rvs-card__rating">
+					<?php echo esc_html($mhmrentiva_card['rating']['label']); ?>
+					<?php if ($mhmrentiva_card['rating']['show_count']) : ?>
+						<span class="rvs-card__rating-count">(<?php echo esc_html(number_format_i18n($mhmrentiva_card['rating']['count'])); ?>)</span>
+					<?php endif; ?>
+				</span>
 			<?php endif; ?>
 		</div>
 
+		<?php if ('' !== $mhmrentiva_card['status']) : ?>
+			<span class="rvs-tag rvs-card__status <?php echo $mhmrentiva_card['available'] ? 'rvs-tag--info is-available' : 'rvs-tag--alert is-unavailable'; ?>"><?php echo esc_html($mhmrentiva_card['status']); ?></span>
+		<?php endif; ?>
+		<?php if ('' !== $mhmrentiva_card['description']) : ?>
+			<p class="rvs-card__desc"><?php echo esc_html(wp_strip_all_tags($mhmrentiva_card['description'])); ?></p>
+		<?php endif; ?>
 		<?php if ($mhmrentiva_show['specs'] && '' !== $mhmrentiva_card['specs']) : ?>
 			<p class="rvs-card__specs"><?php echo esc_html($mhmrentiva_card['specs']); ?></p>
 		<?php endif; ?>

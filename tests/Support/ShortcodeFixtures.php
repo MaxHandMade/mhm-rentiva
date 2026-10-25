@@ -144,9 +144,10 @@ final class ShortcodeFixtures
 
 			case 'rentiva_vehicles_list':
 			case 'rentiva_vehicles_grid':
-				// One vehicle card (~47 elements); the empty state names no vehicle.
+				// One front-end standard card (~27 elements, Aşama 2 PR 2; the old card
+				// had ~47); the empty state names no vehicle and has under 5.
 				$row['marker']       = get_the_title(self::vehicle());
-				$row['min_elements'] = 30;
+				$row['min_elements'] = 20;
 				break;
 
 			case 'rentiva_search_results':

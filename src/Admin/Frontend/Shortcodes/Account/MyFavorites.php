@@ -24,8 +24,10 @@ use MHMRentiva\Frontend\RenderContext;
  */
 class MyFavorites extends AbstractShortcode {
 
-
 	public const SHORTCODE = 'rentiva_my_favorites';
+
+	/** Renders inside the front-end standard's shell. */
+	protected static bool $rvs_shell = true;
 
 	protected static function get_shortcode_tag(): string
 	{
@@ -193,9 +195,15 @@ class MyFavorites extends AbstractShortcode {
 		return $vehicle_posts;
 	}
 
-	protected static function get_css_files(array $atts = array()): array
+	/**
+	 * The front-end standard card (rvs chain + rvs-card.css). Not through
+	 * get_css_files(): this shortcode's base handle (mhm-rentiva-my-favorites)
+	 * is registered on `init` by the block with my-account.css, and a later
+	 * wp_enqueue_style() under a registered handle keeps the first source.
+	 */
+	protected static function enqueue_styles(array $atts = array()): void
 	{
-		return array( 'assets/css/frontend/vehicles-grid.css' );
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_card_styles();
 	}
 
 	protected static function get_js_files(array $atts = array()): array
