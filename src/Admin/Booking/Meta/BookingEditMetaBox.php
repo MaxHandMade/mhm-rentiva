@@ -380,10 +380,12 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				}
 				// Sold more than once: the quantity this booking carries, under
 				// the title (after the checkbox, so the box stays the label's control).
-				if ( $addon['max'] > 1 ) {
-					$quantity = max( 1, $selection->quantity( (int) $addon['id'] ) );
+				// A booked quantity above a maximum lowered since stays editable.
+				$quantity = max( 1, $selection->quantity( (int) $addon['id'] ) );
+				$cap      = max( (int) $addon['max'], $quantity );
+				if ( $cap > 1 ) {
 					echo '<div class="mhm-addon-qty-row">' . esc_html__( 'Quantity', 'mhm-rentiva' ) . ' ';
-					echo '<input type="number" name="mhmrentiva_edit_addon_qty[' . esc_attr( (string) $addon['id'] ) . ']" class="mhm-addon-qty small-text" min="1" max="' . esc_attr( (string) $addon['max'] ) . '" step="1" value="' . esc_attr( (string) $quantity ) . '" aria-label="' . esc_attr( sprintf( /* translators: %s: additional service name. */ __( 'Quantity: %s', 'mhm-rentiva' ), $addon['title'] ) ) . '">';
+					echo '<input type="number" name="mhmrentiva_edit_addon_qty[' . esc_attr( (string) $addon['id'] ) . ']" class="mhm-addon-qty small-text" min="1" max="' . esc_attr( (string) $cap ) . '" step="1" value="' . esc_attr( (string) $quantity ) . '" aria-label="' . esc_attr( sprintf( /* translators: %s: additional service name. */ __( 'Quantity: %s', 'mhm-rentiva' ), $addon['title'] ) ) . '">';
 					echo '</div>';
 				}
 				echo '</div>';
@@ -529,13 +531,18 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$selected_addons = array();
 		$quantities      = array();
 		$posted_qty      = $request->arr( 'mhmrentiva_edit_addon_qty' );
+		// What the booking already carries is kept: a maximum lowered since
+		// must not re-price a booking on its next unrelated save.
+		$stored = AddonSelection::for_booking( $post_id );
 		foreach ( $request->intList( 'mhmrentiva_edit_selected_addons' ) as $addon_id ) {
 			if ( 'mhmrentiva_addon' !== get_post_type( $addon_id ) || in_array( $addon_id, $selected_addons, true ) ) {
 				continue;
 			}
 			$selected_addons[] = $addon_id;
-			$raw               = $posted_qty[ $addon_id ] ?? 1;
-			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, AddonSelection::max_quantity( $addon_id ) ) ) : 1;
+			$booked            = $stored->quantity( $addon_id );
+			$raw               = $posted_qty[ $addon_id ] ?? max( 1, $booked );
+			$cap               = max( AddonSelection::max_quantity( $addon_id ), $booked );
+			$quantity          = is_scalar( $raw ) ? max( 1, min( (int) $raw, $cap ) ) : max( 1, $booked );
 			if ( $quantity > 1 ) {
 				$quantities[ $addon_id ] = $quantity;
 			}

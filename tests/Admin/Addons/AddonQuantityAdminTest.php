@@ -169,6 +169,39 @@ final class AddonQuantityAdminTest extends WP_UnitTestCase
 		$this->assertStringContainsString('<li>GPS</li>', $html);
 	}
 
+	public function test_edit_keeps_a_booked_quantity_after_the_maximum_is_lowered(): void
+	{
+		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+		$seat       = $this->addon('Child seat', '50', 'per_booking', 3);
+		$booking_id = $this->booking(array(
+			'_mhmrentiva_selected_addons'      => array( $seat ),
+			MetaKeys::BOOKING_ADDON_QUANTITIES => array( $seat => 2 ),
+		));
+		update_post_meta($seat, MetaKeys::ADDON_MAX_QUANTITY, '1');
+
+		$html = $this->render_edit($booking_id);
+		$this->assertSame(1, preg_match('/<input[^>]*name="mhmrentiva_edit_addon_qty\[' . $seat . '\]"[^>]*>/', $html, $input), 'A booked quantity above the new maximum stays visible.');
+		$this->assertMatchesRegularExpression('/\bvalue="2"/', $input[0]);
+
+		// A save that does not touch the add-ons (only the status) must not re-price them.
+		$_POST = array(
+			'_wpnonce'                        => wp_create_nonce('update-post_' . $booking_id),
+			'mhmrentiva_edit_vehicle_id'      => (string) $this->vehicle_id,
+			'mhmrentiva_edit_pickup_date'     => '2099-11-02',
+			'mhmrentiva_edit_pickup_time'     => '10:00',
+			'mhmrentiva_edit_dropoff_date'    => '2099-11-05',
+			'mhmrentiva_edit_dropoff_time'    => '10:00',
+			'mhmrentiva_edit_status'          => 'completed',
+			'mhmrentiva_edit_guests'          => '1',
+			'mhmrentiva_edit_special_notes'   => '',
+			'mhmrentiva_edit_selected_addons' => array( (string) $seat ),
+		);
+		BookingEditMetaBox::save_booking_details($booking_id);
+
+		$this->assertSame(array( $seat => 2 ), get_post_meta($booking_id, MetaKeys::BOOKING_ADDON_QUANTITIES, true));
+		$this->assertSame(100.0, (float) get_post_meta($booking_id, '_mhmrentiva_addon_total', true));
+	}
+
 	public function test_max_quantity_field_shows_its_default_on_a_new_addon(): void
 	{
 		$addon_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_addon' ));
