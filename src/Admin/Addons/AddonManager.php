@@ -670,10 +670,18 @@ final class AddonManager {
 			return;
 		}
 
-		$addon_details = self::build_addon_details( $selected_addons, $booking_data );
+		// Priced when the booking was made (BookingForm / ManualBookingMetaBox),
+		// so trusted here: of(), not from_input().
+		$quantities = is_array( $booking_data['addon_quantities'] ?? null ) ? $booking_data['addon_quantities'] : array();
+		$selection  = AddonSelection::of( $selected_addons, $quantities );
+
+		$addon_details = self::build_addon_details(
+			$selection->ids(),
+			array_merge( $booking_data, array( 'addon_quantities' => $selection->quantities() ) )
+		);
 		$addon_total   = (float) array_sum( array_column( $addon_details, 'line_total' ) );
 
-		update_post_meta( $booking_id, '_mhmrentiva_selected_addons', $selected_addons );
+		$selection->store( $booking_id );
 		update_post_meta( $booking_id, '_mhmrentiva_addon_total', $addon_total );
 		update_post_meta( $booking_id, '_mhmrentiva_addon_details', $addon_details );
 	}

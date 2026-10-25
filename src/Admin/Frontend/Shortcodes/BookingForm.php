@@ -738,6 +738,17 @@ final class BookingForm extends AbstractShortcode {
 	 */
 	private static function accept_submitted_addons(VerifiedRequest $req): array
 	{
+		return self::accept_submitted_selection($req)->ids();
+	}
+
+	/**
+	 * The accepted ids with their quantities (`addon_qty[<id>]`, Aşama 2 K12):
+	 * each clamped to its add-on's maximum, a missing one counted as 1.
+	 *
+	 * @param VerifiedRequest $req Verified request.
+	 */
+	private static function accept_submitted_selection(VerifiedRequest $req): \MHMRentiva\Admin\Addons\AddonSelection
+	{
 		$submitted = array();
 
 		if ($req->has('addons')) {
@@ -746,7 +757,7 @@ final class BookingForm extends AbstractShortcode {
 			$submitted = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('selected_addons'));
 		}
 
-		return \MHMRentiva\Admin\Addons\AddonManager::filter_sellable($submitted);
+		return \MHMRentiva\Admin\Addons\AddonSelection::from_input($submitted, $req->arr('addon_qty'));
 	}
 
 	/**
@@ -780,11 +791,12 @@ final class BookingForm extends AbstractShortcode {
 			foreach ($addons as $addon) {
 				if ($addon instanceof \WP_Post && \MHMRentiva\Admin\Addons\AddonManager::is_sellable( (int) $addon->ID )) {
 					$result[] = array(
-						'id'          => $addon->ID,
-						'title'       => $addon->post_title,
-						'price'       => (string) get_post_meta($addon->ID, 'mhmrentiva_addon_price', true),
-						'description' => $addon->post_excerpt,
-						'required'    => (bool) get_post_meta($addon->ID, 'mhmrentiva_addon_required', true),
+						'id'           => $addon->ID,
+						'title'        => $addon->post_title,
+						'price'        => (string) get_post_meta($addon->ID, 'mhmrentiva_addon_price', true),
+						'description'  => $addon->post_excerpt,
+						'required'     => (bool) get_post_meta($addon->ID, 'mhmrentiva_addon_required', true),
+						'max_quantity' => \MHMRentiva\Admin\Addons\AddonSelection::max_quantity( (int) $addon->ID ),
 					);
 				}
 			}
@@ -1044,7 +1056,8 @@ final class BookingForm extends AbstractShortcode {
 			// If WooCommerce is not active, terms validation would be handled here
 			// But since we're using WooCommerce, validation happens on checkout
 
-			$selected_addons = self::accept_submitted_addons($req);
+			$selection       = self::accept_submitted_selection($req);
+			$selected_addons = $selection->ids();
 
 			$required_refusal = \MHMRentiva\Admin\Addons\AddonManager::required_addon_refusal($selected_addons);
 			if (null !== $required_refusal) {
@@ -1163,7 +1176,8 @@ final class BookingForm extends AbstractShortcode {
 				$days,
 				$payment_type,
 				$selected_addons,
-				$start_ts // ⭐ Pass start timestamp for weekend multiplier
+				$start_ts, // ⭐ Pass start timestamp for weekend multiplier
+				$selection->quantities()
 			);
 
 			if (! $deposit_result['success']) {
@@ -1211,6 +1225,7 @@ final class BookingForm extends AbstractShortcode {
 					'total_price'           => $deposit_result['total_amount'],
 					'rental_days'           => $days,
 					'selected_addons'       => $selected_addons,
+					'addon_quantities'      => $selection->quantities(),
 					'pickup_location_id'    => $pickup_location_id,
 					'cancellation_policy'   => '24_hours',
 					'cancellation_deadline' => gmdate('Y-m-d H:i:s', strtotime('+24 hours')),
@@ -1320,15 +1335,10 @@ final class BookingForm extends AbstractShortcode {
 			// missed -- the submit path refused a disabled service while this one
 			// still priced it, so the customer was quoted a total the booking
 			// would never carry.
-			$addons = self::accept_submitted_addons($req);
-
-			// Filter empty addon placeholder (JavaScript doesn't send empty array, sends [0])
-			$addons = array_filter(
-				$addons,
-				function ($addon_id) {
-					return $addon_id > 0;
-				}
-			);
+			// The script's empty placeholder ([0]) is not sellable, so it never
+			// reaches the selection.
+			$selection = self::accept_submitted_selection($req);
+			$addons    = $selection->ids();
 
 			// A quote without a required service would show a total the submit
 			// path then refuses.
@@ -1376,7 +1386,7 @@ final class BookingForm extends AbstractShortcode {
 			// The same calculation the submit path charges: RentalPricing via
 			// DepositCalculator. Tax is not computed here -- WooCommerce adds it
 			// at checkout and the amounts below are shown through its display.
-			$deposit_result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, array_values($addons), $start_ts);
+			$deposit_result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $addons, $start_ts, $selection->quantities());
 			if (empty($deposit_result['success'])) {
 				return self::failed(__('Price could not be calculated.', 'mhm-rentiva'));
 			}

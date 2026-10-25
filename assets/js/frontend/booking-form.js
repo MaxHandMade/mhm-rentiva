@@ -144,7 +144,7 @@
             });
 
             // Automatic calculation on addon changes
-            this.form.on('change', '.rv-addon-checkbox', () => {
+            this.form.on('change', '.rv-addon-checkbox, .rv-addon-qty', () => {
                 this.autoCalculatePrice();
             });
 
@@ -610,6 +610,7 @@
                 pickup_date: formData.pickup_date,
                 dropoff_date: formData.dropoff_date,
                 addons: addonsParam,
+                addon_qty: formData.addon_qty || {},
                 payment_type: this.form.find('input[name="payment_type"]:checked').val() || 'deposit'
             };
 
@@ -631,6 +632,7 @@
                 // Send even empty array
                 requestData.append('addons[]', 0);
             }
+            this.appendAddonQuantities(requestData, ajaxData.addon_qty);
 
             const finalData = requestData.toString();
 
@@ -655,6 +657,12 @@
                     this.showLoading(false);
                     this.showError(this.getMessage('error'));
                 }
+            });
+        }
+
+        appendAddonQuantities(requestData, quantities) {
+            Object.keys(quantities || {}).forEach(addonId => {
+                requestData.append('addon_qty[' + addonId + ']', quantities[addonId]);
             });
         }
 
@@ -690,10 +698,19 @@
 
         getFormData() {
             const addons = [];
+            // Quantities of the ticked add-ons that have a quantity field
+            // (sold more than once); the server clamps them and reads a
+            // missing one as 1.
+            const addonQty = {};
+            const form = this.form;
 
-            this.form.find('.rv-addon-checkbox:checked').each(function () {
+            form.find('.rv-addon-checkbox:checked').each(function () {
                 const addonId = parseInt($(this).val());
                 addons.push(addonId);
+                const $qty = form.find('.rv-addon-qty[data-addon-id="' + addonId + '"]');
+                if ($qty.length) {
+                    addonQty[addonId] = parseInt($qty.val(), 10) || 1;
+                }
             });
 
 
@@ -724,6 +741,7 @@
                 customer_email: this.container.find('.rv-customer-email').val(),
                 customer_phone: this.container.find('.rv-customer-phone').val(),
                 addons: addons,
+                addon_qty: addonQty,
                 payment_type: this.form.find('input[name="payment_type"]:checked').val() || this.form.find('input[name="payment_type"][type="hidden"]').val() || 'deposit',
                 payment_method: this.form.find('input[name="payment_method"]:checked').val(),
                 payment_gateway: this.form.find('input[name="payment_gateway"]:checked').val(),
@@ -1055,7 +1073,7 @@
 
             // Append all scalar fields (skip undefined/null like jQuery does)
             Object.keys(formData).forEach(key => {
-                if (key !== 'addons') {
+                if (key !== 'addons' && key !== 'addon_qty') {
                     const val = formData[key];
                     if (val !== null && val !== undefined) {
                         requestData.append(key, val);
@@ -1069,6 +1087,7 @@
                     requestData.append('addons[]', addonId);
                 });
             }
+            this.appendAddonQuantities(requestData, formData.addon_qty);
 
             $.ajax({
                 url: window.mhmRentivaBookingForm?.ajax_url || '',
