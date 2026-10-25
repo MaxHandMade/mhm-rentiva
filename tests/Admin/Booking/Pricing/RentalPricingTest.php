@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Booking\Pricing;
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
+use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Booking\Pricing\RentalQuote;
+use MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView;
+use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Tests\Support\SiteClock;
+use ReflectionMethod;
 use WP_UnitTestCase;
 
 /**
@@ -19,6 +25,8 @@ use WP_UnitTestCase;
  */
 final class RentalPricingTest extends WP_UnitTestCase
 {
+	use SiteClock;
+
 	private const MONDAY   = '2026-07-13 07:00:00';
 	private const THURSDAY = '2026-07-16 07:00:00';
 
@@ -38,6 +46,7 @@ final class RentalPricingTest extends WP_UnitTestCase
 	public function tearDown(): void
 	{
 		delete_option('mhmrentiva_settings');
+		$this->release_site_clock();
 		parent::tearDown();
 	}
 
@@ -173,5 +182,64 @@ final class RentalPricingTest extends WP_UnitTestCase
 	{
 		$this->assertFalse(property_exists(RentalQuote::class, 'tax'));
 		$this->assertFalse(property_exists(RentalQuote::class, 'tax_amount'));
+	}
+
+	/**
+	 * Istanbul Monday 01:00 is Sunday 22:00 in UTC: the day is a weekday in
+	 * the site's calendar and must be priced as one.
+	 */
+	public function test_early_morning_monday_pickup_is_a_weekday(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+
+		$quote = RentalPricing::quote_for_days($this->vehicle_id, 1, (int) SiteTime::instant('2026-11-02', '01:00'));
+
+		$this->assertSame(0, $quote->weekend_days);
+		$this->assertSame('2026-11-02', $quote->day_lines[0]['date']);
+		$this->assertEqualsWithDelta(1000.0, $quote->rental_amount, 0.001);
+	}
+
+	/**
+	 * New York Saturday 22:00 is Sunday 03:00 in UTC. Two days from there are
+	 * Saturday and Sunday locally -- in UTC they were Sunday and Monday.
+	 */
+	public function test_saturday_late_evening_west_of_utc_is_weekend(): void
+	{
+		$this->pin_site_timezone('America/New_York');
+
+		$quote = RentalPricing::quote_for_days($this->vehicle_id, 2, (int) SiteTime::instant('2026-11-07', '22:00'));
+
+		$this->assertSame(2, $quote->weekend_days);
+		$this->assertSame(array( '2026-11-07', '2026-11-08' ), array_column($quote->day_lines, 'date'));
+		$this->assertEqualsWithDelta(2400.0, $quote->rental_amount, 0.001);
+	}
+
+	/**
+	 * The card, the form and the cart read one local date+time as one instant.
+	 * (The bridge does not price; it stores the total the form quoted.)
+	 */
+	public function test_every_surface_uses_one_instant(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+		$expected_start = gmmktime(22, 0, 0, 11, 1, 2026);
+		$expected_end   = gmmktime(22, 0, 0, 11, 3, 2026);
+
+		$card = RvsCardView::window(array(
+			'pickup_date' => '2026-11-02',
+			'return_date' => '2026-11-04',
+			'pickup_time' => '01:00',
+		));
+		$form = Util::parse_datetimes('2026-11-02', '01:00', '2026-11-04', '01:00');
+
+		$bridge = new ReflectionMethod(WooCommerceBridge::class, 'parse_datetime_to_timestamp');
+		$bridge->setAccessible(true);
+
+		$this->assertSame(array( $expected_start, $expected_end ), $card);
+		$this->assertIsArray($form);
+		$this->assertSame($expected_start, $form['start_ts']);
+		$this->assertSame($expected_end, $form['end_ts']);
+		$this->assertSame($expected_start, $bridge->invoke(null, '2026-11-02', '01:00'));
+		$this->assertSame($expected_end, $bridge->invoke(null, '2026-11-04', '01:00'));
+		$this->assertSame(SiteTime::instant('2026-11-02'), $bridge->invoke(null, '2026-11-02', ''), 'An empty time is local midnight.');
 	}
 }

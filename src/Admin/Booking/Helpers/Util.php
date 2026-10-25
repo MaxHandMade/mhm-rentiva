@@ -45,15 +45,11 @@ final class Util {
 				throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
 			}
 
-			// ⭐ GLOBAL FIX: Use WordPress timezone for interpretation
-			$tz         = wp_timezone();
-			$pickup_dt  = new \DateTime($pickup_date . ' ' . $pickup_time, $tz);
-			$dropoff_dt = new \DateTime($dropoff_date . ' ' . $dropoff_time, $tz);
+			// Local wall time in the site timezone -> the real instant.
+			$start_ts = SiteTime::instant($pickup_date, $pickup_time);
+			$end_ts   = SiteTime::instant($dropoff_date, $dropoff_time);
 
-			$start_ts = $pickup_dt->getTimestamp();
-			$end_ts   = $dropoff_dt->getTimestamp();
-
-			if ($start_ts === false || $end_ts === false) {
+			if (null === $start_ts || null === $end_ts) {
 				throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
 			}
 
@@ -72,25 +68,12 @@ final class Util {
 	}
 
 	/**
-	 * Calculates rental days
+	 * Calculates rental days: whole local calendar days (site timezone), at
+	 * least 1. See SiteTime::rental_days().
 	 */
 	public static function rental_days(int $start_ts, int $end_ts): int
 	{
-		// Convert Unix timestamps to DateTime objects
-		$start_date = new \DateTime();
-		$start_date->setTimestamp($start_ts);
-
-		$end_date = new \DateTime();
-		$end_date->setTimestamp($end_ts);
-
-		// Calculate date difference
-		$interval = $start_date->diff($end_date);
-
-		// Get number of days (only days, ignore hours)
-		$days = $interval->days;
-
-		// Minimum 1 day
-		return max(1, $days);
+		return SiteTime::rental_days($start_ts, $end_ts);
 	}
 
 	/**

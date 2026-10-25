@@ -34,6 +34,11 @@ trait SiteClock
 	private ?int $pinned_offset_hours = null;
 
 	/**
+	 * The named zone currently forced, or null when not pinned.
+	 */
+	private ?string $pinned_timezone = null;
+
+	/**
 	 * Make the site's local hour be $hour, right now.
 	 *
 	 * Minutes and seconds are untouched: the shift is a whole number of hours,
@@ -42,8 +47,32 @@ trait SiteClock
 	 */
 	protected function pin_site_hour( int $hour ): void
 	{
+		$this->pin_site_offset( self::offset_for_hour( $hour, (int) gmdate( 'G' ) ) );
+	}
+
+	/**
+	 * Make the site a named zone, DST rules included.
+	 *
+	 * Only `timezone_string` is filtered: core derives `gmt_offset` from it
+	 * (`wp_timezone_override_offset`), and a second filter on the offset would
+	 * only compete with that one.
+	 */
+	protected function pin_site_timezone( string $tz ): void
+	{
 		$this->release_site_clock();
-		$this->pinned_offset_hours = self::offset_for_hour( $hour, (int) gmdate( 'G' ) );
+		$this->pinned_timezone = $tz;
+
+		add_filter( 'pre_option_timezone_string', array( $this, 'filter_pinned_timezone_string' ) );
+	}
+
+	/**
+	 * Make the site a fixed UTC offset with no named zone -- the "UTC+3"
+	 * choice in General Settings, which has no DST.
+	 */
+	protected function pin_site_offset( int $hours ): void
+	{
+		$this->release_site_clock();
+		$this->pinned_offset_hours = $hours;
 
 		add_filter( 'pre_option_gmt_offset', array( $this, 'filter_pinned_gmt_offset' ) );
 		add_filter( 'pre_option_timezone_string', array( $this, 'filter_pinned_timezone_string' ) );
@@ -76,6 +105,7 @@ trait SiteClock
 		remove_filter( 'pre_option_gmt_offset', array( $this, 'filter_pinned_gmt_offset' ) );
 		remove_filter( 'pre_option_timezone_string', array( $this, 'filter_pinned_timezone_string' ) );
 		$this->pinned_offset_hours = null;
+		$this->pinned_timezone     = null;
 	}
 
 	/**
@@ -86,12 +116,17 @@ trait SiteClock
 	}
 
 	/**
-	 * An offset only takes effect while `timezone_string` is empty -- core
+	 * The pinned named zone; otherwise empty while an offset is pinned, because
+	 * an offset only takes effect while `timezone_string` is empty -- core
 	 * prefers the named zone whenever there is one.
 	 *
 	 * @return string|false
 	 */
 	public function filter_pinned_timezone_string() {
+		if ( null !== $this->pinned_timezone ) {
+			return $this->pinned_timezone;
+		}
+
 		return null === $this->pinned_offset_hours ? false : '';
 	}
 }

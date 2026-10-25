@@ -278,18 +278,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Convert date and time strings to timestamp
+	 * Local date and time (site timezone) as the real instant.
 	 *
 	 * @param string $date Date string (Y-m-d format)
-	 * @param string $time Time string (H:i format, optional)
+	 * @param string $time Time string (H:i format, optional; empty = 00:00)
 	 * @return int|null Timestamp or null on failure
 	 */
 	private static function parse_datetime_to_timestamp(string $date, string $time = ''): ?int
 	{
-		$datetime  = trim($date . ' ' . $time);
-		$timestamp = strtotime($datetime);
+		$time = trim($time);
 
-		return $timestamp !== false ? $timestamp : null;
+		return \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant(trim($date), '' === $time ? '00:00' : $time);
 	}
 
 	/**
@@ -2289,8 +2288,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// Check for overlap (locked check for real-time availability)
 				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
 					$vehicle_title = get_the_title($vehicle_id);
-					$pickup_date   = date_i18n(get_option('date_format'), $start_ts);
-					$dropoff_date  = date_i18n(get_option('date_format'), $end_ts);
+					$pickup_date   = wp_date(get_option('date_format'), $start_ts);
+					$dropoff_date  = wp_date(get_option('date_format'), $end_ts);
 
 					\wc_add_notice(
 						sprintf(
@@ -2403,8 +2402,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// authoritative locked check runs in create_booking_from_data().
 				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
 					$vehicle_title = get_the_title($vehicle_id);
-					$pickup_date   = date_i18n(get_option('date_format'), $start_ts);
-					$dropoff_date  = date_i18n(get_option('date_format'), $end_ts);
+					$pickup_date   = wp_date(get_option('date_format'), $start_ts);
+					$dropoff_date  = wp_date(get_option('date_format'), $end_ts);
 
 					// ⭐ This error will STOP checkout process - NO PAYMENT WILL BE PROCESSED
 					\wc_add_notice(

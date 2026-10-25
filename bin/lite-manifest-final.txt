@@ -27,6 +27,7 @@ src/Admin/Booking/Core/Status.php
 src/Admin/Booking/Helpers/Cache.php
 src/Admin/Booking/Helpers/CancellationHandler.php
 src/Admin/Booking/Helpers/Locker.php
+src/Admin/Booking/Helpers/SiteTime.php
 src/Admin/Booking/Helpers/Util.php
 src/Admin/Booking/ListTable/BookingColumns.php
 src/Admin/Booking/Meta/BookingDepositMetaBox.php

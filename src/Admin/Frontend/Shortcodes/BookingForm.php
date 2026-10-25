@@ -1396,9 +1396,8 @@ final class BookingForm extends AbstractShortcode {
 			$currency_symbol   = CurrencyHelper::get_currency_symbol();
 			$currency_position = CurrencyHelper::get_currency_position();
 
-			// Check whether pickup falls on an ISO-8601 weekend day.
-			$pickup_datetime = new \DateTime($pickup_date);
-			$day_of_week     = (int) $pickup_datetime->format('N');
+			// Check whether pickup falls on an ISO-8601 weekend day (site timezone).
+			$day_of_week = \MHMRentiva\Admin\Booking\Helpers\SiteTime::weekday($start_ts);
 
 			$response_data = array(
 				'vehicle_price'         => $vehicle_price,
