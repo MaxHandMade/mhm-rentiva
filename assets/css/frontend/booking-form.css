@@ -7251,3 +7251,43 @@
 		order: 2;
 	}
 }
+
+/* Total row: the amount is WooCommerce's (cents and the tax suffix, 6.4.0),
+   wider than the old whole-unit total. It stays beside the label: the tax
+   suffix sits under the amount in small type, and the amount scales with the
+   summary's width (container units, 17-24 px), so the nowrap label no longer
+   runs into it. Booking-form redesign (Aşama 2) replaces this. */
+.rv-booking-form-wrapper .rv-price-calculation {
+	container-type: inline-size;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-label {
+	flex-shrink: 0;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	align-items: flex-end;
+	min-width: 0;
+	margin: 0;
+	font-size: clamp(17px, 8cqi, 24px);
+	line-height: 1.1;
+	text-align: right;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value .woocommerce-price-suffix {
+	align-self: flex-end;
+	margin: 2px 0 0;
+	font-size: 12px;
+	line-height: 1.2;
+}
