@@ -337,7 +337,8 @@ final class SearchResults extends AbstractShortcode {
 		wp_enqueue_style(
 			'mhm-rentiva-search-results-css',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
-			array( 'mhm-rentiva-rvs-card' ),
+			// The page layout still reads --mhm-* tokens; the cards read --rvs-*.
+			array( 'mhm-rentiva-css-variables', 'mhm-rentiva-rvs-card' ),
 			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
 			'all'
 		);
