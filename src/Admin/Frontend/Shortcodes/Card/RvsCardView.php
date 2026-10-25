@@ -55,50 +55,53 @@ final class RvsCardView {
 		$dates = self::dates($dates);
 
 		return array(
-			'id'                => $vehicle_id,
-			'title'             => (string) ( $vehicle['title'] ?? '' ),
-			'permalink'         => (string) ( $vehicle['permalink'] ?? '' ),
-			'image'             => array(
-				'id'  => (int) ( $vehicle['image']['id'] ?? 0 ),
-				'url' => (string) ( $vehicle['image']['url'] ?? '' ),
-				'alt' => (string) ( $vehicle['image']['alt'] ?? ( $vehicle['title'] ?? '' ) ),
+			'id'          => $vehicle_id,
+			'title'       => (string) ( $vehicle['title'] ?? '' ),
+			'permalink'   => (string) ( $vehicle['permalink'] ?? '' ),
+			'image'       => array(
+				'id'   => (int) ( $vehicle['image']['id'] ?? 0 ),
+				'url'  => (string) ( $vehicle['image']['url'] ?? '' ),
+				'alt'  => (string) ( $vehicle['image']['alt'] ?? ( $vehicle['title'] ?? '' ) ),
+				// The shortcode's image_size (a registered size name).
+				'size' => self::image_size($atts),
 			),
-			'category'          => self::category_name($vehicle),
-			'rating'            => array(
-				'is_new'  => $rating_count <= 0,
-				'average' => $rating_avg,
-				'count'   => $rating_count,
-				'label'   => $rating_count > 0
+			'category'    => self::category_name($vehicle),
+			'brand'       => self::toggle($atts, 'show_brand', array()) ? self::term_name($vehicle, 'brand') : '',
+			'rating'      => array(
+				'is_new'     => $rating_count <= 0,
+				'average'    => $rating_avg,
+				'count'      => $rating_count,
+				'label'      => $rating_count > 0
 					/* translators: %s: average rating, e.g. 4.8. */
 					? sprintf(__('★ %s', 'mhm-rentiva'), number_format_i18n($rating_avg, 1))
 					: __('New', 'mhm-rentiva'),
 				// The review count is the card's show_rating_count setting (default off).
 				'show_count' => $rating_count > 0 && self::toggle($atts, 'show_rating_count', array(), false),
 			),
-			'description'       => self::toggle($atts, 'show_description', array(), false) ? (string) ( $vehicle['excerpt'] ?? '' ) : '',
-			'specs'             => self::specs($vehicle_id, (array) ( $vehicle['features'] ?? array() )),
-			'terms'             => self::terms($vehicle_id),
-			'price'             => self::price($vehicle_id, $dates),
-			'available'         => $available,
+			'description' => self::toggle($atts, 'show_description', array(), false) ? (string) ( $vehicle['excerpt'] ?? '' ) : '',
+			'specs'       => self::specs($vehicle_id, (array) ( $vehicle['features'] ?? array() ), (int) ( $atts['max_features'] ?? 0 )),
+			'terms'       => self::terms($vehicle_id),
+			'price'       => self::price($vehicle_id, $dates),
+			'available'   => $available,
 			// The status badge is its own setting (show_availability_status, default
 			// off); `show_availability` is not read, as on the old card.
-			'status'            => self::toggle($atts, 'show_availability_status', array(), false)
+			'status'      => self::toggle($atts, 'show_availability_status', array(), false)
 				? (string) ( $vehicle['availability']['text'] ?? ( $available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva') ) )
 				: '',
-			'booking'           => array(
+			'booking'     => array(
 				'show'  => $on('show_booking_button', 'show_book_button', 'show_booking_btn'),
 				'url'   => VehicleCardLinks::booking_url($vehicle, $atts, $dates),
 				'label' => $available ? self::booking_label($atts) : __('Unavailable', 'mhm-rentiva'),
 			),
-			'favorite'          => array(
+			'favorite'    => array(
 				'show'   => $on('show_favorite_button', 'show_favorite_btn', 'show_favorite'),
 				'active' => self::is_favorite($vehicle, $vehicle_id),
 			),
-			'compare'           => array(
+			'compare'     => array(
 				'show'   => $on('show_compare_button', 'show_compare_btn'),
 				'active' => self::is_compared($vehicle, $vehicle_id),
 			),
-			'show'              => array(
+			'show'        => array(
 				'image'    => $on('show_image', 'show_images'),
 				'title'    => $on('show_title'),
 				'rating'   => $on('show_rating'),
@@ -193,19 +196,40 @@ final class RvsCardView {
 	 */
 	private static function category_name(array $vehicle): string
 	{
-		$raw = $vehicle['category'] ?? ( $vehicle['category_name'] ?? '' );
+		return self::term_name($vehicle, 'category');
+	}
 
-		return is_array($raw) ? (string) ( $raw['name'] ?? '' ) : (string) $raw;
+	/**
+	 * The card data's `category` / `brand`: a name, or a term array.
+	 *
+	 * @param array<string, mixed> $vehicle
+	 */
+	private static function term_name(array $vehicle, string $key): string
+	{
+		$raw = $vehicle[ $key ] ?? ( $vehicle[ $key . '_name' ] ?? '' );
+
+		return is_array($raw) ? (string) ( $raw['name'] ?? ( $raw['slug'] ?? '' ) ) : (string) $raw;
+	}
+
+	/**
+	 * @param array<string, mixed> $atts
+	 */
+	private static function image_size(array $atts): string
+	{
+		$size = isset($atts['image_size']) && is_string($atts['image_size']) ? sanitize_key($atts['image_size']) : '';
+
+		return '' !== $size ? $size : 'medium_large';
 	}
 
 	/**
 	 * "5 People · Automatic · Hybrid", straight from the vehicle's meta; a
 	 * vehicle without that meta falls back to its first three prepared
-	 * features (the card data's `features`).
+	 * features (the card data's `features`). $max (the shortcode's
+	 * max_features) caps the parts; 0 = no cap.
 	 *
 	 * @param array<int, array<string, mixed>> $features
 	 */
-	private static function specs(int $vehicle_id, array $features = array()): string
+	private static function specs(int $vehicle_id, array $features = array(), int $max = 0): string
 	{
 		$parts = self::specs_from_meta($vehicle_id);
 		if (array() === $parts) {
@@ -215,6 +239,10 @@ final class RvsCardView {
 					$parts[] = $text;
 				}
 			}
+		}
+
+		if ($max > 0) {
+			$parts = array_slice($parts, 0, $max);
 		}
 
 		return implode(' · ', $parts);

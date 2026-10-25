@@ -23,7 +23,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-$mhmrentiva_card = RvsCardView::from_vehicle(
+$mhmrentiva_card        = RvsCardView::from_vehicle(
 	(array) ( $vehicle ?? array() ),
 	(array) ( $atts ?? array() ),
 	(array) ( $dates ?? array() )
@@ -41,7 +41,7 @@ $mhmrentiva_fav_label   = $mhmrentiva_card['favorite']['active'] ? __('Remove fr
 					<?php
 					echo wp_get_attachment_image(
 						$mhmrentiva_card['image']['id'],
-						'medium_large',
+						$mhmrentiva_card['image']['size'],
 						false,
 						array(
 							'class'   => 'rvs-card__img',
@@ -74,17 +74,21 @@ $mhmrentiva_fav_label   = $mhmrentiva_card['favorite']['active'] ? __('Remove fr
 	<?php endif; ?>
 
 	<div class="rvs-card__body">
+		<?php if ('' !== $mhmrentiva_card['brand']) : ?>
+			<span class="rvs-kicker rvs-card__brand"><?php echo esc_html($mhmrentiva_card['brand']); ?></span>
+		<?php endif; ?>
 		<div class="rvs-card__head">
 			<?php if ($mhmrentiva_show['title']) : ?>
 				<h3 class="rvs-card__title"><a href="<?php echo esc_url($mhmrentiva_card['permalink']); ?>"><?php echo esc_html($mhmrentiva_card['title']); ?></a></h3>
 			<?php endif; ?>
 			<?php if ($mhmrentiva_show['rating']) : ?>
-				<span class="rvs-card__rating">
-					<?php echo esc_html($mhmrentiva_card['rating']['label']); ?>
-					<?php if ($mhmrentiva_card['rating']['show_count']) : ?>
-						<span class="rvs-card__rating-count">(<?php echo esc_html(number_format_i18n($mhmrentiva_card['rating']['count'])); ?>)</span>
-					<?php endif; ?>
-				</span>
+				<?php
+				$mhmrentiva_rating = esc_html($mhmrentiva_card['rating']['label']);
+				if ($mhmrentiva_card['rating']['show_count']) {
+					$mhmrentiva_rating .= ' <span class="rvs-card__rating-count">(' . esc_html(number_format_i18n($mhmrentiva_card['rating']['count'])) . ')</span>';
+				}
+				?>
+				<span class="rvs-card__rating"><?php echo wp_kses_post($mhmrentiva_rating); ?></span>
 			<?php endif; ?>
 		</div>
 
