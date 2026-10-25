@@ -104,6 +104,27 @@ final class DatabaseMigrator {
 	private const BOOKING_TS_BATCH = 100;
 
 	/**
+	 * How many admin_init requests may re-run normalise_booking_timestamps_480()
+	 * on its own after a run that left BOOKING_TS_DONE_OPTION unset.
+	 *
+	 * The migrator stamps 4.8.0 whatever this step's outcome, so without this
+	 * lane a failed write would wait for the next stamp bump while the add-on
+	 * stays on its old reading. Bounded for the same reason as
+	 * INDEX_CLEANUP_MAX_ATTEMPTS: admin_init is reachable on every admin
+	 * request, and a failure that survives three requests is not transient.
+	 *
+	 * @see retry_booking_timestamps_480()
+	 */
+	public const BOOKING_TS_MAX_ATTEMPTS = 3;
+
+	/**
+	 * Retry-lane attempts within the current version gate. Deleted when the
+	 * step succeeds and before the migrator body runs the step again, so a
+	 * later stamp bump starts with a fresh budget.
+	 */
+	public const BOOKING_TS_ATTEMPTS_OPTION = 'mhmrentiva_booking_ts_normalise_attempts';
+
+	/**
 	 * Whether migrate_contact_status_440() has already run once.
 	 *
 	 * @see migrate_contact_status_440()
@@ -242,6 +263,13 @@ final class DatabaseMigrator {
 	 * failure. See last_run_was_lock_busy().
 	 */
 	private static bool $last_run_was_lock_busy = false;
+
+	/**
+	 * Whether normalise_booking_timestamps_480() already ran in this request,
+	 * so the retry lane never spends an attempt right after the migrator body
+	 * (Lane A on plugins_loaded, then admin_init) ran and failed the step.
+	 */
+	private static bool $booking_ts_ran_this_request = false;
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -522,6 +550,8 @@ final class DatabaseMigrator {
 			self::migrate_elementor_style_ids_450();
 			self::rebuild_elementor_plain_text_460();
 			self::clear_elementor_css_470();
+			// A body run is a new version gate: the retry lane's budget starts over.
+			delete_option(self::BOOKING_TS_ATTEMPTS_OPTION);
 			self::normalise_booking_timestamps_480();
 
 			// Retire the core-table index surface. RetiredIndexes is the single
@@ -647,6 +677,80 @@ final class DatabaseMigrator {
 		}
 
 		self::run_migrations();
+		self::retry_booking_timestamps_480();
+	}
+
+	/**
+	 * Whether normalise_booking_timestamps_480() has finished. A method, not an
+	 * inline get_option(), because the lane reads it again after the step ran.
+	 *
+	 * @phpstan-impure
+	 */
+	private static function booking_ts_done(): bool
+	{
+		return '1' === get_option(self::BOOKING_TS_DONE_OPTION);
+	}
+
+	/**
+	 * The bounded retry lane for normalise_booking_timestamps_480().
+	 *
+	 * Runs ONLY that step -- never the rest of the migrator body -- and only
+	 * when the stamp is already at 4.8.0 or later, the done flag is absent,
+	 * the step has not run in this request, and fewer than
+	 * BOOKING_TS_MAX_ATTEMPTS retries have been spent. The attempt that uses
+	 * up the budget logs one error; after that the lane is silent until the
+	 * next stamp bump runs the step again with a fresh budget.
+	 *
+	 * Callers gate the request context (run_migrations_from_hook()).
+	 */
+	public static function retry_booking_timestamps_480(): void
+	{
+		if (self::$booking_ts_ran_this_request
+			|| ! self::pro_satisfies(self::installed_pro_version())
+			|| version_compare(self::stored_db_version(), '4.8.0', '<')
+			|| self::booking_ts_done()
+		) {
+			return;
+		}
+
+		$attempts = (int) get_option(self::BOOKING_TS_ATTEMPTS_OPTION, 0);
+		if ($attempts >= self::BOOKING_TS_MAX_ATTEMPTS) {
+			return;
+		}
+
+		if (! self::acquire_lock()) {
+			return;
+		}
+
+		try {
+			// Another request may have finished the step while we waited.
+			wp_cache_delete(self::BOOKING_TS_DONE_OPTION, 'options');
+			wp_cache_delete('alloptions', 'options');
+			if (self::booking_ts_done()) {
+				return;
+			}
+
+			++$attempts;
+			update_option(self::BOOKING_TS_ATTEMPTS_OPTION, $attempts, false);
+
+			$counts = self::normalise_booking_timestamps_480();
+
+			if (! self::booking_ts_done()
+				&& $attempts >= self::BOOKING_TS_MAX_ATTEMPTS
+				&& class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)
+			) {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+					'Booking timestamp rebuild (4.8.0) still failing after the retry budget; it stops retrying until the next migration run',
+					array(
+						'attempts' => $attempts,
+						'counts'   => $counts,
+					),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+				);
+			}
+		} finally {
+			self::release_lock();
+		}
 	}
 
 	/**
@@ -1451,8 +1555,9 @@ final class DatabaseMigrator {
 	 * counted separately. Rerunning finds nothing to change.
 	 *
 	 * Own done flag, written only after the last batch. A write that fails
-	 * leaves the flag unset and logs once; like 4.4.0, the step then runs
-	 * again on the next stamp bump, not on every request.
+	 * leaves the flag unset and logs; the migrator still stamps 4.8.0, so
+	 * retry_booking_timestamps_480() re-runs this step alone from admin_init,
+	 * at most BOOKING_TS_MAX_ATTEMPTS times, then the next stamp bump.
 	 *
 	 * @return array{changed: int, unchanged: int, inverted: int, dateless: int, failed: int}
 	 */
@@ -1469,6 +1574,8 @@ final class DatabaseMigrator {
 		if ('1' === get_option(self::BOOKING_TS_DONE_OPTION)) {
 			return $counts;
 		}
+
+		self::$booking_ts_ran_this_request = true;
 
 		$default_pickup  = (string) apply_filters('mhmrentiva_default_pickup_time', '10:00');
 		$default_dropoff = (string) apply_filters('mhmrentiva_default_dropoff_time', '10:00');
@@ -1522,6 +1629,11 @@ final class DatabaseMigrator {
 				++$counts[ $ok ? 'changed' : 'failed' ];
 			}
 
+			// Keep memory flat on large sites: this batch's meta is not read again.
+			foreach ($ids as $id) {
+				wp_cache_delete($id, 'post_meta');
+			}
+
 			++$paged;
 			$batch_was_full = self::BOOKING_TS_BATCH === count($ids);
 		} while ($batch_was_full);
@@ -1533,6 +1645,7 @@ final class DatabaseMigrator {
 
 		if (0 === $counts['failed']) {
 			update_option(self::BOOKING_TS_DONE_OPTION, '1', false);
+			delete_option(self::BOOKING_TS_ATTEMPTS_OPTION);
 		}
 
 		if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
@@ -1549,7 +1662,7 @@ final class DatabaseMigrator {
 				);
 			} else {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-					'Booking timestamp rebuild (4.8.0) did not finish: some stamps could not be written; it runs again on the next migration run',
+					'Booking timestamp rebuild (4.8.0) did not finish: some stamps could not be written; the bounded admin_init retry runs it again',
 					$counts,
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);

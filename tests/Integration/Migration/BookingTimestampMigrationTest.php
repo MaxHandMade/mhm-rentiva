@@ -34,14 +34,70 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 	{
 		parent::setUp();
 		delete_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION);
+		delete_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION);
+		self::new_request();
 		self::forget_migration_lock();
 	}
 
 	public function tearDown(): void
 	{
 		delete_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION);
+		delete_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION);
+		delete_option('mhmrentiva_elementor_style_ids_pending');
+		self::new_request();
+		set_current_screen('front');
 		parent::tearDown();
 		self::forget_migration_lock();
+	}
+
+	/**
+	 * Forget that the step ran "in this request", as a new request would.
+	 */
+	private static function new_request(): void
+	{
+		$p = new \ReflectionProperty(DatabaseMigrator::class, 'booking_ts_ran_this_request');
+		$p->setAccessible(true);
+		$p->setValue(null, false);
+	}
+
+	/**
+	 * Make every write of a start stamp fail, as a broken table would.
+	 */
+	private function break_start_ts_writes(): callable
+	{
+		$break = static function ($check, $object_id, $meta_key) {
+			unset($object_id);
+			return '_mhmrentiva_start_ts' === $meta_key ? false : $check;
+		};
+		add_filter('update_post_metadata', $break, 10, 3);
+		add_filter('add_post_metadata', $break, 10, 3);
+
+		return $break;
+	}
+
+	private function wau_booking(): int
+	{
+		return $this->booking(array(
+			'pickup_date'  => '2027-05-10',
+			'dropoff_date' => '2027-05-12',
+			'start_ts'     => (int) strtotime('2027-05-10 10:00'),
+			'end_ts'       => (int) strtotime('2027-05-12 10:00'),
+		));
+	}
+
+	/**
+	 * @return list<\WP_Post>
+	 */
+	private static function logs_matching(string $needle): array
+	{
+		$logs = get_posts(array(
+			'post_type'      => LogPostType::TYPE,
+			'posts_per_page' => 50,
+			'orderby'        => 'ID',
+			'order'          => 'DESC',
+		));
+
+		return array_values(array_filter($logs, static fn (\WP_Post $p): bool => str_contains($p->post_title, $needle)));
 	}
 
 	/**
@@ -464,5 +520,96 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 		$this->assertSame('4.8.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('1', get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION));
 		$this->assertSame((string) self::local_at('2027-05-10 10:00', 3), self::ts($id, 'start'));
+	}
+
+	public function test_a_failed_write_leaves_the_flag_absent_and_logs(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+		$id = $this->wau_booking();
+		$this->break_start_ts_writes();
+
+		$counts = $this->step();
+
+		$this->assertSame(1, $counts['failed']);
+		$this->assertSame(0, $counts['changed']);
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION), 'A failed write must not set the flag the add-on gates on.');
+		$this->assertSame((string) strtotime('2027-05-10 10:00'), self::ts($id, 'start'));
+		$this->assertCount(1, self::logs_matching('did not finish'), 'A failed run logs one error.');
+
+		// Same request: the retry lane must not spend an attempt right away.
+		update_option('mhmrentiva_db_version', '4.8.0');
+		DatabaseMigrator::retry_booking_timestamps_480();
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION));
+	}
+
+	public function test_the_retry_lane_reruns_the_step_after_a_failed_run(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+		$id    = $this->wau_booking();
+		$break = $this->break_start_ts_writes();
+		update_option('mhmrentiva_db_version', '4.7.0');
+		DatabaseMigrator::run_migrations();
+		$this->assertSame('4.8.0', get_option('mhmrentiva_db_version'), 'Premise: the migrator stamps 4.8.0 whatever the step did.');
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION));
+
+		remove_filter('update_post_metadata', $break, 10);
+		remove_filter('add_post_metadata', $break, 10);
+		self::new_request();
+		set_current_screen('dashboard'); // an admin page load: is_admin()
+
+		// The body would queue this again (4.5.0/4.7.0); the lane must not.
+		delete_option('mhmrentiva_elementor_style_ids_pending');
+
+		DatabaseMigrator::run_migrations_from_hook();
+
+		$this->assertSame('1', get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION), 'The retry lane finishes the step.');
+		$this->assertSame((string) self::local_at('2027-05-10 10:00', 3), self::ts($id, 'start'));
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION), 'Success clears the attempt counter.');
+		$this->assertFalse(get_option('mhmrentiva_elementor_style_ids_pending'), 'Only the 4.8.0 step runs, not the migrator body.');
+	}
+
+	public function test_the_retry_lane_stops_after_its_budget(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+		$this->wau_booking();
+		$this->break_start_ts_writes();
+		update_option('mhmrentiva_db_version', '4.8.0');
+
+		$runs = 0;
+		add_filter(
+			'mhmrentiva_default_pickup_time',
+			static function (string $time) use (&$runs): string {
+				++$runs; // read once per step run
+				return $time;
+			}
+		);
+
+		for ($i = 0; $i < DatabaseMigrator::BOOKING_TS_MAX_ATTEMPTS + 2; $i++) {
+			self::new_request();
+			DatabaseMigrator::retry_booking_timestamps_480();
+		}
+
+		$this->assertSame(DatabaseMigrator::BOOKING_TS_MAX_ATTEMPTS, $runs);
+		$this->assertSame(DatabaseMigrator::BOOKING_TS_MAX_ATTEMPTS, (int) get_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION));
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION));
+		$this->assertCount(1, self::logs_matching('after the retry budget'), 'The budget closing is logged once.');
+	}
+
+	public function test_the_retry_lane_does_nothing_when_flagged_or_before_480(): void
+	{
+		$this->pin_site_timezone('Europe/Istanbul');
+		$id = $this->wau_booking();
+
+		update_option('mhmrentiva_db_version', '4.8.0');
+		update_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION, '1', false);
+		DatabaseMigrator::retry_booking_timestamps_480();
+		$this->assertSame((string) strtotime('2027-05-10 10:00'), self::ts($id, 'start'), 'With the flag set the lane must not touch rows.');
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION));
+
+		delete_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION);
+		update_option('mhmrentiva_db_version', '4.7.0');
+		DatabaseMigrator::retry_booking_timestamps_480();
+		$this->assertSame((string) strtotime('2027-05-10 10:00'), self::ts($id, 'start'), 'Below 4.8.0 the migrator body owns the step.');
+		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION));
 	}
 }
