@@ -22,6 +22,7 @@ use DateInterval;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
+use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -39,6 +40,100 @@ final class VehicleDetails extends AbstractShortcode {
 		parent::register();
 		add_action( 'wp_ajax_mhmrentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
 		add_action( 'wp_ajax_nopriv_mhmrentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
+		// Aşama 2 PR B: the rvs page's months and live booking-card quote.
+		add_action( 'wp_ajax_mhmrentiva_vd_months', array( self::class, 'ajax_months' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_vd_months', array( self::class, 'ajax_months' ) );
+		add_action( 'wp_ajax_mhmrentiva_vd_quote', array( self::class, 'ajax_quote' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_vd_quote', array( self::class, 'ajax_quote' ) );
+	}
+
+	/**
+	 * A published vehicle from the request, or a JSON error (and 0).
+	 */
+	private static function requested_vehicle(): int {
+		if ( ! check_ajax_referer( 'mhmrentiva_vd_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
+		}
+		$vehicle_id = isset( $_POST['vehicle_id'] ) ? absint( wp_unslash( (string) $_POST['vehicle_id'] ) ) : 0;
+		$vehicle    = $vehicle_id > 0 ? get_post( $vehicle_id ) : null;
+		if ( ! $vehicle || 'mhmrentiva_vehicle' !== $vehicle->post_type || 'publish' !== $vehicle->post_status ) {
+			wp_send_json_error( array( 'message' => __( 'Vehicle not found.', 'mhm-rentiva' ) ) );
+		}
+		return $vehicle_id;
+	}
+
+	/**
+	 * @param list<array<string, mixed>> $months
+	 */
+	private static function months_html( array $months ): string {
+		$html = '';
+		foreach ( $months as $month ) {
+			$html .= (string) Templates::render( 'partials/rvs/calendar-month', array( 'calendar' => $month ), true );
+		}
+		return $html;
+	}
+
+	/**
+	 * Two months from year/month, for the vehicle page's month navigation.
+	 */
+	public static function ajax_months(): void {
+		$vehicle_id = self::requested_vehicle();
+		if ( $vehicle_id <= 0 ) {
+			return;
+		}
+		$year  = isset( $_POST['year'] ) ? absint( wp_unslash( (string) $_POST['year'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in requested_vehicle().
+		$month = isset( $_POST['month'] ) ? absint( wp_unslash( (string) $_POST['month'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in requested_vehicle().
+		if ( $year < 2000 || $year > 2100 || $month < 1 || $month > 12 ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid month.', 'mhm-rentiva' ) ) );
+		}
+		$window = VehicleDetailsView::window( self::posted_window() );
+		$months = VehicleDetailsView::months( $vehicle_id, sprintf( '%04d-%02d-01', $year, $month ), $window );
+		wp_send_json_success( array( 'html' => self::months_html( $months ) ) );
+	}
+
+	/**
+	 * The booking card for a new window: total, breakdown, continue link,
+	 * availability, and the months around it -- the page's own partials.
+	 */
+	public static function ajax_quote(): void {
+		$vehicle_id = self::requested_vehicle();
+		if ( $vehicle_id <= 0 ) {
+			return;
+		}
+		// Same allowance as the booking form's price endpoint: a visitor trying a
+		// few date ranges fires a request per change.
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
+
+		$window  = VehicleDetailsView::window( self::posted_window() );
+		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );
+		$months  = VehicleDetailsView::months( $vehicle_id, $window['pickup_date'], $window );
+
+		wp_send_json_success(
+			array(
+				'days'           => (int) $booking['days'],
+				'total_html'     => (string) $booking['breakdown']['total']['html'],
+				'breakdown_html' => (string) Templates::render( 'partials/rvs/breakdown', array(
+					'breakdown'   => $booking['breakdown'],
+					'collapsible' => true,
+				), true ),
+				'continue_url'   => (string) $booking['continue_url'],
+				'available'      => (bool) $booking['available'],
+				'message'        => (string) $booking['message'],
+				'months_html'    => self::months_html( $months ),
+			)
+		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private static function posted_window(): array {
+		$window = array();
+		foreach ( array( 'pickup_date', 'pickup_time', 'return_date', 'pickup_location' ) as $key ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in requested_vehicle(); VehicleDetailsView::window() validates each value.
+			$window[ $key ] = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) ) : '';
+		}
+		return $window;
 	}
 
 	protected static function get_shortcode_tag(): string {
@@ -252,7 +347,7 @@ final class VehicleDetails extends AbstractShortcode {
 		$current_year  = $year ?? (int) gmdate( 'Y' );
 		$days_in_month = (int) gmdate( 't', mktime( 0, 0, 0, $current_month, 1, $current_year ) );
 		$first_day     = (int) gmdate( 'w', mktime( 0, 0, 0, $current_month, 1, $current_year ) );
-		$booked_days   = self::get_booked_days( $vehicle_id, $current_month, $current_year );
+		$booked_days   = array_map( static fn( string $d ): int => (int) substr( $d, 8, 2 ), self::booked_dates( $vehicle_id, sprintf( '%04d-%02d-01', $current_year, $current_month ), sprintf( '%04d-%02d-%02d', $current_year, $current_month, $days_in_month ) ) );
 		$week_start    = (int) get_option( 'start_of_week', 1 );
 
 		$all_day_names = array( __( 'Sun', 'mhm-rentiva' ), __( 'Mon', 'mhm-rentiva' ), __( 'Tue', 'mhm-rentiva' ), __( 'Wed', 'mhm-rentiva' ), __( 'Thu', 'mhm-rentiva' ), __( 'Fri', 'mhm-rentiva' ), __( 'Sat', 'mhm-rentiva' ) );
@@ -289,10 +384,29 @@ final class VehicleDetails extends AbstractShortcode {
 		return $calendar_html;
 	}
 
-	private static function get_booked_days( int $vehicle_id, int $month, int $year ): array {
+	/**
+	 * The vehicle's cache key includes the vehicle the URL names: every
+	 * /vehicle-details/{slug}/ page shares one page id.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function cache_request_factors(): array {
+		$factors                 = parent::cache_request_factors();
+		$factors['vehicle_slug'] = (string) get_query_var( 'mhmrentiva_vehicle_slug', '' );
+		return $factors;
+	}
+
+	/**
+	 * Days the vehicle is taken between $from and $to (inclusive, `Y-m-d`), from
+	 * pickup to return day inclusive. The calendar is a guide; the booking card
+	 * checks the exact window with Util::check_availability().
+	 *
+	 * @return list<string>
+	 */
+	public static function booked_dates( int $vehicle_id, string $from, string $to ): array {
 		global $wpdb;
-		$start_date = sprintf( '%04d-%02d-01', $year, $month );
-		$end_date   = sprintf( '%04d-%02d-%02d', $year, $month, (int) gmdate( 't', mktime( 0, 0, 0, $month, 1, $year ) ) );
+		$start_date = $from;
+		$end_date   = $to;
 
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
@@ -303,7 +417,7 @@ final class VehicleDetails extends AbstractShortcode {
              INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
              WHERE p.post_type = 'mhmrentiva_booking' AND p.post_status = 'publish'
-             AND pm_v.meta_value = %d AND pm_status.meta_value IN ('confirmed', 'pending', 'completed')
+             AND pm_v.meta_value = %d AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress', 'completed')
              AND ((pm_start.meta_value <= %s AND pm_end.meta_value >= %s) OR (pm_start.meta_value >= %s AND pm_start.meta_value <= %s))",
 				$vehicle_id,
 				$end_date,
@@ -313,18 +427,34 @@ final class VehicleDetails extends AbstractShortcode {
 			)
 		);
 
-		$booked_days = array();
+		$booked = array();
 		foreach ( $bookings as $booking ) {
-			$start = new DateTime( $booking->start_date );
-			$end   = new DateTime( $booking->end_date );
-			while ( $start <= $end ) {
-				if ( (int) $start->format( 'n' ) === $month && (int) $start->format( 'Y' ) === $year ) {
-					$booked_days[] = (int) $start->format( 'j' );
+			try {
+				$day  = new DateTime( substr( (string) $booking->start_date, 0, 10 ) );
+				$last = new DateTime( substr( (string) $booking->end_date, 0, 10 ) );
+			} catch ( \Exception $e ) {
+				continue;
+			}
+			while ( $day <= $last ) {
+				$date = $day->format( 'Y-m-d' );
+				if ( $date >= $from && $date <= $to ) {
+					$booked[ $date ] = true;
 				}
-				$start->add( new DateInterval( 'P1D' ) );
+				$day->add( new DateInterval( 'P1D' ) );
 			}
 		}
-		return array_unique( $booked_days );
+		$dates = array_keys( $booked );
+		sort( $dates );
+		return $dates;
+	}
+
+	/**
+	 * Gallery attachment ids, displayable ones only (legacy keys included).
+	 *
+	 * @return list<int>
+	 */
+	public static function gallery_ids( int $vehicle_id ): array {
+		return array_values( array_map( static fn( array $image ): int => (int) $image['id'], self::get_gallery( $vehicle_id ) ) );
 	}
 
 	private static function check_vehicle_availability( int $vehicle_id ): array {

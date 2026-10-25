@@ -361,7 +361,27 @@ final class VehicleFeatureHelper {
 	 */
 	public static function collect_items(int $vehicle_id): array
 	{
-		$selected = self::get_selected_card_fields();
+		return self::collect_selected($vehicle_id, self::get_selected_card_fields());
+	}
+
+	/**
+	 * The vehicle page's highlights: the detail-field selection
+	 * (get_selected_detail_fields()), same items as collect_items() plus each
+	 * field's `label`.
+	 *
+	 * @return list<array{text: string, icon: string, type: string, key: string, label: string}>
+	 */
+	public static function collect_detail_items(int $vehicle_id): array
+	{
+		return self::collect_selected($vehicle_id, self::get_selected_detail_fields());
+	}
+
+	/**
+	 * @param array<int, array{type: string, key: string}> $selected
+	 * @return list<array{text: string, icon: string, type: string, key: string, label: string}>
+	 */
+	private static function collect_selected(int $vehicle_id, array $selected): array
+	{
 		if (empty($selected)) {
 			return array();
 		}
@@ -403,28 +423,31 @@ final class VehicleFeatureHelper {
 
 				if ($formatted !== null) {
 					$items[] = array(
-						'text' => $formatted['text'],
-						'icon' => $formatted['icon'],
-						'type' => $type,
-						'key'  => $key,
+						'text'  => $formatted['text'],
+						'icon'  => $formatted['icon'],
+						'type'  => $type,
+						'key'   => $key,
+						'label' => $label,
 					);
 				}
 			} elseif ($type === self::TYPE_FEATURE) {
 				if (in_array($key, $features_meta, true)) {
 					$items[] = array(
-						'text' => $label,
-						'icon' => 'default',
-						'type' => $type,
-						'key'  => $key,
+						'text'  => $label,
+						'icon'  => 'default',
+						'type'  => $type,
+						'key'   => $key,
+						'label' => $label,
 					);
 				}
 			} elseif ($type === self::TYPE_EQUIPMENT) {
 				if (in_array($key, $equipment_meta, true)) {
 					$items[] = array(
-						'text' => $label,
-						'icon' => 'default',
-						'type' => $type,
-						'key'  => $key,
+						'text'  => $label,
+						'icon'  => 'default',
+						'type'  => $type,
+						'key'   => $key,
+						'label' => $label,
 					);
 				}
 			} elseif ($type === self::TYPE_TAXONOMY) {
@@ -443,10 +466,11 @@ final class VehicleFeatureHelper {
 
 				if ($in_features || $in_equipment) {
 					$items[] = array(
-						'text' => $label,
-						'icon' => 'check-circle', // Distinction for taxonomy items
-						'type' => $type,
-						'key'  => $key,
+						'text'  => $label,
+						'icon'  => 'check-circle', // Distinction for taxonomy items
+						'type'  => $type,
+						'key'   => $key,
+						'label' => $label,
 					);
 				}
 			}

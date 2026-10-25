@@ -370,7 +370,7 @@ final class RvsCardView {
 	 *
 	 * @return list<int>
 	 */
-	private static function required_addon_ids(): array
+	public static function required_addon_ids(): array
 	{
 		$ids = array();
 		foreach (AddonManager::get_available_addons() as $addon) {
