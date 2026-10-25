@@ -1,0 +1,121 @@
+/**
+ * Rentiva front-end standard -- the shell (`.rvs-shell`).
+ *
+ * Every shortcode on the standard renders inside one shell
+ * (AbstractShortcode::$rvs_shell). The shell sets the container and, for the
+ * elements a theme styles most aggressively (headings, buttons, links styled as
+ * buttons, form controls, labels), writes typography explicitly instead of
+ * inheriting it -- that is what keeps Astra or a block theme from leaking in.
+ *
+ * Breakpoints of the standard: 480 / 768 / 1024 / 1280. The canvas lays out
+ * with flex-wrap, auto-fill and clamp(); surfaces add media queries only where
+ * a layout genuinely changes.
+ */
+
+.rvs-shell {
+	box-sizing: border-box;
+	max-width: 1200px;
+	margin-inline: auto;
+	padding-inline: clamp(16px, 4vw, 40px);
+	background: var(--rvs-bg);
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 1.55;
+	letter-spacing: normal;
+	text-align: start;
+}
+
+.rvs-shell *,
+.rvs-shell *::before,
+.rvs-shell *::after {
+	box-sizing: border-box;
+}
+
+/* Headings: the theme's face, weight, case and spacing do not apply. */
+.rvs-shell h1,
+.rvs-shell h2,
+.rvs-shell h3,
+.rvs-shell h4 {
+	margin: 0;
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-weight: 600;
+	font-style: normal;
+	line-height: 1.12;
+	letter-spacing: -0.015em;
+	text-transform: none;
+}
+
+.rvs-shell h1 { font-size: 42px; }
+.rvs-shell h2 { font-size: 28px; }
+.rvs-shell h3 { font-size: 20px; }
+.rvs-shell h4 { font-size: 17px; }
+
+@media (max-width: 768px) {
+	.rvs-shell h1 { font-size: 30px; }
+	.rvs-shell h2 { font-size: 23px; }
+}
+
+.rvs-shell p {
+	margin: 0;
+}
+
+.rvs-shell a {
+	color: var(--rvs-accent-strong);
+	text-underline-offset: 3px;
+}
+
+.rvs-shell a:hover {
+	color: var(--rvs-accent-deep);
+}
+
+/* Controls: written out, never inherited from the theme. */
+.rvs-shell button,
+.rvs-shell a.rvs-btn,
+.rvs-shell input,
+.rvs-shell select,
+.rvs-shell textarea,
+.rvs-shell label,
+.rvs-shell legend {
+	font-family: var(--rvs-font);
+	font-style: normal;
+	letter-spacing: normal;
+	line-height: 1.2;
+	text-transform: none;
+}
+
+.rvs-shell button,
+.rvs-shell a.rvs-btn {
+	font-weight: 600;
+}
+
+.rvs-shell input,
+.rvs-shell select,
+.rvs-shell textarea {
+	font-weight: 400;
+}
+
+.rvs-shell label,
+.rvs-shell legend {
+	font-weight: 600;
+}
+
+/* One focus ring for everything focusable inside the shell. --rvs-accent-strong
+   rather than the canvas's --rvs-accent: 3:1 against both the page and white. */
+.rvs-shell :focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rvs-shell *,
+	.rvs-shell *::before,
+	.rvs-shell *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

@@ -187,6 +187,43 @@ final class AssetManager {
 				self::get_file_version($asset['url'])
 			);
 		}
+
+		self::register_rvs_styles();
+	}
+
+	/**
+	 * The front-end standard (`rvs-` layer): fonts -> tokens -> shell -> primitives.
+	 *
+	 * Registered, not enqueued: a shortcode that renders inside `.rvs-shell`
+	 * enqueues the chain through enqueue_rvs_styles(); nothing else on the page
+	 * is touched. Tokens are scoped to `.rvs-shell`, so the admin and the
+	 * older `.rv-*` surfaces never see them.
+	 */
+	private static function register_rvs_styles(): void
+	{
+		// Literal handles, one call each: the style-token gate reads registrations
+		// by their literal handle and dependency list.
+		if (! wp_style_is('mhm-rentiva-rvs-fonts', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-fonts', MHMRENTIVA_PLUGIN_URL . 'assets/vendor/fonts/source-serif-4.css', array(), self::get_file_version('assets/vendor/fonts/source-serif-4.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-tokens', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-tokens', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-tokens.css', array( 'mhm-rentiva-rvs-fonts' ), self::get_file_version('assets/css/rvs/rvs-tokens.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-shell', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-shell', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-shell.css', array( 'mhm-rentiva-rvs-tokens' ), self::get_file_version('assets/css/rvs/rvs-shell.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-primitives', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-primitives', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-primitives.css', array( 'mhm-rentiva-rvs-shell' ), self::get_file_version('assets/css/rvs/rvs-primitives.css'));
+		}
+	}
+
+	/**
+	 * Enqueue the whole `rvs-` chain (the last link pulls in the others).
+	 */
+	public static function enqueue_rvs_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-primitives');
 	}
 
 	/**

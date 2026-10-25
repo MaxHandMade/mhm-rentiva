@@ -1,0 +1,68 @@
+/**
+ * Rentiva front-end standard -- design tokens (`--rvs-*`).
+ *
+ * Values from the approved design canvas (Aşama 1, `Main`). Scoped to
+ * `.rvs-shell`, not `:root`: the admin and the older `.rv-*` / `--mhm-*`
+ * surfaces never see them, and a theme's own custom properties cannot be
+ * overwritten by them.
+ *
+ * Product-specific file: the palette is Rentiva's. The shell and primitives
+ * that read it (rvs-shell.css, rvs-primitives.css) are generic.
+ */
+
+.rvs-shell {
+	/* Surfaces and text */
+	--rvs-bg: #f3f2f2;
+	--rvs-surface: #eae9e9;
+	--rvs-raised: #fbfafa;
+	--rvs-text: #201e1d;
+	--rvs-muted: #5f5b5a;
+
+	/* Accent. White text sits on --rvs-accent-strong (6.4:1), never on
+	   --rvs-accent (4.08:1). */
+	--rvs-accent: #0088b0;
+	--rvs-accent-strong: #006786;
+	--rvs-accent-deep: #004961;
+	--rvs-accent-100: #e9f8ff;
+	--rvs-accent-200: #cbeeff;
+
+	/* Alert */
+	--rvs-alert: #aa0b56;
+	--rvs-alert-100: #fff1f4;
+	--rvs-alert-500: #d6006c;
+
+	/* Neutrals */
+	--rvs-n-100: #f8f4f4;
+	--rvs-n-200: #eae7e7;
+	--rvs-n-300: #d7d3d3;
+	--rvs-n-700: #605d5d;
+
+	/* Lines and shadows: a solid fallback first, the canvas's color-mix()
+	   where the browser supports it (below). */
+	--rvs-line: #d6d4d3;
+	--rvs-line-strong: #8f8c8b;
+	--rvs-shadow: 0 1px 2px rgba(45, 43, 43, 0.14);
+	--rvs-shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
+
+	/* Spacing (5 / 10 / 15 / 20 / 30 / 40 / 60) */
+	--rvs-s1: 5px;
+	--rvs-s2: 10px;
+	--rvs-s3: 15px;
+	--rvs-s4: 20px;
+	--rvs-s6: 30px;
+	--rvs-s8: 40px;
+	--rvs-s12: 60px;
+
+	/* Shape and type */
+	--rvs-r: 2px;
+	--rvs-font: "Source Serif 4", Georgia, serif;
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+	.rvs-shell {
+		--rvs-line: color-mix(in srgb, #201e1d 16%, transparent);
+		--rvs-line-strong: color-mix(in srgb, #201e1d 45%, transparent);
+		--rvs-shadow: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
+		--rvs-shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
+	}
+}

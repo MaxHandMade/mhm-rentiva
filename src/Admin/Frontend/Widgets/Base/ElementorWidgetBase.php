@@ -327,6 +327,83 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * A plain style control of the front-end standard: it writes one `--rvs-*`
+	 * token on the widget's `.rvs-shell`, and the standard's stylesheets read the
+	 * token. The control id is the id Elementor stores the user's value under --
+	 * pass the existing id unchanged when moving a control onto the standard.
+	 *
+	 * @param string              $id    Control id (kept verbatim).
+	 * @param string              $label Control label.
+	 * @param string              $token Token name without the `--rvs-` prefix, e.g. 'accent'.
+	 * @param array<string,mixed> $args  Extra control args; 'type' defaults to color. Single-value types only (color, text, select, number): a slider writes {{SIZE}}{{UNIT}}, not {{VALUE}}.
+	 */
+	protected function add_rvs_token_control( string $id, string $label, string $token, array $args = array() ): void {
+		$this->add_control(
+			$id,
+			array_merge(
+				array(
+					'label' => $label,
+					'type'  => 'color',
+				),
+				$args,
+				array(
+					'selectors' => array(
+						'{{WRAPPER}} .rvs-shell' => self::rvs_token_name( $token ) . ': {{VALUE}};',
+					),
+				)
+			)
+		);
+	}
+
+	/**
+	 * A Dimensions control that writes a four-value `--rvs-*` token (top right
+	 * bottom left) on the widget's `.rvs-shell`.
+	 *
+	 * @see add_rvs_token_control() for the id and token rules.
+	 *
+	 * Added with add_control() like the existing Dimensions controls, so their
+	 * saved values keep their keys; pass $responsive only for a new control.
+	 *
+	 * @param string              $id         Control id (kept verbatim).
+	 * @param string              $label      Control label.
+	 * @param string              $token      Token name without the `--rvs-` prefix.
+	 * @param array<string,mixed> $args       Extra control args.
+	 * @param bool                $responsive Register per-device values (new controls only).
+	 */
+	protected function add_rvs_token_dimensions_control( string $id, string $label, string $token, array $args = array(), bool $responsive = false ): void {
+		$method = $responsive ? 'add_responsive_control' : 'add_control';
+		$this->$method(
+			$id,
+			array_merge(
+				array(
+					'label'      => $label,
+					'type'       => 'dimensions',
+					'size_units' => array( 'px', 'em', '%' ),
+				),
+				$args,
+				array(
+					'selectors' => array(
+						'{{WRAPPER}} .rvs-shell' => self::rvs_token_name( $token ) . ': {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+					),
+				)
+			)
+		);
+	}
+
+	/**
+	 * `--rvs-<token>`. A token passed with the prefix already on it is a caller
+	 * error: it would write `--rvs---rvs-x`, a property nothing reads.
+	 */
+	private static function rvs_token_name( string $token ): string {
+		if ( str_starts_with( $token, '--' ) ) {
+			_doing_it_wrong( __METHOD__, esc_html( 'Pass the token name without the --rvs- prefix.' ), '6.4.0' );
+			$token = (string) preg_replace( '/^--(rvs-)?/', '', $token );
+		}
+
+		return '--rvs-' . $token;
+	}
+
+	/**
 	 * Widget-specific explicit mapping, applied over the raw bridge settings.
 	 *
 	 * Receives the already filtered bridge settings. The default maps nothing extra:

@@ -1,6 +1,9 @@
 <?php
 /**
- * Definition gate for the `--mhm-*` design tokens.
+ * Definition gate for the `--mhm-*` design tokens and, since Aşama 2 PR 1, the
+ * front-end standard's `--rvs-*` tokens (canonical home:
+ * assets/css/rvs/rvs-tokens.css). Every token regex below matches both
+ * families (`--(?:mhm|rvs)-`); mhmrentiva_token_family() tells them apart.
  *
  * A shared token must have exactly one home. Measured 2026-08-27 across both
  * trees: 36 stylesheets carried 268 declarations of 151 tokens, and
@@ -67,6 +70,14 @@ function mhmrentiva_real(string $path): string
 }
 
 /**
+ * The token's family: 'rvs' (front-end standard) or 'mhm' (everything older).
+ */
+function mhmrentiva_token_family(string $token): string
+{
+    return 0 === strncasecmp($token, '--rvs-', 6) ? 'rvs' : 'mhm';
+}
+
+/**
  * Strips CSS comments while preserving byte offsets' ordering.
  */
 function mhmrentiva_strip_css_comments(string $css): string
@@ -112,7 +123,7 @@ function mhmrentiva_css_declarations(string $css): array
 
         $chunk .= $char;
 
-        if (':' === $char && preg_match('/(--mhm-[a-z0-9-]+)\s*:$/i', $chunk, $m)) {
+        if (':' === $char && preg_match('/(--(?:mhm|rvs)-[a-z0-9-]+)\s*:$/i', $chunk, $m)) {
             $found[] = array(
                 'token'       => strtolower($m[1]),
                 'conditional' => in_array(true, $stack, true),
@@ -128,7 +139,7 @@ function mhmrentiva_css_declarations(string $css): array
  */
 function mhmrentiva_css_consumptions(string $css): array
 {
-    preg_match_all('/var\(\s*(--mhm-[a-z0-9-]+)/i', mhmrentiva_strip_css_comments($css), $m);
+    preg_match_all('/var\(\s*(--(?:mhm|rvs)-[a-z0-9-]+)/i', mhmrentiva_strip_css_comments($css), $m);
 
     return array_map('strtolower', $m[1]);
 }
@@ -155,15 +166,15 @@ function mhmrentiva_php_token_usage(string $code): array
 
         $text = $token[1];
 
-        if (preg_match_all('/var\(\s*(--mhm-[a-z0-9-]+)/i', $text, $m)) {
+        if (preg_match_all('/var\(\s*(--(?:mhm|rvs)-[a-z0-9-]+)/i', $text, $m)) {
             foreach ($m[1] as $name) {
                 $consumes[] = strtolower($name);
             }
         }
 
         // A producer assigns: `--mhm-x: <value>`. A reader never does.
-        $without_reads = (string) preg_replace('/var\(\s*--mhm-[a-z0-9-]+/i', ' ', $text);
-        if (preg_match_all('/(--mhm-[a-z0-9-]+)\s*:/i', $without_reads, $m)) {
+        $without_reads = (string) preg_replace('/var\(\s*--(?:mhm|rvs)-[a-z0-9-]+/i', ' ', $text);
+        if (preg_match_all('/(--(?:mhm|rvs)-[a-z0-9-]+)\s*:/i', $without_reads, $m)) {
             foreach ($m[1] as $name) {
                 $produces[] = strtolower($name);
             }
@@ -510,6 +521,7 @@ if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === realpath(__F
     $canonical = array(
         dirname(__DIR__) . '/assets/css/core/css-variables.css',
         dirname(__DIR__) . '/assets/css/core/golden-ratio-contract.css',
+        dirname(__DIR__) . '/assets/css/rvs/rvs-tokens.css',
     );
 
     $report = mhmrentiva_classify_tokens($paths, $canonical);

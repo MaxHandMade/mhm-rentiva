@@ -308,4 +308,60 @@ final class StyleTokenDependencyTest extends WP_UnitTestCase
 
         $this->assertStringContainsString('Enqueue.php:4', $failures[0]['site']);
     }
+
+    /**
+     * Aşama 2 PR 1: the front-end standard's `--rvs-*` family has its own home.
+     *
+     * @param array<string, string> $files
+     * @return list<array{handle: string, file: string, site: string}>
+     */
+    private function family_failures(array $files): array
+    {
+        require_once dirname(__DIR__, 2) . '/bin/check-style-token-deps.php';
+        $root = $this->tree($files);
+
+        return mhmrentiva_style_dependency_report(
+            array($root),
+            array('LITE_URL' => $root),
+            array('mhm' => 'mhm-rentiva-css-variables', 'rvs' => 'mhm-rentiva-rvs-tokens')
+        )['failures'];
+    }
+
+    public function test_an_rvs_reader_must_reach_the_rvs_tokens_handle(): void
+    {
+        $this->assertCount(1, $this->family_failures(array(
+            'assets/css/b.css' => ".rvs-b { color: var(--rvs-text); }\n",
+            'src/Enqueue.php'  => "<?php\nwp_enqueue_style('mhm-b', LITE_URL . 'assets/css/b.css', array('mhm-rentiva-css-variables'), '1');\n",
+        )), 'Reaching the --mhm-* home does not satisfy an --rvs-* reader.');
+
+        $this->assertSame(array(), $this->family_failures(array(
+            'assets/css/b.css' => ".rvs-b { color: var(--rvs-text); }\n",
+            'src/Enqueue.php'  => "<?php\nwp_enqueue_style('mhm-b', LITE_URL . 'assets/css/b.css', array('mhm-rentiva-rvs-tokens'), '1');\n",
+        )));
+    }
+
+    public function test_a_stylesheet_reading_both_families_must_reach_both_handles(): void
+    {
+        $css = ".x { color: var(--rvs-text); border-color: var(--mhm-primary); }\n";
+
+        $this->assertCount(1, $this->family_failures(array(
+            'assets/css/x.css' => $css,
+            'src/Enqueue.php'  => "<?php\nwp_enqueue_style('mhm-x', LITE_URL . 'assets/css/x.css', array('mhm-rentiva-rvs-tokens'), '1');\n",
+        )));
+
+        $this->assertSame(array(), $this->family_failures(array(
+            'assets/css/x.css' => $css,
+            'src/Enqueue.php'  => "<?php\nwp_enqueue_style('mhm-x', LITE_URL . 'assets/css/x.css', array('mhm-rentiva-rvs-tokens', 'mhm-rentiva-css-variables'), '1');\n",
+        )));
+    }
+
+    public function test_a_string_canonical_still_checks_only_the_original_family(): void
+    {
+        $root = $this->tree(array(
+            'assets/css/b.css' => ".rvs-b { color: var(--rvs-text); }\n",
+            'src/Enqueue.php'  => "<?php\nwp_enqueue_style('mhm-b', LITE_URL . 'assets/css/b.css', array(), '1');\n",
+        ));
+
+        $this->assertSame(array(), $this->report(array($root), array('LITE_URL' => $root))['failures'], 'The original string contract is unchanged.');
+    }
 }

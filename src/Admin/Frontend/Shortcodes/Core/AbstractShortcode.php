@@ -69,6 +69,23 @@ abstract class AbstractShortcode {
 	private static array $enqueued_assets = array();
 
 	/**
+	 * Opt-in to the front-end standard: a subclass that sets this to true renders
+	 * inside `<div class="rvs-shell" data-rvs-shortcode="<tag>">` and loads the
+	 * `rvs-` styles. Only the outermost flagged render is wrapped.
+	 */
+	protected static bool $rvs_shell = false;
+
+	/**
+	 * Flagged renders in progress. Separate from RenderContext's scope depth,
+	 * which counts every shortcode: a flagged shortcode inside an unflagged one
+	 * must still get its shell.
+	 */
+	private static int $rvs_shell_depth = 0;
+
+	/** Opening tag of the shell; %s is the shortcode tag. */
+	public const RVS_SHELL_OPEN = '<div class="rvs-shell" data-rvs-shortcode="%s">';
+
+	/**
 	 * Reset asset enqueue tracking.
 	 *
 	 * FOR TESTING ONLY — clears the per-tag enqueue cache so tests can isolate renders.
@@ -210,26 +227,45 @@ abstract class AbstractShortcode {
 			// then ship markup whose stylesheet/script were never enqueued.
 			static::enqueue_assets_once($atts);
 
+			// The front-end standard's shell: only the outermost flagged render.
+			$flagged = static::$rvs_shell;
+			$wrap    = $flagged && 0 === self::$rvs_shell_depth;
+
 			// Performance: Cache check
 			// The key is not even computed in a preview: get_cache_key() creates the
 			// version transient when it is missing, which would be a write.
+			// A flagged shortcode's key says whether it was wrapped: the same
+			// shortcode cached while nested (bare) must not be served bare on its own.
 			$cache_key = '';
 			if (! $is_preview) {
-				$cache_key   = static::get_cache_key($atts);
+				$key_atts = $atts;
+				if ($flagged) {
+					$key_atts['__rvs_wrap'] = $wrap;
+				}
+				$cache_key   = static::get_cache_key($key_atts);
 				$cached_html = static::get_cached_html($cache_key);
 				if ($cached_html) {
 					return $cached_html;
 				}
 			}
 
-			// Prepare template data
-			$template_data = static::prepare_template_data($atts);
+			if ($flagged) {
+				++self::$rvs_shell_depth;
+			}
+			try {
+				// Prepare template data
+				$template_data = static::prepare_template_data($atts);
 
-			// Internal guard should not leak into template layer.
-			unset($template_data['atts']['_canonical']);
+				// Internal guard should not leak into template layer.
+				unset($template_data['atts']['_canonical']);
 
-			// Render template
-			$html = static::render_template($template_data);
+				// Render template
+				$html = static::render_template($template_data);
+			} finally {
+				if ($flagged) {
+					--self::$rvs_shell_depth;
+				}
+			}
 
 			// Empty HTML check. A template that is missing is told apart from one that
 			// rendered nothing on purpose: only the missing one gets the generic state.
@@ -246,6 +282,12 @@ abstract class AbstractShortcode {
 			// is already clean. Otherwise, cache hits bypass this stripping.
 			$html = str_replace(array( "\r\n", "\r", "\n", "\t" ), '', $html);
 
+			// Wrapped before caching (a cache hit returns the shell too) and before
+			// the html filter (which sees the shell as the root element).
+			if ($wrap && '' !== $html) {
+				$html = sprintf(self::RVS_SHELL_OPEN, esc_attr($tag)) . $html . '</div>';
+			}
+
 			// Performance: Cache HTML (now stores the already-minified output)
 			if (! $is_preview) {
 				static::cache_html($cache_key, $html);
@@ -259,6 +301,8 @@ abstract class AbstractShortcode {
 			// the slash the whole change exists to remove, and would have looked
 			// renamed at a glance.
 			// The internal `_canonical` guard is not part of the public filter contract.
+			// For a shortcode flagged $rvs_shell the filtered $html's root element is
+			// the `.rvs-shell` wrapper.
 			$filter_atts = $atts;
 			unset($filter_atts['_canonical']);
 			$html = apply_filters('mhmrentiva_shortcodes_' . $tag . '_html', $html, $filter_atts, $content);
@@ -317,6 +361,12 @@ abstract class AbstractShortcode {
 			);
 
 			static::enqueue_assets($atts);
+		}
+
+		// The shell's styles, whatever the conditional-loading filter says: a
+		// flagged shortcode's markup is unstyled without them.
+		if (static::$rvs_shell) {
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_styles();
 		}
 
 		self::$enqueued_assets[ $tag ] = true;

@@ -45,7 +45,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 
 = External services =
 
-This plugin does not send your data anywhere. It makes no requests to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfont, is served from your own site. Nothing about your site, your bookings or your customers leaves your server.
+This plugin does not send your data anywhere. It makes no requests to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfonts, is served from your own site. Nothing about your site, your bookings or your customers leaves your server.
 
 For completeness, the plugin's admin screens do contain ordinary hyperlinks to pages outside your site, which open only if you click them and send nothing when you do:
 
@@ -107,7 +107,7 @@ The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scr
 
 = Bundled third-party libraries =
 
-Three bundled JavaScript libraries and one webfont ship with the plugin -- two of the libraries on the front end, one in the admin dashboard only -- all permissively licensed and with public upstream source.
+Three bundled JavaScript libraries and two webfonts ship with the plugin -- two of the libraries on the front end, one in the admin dashboard only -- all permissively licensed and with public upstream source.
 
 Two are pre-built (minified) under `assets/vendor/`:
 
@@ -118,9 +118,10 @@ One is compiled into the admin dashboard bundle (`build/admin/dashboard.js`) by 
 
 *   **Chart.js** v4.5.1 — dashboard charts, MIT License. Source: [https://github.com/chartjs/Chart.js](https://github.com/chartjs/Chart.js)
 
-One webfont is bundled under `assets/vendor/fonts/`, served from your own site rather than from a font CDN:
+Two webfonts are bundled under `assets/vendor/fonts/`, served from your own site rather than from a font CDN:
 
 *   **Plus Jakarta Sans** — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt`. Source: [https://github.com/tokotype/PlusJakartaSans](https://github.com/tokotype/PlusJakartaSans)
+*   **Source Serif 4** (Adobe) — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/source-serif-4/LICENSE-Source-Serif-4.txt`. Static 400, 600 and 400 italic in the latin and latin-ext subsets, as packaged by Fontsource 5.3.0. Source: [https://github.com/adobe-fonts/source-serif](https://github.com/adobe-fonts/source-serif)
 
 None of these libraries is modified from its upstream release; their full source is public on the repositories linked above.
 
