@@ -2100,7 +2100,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return \MHMRentiva\Admin\Booking\Core\Handler::get_payment_deadline();
 		}
 
-		// Fallback if Handler not available (should rare)
+		return self::fallback_payment_deadline();
+	}
+
+	/**
+	 * Fallback when Handler is not available (should be rare): GMT, like Handler.
+	 *
+	 * @return string Payment deadline in 'Y-m-d H:i:s' format (GMT)
+	 */
+	private static function fallback_payment_deadline(): string
+	{
 		// Get payment deadline minutes from settings (default: 30 minutes)
 		$deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
 			'mhmrentiva_booking_payment_deadline_minutes',

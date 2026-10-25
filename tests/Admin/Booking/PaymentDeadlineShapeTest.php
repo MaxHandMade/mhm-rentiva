@@ -90,6 +90,24 @@ final class PaymentDeadlineShapeTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The Bridge's own fallback (used only when Handler is missing) must agree.
+	 *
+	 * @dataProvider zones
+	 */
+	public function test_bridge_fallback_writer_stores_gmt( string $tz ): void
+	{
+		$this->pin_site_timezone( $tz );
+		update_option( 'mhmrentiva_settings', array( 'mhmrentiva_booking_payment_deadline_minutes' => 30 ) );
+
+		$method = new \ReflectionMethod( WooCommerceBridge::class, 'fallback_payment_deadline' );
+		$method->setAccessible( true );
+		$before = time();
+		$value  = (string) $method->invoke( null );
+
+		$this->assertLessThanOrEqual( 2, abs( (int) strtotime( $value . ' UTC' ) - ( $before + 30 * 60 ) ), "Fallback writer ({$tz}): {$value}" );
+	}
+
+	/**
 	 * @dataProvider zones
 	 */
 	public function test_dashboard_overdue_uses_gmt_now( string $tz ): void
