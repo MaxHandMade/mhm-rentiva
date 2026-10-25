@@ -19,7 +19,8 @@
       "Changed: the search strip has no tabs; the \"Show Rental Tab\" option is removed from the block and the Elementor widget (a saved value is ignored).",
       "Changed: on update, Elementor's generated CSS is rebuilt once so saved vehicle-card styles apply to the new card.",
       "Fixed: with page caching for visitors, the cached results page depends on every filter, the page number, the dates and the visitor's comparison list, so one visitor's results are not shown to another. The filter options are refreshed when a vehicle is saved.",
-      "Fixed: three Turkish translations start lower-case like their originals."
+      "Fixed: three Turkish translations start lower-case like their originals.",
+      "Fixed: the booking form shows the vehicle's details (seats, transmission, fuel) under its name again, the vehicle-details page's main photo fills its frame instead of showing only its top on Elementor pages, and featured-vehicle slider cards are all as tall as the tallest."
     ]
   },
   {

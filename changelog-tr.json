@@ -19,7 +19,8 @@
       "Değişti: arama şeridinde sekme yok; \"Kiralama Sekmesini Göster\" seçeneği bloktan ve Elementor bileşeninden kaldırıldı (kayıtlı değer yok sayılır).",
       "Değişti: güncellemede Elementor'un üretilmiş CSS'i bir kez yeniden kurulur; kayıtlı araç kartı stilleri yeni karta uygulanır.",
       "Düzeltildi: ziyaretçiler için sayfa önbelleği açıkken önbellekteki sonuç sayfası her filtreye, sayfa numarasına, tarihlere ve ziyaretçinin karşılaştırma listesine bağlıdır; bir ziyaretçinin sonuçları bir başkasına gösterilmez. Bir araç kaydedilince filtre seçenekleri yenilenir.",
-      "Düzeltildi: üç Türkçe çeviri, özgün metin gibi küçük harfle başlıyor."
+      "Düzeltildi: üç Türkçe çeviri, özgün metin gibi küçük harfle başlıyor.",
+      "Düzeltildi: rezervasyon formu araç adının altında yine aracın bilgilerini (kişi, vites, yakıt) gösteriyor; araç detay sayfasının ana fotoğrafı Elementor sayfalarında yalnız üst kısmını göstermek yerine çerçevesini dolduruyor; öne çıkan araçlar kaydırıcısındaki kartların hepsi en uzunu kadar."
     ]
   },
   {

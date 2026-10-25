@@ -61,6 +61,14 @@
 	transition: transform 0.3s ease;
 }
 
+/* Fill the 16:9 frame even where a builder writes `img { height: auto }`
+   (Elementor's `.elementor img`, 0,1,1, beat the rule above): the square
+   photo was as tall as it was wide and the frame showed only its top. */
+.rv-main-image-wrapper .rv-featured-image {
+	display: block;
+	height: 100%;
+}
+
 /* Category & Status Badges */
 .rv-category-badge {
 	position: absolute;

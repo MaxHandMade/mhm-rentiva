@@ -108,10 +108,20 @@ if (! empty($category_name)) {
 			<h3 class="rv-sv__title"><?php echo esc_html($display_title); ?></h3>
 		</div>
 
-		<?php if ($show_features && ! empty($features)) : ?>
+		<?php
+		// The vehicle's details (seats, transmission, fuel ...) show by default, as
+		// on the card; equipment chips only when show_features asks. Since the
+		// card base split the two (611ac791), this read only the off-by-default
+		// chips, so the booking form lost "5 seats · Manual · Diesel".
+		$summary_items = array_merge(
+			$show_specs ? array_slice($spec_items, 0, 4) : array(),
+			$show_features ? $chip_items : array()
+		);
+		?>
+		<?php if (! empty($summary_items)) : ?>
 			<div class="rv-sv__meta">
 				<?php
-				foreach ($features as $feature) :
+				foreach ($summary_items as $feature) :
 
 					$feature_label = (string) ( $feature['text'] ?? '' );
 					$feature_svg   = isset($feature['svg']) ? (string) $feature['svg'] : '';
