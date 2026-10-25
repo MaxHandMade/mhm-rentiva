@@ -15,8 +15,12 @@ final class UnifiedSearchAssetsTest extends \WP_UnitTestCase
         ]);
 
         $this->assertTrue(
+            wp_style_is('mhm-rentiva-rvs-search', 'enqueued'),
+            'Expected the front-end standard strip CSS to be enqueued.'
+        );
+        $this->assertFalse(
             wp_style_is('mhm-rentiva-unified-search-base', 'enqueued'),
-            'Expected unified-search base CSS to be enqueued.'
+            'The old unified-search.css is not loaded on the standard strip (Aşama 2 PR 3).'
         );
 
         $this->assertFalse(

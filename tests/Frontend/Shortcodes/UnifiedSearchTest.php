@@ -12,7 +12,7 @@ class UnifiedSearchTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_unified_search]');
 
         $this->assertNotEmpty($output);
-        $this->assertStringContainsString('rv-unified-search', $output);
+        $this->assertStringContainsString('rvs-search', $output);
     }
 
     public function test_renders_with_testid_attribute()
@@ -26,7 +26,7 @@ class UnifiedSearchTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_unified_search]');
 
-        $this->assertStringContainsString('rv-unified-search--horizontal', $output);
+        $this->assertStringContainsString('rvs-search--horizontal', $output);
     }
 
     /**
@@ -38,15 +38,25 @@ class UnifiedSearchTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_unified_search search_layout="vertical"]');
 
-        $this->assertStringContainsString('rv-unified-search--vertical', $output);
-        $this->assertStringNotContainsString('rv-unified-search--horizontal', $output);
+        $this->assertStringContainsString('rvs-search--vertical', $output);
+        $this->assertStringNotContainsString('rvs-search--horizontal', $output);
     }
 
-    public function test_renders_rental_tab()
+    /**
+     * Lite has one service, so the strip has no tabs (Aşama 2 PR 3); the
+     * show_rental_tab attribute is accepted and changes nothing.
+     */
+    public function test_strip_has_no_tabs_and_the_rental_tab_attribute_is_inert()
     {
         $output = do_shortcode('[rentiva_unified_search]');
 
-        $this->assertStringContainsString('data-testid="tab-rental"', $output);
+        $this->assertStringNotContainsString('role="tablist"', $output);
+        $this->assertStringNotContainsString('data-testid="tab-rental"', $output);
+        $this->assertStringContainsString('data-testid="search-submit-rental"', $output);
+        $this->assertSame(
+            preg_replace('/rv_unified_[a-f0-9.]+/', 'ID', $output),
+            preg_replace('/rv_unified_[a-f0-9.]+/', 'ID', do_shortcode('[rentiva_unified_search show_rental_tab="0"]'))
+        );
     }
 
     /**

@@ -2,192 +2,116 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Template: Unified Search Widget
+ * Template: search strip (front-end standard, Aşama 2 PR 3).
  *
-	 * @var array  $locations            Location options for select dropdowns
- * @var string $wrapper_id           Unique ID for the wrapper element
- * @var bool   $show_rental_tab      Whether to show the rental tab
- * @var bool   $show_location_select Whether to show location dropdowns
- * @var bool   $show_time_select     Whether to show time selection
- * @var bool   $show_date_picker     Whether to show date picker
- * @var bool   $show_dropoff_location Whether to show drop-off location field
- * @var string $form_action          Where the rental form submits (resolved redirect_page)
- * @var string $layout               Layout: 'horizontal', 'vertical'
+ * One row on wide screens -- pickup location · pickup · return · Search --
+ * stacked on phones. Lite has one service (rental), so the strip has no tabs
+ * (the old show_rental_tab setting was removed with them).
+ *
+ * @var array  $locations             Location options (id, name).
+ * @var string $wrapper_id            Unique id prefix for this strip.
+ * @var bool   $show_location_select  Whether to show the location select.
+ * @var bool   $show_time_select      Whether to show the time selects.
+ * @var bool   $show_date_picker      Whether to show the date fields.
+ * @var bool   $show_dropoff_location Whether to show the drop-off select.
+ * @var bool   $fields_required       Whether the date fields are required.
+ * @var bool   $location_required     Whether the location select is required.
+ * @var string $form_action           Where the form submits (resolved redirect_page).
+ * @var string $layout                'horizontal' or 'vertical'.
+ * @var array  $values                Prefilled values: pickup_date, return_date, pickup_time, pickup_location.
  */
 if (! defined('ABSPATH')) {
-    exit;
+	exit;
 }
 
 use MHMRentiva\Frontend\RenderContext;
-use MHMRentiva\Helpers\Icons;
 
-$uid       = $wrapper_id;
+$uid       = (string) $wrapper_id;
 $locations = $locations ?? array();
+$values    = $values ?? array();
 
-// On-the-wire names for the params this GET form puts on the search-results
-// URL. Built through SearchResults::query_var() rather than typed as prefixed
-// literals, so the submitted names cannot drift from the `query_vars`
-// whitelist SearchResults/BookingForm read them back through.
+// On-the-wire names, built through SearchResults::query_var() so they cannot
+// drift from the `query_vars` whitelist SearchResults/BookingForm read back.
 $mhmrentiva_qv = static function (string $logical): string {
-    return \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var($logical);
+	return \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var($logical);
 };
 
-// Visibility flags (default to true if not set)
-$show_rental_tab       = $show_rental_tab ?? true;
 $show_location_select  = $show_location_select ?? true;
 $show_time_select      = $show_time_select ?? true;
 $show_date_picker      = $show_date_picker ?? true;
 $show_dropoff_location = $show_dropoff_location ?? false;
 $fields_required       = $fields_required ?? true;
-// When fields_required is false, no field should be required — override location_required too.
+// When fields_required is false, no field is required -- the location included.
 $location_required = $fields_required ? ( $location_required ?? true ) : false;
+$is_preview        = RenderContext::current()->is_preview();
+$picked_time       = (string) ( $values['pickup_time'] ?? '10:00' );
+
+$time_options = static function (string $selected): void {
+	for ($i = 0; $i < 24; $i++) {
+		foreach (array( '00', '30' ) as $minute) {
+			$time = sprintf('%02d:%s', $i, $minute);
+			printf('<option value="%1$s"%2$s>%1$s</option>', esc_attr($time), selected($selected, $time, false));
+		}
+	}
+};
 ?>
 
-<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?>" data-testid="unified-search">
+<div id="<?php echo esc_attr($uid); ?>" class="rvs-search rvs-search--<?php echo esc_attr($layout ?? 'horizontal'); ?><?php echo $show_location_select ? '' : ' rvs-search--no-location'; ?><?php echo $show_date_picker ? '' : ' rvs-search--no-dates'; ?>" data-rvs-search data-testid="unified-search">
+	<form class="rvs-search__form" role="search" aria-label="<?php esc_attr_e('Search vehicles', 'mhm-rentiva'); ?>"<?php echo $is_preview ? '' : ' action="' . esc_url($form_action ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(). ?> method="GET" data-testid="rental-search-form">
 
-    <!-- 1. Tabs Header (Show if the rental tab is enabled) -->
-    <?php if ($show_rental_tab) : ?>
-        <div class="rv-unified-search__header">
-            <div class="rv-unified-search__tabs" role="tablist">
-                <button class="rv-unified-search__tab is-active"
-                    data-target="rental"
-                    data-testid="tab-rental"
-                    role="tab"
-                    aria-controls="<?php echo esc_attr($uid); ?>_panel_rental"
-                    aria-selected="true">
-                    <?php Icons::render('car', [ 'class' => 'rv-icon' ]); ?>
-                    <?php esc_html_e('Rent a Car', 'mhm-rentiva'); ?>
-                </button>
-            </div>
-        </div>
-    <?php endif; ?>
+		<?php if ($show_location_select) : ?>
+			<div class="rvs-field rvs-search__field rvs-search__field--location">
+				<label for="<?php echo esc_attr($uid); ?>-location"><?php esc_html_e('Pickup location', 'mhm-rentiva'); ?></label>
+				<select id="<?php echo esc_attr($uid); ?>-location" class="rvs-input rvs-input--lg" name="<?php echo esc_attr($mhmrentiva_qv('pickup_location')); ?>"<?php echo $location_required ? ' required' : ''; ?> data-rvs-pickup-location data-testid="search-pickup-location">
+					<option value=""><?php esc_html_e('City, airport or hotel', 'mhm-rentiva'); ?></option>
+					<?php foreach ($locations as $loc) : ?>
+						<option value="<?php echo esc_attr( (string) $loc->id); ?>"<?php selected( (string) ( $values['pickup_location'] ?? '' ), (string) $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+		<?php endif; ?>
 
-    <!-- 2. Content Body -->
-    <div class="rv-unified-search__body">
+		<?php if ($show_date_picker) : ?>
+			<div class="rvs-field rvs-search__field">
+				<label for="<?php echo esc_attr($uid); ?>-pickup-date"><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></label>
+				<div class="rvs-search__when">
+					<input id="<?php echo esc_attr($uid); ?>-pickup-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" value="<?php echo esc_attr( (string) ( $values['pickup_date'] ?? '' )); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-pickup-date data-testid="search-pickup-date">
+					<?php if ($show_time_select) : ?>
+						<label class="rvs-sr-only" for="<?php echo esc_attr($uid); ?>-pickup-time"><?php esc_html_e('Pickup time', 'mhm-rentiva'); ?></label>
+						<select id="<?php echo esc_attr($uid); ?>-pickup-time" class="rvs-input rvs-input--lg rvs-search__time" name="<?php echo esc_attr($mhmrentiva_qv('pickup_time')); ?>" data-rvs-pickup-time>
+							<?php $time_options($picked_time); ?>
+						</select>
+					<?php endif; ?>
+				</div>
+			</div>
 
-        <!-- PANEL: CAR RENTAL -->
-        <div class="rv-unified-search__panel is-active"
-            id="<?php echo esc_attr($uid); ?>_panel_rental"
-            role="tabpanel">
+			<div class="rvs-field rvs-search__field">
+				<label for="<?php echo esc_attr($uid); ?>-return-date"><?php echo esc_html_x('Return', 'search strip: the return date field', 'mhm-rentiva'); ?></label>
+				<div class="rvs-search__when">
+					<input id="<?php echo esc_attr($uid); ?>-return-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" value="<?php echo esc_attr( (string) ( $values['return_date'] ?? '' )); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-return-date data-testid="search-return-date">
+					<?php if ($show_time_select) : ?>
+						<?php // Return time follows the pickup time (the booking counts whole days). ?>
+						<span class="rvs-input rvs-input--lg rvs-search__time rvs-search__time--locked" data-rvs-return-time-display title="<?php esc_attr_e('Return time follows the pickup time', 'mhm-rentiva'); ?>"><?php echo esc_html($picked_time); ?></span>
+					<?php endif; ?>
+				</div>
+			</div>
+		<?php endif; ?>
+		<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('return_time')); ?>" value="<?php echo esc_attr($picked_time); ?>" data-rvs-return-time>
 
-            <form class="rv-unified-search__form"<?php echo RenderContext::current()->is_preview() ? '' : ' action="' . esc_url($form_action ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')) . '"'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped with esc_url(). ?> method="GET" data-testid="rental-search-form">
+		<button type="submit" class="rvs-btn rvs-btn--primary rvs-btn--lg rvs-search__submit" data-testid="search-submit-rental"<?php echo $is_preview ? ' disabled' : ''; ?>><?php esc_html_e('Search', 'mhm-rentiva'); ?></button>
 
-                <!-- Locations -->
-                <?php if ($show_location_select) : ?>
-                    <div class="rv-unified-search__group">
-                        <div class="rv-unified-search__field">
-                            <label class="rv-label"><?php esc_html_e('Pick-up', 'mhm-rentiva'); ?></label>
-                            <div class="rv-input-wrapper">
-                                <?php Icons::render('location', [ 'class' => 'rv-icon-marker' ]); ?>
-                                <select name="<?php echo esc_attr($mhmrentiva_qv('pickup_location')); ?>" class="rv-select" <?php echo $location_required ? 'required' : ''; ?> title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="search-pickup-location">
-                                    <option value=""><?php esc_html_e('City, Airport, or Hotel', 'mhm-rentiva'); ?></option>
-                                    <?php foreach ($locations as $loc) : ?>
-                                        <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <?php if ($show_dropoff_location) : ?>
-                            <div class="rv-unified-search__field">
-                                <label class="rv-label"><?php esc_html_e('Drop-off', 'mhm-rentiva'); ?></label>
-                                <div class="rv-input-wrapper">
-                                    <?php Icons::render('location', [ 'class' => 'rv-icon-marker' ]); ?>
-                                    <select name="dropoff_location" class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="search-dropoff-location">
-                                        <option value=""><?php esc_html_e('Same as Pick-up', 'mhm-rentiva'); ?></option>
-                                        <?php foreach ($locations as $loc) : ?>
-                                            <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <input type="hidden" name="dropoff_location" value="">
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Dates -->
-                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid mhm-row-date-time">
-                    <!-- Pickup Date -->
-                    <?php if ($show_date_picker) : ?>
-                        <div class="rv-unified-search__field">
-                            <label class="rv-label"><?php esc_html_e('Pick-up Date', 'mhm-rentiva'); ?></label>
-                            <div class="rv-input-wrapper">
-                                <?php Icons::render('calendar', [ 'class' => 'rv-icon-calendar' ]); ?>
-                                <input type="text" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-pickup-date">
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Pickup Time -->
-                    <?php if ($show_time_select) : ?>
-                        <div class="rv-unified-search__field rv-unified-search__field--time">
-                            <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
-                            <div class="rv-input-wrapper">
-                                <?php Icons::render('clock', [ 'class' => 'rv-icon-clock' ]); ?>
-                                <select name="<?php echo esc_attr($mhmrentiva_qv('pickup_time')); ?>" class="rv-select">
-                                    <?php for ($i = 0; $i < 24; $i++) : ?>
-                                        <?php $pickup_hour = sprintf('%02d:00', $i); ?>
-                                        <option value="<?php echo esc_attr($pickup_hour); ?>" <?php selected($i, 10); ?>>
-                                            <?php echo esc_html($pickup_hour); ?>
-                                        </option>
-                                        <?php $pickup_half = sprintf('%02d:30', $i); ?>
-                                        <option value="<?php echo esc_attr($pickup_half); ?>">
-                                            <?php echo esc_html($pickup_half); ?>
-                                        </option>
-                                    <?php endfor; ?>
-                                </select>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid mhm-row-date-time">
-                    <!-- Return Date -->
-                    <?php if ($show_date_picker) : ?>
-                        <div class="rv-unified-search__field">
-                            <label class="rv-label"><?php esc_html_e('Return Date', 'mhm-rentiva'); ?></label>
-                            <div class="rv-input-wrapper">
-                                <?php Icons::render('calendar', [ 'class' => 'rv-icon-calendar' ]); ?>
-                                <input type="text" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-return-date">
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Return Time -->
-                    <?php if ($show_time_select) : ?>
-                        <div class="rv-unified-search__field rv-unified-search__field--time">
-                            <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
-                            <div class="rv-input-wrapper is-locked">
-                                <?php Icons::render('lock', [ 'class' => 'rv-icon-lock' ]); ?>
-                                <select name="return_time_display" class="rv-select" disabled>
-                                    <?php for ($i = 0; $i < 24; $i++) : ?>
-                                        <?php $return_hour = sprintf('%02d:00', $i); ?>
-                                        <option value="<?php echo esc_attr($return_hour); ?>" <?php selected($i, 10); ?>>
-                                            <?php echo esc_html($return_hour); ?>
-                                        </option>
-                                        <?php $return_half = sprintf('%02d:30', $i); ?>
-                                        <option value="<?php echo esc_attr($return_half); ?>">
-                                            <?php echo esc_html($return_half); ?>
-                                        </option>
-                                    <?php endfor; ?>
-                                </select>
-                                <input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('return_time')); ?>" value="10:00">
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Action -->
-                <div class="rv-unified-search__action">
-                    <button type="submit" class="rv-btn rv-btn--primary" data-testid="search-submit-rental"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-                        <?php Icons::render('search', [ 'class' => 'rv-icon-search' ]); ?>
-                        <?php esc_html_e('Search', 'mhm-rentiva'); ?>
-                    </button>
-                </div>
-
-            </form>
-        </div>
-
-    </div>
+		<?php if ($show_location_select && $show_dropoff_location) : ?>
+			<div class="rvs-field rvs-search__field rvs-search__field--dropoff">
+				<label for="<?php echo esc_attr($uid); ?>-dropoff"><?php esc_html_e('Drop-off', 'mhm-rentiva'); ?></label>
+				<?php // Mirrors the pickup location until drop-off elsewhere ships (unified-search.js). ?>
+				<select id="<?php echo esc_attr($uid); ?>-dropoff" class="rvs-input rvs-input--lg" data-rvs-dropoff disabled data-testid="search-dropoff-location">
+					<option value=""><?php esc_html_e('Same as pickup', 'mhm-rentiva'); ?></option>
+					<?php foreach ($locations as $loc) : ?>
+						<option value="<?php echo esc_attr( (string) $loc->id); ?>"><?php echo esc_html($loc->name); ?></option>
+					<?php endforeach; ?>
+				</select>
+				<input type="hidden" name="dropoff_location" value="" data-rvs-dropoff-value>
+			</div>
+		<?php endif; ?>
+	</form>
 </div>

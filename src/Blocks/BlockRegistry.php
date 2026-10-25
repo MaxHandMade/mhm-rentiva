@@ -50,13 +50,13 @@ class BlockRegistry {
 		'unified-search'        => array(
 			'tag'   => 'rentiva_unified_search',
 			'title' => 'Unified Search Widget',
-			'css'   => array( 'unified-search.css', 'datepicker-custom.css' ),
+			'css'   => array( 'datepicker-custom.css' ), // The strip is the rvs standard (UnifiedSearch enqueues it).
 		),
 		'search-results'        => array(
 			'tag'   => 'rentiva_search_results',
 			'title' => 'Search Results',
-			'css'   => 'search-results.css',
-			'deps'  => array( 'mhm-rentiva-rvs-card' ),
+			'css'   => array(), // The page is the rvs standard (SearchResults enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-results' ),
 		),
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',

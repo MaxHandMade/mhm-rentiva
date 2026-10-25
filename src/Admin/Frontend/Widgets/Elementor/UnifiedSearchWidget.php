@@ -109,16 +109,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 		);
 
 		$this->add_control(
-			'show_rental_tab',
-			array(
-				'label'        => __( 'Show Rental Tab', 'mhm-rentiva' ),
-				'type'         => 'switcher',
-				'default'      => 'yes',
-				'return_value' => 'yes',
-			)
-		);
-
-		$this->add_control(
 			'show_location_select',
 			array(
 				'label'        => __( 'Show Location Select', 'mhm-rentiva' ),
@@ -145,7 +135,7 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	 * Register style tab controls.
 	 */
 	protected function register_style_controls(): void {
-		$this->register_standard_style_controls( 'main', __( 'General Style', 'mhm-rentiva' ), '.rv-unified-search', 'general-style_typography' );
+		$this->register_standard_style_controls( 'main', __( 'General Style', 'mhm-rentiva' ), '.rvs-search', 'general-style_typography' );
 	}
 
 	/**
@@ -154,7 +144,7 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	protected function prepare_shortcode_attributes( array $settings ): array {
 		$atts = array();
 
-		foreach ( array( 'show_rental_tab', 'show_location_select', 'show_date_picker' ) as $key ) {
+		foreach ( array( 'show_location_select', 'show_date_picker' ) as $key ) {
 			if ( array_key_exists( $key, $settings ) ) {
 				$atts[ $key ] = $this->convert_switcher_to_boolean( $settings[ $key ] );
 			}

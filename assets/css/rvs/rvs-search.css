@@ -1,0 +1,95 @@
+/**
+ * Rentiva front-end standard -- the search strip (`rentiva_unified_search`).
+ *
+ * Values from the approved canvas (`Arama-Sonuclari`, `Anasayfa`): one row --
+ * pickup location (wider) · pickup · return · Search -- on a surface panel,
+ * 52 px fields with visible labels; stacked at 768 px and below and in the
+ * vertical layout.
+ */
+
+.rvs-shell .rvs-search {
+	padding-block: 20px;
+}
+
+.rvs-shell .rvs-search__form {
+	display: grid;
+	grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr)) auto;
+	align-items: end;
+	gap: 15px;
+	margin: 0;
+	padding: 20px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-search--no-location .rvs-search__form {
+	grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+}
+
+.rvs-shell .rvs-search--no-dates .rvs-search__form {
+	grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rvs-shell .rvs-search__field {
+	min-width: 0;
+}
+
+/* Date and time share one field. */
+.rvs-shell .rvs-search__when {
+	display: flex;
+	gap: 8px;
+}
+
+.rvs-shell .rvs-search__when > .rvs-input:first-child {
+	flex: 1;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-search__time {
+	flex: 0 0 96px;
+	width: 96px;
+	padding-inline: 10px;
+}
+
+.rvs-shell .rvs-search__time--locked {
+	display: inline-flex;
+	align-items: center;
+	background: var(--rvs-n-200);
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-search__submit {
+	min-height: 52px;
+	padding-inline: 28px;
+}
+
+.rvs-shell .rvs-search__field--dropoff {
+	grid-column: 1 / -1;
+	max-width: 420px;
+}
+
+/* Stacked: the vertical layout everywhere, every layout on phones. */
+.rvs-shell .rvs-search--vertical .rvs-search__form {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.rvs-shell .rvs-search--vertical .rvs-search__submit {
+	width: 100%;
+}
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-search__form,
+	.rvs-shell .rvs-search--no-location .rvs-search__form,
+	.rvs-shell .rvs-search--no-dates .rvs-search__form {
+		grid-template-columns: minmax(0, 1fr);
+		padding: 15px;
+	}
+
+	.rvs-shell .rvs-search__submit {
+		width: 100%;
+	}
+
+	.rvs-shell .rvs-search__field--dropoff {
+		max-width: none;
+	}
+}

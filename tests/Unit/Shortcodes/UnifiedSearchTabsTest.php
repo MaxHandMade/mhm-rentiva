@@ -94,7 +94,7 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
         $data = $this->template_data();
 
         $this->assertSame(array(), $data['locations'], 'Locations must default to empty without a subscriber.');
-        $this->assertTrue($data['show_rental_tab'], 'The core rental tab must still render.');
+        $this->assertTrue($data['show_date_picker'], 'The rental dates must still render.');
     }
 
     /**

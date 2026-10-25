@@ -16,7 +16,6 @@
         var setAttributes = props.setAttributes;
         var blockProps = useBlockProps();
 
-        var show_rental_tab = attributes.show_rental_tab;
         var show_location_select = attributes.show_location_select;
         var show_time_select = attributes.show_time_select;
         var show_date_picker = attributes.show_date_picker;
@@ -76,16 +75,6 @@
 
                 /* PANEL 5: FORM UX & VISIBILITY */
                 el(PanelBody, { title: __('Form Visibility', 'mhm-rentiva'), initialOpen: false },
-                    el(SelectControl, {
-                        label: __('Show Rental Tab', 'mhm-rentiva'),
-                        value: show_rental_tab,
-                        options: [
-                            { label: __('Global Default', 'mhm-rentiva'), value: 'default' },
-                            { label: __('Show', 'mhm-rentiva'), value: 'true' },
-                            { label: __('Hide', 'mhm-rentiva'), value: 'false' },
-                        ],
-                        onChange: function (val) { setAttributes({ show_rental_tab: val }); }
-                    }),
                     el(SelectControl, {
                         label: __('Location Select', 'mhm-rentiva'),
                         value: show_location_select,

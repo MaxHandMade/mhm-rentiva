@@ -69,15 +69,6 @@
                 "compact"
             ]
         },
-        "show_rental_tab": {
-            "type": "string",
-            "default": "default",
-            "enum": [
-                "default",
-                "true",
-                "false"
-            ]
-        },
         "show_location_select": {
             "type": "string",
             "default": "default",

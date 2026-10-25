@@ -25,6 +25,8 @@ use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
  */
 final class UnifiedSearch extends AbstractShortcode {
 
+	/** Renders inside the front-end standard's shell. */
+	protected static bool $rvs_shell = true;
 
 	/**
 	 * @return string Shortcode tag.
@@ -49,7 +51,6 @@ final class UnifiedSearch extends AbstractShortcode {
 	{
 		return array(
 			// Visibility controls (boolean as string for shortcode compatibility)
-			'show_rental_tab'       => 'default',
 			'show_location_select'  => 'default',
 			'show_time_select'      => 'default',
 			'show_date_picker'      => 'default',
@@ -80,10 +81,9 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Locations are requested for the rental search form.
 		$locations = apply_filters('mhmrentiva_search_locations', array(), 'rental');
 
-		// Resolve initial visibility
-		$show_rental = self::resolve_bool($atts['show_rental_tab'], 'mhmrentiva_show_rental_tab', true);
-
 		$layout = ! empty($atts['search_layout']) ? (string) $atts['search_layout'] : 'horizontal';
+
+		$fields_required = self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true);
 
 		return array(
 			'locations'             => $locations,
@@ -91,7 +91,6 @@ final class UnifiedSearch extends AbstractShortcode {
 			'nonce'                 => wp_create_nonce('mhmrentiva_unified_search'),
 
 			// Visibility controls
-			'show_rental_tab'       => $show_rental,
 			// Never show a location select with nothing to select: the setting
 			// defaults to true, so without this the Lite rental form would render an
 			// empty (and, when location_required, unsubmittable) picker.
@@ -103,11 +102,47 @@ final class UnifiedSearch extends AbstractShortcode {
 			// drop-off location yet, so the field would promise what nothing does.
 			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhmrentiva_enable_dropoff', false),
 			'location_required'     => self::resolve_bool($atts['location_required'], 'mhmrentiva_location_required', true),
-			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true),
+			'fields_required'       => $fields_required,
+			'values'                => self::values($fields_required),
 
 			'form_action'           => self::form_action(self::resolve_default(self::page_id_or_empty($atts['redirect_page']), 'mhmrentiva_search_results_page')),
 			'layout'                => $layout,
 		);
+	}
+
+	/**
+	 * What the strip opens on: the request's search (on the results page, or a
+	 * link back to the strip), else -- when dates are required -- tomorrow 10:00
+	 * to three days later (longer if the minimum rental is longer).
+	 *
+	 * @return array{pickup_date: string, return_date: string, pickup_time: string, pickup_location: string}
+	 */
+	public static function values(bool $default_dates = true): array
+	{
+		$read = static function (string $key, string $pattern): string {
+			$value = get_query_var(SearchResults::query_var($key), '');
+			$value = is_scalar($value) ? sanitize_text_field(wp_unslash( (string) $value)) : '';
+			return 1 === preg_match($pattern, $value) ? $value : '';
+		};
+
+		$values = array(
+			'pickup_date'     => $read('pickup_date', '/^\d{4}-\d{2}-\d{2}$/'),
+			'return_date'     => $read('return_date', '/^\d{4}-\d{2}-\d{2}$/'),
+			'pickup_time'     => $read('pickup_time', '/^([01]\d|2[0-3]):(00|30)$/'),
+			'pickup_location' => $read('pickup_location', '/^\d+$/'),
+		);
+		if ('' === $values['pickup_time']) {
+			$values['pickup_time'] = '10:00';
+		}
+
+		if ($default_dates && '' === $values['pickup_date'] && '' === $values['return_date']) {
+			$tomorrow              = ( new \DateTimeImmutable('now', wp_timezone()) )->modify('+1 day');
+			$days                  = max(3, BookingForm::min_rental_days());
+			$values['pickup_date'] = $tomorrow->format('Y-m-d');
+			$values['return_date'] = $tomorrow->modify('+' . $days . ' days')->format('Y-m-d');
+		}
+
+		return $values;
 	}
 
 	/**
@@ -160,13 +195,9 @@ final class UnifiedSearch extends AbstractShortcode {
 	 */
 	protected static function enqueue_assets(array $atts = array()): void
 	{
-		// Base unified-search styles (layout and component foundations).
-		wp_enqueue_style(
-			'mhm-rentiva-unified-search-base',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/unified-search.css',
-			array( 'mhm-rentiva-css-variables' ),
-			MHMRENTIVA_VERSION
-		);
+		// The strip is the front-end standard's (rvs-search.css); the old
+		// unified-search.css is not loaded any more (Aşama 2 PR 3).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_search_styles();
 
 		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );
 
