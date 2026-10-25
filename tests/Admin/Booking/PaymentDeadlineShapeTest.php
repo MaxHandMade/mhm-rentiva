@@ -53,14 +53,30 @@ final class PaymentDeadlineShapeTest extends WP_UnitTestCase
 		return $id;
 	}
 
+	private const FIXED_PLUS_3 = 'UTC+3';
+
+	private function zone( string $zone ): void
+	{
+		if ( self::FIXED_PLUS_3 === $zone ) {
+			$this->pin_site_offset( 3 );
+			return;
+		}
+		$this->pin_site_timezone( $zone );
+	}
+
 	/**
-	 * @return array<string, array{0:string}>
+	 * Zone => local rendering of GMT 2026-11-01 07:00:00, written as literals
+	 * (New York left DST at 06:00Z that day; Auckland is on NZDT, +13).
+	 *
+	 * @return array<string, array{0:string,1:string,2:string}>
 	 */
 	public static function zones(): array
 	{
 		return array(
-			'istanbul' => array( 'Europe/Istanbul' ),
-			'new york' => array( 'America/New_York' ),
+			'istanbul' => array( 'Europe/Istanbul', '01.11.2026 10:00', '2026-11-01 10:00:00' ),
+			'new york' => array( 'America/New_York', '01.11.2026 02:00', '2026-11-01 02:00:00' ),
+			'auckland' => array( 'Pacific/Auckland', '01.11.2026 20:00', '2026-11-01 20:00:00' ),
+			'fixed +3' => array( self::FIXED_PLUS_3, '01.11.2026 10:00', '2026-11-01 10:00:00' ),
 		);
 	}
 
@@ -69,7 +85,7 @@ final class PaymentDeadlineShapeTest extends WP_UnitTestCase
 	 */
 	public function test_every_writer_stores_gmt( string $tz ): void
 	{
-		$this->pin_site_timezone( $tz );
+		$this->zone( $tz );
 		update_option( 'mhmrentiva_settings', array( 'mhmrentiva_booking_payment_deadline_minutes' => 30 ) );
 
 		$writers = array(
@@ -96,7 +112,7 @@ final class PaymentDeadlineShapeTest extends WP_UnitTestCase
 	 */
 	public function test_bridge_fallback_writer_stores_gmt( string $tz ): void
 	{
-		$this->pin_site_timezone( $tz );
+		$this->zone( $tz );
 		update_option( 'mhmrentiva_settings', array( 'mhmrentiva_booking_payment_deadline_minutes' => 30 ) );
 
 		$method = new \ReflectionMethod( WooCommerceBridge::class, 'fallback_payment_deadline' );
@@ -112,36 +128,80 @@ final class PaymentDeadlineShapeTest extends WP_UnitTestCase
 	 */
 	public function test_dashboard_overdue_uses_gmt_now( string $tz ): void
 	{
-		$this->pin_site_timezone( $tz );
+		$this->zone( $tz );
 
 		$this->assertTrue( DashboardService::is_payment_overdue( gmdate( 'Y-m-d H:i:s', time() - 60 ) ) );
 		$this->assertFalse( DashboardService::is_payment_overdue( gmdate( 'Y-m-d H:i:s', time() + 60 ) ) );
 		$this->assertFalse( DashboardService::is_payment_overdue( '' ) );
 	}
 
-	public function test_deposit_metabox_prints_local_time(): void
+	/**
+	 * The real caller: a pending payment row is marked overdue from the GMT meta.
+	 *
+	 * @dataProvider zones
+	 */
+	public function test_pending_payments_row_is_marked_overdue( string $tz ): void
 	{
-		$this->pin_site_timezone( 'Europe/Istanbul' );
+		if ( ! function_exists( 'wc_create_order' ) ) {
+			$this->markTestSkipped( 'WooCommerce is required.' );
+		}
+		$this->zone( $tz );
+
+		$order = wc_create_order();
+		$order->set_total( '100' );
+		$order->set_status( 'pending' );
+		$order->save();
+
+		$late = $this->booking();
+		update_post_meta( $late, '_mhmrentiva_payment_deadline', gmdate( 'Y-m-d H:i:s', time() - 60 ) );
+		update_post_meta( $late, '_mhmrentiva_wc_order_id', $order->get_id() );
+
+		$order2 = wc_create_order();
+		$order2->set_total( '100' );
+		$order2->set_status( 'pending' );
+		$order2->save();
+		$ontime = $this->booking();
+		update_post_meta( $ontime, '_mhmrentiva_payment_deadline', gmdate( 'Y-m-d H:i:s', time() + 600 ) );
+		update_post_meta( $ontime, '_mhmrentiva_wc_order_id', $order2->get_id() );
+
+		$flags = array();
+		foreach ( DashboardService::get_pending_payments() as $row ) {
+			$flags[ (int) $row['booking_id'] ] = (bool) $row['is_overdue'];
+		}
+
+		$this->assertArrayHasKey( $late, $flags, "Fixture guard ({$tz}): the late row must be listed." );
+		$this->assertTrue( $flags[ $late ], "Past GMT deadline must be overdue ({$tz})." );
+		$this->assertArrayHasKey( $ontime, $flags );
+		$this->assertFalse( $flags[ $ontime ], "Future GMT deadline must not be overdue ({$tz})." );
+	}
+
+	/**
+	 * @dataProvider zones
+	 */
+	public function test_deposit_metabox_prints_local_time( string $tz, string $local_dmy_hi ): void
+	{
+		$this->zone( $tz );
 		$id = $this->booking();
 
 		ob_start();
 		BookingDepositMetaBox::render_deposit_management( get_post( $id ) );
 		$html = (string) ob_get_clean();
 
-		$this->assertStringContainsString( '01.11.2026 10:00', $html );
-		$this->assertStringNotContainsString( '01.11.2026 07:00', $html );
+		$this->assertStringContainsString( '<strong>Deadline:</strong> ' . $local_dmy_hi, $html, $tz );
 	}
 
-	public function test_deadline_in_email_is_local(): void
+	/**
+	 * @dataProvider zones
+	 */
+	public function test_deadline_in_email_is_local( string $tz, string $unused, string $local_mysql ): void
 	{
-		$this->pin_site_timezone( 'Europe/Istanbul' );
+		$this->zone( $tz );
 		$id = $this->booking();
 
 		$context = Mailer::getBookingContext( $id );
-		$this->assertStringContainsString( '10:00', (string) $context['booking']['payment_deadline'] );
-		$this->assertStringStartsWith( '2026-11-01', (string) $context['booking']['payment_deadline'] );
+		$this->assertSame( $local_mysql, $context['booking']['payment_deadline'], "Email context ({$tz})" );
 
 		$info = DepositCalculator::get_booking_payment_info( $id );
-		$this->assertStringContainsString( '10:00', (string) $info['payment_deadline'] );
+		$this->assertSame( $local_mysql, $info['payment_deadline'], "Deposit summary ({$tz})" );
 	}
 }
