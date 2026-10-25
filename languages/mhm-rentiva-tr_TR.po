@@ -3381,7 +3381,7 @@ msgstr "Favorilerden kaldırıldı."
 #: templates/partials/vehicle-card.php:111
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
-#: templates/shortcodes/search-results.php:286
+#: templates/shortcodes/search-results.php:301
 #: templates/shortcodes/vehicle-details.php:189
 #: templates/shortcodes/vehicle-details.php:190
 #: templates/shortcodes/vehicle-details.php:202
@@ -3493,7 +3493,7 @@ msgstr "Kaldır"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:525
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1216
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1401
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1411
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:312
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:430
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:334
@@ -4218,7 +4218,7 @@ msgid "No fields highlighted in the detail view"
 msgstr "Detayda öne çıkacak alan seçilmedi"
 
 #: src/Admin/Core/AssetManager.php:1357
-#: templates/shortcodes/search-results.php:276
+#: templates/shortcodes/search-results.php:291
 msgid "Comparison"
 msgstr "Karşılaştırma"
 
@@ -4358,8 +4358,8 @@ msgstr "Gönder"
 
 #: src/Admin/Core/AssetManager.php:1463
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1636
-#: templates/shortcodes/search-results.php:140
-#: templates/shortcodes/search-results.php:213
+#: templates/shortcodes/search-results.php:161
+#: templates/shortcodes/search-results.php:218
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
 msgid "Clear"
 msgstr "Temizle"
@@ -5136,7 +5136,7 @@ msgid "Database Cleanup Report"
 msgstr "Veritabanı temizleme raporu"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
-#: templates/shortcodes/search-results.php:170
+#: templates/shortcodes/search-results.php:175
 msgid "Category"
 msgstr "Kategori"
 
@@ -5916,7 +5916,7 @@ msgstr "← Müşteri detaylarına dön"
 
 #: src/Admin/Customers/CustomersPage.php:542
 #: templates/account/dashboard.php:190
-#: templates/shortcodes/search-results.php:239
+#: templates/shortcodes/search-results.php:244
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr "Görüntüle"
@@ -6961,7 +6961,7 @@ msgstr "İşlem başarıyla tamamlandı."
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:525
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1217
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1401
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1411
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:452
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:590
 #: templates/shortcodes/availability-calendar.php:101
@@ -6991,7 +6991,7 @@ msgstr "Takvim verileri güncellendi."
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:245
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:409
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:470
-#: src/Admin/Services/CompareService.php:249
+#: src/Admin/Services/CompareService.php:255
 #: src/Admin/Services/FavoritesService.php:149
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1436
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1564
@@ -6999,7 +6999,7 @@ msgid "Security check failed"
 msgstr "Güvenlik kontrolü başarısız oldu"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1106
-#: src/Admin/Services/CompareService.php:255
+#: src/Admin/Services/CompareService.php:261
 #: src/Admin/Services/FavoritesService.php:160
 msgid "Invalid vehicle ID"
 msgstr "Geçersiz araç kimliği"
@@ -7590,41 +7590,41 @@ msgstr[1] "%d araç bulundu"
 msgid "%d vehicles found"
 msgstr "%d araç bulundu"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1272
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1276
 #: assets/blocks/search-results/index.js:51
 msgid "Most Relevant"
 msgstr "En alakalı"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1273
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1277
 #: src/Admin/Settings/Groups/FrontendSettings.php:255
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr "Fiyat: düşükten yükseğe"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1274
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1278
 #: src/Admin/Settings/Groups/FrontendSettings.php:256
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr "Fiyat: yüksekten düşüğe"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1275
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1279
 #: src/Admin/Settings/Groups/FrontendSettings.php:257
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr "Ad: A'dan Z'ye"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1276
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1280
 #: src/Admin/Settings/Groups/FrontendSettings.php:258
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr "Ad: Z'den A'ya"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1277
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1281
 #: assets/blocks/search-results/index.js:56
 msgid "Newest First"
 msgstr "Yeniden eskiye"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1420
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1430
 msgid "No vehicles found matching your criteria."
 msgstr "Kriterlerinize uyan araç bulunamadı."
 
@@ -7686,7 +7686,7 @@ msgstr "Müsaitlik"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:313
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:472
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:822
-#: templates/shortcodes/search-results.php:197
+#: templates/shortcodes/search-results.php:202
 msgid "Brand"
 msgstr "Marka"
 
@@ -7705,14 +7705,14 @@ msgstr "Yakıt türü"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:317
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1548
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:826
-#: templates/shortcodes/search-results.php:182
+#: templates/shortcodes/search-results.php:187
 msgid "Transmission"
 msgstr "Vites"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:318
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1538
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:824
-#: templates/shortcodes/search-results.php:191
+#: templates/shortcodes/search-results.php:196
 #: templates/shortcodes/vehicle-details.php:339
 msgid "Seats"
 msgstr "Koltuk"
@@ -9902,11 +9902,11 @@ msgstr "Herkese açık (anonim) ziyaretçiler için dakika başına en fazla ist
 msgid "You can compare up to %d vehicles."
 msgstr "En fazla %d araç karşılaştırabilirsiniz."
 
-#: src/Admin/Services/CompareService.php:266
+#: src/Admin/Services/CompareService.php:272
 msgid "Removed from comparison"
 msgstr "Karşılaştırmadan kaldırıldı"
 
-#: src/Admin/Services/CompareService.php:270
+#: src/Admin/Services/CompareService.php:276
 msgid "Added to comparison"
 msgstr "Karşılaştırmaya eklendi"
 
@@ -12409,7 +12409,7 @@ msgid "%d Doors"
 msgstr "%d kapı"
 
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:651
-#: templates/shortcodes/search-results.php:207
+#: templates/shortcodes/search-results.php:212
 msgid "km"
 msgstr "km"
 
@@ -12568,7 +12568,7 @@ msgid "This Month Revenue"
 msgstr "Bu ayın geliri"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1562
-#: templates/shortcodes/search-results.php:183
+#: templates/shortcodes/search-results.php:188
 msgid "Fuel"
 msgstr "Yakıt"
 
@@ -14664,7 +14664,7 @@ msgstr "Min"
 
 #: templates/shortcodes/search-results.php:91
 #: templates/shortcodes/search-results.php:92
-#: templates/shortcodes/search-results.php:206
+#: templates/shortcodes/search-results.php:211
 msgid "Max"
 msgstr "Maks"
 
@@ -16147,7 +16147,7 @@ msgstr "günlük"
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:483
-#: templates/shortcodes/search-results.php:281
+#: templates/shortcodes/search-results.php:296
 #, php-format
 msgid "%1$s vehicle selected · up to %2$s"
 msgid_plural "%1$s vehicles selected · up to %2$s"
@@ -16161,7 +16161,7 @@ msgid "%1$s vehicles selected · up to %2$s"
 msgstr "%1$s araç seçildi · en çok %2$s"
 
 #. translators: %s: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1153
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1157
 #, php-format
 msgid "%s vehicle"
 msgid_plural "%s vehicles"
@@ -16169,61 +16169,61 @@ msgstr[0] "%s araç"
 msgstr[1] "%s araç"
 
 #. translators: 1: pickup date, 2: return date (both short, e.g. "12 Jul").
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1166
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1170
 #, php-format
 msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
 
 #. translators: %s: number of seats.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1222
-#: templates/shortcodes/search-results.php:189
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1226
+#: templates/shortcodes/search-results.php:194
 #, php-format
 msgid "%s seats"
 msgstr "%s koltuk"
 
 #. translators: %s: formatted minimum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1232
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1236
 #, php-format
 msgid "From %s/day"
 msgstr "En az %s/gün"
 
 #. translators: %s: formatted maximum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1234
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1238
 #, php-format
 msgid "Up to %s/day"
 msgstr "En çok %s/gün"
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1236
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1240
 #, php-format
 msgid "From %s"
 msgstr "%s ve sonrası"
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1238
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1242
 #, php-format
 msgid "Up to %s"
 msgstr "%s ve öncesi"
 
 #. translators: %s: mileage in km.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1240
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1244
 #, php-format
 msgid "Up to %s km"
 msgstr "En çok %s km"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1273
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1277
 msgid "Total price: low to high"
 msgstr "Toplam fiyat: artan"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1274
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1278
 msgid "Total price: high to low"
 msgstr "Toplam fiyat: azalan"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1541
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1553
 msgid "Previous page"
 msgstr "Önceki sayfa"
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1556
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1568
 msgid "Next page"
 msgstr "Sonraki sayfa"
 
@@ -16231,35 +16231,35 @@ msgstr "Sonraki sayfa"
 msgid "Remove filter"
 msgstr "Filtreyi kaldır"
 
-#: templates/partials/search/rvs-empty.php:24
+#: templates/partials/search/rvs-empty.php:25
 msgid "Choose your dates to see the total price and only the cars that are free."
 msgstr "Toplam fiyatı ve yalnızca müsait araçları görmek için tarih seçin."
 
-#: templates/partials/search/rvs-empty.php:25
+#: templates/partials/search/rvs-empty.php:26
 msgid "Choose dates"
 msgstr "Tarih seç"
 
-#: templates/partials/search/rvs-empty.php:31
+#: templates/partials/search/rvs-empty.php:32
 msgid "No cars match your filters"
 msgstr "Filtrelerinize uyan araç yok"
 
-#: templates/partials/search/rvs-empty.php:32
+#: templates/partials/search/rvs-empty.php:33
 msgid "Remove a filter or clear them all."
 msgstr "Bir filtreyi kaldırın ya da hepsini temizleyin."
 
-#: templates/partials/search/rvs-empty.php:33
+#: templates/partials/search/rvs-empty.php:34
 msgid "Clear filters"
 msgstr "Filtreleri temizle"
 
-#: templates/partials/search/rvs-empty.php:39
+#: templates/partials/search/rvs-empty.php:47
 msgid "No cars are free for these dates"
 msgstr "Bu tarihlerde müsait araç yok"
 
-#: templates/partials/search/rvs-empty.php:40
+#: templates/partials/search/rvs-empty.php:48
 msgid "Try other dates or another pickup location."
 msgstr "Başka tarihler ya da başka bir teslim alma yeri deneyin."
 
-#: templates/partials/search/rvs-empty.php:41
+#: templates/partials/search/rvs-empty.php:49
 msgid "Change dates"
 msgstr "Tarihleri değiştir"
 
@@ -16271,75 +16271,75 @@ msgid_plural "%s days"
 msgstr[0] "%s gün"
 msgstr[1] "%s gün"
 
-#: templates/shortcodes/search-results.php:118
+#: templates/shortcodes/search-results.php:139
 msgid "No dates selected"
 msgstr "Tarih seçilmedi"
 
-#: templates/shortcodes/search-results.php:120
+#: templates/shortcodes/search-results.php:141
 msgid "Change"
 msgstr "Değiştir"
 
 #. translators: %s: number of active filters.
-#: templates/shortcodes/search-results.php:128
+#: templates/shortcodes/search-results.php:149
 #, php-format
 msgid "Filters (%s)"
 msgstr "Filtreler (%s)"
 
-#: templates/shortcodes/search-results.php:139
+#: templates/shortcodes/search-results.php:160
 msgid "Filter"
 msgstr "Filtrele"
 
-#: templates/shortcodes/search-results.php:141
+#: templates/shortcodes/search-results.php:162
 msgid "Close filters"
 msgstr "Filtreleri kapat"
 
-#: templates/shortcodes/search-results.php:179
+#: templates/shortcodes/search-results.php:184
 #: templates/shortcodes/unified-search.php:64
 msgid "Pickup location"
 msgstr "Teslim alma yeri"
 
-#: templates/shortcodes/search-results.php:184
+#: templates/shortcodes/search-results.php:189
 msgid "Daily price"
 msgstr "Günlük fiyat"
 
-#: templates/shortcodes/search-results.php:199
+#: templates/shortcodes/search-results.php:204
 msgid "Model year"
 msgstr "Model yılı"
 
-#: templates/shortcodes/search-results.php:203
-#: templates/shortcodes/search-results.php:205
+#: templates/shortcodes/search-results.php:208
+#: templates/shortcodes/search-results.php:210
 msgid "Maximum mileage"
 msgstr "En çok kilometre"
 
 #. translators: %s: number of vehicles the filters leave.
-#: templates/shortcodes/search-results.php:218
+#: templates/shortcodes/search-results.php:223
 #, php-format
 msgid "Show %s vehicle"
 msgid_plural "Show %s vehicles"
 msgstr[0] "%s aracı göster"
 msgstr[1] "%s aracı göster"
 
-#: templates/shortcodes/search-results.php:226
+#: templates/shortcodes/search-results.php:231
 msgid "Results"
 msgstr "Sonuçlar"
 
-#: templates/shortcodes/search-results.php:231
+#: templates/shortcodes/search-results.php:236
 msgid "Sort"
 msgstr "Sırala"
 
-#: templates/shortcodes/search-results.php:240
+#: templates/shortcodes/search-results.php:245
 msgid "Grid view"
 msgstr "Izgara görünümü"
 
-#: templates/shortcodes/search-results.php:243
+#: templates/shortcodes/search-results.php:248
 msgid "List view"
 msgstr "Liste görünümü"
 
-#: templates/shortcodes/search-results.php:251
+#: templates/shortcodes/search-results.php:256
 msgid "Active filters"
 msgstr "Etkin filtreler"
 
-#: templates/shortcodes/search-results.php:270
+#: templates/shortcodes/search-results.php:285
 msgid "Pages"
 msgstr "Sayfalar"
 
@@ -16367,3 +16367,11 @@ msgstr "İade saati teslim alma saatiyle aynıdır"
 #: templates/shortcodes/unified-search.php:108
 msgid "Same as pickup"
 msgstr "Teslim alma yeriyle aynı"
+
+#: templates/partials/search/rvs-empty.php:40
+msgid "No vehicles are listed yet"
+msgstr "Henüz listelenmiş araç yok"
+
+#: templates/partials/search/rvs-empty.php:41
+msgid "Please check back soon."
+msgstr "Lütfen yakında tekrar bakın."

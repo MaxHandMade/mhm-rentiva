@@ -109,7 +109,28 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 	data-show-rating="<?php echo esc_attr($atts['show_rating'] ?? '1'); ?>"
 	data-show-badges="<?php echo esc_attr($atts['show_badges'] ?? '1'); ?>"
 	data-results-per-page="<?php echo esc_attr($atts['results_per_page'] ?? '12'); ?>"
-	data-default-view="<?php echo esc_attr($active_layout); ?>">
+	data-default-view="<?php echo esc_attr($active_layout); ?>"
+	data-default-sort="<?php echo esc_attr( (string) ( $search_params['sort'] ?? '' )); ?>">
+
+	<?php
+	// The search -- window and keyword -- travels with every AJAX request
+	// (filters, sort, pages), with or without the filter column: admin-ajax
+	// parses no query vars, and without it a re-render dropped the
+	// availability constraint and the cards' period total.
+	$rvs_window = array(
+		'pickup_date' => (string) ( $search_params['pickup_date'] ?? '' ),
+		'return_date' => (string) ( $search_params['return_date'] ?? '' ),
+		'pickup_time' => (string) ( $search_params['pickup_time'] ?? '' ),
+		'keyword'     => (string) ( is_scalar($search_params['keyword'] ?? '') ? $search_params['keyword'] ?? '' : '' ),
+	);
+	?>
+	<form class="rvs-results__window" data-rvs-window hidden>
+		<?php foreach ($rvs_window as $rvs_key => $rvs_value) : ?>
+			<?php if ('' !== $rvs_value) : ?>
+				<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv($rvs_key)); ?>" value="<?php echo esc_attr($rvs_value); ?>">
+			<?php endif; ?>
+		<?php endforeach; ?>
+	</form>
 
 	<div class="rvs-results__mobilebar">
 		<a class="rvs-results__summary-card" href="<?php echo esc_url($change_url); ?>" data-rvs-change>
@@ -145,22 +166,6 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 
 				<form class="rvs-results__form" data-rvs-filters>
 					<?php echo wp_kses_post( (string) $nonce_field); ?>
-					<?php
-					// The search window travels with every filter request: admin-ajax
-					// parses no query vars, and without it the re-render dropped the
-					// availability constraint and the cards' period total.
-					$rvs_window = array(
-						'pickup_date' => (string) ( $search_params['pickup_date'] ?? '' ),
-						'return_date' => (string) ( $search_params['return_date'] ?? '' ),
-						'pickup_time' => (string) get_query_var($mhmrentiva_qv('pickup_time'), ''),
-					);
-					foreach ($rvs_window as $rvs_key => $rvs_value) :
-						if ('' === $rvs_value) {
-							continue;
-						}
-						?>
-						<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv($rvs_key)); ?>" value="<?php echo esc_attr($rvs_value); ?>">
-					<?php endforeach; ?>
 
 					<?php
 					$category_options = array();

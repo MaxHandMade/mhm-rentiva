@@ -1116,7 +1116,13 @@ final class SearchResults extends AbstractShortcode {
 	public static function empty_state(array $params, int $total): ?string
 	{
 		if ($total <= 0) {
-			return self::has_active_filters($params) ? 'filtered_out' : 'no_results';
+			if (self::has_active_filters($params)) {
+				return 'filtered_out';
+			}
+			// No dates given and still nothing: the catalogue is empty. Dates given
+			// (even a range the minimum rental refuses) ruled the cars out.
+			$dated = '' !== (string) ( $params['pickup_date'] ?? '' ) || '' !== (string) ( $params['return_date'] ?? '' );
+			return $dated ? 'no_results' : 'no_vehicles';
 		}
 
 		return null === self::window($params) ? 'not_searched' : null;
@@ -1358,7 +1364,7 @@ final class SearchResults extends AbstractShortcode {
 						'kind'       => (string) $empty_state,
 						'change_url' => $change_url,
 					), true),
-				'pagination'   => self::render_pagination($results['pagination'], self::page_base_url($req->text('base_url'))),
+				'pagination'   => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
 				'summary_html' => Templates::render('partials/search/rvs-summary', array( 'summary' => self::summary($search_params, $total) ), true),
 				'chips_html'   => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
 				'notice_html'  => 'not_searched' === $empty_state ? Templates::render('partials/search/rvs-empty', array(
@@ -1511,7 +1517,9 @@ final class SearchResults extends AbstractShortcode {
 			return '';
 		}
 
-		return remove_query_arg('page', (string) wp_validate_redirect(esc_url_raw($url), ''));
+		// Raw, not sanitize_text_field(): that strips the %XX octets of a
+		// non-ASCII slug. esc_url_raw() + wp_validate_redirect() keep it safe.
+		return remove_query_arg('page', (string) wp_validate_redirect(esc_url_raw(wp_unslash($url)), ''));
 	}
 
 	/**

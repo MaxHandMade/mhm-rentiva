@@ -38,8 +38,9 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * Slice 3A Task 8: 154 (vehicle-rating-form: its ten setting controls removed;
 	 * testimonials: Autoplay, Limit Items, Show Author Name and Show Vehicle Name
 	 * repointed to autoRotate, limit, showCustomer and showVehicle, same count).
+	 * Aşama 2 PR 3: 153 (unified-search: the Show Rental Tab control removed).
 	 */
-	private const LITE_LITERAL_KEYS = 154;
+	private const LITE_LITERAL_KEYS = 153;
 
 	private static function blocks_dir(): string
 	{

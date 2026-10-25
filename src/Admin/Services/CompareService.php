@@ -204,10 +204,16 @@ class CompareService {
 	public static function items(): array {
 		$items = array();
 		foreach ( self::get_list() as $id ) {
-			$title = get_the_title( (int) $id );
+			// A guest's list is a cookie: only published vehicles are named, as
+			// VehicleComparison shows them -- never a draft's or another type's title.
+			$post = get_post( (int) $id );
+			if ( ! $post instanceof \WP_Post || 'mhmrentiva_vehicle' !== $post->post_type || 'publish' !== $post->post_status ) {
+				continue;
+			}
+			$title = wp_specialchars_decode( get_the_title( $post ), ENT_QUOTES );
 			if ( '' !== $title ) {
 				$items[] = array(
-					'id'    => (int) $id,
+					'id'    => (int) $post->ID,
 					'title' => $title,
 				);
 			}

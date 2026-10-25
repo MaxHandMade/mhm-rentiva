@@ -14,7 +14,12 @@ describe( 'rvs search results', () => {
 	const page = () => `
 		<header id="site-head"><a href="/" id="home">Home</a></header>
 		<div class="rvs-shell" data-rvs-shortcode="rentiva_search_results">
-			<div class="rvs-results" data-rvs-results data-rv-instance="r1" data-show-booking-btn="0" data-results-per-page="6" data-default-view="grid">
+			<div class="rvs-results" data-rvs-results data-rv-instance="r1" data-show-booking-btn="0" data-results-per-page="6" data-default-view="grid" data-default-sort="price_asc">
+				<form data-rvs-window hidden>
+					<input type="hidden" name="mhmrentiva_pickup_date" value="2027-07-12">
+					<input type="hidden" name="mhmrentiva_return_date" value="2027-07-15">
+					<input type="hidden" name="mhmrentiva_keyword" value="golf">
+				</form>
 				<div class="rvs-results__mobilebar">
 					<button type="button" id="opener" data-rvs-drawer-open aria-expanded="false">Filters (<span data-rvs-filter-count>1</span>)</button>
 				</div>
@@ -25,8 +30,6 @@ describe( 'rvs search results', () => {
 							<button type="button" id="close" data-rvs-drawer-close>x</button>
 						</div>
 						<form data-rvs-filters>
-							<input type="hidden" name="mhmrentiva_pickup_date" value="2027-07-12">
-							<input type="hidden" name="mhmrentiva_return_date" value="2027-07-15">
 							<label><input type="checkbox" id="cat5" name="mhmrentiva_category[]" value="5" checked> SUV</label>
 							<label><input type="checkbox" id="cat6" name="mhmrentiva_category[]" value="6"> Sedan</label>
 							<input type="number" id="minp" name="mhmrentiva_min_price" value="100">
@@ -97,6 +100,17 @@ describe( 'rvs search results', () => {
 		expect( data.show_booking_button ).toBe( '0' );
 		expect( data.per_page ).toBe( 6 );
 		expect( data.page ).toBe( 1 );
+	} );
+
+	test( 'without the sort control the default sort and the keyword still go along', async () => {
+		await boot();
+		document.querySelector( '[data-rvs-sort]' ).remove();
+		document.querySelector( '[data-rvs-page]' ).click();
+
+		const data = jQuery.ajax.mock.calls[ 0 ][ 0 ].data;
+		expect( data.mhmrentiva_sort ).toBe( 'price_asc' );
+		expect( data.mhmrentiva_keyword ).toBe( 'golf' );
+		expect( data.mhmrentiva_pickup_date ).toBe( '2027-07-12' );
 	} );
 
 	test( 'a chip click clears its input and reloads', async () => {

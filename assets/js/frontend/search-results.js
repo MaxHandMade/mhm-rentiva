@@ -50,7 +50,8 @@
 	 */
 	function formFields( $root ) {
 		const out = {};
-		$root.find( '[data-rvs-filters]' ).serializeArray().forEach( function ( item ) {
+		// The search (window, keyword) first, then the filters.
+		$root.find( '[data-rvs-window], [data-rvs-filters]' ).serializeArray().forEach( function ( item ) {
 			if ( item.name.slice( -2 ) === '[]' ) {
 				const key = item.name.slice( 0, -2 );
 				( out[ key ] = out[ key ] || [] ).push( item.value );
@@ -81,7 +82,8 @@
 				show_rating: flag( $root.data( 'showRating' ) ),
 				show_badges: flag( $root.data( 'showBadges' ) ),
 			},
-			sort.length ? { [ sort.attr( 'name' ) ]: sort.val() } : {},
+			// Without the sort control the page's default sort still applies.
+			sort.length ? { [ sort.attr( 'name' ) ]: sort.val() } : { mhmrentiva_sort: String( $root.data( 'defaultSort' ) || '' ) },
 			formFields( $root )
 		);
 	}
@@ -100,6 +102,14 @@
 			$root.find( '[data-rvs-apply-count]' ).text( meta.total );
 		}
 		applyView( $root, currentView( $root ) );
+
+		// Without `inert` the background was hidden control by control: controls
+		// that just arrived (new cards) need the same treatment.
+		const state = stateOf( $root );
+		if ( state.drawer && ! ( 'inert' in HTMLElement.prototype ) ) {
+			restoreBackground( state.drawer.background );
+			state.drawer.background = setBackground( $root.find( '[data-rvs-drawer]' ).get( 0 ), true );
+		}
 	}
 
 	function showError( $root, message ) {

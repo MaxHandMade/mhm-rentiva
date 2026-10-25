@@ -111,6 +111,8 @@ final class SearchResultsCategoryTest extends WP_UnitTestCase
 		$this->assertSame('no_results', SearchResults::empty_state($dated, 0));
 		$this->assertSame('filtered_out', SearchResults::empty_state($dated + array( 'fuel_type' => 'diesel' ), 0));
 		$this->assertSame('filtered_out', SearchResults::empty_state(array( 'category' => array( 5 ) ), 0));
+		// No window and still nothing: the catalogue is empty -- not "no cars for these dates".
+		$this->assertSame('no_vehicles', SearchResults::empty_state(array(), 0));
 	}
 
 	public function test_active_chips_name_each_filter_value(): void

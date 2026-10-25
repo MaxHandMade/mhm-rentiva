@@ -322,7 +322,8 @@
 	}
 
 	.rvs-shell .rvs-results__filters.is-open .rvs-results__filters-head {
-		padding: 10px 6px 10px 16px;
+		padding-block: 10px;
+		padding-inline: 16px 6px;
 		border-bottom: 1px solid var(--rvs-line);
 	}
 
