@@ -1501,9 +1501,9 @@ final class BookingForm extends AbstractShortcode {
 			$deadline_minutes = 5;
 		}
 
-		// Calculate the deadline in the site's configured timezone.
-		$deadline = current_datetime()->modify("+{$deadline_minutes} minutes");
-		return $deadline->format('Y-m-d H:i:s');
+		// Stored as GMT -- the one shape every reader of the meta assumes;
+		// displays convert with get_date_from_gmt().
+		return \MHMRentiva\Admin\Booking\Helpers\SiteTime::gmt_mysql( time() + ( $deadline_minutes * 60 ) );
 	}
 
 	/**

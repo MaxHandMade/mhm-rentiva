@@ -949,6 +949,23 @@ final class DashboardService {
 	}
 
 	/**
+	 * Has a stored payment deadline passed?
+	 *
+	 * The meta is a GMT string, so it is compared with GMT now -- comparing it
+	 * with the site-local `current_time( 'mysql' )` made an east-of-UTC site
+	 * read every deadline as already lapsed by the offset.
+	 *
+	 * @param string $deadline_gmt `Y-m-d H:i:s` in GMT; empty means none.
+	 */
+	public static function is_payment_overdue( string $deadline_gmt ): bool {
+		if ( '' === $deadline_gmt ) {
+			return false;
+		}
+
+		return strtotime( $deadline_gmt . ' UTC' ) < time();
+	}
+
+	/**
 	 * Shared scan behind get_pending_payments() and get_payments_summary()'s
 	 * `pending_total`. Walks the same query rows once and returns BOTH:
 	 * - `items`: the display list, capped at 10 (existing UI behaviour).
@@ -959,8 +976,6 @@ final class DashboardService {
 	 */
 	private static function collect_pending_payments(): array {
 		global $wpdb;
-
-		$now = current_time( 'mysql' );
 
 		// Status-aware: pull bookings that have at least one WC order attached
 		// (deposit or remaining). Filter by WC order status in PHP.
@@ -1041,7 +1056,7 @@ final class DashboardService {
 			$deposit_order_id   = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $booking_id );
 			$remaining_order_id = (int) ( $row['remaining_order_id'] ?? 0 );
 			$deadline           = $row['deadline'] ?? '';
-			$is_overdue         = $deadline && strtotime( $deadline ) < strtotime( $now );
+			$is_overdue         = self::is_payment_overdue( (string) $deadline );
 			$booking_status     = strtolower( $row['booking_status'] ?? 'pending' );
 
 			// Use WC order totals as the authoritative source — booking-side
@@ -1050,7 +1065,7 @@ final class DashboardService {
 			// Emit one row per pending WC order so admins see every payment due.
 			$display_id    = mhmrentiva_get_display_id( $booking_id );
 			$customer_name = $row['customer_name'] ?? '';
-			$deadline_fmt  = $deadline ? wp_date( 'd.m.Y', strtotime( $deadline ) ) : '—';
+			$deadline_fmt  = $deadline ? get_date_from_gmt( $deadline, 'd.m.Y' ) : '—';
 			$status_label  = $status_labels[ $booking_status ] ?? ucfirst( $booking_status );
 
 			if ( $has_wc_function && $deposit_order_id > 0 ) {

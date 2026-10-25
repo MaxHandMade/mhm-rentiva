@@ -2092,7 +2092,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Get payment deadline for auto-cancellation
 	 *
-	 * @return string Payment deadline in 'Y-m-d H:i:s' format (WordPress timezone)
+	 * @return string Payment deadline in 'Y-m-d H:i:s' format (GMT)
 	 */
 	private static function get_payment_deadline(): string
 	{
@@ -2112,11 +2112,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$deadline_minutes = 5;
 		}
 
-		// ⭐ Use current_time() instead of date() to match WordPress timezone
-		// This ensures consistency with AutoCancel which uses current_time('mysql')
-		$current_timestamp  = current_time('timestamp');
-		$deadline_timestamp = $current_timestamp + ( $deadline_minutes * 60 );
-		return gmdate('Y-m-d H:i:s', $deadline_timestamp);
+		// GMT, like Handler::get_payment_deadline() and every reader of the meta.
+		return gmdate('Y-m-d H:i:s', time() + ( $deadline_minutes * 60 ));
 	}
 
 	/**
