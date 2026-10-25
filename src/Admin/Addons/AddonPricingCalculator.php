@@ -17,7 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Single source of truth for add-on price calculation across rental and transfer flows.
  * Reads `mhmrentiva_addon_price` and `_mhmrentiva_addon_pricing_type` from post meta.
  *
- * Context shape: array{rental_days?:int, adults?:int, children?:int}
+ * Context shape: array{rental_days?:int, adults?:int, children?:int, quantity?:int}
+ * (`quantity`: how many of the add-on were taken, default 1 -- Aşama 2 K12).
  */
 final class AddonPricingCalculator {
 
@@ -25,23 +26,24 @@ final class AddonPricingCalculator {
      * @param array<string,int|float> $context
      */
     public static function calculate( int $addon_id, array $context ): float {
-        $price = max( 0.0, (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ) );
-        $type  = AddonPricingType::sanitize( get_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', true ) );
+        $price    = max( 0.0, (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ) );
+        $type     = AddonPricingType::sanitize( get_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', true ) );
+        $quantity = max( 1, (int) ( $context['quantity'] ?? 1 ) );
 
         switch ( $type ) {
             case AddonPricingType::PER_DAY:
                 $days = max( 1, (int) ( $context['rental_days'] ?? 1 ) );
-                return $price * $days;
+                return $price * $days * $quantity;
 
             case AddonPricingType::PER_PASSENGER:
                 $adults   = (int) ( $context['adults'] ?? 0 );
                 $children = (int) ( $context['children'] ?? 0 );
                 $pax      = max( 1, $adults + $children );
-                return $price * $pax;
+                return $price * $pax * $quantity;
 
             case AddonPricingType::PER_BOOKING:
             default:
-                return $price;
+                return $price * $quantity;
         }
     }
 

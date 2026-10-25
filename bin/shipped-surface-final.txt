@@ -245,6 +245,7 @@ src/Admin/Addons/AddonMeta.php
 src/Admin/Addons/AddonPostType.php
 src/Admin/Addons/AddonPricingCalculator.php
 src/Admin/Addons/AddonPricingType.php
+src/Admin/Addons/AddonSelection.php
 src/Admin/Addons/AddonScreen.php
 src/Admin/Addons/AddonSettings.php
 src/Admin/Addons/AddonStats.php

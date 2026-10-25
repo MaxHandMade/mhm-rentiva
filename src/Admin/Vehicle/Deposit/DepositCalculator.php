@@ -195,9 +195,10 @@ final class DepositCalculator {
 	 * @param string $payment_type Payment type (deposit/full)
 	 * @param array  $addons Addon service IDs
 	 * @param int    $start_ts Start timestamp for weekend multiplier
+	 * @param array  $quantities Add-on id => quantity (missing = 1)
 	 * @return array Calculation results
 	 */
-	public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = array(), int $start_ts = 0): array
+	public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = array(), int $start_ts = 0, array $quantities = array()): array
 	{
 		// Same price source RentalPricing reads, so the guard and the amount agree.
 		$daily_price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
@@ -221,7 +222,7 @@ final class DepositCalculator {
 
 		// RentalPricing is the one computation the quote, the cart and the
 		// stored booking total all share (season, weekend, add-ons).
-		$quote         = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $rental_days, $start_ts, $addons);
+		$quote         = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $rental_days, $start_ts, $addons, $quantities);
 		$vehicle_total = $quote->rental_amount;
 		$addon_total   = $quote->addon_total;
 

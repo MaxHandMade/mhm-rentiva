@@ -124,6 +124,8 @@ final class MetaKeys {
 	public const BOOKING_PAYMENT_STATUS      = '_mhmrentiva_payment_status';
 	public const BOOKING_PAYMENT_GATEWAY     = '_mhmrentiva_payment_gateway';
 	public const BOOKING_SELECTED_ADDONS     = '_mhmrentiva_selected_addons';
+	public const BOOKING_ADDON_QUANTITIES    = '_mhmrentiva_addon_quantities';
+	public const ADDON_MAX_QUANTITY          = 'mhmrentiva_addon_max_quantity';
 	public const BOOKING_WC_ORDER_ID         = '_mhmrentiva_wc_order_id';
 
 	// User Meta Keys

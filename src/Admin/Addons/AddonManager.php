@@ -605,16 +605,16 @@ final class AddonManager {
 	 * (save_booking_addons) and the cart and order lines read the same figures.
 	 *
 	 * @param array<int|string, mixed> $selected_addons Add-on post IDs.
-	 * @param array<string, mixed>     $booking_data    Booking data (rental_days).
-	 * @return array<int, array{id: int, title: string, price: float, pricing_type: string, multiplier: int, line_total: float}>
+	 * @param array<string, mixed>     $booking_data    Booking data (rental_days, addon_quantities: id => quantity).
+	 * @return array<int, array{id: int, title: string, price: float, pricing_type: string, multiplier: int, quantity: int, line_total: float}>
 	 */
 	public static function build_addon_details( array $selected_addons, array $booking_data ): array {
 		// The context the rental is charged with (BookingForm quote,
-		// DepositCalculator): days only. With guests in it a per-passenger
-		// add-on's row said price x guests while the order charged it once.
-		$context = array(
-			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
-		);
+		// DepositCalculator): days and quantity only. With guests in it a
+		// per-passenger add-on's row said price x guests while the order
+		// charged it once.
+		$days       = (int) ( $booking_data['rental_days'] ?? 1 );
+		$quantities = is_array( $booking_data['addon_quantities'] ?? null ) ? $booking_data['addon_quantities'] : array();
 
 		$addon_details = array();
 		foreach ( $selected_addons as $addon_id ) {
@@ -622,8 +622,13 @@ final class AddonManager {
 			if ( ! $addon ) {
 				continue;
 			}
-			$type = AddonPricingType::sanitize(
+			$type     = AddonPricingType::sanitize(
 				get_post_meta( (int) $addon_id, '_mhmrentiva_addon_pricing_type', true )
+			);
+			$quantity = max( 1, (int) ( $quantities[ (int) $addon_id ] ?? 1 ) );
+			$context  = array(
+				'rental_days' => $days,
+				'quantity'    => $quantity,
 			);
 
 			$addon_details[] = array(
@@ -632,11 +637,25 @@ final class AddonManager {
 				'price'        => (float) $addon['price'],
 				'pricing_type' => $type,
 				'multiplier'   => AddonPricingCalculator::multiplier( $type, $context ),
+				'quantity'     => $quantity,
 				'line_total'   => AddonPricingCalculator::calculate( (int) $addon_id, $context ),
 			);
 		}
 
 		return $addon_details;
+	}
+
+	/**
+	 * A detail row's title as a cart, an order or an e-mail shows it:
+	 * "Child seat × 2" when more than one was taken. Rows stored before
+	 * quantities existed have no `quantity` and read as one.
+	 *
+	 * @param array<string, mixed> $row One build_addon_details() row.
+	 */
+	public static function line_label( array $row ): string {
+		$title    = (string) ( $row['title'] ?? '' );
+		$quantity = (int) ( $row['quantity'] ?? 1 );
+		return $quantity > 1 ? $title . ' × ' . $quantity : $title;
 	}
 
 	/**
