@@ -621,6 +621,12 @@
             requestData.append('vehicle_id', ajaxData.vehicle_id);
             requestData.append('pickup_date', ajaxData.pickup_date);
             requestData.append('dropoff_date', ajaxData.dropoff_date);
+            // The window the submission books: without the time the server
+            // priced 10:00, and a pickup on another UTC weekday (00:00-02:59
+            // in Istanbul) was quoted one total and charged another.
+            if (formData.pickup_time) {
+                requestData.append('pickup_time', formData.pickup_time);
+            }
             requestData.append('payment_type', ajaxData.payment_type);
 
             // Addons'u array olarak ekle
