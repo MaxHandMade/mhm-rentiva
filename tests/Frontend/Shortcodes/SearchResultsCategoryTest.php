@@ -26,7 +26,7 @@ final class SearchResultsCategoryTest extends WP_UnitTestCase
 		parent::setUp();
 		wp_set_current_user(0);
 		RequestSimulator::new_request();
-		delete_transient('mhmrentiva_search_filters_v3');
+		delete_transient(SearchResults::FILTERS_CACHE_KEY);
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false');
 
 		$this->suv_term   = (int) self::factory()->term->create(array( 'taxonomy' => 'mhmrentiva_vehicle_category', 'name' => 'Zz SUV' ));
@@ -46,7 +46,7 @@ final class SearchResultsCategoryTest extends WP_UnitTestCase
 	public function tearDown(): void
 	{
 		RequestSimulator::new_request();
-		delete_transient('mhmrentiva_search_filters_v3');
+		delete_transient(SearchResults::FILTERS_CACHE_KEY);
 		parent::tearDown();
 	}
 

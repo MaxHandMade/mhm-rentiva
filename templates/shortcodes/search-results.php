@@ -130,6 +130,20 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv($rvs_key)); ?>" value="<?php echo esc_attr($rvs_value); ?>">
 			<?php endif; ?>
 		<?php endforeach; ?>
+		<?php
+		// Without the filter column the URL's filters ride here, so sort and
+		// pages keep them (the chips name every active filter value).
+		if (! $show_filters) :
+			foreach ($chips as $rvs_chip) :
+				if ($mhmrentiva_qv('keyword') === $rvs_chip['name']) {
+					continue;
+				}
+				?>
+				<input type="hidden" name="<?php echo esc_attr($rvs_chip['name']); ?>" value="<?php echo esc_attr($rvs_chip['value']); ?>">
+				<?php
+			endforeach;
+		endif;
+		?>
 	</form>
 
 	<div class="rvs-results__mobilebar">

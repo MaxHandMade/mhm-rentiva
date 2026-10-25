@@ -49,6 +49,13 @@ final class SearchResults extends AbstractShortcode {
 	public const SHORTCODE = 'rentiva_search_results';
 
 	/**
+	 * The facet cache (get_filter_options()); Plugin deletes it when a vehicle
+	 * changes. _v3: categories joined the facets (Aşama 2 PR 3) -- one constant,
+	 * so the reader and the invalidation cannot name different keys again.
+	 */
+	public const FILTERS_CACHE_KEY = 'mhmrentiva_search_filters_v3';
+
+	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
 	 * search-results URL (e.g.
 	 * `?mhmrentiva_min_price=100&mhmrentiva_fuel_type=diesel&mhmrentiva_sort=price_asc`).
@@ -943,8 +950,7 @@ final class SearchResults extends AbstractShortcode {
 		// catalogue (see the publish-only get_posts() a few lines below) did
 		// not bump the key, so a transient cached before deploy could keep
 		// serving unpublished-vehicle facet values for up to 24h after it.
-		// _v3: categories joined the facets (Aşama 2 PR 3).
-		$cache_key = 'mhmrentiva_search_filters_v3';
+		$cache_key = self::FILTERS_CACHE_KEY;
 		$cached    = get_transient($cache_key);
 
 		if (false !== $cached && is_array($cached)) {

@@ -25,7 +25,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		SearchResults::register();
 		wp_set_current_user(0);
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false');
-		delete_transient('mhmrentiva_search_filters_v3');
+		delete_transient(SearchResults::FILTERS_CACHE_KEY);
 
 		foreach (array( 'Zz Page One', 'Zz Page Two' ) as $i => $title) {
 			$id = self::factory()->post->create(array(
@@ -174,6 +174,24 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('aria-label="Previous page"', $html);
 		$this->assertStringContainsString('href="http://example.org/results/?page=3"', $html);
 		$this->assertSame('', SearchResults::render_pagination(array( 'current' => 1, 'total' => 1 )));
+	}
+
+	public function test_without_the_filter_column_the_url_filters_ride_with_the_window(): void
+	{
+		set_query_var(SearchResults::query_var('fuel_type'), 'diesel');
+		$html = (string) do_shortcode('[rentiva_search_results show_filters="0"]');
+
+		$this->assertStringNotContainsString('data-rvs-filters', $html);
+		$this->assertMatchesRegularExpression('/data-rvs-window hidden>.*name="mhmrentiva_fuel_type\[\]" value="diesel"/s', $html);
+	}
+
+	public function test_a_vehicle_save_drops_the_facet_cache(): void
+	{
+		set_transient(SearchResults::FILTERS_CACHE_KEY, array( 'brands' => array( 'Stale' ) ), DAY_IN_SECONDS);
+		$id = self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ));
+		wp_update_post(array( 'ID' => $id, 'post_title' => 'Zz Saved Again' ));
+
+		$this->assertFalse(get_transient(SearchResults::FILTERS_CACHE_KEY));
 	}
 
 	public function test_comparison_band_is_present_and_empty_by_default(): void
