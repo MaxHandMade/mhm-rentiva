@@ -197,6 +197,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 						'thousandSeparator' => $currency_parts['thousandSeparator'],
 					),
 					'locale'         => str_replace( '_', '-', get_locale() ),
+					// Site-local current date (Y-m-d): the form's default pickup/return start here.
+					'siteToday'      => \MHMRentiva\Admin\Booking\Helpers\SiteTime::today(),
 					'text'           => array(
 						'calculating'        => __('Calculating...', 'mhm-rentiva'),
 						'error'              => __('An error occurred', 'mhm-rentiva'),

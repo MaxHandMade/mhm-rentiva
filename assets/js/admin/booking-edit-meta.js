@@ -154,6 +154,19 @@
     }
 
     /**
+     * The site's current date (Y-m-d), localized from PHP. The browser's own
+     * date is only a fallback when the localized value is missing.
+     */
+    function siteToday() {
+        const localized = window.mhmBookingEdit && window.mhmBookingEdit.siteToday;
+        if (localized) {
+            return localized;
+        }
+        const now = new Date();
+        return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+
+    /**
      * Validate date range
      */
     function validateDateRange() {
@@ -172,10 +185,9 @@
             }
 
             // Check if dates are not in the past (except for existing bookings)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            if (pickup < today) {
+            // Compared as Y-m-d strings against the site's today: the browser
+            // clock may be on another calendar day than the site.
+            if (pickupDate < siteToday()) {
                 showFieldError($('#mhmrentiva_edit_pickup_date'), strings.pickup_not_past || 'Pickup date cannot be in the past.');
                 return false;
             }

@@ -218,6 +218,8 @@ final class BookingForm extends AbstractShortcode {
 			// quotes AND the booking submit, so the quotes are refused there too.
 			'nonce'              => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_booking_form_nonce'), // Correct nonce
 			'strings'            => self::get_localized_strings(),
+			// The site's current date (Y-m-d): client-side date limits start here, not at the browser's clock.
+			'siteToday'          => \MHMRentiva\Admin\Booking\Helpers\SiteTime::today(),
 			'config'             => self::get_js_config(),
 			'datepicker_options' => self::get_datepicker_options(),
 			// Alternative-vehicle cards fall back to this when a suggested

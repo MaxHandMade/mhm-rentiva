@@ -14,7 +14,7 @@
     // Global jQuery UI DatePicker localization
     $(document).ready(function () {
         if (window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.datepicker_options) {
-            $.datepicker.setDefaults(window.mhmRentivaBookingForm.datepicker_options);
+            $.datepicker.setDefaults(MHMRentivaBookingForm.siteDatepickerOptions(window.mhmRentivaBookingForm.datepicker_options));
         }
 
         // Initialize all booking forms on the page
@@ -288,13 +288,14 @@
 
 
         setupDateValidation() {
-            const todayStr = new Date().toISOString().split('T')[0];
+            // The site's today (localized), not the browser's UTC date.
+            const todayStr = MHMRentivaBookingForm.siteToday();
             const pickupDate = this.container.find('.rv-pickup-date');
             const dropoffDate = this.container.find('.rv-dropoff-date');
 
             // Initial restrictions
             pickupDate.attr('min', todayStr);
-            dropoffDate.attr('min', todayStr);
+            dropoffDate.attr('min', MHMRentivaBookingForm.addDays(todayStr, 1));
 
             // Update dropoff date when pickup date changes
             pickupDate.on('change', (e) => {
@@ -304,12 +305,14 @@
 
                     // Validation check before conversion
                     if (dateObj && !isNaN(dateObj.getTime())) {
-                        const nextDay = new Date(dateObj);
-                        nextDay.setDate(nextDay.getDate() + 1);
+                        // The picker date is a calendar date at local midnight: read
+                        // its local Y-m-d, add the day on the string.
+                        const pickupIso = MHMRentivaBookingForm.localIso(dateObj);
+                        const minStr = MHMRentivaBookingForm.addDays(pickupIso, 1);
+                        const nextDay = MHMRentivaBookingForm.localDate(minStr);
 
                         // Update min attribute (for hidden behavior) and datepicker option
                         try {
-                            const minStr = nextDay.toISOString().split('T')[0];
                             dropoffDate.attr('min', minStr);
                             dropoffDate.datepicker('option', 'minDate', nextDay);
                         } catch (err) {
@@ -326,8 +329,7 @@
                         // after the pickup. Never overwrites a return date already chosen.
                         const defaultDays = this.defaultReturnDays();
                         if (defaultDays > 0 && !dropoffDate.val()) {
-                            const prefill = new Date(dateObj);
-                            prefill.setDate(prefill.getDate() + defaultDays);
+                            const prefill = MHMRentivaBookingForm.localDate(MHMRentivaBookingForm.addDays(pickupIso, defaultDays));
                             dropoffDate.datepicker('setDate', prefill);
                         }
                     }
@@ -367,7 +369,7 @@
             if (window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.datepicker_options) {
                 const self = this;
                 const options = {
-                    ...window.mhmRentivaBookingForm.datepicker_options,
+                    ...MHMRentivaBookingForm.siteDatepickerOptions(window.mhmRentivaBookingForm.datepicker_options),
                     onSelect: function (dateText, inst) {
                         const $this = $(this);
                         setTimeout(() => {
@@ -391,7 +393,7 @@
                         setTimeout(() => {
                             const $btnPane = $(inst.dpDiv).find('.ui-datepicker-buttonpane');
                             $btnPane.find('.ui-datepicker-current').off('click').on('click', function () {
-                                const today = new Date();
+                                const today = MHMRentivaBookingForm.localDate(MHMRentivaBookingForm.siteToday());
                                 const formatted = $.datepicker.formatDate(inst.settings.dateFormat || 'yy-mm-dd', today);
                                 $(input).val(formatted).trigger('change');
                                 $(input).datepicker('hide');
@@ -1534,6 +1536,37 @@
     }
 
     // Export class for potential external use
+    // Calendar-date helpers. Dates travel as Y-m-d strings; arithmetic runs in
+    // UTC so neither the browser zone nor DST can shift the day.
+    MHMRentivaBookingForm.addDays = function (iso, n) {
+        const p = iso.split('-').map(Number);
+        return new Date(Date.UTC(p[0], p[1] - 1, p[2] + n)).toISOString().slice(0, 10);
+    };
+    MHMRentivaBookingForm.localIso = function (date) {
+        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    };
+    MHMRentivaBookingForm.localDate = function (iso) {
+        const p = iso.split('-').map(Number);
+        return new Date(p[0], p[1] - 1, p[2]);
+    };
+    // The site's current date (localized from PHP); the browser date is only
+    // a fallback when the localized value is missing.
+    // jQuery UI reads numeric minDate/maxDate as day offsets from the BROWSER's
+    // today. Turn them into dates counted from the site's today.
+    MHMRentivaBookingForm.siteDatepickerOptions = function (options) {
+        const out = { ...options };
+        ['minDate', 'maxDate'].forEach(function (key) {
+            if (typeof out[key] === 'number') {
+                out[key] = MHMRentivaBookingForm.localDate(MHMRentivaBookingForm.addDays(MHMRentivaBookingForm.siteToday(), out[key]));
+            }
+        });
+        return out;
+    };
+    MHMRentivaBookingForm.siteToday = function () {
+        const localized = window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.siteToday;
+        return localized || MHMRentivaBookingForm.localIso(new Date());
+    };
+
     window.MHMRentivaBookingForm = MHMRentivaBookingForm;
 
 })(jQuery);
