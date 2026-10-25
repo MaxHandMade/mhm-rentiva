@@ -52,7 +52,7 @@ $mhmrentiva_bd_total = (array) $mhmrentiva_bd['total'];
 	</div>
 	<?php if (! empty($mhmrentiva_bd['deposit'])) : ?>
 		<div class="rvs-breakdown__deposit">
-			<span><?php esc_html_e('Due now (deposit)', 'mhm-rentiva'); ?></span>
+			<span><?php echo esc_html( (string) ( $mhmrentiva_bd['deposit']['label'] ?? __('Deposit', 'mhm-rentiva') )); ?></span>
 			<strong><?php echo wp_kses( (string) $mhmrentiva_bd['deposit']['html'], $mhmrentiva_bd_html); ?></strong>
 		</div>
 	<?php endif; ?>

@@ -150,6 +150,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 							} else {
 								echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 							}
+						} elseif ( in_array( $key, \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::COUNT_DETAILS, true ) ) {
+							// Optional counts (daily km limit, driver age, licence years, large luggage).
+							\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::render_count_input( (string) $key, (string) $value );
 						} elseif ( $key === 'deposit' ) {
 							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="1" max="100" step="0.1" placeholder="' . esc_attr( $deposit_global_rate ?? '' ) . '" title="' . esc_attr( $deposit_global_hint ?? '' ) . '" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">%</span>';
@@ -215,6 +218,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 							} else {
 								echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 							}
+						} elseif ( in_array( $key, \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::COUNT_DETAILS, true ) ) {
+							// Optional counts (daily km limit, driver age, licence years, large luggage).
+							\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::render_count_input( (string) $key, (string) $value );
 						} elseif ( $key === 'deposit' ) {
 							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="1" max="100" step="0.1" placeholder="' . esc_attr( $deposit_global_rate ?? '' ) . '" title="' . esc_attr( $deposit_global_hint ?? '' ) . '" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">%</span>';

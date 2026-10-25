@@ -464,20 +464,24 @@ final class VehicleMeta extends AbstractMetaBox {
 	private static function get_default_details(): array
 	{
 		return array(
-			'price_per_day' => __('Daily Price', 'mhm-rentiva'),
-			'year'          => __('Model Year', 'mhm-rentiva'),
-			'mileage'       => __('Mileage', 'mhm-rentiva'),
-			'license_plate' => __('License Plate', 'mhm-rentiva'),
-			'color'         => __('Color', 'mhm-rentiva'),
-			'brand'         => __('Brand', 'mhm-rentiva'),
-			'model'         => __('Model', 'mhm-rentiva'),
-			'seats'         => __('Number of Seats', 'mhm-rentiva'),
-			'doors'         => __('Number of Doors', 'mhm-rentiva'),
-			'transmission'  => __('Transmission Type', 'mhm-rentiva'),
-			'fuel_type'     => __('Fuel Type', 'mhm-rentiva'),
-			'engine_size'   => __('Engine Size', 'mhm-rentiva'),
-			'deposit'       => __('Deposit', 'mhm-rentiva'),
-			'availability'  => __('Availability Status', 'mhm-rentiva'),
+			'price_per_day'           => __('Daily Price', 'mhm-rentiva'),
+			'year'                    => __('Model Year', 'mhm-rentiva'),
+			'mileage'                 => __('Mileage', 'mhm-rentiva'),
+			'license_plate'           => __('License Plate', 'mhm-rentiva'),
+			'color'                   => __('Color', 'mhm-rentiva'),
+			'brand'                   => __('Brand', 'mhm-rentiva'),
+			'model'                   => __('Model', 'mhm-rentiva'),
+			'seats'                   => __('Number of Seats', 'mhm-rentiva'),
+			'doors'                   => __('Number of Doors', 'mhm-rentiva'),
+			'transmission'            => __('Transmission Type', 'mhm-rentiva'),
+			'fuel_type'               => __('Fuel Type', 'mhm-rentiva'),
+			'engine_size'             => __('Engine Size', 'mhm-rentiva'),
+			'deposit'                 => __('Deposit', 'mhm-rentiva'),
+			'availability'            => __('Availability Status', 'mhm-rentiva'),
+			'daily_km_limit'          => __('Daily km limit', 'mhm-rentiva'),
+			'min_driver_age'          => __('Minimum driver age', 'mhm-rentiva'),
+			'min_license_years'       => __('Minimum licence years', 'mhm-rentiva'),
+			'vehicle_max_big_luggage' => __('Large luggage', 'mhm-rentiva'),
 		);
 	}
 
@@ -590,6 +594,22 @@ final class VehicleMeta extends AbstractMetaBox {
 
 			$field_name = 'mhmrentiva_' . $key;
 			$meta_key   = '_mhmrentiva_' . $key;
+
+			// Optional counts: written only when the field was on the form (so a
+			// hidden Lite luggage input never clears what Pro's transfer box
+			// saved), and an empty or invalid value removes the meta.
+			if (in_array($key, self::COUNT_DETAILS, true)) {
+				if ($req->has($field_name)) {
+					$count = self::sanitize_field($field_name, $req->text($field_name));
+					if ('' === $count) {
+						delete_post_meta($post_id, $meta_key);
+					} else {
+						update_post_meta($post_id, $meta_key, $count);
+					}
+				}
+				continue;
+			}
+
 			// Sanitize value from POST
 			$value                     = $req->text($field_name);
 			$sanitized_value           = self::sanitize_field($field_name, $value);
@@ -688,6 +708,52 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
+	 * Detail fields that hold an optional positive count (Aşama 2 K11).
+	 */
+	public const COUNT_DETAILS = array( 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' );
+
+	/**
+	 * Pro's transfer settings box edits the large-luggage count itself; while it
+	 * is on the screen the Lite input is not drawn, so the two cannot fight.
+	 */
+	public static function luggage_owned_by_transfer_box(): bool
+	{
+		global $wp_meta_boxes;
+		foreach ( (array) ( $wp_meta_boxes['mhmrentiva_vehicle'] ?? array() ) as $context ) {
+			foreach ( (array) $context as $priority ) {
+				if (isset($priority['mhmrentiva_vehicle_transfer_settings'])) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * The input for a COUNT_DETAILS field on the vehicle screen; false when
+	 * $key is not one of them (the caller then draws its own input).
+	 */
+	public static function render_count_input(string $key, string $value): bool
+	{
+		if (! in_array($key, self::COUNT_DETAILS, true)) {
+			return false;
+		}
+		if ('vehicle_max_big_luggage' === $key && self::luggage_owned_by_transfer_box()) {
+			echo '<p class="description mhm-detail-hint">' . esc_html__('Set in the Transfer settings box.', 'mhm-rentiva') . '</p>';
+			return true;
+		}
+		$units = array(
+			'daily_km_limit'          => __('km/day', 'mhm-rentiva'),
+			'min_driver_age'          => __('years', 'mhm-rentiva'),
+			'min_license_years'       => __('years', 'mhm-rentiva'),
+			'vehicle_max_big_luggage' => __('pcs', 'mhm-rentiva'),
+		);
+		echo '<input type="number" id="mhmrentiva_' . esc_attr($key) . '" name="mhmrentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" min="1" step="1" class="mhm-detail-input" />';
+		echo '<span class="mhm-detail-unit">' . esc_html($units[ $key ]) . '</span>';
+		return true;
+	}
+
+	/**
 	 * Sanitize field values
 	 */
 	private static function sanitize_field(string $field_name, $value)
@@ -733,6 +799,13 @@ final class VehicleMeta extends AbstractMetaBox {
 
 			case 'mhmrentiva_available':
 				return self::normalize_availability($value);
+
+			case 'mhmrentiva_daily_km_limit':
+			case 'mhmrentiva_min_driver_age':
+			case 'mhmrentiva_min_license_years':
+			case 'mhmrentiva_vehicle_max_big_luggage':
+				$text = trim( (string) $value);
+				return ( '' !== $text && ctype_digit($text) && (int) $text > 0 ) ? (string) (int) $text : '';
 
 			default:
 				return self::sanitize_text_field_safe($value);
@@ -1115,6 +1188,10 @@ final class VehicleMeta extends AbstractMetaBox {
 			'_mhmrentiva_engine_size',
 			'_mhmrentiva_deposit',
 			'_mhmrentiva_vehicle_status',
+			\MHMRentiva\Admin\Core\MetaKeys::DAILY_KM_LIMIT,
+			\MHMRentiva\Admin\Core\MetaKeys::MIN_DRIVER_AGE,
+			\MHMRentiva\Admin\Core\MetaKeys::MIN_LICENSE_YEARS,
+			\MHMRentiva\Admin\Core\MetaKeys::LUGGAGE_LARGE,
 			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED,
 			'_mhmrentiva_features',
 			'_mhmrentiva_equipment',

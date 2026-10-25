@@ -32,7 +32,6 @@ class BlockRegistry {
 
 
 
-
 	/**
 	 * Runtime cache for resolved asset versions.
 	 *
@@ -77,7 +76,8 @@ class BlockRegistry {
 		'vehicle-details'       => array(
 			'tag'   => 'rentiva_vehicle_details',
 			'title' => 'Vehicle Details',
-			'css'   => 'vehicle-details.css',
+			'css'   => array(), // The page is the rvs standard (VehicleDetails enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-vehicle' ),
 		),
 		'vehicles-grid'         => array(
 			'tag'   => 'rentiva_vehicles_grid',

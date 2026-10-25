@@ -13,7 +13,7 @@ use WP_Ajax_UnitTestCase;
  * published: the availability calendar picks a default vehicle and builds its
  * dropdown from `array('publish','draft','private')`, its
  * `mhmrentiva_get_vehicle_info` endpoint checks only `post_type`, and the
- * vehicle-details shortcode and its `mhmrentiva_get_calendar` endpoint do the
+ * vehicle-details shortcode and its `mhmrentiva_vd_months` endpoint (Aşama 2 PR B; was mhmrentiva_get_calendar) do the
  * same. Two of those endpoints are nopriv, so a draft ID that is known or
  * guessed returns the vehicle's title, media, specification and price.
  *
@@ -234,14 +234,14 @@ final class UnpublishedVehiclesStayPrivateTest extends WP_Ajax_UnitTestCase
 	public function test_the_details_calendar_endpoint_refuses_a_draft(): void
 	{
 		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhmrentiva_calendar_nonce' ),
+			'nonce'      => wp_create_nonce( 'mhmrentiva_vd_nonce' ),
 			'vehicle_id' => (string) $this->draft_id,
 			'month'      => '8',
 			'year'       => '2026',
 		);
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_get_calendar' );
+			$this->_handleAjax( 'mhmrentiva_vd_months' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// See above.
 		}

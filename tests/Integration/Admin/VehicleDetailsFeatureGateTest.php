@@ -3,42 +3,63 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin;
 
-use MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails;
+use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
 use WP_UnitTestCase;
 
+/**
+ * A feature the admin put in the vehicle page's highlights renders only when
+ * it is Active: a Passive feature does not render, and the stored meta is
+ * never changed.
+ *
+ * Aşama 2 PR B moved the list from VehicleDetails::get_features() into
+ * VehicleDetailsView's highlights, which follow the admin's "Vehicle Detail
+ * Highlighted Features" selection only (owner decision); the gate is the
+ * same one VehicleFeatureHelper applies to the card.
+ */
 final class VehicleDetailsFeatureGateTest extends WP_UnitTestCase {
 
-	private static function call_private( string $method, array $args ) {
-		$ref = new \ReflectionMethod( VehicleDetails::class, $method );
-		$ref->setAccessible( true );
-		return $ref->invokeArgs( null, $args );
+	public function tearDown(): void {
+		delete_option( 'mhmrentiva_settings' );
+		delete_option( 'mhmrentiva_selected_features' );
+		parent::tearDown();
+	}
+
+	/**
+	 * @return list<string> Highlight keys.
+	 */
+	private static function highlight_keys( int $vehicle_id ): array {
+		return array_column( VehicleDetailsView::build( $vehicle_id, array(), array() )['highlights'], 'key' );
+	}
+
+	private static function select_features( array $keys ): void {
+		$settings = (array) get_option( 'mhmrentiva_settings', array() );
+		$settings['mhmrentiva_vehicle_detail_fields'] = array_map( static fn( string $k ): array => array( 'type' => 'feature', 'key' => $k ), $keys );
+		update_option( 'mhmrentiva_settings', $settings );
 	}
 
 	public function test_passive_feature_excluded_from_detail_feature_list(): void {
 		update_option( 'mhmrentiva_selected_features', array( 'bluetooth' ) ); // navigation Passive
+		self::select_features( array( 'bluetooth', 'navigation' ) );
 
-		$vehicle_id = self::factory()->post->create();
+		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
 		update_post_meta( $vehicle_id, '_mhmrentiva_features', array( 'bluetooth', 'navigation' ) );
 
-		$features = self::call_private( 'get_features', array( $vehicle_id ) );
+		$keys = self::highlight_keys( $vehicle_id );
 
-		$this->assertContains( 'bluetooth', $features );
-		$this->assertNotContains( 'navigation', $features, 'Passive feature must not appear on the detail page' );
+		$this->assertContains( 'bluetooth', $keys );
+		$this->assertNotContains( 'navigation', $keys, 'Passive feature must not appear on the detail page' );
 
 		// Stored vehicle meta is untouched (render-gate, not a data change).
 		$this->assertContains( 'navigation', (array) get_post_meta( $vehicle_id, '_mhmrentiva_features', true ) );
 	}
 
-	public function test_taxonomy_prefixed_key_passes_through_even_if_not_selected(): void {
-		update_option( 'mhmrentiva_selected_features', array( 'bluetooth' ) ); // tax_brand not selected
+	public function test_selected_feature_the_vehicle_lacks_is_not_drawn(): void {
+		update_option( 'mhmrentiva_selected_features', array( 'bluetooth', 'navigation' ) );
+		self::select_features( array( 'bluetooth', 'navigation' ) );
 
-		$vehicle_id = self::factory()->post->create();
-		update_post_meta( $vehicle_id, '_mhmrentiva_features', array( 'bluetooth', 'navigation', 'tax_brand' ) );
+		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
+		update_post_meta( $vehicle_id, '_mhmrentiva_features', array( 'bluetooth' ) );
 
-		$features = self::call_private( 'get_features', array( $vehicle_id ) );
-
-		$this->assertContains( 'bluetooth', $features, 'Selected feature must be present' );
-		$this->assertContains( 'tax_brand', $features, 'Taxonomy-backed key must pass through (D5), even if not in mhmrentiva_selected_features' );
-		$this->assertNotContains( 'navigation', $features, 'Plain Passive feature must still be excluded' );
+		$this->assertSame( array( 'bluetooth' ), self::highlight_keys( $vehicle_id ) );
 	}
 }

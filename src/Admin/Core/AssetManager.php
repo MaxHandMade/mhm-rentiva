@@ -233,8 +233,14 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-vehicle', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
+		}
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
+		}
+		if (! wp_script_is('mhm-rentiva-rvs-vehicle-js', 'registered')) {
+			wp_register_script('mhm-rentiva-rvs-vehicle-js', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-vehicle.js', array( 'jquery', 'mhm-rentiva-rvs-dialog', 'mhm-rentiva-vehicle-interactions' ), self::get_file_version('assets/js/frontend/rvs-vehicle.js'), true);
 		}
 	}
 
@@ -290,6 +296,15 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-breakdown');
+	}
+
+	/**
+	 * The vehicle page on top of the card, calendar, breakdown and dialog styles.
+	 */
+	public static function enqueue_rvs_vehicle_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-vehicle');
 	}
 
 	/**

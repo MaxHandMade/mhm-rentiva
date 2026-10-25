@@ -234,7 +234,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 33
+			count: 35
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -584,30 +584,6 @@ parameters:
 			identifier: identical.alwaysFalse
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/VehicleComparison.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehicleDetails.php
-
-		-
-			message: '#^Constant MHMRentiva\\Admin\\Frontend\\Shortcodes\\VehicleDetails\:\:CACHE_VERSION is unused\.$#'
-			identifier: classConstant.unused
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehicleDetails.php
-
-		-
-			message: '#^Parameter \#1 \$array \(list\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehicleDetails.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/VehicleDetails.php
 
 		-
 			message: '#^Parameter \#1 \$comment_id of function get_comment_meta expects int, string given\.$#'

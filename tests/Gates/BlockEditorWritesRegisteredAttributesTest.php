@@ -39,8 +39,9 @@ class BlockEditorWritesRegisteredAttributesTest extends WP_UnitTestCase
 	 * testimonials: Autoplay, Limit Items, Show Author Name and Show Vehicle Name
 	 * repointed to autoRotate, limit, showCustomer and showVehicle, same count).
 	 * Aşama 2 PR 3: 153 (unified-search: the Show Rental Tab control removed).
+	 * Aşama 2 PR B: 154 (vehicle-details: the Show Rental Conditions control).
 	 */
-	private const LITE_LITERAL_KEYS = 153;
+	private const LITE_LITERAL_KEYS = 154;
 
 	private static function blocks_dir(): string
 	{

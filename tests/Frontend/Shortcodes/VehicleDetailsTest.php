@@ -29,7 +29,7 @@ class VehicleDetailsTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle_id . '"]');
 
         $this->assertNotEmpty($output);
-        $this->assertStringContainsString('rv-vehicle-details-wrapper', $output);
+        $this->assertStringContainsString('class="rvs-vd"', $output);
     }
 
     public function test_renders_without_vehicle_id_returns_output()
@@ -45,7 +45,7 @@ class VehicleDetailsTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle_id . '" show_gallery="0"]');
 
         $this->assertNotEmpty($output);
-        $this->assertStringContainsString('rv-vehicle-details-wrapper', $output);
+        $this->assertStringContainsString('class="rvs-vd"', $output);
     }
 
     public function test_show_booking_button_false()
@@ -54,7 +54,7 @@ class VehicleDetailsTest extends WP_UnitTestCase
         $output_without = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle_id . '" show_booking_button="0"]');
 
         // Both should render the page wrapper
-        $this->assertStringContainsString('rv-vehicle-details-wrapper', $output_with);
-        $this->assertStringContainsString('rv-vehicle-details-wrapper', $output_without);
+        $this->assertStringContainsString('class="rvs-vd"', $output_with);
+        $this->assertStringContainsString('class="rvs-vd"', $output_without);
     }
 }

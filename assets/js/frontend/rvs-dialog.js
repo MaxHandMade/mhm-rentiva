@@ -19,7 +19,7 @@
 		return;
 	}
 
-	const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+	const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, iframe, audio[controls], video[controls], [contenteditable]:not([contenteditable="false"]), [tabindex]:not([tabindex="-1"])';
 
 	let active = null;
 
@@ -79,6 +79,14 @@
 		} );
 	}
 
+	function restoreAttribute( el, name, value ) {
+		if ( value === null ) {
+			el.removeAttribute( name );
+		} else {
+			el.setAttribute( name, value );
+		}
+	}
+
 	function current() {
 		// A dialog the page removed (an AJAX re-render) no longer counts.
 		if ( active && ! document.documentElement.contains( active.el ) ) {
@@ -97,6 +105,12 @@
 		const focusTarget = opts.initialFocus || el.querySelector( FOCUSABLE ) || el;
 		const addedTabindex = ! focusTarget.hasAttribute( 'tabindex' ) && ( focusTarget === el || ! focusTarget.matches( FOCUSABLE ) );
 
+		// What the element carried before, so close() can put it back.
+		const before = {
+			role: el.getAttribute( 'role' ),
+			modal: el.getAttribute( 'aria-modal' ),
+			labelledby: el.getAttribute( 'aria-labelledby' ),
+		};
 		el.setAttribute( 'role', 'dialog' );
 		el.setAttribute( 'aria-modal', 'true' );
 		if ( opts.labelledBy ) {
@@ -111,7 +125,7 @@
 			opener: opts.opener || null,
 			onClose: typeof opts.onClose === 'function' ? opts.onClose : null,
 			bodyClass: opts.bodyClass || 'rvs-dialog-open',
-			labelled: !! opts.labelledBy,
+			before: before,
 			focusTarget: addedTabindex ? focusTarget : null,
 			background: hideBackground( el ),
 		};
@@ -127,11 +141,9 @@
 		active = null;
 
 		restoreBackground( state.background );
-		state.el.removeAttribute( 'role' );
-		state.el.removeAttribute( 'aria-modal' );
-		if ( state.labelled ) {
-			state.el.removeAttribute( 'aria-labelledby' );
-		}
+		restoreAttribute( state.el, 'role', state.before.role );
+		restoreAttribute( state.el, 'aria-modal', state.before.modal );
+		restoreAttribute( state.el, 'aria-labelledby', state.before.labelledby );
 		if ( state.focusTarget ) {
 			state.focusTarget.removeAttribute( 'tabindex' );
 		}

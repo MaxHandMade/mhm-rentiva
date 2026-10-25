@@ -81,6 +81,7 @@
 }
 
 .rvs-shell .rvs-breakdown__amount {
+	font-size: 20px;
 	font-size: clamp(17px, 8cqi, 24px);
 	font-weight: 600;
 	line-height: 1.2;

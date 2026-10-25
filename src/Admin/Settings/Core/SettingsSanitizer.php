@@ -580,6 +580,9 @@ final class SettingsSanitizer {
 			'mhmrentiva_booking_admin_notifications'      => self::get_bool( $input, 'mhmrentiva_booking_admin_notifications' ),
 			'mhmrentiva_send_auto_cancel_email'           => self::get_bool( $input, 'mhmrentiva_send_auto_cancel_email' ),
 			'mhmrentiva_default_rental_days'              => self::get_int( $input, 'mhmrentiva_default_rental_days', 1, 1, 365 ),
+			// Shown on the vehicle page's rental conditions (Aşama 2 K11).
+			'mhmrentiva_booking_security_deposit_note'    => sanitize_textarea_field( (string) ( $input['mhmrentiva_booking_security_deposit_note'] ?? '' ) ),
+			'mhmrentiva_booking_fuel_policy_note'         => sanitize_textarea_field( (string) ( $input['mhmrentiva_booking_fuel_policy_note'] ?? '' ) ),
 		);
 	}
 

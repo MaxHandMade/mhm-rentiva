@@ -745,6 +745,11 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showCalendar' ],
         ],
+        'show_conditions'          => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showConditions' ],
+        ],
         'show_details'             => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -993,6 +998,7 @@ final class AllowlistRegistry {
             'show_compare_button',
             'similar_vehicles_limit',
             'show_calendar',
+            'show_conditions',
             'show_price',
             'show_booking_button',
         ],

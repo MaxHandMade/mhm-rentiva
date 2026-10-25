@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Vehicle;
 
-use MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails;
 use MHMRentiva\Admin\Vehicle\Meta\VehicleGallery;
 use WP_UnitTestCase;
 
@@ -66,11 +65,15 @@ final class CoverReadChokeTest extends WP_UnitTestCase
 		wp_cache_delete( $post_id, 'post_meta' );
 	}
 
+	/**
+	 * The vehicle page's main photo (Aşama 2 PR B: the first gallery image of
+	 * VehicleDetailsView, which is the cover when one is shown; these vehicles
+	 * have no other gallery images).
+	 */
 	private function details_cover_url(): string
 	{
-		$method = new \ReflectionMethod( VehicleDetails::class, 'get_featured_image' );
-		$method->setAccessible( true );
-		return (string) $method->invoke( null, $this->vehicle )['url'];
+		$gallery = \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView::build( $this->vehicle, array(), array() )['gallery'];
+		return (string) ( $gallery[0]['large'] ?? '' );
 	}
 
 	public function test_untrusted_stored_cover_is_hidden_from_every_core_reader(): void
@@ -186,7 +189,7 @@ final class CoverReadChokeTest extends WP_UnitTestCase
 
 		$this->assertDoesNotMatchRegularExpression( '/<img[^>]*\bsrc=""/', $html );
 		$this->assertMatchesRegularExpression(
-			'/<img[^>]*src="' . preg_quote( esc_url( (string) wp_get_attachment_image_url( $own, 'large' ) ), '/' ) . '"[^>]*class="rv-featured-image"/',
+			'/rvs-vd__photo--main"[^>]*>\s*<img src="' . preg_quote( esc_url( (string) wp_get_attachment_image_url( $own, 'large' ) ), '/' ) . '"/',
 			$html
 		);
 

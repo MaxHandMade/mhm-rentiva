@@ -362,7 +362,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 		$this->assertSame(1, substr_count($html, 'mhm-rv-preview-badge'));
 		$this->assertStringContainsString(esc_html(self::BADGE_SAMPLE_VEH), $html);
 		$this->assertStringContainsString(esc_html(get_the_title($sample)), $html);
-		$this->assertStringContainsString('rv-vehicle-details-wrapper', $html);
+		$this->assertStringContainsString('class="rvs-vd"', $html);
 		$this->assertStringNotContainsString($this->sentinel_title, $html);
 	}
 
@@ -471,7 +471,8 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 		$html = $this->shortcode('rentiva_vehicle_details', array( 'vehicle_id' => (string) PreviewSamples::vehicle_id() ));
 
 		$this->assertSame(1, substr_count($html, 'data-rv-render="preview"'));
-		$this->assertStringContainsString('rv-rating-summary', $html, 'The nested rating form is drawn.');
+		// Aşama 2 PR B: the page draws its own summary; the nested form shows its list and form.
+		$this->assertStringContainsString('mhm-rentiva-rating-form', $html, 'The nested rating form is drawn.');
 		$this->assertStringContainsString('mhm-rentiva-featured-wrapper', $html, 'The nested featured list is drawn.');
 		foreach (self::FORBIDDEN as $needle) {
 			$this->assertSame(0, substr_count($html, $needle), "nested preview prints `$needle`.");

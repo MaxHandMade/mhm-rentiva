@@ -197,7 +197,6 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhm_transfer_price_multiplier',
 		'_mhm_vehicle_expiry_warning_first_sent',
 		'_mhm_vehicle_expiry_warning_second_sent',
-		'_mhm_vehicle_max_big_luggage',
 		'_mhm_vehicle_max_small_luggage',
 		'_mhm_vehicle_penalty_blocked_dates',
 		'_mhm_vehicle_suspended_by_vendor_ban',

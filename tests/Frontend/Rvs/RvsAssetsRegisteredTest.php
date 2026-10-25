@@ -160,4 +160,10 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-booked \{[^}]*background: var\(--rvs-n-200\);/', $css);
 		$this->assertMatchesRegularExpression('/@media \(max-width: 768px\) \{[^@]*\.rvs-cal__day \{[^}]*height: 44px;/', $css);
 	}
+
+	public function test_breakdown_amount_has_a_fallback_size(): void
+	{
+		// A browser without container-query units drops the clamp(); the 20 px line before it stays.
+		$this->assertMatchesRegularExpression('/\.rvs-breakdown__amount \{[^}]*font-size: 20px;[^}]*font-size: clamp\(/', self::css('assets/css/rvs/rvs-breakdown.css'));
+	}
 }

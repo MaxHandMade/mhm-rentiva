@@ -115,6 +115,15 @@ final class RvsCardViewTest extends WP_UnitTestCase
 		$this->assertStringStartsWith('Full payment', RvsCardView::from_vehicle($this->vehicle(), array())['terms']);
 	}
 
+	public function test_terms_include_daily_km_limit(): void
+	{
+		$vehicle = $this->vehicle();
+		$this->assertStringNotContainsString('km/day', RvsCardView::from_vehicle($vehicle, array())['terms']);
+
+		update_post_meta( (int) $vehicle['id'], \MHMRentiva\Admin\Core\MetaKeys::DAILY_KM_LIMIT, '300');
+		$this->assertStringEndsWith(' · 300 km/day', RvsCardView::from_vehicle($vehicle, array())['terms']);
+	}
+
 	public function test_rating_label_or_new(): void
 	{
 		$view = RvsCardView::from_vehicle($this->vehicle(), array());

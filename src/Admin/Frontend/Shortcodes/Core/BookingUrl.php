@@ -44,7 +44,20 @@ final class BookingUrl {
 	{
 		$params = array( AbstractShortcode::query_var('vehicle_id') => $vehicle_id );
 
-		// Resolve pickup location: vehicle → vendor → global default (same hierarchy as QueryHelper).
+		$location_id = self::location_for($vehicle_id);
+		if ($location_id > 0) {
+			$params[ AbstractShortcode::query_var('pickup_location') ] = $location_id;
+		}
+
+		return (string) add_query_arg($params, self::base_url());
+	}
+
+	/**
+	 * The vehicle's pickup location: vehicle -> vendor -> global default (same
+	 * hierarchy as QueryHelper), 0 when none.
+	 */
+	public static function location_for( int $vehicle_id ): int
+	{
 		$location_id = (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true);
 		if (! $location_id) {
 			$vendor_id   = (int) get_post_field('post_author', $vehicle_id);
@@ -53,10 +66,6 @@ final class BookingUrl {
 		if (! $location_id) {
 			$location_id = (int) SettingsCore::get('mhmrentiva_default_rental_location', 0);
 		}
-		if ($location_id > 0) {
-			$params[ AbstractShortcode::query_var('pickup_location') ] = $location_id;
-		}
-
-		return (string) add_query_arg($params, self::base_url());
+		return max(0, $location_id);
 	}
 }

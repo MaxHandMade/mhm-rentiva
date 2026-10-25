@@ -127,8 +127,11 @@ final class BridgeRenderTest extends WP_UnitTestCase
 		$html = (string) Templates::render(
 			'shortcodes/vehicle-details',
 			array(
-				'vehicle_id' => $vehicle,
-				'atts'       => array( 'show_reviews' => '1' ),
+				'vehicle_id'      => $vehicle,
+				'atts'            => array( 'show_reviews' => '1' ),
+				// Aşama 2 PR B: the template prints the view model.
+				'view'            => \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView::build($vehicle, array( 'show_reviews' => '1' ), array()),
+				'rental_bookable' => true,
 			),
 			true
 		);

@@ -64,7 +64,7 @@ final class RenderBugsTest extends WP_UnitTestCase
 		RequestSimulator::new_request();
 		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $current . '" similar_vehicles_limit="12"]');
 
-		$this->assertSame(1, preg_match('#<section class="rv-vd2-related">(.*?)</section>#s', $html, $m), 'The similar section is drawn.');
+		$this->assertSame(1, preg_match('#<section class="rvs-vd__similar"[^>]*>(.*?)</section>#s', $html, $m), 'The similar section is drawn.');
 		$related = $m[1];
 		foreach ($titles as $i => $title) {
 			if ($ids[ $i ] === $current) {
@@ -90,8 +90,8 @@ final class RenderBugsTest extends WP_UnitTestCase
 		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $current . '"]');
 
 		$this->assertNotSame('', $html, 'The vehicle page itself is drawn.');
-		$this->assertStringNotContainsString('rv-vd2-related-title', $html, 'An empty similar list still draws its heading.');
-		$this->assertStringNotContainsString('rv-vd2-related', $html, 'An empty similar list still draws its section.');
+		$this->assertStringNotContainsString('Similar vehicles', $html, 'An empty similar list still draws its heading.');
+		$this->assertStringNotContainsString('rvs-vd__similar', $html, 'An empty similar list still draws its section.');
 		$this->assertStringNotContainsString('No featured vehicles found', $html, 'The empty state leaks onto the vehicle page.');
 	}
 
@@ -110,7 +110,7 @@ final class RenderBugsTest extends WP_UnitTestCase
 		RequestSimulator::new_request();
 		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $current . '"]');
 
-		$this->assertStringContainsString('rv-vd2-related-title', $html);
+		$this->assertStringContainsString('rvs-vd__similar', $html);
 		$this->assertStringNotContainsString('No featured vehicles found', $html);
 	}
 
@@ -134,7 +134,10 @@ final class RenderBugsTest extends WP_UnitTestCase
 		$raw = do_shortcode('[rentiva_featured_vehicles layout="grid" limit="3" columns="3" exclude="' . $current . '" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]');
 
 		$this->assertStringContainsString('mhm-rentiva-featured-wrapper', $raw, 'The reference featured output is not a list.');
-		$this->assertSame(1, preg_match('#<section class="rv-vd2-related">\s*<h3 class="rv-vd2-related-title">[^<]+</h3>\s*<p class="rv-vd2-related-subtitle">[^<]+</p>\s*(.*?)\s*</section>#s', $html, $m), 'The related section lost its shape.');
+		$this->assertSame(1, preg_match('#<section class="rvs-vd__similar"[^>]*>\s*<h2 class="rvs-vd__h2"[^>]*>[^<]+</h2>\s*(.*?)\s*</section>#s', $html, $m), 'The related section lost its shape.');
+		// Standalone, the featured list opens its own .rvs-shell; nested in the
+		// vehicle page (already a shell) it does not (AbstractShortcode depth rule).
+		$raw = (string) preg_replace('#^<div class="rvs-shell"[^>]*>(.*)</div>$#s', '$1', trim($raw));
 		$this->assertSame(trim($raw), trim($m[1]), 'The featured output changed on its way through output_rendered_html().');
 	}
 

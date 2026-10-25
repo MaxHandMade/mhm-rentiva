@@ -260,7 +260,7 @@
                     );
                 },
                 complete: () => {
-                    $form.find('button[type="submit"]').prop('disabled', false).text(window.mhmVehicleRating?.strings?.submit_rating || 'Submit Rating');
+                    $form.find('button[type="submit"]').prop('disabled', false).text(window.mhmVehicleRating?.strings?.submit_rating || 'Submit review');
                 }
             });
         }
