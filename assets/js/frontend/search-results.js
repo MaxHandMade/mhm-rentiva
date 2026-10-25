@@ -12,7 +12,6 @@
 	'use strict';
 
 	const MOBILE = '(max-width: 768px)';
-	const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 	function config() {
 		return window.mhmRentivaSearchResults || {};
@@ -31,7 +30,7 @@
 	function stateOf( $root ) {
 		let state = $root.data( 'rvsState' );
 		if ( ! state ) {
-			state = { loading: false, queued: null, timer: null, page: 1, drawer: null };
+			state = { loading: false, queued: null, timer: null, page: 1 };
 			$root.data( 'rvsState', state );
 		}
 		return state;
@@ -105,10 +104,8 @@
 
 		// Without `inert` the background was hidden control by control: controls
 		// that just arrived (new cards) need the same treatment.
-		const state = stateOf( $root );
-		if ( state.drawer && ! ( 'inert' in HTMLElement.prototype ) ) {
-			restoreBackground( state.drawer.background );
-			state.drawer.background = setBackground( $root.find( '[data-rvs-drawer]' ).get( 0 ), true );
+		if ( drawerOpen( $root ) ) {
+			dialog().refresh();
 		}
 	}
 
@@ -203,124 +200,39 @@
 
 	/* Drawer --------------------------------------------------------------- */
 
-	function setBackground( drawer, off ) {
-		const changed = [];
-		const useInert = 'inert' in HTMLElement.prototype;
-		let node = drawer;
-		while ( node && node.parentElement ) {
-			Array.prototype.forEach.call( node.parentElement.children, function ( sibling ) {
-				if ( sibling === node || sibling.tagName === 'SCRIPT' || sibling.tagName === 'STYLE' ) {
-					return;
-				}
-				if ( off ) {
-					if ( useInert ) {
-						if ( ! sibling.inert ) {
-							sibling.inert = true;
-							changed.push( { el: sibling, inert: true } );
-						}
-					} else if ( sibling.getAttribute( 'aria-hidden' ) !== 'true' ) {
-						sibling.setAttribute( 'aria-hidden', 'true' );
-						const tabbables = Array.prototype.map.call( sibling.querySelectorAll( FOCUSABLE ), function ( el ) {
-							const before = el.getAttribute( 'tabindex' );
-							el.setAttribute( 'tabindex', '-1' );
-							return { el: el, before: before };
-						} );
-						changed.push( { el: sibling, hidden: true, tabbables: tabbables } );
-					}
-				}
-			} );
-			node = node.parentElement;
-		}
-		return changed;
+	// The modal behaviour (inert background, focus trap, Escape, focus back to
+	// the opener) lives in the shared rvs-dialog module.
+	function dialog() {
+		return window.mhmRentivaRvsDialog;
 	}
 
-	function restoreBackground( changed ) {
-		( changed || [] ).forEach( function ( entry ) {
-			if ( entry.inert ) {
-				entry.el.inert = false;
-			}
-			if ( entry.hidden ) {
-				entry.el.removeAttribute( 'aria-hidden' );
-				entry.tabbables.forEach( function ( item ) {
-					if ( item.before === null ) {
-						item.el.removeAttribute( 'tabindex' );
-					} else {
-						item.el.setAttribute( 'tabindex', item.before );
-					}
-				} );
-			}
-		} );
+	function drawerOpen( $root ) {
+		const drawer = $root.find( '[data-rvs-drawer]' ).get( 0 );
+		return !! drawer && !! dialog() && dialog().current() === drawer;
 	}
 
 	function openDrawer( $root, opener ) {
-		const state = stateOf( $root );
-		const $drawer = $root.find( '[data-rvs-drawer]' );
-		if ( ! $drawer.length || state.drawer ) {
+		const drawer = $root.find( '[data-rvs-drawer]' ).get( 0 );
+		if ( ! drawer || ! dialog() || dialog().current() ) {
 			return;
 		}
-		const drawer = $drawer.get( 0 );
-		const title = drawer.querySelector( '.rvs-results__filters-title' );
-
-		$drawer.addClass( 'is-open' ).attr( { role: 'dialog', 'aria-modal': 'true' } );
-		if ( title ) {
-			title.setAttribute( 'tabindex', '-1' );
-		}
+		const $drawer = $( drawer );
+		$drawer.addClass( 'is-open' );
 		$( opener ).attr( 'aria-expanded', 'true' );
-		$( 'body' ).addClass( 'rvs-drawer-open' );
-
-		state.drawer = { opener: opener, background: setBackground( drawer, true ) };
-		( title || drawer.querySelector( FOCUSABLE ) || drawer ).focus();
+		dialog().open( drawer, {
+			opener: opener,
+			initialFocus: drawer.querySelector( '.rvs-results__filters-title' ) || undefined,
+			bodyClass: 'rvs-drawer-open',
+			onClose: function () {
+				$drawer.removeClass( 'is-open' );
+				$( opener ).attr( 'aria-expanded', 'false' );
+			},
+		} );
 	}
 
 	function closeDrawer( $root ) {
-		const state = stateOf( $root );
-		if ( ! state.drawer ) {
-			return;
-		}
-		const $drawer = $root.find( '[data-rvs-drawer]' );
-		restoreBackground( state.drawer.background );
-		$drawer.removeClass( 'is-open' ).removeAttr( 'role aria-modal' );
-		$drawer.find( '.rvs-results__filters-title' ).removeAttr( 'tabindex' );
-		$( 'body' ).removeClass( 'rvs-drawer-open' );
-		const opener = state.drawer.opener;
-		state.drawer = null;
-		if ( opener ) {
-			$( opener ).attr( 'aria-expanded', 'false' );
-			opener.focus();
-		}
-	}
-
-	function trapFocus( $root, event ) {
-		const state = stateOf( $root );
-		if ( ! state.drawer ) {
-			return;
-		}
-		if ( event.key === 'Escape' ) {
-			event.preventDefault();
-			closeDrawer( $root );
-			return;
-		}
-		if ( event.key !== 'Tab' ) {
-			return;
-		}
-		const drawer = $root.find( '[data-rvs-drawer]' ).get( 0 );
-		const all = Array.prototype.slice.call( drawer.querySelectorAll( FOCUSABLE ) );
-		const visible = all.filter( function ( el ) {
-			return !! ( el.offsetWidth || el.offsetHeight || el.getClientRects().length );
-		} );
-		// A layout-less environment reports nothing visible: use every control.
-		const items = visible.length ? visible : all;
-		if ( ! items.length ) {
-			return;
-		}
-		const first = items[ 0 ];
-		const last = items[ items.length - 1 ];
-		if ( event.shiftKey && ( document.activeElement === first || ! drawer.contains( document.activeElement ) || document.activeElement === drawer.querySelector( '.rvs-results__filters-title' ) ) ) {
-			event.preventDefault();
-			last.focus();
-		} else if ( ! event.shiftKey && document.activeElement === last ) {
-			event.preventDefault();
-			first.focus();
+		if ( drawerOpen( $root ) ) {
+			dialog().close( $root.find( '[data-rvs-drawer]' ).get( 0 ) );
 		}
 	}
 
@@ -407,9 +319,6 @@
 		} );
 		$root.on( 'click', '[data-rvs-drawer-close], [data-rvs-drawer-apply]', function () {
 			closeDrawer( $root );
-		} );
-		$( document ).on( 'keydown', function ( e ) {
-			trapFocus( $root, e );
 		} );
 		if ( window.matchMedia ) {
 			const query = window.matchMedia( MOBILE );
