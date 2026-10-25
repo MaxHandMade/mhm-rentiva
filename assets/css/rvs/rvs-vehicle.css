@@ -93,6 +93,9 @@
 
 .rvs-shell .rvs-vd__gallery {
 	position: relative;
+}
+
+.rvs-shell .rvs-vd__strip {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	grid-template-rows: 200px 200px;
@@ -142,10 +145,10 @@
 }
 
 /* Fewer than five photos: the large one takes the whole row. */
-.rvs-shell .rvs-vd__gallery--1,
-.rvs-shell .rvs-vd__gallery--2,
-.rvs-shell .rvs-vd__gallery--3,
-.rvs-shell .rvs-vd__gallery--4 {
+.rvs-shell .rvs-vd__gallery--1 .rvs-vd__strip,
+.rvs-shell .rvs-vd__gallery--2 .rvs-vd__strip,
+.rvs-shell .rvs-vd__gallery--3 .rvs-vd__strip,
+.rvs-shell .rvs-vd__gallery--4 .rvs-vd__strip {
 	grid-template-rows: 400px;
 }
 
@@ -166,6 +169,7 @@
 
 /* Viewer (inside the shared dialog). */
 .rvs-shell .rvs-vd__viewer-body {
+	flex: 1;
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr) auto;
 	align-items: center;
@@ -513,10 +517,17 @@
 	}
 
 	.rvs-shell .rvs-vd__gallery {
-		display: flex;
 		order: -1;
-		gap: 0;
 		margin: 0 -16px;
+	}
+
+	.rvs-shell .rvs-vd__strip,
+	.rvs-shell .rvs-vd__gallery--1 .rvs-vd__strip,
+	.rvs-shell .rvs-vd__gallery--2 .rvs-vd__strip,
+	.rvs-shell .rvs-vd__gallery--3 .rvs-vd__strip,
+	.rvs-shell .rvs-vd__gallery--4 .rvs-vd__strip {
+		display: flex;
+		gap: 0;
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
 	}
@@ -530,12 +541,10 @@
 	}
 
 	.rvs-shell .rvs-vd__counter {
-		position: sticky;
-		left: calc(100% - 64px);
-		align-self: flex-end;
+		position: absolute;
+		right: 10px;
+		bottom: 10px;
 		display: block;
-		flex: none;
-		margin: 0 10px 10px -64px;
 		padding: 2px 8px;
 		border-radius: var(--rvs-r);
 		background: color-mix(in srgb, var(--rvs-text) 80%, transparent);

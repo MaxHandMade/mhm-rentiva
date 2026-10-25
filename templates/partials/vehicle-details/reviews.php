@@ -1,8 +1,9 @@
 <?php
 /**
  * Vehicle page reviews: average, count and the 5..1 distribution, then the
- * rating form (its list and "write a review"). The form keeps its own look
- * until surface 6 (PR F) redraws it.
+ * rating form's list and "write a review" (its own score block is off: the
+ * summary above replaces it). The form keeps its own look until surface 6
+ * (PR F) redraws it.
  *
  * @var array<string, mixed> $view VehicleDetailsView::build().
  */
@@ -54,6 +55,6 @@ $mhmrentiva_reviews = $mhmrentiva_view['reviews'];
 	<?php endif; ?>
 
 	<div class="rvs-vd__review-form" id="<?php echo esc_attr($mhmrentiva_uid); ?>-review-form">
-		<?php Templates::output_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . (int) $mhmrentiva_view['vehicle_id'] . '"]'); ?>
+		<?php Templates::output_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . (int) $mhmrentiva_view['vehicle_id'] . '" show_rating_display="0"]'); ?>
 	</div>
 </section>

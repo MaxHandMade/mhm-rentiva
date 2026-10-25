@@ -27,6 +27,7 @@ $mhmrentiva_data   = array_map(
 );
 ?>
 <section class="rvs-vd__gallery<?php echo $mhmrentiva_count < 5 ? ' rvs-vd__gallery--' . esc_attr( (string) $mhmrentiva_count) : ''; ?>" aria-label="<?php esc_attr_e('Photos', 'mhm-rentiva'); ?>" data-rvs-gallery="<?php echo esc_attr( (string) wp_json_encode($mhmrentiva_data)); ?>">
+	<div class="rvs-vd__strip" data-rvs-gallery-strip>
 	<?php foreach (array_slice($mhmrentiva_images, 0, 5) as $mhmrentiva_i => $mhmrentiva_image) : ?>
 		<?php if (4 === $mhmrentiva_i && $mhmrentiva_count > 5) : ?>
 			<button type="button" class="rvs-vd__photo rvs-vd__photo--more" data-rvs-gallery-open="4">
@@ -48,7 +49,8 @@ $mhmrentiva_data   = array_map(
 			</button>
 		<?php endif; ?>
 	<?php endforeach; ?>
-	<span class="rvs-vd__counter" aria-hidden="true">1 / <?php echo esc_html(number_format_i18n($mhmrentiva_count)); ?></span>
+	</div>
+	<span class="rvs-vd__counter" data-rvs-gallery-counter aria-hidden="true">1 / <?php echo esc_html(number_format_i18n($mhmrentiva_count)); ?></span>
 
 	<div class="rvs-dialog rvs-vd__viewer" data-rvs-gallery-viewer hidden>
 		<div class="rvs-dialog__panel">
@@ -58,7 +60,7 @@ $mhmrentiva_data   = array_map(
 			</div>
 			<div class="rvs-dialog__body rvs-vd__viewer-body">
 				<button type="button" class="rvs-btn rvs-btn--icon rvs-vd__viewer-nav" data-rvs-gallery-step="-1" aria-label="<?php esc_attr_e('Previous photo', 'mhm-rentiva'); ?>"><span aria-hidden="true">‹</span></button>
-				<img class="rvs-vd__viewer-img" data-rvs-gallery-img src="" alt="">
+				<img class="rvs-vd__viewer-img" data-rvs-gallery-img src="<?php echo esc_url( (string) $mhmrentiva_data[0]['src']); ?>" alt="<?php echo esc_attr( (string) $mhmrentiva_data[0]['alt']); ?>" loading="lazy" decoding="async">
 				<button type="button" class="rvs-btn rvs-btn--icon rvs-vd__viewer-nav" data-rvs-gallery-step="1" aria-label="<?php esc_attr_e('Next photo', 'mhm-rentiva'); ?>"><span aria-hidden="true">›</span></button>
 			</div>
 		</div>

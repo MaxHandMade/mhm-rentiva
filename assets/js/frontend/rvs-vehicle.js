@@ -255,6 +255,14 @@
 		$root.on( 'click', '[data-rvs-gallery-open]', function () {
 			openGallery( $root, parseInt( $( this ).attr( 'data-rvs-gallery-open' ), 10 ) || 0, this );
 		} );
+		// Phone: the sideways strip's "n / N" follows the photo in view
+		// (scroll does not bubble, so it is bound on the strip itself).
+		$root.find( '[data-rvs-gallery-strip]' ).on( 'scroll', function () {
+			const total = galleryImages( $root ).length;
+			const width = this.clientWidth || 1;
+			const index = Math.min( total, Math.round( this.scrollLeft / width ) + 1 );
+			$root.find( '[data-rvs-gallery-counter]' ).text( index + ' / ' + total );
+		} );
 		$root.on( 'click', '[data-rvs-gallery-step]', function () {
 			showImage( $root, stateOf( $root ).gallery + ( parseInt( $( this ).attr( 'data-rvs-gallery-step' ), 10 ) || 0 ) );
 		} );

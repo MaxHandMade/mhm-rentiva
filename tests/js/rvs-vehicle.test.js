@@ -235,6 +235,16 @@ describe( 'rvs vehicle page', () => {
 		expect( document.activeElement ).toBe( opener );
 	} );
 
+	test( 'the phone strip counter follows the scrolled photo', async () => {
+		await boot( page( 'vd1' ).replace( '<button type="button" id="vd1-p0"', '<div class="rvs-vd__strip" data-rvs-gallery-strip><button type="button" id="vd1-p0"' ).replace( '<div class="rvs-dialog" data-rvs-gallery-viewer', '</div><span data-rvs-gallery-counter>1 / 3</span><div class="rvs-dialog" data-rvs-gallery-viewer' ) );
+		const strip = document.querySelector( '[data-rvs-gallery-strip]' );
+		Object.defineProperty( strip, 'clientWidth', { configurable: true, value: 390 } );
+		strip.scrollLeft = 780;
+		strip.dispatchEvent( new Event( 'scroll' ) );
+
+		expect( document.querySelector( '[data-rvs-gallery-counter]' ).textContent ).toBe( '3 / 3' );
+	} );
+
 	test( 'breakdown sheet opens with its rows unfolded and closes from its button', async () => {
 		await boot();
 		document.getElementById( 'vd1-sheet-open' ).click();
