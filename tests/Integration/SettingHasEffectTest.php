@@ -123,12 +123,14 @@ final class SettingHasEffectTest extends WP_UnitTestCase
 	 * form showStarRating, showTextReview, showCategoryRatings, showPhotoUpload,
 	 * showVehiclePreview, showRecommendToggle, requireLogin, requireBooking,
 	 * maxPhotos, minReviewLength) and Elementor -15 (their fifteen parity controls).
+	 * Aşama 2 PR 3: block -1 / Elementor -1 (unified search show_rental_tab -- the
+	 * strip has no tabs; setting-effect-removed.php).
 	 */
 	protected function gate_floors(): array
 	{
 		return array(
-			'block'     => 203,
-			'elementor' => 229,
+			'block'     => 202,
+			'elementor' => 228,
 		);
 	}
 

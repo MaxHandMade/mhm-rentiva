@@ -12,6 +12,10 @@
 declare(strict_types=1);
 
 return array(
+	// rentiva_unified_search (Aşama 2 PR 3): the strip has no tabs in Lite (one
+	// service); a saved value is dropped like any unknown attribute.
+	array( 'surface' => 'block', 'tag' => 'rentiva_unified_search', 'key' => 'show_rental_tab', 'decision' => 'REMOVE' ),
+	array( 'surface' => 'elementor', 'tag' => 'rentiva_unified_search', 'key' => 'show_rental_tab', 'decision' => 'REMOVE' ),
 	// rentiva_contact (Task 1).
 	array( 'surface' => 'block', 'tag' => 'rentiva_contact', 'key' => 'recipient_email', 'decision' => 'REMOVE' ),
 	array( 'surface' => 'elementor', 'tag' => 'rentiva_contact', 'key' => 'recipient_email', 'decision' => 'REMOVE' ),

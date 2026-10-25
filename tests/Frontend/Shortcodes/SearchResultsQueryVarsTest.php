@@ -46,16 +46,10 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
             $this->assertContains($var, $result, "query_vars must include '{$var}'.");
         }
 
-        // `category` was registered as a public query var and collected into the
-        // search params, but no code path ever read it -- and the name collides
-        // with core's own category handling, which is precisely what the prefix
-        // rule exists to prevent. Registering a public var the plugin does not
-        // consume only widens the surface WordPress parses on every request.
-        $this->assertNotContains(
-            'mhmrentiva_category',
-            $result,
-            'A public query var nothing reads must not be registered.'
-        );
+        // `category` is read now (Aşama 2 PR 3, the category filter); it keeps
+        // the plugin prefix, so it cannot collide with core's own category var.
+        $this->assertContains('mhmrentiva_category', $result);
+        $this->assertNotContains('category', SearchResults::register_query_vars(array()));
     }
 
     /**

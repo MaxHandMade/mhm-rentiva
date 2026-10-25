@@ -71,13 +71,13 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		update_post_meta( $this->draft_id, '_mhmrentiva_year', 2099 );
 		update_post_meta( $this->draft_id, '_mhmrentiva_status', 'active' );
 
-		delete_transient( 'mhmrentiva_search_filters_v2' );
+		delete_transient( \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY );
 		wp_set_current_user( 0 );
 	}
 
 	public function tearDown(): void
 	{
-		delete_transient( 'mhmrentiva_search_filters_v2' );
+		delete_transient( \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY );
 		parent::tearDown();
 	}
 

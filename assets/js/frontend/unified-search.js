@@ -1,173 +1,86 @@
 /**
- * Unified Search Widget JS
- * 
- * Refactored for v4.20.x Hotfix:
- * - Removed local datepicker init (delegated to datepicker-init.js)
- * - Fixed syntax errors and bracket nesting.
+ * Search strip (front-end standard, Aşama 2 PR 3).
+ *
+ * The date fields are jQuery UI datepickers (datepicker-init.js, `.js-datepicker`).
+ * This script keeps the return date at least the minimum rental after pickup,
+ * makes the return time follow the pickup time (the booking counts whole days)
+ * and mirrors the pickup location into the drop-off field until drop-off
+ * elsewhere ships. Hooks are data-rvs-* attributes inside [data-rvs-search].
  */
-(function ($) {
-    'use strict';
+( function ( $ ) {
+	'use strict';
 
-    class UnifiedSearch {
-        constructor() {
-            this.initTabs();
-            this.initRentalConstraints();
-            this.initDropoffMirror();
-        }
+	function minDays() {
+		const s = window.mhmUnifiedSearch && window.mhmUnifiedSearch.settings;
+		return ( s && parseInt( s.minRentalDays, 10 ) ) || 1;
+	}
 
-        initRentalConstraints() {
-            const self = this;
-            const minDays = (typeof mhmUnifiedSearch !== 'undefined' && mhmUnifiedSearch.settings) ? mhmUnifiedSearch.settings.minRentalDays || 1 : 1;
+	function parseDate( value ) {
+		const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec( value || '' );
+		return m ? new Date( +m[ 1 ], +m[ 2 ] - 1, +m[ 3 ] ) : null;
+	}
 
-            // 1. Pickup Date -> Return Date minDate constraint
-            $(document).on('change', '.rv-unified-search [name="mhmrentiva_pickup_date"]', function () {
-                const $picker = $(this);
-                const $form = $picker.closest('form');
-                const $returnPicker = $form.find('[name="mhmrentiva_return_date"]');
+	function formatDate( date ) {
+		const pad = ( n ) => String( n ).padStart( 2, '0' );
+		return date.getFullYear() + '-' + pad( date.getMonth() + 1 ) + '-' + pad( date.getDate() );
+	}
 
-                if (typeof $.fn.datepicker === 'undefined') return;
+	/**
+	 * The earliest return for the strip's pickup date; a return before it moves
+	 * up to it (an empty return stays empty -- dates may be optional).
+	 */
+	function constrainReturn( $strip ) {
+		const pickup = parseDate( $strip.find( '[data-rvs-pickup-date]' ).val() );
+		if ( ! pickup ) {
+			return;
+		}
+		const earliest = new Date( pickup.getTime() );
+		earliest.setDate( earliest.getDate() + minDays() );
 
-                const selectedDate = $picker.datepicker('getDate');
-                if (selectedDate) {
-                    const minReturnDate = new Date(selectedDate.getTime());
-                    minReturnDate.setDate(minReturnDate.getDate() + minDays);
+		const $return = $strip.find( '[data-rvs-return-date]' );
+		if ( $.fn.datepicker && $return.hasClass( 'hasDatepicker' ) ) {
+			$return.datepicker( 'option', 'minDate', earliest );
+		}
+		const current = parseDate( $return.val() );
+		if ( current && current < earliest ) {
+			$return.val( formatDate( earliest ) );
+		}
+	}
 
-                    $returnPicker.datepicker('option', 'minDate', minReturnDate);
+	function syncTime( $strip ) {
+		const time = $strip.find( '[data-rvs-pickup-time]' ).val();
+		if ( ! time ) {
+			return;
+		}
+		$strip.find( '[data-rvs-return-time-display]' ).text( time );
+		$strip.find( '[data-rvs-return-time]' ).val( time );
+	}
 
-                    // If current return date is earlier than new minDate, reset it
-                    const currentReturnDate = $returnPicker.datepicker('getDate');
-                    if (currentReturnDate && currentReturnDate < minReturnDate) {
-                        $returnPicker.datepicker('setDate', minReturnDate);
-                    }
-                }
-            });
+	function mirrorDropoff( $strip ) {
+		const value = $strip.find( '[data-rvs-pickup-location]' ).val() || '';
+		$strip.find( '[data-rvs-dropoff]' ).val( value );
+		$strip.find( '[data-rvs-dropoff-value]' ).val( value );
+	}
 
-            // 2. Pickup Time -> Return Time synchronization
-            $(document).on('change', '.rv-unified-search [name="mhmrentiva_pickup_time"]', function () {
-                const $timeSelect = $(this);
-                const $form = $timeSelect.closest('form');
-                const val = $timeSelect.val();
+	$( document ).on( 'change', '[data-rvs-search] [data-rvs-pickup-date]', function () {
+		constrainReturn( $( this ).closest( '[data-rvs-search]' ) );
+	} );
+	$( document ).on( 'change', '[data-rvs-search] [data-rvs-pickup-time]', function () {
+		syncTime( $( this ).closest( '[data-rvs-search]' ) );
+	} );
+	$( document ).on( 'change', '[data-rvs-search] [data-rvs-pickup-location]', function () {
+		mirrorDropoff( $( this ).closest( '[data-rvs-search]' ) );
+	} );
+	// The return datepicker learns its minimum as soon as it opens.
+	$( document ).on( 'focus', '[data-rvs-search] [data-rvs-return-date]', function () {
+		constrainReturn( $( this ).closest( '[data-rvs-search]' ) );
+	} );
 
-                // Update the visible (disabled) select
-                $form.find('[name="return_time_display"]').val(val);
-                // Update the hidden input for submission
-                $form.find('[name="mhmrentiva_return_time"]').val(val);
-            });
-        }
-
-        initDropoffMirror() {
-            // In the rental tab, Teslim Etme (dropoff_location) always mirrors
-            // Teslim Alma (pickup_location). Users cannot change it independently.
-            const self = this;
-
-            // Helper: lock and sync dropoff to current pickup value in a wrapper.
-            function applyMirror($wrapper) {
-                const $pickup        = $wrapper.find('[name="mhmrentiva_pickup_location"]');
-                const $dropoff       = $wrapper.find('select[name="dropoff_location"]');
-                const $dropoffHidden = $wrapper.find('input[type="hidden"][name="dropoff_location"]');
-                if (!$dropoff.length) return;
-                const val = $pickup.val() || '';
-                $dropoff.val(val).prop('disabled', true);
-                $dropoffHidden.val(val);
-            }
-
-            // On page load: lock every rental panel's dropoff immediately.
-            $('.rv-unified-search').each(function () {
-                applyMirror($(this));
-            });
-
-            // On pickup change: sync dropoff.
-            $(document).on('change', '.rv-unified-search [name="mhmrentiva_pickup_location"]', function () {
-                applyMirror($(this).closest('.rv-unified-search'));
-            });
-
-            // Store helper on instance so syncLocations can call it.
-            self._applyDropoffMirror = applyMirror;
-        }
-
-        initTabs() {
-            const self = this;
-            $(document).on('click', '.rv-unified-search__tab', function (e) {
-                e.preventDefault();
-                const $btn = $(this);
-                const target = $btn.data('target');
-                const $wrapper = $btn.closest('.rv-unified-search');
-
-                if (!$wrapper.length) return;
-
-                // Toggle Buttons
-                $wrapper.find('.rv-unified-search__tab').removeClass('is-active').attr('aria-selected', 'false');
-                $btn.addClass('is-active').attr('aria-selected', 'true');
-
-                // Toggle Panels
-                $wrapper.find('.rv-unified-search__panel').removeClass('is-active');
-                const $targetPanel = $wrapper.find('#' + $wrapper.attr('id') + '_panel_' + target);
-                if ($targetPanel.length) {
-                    $targetPanel.addClass('is-active');
-                }
-
-                // Dynamic Location Filtering
-                self.syncLocations($wrapper, target);
-
-                // Dispatch Event
-                $(document).trigger('mhm-rentiva:tab-changed', [target]);
-            });
-        }
-
-        syncLocations($wrapper, serviceType) {
-            if (typeof mhmUnifiedSearch === 'undefined' || !mhmUnifiedSearch.restUrl) return;
-            const $dropdowns = $wrapper.find('select[name="mhmrentiva_pickup_location"], select[name="dropoff_location"], select[name="origin_id"], select[name="destination_id"]');
-
-            if (!$dropdowns.length) return;
-
-            // Show loading state
-            $dropdowns.prop('disabled', true);
-
-            $.ajax({
-                url: mhmUnifiedSearch.restUrl,
-                data: { service_type: serviceType },
-                method: 'GET',
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader('X-WP-Nonce', mhmUnifiedSearch.restNonce);
-                },
-                success: function (locations) {
-                    $dropdowns.each(function () {
-                        const $select = $(this);
-                        const currentVal = $select.val();
-
-                        // Clear existing options except placeholders
-                        $select.find('option').not('[value=""]').remove();
-
-                        // Add new options
-                        locations.forEach(function (loc) {
-                            $select.append($('<option>', {
-                                value: loc.id,
-                                text: loc.name
-                            }));
-                        });
-
-                        // Restore value if still exists in new list
-                        if (currentVal && $select.find('option[value="' + currentVal + '"]').length) {
-                            $select.val(currentVal);
-                        } else {
-                            $select.val('');
-                        }
-                    });
-                },
-                complete: function () {
-                    $dropdowns.prop('disabled', false);
-                    // Re-lock dropoff_location if we just synced a rental panel.
-                    if (serviceType === 'rental' && self._applyDropoffMirror) {
-                        self._applyDropoffMirror($wrapper);
-                    }
-                }
-            });
-        }
-
-    }
-
-    $(document).ready(function () {
-        new UnifiedSearch();
-    });
-
-})(jQuery);
+	$( function () {
+		$( '[data-rvs-search]' ).each( function () {
+			const $strip = $( this );
+			syncTime( $strip );
+			mirrorDropoff( $strip );
+		} );
+	} );
+}( jQuery ) );

@@ -71,6 +71,7 @@
                     }
                     const isInCompare = !!response.data.is_in_compare;
                     $box.prop('checked', isInCompare);
+                    $(document).trigger('mhm-rentiva:compare-changed', [response.data]);
 
                     const options = { type: 'success', idempotencyKey: idempotencyKey, duration: 3000 };
                     if (isInCompare && mhmrentiva_vars.compare_page_url) {
@@ -214,6 +215,7 @@
                     $btn.removeClass('loading');
                     if (response.success) {
                         const isInCompare = response.data.is_in_compare;
+                        $(document).trigger('mhm-rentiva:compare-changed', [response.data]);
                         const compareLabel = isInCompare ?
                             t('remove_compare', 'Remove Compare') :
                             t('add_compare', 'Compare');

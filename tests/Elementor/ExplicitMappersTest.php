@@ -27,7 +27,7 @@ final class ExplicitMappersTest extends WP_UnitTestCase
 			'search results'     => array( $ns . 'SearchResultsWidget', 'rentiva_search_results', 'limit', 'show_price' ),
 			'vehicle comparison' => array( $ns . 'VehicleComparisonWidget', 'rentiva_vehicle_comparison', 'max_vehicles', 'show_images' ),
 			'vehicle details'    => array( $ns . 'VehicleDetailsWidget', 'rentiva_vehicle_details', null, 'show_price' ),
-			'unified search'     => array( $ns . 'UnifiedSearchWidget', 'rentiva_unified_search', null, 'show_rental_tab' ),
+			'unified search'     => array( $ns . 'UnifiedSearchWidget', 'rentiva_unified_search', null, 'show_location_select' ),
 		);
 	}
 

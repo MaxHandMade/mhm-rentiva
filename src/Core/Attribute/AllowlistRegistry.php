@@ -661,11 +661,6 @@ final class AllowlistRegistry {
         ],
 
         // Search Specific
-        'show_rental_tab'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showRentalTab' ],
-        ],
         'show_location_select'     => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -1198,7 +1193,6 @@ final class AllowlistRegistry {
             'view_all_text',
         ],
         'rentiva_unified_search'        => [
-            'show_rental_tab',
             'show_location_select',
             'show_time_select',
             'show_date_picker',

@@ -346,7 +346,7 @@ final class RvsCardView {
 	 * @param array<string, string> $dates
 	 * @return array{0: int, 1: int}|null
 	 */
-	private static function window(array $dates): ?array
+	public static function window(array $dates): ?array
 	{
 		$pickup = (string) ( $dates['pickup_date'] ?? '' );
 		$return = (string) ( $dates['return_date'] ?? '' );

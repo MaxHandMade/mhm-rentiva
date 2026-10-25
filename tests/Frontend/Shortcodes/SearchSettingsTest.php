@@ -270,9 +270,9 @@ final class SearchSettingsTest extends WP_UnitTestCase
 			$this->assertArrayNotHasKey($gone, $controls, "Elementor $gone");
 		}
 
-		$this->assertStringContainsString('rv-unified-search--vertical', $this->unified_widget(array( 'search_layout' => 'vertical' )));
-		$this->assertStringContainsString('rv-unified-search--vertical', $this->unified_block(array( 'search_layout' => 'vertical' )));
-		$this->assertStringContainsString('rv-unified-search--vertical', $this->unified_shortcode('search_layout="vertical"'));
+		$this->assertStringContainsString('rvs-search--vertical', $this->unified_widget(array( 'search_layout' => 'vertical' )));
+		$this->assertStringContainsString('rvs-search--vertical', $this->unified_block(array( 'search_layout' => 'vertical' )));
+		$this->assertStringContainsString('rvs-search--vertical', $this->unified_shortcode('search_layout="vertical"'));
 
 		$this->assertSame(
 			RenderNormalizer::normalize($this->unified_widget(array())),
@@ -288,7 +288,7 @@ final class SearchSettingsTest extends WP_UnitTestCase
 	public function test_default_renders_unchanged(string $name): void
 	{
 		$html = $this->render_default_surface($name);
-		$mark = 0 === strpos($name, 'results') ? 'Zz Alpha Sedan' : 'rv-unified-search__form';
+		$mark = 0 === strpos($name, 'results') ? 'Zz Alpha Sedan' : 'rvs-search__form';
 		$this->assertStringContainsString($mark, $html, "$name rendered nothing to compare; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
@@ -350,6 +350,10 @@ final class SearchSettingsTest extends WP_UnitTestCase
 			$html
 		);
 		$html = RenderNormalizer::golden($html);
+		// The strip opens on tomorrow → +3 days: a date that moves every day.
+		$html = (string) preg_replace('/(name="mhmrentiva_(?:pickup|return)_date" value=")\d{4}-\d{2}-\d{2}"/', '$1DATE"', $html);
+		// Category term ids differ from run to run.
+		$html = (string) preg_replace('/(name="mhmrentiva_category\[\]" value=")\d+"/', '$1TERM"', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
 	}
@@ -389,7 +393,7 @@ final class SearchSettingsTest extends WP_UnitTestCase
 
 	private function action(string $html): string
 	{
-		$this->assertSame(1, preg_match('/<form class="rv-unified-search__form" action="([^"]*)"/', $html, $m), 'No rental search form.');
+		$this->assertSame(1, preg_match('/<form class="rvs-search__form"[^>]*\saction="([^"]*)"/', $html, $m), 'No rental search form.');
 		return $m[1];
 	}
 

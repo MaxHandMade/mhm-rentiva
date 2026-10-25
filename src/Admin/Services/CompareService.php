@@ -190,6 +190,40 @@ class CompareService {
 	}
 
 	/**
+	 * How many vehicles the comparison holds at most.
+	 */
+	public static function max_items(): int {
+		return self::MAX_ITEMS;
+	}
+
+	/**
+	 * The compared vehicles with their titles (the results page's band).
+	 *
+	 * @return list<array{id: int, title: string}>
+	 */
+	public static function items(): array {
+		$items = array();
+		foreach ( self::get_list() as $id ) {
+			// A guest's list is a cookie: only published vehicles are named, as
+			// VehicleComparison shows them -- never a draft's or another type's title.
+			$post = get_post( (int) $id );
+			if ( ! $post instanceof \WP_Post || 'mhmrentiva_vehicle' !== $post->post_type || 'publish' !== $post->post_status ) {
+				continue;
+			}
+			// Plain text: the_title's texturized entities (&#8217; …) decoded too.
+			$title = html_entity_decode( get_the_title( $post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			if ( '' !== $title ) {
+				$items[] = array(
+					'id'    => (int) $post->ID,
+					'title' => $title,
+				);
+			}
+		}
+
+		return $items;
+	}
+
+	/**
 	 * The submitted toggle request, or null when it carries no nonce that
 	 * authorises it.
 	 *
@@ -251,6 +285,9 @@ class CompareService {
 					'message'       => $message,
 					'is_in_compare' => ( $action === 'added' ),
 					'count'         => count( self::get_list() ),
+					// The results page's comparison band redraws from these.
+					'items'         => self::items(),
+					'max'           => self::MAX_ITEMS,
 				)
 			);
 		} catch ( \Exception $e ) {

@@ -49,6 +49,13 @@ final class SearchResults extends AbstractShortcode {
 	public const SHORTCODE = 'rentiva_search_results';
 
 	/**
+	 * The facet cache (get_filter_options()); Plugin deletes it when a vehicle
+	 * changes. _v3: categories joined the facets (Aşama 2 PR 3) -- one constant,
+	 * so the reader and the invalidation cannot name different keys again.
+	 */
+	public const FILTERS_CACHE_KEY = 'mhmrentiva_search_filters_v3';
+
+	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
 	 * search-results URL (e.g.
 	 * `?mhmrentiva_min_price=100&mhmrentiva_fuel_type=diesel&mhmrentiva_sort=price_asc`).
@@ -91,6 +98,8 @@ final class SearchResults extends AbstractShortcode {
 		'mhmrentiva_mileage_max',
 		'mhmrentiva_sort',
 		'mhmrentiva_pickup_location',
+		// Vehicle category term ids (taxonomy mhmrentiva_vehicle_category).
+		'mhmrentiva_category',
 	);
 
 	/**
@@ -119,6 +128,7 @@ final class SearchResults extends AbstractShortcode {
 		'mileage_max',
 		'sort',
 		'pickup_location',
+		'category',
 	);
 
 	/**
@@ -181,6 +191,24 @@ final class SearchResults extends AbstractShortcode {
 	/**
 	 * Get an array of integers from a registered query var (supports both single int and array).
 	 */
+	/**
+	 * A text filter that may arrive as one value or a list (`fuel_type[]`).
+	 *
+	 * @return string|list<string>
+	 */
+	private static function get_text_or_list(string $key): string|array
+	{
+		$value = get_query_var(self::query_var($key), null);
+		if (null === $value) {
+			return '';
+		}
+		if (is_array($value)) {
+			return array_values(array_filter(array_map(static fn($v): string => sanitize_text_field(wp_unslash( (string) $v)), $value), static fn(string $v): bool => '' !== $v));
+		}
+
+		return sanitize_text_field(wp_unslash( (string) $value));
+	}
+
 	private static function get_int_array(string $key): array
 	{
 		$value = get_query_var(self::query_var($key), null);
@@ -287,6 +315,8 @@ final class SearchResults extends AbstractShortcode {
 			$atts['layout'] = 'grid'; // Force grid structure for vehicle cards
 		}
 
+		$search_params['pickup_time'] = self::get_text('pickup_time');
+
 		// Prepare template data
 		return array(
 			'atts'            => $atts,
@@ -295,8 +325,76 @@ final class SearchResults extends AbstractShortcode {
 			'results'         => $results,
 			'filter_options'  => $filter_options,
 			'pagination'      => $results['pagination'] ?? array(),
-			'sorting_options' => self::get_sorting_options(),
+			'sorting_options' => self::get_sorting_options(null !== self::window($search_params)),
 			'nonce_field'     => RenderContext::nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce'),
+			'summary'         => self::summary($search_params, (int) $results['total']),
+			'chips'           => self::active_chips($search_params, $filter_options),
+			'empty_state'     => self::empty_state($search_params, (int) $results['total']),
+			'change_url'      => self::change_url($search_params),
+			'location_label'  => self::location_label($search_params, $filter_options),
+			'compare'         => self::compare_band(),
+		);
+	}
+
+	/**
+	 * Where "Change" / "Change dates" go: the search page with the current
+	 * window and location, so its strip opens on them. (On a page that also
+	 * holds the strip the script scrolls to it instead.)
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 */
+	private static function change_url(array $params): string
+	{
+		$base = ShortcodeUrlManager::get_page_url('rentiva_unified_search');
+		if ('' === $base) {
+			$base = home_url('/');
+		}
+		$args = array();
+		foreach (array( 'pickup_date', 'return_date', 'pickup_time' ) as $key) {
+			if (isset($params[ $key ]) && is_scalar($params[ $key ]) && '' !== (string) $params[ $key ]) {
+				$args[ self::query_var($key) ] = (string) $params[ $key ];
+			}
+		}
+		$locations = (array) ( $params['pickup_location'] ?? array() );
+		if (1 === count($locations)) {
+			$args[ self::query_var('pickup_location') ] = (string) (int) reset($locations);
+		}
+
+		return add_query_arg(array_map('rawurlencode', $args), $base);
+	}
+
+	/**
+	 * The one pickup location the search names, for the mobile summary card.
+	 *
+	 * @param array<string, mixed> $params         Search params (logical keys).
+	 * @param array<string, mixed> $filter_options get_filter_options() shape.
+	 */
+	private static function location_label(array $params, array $filter_options): string
+	{
+		$locations = (array) ( $params['pickup_location'] ?? array() );
+		if (1 !== count($locations)) {
+			return '';
+		}
+		foreach ( (array) ( $filter_options['locations'] ?? array() ) as $location) {
+			if (is_object($location) && isset($location->id, $location->name) && (int) $location->id === (int) reset($locations)) {
+				return (string) $location->name;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * The comparison band's state: the compared vehicles, the limit, the page.
+	 *
+	 * @return array{items: list<array{id: int, title: string}>, max: int, url: string}
+	 */
+	private static function compare_band(): array
+	{
+		return array(
+			'items' => \MHMRentiva\Admin\Services\CompareService::items(),
+			'max'   => \MHMRentiva\Admin\Services\CompareService::max_items(),
+			'url'   => ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 		);
 	}
 
@@ -318,30 +416,11 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	protected static function enqueue_assets(array $atts = array()): void
 	{
-		// Core styles and Shared vehicle card styles
-		if (class_exists('\MHMRentiva\Admin\Core\AssetManager')) {
-			\MHMRentiva\Admin\Core\AssetManager::enqueue_core_css();
-			\MHMRentiva\Admin\Core\AssetManager::enqueue_core_js();
-		} elseif (class_exists('\MHMRentiva\Admin\Core\Utilities\Styles')) {
-			// Fallback for older versions if AssetManager doesn't exist
-			wp_enqueue_style(\MHMRentiva\Admin\Core\Utilities\Styles::getCssHandle());
-			wp_enqueue_style('mhm-rentiva-vehicle-card-css');
-		} else {
-			// Last resort fallback
-			wp_enqueue_style('mhm-rentiva-vehicle-card-css');
-		}
-
-		// Search results CSS: the page layout (filters, toolbar, pagination) until
-		// the results page moves to the standard (Aşama 2 PR 3); the cards are the
-		// front-end standard's (rvs-card.css), not vehicle-card.css.
-		wp_enqueue_style(
-			'mhm-rentiva-search-results-css',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
-			// The page layout still reads --mhm-* tokens; the cards read --rvs-*.
-			array( 'mhm-rentiva-css-variables', 'mhm-rentiva-rvs-card' ),
-			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
-			'all'
-		);
+		// The page is the front-end standard's (rvs-results.css on top of the
+		// shell, primitives and the card); the old search-results.css and the
+		// core vehicle-card sheet are not loaded here any more (Aşama 2 PR 3).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_core_js();
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_results_styles();
 
 		// Search results JavaScript
 		wp_enqueue_script(
@@ -407,6 +486,10 @@ final class SearchResults extends AbstractShortcode {
 					'vehicle_found'          => __('%d vehicle found', 'mhm-rentiva'),
 					/* translators: %d: number of vehicles. */
 					'vehicles_found'         => __('%d vehicles found', 'mhm-rentiva'),
+					/* translators: 1: number of vehicles picked for comparison, 2: the most that can be compared. */
+					'band_one'               => __('%1$s vehicle selected · up to %2$s', 'mhm-rentiva'),
+					/* translators: 1: number of vehicles picked for comparison, 2: the most that can be compared. */
+					'band_many'              => __('%1$s vehicles selected · up to %2$s', 'mhm-rentiva'),
 				),
 				'favorite_nonce'  => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'),
 				'icons'           => array(
@@ -430,10 +513,10 @@ final class SearchResults extends AbstractShortcode {
 			'end_date'        => self::get_text('end_date', self::get_text('return_date')),
 			'min_price'       => self::get_int('min_price'),
 			'max_price'       => self::get_int('max_price'),
-			'fuel_type'       => self::get_text('fuel_type'),
-			'transmission'    => self::get_text('transmission'),
-			'seats'           => self::get_text('seats'),
-			'brand'           => self::get_text('brand'),
+			'fuel_type'       => self::get_text_or_list('fuel_type'),
+			'transmission'    => self::get_text_or_list('transmission'),
+			'seats'           => self::get_text_or_list('seats'),
+			'brand'           => self::get_text_or_list('brand'),
 			'year_min'        => self::get_int('year_min'),
 			'year_max'        => self::get_int('year_max'),
 			'mileage_max'     => self::get_int('mileage_max'),
@@ -443,6 +526,7 @@ final class SearchResults extends AbstractShortcode {
 			// keep resolving.
 			'page'            => self::get_int_by_var('page', 1),
 			'pickup_location' => self::get_int_array('pickup_location'),
+			'category'        => self::get_int_array('category'),
 		);
 	}
 
@@ -451,6 +535,14 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private static function perform_search(array $params, array $atts): array
 	{
+		// An empty value in a list filter (`fuel_type[]=`) is no filter -- not a
+		// search for vehicles whose fuel is ''.
+		foreach (array( 'fuel_type', 'transmission', 'seats', 'brand' ) as $key) {
+			if (isset($params[ $key ]) && is_array($params[ $key ])) {
+				$params[ $key ] = array_values(array_filter(array_map('strval', $params[ $key ]), static fn(string $v): bool => '' !== $v));
+			}
+		}
+
 		$args = array(
 			'post_type'      => PT_Vehicle::POST_TYPE,
 			'post_status'    => 'publish',
@@ -544,6 +636,19 @@ final class SearchResults extends AbstractShortcode {
 				'key'     => '_mhmrentiva_brand',
 				'value'   => $brand_values,
 				'compare' => 'IN',
+			);
+		}
+
+		// Vehicle category (term ids).
+		$category_ids = array_values(array_filter(array_map('intval', (array) ( $params['category'] ?? array() ))));
+		if (array() !== $category_ids) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- the category filter (K4) is a taxonomy filter.
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'mhmrentiva_vehicle_category',
+					'field'    => 'term_id',
+					'terms'    => $category_ids,
+				),
 			);
 		}
 
@@ -853,7 +958,7 @@ final class SearchResults extends AbstractShortcode {
 		// catalogue (see the publish-only get_posts() a few lines below) did
 		// not bump the key, so a transient cached before deploy could keep
 		// serving unpublished-vehicle facet values for up to 24h after it.
-		$cache_key = 'mhmrentiva_search_filters_v2';
+		$cache_key = self::FILTERS_CACHE_KEY;
 		$cached    = get_transient($cache_key);
 
 		if (false !== $cached && is_array($cached)) {
@@ -927,11 +1032,32 @@ final class SearchResults extends AbstractShortcode {
 		// Rental locations come from an add-on via the filter.
 		$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
 
+		// Categories that hold a published vehicle (WordPress counts published
+		// objects only); no counts on the page (K4).
+		$categories = array();
+		$terms      = get_terms(
+			array(
+				'taxonomy'   => 'mhmrentiva_vehicle_category',
+				'hide_empty' => true,
+			)
+		);
+		if (is_array($terms)) {
+			foreach ($terms as $term) {
+				if ($term instanceof \WP_Term) {
+					$categories[] = array(
+						'id'   => (int) $term->term_id,
+						'name' => (string) $term->name,
+					);
+				}
+			}
+		}
+
 		$data = array(
 			'fuel_types'    => $fuel_types ?: array(),
 			'transmissions' => $transmissions ?: array(),
 			'seats'         => $seats ?: array(),
 			'brands'        => $brands ?: array(),
+			'categories'    => $categories,
 			'locations'     => $locations,
 			'year_range'    => array(
 				'min' => (int) ( $year_range['min'] ?? 1990 ),
@@ -955,6 +1081,201 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
+	 * The results depend on every filter var and the page as well as the window.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function cache_request_factors(): array
+	{
+		$factors = parent::cache_request_factors();
+		foreach (self::FILTER_PARAMS as $key) {
+			$factors['filters'][ $key ] = get_query_var(self::query_var($key), null);
+		}
+		$factors['page'] = get_query_var('page', null);
+
+		return $factors;
+	}
+
+	/**
+	 * Filters the visitor narrowed the results with (the window and the sort
+	 * are not filters).
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 */
+	public static function has_active_filters(array $params): bool
+	{
+		foreach (array( 'keyword', 'fuel_type', 'transmission', 'seats', 'brand', 'pickup_location', 'category' ) as $key) {
+			$value = $params[ $key ] ?? '';
+			if (is_array($value) ? array() !== array_filter($value, static fn($v): bool => '' !== (string) $v && '0' !== (string) $v) : '' !== (string) $value) {
+				return true;
+			}
+		}
+		foreach (array( 'min_price', 'max_price', 'year_min', 'year_max', 'mileage_max' ) as $key) {
+			if ( (int) ( $params[ $key ] ?? 0 ) > 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Which empty state the page shows, or null when the results need none:
+	 * `not_searched` (no window: totals and availability need dates -- the
+	 * catalogue still lists), `filtered_out` (filters emptied the list) or
+	 * `no_results` (nothing free in the window).
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 */
+	public static function empty_state(array $params, int $total): ?string
+	{
+		if ($total <= 0) {
+			if (self::has_active_filters($params)) {
+				return 'filtered_out';
+			}
+			// No dates given and still nothing: the catalogue is empty. Dates given
+			// (even a range the minimum rental refuses) ruled the cars out.
+			$dated = '' !== (string) ( $params['pickup_date'] ?? '' ) || '' !== (string) ( $params['return_date'] ?? '' );
+			return $dated ? 'no_results' : 'no_vehicles';
+		}
+
+		return null === self::window($params) ? 'not_searched' : null;
+	}
+
+	/**
+	 * Start/end timestamps of the search window, or null without one.
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 * @return array{0: int, 1: int}|null
+	 */
+	private static function window(array $params): ?array
+	{
+		$dates = array();
+		foreach (array( 'pickup_date', 'return_date', 'pickup_time' ) as $key) {
+			if (isset($params[ $key ]) && is_scalar($params[ $key ])) {
+				$dates[ $key ] = (string) $params[ $key ];
+			}
+		}
+
+		return Card\RvsCardView::window($dates);
+	}
+
+	/**
+	 * The results header: "6 vehicles", "12 Jul – 15 Jul", 3 days. Range and
+	 * days are empty without a window; days come from the booking form's count.
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 * @return array{count: string, range: string, days: int}
+	 */
+	public static function summary(array $params, int $total): array
+	{
+		/* translators: %s: number of vehicles. */
+		$count  = sprintf(_n('%s vehicle', '%s vehicles', $total, 'mhm-rentiva'), number_format_i18n($total));
+		$window = self::window($params);
+		if (null === $window) {
+			return array(
+				'count' => $count,
+				'range' => '',
+				'days'  => 0,
+			);
+		}
+
+		return array(
+			'count' => $count,
+			/* translators: 1: pickup date, 2: return date (both short, e.g. "12 Jul"). */
+			'range' => sprintf(__('%1$s – %2$s', 'mhm-rentiva'), wp_date('j M', $window[0]), wp_date('j M', $window[1])),
+			'days'  => \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($window[0], $window[1]),
+		);
+	}
+
+	/**
+	 * One chip per active filter value: the field it clears and its label.
+	 *
+	 * @param array<string, mixed> $params         Search params (logical keys).
+	 * @param array<string, mixed> $filter_options get_filter_options() shape.
+	 * @return list<array{name: string, value: string, label: string}>
+	 */
+	public static function active_chips(array $params, array $filter_options): array
+	{
+		$chips = array();
+		$add   = static function (string $key, string $value, string $label, bool $list = true) use (&$chips): void {
+			$chips[] = array(
+				'name'  => self::query_var($key) . ( $list ? '[]' : '' ),
+				'value' => $value,
+				'label' => $label,
+			);
+		};
+
+		$category_names = array();
+		foreach ( (array) ( $filter_options['categories'] ?? array() ) as $category) {
+			$category_names[ (int) ( $category['id'] ?? 0 ) ] = (string) ( $category['name'] ?? '' );
+		}
+		foreach ( (array) ( $params['category'] ?? array() ) as $id) {
+			if (isset($category_names[ (int) $id ])) {
+				$add('category', (string) (int) $id, $category_names[ (int) $id ]);
+			}
+		}
+
+		$location_names = array();
+		foreach ( (array) ( $filter_options['locations'] ?? array() ) as $location) {
+			if (is_object($location) && isset($location->id, $location->name)) {
+				$location_names[ (int) $location->id ] = (string) $location->name;
+			}
+		}
+		foreach ( (array) ( $params['pickup_location'] ?? array() ) as $id) {
+			if (isset($location_names[ (int) $id ])) {
+				$add('pickup_location', (string) (int) $id, $location_names[ (int) $id ]);
+			}
+		}
+
+		$labelled = array(
+			'brand'        => null,
+			'fuel_type'    => (array) ( $filter_options['fuel_types'] ?? array() ),
+			'transmission' => (array) ( $filter_options['transmissions'] ?? array() ),
+			'seats'        => null,
+		);
+		foreach ($labelled as $key => $labels) {
+			foreach (array_filter( (array) ( $params[ $key ] ?? array() ), static fn($v): bool => '' !== (string) $v) as $value) {
+				$value = (string) $value;
+				if ('seats' === $key) {
+					/* translators: %s: number of seats. */
+					$label = sprintf(__('%s seats', 'mhm-rentiva'), $value);
+				} else {
+					$label = null !== $labels && isset($labels[ $value ]) ? (string) $labels[ $value ] : $value;
+				}
+				$add($key, $value, $label);
+			}
+		}
+
+		$ranges = array(
+			/* translators: %s: formatted minimum daily price. */
+			'min_price'   => __('From %s/day', 'mhm-rentiva'),
+			/* translators: %s: formatted maximum daily price. */
+			'max_price'   => __('Up to %s/day', 'mhm-rentiva'),
+			/* translators: %s: model year. */
+			'year_min'    => __('From %s', 'mhm-rentiva'),
+			/* translators: %s: model year. */
+			'year_max'    => __('Up to %s', 'mhm-rentiva'),
+			/* translators: %s: mileage in km. */
+			'mileage_max' => __('Up to %s km', 'mhm-rentiva'),
+		);
+		foreach ($ranges as $key => $format) {
+			$value = (int) ( $params[ $key ] ?? 0 );
+			if ($value > 0) {
+				$shown = in_array($key, array( 'min_price', 'max_price' ), true) ? wp_strip_all_tags( (string) \MHMRentiva\Admin\Core\CurrencyHelper::format_price($value)) : ( 'mileage_max' === $key ? number_format_i18n($value) : (string) $value );
+				$add($key, (string) $value, sprintf($format, $shown), false);
+			}
+		}
+
+		$keyword = (string) ( is_scalar($params['keyword'] ?? '') ? $params['keyword'] ?? '' : '' );
+		if ('' !== $keyword) {
+			$add('keyword', $keyword, $keyword, false);
+		}
+
+		return $chips;
+	}
+
+	/**
 	 * The sorts the visitor can pick, value => label.
 	 *
 	 * The keys are exactly the values the sort switch in perform_search() applies
@@ -963,12 +1284,14 @@ final class SearchResults extends AbstractShortcode {
 	 *
 	 * @return array<string,string>
 	 */
-	public static function get_sorting_options(): array
+	public static function get_sorting_options(bool $dated = false): array
 	{
+		// With a search window the cards show the period total; price sorts
+		// order by it (the daily price times the same multipliers for every car).
 		return array(
 			'relevance'  => __('Most Relevant', 'mhm-rentiva'),
-			'price_asc'  => __('Price: Low to High', 'mhm-rentiva'),
-			'price_desc' => __('Price: High to Low', 'mhm-rentiva'),
+			'price_asc'  => $dated ? __('Total price: low to high', 'mhm-rentiva') : __('Price: Low to High', 'mhm-rentiva'),
+			'price_desc' => $dated ? __('Total price: high to low', 'mhm-rentiva') : __('Price: High to Low', 'mhm-rentiva'),
 			'name_asc'   => __('Name: A to Z', 'mhm-rentiva'),
 			'name_desc'  => __('Name: Z to A', 'mhm-rentiva'),
 			'year_desc'  => __('Newest First', 'mhm-rentiva'),
@@ -1013,6 +1336,7 @@ final class SearchResults extends AbstractShortcode {
 				'sort'            => $req->text(self::query_var('sort'), 'relevance'),
 				'page'            => $req->int('page', 1),
 				'pickup_location' => $req->intList(self::query_var('pickup_location')),
+				'category'        => $req->intList(self::query_var('category')),
 			);
 
 			$atts = array(
@@ -1039,14 +1363,35 @@ final class SearchResults extends AbstractShortcode {
 			// it, because wp_send_json_* ends the request through wp_die() and a
 			// catch around it swallows that terminator and appends a second,
 			// contradictory document after the first.
+			$filter_options = self::get_filter_options($search_params);
+			$total          = (int) $results['total'];
+			$empty_state    = self::empty_state($search_params, $total);
+			$change_url     = self::change_url($search_params);
+			$chips          = self::active_chips($search_params, $filter_options);
+
+			// The header, chips and empty states come from the same partials as
+			// the page, so a filter change cannot make the page read differently.
 			$payload = array(
-				'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts, self::card_dates($search_params)),
-				'pagination' => self::render_pagination($results['pagination']),
-				'meta'       => array(
-					'total'        => (int) $results['total'],
-					'max_pages'    => (int) $results['max_pages'],
-					'current_page' => (int) $results['current_page'],
-					'layout'       => $atts['layout'],
+				'html'         => array() !== $results['vehicles']
+					? self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts, self::card_dates($search_params))
+					: Templates::render('partials/search/rvs-empty', array(
+						'kind'       => (string) $empty_state,
+						'change_url' => $change_url,
+					), true),
+				'pagination'   => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
+				'summary_html' => Templates::render('partials/search/rvs-summary', array( 'summary' => self::summary($search_params, $total) ), true),
+				'chips_html'   => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
+				'notice_html'  => 'not_searched' === $empty_state ? Templates::render('partials/search/rvs-empty', array(
+					'kind'       => 'not_searched',
+					'change_url' => $change_url,
+				), true) : '',
+				'meta'         => array(
+					'total'          => $total,
+					'max_pages'      => (int) $results['max_pages'],
+					'current_page'   => (int) $results['current_page'],
+					'layout'         => $atts['layout'],
+					'active_filters' => count($chips),
+					'empty_state'    => $empty_state,
 				),
 			);
 		} catch (Exception $e) {
@@ -1139,6 +1484,8 @@ final class SearchResults extends AbstractShortcode {
 				'show_features'        => true,
 				'show_rating'          => true,
 				'show_badges'          => true,
+				// The canvas card has no brand line (grid/list/featured default it off too).
+				'show_brand'           => false,
 				'booking_url'          => VehiclesList::get_booking_url(),
 			)
 		);
@@ -1175,33 +1522,68 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
-	 * Renders pagination HTML for AJAX/template use
-	 *
-	 * @param array $pagination Pagination data
-	 * @return string HTML
+	 * The results page the AJAX caller is on (its links' base), kept only when
+	 * it is on this site; '' otherwise.
 	 */
-	public static function render_pagination(array $pagination): string
+	private static function page_base_url(string $url): string
 	{
-		if (empty($pagination) || (int) $pagination['total'] <= 1) {
+		if ('' === $url) {
 			return '';
 		}
 
-		$pagination_args = array(
-			'base'         => '%_%',
-			'total'        => (int) $pagination['total'],
-			'current'      => (int) $pagination['current'],
-			'format'       => '?page=%#%',
-			'show_all'     => false,
-			'end_size'     => 1,
-			'mid_size'     => 2,
-			'prev_next'    => true,
-			'prev_text'    => esc_html__('Previous', 'mhm-rentiva'),
-			'next_text'    => esc_html__('Next', 'mhm-rentiva'),
-			'type'         => 'list',
-			'add_args'     => false,
-			'add_fragment' => '',
-		);
+		// Raw, not sanitize_text_field(): that strips the %XX octets of a
+		// non-ASCII slug. esc_url_raw() + wp_validate_redirect() keep it safe.
+		return remove_query_arg('page', (string) wp_validate_redirect(esc_url_raw(wp_unslash($url)), ''));
+	}
 
-		return (string) paginate_links($pagination_args);
+	/**
+	 * Page buttons (44×44): previous, the pages around the current one with the
+	 * ends, next. Each link carries data-rvs-page, so the script reloads that
+	 * page with the current filters; the href is the no-script fallback.
+	 *
+	 * @param array  $pagination Pagination data (current, total).
+	 * @param string $base_url   Page the links point at; '' = the current request.
+	 * @return string HTML
+	 */
+	public static function render_pagination(array $pagination, string $base_url = ''): string
+	{
+		$total   = (int) ( $pagination['total'] ?? 0 );
+		$current = max(1, (int) ( $pagination['current'] ?? 1 ));
+		if ($total <= 1) {
+			return '';
+		}
+
+		$link = static function (int $page, string $text, string $label = '') use ($base_url): string {
+			$href = '' !== $base_url ? add_query_arg('page', $page, $base_url) : add_query_arg('page', $page);
+			return sprintf(
+				'<a class="rvs-btn rvs-btn--secondary rvs-results__page" href="%1$s" data-rvs-page="%2$d"%3$s>%4$s</a>',
+				esc_url($href),
+				$page,
+				'' !== $label ? ' aria-label="' . esc_attr($label) . '"' : '',
+				esc_html($text)
+			);
+		};
+
+		$html = '';
+		if ($current > 1) {
+			$html .= $link($current - 1, '‹', __('Previous page', 'mhm-rentiva'));
+		}
+		$shown = array_unique(array_filter(array( 1, $current - 2, $current - 1, $current, $current + 1, $current + 2, $total ), static fn(int $p): bool => $p >= 1 && $p <= $total));
+		sort($shown);
+		$previous = 0;
+		foreach ($shown as $page) {
+			if ($page - $previous > 1) {
+				$html .= '<span class="rvs-results__page-gap" aria-hidden="true">…</span>';
+			}
+			$html    .= $page === $current
+				? '<span class="rvs-btn rvs-btn--primary rvs-results__page" aria-current="page">' . esc_html(number_format_i18n($page)) . '</span>'
+				: $link($page, number_format_i18n($page));
+			$previous = $page;
+		}
+		if ($current < $total) {
+			$html .= $link($current + 1, '›', __('Next page', 'mhm-rentiva'));
+		}
+
+		return $html;
 	}
 }

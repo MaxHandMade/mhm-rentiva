@@ -76,18 +76,20 @@ final class UnifiedSearchTransferGateTest extends WP_UnitTestCase
     {
         $data = $this->template_data();
 
-        foreach (array( 'show_rental_tab', 'show_location_select', 'locations' ) as $key) {
+        foreach (array( 'show_date_picker', 'show_location_select', 'locations', 'form_action' ) as $key) {
             $this->assertArrayHasKey($key, $data, sprintf('Key "%s" is gone -- assertions on it would pass vacuously.', $key));
         }
     }
 
     /**
-     * Positive control: the core (only) rental tab must always render.
+     * Positive control: the rental search (the only service; the strip has no
+     * tabs since Aşama 2 PR 3) always renders its dates and a target.
      */
-    public function test_the_rental_tab_still_renders_with_no_subscriber(): void
+    public function test_the_rental_search_still_renders_with_no_subscriber(): void
     {
         $data = $this->template_data();
 
-        $this->assertTrue((bool) $data['show_rental_tab'], 'The core rental tab must always render.');
+        $this->assertTrue((bool) $data['show_date_picker'], 'The rental dates must always render.');
+        $this->assertNotSame('', (string) $data['form_action'], 'The rental search must submit somewhere.');
     }
 }

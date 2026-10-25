@@ -42,8 +42,9 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 	 * showAddedDate, showBadges).
 	 * Slice 3A Task 8: 204, five removed from testimonials (autoplay, category,
 	 * limitItems, showAuthorName, showVehicleName) and ten from vehicle-rating-form.
+	 * Aşama 2 PR 3: 203, unified-search show_rental_tab removed (no tabs).
 	 */
-	private const LITE_ATTRIBUTE_COUNT = 204;
+	private const LITE_ATTRIBUTE_COUNT = 203;
 
 	/** The member each editor control writes (spec Ek-1, "kalır"), Lite rows. */
 	private const CONTROLLED = array(

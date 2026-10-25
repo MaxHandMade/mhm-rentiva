@@ -940,9 +940,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -971,9 +971,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -1004,11 +1004,11 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 			// Invalidate Search Filters Cache
-			delete_transient('mhmrentiva_search_filters_v2');
+			delete_transient(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::FILTERS_CACHE_KEY);
 		}
 
 		// Booking meta changes
