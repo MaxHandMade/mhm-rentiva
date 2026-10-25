@@ -814,20 +814,24 @@ final class VehicleSettings {
 	 */
 	public static function get_default_details(): array {
 		return array(
-			'price_per_day' => __( 'Daily Price', 'mhm-rentiva' ),
-			'year'          => __( 'Year', 'mhm-rentiva' ),
-			'mileage'       => __( 'Mileage', 'mhm-rentiva' ),
-			'license_plate' => __( 'License Plate', 'mhm-rentiva' ),
-			'color'         => __( 'Color', 'mhm-rentiva' ),
-			'brand'         => __( 'Brand', 'mhm-rentiva' ),
-			'model'         => __( 'Model', 'mhm-rentiva' ),
-			'seats'         => __( 'Seats', 'mhm-rentiva' ),
-			'doors'         => __( 'Doors', 'mhm-rentiva' ),
-			'transmission'  => __( 'Transmission', 'mhm-rentiva' ),
-			'fuel_type'     => __( 'Fuel Type', 'mhm-rentiva' ),
-			'engine_size'   => __( 'Engine Size', 'mhm-rentiva' ),
-			'deposit'       => __( 'Deposit', 'mhm-rentiva' ),
-			'availability'  => __( 'Availability', 'mhm-rentiva' ),
+			'price_per_day'           => __( 'Daily Price', 'mhm-rentiva' ),
+			'year'                    => __( 'Year', 'mhm-rentiva' ),
+			'mileage'                 => __( 'Mileage', 'mhm-rentiva' ),
+			'license_plate'           => __( 'License Plate', 'mhm-rentiva' ),
+			'color'                   => __( 'Color', 'mhm-rentiva' ),
+			'brand'                   => __( 'Brand', 'mhm-rentiva' ),
+			'model'                   => __( 'Model', 'mhm-rentiva' ),
+			'seats'                   => __( 'Seats', 'mhm-rentiva' ),
+			'doors'                   => __( 'Doors', 'mhm-rentiva' ),
+			'transmission'            => __( 'Transmission', 'mhm-rentiva' ),
+			'fuel_type'               => __( 'Fuel Type', 'mhm-rentiva' ),
+			'engine_size'             => __( 'Engine Size', 'mhm-rentiva' ),
+			'deposit'                 => __( 'Deposit', 'mhm-rentiva' ),
+			'availability'            => __( 'Availability', 'mhm-rentiva' ),
+			'daily_km_limit'          => __( 'Daily km limit', 'mhm-rentiva' ),
+			'min_driver_age'          => __( 'Minimum driver age', 'mhm-rentiva' ),
+			'min_license_years'       => __( 'Minimum licence years', 'mhm-rentiva' ),
+			'vehicle_max_big_luggage' => __( 'Large luggage', 'mhm-rentiva' ),
 		);
 	}
 
@@ -835,7 +839,7 @@ final class VehicleSettings {
 	 * Default selected details (checkbox states)
 	 */
 	public static function get_default_selected_details(): array {
-		return array( 'fuel_type', 'transmission', 'seats', 'mileage', 'year', 'deposit' );
+		return array( 'fuel_type', 'transmission', 'seats', 'mileage', 'year', 'deposit', 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' );
 	}
 
 	/**

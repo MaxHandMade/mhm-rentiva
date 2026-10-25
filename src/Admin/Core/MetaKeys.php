@@ -42,6 +42,12 @@ final class MetaKeys {
 	public const VEHICLE_FEATURED         = '_mhmrentiva_featured';
 	public const VEHICLE_LOCATION_ID      = '_mhmrentiva_location_id';
 	public const VENDOR_LOCATION_ID       = '_mhmrentiva_vendor_location_id';
+	// Rental conditions shown on the vehicle page (Aşama 2 K11); empty = none.
+	public const DAILY_KM_LIMIT    = '_mhmrentiva_daily_km_limit';
+	public const MIN_DRIVER_AGE    = '_mhmrentiva_min_driver_age';
+	public const MIN_LICENSE_YEARS = '_mhmrentiva_min_license_years';
+	// Large suitcases. Pro's transfer box writes the same key; see VehicleMeta::luggage_owned_by_transfer_box().
+	public const LUGGAGE_LARGE = '_mhmrentiva_vehicle_max_big_luggage';
 
 	/**
 	 * Which services a vehicle is offered for: 'rental', 'transfer' or 'both'.

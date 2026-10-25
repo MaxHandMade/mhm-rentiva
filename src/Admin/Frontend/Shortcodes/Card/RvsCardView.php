@@ -289,6 +289,11 @@ final class RvsCardView {
 			/* translators: %d: number of hours before pickup. */
 			$parts[] = sprintf(_n('Free cancellation (%d hour)', 'Free cancellation (%d hours)', $hours, 'mhm-rentiva'), $hours);
 		}
+		// The vehicle's daily km limit, when it has one (Aşama 2 K11).
+		$km = VehicleFeatureHelper::format_detail_value('daily_km_limit', get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::DAILY_KM_LIMIT, true));
+		if (null !== $km) {
+			$parts[] = $km['text'];
+		}
 
 		return implode(' · ', $parts);
 	}

@@ -44,6 +44,8 @@ final class BookingSettings {
 			'mhmrentiva_send_auto_cancel_email'           => '0',
 			'mhmrentiva_default_rental_days'              => 1,
 			'mhmrentiva_booking_buffer_time'              => 60,
+			'mhmrentiva_booking_security_deposit_note'    => '',
+			'mhmrentiva_booking_fuel_policy_note'         => '',
 		);
 	}
 
@@ -79,6 +81,25 @@ final class BookingSettings {
 			1,
 			365,
 			__( 'Default rental duration in booking form (days).', 'mhm-rentiva' ),
+			self::SECTION_BASIC
+		);
+
+		// Rental conditions on the vehicle page; an empty note is not shown.
+		SettingsHelper::textarea_field(
+			$page_slug,
+			'mhmrentiva_booking_security_deposit_note',
+			__( 'Security deposit note', 'mhm-rentiva' ),
+			3,
+			__( 'Shown under Rental conditions on the vehicle page, e.g. "5,000 TL card hold at pickup, released on return". Leave empty to hide.', 'mhm-rentiva' ),
+			self::SECTION_BASIC
+		);
+
+		SettingsHelper::textarea_field(
+			$page_slug,
+			'mhmrentiva_booking_fuel_policy_note',
+			__( 'Fuel policy note', 'mhm-rentiva' ),
+			3,
+			__( 'Shown under Rental conditions on the vehicle page, e.g. "Full to full; missing fuel is charged". Leave empty to hide.', 'mhm-rentiva' ),
 			self::SECTION_BASIC
 		);
 
