@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 6.3.1\n"
+"Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T05:30:46+00:00\n"
+"POT-Creation-Date: 2026-10-25T06:57:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -144,7 +144,7 @@ msgstr ""
 #: src/Admin/About/SystemInfo.php:223
 #: src/Admin/Core/AssetManager.php:1442
 #: src/Admin/Frontend/Account/AccountController.php:290
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:476
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:483
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
 msgid "Error"
 msgstr ""
@@ -3380,7 +3380,7 @@ msgstr ""
 #: templates/partials/vehicle-card.php:111
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
-#: templates/shortcodes/search-results.php:301
+#: templates/shortcodes/search-results.php:315
 #: templates/shortcodes/vehicle-details.php:189
 #: templates/shortcodes/vehicle-details.php:190
 #: templates/shortcodes/vehicle-details.php:202
@@ -3492,7 +3492,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:525
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1216
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1411
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1427
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:312
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:430
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:334
@@ -3616,7 +3616,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:302
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:546
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:458
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:465
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:182
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:131
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:88
@@ -4217,7 +4217,7 @@ msgid "No fields highlighted in the detail view"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1357
-#: templates/shortcodes/search-results.php:291
+#: templates/shortcodes/search-results.php:305
 msgid "Comparison"
 msgstr ""
 
@@ -4327,7 +4327,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1460
 #: src/Admin/Customers/CustomersPage.php:442
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:475
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:482
 #: templates/account/bookings.php:408
 #: templates/account/bookings.php:411
 #: templates/account/payment-history.php:209
@@ -4340,7 +4340,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1461
 #: src/Admin/Customers/CustomersPage.php:437
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:474
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:481
 #: templates/account/bookings.php:393
 #: templates/account/bookings.php:396
 #: templates/account/payment-history.php:194
@@ -4357,8 +4357,8 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1463
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1636
-#: templates/shortcodes/search-results.php:161
-#: templates/shortcodes/search-results.php:218
+#: templates/shortcodes/search-results.php:175
+#: templates/shortcodes/search-results.php:232
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
 msgid "Clear"
 msgstr ""
@@ -5135,7 +5135,7 @@ msgid "Database Cleanup Report"
 msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1739
-#: templates/shortcodes/search-results.php:175
+#: templates/shortcodes/search-results.php:189
 msgid "Category"
 msgstr ""
 
@@ -5760,7 +5760,7 @@ msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:367
 #: src/Admin/Core/Utilities/UXHelper.php:382
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:477
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:484
 msgid "Try Again"
 msgstr ""
 
@@ -5904,7 +5904,7 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:542
 #: templates/account/dashboard.php:190
-#: templates/shortcodes/search-results.php:244
+#: templates/shortcodes/search-results.php:258
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr ""
@@ -6689,7 +6689,7 @@ msgid "Welcome to your dashboard. From your account dashboard you can view your 
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:422
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:459
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:466
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:429
 msgid "No vehicles found"
 msgstr ""
@@ -6711,7 +6711,7 @@ msgid "Book Now"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:425
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:473
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:480
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:432
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:678
@@ -6724,7 +6724,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:426
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:337
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:270
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:467
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:474
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:210
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:433
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
@@ -6736,7 +6736,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:427
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:338
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:271
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:468
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:475
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:211
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
@@ -6878,7 +6878,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:293
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:292
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:469
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:476
 #: templates/partials/vehicle-card.php:280
 #: templates/shortcodes/availability-calendar.php:225
 #: templates/shortcodes/booking-form.php:196
@@ -6949,7 +6949,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:525
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1217
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1411
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1427
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:452
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:590
 #: templates/shortcodes/availability-calendar.php:101
@@ -6979,7 +6979,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:245
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:409
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:470
-#: src/Admin/Services/CompareService.php:255
+#: src/Admin/Services/CompareService.php:256
 #: src/Admin/Services/FavoritesService.php:149
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1436
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1564
@@ -6987,7 +6987,7 @@ msgid "Security check failed"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1106
-#: src/Admin/Services/CompareService.php:261
+#: src/Admin/Services/CompareService.php:262
 #: src/Admin/Services/FavoritesService.php:160
 msgid "Invalid vehicle ID"
 msgstr ""
@@ -7562,15 +7562,15 @@ msgstr ""
 msgid "An error occurred while loading shortcode."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:460
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:467
 msgid "Filter applied"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:461
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:468
 msgid "Clear all filters"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:462
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:469
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:69
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:359
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:400
@@ -7578,47 +7578,47 @@ msgid "Clear All"
 msgstr ""
 
 #. translators: %d: count of filters.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:464
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:471
 #, php-format
 msgid "Clear All (%d)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:465
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:472
 msgid "Try adjusting your search criteria or filters."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:466
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:473
 msgid "Back to Search"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:470
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:477
 msgid "seats"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:471
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:478
 msgid "review"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:472
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:479
 #: templates/shortcodes/vehicle-details.php:315
 msgid "reviews"
 msgstr ""
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:479
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:486
 #, php-format
 msgid "%d vehicle found"
 msgstr ""
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:481
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:488
 #, php-format
 msgid "%d vehicles found"
 msgstr ""
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:483
-#: templates/shortcodes/search-results.php:296
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:490
+#: templates/shortcodes/search-results.php:310
 #, php-format
 msgid "%1$s vehicle selected · up to %2$s"
 msgid_plural "%1$s vehicles selected · up to %2$s"
@@ -7626,13 +7626,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:485
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:492
 #, php-format
 msgid "%1$s vehicles selected · up to %2$s"
 msgstr ""
 
 #. translators: %s: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1157
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1173
 #, php-format
 msgid "%s vehicle"
 msgid_plural "%s vehicles"
@@ -7640,99 +7640,99 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: pickup date, 2: return date (both short, e.g. "12 Jul").
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1170
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1186
 #, php-format
 msgid "%1$s – %2$s"
 msgstr ""
 
 #. translators: %s: number of seats.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1226
-#: templates/shortcodes/search-results.php:194
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1242
+#: templates/shortcodes/search-results.php:208
 #, php-format
 msgid "%s seats"
 msgstr ""
 
 #. translators: %s: formatted minimum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1236
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1252
 #, php-format
 msgid "From %s/day"
 msgstr ""
 
 #. translators: %s: formatted maximum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1238
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1254
 #, php-format
 msgid "Up to %s/day"
 msgstr ""
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1240
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1256
 #, php-format
 msgid "From %s"
 msgstr ""
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1242
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1258
 #, php-format
 msgid "Up to %s"
 msgstr ""
 
 #. translators: %s: mileage in km.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1244
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1260
 #, php-format
 msgid "Up to %s km"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1276
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1292
 #: assets/blocks/search-results/index.js:51
 msgid "Most Relevant"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1277
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1293
 msgid "Total price: low to high"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1277
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1293
 #: src/Admin/Settings/Groups/FrontendSettings.php:255
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1278
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1294
 msgid "Total price: high to low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1278
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1294
 #: src/Admin/Settings/Groups/FrontendSettings.php:256
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1279
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1295
 #: src/Admin/Settings/Groups/FrontendSettings.php:257
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1280
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1296
 #: src/Admin/Settings/Groups/FrontendSettings.php:258
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1281
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1297
 #: assets/blocks/search-results/index.js:56
 msgid "Newest First"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1430
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1446
 msgid "No vehicles found matching your criteria."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1553
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1569
 msgid "Previous page"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1568
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1584
 msgid "Next page"
 msgstr ""
 
@@ -7794,7 +7794,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:313
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:472
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:822
-#: templates/shortcodes/search-results.php:202
+#: templates/shortcodes/search-results.php:216
 msgid "Brand"
 msgstr ""
 
@@ -7813,14 +7813,14 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:317
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1548
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:826
-#: templates/shortcodes/search-results.php:187
+#: templates/shortcodes/search-results.php:201
 msgid "Transmission"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:318
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1538
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:824
-#: templates/shortcodes/search-results.php:196
+#: templates/shortcodes/search-results.php:210
 #: templates/shortcodes/vehicle-details.php:339
 msgid "Seats"
 msgstr ""
@@ -10010,11 +10010,11 @@ msgstr ""
 msgid "You can compare up to %d vehicles."
 msgstr ""
 
-#: src/Admin/Services/CompareService.php:272
+#: src/Admin/Services/CompareService.php:273
 msgid "Removed from comparison"
 msgstr ""
 
-#: src/Admin/Services/CompareService.php:276
+#: src/Admin/Services/CompareService.php:277
 msgid "Added to comparison"
 msgstr ""
 
@@ -12517,7 +12517,7 @@ msgid "%d Doors"
 msgstr ""
 
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:651
-#: templates/shortcodes/search-results.php:212
+#: templates/shortcodes/search-results.php:226
 msgid "km"
 msgstr ""
 
@@ -12676,7 +12676,7 @@ msgid "This Month Revenue"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1562
-#: templates/shortcodes/search-results.php:188
+#: templates/shortcodes/search-results.php:202
 msgid "Fuel"
 msgstr ""
 
@@ -14824,79 +14824,79 @@ msgstr ""
 
 #: templates/shortcodes/search-results.php:91
 #: templates/shortcodes/search-results.php:92
-#: templates/shortcodes/search-results.php:211
+#: templates/shortcodes/search-results.php:225
 msgid "Max"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:139
+#: templates/shortcodes/search-results.php:153
 msgid "No dates selected"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:141
+#: templates/shortcodes/search-results.php:155
 msgid "Change"
 msgstr ""
 
 #. translators: %s: number of active filters.
-#: templates/shortcodes/search-results.php:149
+#: templates/shortcodes/search-results.php:163
 #, php-format
 msgid "Filters (%s)"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:160
+#: templates/shortcodes/search-results.php:174
 msgid "Filter"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:162
+#: templates/shortcodes/search-results.php:176
 msgid "Close filters"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:184
+#: templates/shortcodes/search-results.php:198
 #: templates/shortcodes/unified-search.php:64
 msgid "Pickup location"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:189
+#: templates/shortcodes/search-results.php:203
 msgid "Daily price"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:204
+#: templates/shortcodes/search-results.php:218
 msgid "Model year"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:208
-#: templates/shortcodes/search-results.php:210
+#: templates/shortcodes/search-results.php:222
+#: templates/shortcodes/search-results.php:224
 msgid "Maximum mileage"
 msgstr ""
 
 #. translators: %s: number of vehicles the filters leave.
-#: templates/shortcodes/search-results.php:223
+#: templates/shortcodes/search-results.php:237
 #, php-format
 msgid "Show %s vehicle"
 msgid_plural "Show %s vehicles"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/shortcodes/search-results.php:231
+#: templates/shortcodes/search-results.php:245
 msgid "Results"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:236
+#: templates/shortcodes/search-results.php:250
 msgid "Sort"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:245
+#: templates/shortcodes/search-results.php:259
 msgid "Grid view"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:248
+#: templates/shortcodes/search-results.php:262
 msgid "List view"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:256
+#: templates/shortcodes/search-results.php:270
 msgid "Active filters"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:285
+#: templates/shortcodes/search-results.php:299
 msgid "Pages"
 msgstr ""
 

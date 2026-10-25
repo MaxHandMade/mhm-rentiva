@@ -1,5 +1,28 @@
 [
   {
+    "version": "6.4.0",
+    "date": "2026-10-25",
+    "type": "minor",
+    "title": "Yeni arama, sonuç sayfası ve araç kartı; tahsilatla aynı tutarı gösteren rezervasyon teklifi",
+    "summary": "6.4.0 ziyaretçinin ilk gördüğü sayfaları yeniliyor ve ekrandaki fiyatı tahsil edilen fiyat yapıyor. Arama şeridi, sonuç sayfası ve araç kartı yeni ön yüz tasarımına geçti: kategori filtresi, filtre çipleri, karşılaştırma bandı ve telefonda filtre çekmecesi; arama tarihleri varken her kart kiralamanın toplamını gösteriyor. Rezervasyon formu WooCommerce'in tahsil ettiği tutarı gösteriyor: sezon fiyatı artık ödemeye yansıyor, vergi yalnız WooCommerce'ten geliyor. Bir veritabanı adımı Elementor'un üretilmiş CSS'ini yeniden kuruyor. Rentiva Pro 6.4.0 bu sürümle çalışır.",
+    "changes": [
+      "Yeni: arama şeridi tek satır: teslim alma yeri, teslim alma tarihi ve saati, iade tarihi (iade saati teslim alma saatini izler) ve Ara; etiketler görünür. Ziyaretçinin aramasıyla, tarih zorunluysa yarın 10:00'dan üç gün sonrasına (en az kiralama daha uzunsa o kadar) açılır.",
+      "Yeni: sonuç sayfasında filtre sütunu ve Kategori filtresi, etkin filtreler için kaldırılabilir çipler, araç sayısı · tarihler · gün sayısı satırı, tarih varken toplam fiyata göre sıralama, ızgara/liste anahtarı ve sayfa düğmeleri var. Filtre, sıralama ya da sayfa değişince tarihler ve bütün filtreler korunur.",
+      "Yeni: telefonda sonuç sayfası \"Değiştir\" bağlantılı bir özet kartı gösterir; filtreler klavyeyle de kullanılan tam ekran bir çekmecede açılır.",
+      "Yeni: karşılaştırma bandı seçilen araç sayısını (en çok 3), adlarını ve karşılaştırma sayfası bağlantısını gösterir.",
+      "Yeni: boş sonuç nedenini söyler: henüz tarih seçilmedi, bu tarihlerde müsait araç yok, filtreler hiçbir şey bırakmadı ya da listelenmiş araç yok.",
+      "Yeni: araç kartı araç ızgarası, liste, öne çıkanlar, arama sonuçları ve Hesabım > Favoriler'de yenilendi. Arama tarihleri varken kiralamanın toplamını (zorunlu ek hizmetler dahil) ve günlük fiyatı gösterir; kişi, vites ve yakıt, kapora ve ücretsiz iptal süresini yazar. Elementor araç kartı stil ayarları çalışmaya devam eder.",
+      "Yeni: ön yüz eklentiyle gelen ve sitenizden sunulan Source Serif 4 yazı tipini kullanır.",
+      "Düzeltildi: rezervasyon formu artık tam olarak tahsil edilen tutarı gösteriyor. Sezon fiyatlandırması (açıksa) yalnız ekrandaki teklife değil, ödemeye ve kayıtlı rezervasyon toplamına da uygulanır. Kapora ve kalan tutar aynı toplamdan hesaplanır.",
+      "Değişti: rezervasyon formundaki fiyatlar WooCommerce'in vergi gösterimiyle gösterilir (\"Sepet ve ödeme sayfasında fiyatları göster\" ayarı ve fiyat son eki). Rentiva artık kendi vergi satırını çizmiyor.",
+      "Kaldırıldı: Rentiva'nın kendi vergi ayarları (Araç ayarları > Vergi dahil fiyatlandırma ve Vergi oranı (%)). Vergiler WooCommerce > Ayarlar > Vergi'den yönetilir. Tahsil edilen vergi değişmez: onu her zaman WooCommerce hesapladı. Mevcut rezervasyonların kayıtlı tutarları değişmez.",
+      "Değişti: arama şeridinde sekme yok; \"Kiralama Sekmesini Göster\" seçeneği bloktan ve Elementor bileşeninden kaldırıldı (kayıtlı değer yok sayılır).",
+      "Değişti: güncellemede Elementor'un üretilmiş CSS'i bir kez yeniden kurulur; kayıtlı araç kartı stilleri yeni karta uygulanır.",
+      "Düzeltildi: ziyaretçiler için sayfa önbelleği açıkken önbellekteki sonuç sayfası her filtreye, sayfa numarasına, tarihlere ve ziyaretçinin karşılaştırma listesine bağlıdır; bir ziyaretçinin sonuçları bir başkasına gösterilmez. Bir araç kaydedilince filtre seçenekleri yenilenir.",
+      "Düzeltildi: üç Türkçe çeviri, özgün metin gibi küçük harfle başlıyor."
+    ]
+  },
+  {
     "version": "6.3.1",
     "date": "2026-10-24",
     "type": "patch",
