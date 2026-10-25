@@ -1,0 +1,113 @@
+/**
+ * Rentiva front-end standard -- price breakdown.
+ *
+ * Markup: templates/partials/rvs/breakdown.php (RvsBreakdown::from_quote()).
+ * The total stays on one line beside its label: the amount scales with the
+ * column (container query) and the WooCommerce suffix sits under it, the
+ * layout the owner approved for the booking total (#140).
+ */
+
+.rvs-shell .rvs-breakdown {
+	display: grid;
+	gap: var(--rvs-s3);
+	min-width: 0;
+	container-type: inline-size;
+	color: var(--rvs-text);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-breakdown__summary {
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	color: var(--rvs-accent-strong);
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-breakdown__rows {
+	display: grid;
+	gap: var(--rvs-s2);
+	margin: 0;
+}
+
+.rvs-shell .rvs-breakdown__row {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-breakdown__row dt,
+.rvs-shell .rvs-breakdown__row dd {
+	margin: 0;
+	padding: 0;
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-breakdown__row dt {
+	min-width: 0;
+	color: var(--rvs-muted);
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-breakdown__row dd {
+	flex: none;
+	font-variant-numeric: tabular-nums;
+	text-align: end;
+}
+
+.rvs-shell .rvs-breakdown__total {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--rvs-s3);
+	padding-top: var(--rvs-s3);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-breakdown__total-label {
+	flex: none;
+	padding-top: 4px;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-breakdown__total-value {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	min-width: 0;
+	text-align: end;
+}
+
+.rvs-shell .rvs-breakdown__amount {
+	font-size: clamp(17px, 8cqi, 24px);
+	font-weight: 600;
+	line-height: 1.2;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.rvs-shell .rvs-breakdown__suffix {
+	color: var(--rvs-muted);
+	font-size: 12px;
+}
+
+.rvs-shell .rvs-breakdown__deposit,
+.rvs-shell .rvs-breakdown__pickup {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--rvs-s3);
+	font-variant-numeric: tabular-nums;
+}
+
+.rvs-shell .rvs-breakdown__deposit {
+	padding: var(--rvs-s2) var(--rvs-s3);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	color: var(--rvs-accent-deep);
+}
+
+.rvs-shell .rvs-breakdown__pickup {
+	color: var(--rvs-muted);
+}

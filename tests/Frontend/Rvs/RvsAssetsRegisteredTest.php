@@ -140,4 +140,14 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 			$this->assertContains($handle, wp_styles()->to_do, $handle);
 		}
 	}
+
+	public function test_breakdown_style_sits_on_primitives(): void
+	{
+		$this->assertSame(array( 'mhm-rentiva-rvs-primitives' ), wp_styles()->registered['mhm-rentiva-rvs-breakdown']->deps);
+
+		AssetManager::enqueue_rvs_breakdown_styles();
+		wp_styles()->all_deps(wp_styles()->queue);
+		$this->assertContains('mhm-rentiva-rvs-breakdown', wp_styles()->to_do);
+		$this->assertContains('mhm-rentiva-rvs-tokens', wp_styles()->to_do);
+	}
 }
