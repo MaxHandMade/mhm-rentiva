@@ -122,6 +122,8 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertFalse(wp_style_is('mhm-rentiva-vehicle-details', 'enqueued'));
 		$this->assertFalse(wp_script_is('mhm-rentiva-vehicle-details', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-dialog', 'enqueued'));
+		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-vehicle-js', 'enqueued'));
+		$this->assertContains('mhm-rentiva-rvs-dialog', wp_scripts()->registered['mhm-rentiva-rvs-vehicle-js']->deps);
 	}
 
 	public function test_block_render_uses_rvs_style(): void

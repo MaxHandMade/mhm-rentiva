@@ -181,6 +181,31 @@ final class VehicleDetails extends AbstractShortcode {
 		AssetManager::enqueue_rvs_dialog();
 		AssetManager::enqueue_vehicle_interactions();
 		\MHMRentiva\Admin\Core\Assets\DatepickerAssets::enqueue();
+
+		wp_enqueue_script(
+			'mhm-rentiva-rvs-vehicle-js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-vehicle.js',
+			array( 'jquery', 'mhm-rentiva-rvs-dialog', 'mhm-rentiva-vehicle-interactions' ),
+			MHMRENTIVA_VERSION . '-' . filemtime( MHMRENTIVA_PLUGIN_DIR . 'assets/js/frontend/rvs-vehicle.js' ),
+			true
+		);
+		wp_localize_script(
+			'mhm-rentiva-rvs-vehicle-js',
+			'mhmRentivaVehicle',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				// Authorizes only public reads (months, the booking-card quote), so it
+				// stays real in an editor preview like the other public-read nonces.
+				'nonce'    => wp_create_nonce( 'mhmrentiva_vd_nonce' ),
+				'i18n'     => array(
+					'error'     => __( 'Something went wrong. Please try again.', 'mhm-rentiva' ),
+					/* translators: %s: number of rental days. */
+					'days_one'  => __( '%s day total', 'mhm-rentiva' ),
+					/* translators: %s: number of rental days. */
+					'days_many' => __( '%s days total', 'mhm-rentiva' ),
+				),
+			)
+		);
 	}
 
 	protected static function get_js_filename(): string {

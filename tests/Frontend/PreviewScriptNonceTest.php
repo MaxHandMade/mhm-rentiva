@@ -139,7 +139,7 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 
 		$this->login_for('rentiva_vehicle_details');
 		$preview = $this->localized_nonces('rentiva_vehicle_details', true);
-		$this->assertSame(wp_create_nonce('mhmrentiva_calendar_nonce'), $preview['mhmRentivaVehicleDetails.nonce'] ?? null);
+		$this->assertSame(wp_create_nonce('mhmrentiva_vd_nonce'), $preview['mhmRentivaVehicle.nonce'] ?? null);
 		$this->assertSame('', $preview['mhmVehicleRating.nonce'] ?? null, 'The rating nonce also authorizes submit/delete.');
 	}
 
@@ -154,7 +154,7 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 		$actions = array(
 			'mhmrentiva_availability_nonce',       // availability_unified + get_vehicle_info (JSON, nopriv).
 			'mhmrentiva_testimonials_nonce',       // load more reviews (JSON, nopriv).
-			'mhmrentiva_calendar_nonce',           // vehicle-details month (HTML without controls, nopriv).
+			'mhmrentiva_vd_nonce',                 // vehicle page months + booking-card quote (HTML partials, nopriv).
 			'mhmrentiva_vehicle_comparison_nonce', // verified by no handler.
 			'mhmrentiva_ajax_nonce',               // verified by no handler.
 		);
