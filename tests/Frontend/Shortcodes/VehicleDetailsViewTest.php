@@ -229,6 +229,13 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertNotSame('', $booking['message']);
 	}
 
+	public function test_time_outside_the_half_hour_options_falls_back(): void
+	{
+		$window = VehicleDetailsView::window(array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:15', 'return_date' => '2027-07-15' ));
+
+		$this->assertSame(UnifiedSearch::values()['pickup_time'], $window['pickup_time'], 'The time select only offers :00 and :30.');
+	}
+
 	public function test_pickup_beyond_the_advance_window_is_not_bookable(): void
 	{
 		$settings                                          = get_option('mhmrentiva_settings');

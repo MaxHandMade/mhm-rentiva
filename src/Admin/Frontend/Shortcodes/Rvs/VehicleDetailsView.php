@@ -115,7 +115,7 @@ final class VehicleDetailsView {
 
 		return array(
 			'pickup_date'     => $pickup,
-			'pickup_time'     => 1 === preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $time) ? $time : (string) $defaults['pickup_time'],
+			'pickup_time'     => 1 === preg_match('/^([01]\d|2[0-3]):(00|30)$/', $time) ? $time : (string) $defaults['pickup_time'],
 			'return_date'     => $return,
 			'pickup_location' => ctype_digit( (string) ( $window['pickup_location'] ?? '' ) ) ? (string) $window['pickup_location'] : (string) $defaults['pickup_location'],
 		);

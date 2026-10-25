@@ -223,9 +223,12 @@ describe( 'rvs vehicle page', () => {
 		jest.advanceTimersByTime( 300 );
 		expect( jQuery.ajax ).toHaveBeenCalledTimes( 1 );
 
-		answer( 0, quote );
+		// The first answer echoes its own (older) window: it must not overwrite
+		// the visitor's newer choice before the queued request reads the fields.
+		answer( 0, Object.assign( {}, quote, { window: { pickup_date: '2027-07-12', pickup_time: '10:00', return_date: '2027-07-15' } } ) );
 		expect( jQuery.ajax ).toHaveBeenCalledTimes( 2 );
 		expect( jQuery.ajax.mock.calls[ 1 ][ 0 ].data.return_date ).toBe( '2027-07-20' );
+		expect( date.value ).toBe( '2027-07-20' );
 	} );
 
 	test( 'the window form does not submit', async () => {

@@ -129,8 +129,9 @@
 
 	function applyQuote( $root, data ) {
 		const state = stateOf( $root );
-		// The server's window is the one quoted: show it in the fields.
-		if ( data.window ) {
+		// The server's window is the one quoted: show it in the fields -- unless
+		// a newer change is queued, which must keep the visitor's latest choice.
+		if ( data.window && ! state.queued ) {
 			const $form = $root.find( '[data-rvs-vd-window]' );
 			$form.find( '[data-rvs-pickup-date]' ).val( data.window.pickup_date );
 			$form.find( '[data-rvs-return-date]' ).val( data.window.return_date );
