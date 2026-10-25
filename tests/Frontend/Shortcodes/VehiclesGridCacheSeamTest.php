@@ -66,6 +66,20 @@ final class VehiclesGridCacheSeamTest extends WP_UnitTestCase
 		$this->assertSame(1, $this->fired, 'The seam said "cache" but the grid rendered twice.');
 	}
 
+	public function test_a_search_window_is_part_of_the_cache_key(): void
+	{
+		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true');
+		$qv = \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var('pickup_date');
+
+		set_query_var($qv, '2027-07-12');
+		do_shortcode('[rentiva_vehicles_grid limit="3"]');
+		RequestSimulator::new_request();
+		set_query_var($qv, '');
+		do_shortcode('[rentiva_vehicles_grid limit="3"]');
+
+		$this->assertSame(2, $this->fired, 'A guest without the search window got the dated render from the cache.');
+	}
+
 	public function test_seam_receives_the_grid_tag(): void
 	{
 		$tags = array();

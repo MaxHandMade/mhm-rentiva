@@ -47,7 +47,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 	data-rv-instance="<?php echo esc_attr($rv_instance); ?>"
 	data-show-favorite-button="<?php echo esc_attr($atts['show_favorite_button'] ?? '1'); ?>"
 	data-show-compare-button="<?php echo esc_attr($atts['show_compare_button'] ?? '1'); ?>"
-	data-show-booking-btn="<?php echo esc_attr($atts['show_booking_btn'] ?? '1'); ?>"
+	data-show-booking-btn="<?php echo esc_attr( (string) ( $atts['show_booking_button'] ?? ( $atts['show_booking_btn'] ?? '1' ) )); ?>"
 	data-show-price="<?php echo esc_attr($atts['show_price'] ?? '1'); ?>"
 	data-show-title="<?php echo esc_attr($atts['show_title'] ?? '1'); ?>"
 	data-show-features="<?php echo esc_attr($atts['show_features'] ?? '1'); ?>"
@@ -139,6 +139,22 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 
 				<form class="rv-filters-form">
 					<?php echo wp_kses_post( (string) $nonce_field); ?>
+					<?php
+					// The search window travels with every filter request: without it
+					// the AJAX re-render dropped the date-availability constraint and the
+					// cards' period total (admin-ajax parses no query vars).
+					$rvs_window = array(
+						'pickup_date' => (string) ( $search_params['pickup_date'] ?? '' ),
+						'return_date' => (string) ( $search_params['return_date'] ?? '' ),
+						'pickup_time' => (string) get_query_var($mhmrentiva_qv('pickup_time'), ''),
+					);
+					foreach ($rvs_window as $rvs_key => $rvs_value) :
+						if ('' === $rvs_value) {
+							continue;
+						}
+						?>
+						<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv($rvs_key)); ?>" value="<?php echo esc_attr($rvs_value); ?>">
+					<?php endforeach; ?>
 
 					<!-- Pickup Location -->
 					<?php if (! empty($filter_options['locations'])) : ?>

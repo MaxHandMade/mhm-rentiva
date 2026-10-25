@@ -67,8 +67,10 @@ if (empty($navigation)) {
 			<!-- Favorite vehicles (STANDARDIZED) -->
 			<div class="account-section">
 
-				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rv-vehicles-grid-container" data-testid="favorites-grid">
-					<div class="rv-vehicles-grid rv-vehicles-grid--columns-<?php echo esc_attr( (string) ( isset($columns) ? (int) $columns : 3 )); ?>">
+				<?php // Not a shortcode render, so the front-end standard's shell is written here. ?>
+				<div class="rvs-shell" data-rvs-shortcode="rentiva_my_favorites">
+				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rvs-listing" data-testid="favorites-grid">
+					<div class="rvs-card-grid" style="--rvs-cols: <?php echo esc_attr( (string) max(1, min(6, isset($columns) ? (int) $columns : 3))); ?>">
 						<?php
 						// Default atts for the standardized card
 						$card_atts = array(
@@ -96,11 +98,9 @@ if (empty($navigation)) {
 							// Override is_favorite to true since this is the favorites page
 							$vehicle_data['is_favorite'] = true;
 
-							// Rendered directly to output: the partial echoes its own markup and
-							// escapes each dynamic value at its own output site. (Rendering to a
-							// string and running wp_kses_post() over it is not an option here --
-							// it strips the inline SVG icons the card renders.)
-							\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+							// Rendered directly to output: the partial escapes each value at its
+							// own output site. (wp_kses_post() over it would strip the inline SVG.)
+							\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/rvs-vehicle-card', array(
 								'vehicle' => $vehicle_data,
 								'layout'  => 'grid',
 								'atts'    => $card_atts,
@@ -108,6 +108,7 @@ if (empty($navigation)) {
 						endforeach;
 						?>
 					</div>
+				</div>
 				</div>
 
 

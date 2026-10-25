@@ -48,8 +48,8 @@ class VehiclesListTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_vehicles_list limit="1" show_price="1"]');
 
-        $this->assertStringContainsString('mhm-vehicle-card', $output);
-        $this->assertStringContainsString('mhm-price-amount', $output);
+        $this->assertStringContainsString('data-rvs-card', $output);
+        $this->assertStringContainsString('rvs-card__amount', $output);
         $this->assertStringContainsString('100', $output);
     }
 
@@ -57,14 +57,14 @@ class VehiclesListTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_vehicles_list limit="1" show_price="0"]');
 
-        $this->assertStringNotContainsString('mhm-price-amount', $output);
+        $this->assertStringNotContainsString('rvs-card__amount', $output);
     }
 
     public function test_show_price_false_string()
     {
         $output = do_shortcode('[rentiva_vehicles_list limit="1" show_price="false"]');
 
-        $this->assertStringNotContainsString('mhm-price-amount', $output);
+        $this->assertStringNotContainsString('rvs-card__amount', $output);
     }
 
     public function test_snake_case_attribute_usage()
@@ -80,7 +80,7 @@ class VehiclesListTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_vehicles_list limit="1" layout="list" show_description="1"]');
 
-        $this->assertStringContainsString('mhm-card-description', $output);
+        $this->assertStringContainsString('rvs-card__desc', $output);
         $this->assertStringContainsString('Test vehicle excerpt for description visibility checks.', $output);
     }
 
@@ -88,7 +88,7 @@ class VehiclesListTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_vehicles_list limit="1" layout="list" show_description="0"]');
 
-        $this->assertStringNotContainsString('mhm-card-description', $output);
+        $this->assertStringNotContainsString('rvs-card__desc', $output);
         $this->assertStringNotContainsString('Test vehicle excerpt for description visibility checks.', $output);
     }
 

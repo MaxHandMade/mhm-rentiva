@@ -30,8 +30,8 @@ use Exception;
  */
 class VehiclesGrid extends AbstractShortcode {
 
-
-
+	/** Renders inside the front-end standard's shell. */
+	protected static bool $rvs_shell = true;
 
 	/**
 	 * Returns shortcode tag
@@ -399,13 +399,9 @@ class VehiclesGrid extends AbstractShortcode {
 		// pages Elementor built.
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 
-		// CSS
-		wp_enqueue_style(
-			'mhm-rentiva-vehicles-grid',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
-			array( 'mhm-rentiva-vehicle-card-css' ), // Depend on core card logic
-			MHMRENTIVA_VERSION
-		);
+		// CSS: the front-end standard card (rvs chain + rvs-card.css). The old
+		// vehicles-grid.css / vehicle-card.css are not loaded on this surface.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_card_styles();
 
 		// JavaScript
 		wp_enqueue_script(

@@ -234,11 +234,12 @@ final class StyleSelectorsMatchMarkupTest extends WP_UnitTestCase
 				$css = $this->page_css($name);
 				$this->assertStringNotContainsString('mhm-', $css, $name . ' produces Rentiva CSS without any style setting.');
 				$this->assertStringNotContainsString('rv-', $css, $name . ' produces Rentiva CSS without any style setting.');
+				$this->assertStringNotContainsString('rvs-', $css, $name . ' produces Rentiva CSS without any style setting.');
 			}
 
 			// The probe must be able to see a rule at all, or the assertions above are vacuous.
 			$css = $this->page_css('rv-vehicle-card', array( 'title_color' => '#ff0000' ));
-			$this->assertStringContainsString('.mhm-card-title', $css);
+			$this->assertStringContainsString('.rvs-shell{--rvs-card-title:', $css, 'The card title colour writes the standard card token (Aşama 2 PR 2).');
 			$this->assertStringContainsString('#ff0000', $css);
 		} finally {
 			Performance::set_use_style_controls($previous);

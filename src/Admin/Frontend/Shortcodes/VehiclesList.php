@@ -41,6 +41,8 @@ use Exception;
  */
 final class VehiclesList extends AbstractShortcode {
 
+	/** Renders inside the front-end standard's shell. */
+	protected static bool $rvs_shell = true;
 
 	/**
 	 * Static cache for booking URL within the same request.
@@ -304,6 +306,15 @@ final class VehiclesList extends AbstractShortcode {
 	protected static function get_css_dependencies(): array
 	{
 		return array( 'mhm-rentiva-css-variables', 'mhm-rentiva-vehicle-card-css' );
+	}
+
+	/**
+	 * The front-end standard card (rvs chain + rvs-card.css) instead of the old
+	 * vehicles-list.css / vehicle-card.css, which this surface no longer loads.
+	 */
+	protected static function enqueue_styles(array $atts = array()): void
+	{
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_card_styles();
 	}
 
 	/**

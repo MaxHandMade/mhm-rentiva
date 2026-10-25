@@ -142,15 +142,15 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 	{
 		// Alpha: 4.5 from 12 reviews.
 		$on = $this->card($this->catalog[0], array( 'show_rating_count' => '1' ));
-		$this->assertMatchesRegularExpression('#<span class="mhm-rating-count">\(12\)</span>#', $on);
+		$this->assertMatchesRegularExpression('#<span class="rvs-card__rating-count">\(12\)</span>#', $on);
 
 		foreach (array( array(), array( 'show_rating_count' => '0' ), array( 'show_rating_count' => '' ) ) as $atts) {
-			$this->assertStringNotContainsString('mhm-rating-count', $this->card($this->catalog[0], $atts));
+			$this->assertStringNotContainsString('rvs-card__rating-count', $this->card($this->catalog[0], $atts));
 		}
 
 		// Rating hidden: no count either.
 		$this->assertStringNotContainsString(
-			'mhm-rating-count',
+			'rvs-card__rating-count',
 			$this->card(
 				$this->catalog[0],
 				array(
@@ -162,7 +162,7 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 
 		// Widget: default off (spec §2.2, '1' -> '0'), switched on it shows.
 		$widget_default = $this->widget(VehicleCardWidget::class, array( 'vehicle_id' => (string) $this->catalog[0] ));
-		$this->assertStringNotContainsString('mhm-rating-count', $widget_default);
+		$this->assertStringNotContainsString('rvs-card__rating-count', $widget_default);
 		$widget_on = $this->widget(
 			VehicleCardWidget::class,
 			array(
@@ -170,13 +170,13 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 				'show_rating_count' => '1',
 			)
 		);
-		$this->assertStringContainsString('<span class="mhm-rating-count">(12)</span>', $widget_on);
+		$this->assertStringContainsString('<span class="rvs-card__rating-count">(12)</span>', $widget_on);
 	}
 
 	public function test_availability_status_reads_only_its_own_key(): void
 	{
 		$base = $this->card($this->catalog[0], array());
-		$this->assertStringNotContainsString('mhm-card-availability', $base);
+		$this->assertStringNotContainsString('rvs-card__status', $base);
 
 		// show_availability (featured/grid/list/search/card) is not read: same output.
 		foreach (array( '1', 'yes', true ) as $on) {
@@ -188,17 +188,17 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 		}
 
 		$status = $this->card($this->catalog[0], array( 'show_availability_status' => '1' ));
-		$this->assertMatchesRegularExpression('#<span class="mhm-card-availability is-available"[^>]*>\s*Available\s*</span>#', $status);
+		$this->assertMatchesRegularExpression('#<span class="rvs-tag rvs-card__status rvs-tag--info is-available"[^>]*>\s*Available\s*</span>#', $status);
 
 		$down = ShortcodeFixtures::vehicle();
 		update_post_meta($down, MetaKeys::VEHICLE_STATUS, 'maintenance');
 		$this->assertMatchesRegularExpression(
-			'#<span class="mhm-card-availability is-unavailable"[^>]*>\s*Out of Order\s*</span>#',
+			'#<span class="rvs-tag rvs-card__status rvs-tag--alert is-unavailable"[^>]*>\s*Out of Order\s*</span>#',
 			$this->card($down, array( 'show_availability_status' => '1' ))
 		);
 
 		foreach (array( '0', '', false ) as $off) {
-			$this->assertStringNotContainsString('mhm-card-availability', $this->card($this->catalog[0], array( 'show_availability_status' => $off )));
+			$this->assertStringNotContainsString('rvs-card__status', $this->card($this->catalog[0], array( 'show_availability_status' => $off )));
 		}
 	}
 
@@ -210,7 +210,7 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 	public function test_default_card_render_unchanged(string $name): void
 	{
 		$html = $this->render_default_surface($name);
-		$this->assertStringContainsString('mhm-vehicle-card', $html, "$name rendered no card; the golden would pin an empty render.");
+		$this->assertStringContainsString('data-rvs-card', $html, "$name rendered no card; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -312,7 +312,7 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 	{
 		$vehicle = VehiclesList::get_vehicle_data_for_shortcode($vehicle_id, $atts);
 		return (string) Templates::render(
-			'partials/vehicle-card',
+			'partials/rvs-vehicle-card', // The card every Lite surface ships (Aşama 2 PR 2).
 			array(
 				'vehicle' => $vehicle,
 				'layout'  => 'grid',
@@ -357,7 +357,8 @@ final class VehicleCardSettingsTest extends WP_UnitTestCase
 
 	private function button_label(string $html): string
 	{
-		$this->assertSame(1, preg_match('#<a [^>]*data-testid="vehicle-book-btn"[^>]*>(.*?)</a>#s', $html, $m), 'No booking button in the render.');
+		$this->assertSame(1, preg_match('#<(a|button) [^>]*data-testid="vehicle-book-btn"[^>]*>(.*?)</\1>#s', $html, $m), 'No booking button in the render.');
+		$m[1] = $m[2];
 		return trim(html_entity_decode(wp_strip_all_tags($m[1])));
 	}
 }

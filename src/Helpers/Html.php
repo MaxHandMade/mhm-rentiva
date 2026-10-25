@@ -79,6 +79,12 @@ class Html {
 			'aria-expanded' => true,
 		);
 
+		// wc_price() wraps every amount in <bdi>, which core's 'post' list lacks:
+		// the front-end standard's card prints prices as WooCommerce writes them
+		// (PriceDisplay), and without this every card price lost its bidi
+		// isolation at this late kses pass (KsesGateTest caught it).
+		$allowed['bdi'] = array( 'dir' => true ) + $common;
+
 		// Same gap, a different core default: wp_kses_allowed_html('post') gives
 		// `img` no `srcset`/`sizes` at all, even though WP has shipped responsive
 		// images since 4.4. templates/partials/vehicle-card.php:51-57 relies on

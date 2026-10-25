@@ -87,6 +87,7 @@ assets/css/frontend/vehicles-grid.css
 assets/css/frontend/vehicles-list.css
 assets/css/payment/woocommerce-cart.css
 assets/css/payment/woocommerce-checkout.css
+assets/css/rvs/rvs-card.css
 assets/css/rvs/rvs-primitives.css
 assets/css/rvs/rvs-shell.css
 assets/css/rvs/rvs-tokens.css
@@ -349,6 +350,8 @@ src/Admin/Frontend/Shortcodes/Account/PaymentHistory.php
 src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 src/Admin/Frontend/Shortcodes/BookingForm.php
+src/Admin/Frontend/Shortcodes/Card/RvsCardView.php
+src/Admin/Frontend/Shortcodes/Card/VehicleCardLinks.php
 src/Admin/Frontend/Shortcodes/Contact/RecipientToken.php
 src/Admin/Frontend/Shortcodes/ContactForm.php
 src/Admin/Frontend/Shortcodes/ContactMessagePostType.php
@@ -532,6 +535,7 @@ templates/emails/refund-customer.html.php
 templates/emails/remaining-payment-link-customer.html.php
 templates/emails/welcome-customer.html.php
 templates/partials/preview-badge.php
+templates/partials/rvs-vehicle-card.php
 templates/partials/selected-vehicle-summary.php
 templates/partials/vehicle-card-base.php
 templates/partials/vehicle-card.php

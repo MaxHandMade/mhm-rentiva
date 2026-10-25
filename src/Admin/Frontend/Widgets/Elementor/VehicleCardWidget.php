@@ -78,7 +78,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 	 * @return array Widget styles dependencies.
 	 */
 	public function get_style_depends(): array {
-		return array( 'mhm-rentiva-elementor', 'mhm-rentiva-vehicles-list' );
+		return array( 'mhm-rentiva-elementor', 'mhm-rentiva-rvs-card' );
 	}
 	/**
 	 * Register content controls.
@@ -165,9 +165,11 @@ class VehicleCardWidget extends ElementorWidgetBase {
 	 * Register style controls.
 	 */
 	protected function register_style_controls(): void {
-		// Selectors target the card partial (templates/partials/vehicle-card.php) and are
-		// scoped under the card so they outrank the Broadsheet skin (`.mhm-vehicle-card .x`).
-		// No control carries a default: an unstyled card keeps the site's skin.
+		// The card is the front-end standard's (templates/partials/rvs-vehicle-card.php).
+		// Plain controls write --rvs-card-* tokens on the widget's .rvs-shell, which
+		// rvs-card.css reads; group controls target the rvs-card classes. Control ids
+		// are unchanged -- they are what saved pages store values under. No control
+		// carries a default: an unstyled card keeps the standard's look.
 
 		// Card Styles
 		$this->start_controls_section(
@@ -178,44 +180,15 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'card_background',
-			array(
-				'label'     => __( 'Background Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card' => 'background-color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'card_background', __( 'Background Color', 'mhm-rentiva' ), 'card-bg' );
 
-		$this->add_border_control( 'card_border', '.mhm-vehicle-card' );
+		$this->add_border_control( 'card_border', '.rvs-card' );
 
-		$this->add_control(
-			'border_radius',
-			array(
-				'label'      => __( 'Border Radius', 'mhm-rentiva' ),
-				'type'       => 'dimensions',
-				'size_units' => array( 'px', '%' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .mhm-vehicle-card' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				),
-			)
-		);
+		$this->add_rvs_token_dimensions_control( 'border_radius', __( 'Border Radius', 'mhm-rentiva' ), 'card-radius', array( 'size_units' => array( 'px', '%' ) ) );
 
-		$this->add_box_shadow_control( 'card_shadow', '.mhm-vehicle-card' );
+		$this->add_box_shadow_control( 'card_shadow', '.rvs-card' );
 
-		$this->add_control(
-			'card_padding',
-			array(
-				'label'      => __( 'Padding', 'mhm-rentiva' ),
-				'type'       => 'dimensions',
-				'size_units' => array( 'px', 'em', '%' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-card-content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				),
-			)
-		);
+		$this->add_rvs_token_dimensions_control( 'card_padding', __( 'Padding', 'mhm-rentiva' ), 'card-pad' );
 
 		$this->end_controls_section();
 
@@ -228,41 +201,13 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'title_color',
-			array(
-				'label'     => __( 'Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-card-title' => 'color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'title_color', __( 'Color', 'mhm-rentiva' ), 'card-title' );
 
-		$this->add_control(
-			'title_hover_color',
-			array(
-				'label'     => __( 'Hover Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-card-title a:hover' => 'color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'title_hover_color', __( 'Hover Color', 'mhm-rentiva' ), 'card-title-hover' );
 
-		$this->add_typography_control( 'title_typography', '.mhm-vehicle-card .mhm-card-title' );
+		$this->add_typography_control( 'title_typography', '.rvs-card__title' );
 
-		$this->add_control(
-			'title_margin',
-			array(
-				'label'      => __( 'Margin', 'mhm-rentiva' ),
-				'type'       => 'dimensions',
-				'size_units' => array( 'px', 'em', '%' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-card-title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				),
-			)
-		);
+		$this->add_rvs_token_dimensions_control( 'title_margin', __( 'Margin', 'mhm-rentiva' ), 'card-title-margin' );
 
 		$this->end_controls_section();
 
@@ -275,33 +220,15 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'price_color',
-			array(
-				'label'     => __( 'Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-price-amount' => 'color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'price_color', __( 'Color', 'mhm-rentiva' ), 'card-price' );
 
-		$this->add_control(
-			'price_period_color',
-			array(
-				'label'     => __( 'Period Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-price-period' => 'color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'price_period_color', __( 'Period Color', 'mhm-rentiva' ), 'card-price-period' );
 
-		$this->add_typography_control( 'price_amount_typography', '.mhm-vehicle-card .mhm-price-amount' );
+		$this->add_typography_control( 'price_amount_typography', '.rvs-card__amount' );
 
 		$this->end_controls_section();
 
-		// Button Styles (the card renders one button: the booking link)
+		// Button Styles (the card renders one button: Select / Book)
 		$this->start_controls_section(
 			'button_style_section',
 			array(
@@ -310,41 +237,13 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			)
 		);
 
-		$this->add_control(
-			'primary_button_color',
-			array(
-				'label'     => __( 'Primary Button Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-btn-booking' => 'background-color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'primary_button_color', __( 'Primary Button Color', 'mhm-rentiva' ), 'card-btn-bg' );
 
-		$this->add_control(
-			'primary_button_hover_color',
-			array(
-				'label'     => __( 'Primary Button Hover Color', 'mhm-rentiva' ),
-				'type'      => 'color',
-				'selectors' => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-btn-booking:hover' => 'background-color: {{VALUE}}',
-				),
-			)
-		);
+		$this->add_rvs_token_control( 'primary_button_hover_color', __( 'Primary Button Hover Color', 'mhm-rentiva' ), 'card-btn-bg-hover' );
 
-		$this->add_control(
-			'button_border_radius',
-			array(
-				'label'      => __( 'Border Radius', 'mhm-rentiva' ),
-				'type'       => 'dimensions',
-				'size_units' => array( 'px', '%' ),
-				'selectors'  => array(
-					'{{WRAPPER}} .mhm-vehicle-card .mhm-btn-booking' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				),
-			)
-		);
+		$this->add_rvs_token_dimensions_control( 'button_border_radius', __( 'Border Radius', 'mhm-rentiva' ), 'card-btn-radius', array( 'size_units' => array( 'px', '%' ) ) );
 
-		$this->add_typography_control( 'booking_button_typography', '.mhm-vehicle-card .mhm-btn-booking' );
+		$this->add_typography_control( 'booking_button_typography', '.rvs-card__select' );
 
 		$this->end_controls_section();
 	}

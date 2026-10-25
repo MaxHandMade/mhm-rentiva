@@ -56,7 +56,7 @@ class BlockRegistry {
 			'tag'   => 'rentiva_search_results',
 			'title' => 'Search Results',
 			'css'   => 'search-results.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-rvs-card' ),
 		),
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
@@ -83,19 +83,19 @@ class BlockRegistry {
 			'tag'   => 'rentiva_vehicles_grid',
 			'title' => 'Vehicles Grid',
 			'css'   => 'vehicles-grid.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-rvs-card' ),
 		),
 		'vehicles-list'         => array(
 			'tag'   => 'rentiva_vehicles_list',
 			'title' => 'Vehicles List',
 			'css'   => 'vehicles-list.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-rvs-card' ),
 		),
 		'featured-vehicles'     => array(
 			'tag'   => 'rentiva_featured_vehicles',
 			'title' => 'Featured Vehicles',
 			'css'   => 'featured-vehicles.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-rvs-card' ),
 		),
 		'contact'               => array(
 			'tag'   => 'rentiva_contact',
@@ -116,7 +116,7 @@ class BlockRegistry {
 			'tag'   => 'rentiva_my_favorites',
 			'title' => 'My Favorites',
 			'css'   => 'my-account.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-rvs-card' ),
 		),
 		'payment-history'       => array(
 			'tag'   => 'rentiva_payment_history',

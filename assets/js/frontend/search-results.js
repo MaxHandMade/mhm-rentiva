@@ -32,7 +32,8 @@
         return {
             show_favorite_button: normalizeFlag($scope.data('show-favorite-button'), '1'),
             show_compare_button: normalizeFlag($scope.data('show-compare-button'), '1'),
-            show_booking_btn: normalizeFlag($scope.data('show-booking-btn'), '1'),
+            // The key the AJAX handler reads (it never read show_booking_btn).
+            show_booking_button: normalizeFlag($scope.data('show-booking-btn'), '1'),
             show_price: normalizeFlag($scope.data('show-price'), '1'),
             show_title: normalizeFlag($scope.data('show-title'), '1'),
             show_features: normalizeFlag($scope.data('show-features'), '1'),
@@ -65,7 +66,6 @@
         initializeFilters($scope);
         initializeSorting($scope);
         initializeViewToggle($scope);
-        initializeFavorites($scope);
         initializePagination($scope);
     }
 
@@ -162,9 +162,9 @@
         }
 
         if ($wrapper.length > 0) {
-            const $cards = $wrapper.find('.mhm-vehicle-card');
-            $cards.removeClass('mhm-card--grid mhm-card--list');
-            $cards.addClass(`mhm-card--${view}`);
+            const $cards = $wrapper.find('[data-rvs-card]');
+            $cards.removeClass('rvs-card--grid rvs-card--list');
+            $cards.addClass(`rvs-card--${view}`);
         }
 
         if (persistState) {
@@ -174,18 +174,6 @@
 
         $scope.find('.rv-view-btn').removeClass('active');
         $scope.find(`.rv-view-btn[data-view="${view}"]`).addClass('active');
-    }
-
-    function initializeFavorites($scope) {
-        $scope.on('click', '.mhm-card-favorite', function (e) {
-            e.preventDefault();
-
-            const $btn = $(this);
-            const vehicleId = $btn.data('vehicle-id');
-            if (!vehicleId) return;
-
-            toggleFavorite(vehicleId, $btn);
-        });
     }
 
     function initializePagination($scope) {
@@ -357,40 +345,6 @@
             (mhmRentivaSearchResults.i18n.vehicles_found || '%d vehicles found').replace('%d', total);
 
         $title.text(text);
-    }
-
-    function toggleFavorite(vehicleId, $btn) {
-        $btn.prop('disabled', true);
-
-        $.ajax({
-            url: mhmRentivaSearchResults.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'mhmrentiva_toggle_favorite',
-                vehicle_id: vehicleId,
-                nonce: mhmRentivaSearchResults.favorite_nonce
-            },
-            success: function (response) {
-                if (response.success) {
-                    const { action } = response.data;
-                    if (action === 'added') {
-                        $btn.addClass('is-active');
-                        MHMRentivaToast.show(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites', { type: 'success' });
-                    } else {
-                        $btn.removeClass('is-active');
-                        MHMRentivaToast.show(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites', { type: 'success' });
-                    }
-                } else {
-                    MHMRentivaToast.show(response.data.message || 'An error occurred', { type: 'error' });
-                }
-            },
-            error: function () {
-                MHMRentivaToast.show('Network error. Please try again.', { type: 'error' });
-            },
-            complete: function () {
-                $btn.prop('disabled', false);
-            }
-        });
     }
 
     function updateActiveFiltersCount($scope) {

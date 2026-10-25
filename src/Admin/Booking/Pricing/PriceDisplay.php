@@ -91,11 +91,8 @@ final class PriceDisplay {
 		}
 
 		// get_price_suffix() returns its filter's result unescaped and the JS
-		// inserts it as HTML. <bdi> is allowed because wc_price() markup -- which
-		// a {price_including_tax} suffix embeds -- uses it.
-		$allowed = wp_kses_allowed_html('post');
-		$allowed['bdi'] = array( 'dir' => true );
-		$suffix         = wp_kses( (string) $product->get_price_suffix( (string) $amount ) . $tax_label, $allowed );
+		// inserts it as HTML.
+		$suffix = wp_kses( (string) $product->get_price_suffix( (string) $amount ) . $tax_label, self::allowed_html() );
 
 		return array(
 			'amount'    => $shown,
@@ -215,6 +212,20 @@ final class PriceDisplay {
 		}
 
 		return new \WC_Product_Simple();
+	}
+
+	/**
+	 * Post markup plus <bdi>, which wc_price() wraps every amount in; plain
+	 * wp_kses_post() strips it. For printing a price's HTML anywhere.
+	 *
+	 * @return array<string, array<string, bool>>
+	 */
+	public static function allowed_html(): array
+	{
+		$allowed        = wp_kses_allowed_html('post');
+		$allowed['bdi'] = array( 'dir' => true );
+
+		return $allowed;
 	}
 
 	private static function format(float $amount): string

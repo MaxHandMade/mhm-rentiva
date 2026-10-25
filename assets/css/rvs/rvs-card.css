@@ -1,0 +1,291 @@
+/**
+ * Rentiva front-end standard -- vehicle card and the card grid.
+ *
+ * Values from the approved canvas (`Arama-Sonuclari`, `Anasayfa`). Colours,
+ * paddings and radii read --rvs-card-* tokens (defaults in rvs-tokens.css), so
+ * the Elementor card controls restyle the card by writing those tokens on the
+ * widget's .rvs-shell.
+ */
+
+/* Grid of cards ------------------------------------------------------------ */
+
+/* --rvs-cols caps the cards per row (the shortcode's `columns`); below the
+   cap auto-fill keeps every card at least 260 px wide. */
+.rvs-shell .rvs-card-grid {
+	--rvs-cols: 4;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, max(260px, calc((100% - (var(--rvs-cols) - 1) * 20px) / var(--rvs-cols)))), 1fr));
+	gap: 20px;
+	margin: 0;
+	padding: 0;
+}
+
+.rvs-shell .rvs-listing {
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+	padding-block: 30px;
+}
+
+.rvs-shell .rvs-listing__footer {
+	display: flex;
+	justify-content: center;
+}
+
+.rvs-shell .rvs-empty {
+	padding: 40px 20px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+	color: var(--rvs-muted);
+	text-align: center;
+}
+
+.rvs-shell .rvs-card-list {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+/* Explicit per-breakpoint columns (shortcode columns_tablet / columns_mobile;
+   printed only when set). Tablet up to 1024 px, mobile up to 782 px. */
+@media (max-width: 1024px) {
+	.rvs-shell .rvs-card-grid--tablet-1 { grid-template-columns: minmax(0, 1fr); }
+	.rvs-shell .rvs-card-grid--tablet-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.rvs-shell .rvs-card-grid--tablet-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.rvs-shell .rvs-card-grid--tablet-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 782px) {
+	/* A tablet count with no mobile count falls back to one card per row. */
+	.rvs-shell .rvs-card-grid[class*="rvs-card-grid--tablet-"]:not([class*="rvs-card-grid--mobile-"]) { grid-template-columns: minmax(0, 1fr); }
+	.rvs-shell .rvs-card-grid--mobile-1 { grid-template-columns: minmax(0, 1fr); }
+	.rvs-shell .rvs-card-grid--mobile-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.rvs-shell .rvs-card-grid--mobile-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.rvs-shell .rvs-card-grid--mobile-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Masonry: columns of cards of their natural height. Phones keep the tablet
+   count unless columns_mobile says otherwise. */
+.rvs-shell .rvs-card-grid--masonry {
+	display: block;
+	column-count: var(--rvs-cols);
+	column-gap: 20px;
+}
+
+.rvs-shell .rvs-card-grid--masonry > .rvs-card {
+	margin-bottom: 20px;
+	break-inside: avoid;
+}
+
+@media (max-width: 1024px) {
+	.rvs-shell .rvs-card-grid--masonry { column-count: 2; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--tablet-1 { column-count: 1; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--tablet-3 { column-count: 3; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--tablet-4 { column-count: 4; }
+}
+
+@media (max-width: 782px) {
+	.rvs-shell .rvs-card-grid--masonry[class*="rvs-card-grid--tablet-"]:not([class*="rvs-card-grid--mobile-"]) { column-count: 1; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-1 { column-count: 1; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-2 { column-count: 2; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-3 { column-count: 3; }
+	.rvs-shell .rvs-card-grid--masonry.rvs-card-grid--mobile-4 { column-count: 4; }
+}
+
+/* List cards in a multi-column grid stack like grid cards. */
+.rvs-shell .rvs-card-grid .rvs-card--list {
+	flex-direction: column;
+}
+
+.rvs-shell .rvs-card-grid .rvs-card--list .rvs-card__media {
+	flex: none;
+	aspect-ratio: 3 / 2;
+	min-height: 0;
+}
+
+/* Card --------------------------------------------------------------------- */
+
+/* The card sets its own type: a surface wrapper (the featured slider's, a
+   theme's) can set a font on the way down, and the card must not inherit it. */
+.rvs-shell .rvs-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+	border-radius: var(--rvs-card-radius);
+	background: var(--rvs-card-bg);
+	box-shadow: var(--rvs-shadow);
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 15px;
+	line-height: 1.55;
+	text-align: start;
+}
+
+.rvs-shell .rvs-card__media {
+	position: relative;
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	background: linear-gradient(135deg, #dcd8d6, #c9c4c2);
+}
+
+.rvs-shell .rvs-card__media-link {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.rvs-shell .rvs-card__img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-card__tag {
+	position: absolute;
+	inset-block-start: 10px;
+	inset-inline-start: 10px;
+}
+
+.rvs-shell .rvs-card__fav {
+	position: absolute;
+	inset-block-start: 10px;
+	inset-inline-end: 10px;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-card__fav.is-active svg {
+	fill: var(--rvs-alert);
+	stroke: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-card__fav:disabled {
+	cursor: default;
+}
+
+.rvs-shell .rvs-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 8px;
+	padding: var(--rvs-card-pad);
+}
+
+.rvs-shell .rvs-card__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-card__title {
+	margin: var(--rvs-card-title-margin);
+	font-size: 20px;
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-card__title a {
+	color: var(--rvs-card-title);
+	text-decoration: none;
+}
+
+.rvs-shell .rvs-card__title a:hover {
+	color: var(--rvs-card-title-hover);
+}
+
+.rvs-shell .rvs-card__rating {
+	color: var(--rvs-muted);
+	font-size: 14px;
+	white-space: nowrap;
+}
+
+.rvs-shell .rvs-card__desc {
+	color: var(--rvs-text);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-card__specs {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-card__terms {
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+/* Price and button share a row while they fit; a narrow card (slider, three
+   columns) puts the button under the price instead of past the edge. */
+.rvs-shell .rvs-card__foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: auto;
+	padding-top: 8px;
+}
+
+.rvs-shell .rvs-card__price {
+	min-width: 0;
+}
+
+.rvs-shell .rvs-card__amount {
+	color: var(--rvs-card-price);
+	font-size: 26px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.15;
+}
+
+.rvs-shell .rvs-card__per {
+	color: var(--rvs-card-price-period);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-card__select {
+	flex: none;
+	border-radius: var(--rvs-card-btn-radius);
+	background: var(--rvs-card-btn-bg);
+}
+
+.rvs-shell .rvs-card__select:hover {
+	background: var(--rvs-card-btn-bg-hover);
+}
+
+.rvs-shell .rvs-card__select:disabled {
+	background: var(--rvs-card-btn-bg);
+}
+
+.rvs-shell .rvs-card__compare {
+	min-height: 44px;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+/* List layout: photo on the left from tablet up ---------------------------- */
+
+@media (min-width: 769px) {
+	.rvs-shell .rvs-card--list {
+		flex-direction: row;
+	}
+
+	.rvs-shell .rvs-card--list .rvs-card__media {
+		flex: 0 0 38%;
+		aspect-ratio: auto;
+		min-height: 200px;
+	}
+}

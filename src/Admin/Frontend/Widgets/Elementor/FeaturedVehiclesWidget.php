@@ -233,7 +233,7 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 		$this->register_standard_style_controls(
 			'title_style',
 			__( 'Vehicle Title', 'mhm-rentiva' ),
-			'.mhm-vehicle-card .mhm-card-title a',
+			'.rvs-card__title a',
 			'title_style_typography'
 		);
 
