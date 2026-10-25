@@ -69,7 +69,6 @@ final class BookingFormDepositRateTest extends WP_Ajax_UnitTestCase
 				'mhmrentiva_rental_deposit_rate'        => $rate,
 				'mhmrentiva_vehicle_base_price'         => 1.0,
 				'mhmrentiva_vehicle_weekend_multiplier' => 1.0,
-				'mhmrentiva_vehicle_tax_rate'           => 0,
 			)
 		);
 	}

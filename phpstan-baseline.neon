@@ -514,12 +514,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
-			message: '#^Variable \$tax_amount on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/BookingForm.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2

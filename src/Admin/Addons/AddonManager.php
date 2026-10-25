@@ -826,24 +826,6 @@ final class AddonManager {
 	}
 
 	/**
-	 * Check if prices are tax inclusive.
-	 *
-	 * @return bool True if inclusive.
-	 */
-	public static function is_tax_inclusive(): bool {
-		return (bool) self::get_setting( 'mhmrentiva_addon_tax_inclusive', true );
-	}
-
-	/**
-	 * Get tax rate.
-	 *
-	 * @return float Tax rate.
-	 */
-	public static function get_tax_rate(): float {
-		return (float) self::get_setting( 'mhmrentiva_addon_tax_rate', 20.00 );
-	}
-
-	/**
 	 * AJAX: Price update.
 	 */
 	public static function handle_update_price(): void {

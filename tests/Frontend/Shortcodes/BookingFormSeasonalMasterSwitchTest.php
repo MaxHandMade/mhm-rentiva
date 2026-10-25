@@ -91,7 +91,6 @@ final class BookingFormSeasonalMasterSwitchTest extends WP_Ajax_UnitTestCase
             'current_active_tab'                    => 'vehicle',
             'mhmrentiva_vehicle_base_price'         => '1.0',
             'mhmrentiva_vehicle_weekend_multiplier' => '1.0',
-            'mhmrentiva_vehicle_tax_rate'            => '0',
             'vehicle_pricing'                        => array(
                 'seasonal_multipliers' => array(
                     'summer' => array( 'multiplier' => '2.75' ),

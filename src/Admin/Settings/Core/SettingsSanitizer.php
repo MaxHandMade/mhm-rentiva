@@ -405,8 +405,6 @@ final class SettingsSanitizer {
 			// and a zero multiplier makes every rental free.
 			'mhmrentiva_vehicle_base_price'           => self::clamp_value( floatval( $input['mhmrentiva_vehicle_base_price'] ?? ( $defaults['mhmrentiva_vehicle_base_price'] ?? 1.0 ) ), 0.1, 100.0 ),
 			'mhmrentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhmrentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhmrentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
-			'mhmrentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhmrentiva_vehicle_tax_inclusive' ),
-			'mhmrentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhmrentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
 			// Master switch gating whether
 			// BookingForm.php's price calculation ever consults the
 			// seasonal multipliers (rendered here, sanitized separately

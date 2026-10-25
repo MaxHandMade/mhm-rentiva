@@ -407,10 +407,6 @@ $unique_id = uniqid('rv_booking_');
 							<span class="rv-price-label"><?php echo esc_html__('Weekend Difference:', 'mhm-rentiva'); ?></span>
 							<span class="rv-price-value rv-weekend-diff-amount" id="rv-weekend-diff-amount-<?php echo esc_attr($unique_id); ?>">-</span>
 						</div>
-						<div class="rv-price-item rv-tax-summary rv-hidden">
-							<span class="rv-price-label rv-tax-label" id="rv-tax-label-<?php echo esc_attr($unique_id); ?>"><?php echo esc_html__('Tax:', 'mhm-rentiva'); ?></span>
-							<span class="rv-price-value rv-tax-amount" id="rv-tax-amount-<?php echo esc_attr($unique_id); ?>">-</span>
-						</div>
 						<div class="rv-price-item rv-vehicle-total-detailed rv-hidden">
 							<span class="rv-price-label"><?php echo esc_html__('Vehicle Total:', 'mhm-rentiva'); ?></span>
 							<span class="rv-price-value rv-vehicle-total" id="rv-vehicle-total-<?php echo esc_attr($unique_id); ?>">-</span>
@@ -422,6 +418,7 @@ $unique_id = uniqid('rv_booking_');
 						<div class="rv-price-item rv-total-price">
 							<span class="rv-price-label"><?php echo esc_html__('Total Amount:', 'mhm-rentiva'); ?></span>
 							<span class="rv-price-value rv-total-amount rv-price-large" id="rv-total-amount-<?php echo esc_attr($unique_id); ?>" data-testid="booking-total-price">-</span>
+							<span class="rv-price-suffix"></span>
 						</div>
 
 						<?php if ($enable_deposit) : ?>

@@ -78,24 +78,17 @@ class SettingsSanitizerVehicleTabTest extends WP_UnitTestCase
         $this->assertSame(365, $result['mhmrentiva_vehicle_min_rental_days']);
     }
 
-    // vehicle_tax_rate — clamp 0-100
+    // Rentiva's own tax settings were removed (tax is WooCommerce's job): a
+    // submitted value is dropped, not stored.
 
-    public function test_tax_rate_accepts_valid_value()
+    public function test_removed_tax_settings_are_not_stored()
     {
-        $result = $this->sanitize_vehicle(['mhmrentiva_vehicle_tax_rate' => '18']);
-        $this->assertEqualsWithDelta(18.0, $result['mhmrentiva_vehicle_tax_rate'], 0.001);
-    }
-
-    public function test_tax_rate_clamps_negative_to_zero()
-    {
-        $result = $this->sanitize_vehicle(['mhmrentiva_vehicle_tax_rate' => '-5']);
-        $this->assertEqualsWithDelta(0.0, $result['mhmrentiva_vehicle_tax_rate'], 0.001);
-    }
-
-    public function test_tax_rate_clamps_above_100()
-    {
-        $result = $this->sanitize_vehicle(['mhmrentiva_vehicle_tax_rate' => '150']);
-        $this->assertEqualsWithDelta(100.0, $result['mhmrentiva_vehicle_tax_rate'], 0.001);
+        $result = $this->sanitize_vehicle([
+            'mhmrentiva_vehicle_tax_rate'      => '18',
+            'mhmrentiva_vehicle_tax_inclusive' => '1',
+        ]);
+        $this->assertArrayNotHasKey('mhmrentiva_vehicle_tax_rate', $result);
+        $this->assertArrayNotHasKey('mhmrentiva_vehicle_tax_inclusive', $result);
     }
 
     // vehicle_base_price — min enforced at 0.1
