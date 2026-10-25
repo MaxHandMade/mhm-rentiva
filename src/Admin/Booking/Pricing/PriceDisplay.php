@@ -29,7 +29,7 @@ final class PriceDisplay {
 	private static int $product_id = 0;
 
 	/**
-	 * @return array{amount: float, html: string, suffix: string}
+	 * @return array{amount: float, html: string, suffix: string, tax_label: string}
 	 */
 	public static function for_cart(float $amount): array
 	{
@@ -37,7 +37,7 @@ final class PriceDisplay {
 	}
 
 	/**
-	 * @return array{amount: float, html: string, suffix: string}
+	 * @return array{amount: float, html: string, suffix: string, tax_label: string}
 	 */
 	public static function for_shop(float $amount): array
 	{
@@ -65,9 +65,13 @@ final class PriceDisplay {
 		$product      = self::booking_product();
 		$display_mode = get_option('cart' === $context ? 'woocommerce_tax_display_cart' : 'woocommerce_tax_display_shop');
 
+		// Whether tax is actually added to this amount; a VAT-exempt customer, an
+		// untaxed product or a 0% rate pays the figure shown.
+		$taxed = true;
 		if ('cart' === $context) {
 			$line  = self::cart_line($product, $amount);
 			$shown = 'excl' === $display_mode ? $line['net'] : $line['total'];
+			$taxed = abs($line['total'] - $line['net']) > 0.0001;
 		} else {
 			$shown = (float) wc_get_price_to_display(
 				$product,
@@ -78,10 +82,11 @@ final class PriceDisplay {
 			);
 		}
 
-		// WooCommerce labels a tax-exclusive figure "(ex. VAT)" in the cart;
-		// without it a visitor would read the amount as the final total.
+		// WooCommerce labels a tax-exclusive figure "(ex. VAT)" in the cart, and
+		// only when the line carries tax (WC_Cart::get_product_subtotal()); without
+		// it a visitor would read the amount as the final total.
 		$tax_label = '';
-		if (wc_tax_enabled() && 'excl' === $display_mode && function_exists('WC') && WC()->countries) {
+		if ($taxed && wc_tax_enabled() && 'excl' === $display_mode && function_exists('WC') && WC()->countries) {
 			$tax_label = ' <small class="tax_label">' . esc_html( wp_strip_all_tags( (string) WC()->countries->ex_tax_or_vat() ) ) . '</small>';
 		}
 
@@ -195,7 +200,7 @@ final class PriceDisplay {
 			// re-checked: a product deleted later in the request is looked up again.
 			if (self::$product_id > 0) {
 				$product = wc_get_product(self::$product_id);
-				if ($product instanceof \WC_Product && WooCommerceBridge::PRODUCT_SKU === $product->get_sku()) {
+				if ($product instanceof \WC_Product && WooCommerceBridge::PRODUCT_SKU === $product->get_sku() && 'trash' !== $product->get_status()) {
 					return $product;
 				}
 			}

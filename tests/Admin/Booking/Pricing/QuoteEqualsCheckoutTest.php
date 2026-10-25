@@ -216,6 +216,7 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 		$this->sandbox_option('woocommerce_default_country', 'TR');
 		$this->sandbox_option('woocommerce_prices_include_tax', 'yes');
 		$this->sandbox_option('woocommerce_tax_based_on', 'billing');
+		$previous = array( WC()->customer->get_billing_country(), WC()->customer->get_shipping_country() );
 		WC()->customer->set_billing_country('DE');
 		WC()->customer->set_shipping_country('DE');
 
@@ -223,8 +224,8 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 			$shown    = PriceDisplay::for_cart(1002.53)['amount'];
 			$checkout = $this->checkout_total(array( 'payment_type' => 'full', 'total_amount' => 1002.53, 'deposit_amount' => 1002.53 ));
 		} finally {
-			WC()->customer->set_billing_country('TR');
-			WC()->customer->set_shipping_country('TR');
+			WC()->customer->set_billing_country($previous[0]);
+			WC()->customer->set_shipping_country($previous[1]);
 		}
 
 		$this->assertNotEqualsWithDelta(1002.53, $checkout, 0.001, 'Sanity: the adjustment must change the price in this fixture.');
@@ -248,16 +249,21 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 	public function test_vat_exempt_customer_matches_checkout(string $includes): void
 	{
 		$this->sandbox_option('woocommerce_prices_include_tax', $includes);
+		$previous = WC()->customer->get_is_vat_exempt();
 		WC()->customer->set_is_vat_exempt(true);
 
 		try {
 			$shown    = PriceDisplay::for_cart(1002.53)['amount'];
 			$checkout = $this->checkout_total(array( 'payment_type' => 'full', 'total_amount' => 1002.53, 'deposit_amount' => 1002.53 ));
+
+			$this->sandbox_option('woocommerce_tax_display_cart', 'excl');
+			$label = PriceDisplay::for_cart(1002.53)['tax_label'];
 		} finally {
-			WC()->customer->set_is_vat_exempt(false);
+			WC()->customer->set_is_vat_exempt($previous);
 		}
 
 		$this->assertEqualsWithDelta($checkout, $shown, 0.0001);
+		$this->assertSame('', $label, 'An exempt customer pays the figure shown: no "(ex. VAT)".');
 	}
 
 	public function test_suffix_keeps_wc_price_bdi_markup(): void
@@ -276,7 +282,7 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 	{
 		$this->sandbox_option('woocommerce_tax_display_cart', 'excl');
 
-		$this->assertStringContainsString('tax_label', PriceDisplay::for_cart(390.0)['tax_label']);
+		$this->assertStringContainsString(esc_html(WC()->countries->ex_tax_or_vat()), PriceDisplay::for_cart(390.0)['tax_label']);
 
 		$this->sandbox_option('woocommerce_tax_display_cart', 'incl');
 		$this->assertSame('', PriceDisplay::for_cart(390.0)['tax_label']);
