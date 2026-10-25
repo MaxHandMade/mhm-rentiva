@@ -38,6 +38,9 @@ final class VehicleDetailsView {
 	 */
 	private const K11_KEYS = array( 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' );
 
+	/** The longest window the card quotes (days). */
+	private const MAX_QUOTE_DAYS = 366;
+
 	/**
 	 * @param array<string, mixed>  $atts   Shortcode attributes.
 	 * @param array<string, string> $window pickup_date, pickup_time, return_date, pickup_location; missing values fall back to the search strip's.
@@ -94,9 +97,16 @@ final class VehicleDetailsView {
 		$date     = static fn($v): string => 1 === preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v) ? (string) $v : '';
 		$pickup   = $date($window['pickup_date'] ?? '');
 		$return   = $date($window['return_date'] ?? '');
-		if ('' === $pickup || '' === $return || $return <= $pickup) {
+		$in_range = static fn(string $d): bool => '' !== $d && $d >= '2000-01-01' && $d <= '2100-12-31';
+		if (! $in_range($pickup) || ! $in_range($return) || $return <= $pickup) {
 			$pickup = (string) $defaults['pickup_date'];
 			$return = (string) $defaults['return_date'];
+		}
+		// The quote walks the window day by day: a year is the most anyone rents,
+		// and the rental rules below report anything longer as not bookable.
+		$cap = gmdate('Y-m-d', (int) strtotime($pickup . ' +' . self::MAX_QUOTE_DAYS . ' days'));
+		if ($return > $cap) {
+			$return = $cap;
 		}
 		$time = (string) ( $window['pickup_time'] ?? '' );
 
@@ -151,7 +161,17 @@ final class VehicleDetailsView {
 		$rate    = DepositCalculator::resolve_rate($vehicle_id);
 		$deposit = $rate > 0 ? round($quote->full_amount * $rate / 100, 2) : 0.0;
 
-		$check     = Util::check_availability($vehicle_id, $window['pickup_date'], $window['pickup_time'], $window['return_date'], $window['pickup_time']);
+		// The booking form's own rules first (past, same day, advance window,
+		// minimum / maximum days), so "Continue" never leads to a refusal.
+		$rule_error = self::rule_error($window, $start, $end);
+		if ('' !== $rule_error) {
+			$check = array(
+				'ok'      => false,
+				'message' => $rule_error,
+			);
+		} else {
+			$check = Util::check_availability($vehicle_id, $window['pickup_date'], $window['pickup_time'], $window['return_date'], $window['pickup_time']);
+		}
 		$available = ! empty($check['ok']);
 
 		$hours = (int) SettingsCore::get('mhmrentiva_booking_cancellation_deadline_hours', 24);
@@ -171,8 +191,8 @@ final class VehicleDetailsView {
 			'continue_url' => VehicleCardLinks::booking_url(
 				array(
 					'id'           => $vehicle_id,
-					'booking_url'  => ShortcodeUrlManager::get_page_url('rentiva_booking_form'),
-					'location_id'  => (int) get_post_meta($vehicle_id, MetaKeys::VEHICLE_LOCATION_ID, true),
+					'booking_url'  => \MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl::base_url(),
+					'location_id'  => \MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl::location_for($vehicle_id),
 					'availability' => array( 'is_available' => true ),
 				),
 				$atts,
@@ -188,6 +208,33 @@ final class VehicleDetailsView {
 			'message'      => $available ? '' : (string) ( $check['message'] ?? '' ),
 			'locations'    => self::locations(),
 		);
+	}
+
+	/**
+	 * Why the booking form would refuse this window, or ''.
+	 *
+	 * @param array<string, string> $window
+	 */
+	private static function rule_error(array $window, int $start, int $end): string
+	{
+		$today = (string) wp_date('Y-m-d');
+		$pick  = (string) $window['pickup_date'];
+		if ($pick < $today) {
+			return __('The pickup date has passed. Please choose another date.', 'mhm-rentiva');
+		}
+		if ($pick === $today && '1' !== (string) SettingsCore::get('mhmrentiva_vehicle_allow_same_day', '1')) {
+			return __('Same-day pickup is not available. Please choose a later date.', 'mhm-rentiva');
+		}
+		$advance = (int) SettingsCore::get('mhmrentiva_vehicle_advance_booking_days', 365);
+		if ($advance > 0 && $pick > (string) wp_date('Y-m-d', time() + $advance * DAY_IN_SECONDS)) {
+			/* translators: %d: number of days ahead a booking can be made. */
+			return sprintf(_n('Bookings can be made up to %d day ahead.', 'Bookings can be made up to %d days ahead.', $advance, 'mhm-rentiva'), $advance);
+		}
+		if ($start <= 0 || $end <= $start) {
+			return __('Invalid date selection. Please check your pickup and return dates.', 'mhm-rentiva');
+		}
+		$duration = Util::validate_rental_duration($start, $end);
+		return is_wp_error($duration) ? $duration->get_error_message() : '';
 	}
 
 	/**

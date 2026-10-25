@@ -125,6 +125,14 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse($this->quote()['success'] ?? true);
 	}
 
+	public function test_password_protected_vehicle_rejected(): void
+	{
+		wp_update_post(array( 'ID' => $this->vehicle_id, 'post_password' => 'secret' ));
+
+		$this->assertFalse($this->call('mhmrentiva_vd_months', array( 'vehicle_id' => (string) $this->vehicle_id, 'year' => '2027', 'month' => '7' ))['success'] ?? true);
+		$this->assertFalse($this->quote()['success'] ?? true);
+	}
+
 	public function test_bad_nonce_rejected(): void
 	{
 		$response = $this->call('mhmrentiva_vd_quote', array( 'nonce' => 'bad', 'vehicle_id' => (string) $this->vehicle_id ));

@@ -61,8 +61,9 @@ final class VehicleDetails extends AbstractShortcode {
 	 */
 	private static function requested_vehicle( VerifiedRequest $req ): int {
 		$vehicle_id = $req->int( 'vehicle_id' );
-		$vehicle    = $vehicle_id > 0 ? get_post( $vehicle_id ) : null;
-		if ( ! $vehicle || 'mhmrentiva_vehicle' !== $vehicle->post_type || 'publish' !== $vehicle->post_status ) {
+		// Same rule as the old calendar endpoint: published, public and without a
+		// password -- an unreadable vehicle is indistinguishable from a missing one.
+		if ( $vehicle_id <= 0 || ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vehicle_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'Vehicle not found.', 'mhm-rentiva' ) ) );
 		}
 		return $vehicle_id;

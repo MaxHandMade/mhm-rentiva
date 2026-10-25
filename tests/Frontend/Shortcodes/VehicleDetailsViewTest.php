@@ -193,6 +193,75 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertSame(3000.0, $booking['breakdown']['total']['amount'], 'The total stays visible.');
 	}
 
+	public function test_window_outside_rental_rules_is_not_bookable(): void
+	{
+		$settings                                     = get_option('mhmrentiva_settings');
+		$settings['mhmrentiva_vehicle_max_rental_days'] = 30;
+		update_option('mhmrentiva_settings', $settings);
+
+		$booking = $this->view(array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:00', 'return_date' => '2027-08-21' ))['booking'];
+
+		$this->assertFalse($booking['available']);
+		$this->assertStringContainsString('30', $booking['message']);
+	}
+
+	public function test_far_return_date_does_not_loop_for_years(): void
+	{
+		// Out of any sane range: the search strip's default window instead.
+		$started = microtime(true);
+		$view    = $this->view(array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:00', 'return_date' => '9999-12-31' ));
+		$this->assertLessThan(2.0, microtime(true) - $started);
+		$this->assertSame(UnifiedSearch::values()['return_date'], $view['booking']['window']['return_date']);
+
+		// In range but years long: quoted up to the cap, reported as not bookable.
+		$view = $this->view(array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:00', 'return_date' => '2035-01-01' ));
+		$this->assertLessThanOrEqual(366, $view['booking']['days']);
+		$this->assertFalse($view['booking']['available']);
+	}
+
+	public function test_pickup_beyond_the_advance_window_is_not_bookable(): void
+	{
+		$settings                                          = get_option('mhmrentiva_settings');
+		$settings['mhmrentiva_vehicle_advance_booking_days'] = 30;
+		update_option('mhmrentiva_settings', $settings);
+		$pickup = gmdate('Y-m-d', strtotime('+60 days'));
+		$return = gmdate('Y-m-d', strtotime('+63 days'));
+
+		$booking = $this->view(array( 'pickup_date' => $pickup, 'pickup_time' => '10:00', 'return_date' => $return ))['booking'];
+
+		$this->assertFalse($booking['available']);
+		$this->assertStringContainsString('30', $booking['message']);
+	}
+
+	public function test_past_pickup_is_not_bookable(): void
+	{
+		$pickup  = gmdate('Y-m-d', strtotime('-3 days'));
+		$return  = gmdate('Y-m-d', strtotime('+1 day'));
+		$booking = $this->view(array( 'pickup_date' => $pickup, 'pickup_time' => '10:00', 'return_date' => $return ))['booking'];
+
+		$this->assertFalse($booking['available']);
+	}
+
+	public function test_continue_url_falls_back_to_vendor_then_global_location(): void
+	{
+		$vendor = (int) self::factory()->user->create();
+		wp_update_post(array( 'ID' => $this->vehicle_id, 'post_author' => $vendor ));
+		update_user_meta($vendor, MetaKeys::VENDOR_LOCATION_ID, '7');
+		$this->assertStringContainsString('mhmrentiva_pickup_location=7', $this->view()['booking']['continue_url']);
+
+		delete_user_meta($vendor, MetaKeys::VENDOR_LOCATION_ID);
+		$settings                                       = get_option('mhmrentiva_settings');
+		$settings['mhmrentiva_default_rental_location'] = 9;
+		update_option('mhmrentiva_settings', $settings);
+		$this->assertStringContainsString('mhmrentiva_pickup_location=9', $this->view()['booking']['continue_url']);
+	}
+
+	public function test_block_json_points_at_the_rvs_stylesheet(): void
+	{
+		$json = json_decode( (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/blocks/vehicle-details/block.json'), true); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped file.
+		$this->assertSame(array( 'mhm-rentiva-rvs-vehicle' ), $json['style']);
+	}
+
 	public function test_dealer_line_empty_without_pro_data(): void
 	{
 		$this->assertSame('', $this->view()['dealer_line']);
