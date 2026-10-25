@@ -43,8 +43,6 @@ describe( 'booking form deposit summary follows the quote', () => {
 			dailyPrice: stub(),
 			daysCount: stub(),
 			weekendDiffAmount: stub(),
-			taxLabel: stub(),
-			taxAmount: stub(),
 			vehicleTotal: stub(),
 			addonsTotal: stub(),
 			totalAmount: stub(),

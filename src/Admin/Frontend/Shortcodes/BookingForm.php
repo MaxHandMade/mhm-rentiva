@@ -1363,6 +1363,12 @@ final class BookingForm extends AbstractShortcode {
 
 			// Payment type (deposit or full)
 			$payment_type = $req->text('payment_type', 'deposit');
+
+			// Same order as the submit path: no deposit applies -> full, then refuse
+			// anything else.
+			if (\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::resolve_rate($vehicle_id) <= 0) {
+				$payment_type = 'full';
+			}
 			if (! in_array($payment_type, array( 'deposit', 'full' ), true)) {
 				throw new \InvalidArgumentException(__('Invalid payment type.', 'mhm-rentiva'));
 			}

@@ -113,12 +113,4 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 		expect( seen ).toEqual( { daily: '1020', vehicle: '3978', addons: '30' } );
 	} );
-
-	test( 'no tax summary is drawn by the form', () => {
-		const form = setup();
-
-		form.updatePriceDisplay( quote() );
-
-		expect( form.container.find( '.rv-tax-summary' ).length ).toBe( 0 );
-	} );
 } );

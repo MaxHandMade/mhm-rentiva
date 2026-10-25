@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Admin\Booking\Pricing;
 
 use MHMRentiva\Admin\Booking\Helpers\Util;
+use MHMRentiva\Admin\Booking\Meta\BookingMeta;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
@@ -154,6 +155,52 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 		return (float) WC()->cart->get_total('edit');
 	}
 
+	/**
+	 * Cent-level parity with WC_Cart_Totals across the settings that change
+	 * its rounding. 1002.53 inclusive at 20% + 5% with line rounding is the
+	 * case wc_get_price_to_display() gets a cent wrong (1002.53 vs 1002.52).
+	 *
+	 * @return array<string, array{0: float, 1: string, 2: bool, 3: string}>
+	 */
+	public static function rounding_matrix(): array
+	{
+		$rows = array();
+		foreach (array( 1002.53, 99.99, 1234.57, 3900.0 ) as $amount) {
+			foreach (array( 'yes', 'no' ) as $includes) {
+				foreach (array( false, true ) as $two_rates) {
+					foreach (array( 'no', 'yes' ) as $round_at_subtotal) {
+						$rows[ sprintf('%s incl=%s two=%d sub=%s', $amount, $includes, (int) $two_rates, $round_at_subtotal) ] = array( $amount, $includes, $two_rates, $round_at_subtotal );
+					}
+				}
+			}
+		}
+		return $rows;
+	}
+
+	/**
+	 * @dataProvider rounding_matrix
+	 */
+	public function test_cart_display_equals_checkout_to_the_cent(float $amount, string $includes, bool $two_rates, string $round_at_subtotal): void
+	{
+		$this->sandbox_option('woocommerce_prices_include_tax', $includes);
+		$this->sandbox_option('woocommerce_tax_round_at_subtotal', $round_at_subtotal);
+		if ($two_rates) {
+			$this->rate_ids[] = $this->insert_rate('5.0000', 2);
+		}
+
+		$shown = PriceDisplay::for_cart($amount)['amount'];
+
+		$this->assertEqualsWithDelta(
+			$this->checkout_total(array(
+				'payment_type'   => 'full',
+				'total_amount'   => $amount,
+				'deposit_amount' => $amount,
+			)),
+			$shown,
+			0.0001
+		);
+	}
+
 	public function test_full_payment_quote_equals_checkout_total(): void
 	{
 		$quote = $this->quote('full');
@@ -213,6 +260,24 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 		$this->assertStringContainsString('tax_label', $display['suffix'], 'A tax-exclusive figure must be labelled as such.');
 	}
 
+	public function test_suffix_from_filters_is_sanitised(): void
+	{
+		$this->sandbox_option('woocommerce_tax_display_cart', 'excl');
+		$label  = static fn() => '<img src=x onerror="alert(1)">VAT';
+		$suffix = static fn() => '<small>incl.</small><script>alert(2)</script>';
+		add_filter('woocommerce_countries_ex_tax_or_vat', $label);
+		add_filter('woocommerce_get_price_suffix', $suffix);
+
+		$out = PriceDisplay::for_cart(100.0)['suffix'];
+
+		remove_filter('woocommerce_countries_ex_tax_or_vat', $label);
+		remove_filter('woocommerce_get_price_suffix', $suffix);
+
+		$this->assertStringNotContainsString('onerror', $out);
+		$this->assertStringNotContainsString('<script', $out);
+		$this->assertStringContainsString('<small>incl.</small>', $out);
+	}
+
 	public function test_quote_uses_cart_display_context_not_shop(): void
 	{
 		$this->assertEqualsWithDelta(3900.0, PriceDisplay::for_shop(3900.0)['amount'], 0.01);
@@ -221,10 +286,23 @@ final class QuoteEqualsCheckoutTest extends WP_UnitTestCase
 
 	public function test_stored_total_equals_full_amount(): void
 	{
-		$quote = $this->quote('deposit');
-		$full  = RentalPricing::quote_for_days($this->vehicle_id, 3, $this->start_ts)->full_amount;
+		// Re-pricing a booking from wp-admin writes the stored total from the
+		// same computation the form quoted: season included.
+		$booking_id = self::factory()->post->create(array(
+			'post_type'  => 'mhmrentiva_booking',
+			'meta_input' => array(
+				'_mhmrentiva_vehicle_id'   => $this->vehicle_id,
+				'_mhmrentiva_payment_type' => 'deposit',
+				'_mhmrentiva_start_time'   => '10:00',
+				'_mhmrentiva_end_time'     => '10:00',
+			),
+		));
 
-		$this->assertEqualsWithDelta($full, (float) $quote['total_amount'], 0.001);
+		BookingMeta::recalculate_booking_costs($booking_id, '2026-07-13', '2026-07-16');
+
+		$full = RentalPricing::quote_for_days($this->vehicle_id, 3, $this->start_ts)->full_amount;
+		$this->assertEqualsWithDelta(3900.0, $full, 0.001);
+		$this->assertEqualsWithDelta($full, (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true), 0.001);
 		$this->assertEqualsWithDelta($full, Util::total_price($this->vehicle_id, 3, $this->start_ts), 0.001);
 	}
 

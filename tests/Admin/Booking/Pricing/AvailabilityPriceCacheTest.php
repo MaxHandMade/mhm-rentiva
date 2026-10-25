@@ -58,4 +58,22 @@ final class AvailabilityPriceCacheTest extends WP_UnitTestCase
 
 		$this->assertEqualsWithDelta(3900.0, (float) $second['total_price'], 0.001);
 	}
+
+	public function test_changing_the_daily_price_refreshes_cached_total(): void
+	{
+		$vehicle_id = self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_vehicle',
+			'post_status' => 'publish',
+		));
+		update_post_meta($vehicle_id, '_mhmrentiva_price_per_day', '1000');
+		$this->save(false);
+
+		$first = Util::check_availability($vehicle_id, '2026-07-13', '10:00', '2026-07-16', '10:00');
+		$this->assertEqualsWithDelta(3000.0, (float) $first['total_price'], 0.001);
+
+		update_post_meta($vehicle_id, '_mhmrentiva_price_per_day', '1200');
+		$second = Util::check_availability($vehicle_id, '2026-07-13', '10:00', '2026-07-16', '10:00');
+
+		$this->assertEqualsWithDelta(3600.0, (float) $second['total_price'], 0.001, 'The cached total must not outlive a price edit.');
+	}
 }

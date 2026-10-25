@@ -184,7 +184,7 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 		$data = $this->calculate_price();
 
 		$this->assertSame(0, (int) wc_get_product_id_by_sku(WooCommerceBridge::PRODUCT_SKU), 'A quote must not write a product.');
-		$this->assertEqualsWithDelta(3900.0, (float) $data['display_total']['amount'], 0.01, 'Without the product the amount is shown as entered.');
+		$this->assertEqualsWithDelta(4680.0, (float) $data['display_total']['amount'], 0.01, 'Without the product, tax is still shown: the first checkout creates a taxable product.');
 	}
 
 	public function test_non_positive_price_is_refused_like_the_submit_path(): void
