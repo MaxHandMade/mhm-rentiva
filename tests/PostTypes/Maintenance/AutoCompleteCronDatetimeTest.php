@@ -29,6 +29,21 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	private const VEHICLE_ID = 3008;
 
 	/**
+	 * The four site clocks every zone test runs under.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function zones(): array
+	{
+		return array(
+			'Istanbul'     => array( 'Europe/Istanbul' ),
+			'New York'     => array( 'America/New_York' ),
+			'Auckland'     => array( 'Pacific/Auckland' ),
+			'fixed +03:00' => array( '+03:00' ),
+		);
+	}
+
+	/**
 	 * Create a vehicle_booking with realistic meta. Override fields via $opts.
 	 *
 	 * @param array<string, mixed> $opts
@@ -224,11 +239,18 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	/**
 	 * "Now" is the real instant, as `_mhmrentiva_end_ts` is. Reading the
 	 * site-shifted `current_time('timestamp')` made an Istanbul site complete
-	 * bookings three hours before they ended.
+	 * bookings three hours before they ended (and a New York site three-plus
+	 * hours late).
+	 *
+	 * @dataProvider zones
 	 */
-	public function test_autocomplete_uses_real_now(): void
+	public function test_autocomplete_uses_real_now(string $zone): void
 	{
-		$this->pin_site_timezone('Europe/Istanbul');
+		if ('+03:00' === $zone) {
+			$this->pin_site_offset(3);
+		} else {
+			$this->pin_site_timezone($zone);
+		}
 		$now = time();
 
 		$ended = $this->create_booking(array(

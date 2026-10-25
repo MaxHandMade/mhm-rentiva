@@ -17,10 +17,11 @@ use WP_UnitTestCase;
  * a site west or east of UTC labelled the wrong day for part of every day.
  *
  * The moment is passed in rather than read from the clock, so the test is the
- * same whatever hour the suite runs at. New York at 00:30 on 9 March 2026 is
- * the morning after the spring-forward night: a 23-hour day sits inside the
- * window, and half an hour after local midnight any reading that shifts by
- * the offset a second time lands on the previous day.
+ * same whatever hour the suite runs at. It is 00:30 local on 9 March 2026 in
+ * every zone -- half an hour after local midnight, where any reading that
+ * shifts by the offset a second time (or not at all) lands on another day.
+ * In New York it is the morning after the spring-forward night, so a 23-hour
+ * day sits inside the window.
  *
  * @covers \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::get_revenue_data
  */
@@ -28,10 +29,38 @@ final class DashboardDayBucketsTest extends WP_UnitTestCase
 {
 	use SiteClock;
 
-	public function test_last_seven_days_are_local_days(): void
+	private function pin_zone(string $zone): void
 	{
-		$this->pin_site_timezone('America/New_York');
-		$now = (int) SiteTime::instant('2026-03-09', '00:30');
+		if ('+03:00' === $zone) {
+			$this->pin_site_offset(3);
+			return;
+		}
+		$this->pin_site_timezone($zone);
+	}
+
+	/**
+	 * Each zone with the UTC instant of its local 2026-03-09 00:30 (New York
+	 * on EDT -4 since the 8th, Auckland on NZDT +13).
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function zones(): array
+	{
+		return array(
+			'Istanbul'     => array( 'Europe/Istanbul', '2026-03-08 21:30' ),
+			'New York'     => array( 'America/New_York', '2026-03-09 04:30' ),
+			'Auckland'     => array( 'Pacific/Auckland', '2026-03-08 11:30' ),
+			'fixed +03:00' => array( '+03:00', '2026-03-08 21:30' ),
+		);
+	}
+
+	/**
+	 * @dataProvider zones
+	 */
+	public function test_last_seven_days_are_local_days(string $zone, string $now_utc): void
+	{
+		$this->pin_zone($zone);
+		$now = (int) strtotime($now_utc . ' UTC');
 
 		$expected = array( '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09' );
 

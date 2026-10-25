@@ -15,14 +15,23 @@ use WP_UnitTestCase;
  * 21:00 to midnight local the calendar highlighted yesterday, and on the last
  * evening of a month it opened on the month that had just ended.
  *
- * The moment is passed in: 22:30 UTC on 31 October 2026 is 01:30 on
- * 1 November in Istanbul.
+ * The moment is passed in: 22:30 UTC on 31 October 2026. East of UTC that is
+ * already 1 November; in New York (still EDT, -4) it is 18:30 on the 31st.
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar
  */
 final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 {
 	use SiteClock;
+
+	private function pin_zone(string $zone): void
+	{
+		if ('+03:00' === $zone) {
+			$this->pin_site_offset(3);
+			return;
+		}
+		$this->pin_site_timezone($zone);
+	}
 
 	/**
 	 * @param array<int, mixed> $args
@@ -35,13 +44,31 @@ final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 		return $ref->invokeArgs(null, $args);
 	}
 
-	public function test_calendar_today_and_month_are_local(): void
+	/**
+	 * Zone, local month, yesterday, today, tomorrow at 2026-10-31 22:30 UTC.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: string}>
+	 */
+	public static function zones(): array
 	{
-		$this->pin_site_timezone('Europe/Istanbul');
+		return array(
+			'Istanbul'     => array( 'Europe/Istanbul', '2026-11', '2026-10-31', '2026-11-01', '2026-11-02' ),
+			'New York'     => array( 'America/New_York', '2026-10', '2026-10-30', '2026-10-31', '2026-11-01' ),
+			'Auckland'     => array( 'Pacific/Auckland', '2026-11', '2026-10-31', '2026-11-01', '2026-11-02' ),
+			'fixed +03:00' => array( '+03:00', '2026-11', '2026-10-31', '2026-11-01', '2026-11-02' ),
+		);
+	}
+
+	/**
+	 * @dataProvider zones
+	 */
+	public function test_calendar_today_and_month_are_local(string $zone, string $month, string $yesterday, string $today, string $tomorrow): void
+	{
+		$this->pin_zone($zone);
 		$now = gmmktime(22, 30, 0, 10, 31, 2026);
 
-		$this->assertSame('2026-11', $this->call('current_month', array( $now )), 'The default month is November.');
-		$this->assertSame('2026-11', $this->call('normalize_start_month', array( 'not-a-month', $now )), 'A malformed month falls back to the local month.');
+		$this->assertSame($month, $this->call('current_month', array( $now )), 'The default month is the local one.');
+		$this->assertSame($month, $this->call('normalize_start_month', array( 'not-a-month', $now )), 'A malformed month falls back to the local month.');
 
 		$vehicle_id = (int) self::factory()->post->create(
 			array(
@@ -50,12 +77,15 @@ final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 			)
 		);
 
-		$data = $this->call('get_availability_data', array( $vehicle_id, '2026-11', 1, $now ));
-		$days = $data['2026-11']['days'];
+		// October and November, so yesterday, today and tomorrow are all in view.
+		$data = $this->call('get_availability_data', array( $vehicle_id, '2026-10', 2, $now ));
+		$days = $data['2026-10']['days'] + $data['2026-11']['days'];
 
-		$this->assertTrue($days['2026-11-01']['is_today'], 'Local today is 1 November.');
-		$this->assertFalse($days['2026-11-01']['is_past']);
-		$this->assertFalse($days['2026-11-02']['is_today']);
-		$this->assertFalse($days['2026-11-02']['is_past']);
+		$this->assertTrue($days[ $today ]['is_today'], "Local today is {$today}.");
+		$this->assertFalse($days[ $today ]['is_past']);
+		$this->assertFalse($days[ $yesterday ]['is_today']);
+		$this->assertTrue($days[ $yesterday ]['is_past']);
+		$this->assertFalse($days[ $tomorrow ]['is_today']);
+		$this->assertFalse($days[ $tomorrow ]['is_past']);
 	}
 }

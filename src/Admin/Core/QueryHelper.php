@@ -21,13 +21,6 @@ class QueryHelper {
 
 
     /**
-     * Generates a NOT EXISTS subquery for vehicle availability.
-     *
-     * @param string $pickup_date Y-m-d format
-     * @param string $return_date Y-m-d format
-     * @return string SQL fragment
-     */
-    /**
      * $time on the site-local calendar day $date names, as a Unix timestamp;
      * null when $date is not a date.
      */
@@ -44,6 +37,13 @@ class QueryHelper {
         return \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($day, $time);
     }
 
+    /**
+     * Generates a NOT EXISTS subquery for vehicle availability.
+     *
+     * @param string $pickup_date Y-m-d format
+     * @param string $return_date Y-m-d format
+     * @return string SQL fragment
+     */
     public static function get_availability_subquery(string $pickup_date, string $return_date): string
     {
         global $wpdb;
