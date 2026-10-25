@@ -178,10 +178,10 @@ final class AddonSellabilityTest extends WP_UnitTestCase {
 	 * @return array<int, int>
 	 */
 	private function accept_submitted( array $request ): array {
-		$method = new ReflectionMethod( BookingForm::class, 'accept_submitted_addons' );
+		$method = new ReflectionMethod( BookingForm::class, 'accept_submitted_selection' );
 		$method->setAccessible( true );
 
-		return (array) $method->invoke( null, \MHMRentiva\Admin\Core\Security\VerifiedRequest::from( $request ) );
+		return $method->invoke( null, \MHMRentiva\Admin\Core\Security\VerifiedRequest::from( $request ) )->ids();
 	}
 
 	public function test_ajax_submit_cannot_buy_a_disabled_addon(): void {

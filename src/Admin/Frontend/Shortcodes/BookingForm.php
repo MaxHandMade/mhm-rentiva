@@ -731,19 +731,10 @@ final class BookingForm extends AbstractShortcode {
 	 * that had since been switched off, and a hand-made request could attach any
 	 * post on the site as a "service" -- the offered list is markup, and nothing
 	 * obliges a request to have come from it. AddonManager::filter_sellable()
-	 * is the refusal.
+	 * (inside AddonSelection::from_input()) is the refusal.
 	 *
-	 * @param VerifiedRequest $req Verified request.
-	 * @return array<int, int> Ids that may be sold, de-duplicated.
-	 */
-	private static function accept_submitted_addons(VerifiedRequest $req): array
-	{
-		return self::accept_submitted_selection($req)->ids();
-	}
-
-	/**
-	 * The accepted ids with their quantities (`addon_qty[<id>]`, Aşama 2 K12):
-	 * each clamped to its add-on's maximum, a missing one counted as 1.
+	 * Each accepted id carries its quantity (`addon_qty[<id>]`, Aşama 2 K12),
+	 * clamped to its add-on's maximum; a missing one counts as 1.
 	 *
 	 * @param VerifiedRequest $req Verified request.
 	 */
