@@ -6,7 +6,6 @@ namespace MHMRentiva\Admin\Frontend\Shortcodes\Rvs;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Core\CurrencyHelper;
-use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks;
@@ -32,11 +31,6 @@ if (! defined('ABSPATH')) {
  */
 final class VehicleDetailsView {
 
-	/**
-	 * Optional counts that are highlights even when not part of the admin's
-	 * detail selection: they are opt-in by being filled (K11).
-	 */
-	private const K11_KEYS = array( 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' );
 
 	/** The longest window the card quotes (days). */
 	private const MAX_QUOTE_DAYS = 366;
@@ -182,10 +176,11 @@ final class VehicleDetailsView {
 		return array(
 			'window'       => $window,
 			'days'         => $quote->days,
-			'breakdown'    => RvsBreakdown::from_quote($quote, $deposit),
+			'breakdown'    => RvsBreakdown::from_quote($quote, $deposit, array(), $rate),
+			// The payment step offers deposit or full payment (WooCommerceBridge);
+			// the card does not choose for the customer.
 			'deposit_text' => $rate > 0
-				/* translators: %s: deposit percentage, e.g. "10%". */
-				? sprintf(__('Only the deposit now (%s)', 'mhm-rentiva'), CurrencyHelper::format_percentage($rate))
+				? __('Choose deposit or full payment at the payment step', 'mhm-rentiva')
 				: __('Paid in full when booking', 'mhm-rentiva'),
 			'cancel_text'  => $hours > 0
 				/* translators: %d: hours before pickup. */
@@ -320,15 +315,16 @@ final class VehicleDetailsView {
 	}
 
 	/**
-	 * The admin's selected detail fields, any K11 count that has a value, then
-	 * the vehicle's active features (value "Yes").
+	 * Exactly the admin's "Vehicle Detail Highlighted Features" selection
+	 * (Vehicle Settings), in its order: details with their value, features as
+	 * "Yes". Nothing is added unasked (owner decision, PR B review); a selected
+	 * field without a value, or a Passive feature, is left out.
 	 *
 	 * @return list<array{key: string, label: string, value: string}>
 	 */
 	private static function highlights(int $vehicle_id): array
 	{
-		$out  = array();
-		$seen = array();
+		$out = array();
 		foreach (VehicleFeatureHelper::collect_detail_items($vehicle_id) as $item) {
 			$is_detail = VehicleFeatureHelper::TYPE_DETAIL === $item['type'];
 			$out[]     = array(
@@ -336,51 +332,6 @@ final class VehicleDetailsView {
 				'label' => $is_detail ? (string) $item['label'] : (string) $item['text'],
 				'value' => $is_detail ? (string) $item['text'] : __('Yes', 'mhm-rentiva'),
 			);
-			$seen[]    = $item['key'];
-		}
-
-		$labels = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_all_available_details();
-		$keys   = array(
-			'daily_km_limit'          => MetaKeys::DAILY_KM_LIMIT,
-			'min_driver_age'          => MetaKeys::MIN_DRIVER_AGE,
-			'min_license_years'       => MetaKeys::MIN_LICENSE_YEARS,
-			'vehicle_max_big_luggage' => MetaKeys::LUGGAGE_LARGE,
-		);
-		foreach (self::K11_KEYS as $key) {
-			if (in_array($key, $seen, true)) {
-				continue;
-			}
-			$formatted = VehicleFeatureHelper::format_detail_value($key, get_post_meta($vehicle_id, $keys[ $key ], true));
-			if (null !== $formatted) {
-				$out[]  = array(
-					'key'   => $key,
-					'label' => (string) ( $labels[ $key ] ?? $key ),
-					'value' => $formatted['text'],
-				);
-				$seen[] = $key;
-			}
-		}
-
-		// The vehicle's own features, as the old page listed them: a Passive one
-		// (removed in Field Definitions) does not render, a taxonomy-backed key
-		// passes through (D5).
-		$map      = VehicleFeatureHelper::get_available_fields_map();
-		$features = get_post_meta($vehicle_id, '_mhmrentiva_features', true);
-		foreach (is_array($features) ? $features : array() as $feature) {
-			$key = is_array($feature) ? sanitize_key( (string) ( $feature['key'] ?? $feature['slug'] ?? '' )) : sanitize_key( (string) $feature);
-			if ('' === $key || in_array($key, $seen, true)) {
-				continue;
-			}
-			$type = 0 === strpos($key, 'tax_') ? VehicleFeatureHelper::TYPE_TAXONOMY : VehicleFeatureHelper::TYPE_FEATURE;
-			if (! VehicleFeatureHelper::is_field_active($type, $key)) {
-				continue;
-			}
-			$out[]  = array(
-				'key'   => $key,
-				'label' => (string) ( $map[ $type ][ $key ]['label'] ?? ucfirst(str_replace(array( 'tax_', '_' ), array( '', ' ' ), $key)) ),
-				'value' => __('Yes', 'mhm-rentiva'),
-			);
-			$seen[] = $key;
 		}
 		return $out;
 	}

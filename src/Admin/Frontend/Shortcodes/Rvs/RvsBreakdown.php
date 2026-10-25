@@ -21,10 +21,11 @@ if (! defined('ABSPATH')) {
 final class RvsBreakdown {
 
 	/**
-	 * @param array<int, array{label: string, amount: float}> $addon_lines One row per add-on; when given, replaces the single add-on row.
-	 * @return array{rows: list<array{kind: string, label: string, amount: float, html: string}>, total: array{amount: float, html: string, suffix: string}, deposit: ?array{amount: float, html: string}, on_pickup: ?array{amount: float, html: string}}
+	 * @param array<int, array{label: string, amount: float}> $addon_lines  One row per add-on; when given, replaces the single add-on row.
+	 * @param float                                           $deposit_rate The deposit percentage, for the row's label ("Deposit (10%)").
+	 * @return array{rows: list<array{kind: string, label: string, amount: float, html: string}>, total: array{amount: float, html: string, suffix: string}, deposit: ?array{amount: float, html: string, label: string}, on_pickup: ?array{amount: float, html: string}}
 	 */
-	public static function from_quote(RentalQuote $quote, float $deposit = 0.0, array $addon_lines = array()): array
+	public static function from_quote(RentalQuote $quote, float $deposit = 0.0, array $addon_lines = array(), float $deposit_rate = 0.0): array
 	{
 		$days     = $quote->days;
 		$standard = $quote->rental_amount - $quote->weekend_surcharge;
@@ -64,7 +65,16 @@ final class RvsBreakdown {
 				'html'   => $total['html'],
 				'suffix' => $total['suffix'],
 			),
-			'deposit'   => $split ? self::money($deposit) : null,
+			// The deposit is named, not promised as "due now": the customer still
+			// chooses deposit or full payment at checkout.
+			'deposit'   => $split
+				? self::money($deposit) + array(
+					'label' => $deposit_rate > 0
+						/* translators: %s: deposit percentage, e.g. "10%". */
+						? sprintf(__('Deposit (%s)', 'mhm-rentiva'), \MHMRentiva\Admin\Core\CurrencyHelper::format_percentage($deposit_rate))
+						: __('Deposit', 'mhm-rentiva'),
+				)
+				: null,
 			'on_pickup' => $split ? self::money($quote->full_amount - $deposit) : null,
 		);
 	}

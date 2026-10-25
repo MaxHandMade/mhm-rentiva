@@ -63,6 +63,22 @@ final class RvsBreakdownTest extends WP_UnitTestCase
 		$this->assertNull($full['on_pickup']);
 	}
 
+	/**
+	 * Owner decision (PR B review): the deposit row names the deposit, not
+	 * "due now" -- the customer still chooses deposit or full payment at
+	 * checkout.
+	 */
+	public function test_deposit_row_names_the_rate_not_a_due_now_promise(): void
+	{
+		$b    = RvsBreakdown::from_quote(self::quote(), 335.0, array(), 10.0);
+		$html = (string) Templates::render('partials/rvs/breakdown', array( 'breakdown' => $b ), true);
+
+		$this->assertSame('Deposit (10%)', $b['deposit']['label']);
+		$this->assertStringContainsString('Deposit (10%)', $html);
+		$this->assertStringNotContainsString('Due now', $html);
+		$this->assertSame('Deposit', RvsBreakdown::from_quote(self::quote(), 335.0)['deposit']['label']);
+	}
+
 	public function test_addon_lines_replace_single_row(): void
 	{
 		$b = RvsBreakdown::from_quote(

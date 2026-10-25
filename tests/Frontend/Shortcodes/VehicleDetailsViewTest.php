@@ -116,6 +116,14 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertSame('Full to full.', $conditions[3]['text']);
 	}
 
+	public function test_card_says_deposit_or_full_payment_is_chosen_at_checkout(): void
+	{
+		$booking = $this->view()['booking'];
+
+		$this->assertSame('Choose deposit or full payment at the payment step', $booking['deposit_text']);
+		$this->assertSame('Deposit (10%)', $booking['breakdown']['deposit']['label']);
+	}
+
 	public function test_full_payment_condition_without_deposit(): void
 	{
 		$settings                                   = get_option('mhmrentiva_settings');
@@ -126,14 +134,32 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertNull($this->view()['booking']['breakdown']['deposit']);
 	}
 
-	public function test_highlights_follow_selected_detail_fields_and_k11_values(): void
+	/**
+	 * Owner decision (PR B review): the highlights are exactly the admin's
+	 * "Vehicle Detail Highlighted Features" selection -- nothing is appended.
+	 */
+	public function test_highlights_are_only_the_admin_selection(): void
 	{
 		update_post_meta($this->vehicle_id, MetaKeys::DAILY_KM_LIMIT, '300');
-		$labels = array_column($this->view()['highlights'], 'value', 'label');
+		update_post_meta($this->vehicle_id, '_mhmrentiva_features', array( 'bluetooth' ));
+		$this->select_detail_fields(array( array( 'detail', 'seats' ) ));
 
-		$this->assertArrayHasKey('Seats', $labels);
+		$this->assertSame(array( 'seats' ), array_column($this->view()['highlights'], 'key'), 'A filled K11 field or an active feature is not added unasked.');
+
+		$this->select_detail_fields(array( array( 'detail', 'seats' ), array( 'detail', 'daily_km_limit' ), array( 'detail', 'min_driver_age' ) ));
+		$labels = array_column($this->view()['highlights'], 'value', 'label');
 		$this->assertSame('300 km/day', $labels['Daily km limit'] ?? '');
-		$this->assertArrayNotHasKey('Minimum driver age', $labels, 'An empty K11 field is not drawn.');
+		$this->assertArrayNotHasKey('Minimum driver age', $labels, 'A selected but empty field is not drawn.');
+	}
+
+	/**
+	 * @param list<array{0: string, 1: string}> $fields type, key
+	 */
+	private function select_detail_fields(array $fields): void
+	{
+		$settings = get_option('mhmrentiva_settings');
+		$settings['mhmrentiva_vehicle_detail_fields'] = array_map(static fn(array $f): array => array( 'type' => $f[0], 'key' => $f[1] ), $fields);
+		update_option('mhmrentiva_settings', $settings);
 	}
 
 	public function test_booked_dates_cover_pickup_to_return(): void

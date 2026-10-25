@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-25T12:30:27+00:00\n"
+"POT-Creation-Date: 2026-10-25T13:10:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1714,7 +1714,7 @@ msgid "This vehicle is currently not available for rental. Please select another
 msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:482
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:234
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:232
 msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 
@@ -2148,11 +2148,13 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:212
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:465
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:324
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1018
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1022
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:479
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:829
+#: templates/partials/rvs/breakdown.php:55
 msgid "Deposit"
 msgstr ""
 
@@ -2356,7 +2358,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:645
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:183
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:132
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:228
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:230
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:118
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430
 msgid "An error occurred"
@@ -3379,7 +3381,7 @@ msgstr ""
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
 #: templates/shortcodes/search-results.php:315
-#: templates/shortcodes/vehicle-details.php:124
+#: templates/shortcodes/vehicle-details.php:134
 msgid "Compare"
 msgstr ""
 
@@ -3581,8 +3583,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:953
 #: src/Admin/Core/AssetManager.php:1501
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:334
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:378
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:333
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:127
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:139
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:151
@@ -3617,7 +3618,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:467
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:182
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:131
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:227
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:229
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:117
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:428
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
@@ -4381,7 +4382,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1526
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:306
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:229
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:231
 msgid "Please try again"
 msgstr ""
 
@@ -6697,7 +6698,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:424
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:403
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:139
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:230
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:232
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:208
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:677
@@ -6873,7 +6874,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:287
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:95
-#: templates/shortcodes/vehicle-details.php:189
+#: templates/shortcodes/vehicle-details.php:199
 msgid "Booked"
 msgstr ""
 
@@ -7280,13 +7281,13 @@ msgstr ""
 #. translators: %s: deposit percentage as written in the site's language, e.g. "10%" or "%10".
 #. translators: %s: deposit percentage, e.g. "10%".
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:286
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:397
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:351
 #, php-format
 msgid "Deposit %s"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:287
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:401
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:355
 msgid "Full payment"
 msgstr ""
 
@@ -7559,7 +7560,7 @@ msgid "An error occurred while loading shortcode."
 msgstr ""
 
 #. translators: 1: daily price, 2: number of rental days.
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:36
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:37
 #, php-format
 msgid "%1$s × %2$d day"
 msgid_plural "%1$s × %2$d days"
@@ -7567,19 +7568,25 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of rental days.
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:42
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:43
 #, php-format
 msgid "Rental, %d day"
 msgid_plural "Rental, %d days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:47
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:48
 msgid "Weekend difference"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:54
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:55
 msgid "Add-on services"
+msgstr ""
+
+#. translators: %s: deposit percentage, e.g. "10%".
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:74
+#, php-format
+msgid "Deposit (%s)"
 msgstr ""
 
 #. translators: 1: a date, 2: its availability (Available, Booked, Selected or Past).
@@ -7593,73 +7600,71 @@ msgid "Past"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:99
-#: templates/shortcodes/vehicle-details.php:188
+#: templates/shortcodes/vehicle-details.php:198
 msgid "Selected"
 msgstr ""
 
-#. translators: %s: deposit percentage, e.g. "10%".
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:185
-#, php-format
-msgid "Only the deposit now (%s)"
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:183
+msgid "Choose deposit or full payment at the payment step"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:186
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:184
 msgid "Paid in full when booking"
 msgstr ""
 
 #. translators: %d: hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:189
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:187
 #, php-format
 msgid "Free cancellation up to %d hour before pickup"
 msgid_plural "Free cancellation up to %d hours before pickup"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:223
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:221
 msgid "The pickup date has passed. Please choose another date."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:226
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:224
 msgid "Same-day pickup is not available. Please choose a later date."
 msgstr ""
 
 #. translators: %d: number of days ahead a booking can be made.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:231
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:229
 #, php-format
 msgid "Bookings can be made up to %d day ahead."
 msgid_plural "Bookings can be made up to %d days ahead."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:266
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:264
 msgid "Rental cars"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:398
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:352
 msgid "Paid when booking; the rest at pickup."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:402
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:356
 msgid "Paid in full when booking."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:408
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:362
 msgid "Free cancellation"
 msgstr ""
 
 #. translators: %d: hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:410
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:364
 #, php-format
 msgid "Up to %d hour before pickup."
 msgid_plural "Up to %d hours before pickup."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:415
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:369
 msgid "Security deposit"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:416
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:370
 msgid "Fuel policy"
 msgstr ""
 
@@ -7887,7 +7892,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:311
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:830
-#: templates/shortcodes/vehicle-details.php:176
+#: templates/shortcodes/vehicle-details.php:186
 msgid "Availability"
 msgstr ""
 
@@ -8100,12 +8105,12 @@ msgstr ""
 msgid "Too many price requests. Please wait."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:207
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:209
 msgid "Something went wrong. Please try again."
 msgstr ""
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:209
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:211
 #: templates/partials/vehicle-details/booking-card.php:36
 #, php-format
 msgid "%s day total"
@@ -8114,20 +8119,20 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:211
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #, php-format
 msgid "%s days total"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:231
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:233
 msgid "View Gallery"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:301
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:303
 msgid "No vehicle selected. Set a vehicle ID in the widget settings, or place this widget on a vehicle page."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:302
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:304
 msgid "Vehicle details are not available here."
 msgstr ""
 
@@ -14743,10 +14748,6 @@ msgstr ""
 msgid "Price breakdown"
 msgstr ""
 
-#: templates/partials/rvs/breakdown.php:55
-msgid "Due now (deposit)"
-msgstr ""
-
 #: templates/partials/rvs/breakdown.php:61
 msgid "Due at pickup"
 msgstr ""
@@ -15202,27 +15203,27 @@ msgstr ""
 msgid "Favorite"
 msgstr ""
 
-#: templates/shortcodes/vehicle-details.php:140
+#: templates/shortcodes/vehicle-details.php:150
 msgid "Highlights"
 msgstr ""
 
-#: templates/shortcodes/vehicle-details.php:154
+#: templates/shortcodes/vehicle-details.php:164
 msgid "About this vehicle"
 msgstr ""
 
-#: templates/shortcodes/vehicle-details.php:161
+#: templates/shortcodes/vehicle-details.php:171
 msgid "Rental conditions"
 msgstr ""
 
-#: templates/shortcodes/vehicle-details.php:178
+#: templates/shortcodes/vehicle-details.php:188
 msgid "Previous month"
 msgstr ""
 
-#: templates/shortcodes/vehicle-details.php:179
+#: templates/shortcodes/vehicle-details.php:189
 msgid "Next month"
 msgstr ""
 
-#: templates/shortcodes/vehicle-details.php:243
+#: templates/shortcodes/vehicle-details.php:253
 msgid "Similar vehicles"
 msgstr ""
 

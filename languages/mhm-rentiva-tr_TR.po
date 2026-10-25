@@ -1715,7 +1715,7 @@ msgid "This vehicle is currently not available for rental. Please select another
 msgstr "Bu araç şu anda kiralanamaz. Lütfen başka bir araç seçin."
 
 #: src/Admin/Booking/Helpers/Util.php:482
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:234
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:232
 msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr "Geçersiz tarih seçimi. Lütfen teslim alma ve dönüş tarihlerinizi kontrol edin."
 
@@ -2149,11 +2149,13 @@ msgstr "Ödeme türü"
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:212
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:465
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:324
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1018
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1022
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:479
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:829
+#: templates/partials/rvs/breakdown.php:55
 msgid "Deposit"
 msgstr "Kapora"
 
@@ -2357,7 +2359,7 @@ msgstr "Kaydediliyor..."
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:645
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:183
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:132
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:228
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:230
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:118
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430
 msgid "An error occurred"
@@ -3380,7 +3382,7 @@ msgstr "Favorilerden kaldırıldı."
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
 #: templates/shortcodes/search-results.php:315
-#: templates/shortcodes/vehicle-details.php:124
+#: templates/shortcodes/vehicle-details.php:134
 msgid "Compare"
 msgstr "Karşılaştır"
 
@@ -3582,8 +3584,7 @@ msgstr "Bakım"
 
 #: src/Admin/Core/AssetManager.php:953
 #: src/Admin/Core/AssetManager.php:1501
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:334
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:378
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:333
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:127
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:139
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:151
@@ -3618,7 +3619,7 @@ msgstr "Evet"
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:467
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:182
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:131
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:227
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:229
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:117
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:428
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
@@ -4382,7 +4383,7 @@ msgstr "Lütfen bekleyin..."
 
 #: src/Admin/Core/AssetManager.php:1526
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:306
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:229
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:231
 msgid "Please try again"
 msgstr "Lütfen yeniden deneyin"
 
@@ -6709,7 +6710,7 @@ msgstr "Araç bulunamadı"
 #: src/Admin/Frontend/Account/AccountRenderer.php:424
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:403
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:139
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:230
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:232
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:208
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:677
@@ -6885,7 +6886,7 @@ msgstr "Başka bir araç seçin"
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:287
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:95
-#: templates/shortcodes/vehicle-details.php:189
+#: templates/shortcodes/vehicle-details.php:199
 msgid "Booked"
 msgstr "Rezerve"
 
@@ -7671,7 +7672,7 @@ msgstr "Karşılaştırılan %d araç"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:311
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:830
-#: templates/shortcodes/vehicle-details.php:176
+#: templates/shortcodes/vehicle-details.php:186
 msgid "Availability"
 msgstr "Müsaitlik"
 
@@ -7864,15 +7865,15 @@ msgstr "Tavan rafı"
 msgid "Navigation"
 msgstr "Navigasyon sistemi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:231
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:233
 msgid "View Gallery"
 msgstr "Galeriyi görüntüle"
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:301
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:303
 msgid "No vehicle selected. Set a vehicle ID in the widget settings, or place this widget on a vehicle page."
 msgstr "Araç seçilmedi. Widget ayarlarından bir araç kimliği girin ya da bu widget'ı bir araç sayfasına yerleştirin."
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:302
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:304
 msgid "Vehicle details are not available here."
 msgstr "Araç detayları burada kullanılamıyor."
 
@@ -14643,11 +14644,11 @@ msgstr "Karşılaştırma listesi hazır!"
 msgid "Please add at least 2 vehicles to see the detailed comparison table."
 msgstr "Ayrıntılı karşılaştırma tablosunu görmek için en az 2 araç ekleyin."
 
-#: templates/shortcodes/vehicle-details.php:178
+#: templates/shortcodes/vehicle-details.php:188
 msgid "Previous month"
 msgstr "Önceki ay"
 
-#: templates/shortcodes/vehicle-details.php:179
+#: templates/shortcodes/vehicle-details.php:189
 msgid "Next month"
 msgstr "Sonraki ay"
 
@@ -15987,13 +15988,13 @@ msgstr "★ %s"
 #. translators: %s: deposit percentage as written in the site's language, e.g. "10%" or "%10".
 #. translators: %s: deposit percentage, e.g. "10%".
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:286
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:397
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:351
 #, php-format
 msgid "Deposit %s"
 msgstr "Kapora %s"
 
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:287
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:401
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:355
 msgid "Full payment"
 msgstr "Tam ödeme"
 
@@ -16257,7 +16258,7 @@ msgid "Please check back soon."
 msgstr "Lütfen yakında tekrar bakın."
 
 #. translators: 1: daily price, 2: number of rental days.
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:36
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:37
 #, php-format
 msgid "%1$s × %2$d day"
 msgid_plural "%1$s × %2$d days"
@@ -16265,18 +16266,18 @@ msgstr[0] "%1$s × %2$d gün"
 msgstr[1] "%1$s × %2$d gün"
 
 #. translators: %d: number of rental days.
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:42
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:43
 #, php-format
 msgid "Rental, %d day"
 msgid_plural "Rental, %d days"
 msgstr[0] "Kiralama, %d gün"
 msgstr[1] "Kiralama, %d gün"
 
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:47
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:48
 msgid "Weekend difference"
 msgstr "Hafta sonu farkı"
 
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:54
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:55
 msgid "Add-on services"
 msgstr "Ek hizmetler"
 
@@ -16291,7 +16292,7 @@ msgid "Past"
 msgstr "Geçmiş"
 
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:99
-#: templates/shortcodes/vehicle-details.php:188
+#: templates/shortcodes/vehicle-details.php:198
 msgid "Selected"
 msgstr "Seçili"
 
@@ -16300,61 +16301,51 @@ msgstr "Seçili"
 msgid "Price breakdown"
 msgstr "Fiyat dökümü"
 
-#: templates/partials/rvs/breakdown.php:55
-msgid "Due now (deposit)"
-msgstr "Şimdi ödenecek (kapora)"
-
 #: templates/partials/rvs/breakdown.php:61
 msgid "Due at pickup"
 msgstr "Teslimde ödenecek"
 
-#. translators: %s: deposit percentage, e.g. "10%".
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:185
-#, php-format
-msgid "Only the deposit now (%s)"
-msgstr "Şimdi yalnız kapora (%s)"
-
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:186
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:184
 msgid "Paid in full when booking"
 msgstr "Rezervasyonda tamamı ödenir"
 
 #. translators: %d: hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:189
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:187
 #, php-format
 msgid "Free cancellation up to %d hour before pickup"
 msgid_plural "Free cancellation up to %d hours before pickup"
 msgstr[0] "Teslim almadan %d saat öncesine kadar ücretsiz iptal"
 msgstr[1] "Teslim almadan %d saat öncesine kadar ücretsiz iptal"
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:266
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:264
 msgid "Rental cars"
 msgstr "Kiralık araçlar"
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:398
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:352
 msgid "Paid when booking; the rest at pickup."
 msgstr "Rezervasyonda ödenir; kalan tutar teslimde."
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:402
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:356
 msgid "Paid in full when booking."
 msgstr "Rezervasyonda tamamı ödenir."
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:408
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:362
 msgid "Free cancellation"
 msgstr "Ücretsiz iptal"
 
 #. translators: %d: hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:410
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:364
 #, php-format
 msgid "Up to %d hour before pickup."
 msgid_plural "Up to %d hours before pickup."
 msgstr[0] "Teslim almadan %d saat öncesine kadar."
 msgstr[1] "Teslim almadan %d saat öncesine kadar."
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:415
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:369
 msgid "Security deposit"
 msgstr "Depozito"
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:416
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:370
 msgid "Fuel policy"
 msgstr "Yakıt politikası"
 
@@ -16366,12 +16357,12 @@ msgstr "Geçersiz ay."
 msgid "Too many price requests. Please wait."
 msgstr "Çok fazla fiyat isteği. Lütfen bekleyin."
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:207
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:209
 msgid "Something went wrong. Please try again."
 msgstr "Bir sorun oluştu. Lütfen tekrar deneyin."
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:209
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:211
 #: templates/partials/vehicle-details/booking-card.php:36
 #, php-format
 msgid "%s day total"
@@ -16380,7 +16371,7 @@ msgstr[0] "%s gün toplam"
 msgstr[1] "%s gün toplam"
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:211
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #, php-format
 msgid "%s days total"
 msgstr "%s gün toplam"
@@ -16535,34 +16526,44 @@ msgstr "Konum yolu"
 msgid "Favorite"
 msgstr "Favori"
 
-#: templates/shortcodes/vehicle-details.php:140
+#: templates/shortcodes/vehicle-details.php:150
 msgid "Highlights"
 msgstr "Öne çıkanlar"
 
-#: templates/shortcodes/vehicle-details.php:154
+#: templates/shortcodes/vehicle-details.php:164
 msgid "About this vehicle"
 msgstr "Araç hakkında"
 
-#: templates/shortcodes/vehicle-details.php:161
+#: templates/shortcodes/vehicle-details.php:171
 msgid "Rental conditions"
 msgstr "Kiralama koşulları"
 
-#: templates/shortcodes/vehicle-details.php:243
+#: templates/shortcodes/vehicle-details.php:253
 msgid "Similar vehicles"
 msgstr "Benzer araçlar"
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:223
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:221
 msgid "The pickup date has passed. Please choose another date."
 msgstr "Teslim alma tarihi geçti. Lütfen başka bir tarih seçin."
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:226
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:224
 msgid "Same-day pickup is not available. Please choose a later date."
 msgstr "Aynı gün teslim alma yapılamıyor. Lütfen daha ileri bir tarih seçin."
 
 #. translators: %d: number of days ahead a booking can be made.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:231
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:229
 #, php-format
 msgid "Bookings can be made up to %d day ahead."
 msgid_plural "Bookings can be made up to %d days ahead."
 msgstr[0] "En fazla %d gün sonrası için rezervasyon yapılabilir."
 msgstr[1] "En fazla %d gün sonrası için rezervasyon yapılabilir."
+
+#. translators: %s: deposit percentage, e.g. "10%".
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:74
+#, php-format
+msgid "Deposit (%s)"
+msgstr "Kapora (%s)"
+
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:183
+msgid "Choose deposit or full payment at the payment step"
+msgstr "Ödeme adımında kapora ya da tamamını seçebilirsiniz"
