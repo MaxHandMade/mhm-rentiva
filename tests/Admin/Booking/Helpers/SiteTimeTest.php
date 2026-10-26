@@ -173,6 +173,42 @@ final class SiteTimeTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The booking horizon is N calendar days ahead, not N * 86400 seconds:
+	 * across a DST change the seconds land a day late or a day early.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string, 3: int, 4: string}>
+	 */
+	public static function days_ahead_cases(): array
+	{
+		return array(
+			'New York, spring night'   => array( 'America/New_York', '2026-03-07', '23:30', 1, '2026-03-08' ),
+			'New York, autumn night'   => array( 'America/New_York', '2026-11-01', '00:30', 1, '2026-11-02' ),
+			'New York, a year'         => array( 'America/New_York', '2026-03-07', '23:30', 365, '2027-03-07' ),
+			'Auckland, autumn night'   => array( 'Pacific/Auckland', '2026-04-04', '23:30', 1, '2026-04-05' ),
+			'Istanbul'                 => array( 'Europe/Istanbul', '2026-12-31', '23:59', 1, '2027-01-01' ),
+			'fixed +3:00'              => array( self::FIXED_PLUS_3, '2026-02-28', '00:00', 1, '2026-03-01' ),
+		);
+	}
+
+	/**
+	 * @dataProvider days_ahead_cases
+	 */
+	public function test_days_ahead_counts_calendar_days(string $zone, string $date, string $time, int $n, string $expected): void
+	{
+		$this->zone($zone);
+		$now = (int) SiteTime::instant($date, $time);
+
+		$this->assertSame($expected, SiteTime::days_ahead($n, $now));
+	}
+
+	public function test_days_ahead_without_now_is_from_today(): void
+	{
+		$this->zone('Europe/Istanbul');
+
+		$this->assertSame(SiteTime::today(), SiteTime::days_ahead(0));
+	}
+
+	/**
 	 * @return array<string, array{0: string, 1: int, 2: string}>
 	 */
 	public static function offset_cases(): array

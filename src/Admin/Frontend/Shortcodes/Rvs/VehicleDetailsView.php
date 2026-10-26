@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes\Rvs;
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Core\CurrencyHelper;
@@ -236,7 +237,7 @@ final class VehicleDetailsView {
 			return __('Same-day pickup is not available. Please choose a later date.', 'mhm-rentiva');
 		}
 		$advance = (int) SettingsCore::get('mhmrentiva_vehicle_advance_booking_days', 365);
-		if ($advance > 0 && $pick > (string) wp_date('Y-m-d', time() + $advance * DAY_IN_SECONDS)) {
+		if ($advance > 0 && $pick > SiteTime::days_ahead($advance)) {
 			/* translators: %d: number of days ahead a booking can be made. */
 			return sprintf(_n('Bookings can be made up to %d day ahead.', 'Bookings can be made up to %d days ahead.', $advance, 'mhm-rentiva'), $advance);
 		}

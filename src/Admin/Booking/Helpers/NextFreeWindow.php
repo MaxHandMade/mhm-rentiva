@@ -220,7 +220,7 @@ final class NextFreeWindow {
 
 	/**
 	 * The last local date a pickup may fall on: the vehicle page's limit,
-	 * today plus the advance booking days.
+	 * today plus the advance booking days, in calendar days.
 	 */
 	private static function last_pickup_date(): string
 	{
@@ -229,7 +229,7 @@ final class NextFreeWindow {
 			$advance = 365;
 		}
 
-		return (string) wp_date('Y-m-d', time() + $advance * DAY_IN_SECONDS);
+		return SiteTime::days_ahead($advance);
 	}
 
 	/**

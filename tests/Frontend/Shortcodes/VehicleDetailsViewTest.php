@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
@@ -274,6 +275,26 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 
 		$this->assertFalse($booking['available']);
 		$this->assertStringContainsString('30', $booking['message']);
+	}
+
+	/**
+	 * The last bookable day is today plus N calendar days in the site's
+	 * timezone -- the same helper "Earliest free" uses for its horizon.
+	 */
+	public function test_advance_limit_is_n_calendar_days_from_today(): void
+	{
+		$settings                                            = get_option('mhmrentiva_settings');
+		$settings['mhmrentiva_vehicle_advance_booking_days'] = 30;
+		update_option('mhmrentiva_settings', $settings);
+		$last  = SiteTime::days_ahead(30);
+		$after = SiteTime::days_ahead(31);
+
+		$on_last = $this->view(array( 'pickup_date' => $last, 'pickup_time' => '10:00', 'return_date' => SiteTime::days_ahead(33) ))['booking'];
+		$beyond  = $this->view(array( 'pickup_date' => $after, 'pickup_time' => '10:00', 'return_date' => SiteTime::days_ahead(34) ))['booking'];
+
+		$this->assertStringNotContainsString('days ahead', (string) $on_last['message']);
+		$this->assertFalse($beyond['available']);
+		$this->assertStringContainsString('30 days ahead', $beyond['message']);
 	}
 
 	public function test_past_pickup_is_not_bookable(): void
