@@ -840,13 +840,16 @@ final class Plugin {
 	 * Where the vehicle CPT permalink redirects: the vehicle page, with the
 	 * request's query args carried across.
 	 *
-	 * All args travel, not only this plugin's: the rental window (the "look from
-	 * that date" link of a booked search card, the booking form's "Change")
-	 * must survive the hop, and so must campaign args (utm_*, gclid) on a link
-	 * someone shared. Only the args WordPress routed the CPT request by are
-	 * dropped (VEHICLE_ROUTING_ARGS), and only scalar values travel; each is
-	 * URL-encoded onto a URL this site builds, so the target host never comes
-	 * from the request.
+	 * The rental window (the "look from that date" link of a booked search card,
+	 * the booking form's "Change") must survive the hop, and so must campaign
+	 * args (utm_*, gclid, fbclid) on a link someone shared. Dropped:
+	 * - the args the CPT request was routed by (VEHICLE_ROUTING_ARGS);
+	 * - WordPress's public query vars ($wp->public_query_vars, so it follows
+	 *   what core and other plugins register) other than this plugin's
+	 *   `mhmrentiva_*` ones: on the details page `s`, `feed`, `cat`, `paged` ...
+	 *   would re-route the request (a search, a feed) instead of showing the car.
+	 * Only scalar values travel; each is URL-encoded onto a URL this site
+	 * builds, so the target host never comes from the request.
 	 *
 	 * @param array<string, mixed> $query_args The request's unslashed query args.
 	 */
@@ -854,10 +857,15 @@ final class Plugin {
 	{
 		$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle->ID);
 
+		$wp_vars = isset($GLOBALS['wp']) && $GLOBALS['wp'] instanceof \WP ? (array) $GLOBALS['wp']->public_query_vars : array();
+
 		$carry = array();
 		foreach ($query_args as $key => $value) {
 			$key = (string) $key;
 			if (in_array($key, self::VEHICLE_ROUTING_ARGS, true) || ! is_scalar($value)) {
+				continue;
+			}
+			if (in_array($key, $wp_vars, true) && 0 !== strpos($key, 'mhmrentiva_')) {
 				continue;
 			}
 			$carry[ rawurlencode($key) ] = rawurlencode( (string) $value);

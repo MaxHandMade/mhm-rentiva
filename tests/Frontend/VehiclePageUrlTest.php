@@ -158,6 +158,44 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 		);
 	}
 
+	/**
+	 * Fix round 1 (m1): WordPress's own public query vars would re-route the
+	 * details-page request (`?s=x` turns it into a search, `?feed=rss2` into a
+	 * feed); they stay behind. The window and campaign tags still travel.
+	 */
+	public function test_redirect_url_drops_wordpress_query_vars(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		$this->details_page();
+
+		$this->assertContains('s', $GLOBALS['wp']->public_query_vars, 'Positive control: s is a WordPress public query var.');
+
+		$url = Plugin::vehicle_redirect_url(get_post($vehicle), array(
+			'mhmrentiva_pickup_date' => '2026-12-10',
+			'mhmrentiva_return_date' => '2026-12-13',
+			'utm_source'             => 'news',
+			'gclid'                  => 'g1',
+			'fbclid'                 => 'f1',
+			's'                      => 'x',
+			'feed'                   => 'rss2',
+			'cat'                    => '3',
+			'paged'                  => '2',
+			'author'                 => '1',
+		));
+
+		parse_str((string) wp_parse_url($url, PHP_URL_QUERY), $query);
+		$this->assertSame(
+			array(
+				'mhmrentiva_pickup_date' => '2026-12-10',
+				'mhmrentiva_return_date' => '2026-12-13',
+				'utm_source'             => 'news',
+				'gclid'                  => 'g1',
+				'fbclid'                 => 'f1',
+			),
+			$query
+		);
+	}
+
 	public function test_visiting_the_cpt_permalink_redirects_with_the_window(): void
 	{
 		$vehicle = ShortcodeFixtures::vehicle();
