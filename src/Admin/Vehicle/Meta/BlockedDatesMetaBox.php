@@ -45,7 +45,7 @@ final class BlockedDatesMetaBox {
 	}
 
 	public static function render( \WP_Post $post ): void {
-		$blocked = self::get_blocked_dates( $post->ID );
+		$blocked = BookingConflicts::stored_days( $post->ID );
 		$count   = count( $blocked );
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
 		?>
@@ -171,10 +171,13 @@ final class BlockedDatesMetaBox {
 	}
 
 	/**
-	 * Get blocked dates for a vehicle.
+	 * Get the vehicle's EFFECTIVE blocked dates.
 	 *
 	 * The list every availability check reads (BookingConflicts::blocked_days()):
 	 * read defensively and passed through `mhmrentiva_vehicle_blocked_days`.
+	 * For read-only views (REST, fleet matrix, list column). The writers in
+	 * this class read the stored list instead (BookingConflicts::stored_days()),
+	 * so a filter's answer is never written back into the meta.
 	 *
 	 * @param int $post_id Vehicle post ID.
 	 * @return string[] Array of date strings in Y-m-d format.
@@ -228,7 +231,7 @@ final class BlockedDatesMetaBox {
 			return new \WP_Error( 'invalid_date', __( 'Invalid date format.', 'mhm-rentiva' ) );
 		}
 
-		$dates = self::get_blocked_dates( $vehicle_id );
+		$dates = BookingConflicts::stored_days( $vehicle_id );
 		$key   = array_search( $date, $dates, true );
 
 		if ( false !== $key ) {
@@ -333,7 +336,7 @@ final class BlockedDatesMetaBox {
 		$notes = ! empty( $dates ) ? self::parse_notes_from_payload( $req, $dates ) : array();
 
 		if ( empty( $dates ) ) {
-			$dates = self::get_blocked_dates( $source_id );
+			$dates = BookingConflicts::stored_days( $source_id );
 			$notes = self::get_blocked_notes( $source_id );
 		}
 
@@ -417,7 +420,7 @@ final class BlockedDatesMetaBox {
 		// Prefer dates from browser payload (unsaved state); fall back to DB.
 		$dates_to_remove = self::parse_dates_from_payload( VerifiedRequest::from( $_POST ) );
 		if ( empty( $dates_to_remove ) ) {
-			$dates_to_remove = self::get_blocked_dates( $source_id );
+			$dates_to_remove = BookingConflicts::stored_days( $source_id );
 		}
 		if ( empty( $dates_to_remove ) ) {
 			wp_send_json_success( array( 'count' => 0 ) );
@@ -435,7 +438,7 @@ final class BlockedDatesMetaBox {
 
 		foreach ( $vehicles as $vid ) {
 			$vid      = (int) $vid;
-			$existing = self::get_blocked_dates( $vid );
+			$existing = BookingConflicts::stored_days( $vid );
 			$updated  = array_values( array_diff( $existing, $dates_to_remove ) );
 			update_post_meta( $vid, self::META_KEY, wp_json_encode( $updated ) );
 

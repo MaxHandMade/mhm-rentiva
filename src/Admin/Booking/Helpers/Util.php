@@ -395,7 +395,7 @@ final class Util {
 
 		// ⭐ Check from cache (but with shorter TTL for critical checks)
 		// Cache is useful for performance but can show stale data
-		// For critical operations, we'll use has_overlap_locked instead
+		// Decisions that write a booking use the locked count instead (BookingConflicts / Util::count_overlaps_locked()).
 		$cached_result = \MHMRentiva\Admin\Booking\Helpers\Cache::getAvailability($vehicle_id, $start_ts, $end_ts);
 		if ($cached_result !== null) {
 			// ⚠️ Cache hit - but verify with real-time check if result is "available"

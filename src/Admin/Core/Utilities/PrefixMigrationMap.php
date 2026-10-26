@@ -918,5 +918,16 @@ final class PrefixMigrationMap {
         // retry counter. New in 4.8.0, no legacy spelling.
         'mhmrentiva_booking_ts_normalised_480',
         'mhmrentiva_booking_ts_normalise_attempts',
+        // Cache generations (6.4.0, PR S): Cache::GENERATION_OPTION . $scope --
+        // the whole availability cache, one per vehicle
+        // (`mhmrentiva_cache_gen_avail_<vehicle id>`) and the vehicle-stats
+        // keys. New in 6.4.0, no legacy spelling; swept by the uninstaller's
+        // `mhmrentiva%` LIKE.
+        // The first entry is the dynamic prefix itself, as the option calls
+        // spell it (GENERATION_OPTION . $scope); the other two are its fixed
+        // members.
+        'mhmrentiva_cache_gen_',
+        'mhmrentiva_cache_gen_avail',
+        'mhmrentiva_cache_gen_vehicle_stats',
     ];
 }

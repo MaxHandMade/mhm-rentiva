@@ -398,17 +398,7 @@ final class BookingConflictsTest extends WP_UnitTestCase
 
 		BlockedDatesMetaBox::toggle_blocked_date($vehicle, '2027-11-11');
 
-		// The cached answer is gone from the database...
-		global $wpdb;
-		$this->assertSame(
-			0,
-			(int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", '%' . $wpdb->esc_like('mhmrentiva_avail_' . $vehicle . '_') . '%'))
-		);
-
-		// ...so the next request -- a fresh in-memory object cache -- answers "free".
-		// (Cache::invalidateVehicle() deletes rows, so within this one request
-		// get_transient() could still answer from memory.)
-		wp_cache_flush();
+		// Same request, no cache flush: the answer cached a moment ago is not served.
 		$this->assertTrue(Util::check_availability($vehicle, '2027-11-10', '10:00', '2027-11-12', '10:00')['ok']);
 	}
 }

@@ -167,6 +167,81 @@ final class BlockedDatesCacheTest extends WP_Ajax_UnitTestCase
 		$this->assertContains($this->other, $this->announced);
 	}
 
+	/**
+	 * A filter that adds 2027-02-02 and drops 2027-01-05, on every vehicle.
+	 */
+	private function filter_adds_and_drops(): void
+	{
+		add_filter(
+			'mhmrentiva_vehicle_blocked_days',
+			static function ($days) {
+				$days   = array_values(array_diff((array) $days, array( '2027-01-05' )));
+				$days[] = '2027-02-02';
+				return $days;
+			}
+		);
+	}
+
+	private function stored(int $vehicle_id): array
+	{
+		return (array) json_decode((string) get_post_meta($vehicle_id, '_mhmrentiva_blocked_dates', true), true);
+	}
+
+	/**
+	 * Review I1: the filter shapes what availability reads, never what is stored.
+	 */
+	public function test_toggle_stores_the_unfiltered_list(): void
+	{
+		update_post_meta($this->source, '_mhmrentiva_blocked_dates', '["2027-01-05"]');
+		$this->filter_adds_and_drops();
+
+		BlockedDatesMetaBox::toggle_blocked_date($this->source, '2027-01-04');
+
+		$this->assertSame(array( '2027-01-04', '2027-01-05' ), $this->stored($this->source));
+	}
+
+	public function test_the_meta_box_field_carries_the_unfiltered_list(): void
+	{
+		update_post_meta($this->source, '_mhmrentiva_blocked_dates', '["2027-01-05"]');
+		$this->filter_adds_and_drops();
+
+		ob_start();
+		BlockedDatesMetaBox::render(get_post($this->source));
+		$html = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression('/id="mhmrentiva_blocked_dates_value"\s+value="\[&quot;2027-01-05&quot;\]"/', $html);
+	}
+
+	public function test_remove_from_all_stores_the_unfiltered_list(): void
+	{
+		update_post_meta($this->other, '_mhmrentiva_blocked_dates', '["2027-01-05","2027-01-06"]');
+		$this->filter_adds_and_drops();
+		$_POST = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_remove_blocked_from_all'),
+			'vehicle_id' => (string) $this->source,
+			'dates'      => '["2027-01-06"]',
+		);
+
+		$this->dispatch('mhmrentiva_remove_blocked_dates_from_all');
+
+		$this->assertSame(array( '2027-01-05' ), $this->stored($this->other));
+	}
+
+	public function test_apply_to_all_without_payload_copies_the_stored_list(): void
+	{
+		update_post_meta($this->source, '_mhmrentiva_blocked_dates', '["2027-01-05"]');
+		$this->filter_adds_and_drops();
+		$_POST = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_apply_blocked_to_all'),
+			'vehicle_id' => (string) $this->source,
+		);
+
+		$this->dispatch('mhmrentiva_apply_blocked_dates_to_all');
+
+		$this->assertSame(array( '2027-01-05' ), $this->stored($this->other));
+		$this->assertSame(array( '2027-01-05' ), $this->stored($this->source));
+	}
+
 	public function test_apply_to_all_does_not_copy_active_penalty_days(): void
 	{
 		// The add-on names the source vehicle's penalty days; they are that

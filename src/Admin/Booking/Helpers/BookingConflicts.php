@@ -111,6 +111,22 @@ final class BookingConflicts {
 	}
 
 	/**
+	 * The vehicle's blocked days as stored: the same defensive read as
+	 * blocked_days(), without the filter.
+	 *
+	 * This is the list the blocked-day writers read, change and write back.
+	 * The filter's answer is what availability reads; storing it would make
+	 * a filter-added day permanent and lose a filter-dropped one on the next
+	 * unrelated write.
+	 *
+	 * @return list<string>
+	 */
+	public static function stored_days(int $vehicle_id): array
+	{
+		return self::clean_days(get_post_meta($vehicle_id, self::BLOCKED_META, true));
+	}
+
+	/**
 	 * The local days a window touches: local_date(start) ... local_date(end - 1).
 	 *
 	 * @return list<string>

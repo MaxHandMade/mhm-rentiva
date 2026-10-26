@@ -178,4 +178,23 @@ final class QueryHelperSearchWindowTest extends WP_UnitTestCase
 		$this->assertTrue($this->is_listed($vehicle, '2027-06-14', '2027-06-16', ''), 'From 14 Jun 15:00 the vehicle is back.');
 		$this->assertSame('', QueryHelper::get_availability_subquery('2027-06-10', '2027-06-10'), 'An empty window filters nothing.');
 	}
+
+	/**
+	 * Review m1: a malformed time must not open the filter -- it falls back to
+	 * the default pickup time, as the booking rule's own defaults do.
+	 */
+	public function test_a_malformed_time_falls_back_to_the_default(): void
+	{
+		$this->pin_zone('Europe/Istanbul');
+
+		$vehicle = $this->vehicle();
+		// 10 Jun 10:00 -> 12 Jun 10:00, Istanbul.
+		$this->booking($vehicle, self::utc('2027-06-10 07:00'), self::utc('2027-06-12 07:00'));
+
+		$this->assertFalse($this->is_listed($vehicle, '2027-06-10', '2027-06-11', '25:99'));
+		$this->assertFalse($this->is_listed($vehicle, '2027-06-10', '2027-06-11', 'noon'));
+
+		add_filter('mhmrentiva_default_pickup_time', static fn() => 'garbage');
+		$this->assertFalse($this->is_listed($vehicle, '2027-06-10', '2027-06-11', ''), 'A broken default falls back to 10:00.');
+	}
 }

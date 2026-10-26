@@ -1379,7 +1379,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		wp_cache_delete($vehicle_id, 'post_meta');
-		self::queue_blocked_day_notice(\MHMRentiva\Admin\Booking\Helpers\BookingConflicts::blocked_days_in($vehicle_id, $new_range['start_ts'], $new_range['end_ts']));
+		self::queue_blocked_day_notice($booking_id, \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::blocked_days_in($vehicle_id, $new_range['start_ts'], $new_range['end_ts']));
 
 		return 'free';
 	}
@@ -1395,30 +1395,47 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Leave a one-shot notice naming the closed days a booking the operator
 	 * just saved reaches (manual booking, booking edit). Nothing when there
-	 * are none.
+	 * are none. It is shown on that booking's edit screen only.
 	 *
 	 * @param list<string> $days `Y-m-d`, site-local.
 	 */
-	public static function queue_blocked_day_notice(array $days): void
+	public static function queue_blocked_day_notice(int $booking_id, array $days): void
 	{
-		if (array() === $days) {
+		if (array() === $days || $booking_id <= 0) {
 			return;
 		}
 
-		set_transient(self::blocked_day_notice_key(), array_values($days), 300);
+		set_transient(
+			self::blocked_day_notice_key(),
+			array(
+				'booking_id' => $booking_id,
+				'days'       => array_values($days),
+			),
+			300
+		);
 	}
 
 	/**
-	 * Show the closed-days notice once, then forget it.
+	 * Show the closed-days notice once, on the edit screen of the booking it
+	 * is about, then forget it. Any other screen leaves it waiting: "the
+	 * booking was saved anyway" next to an unrelated list would read as being
+	 * about something else.
 	 */
 	public static function show_blocked_day_notice(): void
 	{
-		$days = get_transient(self::blocked_day_notice_key());
-		if (false === $days) {
+		global $pagenow, $post;
+
+		$notice = get_transient(self::blocked_day_notice_key());
+		if (! is_array($notice) || ! isset($notice['booking_id'], $notice['days'])) {
+			return;
+		}
+
+		if ('post.php' !== $pagenow || ! $post instanceof \WP_Post || (int) $post->ID !== (int) $notice['booking_id']) {
 			return;
 		}
 
 		delete_transient(self::blocked_day_notice_key());
+		$days = $notice['days'];
 
 		$labels = array();
 		foreach ( (array) $days as $day) {
@@ -1443,7 +1460,7 @@ final class BookingMeta extends AbstractMetaBox {
 	/**
 	 * Does a booking in this status hold its vehicle right now?
 	 *
-	 * Mirrors Util::has_overlap_locked(): a pending booking whose payment
+	 * Mirrors the booking rule (BookingConflicts::PAYMENT_SQL): a pending booking whose payment
 	 * deadline has passed is not counted there, so its dates may already have
 	 * been sold. Re-confirming it is a change, not a no-op.
 	 */

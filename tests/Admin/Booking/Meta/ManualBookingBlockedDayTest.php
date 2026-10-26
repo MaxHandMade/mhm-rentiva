@@ -99,12 +99,26 @@ final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
 		return is_array($decoded) ? $decoded : array();
 	}
 
-	private function notice_output(): string
+	/**
+	 * Render the admin notices as on post.php for $post_id (0: some other screen).
+	 */
+	private function notice_output(int $post_id): string
 	{
-		ob_start();
-		BookingMeta::show_blocked_day_notice();
+		$saved_pagenow = $GLOBALS['pagenow'] ?? null;
+		$saved_post    = $GLOBALS['post'] ?? null;
 
-		return (string) ob_get_clean();
+		$GLOBALS['pagenow'] = $post_id > 0 ? 'post.php' : 'edit.php';
+		$GLOBALS['post']    = $post_id > 0 ? get_post($post_id) : null;
+
+		try {
+			ob_start();
+			BookingMeta::show_blocked_day_notice();
+
+			return (string) ob_get_clean();
+		} finally {
+			$GLOBALS['pagenow'] = $saved_pagenow;
+			$GLOBALS['post']    = $saved_post;
+		}
 	}
 
 	public function test_admin_paths_save_and_warn_on_blocked_day(): void
@@ -112,9 +126,15 @@ final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
 		$response = $this->create();
 
 		$this->assertTrue($response['success'] ?? false, 'The operator is not refused: ' . (string) $this->_last_response);
-		$this->assertSame(array( '2027-10-11' ), get_transient($this->notice_key()));
+		$booking_id = (int) $response['data']['booking_id'];
+		$this->assertSame(array( 'booking_id' => $booking_id, 'days' => array( '2027-10-11' ) ), get_transient($this->notice_key()));
 
-		$html = $this->notice_output();
+		// Review m3: not on another screen -- and it waits for the booking's own.
+		$this->assertSame('', $this->notice_output(0));
+		$this->assertSame('', $this->notice_output($this->vehicle_id));
+		$this->assertNotFalse(get_transient($this->notice_key()));
+
+		$html = $this->notice_output($booking_id);
 		$this->assertStringContainsString(
 			esc_html(sprintf(
 				/* translators: %s: list of closed days. */
@@ -125,7 +145,7 @@ final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
 		);
 		$this->assertStringContainsString('notice-warning', $html);
 		$this->assertFalse(get_transient($this->notice_key()), 'Shown once, then gone.');
-		$this->assertSame('', $this->notice_output());
+		$this->assertSame('', $this->notice_output($booking_id));
 	}
 
 	public function test_no_notice_when_no_day_is_closed(): void
@@ -162,7 +182,11 @@ final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
 
 		$response = $this->create();
 		$this->assertTrue($response['success'] ?? false, 'The booking is saved: ' . (string) $this->_last_response);
-		$this->assertSame(array( '2027-10-11' ), get_transient($this->notice_key()), 'And the operator is warned.');
+		$this->assertSame(
+			array( 'booking_id' => (int) $response['data']['booking_id'], 'days' => array( '2027-10-11' ) ),
+			get_transient($this->notice_key()),
+			'And the operator is warned.'
+		);
 	}
 
 	public function test_a_real_booking_conflict_still_refuses_the_operator(): void

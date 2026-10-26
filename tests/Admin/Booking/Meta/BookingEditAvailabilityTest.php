@@ -423,7 +423,7 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 
 		$this->assertTrue(BookingMeta::edit_availability_allowed($booking_id));
 		$this->assertSame('12:00', get_post_meta($booking_id, '_mhmrentiva_end_time', true));
-		$this->assertSame(array( '2027-03-11' ), $this->blocked_day_notice(), 'Saved, and the operator is told.');
+		$this->assertSame(array( 'booking_id' => $booking_id, 'days' => array( '2027-03-11' ) ), $this->blocked_day_notice(), 'Saved, and the operator is told.');
 	}
 
 	public function test_admin_edit_onto_a_blocked_day_saves_and_warns(): void
@@ -440,7 +440,7 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		);
 
 		$this->assertSame('2027-04-01', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true));
-		$this->assertSame(array( '2027-04-02' ), $this->blocked_day_notice());
+		$this->assertSame(array( 'booking_id' => $booking_id, 'days' => array( '2027-04-02' ) ), $this->blocked_day_notice());
 		$this->assertFalse(get_transient('mhmrentiva_booking_notice_' . get_current_user_id()), 'No refusal notice.');
 	}
 

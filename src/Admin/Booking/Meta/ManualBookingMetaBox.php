@@ -963,7 +963,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Saved, so name any closed day it reaches on the edit screen the
 		// operator is sent to next.
 		wp_cache_delete($vehicle_id, 'post_meta');
-		BookingMeta::queue_blocked_day_notice(BookingConflicts::blocked_days_in($vehicle_id, $start_ts, $end_ts));
+		BookingMeta::queue_blocked_day_notice($booking_id, BookingConflicts::blocked_days_in($vehicle_id, $start_ts, $end_ts));
 
 		// Save manual booking type
 		update_post_meta($booking_id, '_mhmrentiva_booking_type', 'manual');

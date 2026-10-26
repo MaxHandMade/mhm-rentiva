@@ -52,8 +52,14 @@ class QueryHelper {
             return '';
         }
 
-        if ('' === $pickup_time) {
+        // A time that is not a time (or a default filter answering garbage)
+        // falls back -- it must not switch the filter off and list every
+        // booked vehicle as free.
+        if (1 !== preg_match('/^\d{2}:\d{2}$/', $pickup_time) || null === \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, $pickup_time)) {
             $pickup_time = (string) apply_filters('mhmrentiva_default_pickup_time', '10:00');
+        }
+        if (1 !== preg_match('/^\d{2}:\d{2}$/', $pickup_time) || null === \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, $pickup_time)) {
+            $pickup_time = '10:00';
         }
 
         $start_ts = \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, $pickup_time);
