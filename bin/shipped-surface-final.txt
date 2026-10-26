@@ -55,7 +55,6 @@ assets/css/admin/vehicle-gallery.css
 assets/css/admin/vehicle-list.css
 assets/css/admin/vehicle-settings-v2.css
 assets/css/admin/vehicle-settings.css
-assets/css/components/addon-booking.css
 assets/css/components/calendars.css
 assets/css/components/stats-cards.css
 assets/css/components/vehicle-meta.css
@@ -126,7 +125,6 @@ assets/js/admin/vehicle-card-fields.js
 assets/js/admin/vehicle-gallery.js
 assets/js/admin/vehicle-settings-v2.js
 assets/js/admin/vehicle-settings.js
-assets/js/components/addon-booking.js
 assets/js/components/vehicle-meta.js
 assets/js/components/vehicle-quick-edit.js
 assets/js/core/core.js

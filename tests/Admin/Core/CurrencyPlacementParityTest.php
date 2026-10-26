@@ -84,8 +84,6 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
                 => self::callPrivate(\MHMRentiva\Admin\Booking\Meta\BookingMeta::class, 'format_price', $a),
             'BookingColumns::format_price' => static fn (float $a): string
                 => self::callPrivate(\MHMRentiva\Admin\Booking\ListTable\BookingColumns::class, 'format_price', $a),
-            'AddonBooking::format_addon_price' => static fn (float $a): string
-                => self::callPrivate(\MHMRentiva\Admin\Booking\Addons\AddonBooking::class, 'format_addon_price', $a),
             'ManualBookingMetaBox::format_addon_price' => static fn (float $a): string
                 => self::callPrivate(\MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox::class, 'format_addon_price', $a),
             'VehicleColumns::format_currency' => static fn (float $a): string
@@ -117,7 +115,6 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
             'BookingDepositMetaBox::format_price'     => 2,
             'BookingMeta::format_price'               => 2,
             'BookingColumns::format_price'            => 2,
-            'AddonBooking::format_addon_price'        => 2,
             'ManualBookingMetaBox::format_addon_price' => 2,
             'VehicleColumns::format_currency'         => 2,
             'AddonManager::format_addon_price'        => 2,
