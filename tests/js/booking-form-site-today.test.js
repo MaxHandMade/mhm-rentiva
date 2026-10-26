@@ -39,15 +39,15 @@ describe( 'booking form: limits start from the site today', () => {
 
 	test( 'pickup min is the site today, return min is the day after', () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper">
-				<input class="rv-pickup-date"><input class="rv-dropoff-date">
+			<div class="rvs-booking" data-rvs-booking-form>
+				<input name="pickup_date" data-rvs-pickup-date><input name="dropoff_date" data-rvs-dropoff-date>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
+		form.container = $( '[data-rvs-booking-form]' );
 		form.setupDateValidation();
 
-		expect( form.container.find( '.rv-pickup-date' ).attr( 'min' ) ).toBe( '2026-11-02' );
-		expect( form.container.find( '.rv-dropoff-date' ).attr( 'min' ) ).toBe( '2026-11-03' );
+		expect( form.container.find( '[data-rvs-pickup-date]' ).attr( 'min' ) ).toBe( '2026-11-02' );
+		expect( form.container.find( '[data-rvs-dropoff-date]' ).attr( 'min' ) ).toBe( '2026-11-03' );
 	} );
 
 	test( 'numeric minDate/maxDate offsets count from the site today', () => {
@@ -75,9 +75,9 @@ describe( 'booking form: limits start from the site today', () => {
 			config: { advance_booking_days: 30 },
 			datepicker_options: { dateFormat: 'yy-mm-dd', minDate: 0, maxDate: 365 },
 		};
-		document.body.innerHTML = '<div class="rv-booking-form-wrapper"><input class="rv-date-input"></div>';
+		document.body.innerHTML = '<div class="rvs-booking" data-rvs-booking-form><input name="pickup_date" data-rvs-pickup-date></div>';
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
+		form.container = $( '[data-rvs-booking-form]' );
 		form.initializeDatePickers();
 
 		expect( calls.length ).toBe( 1 );
@@ -100,17 +100,17 @@ describe( 'booking form: limits start from the site today', () => {
 			}
 			return this;
 		};
-		document.body.innerHTML = '<div class="rv-booking-form-wrapper"><input class="rv-pickup-date"><input class="rv-dropoff-date"></div>';
+		document.body.innerHTML = '<div class="rvs-booking" data-rvs-booking-form><input name="pickup_date" data-rvs-pickup-date><input name="dropoff_date" data-rvs-dropoff-date></div>';
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
+		form.container = $( '[data-rvs-booking-form]' );
 		form.autoCheckAvailability = jest.fn();
 		form.defaultReturnDays = () => 3;
 		form.setupDateValidation();
 
-		$( '.rv-pickup-date' ).val( '2026-11-02' ).trigger( 'change' );
+		$( '[data-rvs-pickup-date]' ).val( '2026-11-02' ).trigger( 'change' );
 
-		expect( $( '.rv-dropoff-date' ).attr( 'min' ) ).toBe( '2026-11-03' );
+		expect( $( '[data-rvs-dropoff-date]' ).attr( 'min' ) ).toBe( '2026-11-03' );
 		expect( BookingForm.localIso( state.minDate ) ).toBe( '2026-11-03' );
-		expect( $( '.rv-dropoff-date' ).val() ).toBe( '2026-11-05' );
+		expect( $( '[data-rvs-dropoff-date]' ).val() ).toBe( '2026-11-05' );
 	} );
 } );

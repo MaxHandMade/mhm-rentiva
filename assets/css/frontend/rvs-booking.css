@@ -112,6 +112,24 @@
 	color: var(--rvs-alert);
 }
 
+.rvs-shell .rvs-booking__status-text {
+	margin: 0;
+}
+
+/* Suggested vehicles under an "unavailable" answer: rvs cards, two a row. */
+.rvs-shell .rvs-booking__alternatives {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+	margin-top: var(--rvs-s3);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-booking__alternatives-title {
+	margin: 0;
+	font-weight: 600;
+}
+
 .rvs-shell .rvs-booking__availability[hidden],
 .rvs-shell .rvs-booking__messages[hidden] {
 	display: none;
@@ -374,8 +392,11 @@
 
 /* Datepicker popup while it serves the booking form (R6) --------------------- */
 
-/* The popup takes the shell's tokens, not its page container. */
+/* The popup takes the shell's tokens, not its page container. jQuery UI writes
+   an inline z-index one above the input's stack; on a phone that leaves the
+   popup under the fixed summary band (9990), so it is raised past it here. */
 .rvs-shell.rvs-dp {
+	z-index: 9991 !important;
 	max-width: none;
 	margin: 0;
 	padding: var(--rvs-s3);

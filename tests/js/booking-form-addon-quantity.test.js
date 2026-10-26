@@ -22,35 +22,41 @@ describe( 'booking form add-on quantities', () => {
 		$.datepicker = { parseDate: () => null, setDefaults: () => {} };
 		window.mhmRentivaBookingForm = { config: { enable_deposit: true }, strings: {}, ajax_url: '/ajax', nonce: 'n' };
 
+		delete window.MHMRvsStepper;
+		require( '../../assets/js/frontend/rvs-stepper.js' );
 		require( '../../assets/js/frontend/booking-form.js' );
 		BookingForm = window.MHMRentivaBookingForm;
 	} );
 
 	const setup = () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper" data-vehicle-id="5">
-				<form class="rv-booking-form-content">
+			<div class="rvs-booking" data-rvs-booking-form data-vehicle-id="5">
+				<form class="rvs-booking__form">
 					<input type="hidden" name="payment_type" value="full">
-					<input type="text" class="rv-pickup-date" value="2027-07-12">
-					<input type="text" class="rv-dropoff-date" value="2027-07-14">
-					<label><input type="checkbox" class="rv-addon-checkbox" value="11" checked>
-						<input type="number" class="rv-addon-qty" name="addon_qty[11]" data-addon-id="11" value="3"></label>
-					<label><input type="checkbox" class="rv-addon-checkbox" value="12">
-						<input type="number" class="rv-addon-qty" name="addon_qty[12]" data-addon-id="12" value="2"></label>
-					<label><input type="checkbox" class="rv-addon-checkbox" value="13" checked></label>
+					<input type="text" name="pickup_date" data-rvs-pickup-date value="2027-07-12">
+					<input type="text" name="dropoff_date" data-rvs-dropoff-date value="2027-07-14">
+					<div class="rvs-stepper" data-rvs-stepper="11" data-min="0" data-max="3">
+						<button type="button" data-rvs-step="-1">-</button><output>3</output><button type="button" data-rvs-step="1">+</button>
+						<input type="hidden" name="addons[]" value="11">
+						<input type="hidden" name="addon_qty[11]" value="3">
+					</div>
+					<div class="rvs-stepper" data-rvs-stepper="12" data-min="0" data-max="3">
+						<button type="button" data-rvs-step="-1">-</button><output>0</output><button type="button" data-rvs-step="1">+</button>
+						<input type="hidden" name="addons[]" value="12" disabled>
+						<input type="hidden" name="addon_qty[12]" value="0" disabled>
+					</div>
+					<label class="rvs-option"><input type="checkbox" name="addons[]" value="13" checked></label>
 				</form>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
 		form.showLoading = () => {};
 		form.hideMessages = () => {};
 		form.validateCalculationData = () => true;
 		form.validateForm = () => true;
 		form.submitBtn = $( '<button>' );
-		form.paymentTypeRadios = form.form.find( 'input[name="payment_type"]' );
-		form.paymentMethodRadios = $( [] );
-		form.onlinePaymentDetails = $( [] );
+		window.MHMRvsStepper.init( form.container[ 0 ] );
 		return form;
 	};
 
@@ -64,7 +70,7 @@ describe( 'booking form add-on quantities', () => {
 		form.autoCalculatePrice = jest.fn();
 		form.bindEvents();
 
-		form.form.find( '.rv-addon-qty[data-addon-id="11"]' ).val( '2' ).trigger( 'change' );
+		form.container.find( '[data-rvs-stepper="11"] [data-rvs-step="-1"]' )[ 0 ].click();
 		expect( form.autoCalculatePrice ).toHaveBeenCalled();
 
 		$.ajax = jest.fn();

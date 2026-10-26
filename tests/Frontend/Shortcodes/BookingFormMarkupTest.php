@@ -185,6 +185,28 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertSame('10:00', $query['mhmrentiva_pickup_time'] ?? null);
 	}
 
+	/**
+	 * show_time_select="0" books 12:00 (the hidden fields); the summary's window
+	 * says so instead of the time the URL carried.
+	 */
+	public function test_summary_window_shows_the_fixed_time_without_a_time_select(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_start_date=2026-11-06&mhmrentiva_end_date=2026-11-09&mhmrentiva_pickup_time=09:30');
+
+		$html = $this->render(array( 'show_time_select' => '0' ), true, false);
+
+		$this->assertSame(1, preg_match('#data-rvs-summary-dates>([^<]*)<#', $html, $m), 'The window line renders.');
+		$this->assertStringContainsString('12:00', $m[1]);
+		$this->assertStringNotContainsString('09:30', $m[1]);
+
+		// Positive control: with the time select the URL's time is the booked one.
+		$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_start_date=2026-11-06&mhmrentiva_end_date=2026-11-09&mhmrentiva_pickup_time=09:30');
+		$with = $this->render(array(), true, false);
+		$this->assertSame(1, preg_match('#data-rvs-summary-dates>([^<]*)<#', $with, $w));
+		$this->assertStringContainsString('09:30', $w[1]);
+	}
+
 	public function test_details_url_forwards_only_known_keys(): void
 	{
 		$vehicle = ShortcodeFixtures::vehicle();
@@ -295,6 +317,8 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-booking', 'enqueued'), 'rvs-booking.css is enqueued.');
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-forms', 'enqueued'));
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-breakdown', 'enqueued'));
+		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-card', 'enqueued'), 'Alternative vehicles are rvs cards.');
+		$this->assertStringContainsString('"processing":"Processing..."', (string) wp_scripts()->get_data('mhm-rentiva-booking-form', 'data'), 'The submit busy label is localized.');
 		$this->assertFalse(wp_style_is('mhm-rentiva-datepicker-custom', 'enqueued'), 'The form does not load datepicker-custom.css (R6).');
 		$this->assertFalse(wp_style_is('mhm-rentiva-rentiva-booking-form', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-booking-form', 'enqueued'));

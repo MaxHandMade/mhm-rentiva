@@ -342,6 +342,41 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 
 	// ------------------------------------------------- L-2: payment type
 
+	/**
+	 * Aşama 2 PR C (Fable m8): each suggested vehicle carries its page link with
+	 * the window, so the summary's "Change" link can follow the one chosen.
+	 */
+	public function test_alternatives_carry_their_vehicle_page_link(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_status', 'maintenance');
+		$other = (int) self::factory()->post->create(
+			array(
+				'post_type'   => 'mhmrentiva_vehicle',
+				'post_status' => 'publish',
+				'post_title'  => 'Server Rules Alternative',
+			)
+		);
+		update_post_meta($other, '_mhmrentiva_price_per_day', '900');
+		update_post_meta($other, '_mhmrentiva_vehicle_status', 'active');
+
+		$response = $this->dispatch('mhmrentiva_check_availability');
+
+		$this->assertSame('unavailable_with_alternatives', $response['data']['code'] ?? null, wp_json_encode($response));
+		$found = null;
+		foreach ( (array) $response['data']['alternatives'] as $alternative) {
+			if ( (int) $alternative['id'] === $other) {
+				$found = $alternative;
+			}
+		}
+		$this->assertIsArray($found, 'The other vehicle is suggested.');
+		$link = (string) ( $found['permalink'] ?? '' );
+		$this->assertStringStartsWith(get_permalink($other), $link);
+		parse_str((string) wp_parse_url($link, PHP_URL_QUERY), $query);
+		$this->assertSame($this->day(10), $query['mhmrentiva_pickup_date'] ?? null);
+		$this->assertSame($this->day(12), $query['mhmrentiva_return_date'] ?? null);
+		$this->assertSame('10:00', $query['mhmrentiva_pickup_time'] ?? null);
+	}
+
 	public function test_submission_refuses_an_unknown_payment_type(): void
 	{
 		$response = $this->dispatch('mhmrentiva_booking_form', array( 'payment_type' => 'later' ));

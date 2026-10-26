@@ -28,28 +28,18 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 	const setup = () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper">
-				<form class="rv-booking-form-content">
+			<div class="rvs-booking" data-rvs-booking-form data-rvs-deposit="1">
+				<form class="rvs-booking__form">
 					<input type="hidden" name="payment_type" value="deposit">
+					<div class="rvs-booking__summary" data-rvs-summary>
+						<div class="rvs-booking__breakdown" data-rvs-breakdown></div>
+					</div>
+					<strong data-rvs-total>-</strong><span data-rvs-bar-deposit hidden></span>
 				</form>
-				<span class="rv-total-amount"></span>
-				<div class="rv-deposit-summary rv-hidden"><span class="rv-deposit-amount"></span></div>
-				<div class="rv-remaining-summary rv-hidden"><span class="rv-remaining-amount"></span></div>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
-		const stub = () => ( { text: () => {} } );
-		form.priceElements = {
-			dailyPrice: stub(),
-			daysCount: stub(),
-			weekendDiffAmount: stub(),
-			vehicleTotal: stub(),
-			addonsTotal: stub(),
-			totalAmount: form.container.find( '.rv-total-amount' ),
-			depositAmount: form.container.find( '.rv-deposit-amount' ),
-			remainingAmount: form.container.find( '.rv-remaining-amount' ),
-		};
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
 		form.formatMoney = ( amount ) => String( amount );
 		return form;
 	};
@@ -74,9 +64,9 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 		form.updatePriceDisplay( quote() );
 
-		expect( form.container.find( '.rv-total-amount .amount' ).text() ).toBe( '$3.600,00' );
-		expect( form.container.find( '.rv-deposit-amount .amount' ).text() ).toBe( '$360,80' );
-		expect( form.container.find( '.rv-remaining-amount .amount' ).text() ).toBe( '$3.239,20' );
+		expect( form.container.find( '.rvs-breakdown__amount .amount' ).text() ).toBe( '$3.600,00' );
+		expect( form.container.find( '.rvs-breakdown__deposit .amount' ).text() ).toBe( '$360,80' );
+		expect( form.container.find( '.rvs-breakdown__pickup .amount' ).text() ).toBe( '$3.239,20' );
 	} );
 
 	test( 'WooCommerce price suffix is shown next to the total', () => {
@@ -84,7 +74,7 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 		form.updatePriceDisplay( quote() );
 
-		expect( form.container.find( '.rv-total-amount .woocommerce-price-suffix' ).text() ).toBe( 'incl. VAT' );
+		expect( form.container.find( '.rvs-breakdown__total .woocommerce-price-suffix' ).text() ).toBe( 'incl. VAT' );
 	} );
 
 	test( 'falls back to the raw amounts when display amounts are absent', () => {
@@ -92,18 +82,14 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 
 		form.updatePriceDisplay( quote( { display_total: undefined, display_deposit: undefined, display_remaining: undefined, price_suffix: undefined } ) );
 
-		expect( form.container.find( '.rv-total-amount' ).text() ).toBe( '3000' );
-		expect( form.container.find( '.rv-deposit-amount' ).text() ).toBe( '300' );
-		expect( form.container.find( '.rv-total-amount .woocommerce-price-suffix' ).length ).toBe( 0 );
+		expect( form.container.find( '.rvs-breakdown__amount' ).text() ).toBe( '3000' );
+		expect( form.container.find( '.rvs-breakdown__deposit strong' ).text() ).toBe( '300' );
+		expect( form.container.find( '.rvs-breakdown__total .woocommerce-price-suffix' ).length ).toBe( 0 );
 	} );
 
 	test( 'breakdown rows use the display markup so they add up to the total', () => {
 		const form = setup();
-		const seen = {};
-		const capture = ( key ) => ( { html: ( v ) => { seen[ key ] = v; }, text: ( v ) => { seen[ key ] = 'text:' + v; } } );
-		form.priceElements.dailyPrice = capture( 'daily' );
-		form.priceElements.vehicleTotal = capture( 'vehicle' );
-		form.priceElements.addonsTotal = capture( 'addons' );
+		const row = ( kind ) => form.container.find( '.rvs-breakdown__row--' + kind + ' dd' ).html();
 
 		form.updatePriceDisplay( quote( {
 			vehicle_total: 3315,
@@ -116,6 +102,7 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 			},
 		} ) );
 
+		const seen = { daily: row( 'daily' ), vehicle: row( 'rental' ), addons: row( 'addon' ) };
 		expect( seen ).toEqual( { daily: '$1.020,00', vehicle: '$3.978,00', addons: '$30,00' } );
 	} );
 
@@ -128,7 +115,7 @@ describe( 'booking form shows the quote through WooCommerce display amounts', ()
 			display_remaining: { amount: 2700, html: '<span class="amount">$2.700,00</span>', tax_label: label },
 		} ) );
 
-		expect( form.container.find( '.rv-deposit-amount .tax_label' ).text() ).toBe( '(ex. VAT)' );
-		expect( form.container.find( '.rv-remaining-amount .tax_label' ).text() ).toBe( '(ex. VAT)' );
+		expect( form.container.find( '.rvs-breakdown__deposit .tax_label' ).text() ).toBe( '(ex. VAT)' );
+		expect( form.container.find( '.rvs-breakdown__pickup .tax_label' ).text() ).toBe( '(ex. VAT)' );
 	} );
 } );

@@ -234,7 +234,7 @@ final class AssetManager {
 			wp_register_style('mhm-rentiva-rvs-forms', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-forms.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-forms.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
-			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
+			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));

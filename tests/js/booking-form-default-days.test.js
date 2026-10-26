@@ -45,25 +45,25 @@ describe( 'booking form default_days prefill', () => {
 
 	const setup = ( defaultDays, dropoffValue = '' ) => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper" data-default-days="${ defaultDays }">
-				<input class="rv-pickup-date" value="">
-				<input class="rv-dropoff-date" value="${ dropoffValue }">
-				<button class="rv-submit-btn">Book</button>
+			<div class="rvs-booking" data-rvs-booking-form data-default-days="${ defaultDays }">
+				<input name="pickup_date" data-rvs-pickup-date value="">
+				<input name="dropoff_date" data-rvs-dropoff-date value="${ dropoffValue }">
+				<button type="button" data-rvs-submit>Book</button>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.submitBtn = form.container.find( '.rv-submit-btn' );
+		form.container = $( '[data-rvs-booking-form]' );
+		form.submitBtn = form.container.find( '[data-rvs-submit]' );
 		form.autoCheckAvailability = jest.fn();
 		form.showError = jest.fn();
 		form.hideMessages = jest.fn();
 		form.updateButtonState = jest.fn();
 		form.setupDateValidation();
-		form.container.find( '.rv-pickup-date' ).val( '2030-05-10' ).trigger( 'change' );
+		form.container.find( '[data-rvs-pickup-date]' ).val( '2030-05-10' ).trigger( 'change' );
 		return form;
 	};
 
 	const returnDays = ( form ) =>
-		form.calculateDays( '2030-05-10', form.container.find( '.rv-dropoff-date' ).val() );
+		form.calculateDays( '2030-05-10', form.container.find( '[data-rvs-dropoff-date]' ).val() );
 
 	test( 'a default below min_days is raised to min_days', () => {
 		const form = setup( 1 );
@@ -88,11 +88,11 @@ describe( 'booking form default_days prefill', () => {
 	test( 'limits that cannot be met skip the prefill', () => {
 		window.mhmRentivaBookingForm.config = { min_days: 12, max_days: 10 };
 		const form = setup( 5 );
-		expect( form.container.find( '.rv-dropoff-date' ).val() ).toBe( '' );
+		expect( form.container.find( '[data-rvs-dropoff-date]' ).val() ).toBe( '' );
 	} );
 
 	test( 'a return date the visitor chose is kept', () => {
 		const form = setup( 20, '2030-05-12' );
-		expect( form.container.find( '.rv-dropoff-date' ).val() ).toBe( '2030-05-12' );
+		expect( form.container.find( '[data-rvs-dropoff-date]' ).val() ).toBe( '2030-05-12' );
 	} );
 } );

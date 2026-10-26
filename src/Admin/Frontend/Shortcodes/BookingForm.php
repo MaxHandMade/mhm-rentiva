@@ -343,6 +343,8 @@ final class BookingForm extends AbstractShortcode {
 			'loading'                               => __('Loading...', 'mhm-rentiva'),
 			'calculating'                           => __('Calculating...', 'mhm-rentiva'),
 			'submitting'                            => __('Submitting...', 'mhm-rentiva'),
+			// The submit button's label while a booking is being sent.
+			'processing'                            => __('Processing...', 'mhm-rentiva'),
 			'error_occurred'                        => __('An error occurred', 'mhm-rentiva'),
 			'try_again'                             => __('Please try again', 'mhm-rentiva'),
 			'connection_error'                      => __('Connection error', 'mhm-rentiva'),
@@ -534,6 +536,10 @@ final class BookingForm extends AbstractShortcode {
 			}
 		}
 
+		// Without a time select the form posts 12:00 both ways (hidden fields), so
+		// the summary names that window, not the time the URL carried.
+		$window_time = $data['show_time_select'] ? $data['prefill_pickup_time'] : '12:00';
+
 		$data['addon_options'] = self::addon_options($data['addons'], $show_addons);
 		$data['summary']       = self::summary_view(
 			$data['selected_vehicle'],
@@ -541,9 +547,9 @@ final class BookingForm extends AbstractShortcode {
 			array(
 				'pickup_location' => $data['pickup_location_id'] > 0 ? (string) $data['pickup_location_id'] : '',
 				'pickup_date'     => $iso_start,
-				'pickup_time'     => $data['prefill_pickup_time'],
+				'pickup_time'     => $window_time,
 				'return_date'     => $iso_end,
-				'return_time'     => (string) $atts['return_time'],
+				'return_time'     => $data['show_time_select'] ? (string) $atts['return_time'] : '12:00',
 			),
 			$data['pickup_location_name']
 		);
@@ -1837,6 +1843,20 @@ final class BookingForm extends AbstractShortcode {
 				$dropoff_date,
 				$dropoff_time
 			);
+
+			// Each suggestion carries its vehicle page with this window: picking one
+			// moves the summary's "Change" link there (booking-form.js).
+			if (! empty($result['alternatives']) && is_array($result['alternatives'])) {
+				$window = array(
+					'pickup_date' => $pickup_date,
+					'pickup_time' => $pickup_time,
+					'return_date' => $dropoff_date,
+					'return_time' => $dropoff_time,
+				);
+				foreach ($result['alternatives'] as $index => $alternative) {
+					$result['alternatives'][ $index ]['permalink'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url( (int) ( $alternative['id'] ?? 0 ), $window);
+				}
+			}
 
 			return $result['ok'] ? self::succeeded($result) : self::refused($result);
 		} catch (\InvalidArgumentException $e) {

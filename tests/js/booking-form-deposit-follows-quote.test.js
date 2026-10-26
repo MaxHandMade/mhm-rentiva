@@ -28,30 +28,24 @@ describe( 'booking form deposit summary follows the quote', () => {
 
 	const setup = () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper">
-				<form class="rv-booking-form-content">
+			<div class="rvs-booking" data-rvs-booking-form data-rvs-deposit="1">
+				<form class="rvs-booking__form">
 					<input type="hidden" name="payment_type" value="deposit">
+					<div class="rvs-booking__summary" data-rvs-summary>
+						<div class="rvs-booking__breakdown" data-rvs-breakdown></div>
+					</div>
+					<strong data-rvs-total>-</strong><span data-rvs-bar-deposit hidden></span>
 				</form>
-				<div class="rv-deposit-summary rv-hidden"><span class="rv-deposit-amount"></span></div>
-				<div class="rv-remaining-summary rv-hidden"><span class="rv-remaining-amount"></span></div>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
-		const stub = () => ( { text: () => {} } );
-		form.priceElements = {
-			dailyPrice: stub(),
-			daysCount: stub(),
-			weekendDiffAmount: stub(),
-			vehicleTotal: stub(),
-			addonsTotal: stub(),
-			totalAmount: stub(),
-			depositAmount: form.container.find( '.rv-deposit-amount' ),
-			remainingAmount: form.container.find( '.rv-remaining-amount' ),
-		};
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
 		form.formatMoney = ( amount ) => String( amount );
 		return form;
 	};
+
+	// A summary row the answer does not call for is absent (was: class rv-hidden).
+	const isHidden = ( form, selector ) => form.container.find( selector ).length === 0;
 
 	const quote = ( extra ) => ( {
 		vehicle_price: 1000,
@@ -66,8 +60,8 @@ describe( 'booking form deposit summary follows the quote', () => {
 
 		form.updatePriceDisplay( quote( { payment_type: 'deposit', deposit_amount: 600, remaining_amount: 1400 } ) );
 
-		expect( form.container.find( '.rv-deposit-summary' ).hasClass( 'rv-hidden' ) ).toBe( false );
-		expect( form.container.find( '.rv-remaining-summary' ).hasClass( 'rv-hidden' ) ).toBe( false );
+		expect( isHidden( form, '.rvs-breakdown__deposit' ) ).toBe( false );
+		expect( isHidden( form, '.rvs-breakdown__pickup' ) ).toBe( false );
 	} );
 
 	test( 'a full-payment quote does not call the whole total a deposit', () => {
@@ -75,7 +69,7 @@ describe( 'booking form deposit summary follows the quote', () => {
 
 		form.updatePriceDisplay( quote( { payment_type: 'full', deposit_amount: 2000, remaining_amount: 0 } ) );
 
-		expect( form.container.find( '.rv-deposit-summary' ).hasClass( 'rv-hidden' ) ).toBe( true );
-		expect( form.container.find( '.rv-remaining-summary' ).hasClass( 'rv-hidden' ) ).toBe( true );
+		expect( isHidden( form, '.rvs-breakdown__deposit' ) ).toBe( true );
+		expect( isHidden( form, '.rvs-breakdown__pickup' ) ).toBe( true );
 	} );
 } );

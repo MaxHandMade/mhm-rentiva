@@ -30,21 +30,18 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 
 	const setup = () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper">
-				<form class="rv-booking-form-content">
-					<div class="rv-booking-form-left"><div class="rv-dates-times"></div></div>
-					<input class="rv-terms-checkbox-input" type="checkbox" checked>
-					<button class="rv-submit-btn">Book</button>
+			<div class="rvs-booking" data-rvs-booking-form>
+				<form class="rvs-booking__form">
+					<div class="rvs-booking__availability" data-rvs-availability role="status" hidden></div>
+					<div data-rvs-summary></div>
+					<button type="button" data-rvs-submit>Book</button>
 				</form>
-				<div class="rv-loading rv-hidden"></div>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
-		form.submitBtn = form.form.find( '.rv-submit-btn' );
-		form.loadingEl = form.container.find( '.rv-loading' );
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
+		form.submitBtn = form.form.find( '[data-rvs-submit]' );
 		form.getMessage = ( key ) => key;
-		form.escapeHtml = ( s ) => String( s );
 		form.getFormData = () => ( {
 			vehicle_id: '7',
 			pickup_date: '2030-05-10',
@@ -128,7 +125,7 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 		form.checkAvailability();
 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
-		expect( form.form.find( '.rv-availability-status' ).text() ).toContain( 'Too many availability checks' );
+		expect( form.form.find( '[data-rvs-availability]' ).text() ).toContain( 'Too many availability checks' );
 	} );
 
 	test( 'an older availability answer arriving late is ignored', () => {
@@ -143,7 +140,7 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 		pending[ 0 ].success( TAKEN );
 
 		expect( form.submitBtn.prop( 'disabled' ) ).toBe( false );
-		expect( form.form.find( '.rv-availability-status' ).hasClass( 'success' ) ).toBe( true );
+		expect( form.form.find( '[data-rvs-availability]' ).is( '[data-state="ok"]' ) ).toBe( true );
 	} );
 
 	test( 'an available answer lifts the block again', () => {
@@ -164,6 +161,6 @@ describe( 'booking form keeps submit blocked while the vehicle is unavailable', 
 		respondWith( TAKEN );
 		form.checkAvailability();
 
-		expect( form.form.find( '.rv-availability-status .rv-availability-error' ).length ).toBe( 1 );
+		expect( form.form.find( '[data-rvs-availability][data-state="error"]' ).length ).toBe( 1 );
 	} );
 } );
