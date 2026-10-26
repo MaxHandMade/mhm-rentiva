@@ -212,6 +212,32 @@ final class BlockedDatesCacheTest extends WP_Ajax_UnitTestCase
 		$this->assertMatchesRegularExpression('/id="mhmrentiva_blocked_dates_value"\s+value="\[&quot;2027-01-05&quot;\]"/', $html);
 	}
 
+	/**
+	 * The field shows the stored list, but only after the read filters have run
+	 * once: a subscriber that settles the stored list on read (the add-on lifts
+	 * an expired penalty there) must have done so before the box is drawn, or
+	 * the operator would save the stale days back.
+	 */
+	public function test_the_meta_box_lets_the_read_filters_settle_before_drawing(): void
+	{
+		update_post_meta($this->source, '_mhmrentiva_blocked_dates', '["2027-01-04","2027-01-05"]');
+		add_filter(
+			'mhmrentiva_vehicle_blocked_days',
+			static function ($days, $vehicle_id) {
+				update_post_meta((int) $vehicle_id, '_mhmrentiva_blocked_dates', '["2027-01-04"]');
+				return array_values(array_diff((array) $days, array( '2027-01-05' )));
+			},
+			10,
+			2
+		);
+
+		ob_start();
+		BlockedDatesMetaBox::render(get_post($this->source));
+		$html = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression('/id="mhmrentiva_blocked_dates_value"\s+value="\[&quot;2027-01-04&quot;\]"/', $html);
+	}
+
 	public function test_remove_from_all_stores_the_unfiltered_list(): void
 	{
 		update_post_meta($this->other, '_mhmrentiva_blocked_dates', '["2027-01-05","2027-01-06"]');

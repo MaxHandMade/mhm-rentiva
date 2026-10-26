@@ -45,6 +45,11 @@ final class BlockedDatesMetaBox {
 	}
 
 	public static function render( \WP_Post $post ): void {
+		// Let the read filters settle the stored list first (a subscriber may
+		// update it on read, e.g. to lift an expired add-on penalty), so the
+		// field never carries days a save would write back stale. The field
+		// itself is the stored list, never the filtered one (review I1).
+		BookingConflicts::blocked_days( $post->ID );
 		$blocked = BookingConflicts::stored_days( $post->ID );
 		$count   = count( $blocked );
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );

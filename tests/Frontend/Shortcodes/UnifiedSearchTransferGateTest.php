@@ -27,10 +27,12 @@ use WP_UnitTestCase;
  * What remains here are the premises that are still true regardless of
  * mechanism: the visibility keys the (now rental-only) template contract
  * exposes, and the positive control that the rental tab always renders. See
- * mhm-rentiva/tests/Unit/Shortcodes/UnifiedSearchTabsTest.php for the current,
- * filter-based coverage of the surviving `mhmrentiva_search_locations` seam
- * (defaults empty without a subscriber; a subscriber can turn locations on;
- * the source has no more Mode::/isPro/LocationProvider reference).
+ * mhm-rentiva/tests/Unit/Shortcodes/UnifiedSearchTabsTest.php for the current
+ * coverage of the rental panel's locations. Since PR S they come from
+ * LocationContext (`mhmrentiva_locations`); the old `mhmrentiva_search_locations`
+ * seam has no reader left (defaults empty without a subscriber; a subscriber
+ * can turn locations on; the source has no more Mode::/isPro/LocationProvider
+ * reference).
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch::prepare_template_data
  */
