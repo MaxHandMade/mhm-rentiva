@@ -215,6 +215,27 @@
 	gap: 2px;
 }
 
+/* The car's own pickup point, laid out like the card, results and vehicle
+   page lines: icon and text centred on one row. */
+.rvs-shell .rvs-booking__where {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: var(--rvs-s3) var(--rvs-s4) 0;
+	padding: 6px 10px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-booking__where[hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__where svg {
+	flex: none;
+}
+
 .rvs-shell .rvs-booking__summary > .rvs-booking__when:first-child {
 	margin-top: var(--rvs-s4);
 }
