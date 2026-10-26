@@ -36,7 +36,7 @@ describe( 'rvs search results', () => {
 							<input type="number" id="minp" name="mhmrentiva_min_price" value="100">
 						</form>
 						<div class="rvs-results__drawer-foot">
-							<button type="button" id="apply" data-rvs-drawer-apply>Show <span data-rvs-apply-count>4</span></button>
+							<button type="button" id="apply" data-rvs-drawer-apply><span data-rvs-apply-label>Show <span data-rvs-apply-count>4</span> vehicles</span></button>
 						</div>
 					</aside>
 					<section class="rvs-results__main">
@@ -295,6 +295,25 @@ describe( 'rvs search results', () => {
 		expect( document.getElementById( 'new' ).classList.contains( 'rvs-card--list' ) ).toBe( true );
 		expect( document.querySelector( '[data-rvs-grid]' ).classList.contains( 'rvs-card-list' ) ).toBe( true );
 		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.layout ).toBe( 'list' );
+	} );
+
+	// Task 8 item 3: an empty grid above sections that list cars must not say
+	// "Show 0 vehicles"; the server sends the label (with its plural) each time.
+	test( 'the apply label is the server label: count-free when only the sections list cars', async () => {
+		let next = { apply_html: 'Show results', meta: { total: 0, active_filters: 1 } };
+		await boot( ( o ) => o.success( {
+			success: true,
+			data: Object.assign( { html: '', pagination: '', summary_html: '7 Dec – 10 Dec · 3 days', chips_html: '', notice_html: '' }, next ),
+		} ) );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-apply-label]' ).textContent ).toBe( 'Show results' );
+		expect( document.getElementById( 'apply' ).textContent ).not.toContain( '0' );
+
+		next = { apply_html: 'Show <span data-rvs-apply-count>1</span> vehicle', meta: { total: 1, active_filters: 0 } };
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		expect( document.querySelector( '[data-rvs-apply-label]' ).textContent ).toBe( 'Show 1 vehicle' );
+		expect( document.querySelector( '[data-rvs-apply-count]' ).textContent ).toBe( '1' );
 	} );
 
 	test( 'opening the drawer makes it a modal dialog and focuses its title', async () => {

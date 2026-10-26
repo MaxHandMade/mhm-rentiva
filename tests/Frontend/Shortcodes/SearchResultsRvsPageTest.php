@@ -701,6 +701,53 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('[1 vehicle | Booked for these dates => 1 vehicle]', $data['meta']['announce']);
 	}
 
+	/**
+	 * Task 8 item 3: an empty main grid above sections that list cars read as
+	 * "0 vehicles" / "Show 0 vehicles" -- "no cars" over cars.
+	 */
+	public function test_empty_grid_with_sections_shows_no_zero_count(): void
+	{
+		$this->three_points();
+		$this->book_window($this->vehicle('Zz Golf At Airport', 1));
+		$this->vehicle('Zz Egea At Taksim', 2);
+		$this->search_window();
+		set_query_var(SearchResults::query_var('pickup_location'), array( '1' ));
+
+		$html = $this->page();
+
+		$this->assertSame(1, preg_match('#<p class="rvs-results__summary" data-rvs-summary>(.*?)</p>#s', $html, $summary));
+		$this->assertStringNotContainsString('0 vehicles', $summary[1]);
+		$this->assertStringNotContainsString('<strong>', $summary[1], 'No empty count either.');
+		$this->assertDoesNotMatchRegularExpression('/^\s*·/u', wp_strip_all_tags($summary[1]), 'The line does not start with a separator.');
+		$this->assertStringContainsString('3 days', $summary[1]);
+		$this->assertSame(1, preg_match('#<span data-rvs-apply-label>(.*?)</span>\s*</button>#s', $html, $apply));
+		$this->assertSame('Show results', trim(strip_tags($apply[1])));
+
+		$data = $this->filter($this->window_post() + array( 'mhmrentiva_pickup_location' => array( '1' ) ));
+		$this->assertSame(0, $data['meta']['total']);
+		$this->assertStringNotContainsString('0 vehicles', (string) $data['summary_html']);
+		$this->assertStringContainsString('3 days', (string) $data['summary_html']);
+		$this->assertSame('Show results', trim(strip_tags( (string) $data['apply_html'])));
+		$this->assertStringNotContainsString('0 vehicles', (string) $data['meta']['announce']);
+		$this->assertStringContainsString('Other pickup points in the same city: 1 vehicle', (string) $data['meta']['announce']);
+	}
+
+	public function test_a_grid_with_cars_keeps_its_count(): void
+	{
+		$this->search_window();
+
+		$html = $this->page();
+
+		$this->assertMatchesRegularExpression('#data-rvs-summary><strong>2 vehicles</strong>#', $html);
+		$this->assertSame(1, preg_match('#<span data-rvs-apply-label>(.*?)</span>\s*</button>#s', $html, $apply));
+		$this->assertSame('Show 2 vehicles', trim(strip_tags($apply[1])));
+		$this->assertStringContainsString('<span data-rvs-apply-count>2</span>', $apply[1]);
+
+		$data = $this->filter($this->window_post());
+		$this->assertSame('Show 2 vehicles', trim(strip_tags( (string) $data['apply_html'])));
+		$this->assertStringContainsString('2 vehicles', (string) $data['summary_html']);
+	}
+
 	public function test_announcement_without_sections_is_the_count(): void
 	{
 		$data = $this->filter($this->window_post());

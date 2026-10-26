@@ -358,7 +358,8 @@ final class SearchResults extends AbstractShortcode {
 			'pagination'      => $results['pagination'] ?? array(),
 			'sorting_options' => self::get_sorting_options(null !== self::window($search_params)),
 			'nonce_field'     => RenderContext::nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce'),
-			'summary'         => self::summary($search_params, (int) $results['total']),
+			'summary'         => self::results_summary($search_params, $results),
+			'apply_label'     => self::apply_label_html($results),
 			'chips'           => $chips,
 			'filter_count'    => self::filter_count($chips),
 			'empty_state'     => $empty_state,
@@ -1511,6 +1512,53 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
+	 * Whether the main grid is empty while a section below it lists cars:
+	 * then no count is shown ("0 vehicles" over cars reads as "no cars").
+	 *
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	private static function only_sections_have_cars(array $results): bool
+	{
+		return 0 === (int) ( $results['total'] ?? 0 ) && array_sum(self::section_counts($results)) > 0;
+	}
+
+	/**
+	 * The results header for a search's results: summary(), without the count
+	 * when only the sections below the grid list cars (the range and days stay).
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 * @return array{count: string, range: string, days: int}
+	 */
+	public static function results_summary(array $params, array $results): array
+	{
+		$summary = self::summary($params, (int) ( $results['total'] ?? 0 ));
+		if (self::only_sections_have_cars($results)) {
+			$summary['count'] = '';
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * The filter drawer's apply button label (escaped HTML): "Show 6 vehicles",
+	 * or "Show results" when only the sections below the grid list cars.
+	 *
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	public static function apply_label_html(array $results): string
+	{
+		if (self::only_sections_have_cars($results)) {
+			return esc_html__('Show results', 'mhm-rentiva');
+		}
+
+		$total = (int) ( $results['total'] ?? 0 );
+
+		/* translators: %s: number of vehicles the filters leave. */
+		return sprintf(esc_html(_n('Show %s vehicle', 'Show %s vehicles', $total, 'mhm-rentiva')), '<span data-rvs-apply-count>' . esc_html(number_format_i18n($total)) . '</span>');
+	}
+
+	/**
 	 * One chip per active filter value: the field it clears and its label.
 	 *
 	 * @param array<string, mixed> $params         Search params (logical keys).
@@ -1795,7 +1843,7 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	public static function announcement(array $params, array $results): string
 	{
-		$count  = self::summary($params, (int) ( $results['total'] ?? 0 ))['count'];
+		$count  = self::results_summary($params, $results)['count'];
 		$counts = self::section_counts($results);
 		/* translators: %s: number of vehicles. */
 		$cars = static fn(int $n): string => sprintf(_n('%s vehicle', '%s vehicles', $n, 'mhm-rentiva'), number_format_i18n($n));
@@ -1813,6 +1861,10 @@ final class SearchResults extends AbstractShortcode {
 		}
 
 		// WordPress's own translatable list ("a and b").
+		if ('' === $count) {
+			// Only the sections list cars: they are the sentence, with no "0 vehicles".
+			return wp_sprintf('%l', $sections);
+		}
 		/* translators: 1: number of vehicles in the results, e.g. "2 vehicles"; 2: the extra sections with their counts, e.g. "Booked for these dates: 1 vehicle". */
 		return sprintf(__('%1$s. %2$s.', 'mhm-rentiva'), $count, wp_sprintf('%l', $sections));
 	}
@@ -1925,7 +1977,8 @@ final class SearchResults extends AbstractShortcode {
 				'nearby_html'  => self::nearby_html($search_params, $results, $atts, $instance),
 				'booked_html'  => self::booked_html($search_params, $results, $atts, $instance),
 				'pagination'   => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
-				'summary_html' => Templates::render('partials/search/rvs-summary', array( 'summary' => self::summary($search_params, $total) ), true),
+				'summary_html' => Templates::render('partials/search/rvs-summary', array( 'summary' => self::results_summary($search_params, $results) ), true),
+				'apply_html'   => self::apply_label_html($results),
 				'chips_html'   => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
 				'notice_html'  => self::notice_html($search_params, $results, (string) $empty_state, $change_url),
 				'meta'         => array(

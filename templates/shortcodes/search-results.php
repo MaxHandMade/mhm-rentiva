@@ -11,7 +11,8 @@
  * - array  $filter_options  get_filter_options() shape.
  * - array  $sorting_options value => label.
  * - string $nonce_field
- * - array  $summary         SearchResults::summary().
+ * - array  $summary         SearchResults::results_summary() (count '' when only the sections list cars).
+ * - string $apply_label     SearchResults::apply_label_html(): the drawer's apply label, escaped.
  * - array  $chips           SearchResults::active_chips().
  * - string|null $empty_state SearchResults::empty_state().
  * - string $change_url      Where "Change" sends the visitor.
@@ -36,7 +37,6 @@ if (! defined('ABSPATH')) {
 }
 
 $vehicles      = $results['vehicles'] ?? array();
-$total_results = (int) ( $results['total'] ?? 0 );
 $active_layout = in_array(( $atts['layout'] ?? 'grid' ), array( 'grid', 'list' ), true) ? (string) $atts['layout'] : 'grid';
 $show_filters  = ( $atts['show_filters'] ?? '1' ) === '1';
 $rv_instance   = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid('rvsr-', false);
@@ -152,7 +152,10 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 	<div class="rvs-results__mobilebar">
 		<a class="rvs-results__summary-card" href="<?php echo esc_url($change_url); ?>" data-rvs-change>
 			<span class="rvs-results__summary-text">
-				<strong><?php echo esc_html('' !== $location_label ? $location_label : $summary['count']); ?></strong>
+				<?php $rvs_card_title = '' !== $location_label ? $location_label : (string) $summary['count']; ?>
+				<?php if ('' !== $rvs_card_title) : ?>
+					<strong><?php echo esc_html($rvs_card_title); ?></strong>
+				<?php endif; ?>
 				<span><?php echo esc_html('' !== $summary['range'] ? $summary['range'] : __('No dates selected', 'mhm-rentiva')); ?></span>
 			</span>
 			<span class="rvs-results__change"><?php esc_html_e('Change', 'mhm-rentiva'); ?></span>
@@ -234,12 +237,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				<div class="rvs-results__drawer-foot">
 					<button type="button" class="rvs-btn rvs-btn--ghost" data-rvs-clear><?php esc_html_e('Clear', 'mhm-rentiva'); ?></button>
 					<button type="button" class="rvs-btn rvs-btn--primary rvs-results__apply" data-rvs-drawer-apply>
-						<span>
-						<?php
-						/* translators: %s: number of vehicles the filters leave. */
-						printf(esc_html(_n('Show %s vehicle', 'Show %s vehicles', $total_results, 'mhm-rentiva')), '<span data-rvs-apply-count>' . esc_html(number_format_i18n($total_results)) . '</span>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the count is escaped above.
-						?>
-						</span>
+						<span data-rvs-apply-label><?php echo (string) ( $apply_label ?? SearchResults::apply_label_html( (array) $results) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SearchResults::apply_label_html() escapes. ?></span>
 					</button>
 				</div>
 			</aside>

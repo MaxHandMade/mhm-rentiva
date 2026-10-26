@@ -102,7 +102,11 @@
 		if ( meta.active_filters !== undefined ) {
 			$root.find( '[data-rvs-filter-count]' ).text( meta.active_filters );
 		}
-		if ( meta.total !== undefined ) {
+		// The apply label comes whole from the server: its plural follows the
+		// count, and it carries no count when only the sections list cars.
+		if ( typeof data.apply_html === 'string' ) {
+			$root.find( '[data-rvs-apply-label]' ).html( data.apply_html );
+		} else if ( meta.total !== undefined ) {
 			$root.find( '[data-rvs-apply-count]' ).text( meta.total );
 		}
 		applyView( $root, currentView( $root ) );
