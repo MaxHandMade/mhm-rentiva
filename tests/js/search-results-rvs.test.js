@@ -30,6 +30,7 @@ describe( 'rvs search results', () => {
 							<button type="button" id="close" data-rvs-drawer-close>x</button>
 						</div>
 						<form data-rvs-filters>
+							<label><input type="checkbox" id="loc1" name="mhmrentiva_pickup_location[]" value="1" checked> Airport</label>
 							<label><input type="checkbox" id="cat5" name="mhmrentiva_category[]" value="5" checked> SUV</label>
 							<label><input type="checkbox" id="cat6" name="mhmrentiva_category[]" value="6"> Sedan</label>
 							<input type="number" id="minp" name="mhmrentiva_min_price" value="100">
@@ -44,9 +45,11 @@ describe( 'rvs search results', () => {
 						<button type="button" data-rvs-view="grid" aria-pressed="true">g</button>
 						<button type="button" data-rvs-view="list" aria-pressed="false">l</button>
 						<div data-rvs-chips><button type="button" data-rvs-chip data-name="mhmrentiva_category[]" data-value="5">SUV</button></div>
-						<div data-rvs-notice></div>
+						<div data-rvs-notice role="status"></div>
 						<div class="rvs-card-grid" data-rvs-grid><article class="rvs-card rvs-card--grid" data-rvs-card></article></div>
 						<nav data-rvs-pagination><a href="?page=2" data-rvs-page="2">2</a></nav>
+						<div data-rvs-nearby><section id="old-near"></section></div>
+						<div data-rvs-booked><section id="old-booked"></section></div>
 					</section>
 				</div>
 				<div data-rvs-compare-band data-count="0" data-max="3">
@@ -157,6 +160,83 @@ describe( 'rvs search results', () => {
 		expect( data.mhmrentiva_min_price ).toBe( '' );
 		expect( data.mhmrentiva_keyword ).toBe( '' );
 		expect( data.mhmrentiva_return_date ).toBe( '2027-07-15' );
+	} );
+
+	const reply = ( data ) => ( o ) => o.success( {
+		success: true,
+		data: Object.assign( { html: '', pagination: '', summary_html: '', chips_html: '', notice_html: '', nearby_html: '', booked_html: '', meta: { total: 0 } }, data ),
+	} );
+
+	test( 'clear keeps location and counter excludes it', async () => {
+		await boot( reply( { meta: { total: 0, active_filters: 0 } } ) );
+		document.querySelector( '[data-rvs-results]' ).insertAdjacentHTML( 'beforeend', '<button type="button" id="clear" data-rvs-clear>Clear</button>' );
+		document.getElementById( 'clear' ).click();
+
+		const data = jQuery.ajax.mock.calls[ 0 ][ 0 ].data;
+		// The pickup point is where the visitor is, not a filter: it stays.
+		expect( document.getElementById( 'loc1' ).checked ).toBe( true );
+		expect( data.mhmrentiva_pickup_location ).toEqual( [ '1' ] );
+		expect( document.getElementById( 'cat5' ).checked ).toBe( false );
+		expect( data.mhmrentiva_category ).toBeUndefined();
+		// The counter is the server's count, which leaves the location out.
+		expect( document.querySelector( '[data-rvs-filter-count]' ).textContent ).toBe( '0' );
+	} );
+
+	test( 'the response fills the sections and an empty key clears them', async () => {
+		await boot( reply( {
+			nearby_html: '<section id="near"><div class="rvs-card-grid" data-rvs-section-grid><article class="rvs-card rvs-card--grid" data-rvs-card></article></div></section>',
+		} ) );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-nearby] #near' ) ).not.toBeNull();
+		expect( document.querySelector( '[data-rvs-nearby] #old-near' ) ).toBeNull();
+		expect( document.querySelector( '[data-rvs-booked]' ).innerHTML ).toBe( '' );
+		// The script names the page's id prefix, so section heading ids match the page's.
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.instance ).toBe( 'r1' );
+	} );
+
+	test( 'sections follow grid/list view', async () => {
+		await boot( reply( {
+			nearby_html: '<section><div class="rvs-card-grid" data-rvs-section-grid><article class="rvs-card rvs-card--grid" data-rvs-card id="n1"></article></div></section>',
+			booked_html: '<section><div class="rvs-card-grid" data-rvs-section-grid><article class="rvs-card rvs-card--grid" data-rvs-card id="b1"></article></div></section>',
+		} ) );
+		document.querySelector( '[data-rvs-view="list"]' ).click();
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		// A reload while the list view is on keeps it on the new sections...
+		document.querySelectorAll( '[data-rvs-section-grid]' ).forEach( ( grid ) => {
+			expect( grid.classList.contains( 'rvs-card-list' ) ).toBe( true );
+			expect( grid.classList.contains( 'rvs-card-grid' ) ).toBe( false );
+		} );
+		expect( document.getElementById( 'n1' ).classList.contains( 'rvs-card--list' ) ).toBe( true );
+		expect( document.getElementById( 'b1' ).classList.contains( 'rvs-card--list' ) ).toBe( true );
+
+		// ...and switching back moves the sections too.
+		document.querySelector( '[data-rvs-view="grid"]' ).click();
+		expect( document.getElementById( 'n1' ).classList.contains( 'rvs-card--grid' ) ).toBe( true );
+		expect( document.querySelector( '[data-rvs-booked] [data-rvs-section-grid]' ).classList.contains( 'rvs-card-grid' ) ).toBe( true );
+	} );
+
+	test( 'status region announces sections', async () => {
+		await boot( reply( {
+			summary_html: '<strong>0 vehicles</strong>',
+			notice_html: '<div data-rvs-empty="none_here"><p>No cars are free here.</p></div>',
+			booked_html: '<section></section>',
+			meta: { total: 0, announce: '0 vehicles. Booked for these dates: 1 vehicle.' },
+		} ) );
+		const region = document.querySelector( '[data-rvs-notice]' );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		// The same node, still a status region: only its content changed.
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.getAttribute( 'role' ) ).toBe( 'status' );
+		expect( region.querySelector( '[data-rvs-empty="none_here"]' ) ).not.toBeNull();
+		expect( region.querySelector( '[data-rvs-announce]' ).textContent ).toBe( '0 vehicles. Booked for these dates: 1 vehicle.' );
+
+		// A second reload replaces the sentence; it does not pile up.
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.querySelectorAll( '[data-rvs-announce]' ).length ).toBe( 1 );
 	} );
 
 	test( 'a page button reloads that page with the current filters', async () => {

@@ -244,6 +244,56 @@
 	font-size: 13px;
 }
 
+/* The car's own pickup point (search: other pickup points of the city). */
+.rvs-shell .rvs-card__where {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	padding: 6px 10px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	font-size: 15px;
+}
+
+.rvs-shell .rvs-card__where svg {
+	flex: none;
+}
+
+/* Booked on the searched dates: a quieter card -- no price, no booking --
+   with the earliest free time and a link to that window. */
+.rvs-shell .rvs-card.is-booked {
+	border: 1px solid var(--rvs-line);
+	background: var(--rvs-surface);
+	box-shadow: none;
+}
+
+.rvs-shell .rvs-card.is-booked .rvs-card__img {
+	opacity: 0.7;
+	filter: grayscale(1);
+}
+
+.rvs-shell .rvs-card__tag--booked {
+	background: var(--rvs-n-200);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-card__booked {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	font-size: 15px;
+}
+
+.rvs-shell .rvs-card__booked-when {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-card__later {
+	width: 100%;
+	margin-top: auto;
+}
+
 /* Price and button share a row while they fit; a narrow card (slider, three
    columns) puts the button under the price instead of past the edge. */
 .rvs-shell .rvs-card__foot {

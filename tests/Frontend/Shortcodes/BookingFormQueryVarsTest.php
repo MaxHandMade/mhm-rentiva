@@ -182,7 +182,10 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
         $this->assertStringContainsString('data-testid="vehicle-book-btn"', $output);
 
         $this->assertMatchesRegularExpression('/href="[^"]*mhmrentiva_vehicle_id=' . preg_quote((string) $this->vehicle_id, '/') . '[^"]*"/', $output);
-        $this->assertStringContainsString('mhmrentiva_pickup_location=7', $output);
+        // PR S (m6): the card names the car's own pickup point, never the one in
+        // the request -- a car listed from another point is picked up there.
+        // This site has no rental locations, so no point travels.
+        $this->assertStringNotContainsString('mhmrentiva_pickup_location=7', $output);
         $this->assertStringContainsString('mhmrentiva_pickup_date=2026-08-10', $output);
         $this->assertStringContainsString('mhmrentiva_pickup_time=11', $output);
         $this->assertStringContainsString('mhmrentiva_return_date=2026-08-15', $output);

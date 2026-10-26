@@ -296,6 +296,17 @@ class PublicQueryVarPrefixTest extends WP_UnitTestCase
      */
     public function test_search_read_path_answers_for_the_prefixed_query_vars(): void
     {
+        // A pickup location counts only on a site with a choice of two or more
+        // rental locations (PR S, m8); give it one.
+        $locations = static function ($rows, $type) {
+            return 'rental' === $type ? array(
+                (object) array( 'id' => 4, 'name' => 'Zz Four', 'city' => 'Zz' ),
+                (object) array( 'id' => 7, 'name' => 'Zz Seven', 'city' => 'Zz' ),
+            ) : $rows;
+        };
+        add_filter('mhmrentiva_locations', $locations, 10, 2);
+        \MHMRentiva\Admin\Core\LocationContext::flush();
+
         $this->go_to(
             '/?mhmrentiva_keyword=SUV&mhmrentiva_min_price=300&mhmrentiva_max_price=900'
             . '&mhmrentiva_fuel_type=diesel&mhmrentiva_year_min=2018&mhmrentiva_sort=price_asc'
@@ -313,6 +324,9 @@ class PublicQueryVarPrefixTest extends WP_UnitTestCase
         $this->assertSame(2018, $params['year_min']);
         $this->assertSame('price_asc', $params['sort']);
         $this->assertSame(array(4, 7), $params['pickup_location']);
+
+        remove_filter('mhmrentiva_locations', $locations, 10);
+        \MHMRentiva\Admin\Core\LocationContext::flush();
     }
 
     /**

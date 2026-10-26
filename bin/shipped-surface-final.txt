@@ -560,6 +560,7 @@ templates/partials/rvs/journey-summary.php
 templates/partials/rvs/steps.php
 templates/partials/search/rvs-chips.php
 templates/partials/search/rvs-empty.php
+templates/partials/search/rvs-section.php
 templates/partials/search/rvs-summary.php
 templates/partials/selected-vehicle-summary.php
 templates/partials/vehicle-card-base.php

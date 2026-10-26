@@ -211,6 +211,16 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
      */
     public function test_search_params_from_url_reflect_the_registered_query_vars(): void
     {
+        // A pickup location counts only on a site with a choice of two or more
+        // rental locations (PR S, m8); give it one.
+        $locations = static function ($rows, $type) {
+            return 'rental' === $type ? array(
+                (object) array( 'id' => 4, 'name' => 'Zz Four', 'city' => 'Zz' ),
+                (object) array( 'id' => 5, 'name' => 'Zz Five', 'city' => 'Zz' ),
+            ) : $rows;
+        };
+        add_filter('mhmrentiva_locations', $locations, 10, 2);
+        \MHMRentiva\Admin\Core\LocationContext::flush();
         $this->go_to(
             '/?mhmrentiva_min_price=300&mhmrentiva_max_price=900&mhmrentiva_fuel_type=diesel'
             . '&mhmrentiva_year_min=2018&mhmrentiva_pickup_location%5B%5D=4'
@@ -225,6 +235,9 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         $this->assertSame('diesel', $params['fuel_type']);
         $this->assertSame(2018, $params['year_min']);
         $this->assertSame(array(4), $params['pickup_location']);
+
+        remove_filter('mhmrentiva_locations', $locations, 10);
+        \MHMRentiva\Admin\Core\LocationContext::flush();
     }
 
     /**

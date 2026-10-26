@@ -44,8 +44,467 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		foreach (SearchResults::FILTER_PARAMS as $key) {
 			set_query_var(SearchResults::query_var($key), '');
 		}
+		set_query_var(SearchResults::query_var('pickup_time'), '');
 		set_query_var('page', '');
+		remove_all_filters('mhmrentiva_locations');
+		\MHMRentiva\Admin\Core\LocationContext::flush();
 		parent::tearDown();
+	}
+
+	/* PR S fixtures ----------------------------------------------------------- */
+
+	/**
+	 * Rental locations the way Pro's provider gives them (DB rows: string ids).
+	 *
+	 * @param list<array{0:int,1:string,2:string}> $rows id, name, city.
+	 */
+	private function locations(array $rows): void
+	{
+		$out = array();
+		foreach ($rows as $row) {
+			$out[] = (object) array(
+				'id'   => (string) $row[0],
+				'name' => $row[1],
+				'city' => $row[2],
+			);
+		}
+		remove_all_filters('mhmrentiva_locations');
+		\MHMRentiva\Admin\Core\LocationContext::flush();
+		add_filter(
+			'mhmrentiva_locations',
+			static function ($locations, $type) use ($out) {
+				return 'rental' === $type ? $out : $locations;
+			},
+			10,
+			2
+		);
+	}
+
+	private function vehicle(string $title, int $location_id = 0, string $fuel = 'petrol'): int
+	{
+		$id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_vehicle',
+			'post_status' => 'publish',
+			'post_title'  => $title,
+		));
+		update_post_meta($id, '_mhmrentiva_price_per_day', '1000');
+		update_post_meta($id, '_mhmrentiva_vehicle_status', 'active');
+		update_post_meta($id, '_mhmrentiva_fuel_type', $fuel);
+		if ($location_id > 0) {
+			update_post_meta($id, '_mhmrentiva_location_id', (string) $location_id);
+		}
+
+		return $id;
+	}
+
+	private function vehicle_id(string $title): int
+	{
+		$found = get_posts(array(
+			'post_type'        => 'mhmrentiva_vehicle',
+			'title'            => $title,
+			'fields'           => 'ids',
+			'posts_per_page'   => 1,
+			'suppress_filters' => true,
+		));
+
+		return (int) ( $found[0] ?? 0 );
+	}
+
+	/**
+	 * A confirmed booking holding the vehicle over [start, end).
+	 */
+	private function book(int $vehicle_id, int $start_ts, int $end_ts): int
+	{
+		$id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_booking',
+			'post_status' => 'publish',
+		));
+		update_post_meta($id, '_mhmrentiva_vehicle_id', $vehicle_id);
+		update_post_meta($id, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', $start_ts));
+		update_post_meta($id, '_mhmrentiva_pickup_time', wp_date('H:i', $start_ts));
+		update_post_meta($id, '_mhmrentiva_dropoff_date', wp_date('Y-m-d', $end_ts));
+		update_post_meta($id, '_mhmrentiva_dropoff_time', wp_date('H:i', $end_ts));
+		update_post_meta($id, '_mhmrentiva_start_ts', $start_ts);
+		update_post_meta($id, '_mhmrentiva_end_ts', $end_ts);
+
+		return $id;
+	}
+
+	/**
+	 * The local date $days after today.
+	 */
+	private static function day(int $days): string
+	{
+		return ( new \DateTimeImmutable('@' . time()) )->setTimezone(wp_timezone())->setTime(12, 0)->modify("+{$days} day")->format('Y-m-d');
+	}
+
+	private static function local(string $date, string $time = '10:00'): int
+	{
+		return (int) \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($date, $time);
+	}
+
+	/**
+	 * Books the vehicle over the whole search window d30 .. d33 (and a day around it).
+	 */
+	private function book_window(int $vehicle_id): int
+	{
+		return $this->book($vehicle_id, self::local(self::day(29)), self::local(self::day(34)));
+	}
+
+	private function search_window(): void
+	{
+		set_query_var(SearchResults::query_var('pickup_date'), self::day(30));
+		set_query_var(SearchResults::query_var('return_date'), self::day(33));
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function window_post(): array
+	{
+		return array(
+			'mhmrentiva_pickup_date' => self::day(30),
+			'mhmrentiva_return_date' => self::day(33),
+		);
+	}
+
+	/**
+	 * Istanbul airport (1) and Taksim (2) share a city; Esenboga (3) does not.
+	 */
+	private function three_points(): void
+	{
+		$this->locations(array(
+			array( 1, 'Airport', 'İstanbul' ),
+			array( 2, 'Taksim', 'istanbul' ),
+			array( 3, 'Esenboga', 'Ankara' ),
+		));
+	}
+
+	/**
+	 * The <section> of one kind in the html, or ''.
+	 */
+	private static function section(string $html, string $kind): string
+	{
+		return preg_match('#<section class="rvs-results__section rvs-results__section--' . $kind . '".*?</section>#s', $html, $m) ? $m[0] : '';
+	}
+
+	/* PR S tests --------------------------------------------------------------- */
+
+	public function test_location_only_search_never_says_remove_a_filter(): void
+	{
+		$this->three_points();
+		$this->book_window($this->vehicle('Zz Golf At Airport', 1));
+		$this->vehicle('Zz Egea At Taksim', 2);
+		$this->search_window();
+		set_query_var(SearchResults::query_var('pickup_location'), array( '1' ));
+
+		$html = $this->page();
+
+		$this->assertStringNotContainsString('data-rvs-empty="filtered_out"', $html);
+		$this->assertStringNotContainsString('Remove a filter', $html);
+		$this->assertStringContainsString('data-rvs-empty="none_here"', $html);
+		$this->assertStringContainsString('No cars are free at the Airport pickup point for', $html);
+		$this->assertStringContainsString('Other pickup points in the same city have cars. The car you looked for is below, with the earliest time it is free.', $html);
+		$this->assertStringContainsString('Zz Egea At Taksim', self::section($html, 'nearby'));
+		$this->assertStringContainsString('Zz Golf At Airport', self::section($html, 'booked'));
+		$this->assertStringContainsString('Booked for these dates at the Airport pickup point', $html);
+		$this->assertStringContainsString('Other pickup points in the same city', $html);
+		// The location is not a filter: no "Filters (1)".
+		$this->assertMatchesRegularExpression('/<span data-rvs-filter-count>0<\/span>/', $html);
+
+		// The same through AJAX.
+		$data = $this->filter($this->window_post() + array( 'mhmrentiva_pickup_location' => array( '1' ) ));
+		$this->assertSame('none_here', $data['meta']['empty_state']);
+		$this->assertSame(0, $data['meta']['active_filters']);
+		$this->assertStringContainsString('data-rvs-empty="none_here"', (string) $data['notice_html']);
+		$this->assertStringNotContainsString('filtered_out', (string) $data['html']);
+	}
+
+	public function test_filter_with_only_a_booked_match_says_try_other_dates(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+
+		$data = $this->filter($this->window_post() + array( 'mhmrentiva_fuel_type' => array( 'diesel' ) ));
+
+		$this->assertSame(0, $data['meta']['total']);
+		$this->assertSame('no_results', $data['meta']['empty_state']);
+		$this->assertStringContainsString('data-rvs-empty="no_results"', (string) $data['html']);
+		$this->assertStringNotContainsString('filtered_out', (string) $data['html']);
+		$this->assertStringContainsString('Zz Page One', (string) $data['booked_html']);
+		$this->assertSame(1, $data['meta']['booked']);
+	}
+
+	public function test_nearby_card_carries_its_own_pickup_point(): void
+	{
+		$this->three_points();
+		$this->vehicle('Zz Egea At Taksim', 2);
+		$this->vehicle('Zz Clio At Esenboga', 3);
+		$this->search_window();
+		set_query_var(SearchResults::query_var('pickup_location'), array( '1' ));
+
+		$nearby = self::section($this->page(), 'nearby');
+
+		$this->assertStringContainsString('Zz Egea At Taksim', $nearby);
+		$this->assertStringNotContainsString('Zz Clio At Esenboga', $nearby, 'Another city is not offered.');
+		$this->assertMatchesRegularExpression('/Pickup: <strong>Taksim<\/strong>/', $nearby);
+		// The booking link carries the car's own point, not the searched one (m6).
+		$this->assertMatchesRegularExpression('/mhmrentiva_pickup_location=2/', $nearby);
+		$this->assertDoesNotMatchRegularExpression('/mhmrentiva_pickup_location=1\b/', $nearby);
+		// City · the section's summary.
+		$this->assertStringContainsString('İstanbul · ', $nearby);
+		$this->assertMatchesRegularExpression('/<h2 class="rvs-results__section-title" id="[^"]+">Other pickup points in the same city<\/h2>/', $nearby);
+		$this->assertMatchesRegularExpression('/aria-labelledby="([^"]+)".*id="\1"/s', $nearby);
+	}
+
+	public function test_booked_card_links_to_earliest_window(): void
+	{
+		$one = $this->vehicle_id('Zz Page One');
+		$this->book_window($one);
+		$start = self::local(self::day(30));
+		$end   = self::local(self::day(33));
+
+		$earliest = \MHMRentiva\Admin\Booking\Helpers\NextFreeWindow::earliest(array( $one ), $start, $end)[ $one ];
+		$this->assertNotNull($earliest);
+		$window = \MHMRentiva\Admin\Booking\Helpers\NextFreeWindow::window($earliest, 3);
+
+		$booked = (string) $this->filter($this->window_post())['booked_html'];
+
+		$this->assertStringContainsString('Booked for these dates', $booked);
+		$this->assertStringContainsString('Earliest free: ' . wp_date(get_option('date_format') . ' ' . get_option('time_format'), $earliest), $booked);
+		$this->assertStringContainsString('See from that date', $booked);
+		$this->assertMatchesRegularExpression('/<article class="rvs-card rvs-card--grid is-booked"/', $booked);
+		$this->assertStringContainsString('>Booked<', $booked);
+		$expected = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($one, array(
+			'pickup_date' => wp_date('Y-m-d', $window[0]),
+			'pickup_time' => wp_date('H:i', $window[0]),
+			'return_date' => wp_date('Y-m-d', $window[1]),
+		));
+		$this->assertStringContainsString('href="' . $expected . '"', str_replace('&amp;', '&', $booked));
+		// No price and no booking button on a booked card.
+		$this->assertStringNotContainsString('vehicle-book-btn', $booked);
+		$this->assertStringNotContainsString('rvs-card__price', $booked);
+	}
+
+	public function test_booked_card_without_an_earliest_window_has_no_button(): void
+	{
+		add_filter(
+			'option_' . \MHMRentiva\Admin\Settings\Core\SettingsCore::OPTION_NAME,
+			static function ($settings): array {
+				$settings = is_array($settings) ? $settings : array();
+				$settings['mhmrentiva_vehicle_advance_booking_days'] = 40;
+				return $settings;
+			}
+		);
+		$one = $this->vehicle_id('Zz Page One');
+		$this->book($one, self::local(self::day(29)), self::local(self::day(80)));
+
+		$booked = (string) $this->filter($this->window_post())['booked_html'];
+
+		$this->assertStringContainsString('Zz Page One', $booked);
+		$this->assertStringContainsString('Booked for these dates', $booked);
+		$this->assertStringNotContainsString('Earliest free', $booked);
+		$this->assertStringNotContainsString('See from that date', $booked);
+	}
+
+	public function test_sections_only_on_first_page_and_capped(): void
+	{
+		for ($i = 1; $i <= 5; $i++) {
+			$this->book_window($this->vehicle('Zz Booked ' . $i));
+		}
+
+		$first = $this->filter($this->window_post() + array( 'per_page' => '1' ));
+		$this->assertSame(3, substr_count( (string) $first['booked_html'], 'data-rvs-card'));
+		$this->assertSame(3, $first['meta']['booked']);
+
+		$second = $this->filter($this->window_post() + array(
+			'per_page' => '1',
+			'page'     => '2',
+		));
+		$this->assertSame('', $second['booked_html']);
+		$this->assertSame('', $second['nearby_html']);
+
+		// Same city: at most six.
+		$this->three_points();
+		for ($i = 1; $i <= 8; $i++) {
+			$this->vehicle('Zz Taksim ' . $i, 2);
+		}
+		$near = $this->filter($this->window_post() + array( 'mhmrentiva_pickup_location' => array( '1' ) ));
+		$this->assertSame(6, substr_count( (string) $near['nearby_html'], 'data-rvs-card'));
+		$this->assertSame(6, $near['meta']['nearby']);
+	}
+
+	public function test_total_and_pages_ignore_sections(): void
+	{
+		$this->book_window($this->vehicle('Zz Booked A'));
+		$this->book_window($this->vehicle('Zz Booked B'));
+
+		$data = $this->filter($this->window_post() + array( 'per_page' => '1' ));
+
+		// The two setUp cars are free; the booked ones are not counted.
+		$this->assertSame(2, $data['meta']['total']);
+		$this->assertSame(2, $data['meta']['max_pages']);
+		$this->assertStringContainsString('2 vehicles', (string) $data['summary_html']);
+		$this->assertSame(2, $data['meta']['booked']);
+	}
+
+	public function test_ajax_and_page_render_same_sections(): void
+	{
+		// The booking starts at d33 12:30; with the 60 min buffer it holds the
+		// car from 11:30. A 14:00 return meets it, a 10:00 (default) one does not.
+		$one = $this->vehicle_id('Zz Page One');
+		$this->book($one, self::local(self::day(33), '12:30'), self::local(self::day(36), '12:30'));
+
+		$this->search_window();
+		set_query_var(SearchResults::query_var('pickup_time'), '14:00');
+		$page = $this->page();
+		$this->assertMatchesRegularExpression('/data-rv-instance="([^"]+)"/', $page);
+		preg_match('/data-rv-instance="([^"]+)"/', $page, $instance);
+
+		// The script sends the block's id prefix, so the headings' ids match the page's.
+		$data = $this->filter($this->window_post() + array(
+			'mhmrentiva_pickup_time' => '14:00',
+			'instance'               => $instance[1],
+		));
+
+		$this->assertStringContainsString('Zz Page One', self::section($page, 'booked'), 'The page path searches with the pickup time (m3).');
+		$this->assertStringContainsString('Zz Page One', (string) $data['booked_html']);
+		$this->assertStringNotContainsString('Zz Page One', (string) $data['html']);
+		$this->assertSame(1, $data['meta']['total']);
+		$flat = static fn(string $html): string => trim( (string) preg_replace('/\s+/', ' ', wp_kses($html, \MHMRentiva\Helpers\Html::allowed_markup())));
+		$this->assertStringContainsString($flat( (string) $data['booked_html']), $flat($page));
+	}
+
+	public function test_page_two_clears_sections(): void
+	{
+		$this->three_points();
+		$this->book_window($this->vehicle('Zz Golf At Airport', 1));
+		$this->vehicle('Zz Egea At Taksim', 2);
+		$this->vehicle('Zz Polo At Airport', 1);
+		$this->vehicle('Zz Fiesta At Airport', 1);
+
+		$first = $this->filter($this->window_post() + array(
+			'mhmrentiva_pickup_location' => array( '1' ),
+			'per_page'                   => '1',
+		));
+		$this->assertNotSame('', $first['nearby_html']);
+		$this->assertNotSame('', $first['booked_html']);
+
+		$second = $this->filter($this->window_post() + array(
+			'mhmrentiva_pickup_location' => array( '1' ),
+			'per_page'                   => '1',
+			'page'                       => '2',
+		));
+		$this->assertSame('', $second['nearby_html']);
+		$this->assertSame('', $second['booked_html']);
+		$this->assertSame(2, $second['meta']['total']);
+	}
+
+	public function test_single_location_hides_location_facet(): void
+	{
+		$this->locations(array( array( 7, 'Airport', 'İstanbul' ) ));
+		$this->vehicle('Zz At Airport', 7);
+		// A URL location means nothing on a single-location site (m8).
+		set_query_var(SearchResults::query_var('pickup_location'), array( '99' ));
+
+		$html = $this->page();
+
+		$this->assertStringNotContainsString('name="mhmrentiva_pickup_location[]"', $html);
+		$this->assertStringContainsString('Pickup and return: <strong>Airport</strong>', $html);
+		$this->assertStringContainsString('Zz Page One', $html, 'The URL location must not narrow the list.');
+		$this->assertStringContainsString('Zz At Airport', $html);
+	}
+
+	public function test_multi_location_facet_comes_from_location_context(): void
+	{
+		$this->three_points();
+		// A stale facet cache naming a location that is gone must not matter.
+		set_transient(SearchResults::FILTERS_CACHE_KEY, array( 'brands' => array( 'X' ), 'locations' => array( (object) array( 'id' => 55, 'name' => 'Gone' ) ) ), DAY_IN_SECONDS);
+
+		$html = $this->page();
+
+		$this->assertSame('mhmrentiva_search_filters_v4', SearchResults::FILTERS_CACHE_KEY);
+		$this->assertStringContainsString('name="mhmrentiva_pickup_location[]" value="2"', $html);
+		$this->assertStringNotContainsString('Gone', $html);
+	}
+
+	public function test_lite_alone_shows_booked_section_only(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+		$this->search_window();
+
+		$html = $this->page();
+
+		$this->assertSame('', self::section($html, 'nearby'));
+		$booked = self::section($html, 'booked');
+		$this->assertStringContainsString('Zz Page One', $booked);
+		$this->assertMatchesRegularExpression('/<h2 class="rvs-results__section-title" id="[^"]+">Booked for these dates<\/h2>/', $booked);
+		$this->assertStringContainsString('Matches your search, but not free on your dates', $booked);
+		$this->assertStringNotContainsString('pickup point', $html);
+		$this->assertStringNotContainsString('name="mhmrentiva_pickup_location[]"', $html);
+		$this->assertStringContainsString('Zz Page Two', $html);
+	}
+
+	public function test_no_booked_ids_means_no_booked_section(): void
+	{
+		$runs = 0;
+		$count = static function (\WP_Query $query) use (&$runs): void {
+			if (true === $query->get('mhmrentiva_search_context')) {
+				++$runs;
+			}
+		};
+		add_action('pre_get_posts', $count);
+
+		$data = $this->filter($this->window_post());
+
+		remove_action('pre_get_posts', $count);
+		$this->assertSame('', $data['booked_html']);
+		$this->assertSame(0, $data['meta']['booked']);
+		$this->assertSame(1, $runs, 'Only the main grid queries when nothing is booked.');
+	}
+
+	public function test_min_days_guard_still_empties_results(): void
+	{
+		add_filter(
+			'option_' . \MHMRentiva\Admin\Settings\Core\SettingsCore::OPTION_NAME,
+			static function ($settings): array {
+				$settings = is_array($settings) ? $settings : array();
+				$settings['mhmrentiva_vehicle_min_rental_days'] = 5;
+				return $settings;
+			}
+		);
+		$this->book_window($this->vehicle_id('Zz Page One'));
+
+		$data = $this->filter($this->window_post());
+
+		$this->assertSame(0, $data['meta']['total']);
+		$this->assertStringNotContainsString('Zz Page Two', (string) $data['html']);
+		$this->assertSame('', $data['booked_html']);
+	}
+
+	public function test_unrelated_query_untouched(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+		$sql    = '';
+		$nested = static function (\WP_Query $query) use (&$sql): void {
+			if (true !== $query->get('mhmrentiva_search_context') || '' !== $sql) {
+				return;
+			}
+			$other = new \WP_Query(array(
+				'post_type'      => 'mhmrentiva_vehicle',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			));
+			$sql   = (string) $other->request;
+		};
+		add_action('pre_get_posts', $nested);
+
+		$this->filter($this->window_post());
+
+		remove_action('pre_get_posts', $nested);
+		$this->assertNotSame('', $sql);
+		$this->assertStringNotContainsString('NOT IN', $sql);
+		$this->assertStringNotContainsString(' IN (', $sql);
 	}
 
 	/**
@@ -162,6 +621,27 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString($flat( (string) $data['summary_html']), $flat($page));
 		$this->assertStringContainsString($flat( (string) $data['chips_html']), $flat($page));
 		$this->assertSame('', $data['notice_html']);
+	}
+
+	public function test_notice_region_is_a_persistent_status_region(): void
+	{
+		$html = $this->page();
+
+		$this->assertMatchesRegularExpression('/<div class="rvs-results__notice" data-rvs-notice role="status">/', $html);
+		$this->assertMatchesRegularExpression('/<div class="rvs-results__nearby" data-rvs-nearby><\/div>/', $html);
+		$this->assertMatchesRegularExpression('/<div class="rvs-results__booked" data-rvs-booked><\/div>/', $html);
+		// One live region: the summary no longer announces on its own.
+		$this->assertDoesNotMatchRegularExpression('/data-rvs-summary aria-live/', $html);
+	}
+
+	public function test_ajax_meta_carries_an_announcement_of_sections_and_counts(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+
+		$data = $this->filter($this->window_post());
+
+		$this->assertStringContainsString('1 vehicle', (string) $data['meta']['announce']);
+		$this->assertStringContainsString('Booked for these dates', (string) $data['meta']['announce']);
 	}
 
 	public function test_pagination_buttons_are_44px_targets_with_page_data(): void

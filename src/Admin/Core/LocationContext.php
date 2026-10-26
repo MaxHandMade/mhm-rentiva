@@ -125,6 +125,10 @@ final class LocationContext {
 	 */
 	public static function for_vehicle( int $vehicle_id ): ?object
 	{
+		// Lite alone: no rental location, nothing to look up.
+		if (array() === self::rental_locations()) {
+			return null;
+		}
 		$location = self::by_id(BookingUrl::location_for($vehicle_id));
 		if (null !== $location) {
 			return $location;
@@ -245,6 +249,14 @@ final class LocationContext {
 			}
 		}
 		return $ids;
+	}
+
+	/**
+	 * A rental location by id ({id, name, city}), or null.
+	 */
+	public static function find( int $id ): ?object
+	{
+		return self::by_id($id);
 	}
 
 	/**
