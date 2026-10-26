@@ -1541,6 +1541,26 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
+	 * The phone's summary card content (escaped HTML): the pickup point or the
+	 * count, then the range ("No dates selected" without one). Drawn by the page
+	 * and the AJAX re-render (summary_card_html), so it follows the results and
+	 * never disagrees with the drawer button; by results_summary() it has no
+	 * count when only the sections below the grid list cars.
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	public static function summary_card_html(array $params, array $results): string
+	{
+		$summary = self::results_summary($params, $results);
+		$label   = self::location_label($params);
+		$title   = '' !== $label ? $label : $summary['count'];
+		$range   = '' !== $summary['range'] ? $summary['range'] : __('No dates selected', 'mhm-rentiva');
+
+		return ( '' !== $title ? '<strong>' . esc_html($title) . '</strong>' : '' ) . '<span>' . esc_html($range) . '</span>';
+	}
+
+	/**
 	 * The filter drawer's apply button label (escaped HTML): "Show 6 vehicles",
 	 * or "Show results" when only the sections below the grid list cars.
 	 *
@@ -1973,15 +1993,16 @@ final class SearchResults extends AbstractShortcode {
 			// differently. The sections exist on page 1 only: on later pages
 			// their keys are empty strings.
 			$payload = array(
-				'html'         => self::grid_html($search_params, $results, $atts, (string) $empty_state, $change_url),
-				'nearby_html'  => self::nearby_html($search_params, $results, $atts, $instance),
-				'booked_html'  => self::booked_html($search_params, $results, $atts, $instance),
-				'pagination'   => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
-				'summary_html' => Templates::render('partials/search/rvs-summary', array( 'summary' => self::results_summary($search_params, $results) ), true),
-				'apply_html'   => self::apply_label_html($results),
-				'chips_html'   => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
-				'notice_html'  => self::notice_html($search_params, $results, (string) $empty_state, $change_url),
-				'meta'         => array(
+				'html'              => self::grid_html($search_params, $results, $atts, (string) $empty_state, $change_url),
+				'nearby_html'       => self::nearby_html($search_params, $results, $atts, $instance),
+				'booked_html'       => self::booked_html($search_params, $results, $atts, $instance),
+				'pagination'        => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
+				'summary_html'      => Templates::render('partials/search/rvs-summary', array( 'summary' => self::results_summary($search_params, $results) ), true),
+				'apply_html'        => self::apply_label_html($results),
+				'summary_card_html' => self::summary_card_html($search_params, $results),
+				'chips_html'        => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
+				'notice_html'       => self::notice_html($search_params, $results, (string) $empty_state, $change_url),
+				'meta'              => array(
 					'total'          => $total,
 					'max_pages'      => (int) $results['max_pages'],
 					'current_page'   => (int) $results['current_page'],

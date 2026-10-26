@@ -151,13 +151,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 
 	<div class="rvs-results__mobilebar">
 		<a class="rvs-results__summary-card" href="<?php echo esc_url($change_url); ?>" data-rvs-change>
-			<span class="rvs-results__summary-text">
-				<?php $rvs_card_title = '' !== $location_label ? $location_label : (string) $summary['count']; ?>
-				<?php if ('' !== $rvs_card_title) : ?>
-					<strong><?php echo esc_html($rvs_card_title); ?></strong>
-				<?php endif; ?>
-				<span><?php echo esc_html('' !== $summary['range'] ? $summary['range'] : __('No dates selected', 'mhm-rentiva')); ?></span>
-			</span>
+			<span class="rvs-results__summary-text" data-rvs-summary-card><?php Html::echo_markup(SearchResults::summary_card_html( (array) $search_params, (array) $results)); ?></span>
 			<span class="rvs-results__change"><?php esc_html_e('Change', 'mhm-rentiva'); ?></span>
 		</a>
 		<?php if ($show_filters) : ?>

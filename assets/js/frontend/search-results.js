@@ -94,6 +94,11 @@
 		$root.find( '[data-rvs-grid]' ).html( data.html || '' );
 		$root.find( '[data-rvs-pagination]' ).html( data.pagination || '' );
 		$root.find( '[data-rvs-summary]' ).html( data.summary_html || '' );
+		// The phone's summary card follows the same results (and the same
+		// no-"0" rule) as the drawer button beside it.
+		if ( typeof data.summary_card_html === 'string' ) {
+			$root.find( '[data-rvs-summary-card]' ).html( data.summary_card_html );
+		}
 		$root.find( '[data-rvs-chips]' ).html( data.chips_html || '' );
 		// Page 1 sections; an empty string (later pages, nothing to show) clears them.
 		$root.find( '[data-rvs-nearby]' ).html( data.nearby_html || '' );

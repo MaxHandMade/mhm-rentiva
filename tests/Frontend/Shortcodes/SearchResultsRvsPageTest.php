@@ -746,6 +746,44 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$data = $this->filter($this->window_post());
 		$this->assertSame('Show 2 vehicles', trim(strip_tags( (string) $data['apply_html'])));
 		$this->assertStringContainsString('2 vehicles', (string) $data['summary_html']);
+		$this->assertStringContainsString('<strong>2 vehicles</strong>', (string) $data['summary_card_html']);
+		$this->assertSame(self::summary_card($html), self::tight( (string) $data['summary_card_html']), 'Page and re-render draw the same card.');
+	}
+
+	/**
+	 * Fix round 1 (m3): the phone's summary card is re-rendered with the results,
+	 * by the same rule: no "0 vehicles" over sections that list cars.
+	 */
+	public function test_mobile_summary_card_follows_the_results(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+		$this->search_window();
+		set_query_var(SearchResults::query_var('fuel_type'), array( 'diesel' ));
+
+		$html = $this->page();
+		$card = self::summary_card($html);
+		$this->assertStringNotContainsString('0 vehicles', $card);
+		$this->assertStringNotContainsString('<strong>', $card);
+
+		$data = $this->filter($this->window_post() + array( 'mhmrentiva_fuel_type' => array( 'diesel' ) ));
+		$this->assertSame(1, $data['meta']['booked'], 'Positive control: the booked section lists the car.');
+		$this->assertSame($card, self::tight( (string) $data['summary_card_html']));
+	}
+
+	/**
+	 * Markup without the whitespace between tags.
+	 */
+	private static function tight(string $html): string
+	{
+		return (string) preg_replace('#>\s+<#', '><', trim($html));
+	}
+
+	/**
+	 * The inner markup of the phone's summary card.
+	 */
+	private static function summary_card(string $html): string
+	{
+		return preg_match('#<span class="rvs-results__summary-text" data-rvs-summary-card>(.*?)</span>\s*<span class="rvs-results__change">#s', $html, $m) ? self::tight($m[1]) : 'no card';
 	}
 
 	public function test_announcement_without_sections_is_the_count(): void

@@ -21,6 +21,7 @@ describe( 'rvs search results', () => {
 					<input type="hidden" name="mhmrentiva_keyword" value="golf">
 				</form>
 				<div class="rvs-results__mobilebar">
+					<a href="#" data-rvs-change><span class="rvs-results__summary-text" data-rvs-summary-card><strong>4 vehicles</strong><span>12 Jul – 15 Jul</span></span></a>
 					<button type="button" id="opener" data-rvs-drawer-open aria-expanded="false">Filters (<span data-rvs-filter-count>1</span>)</button>
 				</div>
 				<div class="rvs-results__layout">
@@ -314,6 +315,25 @@ describe( 'rvs search results', () => {
 		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
 		expect( document.querySelector( '[data-rvs-apply-label]' ).textContent ).toBe( 'Show 1 vehicle' );
 		expect( document.querySelector( '[data-rvs-apply-count]' ).textContent ).toBe( '1' );
+	} );
+
+	// Fix round 1 (m3): the phone's summary card follows the re-render, so it
+	// never disagrees with the drawer button (no "0" over sections with cars).
+	test( 'the mobile summary card follows the re-render', async () => {
+		let next = { summary_card_html: '<span>12 Jul – 15 Jul</span>', apply_html: 'Show results', meta: { total: 0, active_filters: 1 } };
+		await boot( ( o ) => o.success( {
+			success: true,
+			data: Object.assign( { html: '', pagination: '', summary_html: '12 Jul – 15 Jul · 3 days', chips_html: '', notice_html: '' }, next ),
+		} ) );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		const card = document.querySelector( '[data-rvs-summary-card]' );
+		expect( card.textContent ).toBe( '12 Jul – 15 Jul' );
+		expect( card.textContent ).not.toContain( '4 vehicles' );
+
+		next = { summary_card_html: '<strong>2 vehicles</strong><span>12 Jul – 15 Jul</span>', apply_html: 'Show <span data-rvs-apply-count>2</span> vehicles', meta: { total: 2, active_filters: 0 } };
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		expect( card.querySelector( 'strong' ).textContent ).toBe( '2 vehicles' );
 	} );
 
 	test( 'opening the drawer makes it a modal dialog and focuses its title', async () => {
