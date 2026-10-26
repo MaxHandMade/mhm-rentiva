@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
+use MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks;
 use MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList;
 use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
@@ -362,6 +363,8 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		update_post_meta($other, '_mhmrentiva_vehicle_status', 'active');
 		update_post_meta($other, '_mhmrentiva_seats', '5');
 		update_post_meta($other, '_mhmrentiva_transmission', 'auto');
+		update_post_meta($other, '_mhmrentiva_fuel_type', 'diesel');
+		update_post_meta($other, '_mhmrentiva_mileage', '12000');
 
 		$response = $this->dispatch('mhmrentiva_check_availability');
 
@@ -380,11 +383,14 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$this->assertSame($this->day(12), $query['mhmrentiva_return_date'] ?? null);
 		$this->assertSame('10:00', $query['mhmrentiva_pickup_time'] ?? null);
 
-		// The card's specs line: the translated labels the summary's builder
-		// makes for that vehicle (never the raw meta values).
-		$labels = array_values(array_filter(array_map(static fn($f) => trim( (string) ( $f['text'] ?? '' )), VehiclesList::get_limited_features($other, 0)), static fn(string $t) => '' !== $t));
-		$this->assertNotSame(array(), $labels, 'Fixture: the vehicle has feature labels.');
-		$this->assertSame(implode(' · ', $labels), $found['specs'] ?? null);
+		// The card's specs line: the rvs card's own builder (seats · transmission
+		// · fuel, translated), not every feature label the vehicle has.
+		$all = VehiclesList::get_limited_features($other, 0);
+		$this->assertGreaterThan(3, count($all), 'Fixture: more than three features, so an unlimited join would differ.');
+		$expected = RvsCardView::specs($other, $all);
+		$this->assertNotSame('', $expected);
+		$this->assertSame($expected, $found['specs'] ?? null);
+		$this->assertCount(3, explode(' · ', (string) $found['specs']), 'Seats, transmission and fuel only.');
 		$this->assertStringNotContainsString('auto', (string) $found['specs'], 'The raw transmission value is not shown.');
 	}
 
@@ -428,13 +434,28 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 	 */
 	public function test_quote_answer_carries_the_change_url_with_the_window(): void
 	{
-		$response = $this->dispatch(
-			'mhmrentiva_calculate_price',
-			array(
-				'pickup_location_id' => '7',
-				'customer_email'     => 'jane@example.com',
-			)
+		$locations = static fn() => array(
+			(object) array(
+				'id'   => 7,
+				'name' => 'Zz Airport',
+			),
 		);
+		add_filter('mhmrentiva_locations', $locations);
+		try {
+			$response = $this->dispatch(
+				'mhmrentiva_calculate_price',
+				array(
+					'pickup_location_id' => '7',
+					'customer_email'     => 'jane@example.com',
+				)
+			);
+			// A location id that names no active rental location is not forwarded.
+			$unknown = $this->dispatch('mhmrentiva_calculate_price', array( 'pickup_location_id' => '8' ));
+		} finally {
+			remove_filter('mhmrentiva_locations', $locations);
+		}
+		parse_str( (string) wp_parse_url( (string) ( $unknown['data']['change_url'] ?? '' ), PHP_URL_QUERY), $unknown_query);
+		$this->assertArrayNotHasKey('mhmrentiva_pickup_location', $unknown_query, wp_json_encode($unknown));
 
 		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
 		$url = (string) ( $response['data']['change_url'] ?? '' );

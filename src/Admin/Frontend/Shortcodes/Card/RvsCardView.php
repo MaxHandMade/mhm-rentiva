@@ -230,9 +230,11 @@ final class RvsCardView {
 	 * features (the card data's `features`). $max (the shortcode's
 	 * max_features) caps the parts; 0 = no cap.
 	 *
+	 * Public: the booking form's alternative-vehicle cards show the same line.
+	 *
 	 * @param array<int, array<string, mixed>> $features
 	 */
-	private static function specs(int $vehicle_id, array $features = array(), int $max = 0): string
+	public static function specs(int $vehicle_id, array $features = array(), int $max = 0): string
 	{
 		$parts = self::specs_from_meta($vehicle_id);
 		if (array() === $parts) {

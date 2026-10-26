@@ -1150,25 +1150,9 @@ final class BookingForm extends AbstractShortcode {
 			// for a day it did not pay for. The posted value is not read.
 			$dropoff_time = self::return_time($pickup_time);
 
-			$guests             = max(1, $req->int('guests', 1));
-			$pickup_location_id = $req->int('pickup_location_id');
-			if ($pickup_location_id > 0) {
-				// Validate submitted location ID against active rental locations.
-				// Locations come from an add-on via the filter: without one there is
-				// nothing to validate against, so a submitted ID (only reachable by
-				// hand-crafting the request, since Lite renders no location picker)
-				// is rejected rather than trusted.
-				$valid_location = false;
-				foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
-					if ( (int) $loc->id === $pickup_location_id) {
-						$valid_location = true;
-						break;
-					}
-				}
-				if (! $valid_location) {
-					$pickup_location_id = 0;
-				}
-			}
+			$guests = max(1, $req->int('guests', 1));
+			// Only an active rental location (see valid_pickup_location()).
+			$pickup_location_id = self::valid_pickup_location($req->int('pickup_location_id'));
 
 			// ⭐ WooCommerce Integration: Customer information is optional
 			// WooCommerce checkout will collect customer information
@@ -1648,7 +1632,7 @@ final class BookingForm extends AbstractShortcode {
 	/**
 	 * A quote request's window in the logical keys summary_view() uses: ISO
 	 * dates, the posted pickup time ('' when none was chosen) with the return
-	 * time the server applies, and the pickup location when one was posted.
+	 * time the server applies, and the pickup location when it is a valid one.
 	 *
 	 * @return array<string, string>
 	 */
@@ -1656,7 +1640,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		$time     = $req->text('pickup_time', '');
 		$time     = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
-		$location = $req->int('pickup_location_id');
+		$location = self::valid_pickup_location($req->int('pickup_location_id'));
 
 		return array(
 			'pickup_location' => $location > 0 ? (string) $location : '',
@@ -1668,8 +1652,29 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * A vehicle's feature labels (VehicleFeatureHelper via VehiclesList): the
-	 * vehicle select's data-features and the alternative cards' specs line.
+	 * A posted pickup location id when it names an active rental location, else 0.
+	 *
+	 * Locations come from an add-on via the filter: without one there is nothing
+	 * to validate against, so a posted id (only reachable by hand-crafting the
+	 * request, since Lite renders no location picker) is rejected, not trusted.
+	 */
+	private static function valid_pickup_location(int $location_id): int
+	{
+		if ($location_id <= 0) {
+			return 0;
+		}
+		foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
+			if ( (int) $loc->id === $location_id) {
+				return $location_id;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * A vehicle's feature labels (VehicleFeatureHelper via VehiclesList), as the
+	 * vehicle select's data-features carries them.
 	 *
 	 * @return list<string>
 	 */
@@ -1895,8 +1900,9 @@ final class BookingForm extends AbstractShortcode {
 				foreach ($result['alternatives'] as $index => $alternative) {
 					$alt_id                                        = (int) ( $alternative['id'] ?? 0 );
 					$result['alternatives'][ $index ]['permalink'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($alt_id, $window);
-					// The card's specs line, translated labels (not the raw meta values).
-					$result['alternatives'][ $index ]['specs'] = implode(' · ', array_filter(array_map('trim', self::feature_labels($alt_id)), static fn(string $t): bool => '' !== $t));
+					// The rvs card's own specs line (seats · transmission · fuel, translated;
+					// else the first three features), as every other card shows it.
+					$result['alternatives'][ $index ]['specs'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView::specs($alt_id, \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($alt_id, 3));
 				}
 			}
 
