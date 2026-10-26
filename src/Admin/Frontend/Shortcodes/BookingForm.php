@@ -844,8 +844,7 @@ final class BookingForm extends AbstractShortcode {
 				continue;
 			}
 
-			$raw_features   = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($vehicle->ID, 0);
-			$feature_labels = array_values( array_map( fn( $f ) => (string) ( $f['text'] ?? '' ), $raw_features ) );
+			$feature_labels = self::feature_labels( (int) $vehicle->ID);
 
 			$result[] = array(
 				'id'             => $vehicle->ID,
@@ -1632,12 +1631,52 @@ final class BookingForm extends AbstractShortcode {
 				'breakdown_html'        => self::breakdown_html($req, $vehicle_id, $days, $start_ts, $selection, $deposit_result),
 			);
 
+			// Display only: the summary's window line and its "Change" link for
+			// the window this quote is for, built as the template builds them.
+			$window                       = self::quote_window($req, $pickup_date, $dropoff_date);
+			$response_data['window_text'] = self::window_text($window);
+			$response_data['change_url']  = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window);
+
 			return self::succeeded($response_data);
 		} catch (\InvalidArgumentException $e) {
 			return self::failed($e->getMessage());
 		} catch (\Exception $e) {
 			return self::failed(self::safe_message($e));
 		}
+	}
+
+	/**
+	 * A quote request's window in the logical keys summary_view() uses: ISO
+	 * dates, the posted pickup time ('' when none was chosen) with the return
+	 * time the server applies, and the pickup location when one was posted.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function quote_window(VerifiedRequest $req, string $pickup_date, string $dropoff_date): array
+	{
+		$time     = $req->text('pickup_time', '');
+		$time     = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
+		$location = $req->int('pickup_location_id');
+
+		return array(
+			'pickup_location' => $location > 0 ? (string) $location : '',
+			'pickup_date'     => $pickup_date,
+			'pickup_time'     => $time,
+			'return_date'     => $dropoff_date,
+			'return_time'     => '' !== $time ? self::return_time($time) : '',
+		);
+	}
+
+	/**
+	 * A vehicle's feature labels (VehicleFeatureHelper via VehiclesList): the
+	 * vehicle select's data-features and the alternative cards' specs line.
+	 *
+	 * @return list<string>
+	 */
+	private static function feature_labels(int $vehicle_id): array
+	{
+		$raw = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($vehicle_id, 0);
+		return array_values(array_map(fn($f) => (string) ( $f['text'] ?? '' ), $raw));
 	}
 
 	/**
@@ -1854,7 +1893,10 @@ final class BookingForm extends AbstractShortcode {
 					'return_time' => $dropoff_time,
 				);
 				foreach ($result['alternatives'] as $index => $alternative) {
-					$result['alternatives'][ $index ]['permalink'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url( (int) ( $alternative['id'] ?? 0 ), $window);
+					$alt_id                                        = (int) ( $alternative['id'] ?? 0 );
+					$result['alternatives'][ $index ]['permalink'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($alt_id, $window);
+					// The card's specs line, translated labels (not the raw meta values).
+					$result['alternatives'][ $index ]['specs'] = implode(' · ', array_filter(array_map('trim', self::feature_labels($alt_id)), static fn(string $t): bool => '' !== $t));
 				}
 			}
 

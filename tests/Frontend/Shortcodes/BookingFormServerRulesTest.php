@@ -6,6 +6,8 @@ namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
+use MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks;
+use MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList;
 use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_Ajax_UnitTestCase;
 
@@ -358,6 +360,8 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		);
 		update_post_meta($other, '_mhmrentiva_price_per_day', '900');
 		update_post_meta($other, '_mhmrentiva_vehicle_status', 'active');
+		update_post_meta($other, '_mhmrentiva_seats', '5');
+		update_post_meta($other, '_mhmrentiva_transmission', 'auto');
 
 		$response = $this->dispatch('mhmrentiva_check_availability');
 
@@ -375,6 +379,80 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$this->assertSame($this->day(10), $query['mhmrentiva_pickup_date'] ?? null);
 		$this->assertSame($this->day(12), $query['mhmrentiva_return_date'] ?? null);
 		$this->assertSame('10:00', $query['mhmrentiva_pickup_time'] ?? null);
+
+		// The card's specs line: the translated labels the summary's builder
+		// makes for that vehicle (never the raw meta values).
+		$labels = array_values(array_filter(array_map(static fn($f) => trim( (string) ( $f['text'] ?? '' )), VehiclesList::get_limited_features($other, 0)), static fn(string $t) => '' !== $t));
+		$this->assertNotSame(array(), $labels, 'Fixture: the vehicle has feature labels.');
+		$this->assertSame(implode(' · ', $labels), $found['specs'] ?? null);
+		$this->assertStringNotContainsString('auto', (string) $found['specs'], 'The raw transmission value is not shown.');
+	}
+
+	/**
+	 * Controller ruling (PR C Task 3 r1): the quote answer carries the summary's
+	 * window line, built by the same window_text() the template uses.
+	 */
+	public function test_quote_answer_carries_the_templates_window_text(): void
+	{
+		// The URL's window, as query vars (go_to() would run admin hooks in this AJAX case).
+		$vars = array(
+			'vehicle_id'  => (string) $this->vehicle_id,
+			'start_date'  => $this->day(10),
+			'end_date'    => $this->day(13),
+			'pickup_time' => '10:00',
+		);
+		foreach ($vars as $key => $value) {
+			set_query_var(BookingForm::query_var($key), $value);
+		}
+		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 1000);
+		try {
+			$html = BookingForm::render(array());
+		} finally {
+			remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 1000);
+			foreach (array_keys($vars) as $key) {
+				set_query_var(BookingForm::query_var($key), '');
+			}
+		}
+		$this->assertSame(1, preg_match('#data-rvs-summary-dates>([^<]*)<#', $html, $m), 'The template renders the window line.');
+
+		$response = $this->dispatch('mhmrentiva_calculate_price', array( 'dropoff_date' => $this->day(13) ));
+
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$this->assertSame(html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'), $response['data']['window_text'] ?? null);
+		$this->assertStringContainsString('3 days', (string) $response['data']['window_text'], 'Plural day count.');
+	}
+
+	/**
+	 * The quote answer's change_url: the vehicle page with the request's window
+	 * in ISO, forwarded keys only.
+	 */
+	public function test_quote_answer_carries_the_change_url_with_the_window(): void
+	{
+		$response = $this->dispatch(
+			'mhmrentiva_calculate_price',
+			array(
+				'pickup_location_id' => '7',
+				'customer_email'     => 'jane@example.com',
+			)
+		);
+
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$url = (string) ( $response['data']['change_url'] ?? '' );
+		$this->assertStringStartsWith(get_permalink($this->vehicle_id), $url);
+		parse_str((string) wp_parse_url($url, PHP_URL_QUERY), $query);
+		$allowed = array_map(array( \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class, 'query_var' ), VehicleCardLinks::FORWARD_KEYS);
+		parse_str((string) wp_parse_url( (string) get_permalink($this->vehicle_id), PHP_URL_QUERY), $base);
+		foreach (array_keys($query) as $key) {
+			// The permalink's own query (plain permalinks) is not part of the window.
+			if (! array_key_exists($key, $base) && str_starts_with( (string) $key, 'mhmrentiva_')) {
+				$this->assertContains($key, $allowed, "$key is not a forwarded key.");
+			}
+		}
+		$this->assertSame($this->day(10), $query['mhmrentiva_pickup_date'] ?? null);
+		$this->assertSame($this->day(12), $query['mhmrentiva_return_date'] ?? null);
+		$this->assertSame('10:00', $query['mhmrentiva_pickup_time'] ?? null);
+		$this->assertSame('7', $query['mhmrentiva_pickup_location'] ?? null);
+		$this->assertArrayNotHasKey('mhmrentiva_customer_email', $query);
 	}
 
 	public function test_submission_refuses_an_unknown_payment_type(): void

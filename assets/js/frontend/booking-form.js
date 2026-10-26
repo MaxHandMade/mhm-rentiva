@@ -425,17 +425,18 @@
             }
         }
 
-        // The summary's window line, from the fields as they stand now.
+        // The summary's window line comes from each quote answer (window_text).
+        // A window that lost a date has no line, and a quote still in flight for
+        // the old window must not bring it back.
         updateSummaryDates() {
-            const $dates = this.hook('summary-dates');
-            const pickup = this.hook('pickup-date').val();
-            const dropoff = this.hook('dropoff-date').val();
-            if (!$dates.length || !pickup || !dropoff) {
+            if (this.hook('pickup-date').val() && this.hook('dropoff-date').val()) {
                 return;
             }
-            const time = this.hook('pickup-time').val();
-            const at = time ? ' ' + time : '';
-            $dates.text(pickup + at + ' → ' + dropoff + at);
+            this.hook('summary-dates').text('');
+            if (this.quoteSeq) {
+                this.quoteSeq += 1;
+                this.showLoading(false);
+            }
         }
 
         calculatePrice() {
@@ -447,6 +448,10 @@
 
             this.showLoading(true);
             this.hideMessages();
+
+            // Only the newest quote may speak: a burst of stepper presses sends
+            // several, and a late older answer must not overwrite a newer one.
+            const quoteSeq = this.quoteSeq = (this.quoteSeq || 0) + 1;
 
             const requestData = new URLSearchParams();
             requestData.append('action', 'mhmrentiva_calculate_price');
@@ -461,6 +466,10 @@
                 requestData.append('pickup_time', formData.pickup_time);
             }
             requestData.append('payment_type', formData.payment_type);
+            // For the answer's change_url (the vehicle page keeps the location).
+            if (formData.pickup_location_id > 0) {
+                requestData.append('pickup_location_id', formData.pickup_location_id);
+            }
             // Display only: a form with enable_deposit="0" names no deposit.
             requestData.append('enable_deposit', this.container.attr('data-rvs-deposit') === '0' ? '0' : '1');
 
@@ -481,6 +490,9 @@
                 contentType: 'application/x-www-form-urlencoded',
                 traditional: true,
                 success: (response) => {
+                    if (quoteSeq !== this.quoteSeq) {
+                        return;
+                    }
                     this.showLoading(false);
 
                     if (response.success) {
@@ -493,6 +505,9 @@
                     }
                 },
                 error: () => {
+                    if (quoteSeq !== this.quoteSeq) {
+                        return;
+                    }
                     this.showLoading(false);
                     this.showError(this.getMessage('error_occurred'));
                 }
@@ -668,6 +683,20 @@
             }
 
             this.updateBand(data);
+
+            // Display only, server-built: the window line ("… → … · 3 days") and
+            // the "Change" link to the vehicle page with this window.
+            if (typeof data.window_text === 'string') {
+                this.hook('summary-dates').text(data.window_text);
+            }
+            if (typeof data.change_url === 'string') {
+                const $change = this.hook('change');
+                if (data.change_url !== '') {
+                    $change.attr('href', data.change_url).prop('hidden', false);
+                } else {
+                    $change.removeAttr('href').prop('hidden', true);
+                }
+            }
         }
 
         // An amount through WooCommerce's display markup when the answer has it
@@ -1045,10 +1074,8 @@
             alternatives.forEach((vehicle) => {
                 const title = vehicle.title === undefined || vehicle.title === null ? '' : String(vehicle.title);
                 const image = vehicle.image || window.mhmRentivaBookingForm?.placeholder_image || '';
-                const specs = [vehicle.seats, vehicle.transmission, vehicle.fuel_type]
-                    .filter((part) => part !== undefined && part !== null && String(part) !== '')
-                    .map(String)
-                    .join(' · ');
+                // Translated feature labels, joined by the server.
+                const specs = typeof vehicle.specs === 'string' ? vehicle.specs : '';
 
                 const $card = $('<article class="rvs-card"></article>').attr('data-vehicle-id', String(vehicle.id));
                 if (image) {

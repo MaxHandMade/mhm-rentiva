@@ -330,6 +330,7 @@ describe( 'booking form on the rvs markup', () => {
 		seats: '5',
 		transmission: 'manual',
 		fuel_type: 'diesel',
+		specs: '5 People · Manual · Diesel',
 		permalink: '/fiat-egea/?mhmrentiva_pickup_date=2030-05-10',
 		...extra,
 	} );
@@ -347,7 +348,8 @@ describe( 'booking form on the rvs markup', () => {
 		expect( $cards.length ).toBe( 2 );
 		expect( $cards.eq( 0 ).find( '.rvs-card__title' ).text() ).toBe( 'Fiat Egea' );
 		expect( $cards.eq( 0 ).find( '.rvs-card__img' ).attr( 'src' ) ).toBe( '/egea.jpg' );
-		expect( $cards.eq( 0 ).find( '.rvs-card__specs' ).text() ).toBe( '5 · manual · diesel' );
+		// The server's translated labels, never the raw seats/transmission/fuel values.
+		expect( $cards.eq( 0 ).find( '.rvs-card__specs' ).text() ).toBe( '5 People · Manual · Diesel' );
 		expect( $cards.eq( 0 ).find( '.rvs-card__amount' ).text() ).toBe( '$850' );
 		expect( $cards.eq( 0 ).find( 'button.rvs-card__select' ).text() ).toBe( 'Select This Vehicle' );
 	} );
@@ -355,7 +357,7 @@ describe( 'booking form on the rvs markup', () => {
 	test( 'alternative card values are text, never markup', () => {
 		const form = mount( markup( 'rvs-bf-1' ) );
 		const evil = '<img src=x onerror="window.__pwned=1">';
-		unavailableWith( [ alternative( { title: evil, seats: evil, image: '" onerror="window.__pwned=1' } ) ] );
+		unavailableWith( [ alternative( { title: evil, specs: evil, image: '" onerror="window.__pwned=1' } ) ] );
 
 		form.checkAvailability();
 
@@ -405,6 +407,86 @@ describe( 'booking form on the rvs markup', () => {
 		expect( form.getFormData().vehicle_id ).toBe( '12' );
 		expect( form.container.find( '.rvs-booking__vehicle-title' ).text() ).toBe( 'Unlisted' );
 		expect( form.container.find( '[data-rvs-change]' ).attr( 'href' ) ).toBe( '/unlisted/' );
+	} );
+
+	const quoteAnswer = ( extra ) => ( { success: true, data: quote( { breakdown_html: breakdownHtml( false ), ...extra } ) } );
+
+	test( 'a quote answer sets the window line and the Change link (Case A date change)', () => {
+		const form = mount( markup( 'rvs-bf-1' ) );
+		form.autoCheckAvailability = jest.fn();
+		$.ajax = jest.fn( ( options ) => options.success( quoteAnswer( {
+			window_text: 'November 11, 2030 10:00 → November 14, 2030 10:00 · 3 days',
+			change_url: '/old-car/?mhmrentiva_pickup_date=2030-11-11&mhmrentiva_return_date=2030-11-14',
+		} ) ) );
+
+		form.container.find( '[data-rvs-pickup-date]' ).val( '2030-11-11' );
+		form.container.find( '[data-rvs-dropoff-date]' ).val( '2030-11-14' ).trigger( 'change' );
+		// The field values are not written into the line; the answer is.
+		expect( form.container.find( '[data-rvs-summary-dates]' ).text() ).toBe( '' );
+		form.calculatePrice();
+
+		expect( form.container.find( '[data-rvs-summary-dates]' ).text() ).toBe( 'November 11, 2030 10:00 → November 14, 2030 10:00 · 3 days' );
+		expect( form.container.find( '[data-rvs-change]' ).attr( 'href' ) ).toBe( '/old-car/?mhmrentiva_pickup_date=2030-11-11&mhmrentiva_return_date=2030-11-14' );
+	} );
+
+	test( 'a pickup change that clears the return date leaves no stale window', () => {
+		$.fn.datepicker = function ( action ) {
+			return action === 'getDate' ? null : this;
+		};
+		const form = mount( markup( 'rvs-bf-1' ) );
+		form.autoCheckAvailability = jest.fn();
+		form.autoCalculatePrice = jest.fn();
+		const pending = [];
+		$.ajax = jest.fn( ( options ) => pending.push( options ) );
+		form.calculatePrice();
+		form.container.find( '[data-rvs-summary-dates]' ).text( 'May 10 → May 13 · 3 days' );
+
+		// The pickup moved past the return date: the return date is cleared.
+		form.container.find( '[data-rvs-dropoff-date]' ).val( '' );
+		form.container.find( '[data-rvs-pickup-date]' ).val( '2030-05-20' ).trigger( 'change' );
+		expect( form.container.find( '[data-rvs-summary-dates]' ).text() ).toBe( '' );
+
+		// The answer for the old window lands late: it does not bring the line back.
+		pending[ 0 ].success( quoteAnswer( { window_text: 'May 10 → May 13 · 3 days' } ) );
+		expect( form.container.find( '[data-rvs-summary-dates]' ).text() ).toBe( '' );
+		expect( form.container.find( '[data-rvs-summary]' ).attr( 'aria-busy' ) ).toBe( 'false' );
+	} );
+
+	test( 'Case B: a chosen vehicle with dates gets a Change link that carries the window', () => {
+		const select = `<select name="vehicle_id" data-rvs-vehicle-select>
+			<option value="">Select vehicle...</option>
+			<option value="7" data-price="120" data-permalink="/clio/">Clio</option>
+		</select>`;
+		const html = markup( 'rvs-bf-1', { vehicle: '', select } )
+			.replace( /<a class="rvs-booking__change"[^>]*>/, '<a class="rvs-booking__change" data-rvs-change hidden>' )
+			+ '';
+		const form = mount( html.replace( '<input type="hidden" name="payment_type"', '<input type="hidden" name="pickup_location_id" value="4"><input type="hidden" name="payment_type"' ) );
+		form.fetchAndApplyBlockedDates = jest.fn();
+		form.autoCheckAvailability = jest.fn();
+		form.autoCalculatePrice = jest.fn();
+		form.container.find( '[data-rvs-vehicle-select]' ).val( '7' ).trigger( 'change' );
+		$.ajax = jest.fn( ( options ) => options.success( quoteAnswer( { change_url: '/clio/?mhmrentiva_pickup_date=2030-05-10&mhmrentiva_return_date=2030-05-13' } ) ) );
+
+		form.calculatePrice();
+
+		expect( posted( lastCall() ).get( 'pickup_location_id' ) ).toBe( '4' );
+		expect( form.container.find( '[data-rvs-change]' ).attr( 'href' ) ).toBe( '/clio/?mhmrentiva_pickup_date=2030-05-10&mhmrentiva_return_date=2030-05-13' );
+	} );
+
+	test( 'an older quote answer never overwrites a newer one', () => {
+		const form = mount( markup( 'rvs-bf-1' ) );
+		const pending = [];
+		$.ajax = jest.fn( ( options ) => pending.push( options ) );
+
+		form.calculatePrice(); // quantity 1
+		form.calculatePrice(); // quantity 2
+
+		pending[ 1 ].success( quoteAnswer( { display_total: { amount: 420, html: '<span class="amount">$420.00</span>' } } ) );
+		pending[ 0 ].success( quoteAnswer( { display_total: { amount: 360, html: '<span class="amount">$360.00</span>' } } ) );
+		pending[ 0 ].error && pending[ 0 ].error();
+
+		expect( form.container.find( '[data-rvs-total] .amount' ).text() ).toBe( '$420.00' );
+		expect( form.container.find( '[data-rvs-messages]' ).prop( 'hidden' ) ).toBe( true );
 	} );
 
 	test( 'a vehicle chosen from the select fills the summary and its Change link', () => {
