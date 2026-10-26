@@ -128,6 +128,18 @@
 		return format.replace( '%s', String( days ) );
 	}
 
+	// A Y-m-d date into a date field: the shared datepicker init shows it in the
+	// site's format and keeps Y-m-d in the field it submits (posted by
+	// windowFields() through the form's serialization).
+	function setDate( $field, iso ) {
+		const api = window.mhmRentivaDatepicker;
+		if ( api ) {
+			api.setValue( $field, iso );
+		} else {
+			$field.val( iso );
+		}
+	}
+
 	// Until a quote for the visible window arrives (or after one fails), the
 	// links must not carry the previous window to the booking form.
 	function holdContinue( $root ) {
@@ -140,8 +152,8 @@
 		// a newer change is queued, which must keep the visitor's latest choice.
 		if ( data.window && ! state.queued ) {
 			const $form = $root.find( '[data-rvs-vd-window]' );
-			$form.find( '[data-rvs-pickup-date]' ).val( data.window.pickup_date );
-			$form.find( '[data-rvs-return-date]' ).val( data.window.return_date );
+			setDate( $form.find( '[data-rvs-pickup-date]' ), data.window.pickup_date );
+			setDate( $form.find( '[data-rvs-return-date]' ), data.window.return_date );
 			$form.find( '[data-rvs-pickup-time]' ).val( data.window.pickup_time );
 			$root.find( '[data-rvs-return-time-display]' ).text( data.window.pickup_time );
 		}

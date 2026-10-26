@@ -344,4 +344,37 @@ describe( 'rvs vehicle page', () => {
 		expect( message.hidden ).toBe( false );
 		expect( message.textContent ).toBe( 'Something went wrong' );
 	} );
+
+	// PR S Task 8 item 2: the card's date fields show the site format (shared
+	// datepicker init) and the page still posts and writes back Y-m-d.
+	test( 'dates in the site format: posts Y-m-d, writes the server window back formatted', async () => {
+		const html = page( 'vd1' )
+			.replace( '<input name="pickup_date"', '<input class="js-datepicker" name="pickup_date"' )
+			.replace( '<input name="return_date"', '<input class="js-datepicker" name="return_date"' );
+		await boot( html );
+		require( './support/fake-datepicker' ).install( jQuery );
+		window.mhmDatepickerL10n = { dateFormat: 'dd/mm/yy', altFormat: 'yy-mm-dd' };
+		require( '../../assets/js/core/datepicker-init.js' );
+		window.mhmRentivaDatepicker.init( '.js-datepicker' );
+
+		const pickup = document.querySelector( '[data-rvs-pickup-date]' );
+		expect( pickup.value ).toBe( '12/07/2027' );
+		change( pickup );
+		jest.advanceTimersByTime( 300 );
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.pickup_date ).toBe( '2027-07-12' );
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.return_date ).toBe( '2027-07-15' );
+
+		answer( 0, Object.assign( {}, quote, { window: { pickup_date: '2027-07-13', pickup_time: '12:30', return_date: '2027-07-16' } } ) );
+		expect( pickup.value ).toBe( '13/07/2027' );
+		expect( document.querySelector( '[data-rvs-return-date]' ).value ).toBe( '16/07/2027' );
+		const posted = {};
+		jQuery( '[data-rvs-vd-window]' ).serializeArray().forEach( ( item ) => {
+			posted[ item.name ] = item.value;
+		} );
+		expect( posted.pickup_date ).toBe( '2027-07-13' );
+		expect( posted.return_date ).toBe( '2027-07-16' );
+
+		delete window.mhmDatepickerL10n;
+		delete window.mhmRentivaDatepicker;
+	} );
 } );

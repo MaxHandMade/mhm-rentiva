@@ -1930,8 +1930,7 @@ final class BookingForm extends AbstractShortcode {
 	private static function get_datepicker_options(): array
 	{
 		// Get WordPress date format and map it to jQuery UI Datepicker format
-		$wp_format = get_option('date_format', 'Y-m-d');
-		$js_format = self::map_php_to_datepicker_format($wp_format);
+		$js_format = \MHMRentiva\Admin\Core\Assets\DatepickerAssets::js_date_format( (string) get_option('date_format', 'Y-m-d'));
 
 		// Apply booking constraints from Vehicle Management Settings
 		$allow_same_day = '1' === \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_allow_same_day', '1');
@@ -2012,28 +2011,6 @@ final class BookingForm extends AbstractShortcode {
 			'showOtherMonths'    => true,
 			'selectOtherMonths'  => true,
 		);
-	}
-
-	/**
-	 * Map PHP date format to jQuery UI Datepicker format
-	 * Supports most common WordPress date tokens
-	 */
-	private static function map_php_to_datepicker_format(string $php_format): string
-	{
-		$replacements = array(
-			'Y' => 'yy',
-			'y' => 'y',
-			'm' => 'mm',
-			'n' => 'm',
-			'd' => 'dd',
-			'j' => 'd',
-			'F' => 'MM',
-			'M' => 'M',
-			'l' => 'DD',
-			'D' => 'D',
-		);
-
-		return strtr($php_format, $replacements);
 	}
 
 	/**

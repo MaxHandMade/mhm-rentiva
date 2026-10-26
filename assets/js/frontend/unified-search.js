@@ -1,7 +1,9 @@
 /**
  * Search strip (front-end standard, Aşama 2 PR 3).
  *
- * The date fields are jQuery UI datepickers (datepicker-init.js, `.js-datepicker`).
+ * The date fields are jQuery UI datepickers (datepicker-init.js, `.js-datepicker`):
+ * they show the site's date format and submit Y-m-d, so dates are read and
+ * written through window.mhmRentivaDatepicker (Y-m-d either way).
  * This script keeps the return date at least the minimum rental after pickup,
  * makes the return time follow the pickup time (the booking counts whole days)
  * and mirrors the pickup location into the drop-off field until drop-off
@@ -20,6 +22,21 @@
 		return m ? new Date( +m[ 1 ], +m[ 2 ] - 1, +m[ 3 ] ) : null;
 	}
 
+	// The field's date as Y-m-d, whatever format it shows.
+	function dateOf( $field ) {
+		const api = window.mhmRentivaDatepicker;
+		return api ? api.value( $field ) : $field.val();
+	}
+
+	function setDate( $field, iso ) {
+		const api = window.mhmRentivaDatepicker;
+		if ( api ) {
+			api.setValue( $field, iso );
+		} else {
+			$field.val( iso );
+		}
+	}
+
 	function formatDate( date ) {
 		const pad = ( n ) => String( n ).padStart( 2, '0' );
 		return date.getFullYear() + '-' + pad( date.getMonth() + 1 ) + '-' + pad( date.getDate() );
@@ -30,7 +47,7 @@
 	 * up to it (an empty return stays empty -- dates may be optional).
 	 */
 	function constrainReturn( $strip ) {
-		const pickup = parseDate( $strip.find( '[data-rvs-pickup-date]' ).val() );
+		const pickup = parseDate( dateOf( $strip.find( '[data-rvs-pickup-date]' ) ) );
 		if ( ! pickup ) {
 			return;
 		}
@@ -41,9 +58,9 @@
 		if ( $.fn.datepicker && $return.hasClass( 'hasDatepicker' ) ) {
 			$return.datepicker( 'option', 'minDate', earliest );
 		}
-		const current = parseDate( $return.val() );
+		const current = parseDate( dateOf( $return ) );
 		if ( current && current < earliest ) {
-			$return.val( formatDate( earliest ) );
+			setDate( $return, formatDate( earliest ) );
 		}
 	}
 
