@@ -337,8 +337,7 @@ final class CheckoutJourney {
 	private static function checkout_uses_block(): bool
 	{
 		$utils = '\Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils';
-		// @phpstan-ignore function.alreadyNarrowedType (the stubs carry the method; an older WooCommerce may not)
-		if (class_exists($utils) && method_exists($utils, 'is_checkout_block_default')) {
+		if (class_exists($utils) && is_callable(array( $utils, 'is_checkout_block_default' ))) {
 			return (bool) call_user_func(array( $utils, 'is_checkout_block_default' ));
 		}
 
