@@ -297,7 +297,7 @@ class PublicQueryVarPrefixTest extends WP_UnitTestCase
     public function test_search_read_path_answers_for_the_prefixed_query_vars(): void
     {
         // A pickup location counts only on a site with a choice of two or more
-        // rental locations (PR S, m8); give it one.
+        // rental locations (PR S); give it one.
         $locations = static function ($rows, $type) {
             return 'rental' === $type ? array(
                 (object) array( 'id' => 4, 'name' => 'Zz Four', 'city' => 'Zz' ),

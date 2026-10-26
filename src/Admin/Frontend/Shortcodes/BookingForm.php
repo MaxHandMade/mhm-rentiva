@@ -453,7 +453,7 @@ final class BookingForm extends AbstractShortcode {
 		$atts['return_time'] = self::get_text('return_time');
 
 		// No pickup location from the URL: the car is picked up and returned at
-		// its own point, derived from the vehicle below (PR S, M9).
+		// its own point, derived from the vehicle below (PR S).
 
 		// The window as ISO dates (Y-m-d), before the fields get the site format:
 		// the summary and the "Change" link speak ISO.
@@ -1157,7 +1157,7 @@ final class BookingForm extends AbstractShortcode {
 
 			$guests = max(1, $req->int('guests', 1));
 			// The car's own pickup point; a posted pickup_location_id is not read
-			// (PR S, M9): the customer picks up where the car is.
+			// (PR S): the customer picks up where the car is.
 			$pickup_location_id = self::vehicle_location_id($vehicle_id);
 
 			// ⭐ WooCommerce Integration: Customer information is optional
@@ -1663,7 +1663,7 @@ final class BookingForm extends AbstractShortcode {
 	 * The car's own pickup point id (LocationContext::for_vehicle: vehicle ->
 	 * vendor -> site default, a rental location only; the one location on a
 	 * single-location site), else 0 -- also on a site without rental
-	 * locations (Lite alone). The request never names it (PR S, M9).
+	 * locations (Lite alone). The request never names it (PR S).
 	 */
 	private static function vehicle_location_id(int $vehicle_id): int
 	{

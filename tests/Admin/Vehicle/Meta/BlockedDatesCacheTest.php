@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox;
 use WP_Ajax_UnitTestCase;
 
 /**
- * PR S (M2) -- every writer of the blocked-day list drops what was cached
+ * PR S -- every writer of the blocked-day list drops what was cached
  * about the vehicles it wrote.
  *
  * Util::check_availability() serves a cached "unavailable" without rechecking
@@ -188,7 +188,7 @@ final class BlockedDatesCacheTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Review I1: the filter shapes what availability reads, never what is stored.
+	 * The filter shapes what availability reads, never what is stored.
 	 */
 	public function test_toggle_stores_the_unfiltered_list(): void
 	{
@@ -291,7 +291,7 @@ final class BlockedDatesCacheTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Review m5: "Apply to all" replaces each target's list with the copied
+	 * "Apply to all" replaces each target's list with the copied
 	 * days, but the target's own active penalty days (and their notes) stay.
 	 * A fleet-wide copy must not lift another vehicle's penalty.
 	 */

@@ -60,7 +60,7 @@ final class RvsCardView {
 		$dates = self::dates($dates);
 
 		// The booking link carries the car's own pickup point, never the one
-		// searched for (m6): a car shown from another point of the city is
+		// searched for: a car shown from another point of the city is
 		// picked up there. '' = no point (Lite alone): the link's own fallback.
 		$point      = $vehicle_id > 0 ? LocationContext::for_vehicle($vehicle_id) : null;
 		$link_dates = array_merge($dates, array( 'pickup_location' => null !== $point ? (string) $point->id : '' ));

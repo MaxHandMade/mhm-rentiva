@@ -173,7 +173,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex 3: one second past the hour is the next hour.
+	 * One second past the hour is the next hour.
 	 *
 	 * @dataProvider zones
 	 */
@@ -188,7 +188,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * M6.1: A frees the car at 11:10. The 11:10 window would end before B's
+	 * A frees the car at 11:10. The 11:10 window would end before B's
 	 * buffer, the rounded 12:00 window does not -- rounding happens inside the
 	 * loop, so the rounded window is checked again and moves past B.
 	 *
@@ -223,7 +223,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * m12: a blocked day moves the candidate to the next day at the
+	 * A blocked day moves the candidate to the next day at the
 	 * requested pickup time -- not midnight, and not the time a booking
 	 * had pushed the candidate to.
 	 *
@@ -243,7 +243,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex 3: a window ending exactly at local midnight does not touch the
+	 * A window ending exactly at local midnight does not touch the
 	 * day it ends on; a blocked day inside it still moves it.
 	 *
 	 * @dataProvider zones
@@ -261,7 +261,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * m11: the horizon is today + advance days, not the requested start + advance days.
+	 * The horizon is today + advance days, not the requested start + advance days.
 	 *
 	 * @dataProvider zones
 	 */
@@ -286,7 +286,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * M6.2: the answer's window is the vehicle page's window -- the same
+	 * The answer's window is the vehicle page's window -- the same
 	 * number of local days, return at the pickup's own time -- across DST.
 	 *
 	 * @dataProvider zones
@@ -316,7 +316,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex 3: New York, 8 March 2026 -- 02:30 does not exist. The candidate
+	 * New York, 8 March 2026 -- 02:30 does not exist. The candidate
 	 * lands on the first instant after the gap, 03:00, not 03:30 -> 04:00.
 	 */
 	public function test_spring_gap_candidate_moves_to_gap_end(): void
@@ -331,7 +331,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex 3: New York, 1 November 2026 -- 01:00-02:00 happens twice. The
+	 * New York, 1 November 2026 -- 01:00-02:00 happens twice. The
 	 * wall time on the card is read back as its first occurrence, so the
 	 * answer is that one, or a later hour when that one is too early.
 	 */
@@ -357,7 +357,7 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * m10: the answer is checked with the live rule; nothing is cached.
+	 * The answer is checked with the live rule; nothing is cached.
 	 *
 	 * @dataProvider zones
 	 */

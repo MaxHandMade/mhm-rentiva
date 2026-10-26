@@ -469,7 +469,7 @@ describe( 'booking form on the rvs markup', () => {
 
 		form.calculatePrice();
 
-		// PR S (M9): the server takes the point from the car; the quote posts none.
+		// PR S: the server takes the point from the car; the quote posts none.
 		expect( posted( lastCall() ).get( 'pickup_location_id' ) ).toBeNull();
 		expect( form.container.find( '[data-rvs-change]' ).attr( 'href' ) ).toBe( '/clio/?mhmrentiva_pickup_date=2030-05-10&mhmrentiva_return_date=2030-05-13' );
 	} );

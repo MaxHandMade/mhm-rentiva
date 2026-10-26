@@ -577,7 +577,7 @@ final class SearchResults extends AbstractShortcode {
 			'keyword'         => self::get_text('keyword'),
 			'pickup_date'     => self::get_text('pickup_date'),
 			'return_date'     => self::get_text('return_date'),
-			// The window's time, as the AJAX path reads it (m3): the page and its
+			// The window's time, as the AJAX path reads it: the page and its
 			// re-render must search the same window.
 			'pickup_time'     => self::get_text('pickup_time'),
 			// Legacy support
@@ -597,7 +597,7 @@ final class SearchResults extends AbstractShortcode {
 			// exact name, never prefixed, so paginate_links()' `?page=%#%` hrefs
 			// keep resolving.
 			'page'            => self::get_int_by_var('page', 1),
-			// Only a real choice counts: none with 0 or 1 rental location (m8).
+			// Only a real choice counts: none with 0 or 1 rental location.
 			'pickup_location' => LocationContext::effective_selected(self::get_int_array('pickup_location')),
 			'category'        => self::get_int_array('category'),
 		);
@@ -1352,7 +1352,7 @@ final class SearchResults extends AbstractShortcode {
 
 	/**
 	 * The facets plus the pickup points to choose from -- read fresh from
-	 * LocationContext, never from the day-long facet cache (m9). A site with
+	 * LocationContext, never from the day-long facet cache. A site with
 	 * 0 or 1 rental location has nothing to choose: no location group.
 	 *
 	 * @param array<string, mixed> $current_params Search params (logical keys).
@@ -1419,7 +1419,7 @@ final class SearchResults extends AbstractShortcode {
 	 * `no_vehicles` (the catalogue is empty).
 	 *
 	 * A booked match or a car at another pickup point of the city is a match
-	 * (M11): with one of them on the page, "remove a filter" would contradict
+	 * as well: with one of them on the page, "remove a filter" would contradict
 	 * the cars listed under it.
 	 *
 	 * @param array<string, mixed>              $params Search params (logical keys).
@@ -1599,7 +1599,7 @@ final class SearchResults extends AbstractShortcode {
 
 	/**
 	 * The "Filters (N)" count: the chips minus the pickup point's, which is
-	 * where the visitor is, not a filter -- "Clear" keeps it (m7).
+	 * where the visitor is, not a filter -- "Clear" keeps it.
 	 *
 	 * @param list<array{name: string, value: string, label: string}> $chips active_chips().
 	 */
@@ -1877,7 +1877,7 @@ final class SearchResults extends AbstractShortcode {
 				'mileage_max'     => $req->int(self::query_var('mileage_max')),
 				'sort'            => $req->text(self::query_var('sort'), 'relevance'),
 				'page'            => $req->int('page', 1),
-				// Only a real choice counts: none with 0 or 1 rental location (m8).
+				// Only a real choice counts: none with 0 or 1 rental location.
 				'pickup_location' => LocationContext::effective_selected($req->intList(self::query_var('pickup_location'))),
 				'category'        => $req->intList(self::query_var('category')),
 			);

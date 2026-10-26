@@ -414,7 +414,7 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 
 	public function test_edit_existing_booking_spanning_later_blocked_day_is_not_locked(): void
 	{
-		// M3 (a): booked first, the day closed afterwards (maintenance, or "apply
+		// Booked first, the day closed afterwards (maintenance, or "apply
 		// to all"). Extending the return by two hours must still save.
 		$booking_id = $this->booking('confirmed', '2027-03-10', '2027-03-13');
 		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-03-11"]');

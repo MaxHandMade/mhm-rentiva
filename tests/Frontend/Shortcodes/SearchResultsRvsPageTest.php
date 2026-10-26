@@ -248,7 +248,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('Zz Egea At Taksim', $nearby);
 		$this->assertStringNotContainsString('Zz Clio At Esenboga', $nearby, 'Another city is not offered.');
 		$this->assertMatchesRegularExpression('/Pickup: <strong>Taksim<\/strong>/', $nearby);
-		// The booking link carries the car's own point, not the searched one (m6).
+		// The booking link carries the car's own point, not the searched one.
 		$this->assertMatchesRegularExpression('/mhmrentiva_pickup_location=2/', $nearby);
 		$this->assertDoesNotMatchRegularExpression('/mhmrentiva_pickup_location=1\b/', $nearby);
 		// City · the section's summary.
@@ -307,7 +307,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 			'return_date' => wp_date('Y-m-d', $window[1]),
 		));
 		$this->assertStringContainsString('href="' . $expected . '"', str_replace('&amp;', '&', $booked));
-		// The vehicle page derives the car's own point (Task 5): none is sent.
+		// The vehicle page derives the car's own point: none is sent.
 		$this->assertMatchesRegularExpression('/rvs-card__later" href="([^"]+)"/', $booked);
 		preg_match('/rvs-card__later" href="([^"]+)"/', $booked, $link);
 		$this->assertStringNotContainsString('pickup_location', $link[1]);
@@ -397,7 +397,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 			'instance'               => $instance[1],
 		));
 
-		$this->assertStringContainsString('Zz Page One', self::section($page, 'booked'), 'The page path searches with the pickup time (m3).');
+		$this->assertStringContainsString('Zz Page One', self::section($page, 'booked'), 'The page path searches with the pickup time.');
 		$this->assertStringContainsString('Zz Page One', (string) $data['booked_html']);
 		$this->assertStringNotContainsString('Zz Page One', (string) $data['html']);
 		$this->assertSame(1, $data['meta']['total']);
@@ -434,7 +434,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 	{
 		$this->locations(array( array( 7, 'Airport', 'İstanbul' ) ));
 		$this->vehicle('Zz At Airport', 7);
-		// A URL location means nothing on a single-location site (m8).
+		// A URL location means nothing on a single-location site.
 		set_query_var(SearchResults::query_var('pickup_location'), array( '99' ));
 
 		$html = $this->page();

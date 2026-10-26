@@ -449,7 +449,7 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 					'customer_email'     => 'jane@example.com',
 				)
 			);
-			// PR S (M9): the posted id is not read -- the car's point (here the
+			// PR S: the posted id is not read -- the car's point (here the
 			// site's only one) travels whatever the request says.
 			$unknown = $this->dispatch('mhmrentiva_calculate_price', array( 'pickup_location_id' => '8' ));
 		} finally {
@@ -478,7 +478,7 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * PR S (M9): the booking's pickup point is the car's, derived on the
+	 * PR S: the booking's pickup point is the car's, derived on the
 	 * server; a posted id (6) that differs from the car's (3) is not read --
 	 * on submission, in the quote's change link and in its location line.
 	 */

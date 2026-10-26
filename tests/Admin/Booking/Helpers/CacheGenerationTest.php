@@ -9,7 +9,7 @@ use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 use WP_UnitTestCase;
 
 /**
- * PR S (M2, review I2) -- an invalidated cache entry is never served again,
+ * PR S -- an invalidated cache entry is never served again,
  * whatever backs the transients.
  *
  * Invalidation used to be a raw `DELETE FROM wp_options ... LIKE`. With a

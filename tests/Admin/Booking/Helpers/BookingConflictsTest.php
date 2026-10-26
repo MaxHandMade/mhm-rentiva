@@ -164,7 +164,7 @@ final class BookingConflictsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Review Focus 1, every row, in four zones.
+	 * Every edge of the rule, in four zones.
 	 *
 	 * @dataProvider zones
 	 */
@@ -180,7 +180,7 @@ final class BookingConflictsTest extends WP_UnitTestCase
 		$this->assert_all(true, $buffer, '2027-05-08', '09:01', '2027-05-10', 'ending 59 min before the start collides');
 		$this->assert_all(false, $buffer, '2027-05-08', '09:00', '2027-05-10', 'ending 60 min before the start is free');
 
-		// A blocked day, including the window's last, partial day (M1).
+		// A blocked day, including the window's last, partial day.
 		$blocked = $this->vehicle(array( '2027-12-09' ));
 		$this->assert_all(true, $blocked, '2027-12-07', '10:00', '2027-12-09', 'the last partial day is blocked');
 		$this->assert_all(false, $blocked, '2027-12-07', '00:00', '2027-12-09', 'a window ending at local midnight does not touch the day');
@@ -225,7 +225,7 @@ final class BookingConflictsTest extends WP_UnitTestCase
 		$this->assert_all(false, $stampless, '2027-05-22', '13:00', '2027-05-24', 'stamp-less, after its end and buffer');
 		$this->assert_all(true, $stampless, '2027-05-18', '13:00', '2027-05-20', 'stamp-less, reaching its start');
 
-		// A 120-day window whose 100th day is blocked (M8).
+		// A 120-day window whose 100th day is blocked.
 		$long = $this->vehicle(array( '2027-04-10' ));
 		$this->assert_all(true, $long, '2027-01-01', '10:00', '2027-05-01', 'day 100 of a 120-day window');
 		$open = $this->vehicle();

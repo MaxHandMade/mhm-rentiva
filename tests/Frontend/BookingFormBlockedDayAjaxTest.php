@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
 use WP_Ajax_UnitTestCase;
 
 /**
- * PR S (review m7) -- the booking form's availability AJAX refuses a window
+ * PR S -- the booking form's availability AJAX refuses a window
  * that reaches a blocked day, with the message it gives for any taken
  * window. The customer is not told the day is closed.
  *

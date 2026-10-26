@@ -16,7 +16,7 @@ use WP_Ajax_UnitTestCase;
  * is saved and a notice names the closed days. The operator's check counts
  * bookings only, under the lock, and never reads the cached customer answer
  * -- a customer's cached "booked" for the same window must not refuse the
- * operator (r3 Y1).
+ * operator.
  *
  * START TRANSACTION / COMMIT are neutralised so the test's own transaction
  * survives Locker::withLock() (same approach as ManualBookingAtomicityTest).
@@ -129,7 +129,7 @@ final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
 		$booking_id = (int) $response['data']['booking_id'];
 		$this->assertSame(array( 'booking_id' => $booking_id, 'days' => array( '2027-10-11' ) ), get_transient($this->notice_key()));
 
-		// Review m3: not on another screen -- and it waits for the booking's own.
+		// Not on another screen -- and it waits for the booking's own.
 		$this->assertSame('', $this->notice_output(0));
 		$this->assertSame('', $this->notice_output($this->vehicle_id));
 		$this->assertNotFalse(get_transient($this->notice_key()));

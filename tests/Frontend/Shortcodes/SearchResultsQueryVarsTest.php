@@ -212,7 +212,7 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
     public function test_search_params_from_url_reflect_the_registered_query_vars(): void
     {
         // A pickup location counts only on a site with a choice of two or more
-        // rental locations (PR S, m8); give it one.
+        // rental locations (PR S); give it one.
         $locations = static function ($rows, $type) {
             return 'rental' === $type ? array(
                 (object) array( 'id' => 4, 'name' => 'Zz Four', 'city' => 'Zz' ),

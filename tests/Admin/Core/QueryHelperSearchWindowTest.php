@@ -163,7 +163,7 @@ final class QueryHelperSearchWindowTest extends WP_UnitTestCase
 
 	/**
 	 * Called without a time, the window uses the default pickup time at both
-	 * ends (m5).
+	 * ends.
 	 */
 	public function test_a_dateless_call_uses_the_default_pickup_time(): void
 	{
@@ -180,7 +180,7 @@ final class QueryHelperSearchWindowTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Review m1: a malformed time must not open the filter -- it falls back to
+	 * A malformed time must not open the filter -- it falls back to
 	 * the default pickup time, as the booking rule's own defaults do.
 	 */
 	public function test_a_malformed_time_falls_back_to_the_default(): void

@@ -86,7 +86,7 @@ final class VehicleDetailsView {
 	 *
 	 * No pickup location: the car is picked up and returned at its own point
 	 * (LocationContext::for_vehicle), so a location in the request -- the URL,
-	 * the search strip or a posted field -- is never read here (PR S, M9).
+	 * the search strip or a posted field -- is never read here (PR S).
 	 *
 	 * @param array<string, string> $window
 	 * @return array{pickup_date: string, pickup_time: string, return_date: string}

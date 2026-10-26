@@ -306,7 +306,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 
 		add_filter('mhmrentiva_locations', $filter);
 		try {
-			// PR S (M9): the URL's point (8) is not the car's (7) and is not read.
+			// PR S: the URL's point (8) is not the car's (7) and is not read.
 			$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=8');
 			$html = $this->render(array(), true, false);
 		} finally {
