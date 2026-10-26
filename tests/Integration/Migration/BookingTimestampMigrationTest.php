@@ -527,7 +527,7 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 
 		DatabaseMigrator::run_migrations();
 
-		$this->assertSame('4.8.0', get_option('mhmrentiva_db_version'));
+		$this->assertSame('4.9.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('1', get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION));
 		$this->assertSame((string) self::local_at('2027-05-10 10:00', 3), self::ts($id, 'start'));
 	}
@@ -559,7 +559,7 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 		$break = $this->break_start_ts_writes();
 		update_option('mhmrentiva_db_version', '4.7.0');
 		DatabaseMigrator::run_migrations();
-		$this->assertSame('4.8.0', get_option('mhmrentiva_db_version'), 'Premise: the migrator stamps 4.8.0 whatever the step did.');
+		$this->assertSame('4.9.0', get_option('mhmrentiva_db_version'), 'Premise: the migrator stamps 4.9.0 whatever the step did.');
 		$this->assertFalse(get_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION));
 
 		remove_filter('update_post_metadata', $break, 10);

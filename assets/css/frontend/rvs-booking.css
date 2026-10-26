@@ -145,9 +145,9 @@
 	flex-direction: column;
 	max-width: 380px;
 	overflow: hidden;
-	border-radius: var(--rvs-r);
-	background: var(--rvs-raised);
-	box-shadow: var(--rvs-shadow-md);
+	border-radius: var(--rvs-booking-radius);
+	background: var(--rvs-booking-bg);
+	box-shadow: var(--rvs-booking-shadow);
 }
 
 .rvs-shell .rvs-booking__summary {
@@ -260,6 +260,15 @@
 	width: 100%;
 	min-height: 52px;
 	font-size: 16px;
+}
+
+/* One class deeper than .rvs-btn--primary, so the Elementor colours win in order. */
+.rvs-shell .rvs-booking .rvs-booking__submit {
+	background: var(--rvs-booking-cta);
+}
+
+.rvs-shell .rvs-booking .rvs-booking__submit:hover:not(:disabled) {
+	background: var(--rvs-booking-cta-hover);
 }
 
 .rvs-shell .rvs-booking__submit:disabled {

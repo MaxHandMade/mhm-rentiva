@@ -860,7 +860,7 @@ final class ElementorPlainTextMigrationTest extends WP_UnitTestCase
 
 		DatabaseMigrator::run_migrations();
 
-		$this->assertSame('4.8.0', get_option('mhmrentiva_db_version'));
+		$this->assertSame('4.9.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('1', get_option(ElementorPlainTextMigration::PENDING_OPTION));
 		$this->assertNotFalse(wp_next_scheduled(ElementorPlainTextMigration::CRON_HOOK), 'The upgrade did not start the cron chain.');
 		// Elementor's managers do not exist yet on plugins_loaded: the step only queues.
