@@ -28,7 +28,22 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl;
 final class LocationContext {
 
 	/**
-	 * Request cache: the subscriber fingerprint it was built for, and the list.
+	 * Fired by whoever changes the rental location list (Pro's
+	 * LocationProvider::clear_cache() on a location save), so a list read
+	 * earlier in the same request is not served stale.
+	 *
+	 * The cache counts this action with did_action() instead of subscribing a
+	 * callback: that needs no bootstrap wiring, so it holds on every request
+	 * (admin, front, REST, cron, WP-CLI) and in the test suites, where plugin
+	 * hooks are not registered.
+	 *
+	 * @since 6.4.0
+	 */
+	public const CHANGED_ACTION = 'mhmrentiva_locations_changed';
+
+	/**
+	 * Request cache: the subscriber fingerprint plus the CHANGED_ACTION count
+	 * it was built for, and the list.
 	 *
 	 * @var array{key: string, locations: list<object>}|null
 	 */
@@ -42,7 +57,7 @@ final class LocationContext {
 	 */
 	public static function rental_locations(): array
 	{
-		$key = self::subscriber_key();
+		$key = did_action(self::CHANGED_ACTION) . '|' . self::subscriber_key();
 		if (null !== self::$cache && self::$cache['key'] === $key) {
 			return self::$cache['locations'];
 		}
@@ -60,10 +75,14 @@ final class LocationContext {
 				continue;
 			}
 			$seen[ $id ] = true;
+			$city        = trim(is_scalar($row['city'] ?? null) ? (string) $row['city'] : '');
+			$name        = trim(is_scalar($row['name'] ?? null) ? (string) $row['name'] : '');
 			$locations[] = (object) array(
 				'id'   => $id,
-				'name' => trim(is_scalar($row['name'] ?? null) ? (string) $row['name'] : ''),
-				'city' => trim(is_scalar($row['city'] ?? null) ? (string) $row['city'] : ''),
+				// A nameless row is named by its city, so a single-location
+				// site still gets its "Pickup and return" line.
+				'name' => '' !== $name ? $name : $city,
+				'city' => $city,
 			);
 		}
 
@@ -75,7 +94,7 @@ final class LocationContext {
 	}
 
 	/**
-	 * Forget the request cache (tests; a provider that changed its list).
+	 * Forget the request cache (test listener; prefer firing CHANGED_ACTION).
 	 */
 	public static function flush(): void
 	{

@@ -193,8 +193,45 @@ final class LocationContextTest extends WP_UnitTestCase
 			$keys[] = (string) array_key_first($folded);
 		}
 		$this->assertCount(4, array_unique($keys), 'Different cities stay different.');
+		$this->assertSame(array( 'istanbul', 'izmir', 'isparta', 'ankara' ), $keys, 'The folded value itself, not only one key per group.');
+		$this->assertSame('istanbul', LocationContext::normalize_city('İSTANBUL', $use_intl));
+		$this->assertSame('izmir', LocationContext::normalize_city('İzmir', $use_intl));
+		$this->assertSame('isparta', LocationContext::normalize_city('ısparta', $use_intl));
 		$this->assertSame('', LocationContext::normalize_city('   ', $use_intl));
 		$this->assertSame('new york', LocationContext::normalize_city("New   York", $use_intl));
+		// A pasted no-break space folds like a plain one.
+		$this->assertSame('istanbul', LocationContext::normalize_city("İstanbul\u{00A0}", $use_intl));
+		$this->assertSame('new york', LocationContext::normalize_city("New\u{00A0}York", $use_intl));
+	}
+
+	public function test_locations_changed_action_drops_the_request_cache(): void
+	{
+		$rows = array( (object) array( 'id' => '3', 'name' => 'İstanbul Havalimanı', 'city' => 'İstanbul' ) );
+		add_filter(
+			'mhmrentiva_locations',
+			static function ($locations, $type) use (&$rows) {
+				return 'rental' === $type ? $rows : $locations;
+			},
+			10,
+			2
+		);
+		$this->assertTrue(LocationContext::is_single());
+
+		// Same subscriber, new data (a location saved in this request).
+		$rows[] = (object) array( 'id' => '4', 'name' => 'Sabiha Gökçen', 'city' => 'İstanbul' );
+		$this->assertTrue(LocationContext::is_single(), 'Cached until someone says the list changed.');
+
+		do_action(LocationContext::CHANGED_ACTION);
+		$this->assertSame('mhmrentiva_locations_changed', LocationContext::CHANGED_ACTION);
+		$this->assertFalse(LocationContext::is_single());
+		$this->assertCount(2, LocationContext::rental_locations());
+	}
+
+	public function test_a_nameless_location_is_named_by_its_city(): void
+	{
+		$this->provide(array( array( 3, '', 'İstanbul' ) ));
+
+		$this->assertSame('İstanbul', LocationContext::single()->name);
 	}
 
 	public function test_same_city_excludes_selected_and_other_cities(): void

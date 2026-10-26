@@ -14,6 +14,10 @@
             <directory suffix="Test.php">./tests/</directory>
         </testsuite>
     </testsuites>
+    <listeners>
+        <!-- LocationContext caches per process; drop it before every test. -->
+        <listener class="MHMRentiva\Tests\Support\ResetsLocationContextListener" file="tests/Support/ResetsLocationContextListener.php"/>
+    </listeners>
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">./src/</directory>
