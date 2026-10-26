@@ -1,0 +1,312 @@
+/**
+ * Rentiva front-end standard -- form primitives.
+ *
+ * Option card (a checkbox or radio row with its price), quantity stepper and
+ * the booking journey's step bar. Values from the approved canvas
+ * (`Rezervasyon`, `Rezervasyon-Mobil`). Every control is at least 44x44.
+ * Selectors are scoped to `.rvs-shell`; colours come from rvs-tokens.css.
+ */
+
+/* Option card --------------------------------------------------------------- */
+
+.rvs-shell .rvs-option {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	min-height: 44px;
+	margin: 0;
+	padding: var(--rvs-s3);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	font-weight: 400;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-option:hover {
+	border-color: var(--rvs-line-strong);
+}
+
+/* A chosen option: a heavier accent edge, so the choice is not told by the
+   tick alone. */
+.rvs-shell .rvs-option:has(input:checked) {
+	border-color: var(--rvs-accent-strong);
+	box-shadow: inset 0 0 0 1px var(--rvs-accent-strong);
+}
+
+/* The card rings when its control has keyboard focus. */
+.rvs-shell .rvs-option:has(input:focus-visible) {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+.rvs-shell .rvs-option:has(input:focus-visible) input:focus-visible {
+	outline: none;
+}
+
+.rvs-shell .rvs-option > input[type="checkbox"],
+.rvs-shell .rvs-option > input[type="radio"] {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: 2px 0 0;
+	accent-color: var(--rvs-accent-strong);
+}
+
+/* An option with a stepper sits on its centre line. */
+.rvs-shell .rvs-option--qty {
+	align-items: center;
+	cursor: default;
+}
+
+.rvs-shell .rvs-option__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-option__title {
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-option__desc {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-option__price {
+	flex: none;
+	white-space: nowrap;
+}
+
+/* Required, included in the rental: the box stays ticked and cannot change. */
+.rvs-shell .rvs-option--locked {
+	background: var(--rvs-surface);
+	cursor: default;
+}
+
+.rvs-shell .rvs-option--locked:hover,
+.rvs-shell .rvs-option--locked:has(input:checked) {
+	border-color: var(--rvs-line);
+	box-shadow: none;
+}
+
+.rvs-shell .rvs-option--locked > input:disabled {
+	opacity: 1;
+	cursor: default;
+}
+
+/* Quantity stepper ---------------------------------------------------------- */
+
+.rvs-shell .rvs-stepper {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-bg);
+}
+
+.rvs-shell .rvs-stepper button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	min-width: 44px;
+	min-height: 44px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: transparent;
+	box-shadow: none;
+	color: var(--rvs-text);
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-stepper button:hover {
+	background: var(--rvs-n-200);
+	color: var(--rvs-text);
+}
+
+/* Inside the group's border the ring is drawn inward. */
+.rvs-shell .rvs-stepper button:focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: -3px;
+}
+
+.rvs-shell .rvs-stepper button:disabled {
+	background: transparent;
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.rvs-shell .rvs-stepper output {
+	min-width: 28px;
+	font-weight: 600;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Journey steps: wide ------------------------------------------------------- */
+
+.rvs-shell .rvs-steps {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--rvs-s2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.rvs-shell .rvs-steps__item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 12px var(--rvs-s3);
+	border-top: 3px solid var(--rvs-n-300);
+	border-radius: var(--rvs-r);
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-steps__item.is-done {
+	border-top-color: var(--rvs-accent-strong);
+	color: var(--rvs-text);
+}
+
+/* Current: the heaviest edge and a raised card, besides the colour. */
+.rvs-shell .rvs-steps__item.is-current {
+	border-top-width: 4px;
+	border-top-color: var(--rvs-accent-strong);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-steps__num {
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-steps__label {
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-steps__short,
+.rvs-shell .rvs-steps__next,
+.rvs-shell .rvs-steps__bar {
+	display: none;
+}
+
+/* Journey steps: compact (the checkout, and every bar on a narrow screen) --- */
+
+.rvs-shell .rvs-steps--compact {
+	display: block;
+}
+
+.rvs-shell .rvs-steps--compact .rvs-steps__item {
+	display: none;
+}
+
+.rvs-shell .rvs-steps--compact .rvs-steps__item.is-current {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: var(--rvs-s1) var(--rvs-s2);
+	padding: 0;
+	border-top: 0;
+	background: transparent;
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-steps--compact .rvs-steps__num,
+.rvs-shell .rvs-steps--compact .rvs-steps__label {
+	display: none;
+}
+
+.rvs-shell .rvs-steps--compact .rvs-steps__short {
+	display: inline;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-steps--compact .rvs-steps__next {
+	display: inline;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-steps--compact + .rvs-steps__bar {
+	display: block;
+	height: 4px;
+	margin-top: 6px;
+	overflow: hidden;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-n-200);
+}
+
+.rvs-shell .rvs-steps__fill {
+	display: block;
+	width: 33.333%;
+	height: 100%;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-steps__bar[aria-valuenow="2"] .rvs-steps__fill {
+	width: 66.667%;
+}
+
+.rvs-shell .rvs-steps__bar[aria-valuenow="3"] .rvs-steps__fill {
+	width: 100%;
+}
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-steps {
+		display: block;
+	}
+
+	.rvs-shell .rvs-steps .rvs-steps__item {
+		display: none;
+	}
+
+	.rvs-shell .rvs-steps .rvs-steps__item.is-current {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: var(--rvs-s1) var(--rvs-s2);
+		padding: 0;
+		border-top: 0;
+		background: transparent;
+		font-size: 14px;
+	}
+
+	.rvs-shell .rvs-steps .rvs-steps__num,
+	.rvs-shell .rvs-steps .rvs-steps__label {
+		display: none;
+	}
+
+	.rvs-shell .rvs-steps .rvs-steps__short {
+		display: inline;
+		font-weight: 600;
+	}
+
+	.rvs-shell .rvs-steps .rvs-steps__next {
+		display: inline;
+		color: var(--rvs-muted);
+	}
+
+	.rvs-shell .rvs-steps + .rvs-steps__bar {
+		display: block;
+		height: 4px;
+		margin-top: 6px;
+		overflow: hidden;
+		border-radius: var(--rvs-r);
+		background: var(--rvs-n-200);
+	}
+}

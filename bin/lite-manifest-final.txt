@@ -137,6 +137,7 @@ src/Admin/Frontend/Shortcodes/Core/BookingUrl.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php
+src/Admin/Frontend/Shortcodes/Rvs/RvsSteps.php
 src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php
 src/Admin/Frontend/Shortcodes/SearchResults.php
 src/Admin/Frontend/Shortcodes/Testimonials.php
