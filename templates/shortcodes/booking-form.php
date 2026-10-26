@@ -45,7 +45,6 @@ $summary               = (array) ( $summary ?? array() );
 $addon_options         = (array) ( $addon_options ?? array() );
 $class                 = (string) ( $atts['class'] ?? '' );
 $redirect_url          = (string) ( $atts['redirect_url'] ?? '' );
-$pickup_location_id    = (int) ( $pickup_location_id ?? 0 );
 $prefill_pickup_time   = (string) ( $prefill_pickup_time ?? '' );
 $user_data             = (array) ( $user_data ?? array() );
 $money_html            = PriceDisplay::allowed_html();
@@ -65,10 +64,6 @@ $is_preview        = RenderContext::current()->is_preview();
 	// only submit path is booking-form.js (it prevents the native submit).
 	?>
 	<form class="rvs-booking__form" id="<?php echo esc_attr($uid . '-form'); ?>" method="post" aria-labelledby="<?php echo esc_attr($uid . '-title'); ?>">
-		<?php if ($pickup_location_id > 0) : ?>
-			<input type="hidden" name="pickup_location_id" value="<?php echo esc_attr( (string) $pickup_location_id); ?>">
-		<?php endif; ?>
-
 		<div class="rvs-booking__layout">
 			<div class="rvs-booking__main">
 				<?php if ($show_vehicle_selector && empty($selected_vehicle)) : ?>

@@ -314,7 +314,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		}
 		$this->assertMatchesRegularExpression('#data-rvs-summary-location[^>]*>.*Pickup and return: <strong data-rvs-summary-where>Zz Airport</strong>#s', $html);
 		$this->assertStringNotContainsString('Zz Center', $html);
-		$this->assertStringContainsString('name="pickup_location_id" value="7"', $html);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $html, 'No hidden location field: the server takes the point from the car.');
 	}
 
 	/**
@@ -339,7 +339,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 			remove_filter('mhmrentiva_locations', $filter);
 		}
 		$this->assertMatchesRegularExpression('#data-rvs-summary-location[^>]*>.*Pickup and return: <strong data-rvs-summary-where>Zz Only</strong>#s', $html);
-		$this->assertStringContainsString('name="pickup_location_id" value="5"', $html);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $html);
 	}
 
 	/**

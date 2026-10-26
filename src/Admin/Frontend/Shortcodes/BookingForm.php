@@ -1623,10 +1623,10 @@ final class BookingForm extends AbstractShortcode {
 
 			// Display only: the summary's window line and its "Change" link for
 			// the window this quote is for, built as the template builds them.
-			$window                         = self::quote_window($req, $vehicle_id, $pickup_date, $dropoff_date);
+			$location                       = LocationContext::for_vehicle($vehicle_id);
+			$window                         = self::quote_window($req, null !== $location ? (int) $location->id : 0, $pickup_date, $dropoff_date);
 			$response_data['window_text']   = self::window_text($window);
 			$response_data['change_url']    = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window);
-			$location                       = LocationContext::for_vehicle($vehicle_id);
 			$response_data['location_name'] = null !== $location ? (string) $location->name : '';
 
 			return self::succeeded($response_data);
@@ -1642,13 +1642,13 @@ final class BookingForm extends AbstractShortcode {
 	 * dates, the posted pickup time ('' when none was chosen) with the return
 	 * time the server applies, and the car's own pickup point.
 	 *
+	 * @param int $location The car's own pickup point id (LocationContext::for_vehicle()), 0 without one.
 	 * @return array<string, string>
 	 */
-	private static function quote_window(VerifiedRequest $req, int $vehicle_id, string $pickup_date, string $dropoff_date): array
+	private static function quote_window(VerifiedRequest $req, int $location, string $pickup_date, string $dropoff_date): array
 	{
-		$time     = $req->text('pickup_time', '');
-		$time     = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
-		$location = self::vehicle_location_id($vehicle_id);
+		$time = $req->text('pickup_time', '');
+		$time = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
 
 		return array(
 			'pickup_location' => $location > 0 ? (string) $location : '',

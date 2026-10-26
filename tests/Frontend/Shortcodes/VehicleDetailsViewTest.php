@@ -393,7 +393,7 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 	 * The page's continue link carries the car's point, not the URL's (the
 	 * quote endpoint's half is in VehicleDetailsRvsAjaxTest).
 	 */
-	public function test_continue_url_uses_the_cars_point_on_page_and_quote(): void
+	public function test_continue_url_uses_the_cars_point_on_the_page(): void
 	{
 		$this->locations(array( 3 => 'Zz Airport', 6 => 'Zz Center' ));
 		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');

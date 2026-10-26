@@ -73,7 +73,7 @@ class VehicleDetailsBookingPrefillTest extends WP_UnitTestCase
 		$form = do_shortcode('[rentiva_booking_form]');
 
 		$this->assertStringContainsString('name="vehicle_id" value="' . $this->vehicle_id . '"', $form);
-		$this->assertStringContainsString('name="pickup_location_id" value="' . $this->location . '"', $form);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $form, 'The form posts no location; the server takes it from the car.');
 		$this->assertStringContainsString('Zz Prefill Point', $form);
 		$this->assertStringContainsString('Zz Prefill Point', $html, 'The vehicle page names the same point.');
 		$this->assertMatchesRegularExpression('#data-rvs-summary-vehicle>#', $form, 'The summary shows the vehicle at once (Case A).');

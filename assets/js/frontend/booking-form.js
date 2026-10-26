@@ -603,9 +603,8 @@
                 addons: addons,
                 addon_qty: addonQty,
                 payment_type: field('payment_type') || 'deposit',
-                redirect_url: $c.attr('data-redirect-url'),
-                // Prefilled pickup location (hidden input rendered by booking-form.php); 0 when absent, as the server's int read.
-                pickup_location_id: parseInt(field('pickup_location_id'), 10) || 0
+                // No pickup location: the server takes it from the car.
+                redirect_url: $c.attr('data-redirect-url')
             };
 
             // Post-process dates to ISO format for server compatibility
