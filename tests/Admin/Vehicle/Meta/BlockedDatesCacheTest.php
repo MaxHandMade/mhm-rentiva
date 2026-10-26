@@ -263,4 +263,56 @@ final class BlockedDatesCacheTest extends WP_Ajax_UnitTestCase
 		$this->assertSame(array( '2027-01-04' ), BlockedDatesMetaBox::get_blocked_dates($this->other));
 		$this->assertSame(array( '2027-01-04', '2027-01-05' ), BlockedDatesMetaBox::get_blocked_dates($this->source), 'The source keeps its own.');
 	}
+
+	/**
+	 * Review m5: "Apply to all" replaces each target's list with the copied
+	 * days, but the target's own active penalty days (and their notes) stay.
+	 * A fleet-wide copy must not lift another vehicle's penalty.
+	 */
+	public function test_apply_to_all_keeps_each_targets_own_penalty_days(): void
+	{
+		update_post_meta($this->other, '_mhmrentiva_blocked_dates', '["2027-03-01","2027-03-09"]');
+		update_post_meta($this->other, '_mhmrentiva_blocked_dates_notes', '{"2027-03-01":"own note","2027-03-09":"manual"}');
+		add_filter(
+			'mhmrentiva_vehicle_penalty_days',
+			fn($days, $vehicle_id) => $vehicle_id === $this->other ? array( '2027-03-01' ) : $days,
+			10,
+			2
+		);
+		$_POST = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_apply_blocked_to_all'),
+			'vehicle_id' => (string) $this->source,
+			'dates'      => '["2027-01-04"]',
+		);
+
+		$this->dispatch('mhmrentiva_apply_blocked_dates_to_all');
+
+		$this->assertSame(array( '2027-01-04', '2027-03-01' ), $this->stored($this->other), 'Copied days plus the target vehicle\'s own penalty day; its manual day is replaced as before.');
+		$notes = (array) json_decode((string) get_post_meta($this->other, '_mhmrentiva_blocked_dates_notes', true), true);
+		$this->assertSame(array( '2027-03-01' => 'own note' ), $notes);
+	}
+
+	/**
+	 * "Remove from all" does not lift another vehicle's active penalty day
+	 * either; it removes the day where it is not a penalty.
+	 */
+	public function test_remove_from_all_keeps_each_targets_own_penalty_days(): void
+	{
+		update_post_meta($this->other, '_mhmrentiva_blocked_dates', '["2027-03-01","2027-03-02"]');
+		add_filter(
+			'mhmrentiva_vehicle_penalty_days',
+			fn($days, $vehicle_id) => $vehicle_id === $this->other ? array( '2027-03-01' ) : $days,
+			10,
+			2
+		);
+		$_POST = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_remove_blocked_from_all'),
+			'vehicle_id' => (string) $this->source,
+			'dates'      => '["2027-03-01","2027-03-02"]',
+		);
+
+		$this->dispatch('mhmrentiva_remove_blocked_dates_from_all');
+
+		$this->assertSame(array( '2027-03-01' ), $this->stored($this->other));
+	}
 }
