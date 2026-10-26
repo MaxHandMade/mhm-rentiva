@@ -216,12 +216,15 @@
 }
 
 /* The car's own pickup point, laid out like the card, results and vehicle
-   page lines: icon and text centred on one row. */
+   page lines: icon and text centred on one row. It sits inside
+   .rvs-booking__when, which already has the summary's side margin, so it adds
+   none of its own (its box lines up with the date line and "Change") and
+   keeps a gap above the dates. */
 .rvs-shell .rvs-booking__where {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	margin: var(--rvs-s3) var(--rvs-s4) 0;
+	margin: var(--rvs-s3) 0 var(--rvs-s2);
 	padding: 6px 10px;
 	border-radius: var(--rvs-r);
 	background: var(--rvs-accent-100);

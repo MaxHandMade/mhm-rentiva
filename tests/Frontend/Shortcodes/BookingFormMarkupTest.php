@@ -412,6 +412,22 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/padding-bottom: 72px;/', $css, 'The form leaves room for the collapsed band.');
 	}
 
+	/**
+	 * Task 8 item 4: the pickup line sits inside .rvs-booking__when, which
+	 * already has the summary's side margin; its own side margin doubled it
+	 * (20 px in from the date line) and no bottom margin glued it to the dates.
+	 */
+	public function test_summary_pickup_line_aligns_with_the_date_line(): void
+	{
+		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/rvs-booking.css');
+		$this->assertSame(1, preg_match('/\.rvs-shell \.rvs-booking__where \{(?<rule>[^}]*)\}/', $css, $m), 'The pickup line rule exists.');
+		$this->assertSame(1, preg_match('/(?:^|;)\s*margin:\s*(?<value>[^;]+);/', $m['rule'], $margin), 'The rule sets its margin.');
+		$parts = preg_split('/\s+/', trim($margin['value']));
+		$this->assertCount(3, $parts, 'margin: top inline bottom.');
+		$this->assertSame('0', $parts[1], 'No side margin of its own: the parent .rvs-booking__when has it.');
+		$this->assertNotSame('0', $parts[2], 'A gap below, before the date line.');
+		$this->assertMatchesRegularExpression('/\.rvs-booking__when\b[^{]*\{[^}]*margin-inline:\s*var\(--rvs-s4\)/s', $css, 'The parent keeps the side margin.');	}
+
 	// ------------------------------------------------------------ helpers
 
 	/**
