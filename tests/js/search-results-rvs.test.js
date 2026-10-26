@@ -239,6 +239,28 @@ describe( 'rvs search results', () => {
 		expect( region.querySelectorAll( '[data-rvs-announce]' ).length ).toBe( 1 );
 	} );
 
+	test( 'the announcement is the server sentence as given, no client-side joining', async () => {
+		// Whatever the translation's word order and punctuation, the script adds none.
+		const sentence = '[2 araç | Bu tarihlerde dolu => 1 araç]';
+		await boot( reply( { notice_html: '<div data-rvs-empty="none_yet"></div>', meta: { total: 0, announce: sentence } } ) );
+		const region = document.querySelector( '[data-rvs-notice]' );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.querySelector( '[data-rvs-announce]' ).textContent ).toBe( sentence );
+		expect( region.textContent.replace( /\s+/g, ' ' ).trim() ).toBe( sentence );
+	} );
+
+	test( 'no announcement, no sentence node', async () => {
+		await boot( reply( { notice_html: '', meta: { total: 3 } } ) );
+		const region = document.querySelector( '[data-rvs-notice]' );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.querySelector( '[data-rvs-announce]' ) ).toBeNull();
+		expect( region.getAttribute( 'role' ) ).toBe( 'status' );
+	} );
+
 	test( 'a page button reloads that page with the current filters', async () => {
 		await boot();
 		Element.prototype.scrollIntoView = jest.fn();

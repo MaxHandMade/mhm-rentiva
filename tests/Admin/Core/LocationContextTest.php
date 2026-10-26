@@ -93,6 +93,33 @@ final class LocationContextTest extends WP_UnitTestCase
 		$this->assertSame(array(), LocationContext::effective_selected(array( '3' )));
 	}
 
+	public function test_prime_reads_every_vendor_point_in_one_go(): void
+	{
+		$this->provide(array( array( 3, 'Airport', 'İstanbul' ), array( 4, 'Taksim', 'İstanbul' ) ));
+		$authors  = self::factory()->user->create_many(2);
+		$vehicles = array();
+		foreach ($authors as $author) {
+			update_user_meta($author, MetaKeys::VENDOR_LOCATION_ID, '4');
+			$vehicles[] = $this->vehicle(0, $author);
+			$vehicles[] = $this->vehicle(0, $author);
+		}
+		foreach ($authors as $author) {
+			wp_cache_delete($author, 'user_meta');
+		}
+		foreach ($vehicles as $id) {
+			wp_cache_delete($id, 'post_meta');
+		}
+
+		LocationContext::prime_vehicles($vehicles);
+
+		global $wpdb;
+		$before = $wpdb->num_queries;
+		foreach ($vehicles as $id) {
+			$this->assertSame(4, LocationContext::for_vehicle($id)->id);
+		}
+		$this->assertSame(0, $wpdb->num_queries - $before, 'Cards must not look up their vendor one by one.');
+	}
+
 	public function test_rental_locations_are_typed_and_cached_per_request(): void
 	{
 		$calls = 0;

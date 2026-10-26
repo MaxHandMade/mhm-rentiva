@@ -137,6 +137,34 @@ final class LocationContext {
 	}
 
 	/**
+	 * Read what for_vehicle() needs for a list of cards in batches: the
+	 * vehicles with their meta, and their authors' meta (the vendor's point).
+	 * Without it each card of a list looked up its vendor on its own. Nothing
+	 * to do when the site has no rental location (for_vehicle() asks nothing).
+	 *
+	 * @param list<int> $vehicle_ids
+	 */
+	public static function prime_vehicles( array $vehicle_ids ): void
+	{
+		$ids = array_values(array_unique(array_filter(array_map('intval', $vehicle_ids))));
+		if (array() === $ids || array() === self::rental_locations()) {
+			return;
+		}
+
+		_prime_post_caches($ids, false, true);
+		$authors = array();
+		foreach ($ids as $id) {
+			$author = (int) get_post_field('post_author', $id);
+			if ($author > 0) {
+				$authors[ $author ] = $author;
+			}
+		}
+		if (array() !== $authors) {
+			update_meta_cache('user', array_values($authors));
+		}
+	}
+
+	/**
 	 * Fold a free-text city for comparison ("İstanbul", "ISTANBUL",
 	 * "istanbul " all fold to "istanbul"). Order matters: the dot above that
 	 * mb_strtolower() leaves on a lowered "İ" is removed AFTER lowering, so

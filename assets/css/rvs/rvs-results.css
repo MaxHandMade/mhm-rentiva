@@ -153,8 +153,19 @@
 
 /* The status region stays in the accessibility tree while it has nothing to
    show (display: none would take it out, and a region that appears with its
-   first message is not reliably read). Only the space it takes is removed. */
-.rvs-shell .rvs-results__notice:empty,
+   first message is not reliably read). Only the space it takes is removed.
+   Two rules, not one list: a browser without :has() drops the whole list it
+   appears in, and the :empty case must survive that. */
+.rvs-shell .rvs-results__notice:empty {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+}
+
+/* Holding only the screen-reader sentence. */
 .rvs-shell .rvs-results__notice:not(:has(> :not([data-rvs-announce]))) {
 	position: absolute;
 	width: 1px;

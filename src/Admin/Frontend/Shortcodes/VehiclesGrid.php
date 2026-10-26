@@ -321,6 +321,8 @@ class VehiclesGrid extends AbstractShortcode {
 
 		// One batch for the covers instead of one judgement query set per card.
 		\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers(array_map('intval', wp_list_pluck($posts, 'ID')));
+		// The cards' pickup points (vendor fallback) in one batch, not one per card.
+		\MHMRentiva\Admin\Core\LocationContext::prime_vehicles(array_map('intval', wp_list_pluck($posts, 'ID')));
 
 		foreach ($posts as $post) {
 			$vehicles[] = self::get_vehicle_data_for_shortcode($post->ID, $atts);

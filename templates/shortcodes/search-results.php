@@ -293,7 +293,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 					<?php foreach ($vehicles as $vehicle) : ?>
 						<?php Html::echo_markup(SearchResults::render_vehicle_card($vehicle, $active_layout, $atts)); ?>
 					<?php endforeach; ?>
-				<?php elseif ('none_here' !== $empty_state) : ?>
+				<?php elseif (! in_array($empty_state, SearchResults::NOTICE_STATES, true)) : ?>
 					<?php
                     Html::echo_markup(Templates::render('partials/search/rvs-empty', array(
 						'kind'       => (string) $empty_state,

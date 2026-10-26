@@ -281,6 +281,10 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 			'return_date' => wp_date('Y-m-d', $window[1]),
 		));
 		$this->assertStringContainsString('href="' . $expected . '"', str_replace('&amp;', '&', $booked));
+		// The vehicle page derives the car's own point (Task 5): none is sent.
+		$this->assertMatchesRegularExpression('/rvs-card__later" href="([^"]+)"/', $booked);
+		preg_match('/rvs-card__later" href="([^"]+)"/', $booked, $link);
+		$this->assertStringNotContainsString('pickup_location', $link[1]);
 		// No price and no booking button on a booked card.
 		$this->assertStringNotContainsString('vehicle-book-btn', $booked);
 		$this->assertStringNotContainsString('rvs-card__price', $booked);
@@ -503,8 +507,137 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 
 		remove_action('pre_get_posts', $nested);
 		$this->assertNotSame('', $sql);
-		$this->assertStringNotContainsString('NOT IN', $sql);
-		$this->assertStringNotContainsString(' IN (', $sql);
+		$this->assertStringNotContainsString('.ID NOT IN (', $sql);
+		$this->assertStringNotContainsString('.ID IN (', $sql);
+	}
+
+	public function test_scoped_where_is_gone_after_the_search(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+		global $wp_filter;
+		$before = isset($wp_filter['posts_where']) ? count($wp_filter['posts_where']->callbacks, COUNT_RECURSIVE) : 0;
+
+		$this->filter($this->window_post());
+
+		$after = isset($wp_filter['posts_where']) ? count($wp_filter['posts_where']->callbacks, COUNT_RECURSIVE) : 0;
+		$this->assertSame($before, $after, 'The search must remove its posts_where closure.');
+		$later = new \WP_Query(array(
+			'post_type'      => 'mhmrentiva_vehicle',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+		));
+		$this->assertStringNotContainsString('.ID NOT IN (', (string) $later->request);
+		$this->assertContains($this->vehicle_id('Zz Page One'), array_map('intval', $later->posts));
+	}
+
+	/* Fix round 1 ------------------------------------------------------------- */
+
+	public function test_undated_location_with_no_cars_is_not_an_empty_catalogue(): void
+	{
+		$this->three_points();
+		$this->vehicle('Zz Egea At Taksim', 2);
+		set_query_var(SearchResults::query_var('pickup_location'), array( '1' ));
+
+		$html = $this->page();
+
+		$this->assertStringNotContainsString('data-rvs-empty="no_vehicles"', $html);
+		$this->assertStringNotContainsString('No vehicles are listed yet', $html);
+		$this->assertStringContainsString('data-rvs-empty="none_yet"', $html);
+		$this->assertStringContainsString('There are no cars at the Airport pickup point yet.', $html);
+		$this->assertStringContainsString('Zz Egea At Taksim', self::section($html, 'nearby'));
+
+		$data = $this->filter(array( 'mhmrentiva_pickup_location' => array( '1' ) ));
+		$this->assertSame('none_yet', $data['meta']['empty_state']);
+		$this->assertStringContainsString('There are no cars at the Airport pickup point yet.', (string) $data['notice_html']);
+		$this->assertStringNotContainsString('no_vehicles', (string) $data['html']);
+		$this->assertStringContainsString('Zz Egea At Taksim', (string) $data['nearby_html']);
+		$this->assertSame(1, $data['meta']['nearby']);
+	}
+
+	public function test_undated_location_without_neighbours_still_names_the_point(): void
+	{
+		$this->three_points();
+		$data = $this->filter(array( 'mhmrentiva_pickup_location' => array( '3' ) ));
+
+		$this->assertSame('none_yet', $data['meta']['empty_state']);
+		$this->assertStringContainsString('There are no cars at the Esenboga pickup point yet.', (string) $data['notice_html']);
+		$this->assertSame('', $data['nearby_html']);
+	}
+
+	public function test_notice_sub_line_needs_both_sections(): void
+	{
+		$sub = 'Other pickup points in the same city have cars.';
+		$this->three_points();
+		$this->vehicle('Zz Egea At Taksim', 2);
+		$post = $this->window_post() + array( 'mhmrentiva_pickup_location' => array( '1' ) );
+
+		// Same city only (no booked car at the Airport): the headline alone.
+		$only_near = $this->filter($post);
+		$this->assertSame('none_here', $only_near['meta']['empty_state']);
+		$this->assertNotSame('', $only_near['nearby_html']);
+		$this->assertSame('', $only_near['booked_html']);
+		$this->assertStringContainsString('No cars are free at the Airport pickup point', (string) $only_near['notice_html']);
+		$this->assertStringNotContainsString($sub, (string) $only_near['notice_html']);
+
+		// Both sections: the line pointing at them.
+		$this->book_window($this->vehicle('Zz Golf At Airport', 1));
+		$both = $this->filter($post);
+		$this->assertNotSame('', $both['booked_html']);
+		$this->assertStringContainsString($sub, (string) $both['notice_html']);
+	}
+
+	public function test_notice_sub_line_absent_with_booked_only(): void
+	{
+		$this->three_points();
+		$this->book_window($this->vehicle('Zz Golf At Airport', 1));
+
+		$data = $this->filter($this->window_post() + array( 'mhmrentiva_pickup_location' => array( '3', '1' ) ));
+
+		$this->assertNotSame('', $data['booked_html']);
+		$this->assertStringNotContainsString('Other pickup points in the same city have cars.', (string) $data['notice_html']);
+	}
+
+	public function test_several_picked_points_read_as_a_plural(): void
+	{
+		$this->three_points();
+		$data = $this->filter($this->window_post() + array( 'mhmrentiva_pickup_location' => array( '1', '3' ) ));
+
+		$this->assertSame('none_here', $data['meta']['empty_state']);
+		$this->assertStringContainsString('No cars are free at the selected pickup points for', (string) $data['notice_html']);
+		$this->assertStringNotContainsString('Airport, Esenboga pickup point', (string) $data['notice_html']);
+
+		$undated = $this->filter(array( 'mhmrentiva_pickup_location' => array( '1', '3' ) ));
+		$this->assertStringContainsString('There are no cars at the selected pickup points yet.', (string) $undated['notice_html']);
+	}
+
+	public function test_announcement_is_built_from_translatable_formats(): void
+	{
+		$this->book_window($this->vehicle_id('Zz Page One'));
+		$seen      = array();
+		$translate = static function ($translation, $text, $domain) use (&$seen) {
+			if ('mhm-rentiva' !== $domain) {
+				return $translation;
+			}
+			$seen[] = $text;
+			$map    = array(
+				'%1$s. %2$s.' => '[%1$s | %2$s]',
+				'%1$s: %2$s'  => '%1$s => %2$s',
+			);
+			return $map[ $text ] ?? $translation;
+		};
+		add_filter('gettext', $translate, 10, 3);
+
+		$data = $this->filter($this->window_post());
+
+		remove_filter('gettext', $translate, 10);
+		$this->assertSame('[1 vehicle | Booked for these dates => 1 vehicle]', $data['meta']['announce']);
+	}
+
+	public function test_announcement_without_sections_is_the_count(): void
+	{
+		$data = $this->filter($this->window_post());
+
+		$this->assertSame('2 vehicles', $data['meta']['announce']);
 	}
 
 	/**

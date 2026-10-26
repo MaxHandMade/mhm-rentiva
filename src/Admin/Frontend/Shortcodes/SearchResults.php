@@ -73,6 +73,12 @@ final class SearchResults extends AbstractShortcode {
 	private const BOOKED_LIMIT = 3;
 
 	/**
+	 * Empty states that speak in the notice region (above the sections)
+	 * instead of the grid.
+	 */
+	public const NOTICE_STATES = array( 'none_here', 'none_yet' );
+
+	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
 	 * search-results URL (e.g.
 	 * `?mhmrentiva_min_price=100&mhmrentiva_fuel_type=diesel&mhmrentiva_sort=price_asc`).
@@ -616,7 +622,20 @@ final class SearchResults extends AbstractShortcode {
 		$vehicles = self::format_vehicles($query->posts, $atts);
 
 		$current_page = (int) ( $params['page'] ?? 1 );
-		$first_page   = $current_page <= 1 && null !== $window;
+
+		// The sections live on page 1. The booked one needs the window; the
+		// same-city one also helps without dates when the picked point has no
+		// car at all ("no cars there yet").
+		$nearby       = array();
+		$booked_items = array();
+		if ($current_page <= 1) {
+			if (null !== $window) {
+				$nearby       = self::nearby_results($args, $atts, $booked, $selected);
+				$booked_items = self::booked_matches($args, $atts, $booked, $selected, $window);
+			} elseif (0 === (int) $query->found_posts) {
+				$nearby = self::nearby_results($args, $atts, $booked, $selected);
+			}
+		}
 
 		return array(
 			'vehicles'     => $vehicles,
@@ -632,8 +651,8 @@ final class SearchResults extends AbstractShortcode {
 				'prev_page' => max(1, $current_page - 1),
 				'next_page' => min($query->max_num_pages, $current_page + 1),
 			),
-			'nearby'       => $first_page ? self::nearby_results($args, $atts, $booked, $selected) : array(),
-			'booked'       => $first_page && null !== $window ? self::booked_matches($args, $atts, $booked, $selected, $window) : array(),
+			'nearby'       => $nearby,
+			'booked'       => $booked_items,
 		);
 	}
 
@@ -828,6 +847,8 @@ final class SearchResults extends AbstractShortcode {
 		// 2. Prime the covers (attachments, their meta and uploaders) in one go;
 		// reading get_post_thumbnail_id() here first would judge each cover uncached.
 		\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers($ids);
+		// The cards' pickup points (vendor fallback) in one batch, not one per card.
+		LocationContext::prime_vehicles($ids);
 
 		// 3. The booking page, for the cards' URLs.
 		$booking_page_id = ShortcodeUrlManager::get_page_id('rentiva_booking_form');
@@ -1398,12 +1419,18 @@ final class SearchResults extends AbstractShortcode {
 			if (0 === $elsewhere && self::has_active_filters($params)) {
 				return 'filtered_out';
 			}
-			if (array() !== (array) ( $params['pickup_location'] ?? array() ) && null !== self::window($params)) {
+			// A picked pickup point is where the visitor is: name it. Without
+			// dates "nothing there yet", never "the catalogue is empty".
+			$dated  = '' !== (string) ( $params['pickup_date'] ?? '' ) || '' !== (string) ( $params['return_date'] ?? '' );
+			$picked = array() !== (array) ( $params['pickup_location'] ?? array() );
+			if ($picked && null !== self::window($params)) {
 				return 'none_here';
+			}
+			if ($picked && ! $dated) {
+				return 'none_yet';
 			}
 			// No dates given and still nothing: the catalogue is empty. Dates given
 			// (even a range the minimum rental refuses) ruled the cars out.
-			$dated = '' !== (string) ( $params['pickup_date'] ?? '' ) || '' !== (string) ( $params['return_date'] ?? '' );
 			return $dated ? 'no_results' : 'no_vehicles';
 		}
 
@@ -1586,18 +1613,34 @@ final class SearchResults extends AbstractShortcode {
 				'change_url' => $change_url,
 			), true);
 		}
-		if ('none_here' !== $empty_state) {
+		if (! in_array($empty_state, self::NOTICE_STATES, true)) {
 			return '';
 		}
 
 		$counts = self::section_counts($results);
+		$names  = self::selected_names($params);
+		$single = 1 === count($names);
+		if ('none_here' === $empty_state) {
+			$range = self::summary($params, 0)['range'];
+			$title = $single
+				/* translators: 1: pickup point name, 2: the searched dates, e.g. "7 Dec – 10 Dec". */
+				? sprintf(__('No cars are free at the %1$s pickup point for %2$s.', 'mhm-rentiva'), $names[0], $range)
+				/* translators: %s: the searched dates, e.g. "7 Dec – 10 Dec". */
+				: sprintf(__('No cars are free at the selected pickup points for %s.', 'mhm-rentiva'), $range);
+		} else {
+			$title = $single
+				/* translators: %s: pickup point name. */
+				? sprintf(__('There are no cars at the %s pickup point yet.', 'mhm-rentiva'), $names[0])
+				: __('There are no cars at the selected pickup points yet.', 'mhm-rentiva');
+		}
 
 		return Templates::render('partials/search/rvs-empty', array(
-			'kind'       => 'none_here',
+			'kind'       => $empty_state,
 			'change_url' => $change_url,
-			'place'      => implode(', ', self::selected_names($params)),
-			'range'      => self::summary($params, 0)['range'],
-			'has_nearby' => $counts['nearby'] > 0,
+			'title'      => $title,
+			// The line pointing at "the other points ... and the car you looked
+			// for below" is true only when both sections are there.
+			'has_both'   => $counts['nearby'] > 0 && $counts['booked'] > 0,
 			'has_more'   => $counts['nearby'] + $counts['booked'] > 0,
 		), true);
 	}
@@ -1722,18 +1765,26 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	public static function announcement(array $params, array $results): string
 	{
-		$parts  = array( self::summary($params, (int) ( $results['total'] ?? 0 ))['count'] );
+		$count  = self::summary($params, (int) ( $results['total'] ?? 0 ))['count'];
 		$counts = self::section_counts($results);
 		/* translators: %s: number of vehicles. */
 		$cars = static fn(int $n): string => sprintf(_n('%s vehicle', '%s vehicles', $n, 'mhm-rentiva'), number_format_i18n($n));
+		/* translators: 1: a results section's heading, e.g. "Booked for these dates"; 2: number of vehicles in it, e.g. "1 vehicle". */
+		$section  = static fn(string $title, int $n): string => sprintf(__('%1$s: %2$s', 'mhm-rentiva'), $title, $cars($n));
+		$sections = array();
 		if ($counts['nearby'] > 0) {
-			$parts[] = self::nearby_title() . ': ' . $cars($counts['nearby']);
+			$sections[] = $section(self::nearby_title(), $counts['nearby']);
 		}
 		if ($counts['booked'] > 0) {
-			$parts[] = self::booked_title($params) . ': ' . $cars($counts['booked']);
+			$sections[] = $section(self::booked_title($params), $counts['booked']);
+		}
+		if (array() === $sections) {
+			return $count;
 		}
 
-		return implode('. ', $parts) . '.';
+		// WordPress's own translatable list ("a and b").
+		/* translators: 1: number of vehicles in the results, e.g. "2 vehicles"; 2: the extra sections with their counts, e.g. "Booked for these dates: 1 vehicle". */
+		return sprintf(__('%1$s. %2$s.', 'mhm-rentiva'), $count, wp_sprintf('%l', $sections));
 	}
 
 	/**
@@ -1877,7 +1928,7 @@ final class SearchResults extends AbstractShortcode {
 
 	/**
 	 * The main grid of the AJAX re-render: the cards, or the empty state.
-	 * `none_here` speaks in the notice region instead, above the sections.
+	 * NOTICE_STATES speak in the notice region instead, above the sections.
 	 *
 	 * @param array<string, mixed> $params  Search params (logical keys).
 	 * @param array<string, mixed> $results perform_search() shape.
@@ -1888,7 +1939,7 @@ final class SearchResults extends AbstractShortcode {
 		if (array() !== $results['vehicles']) {
 			return self::render_vehicles_list($results['vehicles'], (string) $atts['layout'], $atts, self::card_dates($params));
 		}
-		if ('none_here' === $empty_state) {
+		if (in_array($empty_state, self::NOTICE_STATES, true)) {
 			return '';
 		}
 
