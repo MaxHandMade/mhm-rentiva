@@ -33,8 +33,22 @@ final class PaymentDeadlineShapeTest extends WP_UnitTestCase
 
 	private const GMT_DEADLINE = '2026-11-01 07:00:00';
 
+	/** @var mixed Original `mhmrentiva_settings`; null when it was absent. */
+	private $original_settings = null;
+
+	public function setUp(): void
+	{
+		parent::setUp();
+		$this->original_settings = get_option( 'mhmrentiva_settings', null );
+	}
+
 	public function tearDown(): void
 	{
+		if ( null === $this->original_settings ) {
+			delete_option( 'mhmrentiva_settings' );
+		} else {
+			update_option( 'mhmrentiva_settings', $this->original_settings );
+		}
 		$this->release_site_clock();
 		parent::tearDown();
 	}

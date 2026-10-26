@@ -30,9 +30,13 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 
 	private const OTHER_VEHICLE_ID = 8802;
 
+	/** @var mixed Original `mhmrentiva_db_version`; null when it was absent. */
+	private $original_db_version = null;
+
 	public function setUp(): void
 	{
 		parent::setUp();
+		$this->original_db_version = get_option('mhmrentiva_db_version', null);
 		delete_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION);
 		delete_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION);
 		self::new_request();
@@ -44,6 +48,12 @@ final class BookingTimestampMigrationTest extends WP_UnitTestCase
 		delete_option(DatabaseMigrator::BOOKING_TS_DONE_OPTION);
 		delete_option(DatabaseMigrator::BOOKING_TS_ATTEMPTS_OPTION);
 		delete_option('mhmrentiva_elementor_style_ids_pending');
+		delete_transient('mhmrentiva_avail_' . self::VEHICLE_ID . '_1_2_abc');
+		if (null === $this->original_db_version) {
+			delete_option('mhmrentiva_db_version');
+		} else {
+			update_option('mhmrentiva_db_version', $this->original_db_version);
+		}
 		self::new_request();
 		set_current_screen('front');
 		parent::tearDown();
