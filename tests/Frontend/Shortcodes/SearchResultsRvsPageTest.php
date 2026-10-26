@@ -453,7 +453,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 	{
 		$runs = 0;
 		$count = static function (\WP_Query $query) use (&$runs): void {
-			if (true === $query->get('mhmrentiva_search_context')) {
+			if (! empty($query->get('mhmrentiva_search_context'))) {
 				++$runs;
 			}
 		};
@@ -491,7 +491,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->book_window($this->vehicle_id('Zz Page One'));
 		$sql    = '';
 		$nested = static function (\WP_Query $query) use (&$sql): void {
-			if (true !== $query->get('mhmrentiva_search_context') || '' !== $sql) {
+			if (empty($query->get('mhmrentiva_search_context')) || '' !== $sql) {
 				return;
 			}
 			$other = new \WP_Query(array(
@@ -509,6 +509,48 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertNotSame('', $sql);
 		$this->assertStringNotContainsString('.ID NOT IN (', $sql);
 		$this->assertStringNotContainsString('.ID IN (', $sql);
+	}
+
+	/**
+	 * A second Rentiva search started while the first one's query is being
+	 * built carries the same context argument; each scoped clause must still
+	 * reach only its own query. Otherwise the outer grid's NOT IN (booked)
+	 * empties an inner IN (booked) query.
+	 */
+	public function test_nested_search_keeps_its_own_clause(): void
+	{
+		$booked = $this->vehicle_id('Zz Page One');
+		$this->book_window($booked);
+		$scoped = new \ReflectionMethod(SearchResults::class, 'scoped_query');
+		$scoped->setAccessible(true);
+
+		$inner_ids = null;
+		$inner_sql = '';
+		$nested    = static function (\WP_Query $query) use (&$inner_ids, &$inner_sql, $scoped, $booked): void {
+			if (null !== $inner_ids || empty($query->get('mhmrentiva_search_context'))) {
+				return;
+			}
+			$inner_ids = array();
+			$inner     = $scoped->invoke(
+				null,
+				array(
+					'post_type'      => 'mhmrentiva_vehicle',
+					'post_status'    => 'publish',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+				),
+				' AND ' . $GLOBALS['wpdb']->posts . '.ID IN (' . $booked . ')'
+			);
+			$inner_ids = array_map('intval', $inner->posts);
+			$inner_sql = (string) $inner->request;
+		};
+		add_action('pre_get_posts', $nested);
+
+		$this->filter($this->window_post());
+
+		remove_action('pre_get_posts', $nested);
+		$this->assertSame(array( $booked ), $inner_ids, 'The inner search finds its own vehicle.');
+		$this->assertStringNotContainsString('.ID NOT IN (', $inner_sql, "The outer search's clause stays on the outer query.");
 	}
 
 	public function test_scoped_where_is_gone_after_the_search(): void

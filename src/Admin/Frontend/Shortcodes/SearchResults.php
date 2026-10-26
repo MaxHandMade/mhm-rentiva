@@ -49,6 +49,11 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private const SEARCH_CONTEXT_KEY = 'mhmrentiva_search_context';
 
+	/**
+	 * Last token handed out by scoped_query().
+	 */
+	private static int $scope_seq = 0;
+
 
 	public const SHORTCODE = 'rentiva_search_results';
 
@@ -782,14 +787,18 @@ final class SearchResults extends AbstractShortcode {
 			return $in ? " AND {$wpdb->posts}.ID IN (0)" : '';
 		}
 
-		return " AND {$wpdb->posts}.ID " . ( $in ? 'IN' : 'NOT IN' ) . ' (' . implode(',', $ids) . ')';
+		if ($in) {
+			return $wpdb->prepare(" AND {$wpdb->posts}.ID IN (" . implode(',', array_fill(0, count($ids), '%d')) . ')', $ids);
+		}
+
+		return $wpdb->prepare(" AND {$wpdb->posts}.ID NOT IN (" . implode(',', array_fill(0, count($ids), '%d')) . ')', $ids);
 	}
 
 	/**
 	 * Runs the query with $where appended to its WHERE, for this query only:
-	 * the clause is keyed to SEARCH_CONTEXT_KEY and removed in `finally`, so
-	 * any other WP_Query in the request (a widget, a nested query) is left
-	 * alone. An ID list here leaves `post__in` free for the minimum-rental
+	 * the clause is keyed to a per-call token under SEARCH_CONTEXT_KEY and
+	 * removed in `finally`, so any other WP_Query in the request (a widget,
+	 * a nested search) is left alone. An ID list here leaves `post__in` free for the minimum-rental
 	 * guard's post__in = [0].
 	 *
 	 * @param array<string, mixed> $args WP_Query arguments.
@@ -797,11 +806,15 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private static function scoped_query(array $args, string $where): \WP_Query
 	{
-		$args[ self::SEARCH_CONTEXT_KEY ] = true;
+		// A token per call, not a flag: a second search started while this
+		// query is being built carries the key too, and must not get this
+		// clause.
+		$token                            = 'q' . ( ++self::$scope_seq );
+		$args[ self::SEARCH_CONTEXT_KEY ] = $token;
 		$args['suppress_filters']         = false;
 
-		$filter = static function ($sql, \WP_Query $query) use ($where) {
-			if ($query->get(self::SEARCH_CONTEXT_KEY) !== true) {
+		$filter = static function ($sql, \WP_Query $query) use ($where, $token) {
+			if ($query->get(self::SEARCH_CONTEXT_KEY) !== $token) {
 				return $sql;
 			}
 
