@@ -309,6 +309,53 @@ final class BookingConflictsTest extends WP_UnitTestCase
 		$this->assertTrue($this->search_drops($plain, '2027-07-31', '2027-08-02', '10:00'));
 	}
 
+	/**
+	 * A blocked-days filter that reads post meta (Pro's penalty records do)
+	 * must not cost one query per candidate: the candidates' meta is primed
+	 * once, so the query count does not grow with the candidate list.
+	 */
+	public function test_meta_reading_filter_does_not_add_a_query_per_candidate(): void
+	{
+		global $wpdb;
+
+		$this->pin_zone('Europe/Istanbul');
+		add_filter(
+			'mhmrentiva_vehicle_blocked_days',
+			static function ($days, $vehicle_id) {
+				get_post_meta((int) $vehicle_id, '_mhmrentiva_test_penalty_probe', true);
+
+				return $days;
+			},
+			10,
+			2
+		);
+
+		$start = self::local('2027-07-31', '10:00');
+		$end   = self::local('2027-08-02', '10:00');
+
+		$count = function (array $ids) use ($wpdb, $start, $end): int {
+			foreach ($ids as $id) {
+				wp_cache_delete($id, 'post_meta');
+			}
+			$before = $wpdb->num_queries;
+			BookingConflicts::blocked_vehicle_ids($start, $end, $ids);
+
+			return $wpdb->num_queries - $before;
+		};
+
+		$few  = array();
+		$many = array();
+		for ($i = 0; $i < 2; $i++) {
+			$few[] = $this->vehicle();
+		}
+		for ($i = 0; $i < 12; $i++) {
+			$many[] = $this->vehicle();
+		}
+
+		$this->assertSame($count($few), $count($many), 'Twelve candidates cost the same queries as two.');
+		$this->assertLessThanOrEqual(3, $count($many));
+	}
+
 	public function test_locked_count_includes_future_completed(): void
 	{
 		$vehicle = $this->vehicle();

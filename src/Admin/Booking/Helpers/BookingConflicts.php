@@ -168,18 +168,16 @@ final class BookingConflicts {
 	/**
 	 * Vehicles with a blocked day in the window.
 	 *
-	 * The blocked-day meta of the candidates is read in one query and the
-	 * days are filtered in PHP, so the answer is the same function the
-	 * booking paths use. Every candidate goes through the filter, meta or
-	 * not: a filter may add days.
+	 * The candidates' meta is primed in one query and the days are filtered
+	 * in PHP, so the answer is the same function the booking paths use.
+	 * Every candidate goes through the filter, meta or not: a filter may add
+	 * days.
 	 *
 	 * @param list<int>|null $among Candidate vehicles; null is every vehicle, an empty list none.
 	 * @return list<int>
 	 */
 	public static function blocked_vehicle_ids(int $start, int $end, ?array $among = null): array
 	{
-		global $wpdb;
-
 		if ($end <= $start) {
 			return array();
 		}
@@ -189,22 +187,14 @@ final class BookingConflicts {
 			return array();
 		}
 
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT post_id, meta_value FROM %i WHERE meta_key = %s AND meta_value NOT IN (\'\', \'[]\') AND post_id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')',
-				array_merge(array( $wpdb->postmeta, self::BLOCKED_META ), $ids)
-			),
-			ARRAY_A
-		);
-
-		$raw = array();
-		foreach ( (array) $rows as $row) {
-			$raw[ (int) $row['post_id'] ] = maybe_unserialize($row['meta_value']);
-		}
+		// One query primes every candidate's meta: the blocked-day list below
+		// and any meta a filter reads (the add-on's penalty records) come
+		// from the cache instead of one query per candidate.
+		update_meta_cache('post', $ids);
 
 		$hits = array();
 		foreach ($ids as $vehicle_id) {
-			if (array() !== self::days_in_window(self::filtered_days($raw[ $vehicle_id ] ?? '', $vehicle_id), $start, $end)) {
+			if (array() !== self::days_in_window(self::blocked_days($vehicle_id), $start, $end)) {
 				$hits[] = $vehicle_id;
 			}
 		}
