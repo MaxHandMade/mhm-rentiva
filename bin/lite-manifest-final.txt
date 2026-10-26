@@ -24,6 +24,7 @@ src/Admin/Booking/Addons/AddonBooking.php
 src/Admin/Booking/Core/Handler.php
 src/Admin/Booking/Core/Hooks.php
 src/Admin/Booking/Core/Status.php
+src/Admin/Booking/Helpers/BookingConflicts.php
 src/Admin/Booking/Helpers/Cache.php
 src/Admin/Booking/Helpers/CancellationHandler.php
 src/Admin/Booking/Helpers/Locker.php

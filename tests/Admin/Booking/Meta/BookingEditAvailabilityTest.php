@@ -62,6 +62,7 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		}
 		$user_id = get_current_user_id();
 		delete_transient('mhmrentiva_booking_notice_' . $user_id);
+		delete_transient('mhmrentiva_admin_blocked_day_notice_' . $user_id);
 		if ($user_id > 0) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 			wp_delete_user($user_id);
@@ -404,6 +405,72 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 
 		$this->assertSame('2027-03-20', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true), 'An unverifiable edit must not be saved.');
 		$this->assertSame('availability_unverified', get_transient('mhmrentiva_booking_notice_' . get_current_user_id()));
+	}
+
+	private function blocked_day_notice(): mixed
+	{
+		return get_transient('mhmrentiva_admin_blocked_day_notice_' . get_current_user_id());
+	}
+
+	public function test_edit_existing_booking_spanning_later_blocked_day_is_not_locked(): void
+	{
+		// M3 (a): booked first, the day closed afterwards (maintenance, or "apply
+		// to all"). Extending the return by two hours must still save.
+		$booking_id = $this->booking('confirmed', '2027-03-10', '2027-03-13');
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-03-11"]');
+
+		$this->admin_save($booking_id, array( 'mhmrentiva_edit_dropoff_time' => '12:00' ));
+
+		$this->assertTrue(BookingMeta::edit_availability_allowed($booking_id));
+		$this->assertSame('12:00', get_post_meta($booking_id, '_mhmrentiva_end_time', true));
+		$this->assertSame(array( '2027-03-11' ), $this->blocked_day_notice(), 'Saved, and the operator is told.');
+	}
+
+	public function test_admin_edit_onto_a_blocked_day_saves_and_warns(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-04-02"]');
+		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
+
+		$this->admin_save(
+			$booking_id,
+			array(
+				'mhmrentiva_edit_pickup_date'  => '2027-04-01',
+				'mhmrentiva_edit_dropoff_date' => '2027-04-03',
+			)
+		);
+
+		$this->assertSame('2027-04-01', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true));
+		$this->assertSame(array( '2027-04-02' ), $this->blocked_day_notice());
+		$this->assertFalse(get_transient('mhmrentiva_booking_notice_' . get_current_user_id()), 'No refusal notice.');
+	}
+
+	public function test_admin_edit_unverified_when_query_fails(): void
+	{
+		// The operator's check counts bookings only, but a check that could not
+		// run still refuses: a blocked day must not turn "unknown" into "free".
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-03-26"]');
+		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
+
+		$break = static function (string $query): string {
+			return ( str_contains($query, 'SELECT COUNT(*)') && str_contains($query, 'p.ID <>') ) ? '' : $query;
+		};
+		add_filter('query', $break);
+
+		try {
+			$this->admin_save(
+				$booking_id,
+				array(
+					'mhmrentiva_edit_pickup_date'  => '2027-03-25',
+					'mhmrentiva_edit_dropoff_date' => '2027-03-27',
+				)
+			);
+		} finally {
+			remove_filter('query', $break);
+		}
+
+		$this->assertSame('2027-03-20', get_post_meta($booking_id, '_mhmrentiva_pickup_date', true));
+		$this->assertSame('availability_unverified', get_transient('mhmrentiva_booking_notice_' . get_current_user_id()));
+		$this->assertFalse($this->blocked_day_notice(), 'Nothing was saved, so nothing was "saved anyway".');
 	}
 
 	public function test_an_unrelated_edit_on_an_already_conflicting_booking_still_saves(): void

@@ -9,6 +9,7 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 use MHMRentiva\Admin\Booking\Core\Status;
@@ -558,8 +559,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$end_ts   = $datetime_result['end_ts'];
 		$days     = Util::rental_days($start_ts, $end_ts);
 
-		// Availability check
-		$availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		// Availability check: the operator's -- bookings only, from the database.
+		// A blocked day does not refuse the operator, and neither does a
+		// customer's cached "booked" for the same window.
+		$availability = Util::check_availability_for_operator($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (! $availability['ok']) {
 			wp_send_json_error(array( 'message' => $availability['message'] ));
@@ -657,8 +660,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Required fields are missing.', 'mhm-rentiva') ));
 		}
 
-		// The status is written straight into _mhmrentiva_status below, and
-		// Util::has_overlap_locked() counts only the four live statuses -- so a
+		// The status is written straight into _mhmrentiva_status below, and the
+		// booking rule (BookingConflicts) counts only the four live statuses
+		// (plus a completed booking not yet returned) -- so a
 		// value outside this screen's offering produces a booking the conflict
 		// check cannot see, leaving the vehicle bookable over the same dates.
 		// Refuse rather than fall back to the default: a client that sends a
@@ -740,8 +744,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$days     = Util::rental_days($start_ts, $end_ts);
 
 		// Availability check. Early feedback only -- the authoritative check is
-		// has_overlap_locked() inside the transaction further down.
-		$availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		// the locked booking count inside the transaction further down. Bookings
+		// only and uncached: an operator may book a blocked day (and is warned),
+		// and a customer's cached "booked" must not refuse them.
+		$availability = Util::check_availability_for_operator($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (! $availability['ok']) {
 			wp_send_json_error(array( 'message' => $availability['message'] ));
@@ -918,7 +924,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			$vehicle_id,
 			static function () use ($booking_data, $vehicle_id, $start_ts, $end_ts) {
 				// Authoritative conflict check, now genuinely holding the lock.
-				if (Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+				// Bookings only (blocked days warn, they do not refuse). A count
+				// that could not be read is not "free": nothing is inserted.
+				$overlaps = BookingConflicts::count_booking_overlaps_locked($vehicle_id, $start_ts, $end_ts);
+				if (null === $overlaps) {
+					return null;
+				}
+				if ($overlaps > 0) {
 					return false;
 				}
 
@@ -947,6 +959,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		$booking_id = $creation_result;
+
+		// Saved, so name any closed day it reaches on the edit screen the
+		// operator is sent to next.
+		wp_cache_delete($vehicle_id, 'post_meta');
+		BookingMeta::queue_blocked_day_notice(BookingConflicts::blocked_days_in($vehicle_id, $start_ts, $end_ts));
 
 		// Save manual booking type
 		update_post_meta($booking_id, '_mhmrentiva_booking_type', 'manual');

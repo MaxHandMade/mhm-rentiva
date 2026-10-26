@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\Meta;
 
+use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
+use MHMRentiva\Admin\Booking\Helpers\Cache;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -163,21 +166,48 @@ final class BlockedDatesMetaBox {
 			}
 		}
 		update_post_meta( $post_id, self::META_KEY_NOTES, wp_json_encode( (object) $notes_clean ) );
+
+		self::written( array( $post_id ) );
 	}
 
 	/**
 	 * Get blocked dates for a vehicle.
 	 *
+	 * The list every availability check reads (BookingConflicts::blocked_days()):
+	 * read defensively and passed through `mhmrentiva_vehicle_blocked_days`.
+	 *
 	 * @param int $post_id Vehicle post ID.
 	 * @return string[] Array of date strings in Y-m-d format.
 	 */
 	public static function get_blocked_dates( int $post_id ): array {
-		$raw = get_post_meta( $post_id, self::META_KEY, true );
-		if ( empty( $raw ) ) {
-			return array();
+		return BookingConflicts::blocked_days( $post_id );
+	}
+
+	/**
+	 * After a write of the blocked-day list: announce it per vehicle, then drop
+	 * what was cached about those vehicles.
+	 *
+	 * Blocked days are part of "booked" (BookingConflicts), and
+	 * Util::check_availability() serves a cached "unavailable" without
+	 * rechecking it -- without this a removed day kept the vehicle booked for
+	 * the cache's lifetime. The fleet occupancy matrix caches the same days.
+	 *
+	 * @param int[] $vehicle_ids Vehicles whose list was written.
+	 */
+	private static function written( array $vehicle_ids ): void {
+		foreach ( $vehicle_ids as $vehicle_id ) {
+			/**
+			 * Fires after a vehicle's blocked-day list was written.
+			 *
+			 * @since 6.4.0
+			 *
+			 * @param int $vehicle_id Vehicle post ID.
+			 */
+			do_action( 'mhmrentiva_vehicle_blocked_days_saved', (int) $vehicle_id );
+			Cache::invalidateVehicle( (int) $vehicle_id );
 		}
-		$dates = json_decode( $raw, true );
-		return is_array( $dates ) ? $dates : array();
+
+		OccupancyMapService::invalidate();
 	}
 
 	/**
@@ -212,6 +242,7 @@ final class BlockedDatesMetaBox {
 		$dates = array_values( array_unique( $dates ) );
 		sort( $dates );
 		update_post_meta( $vehicle_id, self::META_KEY, wp_json_encode( $dates ) );
+		self::written( array( $vehicle_id ) );
 
 		return array(
 			'blocked' => $blocked,
@@ -310,12 +341,27 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'No blocked dates selected.', 'mhm-rentiva' ) );
 		}
 
-		$dates_json = wp_json_encode( $dates );
-		$notes_json = wp_json_encode( (object) $notes );
-
 		// Also save to source vehicle so DB is in sync with browser.
-		update_post_meta( $source_id, self::META_KEY, $dates_json );
-		update_post_meta( $source_id, self::META_KEY_NOTES, $notes_json );
+		update_post_meta( $source_id, self::META_KEY, wp_json_encode( $dates ) );
+		update_post_meta( $source_id, self::META_KEY_NOTES, wp_json_encode( (object) $notes ) );
+
+		/**
+		 * Filters the source vehicle's active penalty days, which "Apply to All
+		 * Vehicles" does not copy: they belong to that vehicle's penalty, not to
+		 * the fleet. Lite has none.
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param string[] $days       Penalty days, `Y-m-d` in the site's timezone.
+		 * @param int      $vehicle_id Source vehicle post ID.
+		 */
+		$penalty = apply_filters( 'mhmrentiva_vehicle_penalty_days', array(), $source_id );
+		$penalty = is_array( $penalty ) ? array_map( 'strval', $penalty ) : array();
+		$copied  = array_values( array_diff( $dates, $penalty ) );
+		$notes   = array_intersect_key( $notes, array_flip( $copied ) );
+
+		$dates_json = wp_json_encode( $copied );
+		$notes_json = wp_json_encode( (object) $notes );
 
 		$vehicles = get_posts( array(
 			'post_type'      => 'mhmrentiva_vehicle',
@@ -330,6 +376,8 @@ final class BlockedDatesMetaBox {
 			update_post_meta( (int) $vid, self::META_KEY, $dates_json );
 			update_post_meta( (int) $vid, self::META_KEY_NOTES, $notes_json );
 		}
+
+		self::written( array_merge( array( $source_id ), array_map( 'intval', $vehicles ) ) );
 
 		wp_send_json_success( array( 'count' => count( $vehicles ) ) );
 	}
@@ -398,6 +446,8 @@ final class BlockedDatesMetaBox {
 			}
 			update_post_meta( $vid, self::META_KEY_NOTES, wp_json_encode( (object) $existing_notes ) );
 		}
+
+		self::written( array_map( 'intval', $vehicles ) );
 
 		wp_send_json_success( array( 'count' => count( $vehicles ) ) );
 	}

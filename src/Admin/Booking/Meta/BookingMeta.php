@@ -117,6 +117,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// Show admin notices
 		add_action('admin_notices', array( self::class, 'show_admin_notices' ));
+		add_action('admin_notices', array( self::class, 'show_blocked_day_notice' ));
 
 		// ✅ Auto calculation hook
 		add_action('mhmrentiva_booking_meta_updated', array( self::class, 'on_booking_meta_updated' ), 10, 3);
@@ -1221,8 +1222,10 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Statuses that hold a vehicle. Mirrors the status filter of
-	 * Util::has_overlap_locked().
+	 * Statuses that hold a vehicle: the live statuses of the booking rule in
+	 * BookingConflicts (STATUS_SQL). That rule also counts a completed booking
+	 * whose return is still ahead; an edit into `completed` is not a move onto
+	 * new dates, so it is not checked here.
 	 */
 	private const BLOCKING_STATUSES = array( 'pending_payment', 'pending', 'confirmed', 'in_progress' );
 
@@ -1357,10 +1360,13 @@ final class BookingMeta extends AbstractMetaBox {
 			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
 		}
 
+		// Bookings only: an operator may put a booking on a blocked day (or keep
+		// one that a day was closed under later) -- it is saved and the days are
+		// named in a notice, never refused.
 		$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
 			$vehicle_id,
 			static function () use ($vehicle_id, $new_range, $booking_id): ?int {
-				return \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id);
+				return \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::count_booking_overlaps_locked($vehicle_id, $new_range['start_ts'], $new_range['end_ts'], $booking_id);
 			}
 		);
 
@@ -1368,7 +1374,70 @@ final class BookingMeta extends AbstractMetaBox {
 			return 'unverified';
 		}
 
-		return $outcome > 0 ? 'conflict' : 'free';
+		if ($outcome > 0) {
+			return 'conflict';
+		}
+
+		wp_cache_delete($vehicle_id, 'post_meta');
+		self::queue_blocked_day_notice(\MHMRentiva\Admin\Booking\Helpers\BookingConflicts::blocked_days_in($vehicle_id, $new_range['start_ts'], $new_range['end_ts']));
+
+		return 'free';
+	}
+
+	/**
+	 * Transient key holding the closed days of the operator's last booking save.
+	 */
+	private static function blocked_day_notice_key(): string
+	{
+		return 'mhmrentiva_admin_blocked_day_notice_' . get_current_user_id();
+	}
+
+	/**
+	 * Leave a one-shot notice naming the closed days a booking the operator
+	 * just saved reaches (manual booking, booking edit). Nothing when there
+	 * are none.
+	 *
+	 * @param list<string> $days `Y-m-d`, site-local.
+	 */
+	public static function queue_blocked_day_notice(array $days): void
+	{
+		if (array() === $days) {
+			return;
+		}
+
+		set_transient(self::blocked_day_notice_key(), array_values($days), 300);
+	}
+
+	/**
+	 * Show the closed-days notice once, then forget it.
+	 */
+	public static function show_blocked_day_notice(): void
+	{
+		$days = get_transient(self::blocked_day_notice_key());
+		if (false === $days) {
+			return;
+		}
+
+		delete_transient(self::blocked_day_notice_key());
+
+		$labels = array();
+		foreach ( (array) $days as $day) {
+			$noon = \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant( (string) $day, '12:00');
+			if (null !== $noon) {
+				$labels[] = wp_date( (string) get_option('date_format'), $noon);
+			}
+		}
+		if (array() === $labels) {
+			return;
+		}
+
+		echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html(
+			sprintf(
+				/* translators: %s: comma-separated list of the vehicle's closed days. */
+				__('This vehicle has closed days in this period: %s. The booking was saved anyway.', 'mhm-rentiva'),
+				implode(', ', $labels)
+			)
+		) . '</p></div>';
 	}
 
 	/**
