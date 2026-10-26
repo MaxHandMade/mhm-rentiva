@@ -322,6 +322,54 @@ final class BookingConflicts {
 	}
 
 	/**
+	 * Holding bookings of the vehicles that meet [from, to), as instants.
+	 *
+	 * The same rule as every other reader -- status, lapsed payment, buffer --
+	 * in one query, so a caller scanning many windows (NextFreeWindow) asks
+	 * the database once instead of once per window. The intervals are the
+	 * bookings' own; the caller widens them by buffer_seconds().
+	 *
+	 * @param list<int> $vehicle_ids
+	 * @return array<int, list<array{0: int, 1: int}>> Vehicle id => [start, end] pairs, by start.
+	 */
+	public static function booking_intervals(array $vehicle_ids, int $from, int $to): array
+	{
+		global $wpdb;
+
+		$ids = array_values(array_unique(array_filter(array_map('intval', $vehicle_ids))));
+		if (array() === $ids || $to <= $from) {
+			return array();
+		}
+
+		$offset  = SiteTime::offset_string();
+		$pickup  = self::time_or_default( (string) apply_filters('mhmrentiva_default_pickup_time', '10:00'));
+		$dropoff = self::time_or_default( (string) apply_filters('mhmrentiva_default_dropoff_time', '10:00'));
+		$args    = array_merge(array( $pickup, $offset, $dropoff, $offset ), self::rule_args($from, $to), $ids);
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- START_EXPR, END_EXPR, FROM_SQL and RULE_SQL are private class constants of this file whose placeholders are bound in order above (the sniff cannot read a constant); every value goes through prepare(); the IN list is one %d per id.
+		$rows = $wpdb->get_results($wpdb->prepare('SELECT DISTINCT p.ID AS booking_id, pm_vid.meta_value AS vehicle_id, ' . self::START_EXPR . ' AS start_ts, ' . self::END_EXPR . ' AS end_ts ' . self::FROM_SQL . ' WHERE ' . self::RULE_SQL . ' AND pm_vid.meta_value IN (' . implode(',', array_fill(0, count($ids), '%d')) . ') ORDER BY start_ts', $args), ARRAY_A);
+
+		$intervals = array();
+		foreach ( (array) $rows as $row) {
+			$start = (int) $row['start_ts'];
+			$end   = (int) $row['end_ts'];
+			if ($end > $start) {
+				$intervals[ (int) $row['vehicle_id'] ][] = array( $start, $end );
+			}
+		}
+
+		return $intervals;
+	}
+
+	/**
+	 * The gap kept free on both sides of a booking, in seconds.
+	 */
+	public static function buffer_seconds(): int
+	{
+		return max(0, (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60')) * MINUTE_IN_SECONDS;
+	}
+
+	/**
 	 * Values for FROM_SQL + RULE_SQL, in placeholder order.
 	 *
 	 * @return list<int|string>
@@ -330,7 +378,7 @@ final class BookingConflicts {
 	{
 		global $wpdb;
 
-		$buffer  = max(0, (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60')) * MINUTE_IN_SECONDS;
+		$buffer  = self::buffer_seconds();
 		$offset  = SiteTime::offset_string();
 		$pickup  = self::time_or_default( (string) apply_filters('mhmrentiva_default_pickup_time', '10:00'));
 		$dropoff = self::time_or_default( (string) apply_filters('mhmrentiva_default_dropoff_time', '10:00'));
