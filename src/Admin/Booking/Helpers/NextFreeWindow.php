@@ -70,22 +70,18 @@ final class NextFreeWindow {
 		update_meta_cache('post', $ids);
 
 		foreach ($ids as $vehicle_id) {
-			$found = self::scan($start, $days, $time, $last_date, $intervals[ $vehicle_id ] ?? array(), BookingConflicts::blocked_days($vehicle_id), $buffer);
+			$found = self::scan($vehicle_id, $start, $days, $time, $last_date, $intervals[ $vehicle_id ] ?? array(), BookingConflicts::blocked_days($vehicle_id), $buffer);
 			if (null === $found) {
 				continue;
 			}
 
 			$window = self::window($found, $days);
-			if (null === $window || BookingConflicts::is_booked($vehicle_id, $window[0], $window[1])) {
-				AdvancedLogger::warning(
-					'Earliest free window failed its live check; no date shown.',
-					array(
-						'vehicle_id' => $vehicle_id,
-						'start'      => $found,
-						'days'       => $days,
-					),
-					AdvancedLogger::CATEGORY_BOOKING
-				);
+			if (null === $window) {
+				self::warn('Earliest free window could not be built for the found start; no date shown.', $vehicle_id, $found, $days);
+				continue;
+			}
+			if (BookingConflicts::is_booked($vehicle_id, $window[0], $window[1])) {
+				self::warn('Earliest free window failed its live check; no date shown.', $vehicle_id, $found, $days);
 				continue;
 			}
 
@@ -114,16 +110,21 @@ final class NextFreeWindow {
 	 * @param list<array{0: int, 1: int}> $intervals Bookings of this vehicle.
 	 * @param list<string>                $blocked   Blocked local days.
 	 */
-	private static function scan(int $candidate, int $days, string $time, string $last_date, array $intervals, array $blocked, int $buffer): ?int
+	private static function scan(int $vehicle_id, int $candidate, int $days, string $time, string $last_date, array $intervals, array $blocked, int $buffer): ?int
 	{
 		for ($step = 0; $step < self::MAX_STEPS; $step++) {
 			$at = self::round_up($candidate);
-			if (null === $at || SiteTime::local_date($at) > $last_date) {
+			if (null === $at) {
+				self::warn('Earliest free scan found no full hour to round to; no date shown.', $vehicle_id, $candidate, $days);
+				return null;
+			}
+			if (SiteTime::local_date($at) > $last_date) {
 				return null;
 			}
 
 			$window = self::window($at, $days);
 			if (null === $window) {
+				self::warn('Earliest free scan could not build a window; no date shown.', $vehicle_id, $at, $days);
 				return null;
 			}
 
@@ -151,6 +152,7 @@ final class NextFreeWindow {
 			if ('' !== $hit) {
 				$next_day = self::wall_instant(self::add_days($hit, 1), $time);
 				if (null === $next_day) {
+					self::warn('Earliest free scan could not read the day after a blocked day; no date shown.', $vehicle_id, $candidate, $days);
 					return null;
 				}
 				$candidate = $next_day;
@@ -160,7 +162,26 @@ final class NextFreeWindow {
 			return $at;
 		}
 
+		self::warn('Earliest free scan hit its step guard; no date shown.', $vehicle_id, $candidate, $days);
+
 		return null;
+	}
+
+	/**
+	 * Log why a booked car shows no "Earliest free" when the reason is not
+	 * the horizon (which is expected and stays quiet).
+	 */
+	private static function warn(string $message, int $vehicle_id, int $start, int $days): void
+	{
+		AdvancedLogger::warning(
+			$message,
+			array(
+				'vehicle_id' => $vehicle_id,
+				'start'      => $start,
+				'days'       => $days,
+			),
+			AdvancedLogger::CATEGORY_BOOKING
+		);
 	}
 
 	/**

@@ -287,7 +287,8 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 
 	/**
 	 * The answer's window is the vehicle page's window -- the same
-	 * number of local days, return at the pickup's own time -- across DST.
+	 * number of local days, return at the pickup's own time. The dates cross
+	 * New York's spring change; the other zones have none in them.
 	 *
 	 * @dataProvider zones
 	 */
@@ -397,7 +398,30 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 			}
 		);
 
+		$logged = array();
+		add_filter(
+			'option_' . SettingsCore::OPTION_NAME,
+			static function ($settings): array {
+				$settings                         = is_array($settings) ? $settings : array();
+				$settings['mhmrentiva_log_level'] = 'warning';
+
+				return $settings;
+			}
+		);
+		add_filter(
+			'wp_insert_post_data',
+			static function (array $data) use (&$logged): array {
+				$logged[] = (string) $data['post_title'];
+
+				return $data;
+			}
+		);
+
 		$this->assertNull($this->earliest($vehicle, '2027-02-03', '10:00', '2027-02-06'));
+		// One read by the scan, one by the live check: a third read would mean
+		// this test no longer exercises the check it names.
+		$this->assertSame(2, $this->filter_calls);
+		$this->assertCount(1, array_filter($logged, static fn(string $title): bool => str_contains($title, 'failed its live check')), implode(' | ', $logged));
 	}
 
 	/**
@@ -429,5 +453,37 @@ final class NextFreeWindowTest extends WP_UnitTestCase
 		$this->assertNull($answer[ $never ]);
 		// One booking query, one meta prime, the settings option, one live check per found vehicle.
 		$this->assertLessThanOrEqual(5, $used, 'queries used: ' . $used);
+	}
+
+	/**
+	 * The query count is flat in the number of bookings: one booking and ten
+	 * chained ones cost the same.
+	 */
+	public function test_queries_do_not_grow_with_bookings(): void
+	{
+		global $wpdb;
+
+		$this->pin_site_timezone('Europe/Istanbul');
+
+		$one = $this->vehicle();
+		$this->booking($one, self::local('2027-02-01', '10:00'), self::local('2027-02-04', '13:00'));
+		$ten = $this->vehicle();
+		for ($i = 0; $i < 10; $i++) {
+			$this->booking($ten, self::local('2027-02-01', '10:00') + $i * 2 * DAY_IN_SECONDS, self::local('2027-02-02', '10:00') + $i * 2 * DAY_IN_SECONDS + 3 * HOUR_IN_SECONDS);
+		}
+
+		$count = static function (int $vehicle) use ($wpdb): int {
+			wp_cache_delete($vehicle, 'post_meta');
+			$before = $wpdb->num_queries;
+			$answer = NextFreeWindow::earliest(array( $vehicle ), self::local('2027-02-03', '10:00'), self::local('2027-02-06', '10:00'));
+			self::assertNotNull($answer[ $vehicle ]);
+
+			return $wpdb->num_queries - $before;
+		};
+
+		// Warm the settings read so neither measurement pays for it.
+		$count($one);
+
+		$this->assertSame($count($one), $count($ten));
 	}
 }
