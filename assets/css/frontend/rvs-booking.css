@@ -1,0 +1,552 @@
+/**
+ * Rentiva front-end standard -- the booking form (`[rentiva_booking_form]`).
+ *
+ * Markup: templates/shortcodes/booking-form.php and
+ * templates/partials/selected-vehicle-summary.php. Values from the approved
+ * canvas (`Rezervasyon`, `Rezervasyon-Mobil`): heading, journey steps, then
+ * the form and a sticky summary side by side; on a phone the summary is a
+ * bottom band (total, deposit, submit) that opens to the full breakdown.
+ * The option cards, steppers and steps are rvs-forms.css; the breakdown is
+ * rvs-breakdown.css. Selectors are scoped to `.rvs-shell`; colours come from
+ * rvs-tokens.css.
+ *
+ * Also the jQuery UI datepicker popup while it serves this form: the popup
+ * lives on <body>, outside the shell, so booking-form.js puts `rvs-shell rvs-dp`
+ * on it while a booking date field is open and takes them off on close (R6).
+ */
+
+/* Page ---------------------------------------------------------------------- */
+
+.rvs-shell .rvs-booking {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s6);
+	padding-block: var(--rvs-s6) var(--rvs-s12);
+}
+
+.rvs-shell .rvs-booking__head {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-booking__title {
+	font-size: 42px;
+}
+
+.rvs-shell .rvs-booking__form {
+	margin: 0;
+}
+
+.rvs-shell .rvs-booking__layout {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--rvs-s12);
+}
+
+.rvs-shell .rvs-booking__main {
+	display: flex;
+	flex: 999 1 560px;
+	flex-direction: column;
+	gap: var(--rvs-s6);
+	min-width: 0;
+}
+
+/* Sections ------------------------------------------------------------------ */
+
+.rvs-shell .rvs-booking__section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+	margin: 0;
+}
+
+.rvs-shell .rvs-booking__section-title {
+	font-size: 28px;
+}
+
+.rvs-shell .rvs-booking__window {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--rvs-s3) var(--rvs-s4);
+}
+
+.rvs-shell .rvs-booking__date {
+	cursor: pointer;
+}
+
+/* The return time follows the pickup time: shown, not chosen. */
+.rvs-shell .rvs-booking__time--locked,
+.rvs-shell .rvs-booking__time--locked:disabled {
+	background: var(--rvs-surface);
+	color: var(--rvs-muted);
+	opacity: 1;
+	cursor: default;
+}
+
+.rvs-shell .rvs-booking__options {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+}
+
+/* Availability and messages. booking-form.js sets data-state="ok|error|busy". */
+.rvs-shell .rvs-booking__availability,
+.rvs-shell .rvs-booking__messages {
+	padding: 12px var(--rvs-s3);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-n-200);
+	color: var(--rvs-text);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-booking__availability[data-state="ok"] {
+	background: var(--rvs-accent-100);
+	color: var(--rvs-accent-deep);
+}
+
+.rvs-shell .rvs-booking__availability[data-state="error"],
+.rvs-shell .rvs-booking__messages[data-state="error"] {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-booking__availability[hidden],
+.rvs-shell .rvs-booking__messages[hidden] {
+	display: none;
+}
+
+/* Summary ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-booking__aside {
+	position: sticky;
+	top: var(--rvs-s4);
+	display: flex;
+	flex: 1 1 340px;
+	flex-direction: column;
+	max-width: 380px;
+	overflow: hidden;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow-md);
+}
+
+.rvs-shell .rvs-booking__summary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-booking__vehicle {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s1);
+}
+
+.rvs-shell .rvs-booking__vehicle[hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__media {
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-booking__img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-booking__img[hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__vehicle-title,
+.rvs-shell .rvs-booking__specs,
+.rvs-shell .rvs-booking__when,
+.rvs-shell .rvs-booking__breakdown {
+	margin-inline: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-booking__vehicle-title {
+	margin-top: var(--rvs-s3);
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-booking__specs[hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__specs,
+.rvs-shell .rvs-booking__when {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-booking__when {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.rvs-shell .rvs-booking__summary > .rvs-booking__when:first-child {
+	margin-top: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-booking__dates:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__change {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-booking__change[hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__breakdown {
+	padding-top: var(--rvs-s3);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-booking__daily {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--rvs-s3);
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+}
+
+/* The band: on a wide screen only the submit button shows. */
+.rvs-shell .rvs-booking__bar {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	padding: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-booking__toggle {
+	display: none;
+}
+
+.rvs-shell .rvs-booking__submit {
+	width: 100%;
+	min-height: 52px;
+	font-size: 16px;
+}
+
+.rvs-shell .rvs-booking__submit:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* enable_deposit="0": the form never names a deposit, in the band either. */
+.rvs-shell .rvs-booking[data-rvs-deposit="0"] [data-rvs-bar-deposit] {
+	display: none;
+}
+
+/* Phone: the summary becomes a bottom band ---------------------------------- */
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-booking {
+		gap: var(--rvs-s6);
+		padding-top: var(--rvs-s4);
+		/* Room for the fixed band. */
+		padding-bottom: 104px;
+	}
+
+	.rvs-shell .rvs-booking__title {
+		font-size: 24px;
+	}
+
+	.rvs-shell .rvs-booking__section-title {
+		font-size: 20px;
+	}
+
+	.rvs-shell .rvs-booking__aside {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 9990;
+		max-width: none;
+		max-height: 85vh;
+		border-top: 1px solid var(--rvs-line);
+		border-radius: var(--rvs-r) var(--rvs-r) 0 0;
+	}
+
+	/* Collapsed: total, deposit and submit. Open: the whole summary above them. */
+	.rvs-shell .rvs-booking__summary {
+		display: none;
+		max-height: calc(85vh - 72px);
+		overflow-y: auto;
+		padding-bottom: var(--rvs-s3);
+		border-bottom: 1px solid var(--rvs-line);
+	}
+
+	.rvs-shell .rvs-booking__aside:has([data-rvs-summary-toggle][aria-expanded="true"]) .rvs-booking__summary {
+		display: flex;
+	}
+
+	.rvs-shell .rvs-booking__media {
+		display: none;
+	}
+
+	.rvs-shell .rvs-booking__bar {
+		flex-direction: row;
+		align-items: center;
+		gap: 12px;
+		min-height: 72px;
+		padding: 0 16px;
+	}
+
+	.rvs-shell .rvs-booking__toggle {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		gap: var(--rvs-s2);
+		min-width: 0;
+		min-height: 44px;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: start;
+		cursor: pointer;
+	}
+
+	/* A chevron that points up when the summary can open, down when it can close. */
+	.rvs-shell .rvs-booking__toggle::after {
+		flex: none;
+		width: 10px;
+		height: 10px;
+		margin-inline-start: auto;
+		border-top: 2px solid currentColor;
+		border-left: 2px solid currentColor;
+		content: "";
+		transform: rotate(45deg);
+	}
+
+	.rvs-shell .rvs-booking__toggle[aria-expanded="true"]::after {
+		transform: rotate(225deg);
+	}
+
+	.rvs-shell .rvs-booking__bar-total {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.rvs-shell .rvs-booking__bar-total strong {
+		font-size: 20px;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.rvs-shell .rvs-booking__bar-note {
+		color: var(--rvs-muted);
+		font-size: 13px;
+		font-weight: 400;
+	}
+
+	.rvs-shell .rvs-booking__submit {
+		width: auto;
+		min-height: 48px;
+		padding: 0 26px;
+	}
+}
+
+@media (max-width: 480px) {
+	.rvs-shell .rvs-booking__window {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* Datepicker popup while it serves the booking form (R6) --------------------- */
+
+/* The popup takes the shell's tokens, not its page container. */
+.rvs-shell.rvs-dp {
+	max-width: none;
+	margin: 0;
+	padding: var(--rvs-s3);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow-md);
+	color: var(--rvs-text);
+	font-size: 14px;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-header {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	margin-bottom: var(--rvs-s2);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-title {
+	font-weight: 600;
+	text-align: center;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-prev,
+.rvs-shell.rvs-dp .ui-datepicker-next {
+	position: absolute;
+	top: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: var(--rvs-r);
+	color: var(--rvs-text);
+	cursor: pointer;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-prev {
+	left: 0;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-next {
+	right: 0;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-prev:hover,
+.rvs-shell.rvs-dp .ui-datepicker-next:hover {
+	background: var(--rvs-n-200);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-prev.ui-state-disabled,
+.rvs-shell.rvs-dp .ui-datepicker-next.ui-state-disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+/* The arrows are drawn; jQuery UI's "Prev"/"Next" text stays for screen readers. */
+.rvs-shell.rvs-dp .ui-datepicker-prev span,
+.rvs-shell.rvs-dp .ui-datepicker-next span {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-prev::before,
+.rvs-shell.rvs-dp .ui-datepicker-next::before {
+	width: 8px;
+	height: 8px;
+	border-bottom: 2px solid currentColor;
+	content: "";
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-prev::before {
+	border-left: 2px solid currentColor;
+	transform: rotate(45deg);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-next::before {
+	border-right: 2px solid currentColor;
+	transform: rotate(-45deg);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar {
+	width: 100%;
+	margin: 0;
+	border-collapse: collapse;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar th {
+	padding: var(--rvs-s1) 0;
+	border: 0;
+	color: var(--rvs-muted);
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar td {
+	padding: 1px;
+	border: 0;
+	text-align: center;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar td a,
+.rvs-shell.rvs-dp .ui-datepicker-calendar td span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 40px;
+	min-height: 40px;
+	border-radius: var(--rvs-r);
+	color: var(--rvs-text);
+	font-variant-numeric: tabular-nums;
+	text-decoration: none;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar td a:hover {
+	background: var(--rvs-n-200);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar .ui-state-highlight {
+	box-shadow: inset 0 0 0 1px var(--rvs-line-strong);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar .ui-state-active {
+	background: var(--rvs-accent-strong);
+	color: #fff;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar .ui-state-disabled span {
+	color: var(--rvs-muted);
+	opacity: 0.5;
+}
+
+/* A day another booking holds (booking-form.js beforeShowDay). */
+.rvs-shell.rvs-dp .ui-datepicker-calendar .rv-blocked-date span {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+	text-decoration: line-through;
+	opacity: 1;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-other-month a,
+.rvs-shell.rvs-dp .ui-datepicker-other-month span {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-buttonpane {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--rvs-s2);
+	margin-top: var(--rvs-s2);
+	padding-top: var(--rvs-s2);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-buttonpane button {
+	min-height: 44px;
+	padding: 0 var(--rvs-s3);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	cursor: pointer;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-buttonpane button:hover {
+	background: var(--rvs-n-200);
+}

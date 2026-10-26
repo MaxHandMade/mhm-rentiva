@@ -126,7 +126,8 @@ class BlockRegistry {
 		'booking-form'          => array(
 			'tag'   => 'rentiva_booking_form',
 			'title' => 'Booking Form',
-			'css'   => array( 'booking-form.css', 'datepicker-custom.css' ),
+			'css'   => array(), // The form is the rvs standard (BookingForm enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-booking' ),
 		),
 
 		'user-dashboard'        => array(

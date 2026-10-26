@@ -62,4 +62,31 @@ final class VehicleCardLinks {
 
 		return add_query_arg($params, $base_url);
 	}
+
+	/**
+	 * The vehicle page with a rental window: the booking form's "Change" link.
+	 *
+	 * Only FORWARD_KEYS travel, each under its wire name and only when set; the
+	 * values are passed as given, so the caller hands over ISO dates (Y-m-d) and
+	 * H:i times -- the shapes the vehicle page reads back.
+	 *
+	 * @param array<string, string> $window Logical key => value.
+	 */
+	public static function details_url(int $vehicle_id, array $window): string
+	{
+		$base_url = (string) get_permalink($vehicle_id);
+		if ('' === $base_url) {
+			return '';
+		}
+
+		$params = array();
+		foreach (self::FORWARD_KEYS as $key) {
+			$value = isset($window[ $key ]) && is_scalar($window[ $key ]) ? trim( (string) $window[ $key ]) : '';
+			if ('' !== $value) {
+				$params[ SearchResults::query_var($key) ] = rawurlencode(sanitize_text_field($value));
+			}
+		}
+
+		return add_query_arg($params, $base_url);
+	}
 }

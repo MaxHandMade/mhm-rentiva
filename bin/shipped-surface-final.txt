@@ -66,7 +66,6 @@ assets/css/core/vehicle-card.css
 assets/css/editor/block-editor-fixes.css
 assets/css/frontend/availability-calendar.css
 assets/css/frontend/booking-detail.css
-assets/css/frontend/booking-form.css
 assets/css/frontend/bookings-page.css
 assets/css/frontend/contact-form.css
 assets/css/frontend/datepicker-custom.css
@@ -74,6 +73,7 @@ assets/css/frontend/elementor-widgets.css
 assets/css/frontend/featured-vehicles.css
 assets/css/frontend/my-account.css
 assets/css/frontend/notifications.css
+assets/css/frontend/rvs-booking.css
 assets/css/frontend/search-results.css
 assets/css/frontend/single-vehicle.css
 assets/css/frontend/testimonials.css

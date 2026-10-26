@@ -9,6 +9,11 @@ use WP_UnitTestCase;
 /**
  * What the booking form shows before the visitor has picked any dates.
  *
+ * Aşama 2 PR C: the summary is the rvs card; the daily price sits in the
+ * breakdown slot (data-rvs-daily) until the first quote replaces it, and the
+ * vehicle's rating is no longer part of the summary (the canvas shows image,
+ * name, window and the breakdown).
+ *
  * The payment summary opened with "Daily Price: -" although the vehicle (and so
  * its daily price) was already known; the Broadsheet artboard
  * (claude.ai/design Rezervasyon-Formu) leads the summary with the daily price.
@@ -25,7 +30,7 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 
 	private function daily_price_cell(string $html): string
 	{
-		$this->assertSame(1, preg_match('/class="rv-price-value rv-daily-price"[^>]*>(.*?)<\/span>/s', $html, $m), 'Daily price cell not found.');
+		$this->assertSame(1, preg_match('/<span data-rvs-daily>(.*?)<\/span>\s*<\/div>/s', $html, $m), 'Daily price cell not found.');
 		return trim(wp_strip_all_tags($m[1]));
 	}
 
@@ -68,15 +73,16 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 		return $vehicle;
 	}
 
-	/** Same rule as the vehicle card: an unrated vehicle shows no rating, not "★ 0.0". */
+	/** An unrated vehicle shows no rating, not "★ 0.0" (the summary shows none at all). */
 	public function test_unrated_vehicle_summary_shows_no_rating(): void
 	{
 		$html = do_shortcode('[rentiva_booking_form vehicle_id="' . ShortcodeFixtures::vehicle() . '"]');
 
-		$this->assertStringNotContainsString('rv-sv__rating-value', $html);
+		$this->assertStringNotContainsString('★', $html);
 	}
 
-	public function test_vehicle_summary_rating_uses_the_site_number_format(): void
+	/** The rating the option carries for the script is the site's number format. */
+	public function test_vehicle_option_rating_uses_the_site_number_format(): void
 	{
 		$vehicle = $this->rated_vehicle();
 		$marker  = static function ($formatted) {
@@ -84,13 +90,13 @@ class BookingFormSummaryInitialStateTest extends WP_UnitTestCase
 		};
 		add_filter('number_format_i18n', $marker);
 		try {
-			$html = do_shortcode('[rentiva_booking_form vehicle_id="' . $vehicle . '"]');
+			$html = do_shortcode('[rentiva_booking_form]');
 		} finally {
 			remove_filter('number_format_i18n', $marker);
 		}
 
-		$this->assertSame(1, preg_match('/class="rv-sv__rating-value">(.*?)<\/span>/s', $html, $m), 'Rating value not rendered.');
-		$this->assertStringStartsWith('ZZ', trim($m[1]));
+		$this->assertSame(1, preg_match('/<option value="' . $vehicle . '"[^>]*data-rating="([^"]*)"/', $html, $m), 'Rating not on the option.');
+		$this->assertStringStartsWith('ZZ', $m[1]);
 	}
 
 	/**

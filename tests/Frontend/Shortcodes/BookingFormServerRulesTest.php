@@ -293,13 +293,13 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$addon = $this->addon('Mandatory insurance', '150', false);
 
 		$before = do_shortcode('[rentiva_booking_form vehicle_id="' . $this->vehicle_id . '"]');
-		$this->assertStringNotContainsString('rv-addon-item--required', $before, 'Fixture: nothing is required yet.');
+		$this->assertStringNotContainsString('rvs-option--locked', $before, 'Fixture: nothing is required yet.');
 
 		update_post_meta($addon, 'mhmrentiva_addon_required', '1');
 		$after = do_shortcode('[rentiva_booking_form vehicle_id="' . $this->vehicle_id . '"]');
 
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true');
-		$this->assertStringContainsString('rv-addon-item--required', $after, 'The cached form must not hide the now-required add-on.');
+		$this->assertStringContainsString('rvs-option--locked', $after, 'The cached form must not hide the now-required add-on.');
 	}
 
 	public function test_a_switched_off_required_addon_does_not_block_booking(): void

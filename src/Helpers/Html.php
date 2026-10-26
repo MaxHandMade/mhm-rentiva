@@ -173,6 +173,12 @@ class Html {
 			'value' => true,
 			'max'   => true,
 		);
+		// The quantity stepper's live count (templates/shortcodes/booking-form.php,
+		// rvs-stepper.js); core's 'post' list has no `output`.
+		$allowed['output'] = $common + array(
+			'for'  => true,
+			'name' => true,
+		);
 
 		// Inline SVG is used for the plugin's own icons and sparklines. Icons::get()
 		// (src/Helpers/Icons.php) puts `stroke-linecap`/`stroke-linejoin` on the
@@ -256,16 +262,23 @@ class Html {
 	 */
 	private static function aria_attributes(): array {
 		return array(
-			'aria-controls'   => true,
-			'aria-current'    => true,
-			'aria-disabled'   => true,
-			'aria-expanded'   => true,
-			'aria-hidden'     => true,
-			'aria-label'      => true,
-			'aria-labelledby' => true,
-			'aria-modal'      => true,
-			'aria-pressed'    => true,
-			'aria-selected'   => true,
+			'aria-controls'    => true,
+			'aria-current'     => true,
+			'aria-describedby' => true,
+			'aria-disabled'    => true,
+			'aria-expanded'    => true,
+			'aria-hidden'      => true,
+			'aria-label'       => true,
+			'aria-labelledby'  => true,
+			'aria-live'        => true,
+			'aria-modal'       => true,
+			'aria-pressed'     => true,
+			'aria-selected'    => true,
+			// The journey's progress bar (templates/partials/rvs/steps.php).
+			'aria-valuemax'    => true,
+			'aria-valuemin'    => true,
+			'aria-valuenow'    => true,
+			'aria-valuetext'   => true,
 		);
 	}
 

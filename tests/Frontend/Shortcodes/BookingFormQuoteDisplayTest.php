@@ -88,18 +88,21 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function calculate_price(): array
+	private function calculate_price(array $extra = array()): array
 	{
-		$_POST = array(
-			'action'       => 'mhmrentiva_calculate_price',
-			'nonce'        => wp_create_nonce('mhmrentiva_booking_form_nonce'),
-			'vehicle_id'   => $this->vehicle_id,
-			'pickup_date'  => '2026-07-13',
-			'dropoff_date' => '2026-07-16',
-			'pickup_time'  => '10:00',
-			'dropoff_time' => '10:00',
-			'addons'       => array(),
-			'payment_type' => 'full',
+		$_POST = array_merge(
+			array(
+				'action'       => 'mhmrentiva_calculate_price',
+				'nonce'        => wp_create_nonce('mhmrentiva_booking_form_nonce'),
+				'vehicle_id'   => $this->vehicle_id,
+				'pickup_date'  => '2026-07-13',
+				'dropoff_date' => '2026-07-16',
+				'pickup_time'  => '10:00',
+				'dropoff_time' => '10:00',
+				'addons'       => array(),
+				'payment_type' => 'full',
+			),
+			$extra
 		);
 
 		$ob_level_before = ob_get_level();
@@ -162,6 +165,57 @@ final class BookingFormQuoteDisplayTest extends WP_Ajax_UnitTestCase
 			(float) $lines['vehicle_total']['amount'] + (float) $lines['addon_total']['amount'],
 			0.01
 		);
+	}
+
+	/**
+	 * Aşama 2 PR C: the answer also carries the summary's breakdown, rendered by
+	 * the shared partial, and every field the script read before stays.
+	 */
+	public function test_quote_answer_carries_breakdown_html_and_keeps_display_fields(): void
+	{
+		$this->ensure_booking_product('1');
+		$seat = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_addon',
+			'post_status' => 'publish',
+			'post_title'  => 'Child seat',
+		));
+		update_post_meta($seat, 'mhmrentiva_addon_price', '50');
+		update_post_meta($seat, 'mhmrentiva_addon_enabled', '1');
+		update_post_meta($seat, \MHMRentiva\Admin\Core\MetaKeys::ADDON_MAX_QUANTITY, '3');
+
+		$data = $this->calculate_price(array(
+			'addons'    => array( (string) $seat ),
+			'addon_qty' => array( $seat => '2' ),
+		));
+
+		foreach (array( 'vehicle_price', 'vehicle_total', 'addon_total', 'total_price', 'days', 'deposit_amount', 'remaining_amount', 'payment_type', 'display_total', 'display_deposit', 'display_remaining', 'price_suffix', 'display_lines', 'is_weekend' ) as $key) {
+			$this->assertArrayHasKey($key, $data, "$key stays in the answer.");
+		}
+		foreach (array( 'vehicle_price', 'vehicle_total', 'addon_total', 'weekend_extra' ) as $line) {
+			$this->assertArrayHasKey($line, $data['display_lines']);
+		}
+
+		$html = (string) ( $data['breakdown_html'] ?? '' );
+		$this->assertStringContainsString('class="rvs-breakdown"', $html);
+		$this->assertStringContainsString('Child seat × 2', $html);
+		$this->assertSame(1, preg_match('#<div class="rvs-breakdown__total">(.*?)</div>#s', $html, $total), 'The breakdown has a total.');
+		$this->assertEqualsWithDelta((float) $data['display_total']['amount'], $this->amount($total[1]), 0.001, 'The breakdown total is the displayed total_price.');
+
+		preg_match_all('#<dd>(.*?)</dd>#s', $html, $rows);
+		$this->assertNotEmpty($rows[1]);
+		$sum = 0.0;
+		foreach ($rows[1] as $cell) {
+			$sum += $this->amount($cell);
+		}
+		$this->assertEqualsWithDelta((float) $data['display_total']['amount'], $sum, 0.05, 'The rows add up to the total.');
+	}
+
+	private function amount(string $html): float
+	{
+		$text = html_entity_decode(wp_strip_all_tags($html), ENT_QUOTES, 'UTF-8');
+		$text = str_replace(array( wc_get_price_thousand_separator(), get_woocommerce_currency_symbol() ), '', $text);
+		$text = str_replace(wc_get_price_decimal_separator(), '.', $text);
+		return (float) preg_replace('/[^0-9.\-]/', '', $text);
 	}
 
 	public function test_quote_payload_has_no_tax_keys(): void

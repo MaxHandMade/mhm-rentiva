@@ -233,6 +233,9 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-forms', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-forms', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-forms.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-forms.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
+		}
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
 		}
@@ -313,6 +316,16 @@ final class AssetManager {
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-forms');
 		wp_enqueue_script('mhm-rentiva-rvs-stepper');
+	}
+
+	/**
+	 * The booking form (rvs-booking.css) on top of the form primitives and the
+	 * breakdown, plus the stepper's script.
+	 */
+	public static function enqueue_rvs_booking(): void
+	{
+		self::enqueue_rvs_forms();
+		wp_enqueue_style('mhm-rentiva-rvs-booking');
 	}
 
 	/**
