@@ -361,7 +361,7 @@ class VehiclesGrid extends AbstractShortcode {
 		$data = array(
 			'id'            => $vehicle_id,
 			'title'         => get_the_title($vehicle_id) ?: '',
-			'permalink'     => get_permalink($vehicle_id) ?: '',
+			'permalink'     => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_id),
 			'image'         => self::get_vehicle_image($vehicle_id, $image_size),
 			'price'         => self::get_vehicle_price($vehicle_id),
 			'features'      => self::get_vehicle_features($vehicle_id),

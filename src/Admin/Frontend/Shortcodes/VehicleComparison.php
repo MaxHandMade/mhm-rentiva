@@ -419,7 +419,7 @@ final class VehicleComparison extends AbstractShortcode {
 		$data = array(
 			'id'           => $post->ID,
 			'title'        => get_the_title($post),
-			'permalink'    => get_permalink($post),
+			'permalink'    => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $post->ID),
 			'image_url'    => get_the_post_thumbnail_url($post, 'medium') ?: '',
 			'features'     => array(
 				'price_per_day'   => (float) $price,

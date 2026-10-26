@@ -536,7 +536,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			'favorite'        => $is_favorited,
 			'image_url'       => $image_url,
 			'features'        => $features,
-			'permalink'       => get_permalink($vehicle_id),
+			'permalink'       => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_id),
 			'year'            => $year,
 			'mileage'         => $mileage,
 			'seats'           => $seats,

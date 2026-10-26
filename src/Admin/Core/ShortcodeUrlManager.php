@@ -129,6 +129,40 @@ final class ShortcodeUrlManager {
 	}
 
 	/**
+	 * The page a customer sees a vehicle on.
+	 *
+	 * With a vehicle-details page this is its sub-path (/{details-page}/{slug}/,
+	 * served by Plugin::register_vehicle_rewrite_rules()), or, under plain
+	 * permalinks, the page with the `mhmrentiva_vehicle_slug` query var. The CPT
+	 * permalink (/{url_base}/{slug}/) only 301-redirects there, so a link built
+	 * on it costs a hop. Without a details page, or for a vehicle that is not
+	 * published (the details page shows published vehicles only), the CPT
+	 * permalink is the vehicle page. '' when the id is not a vehicle.
+	 *
+	 * Every customer-facing vehicle link is built here.
+	 */
+	public static function vehicle_page_url( int $vehicle_id ): string {
+		$vehicle = $vehicle_id > 0 ? get_post( $vehicle_id ) : null;
+		if ( ! $vehicle instanceof \WP_Post || 'mhmrentiva_vehicle' !== $vehicle->post_type ) {
+			return '';
+		}
+
+		$page_id  = 'publish' === $vehicle->post_status && '' !== $vehicle->post_name
+			? self::get_page_id( 'rentiva_vehicle_details' )
+			: null;
+		$page_url =$page_id ? (string) get_permalink( $page_id ) : '';
+		if ( '' === $page_url ) {
+			return (string) get_permalink( $vehicle );
+		}
+
+		if ( '' === (string) get_option( 'permalink_structure' ) ) {
+			return add_query_arg( 'mhmrentiva_vehicle_slug', rawurlencode( $vehicle->post_name ), $page_url );
+		}
+
+		return trailingslashit( $page_url ) . $vehicle->post_name . '/';
+	}
+
+	/**
 	 * A published page built with Elementor that holds the shortcode's Rentiva
 	 * widget, or the shortcode itself inside an Elementor shortcode/text widget.
 	 * Asked only after post_content found nothing, so a classic page still wins.

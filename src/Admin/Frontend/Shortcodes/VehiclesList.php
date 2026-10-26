@@ -384,7 +384,7 @@ final class VehiclesList extends AbstractShortcode {
 			'id'            => $vehicle_id,
 			'title'         => get_the_title($vehicle_id) ?: '',
 			'excerpt'       => self::get_safe_excerpt($vehicle_id),
-			'permalink'     => get_permalink($vehicle_id) ?: '',
+			'permalink'     => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_id),
 			'image'         => $image_data, // Standardized key
 			'image_url'     => $image_url, // Keep for backward compatibility if needed locally
 			'price'         => self::get_vehicle_price($vehicle_id),

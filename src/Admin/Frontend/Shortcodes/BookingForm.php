@@ -855,7 +855,7 @@ final class BookingForm extends AbstractShortcode {
 				'id'             => $vehicle->ID,
 				'title'          => $vehicle->post_title,
 				// The summary's "Change" link for this choice (booking-form.js adds the window).
-				'permalink'      => (string) get_permalink($vehicle->ID),
+				'permalink'      => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle->ID),
 				'price_per_day'  => (string) get_post_meta($vehicle->ID, '_mhmrentiva_price_per_day', true),
 				'category_name'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_category($vehicle->ID),
 				'featured_image' => get_the_post_thumbnail_url($vehicle->ID, 'large'),
