@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
 use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
 use MHMRentiva\Tests\Support\RequestSimulator;
@@ -29,6 +30,8 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 			set_query_var(SearchResults::query_var($key), '');
 		}
 		delete_option('mhmrentiva_settings');
+		remove_all_filters('mhmrentiva_locations');
+		LocationContext::flush();
 		RequestSimulator::new_request();
 		parent::tearDown();
 	}
@@ -122,5 +125,68 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-search', 'enqueued'));
 		$this->assertFalse(wp_style_is('mhm-rentiva-unified-search-base', 'enqueued'));
+	}
+
+	/**
+	 * @param array<int, array{0:int,1:string,2:string}> $rows id, name, city.
+	 */
+	private function locations(array $rows): void
+	{
+		$objects = array();
+		foreach ($rows as $row) {
+			$objects[] = (object) array( 'id' => (string) $row[0], 'name' => $row[1], 'city' => $row[2] );
+		}
+		remove_all_filters('mhmrentiva_locations');
+		LocationContext::flush();
+		add_filter('mhmrentiva_locations', static fn ($locations, $type) => 'rental' === $type ? $objects : $locations, 10, 2);
+	}
+
+	public function test_lite_alone_has_no_location_field_nor_line(): void
+	{
+		$html = do_shortcode('[rentiva_unified_search]');
+
+		$this->assertStringNotContainsString('data-rvs-pickup-location', $html);
+		$this->assertStringNotContainsString('data-rvs-pickup-where', $html);
+		$this->assertStringContainsString('rvs-search--no-location', $html);
+	}
+
+	public function test_single_location_hides_select_and_shows_line(): void
+	{
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ) ));
+
+		$html = do_shortcode('[rentiva_unified_search show_location_select="1"]');
+
+		$this->assertStringNotContainsString('data-rvs-pickup-location', $html, 'One pickup point: nothing to choose, whatever the attribute says.');
+		$this->assertStringContainsString('rvs-search--no-location', $html);
+		$this->assertSame(1, preg_match('#<p class="rvs-search__where" data-rvs-pickup-where>(.*?)</p>#s', $html, $m));
+		$this->assertStringContainsString('Pickup and return: <strong>İstanbul Havalimanı</strong>', $m[1]);
+	}
+
+	public function test_multi_location_shows_select_without_line(): void
+	{
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ), array( 4, 'Sabiha Gökçen', 'İstanbul' ) ));
+		set_query_var(SearchResults::query_var('pickup_location'), '4');
+
+		$html = do_shortcode('[rentiva_unified_search]');
+
+		$this->assertStringContainsString('data-rvs-pickup-location', $html);
+		$this->assertStringNotContainsString('data-rvs-pickup-where', $html);
+		$this->assertMatchesRegularExpression('#<option value="4" selected#', $html);
+		$this->assertStringContainsString('>Sabiha Gökçen</option>', $html);
+	}
+
+	public function test_url_location_ignored_when_zero_or_one_location(): void
+	{
+		set_query_var(SearchResults::query_var('pickup_location'), '3');
+		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'Lite alone.');
+
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ) ));
+		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'One location.');
+
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ), array( 4, 'Sabiha Gökçen', 'İstanbul' ) ));
+		$this->assertSame('3', UnifiedSearch::values()['pickup_location']);
+
+		set_query_var(SearchResults::query_var('pickup_location'), '99');
+		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'Not a rental location.');
 	}
 }

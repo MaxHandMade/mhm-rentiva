@@ -20,14 +20,16 @@ final class UnifiedSearchDropoffDefaultTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        // The location block renders only when the site has locations.
+        // The location block renders only when the site has a choice of
+        // rental locations (LocationContext: two or more).
         add_filter(
-            'mhmrentiva_search_locations',
+            'mhmrentiva_locations',
             static fn (): array => array(
-                (object) array( 'id' => 1, 'name' => 'Airport' ),
-                (object) array( 'id' => 2, 'name' => 'City Centre' ),
+                (object) array( 'id' => 1, 'name' => 'Airport', 'city' => 'Town' ),
+                (object) array( 'id' => 2, 'name' => 'City Centre', 'city' => 'Town' ),
             )
         );
+        \MHMRentiva\Admin\Core\LocationContext::flush();
     }
 
     public function test_the_drop_off_field_is_hidden_by_default(): void

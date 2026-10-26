@@ -20,9 +20,10 @@ use WP_UnitTestCase;
  * rental-only; transfer search is the standalone `rentiva_transfer_search`
  * shortcode/block), and with it `mhmrentiva_search_extra_tabs`,
  * `mhmrentiva_search_enqueue_assets` and `mhmrentiva_search_script_deps` --
- * none of them have any reader left in UnifiedSearch. Only
- * `mhmrentiva_search_locations` survives, because the rental panel's own
- * pickup/dropoff selects read it too.
+ * none of them have any reader left in UnifiedSearch. PR S moved the
+ * rental panel's pickup/dropoff selects from `mhmrentiva_search_locations`
+ * to LocationContext (`mhmrentiva_locations`), the one source every
+ * customer surface reads for single vs multi location.
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch
  */
@@ -30,7 +31,8 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
 {
     protected function tearDown(): void
     {
-        remove_all_filters('mhmrentiva_search_locations');
+        remove_all_filters('mhmrentiva_locations');
+        \MHMRentiva\Admin\Core\LocationContext::flush();
         parent::tearDown();
     }
 
@@ -84,7 +86,7 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     }
 
     /**
-     * With no subscriber, `mhmrentiva_search_locations` defaults to empty -- so
+     * With no subscriber, `mhmrentiva_locations` defaults to empty -- so
      * Lite offers no locations, purely from the filter default, with nothing left
      * in UnifiedSearch itself to ask a class or a licence. There is no extra
      * ("transfer") tab left to default at all as of Task A10.
@@ -98,12 +100,12 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     }
 
     /**
-     * A subscriber CAN contribute locations -- proves `mhmrentiva_search_locations`
+     * A subscriber CAN contribute locations -- proves `mhmrentiva_locations`
      * is load-bearing, not just always-empty.
      */
     public function test_a_subscriber_can_contribute_locations(): void
     {
-        add_filter('mhmrentiva_search_locations', static fn ($locations, $type) => array( (object) array( 'id' => 1, 'name' => 'Demo' ) ), 10, 2);
+        add_filter('mhmrentiva_locations', static fn ($locations, $type) => array( (object) array( 'id' => 1, 'name' => 'Demo' ) ), 10, 2);
 
         $data = $this->template_data();
 

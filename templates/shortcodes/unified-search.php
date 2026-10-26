@@ -11,6 +11,7 @@
  * @var array  $locations             Location options (id, name).
  * @var string $wrapper_id            Unique id prefix for this strip.
  * @var bool   $show_location_select  Whether to show the location select.
+ * @var string $pickup_where          The single rental location's name ('' unless exactly one).
  * @var bool   $show_time_select      Whether to show the time selects.
  * @var bool   $show_date_picker      Whether to show the date fields.
  * @var bool   $show_dropoff_location Whether to show the drop-off select.
@@ -37,6 +38,7 @@ $mhmrentiva_qv = static function (string $logical): string {
 };
 
 $show_location_select  = $show_location_select ?? true;
+$pickup_where          = (string) ( $pickup_where ?? '' );
 $show_time_select      = $show_time_select ?? true;
 $show_date_picker      = $show_date_picker ?? true;
 $show_dropoff_location = $show_dropoff_location ?? false;
@@ -99,6 +101,15 @@ $time_options = static function (string $selected): void {
 		<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('return_time')); ?>" value="<?php echo esc_attr($picked_time); ?>" data-rvs-return-time>
 
 		<button type="submit" class="rvs-btn rvs-btn--primary rvs-btn--lg rvs-search__submit" data-testid="search-submit-rental"<?php echo $is_preview ? ' disabled' : ''; ?>><?php esc_html_e('Search', 'mhm-rentiva'); ?></button>
+
+		<?php if ('' !== $pickup_where) : ?>
+			<p class="rvs-search__where" data-rvs-pickup-where><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>
+			<?php
+			/* translators: %s: the site's only pickup point. */
+			printf(esc_html__('Pickup and return: %s', 'mhm-rentiva'), '<strong>' . esc_html($pickup_where) . '</strong>');
+			?>
+			</span></p>
+		<?php endif; ?>
 
 		<?php if ($show_location_select && $show_dropoff_location) : ?>
 			<div class="rvs-field rvs-search__field rvs-search__field--dropoff">

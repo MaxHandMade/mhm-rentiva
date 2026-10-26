@@ -68,6 +68,21 @@
 	max-width: 420px;
 }
 
+/* A site with one pickup point names it under the fields instead of a select. */
+.rvs-shell .rvs-search__where {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-search__where svg {
+	flex: none;
+	color: var(--rvs-muted);
+}
+
 /* Stacked: the vertical layout everywhere, every layout on phones. */
 .rvs-shell .rvs-search--vertical .rvs-search__form {
 	grid-template-columns: minmax(0, 1fr);

@@ -587,20 +587,22 @@ final class ShortcodeFixtures
 				return $row;
 
 			case 'search_locations':
-				// Rental locations come from an add-on through the filter; without one
-				// the pickers have nothing to list and are not rendered.
+				// Rental locations come from an add-on through the filter; without a
+				// choice (two or more, LocationContext) the pickers are not rendered.
 				$row['filters'] = array(
 					array(
-						'mhmrentiva_search_locations',
+						'mhmrentiva_locations',
 						static function () {
 							return array(
 								(object) array(
 									'id'   => 9101,
 									'name' => 'Zz Airport',
+									'city' => 'Zz Town',
 								),
 								(object) array(
 									'id'   => 9102,
 									'name' => 'Zz Harbour',
+									'city' => 'Zz Town',
 								),
 							);
 						},
