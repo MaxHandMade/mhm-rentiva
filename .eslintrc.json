@@ -30,7 +30,6 @@
 		"mhmBookingPopup": "readonly",
 		"mhmBookingApprove": "readonly",
 		"mhmManualBooking": "readonly",
-		"mhmRentivaAddons": "readonly",
 		"mhmBookingEdit": "readonly",
 		"mhmBookingEmail": "readonly",
 		"mhmrentiva_email_templates_vars": "readonly",

@@ -45,7 +45,8 @@ class BookingFormTest extends WP_UnitTestCase
         // If show_vehicle_selector="false", vehicle dropdown should be hidden
         $output = do_shortcode('[rentiva_booking_form show_vehicle_selector="false" vehicle_id="495"]');
 
-        $this->assertStringNotContainsString('class="rv-select rv-vehicle-select"', $output);
+        $this->assertStringContainsString('data-rvs-booking-form', $output);
+        $this->assertStringNotContainsString('data-rvs-vehicle-select', $output);
     }
 
     public function test_default_attributes()
@@ -54,6 +55,6 @@ class BookingFormTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_booking_form]');
 
         $this->assertStringContainsString('name="pickup_time"', $output);
-        $this->assertStringContainsString('class="rv-select rv-vehicle-select"', $output);
+        $this->assertStringContainsString('data-rvs-vehicle-select', $output);
     }
 }

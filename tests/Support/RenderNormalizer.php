@@ -9,8 +9,8 @@ namespace MHMRentiva\Tests\Support;
  *
  * It removes what changes between two renders of the same settings, so a
  * difference that survives it is a difference the setting made:
- *   - data-render-time, the search-results, vehicle-page and calendar instance
- *     ids (rvsr-N, rvs-vd-N, rvs-cal-N; wp_unique_id),
+ *   - data-render-time, the search-results, vehicle-page, calendar and booking-form instance
+ *     ids (rvsr-N, rvs-vd-N, rvs-cal-N, rvs-bf-N; wp_unique_id),
  *     10-hex nonces and 10+ digit timestamps;
  *   - id / for / aria-* / data-*id values (they carry per-render ids);
  *   - the uniqid() wrapper ids of the contact, booking and unified search
@@ -28,8 +28,8 @@ final class RenderNormalizer
 	{
 		$html = (string) preg_replace('/data-render-time="[^"]*"/', 'data-render-time="T"', $html);
 		$html = (string) preg_replace('/rvsr-\d+/', 'rvsr-N', $html);
-		// The vehicle page and its calendar months (wp_unique_id) -- in hrefs too.
-		$html = (string) preg_replace('/\b(rvs-vd|rvs-cal)-\d+/', '$1-N', $html);
+		// The vehicle page, its calendar months and the booking form (wp_unique_id) -- in hrefs too.
+		$html = (string) preg_replace('/\b(rvs-vd|rvs-cal|rvs-bf)-\d+/', '$1-N', $html);
 		$html = (string) preg_replace('/\b[a-f0-9]{10}\b/', 'NONCE', $html);
 		$html = (string) preg_replace('/\b\d{10,}\b/', 'TS', $html);
 		$html = (string) preg_replace('/(id|for|aria-[a-z]+|data-[a-z-]*id)="[^"]*"/', '$1="X"', $html);

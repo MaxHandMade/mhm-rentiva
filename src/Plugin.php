@@ -600,9 +600,6 @@ final class Plugin {
 		if ($is_admin && class_exists(Admin\Addons\AddonSettings::class)) {
 			Admin\Addons\AddonSettings::register();
 		}
-		if (class_exists(Admin\Booking\Addons\AddonBooking::class)) {
-			Admin\Booking\Addons\AddonBooking::register();
-		}
 	}
 
 	/**

@@ -31,17 +31,17 @@ describe( 'booking form validation with the real localized shape', () => {
 
 	test( 'does not demand payment radios the template never renders', () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper">
-				<form class="rv-booking-form-content">
-					<input class="rv-pickup-date" value="2026-11-01">
-					<input class="rv-dropoff-date" value="2026-11-03">
-					<select class="rv-pickup-time"><option value="10:00" selected>10:00</option></select>
+			<div class="rvs-booking" data-rvs-booking-form>
+				<form class="rvs-booking__form">
+					<input name="pickup_date" data-rvs-pickup-date value="2026-11-01" readonly required>
+					<input name="dropoff_date" data-rvs-dropoff-date value="2026-11-03" readonly required>
+					<select name="pickup_time" data-rvs-pickup-time required><option value="10:00" selected>10:00</option></select>
 					<input type="hidden" name="payment_type" value="deposit">
 				</form>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
 		form.showError = jest.fn();
 
 		expect( form.validateForm() ).toBe( true );

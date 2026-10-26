@@ -66,6 +66,6 @@ class VehicleDetailsBookingPrefillTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('name="vehicle_id" value="' . $this->vehicle_id . '"', $form);
 		$this->assertStringContainsString('name="pickup_location_id" value="' . $this->location . '"', $form);
-		$this->assertDoesNotMatchRegularExpression('#rv-checkout-vehicle\s+rv-hidden#', $form);
+		$this->assertMatchesRegularExpression('#data-rvs-summary-vehicle>#', $form, 'The summary shows the vehicle at once (Case A).');
 	}
 }

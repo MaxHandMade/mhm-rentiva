@@ -230,6 +230,12 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-breakdown', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-breakdown', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-breakdown.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-breakdown.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-forms', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-forms', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-forms.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-forms.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
+		}
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
 		}
@@ -238,6 +244,9 @@ final class AssetManager {
 		}
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
+		}
+		if (! wp_script_is('mhm-rentiva-rvs-stepper', 'registered')) {
+			wp_register_script('mhm-rentiva-rvs-stepper', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-stepper.js', array(), self::get_file_version('assets/js/frontend/rvs-stepper.js'), true);
 		}
 		if (! wp_script_is('mhm-rentiva-rvs-vehicle-js', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-vehicle-js', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-vehicle.js', array( 'jquery', 'mhm-rentiva-rvs-dialog', 'mhm-rentiva-vehicle-interactions' ), self::get_file_version('assets/js/frontend/rvs-vehicle.js'), true);
@@ -296,6 +305,37 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-breakdown');
+	}
+
+	/**
+	 * The form primitives (option card, quantity stepper, journey steps) and the
+	 * stepper's script (rvs-stepper.js).
+	 */
+	public static function enqueue_rvs_forms(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-forms');
+		wp_enqueue_script('mhm-rentiva-rvs-stepper');
+	}
+
+	/**
+	 * The booking form (rvs-booking.css) on top of the form primitives and the
+	 * breakdown, plus the stepper's script.
+	 */
+	public static function enqueue_rvs_booking(): void
+	{
+		self::enqueue_rvs_forms();
+		wp_enqueue_style('mhm-rentiva-rvs-booking');
+	}
+
+	/**
+	 * The checkout and thank-you journey (step bar and summary, the journey
+	 * section of rvs-booking.css): styles only, no stepper script.
+	 */
+	public static function enqueue_rvs_journey(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-booking');
 	}
 
 	/**
@@ -538,8 +578,10 @@ final class AssetManager {
 
 	/**
 	 * Detect whether the current admin page belongs to this plugin.
+	 *
+	 * Public for admin notices that show only on Rentiva screens (CheckoutJourney).
 	 */
-	private static function is_rentiva_admin_page(): bool
+	public static function is_rentiva_admin_page(): bool
 	{
 		$screen = get_current_screen();
 		if ( ! $screen ) {

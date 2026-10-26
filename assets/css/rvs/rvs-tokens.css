@@ -70,6 +70,14 @@
 	--rvs-card-btn-bg: #006786;
 	--rvs-card-btn-bg-hover: #004961;
 	--rvs-card-btn-radius: 2px;
+
+	/* Booking form (rvs-booking.css). The Elementor form controls overwrite
+	   these on the widget's .rvs-booking, which is nearer than this rule. */
+	--rvs-booking-bg: #fbfafa;
+	--rvs-booking-radius: 2px;
+	--rvs-booking-shadow: 0 3px 10px rgba(45, 43, 43, 0.16);
+	--rvs-booking-cta: #006786;
+	--rvs-booking-cta-hover: #004961;
 }
 
 @supports (color: color-mix(in srgb, red, blue)) {

@@ -88,12 +88,6 @@ parameters:
 			path: src/Admin/Booking/Actions/DepositManagementAjax.php
 
 		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Booking/Addons/AddonBooking.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -234,7 +228,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 35
+			count: 38
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -762,12 +756,6 @@ parameters:
 		-
 			message: '#^Property WooCommerce\:\:\$session \(WC_Session\) in isset\(\) is not nullable\.$#'
 			identifier: isset.property
-			count: 1
-			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Payment\\WooCommerce\\WooCommerceBridge\:\:get_booking_data_from_cart\(\) is unused\.$#'
-			identifier: method.unused
 			count: 1
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 

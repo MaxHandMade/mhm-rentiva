@@ -1,24 +1,29 @@
 /**
- * Booking Form JavaScript
- * 
- * Advanced booking form - vehicle selection, addons, deposit system
- * Developed based on QuickBooking JS structure
- * 
- * @updated 2025-01-16 - Vehicle availability button control added
- * @updated 2025-01-16 - Alternative vehicle selection and styling improved
+ * Booking form (`[rentiva_booking_form]`, Aşama 2 PR C).
+ *
+ * Markup: templates/shortcodes/booking-form.php and
+ * templates/partials/selected-vehicle-summary.php. Every lookup starts at the
+ * instance root ([data-rvs-booking-form]) and goes through data-rvs-* hooks, so
+ * two forms on one page never touch each other.
+ *
+ * - Add-on quantities come from the steppers (rvs-stepper.js): a stepper at
+ *   zero disables its hidden fields, so the add-on is not in the request.
+ * - The summary takes the breakdown the server renders (`breakdown_html`);
+ *   without it the display_* amounts build a plain one (older answers).
+ * - On a phone the summary is a bottom band; its toggle opens the summary.
+ * - The jQuery UI datepicker popup wears `rvs-shell rvs-dp` only while a
+ *   booking date field has it open (the popup is shared with other forms).
  */
 
 (function ($) {
     'use strict';
 
-    // Global jQuery UI DatePicker localization
     $(document).ready(function () {
         if (window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.datepicker_options) {
             $.datepicker.setDefaults(MHMRentivaBookingForm.siteDatepickerOptions(window.mhmRentivaBookingForm.datepicker_options));
         }
 
-        // Initialize all booking forms on the page
-        $('.rv-booking-form-wrapper').each(function () {
+        $('[data-rvs-booking-form]').each(function () {
             new MHMRentivaBookingForm($(this));
         });
     });
@@ -26,36 +31,17 @@
     class MHMRentivaBookingForm {
         constructor($container) {
             this.container = $container;
-            this.form = this.container.find('.rv-booking-form-content');
-            this.submitBtn = this.form.find('.rv-submit-btn');
+            this.form = this.container.find('form').first();
+            this.submitBtn = this.container.find('[data-rvs-submit]');
 
-            this.loadingEl = this.container.find('.rv-loading');
-            this.errorEl = this.container.find('.rv-error-message');
-            this.successEl = this.container.find('.rv-success-message');
+            // The template renders submit disabled in an editor preview; nothing
+            // here may switch it on.
+            this.locked = this.submitBtn.prop('disabled') === true;
 
-            // Enable button at form start (terms checkbox will control it)
-            this.submitBtn.prop('disabled', false);
-
-            // Set by checkAvailability() when the vehicle is taken or the check
-            // failed; nothing else may re-enable submit while it is set.
+            // Set by checkAvailability() when the vehicle is taken; nothing else
+            // may re-enable submit while it is set.
             this.availabilityBlocked = false;
-
-            // Deposit system elements
-            this.paymentTypeRadios = this.form.find('input[name="payment_type"]');
-            this.paymentMethodRadios = this.form.find('input[name="payment_method"]');
-            this.onlinePaymentDetails = this.form.find('.rv-online-payment-details');
-
-            // Price display elements
-            this.priceElements = {
-                dailyPrice: this.container.find('.rv-daily-price'),
-                weekendDiffAmount: this.container.find('.rv-weekend-diff-amount'),
-                daysCount: this.container.find('.rv-days-count'),
-                vehicleTotal: this.container.find('.rv-vehicle-total'),
-                addonsTotal: this.container.find('.rv-addons-total'),
-                totalAmount: this.container.find('.rv-total-amount'),
-                depositAmount: this.container.find('.rv-deposit-amount'),
-                remainingAmount: this.container.find('.rv-remaining-amount')
-            };
+            this.submitting = false;
 
             // Blocked dates for the currently selected vehicle (populated via AJAX).
             this.blockedDates = [];
@@ -66,232 +52,117 @@
         init() {
             if (!this.form.length) return;
 
-            // jQuery AJAX global settings - serialize arrays properly
-            $.ajaxSetup({
-                traditional: true
-            });
+            if (window.MHMRvsStepper) {
+                window.MHMRvsStepper.init(this.container[0]);
+            }
 
-            // Check if vehicle is pre-selected (from vehicle list/detail page)
+            // A vehicle known on load (Case A, or one picked from a list page).
             const preSelectedVehicleId = this.container.attr('data-vehicle-id');
             if (preSelectedVehicleId) {
-                const $select = this.container.find('.rv-vehicle-select');
+                const $select = this.hook('vehicle-select');
                 if ($select.length) {
                     $select.val(preSelectedVehicleId);
-                    // Trigger UI update for pre-selected vehicle
                     this.updateVehiclePreview($select[0]);
                 }
-                // Fetch blocked dates for the pre-selected vehicle.
-                this.fetchAndApplyBlockedDates( preSelectedVehicleId );
+                this.fetchAndApplyBlockedDates(preSelectedVehicleId);
             }
 
             this.initializeDatePickers();
             this.bindEvents();
             this.setupDateValidation();
-            this.setupVehicleSelection();
             this.setupFormValidation();
             this.initializeDefaults();
         }
 
+        // The instance's element(s) carrying data-rvs-<name>.
+        hook(name) {
+            return this.container.find('[data-rvs-' + name + ']');
+        }
+
         bindEvents() {
-            // Form submission - MULTIPLE EVENT BINDING
+            // The only submit path: the native submit is always prevented.
             this.form.on('submit', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
                 this.submitForm();
-                return false;
+            });
+            this.submitBtn.on('click', (e) => {
+                e.preventDefault();
+                this.submitForm();
             });
 
-            // Convert form's type="submit" buttons to type="button"
-            this.submitBtn.attr('type', 'button');
-
-            // Submit button direct click handler - CLEAR ALL EVENT HANDLERS
-            this.submitBtn.off(); // Clear all event handlers
-
-            // Add new click handler - runs in capture phase
-            this.submitBtn[0].addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                this.submitForm();
-                return false;
-            }, true); // true = capture phase
-
-
-            // Vehicle selection change - set data-vehicle-id
-            this.form.on('change', '.rv-vehicle-select', (e) => {
+            // Vehicle chosen from the select (Case B).
+            this.container.on('change', '[data-rvs-vehicle-select]', (e) => {
                 const vehicleId = $(e.target).val();
                 if (vehicleId) {
                     this.container.attr('data-vehicle-id', vehicleId);
                 } else {
                     this.container.removeAttr('data-vehicle-id');
                 }
-            });
-
-            // Favorite toggle within booking form
-            this.form.on('click', '.rv-vehicle-card__favorite', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.handleFavoriteToggle($(e.currentTarget));
-            });
-
-            // Automatic calculation and availability check on date and time changes
-            this.form.on('change', '.rv-pickup-date, .rv-dropoff-date, .rv-pickup-time, .rv-dropoff-time, .rv-vehicle-select', () => {
-                // Check rental duration limits before other checks
+                this.updateVehiclePreview(e.target);
+                this.fetchAndApplyBlockedDates(vehicleId);
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
                     this.autoCalculatePrice();
                 }
             });
 
-            // Automatic calculation on addon changes
-            this.form.on('change', '.rv-addon-checkbox, .rv-addon-qty', () => {
-                this.autoCalculatePrice();
-            });
-
-            // Update price calculation on payment type change
-            this.form.on('change', 'input[name="payment_type"]', () => {
-                this.autoCalculatePrice();
-            });
-
-            // Automatically update dropoff time when pickup time changes
-            // Dropoff time is disabled and always matches pickup time
-            this.form.on('change', '.rv-pickup-time', (e) => {
-                const pickupTime = $(e.target).val();
-                if (pickupTime) {
-                    // Update both visible (disabled) select and hidden input
-                    this.container.find('.rv-dropoff-time').val(pickupTime);
-                    this.container.find('.rv-dropoff-time-hidden').val(pickupTime);
-                } else {
-                    this.container.find('.rv-dropoff-time').val('');
-                    this.container.find('.rv-dropoff-time-hidden').val('');
-                }
-                // Don't do availability check on time change
-            });
-
-            // Initialize dropoff time on page load if pickup time is already selected
-            const initialPickupTime = this.container.find('.rv-pickup-time').val();
-            if (initialPickupTime) {
-                this.container.find('.rv-dropoff-time').val(initialPickupTime);
-                this.container.find('.rv-dropoff-time-hidden').val(initialPickupTime);
-            }
-
-            // Vehicle selection change
-            this.form.on('change', '.rv-vehicle-select', (e) => {
-                this.updateVehiclePreview(e.target);
-                // ⭐ Check availability when vehicle changes
-                this.autoCheckAvailability();
-                // Fetch blocked dates for the newly selected vehicle.
-                const selectedVehicleId = $( e.target ).val();
-                this.fetchAndApplyBlockedDates( selectedVehicleId );
-            });
-
-            this.paymentMethodRadios.on('change', () => {
-                this.updatePaymentMethodDisplay();
-            });
-
-            // Show gateway options when online payment method is selected
-            this.paymentMethodRadios.on('change', (e) => {
-                if ($(e.target).val() === 'online') {
-                    this.onlinePaymentDetails.removeClass('rv-hidden');
-                } else {
-                    this.onlinePaymentDetails.addClass('rv-hidden');
+            // Dates and time: limits first, then availability and the quote.
+            this.container.on('change', '[data-rvs-pickup-date], [data-rvs-dropoff-date], [data-rvs-pickup-time]', () => {
+                this.updateSummaryDates();
+                if (this.validateRentalLimits()) {
+                    this.autoCheckAvailability();
+                    this.autoCalculatePrice();
                 }
             });
 
-            // Terms checkbox control - enable/disable submit button
-            const termsCheckbox = this.container.find('.rv-terms-checkbox-input'); // Assumed class, added to PHP if needed or rely on ID if unique? Prefer class.
-            if (termsCheckbox.length) {
-                // Set initial state
-                this.updateButtonState();
+            // The return time follows the pickup time: the hidden copy is posted,
+            // the disabled select only shows it.
+            this.container.on('change', 'select[data-rvs-pickup-time]', (e) => {
+                this.syncDropoffTime($(e.target).val());
+            });
+            this.syncDropoffTime(this.hook('pickup-time').val());
 
-                // Update button state when checkbox changes
-                termsCheckbox.on('change', () => {
-                    this.updateButtonState();
-                });
+            // Add-ons: a box sold once, or a stepper.
+            this.container.on('change', 'input[type="checkbox"][name="addons[]"]', () => {
+                this.autoCalculatePrice();
+            });
+            this.container.on('rvs:stepper-change', () => {
+                this.autoCalculatePrice();
+            });
+
+            // The phone's band: open or close the full summary.
+            this.container.on('click', '[data-rvs-summary-toggle]', (e) => {
+                this.toggleSummary($(e.currentTarget));
+            });
+        }
+
+        syncDropoffTime(time) {
+            const value = time || '';
+            this.hook('dropoff-time-display').val(value);
+            // Only a select drives it: a hidden pickup time (show_time_select="0")
+            // has its own fixed return time.
+            if (this.hook('pickup-time').is('select')) {
+                this.hook('dropoff-time').val(value);
             }
         }
 
+        toggleSummary($toggle) {
+            const open = $toggle.attr('aria-expanded') !== 'true';
+            $toggle.attr('aria-expanded', open ? 'true' : 'false');
+            this.hook('summary-toggle-label').text(this.getMessage(open ? 'hide_summary' : 'show_summary'));
+        }
+
+        // Submit is on unless the form is a preview, a booking is being sent,
+        // or the availability check said the vehicle is taken.
         updateButtonState() {
-            const termsCheckbox = this.container.find('.rv-terms-checkbox-input');
-            if (termsCheckbox.length) {
-                const isChecked = termsCheckbox.is(':checked');
-                this.submitBtn.prop('disabled', !isChecked || !!this.availabilityBlocked);
-            }
+            this.submitBtn.prop('disabled', !!(this.locked || this.submitting || this.availabilityBlocked));
         }
-
-        handleFavoriteToggle($button) {
-            const vehicleId = $button.data('vehicle-id');
-            // Try to get config from global favorites or fallback to booking form config
-            const favoritesConfig = window.mhmRentivaFavorites || {};
-            const nonce = favoritesConfig.nonce || window.mhmRentivaBookingForm?.nonce;
-
-            if (!vehicleId) {
-                return;
-            }
-
-            if (!nonce) {
-                MHMRentivaToast.show(favoritesConfig?.strings?.login_required || this.getMessage('login_required'), { type: 'error' });
-                return;
-            }
-
-            $button.prop('disabled', true);
-            const $icon = $button.find('svg'); // Target the SVG directly
-
-            $.ajax({
-                url: favoritesConfig.ajaxUrl || this.getAjaxUrl(),
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_toggle_favorite',
-                    vehicle_id: vehicleId,
-                    nonce: nonce
-                },
-                success: (response) => {
-                    if (response.success) {
-                        const isAdded = response.data.action === 'added';
-
-                        // Toggle classes
-                        $button.toggleClass('is-favorited favorited', isAdded);
-                        $icon.toggleClass('favorited', isAdded);
-
-                        // Explicitly handle SVG fill for immediate visual feedback
-                        if (isAdded) {
-                            $icon.attr('fill', 'currentColor');
-                            $icon.css('fill', 'currentColor'); // Force CSS if needed
-                        } else {
-                            $icon.attr('fill', 'none');
-                            $icon.css('fill', 'none');
-                        }
-
-                        // Update ARIA attributes
-                        $button.attr('aria-pressed', isAdded ? 'true' : 'false');
-                        $button.attr('aria-label', isAdded ?
-                            (favoritesConfig.strings?.remove_label || this.getMessage('remove_from_favorites')) :
-                            (favoritesConfig.strings?.add_label || this.getMessage('add_to_favorites'))
-                        );
-
-                        const successMessage = isAdded ?
-                            (favoritesConfig.strings?.added_label || this.getMessage('added_to_favorites')) :
-                            (favoritesConfig.strings?.removed_label || this.getMessage('removed_from_favorites'));
-                        MHMRentivaToast.show(successMessage, { type: 'success' });
-                    } else {
-                        MHMRentivaToast.show(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), { type: 'error' });
-                    }
-                },
-                error: () => {
-                    MHMRentivaToast.show(favoritesConfig.strings?.error || this.getMessage('error'), { type: 'error' });
-                },
-                complete: () => {
-                    $button.prop('disabled', false);
-                }
-            });
-        }
-
 
         setupDateValidation() {
             // The site's today (localized), not the browser's UTC date.
             const todayStr = MHMRentivaBookingForm.siteToday();
-            const pickupDate = this.container.find('.rv-pickup-date');
-            const dropoffDate = this.container.find('.rv-dropoff-date');
+            const pickupDate = this.hook('pickup-date');
+            const dropoffDate = this.hook('dropoff-date');
 
             // Initial restrictions
             pickupDate.attr('min', todayStr);
@@ -335,34 +206,18 @@
                     }
                 }
 
-                // ⭐ Check availability when date changes
                 this.autoCheckAvailability();
             });
 
-            // Check availability when dropoff date changes
-            dropoffDate.on('change', (e) => {
-                // ⭐ Check availability when date changes
+            dropoffDate.on('change', () => {
                 this.autoCheckAvailability();
             });
-        }
-
-        setupVehicleSelection() {
-            const vehicleSelect = this.container.find('.rv-vehicle-select');
-            const preview = this.container.find('.rv-selected-vehicle-preview');
-
-            if (!vehicleSelect.length || !preview.length) return;
-
-            // Hide preview on first load
-            preview.addClass('rv-hidden');
         }
 
         setupFormValidation() {
-            // Real-time validation
             this.form.find('input[required], select[required]').on('blur', (e) => {
                 this.validateField(e.target);
             });
-
-            // Note: Submit validation is handled in submitForm
         }
 
         initializeDatePickers() {
@@ -370,7 +225,7 @@
                 const self = this;
                 const options = {
                     ...MHMRentivaBookingForm.siteDatepickerOptions(window.mhmRentivaBookingForm.datepicker_options),
-                    onSelect: function (dateText, inst) {
+                    onSelect: function () {
                         const $this = $(this);
                         setTimeout(() => {
                             $this.trigger('change');
@@ -390,6 +245,9 @@
                         return [ true, '', '' ];
                     },
                     beforeShow: function (input, inst) {
+                        // The popup lives on <body>, outside the shell: it takes the
+                        // shell's tokens and the rvs-dp rules while this field has it.
+                        $(input).datepicker('widget').addClass('rvs-shell rvs-dp');
                         setTimeout(() => {
                             const $btnPane = $(inst.dpDiv).find('.ui-datepicker-buttonpane');
                             $btnPane.find('.ui-datepicker-current').off('click').on('click', function () {
@@ -400,10 +258,15 @@
                                 $(input).blur();
                             });
                         }, 10);
+                    },
+                    // One popup serves every datepicker on the page (the search
+                    // strip's too): take the shell off when this field lets it go.
+                    onClose: function (text, inst) {
+                        $(inst && inst.input ? inst.input : this).datepicker('widget').removeClass('rvs-shell rvs-dp');
                     }
                 };
 
-                this.container.find('input.rv-date-input').each(function () {
+                this.hook('pickup-date').add(this.hook('dropoff-date')).each(function () {
                     const $input = $(this);
                     const originalValue = $input.val();
 
@@ -418,7 +281,6 @@
                         $input.removeClass('hasDatepicker').removeData('datepicker').off('.datepicker');
                     }
 
-                    // Force initialization
                     $input.datepicker(options);
 
                     if (originalValue) {
@@ -439,26 +301,9 @@
         }
 
         initializeDefaults() {
-            // Set default values
-            if (window.mhmRentivaBookingForm?.default_payment) {
-                this.form.find(`input[name="payment_type"][value="${window.mhmRentivaBookingForm.default_payment}"]`).prop('checked', true);
-            }
-
-            // Set initial online payment details display
-            this.updatePaymentMethodDisplay();
-
-            // Initialize dropoff time to match pickup time if pickup time is already selected
-            const initialPickupTime = this.container.find('.rv-pickup-time').val();
-            if (initialPickupTime) {
-                this.container.find('.rv-dropoff-time').val(initialPickupTime);
-                this.container.find('.rv-dropoff-time-hidden').val(initialPickupTime);
-            }
-
-            // If dates are pre-filled from URL params (search-to-booking context), trigger
-            // price calculation immediately so the payment summary is not blank on load.
-            const preFillPickupDate = this.container.find('.rv-pickup-date').val();
-            const preFillDropoffDate = this.container.find('.rv-dropoff-date').val();
-            if (preFillPickupDate && preFillDropoffDate) {
+            // Dates prefilled from the URL (search-to-booking): quote at once so
+            // the summary is not blank on load.
+            if (this.hook('pickup-date').val() && this.hook('dropoff-date').val()) {
                 if (this.validateRentalLimits()) {
                     this.autoCheckAvailability();
                     this.autoCalculatePrice();
@@ -507,11 +352,11 @@
         }
 
         /**
-         * Refresh all jQuery UI datepicker instances in this form so that the
-         * updated blockedDates list takes effect immediately.
+         * Refresh this form's datepickers so the updated blockedDates list takes
+         * effect immediately.
          */
         refreshDatepickerBlockedDates() {
-            this.container.find( 'input.rv-date-input' ).each( function () {
+            this.hook( 'pickup-date' ).add( this.hook( 'dropoff-date' ) ).each( function () {
                 const $input = $( this );
                 if ( $input.hasClass( 'hasDatepicker' ) ) {
                     try {
@@ -523,148 +368,148 @@
             } );
         }
 
+        /**
+         * Case B: the summary's vehicle frame filled from the chosen <option>
+         * (data-image, data-features, data-price, data-permalink).
+         */
         updateVehiclePreview(selectElement) {
-            const $select = $(selectElement);
-            const $option = $select.find('option:selected');
-            const preview = this.container.find('.rv-selected-vehicle-preview, .rv-selected-vehicle');
-            const sidebar = this.container.find('.rv-checkout-sidebar, .rv-checkout-vehicle');
-            const image = preview.find('.rv-vehicle-image, .rv-sv__img');
-            const title = preview.find('.rv-vehicle-title');
-            const category = preview.find('.rv-vehicle-category, .rv-sv__category');
-            const ratingOverlay = preview.find('.rv-sv__rating-overlay');
-            const price = preview.find('.rv-vehicle-price');
+            const $option = $(selectElement).find('option:selected');
+            const $frame = this.hook('summary-vehicle');
+            const $change = this.hook('change');
 
-            if ($option.val()) {
-                const vehiclePrice = $option.data('price');
-                const vehicleImage = $option.data('image');
-                const vehicleCategory = ($option.data('category') || '').toString().trim();
-                const vehicleTitle = $option.text().split(' (')[0]; // Remove price part
+            if (!$option.val()) {
+                $frame.prop('hidden', true);
+                $change.prop('hidden', true).removeAttr('href');
+                return;
+            }
 
-                title.text(vehicleTitle);
-                price.html(`<span class="rv-sv__price-amount rv-price-large">${this.formatMoney(vehiclePrice)}</span><span class="rv-sv__price-period"> ${this.getMessage('per_day')}</span>`);
-                if (category.length) {
-                    category.text(vehicleCategory);
-                    category.toggleClass('rv-hidden', !vehicleCategory);
-                }
-                if (ratingOverlay.length) {
-                    // The vehicle's real score, preformatted server-side; a vehicle
-                    // nobody has rated shows none (same rule as the card).
-                    const ratingCount = parseInt($option.attr('data-rating-count'), 10) || 0;
-                    if (ratingCount > 0) {
-                        ratingOverlay.find('.rv-sv__rating-value').text($option.attr('data-rating') || '');
-                        ratingOverlay.find('.rv-sv__rating-count').text(($option.attr('data-rating-label') || '').trim());
-                        ratingOverlay.removeClass('rv-hidden');
-                    } else {
-                        ratingOverlay.addClass('rv-hidden');
-                    }
-                }
+            const features = $option.data('features');
+            this.showVehicle({
+                title: $option.text().split(' (')[0],
+                image: $option.attr('data-image') || '',
+                specs: Array.isArray(features) ? features.filter(Boolean).join(' · ') : '',
+                price: $option.attr('data-price'),
+                permalink: $option.attr('data-permalink') || ''
+            });
+        }
 
-                if (vehicleImage) {
-                    image.attr('src', vehicleImage).removeClass('rv-hidden');
+        /**
+         * Puts a vehicle into the summary: title, image, specs, the daily price
+         * and the "Change" link back to its page. Values are set as text and
+         * attributes, never parsed as markup.
+         */
+        showVehicle(vehicle) {
+            const $frame = this.hook('summary-vehicle');
+            if ($frame.length) {
+                $frame.find('.rvs-booking__vehicle-title').text(vehicle.title || '');
+                const $img = $frame.find('.rvs-booking__img');
+                if (vehicle.image) {
+                    $img.attr({ src: vehicle.image, alt: vehicle.title || '' }).removeAttr('srcset sizes').prop('hidden', false);
                 } else {
-                    image.addClass('rv-hidden');
+                    $img.prop('hidden', true);
                 }
+                const $specs = $frame.find('.rvs-booking__specs');
+                $specs.text(vehicle.specs || '').prop('hidden', !vehicle.specs);
+                $frame.prop('hidden', false);
+            }
 
-                const vehicleFeatures = $option.data('features') || [];
-                const metaDiv = preview.find('.rv-sv__meta');
-                if (metaDiv.length) {
-                    metaDiv.empty();
-                    vehicleFeatures.forEach(function(featureText) {
-                        if (featureText) {
-                            metaDiv.append('<span class="rv-sv__chip rv-chip">' + $('<div>').text(featureText).html() + '</span>');
-                        }
-                    });
-                    metaDiv.toggleClass('rv-hidden', vehicleFeatures.length === 0);
-                }
+            if (vehicle.price !== undefined && vehicle.price !== '') {
+                this.hook('daily').text(this.formatMoney(vehicle.price));
+            }
 
-                preview.removeClass('rv-hidden');
-                if (sidebar.length) sidebar.removeClass('rv-hidden');
+            const $change = this.hook('change');
+            if (vehicle.permalink) {
+                $change.attr('href', vehicle.permalink).prop('hidden', false);
             } else {
-                preview.addClass('rv-hidden');
-                if (ratingOverlay.length) {
-                    ratingOverlay.addClass('rv-hidden');
-                }
-                if (sidebar.length) sidebar.addClass('rv-hidden');
+                $change.prop('hidden', true).removeAttr('href');
+            }
+        }
+
+        // The summary's window line comes from each quote answer (window_text).
+        // A window that lost a date has no line, and a quote still in flight for
+        // the old window must not bring it back.
+        updateSummaryDates() {
+            if (this.hook('pickup-date').val() && this.hook('dropoff-date').val()) {
+                return;
+            }
+            this.hook('summary-dates').text('');
+            if (this.quoteSeq) {
+                this.quoteSeq += 1;
+                this.showLoading(false);
             }
         }
 
         calculatePrice() {
             const formData = this.getFormData();
 
-            const isValid = this.validateCalculationData(formData);
-
-            if (!isValid) {
+            if (!this.validateCalculationData(formData)) {
                 return;
             }
-
 
             this.showLoading(true);
             this.hideMessages();
 
-            // Serialize addons - empty arrays are skipped by jQuery
-            const addonsParam = formData.addons && formData.addons.length > 0
-                ? formData.addons
-                : [0];  // Send [0] instead of empty, backend filters it
+            // Only the newest quote may speak: a burst of stepper presses sends
+            // several, and a late older answer must not overwrite a newer one.
+            const quoteSeq = this.quoteSeq = (this.quoteSeq || 0) + 1;
 
-            const ajaxData = {
-                action: 'mhmrentiva_calculate_price',
-                nonce: window.mhmRentivaBookingForm?.nonce || '',
-                vehicle_id: formData.vehicle_id,
-                pickup_date: formData.pickup_date,
-                dropoff_date: formData.dropoff_date,
-                addons: addonsParam,
-                addon_qty: formData.addon_qty || {},
-                payment_type: this.form.find('input[name="payment_type"]:checked').val() || 'deposit'
-            };
-
-            // Manually resolve jQuery array serialization issue
-            let requestData = new URLSearchParams();
-            requestData.append('action', ajaxData.action);
-            requestData.append('nonce', ajaxData.nonce);
-            requestData.append('vehicle_id', ajaxData.vehicle_id);
-            requestData.append('pickup_date', ajaxData.pickup_date);
-            requestData.append('dropoff_date', ajaxData.dropoff_date);
+            const requestData = new URLSearchParams();
+            requestData.append('action', 'mhmrentiva_calculate_price');
+            requestData.append('nonce', window.mhmRentivaBookingForm?.nonce || '');
+            requestData.append('vehicle_id', formData.vehicle_id);
+            requestData.append('pickup_date', formData.pickup_date);
+            requestData.append('dropoff_date', formData.dropoff_date);
             // The window the submission books: without the time the server
             // priced 10:00, and a pickup on another UTC weekday (00:00-02:59
             // in Istanbul) was quoted one total and charged another.
             if (formData.pickup_time) {
                 requestData.append('pickup_time', formData.pickup_time);
             }
-            requestData.append('payment_type', ajaxData.payment_type);
+            requestData.append('payment_type', formData.payment_type);
+            // For the answer's change_url (the vehicle page keeps the location).
+            if (formData.pickup_location_id > 0) {
+                requestData.append('pickup_location_id', formData.pickup_location_id);
+            }
+            // Display only: a form with enable_deposit="0" names no deposit.
+            requestData.append('enable_deposit', this.container.attr('data-rvs-deposit') === '0' ? '0' : '1');
 
-            // Addons'u array olarak ekle
-            if (ajaxData.addons && ajaxData.addons.length > 0) {
-                ajaxData.addons.forEach(addon_id => {
-                    requestData.append('addons[]', addon_id);
+            if (formData.addons.length > 0) {
+                formData.addons.forEach(addonId => {
+                    requestData.append('addons[]', addonId);
                 });
             } else {
-                // Send even empty array
+                // The server filters the empty placeholder out.
                 requestData.append('addons[]', 0);
             }
-            this.appendAddonQuantities(requestData, ajaxData.addon_qty);
-
-            const finalData = requestData.toString();
+            this.appendAddonQuantities(requestData, formData.addon_qty);
 
             $.ajax({
                 url: window.mhmRentivaBookingForm?.ajax_url || '',
                 type: 'POST',
-                data: finalData,
+                data: requestData.toString(),
                 contentType: 'application/x-www-form-urlencoded',
+                traditional: true,
                 success: (response) => {
+                    if (quoteSeq !== this.quoteSeq) {
+                        return;
+                    }
                     this.showLoading(false);
 
                     if (response.success) {
                         this.updatePriceDisplay(response.data);
                         // The availability check runs alongside this request; a
                         // price answer must not undo its "unavailable".
-                        this.submitBtn.prop('disabled', !!this.availabilityBlocked);
+                        this.updateButtonState();
                     } else {
-                        this.showError(response.data?.message || this.getMessage('error'));
+                        this.showError(response.data?.message || this.getMessage('error_occurred'));
                     }
                 },
-                error: (xhr, status, error) => {
+                error: () => {
+                    if (quoteSeq !== this.quoteSeq) {
+                        return;
+                    }
                     this.showLoading(false);
-                    this.showError(this.getMessage('error'));
+                    this.showError(this.getMessage('error_occurred'));
                 }
             });
         }
@@ -676,7 +521,6 @@
         }
 
         autoCalculatePrice() {
-            // Auto calculation with debounce (faster for payment type changes)
             clearTimeout(this.autoCalculateTimeout);
             this.autoCalculateTimeout = setTimeout(() => {
                 const formData = this.getFormData();
@@ -687,7 +531,6 @@
         }
 
         autoCheckAvailability() {
-            // Clear previous timeout
             if (this.autoAvailabilityTimeout) {
                 clearTimeout(this.autoAvailabilityTimeout);
             }
@@ -695,9 +538,9 @@
             this.autoAvailabilityTimeout = setTimeout(() => {
                 const formData = this.getFormData();
 
-                // Check if vehicle AND dates are filled (time is optional for initial check)
+                // Vehicle and both dates (time is optional for the quote).
                 if (formData.vehicle_id && formData.pickup_date && formData.dropoff_date) {
-                    this.calculatePrice(); // Check calculation even without time
+                    this.calculatePrice();
                     if (formData.pickup_time && formData.dropoff_time) {
                         this.checkAvailability();
                     }
@@ -705,58 +548,67 @@
             }, 300);
         }
 
+        /**
+         * The request contract (keys(addon_qty) ⊆ addons): an add-on is in when
+         * its addons[] field is enabled -- a ticked box, a stepper above zero or
+         * the hidden field of a required one (its box is disabled and nameless).
+         * A quantity rides along only for an add-on that is in.
+         */
         getFormData() {
+            const $c = this.container;
             const addons = [];
-            // Quantities of the ticked add-ons that have a quantity field
-            // (sold more than once); the server clamps them and reads a
-            // missing one as 1.
             const addonQty = {};
-            const form = this.form;
 
-            form.find('.rv-addon-checkbox:checked').each(function () {
-                const addonId = parseInt($(this).val());
-                addons.push(addonId);
-                const $qty = form.find('.rv-addon-qty[data-addon-id="' + addonId + '"]');
-                if ($qty.length) {
-                    addonQty[addonId] = parseInt($qty.val(), 10) || 1;
+            $c.find('input[name="addons[]"]').each(function () {
+                if (this.disabled || (this.type === 'checkbox' && !this.checked)) {
+                    return;
+                }
+                const addonId = parseInt(this.value, 10);
+                if (addonId > 0 && addons.indexOf(addonId) === -1) {
+                    addons.push(addonId);
                 }
             });
 
+            $c.find('input[name^="addon_qty["]').each(function () {
+                const match = /^addon_qty\[(\d+)\]$/.exec(this.name);
+                if (this.disabled || !match) {
+                    return;
+                }
+                const addonId = parseInt(match[1], 10);
+                if (addons.indexOf(addonId) !== -1) {
+                    addonQty[addonId] = parseInt(this.value, 10) || 1;
+                }
+            });
 
-            // Get Vehicle ID - check container first (when coming from vehicle list/detail page)
-            let vehicle_id = this.container.attr('data-vehicle-id');
+            // The root's data-vehicle-id (Case A, or set on select), else the field.
+            let vehicle_id = $c.attr('data-vehicle-id');
             if (!vehicle_id) {
-                // Get from dropdown (manual selection)
-                vehicle_id = this.container.find('.rv-vehicle-select').val();
-            }
-            // Also try alternative selectors
-            if (!vehicle_id) {
-                vehicle_id = this.form.find('select[name="vehicle_id"]').val();
+                vehicle_id = this.hook('vehicle-select').val();
             }
             if (!vehicle_id) {
-                vehicle_id = this.form.find('input[name="vehicle_id"]').val();
+                vehicle_id = $c.find('input[name="vehicle_id"]').val();
             }
+
+            const pickupTime = this.hook('pickup-time').val();
+            const field = (name) => $c.find('input[name="' + name + '"]').val();
 
             const data = {
                 vehicle_id: vehicle_id,
-                pickup_date: this.container.find('.rv-pickup-date').val(),
-                dropoff_date: this.container.find('.rv-dropoff-date').val(),
-                pickup_time: this.container.find('.rv-pickup-time').val(),
-                dropoff_time: this.container.find('.rv-dropoff-time-hidden').val() || this.container.find('.rv-pickup-time').val(), // Always match pickup time
-                guests: this.container.find('.rv-guests').val() || 1,
-                customer_first_name: this.container.find('.rv-customer-first-name').val(),
-                terms_accepted: this.container.find('.rv-terms-checkbox-input').is(':checked') ? 'on' : '',
-                customer_last_name: this.container.find('.rv-customer-last-name').val(),
-                customer_email: this.container.find('.rv-customer-email').val(),
-                customer_phone: this.container.find('.rv-customer-phone').val(),
+                pickup_date: this.hook('pickup-date').val(),
+                dropoff_date: this.hook('dropoff-date').val(),
+                pickup_time: pickupTime,
+                // The return time is the pickup time (the server holds it so too).
+                dropoff_time: this.hook('dropoff-time').val() || pickupTime,
+                customer_first_name: field('customer_first_name'),
+                customer_last_name: field('customer_last_name'),
+                customer_email: field('customer_email'),
+                customer_phone: field('customer_phone'),
                 addons: addons,
                 addon_qty: addonQty,
-                payment_type: this.form.find('input[name="payment_type"]:checked').val() || this.form.find('input[name="payment_type"][type="hidden"]').val() || 'deposit',
-                payment_method: this.form.find('input[name="payment_method"]:checked').val(),
-                payment_gateway: this.form.find('input[name="payment_gateway"]:checked').val(),
-                redirect_url: this.container.attr('data-redirect-url'),
+                payment_type: field('payment_type') || 'deposit',
+                redirect_url: $c.attr('data-redirect-url'),
                 // Prefilled pickup location (hidden input rendered by booking-form.php); 0 when absent, as the server's int read.
-                pickup_location_id: parseInt(this.container.find('input[name="pickup_location_id"]').val(), 10) || 0
+                pickup_location_id: parseInt(field('pickup_location_id'), 10) || 0
             };
 
             // Post-process dates to ISO format for server compatibility
@@ -798,7 +650,7 @@
                 return false;
             }
 
-            // Tarih validasyonu - Veriler getFormData içinde ISO'ya çevrildiği için 'yy-mm-dd' ile parse etmeliyiz
+            // getFormData() already turned the dates into ISO.
             try {
                 const pickup = $.datepicker.parseDate('yy-mm-dd', data.pickup_date);
                 const dropoff = $.datepicker.parseDate('yy-mm-dd', data.dropoff_date);
@@ -808,99 +660,129 @@
                     return false;
                 }
             } catch (e) {
-                // Eğer parse hatası alırsak (veri henüz çevrilmemişse vb.)
                 return false;
             }
 
             return true;
         }
 
+        // The summary's breakdown slot: the container, not the partial's own
+        // [data-rvs-breakdown] that a quote puts inside it.
+        breakdownBox() {
+            return this.container.find('[data-rvs-summary] > [data-rvs-breakdown]').first();
+        }
+
         updatePriceDisplay(data) {
-            const currencySymbol = data.currency_symbol || this.getConfig('currency_symbol');
+            const $box = this.breakdownBox();
 
-            // Every amount comes through WooCommerce's tax display: its wc_price()
-            // markup, so a figure reads exactly as the checkout writes it --
-            // decimals included, which the whole-unit formatter would round away
-            // ("$401" for a $400,80 charge). The breakdown rows (display_lines)
-            // use the same convention as the total, so they add up to it on a
-            // store that enters prices without tax.
-            const put = ($el, shown, raw) => {
-                if (shown && typeof shown.html === 'string' && shown.html !== '') {
-                    $el.html(shown.html);
+            if (typeof data.breakdown_html === 'string' && data.breakdown_html !== '') {
+                // Rendered and escaped by the server (partials/rvs/breakdown.php).
+                $box.html(data.breakdown_html);
+            } else {
+                $box.empty().append(this.buildFallbackBreakdown(data));
+            }
+
+            this.updateBand(data);
+
+            // Display only, server-built: the window line ("… → … · 3 days") and
+            // the "Change" link to the vehicle page with this window.
+            if (typeof data.window_text === 'string') {
+                this.hook('summary-dates').text(data.window_text);
+            }
+            if (typeof data.change_url === 'string') {
+                const $change = this.hook('change');
+                if (data.change_url !== '') {
+                    $change.attr('href', data.change_url).prop('hidden', false);
                 } else {
-                    $el.text(this.formatMoney(raw, currencySymbol));
+                    $change.removeAttr('href').prop('hidden', true);
                 }
-            };
+            }
+        }
+
+        // An amount through WooCommerce's display markup when the answer has it
+        // (decimals kept, as the checkout writes it), else the whole-unit format.
+        putAmount($el, shown, raw, currencySymbol) {
+            if (shown && typeof shown.html === 'string' && shown.html !== '') {
+                $el.html(shown.html);
+            } else {
+                $el.text(this.formatMoney(raw, currencySymbol));
+            }
+            if (shown && shown.tax_label) {
+                // "(ex. VAT)", built and escaped server-side.
+                $el.append(shown.tax_label);
+            }
+            return $el;
+        }
+
+        // Whether this answer splits the total into a deposit and the rest.
+        depositShown(data) {
+            // The quote says 'full' when no deposit applies to this vehicle.
+            return this.container.attr('data-rvs-deposit') !== '0' &&
+                data.payment_type !== 'full' &&
+                data.deposit_amount !== undefined && data.deposit_amount > 0;
+        }
+
+        /**
+         * A plain breakdown from the display_* amounts, for an answer without
+         * breakdown_html. Same classes as the server's partial.
+         */
+        buildFallbackBreakdown(data) {
+            const symbol = data.currency_symbol || this.getConfig('currency_symbol');
             const lines = data.display_lines || {};
-
-            put(this.priceElements.dailyPrice, lines.vehicle_price, data.vehicle_price);
-
-            this.priceElements.daysCount.text(data.days);
-
-            if (data.weekend_extra && data.weekend_extra > 0) {
-                put(this.priceElements.weekendDiffAmount, lines.weekend_extra, data.weekend_extra);
-                this.container.find('.rv-weekend-summary').removeClass('rv-hidden');
-            } else {
-                this.container.find('.rv-weekend-summary').addClass('rv-hidden');
-            }
-
-            const hasAddons = data.addon_total > 0;
-            const showDetailedBreakdown = hasAddons;
-
-            if (showDetailedBreakdown) {
-                put(this.priceElements.vehicleTotal, lines.vehicle_total, data.vehicle_total);
-                this.container.find('.rv-vehicle-total-detailed').removeClass('rv-hidden');
-            } else {
-                this.container.find('.rv-vehicle-total-detailed').addClass('rv-hidden');
-            }
-
-            if (hasAddons) {
-                put(this.priceElements.addonsTotal, lines.addon_total, data.addon_total);
-                this.container.find('.rv-addons-price').removeClass('rv-hidden');
-            } else {
-                this.container.find('.rv-addons-price').addClass('rv-hidden');
-            }
-
-            // An amount due; a tax-exclusive one also says so ("(ex. VAT)"),
-            // built and escaped server-side.
-            const putDue = ($el, key, raw) => {
-                put($el, data[key], raw);
-                if (data[key] && data[key].tax_label) {
-                    $el.append(data[key].tax_label);
-                }
+            const $root = $('<div class="rvs-breakdown" data-rvs-breakdown></div>');
+            const $rows = $('<dl class="rvs-breakdown__rows"></dl>').appendTo($root);
+            const row = (kind, label, shown, raw) => {
+                const $row = $('<div class="rvs-breakdown__row"></div>').addClass('rvs-breakdown__row--' + kind);
+                $('<dt></dt>').text(label).appendTo($row);
+                this.putAmount($('<dd></dd>'), shown, raw, symbol).appendTo($row);
+                $rows.append($row);
             };
 
-            put(this.priceElements.totalAmount, data.display_total, data.total_price);
-            // WooCommerce's own price suffix (with the ex-tax label when it
-            // applies), inline after the total as WooCommerce writes it.
-            if (data.price_suffix) {
-                this.priceElements.totalAmount.append(data.price_suffix);
+            row('daily', this.getMessage('daily_price'), lines.vehicle_price, data.vehicle_price);
+            if (data.addon_total > 0) {
+                row('rental', this.getMessage('vehicle_total'), lines.vehicle_total, data.vehicle_total);
+                row('addon', this.getMessage('addons_total'), lines.addon_total, data.addon_total);
             }
 
-            const paymentTypeRadio = this.form.find('input[name="payment_type"]:checked').val();
-            const paymentTypeHidden = this.form.find('input[name="payment_type"][type="hidden"]').val();
-            const paymentType = paymentTypeRadio || paymentTypeHidden || 'deposit';
+            const $total = $('<div class="rvs-breakdown__total"></div>').appendTo($root);
+            $('<span class="rvs-breakdown__total-label"></span>').text(this.getMessage('total_amount')).appendTo($total);
+            const $value = $('<span class="rvs-breakdown__total-value"></span>').appendTo($total);
+            this.putAmount($('<span class="rvs-breakdown__amount"></span>'), data.display_total, data.total_price, symbol).appendTo($value);
+            if (data.price_suffix) {
+                // WooCommerce's own price suffix, built server-side.
+                $('<span class="rvs-breakdown__suffix"></span>').html(data.price_suffix).appendTo($value);
+            }
 
-            // The quote says 'full' when no deposit applies to this vehicle (its
-            // rate, else the global setting, is 0): the whole total is charged,
-            // so there is no deposit to show.
-            const depositApplies = data.payment_type !== 'full';
-
-            if (depositApplies && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
-                data.deposit_amount !== undefined && data.deposit_amount > 0) {
-                putDue(this.priceElements.depositAmount, 'display_deposit', data.deposit_amount);
-                this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
+            if (this.depositShown(data)) {
+                const $deposit = $('<div class="rvs-breakdown__deposit"></div>').appendTo($root);
+                $('<span></span>').text(this.getMessage('deposit_amount')).appendTo($deposit);
+                this.putAmount($('<strong></strong>'), data.display_deposit, data.deposit_amount, symbol).appendTo($deposit);
 
                 if (data.remaining_amount !== undefined && data.remaining_amount > 0) {
-                    putDue(this.priceElements.remainingAmount, 'display_remaining', data.remaining_amount);
-                    this.container.find('.rv-remaining-summary').removeClass('rv-hidden');
-                } else {
-                    this.container.find('.rv-remaining-summary').addClass('rv-hidden');
+                    const $rest = $('<div class="rvs-breakdown__pickup"></div>').appendTo($root);
+                    $('<span></span>').text(this.getMessage('remaining_amount')).appendTo($rest);
+                    this.putAmount($('<span></span>'), data.display_remaining, data.remaining_amount, symbol).appendTo($rest);
                 }
-            } else {
-                this.container.find('.rv-deposit-summary').addClass('rv-hidden');
-                this.container.find('.rv-remaining-summary').addClass('rv-hidden');
             }
+
+            return $root;
+        }
+
+        // The phone's band: the total, and "· <deposit label> <amount>" when the
+        // summary shows a deposit row.
+        updateBand(data) {
+            const symbol = data.currency_symbol || this.getConfig('currency_symbol');
+            this.putAmount(this.hook('total'), data.display_total ? { html: data.display_total.html } : null, data.total_price, symbol);
+
+            const $bar = this.hook('bar-deposit').empty();
+            const $row = this.breakdownBox().find('.rvs-breakdown__deposit').first();
+            if (!$row.length || this.container.attr('data-rvs-deposit') === '0') {
+                $bar.prop('hidden', true);
+                return;
+            }
+            $bar.append(document.createTextNode(' · ' + $row.children().first().text().trim() + ' '));
+            $bar.append($row.children().last().clone().contents());
+            $bar.prop('hidden', false);
         }
 
         // The form's "Default Days", clamped into the rental limits
@@ -919,8 +801,8 @@
         }
 
         validateRentalLimits() {
-            const pickupDate = this.container.find('.rv-pickup-date').val();
-            const dropoffDate = this.container.find('.rv-dropoff-date').val();
+            const pickupDate = this.hook('pickup-date').val();
+            const dropoffDate = this.hook('dropoff-date').val();
 
             if (!pickupDate || !dropoffDate) {
                 return true; // Wait for both dates
@@ -931,20 +813,17 @@
             const maxDays = window.mhmRentivaBookingForm?.config?.max_days || 30;
 
             if (days < minDays) {
-                const msg = this.getMessage('min_days_error').replace('%d', minDays);
-                this.showError(msg);
+                this.showError(this.getMessage('min_days_error').replace('%d', minDays));
                 this.submitBtn.prop('disabled', true);
                 return false;
             }
 
             if (maxDays > 0 && days > maxDays) {
-                const msg = this.getMessage('max_days_error').replace('%d', maxDays);
-                this.showError(msg);
+                this.showError(this.getMessage('max_days_error').replace('%d', maxDays));
                 this.submitBtn.prop('disabled', true);
                 return false;
             }
 
-            // If valid, clear error (if it was a limit error) and enable button (if terms checked)
             this.hideMessages();
             this.updateButtonState();
             return true;
@@ -964,123 +843,96 @@
                 if (!startDate || !endDate) return 0;
 
                 const diffTime = Math.abs(endDate - startDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays;
+                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             } catch (e) {
                 // Fallback to basic calculation if format parsing fails
-                // Normalize dates for constructor: replace / with - (D-M-Y is usually more reliable)
-                const sStr = start.replace(/\//g, '-');
-                const eStr = end.replace(/\//g, '-');
-
-                const s = new Date(sStr);
-                const e_date = new Date(eStr);
+                const s = new Date(start.replace(/\//g, '-'));
+                const e_date = new Date(end.replace(/\//g, '-'));
 
                 if (isNaN(s.getTime()) || isNaN(e_date.getTime())) return 0;
 
-                const diff = Math.abs(e_date - s);
-                return Math.ceil(diff / (1000 * 60 * 60 * 24));
-            }
-        }
-
-        updatePaymentMethodDisplay() {
-            const paymentMethod = this.form.find('input[name="payment_method"]:checked').val();
-
-            if (paymentMethod === 'online') {
-                this.onlinePaymentDetails.removeClass('rv-hidden');
-            } else {
-                this.onlinePaymentDetails.addClass('rv-hidden');
+                return Math.ceil(Math.abs(e_date - s) / (1000 * 60 * 60 * 24));
             }
         }
 
         validateField(field) {
             const $field = $(field);
-            const value = $field.val().trim();
-            const isRequired = $field.prop('required');
+            const value = String($field.val() || '').trim();
 
-            if (isRequired && !value) {
-                $field.addClass('error');
+            if ($field.prop('required') && !value) {
+                $field.attr('aria-invalid', 'true');
                 return false;
             }
 
-            if (field.type === 'email' && value) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(value)) {
-                    $field.addClass('error');
-                    return false;
-                }
-            }
-
-            $field.removeClass('error');
+            $field.removeAttr('aria-invalid');
             return true;
         }
 
         validateForm() {
             let isValid = true;
-            const requiredFields = this.form.find('input[required], select[required]');
 
-            requiredFields.each((index, field) => {
-                const fieldValid = this.validateField(field);
-                if (!fieldValid) {
+            this.form.find('input[required], select[required]').each((index, field) => {
+                if (!this.validateField(field)) {
                     isValid = false;
                 }
             });
 
-            const pickupDate = this.container.find('.rv-pickup-date').val();
-            const dropoffDate = this.container.find('.rv-dropoff-date').val();
-            const pickupTime = this.container.find('.rv-pickup-time').val();
-
-            if (!pickupTime) {
-                this.container.find('.rv-pickup-time').addClass('error');
+            const $pickupTime = this.hook('pickup-time');
+            if (!$pickupTime.val()) {
+                $pickupTime.attr('aria-invalid', 'true');
                 this.showError(this.getMessage('selectPickupTime'));
                 isValid = false;
             }
 
-            if (pickupDate && dropoffDate) {
-                const pickup = new Date(pickupDate);
-                const dropoff = new Date(dropoffDate);
-
-                if (dropoff <= pickup) {
-                    this.container.find('.rv-dropoff-date').addClass('error');
-                    this.showError(this.getMessage('invalid_dates'));
-                    isValid = false;
-                }
+            const pickup = this.getIsoDate(this.hook('pickup-date').val());
+            const dropoff = this.getIsoDate(this.hook('dropoff-date').val());
+            if (pickup && dropoff && dropoff <= pickup) {
+                this.hook('dropoff-date').attr('aria-invalid', 'true');
+                this.showError(this.getMessage('invalid_dates'));
+                isValid = false;
             }
 
-            // The form posts one hidden payment_type and renders no payment
-            // type / method / gateway radios, so there is nothing to require here.
-
-            const termsCheckbox = this.container.find('.rv-terms-checkbox-input');
-            if (termsCheckbox.length) {
-                if (!termsCheckbox.is(':checked')) {
-                    this.showError(this.getMessage('terms_error'));
-                    termsCheckbox.closest('.rv-terms-checkbox').addClass('error');
-                    termsCheckbox.focus();
-                    isValid = false;
-                } else {
-                    termsCheckbox.closest('.rv-terms-checkbox').removeClass('error');
-                }
-            }
-
+            // The payment type is chosen at the WooCommerce checkout (step 2):
+            // the form posts one hidden payment_type and nothing else to require.
             return isValid;
         }
 
+        // The submit button's busy state: disabled, aria-busy and "Processing...".
+        setSubmitting(busy) {
+            this.submitting = busy;
+            const $btn = this.submitBtn;
+            if (busy) {
+                if ($btn.attr('data-rvs-label') === undefined) {
+                    $btn.attr('data-rvs-label', $btn.text());
+                }
+                $btn.attr('aria-busy', 'true').text(this.getMessage('processing'));
+            } else {
+                if ($btn.attr('data-rvs-label') !== undefined) {
+                    $btn.text($btn.attr('data-rvs-label')).removeAttr('data-rvs-label');
+                }
+                $btn.removeAttr('aria-busy');
+            }
+            this.updateButtonState();
+        }
+
         submitForm() {
+            if (this.submitting || this.locked) {
+                return;
+            }
             if (!this.validateForm()) {
                 return;
             }
 
-            this.showLoading(true);
+            this.setSubmitting(true);
             this.hideMessages();
 
             const formData = this.getFormData();
 
-            // Build request using URLSearchParams to ensure addons array is serialized correctly
-            // ($.ajaxSetup traditional:true would break addons[] serialization with spread operator)
-            let requestData = new URLSearchParams();
+            const requestData = new URLSearchParams();
             requestData.append('action', 'mhmrentiva_booking_form');
             requestData.append('nonce', window.mhmRentivaBookingForm?.nonce || '');
 
-            // Append all scalar fields (skip undefined/null like jQuery does)
+            // Scalar fields (skip undefined/null like jQuery does)
             Object.keys(formData).forEach(key => {
                 if (key !== 'addons' && key !== 'addon_qty') {
                     const val = formData[key];
@@ -1090,83 +942,53 @@
                 }
             });
 
-            // Append addons as proper PHP array (addons[]=id)
-            if (formData.addons && formData.addons.length > 0) {
-                formData.addons.forEach(addonId => {
-                    requestData.append('addons[]', addonId);
-                });
-            }
+            // addons[]=id, then the quantities of those add-ons
+            formData.addons.forEach(addonId => {
+                requestData.append('addons[]', addonId);
+            });
             this.appendAddonQuantities(requestData, formData.addon_qty);
 
+            let leaving = false;
             $.ajax({
                 url: window.mhmRentivaBookingForm?.ajax_url || '',
                 type: 'POST',
                 data: requestData.toString(),
                 contentType: 'application/x-www-form-urlencoded',
+                traditional: true,
                 success: (response) => {
-                    this.showLoading(false);
                     if (response.success) {
                         if (response.data.redirect_url) {
+                            // Stays busy while the browser leaves for the cart.
+                            leaving = true;
                             window.location.href = response.data.redirect_url;
                         } else {
                             this.showSuccess(response.data.message || this.getMessage('booking_created'));
-                            this.form[0].reset();
-                            // Reset select2 if used, etc.
                         }
                     } else {
-                        this.showError(response.data?.message || this.getMessage('error'));
+                        this.showError(response.data?.message || this.getMessage('error_occurred'));
                     }
                 },
-                error: (xhr, status, error) => {
-                    this.showLoading(false);
-                    this.showError(this.getMessage('error'));
+                error: () => {
+                    this.showError(this.getMessage('error_occurred'));
+                },
+                complete: () => {
+                    if (!leaving) {
+                        this.setSubmitting(false);
+                    }
                 }
             });
         }
 
         checkAvailability() {
-            // Logic similar to calculatePrice but checking availability
-            // For now assuming calculatePrice handles basic validation/availability check logic on backend
-            // or this method can be implemented if separate endpoint exists.
-            // Original file didn't show full implementation so assumption is it reuses calculate logic or is placeholder.
-            // Implemented as calling calculatePrice() in autoCheckAvailability for now.
-
-            // UPDATE: Found checkAvailability implementation in old file. Re-implementing it.
             const formData = this.getFormData();
 
             if (!formData.vehicle_id || !formData.pickup_date || !formData.dropoff_date) {
                 return;
             }
 
-            // Element for availability status display
-            let availabilityStatus = this.form.find('.rv-availability-status');
+            const $status = this.hook('availability');
+            this.setStatus($status, 'busy', this.getMessage('checking_availability'));
 
-            if (!availabilityStatus.length) {
-                availabilityStatus = $('<div class="rv-availability-status"></div>');
-
-                const leftColumn = this.form.find('.rv-booking-form-left');
-                const vehicleSection = leftColumn.find('.rv-vehicle-selection, .rv-selected-vehicle').first();
-                const dateTimeSection = leftColumn.find('.rv-dates-times').first();
-
-                if (vehicleSection.length) {
-                    vehicleSection.after(availabilityStatus);
-                } else if (dateTimeSection.length) {
-                    dateTimeSection.before(availabilityStatus);
-                } else if (leftColumn.length) {
-                    leftColumn.prepend(availabilityStatus);
-                } else {
-                    this.form.prepend(availabilityStatus);
-                }
-            }
-
-            // Loading status - Modern loading card
-            availabilityStatus.removeClass('success error').addClass('loading');
-            const checkingAvailabilityText = this.getMessage('checking_availability') || 'Checking availability...';
-            availabilityStatus.html(`<div class="rv-loading-message"><span class="rv-spinner"></span> <span>${this.escapeHtml(checkingAvailabilityText)}</span></div>`);
-            availabilityStatus.removeClass('hidden');
-
-
-            // Debug log for AJAX data
             const ajaxData = {
                 action: 'mhmrentiva_check_availability',
                 vehicle_id: formData.vehicle_id,
@@ -1186,259 +1008,174 @@
                 url: window.mhmRentivaBookingForm?.ajaxUrl || '',
                 type: 'POST',
                 data: ajaxData,
+                traditional: true,
                 success: (response) => {
                     if (requestSeq !== this.availabilitySeq) {
                         return;
                     }
-                    availabilityStatus.removeClass('hidden'); // Show in all cases
 
                     if (response.success) {
-                        // Available - Modern success card
-                        availabilityStatus.removeClass('loading error').addClass('success');
-                        availabilityStatus.html(`
-                                    <div class="rv-availability-success">
-                                        ${window.mhmRentivaBookingForm?.icons?.success || '<svg class="rv-icon-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'}
-                                        <span>${this.getMessage('vehicle_available')}</span>
-                                    </div>
-                                `);
-
-                        // ✅ Vehicle available - enable button
+                        this.setStatus($status, 'ok', this.getMessage('vehicle_available'));
                         this.availabilityBlocked = false;
-                        this.submitBtn.prop('disabled', false);
-                    } else {
-                        // Not available
-                        let message = response.data?.message || this.getMessage('vehicle_not_available');
-                        let alternativesHtml = '';
-
-                        if (response.data?.alternatives && response.data.alternatives.length > 0) {
-                            message = this.getMessage('vehicle_unavailable_with_alternatives');
-                            alternativesHtml = `
-                                        <div class="rv-alternatives-wrapper">
-                                            <div class="rv-alternatives-title">${this.escapeHtml(this.getMessage('alternative_vehicles') || 'Alternative Vehicles')}</div>
-                                            <div class="rv-alternatives-grid">
-                                    `;
-
-                            response.data.alternatives.slice(0, 2).forEach(vehicle => {
-                                const currencySymbol = this.escapeHtml(this.getConfig('currency_symbol') || '');
-                                const priceLabel = this.escapeHtml(this.getMessage('daily_price') || 'Daily Price');
-                                const compactPrice = vehicle.price_per_day !== undefined
-                                    ? this.formatMoney(vehicle.price_per_day, currencySymbol)
-                                    : '-';
-
-                                // Build feature meta badges (seats, transmission, fuel_type)
-                                const metaBadges = [];
-                                if (vehicle.seats)        metaBadges.push('<span class="rv-alt-meta-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>' + this.escapeHtml(vehicle.seats) + '</span>');
-                                if (vehicle.transmission) metaBadges.push('<span class="rv-alt-meta-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>' + this.escapeHtml(vehicle.transmission) + '</span>');
-                                if (vehicle.fuel_type)    metaBadges.push('<span class="rv-alt-meta-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V8l9-6 9 6v14"></path><path d="M9 22V12h6v10"></path></svg>' + this.escapeHtml(vehicle.fuel_type) + '</span>');
-                                const metaHtml = metaBadges.length ? '<div class="rv-alt-meta-badges">' + metaBadges.join('') + '</div>' : '';
-
-                                alternativesHtml += `
-                                            <div class="rv-alternative-vehicle-card" data-vehicle-id="${this.escapeHtml(vehicle.id)}">
-                                                <div class="rv-alternative-vehicle-image">
-                                                    <img src="${this.escapeHtml(vehicle.image || window.mhmRentivaBookingForm?.placeholder_image || '')}" alt="${this.escapeHtml(vehicle.title)}">
-                                                </div>
-                                                <div class="rv-alternative-vehicle-content">
-                                                    <h5 class="rv-alternative-vehicle-title">${this.escapeHtml(vehicle.title)}</h5>
-                                                    ${metaHtml}
-                                                    <div class="rv-alternative-price-details rv-alternative-price-compact">
-                                                        <span class="rv-alternative-price-label">${priceLabel}:</span>
-                                                        <span class="rv-alternative-price-amount">${compactPrice}</span>
-                                                    </div>
-                                                    <button type="button" class="rv-select-alternative-btn" 
-                                                        data-vehicle-id="${this.escapeHtml(vehicle.id)}"
-                                                        data-vehicle-title="${this.escapeHtml(vehicle.title)}"
-                                                        data-vehicle-price="${this.escapeHtml(vehicle.price_per_day)}"
-                                                        data-vehicle-image="${this.escapeHtml(vehicle.image || '')}">
-                                                        <span class="dashicons dashicons-car"></span>
-                                                        ${this.escapeHtml(this.getMessage('select_this_vehicle'))}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        `;
-                            });
-
-                            alternativesHtml += `
-                                            </div>
-                                        </div>
-                                    `;
-                        }
-
-                        // Not available - Modern error card
-                        availabilityStatus.removeClass('loading success').addClass('error');
-                        availabilityStatus.html(`
-                                    <div class="rv-availability-error">
-                                        <div class="rv-availability-error-header">
-                                            <span class="dashicons dashicons-warning"></span>
-                                            <strong>${this.escapeHtml(message)}</strong>
-                                        </div>
-                                        ${alternativesHtml}
-                                    </div>
-                                `);
-
-                        // ❌ Block submit only when the server said the vehicle is
-                        // taken. A refusal without one of these codes is a check
-                        // that could not run (rate limit, nonce, bad input): show
-                        // it, but do not lock a sale for dates that may be free --
-                        // checkout re-checks under a lock anyway.
-                        const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found', 'service_unavailable'];
-                        this.availabilityBlocked = takenCodes.includes(response.data?.code);
-                        this.submitBtn.prop('disabled', this.availabilityBlocked);
-                        if (!this.availabilityBlocked) {
-                            this.updateButtonState();
-                        }
-
-                        // Alternative vehicle selection buttons
-                        availabilityStatus.find('.rv-select-alternative-btn').on('click', (e) => {
-                            const $btn = $(e.currentTarget);
-                            const vehicleData = {
-                                id: $btn.data('vehicle-id'),
-                                title: $btn.data('vehicle-title'),
-                                price: $btn.data('vehicle-price'),
-                                image: $btn.data('vehicle-image')
-                            };
-                            this.selectAlternativeVehicle(vehicleData);
-                        });
+                        this.updateButtonState();
+                        return;
                     }
+
+                    const alternatives = Array.isArray(response.data?.alternatives) ? response.data.alternatives : [];
+                    const message = alternatives.length
+                        ? this.getMessage('vehicle_unavailable_with_alternatives')
+                        : (response.data?.message || this.getMessage('vehicle_not_available'));
+                    this.setStatus($status, 'error', message);
+                    if (alternatives.length) {
+                        $status.append(this.buildAlternatives(alternatives.slice(0, 2)));
+                    }
+
+                    // Block submit only when the server said the vehicle is
+                    // taken. A refusal without one of these codes is a check
+                    // that could not run (rate limit, nonce, bad input): show
+                    // it, but do not lock a sale for dates that may be free --
+                    // checkout re-checks under a lock anyway.
+                    const takenCodes = ['unavailable', 'unavailable_with_alternatives', 'vehicle_unavailable', 'vehicle_not_found', 'service_unavailable'];
+                    this.availabilityBlocked = takenCodes.includes(response.data?.code);
+                    this.updateButtonState();
                 },
                 error: (xhr, status, error) => {
                     if (requestSeq !== this.availabilitySeq) {
                         return;
                     }
-                    console.error('🔍 AJAX Error:', { xhr, status, error });
-                    console.error('🔍 Response Text:', xhr.responseText);
-                    // Error state - Modern error card
-                    availabilityStatus.removeClass('loading success').addClass('error');
-                    availabilityStatus.html(`
-                                <div class="rv-availability-error">
-                                    <div class="rv-availability-error-header">
-                                        <span class="dashicons dashicons-warning"></span>
-                                        <strong>${this.getMessage('availability_check_failed')}</strong>
-                                    </div>
-                                </div>
-                            `);
+                    console.error('Availability check failed:', { status, error });
+                    this.setStatus($status, 'error', this.getMessage('availability_check_failed'));
 
                     // The check did not answer: say so, and lift any lock an
-                    // earlier "taken" left behind -- nothing else will. The terms
-                    // checkbox still applies; checkout re-checks under a lock.
+                    // earlier "taken" left behind -- nothing else will. Checkout
+                    // re-checks under a lock.
                     this.availabilityBlocked = false;
-                    this.submitBtn.prop('disabled', false);
                     this.updateButtonState();
                 }
             });
         }
 
-        selectAlternativeVehicle(vehicleData) {
-            const vehicleId = vehicleData.id;
-            const select = this.container.find('.rv-vehicle-select');
+        // The availability line: data-state="busy|ok|error" and a message as text.
+        setStatus($status, state, message) {
+            $status.attr('data-state', state).empty().prop('hidden', false);
+            $('<p class="rvs-booking__status-text"></p>').text(message || '').appendTo($status);
+        }
 
-            if (select.length) {
-                // If we have a dropdown, update it and it will trigger change/preview update
-                select.val(vehicleId).trigger('change');
-            } else {
-                // If dropdown is hidden (specific vehicle mode), update hidden input and UI manually
-                const hiddenInput = this.form.find('input[name="vehicle_id"]');
-                if (hiddenInput.length) {
-                    hiddenInput.val(vehicleId);
+        /**
+         * The suggested vehicles as rvs cards (assets/css/rvs/rvs-card.css). Every
+         * server value goes in as text or an attribute; nothing is parsed as markup.
+         */
+        buildAlternatives(alternatives) {
+            const $wrap = $('<div class="rvs-booking__alternatives"></div>');
+            $('<p class="rvs-booking__alternatives-title"></p>').text(this.getMessage('alternative_vehicles')).appendTo($wrap);
+            const $grid = $('<div class="rvs-card-grid"></div>').appendTo($wrap);
+            $grid[0].style.setProperty('--rvs-cols', '2');
+
+            alternatives.forEach((vehicle) => {
+                const title = vehicle.title === undefined || vehicle.title === null ? '' : String(vehicle.title);
+                const image = vehicle.image || window.mhmRentivaBookingForm?.placeholder_image || '';
+                // Translated feature labels, joined by the server.
+                const specs = typeof vehicle.specs === 'string' ? vehicle.specs : '';
+
+                const $card = $('<article class="rvs-card"></article>').attr('data-vehicle-id', String(vehicle.id));
+                if (image) {
+                    const $media = $('<div class="rvs-card__media"></div>').appendTo($card);
+                    $('<img class="rvs-card__img" loading="lazy">').attr({ src: String(image), alt: title }).appendTo($media);
                 }
+                const $body = $('<div class="rvs-card__body"></div>').appendTo($card);
+                const $head = $('<div class="rvs-card__head"></div>').appendTo($body);
+                $('<h4 class="rvs-card__title"></h4>').text(title).appendTo($head);
+                if (specs) {
+                    $('<p class="rvs-card__specs"></p>').text(specs).appendTo($body);
+                }
+                const $foot = $('<div class="rvs-card__foot"></div>').appendTo($body);
+                const $price = $('<div class="rvs-card__price"></div>').appendTo($foot);
+                $('<div class="rvs-card__amount"></div>')
+                    .text(vehicle.price_per_day !== undefined ? this.formatMoney(vehicle.price_per_day) : '-')
+                    .appendTo($price);
+                $('<div class="rvs-card__per"></div>').text(this.getMessage('per_day')).appendTo($price);
+                $('<button type="button" class="rvs-btn rvs-btn--primary rvs-card__select"></button>')
+                    .text(this.getMessage('select_this_vehicle'))
+                    .on('click', () => {
+                        this.selectAlternativeVehicle({
+                            id: vehicle.id,
+                            title: title,
+                            price: vehicle.price_per_day,
+                            image: vehicle.image || '',
+                            specs: specs,
+                            permalink: vehicle.permalink || ''
+                        });
+                    })
+                    .appendTo($foot);
 
+                $grid.append($card);
+            });
+
+            return $wrap;
+        }
+
+        selectAlternativeVehicle(vehicleData) {
+            const vehicleId = String(vehicleData.id);
+            const $select = this.hook('vehicle-select');
+
+            const listed = $select.find('option').filter(function () {
+                return this.value === vehicleId;
+            }).length > 0;
+
+            if (listed) {
+                // The select's change handler fills the summary and re-quotes.
+                $select.val(vehicleId).trigger('change');
+            } else {
+                // A form for one vehicle, or a suggestion the select does not
+                // list: swap the posted id and the summary.
+                this.container.find('input[name="vehicle_id"]').val(vehicleId);
                 this.container.attr('data-vehicle-id', vehicleId);
-
-                // Manually update the UI card since updateVehiclePreview works on select element
-                this.updateVehicleUI(vehicleData);
-
-                // Trigger auto calculation and availability check
+                this.showVehicle(vehicleData);
+                this.fetchAndApplyBlockedDates(vehicleId);
                 this.autoCalculatePrice();
                 this.autoCheckAvailability();
             }
+
+            // The server's link carries the window; the option's does not.
+            if (vehicleData.permalink) {
+                this.hook('change').attr('href', vehicleData.permalink).prop('hidden', false);
+            }
         }
 
-        updateVehicleUI(vehicleData) {
-            // Find active info card (static or preview)
-            const card = this.container.find('.rv-selected-vehicle, .rv-selected-vehicle-preview');
-            const sidebar = this.container.find('.rv-checkout-sidebar, .rv-checkout-vehicle');
-            if (!card.length) return;
-
-            const image = card.find('.rv-vehicle-image, .rv-sv__img');
-            const title = card.find('.rv-vehicle-title');
-            const price = card.find('.rv-vehicle-price');
-            const excerpt = card.find('.rv-vehicle-excerpt');
-            const features = card.find('.rv-vehicle-features');
-            const ratings = card.find('.rv-vehicle-rating-block');
-
-            // Update title and basic price
-            if (title.length) title.text(vehicleData.title);
-            if (price.length) {
-                price.html(`<span class="rv-sv__price-amount rv-price-large">${this.formatMoney(vehicleData.price)}</span><span class="rv-sv__price-period"> ${this.getMessage('per_day')}</span>`);
+        // Messages under the form: data-state="error|ok", always as text unless
+        // the server sent markup.
+        showMessage(state, message) {
+            const $el = this.hook('messages');
+            const text = String(message || '');
+            if (text.includes('<') && text.includes('>')) {
+                $el.html(text);
+            } else {
+                $el.text(text);
             }
-
-            // Update image
-            if (image.length && vehicleData.image) {
-                image.attr('src', vehicleData.image).removeClass('rv-hidden');
-                image.closest('.rv-vehicle-image-wrapper').removeClass('rv-hidden');
-            }
-
-            // Hide/Clear parts we don't have for alternatives to prevent confusion
-            if (excerpt.length) excerpt.addClass('rv-hidden');
-            if (features.length) features.addClass('rv-hidden');
-            if (ratings.length) ratings.addClass('rv-hidden');
-
-            // Ensure the card is visible
-            card.removeClass('rv-hidden');
-            if (sidebar.length) sidebar.removeClass('rv-hidden');
+            $el.attr('data-state', state).prop('hidden', false);
         }
-
-        // Helper methods: showError, showSuccess, showLoading, hideMessages,
-        // formatPrice, getMessage, getFavoritesConfig, getAjaxUrl, calculateDays.
 
         showError(message) {
-            // Check if message contains HTML - simplistic check
-            if (message.includes('<') && message.includes('>')) {
-                // If it looks like HTML, use html() but ensure content was sanitized before
-                this.errorEl.html(message).removeClass('rv-hidden').removeClass('rv-hidden');
-            } else {
-                // Otherwise use text() for safety
-                this.errorEl.text(message).removeClass('rv-hidden').removeClass('rv-hidden');
-            }
-            this.successEl.addClass('rv-hidden').addClass('rv-hidden');
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                this.errorEl.fadeOut();
-            }, 5000);
+            this.showMessage('error', message);
         }
 
         showSuccess(message) {
-            // Check if message contains HTML - simplistic check
-            if (message.includes('<') && message.includes('>')) {
-                this.successEl.html(message).removeClass('rv-hidden').removeClass('rv-hidden');
-            } else {
-                this.successEl.text(message).removeClass('rv-hidden').removeClass('rv-hidden');
-            }
-            this.errorEl.addClass('rv-hidden').addClass('rv-hidden');
-        }
-
-        showLoading(isLoading) {
-            if (isLoading) {
-                this.loadingEl.removeClass('rv-hidden').removeClass('rv-hidden');
-                this.submitBtn.prop('disabled', true);
-                this.submitBtn.find('.rv-btn-loading').removeClass('rv-hidden');
-            } else {
-                this.loadingEl.addClass('rv-hidden').addClass('rv-hidden');
-                this.submitBtn.prop('disabled', !!this.availabilityBlocked);
-                this.submitBtn.find('.rv-btn-loading').addClass('rv-hidden');
-            }
+            this.showMessage('ok', message);
         }
 
         hideMessages() {
-            this.errorEl.addClass('rv-hidden').addClass('rv-hidden');
-            this.successEl.addClass('rv-hidden').addClass('rv-hidden');
+            this.hook('messages').prop('hidden', true).removeAttr('data-state').empty();
         }
 
-        showToast(message, type = 'success') {
-            // Generic toast implementation or using a library if available
-            // Fallback to alert if no toast lib
-            // Or use showSuccess/showError
-            if (type === 'error') this.showError(message);
-            else this.showSuccess(message);
+        // A quote in flight: the summary says it is busy and submit waits, so a
+        // booking never goes out with a total about to change.
+        showLoading(isLoading) {
+            this.hook('summary').attr('aria-busy', isLoading ? 'true' : 'false');
+            if (isLoading) {
+                this.submitBtn.prop('disabled', true);
+            } else {
+                this.updateButtonState();
+            }
         }
 
         // A value BookingForm::get_js_config() localizes under `config`. The
@@ -1501,37 +1238,6 @@
 
         getMessage(key) {
             return window.mhmRentivaBookingForm?.strings?.[key] || key;
-        }
-
-        getFavoritesConfig() {
-            return window.mhmRentivaFavorites || {};
-        }
-
-        getAjaxUrl() {
-            return window.mhmRentivaBookingForm?.ajax_url || '';
-        }
-
-        // calculateDays() was declared a second time here. A class body keeps
-        // the LAST definition, so this naive `new Date(start)` one is what
-        // actually ran, and the format-aware original above (which parses with
-        // the configured datepicker format) was dead code. `new Date()` cannot
-        // read the plugin's non-ISO date formats -- with dateFormat 'dd/mm/yy'
-        // it returns Invalid Date and the day count came out NaN. Removed so
-        // both call sites reach the implementation that handles the format.
-
-        escapeHtml(text) {
-            if (typeof text !== 'string') {
-                if (text === null || text === undefined) return '';
-                return String(text);
-            }
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
 
     }

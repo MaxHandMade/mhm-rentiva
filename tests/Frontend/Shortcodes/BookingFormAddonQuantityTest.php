@@ -236,10 +236,13 @@ final class BookingFormAddonQuantityTest extends WP_Ajax_UnitTestCase
 
 		$html = do_shortcode('[rentiva_booking_form vehicle_id="' . $this->vehicle_id . '"]');
 
-		$this->assertSame(1, preg_match('/<input[^>]*name="addon_qty\[' . $seat . '\]"[^>]*>/', $html, $input), 'A service sold up to 3 gets a quantity field.');
-		$this->assertMatchesRegularExpression('/\bmax="3"/', $input[0]);
-		$this->assertMatchesRegularExpression('/\bmin="1"/', $input[0]);
-		$this->assertMatchesRegularExpression('/\bvalue="1"/', $input[0]);
+		// Aşama 2 PR C: a stepper from 0 to the maximum; at 0 nothing is posted.
+		$this->assertSame(1, preg_match('/data-rvs-stepper="' . $seat . '"[^>]*>/', $html, $stepper), 'A service sold up to 3 gets a quantity stepper.');
+		$this->assertMatchesRegularExpression('/\bdata-max="3"/', $stepper[0]);
+		$this->assertMatchesRegularExpression('/\bdata-min="0"/', $stepper[0]);
+		$this->assertSame(1, preg_match('/<input[^>]*name="addon_qty\[' . $seat . '\]"[^>]*>/', $html, $input));
+		$this->assertMatchesRegularExpression('/\bvalue="0"/', $input[0]);
+		$this->assertMatchesRegularExpression('/\bdisabled\b/', $input[0]);
 		$this->assertStringNotContainsString('name="addon_qty[' . $gps . ']"', $html, 'A maximum of 1 stays a checkbox.');
 	}
 

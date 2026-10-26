@@ -34,6 +34,12 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.9.0 (2026-10-26): clear_elementor_css_490() queues the Elementor page CSS
+	 * rebuild again (ElementorStyleIdMigration, idempotent): the booking form
+	 * moved to the front-end standard (rvs-booking classes and --rvs-booking-*
+	 * tokens), so CSS Elementor generated for the old form selectors would style
+	 * nothing until rebuilt. Only queues; the files regenerate on the next visit.
+	 *
 	 * 4.8.0 (2026-10-26): normalise_booking_timestamps_480() rebuilds every
 	 * booking's `_mhmrentiva_start_ts` / `_mhmrentiva_end_ts` from its stored
 	 * local date and time in the site timezone. WooCommerce checkouts used to
@@ -86,7 +92,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.8.0';
+	private const CURRENT_VERSION = '4.9.0';
 
 	/**
 	 * Set to '1' once normalise_booking_timestamps_480() has gone through
@@ -550,6 +556,7 @@ final class DatabaseMigrator {
 			self::migrate_elementor_style_ids_450();
 			self::rebuild_elementor_plain_text_460();
 			self::clear_elementor_css_470();
+			self::clear_elementor_css_490();
 			// A body run is a new version gate: the retry lane's budget starts over.
 			delete_option(self::BOOKING_TS_ATTEMPTS_OPTION);
 			self::normalise_booking_timestamps_480();
@@ -1537,6 +1544,17 @@ final class DatabaseMigrator {
 	 * pass, a no-op when done, then the page CSS flush) on admin_init.
 	 */
 	private static function clear_elementor_css_470(): void
+	{
+		ElementorStyleIdMigration::mark_pending();
+	}
+
+	/**
+	 * 4.9.0: the booking form's Elementor controls now write --rvs-booking-*
+	 * tokens and target rvs-booking classes. Queues the same bounded run as
+	 * 4.7.0 (style-id pass, then Elementor's files_manager->clear_cache()) on
+	 * admin_init; CSS files regenerate on the next visit.
+	 */
+	private static function clear_elementor_css_490(): void
 	{
 		ElementorStyleIdMigration::mark_pending();
 	}

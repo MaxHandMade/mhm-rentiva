@@ -120,7 +120,7 @@ final class ShortcodeFixtures
 		switch ($tag) {
 			case 'rentiva_booking_form':
 				$row['atts']         = array( 'vehicle_id' => (string) self::vehicle() );
-				$row['marker']       = 'rv-booking-form-content';
+				$row['marker']       = 'rvs-booking__form';
 				$row['min_elements'] = 80;
 				break;
 

@@ -16,8 +16,8 @@ use WP_UnitTestCase;
  * Booking form settings, spec 2026-10-10 Elementor bridge slice 3A Task 6.
  *
  * APPLY: default_days (the return date is prefilled N days after the chosen
- * pickup; no prefill unless set), form_title (a heading only when non-empty; the
- * Elementor default 'Booking Form' becomes '' so untouched widgets gain nothing).
+ * pickup; no prefill unless set), form_title (the heading; since Aşama 2 PR C an
+ * empty title shows the journey's default "Complete your booking").
  * REMOVE: default_payment, max_days, min_days, show_date_picker, show_insurance,
  * show_payment_options.
  *
@@ -72,16 +72,17 @@ final class BookingFormSettingsTest extends WP_UnitTestCase
 		$this->assertStringContainsString("data('default-days')", $js, 'booking-form.js reads the prefill.');
 	}
 
-	public function test_form_title_renders_only_when_set(): void
+	public function test_form_title_replaces_the_default_heading(): void
 	{
 		$title = 'Zz Rent It Today';
 		$this->assertSame($title, $this->title($this->shortcode('form_title="' . $title . '"')));
 		$this->assertSame($title, $this->title($this->block(array( 'form_title' => $title ))));
 		$this->assertSame($title, $this->title($this->widget(array( 'form_title' => $title ))));
 
-		$this->assertNull($this->title($this->shortcode('')));
-		$this->assertNull($this->title($this->block(array())));
-		$this->assertNull($this->title($this->widget(array())));
+		// Untouched: the journey's default heading (Aşama 2 PR C; there was none before).
+		$this->assertSame('Complete your booking', $this->title($this->shortcode('')));
+		$this->assertSame('Complete your booking', $this->title($this->block(array())));
+		$this->assertSame('Complete your booking', $this->title($this->widget(array())));
 
 		$controls = SettingProbe::data_controls('BookingFormWidget');
 		$this->assertSame('', $controls['form_title']['default'] ?? null, 'Elementor form_title default is empty (Rule 1).');
@@ -163,7 +164,7 @@ final class BookingFormSettingsTest extends WP_UnitTestCase
 			default:
 				$html = $this->widget(array());
 		}
-		$this->assertStringContainsString('rv-checkout-summary', $html, "$name rendered nothing to compare; the golden would pin an empty render.");
+		$this->assertStringContainsString('rvs-booking__summary', $html, "$name rendered nothing to compare; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -200,7 +201,7 @@ final class BookingFormSettingsTest extends WP_UnitTestCase
 			$map[ (int) get_post_thumbnail_id($id) ] = 'IMAGE' . $i;
 		}
 		$html = (string) preg_replace_callback(
-			'/(?<=_id=|[?&]p=|data-vehicle-id="|<option value="|name="selected_addons\[\]" value=")(\d+)(?=["&])/',
+			'/(?<=_id=|[?&]p=|data-vehicle-id="|<option value="|name="addons\[\]" value="|data-rvs-addon="|data-rvs-stepper="|addon_qty\[)(\d+)(?=["&\]])/',
 			static fn(array $m): string => $map[ (int) $m[1] ] ?? 'ID',
 			$html
 		);
@@ -211,14 +212,14 @@ final class BookingFormSettingsTest extends WP_UnitTestCase
 
 	private function default_days(string $html): ?string
 	{
-		$this->assertStringContainsString('rv-booking-form-wrapper', $html, 'No booking form.');
-		return preg_match('/<div class="rv-booking-form-wrapper[^>]*\sdata-default-days="([^"]*)"/', $html, $m) ? $m[1] : null;
+		$this->assertStringContainsString('data-rvs-booking-form', $html, 'No booking form.');
+		return preg_match('/<div class="rvs-booking[^"]*" data-rvs-booking-form[^>]*\sdata-default-days="([^"]*)"/', $html, $m) ? $m[1] : null;
 	}
 
 	private function title(string $html): ?string
 	{
-		$this->assertStringContainsString('rv-booking-form-wrapper', $html, 'No booking form.');
-		return preg_match('#<h2 class="rv-booking-form-title">([^<]*)</h2>#', $html, $m) ? html_entity_decode($m[1]) : null;
+		$this->assertStringContainsString('data-rvs-booking-form', $html, 'No booking form.');
+		return preg_match('#<h2 class="rvs-booking__title"[^>]*>([^<]*)</h2>#', $html, $m) ? html_entity_decode($m[1]) : null;
 	}
 
 	private function shortcode(string $atts): string

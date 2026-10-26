@@ -267,21 +267,6 @@ JS;
 		$this->assertSame( array(), $found );
 	}
 
-	/**
-	 * The fixed file itself. Before this task's fix, this file had 27
-	 * offenders across 3 broken blocks (lines 177-180, 196-199, 205-208 at
-	 * the pre-fix HEAD b1568525) -- captured in task-5-report.md's RED
-	 * transcript. This assertion is what keeps it fixed.
-	 */
-	public function test_addon_booking_js_template_literals_are_well_formed(): void {
-		$path = $this->plugin_root() . 'assets/js/components/addon-booking.js';
-		$this->assertFileExists( $path );
-
-		$found = ( $this->collector() )( (string) file_get_contents( $path ) );
-
-		$this->assertSame( array(), $found );
-	}
-
 	// ---- KANUN 0: the whole shipped JS surface, kept clean going forward --
 
 	/**

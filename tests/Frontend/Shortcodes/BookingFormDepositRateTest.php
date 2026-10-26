@@ -131,6 +131,43 @@ final class BookingFormDepositRateTest extends WP_Ajax_UnitTestCase
 		);
 	}
 
+	// ------------------------------------------- summary breakdown (PR C)
+
+	/**
+	 * R7: the summary names a deposit only when it splits the total -- a rate
+	 * strictly between 0 and 100.
+	 */
+	public function test_deposit_rows_only_between_zero_and_hundred(): void
+	{
+		foreach (array( 0 => false, 100 => false, 30 => true ) as $rate => $shown) {
+			$this->global_setting(0 === $rate ? 'full_payment' : 'percentage', $rate);
+			$html = (string) ( $this->dispatch('mhmrentiva_calculate_price')['data']['breakdown_html'] ?? '' );
+
+			$this->assertStringContainsString('class="rvs-breakdown"', $html, "rate $rate");
+			$this->assertSame($shown, false !== strpos($html, 'rvs-breakdown__deposit'), "Deposit row at rate $rate.");
+			$this->assertSame($shown, false !== strpos($html, 'rvs-breakdown__pickup'), "Due-at-pickup row at rate $rate.");
+		}
+	}
+
+	/**
+	 * Fable A3: enable_deposit="0" hides the deposit in the breakdown too; the
+	 * amounts the answer carries (and the charge) do not change.
+	 */
+	public function test_breakdown_html_omits_deposit_when_disabled(): void
+	{
+		$this->global_setting('percentage', 30);
+
+		$with    = $this->dispatch('mhmrentiva_calculate_price')['data'];
+		$without = $this->dispatch('mhmrentiva_calculate_price', array( 'enable_deposit' => '0' ))['data'];
+
+		$this->assertStringContainsString('rvs-breakdown__deposit', (string) $with['breakdown_html']);
+		$this->assertStringNotContainsString('rvs-breakdown__deposit', (string) $without['breakdown_html']);
+		$this->assertStringNotContainsString('rvs-breakdown__pickup', (string) $without['breakdown_html']);
+		$this->assertSame($with['deposit_amount'], $without['deposit_amount'], 'Display only: the deposit is still the charge.');
+		$this->assertSame($with['payment_type'], $without['payment_type']);
+		$this->assertSame($with['remaining_amount'], $without['remaining_amount']);
+	}
+
 	// ---------------------------------------------------------- submission
 
 	public function test_submission_takes_a_deposit_from_the_global_percentage(): void
@@ -167,6 +204,21 @@ final class BookingFormDepositRateTest extends WP_Ajax_UnitTestCase
 
 		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
 		$this->assertSame('full', $response['data']['booking_data']['payment_type']);
+	}
+
+	/**
+	 * r3 C5: the submission does not read the quote's display flag.
+	 */
+	public function test_submission_ignores_enable_deposit(): void
+	{
+		$this->global_setting('percentage', 30);
+
+		$response = $this->dispatch('mhmrentiva_booking_form', $this->customer_fields() + array( 'enable_deposit' => '0' ));
+
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$booking = $response['data']['booking_data'];
+		$this->assertSame('deposit', $booking['payment_type']);
+		$this->assertEqualsWithDelta(0.3 * (float) $booking['total_price'], (float) $booking['deposit_amount'], 0.01);
 	}
 
 	// ------------------------------------------------------------ fixtures

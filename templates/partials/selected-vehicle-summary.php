@@ -1,141 +1,86 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
-
 /**
- * Selected Vehicle Summary Partial (Booking Context)
+ * The booking form's summary: vehicle, window, "Change" link and breakdown.
  *
- * Specialized, compact layout for the booking form.
+ * Prints BookingForm::summary_view() and nothing else. Case A (a vehicle is
+ * known) arrives filled; in Case B the vehicle part is an empty frame the
+ * script fills from the chosen <option>, and the Change link waits, hidden.
+ * Until the first quote the breakdown slot holds the daily price.
  *
- * @var array $vehicle Standardized vehicle data (from prepare_selected_vehicle).
- * @var array $atts    Shortcode attributes.
+ * @var array<string, mixed> $summary BookingForm::summary_view().
+ * @var string               $uid     The form instance's id prefix (rvs-bf-N).
  *
  * @package MHMRentiva
  */
 
-use MHMRentiva\Frontend\RenderContext;
-use MHMRentiva\Helpers\Icons;
+declare(strict_types=1);
+
+use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
-// SSOT Data Layer.
-require 'vehicle-card-base.php';
-
-// Filter out unwanted actions for booking context.
-$show_compare  = false;
-$show_booking  = false;
-$display_title = $title ?? ( $vehicle_title ?? ( $vehicle['title'] ?? '' ) );
-$model_year    = (string) ( $vehicle['year'] ?? get_post_meta( (int) $vehicle_id, 'mhmrentiva_vehicle_year', true) );
-if ($model_year === '') {
-	$model_year = (string) get_post_meta( (int) $vehicle_id, '_mhmrentiva_vehicle_year', true);
-}
-
-$display_category = '';
-if (! empty($category_name)) {
-	$display_category = (string) $category_name;
-}
+$mhmrentiva_sum         = (array) ( $summary ?? array() );
+$mhmrentiva_sum_uid     = (string) ( $uid ?? '' );
+$mhmrentiva_sum_vehicle = $mhmrentiva_sum['vehicle'] ?? null;
+$mhmrentiva_sum_html    = PriceDisplay::allowed_html();
+$mhmrentiva_sum_change  = (string) ( $mhmrentiva_sum['change_url'] ?? '' );
 ?>
-
-<div class="rv-selected-vehicle rv-card rv-vehicle-summary" data-id="<?php echo esc_attr($vehicle_id); ?>">
-	<div class="rv-sv__media">
-		<?php if ($image_url) : ?>
-			<?php
-			$thumbnail_id = get_post_thumbnail_id($vehicle_id);
-			if ($thumbnail_id) {
-				echo wp_get_attachment_image(
-					$thumbnail_id,
-					'large',
-					false,
-					array(
-						'class'   => 'rv-sv__img',
-						'alt'     => esc_attr($image_alt),
-						'loading' => 'eager',
-					)
-				);
-			} else {
-				echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($image_alt) . '" class="rv-sv__img" loading="eager">';
-			}
-			?>
-		<?php else : ?>
-			<div class="rv-sv__placeholder">
+<div class="rvs-booking__summary" id="<?php echo esc_attr($mhmrentiva_sum_uid . '-summary'); ?>" data-rvs-summary>
+	<?php if (is_array($mhmrentiva_sum_vehicle)) : ?>
+		<div class="rvs-booking__vehicle" data-rvs-summary-vehicle>
+			<div class="rvs-booking__media">
 				<?php
-                Icons::render('car', array(
-					'width'  => '48',
-					'height' => '48',
-					'class'  => 'rv-sv__placeholder-icon',
-				));
-				?>
-			</div>
-		<?php endif; ?>
-
-		<?php if ($show_fav) : ?>
-			<button class="rv-sv__favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
-				data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-				<?php RenderContext::the_nonce_attr_line('mhmrentiva_toggle_favorite'); ?>
-				aria-label="<?php echo esc_attr__('Toggle favorite', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-				<?php Icons::render('heart', array( 'class' => 'rv-heart-icon' )); ?>
-			</button>
-		<?php endif; ?>
-		<?php if ($show_rating && $rating_count > 0) : // An unrated vehicle shows no rating, as on the card. ?>
-			<div class="rv-sv__rating-inline rv-sv__rating-overlay">
-				<span class="rv-sv__rating-star" aria-hidden="true">&#9733;</span>
-				<span class="rv-sv__rating-value"><?php echo esc_html(number_format_i18n( (float) $rating_avg, 1)); ?></span>
-				<span class="rv-sv__rating-count">
-					<?php
-					echo esc_html(
-						sprintf(
-							/* translators: %d: total rating count */
-							__('(%d reviews)', 'mhm-rentiva'),
-							intval($rating_count)
+				$mhmrentiva_sum_image = (array) ( $mhmrentiva_sum_vehicle['image'] ?? array() );
+				if (! empty($mhmrentiva_sum_image['id'])) {
+					echo wp_get_attachment_image(
+						(int) $mhmrentiva_sum_image['id'],
+						'medium_large',
+						false,
+						array(
+							'class'   => 'rvs-booking__img',
+							'alt'     => (string) ( $mhmrentiva_sum_image['alt'] ?? '' ),
+							'loading' => 'eager',
 						)
 					);
-					?>
-				</span>
-			</div>
-		<?php endif; ?>
-
-	</div>
-
-	<div class="rv-sv__content">
-		<div class="rv-sv__top">
-			<?php if ($display_category !== '') : ?>
-				<div class="rv-sv__category"><?php echo esc_html($display_category); ?></div>
-			<?php endif; ?>
-		</div>
-		<div class="rv-sv__title-wrap">
-			<h3 class="rv-sv__title"><?php echo esc_html($display_title); ?></h3>
-		</div>
-
-		<?php
-		// The vehicle's details (seats, transmission, fuel ...) show by default, as
-		// on the card; equipment chips only when show_features asks. Since the
-		// card base split the two (611ac791), this read only the off-by-default
-		// chips, so the booking form lost "5 seats · Manual · Diesel".
-		$summary_items = array_merge(
-			$show_specs ? array_slice($spec_items, 0, 4) : array(),
-			$show_features ? $chip_items : array()
-		);
-		?>
-		<?php if (! empty($summary_items)) : ?>
-			<div class="rv-sv__meta">
-				<?php
-				foreach ($summary_items as $feature) :
-
-					$feature_label = (string) ( $feature['text'] ?? '' );
-					$feature_svg   = isset($feature['svg']) ? (string) $feature['svg'] : '';
-					?>
-					<span class="rv-sv__chip rv-chip" title="<?php echo esc_attr($feature_label); ?>">
-						<?php if ($feature_svg !== '') : ?>
-							<?php echo wp_kses($feature_svg, $allowed_svg_tags); ?>
-						<?php endif; ?>
-						<?php echo esc_html($feature_label); ?>
-					</span>
-					<?php
-				endforeach;
+				} elseif (! empty($mhmrentiva_sum_image['url'])) {
+					echo '<img class="rvs-booking__img" src="' . esc_url( (string) $mhmrentiva_sum_image['url']) . '" alt="' . esc_attr( (string) ( $mhmrentiva_sum_image['alt'] ?? '' )) . '" loading="eager">';
+				}
 				?>
 			</div>
+			<h3 class="rvs-booking__vehicle-title"><?php echo esc_html( (string) ( $mhmrentiva_sum_vehicle['title'] ?? '' )); ?></h3>
+			<?php if ('' !== (string) ( $mhmrentiva_sum_vehicle['specs'] ?? '' )) : ?>
+				<p class="rvs-booking__specs"><?php echo esc_html( (string) $mhmrentiva_sum_vehicle['specs']); ?></p>
+			<?php endif; ?>
+		</div>
+	<?php elseif (! empty($mhmrentiva_sum['pick'])) : ?>
+		<?php // Case B: filled from the chosen <option> (data-image, data-features); hidden until then. ?>
+		<div class="rvs-booking__vehicle" data-rvs-summary-vehicle hidden>
+			<div class="rvs-booking__media">
+				<img class="rvs-booking__img" alt="" data-rvs-summary-image hidden>
+			</div>
+			<h3 class="rvs-booking__vehicle-title" data-rvs-summary-title></h3>
+			<p class="rvs-booking__specs" data-rvs-summary-specs hidden></p>
+		</div>
+	<?php endif; ?>
+
+	<div class="rvs-booking__when">
+		<?php if ('' !== (string) ( $mhmrentiva_sum['location'] ?? '' )) : ?>
+			<p class="rvs-booking__where" data-rvs-summary-location><?php echo esc_html( (string) $mhmrentiva_sum['location']); ?></p>
 		<?php endif; ?>
+		<p class="rvs-booking__dates" data-rvs-summary-dates><?php echo esc_html( (string) ( $mhmrentiva_sum['dates'] ?? '' )); ?></p>
+		<?php if ('' !== $mhmrentiva_sum_change) : ?>
+			<a class="rvs-booking__change" href="<?php echo esc_url($mhmrentiva_sum_change); ?>" data-rvs-change><?php esc_html_e('Change', 'mhm-rentiva'); ?></a>
+		<?php else : ?>
+			<a class="rvs-booking__change" data-rvs-change hidden><?php esc_html_e('Change', 'mhm-rentiva'); ?></a>
+		<?php endif; ?>
+	</div>
+
+	<div class="rvs-booking__breakdown" data-rvs-breakdown>
+		<div class="rvs-booking__daily">
+			<span><?php esc_html_e('Daily Price', 'mhm-rentiva'); ?></span>
+			<span data-rvs-daily><?php echo '' !== (string) ( $mhmrentiva_sum['daily_html'] ?? '' ) ? wp_kses( (string) $mhmrentiva_sum['daily_html'], $mhmrentiva_sum_html) : '-'; ?></span>
+		</div>
 	</div>
 </div>

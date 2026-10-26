@@ -37,16 +37,16 @@ describe( 'booking form pickup_location_id in getFormData()', () => {
 	const build = ( innerFormHtml, outsideHtml = '' ) => {
 		document.body.innerHTML = `
 			${ outsideHtml }
-			<div class="rv-booking-form-wrapper" data-vehicle-id="5">
-				<form class="rv-booking-form-content">
+			<div class="rvs-booking" data-rvs-booking-form data-vehicle-id="5">
+				<form class="rvs-booking__form">
 					${ innerFormHtml }
-					<input class="rv-pickup-date" value="2030-05-10">
-					<input class="rv-dropoff-date" value="2030-05-12">
+					<input name="pickup_date" data-rvs-pickup-date value="2030-05-10">
+					<input name="dropoff_date" data-rvs-dropoff-date value="2030-05-12">
 				</form>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
 		return form;
 	};
 

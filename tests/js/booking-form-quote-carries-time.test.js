@@ -30,17 +30,17 @@ describe( 'booking form quote carries the pickup time', () => {
 
 	test( 'the price request posts the pickup time the submission posts', () => {
 		document.body.innerHTML = `
-			<div class="rv-booking-form-wrapper" data-vehicle-id="5">
-				<form class="rv-booking-form-content">
+			<div class="rvs-booking" data-rvs-booking-form data-vehicle-id="5">
+				<form class="rvs-booking__form">
 					<input type="hidden" name="payment_type" value="full">
-					<input type="text" class="rv-pickup-date" value="2026-11-16">
-					<input type="text" class="rv-dropoff-date" value="2026-11-19">
-					<select class="rv-pickup-time"><option value="00:00" selected>00:00</option></select>
+					<input type="text" name="pickup_date" data-rvs-pickup-date value="2026-11-16">
+					<input type="text" name="dropoff_date" data-rvs-dropoff-date value="2026-11-19">
+					<select name="pickup_time" data-rvs-pickup-time><option value="00:00" selected>00:00</option></select>
 				</form>
 			</div>`;
 		const form = Object.create( BookingForm.prototype );
-		form.container = $( '.rv-booking-form-wrapper' );
-		form.form = form.container.find( '.rv-booking-form-content' );
+		form.container = $( '[data-rvs-booking-form]' );
+		form.form = form.container.find( 'form' );
 		form.showLoading = () => {};
 		form.hideMessages = () => {};
 		form.validateCalculationData = () => true;

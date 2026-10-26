@@ -177,18 +177,35 @@ final class BookingForm extends AbstractShortcode {
 		);
 	}
 
+	/**
+	 * The front-end standard: AbstractShortcode wraps the form in `.rvs-shell`
+	 * and loads the rvs chain; the template's root is `.rvs-booking`.
+	 */
+	protected static bool $rvs_shell = true;
+
+	/**
+	 * Unused: enqueue_assets() loads the rvs chain itself. Kept because the base
+	 * class declares it.
+	 */
 	protected static function get_css_filename(): string
 	{
-		return 'booking-form.css';
+		return '';
 	}
 
+	/**
+	 * No per-shortcode stylesheet: rvs-booking.css comes with the rvs chain
+	 * (AssetManager::enqueue_rvs_booking()). datepicker-custom.css is not loaded
+	 * either -- rvs-booking.css styles the popup while it carries the shell (R6).
+	 */
 	protected static function get_css_files(array $atts = array()): array
 	{
-		// Explicitly define handles to match BlockRegistry and prevent double loading
-		return array(
-			'mhm-rentiva-rentiva-booking-form' => self::get_assets_path() . '/css/frontend/' . self::get_css_filename(),
-			'mhm-rentiva-datepicker-custom'    => self::get_assets_path() . '/css/frontend/datepicker-custom.css',
-		);
+		return array();
+	}
+
+	protected static function enqueue_assets(array $atts = array()): void
+	{
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_booking();
+		parent::enqueue_assets($atts);
 	}
 
 	protected static function get_js_filename(): string
@@ -204,8 +221,27 @@ final class BookingForm extends AbstractShortcode {
 	protected static function get_js_dependencies(): array
 	{
 		// booking-form.js calls MHMRentivaToast.* -- toast.js is only ever
-		// auto-loaded where a consumer's own deps declares it.
-		return array( 'jquery', 'jquery-ui-datepicker', 'mhm-rentiva-toast' ); // jQuery UI DatePicker dependency added
+		// auto-loaded where a consumer's own deps declares it. The add-on
+		// quantity steppers are rvs-stepper.js's.
+		return array( 'jquery', 'jquery-ui-datepicker', 'mhm-rentiva-toast', 'mhm-rentiva-rvs-stepper' );
+	}
+
+	/**
+	 * Never cached (Aşama 2 PR C, m4): the form carries a nonce, the visitor's
+	 * window and the add-ons on sale right now, and the price behind it moves.
+	 * The `mhmrentiva_shortcode_html_cache_enabled` filter is not consulted.
+	 */
+	protected static function is_caching_enabled(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * No cache key either: building one writes the cache version transient.
+	 */
+	protected static function get_cache_key(array $atts): string
+	{
+		return '';
 	}
 
 	protected static function get_localized_data(): array
@@ -258,6 +294,9 @@ final class BookingForm extends AbstractShortcode {
 			'availability_check_failed'             => __('Availability check failed', 'mhm-rentiva'),
 			'select_this_vehicle'                   => __('Select This Vehicle', 'mhm-rentiva'),
 			'total'                                 => __('Total', 'mhm-rentiva'),
+			// The phone's summary band toggle (booking-form.js swaps the label).
+			'show_summary'                          => __('Show summary', 'mhm-rentiva'),
+			'hide_summary'                          => __('Hide summary', 'mhm-rentiva'),
 
 			// Payment messages
 			'redirecting_to_payment'                => __('Redirecting to payment page...', 'mhm-rentiva'),
@@ -304,6 +343,8 @@ final class BookingForm extends AbstractShortcode {
 			'loading'                               => __('Loading...', 'mhm-rentiva'),
 			'calculating'                           => __('Calculating...', 'mhm-rentiva'),
 			'submitting'                            => __('Submitting...', 'mhm-rentiva'),
+			// The submit button's label while a booking is being sent.
+			'processing'                            => __('Processing...', 'mhm-rentiva'),
 			'error_occurred'                        => __('An error occurred', 'mhm-rentiva'),
 			'try_again'                             => __('Please try again', 'mhm-rentiva'),
 			'connection_error'                      => __('Connection error', 'mhm-rentiva'),
@@ -427,65 +468,56 @@ final class BookingForm extends AbstractShortcode {
 		$atts['pickup_location_id']   = $pickup_location_id;
 		$atts['pickup_location_name'] = $pickup_location_name;
 
-		// ⭐ Formatted dates for presentation (WP Global Format)
-		$wp_date_format = get_option('date_format', 'd/m/Y');
+		// The window as ISO dates (Y-m-d), before the fields get the site format:
+		// the summary and the "Change" link speak ISO.
+		$iso_start = self::iso_date( (string) ( $atts['start_date'] ?? '' ));
+		$iso_end   = self::iso_date( (string) ( $atts['end_date'] ?? '' ));
 
-		if (! empty($atts['start_date'])) {
-			// Handle ISO format (2026-01-28) from URL
-			if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $atts['start_date'])) {
-				$date_obj = \DateTime::createFromFormat('Y-m-d', $atts['start_date']);
-				if ($date_obj) {
-					$atts['start_date'] = $date_obj->format($wp_date_format);
-				}
-			} else {
-				// Fallback to strtotime for other potential formats
-				$time = strtotime($atts['start_date']);
-				if ($time) {
-					$atts['start_date'] = date_i18n($wp_date_format, $time);
-				}
+		// Formatted dates for the fields (the datepicker's format is the site's), as
+		// before: an ISO value is reformatted as is, any other one through date_i18n().
+		$wp_date_format = (string) get_option('date_format', 'd/m/Y');
+		foreach (array(
+			'start_date' => $iso_start,
+			'end_date'   => $iso_end,
+		) as $key => $iso) {
+			if ('' === $iso) {
+				continue;
 			}
+			$atts[ $key ] = 1 === preg_match('/^\d{4}-\d{2}-\d{2}$/', trim( (string) $atts[ $key ]))
+				? gmdate($wp_date_format, (int) strtotime($iso . ' 00:00:00 UTC'))
+				: date_i18n($wp_date_format, (int) strtotime($iso . ' 00:00:00 UTC'));
 		}
 
-		if (! empty($atts['end_date'])) {
-			// Handle ISO format (2026-01-29) from URL
-			if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $atts['end_date'])) {
-				$date_obj = \DateTime::createFromFormat('Y-m-d', $atts['end_date']);
-				if ($date_obj) {
-					$atts['end_date'] = $date_obj->format($wp_date_format);
-				}
-			} else {
-				// Fallback to strtotime for other potential formats
-				$time = strtotime($atts['end_date']);
-				if ($time) {
-					$atts['end_date'] = date_i18n($wp_date_format, $time);
-				}
-			}
-		}
-
-		// ⭐ Moved logic from template to controller
 		$user_data         = self::prepare_user_data();
 		$validation_result = self::validate_user_access();
+		$show_addons       = filter_var($atts['show_addons'] ?? '1', FILTER_VALIDATE_BOOLEAN);
+		$form_title        = trim( (string) ( $atts['form_title'] ?? '' ));
 
 		$data = array(
 			'atts'                  => $atts,
+			// Per-instance id prefix: two forms on one page share no id. The form is
+			// never cached (is_caching_enabled()), so the counter cannot freeze.
+			'uid'                   => wp_unique_id('rvs-bf-'),
 			'vehicles'              => array(),
 			'selected_vehicle'      => null,
 			'time_options'          => self::get_time_options(),
 			'addons'                => self::get_available_addons(),
 			'enable_deposit'        => filter_var($atts['enable_deposit'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_vehicle_selector' => filter_var($atts['show_vehicle_selector'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-			'show_addons'           => filter_var($atts['show_addons'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+			'show_addons'           => $show_addons,
 			'show_vehicle_info'     => filter_var($atts['show_vehicle_info'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_time_select'      => filter_var($atts['show_time_select'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'default_days'          => max(0, min(365, (int) ( $atts['default_days'] ?? 0 ))),
-			'form_title'            => (string) ( $atts['form_title'] ?? '' ),
-			// ⭐ User data and validation (moved from template)
+			'form_title'            => $form_title,
+			// The heading: the form's own title, else the journey's.
+			'heading'               => '' !== $form_title ? $form_title : __('Complete your booking', 'mhm-rentiva'),
+			'steps'                 => \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsSteps::items(1),
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,
 			'customer_settings'     => self::get_customer_settings(),
-			'pickup_location_id'    => $atts['pickup_location_id'] ?? 0,
-			'pickup_location_name'  => $atts['pickup_location_name'] ?? '',
-			'prefill_pickup_time'   => $atts['pickup_time'] ?? '',
+			'pickup_location_id'    => (int) ( $atts['pickup_location_id'] ?? 0 ),
+			'pickup_location_name'  => (string) ( $atts['pickup_location_name'] ?? '' ),
+			'prefill_pickup_time'   => (string) ( $atts['pickup_time'] ?? '' ),
 		);
 
 		// Vehicle list
@@ -504,7 +536,167 @@ final class BookingForm extends AbstractShortcode {
 			}
 		}
 
+		// Without a time select the form posts 12:00 both ways (hidden fields), so
+		// the summary names that window, not the time the URL carried.
+		$window_time = $data['show_time_select'] ? $data['prefill_pickup_time'] : '12:00';
+
+		$data['addon_options'] = self::addon_options($data['addons'], $show_addons);
+		$data['summary']       = self::summary_view(
+			$data['selected_vehicle'],
+			$data['show_vehicle_info'],
+			array(
+				'pickup_location' => $data['pickup_location_id'] > 0 ? (string) $data['pickup_location_id'] : '',
+				'pickup_date'     => $iso_start,
+				'pickup_time'     => $window_time,
+				'return_date'     => $iso_end,
+				'return_time'     => $data['show_time_select'] ? (string) $atts['return_time'] : '12:00',
+			),
+			$data['pickup_location_name']
+		);
+
 		return $data;
+	}
+
+	/**
+	 * A date from the URL or the attribute as Y-m-d, or '' when it is not one.
+	 */
+	private static function iso_date(string $value): string
+	{
+		$value = trim($value);
+		if ('' === $value) {
+			return '';
+		}
+		if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+			$date = \DateTime::createFromFormat('!Y-m-d', $value, new \DateTimeZone('UTC'));
+			return $date && $date->format('Y-m-d') === $value ? $value : '';
+		}
+		$time = strtotime($value . ' UTC');
+		return false !== $time ? gmdate('Y-m-d', $time) : '';
+	}
+
+	/**
+	 * The add-ons as the form lists them.
+	 *
+	 * A service the operator marked required is charged on every rental and the
+	 * server refuses a booking without it, so it is listed -- selected and
+	 * locked -- even on a form told to hide the optional ones (show_addons="0").
+	 * Kinds: `locked` (required, sold once: a ticked, disabled box), `locked_qty`
+	 * (required, sold more than once: a stepper from 1), `check` (optional, sold
+	 * once), `qty` (optional, sold more than once: a stepper from 0).
+	 *
+	 * @param array<int, array<string, mixed>> $addons get_available_addons().
+	 * @return list<array{id: int, title: string, desc: string, price_html: string, kind: string, min: int, max: int}>
+	 */
+	private static function addon_options(array $addons, bool $show_optional): array
+	{
+		$options = array();
+		foreach ($addons as $addon) {
+			$required = ! empty($addon['required']);
+			if (! $required && ! $show_optional) {
+				continue;
+			}
+			$max   = max(1, (int) ( $addon['max_quantity'] ?? 1 ));
+			$parts = array();
+			if ($required) {
+				$parts[] = __('Required · included in the rental', 'mhm-rentiva');
+			}
+			$excerpt = trim( (string) ( $addon['description'] ?? '' ));
+			if ('' !== $excerpt) {
+				$parts[] = $excerpt;
+			}
+			if ($max > 1) {
+				/* translators: %d: the most of this add-on one booking can take. */
+				$parts[] = sprintf(__('up to %d', 'mhm-rentiva'), $max);
+				$kind    = $required ? 'locked_qty' : 'qty';
+			} else {
+				$kind = $required ? 'locked' : 'check';
+			}
+
+			$options[] = array(
+				'id'         => (int) $addon['id'],
+				'title'      => (string) $addon['title'],
+				'desc'       => implode(' · ', $parts),
+				'price_html' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( (float) $addon['price'])['html'],
+				'kind'       => $kind,
+				'min'        => $required ? 1 : 0,
+				'max'        => $max,
+			);
+		}
+
+		return $options;
+	}
+
+	/**
+	 * The summary card's data (templates/partials/selected-vehicle-summary.php).
+	 *
+	 * Case A (a vehicle is known): the vehicle -- unless show_vehicle_info is
+	 * off --, the window, the "Change" link back to the vehicle page and the
+	 * daily price. Case B: an empty vehicle frame (`pick`) the script fills from
+	 * the chosen option; no link until then.
+	 *
+	 * @param array<string, mixed>|null $vehicle prepare_selected_vehicle().
+	 * @param array<string, string>     $window  Logical keys, ISO dates.
+	 * @return array<string, mixed>
+	 */
+	private static function summary_view(?array $vehicle, bool $show_vehicle_info, array $window, string $location_name): array
+	{
+		$vehicle_id = (int) ( $vehicle['id'] ?? 0 );
+		$card       = null;
+		if (null !== $vehicle && $vehicle_id > 0 && $show_vehicle_info) {
+			$view = \MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView::from_vehicle($vehicle, array( 'image_size' => 'medium_large' ), $window);
+			$card = array(
+				'title' => (string) $view['title'],
+				'image' => (array) $view['image'],
+				'specs' => (string) $view['specs'],
+			);
+		}
+
+		// The raw meta the booking calculation reads: the card's price helper turns
+		// a missing price into a placeholder the calculation never uses.
+		$daily = $vehicle_id > 0 ? (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) : 0.0;
+
+		return array(
+			'vehicle'    => $card,
+			'pick'       => 0 === $vehicle_id && $show_vehicle_info,
+			'location'   => $location_name,
+			'dates'      => self::window_text($window),
+			'change_url' => $vehicle_id > 0 ? \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window) : '',
+			'daily_html' => $daily > 0 ? \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($daily)['html'] : '',
+		);
+	}
+
+	/**
+	 * "6 November 2026 10:00 → 9 November 2026 10:00 · 3 days", or '' without
+	 * both dates. Days are counted the way the booking counts them.
+	 *
+	 * @param array<string, string> $window Logical keys, ISO dates.
+	 */
+	private static function window_text(array $window): string
+	{
+		$start = (string) ( $window['pickup_date'] ?? '' );
+		$end   = (string) ( $window['return_date'] ?? '' );
+		if ('' === $start || '' === $end) {
+			return '';
+		}
+
+		$format = (string) get_option('date_format', 'Y-m-d');
+		$time   = (string) ( $window['pickup_time'] ?? '' );
+		$time   = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
+		$from   = date_i18n($format, (int) strtotime($start . ' 00:00:00 UTC')) . ( '' !== $time ? ' ' . $time : '' );
+		$to     = date_i18n($format, (int) strtotime($end . ' 00:00:00 UTC')) . ( '' !== $time ? ' ' . $time : '' );
+		$text   = $from . ' → ' . $to;
+
+		$at     = '' !== $time ? $time : '10:00';
+		$parsed = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($start, $at, $end, $at);
+		if (! is_wp_error($parsed)) {
+			$days = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days( (int) $parsed['start_ts'], (int) $parsed['end_ts']);
+			if ($days > 0) {
+				/* translators: %d: number of rental days. */
+				$text .= ' · ' . sprintf(_n('%d day', '%d days', $days, 'mhm-rentiva'), $days);
+			}
+		}
+
+		return $text;
 	}
 
 	/**
@@ -652,12 +844,13 @@ final class BookingForm extends AbstractShortcode {
 				continue;
 			}
 
-			$raw_features   = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($vehicle->ID, 0);
-			$feature_labels = array_values( array_map( fn( $f ) => (string) ( $f['text'] ?? '' ), $raw_features ) );
+			$feature_labels = self::feature_labels( (int) $vehicle->ID);
 
 			$result[] = array(
 				'id'             => $vehicle->ID,
 				'title'          => $vehicle->post_title,
+				// The summary's "Change" link for this choice (booking-form.js adds the window).
+				'permalink'      => (string) get_permalink($vehicle->ID),
 				'price_per_day'  => (string) get_post_meta($vehicle->ID, '_mhmrentiva_price_per_day', true),
 				'category_name'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_category($vehicle->ID),
 				'featured_image' => get_the_post_thumbnail_url($vehicle->ID, 'large'),
@@ -957,25 +1150,9 @@ final class BookingForm extends AbstractShortcode {
 			// for a day it did not pay for. The posted value is not read.
 			$dropoff_time = self::return_time($pickup_time);
 
-			$guests             = max(1, $req->int('guests', 1));
-			$pickup_location_id = $req->int('pickup_location_id');
-			if ($pickup_location_id > 0) {
-				// Validate submitted location ID against active rental locations.
-				// Locations come from an add-on via the filter: without one there is
-				// nothing to validate against, so a submitted ID (only reachable by
-				// hand-crafting the request, since Lite renders no location picker)
-				// is rejected rather than trusted.
-				$valid_location = false;
-				foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
-					if ( (int) $loc->id === $pickup_location_id) {
-						$valid_location = true;
-						break;
-					}
-				}
-				if (! $valid_location) {
-					$pickup_location_id = 0;
-				}
-			}
+			$guests = max(1, $req->int('guests', 1));
+			// Only an active rental location (see valid_pickup_location()).
+			$pickup_location_id = self::valid_pickup_location($req->int('pickup_location_id'));
 
 			// ⭐ WooCommerce Integration: Customer information is optional
 			// WooCommerce checkout will collect customer information
@@ -1433,7 +1610,16 @@ final class BookingForm extends AbstractShortcode {
 					'weekend_extra' => \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart( $quote->weekend_surcharge ),
 				),
 				'is_weekend'            => $day_of_week >= 6,
+				// The summary's breakdown, rendered by the shared partial from the
+				// same quote (Aşama 2 PR C). The fields above stay for older scripts.
+				'breakdown_html'        => self::breakdown_html($req, $vehicle_id, $days, $start_ts, $selection, $deposit_result),
 			);
+
+			// Display only: the summary's window line and its "Change" link for
+			// the window this quote is for, built as the template builds them.
+			$window                       = self::quote_window($req, $pickup_date, $dropoff_date);
+			$response_data['window_text'] = self::window_text($window);
+			$response_data['change_url']  = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window);
 
 			return self::succeeded($response_data);
 		} catch (\InvalidArgumentException $e) {
@@ -1441,6 +1627,115 @@ final class BookingForm extends AbstractShortcode {
 		} catch (\Exception $e) {
 			return self::failed(self::safe_message($e));
 		}
+	}
+
+	/**
+	 * A quote request's window in the logical keys summary_view() uses: ISO
+	 * dates, the posted pickup time ('' when none was chosen) with the return
+	 * time the server applies, and the pickup location when it is a valid one.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function quote_window(VerifiedRequest $req, string $pickup_date, string $dropoff_date): array
+	{
+		$time     = $req->text('pickup_time', '');
+		$time     = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
+		$location = self::valid_pickup_location($req->int('pickup_location_id'));
+
+		return array(
+			'pickup_location' => $location > 0 ? (string) $location : '',
+			'pickup_date'     => $pickup_date,
+			'pickup_time'     => $time,
+			'return_date'     => $dropoff_date,
+			'return_time'     => '' !== $time ? self::return_time($time) : '',
+		);
+	}
+
+	/**
+	 * A posted pickup location id when it names an active rental location, else 0.
+	 *
+	 * Locations come from an add-on via the filter: without one there is nothing
+	 * to validate against, so a posted id (only reachable by hand-crafting the
+	 * request, since Lite renders no location picker) is rejected, not trusted.
+	 */
+	private static function valid_pickup_location(int $location_id): int
+	{
+		if ($location_id <= 0) {
+			return 0;
+		}
+		foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
+			if ( (int) $loc->id === $location_id) {
+				return $location_id;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * A vehicle's feature labels (VehicleFeatureHelper via VehiclesList), as the
+	 * vehicle select's data-features carries them.
+	 *
+	 * @return list<string>
+	 */
+	private static function feature_labels(int $vehicle_id): array
+	{
+		$raw = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($vehicle_id, 0);
+		return array_values(array_map(fn($f) => (string) ( $f['text'] ?? '' ), $raw));
+	}
+
+	/**
+	 * The quote's breakdown as the summary shows it (partials/rvs/breakdown.php).
+	 *
+	 * Rows from RentalPricing with one line per add-on ("Child seat × 2",
+	 * AddonManager::line_label()). The deposit and due-at-pickup rows appear only
+	 * when the deposit splits the total -- a rate strictly between 0 and 100 on a
+	 * deposit quote (R7) -- and never on a form with enable_deposit="0". That flag
+	 * is display only: the charge and the answer's deposit fields do not read it.
+	 *
+	 * @param array<string, mixed> $deposit_result DepositCalculator::calculate_booking_deposit().
+	 */
+	private static function breakdown_html(VerifiedRequest $req, int $vehicle_id, int $days, int $start_ts, \MHMRentiva\Admin\Addons\AddonSelection $selection, array $deposit_result): string
+	{
+		$ids   = $selection->ids();
+		$quote = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($vehicle_id, $days, $start_ts, $ids, $selection->quantities());
+
+		$addon_lines = array();
+		$details     = \MHMRentiva\Admin\Addons\AddonManager::build_addon_details(
+			$ids,
+			array(
+				'rental_days'      => $days,
+				'addon_quantities' => $selection->quantities(),
+			)
+		);
+		foreach ($details as $row) {
+			$addon_lines[] = array(
+				'label'  => \MHMRentiva\Admin\Addons\AddonManager::line_label($row),
+				'amount' => (float) $row['line_total'],
+			);
+		}
+
+		$rate         = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::resolve_rate($vehicle_id);
+		$show_deposit = '0' !== $req->text('enable_deposit', '1')
+			&& 'deposit' === ( $deposit_result['payment_type'] ?? '' )
+			&& $rate > 0
+			&& $rate < 100;
+
+		$breakdown = \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsBreakdown::from_quote(
+			$quote,
+			$show_deposit ? (float) $deposit_result['deposit_amount'] : 0.0,
+			$addon_lines,
+			$show_deposit ? $rate : 0.0
+		);
+
+		return (string) Templates::render(
+			'partials/rvs/breakdown',
+			array(
+				'breakdown'   => $breakdown,
+				'collapsible' => false,
+			),
+			true
+		);
 	}
 
 	/**
@@ -1592,6 +1887,24 @@ final class BookingForm extends AbstractShortcode {
 				$dropoff_date,
 				$dropoff_time
 			);
+
+			// Each suggestion carries its vehicle page with this window: picking one
+			// moves the summary's "Change" link there (booking-form.js).
+			if (! empty($result['alternatives']) && is_array($result['alternatives'])) {
+				$window = array(
+					'pickup_date' => $pickup_date,
+					'pickup_time' => $pickup_time,
+					'return_date' => $dropoff_date,
+					'return_time' => $dropoff_time,
+				);
+				foreach ($result['alternatives'] as $index => $alternative) {
+					$alt_id                                        = (int) ( $alternative['id'] ?? 0 );
+					$result['alternatives'][ $index ]['permalink'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($alt_id, $window);
+					// The rvs card's own specs line (seats · transmission · fuel, translated;
+					// else the first three features), as every other card shows it.
+					$result['alternatives'][ $index ]['specs'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView::specs($alt_id, \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($alt_id, 3));
+				}
+			}
 
 			return $result['ok'] ? self::succeeded($result) : self::refused($result);
 		} catch (\InvalidArgumentException $e) {
