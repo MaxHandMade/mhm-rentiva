@@ -327,6 +327,16 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertFileDoesNotExist(dirname(__DIR__, 3) . '/assets/css/frontend/booking-form.css');
 	}
 
+	public function test_mobile_summary_band_is_pinned_to_the_bottom_only(): void
+	{
+		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/rvs-booking.css');
+		$this->assertSame(1, preg_match('/@media \(max-width: 768px\) \{.*?\.rvs-booking__aside \{(?<rule>[^}]*)\}/s', $css, $m), 'Mobile aside rule not found.');
+		$this->assertStringContainsString('position: fixed;', $m['rule']);
+		$this->assertStringContainsString('top: auto;', $m['rule'], 'The sticky rule top must not leak into the fixed band.');
+		$this->assertStringContainsString('bottom: 0;', $m['rule']);
+		$this->assertMatchesRegularExpression('/padding-bottom: 72px;/', $css, 'The form leaves room for the collapsed band.');
+	}
+
 	// ------------------------------------------------------------ helpers
 
 	/**

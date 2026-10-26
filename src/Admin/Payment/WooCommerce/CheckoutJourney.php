@@ -206,8 +206,7 @@ final class CheckoutJourney {
 		Templates::render(
 			'partials/rvs/steps',
 			array(
-				'items'   => RvsSteps::items($step),
-				'compact' => true,
+				'items' => RvsSteps::items($step),
 			)
 		);
 		Templates::render('partials/rvs/journey-summary', $summary_vars);

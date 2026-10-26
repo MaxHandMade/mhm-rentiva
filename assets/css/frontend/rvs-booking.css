@@ -291,8 +291,8 @@
 	.rvs-shell .rvs-booking {
 		gap: var(--rvs-s6);
 		padding-top: var(--rvs-s4);
-		/* Room for the fixed band. */
-		padding-bottom: 104px;
+		/* Room for the fixed band (its collapsed height). */
+		padding-bottom: 72px;
 	}
 
 	.rvs-shell .rvs-booking__title {
@@ -305,6 +305,8 @@
 
 	.rvs-shell .rvs-booking__aside {
 		position: fixed;
+		/* The desktop sticky rule's top must not leak into the fixed band. */
+		top: auto;
 		right: 0;
 		bottom: 0;
 		left: 0;
@@ -318,7 +320,7 @@
 	/* Collapsed: total, deposit and submit. Open: the whole summary above them. */
 	.rvs-shell .rvs-booking__summary {
 		display: none;
-		max-height: calc(85vh - 72px);
+		max-height: min(70vh, calc(85vh - 72px));
 		overflow-y: auto;
 		padding-bottom: var(--rvs-s3);
 		border-bottom: 1px solid var(--rvs-line);

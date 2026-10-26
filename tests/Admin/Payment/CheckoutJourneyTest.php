@@ -249,6 +249,7 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('rvs-shell', $html);
 		$this->assertSame(2, self::current_step($html), 'The checkout is step 2.');
+		$this->assertStringNotContainsString('rvs-steps--compact', $html, 'The journey shows the full step bar on desktop, like the form.');
 		$this->assertStringContainsString('Fiat Egea', $text);
 		$this->assertStringContainsString('3 days', $text);
 		$this->assertStringContainsString('Child seat × 2', $text);

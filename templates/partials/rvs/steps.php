@@ -8,7 +8,7 @@
  * progress bar under it. rvs-forms.css switches between them.
  *
  * @var list<array{num: int, label: string, state: string}> $items   RvsSteps::items().
- * @var bool                                                $compact The compact layout at every width (checkout, thank-you page).
+ * @var bool                                                $compact The compact layout at every width (no caller sets it today).
  */
 
 declare(strict_types=1);
