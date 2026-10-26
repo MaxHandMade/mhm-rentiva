@@ -218,6 +218,8 @@ final class BookingForm extends AbstractShortcode {
 			// quotes AND the booking submit, so the quotes are refused there too.
 			'nonce'              => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_booking_form_nonce'), // Correct nonce
 			'strings'            => self::get_localized_strings(),
+			// The site's current date (Y-m-d): client-side date limits start here, not at the browser's clock.
+			'siteToday'          => \MHMRentiva\Admin\Booking\Helpers\SiteTime::today(),
 			'config'             => self::get_js_config(),
 			'datepicker_options' => self::get_datepicker_options(),
 			// Alternative-vehicle cards fall back to this when a suggested
@@ -1396,9 +1398,8 @@ final class BookingForm extends AbstractShortcode {
 			$currency_symbol   = CurrencyHelper::get_currency_symbol();
 			$currency_position = CurrencyHelper::get_currency_position();
 
-			// Check whether pickup falls on an ISO-8601 weekend day.
-			$pickup_datetime = new \DateTime($pickup_date);
-			$day_of_week     = (int) $pickup_datetime->format('N');
+			// Check whether pickup falls on an ISO-8601 weekend day (site timezone).
+			$day_of_week = \MHMRentiva\Admin\Booking\Helpers\SiteTime::weekday($start_ts);
 
 			$response_data = array(
 				'vehicle_price'         => $vehicle_price,
@@ -1502,9 +1503,9 @@ final class BookingForm extends AbstractShortcode {
 			$deadline_minutes = 5;
 		}
 
-		// Calculate the deadline in the site's configured timezone.
-		$deadline = current_datetime()->modify("+{$deadline_minutes} minutes");
-		return $deadline->format('Y-m-d H:i:s');
+		// Stored as GMT -- the one shape every reader of the meta assumes;
+		// displays convert with get_date_from_gmt().
+		return \MHMRentiva\Admin\Booking\Helpers\SiteTime::gmt_mysql( time() + ( $deadline_minutes * 60 ) );
 	}
 
 	/**

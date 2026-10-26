@@ -125,7 +125,9 @@ final class VehicleDetailsView {
 	{
 		$first = \DateTimeImmutable::createFromFormat('!Y-m-d', $from, new \DateTimeZone('UTC'));
 		if (false === $first) {
-			$first = new \DateTimeImmutable('first day of this month', new \DateTimeZone('UTC'));
+			// The site's current month (a UTC "this month" opened the previous
+			// month on a month's last evening east of UTC).
+			$first = new \DateTimeImmutable(\MHMRentiva\Admin\Booking\Helpers\SiteTime::month_start(), new \DateTimeZone('UTC'));
 		}
 		$first  = $first->modify('first day of this month');
 		$second = $first->modify('+1 month');

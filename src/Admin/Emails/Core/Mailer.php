@@ -400,7 +400,7 @@ final class Mailer {
 				'payment_method'   => $payment_method,
 				'deposit_amount'   => $deposit_amount,
 				'remaining_amount' => $remaining_amount,
-				'payment_deadline' => $payment_deadline,
+				'payment_deadline' => $payment_deadline ? get_date_from_gmt( (string) $payment_deadline ) : '',
 			),
 			'customer' => array(
 				'name'       => $customer_info['first_name'] . ' ' . $customer_info['last_name'],

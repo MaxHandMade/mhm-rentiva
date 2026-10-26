@@ -350,7 +350,7 @@ final class DepositCalculator {
 			'deposit_amount'   => $deposit_amount,
 			'total_amount'     => $total_amount,
 			'remaining_amount' => $remaining_amount,
-			'payment_deadline' => $payment_deadline,
+			'payment_deadline' => $payment_deadline ? get_date_from_gmt( (string) $payment_deadline ) : '',
 			'is_paid'          => $remaining_amount <= 0,
 			'is_deposit_paid'  => $deposit_amount > 0 && $payment_type === 'deposit',
 		);

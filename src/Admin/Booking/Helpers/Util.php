@@ -45,15 +45,11 @@ final class Util {
 				throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
 			}
 
-			// ⭐ GLOBAL FIX: Use WordPress timezone for interpretation
-			$tz         = wp_timezone();
-			$pickup_dt  = new \DateTime($pickup_date . ' ' . $pickup_time, $tz);
-			$dropoff_dt = new \DateTime($dropoff_date . ' ' . $dropoff_time, $tz);
+			// Local wall time in the site timezone -> the real instant.
+			$start_ts = SiteTime::instant($pickup_date, $pickup_time);
+			$end_ts   = SiteTime::instant($dropoff_date, $dropoff_time);
 
-			$start_ts = $pickup_dt->getTimestamp();
-			$end_ts   = $dropoff_dt->getTimestamp();
-
-			if ($start_ts === false || $end_ts === false) {
+			if (null === $start_ts || null === $end_ts) {
 				throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
 			}
 
@@ -72,25 +68,12 @@ final class Util {
 	}
 
 	/**
-	 * Calculates rental days
+	 * Calculates rental days: whole local calendar days (site timezone), at
+	 * least 1. See SiteTime::rental_days().
 	 */
 	public static function rental_days(int $start_ts, int $end_ts): int
 	{
-		// Convert Unix timestamps to DateTime objects
-		$start_date = new \DateTime();
-		$start_date->setTimestamp($start_ts);
-
-		$end_date = new \DateTime();
-		$end_date->setTimestamp($end_ts);
-
-		// Calculate date difference
-		$interval = $start_date->diff($end_date);
-
-		// Get number of days (only days, ignore hours)
-		$days = $interval->days;
-
-		// Minimum 1 day
-		return max(1, $days);
+		return SiteTime::rental_days($start_ts, $end_ts);
 	}
 
 	/**
@@ -174,13 +157,13 @@ final class Util {
 		// ⚡ Optimized: direct SQL query for faster checks
 		global $wpdb;
 
-		// ⭐ TIMEZONE SYNC: Ensure MySQL and PHP are using the same timezone offset
-		$gmt_offset    = (float) get_option('gmt_offset');
-		$offset_string = ( $gmt_offset >= 0 ? '+' : '-' ) . sprintf('%02d:%02d', abs( (int) $gmt_offset), abs(( $gmt_offset - (int) $gmt_offset ) * 60));
-		$wpdb->query($wpdb->prepare('SET time_zone = %s', $offset_string));
-
-		$current_time_local = current_time('mysql');
-		$current_time_gmt   = current_time('mysql', 1);
+		// Rows without stored timestamps are read in the site's zone. The
+		// offset goes into each CONVERT_TZ() rather than into the session:
+		// UNIX_TIMESTAMP(datetime) would read its argument in whatever zone
+		// the connection happens to be in, and changing the session's zone
+		// outlives this query. A fixed offset ignores DST for those old rows, as it always did.
+		$site_offset      = SiteTime::offset_string();
+		$current_time_gmt = current_time('mysql', 1);
 
 		// ⭐ Get buffer time (default 60 minutes) and convert to seconds
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
@@ -220,16 +203,16 @@ final class Util {
                     pm_status.meta_value = 'completed'
                     AND COALESCE(
                         CAST(pm_ts_e.meta_value AS UNSIGNED),
-                        UNIX_TIMESTAMP(CONCAT(pm_date_e.meta_value, ' ', COALESCE(NULLIF(pm_time_e.meta_value, ''), '23:59:59')))
-                    ) > UNIX_TIMESTAMP(NOW())
+                        TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_e.meta_value, ' ', COALESCE(NULLIF(pm_time_e.meta_value, ''), '23:59:59')), %s, '+00:00'))
+                    ) > UNIX_TIMESTAMP()
                 )
             )
             AND (
                 -- Symmetrical Overlap Logic: (StartA < EndB + Buffer) AND (StartB < EndA + Buffer)
                 -- This ensures buffer time is respected BOTH ways regardless of order
-                COALESCE(CAST(pm_ts_s.meta_value AS UNSIGNED), UNIX_TIMESTAMP(CONCAT(pm_date_s.meta_value, ' ', COALESCE(pm_time_s.meta_value, '10:00')))) < (%d + %d)
+                COALESCE(CAST(pm_ts_s.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_s.meta_value, ' ', COALESCE(pm_time_s.meta_value, '10:00')), %s, '+00:00'))) < (%d + %d)
                 AND
-                %d < (COALESCE(CAST(pm_ts_e.meta_value AS UNSIGNED), UNIX_TIMESTAMP(CONCAT(pm_date_e.meta_value, ' ', COALESCE(pm_time_e.meta_value, '10:00')))) + %d)
+                %d < (COALESCE(CAST(pm_ts_e.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_e.meta_value, ' ', COALESCE(pm_time_e.meta_value, '10:00')), %s, '+00:00'))) + %d)
             )
             AND (
                 pm_status.meta_value NOT IN ('pending_payment', 'pending') OR
@@ -239,9 +222,12 @@ final class Util {
             )
         ",
 				$vehicle_id,
+				$site_offset,     // %s (completed: dropoff fallback)
+				$site_offset,     // %s (pickup fallback)
 				$end_ts,          // %d (REQ_End)
 				$buffer_seconds,   // %d (Buffer for End)
 				$start_ts,        // %d (REQ_Start)
+				$site_offset,     // %s (dropoff fallback)
 				$buffer_seconds,   // %d (Buffer for Start)
 				$current_time_gmt // %s (Deadline)
 			)
@@ -307,11 +293,9 @@ final class Util {
 		// ⭐ Exclude pending bookings with expired payment deadline
 
 		// BUFFER TIME
-		// ⭐ TIMEZONE SYNC
-		$gmt_offset    = (float) get_option('gmt_offset');
-		$offset_string = ( $gmt_offset >= 0 ? '+' : '-' ) . sprintf('%02d:%02d', abs( (int) $gmt_offset), abs(( $gmt_offset - (int) $gmt_offset ) * 60));
-		$wpdb->query($wpdb->prepare('SET time_zone = %s', $offset_string));
-
+		// Dateless rows: site offset per CONVERT_TZ(), never the session (see
+		// has_overlap()).
+		$site_offset      = SiteTime::offset_string();
 		$current_time_gmt = current_time('mysql', 1);
 
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
@@ -344,9 +328,9 @@ final class Util {
              AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
              AND (
                  -- Symmetrical Overlap Logic
-                 COALESCE(CAST(pm_ts_s.meta_value AS UNSIGNED), UNIX_TIMESTAMP(CONCAT(pm_date_s.meta_value, ' ', COALESCE(pm_time_s.meta_value, '10:00')))) < (%d + %d)
+                 COALESCE(CAST(pm_ts_s.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_s.meta_value, ' ', COALESCE(pm_time_s.meta_value, '10:00')), %s, '+00:00'))) < (%d + %d)
                  AND
-                 %d < (COALESCE(CAST(pm_ts_e.meta_value AS UNSIGNED), UNIX_TIMESTAMP(CONCAT(pm_date_e.meta_value, ' ', COALESCE(pm_time_e.meta_value, '10:00')))) + %d)
+                 %d < (COALESCE(CAST(pm_ts_e.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_e.meta_value, ' ', COALESCE(pm_time_e.meta_value, '10:00')), %s, '+00:00'))) + %d)
              )
              AND (
                  pm_status.meta_value NOT IN ('pending_payment', 'pending') OR
@@ -356,9 +340,11 @@ final class Util {
              )",
 				$exclude_booking_id, // 0 excludes nothing: post IDs start at 1.
 				$vehicle_id,
+				$site_offset,        // pickup fallback
 				$end_ts,
 				$buffer_seconds,
 				$start_ts,
+				$site_offset,        // dropoff fallback
 				$buffer_seconds,
 				$current_time_gmt
 			)

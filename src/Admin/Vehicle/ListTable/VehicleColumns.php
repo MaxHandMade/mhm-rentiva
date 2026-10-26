@@ -1246,8 +1246,11 @@ final class VehicleColumns {
 		$maintenance_this_month = (int) ( $vehicle_stats->maintenance_this_month ?? 0 );
 
 		// Calculate reserved vehicles for current month (similar to dashboard logic)
-		$current_month_start = gmdate('Y-m-01 00:00:00');
-		$current_month_end   = gmdate('Y-m-t 23:59:59');
+		// The site's month, so it agrees with the site's "today" used for
+		// occupancy below.
+		$local_month         = new \DateTimeImmutable(\MHMRentiva\Admin\Booking\Helpers\SiteTime::month_start());
+		$current_month_start = $local_month->format('Y-m-01 00:00:00');
+		$current_month_end   = $local_month->format('Y-m-t 23:59:59');
 		$month_start_ts      = strtotime($current_month_start);
 		$month_end_ts        = strtotime($current_month_end);
 
@@ -1352,9 +1355,11 @@ final class VehicleColumns {
 			}
 		}
 		// Occupancy rate: booked vehicle-days / (total_vehicles x elapsed days this month)
-		$today             = gmdate('Y-m-d');
+		// The site's today; its date string is then handled as a calendar
+		// date, like the booking date strings it is compared with.
+		$today             = \MHMRentiva\Admin\Booking\Helpers\SiteTime::today();
 		$today_ts          = strtotime($today);
-		$elapsed_days      = (int) gmdate('j');
+		$elapsed_days      = (int) substr($today, 8, 2);
 		$booked_days_total = 0;
 
 		if ($bookings && $total_vehicles > 0) {
@@ -1444,13 +1449,15 @@ final class VehicleColumns {
 		// BookingColumns::add_booking_calendar() used (both Calendar faces
 		// converged on it) — the vehicles-only hardcoded 2020-2030 rule dies
 		// with the old renderer.
-		$current_month = self::get_query_int('mhmrentiva_month', (int) gmdate('n'));
-		$current_year  = self::get_query_int('mhmrentiva_year', (int) gmdate('Y'));
+		$today         = \MHMRentiva\Admin\Booking\Helpers\SiteTime::today();
+		$this_month    = (int) substr($today, 5, 2);
+		$this_year     = (int) substr($today, 0, 4);
+		$current_month = self::get_query_int('mhmrentiva_month', $this_month);
+		$current_year  = self::get_query_int('mhmrentiva_year', $this_year);
 
 		if ($current_month < 1 || $current_month > 12) {
-			$current_month = (int) gmdate('n');
+			$current_month = $this_month;
 		}
-		$this_year = (int) gmdate('Y');
 		if ($current_year < ( $this_year - 10 ) || $current_year > ( $this_year + 10 )) {
 			$current_year = $this_year;
 		}

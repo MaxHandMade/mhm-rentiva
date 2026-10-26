@@ -30,7 +30,7 @@ final class ElementorCssClear470Test extends WP_UnitTestCase
 
 		DatabaseMigrator::run_migrations();
 
-		$this->assertSame('4.7.0', get_option('mhmrentiva_db_version'));
+		$this->assertSame('4.8.0', get_option('mhmrentiva_db_version'));
 		$this->assertSame('1', get_option(ElementorStyleIdMigration::PENDING_OPTION));
 		$this->assertFalse(get_option(ElementorStyleIdMigration::ATTEMPTS_OPTION), 'A fresh queue resets the attempt counter.');
 	}

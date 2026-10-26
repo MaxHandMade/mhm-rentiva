@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Booking\Pricing;
 
 use MHMRentiva\Admin\Addons\AddonPricingCalculator;
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
@@ -23,8 +24,9 @@ if (! defined('ABSPATH')) {
  * recalculation, availability -- now reaches this computation.
  *
  * Per day: daily price x base multiplier x season multiplier, then x weekend
- * multiplier on Saturdays and Sundays. Weekdays are evaluated in UTC, which is
- * what both previous engines did.
+ * multiplier on Saturdays and Sundays. Days -- weekday and season alike -- are
+ * the local calendar days in the site timezone (`wp_timezone()`), counted from
+ * the pickup's local date.
  */
 final class RentalPricing {
 
@@ -73,9 +75,12 @@ final class RentalPricing {
 		$surcharge    = 0.0;
 		$weekend_days = 0;
 
+		$dates         = $start_ts > 0 ? SiteTime::days_from($start_ts, $days) : array();
+		$first_weekday = $start_ts > 0 ? SiteTime::weekday($start_ts) : 0;
+
 		for ($i = 0; $i < $days; $i++) {
-			$day_ts   = $start_ts > 0 ? $start_ts + ( $i * DAY_IN_SECONDS ) : 0;
-			$date     = $day_ts > 0 ? gmdate('Y-m-d', $day_ts) : '';
+			$date     = $dates[ $i ] ?? '';
+			$weekday  = '' !== $date ? ( ( $first_weekday - 1 + $i ) % 7 ) + 1 : 0;
 			$standard = $daily_price;
 
 			if ($seasonal_enabled && '' !== $date) {
@@ -83,7 +88,7 @@ final class RentalPricing {
 			}
 
 			$extra = 0.0;
-			if ('' !== $date && $weekend_multiplier > 1.0 && (int) gmdate('N', $day_ts) >= 6) {
+			if ($weekday >= 6 && $weekend_multiplier > 1.0) {
 				$extra = ( $standard * $weekend_multiplier ) - $standard;
 				++$weekend_days;
 			}

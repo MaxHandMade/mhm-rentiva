@@ -70,13 +70,26 @@
 
 		setupDateDefaults: function () {
 			// Bugünün tarihini alış tarihi olarak ayarla
-			const today = new Date().toISOString().split( 'T' )[0];
+			// "Today" is the site's today (localized), not the browser's UTC date.
+			const today = ManualBooking.siteToday();
 			$( '#mhmrentiva_manual_pickup_date' ).val( today );
 
 			// Yarının tarihini teslim tarihi olarak ayarla
-			const tomorrow = new Date();
-			tomorrow.setDate( tomorrow.getDate() + 1 );
-			$( '#mhmrentiva_manual_dropoff_date' ).val( tomorrow.toISOString().split( 'T' )[0] );
+			$( '#mhmrentiva_manual_dropoff_date' ).val( ManualBooking.addDays( today, 1 ) );
+		},
+
+		// Calendar arithmetic on a Y-m-d string (UTC, so no DST or local-zone drift).
+		addDays: function ( iso, n ) {
+			const parts = iso.split( '-' ).map( Number );
+			return new Date( Date.UTC( parts[0], parts[1] - 1, parts[2] + n ) ).toISOString().slice( 0, 10 );
+		},
+
+		siteToday: function () {
+			if ( typeof mhmManualBooking !== 'undefined' && mhmManualBooking.siteToday ) {
+				return mhmManualBooking.siteToday;
+			}
+			const now = new Date();
+			return now.getFullYear() + '-' + String( now.getMonth() + 1 ).padStart( 2, '0' ) + '-' + String( now.getDate() ).padStart( 2, '0' );
 		},
 
 		onVehicleChange: function () {

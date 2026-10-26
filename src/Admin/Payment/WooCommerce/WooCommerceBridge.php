@@ -278,18 +278,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Convert date and time strings to timestamp
+	 * Local date and time (site timezone) as the real instant.
 	 *
 	 * @param string $date Date string (Y-m-d format)
-	 * @param string $time Time string (H:i format, optional)
+	 * @param string $time Time string (H:i format, optional; empty = 00:00)
 	 * @return int|null Timestamp or null on failure
 	 */
 	private static function parse_datetime_to_timestamp(string $date, string $time = ''): ?int
 	{
-		$datetime  = trim($date . ' ' . $time);
-		$timestamp = strtotime($datetime);
+		$time = trim($time);
 
-		return $timestamp !== false ? $timestamp : null;
+		return \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant(trim($date), '' === $time ? '00:00' : $time);
 	}
 
 	/**
@@ -2093,7 +2092,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Get payment deadline for auto-cancellation
 	 *
-	 * @return string Payment deadline in 'Y-m-d H:i:s' format (WordPress timezone)
+	 * @return string Payment deadline in 'Y-m-d H:i:s' format (GMT)
 	 */
 	private static function get_payment_deadline(): string
 	{
@@ -2101,7 +2100,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return \MHMRentiva\Admin\Booking\Core\Handler::get_payment_deadline();
 		}
 
-		// Fallback if Handler not available (should rare)
+		return self::fallback_payment_deadline();
+	}
+
+	/**
+	 * Fallback when Handler is not available (should be rare): GMT, like Handler.
+	 *
+	 * @return string Payment deadline in 'Y-m-d H:i:s' format (GMT)
+	 */
+	private static function fallback_payment_deadline(): string
+	{
 		// Get payment deadline minutes from settings (default: 30 minutes)
 		$deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
 			'mhmrentiva_booking_payment_deadline_minutes',
@@ -2113,11 +2121,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$deadline_minutes = 5;
 		}
 
-		// ⭐ Use current_time() instead of date() to match WordPress timezone
-		// This ensures consistency with AutoCancel which uses current_time('mysql')
-		$current_timestamp  = current_time('timestamp');
-		$deadline_timestamp = $current_timestamp + ( $deadline_minutes * 60 );
-		return gmdate('Y-m-d H:i:s', $deadline_timestamp);
+		// GMT, like Handler::get_payment_deadline() and every reader of the meta.
+		return gmdate('Y-m-d H:i:s', time() + ( $deadline_minutes * 60 ));
 	}
 
 	/**
@@ -2289,8 +2294,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// Check for overlap (locked check for real-time availability)
 				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
 					$vehicle_title = get_the_title($vehicle_id);
-					$pickup_date   = date_i18n(get_option('date_format'), $start_ts);
-					$dropoff_date  = date_i18n(get_option('date_format'), $end_ts);
+					$pickup_date   = wp_date(get_option('date_format'), $start_ts);
+					$dropoff_date  = wp_date(get_option('date_format'), $end_ts);
 
 					\wc_add_notice(
 						sprintf(
@@ -2403,8 +2408,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// authoritative locked check runs in create_booking_from_data().
 				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
 					$vehicle_title = get_the_title($vehicle_id);
-					$pickup_date   = date_i18n(get_option('date_format'), $start_ts);
-					$dropoff_date  = date_i18n(get_option('date_format'), $end_ts);
+					$pickup_date   = wp_date(get_option('date_format'), $start_ts);
+					$dropoff_date  = wp_date(get_option('date_format'), $end_ts);
 
 					// ⭐ This error will STOP checkout process - NO PAYMENT WILL BE PROCESSED
 					\wc_add_notice(

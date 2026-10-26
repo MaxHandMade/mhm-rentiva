@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Utilities\Dashboard;
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Core\Services\TrendMath;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -764,14 +765,18 @@ final class DashboardService {
 
 	/**
 	 * Get revenue data for Chart.js
+	 *
+	 * Days and weeks are the site's calendar, as post_date is.
+	 *
+	 * @param int|null $now Only for tests; production callers omit it.
 	 */
-	public static function get_revenue_data(): array {
+	public static function get_revenue_data( ?int $now = null ): array {
 		global $wpdb;
 
 		$revenue_data = array();
 		for ( $i = 6; $i >= 0; $i-- ) {
-			// Use WordPress local time so DATE(post_date) comparison is consistent
-			$date    = wp_date( 'Y-m-d', strtotime( "-{$i} days", current_time( 'timestamp' ) ) );
+			// The site's calendar day, so DATE(post_date) (local) compares like with like
+			$date    = SiteTime::days_ago( $i, $now );
 			$revenue = (float) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
@@ -803,8 +808,9 @@ final class DashboardService {
 			);
 		}
 
-		$this_week_start = wp_date( 'Y-m-d', strtotime( 'monday this week', current_time( 'timestamp' ) ) );
-		$this_week_end   = wp_date( 'Y-m-d', strtotime( 'sunday this week', current_time( 'timestamp' ) ) );
+		$local_now       = ( new \DateTimeImmutable( '@' . ( $now ?? time() ) ) )->setTimezone( wp_timezone() );
+		$this_week_start = $local_now->modify( 'monday this week' )->format( 'Y-m-d' );
+		$this_week_end   = $local_now->modify( 'sunday this week' )->format( 'Y-m-d' );
 
 		$weekly_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
@@ -831,8 +837,8 @@ final class DashboardService {
 			)
 		);
 
-		$last_week_start = wp_date( 'Y-m-d', strtotime( 'monday last week', current_time( 'timestamp' ) ) );
-		$last_week_end   = wp_date( 'Y-m-d', strtotime( 'sunday last week', current_time( 'timestamp' ) ) );
+		$last_week_start = $local_now->modify( 'monday last week' )->format( 'Y-m-d' );
+		$last_week_end   = $local_now->modify( 'sunday last week' )->format( 'Y-m-d' );
 
 		$last_weekly_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
@@ -949,6 +955,23 @@ final class DashboardService {
 	}
 
 	/**
+	 * Has a stored payment deadline passed?
+	 *
+	 * The meta is a GMT string, so it is compared with GMT now -- comparing it
+	 * with the site-local `current_time( 'mysql' )` made an east-of-UTC site
+	 * read every deadline as already lapsed by the offset.
+	 *
+	 * @param string $deadline_gmt `Y-m-d H:i:s` in GMT; empty means none.
+	 */
+	public static function is_payment_overdue( string $deadline_gmt ): bool {
+		if ( '' === $deadline_gmt ) {
+			return false;
+		}
+
+		return strtotime( $deadline_gmt . ' UTC' ) < time();
+	}
+
+	/**
 	 * Shared scan behind get_pending_payments() and get_payments_summary()'s
 	 * `pending_total`. Walks the same query rows once and returns BOTH:
 	 * - `items`: the display list, capped at 10 (existing UI behaviour).
@@ -959,8 +982,6 @@ final class DashboardService {
 	 */
 	private static function collect_pending_payments(): array {
 		global $wpdb;
-
-		$now = current_time( 'mysql' );
 
 		// Status-aware: pull bookings that have at least one WC order attached
 		// (deposit or remaining). Filter by WC order status in PHP.
@@ -1041,7 +1062,7 @@ final class DashboardService {
 			$deposit_order_id   = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( $booking_id );
 			$remaining_order_id = (int) ( $row['remaining_order_id'] ?? 0 );
 			$deadline           = $row['deadline'] ?? '';
-			$is_overdue         = $deadline && strtotime( $deadline ) < strtotime( $now );
+			$is_overdue         = self::is_payment_overdue( (string) $deadline );
 			$booking_status     = strtolower( $row['booking_status'] ?? 'pending' );
 
 			// Use WC order totals as the authoritative source — booking-side
@@ -1050,7 +1071,7 @@ final class DashboardService {
 			// Emit one row per pending WC order so admins see every payment due.
 			$display_id    = mhmrentiva_get_display_id( $booking_id );
 			$customer_name = $row['customer_name'] ?? '';
-			$deadline_fmt  = $deadline ? wp_date( 'd.m.Y', strtotime( $deadline ) ) : '—';
+			$deadline_fmt  = $deadline ? get_date_from_gmt( $deadline, 'd.m.Y' ) : '—';
 			$status_label  = $status_labels[ $booking_status ] ?? ucfirst( $booking_status );
 
 			if ( $has_wc_function && $deposit_order_id > 0 ) {

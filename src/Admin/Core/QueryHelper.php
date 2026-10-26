@@ -21,6 +21,23 @@ class QueryHelper {
 
 
     /**
+     * $time on the site-local calendar day $date names, as a Unix timestamp;
+     * null when $date is not a date.
+     */
+    private static function local_day_bound(string $date, string $time): ?int
+    {
+        // Parsed and formatted in one fixed zone, so only the calendar date is
+        // taken from it whatever PHP's default zone is.
+        try {
+            $day = ( new \DateTimeImmutable($date, new \DateTimeZone('UTC')) )->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        return \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($day, $time);
+    }
+
+    /**
      * Generates a NOT EXISTS subquery for vehicle availability.
      *
      * @param string $pickup_date Y-m-d format
@@ -37,11 +54,13 @@ class QueryHelper {
             return '';
         }
 
-        // Convert to timestamps for comparison (consistent with existing logic)
-        $start_ts = strtotime($pickup_date . ' 00:00:00');
-        $end_ts   = strtotime($return_date . ' 23:59:59');
+        // The searched days are the site's calendar days, as instants: the
+        // stored _start_ts / _end_ts they are compared with are real instants.
+        // strtotime() here read them in PHP's zone (UTC under WordPress).
+        $start_ts = self::local_day_bound($pickup_date, '00:00:00');
+        $end_ts   = self::local_day_bound($return_date, '23:59:59');
 
-        if (!$start_ts || !$end_ts) {
+        if (null === $start_ts || null === $end_ts) {
             return '';
         }
 

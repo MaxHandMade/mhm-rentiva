@@ -29,13 +29,28 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	private const VEHICLE_ID = 3008;
 
 	/**
+	 * The four site clocks every zone test runs under.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function zones(): array
+	{
+		return array(
+			'Istanbul'     => array( 'Europe/Istanbul' ),
+			'New York'     => array( 'America/New_York' ),
+			'Auckland'     => array( 'Pacific/Auckland' ),
+			'fixed +03:00' => array( '+03:00' ),
+		);
+	}
+
+	/**
 	 * Create a vehicle_booking with realistic meta. Override fields via $opts.
 	 *
 	 * @param array<string, mixed> $opts
 	 */
 	private function create_booking(array $opts = array()): int
 	{
-		$now      = (int) current_time('timestamp');
+		$now      = time();
 		$defaults = array(
 			'status'           => 'confirmed',
 			'start_ts'         => $now - 86400,
@@ -54,16 +69,14 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		update_post_meta($booking_id, '_mhmrentiva_status', $opts['status']);
 		update_post_meta($booking_id, '_mhmrentiva_vehicle_id', self::VEHICLE_ID);
-		// Every timestamp handed to this helper is site-local (built from
-		// current_time), so it is formatted as-is. wp_date() would apply the
-		// offset a second time -- harmless while the test site sits at UTC and
-		// wrong by the offset the moment a test pins the clock. CI caught the
-		// first two of these; these four were the rest of the same shape.
-		update_post_meta($booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', $opts['start_ts']));
-		update_post_meta($booking_id, '_mhmrentiva_pickup_time', gmdate('H:i', $opts['start_ts']));
+		// Every timestamp handed to this helper is a real instant (built from
+		// time()), as `_mhmrentiva_start_ts` / `_end_ts` are in production; the
+		// date and time strings are its site-local reading.
+		update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', $opts['start_ts']));
+		update_post_meta($booking_id, '_mhmrentiva_pickup_time', wp_date('H:i', $opts['start_ts']));
 		update_post_meta($booking_id, '_mhmrentiva_start_ts', $opts['start_ts']);
 
-		$dropoff_date = $opts['dropoff_date'] ?? gmdate('Y-m-d', $opts['end_ts']);
+		$dropoff_date = $opts['dropoff_date'] ?? wp_date('Y-m-d', $opts['end_ts']);
 		update_post_meta($booking_id, '_mhmrentiva_dropoff_date', $dropoff_date);
 		update_post_meta($booking_id, '_mhmrentiva_end_date', $dropoff_date);
 
@@ -71,7 +84,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 			update_post_meta($booking_id, '_mhmrentiva_end_ts', $opts['end_ts']);
 		}
 		if ($opts['set_dropoff_time']) {
-			$dropoff_time = $opts['dropoff_time'] ?? gmdate('H:i', $opts['end_ts']);
+			$dropoff_time = $opts['dropoff_time'] ?? wp_date('H:i', $opts['end_ts']);
 			update_post_meta($booking_id, '_mhmrentiva_dropoff_time', $dropoff_time);
 		}
 
@@ -88,11 +101,9 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 		// Same reason as the sibling test below: a fixture that says "dropoff is
 		// today, end_ts is an hour away" is incoherent when the run starts at 23:30.
 		$this->pin_site_hour(9);
-		$now       = (int) current_time('timestamp');
-		// $now is already site-local (current_time), so it is formatted as-is.
-		// wp_date($fmt, $now) would shift it a SECOND time -- invisible while the
-		// test site sits at UTC, and 14 hours wrong the moment the clock is pinned.
-		$today_str = gmdate('Y-m-d', $now);
+		$now       = time();
+		// $now is a real instant; its local date is what the dropoff meta holds.
+		$today_str = wp_date('Y-m-d', $now);
 
 		$booking_id = $this->create_booking(array(
 			'status'       => 'confirmed',
@@ -115,7 +126,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	 */
 	public function test_cron_completes_booking_when_end_ts_is_in_past(): void
 	{
-		$now = (int) current_time('timestamp');
+		$now = time();
 		$booking_id = $this->create_booking(array(
 			'status'   => 'confirmed',
 			'start_ts' => $now - 172800,
@@ -136,7 +147,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	 */
 	public function test_cron_uses_dropoff_datetime_fallback_when_end_ts_missing(): void
 	{
-		$now     = (int) current_time('timestamp');
+		$now     = time();
 		$past_ts = $now - 3600;
 
 		$booking_id = $this->create_booking(array(
@@ -166,13 +177,11 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 		// which meant the cron's date-only bug went unmeasured for two hours of
 		// every day and on whichever CI runs started then.
 		$this->pin_site_hour(9);
-		$now          = (int) current_time('timestamp');
+		$now          = time();
 
-		// $now is already site-local (current_time), so it is formatted as-is.
-		// wp_date($fmt, $now) would shift it a SECOND time -- invisible while the
-		// test site sits at UTC, and 14 hours wrong the moment the clock is pinned.
-		$today_str         = gmdate('Y-m-d', $now);
-		$future_time_today = gmdate('H:i', $now + 7200);
+		// $now is a real instant; its local date is what the dropoff meta holds.
+		$today_str         = wp_date('Y-m-d', $now);
+		$future_time_today = wp_date('H:i', $now + 7200);
 
 		$booking_id = $this->create_booking(array(
 			'status'       => 'confirmed',
@@ -198,7 +207,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 	 */
 	public function test_cron_only_processes_confirmed_and_in_progress_statuses(): void
 	{
-		$now  = (int) current_time('timestamp');
+		$now  = time();
 		$past = $now - 7200;
 
 		$pending = $this->create_booking(array(
@@ -225,5 +234,37 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 			'cancelled booking must not be touched by AutoComplete cron.');
 		$this->assertSame('completed', get_post_meta($confirmed, '_mhmrentiva_status', true),
 			'confirmed expired booking must be auto-completed.');
+	}
+
+	/**
+	 * "Now" is the real instant, as `_mhmrentiva_end_ts` is. Reading the
+	 * site-shifted `current_time('timestamp')` made an Istanbul site complete
+	 * bookings three hours before they ended (and a New York site three-plus
+	 * hours late).
+	 *
+	 * @dataProvider zones
+	 */
+	public function test_autocomplete_uses_real_now(string $zone): void
+	{
+		if ('+03:00' === $zone) {
+			$this->pin_site_offset(3);
+		} else {
+			$this->pin_site_timezone($zone);
+		}
+		$now = time();
+
+		$ended = $this->create_booking(array(
+			'start_ts' => $now - 86400,
+			'end_ts'   => $now - 60,
+		));
+		$running = $this->create_booking(array(
+			'start_ts' => $now - 86400,
+			'end_ts'   => $now + 60,
+		));
+
+		AutoComplete::run();
+
+		$this->assertSame('completed', get_post_meta($ended, '_mhmrentiva_status', true), 'Ended a minute ago: completed.');
+		$this->assertSame('confirmed', get_post_meta($running, '_mhmrentiva_status', true), 'Ends in a minute: still running.');
 	}
 }

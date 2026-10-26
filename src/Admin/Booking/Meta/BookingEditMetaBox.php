@@ -119,9 +119,11 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				'mhm-rentiva-booking-edit-meta',
 				'mhmBookingEdit',
 				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
-					'text'    => array(
+					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+					'nonce'     => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
+					// Site-local current date (Y-m-d) for the "pickup in the past" check.
+					'siteToday' => \MHMRentiva\Admin\Booking\Helpers\SiteTime::today(),
+					'text'      => array(
 						'saving'              => __( 'Saving...', 'mhm-rentiva' ),
 						'error'               => __( 'An error occurred', 'mhm-rentiva' ),
 						'success'             => __( 'Booking updated', 'mhm-rentiva' ),

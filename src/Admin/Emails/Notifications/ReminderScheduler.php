@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -46,8 +47,18 @@ final class ReminderScheduler {
 			return;
 		}
 
-		$pickupTs = strtotime( $pickup );
-		if ( $pickupTs === false ) {
+		// The pickup moment on the site clock: the local date AND time, read
+		// the way parse_datetimes() reads it -- `_start_time` before
+		// `_pickup_time`, and a missing or unreadable time takes the same
+		// filtered default.
+		$defaultTime = (string) apply_filters( 'mhmrentiva_default_pickup_time', '10:00' );
+		$pickupTime  = (string) ( get_post_meta( $booking_id, '_mhmrentiva_start_time', true )
+			?: get_post_meta( $booking_id, '_mhmrentiva_pickup_time', true ) );
+		$pickupDate  = substr( $pickup, 0, 10 );
+		$pickupTs    = ( $pickupTime !== '' ? SiteTime::instant( $pickupDate, $pickupTime ) : null )
+			?? SiteTime::instant( $pickupDate, $defaultTime )
+			?? SiteTime::instant( $pickupDate ); // a broken filter value: the date alone
+		if ( $pickupTs === null ) {
 			return;
 		}
 

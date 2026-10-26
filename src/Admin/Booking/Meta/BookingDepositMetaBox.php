@@ -295,10 +295,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		if ( $payment_deadline ) { // ⭐ Show deadline for all payment methods (WooCommerce)
 			echo '<div class="payment-deadline-section">';
 			echo '<h4>' . esc_html__( 'Payment Deadline', 'mhm-rentiva' ) . '</h4>';
-			echo '<p><strong>' . esc_html__( 'Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( gmdate( 'd.m.Y H:i', strtotime( $payment_deadline ) ) ) . '</p>';
+			echo '<p><strong>' . esc_html__( 'Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( get_date_from_gmt( (string) $payment_deadline, 'd.m.Y H:i' ) ) . '</p>';
 
 			$now      = time();
-			$deadline = strtotime( $payment_deadline );
+			$deadline = strtotime( $payment_deadline . ' UTC' );
 			if ( $now > $deadline && $payment_status !== 'paid' ) {
 				echo '<p class="payment-expired">' . esc_html__( 'Payment period expired. Booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
 			}
