@@ -1206,7 +1206,6 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				'currency_symbol' => CurrencyHelper::get_currency_symbol(),
 				'rating'          => $rating,
 				'is_favorite'     => false,
-				'location_id'     => (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true),
 			);
 
 			if (is_user_logged_in()) {

@@ -7,7 +7,8 @@
  * The second date click (same day or later) and the "Make Reservation" button
  * both go through AvailabilityCalendar#buildBookingUrl() and
  * window.location.assign(). End date is sent only for two distinct days;
- * pickup location only when > 0; a non-http(s) or empty base never
+ * no pickup location (the booking form takes it from the car, and a
+ * data-location-id left on the markup is ignored); a non-http(s) or empty base never
  * redirects. Elements with the calendar's class names outside a calendar root
  * are left alone.
  */
@@ -171,25 +172,20 @@ describe( 'availability calendar: booking redirect', () => {
 		expect( url.searchParams.has( 'mhmrentiva_end_date' ) ).toBe( false );
 	} );
 
-	test( 'location_follows_vehicle_display', async () => {
+	test( 'no_pickup_location_is_sent', async () => {
 		await boot( calendarRoot( 3017, 5 ) );
 
 		click( day( '2026-10-20' ) );
 		click( day( '2026-10-22' ) );
-		expect( lastAssigned().searchParams.get( 'mhmrentiva_pickup_location' ) ).toBe( '5' );
+		expect( lastAssigned().searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
 
-		// Field names read from updateVehicleDisplay(): id, title, location_id.
-		cal().updateVehicleDisplay( { id: 2992, title: 'X' } );
+		// A vehicle answer that still carries a location_id changes nothing.
+		cal().updateVehicleDisplay( { id: 2992, title: 'X', location_id: 7 } );
 		click( day( '2026-10-20' ) ); // restarts the completed selection
 		click( day( '2026-10-22' ) );
 		expect( lastAssigned().searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
 
-		cal().updateVehicleDisplay( { id: 2992, title: 'X', location_id: 7 } );
-		click( day( '2026-10-20' ) );
-		click( day( '2026-10-22' ) );
-		expect( lastAssigned().searchParams.get( 'mhmrentiva_pickup_location' ) ).toBe( '7' );
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 3 );
+		expect( window.location.assign ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	test.each( [
@@ -269,6 +265,6 @@ describe( 'availability calendar: booking redirect', () => {
 		expect( url.searchParams.get( 'mhmrentiva_vehicle_id' ) ).toBe( '3017' );
 		expect( url.searchParams.get( 'mhmrentiva_start_date' ) ).toBe( '2026-10-20' );
 		expect( url.searchParams.get( 'mhmrentiva_end_date' ) ).toBe( '2026-10-22' );
-		expect( url.searchParams.get( 'mhmrentiva_pickup_location' ) ).toBe( '5' );
+		expect( url.searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
 	} );
 } );

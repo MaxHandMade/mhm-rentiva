@@ -54,7 +54,6 @@
             this.calendar = $root;
             this.selectedDates = [];
             this.currentVehicleId = 0;
-            this.currentLocationId = 0;
             this.currentStartMonth = '';
             this.monthsToShow = 1;
             this.isLoading = false;
@@ -152,7 +151,6 @@
 
         initializeCalendar() {
             this.currentVehicleId = parseInt(this.calendar.data('vehicle-id')) || 0;
-            this.currentLocationId = parseInt(this.calendar.data('location-id')) || 0;
             this.currentStartMonth = this.calendar.data('start-month') || this.getCurrentMonth();
             this.monthsToShow = parseInt(this.calendar.data('months-to-show')) || 3;
             // Written only when not the default: 0 = the week starts on Sunday (else Monday).
@@ -168,9 +166,6 @@
 
             this.currentVehicleId = vehicleId;
             this.selectedDates = [];
-            // No vehicle data on this path, so the new vehicle's location is
-            // unknown: send none rather than the previous vehicle's.
-            this.currentLocationId = 0;
 
             this.loadAvailabilityData();
         }
@@ -304,9 +299,6 @@
         }
 
         updateVehicleDisplay(vehicleData) {
-            // Track location for booking URL
-            // Unconditional: a vehicle without a location must not keep the previous one's.
-            this.currentLocationId = parseInt(vehicleData.location_id) || 0;
             // Update vehicle image
             if (vehicleData.image) {
                 this.$root.find('.rv-vehicle-image').attr('src', vehicleData.image);
@@ -614,9 +606,7 @@
             if (endDate && endDate !== startDate) {
                 url.searchParams.set('mhmrentiva_end_date', endDate);
             }
-            if (this.currentLocationId > 0) {
-                url.searchParams.set('mhmrentiva_pickup_location', String(this.currentLocationId));
-            }
+            // No pickup location: the booking form takes it from the car.
 
             return url.toString();
         }

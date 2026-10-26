@@ -206,7 +206,7 @@ describe( 'availability calendar: one instance per root', () => {
 		expect( monthName( root ) ).toBe( 'November 2026' );
 	} );
 
-	test( 'dropdown_vehicle_change_loads_and_clears_location', async () => {
+	test( 'dropdown_vehicle_change_loads', async () => {
 		await boot( noDataRoot );
 		const root = roots()[ 0 ];
 		const select = root.querySelector( 'select.rv-vehicle-dropdown' );
@@ -216,6 +216,5 @@ describe( 'availability calendar: one instance per root', () => {
 
 		expect( $.post ).toHaveBeenCalledTimes( 1 );
 		expect( postData().vehicle_id ).toBe( 2992 );
-		expect( $( root ).data( 'rvCalendar' ).currentLocationId ).toBe( 0 );
 	} );
 } );

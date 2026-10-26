@@ -104,22 +104,25 @@ class BookingUrlTest extends WP_UnitTestCase
 		parse_str((string) wp_parse_url(BookingUrl::for_vehicle($id), PHP_URL_QUERY), $q);
 
 		$this->assertSame((string) $id, $q['mhmrentiva_vehicle_id'] ?? null);
-		$this->assertSame((string) $location, $q['mhmrentiva_pickup_location'] ?? null);
+		// No pickup location: the booking form takes it from the car.
+		$this->assertArrayNotHasKey('mhmrentiva_pickup_location', $q);
 		$this->assertArrayNotHasKey('vehicle_id', $q);
 		$this->assertArrayNotHasKey('pickup_location', $q);
 	}
 
-	public function test_for_vehicle_location_hierarchy(): void
+	public function test_location_for_hierarchy(): void
 	{
 		$this->set_booking_setting('https://example.test/book');
-		$key = 'mhmrentiva_pickup_location';
+
+		// Vehicle level.
+		$own = $this->vehicle(array( '_mhmrentiva_location_id' => 77 ));
+		$this->assertSame(77, BookingUrl::location_for($own));
 
 		// Vendor level.
 		$vendor = (int) $this->factory->user->create();
 		update_user_meta($vendor, '_mhmrentiva_vendor_location_id', 55);
 		$id = $this->vehicle(array(), $vendor);
-		parse_str((string) wp_parse_url(BookingUrl::for_vehicle($id), PHP_URL_QUERY), $q);
-		$this->assertSame('55', $q[ $key ] ?? null);
+		$this->assertSame(55, BookingUrl::location_for($id));
 
 		// Global default level.
 		$no_loc_vendor = (int) $this->factory->user->create();
@@ -129,13 +132,11 @@ class BookingUrlTest extends WP_UnitTestCase
 		));
 		ShortcodeUrlManager::clear_cache('rentiva_booking_form');
 		$id2 = $this->vehicle(array(), $no_loc_vendor);
-		parse_str((string) wp_parse_url(BookingUrl::for_vehicle($id2), PHP_URL_QUERY), $q);
-		$this->assertSame('33', $q[ $key ] ?? null);
+		$this->assertSame(33, BookingUrl::location_for($id2));
 
 		// None.
 		$this->set_booking_setting('https://example.test/book');
-		parse_str((string) wp_parse_url(BookingUrl::for_vehicle($id2), PHP_URL_QUERY), $q);
-		$this->assertArrayNotHasKey($key, $q);
+		$this->assertSame(0, BookingUrl::location_for($id2));
 	}
 
 	/**
