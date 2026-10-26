@@ -237,7 +237,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				<div class="rvs-results__drawer-foot">
 					<button type="button" class="rvs-btn rvs-btn--ghost" data-rvs-clear><?php esc_html_e('Clear', 'mhm-rentiva'); ?></button>
 					<button type="button" class="rvs-btn rvs-btn--primary rvs-results__apply" data-rvs-drawer-apply>
-						<span data-rvs-apply-label><?php echo (string) ( $apply_label ?? SearchResults::apply_label_html( (array) $results) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SearchResults::apply_label_html() escapes. ?></span>
+						<span data-rvs-apply-label><?php Html::echo_markup( (string) ( $apply_label ?? SearchResults::apply_label_html( (array) $results) )); ?></span>
 					</button>
 				</div>
 			</aside>
