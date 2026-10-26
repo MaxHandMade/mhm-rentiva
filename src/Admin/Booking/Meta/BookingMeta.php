@@ -1450,9 +1450,9 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html(
 			sprintf(
-				/* translators: %s: comma-separated list of the vehicle's closed days. */
+				/* translators: %s: list of the vehicle's closed days, joined by the site's list format ("1 June, 2 June and 3 June"). */
 				__('This vehicle has closed days in this period: %s. The booking was saved anyway.', 'mhm-rentiva'),
-				implode(', ', $labels)
+				wp_sprintf('%l', $labels)
 			)
 		) . '</p></div>';
 	}

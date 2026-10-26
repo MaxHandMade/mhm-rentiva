@@ -1685,8 +1685,8 @@ final class SearchResults extends AbstractShortcode {
 			'kind'   => 'nearby',
 			'id'     => $instance . '-nearby',
 			'title'  => self::nearby_title(),
-			/* translators: 1: city (several are joined with " · "), 2: the section's result summary, e.g. "2 vehicles · 7 Dec – 10 Dec · 3 days". */
-			'sub'    => sprintf(__('%1$s · %2$s', 'mhm-rentiva'), implode(' · ', $cities), self::summary_text(self::summary($params, count($items)))),
+			/* translators: 1: city (several are joined into one), 2: the section's result summary, e.g. "2 vehicles · 7 Dec – 10 Dec · 3 days". */
+			'sub'    => sprintf(__('%1$s · %2$s', 'mhm-rentiva'), self::join_line($cities), self::summary_text(self::summary($params, count($items)))),
 			'layout' => $layout,
 			'cards'  => $cards,
 		), true);
@@ -1766,7 +1766,24 @@ final class SearchResults extends AbstractShortcode {
 			$parts[] = sprintf(_n('%s day', '%s days', $summary['days'], 'mhm-rentiva'), number_format_i18n($summary['days']));
 		}
 
-		return implode(' · ', $parts);
+		return self::join_line($parts);
+	}
+
+	/**
+	 * Items of one line joined through a translatable format:
+	 * "2 vehicles · 7 Dec – 10 Dec · 3 days", "İstanbul · Ankara".
+	 *
+	 * @param list<string> $parts
+	 */
+	private static function join_line(array $parts): string
+	{
+		$line = (string) array_shift($parts);
+		foreach ($parts as $part) {
+			/* translators: joins two items of one line, e.g. two city names or the parts of a results summary ("2 vehicles · 7 Dec – 10 Dec"). 1: the line so far, 2: the next item. */
+			$line = sprintf(_x('%1$s · %2$s', 'joined items of one line', 'mhm-rentiva'), $line, $part);
+		}
+
+		return $line;
 	}
 
 	/**

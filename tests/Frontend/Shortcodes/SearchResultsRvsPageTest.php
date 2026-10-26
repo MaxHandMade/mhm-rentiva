@@ -257,6 +257,32 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertMatchesRegularExpression('/aria-labelledby="([^"]+)".*id="\1"/s', $nearby);
 	}
 
+	/**
+	 * The joins inside the section line (city names, the summary's parts)
+	 * go through a translatable format, so a translation can change them.
+	 */
+	public function test_section_line_joins_are_translatable(): void
+	{
+		$this->three_points();
+		$this->vehicle('Zz Egea At Taksim', 2);
+		$this->search_window();
+		set_query_var(SearchResults::query_var('pickup_location'), array( '1' ));
+		$join = static function ($translation, $text, $context, $domain) {
+			return 'mhm-rentiva' === $domain && '%1$s · %2$s' === $text && '' !== (string) $context ? '%1$s / %2$s' : $translation;
+		};
+		add_filter('gettext_with_context', $join, 10, 4);
+
+		$nearby = self::section($this->page(), 'nearby');
+
+		remove_filter('gettext_with_context', $join, 10);
+		$this->assertMatchesRegularExpression('/<p class="rvs-results__section-sub">([^<]*)<\/p>/', $nearby);
+		preg_match('/<p class="rvs-results__section-sub">([^<]*)<\/p>/', $nearby, $m);
+		$sub = html_entity_decode($m[1]);
+		$this->assertStringStartsWith('İstanbul · ', $sub, 'The outer line keeps its own format.');
+		$this->assertSame(2, substr_count($sub, ' / '), 'Count / range / days: ' . $sub);
+		$this->assertSame(1, substr_count($sub, ' · '), $sub);
+	}
+
 	public function test_booked_card_links_to_earliest_window(): void
 	{
 		$one = $this->vehicle_id('Zz Page One');

@@ -148,6 +148,25 @@ final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('', $this->notice_output($booking_id));
 	}
 
+	/**
+	 * Several closed days are joined by the site's list format (wp_sprintf
+	 * '%l'), which a translation controls -- not a hard-coded ", ".
+	 */
+	public function test_several_closed_days_use_the_translatable_list_format(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-10-11","2027-10-12"]');
+		$response = $this->create(array( 'dropoff_date' => '2027-10-13' ));
+		$this->assertTrue($response['success'] ?? false, (string) $this->_last_response);
+
+		$labels = array_map(
+			static fn(string $day): string => wp_date((string) get_option('date_format'), (int) \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($day, '12:00')),
+			array( '2027-10-11', '2027-10-12' )
+		);
+		$html = $this->notice_output( (int) $response['data']['booking_id']);
+
+		$this->assertStringContainsString(esc_html(wp_sprintf('%l', $labels)), $html);
+	}
+
 	public function test_no_notice_when_no_day_is_closed(): void
 	{
 		$response = $this->create(array( 'pickup_date' => '2027-10-20', 'dropoff_date' => '2027-10-22' ));
