@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T04:29:36+00:00\n"
+"POT-Creation-Date: 2026-10-26T22:18:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -130,7 +130,7 @@ msgstr ""
 #: src/Admin/About/Tabs/SystemTab.php:150
 #: src/Admin/About/Tabs/SystemTab.php:156
 #: src/Admin/About/Tabs/SystemTab.php:162
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1273
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1272
 #: src/Admin/Setup/SetupWizard.php:880
 #: src/Admin/Setup/SetupWizard.php:971
 #: src/Layout/CLI/LayoutImportCommand.php:397
@@ -144,7 +144,7 @@ msgstr ""
 #: src/Admin/About/SystemInfo.php:223
 #: src/Admin/Core/AssetManager.php:1539
 #: src/Admin/Frontend/Account/AccountController.php:290
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:485
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:552
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
 msgid "Error"
 msgstr ""
@@ -187,8 +187,8 @@ msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:146
 #: src/Admin/About/Tabs/SystemTab.php:127
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:344
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:204
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:345
 msgid "Calculating..."
 msgstr ""
 
@@ -354,7 +354,7 @@ msgid "Contact Form"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:121
-#: src/Admin/Booking/Meta/BookingMeta.php:695
+#: src/Admin/Booking/Meta/BookingMeta.php:697
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:810
@@ -575,7 +575,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:562
 #: src/Admin/Frontend/Account/AccountController.php:282
 #: src/Admin/Frontend/Account/AccountController.php:337
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:347
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:348
 msgid "Processing..."
 msgstr ""
 
@@ -601,7 +601,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:88
 #: src/Admin/Addons/AddonManager.php:287
-#: src/Admin/Booking/Meta/BookingMeta.php:193
+#: src/Admin/Booking/Meta/BookingMeta.php:194
 #: src/Admin/Frontend/Account/AccountController.php:291
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:289
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:125
@@ -686,14 +686,14 @@ msgstr ""
 #: src/Admin/Addons/AddonScreen.php:471
 #: src/Admin/Addons/AddonScreen.php:509
 #: src/Admin/Booking/Actions/BookingActionGuard.php:76
-#: src/Admin/Booking/Meta/BookingMeta.php:742
-#: src/Admin/Booking/Meta/BookingMeta.php:1035
-#: src/Admin/Booking/Meta/BookingMeta.php:1614
-#: src/Admin/Booking/Meta/BookingMeta.php:1663
-#: src/Admin/Booking/Meta/BookingMeta.php:1747
+#: src/Admin/Booking/Meta/BookingMeta.php:744
+#: src/Admin/Booking/Meta/BookingMeta.php:1037
+#: src/Admin/Booking/Meta/BookingMeta.php:1726
+#: src/Admin/Booking/Meta/BookingMeta.php:1775
+#: src/Admin/Booking/Meta/BookingMeta.php:1859
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:530
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:634
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:531
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:637
 #: src/Admin/Core/SecurityHelper.php:140
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:36
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:133
@@ -706,8 +706,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:1004
 #: src/Admin/Frontend/Account/AccountController.php:1121
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1053
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1085
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1458
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1090
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1464
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1815
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:338
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:758
@@ -778,11 +778,11 @@ msgstr ""
 #: src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Addons/AddonScreen.php:598
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:267
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:424
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:425
 #: src/Admin/Utilities/Menu/Menu.php:105
 #: src/Admin/Utilities/Menu/Menu.php:106
 #: templates/account/booking-detail.php:266
-#: templates/shortcodes/booking-form.php:144
+#: templates/shortcodes/booking-form.php:139
 #: src-react/admin/dashboard/components/QuickActions.jsx:19
 msgid "Additional Services"
 msgstr ""
@@ -1100,11 +1100,11 @@ msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:88
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:77
-#: src/Admin/Booking/Meta/BookingMeta.php:760
-#: src/Admin/Booking/Meta/BookingMeta.php:1053
-#: src/Admin/Booking/Meta/BookingMeta.php:1636
-#: src/Admin/Booking/Meta/BookingMeta.php:1685
-#: src/Admin/Booking/Meta/BookingMeta.php:1769
+#: src/Admin/Booking/Meta/BookingMeta.php:762
+#: src/Admin/Booking/Meta/BookingMeta.php:1055
+#: src/Admin/Booking/Meta/BookingMeta.php:1748
+#: src/Admin/Booking/Meta/BookingMeta.php:1797
+#: src/Admin/Booking/Meta/BookingMeta.php:1881
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
@@ -1245,7 +1245,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1193
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:484
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:256
-#: src/Admin/Booking/Meta/BookingMeta.php:1481
+#: src/Admin/Booking/Meta/BookingMeta.php:1593
 #: src/Admin/Core/AssetManager.php:1094
 #: src/Admin/Emails/Core/EmailTemplates.php:504
 #: src/Admin/Emails/Notifications/BookingNotifications.php:207
@@ -1268,7 +1268,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:125
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:257
-#: src/Admin/Booking/Meta/BookingMeta.php:1482
+#: src/Admin/Booking/Meta/BookingMeta.php:1594
 #: src/Admin/Core/AssetManager.php:1095
 #: src/Admin/Emails/Core/EmailTemplates.php:505
 #: src/Admin/Emails/Notifications/BookingNotifications.php:208
@@ -1286,7 +1286,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:126
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:258
-#: src/Admin/Booking/Meta/BookingMeta.php:1483
+#: src/Admin/Booking/Meta/BookingMeta.php:1595
 #: src/Admin/Core/AssetManager.php:1096
 #: src/Admin/Emails/Notifications/BookingNotifications.php:209
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:71
@@ -1302,7 +1302,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:127
 #: src/Admin/Booking/ListTable/BookingColumns.php:1206
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:259
-#: src/Admin/Booking/Meta/BookingMeta.php:1484
+#: src/Admin/Booking/Meta/BookingMeta.php:1596
 #: src/Admin/Core/AssetManager.php:1097
 #: src/Admin/Emails/Notifications/BookingNotifications.php:210
 #: src/Admin/Frontend/Account/AccountRenderer.php:915
@@ -1326,7 +1326,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:128
 #: src/Admin/Booking/ListTable/BookingColumns.php:1088
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:260
-#: src/Admin/Booking/Meta/BookingMeta.php:1485
+#: src/Admin/Booking/Meta/BookingMeta.php:1597
 #: src/Admin/Core/AssetManager.php:1098
 #: src/Admin/Emails/Notifications/BookingNotifications.php:211
 #: src/Admin/Emails/Templates/EmailPreview.php:231
@@ -1349,7 +1349,7 @@ msgstr ""
 #: src/Admin/Booking/Core/Status.php:129
 #: src/Admin/Booking/ListTable/BookingColumns.php:1084
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:486
-#: src/Admin/Booking/Meta/BookingMeta.php:1511
+#: src/Admin/Booking/Meta/BookingMeta.php:1623
 #: templates/emails/booking-created-admin.html.php:68
 msgid "Refunded"
 msgstr ""
@@ -1452,7 +1452,7 @@ msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:657
-#: src/Admin/Booking/Meta/BookingMeta.php:711
+#: src/Admin/Booking/Meta/BookingMeta.php:713
 #: templates/account/booking-detail.php:69
 msgid "Booking Cancelled"
 msgstr ""
@@ -1485,8 +1485,8 @@ msgid "Booking ID:"
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:665
-#: src/Admin/Booking/Meta/BookingMeta.php:396
-#: src/Admin/Booking/Meta/BookingMeta.php:472
+#: src/Admin/Booking/Meta/BookingMeta.php:397
+#: src/Admin/Booking/Meta/BookingMeta.php:473
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:822
 #: src/Admin/Settings/Groups/EmailSettings.php:134
 #: src/Admin/Settings/Groups/EmailSettings.php:178
@@ -1630,7 +1630,7 @@ msgstr ""
 #. translators: %d: number of days
 #. translators: %d: minimum days
 #: src/Admin/Booking/Helpers/Util.php:96
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:358
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:359
 #, php-format
 msgid "Minimum rental period is %d day."
 msgid_plural "Minimum rental period is %d days."
@@ -1640,49 +1640,50 @@ msgstr[1] ""
 #. translators: %d: number of days
 #. translators: %d: maximum days
 #: src/Admin/Booking/Helpers/Util.php:104
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:365
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:366
 #, php-format
 msgid "Maximum rental period is %d day."
 msgid_plural "Maximum rental period is %d days."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Booking/Helpers/Util.php:404
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:293
+#: src/Admin/Booking/Helpers/Util.php:242
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:294
 msgid "Selected vehicle is not available, but we can suggest similar vehicles:"
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:413
+#: src/Admin/Booking/Helpers/Util.php:251
 msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:422
-#: src/Admin/Booking/Meta/BookingMeta.php:1590
+#: src/Admin/Booking/Helpers/Util.php:260
+#: src/Admin/Booking/Meta/BookingMeta.php:1702
 msgid "This vehicle is not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:435
+#: src/Admin/Booking/Helpers/Util.php:278
 #: src/Admin/REST/Availability.php:206
 msgid "Selected vehicle not found. Please select a valid vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:457
+#: src/Admin/Booking/Helpers/Util.php:300
 msgid "This vehicle is currently not available for rental. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:468
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:234
+#: src/Admin/Booking/Helpers/Util.php:311
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:245
 msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:490
-#: src/Admin/Booking/Helpers/Util.php:502
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1328
-msgid "This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle."
+#: src/Admin/Booking/Helpers/Util.php:333
+msgid "✅ Great! This vehicle is available for your selected dates."
 msgstr ""
 
-#: src/Admin/Booking/Helpers/Util.php:513
-msgid "✅ Great! This vehicle is available for your selected dates."
+#: src/Admin/Booking/Helpers/Util.php:366
+#: src/Admin/Booking/Helpers/Util.php:411
+#: src/Admin/Booking/Helpers/Util.php:423
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1334
+msgid "This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle."
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:256
@@ -1692,7 +1693,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:274
 #: src/Admin/Booking/ListTable/BookingColumns.php:384
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:298
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:299
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:709
 #: src/Plugin.php:1083
 #: templates/admin/partials/booking-popup.php:52
@@ -1710,7 +1711,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:277
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:190
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:221
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:697
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:207
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:532
@@ -1731,7 +1732,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:279
 #: src/Admin/Booking/ListTable/BookingColumns.php:387
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:296
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:297
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:712
 #: templates/partials/rvs/breakdown.php:45
 #: src-react/admin/contact-messages/components/ContactStats.jsx:11
@@ -1742,14 +1743,14 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:280
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:240
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:339
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:340
 #: templates/account/booking-detail.php:226
 msgid "Deposit Amount"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:246
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:340
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:341
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:577
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:648
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:982
@@ -1763,8 +1764,8 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:283
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
-#: src/Admin/Booking/Meta/BookingMeta.php:349
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:487
+#: src/Admin/Booking/Meta/BookingMeta.php:350
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:488
 #: src/Admin/Setup/SetupWizard.php:164
 #: src/Admin/Setup/SetupWizard.php:205
 #: src/Admin/Setup/SetupWizard.php:466
@@ -1793,8 +1794,8 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:385
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:710
 #: templates/admin/partials/booking-popup.php:85
-#: templates/partials/vehicle-details/booking-card.php:64
-#: templates/shortcodes/unified-search.php:76
+#: templates/partials/vehicle-details/booking-card.php:65
+#: templates/shortcodes/unified-search.php:78
 msgid "Pickup"
 msgstr ""
 
@@ -1821,8 +1822,8 @@ msgstr ""
 #. translators: %d: number of rental days
 #. translators: %d: number of rental days.
 #: src/Admin/Booking/ListTable/BookingColumns.php:501
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:695
-#: src/Admin/Payment/WooCommerce/CheckoutJourney.php:265
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:700
+#: src/Admin/Payment/WooCommerce/CheckoutJourney.php:264
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
@@ -1834,7 +1835,7 @@ msgstr[1] ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1083
 #: src/Admin/Booking/ListTable/BookingColumns.php:1091
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:485
-#: src/Admin/Booking/Meta/BookingMeta.php:1509
+#: src/Admin/Booking/Meta/BookingMeta.php:1621
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:94
 msgid "Paid"
 msgstr ""
@@ -1842,7 +1843,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:576
 #: src/Admin/Booking/ListTable/BookingColumns.php:1082
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:483
-#: src/Admin/Booking/Meta/BookingMeta.php:1507
+#: src/Admin/Booking/Meta/BookingMeta.php:1619
 msgid "Unpaid"
 msgstr ""
 
@@ -1907,7 +1908,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1086
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:490
-#: src/Admin/Booking/Meta/BookingMeta.php:1508
+#: src/Admin/Booking/Meta/BookingMeta.php:1620
 msgid "Pending Verification"
 msgstr ""
 
@@ -1925,7 +1926,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1102
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:226
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:93
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:480
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:481
 msgid "Offline"
 msgstr ""
 
@@ -2097,7 +2098,7 @@ msgid "This booking was created with the old system. Deposit system information 
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:209
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:470
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:471
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:568
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:639
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:976
@@ -2106,8 +2107,8 @@ msgid "Payment Type"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:212
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:227
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:473
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:228
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:474
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:75
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:324
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1039
@@ -2120,7 +2121,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:501
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:472
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:473
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:565
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:636
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:975
@@ -2133,7 +2134,7 @@ msgid "Full Payment"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:221
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:478
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:479
 #: src/Admin/Utilities/ListTable/LogColumns.php:74
 #: templates/account/booking-detail.php:212
 msgid "Payment Method"
@@ -2141,23 +2142,23 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:224
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:181
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:481
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:482
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:233
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:338
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:339
 msgid "Total Amount"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:255
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:222
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:223
 msgid "Rental Days"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:256
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:223
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:224
 #: templates/emails/booking-created-admin.html.php:50
 #: templates/emails/booking-created-customer.html.php:37
 msgid "days"
@@ -2276,7 +2277,7 @@ msgid "Process Refund"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:489
-#: src/Admin/Booking/Meta/BookingMeta.php:1510
+#: src/Admin/Booking/Meta/BookingMeta.php:1622
 msgid "Partially Paid"
 msgstr ""
 
@@ -2308,19 +2309,19 @@ msgid "Saving..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:128
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:204
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:205
 #: src/Admin/Core/AssetManager.php:1071
 #: src/Admin/Core/AssetManager.php:1567
 #: src/Admin/Frontend/Account/AccountRenderer.php:423
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:282
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:339
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:348
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:349
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:645
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:183
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:132
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:232
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:233
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:118
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:432
 msgid "An error occurred"
 msgstr ""
 
@@ -2350,17 +2351,17 @@ msgid "Manual"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:204
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:283
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:284
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:291
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:426
 #: src/Admin/Settings/Groups/FrontendSettings.php:350
-#: templates/shortcodes/booking-form.php:78
+#: templates/shortcodes/booking-form.php:73
 msgid "Select Vehicle"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:221
-#: src/Admin/Booking/Meta/BookingMeta.php:385
-#: src/Admin/Booking/Meta/BookingMeta.php:432
+#: src/Admin/Booking/Meta/BookingMeta.php:386
+#: src/Admin/Booking/Meta/BookingMeta.php:433
 #: templates/account/booking-detail.php:81
 #: templates/account/booking-detail.php:148
 #: templates/admin/partials/booking-popup.php:34
@@ -2370,36 +2371,36 @@ msgid "Booking Details"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
-#: src/Admin/Booking/Meta/BookingMeta.php:436
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:356
-#: templates/shortcodes/booking-form.php:102
+#: src/Admin/Booking/Meta/BookingMeta.php:437
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:357
+#: templates/shortcodes/booking-form.php:97
 msgid "Pickup Date"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:230
-#: src/Admin/Booking/Meta/BookingMeta.php:441
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:361
-#: templates/shortcodes/booking-form.php:107
+#: src/Admin/Booking/Meta/BookingMeta.php:442
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:362
+#: templates/shortcodes/booking-form.php:102
 msgid "Pickup Time"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
-#: src/Admin/Booking/Meta/BookingMeta.php:448
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:367
-#: templates/shortcodes/booking-form.php:119
+#: src/Admin/Booking/Meta/BookingMeta.php:449
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:368
+#: templates/shortcodes/booking-form.php:114
 msgid "Return Date"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:242
-#: src/Admin/Booking/Meta/BookingMeta.php:453
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:372
-#: templates/shortcodes/booking-form.php:124
+#: src/Admin/Booking/Meta/BookingMeta.php:454
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:373
+#: templates/shortcodes/booking-form.php:119
 msgid "Return Time"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
-#: src/Admin/Booking/Meta/BookingMeta.php:459
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:380
+#: src/Admin/Booking/Meta/BookingMeta.php:460
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:381
 msgid "Number of Guests"
 msgstr ""
 
@@ -2410,7 +2411,7 @@ msgid "%s (inactive)"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:351
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:429
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:430
 msgid "Select the additional services needed for this booking."
 msgstr ""
 
@@ -2420,13 +2421,13 @@ msgstr ""
 
 #. translators: %s: additional service name.
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:390
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:443
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:444
 #, php-format
 msgid "Quantity: %s"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:400
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:453
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:454
 msgid "Additional Services Total:"
 msgstr ""
 
@@ -2459,23 +2460,23 @@ msgstr ""
 msgid "Booking Status"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:142
+#: src/Admin/Booking/Meta/BookingMeta.php:143
 msgid "Send Email to Customer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:152
+#: src/Admin/Booking/Meta/BookingMeta.php:153
 msgid "Payment Receipt"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:186
+#: src/Admin/Booking/Meta/BookingMeta.php:187
 msgid "Create a WordPress account for this customer?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:187
+#: src/Admin/Booking/Meta/BookingMeta.php:188
 msgid "Proceed with refund?"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:190
+#: src/Admin/Booking/Meta/BookingMeta.php:191
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:518
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:538
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:539
@@ -2483,54 +2484,54 @@ msgstr ""
 msgid "Sending..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:191
-#: src/Admin/Booking/Meta/BookingMeta.php:1581
-#: src/Admin/Booking/Meta/BookingMeta.php:1733
+#: src/Admin/Booking/Meta/BookingMeta.php:192
+#: src/Admin/Booking/Meta/BookingMeta.php:1693
+#: src/Admin/Booking/Meta/BookingMeta.php:1845
 msgid "Email sent successfully!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:192
+#: src/Admin/Booking/Meta/BookingMeta.php:193
 #: src/Admin/Core/AssetManager.php:1368
 msgid "Error:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:194
+#: src/Admin/Booking/Meta/BookingMeta.php:195
 msgid "An error occurred:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:195
+#: src/Admin/Booking/Meta/BookingMeta.php:196
 msgid "Loading template..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:217
+#: src/Admin/Booking/Meta/BookingMeta.php:218
 #: src/Admin/ContactMessages/REST/ContactMessagesRestController.php:430
 msgid "Submitted"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:218
+#: src/Admin/Booking/Meta/BookingMeta.php:219
 msgid "Approved"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:219
+#: src/Admin/Booking/Meta/BookingMeta.php:220
 msgid "Rejected"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:252
+#: src/Admin/Booking/Meta/BookingMeta.php:253
 #: templates/admin/booking-meta/receipt-box.php:24
 msgid "Receipt file:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:253
+#: src/Admin/Booking/Meta/BookingMeta.php:254
 #: templates/admin/booking-meta/receipt-box.php:26
 msgid "View / Download"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:255
+#: src/Admin/Booking/Meta/BookingMeta.php:256
 #: templates/admin/booking-meta/receipt-box.php:30
 msgid "No receipt uploaded."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:258
+#: src/Admin/Booking/Meta/BookingMeta.php:259
 #: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/account/payment-history.php:124
 #: templates/admin/booking-meta/receipt-box.php:34
@@ -2540,69 +2541,69 @@ msgstr ""
 msgid "Status:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:259
-#: src/Admin/Booking/Meta/BookingMeta.php:356
+#: src/Admin/Booking/Meta/BookingMeta.php:260
+#: src/Admin/Booking/Meta/BookingMeta.php:357
 #: templates/admin/booking-meta/receipt-box.php:40
 #: templates/emails/receipt-status-email.html.php:259
 msgid "Admin Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:262
+#: src/Admin/Booking/Meta/BookingMeta.php:263
 #: templates/admin/booking-meta/receipt-box.php:49
 msgid "Approve Receipt"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:263
+#: src/Admin/Booking/Meta/BookingMeta.php:264
 #: templates/admin/booking-meta/receipt-box.php:52
 msgid "Reject Receipt"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:296
-#: src/Admin/Booking/Meta/BookingMeta.php:341
+#: src/Admin/Booking/Meta/BookingMeta.php:297
+#: src/Admin/Booking/Meta/BookingMeta.php:342
 #: templates/emails/receipt-status-email.html.php:26
 msgid "Your payment receipt has been approved"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:297
-#: src/Admin/Booking/Meta/BookingMeta.php:342
+#: src/Admin/Booking/Meta/BookingMeta.php:298
+#: src/Admin/Booking/Meta/BookingMeta.php:343
 #: templates/emails/receipt-status-email.html.php:27
 msgid "Your payment receipt has been rejected"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:347
+#: src/Admin/Booking/Meta/BookingMeta.php:348
 #: src/Admin/Booking/PostType/Booking.php:23
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:344
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
 #: src/Admin/Utilities/ListTable/LogColumns.php:77
-#: templates/partials/vehicle-details/booking-card.php:53
+#: templates/partials/vehicle-details/booking-card.php:54
 msgid "Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:351
+#: src/Admin/Booking/Meta/BookingMeta.php:352
 #: src/Admin/Core/AssetManager.php:1432
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:447
 msgid "Details"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:390
-#: src/Admin/Booking/Meta/BookingMeta.php:466
+#: src/Admin/Booking/Meta/BookingMeta.php:391
+#: src/Admin/Booking/Meta/BookingMeta.php:467
 msgid "Booking Summary"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:483
+#: src/Admin/Booking/Meta/BookingMeta.php:484
 msgid "Days:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:488
+#: src/Admin/Booking/Meta/BookingMeta.php:489
 msgid "Total:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:686
+#: src/Admin/Booking/Meta/BookingMeta.php:688
 msgid "No customer email found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:694
+#: src/Admin/Booking/Meta/BookingMeta.php:696
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
 #: src/Admin/Settings/Groups/EmailSettings.php:177
 #: templates/emails/booking-status-changed-admin.html.php:17
@@ -2611,230 +2612,236 @@ msgstr ""
 msgid "Customer:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:700
-#: src/Admin/Booking/Meta/BookingMeta.php:727
+#: src/Admin/Booking/Meta/BookingMeta.php:702
+#: src/Admin/Booking/Meta/BookingMeta.php:729
 #: src-react/admin/customers/components/CustomerPanel.jsx:157
 msgid "Send Email"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:706
+#: src/Admin/Booking/Meta/BookingMeta.php:708
 msgid "Email Type:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:708
+#: src/Admin/Booking/Meta/BookingMeta.php:710
 #: templates/account/booking-detail.php:77
 msgid "Booking Confirmation"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:709
+#: src/Admin/Booking/Meta/BookingMeta.php:711
 msgid "Payment Reminder"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:710
+#: src/Admin/Booking/Meta/BookingMeta.php:712
 msgid "Booking Reminder"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:712
+#: src/Admin/Booking/Meta/BookingMeta.php:714
 msgid "Custom Message"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:717
+#: src/Admin/Booking/Meta/BookingMeta.php:719
 #: src/Admin/Emails/Core/EmailTemplates.php:570
 #: src/Admin/Emails/Templates/EmailPreview.php:119
 msgid "Subject:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:718
+#: src/Admin/Booking/Meta/BookingMeta.php:720
 msgid "Email subject..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:722
+#: src/Admin/Booking/Meta/BookingMeta.php:724
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:844
 msgid "Message:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:723
+#: src/Admin/Booking/Meta/BookingMeta.php:725
 msgid "Your message..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:753
+#: src/Admin/Booking/Meta/BookingMeta.php:755
 msgid "You do not have permission to send emails."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:773
-#: src/Admin/Booking/Meta/BookingMeta.php:1706
+#: src/Admin/Booking/Meta/BookingMeta.php:775
+#: src/Admin/Booking/Meta/BookingMeta.php:1818
 msgid "Customer email not found."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:813
+#: src/Admin/Booking/Meta/BookingMeta.php:815
 msgid "Failed to send email."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:848
+#: src/Admin/Booking/Meta/BookingMeta.php:850
 #: templates/account/booking-detail.php:33
 msgid "Unknown Vehicle"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:857
+#: src/Admin/Booking/Meta/BookingMeta.php:859
 #, php-format
 msgid "Booking Confirmation - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:859
+#: src/Admin/Booking/Meta/BookingMeta.php:861
 #, php-format
 msgid "Payment Reminder - %s"
 msgstr ""
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:861
+#: src/Admin/Booking/Meta/BookingMeta.php:863
 #, php-format
 msgid "Booking Reminder - %s"
 msgstr ""
 
 #. translators: %s: blog name.
-#: src/Admin/Booking/Meta/BookingMeta.php:863
+#: src/Admin/Booking/Meta/BookingMeta.php:865
 #, php-format
 msgid "Message from %s"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:870
+#: src/Admin/Booking/Meta/BookingMeta.php:872
 #, php-format
 msgid "Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for choosing us!"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:879
+#: src/Admin/Booking/Meta/BookingMeta.php:881
 #, php-format
 msgid "Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>Total Amount: %3$s<br><br>Please complete your payment as soon as possible."
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date.
-#: src/Admin/Booking/Meta/BookingMeta.php:886
+#: src/Admin/Booking/Meta/BookingMeta.php:888
 #, php-format
 msgid "Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br><br>We look forward to serving you!"
 msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name.
-#: src/Admin/Booking/Meta/BookingMeta.php:894
+#: src/Admin/Booking/Meta/BookingMeta.php:896
 #, php-format
 msgid "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has been cancelled.<br><br>If you have any questions, please contact us."
 msgstr ""
 
 #. translators: %s: blog name
-#: src/Admin/Booking/Meta/BookingMeta.php:899
+#: src/Admin/Booking/Meta/BookingMeta.php:901
 #, php-format
 msgid "You have received a message from %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:925
-#: src/Admin/Booking/Meta/BookingMeta.php:948
+#: src/Admin/Booking/Meta/BookingMeta.php:927
+#: src/Admin/Booking/Meta/BookingMeta.php:950
 msgid "Add Note"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:932
+#: src/Admin/Booking/Meta/BookingMeta.php:934
 #: src/Admin/Settings/Groups/AddonSettings.php:98
 msgid "Note:"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:933
+#: src/Admin/Booking/Meta/BookingMeta.php:935
 msgid "Add a note about this booking..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:937
-msgid "Type:"
-msgstr ""
-
 #: src/Admin/Booking/Meta/BookingMeta.php:939
-#: src/Admin/Booking/Meta/BookingMeta.php:1017
-#: src/Admin/Booking/Meta/BookingMeta.php:1024
-msgid "Note"
-msgstr ""
-
-#: src/Admin/Booking/Meta/BookingMeta.php:940
-#: src/Admin/Booking/Meta/BookingMeta.php:1018
-msgid "Status Change"
+msgid "Type:"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:941
 #: src/Admin/Booking/Meta/BookingMeta.php:1019
-msgid "Payment Update"
+#: src/Admin/Booking/Meta/BookingMeta.php:1026
+msgid "Note"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:942
 #: src/Admin/Booking/Meta/BookingMeta.php:1020
-msgid "Customer Contact"
+msgid "Status Change"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:943
-#: src/Admin/Booking/Meta/BookingMeta.php:976
 #: src/Admin/Booking/Meta/BookingMeta.php:1021
+msgid "Payment Update"
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingMeta.php:944
+#: src/Admin/Booking/Meta/BookingMeta.php:1022
+msgid "Customer Contact"
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingMeta.php:945
+#: src/Admin/Booking/Meta/BookingMeta.php:978
+#: src/Admin/Booking/Meta/BookingMeta.php:1023
 #: src/Layout/CLI/LayoutImportCommand.php:426
 msgid "System"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:960
+#: src/Admin/Booking/Meta/BookingMeta.php:962
 msgid "History"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:963
+#: src/Admin/Booking/Meta/BookingMeta.php:965
 msgid "No history found."
 msgstr ""
 
 #. translators: %s: user display name
-#: src/Admin/Booking/Meta/BookingMeta.php:991
+#: src/Admin/Booking/Meta/BookingMeta.php:993
 #, php-format
 msgid "By %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1002
+#: src/Admin/Booking/Meta/BookingMeta.php:1004
 msgid "more entries"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1046
+#: src/Admin/Booking/Meta/BookingMeta.php:1048
 msgid "You do not have permission to add notes."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1060
+#: src/Admin/Booking/Meta/BookingMeta.php:1062
 msgid "Invalid booking ID or empty note."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1468
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:205
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:965
+#. translators: %s: list of the vehicle's closed days, joined by the site's list format ("1 June, 2 June and 3 June").
+#: src/Admin/Booking/Meta/BookingMeta.php:1480
+#, php-format
+msgid "This vehicle has closed days in this period: %s. The booking was saved anyway."
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingMeta.php:1580
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:206
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:982
 msgid "Booking created"
 msgstr ""
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1493
+#: src/Admin/Booking/Meta/BookingMeta.php:1605
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr ""
 
 #. translators: 1: old payment status, 2: new payment status
-#: src/Admin/Booking/Meta/BookingMeta.php:1519
+#: src/Admin/Booking/Meta/BookingMeta.php:1631
 #, php-format
 msgid "Payment status changed from %1$s to %2$s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1584
-#: src/Admin/Booking/Meta/BookingMeta.php:1784
+#: src/Admin/Booking/Meta/BookingMeta.php:1696
+#: src/Admin/Booking/Meta/BookingMeta.php:1896
 msgid "Note added successfully!"
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1587
+#: src/Admin/Booking/Meta/BookingMeta.php:1699
 msgid "The vehicle is already booked for these dates. The booking details were not saved."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1593
+#: src/Admin/Booking/Meta/BookingMeta.php:1705
 msgid "Vehicle availability could not be checked. The booking details were not saved. Please try again."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1626
-#: src/Admin/Booking/Meta/BookingMeta.php:1675
-#: src/Admin/Booking/Meta/BookingMeta.php:1759
+#: src/Admin/Booking/Meta/BookingMeta.php:1738
+#: src/Admin/Booking/Meta/BookingMeta.php:1787
+#: src/Admin/Booking/Meta/BookingMeta.php:1871
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:176
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:29
@@ -2842,17 +2849,17 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1642
-#: src/Admin/Booking/Meta/BookingMeta.php:1695
-#: src/Admin/Booking/Meta/BookingMeta.php:1776
+#: src/Admin/Booking/Meta/BookingMeta.php:1754
+#: src/Admin/Booking/Meta/BookingMeta.php:1807
+#: src/Admin/Booking/Meta/BookingMeta.php:1888
 msgid "Missing required fields."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1735
+#: src/Admin/Booking/Meta/BookingMeta.php:1847
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1786
+#: src/Admin/Booking/Meta/BookingMeta.php:1898
 msgid "Failed to add note."
 msgstr ""
 
@@ -2890,8 +2897,8 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:117
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:146
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:535
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:639
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:536
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:642
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:40
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:137
 msgid "Permission denied."
@@ -2973,129 +2980,129 @@ msgstr ""
 msgid "No refund is due"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:52
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:69
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:53
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:70
 msgid "Create Manual Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:206
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:516
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:207
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
 msgid "Calculate Price"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:207
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:208
 msgid "Creating..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:208
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:517
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:209
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:518
 msgid "Create Booking"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:209
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:334
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:335
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:315
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:467
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:817
-#: templates/partials/selected-vehicle-summary.php:82
+#: templates/partials/selected-vehicle-summary.php:92
 msgid "Daily Price"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:213
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:214
 msgid "Weekend Difference:"
 msgstr ""
 
 #. translators: %d: number of weekend days in the rental.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:215
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:216
 #, php-format
 msgid "%d weekend day(s)"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:216
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:217
 msgid "Drop-off date must be after pick-up date."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:217
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:218
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:521
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:542
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:543
 msgid "Please fill in all required fields."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:218
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
 msgid "Not specified"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:219
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:220
 msgid "Price calculated successfully."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:220
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:221
 msgid "Selected Vehicle"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:224
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:336
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:337
 msgid "Vehicle Total"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:225
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2258
 msgid "Add-ons"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:226
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:227
 msgid "Grand Total"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:228
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:229
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1044
 msgid "Remaining"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:229
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:230
 msgid "Add-on Services Total"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:278
 msgid "Vehicle & Customer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:285
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:286
 msgid "Select a vehicle..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:288
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:289
 #: templates/shortcodes/vehicle-comparison.php:149
 #: templates/shortcodes/vehicle-comparison.php:218
 msgid "day"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:300
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:301
 msgid "Select a customer..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:301
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:302
 msgid "+ Create New Customer"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:314
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:315
 msgid "New Customer Information"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:320
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:321
 #: src/Admin/Settings/Groups/FrontendSettings.php:331
 #: templates/account/account-details.php:76
 msgid "First Name"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:324
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:325
 #: src/Admin/Settings/Groups/FrontendSettings.php:332
 #: templates/account/account-details.php:84
 msgid "Last Name"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:330
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:331
 #: src/Admin/Customers/AddCustomerPage.php:151
 #: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Customers/CustomersPage.php:561
@@ -3107,7 +3114,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:335
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:336
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:373
 #: src/Admin/Customers/CustomersPage.php:566
@@ -3121,55 +3128,55 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:349
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:350
 msgid "Dates & Duration"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:465
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:466
 msgid "Payment & Notes"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:501
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:502
 msgid "Notes"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:502
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:503
 msgid "Special notes about the booking..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:510
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:511
 msgid "Price Calculation"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:547
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:657
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:548
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:660
 msgid "Required fields are missing."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:581
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:851
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1354
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1561
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:584
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:857
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1360
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1567
 msgid "Price could not be calculated."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:668
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:672
 msgid "Invalid booking status."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:689
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:693
 msgid "You do not have permission to create new customer accounts. Please select an existing customer instead."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:700
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:704
 msgid "New customer information is missing."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:709
 msgid "This email address is already registered."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:720
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:724
 #: src/Admin/Customers/CustomersPage.php:336
 #: src/Admin/Customers/CustomersPage.php:489
 #: src/Admin/Customers/REST/CustomersRestController.php:161
@@ -3178,26 +3185,26 @@ msgid "Customer not found."
 msgstr ""
 
 #. translators: %s: the error message wp_update_user() returned.
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:815
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:821
 #, php-format
 msgid "wp_update_user failed while creating a manual booking: %s"
 msgstr ""
 
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:863
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:869
 #, php-format
 msgid "Manual Booking - %s"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:942
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:954
 msgid "This vehicle has just been booked for the selected dates."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:946
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:958
 msgid "Booking could not be created."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:989
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:1006
 msgid "Booking created successfully."
 msgstr ""
 
@@ -3262,7 +3269,7 @@ msgstr ""
 
 #: src/Admin/ContactMessages/ContactStatus.php:38
 #: src/Admin/Customers/CustomersPage.php:253
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:77
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:90
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/contact-messages/components/ContactStats.jsx:8
 #: src-react/admin/contact-messages/components/ContactTable.jsx:76
@@ -3360,11 +3367,11 @@ msgid "Removed from favorites."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:533
-#: templates/partials/rvs-vehicle-card.php:133
+#: templates/partials/rvs-vehicle-card.php:157
 #: templates/partials/vehicle-card.php:111
 #: templates/partials/vehicle-card.php:112
 #: templates/partials/vehicle-card.php:124
-#: templates/shortcodes/search-results.php:315
+#: templates/shortcodes/search-results.php:331
 #: templates/shortcodes/vehicle-details.php:135
 msgid "Compare"
 msgstr ""
@@ -3472,19 +3479,19 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:283
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:516
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:525
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1234
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1233
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:102
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:101
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1429
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1996
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:312
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:430
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:452
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:590
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:454
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:221
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:797
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1584
-#: templates/shortcodes/availability-calendar.php:101
-#: templates/shortcodes/availability-calendar.php:250
+#: templates/shortcodes/availability-calendar.php:100
+#: templates/shortcodes/availability-calendar.php:247
 msgid "Available"
 msgstr ""
 
@@ -3567,7 +3574,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:995
 #: src/Admin/Core/AssetManager.php:1543
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:335
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:346
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:127
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:139
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:151
@@ -3596,18 +3603,18 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:402
 #: src/Admin/Frontend/Account/AccountRenderer.php:421
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:343
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:344
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:546
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:467
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:534
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:182
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:131
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:231
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:232
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:117
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:428
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:430
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:96
-#: templates/shortcodes/availability-calendar.php:480
+#: templates/shortcodes/availability-calendar.php:477
 msgid "Loading..."
 msgstr ""
 
@@ -3667,7 +3674,7 @@ msgid "This field is required"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1083
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:327
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:328
 msgid "Please enter a valid email address"
 msgstr ""
 
@@ -3680,7 +3687,7 @@ msgid "Value must be between %min and %max"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1086
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:325
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:326
 msgid "Dropoff date must be after pickup date"
 msgstr ""
 
@@ -4200,7 +4207,7 @@ msgid "No fields highlighted in the detail view"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1454
-#: templates/shortcodes/search-results.php:305
+#: templates/shortcodes/search-results.php:321
 msgid "Comparison"
 msgstr ""
 
@@ -4274,7 +4281,7 @@ msgid "Update"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1552
-#: templates/shortcodes/unified-search.php:101
+#: templates/shortcodes/unified-search.php:103
 msgid "Search"
 msgstr ""
 
@@ -4312,12 +4319,12 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1557
 #: src/Admin/Customers/CustomersPage.php:442
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:484
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:551
 #: templates/account/bookings.php:408
 #: templates/account/bookings.php:411
 #: templates/account/payment-history.php:209
 #: templates/account/payment-history.php:212
-#: templates/shortcodes/availability-calendar.php:282
+#: templates/shortcodes/availability-calendar.php:279
 #: templates/shortcodes/testimonials.php:152
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:261
 msgid "Next"
@@ -4325,12 +4332,12 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1558
 #: src/Admin/Customers/CustomersPage.php:437
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:483
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:550
 #: templates/account/bookings.php:393
 #: templates/account/bookings.php:396
 #: templates/account/payment-history.php:194
 #: templates/account/payment-history.php:197
-#: templates/shortcodes/availability-calendar.php:274
+#: templates/shortcodes/availability-calendar.php:271
 #: templates/shortcodes/testimonials.php:149
 #: src-react/admin/contact-messages/ContactMessagesList.jsx:258
 msgid "Previous"
@@ -4342,8 +4349,8 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1560
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1951
-#: templates/shortcodes/search-results.php:175
-#: templates/shortcodes/search-results.php:232
+#: templates/shortcodes/search-results.php:178
+#: templates/shortcodes/search-results.php:235
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
 msgid "Clear"
 msgstr ""
@@ -4365,8 +4372,8 @@ msgid "Please wait..."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1568
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:349
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:233
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:350
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:234
 msgid "Please try again"
 msgstr ""
 
@@ -4402,7 +4409,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:540
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1258
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1257
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1953
 #: src/Blocks/BlockRegistry.php:252
 msgid "January"
@@ -4410,7 +4417,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:541
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1259
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1258
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1954
 #: src/Blocks/BlockRegistry.php:252
 msgid "February"
@@ -4418,7 +4425,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:542
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1260
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1259
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1955
 #: src/Blocks/BlockRegistry.php:252
 msgid "March"
@@ -4426,7 +4433,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:543
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1261
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1260
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1956
 #: src/Blocks/BlockRegistry.php:252
 msgid "April"
@@ -4434,7 +4441,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:68
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:544
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1262
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1261
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1957
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1971
 #: src/Blocks/BlockRegistry.php:252
@@ -4443,7 +4450,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:545
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1263
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1262
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1958
 #: src/Blocks/BlockRegistry.php:252
 msgid "June"
@@ -4451,7 +4458,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:546
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1264
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1263
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1959
 #: src/Blocks/BlockRegistry.php:252
 msgid "July"
@@ -4459,7 +4466,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:547
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1265
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1264
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1960
 #: src/Blocks/BlockRegistry.php:252
 msgid "August"
@@ -4467,7 +4474,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:548
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1266
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1265
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1961
 #: src/Blocks/BlockRegistry.php:252
 msgid "September"
@@ -4475,7 +4482,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:549
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1267
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1266
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1962
 #: src/Blocks/BlockRegistry.php:252
 msgid "October"
@@ -4483,7 +4490,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:550
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1268
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1267
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1963
 #: src/Blocks/BlockRegistry.php:252
 msgid "November"
@@ -4491,7 +4498,7 @@ msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:551
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1269
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1268
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1964
 #: src/Blocks/BlockRegistry.php:252
 msgid "December"
@@ -4775,8 +4782,8 @@ msgid "Irish"
 msgstr ""
 
 #: src/Admin/Core/ListTable/FleetOccupancyMatrix.php:239
-#: templates/shortcodes/availability-calendar.php:258
-#: templates/shortcodes/availability-calendar.php:370
+#: templates/shortcodes/availability-calendar.php:255
+#: templates/shortcodes/availability-calendar.php:367
 msgid "Reserved"
 msgstr ""
 
@@ -5013,16 +5020,16 @@ msgstr ""
 
 #: src/Admin/Core/SecurityHelper.php:372
 #: src/Admin/Core/SecurityHelper.php:405
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1239
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:278
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:348
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1245
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:317
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:404
 msgid "Invalid vehicle ID."
 msgstr ""
 
 #: src/Admin/Core/SecurityHelper.php:415
 #: src/Admin/Core/SecurityHelper.php:449
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:194
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:198
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:232
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:236
 msgid "Invalid date format."
 msgstr ""
 
@@ -5120,7 +5127,7 @@ msgid "Database Cleanup Report"
 msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1744
-#: templates/shortcodes/search-results.php:189
+#: templates/shortcodes/search-results.php:192
 msgid "Category"
 msgstr ""
 
@@ -5745,7 +5752,7 @@ msgstr ""
 
 #: src/Admin/Core/Utilities/UXHelper.php:367
 #: src/Admin/Core/Utilities/UXHelper.php:382
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:486
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:553
 msgid "Try Again"
 msgstr ""
 
@@ -5838,7 +5845,7 @@ msgid "bookings"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:384
-#: templates/shortcodes/booking-form.php:209
+#: templates/shortcodes/booking-form.php:204
 #: src-react/admin/customers/components/CustomerPanel.jsx:108
 msgid "total"
 msgstr ""
@@ -5890,7 +5897,7 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:542
 #: templates/account/dashboard.php:190
-#: templates/shortcodes/search-results.php:258
+#: templates/shortcodes/search-results.php:261
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:51
 msgid "View"
 msgstr ""
@@ -6491,7 +6498,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:403
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:67
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:322
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:512
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:596
 msgid "An error occurred."
 msgstr ""
 
@@ -6580,9 +6587,9 @@ msgid "vehicles in your favorites"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:647
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:228
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:274
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:344
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:267
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:313
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:400
 msgid "Security error."
 msgstr ""
 
@@ -6675,18 +6682,18 @@ msgid "Welcome to your dashboard. From your account dashboard you can view your 
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:422
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:468
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:429
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:535
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
 msgid "No vehicles found"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:424
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:405
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:461
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:139
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:234
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:235
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:208
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:677
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:433
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:326
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:90
 #: src/Admin/Settings/Groups/FrontendSettings.php:289
@@ -6696,10 +6703,10 @@ msgid "Book Now"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:425
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:482
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:549
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:432
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:678
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
 #: src/Admin/Settings/Groups/FrontendSettings.php:290
 #: templates/account/bookings.php:253
 #: templates/account/bookings.php:370
@@ -6708,11 +6715,11 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:426
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:337
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:311
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:476
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:312
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:543
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:210
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:433
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:435
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
 #: src/Admin/Services/FavoritesService.php:175
 #: src/Admin/Settings/Groups/FrontendSettings.php:308
 msgid "Added to favorites"
@@ -6720,11 +6727,11 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:427
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:338
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:312
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:477
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:313
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:544
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:211
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:436
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:682
 #: src/Admin/Services/FavoritesService.php:171
 #: src/Admin/Settings/Groups/FrontendSettings.php:309
 msgid "Removed from favorites"
@@ -6733,8 +6740,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:428
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:336
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:212
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:435
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:437
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:683
 #: src/Admin/Services/FavoritesService.php:154
 #: src/Admin/Settings/Groups/FrontendSettings.php:310
 msgid "You must be logged in to add to favorites"
@@ -6843,74 +6850,75 @@ msgid "Go to my account"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:284
-#: templates/shortcodes/availability-calendar.php:432
+#: templates/shortcodes/availability-calendar.php:429
 msgid "Vehicle Unavailable"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:285
-#: templates/shortcodes/availability-calendar.php:433
+#: templates/shortcodes/availability-calendar.php:430
 msgid "This vehicle is currently out of order and cannot be booked. Please choose another vehicle."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:286
-#: templates/shortcodes/availability-calendar.php:436
+#: templates/shortcodes/availability-calendar.php:433
 msgid "Choose Another Vehicle"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:287
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:95
+#: templates/partials/rvs-vehicle-card.php:62
 #: templates/shortcodes/vehicle-details.php:200
 msgid "Booked"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:293
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:333
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:478
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:334
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:545
 #: templates/partials/vehicle-card.php:280
-#: templates/shortcodes/availability-calendar.php:225
-#: templates/shortcodes/booking-form.php:89
+#: templates/shortcodes/availability-calendar.php:222
+#: templates/shortcodes/booking-form.php:84
 msgid "/day"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:294
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1991
-#: templates/shortcodes/availability-calendar.php:320
+#: templates/shortcodes/availability-calendar.php:317
 msgid "Mon"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:295
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1992
-#: templates/shortcodes/availability-calendar.php:321
+#: templates/shortcodes/availability-calendar.php:318
 msgid "Tue"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:296
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1993
-#: templates/shortcodes/availability-calendar.php:322
+#: templates/shortcodes/availability-calendar.php:319
 msgid "Wed"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:297
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1994
-#: templates/shortcodes/availability-calendar.php:323
+#: templates/shortcodes/availability-calendar.php:320
 msgid "Thu"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:298
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1995
-#: templates/shortcodes/availability-calendar.php:324
+#: templates/shortcodes/availability-calendar.php:321
 msgid "Fri"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:299
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1996
-#: templates/shortcodes/availability-calendar.php:325
+#: templates/shortcodes/availability-calendar.php:322
 msgid "Sat"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:300
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1990
-#: templates/shortcodes/availability-calendar.php:326
+#: templates/shortcodes/availability-calendar.php:323
 msgid "Sun"
 msgstr ""
 
@@ -6927,13 +6935,13 @@ msgid "Operation successful."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:525
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1235
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1429
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:452
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:590
-#: templates/shortcodes/availability-calendar.php:101
-#: templates/shortcodes/availability-calendar.php:372
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1234
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:102
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1996
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:454
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:592
+#: templates/shortcodes/availability-calendar.php:100
+#: templates/shortcodes/availability-calendar.php:369
 msgid "Out of Order"
 msgstr ""
 
@@ -6977,216 +6985,216 @@ msgstr ""
 msgid "%d people"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1237
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:97
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1236
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:110
 #: templates/partials/vehicle-card-base.php:250
-#: templates/shortcodes/availability-calendar.php:373
+#: templates/shortcodes/availability-calendar.php:370
 #: templates/shortcodes/vehicle-comparison.php:103
 #: templates/shortcodes/vehicle-comparison.php:204
 #: templates/shortcodes/vehicle-comparison.php:318
 msgid "Unavailable"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1239
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1238
 msgid "An error occurred while retrieving vehicle information."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:290
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:291
 msgid "Checking availability..."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:291
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:292
 msgid "Vehicle is available"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:292
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:293
 msgid "Vehicle is not available for the selected dates. Please choose different dates."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:294
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:295
 msgid "Availability check failed"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:295
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:296
 msgid "Select This Vehicle"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:298
-#: templates/shortcodes/booking-form.php:211
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:299
+#: templates/shortcodes/booking-form.php:206
 msgid "Show summary"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:299
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:300
 msgid "Hide summary"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:302
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1411
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:303
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1417
 msgid "Redirecting to payment page..."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:303
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:304
 msgid "Payment completed successfully!"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:304
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:305
 msgid "Payment cancelled. Your booking is in pending status."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:305
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:306
 msgid "Payment status is unknown. Please check."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:306
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:307
 msgid "Popup blocked. Redirecting to payment page..."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:307
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:308
 msgid "Please select a payment gateway."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:308
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:309
 msgid "Please select a payment type."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:309
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:310
 msgid "Please select a payment method."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:310
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:311
 msgid "Please log in to manage favorites."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:313
-#: templates/partials/rvs-vehicle-card.php:34
-#: templates/shortcodes/availability-calendar.php:131
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:314
+#: templates/partials/rvs-vehicle-card.php:38
+#: templates/shortcodes/availability-calendar.php:128
 msgid "Add to favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:314
-#: templates/partials/rvs-vehicle-card.php:34
-#: templates/shortcodes/availability-calendar.php:131
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:315
+#: templates/partials/rvs-vehicle-card.php:38
+#: templates/shortcodes/availability-calendar.php:128
 msgid "Remove from favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:315
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:316
 msgid "You must accept the terms and conditions to complete your booking."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:318
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:319
 msgid "Your booking has been successfully created!"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:319
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:320
 msgid "Your booking has been successfully created! Booking No:"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:320
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:321
 msgid "Return date must be after pickup date."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:323
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:324
 msgid "Please select a vehicle"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:324
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:325
 msgid "Please enter pickup and dropoff dates"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:326
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:327
 msgid "Please enter your full name"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:328
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:329
 msgid "Please enter your phone number"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:329
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:330
 msgid "Please select pickup time."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:330
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:331
 msgid "Alternative Vehicles"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:335
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:336
 msgid "Days"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:337
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:338
 msgid "Add-ons Total"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:345
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:346
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:135
 msgid "Submitting..."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:350
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:351
 msgid "Connection error"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:513
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:500
 msgid "Complete your booking"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:601
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:599
 msgid "Required · included in the rental"
 msgstr ""
 
 #. translators: %d: the most of this add-on one booking can take.
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:609
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:607
 #, php-format
 msgid "up to %d"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:739
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:744
 msgid "You must provide consent for data processing before making a booking. Please update your account settings."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:754
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:758
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:759
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:763
 msgid "I accept the terms of use and privacy policy."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1096
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1101
 msgid "Too many booking requests. Please wait 5 minutes."
 msgstr ""
 
 #. translators: %s: vehicle status
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1127
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1132
 #, php-format
 msgid "Selected vehicle is not available (Status: %s)."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1143
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1148
 msgid "Pickup time is required."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1218
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1553
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1224
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1559
 msgid "Invalid payment type."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1243
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1249
 msgid "Please select dates."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1254
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1260
 msgid "Please fill in contact information."
 msgstr ""
 
 #. translators: %s: error message
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1435
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1441
 #, php-format
 msgid "Payment gateway error: %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1441
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1447
 msgid "No payment gateway is available. Please contact the site administrator."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1475
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1481
 msgid "Too many price calculation requests. Please wait."
 msgstr ""
 
@@ -7279,45 +7287,51 @@ msgid "Wk"
 msgstr ""
 
 #. translators: %s: average rating, e.g. 4.8.
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:76
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89
 #, php-format
 msgid "★ %s"
 msgstr ""
 
+#. translators: %s: date and time the car is next free, in the site's formats.
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:160
+#, php-format
+msgid "Earliest free: %s"
+msgstr ""
+
 #. translators: %s: deposit percentage as written in the site's language, e.g. "10%" or "%10".
 #. translators: %s: deposit percentage, e.g. "10%".
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:288
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:353
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:340
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:364
 #, php-format
 msgid "Deposit %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:289
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:357
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:341
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:368
 msgid "Full payment"
 msgstr ""
 
 #. translators: %d: number of hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:292
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:344
 #, php-format
 msgid "Free cancellation (%d hour)"
 msgid_plural "Free cancellation (%d hours)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:317
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:369
 msgid "Price on request"
 msgstr ""
 
 #. translators: 1: number of days, 2: formatted daily price.
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:335
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:387
 #, php-format
 msgid "%1$d day total · %2$s/day"
 msgid_plural "%1$d days total · %2$s/day"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:344
+#: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:396
 msgid "per day"
 msgstr ""
 
@@ -7622,126 +7636,126 @@ msgstr ""
 msgid "Confirmation"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:185
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:195
 msgid "Choose deposit or full payment at the payment step"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:186
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:196
 msgid "Paid in full when booking"
 msgstr ""
 
 #. translators: %d: hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:189
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:199
 #, php-format
 msgid "Free cancellation up to %d hour before pickup"
 msgid_plural "Free cancellation up to %d hours before pickup"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:223
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:234
 msgid "The pickup date has passed. Please choose another date."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:226
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:237
 msgid "Same-day pickup is not available. Please choose a later date."
 msgstr ""
 
 #. translators: %d: number of days ahead a booking can be made.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:231
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:242
 #, php-format
 msgid "Bookings can be made up to %d day ahead."
 msgid_plural "Bookings can be made up to %d days ahead."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:266
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:277
 msgid "Rental cars"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:354
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:365
 msgid "Paid when booking; the rest at pickup."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:358
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:369
 msgid "Paid in full when booking."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:364
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:375
 msgid "Free cancellation"
 msgstr ""
 
 #. translators: %d: hours before pickup.
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:366
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:377
 #, php-format
 msgid "Up to %d hour before pickup."
 msgid_plural "Up to %d hours before pickup."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:371
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:382
 msgid "Security deposit"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:372
+#: src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php:383
 msgid "Fuel policy"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:469
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:536
 msgid "Filter applied"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:470
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:537
 msgid "Clear all filters"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:471
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:69
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:538
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:77
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:359
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:400
 msgid "Clear All"
 msgstr ""
 
 #. translators: %d: count of filters.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:473
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:540
 #, php-format
 msgid "Clear All (%d)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:474
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:541
 msgid "Try adjusting your search criteria or filters."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:475
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:542
 msgid "Back to Search"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:479
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:546
 msgid "seats"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:480
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:547
 msgid "review"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:481
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:548
 msgid "reviews"
 msgstr ""
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:488
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:555
 #, php-format
 msgid "%d vehicle found"
 msgstr ""
 
 #. translators: %d: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:490
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:557
 #, php-format
 msgid "%d vehicles found"
 msgstr ""
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:492
-#: templates/shortcodes/search-results.php:310
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:559
+#: templates/shortcodes/search-results.php:326
 #, php-format
 msgid "%1$s vehicle selected · up to %2$s"
 msgid_plural "%1$s vehicles selected · up to %2$s"
@@ -7749,13 +7763,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of vehicles picked for comparison, 2: the most that can be compared.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:494
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:561
 #, php-format
 msgid "%1$s vehicles selected · up to %2$s"
 msgstr ""
 
 #. translators: %s: number of vehicles.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1175
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1495
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1801
 #, php-format
 msgid "%s vehicle"
 msgid_plural "%s vehicles"
@@ -7763,99 +7778,174 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: pickup date, 2: return date (both short, e.g. "12 Jul").
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1188
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1508
 #, php-format
 msgid "%1$s – %2$s"
 msgstr ""
 
 #. translators: %s: number of seats.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1244
-#: templates/shortcodes/search-results.php:208
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1564
+#: templates/shortcodes/search-results.php:211
 #, php-format
 msgid "%s seats"
 msgstr ""
 
 #. translators: %s: formatted minimum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1254
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1574
 #, php-format
 msgid "From %s/day"
 msgstr ""
 
 #. translators: %s: formatted maximum daily price.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1256
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1576
 #, php-format
 msgid "Up to %s/day"
 msgstr ""
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1258
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1578
 #, php-format
 msgid "From %s"
 msgstr ""
 
 #. translators: %s: model year.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1260
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1580
 #, php-format
 msgid "Up to %s"
 msgstr ""
 
 #. translators: %s: mileage in km.
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1262
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1582
 #, php-format
 msgid "Up to %s km"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1294
+#. translators: 1: pickup point name, 2: the searched dates, e.g. "7 Dec – 10 Dec".
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1640
+#, php-format
+msgid "No cars are free at the %1$s pickup point for %2$s."
+msgstr ""
+
+#. translators: %s: the searched dates, e.g. "7 Dec – 10 Dec".
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1642
+#, php-format
+msgid "No cars are free at the selected pickup points for %s."
+msgstr ""
+
+#. translators: %s: pickup point name.
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1646
+#, php-format
+msgid "There are no cars at the %s pickup point yet."
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1647
+msgid "There are no cars at the selected pickup points yet."
+msgstr ""
+
+#. translators: 1: city (several are joined into one), 2: the section's result summary, e.g. "2 vehicles · 7 Dec – 10 Dec · 3 days".
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1689
+#, php-format
+msgid "%1$s · %2$s"
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1725
+msgid "Matches your search, but not free on your dates"
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1733
+msgid "Other pickup points in the same city"
+msgstr ""
+
+#. translators: %s: pickup point name.
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1747
+#, php-format
+msgid "Booked for these dates at the %s pickup point"
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1750
+#: templates/partials/rvs-vehicle-card.php:119
+msgid "Booked for these dates"
+msgstr ""
+
+#. translators: %s: number of rental days.
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1766
+#: templates/partials/search/rvs-summary.php:23
+#, php-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: joins two items of one line, e.g. two city names or the parts of a results summary ("2 vehicles · 7 Dec – 10 Dec"). 1: the line so far, 2: the next item.
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1783
+#, php-format
+msgctxt "joined items of one line"
+msgid "%1$s · %2$s"
+msgstr ""
+
+#. translators: 1: a results section's heading, e.g. "Booked for these dates"; 2: number of vehicles in it, e.g. "1 vehicle".
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1803
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#. translators: 1: number of vehicles in the results, e.g. "2 vehicles"; 2: the extra sections with their counts, e.g. "Booked for these dates: 1 vehicle".
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1817
+#, php-format
+msgid "%1$s. %2$s."
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1834
 #: assets/blocks/search-results/index.js:51
 msgid "Most Relevant"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1295
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1835
 msgid "Total price: low to high"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1295
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1835
 #: src/Admin/Settings/Groups/FrontendSettings.php:255
 #: assets/blocks/search-results/index.js:52
 msgid "Price: Low to High"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1296
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1836
 msgid "Total price: high to low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1296
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1836
 #: src/Admin/Settings/Groups/FrontendSettings.php:256
 #: assets/blocks/search-results/index.js:53
 msgid "Price: High to Low"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1297
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1837
 #: src/Admin/Settings/Groups/FrontendSettings.php:257
 #: assets/blocks/search-results/index.js:54
 msgid "Name: A to Z"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1298
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1838
 #: src/Admin/Settings/Groups/FrontendSettings.php:258
 #: assets/blocks/search-results/index.js:55
 msgid "Name: Z to A"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1299
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:1839
 #: assets/blocks/search-results/index.js:56
 msgid "Newest First"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1448
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2015
 msgid "No vehicles found matching your criteria."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1571
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2141
 msgid "Previous page"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:1586
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:2156
 msgid "Next page"
 msgstr ""
 
@@ -7917,7 +8007,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:313
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:472
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:822
-#: templates/shortcodes/search-results.php:216
+#: templates/shortcodes/search-results.php:219
 msgid "Brand"
 msgstr ""
 
@@ -7936,14 +8026,14 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:317
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1555
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:826
-#: templates/shortcodes/search-results.php:201
+#: templates/shortcodes/search-results.php:204
 msgid "Transmission"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:318
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1545
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:824
-#: templates/shortcodes/search-results.php:210
+#: templates/shortcodes/search-results.php:213
 msgid "Seats"
 msgstr ""
 
@@ -8104,9 +8194,9 @@ msgid "Navigation"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:67
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:240
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:296
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:366
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:279
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:335
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:422
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:770
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:846
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:897
@@ -8123,13 +8213,13 @@ msgstr ""
 msgid "Too many price requests. Please wait."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:211
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:212
 msgid "Something went wrong. Please try again."
 msgstr ""
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
-#: templates/partials/vehicle-details/booking-card.php:36
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:214
+#: templates/partials/vehicle-details/booking-card.php:37
 #, php-format
 msgid "%s day total"
 msgid_plural "%s days total"
@@ -8137,20 +8227,20 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of rental days.
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:216
 #, php-format
 msgid "%s days total"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:235
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:236
 msgid "View Gallery"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:305
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:306
 msgid "No vehicle selected. Set a vehicle ID in the widget settings, or place this widget on a vehicle page."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:306
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:307
 msgid "Vehicle details are not available here."
 msgstr ""
 
@@ -8304,15 +8394,15 @@ msgstr ""
 msgid "Invalid vehicle"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:467
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:469
 msgid "Vehicle Image"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:506
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:508
 msgid "Price Not Specified"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:602
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:604
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:76
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:223
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
@@ -9083,16 +9173,16 @@ msgstr ""
 msgid "Border Radius"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:296
+#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:297
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:235
 msgid "Button Style"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:304
+#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:305
 msgid "Button Color"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:315
+#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:316
 msgid "Button Hover Color"
 msgstr ""
 
@@ -10980,7 +11070,7 @@ msgid "Make Booking Button"
 msgstr ""
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:291
-#: templates/shortcodes/booking-form.php:54
+#: templates/shortcodes/booking-form.php:53
 msgid "Make Booking"
 msgstr ""
 
@@ -12692,7 +12782,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:715
-#: templates/shortcodes/search-results.php:226
+#: templates/shortcodes/search-results.php:229
 msgid "km"
 msgstr ""
 
@@ -12851,7 +12941,7 @@ msgid "This Month Revenue"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1569
-#: templates/shortcodes/search-results.php:202
+#: templates/shortcodes/search-results.php:205
 msgid "Fuel"
 msgstr ""
 
@@ -12859,66 +12949,66 @@ msgstr ""
 msgid "— No Location —"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:36
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:39
 msgid "Blocked Dates"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:53
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:61
 msgid "Select dates when this vehicle is unavailable for reservations."
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:57
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:65
 msgid "days blocked"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:67
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:75
 msgid "Blocked Days"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:75
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:83
 msgid "No dates blocked yet. Click days on the calendar."
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:100
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:108
 msgid "Apply to All Vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:104
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:112
 msgid "Remove from All Vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:233
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:289
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:359
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:272
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:328
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:415
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1636
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:310
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:349
 msgid "No blocked dates selected."
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:506
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:590
 msgid "All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?"
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:507
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:591
 msgid "All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?"
 msgstr ""
 
 #. translators: %d: number of vehicles
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:509
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:593
 #, php-format
 msgid "Applied to %d vehicles."
 msgstr ""
 
 #. translators: %d: number of vehicles
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:511
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:595
 #, php-format
 msgid "Removed from %d vehicles."
 msgstr ""
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:513
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:597
 msgid "Add note... (optional)"
 msgstr ""
 
@@ -14773,6 +14863,16 @@ msgstr ""
 msgid "We are happy to have you with us."
 msgstr ""
 
+#. translators: %s: the pickup point of this car.
+#: templates/partials/rvs-vehicle-card.php:114
+#, php-format
+msgid "Pickup: %s"
+msgstr ""
+
+#: templates/partials/rvs-vehicle-card.php:125
+msgid "See from that date"
+msgstr ""
+
 #: templates/partials/rvs/breakdown.php:31
 #: templates/partials/vehicle-details/booking-card.php:135
 msgid "Price breakdown"
@@ -14822,57 +14922,64 @@ msgstr ""
 msgid "Remove filter"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:25
+#: templates/partials/search/rvs-empty.php:31
 msgid "Choose your dates to see the total price and only the cars that are free."
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:26
+#: templates/partials/search/rvs-empty.php:32
 msgid "Choose dates"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:32
+#: templates/partials/search/rvs-empty.php:38
 msgid "No cars match your filters"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:33
+#: templates/partials/search/rvs-empty.php:39
 msgid "Remove a filter or clear them all."
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:34
+#: templates/partials/search/rvs-empty.php:40
 msgid "Clear filters"
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:40
-msgid "No vehicles are listed yet"
-msgstr ""
-
-#: templates/partials/search/rvs-empty.php:41
-msgid "Please check back soon."
-msgstr ""
-
-#: templates/partials/search/rvs-empty.php:47
-msgid "No cars are free for these dates"
-msgstr ""
-
 #: templates/partials/search/rvs-empty.php:48
-msgid "Try other dates or another pickup location."
+msgid "Other pickup points in the same city have cars. The car you looked for is below, with the earliest time it is free."
 msgstr ""
 
-#: templates/partials/search/rvs-empty.php:49
+#: templates/partials/search/rvs-empty.php:51
+#: templates/partials/search/rvs-empty.php:67
 msgid "Change dates"
 msgstr ""
 
-#. translators: %s: number of rental days.
-#: templates/partials/search/rvs-summary.php:23
-#, php-format
-msgid "%s day"
-msgid_plural "%s days"
-msgstr[0] ""
-msgstr[1] ""
+#: templates/partials/search/rvs-empty.php:58
+msgid "No vehicles are listed yet"
+msgstr ""
 
-#: templates/partials/selected-vehicle-summary.php:74
-#: templates/partials/selected-vehicle-summary.php:76
-#: templates/shortcodes/search-results.php:155
+#: templates/partials/search/rvs-empty.php:59
+msgid "Please check back soon."
+msgstr ""
+
+#: templates/partials/search/rvs-empty.php:65
+msgid "No cars are free for these dates"
+msgstr ""
+
+#: templates/partials/search/rvs-empty.php:66
+msgid "Try other dates or another pickup location."
+msgstr ""
+
+#. translators: %s: the pickup point of this car.
+#. translators: %s: the site's only pickup point.
+#: templates/partials/selected-vehicle-summary.php:78
+#: templates/partials/vehicle-details/booking-card.php:87
+#: templates/shortcodes/search-results.php:277
+#: templates/shortcodes/unified-search.php:109
+#, php-format
+msgid "Pickup and return: %s"
+msgstr ""
+
+#: templates/partials/selected-vehicle-summary.php:84
+#: templates/partials/selected-vehicle-summary.php:86
+#: templates/shortcodes/search-results.php:158
 msgid "Change"
 msgstr ""
 
@@ -14882,34 +14989,28 @@ msgstr ""
 msgid "Rated %s out of 5"
 msgstr ""
 
-#: templates/partials/vehicle-details/booking-card.php:31
+#: templates/partials/vehicle-details/booking-card.php:32
 msgid "Continue"
 msgstr ""
 
-#: templates/partials/vehicle-details/booking-card.php:67
-#: templates/shortcodes/unified-search.php:80
+#: templates/partials/vehicle-details/booking-card.php:68
+#: templates/shortcodes/unified-search.php:82
 msgid "Pickup time"
 msgstr ""
 
-#: templates/partials/vehicle-details/booking-card.php:74
-#: templates/shortcodes/unified-search.php:89
+#: templates/partials/vehicle-details/booking-card.php:75
+#: templates/shortcodes/unified-search.php:91
 msgctxt "search strip: the return date field"
 msgid "Return"
 msgstr ""
 
-#: templates/partials/vehicle-details/booking-card.php:77
-#: templates/shortcodes/unified-search.php:94
+#: templates/partials/vehicle-details/booking-card.php:78
+#: templates/shortcodes/unified-search.php:96
 msgid "Return time follows the pickup time"
 msgstr ""
 
-#: templates/partials/vehicle-details/booking-card.php:82
-#: templates/shortcodes/search-results.php:198
-#: templates/shortcodes/unified-search.php:64
-msgid "Pickup location"
-msgstr ""
-
 #: templates/partials/vehicle-details/booking-card.php:119
-#: templates/shortcodes/booking-form.php:198
+#: templates/shortcodes/booking-form.php:193
 msgid "Booking summary"
 msgstr ""
 
@@ -14970,89 +15071,89 @@ msgstr[1] ""
 msgid "No vehicles found. Please add vehicles first."
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:236
+#: templates/shortcodes/availability-calendar.php:233
 msgid "Change Vehicle"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:254
-#: templates/shortcodes/availability-calendar.php:371
+#: templates/shortcodes/availability-calendar.php:251
+#: templates/shortcodes/availability-calendar.php:368
 msgid "Partially Reserved"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:266
+#: templates/shortcodes/availability-calendar.php:263
 msgid "Click on start and end dates to select your rental period."
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:293
+#: templates/shortcodes/availability-calendar.php:290
 msgid "Calendar Data Not Found"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:294
+#: templates/shortcodes/availability-calendar.php:291
 msgid "Please select a vehicle or check vehicle data."
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:298
+#: templates/shortcodes/availability-calendar.php:295
 msgid "Select Vehicle:"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:301
-#: templates/shortcodes/booking-form.php:80
+#: templates/shortcodes/availability-calendar.php:298
+#: templates/shortcodes/booking-form.php:75
 #: templates/shortcodes/contact-form.php:147
 msgid "Select vehicle..."
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:444
+#: templates/shortcodes/availability-calendar.php:441
 msgid "Selected Dates"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:451
+#: templates/shortcodes/availability-calendar.php:448
 msgid "Format:"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:455
+#: templates/shortcodes/availability-calendar.php:452
 msgid "Total Days:"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:460
+#: templates/shortcodes/availability-calendar.php:457
 msgid "Total Price:"
 msgstr ""
 
-#: templates/shortcodes/availability-calendar.php:471
+#: templates/shortcodes/availability-calendar.php:468
 #: templates/shortcodes/vehicle-comparison.php:138
 #: templates/shortcodes/vehicle-comparison.php:291
 #: templates/shortcodes/vehicle-comparison.php:375
 msgid "Make Reservation"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:76
+#: templates/shortcodes/booking-form.php:71
 msgid "Vehicle Selection"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:99
+#: templates/shortcodes/booking-form.php:94
 msgid "Date & Time Selection"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:103
-#: templates/shortcodes/booking-form.php:120
-#: templates/shortcodes/unified-search.php:78
-#: templates/shortcodes/unified-search.php:91
+#: templates/shortcodes/booking-form.php:98
+#: templates/shortcodes/booking-form.php:115
+#: templates/shortcodes/unified-search.php:80
+#: templates/shortcodes/unified-search.php:93
 msgid "Select date"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:109
-#: templates/shortcodes/booking-form.php:127
+#: templates/shortcodes/booking-form.php:104
+#: templates/shortcodes/booking-form.php:122
 msgid "Time"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:138
+#: templates/shortcodes/booking-form.php:133
 msgid "Return time is automatically set to match pickup time."
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:162
+#: templates/shortcodes/booking-form.php:157
 msgid "Decrease"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:164
+#: templates/shortcodes/booking-form.php:159
 msgid "Increase"
 msgstr ""
 
@@ -15108,77 +15209,82 @@ msgstr ""
 msgid "No featured vehicles found."
 msgstr ""
 
-#: templates/shortcodes/search-results.php:88
-#: templates/shortcodes/search-results.php:89
+#: templates/shortcodes/search-results.php:91
+#: templates/shortcodes/search-results.php:92
 msgid "Min"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:91
-#: templates/shortcodes/search-results.php:92
-#: templates/shortcodes/search-results.php:225
+#: templates/shortcodes/search-results.php:94
+#: templates/shortcodes/search-results.php:95
+#: templates/shortcodes/search-results.php:228
 msgid "Max"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:153
+#: templates/shortcodes/search-results.php:156
 msgid "No dates selected"
 msgstr ""
 
 #. translators: %s: number of active filters.
-#: templates/shortcodes/search-results.php:163
+#: templates/shortcodes/search-results.php:166
 #, php-format
 msgid "Filters (%s)"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:174
+#: templates/shortcodes/search-results.php:177
 msgid "Filter"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:176
+#: templates/shortcodes/search-results.php:179
 msgid "Close filters"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:203
+#: templates/shortcodes/search-results.php:201
+#: templates/shortcodes/unified-search.php:66
+msgid "Pickup location"
+msgstr ""
+
+#: templates/shortcodes/search-results.php:206
 msgid "Daily price"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:218
+#: templates/shortcodes/search-results.php:221
 msgid "Model year"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:222
-#: templates/shortcodes/search-results.php:224
+#: templates/shortcodes/search-results.php:225
+#: templates/shortcodes/search-results.php:227
 msgid "Maximum mileage"
 msgstr ""
 
 #. translators: %s: number of vehicles the filters leave.
-#: templates/shortcodes/search-results.php:237
+#: templates/shortcodes/search-results.php:240
 #, php-format
 msgid "Show %s vehicle"
 msgid_plural "Show %s vehicles"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/shortcodes/search-results.php:245
+#: templates/shortcodes/search-results.php:248
 msgid "Results"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:250
+#: templates/shortcodes/search-results.php:253
 msgid "Sort"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:259
+#: templates/shortcodes/search-results.php:262
 msgid "Grid view"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:262
+#: templates/shortcodes/search-results.php:265
 msgid "List view"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:270
+#: templates/shortcodes/search-results.php:282
 msgid "Active filters"
 msgstr ""
 
-#: templates/shortcodes/search-results.php:299
+#: templates/shortcodes/search-results.php:307
 msgid "Pages"
 msgstr ""
 
@@ -15190,19 +15296,19 @@ msgstr ""
 msgid "Be the first to leave a review!"
 msgstr ""
 
-#: templates/shortcodes/unified-search.php:60
+#: templates/shortcodes/unified-search.php:62
 msgid "Search vehicles"
 msgstr ""
 
-#: templates/shortcodes/unified-search.php:66
+#: templates/shortcodes/unified-search.php:68
 msgid "City, airport or hotel"
 msgstr ""
 
-#: templates/shortcodes/unified-search.php:105
+#: templates/shortcodes/unified-search.php:116
 msgid "Drop-off"
 msgstr ""
 
-#: templates/shortcodes/unified-search.php:108
+#: templates/shortcodes/unified-search.php:119
 msgid "Same as pickup"
 msgstr ""
 
