@@ -277,12 +277,13 @@ class BookingFormWidget extends ElementorWidgetBase {
 
 		$this->add_box_shadow_control( 'shadow_shadow', '.rvs-booking' );
 		// The group's own rule would set box-shadow on the root, where nothing is
-		// drawn; the visible card reads the token instead.
+		// drawn; the visible card reads the token instead. update_control skips the
+		// group prefixing, so the position reference is spelled with the full field name.
 		$this->update_control(
 			'shadow_shadow_box_shadow',
 			array(
 				'selectors' => array(
-					'{{WRAPPER}} .rvs-booking' => '--rvs-booking-shadow: {{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{SPREAD}}px {{COLOR}} {{box_shadow_position.VALUE}};',
+					'{{WRAPPER}} .rvs-booking' => '--rvs-booking-shadow: {{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{SPREAD}}px {{COLOR}} {{shadow_shadow_box_shadow_position.VALUE}};',
 				),
 			)
 		);

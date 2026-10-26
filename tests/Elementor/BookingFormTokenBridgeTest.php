@@ -70,6 +70,17 @@ final class BookingFormTokenBridgeTest extends WP_UnitTestCase
 		$this->assertStringContainsString($token . ':', $this->css('rvs/rvs-tokens.css'), "$token needs its default in rvs-tokens.css.");
 	}
 
+	public function test_shadow_selector_references_the_registered_position_field(): void
+	{
+		$controls = $this->controls();
+		$selector = (string) reset($controls['shadow_shadow_box_shadow']['selectors']);
+
+		// update_control bypasses the group prefixing, so the reference must already be prefixed.
+		$this->assertStringContainsString('{{shadow_shadow_box_shadow_position.VALUE}}', $selector);
+		$this->assertArrayHasKey('shadow_shadow_box_shadow_position', $controls, 'The referenced position control must exist.');
+		$this->assertStringNotContainsString('{{box_shadow_position.VALUE}}', $selector);
+	}
+
 	public function test_typography_targets_the_new_submit_button(): void
 	{
 		$json = (string) wp_json_encode($this->controls()['submit_typography_font_family'] ?? array());
