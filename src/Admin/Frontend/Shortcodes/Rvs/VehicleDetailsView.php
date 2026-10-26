@@ -6,6 +6,7 @@ namespace MHMRentiva\Admin\Frontend\Shortcodes\Rvs;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks;
@@ -37,7 +38,7 @@ final class VehicleDetailsView {
 
 	/**
 	 * @param array<string, mixed>  $atts   Shortcode attributes.
-	 * @param array<string, string> $window pickup_date, pickup_time, return_date, pickup_location; missing values fall back to the search strip's.
+	 * @param array<string, string> $window pickup_date, pickup_time, return_date; missing values fall back to the search strip's. A pickup location in it is not read: the car has its own (PR S).
 	 * @return array<string, mixed>
 	 */
 	public static function build(int $vehicle_id, array $atts, array $window): array
@@ -82,8 +83,12 @@ final class VehicleDetailsView {
 	 * The requested window, completed with the search strip's defaults
 	 * (tomorrow 10:00 -> + max(3, minimum rental days)).
 	 *
+	 * No pickup location: the car is picked up and returned at its own point
+	 * (LocationContext::for_vehicle), so a location in the request -- the URL,
+	 * the search strip or a posted field -- is never read here (PR S, M9).
+	 *
 	 * @param array<string, string> $window
-	 * @return array{pickup_date: string, pickup_time: string, return_date: string, pickup_location: string}
+	 * @return array{pickup_date: string, pickup_time: string, return_date: string}
 	 */
 	public static function window(array $window): array
 	{
@@ -108,10 +113,9 @@ final class VehicleDetailsView {
 		$time = (string) ( $window['pickup_time'] ?? '' );
 
 		return array(
-			'pickup_date'     => $pickup,
-			'pickup_time'     => 1 === preg_match('/^([01]\d|2[0-3]):(00|30)$/', $time) ? $time : (string) $defaults['pickup_time'],
-			'return_date'     => $return,
-			'pickup_location' => ctype_digit( (string) ( $window['pickup_location'] ?? '' ) ) ? (string) $window['pickup_location'] : (string) $defaults['pickup_location'],
+			'pickup_date' => $pickup,
+			'pickup_time' => 1 === preg_match('/^([01]\d|2[0-3]):(00|30)$/', $time) ? $time : (string) $defaults['pickup_time'],
+			'return_date' => $return,
 		);
 	}
 
@@ -175,24 +179,29 @@ final class VehicleDetailsView {
 
 		$hours = (int) SettingsCore::get('mhmrentiva_booking_cancellation_deadline_hours', 24);
 
+		// The car's own pickup point (vehicle -> vendor -> site default, a
+		// rental location only); null on a site without rental locations.
+		$location    = LocationContext::for_vehicle($vehicle_id);
+		$location_id = null !== $location ? (int) $location->id : 0;
+
 		return array(
-			'window'       => $window,
-			'days'         => $quote->days,
-			'breakdown'    => RvsBreakdown::from_quote($quote, $deposit, array(), $rate),
+			'window'        => $window,
+			'days'          => $quote->days,
+			'breakdown'     => RvsBreakdown::from_quote($quote, $deposit, array(), $rate),
 			// The payment step offers deposit or full payment (WooCommerceBridge);
 			// the card does not choose for the customer.
-			'deposit_text' => $rate > 0
+			'deposit_text'  => $rate > 0
 				? __('Choose deposit or full payment at the payment step', 'mhm-rentiva')
 				: __('Paid in full when booking', 'mhm-rentiva'),
-			'cancel_text'  => $hours > 0
+			'cancel_text'   => $hours > 0
 				/* translators: %d: hours before pickup. */
 				? sprintf(_n('Free cancellation up to %d hour before pickup', 'Free cancellation up to %d hours before pickup', $hours, 'mhm-rentiva'), $hours)
 				: '',
-			'continue_url' => VehicleCardLinks::booking_url(
+			'continue_url'  => VehicleCardLinks::booking_url(
 				array(
 					'id'           => $vehicle_id,
 					'booking_url'  => \MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl::base_url(),
-					'location_id'  => \MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl::location_for($vehicle_id),
+					'location_id'  => $location_id,
 					'availability' => array( 'is_available' => true ),
 				),
 				$atts,
@@ -201,12 +210,13 @@ final class VehicleDetailsView {
 					'pickup_time'     => $window['pickup_time'],
 					'return_date'     => $window['return_date'],
 					'return_time'     => $window['pickup_time'],
-					'pickup_location' => $window['pickup_location'],
+					'pickup_location' => $location_id > 0 ? (string) $location_id : '',
 				)
 			),
-			'available'    => $available,
-			'message'      => $available ? '' : (string) ( $check['message'] ?? '' ),
-			'locations'    => self::locations(),
+			'available'     => $available,
+			'message'       => $available ? '' : (string) ( $check['message'] ?? '' ),
+			// "Pickup and return: X" -- the car's point, '' without one.
+			'pickup_return' => null !== $location ? (string) $location->name : '',
 		);
 	}
 
@@ -411,25 +421,5 @@ final class VehicleDetailsView {
 			'count'        => $count,
 			'distribution' => $rows,
 		);
-	}
-
-	/**
-	 * Rental pick-up locations an add-on provides (none in Lite).
-	 *
-	 * @return list<array{id: int, label: string}>
-	 */
-	private static function locations(): array
-	{
-		$out = array();
-		foreach ( (array) apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
-			if (is_object($loc) && isset($loc->id, $loc->name)) {
-				$city  = isset($loc->city) ? trim( (string) $loc->city) : '';
-				$out[] = array(
-					'id'    => (int) $loc->id,
-					'label' => '' !== $city ? (string) $loc->name . ' · ' . $city : (string) $loc->name,
-				);
-			}
-		}
-		return $out;
 	}
 }

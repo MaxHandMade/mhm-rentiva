@@ -294,19 +294,94 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 			'id'   => 7,
 			'name' => 'Zz Airport',
 		);
-		$filter   = static fn() => array( $location );
+		$other    = (object) array(
+			'id'   => 8,
+			'name' => 'Zz Center',
+		);
+		$filter   = static fn() => array( $location, $other );
 		$vehicle  = ShortcodeFixtures::vehicle();
+		update_post_meta($vehicle, '_mhmrentiva_location_id', '7');
 
 		$this->assertStringNotContainsString('data-rvs-summary-location', $this->render(array( 'vehicle_id' => (string) $vehicle )));
 
 		add_filter('mhmrentiva_locations', $filter);
 		try {
-			$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=7');
+			// PR S (M9): the URL's point (8) is not the car's (7) and is not read.
+			$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=8');
 			$html = $this->render(array(), true, false);
 		} finally {
 			remove_filter('mhmrentiva_locations', $filter);
 		}
-		$this->assertMatchesRegularExpression('/data-rvs-summary-location[^>]*>[^<]*Zz Airport/', $html);
+		$this->assertMatchesRegularExpression('#data-rvs-summary-location[^>]*>.*Pickup and return: <strong data-rvs-summary-where>Zz Airport</strong>#s', $html);
+		$this->assertStringNotContainsString('Zz Center', $html);
+		$this->assertStringContainsString('name="pickup_location_id" value="7"', $html);
+	}
+
+	/**
+	 * Single-location site: a car with no point of its own is picked up at the
+	 * one there is, and the summary says so.
+	 */
+	public function test_summary_line_falls_back_to_single_location(): void
+	{
+		$filter  = static fn() => array(
+			(object) array(
+				'id'   => 5,
+				'name' => 'Zz Only',
+			),
+		);
+		$vehicle = ShortcodeFixtures::vehicle();
+		delete_post_meta($vehicle, '_mhmrentiva_location_id');
+
+		add_filter('mhmrentiva_locations', $filter);
+		try {
+			$html = $this->render(array( 'vehicle_id' => (string) $vehicle ));
+		} finally {
+			remove_filter('mhmrentiva_locations', $filter);
+		}
+		$this->assertMatchesRegularExpression('#data-rvs-summary-location[^>]*>.*Pickup and return: <strong data-rvs-summary-where>Zz Only</strong>#s', $html);
+		$this->assertStringContainsString('name="pickup_location_id" value="5"', $html);
+	}
+
+	/**
+	 * Lite alone: no location line, no hidden location field -- also in Case B
+	 * and with a location in the URL and on the car.
+	 */
+	public function test_lite_alone_has_no_location_line(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		update_post_meta($vehicle, '_mhmrentiva_location_id', '7');
+
+		$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=7');
+		$case_a = $this->render(array(), true, false);
+		$case_b = $this->render(array());
+
+		foreach (array( $case_a, $case_b ) as $html) {
+			$this->assertStringNotContainsString('data-rvs-summary-location', $html);
+			$this->assertStringNotContainsString('name="pickup_location_id"', $html);
+		}
+	}
+
+	/**
+	 * Case B on a site with locations: the line waits empty and hidden until a
+	 * car is chosen (the quote answer's location_name fills it).
+	 */
+	public function test_case_b_line_waits_hidden_until_a_car_is_chosen(): void
+	{
+		$filter = static fn() => array(
+			(object) array(
+				'id'   => 5,
+				'name' => 'Zz Only',
+			),
+		);
+		add_filter('mhmrentiva_locations', $filter);
+		try {
+			$html = $this->render(array());
+		} finally {
+			remove_filter('mhmrentiva_locations', $filter);
+		}
+		$this->assertMatchesRegularExpression('#<p class="rvs-booking__where" data-rvs-summary-location hidden>#', $html);
+		$this->assertStringContainsString('<strong data-rvs-summary-where></strong>', $html);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $html);
 	}
 
 	public function test_assets_are_the_rvs_chain_without_the_old_stylesheets(): void

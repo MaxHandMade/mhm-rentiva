@@ -1,6 +1,7 @@
 <?php
 /**
- * Vehicle page booking card: period total, pickup / return / location,
+ * Vehicle page booking card: period total, pickup / return, the car's own
+ * pickup point ("Pickup and return: X", PR S -- no select of every branch),
  * price breakdown, "Continue" (to the booking form with the window), deposit
  * and cancellation lines. On a phone the card sits in the page and a fixed bar
  * repeats the total with the breakdown in a dialog (canvas `Arac-Detay-Mobil`).
@@ -77,17 +78,16 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 					<span class="rvs-input rvs-vd__time rvs-vd__time--locked" data-rvs-return-time-display title="<?php esc_attr_e('Return time follows the pickup time', 'mhm-rentiva'); ?>"><?php echo esc_html($mhmrentiva_time); ?></span>
 				</div>
 			</div>
-			<?php if (! empty($mhmrentiva_booking['locations'])) : ?>
-				<div class="rvs-field rvs-vd__field--wide">
-					<label for="<?php echo esc_attr($mhmrentiva_uid); ?>-location"><?php esc_html_e('Pickup location', 'mhm-rentiva'); ?></label>
-					<select id="<?php echo esc_attr($mhmrentiva_uid); ?>-location" class="rvs-input" name="pickup_location">
-						<?php foreach ( (array) $mhmrentiva_booking['locations'] as $mhmrentiva_location) : ?>
-							<option value="<?php echo esc_attr( (string) $mhmrentiva_location['id']); ?>"<?php selected( (string) $mhmrentiva_window['pickup_location'], (string) $mhmrentiva_location['id']); ?>><?php echo esc_html( (string) $mhmrentiva_location['label']); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			<?php endif; ?>
 		</form>
+
+		<?php if ('' !== (string) ( $mhmrentiva_booking['pickup_return'] ?? '' )) : ?>
+			<p class="rvs-vd__where" data-rvs-vd-where><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>
+			<?php
+			/* translators: %s: the pickup point of this car. */
+			printf(esc_html__('Pickup and return: %s', 'mhm-rentiva'), '<strong>' . esc_html( (string) $mhmrentiva_booking['pickup_return']) . '</strong>');
+			?>
+			</span></p>
+		<?php endif; ?>
 
 		<?php if ($mhmrentiva_price) : ?>
 			<div data-rvs-vd-breakdown>

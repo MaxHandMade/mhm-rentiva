@@ -160,7 +160,9 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
         $this->assertSame($expected_end, $data['atts']['end_date']);
         $this->assertSame('09:00', $data['atts']['pickup_time']);
         $this->assertSame('17:00', $data['atts']['return_time']);
-        $this->assertSame(3, $data['atts']['pickup_location_id']);
+        // PR S (M9): the pickup point is the car's, never the URL's; this site
+        // has no rental location, so there is none.
+        $this->assertSame(0, $data['pickup_location_id']);
     }
 
     /**

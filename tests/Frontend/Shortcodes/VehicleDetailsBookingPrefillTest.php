@@ -54,6 +54,14 @@ class VehicleDetailsBookingPrefillTest extends WP_UnitTestCase
 
 	public function test_vehicle_details_link_prefills_booking_form(): void
 	{
+		// PR S: the point is the car's, and only a rental location counts.
+		add_filter(
+			'mhmrentiva_locations',
+			fn(): array => array(
+				(object) array( 'id' => $this->location, 'name' => 'Zz Prefill Point', 'city' => 'Zz City' ),
+				(object) array( 'id' => 89, 'name' => 'Zz Other Point', 'city' => 'Zz City' ),
+			)
+		);
 		$html = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle_id . '"]');
 
 		$this->assertSame(1, preg_match('#data-rvs-vd-continue\s+href="([^"]*)"#', $html, $m), 'The Continue link must render.');
@@ -66,6 +74,8 @@ class VehicleDetailsBookingPrefillTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('name="vehicle_id" value="' . $this->vehicle_id . '"', $form);
 		$this->assertStringContainsString('name="pickup_location_id" value="' . $this->location . '"', $form);
+		$this->assertStringContainsString('Zz Prefill Point', $form);
+		$this->assertStringContainsString('Zz Prefill Point', $html, 'The vehicle page names the same point.');
 		$this->assertMatchesRegularExpression('#data-rvs-summary-vehicle>#', $form, 'The summary shows the vehicle at once (Case A).');
 	}
 }

@@ -466,10 +466,7 @@
                 requestData.append('pickup_time', formData.pickup_time);
             }
             requestData.append('payment_type', formData.payment_type);
-            // For the answer's change_url (the vehicle page keeps the location).
-            if (formData.pickup_location_id > 0) {
-                requestData.append('pickup_location_id', formData.pickup_location_id);
-            }
+            // No pickup location: the server takes the car's own point (PR S).
             // Display only: a form with enable_deposit="0" names no deposit.
             requestData.append('enable_deposit', this.container.attr('data-rvs-deposit') === '0' ? '0' : '1');
 
@@ -688,6 +685,13 @@
             // the "Change" link to the vehicle page with this window.
             if (typeof data.window_text === 'string') {
                 this.hook('summary-dates').text(data.window_text);
+            }
+            // The chosen car's pickup point ("Pickup and return: X"): Case B
+            // learns the car only here. Text, never markup.
+            if (typeof data.location_name === 'string') {
+                const $where = this.hook('summary-location');
+                $where.find('[data-rvs-summary-where]').text(data.location_name);
+                $where.prop('hidden', data.location_name === '');
             }
             if (typeof data.change_url === 'string') {
                 const $change = this.hook('change');

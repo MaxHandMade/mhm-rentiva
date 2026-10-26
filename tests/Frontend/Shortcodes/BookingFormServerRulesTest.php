@@ -449,13 +449,14 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 					'customer_email'     => 'jane@example.com',
 				)
 			);
-			// A location id that names no active rental location is not forwarded.
+			// PR S (M9): the posted id is not read -- the car's point (here the
+			// site's only one) travels whatever the request says.
 			$unknown = $this->dispatch('mhmrentiva_calculate_price', array( 'pickup_location_id' => '8' ));
 		} finally {
 			remove_filter('mhmrentiva_locations', $locations);
 		}
 		parse_str( (string) wp_parse_url( (string) ( $unknown['data']['change_url'] ?? '' ), PHP_URL_QUERY), $unknown_query);
-		$this->assertArrayNotHasKey('mhmrentiva_pickup_location', $unknown_query, wp_json_encode($unknown));
+		$this->assertSame('7', $unknown_query['mhmrentiva_pickup_location'] ?? null, wp_json_encode($unknown));
 
 		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
 		$url = (string) ( $response['data']['change_url'] ?? '' );
@@ -474,6 +475,51 @@ final class BookingFormServerRulesTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('10:00', $query['mhmrentiva_pickup_time'] ?? null);
 		$this->assertSame('7', $query['mhmrentiva_pickup_location'] ?? null);
 		$this->assertArrayNotHasKey('mhmrentiva_customer_email', $query);
+	}
+
+	/**
+	 * PR S (M9): the booking's pickup point is the car's, derived on the
+	 * server; a posted id (6) that differs from the car's (3) is not read --
+	 * on submission, in the quote's change link and in its location line.
+	 */
+	public function test_booking_derives_location_from_vehicle_ignoring_request(): void
+	{
+		$locations = static fn() => array(
+			(object) array( 'id' => 3, 'name' => 'Zz Airport', 'city' => 'Zz City' ),
+			(object) array( 'id' => 6, 'name' => 'Zz Center', 'city' => 'Zz City' ),
+		);
+		add_filter('mhmrentiva_locations', $locations);
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');
+		try {
+			$quote    = $this->dispatch('mhmrentiva_calculate_price', array( 'pickup_location_id' => '6' ));
+			$response = $this->dispatch('mhmrentiva_booking_form', array( 'pickup_location_id' => '6' ));
+		} finally {
+			remove_filter('mhmrentiva_locations', $locations);
+		}
+
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$this->assertSame(3, (int) ( $this->cart_booking_data()['pickup_location_id'] ?? 0 ));
+
+		parse_str( (string) wp_parse_url( (string) ( $quote['data']['change_url'] ?? '' ), PHP_URL_QUERY), $query);
+		$this->assertSame('3', $query['mhmrentiva_pickup_location'] ?? null, wp_json_encode($quote));
+		$this->assertSame('Zz Airport', $quote['data']['location_name'] ?? null);
+	}
+
+	/**
+	 * Lite alone: no rental location, so nothing is stored or answered, even
+	 * with a posted id and a location meta on the car.
+	 */
+	public function test_lite_alone_booking_has_no_location(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');
+
+		$quote    = $this->dispatch('mhmrentiva_calculate_price', array( 'pickup_location_id' => '3' ));
+		$response = $this->dispatch('mhmrentiva_booking_form', array( 'pickup_location_id' => '3' ));
+
+		$this->assertTrue($response['success'] ?? false, wp_json_encode($response));
+		$this->assertSame(0, (int) ( $this->cart_booking_data()['pickup_location_id'] ?? 0 ));
+		$this->assertSame('', $quote['data']['location_name'] ?? null);
+		$this->assertStringNotContainsString('pickup_location', (string) ( $quote['data']['change_url'] ?? '' ));
 	}
 
 	public function test_submission_refuses_an_unknown_payment_type(): void

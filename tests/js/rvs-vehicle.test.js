@@ -167,6 +167,21 @@ describe( 'rvs vehicle page', () => {
 		expect( document.querySelector( '[data-rvs-vd-months]' ).textContent ).toContain( 'M1' );
 	} );
 
+	// PR S: the car has its own pickup point; the page posts no location, even
+	// if a stray field (an old cached card, another script) carries one.
+	test( 'window fields post the dates and time only, never a location', async () => {
+		await boot( page( 'vd1' ).replace( '<span data-rvs-return-time-display>', '<input name="pickup_location" value="6"><span data-rvs-return-time-display>' ) );
+		change( document.querySelector( '[data-rvs-pickup-date]' ) );
+		jest.advanceTimersByTime( 300 );
+		document.querySelector( '[data-rvs-month-nav="1"]' ).click();
+
+		jQuery.ajax.mock.calls.forEach( ( call ) => {
+			expect( call[ 0 ].data ).not.toHaveProperty( 'pickup_location' );
+			expect( call[ 0 ].data.pickup_date ).toBe( '2027-07-12' );
+		} );
+		expect( jQuery.ajax ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	test( 'unavailable window disables continue and announces the message', async () => {
 		await boot();
 		change( document.querySelector( '[data-rvs-pickup-date]' ) );

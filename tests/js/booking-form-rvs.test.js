@@ -469,8 +469,29 @@ describe( 'booking form on the rvs markup', () => {
 
 		form.calculatePrice();
 
-		expect( posted( lastCall() ).get( 'pickup_location_id' ) ).toBe( '4' );
+		// PR S (M9): the server takes the point from the car; the quote posts none.
+		expect( posted( lastCall() ).get( 'pickup_location_id' ) ).toBeNull();
 		expect( form.container.find( '[data-rvs-change]' ).attr( 'href' ) ).toBe( '/clio/?mhmrentiva_pickup_date=2030-05-10&mhmrentiva_return_date=2030-05-13' );
+	} );
+
+	test( 'Case B: the quote answer names the pickup point of the chosen car', () => {
+		const html = markup( 'rvs-bf-1' ).replace(
+			'<p class="rvs-booking__dates" data-rvs-summary-dates></p>',
+			'<p class="rvs-booking__where" data-rvs-summary-location hidden><span>Pickup and return: <strong data-rvs-summary-where></strong></span></p><p class="rvs-booking__dates" data-rvs-summary-dates></p>'
+		);
+		const form = mount( html );
+		form.autoCheckAvailability = jest.fn();
+		const $line = form.container.find( '[data-rvs-summary-location]' );
+
+		$.ajax = jest.fn( ( options ) => options.success( quoteAnswer( { location_name: '<b>Zz Airport</b>' } ) ) );
+		form.calculatePrice();
+		expect( $line.prop( 'hidden' ) ).toBe( false );
+		expect( $line.find( '[data-rvs-summary-where]' ).text() ).toBe( '<b>Zz Airport</b>' );
+		expect( $line.find( 'b' ) ).toHaveLength( 0 );
+
+		$.ajax = jest.fn( ( options ) => options.success( quoteAnswer( { location_name: '' } ) ) );
+		form.calculatePrice();
+		expect( $line.prop( 'hidden' ) ).toBe( true );
 	} );
 
 	test( 'an older quote answer never overwrites a newer one', () => {

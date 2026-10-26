@@ -137,12 +137,13 @@ final class VehicleDetails extends AbstractShortcode {
 
 	/**
 	 * The posted window; VehicleDetailsView::window() validates each value.
+	 * No pickup location: the car has its own (PR S).
 	 *
 	 * @return array<string, string>
 	 */
 	private static function posted_window( VerifiedRequest $req ): array {
 		$window = array();
-		foreach ( array( 'pickup_date', 'pickup_time', 'return_date', 'pickup_location' ) as $key ) {
+		foreach ( array( 'pickup_date', 'pickup_time', 'return_date' ) as $key ) {
 			$window[ $key ] = $req->text( $key );
 		}
 		return $window;

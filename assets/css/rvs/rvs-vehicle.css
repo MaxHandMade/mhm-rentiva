@@ -433,8 +433,20 @@
 	margin: 0;
 }
 
-.rvs-shell .rvs-vd__field--wide {
-	grid-column: 1 / -1;
+/* PR S: the car's own pickup point, in place of a select of every branch. */
+.rvs-shell .rvs-vd__where {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	padding: 12px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	font-size: 15px;
+}
+
+.rvs-shell .rvs-vd__where svg {
+	flex: none;
 }
 
 .rvs-shell .rvs-vd__when {

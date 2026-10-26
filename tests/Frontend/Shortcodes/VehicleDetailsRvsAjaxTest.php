@@ -90,6 +90,29 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('2027-07-15', $response['data']['window']['return_date']);
 	}
 
+	/**
+	 * PR S: the quote's continue link carries the car's own pickup point; a
+	 * posted location that differs is not read, and the answer's window has none.
+	 */
+	public function test_quote_continue_url_uses_the_cars_point(): void
+	{
+		$filter = static fn(): array => array(
+			(object) array( 'id' => 3, 'name' => 'Zz Airport', 'city' => 'Zz City' ),
+			(object) array( 'id' => 6, 'name' => 'Zz Center', 'city' => 'Zz City' ),
+		);
+		add_filter('mhmrentiva_locations', $filter);
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');
+		try {
+			$data = $this->quote(array( 'pickup_location' => '6' ))['data'] ?? array();
+		} finally {
+			remove_filter('mhmrentiva_locations', $filter);
+		}
+
+		parse_str( (string) wp_parse_url( (string) ( $data['continue_url'] ?? '' ), PHP_URL_QUERY), $query);
+		$this->assertSame('3', $query['mhmrentiva_pickup_location'] ?? null, wp_json_encode($data));
+		$this->assertArrayNotHasKey('pickup_location', (array) ( $data['window'] ?? array() ));
+	}
+
 	public function test_quote_endpoint_reports_unavailable_window(): void
 	{
 		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));

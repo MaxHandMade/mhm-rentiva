@@ -44,10 +44,17 @@
 		return state;
 	}
 
+	// The dates and the time only: the car is picked up and returned at its
+	// own point, which the server takes from the car (PR S) -- a location
+	// field, should one turn up in the form, is not posted.
+	const WINDOW_KEYS = [ 'pickup_date', 'pickup_time', 'return_date' ];
+
 	function windowFields( $root ) {
 		const out = {};
 		$root.find( '[data-rvs-vd-window]' ).serializeArray().forEach( function ( item ) {
-			out[ item.name ] = item.value;
+			if ( WINDOW_KEYS.indexOf( item.name ) !== -1 ) {
+				out[ item.name ] = item.value;
+			}
 		} );
 		return out;
 	}

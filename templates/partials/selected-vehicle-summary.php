@@ -66,8 +66,18 @@ $mhmrentiva_sum_change  = (string) ( $mhmrentiva_sum['change_url'] ?? '' );
 	<?php endif; ?>
 
 	<div class="rvs-booking__when">
-		<?php if ('' !== (string) ( $mhmrentiva_sum['location'] ?? '' )) : ?>
-			<p class="rvs-booking__where" data-rvs-summary-location><?php echo esc_html( (string) $mhmrentiva_sum['location']); ?></p>
+		<?php
+		// The car's own pickup point (PR S). Case B on a site with locations:
+		// an empty, hidden line the quote answer fills (booking-form.js).
+		$mhmrentiva_sum_where = (string) ( $mhmrentiva_sum['location'] ?? '' );
+		if ('' !== $mhmrentiva_sum_where || ! empty($mhmrentiva_sum['location_slot'])) :
+			?>
+			<p class="rvs-booking__where" data-rvs-summary-location<?php echo '' === $mhmrentiva_sum_where ? ' hidden' : ''; ?>><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>
+			<?php
+			/* translators: %s: the pickup point of this car. */
+			printf(esc_html__('Pickup and return: %s', 'mhm-rentiva'), '<strong data-rvs-summary-where>' . esc_html($mhmrentiva_sum_where) . '</strong>');
+			?>
+			</span></p>
 		<?php endif; ?>
 		<p class="rvs-booking__dates" data-rvs-summary-dates><?php echo esc_html( (string) ( $mhmrentiva_sum['dates'] ?? '' )); ?></p>
 		<?php if ('' !== $mhmrentiva_sum_change) : ?>
