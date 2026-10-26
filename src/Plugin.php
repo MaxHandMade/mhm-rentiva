@@ -886,8 +886,11 @@ final class Plugin {
 		// vehicle_page_url() is then its own permalink, and redirecting there would loop.
 		if ($details_page_id && $vehicle_post instanceof \WP_Post
 			&& \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_post->ID) !== get_permalink($vehicle_post)) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- A read-only GET redirect; the args are only carried across, encoded, never acted on here.
-			wp_safe_redirect(self::vehicle_redirect_url($vehicle_post, wp_unslash($_GET)), 301);
+			// The request's own query string (add_query_arg() with no URL is the
+			// current request URI), parsed the way WordPress parses one.
+			$query_args = array();
+			wp_parse_str( (string) wp_parse_url(add_query_arg(array()), PHP_URL_QUERY), $query_args);
+			wp_safe_redirect(self::vehicle_redirect_url($vehicle_post, $query_args), 301);
 			exit;
 		}
 

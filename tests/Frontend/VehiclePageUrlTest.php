@@ -173,13 +173,7 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 		));
 		$this->assertTrue(is_singular('mhmrentiva_vehicle'), 'The CPT permalink resolves to the vehicle.');
 
-		// go_to() does not fill $_GET; the redirect reads the real request.
-		$_GET = array(
-			'mhmrentiva_pickup_date' => '2026-12-10',
-			'mhmrentiva_pickup_time' => '11:00',
-			'mhmrentiva_return_date' => '2026-12-13',
-		);
-
+		// The redirect reads the request URI go_to() set.
 		$location = null;
 		add_filter(
 			'wp_redirect',
@@ -194,8 +188,6 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 			$plugin->load_vehicle_templates();
 		} catch (\RuntimeException $e) {
 			$this->assertSame('redirected', $e->getMessage());
-		} finally {
-			$_GET = array();
 		}
 
 		$this->assertIsString($location);
