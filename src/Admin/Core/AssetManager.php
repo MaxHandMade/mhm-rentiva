@@ -329,6 +329,16 @@ final class AssetManager {
 	}
 
 	/**
+	 * The checkout and thank-you journey (step bar and summary, the journey
+	 * section of rvs-booking.css): styles only, no stepper script.
+	 */
+	public static function enqueue_rvs_journey(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-booking');
+	}
+
+	/**
 	 * The vehicle page on top of the card, calendar, breakdown and dialog styles.
 	 */
 	public static function enqueue_rvs_vehicle_styles(): void
@@ -568,8 +578,10 @@ final class AssetManager {
 
 	/**
 	 * Detect whether the current admin page belongs to this plugin.
+	 *
+	 * Public for admin notices that show only on Rentiva screens (CheckoutJourney).
 	 */
-	private static function is_rentiva_admin_page(): bool
+	public static function is_rentiva_admin_page(): bool
 	{
 		$screen = get_current_screen();
 		if ( ! $screen ) {

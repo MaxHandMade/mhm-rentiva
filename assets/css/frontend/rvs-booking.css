@@ -10,6 +10,10 @@
  * rvs-breakdown.css. Selectors are scoped to `.rvs-shell`; colours come from
  * rvs-tokens.css.
  *
+ * Also the checkout and thank-you journey (CheckoutJourney,
+ * templates/partials/rvs/journey-summary.php): the compact step bar and the
+ * booking summary above WooCommerce's own checkout and order details.
+ *
  * Also the jQuery UI datepicker popup while it serves this form: the popup
  * lives on <body>, outside the shell, so booking-form.js puts `rvs-shell rvs-dp`
  * on it while a booking date field is open and takes them off on close (R6).
@@ -396,6 +400,89 @@
 @media (max-width: 480px) {
 	.rvs-shell .rvs-booking__window {
 		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* Checkout and thank-you journey (CheckoutJourney) ------------------------- */
+
+/* The shell sits inside the theme's checkout column: no page gutter of its own. */
+.rvs-shell.rvs-journey {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+	max-width: none;
+	margin-block: 0 var(--rvs-s6);
+	padding-inline: 0;
+	background: transparent;
+}
+
+.rvs-shell .rvs-journey__summary {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-booking-radius);
+	background: var(--rvs-booking-bg);
+	box-shadow: var(--rvs-booking-shadow);
+}
+
+.rvs-shell .rvs-journey__vehicle {
+	display: flex;
+	align-items: center;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-journey__media {
+	flex: 0 0 120px;
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-journey__img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-journey__about {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s1);
+	min-width: 0;
+}
+
+.rvs-shell .rvs-journey__title {
+	font-size: 23px;
+}
+
+.rvs-shell .rvs-journey__vehicle-title {
+	font-size: 17px;
+}
+
+.rvs-shell .rvs-journey__dates {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-journey__breakdown {
+	padding-top: var(--rvs-s3);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-journey__link {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	font-size: 14px;
+}
+
+@media (max-width: 480px) {
+	.rvs-shell .rvs-journey__media {
+		flex-basis: 88px;
 	}
 }
 

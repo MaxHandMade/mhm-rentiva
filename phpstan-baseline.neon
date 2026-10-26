@@ -760,12 +760,6 @@ parameters:
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 
 		-
-			message: '#^Static method MHMRentiva\\Admin\\Payment\\WooCommerce\\WooCommerceBridge\:\:get_booking_data_from_cart\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between null and mixed will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1

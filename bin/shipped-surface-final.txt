@@ -409,6 +409,7 @@ src/Admin/Payment/Core/RefundLock.php
 src/Admin/Payment/Core/RefundStatus.php
 src/Admin/Payment/Refunds/RefundValidator.php
 src/Admin/Payment/Refunds/Service.php
+src/Admin/Payment/WooCommerce/CheckoutJourney.php
 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php
 src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 src/Admin/PostTypes/Logs/AdvancedLogger.php
@@ -552,6 +553,7 @@ templates/partials/preview-badge.php
 templates/partials/rvs-vehicle-card.php
 templates/partials/rvs/breakdown.php
 templates/partials/rvs/calendar-month.php
+templates/partials/rvs/journey-summary.php
 templates/partials/rvs/steps.php
 templates/partials/search/rvs-chips.php
 templates/partials/search/rvs-empty.php

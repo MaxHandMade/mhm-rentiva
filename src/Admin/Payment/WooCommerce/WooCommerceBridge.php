@@ -93,6 +93,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// ⭐ Clean Total HTML (Remove tax suffix)
 		add_filter('woocommerce_cart_totals_order_total_html', array( self::class, 'clean_checkout_total_html' ), 999);
+
+		// Journey step bar and Rentiva summary on the checkout and thank-you pages.
+		CheckoutJourney::register();
 	}
 
 	/**
@@ -167,6 +170,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				true
 			);
 		}
+
+		// The journey's styles go in the head, before the hooks that draw it.
+		CheckoutJourney::enqueue_assets();
 	}
 
 	/**
@@ -1673,20 +1679,29 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Get booking data from cart (for pending bookings)
+	 * The pending rental's booking data when the cart holds exactly that one
+	 * rental line and nothing else; null for an empty, mixed, multi-rental or
+	 * transfer cart. The checkout journey (CheckoutJourney) draws only then.
+	 *
+	 * @return array<string, mixed>|null
 	 */
-	private static function get_booking_data_from_cart(): ?array
+	public static function rental_cart_data(): ?array
 	{
 		if (! function_exists('WC') || ! \WC()->cart) {
 			return null;
 		}
 
-		foreach (\WC()->cart->get_cart() as $cart_item) {
-			if (isset($cart_item['mhmrentiva_booking_data']) && isset($cart_item['mhmrentiva_booking_pending']) && $cart_item['mhmrentiva_booking_pending']) {
-				return $cart_item['mhmrentiva_booking_data'];
-			}
+		$items = \WC()->cart->get_cart();
+		if (1 !== count($items)) {
+			return null;
 		}
-		return null;
+
+		$item = reset($items);
+		if (empty($item['mhmrentiva_booking_pending']) || ! isset($item['mhmrentiva_booking_data']) || ! is_array($item['mhmrentiva_booking_data'])) {
+			return null;
+		}
+
+		return self::is_transfer_booking($item['mhmrentiva_booking_data']) ? null : $item['mhmrentiva_booking_data'];
 	}
 
 	/**
@@ -2152,7 +2167,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * @param array<string, mixed> $booking_data Pending booking data.
 	 */
-	private static function is_transfer_booking(array $booking_data): bool
+	public static function is_transfer_booking(array $booking_data): bool
 	{
 		return 'transfer' === (string) ( $booking_data['booking_type'] ?? '' )
 			|| (int) ( $booking_data['transfer_origin_id'] ?? 0 ) > 0;
