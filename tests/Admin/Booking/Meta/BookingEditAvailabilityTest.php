@@ -444,6 +444,32 @@ final class BookingEditAvailabilityTest extends WP_UnitTestCase
 		$this->assertFalse(get_transient('mhmrentiva_booking_notice_' . get_current_user_id()), 'No refusal notice.');
 	}
 
+	/**
+	 * The notice says "the booking was saved anyway", so it is queued by the
+	 * write, not by the check: a check whose edit is never written leaves
+	 * nothing behind.
+	 */
+	public function test_blocked_day_notice_waits_for_the_write(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-04-02"]');
+		$booking_id = $this->booking('confirmed', '2027-03-20', '2027-03-22');
+
+		$allowed = BookingMeta::guard_edit_availability($booking_id, $this->vehicle_id, '2027-04-01', '10:00', '2027-04-03', '10:00', 'confirmed');
+
+		$this->assertTrue($allowed);
+		$this->assertFalse($this->blocked_day_notice(), 'Checked, not written: no notice yet.');
+
+		$this->admin_save(
+			$booking_id,
+			array(
+				'mhmrentiva_edit_pickup_date'  => '2027-04-01',
+				'mhmrentiva_edit_dropoff_date' => '2027-04-03',
+			)
+		);
+
+		$this->assertSame(array( 'booking_id' => $booking_id, 'days' => array( '2027-04-02' ) ), $this->blocked_day_notice(), 'Written: now the operator is told.');
+	}
+
 	public function test_admin_edit_unverified_when_query_fails(): void
 	{
 		// The operator's check counts bookings only, but a check that could not

@@ -568,6 +568,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		self::sync_booking_timestamps($post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 		self::invalidate_edit_caches( (int) get_post_meta($post_id, '_mhmrentiva_vehicle_id', true));
+		self::blocked_day_notice_after_write($post_id);
 	}
 
 	public static function save_meta(int $post_id, \WP_Post $post): void
@@ -1239,6 +1240,13 @@ final class BookingMeta extends AbstractMetaBox {
 	private static array $edit_availability_verdicts = array();
 
 	/**
+	 * Closed days an allowed edit reaches, held until the edit is written.
+	 *
+	 * @var array<int, list<string>>
+	 */
+	private static array $pending_blocked_days = array();
+
+	/**
 	 * May this admin edit be saved without putting the booking on dates its
 	 * vehicle is no longer free for?
 	 *
@@ -1297,6 +1305,22 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function reset_edit_availability_verdicts(): void
 	{
 		self::$edit_availability_verdicts = array();
+		self::$pending_blocked_days       = array();
+	}
+
+	/**
+	 * Queue the closed-days notice of an edit that has just been written.
+	 * Called by each handler that writes an admin edit, after its writes; the
+	 * first one queues it, the rest find nothing left.
+	 */
+	public static function blocked_day_notice_after_write(int $booking_id): void
+	{
+		if (! isset(self::$pending_blocked_days[ $booking_id ])) {
+			return;
+		}
+
+		self::queue_blocked_day_notice($booking_id, self::$pending_blocked_days[ $booking_id ]);
+		unset(self::$pending_blocked_days[ $booking_id ]);
 	}
 
 	/**
@@ -1378,8 +1402,10 @@ final class BookingMeta extends AbstractMetaBox {
 			return 'conflict';
 		}
 
+		// The notice says "saved anyway": it is queued by the write that
+		// follows (blocked_day_notice_after_write()), not here.
 		wp_cache_delete($vehicle_id, 'post_meta');
-		self::queue_blocked_day_notice($booking_id, \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::blocked_days_in($vehicle_id, $new_range['start_ts'], $new_range['end_ts']));
+		self::$pending_blocked_days[ $booking_id ] = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::blocked_days_in($vehicle_id, $new_range['start_ts'], $new_range['end_ts']);
 
 		return 'free';
 	}
