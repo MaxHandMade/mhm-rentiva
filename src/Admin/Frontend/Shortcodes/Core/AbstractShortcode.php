@@ -705,9 +705,10 @@ abstract class AbstractShortcode {
 	{
 		$factors = array( 'window' => self::request_window() );
 
-		// The account bookings list's section and page (PR D, m8): two requests
-		// for the same list with different sections must not share an entry.
-		foreach (array( 'mhmrentiva_view', 'mhmrentiva_page' ) as $var) {
+		// The account bookings list's section, page and old filter vars (PR D,
+		// m8): two requests for the same list that narrow it differently must
+		// not share an entry.
+		foreach (array( 'mhmrentiva_view', 'mhmrentiva_page', 'mhmrentiva_status_filter', 'mhmrentiva_search_booking' ) as $var) {
 			$value = get_query_var($var, '');
 			if (is_scalar($value) && '' !== (string) $value) {
 				$factors[ $var ] = (string) $value;

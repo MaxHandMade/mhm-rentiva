@@ -44,6 +44,9 @@ final class AccountBookingsViewTest extends WP_UnitTestCase
 			array( 'confirmed', '', 'upcoming' ),
 			array( 'cancelled', '', 'cancelled' ),
 			array( 'confirmed', 'not a date', 'upcoming' ),
+			// Fix round 1, minor 3: an impossible day is no day (string-wise it is "past").
+			array( 'confirmed', '2020-13-45', 'upcoming' ),
+			array( 'confirmed', '2021-02-30', 'upcoming' ),
 			array( 'draft', $yesterday, 'past' ),
 			array( '', $tomorrow, 'upcoming' ),
 		);

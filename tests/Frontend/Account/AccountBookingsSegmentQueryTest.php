@@ -154,6 +154,10 @@ final class AccountBookingsSegmentQueryTest extends WP_UnitTestCase
 		$expect[ $id ] = 'past';
 		$id            = $this->booking('confirmed', 5, 14, array( '_mhmrentiva_dropoff_date' => 'garbage', '_mhmrentiva_end_date' => $far_past ));
 		$expect[ $id ] = 'past'; // A malformed link counts as missing.
+		$id            = $this->booking('confirmed', 5, 15, array( '_mhmrentiva_dropoff_date' => '2020-13-45' ));
+		$expect[ $id ] = 'upcoming'; // An impossible day is missing (checkdate), not past.
+		$id            = $this->booking('confirmed', 5, 16, array( '_mhmrentiva_dropoff_date' => '2020-13-45', '_mhmrentiva_end_date' => $far_past ));
+		$expect[ $id ] = 'past'; // ... so the chain reads on.
 
 		foreach ($expect as $id => $segment) {
 			$php = AccountBookingsView::segment_of((string) get_post_meta($id, '_mhmrentiva_status', true), AccountBookingsQuery::return_day($id), SiteTime::today());
@@ -295,9 +299,15 @@ final class AccountBookingsSegmentQueryTest extends WP_UnitTestCase
 		$past = $key->invoke(null, $atts);
 		set_query_var('mhmrentiva_page', '2');
 		$past_2 = $key->invoke(null, $atts);
+		set_query_var('mhmrentiva_status_filter', 'confirmed');
+		$filtered = $key->invoke(null, $atts);
+		set_query_var('mhmrentiva_search_booking', '12');
+		$searched = $key->invoke(null, $atts);
 
 		$this->assertNotSame($upcoming, $past);
 		$this->assertNotSame($past, $past_2);
+		$this->assertNotSame($past_2, $filtered, 'The old status filter is in the key.');
+		$this->assertNotSame($filtered, $searched, 'The old search is in the key.');
 	}
 
 	public function test_view_is_a_public_query_var(): void

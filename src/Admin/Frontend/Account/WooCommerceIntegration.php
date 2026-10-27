@@ -202,10 +202,19 @@ final class WooCommerceIntegration {
 	 * Nothing is added for 0. Items are matched by their (translated) slug;
 	 * every other item, the add-on's included, is left alone.
 	 *
+	 * Only on the front-end My Account page. WooCommerce also reads the menu
+	 * items for the Appearance > Menus metabox and the Customizer, which save
+	 * the label into a menu item every visitor then sees, and for the
+	 * "Customer account" block's dropdown on every page.
+	 *
 	 * @param array<string, string> $items Menu items, slug => label.
 	 * @return array<string, string>
 	 */
 	public static function add_menu_counts( array $items ): array {
+		if ( ! self::counts_menu_here() ) {
+			return $items;
+		}
+
 		$user_id = get_current_user_id();
 		if ( $user_id <= 0 ) {
 			return $items;
@@ -236,6 +245,21 @@ final class WooCommerceIntegration {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Whether this request draws the My Account page's own menu: front end,
+	 * not a Customizer preview or REST request, on the account page.
+	 */
+	private static function counts_menu_here(): bool {
+		if ( is_admin() || is_customize_preview() || wp_doing_ajax() ) {
+			return false;
+		}
+		if ( function_exists( 'wp_is_serving_rest_request' ) ? wp_is_serving_rest_request() : ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return false;
+		}
+
+		return function_exists( 'is_account_page' ) && is_account_page();
 	}
 
 	/**

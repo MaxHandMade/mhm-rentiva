@@ -39,11 +39,24 @@ final class AccountBookingsView {
 			return AccountBookingsQuery::PAST;
 		}
 
-		if (1 === preg_match('/^\d{4}-\d{2}-\d{2}/', $dropoff_date) && substr($dropoff_date, 0, 10) < $today) {
+		if (self::is_day($dropoff_date) && substr($dropoff_date, 0, 10) < $today) {
 			return AccountBookingsQuery::PAST;
 		}
 
 		return AccountBookingsQuery::UPCOMING;
+	}
+
+	/**
+	 * Whether $value starts with a real calendar day (`Y-m-d`, checkdate());
+	 * "2026-13-45" or "garbage" is no day.
+	 */
+	public static function is_day(string $value): bool
+	{
+		if (1 !== preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $value, $m)) {
+			return false;
+		}
+
+		return checkdate( (int) $m[2], (int) $m[3], (int) $m[1]);
 	}
 
 	/**

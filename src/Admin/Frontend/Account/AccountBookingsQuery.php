@@ -278,7 +278,7 @@ final class AccountBookingsQuery {
 	{
 		foreach (self::RETURN_DAY_CHAIN as $key) {
 			$value = (string) get_post_meta($booking_id, $key, true);
-			if (1 === preg_match('/^\d{4}-\d{2}-\d{2}/', $value)) {
+			if (AccountBookingsView::is_day($value)) {
 				return substr($value, 0, 10);
 			}
 		}
