@@ -570,7 +570,7 @@ describe( 'booking form on the rvs markup', () => {
 		expect( form.container.find( '[data-rvs-submit]' ).prop( 'disabled' ) ).toBe( true );
 	} );
 
-	test( 'datepicker popup carries the rvs shell only while the booking field is open', () => {
+	test( 'datepicker popup wears the rvs shell for the booking field until another field opens it', () => {
 		// A stand-in for jQuery UI's single, shared popup (#ui-datepicker-div):
 		// each input keeps its own options; 'widget' returns the shared div.
 		document.body.insertAdjacentHTML( 'beforeend', '<div id="ui-datepicker-div"></div><input class="js-datepicker" id="search-date">' );
@@ -602,9 +602,12 @@ describe( 'booking form on the rvs markup', () => {
 		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( true );
 		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( true );
 
+		// The popup fades out in the look it opened with: closing keeps the
+		// skin (PR S Task 9 fix round, I1 -- taking it off at fade start let
+		// datepicker-custom.css paint the closing popup).
 		booking.close();
-		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( false );
-		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( false );
+		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( true );
+		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( true );
 
 		// datepicker-init.js binds the search field on focus, with its own options.
 		const search = document.getElementById( 'search-date' );

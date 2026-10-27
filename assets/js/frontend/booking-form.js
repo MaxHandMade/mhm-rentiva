@@ -11,8 +11,9 @@
  * - The summary takes the breakdown the server renders (`breakdown_html`);
  *   without it the display_* amounts build a plain one (older answers).
  * - On a phone the summary is a bottom band; its toggle opens the summary.
- * - The jQuery UI datepicker popup wears `rvs-shell rvs-dp` only while a
- *   booking date field has it open (the popup is shared with other forms).
+ * - The jQuery UI datepicker popup wears `rvs-shell rvs-dp` from the moment a
+ *   booking date field opens it until a field outside the shell opens it (the
+ *   popup is shared with other forms; datepicker-init.js takes the skin off).
  */
 
 (function ($) {
@@ -258,12 +259,12 @@
                                 $(input).blur();
                             });
                         }, 10);
-                    },
-                    // One popup serves every datepicker on the page (the search
-                    // strip's too): take the shell off when this field lets it go.
-                    onClose: function (text, inst) {
-                        $(inst && inst.input ? inst.input : this).datepicker('widget').removeClass('rvs-shell rvs-dp');
                     }
+                    // No onClose removal: jQuery UI calls onClose as the fade-out
+                    // starts, and without the skin the closing popup was painted by
+                    // datepicker-custom.css where that sheet also loads. One popup
+                    // serves every field on the page; a field outside the shell
+                    // takes the skin off when it opens (datepicker-init.js).
                 };
 
                 this.hook('pickup-date').add(this.hook('dropoff-date')).each(function () {
