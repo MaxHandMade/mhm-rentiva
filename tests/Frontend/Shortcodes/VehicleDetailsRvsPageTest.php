@@ -16,6 +16,8 @@ use WP_UnitTestCase;
  */
 final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 {
+	use \MHMRentiva\Tests\Support\StyleDependencies;
+
 	private int $vehicle_id;
 
 	public function setUp(): void
@@ -242,28 +244,5 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 
 		$this->assertMatchesRegularExpression('/data-rvs-vd-continue[^>]*aria-disabled="true"/', $html);
 		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
-	}
-
-	/**
-	 * Whether a registered style pulls $needle in, directly or further down.
-	 */
-	private static function style_needs(string $handle, string $needle): bool
-	{
-		$seen  = array();
-		$stack = array( $handle );
-		while (array() !== $stack) {
-			$current = (string) array_pop($stack);
-			if (isset($seen[ $current ])) {
-				continue;
-			}
-			$seen[ $current ] = true;
-			foreach ( (array) ( wp_styles()->registered[ $current ]->deps ?? array() ) as $dep) {
-				if ($needle === $dep) {
-					return true;
-				}
-				$stack[] = (string) $dep;
-			}
-		}
-		return false;
 	}
 }

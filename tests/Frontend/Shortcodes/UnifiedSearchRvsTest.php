@@ -17,6 +17,8 @@ use WP_UnitTestCase;
  */
 final class UnifiedSearchRvsTest extends WP_UnitTestCase
 {
+	use \MHMRentiva\Tests\Support\StyleDependencies;
+
 	public function setUp(): void
 	{
 		parent::setUp();
@@ -217,28 +219,5 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		set_query_var(SearchResults::query_var('pickup_location'), '99');
 		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'Not a rental location.');
-	}
-
-	/**
-	 * Whether a registered style pulls $needle in, directly or further down.
-	 */
-	private static function style_needs(string $handle, string $needle): bool
-	{
-		$seen  = array();
-		$stack = array( $handle );
-		while (array() !== $stack) {
-			$current = (string) array_pop($stack);
-			if (isset($seen[ $current ])) {
-				continue;
-			}
-			$seen[ $current ] = true;
-			foreach ( (array) ( wp_styles()->registered[ $current ]->deps ?? array() ) as $dep) {
-				if ($needle === $dep) {
-					return true;
-				}
-				$stack[] = (string) $dep;
-			}
-		}
-		return false;
 	}
 }
