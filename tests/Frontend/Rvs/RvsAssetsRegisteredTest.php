@@ -177,4 +177,11 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertContains('mhm-rentiva-rvs-tokens', wp_styles()->to_do);
 		$this->assertFileExists(self::ROOT . 'assets/css/rvs/rvs-data.css');
 	}
+
+	public function test_rvs_data_css_does_not_redeclare_the_base_tag(): void
+	{
+		// rvs-primitives.css owns .rvs-tag and its --info/--alert/--outline variants; rvs-data loads later.
+		$css = (string) preg_replace('!/\*.*?\*/!s', '', self::css('assets/css/rvs/rvs-data.css'));
+		$this->assertDoesNotMatchRegularExpression('/\.rvs-tag/', $css);
+	}
 }

@@ -8,7 +8,6 @@
 
 /* Status tag ---------------------------------------------------------------- */
 
-.rvs-shell .rvs-tag,
 .rvs-shell .rvs-status {
 	display: inline-flex;
 	align-items: center;
