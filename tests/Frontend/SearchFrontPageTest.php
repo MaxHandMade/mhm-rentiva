@@ -93,6 +93,77 @@ final class SearchFrontPageTest extends WP_UnitTestCase
 		$this->assertSame($other, get_queried_object_id());
 	}
 
+	/**
+	 * The guard's reason to exist: a home request that also carries a var
+	 * WordPress (or another plugin) routes by keeps WordPress's routing.
+	 */
+	public function test_a_feed_stays_a_feed(): void
+	{
+		$this->go_to(home_url('/?feed=rss2&mhmrentiva_pickup_date=2027-07-12'));
+
+		$this->assertTrue(is_feed());
+		$this->assertSame(0, (int) get_query_var('page_id'));
+	}
+
+	public function test_a_paged_home_request_is_left_to_wordpress(): void
+	{
+		$this->go_to(home_url('/?paged=2&mhmrentiva_pickup_date=2027-07-12'));
+
+		$this->assertSame(0, (int) get_query_var('page_id'), 'Not routed to the front page.');
+		$this->assertFalse(is_front_page());
+	}
+
+	public function test_another_plugins_query_var_is_left_to_wordpress(): void
+	{
+		$foreign = static fn(array $vars): array => array_merge($vars, array( 'zz_other_plugin' ));
+		add_filter('query_vars', $foreign);
+		try {
+			$this->go_to(home_url('/?zz_other_plugin=1&mhmrentiva_pickup_date=2027-07-12'));
+			$routed = (int) get_query_var('page_id');
+		} finally {
+			remove_filter('query_vars', $foreign);
+		}
+
+		$this->assertSame(0, $routed);
+	}
+
+	public function test_a_page_path_with_the_search_stays_that_page(): void
+	{
+		$this->set_permalink_structure('/%postname%/');
+		$other = (int) self::factory()->post->create(array(
+			'post_type'   => 'page',
+			'post_status' => 'publish',
+			'post_name'   => 'zz-strip-page',
+		));
+
+		$this->go_to(home_url('/zz-strip-page/?mhmrentiva_pickup_date=2027-07-12'));
+
+		$this->assertSame($other, get_queried_object_id());
+		$this->assertFalse(is_front_page());
+	}
+
+	public function test_no_front_page_set_is_untouched(): void
+	{
+		update_option('page_on_front', 0);
+		$this->go_to(home_url('/?mhmrentiva_pickup_date=2027-07-12'));
+
+		$this->assertTrue(is_home());
+		$this->assertSame(0, (int) get_query_var('page_id'));
+	}
+
+	/**
+	 * setUp adds the filter by hand; production gets it from register_hooks().
+	 */
+	public function test_register_hooks_adds_the_request_filter(): void
+	{
+		remove_filter('request', array( SearchResults::class, 'route_front_page' ));
+		$register = new \ReflectionMethod(SearchResults::class, 'register_hooks');
+		$register->setAccessible(true);
+		$register->invoke(null);
+
+		$this->assertNotFalse(has_filter('request', array( SearchResults::class, 'route_front_page' )));
+	}
+
 	public function test_a_site_whose_front_page_lists_posts_is_untouched(): void
 	{
 		update_option('show_on_front', 'posts');
