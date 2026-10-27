@@ -598,7 +598,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertContains($this->vehicle_id('Zz Page One'), array_map('intval', $later->posts));
 	}
 
-	/* Fix round 1 ------------------------------------------------------------- */
+	/* Notices and counts beside the location sections ------------------------- */
 
 	public function test_undated_location_with_no_cars_is_not_an_empty_catalogue(): void
 	{
@@ -702,7 +702,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Task 8 item 3: an empty main grid above sections that list cars read as
+	 * An empty main grid above sections that list cars read as
 	 * "0 vehicles" / "Show 0 vehicles" -- "no cars" over cars.
 	 */
 	public function test_empty_grid_with_sections_shows_no_zero_count(): void
@@ -751,7 +751,7 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fix round 1 (m3): the phone's summary card is re-rendered with the results,
+	 * The phone's summary card is re-rendered with the results,
 	 * by the same rule: no "0 vehicles" over sections that list cars.
 	 */
 	public function test_mobile_summary_card_follows_the_results(): void

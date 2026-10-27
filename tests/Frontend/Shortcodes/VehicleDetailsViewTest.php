@@ -254,7 +254,7 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertSame('2027-07-12', $booking['window']['return_date']);
 		$this->assertFalse($booking['available']);
 		$this->assertNotSame('', $booking['message']);
-		// PR S Task 9 (D5): no total for dates in the wrong order -- only the message.
+		// No total for dates in the wrong order -- only the message.
 		$this->assertFalse($booking['priced'], 'A return before pickup is not priced.');
 	}
 

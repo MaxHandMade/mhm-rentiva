@@ -278,7 +278,7 @@ final class SearchResults extends AbstractShortcode {
 	 * strip with the search in the query (change_url()). The search vars are
 	 * public query vars, and WP_Query shows `page_on_front` only for a home
 	 * request with no query vars -- so on a site whose strip lives on the front
-	 * page the customer got the blog index instead (PR S D4). Any other var
+	 * page the customer got the blog index instead (PR S). Any other var
 	 * (s, page_id, a feed, a 404 ...) keeps WordPress's own routing.
 	 *
 	 * @param array<string, mixed> $query_vars Parsed query vars.

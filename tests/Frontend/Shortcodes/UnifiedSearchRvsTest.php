@@ -104,7 +104,7 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * PR S Task 9 item 4: the date fields show the site format from the first
+	 * The date fields show the site format from the first
 	 * paint (no Y-m-d before the script runs); the hidden field after each
 	 * submits Y-m-d, with or without JavaScript.
 	 */
@@ -154,7 +154,7 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-search', 'enqueued'));
 		$this->assertFalse(wp_style_is('mhm-rentiva-unified-search-base', 'enqueued'));
-		// PR S Task 9: the date popup wears the booking form's rvs skin here too.
+		// PR S: the date popup wears the booking form's rvs skin here too.
 		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-search', 'mhm-rentiva-rvs-datepicker'), 'The strip loads the rvs datepicker skin.');
 	}
 

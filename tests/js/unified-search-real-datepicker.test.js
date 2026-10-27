@@ -3,7 +3,7 @@
  */
 
 /**
- * PR S Task 9 fix round (I2): the search strip with the REAL jQuery UI
+ * PR S: the search strip with the REAL jQuery UI
  * datepicker. The strip and the vehicle card keep the return after pickup
  * through one rule (window.mhmRentivaDatepicker.constrainReturn); this drives
  * the strip the way a visitor does -- open the popup, click a day -- on the

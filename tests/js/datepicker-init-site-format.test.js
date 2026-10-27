@@ -3,7 +3,7 @@
  */
 
 /**
- * PR S Task 8 item 2: a `.js-datepicker` shows the site's date format and
+ * PR S: a `.js-datepicker` shows the site's date format and
  * submits Y-m-d.
  *
  * jQuery UI is not a dev dependency: tests/js/support/fake-datepicker.js stands
@@ -131,7 +131,7 @@ describe( 'shared datepicker init: site format on screen, Y-m-d submitted', () =
 } );
 
 /**
- * PR S Task 9 item 4: the server renders the pair already -- the visible field
+ * The server renders the pair already -- the visible field
  * in the site format (no Y-m-d flash before this script), the hidden Y-m-d
  * value named after it. The init adopts the pair instead of splitting again.
  */
@@ -198,7 +198,7 @@ describe( 'shared datepicker init: a pair the server rendered', () => {
 } );
 
 /**
- * PR S Task 9 fix round (I2): the one return-date rule the search strip and the
+ * The one return-date rule the search strip and the
  * vehicle card share -- the return is at least pickup + the minimum rental.
  */
 describe( 'shared datepicker API: constrainReturn', () => {

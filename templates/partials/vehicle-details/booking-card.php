@@ -35,7 +35,7 @@ $mhmrentiva_price   = ! empty($show_price);
 $mhmrentiva_label   = trim( (string) ( ( $atts ?? array() )['booking_btn_text'] ?? '' ));
 $mhmrentiva_label   = '' !== $mhmrentiva_label ? $mhmrentiva_label : __('Continue', 'mhm-rentiva');
 $mhmrentiva_ok      = ! empty($mhmrentiva_booking['available']);
-$mhmrentiva_priced  = ! empty($mhmrentiva_booking['priced']); // Wrong-order dates: the message alone, no total beside it (PR S D5).
+$mhmrentiva_priced  = ! empty($mhmrentiva_booking['priced']); // Wrong-order dates: the message alone, no total beside it.
 $mhmrentiva_html    = PriceDisplay::allowed_html();
 $mhmrentiva_days    = (int) $mhmrentiva_booking['days'];
 /* translators: %s: number of rental days. */

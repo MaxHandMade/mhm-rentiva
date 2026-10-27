@@ -11,7 +11,7 @@ use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use WP_UnitTestCase;
 
 /**
- * PR S Task 8 item 1: the "look from that date" link lost its window.
+ * PR S: the "look from that date" link lost its window.
  *
  * Customer links pointed at the vehicle CPT permalink (/arac/<slug>/?window);
  * Plugin::load_vehicle_templates() 301-redirected that to the vehicle-details
@@ -166,7 +166,7 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Fix round 1 (m1): WordPress's own public query vars would re-route the
+	 * WordPress's own public query vars would re-route the
 	 * details-page request (`?s=x` turns it into a search, `?feed=rss2` into a
 	 * feed); they stay behind. The window and campaign tags still travel.
 	 */

@@ -345,7 +345,7 @@ describe( 'rvs vehicle page', () => {
 		expect( message.textContent ).toBe( 'Something went wrong' );
 	} );
 
-	// PR S Task 8 item 2: the card's date fields show the site format (shared
+	// PR S: the card's date fields show the site format (shared
 	// datepicker init) and the page still posts and writes back Y-m-d.
 	test( 'dates in the site format: posts Y-m-d, writes the server window back formatted', async () => {
 		const html = page( 'vd1' )

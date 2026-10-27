@@ -81,7 +81,7 @@ describe( 'rvs search strip', () => {
 } );
 
 /**
- * PR S Task 8 item 2: the date fields show the site's format (shared datepicker
+ * PR S: the date fields show the site's format (shared datepicker
  * init) and submit Y-m-d; the strip still keeps the return after pickup.
  */
 describe( 'rvs search strip with dates in the site format', () => {

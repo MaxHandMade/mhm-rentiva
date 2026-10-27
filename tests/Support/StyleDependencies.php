@@ -6,7 +6,7 @@ namespace MHMRentiva\Tests\Support;
 
 /**
  * Whether a registered stylesheet pulls another in, directly or further down
- * its dependency chain (PR S Task 9: every customer date surface loads the
+ * its dependency chain (PR S: every customer date surface loads the
  * shared rvs datepicker skin).
  */
 trait StyleDependencies

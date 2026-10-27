@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 use WP_UnitTestCase;
 
 /**
- * PR S Task 8 item 2: customer date fields show the site's date format.
+ * PR S: customer date fields show the site's date format.
  *
  * The shared datepicker init showed a hard-coded `yy-mm-dd`; the site setting is
  * WordPress's `date_format`. DatepickerAssets::js_date_format() is the one PHP ->
@@ -73,7 +73,7 @@ final class DatepickerFormatTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * PR S Task 9 item 4: the field is rendered in the site format, so it shows
+	 * The field is rendered in the site format, so it shows
 	 * no Y-m-d before the script runs. Same rules as jQuery UI's formatDate()
 	 * on the converted format, with the names the init receives.
 	 *

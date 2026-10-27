@@ -351,7 +351,7 @@ final class SearchSettingsTest extends WP_UnitTestCase
 		);
 		$html = RenderNormalizer::golden($html);
 		// The strip opens on tomorrow → +3 days: a date that moves every day.
-		// The same dates as the visible fields show them (site format, PR S Task 9):
+		// The same dates as the visible fields show them (site format, PR S):
 		// masked only when the shown text IS the hidden date in the site format,
 		// so a strip that printed Y-m-d or junk in the visible field still fails.
 		$html = (string) preg_replace_callback(

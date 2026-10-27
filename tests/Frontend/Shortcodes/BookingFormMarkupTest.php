@@ -416,7 +416,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Task 8 item 4: the pickup line sits inside .rvs-booking__when, which
+	 * The pickup line sits inside .rvs-booking__when, which
 	 * already has the summary's side margin; its own side margin doubled it
 	 * (20 px in from the date line) and no bottom margin glued it to the dates.
 	 */

@@ -3,7 +3,7 @@
  */
 
 /**
- * PR S Task 9 (D5): the vehicle page's booking card with the REAL jQuery UI
+ * PR S: the vehicle page's booking card with the REAL jQuery UI
  * datepicker (WordPress's copy, tests/js/support/real-datepicker.js) -- the
  * earlier card tests used a stand-in, which is how a pickup past the return
  * date went unnoticed. A visitor picks a day in the popup; jQuery UI writes the

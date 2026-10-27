@@ -9,7 +9,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
 use WP_UnitTestCase;
 
 /**
- * PR S Task 9 (D4): the results page's "Change" goes to the page holding the
+ * PR S: the results page's "Change" goes to the page holding the
  * search strip with the search in the query (`/?mhmrentiva_pickup_date=...`).
  * When that page is the static front page, the Rentiva search vars -- public
  * query vars -- made WordPress treat the request as the blog index (WP_Query

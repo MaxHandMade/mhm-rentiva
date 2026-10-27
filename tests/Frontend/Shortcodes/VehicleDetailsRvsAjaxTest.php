@@ -114,7 +114,7 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * PR S Task 9 (D5): dates in the wrong order get the message and no total
+	 * Dates in the wrong order get the message and no total
 	 * -- the card never shows "1 day total $X" beside "Invalid date selection".
 	 */
 	public function test_quote_for_dates_in_the_wrong_order_carries_no_total(): void

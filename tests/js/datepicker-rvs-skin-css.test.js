@@ -1,5 +1,5 @@
 /**
- * PR S Task 9 item 1: one datepicker look for every customer date field.
+ * PR S: one datepicker look for every customer date field.
  *
  * The rvs skin (assets/css/rvs/rvs-datepicker.css) dresses the popup of the
  * search strip, the vehicle card and the booking form. The old skin

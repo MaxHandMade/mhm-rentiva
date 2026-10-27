@@ -164,7 +164,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-dialog', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-vehicle-js', 'enqueued'));
 		$this->assertContains('mhm-rentiva-rvs-dialog', wp_scripts()->registered['mhm-rentiva-rvs-vehicle-js']->deps);
-		// PR S Task 9: the booking card's date popup wears the rvs skin.
+		// PR S: the booking card's date popup wears the rvs skin.
 		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-vehicle', 'mhm-rentiva-rvs-datepicker'), 'The vehicle page loads the rvs datepicker skin.');
 	}
 
@@ -184,7 +184,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * PR S Task 9 (D5): a link with the return before pickup shows the message
+	 * A link with the return before pickup shows the message
 	 * with the total and days hidden; the script learns the minimum rental.
 	 */
 	public function test_dates_in_the_wrong_order_show_no_total(): void
@@ -207,7 +207,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * PR S Task 9 item 4: the card's dates show the site format from the first
+	 * The card's dates show the site format from the first
 	 * paint; the hidden field after each posts Y-m-d.
 	 */
 	public function test_card_dates_render_in_the_site_format_and_post_iso(): void

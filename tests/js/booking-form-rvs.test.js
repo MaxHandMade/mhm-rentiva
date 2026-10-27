@@ -603,7 +603,7 @@ describe( 'booking form on the rvs markup', () => {
 		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( true );
 
 		// The popup fades out in the look it opened with: closing keeps the
-		// skin (PR S Task 9 fix round, I1 -- taking it off at fade start let
+		// skin (taking it off at fade start let
 		// datepicker-custom.css paint the closing popup).
 		booking.close();
 		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( true );
@@ -620,7 +620,7 @@ describe( 'booking form on the rvs markup', () => {
 
 	test( 'datepicker popup sits above the phone summary band', () => {
 		const css = fs.readFileSync( path.join( __dirname, '../../assets/css/frontend/rvs-booking.css' ), 'utf8' );
-		// The popup skin is shared (rvs-datepicker.css, PR S Task 9).
+		// The popup skin is shared (rvs-datepicker.css, PR S).
 		const skin = fs.readFileSync( path.join( __dirname, '../../assets/css/rvs/rvs-datepicker.css' ), 'utf8' );
 		const band = /\.rvs-booking__aside\s*\{[^}]*position:\s*fixed;[^}]*z-index:\s*(\d+)/.exec( css );
 		const popup = /\.rvs-shell\.rvs-dp\s*\{[^}]*z-index:\s*(\d+)\s*!important/.exec( skin );

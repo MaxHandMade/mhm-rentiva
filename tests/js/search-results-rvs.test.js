@@ -298,7 +298,7 @@ describe( 'rvs search results', () => {
 		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.layout ).toBe( 'list' );
 	} );
 
-	// Task 8 item 3: an empty grid above sections that list cars must not say
+	// An empty grid above sections that list cars must not say
 	// "Show 0 vehicles"; the server sends the label (with its plural) each time.
 	test( 'the apply label is the server label: count-free when only the sections list cars', async () => {
 		let next = { apply_html: 'Show results', meta: { total: 0, active_filters: 1 } };
@@ -317,7 +317,7 @@ describe( 'rvs search results', () => {
 		expect( document.querySelector( '[data-rvs-apply-count]' ).textContent ).toBe( '1' );
 	} );
 
-	// Fix round 1 (m3): the phone's summary card follows the re-render, so it
+	// The phone's summary card follows the re-render, so it
 	// never disagrees with the drawer button (no "0" over sections with cars).
 	test( 'the mobile summary card follows the re-render', async () => {
 		let next = { summary_card_html: '<span>12 Jul – 15 Jul</span>', apply_html: 'Show results', meta: { total: 0, active_filters: 1 } };
