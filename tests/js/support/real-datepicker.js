@@ -1,27 +1,30 @@
 /**
- * The real jQuery UI datepicker (the copy WordPress ships, wp-includes/js/jquery/ui)
- * loaded into a test's jQuery -- so a test drives the same widget a customer
- * does: show it, click a day, let jQuery UI fire its own change / onSelect.
+ * The real jQuery UI datepicker loaded into a test's jQuery -- so a test drives
+ * the same widget a customer does: show it, click a day, let jQuery UI fire
+ * its own change / onSelect.
  *
- * jQuery UI is not a dev dependency of the plugin; the dev stack's WordPress
- * checkout carries it. The path comes from WP_CORE_DIR, else the stack's
- * `wp/` folder next to `plugins/`. A missing file fails the test loudly
- * (a skipped test would hide the coverage it is there for).
+ * Source: the `jquery-ui` dev dependency, pinned to the exact version
+ * WordPress core ships in wp-includes/js/jquery/ui (1.13.3 as of WP 6.9), so
+ * the suite runs in CI without a WordPress checkout. WP_CORE_DIR, when set,
+ * overrides it with that checkout's own core.js + datepicker.js. A missing
+ * file fails the test loudly (a skipped test would hide the coverage it is
+ * there for).
  */
 const fs = require( 'fs' );
 const path = require( 'path' );
 
-function uiDir() {
-	const root = process.env.WP_CORE_DIR || path.resolve( __dirname, '../../../../../wp' );
-	return path.join( root, 'wp-includes/js/jquery/ui' );
+function sources() {
+	if ( process.env.WP_CORE_DIR ) {
+		const dir = path.join( process.env.WP_CORE_DIR, 'wp-includes/js/jquery/ui' );
+		return [ path.join( dir, 'core.js' ), path.join( dir, 'datepicker.js' ) ];
+	}
+	return [ require.resolve( 'jquery-ui/dist/jquery-ui.js' ) ];
 }
 
 function install( $ ) {
-	const dir = uiDir();
-	[ 'core.js', 'datepicker.js' ].forEach( ( file ) => {
-		const full = path.join( dir, file );
+	sources().forEach( ( full ) => {
 		if ( ! fs.existsSync( full ) ) {
-			throw new Error( 'jQuery UI not found at ' + full + ' (set WP_CORE_DIR to a WordPress checkout).' );
+			throw new Error( 'jQuery UI not found at ' + full + ' (WP_CORE_DIR must point at a WordPress checkout).' );
 		}
 		// The files are UMD: without an AMD loader they call factory( jQuery ).
 		// eslint-disable-next-line no-new-func

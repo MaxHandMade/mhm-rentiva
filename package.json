@@ -11,7 +11,8 @@
     "@wordpress/element": "^6.46.0",
     "@wordpress/i18n": "^6.28.0",
     "@wordpress/scripts": "^30.0.0",
-    "jquery": "^3.7.1"
+    "jquery": "^3.7.1",
+    "jquery-ui": "1.13.3"
   },
   "dependencies": {
     "chart.js": "^4.5.1"
