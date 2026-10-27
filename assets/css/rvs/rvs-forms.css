@@ -310,3 +310,44 @@
 		background: var(--rvs-n-200);
 	}
 }
+
+/* Segmented control ---------------------------------------------------------
+   Filter links inside <nav aria-label> (selected: aria-current="page") or
+   toggle buttons (selected: aria-pressed="true"). */
+
+.rvs-shell .rvs-seg {
+	display: inline-flex;
+	max-width: 100%;
+	overflow-x: auto;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+}
+
+.rvs-shell .rvs-seg > a,
+.rvs-shell .rvs-seg > button {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	min-height: 40px;
+	padding: 0 16px;
+	border: 0;
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	font: inherit;
+	font-size: 15px;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-seg > [aria-current="page"],
+.rvs-shell .rvs-seg > [aria-pressed="true"] {
+	background: var(--rvs-text);
+	color: var(--rvs-raised);
+}
+
+.rvs-shell .rvs-seg > a:focus-visible,
+.rvs-shell .rvs-seg > button:focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: -3px;
+}

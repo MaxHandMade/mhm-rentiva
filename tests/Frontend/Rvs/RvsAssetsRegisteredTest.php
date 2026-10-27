@@ -166,4 +166,15 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		// A browser without container-query units drops the clamp(); the 20 px line before it stays.
 		$this->assertMatchesRegularExpression('/\.rvs-breakdown__amount \{[^}]*font-size: 20px;[^}]*font-size: clamp\(/', self::css('assets/css/rvs/rvs-breakdown.css'));
 	}
+
+	public function test_rvs_data_registered_after_primitives(): void
+	{
+		$this->assertSame(array( 'mhm-rentiva-rvs-primitives' ), wp_styles()->registered['mhm-rentiva-rvs-data']->deps);
+
+		AssetManager::enqueue_rvs_data_styles();
+		wp_styles()->all_deps(wp_styles()->queue);
+		$this->assertContains('mhm-rentiva-rvs-data', wp_styles()->to_do);
+		$this->assertContains('mhm-rentiva-rvs-tokens', wp_styles()->to_do);
+		$this->assertFileExists(self::ROOT . 'assets/css/rvs/rvs-data.css');
+	}
 }

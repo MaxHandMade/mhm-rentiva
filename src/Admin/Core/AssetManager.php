@@ -238,6 +238,9 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-forms', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-forms', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-forms.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-forms.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-data', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-data', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-data.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-data.css'));
+		}
 		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
 		}
@@ -292,6 +295,15 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-search');
+	}
+
+	/**
+	 * The data primitives (table, status tag, rows, timeline) on top of the `rvs-` chain.
+	 */
+	public static function enqueue_rvs_data_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-data');
 	}
 
 	/**
