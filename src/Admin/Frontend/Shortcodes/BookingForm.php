@@ -75,7 +75,7 @@ final class BookingForm extends AbstractShortcode {
 	 *
 	 * @var array<int, string>
 	 */
-	private const PUBLIC_QUERY_VARS = array(
+	public const PUBLIC_QUERY_VARS = array(
 		'mhmrentiva_vehicle_id',
 		'mhmrentiva_start_date',
 		'mhmrentiva_end_date',

@@ -267,6 +267,36 @@ final class SearchResults extends AbstractShortcode {
 	protected static function register_hooks(): void
 	{
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
+		add_filter('request', array( self::class, 'route_front_page' ));
+	}
+
+	/**
+	 * `request` filter: a home request carrying nothing but Rentiva search vars
+	 * shows the static front page.
+	 *
+	 * "Change" / "Change dates" send the customer to the page holding the search
+	 * strip with the search in the query (change_url()). The search vars are
+	 * public query vars, and WP_Query shows `page_on_front` only for a home
+	 * request with no query vars -- so on a site whose strip lives on the front
+	 * page the customer got the blog index instead (PR S D4). Any other var
+	 * (s, page_id, a feed, a 404 ...) keeps WordPress's own routing.
+	 *
+	 * @param array<string, mixed> $query_vars Parsed query vars.
+	 * @return array<string, mixed>
+	 */
+	public static function route_front_page(array $query_vars): array
+	{
+		global $wp;
+		if (array() === $query_vars || 'page' !== get_option('show_on_front') || ! $wp instanceof \WP || '' !== (string) $wp->request) {
+			return $query_vars;
+		}
+		$front = (int) get_option('page_on_front');
+		if ($front <= 0 || array() !== array_diff(array_keys($query_vars), array_merge(self::PUBLIC_QUERY_VARS, BookingForm::PUBLIC_QUERY_VARS))) {
+			return $query_vars;
+		}
+		$query_vars['page_id'] = $front;
+
+		return $query_vars;
 	}
 
 	/**
