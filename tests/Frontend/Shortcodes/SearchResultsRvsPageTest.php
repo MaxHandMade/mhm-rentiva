@@ -316,6 +316,35 @@ final class SearchResultsRvsPageTest extends WP_Ajax_UnitTestCase
 		$this->assertStringNotContainsString('rvs-card__price', $booked);
 	}
 
+	/**
+	 * The page and the refine request read a window in the site format
+	 * (submitted without JavaScript) as the same days as Y-m-d.
+	 */
+	public function test_window_in_the_site_format_searches_the_same_days(): void
+	{
+		$one = $this->vehicle_id('Zz Page One');
+		$this->book_window($one);
+		$shown = static fn(string $ymd): string => \DateTimeImmutable::createFromFormat('!Y-m-d', $ymd)->format('d/m/Y');
+
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		try {
+			set_query_var(SearchResults::query_var('pickup_date'), $shown(self::day(30)));
+			set_query_var(SearchResults::query_var('return_date'), $shown(self::day(33)));
+			$page = $this->page();
+			$data = $this->filter(array(
+				'mhmrentiva_pickup_date' => $shown(self::day(30)),
+				'mhmrentiva_return_date' => $shown(self::day(33)),
+			));
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		$this->assertStringContainsString('Zz Page One', self::section($page, 'booked'), 'The page searched the window.');
+		$this->assertStringContainsString('Zz Page One', (string) $data['booked_html'], 'The refine request searched the window.');
+		$this->assertStringNotContainsString('Zz Page One', (string) $data['html']);
+	}
+
 	public function test_booked_card_without_an_earliest_window_has_no_button(): void
 	{
 		add_filter(

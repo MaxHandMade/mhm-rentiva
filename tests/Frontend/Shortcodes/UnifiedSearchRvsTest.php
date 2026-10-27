@@ -105,8 +105,10 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 	/**
 	 * The date fields show the site format from the first
-	 * paint (no Y-m-d before the script runs); the hidden field after each
-	 * submits Y-m-d, with or without JavaScript.
+	 * paint (no Y-m-d before the script runs). The visible field carries the
+	 * name, so without JavaScript the form submits what it shows (read back by
+	 * DatepickerAssets::parse_date()); the script hands the name to the
+	 * unnamed hidden Y-m-d field right after it.
 	 */
 	public function test_date_fields_render_in_the_site_format_and_submit_iso(): void
 	{
@@ -122,12 +124,32 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		foreach (array( 'pickup' => array( '12/07/2027', '2027-07-12' ), 'return' => array( '15/07/2027', '2027-07-15' ) ) as $field => $dates) {
 			$this->assertMatchesRegularExpression(
-				'/<input id="[^"]+-' . $field . '-date" type="text" class="[^"]*js-datepicker" value="' . preg_quote($dates[0], '/') . '"[^>]*>\s*<input type="hidden" name="' . SearchResults::query_var($field . '_date') . '" value="' . $dates[1] . '" data-rvs-date-value>/',
+				'/<input id="[^"]+-' . $field . '-date" type="text" class="[^"]*js-datepicker" name="' . SearchResults::query_var($field . '_date') . '" value="' . preg_quote($dates[0], '/') . '"[^>]*>\s*<input type="hidden" value="' . $dates[1] . '" data-rvs-date-value>/',
 				$html,
-				$field . ': visible in the site format, hidden Y-m-d right after it.'
+				$field . ': visible and named in the site format, hidden Y-m-d right after it.'
 			);
 		}
-		$this->assertDoesNotMatchRegularExpression('/type="text"[^>]*name="mhmrentiva_(pickup|return)_date"/', $html, 'The visible field submits nothing.');
+		$this->assertDoesNotMatchRegularExpression('/type="hidden"[^>]*name="mhmrentiva_(pickup|return)_date"/', $html, 'Before the script the hidden field submits nothing.');
+	}
+
+	/**
+	 * A date submitted without JavaScript arrives in the site format; the
+	 * strip reads it back (the results page's "Change" prefill).
+	 */
+	public function test_a_date_in_the_site_format_prefills_the_strip(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		set_query_var(SearchResults::query_var('pickup_date'), '12/07/2027');
+		set_query_var(SearchResults::query_var('return_date'), '2027-07-15');
+		try {
+			$values = UnifiedSearch::values(false);
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		$this->assertSame('2027-07-12', $values['pickup_date']);
+		$this->assertSame('2027-07-15', $values['return_date']);
 	}
 
 	public function test_malformed_request_values_are_ignored(): void

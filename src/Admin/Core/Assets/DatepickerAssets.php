@@ -241,6 +241,144 @@ final class DatepickerAssets {
     }
 
     /**
+     * A submitted date as Y-m-d, '' when it is not a real date.
+     *
+     * The inverse of display_date(): a date field carries its name on the
+     * visible input until the script hands it to the hidden Y-m-d one, so a
+     * page without JavaScript (or whose datepicker failed) submits the text in
+     * the site format. Read with the same format and names the page renders
+     * with -- jQuery UI's parseDate() rules: d/dd and m/mm take one or two
+     * digits, yy four, y two (the century from jQuery UI's default cutoff, this
+     * year + 10); month names in any case, day names accepted and not checked.
+     * Y-m-d is always accepted (the hidden field, links, bookmarks).
+     */
+    public static function parse_date(string $value): string
+    {
+        $value = trim($value);
+        if ('' === $value) {
+            return '';
+        }
+        if (1 === preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $iso)) {
+            return self::ymd( (int) $iso[1], (int) $iso[2], (int) $iso[3]);
+        }
+
+        $names  = self::names();
+        $one_of = static function (array $list): string {
+            usort($list, static fn(string $a, string $b): int => strlen($b) - strlen($a));
+            return '(' . implode('|', array_map(static fn(string $name): string => preg_quote($name, '/'), $list)) . ')';
+        };
+        $format = self::display_format();
+        $length = strlen($format);
+        $regex  = '';
+        $groups = array();
+        $quoted = false;
+        // One more of the same character makes the long form (jQuery UI lookAhead).
+        $double = static function (string $char) use ($format, $length, &$i): bool {
+            if ($i + 1 < $length && $format[ $i + 1 ] === $char) {
+                ++$i;
+                return true;
+            }
+            return false;
+        };
+        for ($i = 0; $i < $length; $i++) {
+            $char = $format[ $i ];
+            if ($quoted) {
+                if ("'" === $char && ! $double("'")) {
+                    $quoted = false;
+                } else {
+                    $regex .= preg_quote($char, '/');
+                }
+                continue;
+            }
+            switch ($char) {
+                case 'd':
+                    $double('d');
+                    $regex   .= '(\d{1,2})';
+                    $groups[] = 'day';
+                    break;
+                case 'm':
+                    $double('m');
+                    $regex   .= '(\d{1,2})';
+                    $groups[] = 'month';
+                    break;
+                case 'y':
+                    $long     = $double('y');
+                    $regex   .= $long ? '(\d{4})' : '(\d{2})';
+                    $groups[] = $long ? 'year' : 'short_year';
+                    break;
+                case 'M':
+                    $long     = $double('M');
+                    $regex   .= $one_of($long ? $names['monthNames'] : $names['monthNamesShort']);
+                    $groups[] = $long ? 'month_name' : 'month_short';
+                    break;
+                case 'D':
+                    $regex   .= $double('D') ? $one_of($names['dayNames']) : $one_of($names['dayNamesShort']);
+                    $groups[] = 'weekday';
+                    break;
+                case "'":
+                    if ($double("'")) {
+                        $regex .= "'";
+                    } else {
+                        $quoted = true;
+                    }
+                    break;
+                case ' ':
+                    $regex .= '\s+';
+                    break;
+                default:
+                    $regex .= preg_quote($char, '/');
+            }
+        }
+
+        if (1 !== preg_match('/^' . $regex . '$/iu', $value, $match)) {
+            return '';
+        }
+
+        $day   = 0;
+        $month = 0;
+        $year  = 0;
+        foreach ($groups as $index => $group) {
+            $found = (string) $match[ $index + 1 ];
+            switch ($group) {
+                case 'day':
+                    $day = (int) $found;
+                    break;
+                case 'month':
+                    $month = (int) $found;
+                    break;
+                case 'year':
+                    $year = (int) $found;
+                    break;
+                case 'short_year':
+                    $this_year = (int) wp_date('Y');
+                    $century   = $this_year - $this_year % 100;
+                    $year      = $century + (int) $found - ( (int) $found <= $this_year % 100 + 10 ? 0 : 100 );
+                    break;
+                case 'month_name':
+                case 'month_short':
+                    $list = 'month_name' === $group ? $names['monthNames'] : $names['monthNamesShort'];
+                    foreach ($list as $position => $name) {
+                        if (mb_strtolower($name, 'UTF-8') === mb_strtolower($found, 'UTF-8')) {
+                            $month = $position + 1;
+                            break;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return self::ymd($year, $month, $day);
+    }
+
+    /**
+     * Y-m-d for a real calendar day, '' otherwise.
+     */
+    private static function ymd(int $year, int $month, int $day): string
+    {
+        return $year >= 1 && checkdate($month, $day, $year) ? sprintf('%04d-%02d-%02d', $year, $month, $day) : '';
+    }
+
+    /**
      * Month and day names the field may show: the init's (localized) and the
      * page's render (display_date()) use this one list.
      *

@@ -241,6 +241,31 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
     }
 
     /**
+     * The search strip submits its dates in the site format when JavaScript
+     * did not run (the visible fields carry the names); the search reads them
+     * as Y-m-d, the legacy start/end keys included.
+     */
+    public function test_search_params_read_dates_in_the_site_format(): void
+    {
+        $saved = get_option('date_format');
+        update_option('date_format', 'd/m/Y');
+        try {
+            $this->go_to('/?mhmrentiva_pickup_date=12%2F07%2F2027&mhmrentiva_return_date=2027-07-15');
+
+            $method = new \ReflectionMethod(SearchResults::class, 'get_search_params_from_url');
+            $method->setAccessible(true);
+            $params = $method->invoke(null);
+        } finally {
+            update_option('date_format', $saved);
+        }
+
+        $this->assertSame('2027-07-12', $params['pickup_date']);
+        $this->assertSame('2027-07-15', $params['return_date']);
+        $this->assertSame('2027-07-12', $params['start_date']);
+        $this->assertSame('2027-07-15', $params['end_date']);
+    }
+
+    /**
      * Same request shape via SearchResults::get_data() (the public wrapper
      * around prepare_template_data()) -- proves the whitelist read reaches
      * all the way through to the shortcode's rendered template data, which is

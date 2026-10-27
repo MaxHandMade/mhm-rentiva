@@ -263,6 +263,24 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertTrue($this->view()['booking']['priced']);
 	}
 
+	/**
+	 * The card's fields carry their names in the site format until the
+	 * script runs: a window in that format reads as the same days.
+	 */
+	public function test_window_reads_dates_in_the_site_format(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		try {
+			$window = VehicleDetailsView::window(array( 'pickup_date' => '12/07/2027', 'pickup_time' => '10:00', 'return_date' => '15/07/2027' ));
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		$this->assertSame('2027-07-12', $window['pickup_date']);
+		$this->assertSame('2027-07-15', $window['return_date']);
+	}
+
 	public function test_time_outside_the_half_hour_options_falls_back(): void
 	{
 		$window = VehicleDetailsView::window(array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:15', 'return_date' => '2027-07-15' ));

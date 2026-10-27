@@ -19,11 +19,11 @@ describe( 'search strip with the real datepicker', () => {
 		<div class="rvs-shell">
 			<div class="rvs-search" data-rvs-search>
 				<form>
-					<input id="s-pickup" class="js-datepicker" value="12/07/2027" data-rvs-pickup-date>
-					<input type="hidden" name="mhmrentiva_pickup_date" value="2027-07-12" data-rvs-date-value>
+					<input id="s-pickup" class="js-datepicker" name="mhmrentiva_pickup_date" value="12/07/2027" data-rvs-pickup-date>
+					<input type="hidden" value="2027-07-12" data-rvs-date-value>
 					<select data-rvs-pickup-time><option value="10:00" selected>10:00</option></select>
-					<input id="s-return" class="js-datepicker" value="15/07/2027" data-rvs-return-date>
-					<input type="hidden" name="mhmrentiva_return_date" value="2027-07-15" data-rvs-date-value>
+					<input id="s-return" class="js-datepicker" name="mhmrentiva_return_date" value="15/07/2027" data-rvs-return-date>
+					<input type="hidden" value="2027-07-15" data-rvs-date-value>
 				</form>
 			</div>
 		</div>`;

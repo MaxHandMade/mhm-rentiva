@@ -94,7 +94,9 @@ final class VehicleDetailsView {
 	public static function window(array $window): array
 	{
 		$defaults = UnifiedSearch::values();
-		$date     = static fn($v): string => 1 === preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $v) ? (string) $v : '';
+		// Y-m-d, or the site's date format the card's fields submit before
+		// the script runs.
+		$date     = static fn($v): string => is_scalar($v) ? \MHMRentiva\Admin\Core\Assets\DatepickerAssets::parse_date( (string) $v) : '';
 		$pickup   = $date($window['pickup_date'] ?? '');
 		$return   = $date($window['return_date'] ?? '');
 		$in_range = static fn(string $d): bool => '' !== $d && $d >= '2000-01-01' && $d <= '2100-12-31';

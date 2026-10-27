@@ -224,8 +224,10 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 			set_query_var('mhmrentiva_return_date', '');
 		}
 
-		$this->assertMatchesRegularExpression('/<input id="[^"]+-pickup" type="text" class="rvs-input js-datepicker" value="12\/07\/2027"[^>]*>\s*<input type="hidden" name="pickup_date" value="2027-07-12" data-rvs-date-value>/', $html);
-		$this->assertMatchesRegularExpression('/<input id="[^"]+-return" type="text" class="rvs-input js-datepicker" value="15\/07\/2027"[^>]*>\s*<input type="hidden" name="return_date" value="2027-07-15" data-rvs-date-value>/', $html);
+		// Named on the visible field until the script hands the name to the
+		// hidden Y-m-d field (datepicker-init.js); the server reads either.
+		$this->assertMatchesRegularExpression('/<input id="[^"]+-pickup" type="text" class="rvs-input js-datepicker" name="pickup_date" value="12\/07\/2027"[^>]*>\s*<input type="hidden" value="2027-07-12" data-rvs-date-value>/', $html);
+		$this->assertMatchesRegularExpression('/<input id="[^"]+-return" type="text" class="rvs-input js-datepicker" name="return_date" value="15\/07\/2027"[^>]*>\s*<input type="hidden" value="2027-07-15" data-rvs-date-value>/', $html);
 	}
 
 	public function test_unavailable_window_disables_continue(): void

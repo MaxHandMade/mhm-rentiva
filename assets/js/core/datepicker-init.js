@@ -8,8 +8,9 @@
  *
  * The field shows the site's date format (l10n.dateFormat, WordPress
  * `date_format` converted by DatepickerAssets::js_date_format()) and submits
- * Y-m-d: a field the server rendered as a pair (visible text in the site format,
- * then a hidden named `data-rvs-date-value` input) is adopted as it is;
+ * Y-m-d: a field the server rendered as a pair (visible text in the site format
+ * under the field name, then a hidden `data-rvs-date-value` input with the
+ * Y-m-d value) is adopted, the name moving to the hidden input;
  * otherwise, on init, a named `.js-datepicker` hands its `name` to a hidden input
  * right after it (data-rvs-date-value), which jQuery UI keeps in Y-m-d
  * (altField/altFormat). The visible input keeps its id, classes and data-*
@@ -124,12 +125,20 @@
             return;
         }
         // The server rendered the pair already (templates call
-        // DatepickerAssets::display_date()): adopt its hidden value and show
-        // that date -- the same text the server printed, unless the page and
-        // the format disagree (a cached page), when the value wins.
+        // DatepickerAssets::display_date()): the visible field carries the
+        // name, so a page without this script submits the shown text (the
+        // server reads it in the site format, DatepickerAssets::parse_date()).
+        // Now the name moves to the hidden Y-m-d field. Adopt its value and
+        // show that date -- the same text the server printed, unless the page
+        // and the format disagree (a cached page), when the value wins.
         var $rendered = $input.next('input[type="hidden"][data-rvs-date-value]');
-        if ($rendered.length && !$input.attr('name')) {
+        if ($rendered.length) {
             var stored = parseIso($rendered.val());
+            var renderedName = $input.attr('name');
+            if (renderedName) {
+                $rendered.attr('name', renderedName);
+                $input.removeAttr('name');
+            }
             $input.data('rvsDateValue', $rendered);
             $input.val(stored ? display(stored) : '');
             return;

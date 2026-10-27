@@ -355,11 +355,11 @@ final class SearchSettingsTest extends WP_UnitTestCase
 		// masked only when the shown text IS the hidden date in the site format,
 		// so a strip that printed Y-m-d or junk in the visible field still fails.
 		$html = (string) preg_replace_callback(
-			'/(class="[^"]*js-datepicker" value=")([^"]+)("[^>]*>\s*<input type="hidden" name="mhmrentiva_(?:pickup|return)_date" value=")(\d{4}-\d{2}-\d{2})"/',
+			'/(class="[^"]*js-datepicker" name="mhmrentiva_(?:pickup|return)_date" value=")([^"]+)("[^>]*>\s*<input type="hidden" value=")(\d{4}-\d{2}-\d{2})"/',
 			static fn(array $m): string => $m[1] . ( \MHMRentiva\Admin\Core\Assets\DatepickerAssets::display_date($m[4]) === $m[2] ? 'SHOWN_DATE' : $m[2] ) . $m[3] . $m[4] . '"',
 			$html
 		);
-		$html = (string) preg_replace('/(name="mhmrentiva_(?:pickup|return)_date" value=")\d{4}-\d{2}-\d{2}"/', '$1DATE"', $html);
+		$html = (string) preg_replace('/(<input type="hidden" value=")\d{4}-\d{2}-\d{2}(" data-rvs-date-value>)/', '$1DATE$2', $html);
 		// Category term ids differ from run to run.
 		$html = (string) preg_replace('/(name="mhmrentiva_category\[\]" value=")\d+"/', '$1TERM"', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));

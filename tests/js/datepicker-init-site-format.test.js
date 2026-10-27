@@ -131,9 +131,12 @@ describe( 'shared datepicker init: site format on screen, Y-m-d submitted', () =
 } );
 
 /**
- * The server renders the pair already -- the visible field
- * in the site format (no Y-m-d flash before this script), the hidden Y-m-d
- * value named after it. The init adopts the pair instead of splitting again.
+ * The server renders the pair already -- the visible field in the site format
+ * (no Y-m-d flash before this script) carrying the field name, the hidden Y-m-d
+ * value unnamed right after it. Without JavaScript the visible text is what
+ * the form submits (the server parses it in the site format); the init hands
+ * the name to the hidden Y-m-d field and adopts the pair instead of splitting
+ * again.
  */
 describe( 'shared datepicker init: a pair the server rendered', () => {
 	let jQuery;
@@ -141,13 +144,23 @@ describe( 'shared datepicker init: a pair the server rendered', () => {
 
 	const options = () => calls.filter( ( c ) => c.args[ 0 ] && typeof c.args[ 0 ] === 'object' ).pop().args[ 0 ];
 
-	const boot = async ( shown, value ) => {
+	// The markup the templates print (unified-search.php, booking-card.php).
+	const rendered = ( shown, value ) => `
+		<form>
+			<input id="pickup" type="text" class="js-datepicker" name="mhmrentiva_pickup_date" value="${ shown }" data-rvs-pickup-date>
+			<input type="hidden" value="${ value }" data-rvs-date-value>
+		</form>`;
+
+	// A page cached before the name moved to the visible field.
+	const renderedHiddenNamed = ( shown, value ) => `
+		<form>
+			<input id="pickup" type="text" class="js-datepicker" value="${ shown }" data-rvs-pickup-date>
+			<input type="hidden" name="mhmrentiva_pickup_date" value="${ value }" data-rvs-date-value>
+		</form>`;
+
+	const boot = async ( shown, value, markup = rendered ) => {
 		jest.resetModules();
-		document.body.innerHTML = `
-			<form>
-				<input id="pickup" type="text" class="js-datepicker" value="${ shown }" data-rvs-pickup-date>
-				<input type="hidden" name="mhmrentiva_pickup_date" value="${ value }" data-rvs-date-value>
-			</form>`;
+		document.body.innerHTML = markup( shown, value );
 		jQuery = require( 'jquery' );
 		global.jQuery = jQuery;
 		window.jQuery = jQuery;
@@ -164,6 +177,29 @@ describe( 'shared datepicker init: a pair the server rendered', () => {
 		delete global.jQuery;
 		delete window.mhmDatepickerL10n;
 		delete window.mhmRentivaDatepicker;
+	} );
+
+	test( 'without the script the visible text is submitted under the field name', () => {
+		document.body.innerHTML = rendered( '10/12/2026', '2026-12-10' );
+		const $ = require( 'jquery' );
+
+		expect( $( 'form' ).serializeArray() ).toEqual( [ { name: 'mhmrentiva_pickup_date', value: '10/12/2026' } ] );
+	} );
+
+	test( 'the init hands the field name from the visible field to the hidden Y-m-d one', async () => {
+		await boot( '10/12/2026', '2026-12-10' );
+
+		expect( visible().hasAttribute( 'name' ) ).toBe( false );
+		expect( hidden().getAttribute( 'name' ) ).toBe( 'mhmrentiva_pickup_date' );
+		expect( jQuery( 'form' ).serializeArray() ).toEqual( [ { name: 'mhmrentiva_pickup_date', value: '2026-12-10' } ] );
+	} );
+
+	test( 'a cached pair with the name on the hidden field is adopted as it is', async () => {
+		await boot( '10/12/2026', '2026-12-10', renderedHiddenNamed );
+
+		expect( document.querySelectorAll( '[data-rvs-date-value]' ) ).toHaveLength( 1 );
+		expect( visible().hasAttribute( 'name' ) ).toBe( false );
+		expect( jQuery( 'form' ).serializeArray() ).toEqual( [ { name: 'mhmrentiva_pickup_date', value: '2026-12-10' } ] );
 	} );
 
 	test( 'the rendered pair is kept as it is: one hidden value, the shown text untouched', async () => {

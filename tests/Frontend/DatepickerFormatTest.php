@@ -17,6 +17,7 @@ use WP_UnitTestCase;
  *
  * @covers \MHMRentiva\Admin\Core\Assets\DatepickerAssets::js_date_format
  * @covers \MHMRentiva\Admin\Core\Assets\DatepickerAssets::enqueue
+ * @covers \MHMRentiva\Admin\Core\Assets\DatepickerAssets::parse_date
  */
 final class DatepickerFormatTest extends WP_UnitTestCase
 {
@@ -143,5 +144,96 @@ final class DatepickerFormatTest extends WP_UnitTestCase
 		$this->assertStringContainsString('"dateFormat":"dd/mm/yy"', $data);
 		$this->assertStringContainsString('"altFormat":"yy-mm-dd"', $data);
 		$this->assertStringContainsString('"monthNamesShort":', $data);
+	}
+
+	/**
+	 * Without JavaScript a date field submits what it shows (the site
+	 * format); the server reads it back with parse_date(), the inverse of
+	 * display_date(). Y-m-d is always accepted (the script's hidden field,
+	 * links, old bookmarks).
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string}>
+	 */
+	public function shown_dates(): array
+	{
+		return array(
+			'd/m/Y'               => array( 'd/m/Y', '12/07/2027', '2027-07-12' ),
+			'm/d/Y'               => array( 'm/d/Y', '07/12/2027', '2027-07-12' ),
+			'Y-m-d'               => array( 'Y-m-d', '2027-07-12', '2027-07-12' ),
+			'j F Y'               => array( 'j F Y', '12 July 2027', '2027-07-12' ),
+			'j F Y, any case'     => array( 'j F Y', '12 july 2027', '2027-07-12' ),
+			'F j, Y (WP)'         => array( 'F j, Y', 'July 12, 2027', '2027-07-12' ),
+			'd.m.y'               => array( 'd.m.y', '05.01.27', '2027-01-05' ),
+			'D, j M Y'            => array( 'D, j M Y', 'Mon, 7 Dec 2026', '2026-12-07' ),
+			'l j F Y'             => array( 'l j F Y', 'Sunday 6 December 2026', '2026-12-06' ),
+			'escaped literal'     => array( 'j \d\e F Y', '7 de December 2026', '2026-12-07' ),
+			'apostrophe'          => array( "d 'M' Y", "07 'Dec' 2026", '2026-12-07' ),
+			'single-digit d/m/Y'  => array( 'd/m/Y', '7/1/2027', '2027-01-07' ),
+			'spaces around'       => array( 'd/m/Y', ' 12/07/2027 ', '2027-07-12' ),
+			'ISO under d/m/Y'     => array( 'd/m/Y', '2027-07-12', '2027-07-12' ),
+			'ISO under j F Y'     => array( 'j F Y', '2027-07-12', '2027-07-12' ),
+			'fallback format'     => array( 'F j', '2027-07-12', '2027-07-12' ),
+			'no such day'         => array( 'd/m/Y', '31/02/2027', '' ),
+			'no such ISO day'     => array( 'd/m/Y', '2027-02-30', '' ),
+			'other order'         => array( 'd/m/Y', '2027/07/12', '' ),
+			'words'               => array( 'd/m/Y', 'next friday', '' ),
+			'markup'              => array( 'd/m/Y', '"><script>', '' ),
+			'empty'               => array( 'd/m/Y', '', '' ),
+			'trailing junk'       => array( 'd/m/Y', '12/07/2027x', '' ),
+			'unknown month'       => array( 'j F Y', '12 Julember 2027', '' ),
+		);
+	}
+
+	/**
+	 * @dataProvider shown_dates
+	 */
+	public function test_a_shown_date_parses_back_to_ymd(string $php, string $shown, string $expected): void
+	{
+		update_option('date_format', $php);
+
+		$this->assertSame($expected, DatepickerAssets::parse_date($shown));
+	}
+
+	/**
+	 * Every date the page renders reads back as the same day.
+	 *
+	 * @dataProvider displays
+	 */
+	public function test_every_rendered_date_round_trips(string $php, string $ymd): void
+	{
+		update_option('date_format', $php);
+
+		$this->assertSame($ymd, DatepickerAssets::parse_date(DatepickerAssets::display_date($ymd)));
+	}
+
+	/**
+	 * A translated site shows its own month names (the plugin's
+	 * strings); typed back, they parse -- Turkish, with its dotted and dotless
+	 * letters, in any case.
+	 */
+	public function test_translated_month_names_parse(): void
+	{
+		$turkish = array(
+			'January'  => 'Ocak',
+			'February' => 'Şubat',
+			'July'     => 'Temmuz',
+			'August'   => 'Ağustos',
+			'December' => 'Aralık',
+		);
+		$filter  = static function ($translation, $text, $domain) use ($turkish) {
+			return 'mhm-rentiva' === $domain && isset($turkish[ $text ]) ? $turkish[ $text ] : $translation;
+		};
+		add_filter('gettext', $filter, 10, 3);
+		update_option('date_format', 'j F Y');
+		try {
+			$this->assertSame('7 Aralık 2026', DatepickerAssets::display_date('2026-12-07'));
+			$this->assertSame('2026-12-07', DatepickerAssets::parse_date('7 Aralık 2026'));
+			$this->assertSame('2027-02-14', DatepickerAssets::parse_date('14 Şubat 2027'));
+			$this->assertSame('2027-08-30', DatepickerAssets::parse_date('30 ağustos 2027'));
+			$this->assertSame('2027-07-12', DatepickerAssets::parse_date('12 TEMMUZ 2027'));
+			$this->assertSame('', DatepickerAssets::parse_date('12 July 2027'), 'The English name is not the site\'s.');
+		} finally {
+			remove_filter('gettext', $filter, 10);
+		}
 	}
 }

@@ -195,6 +195,19 @@ final class SearchResults extends AbstractShortcode {
 		return sanitize_text_field(wp_unslash( (string) $value));
 	}
 
+	/**
+	 * A submitted date field as Y-m-d. Without JavaScript the search strip
+	 * submits what its fields show, in the site's date format
+	 * (DatepickerAssets::parse_date()); anything that is not a date is passed
+	 * on as it came, for the window checks to reject as before.
+	 */
+	private static function submitted_date(string $value): string
+	{
+		$ymd = \MHMRentiva\Admin\Core\Assets\DatepickerAssets::parse_date($value);
+
+		return '' !== $ymd ? $ymd : $value;
+	}
+
 	private static function get_int(string $key, int $default = 0): int
 	{
 		return self::get_int_by_var(self::query_var($key), $default);
@@ -606,14 +619,14 @@ final class SearchResults extends AbstractShortcode {
 	{
 		return array(
 			'keyword'         => self::get_text('keyword'),
-			'pickup_date'     => self::get_text('pickup_date'),
-			'return_date'     => self::get_text('return_date'),
+			'pickup_date'     => self::submitted_date(self::get_text('pickup_date')),
+			'return_date'     => self::submitted_date(self::get_text('return_date')),
 			// The window's time, as the AJAX path reads it: the page and its
 			// re-render must search the same window.
 			'pickup_time'     => self::get_text('pickup_time'),
 			// Legacy support
-			'start_date'      => self::get_text('start_date', self::get_text('pickup_date')),
-			'end_date'        => self::get_text('end_date', self::get_text('return_date')),
+			'start_date'      => self::submitted_date(self::get_text('start_date', self::get_text('pickup_date'))),
+			'end_date'        => self::submitted_date(self::get_text('end_date', self::get_text('return_date'))),
 			'min_price'       => self::get_int('min_price'),
 			'max_price'       => self::get_int('max_price'),
 			'fuel_type'       => self::get_text_or_list('fuel_type'),
@@ -1964,8 +1977,8 @@ final class SearchResults extends AbstractShortcode {
 			// payload mirrors it.
 			$search_params = array(
 				'keyword'         => $req->text(self::query_var('keyword')),
-				'pickup_date'     => $req->text(self::query_var('pickup_date')),
-				'return_date'     => $req->text(self::query_var('return_date')),
+				'pickup_date'     => self::submitted_date($req->text(self::query_var('pickup_date'))),
+				'return_date'     => self::submitted_date($req->text(self::query_var('return_date'))),
 				// The window's time: the search and the cards' links both use it.
 				'pickup_time'     => $req->text(self::query_var('pickup_time')),
 				'min_price'       => $req->int(self::query_var('min_price')),
