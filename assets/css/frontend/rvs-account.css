@@ -112,6 +112,62 @@
 	padding: var(--rvs-s4);
 }
 
+.rvs-shell .rvs-account-next__top {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-account-next__body > h2 {
+	font-size: 24px;
+}
+
+.rvs-shell .rvs-account-next__facts {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 15px;
+	margin: 0;
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-account-next__facts dt {
+	color: var(--rvs-muted);
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-account-next__facts dd {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+}
+
+.rvs-shell .rvs-account-next__cancel {
+	margin: 0;
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-account__more {
+	margin: 0;
+}
+
+/* Privacy: a plain section at the bottom; Delete is the danger button. */
+.rvs-shell .rvs-account-privacy > h2 {
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-account-privacy__danger {
+	border-color: var(--rvs-alert);
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-account-privacy__danger:hover {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
 /* Booking detail */
 .rvs-shell .rvs-account-detail {
 	display: grid;
@@ -628,6 +684,15 @@
 
 	.rvs-shell .rvs-account-next__body {
 		padding: var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-account-next__body > h2 {
+		font-size: 20px;
+	}
+
+	.rvs-shell .rvs-account-next__facts {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
 	}
 
 	.rvs-shell .rvs-account-detail__vehicle {

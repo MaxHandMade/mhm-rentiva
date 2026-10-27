@@ -13,7 +13,6 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 
 
@@ -151,15 +150,36 @@ final class AccountRenderer {
 			}
 		);
 
+		// The next rental (card + line under the greeting) and the upcoming list
+		// (PR D, y16). `recent_bookings` stays filled for back-compat (Pro or a
+		// theme template may read it); the shipped template no longer does.
+		$now_ts  = time();
+		$next_id = AccountDashboardView::next_booking_id( (int) $user->ID, $now_ts);
+		$next    = null;
+		if (null !== $next_id) {
+			$next_pickup = AccountBookingsQuery::pickup_ts($next_id);
+			$next        = array(
+				'status'      => (string) get_post_meta($next_id, '_mhmrentiva_status', true),
+				'pickup_ts'   => $next_pickup,
+				'return_text' => AccountDashboardView::return_text($next_id),
+			);
+		}
+
+		$upcoming = AccountBookingsQuery::page( (int) $user->ID, AccountBookingsQuery::UPCOMING, 1, 5);
+		$counts   = AccountBookingsQuery::counts( (int) $user->ID);
+
 		$data = array(
 			'user'                  => $user,
 			'bookings_count'        => count($bookings),
 			'active_bookings_count' => count($active_bookings),
 			'recent_bookings'       => array_slice($bookings, 0, 5),
 			'navigation'            => self::get_navigation(),
-			'favorites'             => SettingsCore::get('mhmrentiva_customer_favorites', '1'),
-			'booking_history'       => SettingsCore::get('mhmrentiva_customer_booking_history', '1'),
-			'welcome_message'       => SettingsCore::get('mhmrentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
+			'greeting_name'         => AccountDashboardView::greeting_name($user),
+			'subline'               => AccountDashboardView::subline($next, $now_ts),
+			'next_rental'           => null !== $next_id ? AccountDashboardView::next_card($next_id) : null,
+			'upcoming_posts'        => $upcoming['posts'],
+			'counts'                => $counts,
+			'has_bookings'          => array_sum($counts) > 0,
 		);
 
 		return array( 'data' => $data );

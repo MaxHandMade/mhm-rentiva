@@ -231,7 +231,9 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 
 		$dashboard = AccountRenderer::render_dashboard();
 
-		$this->assertStringContainsString( 'Booking #' . $order_id, $dashboard );
-		$this->assertStringNotContainsString( 'Booking #' . $booking_id . '<', $dashboard );
+		// PR D Task 3: the card's kicker and the list row carry the number.
+		$this->assertStringContainsString( 'Upcoming · #' . $order_id . '<', $dashboard );
+		$this->assertStringContainsString( '>#' . $order_id . '<', $dashboard );
+		$this->assertStringNotContainsString( '#' . $booking_id . '<', $dashboard );
 	}
 }

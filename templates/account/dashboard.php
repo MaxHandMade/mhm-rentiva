@@ -1,327 +1,112 @@
 <?php
-
 declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * My Account - Dashboard Template
+ * My Account - Dashboard Template (PR D, Task 3)
  *
- * @var WP_User $user
- * @var int $bookings_count
- * @var int $active_bookings_count
- * @var array $recent_bookings
- * @var array $navigation
+ * Greeting and one line under it, the next-rental card, the upcoming list
+ * (five rows, "View all"), and -- last -- the privacy controls. The KPI strip
+ * and the quick actions are gone (R14).
+ *
+ * @var array $data AccountRenderer::get_dashboard_data()['data'].
  */
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
+use MHMRentiva\Admin\Frontend\Account\AccountBookingsView;
+use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
+use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
-// Get customer experience settings
 $navigation    = $data['navigation'] ?? array();
 $is_integrated = empty($navigation);
-$wrapper_class = 'mhm-rentiva-account-page';
-if ($is_integrated) {
-	$wrapper_class .= ' mhm-integrated';
+$user          = $data['user'] ?? wp_get_current_user();
+$title_id      = wp_unique_id('rvs-acc-');
+
+$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
+if (! $vehicles_url) {
+	$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
 }
+if (! $vehicles_url) {
+	$vehicles_url = home_url('/');
+}
+// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
+$vehicles_url = (string) apply_filters('mhmrentiva_vehicles_page_url', $vehicles_url);
+
+$booking_rows = array_map(array( AccountRenderer::class, 'booking_view_row' ), (array) ( $data['upcoming_posts'] ?? array() ));
+$list         = array(
+	'rows'          => AccountBookingsView::rows($booking_rows),
+	'counts'        => (array) ( $data['counts'] ?? array() ),
+	'segment'       => AccountBookingsQuery::UPCOMING,
+	'show_segments' => false,
+	'has_bookings'  => (bool) ( $data['has_bookings'] ?? false ),
+	'show_image'    => true,
+	'show_dates'    => true,
+	'show_status'   => true,
+	'show_price'    => true,
+	'show_pager'    => false,
+	'current_page'  => 1,
+	'total_pages'   => 1,
+	'vehicles_url'  => $vehicles_url,
+);
+
+$bookings_url = function_exists('wc_get_account_endpoint_url')
+	? \wc_get_account_endpoint_url(AccountController::get_endpoint_slug('bookings', 'rentiva-bookings'))
+	: '';
+
+$own_shell  = ! AbstractShortcode::in_rvs_shell();
+$root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-integrated' : '' );
 ?>
-
-<div class="<?php echo esc_attr($wrapper_class); ?>">
-
-	<!-- Account Navigation (only show if not on WooCommerce My Account page) -->
-	<?php if (! empty($data['navigation'])) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $data['navigation'] ), true)); ?>
+<?php if ($own_shell) : ?>
+<div class="rvs-shell <?php echo esc_attr($root_class); ?>" data-rvs-shortcode="rentiva_my_account">
+<?php else : ?>
+<div class="<?php echo esc_attr($root_class); ?>">
+<?php endif; ?>
+	<?php if (! $is_integrated) : ?>
+		<?php echo wp_kses_post(Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
-	<!-- Dashboard Content -->
-	<div class="mhm-account-content">
-
-		<!-- Statistics Cards -->
-		<?php
-		$favorites_count = 0;
-		if ($data['favorites'] === '1') {
-			$favorites_data  = get_user_meta($data['user']->ID, 'mhmrentiva_favorites', true);
-			$favorites_count = is_array($favorites_data) ? count($favorites_data) : 0;
-		}
-
-		$account_cards = array(
-			array(
-				'label' => __('Total Bookings', 'mhm-rentiva'),
-				'value' => (string) $data['bookings_count'],
-			),
-			array(
-				'label' => __('Active Bookings', 'mhm-rentiva'),
-				'value' => (string) $data['active_bookings_count'],
-			),
-			array(
-				'label' => __('Favorite Vehicles', 'mhm-rentiva'),
-				'value' => (string) $favorites_count,
-			),
-		);
-		?>
-		<div class="mhmui-front mhm-account-kpi-strip">
-			<?php echo wp_kses_post( \MHMRentiva\Admin\Core\AssetManager::stats_grid_html( $account_cards, 3 ) ); ?>
-		</div>
-
-		<!-- Recent Bookings -->
-		<?php if ($data['booking_history'] === '1') : ?>
-			<div class="account-section">
-				<div class="section-header">
-					<h2><?php esc_html_e('Recent Bookings', 'mhm-rentiva'); ?></h2>
-					<a href="<?php echo esc_url(\wc_get_account_endpoint_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_endpoint_slug('bookings', 'rentiva-bookings'))); ?>" class="view-all-link">
-						<?php esc_html_e('View All', 'mhm-rentiva'); ?> &rarr;
-					</a>
-				</div>
-
-				<?php if (! empty($data['recent_bookings'])) : ?>
-					<div class="bookings-list">
-						<?php
-						foreach ($data['recent_bookings'] as $booking) :
-							$vehicle_id     = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
-							$vehicle        = get_post($vehicle_id);
-							$booking_status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
-							$pickup_date    = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
-							$dropoff_date   = get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true);
-							// Get pickup and dropoff times with fallbacks
-							$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
-							if (! $pickup_time) {
-								$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
-							}
-							if (! $pickup_time) {
-								$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
-							}
-							$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_end_time', true);
-							if (! $dropoff_time) {
-								$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_dropoff_time', true);
-							}
-							if (! $dropoff_time) {
-								$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_booking_dropoff_time', true);
-							}
-							$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
-
-							$status_class = '';
-							$status_label = '';
-							switch ($booking_status) {
-								case 'confirmed':
-									$status_class = 'status-confirmed';
-									$status_label = esc_html__('Confirmed', 'mhm-rentiva');
-									break;
-								case 'completed':
-									$status_class = 'status-completed';
-									$status_label = esc_html__('Completed', 'mhm-rentiva');
-									break;
-								case 'cancelled':
-									$status_class = 'status-cancelled';
-									$status_label = esc_html__('Cancelled', 'mhm-rentiva');
-									break;
-								default:
-									// Every other status used to read "Pending" -- a rental in
-									// progress or awaiting payment included. Same class scheme
-									// as the bookings list.
-									$status_class = 'status-' . sanitize_html_class( (string) $booking_status );
-									$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
-							}
-							?>
-							<div class="booking-item">
-								<div class="booking-vehicle">
-									<?php if ($vehicle && has_post_thumbnail($vehicle_id)) : ?>
-										<div class="vehicle-thumbnail">
-											<?php echo get_the_post_thumbnail($vehicle_id, 'thumbnail'); ?>
-										</div>
-									<?php endif; ?>
-									<div class="vehicle-info">
-										<h4><?php echo $vehicle ? esc_html($vehicle->post_title) : esc_html__('Vehicle Not Found', 'mhm-rentiva'); ?></h4>
-										<p class="booking-number">
-											<?php
-											/* translators: %s: booking number shown to the customer (the order number when there is one). */
-											printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html(mhmrentiva_get_display_id( (int) $booking->ID)));
-											?>
-										</p>
-									</div>
-								</div>
-
-								<div class="booking-dates">
-									<div class="date-item">
-										<span class="date-label"><?php esc_html_e('Pickup:', 'mhm-rentiva'); ?></span>
-										<span class="date-value">
-											<?php
-											$pickup_dt = trim($pickup_date . ' ' . ( $pickup_time ? $pickup_time : '' ));
-											$pickup_ts = strtotime($pickup_dt);
-											$format    = get_option('date_format') . ' ' . get_option('time_format');
-											echo esc_html($pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date)));
-											?>
-										</span>
-									</div>
-									<div class="date-item">
-										<span class="date-label"><?php esc_html_e('Return:', 'mhm-rentiva'); ?></span>
-										<span class="date-value">
-											<?php
-											$dropoff_dt = trim($dropoff_date . ' ' . ( $dropoff_time ? $dropoff_time : '' ));
-											$dropoff_ts = strtotime($dropoff_dt);
-											$format     = get_option('date_format') . ' ' . get_option('time_format');
-											echo esc_html($dropoff_ts ? date_i18n($format, $dropoff_ts) : date_i18n(get_option('date_format'), strtotime($dropoff_date)));
-											?>
-										</span>
-									</div>
-								</div>
-
-								<div class="booking-status">
-									<span class="status-badge <?php echo esc_attr($status_class); ?>">
-										<?php echo esc_html($status_label); ?>
-									</span>
-								</div>
-
-								<div class="booking-price">
-									<span class="price-amount">
-										<?php
-										// Canonical formatting: uses wc_price() when WooCommerce is active
-										// and falls back to the same placement rule when it is not. The old
-										// fallback read mhmrentiva_currency_position, which is normally
-										// unset, so it always produced `right_space`.
-										echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals()));
-										?>
-									</span>
-								</div>
-
-								<div class="booking-actions">
-									<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>" class="btn-view">
-										<?php esc_html_e('View', 'mhm-rentiva'); ?>
-									</a>
-								</div>
-							</div>
-						<?php endforeach; ?>
-					</div>
-				<?php else : ?>
-					<div class="no-bookings">
-						<div class="empty-state">
-							<div class="empty-icon">&#x1F4C5;</div>
-							<h3><?php esc_html_e('No Bookings Yet', 'mhm-rentiva'); ?></h3>
-							<p><?php esc_html_e('You haven\'t made any vehicle bookings yet. Browse our fleet and make your first booking!', 'mhm-rentiva'); ?></p>
-							<a href="
-							<?php
-							$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
-							if (! $vehicles_url) {
-								$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
-								if (! $vehicles_url) {
-									$vehicles_url = home_url('/');
-								}
-							}
-							echo esc_url($vehicles_url);
-							?>
-							" class="btn btn-primary">
-								<?php esc_html_e('Browse Vehicles', 'mhm-rentiva'); ?>
-							</a>
-						</div>
-					</div>
-				<?php endif; ?>
-			</div>
-		<?php endif; ?>
-
-		<!-- Quick Actions -->
-		<div class="account-section">
-			<div class="section-header">
-				<h2><?php esc_html_e('Quick Actions', 'mhm-rentiva'); ?></h2>
-			</div>
-			<div class="quick-actions">
-				<a href="
-				<?php
-				$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
-				if (! $vehicles_url) {
-					$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
-					if (! $vehicles_url) {
-						$vehicles_url = home_url('/');
-					}
-				}
-				echo esc_url($vehicles_url);
-				?>
-				" class="action-card">
-					<div class="action-icon">&#x1F697;</div>
-					<div class="action-content">
-						<h4><?php esc_html_e('Browse Vehicles', 'mhm-rentiva'); ?></h4>
-						<p><?php esc_html_e('Explore our fleet', 'mhm-rentiva'); ?></p>
-					</div>
-				</a>
-
-				<a href="
-				<?php
-				$booking_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
-				if (! $booking_url) {
-					$booking_url = home_url('/');
-				}
-				echo esc_url($booking_url);
-				?>
-				" class="action-card">
-					<div class="action-icon">&#x1F4C5;</div>
-					<div class="action-content">
-						<h4><?php esc_html_e('New Booking', 'mhm-rentiva'); ?></h4>
-						<p><?php esc_html_e('Make a new reservation', 'mhm-rentiva'); ?></p>
-					</div>
-				</a>
-
-				<a href="
-				<?php
-				$contact_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_contact');
-				if (! $contact_url) {
-					$contact_url = home_url('/');
-				}
-				echo esc_url($contact_url);
-				?>
-				" class="action-card">
-					<div class="action-icon">&#x1F4AC;</div>
-					<div class="action-content">
-						<h4><?php esc_html_e('Contact Support', 'mhm-rentiva'); ?></h4>
-						<p><?php esc_html_e('We\'re here to help', 'mhm-rentiva'); ?></p>
-					</div>
-				</a>
-			</div>
-		</div>
-
-		<!-- Privacy Controls Section -->
-		<?php
-		// These export / withdraw-consent / delete controls are backed by AJAX
-		// handlers that ship with the separate add-on. Render them only when that
-		// add-on is active (its handlers are registered); on the free plugin alone
-		// they would be non-functional, so we omit them entirely rather than show
-		// dead buttons.
-		$gdpr_enabled = SettingsCore::get('mhmrentiva_customer_gdpr_compliance', '1');
-		if ($gdpr_enabled === '1' && has_action('wp_ajax_mhmrentiva_data_export')) :
+	<header class="rvs-account__head">
+		<h1 id="<?php echo esc_attr($title_id); ?>" class="rvs-account__title">
+			<?php
+			/* translators: %s: the customer's first name (or display name). */
+			echo esc_html(sprintf(__('Hello %s', 'mhm-rentiva'), (string) ( $data['greeting_name'] ?? '' )));
 			?>
-			<div class="account-section">
-				<div class="section-header">
-					<h2><?php esc_html_e('Privacy Controls', 'mhm-rentiva'); ?></h2>
-					<p><?php esc_html_e('Manage your personal data and privacy settings', 'mhm-rentiva'); ?></p>
-				</div>
+		</h1>
+		<p class="rvs-account__sub"><?php echo esc_html( (string) ( $data['subline'] ?? '' )); ?></p>
+	</header>
 
-				<div class="privacy-controls">
-					<div class="privacy-action">
-						<h4><?php esc_html_e('Data Export', 'mhm-rentiva'); ?></h4>
-						<p><?php esc_html_e('Download a copy of all your personal data', 'mhm-rentiva'); ?></p>
-						<button type="button" id="export-data" class="btn btn-secondary">
-							<?php esc_html_e('Export My Data', 'mhm-rentiva'); ?>
-						</button>
-					</div>
+	<?php if (! empty($data['next_rental'])) : ?>
+		<?php Templates::render('partials/rvs/account-next-rental', array( 'card' => $data['next_rental'] )); ?>
+	<?php endif; ?>
 
-					<div class="privacy-action">
-						<h4><?php esc_html_e('Withdraw Consent', 'mhm-rentiva'); ?></h4>
-						<p><?php esc_html_e('Withdraw your consent for data processing', 'mhm-rentiva'); ?></p>
-						<button type="button" id="withdraw-consent" class="btn btn-warning">
-							<?php esc_html_e('Withdraw Consent', 'mhm-rentiva'); ?>
-						</button>
-					</div>
+	<?php Templates::render('partials/rvs/account-bookings', $list); ?>
+	<?php if (! empty($list['has_bookings']) && '' !== $bookings_url) : ?>
+		<p class="rvs-account__more"><a href="<?php echo esc_url($bookings_url); ?>"><?php esc_html_e('View all', 'mhm-rentiva'); ?> &rarr;</a></p>
+	<?php endif; ?>
 
-					<div class="privacy-action">
-						<h4><?php esc_html_e('Delete Account', 'mhm-rentiva'); ?></h4>
-						<p><?php esc_html_e('Permanently delete your account and all associated data', 'mhm-rentiva'); ?></p>
-						<button type="button" id="delete-account" class="btn btn-danger">
-							<?php esc_html_e('Delete Account', 'mhm-rentiva'); ?>
-						</button>
-					</div>
-				</div>
+	<?php
+	// The export / withdraw-consent / delete controls are backed by AJAX
+	// handlers that ship with the separate add-on. Render them only when that
+	// add-on is active (its handlers are registered); on the free plugin alone
+	// they would be non-functional, so omit them rather than show dead buttons.
+	$gdpr_enabled = SettingsCore::get('mhmrentiva_customer_gdpr_compliance', '1');
+	if ('1' === $gdpr_enabled && has_action('wp_ajax_mhmrentiva_data_export')) :
+		?>
+		<section class="rvs-account__section rvs-account-privacy" aria-labelledby="<?php echo esc_attr($title_id . '-privacy'); ?>">
+			<h2 id="<?php echo esc_attr($title_id . '-privacy'); ?>"><?php esc_html_e('Privacy Controls', 'mhm-rentiva'); ?></h2>
+			<p class="rvs-account__sub"><?php esc_html_e('Manage your personal data and privacy settings', 'mhm-rentiva'); ?></p>
+			<div class="rvs-account__actions">
+				<button type="button" id="export-data" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Export My Data', 'mhm-rentiva'); ?></button>
+				<button type="button" id="withdraw-consent" class="rvs-btn rvs-btn--secondary"><?php esc_html_e('Withdraw Consent', 'mhm-rentiva'); ?></button>
+				<button type="button" id="delete-account" class="rvs-btn rvs-btn--secondary rvs-account-privacy__danger"><?php esc_html_e('Delete Account', 'mhm-rentiva'); ?></button>
 			</div>
-		<?php endif; ?>
-
-	</div><!-- .mhm-account-content -->
-
-</div><!-- .mhm-rentiva-account-page -->
+		</section>
+	<?php endif; ?>
+</div>

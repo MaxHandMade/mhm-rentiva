@@ -122,6 +122,7 @@ src/Admin/Emails/Templates/RefundEmails.php
 src/Admin/Frontend/Account/AccountBookingsQuery.php
 src/Admin/Frontend/Account/AccountBookingsView.php
 src/Admin/Frontend/Account/AccountController.php
+src/Admin/Frontend/Account/AccountDashboardView.php
 src/Admin/Frontend/Account/AccountRenderer.php
 src/Admin/Frontend/Account/AccountSurface.php
 src/Admin/Frontend/Account/BookingTimeline.php

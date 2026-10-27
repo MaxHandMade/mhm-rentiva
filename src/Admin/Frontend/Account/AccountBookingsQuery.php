@@ -363,7 +363,7 @@ final class AccountBookingsQuery {
 	/**
 	 * The pickup instant: `_mhmrentiva_start_ts`, else the pickup date and time.
 	 */
-	private static function pickup_ts(int $booking_id): int
+	public static function pickup_ts(int $booking_id): int
 	{
 		$start_ts = (string) get_post_meta($booking_id, '_mhmrentiva_start_ts', true);
 		if (1 === preg_match('/^[1-9]\d*$/', $start_ts)) {
