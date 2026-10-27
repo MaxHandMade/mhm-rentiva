@@ -299,10 +299,13 @@ final class AccountController {
 		// Enqueue Booking Cancellation JS on Booking Detail
 		$view_booking_slug = self::get_endpoint_slug('view_booking', 'view-rentiva-booking');
 		if ($endpoint === 'booking-detail' || get_query_var($view_booking_slug) !== '') {
+			// The cancel dialog is the shared rvs dialog (rvs-dialog.js); its
+			// handle is registered and enqueued here so the dependency resolves.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_dialog();
 			wp_enqueue_script(
 				'mhm-rentiva-booking-cancellation',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/booking-cancellation.js',
-				array( 'jquery' ),
+				array( 'mhm-rentiva-rvs-dialog' ),
 				MHMRENTIVA_VERSION,
 				true
 			);
@@ -709,6 +712,31 @@ final class AccountController {
 		);
 	}
 
+	/**
+	 * May a bank receipt be uploaded for this booking? (R13, plan r3 y10.)
+	 *
+	 * Only while no money has arrived through any channel and the booking is
+	 * still waiting (`pending_payment` or `pending`). A paid order, an offline
+	 * payment, or a mixed-currency pair (paid() reads 0 there, the orders do
+	 * not) all close it: the balance is paid online ("Pay remaining") or at
+	 * pickup, never by a second transfer slip. The single rule for the detail
+	 * page, the payment history and the upload handler.
+	 */
+	public static function receipt_upload_allowed(int $booking_id): bool
+	{
+		if ($booking_id <= 0) {
+			return false;
+		}
+
+		$status = \MHMRentiva\Admin\Booking\Core\Status::get($booking_id);
+		if (! in_array($status, array( \MHMRentiva\Admin\Booking\Core\Status::PENDING_PAYMENT, \MHMRentiva\Admin\Booking\Core\Status::PENDING ), true)) {
+			return false;
+		}
+
+		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+
+		return ! ( $state->paid() > 0 || array() !== $state->orders() || $state->isMixedCurrency() );
+	}
 
 	/**
 	 * AJAX: Upload payment receipt (deposit slip)

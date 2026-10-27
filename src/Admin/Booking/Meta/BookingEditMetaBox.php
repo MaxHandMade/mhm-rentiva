@@ -581,14 +581,11 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		update_post_meta( $post_id, '_mhmrentiva_addon_details', $addon_details );
 		update_post_meta( $post_id, '_mhmrentiva_addon_total', (float) array_sum( array_column( $addon_details, 'line_total' ) ) );
 
-		// Update status
-		$old_status = get_post_meta( $post_id, '_mhmrentiva_status', true );
+		// Update status. The status-change history note is written by the
+		// mhmrentiva_booking_status_changed hook update_status() fires
+		// (BookingMeta::auto_add_status_change_note); calling it here as well
+		// wrote every change twice.
 		Status::update_status( $post_id, $status, get_current_user_id() );
-
-		// Append automatic status change note
-		if ( $old_status !== $status ) {
-			\MHMRentiva\Admin\Booking\Meta\BookingMeta::auto_add_status_change_note( $post_id, $old_status, $status );
-		}
 
 		// Update legacy meta keys for backward compatibility
 		update_post_meta( $post_id, '_mhmrentiva_booking_pickup_date', $pickup_date );

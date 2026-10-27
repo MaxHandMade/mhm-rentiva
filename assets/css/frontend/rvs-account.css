@@ -18,6 +18,7 @@
  *                              360px payment box. Phone: one column in the
  *                              order head, vehicle, payment, progress,
  *                              cancellation (plan header, owner 10-27).
+ *   .rvs-account-cancel        the cancel-booking dialog (rvs-dialog, 460px)
  *   .rvs-account-empty         empty state panel
  *   .rvs-account-bookings      "My bookings": __head (title + .rvs-seg),
  *                              __table (.rvs-table; a card per row below
@@ -130,6 +131,244 @@
 .rvs-shell .rvs-account-detail__payment { grid-area: payment; }
 .rvs-shell .rvs-account-detail__timeline { grid-area: timeline; }
 .rvs-shell .rvs-account-detail__cancel { grid-area: cancel; }
+
+.rvs-shell .rvs-account-detail__head {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-account-detail__back {
+	align-self: flex-start;
+	color: var(--rvs-accent-strong);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-account-detail__title-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-account-detail__actions:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-account-detail__state {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rvs-s2) 12px;
+}
+
+.rvs-shell .rvs-account-detail__payline {
+	color: var(--rvs-muted);
+}
+
+/* Vehicle card: 220px image beside name and the pickup / return grid. */
+.rvs-shell .rvs-account-detail__vehicle {
+	display: grid;
+	grid-template-columns: 220px minmax(0, 1fr);
+	gap: var(--rvs-s4);
+	overflow: hidden;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-account-detail__media {
+	min-height: 150px;
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-account-detail__media img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-account-detail__car {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	padding: 18px 18px 18px 0;
+}
+
+.rvs-shell .rvs-account-detail__car > h2 {
+	font-size: 22px;
+}
+
+.rvs-shell .rvs-account-detail__when {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin: 0;
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-account-detail__when dt {
+	color: var(--rvs-muted);
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-account-detail__when dd {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+}
+
+/* Progress: numbered dots for the steps still ahead. */
+.rvs-shell .rvs-account-detail__timeline > h2 {
+	font-size: 24px;
+}
+
+/* Cancellation box on the surface background. */
+.rvs-shell .rvs-account-detail__cancel {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rvs-s4);
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-account-detail__cancel h2 {
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-account-detail__cancel p {
+	margin: 4px 0 0;
+}
+
+.rvs-shell .rvs-account-detail__cancel-btn {
+	border-color: var(--rvs-alert);
+	background: var(--rvs-raised);
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-account-detail__cancel-btn:hover {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+/* Payment box: raised; a paid deposit in the "done" colour, due at pickup
+   highlighted. */
+.rvs-shell .rvs-account-detail__payment {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-account-detail__payment > h2.rvs-kicker {
+	margin: 0;
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-account-detail__payment .rvs-breakdown__deposit {
+	padding: 0;
+	background: transparent;
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-account-detail__payment .rvs-breakdown__deposit--paid {
+	color: var(--rvs-st-done-fg);
+}
+
+.rvs-shell .rvs-account-detail__payment .rvs-breakdown__pickup {
+	padding: var(--rvs-s2);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	color: var(--rvs-text);
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-account-detail__money {
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+}
+
+.rvs-shell .rvs-account-detail__money--paid {
+	color: var(--rvs-st-done-fg);
+}
+
+.rvs-shell .rvs-account-detail__receipt {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	padding-top: var(--rvs-s2);
+	border-top: 1px solid var(--rvs-line);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-account-detail__receipt a {
+	color: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-account-detail__upload {
+	position: relative;
+}
+
+.rvs-shell .rvs-account-detail__upload:focus-within {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+/* Cancel dialog: 460px panel. */
+.rvs-shell .rvs-account-cancel__panel {
+	width: min(100%, 460px);
+	height: auto;
+}
+
+.rvs-shell .rvs-account-cancel__body {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 24px;
+}
+
+.rvs-shell .rvs-account-cancel__body > p {
+	margin: 0;
+}
+
+.rvs-shell .rvs-account-cancel .rvs-dialog__title {
+	font-size: 22px;
+}
+
+.rvs-shell .rvs-account-cancel [data-rvs-cancel-other][hidden],
+.rvs-shell .rvs-account-cancel [data-rvs-cancel-message][hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-account-cancel [data-rvs-cancel-message].is-success {
+	color: var(--rvs-st-done-fg);
+}
+
+.rvs-shell .rvs-account-cancel__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: var(--rvs-s2);
+	margin-top: 6px;
+}
+
+.rvs-shell .rvs-account-cancel__confirm {
+	background: var(--rvs-alert);
+	color: #fff;
+}
+
+.rvs-shell .rvs-account-cancel__confirm:hover {
+	background: var(--rvs-alert-500);
+	color: #fff;
+}
 
 /* Below the width that fits content + 360px beside the menu, one column. */
 @media (max-width: 1100px) {
@@ -389,5 +628,30 @@
 
 	.rvs-shell .rvs-account-next__body {
 		padding: var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-account-detail__vehicle {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-account-detail__media {
+		min-height: 0;
+		aspect-ratio: 3 / 2;
+	}
+
+	.rvs-shell .rvs-account-detail__car {
+		padding: 0 var(--rvs-s3) var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-account-detail__cancel-btn,
+	.rvs-shell .rvs-account-detail__payment .rvs-btn,
+	.rvs-shell .rvs-account-cancel__actions > .rvs-btn {
+		flex: 1 1 100%;
+		width: 100%;
+	}
+
+	/* On a phone the dialog sheet keeps its content height, at the bottom. */
+	.rvs-shell .rvs-account-cancel {
+		align-items: flex-end;
 	}
 }

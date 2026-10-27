@@ -446,71 +446,92 @@ final class CancellationHandler {
 	 * @return true|\WP_Error True if can cancel, WP_Error if deadline passed
 	 */
 	public static function check_cancellation_deadline( int $booking_id ) {
-		// Get cancellation deadline setting (in hours)
+		$moment = self::deadline_moment( $booking_id );
+		if ( is_wp_error( $moment ) ) {
+			return $moment;
+		}
+
+		$deadline_hours = $moment['hours'];
+		$now            = time();
+
+		// Check if deadline has passed
+		if ( $now > $moment['deadline'] ) {
+			$hours_until_pickup = round( ( $moment['pickup'] - $now ) / 3600, 1 );
+
+			return new \WP_Error(
+				'deadline_passed',
+				sprintf(
+					/* translators: 1: required hours before pickup, 2: hours remaining until pickup. */
+					_n(
+						'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hour before pickup. Only %2$.1f hours remaining.',
+						'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining.',
+						$deadline_hours,
+						'mhm-rentiva'
+					),
+					$deadline_hours,
+					max( 0, $hours_until_pickup )
+				)
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * The pickup time a booking's cancellation deadline counts from (R10).
+	 *
+	 * One read order for every reader: `_mhmrentiva_start_time` (what the
+	 * booking form and the manual booking screen write) -> `_mhmrentiva_pickup_time`
+	 * -> `_mhmrentiva_booking_pickup_time` (legacy) -> 10:00. An empty or
+	 * malformed value counts as missing. Reading only `_mhmrentiva_pickup_time`
+	 * put a hand-entered 14:00 booking's deadline at 10:00.
+	 *
+	 * @return string `H:i`.
+	 */
+	public static function pickup_time_for( int $booking_id ): string {
+		foreach ( array( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) as $key ) {
+			$value = trim( (string) get_post_meta( $booking_id, $key, true ) );
+			if ( 1 === preg_match( '/^(\d{1,2}):(\d{2})/', $value, $m ) && (int) $m[1] < 24 && (int) $m[2] < 60 ) {
+				return sprintf( '%02d:%s', (int) $m[1], $m[2] );
+			}
+		}
+
+		return '10:00';
+	}
+
+	/**
+	 * Pickup instant and cancellation deadline, both Unix timestamps, for
+	 * check_cancellation_deadline() and get_cancellation_info() alike.
+	 *
+	 * @return array{pickup: int, deadline: int, hours: int}|\WP_Error
+	 */
+	private static function deadline_moment( int $booking_id ) {
 		$deadline_hours = (int) SettingsCore::get( 'mhmrentiva_booking_cancellation_deadline_hours', 24 );
+		$pickup_date    = (string) get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
 
-		// Get booking pickup date/time
-		$pickup_date = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
-		$pickup_time = get_post_meta( $booking_id, '_mhmrentiva_pickup_time', true );
-
-		if ( empty( $pickup_date ) ) {
+		if ( '' === $pickup_date ) {
 			return new \WP_Error(
 				'invalid_booking_data',
 				__( 'Booking pickup date is missing.', 'mhm-rentiva' )
 			);
 		}
 
-		// Use default time if not set
-		if ( empty( $pickup_time ) ) {
-			$pickup_time = '10:00';
-		}
-
-		try {
-			// Create pickup datetime
-			$timezone        = wp_timezone();
-			$pickup_datetime = \DateTime::createFromFormat( 'Y-m-d H:i', $pickup_date . ' ' . $pickup_time, $timezone );
-
-			if ( ! $pickup_datetime ) {
-				return new \WP_Error(
-					'invalid_datetime',
-					__( 'Invalid pickup date/time format.', 'mhm-rentiva' )
-				);
-			}
-
-			// Calculate cancellation deadline
-			$cancellation_deadline = clone $pickup_datetime;
-			$cancellation_deadline->modify( '-' . $deadline_hours . ' hours' );
-
-			// Get current time
-			$current_time = new \DateTime( 'now', $timezone );
-
-			// Check if deadline has passed
-			if ( $current_time > $cancellation_deadline ) {
-				$hours_until_pickup = round( ( $pickup_datetime->getTimestamp() - $current_time->getTimestamp() ) / 3600, 1 );
-
-				return new \WP_Error(
-					'deadline_passed',
-					sprintf(
-						/* translators: 1: required hours before pickup, 2: hours remaining until pickup. */
-						_n(
-							'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hour before pickup. Only %2$.1f hours remaining.',
-							'Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining.',
-							$deadline_hours,
-							'mhm-rentiva'
-						),
-						$deadline_hours,
-						max( 0, $hours_until_pickup )
-					)
-				);
-			}
-
-			return true;
-		} catch ( \Exception $e ) {
+		$pickup = \DateTime::createFromFormat( 'Y-m-d H:i', $pickup_date . ' ' . self::pickup_time_for( $booking_id ), wp_timezone() );
+		if ( ! $pickup ) {
 			return new \WP_Error(
-				'deadline_check_failed',
-				__( 'Failed to check cancellation deadline.', 'mhm-rentiva' )
+				'invalid_datetime',
+				__( 'Invalid pickup date/time format.', 'mhm-rentiva' )
 			);
 		}
+
+		$deadline = clone $pickup;
+		$deadline->modify( '-' . $deadline_hours . ' hours' );
+
+		return array(
+			'pickup'   => $pickup->getTimestamp(),
+			'deadline' => $deadline->getTimestamp(),
+			'hours'    => $deadline_hours,
+		);
 	}
 
 	/**
@@ -1348,87 +1369,64 @@ final class CancellationHandler {
 	/**
 	 * Get cancellation deadline info for display
 	 *
+	 * Same deadline as check_cancellation_deadline() (deadline_moment()).
+	 * `deadline_ts` (Unix timestamp, null when unknown) was added in 6.4.0;
+	 * the other keys are unchanged.
+	 *
 	 * @param int $booking_id Booking ID
-	 * @return array{can_cancel: bool, deadline: string, hours_remaining: float, message: string}
+	 * @return array{can_cancel: bool, deadline: string, deadline_ts: ?int, hours_remaining: float, message: string}
 	 */
 	public static function get_cancellation_info( int $booking_id ): array {
-		$deadline_hours = (int) SettingsCore::get( 'mhmrentiva_booking_cancellation_deadline_hours', 24 );
+		$moment = self::deadline_moment( $booking_id );
 
-		$pickup_date = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
-		$pickup_time = get_post_meta( $booking_id, '_mhmrentiva_pickup_time', true );
-
-		if ( empty( $pickup_date ) ) {
+		if ( is_wp_error( $moment ) ) {
 			return array(
 				'can_cancel'      => false,
 				'deadline'        => '',
+				'deadline_ts'     => null,
 				'hours_remaining' => 0,
-				'message'         => __( 'Invalid booking data.', 'mhm-rentiva' ),
+				'message'         => 'invalid_booking_data' === $moment->get_error_code()
+					? __( 'Invalid booking data.', 'mhm-rentiva' )
+					: __( 'Invalid pickup date/time format.', 'mhm-rentiva' ),
 			);
 		}
 
-		if ( empty( $pickup_time ) ) {
-			$pickup_time = '10:00';
-		}
+		$deadline_hours  = $moment['hours'];
+		$hours_remaining = ( $moment['deadline'] - time() ) / 3600;
+		$can_cancel      = $hours_remaining >= 0;
+		$deadline_local  = wp_date( 'Y-m-d H:i', $moment['deadline'] );
 
-		try {
-			$timezone        = wp_timezone();
-			$pickup_datetime = \DateTime::createFromFormat( 'Y-m-d H:i', $pickup_date . ' ' . $pickup_time, $timezone );
-
-			if ( ! $pickup_datetime ) {
-				return array(
-					'can_cancel'      => false,
-					'deadline'        => '',
-					'hours_remaining' => 0,
-					'message'         => __( 'Invalid pickup date/time format.', 'mhm-rentiva' ),
-				);
-			}
-
-			$cancellation_deadline = clone $pickup_datetime;
-			$cancellation_deadline->modify( '-' . $deadline_hours . ' hours' );
-
-			$current_time    = new \DateTime( 'now', $timezone );
-			$hours_remaining = ( $cancellation_deadline->getTimestamp() - $current_time->getTimestamp() ) / 3600;
-
-			$can_cancel = $hours_remaining > 0;
-
-			if ( $can_cancel ) {
-				$message = sprintf(
-					/* translators: 1: the deadline date and time; 2: how many hours before pickup that is. */
-					_n(
-						'You can cancel until %1$s (%2$d hour before pickup)',
-						'You can cancel until %1$s (%2$d hours before pickup)',
-						$deadline_hours,
-						'mhm-rentiva'
-					),
-					$cancellation_deadline->format( 'Y-m-d H:i' ),
-					$deadline_hours
-				);
-			} else {
-				$message = sprintf(
-					/* translators: %d: how many hours before pickup a booking must be cancelled. */
-					_n(
-						'Cancellation deadline has passed. Bookings must be cancelled at least %d hour before pickup.',
-						'Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup.',
-						$deadline_hours,
-						'mhm-rentiva'
-					),
-					$deadline_hours
-				);
-			}
-
-			return array(
-				'can_cancel'      => $can_cancel,
-				'deadline'        => $cancellation_deadline->format( 'Y-m-d H:i' ),
-				'hours_remaining' => round( $hours_remaining, 1 ),
-				'message'         => $message,
+		if ( $can_cancel ) {
+			$message = sprintf(
+				/* translators: 1: the deadline date and time; 2: how many hours before pickup that is. */
+				_n(
+					'You can cancel until %1$s (%2$d hour before pickup)',
+					'You can cancel until %1$s (%2$d hours before pickup)',
+					$deadline_hours,
+					'mhm-rentiva'
+				),
+				$deadline_local,
+				$deadline_hours
 			);
-		} catch ( \Exception $e ) {
-			return array(
-				'can_cancel'      => false,
-				'deadline'        => '',
-				'hours_remaining' => 0,
-				'message'         => __( 'Error calculating cancellation deadline.', 'mhm-rentiva' ),
+		} else {
+			$message = sprintf(
+				/* translators: %d: how many hours before pickup a booking must be cancelled. */
+				_n(
+					'Cancellation deadline has passed. Bookings must be cancelled at least %d hour before pickup.',
+					'Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup.',
+					$deadline_hours,
+					'mhm-rentiva'
+				),
+				$deadline_hours
 			);
 		}
+
+		return array(
+			'can_cancel'      => $can_cancel,
+			'deadline'        => (string) $deadline_local,
+			'deadline_ts'     => $moment['deadline'],
+			'hours_remaining' => round( $hours_remaining, 1 ),
+			'message'         => $message,
+		);
 	}
 }

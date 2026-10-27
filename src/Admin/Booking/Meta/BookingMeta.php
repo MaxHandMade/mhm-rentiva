@@ -915,10 +915,8 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function render_booking_history_box(\WP_Post $post): void
 	{
-		$history = get_post_meta($post->ID, '_mhmrentiva_booking_history', true);
-		if (! is_array($history)) {
-			$history = array();
-		}
+		// Newest first, by when each entry happened -- not by its array key.
+		$history = array_reverse(self::history_sorted( (int) $post->ID));
 
 		echo '<div class="mhm-booking-history-box">';
 
@@ -964,21 +962,21 @@ final class BookingMeta extends AbstractMetaBox {
 		if ( empty( $history ) ) {
 			echo '<p class="description">' . esc_html__( 'No history found.', 'mhm-rentiva' ) . '</p>';
 		} else {
-			krsort( $history );
-
 			$threshold = 5;
 			$total     = count( $history );
 			$index     = 0;
 
-			foreach ( $history as $timestamp => $note ) {
-				$timestamp = (int) $timestamp;
+			foreach ( $history as $note ) {
+				// `timestamp` is the site-local clock reading the writer stored.
+				$timestamp = (int) ( $note['timestamp'] ?? 0 );
 				$date      = date_i18n( get_option( 'date_format' ), $timestamp );
 				$time      = date_i18n( get_option( 'time_format' ), $timestamp );
-				$user      = get_userdata( $note['user_id'] );
+				$user      = get_userdata( (int) ( $note['user_id'] ?? 0 ) );
 				$user_name = $user ? $user->display_name : esc_html__( 'System', 'mhm-rentiva' );
 
-				$type_class   = 'mhm-history-' . $note['type'];
-				$type_label   = self::get_history_type_label( $note['type'] );
+				$note_type    = (string) ( $note['type'] ?? 'note' );
+				$type_class   = 'mhm-history-' . $note_type;
+				$type_label   = self::get_history_type_label( $note_type );
 				$hidden_class = ( $index >= $threshold ) ? ' mhm-history-item--hidden' : '';
 
 				echo '<div class="mhm-history-item ' . esc_attr( $type_class ) . esc_attr($hidden_class) . '">';
@@ -987,7 +985,7 @@ final class BookingMeta extends AbstractMetaBox {
 				echo '<span class="mhm-history-date">' . esc_html( $date . ' ' . $time ) . '</span>';
 				echo '</div>';
 				echo '<div class="mhm-history-content">';
-				echo '<p>' . esc_html( $note['note'] ) . '</p>';
+				echo '<p>' . esc_html( (string) ( $note['note'] ?? '' ) ) . '</p>';
 				echo '<div class="mhm-history-meta">';
 				/* translators: %s: user display name */
 				echo '<span class="mhm-history-user">' . esc_html( sprintf( esc_html__( 'By %s', 'mhm-rentiva' ), $user_name ) ) . '</span>';
@@ -1062,23 +1060,8 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_die(esc_html__('Invalid booking ID or empty note.', 'mhm-rentiva'));
 		}
 
-		// Get existing history
-		$history = get_post_meta($booking_id, '_mhmrentiva_booking_history', true);
-		if (! is_array($history)) {
-			$history = array();
-		}
-
-		// Yeni not ekle
-		$timestamp             = time() + current_datetime()->getOffset();
-		$history[ $timestamp ] = array(
-			'note'      => $note,
-			'type'      => $type,
-			'user_id'   => get_current_user_id(),
-			'timestamp' => $timestamp,
-		);
-
-		// Save history
-		update_post_meta($booking_id, '_mhmrentiva_booking_history', $history);
+		// One writer for the history (plan r3 y5).
+		self::add_history_note($booking_id, $note, $type);
 
 		self::queue_admin_notice('note_added');
 		$redirect_url = add_query_arg(
@@ -1094,9 +1077,17 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Add history note (programmatically)
+	 * Add history note (programmatically) -- the only writer of
+	 * `_mhmrentiva_booking_history`.
+	 *
+	 * The key is unique per entry: it used to be the second alone, so two
+	 * writes in the same second (a status change and its note) kept only the
+	 * last. `timestamp` stays the site-local clock reading it always was;
+	 * readers order entries by history_sorted(), never by key.
+	 *
+	 * @param array{status_from?: string, status_to?: string, at?: int} $fields Structured fields (status changes, 6.4.0).
 	 */
-	public static function add_history_note(int $booking_id, string $note, string $type = 'note', ?int $user_id = null): bool
+	public static function add_history_note(int $booking_id, string $note, string $type = 'note', ?int $user_id = null, array $fields = array()): bool
 	{
 		if (! $user_id) {
 			$user_id = get_current_user_id();
@@ -1108,14 +1099,63 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 		$timestamp = time() + current_datetime()->getOffset();
 
-		$history[ $timestamp ] = array(
+		$entry = array(
 			'note'      => $note,
 			'type'      => $type,
 			'user_id'   => $user_id,
 			'timestamp' => $timestamp,
 		);
+		foreach (array( 'status_from', 'status_to' ) as $field) {
+			if (isset($fields[ $field ])) {
+				$entry[ $field ] = (string) $fields[ $field ];
+			}
+		}
+		if (isset($fields['at'])) {
+			$entry['at'] = (int) $fields['at'];
+		}
+
+		$history[ $timestamp . '-' . wp_generate_password(6, false) ] = $entry;
 
 		return update_post_meta($booking_id, '_mhmrentiva_booking_history', $history) !== false;
+	}
+
+	/**
+	 * A booking's history, oldest first, each entry with `sort_ts` (UTC).
+	 *
+	 * The single reader order (admin history box, customer progress). New
+	 * entries carry `at` (UTC); older ones only the site-local `timestamp`,
+	 * which is shifted back by the site's offset at that instant. Entries of
+	 * the same instant keep their write order.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	public static function history_sorted(int $booking_id): array
+	{
+		$history = get_post_meta($booking_id, '_mhmrentiva_booking_history', true);
+		if (! is_array($history)) {
+			return array();
+		}
+
+		$timezone = wp_timezone();
+		$entries  = array();
+		foreach ($history as $entry) {
+			if (! is_array($entry)) {
+				continue;
+			}
+			if (isset($entry['at']) && is_numeric($entry['at'])) {
+				$sort_ts = (int) $entry['at'];
+			} else {
+				$local   = (int) ( $entry['timestamp'] ?? 0 );
+				$sort_ts = $local - $timezone->getOffset(new \DateTimeImmutable('@' . $local));
+			}
+			$entry['sort_ts'] = $sort_ts;
+			$entries[]        = $entry;
+		}
+
+		// usort is stable (PHP 8): equal instants keep their write order.
+		usort($entries, static fn(array $a, array $b): int => $a['sort_ts'] <=> $b['sort_ts']);
+
+		return $entries;
 	}
 
 	/**
@@ -1607,7 +1647,19 @@ final class BookingMeta extends AbstractMetaBox {
 			$new_label
 		);
 
-		self::add_history_note($booking_id, $note, 'status_change');
+		// The sentence is for staff; the customer's progress reads the
+		// structured fields (R9), never the sentence.
+		self::add_history_note(
+			$booking_id,
+			$note,
+			'status_change',
+			null,
+			array(
+				'status_from' => $old_status,
+				'status_to'   => $new_status,
+				'at'          => time(),
+			)
+		);
 	}
 
 	/**

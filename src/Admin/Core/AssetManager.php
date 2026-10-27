@@ -253,7 +253,7 @@ final class AssetManager {
 			wp_register_style('mhm-rentiva-rvs-account-nav', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-account-nav.css', array( 'mhm-rentiva-rvs-shell' ), self::get_file_version('assets/css/frontend/rvs-account-nav.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-account', 'registered')) {
-			wp_register_style('mhm-rentiva-rvs-account', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-account.css', array( 'mhm-rentiva-rvs-account-nav', 'mhm-rentiva-rvs-data', 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-overlay' ), self::get_file_version('assets/css/frontend/rvs-account.css'));
+			wp_register_style('mhm-rentiva-rvs-account', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-account.css', array( 'mhm-rentiva-rvs-account-nav', 'mhm-rentiva-rvs-data', 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-breakdown' ), self::get_file_version('assets/css/frontend/rvs-account.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-vehicle', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
@@ -394,8 +394,8 @@ final class AssetManager {
 
 	/**
 	 * Lite's redesigned My Account screens: data and form primitives, the
-	 * dialog (styles and rvs-dialog.js) and rvs-account.css, which pulls in the
-	 * navigation layer.
+	 * price breakdown (booking detail), the dialog (styles and rvs-dialog.js)
+	 * and rvs-account.css, which pulls in the navigation layer.
 	 */
 	public static function enqueue_rvs_account(): void
 	{

@@ -7,6 +7,7 @@
  *
  * @var array<string, mixed> $breakdown   RvsBreakdown::from_quote().
  * @var bool                 $collapsible Fold the rows (vehicle page sidebar, mobile bar).
+ * @var bool                 $deposit_paid The deposit row is money received (booking detail).
  */
 
 declare(strict_types=1);
@@ -24,6 +25,7 @@ if (empty($mhmrentiva_bd['rows'])) {
 $mhmrentiva_bd_fold  = ! empty($collapsible);
 $mhmrentiva_bd_html  = PriceDisplay::allowed_html();
 $mhmrentiva_bd_total = (array) $mhmrentiva_bd['total'];
+$mhmrentiva_bd_paid  = ! empty($deposit_paid);
 ?>
 <div class="rvs-breakdown" data-rvs-breakdown>
 	<?php if ($mhmrentiva_bd_fold) : ?>
@@ -51,7 +53,7 @@ $mhmrentiva_bd_total = (array) $mhmrentiva_bd['total'];
 		</span>
 	</div>
 	<?php if (! empty($mhmrentiva_bd['deposit'])) : ?>
-		<div class="rvs-breakdown__deposit">
+		<div class="rvs-breakdown__deposit<?php echo $mhmrentiva_bd_paid ? ' rvs-breakdown__deposit--paid' : ''; ?>">
 			<span><?php echo esc_html( (string) ( $mhmrentiva_bd['deposit']['label'] ?? __('Deposit', 'mhm-rentiva') )); ?></span>
 			<strong><?php echo wp_kses( (string) $mhmrentiva_bd['deposit']['html'], $mhmrentiva_bd_html); ?></strong>
 		</div>
