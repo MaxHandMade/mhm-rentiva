@@ -101,6 +101,33 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/<option value="14:30" selected/', $html);
 	}
 
+	/**
+	 * PR S Task 9 item 4: the date fields show the site format from the first
+	 * paint (no Y-m-d before the script runs); the hidden field after each
+	 * submits Y-m-d, with or without JavaScript.
+	 */
+	public function test_date_fields_render_in_the_site_format_and_submit_iso(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		set_query_var(SearchResults::query_var('pickup_date'), '2027-07-12');
+		set_query_var(SearchResults::query_var('return_date'), '2027-07-15');
+		try {
+			$html = do_shortcode('[rentiva_unified_search]');
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		foreach (array( 'pickup' => array( '12/07/2027', '2027-07-12' ), 'return' => array( '15/07/2027', '2027-07-15' ) ) as $field => $dates) {
+			$this->assertMatchesRegularExpression(
+				'/<input id="[^"]+-' . $field . '-date" type="text" class="[^"]*js-datepicker" value="' . preg_quote($dates[0], '/') . '"[^>]*>\s*<input type="hidden" name="' . SearchResults::query_var($field . '_date') . '" value="' . $dates[1] . '" data-rvs-date-value>/',
+				$html,
+				$field . ': visible in the site format, hidden Y-m-d right after it.'
+			);
+		}
+		$this->assertDoesNotMatchRegularExpression('/type="text"[^>]*name="mhmrentiva_(pickup|return)_date"/', $html, 'The visible field submits nothing.');
+	}
+
 	public function test_malformed_request_values_are_ignored(): void
 	{
 		set_query_var(SearchResults::query_var('pickup_date'), '"><script>');

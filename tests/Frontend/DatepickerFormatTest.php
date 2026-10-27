@@ -72,6 +72,66 @@ final class DatepickerFormatTest extends WP_UnitTestCase
 		$this->assertSame($expected, DatepickerAssets::js_date_format($php));
 	}
 
+	/**
+	 * PR S Task 9 item 4: the field is rendered in the site format, so it shows
+	 * no Y-m-d before the script runs. Same rules as jQuery UI's formatDate()
+	 * on the converted format, with the names the init receives.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string}>
+	 */
+	public function displays(): array
+	{
+		return array(
+			'd/m/Y'           => array( 'd/m/Y', '2026-12-07', '07/12/2026' ),
+			'm/d/Y'           => array( 'm/d/Y', '2026-12-07', '12/07/2026' ),
+			'Y-m-d'           => array( 'Y-m-d', '2026-12-07', '2026-12-07' ),
+			'j F Y'           => array( 'j F Y', '2026-12-07', '7 December 2026' ),
+			'F j, Y (WP)'     => array( 'F j, Y', '2027-07-12', 'July 12, 2027' ),
+			'd.m.y'           => array( 'd.m.y', '2027-01-05', '05.01.27' ),
+			'D, j M Y'        => array( 'D, j M Y', '2026-12-07', 'Mon, 7 Dec 2026' ),
+			'l j F Y'         => array( 'l j F Y', '2026-12-06', 'Sunday 6 December 2026' ),
+			'ordinal dropped' => array( 'F jS, Y', '2026-12-01', 'December 1, 2026' ),
+			'time dropped'    => array( 'j F Y, g:i a T', '2026-12-07', '7 December 2026' ),
+			'escaped literal' => array( 'j \d\e F Y', '2026-12-07', '7 de December 2026' ),
+			'apostrophe'      => array( "d 'M' Y", '2026-12-07', "07 'Dec' 2026" ),
+			'fallback'        => array( 'F j', '2026-12-07', '2026-12-07' ),
+		);
+	}
+
+	/**
+	 * @dataProvider displays
+	 */
+	public function test_a_date_renders_in_the_site_format(string $php, string $ymd, string $expected): void
+	{
+		update_option('date_format', $php);
+
+		$this->assertSame($expected, DatepickerAssets::display_date($ymd));
+	}
+
+	public function test_no_date_renders_as_nothing(): void
+	{
+		update_option('date_format', 'd/m/Y');
+
+		$this->assertSame('', DatepickerAssets::display_date(''));
+		$this->assertSame('', DatepickerAssets::display_date('2026-02-30'));
+		$this->assertSame('', DatepickerAssets::display_date('"><b>'));
+	}
+
+	/**
+	 * The page and the init speak one format: the localized dateFormat is the
+	 * one display_date() renders with.
+	 */
+	public function test_render_and_init_share_one_format(): void
+	{
+		update_option('date_format', 'j F Y');
+		wp_scripts()->remove('mhm-rentiva-datepicker-init');
+		DatepickerAssets::enqueue();
+
+		$data = (string) wp_scripts()->get_data('mhm-rentiva-datepicker-init', 'data');
+		$this->assertStringContainsString('"dateFormat":"' . DatepickerAssets::display_format() . '"', $data);
+		$this->assertSame('d MM yy', DatepickerAssets::display_format());
+	}
+
 	public function test_the_init_gets_the_site_format(): void
 	{
 		update_option('date_format', 'd/m/Y');

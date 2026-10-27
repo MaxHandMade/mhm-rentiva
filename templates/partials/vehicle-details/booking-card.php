@@ -6,6 +6,9 @@
  * and cancellation lines. On a phone the card sits in the page and a fixed bar
  * repeats the total with the breakdown in a dialog (canvas `Arac-Detay-Mobil`).
  *
+ * Date fields: the visible input shows the site's date format from the first
+ * paint, the hidden one after it posts Y-m-d (datepicker-init.js adopts the pair).
+ *
  * The page script (rvs-vehicle.js) replaces the [data-rvs-vd-*] parts with the quote endpoint's
  * answer when the window changes.
  *
@@ -17,6 +20,7 @@
 declare(strict_types=1);
 
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
+use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 
 if (! defined('ABSPATH')) {
@@ -65,7 +69,8 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 			<div class="rvs-field">
 				<label for="<?php echo esc_attr($mhmrentiva_uid); ?>-pickup"><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></label>
 				<div class="rvs-vd__when">
-					<input id="<?php echo esc_attr($mhmrentiva_uid); ?>-pickup" type="text" class="rvs-input js-datepicker" name="pickup_date" value="<?php echo esc_attr( (string) $mhmrentiva_window['pickup_date']); ?>" autocomplete="off" data-rvs-pickup-date>
+					<input id="<?php echo esc_attr($mhmrentiva_uid); ?>-pickup" type="text" class="rvs-input js-datepicker" value="<?php echo esc_attr(DatepickerAssets::display_date( (string) $mhmrentiva_window['pickup_date'])); ?>" autocomplete="off" data-rvs-pickup-date>
+					<input type="hidden" name="pickup_date" value="<?php echo esc_attr( (string) $mhmrentiva_window['pickup_date']); ?>" data-rvs-date-value>
 					<label class="rvs-sr-only" for="<?php echo esc_attr($mhmrentiva_uid); ?>-pickup-time"><?php esc_html_e('Pickup time', 'mhm-rentiva'); ?></label>
 					<select id="<?php echo esc_attr($mhmrentiva_uid); ?>-pickup-time" class="rvs-input rvs-vd__time" name="pickup_time" data-rvs-pickup-time>
 						<?php $mhmrentiva_times($mhmrentiva_time); ?>
@@ -75,7 +80,8 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 			<div class="rvs-field">
 				<label for="<?php echo esc_attr($mhmrentiva_uid); ?>-return"><?php echo esc_html_x('Return', 'search strip: the return date field', 'mhm-rentiva'); ?></label>
 				<div class="rvs-vd__when">
-					<input id="<?php echo esc_attr($mhmrentiva_uid); ?>-return" type="text" class="rvs-input js-datepicker" name="return_date" value="<?php echo esc_attr( (string) $mhmrentiva_window['return_date']); ?>" autocomplete="off" data-rvs-return-date>
+					<input id="<?php echo esc_attr($mhmrentiva_uid); ?>-return" type="text" class="rvs-input js-datepicker" value="<?php echo esc_attr(DatepickerAssets::display_date( (string) $mhmrentiva_window['return_date'])); ?>" autocomplete="off" data-rvs-return-date>
+					<input type="hidden" name="return_date" value="<?php echo esc_attr( (string) $mhmrentiva_window['return_date']); ?>" data-rvs-date-value>
 					<span class="rvs-input rvs-vd__time rvs-vd__time--locked" data-rvs-return-time-display title="<?php esc_attr_e('Return time follows the pickup time', 'mhm-rentiva'); ?>"><?php echo esc_html($mhmrentiva_time); ?></span>
 				</div>
 			</div>

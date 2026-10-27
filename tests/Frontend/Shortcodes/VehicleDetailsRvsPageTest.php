@@ -204,6 +204,28 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertStringContainsString('"min_days":"' . \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::min_rental_days() . '"', $config);
 	}
 
+	/**
+	 * PR S Task 9 item 4: the card's dates show the site format from the first
+	 * paint; the hidden field after each posts Y-m-d.
+	 */
+	public function test_card_dates_render_in_the_site_format_and_post_iso(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		set_query_var('mhmrentiva_pickup_date', '2027-07-12');
+		set_query_var('mhmrentiva_return_date', '2027-07-15');
+		try {
+			$html = $this->render();
+		} finally {
+			update_option('date_format', $saved);
+			set_query_var('mhmrentiva_pickup_date', '');
+			set_query_var('mhmrentiva_return_date', '');
+		}
+
+		$this->assertMatchesRegularExpression('/<input id="[^"]+-pickup" type="text" class="rvs-input js-datepicker" value="12\/07\/2027"[^>]*>\s*<input type="hidden" name="pickup_date" value="2027-07-12" data-rvs-date-value>/', $html);
+		$this->assertMatchesRegularExpression('/<input id="[^"]+-return" type="text" class="rvs-input js-datepicker" value="15\/07\/2027"[^>]*>\s*<input type="hidden" name="return_date" value="2027-07-15" data-rvs-date-value>/', $html);
+	}
+
 	public function test_unavailable_window_disables_continue(): void
 	{
 		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));

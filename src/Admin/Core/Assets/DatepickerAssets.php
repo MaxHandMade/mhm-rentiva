@@ -158,17 +158,98 @@ final class DatepickerAssets {
     }
 
     /**
-     * Get localized datepicker options for jQuery UI Datepicker.
-     *
-     * @since 4.21.2
-     * @return array<string, mixed>
+     * The site's date format as the customer date fields show it (jQuery UI
+     * syntax): the one format the page renders with and the init receives.
      */
-    private static function get_localized_options(): array
+    public static function display_format(): string
     {
-        return array(
-            'closeText'   => __('Close', 'mhm-rentiva'),
-            'currentText' => __('Today', 'mhm-rentiva'),
-            'monthNames'  => array(
+        return self::js_date_format( (string) get_option('date_format', 'Y-m-d'));
+    }
+
+    /**
+     * A Y-m-d date as the field shows it, '' for no (or no real) date.
+     *
+     * The template renders the visible field with this, so the page shows the
+     * site format before the script runs (no Y-m-d flash); the submitted value
+     * stays Y-m-d in the hidden field next to it. Follows jQuery UI's
+     * formatDate() on display_format() with the names the init receives, so
+     * the init has nothing to rewrite.
+     */
+    public static function display_date(string $ymd): string
+    {
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $ymd, new \DateTimeZone('UTC'));
+        if (1 !== preg_match('/^\d{4}-\d{2}-\d{2}$/', $ymd) || false === $date || $date->format('Y-m-d') !== $ymd) {
+            return '';
+        }
+
+        $names  = self::names();
+        $format = self::display_format();
+        $length = strlen($format);
+        $out    = '';
+        $quoted = false;
+        // One more of the same character makes the long form (jQuery UI lookAhead).
+        $double = static function (string $char) use ($format, $length, &$i): bool {
+            if ($i + 1 < $length && $format[ $i + 1 ] === $char) {
+                ++$i;
+                return true;
+            }
+            return false;
+        };
+        for ($i = 0; $i < $length; $i++) {
+            $char = $format[ $i ];
+            if ($quoted) {
+                if ("'" === $char && ! $double("'")) {
+                    $quoted = false;
+                } else {
+                    $out .= $char;
+                }
+                continue;
+            }
+            switch ($char) {
+                case 'd':
+                    $day  = (int) $date->format('j');
+                    $out .= $double('d') ? sprintf('%02d', $day) : (string) $day;
+                    break;
+                case 'D':
+                    $weekday = (int) $date->format('w');
+                    $out    .= $double('D') ? $names['dayNames'][ $weekday ] : $names['dayNamesShort'][ $weekday ];
+                    break;
+                case 'm':
+                    $month = (int) $date->format('n');
+                    $out  .= $double('m') ? sprintf('%02d', $month) : (string) $month;
+                    break;
+                case 'M':
+                    $month = (int) $date->format('n') - 1;
+                    $out  .= $double('M') ? $names['monthNames'][ $month ] : $names['monthNamesShort'][ $month ];
+                    break;
+                case 'y':
+                    $out .= $double('y') ? $date->format('Y') : $date->format('y');
+                    break;
+                case "'":
+                    if ($double("'")) {
+                        $out .= "'";
+                    } else {
+                        $quoted = true;
+                    }
+                    break;
+                default:
+                    $out .= $char;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Month and day names the field may show: the init's (localized) and the
+     * page's render (display_date()) use this one list.
+     *
+     * @return array{monthNames: list<string>, monthNamesShort: list<string>, dayNames: list<string>, dayNamesShort: list<string>}
+     */
+    private static function names(): array
+    {
+        $names = array(
+            'monthNames'      => array(
                 __('January', 'mhm-rentiva'),
                 __('February', 'mhm-rentiva'),
                 __('March', 'mhm-rentiva'),
@@ -182,6 +263,26 @@ final class DatepickerAssets {
                 __('November', 'mhm-rentiva'),
                 __('December', 'mhm-rentiva'),
             ),
+            // jQuery UI's own English defaults when WordPress has no locale yet.
+            'monthNamesShort' => array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ),
+            'dayNames'        => array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
+            'dayNamesShort'   => array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ),
+        );
+
+        return array_merge($names, self::locale_names());
+    }
+
+    /**
+     * Get localized datepicker options for jQuery UI Datepicker.
+     *
+     * @since 4.21.2
+     * @return array<string, mixed>
+     */
+    private static function get_localized_options(): array
+    {
+        return array(
+            'closeText'   => __('Close', 'mhm-rentiva'),
+            'currentText' => __('Today', 'mhm-rentiva'),
             'dayNamesMin' => array(
                 __('Su', 'mhm-rentiva'),
                 __('Mo', 'mhm-rentiva'),
@@ -194,9 +295,9 @@ final class DatepickerAssets {
             'firstDay'    => 1,
             'isRTL'       => is_rtl(),
             // The field shows the site's date format; it submits Y-m-d (altFormat).
-            'dateFormat'  => self::js_date_format( (string) get_option('date_format', 'Y-m-d')),
+            'dateFormat'  => self::display_format(),
             'altFormat'   => self::ISO_FORMAT,
-        ) + self::locale_names();
+        ) + self::names();
     }
 
     /**

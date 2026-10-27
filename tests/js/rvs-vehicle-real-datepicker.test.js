@@ -7,7 +7,9 @@
  * datepicker (WordPress's copy, tests/js/support/real-datepicker.js) -- the
  * earlier card tests used a stand-in, which is how a pickup past the return
  * date went unnoticed. A visitor picks a day in the popup; jQuery UI writes the
- * field and fires change, exactly as on the page.
+ * field and fires change, exactly as on the page. The markup is what
+ * booking-card.php renders: the visible date in the site format, the hidden
+ * Y-m-d value after it.
  */
 const realDatepicker = require( './support/real-datepicker' );
 
@@ -21,9 +23,11 @@ describe( 'vehicle booking card with the real datepicker', () => {
 				<aside class="rvs-vd__booking">
 					<div class="rvs-vd__total" data-rvs-vd-priced><span data-rvs-vd-total>T0</span><span data-rvs-vd-days>3 days total</span></div>
 					<form data-rvs-vd-window>
-						<input id="vd1-pickup" class="js-datepicker" name="pickup_date" value="2027-07-12" data-rvs-pickup-date>
+						<input id="vd1-pickup" class="js-datepicker" value="12/07/2027" data-rvs-pickup-date>
+						<input type="hidden" name="pickup_date" value="2027-07-12" data-rvs-date-value>
 						<select name="pickup_time" data-rvs-pickup-time><option value="10:00" selected>10:00</option></select>
-						<input id="vd1-return" class="js-datepicker" name="return_date" value="2027-07-15" data-rvs-return-date>
+						<input id="vd1-return" class="js-datepicker" value="15/07/2027" data-rvs-return-date>
+						<input type="hidden" name="return_date" value="2027-07-15" data-rvs-date-value>
 						<span data-rvs-return-time-display>10:00</span>
 					</form>
 					<div data-rvs-vd-breakdown>B0</div>

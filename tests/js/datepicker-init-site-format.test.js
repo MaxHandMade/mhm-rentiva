@@ -129,3 +129,70 @@ describe( 'shared datepicker init: site format on screen, Y-m-d submitted', () =
 		expect( submitted() ).toEqual( [ { name: 'mhmrentiva_pickup_date', value: '2026-12-10' } ] );
 	} );
 } );
+
+/**
+ * PR S Task 9 item 4: the server renders the pair already -- the visible field
+ * in the site format (no Y-m-d flash before this script), the hidden Y-m-d
+ * value named after it. The init adopts the pair instead of splitting again.
+ */
+describe( 'shared datepicker init: a pair the server rendered', () => {
+	let jQuery;
+	let calls;
+
+	const options = () => calls.filter( ( c ) => c.args[ 0 ] && typeof c.args[ 0 ] === 'object' ).pop().args[ 0 ];
+
+	const boot = async ( shown, value ) => {
+		jest.resetModules();
+		document.body.innerHTML = `
+			<form>
+				<input id="pickup" type="text" class="js-datepicker" value="${ shown }" data-rvs-pickup-date>
+				<input type="hidden" name="mhmrentiva_pickup_date" value="${ value }" data-rvs-date-value>
+			</form>`;
+		jQuery = require( 'jquery' );
+		global.jQuery = jQuery;
+		window.jQuery = jQuery;
+		calls = install( jQuery );
+		window.mhmDatepickerL10n = { dateFormat: 'dd/mm/yy', altFormat: 'yy-mm-dd', monthNames: MONTHS };
+		require( '../../assets/js/core/datepicker-init.js' );
+		await new Promise( ( resolve ) => jQuery( resolve ) );
+	};
+
+	const visible = () => document.getElementById( 'pickup' );
+	const hidden = () => document.querySelector( 'input[type="hidden"][data-rvs-date-value]' );
+
+	afterEach( () => {
+		delete global.jQuery;
+		delete window.mhmDatepickerL10n;
+		delete window.mhmRentivaDatepicker;
+	} );
+
+	test( 'the rendered pair is kept as it is: one hidden value, the shown text untouched', async () => {
+		await boot( '10/12/2026', '2026-12-10' );
+
+		expect( document.querySelectorAll( '[data-rvs-date-value]' ) ).toHaveLength( 1 );
+		expect( visible().value ).toBe( '10/12/2026' );
+		expect( hidden().value ).toBe( '2026-12-10' );
+		expect( jQuery( 'form' ).serializeArray() ).toEqual( [ { name: 'mhmrentiva_pickup_date', value: '2026-12-10' } ] );
+		expect( options().altField.get( 0 ) ).toBe( hidden() );
+	} );
+
+	test( 'the API reads and writes the rendered pair', async () => {
+		await boot( '10/12/2026', '2026-12-10' );
+		const api = window.mhmRentivaDatepicker;
+
+		expect( api.value( visible() ) ).toBe( '2026-12-10' );
+		api.setValue( visible(), '2027-01-05' );
+		expect( visible().value ).toBe( '05/01/2027' );
+		expect( hidden().value ).toBe( '2027-01-05' );
+
+		jQuery( visible() ).val( 'junk' ).trigger( 'change' );
+		expect( visible().value ).toBe( '05/01/2027' );
+	} );
+
+	test( 'a rendered value without shown text is shown in the site format', async () => {
+		await boot( '', '2026-12-10' );
+
+		expect( visible().value ).toBe( '10/12/2026' );
+		expect( hidden().value ).toBe( '2026-12-10' );
+	} );
+} );

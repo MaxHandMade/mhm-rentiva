@@ -48,6 +48,13 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
 $is_preview        = RenderContext::current()->is_preview();
 $picked_time       = (string) ( $values['pickup_time'] ?? '10:00' );
 
+// Each date field: the visible input shows the site's date format from the
+// first paint (no Y-m-d flash before the script), the hidden one right after
+// it submits Y-m-d -- with or without JavaScript (datepicker-init.js adopts the pair).
+$mhmrentiva_shown = static function (string $key) use ($values): string {
+	return \MHMRentiva\Admin\Core\Assets\DatepickerAssets::display_date( (string) ( $values[ $key ] ?? '' ));
+};
+
 $time_options = static function (string $selected): void {
 	for ($i = 0; $i < 24; $i++) {
 		foreach (array( '00', '30' ) as $minute) {
@@ -77,7 +84,8 @@ $time_options = static function (string $selected): void {
 			<div class="rvs-field rvs-search__field">
 				<label for="<?php echo esc_attr($uid); ?>-pickup-date"><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></label>
 				<div class="rvs-search__when">
-					<input id="<?php echo esc_attr($uid); ?>-pickup-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" value="<?php echo esc_attr( (string) ( $values['pickup_date'] ?? '' )); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-pickup-date data-testid="search-pickup-date">
+					<input id="<?php echo esc_attr($uid); ?>-pickup-date" type="text" class="rvs-input rvs-input--lg js-datepicker" value="<?php echo esc_attr($mhmrentiva_shown('pickup_date')); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-pickup-date data-testid="search-pickup-date">
+					<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" value="<?php echo esc_attr( (string) ( $values['pickup_date'] ?? '' )); ?>" data-rvs-date-value>
 					<?php if ($show_time_select) : ?>
 						<label class="rvs-sr-only" for="<?php echo esc_attr($uid); ?>-pickup-time"><?php esc_html_e('Pickup time', 'mhm-rentiva'); ?></label>
 						<select id="<?php echo esc_attr($uid); ?>-pickup-time" class="rvs-input rvs-input--lg rvs-search__time" name="<?php echo esc_attr($mhmrentiva_qv('pickup_time')); ?>" data-rvs-pickup-time>
@@ -90,7 +98,8 @@ $time_options = static function (string $selected): void {
 			<div class="rvs-field rvs-search__field">
 				<label for="<?php echo esc_attr($uid); ?>-return-date"><?php echo esc_html_x('Return', 'search strip: the return date field', 'mhm-rentiva'); ?></label>
 				<div class="rvs-search__when">
-					<input id="<?php echo esc_attr($uid); ?>-return-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" value="<?php echo esc_attr( (string) ( $values['return_date'] ?? '' )); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-return-date data-testid="search-return-date">
+					<input id="<?php echo esc_attr($uid); ?>-return-date" type="text" class="rvs-input rvs-input--lg js-datepicker" value="<?php echo esc_attr($mhmrentiva_shown('return_date')); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-return-date data-testid="search-return-date">
+					<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" value="<?php echo esc_attr( (string) ( $values['return_date'] ?? '' )); ?>" data-rvs-date-value>
 					<?php if ($show_time_select) : ?>
 						<?php // Return time follows the pickup time (the booking counts whole days). ?>
 						<span class="rvs-input rvs-input--lg rvs-search__time rvs-search__time--locked" data-rvs-return-time-display title="<?php esc_attr_e('Return time follows the pickup time', 'mhm-rentiva'); ?>"><?php echo esc_html($picked_time); ?></span>
