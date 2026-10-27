@@ -44,15 +44,6 @@ if (! $booking) {
 
 $booking_status = Status::get($booking_id);
 $number         = (string) mhmrentiva_get_display_id($booking_id);
-$moment_format  = trim(get_option('date_format') . ' ' . get_option('time_format'));
-
-// A date and its time: "21 October 2026 · 10:00".
-$format_moment = static function (?int $ts): string {
-	if (null === $ts) {
-		return '';
-	}
-	return wp_date( (string) get_option('date_format'), $ts) . ' · ' . wp_date( (string) get_option('time_format'), $ts);
-};
 
 // Vehicle.
 $vehicle_id    = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
@@ -73,8 +64,9 @@ $deposit_amount   = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_amou
 $remaining_amount = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
 $wc_order_id      = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id);
 $money_text       = static fn(float $amount): string => wp_strip_all_tags(PriceDisplay::for_cart($amount)['html']);
-$minor_html       = static fn(int $minor): string => PriceDisplay::for_cart( (float) Money::toMajor($minor))['html'];
-$breakdown        = RvsBreakdown::from_booking($booking_id);
+// Money that moved: recorded gross, recorded currency (no cart tax display).
+$minor_html = static fn(int $minor): string => BookingTimeline::recorded_html($minor, $payment_state->currency());
+$breakdown  = RvsBreakdown::from_booking($booking_id);
 
 // The payment line under the title (Metin tablosu).
 $payment_line = null;
@@ -137,7 +129,7 @@ $steps = array();
 $index = 0;
 foreach (BookingTimeline::for_booking($booking_id) as $step) {
 	++$index;
-	$meta = array_filter(array( null !== $step['at'] ? wp_date($moment_format, (int) $step['at']) : '', (string) $step['detail'] ));
+	$meta = array_filter(array( null !== $step['at'] ? BookingTimeline::moment_text( (int) $step['at']) : '', (string) $step['detail'] ));
 
 	$steps[] = array(
 		'label' => $step['label'],
@@ -156,8 +148,8 @@ $view = array(
 	'vehicle'      => array(
 		'name'     => $vehicle ? $vehicle->post_title : __('Unknown Vehicle', 'mhm-rentiva'),
 		'image'    => (string) $vehicle_image,
-		'pickup'   => $format_moment($planned['pickup']),
-		'return'   => $format_moment($planned['return']),
+		'pickup'   => BookingTimeline::moment_text($planned['pickup']),
+		'return'   => BookingTimeline::moment_text($planned['return']),
 		'location' => $location ? (string) $location->name : '',
 	),
 	'steps'        => $steps,

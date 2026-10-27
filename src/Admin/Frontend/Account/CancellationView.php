@@ -6,7 +6,6 @@ namespace MHMRentiva\Admin\Frontend\Account;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
-use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Payment\Refunds\RefundValidator;
 
@@ -64,7 +63,8 @@ final class CancellationView {
 			return $view;
 		}
 
-		$deadline              = (string) wp_date(trim(get_option('date_format') . ' ' . get_option('time_format')), (int) $info['deadline_ts']);
+		// Same "<date> · <time>" the vehicle card and the progress use.
+		$deadline              = BookingTimeline::moment_text( (int) $info['deadline_ts']);
 		$view['deadline_text'] = $deadline;
 
 		if (! $info['can_cancel']) {
@@ -152,7 +152,9 @@ final class CancellationView {
 		}
 
 		return array(
-			'html'   => PriceDisplay::for_cart( (float) Money::toMajor($state->refundable()))['html'],
+			// What was paid, as recorded (gross, its currency) -- not the
+			// cart's tax display of it.
+			'html'   => BookingTimeline::recorded_html($state->refundable(), $state->currency()),
 			'manual' => $manual,
 		);
 	}

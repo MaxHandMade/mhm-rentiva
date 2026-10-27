@@ -171,8 +171,8 @@ final class CancellationViewTest extends WP_UnitTestCase
 
 		$view = CancellationView::for_booking($id, $this->customer_id);
 
-		$this->assertSame('9 March 2031 14:00', $view['deadline_text']);
-		$this->assertStringContainsString('9 March 2031 14:00', $view['message_html']);
+		$this->assertSame('9 March 2031 · 14:00', $view['deadline_text']);
+		$this->assertStringContainsString('9 March 2031 · 14:00', $view['message_html']);
 	}
 
 	public function test_another_customer_gets_no_button(): void

@@ -7,7 +7,6 @@ use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Meta\BookingMeta;
-use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 
@@ -28,6 +27,11 @@ if (! defined('ABSPATH')) {
  * For a payment confirmed by hand (a bank transfer) WooCommerce's paid date
  * is when staff confirmed it, so the step says "Payment received", not when
  * the money reached the bank.
+ *
+ * Money that moved (payments, refunds) is shown as recorded: the gross
+ * amount in the recorded currency (recorded_html()), never through the
+ * cart's tax display -- a tax-exclusive store would otherwise show the net
+ * of an amount that already includes tax.
  *
  * @since 6.4.0
  */
@@ -52,17 +56,19 @@ final class BookingTimeline {
 		}
 
 		$cancelled = in_array($status, array( Status::CANCELLED, Status::REFUNDED ), true);
+		$no_show   = Status::NO_SHOW === $status;
 
 		// Confirmation: drawn when the booking is (or was) confirmed, or while
-		// it is still on its way there.
+		// it is still on its way there. A closed booking (cancelled, no-show)
+		// shows it only when it is recorded -- never as a step still ahead.
 		$confirmed_at = $changes[ Status::CONFIRMED ] ?? null;
-		if (! $cancelled || null !== $confirmed_at) {
+		if (( ! $cancelled && ! $no_show ) || null !== $confirmed_at) {
 			$steps[] = self::step(
 				'confirmed',
 				__('Confirmed', 'mhm-rentiva'),
 				null,
 				$confirmed_at,
-				in_array($status, self::CONFIRMED_OR_LATER, true) || ( $cancelled && null !== $confirmed_at )
+				in_array($status, self::CONFIRMED_OR_LATER, true) || null !== $confirmed_at
 			);
 		}
 
@@ -74,13 +80,20 @@ final class BookingTimeline {
 				$steps[] = self::step(
 					'refunded',
 					/* translators: %s: refunded amount. */
-					sprintf(__('Refunded · %s', 'mhm-rentiva'), self::amount_text($state->refunded())),
+					sprintf(__('Refunded · %s', 'mhm-rentiva'), wp_strip_all_tags(self::recorded_html($state->refunded(), $state->currency()))),
 					null,
 					self::local_mysql_ts( (string) get_post_meta($booking_id, '_mhmrentiva_refund_completed_at', true)),
 					true
 				);
 			}
 
+			return $steps;
+		}
+
+		// A no-show is closed: the pickup did not happen, so neither pickup
+		// nor return is drawn as a step still ahead -- the outcome is.
+		if ($no_show) {
+			$steps[] = self::step('no_show', Status::get_label(Status::NO_SHOW), null, $changes[ Status::NO_SHOW ] ?? null, true);
 			return $steps;
 		}
 
@@ -174,7 +187,8 @@ final class BookingTimeline {
 				continue;
 			}
 
-			$amount = self::amount_text(Money::toMinor($order->get_total()));
+			// Each order in its own currency (a deposit and a balance can differ).
+			$amount = wp_strip_all_tags(self::recorded_html(Money::toMinor($order->get_total()), (string) $order->get_currency()));
 			if ($remaining_id > 0 && $order_id === $remaining_id) {
 				/* translators: %s: amount paid. */
 				$label = sprintf(__('Balance paid · %s', 'mhm-rentiva'), $amount);
@@ -198,7 +212,7 @@ final class BookingTimeline {
 		// Offline money (no paid order): its arrival time is not recorded.
 		if (array() === $state->orders() && $state->paid() > 0) {
 			$remaining = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
-			$amount    = self::amount_text($state->paid());
+			$amount    = wp_strip_all_tags(self::recorded_html($state->paid(), $state->currency()));
 			$steps[]   = $deposit_type && $remaining > 0
 				/* translators: %s: amount paid. */
 				? self::step('deposit_paid', sprintf(__('Deposit paid · %s', 'mhm-rentiva'), $amount), null, null, true)
@@ -210,11 +224,32 @@ final class BookingTimeline {
 	}
 
 	/**
-	 * Minor units as plain display text (PriceDisplay, plan r3 y9).
+	 * Money that moved, as recorded: the gross amount (minor units) in its
+	 * recorded currency, with WooCommerce's price format and no tax display
+	 * conversion. HTML (wc_price); callers strip it for plain labels.
 	 */
-	private static function amount_text(int $minor): string
+	public static function recorded_html(int $minor, string $currency): string
 	{
-		return wp_strip_all_tags(PriceDisplay::for_cart( (float) Money::toMajor($minor))['html']);
+		$major = (float) Money::toMajor($minor);
+
+		if (function_exists('wc_price')) {
+			return (string) wc_price($major, '' !== $currency ? array( 'currency' => $currency ) : array());
+		}
+
+		return esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price($major, 2));
+	}
+
+	/**
+	 * A moment as the detail page writes it everywhere: "<date> · <time>",
+	 * site formats and timezone; '' for none.
+	 */
+	public static function moment_text(?int $ts): string
+	{
+		if (null === $ts) {
+			return '';
+		}
+
+		return wp_date( (string) get_option('date_format'), $ts) . ' · ' . wp_date( (string) get_option('time_format'), $ts);
 	}
 
 	/**

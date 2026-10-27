@@ -218,4 +218,40 @@ final class BookingTimelineTest extends WP_UnitTestCase
 		$this->assertSame(array( 'early legacy', 'new', 'later legacy' ), array_column($sorted, 'note'));
 		$this->assertSame(array( $utc, $utc + 60, $utc + 120 ), array_column($sorted, 'sort_ts'));
 	}
+
+	public function test_no_show_is_a_closed_outcome_not_upcoming_steps(): void
+	{
+		$id = $this->booking('no_show');
+		BookingMeta::auto_add_status_change_note($id, 'pending', 'confirmed');
+		BookingMeta::auto_add_status_change_note($id, 'confirmed', 'no_show');
+
+		$steps = BookingTimeline::for_booking($id);
+
+		$this->assertSame(array( 'received', 'confirmed', 'no_show' ), array_column($steps, 'key'), 'No pickup or return drawn as a step still ahead.');
+		foreach ($steps as $step) {
+			$this->assertTrue($step['done'], $step['key'] . ' must not read as upcoming.');
+		}
+		$this->assertSame(\MHMRentiva\Admin\Booking\Core\Status::get_label('no_show'), $steps[2]['label']);
+		$this->assertIsInt($steps[2]['at']);
+
+		// Never confirmed on record: no confirmation step at all.
+		$keys = array_column(BookingTimeline::for_booking($this->booking('no_show')), 'key');
+		$this->assertSame(array( 'received', 'no_show' ), $keys);
+	}
+
+	public function test_moment_text_matches_the_vehicle_card_format(): void
+	{
+		update_option('date_format', 'j F Y');
+		update_option('time_format', 'H:i');
+		$ts = SiteTime::instant('2031-10-21', '10:00');
+
+		$this->assertSame('21 October 2031 · 10:00', BookingTimeline::moment_text($ts));
+		$this->assertSame('', BookingTimeline::moment_text(null));
+
+		$id = $this->booking('confirmed');
+		wp_set_current_user( (int) self::factory()->user->create(array( 'role' => 'administrator' )));
+		$html = \MHMRentiva\Admin\Frontend\Account\AccountRenderer::render_booking_detail($id, true);
+		$this->assertStringContainsString('<strong>21 October 2031 · 10:00</strong>', $html, 'Vehicle card.');
+		$this->assertStringContainsString('<span class="rvs-timeline__meta">21 October 2031 · 10:00</span>', $html, 'Progress uses the same format.');
+	}
 }
