@@ -28,6 +28,17 @@ const rule = ( css, selector ) => {
 	return found ? found[ 1 ] : null;
 };
 
+// The value a selector gets for a property: the last rule naming both wins.
+const valueOf = ( css, selector, prop ) => {
+	let out = null;
+	rules( css ).forEach( ( [ sel, body ] ) => {
+		if ( sel.split( ',' ).map( ( s ) => s.trim() ).includes( selector ) && decl( body, prop ) !== null ) {
+			out = decl( body, prop );
+		}
+	} );
+	return out;
+};
+
 const decl = ( body, prop ) => {
 	const m = new RegExp( '(?:^|;|\\s)' + prop + '\\s*:\\s*([^;]+)' ).exec( body || '' );
 	return m ? m[ 1 ].trim() : null;
@@ -82,9 +93,28 @@ describe( 'datepicker skins', () => {
 
 		// The theme's table frame does not reach the calendar grid.
 		expect( decl( rule( css, '.rvs-shell.rvs-dp .ui-datepicker-calendar' ), 'border' ) ).toBe( '0' );
+		[ 'thead', 'tbody', 'tr', 'th', 'td' ].forEach( ( part ) => {
+			expect( decl( rule( css, '.rvs-shell.rvs-dp .ui-datepicker-calendar ' + part ), 'border' ) ).toBe( '0' );
+		} );
 
 		expect( decl( hover, 'transform' ) ).toBe( 'none' );
 		expect( decl( hover, 'border-color' ) ).toBe( 'var(--rvs-line)' );
+	} );
+
+	test( 'right to left: previous on the right pointing right, next on the left pointing left', () => {
+		const css = read( 'assets/css/rvs/rvs-datepicker.css' );
+		const rtl = '.rvs-shell.rvs-dp.ui-datepicker-rtl';
+
+		expect( valueOf( css, rtl, 'direction' ) ).toBe( 'rtl' );
+		expect( valueOf( css, rtl + ' .ui-datepicker-prev', 'right' ) ).toBe( '0' );
+		expect( valueOf( css, rtl + ' .ui-datepicker-prev', 'left' ) ).toBe( 'auto' );
+		expect( valueOf( css, rtl + ' .ui-datepicker-next', 'left' ) ).toBe( '0' );
+		expect( valueOf( css, rtl + ' .ui-datepicker-next', 'right' ) ).toBe( 'auto' );
+		// Each chevron turned half a turn from its left-to-right drawing.
+		expect( valueOf( css, '.rvs-shell.rvs-dp .ui-datepicker-prev::before', 'transform' ) ).toBe( 'rotate(45deg)' );
+		expect( valueOf( css, rtl + ' .ui-datepicker-prev::before', 'transform' ) ).toBe( 'rotate(225deg)' );
+		expect( valueOf( css, '.rvs-shell.rvs-dp .ui-datepicker-next::before', 'transform' ) ).toBe( 'rotate(-45deg)' );
+		expect( valueOf( css, rtl + ' .ui-datepicker-next::before', 'transform' ) ).toBe( 'rotate(135deg)' );
 	} );
 
 	test( 'the booking form sheet no longer carries its own copy of the skin', () => {

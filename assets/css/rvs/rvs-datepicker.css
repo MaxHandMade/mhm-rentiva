@@ -105,12 +105,44 @@
 	transform: rotate(-45deg);
 }
 
-/* No frame of the theme's table rules (Astra draws a top and a left border). */
+/* Right-to-left (jQuery UI isRTL adds .ui-datepicker-rtl): the grid and the
+   buttons run right to left, "previous" sits on the right pointing right. */
+.rvs-shell.rvs-dp.ui-datepicker-rtl {
+	direction: rtl;
+}
+
+.rvs-shell.rvs-dp.ui-datepicker-rtl .ui-datepicker-prev {
+	right: 0;
+	left: auto;
+}
+
+.rvs-shell.rvs-dp.ui-datepicker-rtl .ui-datepicker-next {
+	right: auto;
+	left: 0;
+}
+
+.rvs-shell.rvs-dp.ui-datepicker-rtl .ui-datepicker-prev::before {
+	transform: rotate(225deg);
+}
+
+.rvs-shell.rvs-dp.ui-datepicker-rtl .ui-datepicker-next::before {
+	transform: rotate(135deg);
+}
+
+/* No frame of the theme's table rules (Astra draws a top and a left border on
+   the table; other themes put it on the row groups or rows). */
 .rvs-shell.rvs-dp .ui-datepicker-calendar {
 	width: 100%;
 	margin: 0;
 	border: 0;
 	border-collapse: collapse;
+}
+
+.rvs-shell.rvs-dp .ui-datepicker-calendar thead,
+.rvs-shell.rvs-dp .ui-datepicker-calendar tbody,
+.rvs-shell.rvs-dp .ui-datepicker-calendar tr {
+	border: 0;
+	background: none;
 }
 
 .rvs-shell.rvs-dp .ui-datepicker-calendar th {
