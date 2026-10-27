@@ -169,9 +169,6 @@
             // Account update form
             $('#mhm-account-details-form').on('submit', (e) => this.handleAccountUpdate(e));
 
-            // Booking cancellation
-            $(document).on('click', '.cancel-booking', (e) => this.handleCancelBooking(e));
-
             // Receipt upload
             $(document).on('change', '.mhm-upload-receipt', (e) => this.handleReceiptUpload(e));
 
@@ -269,48 +266,6 @@
         }
 
 
-
-        /**
-         * Booking cancellation
-         */
-        handleCancelBooking(e) {
-            e.preventDefault();
-
-            if (!confirm(this.config.i18n.confirm)) {
-                return;
-            }
-
-            const $btn = $(e.currentTarget);
-            const bookingId = $btn.data('booking-id');
-
-            $btn.prop('disabled', true).text(this.config.i18n.loading);
-
-            $.ajax({
-                url: this.config.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_cancel_booking',
-                    nonce: this.config.nonce,
-                    booking_id: bookingId,
-                },
-                success: (response) => {
-                    if (response.success) {
-                        MHMRentivaToast.show(response.data.message || this.config.i18n.success, { type: 'success' });
-                        // Refresh page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        MHMRentivaToast.show(response.data.message || this.config.i18n.error, { type: 'error' });
-                        $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
-                    }
-                },
-                error: () => {
-                    MHMRentivaToast.show(this.config.i18n.error, { type: 'error' });
-                    $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
-                }
-            });
-        }
 
         /**
          * Initialize favorites system

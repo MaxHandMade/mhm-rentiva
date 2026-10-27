@@ -25,28 +25,32 @@ trait EndpointHelperTrait {
 
 	/**
 	 * Get endpoint configuration mapping.
+	 *
+	 * `label` is the single source of both the My Account menu item and the
+	 * endpoint's page title (WooCommerceIntegration::endpoint_title()).
+	 * Sentence case, as on the `rvs-` screens (PR D, K-D1).
 	 */
 	public static function get_rentiva_endpoints_map(): array {
 		return array(
 			'bookings'        => array(
 				'shortcode' => 'rentiva_my_bookings',
 				'default'   => 'rentiva-bookings',
-				'label'     => __( 'Vehicle Bookings', 'mhm-rentiva' ),
+				'label'     => __( 'My bookings', 'mhm-rentiva' ),
 			),
 			'favorites'       => array(
 				'shortcode' => 'rentiva_my_favorites',
 				'default'   => 'rentiva-favorites',
-				'label'     => __( 'Favorite Vehicles', 'mhm-rentiva' ),
+				'label'     => __( 'My favorites', 'mhm-rentiva' ),
 			),
 			'payment_history' => array(
 				'shortcode' => 'rentiva_payment_history',
 				'default'   => 'rentiva-payment-history',
-				'label'     => __( 'Vehicle Payments', 'mhm-rentiva' ),
+				'label'     => __( 'Payment history', 'mhm-rentiva' ),
 			),
 			'view_booking'    => array(
 				'shortcode' => null, // No direct page for view detail
 				'default'   => 'view-rentiva-booking',
-				'label'     => __( 'View Booking', 'mhm-rentiva' ),
+				'label'     => __( 'Booking details', 'mhm-rentiva' ),
 			),
 		);
 	}

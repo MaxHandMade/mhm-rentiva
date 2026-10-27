@@ -71,6 +71,85 @@ final class WooCommerceIntegration {
 
 		// Override WooCommerce default dashboard with Rentiva dashboard
 		add_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) );
+
+		// One greeting: WooCommerce's dashboard template prints its own "Hello"
+		// paragraphs above the Rentiva dashboard (PR D, R3).
+		add_filter( 'woocommerce_locate_template', array( self::class, 'locate_dashboard_template' ), 10, 4 );
+
+		// The booking detail belongs to "My bookings" in the menu.
+		add_filter( 'woocommerce_account_menu_item_classes', array( self::class, 'menu_item_classes' ), 10, 2 );
+	}
+
+	/**
+	 * WooCommerce template name of the account dashboard.
+	 */
+	private const DASHBOARD_TEMPLATE = 'myaccount/dashboard.php';
+
+	/**
+	 * `woocommerce_locate_template` callback: while the Rentiva dashboard is
+	 * hooked, WooCommerce's own `myaccount/dashboard.php` is swapped for Lite's
+	 * copy (templates/woocommerce/myaccount/dashboard.php), which fires the same
+	 * three actions in the same order without the two greeting paragraphs.
+	 *
+	 * Only WooCommerce's default file is swapped. The filter runs after the
+	 * theme lookup (wc_locate_template()), so a theme that overrides the
+	 * dashboard template arrives here with its own path and keeps it.
+	 *
+	 * The answer is the same for every request on a site, so WooCommerce's
+	 * template path cache (wc_get_template()) can hold it.
+	 *
+	 * @param string $template      Located file.
+	 * @param string $template_name Template name, e.g. `myaccount/dashboard.php`.
+	 * @param string $template_path Theme sub-directory WooCommerce looked in.
+	 * @param string $default_path  WooCommerce's default template directory.
+	 */
+	public static function locate_dashboard_template( $template, $template_name, $template_path = '', $default_path = '' ): string {
+		$template = (string) $template;
+
+		if ( self::DASHBOARD_TEMPLATE !== $template_name ) {
+			return $template;
+		}
+
+		if ( false === has_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) ) ) {
+			return $template;
+		}
+
+		if ( '' === (string) $default_path && function_exists( 'WC' ) ) {
+			$default_path = WC()->plugin_path() . '/templates/';
+		}
+
+		if ( $template !== trailingslashit( (string) $default_path ) . $template_name ) {
+			return $template;
+		}
+
+		$ours = dirname( __DIR__, 4 ) . '/templates/woocommerce/' . self::DASHBOARD_TEMPLATE;
+
+		return is_readable( $ours ) ? $ours : $template;
+	}
+
+	/**
+	 * `woocommerce_account_menu_item_classes` callback: on the booking detail
+	 * the "My bookings" item is the current one. Only the class is added --
+	 * WooCommerce writes `aria-current` itself and offers no filter for it.
+	 *
+	 * @param array<int, string> $classes  Menu item classes.
+	 * @param string             $endpoint Menu item endpoint.
+	 * @return array<int, string>
+	 */
+	public static function menu_item_classes( $classes, $endpoint ): array {
+		$classes = (array) $classes;
+
+		if ( (string) $endpoint !== self::get_endpoint_slug( 'bookings' ) ) {
+			return $classes;
+		}
+
+		if ( 'view_booking' !== AccountSurface::current_endpoint_key() || in_array( 'is-active', $classes, true ) ) {
+			return $classes;
+		}
+
+		$classes[] = 'is-active';
+
+		return $classes;
 	}
 
 	/**

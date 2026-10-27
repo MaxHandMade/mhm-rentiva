@@ -342,47 +342,93 @@ final class AccountController {
 			);
 		}
 
-		// Conditional Loading: Only load account assets on account pages or endpoints
-		// This prevents CSS leakage onto other pages (like Vehicles List).
-		// See M5 Audit (Step 4B).
+		// Account styles and my-account.js load on account pages and endpoints
+		// only (spec m5): nothing leaks onto other pages, and the script's
+		// `wp_rest` nonce is no longer printed site-wide.
 		$is_account             = self::is_account_page();
 		$has_endpoint           = ! empty($endpoint);
 		$is_woocommerce_account = function_exists('is_account_page') && is_account_page();
 
-		if ($is_account || $has_endpoint || $is_woocommerce_account) {
-			// Load CSS file
-			wp_enqueue_style(
-				'mhm-rentiva-my-account',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
-
-			// Kit stat cards (K4: iconless on the front end).
-			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
-
-			wp_enqueue_style(
-				'mhm-rentiva-booking-detail',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
-
-			wp_enqueue_style(
-				'mhm-rentiva-bookings-page',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
+		if (! ( $is_account || $has_endpoint || $is_woocommerce_account )) {
+			return;
 		}
 
+		self::enqueue_surface_styles(AccountSurface::classify(AccountSurface::current_endpoint_key()));
+		self::enqueue_account_script();
+	}
+
+	/**
+	 * Styles of one account asset class (AccountSurface, PR D r3 Y1).
+	 *
+	 * Class `rvs` loads the `rvs-` account layer only. Class `wc` loads the
+	 * page frame and navigation layer only; WooCommerce styles its own content.
+	 * Class `legacy` loads the navigation layer plus the old account
+	 * stylesheets the extension screens still use.
+	 */
+	public static function enqueue_surface_styles(string $surface_class): void
+	{
+		if (AccountSurface::RVS === $surface_class) {
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_account();
+			return;
+		}
+
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_account_nav();
+
+		if (AccountSurface::LEGACY !== $surface_class) {
+			return;
+		}
+
+		self::enqueue_legacy_account_styles();
+
+		// Kit stat cards (K4: iconless on the front end).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
+
+		wp_enqueue_style(
+			'mhm-rentiva-booking-detail',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
+			array( 'mhm-rentiva-css-variables' ),
+			MHMRENTIVA_VERSION
+		);
+
+		wp_enqueue_style(
+			'mhm-rentiva-bookings-page',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
+			array( 'mhm-rentiva-css-variables' ),
+			MHMRENTIVA_VERSION
+		);
+	}
+
+	/**
+	 * The old account stylesheet and the old vehicle card: what an extension's
+	 * account shortcode (AbstractAccountShortcode) has always loaded. The one
+	 * place my-account.css is enqueued, under one handle.
+	 */
+	public static function enqueue_legacy_account_styles(): void
+	{
+		wp_enqueue_style(
+			'mhm-rentiva-my-account',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
+			array( 'mhm-rentiva-css-variables' ),
+			MHMRENTIVA_VERSION
+		);
+
+		// The canonical registration (idempotent), so the handle resolves even
+		// where its `init` run has not happened.
+		\MHMRentiva\Admin\Core\AssetManager::register_common_assets();
+		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
+	}
+
+	/**
+	 * The my-account.js script and its `mhmRentivaAccount` payload. The single definition:
+	 * AbstractAccountShortcode::enqueue_assets() calls this too.
+	 */
+	public static function enqueue_account_script(): void
+	{
 		wp_enqueue_script(
 			'mhm-rentiva-my-account',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
 			// my-account.js calls MHMRentivaToast.* -- toast.js is only
-			// ever auto-loaded where a consumer's own deps declares it. (Same handle is
-			// also enqueued from AbstractAccountShortcode::enqueue_assets(); both sites
-			// need this dependency since either can register the handle first.)
+			// ever auto-loaded where a consumer's own deps declares it.
 			array( 'jquery', 'mhm-rentiva-toast' ),
 			MHMRENTIVA_VERSION,
 			true
@@ -415,7 +461,6 @@ final class AccountController {
 					'cancel_changes_confirm' => __('Are you sure you want to cancel changes?', 'mhm-rentiva'),
 					'no_favorites'           => __('No favorite vehicles yet.', 'mhm-rentiva'),
 					'login_required'         => __('You can add vehicles to favorites using the heart icon.', 'mhm-rentiva'),
-					'cancel_booking'         => __('Cancel Booking', 'mhm-rentiva'),
 					'save_changes'           => __('Save Changes', 'mhm-rentiva'),
 					'favorites_count_single' => __('vehicle in your favorites', 'mhm-rentiva'),
 					'favorites_count_plural' => __('vehicles in your favorites', 'mhm-rentiva'),

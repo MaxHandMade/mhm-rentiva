@@ -53,7 +53,7 @@ final class WooCommerceIntegrationEndpointTitleTest extends WP_UnitTestCase
 
     /**
      * The RED this closes: the label map is built fresh on every call via
-     * `__('Vehicle Bookings', 'mhm-rentiva')` (see
+     * `__('My bookings', 'mhm-rentiva')` (see
      * EndpointHelperTrait::get_rentiva_endpoints_map()), so the `gettext`
      * filter is the one realistic way to make a payload reach this
      * callback's own return value -- nothing here is direct end-user input,
@@ -68,7 +68,7 @@ final class WooCommerceIntegrationEndpointTitleTest extends WP_UnitTestCase
         add_filter(
             'gettext',
             static function ($translated, $text, $domain) use ($payload) {
-                if ('mhm-rentiva' === $domain && 'Vehicle Bookings' === $text) {
+                if ('mhm-rentiva' === $domain && 'My bookings' === $text) {
                     return $payload;
                 }
                 return $translated;
@@ -101,7 +101,32 @@ final class WooCommerceIntegrationEndpointTitleTest extends WP_UnitTestCase
     {
         $result = $this->render_matched_endpoint_title('Original Title');
 
-        $this->assertSame('Vehicle Bookings', $result);
+        $this->assertSame('My bookings', $result);
+    }
+
+    /**
+     * PR D K-D1: Lite's three menu items carry the drawing's labels, and the
+     * menu label and the endpoint title share one source. The booking detail's
+     * title is "Booking details" (r3 y14).
+     */
+    public function test_endpoint_titles_follow_the_menu_labels(): void
+    {
+        $expected = array(
+            'bookings'        => 'My bookings',
+            'favorites'       => 'My favorites',
+            'payment_history' => 'Payment history',
+            'view_booking'    => 'Booking details',
+        );
+
+        foreach ($expected as $key => $label) {
+            $this->assertSame($label, $this->render_matched_endpoint_title('Original Title', $key), $key);
+        }
+
+        $nav = WooCommerceIntegration::get_account_nav_items();
+        $this->assertSame('My bookings', $nav['bookings']['label']);
+        $this->assertSame('My favorites', $nav['favorites']['label']);
+        $this->assertSame('Payment history', $nav['payment_history']['label']);
+        $this->assertArrayNotHasKey('view_booking', $nav, 'The booking detail is not a menu item.');
     }
 
     /**
@@ -159,12 +184,13 @@ final class WooCommerceIntegrationEndpointTitleTest extends WP_UnitTestCase
         $this->assertSame($title, $result);
     }
 
-    private function render_matched_endpoint_title(string $original_title): string
+    private function render_matched_endpoint_title(string $original_title, string $key = 'bookings'): string
     {
         global $wp_query;
 
-        $slug = WooCommerceIntegration::get_endpoint_slug('bookings');
+        $slug = WooCommerceIntegration::get_endpoint_slug($key);
 
+        $wp_query->query_vars        = array();
         $wp_query->query_vars[ $slug ] = '';
         $wp_query->in_the_loop         = true;
         // See comment in test_passthrough_title_is_returned_unmodified_for_non_queried_id()

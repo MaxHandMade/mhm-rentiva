@@ -121,6 +121,7 @@ src/Admin/Emails/Templates/EmailPreview.php
 src/Admin/Emails/Templates/RefundEmails.php
 src/Admin/Frontend/Account/AccountController.php
 src/Admin/Frontend/Account/AccountRenderer.php
+src/Admin/Frontend/Account/AccountSurface.php
 src/Admin/Frontend/Account/EndpointHelperTrait.php
 src/Admin/Frontend/Account/WooCommerceIntegration.php
 src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php

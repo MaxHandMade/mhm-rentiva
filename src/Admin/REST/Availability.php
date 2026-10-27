@@ -39,42 +39,26 @@ final class Availability {
 	 * same-origin-scoped and rate-limited against blind scripted/bulk
 	 * scraping without turning it into an authorization gate.
 	 *
-	 * Caller note (re-measured 2026-08-13, mechanism now traced exactly): an
-	 * earlier version of this note named `UnifiedSearch` as the only in-repo
-	 * source of a `wp_rest` nonce for this route, then a later revision
-	 * widened that to three page-scoped call sites. Both undersold it — one
-	 * of the three is not page-scoped at all:
+	 * Caller note (re-measured 2026-10-27, PR D). Until then a `wp_rest`
+	 * nonce for this route was printed on every front-end page: the
+	 * `mhmRentivaAccount` payload of my-account.js carries `restNonce`, and
+	 * `AccountController::enqueue_assets()` enqueued and localized that script
+	 * outside its account-page conditional. It now returns early off the
+	 * account pages, and both sites that localize the payload share one
+	 * definition (`AccountController::enqueue_account_script()`), so the
+	 * nonce is printed:
 	 *
-	 *   - `AbstractAccountShortcode::enqueue_assets()`
-	 *     (Frontend/Shortcodes/Account/AbstractAccountShortcode.php:63)
-	 *     localizes `restNonce` with NO page-type check at all — it fires
-	 *     whenever `MyBookings` or `PaymentHistory` renders anywhere.
-	 *   - `AccountController::enqueue_assets()`
-	 *     (Frontend/Account/AccountController.php) has exactly one
-	 *     conditional that gates page-scoped output — `if ($is_account ||
-	 *     $has_endpoint || $is_woocommerce_account)` at :331-361 — but that
-	 *     conditional wraps only the `wp_enqueue_style()` calls (the CSS).
-	 *     The script enqueue and the `wp_localize_script( 'mhm-rentiva-my-
-	 *     account', 'mhmRentivaAccount', [ …, 'restNonce' =>
-	 *     wp_create_nonce('wp_rest'), … ] )` call sit at :363-384, textually
-	 *     after and OUTSIDE that `if` block, so they run whether or not it
-	 *     did. And `enqueue_assets()` itself is hooked to `wp_enqueue_scripts`
-	 *     unconditionally at :123 — no page-type guard on the hook either.
-	 *     Net effect: this nonce is minted and printed on every front-end
-	 *     page, for every visitor, logged in or not — not just on account
-	 *     pages or endpoints.
-	 *   - `UnifiedSearch::…` (Frontend/Shortcodes/UnifiedSearch.php:145),
-	 *     scoped to pages carrying `rentiva_unified_search`.
+	 *   - on My Account pages and the account endpoints
+	 *     (`AccountController::enqueue_assets()`);
+	 *   - wherever `MyBookings` or `PaymentHistory` (or an add-on subclass of
+	 *     `AbstractAccountShortcode`) renders -- still with no page-type check,
+	 *     the shortcode can sit on any page;
+	 *   - by `UnifiedSearch` (Frontend/Shortcodes/UnifiedSearch.php), on pages
+	 *     carrying `rentiva_unified_search`.
 	 *
-	 * Live-verified 2026-08-13 against the Docker dev site: an anonymous GET
-	 * of `/hakkimizda/` — a page with none of this plugin's shortcodes, so
-	 * none of the page-scoped conditions above should fire — still returned
-	 * a working `restNonce` in the page source (via the unconditional
-	 * `AccountController` path traced above), and replaying it as
-	 * `X-WP-Nonce` against this route logged-out passed `permission_check()`
-	 * (the request only failed later, on missing query parameters). Treat a
-	 * harvestable `wp_rest` nonce as present on every front-end page, not
-	 * just the three call sites above.
+	 * Any page carrying one of those shortcodes still hands the nonce to a
+	 * logged-out visitor, so the narrower spread changes how easy it is to
+	 * harvest, not whether it can be.
 	 *
 	 * Treat this route as anonymously callable in practice. That is why the
 	 * callbacks below gate the vehicle id on

@@ -20,7 +20,8 @@
       "Changed: on update, Elementor's generated CSS is rebuilt once so saved vehicle-card styles apply to the new card.",
       "Fixed: with page caching for visitors, the cached results page depends on every filter, the page number, the dates and the visitor's comparison list, so one visitor's results are not shown to another. The filter options are refreshed when a vehicle is saved.",
       "Fixed: three Turkish translations start lower-case like their originals.",
-      "Fixed: the booking form shows the vehicle's details (seats, transmission, fuel) under its name again, the vehicle-details page's main photo fills its frame instead of showing only its top on Elementor pages, and featured-vehicle slider cards are all as tall as the tallest."
+      "Fixed: the booking form shows the vehicle's details (seats, transmission, fuel) under its name again, the vehicle-details page's main photo fills its frame instead of showing only its top on Elementor pages, and featured-vehicle slider cards are all as tall as the tallest.",
+      "Changed: the My Account scripts, and the REST nonce they carry, load only on My Account pages and wherever an account shortcode renders, no longer on every page. The My Account menu items are named \"My bookings\", \"My favorites\" and \"Payment history\", and the dashboard greets the customer once."
     ]
   },
   {

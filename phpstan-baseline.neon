@@ -222,7 +222,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 40
+			count: 42
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -428,18 +428,6 @@ parameters:
 			identifier: method.unused
 			count: 1
 			path: src/Admin/Frontend/Account/AccountRenderer.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Account/MyBookings.php
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'

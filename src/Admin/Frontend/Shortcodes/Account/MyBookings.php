@@ -54,15 +54,4 @@ final class MyBookings extends AbstractAccountShortcode {
 
 		return AccountRenderer::get_bookings_data( $atts );
 	}
-
-	protected static function enqueue_assets( array $atts = array() ): void {
-		parent::enqueue_assets();
-
-		wp_enqueue_style(
-			'mhm-rentiva-bookings-page',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
-			array( 'mhm-rentiva-css-variables' ),
-			MHMRENTIVA_VERSION
-		);
-	}
 }

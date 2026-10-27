@@ -1,0 +1,185 @@
+/**
+ * My Account -- Lite's redesigned screens (PR D): dashboard, bookings, booking
+ * detail, payment history, favorites. Depends on rvs-account-nav.css (page
+ * frame and menu), rvs-data.css, rvs-forms.css and rvs-overlay.css.
+ *
+ * Vocabulary the account templates use (drawings Hesabim, Hesabim-Mobil,
+ * Rezervasyon-Detayi):
+ *
+ *   .rvs-account               the screen; on a WooCommerce endpoint the
+ *                              template's shell (`rvs-shell rvs-account`)
+ *   .rvs-account__head         title block: .rvs-account__title + __sub
+ *   .rvs-account__section      a titled block (list, progress ...)
+ *   .rvs-account__panel        raised panel
+ *   .rvs-account__actions      a row of buttons; full width on phones
+ *   .rvs-account-next          next rental card: __media + __body
+ *   .rvs-account-detail        booking detail: __head, __vehicle, __payment,
+ *                              __timeline, __cancel. Desktop: content beside a
+ *                              360px payment box. Phone: one column in the
+ *                              order head, vehicle, payment, progress,
+ *                              cancellation (plan header, owner 10-27).
+ *   .rvs-account-empty         empty state panel
+ *
+ * Breakpoint 782px, the menu's. No print rules: the booking summary is its own
+ * page.
+ */
+
+/* Inside WooCommerce's content column the frame already sets the width,
+   padding and background; the template's shell only scopes the tokens. */
+.woocommerce-account .woocommerce-MyAccount-content .rvs-shell.rvs-account {
+	max-width: none;
+	padding-inline: 0;
+	background: transparent;
+}
+
+.rvs-shell .rvs-account,
+.rvs-shell.rvs-account {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s8);
+}
+
+/* Title block */
+.rvs-shell .rvs-account__head {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.rvs-shell .rvs-account__title {
+	font-size: 38px;
+}
+
+.rvs-shell .rvs-account__sub {
+	color: var(--rvs-muted);
+}
+
+/* Sections and panels */
+.rvs-shell .rvs-account__section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-account__section > h2 {
+	font-size: 26px;
+}
+
+.rvs-shell .rvs-account__panel {
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-account__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s2);
+}
+
+/* Next rental card */
+.rvs-shell .rvs-account-next {
+	display: grid;
+	grid-template-columns: 260px minmax(0, 1fr);
+	overflow: hidden;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-account-next__media {
+	min-height: 180px;
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-account-next__media img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-account-next__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	padding: var(--rvs-s4);
+}
+
+/* Booking detail */
+.rvs-shell .rvs-account-detail {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 360px;
+	grid-template-rows: auto auto auto 1fr;
+	grid-template-areas:
+		"head     head"
+		"vehicle  payment"
+		"timeline payment"
+		"cancel   payment";
+	gap: var(--rvs-s6) 50px;
+	align-items: start;
+}
+
+.rvs-shell .rvs-account-detail__head { grid-area: head; }
+.rvs-shell .rvs-account-detail__vehicle { grid-area: vehicle; }
+.rvs-shell .rvs-account-detail__payment { grid-area: payment; }
+.rvs-shell .rvs-account-detail__timeline { grid-area: timeline; }
+.rvs-shell .rvs-account-detail__cancel { grid-area: cancel; }
+
+/* Below the width that fits content + 360px beside the menu, one column. */
+@media (max-width: 1100px) {
+	.rvs-shell .rvs-account-detail {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: none;
+		grid-template-areas:
+			"head"
+			"vehicle"
+			"payment"
+			"timeline"
+			"cancel";
+	}
+}
+
+/* Empty state */
+.rvs-shell .rvs-account-empty {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	max-width: 560px;
+	padding: var(--rvs-s6);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+@media (max-width: 782px) {
+	.rvs-shell .rvs-account,
+	.rvs-shell.rvs-account {
+		gap: var(--rvs-s6);
+	}
+
+	.rvs-shell .rvs-account__title {
+		font-size: 28px;
+	}
+
+	.rvs-shell .rvs-account__section > h2 {
+		font-size: 22px;
+	}
+
+	.rvs-shell .rvs-account__actions > .rvs-btn {
+		flex: 1 1 100%;
+	}
+
+	.rvs-shell .rvs-account-next {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-account-next__media {
+		min-height: 0;
+		aspect-ratio: 3 / 2;
+	}
+
+	.rvs-shell .rvs-account-next__body {
+		padding: var(--rvs-s3);
+	}
+}

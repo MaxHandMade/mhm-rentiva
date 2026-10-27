@@ -84,6 +84,20 @@ describe( 'my-account preview-root guards', () => {
 		expect( $.ajax ).toHaveBeenCalledTimes( 0 );
 	} );
 
+	// PR D R16: the `.cancel-booking` handler was dead (no template drew the
+	// button, and it sent the account nonce where the server checks the
+	// cancellation nonce). Cancellation is booking-cancellation.js's alone.
+	test( 'cancel_booking_class_no_longer_handled', () => {
+		setup( false );
+		document.body.insertAdjacentHTML(
+			'beforeend',
+			'<button class="cancel-booking" data-booking-id="9001">x</button>'
+		);
+		click( '.cancel-booking' );
+		expect( window.confirm ).toHaveBeenCalledTimes( 0 );
+		expect( $.ajax ).toHaveBeenCalledTimes( 0 );
+	} );
+
 	test( 'outside_preview_reaches_ajax', () => {
 		setup( false );
 		click( '#clear-all-favorites' );
