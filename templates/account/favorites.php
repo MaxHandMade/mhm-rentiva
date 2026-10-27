@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// My Favorites page template.
+// My Favorites page template (PR D, Task 2: the outer shell on the `rvs-` layer).
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
@@ -9,68 +9,59 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-
-
-$user_id    = get_current_user_id();
 $favorites  = $data['favorites'] ?? array();
 $navigation = $data['navigation'] ?? array();
 $columns    = $data['columns'] ?? 3;
+$count      = count($favorites);
+$title_id   = wp_unique_id('rvs-acc-');
 
-$wrapper_class = 'mhm-rentiva-account-page';
-if (empty($navigation)) {
-	$wrapper_class .= ' mhm-integrated';
+$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
+if (! $vehicles_url) {
+	$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
 }
-?>
+if (! $vehicles_url) {
+	$vehicles_url = home_url('/');
+}
+// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
+$vehicles_url = (string) apply_filters('mhmrentiva_vehicles_page_url', $vehicles_url);
 
-<div class="<?php echo esc_attr($wrapper_class); ?>">
+// The account page's hook for my-account.js (clear all) stays on the root:
+// `mhm-rentiva-account-page`.
+?>
+<?php // Not a shortcode render, so the front-end standard's shell is written here. ?>
+<div class="rvs-shell rvs-account mhm-rentiva-account-page" data-rvs-shortcode="rentiva_my_favorites" data-rvs-favorites>
 	<?php if (! empty($navigation)) : ?>
 		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
-	<div class="mhm-account-content">
-		<div class="section-header">
-			<h2><?php esc_html_e('My Favorite Vehicles', 'mhm-rentiva'); ?></h2>
-			<span class="view-all-link">
-				<?php
-				/* translators: %d: favorite vehicles count. */
-				printf(esc_html__('%d vehicles in your favorites', 'mhm-rentiva'), count($favorites));
-				?>
-			</span>
+	<section class="rvs-account__section rvs-account-favorites" aria-labelledby="<?php echo esc_attr($title_id); ?>">
+		<div class="rvs-account__head">
+			<h2 id="<?php echo esc_attr($title_id); ?>" class="rvs-account-favorites__title"><?php esc_html_e('My favorites', 'mhm-rentiva'); ?></h2>
+			<?php if ($count > 0) : ?>
+				<p class="rvs-account__sub" data-rvs-favorites-count>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s: number of favorite vehicles */
+							_n('%s vehicle in your favorites', '%s vehicles in your favorites', $count, 'mhm-rentiva'),
+							number_format_i18n($count)
+						)
+					);
+					?>
+				</p>
+			<?php endif; ?>
 		</div>
 
-		<?php if (empty($favorites)) : ?>
-			<!-- No favorites -->
-			<div class="empty-state">
-				<div class="empty-icon">
-					<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-						<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-					</svg>
-				</div>
-				<h3><?php esc_html_e('No favorite vehicles yet', 'mhm-rentiva'); ?></h3>
-				<p><?php esc_html_e('You can add vehicles to your favorites by clicking the heart icon on vehicles you like.', 'mhm-rentiva'); ?></p>
-				<a href="
-				<?php
-				$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
-				if (! $vehicles_url) {
-					$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
-					if (! $vehicles_url) {
-						$vehicles_url = home_url('/');
-					}
-				}
-				echo esc_url($vehicles_url);
-				?>
-				" class="btn btn-primary">
-					<?php esc_html_e('View Vehicles', 'mhm-rentiva'); ?>
-				</a>
-			</div>
-		<?php else : ?>
-			<!-- Favorite vehicles (STANDARDIZED) -->
-			<div class="account-section">
+		<div class="rvs-account-empty" data-rvs-favorites-empty data-testid="favorites-empty"<?php echo $count > 0 ? ' hidden' : ''; ?>>
+			<h3><?php esc_html_e('No favorite vehicles yet', 'mhm-rentiva'); ?></h3>
+			<p><?php esc_html_e('You can add vehicles to your favorites by clicking the heart icon on vehicles you like.', 'mhm-rentiva'); ?></p>
+			<a class="rvs-btn rvs-btn--primary" href="<?php echo esc_url($vehicles_url); ?>"><?php esc_html_e('Browse cars', 'mhm-rentiva'); ?></a>
+		</div>
 
-				<?php // Not a shortcode render, so the front-end standard's shell is written here. ?>
-				<div class="rvs-shell" data-rvs-shortcode="rentiva_my_favorites">
+		<?php if ($count > 0) : ?>
+			<div class="rvs-account-favorites__list" data-rvs-favorites-list>
 				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rvs-listing" data-testid="favorites-grid">
-					<div class="rvs-card-grid" style="--rvs-cols: <?php echo esc_attr( (string) max(1, min(6, isset($columns) ? (int) $columns : 3))); ?>">
+					<div class="rvs-card-grid" style="--rvs-cols: <?php echo esc_attr( (string) max(1, min(6, (int) $columns))); ?>">
 						<?php
 						// Default atts for the standardized card
 						$card_atts = array(
@@ -109,16 +100,13 @@ if (empty($navigation)) {
 						?>
 					</div>
 				</div>
-				</div>
 
-
-				<!-- Clear Button -->
-				<div class="form-actions">
-					<button type="button" id="clear-all-favorites" class="btn btn-secondary" data-testid="clear-favorites-btn">
-						<?php esc_html_e('Clear All Favorites', 'mhm-rentiva'); ?>
+				<div class="rvs-account__actions">
+					<button type="button" id="clear-all-favorites" class="rvs-btn rvs-btn--secondary" data-testid="clear-favorites-btn">
+						<?php esc_html_e('Clear all favorites', 'mhm-rentiva'); ?>
 					</button>
 				</div>
 			</div>
 		<?php endif; ?>
-	</div>
+	</section>
 </div>

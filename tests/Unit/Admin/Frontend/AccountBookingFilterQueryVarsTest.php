@@ -42,6 +42,8 @@ final class AccountBookingFilterQueryVarsTest extends WP_UnitTestCase
         return array(
             'status filter' => array( 'mhmrentiva_status_filter', 'completed' ),
             'search query'  => array( 'mhmrentiva_search_booking', '3726' ),
+            // PR D, R6: the list's section.
+            'section'       => array( 'mhmrentiva_view', 'past' ),
         );
     }
 

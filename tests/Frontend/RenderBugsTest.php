@@ -193,7 +193,8 @@ final class RenderBugsTest extends WP_UnitTestCase
 
 		$user = ShortcodeFixtures::customer();
 		for ($i = 0; $i < 12; $i++) {
-			$id = ShortcodeFixtures::booking($user, ShortcodeFixtures::vehicle(), 'confirmed', '100', -20 - $i);
+			// Upcoming (PR D): the list pages within its default section.
+			$id = ShortcodeFixtures::booking($user, ShortcodeFixtures::vehicle(), 'confirmed', '100', 20 + $i);
 			update_post_meta($id, '_mhmrentiva_payment_status', 'paid');
 		}
 		wp_set_current_user($user);

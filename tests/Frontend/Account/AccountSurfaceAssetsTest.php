@@ -125,6 +125,45 @@ final class AccountSurfaceAssetsTest extends WP_UnitTestCase
 		}
 	}
 
+	/**
+	 * PR D, Task 2 (r2 M4): the favorites endpoint renders its outer shell in
+	 * the `rvs-` layer -- one shell, the rvs chain and card styles, no legacy
+	 * stylesheet -- with "Clear all favorites" and the hidden empty state, or
+	 * the empty state with its "Browse cars" link.
+	 */
+	public function test_favorites_endpoint_renders_rvs_shell(): void
+	{
+		$user = self::factory()->user->create(array( 'role' => 'customer' ));
+		wp_set_current_user($user);
+		$vehicle = \MHMRentiva\Tests\Support\ShortcodeFixtures::vehicle();
+		update_user_meta($user, 'mhmrentiva_favorites', array( $vehicle ));
+
+		$this->visit('favorites');
+		AccountController::enqueue_assets();
+		ob_start();
+		WooCommerceIntegration::render_favorites();
+		$html = (string) ob_get_clean();
+
+		$this->assertSame(1, substr_count($html, 'rvs-shell'), 'One shell.');
+		$this->assertStringContainsString('class="rvs-shell rvs-account mhm-rentiva-account-page"', $html);
+		$this->assertStringContainsString('id="clear-all-favorites"', $html, 'my-account.js binds to it.');
+		$this->assertMatchesRegularExpression('#data-rvs-favorites-empty[^>]*\shidden#', $html, 'The empty state waits, hidden.');
+		$this->assertStringContainsString('data-rvs-card', $html, 'The vehicle card renders.');
+		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-account', 'enqueued'));
+		$this->assertContains('mhm-rentiva-rvs-card', $this->resolved_styles());
+		foreach (self::LEGACY_STYLES as $handle) {
+			$this->assertFalse(wp_style_is($handle, 'enqueued'), "favorites: legacy $handle enqueued.");
+		}
+
+		delete_user_meta($user, 'mhmrentiva_favorites');
+		ob_start();
+		WooCommerceIntegration::render_favorites();
+		$empty = (string) ob_get_clean();
+		$this->assertDoesNotMatchRegularExpression('#data-rvs-favorites-empty[^>]*\shidden#', $empty);
+		$this->assertStringContainsString('Browse cars', $empty);
+		$this->assertStringNotContainsString('clear-all-favorites', $empty);
+	}
+
 	public function test_wc_endpoint_loads_the_navigation_layer_only(): void
 	{
 		$this->visit('orders');

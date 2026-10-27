@@ -34,6 +34,9 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
+		// Counts on Lite's own items, after they are in (PR D, R2).
+		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_counts' ), 21 );
+
 		// Snapshot the query vars that already belong to someone else, before
 		// any endpoint registration adds to that list -- including ours.
 		//
@@ -190,6 +193,49 @@ final class WooCommerceIntegration {
 		}
 
 		return $new_items;
+	}
+
+	/**
+	 * `woocommerce_account_menu_items` callback (priority 21): "My bookings (2)"
+	 * with the upcoming bookings, "My favorites (5)" with the saved vehicles
+	 * (PR D, R2). Plain text -- WooCommerce prints the label with esc_html().
+	 * Nothing is added for 0. Items are matched by their (translated) slug;
+	 * every other item, the add-on's included, is left alone.
+	 *
+	 * @param array<string, string> $items Menu items, slug => label.
+	 * @return array<string, string>
+	 */
+	public static function add_menu_counts( array $items ): array {
+		$user_id = get_current_user_id();
+		if ( $user_id <= 0 ) {
+			return $items;
+		}
+
+		$counters = array(
+			self::get_endpoint_slug( 'bookings' )  => static fn(): int => AccountBookingsQuery::counts( $user_id )['upcoming'],
+			self::get_endpoint_slug( 'favorites' ) => static function () use ( $user_id ): int {
+				$favorites = get_user_meta( $user_id, 'mhmrentiva_favorites', true );
+				return is_array( $favorites ) ? count( $favorites ) : 0;
+			},
+		);
+
+		foreach ( $counters as $slug => $counter ) {
+			if ( ! isset( $items[ $slug ] ) || ! is_string( $items[ $slug ] ) ) {
+				continue;
+			}
+			$count = $counter();
+			if ( $count <= 0 ) {
+				continue;
+			}
+			$items[ $slug ] = sprintf(
+				/* translators: 1: menu label, 2: count */
+				__( '%1$s (%2$s)', 'mhm-rentiva' ),
+				$items[ $slug ],
+				number_format_i18n( $count )
+			);
+		}
+
+		return $items;
 	}
 
 	/**

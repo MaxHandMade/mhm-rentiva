@@ -19,6 +19,10 @@
  *                              order head, vehicle, payment, progress,
  *                              cancellation (plan header, owner 10-27).
  *   .rvs-account-empty         empty state panel
+ *   .rvs-account-bookings      "My bookings": __head (title + .rvs-seg),
+ *                              __table (.rvs-table; a card per row below
+ *                              782px), __none, __pager
+ *   .rvs-account-favorites     "My favorites" outer shell
  *
  * Breakpoint 782px, the menu's. No print rules: the booking summary is its own
  * page.
@@ -150,6 +154,210 @@
 	padding: var(--rvs-s6);
 	border-radius: var(--rvs-r);
 	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-account-empty[hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-account-empty > .rvs-btn {
+	align-self: flex-start;
+}
+
+/* My bookings list (drawings Hesabim, Hesabim-Mobil) */
+.rvs-shell .rvs-account-bookings__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-account-bookings__head > h2 {
+	font-size: 26px;
+}
+
+/* Rules only between rows, whatever the theme puts on table cells. */
+.rvs-shell .rvs-account-bookings__table {
+	border: 0;
+}
+
+.rvs-shell .rvs-account-bookings__table th,
+.rvs-shell .rvs-account-bookings__table td {
+	border-width: 0 0 1px;
+	border-style: solid;
+	border-color: var(--rvs-line);
+	background: transparent;
+}
+
+.rvs-shell .rvs-account-bookings__table th {
+	font-size: 11px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.rvs-shell .rvs-account-bookings__no {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-account-bookings__vehicle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-account-bookings__thumb {
+	flex: none;
+	width: 48px;
+	height: 32px;
+	border-radius: var(--rvs-r);
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-account-bookings__dates {
+	font-size: 14px;
+	white-space: nowrap;
+}
+
+.rvs-shell .rvs-account-bookings__amount {
+	font-variant-numeric: tabular-nums;
+}
+
+.rvs-shell .rvs-account-bookings__action {
+	text-align: right;
+}
+
+.rvs-shell .rvs-account-bookings__view {
+	color: var(--rvs-accent-strong);
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-account-bookings__none {
+	margin: 0;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-account-bookings__pager {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-account-bookings__page {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+/* Phones: each row is a raised card -- car and status, then
+   "no · dates · amount"; the whole card is the link (Hesabim-Mobil). */
+@media (max-width: 782px) {
+	.rvs-shell .rvs-account-bookings__table thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.rvs-shell .rvs-account-bookings__table,
+	.rvs-shell .rvs-account-bookings__table tbody {
+		display: block;
+	}
+
+	.rvs-shell .rvs-account-bookings__table tr {
+		position: relative;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 4px 8px;
+		margin-bottom: var(--rvs-s2);
+		padding: 14px 15px;
+		border: 0;
+		border-radius: var(--rvs-r);
+		background: var(--rvs-raised);
+		box-shadow: var(--rvs-shadow);
+	}
+
+	.rvs-shell .rvs-account-bookings__table tr:focus-within {
+		outline: 3px solid var(--rvs-accent-strong);
+		outline-offset: 2px;
+	}
+
+	/* The line break between the two lines. */
+	.rvs-shell .rvs-account-bookings__table tr::after {
+		content: "";
+		order: 3;
+		flex-basis: 100%;
+		height: 0;
+	}
+
+	.rvs-shell .rvs-account-bookings__table td {
+		display: block;
+		padding: 0;
+		border: 0;
+		text-align: left;
+		white-space: normal;
+	}
+
+	.rvs-shell .rvs-account-bookings__table td::before {
+		content: none;
+	}
+
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__car {
+		display: flex;
+		flex: 1 1 0;
+		order: 1;
+		min-width: 0;
+	}
+
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__status {
+		flex: none;
+		order: 2;
+	}
+
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__no,
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__dates,
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__amount {
+		order: 4;
+		color: var(--rvs-muted);
+		font-size: 14px;
+	}
+
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__dates::before,
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__amount::before {
+		content: "· ";
+	}
+
+	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__action {
+		order: 5;
+	}
+
+	.rvs-shell .rvs-account-bookings__view::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+	}
+
+	.rvs-shell .rvs-account-bookings__view-text {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.rvs-shell .rvs-account-bookings__head > h2 {
+		font-size: 22px;
+	}
 }
 
 @media (max-width: 782px) {

@@ -103,6 +103,8 @@ final class AccountController {
 		'mhmrentiva_search_booking',
 		'mhmrentiva_page',
 		'mhmrentiva_payments_page',
+		// The bookings list's section (PR D, R6): upcoming, past or cancelled.
+		'mhmrentiva_view',
 	);
 
 	/**

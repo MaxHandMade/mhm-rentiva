@@ -302,7 +302,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 			$this->assertStringContainsString('#' . $row['id'] . '<', $bookings);
 			$this->assertStringContainsString(esc_html($row['vehicle_title']), $bookings);
 		}
-		$this->assertStringNotContainsString('rv-no-bookings', $bookings);
+		$this->assertStringNotContainsString('data-testid="bookings-empty"', $bookings);
 
 		$payments = $this->shortcode('rentiva_payment_history', array());
 		$this->assertSame(count(PreviewSamples::payment_rows()), substr_count($payments, 'data-testid="payment-item"'));

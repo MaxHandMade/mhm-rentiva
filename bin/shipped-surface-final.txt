@@ -356,6 +356,8 @@ src/Admin/Emails/Settings/EmailTestAction.php
 src/Admin/Emails/Templates/BookingNotifications.php
 src/Admin/Emails/Templates/EmailPreview.php
 src/Admin/Emails/Templates/RefundEmails.php
+src/Admin/Frontend/Account/AccountBookingsQuery.php
+src/Admin/Frontend/Account/AccountBookingsView.php
 src/Admin/Frontend/Account/AccountController.php
 src/Admin/Frontend/Account/AccountRenderer.php
 src/Admin/Frontend/Account/AccountSurface.php
@@ -560,9 +562,11 @@ templates/emails/remaining-payment-link-customer.html.php
 templates/emails/welcome-customer.html.php
 templates/partials/preview-badge.php
 templates/partials/rvs-vehicle-card.php
+templates/partials/rvs/account-bookings.php
 templates/partials/rvs/breakdown.php
 templates/partials/rvs/calendar-month.php
 templates/partials/rvs/journey-summary.php
+templates/partials/rvs/status-tag.php
 templates/partials/rvs/steps.php
 templates/partials/search/rvs-chips.php
 templates/partials/search/rvs-empty.php

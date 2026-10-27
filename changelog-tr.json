@@ -21,7 +21,8 @@
       "Düzeltildi: ziyaretçiler için sayfa önbelleği açıkken önbellekteki sonuç sayfası her filtreye, sayfa numarasına, tarihlere ve ziyaretçinin karşılaştırma listesine bağlıdır; bir ziyaretçinin sonuçları bir başkasına gösterilmez. Bir araç kaydedilince filtre seçenekleri yenilenir.",
       "Düzeltildi: üç Türkçe çeviri, özgün metin gibi küçük harfle başlıyor.",
       "Düzeltildi: rezervasyon formu araç adının altında yine aracın bilgilerini (kişi, vites, yakıt) gösteriyor; araç detay sayfasının ana fotoğrafı Elementor sayfalarında yalnız üst kısmını göstermek yerine çerçevesini dolduruyor; öne çıkan araçlar kaydırıcısındaki kartların hepsi en uzunu kadar.",
-      "Değişti: Hesabım betikleri ve taşıdıkları REST nonce'u artık her sayfada değil, yalnız Hesabım sayfalarında ve bir hesap kısa kodunun gösterildiği yerde yükleniyor. Hesabım menüsündeki öğelerin adları \"Rezervasyonlarım\", \"Favorilerim\" ve \"Ödeme geçmişi\"; pano müşteriyi bir kez karşılıyor."
+      "Değişti: Hesabım betikleri ve taşıdıkları REST nonce'u artık her sayfada değil, yalnız Hesabım sayfalarında ve bir hesap kısa kodunun gösterildiği yerde yükleniyor. Hesabım menüsündeki öğelerin adları \"Rezervasyonlarım\", \"Favorilerim\" ve \"Ödeme geçmişi\"; pano müşteriyi bir kez karşılıyor.",
+      "Değişti: Rezervasyonlarım Yaklaşan, Geçmiş ve İptal bölümlerine ayrıldı (her biri sayısıyla; bölüm adreste mhmrentiva_view olarak taşınıyor), iki tam tarih ve müşterinin e-postada gördüğü rezervasyon numarasını gösteriyor, telefonda her rezervasyon bir kart. Menü yaklaşan rezervasyon ve kayıtlı araç sayısını gösteriyor. Eski süzgeç kutusu ve arama alanı kalktı; bu değerleri taşıyan bağlantılar listeyi yine daraltıyor. Favorilerim aynı düzeni kullanıyor."
     ]
   },
   {

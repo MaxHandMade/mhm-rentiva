@@ -175,6 +175,13 @@ final class AccountRenderer {
 
 	/**
 	 * Get bookings data
+	 *
+	 * The list shows one section (PR D, R5/R6): `mhmrentiva_view` names it,
+	 * Upcoming by default. The shortcode's `status` attribute fixes the list to
+	 * one status: no section control, no section. The old filter vars
+	 * (mhmrentiva_status_filter, mhmrentiva_search_booking) still narrow the
+	 * query; a URL that carries one of them and no section (an old bookmark)
+	 * searches every section.
 	 */
 	public static function get_bookings_data(array $atts = array()): array
 	{
@@ -189,21 +196,20 @@ final class AccountRenderer {
 			'order'   => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
 		);
 
-		// Pagination (show_pagination, on unless turned off): the page comes from
-		// the public query var; a page past the end shows the last one. Off is
-		// today's list -- the first `limit` bookings, the page var ignored.
-		//
-		// The list's own filter form (mhmrentiva_status_filter,
-		// mhmrentiva_search_booking) narrows the query itself, so the rows and the
-		// page count both follow it (T7a-1). It used to filter the fetched page in
-		// the template, which left pages empty under a pager that counted every
-		// booking, and a search only saw the current page.
+		// The list's old filter params narrow the query itself, so the rows and
+		// the page count both follow them (T7a-1).
 		$args['status_filter'] = self::list_filter_var('mhmrentiva_status_filter');
 		if ('all' === $args['status_filter']) {
 			$args['status_filter'] = '';
 		}
 		$args['search'] = self::list_filter_var('mhmrentiva_search_booking');
 
+		$show_segments   = '' === $args['status'];
+		$args['segment'] = $show_segments ? self::requested_segment('' !== $args['status_filter'] || '' !== $args['search']) : '';
+
+		// Pagination (show_pagination, on unless turned off): the page comes from
+		// the public query var, within the section; a page past the end shows
+		// the last one. Off is today's list -- the first `limit` bookings.
 		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
 		// Capped so the query's offset ((page - 1) * limit) stays an integer: an
 		// overflowing page number would reach SQL as a float.
@@ -220,11 +226,18 @@ final class AccountRenderer {
 			$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
 		}
 
+		$counts = AccountBookingsQuery::counts( (int) $user->ID);
+
 		$data = array(
 			'user'               => $user,
 			'bookings'           => $query->posts,
 			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 			'atts'               => $atts,
+			// Sections (PR D).
+			'segment'            => $args['segment'],
+			'show_segments'      => $show_segments,
+			'counts'             => $counts,
+			'has_bookings'       => array_sum($counts) > 0,
 			// Column toggles: missing means on, the columns were unconditional.
 			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
 			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
@@ -236,6 +249,35 @@ final class AccountRenderer {
 		);
 
 		return array( 'data' => $data );
+	}
+
+	/**
+	 * The section the request asks for (`mhmrentiva_view`). Missing or unknown
+	 * is Upcoming -- or no section when $legacy_filtered (an old filter link).
+	 */
+	private static function requested_segment(bool $legacy_filtered): string
+	{
+		$view = self::list_filter_var('mhmrentiva_view');
+		if (in_array($view, AccountBookingsQuery::SEGMENTS, true)) {
+			return $view;
+		}
+
+		return $legacy_filtered ? '' : AccountBookingsQuery::UPCOMING;
+	}
+
+	/**
+	 * URL of a section of the bookings list: the current URL with
+	 * `mhmrentiva_view` set, from page 1, without the old filter vars.
+	 *
+	 * @param string $segment An AccountBookingsQuery::SEGMENTS value.
+	 */
+	public static function segment_url(string $segment): string
+	{
+		return add_query_arg(
+			'mhmrentiva_view',
+			$segment,
+			remove_query_arg(array( self::PAGE_VAR_BOOKINGS, 'mhmrentiva_status_filter', 'mhmrentiva_search_booking' ))
+		);
 	}
 
 	/**
@@ -260,6 +302,15 @@ final class AccountRenderer {
 			'booking_rows'       => $rows,
 			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 			'atts'               => $atts,
+			// Every sample row is drawn, so all of them count as Upcoming (r2 m7).
+			'segment'            => AccountBookingsQuery::UPCOMING,
+			'show_segments'      => '' === self::sanitize_text_field_safe($atts['status'] ?? ''),
+			'counts'             => array(
+				AccountBookingsQuery::UPCOMING  => count($rows),
+				AccountBookingsQuery::PAST      => 0,
+				AccountBookingsQuery::CANCELLED => 0,
+			),
+			'has_bookings'       => array() !== $rows,
 			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
 			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
 			'show_status'        => self::flag_is_on($atts['show_status_toggle'] ?? '1'),
@@ -282,7 +333,7 @@ final class AccountRenderer {
 	 * falls back to the placeholder); `view_url` is '' for a row without a
 	 * details page (preview samples).
 	 *
-	 * @return array{id:int,vehicle_title:?string,vehicle_image:string,status:mixed,pickup_date:mixed,pickup_time:mixed,dropoff_date:mixed,total_price:mixed,view_url:string}
+	 * @return array{id:int,display_id:int,vehicle_title:?string,vehicle_image:string,status:mixed,pickup_date:mixed,pickup_time:mixed,dropoff_date:mixed,return_day:string,total_price:mixed,view_url:string}
 	 */
 	public static function booking_view_row(\WP_Post $booking): array
 	{
@@ -309,6 +360,8 @@ final class AccountRenderer {
 			'pickup_date'   => get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true),
 			'pickup_time'   => $pickup_time,
 			'dropoff_date'  => get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true),
+			// The return day the list's section rule reads (AccountBookingsQuery chain).
+			'return_day'    => AccountBookingsQuery::return_day( (int) $booking->ID),
 			'total_price'   => get_post_meta($booking->ID, '_mhmrentiva_total_price', true),
 			'view_url'      => AccountController::get_booking_view_url( (int) $booking->ID),
 		);
@@ -750,90 +803,13 @@ final class AccountRenderer {
 
 	/**
 	 * The query behind get_user_bookings(), for callers that page through it
-	 * (`page`, 1-based; max_num_pages on the result).
+	 * (`page`, 1-based; max_num_pages on the result). A thin wrapper: the one
+	 * bookings query path is AccountBookingsQuery (r3 y2); `segment` narrows to
+	 * a section of the list.
 	 */
 	private static function query_user_bookings(int $user_id, array $args = array()): \WP_Query
 	{
-		$defaults = array(
-			'limit'         => 10,
-			'status'        => '',
-			'orderby'       => 'date',
-			'order'         => 'DESC',
-			'page'          => 1,
-			'status_filter' => '',
-			'search'        => '',
-		);
-
-		$args = wp_parse_args($args, $defaults);
-
-		// Meta query
-		$meta_query = array(
-			array(
-				'key'     => '_mhmrentiva_customer_user_id',
-				'value'   => $user_id,
-				'compare' => '=',
-			),
-		);
-
-		// Status filter
-		if (! empty($args['status'])) {
-			$meta_query[] = array(
-				'key'     => '_mhmrentiva_status',
-				'value'   => self::sanitize_text_field_safe($args['status']),
-				'compare' => '=',
-			);
-		}
-
-		// The list's own status filter, on top of the configured one (both must hold).
-		if (! empty($args['status_filter'])) {
-			$meta_query[] = array(
-				'key'     => '_mhmrentiva_status',
-				'value'   => self::sanitize_text_field_safe($args['status_filter']),
-				'compare' => '=',
-			);
-		}
-
-		$query_args = array(
-			'post_type'      => 'mhmrentiva_booking',
-			'post_status'    => 'publish',
-			'posts_per_page' => (int) $args['limit'],
-			'orderby'        => self::sanitize_text_field_safe($args['orderby']),
-			'order'          => self::sanitize_text_field_safe($args['order']),
-			'meta_query'     => $meta_query,
-			'paged'          => max(1, (int) $args['page']),
-		);
-
-		// Search by reservation ID (the list's form): a booking whose ID contains
-		// the text, as the template matched it. The candidate IDs are this
-		// customer's (already narrowed) bookings, so the page count follows it.
-		$search = (string) ( $args['search'] ?? '' );
-		if ('' !== $search) {
-			$ids                    = get_posts(
-				array_merge(
-					$query_args,
-					array(
-						'posts_per_page' => -1,
-						'paged'          => 1,
-						'fields'         => 'ids',
-						'no_found_rows'  => true,
-					)
-				)
-			);
-			// One query for every candidate's meta, instead of one per candidate
-			// when the display number is resolved below.
-			update_meta_cache('post', array_map('intval', $ids));
-			$matched                = array_values(
-				array_filter(
-					array_map('intval', $ids),
-					// Match the number the customer sees as well as the raw ID.
-					static fn(int $id): bool => false !== strpos( (string) $id, $search)
-						|| false !== strpos( (string) mhmrentiva_get_display_id($id), $search)
-				)
-			);
-			$query_args['post__in'] = array() !== $matched ? $matched : array( 0 );
-		}
-
-		return new \WP_Query($query_args);
+		return AccountBookingsQuery::query($user_id, $args);
 	}
 
 	/**

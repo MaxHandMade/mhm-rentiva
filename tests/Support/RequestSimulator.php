@@ -23,6 +23,8 @@ final class RequestSimulator
 	public static function new_request(array $inline_handles = array()): void
 	{
 		AbstractShortcode::reset_enqueued_assets_for_tests();
+		// The account bookings list's per-request section counts.
+		\MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery::reset();
 
 		foreach (array( wp_scripts(), wp_styles() ) as $deps) {
 			// Copy first: dequeue() mutates the array being walked.

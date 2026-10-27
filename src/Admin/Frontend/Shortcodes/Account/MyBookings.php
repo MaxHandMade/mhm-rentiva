@@ -19,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class MyBookings extends AbstractAccountShortcode {
 
+	/** Renders inside the front-end standard's shell (PR D). */
+	protected static bool $rvs_shell = true;
 
 	protected static function get_shortcode_tag(): string {
 		return 'rentiva_my_bookings';
