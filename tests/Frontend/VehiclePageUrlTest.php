@@ -30,6 +30,9 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 {
 	private int $details_page = 0;
 
+	/** @var array<int, string>|null */
+	private ?array $saved_public_vars = null;
+
 	public function set_up(): void
 	{
 		parent::set_up();
@@ -41,6 +44,10 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 	public function tear_down(): void
 	{
 		remove_all_filters('wp_redirect');
+		if (null !== $this->saved_public_vars) {
+			$GLOBALS['wp']->public_query_vars = $this->saved_public_vars;
+			$this->saved_public_vars          = null;
+		}
 		ShortcodeUrlManager::clear_cache();
 		parent::tear_down();
 	}
@@ -169,6 +176,10 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 		$this->details_page();
 
 		$this->assertContains('s', $GLOBALS['wp']->public_query_vars, 'Positive control: s is a WordPress public query var.');
+		// register_taxonomy() makes a public taxonomy's name a public query var
+		// (VehicleCategory sets no query_var); the test WP object may predate it.
+		$this->saved_public_vars = $GLOBALS['wp']->public_query_vars;
+		$GLOBALS['wp']->add_query_var('mhmrentiva_vehicle_category');
 
 		$url = Plugin::vehicle_redirect_url(get_post($vehicle), array(
 			'mhmrentiva_pickup_date' => '2026-12-10',
@@ -181,6 +192,11 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 			'cat'                    => '3',
 			'paged'                  => '2',
 			'author'                 => '1',
+			// A taxonomy query var shares the plugin prefix but would turn the
+			// details page into a category archive.
+			'mhmrentiva_vehicle_category' => 'suv',
+			'mhmrentiva_vehicle_id'       => '7',
+			'mhmrentiva_pickup_time'      => '10:00',
 		));
 
 		parse_str((string) wp_parse_url($url, PHP_URL_QUERY), $query);
@@ -191,6 +207,8 @@ final class VehiclePageUrlTest extends WP_UnitTestCase
 				'utm_source'             => 'news',
 				'gclid'                  => 'g1',
 				'fbclid'                 => 'f1',
+				'mhmrentiva_vehicle_id'  => '7',
+				'mhmrentiva_pickup_time' => '10:00',
 			),
 			$query
 		);

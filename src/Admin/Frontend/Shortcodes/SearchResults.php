@@ -105,7 +105,7 @@ final class SearchResults extends AbstractShortcode {
 	 *
 	 * @var array<int, string>
 	 */
-	private const PUBLIC_QUERY_VARS = array(
+	public const PUBLIC_QUERY_VARS = array(
 		// No template or JS URL-builder emits this, but SearchResults::build_query()
 		// does read it (it becomes the WP_Query `s` parameter) and the results
 		// template prints "Results for: ...", so an externally-built

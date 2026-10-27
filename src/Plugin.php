@@ -845,9 +845,12 @@ final class Plugin {
 	 * args (utm_*, gclid, fbclid) on a link someone shared. Dropped:
 	 * - the args the CPT request was routed by (VEHICLE_ROUTING_ARGS);
 	 * - WordPress's public query vars ($wp->public_query_vars, so it follows
-	 *   what core and other plugins register) other than this plugin's
-	 *   `mhmrentiva_*` ones: on the details page `s`, `feed`, `cat`, `paged` ...
-	 *   would re-route the request (a search, a feed) instead of showing the car.
+	 *   what core and other plugins register) other than this plugin's own
+	 *   search and booking-window vars (vehicle_redirect_carried_vars()): on the
+	 *   details page `s`, `feed`, `cat`, `paged` ... would re-route the request
+	 *   (a search, a feed) instead of showing the car, and so would a taxonomy
+	 *   var such as `mhmrentiva_vehicle_category` (a category archive), even
+	 *   though it carries this plugin's prefix.
 	 * Only scalar values travel; each is URL-encoded onto a URL this site
 	 * builds, so the target host never comes from the request.
 	 *
@@ -858,6 +861,7 @@ final class Plugin {
 		$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle->ID);
 
 		$wp_vars = isset($GLOBALS['wp']) && $GLOBALS['wp'] instanceof \WP ? (array) $GLOBALS['wp']->public_query_vars : array();
+		$own     = self::vehicle_redirect_carried_vars();
 
 		$carry = array();
 		foreach ($query_args as $key => $value) {
@@ -865,13 +869,29 @@ final class Plugin {
 			if (in_array($key, self::VEHICLE_ROUTING_ARGS, true) || ! is_scalar($value)) {
 				continue;
 			}
-			if (in_array($key, $wp_vars, true) && 0 !== strpos($key, 'mhmrentiva_')) {
+			if (in_array($key, $wp_vars, true) && ! in_array($key, $own, true)) {
 				continue;
 			}
 			$carry[ rawurlencode($key) ] = rawurlencode( (string) $value);
 		}
 
 		return array() === $carry ? $url : add_query_arg($carry, $url);
+	}
+
+	/**
+	 * The public query vars the vehicle redirect keeps: the ones the search
+	 * strip and the booking window read -- the same set the front-page routing
+	 * of a search accepts (SearchResults::route_front_page()). Taxonomy and
+	 * post-type vars are not in it.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function vehicle_redirect_carried_vars(): array
+	{
+		return array_merge(
+			\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::PUBLIC_QUERY_VARS,
+			\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::PUBLIC_QUERY_VARS
+		);
 	}
 
 	/**
