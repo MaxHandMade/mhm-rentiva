@@ -2,7 +2,8 @@
  * MHM Rentiva - Centralized Datepicker Initialization
  *
  * Uses delegated event listeners to handle both static and dynamic inputs.
- * Ensures consistent look and feel (rv-datepicker-skin) across all forms.
+ * Ensures consistent look and feel across all forms: rv-datepicker-skin, and
+ * the rvs skin (rvs-shell rvs-dp) for fields inside the front-end standard.
  * Reads localized strings from mhmDatepickerL10n (injected by DatepickerAssets).
  *
  * The field shows the site's date format (l10n.dateFormat, WordPress
@@ -66,8 +67,15 @@
         isRTL: l10n.isRTL === '1' || l10n.isRTL === true,
         showOtherMonths: true,
         selectOtherMonths: true,
+        // One popup (#ui-datepicker-div, on <body>) serves every field on the
+        // page. A field inside the front-end standard (.rvs-shell) dresses it in
+        // the rvs skin (rvs-datepicker.css) -- the booking form's look -- and any
+        // other field takes the skin off again. Set on show, not removed on
+        // close: the popup fades out in the look it was opened with.
         beforeShow: function (input, inst) {
-            $('#ui-datepicker-div').addClass('rv-datepicker-skin');
+            var $widget = inst && inst.dpDiv ? inst.dpDiv : $(input).datepicker('widget');
+            var rvs = $(input).closest('.rvs-shell').length > 0;
+            $widget.addClass('rv-datepicker-skin').toggleClass('rvs-shell rvs-dp', rvs);
         }
     };
 

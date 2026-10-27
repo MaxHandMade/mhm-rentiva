@@ -125,6 +125,8 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-search', 'enqueued'));
 		$this->assertFalse(wp_style_is('mhm-rentiva-unified-search-base', 'enqueued'));
+		// PR S Task 9: the date popup wears the booking form's rvs skin here too.
+		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-search', 'mhm-rentiva-rvs-datepicker'), 'The strip loads the rvs datepicker skin.');
 	}
 
 	/**
@@ -188,5 +190,28 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		set_query_var(SearchResults::query_var('pickup_location'), '99');
 		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'Not a rental location.');
+	}
+
+	/**
+	 * Whether a registered style pulls $needle in, directly or further down.
+	 */
+	private static function style_needs(string $handle, string $needle): bool
+	{
+		$seen  = array();
+		$stack = array( $handle );
+		while (array() !== $stack) {
+			$current = (string) array_pop($stack);
+			if (isset($seen[ $current ])) {
+				continue;
+			}
+			$seen[ $current ] = true;
+			foreach ( (array) ( wp_styles()->registered[ $current ]->deps ?? array() ) as $dep) {
+				if ($needle === $dep) {
+					return true;
+				}
+				$stack[] = (string) $dep;
+			}
+		}
+		return false;
 	}
 }

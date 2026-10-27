@@ -395,6 +395,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-card', 'enqueued'), 'Alternative vehicles are rvs cards.');
 		$this->assertStringContainsString('"processing":"Processing..."', (string) wp_scripts()->get_data('mhm-rentiva-booking-form', 'data'), 'The submit busy label is localized.');
 		$this->assertFalse(wp_style_is('mhm-rentiva-datepicker-custom', 'enqueued'), 'The form does not load datepicker-custom.css (R6).');
+		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-booking', 'mhm-rentiva-rvs-datepicker'), 'The form loads the shared rvs datepicker skin.');
 		$this->assertFalse(wp_style_is('mhm-rentiva-rentiva-booking-form', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-booking-form', 'enqueued'));
 		$deps = wp_scripts()->registered['mhm-rentiva-booking-form']->deps ?? array();
@@ -490,5 +491,28 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 	{
 		$this->assertSame(1, preg_match('#<div class="rvs-booking__summary"[^>]*>.*?(?=<div class="rvs-booking__bar")#s', $html, $m), 'Summary region not found.');
 		return $m[0];
+	}
+
+	/**
+	 * Whether a registered style pulls $needle in, directly or further down.
+	 */
+	private static function style_needs(string $handle, string $needle): bool
+	{
+		$seen  = array();
+		$stack = array( $handle );
+		while (array() !== $stack) {
+			$current = (string) array_pop($stack);
+			if (isset($seen[ $current ])) {
+				continue;
+			}
+			$seen[ $current ] = true;
+			foreach ( (array) ( wp_styles()->registered[ $current ]->deps ?? array() ) as $dep) {
+				if ($needle === $dep) {
+					return true;
+				}
+				$stack[] = (string) $dep;
+			}
+		}
+		return false;
 	}
 }

@@ -617,8 +617,10 @@ describe( 'booking form on the rvs markup', () => {
 
 	test( 'datepicker popup sits above the phone summary band', () => {
 		const css = fs.readFileSync( path.join( __dirname, '../../assets/css/frontend/rvs-booking.css' ), 'utf8' );
+		// The popup skin is shared (rvs-datepicker.css, PR S Task 9).
+		const skin = fs.readFileSync( path.join( __dirname, '../../assets/css/rvs/rvs-datepicker.css' ), 'utf8' );
 		const band = /\.rvs-booking__aside\s*\{[^}]*position:\s*fixed;[^}]*z-index:\s*(\d+)/.exec( css );
-		const popup = /\.rvs-shell\.rvs-dp\s*\{[^}]*z-index:\s*(\d+)\s*!important/.exec( css );
+		const popup = /\.rvs-shell\.rvs-dp\s*\{[^}]*z-index:\s*(\d+)\s*!important/.exec( skin );
 
 		expect( band ).not.toBeNull();
 		expect( popup ).not.toBeNull();

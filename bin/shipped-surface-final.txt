@@ -89,6 +89,7 @@ assets/css/payment/woocommerce-checkout.css
 assets/css/rvs/rvs-breakdown.css
 assets/css/rvs/rvs-calendar.css
 assets/css/rvs/rvs-card.css
+assets/css/rvs/rvs-datepicker.css
 assets/css/rvs/rvs-forms.css
 assets/css/rvs/rvs-overlay.css
 assets/css/rvs/rvs-primitives.css
