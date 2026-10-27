@@ -405,6 +405,13 @@ final class AccountRenderer {
 		// script always arrives with its one mhmrentiva_vars payload.
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 
+		// The favorites template's "Clear all favorites" and empty-state redraw
+		// live in my-account.js. Enqueued here, not only from
+		// AccountController::enqueue_assets() (account pages only), so the
+		// payload below never lands on an unregistered handle, whoever renders
+		// this template.
+		AccountController::enqueue_account_script();
+
 		// Localize (grid/list ortak)
 		wp_localize_script(
 			'mhm-rentiva-my-account',

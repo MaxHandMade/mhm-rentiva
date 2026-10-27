@@ -197,9 +197,15 @@ class MyFavorites extends AbstractShortcode {
 
 	/**
 	 * The front-end standard card (rvs chain + rvs-card.css). Not through
-	 * get_css_files(): this shortcode's base handle (mhm-rentiva-my-favorites)
-	 * is registered on `init` by the block with my-account.css, and a later
-	 * wp_enqueue_style() under a registered handle keeps the first source.
+	 * get_css_files(): that would enqueue a stylesheet under this shortcode's
+	 * base handle (mhm-rentiva-my-favorites), the handle the block once
+	 * registered with my-account.css. The block registers no stylesheet any
+	 * more (PR D); the card styles are all this shortcode needs.
+	 *
+	 * No my-account.js either: the shortcode renders the vehicles-grid
+	 * template, which has neither "Clear all favorites" nor the account
+	 * wrapper my-account.js binds to. Those belong to the My Account
+	 * favorites endpoint (templates/account/favorites.php).
 	 */
 	protected static function enqueue_styles(array $atts = array()): void
 	{
