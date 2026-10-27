@@ -187,6 +187,9 @@ final class VehicleDetailsView {
 
 		return array(
 			'window'        => $window,
+			// Dates in the wrong order (a hand-edited link) are kept and reported,
+			// but not priced: the card shows the message, not a total beside it.
+			'priced'        => $start > 0 && $end > $start,
 			'days'          => $quote->days,
 			'breakdown'     => RvsBreakdown::from_quote($quote, $deposit, array(), $rate),
 			// The payment step offers deposit or full payment (WooCommerceBridge);

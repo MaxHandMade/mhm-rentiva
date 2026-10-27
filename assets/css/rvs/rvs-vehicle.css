@@ -416,6 +416,12 @@
 	gap: 6px;
 }
 
+/* Dates the server could not price (wrong order): the card and the phone bar
+   show no total, only the message (rvs-vehicle.js toggles [hidden]). */
+.rvs-shell [data-rvs-vd-priced][hidden] {
+	display: none;
+}
+
 .rvs-shell .rvs-vd__total-amount {
 	font-size: 30px;
 	font-weight: 600;

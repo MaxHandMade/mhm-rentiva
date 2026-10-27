@@ -7,7 +7,7 @@
  * The gallery viewer and the phone's breakdown sheet are shared rvs dialogs
  * (rvs-dialog.js).
  *
- * Config: window.mhmRentivaVehicle = { ajax_url, nonce, i18n: { error, days_one, days_many } }.
+ * Config: window.mhmRentivaVehicle = { ajax_url, nonce, min_days, i18n: { error, days_one, days_many } }.
  */
 ( function ( $ ) {
 	'use strict';
@@ -140,6 +140,47 @@
 		}
 	}
 
+	function dateOf( $field ) {
+		const api = window.mhmRentivaDatepicker;
+		return api ? api.value( $field ) : String( $field.val() || '' );
+	}
+
+	function parseIso( value ) {
+		const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec( value || '' );
+		return m ? new Date( +m[ 1 ], +m[ 2 ] - 1, +m[ 3 ] ) : null;
+	}
+
+	function toIso( date ) {
+		const pad = ( n ) => String( n ).padStart( 2, '0' );
+		return date.getFullYear() + '-' + pad( date.getMonth() + 1 ) + '-' + pad( date.getDate() );
+	}
+
+	/**
+	 * The earliest return for the card's pickup (pickup + the minimum rental,
+	 * Settings > Booking): the return datepicker offers nothing before it, and a
+	 * return before it moves up to it -- the search strip's rule
+	 * (unified-search.js), so a pickup past the return never leaves the card
+	 * quoting dates in the wrong order.
+	 */
+	function constrainReturn( $root ) {
+		const $form = $root.find( '[data-rvs-vd-window]' );
+		const pickup = parseIso( dateOf( $form.find( '[data-rvs-pickup-date]' ) ) );
+		if ( ! pickup ) {
+			return;
+		}
+		const earliest = new Date( pickup.getTime() );
+		earliest.setDate( earliest.getDate() + ( parseInt( config().min_days, 10 ) || 1 ) );
+
+		const $return = $form.find( '[data-rvs-return-date]' );
+		if ( $.fn.datepicker && $return.hasClass( 'hasDatepicker' ) ) {
+			$return.datepicker( 'option', 'minDate', earliest );
+		}
+		const current = parseIso( dateOf( $return ) );
+		if ( current && current < earliest ) {
+			setDate( $return, toIso( earliest ) );
+		}
+	}
+
 	// Until a quote for the visible window arrives (or after one fails), the
 	// links must not carry the previous window to the booking form.
 	function holdContinue( $root ) {
@@ -157,8 +198,12 @@
 			$form.find( '[data-rvs-pickup-time]' ).val( data.window.pickup_time );
 			$root.find( '[data-rvs-return-time-display]' ).text( data.window.pickup_time );
 		}
-		$root.find( '[data-rvs-vd-total]' ).html( data.total_html || '' );
-		$root.find( '[data-rvs-vd-days]' ).text( daysLabel( parseInt( data.days, 10 ) || 0 ) );
+		// Dates the server could not price (wrong order) show no total: the
+		// message beside them says why.
+		const priced = data.priced !== false;
+		$root.find( '[data-rvs-vd-priced]' ).prop( 'hidden', ! priced );
+		$root.find( '[data-rvs-vd-total]' ).html( priced ? data.total_html || '' : '' );
+		$root.find( '[data-rvs-vd-days]' ).text( priced ? daysLabel( parseInt( data.days, 10 ) || 0 ) : '' );
 		$root.find( '[data-rvs-vd-breakdown]' ).html( data.breakdown_html || '' );
 		$root.find( '[data-rvs-vd-breakdown-dialog] details' ).prop( 'open', true );
 		if ( data.months_html ) {
@@ -288,8 +333,15 @@
 			if ( this.hasAttribute( 'data-rvs-pickup-time' ) ) {
 				$root.find( '[data-rvs-return-time-display]' ).text( this.value );
 			}
+			if ( this.hasAttribute( 'data-rvs-pickup-date' ) ) {
+				constrainReturn( $root );
+			}
 			holdContinue( $root );
 			scheduleQuote( $root );
+		} );
+		// The return datepicker learns its minimum as soon as it opens.
+		$root.on( 'focus', '[data-rvs-vd-window] [data-rvs-return-date]', function () {
+			constrainReturn( $root );
 		} );
 		$root.on( 'click', '[data-rvs-gallery-open]', function () {
 			openGallery( $root, parseInt( $( this ).attr( 'data-rvs-gallery-open' ), 10 ) || 0, this );

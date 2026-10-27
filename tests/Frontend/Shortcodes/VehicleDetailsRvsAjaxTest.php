@@ -113,6 +113,24 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$this->assertArrayNotHasKey('pickup_location', (array) ( $data['window'] ?? array() ));
 	}
 
+	/**
+	 * PR S Task 9 (D5): dates in the wrong order get the message and no total
+	 * -- the card never shows "1 day total $X" beside "Invalid date selection".
+	 */
+	public function test_quote_for_dates_in_the_wrong_order_carries_no_total(): void
+	{
+		$data = $this->quote(array( 'pickup_date' => '2027-07-20', 'return_date' => '2027-07-15' ))['data'] ?? array();
+
+		$this->assertFalse($data['available'], wp_json_encode($data));
+		$this->assertNotSame('', $data['message']);
+		$this->assertFalse($data['priced']);
+		$this->assertSame('', $data['total_html']);
+		$this->assertSame('', $data['breakdown_html']);
+		$this->assertSame(0, $data['days']);
+
+		$this->assertTrue($this->quote()['data']['priced'], 'An ordered window is priced.');
+	}
+
 	public function test_quote_endpoint_reports_unavailable_window(): void
 	{
 		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));

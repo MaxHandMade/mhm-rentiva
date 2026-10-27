@@ -162,6 +162,8 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-dialog', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-vehicle-js', 'enqueued'));
 		$this->assertContains('mhm-rentiva-rvs-dialog', wp_scripts()->registered['mhm-rentiva-rvs-vehicle-js']->deps);
+		// PR S Task 9: the booking card's date popup wears the rvs skin.
+		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-vehicle', 'mhm-rentiva-rvs-datepicker'), 'The vehicle page loads the rvs datepicker skin.');
 	}
 
 	public function test_block_render_uses_rvs_style(): void
@@ -177,6 +179,29 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		update_post_meta($this->vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SERVICE_TYPE, 'transfer');
 
 		$this->assertStringNotContainsString('rvs-vd__booking', $this->render());
+	}
+
+	/**
+	 * PR S Task 9 (D5): a link with the return before pickup shows the message
+	 * with the total and days hidden; the script learns the minimum rental.
+	 */
+	public function test_dates_in_the_wrong_order_show_no_total(): void
+	{
+		set_query_var('mhmrentiva_pickup_date', '2027-07-20');
+		set_query_var('mhmrentiva_return_date', '2027-07-15');
+		$html = $this->render();
+		set_query_var('mhmrentiva_pickup_date', '');
+		set_query_var('mhmrentiva_return_date', '');
+
+		$this->assertSame(2, preg_match_all('/<[^>]*data-rvs-vd-priced[^>]*\shidden[\s>]/', $html), 'Card total and bar total are hidden.');
+		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
+
+		$ordered = $this->render();
+		$this->assertSame(2, preg_match_all('/data-rvs-vd-priced/', $ordered));
+		$this->assertSame(0, preg_match_all('/<[^>]*data-rvs-vd-priced[^>]*\shidden[\s>]/', $ordered));
+
+		$config = (string) wp_scripts()->get_data('mhm-rentiva-rvs-vehicle-js', 'data');
+		$this->assertStringContainsString('"min_days":"' . \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::min_rental_days() . '"', $config);
 	}
 
 	public function test_unavailable_window_disables_continue(): void
@@ -195,5 +220,28 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 
 		$this->assertMatchesRegularExpression('/data-rvs-vd-continue[^>]*aria-disabled="true"/', $html);
 		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
+	}
+
+	/**
+	 * Whether a registered style pulls $needle in, directly or further down.
+	 */
+	private static function style_needs(string $handle, string $needle): bool
+	{
+		$seen  = array();
+		$stack = array( $handle );
+		while (array() !== $stack) {
+			$current = (string) array_pop($stack);
+			if (isset($seen[ $current ])) {
+				continue;
+			}
+			$seen[ $current ] = true;
+			foreach ( (array) ( wp_styles()->registered[ $current ]->deps ?? array() ) as $dep) {
+				if ($needle === $dep) {
+					return true;
+				}
+				$stack[] = (string) $dep;
+			}
+		}
+		return false;
 	}
 }

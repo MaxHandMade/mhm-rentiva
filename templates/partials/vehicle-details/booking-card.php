@@ -31,6 +31,7 @@ $mhmrentiva_price   = ! empty($show_price);
 $mhmrentiva_label   = trim( (string) ( ( $atts ?? array() )['booking_btn_text'] ?? '' ));
 $mhmrentiva_label   = '' !== $mhmrentiva_label ? $mhmrentiva_label : __('Continue', 'mhm-rentiva');
 $mhmrentiva_ok      = ! empty($mhmrentiva_booking['available']);
+$mhmrentiva_priced  = ! empty($mhmrentiva_booking['priced']); // Wrong-order dates: the message alone, no total beside it (PR S D5).
 $mhmrentiva_html    = PriceDisplay::allowed_html();
 $mhmrentiva_days    = (int) $mhmrentiva_booking['days'];
 /* translators: %s: number of rental days. */
@@ -54,7 +55,7 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 <aside class="rvs-vd__booking" aria-label="<?php esc_attr_e('Booking', 'mhm-rentiva'); ?>">
 	<div class="rvs-vd__card">
 		<?php if ($mhmrentiva_price) : ?>
-			<div class="rvs-vd__total">
+			<div class="rvs-vd__total" data-rvs-vd-priced<?php echo $mhmrentiva_priced ? '' : ' hidden'; ?>>
 				<span class="rvs-vd__total-amount" data-rvs-vd-total><?php echo wp_kses( (string) $mhmrentiva_booking['breakdown']['total']['html'], $mhmrentiva_html); ?></span>
 				<span class="rvs-vd__total-days" data-rvs-vd-days><?php echo esc_html($mhmrentiva_days_label); ?></span>
 			</div>
@@ -118,7 +119,7 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 
 	<div class="rvs-vd__bar" role="region" aria-label="<?php esc_attr_e('Booking summary', 'mhm-rentiva'); ?>">
 		<?php if ($mhmrentiva_price) : ?>
-			<button type="button" class="rvs-vd__bar-total" data-rvs-vd-breakdown-open>
+			<button type="button" class="rvs-vd__bar-total" data-rvs-vd-breakdown-open data-rvs-vd-priced<?php echo $mhmrentiva_priced ? '' : ' hidden'; ?>>
 				<strong data-rvs-vd-total><?php echo wp_kses( (string) $mhmrentiva_booking['breakdown']['total']['html'], $mhmrentiva_html); ?></strong>
 				<span>
 					<span data-rvs-vd-days><?php echo esc_html($mhmrentiva_days_label); ?></span> · <?php esc_html_e('breakdown', 'mhm-rentiva'); ?>
