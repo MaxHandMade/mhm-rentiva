@@ -25,6 +25,7 @@ use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\AccountPaymentSummary;
 use MHMRentiva\Admin\Frontend\Account\BookingTimeline;
 use MHMRentiva\Admin\Frontend\Account\CancellationView;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
@@ -69,17 +70,23 @@ $minor_html = static fn(int $minor): string => BookingTimeline::recorded_html($m
 $breakdown  = RvsBreakdown::from_booking($booking_id);
 
 // The payment line under the title (Metin tablosu).
+// The card on the dashboard reads the same AccountPaymentSummary.
 $payment_line = null;
-if ($payment_state->refunded() > 0) {
-	/* translators: %s: refunded amount. */
-	$payment_line = sprintf(__('%s refunded', 'mhm-rentiva'), wp_strip_all_tags($minor_html($payment_state->refunded())));
-} elseif ($money_received) {
-	$payment_line = $remaining_amount > 0
+switch (AccountPaymentSummary::for_booking($booking_id, $booking_status)['kind']) {
+	case AccountPaymentSummary::REFUNDED:
+		/* translators: %s: refunded amount. */
+		$payment_line = sprintf(__('%s refunded', 'mhm-rentiva'), wp_strip_all_tags($minor_html($payment_state->refunded())));
+		break;
+	case AccountPaymentSummary::DEPOSIT:
 		/* translators: %s: amount due at pickup. */
-		? sprintf(__('Deposit paid, %s due at pickup', 'mhm-rentiva'), $money_text($remaining_amount))
-		: __('Paid in full', 'mhm-rentiva');
-} elseif (! in_array($booking_status, array( Status::CANCELLED, Status::REFUNDED ), true)) {
-	$payment_line = __('Awaiting payment', 'mhm-rentiva');
+		$payment_line = sprintf(__('Deposit paid, %s due at pickup', 'mhm-rentiva'), $money_text($remaining_amount));
+		break;
+	case AccountPaymentSummary::PAID:
+		$payment_line = __('Paid in full', 'mhm-rentiva');
+		break;
+	case AccountPaymentSummary::AWAITING:
+		$payment_line = __('Awaiting payment', 'mhm-rentiva');
+		break;
 }
 
 // "Paid" and "Refunded" rows under the breakdown; the deposit row already

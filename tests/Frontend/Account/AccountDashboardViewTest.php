@@ -189,6 +189,39 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 		$this->assertNull($card['payment']['note']);
 	}
 
+	public function test_pending_payment_with_paid_order_says_deposit_paid_like_the_detail(): void
+	{
+		$this->require_woocommerce();
+
+		$id = $this->booking('pending_payment', 3 * DAY_IN_SECONDS);
+		$this->create_paid_order_for_booking($id, '292');
+
+		$card = AccountDashboardView::next_card($id);
+		$this->assertSame('Due at pickup', $card['payment']['label']);
+		$this->assertStringContainsString('2,623', (string) $card['payment']['amount_html']);
+		$this->assertSame('Deposit paid', $card['payment']['note']);
+
+		// The detail page's payment line reads the same summary.
+		$this->assertSame('deposit', \MHMRentiva\Admin\Frontend\Account\AccountPaymentSummary::for_booking($id, 'pending_payment')['kind']);
+		$detail = \MHMRentiva\Admin\Core\Utilities\Templates::render('account/booking-detail', \MHMRentiva\Admin\Frontend\Account\AccountRenderer::get_booking_detail_data($id), true);
+		$this->assertStringContainsString('Deposit paid, ', $detail);
+		$this->assertStringNotContainsString('Awaiting payment', $detail);
+	}
+
+	public function test_in_progress_without_a_return_date_omits_the_return_part(): void
+	{
+		$now = time();
+
+		$this->assertSame(
+			'Your rental is in progress.',
+			AccountDashboardView::subline(array( 'status' => 'in_progress', 'pickup_ts' => $now - 3600, 'return_text' => '' ), $now)
+		);
+		$this->assertSame(
+			'Your rental is in progress.',
+			AccountDashboardView::subline(array( 'status' => 'in_progress', 'pickup_ts' => $now - 3600 ), $now)
+		);
+	}
+
 	public function test_free_cancel_line_only_when_cancellable(): void
 	{
 		$open = $this->booking('confirmed', 5 * DAY_IN_SECONDS);
@@ -211,7 +244,7 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 
 	public function test_dashboard_renders_greeting_card_and_back_compat_data(): void
 	{
-		$id = $this->booking('confirmed', 4 * DAY_IN_SECONDS);
+		$this->booking('confirmed', 4 * DAY_IN_SECONDS);
 
 		$data = AccountRenderer::get_dashboard_data(array())['data'];
 		$this->assertNotNull($data['next_rental']);
@@ -222,6 +255,5 @@ final class AccountDashboardViewTest extends WP_UnitTestCase
 		$this->assertStringContainsString('data-testid="account-next-rental"', $html);
 		$this->assertStringContainsString('View all', $html);
 		$this->assertStringNotContainsString('id="delete-account"', $html, 'No privacy add-on: no dead buttons.');
-		$this->assertGreaterThan(0, $id);
 	}
 }

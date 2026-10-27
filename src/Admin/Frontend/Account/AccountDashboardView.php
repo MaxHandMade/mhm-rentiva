@@ -8,7 +8,6 @@ use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsStatus;
-use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 
 if (! defined('ABSPATH')) {
@@ -69,8 +68,12 @@ final class AccountDashboardView {
 		}
 
 		if (Status::IN_PROGRESS === $next['status']) {
+			if ('' === (string) ( $next['return_text'] ?? '' )) {
+				return __('Your rental is in progress.', 'mhm-rentiva');
+			}
+
 			/* translators: %s: return date and time. */
-			return sprintf(__('Your rental is in progress. Return: %s', 'mhm-rentiva'), (string) ( $next['return_text'] ?? '' ));
+			return sprintf(__('Your rental is in progress. Return: %s', 'mhm-rentiva'), (string) $next['return_text']);
 		}
 
 		$days = self::days_between($now_ts, (int) $next['pickup_ts']);
@@ -222,33 +225,36 @@ final class AccountDashboardView {
 	 */
 	private static function payment(int $booking_id, string $status): array
 	{
-		$state          = PaymentState::forBooking($booking_id);
-		$money_received = $state->paid() > 0 || array() !== $state->orders();
-		$remaining      = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
+		$summary = AccountPaymentSummary::for_booking($booking_id, $status);
 
-		if (! $money_received || Status::PENDING_PAYMENT === $status) {
-			return array(
-				'label'       => __('Awaiting payment', 'mhm-rentiva'),
-				'amount_html' => null,
-				'note'        => null,
-			);
-		}
-
-		if ($remaining > 0) {
-			return array(
-				'label'       => __('Due at pickup', 'mhm-rentiva'),
-				'amount_html' => PriceDisplay::for_cart($remaining)['html'],
-				'note'        => __('Deposit paid', 'mhm-rentiva'),
-			);
+		switch ($summary['kind']) {
+			case AccountPaymentSummary::REFUNDED:
+				return array(
+					/* translators: %s: refunded amount. */
+					'label'       => sprintf(__('%s refunded', 'mhm-rentiva'), wp_strip_all_tags(BookingTimeline::recorded_html($summary['refunded_minor'], $summary['currency']))),
+					'amount_html' => null,
+					'note'        => null,
+				);
+			case AccountPaymentSummary::DEPOSIT:
+				return array(
+					'label'       => __('Due at pickup', 'mhm-rentiva'),
+					'amount_html' => PriceDisplay::for_cart($summary['remaining'])['html'],
+					'note'        => __('Deposit paid', 'mhm-rentiva'),
+				);
+			case AccountPaymentSummary::PAID:
+				return array(
+					'label'       => __('Paid in full', 'mhm-rentiva'),
+					'amount_html' => null,
+					'note'        => null,
+				);
 		}
 
 		return array(
-			'label'       => __('Paid in full', 'mhm-rentiva'),
+			'label'       => __('Awaiting payment', 'mhm-rentiva'),
 			'amount_html' => null,
 			'note'        => null,
 		);
 	}
-
 	/**
 	 * Whole calendar days (site timezone) from $now_ts to $then_ts; 0 or less
 	 * means today or earlier.
