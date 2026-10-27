@@ -216,6 +216,30 @@
             }
             $value.val(date ? toIso(date) : '');
             $input.val(date ? display(date) : '');
+        },
+
+        /**
+         * The one return-date rule of every customer date pair (search strip,
+         * vehicle card): the return is at least pickup + minDays (the minimum
+         * rental, default 1). The return picker offers nothing earlier, and a
+         * return before it moves up to it. No pickup: nothing changes; an
+         * empty return stays empty (dates may be optional). No change event.
+         */
+        constrainReturn: function (pickup, ret, minDays) {
+            var api = window.mhmRentivaDatepicker;
+            var from = parseIso(api.value(pickup));
+            if (!from) {
+                return;
+            }
+            var earliest = new Date(from.getFullYear(), from.getMonth(), from.getDate() + (parseInt(minDays, 10) || 1));
+            var $return = $(ret).first();
+            if ($.fn.datepicker && $return.hasClass('hasDatepicker')) {
+                $return.datepicker('option', 'minDate', earliest);
+            }
+            var current = parseIso(api.value($return));
+            if (current && current < earliest) {
+                api.setValue($return, toIso(earliest));
+            }
         }
     };
 

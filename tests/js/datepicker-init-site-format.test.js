@@ -196,3 +196,74 @@ describe( 'shared datepicker init: a pair the server rendered', () => {
 		expect( hidden().value ).toBe( '2026-12-10' );
 	} );
 } );
+
+/**
+ * PR S Task 9 fix round (I2): the one return-date rule the search strip and the
+ * vehicle card share -- the return is at least pickup + the minimum rental.
+ */
+describe( 'shared datepicker API: constrainReturn', () => {
+	let jQuery;
+	let calls;
+
+	const boot = async ( pickup, ret ) => {
+		jest.resetModules();
+		document.body.innerHTML = `
+			<form>
+				<input id="p" class="js-datepicker" name="pickup_date" value="${ pickup }">
+				<input id="r" class="js-datepicker" name="return_date" value="${ ret }">
+			</form>`;
+		jQuery = require( 'jquery' );
+		global.jQuery = jQuery;
+		window.jQuery = jQuery;
+		calls = install( jQuery );
+		window.mhmDatepickerL10n = { dateFormat: 'dd/mm/yy', altFormat: 'yy-mm-dd', monthNames: MONTHS };
+		require( '../../assets/js/core/datepicker-init.js' );
+		await new Promise( ( resolve ) => jQuery( resolve ) );
+	};
+
+	const api = () => window.mhmRentivaDatepicker;
+	const p = () => document.getElementById( 'p' );
+	const r = () => document.getElementById( 'r' );
+
+	afterEach( () => {
+		delete global.jQuery;
+		delete window.mhmDatepickerL10n;
+		delete window.mhmRentivaDatepicker;
+	} );
+
+	test( 'a return before pickup + minimum moves up to it, and the picker learns the minimum', async () => {
+		await boot( '2027-07-20', '2027-07-15' );
+		api().constrainReturn( p(), r(), 2 );
+
+		expect( api().value( r() ) ).toBe( '2027-07-22' );
+		expect( r().value ).toBe( '22/07/2027' );
+		const min = calls.filter( ( c ) => c.el === r() && c.args[ 0 ] === 'option' && c.args[ 1 ] === 'minDate' ).pop();
+		expect( min.args[ 2 ] ).toEqual( new Date( 2027, 6, 22 ) );
+	} );
+
+	test( 'a later return is kept; a month end rolls over', async () => {
+		await boot( '2027-07-31', '2027-08-05' );
+		api().constrainReturn( p(), r(), 1 );
+		expect( api().value( r() ) ).toBe( '2027-08-05' );
+
+		api().setValue( r(), '2027-07-30' );
+		api().constrainReturn( p(), r(), 1 );
+		expect( api().value( r() ) ).toBe( '2027-08-01' );
+	} );
+
+	test( 'no pickup: nothing moves; no minimum given: one day', async () => {
+		await boot( '', '2027-07-15' );
+		api().constrainReturn( p(), r(), 2 );
+		expect( api().value( r() ) ).toBe( '2027-07-15' );
+
+		api().setValue( p(), '2027-07-15' );
+		api().constrainReturn( p(), r() );
+		expect( api().value( r() ) ).toBe( '2027-07-16' );
+	} );
+
+	test( 'an empty return stays empty (dates may be optional)', async () => {
+		await boot( '2027-07-20', '' );
+		api().constrainReturn( p(), r(), 1 );
+		expect( api().value( r() ) ).toBe( '' );
+	} );
+} );

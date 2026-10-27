@@ -32,6 +32,8 @@ describe( 'rvs search strip', () => {
 		window.jQuery = jQuery;
 		window.mhmUnifiedSearch = { settings: { minRentalDays: min } };
 		require( '../../assets/js/frontend/unified-search.js' );
+		// The return rule is the shared datepicker API's (no widget here: plain fields).
+		require( '../../assets/js/core/datepicker-init.js' );
 		await new Promise( ( resolve ) => jQuery( resolve ) );
 	};
 
@@ -44,6 +46,7 @@ describe( 'rvs search strip', () => {
 	afterEach( () => {
 		delete global.jQuery;
 		delete window.mhmUnifiedSearch;
+		delete window.mhmRentivaDatepicker;
 	} );
 
 	test( 'a later pickup moves the return up to the minimum rental', async () => {

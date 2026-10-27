@@ -140,45 +140,19 @@
 		}
 	}
 
-	function dateOf( $field ) {
-		const api = window.mhmRentivaDatepicker;
-		return api ? api.value( $field ) : String( $field.val() || '' );
-	}
-
-	function parseIso( value ) {
-		const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec( value || '' );
-		return m ? new Date( +m[ 1 ], +m[ 2 ] - 1, +m[ 3 ] ) : null;
-	}
-
-	function toIso( date ) {
-		const pad = ( n ) => String( n ).padStart( 2, '0' );
-		return date.getFullYear() + '-' + pad( date.getMonth() + 1 ) + '-' + pad( date.getDate() );
-	}
-
 	/**
-	 * The earliest return for the card's pickup (pickup + the minimum rental,
-	 * Settings > Booking): the return datepicker offers nothing before it, and a
-	 * return before it moves up to it -- the search strip's rule
-	 * (unified-search.js), so a pickup past the return never leaves the card
-	 * quoting dates in the wrong order.
+	 * The return is at least pickup + the minimum rental (Settings > Booking):
+	 * the search strip's rule, shared (window.mhmRentivaDatepicker.constrainReturn),
+	 * so a pickup past the return never leaves the card quoting dates in the
+	 * wrong order.
 	 */
 	function constrainReturn( $root ) {
-		const $form = $root.find( '[data-rvs-vd-window]' );
-		const pickup = parseIso( dateOf( $form.find( '[data-rvs-pickup-date]' ) ) );
-		if ( ! pickup ) {
+		const api = window.mhmRentivaDatepicker;
+		if ( ! api || ! api.constrainReturn ) {
 			return;
 		}
-		const earliest = new Date( pickup.getTime() );
-		earliest.setDate( earliest.getDate() + ( parseInt( config().min_days, 10 ) || 1 ) );
-
-		const $return = $form.find( '[data-rvs-return-date]' );
-		if ( $.fn.datepicker && $return.hasClass( 'hasDatepicker' ) ) {
-			$return.datepicker( 'option', 'minDate', earliest );
-		}
-		const current = parseIso( dateOf( $return ) );
-		if ( current && current < earliest ) {
-			setDate( $return, toIso( earliest ) );
-		}
+		const $form = $root.find( '[data-rvs-vd-window]' );
+		api.constrainReturn( $form.find( '[data-rvs-pickup-date]' ), $form.find( '[data-rvs-return-date]' ), config().min_days );
 	}
 
 	// Until a quote for the visible window arrives (or after one fails), the
