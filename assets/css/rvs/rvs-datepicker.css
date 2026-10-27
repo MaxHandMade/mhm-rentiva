@@ -105,9 +105,11 @@
 	transform: rotate(-45deg);
 }
 
+/* No frame of the theme's table rules (Astra draws a top and a left border). */
 .rvs-shell.rvs-dp .ui-datepicker-calendar {
 	width: 100%;
 	margin: 0;
+	border: 0;
 	border-collapse: collapse;
 }
 

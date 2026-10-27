@@ -80,6 +80,9 @@ describe( 'datepicker skins', () => {
 		// No rule styles one of the two buttons apart.
 		expect( css ).not.toMatch( /ui-datepicker-(current|close)\b/ );
 
+		// The theme's table frame does not reach the calendar grid.
+		expect( decl( rule( css, '.rvs-shell.rvs-dp .ui-datepicker-calendar' ), 'border' ) ).toBe( '0' );
+
 		expect( decl( hover, 'transform' ) ).toBe( 'none' );
 		expect( decl( hover, 'border-color' ) ).toBe( 'var(--rvs-line)' );
 	} );
