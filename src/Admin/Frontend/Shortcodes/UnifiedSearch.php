@@ -13,6 +13,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
+use MHMRentiva\Admin\Core\LocationContext;
 
 
 
@@ -78,8 +79,10 @@ final class UnifiedSearch extends AbstractShortcode {
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
-		// Locations are requested for the rental search form.
-		$locations = apply_filters('mhmrentiva_search_locations', array(), 'rental');
+		// One source for every customer surface (PR S): 0 rental locations = no
+		// location UI, 1 = an info line instead of a select, 2+ = the select.
+		$locations = LocationContext::rental_locations();
+		$single    = LocationContext::single();
 
 		$layout = ! empty($atts['search_layout']) ? (string) $atts['search_layout'] : 'horizontal';
 
@@ -91,11 +94,12 @@ final class UnifiedSearch extends AbstractShortcode {
 			'nonce'                 => wp_create_nonce('mhmrentiva_unified_search'),
 
 			// Visibility controls
-			// Never show a location select with nothing to select: the setting
-			// defaults to true, so without this the Lite rental form would render an
-			// empty (and, when location_required, unsubmittable) picker.
-			'show_location_select'  => $locations !== array()
+			// Never show a location select with nothing to choose: with no rental
+			// location (Lite alone) or a single one the select is off whatever the
+			// attribute says; the single one is named in an info line instead.
+			'show_location_select'  => count($locations) > 1
 				&& self::resolve_bool($atts['show_location_select'], 'mhmrentiva_enable_location_select', true),
+			'pickup_where'          => null !== $single ? $single->name : '',
 			'show_time_select'      => self::resolve_bool($atts['show_time_select'], 'mhmrentiva_enable_time_select', true),
 			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhmrentiva_enable_date_picker', true),
 			// Off unless a page asks for it: no booking, price or record reads a
@@ -125,14 +129,28 @@ final class UnifiedSearch extends AbstractShortcode {
 			return 1 === preg_match($pattern, $value) ? $value : '';
 		};
 
+		// A date submitted without JavaScript is in the site's date format
+		// (the visible field carries the name until the script runs).
+		$date = static function (string $key): string {
+			$value = get_query_var(SearchResults::query_var($key), '');
+			return is_scalar($value) ? DatepickerAssets::parse_date(sanitize_text_field(wp_unslash( (string) $value))) : '';
+		};
+
 		$values = array(
-			'pickup_date'     => $read('pickup_date', '/^\d{4}-\d{2}-\d{2}$/'),
-			'return_date'     => $read('return_date', '/^\d{4}-\d{2}-\d{2}$/'),
+			'pickup_date'     => $date('pickup_date'),
+			'return_date'     => $date('return_date'),
 			'pickup_time'     => $read('pickup_time', '/^([01]\d|2[0-3]):(00|30)$/'),
 			'pickup_location' => $read('pickup_location', '/^\d+$/'),
 		);
 		if ('' === $values['pickup_time']) {
 			$values['pickup_time'] = '10:00';
+		}
+		// A requested location counts only when there is a choice and it is a
+		// rental location (0 or 1 location: ignored).
+		if ('' !== $values['pickup_location']) {
+			$values['pickup_location'] = array() !== LocationContext::effective_selected(array( $values['pickup_location'] ))
+				? $values['pickup_location']
+				: '';
 		}
 
 		if ($default_dates && '' === $values['pickup_date'] && '' === $values['return_date']) {

@@ -100,12 +100,6 @@ parameters:
 			path: src/Admin/Booking/Helpers/CancellationHandler.php
 
 		-
-			message: '#^Parameter \#2 \$gmt of function current_time expects bool, int given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Admin/Booking/Helpers/Util.php
-
-		-
 			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
 			identifier: greater.alwaysTrue
 			count: 1
@@ -228,7 +222,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 38
+			count: 39
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -462,12 +456,6 @@ parameters:
 		-
 			message: '#^Method MHMRentiva\\Admin\\Frontend\\Shortcodes\\BookingForm\:\:get_active_payment_gateway\(\) has invalid return type MHMRentiva\\Admin\\Frontend\\Shortcodes\\PaymentGatewayInterface\.$#'
 			identifier: class.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/BookingForm.php
-
-		-
-			message: '#^Offset ''pickup_location_name'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 

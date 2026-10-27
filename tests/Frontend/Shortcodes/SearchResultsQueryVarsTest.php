@@ -211,6 +211,16 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
      */
     public function test_search_params_from_url_reflect_the_registered_query_vars(): void
     {
+        // A pickup location counts only on a site with a choice of two or more
+        // rental locations (PR S); give it one.
+        $locations = static function ($rows, $type) {
+            return 'rental' === $type ? array(
+                (object) array( 'id' => 4, 'name' => 'Zz Four', 'city' => 'Zz' ),
+                (object) array( 'id' => 5, 'name' => 'Zz Five', 'city' => 'Zz' ),
+            ) : $rows;
+        };
+        add_filter('mhmrentiva_locations', $locations, 10, 2);
+        \MHMRentiva\Admin\Core\LocationContext::flush();
         $this->go_to(
             '/?mhmrentiva_min_price=300&mhmrentiva_max_price=900&mhmrentiva_fuel_type=diesel'
             . '&mhmrentiva_year_min=2018&mhmrentiva_pickup_location%5B%5D=4'
@@ -225,6 +235,34 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         $this->assertSame('diesel', $params['fuel_type']);
         $this->assertSame(2018, $params['year_min']);
         $this->assertSame(array(4), $params['pickup_location']);
+
+        remove_filter('mhmrentiva_locations', $locations, 10);
+        \MHMRentiva\Admin\Core\LocationContext::flush();
+    }
+
+    /**
+     * The search strip submits its dates in the site format when JavaScript
+     * did not run (the visible fields carry the names); the search reads them
+     * as Y-m-d, the legacy start/end keys included.
+     */
+    public function test_search_params_read_dates_in_the_site_format(): void
+    {
+        $saved = get_option('date_format');
+        update_option('date_format', 'd/m/Y');
+        try {
+            $this->go_to('/?mhmrentiva_pickup_date=12%2F07%2F2027&mhmrentiva_return_date=2027-07-15');
+
+            $method = new \ReflectionMethod(SearchResults::class, 'get_search_params_from_url');
+            $method->setAccessible(true);
+            $params = $method->invoke(null);
+        } finally {
+            update_option('date_format', $saved);
+        }
+
+        $this->assertSame('2027-07-12', $params['pickup_date']);
+        $this->assertSame('2027-07-15', $params['return_date']);
+        $this->assertSame('2027-07-12', $params['start_date']);
+        $this->assertSame('2027-07-15', $params['end_date']);
     }
 
     /**

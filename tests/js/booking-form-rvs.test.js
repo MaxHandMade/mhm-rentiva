@@ -469,8 +469,29 @@ describe( 'booking form on the rvs markup', () => {
 
 		form.calculatePrice();
 
-		expect( posted( lastCall() ).get( 'pickup_location_id' ) ).toBe( '4' );
+		// PR S: the server takes the point from the car; the quote posts none.
+		expect( posted( lastCall() ).get( 'pickup_location_id' ) ).toBeNull();
 		expect( form.container.find( '[data-rvs-change]' ).attr( 'href' ) ).toBe( '/clio/?mhmrentiva_pickup_date=2030-05-10&mhmrentiva_return_date=2030-05-13' );
+	} );
+
+	test( 'Case B: the quote answer names the pickup point of the chosen car', () => {
+		const html = markup( 'rvs-bf-1' ).replace(
+			'<p class="rvs-booking__dates" data-rvs-summary-dates></p>',
+			'<p class="rvs-booking__where" data-rvs-summary-location hidden><span>Pickup and return: <strong data-rvs-summary-where></strong></span></p><p class="rvs-booking__dates" data-rvs-summary-dates></p>'
+		);
+		const form = mount( html );
+		form.autoCheckAvailability = jest.fn();
+		const $line = form.container.find( '[data-rvs-summary-location]' );
+
+		$.ajax = jest.fn( ( options ) => options.success( quoteAnswer( { location_name: '<b>Zz Airport</b>' } ) ) );
+		form.calculatePrice();
+		expect( $line.prop( 'hidden' ) ).toBe( false );
+		expect( $line.find( '[data-rvs-summary-where]' ).text() ).toBe( '<b>Zz Airport</b>' );
+		expect( $line.find( 'b' ) ).toHaveLength( 0 );
+
+		$.ajax = jest.fn( ( options ) => options.success( quoteAnswer( { location_name: '' } ) ) );
+		form.calculatePrice();
+		expect( $line.prop( 'hidden' ) ).toBe( true );
 	} );
 
 	test( 'an older quote answer never overwrites a newer one', () => {
@@ -549,7 +570,7 @@ describe( 'booking form on the rvs markup', () => {
 		expect( form.container.find( '[data-rvs-submit]' ).prop( 'disabled' ) ).toBe( true );
 	} );
 
-	test( 'datepicker popup carries the rvs shell only while the booking field is open', () => {
+	test( 'datepicker popup wears the rvs shell for the booking field until another field opens it', () => {
 		// A stand-in for jQuery UI's single, shared popup (#ui-datepicker-div):
 		// each input keeps its own options; 'widget' returns the shared div.
 		document.body.insertAdjacentHTML( 'beforeend', '<div id="ui-datepicker-div"></div><input class="js-datepicker" id="search-date">' );
@@ -581,9 +602,12 @@ describe( 'booking form on the rvs markup', () => {
 		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( true );
 		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( true );
 
+		// The popup fades out in the look it opened with: closing keeps the
+		// skin (taking it off at fade start let
+		// datepicker-custom.css paint the closing popup).
 		booking.close();
-		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( false );
-		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( false );
+		expect( $widget.hasClass( 'rvs-shell' ) ).toBe( true );
+		expect( $widget.hasClass( 'rvs-dp' ) ).toBe( true );
 
 		// datepicker-init.js binds the search field on focus, with its own options.
 		const search = document.getElementById( 'search-date' );
@@ -596,8 +620,10 @@ describe( 'booking form on the rvs markup', () => {
 
 	test( 'datepicker popup sits above the phone summary band', () => {
 		const css = fs.readFileSync( path.join( __dirname, '../../assets/css/frontend/rvs-booking.css' ), 'utf8' );
+		// The popup skin is shared (rvs-datepicker.css, PR S).
+		const skin = fs.readFileSync( path.join( __dirname, '../../assets/css/rvs/rvs-datepicker.css' ), 'utf8' );
 		const band = /\.rvs-booking__aside\s*\{[^}]*position:\s*fixed;[^}]*z-index:\s*(\d+)/.exec( css );
-		const popup = /\.rvs-shell\.rvs-dp\s*\{[^}]*z-index:\s*(\d+)\s*!important/.exec( css );
+		const popup = /\.rvs-shell\.rvs-dp\s*\{[^}]*z-index:\s*(\d+)\s*!important/.exec( skin );
 
 		expect( band ).not.toBeNull();
 		expect( popup ).not.toBeNull();

@@ -37,24 +37,18 @@ final class BookingUrl {
 	}
 
 	/**
-	 * Booking link for one vehicle, carrying the prefixed wire names the
-	 * booking form reads.
+	 * Booking link for one vehicle, carrying the prefixed wire name the
+	 * booking form reads. No pickup location: the form takes it from the car.
 	 */
 	public static function for_vehicle( int $vehicle_id ): string
 	{
-		$params = array( AbstractShortcode::query_var('vehicle_id') => $vehicle_id );
-
-		$location_id = self::location_for($vehicle_id);
-		if ($location_id > 0) {
-			$params[ AbstractShortcode::query_var('pickup_location') ] = $location_id;
-		}
-
-		return (string) add_query_arg($params, self::base_url());
+		return (string) add_query_arg(array( AbstractShortcode::query_var('vehicle_id') => $vehicle_id ), self::base_url());
 	}
 
 	/**
 	 * The vehicle's pickup location: vehicle -> vendor -> global default (same
-	 * hierarchy as QueryHelper), 0 when none.
+	 * hierarchy as QueryHelper), 0 when none. LocationContext::for_vehicle()
+	 * reads it.
 	 */
 	public static function location_for( int $vehicle_id ): int
 	{

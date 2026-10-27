@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
@@ -253,6 +254,31 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertSame('2027-07-12', $booking['window']['return_date']);
 		$this->assertFalse($booking['available']);
 		$this->assertNotSame('', $booking['message']);
+		// No total for dates in the wrong order -- only the message.
+		$this->assertFalse($booking['priced'], 'A return before pickup is not priced.');
+	}
+
+	public function test_a_window_in_order_is_priced(): void
+	{
+		$this->assertTrue($this->view()['booking']['priced']);
+	}
+
+	/**
+	 * The card's fields carry their names in the site format until the
+	 * script runs: a window in that format reads as the same days.
+	 */
+	public function test_window_reads_dates_in_the_site_format(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		try {
+			$window = VehicleDetailsView::window(array( 'pickup_date' => '12/07/2027', 'pickup_time' => '10:00', 'return_date' => '15/07/2027' ));
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		$this->assertSame('2027-07-12', $window['pickup_date']);
+		$this->assertSame('2027-07-15', $window['return_date']);
 	}
 
 	public function test_time_outside_the_half_hour_options_falls_back(): void
@@ -276,6 +302,26 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 		$this->assertStringContainsString('30', $booking['message']);
 	}
 
+	/**
+	 * The last bookable day is today plus N calendar days in the site's
+	 * timezone -- the same helper "Earliest free" uses for its horizon.
+	 */
+	public function test_advance_limit_is_n_calendar_days_from_today(): void
+	{
+		$settings                                            = get_option('mhmrentiva_settings');
+		$settings['mhmrentiva_vehicle_advance_booking_days'] = 30;
+		update_option('mhmrentiva_settings', $settings);
+		$last  = SiteTime::days_ahead(30);
+		$after = SiteTime::days_ahead(31);
+
+		$on_last = $this->view(array( 'pickup_date' => $last, 'pickup_time' => '10:00', 'return_date' => SiteTime::days_ahead(33) ))['booking'];
+		$beyond  = $this->view(array( 'pickup_date' => $after, 'pickup_time' => '10:00', 'return_date' => SiteTime::days_ahead(34) ))['booking'];
+
+		$this->assertStringNotContainsString('days ahead', (string) $on_last['message']);
+		$this->assertFalse($beyond['available']);
+		$this->assertStringContainsString('30 days ahead', $beyond['message']);
+	}
+
 	public function test_past_pickup_is_not_bookable(): void
 	{
 		$pickup  = gmdate('Y-m-d', strtotime('-3 days'));
@@ -287,6 +333,7 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 
 	public function test_continue_url_falls_back_to_vendor_then_global_location(): void
 	{
+		$this->locations(array( 7 => 'Zz Vendor Point', 9 => 'Zz Default Point' ));
 		$vendor = (int) self::factory()->user->create();
 		wp_update_post(array( 'ID' => $this->vehicle_id, 'post_author' => $vendor ));
 		update_user_meta($vendor, MetaKeys::VENDOR_LOCATION_ID, '7');
@@ -308,7 +355,123 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 	public function test_dealer_line_empty_without_pro_data(): void
 	{
 		$this->assertSame('', $this->view()['dealer_line']);
-		$this->assertSame(array(), $this->view()['booking']['locations']);
+		$this->assertArrayNotHasKey('locations', $this->view()['booking']);
+	}
+
+	/**
+	 * Rental locations: id => name, all in "Zz City".
+	 *
+	 * @param array<int, string> $names
+	 */
+	private function locations(array $names): void
+	{
+		add_filter(
+			'mhmrentiva_locations',
+			static function () use ($names): array {
+				$out = array();
+				foreach ($names as $id => $name) {
+					$out[] = (object) array(
+						'id'   => $id,
+						'name' => $name,
+						'city' => 'Zz City',
+					);
+				}
+				return $out;
+			}
+		);
+	}
+
+	private function card(array $view): string
+	{
+		return (string) \MHMRentiva\Admin\Core\Utilities\Templates::render(
+			'partials/vehicle-details/booking-card',
+			array(
+				'view'       => $view,
+				'atts'       => array(),
+				'show_price' => true,
+			),
+			true
+		);
+	}
+
+	/**
+	 * PR S: the card names the car's own pickup point instead of a select of
+	 * every branch, and a location in the URL does not change it.
+	 */
+	public function test_vehicle_page_shows_its_own_pickup_point_not_a_select(): void
+	{
+		$this->locations(array( 3 => 'Zz Airport', 6 => 'Zz Center' ));
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');
+
+		$view = $this->view(array_merge(self::WINDOW, array( 'pickup_location' => '6' )));
+		$html = $this->card($view);
+
+		$this->assertSame('Zz Airport', $view['booking']['pickup_return']);
+		$this->assertArrayNotHasKey('locations', $view['booking']);
+		$this->assertArrayNotHasKey('pickup_location', $view['booking']['window'], 'The window carries no location: the car has one.');
+		$this->assertStringNotContainsString('name="pickup_location"', $html);
+		$this->assertStringNotContainsString('Zz Center', $html);
+		$this->assertMatchesRegularExpression('#data-rvs-vd-where[^>]*>.*Pickup and return: <strong>Zz Airport</strong>#s', $html);
+	}
+
+	/**
+	 * The page's continue link carries the car's point, not the URL's (the
+	 * quote endpoint's half is in VehicleDetailsRvsAjaxTest).
+	 */
+	public function test_continue_url_uses_the_cars_point_on_the_page(): void
+	{
+		$this->locations(array( 3 => 'Zz Airport', 6 => 'Zz Center' ));
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');
+
+		$url = $this->view(array_merge(self::WINDOW, array( 'pickup_location' => '6' )))['booking']['continue_url'];
+
+		parse_str( (string) wp_parse_url($url, PHP_URL_QUERY), $query);
+		$this->assertSame('3', $query['mhmrentiva_pickup_location'] ?? null);
+	}
+
+	/**
+	 * A car whose own point is not a rental location: no line and no point in
+	 * the link, rather than a branch the customer cannot pick up from.
+	 */
+	public function test_car_without_a_rental_point_has_no_line_on_a_multi_location_site(): void
+	{
+		$this->locations(array( 3 => 'Zz Airport', 6 => 'Zz Center' ));
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '44');
+
+		$view = $this->view(array_merge(self::WINDOW, array( 'pickup_location' => '6' )));
+
+		$this->assertSame('', $view['booking']['pickup_return']);
+		$this->assertStringNotContainsString('pickup_location', $view['booking']['continue_url']);
+		$this->assertStringNotContainsString('data-rvs-vd-where', $this->card($view));
+	}
+
+	/**
+	 * Single-location site: a car with no point of its own is picked up at
+	 * the one there is.
+	 */
+	public function test_single_location_site_names_the_one_point(): void
+	{
+		$this->locations(array( 5 => 'Zz Only' ));
+
+		$booking = $this->view()['booking'];
+
+		$this->assertSame('Zz Only', $booking['pickup_return']);
+		$this->assertStringContainsString('mhmrentiva_pickup_location=5', $booking['continue_url']);
+	}
+
+	/**
+	 * Lite alone (no rental location): no line, no error, and a stale
+	 * location meta or URL value does not travel.
+	 */
+	public function test_lite_alone_has_no_location_line(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_location_id', '3');
+
+		$view = $this->view(array_merge(self::WINDOW, array( 'pickup_location' => '6' )));
+
+		$this->assertSame('', $view['booking']['pickup_return']);
+		$this->assertStringNotContainsString('pickup_location', $view['booking']['continue_url']);
+		$this->assertStringNotContainsString('data-rvs-vd-where', $this->card($view));
 	}
 
 	public function test_reviews_distribution_percentages(): void

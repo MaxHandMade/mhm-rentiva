@@ -5,6 +5,10 @@
 
 /* ===== MHM RENTIVA MODERN DATEPICKER STYLES (Shared) ===== */
 
+/* Fields outside the front-end standard only: a popup wearing the rvs skin
+   (`.rvs-dp`, rvs-datepicker.css -- search strip, vehicle page, booking form)
+   is skipped by every look rule below. Only the show/hide rules apply to all. */
+
 /* CRITICAL FIX: Hide datepicker by default - jQuery UI will show it when triggered */
 .ui-datepicker {
     display: none !important;
@@ -17,7 +21,7 @@
 }
 
 /* Base datepicker styles */
-.ui-datepicker {
+.ui-datepicker:not(.rvs-dp) {
     background: var(--mhm-bg-card) !important;
     border: 2px solid var(--mhm-border-primary) !important;
     border-radius: 12px !important;
@@ -30,7 +34,7 @@
 }
 
 /* ===== DATEPICKER HEADER ===== */
-.ui-datepicker .ui-datepicker-header {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-header {
     background: var(--mhm-btn-bg) !important;
     color: var(--mhm-btn-color) !important;
     border: none !important;
@@ -48,7 +52,7 @@
 }
 
 /* Title */
-.ui-datepicker .ui-datepicker-title {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-title {
     font-weight: 700 !important;
     font-size: 17px !important;
     line-height: 1.5 !important;
@@ -66,8 +70,8 @@
 }
 
 /* Dropdowns in Title (Month/Year Selects) */
-.ui-datepicker .ui-datepicker-title select,
-.ui-datepicker .ui-datepicker-header select {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-title select,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-header select {
     font-size: 15px !important;
     font-weight: 600 !important;
     color: var(--mhm-text-primary) !important;
@@ -91,14 +95,14 @@
 }
 
 /* Specific fix for when Month/Year are simple text */
-.ui-datepicker .ui-datepicker-month,
-.ui-datepicker .ui-datepicker-year {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-month,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-year {
     color: inherit !important;
 }
 
 /* Navigation Arrows */
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next {
     position: absolute !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
@@ -116,26 +120,26 @@
     z-index: 10 !important;
 }
 
-.ui-datepicker .ui-datepicker-prev:hover,
-.ui-datepicker .ui-datepicker-next:hover {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev:hover,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next:hover {
     background: rgba(255, 255, 255, 0.4) !important;
     border-color: rgba(255, 255, 255, 0.6) !important;
     transform: translateY(-50%) scale(1.05) !important;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
 }
 
-.ui-datepicker .ui-datepicker-prev {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev {
     left: 16px !important;
     right: auto !important;
 }
 
-.ui-datepicker .ui-datepicker-next {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next {
     right: 16px !important;
     left: auto !important;
 }
 
 /* Icons for arrows */
-.ui-datepicker .ui-datepicker-prev::before {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev::before {
     content: '' !important;
     display: block !important;
     width: 8px !important;
@@ -147,7 +151,7 @@
     box-sizing: border-box !important;
 }
 
-.ui-datepicker .ui-datepicker-next::before {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next::before {
     content: '' !important;
     display: block !important;
     width: 8px !important;
@@ -160,25 +164,25 @@
 }
 
 /* Hide default text/icons and potential theme conflicts */
-.ui-datepicker .ui-datepicker-prev span,
-.ui-datepicker .ui-datepicker-next span {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev span,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next span {
     display: none !important;
 }
 
-.ui-datepicker .ui-datepicker-prev::after,
-.ui-datepicker .ui-datepicker-next::after {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev::after,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next::after {
     display: none !important;
     content: none !important;
 }
 
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-prev,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-next {
     text-decoration: none !important;
     font-family: inherit !important;
 }
 
 /* Calendar Table */
-.ui-datepicker-calendar {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar {
     width: 100% !important;
     border-collapse: separate !important;
     border-spacing: 4px !important;
@@ -186,7 +190,7 @@
     margin: 0 !important;
 }
 
-.ui-datepicker-calendar th {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar th {
     color: var(--mhm-text-secondary) !important;
     font-weight: 600 !important;
     font-size: 13px !important;
@@ -198,15 +202,15 @@
     background: transparent !important;
 }
 
-.ui-datepicker-calendar td {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar td {
     padding: 0 !important;
     text-align: center !important;
     border: none !important;
     background: transparent !important;
 }
 
-.ui-datepicker-calendar td a,
-.ui-datepicker-calendar td span {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar td a,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar td span {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -223,15 +227,15 @@
     transition: all 0.2s ease !important;
 }
 
-.ui-datepicker-calendar td a:hover {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar td a:hover {
     background-color: var(--mhm-bg-secondary) !important;
     color: var(--mhm-btn-bg) !important;
     transform: scale(1.1) !important;
     font-weight: 600 !important;
 }
 
-.ui-datepicker-calendar .ui-state-active,
-.ui-datepicker-calendar .ui-datepicker-current-day a {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar .ui-state-active,
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar .ui-datepicker-current-day a {
     background: var(--mhm-btn-bg) !important;
     color: var(--mhm-white) !important;
     font-weight: 700 !important;
@@ -241,13 +245,13 @@
     opacity: 1 !important;
 }
 
-.ui-datepicker-calendar .ui-state-highlight {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-calendar .ui-state-highlight {
     background-color: var(--mhm-bg-tertiary) !important;
     color: var(--mhm-text-primary) !important;
     border: 1px solid var(--mhm-border-primary) !important;
 }
 
-.ui-datepicker-today a.ui-state-highlight {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-today a.ui-state-highlight {
     font-weight: 700 !important;
     color: var(--mhm-btn-bg) !important;
     background-color: var(--mhm-bg-secondary) !important;
@@ -255,13 +259,13 @@
 }
 
 /* Button Pane */
-.ui-datepicker-buttonpane {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-buttonpane {
     border-top: 1px solid var(--mhm-border-primary) !important;
     padding: 12px !important;
     margin: 0 !important;
 }
 
-.ui-datepicker-buttonpane button {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-buttonpane button {
     background: var(--mhm-gray-500) !important;
     color: var(--mhm-white) !important;
     border: none !important;
@@ -275,19 +279,19 @@
     width: auto !important;
 }
 
-.ui-datepicker-buttonpane button:hover {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-buttonpane button:hover {
     filter: brightness(110%) !important;
     transform: translateY(-1px) !important;
 }
 
-.ui-datepicker-buttonpane button.ui-datepicker-current {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-buttonpane button.ui-datepicker-current {
     float: left !important;
     background: var(--mhm-bg-secondary) !important;
     color: var(--mhm-text-secondary) !important;
     border: 1px solid var(--mhm-border-primary) !important;
 }
 
-.ui-datepicker-buttonpane button.ui-datepicker-close {
+.ui-datepicker:not(.rvs-dp) .ui-datepicker-buttonpane button.ui-datepicker-close {
     float: right !important;
     background: var(--mhm-primary) !important;
     color: var(--mhm-white) !important;

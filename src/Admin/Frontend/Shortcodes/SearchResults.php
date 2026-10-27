@@ -20,6 +20,10 @@ use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use Exception;
 
 use MHMRentiva\Admin\Core\QueryHelper;
+use MHMRentiva\Admin\Core\LocationContext;
+use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
+use MHMRentiva\Admin\Booking\Helpers\NextFreeWindow;
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Frontend\RenderContext;
 
 
@@ -45,6 +49,11 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private const SEARCH_CONTEXT_KEY = 'mhmrentiva_search_context';
 
+	/**
+	 * Last token handed out by scoped_query().
+	 */
+	private static int $scope_seq = 0;
+
 
 	public const SHORTCODE = 'rentiva_search_results';
 
@@ -52,8 +61,27 @@ final class SearchResults extends AbstractShortcode {
 	 * The facet cache (get_filter_options()); Plugin deletes it when a vehicle
 	 * changes. _v3: categories joined the facets (Aşama 2 PR 3) -- one constant,
 	 * so the reader and the invalidation cannot name different keys again.
+	 * _v4: the rental locations left the cache (PR S); they are read fresh from
+	 * LocationContext, so the facet, the chips and the "single location" rule
+	 * cannot disagree for a day.
 	 */
-	public const FILTERS_CACHE_KEY = 'mhmrentiva_search_filters_v3';
+	public const FILTERS_CACHE_KEY = 'mhmrentiva_search_filters_v4';
+
+	/**
+	 * The most cars the "other pickup points in the same city" section shows.
+	 */
+	private const NEARBY_LIMIT = 6;
+
+	/**
+	 * The most cars the "booked for these dates" section shows.
+	 */
+	private const BOOKED_LIMIT = 3;
+
+	/**
+	 * Empty states that speak in the notice region (above the sections)
+	 * instead of the grid.
+	 */
+	public const NOTICE_STATES = array( 'none_here', 'none_yet' );
 
 	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
@@ -77,7 +105,7 @@ final class SearchResults extends AbstractShortcode {
 	 *
 	 * @var array<int, string>
 	 */
-	private const PUBLIC_QUERY_VARS = array(
+	public const PUBLIC_QUERY_VARS = array(
 		// No template or JS URL-builder emits this, but SearchResults::build_query()
 		// does read it (it becomes the WP_Query `s` parameter) and the results
 		// template prints "Results for: ...", so an externally-built
@@ -167,6 +195,19 @@ final class SearchResults extends AbstractShortcode {
 		return sanitize_text_field(wp_unslash( (string) $value));
 	}
 
+	/**
+	 * A submitted date field as Y-m-d. Without JavaScript the search strip
+	 * submits what its fields show, in the site's date format
+	 * (DatepickerAssets::parse_date()); anything that is not a date is passed
+	 * on as it came, for the window checks to reject as before.
+	 */
+	private static function submitted_date(string $value): string
+	{
+		$ymd = \MHMRentiva\Admin\Core\Assets\DatepickerAssets::parse_date($value);
+
+		return '' !== $ymd ? $ymd : $value;
+	}
+
 	private static function get_int(string $key, int $default = 0): int
 	{
 		return self::get_int_by_var(self::query_var($key), $default);
@@ -239,6 +280,36 @@ final class SearchResults extends AbstractShortcode {
 	protected static function register_hooks(): void
 	{
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
+		add_filter('request', array( self::class, 'route_front_page' ));
+	}
+
+	/**
+	 * `request` filter: a home request carrying nothing but Rentiva search vars
+	 * shows the static front page.
+	 *
+	 * "Change" / "Change dates" send the customer to the page holding the search
+	 * strip with the search in the query (change_url()). The search vars are
+	 * public query vars, and WP_Query shows `page_on_front` only for a home
+	 * request with no query vars -- so on a site whose strip lives on the front
+	 * page the customer got the blog index instead (PR S). Any other var
+	 * (s, page_id, a feed, a 404 ...) keeps WordPress's own routing.
+	 *
+	 * @param array<string, mixed> $query_vars Parsed query vars.
+	 * @return array<string, mixed>
+	 */
+	public static function route_front_page(array $query_vars): array
+	{
+		global $wp;
+		if (array() === $query_vars || 'page' !== get_option('show_on_front') || ! $wp instanceof \WP || '' !== (string) $wp->request) {
+			return $query_vars;
+		}
+		$front = (int) get_option('page_on_front');
+		if ($front <= 0 || array() !== array_diff(array_keys($query_vars), array_merge(self::PUBLIC_QUERY_VARS, BookingForm::PUBLIC_QUERY_VARS))) {
+			return $query_vars;
+		}
+		$query_vars['page_id'] = $front;
+
+		return $query_vars;
 	}
 
 	/**
@@ -307,7 +378,7 @@ final class SearchResults extends AbstractShortcode {
 		$results = self::perform_search($search_params, $atts);
 
 		// Prepare filter options
-		$filter_options = self::get_filter_options($search_params);
+		$filter_options = self::filter_options($search_params);
 
 		// Compact Handling: If layout is 'compact', force internal layout to 'grid' but flags 'is_compact'
 		$is_compact = $atts['layout'] === 'compact';
@@ -315,7 +386,10 @@ final class SearchResults extends AbstractShortcode {
 			$atts['layout'] = 'grid'; // Force grid structure for vehicle cards
 		}
 
-		$search_params['pickup_time'] = self::get_text('pickup_time');
+		$chips       = self::active_chips($search_params, $filter_options);
+		$empty_state = self::empty_state($search_params, (int) $results['total'], self::section_counts($results));
+		$change_url  = self::change_url($search_params);
+		$single      = LocationContext::single();
 
 		// Prepare template data
 		return array(
@@ -327,12 +401,30 @@ final class SearchResults extends AbstractShortcode {
 			'pagination'      => $results['pagination'] ?? array(),
 			'sorting_options' => self::get_sorting_options(null !== self::window($search_params)),
 			'nonce_field'     => RenderContext::nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce'),
-			'summary'         => self::summary($search_params, (int) $results['total']),
-			'chips'           => self::active_chips($search_params, $filter_options),
-			'empty_state'     => self::empty_state($search_params, (int) $results['total']),
-			'change_url'      => self::change_url($search_params),
-			'location_label'  => self::location_label($search_params, $filter_options),
+			'summary'         => self::results_summary($search_params, $results),
+			'apply_label'     => self::apply_label_html($results),
+			'chips'           => $chips,
+			'filter_count'    => self::filter_count($chips),
+			'empty_state'     => $empty_state,
+			'notice_html'     => self::notice_html($search_params, $results, (string) $empty_state, $change_url),
+			'change_url'      => $change_url,
+			'location_label'  => self::location_label($search_params),
+			'pickup_where'    => null !== $single ? (string) $single->name : '',
 			'compare'         => self::compare_band(),
+		);
+	}
+
+	/**
+	 * How many cars each extra section holds (0 when it is not shown).
+	 *
+	 * @param array<string, mixed> $results perform_search() shape.
+	 * @return array{nearby: int, booked: int}
+	 */
+	private static function section_counts(array $results): array
+	{
+		return array(
+			'nearby' => count( (array) ( $results['nearby'] ?? array() )),
+			'booked' => count( (array) ( $results['booked'] ?? array() )),
 		);
 	}
 
@@ -364,24 +456,43 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
-	 * The one pickup location the search names, for the mobile summary card.
+	 * The pickup point the search is at, for the mobile summary card: the
+	 * site's only one, or the one picked. '' otherwise.
 	 *
-	 * @param array<string, mixed> $params         Search params (logical keys).
-	 * @param array<string, mixed> $filter_options get_filter_options() shape.
+	 * @param array<string, mixed> $params Search params (logical keys).
 	 */
-	private static function location_label(array $params, array $filter_options): string
+	private static function location_label(array $params): string
 	{
+		$single = LocationContext::single();
+		if (null !== $single) {
+			return (string) $single->name;
+		}
 		$locations = (array) ( $params['pickup_location'] ?? array() );
 		if (1 !== count($locations)) {
 			return '';
 		}
-		foreach ( (array) ( $filter_options['locations'] ?? array() ) as $location) {
-			if (is_object($location) && isset($location->id, $location->name) && (int) $location->id === (int) reset($locations)) {
-				return (string) $location->name;
+		$location = LocationContext::find( (int) reset($locations));
+
+		return null !== $location ? (string) $location->name : '';
+	}
+
+	/**
+	 * Names of the picked pickup points, in the order picked.
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 * @return list<string>
+	 */
+	private static function selected_names(array $params): array
+	{
+		$names = array();
+		foreach ( (array) ( $params['pickup_location'] ?? array() ) as $id) {
+			$location = LocationContext::find( (int) $id);
+			if (null !== $location) {
+				$names[] = (string) $location->name;
 			}
 		}
 
-		return '';
+		return $names;
 	}
 
 	/**
@@ -508,11 +619,14 @@ final class SearchResults extends AbstractShortcode {
 	{
 		return array(
 			'keyword'         => self::get_text('keyword'),
-			'pickup_date'     => self::get_text('pickup_date'),
-			'return_date'     => self::get_text('return_date'),
+			'pickup_date'     => self::submitted_date(self::get_text('pickup_date')),
+			'return_date'     => self::submitted_date(self::get_text('return_date')),
+			// The window's time, as the AJAX path reads it: the page and its
+			// re-render must search the same window.
+			'pickup_time'     => self::get_text('pickup_time'),
 			// Legacy support
-			'start_date'      => self::get_text('start_date', self::get_text('pickup_date')),
-			'end_date'        => self::get_text('end_date', self::get_text('return_date')),
+			'start_date'      => self::submitted_date(self::get_text('start_date', self::get_text('pickup_date'))),
+			'end_date'        => self::submitted_date(self::get_text('end_date', self::get_text('return_date'))),
 			'min_price'       => self::get_int('min_price'),
 			'max_price'       => self::get_int('max_price'),
 			'fuel_type'       => self::get_text_or_list('fuel_type'),
@@ -527,15 +641,298 @@ final class SearchResults extends AbstractShortcode {
 			// exact name, never prefixed, so paginate_links()' `?page=%#%` hrefs
 			// keep resolving.
 			'page'            => self::get_int_by_var('page', 1),
-			'pickup_location' => self::get_int_array('pickup_location'),
+			// Only a real choice counts: none with 0 or 1 rental location.
+			'pickup_location' => LocationContext::effective_selected(self::get_int_array('pickup_location')),
 			'category'        => self::get_int_array('category'),
 		);
 	}
 
 	/**
-	 * Perform search operation
+	 * The search: the main grid (free cars at the picked point), then -- on
+	 * page 1 of a dated search only -- the free cars at the other pickup
+	 * points of the same city and the matching cars booked on these dates.
+	 *
+	 * The booked set is computed once (BookingConflicts, the rule every
+	 * booking path uses) and handed to the three queries as an ID list, so
+	 * the grid's total and pages count only the cars it lists.
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 * @param array<string, mixed> $atts   Shortcode attributes.
+	 * @return array<string, mixed>
 	 */
 	private static function perform_search(array $params, array $atts): array
+	{
+		$args     = self::query_args($params, $atts);
+		$window   = self::window($params);
+		$selected = array_values(array_map('intval', (array) ( $params['pickup_location'] ?? array() )));
+		$booked   = null === $window ? array() : BookingConflicts::booked_vehicle_ids($window[0], $window[1], self::candidate_ids());
+
+		$query    = self::scoped_query($args, self::id_clause($booked, false) . QueryHelper::get_location_subquery($selected));
+		$vehicles = self::format_vehicles($query->posts, $atts);
+
+		$current_page = (int) ( $params['page'] ?? 1 );
+
+		// The sections live on page 1. The booked one needs the window; the
+		// same-city one also helps without dates when the picked point has no
+		// car at all ("no cars there yet").
+		$nearby       = array();
+		$booked_items = array();
+		if ($current_page <= 1) {
+			if (null !== $window) {
+				$nearby       = self::nearby_results($args, $atts, $booked, $selected);
+				$booked_items = self::booked_matches($args, $atts, $booked, $selected, $window);
+			} elseif (0 === (int) $query->found_posts) {
+				$nearby = self::nearby_results($args, $atts, $booked, $selected);
+			}
+		}
+
+		return array(
+			'vehicles'     => $vehicles,
+			'total'        => (int) $query->found_posts,
+			'current_page' => $current_page,
+			'per_page'     => (int) $atts['results_per_page'],
+			'max_pages'    => (int) $query->max_num_pages,
+			'pagination'   => array(
+				'current'   => $current_page,
+				'total'     => (int) $query->max_num_pages,
+				'has_prev'  => $current_page > 1,
+				'has_next'  => $current_page < $query->max_num_pages,
+				'prev_page' => max(1, $current_page - 1),
+				'next_page' => min($query->max_num_pages, $current_page + 1),
+			),
+			'nearby'       => $nearby,
+			'booked'       => $booked_items,
+		);
+	}
+
+	/**
+	 * Free cars at the other pickup points of the picked points' city: the
+	 * same filters, at most NEARBY_LIMIT, each with its own pickup point.
+	 *
+	 * @param array<string, mixed> $args     query_args().
+	 * @param array<string, mixed> $atts     Shortcode attributes.
+	 * @param list<int>            $booked   Booked vehicle ids for the window.
+	 * @param list<int>            $selected Picked pickup points.
+	 * @return list<array{vehicle: array<string, mixed>, where: string}>
+	 */
+	private static function nearby_results(array $args, array $atts, array $booked, array $selected): array
+	{
+		if (array() === $selected) {
+			return array();
+		}
+		$same_city = LocationContext::same_city_ids($selected);
+		if (array() === $same_city) {
+			return array();
+		}
+
+		$query = self::scoped_query(self::section_args($args, self::NEARBY_LIMIT), self::id_clause($booked, false) . QueryHelper::get_location_subquery($same_city));
+		$items = array();
+		foreach (self::format_vehicles($query->posts, $atts) as $vehicle) {
+			$location = LocationContext::for_vehicle( (int) ( $vehicle['id'] ?? 0 ));
+			$items[]  = array(
+				'vehicle' => $vehicle,
+				'where'   => null !== $location ? (string) $location->name : '',
+			);
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Cars that match the search but are booked on its dates, at the picked
+	 * point: the same filters, at most BOOKED_LIMIT, each with the earliest
+	 * window it is free. No query at all when nothing is booked.
+	 *
+	 * @param array<string, mixed> $args     query_args().
+	 * @param array<string, mixed> $atts     Shortcode attributes.
+	 * @param list<int>            $booked   Booked vehicle ids for the window.
+	 * @param list<int>            $selected Picked pickup points.
+	 * @param array{0: int, 1: int} $window  The search window.
+	 * @return list<array{vehicle: array<string, mixed>, earliest: ?int, days: int}>
+	 */
+	private static function booked_matches(array $args, array $atts, array $booked, array $selected, array $window): array
+	{
+		if (array() === $booked) {
+			return array();
+		}
+
+		$query    = self::scoped_query(self::section_args($args, self::BOOKED_LIMIT), self::id_clause($booked, true) . QueryHelper::get_location_subquery($selected));
+		$vehicles = self::format_vehicles($query->posts, $atts);
+		if (array() === $vehicles) {
+			return array();
+		}
+
+		$ids      = array_map(static fn(array $vehicle): int => (int) ( $vehicle['id'] ?? 0 ), $vehicles);
+		$earliest = NextFreeWindow::earliest($ids, $window[0], $window[1]);
+		$days     = SiteTime::rental_days($window[0], $window[1]);
+
+		$items = array();
+		foreach ($vehicles as $vehicle) {
+			$items[] = array(
+				'vehicle'  => $vehicle,
+				'earliest' => $earliest[ (int) ( $vehicle['id'] ?? 0 ) ] ?? null,
+				'days'     => $days,
+			);
+		}
+
+		return $items;
+	}
+
+	/**
+	 * A section's query: the search's own arguments, first page, no count.
+	 *
+	 * @param array<string, mixed> $args query_args().
+	 * @return array<string, mixed>
+	 */
+	private static function section_args(array $args, int $limit): array
+	{
+		$args['posts_per_page'] = $limit;
+		$args['paged']          = 1;
+		$args['no_found_rows']  = true;
+
+		return $args;
+	}
+
+	/**
+	 * The vehicles the search starts from, before any filter: active rental
+	 * vehicles. BookingConflicts measures only these, not the whole fleet.
+	 *
+	 * @return list<int>
+	 */
+	private static function candidate_ids(): array
+	{
+		$args = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service(
+			array(
+				'post_type'        => PT_Vehicle::POST_TYPE,
+				'post_status'      => 'publish',
+				'posts_per_page'   => -1,
+				'fields'           => 'ids',
+				'no_found_rows'    => true,
+				'suppress_filters' => false,
+				'meta_query'       => array( \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query() ),
+			),
+			'rental'
+		);
+
+		return array_values(array_map('intval', get_posts($args)));
+	}
+
+	/**
+	 * ` AND posts.ID IN (…)` / `NOT IN (…)`; '' for an empty NOT IN.
+	 *
+	 * @param list<int> $ids
+	 */
+	private static function id_clause(array $ids, bool $in): string
+	{
+		global $wpdb;
+
+		$ids = array_values(array_filter(array_map('intval', $ids)));
+		if (array() === $ids) {
+			return $in ? " AND {$wpdb->posts}.ID IN (0)" : '';
+		}
+
+		if ($in) {
+			return $wpdb->prepare(" AND {$wpdb->posts}.ID IN (" . implode(',', array_fill(0, count($ids), '%d')) . ')', $ids);
+		}
+
+		return $wpdb->prepare(" AND {$wpdb->posts}.ID NOT IN (" . implode(',', array_fill(0, count($ids), '%d')) . ')', $ids);
+	}
+
+	/**
+	 * Runs the query with $where appended to its WHERE, for this query only:
+	 * the clause is keyed to a per-call token under SEARCH_CONTEXT_KEY and
+	 * removed in `finally`, so any other WP_Query in the request (a widget,
+	 * a nested search) is left alone. An ID list here leaves `post__in` free for the minimum-rental
+	 * guard's post__in = [0].
+	 *
+	 * @param array<string, mixed> $args WP_Query arguments.
+	 * @param string               $where SQL appended to WHERE (ints and prepared fragments only).
+	 */
+	private static function scoped_query(array $args, string $where): \WP_Query
+	{
+		// A token per call, not a flag: a second search started while this
+		// query is being built carries the key too, and must not get this
+		// clause.
+		$token                            = 'q' . ( ++self::$scope_seq );
+		$args[ self::SEARCH_CONTEXT_KEY ] = $token;
+		$args['suppress_filters']         = false;
+
+		$filter = static function ($sql, \WP_Query $query) use ($where, $token) {
+			if ($query->get(self::SEARCH_CONTEXT_KEY) !== $token) {
+				return $sql;
+			}
+
+			return $sql . $where;
+		};
+
+		add_filter('posts_where', $filter, 10, 2);
+		try {
+			$query = new \WP_Query($args);
+		} finally {
+			// Mandatory Scope Isolation
+			remove_filter('posts_where', $filter, 10);
+		}
+
+		return $query;
+	}
+
+	/**
+	 * Card data for the query's vehicles, with their covers, metas and
+	 * feature map primed in batches.
+	 *
+	 * @param array<int, mixed>    $posts WP_Query::$posts.
+	 * @param array<string, mixed> $atts  Shortcode attributes.
+	 * @return list<array<string, mixed>>
+	 */
+	private static function format_vehicles(array $posts, array $atts): array
+	{
+		$ids = array();
+		foreach ($posts as $post) {
+			$id = $post instanceof \WP_Post ? (int) $post->ID : (int) $post;
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+		if (array() === $ids) {
+			return array();
+		}
+
+		// Deep Batch Priming: Optimization for N+1 Attachments and Pages
+		// 1. Prime vehicles and their meta
+		_prime_post_caches($ids, true, true);
+
+		// 2. Prime the covers (attachments, their meta and uploaders) in one go;
+		// reading get_post_thumbnail_id() here first would judge each cover uncached.
+		\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers($ids);
+		// The cards' pickup points (vendor fallback) in one batch, not one per card.
+		LocationContext::prime_vehicles($ids);
+
+		// 3. The booking page, for the cards' URLs.
+		$booking_page_id = ShortcodeUrlManager::get_page_id('rentiva_booking_form');
+		if ($booking_page_id) {
+			_prime_post_caches(array( (int) $booking_page_id ), true, true);
+		}
+
+		// Prime static caches for this batch
+		VehicleFeatureHelper::prime_static_feature_map();
+
+		$vehicles = array();
+		foreach ($ids as $id) {
+			$vehicles[] = self::format_vehicle_data($id, $atts);
+		}
+
+		return $vehicles;
+	}
+
+	/**
+	 * The search's WP_Query arguments: the filters, sort and page, before
+	 * availability and location (scoped_query() adds those).
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 * @param array<string, mixed> $atts   Shortcode attributes.
+	 * @return array<string, mixed>
+	 */
+	private static function query_args(array $params, array $atts): array
 	{
 		// An empty value in a list filter (`fuel_type[]=`) is no filter -- not a
 		// search for vehicles whose fuel is ''.
@@ -751,88 +1148,7 @@ final class SearchResults extends AbstractShortcode {
 		 * optional service implementation.
 		 */
 		$args = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
-		$args = apply_filters('mhmrentiva_vehicle_query_args', $args, 'search_results', $params, $atts);
-
-		// Optimization: Inject Availability Filter
-		$args[ self::SEARCH_CONTEXT_KEY ] = true;
-		$availability_filter              = function ($where, \WP_Query $query) use ($params) {
-			if ($query->get(self::SEARCH_CONTEXT_KEY) !== true) {
-				return $where;
-			}
-
-			// Generate subquery using central helper
-			$subquery = \MHMRentiva\Admin\Core\QueryHelper::get_availability_subquery(
-				$params['pickup_date'],
-				$params['return_date']
-			) . \MHMRentiva\Admin\Core\QueryHelper::get_location_subquery($params['pickup_location'] ?? array());
-
-			return $where . $subquery;
-		};
-
-		add_filter('posts_where', $availability_filter, 10, 2);
-
-		try {
-			// Execute query
-			$query = new \WP_Query($args);
-		} finally {
-			// Mandatory Scope Isolation
-			remove_filter('posts_where', $availability_filter, 10);
-		}
-
-		// Deep Batch Priming: Optimization for N+1 Attachments and Pages
-		if (! empty($query->posts)) {
-			$vehicle_ids    = wp_list_pluck($query->posts, 'ID');
-			$attachment_ids = array();
-
-			// 1. Prime vehicles and their meta
-			_prime_post_caches($vehicle_ids, true, true);
-
-			// 2. Prime the covers (attachments, their meta and uploaders) in one go;
-			// reading get_post_thumbnail_id() here first would judge each cover uncached.
-			\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers(array_map('intval', $vehicle_ids));
-
-			// 3. Collect Booking Page ID for URL cache priming
-			$booking_page_id = ShortcodeUrlManager::get_page_id('rentiva_booking_form');
-			if ($booking_page_id) {
-				$attachment_ids[] = (int) $booking_page_id;
-			}
-
-			// 4. Batch prime all collected dependencies
-			if (! empty($attachment_ids)) {
-				_prime_post_caches(array_unique($attachment_ids), true, true);
-			}
-		}
-
-		// Format results
-		$vehicles = array();
-		if ($query->have_posts()) {
-			// Prime static caches for this batch
-			VehicleFeatureHelper::prime_static_feature_map();
-
-			while ($query->have_posts()) {
-				$query->the_post();
-				$vehicles[] = self::format_vehicle_data(get_the_ID(), $atts);
-			}
-			wp_reset_postdata();
-		}
-
-		$current_page = $params['page'] ?? 1;
-
-		return array(
-			'vehicles'     => $vehicles,
-			'total'        => (int) $query->found_posts,
-			'current_page' => (int) $current_page,
-			'per_page'     => (int) $atts['results_per_page'],
-			'max_pages'    => (int) $query->max_num_pages,
-			'pagination'   => array(
-				'current'   => (int) $current_page,
-				'total'     => (int) $query->max_num_pages,
-				'has_prev'  => $current_page > 1,
-				'has_next'  => $current_page < $query->max_num_pages,
-				'prev_page' => max(1, $current_page - 1),
-				'next_page' => min($query->max_num_pages, $current_page + 1),
-			),
-		);
+		return (array) apply_filters('mhmrentiva_vehicle_query_args', $args, 'search_results', $params, $atts);
 	}
 
 	/**
@@ -1031,9 +1347,6 @@ final class SearchResults extends AbstractShortcode {
 		// Price range
 		$price_range = self::public_meta_range('_mhmrentiva_price_per_day', '^[0-9]+(\.[0-9]+)?$');
 
-		// Rental locations come from an add-on via the filter.
-		$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
-
 		// Categories that hold a published vehicle (WordPress counts published
 		// objects only); no counts on the page (K4).
 		$categories = array();
@@ -1060,7 +1373,6 @@ final class SearchResults extends AbstractShortcode {
 			'seats'         => $seats ?: array(),
 			'brands'        => $brands ?: array(),
 			'categories'    => $categories,
-			'locations'     => $locations,
 			'year_range'    => array(
 				'min' => (int) ( $year_range['min'] ?? 1990 ),
 				'max' => (int) ( $year_range['max'] ?? gmdate('Y') ),
@@ -1083,6 +1395,24 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
+	 * The facets plus the pickup points to choose from -- read fresh from
+	 * LocationContext, never from the day-long facet cache. A site with
+	 * 0 or 1 rental location has nothing to choose: no location group.
+	 *
+	 * @param array<string, mixed> $current_params Search params (logical keys).
+	 * @return array<string, mixed>
+	 */
+	private static function filter_options(array $current_params): array
+	{
+		$options = self::get_filter_options($current_params);
+		unset($options['locations']);
+		$locations            = LocationContext::rental_locations();
+		$options['locations'] = count($locations) >= 2 ? $locations : array();
+
+		return $options;
+	}
+
+	/**
 	 * The results depend on every filter var and the page as well as the window.
 	 *
 	 * @return array<string, mixed>
@@ -1093,20 +1423,23 @@ final class SearchResults extends AbstractShortcode {
 		foreach (self::FILTER_PARAMS as $key) {
 			$factors['filters'][ $key ] = get_query_var(self::query_var($key), null);
 		}
-		$factors['page'] = get_query_var('page', null);
+		// The pickup time moves the window, so it changes which cars are free.
+		$factors['filters']['pickup_time'] = get_query_var(self::query_var('pickup_time'), null);
+		$factors['page']                   = get_query_var('page', null);
 
 		return $factors;
 	}
 
 	/**
-	 * Filters the visitor narrowed the results with (the window and the sort
-	 * are not filters).
+	 * Filters the visitor narrowed the results with (the window, the sort and
+	 * the pickup point are not filters: the point is where the visitor is,
+	 * and a search there must never say "remove a filter").
 	 *
 	 * @param array<string, mixed> $params Search params (logical keys).
 	 */
 	public static function has_active_filters(array $params): bool
 	{
-		foreach (array( 'keyword', 'fuel_type', 'transmission', 'seats', 'brand', 'pickup_location', 'category' ) as $key) {
+		foreach (array( 'keyword', 'fuel_type', 'transmission', 'seats', 'brand', 'category' ) as $key) {
 			$value = $params[ $key ] ?? '';
 			if (is_array($value) ? array() !== array_filter($value, static fn($v): bool => '' !== (string) $v && '0' !== (string) $v) : '' !== (string) $value) {
 				return true;
@@ -1124,20 +1457,37 @@ final class SearchResults extends AbstractShortcode {
 	/**
 	 * Which empty state the page shows, or null when the results need none:
 	 * `not_searched` (no window: totals and availability need dates -- the
-	 * catalogue still lists), `filtered_out` (filters emptied the list) or
-	 * `no_results` (nothing free in the window).
+	 * catalogue still lists), `filtered_out` (filters emptied the list and
+	 * nothing below matches either), `none_here` (nothing free at the picked
+	 * pickup point), `no_results` (nothing free in the window) or
+	 * `no_vehicles` (the catalogue is empty).
 	 *
-	 * @param array<string, mixed> $params Search params (logical keys).
+	 * A booked match or a car at another pickup point of the city is a match
+	 * as well: with one of them on the page, "remove a filter" would contradict
+	 * the cars listed under it.
+	 *
+	 * @param array<string, mixed>              $params Search params (logical keys).
+	 * @param array{nearby?: int, booked?: int} $extras Cars in the extra sections.
 	 */
-	public static function empty_state(array $params, int $total): ?string
+	public static function empty_state(array $params, int $total, array $extras = array()): ?string
 	{
 		if ($total <= 0) {
-			if (self::has_active_filters($params)) {
+			$elsewhere = (int) ( $extras['nearby'] ?? 0 ) + (int) ( $extras['booked'] ?? 0 );
+			if (0 === $elsewhere && self::has_active_filters($params)) {
 				return 'filtered_out';
+			}
+			// A picked pickup point is where the visitor is: name it. Without
+			// dates "nothing there yet", never "the catalogue is empty".
+			$dated  = '' !== (string) ( $params['pickup_date'] ?? '' ) || '' !== (string) ( $params['return_date'] ?? '' );
+			$picked = array() !== (array) ( $params['pickup_location'] ?? array() );
+			if ($picked && null !== self::window($params)) {
+				return 'none_here';
+			}
+			if ($picked && ! $dated) {
+				return 'none_yet';
 			}
 			// No dates given and still nothing: the catalogue is empty. Dates given
 			// (even a range the minimum rental refuses) ruled the cars out.
-			$dated = '' !== (string) ( $params['pickup_date'] ?? '' ) || '' !== (string) ( $params['return_date'] ?? '' );
 			return $dated ? 'no_results' : 'no_vehicles';
 		}
 
@@ -1147,19 +1497,33 @@ final class SearchResults extends AbstractShortcode {
 	/**
 	 * Start/end timestamps of the search window, or null without one.
 	 *
+	 * The return is at the pickup's own time, as on the booking form. A
+	 * missing or broken time is the default pickup time -- it must not switch
+	 * availability off and list every booked car as free.
+	 *
 	 * @param array<string, mixed> $params Search params (logical keys).
 	 * @return array{0: int, 1: int}|null
 	 */
 	private static function window(array $params): ?array
 	{
-		$dates = array();
-		foreach (array( 'pickup_date', 'return_date', 'pickup_time' ) as $key) {
-			if (isset($params[ $key ]) && is_scalar($params[ $key ])) {
-				$dates[ $key ] = (string) $params[ $key ];
+		$pickup = is_scalar($params['pickup_date'] ?? null) ? (string) $params['pickup_date'] : '';
+		$return = is_scalar($params['return_date'] ?? null) ? (string) $params['return_date'] : '';
+		if ('' === $pickup || '' === $return) {
+			return null;
+		}
+
+		$time = is_scalar($params['pickup_time'] ?? null) ? (string) $params['pickup_time'] : '';
+		foreach (array( $time, (string) apply_filters('mhmrentiva_default_pickup_time', '10:00'), '10:00' ) as $candidate) {
+			if (1 === preg_match('/^\d{2}:\d{2}$/', $candidate) && null !== SiteTime::instant($pickup, $candidate)) {
+				$time = $candidate;
+				break;
 			}
 		}
 
-		return Card\RvsCardView::window($dates);
+		$start = SiteTime::instant($pickup, $time);
+		$end   = SiteTime::instant($return, $time);
+
+		return null === $start || null === $end || $end <= $start ? null : array( $start, $end );
 	}
 
 	/**
@@ -1188,6 +1552,73 @@ final class SearchResults extends AbstractShortcode {
 			'range' => sprintf(__('%1$s – %2$s', 'mhm-rentiva'), wp_date('j M', $window[0]), wp_date('j M', $window[1])),
 			'days'  => \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($window[0], $window[1]),
 		);
+	}
+
+	/**
+	 * Whether the main grid is empty while a section below it lists cars:
+	 * then no count is shown ("0 vehicles" over cars reads as "no cars").
+	 *
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	private static function only_sections_have_cars(array $results): bool
+	{
+		return 0 === (int) ( $results['total'] ?? 0 ) && array_sum(self::section_counts($results)) > 0;
+	}
+
+	/**
+	 * The results header for a search's results: summary(), without the count
+	 * when only the sections below the grid list cars (the range and days stay).
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 * @return array{count: string, range: string, days: int}
+	 */
+	public static function results_summary(array $params, array $results): array
+	{
+		$summary = self::summary($params, (int) ( $results['total'] ?? 0 ));
+		if (self::only_sections_have_cars($results)) {
+			$summary['count'] = '';
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * The phone's summary card content (escaped HTML): the pickup point or the
+	 * count, then the range ("No dates selected" without one). Drawn by the page
+	 * and the AJAX re-render (summary_card_html), so it follows the results and
+	 * never disagrees with the drawer button; by results_summary() it has no
+	 * count when only the sections below the grid list cars.
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	public static function summary_card_html(array $params, array $results): string
+	{
+		$summary = self::results_summary($params, $results);
+		$label   = self::location_label($params);
+		$title   = '' !== $label ? $label : $summary['count'];
+		$range   = '' !== $summary['range'] ? $summary['range'] : __('No dates selected', 'mhm-rentiva');
+
+		return ( '' !== $title ? '<strong>' . esc_html($title) . '</strong>' : '' ) . '<span>' . esc_html($range) . '</span>';
+	}
+
+	/**
+	 * The filter drawer's apply button label (escaped HTML): "Show 6 vehicles",
+	 * or "Show results" when only the sections below the grid list cars.
+	 *
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	public static function apply_label_html(array $results): string
+	{
+		if (self::only_sections_have_cars($results)) {
+			return esc_html__('Show results', 'mhm-rentiva');
+		}
+
+		$total = (int) ( $results['total'] ?? 0 );
+
+		/* translators: %s: number of vehicles the filters leave. */
+		return sprintf(esc_html(_n('Show %s vehicle', 'Show %s vehicles', $total, 'mhm-rentiva')), '<span data-rvs-apply-count>' . esc_html(number_format_i18n($total)) . '</span>');
 	}
 
 	/**
@@ -1278,6 +1709,230 @@ final class SearchResults extends AbstractShortcode {
 	}
 
 	/**
+	 * The "Filters (N)" count: the chips minus the pickup point's, which is
+	 * where the visitor is, not a filter -- "Clear" keeps it.
+	 *
+	 * @param list<array{name: string, value: string, label: string}> $chips active_chips().
+	 */
+	public static function filter_count(array $chips): int
+	{
+		$location = self::query_var('pickup_location') . '[]';
+
+		return count(array_filter($chips, static fn(array $chip): bool => $location !== ( $chip['name'] ?? '' )));
+	}
+
+	/**
+	 * The notice region's content: the "choose dates" notice, or "nothing
+	 * free at this pickup point" (with a line pointing at the sections below
+	 * when the city has other points with cars). '' otherwise.
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	public static function notice_html(array $params, array $results, string $empty_state, string $change_url): string
+	{
+		if ('not_searched' === $empty_state) {
+			return Templates::render('partials/search/rvs-empty', array(
+				'kind'       => 'not_searched',
+				'change_url' => $change_url,
+			), true);
+		}
+		if (! in_array($empty_state, self::NOTICE_STATES, true)) {
+			return '';
+		}
+
+		$counts = self::section_counts($results);
+		$names  = self::selected_names($params);
+		$single = 1 === count($names);
+		if ('none_here' === $empty_state) {
+			$range = self::summary($params, 0)['range'];
+			$title = $single
+				/* translators: 1: pickup point name, 2: the searched dates, e.g. "7 Dec – 10 Dec". */
+				? sprintf(__('No cars are free at the %1$s pickup point for %2$s.', 'mhm-rentiva'), $names[0], $range)
+				/* translators: %s: the searched dates, e.g. "7 Dec – 10 Dec". */
+				: sprintf(__('No cars are free at the selected pickup points for %s.', 'mhm-rentiva'), $range);
+		} else {
+			$title = $single
+				/* translators: %s: pickup point name. */
+				? sprintf(__('There are no cars at the %s pickup point yet.', 'mhm-rentiva'), $names[0])
+				: __('There are no cars at the selected pickup points yet.', 'mhm-rentiva');
+		}
+
+		return Templates::render('partials/search/rvs-empty', array(
+			'kind'       => $empty_state,
+			'change_url' => $change_url,
+			'title'      => $title,
+			// The line pointing at "the other points ... and the car you looked
+			// for below" is true only when both sections are there.
+			'has_both'   => $counts['nearby'] > 0 && $counts['booked'] > 0,
+			'has_more'   => $counts['nearby'] + $counts['booked'] > 0,
+		), true);
+	}
+
+	/**
+	 * The "other pickup points in the same city" section, or '' without cars.
+	 *
+	 * @param array<string, mixed> $params   Search params (logical keys).
+	 * @param array<string, mixed> $results  perform_search() shape.
+	 * @param array<string, mixed> $atts     Card toggles and layout.
+	 * @param string               $instance The results block's id prefix.
+	 */
+	public static function nearby_html(array $params, array $results, array $atts, string $instance): string
+	{
+		$items = (array) ( $results['nearby'] ?? array() );
+		if (array() === $items) {
+			return '';
+		}
+
+		$layout = 'list' === ( $atts['layout'] ?? 'grid' ) ? 'list' : 'grid';
+		$cards  = '';
+		foreach ($items as $item) {
+			$cards .= self::render_vehicle_card($item['vehicle'], $layout, $atts, self::card_dates($params), array( 'where' => (string) $item['where'] ));
+		}
+
+		$cities = LocationContext::cities_of( (array) ( $params['pickup_location'] ?? array() ));
+
+		return Templates::render('partials/search/rvs-section', array(
+			'kind'   => 'nearby',
+			'id'     => $instance . '-nearby',
+			'title'  => self::nearby_title(),
+			/* translators: 1: city (several are joined into one), 2: the section's result summary, e.g. "2 vehicles · 7 Dec – 10 Dec · 3 days". */
+			'sub'    => sprintf(__('%1$s · %2$s', 'mhm-rentiva'), self::join_line($cities), self::summary_text(self::summary($params, count($items)))),
+			'layout' => $layout,
+			'cards'  => $cards,
+		), true);
+	}
+
+	/**
+	 * The "booked for these dates" section, or '' without cars.
+	 *
+	 * @param array<string, mixed> $params   Search params (logical keys).
+	 * @param array<string, mixed> $results  perform_search() shape.
+	 * @param array<string, mixed> $atts     Card toggles and layout.
+	 * @param string               $instance The results block's id prefix.
+	 */
+	public static function booked_html(array $params, array $results, array $atts, string $instance): string
+	{
+		$items = (array) ( $results['booked'] ?? array() );
+		if (array() === $items) {
+			return '';
+		}
+
+		$layout = 'list' === ( $atts['layout'] ?? 'grid' ) ? 'list' : 'grid';
+		$cards  = '';
+		foreach ($items as $item) {
+			$cards .= self::render_vehicle_card($item['vehicle'], $layout, $atts, self::card_dates($params), array(
+				'booked' => array(
+					'earliest' => $item['earliest'],
+					'days'     => (int) $item['days'],
+				),
+			));
+		}
+
+		return Templates::render('partials/search/rvs-section', array(
+			'kind'   => 'booked',
+			'id'     => $instance . '-booked',
+			'title'  => self::booked_title($params),
+			'sub'    => __('Matches your search, but not free on your dates', 'mhm-rentiva'),
+			'layout' => $layout,
+			'cards'  => $cards,
+		), true);
+	}
+
+	private static function nearby_title(): string
+	{
+		return __('Other pickup points in the same city', 'mhm-rentiva');
+	}
+
+	/**
+	 * "Booked for these dates at the X pickup point" when one point is picked
+	 * on a site with a choice; "Booked for these dates" otherwise.
+	 *
+	 * @param array<string, mixed> $params Search params (logical keys).
+	 */
+	private static function booked_title(array $params): string
+	{
+		$names = self::selected_names($params);
+		if (1 === count($names)) {
+			/* translators: %s: pickup point name. */
+			return sprintf(__('Booked for these dates at the %s pickup point', 'mhm-rentiva'), $names[0]);
+		}
+
+		return __('Booked for these dates', 'mhm-rentiva');
+	}
+
+	/**
+	 * The summary partial's line as plain text: "2 vehicles · 7 Dec – 10 Dec · 3 days".
+	 *
+	 * @param array{count: string, range: string, days: int} $summary summary().
+	 */
+	private static function summary_text(array $summary): string
+	{
+		$parts = array( $summary['count'] );
+		if ('' !== $summary['range']) {
+			$parts[] = $summary['range'];
+		}
+		if ($summary['days'] > 0) {
+			/* translators: %s: number of rental days. */
+			$parts[] = sprintf(_n('%s day', '%s days', $summary['days'], 'mhm-rentiva'), number_format_i18n($summary['days']));
+		}
+
+		return self::join_line($parts);
+	}
+
+	/**
+	 * Items of one line joined through a translatable format:
+	 * "2 vehicles · 7 Dec – 10 Dec · 3 days", "İstanbul · Ankara".
+	 *
+	 * @param list<string> $parts
+	 */
+	private static function join_line(array $parts): string
+	{
+		$line = (string) array_shift($parts);
+		foreach ($parts as $part) {
+			/* translators: joins two items of one line, e.g. two city names or the parts of a results summary ("2 vehicles · 7 Dec – 10 Dec"). 1: the line so far, 2: the next item. */
+			$line = sprintf(_x('%1$s · %2$s', 'joined items of one line', 'mhm-rentiva'), $line, $part);
+		}
+
+		return $line;
+	}
+
+	/**
+	 * What the status region says after a re-render: the count, then each
+	 * extra section with its count -- "2 vehicles. Booked for these dates: 1 vehicle."
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 */
+	public static function announcement(array $params, array $results): string
+	{
+		$count  = self::results_summary($params, $results)['count'];
+		$counts = self::section_counts($results);
+		/* translators: %s: number of vehicles. */
+		$cars = static fn(int $n): string => sprintf(_n('%s vehicle', '%s vehicles', $n, 'mhm-rentiva'), number_format_i18n($n));
+		/* translators: 1: a results section's heading, e.g. "Booked for these dates"; 2: number of vehicles in it, e.g. "1 vehicle". */
+		$section  = static fn(string $title, int $n): string => sprintf(__('%1$s: %2$s', 'mhm-rentiva'), $title, $cars($n));
+		$sections = array();
+		if ($counts['nearby'] > 0) {
+			$sections[] = $section(self::nearby_title(), $counts['nearby']);
+		}
+		if ($counts['booked'] > 0) {
+			$sections[] = $section(self::booked_title($params), $counts['booked']);
+		}
+		if (array() === $sections) {
+			return $count;
+		}
+
+		// WordPress's own translatable list ("a and b").
+		if ('' === $count) {
+			// Only the sections list cars: they are the sentence, with no "0 vehicles".
+			return wp_sprintf('%l', $sections);
+		}
+		/* translators: 1: number of vehicles in the results, e.g. "2 vehicles"; 2: the extra sections with their counts, e.g. "Booked for these dates: 1 vehicle". */
+		return sprintf(__('%1$s. %2$s.', 'mhm-rentiva'), $count, wp_sprintf('%l', $sections));
+	}
+
+	/**
 	 * The sorts the visitor can pick, value => label.
 	 *
 	 * The keys are exactly the values the sort switch in perform_search() applies
@@ -1322,9 +1977,9 @@ final class SearchResults extends AbstractShortcode {
 			// payload mirrors it.
 			$search_params = array(
 				'keyword'         => $req->text(self::query_var('keyword')),
-				'pickup_date'     => $req->text(self::query_var('pickup_date')),
-				'return_date'     => $req->text(self::query_var('return_date')),
-				// Carried for the cards (booking link); the search itself ignores it.
+				'pickup_date'     => self::submitted_date($req->text(self::query_var('pickup_date'))),
+				'return_date'     => self::submitted_date($req->text(self::query_var('return_date'))),
+				// The window's time: the search and the cards' links both use it.
 				'pickup_time'     => $req->text(self::query_var('pickup_time')),
 				'min_price'       => $req->int(self::query_var('min_price')),
 				'max_price'       => $req->int(self::query_var('max_price')),
@@ -1337,7 +1992,8 @@ final class SearchResults extends AbstractShortcode {
 				'mileage_max'     => $req->int(self::query_var('mileage_max')),
 				'sort'            => $req->text(self::query_var('sort'), 'relevance'),
 				'page'            => $req->int('page', 1),
-				'pickup_location' => $req->intList(self::query_var('pickup_location')),
+				// Only a real choice counts: none with 0 or 1 rental location.
+				'pickup_location' => LocationContext::effective_selected($req->intList(self::query_var('pickup_location'))),
 				'category'        => $req->intList(self::query_var('category')),
 			);
 
@@ -1365,35 +2021,40 @@ final class SearchResults extends AbstractShortcode {
 			// it, because wp_send_json_* ends the request through wp_die() and a
 			// catch around it swallows that terminator and appends a second,
 			// contradictory document after the first.
-			$filter_options = self::get_filter_options($search_params);
+			$filter_options = self::filter_options($search_params);
 			$total          = (int) $results['total'];
-			$empty_state    = self::empty_state($search_params, $total);
+			$counts         = self::section_counts($results);
+			$empty_state    = self::empty_state($search_params, $total, $counts);
 			$change_url     = self::change_url($search_params);
 			$chips          = self::active_chips($search_params, $filter_options);
+			// The page's own id prefix, so the sections' heading ids match it.
+			$instance = sanitize_key($req->text('instance', 'rvsr'));
+			$instance = '' !== $instance ? $instance : 'rvsr';
 
-			// The header, chips and empty states come from the same partials as
-			// the page, so a filter change cannot make the page read differently.
+			// The header, chips, empty states and sections come from the same
+			// partials as the page, so a filter change cannot make the page read
+			// differently. The sections exist on page 1 only: on later pages
+			// their keys are empty strings.
 			$payload = array(
-				'html'         => array() !== $results['vehicles']
-					? self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts, self::card_dates($search_params))
-					: Templates::render('partials/search/rvs-empty', array(
-						'kind'       => (string) $empty_state,
-						'change_url' => $change_url,
-					), true),
-				'pagination'   => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
-				'summary_html' => Templates::render('partials/search/rvs-summary', array( 'summary' => self::summary($search_params, $total) ), true),
-				'chips_html'   => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
-				'notice_html'  => 'not_searched' === $empty_state ? Templates::render('partials/search/rvs-empty', array(
-					'kind'       => 'not_searched',
-					'change_url' => $change_url,
-				), true) : '',
-				'meta'         => array(
+				'html'              => self::grid_html($search_params, $results, $atts, (string) $empty_state, $change_url),
+				'nearby_html'       => self::nearby_html($search_params, $results, $atts, $instance),
+				'booked_html'       => self::booked_html($search_params, $results, $atts, $instance),
+				'pagination'        => self::render_pagination($results['pagination'], self::page_base_url(is_scalar($req->raw('base_url')) ? (string) $req->raw('base_url') : '')),
+				'summary_html'      => Templates::render('partials/search/rvs-summary', array( 'summary' => self::results_summary($search_params, $results) ), true),
+				'apply_html'        => self::apply_label_html($results),
+				'summary_card_html' => self::summary_card_html($search_params, $results),
+				'chips_html'        => Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true),
+				'notice_html'       => self::notice_html($search_params, $results, (string) $empty_state, $change_url),
+				'meta'              => array(
 					'total'          => $total,
 					'max_pages'      => (int) $results['max_pages'],
 					'current_page'   => (int) $results['current_page'],
 					'layout'         => $atts['layout'],
-					'active_filters' => count($chips),
+					'active_filters' => self::filter_count($chips),
 					'empty_state'    => $empty_state,
+					'nearby'         => $counts['nearby'],
+					'booked'         => $counts['booked'],
+					'announce'       => self::announcement($search_params, $results),
 				),
 			);
 		} catch (Exception $e) {
@@ -1410,6 +2071,29 @@ final class SearchResults extends AbstractShortcode {
 		}
 
 		wp_send_json_success($payload);
+	}
+
+	/**
+	 * The main grid of the AJAX re-render: the cards, or the empty state.
+	 * NOTICE_STATES speak in the notice region instead, above the sections.
+	 *
+	 * @param array<string, mixed> $params  Search params (logical keys).
+	 * @param array<string, mixed> $results perform_search() shape.
+	 * @param array<string, mixed> $atts    Card toggles and layout.
+	 */
+	private static function grid_html(array $params, array $results, array $atts, string $empty_state, string $change_url): string
+	{
+		if (array() !== $results['vehicles']) {
+			return self::render_vehicles_list($results['vehicles'], (string) $atts['layout'], $atts, self::card_dates($params));
+		}
+		if (in_array($empty_state, self::NOTICE_STATES, true)) {
+			return '';
+		}
+
+		return Templates::render('partials/search/rvs-empty', array(
+			'kind'       => $empty_state,
+			'change_url' => $change_url,
+		), true);
 	}
 
 	/**
@@ -1467,9 +2151,11 @@ final class SearchResults extends AbstractShortcode {
 	 * @param array<string, string> $dates   Search context for the period total and the
 	 *                                       booking link; empty = the request's query vars
 	 *                                       (an AJAX re-render passes it explicitly).
+	 * @param array<string, mixed>  $extra   The search sections' additions (RvsCardView::from_vehicle()):
+	 *                                       `where` (the car's pickup point) or `booked`.
 	 * @return string
 	 */
-	public static function render_vehicle_card(array $vehicle, string $layout, array $atts = array(), array $dates = array()): string
+	public static function render_vehicle_card(array $vehicle, string $layout, array $atts = array(), array $dates = array(), array $extra = array()): string
 	{
 		if (empty($vehicle)) {
 			return '';
@@ -1499,6 +2185,7 @@ final class SearchResults extends AbstractShortcode {
 				'layout'  => $layout,
 				'atts'    => $card_atts,
 				'dates'   => $dates,
+				'extra'   => $extra,
 			),
 			true
 		);

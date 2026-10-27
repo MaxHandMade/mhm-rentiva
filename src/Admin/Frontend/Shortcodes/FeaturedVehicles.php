@@ -192,6 +192,8 @@ final class FeaturedVehicles extends AbstractShortcode {
 		if (! empty($vehicle_ids)) {
 			$int_vehicle_ids = array_map('intval', $vehicle_ids);
 			_prime_post_caches($int_vehicle_ids, true, true);
+			// The cards' pickup points (vendor fallback) in one batch, not one per card.
+			\MHMRentiva\Admin\Core\LocationContext::prime_vehicles($int_vehicle_ids);
 		}
 
 		// Standardize vehicle data using canonical VehiclesList helper

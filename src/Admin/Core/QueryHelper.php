@@ -21,78 +21,62 @@ class QueryHelper {
 
 
     /**
-     * $time on the site-local calendar day $date names, as a Unix timestamp;
-     * null when $date is not a date.
-     */
-    private static function local_day_bound(string $date, string $time): ?int
-    {
-        // Parsed and formatted in one fixed zone, so only the calendar date is
-        // taken from it whatever PHP's default zone is.
-        try {
-            $day = ( new \DateTimeImmutable($date, new \DateTimeZone('UTC')) )->format('Y-m-d');
-        } catch (\Exception $e) {
-            return null;
-        }
-
-        return \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($day, $time);
-    }
-
-    /**
-     * Generates a NOT EXISTS subquery for vehicle availability.
+     * The search's availability filter: drops every vehicle booked for the window.
      *
-     * @param string $pickup_date Y-m-d format
-     * @param string $return_date Y-m-d format
+     * The window is the booking form's: pickup date and time to the return
+     * date at the same time -- the return time is always the pickup time.
+     * Called without a time (the signature this method has always had), the
+     * default pickup time (`mhmrentiva_default_pickup_time`, 10:00) is used at
+     * both ends. "Booked" is the one rule in BookingConflicts -- the booking
+     * paths' statuses, payment deadline and buffer, and blocked days -- so a
+     * vehicle the search lists is one the booking form accepts.
+     *
+     * The booked set is computed once, before the caller's query, and comes
+     * back as `AND <posts>.ID NOT IN (...)`, so totals and pages count only
+     * what is listed. An empty or reversed window filters nothing.
+     *
+     * Callers that build their own filter use the same set directly:
+     * BookingConflicts::booked_vehicle_ids().
+     *
+     * @param string $pickup_date Y-m-d, site-local.
+     * @param string $return_date Y-m-d, site-local.
+     * @param string $pickup_time Optional H:i; empty means the default pickup time.
      * @return string SQL fragment
      */
-    public static function get_availability_subquery(string $pickup_date, string $return_date): string
+    public static function get_availability_subquery(string $pickup_date, string $return_date, string $pickup_time = ''): string
     {
         global $wpdb;
 
         // Guard: empty dates must skip availability filtering entirely.
-        // strtotime('' . ' 00:00:00') silently returns today's timestamp instead of false.
         if ('' === $pickup_date || '' === $return_date) {
             return '';
         }
 
-        // The searched days are the site's calendar days, as instants: the
-        // stored _start_ts / _end_ts they are compared with are real instants.
-        // strtotime() here read them in PHP's zone (UTC under WordPress).
-        $start_ts = self::local_day_bound($pickup_date, '00:00:00');
-        $end_ts   = self::local_day_bound($return_date, '23:59:59');
+        // A time that is not a time (or a default filter answering garbage)
+        // falls back -- it must not switch the filter off and list every
+        // booked vehicle as free.
+        if (1 !== preg_match('/^\d{2}:\d{2}$/', $pickup_time) || null === \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, $pickup_time)) {
+            $pickup_time = (string) apply_filters('mhmrentiva_default_pickup_time', '10:00');
+        }
+        if (1 !== preg_match('/^\d{2}:\d{2}$/', $pickup_time) || null === \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, $pickup_time)) {
+            $pickup_time = '10:00';
+        }
 
-        if (null === $start_ts || null === $end_ts) {
+        $start_ts = \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($pickup_date, $pickup_time);
+        $end_ts   = \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($return_date, $pickup_time);
+
+        if (null === $start_ts || null === $end_ts || $end_ts <= $start_ts) {
             return '';
         }
 
-        /**
-         * Logic: We want vehicles that do NOT have a booking overlapping with the range.
-         * Overlap definition: (start1 < end2) AND (end1 > start2)
-         *
-         * IMPORTANT: We must also exclude bookings where _mhmrentiva_status = 'cancelled'.
-         * WordPress post_status stays as 'publish' even after plugin-level cancellation;
-         * the actual status is stored in the _mhmrentiva_status postmeta field.
-         */
+        $booked = \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::booked_vehicle_ids($start_ts, $end_ts);
+        if (array() === $booked) {
+            return '';
+        }
+
         return $wpdb->prepare(
-            " AND NOT EXISTS (
-                SELECT 1 
-                FROM {$wpdb->posts} as bookings
-                INNER JOIN {$wpdb->postmeta} as m1 ON (bookings.ID = m1.post_id AND m1.meta_key = '_mhmrentiva_vehicle_id')
-                INNER JOIN {$wpdb->postmeta} as m2 ON (bookings.ID = m2.post_id AND m2.meta_key = '_mhmrentiva_start_ts')
-                INNER JOIN {$wpdb->postmeta} as m3 ON (bookings.ID = m3.post_id AND m3.meta_key = '_mhmrentiva_end_ts')
-                WHERE bookings.post_type = 'mhmrentiva_booking'
-                AND bookings.post_status IN ('publish', 'mhm-confirmed', 'mhm-pending')
-                AND m1.meta_value = {$wpdb->posts}.ID
-                AND (CAST(m2.meta_value AS SIGNED) <= %d)
-                AND (CAST(m3.meta_value AS SIGNED) >= %d)
-                AND NOT EXISTS (
-                    SELECT 1 FROM {$wpdb->postmeta} as ms
-                    WHERE ms.post_id = bookings.ID
-                    AND ms.meta_key = '_mhmrentiva_status'
-                    AND ms.meta_value IN ('cancelled', 'refunded')
-                )
-            )",
-            $end_ts,
-            $start_ts
+            " AND {$wpdb->posts}.ID NOT IN (" . implode(',', array_fill(0, count($booked), '%d')) . ')',
+            $booked
         );
     }
     /**

@@ -71,6 +71,8 @@
 				per_page: parseInt( $root.data( 'resultsPerPage' ), 10 ) || 12,
 				page: page,
 				base_url: window.location.href,
+				// The page's id prefix: the sections' heading ids are built on it.
+				instance: String( $root.data( 'rvInstance' ) || '' ),
 				show_favorite_button: flag( $root.data( 'showFavoriteButton' ) ),
 				show_compare_button: flag( $root.data( 'showCompareButton' ) ),
 				// The key the AJAX handler reads (it never read show_booking_btn).
@@ -92,12 +94,24 @@
 		$root.find( '[data-rvs-grid]' ).html( data.html || '' );
 		$root.find( '[data-rvs-pagination]' ).html( data.pagination || '' );
 		$root.find( '[data-rvs-summary]' ).html( data.summary_html || '' );
+		// The phone's summary card follows the same results (and the same
+		// no-"0" rule) as the drawer button beside it.
+		if ( typeof data.summary_card_html === 'string' ) {
+			$root.find( '[data-rvs-summary-card]' ).html( data.summary_card_html );
+		}
 		$root.find( '[data-rvs-chips]' ).html( data.chips_html || '' );
-		$root.find( '[data-rvs-notice]' ).html( data.notice_html || '' );
+		// Page 1 sections; an empty string (later pages, nothing to show) clears them.
+		$root.find( '[data-rvs-nearby]' ).html( data.nearby_html || '' );
+		$root.find( '[data-rvs-booked]' ).html( data.booked_html || '' );
+		announce( $root, data.notice_html || '', meta.announce || '' );
 		if ( meta.active_filters !== undefined ) {
 			$root.find( '[data-rvs-filter-count]' ).text( meta.active_filters );
 		}
-		if ( meta.total !== undefined ) {
+		// The apply label comes whole from the server: its plural follows the
+		// count, and it carries no count when only the sections list cars.
+		if ( typeof data.apply_html === 'string' ) {
+			$root.find( '[data-rvs-apply-label]' ).html( data.apply_html );
+		} else if ( meta.total !== undefined ) {
 			$root.find( '[data-rvs-apply-count]' ).text( meta.total );
 		}
 		applyView( $root, currentView( $root ) );
@@ -106,6 +120,19 @@
 		// that just arrived (new cards) need the same treatment.
 		if ( drawerOpen( $root ) ) {
 			dialog().refresh();
+		}
+	}
+
+	/**
+	 * The status region stays the node the page rendered (a live region added
+	 * later is not reliably read); only its content changes: the notice, then
+	 * one short sentence naming the results and the sections with their counts.
+	 */
+	function announce( $root, noticeHtml, sentence ) {
+		const $region = $root.find( '[data-rvs-notice]' );
+		$region.html( noticeHtml );
+		if ( sentence ) {
+			$region.append( $( '<p class="rvs-sr-only" data-rvs-announce></p>' ).text( sentence ) );
 		}
 	}
 
@@ -160,7 +187,8 @@
 	}
 
 	function applyView( $root, view ) {
-		const $grid = $root.find( '[data-rvs-grid]' );
+		// The main grid and the sections' grids switch together.
+		const $grid = $root.find( '[data-rvs-grid], [data-rvs-section-grid]' );
 		$grid.toggleClass( 'rvs-card-grid', view === 'grid' ).toggleClass( 'rvs-card-list', view === 'list' );
 		$grid.find( '[data-rvs-card]' ).removeClass( 'rvs-card--grid rvs-card--list' ).addClass( 'rvs-card--' + view );
 		$root.find( '[data-rvs-view]' ).each( function () {
@@ -170,7 +198,8 @@
 
 	function clearFilters( $root ) {
 		const $form = $root.find( '[data-rvs-filters]' );
-		$form.find( 'input[type="checkbox"]' ).prop( 'checked', false );
+		// The pickup point is where the visitor is, not a filter: it stays.
+		$form.find( 'input[type="checkbox"]' ).not( '[name="mhmrentiva_pickup_location[]"]' ).prop( 'checked', false );
 		$form.find( 'input[type="number"]' ).val( '' );
 		// The keyword rides with the window but is a filter: it clears too.
 		$root.find( '[data-rvs-window] input[name="mhmrentiva_keyword"]' ).val( '' );

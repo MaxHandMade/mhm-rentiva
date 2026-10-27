@@ -921,7 +921,6 @@
 'mhmrentiva_search_booking'
 'mhmrentiva_search_context'
 'mhmrentiva_search_filters_v1'
-'mhmrentiva_search_locations'
 'mhmrentiva_search_results'
 'mhmrentiva_search_results_nonce'
 'mhmrentiva_search_results_page'

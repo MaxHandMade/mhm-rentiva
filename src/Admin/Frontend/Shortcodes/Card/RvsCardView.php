@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Frontend\Shortcodes\Card;
 
 use MHMRentiva\Admin\Addons\AddonManager;
+use MHMRentiva\Admin\Booking\Helpers\NextFreeWindow;
 use MHMRentiva\Admin\Booking\Helpers\Util;
+use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Core\CurrencyHelper;
@@ -41,9 +43,12 @@ final class RvsCardView {
 	 * @param array<string, mixed>  $vehicle Card data (VehiclesList::get_vehicle_data_for_shortcode() shape).
 	 * @param array<string, mixed>  $atts    Shortcode attributes, canonical names or their aliases.
 	 * @param array<string, string> $dates   Search context (logical keys); empty = read the request.
+	 * @param array<string, mixed>  $extra   Search sections only, each drawn only when given:
+	 *                                       `where` (string, the car's pickup point) or
+	 *                                       `booked` ({earliest: ?int, days: int}, a car booked on the dates).
 	 * @return array<string, mixed>
 	 */
-	public static function from_vehicle(array $vehicle, array $atts, array $dates = array()): array
+	public static function from_vehicle(array $vehicle, array $atts, array $dates = array(), array $extra = array()): array
 	{
 		$vehicle_id = (int) ( $vehicle['id'] ?? 0 );
 		$available  = (bool) ( $vehicle['availability']['is_available'] ?? true );
@@ -53,6 +58,14 @@ final class RvsCardView {
 		$rating_avg   = (float) ( $vehicle['rating']['average'] ?? 0 );
 
 		$dates = self::dates($dates);
+
+		// The booking link carries the car's own pickup point, never the one
+		// searched for: a car shown from another point of the city is
+		// picked up there. '' = no point (Lite alone): the link's own fallback.
+		$point      = $vehicle_id > 0 ? LocationContext::for_vehicle($vehicle_id) : null;
+		$link_dates = array_merge($dates, array( 'pickup_location' => null !== $point ? (string) $point->id : '' ));
+
+		$booked = isset($extra['booked']) && is_array($extra['booked']) ? self::booked($vehicle_id, $extra['booked']) : null;
 
 		return array(
 			'id'          => $vehicle_id,
@@ -93,7 +106,7 @@ final class RvsCardView {
 				// hold one): no rental booking button, as on the old card.
 				'show'  => $on('show_booking_button', 'show_book_button', 'show_booking_btn')
 					&& ( $vehicle_id <= 0 || VehicleDataHelper::allows_service($vehicle_id, 'rental') ),
-				'url'   => VehicleCardLinks::booking_url($vehicle, $atts, $dates),
+				'url'   => VehicleCardLinks::booking_url($vehicle, $atts, $link_dates),
 				'label' => $available ? self::booking_label($atts) : __('Unavailable', 'mhm-rentiva'),
 			),
 			'favorite'    => array(
@@ -112,6 +125,44 @@ final class RvsCardView {
 				'price'    => $on('show_price'),
 				'category' => $on('show_category'),
 			),
+			// The search sections' additions; '' / false on every other list.
+			'where'       => is_string($extra['where'] ?? null) ? trim($extra['where']) : '',
+			'booked'      => null !== $booked,
+			'booked_note' => null !== $booked ? $booked['note'] : '',
+			'booked_url'  => null !== $booked ? $booked['url'] : '',
+		);
+	}
+
+	/**
+	 * A booked car's "Earliest free: …" and the vehicle page link for that
+	 * window; both '' when no free window was found within the horizon.
+	 *
+	 * The window has the vehicle page's shape (NextFreeWindow::window), so
+	 * the page opens on exactly the window the note names. No pickup point
+	 * travels: the vehicle page takes the car's own.
+	 *
+	 * @param array<string, mixed> $booked {earliest: ?int, days: int}.
+	 * @return array{note: string, url: string}
+	 */
+	private static function booked(int $vehicle_id, array $booked): array
+	{
+		$earliest = isset($booked['earliest']) && is_int($booked['earliest']) ? $booked['earliest'] : null;
+		$window   = null !== $earliest ? NextFreeWindow::window($earliest, max(1, (int) ( $booked['days'] ?? 1 ))) : null;
+		if (null === $window) {
+			return array(
+				'note' => '',
+				'url'  => '',
+			);
+		}
+
+		return array(
+			/* translators: %s: date and time the car is next free, in the site's formats. */
+			'note' => sprintf(__('Earliest free: %s', 'mhm-rentiva'), wp_date(get_option('date_format') . ' ' . get_option('time_format'), $window[0])),
+			'url'  => VehicleCardLinks::details_url($vehicle_id, array(
+				'pickup_date' => (string) wp_date('Y-m-d', $window[0]),
+				'pickup_time' => (string) wp_date('H:i', $window[0]),
+				'return_date' => (string) wp_date('Y-m-d', $window[1]),
+			)),
 		);
 	}
 
@@ -186,7 +237,8 @@ final class RvsCardView {
 		$out = array();
 		foreach (VehicleCardLinks::FORWARD_KEYS as $key) {
 			$value = get_query_var(SearchResults::query_var($key), '');
-			if ('' !== $value && null !== $value) {
+			// A list (pickup_location[]) is not one value: it read "Array" here.
+			if (is_scalar($value) && '' !== $value) {
 				$out[ $key ] = sanitize_text_field(wp_unslash( (string) $value ));
 			}
 		}
@@ -360,7 +412,11 @@ final class RvsCardView {
 		if ('' === $pickup || '' === $return) {
 			return null;
 		}
-		$time   = (string) ( $dates['pickup_time'] ?? '' );
+		$time = (string) ( $dates['pickup_time'] ?? '' );
+		if ('' === $time) {
+			// The return is at the pickup's time, defaulted or not (the search's rule).
+			$time = (string) apply_filters('mhmrentiva_default_pickup_time', '10:00');
+		}
 		$parsed = Util::parse_datetimes($pickup, $time, $return, $time);
 
 		return is_wp_error($parsed) ? null : array( (int) $parsed['start_ts'], (int) $parsed['end_ts'] );

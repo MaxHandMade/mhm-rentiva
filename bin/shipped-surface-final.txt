@@ -89,6 +89,7 @@ assets/css/payment/woocommerce-checkout.css
 assets/css/rvs/rvs-breakdown.css
 assets/css/rvs/rvs-calendar.css
 assets/css/rvs/rvs-card.css
+assets/css/rvs/rvs-datepicker.css
 assets/css/rvs/rvs-forms.css
 assets/css/rvs/rvs-overlay.css
 assets/css/rvs/rvs-primitives.css
@@ -257,9 +258,11 @@ src/Admin/Booking/Addons/AddonBooking.php
 src/Admin/Booking/Core/Handler.php
 src/Admin/Booking/Core/Hooks.php
 src/Admin/Booking/Core/Status.php
+src/Admin/Booking/Helpers/BookingConflicts.php
 src/Admin/Booking/Helpers/Cache.php
 src/Admin/Booking/Helpers/CancellationHandler.php
 src/Admin/Booking/Helpers/Locker.php
+src/Admin/Booking/Helpers/NextFreeWindow.php
 src/Admin/Booking/Helpers/SiteTime.php
 src/Admin/Booking/Helpers/Util.php
 src/Admin/Booking/ListTable/BookingColumns.php
@@ -291,6 +294,7 @@ src/Admin/Core/IconConcepts.php
 src/Admin/Core/LanguageHelper.php
 src/Admin/Core/ListTable/FleetOccupancyMatrix.php
 src/Admin/Core/ListTable/ListScreenLayout.php
+src/Admin/Core/LocationContext.php
 src/Admin/Core/MetaBoxes/AbstractMetaBox.php
 src/Admin/Core/MetaKeys.php
 src/Admin/Core/NoticePlacement.php
@@ -557,6 +561,7 @@ templates/partials/rvs/journey-summary.php
 templates/partials/rvs/steps.php
 templates/partials/search/rvs-chips.php
 templates/partials/search/rvs-empty.php
+templates/partials/search/rvs-section.php
 templates/partials/search/rvs-summary.php
 templates/partials/selected-vehicle-summary.php
 templates/partials/vehicle-card-base.php

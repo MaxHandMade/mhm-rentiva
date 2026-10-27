@@ -160,7 +160,9 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
         $this->assertSame($expected_end, $data['atts']['end_date']);
         $this->assertSame('09:00', $data['atts']['pickup_time']);
         $this->assertSame('17:00', $data['atts']['return_time']);
-        $this->assertSame(3, $data['atts']['pickup_location_id']);
+        // PR S: the pickup point is the car's, never the URL's; this site
+        // has no rental location, so there is none.
+        $this->assertSame(0, $data['pickup_location_id']);
     }
 
     /**
@@ -182,7 +184,10 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
         $this->assertStringContainsString('data-testid="vehicle-book-btn"', $output);
 
         $this->assertMatchesRegularExpression('/href="[^"]*mhmrentiva_vehicle_id=' . preg_quote((string) $this->vehicle_id, '/') . '[^"]*"/', $output);
-        $this->assertStringContainsString('mhmrentiva_pickup_location=7', $output);
+        // PR S: the card names the car's own pickup point, never the one in
+        // the request -- a car listed from another point is picked up there.
+        // This site has no rental locations, so no point travels.
+        $this->assertStringNotContainsString('mhmrentiva_pickup_location=7', $output);
         $this->assertStringContainsString('mhmrentiva_pickup_date=2026-08-10', $output);
         $this->assertStringContainsString('mhmrentiva_pickup_time=11', $output);
         $this->assertStringContainsString('mhmrentiva_return_date=2026-08-15', $output);

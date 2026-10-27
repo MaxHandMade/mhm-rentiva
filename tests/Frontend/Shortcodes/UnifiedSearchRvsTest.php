@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
 use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
 use MHMRentiva\Tests\Support\RequestSimulator;
@@ -16,6 +17,8 @@ use WP_UnitTestCase;
  */
 final class UnifiedSearchRvsTest extends WP_UnitTestCase
 {
+	use \MHMRentiva\Tests\Support\StyleDependencies;
+
 	public function setUp(): void
 	{
 		parent::setUp();
@@ -29,6 +32,8 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 			set_query_var(SearchResults::query_var($key), '');
 		}
 		delete_option('mhmrentiva_settings');
+		remove_all_filters('mhmrentiva_locations');
+		LocationContext::flush();
 		RequestSimulator::new_request();
 		parent::tearDown();
 	}
@@ -98,6 +103,55 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/<option value="14:30" selected/', $html);
 	}
 
+	/**
+	 * The date fields show the site format from the first
+	 * paint (no Y-m-d before the script runs). The visible field carries the
+	 * name, so without JavaScript the form submits what it shows (read back by
+	 * DatepickerAssets::parse_date()); the script hands the name to the
+	 * unnamed hidden Y-m-d field right after it.
+	 */
+	public function test_date_fields_render_in_the_site_format_and_submit_iso(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		set_query_var(SearchResults::query_var('pickup_date'), '2027-07-12');
+		set_query_var(SearchResults::query_var('return_date'), '2027-07-15');
+		try {
+			$html = do_shortcode('[rentiva_unified_search]');
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		foreach (array( 'pickup' => array( '12/07/2027', '2027-07-12' ), 'return' => array( '15/07/2027', '2027-07-15' ) ) as $field => $dates) {
+			$this->assertMatchesRegularExpression(
+				'/<input id="[^"]+-' . $field . '-date" type="text" class="[^"]*js-datepicker" name="' . SearchResults::query_var($field . '_date') . '" value="' . preg_quote($dates[0], '/') . '"[^>]*>\s*<input type="hidden" value="' . $dates[1] . '" data-rvs-date-value>/',
+				$html,
+				$field . ': visible and named in the site format, hidden Y-m-d right after it.'
+			);
+		}
+		$this->assertDoesNotMatchRegularExpression('/type="hidden"[^>]*name="mhmrentiva_(pickup|return)_date"/', $html, 'Before the script the hidden field submits nothing.');
+	}
+
+	/**
+	 * A date submitted without JavaScript arrives in the site format; the
+	 * strip reads it back (the results page's "Change" prefill).
+	 */
+	public function test_a_date_in_the_site_format_prefills_the_strip(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		set_query_var(SearchResults::query_var('pickup_date'), '12/07/2027');
+		set_query_var(SearchResults::query_var('return_date'), '2027-07-15');
+		try {
+			$values = UnifiedSearch::values(false);
+		} finally {
+			update_option('date_format', $saved);
+		}
+
+		$this->assertSame('2027-07-12', $values['pickup_date']);
+		$this->assertSame('2027-07-15', $values['return_date']);
+	}
+
 	public function test_malformed_request_values_are_ignored(): void
 	{
 		set_query_var(SearchResults::query_var('pickup_date'), '"><script>');
@@ -122,5 +176,70 @@ final class UnifiedSearchRvsTest extends WP_UnitTestCase
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-search', 'enqueued'));
 		$this->assertFalse(wp_style_is('mhm-rentiva-unified-search-base', 'enqueued'));
+		// PR S: the date popup wears the booking form's rvs skin here too.
+		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-search', 'mhm-rentiva-rvs-datepicker'), 'The strip loads the rvs datepicker skin.');
+	}
+
+	/**
+	 * @param array<int, array{0:int,1:string,2:string}> $rows id, name, city.
+	 */
+	private function locations(array $rows): void
+	{
+		$objects = array();
+		foreach ($rows as $row) {
+			$objects[] = (object) array( 'id' => (string) $row[0], 'name' => $row[1], 'city' => $row[2] );
+		}
+		remove_all_filters('mhmrentiva_locations');
+		LocationContext::flush();
+		add_filter('mhmrentiva_locations', static fn ($locations, $type) => 'rental' === $type ? $objects : $locations, 10, 2);
+	}
+
+	public function test_lite_alone_has_no_location_field_nor_line(): void
+	{
+		$html = do_shortcode('[rentiva_unified_search]');
+
+		$this->assertStringNotContainsString('data-rvs-pickup-location', $html);
+		$this->assertStringNotContainsString('data-rvs-pickup-where', $html);
+		$this->assertStringContainsString('rvs-search--no-location', $html);
+	}
+
+	public function test_single_location_hides_select_and_shows_line(): void
+	{
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ) ));
+
+		$html = do_shortcode('[rentiva_unified_search show_location_select="1"]');
+
+		$this->assertStringNotContainsString('data-rvs-pickup-location', $html, 'One pickup point: nothing to choose, whatever the attribute says.');
+		$this->assertStringContainsString('rvs-search--no-location', $html);
+		$this->assertSame(1, preg_match('#<p class="rvs-search__where" data-rvs-pickup-where>(.*?)</p>#s', $html, $m));
+		$this->assertStringContainsString('Pickup and return: <strong>İstanbul Havalimanı</strong>', $m[1]);
+	}
+
+	public function test_multi_location_shows_select_without_line(): void
+	{
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ), array( 4, 'Sabiha Gökçen', 'İstanbul' ) ));
+		set_query_var(SearchResults::query_var('pickup_location'), '4');
+
+		$html = do_shortcode('[rentiva_unified_search]');
+
+		$this->assertStringContainsString('data-rvs-pickup-location', $html);
+		$this->assertStringNotContainsString('data-rvs-pickup-where', $html);
+		$this->assertMatchesRegularExpression('#<option value="4" selected#', $html);
+		$this->assertStringContainsString('>Sabiha Gökçen</option>', $html);
+	}
+
+	public function test_url_location_ignored_when_zero_or_one_location(): void
+	{
+		set_query_var(SearchResults::query_var('pickup_location'), '3');
+		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'Lite alone.');
+
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ) ));
+		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'One location.');
+
+		$this->locations(array( array( 3, 'İstanbul Havalimanı', 'İstanbul' ), array( 4, 'Sabiha Gökçen', 'İstanbul' ) ));
+		$this->assertSame('3', UnifiedSearch::values()['pickup_location']);
+
+		set_query_var(SearchResults::query_var('pickup_location'), '99');
+		$this->assertSame('', UnifiedSearch::values()['pickup_location'], 'Not a rental location.');
 	}
 }

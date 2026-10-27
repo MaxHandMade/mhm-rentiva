@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Unit\Frontend;
 
+use MHMRentiva\Admin\Core\LocationContext;
 use WP_UnitTestCase;
 
 /**
@@ -27,6 +28,7 @@ final class LocationHooksDefaultTest extends WP_UnitTestCase
         remove_all_filters('mhmrentiva_locations');
         remove_all_filters('mhmrentiva_location_by_id');
         remove_all_filters('mhmrentiva_has_locations');
+        LocationContext::flush();
         parent::tearDown();
     }
 
@@ -54,5 +56,15 @@ final class LocationHooksDefaultTest extends WP_UnitTestCase
         $this->assertNotSame(array(), apply_filters('mhmrentiva_locations', array(), 'rental'));
         $this->assertNotNull(apply_filters('mhmrentiva_location_by_id', null, 42));
         $this->assertTrue(apply_filters('mhmrentiva_has_locations', false));
+    }
+
+    public function test_location_context_reads_the_locations_hook(): void
+    {
+        LocationContext::flush();
+        $this->assertSame(array(), LocationContext::rental_locations(), 'Lite alone: no rental locations.');
+
+        add_filter('mhmrentiva_locations', static fn ($locations, $type) => 'rental' === $type ? array( (object) array( 'id' => '1', 'name' => 'Demo', 'city' => 'X' ) ) : $locations, 10, 2);
+        $this->assertTrue(LocationContext::is_single());
+        $this->assertSame('Demo', LocationContext::single()->name);
     }
 }

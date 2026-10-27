@@ -831,6 +831,70 @@ final class Plugin {
 	}
 
 	/**
+	 * Query args the CPT request was routed by: the vehicle page names the
+	 * vehicle by its own path, so these must not travel along.
+	 */
+	private const VEHICLE_ROUTING_ARGS = array( 'mhmrentiva_vehicle', 'mhmrentiva_vehicle_slug', 'p', 'post_type', 'name', 'page_id', 'pagename', 'preview', 'preview_id', 'preview_nonce' );
+
+	/**
+	 * Where the vehicle CPT permalink redirects: the vehicle page, with the
+	 * request's query args carried across.
+	 *
+	 * The rental window (the "look from that date" link of a booked search card,
+	 * the booking form's "Change") must survive the hop, and so must campaign
+	 * args (utm_*, gclid, fbclid) on a link someone shared. Dropped:
+	 * - the args the CPT request was routed by (VEHICLE_ROUTING_ARGS);
+	 * - WordPress's public query vars ($wp->public_query_vars, so it follows
+	 *   what core and other plugins register) other than this plugin's own
+	 *   search and booking-window vars (vehicle_redirect_carried_vars()): on the
+	 *   details page `s`, `feed`, `cat`, `paged` ... would re-route the request
+	 *   (a search, a feed) instead of showing the car, and so would a taxonomy
+	 *   var such as `mhmrentiva_vehicle_category` (a category archive), even
+	 *   though it carries this plugin's prefix.
+	 * Only scalar values travel; each is URL-encoded onto a URL this site
+	 * builds, so the target host never comes from the request.
+	 *
+	 * @param array<string, mixed> $query_args The request's unslashed query args.
+	 */
+	public static function vehicle_redirect_url(\WP_Post $vehicle, array $query_args): string
+	{
+		$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle->ID);
+
+		$wp_vars = isset($GLOBALS['wp']) && $GLOBALS['wp'] instanceof \WP ? (array) $GLOBALS['wp']->public_query_vars : array();
+		$own     = self::vehicle_redirect_carried_vars();
+
+		$carry = array();
+		foreach ($query_args as $key => $value) {
+			$key = (string) $key;
+			if (in_array($key, self::VEHICLE_ROUTING_ARGS, true) || ! is_scalar($value)) {
+				continue;
+			}
+			if (in_array($key, $wp_vars, true) && ! in_array($key, $own, true)) {
+				continue;
+			}
+			$carry[ rawurlencode($key) ] = rawurlencode( (string) $value);
+		}
+
+		return array() === $carry ? $url : add_query_arg($carry, $url);
+	}
+
+	/**
+	 * The public query vars the vehicle redirect keeps: the ones the search
+	 * strip and the booking window read -- the same set the front-page routing
+	 * of a search accepts (SearchResults::route_front_page()). Taxonomy and
+	 * post-type vars are not in it.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function vehicle_redirect_carried_vars(): array
+	{
+		return array_merge(
+			\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::PUBLIC_QUERY_VARS,
+			\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::PUBLIC_QUERY_VARS
+		);
+	}
+
+	/**
 	 * Load vehicle templates
 	 */
 	public function load_vehicle_templates(): void
@@ -845,11 +909,16 @@ final class Plugin {
 		// header, navigation, and footer — which template_redirect+include cannot
 		// provide for FSE block themes whose navigation lives in block templates.
 		$details_page_id = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id('rentiva_vehicle_details');
-		if ($details_page_id) {
-			$vehicle_post = get_queried_object();
-			$details_base = untrailingslashit( (string) get_permalink($details_page_id));
-			$clean_url    = $details_base . '/' . $vehicle_post->post_name . '/';
-			wp_safe_redirect($clean_url, 301);
+		$vehicle_post    = get_queried_object();
+		// A vehicle the details page cannot show (not published) has no other page:
+		// vehicle_page_url() is then its own permalink, and redirecting there would loop.
+		if ($details_page_id && $vehicle_post instanceof \WP_Post
+			&& \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_post->ID) !== get_permalink($vehicle_post)) {
+			// The request's own query string (add_query_arg() with no URL is the
+			// current request URI), parsed the way WordPress parses one.
+			$query_args = array();
+			wp_parse_str( (string) wp_parse_url(add_query_arg(array()), PHP_URL_QUERY), $query_args);
+			wp_safe_redirect(self::vehicle_redirect_url($vehicle_post, $query_args), 301);
 			exit;
 		}
 

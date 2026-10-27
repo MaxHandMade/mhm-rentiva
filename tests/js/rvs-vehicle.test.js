@@ -167,6 +167,21 @@ describe( 'rvs vehicle page', () => {
 		expect( document.querySelector( '[data-rvs-vd-months]' ).textContent ).toContain( 'M1' );
 	} );
 
+	// PR S: the car has its own pickup point; the page posts no location, even
+	// if a stray field (an old cached card, another script) carries one.
+	test( 'window fields post the dates and time only, never a location', async () => {
+		await boot( page( 'vd1' ).replace( '<span data-rvs-return-time-display>', '<input name="pickup_location" value="6"><span data-rvs-return-time-display>' ) );
+		change( document.querySelector( '[data-rvs-pickup-date]' ) );
+		jest.advanceTimersByTime( 300 );
+		document.querySelector( '[data-rvs-month-nav="1"]' ).click();
+
+		jQuery.ajax.mock.calls.forEach( ( call ) => {
+			expect( call[ 0 ].data ).not.toHaveProperty( 'pickup_location' );
+			expect( call[ 0 ].data.pickup_date ).toBe( '2027-07-12' );
+		} );
+		expect( jQuery.ajax ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	test( 'unavailable window disables continue and announces the message', async () => {
 		await boot();
 		change( document.querySelector( '[data-rvs-pickup-date]' ) );
@@ -328,5 +343,38 @@ describe( 'rvs vehicle page', () => {
 		const message = document.querySelector( '[data-rvs-vd-message]' );
 		expect( message.hidden ).toBe( false );
 		expect( message.textContent ).toBe( 'Something went wrong' );
+	} );
+
+	// PR S: the card's date fields show the site format (shared
+	// datepicker init) and the page still posts and writes back Y-m-d.
+	test( 'dates in the site format: posts Y-m-d, writes the server window back formatted', async () => {
+		const html = page( 'vd1' )
+			.replace( '<input name="pickup_date"', '<input class="js-datepicker" name="pickup_date"' )
+			.replace( '<input name="return_date"', '<input class="js-datepicker" name="return_date"' );
+		await boot( html );
+		require( './support/fake-datepicker' ).install( jQuery );
+		window.mhmDatepickerL10n = { dateFormat: 'dd/mm/yy', altFormat: 'yy-mm-dd' };
+		require( '../../assets/js/core/datepicker-init.js' );
+		window.mhmRentivaDatepicker.init( '.js-datepicker' );
+
+		const pickup = document.querySelector( '[data-rvs-pickup-date]' );
+		expect( pickup.value ).toBe( '12/07/2027' );
+		change( pickup );
+		jest.advanceTimersByTime( 300 );
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.pickup_date ).toBe( '2027-07-12' );
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.return_date ).toBe( '2027-07-15' );
+
+		answer( 0, Object.assign( {}, quote, { window: { pickup_date: '2027-07-13', pickup_time: '12:30', return_date: '2027-07-16' } } ) );
+		expect( pickup.value ).toBe( '13/07/2027' );
+		expect( document.querySelector( '[data-rvs-return-date]' ).value ).toBe( '16/07/2027' );
+		const posted = {};
+		jQuery( '[data-rvs-vd-window]' ).serializeArray().forEach( ( item ) => {
+			posted[ item.name ] = item.value;
+		} );
+		expect( posted.pickup_date ).toBe( '2027-07-13' );
+		expect( posted.return_date ).toBe( '2027-07-16' );
+
+		delete window.mhmDatepickerL10n;
+		delete window.mhmRentivaDatepicker;
 	} );
 } );

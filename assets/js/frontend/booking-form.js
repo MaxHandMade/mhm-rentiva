@@ -11,8 +11,9 @@
  * - The summary takes the breakdown the server renders (`breakdown_html`);
  *   without it the display_* amounts build a plain one (older answers).
  * - On a phone the summary is a bottom band; its toggle opens the summary.
- * - The jQuery UI datepicker popup wears `rvs-shell rvs-dp` only while a
- *   booking date field has it open (the popup is shared with other forms).
+ * - The jQuery UI datepicker popup wears `rvs-shell rvs-dp` from the moment a
+ *   booking date field opens it until a field outside the shell opens it (the
+ *   popup is shared with other forms; datepicker-init.js takes the skin off).
  */
 
 (function ($) {
@@ -258,12 +259,12 @@
                                 $(input).blur();
                             });
                         }, 10);
-                    },
-                    // One popup serves every datepicker on the page (the search
-                    // strip's too): take the shell off when this field lets it go.
-                    onClose: function (text, inst) {
-                        $(inst && inst.input ? inst.input : this).datepicker('widget').removeClass('rvs-shell rvs-dp');
                     }
+                    // No onClose removal: jQuery UI calls onClose as the fade-out
+                    // starts, and without the skin the closing popup was painted by
+                    // datepicker-custom.css where that sheet also loads. One popup
+                    // serves every field on the page; a field outside the shell
+                    // takes the skin off when it opens (datepicker-init.js).
                 };
 
                 this.hook('pickup-date').add(this.hook('dropoff-date')).each(function () {
@@ -466,10 +467,7 @@
                 requestData.append('pickup_time', formData.pickup_time);
             }
             requestData.append('payment_type', formData.payment_type);
-            // For the answer's change_url (the vehicle page keeps the location).
-            if (formData.pickup_location_id > 0) {
-                requestData.append('pickup_location_id', formData.pickup_location_id);
-            }
+            // No pickup location: the server takes the car's own point (PR S).
             // Display only: a form with enable_deposit="0" names no deposit.
             requestData.append('enable_deposit', this.container.attr('data-rvs-deposit') === '0' ? '0' : '1');
 
@@ -606,9 +604,8 @@
                 addons: addons,
                 addon_qty: addonQty,
                 payment_type: field('payment_type') || 'deposit',
-                redirect_url: $c.attr('data-redirect-url'),
-                // Prefilled pickup location (hidden input rendered by booking-form.php); 0 when absent, as the server's int read.
-                pickup_location_id: parseInt(field('pickup_location_id'), 10) || 0
+                // No pickup location: the server takes it from the car.
+                redirect_url: $c.attr('data-redirect-url')
             };
 
             // Post-process dates to ISO format for server compatibility
@@ -688,6 +685,13 @@
             // the "Change" link to the vehicle page with this window.
             if (typeof data.window_text === 'string') {
                 this.hook('summary-dates').text(data.window_text);
+            }
+            // The chosen car's pickup point ("Pickup and return: X"): Case B
+            // learns the car only here. Text, never markup.
+            if (typeof data.location_name === 'string') {
+                const $where = this.hook('summary-location');
+                $where.find('[data-rvs-summary-where]').text(data.location_name);
+                $where.prop('hidden', data.location_name === '');
             }
             if (typeof data.change_url === 'string') {
                 const $change = this.hook('change');

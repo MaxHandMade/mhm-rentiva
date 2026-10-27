@@ -1200,7 +1200,7 @@ final class VehicleColumns {
 		// so the save/delete hooks that survived the cache's removal work
 		// again. (A dead debug query that fetched every vehicle on every
 		// list load and used nothing lived here — gone.)
-		$cache_key = 'mhmrentiva_vehicle_stats_shared';
+		$cache_key = 'mhmrentiva_vehicle_stats_shared_' . \MHMRentiva\Admin\Core\Utilities\OccupancyMapService::generation();
 		$stats     = get_transient($cache_key);
 
 		if ($stats !== false && is_array($stats)) {

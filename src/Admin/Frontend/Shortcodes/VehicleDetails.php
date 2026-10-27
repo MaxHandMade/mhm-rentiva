@@ -117,14 +117,19 @@ final class VehicleDetails extends AbstractShortcode {
 		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );
 		$months  = VehicleDetailsView::months( $vehicle_id, $window['pickup_date'], $window );
 
+		// Dates the server cannot price (wrong order) carry no total, days or
+		// breakdown: the card shows the message alone.
+		$priced = ! empty( $booking['priced'] );
+
 		wp_send_json_success(
 			array(
-				'days'           => (int) $booking['days'],
-				'total_html'     => (string) $booking['breakdown']['total']['html'],
-				'breakdown_html' => (string) Templates::render( 'partials/rvs/breakdown', array(
+				'priced'         => $priced,
+				'days'           => $priced ? (int) $booking['days'] : 0,
+				'total_html'     => $priced ? (string) $booking['breakdown']['total']['html'] : '',
+				'breakdown_html' => $priced ? (string) Templates::render( 'partials/rvs/breakdown', array(
 					'breakdown'   => $booking['breakdown'],
 					'collapsible' => true,
-				), true ),
+				), true ) : '',
 				'continue_url'   => (string) $booking['continue_url'],
 				'available'      => (bool) $booking['available'],
 				'message'        => (string) $booking['message'],
@@ -137,12 +142,13 @@ final class VehicleDetails extends AbstractShortcode {
 
 	/**
 	 * The posted window; VehicleDetailsView::window() validates each value.
+	 * No pickup location: the car has its own (PR S).
 	 *
 	 * @return array<string, string>
 	 */
 	private static function posted_window( VerifiedRequest $req ): array {
 		$window = array();
-		foreach ( array( 'pickup_date', 'pickup_time', 'return_date', 'pickup_location' ) as $key ) {
+		foreach ( array( 'pickup_date', 'pickup_time', 'return_date' ) as $key ) {
 			$window[ $key ] = $req->text( $key );
 		}
 		return $window;
@@ -207,6 +213,9 @@ final class VehicleDetails extends AbstractShortcode {
 				// Authorizes only public reads (months, the booking-card quote), so it
 				// stays real in an editor preview like the other public-read nonces.
 				'nonce'    => wp_create_nonce( 'mhmrentiva_vd_nonce' ),
+				// The return moves to pickup + this many days when pickup passes it
+				// (the search strip's rule, Settings > Booking).
+				'min_days' => BookingForm::min_rental_days(),
 				'i18n'     => array(
 					'error'     => __( 'Something went wrong. Please try again.', 'mhm-rentiva' ),
 					/* translators: %s: number of rental days. */

@@ -11,6 +11,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
@@ -74,7 +75,7 @@ final class BookingForm extends AbstractShortcode {
 	 *
 	 * @var array<int, string>
 	 */
-	private const PUBLIC_QUERY_VARS = array(
+	public const PUBLIC_QUERY_VARS = array(
 		'mhmrentiva_vehicle_id',
 		'mhmrentiva_start_date',
 		'mhmrentiva_end_date',
@@ -451,22 +452,8 @@ final class BookingForm extends AbstractShortcode {
 		$atts['pickup_time'] = self::get_text('pickup_time');
 		$atts['return_time'] = self::get_text('return_time');
 
-		// Read pickup location ID and resolve its name.
-		$pickup_location_id   = absint(self::get_text('pickup_location'));
-		$pickup_location_name = '';
-		// Locations come from an add-on via the filter. Without one the name stays
-		// empty and the form simply shows no pick-up location.
-		if ($pickup_location_id > 0) {
-			$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
-			foreach ($locations as $loc) {
-				if ( (int) $loc->id === $pickup_location_id) {
-					$pickup_location_name = (string) $loc->name;
-					break;
-				}
-			}
-		}
-		$atts['pickup_location_id']   = $pickup_location_id;
-		$atts['pickup_location_name'] = $pickup_location_name;
+		// No pickup location from the URL: the car is picked up and returned at
+		// its own point, derived from the vehicle below (PR S).
 
 		// The window as ISO dates (Y-m-d), before the fields get the site format:
 		// the summary and the "Change" link speak ISO.
@@ -515,8 +502,8 @@ final class BookingForm extends AbstractShortcode {
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,
 			'customer_settings'     => self::get_customer_settings(),
-			'pickup_location_id'    => (int) ( $atts['pickup_location_id'] ?? 0 ),
-			'pickup_location_name'  => (string) ( $atts['pickup_location_name'] ?? '' ),
+			'pickup_location_id'    => 0,
+			'pickup_location_name'  => '',
 			'prefill_pickup_time'   => (string) ( $atts['pickup_time'] ?? '' ),
 		);
 
@@ -533,6 +520,14 @@ final class BookingForm extends AbstractShortcode {
 				$data['selected_vehicle'] = $vehicle;
 				// Hide vehicle selector when vehicle is selected
 				$data['show_vehicle_selector'] = false;
+
+				// The car's own pickup point (Case A). Case B learns it from the
+				// quote answer once a car is chosen.
+				$location = LocationContext::for_vehicle($vehicle_id);
+				if (null !== $location) {
+					$data['pickup_location_id']   = (int) $location->id;
+					$data['pickup_location_name'] = (string) $location->name;
+				}
 			}
 		}
 
@@ -551,7 +546,10 @@ final class BookingForm extends AbstractShortcode {
 				'return_date'     => $iso_end,
 				'return_time'     => $data['show_time_select'] ? (string) $atts['return_time'] : '12:00',
 			),
-			$data['pickup_location_name']
+			$data['pickup_location_name'],
+			// Case B on a site with rental locations: an empty, hidden line the
+			// quote answer fills for the chosen car.
+			null === $data['selected_vehicle'] && array() !== LocationContext::rental_locations()
 		);
 
 		return $data;
@@ -634,11 +632,17 @@ final class BookingForm extends AbstractShortcode {
 	 * daily price. Case B: an empty vehicle frame (`pick`) the script fills from
 	 * the chosen option; no link until then.
 	 *
-	 * @param array<string, mixed>|null $vehicle prepare_selected_vehicle().
-	 * @param array<string, string>     $window  Logical keys, ISO dates.
+	 * The location line ("Pickup and return: X") names the car's own pickup
+	 * point; `location_slot` asks for it empty and hidden (Case B), for the
+	 * quote answer's location_name to fill.
+	 *
+	 * @param array<string, mixed>|null $vehicle       prepare_selected_vehicle().
+	 * @param array<string, string>     $window        Logical keys, ISO dates.
+	 * @param string                    $location_name The car's pickup point, '' without one.
+	 * @param bool                      $location_slot Render the line empty and hidden when there is no name.
 	 * @return array<string, mixed>
 	 */
-	private static function summary_view(?array $vehicle, bool $show_vehicle_info, array $window, string $location_name): array
+	private static function summary_view(?array $vehicle, bool $show_vehicle_info, array $window, string $location_name, bool $location_slot = false): array
 	{
 		$vehicle_id = (int) ( $vehicle['id'] ?? 0 );
 		$card       = null;
@@ -656,12 +660,13 @@ final class BookingForm extends AbstractShortcode {
 		$daily = $vehicle_id > 0 ? (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) : 0.0;
 
 		return array(
-			'vehicle'    => $card,
-			'pick'       => 0 === $vehicle_id && $show_vehicle_info,
-			'location'   => $location_name,
-			'dates'      => self::window_text($window),
-			'change_url' => $vehicle_id > 0 ? \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window) : '',
-			'daily_html' => $daily > 0 ? \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($daily)['html'] : '',
+			'vehicle'       => $card,
+			'pick'          => 0 === $vehicle_id && $show_vehicle_info,
+			'location'      => $location_name,
+			'location_slot' => $location_slot,
+			'dates'         => self::window_text($window),
+			'change_url'    => $vehicle_id > 0 ? \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window) : '',
+			'daily_html'    => $daily > 0 ? \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($daily)['html'] : '',
 		);
 	}
 
@@ -850,7 +855,7 @@ final class BookingForm extends AbstractShortcode {
 				'id'             => $vehicle->ID,
 				'title'          => $vehicle->post_title,
 				// The summary's "Change" link for this choice (booking-form.js adds the window).
-				'permalink'      => (string) get_permalink($vehicle->ID),
+				'permalink'      => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle->ID),
 				'price_per_day'  => (string) get_post_meta($vehicle->ID, '_mhmrentiva_price_per_day', true),
 				'category_name'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_category($vehicle->ID),
 				'featured_image' => get_the_post_thumbnail_url($vehicle->ID, 'large'),
@@ -1151,8 +1156,9 @@ final class BookingForm extends AbstractShortcode {
 			$dropoff_time = self::return_time($pickup_time);
 
 			$guests = max(1, $req->int('guests', 1));
-			// Only an active rental location (see valid_pickup_location()).
-			$pickup_location_id = self::valid_pickup_location($req->int('pickup_location_id'));
+			// The car's own pickup point; a posted pickup_location_id is not read
+			// (PR S): the customer picks up where the car is.
+			$pickup_location_id = self::vehicle_location_id($vehicle_id);
 
 			// ⭐ WooCommerce Integration: Customer information is optional
 			// WooCommerce checkout will collect customer information
@@ -1617,9 +1623,11 @@ final class BookingForm extends AbstractShortcode {
 
 			// Display only: the summary's window line and its "Change" link for
 			// the window this quote is for, built as the template builds them.
-			$window                       = self::quote_window($req, $pickup_date, $dropoff_date);
-			$response_data['window_text'] = self::window_text($window);
-			$response_data['change_url']  = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window);
+			$location                       = LocationContext::for_vehicle($vehicle_id);
+			$window                         = self::quote_window($req, null !== $location ? (int) $location->id : 0, $pickup_date, $dropoff_date);
+			$response_data['window_text']   = self::window_text($window);
+			$response_data['change_url']    = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($vehicle_id, $window);
+			$response_data['location_name'] = null !== $location ? (string) $location->name : '';
 
 			return self::succeeded($response_data);
 		} catch (\InvalidArgumentException $e) {
@@ -1632,15 +1640,15 @@ final class BookingForm extends AbstractShortcode {
 	/**
 	 * A quote request's window in the logical keys summary_view() uses: ISO
 	 * dates, the posted pickup time ('' when none was chosen) with the return
-	 * time the server applies, and the pickup location when it is a valid one.
+	 * time the server applies, and the car's own pickup point.
 	 *
+	 * @param int $location The car's own pickup point id (LocationContext::for_vehicle()), 0 without one.
 	 * @return array<string, string>
 	 */
-	private static function quote_window(VerifiedRequest $req, string $pickup_date, string $dropoff_date): array
+	private static function quote_window(VerifiedRequest $req, int $location, string $pickup_date, string $dropoff_date): array
 	{
-		$time     = $req->text('pickup_time', '');
-		$time     = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
-		$location = self::valid_pickup_location($req->int('pickup_location_id'));
+		$time = $req->text('pickup_time', '');
+		$time = 1 === preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
 
 		return array(
 			'pickup_location' => $location > 0 ? (string) $location : '',
@@ -1652,24 +1660,16 @@ final class BookingForm extends AbstractShortcode {
 	}
 
 	/**
-	 * A posted pickup location id when it names an active rental location, else 0.
-	 *
-	 * Locations come from an add-on via the filter: without one there is nothing
-	 * to validate against, so a posted id (only reachable by hand-crafting the
-	 * request, since Lite renders no location picker) is rejected, not trusted.
+	 * The car's own pickup point id (LocationContext::for_vehicle: vehicle ->
+	 * vendor -> site default, a rental location only; the one location on a
+	 * single-location site), else 0 -- also on a site without rental
+	 * locations (Lite alone). The request never names it (PR S).
 	 */
-	private static function valid_pickup_location(int $location_id): int
+	private static function vehicle_location_id(int $vehicle_id): int
 	{
-		if ($location_id <= 0) {
-			return 0;
-		}
-		foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
-			if ( (int) $loc->id === $location_id) {
-				return $location_id;
-			}
-		}
+		$location = LocationContext::for_vehicle($vehicle_id);
 
-		return 0;
+		return null !== $location ? (int) $location->id : 0;
 	}
 
 	/**
@@ -1930,8 +1930,7 @@ final class BookingForm extends AbstractShortcode {
 	private static function get_datepicker_options(): array
 	{
 		// Get WordPress date format and map it to jQuery UI Datepicker format
-		$wp_format = get_option('date_format', 'Y-m-d');
-		$js_format = self::map_php_to_datepicker_format($wp_format);
+		$js_format = \MHMRentiva\Admin\Core\Assets\DatepickerAssets::js_date_format( (string) get_option('date_format', 'Y-m-d'));
 
 		// Apply booking constraints from Vehicle Management Settings
 		$allow_same_day = '1' === \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_allow_same_day', '1');
@@ -2012,28 +2011,6 @@ final class BookingForm extends AbstractShortcode {
 			'showOtherMonths'    => true,
 			'selectOtherMonths'  => true,
 		);
-	}
-
-	/**
-	 * Map PHP date format to jQuery UI Datepicker format
-	 * Supports most common WordPress date tokens
-	 */
-	private static function map_php_to_datepicker_format(string $php_format): string
-	{
-		$replacements = array(
-			'Y' => 'yy',
-			'y' => 'y',
-			'm' => 'mm',
-			'n' => 'm',
-			'd' => 'dd',
-			'j' => 'd',
-			'F' => 'MM',
-			'M' => 'M',
-			'l' => 'DD',
-			'D' => 'D',
-		);
-
-		return strtr($php_format, $replacements);
 	}
 
 	/**

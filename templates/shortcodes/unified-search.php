@@ -11,6 +11,7 @@
  * @var array  $locations             Location options (id, name).
  * @var string $wrapper_id            Unique id prefix for this strip.
  * @var bool   $show_location_select  Whether to show the location select.
+ * @var string $pickup_where          The single rental location's name ('' unless exactly one).
  * @var bool   $show_time_select      Whether to show the time selects.
  * @var bool   $show_date_picker      Whether to show the date fields.
  * @var bool   $show_dropoff_location Whether to show the drop-off select.
@@ -37,6 +38,7 @@ $mhmrentiva_qv = static function (string $logical): string {
 };
 
 $show_location_select  = $show_location_select ?? true;
+$pickup_where          = (string) ( $pickup_where ?? '' );
 $show_time_select      = $show_time_select ?? true;
 $show_date_picker      = $show_date_picker ?? true;
 $show_dropoff_location = $show_dropoff_location ?? false;
@@ -45,6 +47,15 @@ $fields_required       = $fields_required ?? true;
 $location_required = $fields_required ? ( $location_required ?? true ) : false;
 $is_preview        = RenderContext::current()->is_preview();
 $picked_time       = (string) ( $values['pickup_time'] ?? '10:00' );
+
+// Each date field: the visible input shows the site's date format from the
+// first paint (no Y-m-d flash before the script) and carries the name, so a
+// page without JavaScript submits that text (read back by
+// DatepickerAssets::parse_date()); datepicker-init.js then hands the name to
+// the hidden Y-m-d input right after it.
+$mhmrentiva_shown = static function (string $key) use ($values): string {
+	return \MHMRentiva\Admin\Core\Assets\DatepickerAssets::display_date( (string) ( $values[ $key ] ?? '' ));
+};
 
 $time_options = static function (string $selected): void {
 	for ($i = 0; $i < 24; $i++) {
@@ -75,7 +86,8 @@ $time_options = static function (string $selected): void {
 			<div class="rvs-field rvs-search__field">
 				<label for="<?php echo esc_attr($uid); ?>-pickup-date"><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></label>
 				<div class="rvs-search__when">
-					<input id="<?php echo esc_attr($uid); ?>-pickup-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" value="<?php echo esc_attr( (string) ( $values['pickup_date'] ?? '' )); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-pickup-date data-testid="search-pickup-date">
+					<input id="<?php echo esc_attr($uid); ?>-pickup-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" value="<?php echo esc_attr($mhmrentiva_shown('pickup_date')); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-pickup-date data-testid="search-pickup-date">
+					<input type="hidden" value="<?php echo esc_attr( (string) ( $values['pickup_date'] ?? '' )); ?>" data-rvs-date-value>
 					<?php if ($show_time_select) : ?>
 						<label class="rvs-sr-only" for="<?php echo esc_attr($uid); ?>-pickup-time"><?php esc_html_e('Pickup time', 'mhm-rentiva'); ?></label>
 						<select id="<?php echo esc_attr($uid); ?>-pickup-time" class="rvs-input rvs-input--lg rvs-search__time" name="<?php echo esc_attr($mhmrentiva_qv('pickup_time')); ?>" data-rvs-pickup-time>
@@ -88,7 +100,8 @@ $time_options = static function (string $selected): void {
 			<div class="rvs-field rvs-search__field">
 				<label for="<?php echo esc_attr($uid); ?>-return-date"><?php echo esc_html_x('Return', 'search strip: the return date field', 'mhm-rentiva'); ?></label>
 				<div class="rvs-search__when">
-					<input id="<?php echo esc_attr($uid); ?>-return-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" value="<?php echo esc_attr( (string) ( $values['return_date'] ?? '' )); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-return-date data-testid="search-return-date">
+					<input id="<?php echo esc_attr($uid); ?>-return-date" type="text" class="rvs-input rvs-input--lg js-datepicker" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" value="<?php echo esc_attr($mhmrentiva_shown('return_date')); ?>" placeholder="<?php esc_attr_e('Select date', 'mhm-rentiva'); ?>"<?php echo $fields_required ? ' required' : ''; ?> autocomplete="off" data-rvs-return-date data-testid="search-return-date">
+					<input type="hidden" value="<?php echo esc_attr( (string) ( $values['return_date'] ?? '' )); ?>" data-rvs-date-value>
 					<?php if ($show_time_select) : ?>
 						<?php // Return time follows the pickup time (the booking counts whole days). ?>
 						<span class="rvs-input rvs-input--lg rvs-search__time rvs-search__time--locked" data-rvs-return-time-display title="<?php esc_attr_e('Return time follows the pickup time', 'mhm-rentiva'); ?>"><?php echo esc_html($picked_time); ?></span>
@@ -99,6 +112,15 @@ $time_options = static function (string $selected): void {
 		<input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('return_time')); ?>" value="<?php echo esc_attr($picked_time); ?>" data-rvs-return-time>
 
 		<button type="submit" class="rvs-btn rvs-btn--primary rvs-btn--lg rvs-search__submit" data-testid="search-submit-rental"<?php echo $is_preview ? ' disabled' : ''; ?>><?php esc_html_e('Search', 'mhm-rentiva'); ?></button>
+
+		<?php if ('' !== $pickup_where) : ?>
+			<p class="rvs-search__where" data-rvs-pickup-where><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>
+			<?php
+			/* translators: %s: the site's only pickup point. */
+			printf(esc_html__('Pickup and return: %s', 'mhm-rentiva'), '<strong>' . esc_html($pickup_where) . '</strong>');
+			?>
+			</span></p>
+		<?php endif; ?>
 
 		<?php if ($show_location_select && $show_dropoff_location) : ?>
 			<div class="rvs-field rvs-search__field rvs-search__field--dropoff">

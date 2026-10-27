@@ -97,6 +97,22 @@ final class SiteTime {
 	}
 
 	/**
+	 * The local date $n calendar days after today.
+	 *
+	 * The booking horizon ("bookings can be made up to N days ahead"): the
+	 * vehicle page and the search's "Earliest free" both read it here, so
+	 * they agree on the last bookable day, DST or not.
+	 *
+	 * @since 6.4.0
+	 *
+	 * @param int|null $now Only for tests; production callers omit it.
+	 */
+	public static function days_ahead(int $n, ?int $now = null): string
+	{
+		return self::local($now ?? time())->setTime(12, 0)->modify("+{$n} day")->format('Y-m-d');
+	}
+
+	/**
 	 * The first day of the current local month, `Y-m-01`.
 	 *
 	 * @param int|null $now Only for tests; production callers omit it.

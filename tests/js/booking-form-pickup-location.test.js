@@ -3,17 +3,12 @@
  */
 
 /**
- * A booking page opened with a prefilled pickup location renders
- * <input type="hidden" name="pickup_location_id"> inside the form. The submit
- * payload built by getFormData() must carry it, otherwise the booking is stored
- * without a location although the customer saw one.
- *
- * Type: a number (8, not '8'). The payload is sent as URL-encoded text, so both
- * arrive as "8"; the server reads it with $req->int('pickup_location_id'),
- * which is an int cast. A number also makes "absent" a literal 0, the same
- * value the server falls back to.
+ * The booking form posts no pickup location. The server derives it from the
+ * chosen car (BookingForm::vehicle_location_id()) and ignores anything posted,
+ * so the form neither renders a hidden pickup_location_id field nor sends one:
+ * a field nobody reads only invites a later reader to trust it.
  */
-describe( 'booking form pickup_location_id in getFormData()', () => {
+describe( 'booking form getFormData() posts no pickup location', () => {
 	let $;
 	let BookingForm;
 
@@ -34,9 +29,8 @@ describe( 'booking form pickup_location_id in getFormData()', () => {
 		BookingForm = window.MHMRentivaBookingForm;
 	} );
 
-	const build = ( innerFormHtml, outsideHtml = '' ) => {
+	const build = ( innerFormHtml ) => {
 		document.body.innerHTML = `
-			${ outsideHtml }
 			<div class="rvs-booking" data-rvs-booking-form data-vehicle-id="5">
 				<form class="rvs-booking__form">
 					${ innerFormHtml }
@@ -50,18 +44,13 @@ describe( 'booking form pickup_location_id in getFormData()', () => {
 		return form;
 	};
 
-	test( 'a hidden pickup_location_id inside the form is submitted', () => {
+	test( 'no pickup_location_id is sent, even when a stale field is on the page', () => {
 		const form = build( '<input type="hidden" name="pickup_location_id" value="8">' );
-		expect( form.getFormData().pickup_location_id ).toBe( 8 );
+		expect( form.getFormData() ).not.toHaveProperty( 'pickup_location_id' );
 	} );
 
-	test( 'without the input, pickup_location_id is 0', () => {
+	test( 'the rest of the payload is still built', () => {
 		const form = build( '' );
-		expect( form.getFormData().pickup_location_id ).toBe( 0 );
-	} );
-
-	test( 'an input outside this form container is ignored', () => {
-		const form = build( '', '<input type="hidden" name="pickup_location_id" value="99">' );
-		expect( form.getFormData().pickup_location_id ).toBe( 0 );
+		expect( form.getFormData().vehicle_id ).toBeDefined();
 	} );
 } );

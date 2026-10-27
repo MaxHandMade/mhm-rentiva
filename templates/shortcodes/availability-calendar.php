@@ -74,10 +74,9 @@ if (empty($vehicles_list)) {
 
 <?php
 // Get vehicle price
-$vehicle_price       = 0;
-$vehicle_location_id = 0;
-$is_available        = true;
-$status_text         = '';
+$vehicle_price = 0;
+$is_available  = true;
+$status_text   = '';
 
 if ($vehicle_id > 0) {
 	$vehicle_price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) ?: 0);
@@ -97,9 +96,8 @@ if ($vehicle_id > 0) {
 		}
 	}
 
-	$is_available        = ( $status === 'active' );
-	$status_text         = $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva');
-	$vehicle_location_id = (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true);
+	$is_available = ( $status === 'active' );
+	$status_text  = $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva');
 }
 ?>
 
@@ -108,7 +106,6 @@ if ($vehicle_id > 0) {
 	data-vehicle-price="<?php echo esc_attr($vehicle_price); ?>"
 	data-start-month="<?php echo esc_attr($start_month); ?>"
 	data-months-to-show="<?php echo esc_attr($months_to_show); ?>"
-	data-location-id="<?php echo esc_attr($vehicle_location_id ?? 0); ?>"
 	<?php
 	// Written only when not the default, so an untouched calendar keeps today's
 	// markup; availability-calendar.js reads it when it rebuilds a month.

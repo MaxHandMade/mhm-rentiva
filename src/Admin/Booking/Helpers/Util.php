@@ -150,90 +150,14 @@ final class Util {
 	}
 
 	/**
-	 * Checks for overlap in the specified date range for the vehicle
+	 * Is the vehicle booked for [start_ts, end_ts)? A booking overlaps the
+	 * window (buffer included) or the window reaches one of the vehicle's
+	 * blocked days. The rule lives in BookingConflicts; this is its customer
+	 * reading, kept under the name every caller knows.
 	 */
 	public static function has_overlap(int $vehicle_id, int $start_ts, int $end_ts): bool
 	{
-		// ⚡ Optimized: direct SQL query for faster checks
-		global $wpdb;
-
-		// Rows without stored timestamps are read in the site's zone. The
-		// offset goes into each CONVERT_TZ() rather than into the session:
-		// UNIX_TIMESTAMP(datetime) would read its argument in whatever zone
-		// the connection happens to be in, and changing the session's zone
-		// outlives this query. A fixed offset ignores DST for those old rows, as it always did.
-		$site_offset      = SiteTime::offset_string();
-		$current_time_gmt = current_time('mysql', 1);
-
-		// ⭐ Get buffer time (default 60 minutes) and convert to seconds
-		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
-		$buffer_seconds = $buffer_minutes * 60;
-
-		// ⭐ OMNI-QUERY: Support legacy, manual, and new frontend bookings simultaneously
-		$result = $wpdb->get_var(
-			$wpdb->prepare(
-				"
-            SELECT COUNT(*) 
-            FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
-            INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-            -- Date Source (Common between all types)
-            INNER JOIN {$wpdb->postmeta} pm_date_s ON p.ID = pm_date_s.post_id AND pm_date_s.meta_key = '_mhmrentiva_pickup_date'
-            INNER JOIN {$wpdb->postmeta} pm_date_e ON p.ID = pm_date_e.post_id AND pm_date_e.meta_key = '_mhmrentiva_dropoff_date'
-            -- Time Source (Fallbacks for different sources)
-            LEFT JOIN {$wpdb->postmeta} pm_time_s ON p.ID = pm_time_s.post_id AND pm_time_s.meta_key IN ('_mhmrentiva_pickup_time', '_mhmrentiva_start_time')
-            LEFT JOIN {$wpdb->postmeta} pm_time_e ON p.ID = pm_time_e.post_id AND pm_time_e.meta_key IN ('_mhmrentiva_dropoff_time', '_mhmrentiva_end_time')
-            -- Fast TS Source (If exists)
-            LEFT JOIN {$wpdb->postmeta} pm_ts_s ON p.ID = pm_ts_s.post_id AND pm_ts_s.meta_key = '_mhmrentiva_start_ts'
-            LEFT JOIN {$wpdb->postmeta} pm_ts_e ON p.ID = pm_ts_e.post_id AND pm_ts_e.meta_key = '_mhmrentiva_end_ts'
-            -- Payment Deadline
-            LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
-            
-            WHERE p.post_type = 'mhmrentiva_booking'
-            AND p.post_status = 'publish'
-            AND pm_vid.meta_value = %d
-            AND (
-                pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
-                OR (
-                    -- Defense-in-depth: a completed booking whose real end_ts is still
-                    -- in the future (e.g., cron misfire or early manual completion) must
-                    -- continue to block availability until the actual return time.
-                    -- Default 23:59:59 when dropoff_time is missing -- if unsure, block
-                    -- until end of day (safer than picking an arbitrary mid-day time).
-                    pm_status.meta_value = 'completed'
-                    AND COALESCE(
-                        CAST(pm_ts_e.meta_value AS UNSIGNED),
-                        TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_e.meta_value, ' ', COALESCE(NULLIF(pm_time_e.meta_value, ''), '23:59:59')), %s, '+00:00'))
-                    ) > UNIX_TIMESTAMP()
-                )
-            )
-            AND (
-                -- Symmetrical Overlap Logic: (StartA < EndB + Buffer) AND (StartB < EndA + Buffer)
-                -- This ensures buffer time is respected BOTH ways regardless of order
-                COALESCE(CAST(pm_ts_s.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_s.meta_value, ' ', COALESCE(pm_time_s.meta_value, '10:00')), %s, '+00:00'))) < (%d + %d)
-                AND
-                %d < (COALESCE(CAST(pm_ts_e.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_e.meta_value, ' ', COALESCE(pm_time_e.meta_value, '10:00')), %s, '+00:00'))) + %d)
-            )
-            AND (
-                pm_status.meta_value NOT IN ('pending_payment', 'pending') OR
-                pm_deadline.meta_value IS NULL OR
-                pm_deadline.meta_value = '' OR
-                pm_deadline.meta_value > %s
-            )
-        ",
-				$vehicle_id,
-				$site_offset,     // %s (completed: dropoff fallback)
-				$site_offset,     // %s (pickup fallback)
-				$end_ts,          // %d (REQ_End)
-				$buffer_seconds,   // %d (Buffer for End)
-				$start_ts,        // %d (REQ_Start)
-				$site_offset,     // %s (dropoff fallback)
-				$buffer_seconds,   // %d (Buffer for Start)
-				$current_time_gmt // %s (Deadline)
-			)
-		);
-
-		return (int) $result > 0;
+		return BookingConflicts::is_booked($vehicle_id, $start_ts, $end_ts);
 	}
 
 	/**
@@ -252,114 +176,28 @@ final class Util {
 	}
 
 	/**
-	 * The locked overlap count, or null when the query did not produce one.
+	 * The locked conflict count for a customer booking, or null when the
+	 * booking query did not produce one.
 	 *
-	 * A query that never ran is not visible in $wpdb->last_error: a `query`
-	 * filter returning an empty string makes wpdb::query() return false before it
-	 * flushes or records anything, and get_var() would then read the previous
-	 * query's leftover result. So the COUNT is run with query(), its false return
-	 * means "unknown", and the value is read only after a success.
+	 * Overlapping bookings, counted under the lock by
+	 * BookingConflicts::count_booking_overlaps_locked() (query(), its row
+	 * count checked, then the argument-less get_var()), plus one when the
+	 * window reaches a blocked day of the vehicle. The blocked days are read
+	 * after the vehicle's meta cache is dropped: a list cached before the lock
+	 * was taken is not what the lock protects.
+	 *
+	 * Operator paths do not come here; they count bookings only.
 	 */
 	public static function count_overlaps_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): ?int
 	{
-		global $wpdb;
-
-		// Lock vehicle's postmeta records.
-		//
-		// prefix-rename:ignore-start
-		// The pattern must cover BOTH the pre- and post-6.0.0 spellings, for the
-		// reason Locker::withLock() spells out: on a site running this code before
-		// the 6.0.0 rename migration has run, every row is still '_mhm_*', so a
-		// '_mhmrentiva_%' pattern selects ZERO rows and FOR UPDATE locks nothing --
-		// silently, with no error and no failing test. '_mhm' covers both families;
-		// esc_like() keeps the leading underscore literal so it cannot widen further.
-		//
-		// Note that this statement only holds a lock when the caller has already
-		// opened a transaction (see create_booking_from_data(), which wraps this
-		// call in Locker::withLock()). Under autocommit MySQL releases the row lock
-		// as soon as the statement completes.
-		$wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT meta_id FROM {$wpdb->postmeta}
-             WHERE post_id = %d AND meta_key LIKE %s
-             FOR UPDATE",
-				$vehicle_id,
-				$wpdb->esc_like('_mhm') . '%'
-			)
-		);
-		// prefix-rename:ignore-end
-
-		// Conflict check with accurate date interval handling
-		// ⭐ Exclude pending bookings with expired payment deadline
-
-		// BUFFER TIME
-		// Dateless rows: site offset per CONVERT_TZ(), never the session (see
-		// has_overlap()).
-		$site_offset      = SiteTime::offset_string();
-		$current_time_gmt = current_time('mysql', 1);
-
-		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
-		$buffer_seconds = $buffer_minutes * 60;
-
-		// Run the COUNT with query() and read it only after a success: when
-		// query() returns false before flush() (e.g. a `query` filter emptied the
-		// SQL), get_var() would still hand back the PREVIOUS query's result.
-		$ran = $wpdb->query(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-             -- Date Source
-             INNER JOIN {$wpdb->postmeta} pm_date_s ON p.ID = pm_date_s.post_id AND pm_date_s.meta_key = '_mhmrentiva_pickup_date'
-             INNER JOIN {$wpdb->postmeta} pm_date_e ON p.ID = pm_date_e.post_id AND pm_date_e.meta_key = '_mhmrentiva_dropoff_date'
-             -- Time Source Fallbacks
-             LEFT JOIN {$wpdb->postmeta} pm_time_s ON p.ID = pm_time_s.post_id AND pm_time_s.meta_key IN ('_mhmrentiva_pickup_time', '_mhmrentiva_start_time')
-             LEFT JOIN {$wpdb->postmeta} pm_time_e ON p.ID = pm_time_e.post_id AND pm_time_e.meta_key IN ('_mhmrentiva_dropoff_time', '_mhmrentiva_end_time')
-             -- TS Source
-             LEFT JOIN {$wpdb->postmeta} pm_ts_s ON p.ID = pm_ts_s.post_id AND pm_ts_s.meta_key = '_mhmrentiva_start_ts'
-             LEFT JOIN {$wpdb->postmeta} pm_ts_e ON p.ID = pm_ts_e.post_id AND pm_ts_e.meta_key = '_mhmrentiva_end_ts'
-             -- Payment Deadline
-             LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
-             
-             WHERE p.post_type = 'mhmrentiva_booking'
-             AND p.post_status = 'publish'
-             AND p.ID <> %d
-             AND pm_vid.meta_value = %d
-             AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
-             AND (
-                 -- Symmetrical Overlap Logic
-                 COALESCE(CAST(pm_ts_s.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_s.meta_value, ' ', COALESCE(pm_time_s.meta_value, '10:00')), %s, '+00:00'))) < (%d + %d)
-                 AND
-                 %d < (COALESCE(CAST(pm_ts_e.meta_value AS UNSIGNED), TIMESTAMPDIFF(SECOND, '1970-01-01 00:00:00', CONVERT_TZ(CONCAT(pm_date_e.meta_value, ' ', COALESCE(pm_time_e.meta_value, '10:00')), %s, '+00:00'))) + %d)
-             )
-             AND (
-                 pm_status.meta_value NOT IN ('pending_payment', 'pending') OR
-                 pm_deadline.meta_value IS NULL OR
-                 pm_deadline.meta_value = '' OR
-                 pm_deadline.meta_value > %s
-             )",
-				$exclude_booking_id, // 0 excludes nothing: post IDs start at 1.
-				$vehicle_id,
-				$site_offset,        // pickup fallback
-				$end_ts,
-				$buffer_seconds,
-				$start_ts,
-				$site_offset,        // dropoff fallback
-				$buffer_seconds,
-				$current_time_gmt
-			)
-		);
-		// An ungrouped COUNT(*) yields exactly one row, zero matches included. Any
-		// other row count (false, or 0 after something reran a query on this
-		// connection mid-flight) means the result in hand is not this COUNT's.
-		if (1 !== $ran) {
+		$count = BookingConflicts::count_booking_overlaps_locked($vehicle_id, $start_ts, $end_ts, $exclude_booking_id);
+		if (null === $count) {
 			return null;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- no SQL is passed; this reads the result of the prepared COUNT above.
-		$count = $wpdb->get_var();
+		wp_cache_delete($vehicle_id, 'post_meta');
 
-		return null === $count ? null : (int) $count;
+		return BookingConflicts::hits_blocked_day($vehicle_id, $start_ts, $end_ts) ? $count + 1 : $count;
 	}
 
 	/**
@@ -423,9 +261,14 @@ final class Util {
 	}
 
 	/**
-	 * Checks availability and returns result (with caching)
+	 * The refusal every rental availability check gives before it looks at
+	 * dates: no such vehicle, not offered for rental, not active, or a window
+	 * that does not parse. Null when none applies; otherwise the refusal,
+	 * else the parsed window under 'window'.
+	 *
+	 * @return array{ok: bool, code?: string, message?: string, window?: array{start_ts: int, end_ts: int}}
 	 */
-	public static function check_availability(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
+	private static function availability_precheck(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
 	{
 		// Validate vehicle existence
 		if (get_post_type($vehicle_id) !== 'mhmrentiva_vehicle') {
@@ -469,12 +312,90 @@ final class Util {
 			);
 		}
 
+		return array(
+			'ok'     => true,
+			'window' => $datetime_result,
+		);
+	}
+
+	/**
+	 * The "free" answer: days and price for the window.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function available_result(int $vehicle_id, int $start_ts, int $end_ts): array
+	{
+		$days = self::rental_days($start_ts, $end_ts);
+
+		return array(
+			'ok'            => true,
+			'code'          => 'ok',
+			'message'       => __('✅ Great! This vehicle is available for your selected dates.', 'mhm-rentiva'),
+			'days'          => $days,
+			'price_per_day' => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id),
+			'total_price'   => self::total_price($vehicle_id, $days, $start_ts),
+			'start_ts'      => $start_ts,
+			'end_ts'        => $end_ts,
+		);
+	}
+
+	/**
+	 * The operator's availability check (manual booking): the same refusals
+	 * as check_availability(), but bookings only and straight from the
+	 * database. A blocked day does not refuse the operator -- the booking is
+	 * saved and the days are named in a notice -- and a customer's cached
+	 * "booked" for the same window must not refuse them either, so this
+	 * neither reads nor writes the availability cache.
+	 *
+	 * @return array<string, mixed> check_availability()'s shape, plus 'blocked_days' (list of `Y-m-d`) on success.
+	 */
+	public static function check_availability_for_operator(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
+	{
+		$precheck = self::availability_precheck($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		if (! $precheck['ok'] || ! isset($precheck['window'])) {
+			return $precheck;
+		}
+
+		$start_ts = $precheck['window']['start_ts'];
+		$end_ts   = $precheck['window']['end_ts'];
+
+		if (BookingConflicts::bookings_overlap($vehicle_id, $start_ts, $end_ts)) {
+			return array(
+				'ok'      => false,
+				'code'    => 'unavailable',
+				'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
+			);
+		}
+
+		$result                 = self::available_result($vehicle_id, $start_ts, $end_ts);
+		$result['blocked_days'] = BookingConflicts::blocked_days_in($vehicle_id, $start_ts, $end_ts);
+
+		return $result;
+	}
+
+	/**
+	 * Checks availability and returns result (with caching)
+	 *
+	 * The customer's check: a booking or a blocked day makes the window
+	 * unavailable (Util::has_overlap()). A cached "available" is re-verified;
+	 * a cached "unavailable" is served as it is, which is why every writer of
+	 * bookings or blocked days drops the vehicle's cache.
+	 */
+	public static function check_availability(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
+	{
+		$precheck = self::availability_precheck($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
+		if (! $precheck['ok'] || ! isset($precheck['window'])) {
+			return $precheck;
+		}
+
+		$datetime_result = $precheck['window'];
+
 		$start_ts = $datetime_result['start_ts'];
 		$end_ts   = $datetime_result['end_ts'];
 
 		// ⭐ Check from cache (but with shorter TTL for critical checks)
 		// Cache is useful for performance but can show stale data
-		// For critical operations, we'll use has_overlap_locked instead
+		// Decisions that write a booking use the locked count instead (BookingConflicts / Util::count_overlaps_locked()).
 		$cached_result = \MHMRentiva\Admin\Booking\Helpers\Cache::getAvailability($vehicle_id, $start_ts, $end_ts);
 		if ($cached_result !== null) {
 			// ⚠️ Cache hit - but verify with real-time check if result is "available"
@@ -502,21 +423,7 @@ final class Util {
 				'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
 			);
 		} else {
-			// Calculate days and pricing
-			$days          = self::rental_days($start_ts, $end_ts);
-			$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
-			$total_price   = self::total_price($vehicle_id, $days, $start_ts);
-
-			$result = array(
-				'ok'            => true,
-				'code'          => 'ok',
-				'message'       => __('✅ Great! This vehicle is available for your selected dates.', 'mhm-rentiva'),
-				'days'          => $days,
-				'price_per_day' => $price_per_day,
-				'total_price'   => $total_price,
-				'start_ts'      => $start_ts,
-				'end_ts'        => $end_ts,
-			);
+			$result = self::available_result($vehicle_id, $start_ts, $end_ts);
 		}
 
 		// Save result to cache

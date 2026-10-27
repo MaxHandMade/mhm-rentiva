@@ -147,9 +147,68 @@
 	gap: 10px;
 }
 
-.rvs-shell .rvs-results__chips:empty,
-.rvs-shell .rvs-results__notice:empty {
+.rvs-shell .rvs-results__chips:empty {
 	display: none;
+}
+
+/* The status region stays in the accessibility tree while it has nothing to
+   show (display: none would take it out, and a region that appears with its
+   first message is not reliably read). Only the space it takes is removed.
+   Two rules, not one list: a browser without :has() drops the whole list it
+   appears in, and the :empty case must survive that. */
+.rvs-shell .rvs-results__notice:empty {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+}
+
+/* Holding only the screen-reader sentence. */
+.rvs-shell .rvs-results__notice:not(:has(> :not([data-rvs-announce]))) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+}
+
+/* "No cars are free at X": the visitor's answer, not a hint -- the page's
+   raised surface, a line under the title for what follows. */
+.rvs-shell .rvs-results__notice-box--none-here {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	border: 1px solid var(--rvs-line);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-results__notice-box--none-here .rvs-results__notice-title {
+	font-size: 17px;
+}
+
+.rvs-shell .rvs-results__notice-box--none-here .rvs-results__notice-sub {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-results__notice-box--none-here .rvs-btn {
+	margin-top: 10px;
+}
+
+/* A site with one pickup point names it once, above the results. */
+.rvs-shell .rvs-results__where {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+}
+
+.rvs-shell .rvs-results__where svg {
+	flex: none;
+	color: var(--rvs-muted);
 }
 
 .rvs-shell .rvs-results__notice-box {
@@ -186,6 +245,44 @@
 	margin: 0;
 }
 
+/* Extra sections (page 1): the city's other pickup points, then the cars
+   booked on these dates. Each is a labelled region with its own h2. */
+.rvs-shell .rvs-results__nearby:empty,
+.rvs-shell .rvs-results__booked:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-results__section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.rvs-shell .rvs-results__section-head {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.rvs-shell .rvs-results__section-title {
+	margin: 0;
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.12;
+	letter-spacing: -0.015em;
+}
+
+.rvs-shell .rvs-results__section-sub {
+	margin: 0;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-results__section-grid.rvs-card-grid {
+	--rvs-cols: 3;
+}
+
+.rvs-shell .rvs-results[aria-busy="true"] .rvs-results__section-grid,
 .rvs-shell .rvs-results[aria-busy="true"] .rvs-results__grid {
 	opacity: 0.55;
 	transition: opacity 0.15s ease;
@@ -260,6 +357,10 @@
 @media (max-width: 768px) {
 	.rvs-shell .rvs-results {
 		padding-block: 20px;
+	}
+
+	.rvs-shell .rvs-results__section-title {
+		font-size: 22px;
 	}
 
 	.rvs-shell .rvs-results__mobilebar {

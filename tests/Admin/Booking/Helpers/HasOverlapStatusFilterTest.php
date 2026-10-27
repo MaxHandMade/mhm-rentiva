@@ -261,6 +261,9 @@ final class HasOverlapStatusFilterTest extends WP_UnitTestCase
 			$overlap,
 			'Completed booking with future end_ts must be flagged as overlap (defense-in-depth).'
 		);
+
+		// PR S: the locked path reads the same rule now.
+		$this->assertTrue(Util::has_overlap_locked(self::VEHICLE_ID, $now + 1000, $now + 2000), 'The locked check counts it too.');
 	}
 
 	/**

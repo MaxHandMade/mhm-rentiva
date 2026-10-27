@@ -4,7 +4,7 @@
  *
  * Rendered by the results page and by the AJAX re-render (same markup).
  *
- * @var array{count: string, range: string, days: int} $summary SearchResults::summary().
+ * @var array{count: string, range: string, days: int} $summary SearchResults::summary() / results_summary().
  */
 
 declare(strict_types=1);
@@ -24,7 +24,16 @@ if ( (int) ( $mhmrentiva_summary['days'] ?? 0 ) > 0) {
 }
 ?>
 <?php
-echo '<strong>' . esc_html( (string) ( $mhmrentiva_summary['count'] ?? '' )) . '</strong>';
+// No count when only the sections below the grid list cars (results_summary()).
+$mhmrentiva_count = (string) ( $mhmrentiva_summary['count'] ?? '' );
+if ('' !== $mhmrentiva_count) {
+	echo '<strong>' . esc_html($mhmrentiva_count) . '</strong>';
+}
 if (array() !== $mhmrentiva_rest) {
-	echo ' <span class="rvs-results__summary-rest">· ' . esc_html(implode(' · ', $mhmrentiva_rest)) . '</span>';
+	$mhmrentiva_rest_text = implode(' · ', $mhmrentiva_rest);
+	if ('' !== $mhmrentiva_count) {
+		echo ' ';
+		$mhmrentiva_rest_text = '· ' . $mhmrentiva_rest_text;
+	}
+	echo '<span class="rvs-results__summary-rest">' . esc_html($mhmrentiva_rest_text) . '</span>';
 }

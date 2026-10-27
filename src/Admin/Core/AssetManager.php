@@ -215,6 +215,11 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-primitives', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-primitives', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-primitives.css', array( 'mhm-rentiva-rvs-shell' ), self::get_file_version('assets/css/rvs/rvs-primitives.css'));
 		}
+		// The datepicker popup's rvs skin: every customer date field wears it
+		// (search strip, vehicle page, booking form), so their sheets depend on it.
+		if (! wp_style_is('mhm-rentiva-rvs-datepicker', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-datepicker', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-datepicker.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-datepicker.css'));
+		}
 		if (! wp_style_is('mhm-rentiva-rvs-card', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-card', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-card.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-card.css'));
 		}
@@ -222,7 +227,7 @@ final class AssetManager {
 			wp_register_style('mhm-rentiva-rvs-results', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-results.css', array( 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/rvs/rvs-results.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-search', 'registered')) {
-			wp_register_style('mhm-rentiva-rvs-search', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-search.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-search.css'));
+			wp_register_style('mhm-rentiva-rvs-search', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-search.css', array( 'mhm-rentiva-rvs-primitives', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/rvs/rvs-search.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-calendar', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-calendar', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-calendar.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-calendar.css'));
@@ -234,13 +239,13 @@ final class AssetManager {
 			wp_register_style('mhm-rentiva-rvs-forms', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-forms.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-forms.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
-			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
+			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-vehicle', 'registered')) {
-			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
+			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
 		}
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);

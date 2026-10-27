@@ -11,11 +11,15 @@
  * - array  $filter_options  get_filter_options() shape.
  * - array  $sorting_options value => label.
  * - string $nonce_field
- * - array  $summary         SearchResults::summary().
+ * - array  $summary         SearchResults::results_summary() (count '' when only the sections list cars).
+ * - string $apply_label     SearchResults::apply_label_html(): the drawer's apply label, escaped.
  * - array  $chips           SearchResults::active_chips().
  * - string|null $empty_state SearchResults::empty_state().
  * - string $change_url      Where "Change" sends the visitor.
- * - string $location_label  The one picked pickup location, or ''.
+ * - string $location_label  The pickup point the search is at (mobile card), or ''.
+ * - string $pickup_where    The site's only pickup point ('' unless exactly one).
+ * - int    $filter_count    Active filters, the pickup point not counted.
+ * - string $notice_html     The status region's notice (SearchResults::notice_html()).
  * - array  $compare         Comparison band: items (id, title), max, url.
  *
  * JS hooks are data-rvs-* attributes (search-results.js); the data-show-*
@@ -33,7 +37,6 @@ if (! defined('ABSPATH')) {
 }
 
 $vehicles      = $results['vehicles'] ?? array();
-$total_results = (int) ( $results['total'] ?? 0 );
 $active_layout = in_array(( $atts['layout'] ?? 'grid' ), array( 'grid', 'list' ), true) ? (string) $atts['layout'] : 'grid';
 $show_filters  = ( $atts['show_filters'] ?? '1' ) === '1';
 $rv_instance   = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid('rvsr-', false);
@@ -148,10 +151,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 
 	<div class="rvs-results__mobilebar">
 		<a class="rvs-results__summary-card" href="<?php echo esc_url($change_url); ?>" data-rvs-change>
-			<span class="rvs-results__summary-text">
-				<strong><?php echo esc_html('' !== $location_label ? $location_label : $summary['count']); ?></strong>
-				<span><?php echo esc_html('' !== $summary['range'] ? $summary['range'] : __('No dates selected', 'mhm-rentiva')); ?></span>
-			</span>
+			<span class="rvs-results__summary-text" data-rvs-summary-card><?php Html::echo_markup(SearchResults::summary_card_html( (array) $search_params, (array) $results)); ?></span>
 			<span class="rvs-results__change"><?php esc_html_e('Change', 'mhm-rentiva'); ?></span>
 		</a>
 		<?php if ($show_filters) : ?>
@@ -160,7 +160,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				<span>
 				<?php
 				/* translators: %s: number of active filters. */
-				printf(esc_html__('Filters (%s)', 'mhm-rentiva'), '<span data-rvs-filter-count>' . esc_html( (string) count($chips)) . '</span>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the count is escaped above.
+				printf(esc_html__('Filters (%s)', 'mhm-rentiva'), '<span data-rvs-filter-count>' . esc_html( (string) ( $filter_count ?? count($chips) )) . '</span>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the count is escaped above.
 				?>
 				</span>
 			</button>
@@ -231,12 +231,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				<div class="rvs-results__drawer-foot">
 					<button type="button" class="rvs-btn rvs-btn--ghost" data-rvs-clear><?php esc_html_e('Clear', 'mhm-rentiva'); ?></button>
 					<button type="button" class="rvs-btn rvs-btn--primary rvs-results__apply" data-rvs-drawer-apply>
-						<span>
-						<?php
-						/* translators: %s: number of vehicles the filters leave. */
-						printf(esc_html(_n('Show %s vehicle', 'Show %s vehicles', $total_results, 'mhm-rentiva')), '<span data-rvs-apply-count>' . esc_html(number_format_i18n($total_results)) . '</span>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the count is escaped above.
-						?>
-						</span>
+						<span data-rvs-apply-label><?php Html::echo_markup( (string) ( $apply_label ?? SearchResults::apply_label_html( (array) $results) )); ?></span>
 					</button>
 				</div>
 			</aside>
@@ -244,7 +239,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 
 		<section class="rvs-results__main" aria-label="<?php esc_attr_e('Results', 'mhm-rentiva'); ?>">
 			<div class="rvs-results__head">
-				<p class="rvs-results__summary" data-rvs-summary aria-live="polite"><?php Html::echo_markup(Templates::render('partials/search/rvs-summary', array( 'summary' => $summary ), true)); ?></p>
+				<p class="rvs-results__summary" data-rvs-summary><?php Html::echo_markup(Templates::render('partials/search/rvs-summary', array( 'summary' => $summary ), true)); ?></p>
 				<div class="rvs-results__tools">
 					<?php if (( $atts['show_sorting'] ?? '1' ) === '1') : ?>
 						<label class="rvs-results__sort-label" for="<?php echo esc_attr($rv_instance); ?>-sort"><?php esc_html_e('Sort', 'mhm-rentiva'); ?></label>
@@ -267,25 +262,30 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				</div>
 			</div>
 
+			<?php if ('' !== (string) ( $pickup_where ?? '' )) : ?>
+				<p class="rvs-results__where" data-rvs-pickup-where><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>
+				<?php
+				/* translators: %s: the site's only pickup point. */
+				printf(esc_html__('Pickup and return: %s', 'mhm-rentiva'), '<strong>' . esc_html( (string) $pickup_where) . '</strong>');
+				?>
+				</span></p>
+			<?php endif; ?>
+
 			<div class="rvs-results__chips" data-rvs-chips aria-label="<?php esc_attr_e('Active filters', 'mhm-rentiva'); ?>"><?php Html::echo_markup(Templates::render('partials/search/rvs-chips', array( 'chips' => $chips ), true)); ?></div>
 
-			<div class="rvs-results__notice" data-rvs-notice>
-				<?php if ('not_searched' === $empty_state) : ?>
-					<?php
-                    Html::echo_markup(Templates::render('partials/search/rvs-empty', array(
-						'kind'       => 'not_searched',
-						'change_url' => $change_url,
-					), true));
-					?>
-				<?php endif; ?>
-			</div>
+			<?php
+			// The one live region, in the DOM from the start: a re-render replaces
+			// its content (the notice and a short sentence naming the sections and
+			// their counts), never the node, so screen readers keep listening.
+			?>
+			<div class="rvs-results__notice" data-rvs-notice role="status"><?php Html::echo_markup( (string) ( $notice_html ?? '' )); ?></div>
 
 			<div class="<?php echo 'list' === $active_layout ? 'rvs-card-list' : 'rvs-card-grid'; ?> rvs-results__grid" data-rvs-grid>
 				<?php if (array() !== $vehicles) : ?>
 					<?php foreach ($vehicles as $vehicle) : ?>
 						<?php Html::echo_markup(SearchResults::render_vehicle_card($vehicle, $active_layout, $atts)); ?>
 					<?php endforeach; ?>
-				<?php else : ?>
+				<?php elseif (! in_array($empty_state, SearchResults::NOTICE_STATES, true)) : ?>
 					<?php
                     Html::echo_markup(Templates::render('partials/search/rvs-empty', array(
 						'kind'       => (string) $empty_state,
@@ -298,6 +298,14 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 			<?php if (( $atts['show_pagination'] ?? '1' ) === '1') : ?>
 				<nav class="rvs-results__pagination" data-rvs-pagination aria-label="<?php esc_attr_e('Pages', 'mhm-rentiva'); ?>"><?php Html::echo_markup(SearchResults::render_pagination($results['pagination'] ?? array())); ?></nav>
 			<?php endif; ?>
+
+			<?php
+			// Page 1 of a dated search: the city's other pickup points, then the
+			// matching cars booked on these dates. Outside the totals and pages.
+			$rvs_section_atts = array_merge($atts, array( 'layout' => $active_layout ));
+			?>
+			<div class="rvs-results__nearby" data-rvs-nearby><?php Html::echo_markup(SearchResults::nearby_html($search_params, $results, $rvs_section_atts, $rv_instance)); ?></div>
+			<div class="rvs-results__booked" data-rvs-booked><?php Html::echo_markup(SearchResults::booked_html($search_params, $results, $rvs_section_atts, $rv_instance)); ?></div>
 		</section>
 	</div>
 

@@ -75,7 +75,7 @@ final class OccupancyInvalidationWiringTest extends WP_UnitTestCase
 		$row = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end
+				'_transient_mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end . '_%'
 			)
 		);
 

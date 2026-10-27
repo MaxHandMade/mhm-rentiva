@@ -256,6 +256,8 @@ final class VehiclesList extends AbstractShortcode {
 		// retrieved vehicles; get_posts() already primes meta/terms for the vehicles.
 		// Reading get_post_thumbnail_id() here first would judge each cover uncached.
 		\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::prime_covers(array_map('intval', $post_ids));
+		// The cards' pickup points (vendor fallback) in one batch, not one per card.
+		\MHMRentiva\Admin\Core\LocationContext::prime_vehicles(array_map('intval', $post_ids));
 
 		$vehicles = array();
 
@@ -382,7 +384,7 @@ final class VehiclesList extends AbstractShortcode {
 			'id'            => $vehicle_id,
 			'title'         => get_the_title($vehicle_id) ?: '',
 			'excerpt'       => self::get_safe_excerpt($vehicle_id),
-			'permalink'     => get_permalink($vehicle_id) ?: '',
+			'permalink'     => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_id),
 			'image'         => $image_data, // Standardized key
 			'image_url'     => $image_url, // Keep for backward compatibility if needed locally
 			'price'         => self::get_vehicle_price($vehicle_id),

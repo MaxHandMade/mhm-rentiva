@@ -7,7 +7,7 @@
  * The gallery viewer and the phone's breakdown sheet are shared rvs dialogs
  * (rvs-dialog.js).
  *
- * Config: window.mhmRentivaVehicle = { ajax_url, nonce, i18n: { error, days_one, days_many } }.
+ * Config: window.mhmRentivaVehicle = { ajax_url, nonce, min_days, i18n: { error, days_one, days_many } }.
  */
 ( function ( $ ) {
 	'use strict';
@@ -44,10 +44,17 @@
 		return state;
 	}
 
+	// The dates and the time only: the car is picked up and returned at its
+	// own point, which the server takes from the car (PR S) -- a location
+	// field, should one turn up in the form, is not posted.
+	const WINDOW_KEYS = [ 'pickup_date', 'pickup_time', 'return_date' ];
+
 	function windowFields( $root ) {
 		const out = {};
 		$root.find( '[data-rvs-vd-window]' ).serializeArray().forEach( function ( item ) {
-			out[ item.name ] = item.value;
+			if ( WINDOW_KEYS.indexOf( item.name ) !== -1 ) {
+				out[ item.name ] = item.value;
+			}
 		} );
 		return out;
 	}
@@ -121,6 +128,33 @@
 		return format.replace( '%s', String( days ) );
 	}
 
+	// A Y-m-d date into a date field: the shared datepicker init shows it in the
+	// site's format and keeps Y-m-d in the field it submits (posted by
+	// windowFields() through the form's serialization).
+	function setDate( $field, iso ) {
+		const api = window.mhmRentivaDatepicker;
+		if ( api ) {
+			api.setValue( $field, iso );
+		} else {
+			$field.val( iso );
+		}
+	}
+
+	/**
+	 * The return is at least pickup + the minimum rental (Settings > Booking):
+	 * the search strip's rule, shared (window.mhmRentivaDatepicker.constrainReturn),
+	 * so a pickup past the return never leaves the card quoting dates in the
+	 * wrong order.
+	 */
+	function constrainReturn( $root ) {
+		const api = window.mhmRentivaDatepicker;
+		if ( ! api || ! api.constrainReturn ) {
+			return;
+		}
+		const $form = $root.find( '[data-rvs-vd-window]' );
+		api.constrainReturn( $form.find( '[data-rvs-pickup-date]' ), $form.find( '[data-rvs-return-date]' ), config().min_days );
+	}
+
 	// Until a quote for the visible window arrives (or after one fails), the
 	// links must not carry the previous window to the booking form.
 	function holdContinue( $root ) {
@@ -133,13 +167,17 @@
 		// a newer change is queued, which must keep the visitor's latest choice.
 		if ( data.window && ! state.queued ) {
 			const $form = $root.find( '[data-rvs-vd-window]' );
-			$form.find( '[data-rvs-pickup-date]' ).val( data.window.pickup_date );
-			$form.find( '[data-rvs-return-date]' ).val( data.window.return_date );
+			setDate( $form.find( '[data-rvs-pickup-date]' ), data.window.pickup_date );
+			setDate( $form.find( '[data-rvs-return-date]' ), data.window.return_date );
 			$form.find( '[data-rvs-pickup-time]' ).val( data.window.pickup_time );
 			$root.find( '[data-rvs-return-time-display]' ).text( data.window.pickup_time );
 		}
-		$root.find( '[data-rvs-vd-total]' ).html( data.total_html || '' );
-		$root.find( '[data-rvs-vd-days]' ).text( daysLabel( parseInt( data.days, 10 ) || 0 ) );
+		// Dates the server could not price (wrong order) show no total: the
+		// message beside them says why.
+		const priced = data.priced !== false;
+		$root.find( '[data-rvs-vd-priced]' ).prop( 'hidden', ! priced );
+		$root.find( '[data-rvs-vd-total]' ).html( priced ? data.total_html || '' : '' );
+		$root.find( '[data-rvs-vd-days]' ).text( priced ? daysLabel( parseInt( data.days, 10 ) || 0 ) : '' );
 		$root.find( '[data-rvs-vd-breakdown]' ).html( data.breakdown_html || '' );
 		$root.find( '[data-rvs-vd-breakdown-dialog] details' ).prop( 'open', true );
 		if ( data.months_html ) {
@@ -269,8 +307,15 @@
 			if ( this.hasAttribute( 'data-rvs-pickup-time' ) ) {
 				$root.find( '[data-rvs-return-time-display]' ).text( this.value );
 			}
+			if ( this.hasAttribute( 'data-rvs-pickup-date' ) ) {
+				constrainReturn( $root );
+			}
 			holdContinue( $root );
 			scheduleQuote( $root );
+		} );
+		// The return datepicker learns its minimum as soon as it opens.
+		$root.on( 'focus', '[data-rvs-vd-window] [data-rvs-return-date]', function () {
+			constrainReturn( $root );
 		} );
 		$root.on( 'click', '[data-rvs-gallery-open]', function () {
 			openGallery( $root, parseInt( $( this ).attr( 'data-rvs-gallery-open' ), 10 ) || 0, this );

@@ -862,17 +862,17 @@ class PrefixRenamer {
 	 * @var array<string, array{regions:int, why:string, literals:array<int,string>}>
 	 */
 	public const IGNORE_REGIONS = array(
+		'src/Admin/Booking/Helpers/BookingConflicts.php' => array(
+			'why'      => 'count_booking_overlaps_locked() takes the booking guard\'s FOR UPDATE row lock and must match BOTH spellings for exactly the reason Locker::withLock() documents: on an un-migrated site a new-prefix-only pattern selects zero rows, locks nothing, and the caller proceeds believing it is protected. Fixed in 6.0.3 (finding C-01) in Util::count_overlaps_locked(); moved here in 6.4.0 with the locked booking count',
+			'regions'  => array(
+				0 => array( '_mhm', '_mhmrentiva_%' ),
+			),
+		),
 		'src/Admin/Booking/Helpers/Locker.php' => array(
 			'why'      => 'FOR UPDATE must lock rows in BOTH spellings; a new-prefix-only pattern locks nothing on an un-migrated site and the caller COMMITs believing it holds the lock',
 			'regions'  => array(
 				0 => array( '_mhm', '_mhm_', '_mhmrentiva_%' ),
 				1 => array( '_mhm' ),
-			),
-		),
-		'src/Admin/Booking/Helpers/Util.php' => array(
-			'why'      => 'has_overlap_locked() takes the booking guard\'s FOR UPDATE row lock and must match BOTH spellings for exactly the reason Locker::withLock() documents: on an un-migrated site a new-prefix-only pattern selects zero rows, locks nothing, and the caller proceeds believing it is protected. Fixed in 6.0.3 (finding C-01); the narrow pattern shipped through 6.0.2',
-			'regions'  => array(
-				0 => array( '_mhm', '_mhm_', '_mhmrentiva_%' ),
 			),
 		),
 		'src/Admin/Core/Utilities/DatabaseCleaner.php' => array(

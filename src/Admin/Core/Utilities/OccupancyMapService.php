@@ -47,6 +47,11 @@ final class OccupancyMapService {
 	private static array $memo = array();
 
 	/**
+	 * Generation scope of the vehicle-stats keys (see Cache::generation()).
+	 */
+	private const GENERATION_SCOPE = 'vehicle_stats';
+
+	/**
 	 * The occupied-status set, defined ONCE for every consumer: this
 	 * service's own scan, BookingColumns::get_calendar_row_source()'s
 	 * mirror of it, and the "can this status ever paint?" test the Bookings
@@ -102,9 +107,10 @@ final class OccupancyMapService {
 		// Short-lived transient: the scan below walks the FULL booking
 		// history (postmeta values are unindexed), so it must not run on
 		// every list/matrix load. The key sits under the same
-		// `mhmrentiva_vehicle_stats_` pattern invalidate() deletes, so
-		// booking/vehicle saves invalidate it immediately.
-		$cache_key = 'mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end;
+		// `mhmrentiva_vehicle_stats_` pattern invalidate() deletes, and carries
+		// the stats generation invalidate() moves, so booking/vehicle saves
+		// invalidate it immediately on every transient backend.
+		$cache_key = 'mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end . '_' . self::generation();
 		$cached    = get_transient( $cache_key );
 		if ( is_array( $cached ) ) {
 			self::$memo[ $memo_key ] = $cached;
@@ -216,9 +222,10 @@ final class OccupancyMapService {
 	 * VehicleColumns::clear_vehicle_stats_cache(), which now delegates —
 	 * other code still calls that method directly.
 	 *
-	 * Known limit shared with the rest of the codebase: raw option-table
-	 * DELETEs do not reach an external object cache backing transients —
-	 * the 5-minute TTL bounds the staleness there.
+	 * Raw option-table DELETEs do not reach an external object cache backing
+	 * transients, nor this request's in-memory copy, so the keys also carry a
+	 * generation that this method moves first: the old entries are never
+	 * asked for again, and the DELETE is cleanup.
 	 *
 	 * Drops the per-request memo too: without that, a change-then-render
 	 * path inside ONE request (a booking save, AutoCancel's sweep, a
@@ -230,6 +237,8 @@ final class OccupancyMapService {
 		global $wpdb;
 
 		self::$memo = array();
+
+		\MHMRentiva\Admin\Booking\Helpers\Cache::bump_generation( self::GENERATION_SCOPE );
 
 		$wpdb->query(
 			$wpdb->prepare(
@@ -243,6 +252,14 @@ final class OccupancyMapService {
 				'_transient_timeout_mhmrentiva_vehicle_stats_%'
 			)
 		);
+	}
+
+	/**
+	 * The current generation of every `mhmrentiva_vehicle_stats_*` key (the
+	 * occupancy maps and the vehicle list's stat cards).
+	 */
+	public static function generation(): string {
+		return \MHMRentiva\Admin\Booking\Helpers\Cache::generation( self::GENERATION_SCOPE );
 	}
 
 	/**

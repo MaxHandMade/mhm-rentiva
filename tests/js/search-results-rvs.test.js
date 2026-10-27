@@ -21,6 +21,7 @@ describe( 'rvs search results', () => {
 					<input type="hidden" name="mhmrentiva_keyword" value="golf">
 				</form>
 				<div class="rvs-results__mobilebar">
+					<a href="#" data-rvs-change><span class="rvs-results__summary-text" data-rvs-summary-card><strong>4 vehicles</strong><span>12 Jul – 15 Jul</span></span></a>
 					<button type="button" id="opener" data-rvs-drawer-open aria-expanded="false">Filters (<span data-rvs-filter-count>1</span>)</button>
 				</div>
 				<div class="rvs-results__layout">
@@ -30,12 +31,13 @@ describe( 'rvs search results', () => {
 							<button type="button" id="close" data-rvs-drawer-close>x</button>
 						</div>
 						<form data-rvs-filters>
+							<label><input type="checkbox" id="loc1" name="mhmrentiva_pickup_location[]" value="1" checked> Airport</label>
 							<label><input type="checkbox" id="cat5" name="mhmrentiva_category[]" value="5" checked> SUV</label>
 							<label><input type="checkbox" id="cat6" name="mhmrentiva_category[]" value="6"> Sedan</label>
 							<input type="number" id="minp" name="mhmrentiva_min_price" value="100">
 						</form>
 						<div class="rvs-results__drawer-foot">
-							<button type="button" id="apply" data-rvs-drawer-apply>Show <span data-rvs-apply-count>4</span></button>
+							<button type="button" id="apply" data-rvs-drawer-apply><span data-rvs-apply-label>Show <span data-rvs-apply-count>4</span> vehicles</span></button>
 						</div>
 					</aside>
 					<section class="rvs-results__main">
@@ -44,9 +46,11 @@ describe( 'rvs search results', () => {
 						<button type="button" data-rvs-view="grid" aria-pressed="true">g</button>
 						<button type="button" data-rvs-view="list" aria-pressed="false">l</button>
 						<div data-rvs-chips><button type="button" data-rvs-chip data-name="mhmrentiva_category[]" data-value="5">SUV</button></div>
-						<div data-rvs-notice></div>
+						<div data-rvs-notice role="status"></div>
 						<div class="rvs-card-grid" data-rvs-grid><article class="rvs-card rvs-card--grid" data-rvs-card></article></div>
 						<nav data-rvs-pagination><a href="?page=2" data-rvs-page="2">2</a></nav>
+						<div data-rvs-nearby><section id="old-near"></section></div>
+						<div data-rvs-booked><section id="old-booked"></section></div>
 					</section>
 				</div>
 				<div data-rvs-compare-band data-count="0" data-max="3">
@@ -159,6 +163,105 @@ describe( 'rvs search results', () => {
 		expect( data.mhmrentiva_return_date ).toBe( '2027-07-15' );
 	} );
 
+	const reply = ( data ) => ( o ) => o.success( {
+		success: true,
+		data: Object.assign( { html: '', pagination: '', summary_html: '', chips_html: '', notice_html: '', nearby_html: '', booked_html: '', meta: { total: 0 } }, data ),
+	} );
+
+	test( 'clear keeps location and counter excludes it', async () => {
+		await boot( reply( { meta: { total: 0, active_filters: 0 } } ) );
+		document.querySelector( '[data-rvs-results]' ).insertAdjacentHTML( 'beforeend', '<button type="button" id="clear" data-rvs-clear>Clear</button>' );
+		document.getElementById( 'clear' ).click();
+
+		const data = jQuery.ajax.mock.calls[ 0 ][ 0 ].data;
+		// The pickup point is where the visitor is, not a filter: it stays.
+		expect( document.getElementById( 'loc1' ).checked ).toBe( true );
+		expect( data.mhmrentiva_pickup_location ).toEqual( [ '1' ] );
+		expect( document.getElementById( 'cat5' ).checked ).toBe( false );
+		expect( data.mhmrentiva_category ).toBeUndefined();
+		// The counter is the server's count, which leaves the location out.
+		expect( document.querySelector( '[data-rvs-filter-count]' ).textContent ).toBe( '0' );
+	} );
+
+	test( 'the response fills the sections and an empty key clears them', async () => {
+		await boot( reply( {
+			nearby_html: '<section id="near"><div class="rvs-card-grid" data-rvs-section-grid><article class="rvs-card rvs-card--grid" data-rvs-card></article></div></section>',
+		} ) );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-nearby] #near' ) ).not.toBeNull();
+		expect( document.querySelector( '[data-rvs-nearby] #old-near' ) ).toBeNull();
+		expect( document.querySelector( '[data-rvs-booked]' ).innerHTML ).toBe( '' );
+		// The script names the page's id prefix, so section heading ids match the page's.
+		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.instance ).toBe( 'r1' );
+	} );
+
+	test( 'sections follow grid/list view', async () => {
+		await boot( reply( {
+			nearby_html: '<section><div class="rvs-card-grid" data-rvs-section-grid><article class="rvs-card rvs-card--grid" data-rvs-card id="n1"></article></div></section>',
+			booked_html: '<section><div class="rvs-card-grid" data-rvs-section-grid><article class="rvs-card rvs-card--grid" data-rvs-card id="b1"></article></div></section>',
+		} ) );
+		document.querySelector( '[data-rvs-view="list"]' ).click();
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		// A reload while the list view is on keeps it on the new sections...
+		document.querySelectorAll( '[data-rvs-section-grid]' ).forEach( ( grid ) => {
+			expect( grid.classList.contains( 'rvs-card-list' ) ).toBe( true );
+			expect( grid.classList.contains( 'rvs-card-grid' ) ).toBe( false );
+		} );
+		expect( document.getElementById( 'n1' ).classList.contains( 'rvs-card--list' ) ).toBe( true );
+		expect( document.getElementById( 'b1' ).classList.contains( 'rvs-card--list' ) ).toBe( true );
+
+		// ...and switching back moves the sections too.
+		document.querySelector( '[data-rvs-view="grid"]' ).click();
+		expect( document.getElementById( 'n1' ).classList.contains( 'rvs-card--grid' ) ).toBe( true );
+		expect( document.querySelector( '[data-rvs-booked] [data-rvs-section-grid]' ).classList.contains( 'rvs-card-grid' ) ).toBe( true );
+	} );
+
+	test( 'status region announces sections', async () => {
+		await boot( reply( {
+			summary_html: '<strong>0 vehicles</strong>',
+			notice_html: '<div data-rvs-empty="none_here"><p>No cars are free here.</p></div>',
+			booked_html: '<section></section>',
+			meta: { total: 0, announce: '0 vehicles. Booked for these dates: 1 vehicle.' },
+		} ) );
+		const region = document.querySelector( '[data-rvs-notice]' );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		// The same node, still a status region: only its content changed.
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.getAttribute( 'role' ) ).toBe( 'status' );
+		expect( region.querySelector( '[data-rvs-empty="none_here"]' ) ).not.toBeNull();
+		expect( region.querySelector( '[data-rvs-announce]' ).textContent ).toBe( '0 vehicles. Booked for these dates: 1 vehicle.' );
+
+		// A second reload replaces the sentence; it does not pile up.
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.querySelectorAll( '[data-rvs-announce]' ).length ).toBe( 1 );
+	} );
+
+	test( 'the announcement is the server sentence as given, no client-side joining', async () => {
+		// Whatever the translation's word order and punctuation, the script adds none.
+		const sentence = '[2 araç | Bu tarihlerde dolu => 1 araç]';
+		await boot( reply( { notice_html: '<div data-rvs-empty="none_yet"></div>', meta: { total: 0, announce: sentence } } ) );
+		const region = document.querySelector( '[data-rvs-notice]' );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.querySelector( '[data-rvs-announce]' ).textContent ).toBe( sentence );
+		expect( region.textContent.replace( /\s+/g, ' ' ).trim() ).toBe( sentence );
+	} );
+
+	test( 'no announcement, no sentence node', async () => {
+		await boot( reply( { notice_html: '', meta: { total: 3 } } ) );
+		const region = document.querySelector( '[data-rvs-notice]' );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-notice]' ) ).toBe( region );
+		expect( region.querySelector( '[data-rvs-announce]' ) ).toBeNull();
+		expect( region.getAttribute( 'role' ) ).toBe( 'status' );
+	} );
+
 	test( 'a page button reloads that page with the current filters', async () => {
 		await boot();
 		Element.prototype.scrollIntoView = jest.fn();
@@ -193,6 +296,44 @@ describe( 'rvs search results', () => {
 		expect( document.getElementById( 'new' ).classList.contains( 'rvs-card--list' ) ).toBe( true );
 		expect( document.querySelector( '[data-rvs-grid]' ).classList.contains( 'rvs-card-list' ) ).toBe( true );
 		expect( jQuery.ajax.mock.calls[ 0 ][ 0 ].data.layout ).toBe( 'list' );
+	} );
+
+	// An empty grid above sections that list cars must not say
+	// "Show 0 vehicles"; the server sends the label (with its plural) each time.
+	test( 'the apply label is the server label: count-free when only the sections list cars', async () => {
+		let next = { apply_html: 'Show results', meta: { total: 0, active_filters: 1 } };
+		await boot( ( o ) => o.success( {
+			success: true,
+			data: Object.assign( { html: '', pagination: '', summary_html: '7 Dec – 10 Dec · 3 days', chips_html: '', notice_html: '' }, next ),
+		} ) );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( document.querySelector( '[data-rvs-apply-label]' ).textContent ).toBe( 'Show results' );
+		expect( document.getElementById( 'apply' ).textContent ).not.toContain( '0' );
+
+		next = { apply_html: 'Show <span data-rvs-apply-count>1</span> vehicle', meta: { total: 1, active_filters: 0 } };
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		expect( document.querySelector( '[data-rvs-apply-label]' ).textContent ).toBe( 'Show 1 vehicle' );
+		expect( document.querySelector( '[data-rvs-apply-count]' ).textContent ).toBe( '1' );
+	} );
+
+	// The phone's summary card follows the re-render, so it
+	// never disagrees with the drawer button (no "0" over sections with cars).
+	test( 'the mobile summary card follows the re-render', async () => {
+		let next = { summary_card_html: '<span>12 Jul – 15 Jul</span>', apply_html: 'Show results', meta: { total: 0, active_filters: 1 } };
+		await boot( ( o ) => o.success( {
+			success: true,
+			data: Object.assign( { html: '', pagination: '', summary_html: '12 Jul – 15 Jul · 3 days', chips_html: '', notice_html: '' }, next ),
+		} ) );
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		const card = document.querySelector( '[data-rvs-summary-card]' );
+		expect( card.textContent ).toBe( '12 Jul – 15 Jul' );
+		expect( card.textContent ).not.toContain( '4 vehicles' );
+
+		next = { summary_card_html: '<strong>2 vehicles</strong><span>12 Jul – 15 Jul</span>', apply_html: 'Show <span data-rvs-apply-count>2</span> vehicles', meta: { total: 2, active_filters: 0 } };
+		document.getElementById( 'cat6' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		expect( card.querySelector( 'strong' ).textContent ).toBe( '2 vehicles' );
 	} );
 
 	test( 'opening the drawer makes it a modal dialog and focuses its title', async () => {

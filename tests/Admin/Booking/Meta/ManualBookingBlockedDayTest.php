@@ -1,0 +1,221 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MHMRentiva\Tests\Admin\Booking\Meta;
+
+use MHMRentiva\Admin\Booking\Helpers\Util;
+use MHMRentiva\Admin\Booking\Meta\BookingMeta;
+use MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox;
+use WP_Ajax_UnitTestCase;
+
+/**
+ * PR S -- an operator may book a vehicle on a day the vehicle is closed.
+ *
+ * The customer is refused on a blocked day; the operator is not: the booking
+ * is saved and a notice names the closed days. The operator's check counts
+ * bookings only, under the lock, and never reads the cached customer answer
+ * -- a customer's cached "booked" for the same window must not refuse the
+ * operator.
+ *
+ * START TRANSACTION / COMMIT are neutralised so the test's own transaction
+ * survives Locker::withLock() (same approach as ManualBookingAtomicityTest).
+ *
+ * @covers \MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox::ajax_create_booking
+ * @covers \MHMRentiva\Admin\Booking\Meta\BookingMeta::show_blocked_day_notice
+ */
+final class ManualBookingBlockedDayTest extends WP_Ajax_UnitTestCase
+{
+	protected $_last_response;
+
+	private int $vehicle_id;
+
+	private int $customer_id;
+
+	public function setUp(): void
+	{
+		parent::setUp();
+
+		$this->vehicle_id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_vehicle',
+			'post_status' => 'publish',
+			'post_title'  => 'Closed Day Sedan',
+		));
+		update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_status', 'active');
+		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '100');
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-10-11"]');
+
+		ManualBookingMetaBox::register();
+		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+		$this->customer_id = (int) self::factory()->user->create(array( 'role' => 'customer' ));
+
+		add_filter('query', static function ($query) {
+			return preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query) ? 'SELECT 1' : $query;
+		});
+	}
+
+	public function tearDown(): void
+	{
+		delete_transient($this->notice_key());
+		$_POST = array();
+		parent::tearDown();
+	}
+
+	private function notice_key(): string
+	{
+		return 'mhmrentiva_admin_blocked_day_notice_' . get_current_user_id();
+	}
+
+	/**
+	 * @param array<string, string> $overrides
+	 * @return array<string, mixed>
+	 */
+	private function create(array $overrides = array()): array
+	{
+		$_POST = array_merge(
+			array(
+				'nonce'        => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
+				'vehicle_id'   => (string) $this->vehicle_id,
+				'customer_id'  => (string) $this->customer_id,
+				'pickup_date'  => '2027-10-10',
+				'pickup_time'  => '10:00',
+				'dropoff_date' => '2027-10-12',
+				'dropoff_time' => '10:00',
+				'payment_type' => 'full',
+				'status'       => 'confirmed',
+			),
+			$overrides
+		);
+
+		$this->_last_response = '';
+		try {
+			$this->_handleAjax('mhmrentiva_create_manual_booking');
+		} catch (\WPAjaxDieContinueException $e) {
+			// Expected exit path for WP_Ajax_UnitTestCase.
+		}
+
+		$decoded = json_decode((string) $this->_last_response, true);
+
+		return is_array($decoded) ? $decoded : array();
+	}
+
+	/**
+	 * Render the admin notices as on post.php for $post_id (0: some other screen).
+	 */
+	private function notice_output(int $post_id): string
+	{
+		$saved_pagenow = $GLOBALS['pagenow'] ?? null;
+		$saved_post    = $GLOBALS['post'] ?? null;
+
+		$GLOBALS['pagenow'] = $post_id > 0 ? 'post.php' : 'edit.php';
+		$GLOBALS['post']    = $post_id > 0 ? get_post($post_id) : null;
+
+		try {
+			ob_start();
+			BookingMeta::show_blocked_day_notice();
+
+			return (string) ob_get_clean();
+		} finally {
+			$GLOBALS['pagenow'] = $saved_pagenow;
+			$GLOBALS['post']    = $saved_post;
+		}
+	}
+
+	public function test_admin_paths_save_and_warn_on_blocked_day(): void
+	{
+		$response = $this->create();
+
+		$this->assertTrue($response['success'] ?? false, 'The operator is not refused: ' . (string) $this->_last_response);
+		$booking_id = (int) $response['data']['booking_id'];
+		$this->assertSame(array( 'booking_id' => $booking_id, 'days' => array( '2027-10-11' ) ), get_transient($this->notice_key()));
+
+		// Not on another screen -- and it waits for the booking's own.
+		$this->assertSame('', $this->notice_output(0));
+		$this->assertSame('', $this->notice_output($this->vehicle_id));
+		$this->assertNotFalse(get_transient($this->notice_key()));
+
+		$html = $this->notice_output($booking_id);
+		$this->assertStringContainsString(
+			esc_html(sprintf(
+				/* translators: %s: list of closed days. */
+				__('This vehicle has closed days in this period: %s. The booking was saved anyway.', 'mhm-rentiva'),
+				wp_date((string) get_option('date_format'), (int) \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant('2027-10-11', '12:00'))
+			)),
+			$html
+		);
+		$this->assertStringContainsString('notice-warning', $html);
+		$this->assertFalse(get_transient($this->notice_key()), 'Shown once, then gone.');
+		$this->assertSame('', $this->notice_output($booking_id));
+	}
+
+	/**
+	 * Several closed days are joined by the site's list format (wp_sprintf
+	 * '%l'), which a translation controls -- not a hard-coded ", ".
+	 */
+	public function test_several_closed_days_use_the_translatable_list_format(): void
+	{
+		update_post_meta($this->vehicle_id, '_mhmrentiva_blocked_dates', '["2027-10-11","2027-10-12"]');
+		$response = $this->create(array( 'dropoff_date' => '2027-10-13' ));
+		$this->assertTrue($response['success'] ?? false, (string) $this->_last_response);
+
+		$labels = array_map(
+			static fn(string $day): string => wp_date((string) get_option('date_format'), (int) \MHMRentiva\Admin\Booking\Helpers\SiteTime::instant($day, '12:00')),
+			array( '2027-10-11', '2027-10-12' )
+		);
+		$html = $this->notice_output( (int) $response['data']['booking_id']);
+
+		$this->assertStringContainsString(esc_html(wp_sprintf('%l', $labels)), $html);
+	}
+
+	public function test_no_notice_when_no_day_is_closed(): void
+	{
+		$response = $this->create(array( 'pickup_date' => '2027-10-20', 'dropoff_date' => '2027-10-22' ));
+
+		$this->assertTrue($response['success'] ?? false);
+		$this->assertFalse(get_transient($this->notice_key()));
+	}
+
+	public function test_customer_cached_blocked_answer_does_not_refuse_admin(): void
+	{
+		// The customer asks first; "booked" is cached for this window.
+		$customer = Util::check_availability($this->vehicle_id, '2027-10-10', '10:00', '2027-10-12', '10:00');
+		$this->assertFalse($customer['ok'], 'Precondition: the customer is refused and the answer is cached.');
+
+		// The price quote and the create both answer the operator from the database.
+		$_POST = array(
+			'nonce'        => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
+			'vehicle_id'   => (string) $this->vehicle_id,
+			'pickup_date'  => '2027-10-10',
+			'pickup_time'  => '10:00',
+			'dropoff_date' => '2027-10-12',
+			'dropoff_time' => '10:00',
+			'payment_type' => 'full',
+		);
+		try {
+			$this->_handleAjax('mhmrentiva_calculate_manual_booking');
+		} catch (\WPAjaxDieContinueException $e) {
+			// Expected exit path for WP_Ajax_UnitTestCase.
+		}
+		$quote = json_decode((string) $this->_last_response, true);
+		$this->assertTrue($quote['success'] ?? false, 'The quote is not refused: ' . (string) $this->_last_response);
+
+		$response = $this->create();
+		$this->assertTrue($response['success'] ?? false, 'The booking is saved: ' . (string) $this->_last_response);
+		$this->assertSame(
+			array( 'booking_id' => (int) $response['data']['booking_id'], 'days' => array( '2027-10-11' ) ),
+			get_transient($this->notice_key()),
+			'And the operator is warned.'
+		);
+	}
+
+	public function test_a_real_booking_conflict_still_refuses_the_operator(): void
+	{
+		$this->assertTrue($this->create()['success'] ?? false);
+		delete_transient($this->notice_key());
+
+		$second = $this->create();
+
+		$this->assertFalse($second['success'] ?? true, 'Two bookings on one vehicle and window.');
+		$this->assertFalse(get_transient($this->notice_key()), 'A refused booking leaves no "saved anyway" notice.');
+	}
+}

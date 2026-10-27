@@ -599,5 +599,6 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 		BookingMeta::sync_booking_timestamps( $post_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 		BookingMeta::invalidate_edit_caches( (int) $old_vehicle_id, (int) get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
+		BookingMeta::blocked_day_notice_after_write( $post_id );
 	}
 }

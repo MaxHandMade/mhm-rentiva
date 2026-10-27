@@ -263,7 +263,7 @@ final class OccupancyMapServiceTest extends WP_UnitTestCase
 		$row = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end
+				'_transient_mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end . '_%'
 			)
 		);
 		$this->assertNotNull( $row, 'get_map() must write a transient under the mhmrentiva_vehicle_stats_ prefix.' );
@@ -273,7 +273,7 @@ final class OccupancyMapServiceTest extends WP_UnitTestCase
 		$row_after = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end
+				'_transient_mhmrentiva_vehicle_stats_occmap_' . $start . '_' . $end . '_%'
 			)
 		);
 		$this->assertNull( $row_after, 'invalidate() must delete the occmap transient.' );

@@ -9,7 +9,6 @@ use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\Emails\Core\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactForm;
-use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl;
 use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
 use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
@@ -112,7 +111,7 @@ final class SettingsReachTheirReadersTest extends WP_UnitTestCase
 
 	// ---------------------------------------------------------------- H1
 
-	public function test_h1_the_default_rental_location_saved_on_the_vehicle_tab_reaches_the_booking_link(): void
+	public function test_h1_the_default_rental_location_saved_on_the_vehicle_tab_reaches_the_cars_pickup_point(): void
 	{
 		$this->provide_location();
 		$this->stored = array( 'mhmrentiva_booking_url' => 'https://example.test/book' );
@@ -131,8 +130,7 @@ final class SettingsReachTheirReadersTest extends WP_UnitTestCase
 			)
 		);
 
-		parse_str((string) wp_parse_url(BookingUrl::for_vehicle($vehicle), PHP_URL_QUERY), $query);
-		$this->assertSame('7', $query[ AbstractShortcode::query_var('pickup_location') ] ?? null);
+		$this->assertSame(7, BookingUrl::location_for($vehicle));
 	}
 
 	public function test_h1_a_location_the_provider_does_not_know_is_not_stored(): void

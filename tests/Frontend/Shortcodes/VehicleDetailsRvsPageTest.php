@@ -16,6 +16,8 @@ use WP_UnitTestCase;
  */
 final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 {
+	use \MHMRentiva\Tests\Support\StyleDependencies;
+
 	private int $vehicle_id;
 
 	public function setUp(): void
@@ -162,6 +164,8 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-dialog', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-rvs-vehicle-js', 'enqueued'));
 		$this->assertContains('mhm-rentiva-rvs-dialog', wp_scripts()->registered['mhm-rentiva-rvs-vehicle-js']->deps);
+		// PR S: the booking card's date popup wears the rvs skin.
+		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-vehicle', 'mhm-rentiva-rvs-datepicker'), 'The vehicle page loads the rvs datepicker skin.');
 	}
 
 	public function test_block_render_uses_rvs_style(): void
@@ -177,6 +181,53 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		update_post_meta($this->vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SERVICE_TYPE, 'transfer');
 
 		$this->assertStringNotContainsString('rvs-vd__booking', $this->render());
+	}
+
+	/**
+	 * A link with the return before pickup shows the message
+	 * with the total and days hidden; the script learns the minimum rental.
+	 */
+	public function test_dates_in_the_wrong_order_show_no_total(): void
+	{
+		set_query_var('mhmrentiva_pickup_date', '2027-07-20');
+		set_query_var('mhmrentiva_return_date', '2027-07-15');
+		$html = $this->render();
+		set_query_var('mhmrentiva_pickup_date', '');
+		set_query_var('mhmrentiva_return_date', '');
+
+		$this->assertSame(2, preg_match_all('/<[^>]*data-rvs-vd-priced[^>]*\shidden[\s>]/', $html), 'Card total and bar total are hidden.');
+		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
+
+		$ordered = $this->render();
+		$this->assertSame(2, preg_match_all('/data-rvs-vd-priced/', $ordered));
+		$this->assertSame(0, preg_match_all('/<[^>]*data-rvs-vd-priced[^>]*\shidden[\s>]/', $ordered));
+
+		$config = (string) wp_scripts()->get_data('mhm-rentiva-rvs-vehicle-js', 'data');
+		$this->assertStringContainsString('"min_days":"' . \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::min_rental_days() . '"', $config);
+	}
+
+	/**
+	 * The card's dates show the site format from the first
+	 * paint; the hidden field after each posts Y-m-d.
+	 */
+	public function test_card_dates_render_in_the_site_format_and_post_iso(): void
+	{
+		$saved = get_option('date_format');
+		update_option('date_format', 'd/m/Y');
+		set_query_var('mhmrentiva_pickup_date', '2027-07-12');
+		set_query_var('mhmrentiva_return_date', '2027-07-15');
+		try {
+			$html = $this->render();
+		} finally {
+			update_option('date_format', $saved);
+			set_query_var('mhmrentiva_pickup_date', '');
+			set_query_var('mhmrentiva_return_date', '');
+		}
+
+		// Named on the visible field until the script hands the name to the
+		// hidden Y-m-d field (datepicker-init.js); the server reads either.
+		$this->assertMatchesRegularExpression('/<input id="[^"]+-pickup" type="text" class="rvs-input js-datepicker" name="pickup_date" value="12\/07\/2027"[^>]*>\s*<input type="hidden" value="2027-07-12" data-rvs-date-value>/', $html);
+		$this->assertMatchesRegularExpression('/<input id="[^"]+-return" type="text" class="rvs-input js-datepicker" name="return_date" value="15\/07\/2027"[^>]*>\s*<input type="hidden" value="2027-07-15" data-rvs-date-value>/', $html);
 	}
 
 	public function test_unavailable_window_disables_continue(): void

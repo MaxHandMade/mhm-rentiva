@@ -24,6 +24,8 @@ use WP_UnitTestCase;
  */
 final class BookingFormMarkupTest extends WP_UnitTestCase
 {
+	use \MHMRentiva\Tests\Support\StyleDependencies;
+
 	public function setUp(): void
 	{
 		parent::setUp();
@@ -294,19 +296,94 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 			'id'   => 7,
 			'name' => 'Zz Airport',
 		);
-		$filter   = static fn() => array( $location );
+		$other    = (object) array(
+			'id'   => 8,
+			'name' => 'Zz Center',
+		);
+		$filter   = static fn() => array( $location, $other );
 		$vehicle  = ShortcodeFixtures::vehicle();
+		update_post_meta($vehicle, '_mhmrentiva_location_id', '7');
 
 		$this->assertStringNotContainsString('data-rvs-summary-location', $this->render(array( 'vehicle_id' => (string) $vehicle )));
 
 		add_filter('mhmrentiva_locations', $filter);
 		try {
-			$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=7');
+			// PR S: the URL's point (8) is not the car's (7) and is not read.
+			$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=8');
 			$html = $this->render(array(), true, false);
 		} finally {
 			remove_filter('mhmrentiva_locations', $filter);
 		}
-		$this->assertMatchesRegularExpression('/data-rvs-summary-location[^>]*>[^<]*Zz Airport/', $html);
+		$this->assertMatchesRegularExpression('#data-rvs-summary-location[^>]*>.*Pickup and return: <strong data-rvs-summary-where>Zz Airport</strong>#s', $html);
+		$this->assertStringNotContainsString('Zz Center', $html);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $html, 'No hidden location field: the server takes the point from the car.');
+	}
+
+	/**
+	 * Single-location site: a car with no point of its own is picked up at the
+	 * one there is, and the summary says so.
+	 */
+	public function test_summary_line_falls_back_to_single_location(): void
+	{
+		$filter  = static fn() => array(
+			(object) array(
+				'id'   => 5,
+				'name' => 'Zz Only',
+			),
+		);
+		$vehicle = ShortcodeFixtures::vehicle();
+		delete_post_meta($vehicle, '_mhmrentiva_location_id');
+
+		add_filter('mhmrentiva_locations', $filter);
+		try {
+			$html = $this->render(array( 'vehicle_id' => (string) $vehicle ));
+		} finally {
+			remove_filter('mhmrentiva_locations', $filter);
+		}
+		$this->assertMatchesRegularExpression('#data-rvs-summary-location[^>]*>.*Pickup and return: <strong data-rvs-summary-where>Zz Only</strong>#s', $html);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $html);
+	}
+
+	/**
+	 * Lite alone: no location line, no hidden location field -- also in Case B
+	 * and with a location in the URL and on the car.
+	 */
+	public function test_lite_alone_has_no_location_line(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		update_post_meta($vehicle, '_mhmrentiva_location_id', '7');
+
+		$this->go_to('/?mhmrentiva_vehicle_id=' . $vehicle . '&mhmrentiva_pickup_location=7');
+		$case_a = $this->render(array(), true, false);
+		$case_b = $this->render(array());
+
+		foreach (array( $case_a, $case_b ) as $html) {
+			$this->assertStringNotContainsString('data-rvs-summary-location', $html);
+			$this->assertStringNotContainsString('name="pickup_location_id"', $html);
+		}
+	}
+
+	/**
+	 * Case B on a site with locations: the line waits empty and hidden until a
+	 * car is chosen (the quote answer's location_name fills it).
+	 */
+	public function test_case_b_line_waits_hidden_until_a_car_is_chosen(): void
+	{
+		$filter = static fn() => array(
+			(object) array(
+				'id'   => 5,
+				'name' => 'Zz Only',
+			),
+		);
+		add_filter('mhmrentiva_locations', $filter);
+		try {
+			$html = $this->render(array());
+		} finally {
+			remove_filter('mhmrentiva_locations', $filter);
+		}
+		$this->assertMatchesRegularExpression('#<p class="rvs-booking__where" data-rvs-summary-location hidden>#', $html);
+		$this->assertStringContainsString('<strong data-rvs-summary-where></strong>', $html);
+		$this->assertStringNotContainsString('name="pickup_location_id"', $html);
 	}
 
 	public function test_assets_are_the_rvs_chain_without_the_old_stylesheets(): void
@@ -320,6 +397,7 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-card', 'enqueued'), 'Alternative vehicles are rvs cards.');
 		$this->assertStringContainsString('"processing":"Processing..."', (string) wp_scripts()->get_data('mhm-rentiva-booking-form', 'data'), 'The submit busy label is localized.');
 		$this->assertFalse(wp_style_is('mhm-rentiva-datepicker-custom', 'enqueued'), 'The form does not load datepicker-custom.css (R6).');
+		$this->assertTrue(self::style_needs('mhm-rentiva-rvs-booking', 'mhm-rentiva-rvs-datepicker'), 'The form loads the shared rvs datepicker skin.');
 		$this->assertFalse(wp_style_is('mhm-rentiva-rentiva-booking-form', 'enqueued'));
 		$this->assertTrue(wp_script_is('mhm-rentiva-booking-form', 'enqueued'));
 		$deps = wp_scripts()->registered['mhm-rentiva-booking-form']->deps ?? array();
@@ -336,6 +414,22 @@ final class BookingFormMarkupTest extends WP_UnitTestCase
 		$this->assertStringContainsString('bottom: 0;', $m['rule']);
 		$this->assertMatchesRegularExpression('/padding-bottom: 72px;/', $css, 'The form leaves room for the collapsed band.');
 	}
+
+	/**
+	 * The pickup line sits inside .rvs-booking__when, which
+	 * already has the summary's side margin; its own side margin doubled it
+	 * (20 px in from the date line) and no bottom margin glued it to the dates.
+	 */
+	public function test_summary_pickup_line_aligns_with_the_date_line(): void
+	{
+		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/rvs-booking.css');
+		$this->assertSame(1, preg_match('/\.rvs-shell \.rvs-booking__where \{(?<rule>[^}]*)\}/', $css, $m), 'The pickup line rule exists.');
+		$this->assertSame(1, preg_match('/(?:^|;)\s*margin:\s*(?<value>[^;]+);/', $m['rule'], $margin), 'The rule sets its margin.');
+		$parts = preg_split('/\s+/', trim($margin['value']));
+		$this->assertCount(3, $parts, 'margin: top inline bottom.');
+		$this->assertSame('0', $parts[1], 'No side margin of its own: the parent .rvs-booking__when has it.');
+		$this->assertNotSame('0', $parts[2], 'A gap below, before the date line.');
+		$this->assertMatchesRegularExpression('/\.rvs-booking__when\b[^{]*\{[^}]*margin-inline:\s*var\(--rvs-s4\)/s', $css, 'The parent keeps the side margin.');	}
 
 	// ------------------------------------------------------------ helpers
 

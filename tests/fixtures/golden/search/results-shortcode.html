@@ -3,10 +3,7 @@
 </form>
 <div class="rvs-results__mobilebar">
 <a class="rvs-results__summary-card" href="http://example.org/" data-rvs-change>
-<span class="rvs-results__summary-text">
-<strong>3 vehicles</strong>
-<span>No dates selected</span>
-</span>
+<span class="rvs-results__summary-text" data-rvs-summary-card><strong>3 vehicles</strong><span>No dates selected</span></span>
 <span class="rvs-results__change">Change</span>
 </a>
 <button type="button" class="rvs-btn rvs-btn--secondary rvs-results__filters-open" data-rvs-drawer-open aria-controls="X" aria-expanded="X">
@@ -127,13 +124,13 @@
 <div class="rvs-results__drawer-foot">
 <button type="button" class="rvs-btn rvs-btn--ghost" data-rvs-clear>Clear</button>
 <button type="button" class="rvs-btn rvs-btn--primary rvs-results__apply" data-rvs-drawer-apply>
-<span> Show <span data-rvs-apply-count>3</span> vehicles </span>
+<span data-rvs-apply-label>Show <span data-rvs-apply-count>3</span> vehicles</span>
 </button>
 </div>
 </aside>
 <section class="rvs-results__main" aria-label="X">
 <div class="rvs-results__head">
-<p class="rvs-results__summary" data-rvs-summary aria-live="X"><strong>3 vehicles</strong></p>
+<p class="rvs-results__summary" data-rvs-summary><strong>3 vehicles</strong></p>
 <div class="rvs-results__tools">
 <label class="rvs-results__sort-label" for="X">Sort</label>
 <select id="X" class="rvs-input rvs-results__sort" name="mhmrentiva_sort" data-rvs-sort>
@@ -155,12 +152,10 @@
 </div>
 </div>
 <div class="rvs-results__chips" data-rvs-chips aria-label="X"></div>
-<div class="rvs-results__notice" data-rvs-notice>
-<div class="rvs-results__notice-box" data-rvs-empty="not_searched">
+<div class="rvs-results__notice" data-rvs-notice role="status"><div class="rvs-results__notice-box" data-rvs-empty="not_searched">
 <p>Choose your dates to see the total price and only the cars that are free.</p>
 <a class="rvs-btn rvs-btn--secondary" href="http://example.org/" data-rvs-change>Choose dates</a>
-</div>
-</div>
+</div></div>
 <div class="rvs-card-grid rvs-results__grid" data-rvs-grid>
 <article class="rvs-card rvs-card--grid" data-rvs-card data-testid="X" data-id="X">
 <div class="rvs-card__media">
@@ -254,6 +249,8 @@
 </article>
 </div>
 <nav class="rvs-results__pagination" data-rvs-pagination aria-label="X"></nav>
+<div class="rvs-results__nearby" data-rvs-nearby></div>
+<div class="rvs-results__booked" data-rvs-booked></div>
 </section>
 </div>
 <div class="rvs-results__band" role="region" aria-label="X" data-rvs-compare-band data-count="0" data-max="3">

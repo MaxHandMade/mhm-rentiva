@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes\Card;
 
+use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
 
 if (! defined('ABSPATH')) {
@@ -74,7 +75,7 @@ final class VehicleCardLinks {
 	 */
 	public static function details_url(int $vehicle_id, array $window): string
 	{
-		$base_url = (string) get_permalink($vehicle_id);
+		$base_url = ShortcodeUrlManager::vehicle_page_url($vehicle_id);
 		if ('' === $base_url) {
 			return '';
 		}
