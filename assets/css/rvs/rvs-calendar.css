@@ -102,11 +102,11 @@
 	cursor: pointer;
 }
 
-.rvs-shell .rvs-cal__day.is-available:hover {
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-available:hover {
 	background: var(--rvs-accent-100);
 }
 
-.rvs-shell .rvs-cal__day.is-selected:hover {
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-selected:hover {
 	background: var(--rvs-accent-deep);
 }
 

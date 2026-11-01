@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Frontend\Rvs;
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsCalendar;
+use MHMRentiva\Helpers\Html;
 use WP_UnitTestCase;
 
 /**
@@ -190,5 +191,29 @@ final class RvsCalendarTest extends WP_UnitTestCase
 		$one  = RvsCalendar::month(2027, 7, array(), '2027-07-15', array( '2027-07-24' ), array( 'interactive' => true ));
 		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $one ), true);
 		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-selected is-range-start is-range-end" data-date="2027-07-24"/', $html);
+	}
+
+	public function test_interactive_markup_survives_allowed_markup(): void
+	{
+		$cal      = RvsCalendar::month(2027, 7, array(), '2027-07-15', array(), array( 'interactive' => true ));
+		$raw      = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+		$filtered = wp_kses($raw, Html::allowed_markup());
+
+		$this->assertStringContainsString('<button type="button" class="rvs-cal__btn" data-date="2027-07-22" aria-label="', $filtered);
+		$this->assertSame(substr_count($raw, '<button'), substr_count($filtered, '<button'));
+		$this->assertSame(substr_count($raw, 'aria-label='), substr_count($filtered, 'aria-label='));
+		$this->assertSame(substr_count($raw, 'data-date='), substr_count($filtered, 'data-date='));
+	}
+
+	public function test_week_start_is_normalised_into_0_to_6(): void
+	{
+		$seven = RvsCalendar::month(2028, 2, array(), '2028-01-10', array(), array( 'week_start' => 7 ));
+		$this->assertSame('Sunday', $seven['weekdays'][0]['long']);
+
+		$minus = RvsCalendar::month(2028, 2, array(), '2028-01-10', array(), array( 'week_start' => -1 ));
+		$this->assertSame('Saturday', $minus['weekdays'][0]['long']);
+		foreach ($minus['weeks'] as $week) {
+			$this->assertCount(7, $week);
+		}
 	}
 }
