@@ -116,7 +116,7 @@ final class TestimonialsQueriesAreBoundedTest extends WP_Ajax_UnitTestCase
 		);
 		$this->assertCount(
 			5,
-			$response['data']['testimonials'] ?? array(),
+			$response['data']['cards'] ?? array(),
 			'The endpoint should still return the requested page size.'
 		);
 	}

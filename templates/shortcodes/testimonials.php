@@ -74,8 +74,9 @@ $mhmrentiva_t_classes  = trim(
 			<?php endforeach; ?>
 		</div>
 
-		<?php if ($mhmrentiva_t_carousel && $mhmrentiva_t_count > 1) : ?>
-			<div class="rvs-testimonials__controls">
+		<?php if ($mhmrentiva_t_carousel && ( $mhmrentiva_t_count > 1 || ! empty($has_more) )) : ?>
+			<?php /* One review so far but more to load: the controls wait, hidden, for the cards Load more adds. */ ?>
+			<div class="rvs-testimonials__controls" data-rvs-controls<?php echo $mhmrentiva_t_count > 1 ? '' : ' hidden'; ?>>
 				<button type="button" class="rvs-btn rvs-btn--secondary rvs-btn--icon" data-rvs-prev aria-label="<?php esc_attr_e('Previous review', 'mhm-rentiva'); ?>">
 					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6"/></svg>
 				</button>
@@ -88,6 +89,12 @@ $mhmrentiva_t_classes  = trim(
 				<button type="button" class="rvs-btn rvs-btn--secondary rvs-btn--icon" data-rvs-next aria-label="<?php esc_attr_e('Next review', 'mhm-rentiva'); ?>">
 					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
 				</button>
+				<?php if ($mhmrentiva_t_rotate) : ?>
+					<button type="button" class="rvs-btn rvs-btn--secondary rvs-btn--icon" data-rvs-pause aria-label="<?php esc_attr_e('Pause automatic rotation', 'mhm-rentiva'); ?>">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false" data-rvs-pause-icon><path d="M9 6v12M15 6v12"/></svg>
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false" data-rvs-play-icon hidden><path d="M8 5l11 7-11 7z"/></svg>
+					</button>
+				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 
@@ -96,21 +103,14 @@ $mhmrentiva_t_classes  = trim(
 				<button type="button" class="rvs-btn rvs-btn--secondary" data-rvs-load-more data-page="1"><?php esc_html_e('Load more reviews', 'mhm-rentiva'); ?></button>
 				<p class="rvs-testimonials__error" role="alert" data-rvs-error hidden></p>
 			</div>
-			<div hidden data-rvs-card-template>
+			<div hidden inert data-rvs-card-template>
 				<?php
 				Templates::render(
 					'partials/rvs/testimonial-card',
 					array(
-						'card' => array(
-							'rating'      => 3,
-							'stars_label' => '',
-							'text'        => '',
-							'initial'     => '',
-							'name'        => '',
-							'vehicle'     => '-',
-							'date'        => '-',
-						),
-						'show' => $mhmrentiva_t_show,
+						'card'     => array(),
+						'show'     => $mhmrentiva_t_show,
+						'template' => true,
 					)
 				);
 				?>

@@ -85,8 +85,8 @@ final class TestimonialsLoadMorePagingTest extends WP_Ajax_UnitTestCase
 
 		$texts = array();
 
-		foreach ( (array) ( $decoded['data']['testimonials'] ?? array() ) as $row ) {
-			$texts[] = (string) ( $row['review'] ?? '' );
+		foreach ( (array) ( $decoded['data']['cards'] ?? array() ) as $row ) {
+			$texts[] = (string) ( $row['text'] ?? '' );
 		}
 
 		return $texts;

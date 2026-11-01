@@ -8,8 +8,8 @@
  *
  * The slider is a scroll-snap track, so touch, wheel and the keyboard (the track is
  * focusable) scroll it natively. The buttons and dots only move that scroll position.
- * Auto-rotate stops while the pointer or focus is inside, and never starts under
- * prefers-reduced-motion.
+ * Auto-rotate has a visible pause/play button, stops while the pointer or focus is
+ * inside and on touch, and never starts under prefers-reduced-motion.
  */
 
 ( function () {
@@ -44,6 +44,20 @@
 		return null === value || '' === value ? fallback : value;
 	};
 
+	const SVG = 'http://www.w3.org/2000/svg';
+
+	/** One star, as partials/rvs/review-stars.php draws it. */
+	function star( filled ) {
+		const svg = document.createElementNS( SVG, 'svg' );
+		svg.setAttribute( 'class', 'rvs-review-stars__star' + ( filled ? ' is-filled' : '' ) );
+		[ [ 'width', '14' ], [ 'height', '14' ], [ 'viewBox', '0 0 24 24' ], [ 'stroke', 'currentColor' ],
+			[ 'stroke-width', '2' ], [ 'aria-hidden', 'true' ], [ 'focusable', 'false' ] ].forEach( ( [ name, value ] ) => svg.setAttribute( name, value ) );
+		const path = document.createElementNS( SVG, 'path' );
+		path.setAttribute( 'd', 'M12 3l2.8 5.9 6.2.9-4.5 4.4 1.1 6.3L12 17.6l-5.6 2.9 1.1-6.3L3 9.8l6.2-.9z' );
+		svg.appendChild( path );
+		return svg;
+	}
+
 	class Testimonials {
 		constructor( root ) {
 			this.root = root;
@@ -55,6 +69,9 @@
 			this.dots = root.querySelector( '[data-rvs-dots]' );
 			this.prev = root.querySelector( '[data-rvs-prev]' );
 			this.next = root.querySelector( '[data-rvs-next]' );
+			this.controls = root.querySelector( '[data-rvs-controls]' );
+			this.pauseButton = root.querySelector( '[data-rvs-pause]' );
+			this.userPaused = false;
 			this.busy = false;
 			this.current = 0;
 			this.timer = null;
@@ -103,6 +120,11 @@
 				this.paused = false;
 				this.startRotate();
 			};
+			if ( this.pauseButton ) {
+				this.pauseButton.addEventListener( 'click', () => this.setUserPaused( ! this.userPaused ) );
+				// A touch has no "leave": it pauses until the visitor starts it again.
+				this.root.addEventListener( 'touchstart', () => this.setUserPaused( true ), { passive: true } );
+			}
 			this.root.addEventListener( 'mouseenter', hold );
 			this.root.addEventListener( 'mouseleave', release );
 			this.root.addEventListener( 'focusin', hold );
@@ -120,13 +142,42 @@
 			} );
 			if ( window.matchMedia ) {
 				const query = window.matchMedia( '(prefers-reduced-motion: reduce)' );
-				const onChange = () => ( query.matches ? this.stopRotate() : this.startRotate() );
+				const onChange = () => {
+					this.showPauseButton();
+					return query.matches ? this.stopRotate() : this.startRotate();
+				};
 				if ( query.addEventListener ) {
 					query.addEventListener( 'change', onChange );
 				}
 			}
+			this.showPauseButton();
 
 			this.startRotate();
+		}
+
+		/** Nothing rotates under reduced motion, so there is nothing to pause. */
+		showPauseButton() {
+			if ( this.pauseButton ) {
+				this.pauseButton.hidden = reducedMotion();
+			}
+		}
+
+		setUserPaused( paused ) {
+			this.userPaused = paused;
+			if ( this.pauseButton ) {
+				const label = text( paused ? 'play' : 'pause' );
+				if ( label ) {
+					this.pauseButton.setAttribute( 'aria-label', label );
+				}
+				// SVG elements have no .hidden property: the attribute is what the CSS reads.
+				this.pauseButton.querySelector( '[data-rvs-pause-icon]' ).toggleAttribute( 'hidden', paused );
+				this.pauseButton.querySelector( '[data-rvs-play-icon]' ).toggleAttribute( 'hidden', ! paused );
+			}
+			if ( paused ) {
+				this.stopRotate();
+			} else {
+				this.startRotate();
+			}
 		}
 
 		step( by ) {
@@ -186,7 +237,7 @@
 		startRotate() {
 			this.stopRotate();
 			const wanted = '1' === this.root.getAttribute( 'data-auto-rotate' );
-			if ( ! wanted || this.paused || reducedMotion() || document.hidden || this.slides().length < 2 ) {
+			if ( ! wanted || this.paused || this.userPaused || reducedMotion() || document.hidden || this.slides().length < 2 ) {
 				return;
 			}
 			this.timer = setInterval( () => this.step( 1 ), ROTATE_MS );
@@ -221,6 +272,11 @@
 				}
 			} );
 			this.mark();
+			// A list that began with one review had its controls hidden.
+			if ( this.controls ) {
+				this.controls.hidden = total < 2;
+			}
+			this.startRotate();
 		}
 
 		/* Load more --------------------------------------------------------- */
@@ -293,14 +349,14 @@
 			put( 'vehicle', card.vehicle );
 			put( 'date', card.date );
 
-			const stars = node.querySelector( '.rvs-review-stars' );
+			const stars = node.querySelector( '[data-rvs-stars]' );
 			if ( stars ) {
 				const rating = parseInt( card.rating, 10 ) || 0;
 				if ( rating > 0 ) {
 					stars.setAttribute( 'aria-label', card.stars_label || '' );
-					stars.querySelectorAll( '.rvs-review-stars__star' ).forEach( ( star, i ) => {
-						star.classList.toggle( 'is-filled', i < rating );
-					} );
+					for ( let i = 0; i < 5; i++ ) {
+						stars.appendChild( star( i < rating ) );
+					}
 				} else {
 					stars.remove();
 				}

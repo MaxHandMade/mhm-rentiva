@@ -1,7 +1,8 @@
 <?php
 /**
- * One review. The card knows no layout: the caller's list or grid places it, so the
- * rating form and every testimonials layout draw the same element.
+ * One review of the rating form's list. The card knows no layout: the caller's list
+ * places it. The testimonials page draws its own card (partials/rvs/testimonial-card),
+ * from the same ReviewsView::card() values and the same review-stars partial.
  *
  * Script hooks (vehicle-rating-form.js): [data-rvs-review-edit], [data-rvs-review-delete].
  *

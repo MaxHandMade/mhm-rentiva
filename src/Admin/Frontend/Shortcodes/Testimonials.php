@@ -147,6 +147,8 @@ final class Testimonials extends AbstractShortcode {
 			'loading'    => __('Loading...', 'mhm-rentiva'),
 			'loadMore'   => __('Load more reviews', 'mhm-rentiva'),
 			'loaded'     => __('More reviews loaded.', 'mhm-rentiva'),
+			'pause'      => __('Pause automatic rotation', 'mhm-rentiva'),
+			'play'       => __('Start automatic rotation', 'mhm-rentiva'),
 			'error'      => __('The reviews could not be loaded. Try again.', 'mhm-rentiva'),
 			/* translators: 1: position of the review, 2: number of reviews. */
 			'slideLabel' => __('Review %1$s of %2$s', 'mhm-rentiva'),
@@ -190,6 +192,31 @@ final class Testimonials extends AbstractShortcode {
 			'has_testimonials' => ! empty($testimonials),
 			'load_more'        => self::load_more_attributes($atts),
 		);
+	}
+
+	/**
+	 * The cards as the nopriv endpoint returns them. Only what the page shows: no
+	 * full name, no e-mail, no ids, no raw dates.
+	 *
+	 * @param array<int,array<string,mixed>> $rows Rows of get_testimonials().
+	 * @return array<int,array{text:string,name:string,initial:string,rating:int,stars_label:string,date:string,vehicle:string}>
+	 */
+	private static function public_cards(array $rows): array
+	{
+		$out = array();
+		foreach (self::cards($rows) as $card) {
+			$out[] = array(
+				'text'        => (string) $card['text'],
+				'name'        => (string) $card['name'],
+				'initial'     => (string) $card['initial'],
+				'rating'      => (int) $card['raw_rating'],
+				'stars_label' => (string) $card['stars_label'],
+				'date'        => (string) $card['date'],
+				'vehicle'     => (string) $card['vehicle'],
+			);
+		}
+
+		return $out;
 	}
 
 	/**
@@ -480,12 +507,10 @@ final class Testimonials extends AbstractShortcode {
 				'review'        => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
 				'rating'        => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
 				'customer_name' => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
-				// No e-mail address here. These rows are returned verbatim by the
-				// nopriv mhmrentiva_load_testimonials endpoint, and nothing in the
-				// template or the script ever read this field -- it existed only
-				// on the wire.
+				// No e-mail address here. These rows stay inside the class: the page
+				// and the nopriv mhmrentiva_load_testimonials endpoint both draw
+				// from public_cards(), which never carries the full name.
 				'date'          => $booking->post_date,
-				'date_display'  => self::date_display( (string) $booking->post_date),
 				'vehicle_id'    => $vid,
 				'vehicle_name'  => self::get_vehicle_name($vid),
 			);
@@ -570,9 +595,8 @@ final class Testimonials extends AbstractShortcode {
 				'review'        => $comment->comment_content,
 				'rating'        => $rating,
 				'customer_name' => $customer_name ?: '',
-				// See the booking builder above: this payload is public.
+				// See the booking builder above: the row is internal.
 				'date'          => $comment->comment_date,
-				'date_display'  => self::date_display( (string) $comment->comment_date),
 				'vehicle_id'    => $vehicle_id,
 				'vehicle_name'  => self::get_vehicle_name($vehicle_id),
 			);
@@ -676,14 +700,6 @@ final class Testimonials extends AbstractShortcode {
 		return $booking_count + $comment_count;
 	}
 
-	/**
-	 * The date in the site's display format, as the cards print it.
-	 */
-	private static function date_display(string $date): string
-	{
-		return ReviewsView::date_text($date);
-	}
-
 	private static function get_vehicle_name(int $vehicle_id): string
 	{
 		if ($vehicle_id <= 0) {
@@ -752,14 +768,14 @@ final class Testimonials extends AbstractShortcode {
 		// second, contradictory JSON document after the first.
 		wp_send_json_success(
 			array(
-				'testimonials' => $testimonials,
-				// What the script draws: masked names, the site's date format.
-				'cards'        => self::cards($testimonials),
-				'total_count'  => $total_count,
+				// What the script draws and nothing else: the masked name, the text,
+				// the stars, the vehicle and the date in the site's format.
+				'cards'       => self::public_cards($testimonials),
+				'total_count' => $total_count,
 				// Up to what can be served (servable_count()), not every review:
 				// past the pool the button stayed and served empty pages.
-				'has_more'     => ( $page * $limit ) < self::servable_count($total_count),
-				'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
+				'has_more'    => ( $page * $limit ) < self::servable_count($total_count),
+				'message'     => __('Reviews loaded successfully.', 'mhm-rentiva'),
 			)
 		);
 	}

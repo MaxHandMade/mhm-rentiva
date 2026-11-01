@@ -10,37 +10,34 @@
 
 const card = ( extra = '' ) => `
 	<article class="rvs-tcard" data-rvs-card ${ extra }>
-		<span class="rvs-review-stars" role="img" aria-label="3 out of 5 stars">
-			<svg class="rvs-review-stars__star is-filled"></svg><svg class="rvs-review-stars__star is-filled"></svg>
-			<svg class="rvs-review-stars__star is-filled"></svg><svg class="rvs-review-stars__star"></svg>
-			<svg class="rvs-review-stars__star"></svg>
-		</span>
+		<span class="rvs-review-stars" role="img" aria-label="" data-rvs-stars></span>
 		<p class="rvs-tcard__text" data-rvs-slot="text"></p>
 		<div class="rvs-tcard__author">
 			<span class="rvs-tcard__avatar" data-rvs-slot="initial"></span>
 			<span class="rvs-tcard__info">
 				<strong data-rvs-slot="name"></strong>
-				<span data-rvs-slot="vehicle">-</span>
-				<span data-rvs-slot="date">-</span>
+				<span data-rvs-slot="vehicle"></span>
+				<span data-rvs-slot="date"></span>
 			</span>
 		</div>
 	</article>`;
 
-const instance = ( id, { carousel = false, rotate = '0', more = true } = {} ) => `
+const instance = ( id, { carousel = false, rotate = '0', more = true, count = 2 } = {} ) => `
 	<div class="rvs-testimonials" id="${ id }" data-rvs-testimonials data-layout="${ carousel ? 'carousel' : 'grid' }"
 		data-limit="2" data-auto-rotate="${ rotate }" data-orderby="rating" data-seed="${ id.length }">
 		<div data-rvs-items>
 			<article class="rvs-tcard" data-rvs-card><p>first</p></article>
-			<article class="rvs-tcard" data-rvs-card><p>second</p></article>
+			${ 2 === count ? '<article class="rvs-tcard" data-rvs-card><p>second</p></article>' : '' }
 		</div>
 		${ carousel ? `
-		<div class="rvs-testimonials__controls">
+		<div class="rvs-testimonials__controls" data-rvs-controls ${ 2 === count ? '' : 'hidden' }>
 			<button type="button" data-rvs-prev>prev</button>
 			<div data-rvs-dots>
-				<button type="button" aria-label="Review 1 of 2" aria-current="true"><span></span></button>
-				<button type="button" aria-label="Review 2 of 2"><span></span></button>
+				<button type="button" aria-label="Review 1 of ${ count }" aria-current="true"><span></span></button>
+				${ 2 === count ? '<button type="button" aria-label="Review 2 of 2"><span></span></button>' : '' }
 			</div>
 			<button type="button" data-rvs-next>next</button>
+			${ '1' === rotate ? '<button type="button" data-rvs-pause aria-label="Pause automatic rotation"><svg data-rvs-pause-icon></svg><svg data-rvs-play-icon hidden></svg></button>' : '' }
 		</div>` : '' }
 		${ more ? `
 		<div class="rvs-testimonials__more">
@@ -86,7 +83,7 @@ describe( 'testimonials', () => {
 		window.mhmRentivaTestimonials = {
 			ajaxUrl: '/ajax',
 			nonce: 'n1',
-			strings: { loading: 'Loading...', loaded: 'More reviews loaded.', error: 'Could not load.', slideLabel: 'Review %1$s of %2$s' },
+			strings: { loading: 'Loading...', loaded: 'More reviews loaded.', error: 'Could not load.', slideLabel: 'Review %1$s of %2$s', pause: 'Pause automatic rotation', play: 'Start automatic rotation' },
 		};
 		window.HTMLElement.prototype.scrollTo = jest.fn();
 		window.requestAnimationFrame = ( fn ) => setTimeout( fn, 0 );
@@ -117,7 +114,8 @@ describe( 'testimonials', () => {
 		expect( added.querySelector( 'b' ) ).toBeNull();
 		expect( added.querySelector( '[data-rvs-slot="text"]' ).textContent ).toBe( '“<img src=x onerror=alert(1)>”' );
 		expect( added.querySelector( '[data-rvs-slot="name"]' ).textContent ).toBe( '<b>Eve</b> K.' );
-		// Four filled stars, labelled.
+		// Five stars drawn by the script, four filled, labelled.
+		expect( added.querySelectorAll( '.rvs-review-stars__star' ) ).toHaveLength( 5 );
 		expect( added.querySelectorAll( '.is-filled' ) ).toHaveLength( 4 );
 		expect( added.querySelector( '.rvs-review-stars' ).getAttribute( 'aria-label' ) ).toBe( '4 out of 5 stars' );
 		expect( document.querySelector( '[data-rvs-live]' ).textContent ).toBe( 'More reviews loaded.' );
@@ -227,5 +225,59 @@ describe( 'testimonials', () => {
 		load( instance( 'b', { carousel: true, rotate: '0', more: false } ) );
 		jest.advanceTimersByTime( 30000 );
 		expect( document.querySelector( '[data-rvs-dots] button' ).getAttribute( 'aria-current' ) ).toBe( 'true' );
+	} );
+
+	test( 'a list that began with one review gets its controls once Load more adds cards', async () => {
+		global.fetch.mockReturnValue( answer( { success: true, data: { cards: [ row(), row( { text: 'Third' } ) ], has_more: true } } ) );
+		load( instance( 'a', { carousel: true, count: 1, rotate: '1' } ) );
+		const controls = document.querySelector( '[data-rvs-controls]' );
+		expect( controls.hidden ).toBe( true );
+
+		document.querySelector( '[data-rvs-load-more]' ).click();
+		await flush();
+
+		expect( controls.hidden ).toBe( false );
+		const dots = document.querySelectorAll( '[data-rvs-dots] button' );
+		expect( dots ).toHaveLength( 3 );
+		expect( dots[ 2 ].getAttribute( 'aria-label' ) ).toBe( 'Review 3 of 3' );
+		// Rotation began with the cards: it steps.
+		jest.advanceTimersByTime( 5000 );
+		expect( dots[ 1 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
+	} );
+
+	test( 'the pause button stops and restarts the rotation and says which it will do', () => {
+		load( instance( 'a', { carousel: true, rotate: '1', more: false } ) );
+		const button = document.querySelector( '[data-rvs-pause]' );
+		const dots = document.querySelectorAll( '[data-rvs-dots] button' );
+
+		button.click();
+		expect( button.getAttribute( 'aria-label' ) ).toBe( 'Start automatic rotation' );
+		expect( button.querySelector( '[data-rvs-play-icon]' ).hasAttribute( 'hidden' ) ).toBe( false );
+		expect( button.querySelector( '[data-rvs-pause-icon]' ).hasAttribute( 'hidden' ) ).toBe( true );
+		jest.advanceTimersByTime( 30000 );
+		expect( dots[ 0 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
+
+		button.click();
+		expect( button.getAttribute( 'aria-label' ) ).toBe( 'Pause automatic rotation' );
+		jest.advanceTimersByTime( 5000 );
+		expect( dots[ 1 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
+	} );
+
+	test( 'a touch pauses the rotation until the visitor starts it again', () => {
+		load( instance( 'a', { carousel: true, rotate: '1', more: false } ) );
+		const root = document.getElementById( 'a' );
+		const dots = document.querySelectorAll( '[data-rvs-dots] button' );
+
+		root.dispatchEvent( new Event( 'touchstart', { bubbles: true } ) );
+		root.dispatchEvent( new Event( 'mouseleave' ) );
+		jest.advanceTimersByTime( 30000 );
+		expect( dots[ 0 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
+		expect( document.querySelector( '[data-rvs-pause]' ).getAttribute( 'aria-label' ) ).toBe( 'Start automatic rotation' );
+	} );
+
+	test( 'the pause button is not shown under reduced motion', () => {
+		reduced = true;
+		load( instance( 'a', { carousel: true, rotate: '1', more: false } ) );
+		expect( document.querySelector( '[data-rvs-pause]' ).hidden ).toBe( true );
 	} );
 } );

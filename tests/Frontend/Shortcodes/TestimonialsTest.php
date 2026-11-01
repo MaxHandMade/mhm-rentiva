@@ -183,7 +183,7 @@ class TestimonialsTest extends WP_UnitTestCase
 		$output = $this->render('limit="2" show_quotes="0" show_date="0"');
 
 		$this->assertStringContainsString('data-rvs-load-more', $output);
-		$this->assertStringContainsString('<div hidden data-rvs-card-template>', $output);
+		$this->assertStringContainsString('<div hidden inert data-rvs-card-template>', $output);
 		// Two real cards and one in the template, none with a quote icon or a date.
 		$this->assertSame(3, substr_count($output, 'class="rvs-tcard"'));
 		$this->assertStringNotContainsString('rvs-tcard__quote', $output);
@@ -231,5 +231,44 @@ class TestimonialsTest extends WP_UnitTestCase
 		$this->assertSame(2, substr_count($both, 'data-rvs-testimonials '));
 		$this->assertSame(2, substr_count($both, 'data-rvs-load-more'));
 		$this->assertSame(1, substr_count($both, 'data-orderby='), 'The second list order must not leak into the first.');
+	}
+
+	public function test_the_hidden_card_clone_is_empty_and_inert(): void
+	{
+		$this->reviews(3);
+		$output = $this->render('limit="2"');
+
+		$start = strpos($output, 'data-rvs-card-template');
+		$this->assertNotFalse($start, 'The hidden card must be in the page.');
+		$this->assertStringContainsString('<div hidden inert data-rvs-card-template>', $output);
+		$clone = substr($output, $start);
+		$this->assertStringNotContainsString('rvs-review-stars__star', $clone, 'The script draws the stars.');
+		$this->assertStringNotContainsString('>-<', $clone, 'No placeholder text.');
+		$this->assertStringContainsString('data-rvs-stars', $clone);
+		$this->assertStringContainsString('data-rvs-slot="vehicle"></span>', $clone);
+		$this->assertStringContainsString('data-rvs-slot="date"></span>', $clone);
+	}
+
+	public function test_a_slider_that_starts_with_one_review_keeps_hidden_controls_for_load_more(): void
+	{
+		$this->reviews(3);
+		$output = $this->render('layout="carousel" limit="1" auto_rotate="1"');
+
+		$this->assertSame(2, substr_count($output, 'class="rvs-tcard"'), 'One real card and the hidden clone.');
+		$this->assertStringContainsString('data-rvs-controls hidden', $output);
+		$this->assertStringContainsString('data-rvs-pause', $output);
+
+		// Without more to load, one review has no controls at all.
+		$single = $this->reviews(1);
+		$this->assertStringNotContainsString('data-rvs-controls', $this->render('layout="carousel" limit="1" vehicle_id="' . $single . '"'));
+	}
+
+	public function test_the_pause_button_exists_only_with_auto_rotate(): void
+	{
+		$this->reviews(3);
+
+		$on = $this->render('layout="carousel" auto_rotate="1"');
+		$this->assertStringContainsString('data-rvs-pause aria-label="Pause automatic rotation"', $on);
+		$this->assertStringNotContainsString('data-rvs-pause', $this->render('layout="carousel"'));
 	}
 }

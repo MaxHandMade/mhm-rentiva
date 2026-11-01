@@ -123,7 +123,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 		$this->assertSame(array( 'R7', 'R1', 'R5', 'R2', 'R6' ), $this->all_pages('orderby="rating" order="ASC" rating="2" limit="2"'));
 
 		$rows = $this->page(array( 'limit' => '3' ), 2);
-		$this->assertSame(\MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView::date_text('2026-05-29 10:00:00'), $rows[0]['date_display']);
+		$this->assertSame(\MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView::date_text('2026-05-29 10:00:00'), $rows[0]['date']);
 
 		// A value outside the allowlist is the date order.
 		$this->assertSame(
@@ -137,7 +137,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 					),
 					2
 				),
-				'review'
+				'text'
 			)
 		);
 	}
@@ -168,7 +168,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 			if (array() === $rows) {
 				break;
 			}
-			$texts = array_merge($texts, array_column($rows, 'review'));
+			$texts = array_merge($texts, array_column($rows, 'text'));
 		}
 		return $texts;
 	}
@@ -195,7 +195,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 		}
 		$decoded = json_decode($this->_last_response, true);
 		$this->assertTrue((bool) ( $decoded['success'] ?? false ), 'Endpoint refused: ' . $this->_last_response);
-		return (array) ( $decoded['data']['testimonials'] ?? array() );
+		return (array) ( $decoded['data']['cards'] ?? array() );
 	}
 
 	/**

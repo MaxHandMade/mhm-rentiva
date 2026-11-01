@@ -159,7 +159,7 @@ final class TestimonialsLoadMorePoolTest extends WP_Ajax_UnitTestCase
 	 */
 	private function texts(array $rows): array
 	{
-		return array_map('strval', array_column($rows, 'review'));
+		return array_map('strval', array_column($rows, 'text'));
 	}
 
 	/**
@@ -184,7 +184,7 @@ final class TestimonialsLoadMorePoolTest extends WP_Ajax_UnitTestCase
 		$decoded = json_decode($this->_last_response, true);
 		$this->assertTrue((bool) ( $decoded['success'] ?? false ), 'Endpoint refused: ' . $this->_last_response);
 		return array(
-			'testimonials' => (array) ( $decoded['data']['testimonials'] ?? array() ),
+			'testimonials' => (array) ( $decoded['data']['cards'] ?? array() ),
 			'has_more'     => (bool) ( $decoded['data']['has_more'] ?? false ),
 		);
 	}
