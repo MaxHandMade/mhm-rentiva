@@ -156,14 +156,14 @@ final class BookingSummaryPage {
 		if ($state->paid() > 0 && ( null === ( $breakdown['deposit'] ?? null ) || abs(Money::toMinor($deposit) - $state->paid()) > 0 )) {
 			$rows[] = array(
 				'kind'  => 'paid',
-				'label' => __('Paid', 'mhm-rentiva'),
+				'label' => _x('Paid', 'payment box label', 'mhm-rentiva'),
 				'html'  => BookingTimeline::recorded_html($state->paid(), $state->currency()),
 			);
 		}
 		if ($state->refunded() > 0) {
 			$rows[] = array(
 				'kind'  => 'refunded',
-				'label' => __('Refunded', 'mhm-rentiva'),
+				'label' => _x('Refunded', 'payment box label', 'mhm-rentiva'),
 				'html'  => BookingTimeline::recorded_html($state->refunded(), $state->currency()),
 			);
 		}

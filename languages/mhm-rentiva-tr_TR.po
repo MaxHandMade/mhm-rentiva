@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-11-01T01:55:35+00:00\n"
+"POT-Creation-Date: 2026-11-01T01:58:13+00:00\n"
 "PO-Revision-Date: 2026-10-24 18:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -1330,7 +1330,6 @@ msgstr "İptal edildi"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1084
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:486
 #: src/Admin/Booking/Meta/BookingMeta.php:1675
-#: src/Admin/Frontend/Account/BookingSummaryPage.php:166
 #: templates/emails/booking-created-admin.html.php:68
 msgid "Refunded"
 msgstr "İade edildi"
@@ -1909,7 +1908,6 @@ msgstr[1] "%d gün"
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:485
 #: src/Admin/Booking/Meta/BookingMeta.php:1673
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:94
-#: src/Admin/Frontend/Account/BookingSummaryPage.php:159
 msgid "Paid"
 msgstr "Ödendi"
 
@@ -7018,7 +7016,6 @@ msgid "Due at pickup"
 msgstr "Teslimde ödenecek"
 
 #: src/Admin/Frontend/Account/AccountDashboardView.php:243
-#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:136
 msgid "Deposit paid"
 msgstr "Kapora ödendi"
 
@@ -7138,6 +7135,16 @@ msgstr "Hesap detayları"
 msgid "Logout"
 msgstr "Çıkış"
 
+#: src/Admin/Frontend/Account/BookingSummaryPage.php:159
+msgctxt "payment box label"
+msgid "Paid"
+msgstr "Ödenen"
+
+#: src/Admin/Frontend/Account/BookingSummaryPage.php:166
+msgctxt "payment box label"
+msgid "Refunded"
+msgstr "İade edilen"
+
 #: src/Admin/Frontend/Account/BookingTimeline.php:52
 msgid "Booking received"
 msgstr "Rezervasyon alındı"
@@ -7199,7 +7206,9 @@ msgstr "Ödediğiniz %s iade edilir; iade için sizinle iletişime geçeriz."
 msgid ""
 "You are within the free cancellation period. What you paid (%s) is refunded; "
 "we will contact you to arrange it."
-msgstr "Ücretsiz iptal süresindesiniz. Ödediğiniz %s iade edilir; iade için sizinle iletişime geçeriz."
+msgstr ""
+"Ücretsiz iptal süresindesiniz. Ödediğiniz %s iade edilir; iade için sizinle "
+"iletişime geçeriz."
 
 #. translators: 1: cancellation deadline (date and time), 2: amount the customer paid, to be refunded.
 #: src/Admin/Frontend/Account/CancellationView.php:114
@@ -8072,6 +8081,11 @@ msgstr "Ek hizmetler"
 #, php-format
 msgid "Deposit (%s)"
 msgstr "Kapora (%s)"
+
+#: src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php:136
+msgctxt "payment box label"
+msgid "Deposit paid"
+msgstr "Ödenen kapora"
 
 #. translators: 1: a date, 2: its availability (Available, Booked, Selected or Past).
 #: src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php:72

@@ -133,7 +133,7 @@ final class RvsBreakdown {
 			),
 			'deposit'   => $split
 				? self::money($deposit) + array(
-					'label' => self::money_received($booking_id) ? __('Deposit paid', 'mhm-rentiva') : __('Deposit', 'mhm-rentiva'),
+					'label' => self::money_received($booking_id) ? _x('Deposit paid', 'payment box label', 'mhm-rentiva') : __('Deposit', 'mhm-rentiva'),
 				)
 				: null,
 			'on_pickup' => $remaining > 0 && ! self::is_closed($booking_id) ? self::money($remaining) : null,
