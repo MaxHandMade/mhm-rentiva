@@ -1,0 +1,206 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Tests\Frontend\Account;
+
+use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
+use MHMRentiva\Tests\Support\RequestSimulator;
+use MHMRentiva\Tests\Support\ShortcodeFixtures;
+use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use WP_UnitTestCase;
+
+/**
+ * PR D, Task 6: the payment history tells the truth -- status follows the money,
+ * the title is the car, the number the one every screen shows, the bank receipt
+ * control follows the single rule (R13, y10).
+ *
+ * @covers \MHMRentiva\Admin\Frontend\Account\AccountRenderer
+ */
+final class PaymentHistoryTruthTest extends WP_UnitTestCase
+{
+	use WooCommerceFixtures;
+
+	private int $user = 0;
+
+	public function setUp(): void
+	{
+		parent::setUp();
+		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		$this->user = ShortcodeFixtures::customer();
+		wp_set_current_user($this->user);
+		RequestSimulator::new_request();
+	}
+
+	public function tearDown(): void
+	{
+		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		wp_set_current_user(0);
+		RequestSimulator::new_request();
+		parent::tearDown();
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function payments(): array
+	{
+		RequestSimulator::new_request();
+		$data = AccountRenderer::get_payment_history_data(array( 'limit' => '50' ));
+		return $data['data']['payments'];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function row(int $booking_id): array
+	{
+		foreach ($this->payments() as $payment) {
+			if ($payment['booking_id'] === $booking_id) {
+				return $payment;
+			}
+		}
+		$this->fail("No payment row for booking $booking_id.");
+	}
+
+	private function html(): string
+	{
+		RequestSimulator::new_request();
+		return do_shortcode('[rentiva_payment_history]');
+	}
+
+	public function test_completed_booking_paid_order_is_not_pending(): void
+	{
+		$this->require_woocommerce();
+
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '2915');
+		update_post_meta($id, '_mhmrentiva_payment_status', 'pending');
+		update_post_meta($id, '_mhmrentiva_payment_type', 'deposit');
+		update_post_meta($id, '_mhmrentiva_deposit_amount', '292');
+		update_post_meta($id, '_mhmrentiva_remaining_amount', '2623');
+		$this->create_paid_order_for_booking($id, '292');
+
+		$row = $this->row($id);
+		$this->assertSame('completed', $row['status'], 'Money received is completed, whatever the stored status says.');
+		$this->assertSame('deposit', $row['type']);
+		$this->assertStringContainsString('292', wp_strip_all_tags($row['amount_html']), 'The amount that moved, as recorded.');
+
+		$html = $this->html();
+		$this->assertStringContainsString('rvs-status--done', $html);
+		$this->assertStringNotContainsString('rvs-status--payment', $html);
+	}
+
+	public function test_unpaid_pending_row_is_pending_and_shows_the_expected_amount(): void
+	{
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'pending_payment', '500');
+		update_post_meta($id, '_mhmrentiva_payment_status', 'pending');
+		update_post_meta($id, '_mhmrentiva_payment_type', 'full');
+
+		$row = $this->row($id);
+		$this->assertSame('pending', $row['status']);
+		$this->assertStringContainsString('500', wp_strip_all_tags($row['amount_html']));
+		$this->assertStringContainsString('rvs-status--payment', $this->html());
+	}
+
+	public function test_cancelled_booking_nobody_paid_is_cancelled(): void
+	{
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'cancelled', '500');
+		update_post_meta($id, '_mhmrentiva_payment_status', 'pending');
+
+		$this->assertSame('cancelled', $this->row($id)['status']);
+	}
+
+	public function test_title_is_vehicle_name_not_post_title(): void
+	{
+		$vehicle = ShortcodeFixtures::vehicle();
+		$id      = ShortcodeFixtures::booking($this->user, $vehicle, 'confirmed', '300');
+
+		$row = $this->row($id);
+		$this->assertSame(get_the_title($vehicle), $row['booking_title']);
+		$this->assertNotSame('Fixture Booking', $row['booking_title']);
+		$this->assertSame((string) mhmrentiva_get_display_id($id), $row['number']);
+
+		$html = $this->html();
+		$this->assertStringContainsString('#' . mhmrentiva_get_display_id($id), $html);
+		$this->assertStringNotContainsString('Fixture Booking', $html);
+	}
+
+	public function test_upload_only_when_unpaid_and_pending(): void
+	{
+		$this->require_woocommerce();
+		$vehicle = ShortcodeFixtures::vehicle();
+
+		$pending = ShortcodeFixtures::booking($this->user, $vehicle, 'pending_payment', '300');
+		update_post_meta($pending, '_mhmrentiva_payment_status', 'pending');
+		$paid    = ShortcodeFixtures::booking($this->user, $vehicle, 'pending_payment', '300', 9);
+		$closed  = ShortcodeFixtures::booking($this->user, $vehicle, 'confirmed', '300', 11);
+		$this->create_paid_order_for_booking($paid, '300');
+
+		$this->assertTrue($this->row($pending)['can_upload_receipt']);
+		$this->assertFalse($this->row($paid)['can_upload_receipt'], 'Money arrived: no slip.');
+		$this->assertFalse($this->row($closed)['can_upload_receipt'], 'Not waiting any more: no slip.');
+		$this->assertSame(
+			AccountController::receipt_upload_allowed($pending),
+			$this->row($pending)['can_upload_receipt'],
+			'One rule.'
+		);
+
+		$html = $this->html();
+		$this->assertSame(1, substr_count($html, 'mhm-upload-receipt'), 'Exactly one upload control.');
+		$this->assertStringContainsString('data-booking-id="' . $pending . '"', $html);
+		$this->assertStringContainsString('Upload bank receipt', $html);
+		$this->assertStringNotContainsString('Upload Receipt', $html);
+	}
+
+	public function test_uploaded_receipt_status_always_visible(): void
+	{
+		$this->require_woocommerce();
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'pending_payment', '300');
+		$this->create_paid_order_for_booking($id, '300');
+
+		$attachment = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'receipt.pdf',
+				'post_parent'    => $id,
+				'post_mime_type' => 'application/pdf',
+			)
+		);
+		update_post_meta($id, '_mhmrentiva_receipt_attachment_id', $attachment);
+		update_post_meta($id, '_mhmrentiva_receipt_status', 'submitted');
+
+		$this->assertFalse(AccountController::receipt_upload_allowed($id));
+
+		$html = $this->html();
+		$this->assertStringContainsString('Bank receipt: Submitted', $html, 'The status shows although money arrived.');
+		$this->assertStringContainsString(AccountController::get_receipt_url($id), html_entity_decode($html), 'The view link too.');
+		$this->assertStringNotContainsString('remove-receipt-btn', $html, 'No removal once the slip can no longer be replaced.');
+		$this->assertStringNotContainsString('mhm-upload-receipt', $html);
+	}
+
+	public function test_show_payment_method_0_hides_column(): void
+	{
+		ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '300');
+		RequestSimulator::new_request();
+
+		$on  = do_shortcode('[rentiva_payment_history]');
+		$off = do_shortcode('[rentiva_payment_history show_payment_method="0"]');
+
+		$this->assertStringContainsString('rvs-account-payments__method', $on);
+		$this->assertStringContainsString('>Payment Method<', $on);
+		$this->assertStringNotContainsString('rvs-account-payments__method', $off);
+		$this->assertStringNotContainsString('>Payment Method<', $off);
+	}
+
+	public function test_table_is_accessible_markup(): void
+	{
+		ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '300');
+		$html = $this->html();
+
+		$this->assertStringContainsString('class="rvs-table', $html);
+		$this->assertStringContainsString('<th scope="col" role="columnheader">', $html);
+		$this->assertStringContainsString('role="cell"', $html);
+		$this->assertMatchesRegularExpression('#<td[^>]*data-label="[^"]+"#', $html);
+		$this->assertStringContainsString('aria-hidden="true"', $html, 'The status icon is decoration.');
+		$this->assertStringNotContainsString('style="', $html, 'No inline styles.');
+	}
+}

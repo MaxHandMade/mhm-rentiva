@@ -1,99 +1,61 @@
-<div class="mhm-rentiva-account-page mhm-integrated">
-<div class="mhm-account-content">
-<div class="section-header">
-<h2>Payment History</h2>
-<span class="view-all-link"> 3 payments total </span>
+<div class="rvs-shell" data-rvs-shortcode="rentiva_payment_history"><div class="rvs-account mhm-rentiva-account-page mhm-integrated">
+<section class="rvs-account__section rvs-account-bookings rvs-account-payments" aria-labelledby="X" data-testid="X">
+<div class="rvs-account-bookings__head">
+<h2 id="X">Payment History</h2>
+<span class="rvs-account-bookings__page"> 3 payments total </span>
 </div>
-<!-- Payment history -->
-<div class="account-section">
-<!-- Header kept above -->
-<!-- Payment List -->
-<div class="payment-history-list" data-testid="X">
-<div class="payment-item" data-testid="X">
-<div class="payment-header">
-<div class="payment-info">
-<h3 class="payment-title"> Fixture Booking </h3>
-<span class="payment-date">DATE</span>
-</div>
-<div class="payment-amount">
-<span class="amount">$1,200.00</span>
-<span class="amount-type">(Full Payment)</span>
-</div>
-</div>
-<div class="payment-details">
-<div class="payment-meta">
-<div class="meta-item">
-<span class="meta-label">Status:</span>
-<span class="payment-status status-pending"> Pending </span>
-</div>
-<div class="meta-item">
-<span class="meta-label">Payment Method:</span>
-<span class="payment-method"> Offline </span>
-</div>
-</div>
-<div class="payment-actions">
-<label class="btn btn-primary btn-sm mhm-upload-label " style="margin-left:8px"> Upload Receipt <input type="file" class="mhm-upload-receipt" data-booking-id="X" accept="image/*,.pdf" style="display: none">
-</label>
-</div>
-</div>
-</div>
-<div class="payment-item" data-testid="X">
-<div class="payment-header">
-<div class="payment-info">
-<h3 class="payment-title"> Fixture Booking </h3>
-<span class="payment-date">DATE</span>
-</div>
-<div class="payment-amount">
-<span class="amount">$700.00</span>
-<span class="amount-type">(Full Payment)</span>
-</div>
-</div>
-<div class="payment-details">
-<div class="payment-meta">
-<div class="meta-item">
-<span class="meta-label">Status:</span>
-<span class="payment-status status-completed"> Completed </span>
-</div>
-<div class="meta-item">
-<span class="meta-label">Payment Method:</span>
-<span class="payment-method"> Offline </span>
-</div>
-</div>
-<div class="payment-actions">
-<label class="btn btn-primary btn-sm mhm-upload-label " style="margin-left:8px"> Upload Receipt <input type="file" class="mhm-upload-receipt" data-booking-id="X" accept="image/*,.pdf" style="display: none">
-</label>
-</div>
-</div>
-</div>
-<div class="payment-item" data-testid="X">
-<div class="payment-header">
-<div class="payment-info">
-<h3 class="payment-title"> Fixture Booking </h3>
-<span class="payment-date">DATE</span>
-</div>
-<div class="payment-amount">
-<span class="amount">$300.00</span>
-<span class="amount-type">(Full Payment)</span>
-</div>
-</div>
-<div class="payment-details">
-<div class="payment-meta">
-<div class="meta-item">
-<span class="meta-label">Status:</span>
-<span class="payment-status status-cancelled"> Cancelled </span>
-</div>
-<div class="meta-item">
-<span class="meta-label">Payment Method:</span>
-<span class="payment-method"> Offline </span>
-</div>
-</div>
-<div class="payment-actions">
-<label class="btn btn-primary btn-sm mhm-upload-label " style="margin-left:8px"> Upload Receipt <input type="file" class="mhm-upload-receipt" data-booking-id="X" accept="image/*,.pdf" style="display: none">
-</label>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+<table class="rvs-table rvs-account-bookings__table rvs-account-payments__table" role="table" data-testid="X">
+<thead role="rowgroup">
+<tr role="row">
+<th scope="col" role="columnheader">Date</th>
+<th scope="col" role="columnheader">Booking</th>
+<th scope="col" role="columnheader">Type</th>
+<th scope="col" role="columnheader">Payment Method</th>
+<th scope="col" role="columnheader">Amount</th>
+<th scope="col" role="columnheader">Status</th>
+</tr>
+</thead>
+<tbody role="rowgroup">
+<tr role="row" data-testid="X" data-booking-id="X">
+<td role="cell" class="rvs-account-payments__date" data-label="Date">DATE</td>
+<td role="cell" class="rvs-account-payments__booking" data-label="Booking">
+<strong>Fixture Vehicle N</strong>
+<span class="rvs-account-bookings__no">#N</span>
+</td>
+<td role="cell" class="rvs-account-payments__type" data-label="Type">Full payment</td>
+<td role="cell" class="rvs-account-payments__method" data-label="Payment Method">Offline</td>
+<td role="cell" class="rvs-account-bookings__amount rvs-account-payments__amount" data-label="Amount"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>1,200.00</span></td>
+<td role="cell" class="rvs-account-bookings__status rvs-account-payments__status" data-label="Status">
+<span class="rvs-status rvs-status--payment"><svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="X" focusable="false"><rect x="3" y="6" width="18" height="12" rx="1" /><path d="M3 10h18" /></svg>Pending</span>
+</td>
+</tr>
+<tr role="row" data-testid="X" data-booking-id="X">
+<td role="cell" class="rvs-account-payments__date" data-label="Date">DATE</td>
+<td role="cell" class="rvs-account-payments__booking" data-label="Booking">
+<strong>Fixture Vehicle N</strong>
+<span class="rvs-account-bookings__no">#N</span>
+</td>
+<td role="cell" class="rvs-account-payments__type" data-label="Type">Full payment</td>
+<td role="cell" class="rvs-account-payments__method" data-label="Payment Method">Offline</td>
+<td role="cell" class="rvs-account-bookings__amount rvs-account-payments__amount" data-label="Amount"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>700.00</span></td>
+<td role="cell" class="rvs-account-bookings__status rvs-account-payments__status" data-label="Status">
+<span class="rvs-status rvs-status--done"><svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="X" focusable="false"><path d="M5 12l5 5 9-10" /></svg>Completed</span>
+</td>
+</tr>
+<tr role="row" data-testid="X" data-booking-id="X">
+<td role="cell" class="rvs-account-payments__date" data-label="Date">DATE</td>
+<td role="cell" class="rvs-account-payments__booking" data-label="Booking">
+<strong>Fixture Vehicle N</strong>
+<span class="rvs-account-bookings__no">#N</span>
+</td>
+<td role="cell" class="rvs-account-payments__type" data-label="Type">Full payment</td>
+<td role="cell" class="rvs-account-payments__method" data-label="Payment Method">Offline</td>
+<td role="cell" class="rvs-account-bookings__amount rvs-account-payments__amount" data-label="Amount"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>300.00</span></td>
+<td role="cell" class="rvs-account-bookings__status rvs-account-payments__status" data-label="Status">
+<span class="rvs-status rvs-status--cancelled"><svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="X" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M9 9l6 6M15 9l-6 6" /></svg>Cancelled</span>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</div></div>

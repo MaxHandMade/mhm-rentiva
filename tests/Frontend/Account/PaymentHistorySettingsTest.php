@@ -224,7 +224,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 			'widget'    => $this->widget(array( 'show_pagination' => '' )),
 		);
 		foreach ($off as $surface => $html) {
-			$this->assertStringNotContainsString('mhm-pagination', $html, "$surface: show_pagination off.");
+			$this->assertStringNotContainsString('payments-pager', $html, "$surface: show_pagination off.");
 			$this->assertCount(10, $this->rows($html), "$surface: the first page only.");
 		}
 		set_query_var('mhmrentiva_payments_page', '');
@@ -335,7 +335,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		$this->assertStringContainsString('Page 2 / 2', $second);
 		$this->assertStringContainsString('12 payments total', $second);
 		set_query_var('mhmrentiva_payments_page', '');
-		$this->assertStringNotContainsString('mhm-pagination', $this->shortcode('status="completed"'), 'One completed payment, no pager.');
+		$this->assertStringNotContainsString('payments-pager', $this->shortcode('status="completed"'), 'One completed payment, no pager.');
 	}
 
 	/**
@@ -346,14 +346,14 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	{
 		foreach (array( 'shortcode', 'block', 'widget', 'endpoint' ) as $surface) {
 			$html = $this->render_surface($surface, array());
-			$this->assertSame(3, substr_count($html, 'class="payment-date"'), "$surface default shows the date.");
-			$this->assertSame(3, substr_count($html, 'class="payment-method"'), "$surface default shows the method.");
+			$this->assertSame(3, substr_count($html, 'rvs-account-payments__date"'), "$surface default shows the date.");
+			$this->assertSame(3, substr_count($html, 'rvs-account-payments__method"'), "$surface default shows the method.");
 			$this->assertStringNotContainsString('payment-booking-link', $html, "$surface default: the title is not a link (Rule 1).");
 		}
 
 		$flags = array(
-			'show_date'           => array( 'class="payment-date"', 'showDate' ),
-			'show_payment_method' => array( 'class="payment-method"', 'showPaymentMethod' ),
+			'show_date'           => array( 'rvs-account-payments__date"', 'showDate' ),
+			'show_payment_method' => array( 'rvs-account-payments__method"', 'showPaymentMethod' ),
 		);
 		foreach ($flags as $key => $flag) {
 			$off = array(
@@ -371,7 +371,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 				}
 			}
 		}
-		$this->assertStringNotContainsString('Payment Method:', $this->shortcode('show_payment_method="0"'), 'The label goes with the value.');
+		$this->assertStringNotContainsString('Payment Method', $this->shortcode('show_payment_method="0"'), 'The label goes with the value.');
 
 		$on = array(
 			'shortcode' => $this->shortcode('show_booking_link="1"'),
@@ -454,7 +454,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	 */
 	private function rows(string $html): array
 	{
-		preg_match_all('#class="mhm-upload-receipt" data-booking-id="(\d+)"#', $html, $m);
+		preg_match_all('#data-testid="payment-item" data-booking-id="(\d+)"#', $html, $m);
 		return array_map('intval', $m[1]);
 	}
 
@@ -464,8 +464,11 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	 */
 	private function golden_form(string $html): string
 	{
-		$html = (string) preg_replace('#(<span class="payment-date">)[^<]*(</span>)#', '$1DATE$2', $html);
+		$html = (string) preg_replace('#(rvs-account-payments__date"[^>]*>)[^<]*(</td>)#', '$1DATE$2', $html);
 		$html = RenderNormalizer::golden($html);
+		// The fixture car's counter and the booking number follow the post ids of the run.
+		$html = (string) preg_replace('/Fixture Vehicle \d+/', 'Fixture Vehicle N', $html);
+		$html = (string) preg_replace('/(rvs-account-bookings__no">)#\d+/', '$1#N', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
 	}

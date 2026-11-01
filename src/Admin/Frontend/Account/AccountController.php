@@ -772,6 +772,13 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
 		}
 
+		// The one dekont rule (R13, y10), enforced here and not only by hiding
+		// the button: once money has arrived, or the booking is no longer
+		// waiting, no slip is accepted.
+		if (! self::receipt_upload_allowed($booking_id)) {
+			wp_send_json_error(array( 'message' => __('A receipt cannot be uploaded for this booking.', 'mhm-rentiva') ), 400);
+		}
+
 		if (empty($_FILES['receipt'])) {
 			wp_send_json_error(array( 'message' => __('No file uploaded.', 'mhm-rentiva') ), 400);
 		}
