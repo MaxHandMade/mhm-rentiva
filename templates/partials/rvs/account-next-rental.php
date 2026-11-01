@@ -26,6 +26,7 @@ $mhmrentiva_nr_payment = (array) $mhmrentiva_nr_card['payment'];
 $mhmrentiva_nr_where   = $mhmrentiva_nr_card['location'];
 ?>
 <section class="rvs-account-next" aria-labelledby="<?php echo esc_attr($mhmrentiva_nr_uid . '-title'); ?>" data-testid="account-next-rental">
+	<div class="rvs-account-next__card">
 	<div class="rvs-account-next__media">
 		<img src="<?php echo esc_url( (string) $mhmrentiva_nr_card['image']); ?>" alt="" loading="lazy">
 	</div>
@@ -69,5 +70,6 @@ $mhmrentiva_nr_where   = $mhmrentiva_nr_card['location'];
 		<?php if (null !== $mhmrentiva_nr_card['free_cancel']) : ?>
 			<p class="rvs-account-next__cancel"><?php echo esc_html( (string) $mhmrentiva_nr_card['free_cancel']); ?></p>
 		<?php endif; ?>
+	</div>
 	</div>
 </section>

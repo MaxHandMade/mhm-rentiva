@@ -48,6 +48,7 @@ $mhmrentiva_bd_receipt = (array) ( $receipt ?? array() );
 $mhmrentiva_bd_kses    = PriceDisplay::allowed_html();
 $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 ?>
+<div class="rvs-account-detail-frame">
 <div class="rvs-account-detail" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_bd_id); ?>">
 	<header class="rvs-account-detail__head">
 		<?php if ('' !== (string) ( $back_url ?? '' )) : ?>
@@ -204,18 +205,20 @@ $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 				><?php esc_html_e('Cancel booking', 'mhm-rentiva'); ?></button>
 			<?php endif; ?>
 		</section>
-		<?php if ('open' === $mhmrentiva_bd_state && ! empty($mhmrentiva_bd_cancel['can_cancel'])) : ?>
-			<?php
-			Templates::render(
-				'partials/rvs/account-cancel-dialog',
-				array(
-					'booking_id'  => $mhmrentiva_bd_id,
-					'number'      => (string) ( $number ?? '' ),
-					'dialog_html' => (string) ( $mhmrentiva_bd_cancel['dialog_html'] ?? '' ),
-					'dialog_id'   => $mhmrentiva_bd_uid . '-dlg',
-				)
-			);
-			?>
-		<?php endif; ?>
 	<?php endif; ?>
 </div>
+</div>
+<?php // Outside the frame: a size container must not become the fixed dialog's containing block. ?>
+<?php if ('open' === $mhmrentiva_bd_state && ! empty($mhmrentiva_bd_cancel['can_cancel'])) : ?>
+	<?php
+	Templates::render(
+		'partials/rvs/account-cancel-dialog',
+		array(
+			'booking_id'  => $mhmrentiva_bd_id,
+			'number'      => (string) ( $number ?? '' ),
+			'dialog_html' => (string) ( $mhmrentiva_bd_cancel['dialog_html'] ?? '' ),
+			'dialog_id'   => $mhmrentiva_bd_uid . '-dlg',
+		)
+	);
+	?>
+<?php endif; ?>

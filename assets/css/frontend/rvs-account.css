@@ -12,12 +12,15 @@
  *   .rvs-account__section      a titled block (list, progress ...)
  *   .rvs-account__panel        raised panel
  *   .rvs-account__actions      a row of buttons; full width on phones
- *   .rvs-account-next          next rental card: __media + __body
+ *   .rvs-account-next          next rental card (size container): __card
+ *                              holds __media + __body
+ *   .rvs-account-detail-frame  size container of the booking detail
  *   .rvs-account-detail        booking detail: __head, __vehicle, __payment,
- *                              __timeline, __cancel. Desktop: content beside a
- *                              360px payment box. Phone: one column in the
+ *                              __timeline, __cancel. Narrow: one column in the
  *                              order head, vehicle, payment, progress,
- *                              cancellation (plan header, owner 10-27).
+ *                              cancellation (plan header, owner 10-27). Wider:
+ *                              progress beside a payment box under a full-width
+ *                              vehicle; widest: content beside a 360px box.
  *   .rvs-account-cancel        the cancel-booking dialog (rvs-dialog, 460px)
  *   .rvs-account-empty         empty state panel
  *   .rvs-account-bookings      "My bookings": __head (title + .rvs-seg),
@@ -25,8 +28,10 @@
  *                              782px), __none, __pager
  *   .rvs-account-favorites     "My favorites" outer shell
  *
- * Breakpoint 782px, the menu's. No print rules: the booking summary is its own
- * page.
+ * Breakpoint 782px, the menu's. Cards that must fit a WooCommerce or theme
+ * column answer to their own width (@container), not the screen's; the rules
+ * outside @container are the narrow layout, so a browser without container
+ * queries stays readable. No print rules: the booking summary is its own page.
  */
 
 /* Inside WooCommerce's content column the frame already sets the width,
@@ -85,8 +90,12 @@
 
 /* Next rental card */
 .rvs-shell .rvs-account-next {
+	container: rvs-next / inline-size;
+}
+
+.rvs-shell .rvs-account-next__card {
 	display: grid;
-	grid-template-columns: 260px minmax(0, 1fr);
+	grid-template-columns: minmax(0, 1fr);
 	overflow: hidden;
 	border-radius: var(--rvs-r);
 	background: var(--rvs-raised);
@@ -94,7 +103,7 @@
 }
 
 .rvs-shell .rvs-account-next__media {
-	min-height: 180px;
+	aspect-ratio: 3 / 2;
 	background: var(--rvs-surface);
 }
 
@@ -109,7 +118,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--rvs-s2);
-	padding: var(--rvs-s4);
+	min-width: 0;
+	padding: var(--rvs-s3);
 }
 
 .rvs-shell .rvs-account-next__top {
@@ -121,13 +131,33 @@
 }
 
 .rvs-shell .rvs-account-next__body > h2 {
-	font-size: 24px;
+	font-size: 20px;
 }
 
+@container rvs-next (min-width: 600px) {
+	.rvs-shell .rvs-account-next__card {
+		grid-template-columns: 220px minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-account-next__media {
+		aspect-ratio: auto;
+		min-height: 180px;
+	}
+
+	.rvs-shell .rvs-account-next__body {
+		padding: var(--rvs-s4);
+	}
+
+	.rvs-shell .rvs-account-next__body > h2 {
+		font-size: 24px;
+	}
+}
+
+/* As many columns as fit; a date never squeezes under its own width. */
 .rvs-shell .rvs-account-next__facts {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 15px;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+	gap: 12px 15px;
 	margin: 0;
 	font-size: 14px;
 }
@@ -169,17 +199,45 @@
 }
 
 /* Booking detail */
+.rvs-shell .rvs-account-detail-frame {
+	container: rvs-detail / inline-size;
+}
+
 .rvs-shell .rvs-account-detail {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) 360px;
-	grid-template-rows: auto auto auto 1fr;
+	grid-template-columns: minmax(0, 1fr);
 	grid-template-areas:
-		"head     head"
-		"vehicle  payment"
-		"timeline payment"
-		"cancel   payment";
-	gap: var(--rvs-s6) 50px;
+		"head"
+		"vehicle"
+		"payment"
+		"timeline"
+		"cancel";
+	gap: var(--rvs-s6) var(--rvs-s6);
 	align-items: start;
+}
+
+@container rvs-detail (min-width: 660px) {
+	.rvs-shell .rvs-account-detail {
+		grid-template-columns: minmax(0, 1fr) 300px;
+		grid-template-rows: auto auto auto 1fr;
+		grid-template-areas:
+			"head     head"
+			"vehicle  vehicle"
+			"timeline payment"
+			"cancel   payment";
+	}
+}
+
+@container rvs-detail (min-width: 1000px) {
+	.rvs-shell .rvs-account-detail {
+		grid-template-columns: minmax(0, 1fr) 360px;
+		grid-template-areas:
+			"head     head"
+			"vehicle  payment"
+			"timeline payment"
+			"cancel   payment";
+		column-gap: 50px;
+	}
 }
 
 .rvs-shell .rvs-account-detail__head { grid-area: head; }
@@ -223,11 +281,13 @@
 	color: var(--rvs-muted);
 }
 
-/* Vehicle card: 220px image beside name and the pickup / return grid. */
+/* Vehicle card: image above the name and the pickup / return grid; beside them
+   (220px) once the frame has room. */
 .rvs-shell .rvs-account-detail__vehicle {
 	display: grid;
-	grid-template-columns: 220px minmax(0, 1fr);
-	gap: var(--rvs-s4);
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--rvs-s2);
+	min-width: 0;
 	overflow: hidden;
 	border-radius: var(--rvs-r);
 	background: var(--rvs-raised);
@@ -235,7 +295,7 @@
 }
 
 .rvs-shell .rvs-account-detail__media {
-	min-height: 150px;
+	aspect-ratio: 3 / 2;
 	background: var(--rvs-surface);
 }
 
@@ -250,7 +310,24 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--rvs-s2);
-	padding: 18px 18px 18px 0;
+	min-width: 0;
+	padding: 0 var(--rvs-s3) var(--rvs-s3);
+}
+
+@container rvs-detail (min-width: 520px) {
+	.rvs-shell .rvs-account-detail__vehicle {
+		grid-template-columns: 220px minmax(0, 1fr);
+		gap: var(--rvs-s4);
+	}
+
+	.rvs-shell .rvs-account-detail__media {
+		aspect-ratio: auto;
+		min-height: 150px;
+	}
+
+	.rvs-shell .rvs-account-detail__car {
+		padding: 18px 18px 18px 0;
+	}
 }
 
 .rvs-shell .rvs-account-detail__car > h2 {
@@ -259,7 +336,7 @@
 
 .rvs-shell .rvs-account-detail__when {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
 	gap: 12px;
 	margin: 0;
 	font-size: 14px;
@@ -426,20 +503,6 @@
 	color: #fff;
 }
 
-/* Below the width that fits content + 360px beside the menu, one column. */
-@media (max-width: 1100px) {
-	.rvs-shell .rvs-account-detail {
-		grid-template-columns: minmax(0, 1fr);
-		grid-template-rows: none;
-		grid-template-areas:
-			"head"
-			"vehicle"
-			"payment"
-			"timeline"
-			"cancel";
-	}
-}
-
 /* Empty state */
 .rvs-shell .rvs-account-empty {
 	display: flex;
@@ -459,7 +522,13 @@
 	align-self: flex-start;
 }
 
-/* My bookings list (drawings Hesabim, Hesabim-Mobil) */
+/* My bookings list (drawings Hesabim, Hesabim-Mobil). The table turns into cards
+   by the section's own width: a 782px screen and a narrow theme column are the
+   same problem. */
+.rvs-shell .rvs-account-bookings {
+	container: rvs-list / inline-size;
+}
+
 .rvs-shell .rvs-account-bookings__head {
 	display: flex;
 	flex-wrap: wrap;
@@ -511,7 +580,6 @@
 
 .rvs-shell .rvs-account-bookings__dates {
 	font-size: 14px;
-	white-space: nowrap;
 }
 
 .rvs-shell .rvs-account-bookings__amount {
@@ -552,9 +620,20 @@
 	display: block;
 }
 
+/* Up to seven columns: tighter cells, so the table fits from the width where
+   the cards end (rvs-list below). */
+.rvs-shell .rvs-account-payments__table th,
+.rvs-shell .rvs-account-payments__table td {
+	padding-inline: 8px;
+}
+
+.rvs-shell .rvs-account-payments__method {
+	font-size: 14px;
+	overflow-wrap: anywhere;
+}
+
 .rvs-shell .rvs-account-payments__date {
 	font-size: 14px;
-	white-space: nowrap;
 }
 
 .rvs-shell .rvs-account-payments__receipt {
@@ -570,9 +649,9 @@
 	font-weight: 600;
 }
 
-/* Phones: each row is a raised card -- car and status, then
+/* Too narrow for the table: each row is a raised card -- car and status, then
    "no · dates · amount"; the whole card is the link (Hesabim-Mobil). */
-@media (max-width: 782px) {
+@container rvs-list (max-width: 700px) {
 	.rvs-shell .rvs-account-bookings__table thead {
 		position: absolute;
 		width: 1px;
@@ -660,6 +739,7 @@
 
 	/* Payment history cards: car and number, status; then
 	   "date · type · method · amount"; the receipt control last. */
+
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__booking {
 		display: flex;
 		flex: 1 1 0;
@@ -684,6 +764,18 @@
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__type::after,
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__method::after {
 		content: " ·";
+	}
+
+	/* The amount cell also carries the bookings card's class, whose leading dot
+	   would double the method's trailing one. An empty cell has no value to
+	   separate. */
+	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__amount::before {
+		content: none;
+	}
+
+	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__date:empty,
+	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__method:empty {
+		display: none;
 	}
 
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__receipt {
@@ -720,6 +812,21 @@
 	.rvs-shell .rvs-account-bookings__head > h2 {
 		font-size: 22px;
 	}
+
+	/* All three sections stay in view: they share the row, wrapping if a
+	   translation or a large number needs it. */
+	.rvs-shell .rvs-account-bookings__head > .rvs-seg {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+		overflow: visible;
+	}
+
+	.rvs-shell .rvs-account-bookings__head > .rvs-seg > a {
+		flex: 1 1 auto;
+		justify-content: center;
+		padding-inline: 10px;
+	}
 }
 
 @media (max-width: 782px) {
@@ -738,41 +845,6 @@
 
 	.rvs-shell .rvs-account__actions > .rvs-btn {
 		flex: 1 1 100%;
-	}
-
-	.rvs-shell .rvs-account-next {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.rvs-shell .rvs-account-next__media {
-		min-height: 0;
-		aspect-ratio: 3 / 2;
-	}
-
-	.rvs-shell .rvs-account-next__body {
-		padding: var(--rvs-s3);
-	}
-
-	.rvs-shell .rvs-account-next__body > h2 {
-		font-size: 20px;
-	}
-
-	.rvs-shell .rvs-account-next__facts {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 12px;
-	}
-
-	.rvs-shell .rvs-account-detail__vehicle {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.rvs-shell .rvs-account-detail__media {
-		min-height: 0;
-		aspect-ratio: 3 / 2;
-	}
-
-	.rvs-shell .rvs-account-detail__car {
-		padding: 0 var(--rvs-s3) var(--rvs-s3);
 	}
 
 	.rvs-shell .rvs-account-detail__cancel-btn,
