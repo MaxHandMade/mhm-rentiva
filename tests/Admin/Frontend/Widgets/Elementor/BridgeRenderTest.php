@@ -136,7 +136,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 			true
 		);
 
-		$this->assertStringContainsString('mhm-rentiva-rating-form', $html);
+		$this->assertStringContainsString('rvs-reviews', $html);
 		$this->assertStringContainsString('mhm-rentiva-featured-wrapper', $html);
 
 		ob_start();

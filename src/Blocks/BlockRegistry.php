@@ -107,7 +107,8 @@ class BlockRegistry {
 		'vehicle-rating-form'   => array(
 			'tag'   => 'rentiva_vehicle_rating_form',
 			'title' => 'Vehicle Rating Form',
-			'css'   => 'vehicle-rating-form.css',
+			'css'   => array(), // The rvs review component (VehicleRatingForm enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-reviews' ),
 		),
 		'my-bookings'           => array(
 			'tag'   => 'rentiva_my_bookings',

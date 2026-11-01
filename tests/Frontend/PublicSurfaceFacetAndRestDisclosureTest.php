@@ -26,7 +26,7 @@ use WP_REST_Server;
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
  * @covers \MHMRentiva\Admin\REST\Availability::check
  * @covers \MHMRentiva\Admin\REST\Availability::check_with_alternatives
- * @covers \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm::ajax_get_vehicle_rating_list
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::get_testimonials_data
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::get_vehicle_comments
  */
@@ -185,32 +185,32 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 	{
 		$this->seed_approved_comment( $this->draft_id, 'Reviewer Rachel', 'Draft-only review body' );
 
-		$response = $this->dispatch_rating_list( $this->draft_id );
+		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $this->draft_id . '"]' );
 
-		$this->assertFalse( $response['success'] );
-		$this->assertStringNotContainsString( 'Reviewer Rachel', wp_json_encode( $response ) );
+		$this->assertStringNotContainsString( 'Reviewer', $html );
+		$this->assertStringNotContainsString( 'Draft-only review body', $html );
 	}
 
 	public function test_rating_list_refuses_a_post_that_is_not_a_vehicle(): void
 	{
-		// The parameter is called vehicle_id; nothing used to make it one.
+		// The attribute is called vehicle_id; it has to name one.
 		$page = self::factory()->post->create( array( 'post_type' => 'page', 'post_status' => 'publish' ) );
 		$this->seed_approved_comment( $page, 'Unrelated Ursula', 'Comment on an unrelated post' );
 
-		$response = $this->dispatch_rating_list( $page );
+		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $page . '"]' );
 
-		$this->assertFalse( $response['success'] );
-		$this->assertStringNotContainsString( 'Unrelated Ursula', wp_json_encode( $response ) );
+		$this->assertStringNotContainsString( 'Unrelated', $html );
+		$this->assertStringNotContainsString( 'Comment on an unrelated post', $html );
 	}
 
 	public function test_rating_list_still_serves_a_published_vehicles_reviews(): void
 	{
 		$this->seed_approved_comment( $this->published_id, 'Reviewer Rachel', 'Great car' );
 
-		$response = $this->dispatch_rating_list( $this->published_id );
+		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $this->published_id . '"]' );
 
-		$this->assertTrue( $response['success'] );
-		$this->assertSame( 'Reviewer Rachel', $response['data']['ratings'][0]['display_name'] );
+		$this->assertStringContainsString( 'Reviewer R.', $html );
+		$this->assertStringContainsString( 'Great car', $html );
 	}
 
 	// ------------------------------------------- surface: testimonials shape
@@ -360,6 +360,7 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		$comment_id = self::factory()->comment->create(
 			array(
 				'comment_post_ID'  => $post_id,
+				'comment_type'     => 'review',
 				'comment_approved' => '1',
 				'comment_author'   => $author,
 				'comment_content'  => $body,
@@ -410,41 +411,6 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		$request->set_param( 'dropoff_time', '10:00' );
 
 		return Availability::check_with_alternatives( $request );
-	}
-
-	/**
-	 * @return array<string, mixed>
-	 */
-	private function dispatch_rating_list( int $vehicle_id ): array
-	{
-		$_POST = array(
-			'action'     => 'mhmrentiva_get_vehicle_rating_list',
-			'nonce'      => wp_create_nonce( 'mhmrentiva_rating_nonce' ),
-			'vehicle_id' => (string) $vehicle_id,
-		);
-		$_REQUEST = $_POST;
-
-		$ob_level = ob_get_level();
-
-		try {
-			$this->_handleAjax( 'mhmrentiva_get_vehicle_rating_list' );
-		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			unset( $e );
-		} finally {
-			// See the sibling test's note: the die handler closes one buffer
-			// more than _handleAjax() opened, so restore in both directions.
-			while ( ob_get_level() > $ob_level ) {
-				ob_end_clean();
-			}
-			while ( ob_get_level() < $ob_level ) {
-				ob_start();
-			}
-		}
-
-		$response             = $this->decode_first_json( (string) $this->_last_response );
-		$this->_last_response = '';
-
-		return $response;
 	}
 
 	/**

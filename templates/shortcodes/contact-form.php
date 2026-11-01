@@ -22,6 +22,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
 
@@ -206,20 +207,12 @@ $wrapper_classes   = trim('rvs-contact rvs-contact--' . $theme . ' ' . $extra_cl
 				<?php if ($has_field('rating')) : ?>
 					<fieldset class="rvs-field" data-rvs-field<?php $topic_attrs('rating'); ?>>
 						<legend><?php echo esc_html__('Rating (optional)', 'mhm-rentiva'); ?></legend>
-						<div class="rvs-stars">
-							<?php for ($star = 1; $star <= 5; $star++) : ?>
-								<label>
-									<input type="radio" name="rating" value="<?php echo esc_attr( (string) $star); ?>"<?php $disabled_attr('rating'); ?>>
-									<span class="rvs-sr-only">
-										<?php
-										/* translators: %d: number of stars. */
-										echo esc_html(sprintf(_n('%d star', '%d stars', $star, 'mhm-rentiva'), $star));
-										?>
-									</span>
-									<?php Icons::render('star'); ?>
-								</label>
-							<?php endfor; ?>
-						</div>
+						<?php
+						Templates::render(
+							'partials/rvs/star-input',
+							array( 'disabled' => $starts_hidden('rating') )
+						);
+						?>
 					</fieldset>
 				<?php endif; ?>
 

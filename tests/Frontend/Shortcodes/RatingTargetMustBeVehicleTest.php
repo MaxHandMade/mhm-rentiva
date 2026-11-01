@@ -129,14 +129,8 @@ final class RatingTargetMustBeVehicleTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * Fable audit finding M-A: the same missing-entity-check class, in the sibling
-	 * handler my first sweep waved through as "a read, low risk".
-	 *
-	 * ajax_get_vehicle_rating_list is registered for nopriv, takes the same
-	 * unvalidated id, and its query deliberately dropped the review type filter
-	 * ("REMOVED: We want ALL comments"). get_comments() does not check whether the
-	 * caller may read the post, so an anonymous request could name any post and
-	 * receive every approved comment on it -- author name, body and date.
+	 * Fable audit finding M-A, on the render path now that the list endpoint is gone:
+	 * naming any post must never hand out its comments.
 	 */
 	public function test_rating_list_does_not_dump_comments_of_a_non_vehicle_post(): void
 	{
@@ -146,6 +140,7 @@ final class RatingTargetMustBeVehicleTest extends WP_Ajax_UnitTestCase
 		));
 		self::factory()->comment->create(array(
 			'comment_post_ID'      => $post_id,
+			'comment_type'         => 'review',
 			'comment_approved'     => '1',
 			'comment_author'       => 'Private Person',
 			'comment_author_email' => 'private@example.test',
@@ -154,23 +149,14 @@ final class RatingTargetMustBeVehicleTest extends WP_Ajax_UnitTestCase
 
 		wp_set_current_user(0);
 
-		$_POST = array(
-			'nonce'      => wp_create_nonce('mhmrentiva_rating_nonce'),
-			'vehicle_id' => $post_id,
-		);
-
-		try {
-			$this->_handleAjax('mhmrentiva_get_vehicle_rating_list');
-		} catch (\WPAjaxDieContinueException | \WPAjaxDieStopException $e) {
-			// wp_send_json_* terminates.
-		}
+		$output = do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $post_id . '"]');
 
 		$this->assertStringNotContainsString(
-			'Private Person',
-			$this->_last_response,
-			'Comments on a non-vehicle post must never be returned by the vehicle rating list.'
+			'Private',
+			$output,
+			'Comments on a non-vehicle post must never be drawn by the vehicle rating list.'
 		);
-		$this->assertStringNotContainsString('A private discussion', $this->_last_response);
+		$this->assertStringNotContainsString('A private discussion', $output);
 	}
 
 	/**

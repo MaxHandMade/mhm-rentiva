@@ -400,32 +400,13 @@ final class VehicleDetailsView {
 	}
 
 	/**
-	 * Average, count and the 5..1 distribution, or null without reviews.
+	 * The review summary, or null without reviews.
 	 *
 	 * @param array<string, mixed> $rating RatingHelper::get_rating().
-	 * @return array{average: float, count: int, distribution: list<array{star: int, count: int, pct: int}>}|null
+	 * @return array<string, mixed>|null ReviewsView::summary().
 	 */
 	private static function reviews(int $vehicle_id, array $rating): ?array
 	{
-		$count = (int) ( $rating['count'] ?? 0 );
-		if ($count <= 0) {
-			return null;
-		}
-		$distribution = RatingHelper::get_distribution($vehicle_id);
-		$total        = max(1, array_sum($distribution));
-		$rows         = array();
-		foreach (array( 5, 4, 3, 2, 1 ) as $star) {
-			$n      = (int) ( $distribution[ $star ] ?? 0 );
-			$rows[] = array(
-				'star'  => $star,
-				'count' => $n,
-				'pct'   => (int) round($n * 100 / $total),
-			);
-		}
-		return array(
-			'average'      => (float) ( $rating['average'] ?? 0 ),
-			'count'        => $count,
-			'distribution' => $rows,
-		);
+		return \MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView::summary($rating, RatingHelper::get_distribution($vehicle_id));
 	}
 }

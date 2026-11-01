@@ -7,8 +7,11 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Settings\Comments\CommentsSettings;
+use MHMRentiva\Admin\Vehicle\Helpers\RatingHelper;
+use MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
 
@@ -24,22 +27,15 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 	public const SHORTCODE = 'rentiva_vehicle_rating_form';
 
-	/**
-	 * Largest number of reviews one public read may return.
-	 *
-	 * The rating list endpoint is nopriv and its read grows with the data, so it
-	 * needs a ceiling for the same reason the testimonials surface has one; this
-	 * is the same value that surface declares.
-	 */
-	private const MAX_RATING_ROWS = 50;
+	private const SCRIPT_HANDLE = 'mhm-rentiva-vehicle-rating-form';
+
+	protected static bool $rvs_shell = true;
 
 	public static function register(): void
 	{
 		parent::register();
 		add_action('wp_ajax_mhmrentiva_submit_rating', array( self::class, 'ajax_submit_rating' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_submit_rating', array( self::class, 'ajax_submit_rating' ));
-		add_action('wp_ajax_mhmrentiva_get_vehicle_rating_list', array( self::class, 'ajax_get_vehicle_rating_list' ));
-		add_action('wp_ajax_nopriv_mhmrentiva_get_vehicle_rating_list', array( self::class, 'ajax_get_vehicle_rating_list' ));
 		add_action('wp_ajax_mhmrentiva_delete_rating', array( self::class, 'ajax_delete_rating' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_delete_rating', array( self::class, 'ajax_delete_rating' ));
 	}
@@ -65,14 +61,39 @@ final class VehicleRatingForm extends AbstractShortcode {
 		return 'shortcodes/vehicle-rating-form';
 	}
 
-	protected static function get_css_filename(): string
+	/**
+	 * The form carries a nonce: it stays out of the HTML cache (PR F R9). Standalone
+	 * only: inside a cached parent such as the vehicle page the parent's cache decides.
+	 */
+	protected static function is_caching_enabled(): bool
 	{
-		return 'vehicle-rating-form.css';
+		return false;
 	}
 
-	protected static function get_js_filename(): string
+	/**
+	 * No cache key either: building one writes the cache version transient.
+	 */
+	protected static function get_cache_key(array $atts): string
 	{
-		return 'vehicle-rating-form.js';
+		return '';
+	}
+
+	protected static function enqueue_assets(array $atts = array()): void
+	{
+		AssetManager::enqueue_rvs_reviews_styles();
+		AssetManager::enqueue_rvs_dialog();
+
+		wp_enqueue_script(self::SCRIPT_HANDLE);
+		self::localize_script(self::SCRIPT_HANDLE);
+	}
+
+	/**
+	 * For a parent that draws this form inside its own markup: on a cache hit the
+	 * parent's HTML comes back without the nested shortcode ever running.
+	 */
+	public static function enqueue_nested_assets(): void
+	{
+		self::enqueue_assets_once();
 	}
 
 	protected static function get_script_object_name(): string
@@ -82,58 +103,34 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 	protected static function get_localized_data(): array
 	{
-		$data              = parent::get_localized_data();
-		$comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
-		$display_settings  = $comments_settings['display'] ?? array();
+		$data = parent::get_localized_data();
 
-		return array_merge(
-			$data,
-			array(
-				'nonce'         => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_rating_nonce'),
-				'is_logged_in'  => is_user_logged_in(),
-				// The list renderer reads these two from the object root, not
-				// from the strings sub-object the other keys live in.
-				'no_ratings'    => __('No reviews yet.', 'mhm-rentiva'),
-				'reviews_title' => __('Reviews', 'mhm-rentiva'),
-				'settings'      => array(
-					'allow_editing'  => $display_settings['allow_editing'] ?? true,
-					'allow_deletion' => $display_settings['allow_deletion'] ?? true,
-				),
-				'icons'         => array(
-					'star'    => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
-					'trash'   => \MHMRentiva\Helpers\Icons::get('trash', array( 'class' => 'rv-icon-trash' )),
-					'success' => \MHMRentiva\Helpers\Icons::get('success'),
-					'warning' => \MHMRentiva\Helpers\Icons::get('warning'),
-					'info'    => \MHMRentiva\Helpers\Icons::get('info'),
-					'error'   => \MHMRentiva\Helpers\Icons::get('error'),
-				),
-			)
-		);
+		$data['nonce'] = RenderContext::script_nonce('mhmrentiva_rating_nonce');
+
+		return $data;
 	}
 
 	protected static function get_localized_strings(): array
 	{
 		return array(
-			'loading'            => __('Loading...', 'mhm-rentiva'),
-			'error'              => __('An error occurred', 'mhm-rentiva'),
-			'success'            => __('Rating submitted successfully', 'mhm-rentiva'),
-			'delete_confirm'     => __('Are you sure?', 'mhm-rentiva'),
-			'edit_loaded'        => __('Your comment has been loaded for editing.', 'mhm-rentiva'),
-			'deleting'           => __('Deleting...', 'mhm-rentiva'),
-			'delete_success'     => __('Your comment has been deleted successfully!', 'mhm-rentiva'),
-			'delete_error'       => __('Error deleting comment: ', 'mhm-rentiva'),
-			'unknown_error'      => __('Unknown error', 'mhm-rentiva'),
-			'delete_error_retry' => __('Error deleting comment. Please try again.', 'mhm-rentiva'),
-			'delete'             => __('Delete', 'mhm-rentiva'),
-			'deletion_disabled'  => __('Comment deletion is disabled.', 'mhm-rentiva'),
-			'select_rating'      => __('Please select a rating.', 'mhm-rentiva'),
-			'timeout'            => __('Request timed out. Please try again.', 'mhm-rentiva'),
-			'submit_error'       => __('An error occurred while submitting the rating.', 'mhm-rentiva'),
-			'submit_rating'      => __('Submit review', 'mhm-rentiva'),
-			'delete_rating'      => __('Are you sure you want to delete your rating?', 'mhm-rentiva'),
-			'connection_error'   => __('Connection error. Please try again.', 'mhm-rentiva'),
-			'submitting'         => __('Submitting...', 'mhm-rentiva'),
-			'update_rating'      => __('Update Rating', 'mhm-rentiva'),
+			'name_required'  => __('Enter your name.', 'mhm-rentiva'),
+			'email_required' => __('Enter a valid email address.', 'mhm-rentiva'),
+			'select_rating'  => __('Choose a rating from 1 to 5.', 'mhm-rentiva'),
+			/* translators: %1$s: fewest characters allowed. */
+			'comment_short'  => __('A review needs at least %1$s characters.', 'mhm-rentiva'),
+			/* translators: %1$s: most characters allowed. */
+			'comment_long'   => __('A review can have at most %1$s characters.', 'mhm-rentiva'),
+			/* translators: 1: characters written, 2: most characters allowed, 3: fewest characters allowed. */
+			'count_min'      => __('%1$s / %2$s, at least %3$s characters', 'mhm-rentiva'),
+			/* translators: 1: characters written, 2: most characters allowed. */
+			'count'          => __('%1$s / %2$s', 'mhm-rentiva'),
+			'send_failed'    => __('Your review could not be sent', 'mhm-rentiva'),
+			'connection'     => __('The connection was lost. What you wrote is still here; try again.', 'mhm-rentiva'),
+			'sending'        => __('Sending...', 'mhm-rentiva'),
+			'update'         => __('Update review', 'mhm-rentiva'),
+			'edit_heading'   => __('Edit your review', 'mhm-rentiva'),
+			'deleted_title'  => __('Your review was deleted', 'mhm-rentiva'),
+			'deleted'        => __('Your rating and review were removed.', 'mhm-rentiva'),
 		);
 	}
 
@@ -147,24 +144,105 @@ final class VehicleRatingForm extends AbstractShortcode {
 			);
 		}
 
-		// These three toggles have been part of the shortcode's documented API --
-		// and of its block inspector -- since it shipped, but nothing ever read
-		// them, so every section rendered unconditionally however they were set.
-		// They map one-to-one onto the template's three sections (summary, review
-		// list, submission form), so they are honoured here rather than dropped.
+		// These three toggles map one-to-one onto the template's three sections
+		// (summary, review list, submission form).
 		$to_bool = static function ($value): bool {
 			return filter_var($value, FILTER_VALIDATE_BOOLEAN);
 		};
 
+		$settings   = CommentsSettings::get_settings();
+		$display    = (array) ( $settings['display'] ?? array() );
+		$limits     = (array) ( $settings['limits'] ?? array() );
+		$logged_in  = is_user_logged_in();
+		$allow_post = ReviewsView::can_post(
+			$logged_in,
+			(bool) ( $settings['approval']['require_login'] ?? true ),
+			(bool) ( $settings['approval']['allow_guest_comments'] ?? false )
+		);
+		$show_form  = $to_bool($atts['show_form'] ?? '1');
+		$show_list  = $to_bool($atts['show_ratings_list'] ?? '1');
+		$cards      = $show_list ? self::review_cards($vehicle_id, $display, $show_form && $allow_post) : array();
+
 		return array(
 			'vehicle_id'          => $vehicle_id,
 			'badge_message'       => $badge,
-			'vehicle_rating'      => self::get_vehicle_rating($vehicle_id),
-			'user_rating'         => is_user_logged_in() ? self::get_user_rating($vehicle_id) : null,
+			'uid'                 => wp_unique_id('rvs-reviews-'),
+			'nested'              => self::is_nested_in_rvs_shell(),
+			'class'               => (string) ( $atts['class'] ?? '' ),
+			'summary'             => ReviewsView::summary(RatingHelper::get_rating($vehicle_id), RatingHelper::get_distribution($vehicle_id)),
 			'show_rating_display' => $to_bool($atts['show_rating_display'] ?? '1'),
-			'show_form'           => $to_bool($atts['show_form'] ?? '1'),
-			'show_ratings_list'   => $to_bool($atts['show_ratings_list'] ?? '1'),
+			'show_form'           => $show_form,
+			'show_ratings_list'   => $show_list,
+			'cards'               => $cards,
+			'can_post'            => $allow_post,
+			'has_own'             => $logged_in && null !== self::get_user_rating($vehicle_id),
+			'guest_fields'        => ! $logged_in && $allow_post,
+			'has_dialog'          => array() !== array_filter(array_column($cards, 'can_delete')),
+			'min_length'          => (int) ( $limits['comment_length_min'] ?? 5 ),
+			'max_length'          => (int) ( $limits['comment_length_max'] ?? 1000 ),
 		);
+	}
+
+	/**
+	 * The list: the visitor's own review first, approved or waiting (R12), then the
+	 * public reviews. Nobody else's waiting review, ever; a guest has no "own".
+	 *
+	 * @param array<string, mixed> $display  Comment display settings.
+	 * @param bool                 $can_edit The form is on the page to edit in.
+	 * @return list<array<string, mixed>> ReviewsView::card().
+	 */
+	private static function review_cards(int $vehicle_id, array $display, bool $can_edit): array
+	{
+		$own      = self::get_user_rating($vehicle_id);
+		$own_id   = null === $own ? 0 : (int) $own['comment_id'];
+		$comments = array_values(
+			array_filter(
+				RatingHelper::get_public_reviews($vehicle_id, CommentsSettings::get_comments_per_page()),
+				static fn(\WP_Comment $comment): bool => (int) $comment->comment_ID !== $own_id
+			)
+		);
+		if ($own_id > 0) {
+			$own_comment = get_comment($own_id);
+			if ($own_comment instanceof \WP_Comment) {
+				array_unshift($comments, $own_comment);
+			}
+		}
+		if (array() === $comments) {
+			return array();
+		}
+
+		// One query for the whole list, no N+1.
+		$verified = VerifiedReviewHelper::get_verified_comment_ids_for_vehicle($vehicle_id);
+		$preview  = RenderContext::current()->is_preview();
+		$cards    = array();
+		foreach ($comments as $comment) {
+			$id     = (int) $comment->comment_ID;
+			$is_own = $id === $own_id;
+			$author = (string) $comment->comment_author;
+			if ('' === $author && (int) $comment->user_id > 0) {
+				$user   = get_userdata( (int) $comment->user_id);
+				$author = $user ? (string) $user->display_name : '';
+			}
+			$cards[] = ReviewsView::card(
+				array(
+					'id'          => $id,
+					'author'      => $author,
+					'rating'      => (int) get_comment_meta($id, 'mhmrentiva_rating', true),
+					'text'        => (string) $comment->comment_content,
+					'date'        => (string) $comment->comment_date,
+					'pending'     => '1' !== (string) $comment->comment_approved,
+					'verified'    => in_array($id, $verified, true),
+					'own'         => $is_own,
+					'can_edit'    => $can_edit && (bool) ( $display['allow_editing'] ?? true ),
+					'can_delete'  => (bool) ( $display['allow_deletion'] ?? true ),
+					'show_avatar' => (bool) ( $display['show_avatars'] ?? true ),
+					'show_rating' => (bool) ( $display['show_ratings'] ?? true ),
+					'disabled'    => $preview,
+				)
+			);
+		}
+
+		return $cards;
 	}
 
 	/**
@@ -212,30 +290,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 	public static function get_vehicle_rating(int $vehicle_id): array
 	{
-		return \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_rating($vehicle_id);
+		return RatingHelper::get_rating($vehicle_id);
 	}
 
 	public static function get_user_rating(int $vehicle_id): ?array
 	{
-		if (! is_user_logged_in()) {
-			return null;
-		}
-		$comments = get_comments(
-			array(
-				'post_id' => $vehicle_id,
-				'user_id' => get_current_user_id(),
-				'number'  => 1,
-			)
-		);
-		if (empty($comments)) {
-			return null;
-		}
-		$c = $comments[0];
-		return array(
-			'rating'     => get_comment_meta($c->comment_ID, 'mhmrentiva_rating', true),
-			'comment'    => $c->comment_content,
-			'comment_id' => $c->comment_ID,
-		);
+		return RatingHelper::get_user_review($vehicle_id, get_current_user_id());
 	}
 
 	public static function ajax_submit_rating(): void
@@ -263,10 +323,13 @@ final class VehicleRatingForm extends AbstractShortcode {
 		}
 
 		$comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
-		$require_login     = $comments_settings['approval']['require_login'] ?? true;
-		$allow_guest       = $comments_settings['approval']['allow_guest_comments'] ?? false;
+		$can_post          = ReviewsView::can_post(
+			$uid > 0,
+			(bool) ( $comments_settings['approval']['require_login'] ?? true ),
+			(bool) ( $comments_settings['approval']['allow_guest_comments'] ?? false )
+		);
 
-		if (! $uid && ( ! $allow_guest || $require_login )) {
+		if (! $can_post) {
 			wp_send_json_error(array( 'message' => __('Login required to post a review', 'mhm-rentiva') ));
 		}
 
@@ -339,7 +402,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 			wp_update_comment($comment_data);
 			update_comment_meta($existing['comment_id'], 'mhmrentiva_rating', $rating);
 			self::update_vehicle_rating_meta($vid);
-			wp_send_json_success(array( 'message' => __('Rating updated successfully', 'mhm-rentiva') ));
+			wp_send_json_success(ReviewsView::submission_answer(self::is_approved( (int) $existing['comment_id']), true, false));
 		}
 
 		// === NEW rating ===
@@ -389,10 +452,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 			update_comment_meta($cid, 'mhmrentiva_rating', $rating);
 			self::update_vehicle_rating_meta($vid);
 
-			$message = $comment_data['comment_approved']
-				? __('Rating submitted successfully', 'mhm-rentiva')
-				: __('Rating submitted and awaiting approval', 'mhm-rentiva');
-			wp_send_json_success(array( 'message' => $message ));
+			wp_send_json_success(ReviewsView::submission_answer(self::is_approved( (int) $cid), false, 0 === $uid));
 		}
 
 		if (is_wp_error($cid)) {
@@ -424,6 +484,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 				array(
 					'post_id' => $vid,
 					'user_id' => $uid,
+					'type'    => 'review',
 					'number'  => 1,
 				)
 			);
@@ -463,62 +524,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 		wp_send_json_error(array( 'message' => __('Permission denied', 'mhm-rentiva') ));
 	}
 
-	public static function ajax_get_vehicle_rating_list(): void
+	/**
+	 * What was stored, not what was asked for: core can change the status on insert.
+	 */
+	private static function is_approved(int $comment_id): bool
 	{
-		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_rating_nonce')) {
-			wp_send_json_error(array( 'message' => __('Security check failed', 'mhm-rentiva') ));
-		}
-
-		$vid = isset($_POST['vehicle_id']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id']))) : 0;
-		if (! $vid) {
-			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
-		}
-
-		/*
-		 * The parameter is named `vehicle_id`, but nothing used to make it one:
-		 * the id went straight into get_comments() as `post_id`, and get_comments()
-		 * does not check whether the caller may read the post. A `nopriv` caller
-		 * holding the public rating nonce could therefore read the approved
-		 * comments -- author display names, body and date -- of an unpublished
-		 * vehicle, or of any unrelated post type entirely. The status matters as
-		 * much as the type: a draft vehicle's reviews are as unpublished as the
-		 * vehicle itself.
-		 *
-		 * Both audit rounds closed this independently; the house helper is kept
-		 * over the inline type/status pair because it is the stricter of the two
-		 * (it also rejects password-protected posts) and because one canonical
-		 * answer to "may the public read this vehicle" is worth more than two
-		 * copies that can drift apart.
-		 */
-		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vid)) {
-			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
-		}
-
-		$comments = get_comments(
-			array(
-				'post_id' => $vid,
-				// 'type'    => 'review', // REMOVED: We want ALL comments, not just reviews
-				'status'  => 'approve',
-				// Bounded: this endpoint is nopriv and the read grows with the
-				// data. Matches the ceiling the testimonials surface declares.
-				'number'  => self::MAX_RATING_ROWS,
-				'orderby' => 'comment_date',
-				'order'   => 'DESC',
-			)
-		);
-
-		$ratings = array();
-		foreach ($comments as $c) {
-			$ratings[] = array(
-				'display_name' => $c->comment_author,
-				'rating'       => (int) get_comment_meta($c->comment_ID, 'mhmrentiva_rating', true),
-				'comment'      => $c->comment_content,
-				'date'         => $c->comment_date,
-			);
-		}
-
-		wp_send_json_success(array( 'ratings' => $ratings ));
+		return 'approved' === wp_get_comment_status($comment_id);
 	}
 
 	/**
@@ -526,6 +537,6 @@ final class VehicleRatingForm extends AbstractShortcode {
 	 */
 	public static function update_vehicle_rating_meta(int $vehicle_id): void
 	{
-		\MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::recalculate_and_save($vehicle_id);
+		RatingHelper::recalculate_and_save($vehicle_id);
 	}
 }

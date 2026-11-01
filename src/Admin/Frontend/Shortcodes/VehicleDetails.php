@@ -205,6 +205,7 @@ final class VehicleDetails extends AbstractShortcode {
 		AssetManager::enqueue_rvs_dialog();
 		AssetManager::enqueue_vehicle_interactions();
 		\MHMRentiva\Admin\Core\Assets\DatepickerAssets::enqueue();
+		VehicleRatingForm::enqueue_nested_assets();
 
 		wp_enqueue_script( 'mhm-rentiva-rvs-vehicle-js' );
 		wp_localize_script(

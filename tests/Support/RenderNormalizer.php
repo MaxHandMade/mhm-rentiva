@@ -29,7 +29,7 @@ final class RenderNormalizer
 		$html = (string) preg_replace('/data-render-time="[^"]*"/', 'data-render-time="T"', $html);
 		$html = (string) preg_replace('/rvsr-\d+/', 'rvsr-N', $html);
 		// The vehicle page, its calendar months and the booking form (wp_unique_id) -- in hrefs too.
-		$html = (string) preg_replace('/\b(rvs-vd|rvs-cal|rvs-bf|rvs-contact)-\d+/', '$1-N', $html);
+		$html = (string) preg_replace('/\b(rvs-vd|rvs-cal|rvs-bf|rvs-contact|rvs-reviews)-\d+/', '$1-N', $html);
 		$html = (string) preg_replace('/\b[a-f0-9]{10}\b/', 'NONCE', $html);
 		$html = (string) preg_replace('/\b\d{10,}\b/', 'TS', $html);
 		$html = (string) preg_replace('/(id|for|aria-[a-z]+|data-[a-z-]*id)="[^"]*"/', '$1="X"', $html);

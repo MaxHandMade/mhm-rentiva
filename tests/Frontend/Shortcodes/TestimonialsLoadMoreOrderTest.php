@@ -53,6 +53,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 		foreach (self::REVIEWS as $i => $review) {
 			$comment = (int) self::factory()->comment->create(
 				array(
+					'comment_type'     => 'review',
 					'comment_post_ID'  => $vehicle,
 					'comment_approved' => '1',
 					'comment_author'   => 'Reviewer ' . $review[0],

@@ -222,7 +222,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 45
+			count: 47
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -531,11 +531,6 @@ parameters:
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/UnifiedSearch.php
 
-		-
-			message: '#^Parameter \#1 \$comment_id of function get_comment_meta expects int, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
 
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'

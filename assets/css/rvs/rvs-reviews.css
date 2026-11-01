@@ -1,0 +1,402 @@
+/**
+ * Rentiva front-end standard -- the review component.
+ *
+ * Markup: templates/partials/rvs/review-*.php and
+ * templates/shortcodes/vehicle-rating-form.php. Layout from the drawings
+ * `Puan-Formu` and `Puan-Formu-Mobil`; colours, type and corners from
+ * rvs-tokens.css. `.rvs-review` knows no layout: a list or a grid places it.
+ * The script toggles [hidden]; the rule below keeps it above every display rule
+ * at any width.
+ */
+
+.rvs-shell .rvs-reviews [hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-reviews {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+	max-width: 800px;
+	padding-block: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-reviews--nested {
+	gap: var(--rvs-s3);
+	max-width: none;
+	padding-block: 0;
+}
+
+.rvs-shell .rvs-reviews__title {
+	margin: 0;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.12;
+}
+
+.rvs-shell .rvs-reviews__box-title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.12;
+}
+
+/* Summary ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-review-summary {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s8);
+}
+
+.rvs-shell .rvs-review-summary__average {
+	display: flex;
+	flex-direction: column;
+}
+
+.rvs-shell .rvs-review-summary__value {
+	font-size: 48px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.rvs-shell .rvs-review-summary__count {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-review-summary__dist {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 260px;
+	margin: 0;
+	padding: 0;
+	font-size: 14px;
+	list-style: none;
+}
+
+.rvs-shell .rvs-review-summary__row {
+	display: flex;
+	align-items: center;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-review-summary__star {
+	flex: none;
+	width: 28px;
+}
+
+.rvs-shell .rvs-review-summary__track {
+	flex: 1;
+	height: 8px;
+	overflow: hidden;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-n-200);
+}
+
+.rvs-shell .rvs-review-summary__fill {
+	display: block;
+	height: 100%;
+	background: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-review-summary__num {
+	flex: none;
+	width: 40px;
+	color: var(--rvs-muted);
+	text-align: end;
+}
+
+/* Stars --------------------------------------------------------------------- */
+
+.rvs-shell .rvs-review-stars {
+	display: inline-flex;
+	gap: 1px;
+	color: var(--rvs-accent-strong);
+	vertical-align: -2px;
+}
+
+.rvs-shell .rvs-review-stars__star {
+	fill: none;
+}
+
+.rvs-shell .rvs-review-stars__star.is-filled {
+	fill: currentColor;
+}
+
+/* Card ---------------------------------------------------------------------- */
+
+.rvs-shell .rvs-reviews__list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-reviews__list > .rvs-review {
+	padding-top: var(--rvs-s3);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-review {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-review__head {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-review--no-avatar .rvs-review__head {
+	grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rvs-shell .rvs-review__avatar {
+	display: grid;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-review__who {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rvs-s2);
+	min-width: 0;
+}
+
+.rvs-shell .rvs-review__meta {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rvs-s1);
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-review__vehicle {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-review__text {
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-review__text > :first-child {
+	margin-top: 0;
+}
+
+.rvs-shell .rvs-review__text > :last-child {
+	margin-bottom: 0;
+}
+
+.rvs-shell .rvs-review__actions,
+.rvs-shell .rvs-reviews__actions,
+.rvs-shell .rvs-reviews__dialog-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-review__actions {
+	margin-top: 4px;
+}
+
+.rvs-shell .rvs-review__delete {
+	border-color: var(--rvs-alert);
+	background: var(--rvs-raised);
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-review__delete:hover {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+/* States -------------------------------------------------------------------- */
+
+.rvs-shell .rvs-reviews__status:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-reviews__status:focus {
+	outline: none;
+}
+
+.rvs-shell .rvs-reviews__empty,
+.rvs-shell .rvs-reviews__login {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	padding: var(--rvs-s6);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-reviews__login p {
+	margin: 0;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-reviews--unavailable {
+	color: var(--rvs-muted);
+}
+
+/* Form ---------------------------------------------------------------------- */
+
+.rvs-shell .rvs-reviews__form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+	padding-top: var(--rvs-s4);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-reviews--nested .rvs-reviews__form {
+	gap: var(--rvs-s3);
+	padding-top: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-reviews__guest {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-reviews__comment {
+	min-height: 120px;
+	padding-block: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-reviews__form .rvs-btn--primary {
+	min-height: 48px;
+}
+
+/* Delete dialog ------------------------------------------------------------- */
+
+.rvs-shell .rvs-reviews__dialog-panel {
+	width: min(100%, 460px);
+	height: auto;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow-md);
+}
+
+.rvs-shell .rvs-reviews__dialog-body {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 24px;
+}
+
+.rvs-shell .rvs-reviews__dialog-body p {
+	margin: 0;
+}
+
+.rvs-shell .rvs-reviews__dialog-actions {
+	justify-content: flex-end;
+	margin-top: 6px;
+}
+
+.rvs-shell .rvs-reviews__confirm {
+	background: var(--rvs-alert);
+	color: var(--rvs-raised);
+}
+
+.rvs-shell .rvs-reviews__confirm:hover {
+	background: var(--rvs-alert-500);
+	color: var(--rvs-raised);
+}
+
+/* Phone --------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-reviews {
+		gap: var(--rvs-s3);
+	}
+
+	/* A short question: a box on the page, not the overlay's full screen. */
+	.rvs-shell .rvs-reviews__dialog {
+		padding: var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-reviews__dialog-panel {
+		width: 100%;
+		height: auto;
+		border-radius: var(--rvs-r);
+	}
+
+	.rvs-shell .rvs-reviews__title {
+		font-size: 22px;
+	}
+
+	.rvs-shell .rvs-review-summary {
+		flex-direction: column;
+		gap: var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-review-summary__average {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: var(--rvs-s4);
+		align-items: center;
+		justify-items: start;
+	}
+
+	.rvs-shell .rvs-review-summary__value {
+		grid-row: 1 / span 2;
+		font-size: 40px;
+	}
+
+	.rvs-shell .rvs-review-summary__count {
+		grid-column: 2;
+	}
+
+	.rvs-shell .rvs-review-summary__dist {
+		flex: none;
+		min-width: 0;
+	}
+
+	.rvs-shell .rvs-review__head,
+	.rvs-shell .rvs-review--no-avatar .rvs-review__head {
+		grid-template-columns: minmax(0, 1fr);
+		row-gap: 0;
+	}
+
+	.rvs-shell .rvs-review__head:has(.rvs-review__avatar) {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-review__avatar {
+		grid-row: 1 / span 2;
+	}
+
+	.rvs-shell .rvs-reviews .rvs-stars {
+		gap: 6px;
+	}
+
+	.rvs-shell .rvs-reviews .rvs-stars > label {
+		width: 48px;
+		height: 48px;
+	}
+
+	.rvs-shell .rvs-reviews__form .rvs-btn--primary {
+		width: 100%;
+		min-height: 52px;
+	}
+
+	.rvs-shell .rvs-reviews__form .rvs-btn--secondary {
+		width: 100%;
+	}
+}

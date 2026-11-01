@@ -60,6 +60,7 @@ final class TestimonialsSettingsTest extends WP_UnitTestCase
 			}
 			$comment = (int) wp_insert_comment(
 				array(
+					'comment_type'     => 'review',
 					'comment_post_ID'  => $vehicles[ $review[4] ],
 					'comment_author'   => $review[1],
 					'comment_content'  => $review[0],

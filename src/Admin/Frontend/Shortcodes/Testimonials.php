@@ -566,11 +566,10 @@ final class Testimonials extends AbstractShortcode {
 			// this, reviews of a draft or private vehicle are listed on a public
 			// page. WP_Comment_Query applies it to the parent post.
 			'post_status' => 'publish',
-			'status'      => 'approve',
 			// Bounded for the same reason as the booking read above.
 			'number'      => max(1, min($fetch_limit, self::MAX_ROWS)),
 			'orderby'     => $sort,
-		);
+		) + \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::public_review_args();
 
 		if (! empty($atts['vehicle_id'])) {
 			$comment_args['post_id'] = (int) $atts['vehicle_id'];
@@ -695,9 +694,8 @@ final class Testimonials extends AbstractShortcode {
 			// Same restriction as the read above, or the total would count rows
 			// the list will not show and "load more" would promise them.
 			'post_status' => 'publish',
-			'status'      => 'approve',
 			'count'       => true,
-		);
+		) + \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::public_review_args();
 
 		if (! empty($atts['vehicle_id'])) {
 			$comment_args['post_id'] = (int) $atts['vehicle_id'];

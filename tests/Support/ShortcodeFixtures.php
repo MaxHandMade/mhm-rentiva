@@ -138,8 +138,8 @@ final class ShortcodeFixtures
 
 			case 'rentiva_vehicle_rating_form':
 				$row['atts']         = array( 'vehicle_id' => (string) self::vehicle() );
-				$row['marker']       = 'rv-rating-summary';
-				$row['min_elements'] = 30;
+				$row['marker']       = 'rvs-reviews__title';
+				$row['min_elements'] = 8;
 				break;
 
 			case 'rentiva_vehicles_list':

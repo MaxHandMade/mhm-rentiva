@@ -64,9 +64,7 @@
         }
     },
     "editorStyle": [
-        "mhm-rentiva-core-variables"
-    ],
-    "style": [
-        "mhm-rentiva-vehicle-rating-form"
+        "mhm-rentiva-core-variables",
+        "mhm-rentiva-rvs-reviews"
     ]
 }
