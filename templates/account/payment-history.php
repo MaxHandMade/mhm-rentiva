@@ -89,8 +89,8 @@ $root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-
 			<h2 id="<?php echo esc_attr($mhmrentiva_ph_uid . '-title'); ?>"><?php esc_html_e('Payment History', 'mhm-rentiva'); ?></h2>
 			<span class="rvs-account-bookings__page">
 				<?php
-				/* translators: %d: total payments count. */
-				echo esc_html(sprintf(__('%d payments total', 'mhm-rentiva'), $total));
+				/* translators: %s: number of records in the payment history (paid or not). */
+				echo esc_html(sprintf(_n('%s record', '%s records', $total, 'mhm-rentiva'), number_format_i18n($total)));
 				?>
 			</span>
 		</div>

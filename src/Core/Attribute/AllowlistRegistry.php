@@ -1167,7 +1167,8 @@ final class AllowlistRegistry {
             'show_pagination',
             // orderby, limit_results, show_cancel_btn, show_modify_btn and
             // show_details_link were removed (spec 3A Task 7a).
-            'order',
+            // Empty: each section's own pickup order (AccountBookingsQuery::segment_ids()).
+            'order' => [ 'values' => [ '', 'asc', 'desc', 'ASC', 'DESC' ] ],
             'hide_nav',
         ],
         'rentiva_featured_vehicles'     => [

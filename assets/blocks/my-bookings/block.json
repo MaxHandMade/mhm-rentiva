@@ -72,8 +72,9 @@
         },
         "sortOrder": {
             "type": "string",
-            "default": "desc",
+            "default": "",
             "enum": [
+                "",
                 "asc",
                 "desc"
             ]

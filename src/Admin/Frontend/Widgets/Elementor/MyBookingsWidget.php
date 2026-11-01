@@ -76,15 +76,17 @@ class MyBookingsWidget extends ElementorWidgetBase {
 		);
 
 		// Spec 3A Task 7a: the "Order By" control is gone; the list is ordered by
-		// date only (its 'id' option fell back to date in WP_Query).
+		// date only (its 'id' option fell back to date in WP_Query). Automatic is
+		// each section's own pickup order.
 
 		$this->add_control(
 			'order',
 			array(
 				'label'   => _x( 'Order', 'sort direction', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::SELECT,
-				'default' => 'DESC',
+				'default' => '',
 				'options' => array(
+					''     => __( 'Automatic', 'mhm-rentiva' ),
 					'DESC' => __( 'Descending', 'mhm-rentiva' ),
 					'ASC'  => __( 'Ascending', 'mhm-rentiva' ),
 				),

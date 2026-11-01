@@ -208,6 +208,8 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		// PR D: the pager pages within a section; make all three upcoming.
 		update_post_meta($oldest, '_mhmrentiva_status', 'confirmed');
 		update_post_meta($oldest, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', time() + 30 * DAY_IN_SECONDS));
+		// Soonest pickup first, so the created order and the pickup order agree.
+		update_post_meta($oldest, '_mhmrentiva_start_ts', time() + 40 * DAY_IN_SECONDS);
 
 		$first = $this->shortcode('limit="2"');
 		$this->assertSame(array( $newest, $middle ), $this->ids($first));
@@ -217,7 +219,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 
 		set_query_var('mhmrentiva_page', '2');
 		$second = $this->shortcode('limit="2"');
-		$this->assertSame(array( $oldest ), $this->ids($second), 'Page 2 shows the older booking.');
+		$this->assertSame(array( $oldest ), $this->ids($second), 'Page 2 shows the later pickup.');
 		$this->assertStringContainsString('Page 2 / 2', $second);
 
 		foreach (array( 'block' => $this->block(array( 'limit' => '2' )), 'widget' => $this->widget(array( 'limit' => 2 )), 'endpoint' => $this->endpoint_with_limit(2) ) as $surface => $html) {

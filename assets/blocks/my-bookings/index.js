@@ -47,6 +47,7 @@
                             label: __('Sort Order', 'mhm-rentiva'),
                             value: sortOrder,
                             options: [
+                                { label: __('Automatic', 'mhm-rentiva'), value: '' },
                                 { label: __('Descending (Newest First)', 'mhm-rentiva'), value: 'desc' },
                                 { label: __('Ascending (Oldest First)', 'mhm-rentiva'), value: 'asc' },
                             ],

@@ -34,7 +34,8 @@ final class MyBookings extends AbstractAccountShortcode {
 		return array(
 			'limit'              => '10',
 			'status'             => '',
-			'order'              => 'DESC',
+			// Empty: each section's own pickup order. ASC / DESC: by created date.
+			'order'              => '',
 			'hide_nav'           => false,
 			// Spec 3A Task 7a: these gate markup that was unconditional, so on by default.
 			'show_image'         => '1',

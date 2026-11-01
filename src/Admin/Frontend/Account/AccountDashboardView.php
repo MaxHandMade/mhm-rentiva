@@ -25,7 +25,8 @@ final class AccountDashboardView {
 
 	/**
 	 * The booking the card shows: one in progress first; otherwise the earliest
-	 * confirmed / pending / awaiting-payment one whose pickup is not past.
+	 * confirmed / pending / awaiting-payment one whose pickup is not past. A
+	 * pickup tie goes to the lower booking ID, as in the Upcoming list.
 	 *
 	 * @param list<array{id:int, status:string, pickup_ts:int}> $candidates
 	 * @return int|null Booking ID.
@@ -37,7 +38,7 @@ final class AccountDashboardView {
 		foreach ($candidates as $candidate) {
 			$ts = (int) $candidate['pickup_ts'];
 			if (Status::IN_PROGRESS === $candidate['status']) {
-				if (null === $in_progress || $ts < (int) $in_progress['pickup_ts']) {
+				if (null === $in_progress || self::is_earlier($candidate, $in_progress)) {
 					$in_progress = $candidate;
 				}
 				continue;
@@ -46,13 +47,22 @@ final class AccountDashboardView {
 			if (! in_array($candidate['status'], array( Status::CONFIRMED, Status::PENDING, Status::PENDING_PAYMENT ), true) || $ts <= 0 || $ts < $now_ts) {
 				continue;
 			}
-			if (null === $upcoming || $ts < (int) $upcoming['pickup_ts']) {
+			if (null === $upcoming || self::is_earlier($candidate, $upcoming)) {
 				$upcoming = $candidate;
 			}
 		}
 
 		$picked = $in_progress ?? $upcoming;
 		return null === $picked ? null : (int) $picked['id'];
+	}
+
+	/**
+	 * @param array{id:int, status:string, pickup_ts:int} $a
+	 * @param array{id:int, status:string, pickup_ts:int} $b
+	 */
+	private static function is_earlier(array $a, array $b): bool
+	{
+		return array( (int) $a['pickup_ts'], (int) $a['id'] ) < array( (int) $b['pickup_ts'], (int) $b['id'] );
 	}
 
 	/**

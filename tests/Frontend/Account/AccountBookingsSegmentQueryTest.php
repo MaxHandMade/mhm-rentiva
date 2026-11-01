@@ -6,6 +6,7 @@ namespace MHMRentiva\Tests\Frontend\Account;
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsView;
+use MHMRentiva\Admin\Frontend\Account\AccountDashboardView;
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
 use MHMRentiva\Admin\Frontend\Shortcodes\Account\MyBookings;
 use MHMRentiva\Tests\Support\RequestSimulator;
@@ -79,7 +80,7 @@ final class AccountBookingsSegmentQueryTest extends WP_UnitTestCase
 		$this->assertCount(2, $second['posts'], 'The 11th row is on page 2.');
 		$this->assertSame(12, $first['total']);
 		$this->assertSame(2, $first['pages']);
-		$this->assertSame($upcoming, array_merge($this->ids($first), $this->ids($second)), 'Newest first, every upcoming booking once.');
+		$this->assertSame($upcoming, array_merge($this->ids($first), $this->ids($second)), 'Same pickup: booking ID order, every upcoming booking once.');
 
 		$this->assertSame(array( $past ), $this->ids(AccountBookingsQuery::page($this->user, 'past', 1, 10)));
 		$this->assertSame(array( $cancelled ), $this->ids(AccountBookingsQuery::page($this->user, 'cancelled', 1, 10)));
@@ -94,6 +95,78 @@ final class AccountBookingsSegmentQueryTest extends WP_UnitTestCase
 		$this->assertStringContainsString('>Past (1)<', $html);
 		$this->assertStringContainsString('>Cancelled (1)<', $html);
 		$this->assertStringContainsString('mhmrentiva_view=past', $html, 'Section links carry the section.');
+	}
+
+	/**
+	 * Browser round B1: the database's order of equal dates decided the pages, so
+	 * a row showed on two pages and another on none.
+	 */
+	public function test_identical_dates_every_row_once_across_pages(): void
+	{
+		$all = array();
+		for ($i = 0; $i < 25; $i++) {
+			$all[] = $this->booking('confirmed', 5, 3);
+		}
+		sort($all);
+
+		$seen = array();
+		for ($page = 1; $page <= 3; $page++) {
+			RequestSimulator::new_request();
+			$seen = array_merge($seen, $this->ids(AccountBookingsQuery::page($this->user, 'upcoming', $page, 10)));
+		}
+
+		$this->assertSame($all, $seen, 'Every row exactly once, in one order.');
+	}
+
+	public function test_each_section_has_its_own_pickup_order(): void
+	{
+		$later    = $this->booking('confirmed', 20, 1);
+		$soon     = $this->booking('confirmed', 2, 2);
+		$soon_too = $this->booking('pending', 2, 3);
+		$no_date  = $this->booking('pending', 9, 4, array( '_mhmrentiva_dropoff_date' => SiteTime::days_ahead(30) ));
+		foreach (array( '_mhmrentiva_start_ts', '_mhmrentiva_pickup_date' ) as $key) {
+			delete_post_meta($no_date, $key);
+		}
+		$this->assertSame(array( $soon, $soon_too, $later, $no_date ), AccountBookingsQuery::segment_ids($this->user, 'upcoming'));
+		$this->assertSame(array( $soon, $soon_too, $later, $no_date ), $this->ids(AccountBookingsQuery::page($this->user, 'upcoming', 1, 10)));
+
+		$long_ago = $this->booking('completed', -30, 5);
+		$recent   = $this->booking('completed', -5, 6);
+		$recent_2 = $this->booking('completed', -5, 7);
+		$this->assertSame(array( $recent_2, $recent, $long_ago ), $this->ids(AccountBookingsQuery::page($this->user, 'past', 1, 10)));
+
+		$c_old = $this->booking('cancelled', 1, 8);
+		$c_new = $this->booking('refunded', 8, 9);
+		$this->assertSame(array( $c_new, $c_old ), $this->ids(AccountBookingsQuery::page($this->user, 'cancelled', 1, 10)));
+	}
+
+	public function test_explicit_order_wins_by_created_date(): void
+	{
+		$old_far  = $this->booking('confirmed', 30, 90);
+		$new_near = $this->booking('confirmed', 2, 10);
+
+		$this->assertSame(array( $new_near, $old_far ), $this->row_ids($this->shortcode('')), 'No attribute: soonest pickup first.');
+		$this->assertSame(array( $old_far, $new_near ), $this->row_ids($this->shortcode('order="ASC"')), 'ASC: oldest created first.');
+		$this->assertSame(array( $new_near, $old_far ), $this->row_ids($this->shortcode('order="DESC"')), 'DESC: newest created first.');
+
+		// One created date, explicit order: booking ID settles it, in that direction.
+		$same = array();
+		for ($i = 0; $i < 3; $i++) {
+			$same[] = $this->booking('confirmed', 40, 200);
+		}
+		$asc = $this->row_ids($this->shortcode('order="ASC"'));
+		$this->assertSame($same, array_slice($asc, 0, 3));
+	}
+
+	public function test_dashboard_card_and_list_agree(): void
+	{
+		$later = $this->booking('confirmed', 9, 1);
+		$first = $this->booking('confirmed', 3, 2);
+		$tied  = $this->booking('confirmed', 3, 3);
+
+		$list = $this->ids(AccountBookingsQuery::page($this->user, 'upcoming', 1, 5));
+		$this->assertSame(array( $first, $tied, $later ), $list);
+		$this->assertSame($first, AccountDashboardView::next_booking_id($this->user), 'The card is the first row of the list, also on a pickup tie.');
 	}
 
 	/**

@@ -56,4 +56,26 @@ final class AccountPaymentSummary {
 			'currency'       => $state->currency(),
 		);
 	}
+
+	/**
+	 * The payment-history date of a booking: the latest moment one of its orders
+	 * was paid, else when the booking was created. 0 when neither is recorded.
+	 *
+	 * @param list<int> $order_ids
+	 */
+	public static function row_date_ts(int $booking_id, array $order_ids): int
+	{
+		$paid_at = 0;
+		if (function_exists('wc_get_order')) {
+			foreach ($order_ids as $order_id) {
+				$order = wc_get_order($order_id);
+				$date  = $order instanceof \WC_Order ? $order->get_date_paid() : null;
+				if (null !== $date) {
+					$paid_at = max($paid_at, $date->getTimestamp());
+				}
+			}
+		}
+
+		return $paid_at > 0 ? $paid_at : (int) get_post_timestamp($booking_id);
+	}
 }

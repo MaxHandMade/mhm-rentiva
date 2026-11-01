@@ -29,7 +29,10 @@ if (! defined('ABSPATH')) {
  * return_day(), run in PHP over the customer's booking IDs (one unpaged ID
  * query, metas primed in one go, cached for the request). counts() counts
  * that index and page() pages the same IDs (post__in), so the two always
- * agree. The rule is not written as a meta_query: four fallback keys, each
+ * agree. page() also takes its order from the index: Upcoming soonest pickup
+ * first, Past and Cancelled latest pickup first, booking ID on a tie, so a row
+ * is on exactly one page. An explicit `order` still sorts by created date. The
+ * rule is not written as a meta_query: four fallback keys, each
  * "missing or empty", needed ~25 postmeta joins, and WordPress turns every
  * join of a query with a NOT EXISTS clause into a LEFT JOIN whose meta_key
  * test sits in WHERE -- measured 2026-10-27, one such query ran 676 s on a
@@ -72,8 +75,11 @@ final class AccountBookingsQuery {
 	private const STATUS_KEY   = '_mhmrentiva_status';
 	private const CUSTOMER_KEY = '_mhmrentiva_customer_user_id';
 
-	/** @var array<int, array<int, string>> Booking ID => section, newest first, per user, this request. */
+	/** @var array<int, array<int, string>> Booking ID => section, per user, this request. */
 	private static array $index = array();
+
+	/** @var array<int, array<string, list<int>>> Sorted booking IDs per user and section, this request. */
+	private static array $sorted = array();
 
 	/**
 	 * Section sizes of the user's bookings (the request's section index).
@@ -95,14 +101,39 @@ final class AccountBookingsQuery {
 	}
 
 	/**
-	 * The user's booking IDs in a section, newest first.
+	 * The user's booking IDs in a section, in the section's order: Upcoming
+	 * soonest pickup first (no recorded pickup last), Past and Cancelled latest
+	 * pickup first; booking ID on a tie, so the order never depends on the
+	 * database.
 	 *
 	 * @param string $segment A SEGMENTS value.
 	 * @return list<int>
 	 */
 	public static function segment_ids(int $user_id, string $segment): array
 	{
-		return array_keys(array_filter(self::index($user_id), static fn(string $s): bool => $s === $segment));
+		if (isset(self::$sorted[ $user_id ][ $segment ])) {
+			return self::$sorted[ $user_id ][ $segment ];
+		}
+
+		$ids     = array_keys(array_filter(self::index($user_id), static fn(string $s): bool => $s === $segment));
+		$pickups = array();
+		foreach ($ids as $id) {
+			$pickups[ $id ] = self::pickup_ts($id);
+		}
+
+		$soonest_first = self::UPCOMING === $segment;
+		usort(
+			$ids,
+			static function (int $a, int $b) use ($pickups, $soonest_first): int {
+				if ($soonest_first) {
+					return array( 0 === $pickups[ $a ], $pickups[ $a ], $a ) <=> array( 0 === $pickups[ $b ], $pickups[ $b ], $b );
+				}
+				return array( $pickups[ $b ], $b ) <=> array( $pickups[ $a ], $a );
+			}
+		);
+
+		self::$sorted[ $user_id ][ $segment ] = $ids;
+		return $ids;
 	}
 
 	/**
@@ -176,7 +207,11 @@ final class AccountBookingsQuery {
 	 * AccountRenderer::query_user_bookings().
 	 *
 	 * @param array<string, mixed> $args limit, page, orderby, order, status,
-	 *                                   status_filter, search, segment.
+	 *                                   status_filter, search, segment. A section
+	 *                                   without an `order` keeps its own order
+	 *                                   (segment_ids()); otherwise `orderby` in
+	 *                                   `order` (newest first when empty), ID on
+	 *                                   a tie.
 	 */
 	public static function query(int $user_id, array $args = array()): \WP_Query
 	{
@@ -186,7 +221,7 @@ final class AccountBookingsQuery {
 				'limit'         => 10,
 				'status'        => '',
 				'orderby'       => 'date',
-				'order'         => 'DESC',
+				'order'         => '',
 				'page'          => 1,
 				'status_filter' => '',
 				'search'        => '',
@@ -224,17 +259,28 @@ final class AccountBookingsQuery {
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
 			'posts_per_page' => (int) $args['limit'],
-			'orderby'        => sanitize_text_field( (string) $args['orderby']),
-			'order'          => sanitize_text_field( (string) $args['order']),
 			'meta_query'     => $meta_query,
 			'paged'          => max(1, (int) $args['page']),
 		);
 
 		// The section: its IDs from the index (the same predicate as counts()).
-		$segment = (string) $args['segment'];
-		if (in_array($segment, self::SEGMENTS, true)) {
+		$segment    = (string) $args['segment'];
+		$is_section = in_array($segment, self::SEGMENTS, true);
+		if ($is_section) {
 			$in                     = self::segment_ids($user_id, $segment);
 			$query_args['post__in'] = array() !== $in ? $in : array( 0 );
+		}
+
+		$order = strtoupper(sanitize_text_field( (string) $args['order']));
+		$order = in_array($order, array( 'ASC', 'DESC' ), true) ? $order : '';
+		if ($is_section && '' === $order) {
+			$query_args['orderby'] = 'post__in';
+		} else {
+			$order                 = '' !== $order ? $order : 'DESC';
+			$query_args['orderby'] = array(
+				sanitize_text_field( (string) $args['orderby']) => $order,
+				'ID' => $order,
+			);
 		}
 
 		// Search by reservation number (the legacy filter): a booking whose ID or
@@ -296,11 +342,12 @@ final class AccountBookingsQuery {
 	 */
 	public static function reset(): void
 	{
-		self::$index = array();
+		self::$index  = array();
+		self::$sorted = array();
 	}
 
 	/**
-	 * Booking ID => section for the user, newest first; built once per request.
+	 * Booking ID => section for the user; built once per request.
 	 *
 	 * @return array<int, string>
 	 */
@@ -328,7 +375,7 @@ final class AccountBookingsQuery {
 	}
 
 	/**
-	 * Every booking ID of the user, newest first, metas primed.
+	 * Every booking ID of the user, metas primed.
 	 *
 	 * @return list<int>
 	 */
@@ -343,7 +390,7 @@ final class AccountBookingsQuery {
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
-					'orderby'        => 'date',
+					'orderby'        => 'ID',
 					'order'          => 'DESC',
 					'meta_query'     => array(
 						array(
@@ -371,6 +418,9 @@ final class AccountBookingsQuery {
 		}
 
 		$date = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
+		if ('' === $date) {
+			$date = (string) get_post_meta($booking_id, '_mhmrentiva_booking_pickup_date', true);
+		}
 		$time = '';
 		foreach (array( '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) as $key) {
 			$time = (string) get_post_meta($booking_id, $key, true);

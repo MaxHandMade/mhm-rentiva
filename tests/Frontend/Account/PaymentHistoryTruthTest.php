@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Frontend\Account;
 
 use MHMRentiva\Admin\Frontend\Account\AccountController;
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
+use MHMRentiva\Admin\Frontend\Account\BookingTimeline;
 use MHMRentiva\Tests\Support\RequestSimulator;
 use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
@@ -67,6 +68,53 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 	{
 		RequestSimulator::new_request();
 		return do_shortcode('[rentiva_payment_history]');
+	}
+
+	/**
+	 * Browser round B6: the date is when money arrived, else when the booking was
+	 * made -- never the pickup date.
+	 */
+	public function test_date_is_payment_date_else_created_date(): void
+	{
+		$this->require_woocommerce();
+
+		$created = '2026-03-04 09:30:00';
+		$unpaid  = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'pending', '100', 40);
+		$paid    = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '200', 50);
+		foreach (array( $unpaid, $paid ) as $id) {
+			wp_update_post(
+				array(
+					'ID'            => $id,
+					'post_date'     => $created,
+					'post_date_gmt' => $created,
+				)
+			);
+		}
+		update_post_meta($unpaid, '_mhmrentiva_payment_status', 'pending');
+		delete_post_meta($unpaid, '_mhmrentiva_paid_amount');
+
+		$order_id = $this->create_paid_order_for_booking($paid, '200');
+		$order    = wc_get_order($order_id);
+		$paid_at  = strtotime('2026-05-06 12:00:00 UTC');
+		$order->set_date_paid($paid_at);
+		$order->save();
+
+		$this->assertSame(BookingTimeline::moment_text( (int) strtotime($created . ' UTC')), $this->row($unpaid)['date']);
+		$this->assertSame(BookingTimeline::moment_text($paid_at), $this->row($paid)['date']);
+		$this->assertSame($paid_at, $this->row($paid)['sort_ts'], 'The list sorts by the date it shows.');
+	}
+
+	/**
+	 * Browser round B6: unpaid rows count too, so the line says records.
+	 */
+	public function test_count_line_says_records(): void
+	{
+		ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'pending', '100');
+		ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'pending', '100');
+
+		$html = $this->html();
+		$this->assertStringContainsString('2 records', $html);
+		$this->assertStringNotContainsString('payments total', $html);
 	}
 
 	public function test_completed_booking_paid_order_is_not_pending(): void

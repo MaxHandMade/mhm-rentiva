@@ -207,13 +207,14 @@ final class AccountRenderer {
 	{
 		$user = wp_get_current_user();
 
-		// Spec 3A Task 7a: the list is ordered by date only (the removed `orderby`
-		// collapsed to it for every option); Sort Order stays live.
+		// Without an `order` each section keeps its own pickup order
+		// (AccountBookingsQuery::segment_ids()). An explicit Sort Order wins: by
+		// created date, the only `orderby` left (spec 3A Task 7a).
 		$args = array(
 			'limit'   => (int) ( $atts['limit'] ?? 10 ),
 			'status'  => self::sanitize_text_field_safe($atts['status'] ?? ''),
 			'orderby' => 'date',
-			'order'   => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
+			'order'   => self::sanitize_text_field_safe($atts['order'] ?? ''),
 		);
 
 		// The list's old filter params narrow the query itself, so the rows and
@@ -912,24 +913,8 @@ final class AccountRenderer {
 				$payment_gateway = ! empty($payment_method) ? $payment_method : 'woocommerce';
 			}
 
-			// Build date with time if available
-			$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
-			if (empty($pickup_date)) {
-				$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_date', true);
-			}
-
-			$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
-			if (empty($pickup_time)) {
-				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
-			}
-			if (empty($pickup_time)) {
-				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
-			}
-
-			$date_str = trim($pickup_date . ' ' . ( ! empty($pickup_time) ? $pickup_time : '' ));
-			// The detail page's "<date> · <time>" (the pickup string is site-local,
-			// which date_i18n() reads without a second shift).
-			$date_formatted = $date_str ? date_i18n(get_option('date_format') . ' · ' . get_option('time_format'), strtotime($date_str)) : get_the_date('', $booking->ID);
+			// The row's date: when the money arrived, else when the booking was made.
+			$row_ts = AccountPaymentSummary::row_date_ts( (int) $booking->ID, $summary['order_ids']);
 
 			if ($payment_status) {
 				// Translate Status
@@ -993,8 +978,8 @@ final class AccountRenderer {
 					'booking_title'      => $vehicle_title,
 					'amount_html'        => $amount_html,
 					'can_upload_receipt' => AccountController::receipt_upload_allowed( (int) $booking->ID),
-					'date'               => $date_formatted,
-					'sort_ts'            => $date_str ? strtotime($date_str) : 0,
+					'date'               => $row_ts > 0 ? BookingTimeline::moment_text($row_ts) : '',
+					'sort_ts'            => $row_ts,
 					'status'             => $payment_status,
 					'status_label'       => $status_label,
 					'method'             => $method_display,
@@ -1031,8 +1016,8 @@ final class AccountRenderer {
 		}
 
 		// Latest payments first by default. A payment without a date (by date) or
-		// without an amount (by amount) goes last in both orders (stable sort:
-		// ties keep the booking query's order).
+		// without an amount (by amount) goes last in both orders; booking ID on a
+		// tie, so a row is on exactly one page.
 		$by_amount = 'amount' === $args['orderby'];
 		$sign      = 'asc' === $args['order'] ? 1 : -1;
 		usort(
@@ -1042,12 +1027,12 @@ final class AccountRenderer {
 					if (! $a['has_amount'] || ! $b['has_amount']) {
 						return ( ! $a['has_amount'] ) <=> ( ! $b['has_amount'] );
 					}
-					return $sign * ( $a['amount'] <=> $b['amount'] );
+					return $sign * ( array( $a['amount'], $a['booking_id'] ) <=> array( $b['amount'], $b['booking_id'] ) );
 				}
 				if (0 === $a['sort_ts'] || 0 === $b['sort_ts']) {
 					return ( 0 === $a['sort_ts'] ) <=> ( 0 === $b['sort_ts'] );
 				}
-				return $sign * ( $a['sort_ts'] <=> $b['sort_ts'] );
+				return $sign * ( array( $a['sort_ts'], $a['booking_id'] ) <=> array( $b['sort_ts'], $b['booking_id'] ) );
 			}
 		);
 

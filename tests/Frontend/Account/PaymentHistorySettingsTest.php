@@ -40,7 +40,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	private int $user = 0;
 
 	/**
-	 * The three payments: [id, amount, normalized status], by pickup date newest first.
+	 * The three payments: [id, amount, normalized status], by created date newest first.
 	 *
 	 * @var array<string,int>
 	 */
@@ -53,20 +53,34 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 
 		$this->user = ShortcodeFixtures::customer();
-		// Pickup dates (the list's date) out of step with amount and status.
+		// Created dates (the date of a row without a paid order) out of step with
+		// amount and status.
 		$rows = array(
 			'middle' => array( '700', 12, 'paid' ),
 			'newest' => array( '1200', 20, 'pending_verification' ),
-			'oldest' => array( '300', -10, 'refunded' ),
+			'oldest' => array( '300', 30, 'refunded' ),
 		);
 		foreach ($rows as $name => $row) {
 			$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', $row[0], $row[1]);
 			update_post_meta($id, '_mhmrentiva_payment_status', $row[2]);
+			$this->created_days_ago($id, array( 'newest' => 1, 'middle' => 2, 'oldest' => 3 )[ $name ]);
 			$this->ids[ $name ] = $id;
 		}
 
 		wp_set_current_user($this->user);
 		RequestSimulator::new_request();
+	}
+
+	private function created_days_ago(int $id, int $days): void
+	{
+		$date = gmdate('Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS);
+		wp_update_post(
+			array(
+				'ID'            => $id,
+				'post_date'     => $date,
+				'post_date_gmt' => $date,
+			)
+		);
 	}
 
 	public function tearDown(): void
@@ -231,8 +245,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * orderby date | amount, both orders, on every surface; sorted before paging; a
-	 * payment without a pickup date goes last in both date orders.
+	 * orderby date | amount, both orders, on every surface; sorted before paging.
 	 */
 	public function test_sort_by_amount_and_date_both_orders(): void
 	{
@@ -248,7 +261,8 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		);
 		// Amount and date agree above; one more payment tells them apart: the
 		// highest amount with the oldest date.
-		$big = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '5000', -30);
+		$big = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '5000', 2);
+		$this->created_days_ago($big, 30);
 		$cases[0][2][] = $big;
 		array_unshift($cases[1][2], $big);
 		array_unshift($cases[2][2], $big);
@@ -281,16 +295,6 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		$this->assertSame(array( $n, $big ), $this->rows($this->shortcode('orderby="amount" order="asc" limit="2"')));
 		set_query_var('mhmrentiva_payments_page', '');
 
-		// Missing pickup date: last in both date orders.
-		$undated = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '50', 1);
-		foreach (array( '_mhmrentiva_pickup_date', '_mhmrentiva_start_time', '_mhmrentiva_pickup_time', '_mhmrentiva_booking_pickup_time' ) as $meta) {
-			delete_post_meta($undated, $meta); // A time alone would date it today.
-		}
-		foreach (array( 'desc', 'asc' ) as $order) {
-			$rows = $this->rows($this->shortcode('orderby="date" order="' . $order . '"'));
-			$this->assertSame($undated, end($rows), "date $order: the undated payment is last.");
-		}
-
 		// The editor offers the schema's values (G3), 'status' is gone.
 		$schema = AllowlistRegistry::get_schema('rentiva_payment_history');
 		$this->assertSame(array( 'date', 'amount' ), $schema['orderby']['values']);
@@ -319,7 +323,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 			$this->assertSame($expected, $this->rows($this->block(array( 'filterStatus' => $status ))), "block filterStatus '$status'.");
 			$this->assertSame($expected, $this->rows($this->widget(array( 'status' => $status ))), "widget status '$status'.");
 		}
-		$this->assertStringContainsString('1 payments total', $this->shortcode('status="pending"'), 'The total counts the filtered list.');
+		$this->assertStringContainsString('1 record', $this->shortcode('status="pending"'), 'The total counts the filtered list.');
 
 		// A saved value of a removed option (paid/refunded/failed) is no filter, as today.
 		$this->assertCount(3, $this->rows($this->block(array( 'filterStatus' => 'refunded' ))));
@@ -333,7 +337,7 @@ final class PaymentHistorySettingsTest extends WP_UnitTestCase
 		$second = $this->shortcode('status="pending"');
 		$this->assertCount(2, $this->rows($second));
 		$this->assertStringContainsString('Page 2 / 2', $second);
-		$this->assertStringContainsString('12 payments total', $second);
+		$this->assertStringContainsString('12 records', $second);
 		set_query_var('mhmrentiva_payments_page', '');
 		$this->assertStringNotContainsString('payments-pager', $this->shortcode('status="completed"'), 'One completed payment, no pager.');
 	}
