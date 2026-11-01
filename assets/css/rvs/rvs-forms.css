@@ -86,14 +86,14 @@
 
 /* Required, included in the rental: the box stays ticked and cannot change. */
 .rvs-shell .rvs-option--locked {
-	background: var(--rvs-surface);
+	background: var(--rvs-n-200);
 	cursor: default;
 }
 
 .rvs-shell .rvs-option--locked:hover,
 .rvs-shell .rvs-option--locked:has(input:checked) {
 	border-color: var(--rvs-line);
-	background: var(--rvs-surface);
+	background: var(--rvs-n-200);
 	box-shadow: none;
 	color: var(--rvs-text);
 }
