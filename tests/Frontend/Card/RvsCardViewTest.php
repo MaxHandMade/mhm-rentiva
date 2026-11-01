@@ -177,6 +177,75 @@ final class RvsCardViewTest extends WP_UnitTestCase
 		$this->assertSame('per day', $view['price']['secondary']);
 	}
 
+	/**
+	 * Codex (K7): the amount and WooCommerce's suffix travel together.
+	 *
+	 * @return array{0: array<string, mixed>, 1: array<string, mixed>}
+	 */
+	private function suffix_views(string $display, string $suffix): array
+	{
+		if (! class_exists('WC_Product_Simple')) {
+			$this->markTestSkipped('WooCommerce is not loaded.');
+		}
+		// WooCommerce prints a suffix only with taxes on (WC_Product::get_price_suffix()).
+		update_option('woocommerce_calc_taxes', 'yes');
+		update_option('woocommerce_tax_display_shop', $display);
+		update_option('woocommerce_price_display_suffix', $suffix);
+
+		return array(
+			RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_location' => '7' )),
+			RvsCardView::from_vehicle($this->vehicle(), array(), array( 'pickup_date' => '2027-07-12', 'return_date' => '2027-07-15', 'pickup_time' => '10:00' )),
+		);
+	}
+
+	public function test_tax_inclusive_price_without_a_suffix_has_none(): void
+	{
+		foreach ($this->suffix_views('incl', '') as $view) {
+			$this->assertSame('', trim($view['price']['suffix']));
+		}
+	}
+
+	public function test_tax_exclusive_price_says_so_on_daily_and_total(): void
+	{
+		[ $daily, $total ] = $this->suffix_views('excl', '');
+
+		$this->assertStringContainsString('tax_label', $daily['price']['suffix']);
+		$this->assertStringContainsString('tax_label', $total['price']['suffix']);
+		$this->assertStringNotContainsString(trim(wp_strip_all_tags(PriceDisplay::for_shop(1000.0)['suffix'])), $total['price']['secondary'], 'The suffix sits under the total, not inside the "per day" fragment.');
+	}
+
+	public function test_configured_suffix_on_daily_and_total_and_in_the_card_markup(): void
+	{
+		[ $daily, $total ] = $this->suffix_views('incl', 'incl. test VAT');
+
+		$this->assertStringContainsString('incl. test VAT', $daily['price']['suffix']);
+		$this->assertStringContainsString('incl. test VAT', $total['price']['suffix']);
+		$this->assertStringNotContainsString('incl. test VAT', $total['price']['secondary'], 'The second line is the plain daily figure.');
+
+		$card = $this->render_card();
+		$this->assertStringContainsString('rvs-card__suffix', $card);
+		$this->assertStringContainsString('incl. test VAT', $card);
+	}
+
+	public function test_no_suffix_no_markup(): void
+	{
+		$card = $this->render_card();
+
+		$this->assertStringNotContainsString('rvs-card__suffix', $card);
+	}
+
+	private function render_card(): string
+	{
+		$vehicle = $this->vehicle();
+		$atts    = array();
+		$dates   = array( 'pickup_location' => '7' );
+
+		ob_start();
+		include dirname(__DIR__, 3) . '/templates/partials/rvs-vehicle-card.php';
+
+		return (string) ob_get_clean();
+	}
+
 	public function test_missing_price_shows_on_request_not_a_number(): void
 	{
 		delete_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day');

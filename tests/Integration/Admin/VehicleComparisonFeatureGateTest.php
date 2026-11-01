@@ -3,16 +3,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin;
 
-use MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison;
+use MHMRentiva\Admin\Frontend\Shortcodes\ComparisonView;
 use WP_UnitTestCase;
 
 final class VehicleComparisonFeatureGateTest extends WP_UnitTestCase {
-
-	private static function call_private( string $method, array $args ) {
-		$ref = new \ReflectionMethod( VehicleComparison::class, $method );
-		$ref->setAccessible( true );
-		return $ref->invokeArgs( null, $args );
-	}
 
 	public function test_passive_feature_is_not_a_comparison_row(): void {
 		update_option( 'mhmrentiva_selected_features', array( 'bluetooth' ) ); // navigation Passive
@@ -20,7 +14,7 @@ final class VehicleComparisonFeatureGateTest extends WP_UnitTestCase {
 			'comparison_fields' => array( 'features' => array( 'bluetooth', 'navigation' ) ),
 		) );
 
-		$rows = self::call_private( 'get_dynamic_features', array( array() ) );
+		$rows = ComparisonView::selected_rows();
 
 		$this->assertArrayHasKey( 'bluetooth', $rows );
 		$this->assertArrayNotHasKey( 'navigation', $rows, 'Passive feature must not be a comparison row' );
@@ -39,10 +33,15 @@ final class VehicleComparisonFeatureGateTest extends WP_UnitTestCase {
 		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
 		update_post_meta( $vehicle_id, '_mhmrentiva_features', array( 'bluetooth', 'navigation' ) );
 
-		$data = self::call_private( 'get_vehicle_data', array( $vehicle_id ) );
+		$groups = ComparisonView::groups( array( $vehicle_id ) );
+		$keys   = array();
+		foreach ( $groups as $group ) {
+			foreach ( $group['rows'] as $row ) {
+				$keys[] = $row['key'];
+			}
+		}
 
-		$this->assertIsArray( $data, 'get_vehicle_data() must resolve the fixture vehicle' );
-		$this->assertArrayHasKey( 'bluetooth', $data['features'], 'Active feature must be present in the per-vehicle value map' );
-		$this->assertArrayNotHasKey( 'navigation', $data['features'], 'Passive feature must not appear in the per-vehicle value map (ajax_add_vehicle() latent path)' );
+		$this->assertContains( 'bluetooth', $keys, 'Active feature must be a row of the view' );
+		$this->assertNotContains( 'navigation', $keys, 'Passive feature must not reach the view, though the vehicle has it' );
 	}
 }

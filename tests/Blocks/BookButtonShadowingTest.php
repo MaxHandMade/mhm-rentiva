@@ -23,7 +23,7 @@ use WP_UnitTestCase;
 class BookButtonShadowingTest extends WP_UnitTestCase
 {
 	private const FEATURED_BUTTON   = 'data-testid="vehicle-book-btn"';
-	private const COMPARISON_BUTTON = 'rv-book-now-btn';
+	private const COMPARISON_BUTTON = 'rvs-compare__select';
 
 	private int $v1;
 	private int $v2;
@@ -81,7 +81,7 @@ class BookButtonShadowingTest extends WP_UnitTestCase
 	private function assertComparisonTable(string $html): void
 	{
 		$this->assertRendersBothVehicles($html);
-		$this->assertStringNotContainsStringIgnoringCase('list is ready', $html, 'Rendered the empty state, not the comparison table.');
+		$this->assertStringContainsString('rvs-compare__table', $html, 'Rendered the empty state, not the comparison table.');
 	}
 
 	public function test_comparison_block_hides_book_button_when_control_off(): void

@@ -1,1099 +1,510 @@
 /**
- * Availability Calendar JavaScript
- * 
- * @package MHMRentiva
- * @since 1.0.0
+ * Rentiva front-end standard -- availability calendar (`rentiva_availability_calendar`).
+ *
+ * Each [data-rvs-availability] root keeps its own state and reads its settings
+ * from its own data attributes, so two calendars on a page stay apart. Months,
+ * the vehicle card and the total all come from the server (CalendarView): this
+ * script formats no date, computes no price and builds no URL.
+ *
+ * The page's HTML may be cached for guests, so the months are asked for again on
+ * load. A day's selected look is set here, also after a month change: the server
+ * draws every day unselected, the buttons' aria-pressed tells which are chosen.
+ *
+ * Config: window.mhmRentivaAvailability = { ajax_url, nonce, strings: { error, loading, pickReturn, selected } }.
  */
-
-(function ($) {
-    'use strict';
-
-    // Create default values if JavaScript object doesn't exist
-    if (typeof window.mhmRentivaAvailability === 'undefined') {
-        // This branch only runs when the localized object is missing entirely, so
-        // there is no plugin-supplied URL to read. window.ajaxurl exists in
-        // wp-admin and nowhere else; a path built from window.location would be
-        // wrong on any install that is not at the domain root, so nothing is
-        // guessed and the warning below is what the developer sees instead.
-        const ajaxUrl = window.ajaxurl || '';
-
-        window.mhmRentivaAvailability = {
-            ajaxUrl: ajaxUrl,
-            nonce: '',
-            currencySymbol: window.mhmRentivaAvailability?.currencySymbol || '$',
-            pluginUrl: window.mhmRentivaAvailability?.pluginUrl || '',
-            dateFormat: window.mhmRentivaAvailability?.dateFormat || 'Y-m-d',
-            timeFormat: window.mhmRentivaAvailability?.timeFormat || 'H:i',
-            locale: window.mhmRentivaAvailability?.locale || 'en_US',
-            messages: {
-                error: window.mhmRentivaAvailability?.messages?.error || 'An error occurred.',
-                success: window.mhmRentivaAvailability?.messages?.success || 'Operation successful.'
-            }
-        };
-        console.warn('mhmRentivaAvailability object not defined in template, using default values');
-    }
-
-    const ROOT_SELECTOR = '.rv-availability-calendar';
-    const PREVIEW_SELECTOR = '[data-rv-render="preview"]';
-    const INSTANCE_KEY = 'rvCalendar';
-
-    /**
-     * One instance per .rv-availability-calendar root. Every DOM read and write
-     * goes through this.$root (or this.$modal, the vehicle picker this
-     * instance appended to <body>), so two calendars on one page never touch
-     * each other's markup or state.
-     */
-    class AvailabilityCalendar {
-        /**
-         * @param {jQuery} $root The .rv-availability-calendar element.
-         */
-        constructor($root) {
-            this.$root = $root;
-            this.$modal = null;
-            // Kept for code that reads data-* off the calendar element.
-            this.calendar = $root;
-            this.selectedDates = [];
-            this.currentVehicleId = 0;
-            this.currentStartMonth = '';
-            this.monthsToShow = 1;
-            this.isLoading = false;
-            this.parseDate = (dateStr) => {
-                if (!dateStr) return new Date();
-                const parts = dateStr.split('-');
-                if (parts.length === 3) {
-                    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                } else if (parts.length === 2) {
-                    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
-                }
-                return new Date(dateStr);
-            };
-
-            this.$root.data(INSTANCE_KEY, this);
-            this.init();
-        }
-
-        /**
-         * Builds an instance for every calendar root on the page that has none
-         * yet. Roots inside an editor preview root are left alone: the preview
-         * is display-only (no bindings, no requests).
-         */
-        static initAll() {
-            $(ROOT_SELECTOR).each(function () {
-                const $root = $(this);
-                if ($root.closest(PREVIEW_SELECTOR).length || $root.data(INSTANCE_KEY)) {
-                    return;
-                }
-                new AvailabilityCalendar($root);
-            });
-        }
-
-        /**
-         * The instance owning the element an event was delegated to.
-         *
-         * @param {Event} e jQuery event from a delegated handler.
-         * @return {AvailabilityCalendar|null} null when the element is not inside an initialised calendar.
-         */
-        static forEvent(e) {
-            return $(e.currentTarget).closest(ROOT_SELECTOR).data(INSTANCE_KEY) || null;
-        }
-
-        /**
-         * Document-level delegates, bound once for every instance. Each handler
-         * first resolves its instance and leaves the event untouched (no
-         * preventDefault) when there is none: same class names are printed by
-         * other components (vehicle comparison's .rv-book-now-btn links,
-         * vehicle details' .rv-calendar-day cells).
-         */
-        static bindDelegates() {
-            const delegate = (event, selector, method) => {
-                $(document).on(event, selector, (e) => {
-                    const cal = AvailabilityCalendar.forEvent(e);
-                    if (!cal) return;
-                    cal[method](e);
-                });
-            };
-
-            // Vehicle change (the no-data fallback <select> carries this class too).
-            delegate('change', '.rv-vehicle-dropdown', 'handleVehicleChange');
-
-            // Change Vehicle button
-            delegate('click', '.rv-switch-vehicle-btn', 'handleVehicleSwitch');
-
-            // Month navigation
-            delegate('click', '.rv-control-btn', 'handleMonthNavigation');
-
-            // Date selection
-            delegate('click', '.rv-calendar-day:not(.rv-day-empty):not(.rv-past):not(.rv-status-booked):not(.rv-status-maintenance)', 'handleDateClick');
-
-            // Booking button
-            delegate('click', '.rv-book-now-btn', 'handleBookingClick');
-
-            // Keyboard navigation
-            delegate('keydown', '.rv-calendar-day', 'handleKeyboardNavigation');
-
-            // Favorite button
-            delegate('click', '.rv-vcal-favorite-btn', 'handleFavoriteClick');
-        }
-
-        init() {
-            this.initializeCalendar();
-        }
-
-        escapeHtml(text) {
-            if (!text) return '';
-            return String(text)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        initializeCalendar() {
-            this.currentVehicleId = parseInt(this.calendar.data('vehicle-id')) || 0;
-            this.currentStartMonth = this.calendar.data('start-month') || this.getCurrentMonth();
-            this.monthsToShow = parseInt(this.calendar.data('months-to-show')) || 3;
-            // Written only when not the default: 0 = the week starts on Sunday (else Monday).
-            this.weekStartsSunday = String(this.calendar.data('start-week-on')) === '0';
-
-            this.updateSelectedDatesDisplay();
-            this.loadAvailabilityData();
-        }
-
-        handleVehicleChange(e) {
-            const vehicleId = parseInt($(e.currentTarget).val()) || 0;
-            if (vehicleId === this.currentVehicleId) return;
-
-            this.currentVehicleId = vehicleId;
-            this.selectedDates = [];
-
-            this.loadAvailabilityData();
-        }
-
-        handleVehicleSwitch(event) {
-            const $btn = $(event.currentTarget);
-            const vehiclesData = $btn.data('vehicles');
-
-            if (vehiclesData && vehiclesData.length > 1) {
-                // Simple vehicle selection modal
-                this.showVehicleSelectionModal(vehiclesData);
-            }
-        }
-
-        showVehicleSelectionModal(vehicles) {
-
-            // Get localized strings
-            const i18n = window.mhmRentivaAvailability?.strings || {};
-            const title = i18n.select_vehicle || 'Select Vehicle';
-            const closeBtn = i18n.close || 'Close';
-            const perDay = i18n.per_day || '/day';
-            const currencySymbol = window.mhmRentivaAvailability?.currencySymbol || '$';
-
-            // Create modal HTML
-            const modalHtml = `
-                <div class="rv-vehicle-selection-modal" style="
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.5);
-                    z-index: 9999;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                ">
-                    <div style="
-                        background: white;
-                        padding: 20px;
-                        border-radius: 8px;
-                        max-width: 400px;
-                        width: 90%;
-                        max-height: 80vh;
-                        overflow-y: auto;
-                    ">
-                        <h3 style="margin: 0 0 15px 0;">${title}</h3>
-                        <div class="rv-vehicle-list">
-                            ${vehicles.map(vehicle => `
-                                <div class="rv-vehicle-option" style="
-                                    padding: 10px;
-                                    border: 1px solid #ddd;
-                                    border-radius: 6px;
-                                    margin-bottom: 10px;
-                                    cursor: pointer;
-                                    transition: all 0.2s ease;
-                                " data-vehicle-id="${vehicle.id}">
-                                    <strong>${this.escapeHtml(vehicle.title)}</strong>
-                                    <div style="color: #666; font-size: 14px;">${this.formatMoney(vehicle.price || 0)} ${perDay}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <button class="rv-close-modal" style="
-                            margin-top: 15px;
-                            padding: 8px 16px;
-                            background: #0073aa;
-                            color: white;
-                            border: none;
-                            border-radius: 4px;
-                            cursor: pointer;
-                        ">${closeBtn}</button>
-                    </div>
-                </div>
-            `;
-
-            // The modal lives outside the root (appended to <body>), so this
-            // instance keeps its own node instead of querying for it.
-            this.closeVehicleSelectionModal();
-            this.$modal = $(modalHtml).appendTo('body');
-
-            // Bind events
-            this.$modal.find('.rv-vehicle-option').on('click', (e) => {
-                const vehicleId = $(e.currentTarget).data('vehicle-id');
-                this.currentVehicleId = vehicleId;
-
-                // Update vehicle info
-                this.updateVehicleInfo(vehicleId);
-
-                // Load calendar data
-                this.loadAvailabilityData();
-
-                this.closeVehicleSelectionModal();
-            });
-
-            this.$modal.find('.rv-close-modal').on('click', () => {
-                this.closeVehicleSelectionModal();
-            });
-
-            // Close on backdrop click
-            this.$modal.on('click', (e) => {
-                if (e.target === e.currentTarget) {
-                    this.closeVehicleSelectionModal();
-                }
-            });
-        }
-
-        closeVehicleSelectionModal() {
-            if (this.$modal) {
-                this.$modal.remove();
-                this.$modal = null;
-            }
-        }
-
-        updateVehicleInfo(vehicleId) {
-            // Update vehicle info via AJAX
-            const data = {
-                action: 'mhmrentiva_get_vehicle_info',
-                vehicle_id: vehicleId,
-                nonce: window.mhmRentivaAvailability.nonce
-            };
-
-            $.post(window.mhmRentivaAvailability.ajaxUrl, data)
-                .done((response) => {
-                    if (response.success && response.data) {
-                        this.updateVehicleDisplay(response.data);
-                    }
-                })
-                .fail((xhr, status, error) => {
-                    // Handle error silently
-                });
-        }
-
-        updateVehicleDisplay(vehicleData) {
-            // Update vehicle image
-            if (vehicleData.image) {
-                this.$root.find('.rv-vehicle-image').attr('src', vehicleData.image);
-                this.$root.find('.rv-vehicle-image').attr('alt', vehicleData.title || '');
-            }
-
-            // Update vehicle name
-            if (vehicleData.title) {
-                this.$root.find('.rv-vehicle-title').text(vehicleData.title);
-            }
-
-            // Update excerpt
-            if (vehicleData.excerpt) {
-                this.$root.find('.rv-vehicle-excerpt').text(vehicleData.excerpt);
-            }
-
-            // Update Rating
-            if (vehicleData.rating) {
-                const avg = parseFloat(vehicleData.rating.average || 0);
-                const count = parseInt(vehicleData.rating.count || 0);
-
-                if (count > 0) {
-                    this.$root.find('.rv-stars svg').each(function (index) {
-                        const starPos = index + 1;
-                        if (starPos <= Math.floor(avg)) {
-                            $(this).attr('fill', '#fbbf24').attr('stroke', '#d97706');
-                        } else if (starPos === Math.ceil(avg) && (avg % 1 >= 0.5)) {
-                            // Simplified half star handling for AJAX update
-                            $(this).attr('fill', '#fbbf24').attr('stroke', '#d97706');
-                        } else {
-                            $(this).attr('fill', 'none').attr('stroke', '#cbd5e1');
-                        }
-                    });
-                    this.$root.find('.rv-rating-count').text('(' + count + ')');
-                    this.$root.find('.rv-vehicle-rating-block').show();
-                } else {
-                    this.$root.find('.rv-vehicle-rating-block').hide();
-                }
-            }
-
-            // Update vehicle features (Unified with SVGs)
-            if (vehicleData.features && Array.isArray(vehicleData.features)) {
-                const featuresHtml = vehicleData.features
-                    .map(feature => `
-                        <div class="rv-feature-item">
-                            ${feature.svg}
-                            <span class="rv-feature-text">${this.escapeHtml(feature.text)}</span>
-                        </div>
-                    `)
-                    .join('');
-                this.$root.find('.rv-vehicle-features').html(featuresHtml);
-            }
-
-            // Update price
-            if (vehicleData.price !== undefined || vehicleData.formatted_price) {
-                const perDay = (window.mhmRentivaAvailability?.strings?.per_day || '/day');
-                const formatted = vehicleData.formatted_price || this.formatMoney(vehicleData.price || 0, vehicleData.currency_symbol);
-                this.$root.find('.rv-vehicle-price').html(`${formatted} ${perDay}`);
-            }
-
-            // Update data attributes
-            this.$root.attr('data-vehicle-id', vehicleData.id);
-
-            // Update Favorite Button Status
-            const $favBtn = this.$root.find('.rv-vcal-favorite-btn');
-            $favBtn.data('vehicle-id', vehicleData.id); // Update ID on button
-
-            if (vehicleData.is_favorite) {
-                $favBtn.addClass('favorited is-favorited');
-                $favBtn.find('.rv-heart-icon').addClass('favorited').attr('fill', 'currentColor');
-                $favBtn.attr('aria-pressed', 'true');
-            } else {
-                $favBtn.removeClass('favorited is-favorited');
-                $favBtn.find('.rv-heart-icon').removeClass('favorited').attr('fill', 'none');
-                $favBtn.attr('aria-pressed', 'false');
-            }
-
-            // Handle Availability Status
-            this.updateAvailabilityStatus(vehicleData);
-        }
-
-        updateAvailabilityStatus(vehicleData) {
-            const $container = this.$root;
-            // Changed selector to look in header
-            const $badgeWrapper = this.$root.find('.rv-vehicle-header .rv-badge-wrapper');
-            // Updated selector to find grid items directly (wrapper removed)
-            const $calendarItems = $container.find('.rv-availability-grid, .rv-calendar-hint, .rv-calendar-controls, .rv-availability-legend');
-            const $unavailableMessage = this.$root.find('.rv-calendar-unavailable-message');
-
-            // Update or Create Badge
-            if (vehicleData.is_available === false) {
-                // Show badge
-                if ($badgeWrapper.length === 0) {
-                    // Create badge wrapper with inline layout styles instead of absolute
-                    const badgeHtml = `
-                        <div class="rv-badge-wrapper" style="display: inline-flex; align-items: center; margin-right: 10px;">
-                            <span class="rv-badge rv-badge--unavailable" style="background-color: #ef4444; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-                                ${this.escapeHtml(vehicleData.status_text)}
-                            </span>
-                        </div>
-                    `;
-
-                    // Insert before the favorite button in the header
-                    const $favoriteBtn = this.$root.find('.rv-favorite-btn');
-                    if ($favoriteBtn.length > 0) {
-                        $(badgeHtml).insertBefore($favoriteBtn);
-                    } else {
-                        // Fallback if no favorite button
-                        this.$root.find('.rv-vehicle-header').append(badgeHtml);
-                    }
-                } else {
-                    $badgeWrapper.find('.rv-badge').text(vehicleData.status_text);
-                    $badgeWrapper.show();
-                }
-
-                // Hide Calendar, Show Unavailable Message
-                $calendarItems.hide();
-
-                if ($unavailableMessage.length === 0) {
-                    $container.append(`
-                        <div class="rv-calendar-unavailable-message" style="text-align: center; padding: 40px; background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 20px;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">🚫</div>
-                            <h3 style="color: #e74c3c; margin-bottom: 10px;">${window.mhmRentivaAvailability?.strings?.unavailable || 'Vehicle Unavailable'}</h3>
-                            <p>${window.mhmRentivaAvailability?.strings?.outOfOrderMessage || 'This vehicle is currently out of order and cannot be booked. Please choose another vehicle.'}</p>
-                            ${this.getSwitchVehicleButtonHtml()}
-                        </div>
-                    `);
-
-                    // Re-bind switch button event if it's dynamic
-                    // The document level event delegation should handle it
-                } else {
-                    $unavailableMessage.show();
-                }
-
-            } else {
-                // Hide badge
-                $badgeWrapper.hide();
-
-                // Show Calendar, Hide Message
-                $calendarItems.show();
-                $unavailableMessage.hide();
-                $badgeWrapper.hide();
-            }
-        }
-
-        getSwitchVehicleButtonHtml() {
-            // Retrieve vehicles list from existing button if available, or we might need it from data
-            const existingBtn = this.$root.find('.rv-switch-vehicle-btn').first();
-            if (existingBtn.length > 0) {
-                const vehiclesData = existingBtn.attr('data-vehicles'); // use attr to get string
-                if (vehiclesData) {
-                    // .attr() returns the decoded JSON; escape it back for the attribute
-                    // (a title with a quote would otherwise end the attribute).
-                    return `<button class="rv-switch-vehicle-btn rv-btn rv-btn-primary" type="button" data-vehicles="${this.escapeHtml(vehiclesData)}" style="margin-top: 20px;">${window.mhmRentivaAvailability?.strings?.chooseAnother || 'Choose Another Vehicle'}</button>`;
-                }
-            }
-            return '';
-        }
-
-        handleMonthNavigation(e) {
-            e.preventDefault();
-
-            if (this.isLoading) return;
-
-            const action = $(e.currentTarget).data('action');
-
-            // FIX: Robust date arithmetic (Avoid string parsing bugs)
-            const dateParts = this.currentStartMonth.split('-');
-            let year = parseInt(dateParts[0]);
-            let month = parseInt(dateParts[1]);
-
-            if (action === 'prev') {
-                month--;
-                if (month < 1) {
-                    month = 12;
-                    year--;
-                }
-            } else if (action === 'next') {
-                month++;
-                if (month > 12) {
-                    month = 1;
-                    year++;
-                }
-            }
-
-            this.currentStartMonth = `${year}-${String(month).padStart(2, '0')}`;
-            this.loadAvailabilityData();
-        }
-
-        handleDateClick(e) {
-            e.preventDefault();
-
-            const $day = $(e.currentTarget);
-            const date = $day.data('date');
-
-            if (!date) return;
-
-            // Block clicks on busy or past dates
-            if ($day.hasClass('rv-status-booked') ||
-                $day.hasClass('rv-status-maintenance') ||
-                $day.hasClass('rv-status-partial') ||
-                $day.hasClass('rv-status-unavailable') ||
-                $day.hasClass('rv-past')) {
-                return;
-            }
-
-            // Date selection logic
-            if (this.selectedDates.length === 0) {
-                // First date selection
-                this.selectedDates = [date];
-                $day.addClass('rv-selected rv-selected-start');
-            } else if (this.selectedDates.length === 1) {
-                // Second date selection (range)
-                const startDate = this.selectedDates[0];
-
-                if (date === startDate || date > startDate) {
-                    // Selection complete (Single day or Range)
-                    this.selectedDates = [startDate, date];
-                    this.updateDateRangeSelection();
-
-                    // Redirect to booking form
-                    const url = this.buildBookingUrl();
-                    if (url) {
-                        window.location.assign(url);
-                    }
-                } else {
-                    // New start date
-                    this.selectedDates = [date];
-                    this.$root.find('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
-                    $day.addClass('rv-selected rv-selected-start');
-                }
-            } else {
-                // Start new selection
-                this.selectedDates = [date];
-                this.$root.find('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
-                $day.addClass('rv-selected rv-selected-start');
-            }
-
-            this.updateSelectedDatesDisplay();
-        }
-
-        handleKeyboardNavigation(e) {
-            const $day = $(e.currentTarget);
-            const key = e.which;
-
-            // Enter or Space key
-            if (key === 13 || key === 32) {
-                e.preventDefault();
-                $day.trigger('click');
-            }
-        }
-
-        handleBookingClick(e) {
-            e.preventDefault();
-
-            if (this.selectedDates.length === 0) {
-                MHMRentivaToast.show(window.mhmRentivaAvailability?.strings?.select_date_first || 'Please select a date first.', { type: 'warning' });
-                return;
-            }
-
-            const url = this.buildBookingUrl();
-            if (url) {
-                window.location.assign(url);
-            }
-        }
-
-        /**
-         * The booking form URL for the current selection: the one place the
-         * redirect URL is built.
-         *
-         * Param names carry the mhmrentiva_ prefix: they are public query vars
-         * on WordPress's global whitelist, and the booking page reads them back
-         * under exactly these names (BookingForm::PUBLIC_QUERY_VARS /
-         * SearchResults::PUBLIC_QUERY_VARS). The end date is sent only for two
-         * distinct days: the booking form rejects a same-day range, so a single
-         * day sends the start date and the visitor picks the return date there.
-         *
-         * @return {string|null} null when the base URL is missing, unparsable or not http(s).
-         */
-        buildBookingUrl() {
-            const base = window.mhmRentivaAvailability?.bookingPageUrl;
-            if (typeof base !== 'string' || base === '') {
-                console.warn('mhmRentivaAvailability.bookingPageUrl is empty; no booking redirect.');
-                return null;
-            }
-
-            let url;
-            try {
-                url = new URL(base, window.location.href);
-            } catch (err) {
-                console.warn('mhmRentivaAvailability.bookingPageUrl is not a valid URL; no booking redirect.');
-                return null;
-            }
-
-            if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-                console.warn('mhmRentivaAvailability.bookingPageUrl is not an http(s) URL; no booking redirect.');
-                return null;
-            }
-
-            const startDate = this.selectedDates[0];
-            const endDate = this.selectedDates[this.selectedDates.length - 1];
-
-            url.searchParams.set('mhmrentiva_vehicle_id', String(this.currentVehicleId));
-            url.searchParams.set('mhmrentiva_start_date', startDate);
-            if (endDate && endDate !== startDate) {
-                url.searchParams.set('mhmrentiva_end_date', endDate);
-            }
-            // No pickup location: the booking form takes it from the car.
-
-            return url.toString();
-        }
-
-        updateDateRangeSelection() {
-            this.$root.find('.rv-calendar-day').removeClass('rv-selected rv-selected-start rv-selected-end rv-selected-range');
-
-            if (this.selectedDates.length === 2) {
-                const startDate = this.selectedDates[0];
-                const endDate = this.selectedDates[1];
-
-                this.$root.find(`.rv-calendar-day[data-date="${startDate}"]`).addClass('rv-selected rv-selected-start');
-                this.$root.find(`.rv-calendar-day[data-date="${endDate}"]`).addClass('rv-selected rv-selected-end');
-
-                // Mark days in range
-                const start = this.parseDate(startDate);
-                const end = this.parseDate(endDate);
-
-                for (let d = new Date(start.getTime()); d <= end; d.setDate(d.getDate() + 1)) {
-                    const dateStr = this.formatDate(d);
-                    if (dateStr !== startDate && dateStr !== endDate) {
-                        this.$root.find(`.rv-calendar-day[data-date="${dateStr}"]`).addClass('rv-selected rv-selected-range');
-                    }
-                }
-            }
-        }
-
-        updateSelectedDatesDisplay() {
-            const $selectedDates = this.$root.find('.rv-selected-dates');
-
-            if (this.selectedDates.length === 0) {
-                $selectedDates.hide();
-                return;
-            }
-
-            $selectedDates.show();
-
-            const startDate = this.selectedDates[0];
-            const endDate = this.selectedDates[1] || startDate;
-
-            // Show date range
-            this.$root.find('.rv-start-date').text(this.formatDisplayDate(startDate));
-            this.$root.find('.rv-end-date').text(this.formatDisplayDate(endDate));
-
-            // Calculate day count
-            const daysCount = this.calculateDaysBetween(startDate, endDate);
-            this.$root.find('.rv-days-count').text(daysCount);
-
-            // Calculate total price
-            this.calculateTotalPrice(startDate, endDate);
-
-            // Enable booking button
-            this.$root.find('.rv-book-now-btn').prop('disabled', false);
-        }
-
-        calculateTotalPrice(startDate, endDate) {
-            let totalPrice = 0;
-            const start = this.parseDate(startDate);
-            const end = this.parseDate(endDate);
-
-            // Get vehicle price
-            const vehiclePrice = parseFloat(this.calendar.attr('data-vehicle-price')) || 0;
-
-            for (let d = new Date(start.getTime()); d <= end; d.setDate(d.getDate() + 1)) {
-                // Use only vehicle price
-                totalPrice += vehiclePrice;
-            }
-
-            // If price is 0, get vehicle price directly
-            if (totalPrice === 0) {
-                const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-                // Get vehicle price from calendar element
-                const vehiclePrice = parseFloat(this.calendar.data('vehicle-price')) || 1400; // Default price
-                totalPrice = daysDiff * vehiclePrice;
-            }
-
-            this.$root.find('.rv-price-total').text(this.formatMoney(totalPrice));
-        }
-
-        loadAvailabilityData() {
-            if (this.isLoading || !this.currentVehicleId) return;
-
-            this.showLoading(true);
-            this.isLoading = true;
-
-            const data = {
-                action: 'mhmrentiva_availability_unified',
-                nonce: window.mhmRentivaAvailability.nonce,
-                vehicle_id: this.currentVehicleId,
-                start_month: this.currentStartMonth,
-                months_to_show: this.monthsToShow
-            };
-
-            $.post(window.mhmRentivaAvailability.ajaxUrl, data)
-                .done((response) => {
-                    if (response.success) {
-                        this.handleAvailabilityDataSuccess(response);
-                        if (response.data.pricing_data) {
-                            this.updatePricingDisplay(response.data.pricing_data);
-                        }
-                    } else {
-                        MHMRentivaToast.show(response.data?.message || window.mhmRentivaAvailability.strings.error, { type: 'error' });
-                    }
-                })
-                .fail((response) => {
-                    console.error('AJAX Error:', response);
-                    MHMRentivaToast.show(window.mhmRentivaAvailability.strings.error, { type: 'error' });
-                })
-                .always(() => {
-                    this.showLoading(false);
-                    this.isLoading = false;
-                });
-        }
-
-        handleAvailabilityDataSuccess(response) {
-            if (response.success && response.data.availability_data) {
-                const availabilityData = response.data.availability_data;
-                const monthKey = Object.keys(availabilityData)[0];
-                const monthData = availabilityData[monthKey];
-
-                // Period title removed
-
-                // Update month container
-                let $monthContainer = this.$root.find('.rv-month-container');
-
-                // If container doesn't exist (e.g. was empty state), create it
-                if ($monthContainer.length === 0) {
-                    const $grid = this.$root.find('.rv-availability-grid');
-                    // Remove no data message if exists
-                    $grid.find('.rv-no-data-message').remove();
-
-                    // Create container
-                    $grid.append(`<div class="rv-month-container" data-month="${monthKey}"></div>`);
-                    $monthContainer = $grid.find('.rv-month-container');
-                }
-
-                $monthContainer.attr('data-month', monthKey);
-                // Clear existing content to prevent duplication
-                $monthContainer.empty().append(this.renderMonthHTML(monthData, monthKey));
-
-                // Update month title
-                if (monthData.month_name && monthData.year) {
-                    this.$root.find('.rv-month-name').text(monthData.month_name + ' ' + monthData.year);
-                }
-
-                // Update general statistics
-                this.updateGeneralStats(availabilityData);
-
-                // this.showNotification(response.data.message, 'success');
-            } else {
-                MHMRentivaToast.show(response.data?.message || window.mhmRentivaAvailability.messages.error, { type: 'error' });
-            }
-        }
-
-        handleAvailabilityDataError(xhr, status, error) {
-            console.error('Availability data error:', error);
-            MHMRentivaToast.show(window.mhmRentivaAvailability.messages.error, { type: 'error' });
-        }
-
-        handlePricingDataSuccess(response) {
-            if (response.success && response.data.pricing_data) {
-                this.updatePricingDisplay(response.data.pricing_data);
-            }
-        }
-
-        handlePricingDataError(xhr, status, error) {
-            console.error('Pricing data error:', error);
-        }
-
-        updateCalendarDisplay(availabilityData) {
-            // Not used for single month, managed in handleAvailabilityDataSuccess
-        }
-
-        updatePricingDisplay(pricingData) {
-            Object.keys(pricingData).forEach(monthKey => {
-                const monthData = pricingData[monthKey];
-                const $monthContainer = this.$root.find(`.rv-month-container[data-month="${monthKey}"]`);
-
-                if ($monthContainer.length === 0) return;
-
-                Object.keys(monthData.days).forEach(date => {
-                    const priceData = monthData.days[date];
-                    const $day = $monthContainer.find(`.rv-calendar-day[data-date="${date}"]`);
-
-                    if ($day.length === 0) return;
-
-                    // Update price data
-                    $day.attr('data-price', priceData.day_price);
-
-                    if (priceData.has_discount) {
-                        $day.attr('data-discount', priceData.discount_amount);
-                    }
-
-                    // Update price display
-                    const $priceContainer = $day.find('.rv-day-price');
-                    if ($priceContainer.length === 0) {
-                        $day.append(`
-                            <div class="rv-day-price">
-                                <span class="rv-price-amount">${this.formatMoney(priceData.day_price)}</span>
-                                ${priceData.has_discount ? `<span class="rv-discount-badge">%${Math.round((priceData.discount_amount / priceData.base_price) * 100)}</span>` : ''}
-                            </div>
-                        `);
-                    } else {
-                        $priceContainer.find('.rv-price-amount').text(this.formatMoney(priceData.day_price));
-
-                        if (priceData.has_discount) {
-                            const discountPercent = Math.round((priceData.discount_amount / priceData.base_price) * 100);
-                            $priceContainer.find('.rv-discount-badge').text(`%${discountPercent}`).show();
-                        } else {
-                            $priceContainer.find('.rv-discount-badge').hide();
-                        }
-                    }
-                });
-            });
-        }
-
-        updateGeneralStats(availabilityData) {
-            // Statistics are shown below calendar, no update needed here
-        }
-
-        renderMonthHTML(monthData, monthKey) {
-            const days = monthData.days || {};
-
-            // Find which day of the week the first day of the month is
-            const monthParts = monthKey.split('-');
-            const firstDay = new Date(parseInt(monthParts[0]), parseInt(monthParts[1]) - 1, 1);
-            const firstDayOfWeek = firstDay.getDay(); // Sunday = 0, Monday = 1
-            // Blank cells before the 1st, counted from the week's first day.
-            const adjustedFirstDay = this.weekStartsSunday ? firstDayOfWeek : (firstDayOfWeek + 6) % 7;
-
-            let html = '';
-
-            // Weekday header
-            const i18n = window.mhmRentivaAvailability?.strings || {};
-            const translatedDays = i18n;
-
-            const weekdays = [
-                translatedDays.monday || 'Mon',
-                translatedDays.tuesday || 'Tue',
-                translatedDays.wednesday || 'Wed',
-                translatedDays.thursday || 'Thu',
-                translatedDays.friday || 'Fri',
-                translatedDays.saturday || 'Sat',
-                translatedDays.sunday || 'Sun'
-            ];
-            if (this.weekStartsSunday) {
-                weekdays.unshift(weekdays.pop());
-            }
-            html += '<div class="rv-calendar-weekdays">';
-            weekdays.forEach(label => {
-                html += '<div class="rv-weekday">' + label + '</div>';
-            });
-            html += '</div>';
-
-            // Calendar days
-            html += '<div class="rv-calendar-days">';
-
-            // Placeholder for empty days
-            for (let i = 0; i < adjustedFirstDay; i++) {
-                html += '<div class="rv-calendar-day rv-day-empty"></div>';
-            }
-
-            // Show days of month
-            Object.keys(days).forEach(date => {
-                const dayData = days[date];
-                const dayNumber = dayData.day_number;
-                const status = dayData.status;
-                const isWeekend = dayData.is_weekend;
-                const isToday = dayData.is_today;
-                const isPast = dayData.is_past;
-
-                let dayClasses = ['rv-calendar-day', 'rv-status-' + status];
-                if (isWeekend) dayClasses.push('rv-weekend');
-                if (isToday) dayClasses.push('rv-today');
-                if (isPast) dayClasses.push('rv-past');
-
-                html += `
-                    <div class="${dayClasses.join(' ')}" data-date="${date}" data-price="0">
-                        <span class="rv-day-number">${dayNumber}</span>
-                    </div>
-                `;
-            });
-
-            html += '</div>';
-            return html;
-        }
-
-        showLoading(show) {
-            const $loading = this.$root.find('.rv-availability-loading');
-            const $calendar = this.$root.find('.rv-availability-grid');
-
-            if (show) {
-                $loading.show();
-                $calendar.css('opacity', '0.5');
-            } else {
-                $loading.hide();
-                $calendar.css('opacity', '1');
-            }
-        }
-
-        // Legacy showNotification method removed in favor of MHMRentivaToast
-
-
-        // Helper functions
-        getCurrentMonth() {
-            const now = new Date();
-            return this.formatMonth(now);
-        }
-
-        formatMonth(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            return `${year}-${month}`;
-        }
-
-        formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        formatDisplayDate(dateStr) {
-            const date = this.parseDate(dateStr);
-            const locale = this.convertLocaleFormat(window.mhmRentivaAvailability?.locale || 'en-US');
-            const dateFormat = window.mhmRentivaAvailability?.date_format || 'd.m.Y';
-
-            // Convert WordPress date format to JavaScript format
-            const jsFormat = this.convertWordPressDateFormat(dateFormat);
-
-            return date.toLocaleDateString(locale, {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        }
-
-        formatPrice(price) {
-            const locale = this.convertLocaleFormat(window.mhmRentivaAvailability?.locale || 'en-US');
-            return new Intl.NumberFormat(locale, {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(Number(price || 0));
-        }
-
-        formatMoney(price, symbolOverride = null) {
-            const amount = this.formatPrice(price);
-            const symbol = symbolOverride || window.mhmRentivaAvailability?.currencySymbol || '$';
-            const position = window.mhmRentivaAvailability?.currencyPosition || 'right_space';
-
-            switch (position) {
-                case 'left':
-                    return `${symbol}${amount}`;
-                case 'left_space':
-                    return `${symbol} ${amount}`;
-                case 'right':
-                    return `${amount}${symbol}`;
-                case 'right_space':
-                default:
-                    return `${amount} ${symbol}`;
-            }
-        }
-
-        convertLocaleFormat(locale) {
-            // Convert WordPress locale format (en_US) to JavaScript format (en-US)
-            if (locale && locale.includes('_')) {
-                return locale.replace('_', '-');
-            }
-            return locale || 'en-US';
-        }
-
-        convertWordPressDateFormat(wpFormat) {
-            // Convert WordPress date format to JavaScript Intl.DateTimeFormat options
-            const formatMap = {
-                'd': '2-digit',    // Day with leading zeros
-                'j': 'numeric',    // Day without leading zeros
-                'm': '2-digit',    // Month with leading zeros
-                'n': 'numeric',    // Month without leading zeros
-                'Y': 'numeric',    // Full year
-                'y': '2-digit'     // Two digit year
-            };
-
-            // Simple format conversion (moment.js can be used for more advanced version)
-            return {
-                day: wpFormat.includes('d') ? '2-digit' : 'numeric',
-                month: wpFormat.includes('m') ? '2-digit' : 'numeric',
-                year: wpFormat.includes('Y') ? 'numeric' : '2-digit'
-            };
-        }
-
-        calculateDaysBetween(startDate, endDate) {
-            const start = this.parseDate(startDate);
-            const end = this.parseDate(endDate);
-            const diffTime = Math.abs(end - start);
-            return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        }
-
-
-        handleFavoriteClick(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const $btn = $(e.currentTarget);
-            const vehicleId = $btn.data('vehicle-id');
-
-            // Login check
-            if (!window.mhmRentivaAvailability.isUserLoggedIn) {
-                const loginMsg = window.mhmRentivaAvailability?.strings?.login_required || 'You must be logged in to add to favorites';
-                MHMRentivaToast.show(loginMsg, { type: 'warning' });
-                return;
-            }
-
-            // Determine active action - Unified action name
-            const isFavorite = $btn.hasClass('favorited') || $btn.hasClass('is-favorited');
-
-            // Add loading state
-            $btn.prop('disabled', true).addClass('loading');
-            const $icon = $btn.find('.rv-heart-icon');
-
-            const data = {
-                action: 'mhmrentiva_toggle_favorite',
-                vehicle_id: vehicleId,
-                nonce: window.mhmRentivaAvailability.favoriteNonce || window.mhmRentivaAvailability.nonce
-            };
-
-            $.post(window.mhmRentivaAvailability.ajaxUrl, data)
-                .done((response) => {
-                    if (response.success) {
-                        const isAdded = response.data.action === 'added';
-                        const successMsg = response.data.message || (isAdded ? (window.mhmRentivaAvailability?.strings?.added_to_favorites || 'Added to favorites') : (window.mhmRentivaAvailability?.strings?.removed_from_favorites || 'Removed from favorites'));
-
-                        // Toggle classes for UI feedback
-                        $btn.toggleClass('favorited is-favorited', isAdded);
-                        $icon.toggleClass('favorited', isAdded);
-
-                        // SVG attribute update
-                        if (isAdded) {
-                            $icon.attr('fill', 'currentColor');
-                            $btn.attr('aria-pressed', 'true');
-                        } else {
-                            $icon.attr('fill', 'none');
-                            $btn.attr('aria-pressed', 'false');
-                        }
-
-                        MHMRentivaToast.show(successMsg, { type: 'success' });
-                    } else {
-                        const errorMsg = response.data.message || window.mhmRentivaAvailability?.strings?.error || 'An error occurred';
-                        MHMRentivaToast.show(errorMsg, { type: 'error' });
-                    }
-                })
-                .fail((xhr, status, error) => {
-                    console.error('Favorite Toggle Error:', error, xhr.responseText);
-                    MHMRentivaToast.show(window.mhmRentivaAvailability.strings?.error || 'Security or connection error', { type: 'error' });
-                })
-                .always(() => {
-                    $btn.prop('disabled', false).removeClass('loading');
-                });
-        }
-
-        /**
-         * Enhanced notification system for Availability Calendar
-         * Based on VehiclesList notification design
-         */
-        // Duplicate showNotification implementation removed
-
-    }
-
-    /**
-     * Global-safe notification handler
-     */
-    function showGlobalNotification(message, type = 'info') {
-        MHMRentivaToast.show(message, { type: type });
-    }
-
-    // Delegates are bound once, at load, and serve every instance.
-    AvailabilityCalendar.bindDelegates();
-
-    // Initialize when page loads
-    $(document).ready(function () {
-        AvailabilityCalendar.initAll();
-
-        // Expose to global for coordination
-        window.mhmRentivaAvailability = window.mhmRentivaAvailability || {};
-        window.mhmRentivaAvailability.showNotification = (msg, type) => MHMRentivaToast.show(msg, { type: type });
-    });
-
-    // For global access
-    window.AvailabilityCalendar = AvailabilityCalendar;
-
-})(jQuery);
+( function ( $ ) {
+	'use strict';
+
+	const ROOT = '[data-rvs-availability]';
+	const PREVIEW = '[data-rv-render="preview"]';
+	const STATE = 'rvsAvailabilityState';
+	// The spinner: on a visitor's own step or switch, not on the quiet refresh at load.
+	const LOADING = 'data-rvs-cal-loading';
+
+	function config() {
+		return window.mhmRentivaAvailability || {};
+	}
+
+	function t( key ) {
+		return ( config().strings || {} )[ key ] || '';
+	}
+
+	function dialog() {
+		return window.mhmRentivaRvsDialog;
+	}
+
+	function post( data, done, fail, always ) {
+		$.ajax( {
+			url: config().ajax_url,
+			type: 'POST',
+			dataType: 'json',
+			data: Object.assign( { nonce: config().nonce }, data ),
+			success: function ( response ) {
+				if ( response && response.success ) {
+					done( response.data || {} );
+				} else {
+					fail( response && response.data && response.data.message );
+				}
+			},
+			error: function ( xhr ) {
+				const body = xhr && xhr.responseJSON;
+				fail( body && body.data && body.data.message );
+			},
+			complete: always,
+		} );
+	}
+
+	// A `Y-m` moved by whole months; arithmetic only, nothing shown to the visitor.
+	function stepMonth( month, step ) {
+		const parts = String( month ).split( '-' );
+		const total = parseInt( parts[ 0 ], 10 ) * 12 + parseInt( parts[ 1 ], 10 ) - 1 + step;
+		return Math.floor( total / 12 ) + '-' + String( ( total % 12 ) + 1 ).padStart( 2, '0' );
+	}
+
+	/* Selection and panel ------------------------------------------------------ */
+
+	function markSelection( $root, state ) {
+		const last = state.end || state.start;
+		$root.find( '.rvs-cal__btn' ).each( function () {
+			const date = this.getAttribute( 'data-date' );
+			const chosen = '' !== state.start && date >= state.start && date <= last;
+			this.setAttribute( 'aria-pressed', chosen ? 'true' : 'false' );
+			// The server's label names the button and outranks anything inside it,
+			// so "Selected" joins the label; it comes off when the day is released.
+			if ( ! this.hasAttribute( 'data-rvs-cal-label' ) ) {
+				this.setAttribute( 'data-rvs-cal-label', this.getAttribute( 'aria-label' ) || '' );
+			}
+			const label = this.getAttribute( 'data-rvs-cal-label' );
+			const selected = t( 'selected' );
+			if ( label ) {
+				this.setAttribute( 'aria-label', chosen && selected ? label + ', ' + selected : label );
+			}
+			$( this ).closest( '.rvs-cal__day' )
+				.toggleClass( 'is-selected', chosen )
+				.toggleClass( 'is-available', ! chosen )
+				.toggleClass( 'is-range-start', date === state.start )
+				.toggleClass( 'is-range-end', date === last );
+		} );
+	}
+
+	/**
+	 * The whole panel, drawn from the state: nothing of an older answer survives.
+	 * Stops at the first line that applies, so an error wins over a status.
+	 * A good quote shows no message: the live region then holds its summary,
+	 * for screen readers only, because the same facts are on screen above it.
+	 * The months themselves are no live region (two whole tables would be read
+	 * out), so a month step speaks here: the new months' names, for screen readers
+	 * only, joining the return-date prompt when that is on screen. An error or a
+	 * refusal keeps the line to itself.
+	 */
+	function renderPanel( $root, state ) {
+		const quote = state.quote;
+		const error = state.loadError || state.error;
+		let notice = '';
+		let isError = false;
+		if ( error ) {
+			notice = error;
+			isError = true;
+		} else if ( state.quoting ) {
+			notice = t( 'loading' );
+		} else if ( quote && quote.message ) {
+			notice = quote.message;
+			isError = ! quote.available;
+		} else if ( state.start && ! state.end ) {
+			notice = t( 'pickReturn' );
+		}
+
+		const range = quote ? quote.range_label || '' : '';
+		const time = quote ? quote.time_hint || '' : '';
+		const total = state.pricing && quote && quote.priced ? quote.total_html || '' : '';
+		const url = state.booking && quote && quote.available ? quote.continue_url || '' : '';
+
+		const note = state.monthNote;
+		const filled = !! ( notice || range || time || total || url );
+		// Visible before its text changes, so the live region is heard. With a month
+		// step alone there is nothing to see, so the panel draws no empty box.
+		$root.find( '[data-rvs-cal-panel]' )
+			.prop( 'hidden', ! ( filled || note ) )
+			.toggleClass( 'rvs-sr-only', ! filled && !! note );
+		$root.find( '[data-rvs-cal-range]' ).text( range );
+		$root.find( '[data-rvs-cal-time]' ).text( time );
+		// Server HTML (PriceDisplay), like the months.
+		const $total = $root.find( '[data-rvs-cal-total]' ).html( total );
+
+		const summary = notice ? '' : note || [ range, total ? $total.text() : '' ].filter( Boolean ).join( ' · ' );
+		const prompt = note && ! isError && notice === t( 'pickReturn' ) ? note + ' · ' + notice : notice;
+		const spoken = prompt || summary;
+		const $message = $root.find( '[data-rvs-cal-message]' );
+		if ( $message.text() !== spoken ) {
+			$message.text( spoken );
+		}
+		$message.toggleClass( 'rvs-sr-only', '' !== summary );
+		if ( isError ) {
+			$message.attr( 'data-state', 'error' );
+		} else {
+			$message.removeAttr( 'data-state' );
+		}
+
+		$root.find( '[data-rvs-cal-book]' ).attr( 'href', url || '#' ).prop( 'hidden', ! url );
+	}
+
+	function clearSelection( state ) {
+		state.quoteSeq += 1;
+		state.start = '';
+		state.end = '';
+		state.quote = null;
+		state.quoting = false;
+		state.error = '';
+		state.loadError = '';
+		state.monthNote = '';
+	}
+
+	// The answer is about the click just made: on a phone the panel is below the
+	// months, so it comes into view. No jump when it already shows.
+	function revealPanel( $root ) {
+		const panel = $root.find( '[data-rvs-cal-panel]' ).get( 0 );
+		if ( ! panel || typeof panel.scrollIntoView !== 'function' ) {
+			return;
+		}
+		const reduced = typeof window.matchMedia === 'function' && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		panel.scrollIntoView( { block: 'nearest', behavior: reduced ? 'instant' : 'smooth' } );
+	}
+
+	function requestQuote( $root, state ) {
+		state.quoteSeq += 1;
+		const seq = state.quoteSeq;
+		state.quote = null;
+		state.quoting = true;
+		state.monthNote = '';
+		state.error = '';
+		state.loadError = '';
+		renderPanel( $root, state );
+
+		post(
+			{
+				action: 'mhmrentiva_calendar_quote',
+				vehicle_id: String( state.vehicleId ),
+				start_date: state.start,
+				end_date: state.end,
+			},
+			function ( data ) {
+				if ( seq !== state.quoteSeq ) {
+					return;
+				}
+				state.quoting = false;
+				state.quote = data;
+				renderPanel( $root, state );
+				revealPanel( $root );
+			},
+			function ( message ) {
+				if ( seq !== state.quoteSeq ) {
+					return;
+				}
+				state.quoting = false;
+				state.error = message || t( 'error' );
+				renderPanel( $root, state );
+				revealPanel( $root );
+			}
+		);
+	}
+
+	function selectDay( $root, state, date ) {
+		if ( state.start && ! state.end && date === state.start ) {
+			// The same day again: it stays the start, there is still no range.
+			state.monthNote = '';
+			state.error = '';
+			state.loadError = '';
+		} else if ( state.start && ! state.end && date > state.start ) {
+			state.end = date;
+			markSelection( $root, state );
+			requestQuote( $root, state );
+			return;
+		} else {
+			clearSelection( state );
+			state.start = date;
+		}
+		markSelection( $root, state );
+		renderPanel( $root, state );
+	}
+
+	/* Months ------------------------------------------------------------------- */
+
+	/**
+	 * The way back follows the month being asked for, not the month on screen, or
+	 * a "previous" clicked before the answer would land on a disabled button.
+	 * `floor` is the month the server last called closed; the server stays the
+	 * judge: below an unknown floor it answers with its own month and prev_allowed.
+	 */
+	function syncPrev( $root, state ) {
+		const allowed = '' === state.floor || state.target > state.floor;
+		const $prev = $root.find( '[data-rvs-cal-nav="-1"]' );
+		// A disabled button drops the keyboard's focus: hand it to the next one.
+		if ( ! allowed && $prev.is( document.activeElement ) ) {
+			$root.find( '[data-rvs-cal-nav="1"]' ).trigger( 'focus' );
+		}
+		$prev.prop( 'disabled', ! allowed );
+	}
+
+	function monthsRequest( state, month ) {
+		return {
+			action: 'mhmrentiva_calendar_months',
+			vehicle_id: String( state.vehicleId ),
+			start_month: month,
+			months_to_show: state.monthsToShow,
+			week_start: state.weekStart,
+		};
+	}
+
+	function applyMonths( $root, state, data ) {
+		$root.find( '[data-rvs-cal-months]' ).html( data.html || '' );
+		if ( data.start_month ) {
+			state.month = data.start_month;
+			$root.attr( 'data-start-month', data.start_month );
+		}
+		state.target = state.month;
+		if ( ! data.prev_allowed ) {
+			state.floor = state.month;
+		} else if ( state.floor >= state.month ) {
+			state.floor = '';
+		}
+		syncPrev( $root, state );
+		markSelection( $root, state );
+	}
+
+	// The names the server gave the months on screen: "December 2026 – January 2027".
+	function monthsLabel( $root ) {
+		const titles = $root.find( '[data-rvs-cal-months] .rvs-cal__title' );
+		const first = titles.first().text().trim();
+		const last = titles.last().text().trim();
+		return first === last ? first : first + ' – ' + last;
+	}
+
+	function loadMonths( $root, state, month, announce ) {
+		state.monthSeq += 1;
+		const seq = state.monthSeq;
+		state.target = month;
+		$root.attr( 'aria-busy', 'true' );
+		syncPrev( $root, state );
+
+		post(
+			monthsRequest( state, month ),
+			function ( data ) {
+				if ( seq !== state.monthSeq ) {
+					return;
+				}
+				applyMonths( $root, state, data );
+				if ( announce ) {
+					state.monthNote = monthsLabel( $root );
+				}
+				// Only a months failure ends here: a quote's error still stands.
+				state.loadError = '';
+				renderPanel( $root, state );
+			},
+			function ( message ) {
+				if ( seq !== state.monthSeq ) {
+					return;
+				}
+				state.target = state.month;
+				syncPrev( $root, state );
+				state.monthNote = '';
+				state.loadError = message || t( 'error' );
+				renderPanel( $root, state );
+			},
+			function () {
+				if ( seq === state.monthSeq ) {
+					$root.removeAttr( 'aria-busy' ).removeAttr( LOADING );
+				}
+			}
+		);
+	}
+
+	/* Vehicle ------------------------------------------------------------------ */
+
+	function applyCard( $root, state, card ) {
+		$root.find( '[data-rvs-cal-name]' ).text( card.title || '' );
+		if ( state.pricing ) {
+			// Server HTML (PriceDisplay), like the total.
+			$root.find( '[data-rvs-cal-price]' ).html( card.price_html || '' );
+		}
+
+		let $image = $root.find( '[data-rvs-cal-image]' );
+		if ( ! card.image ) {
+			$image.remove();
+			return;
+		}
+		if ( ! $image.length ) {
+			$image = $( document.createElement( 'img' ) )
+				.addClass( 'rvs-availability__image' )
+				.attr( 'data-rvs-cal-image', '' )
+				.prependTo( $root.find( '.rvs-availability__vehicle' ) );
+		}
+		$image.attr( { src: card.image, alt: card.title || '' } );
+	}
+
+	/**
+	 * Card and months change together or not at all, so the name never sits over
+	 * another car's days. While this runs the old calendar takes no clicks.
+	 */
+	function switchVehicle( $root, state, vehicleId ) {
+		const next = Object.assign( {}, state, { vehicleId: vehicleId } );
+		let card = null;
+		let months = null;
+		let failed = false;
+		let failure = '';
+		let pending = 2;
+
+		const onFail = function ( message ) {
+			failed = true;
+			failure = failure || message || '';
+		};
+		const finish = function () {
+			pending -= 1;
+			if ( pending > 0 ) {
+				return;
+			}
+			state.switching = false;
+			$root.removeAttr( 'aria-busy' ).removeAttr( LOADING );
+			if ( failed || ! card || ! months || false === card.bookable ) {
+				state.loadError = failure || t( 'error' );
+				renderPanel( $root, state );
+				return;
+			}
+			state.vehicleId = vehicleId;
+			$root.attr( 'data-vehicle-id', String( vehicleId ) );
+			$root.find( '[data-rvs-cal-option]' ).each( function () {
+				this.setAttribute( 'aria-pressed', parseInt( this.getAttribute( 'data-rvs-cal-option' ), 10 ) === vehicleId ? 'true' : 'false' );
+			} );
+			applyCard( $root, state, card );
+			applyMonths( $root, state, months );
+			renderPanel( $root, state );
+		};
+
+		clearSelection( state );
+		// A month answer still on its way belongs to the old car.
+		state.monthSeq += 1;
+		state.target = state.month;
+		syncPrev( $root, state );
+		state.switching = true;
+		$root.attr( 'aria-busy', 'true' ).attr( LOADING, '' );
+		markSelection( $root, state );
+		renderPanel( $root, state );
+
+		post(
+			{ action: 'mhmrentiva_get_vehicle_info', vehicle_id: String( vehicleId ) },
+			function ( data ) {
+				card = data;
+			},
+			onFail,
+			finish
+		);
+		post(
+			monthsRequest( next, state.month ),
+			function ( data ) {
+				months = data;
+			},
+			onFail,
+			finish
+		);
+	}
+
+	function openDialog( $root, opener ) {
+		const el = $root.find( '[data-rvs-cal-dialog]' ).get( 0 );
+		if ( ! el || ! dialog() ) {
+			return;
+		}
+		el.hidden = false;
+		el.classList.add( 'is-open' );
+		const title = el.querySelector( '.rvs-dialog__title' );
+		dialog().open( el, {
+			opener: opener,
+			labelledBy: title && title.id ? title.id : undefined,
+			initialFocus: el.querySelector( '[data-rvs-cal-option][aria-pressed="true"]' ) || el.querySelector( '[data-rvs-dialog-close]' ) || undefined,
+			onClose: function () {
+				el.classList.remove( 'is-open' );
+				el.hidden = true;
+			},
+		} );
+	}
+
+	function closeDialog( el ) {
+		if ( el && dialog() ) {
+			dialog().close( el );
+		}
+	}
+
+	/* Wiring ------------------------------------------------------------------- */
+
+	function init( $root ) {
+		if ( $root.data( STATE ) || $root.closest( PREVIEW ).length ) {
+			return;
+		}
+		const month = String( $root.attr( 'data-start-month' ) || '' );
+		const state = {
+			vehicleId: parseInt( $root.attr( 'data-vehicle-id' ), 10 ) || 0,
+			month: month,
+			target: month,
+			floor: $root.find( '[data-rvs-cal-nav="-1"]' ).prop( 'disabled' ) ? month : '',
+			monthsToShow: parseInt( $root.attr( 'data-months-to-show' ), 10 ) || 1,
+			weekStart: parseInt( $root.attr( 'data-week-start' ), 10 ) || 0,
+			pricing: '1' === $root.attr( 'data-show-pricing' ),
+			booking: '1' === $root.attr( 'data-show-booking-button' ),
+			start: '',
+			end: '',
+			quote: null,
+			quoting: false,
+			quoteSeq: 0,
+			monthSeq: 0,
+			error: '',
+			loadError: '',
+			monthNote: '',
+			switching: false,
+		};
+		$root.data( STATE, state );
+
+		$root.find( '[data-rvs-cal-switch]' ).attr( 'aria-haspopup', 'dialog' );
+
+		// The button, not the cell: the td carries data-date too, also on a booked day.
+		$root.on( 'click', '.rvs-cal__btn', function () {
+			if ( ! state.switching ) {
+				selectDay( $root, state, this.getAttribute( 'data-date' ) );
+			}
+		} );
+		$root.on( 'click', '[data-rvs-cal-nav]', function () {
+			if ( ! state.switching ) {
+				$root.attr( LOADING, '' );
+				loadMonths( $root, state, stepMonth( state.target, parseInt( this.getAttribute( 'data-rvs-cal-nav' ), 10 ) || 0 ), true );
+			}
+		} );
+		$root.on( 'click', '[data-rvs-cal-switch]', function () {
+			openDialog( $root, this );
+		} );
+		$root.on( 'click', '[data-rvs-cal-option]', function () {
+			const vehicleId = parseInt( this.getAttribute( 'data-rvs-cal-option' ), 10 ) || 0;
+			closeDialog( this.closest( '[data-rvs-cal-dialog]' ) );
+			if ( vehicleId && vehicleId !== state.vehicleId && ! state.switching ) {
+				switchVehicle( $root, state, vehicleId );
+			}
+		} );
+		$root.on( 'click', '[data-rvs-cal-dialog] [data-rvs-dialog-close]', function () {
+			closeDialog( this.closest( '[data-rvs-cal-dialog]' ) );
+		} );
+		// The dimmed area around the panel.
+		$root.on( 'click', '[data-rvs-cal-dialog]', function ( e ) {
+			if ( e.target === this ) {
+				closeDialog( this );
+			}
+		} );
+
+		loadMonths( $root, state, month );
+	}
+
+	function initAll() {
+		$( ROOT ).each( function () {
+			init( $( this ) );
+		} );
+	}
+
+	window.mhmRentivaAvailabilityCalendar = { init: initAll };
+
+	$( initAll );
+}( jQuery ) );

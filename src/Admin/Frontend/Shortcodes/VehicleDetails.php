@@ -12,8 +12,6 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Services\CompareService;
-use DateTime;
-use DateInterval;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
@@ -57,13 +55,17 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
-	 * A published vehicle from the request, or a JSON error.
+	 * A published vehicle offered for rental from the request, or a JSON error.
+	 * The vehicle page's and the availability calendar's endpoints share it.
 	 */
-	private static function requested_vehicle( VerifiedRequest $req ): int {
+	public static function requested_vehicle( VerifiedRequest $req ): int {
 		$vehicle_id = $req->int( 'vehicle_id' );
-		// Same rule as the old calendar endpoint: published, public and without a
-		// password -- an unreadable vehicle is indistinguishable from a missing one.
-		if ( $vehicle_id <= 0 || ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vehicle_id ) ) {
+		// Published, public and without a password -- an unreadable vehicle is
+		// indistinguishable from a missing one. These endpoints answer about rental
+		// days and prices, which a transfer-only vehicle does not have.
+		if ( $vehicle_id <= 0
+			|| ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vehicle_id )
+			|| ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( $vehicle_id, 'rental' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Vehicle not found.', 'mhm-rentiva' ) ) );
 		}
 		return $vehicle_id;
@@ -72,7 +74,7 @@ final class VehicleDetails extends AbstractShortcode {
 	/**
 	 * @param list<array<string, mixed>> $months
 	 */
-	private static function months_html( array $months ): string {
+	public static function months_html( array $months ): string {
 		$html = '';
 		foreach ( $months as $month ) {
 			$html .= (string) Templates::render( 'partials/rvs/calendar-month', array( 'calendar' => $month ), true );
@@ -104,14 +106,14 @@ final class VehicleDetails extends AbstractShortcode {
 	 * availability, and the months around it -- the page's own partials.
 	 */
 	public static function ajax_quote(): void {
-		$req        = self::verified_request();
+		$req = self::verified_request();
+		// Same allowance as the booking form's price endpoint: a visitor trying a
+		// few date ranges fires a request per change.
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 		$vehicle_id = self::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
-		// Same allowance as the booking form's price endpoint: a visitor trying a
-		// few date ranges fires a request per change.
-		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 
 		$window  = VehicleDetailsView::window( self::posted_window( $req ) );
 		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );
@@ -360,55 +362,15 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
-	 * Days the vehicle is taken between $from and $to (inclusive, `Y-m-d`), from
-	 * pickup to return day inclusive. The calendar is a guide; the booking card
-	 * checks the exact window with Util::check_availability().
+	 * Days the vehicle is taken between $from and $to (inclusive, `Y-m-d`):
+	 * the shared calendar rule, so the grid agrees with search and booking.
+	 * The calendar is a guide; the booking card checks the exact window with
+	 * Util::check_availability().
 	 *
 	 * @return list<string>
 	 */
 	public static function booked_dates( int $vehicle_id, string $from, string $to ): array {
-		global $wpdb;
-		$start_date = $from;
-		$end_date   = $to;
-
-		$bookings = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT pm_start.meta_value as start_date, pm_end.meta_value as end_date
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_v ON p.ID = pm_v.post_id AND pm_v.meta_key = '_mhmrentiva_vehicle_id'
-             INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhmrentiva_pickup_date'
-             INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-             WHERE p.post_type = 'mhmrentiva_booking' AND p.post_status = 'publish'
-             AND pm_v.meta_value = %d AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress', 'completed')
-             AND ((pm_start.meta_value <= %s AND pm_end.meta_value >= %s) OR (pm_start.meta_value >= %s AND pm_start.meta_value <= %s))",
-				$vehicle_id,
-				$end_date,
-				$start_date,
-				$start_date,
-				$end_date
-			)
-		);
-
-		$booked = array();
-		foreach ( $bookings as $booking ) {
-			try {
-				$day  = new DateTime( substr( (string) $booking->start_date, 0, 10 ) );
-				$last = new DateTime( substr( (string) $booking->end_date, 0, 10 ) );
-			} catch ( \Exception $e ) {
-				continue;
-			}
-			while ( $day <= $last ) {
-				$date = $day->format( 'Y-m-d' );
-				if ( $date >= $from && $date <= $to ) {
-					$booked[ $date ] = true;
-				}
-				$day->add( new DateInterval( 'P1D' ) );
-			}
-		}
-		$dates = array_keys( $booked );
-		sort( $dates );
-		return $dates;
+		return \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::calendar_days( $vehicle_id, $from, $to );
 	}
 
 	/**

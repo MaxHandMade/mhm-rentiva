@@ -64,7 +64,6 @@ assets/css/core/css-variables.css
 assets/css/core/golden-ratio-contract.css
 assets/css/core/vehicle-card.css
 assets/css/editor/block-editor-fixes.css
-assets/css/frontend/availability-calendar.css
 assets/css/frontend/booking-detail.css
 assets/css/frontend/bookings-page.css
 assets/css/frontend/contact-form.css
@@ -75,14 +74,15 @@ assets/css/frontend/my-account.css
 assets/css/frontend/notifications.css
 assets/css/frontend/rvs-account-nav.css
 assets/css/frontend/rvs-account.css
+assets/css/frontend/rvs-availability.css
 assets/css/frontend/rvs-booking.css
+assets/css/frontend/rvs-comparison.css
 assets/css/frontend/rvs-summary.css
 assets/css/frontend/search-results.css
 assets/css/frontend/single-vehicle.css
 assets/css/frontend/testimonials.css
 assets/css/frontend/unified-search.css
 assets/css/frontend/user-dashboard.css
-assets/css/frontend/vehicle-comparison.css
 assets/css/frontend/vehicle-details.css
 assets/css/frontend/vehicle-rating-form.css
 assets/css/frontend/vehicles-grid.css
@@ -376,8 +376,10 @@ src/Admin/Frontend/Shortcodes/Account/PaymentHistory.php
 src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 src/Admin/Frontend/Shortcodes/BookingForm.php
+src/Admin/Frontend/Shortcodes/CalendarView.php
 src/Admin/Frontend/Shortcodes/Card/RvsCardView.php
 src/Admin/Frontend/Shortcodes/Card/VehicleCardLinks.php
+src/Admin/Frontend/Shortcodes/ComparisonView.php
 src/Admin/Frontend/Shortcodes/Contact/RecipientToken.php
 src/Admin/Frontend/Shortcodes/ContactForm.php
 src/Admin/Frontend/Shortcodes/ContactMessagePostType.php
@@ -575,6 +577,8 @@ templates/partials/rvs/account-cancel-dialog.php
 templates/partials/rvs/account-next-rental.php
 templates/partials/rvs/breakdown.php
 templates/partials/rvs/calendar-month.php
+templates/partials/rvs/calendar-panel.php
+templates/partials/rvs/compare-vehicle.php
 templates/partials/rvs/journey-summary.php
 templates/partials/rvs/status-tag.php
 templates/partials/rvs/steps.php

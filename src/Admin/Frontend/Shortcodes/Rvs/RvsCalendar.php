@@ -21,19 +21,22 @@ final class RvsCalendar {
 	 * @param array<int, string> $booked   Booked days, `Y-m-d`.
 	 * @param string             $today    Today, `Y-m-d` (the caller's clock, so tests and the site agree).
 	 * @param array<int, string> $selected Start and end, `Y-m-d`; one value selects one day.
-	 * @return array{id: string, year: int, month: int, label: string, weekdays: list<array{short: string, long: string}>, weeks: list<list<array{date: string, day: int, state: string, today: bool, status: string, label: string}|null>>}
+	 * @param array{week_start?: int|null, interactive?: bool} $options `week_start` 0-6 (default: the site's
+	 *        `start_of_week`); `interactive` makes available and selected days buttons and marks the range ends.
+	 * @return array{id: string, year: int, month: int, label: string, interactive: bool, weekdays: list<array{short: string, long: string}>, weeks: list<list<array{date: string, day: int, state: string, today: bool, status: string, label: string, range: string}|null>>}
 	 */
-	public static function month(int $year, int $month, array $booked, string $today, array $selected = array()): array
+	public static function month(int $year, int $month, array $booked, string $today, array $selected = array(), array $options = array()): array
 	{
 		global $wp_locale;
 
 		// Dates are calendar days, not moments: format them in UTC so a site east of
 		// UTC+12 does not label the 20th as the 21st.
-		$utc        = new \DateTimeZone('UTC');
-		$week_start = (int) get_option('start_of_week', 1);
-		$first      = gmmktime(12, 0, 0, $month, 1, $year);
-		$days       = (int) gmdate('t', $first);
-		$lead       = ( (int) gmdate('w', $first) - $week_start + 7 ) % 7;
+		$utc         = new \DateTimeZone('UTC');
+		$week_start  = isset($options['week_start']) ? ( (int) $options['week_start'] % 7 + 7 ) % 7 : (int) get_option('start_of_week', 1);
+		$interactive = ! empty($options['interactive']);
+		$first       = gmmktime(12, 0, 0, $month, 1, $year);
+		$days        = (int) gmdate('t', $first);
+		$lead        = ( (int) gmdate('w', $first) - $week_start + 7 ) % 7;
 
 		$booked = array_flip(array_map('strval', $booked));
 		$start  = isset($selected[0]) ? (string) $selected[0] : '';
@@ -61,7 +64,13 @@ final class RvsCalendar {
 			} else {
 				$state = 'available';
 			}
+			$range = '';
+			if ($interactive && 'selected' === $state) {
+				$range = ( $date === $start ? 'start' : '' ) . ( $date === $end ? 'end' : '' );
+				$range = 'startend' === $range ? 'single' : $range;
+			}
 			$cells[] = array(
+				'range'  => $range,
 				'date'   => $date,
 				'day'    => $day,
 				'state'  => $state,
@@ -79,12 +88,13 @@ final class RvsCalendar {
 		$cells = array_merge($cells, array_fill(0, $trail, null));
 
 		return array(
-			'id'       => wp_unique_id('rvs-cal-'),
-			'year'     => $year,
-			'month'    => $month,
-			'label'    => (string) wp_date('F Y', $first, $utc),
-			'weekdays' => $weekdays,
-			'weeks'    => array_chunk($cells, 7),
+			'id'          => wp_unique_id('rvs-cal-'),
+			'year'        => $year,
+			'month'       => $month,
+			'label'       => (string) wp_date('F Y', $first, $utc),
+			'interactive' => $interactive,
+			'weekdays'    => $weekdays,
+			'weeks'       => array_chunk($cells, 7),
 		);
 	}
 

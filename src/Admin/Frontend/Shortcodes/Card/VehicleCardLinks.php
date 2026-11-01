@@ -75,7 +75,16 @@ final class VehicleCardLinks {
 	 */
 	public static function details_url(int $vehicle_id, array $window): string
 	{
-		$base_url = ShortcodeUrlManager::vehicle_page_url($vehicle_id);
+		return self::with_window(ShortcodeUrlManager::vehicle_page_url($vehicle_id), $window);
+	}
+
+	/**
+	 * Any page with a rental window; '' stays ''. See details_url().
+	 *
+	 * @param array<string, string> $window Logical key => value.
+	 */
+	public static function with_window(string $base_url, array $window): string
+	{
 		if ('' === $base_url) {
 			return '';
 		}

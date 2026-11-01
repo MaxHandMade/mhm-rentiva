@@ -263,6 +263,12 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-vehicle', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-availability', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-availability', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-availability.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-overlay' ), self::get_file_version('assets/css/frontend/rvs-availability.css'));
+		}
+		if (! wp_style_is('mhm-rentiva-rvs-comparison', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-comparison', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-comparison.css', array( 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/frontend/rvs-comparison.css'));
+		}
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
 		}
@@ -326,6 +332,24 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-calendar');
+	}
+
+	/**
+	 * The availability calendar page: the calendar, the empty state and the vehicle dialog.
+	 */
+	public static function enqueue_rvs_availability_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-availability');
+	}
+
+	/**
+	 * The vehicle comparison: its table, and the card it can be laid out in.
+	 */
+	public static function enqueue_rvs_comparison_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-comparison');
 	}
 
 	/**
@@ -585,6 +609,11 @@ final class AssetManager {
 				'compare_nonce'      => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
 				'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 				'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
+				// The rental window's query vars: the script adds them to the comparison links (R3).
+				'forward_keys'       => array_map(
+					array( \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class, 'query_var' ),
+					\MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::FORWARD_KEYS
+				),
 				'i18n'               => array(
 					'add_favorite'         => __('Add to Favorites', 'mhm-rentiva'),
 					'remove_favorite'      => __('Remove from Favorites', 'mhm-rentiva'),
@@ -605,6 +634,8 @@ final class AssetManager {
 					'add_one_more'         => __('Add one more vehicle to compare', 'mhm-rentiva'),
 					'need_at_least_two'    => __('Comparison needs at least 2 vehicles', 'mhm-rentiva'),
 					'compare_page_missing' => __('Comparison page not configured', 'mhm-rentiva'),
+					'error'                => __('Something went wrong. Please try again.', 'mhm-rentiva'),
+					'network_error'        => __('Could not reach the site. Please try again.', 'mhm-rentiva'),
 				),
 			)
 		);

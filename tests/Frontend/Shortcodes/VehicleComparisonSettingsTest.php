@@ -48,41 +48,38 @@ final class VehicleComparisonSettingsTest extends WP_UnitTestCase
 
 	public function test_comparison_images_follow_flag(): void
 	{
-		// Table layout: header image + mobile card image, per vehicle.
+		// One table for every width: one image per vehicle.
 		$on = $this->shortcode('');
-		$this->assertSame(2, substr_count($on, 'class="rv-vehicle-image"'));
-		$this->assertSame(2, substr_count($on, '<div class="rv-mobile-card-image">'));
-		$this->assertSame(4, substr_count($on, '<img '));
+		$this->assertSame(2, substr_count($on, 'rvs-compare__media'));
+		$this->assertSame(2, substr_count($on, '<img '));
 
 		$off = $this->shortcode('show_images="0"');
 		$this->assertSame(0, substr_count($off, '<img '));
-		$this->assertStringNotContainsString('rv-vehicle-image-container', $off);
-		$this->assertStringNotContainsString('rv-mobile-card-image', $off);
+		$this->assertStringNotContainsString('rvs-compare__media', $off);
 		// The rest of the header stays.
-		$this->assertSame(2, substr_count($off, '<h4>'));
-		$this->assertSame(2, substr_count($off, 'class="rv-mobile-title"'));
+		$this->assertSame(2, substr_count($off, 'class="rvs-compare__name"'));
 
 		// Cards layout.
-		$this->assertSame(2, substr_count($this->shortcode('layout="cards"'), 'class="rv-card-image"'));
+		$this->assertSame(2, substr_count($this->shortcode('layout="cards"'), '<img '));
 		$this->assertSame(0, substr_count($this->shortcode('layout="cards" show_images="0"'), '<img '));
 
 		// Block and widget.
 		$ids = $this->catalog[0] . ',' . $this->catalog[1];
-		$this->assertSame(4, substr_count($this->block(array( 'vehicleIds' => $ids )), '<img '));
+		$this->assertSame(2, substr_count($this->block(array( 'vehicleIds' => $ids )), '<img '));
 		$this->assertSame(0, substr_count($this->block(array( 'vehicleIds' => $ids, 'showComparisonImages' => false )), '<img '));
-		$this->assertSame(4, substr_count($this->widget(array( 'vehicle_ids' => $ids )), '<img '));
+		$this->assertSame(2, substr_count($this->widget(array( 'vehicle_ids' => $ids )), '<img '));
 		$this->assertSame(0, substr_count($this->widget(array( 'vehicle_ids' => $ids, 'show_images' => '' )), '<img '));
 	}
 
 	public function test_remove_buttons_follow_flag(): void
 	{
-		$button = 'class="rv-remove-vehicle"';
+		$button = 'data-rvs-cmp-remove';
 
-		// Table layout: header + mobile card, per vehicle.
-		$this->assertSame(4, substr_count($this->shortcode(''), $button));
+		// One button per vehicle.
+		$this->assertSame(2, substr_count($this->shortcode(''), $button));
 		$off = $this->shortcode('show_remove_buttons="0"');
 		$this->assertSame(0, substr_count($off, $button));
-		$this->assertSame(2, substr_count($off, 'class="rv-book-now-btn"'), 'Only the remove buttons go.');
+		$this->assertSame(2, substr_count($off, 'rvs-compare__select'), 'Only the remove buttons go.');
 
 		// Cards layout.
 		$this->assertSame(2, substr_count($this->shortcode('layout="cards"'), $button));
@@ -90,9 +87,9 @@ final class VehicleComparisonSettingsTest extends WP_UnitTestCase
 
 		// Block and widget.
 		$ids = $this->catalog[0] . ',' . $this->catalog[1];
-		$this->assertSame(4, substr_count($this->block(array( 'vehicleIds' => $ids )), $button));
+		$this->assertSame(2, substr_count($this->block(array( 'vehicleIds' => $ids )), $button));
 		$this->assertSame(0, substr_count($this->block(array( 'vehicleIds' => $ids, 'showRemoveButtons' => false )), $button));
-		$this->assertSame(4, substr_count($this->widget(array( 'vehicle_ids' => $ids )), $button));
+		$this->assertSame(2, substr_count($this->widget(array( 'vehicle_ids' => $ids )), $button));
 		$this->assertSame(0, substr_count($this->widget(array( 'vehicle_ids' => $ids, 'show_remove_buttons' => '' )), $button));
 	}
 
@@ -124,7 +121,7 @@ final class VehicleComparisonSettingsTest extends WP_UnitTestCase
 	public function test_default_renders_unchanged(string $name): void
 	{
 		$html = $this->render_default_surface($name);
-		$this->assertStringContainsString('rv-comparison-table', $html, "$name rendered no comparison; the golden would pin an empty render.");
+		$this->assertStringContainsString('rvs-compare__table', $html, "$name rendered no comparison; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';

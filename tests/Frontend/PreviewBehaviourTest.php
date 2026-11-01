@@ -319,7 +319,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 		}
 
 		$comparison = $this->shortcode('rentiva_vehicle_comparison', array());
-		$this->assertStringContainsString('rv-comparison-table', $comparison);
+		$this->assertStringContainsString('rvs-compare__table', $comparison);
 		foreach ($samples as $id) {
 			$this->assertStringContainsString(esc_html(get_the_title($id)), $comparison);
 		}

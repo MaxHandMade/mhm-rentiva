@@ -1,165 +1,254 @@
 /**
- * Vehicle Comparison JavaScript (v1.3.4)
- * 
- * Simplified "View + Remove" logic for the comparison page.
- * Uses canonical compare toggle for optimistic UI updates.
+ * Vehicle comparison (PR E): remove, "only differences", and what follows from them.
+ *
+ * Every [data-rvs-comparison] keeps its own state and touches nothing outside its
+ * root. The server draws the page; this script only recomputes what a removal
+ * changes, by the drawing's rule: a cell differs when its value occurs once in the
+ * row. Below two vehicles the visitor's list reloads (the server's empty state);
+ * a fixed list (vehicle_ids) never touches the visitor's list and shows the
+ * empty state it was printed with.
+ *
+ * Toggles go through MHMRentivaCompare (vehicle-interactions.js): one at a time,
+ * so two quick clicks cannot overwrite each other's cookie.
  */
+( function ( $ ) {
+	'use strict';
 
-(function ($) {
-    'use strict';
+	const READY = 'rvsCmpReady';
 
-    class VehicleComparison {
-        constructor() {
-            this.container = $('.rv-vehicle-comparison');
-            if (this.container.length === 0) return;
+	function config() {
+		return window.mhmRentivaVehicleComparison || {};
+	}
 
-            this.maxVehicles = parseInt(this.container.data('max-vehicles')) || 4;
-            this.config = window.mhmRentivaVehicleComparison || {};
+	function string( key ) {
+		return ( config().strings || {} )[ key ] || '';
+	}
 
-            this.init();
-        }
+	function all( root, selector ) {
+		return Array.prototype.slice.call( root.querySelectorAll( selector ) );
+	}
 
-        init() {
-            this.bindEvents();
-            this.adjustTableWidth();
-        }
+	function toastError( message ) {
+		if ( window.MHMRentivaToast ) {
+			window.MHMRentivaToast.show( message, { type: 'error' } );
+		}
+	}
 
-        bindEvents() {
-            // Remove vehicle button (Optimistic)
-            this.container.on('click', '.rv-remove-vehicle', (e) => {
-                e.preventDefault();
-                const $btn = $(e.currentTarget);
-                const vehicleId = $btn.data('vehicle-id');
+	function vehicleIds( root ) {
+		return all( root, '[data-rvs-cmp-vehicle]' ).map( ( el ) => el.getAttribute( 'data-vehicle-id' ) );
+	}
 
-                if (vehicleId) {
-                    this.removeVehicle(vehicleId, $btn);
-                }
-            });
+	function isFixed( root ) {
+		return '1' === root.getAttribute( 'data-fixed' );
+	}
 
-            // Mobile accordion toggle (replaces the inline `onclick` the template
-            // used to carry -- wp_kses() now strips all `on*` attributes at the
-            // dispatcher, so this delegated handler is the only way the mobile
-            // "Show Features" accordion opens/closes).
-            this.container.on('click', '.rv-mobile-accordion-toggle', (e) => {
-                const $toggle = $(e.currentTarget);
-                $toggle.closest('.rv-mobile-card-item').toggleClass('active');
-            });
+	function setHidden( el, hidden ) {
+		el.hidden = hidden;
+	}
 
-            // Window resize event
-            $(window).on('resize', () => {
-                this.adjustTableWidth();
-            });
-        }
+	/**
+	 * Highlights, cues and the rows and group headings that show.
+	 */
+	function recalc( root ) {
+		const only = root.querySelector( '[data-rvs-cmp-only]' );
+		const onlyDifferences = !! ( only && only.checked );
+		const byRow = {};
 
-        /**
-         * Remove vehicle via canonical toggle endpoint
-         */
-        removeVehicle(vehicleId, $btn) {
-            // Optimistic Removal from DOM
-            this.removeVehicleFromDOM(vehicleId);
+		all( root, '[data-rvs-cmp-cell]' ).forEach( ( cell ) => {
+			const key = cell.getAttribute( 'data-row' );
+			( byRow[ key ] = byRow[ key ] || [] ).push( cell );
+		} );
 
-            $.ajax({
-                url: this.config.ajax_url || ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_toggle_compare',
-                    nonce: this.config.toggle_nonce || this.config.nonce,
-                    vehicle_id: vehicleId
-                },
-                success: (response) => {
-                    if (response.success && response.data.action === 'removed') {
-                        // Success toast
-                        if (window.mhmRentivaInteractions && typeof window.mhmRentivaInteractions.showToast === 'function') {
-                            window.mhmRentivaInteractions.showToast(response.data.message, 'success');
-                        }
+		const hiddenRow = {};
+		Object.keys( byRow ).forEach( ( key ) => {
+			const cells = byRow[ key ];
+			const values = cells.map( ( cell ) => cell.getAttribute( 'data-row-value' ) );
 
-                        // Check threshold after removal
-                        this.checkThreshold(response.data.count);
-                    } else {
-                        // Revert on failure? For now just log and alert
-                        console.error('Failed to remove vehicle from service:', response.data?.message);
-                        location.reload(); // Hard reset on logic error
-                    }
-                },
-                error: () => {
-                    console.error('AJAX error during vehicle removal');
-                    location.reload();
-                }
-            });
-        }
+			cells.forEach( ( cell, index ) => {
+				const different = cells.length > 1 && 1 === values.filter( ( value ) => value === values[ index ] ).length;
+				cell.classList.toggle( 'is-different', different );
+				const cue = cell.querySelector( '[data-rvs-cmp-cue]' );
+				if ( cue ) {
+					setHidden( cue, ! different );
+				}
+			} );
 
-        /**
-         * Optimistically remove columns/cards from DOM
-         */
-        removeVehicleFromDOM(vehicleId) {
-            // 1. Handle Table Layout
-            const $headers = this.container.find(`th[data-vehicle-id="${vehicleId}"]`);
-            if ($headers.length) {
-                const colIndex = $headers.index();
-                $headers.remove();
+			const allSame = values.every( ( value ) => value === values[ 0 ] );
+			const allEmpty = cells.every( ( cell ) => '1' === cell.getAttribute( 'data-empty' ) );
+			hiddenRow[ key ] = allEmpty || ( onlyDifferences && allSame );
+		} );
 
-                // Remove cells in tbody
-                this.container.find('tbody tr').each(function () {
-                    $(this).find('td').eq(colIndex).remove();
-                });
-            }
+		all( root, '[data-rvs-cmp-row]' ).forEach( ( row ) => {
+			setHidden( row, !! hiddenRow[ row.getAttribute( 'data-rvs-cmp-row' ) ] );
+		} );
 
-            // 2. Handle Cards Layout
-            this.container.find(`.rv-vehicle-card[data-vehicle-id="${vehicleId}"]`).fadeOut(300, function () {
-                $(this).remove();
-            });
+		let anyRow = false;
+		all( root, '[data-rvs-cmp-group]' ).forEach( ( group ) => {
+			const visible = all( group, '[data-rvs-cmp-row]' ).some( ( row ) => ! row.hidden );
+			anyRow = anyRow || visible;
+			all( group, '[data-rvs-cmp-group-head]' ).forEach( ( head ) => setHidden( head, ! visible ) );
+		} );
 
-            // 3. Handle Mobile Cards
-            this.container.find(`.rv-mobile-card-item[data-vehicle-id="${vehicleId}"]`).fadeOut(300, function () {
-                $(this).remove();
-            });
+		const none = root.querySelector( '[data-rvs-cmp-none]' );
+		if ( none ) {
+			setHidden( none, anyRow || ! onlyDifferences );
+		}
+	}
 
-            this.adjustTableWidth();
-        }
+	/**
+	 * The fixed list's empty state, already on the page.
+	 */
+	function showEmpty( root ) {
+		[ '[data-rvs-cmp-body]', '[data-rvs-cmp-meta]', '[data-rvs-cmp-only-label]' ].forEach( ( selector ) => {
+			all( root, selector ).forEach( ( el ) => setHidden( el, true ) );
+		} );
+		const empty = root.querySelector( '[data-rvs-cmp-empty]' );
+		if ( empty ) {
+			setHidden( empty, false );
+		}
+	}
 
-        /**
-         * Check if we still have at least 2 vehicles to compare
-         */
-        checkThreshold(count) {
-            if (count < 2) {
-                // If count is low, we might want to show empty state immediately or let PHP do it on next load
-                // Authoritative rule: No JS template recreation. 
-                // So if we fall below threshold, we just reload or show a simple "needs more" overlay.
-                setTimeout(() => {
-                    location.reload();
-                }, 500);
-            } else {
-                this.updateCountDisplay(count);
-            }
-        }
+	/**
+	 * The header line, the add column and the differences, for the vehicles left.
+	 */
+	function refresh( root ) {
+		const count = vehicleIds( root ).length;
 
-        updateCountDisplay(count) {
-            const $countEl = this.container.find('.rv-comparison-count');
-            if ($countEl.length) {
-                const template = count === 1 ?
-                    (this.config.one_vehicle_compared || '1 vehicle compared') :
-                    (this.config.multiple_vehicles_compared || '%d vehicles compared');
+		if ( count < 2 ) {
+			if ( isFixed( root ) ) {
+				showEmpty( root );
+			} else {
+				api.reload();
+			}
+			return;
+		}
 
-                $countEl.text(template.replace('%d', count));
-            }
-        }
+		let headers = {};
+		try {
+			headers = JSON.parse( root.getAttribute( 'data-headers' ) || '{}' );
+		} catch ( e ) {
+			headers = {};
+		}
+		const meta = root.querySelector( '[data-rvs-cmp-meta]' );
+		if ( meta && headers[ count ] ) {
+			meta.textContent = headers[ count ];
+		}
 
-        adjustTableWidth() {
-            const $table = this.container.find('.rv-comparison-table');
-            if ($table.length === 0) return;
+		const room = count < parseInt( root.getAttribute( 'data-max-vehicles' ), 10 );
+		all( root, '[data-rvs-cmp-add], [data-rvs-cmp-filler]' ).forEach( ( el ) => setHidden( el, ! room ) );
 
-            // Simple responsive adjustment
-            if (window.innerWidth <= 768) {
-                $table.parent().css('overflow-x', 'auto');
-            } else {
-                $table.css('width', '100%');
-            }
-        }
-    }
+		const hasAdd = !! root.querySelector( '[data-rvs-cmp-add]' ) && room;
+		all( root, '[data-rvs-cmp-span]' ).forEach( ( el ) => el.setAttribute( 'colspan', String( 1 + count + ( hasAdd ? 1 : 0 ) ) ) );
 
-    // Initialize on document ready
-    $(document).ready(() => {
-        new VehicleComparison();
-    });
+		recalc( root );
+	}
 
-})(jQuery);
+	function drop( root, vehicleId ) {
+		all( root, '[data-rvs-cmp-col]' ).forEach( ( el ) => {
+			if ( el.getAttribute( 'data-vehicle-id' ) === String( vehicleId ) ) {
+				el.parentNode.removeChild( el );
+			}
+		} );
+		refresh( root );
+
+		// The button that had the focus is gone.
+		const next = root.querySelector( '[data-rvs-cmp-remove]' ) || root.querySelector( '[data-rvs-cmp-only]' );
+		if ( next && ! next.closest( '[hidden]' ) ) {
+			next.focus();
+		}
+	}
+
+	function remove( root, button ) {
+		const vehicleId = button.getAttribute( 'data-vehicle-id' );
+
+		if ( isFixed( root ) ) {
+			drop( root, vehicleId );
+			return;
+		}
+		if ( ! window.MHMRentivaCompare ) {
+			toastError( string( 'error' ) );
+			return;
+		}
+
+		button.disabled = true;
+		window.MHMRentivaCompare.toggle( vehicleId, config().toggle_nonce, {
+			success( response ) {
+				if ( ! response || ! response.success ) {
+					button.disabled = false;
+					toastError( ( response && response.data && response.data.message ) || string( 'error' ) );
+					return;
+				}
+				// Not on the list any more (another tab, another comparison): the toggle
+				// just added it back. Only the server's page can be right now.
+				if ( 'removed' !== response.data.action ) {
+					api.reload();
+					return;
+				}
+				drop( root, vehicleId );
+			},
+			error() {
+				button.disabled = false;
+				toastError( string( 'error' ) );
+			},
+		} );
+	}
+
+	function start( root ) {
+		if ( root.dataset[ READY ] ) {
+			return;
+		}
+		root.dataset[ READY ] = '1';
+
+		root.addEventListener( 'click', ( event ) => {
+			const button = event.target.closest ? event.target.closest( '[data-rvs-cmp-remove]' ) : null;
+			if ( button && root.contains( button ) && ! button.disabled ) {
+				event.preventDefault();
+				remove( root, button );
+			}
+		} );
+
+		root.addEventListener( 'change', ( event ) => {
+			if ( event.target.matches && event.target.matches( '[data-rvs-cmp-only]' ) ) {
+				recalc( root );
+			}
+		} );
+
+		recalc( root );
+	}
+
+	function roots() {
+		return all( document, '[data-rvs-comparison]' ).filter( ( root ) => ! root.closest( '[data-rv-render="preview"]' ) );
+	}
+
+	const api = {
+		init() {
+			roots().forEach( start );
+		},
+		// Named so a test can watch it; jsdom cannot.
+		reload() {
+			window.location.reload();
+		},
+	};
+
+	window.mhmRentivaComparisonClient = api;
+
+	// Another comparison on the page, or another control, changed the visitor's list.
+	$( document ).on( 'mhm-rentiva:compare-changed', ( event, data ) => {
+		if ( ! data || ! Array.isArray( data.items ) ) {
+			return;
+		}
+		const listed = data.items.map( ( item ) => String( item.id ) );
+		roots().forEach( ( root ) => {
+			if ( isFixed( root ) ) {
+				return;
+			}
+			vehicleIds( root ).forEach( ( id ) => {
+				if ( -1 === listed.indexOf( id ) ) {
+					drop( root, id );
+				}
+			} );
+		} );
+	} );
+
+	$( () => api.init() );
+}( jQuery ) );

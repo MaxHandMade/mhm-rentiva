@@ -202,6 +202,6 @@ class BlockTwinAttributesTest extends WP_UnitTestCase
 				'innerContent' => array(),
 			)
 		);
-		$this->assertMatchesRegularExpression('/<div(?=[^>]*wp-block-mhm-rentiva-availability-calendar)(?=[^>]*height:500px)[^>]*>/', $html);
+		$this->assertMatchesRegularExpression('/<div(?=[^>]*wp-block-mhm-rentiva-availability-calendar)(?=[^>]*min-height:500px)[^>]*>/', $html);
 	}
 }

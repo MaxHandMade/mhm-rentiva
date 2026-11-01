@@ -3,41 +3,63 @@
  */
 
 /**
- * getSwitchVehicleButtonHtml() rebuilt the "Choose another vehicle" button from the existing
- * button's data-vehicles. .attr() returns the decoded JSON, and it was written back into a
- * single-quoted attribute raw -- a vehicle title with an apostrophe (Pro: vendors set it) broke
- * the attribute (and the JSON) and could add attributes. The rebuilt button must carry the same
- * JSON and nothing else.
+ * A vehicle title comes from the server and may hold quotes or markup (Pro:
+ * vendors set it). Changing the vehicle writes it as text and as an attribute
+ * value, so it stays data: no element or attribute can come out of it.
  */
-describe( 'availability calendar: switch-vehicle button keeps its data', () => {
+describe( 'availability calendar: a switched vehicle title stays data', () => {
 	let $;
+	let calls;
 
 	beforeAll( () => {
 		$ = require( 'jquery' );
 		global.jQuery = $;
 		window.jQuery = $;
-		window.mhmRentivaAvailability = { ajaxUrl: '/wp-admin/admin-ajax.php', nonce: 'n', strings: {}, messages: {} };
-		$.post = jest.fn( () => $.Deferred().promise() );
+		calls = [];
+		$.ajax = jest.fn( ( options ) => {
+			calls.push( options );
+		} );
+		window.mhmRentivaAvailability = { ajax_url: '/ajax', nonce: 'n', strings: {} };
+		require( '../../assets/js/frontend/rvs-dialog.js' );
 		require( '../../assets/js/frontend/availability-calendar.js' );
 	} );
 
-	test( 'a title with quotes survives the rebuild as data', () => {
-		const vehicles = JSON.stringify( [
-			{ id: 7, title: "Driver's x' autofocus onfocus='window.__rvInjected=1' x='" },
-			{ id: 8, title: 'Plain "quoted" title' },
-		] );
-		document.body.innerHTML = '<div class="rv-availability-calendar" data-vehicle-id="7" data-vehicle-price="0" data-start-month="2026-10" data-months-to-show="1"><button class="rv-switch-vehicle-btn"></button></div>';
-		$( '.rv-switch-vehicle-btn' ).attr( 'data-vehicles', vehicles );
-		const calendar = new window.AvailabilityCalendar( $( '.rv-availability-calendar' ) );
+	test( 'a_title_with_quotes_and_markup_survives_as_data', () => {
+		const title = 'Driver\'s x\' autofocus onfocus=\'window.__rvInjected=1\' x=\'<img src=x onerror=alert(1)>"';
+		document.body.innerHTML = `
+			<section data-rvs-availability data-vehicle-id="7" data-start-month="2026-11" data-months-to-show="1" data-week-start="1" data-show-pricing="1" data-show-booking-button="1">
+				<div class="rvs-availability__vehicle"><img data-rvs-cal-image src="a.jpg" alt=""><p data-rvs-cal-name>Old</p></div>
+				<button type="button" data-rvs-cal-switch>Change</button>
+				<div data-rvs-cal-months></div>
+				<div class="rvs-dialog" data-rvs-cal-dialog hidden>
+					<button type="button" data-rvs-cal-option="8" aria-pressed="false">Other</button>
+				</div>
+			</section>`;
+		window.mhmRentivaAvailabilityCalendar.init();
+		const answer = ( call, data ) => {
+			call.success( { success: true, data } );
+			if ( call.complete ) {
+				call.complete();
+			}
+		};
+		answer( calls[ 0 ], { html: '', prev_allowed: false, start_month: '2026-11' } );
+		calls.length = 0;
 
-		const holder = document.createElement( 'div' );
-		holder.innerHTML = calendar.getSwitchVehicleButtonHtml();
-		const rebuilt = holder.querySelector( 'button' );
+		const dlgOpener = document.querySelector( '[data-rvs-cal-switch]' );
+		dlgOpener.click();
+		document.querySelector( '[data-rvs-cal-option="8"]' ).click();
 
-		expect( rebuilt ).not.toBeNull();
-		expect( rebuilt.getAttribute( 'data-vehicles' ) ).toBe( vehicles );
-		expect( rebuilt.hasAttribute( 'onfocus' ) ).toBe( false );
-		expect( rebuilt.hasAttribute( 'autofocus' ) ).toBe( false );
-		expect( JSON.parse( rebuilt.getAttribute( 'data-vehicles' ) )[ 0 ].id ).toBe( 7 );
+		answer( calls[ 0 ], { id: 8, title, image: 'b.jpg', price_html: '', bookable: true } );
+		answer( calls[ 1 ], { html: '', prev_allowed: false, start_month: '2026-11' } );
+
+		const name = document.querySelector( '[data-rvs-cal-name]' );
+		const image = document.querySelector( '[data-rvs-cal-image]' );
+
+		expect( name.textContent ).toBe( title );
+		expect( name.children ).toHaveLength( 0 );
+		expect( image.getAttribute( 'alt' ) ).toBe( title );
+		expect( image.hasAttribute( 'onfocus' ) ).toBe( false );
+		expect( image.hasAttribute( 'autofocus' ) ).toBe( false );
+		expect( document.querySelector( '[onerror]' ) ).toBeNull();
 	} );
 } );

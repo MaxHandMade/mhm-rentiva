@@ -41,10 +41,8 @@
 	.rv-unified-ratings-section,
 	.rv-contact-form,
 	.rv-testimonials,
-	.rv-availability-calendar,
 	.rv-booking-confirmation,
-	.rv-vehicle-details,
-	.rv-vehicle-comparison
+	.rv-vehicle-details
 ):not(.rv-surface--flush) {
 	margin-inline: auto;
 	padding-inline: var(--mhm-surface-gutter-desktop);
@@ -91,10 +89,8 @@
 		.rv-unified-ratings-section,
 		.rv-contact-form,
 		.rv-testimonials,
-		.rv-availability-calendar,
 		.rv-booking-confirmation,
-		.rv-vehicle-details,
-		.rv-vehicle-comparison
+		.rv-vehicle-details
 	):not(.rv-surface--flush) {
 		padding-inline: max(var(--mhm-surface-gutter-mobile), env(safe-area-inset-left));
 	}

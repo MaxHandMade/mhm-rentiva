@@ -318,6 +318,12 @@
 	line-height: 1.15;
 }
 
+.rvs-shell .rvs-card__suffix {
+	color: var(--rvs-card-price-period);
+	font-size: 13px;
+	font-weight: 400;
+}
+
 .rvs-shell .rvs-card__per {
 	color: var(--rvs-card-price-period);
 	font-size: 13px;

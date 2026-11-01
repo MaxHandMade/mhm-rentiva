@@ -27,7 +27,7 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 		parent::setUp();
 
 		$this->user_id    = (int) $this->factory->user->create();
-		$this->vehicle_id = 12345;
+		$this->vehicle_id = $this->comparable_vehicle();
 
 		wp_set_current_user( $this->user_id );
 		if ( ! self::$service_registered ) {
@@ -113,9 +113,9 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_ajax_returns_limit_error_when_max_items_reached(): void {
-		CompareService::add( 1001 );
-		CompareService::add( 1002 );
-		CompareService::add( 1003 );
+		CompareService::add( $this->comparable_vehicle() );
+		CompareService::add( $this->comparable_vehicle() );
+		CompareService::add( $this->comparable_vehicle() );
 
 		$_POST['action']     = 'mhmrentiva_toggle_compare';
 		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_toggle_compare' );
@@ -144,6 +144,15 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 		$this->assertTrue( $response['success'] );
 		$this->assertSame( 'added', $response['data']['action'] );
 		$this->assertSame( 1, $response['data']['count'] );
+	}
+
+	private function comparable_vehicle(): int {
+		return (int) $this->factory->post->create(
+			array(
+				'post_type'   => 'mhmrentiva_vehicle',
+				'post_status' => 'publish',
+			)
+		);
 	}
 
 	private function dispatch_ajax(): void {

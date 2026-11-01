@@ -23,7 +23,7 @@ use WP_UnitTestCase;
  * exactly one call site in the whole codebase (Lite + Pro) reads
  * $available[$type][$key]['meta_key'] --
  * VehicleFeatureHelper::collect_items()'s TYPE_DETAIL branch. VehicleSettings
- * ::render_display_tab() and VehicleComparison::get_feature_label() also call
+ * ::render_display_tab() and ComparisonView::label() also call
  * get_available_fields_map(), but only ever read ['label']. Zero references
  * exist in mhm-rentiva-pro.
  *

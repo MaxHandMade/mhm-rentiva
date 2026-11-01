@@ -80,6 +80,54 @@
 	box-shadow: inset 0 0 0 2px var(--rvs-accent);
 }
 
+/* Interactive month (availability calendar): the cell is a 44 px button on every
+   screen. Seven columns at 390 px leave about 46 px each, so the target fits. */
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day {
+	height: 44px;
+}
+
+.rvs-shell .rvs-cal__btn {
+	display: block;
+	width: 100%;
+	min-height: 44px;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: inherit;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-variant-numeric: tabular-nums;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-available:hover {
+	background: var(--rvs-accent-100);
+}
+
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-selected:hover {
+	background: var(--rvs-accent-deep);
+}
+
+.rvs-shell .rvs-cal__btn:focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+/* Range ends: round the outer edges only, so the run reads as one bar. */
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-selected:not(.is-range-start):not(.is-range-end) {
+	border-radius: 0;
+}
+
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-range-start:not(.is-range-end) {
+	border-radius: var(--rvs-r) 0 0 var(--rvs-r);
+}
+
+.rvs-shell .rvs-cal.is-interactive .rvs-cal__day.is-range-end:not(.is-range-start) {
+	border-radius: 0 var(--rvs-r) var(--rvs-r) 0;
+}
+
 @media (max-width: 768px) {
 	.rvs-shell .rvs-cal__day {
 		height: 44px;

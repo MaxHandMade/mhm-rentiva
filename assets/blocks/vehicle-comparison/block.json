@@ -60,7 +60,7 @@
     },
     "maxVehicles": {
       "type": "string",
-      "default": "4"
+      "default": "3"
     },
     "layout": {
       "type": "string",
@@ -84,9 +84,7 @@
     }
   },
   "editorStyle": [
-    "mhm-rentiva-core-variables"
-  ],
-  "style": [
-    "mhm-rentiva-vehicle-comparison"
+    "mhm-rentiva-core-variables",
+    "mhm-rentiva-rvs-comparison"
   ]
 }

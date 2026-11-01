@@ -222,7 +222,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 43
+			count: 45
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -430,18 +430,6 @@ parameters:
 			path: src/Admin/Frontend/Account/AccountRenderer.php
 
 		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 4
-			path: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 4
-			path: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
-
-		-
 			message: '#^Method MHMRentiva\\Admin\\Frontend\\Shortcodes\\BookingForm\:\:get_active_payment_gateway\(\) has invalid return type MHMRentiva\\Admin\\Frontend\\Shortcodes\\PaymentGatewayInterface\.$#'
 			identifier: class.notFound
 			count: 1
@@ -542,18 +530,6 @@ parameters:
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/UnifiedSearch.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Shortcodes\\VehicleComparison\:\:get_default_features\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehicleComparison.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and false will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/VehicleComparison.php
 
 		-
 			message: '#^Parameter \#1 \$comment_id of function get_comment_meta expects int, string given\.$#'

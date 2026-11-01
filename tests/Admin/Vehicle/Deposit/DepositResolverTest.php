@@ -345,12 +345,11 @@ final class DepositResolverTest extends WP_UnitTestCase
 		);
 		update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_status', 'active');
 
-		$method = new \ReflectionMethod(\MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::class, 'get_vehicle_data');
-		$method->setAccessible(true);
-		$data = $method->invoke(null, $this->vehicle_id);
+		$cell = \MHMRentiva\Admin\Frontend\Shortcodes\ComparisonView::cell($this->vehicle_id, 'deposit', 'details');
 
-		$this->assertIsArray($data);
-		$this->assertSame('30', $data['features']['deposit'] ?? null, 'The comparison table read the raw field and showed nothing for an empty one.');
+		$this->assertSame('30', $cell['value'], 'The comparison table read the raw field and showed nothing for an empty one.');
+		$this->assertStringContainsString('30', $cell['text']);
+		$this->assertStringContainsString('%', $cell['text']);
 	}
 
 	private function reset_field_map(): void

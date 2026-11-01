@@ -3,113 +3,60 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
-
-
-
-
-use MHMRentiva\Admin\Core\Utilities\Templates;
-use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Core\AssetManager;
+use MHMRentiva\Admin\Core\SecurityHelper;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
-use MHMRentiva\Admin\Frontend\Shortcodes\Core\BookingUrl;
-use Exception;
-
-
 
 /**
- * Availability Calendar Shortcode
+ * Availability calendar (`rentiva_availability_calendar`) on the front-end standard.
  *
- * [rentiva_availability_calendar] - Date-based availability calendar for a specific vehicle
- * [rentiva_availability_calendar vehicle_id="123" show_pricing="1" theme="compact"]
- *
- * Features:
- * - Dynamic updates via AJAX
- * - Seasonal/discount integration
- * - Integration with pricing shortcode
- * - Responsive design
+ * Aşama 2 PR E: the data is CalendarView, the template prints it inside
+ * `.rvs-shell`, and the endpoints answer with the same partials. The first
+ * paint is server-rendered; the HTML can be cached for minutes, so the script
+ * refreshes the months through `mhmrentiva_calendar_months` on load.
  */
 final class AvailabilityCalendar extends AbstractShortcode {
 
-
-
-
 	public const SHORTCODE = 'rentiva_availability_calendar';
 
-	/**
-	 * Largest month span one request may render.
-	 *
-	 * The calendar markup declares `data-months-to-show` of 1 (shortcode
-	 * default) to 3 (template fallback) and the client walks longer spans by
-	 * moving `start_month`, so a year is already well beyond what any caller
-	 * asks for. The bound exists because the unified endpoint is nopriv: the
-	 * value sizes two day-by-day loops and the cache key, which without a
-	 * ceiling lets an anonymous caller choose how much work the server does.
-	 */
-	private const MAX_MONTH_SPAN = 12;
+	protected static bool $rvs_shell = true;
 
-	/**
-	 * Safe sanitize text field that handles null values
-	 *
-	 * @param mixed $value Value to sanitize
-	 * @return string
-	 */
-	public static function sanitize_text_field_safe($value): string
-	{
-		if ($value === null || $value === '') {
-			return '';
-		}
-		return sanitize_text_field( (string) $value);
-	}
-
-	public static function register(): void
-	{
+	public static function register(): void {
 		parent::register();
 
-		// AJAX handlers
-		add_action('wp_ajax_mhmrentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
-		add_action('wp_ajax_nopriv_mhmrentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
-
-		add_action('wp_ajax_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
-		add_action('wp_ajax_nopriv_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
-
-		// Cache invalidation
-		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_availability_cache' ), 10, 3);
+		add_action( 'wp_ajax_mhmrentiva_calendar_months', array( self::class, 'ajax_months' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_calendar_months', array( self::class, 'ajax_months' ) );
+		add_action( 'wp_ajax_mhmrentiva_calendar_quote', array( self::class, 'ajax_quote' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_calendar_quote', array( self::class, 'ajax_quote' ) );
+		add_action( 'wp_ajax_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_vehicle_info' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_vehicle_info' ) );
 	}
 
-	protected static function get_shortcode_tag(): string
-	{
-		return 'rentiva_availability_calendar';
+	protected static function get_shortcode_tag(): string {
+		return self::SHORTCODE;
 	}
 
-	protected static function get_template_path(): string
-	{
+	protected static function get_template_path(): string {
 		return 'shortcodes/availability-calendar';
 	}
 
-	protected static function get_default_attributes(): array
-	{
+	protected static function get_default_attributes(): array {
 		return array(
 			'vehicle_id'            => '',
-			'show_pricing'          => apply_filters('mhmrentiva_availability_calendar_show_pricing', '1'),
+			'show_pricing'          => apply_filters( 'mhmrentiva_availability_calendar_show_pricing', '1' ),
 			'show_booking_button'   => apply_filters(
 				'mhmrentiva_availability_calendar_show_booking_button',
-				apply_filters('mhmrentiva_availability_calendar_show_booking_btn', '1')
+				apply_filters( 'mhmrentiva_availability_calendar_show_booking_btn', '1' )
 			),
-			'theme'                 => apply_filters('mhmrentiva_availability_calendar_theme', 'default'),
-			// `months_ahead` used to sit beside `months_to_show` but nothing ever
-			// read it -- the render span comes from `months_to_show` alone. Its
-			// siblings `show_weekends`/`show_past_dates` were dead the same way, and
-			// their declared defaults ('1'/'0') contradicted what the calendar
-			// actually renders, so honouring them would have silently changed every
-			// existing calendar. All three are gone rather than back-fitted.
-			'months_to_show'        => apply_filters('mhmrentiva_availability_calendar_months_to_show', '1'),
+			'theme'                 => apply_filters( 'mhmrentiva_availability_calendar_theme', 'default' ),
+			'months_to_show'        => apply_filters( 'mhmrentiva_availability_calendar_months_to_show', '2' ),
 			'start_month'           => '',
-			// Spec 3A Task 6: these gate markup that was unconditional, so on by default.
 			'show_legend'           => '1',
 			'show_month_nav'        => '1',
 			'show_vehicle_selector' => '1',
@@ -118,1177 +65,149 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		);
 	}
 
-	/**
-	 * Returns CSS filename
-	 *
-	 * @return string
-	 */
-	protected static function get_css_filename(): string
-	{
-		return 'availability-calendar.css';
-	}
-
-	/**
-	 * Returns JS filename
-	 *
-	 * @return string
-	 */
-	protected static function get_js_filename(): string
-	{
+	protected static function get_js_filename(): string {
 		return 'availability-calendar.js';
 	}
 
 	/**
-	 * Returns CSS files
+	 * The calendar, the vehicle dialog and the page script.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes.
 	 */
-	protected static function get_css_files(array $atts = array()): array
-	{
-		$css_files = array(
-			'assets/css/frontend/availability-calendar.css',
-		);
-
-		return $css_files;
+	protected static function enqueue_assets( array $atts = array() ): void {
+		AssetManager::enqueue_rvs_availability_styles();
+		AssetManager::enqueue_rvs_dialog();
+		self::enqueue_scripts( $atts );
 	}
 
-	/**
-	 * Loads CSS files - Override
-	 */
-	protected static function enqueue_styles(array $atts = array()): void
-	{
-
-		$css_files = self::get_css_files();
-		foreach ($css_files as $css_file) {
-			if (self::asset_exists($css_file)) {
-				$handle = self::get_asset_handle();
-
-				// Check for minified version
-				$minified_file = str_replace('.css', '.min.css', $css_file);
-				$css_url       = MHMRENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $css_file );
-
-				wp_enqueue_style(
-					$handle,
-					$css_url,
-					self::get_css_dependencies(),
-					self::get_asset_version($minified_file) // Use smart versioning
-				);
-				break;
-			}
-		}
+	protected static function get_js_dependencies(): array {
+		return array( 'jquery', 'mhm-rentiva-rvs-dialog' );
 	}
 
-	/**
-	 * Loads JS files - Override
-	 */
-	protected static function enqueue_scripts(array $atts = array()): void
-	{
-		$js_files = self::get_js_files();
-		foreach ($js_files as $js_file) {
-			if (self::asset_exists($js_file)) {
-				$handle = self::get_asset_handle();
-
-				// Check for minified version
-				$minified_file = str_replace('.js', '.min.js', $js_file);
-				$js_url        = MHMRENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $js_file );
-
-				wp_enqueue_script(
-					$handle,
-					$js_url,
-					self::get_js_dependencies(),
-					self::get_asset_version($minified_file), // Use smart versioning
-					true
-				);
-
-				// Load JavaScript variables using the custom object name expected by JS
-				wp_localize_script($handle, 'mhmRentivaAvailability', self::get_localized_data());
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Returns JS files
-	 */
-	protected static function get_js_files(array $atts = array()): array
-	{
-		return array(
-			'assets/js/frontend/availability-calendar.js',
-		);
-	}
-
-	/**
-	 * Override asset loading method
-	 */
-	protected static function enqueue_assets(array $atts = array()): void
-	{
-		// Enqueue Global Notifications System CSS (Forced for reliability)
-		wp_enqueue_style(
-			'mhm-rentiva-notifications',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
-			array(),
-			MHMRENTIVA_VERSION . '.toast2'
-		);
-
-		// Load CSS
-		self::enqueue_styles();
-
-		// Load JS
-		self::enqueue_scripts();
-
-		// JS and CSS are enqueued above.
-		// Booking Form assets are handled via declarative dependency in ShortcodeServiceProvider.
-	}
-
-	/**
-	 * Asset loading check - Override
-	 */
-	protected static function enqueue_assets_once(array $atts = array()): void
-	{
-		$tag = self::get_shortcode_tag();
-
-		// Static cache check
-		static $enqueued_assets = array();
-
-		// Load assets
-		self::enqueue_assets();
-		$enqueued_assets[ $tag ] = true;
-	}
-
-	/**
-	 * Returns CSS dependencies
-	 */
-	protected static function get_css_dependencies(): array
-	{
-		return array();
-	}
-
-	/**
-	 * Returns JS dependencies
-	 */
-	protected static function get_js_dependencies(): array
-	{
-		// availability-calendar.js calls MHMRentivaToast.* -- toast.js is
-		// only ever auto-loaded where a consumer's own deps declares it.
-		return array( 'jquery', 'mhm-rentiva-toast' );
-	}
-
-	protected static function get_script_object_name(): string
-	{
+	protected static function get_script_object_name(): string {
 		return 'mhmRentivaAvailability';
 	}
 
-	protected static function get_localized_strings(): array
-	{
+	protected static function get_localized_strings(): array {
 		return array(
-			'error'             => esc_html__('An error occurred', 'mhm-rentiva'),
-			'available'         => esc_html__('Available', 'mhm-rentiva'),
-			'unavailable'       => esc_html__('Vehicle Unavailable', 'mhm-rentiva'),
-			'outOfOrderMessage' => esc_html__('This vehicle is currently out of order and cannot be booked. Please choose another vehicle.', 'mhm-rentiva'),
-			'chooseAnother'     => esc_html__('Choose Another Vehicle', 'mhm-rentiva'),
-			'booked'            => esc_html__('Booked', 'mhm-rentiva'),
-			'maintenance'       => esc_html__('Maintenance', 'mhm-rentiva'),
-			'unknown_error'     => esc_html__('Unknown error', 'mhm-rentiva'),
-			// Flattened strings
-			'select_vehicle'    => esc_html__('Select Vehicle', 'mhm-rentiva'),
-			'close'             => esc_html__('Close', 'mhm-rentiva'),
-			'per_day'           => esc_html__('/day', 'mhm-rentiva'),
-			'monday'            => esc_html__('Mon', 'mhm-rentiva'),
-			'tuesday'           => esc_html__('Tue', 'mhm-rentiva'),
-			'wednesday'         => esc_html__('Wed', 'mhm-rentiva'),
-			'thursday'          => esc_html__('Thu', 'mhm-rentiva'),
-			'friday'            => esc_html__('Fri', 'mhm-rentiva'),
-			'saturday'          => esc_html__('Sat', 'mhm-rentiva'),
-			'sunday'            => esc_html__('Sun', 'mhm-rentiva'),
-			'select_date_first' => esc_html__('Please select a date first.', 'mhm-rentiva'),
-			'login_required'    => esc_html__('Please login to add favorites.', 'mhm-rentiva'),
+			'error'      => __( 'Something went wrong. Please try again.', 'mhm-rentiva' ),
+			'loading'    => __( 'Loading...', 'mhm-rentiva' ),
+			'pickReturn' => __( 'Now choose your return date.', 'mhm-rentiva' ),
+			'selected'   => __( 'Selected', 'mhm-rentiva' ),
 		);
 	}
 
-	protected static function get_localized_data(): array
-	{
-		$data = parent::get_localized_data();
-
-		// Add common Rentiva data
-		$data['isUserLoggedIn']   = is_user_logged_in();
-		$data['currencySymbol']   = CurrencyHelper::get_currency_symbol();
-		$data['currencyPosition'] = CurrencyHelper::get_currency_position();
-		$data['pluginUrl']        = MHMRENTIVA_PLUGIN_URL;
-		$data['dateFormat']       = get_option('date_format', 'd.m.Y');
-		$data['timeFormat']       = get_option('time_format', 'H:i');
-		$data['locale']           = get_locale();
-		$data['bookingPageUrl']   = BookingUrl::base_url();
-
-		// Add messages for fallback
-		$data['messages'] = array(
-			'error'   => __('An error occurred.', 'mhm-rentiva'),
-			'success' => __('Operation successful.', 'mhm-rentiva'),
-		);
-
-		/**
-		 * Merge additional strings
-		 */
-		if (! isset($data['strings']) || ! is_array($data['strings'])) {
-			$data['strings'] = array();
-		}
-
-		$data['strings'] = array_merge(
-			$data['strings'],
-			array(
-				'login_required'         => __('You must be logged in to add to favorites', 'mhm-rentiva'),
-				'added_to_favorites'     => __('Added to favorites', 'mhm-rentiva'),
-				'removed_from_favorites' => __('Removed from favorites', 'mhm-rentiva'),
-				'error'                  => __('An error occurred', 'mhm-rentiva'),
-				'success'                => __('Operation successful', 'mhm-rentiva'),
-			)
-		);
-
-		$data['icons'] = array(
-			'success'      => \MHMRentiva\Helpers\Icons::get('success'),
-			'warning'      => \MHMRentiva\Helpers\Icons::get('warning'),
-			'heart'        => \MHMRentiva\Helpers\Icons::get('heart', array( 'class' => 'rv-heart-icon' )),
-			'heart_filled' => \MHMRentiva\Helpers\Icons::get('heart', array(
-				'class' => 'rv-heart-icon favorited',
-				'fill'  => 'currentColor',
-			)),
-		);
-
-		/**
-		 * Nonce mapping for Availability Calendar
-		 * 1. nonce: Used for data loading (mhmrentiva_availability_nonce)
-		 * 2. favoriteNonce: Used for favorite toggling (mhmrentiva_vehicles_list)
-		 */
-		$data['nonce']         = wp_create_nonce('mhmrentiva_availability_nonce');
-		$data['favoriteNonce'] = \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_favorite'); // Use toggle_favorite specifically
-		$data['accountNonce']  = $data['favoriteNonce'];
+	/**
+	 * Each calendar's settings are on its own root (`data-show-pricing`, ...).
+	 */
+	protected static function get_localized_data(): array {
+		$data          = parent::get_localized_data();
+		$data['nonce'] = wp_create_nonce( 'mhmrentiva_availability_nonce' );
 
 		return $data;
 	}
-	protected static function prepare_template_data(array $atts): array
-	{
-		// Get vehicle information
-		$vehicle_id = 0;
 
-		if (! empty($atts['vehicle_id'])) {
-			/*
-			 * The pinned-vehicle attribute goes through the same public gate as
-			 * everything else on this surface. The attribute is author-written
-			 * rather than visitor-supplied, but the OUTPUT is still a public
-			 * page: pinning a draft vehicle published its title, excerpt, price
-			 * and availability just as effectively as the default-pick did.
-			 */
-			// A transfer-only vehicle is not offered for rental, pinned or not.
-			if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( (int) $atts['vehicle_id'])
-				&& \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( (int) $atts['vehicle_id'], 'rental')) {
-				$vehicle_id = intval($atts['vehicle_id']);
-			}
-		} else {
-			/*
-			 * If vehicle ID not provided, get first publicly readable vehicle.
-			 *
-			 * This used to ask for `array('publish','draft','private')`.
-			 * `get_posts()` runs no capability check of its own, so on a public
-			 * page that made the newest UNPUBLISHED vehicle the calendar's
-			 * default -- an anonymous visitor was served its title, excerpt,
-			 * price and whole month of availability. `perm => 'readable'` would
-			 * not have fixed it either: that only constrains `private`, and
-			 * leaves `draft` (a protected, not private, status) untouched.
-			 * Publish-only is the rule the surface actually needs.
-			 */
-			$vehicles = get_posts(
-				\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service(
-					array(
-						'post_type'    => 'mhmrentiva_vehicle',
-						// Public surface: unpublished vehicles stay unpublished, and a
-						// password-protected one is not public either.
-						'post_status'  => 'publish',
-						'has_password' => false,
-						'numberposts'  => 1,
-						'orderby'      => 'date',
-						'order'        => 'DESC',
-					),
-					'rental'
-				)
-			);
-
-			if (! empty($vehicles)) {
-				$vehicle_id = $vehicles[0]->ID;
-			}
-		}
-
-		// Vehicle list (for dropdown)
-		$vehicles_list = self::get_vehicles_list();
-
-		// If vehicle not selected but vehicles exist, select first one
-		if ($vehicle_id === 0 && ! empty($vehicles_list)) {
-			$vehicle_id = $vehicles_list[0]['id'];
-		}
-
-		// Get structured vehicle data (High Fidelity)
-		$selected_vehicle = $vehicle_id > 0 ? self::get_selected_vehicle_data($vehicle_id) : null;
-
-		// Start month (Fallback precedence: Attribute > Today)
-		$show_pricing   = $atts['show_pricing'] === '1' || $atts['show_pricing'] === true;
-		$months_to_show = (int) $atts['months_to_show'];
-		$start_month    = ! empty($atts['start_month']) ? $atts['start_month'] : self::current_month();
-
-		// Get calendar data (if vehicle exists)
-		$availability_data = array();
-		if ($vehicle_id > 0) {
-			$availability_data = self::get_availability_data($vehicle_id, $start_month, $months_to_show);
-		}
-
-		// Get pricing data (if to be shown and vehicle exists)
-		$pricing_data = array();
-		if ($atts['show_pricing'] === '1' && $vehicle_id > 0) {
-			$pricing_data = self::get_pricing_data($vehicle_id, $start_month, $months_to_show);
-		}
+	protected static function prepare_template_data( array $atts ): array {
+		$vehicle_id = CalendarView::resolve_vehicle( $atts['vehicle_id'] ?? '' );
 
 		return array(
-			'atts'              => $atts,
-			'selected_vehicle'  => $selected_vehicle,
-			'vehicle_id'        => $vehicle_id,
-			'vehicles_list'     => $vehicles_list,
-			'start_month'       => $start_month,
-			'months_to_show'    => $months_to_show,
-			'availability_data' => $availability_data,
-			'pricing_data'      => $pricing_data,
-			'current_user'      => wp_get_current_user(),
+			'vehicle_id' => $vehicle_id,
+			'atts'       => $atts,
+			'view'       => $vehicle_id > 0 ? CalendarView::build( $vehicle_id, $atts ) : array(),
 		);
 	}
 
 	/**
-	 * Prepare high-fidelity vehicle data for the card
-	 * Reuses logic design from BookingForm for UI consolidation
+	 * The nonce-checked request, or a JSON error.
 	 */
-	private static function get_selected_vehicle_data(int $vehicle_id): ?array
-	{
-		$vehicle = get_post($vehicle_id);
-		if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle') {
-			return null;
+	private static function verified_request(): VerifiedRequest {
+		if ( ! check_ajax_referer( 'mhmrentiva_availability_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
 		}
-
-		$price_per_day   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
-		$currency_symbol = CurrencyHelper::get_currency_symbol();
-
-		// Vehicle image
-		$image_id  = get_post_thumbnail_id($vehicle_id);
-		$image_url = $image_id ? wp_get_attachment_image_url($image_id, 'large') : '';
-		if (! $image_url && class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
-			$image_url = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_image($vehicle_id);
-		}
-
-		// Rating information
-		$rating = array(
-			'average' => 0.0,
-			'count'   => 0,
-		);
-		if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
-			$rating_data       = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_rating($vehicle_id);
-			$rating['average'] = (float) ( $rating_data['average'] ?? 0 );
-			$rating['count']   = (int) ( $rating_data['count'] ?? 0 );
-		}
-
-		// Favorite check
-		$is_favorited = false;
-		if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
-			$is_favorited = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::is_favorite($vehicle_id);
-		}
-
-		// Meta information
-		$year    = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_year($vehicle_id);
-		$mileage = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_mileage($vehicle_id);
-		$seats   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($vehicle_id);
-
-		// Features
-		$features = array();
-		if (class_exists('\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper')) {
-			$features = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::collect_items($vehicle_id);
-			if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
-				foreach ($features as &$feature) {
-					$feature['svg'] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg($feature['icon'] ?? '');
-				}
-			}
-		}
-
-		// Availability Status
-		$status_data = array(
-			'is_available' => true,
-			'status'       => 'active',
-			'text'         => esc_html__('Available', 'mhm-rentiva'),
-		);
-
-		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
-
-		$is_available = ( $status === 'active' );
-		$status_data  = array(
-			'is_available' => $is_available,
-			'status'       => $status,
-			'text'         => $is_available ? esc_html__('Available', 'mhm-rentiva') : esc_html__('Out of Order', 'mhm-rentiva'),
-		);
-
-		return array(
-			'id'              => $vehicle_id,
-			'title'           => $vehicle->post_title,
-			'excerpt'         => wp_trim_words($vehicle->post_excerpt, 20),
-			'price_per_day'   => $price_per_day,
-			'formatted_price' => CurrencyHelper::format_price( (float) $price_per_day, 0),
-			'currency_symbol' => $currency_symbol,
-			'rating'          => $rating,
-			'favorite'        => $is_favorited,
-			'image_url'       => $image_url,
-			'features'        => $features,
-			'permalink'       => \MHMRentiva\Admin\Core\ShortcodeUrlManager::vehicle_page_url( (int) $vehicle_id),
-			'year'            => $year,
-			'mileage'         => $mileage,
-			'seats'           => $seats,
-			'availability'    => $status_data,
-		);
-	}
-
-	private static function get_vehicles_list(): array
-	{
-		// _v2: this sweep narrowed the query below from
-		// array('publish','draft','private') to publish-only. The old key
-		// let a transient cached before deploy keep serving unpublished
-		// vehicles' title/excerpt/price to anonymous visitors until its
-		// tag-based invalidation fired or its 30-minute TTL expired.
-		// _v3: the list became rental-only (transfer-only vehicles dropped); a
-		// _v2 entry cached before deploy would keep offering them until its TTL.
-		$cache_key = 'availability_calendar_vehicles_list_v3';
-
-		// Check from cache
-		$cached_data = \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key);
-		if ($cached_data !== null) {
-			return $cached_data;
-		}
-
-		// Performance monitoring
-		$performance_data = \MHMRentiva\Admin\Core\PerformanceHelper::time_execution(
-			function () {
-				/*
-				 * Publish-only, for the same reason as the default-vehicle
-				 * query above: this list is JSON-encoded into the public
-				 * `data-vehicles` attribute of the vehicle switcher, so every
-				 * row here -- title, slug, excerpt and price -- is served to
-				 * anonymous visitors verbatim. It is also cached in a
-				 * role-agnostic transient, so it must not depend on who
-				 * happened to warm it.
-				 */
-				$vehicles = get_posts(
-					\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service(
-						array(
-							'post_type'    => 'mhmrentiva_vehicle',
-							// This list becomes the public vehicle switcher; drafts,
-							// private and password-protected vehicles do not belong
-							// in it -- nor do transfer-only ones: it is a rental
-							// calendar that links to the rental booking form.
-							'post_status'  => 'publish',
-							'has_password' => false,
-							'numberposts'  => -1,
-							'orderby'      => 'title',
-							'order'        => 'ASC',
-						),
-						'rental'
-					)
-				);
-
-				// Batch load vehicle prices to prevent N+1 queries
-				$vehicle_ids = array_map(
-					function ($vehicle) {
-						return $vehicle->ID;
-					},
-					$vehicles
-				);
-
-				$vehicle_data_batch = \MHMRentiva\Admin\Core\PerformanceHelper::batch_load_vehicle_data($vehicle_ids);
-
-				$vehicles_list = array();
-				foreach ($vehicles as $vehicle) {
-					$vehicle_id = $vehicle->ID;
-					$batch_data = $vehicle_data_batch[ $vehicle_id ] ?? array();
-
-					$price = 0;
-
-					// Get price using helper
-					$price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
-
-					$vehicles_list[] = array(
-						'id'      => $vehicle_id,
-						'title'   => $vehicle->post_title,
-						'slug'    => $vehicle->post_name,
-						'excerpt' => wp_trim_words($vehicle->post_excerpt, 15),
-						'price'   => $price,
-					);
-				}
-
-				return $vehicles_list;
-			},
-			'vehicles_list_loading'
-		);
-
-		$vehicles_list = $performance_data['result'];
-
-		// Save to cache (30 minutes)
-		\MHMRentiva\Admin\Core\PerformanceHelper::cache_set(
-			$cache_key,
-			$vehicles_list,
-			1800,
-			array( 'vehicles', 'availability_calendar' )
-		);
-
-		// Note: a slow-query monitor was previously hooked here for queries over 500ms.
-		// The instrumentation moved into the metrics layer; the empty branch is kept
-		// as documentation of the threshold for future reference.
-		unset( $performance_data );
-
-		return $vehicles_list;
+		return VerifiedRequest::from( $_POST );
 	}
 
 	/**
-	 * Coerce a start month to a real `Y-m`.
-	 *
-	 * PHP's strtotime() answers false for anything it cannot parse, and on PHP 8
-	 * gmdate() raises a TypeError rather than quietly rendering January 1970.
-	 * Both public entry points into the calendar accept this value.
+	 * Months from `start_month`, as the page's own partial. An optional
+	 * `start_date` / `end_date` marks the visitor's selection.
 	 */
-	private static function normalize_start_month(string $start_month, ?int $now = null): string
-	{
-		if (preg_match('/^\d{4}-\d{2}$/', $start_month) === 1 && strtotime($start_month . '-01') !== false) {
-			return $start_month;
-		}
-
-		return self::current_month($now);
-	}
-
-	/**
-	 * The site's current month, `Y-m` -- the calendar opens on the visitor's
-	 * site-local month, not UTC's.
-	 *
-	 * @param int|null $now Only for tests; production callers omit it.
-	 */
-	private static function current_month(?int $now = null): string
-	{
-		return substr(\MHMRentiva\Admin\Booking\Helpers\SiteTime::today($now), 0, 7);
-	}
-
-	/**
-	 * @param int|null $now Only for tests; production callers omit it. A
-	 *                      pinned moment bypasses the shared cache.
-	 */
-	private static function get_availability_data(int $vehicle_id, string $start_month, int $months_to_show, ?int $now = null): array
-	{
-		// Defence in depth: both the nopriv handler and the shortcode attribute
-		// reach this loop, and strtotime() returns false for a malformed month
-		// which gmdate() then rejects outright on PHP 8.
-		$start_month    = self::normalize_start_month($start_month, $now);
-		$today          = \MHMRentiva\Admin\Booking\Helpers\SiteTime::today($now);
-		$months_to_show = max(1, min($months_to_show, self::MAX_MONTH_SPAN));
-
-		// _v2: this sweep dropped the raw `bookings` (id/post_title/status --
-		// another customer's identity) from what this method returns and
-		// caches; see the PUBLIC PAYLOAD BOUNDARY note below. The 60s TTL
-		// already makes the exposure window from the old key negligible, but
-		// bumping it removes even that -- a transient cached under the old
-		// key one second before deploy cannot be read back after it.
-		//
-		// The key is built from the NORMALISED month and the CLAMPED span
-		// above, so two callers asking the same question in different shapes
-		// share one entry instead of seeding an unbounded set of keys.
-		$cache_key = "availability_data_v2_{$vehicle_id}_{$start_month}_{$months_to_show}";
-
-		// Cache'den kontrol et
-		$cached_data = null === $now ? \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key) : null;
-		if ($cached_data !== null) {
-			return $cached_data;
-		}
-
-		// Performans monitoring
-		$performance_data = \MHMRentiva\Admin\Core\PerformanceHelper::time_execution(
-			function () use ($vehicle_id, $start_month, $months_to_show, $today) {
-				global $wpdb;
-
-				$availability_data = array();
-				$current_month     = $start_month;
-
-				// Calculate date range for single query
-				$start_date = gmdate('Y-m-01', strtotime($start_month));
-				$end_date   = gmdate('Y-m-t', strtotime($start_month . ' +' . ( $months_to_show - 1 ) . ' months'));
-
-				// Single optimized query for all months
-				$bookings = $wpdb->get_results(
-					$wpdb->prepare(
-						"
-                SELECT 
-                    p.ID,
-                    p.post_title,
-                    pm_start.meta_value as start_date,
-                    pm_end.meta_value as end_date,
-                    pm_status.meta_value as status,
-                    pm_payment.meta_value as payment_status
-                FROM {$wpdb->posts} p
-                INNER JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id AND pm_vehicle.meta_key = '_mhmrentiva_vehicle_id'
-                INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key IN ('_mhmrentiva_start_date', '_mhmrentiva_pickup_date')
-                INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key IN ('_mhmrentiva_end_date', '_mhmrentiva_return_date', '_mhmrentiva_dropoff_date')
-                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-                LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhmrentiva_payment_status'
-                WHERE p.post_type = 'mhmrentiva_booking'
-                AND p.post_status IN ('publish', 'pending', 'confirmed')
-                AND pm_vehicle.meta_value = %d
-                AND pm_start.meta_value <= %s
-                AND pm_end.meta_value >= %s
-                AND (pm_status.meta_value IS NULL OR pm_status.meta_value NOT IN ('cancelled', 'trash', 'refunded', 'iptal'))
-                GROUP BY p.ID
-                ORDER BY pm_start.meta_value ASC
-            ",
-						$vehicle_id,
-						$end_date . ' 23:59:59',
-						$start_date
-					)
-				);
-
-				// Get global vehicle status
-				$global_status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
-
-				// Process bookings for all months
-				for ($i = 0; $i < $months_to_show; $i++) {
-					$month_start = gmdate('Y-m-01', strtotime($current_month));
-					$month_end   = gmdate('Y-m-t', strtotime($current_month));
-
-					// Calculate daily states
-					$days         = array();
-					$current_date = $month_start;
-
-					while ($current_date <= $month_end) {
-						$day_status    = 'available';
-						$day_bookings  = array();
-						$day_occupancy = 0;
-
-						foreach ($bookings as $booking) {
-							// Normalize dates to exclude time portion if exists
-							$b_start = substr( (string) $booking->start_date, 0, 10);
-							$b_end   = substr( (string) $booking->end_date, 0, 10);
-
-							if ($current_date >= $b_start && $current_date <= $b_end) {
-								$day_status = $booking->status ?: 'booked';
-								/*
-								 * Local-only working rows. These four fields
-								 * decide the day's colour a few lines below and
-								 * are then DISCARDED -- see the note on
-								 * $public_days. `id` and `post_title` in
-								 * particular identify another customer's
-								 * booking and must never leave this closure.
-								 */
-								$day_bookings[] = array(
-									'id'             => $booking->ID,
-									'title'          => $booking->post_title,
-									'status'         => $booking->status ?: 'booked',
-									'payment_status' => $booking->payment_status ?: 'unpaid',
-								);
-								$day_occupancy++;
-							}
-						}
-
-						// State determination (Restored & Improved for Pending/Partial logic)
-						if ($day_occupancy > 0) {
-							$is_maintenance = false;
-							$has_paid       = false;
-							$has_pending    = false;
-
-							foreach ($day_bookings as $db_item) {
-								if ($db_item['status'] === 'maintenance') {
-									$is_maintenance = true;
-								}
-								// If it's paid or confirmed, it's a solid booking (Red)
-								if ($db_item['payment_status'] === 'paid' || $db_item['status'] === 'confirmed' || $db_item['status'] === 'publish') {
-									$has_paid = true;
-								}
-								// If it's pending (like Bank/EFT or 30-min reserve), it's partial (Yellow)
-								if ($db_item['payment_status'] === 'pending' || $db_item['payment_status'] === 'partial' || $db_item['status'] === 'pending') {
-									$has_pending = true;
-								}
-							}
-
-							if ($is_maintenance) {
-								$day_status = 'maintenance';
-							} elseif ($has_paid) {
-								$day_status = 'booked';
-							} elseif ($has_pending) {
-								$day_status = 'partial';
-							} else {
-								$day_status = 'booked'; // Fallback
-							}
-						}
-
-						// Global Status Override
-						// If vehicle is in global maintenance mode, all days are maintenance
-						if ($global_status === 'maintenance') {
-							$day_status = 'maintenance';
-						}
-						// If vehicle is inactive, available days become unavailable
-						if ($global_status === 'inactive' && $day_status === 'available') {
-							$day_status = 'unavailable';
-						}
-
-						/*
-						 * PUBLIC PAYLOAD BOUNDARY.
-						 *
-						 * Everything in $days is served to anonymous visitors
-						 * twice over: rendered into the shortcode's HTML, and
-						 * returned verbatim as JSON by the
-						 * `wp_ajax_nopriv_mhmrentiva_availability_unified`
-						 * handler. It used to carry $day_bookings unmodified,
-						 * so a logged-out caller received each overlapping
-						 * booking's post ID, post_title and raw status --
-						 * post_title being an admin-editable free-text field
-						 * that routinely holds a customer's name.
-						 *
-						 * What a public availability calendar is entitled to
-						 * say is "this day is taken, and in what way", not "by
-						 * whom". $day_status and $day_occupancy carry exactly
-						 * that and nothing more, so the identifying fields stop
-						 * here.
-						 *
-						 * The strip is unconditional rather than gated on a
-						 * capability because these rows land in a shared,
-						 * role-agnostic transient: a privileged view would
-						 * otherwise warm the cache with identities that the
-						 * next anonymous visitor would be served.
-						 */
-						$days[ $current_date ] = array(
-							'status'     => $day_status,
-							'occupancy'  => $day_occupancy,
-							'day_number' => gmdate('j', strtotime($current_date)),
-							'is_weekend' => in_array(gmdate('N', strtotime($current_date)), array( 6, 7 )),
-							'is_today'   => $current_date === $today,
-							'is_past'    => $current_date < $today,
-						);
-
-						$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
-					}
-
-					$availability_data[ $current_month ] = array(
-						'month_name' => self::get_month_name($current_month),
-						'year'       => gmdate('Y', strtotime($current_month)),
-						'days'       => $days,
-						'stats'      => array(
-							'total_days'     => count($days),
-							'available_days' => count(
-								array_filter(
-									$days,
-									function ($day) {
-										return $day['status'] === 'available';
-									}
-								)
-							),
-							'booked_days'    => count(
-								array_filter(
-									$days,
-									function ($day) {
-										return $day['status'] === 'booked';
-									}
-								)
-							),
-							'partial_days'   => count(
-								array_filter(
-									$days,
-									function ($day) {
-										return $day['status'] === 'partial';
-									}
-								)
-							),
-						),
-					);
-
-					$current_month = gmdate('Y-m', strtotime($current_month . ' +1 month'));
-				}
-
-				return $availability_data;
-			},
-			"availability_data_{$vehicle_id}"
-		);
-
-		$availability_data = $performance_data['result'];
-
-		// Save to cache (60 seconds for better responsiveness)
-		if (null === $now) {
-			\MHMRentiva\Admin\Core\PerformanceHelper::cache_set(
-				$cache_key,
-				$availability_data,
-				60,
-				array( 'vehicles', 'availability', "vehicle_{$vehicle_id}" )
-			);
-		}
-
-		// Note: a slow-query monitor was previously hooked here for queries over 1s.
-		// The instrumentation moved into the metrics layer; the empty branch is kept
-		// as documentation of the threshold for future reference.
-		unset( $performance_data );
-
-		return $availability_data;
-	}
-
-	private static function get_pricing_data(int $vehicle_id, string $start_month, int $months_to_show): array
-	{
-		return self::calculate_calendar_pricing($vehicle_id, $start_month, $months_to_show);
-	}
-
-	private static function calculate_calendar_pricing(int $vehicle_id, string $start_month, int $months_to_show): array
-	{
-		$start_month    = self::normalize_start_month($start_month);
-		$months_to_show = max(1, min($months_to_show, self::MAX_MONTH_SPAN));
-
-		$pricing_data  = array();
-		$current_month = $start_month;
-
-		for ($i = 0; $i < $months_to_show; $i++) {
-			$month_start = gmdate('Y-m-01', strtotime($current_month));
-			$month_end   = gmdate('Y-m-t', strtotime($current_month));
-
-			$base_price      = self::get_vehicle_base_price($vehicle_id);
-			$weekend_price   = self::get_vehicle_weekend_price($vehicle_id);
-			$seasonal_prices = self::get_vehicle_seasonal_prices($vehicle_id);
-			$discounts       = self::get_vehicle_discounts($vehicle_id);
-
-			$days         = array();
-			$current_date = $month_start;
-
-			while ($current_date <= $month_end) {
-				$is_weekend      = in_array(gmdate('N', strtotime($current_date)), array( 6, 7 ));
-				$day_price       = $base_price;
-				$discount_amount = 0;
-
-				// Weekend price
-				if ($is_weekend && $weekend_price > 0) {
-					$day_price = $weekend_price;
-				}
-
-				// Check seasonal prices
-				foreach ($seasonal_prices as $season) {
-					if ($current_date >= $season['start_date'] && $current_date <= $season['end_date']) {
-						$day_price = $season['price'];
-						break;
-					}
-				}
-
-				// Check discounts
-				foreach ($discounts as $discount) {
-					if ($current_date >= $discount['start_date'] && $current_date <= $discount['end_date']) {
-						if ($discount['type'] === 'percentage') {
-							$discount_amount = ( $day_price * $discount['value'] ) / 100;
-						} else {
-							$discount_amount = $discount['value'];
-						}
-						$day_price = max(0, $day_price - $discount_amount);
-						break;
-					}
-				}
-
-				$days[ $current_date ] = array(
-					'base_price'      => $base_price,
-					'day_price'       => $day_price,
-					'is_weekend'      => $is_weekend,
-					'has_discount'    => $discount_amount > 0,
-					'discount_amount' => $discount_amount,
-					'original_price'  => $day_price + $discount_amount,
-				);
-
-				$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
-			}
-
-			$pricing_data[ $current_month ] = array(
-				'month_name'    => self::get_month_name($current_month),
-				'year'          => gmdate('Y', strtotime($current_month)),
-				'days'          => $days,
-				'base_price'    => $base_price,
-				'weekend_price' => $weekend_price,
-			);
-
-			$current_month = gmdate('Y-m', strtotime($current_month . ' +1 month'));
-		}
-
-		return $pricing_data;
-	}
-
-	private static function get_vehicle_base_price(int $vehicle_id): float
-	{
-		$price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) ?: 0);
-		return $price;
-	}
-
-	private static function get_vehicle_weekend_price(int $vehicle_id): float
-	{
-		$base_price = self::get_vehicle_base_price($vehicle_id);
-		// Get multiplier from settings, default to 1.2
-		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.2);
-
-		return $base_price * $multiplier;
-	}
-
-	private static function get_vehicle_seasonal_prices(int $vehicle_id): array
-	{
-		// Seasonal pricing not yet in meta field
-		return array();
-	}
-
-	/**
-	 * Get vehicle discounts
-	 *
-	 * @param int $vehicle_id Vehicle ID
-	 * @return array
-	 */
-	private static function get_vehicle_discounts(int $vehicle_id): array
-	{
-		// Discounts not yet in meta field
-		return array();
-	}
-
-	/**
-	 * Unified AJAX handler for availability and pricing
-	 *
-	 * @return void
-	 */
-	public static function ajax_unified_availability(): void
-	{
-		// Security check
-		if (! check_ajax_referer('mhmrentiva_availability_nonce', 'nonce', false)) {
-			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
+	public static function ajax_months(): void {
+		$req = self::verified_request();
+		// First, so a probe for vehicle ids is counted too. The script asks once per
+		// load and per step: wider than the quote's allowance.
+		SecurityHelper::check_rate_limit_or_die( 'calendar_months', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
+		$vehicle_id = VehicleDetails::requested_vehicle( $req );
+		if ( $vehicle_id <= 0 ) {
 			return;
 		}
 
-		$request     = VerifiedRequest::from($_POST);
-		$vehicle_id  = $request->int('vehicle_id');
-		$start_month = $request->text('start_month', self::current_month());
-		// Bounded: the endpoint is nopriv and this value sizes two day-by-day
-		// loops plus the cache key. See self::MAX_MONTH_SPAN.
-		$months_to_show = $request->intRange('months_to_show', 1, 1, self::MAX_MONTH_SPAN);
-
-		if (! $vehicle_id) {
-			wp_send_json_error(array( 'message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva') ));
-			return;
-		}
-
-		// The same line the other public entry points draw. This is the endpoint
-		// the rendered calendar actually calls on every month change, and it is
-		// nopriv: without this check a draft or private ID answered with that
-		// vehicle's day-by-day occupancy and its daily prices.
-		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vehicle_id)) {
-			// No return after this: wp_send_json_error() terminates through
-			// wp_die(), and a return here is dead code the analyser reports.
-			//
-			// The gate stays OUTSIDE the try below on purpose: wp_send_json_*
-			// terminates by raising through wp_die(), so a guard placed inside
-			// it has its terminator swallowed by the catch, which then writes a
-			// second, contradictory JSON document after the first.
-			wp_send_json_error(array( 'message' => esc_html__('Vehicle not found', 'mhm-rentiva') ));
-		}
-
-		// Only the data gathering is guarded. wp_send_json_* terminates the
-		// request by raising through wp_die(), so leaving those calls inside the
-		// try meant this catch swallowed the terminator and wrote a second,
-		// contradictory JSON document after the first.
-		try {
-			$availability_data = self::get_availability_data($vehicle_id, $start_month, $months_to_show);
-			$pricing_data      = self::get_pricing_data($vehicle_id, $start_month, $months_to_show);
-		} catch (Exception $e) {
-			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving data.', 'mhm-rentiva') ));
-			return;
-		}
+		$first    = CalendarView::opening_month( $req->text( 'start_month' ) );
+		$selected = array_values( array_filter( array( $req->text( 'start_date' ), $req->text( 'end_date' ) ) ) );
+		$months   = CalendarView::months(
+			$vehicle_id,
+			$first,
+			$req->intRange( 'months_to_show', 2, 1, CalendarView::MAX_MONTH_SPAN ),
+			array(
+				'week_start' => $req->intRange( 'week_start', 1, 0, 6 ),
+				'selected'   => $selected,
+			)
+		);
 
 		wp_send_json_success(
 			array(
-				'availability_data' => $availability_data,
-				'pricing_data'      => $pricing_data,
-				// No booking cap exists any more; the key stays so the
-				// calendar JS response contract is unchanged.
-				'limit_reached'     => false,
-				'message'           => esc_html__('Calendar data updated.', 'mhm-rentiva'),
+				'html'         => VehicleDetails::months_html( $months ),
+				'prev_allowed' => CalendarView::prev_allowed( $first ),
+				'start_month'  => $first,
 			)
 		);
 	}
 
 	/**
-	 * AJAX handler to get vehicle info
-	 *
-	 * @return void
+	 * The selection panel for `start_date` .. `end_date`.
 	 */
-	public static function ajax_get_vehicle_info(): void
-	{
-		// Security check
-		if (! check_ajax_referer('mhmrentiva_availability_nonce', 'nonce', false)) {
-			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
+	public static function ajax_quote(): void {
+		$req = self::verified_request();
+		// The vehicle page's bucket: both quote the same card.
+		SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
+		$vehicle_id = VehicleDetails::requested_vehicle( $req );
+		if ( $vehicle_id <= 0 ) {
 			return;
 		}
 
-		$vehicle_id = VerifiedRequest::from($_POST)->int('vehicle_id');
-
-		if ($vehicle_id <= 0) {
-			wp_send_json_error(__('Invalid vehicle ID', 'mhm-rentiva'));
-		}
-
-		$vehicle = get_post($vehicle_id);
-
-		// This endpoint is nopriv and answers with the vehicle's title, media,
-		// specification and price, so an unpublished vehicle must be as absent
-		// here as it is everywhere else on the front end -- the post type on its
-		// own does not draw that line. Asked through the house helper, which is
-		// the stricter form of the same question: it also refuses a
-		// password-protected vehicle, which a post_status check lets through.
-		if (! $vehicle || ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vehicle_id)) {
-			wp_send_json_error(__('Vehicle not found', 'mhm-rentiva'));
-		}
-
-		try {
-			// Vehicle image
-			$image_url = '';
-			if (has_post_thumbnail($vehicle_id)) {
-				$image_url = get_the_post_thumbnail_url($vehicle_id, 'medium');
-			}
-
-			// Vehicle features (Unified with SVGs)
-			$features     = array();
-			$fuel_type    = get_post_meta($vehicle_id, '_mhmrentiva_fuel_type', true);
-			$transmission = get_post_meta($vehicle_id, '_mhmrentiva_transmission', true);
-			$seats        = get_post_meta($vehicle_id, '_mhmrentiva_seats', true);
-
-			if ($fuel_type) {
-				$features[] = array(
-					'icon' => 'fuel',
-					'text' => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_fuel_type_label($fuel_type),
-					'svg'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg('fuel'),
-				);
-			}
-			if ($transmission) {
-				$features[] = array(
-					'icon' => 'gear',
-					'text' => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_transmission_label($transmission),
-					'svg'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg('gear'),
-				);
-			}
-			if ($seats) {
-				$features[] = array(
-					'icon' => 'people',
-					/* translators: %d: number of seats */
-					'text' => sprintf(__('%d people', 'mhm-rentiva'), $seats),
-					'svg'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg('people'),
-				);
-			}
-			// Add default features if needed or more meta
-			$yearValue = get_post_meta($vehicle_id, '_mhmrentiva_year', true);
-			if ($yearValue) {
-				$features[] = array(
-					'icon' => 'calendar',
-					'text' => $yearValue,
-					'svg'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg('calendar'),
-				);
-			}
-
-			// Price
-			$price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
-
-			// Rating information
-			$rating = array(
-				'average' => 0.0,
-				'count'   => 0,
-			);
-			if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
-				$rating_data       = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_rating($vehicle_id);
-				$rating['average'] = (float) ( $rating_data['average'] ?? 0 );
-				$rating['count']   = (int) ( $rating_data['count'] ?? 0 );
-			}
-
-			$data = array(
-				'id'              => $vehicle_id,
-				'title'           => $vehicle->post_title,
-				'excerpt'         => $vehicle->post_excerpt ?: wp_trim_words($vehicle->post_content, 15),
-				'image'           => $image_url ?: '',
-				'features'        => $features,
-				'price'           => (float) $price,
-				'formatted_price' => CurrencyHelper::format_price( (float) $price, 0),
-				'currency_symbol' => CurrencyHelper::get_currency_symbol(),
-				'rating'          => $rating,
-				'is_favorite'     => false,
-			);
-
-			if (is_user_logged_in()) {
-				$user_id   = get_current_user_id();
-				$favorites = get_user_meta($user_id, 'mhmrentiva_favorites', true);
-				if (is_array($favorites) && in_array($vehicle_id, $favorites)) {
-					$data['is_favorite'] = true;
-				}
-			}
-
-			// Availability Check
-			$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
-
-			// Normalize for UI
-			if (empty($status) || $status === '1') {
-				$status = 'active';
-			}
-
-			$data['status']       = $status;
-			$data['is_available'] = ( $status === 'active' );
-
-			// Plain text in JSON: the script escapes it (escapeHtml() / .text()), so escaping
-			// here too showed a translated apostrophe as "&#039;".
-			$status_labels       = array(
-				'active'      => __('Available', 'mhm-rentiva'),
-				'maintenance' => __('Out of Order', 'mhm-rentiva'),
-			);
-			$data['status_text'] = $status_labels[ $status ] ?? __('Unavailable', 'mhm-rentiva');
-		} catch (Exception $e) {
-			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving vehicle information.', 'mhm-rentiva') ));
-		}
-
-		// Outside the try: wp_send_json_* terminates through wp_die(), and a
-		// catch(Exception) around it swallows that terminator and writes a
-		// second, contradictory JSON document after the first.
-		wp_send_json_success($data);
+		wp_send_json_success( CalendarView::quote( $vehicle_id, $req->text( 'start_date' ), $req->text( 'end_date' ) ) );
 	}
 
+	/**
+	 * The vehicle card after a switch.
+	 */
+	public static function ajax_vehicle_info(): void {
+		$req = self::verified_request();
+		SecurityHelper::check_rate_limit_or_die( 'calendar_vehicle_info', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
+		$vehicle_id = VehicleDetails::requested_vehicle( $req );
+		if ( $vehicle_id <= 0 ) {
+			return;
+		}
+
+		wp_send_json_success( CalendarView::vehicle_card( $vehicle_id ) );
+	}
 
 	/**
-	 * Get localized month name
+	 * A missing or unavailable vehicle is a short empty state, never another car.
 	 *
-	 * @param string $month Month number (01-12)
-	 * @return string
+	 * @param array<string, mixed> $template_data Prepared template data.
 	 */
-	private static function get_month_name(string $month): string
-	{
-		$months = array(
-			'01' => esc_html__('January', 'mhm-rentiva'),
-			'02' => esc_html__('February', 'mhm-rentiva'),
-			'03' => esc_html__('March', 'mhm-rentiva'),
-			'04' => esc_html__('April', 'mhm-rentiva'),
-			'05' => esc_html__('May', 'mhm-rentiva'),
-			'06' => esc_html__('June', 'mhm-rentiva'),
-			'07' => esc_html__('July', 'mhm-rentiva'),
-			'08' => esc_html__('August', 'mhm-rentiva'),
-			'09' => esc_html__('September', 'mhm-rentiva'),
-			'10' => esc_html__('October', 'mhm-rentiva'),
-			'11' => esc_html__('November', 'mhm-rentiva'),
-			'12' => esc_html__('December', 'mhm-rentiva'),
+	protected static function render_template( array $template_data ): string {
+		if ( (int) ( $template_data['vehicle_id'] ?? 0 ) > 0 ) {
+			return parent::render_template( $template_data );
+		}
+
+		return (string) Templates::render(
+			'partials/rvs/calendar-panel',
+			array(
+				'empty' => CalendarView::names_vehicle( $template_data['atts']['vehicle_id'] ?? '' ) ? __( 'Vehicle not found.', 'mhm-rentiva' ) : __( 'No vehicles found.', 'mhm-rentiva' ),
+				'class' => (string) ( $template_data['atts']['class'] ?? '' ),
+			),
+			true
 		);
-
-		$month_num = gmdate('m', strtotime($month));
-		return $months[ $month_num ] ?? esc_html__('Unknown', 'mhm-rentiva');
-	}
-
-	/**
-	 * Clear availability cache for a vehicle
-	 *
-	 * @param int $post_id Post ID
-	 * @param \WP_Post $post Post Object
-	 * @param bool $update Whether this is an existing post being updated
-	 * @return void
-	 */
-	public static function clear_availability_cache($post_id, $post, $update): void
-	{
-		if ($post->post_type !== 'mhmrentiva_booking') {
-			return;
-		}
-
-		$vehicle_id = (int) get_post_meta( (int) $post_id, '_mhmrentiva_vehicle_id', true);
-		if ($vehicle_id > 0) {
-			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(array( "vehicle_{$vehicle_id}" ));
-		}
 	}
 }

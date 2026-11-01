@@ -167,9 +167,8 @@ class VehicleDataHelper {
 	 *     everything else" is itself the disclosure.
 	 *
 	 * Deliberately caller-independent: it does NOT widen for an administrator.
-	 * Several consumers cache their result in a role-agnostic transient
-	 * (`AvailabilityCalendar::get_availability_data()`,
-	 * `SearchResults::get_filter_options()`), so a capability-dependent answer
+	 * A consumer may cache its result in a role-agnostic transient
+	 * (`SearchResults::get_filter_options()`), so a capability-dependent answer
 	 * here would let one privileged page-view poison a shared cache with
 	 * unpublished data and serve it to the next anonymous visitor.
 	 *

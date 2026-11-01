@@ -228,8 +228,14 @@ final class PriceDisplay {
 		return $allowed;
 	}
 
+	/**
+	 * The `wc_price` filter's result is unescaped and the scripts insert a price
+	 * as HTML, so nothing but price markup leaves here.
+	 */
 	private static function format(float $amount): string
 	{
-		return function_exists('wc_price') ? (string) wc_price($amount) : esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price($amount, 2));
+		$html = function_exists('wc_price') ? (string) wc_price($amount) : esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price($amount, 2));
+
+		return wp_kses($html, self::allowed_html());
 	}
 }

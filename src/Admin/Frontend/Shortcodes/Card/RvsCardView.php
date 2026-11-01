@@ -228,7 +228,7 @@ final class RvsCardView {
 	 * @param array<string, string> $dates
 	 * @return array<string, string>
 	 */
-	private static function dates(array $dates): array
+	public static function dates(array $dates): array
 	{
 		if (array() !== $dates) {
 			return $dates;
@@ -357,7 +357,7 @@ final class RvsCardView {
 	 * for a vehicle without a price.
 	 *
 	 * @param array<string, string> $dates
-	 * @return array{has_price: bool, is_total: bool, primary_html: string, secondary: string, days: int}
+	 * @return array{has_price: bool, is_total: bool, primary_html: string, suffix: string, secondary: string, days: int}
 	 */
 	private static function price(int $vehicle_id, array $dates): array
 	{
@@ -367,12 +367,13 @@ final class RvsCardView {
 				'has_price'    => false,
 				'is_total'     => false,
 				'primary_html' => esc_html__('Price on request', 'mhm-rentiva'),
+				'suffix'       => '',
 				'secondary'    => '',
 				'days'         => 0,
 			);
 		}
 
-		$daily_html = PriceDisplay::for_shop(RentalPricing::quote_for_days($vehicle_id, 1, 0)->rental_amount)['html'];
+		$daily = PriceDisplay::for_shop(RentalPricing::quote_for_days($vehicle_id, 1, 0)->rental_amount);
 
 		$window = self::window($dates);
 		if (null !== $window) {
@@ -383,8 +384,9 @@ final class RvsCardView {
 				'has_price'    => true,
 				'is_total'     => true,
 				'primary_html' => $total['html'],
+				'suffix'       => $total['suffix'],
 				/* translators: 1: number of days, 2: formatted daily price. */
-				'secondary'    => sprintf(_n('%1$d day total · %2$s/day', '%1$d days total · %2$s/day', $quote->days, 'mhm-rentiva'), $quote->days, wp_strip_all_tags($daily_html)),
+				'secondary'    => sprintf(_n('%1$d day total · %2$s/day', '%1$d days total · %2$s/day', $quote->days, 'mhm-rentiva'), $quote->days, wp_strip_all_tags($daily['html'])),
 				'days'         => $quote->days,
 			);
 		}
@@ -392,7 +394,8 @@ final class RvsCardView {
 		return array(
 			'has_price'    => true,
 			'is_total'     => false,
-			'primary_html' => $daily_html,
+			'primary_html' => $daily['html'],
+			'suffix'       => $daily['suffix'],
 			'secondary'    => __('per day', 'mhm-rentiva'),
 			'days'         => 0,
 		);

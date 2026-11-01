@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
-use MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar;
+use MHMRentiva\Admin\Frontend\Shortcodes\CalendarView;
 use MHMRentiva\Tests\Support\SiteClock;
 use WP_UnitTestCase;
 
@@ -18,7 +18,7 @@ use WP_UnitTestCase;
  * The moment is passed in: 22:30 UTC on 31 October 2026. East of UTC that is
  * already 1 November; in New York (still EDT, -4) it is 18:30 on the 31st.
  *
- * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\CalendarView
  */
 final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 {
@@ -31,17 +31,6 @@ final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 			return;
 		}
 		$this->pin_site_timezone($zone);
-	}
-
-	/**
-	 * @param array<int, mixed> $args
-	 */
-	private function call(string $method, array $args)
-	{
-		$ref = new \ReflectionMethod(AvailabilityCalendar::class, $method);
-		$ref->setAccessible(true);
-
-		return $ref->invokeArgs(null, $args);
 	}
 
 	/**
@@ -67,8 +56,9 @@ final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 		$this->pin_zone($zone);
 		$now = gmmktime(22, 30, 0, 10, 31, 2026);
 
-		$this->assertSame($month, $this->call('current_month', array( $now )), 'The default month is the local one.');
-		$this->assertSame($month, $this->call('normalize_start_month', array( 'not-a-month', $now )), 'A malformed month falls back to the local month.');
+		$this->assertSame($month, CalendarView::current_month($now), 'The default month is the local one.');
+		$this->assertSame($month, CalendarView::normalize_month('not-a-month', $now), 'A malformed month falls back to the local month.');
+		$this->assertSame($month, CalendarView::opening_month('2026-01', $now), 'A past month opens on the local month.');
 
 		$vehicle_id = (int) self::factory()->post->create(
 			array(
@@ -78,14 +68,20 @@ final class AvailabilityCalendarLocalTodayTest extends WP_UnitTestCase
 		);
 
 		// October and November, so yesterday, today and tomorrow are all in view.
-		$data = $this->call('get_availability_data', array( $vehicle_id, '2026-10', 2, $now ));
-		$days = $data['2026-10']['days'] + $data['2026-11']['days'];
+		$cells = array();
+		foreach (CalendarView::months($vehicle_id, '2026-10', 2, array( 'now' => $now )) as $calendar) {
+			foreach ($calendar['weeks'] as $week) {
+				foreach (array_filter($week) as $cell) {
+					$cells[ $cell['date'] ] = $cell;
+				}
+			}
+		}
 
-		$this->assertTrue($days[ $today ]['is_today'], "Local today is {$today}.");
-		$this->assertFalse($days[ $today ]['is_past']);
-		$this->assertFalse($days[ $yesterday ]['is_today']);
-		$this->assertTrue($days[ $yesterday ]['is_past']);
-		$this->assertFalse($days[ $tomorrow ]['is_today']);
-		$this->assertFalse($days[ $tomorrow ]['is_past']);
+		$this->assertTrue($cells[ $today ]['today'], "Local today is {$today}.");
+		$this->assertSame('available', $cells[ $today ]['state']);
+		$this->assertFalse($cells[ $yesterday ]['today']);
+		$this->assertSame('past', $cells[ $yesterday ]['state']);
+		$this->assertFalse($cells[ $tomorrow ]['today']);
+		$this->assertSame('available', $cells[ $tomorrow ]['state']);
 	}
 }

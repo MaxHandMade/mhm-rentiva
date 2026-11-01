@@ -60,8 +60,8 @@ class BlockRegistry {
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
 			'title' => 'Vehicle Comparison',
-			'css'   => 'vehicle-comparison.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'css'   => array(), // The page is the rvs standard (VehicleComparison enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-comparison' ),
 		),
 		'testimonials'          => array(
 			'tag'   => 'rentiva_testimonials',
@@ -71,7 +71,8 @@ class BlockRegistry {
 		'availability-calendar' => array(
 			'tag'   => 'rentiva_availability_calendar',
 			'title' => 'Availability Calendar',
-			'css'   => array( 'availability-calendar.css', 'datepicker-custom.css' ),
+			'css'   => array(), // The page is the rvs standard (AvailabilityCalendar enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-availability' ),
 		),
 		'vehicle-details'       => array(
 			'tag'   => 'rentiva_vehicle_details',
@@ -657,7 +658,7 @@ class BlockRegistry {
 		$wrapper_styles = array();
 
 		if ('' !== $height) {
-			$wrapper_styles[] = "height:$height";
+			$wrapper_styles[] = "min-height:$height";
 		}
 
 		if (! empty($wrapper_styles)) {
@@ -687,7 +688,7 @@ class BlockRegistry {
 
 
 	/**
-	 * The wrapper height: the calendar's `calendarHeight`, else a raw `height`.
+	 * The wrapper's minimum height: the calendar's `calendarHeight`, else a raw `height`.
 	 *
 	 * The editor writes `calendarHeight`; this used to read only `height`, so the
 	 * control never applied (spec 3A Task 6). A calendar saved before Gutenberg slice

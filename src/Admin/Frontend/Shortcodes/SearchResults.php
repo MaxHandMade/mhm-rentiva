@@ -505,7 +505,7 @@ final class SearchResults extends AbstractShortcode {
 		return array(
 			'items' => \MHMRentiva\Admin\Services\CompareService::items(),
 			'max'   => \MHMRentiva\Admin\Services\CompareService::max_items(),
-			'url'   => ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
+			'url'   => Card\VehicleCardLinks::with_window(ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'), Card\RvsCardView::dates(array())),
 		);
 	}
 

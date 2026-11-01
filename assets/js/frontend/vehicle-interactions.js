@@ -7,18 +7,119 @@
     'use strict';
 
     /**
-     * Read one localized string, with a hard-coded English fallback.
-     *
-     * Belt and braces on top of the server-side fix: mhmrentiva_vars now has
-     * exactly one definition (AssetManager::enqueue_vehicle_interactions), so
-     * a second, shorter localize can no longer land here without its i18n
-     * sub-array. This makes a missing key cost that one label instead of
-     * throwing mid-handler and leaving the button stuck in its optimistic state.
+     * Read one localized string. mhmrentiva_vars has exactly one definition
+     * (AssetManager::enqueue_vehicle_interactions), which carries every key used
+     * here. A missing key costs that one label instead of throwing mid-handler
+     * and leaving the button stuck in its optimistic state.
      */
-    function t(key, fallback) {
+    function t(key) {
         const strings = (typeof mhmrentiva_vars !== 'undefined' && mhmrentiva_vars.i18n) || {};
-        return strings[key] || fallback;
+        return strings[key] || '';
     }
+
+    /**
+     * A link with the rental window of this page's address (the server's names,
+     * VehicleCardLinks::FORWARD_KEYS): results refresh by AJAX, so the address is
+     * the one place the visitor's dates still are.
+     */
+    function withWindow(url) {
+        const keys = (typeof mhmrentiva_vars !== 'undefined' && mhmrentiva_vars.forward_keys) || [];
+        if (!url || !keys.length) {
+            return url;
+        }
+        const here = new URLSearchParams(window.location.search);
+        const target = new URL(url, window.location.href);
+        keys.forEach(function (key) {
+            if (here.get(key) && !target.searchParams.has(key)) {
+                target.searchParams.set(key, here.get(key));
+            }
+        });
+        return target.toString();
+    }
+
+    /**
+     * Compare toggles, one at a time. A guest's list lives in a cookie: two
+     * requests in flight each start from the same cookie, the later answer
+     * overwrites the earlier and a vehicle is lost. The list's state is applied
+     * once, from the last answer, when nothing is waiting.
+     */
+    const CompareQueue = {
+        waiting: [],
+        running: false,
+        latest: null,
+
+        toggle: function (vehicleId, nonce, handlers) {
+            this.waiting.push({ vehicleId: vehicleId, nonce: nonce, handlers: handlers });
+            this.next();
+        },
+
+        next: function () {
+            if (this.running) {
+                return;
+            }
+            const job = this.waiting.shift();
+            if (!job) {
+                this.settle();
+                return;
+            }
+            this.running = true;
+            const queue = this;
+            $.ajax({
+                url: mhmrentiva_vars.ajax_url,
+                type: 'POST',
+                // A request that never answers must not hold the others back.
+                timeout: 30000,
+                data: {
+                    action: 'mhmrentiva_toggle_compare',
+                    vehicle_id: job.vehicleId,
+                    nonce: job.nonce
+                },
+                success: function (response) {
+                    queue.running = false;
+                    if (response && response.success && response.data) {
+                        queue.latest = response.data;
+                    }
+                    try {
+                        job.handlers.success(response);
+                    } finally {
+                        queue.next();
+                    }
+                },
+                error: function () {
+                    queue.running = false;
+                    try {
+                        job.handlers.error();
+                    } finally {
+                        queue.next();
+                    }
+                }
+            });
+        },
+
+        settle: function () {
+            const data = this.latest;
+            this.latest = null;
+            if (!data) {
+                return;
+            }
+            if (Array.isArray(data.items)) {
+                const ids = data.items.map(function (item) { return String(item.id); });
+                $('input[data-rvs-compare]').each(function () {
+                    if (!$(this).data('busy')) {
+                        $(this).prop('checked', ids.indexOf(String($(this).data('vehicle-id'))) !== -1);
+                    }
+                });
+            }
+            $(document).trigger('mhm-rentiva:compare-changed', [data]);
+        }
+    };
+
+    window.MHMRentivaCompare = {
+        toggle: function (vehicleId, nonce, handlers) {
+            CompareQueue.toggle(vehicleId, nonce, handlers);
+        },
+        withWindow: withWindow
+    };
 
     const RentivaInteractions = {
         init: function () {
@@ -48,44 +149,36 @@
             $box.data('busy', true);
 
             const idempotencyKey = wanted ? `compare:add:${vehicleId}` : `compare:remove:${vehicleId}`;
-            MHMRentivaToast.show(wanted ? t('adding_compare', 'Adding to comparison...') : t('removing_compare', 'Removing from comparison...'), {
+            MHMRentivaToast.show(wanted ? t('adding_compare') : t('removing_compare'), {
                 type: 'info',
                 idempotencyKey: idempotencyKey,
                 duration: 0
             });
 
-            $.ajax({
-                url: mhmrentiva_vars.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_toggle_compare',
-                    vehicle_id: vehicleId,
-                    nonce: nonce
-                },
+            CompareQueue.toggle(vehicleId, nonce, {
                 success: function (response) {
                     $box.data('busy', false);
                     if (!response.success) {
                         $box.prop('checked', !wanted);
-                        MHMRentivaToast.show((response.data && response.data.message) || 'Error', { type: 'error' });
+                        MHMRentivaToast.show((response.data && response.data.message) || t('error'), { type: 'error' });
                         return;
                     }
                     const isInCompare = !!response.data.is_in_compare;
                     $box.prop('checked', isInCompare);
-                    $(document).trigger('mhm-rentiva:compare-changed', [response.data]);
 
                     const options = { type: 'success', idempotencyKey: idempotencyKey, duration: 3000 };
                     if (isInCompare && mhmrentiva_vars.compare_page_url) {
                         options.action = {
-                            label: t('view_comparison', 'View comparison'),
-                            href: mhmrentiva_vars.compare_page_url
+                            label: t('view_comparison'),
+                            href: withWindow(mhmrentiva_vars.compare_page_url)
                         };
                     }
-                    MHMRentivaToast.show(isInCompare ? t('added_to_compare', 'Added to comparison.') : t('removed_from_compare', 'Removed from comparison.'), options);
+                    MHMRentivaToast.show(isInCompare ? t('added_to_compare') : t('removed_from_compare'), options);
                 },
                 error: function () {
                     $box.data('busy', false);
                     $box.prop('checked', !wanted);
-                    MHMRentivaToast.show('Network error', { type: 'error' });
+                    MHMRentivaToast.show(t('network_error'), { type: 'error' });
                 }
             });
         },
@@ -105,7 +198,7 @@
 
             // Show optimistic toast (Two-Stage)
             const isAdd = !isActive;
-            const optimisticMsg = isAdd ? t('adding_favorite', 'Adding to favorites...') : t('removing_favorite', 'Removing from favorites...');
+            const optimisticMsg = isAdd ? t('adding_favorite') : t('removing_favorite');
             const idempotencyKey = isAdd ? `fav:add:${vehicleId}` : `fav:remove:${vehicleId}`;
 
             const toastId = MHMRentivaToast.show(optimisticMsg, {
@@ -127,8 +220,8 @@
                     if (response.success) {
                         const isFavorited = response.data.is_favorite;
                         const favoriteLabel = isFavorited ?
-                            t('remove_favorite', 'Remove from Favorites') :
-                            t('add_favorite', 'Add to Favorites');
+                            t('remove_favorite') :
+                            t('add_favorite');
 
                         // Sync state
                         if (isFavorited) {
@@ -162,23 +255,23 @@
 
                         if (isFavorited && mhmrentiva_vars.favorites_page_url) {
                             options.action = {
-                                label: t('go_to_favorites', 'Go to My Favorites'),
+                                label: t('go_to_favorites'),
                                 href: mhmrentiva_vars.favorites_page_url
                             };
                         }
 
-                        const finalMsg = isFavorited ? t('added_favorite', 'Added to favorites.') : t('removed_favorite', 'Removed from favorites.');
+                        const finalMsg = isFavorited ? t('added_favorite') : t('removed_favorite');
                         MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure
                         $btn.toggleClass('is-active');
-                        MHMRentivaToast.show(response.data.message || 'Error', { type: 'error' });
+                        MHMRentivaToast.show((response.data && response.data.message) || t('error'), { type: 'error' });
                     }
                 },
                 error: function () {
                     $btn.removeClass('loading');
                     $btn.toggleClass('is-active'); // Revert
-                    MHMRentivaToast.show('Network error', { type: 'error' });
+                    MHMRentivaToast.show(t('network_error'), { type: 'error' });
                 }
             });
         },
@@ -190,11 +283,12 @@
             const nonce = $btn.data('nonce') || mhmrentiva_vars.nonce;
 
             if ($btn.hasClass('loading')) return;
+            $btn.addClass('loading');
 
             const isCurrentlyActive = $btn.hasClass('is-active') || $btn.hasClass('active');
             // Show optimistic toast (Two-Stage)
             const isAdd = !isCurrentlyActive;
-            const optimisticMessage = isAdd ? t('adding_compare', 'Adding to comparison...') : t('removing_compare', 'Removing from comparison...');
+            const optimisticMessage = isAdd ? t('adding_compare') : t('removing_compare');
             const idempotencyKey = isAdd ? `compare:add:${vehicleId}` : `compare:remove:${vehicleId}`;
 
             MHMRentivaToast.show(optimisticMessage, {
@@ -203,22 +297,14 @@
                 duration: 0 // Sticky while processing
             });
 
-            $.ajax({
-                url: mhmrentiva_vars.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_toggle_compare',
-                    vehicle_id: vehicleId,
-                    nonce: nonce
-                },
+            CompareQueue.toggle(vehicleId, nonce, {
                 success: function (response) {
                     $btn.removeClass('loading');
                     if (response.success) {
                         const isInCompare = response.data.is_in_compare;
-                        $(document).trigger('mhm-rentiva:compare-changed', [response.data]);
                         const compareLabel = isInCompare ?
-                            t('remove_compare', 'Remove Compare') :
-                            t('add_compare', 'Compare');
+                            t('remove_compare') :
+                            t('add_compare');
                         // Final Sync
                         if (isInCompare) {
                             $btn.addClass('is-active active');
@@ -239,12 +325,12 @@
 
                         if (isInCompare && mhmrentiva_vars.compare_page_url) {
                             options.action = {
-                                label: t('view_comparison', 'View comparison'),
-                                href: mhmrentiva_vars.compare_page_url
+                                label: t('view_comparison'),
+                                href: withWindow(mhmrentiva_vars.compare_page_url)
                             };
                         }
 
-                        const finalMsg = isInCompare ? t('added_to_compare', 'Added to comparison.') : t('removed_from_compare', 'Removed from comparison.');
+                        const finalMsg = isInCompare ? t('added_to_compare') : t('removed_from_compare');
                         MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure
@@ -253,7 +339,7 @@
                         $btn.attr('aria-pressed', isCurrentlyActive);
                         $btn.removeClass('loading');
 
-                        MHMRentivaToast.show(response.data.message || 'Error', { type: 'error' });
+                        MHMRentivaToast.show((response.data && response.data.message) || t('error'), { type: 'error' });
                     }
                 },
                 error: function () {
@@ -263,7 +349,7 @@
                     if (isCurrentlyActive) $btn.addClass('is-active active');
                     $btn.attr('aria-pressed', isCurrentlyActive);
 
-                    MHMRentivaToast.show('Network error', { type: 'error' });
+                    MHMRentivaToast.show(t('network_error'), { type: 'error' });
                 }
             });
         }
@@ -271,6 +357,10 @@
 
     $(document).ready(function () {
         RentivaInteractions.init();
+        // The results band's link (R3): the server gave it the first paint's window.
+        $('[data-rvs-compare-link]').each(function () {
+            this.setAttribute('href', withWindow(this.getAttribute('href')));
+        });
     });
 
 })(jQuery);

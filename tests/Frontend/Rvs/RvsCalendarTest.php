@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Frontend\Rvs;
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsCalendar;
+use MHMRentiva\Helpers\Html;
 use WP_UnitTestCase;
 
 /**
@@ -133,5 +134,86 @@ final class RvsCalendarTest extends WP_UnitTestCase
 
 		$expected = wp_date((string) get_option('date_format'), gmmktime(12, 0, 0, 7, 20, 2027), new \DateTimeZone('UTC'));
 		$this->assertStringStartsWith($expected, $days[20]['label']);
+	}
+
+	public function test_non_interactive_output_is_byte_identical_to_the_vehicle_page_golden(): void
+	{
+		update_option('start_of_week', 1);
+		$cal       = RvsCalendar::month(2027, 7, array( '2027-07-20', '2027-07-21' ), '2027-07-15', array( '2027-07-24', '2027-07-26' ));
+		$cal['id'] = 'rvs-cal-golden';
+		$html      = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		// Captured from the partial before the options array existed (PR E task 2).
+		$this->assertSame(file_get_contents(dirname(__DIR__, 2) . '/fixtures/golden/rvs-calendar-month-vehicle-page.html'), $html);
+		$this->assertStringNotContainsString('<button', $html);
+		$this->assertStringNotContainsString('is-range', $html);
+		$this->assertStringNotContainsString('is-interactive', $html);
+	}
+
+	public function test_week_start_option_overrides_the_site_setting(): void
+	{
+		update_option('start_of_week', 1);
+		$cal = RvsCalendar::month(2028, 2, array(), '2028-01-10', array(), array( 'week_start' => 0 ));
+		$this->assertSame('Sunday', $cal['weekdays'][0]['long']);
+		$this->assertNull($cal['weeks'][0][1]);
+		$this->assertSame(1, $cal['weeks'][0][2]['day']);
+
+		$site = RvsCalendar::month(2028, 2, array(), '2028-01-10', array(), array( 'week_start' => null ));
+		$this->assertSame('Monday', $site['weekdays'][0]['long']);
+	}
+
+	public function test_interactive_days_are_buttons_and_past_booked_are_not(): void
+	{
+		$cal  = RvsCalendar::month(2027, 7, array( '2027-07-20' ), '2027-07-15', array( '2027-07-24', '2027-07-26' ), array( 'interactive' => true ));
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		$this->assertStringContainsString('<button type="button" class="rvs-cal__btn" data-date="2027-07-22"', $html);
+		$this->assertMatchesRegularExpression('/<button type="button" class="rvs-cal__btn" data-date="2027-07-22" aria-label="[^"]*22[^"]*Available"/', $html);
+		$this->assertMatchesRegularExpression('/data-date="2027-07-25" aria-label="[^"]*Selected"/', $html);
+		$this->assertStringNotContainsString('data-date="2027-07-14" aria-label', $html);
+		$this->assertStringNotContainsString('data-date="2027-07-20" aria-label', $html);
+		$this->assertStringContainsString('rvs-cal is-interactive', $html);
+		// Buttons: 15..31 minus the one booked day = 16 available/selected days.
+		$this->assertSame(16, substr_count($html, '<button type="button"'));
+	}
+
+	public function test_interactive_range_classes(): void
+	{
+		$cal  = RvsCalendar::month(2027, 7, array( '2027-07-20' ), '2027-07-15', array( '2027-07-24', '2027-07-26' ), array( 'interactive' => true ));
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-selected is-range-start" data-date="2027-07-24"/', $html);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-selected" data-date="2027-07-25"/', $html);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-selected is-range-end" data-date="2027-07-26"/', $html);
+		// A booked day stays booked, with no button and no range class.
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-booked" data-date="2027-07-20"/', $html);
+
+		$one  = RvsCalendar::month(2027, 7, array(), '2027-07-15', array( '2027-07-24' ), array( 'interactive' => true ));
+		$html = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $one ), true);
+		$this->assertMatchesRegularExpression('/class="rvs-cal__day is-selected is-range-start is-range-end" data-date="2027-07-24"/', $html);
+	}
+
+	public function test_interactive_markup_survives_allowed_markup(): void
+	{
+		$cal      = RvsCalendar::month(2027, 7, array(), '2027-07-15', array(), array( 'interactive' => true ));
+		$raw      = (string) Templates::render('partials/rvs/calendar-month', array( 'calendar' => $cal ), true);
+		$filtered = wp_kses($raw, Html::allowed_markup());
+
+		$this->assertStringContainsString('<button type="button" class="rvs-cal__btn" data-date="2027-07-22" aria-label="', $filtered);
+		$this->assertSame(substr_count($raw, '<button'), substr_count($filtered, '<button'));
+		$this->assertSame(substr_count($raw, 'aria-label='), substr_count($filtered, 'aria-label='));
+		$this->assertSame(substr_count($raw, 'data-date='), substr_count($filtered, 'data-date='));
+	}
+
+	public function test_week_start_is_normalised_into_0_to_6(): void
+	{
+		$seven = RvsCalendar::month(2028, 2, array(), '2028-01-10', array(), array( 'week_start' => 7 ));
+		$this->assertSame('Sunday', $seven['weekdays'][0]['long']);
+
+		$minus = RvsCalendar::month(2028, 2, array(), '2028-01-10', array(), array( 'week_start' => -1 ));
+		$this->assertSame('Saturday', $minus['weekdays'][0]['long']);
+		foreach ($minus['weeks'] as $week) {
+			$this->assertCount(7, $week);
+		}
 	}
 }
