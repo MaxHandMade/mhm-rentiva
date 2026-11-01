@@ -7,6 +7,7 @@
  *
  * @var array<string, mixed> $view  CalendarView::build().
  * @var string               $empty Empty-state text; draws that alone.
+ * @var string               $class The shortcode's `class`, on the empty state.
  */
 
 declare(strict_types=1);
@@ -16,7 +17,7 @@ if (! defined('ABSPATH')) {
 }
 
 if (isset($empty)) : ?>
-	<div class="rvs-empty" data-rvs-availability-empty><?php echo esc_html( (string) $empty); ?></div>
+	<div class="<?php echo esc_attr(trim('rvs-empty ' . (string) ( $class ?? '' ))); ?>" data-rvs-availability-empty><?php echo esc_html( (string) $empty); ?></div>
 	<?php
 	return;
 endif;

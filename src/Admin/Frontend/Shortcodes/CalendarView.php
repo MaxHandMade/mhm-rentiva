@@ -7,6 +7,7 @@ use MHMRentiva\Admin\Booking\Helpers\BookingConflicts;
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
+use MHMRentiva\Admin\Core\Utilities\MetaQueryHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsCalendar;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
@@ -32,29 +33,47 @@ final class CalendarView {
 	public const MAX_MONTH_SPAN = 12;
 
 	/**
+	 * Most vehicles the selector dialog lists (by title): the list is printed into
+	 * every page carrying the calendar. A calendar for one vehicle past the limit
+	 * still works through `vehicle_id`.
+	 */
+	public const MAX_SELECTOR_VEHICLES = 100;
+
+	/**
+	 * This request's vehicle lists, so several calendars on a page share one query.
+	 *
+	 * @var array<string, list<array{id: int, title: string, price_html: string}>>
+	 */
+	private static array $vehicle_lists = array();
+
+	/**
 	 * @param array<string, mixed> $atts Shortcode attributes.
 	 * @return array<string, mixed>
 	 */
 	public static function build( int $vehicle_id, array $atts ): array {
-		$vehicles   = self::vehicles();
+		$pricing  = self::is_on( $atts['show_pricing'] ?? '1' );
+		$selector = self::is_on( $atts['show_vehicle_selector'] ?? '1' );
+		// The list, and a price per vehicle, only for what this calendar prints.
+		$vehicles = $selector ? self::vehicles( $pricing ) : array();
+
 		$week_start = self::week_start( $atts['start_week_on'] ?? '1' );
 		$count      = self::span( $atts['months_to_show'] ?? '2' );
 		$first      = self::opening_month( (string) ( $atts['start_month'] ?? '' ) );
 
 		return array(
 			'uid'            => wp_unique_id( 'rvs-availability-' ),
-			'vehicle'        => self::vehicle_card( $vehicle_id ),
+			'vehicle'        => self::vehicle_card( $vehicle_id, $pricing ),
 			'vehicles'       => $vehicles,
 			'start_month'    => $first,
 			'months_to_show' => $count,
 			'week_start'     => $week_start,
 			'months'         => self::months( $vehicle_id, $first, $count, array( 'week_start' => $week_start ) ),
 			'prev_allowed'   => self::prev_allowed( $first ),
-			'show_pricing'   => self::is_on( $atts['show_pricing'] ?? '1' ),
+			'show_pricing'   => $pricing,
 			'show_booking'   => self::is_on( $atts['show_booking_button'] ?? ( $atts['show_booking_btn'] ?? '1' ) ),
 			'show_legend'    => self::is_on( $atts['show_legend'] ?? '1' ),
 			'show_nav'       => self::is_on( $atts['show_month_nav'] ?? '1' ),
-			'show_selector'  => self::is_on( $atts['show_vehicle_selector'] ?? '1' ) && count( $vehicles ) > 1,
+			'show_selector'  => count( $vehicles ) > 1,
 			'theme'          => (string) ( $atts['theme'] ?? 'default' ),
 			'class'          => (string) ( $atts['class'] ?? '' ),
 		);
@@ -72,15 +91,30 @@ final class CalendarView {
 			return self::is_offered( $vehicle_id ) ? $vehicle_id : 0;
 		}
 
-		$newest = 0;
-		$date   = '';
-		foreach ( self::vehicles() as $row ) {
-			if ( (string) $row['date'] > $date ) {
-				$date   = (string) $row['date'];
-				$newest = (int) $row['id'];
+		// One row: the page does not need the fleet to find its newest car. A second,
+		// bounded look only if the status helper refuses that row (a legacy status
+		// the meta query lets through).
+		foreach ( array( 1, self::MAX_SELECTOR_VEHICLES ) as $limit ) {
+			$ids = get_posts(
+				self::offered_query(
+					array(
+						'numberposts'   => $limit,
+						'orderby'       => array(
+							'date' => 'DESC',
+							'ID'   => 'DESC',
+						),
+						'fields'        => 'ids',
+						'no_found_rows' => true,
+					)
+				)
+			);
+			foreach ( $ids as $id ) {
+				if ( self::is_offered( (int) $id ) ) {
+					return (int) $id;
+				}
 			}
 		}
-		return $newest;
+		return 0;
 	}
 
 	/**
@@ -95,22 +129,26 @@ final class CalendarView {
 
 	/**
 	 * The vehicles this calendar offers: public, rentable and not out of order.
-	 * A closed vehicle is not listed, so it can not be chosen.
+	 * A closed vehicle is not listed, so it can not be chosen. At most
+	 * MAX_SELECTOR_VEHICLES, once per request: any post or post meta write moves
+	 * WordPress's `posts` last-changed stamp, which starts a new list.
 	 *
-	 * @return list<array{id: int, title: string, date: string, price_html: string}>
+	 * @param bool $with_prices Also the daily price: one calculation per vehicle.
+	 * @return list<array{id: int, title: string, price_html: string}>
 	 */
-	public static function vehicles(): array {
+	public static function vehicles( bool $with_prices = false ): array {
+		$key = wp_cache_get_last_changed( 'posts' ) . ( $with_prices ? '|priced' : '|plain' );
+		if ( isset( self::$vehicle_lists[ $key ] ) ) {
+			return self::$vehicle_lists[ $key ];
+		}
+
 		$posts = get_posts(
-			VehicleDataHelper::restrict_query_to_service(
+			self::offered_query(
 				array(
-					'post_type'    => 'mhmrentiva_vehicle',
-					'post_status'  => 'publish',
-					'has_password' => false,
-					'numberposts'  => -1,
-					'orderby'      => 'title',
-					'order'        => 'ASC',
-				),
-				'rental'
+					'numberposts' => self::MAX_SELECTOR_VEHICLES,
+					'orderby'     => 'title',
+					'order'       => 'ASC',
+				)
 			)
 		);
 
@@ -122,26 +160,50 @@ final class CalendarView {
 			$rows[] = array(
 				'id'         => (int) $post->ID,
 				'title'      => (string) $post->post_title,
-				'date'       => (string) $post->post_date_gmt,
-				'price_html' => self::price_html( (int) $post->ID ),
+				'price_html' => $with_prices ? self::price_html( (int) $post->ID ) : '',
 			);
 		}
+
+		self::$vehicle_lists = array( $key => $rows ) + array_filter(
+			self::$vehicle_lists,
+			static fn( string $other ): bool => strtok( $other, '|' ) === strtok( $key, '|' ),
+			ARRAY_FILTER_USE_KEY
+		);
 		return $rows;
+	}
+
+	/**
+	 * Public, rentable, active: the query half of is_offered().
+	 *
+	 * @param array<string, mixed> $args Limit and order.
+	 * @return array<string, mixed>
+	 */
+	private static function offered_query( array $args ): array {
+		return VehicleDataHelper::restrict_query_to_service(
+			$args + array(
+				'post_type'    => 'mhmrentiva_vehicle',
+				'post_status'  => 'publish',
+				'has_password' => false,
+				'meta_query'   => MetaQueryHelper::get_active_vehicle_meta_query(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- The house rule for an active vehicle.
+			),
+			'rental'
+		);
 	}
 
 	/**
 	 * Image, name and daily price of the vehicle card; also the vehicle endpoint's answer.
 	 *
+	 * @param bool $with_price False when this calendar prints no price.
 	 * @return array{id: int, title: string, image: string, price_html: string, bookable: bool}
 	 */
-	public static function vehicle_card( int $vehicle_id ): array {
+	public static function vehicle_card( int $vehicle_id, bool $with_price = true ): array {
 		$image = (string) get_the_post_thumbnail_url( $vehicle_id, 'large' );
 
 		return array(
 			'id'         => $vehicle_id,
 			'title'      => (string) get_post_field( 'post_title', $vehicle_id ),
 			'image'      => '' !== $image ? $image : VehiclesList::get_vehicle_image( $vehicle_id ),
-			'price_html' => self::price_html( $vehicle_id ),
+			'price_html' => $with_price ? self::price_html( $vehicle_id ) : '',
 			'bookable'   => 'active' === VehicleDataHelper::get_status( $vehicle_id ),
 		);
 	}

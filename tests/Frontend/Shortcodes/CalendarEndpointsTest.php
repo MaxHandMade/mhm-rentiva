@@ -218,6 +218,38 @@ final class CalendarEndpointsTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
+	 * R13: a closed vehicle is readable but cannot be quoted.
+	 */
+	public function test_quote_refuses_a_closed_vehicle(): void
+	{
+		update_post_meta($this->vehicle_id, MetaKeys::VEHICLE_STATUS, 'maintenance');
+
+		$data = $this->quote($this->day(10), $this->day(12))['data'];
+
+		$this->assertFalse($data['priced']);
+		$this->assertFalse($data['available']);
+		$this->assertSame('', $data['total_html']);
+		$this->assertSame('', $data['continue_url']);
+		$this->assertNotSame('', $data['message']);
+	}
+
+	/**
+	 * m16's other side: the vehicle page draws no months its endpoint would refuse.
+	 */
+	public function test_transfer_only_vehicle_page_has_no_calendar(): void
+	{
+		$transfer = $this->vehicle('Transfer Only');
+		update_post_meta($transfer, MetaKeys::VEHICLE_SERVICE_TYPE, 'transfer');
+
+		$page = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $transfer . '"]');
+		$this->assertStringContainsString('Transfer Only', $page, 'Positive control: the page renders.');
+		$this->assertStringNotContainsString('data-rvs-vd-months', $page);
+		$this->assertStringNotContainsString('data-rvs-month-nav', $page);
+
+		$this->assertStringContainsString('data-rvs-vd-months', do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle_id . '"]'), 'Positive control: a rental vehicle keeps it.');
+	}
+
+	/**
 	 * Mistake 27, m16: every endpoint on the rental calendar, and the vehicle page's.
 	 *
 	 * @dataProvider vehicle_endpoints

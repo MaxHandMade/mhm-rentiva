@@ -102,6 +102,97 @@ class AvailabilityCalendarTest extends WP_UnitTestCase
 		$this->assertStringContainsString('data-rvs-cal-panel hidden', $output);
 	}
 
+	public function test_empty_state_honours_class(): void
+	{
+		$this->assertStringContainsString('class="rvs-empty my-class"', $this->render('vehicle_id="99999" class="my-class"'));
+		$this->assertStringContainsString('class="rvs-empty my-class"', $this->render('class="my-class"'), 'No vehicles at all.');
+	}
+
+	/**
+	 * The fleet is not walked to find one car: one row for the newest, no list and
+	 * no prices without a selector.
+	 */
+	public function test_newest_vehicle_is_one_row_and_no_list_without_a_selector(): void
+	{
+		$this->vehicle('Aaa', '2020-01-01 10:00:00');
+		$newest = $this->vehicle('Bbb', '2024-01-01 10:00:00');
+		$sql    = array();
+		$spy    = static function (string $query) use (&$sql): string {
+			if (false !== strpos($query, 'mhmrentiva_vehicle') && false !== strpos($query, 'LIMIT')) {
+				$sql[] = $query;
+			}
+			return $query;
+		};
+		add_filter('query', $spy);
+		$output = $this->render('show_vehicle_selector="0"');
+		remove_filter('query', $spy);
+
+		$this->assertStringContainsString('data-vehicle-id="' . $newest . '"', $output);
+		$this->assertNotEmpty(array_filter($sql, static fn(string $q): bool => (bool) preg_match('/LIMIT 0,\s*1\b/', $q)), 'Positive control: the one-row query ran.');
+		$this->assertSame(array(), array_filter($sql, static fn(string $q): bool => (bool) preg_match('/LIMIT 0,\s*' . CalendarView::MAX_SELECTOR_VEHICLES . '\b/', $q)), 'No list query without a selector.');
+	}
+
+	/**
+	 * A closed newest vehicle by the status helper's reading is skipped, not shown.
+	 */
+	public function test_newest_skips_a_vehicle_the_status_helper_closes(): void
+	{
+		$older  = $this->vehicle('Older', '2020-01-01 10:00:00');
+		$closed = $this->vehicle('Closed', '2024-01-01 10:00:00');
+		update_post_meta($closed, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LIFECYCLE_STATUS, 'active');
+		update_post_meta($closed, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, 'maintenance');
+
+		$this->assertSame($older, CalendarView::resolve_vehicle(''));
+	}
+
+	/**
+	 * A price per vehicle only when both the selector and pricing print it; a second
+	 * calendar on the page shares the list.
+	 */
+	public function test_prices_are_computed_only_when_printed_and_once_per_request(): void
+	{
+		$first = $this->vehicle('One');
+		$this->vehicle('Two');
+		$this->vehicle('Three');
+		$atts = 'vehicle_id="' . $first . '"';
+
+		$this->assertSame(0, $this->price_calls($atts . ' show_pricing="0"'), 'Pricing off: no price at all.');
+		$this->assertSame(1, $this->price_calls($atts . ' show_vehicle_selector="0"'), 'No selector: the card alone.');
+		$this->assertSame(4, $this->price_calls($atts), 'Card plus three options.');
+		$this->assertSame(1, $this->price_calls($atts), 'The second calendar reuses the list.');
+
+		update_post_meta($first, '_mhmrentiva_price_per_day', '200');
+		$this->assertSame(4, $this->price_calls($atts), 'A write starts a new list.');
+	}
+
+	private function price_calls(string $atts): int
+	{
+		if (! function_exists('wc_price')) {
+			$this->markTestSkipped('WooCommerce is not loaded.');
+		}
+		$calls = 0;
+		$spy   = static function (string $html) use (&$calls): string {
+			++$calls;
+			return $html;
+		};
+		add_filter('wc_price', $spy);
+		$this->render($atts);
+		remove_filter('wc_price', $spy);
+		return $calls;
+	}
+
+	public function test_selector_list_is_capped_by_title(): void
+	{
+		for ($i = 0; $i <= CalendarView::MAX_SELECTOR_VEHICLES; $i++) {
+			$this->vehicle(sprintf('Car %03d', $i));
+		}
+
+		$list = CalendarView::vehicles();
+
+		$this->assertCount(CalendarView::MAX_SELECTOR_VEHICLES, $list);
+		$this->assertSame('Car 000', $list[0]['title']);
+	}
+
 	/**
 	 * R5: the card is image, name, price, switch; the legend three states.
 	 */

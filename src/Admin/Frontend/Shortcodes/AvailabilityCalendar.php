@@ -209,6 +209,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			'partials/rvs/calendar-panel',
 			array(
 				'empty' => CalendarView::names_vehicle( $template_data['atts']['vehicle_id'] ?? '' ) ? __( 'Vehicle not found.', 'mhm-rentiva' ) : __( 'No vehicles found.', 'mhm-rentiva' ),
+				'class' => (string) ( $template_data['atts']['class'] ?? '' ),
 			),
 			true
 		);
