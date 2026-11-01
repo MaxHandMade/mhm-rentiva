@@ -97,11 +97,12 @@ class Html {
 		);
 
 		$allowed['form']     = $common + array(
-			'action'  => true,
-			'method'  => true,
-			'enctype' => true,
-			'name'    => true,
-			'target'  => true,
+			'action'     => true,
+			'method'     => true,
+			'enctype'    => true,
+			'name'       => true,
+			'target'     => true,
+			'novalidate' => true,
 		);
 		$allowed['input']    = $common + array(
 			'type'         => true,

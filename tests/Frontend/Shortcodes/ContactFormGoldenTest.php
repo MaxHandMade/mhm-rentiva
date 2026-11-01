@@ -92,7 +92,7 @@ final class ContactFormGoldenTest extends WP_UnitTestCase
 		}
 
 		$html = $this->render($surface, $email_to);
-		$this->assertStringContainsString('rv-contact', $html, "$name rendered no contact form; the golden would pin an empty render.");
+		$this->assertStringContainsString('data-rvs-contact', $html, "$name rendered no contact form; the golden would pin an empty render.");
 		$this->assertTrue(str_contains($html, 'name="recipient_token"'), "$name: the token input carries the default auto reply and email_to.");
 
 		$actual = $this->golden_form($html);

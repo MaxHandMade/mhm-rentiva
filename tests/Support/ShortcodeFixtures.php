@@ -208,8 +208,8 @@ final class ShortcodeFixtures
 				break;
 
 			case 'rentiva_contact':
-				$row['marker']       = 'rv-contact-form-container';
-				$row['min_elements'] = 50;
+				$row['marker']       = 'rvs-contact__form';
+				$row['min_elements'] = 40;
 				break;
 
 			case 'rentiva_testimonials':

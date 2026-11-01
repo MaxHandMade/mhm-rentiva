@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentValidator;
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
@@ -32,8 +33,7 @@ use Exception;
  */
 final class ContactForm extends AbstractShortcode {
 
-
-
+	protected static bool $rvs_shell = true;
 
 	/**
 	 * Safe sanitize text field that handles null values
@@ -111,18 +111,13 @@ final class ContactForm extends AbstractShortcode {
 	protected static function enqueue_assets(array $atts = array()): void
 	{
 		// CSS
-		wp_enqueue_style(
-			'mhm-rentiva-contact-form',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/contact-form.css',
-			array( 'mhm-rentiva-css-variables' ),
-			MHMRENTIVA_VERSION
-		);
+		AssetManager::enqueue_rvs_contact_styles();
 
 		// JavaScript
 		wp_enqueue_script(
 			'mhm-rentiva-contact-form',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/contact-form.js',
-			array( 'jquery' ),
+			array(),
 			MHMRENTIVA_VERSION,
 			true
 		);
@@ -598,6 +593,7 @@ final class ContactForm extends AbstractShortcode {
 				return array(
 					'ok'      => false,
 					'message' => $upload['message'],
+					'errors'  => array( 'attachment' => $upload['message'] ),
 				);
 			}
 			$record                  = $upload['record'];
@@ -639,42 +635,49 @@ final class ContactForm extends AbstractShortcode {
 	 */
 	protected static function get_localized_data(): array
 	{
+		$types = array_keys(ContactAttachmentValidator::TYPES);
+
 		return array(
 			'ajaxUrl'          => admin_url('admin-ajax.php'),
 			'nonce'            => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_contact_form_nonce'),
 			'maxFileSize'      => self::max_attachment_bytes(),
-			'allowedFileTypes' => array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' ),
+			'allowedFileTypes' => $types,
 			'messages'         => array(
-				'submitting'      => __('Sending...', 'mhm-rentiva'),
-				'success'         => __('Your message has been sent successfully.', 'mhm-rentiva'),
-				'error'           => __('An error occurred while sending message.', 'mhm-rentiva'),
-				'required_fields' => __('Please fill in all required fields.', 'mhm-rentiva'),
-				'confirm_reset'   => __('Are you sure you want to reset the form?', 'mhm-rentiva'),
+				'submitting'          => __('Sending...', 'mhm-rentiva'),
+				'error'               => __('An error occurred while sending message.', 'mhm-rentiva'),
+				/* translators: %s: request number. */
+				'success_title'       => __('Your message was received · request #%s', 'mhm-rentiva'),
+				'success_title_plain' => __('Your message was received', 'mhm-rentiva'),
+				'success_body'        => __('We will send the reply to your email address.', 'mhm-rentiva'),
+				'required_fields'     => __('Please fill in all required fields.', 'mhm-rentiva'),
+				'invalid_email'       => __('Please enter a valid email address.', 'mhm-rentiva'),
+				'file_type'           => sprintf(
+					/* translators: %s: accepted file types. */
+					__('This file type is not accepted. Accepted types: %s.', 'mhm-rentiva'),
+					implode(', ', $types)
+				),
+				'file_size'           => sprintf(
+					/* translators: %s: largest file size. */
+					__('This file is too large. The limit is %s.', 'mhm-rentiva'),
+					(string) size_format(self::max_attachment_bytes())
+				),
+				'required'            => array(
+					'name'     => __('Write your name.', 'mhm-rentiva'),
+					'email'    => __('Write your email address.', 'mhm-rentiva'),
+					'priority' => __('Choose a priority.', 'mhm-rentiva'),
+					'message'  => __('Write your message.', 'mhm-rentiva'),
+					'consent'  => __('Please confirm that you have read the privacy notice.', 'mhm-rentiva'),
+				),
 			),
 			'icons'            => array(
-				'success' => \MHMRentiva\Helpers\Icons::get('success', array( 'class' => 'rv-icon-success' )),
-				'warning' => \MHMRentiva\Helpers\Icons::get('warning', array( 'class' => 'rv-icon-warning' )),
+				'warning' => \MHMRentiva\Helpers\Icons::get(
+					'warning',
+					array(
+						'width'  => '16px',
+						'height' => '16px',
+					)
+				),
 			),
-			'strings'          => self::get_localized_strings(),
-		);
-	}
-
-	/**
-	 * Localized strings override
-	 */
-	protected static function get_localized_strings(): array
-	{
-		return array(
-			'submitting'        => __('Sending...', 'mhm-rentiva'),
-			'sending'           => __('Sending...', 'mhm-rentiva'),
-			'success'           => __('Your message has been sent successfully!', 'mhm-rentiva'),
-			'error'             => __('An error occurred while sending message.', 'mhm-rentiva'),
-			'validation_error'  => __('Please fill in all required fields.', 'mhm-rentiva'),
-			'required_fields'   => __('Please fill in all required fields.', 'mhm-rentiva'),
-			'file_too_large'    => __('File size is too large.', 'mhm-rentiva'),
-			'invalid_file_type' => __('Invalid file type.', 'mhm-rentiva'),
-			'loading'           => __('Loading...', 'mhm-rentiva'),
-			'confirm_reset'     => __('Are you sure you want to reset the form?', 'mhm-rentiva'),
 		);
 	}
 

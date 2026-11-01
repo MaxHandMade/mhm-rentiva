@@ -118,9 +118,7 @@
         }
     },
     "editorStyle": [
-        "mhm-rentiva-core-variables"
-    ],
-    "style": [
-        "mhm-rentiva-contact"
+        "mhm-rentiva-core-variables",
+        "mhm-rentiva-rvs-contact"
     ]
 }

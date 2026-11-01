@@ -61,7 +61,7 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('data-form-type="booking"', $booking);
 		$this->assertStringNotContainsString('name="preferred_date"', $booking, 'PR F r2 M3: not among the selector\'s topics.');
 		$this->assertStringContainsString('name="preferred_date"', $this->render('[rentiva_contact type="booking" show_topic_selector="0"]'), 'A fixed booking form keeps it (spec §2.2 exception 1).');
-		$this->assertStringContainsString('<input type="hidden" name="type" value="booking">', $booking);
+		$this->assertStringContainsString('value="booking" checked', $booking);
 
 		$this->assertStringNotContainsString('name="rating"', $this->render('[rentiva_contact type="feedback"]'), 'PR F r2 M3: no rating on the selector form.');
 		$feedback = $this->render('[rentiva_contact type="feedback" show_topic_selector="0"]');
@@ -72,16 +72,16 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$this->assertStringNotContainsString('name="preferred_date"', $general);
 		$this->assertStringContainsString('name="phone"', $general, 'Default unchanged: the phone field shows.');
 		$this->assertStringContainsString('name="attachment"', $general, 'Default unchanged: the attachment field shows.');
-		$this->assertStringContainsString('rv-contact-info', $general, 'Default unchanged: the contact information box shows.');
+		$this->assertStringContainsString('rvs-contact__info', $general, 'Default unchanged: the contact information box shows.');
 
 		$this->assertStringNotContainsString('name="phone"', $this->render('[rentiva_contact show_phone="0"]'));
 		$this->assertStringNotContainsString('name="attachment"', $this->render('[rentiva_contact show_attachment="0"]'));
-		$this->assertStringContainsString('rv-theme-compact', $this->render('[rentiva_contact theme="compact"]'));
+		$this->assertStringContainsString('rvs-contact--compact', $this->render('[rentiva_contact theme="compact"]'));
 		$this->assertStringContainsString('name="priority"', $this->render('[rentiva_contact show_priority="1"]'));
 		$this->assertStringNotContainsString('name="auto_reply"', $general, 'PR F R8: the setting travels in the token.');
 		$this->assertStringContainsString('name="recipient_token"', $general);
 		$this->assertStringNotContainsString('name="recipient_token"', $this->render('[rentiva_contact auto_reply="0"]'));
-		$this->assertStringNotContainsString('rv-contact-info', $this->render('[rentiva_contact show_company_info="0"]'));
+		$this->assertStringNotContainsString('rvs-contact__info', $this->render('[rentiva_contact show_company_info="0"]'));
 
 		// The company field no longer hides behind the phone row.
 		$company = $this->render('[rentiva_contact show_phone="0" show_company="1"]');
@@ -106,15 +106,15 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 	public function test_title_and_description_render_when_set(): void
 	{
 		$html = $this->render('[rentiva_contact title="Write to us" description="We answer within a day."]');
-		$this->assertMatchesRegularExpression('#<h3 class="rv-contact-title">\s*Write to us\s*</h3>#', $html);
-		$this->assertMatchesRegularExpression('#<p class="rv-contact-description">\s*We answer within a day.\s*</p>#', $html);
+		$this->assertMatchesRegularExpression('#<h2 class="rvs-contact__title">\s*Write to us\s*</h2>#', $html);
+		$this->assertMatchesRegularExpression('#<p class="rvs-contact__desc">\s*We answer within a day.\s*</p>#', $html);
 
 		$only_title = $this->render('[rentiva_contact title="Only a title"]');
-		$this->assertStringContainsString('rv-contact-title', $only_title);
-		$this->assertStringNotContainsString('rv-contact-description', $only_title);
+		$this->assertStringContainsString('rvs-contact__title', $only_title);
+		$this->assertStringNotContainsString('rvs-contact__desc', $only_title);
 
 		$default = $this->render('[rentiva_contact]');
-		$this->assertStringNotContainsString('rv-contact-header', $default, 'Rule 1: an untouched form gets no header.');
+		$this->assertStringNotContainsString('rvs-contact__header', $default, 'Rule 1: an untouched form gets no header.');
 	}
 
 	public function test_success_message_is_a_data_attribute(): void

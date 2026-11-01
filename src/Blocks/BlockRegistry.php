@@ -101,7 +101,8 @@ class BlockRegistry {
 		'contact'               => array(
 			'tag'   => 'rentiva_contact',
 			'title' => 'Contact Form',
-			'css'   => 'contact-form.css',
+			'css'   => array(), // The form is the rvs standard (ContactForm enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-contact' ),
 		),
 		'vehicle-rating-form'   => array(
 			'tag'   => 'rentiva_vehicle_rating_form',

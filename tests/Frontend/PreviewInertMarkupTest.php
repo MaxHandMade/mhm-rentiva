@@ -139,7 +139,7 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		ShortcodeFixtures::vehicle();
 
 		$contact = $this->shortcode('rentiva_contact', array( 'email_to' => 'zz-recipient@example.test' ));
-		$this->assertStringContainsString('name="rv_contact_nonce"', $contact);
+		$this->assertStringContainsString('name="type"', $contact);
 		$this->assertStringContainsString('name="recipient_token"', $contact);
 		$this->assertStringContainsString('type="submit"', $contact);
 		$this->assertDoesNotMatchRegularExpression('/<button\b[^>]*type="submit"[^>]*\bdisabled\b/', $contact);
@@ -244,7 +244,7 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		$data     = $response->get_data();
 		$html     = is_array($data) && isset($data['rendered']) ? (string) $data['rendered'] : '';
 
-		$this->assertStringContainsString('rv-contact', $html, 'The block renderer returned no contact form.');
+		$this->assertStringContainsString('data-rvs-contact', $html, 'The block renderer returned no contact form.');
 		$this->assertStringContainsString('data-rv-render="preview"', $html);
 		$this->assert_inert($html, 'block contact');
 	}

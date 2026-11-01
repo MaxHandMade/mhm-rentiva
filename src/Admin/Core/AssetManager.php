@@ -266,6 +266,9 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-comparison', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-comparison', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-comparison.css', array( 'mhm-rentiva-rvs-card' ), self::get_file_version('assets/css/frontend/rvs-comparison.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-contact', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-contact', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-contact.css', array( 'mhm-rentiva-rvs-forms' ), self::get_file_version('assets/css/frontend/rvs-contact.css'));
+		}
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
 		}
@@ -347,6 +350,15 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-comparison');
+	}
+
+	/**
+	 * The contact form: its layout on top of the form primitives.
+	 */
+	public static function enqueue_rvs_contact_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-contact');
 	}
 
 	/**

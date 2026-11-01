@@ -20,7 +20,7 @@ use WP_UnitTestCase;
  */
 final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 {
-	private const CONTACT_STYLE = 'mhm-rentiva-contact-form';
+	private const CONTACT_STYLE = 'mhm-rentiva-rvs-contact';
 
 	public function setUp(): void
 	{
@@ -42,11 +42,11 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 		ContactForm::render(array( '_canonical' => true ));
 		$this->assertContains(self::CONTACT_STYLE, wp_styles()->queue);
 		// Priming the private query cache is what makes a hand-cleared queue lie.
-		$this->assertTrue(wp_styles()->query('mhm-rentiva-css-variables', 'enqueued'));
+		$this->assertTrue(wp_styles()->query('mhm-rentiva-rvs-tokens', 'enqueued'));
 
 		RequestSimulator::new_request();
 
-		$this->assertFalse(wp_styles()->query('mhm-rentiva-css-variables', 'enqueued'));
+		$this->assertFalse(wp_styles()->query('mhm-rentiva-rvs-tokens', 'enqueued'));
 	}
 
 	/**

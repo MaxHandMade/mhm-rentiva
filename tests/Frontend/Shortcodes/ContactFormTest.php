@@ -19,14 +19,14 @@ class ContactFormTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_contact]');
 
         $this->assertNotEmpty($output);
-        $this->assertStringContainsString('rv-contact-form', $output);
+        $this->assertStringContainsString('data-rvs-contact', $output);
     }
 
     public function test_renders_form_element()
     {
         $output = do_shortcode('[rentiva_contact]');
 
-        $this->assertStringContainsString('rv-form', $output);
+        $this->assertStringContainsString('rvs-contact__form', $output);
     }
 
     public function test_default_type_is_general()
@@ -45,7 +45,7 @@ class ContactFormTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_contact type="booking"]');
 
         $this->assertNotEmpty($output);
-        $this->assertStringContainsString('rv-contact-form', $output);
+        $this->assertStringContainsString('data-rvs-contact', $output);
         $this->assertStringContainsString('data-form-type=', $output);
     }
 
@@ -54,8 +54,8 @@ class ContactFormTest extends WP_UnitTestCase
         $output_with    = do_shortcode('[rentiva_contact show_phone="1"]');
         $output_without = do_shortcode('[rentiva_contact show_phone="0"]');
 
-        $this->assertStringContainsString('rv-contact-form', $output_with);
-        $this->assertStringContainsString('rv-contact-form', $output_without);
+        $this->assertStringContainsString('data-rvs-contact', $output_with);
+        $this->assertStringContainsString('data-rvs-contact', $output_without);
     }
 
     /**
