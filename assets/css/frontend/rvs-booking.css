@@ -296,6 +296,7 @@
 
 .rvs-shell .rvs-booking .rvs-booking__submit:hover:not(:disabled) {
 	background: var(--rvs-booking-cta-hover);
+	box-shadow: var(--rvs-hover-shadow);
 }
 
 .rvs-shell .rvs-booking__submit:disabled {

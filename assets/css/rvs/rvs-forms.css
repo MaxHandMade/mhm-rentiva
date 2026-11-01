@@ -31,8 +31,10 @@
 /* A chosen option: a heavier accent edge, so the choice is not told by the
    tick alone. */
 .rvs-shell .rvs-option:has(input:checked) {
-	border-color: var(--rvs-accent-strong);
-	box-shadow: inset 0 0 0 1px var(--rvs-accent-strong);
+	border-color: var(--rvs-sel-line);
+	background: var(--rvs-sel-bg);
+	box-shadow: inset 0 0 0 1px var(--rvs-sel-line);
+	color: var(--rvs-sel-text);
 }
 
 /* The card rings when its control has keyboard focus. */
@@ -91,7 +93,9 @@
 .rvs-shell .rvs-option--locked:hover,
 .rvs-shell .rvs-option--locked:has(input:checked) {
 	border-color: var(--rvs-line);
+	background: var(--rvs-surface);
 	box-shadow: none;
+	color: var(--rvs-text);
 }
 
 .rvs-shell .rvs-option--locked > input:disabled {

@@ -96,16 +96,16 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString(':root', preg_replace('!/\*.*?\*/!s', '', $css));
 		foreach (
 			array(
-				'--rvs-bg: #f3f2f2',
-				'--rvs-text: #201e1d',
-				'--rvs-accent: #0088b0',
-				'--rvs-accent-strong: #006786',
+				'--rvs-bg: #f0f6fc',
+				'--rvs-text: #1d2327',
+				'--rvs-accent: #3582c4',
+				'--rvs-accent-strong: #2271b1',
 				'--rvs-alert: #aa0b56',
-				'--rvs-n-700: #605d5d',
+				'--rvs-n-700: #50575e',
 				'--rvs-s1: 5px',
 				'--rvs-s12: 60px',
-				'--rvs-r: 2px',
-				'--rvs-font: "Source Serif 4", Georgia, serif',
+				'--rvs-r: 4px',
+				'--rvs-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 			) as $declaration
 		) {
 			$this->assertStringContainsString($declaration, $css);
