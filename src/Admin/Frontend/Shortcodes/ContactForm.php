@@ -203,7 +203,8 @@ final class ContactForm extends AbstractShortcode {
 					// Never cached (is_caching_enabled()), so the counter cannot freeze.
 					'uid'              => wp_unique_id('rvs-contact-'),
 					'logged_in'        => is_user_logged_in(),
-					'own_bookings'     => self::own_booking_rows(),
+					// Only when a list could be drawn (R3): a guest, or a fixed form without the field, runs no query.
+					'own_bookings'     => ( $selector || '1' === (string) ( $atts['show_booking_id_field'] ?? '0' ) ) ? self::own_booking_rows() : array(),
 					'has_vehicles'     => array() !== $vehicles,
 					'required'         => self::required_by_type(),
 					'address'          => (string) SettingsCore::get('mhmrentiva_contact_address', ''),
@@ -488,26 +489,26 @@ final class ContactForm extends AbstractShortcode {
 			// this is deliberate double-sanitization-at-the-boundary, not a
 			// change to the real business-logic sanitizers/validators.
 			$post_data = array(
-				'type'            => isset($_POST['type']) ? sanitize_text_field(wp_unslash( (string) $_POST['type'])) : 'general',
-				'name'            => isset($_POST['name']) ? sanitize_text_field(wp_unslash( (string) $_POST['name'])) : '',
-				'email'           => isset($_POST['email']) ? sanitize_email(wp_unslash( (string) $_POST['email'])) : '',
-				'phone'           => isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '',
-				'company'         => isset($_POST['company']) ? sanitize_text_field(wp_unslash( (string) $_POST['company'])) : '',
-				'vehicle_id'      => isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0,
-				'preferred_date'  => isset($_POST['preferred_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['preferred_date'])) : '',
-				'priority'        => isset($_POST['priority']) ? sanitize_text_field(wp_unslash( (string) $_POST['priority'])) : '',
-				'rating'          => isset($_POST['rating']) ? absint(wp_unslash($_POST['rating'])) : 0,
-				'message'         => isset($_POST['message']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['message'])) : '',
+				'type'                          => isset($_POST['type']) ? sanitize_text_field(wp_unslash( (string) $_POST['type'])) : 'general',
+				'name'                          => isset($_POST['name']) ? sanitize_text_field(wp_unslash( (string) $_POST['name'])) : '',
+				'email'                         => isset($_POST['email']) ? sanitize_email(wp_unslash( (string) $_POST['email'])) : '',
+				'phone'                         => isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '',
+				'company'                       => isset($_POST['company']) ? sanitize_text_field(wp_unslash( (string) $_POST['company'])) : '',
+				'vehicle_id'                    => isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0,
+				'preferred_date'                => isset($_POST['preferred_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['preferred_date'])) : '',
+				'priority'                      => isset($_POST['priority']) ? sanitize_text_field(wp_unslash( (string) $_POST['priority'])) : '',
+				'rating'                        => isset($_POST['rating']) ? absint(wp_unslash($_POST['rating'])) : 0,
+				'message'                       => isset($_POST['message']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['message'])) : '',
 				// Never from the request: before 4.4.0 a typed URL landed here
 				// and became a link in the admin screen and a path fed to the
 				// admin e-mail. Only handle_file_upload() below sets it.
-				'attachment'      => '',
+				'attachment'                    => '',
 				// The auto reply is not read from here: RecipientToken::allows_auto_reply() decides.
-				'booking_id'      => isset($_POST['booking_id']) ? absint(wp_unslash($_POST['booking_id'])) : 0,
+				'booking_id'                    => isset($_POST['booking_id']) ? absint(wp_unslash($_POST['booking_id'])) : 0,
 				// Opaque: only RecipientToken::resolve() gives it meaning. A plain
 				// address posted here (or as email_to) is never used as a recipient.
-				'recipient_token' => isset($_POST['recipient_token']) ? sanitize_text_field(wp_unslash( (string) $_POST['recipient_token'])) : '',
-				'consent'         => isset($_POST['consent']) ? sanitize_text_field(wp_unslash( (string) $_POST['consent'])) : '',
+				'recipient_token'               => isset($_POST['recipient_token']) ? sanitize_text_field(wp_unslash( (string) $_POST['recipient_token'])) : '',
+				'consent'                       => isset($_POST['consent']) ? sanitize_text_field(wp_unslash( (string) $_POST['consent'])) : '',
 				// The trap field: never stored, only tested for a value.
 				ContactFormView::HONEYPOT_FIELD => isset($_POST[ ContactFormView::HONEYPOT_FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ ContactFormView::HONEYPOT_FIELD ])) : '',
 			);
@@ -613,7 +614,7 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		$email_sent = self::send_contact_email($form_data, $message_id);
-		if (RecipientToken::allows_auto_reply($form_data['recipient_token'], $form_data['type'])) {
+		if (RecipientToken::allows_auto_reply($form_data['recipient_token'], $form_data['type']) && self::claim_auto_reply_slot($form_data['email'])) {
 			self::send_auto_reply($form_data);
 		}
 
@@ -684,6 +685,12 @@ final class ContactForm extends AbstractShortcode {
 
 	/** How many of the visitor's own bookings the list offers (R3). */
 	private const OWN_BOOKINGS_LIMIT = 20;
+
+	/** The visitor's name in the auto reply: a greeting, not room for a pitch. */
+	private const AUTO_REPLY_NAME_LENGTH = 60;
+
+	/** One auto reply per address in this many seconds; the typed address is not verified. */
+	private const AUTO_REPLY_INTERVAL = HOUR_IN_SECONDS;
 
 	private static function sanitize_contact_form_data(array $data): array
 	{
@@ -992,6 +999,22 @@ final class ContactForm extends AbstractShortcode {
 		return $message;
 	}
 
+	/**
+	 * Whether this address may get an auto reply now. Anyone can type someone else's
+	 * address, and the IP limit does not protect that address from many IPs. Keyed by
+	 * a salted hash, so the options table holds no visitor address.
+	 */
+	private static function claim_auto_reply_slot(string $email): bool
+	{
+		$key = 'mhmrentiva_contact_reply_' . wp_hash(strtolower(trim($email)));
+		if (false !== get_transient($key)) {
+			return false;
+		}
+
+		set_transient($key, 1, self::AUTO_REPLY_INTERVAL);
+		return true;
+	}
+
 	private static function send_auto_reply(array $data): bool
 	{
 		/* translators: %s: site name. */
@@ -1000,7 +1023,7 @@ final class ContactForm extends AbstractShortcode {
 		$message  = '<html><body>';
 		$message .= '<h2>' . esc_html__('Your Message Received', 'mhm-rentiva') . '</h2>';
 		/* translators: %s: customer name. */
-		$message .= '<p>' . sprintf(esc_html__('Hello %s,', 'mhm-rentiva'), esc_html($data['name'])) . '</p>';
+		$message .= '<p>' . sprintf(esc_html__('Hello %s,', 'mhm-rentiva'), esc_html(mb_substr( (string) $data['name'], 0, self::AUTO_REPLY_NAME_LENGTH))) . '</p>';
 		$message .= '<p>' . __('Your message has been successfully received. We will get back to you as soon as possible.', 'mhm-rentiva') . '</p>';
 		$message .= '<p>' . __('Thank you,', 'mhm-rentiva') . '<br>' . get_bloginfo('name') . '</p>';
 		$message .= '</body></html>';

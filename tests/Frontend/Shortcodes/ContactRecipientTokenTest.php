@@ -267,6 +267,38 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse(RecipientToken::allows_auto_reply($token, 'general'), 'The old payload never vouches for a reply.');
 	}
 
+	public function test_the_nonce_does_not_come_from_the_secretbox_key(): void
+	{
+		$key   = hash('sha256', wp_salt('auth'), true);
+		$token = RecipientToken::issue('', 7, array( 'general' ), true);
+		$raw   = (string) base64_decode($token, true);
+		$nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$plain = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $nonce, $key);
+
+		$this->assertIsString($plain, 'The secretbox key is unchanged, so cached tokens keep opening.');
+		$this->assertNotSame(substr(hash_hmac('sha256', $plain, $key, true), 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $nonce);
+		$this->assertSame($token, RecipientToken::issue('', 7, array( 'general' ), true), 'Still one token per payload.');
+	}
+
+	public function test_a_token_sealed_with_another_key_fails_closed(): void
+	{
+		$page  = $this->page_by($this->editor);
+		$nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$plain = (string) wp_json_encode(
+			array(
+				'email'      => self::CUSTOM,
+				'post_id'    => $page,
+				'types'      => array( 'general' ),
+				'auto_reply' => true,
+			)
+		);
+		$token = base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, str_repeat('k', SODIUM_CRYPTO_SECRETBOX_KEYBYTES)));
+
+		$this->assertNull(RecipientToken::resolve($token, 'general'));
+		$this->assertFalse(RecipientToken::allows_auto_reply($token, 'general'));
+		$this->assert_fell_back('auth_failed');
+	}
+
 	public function test_plain_email_to_post_is_ignored(): void
 	{
 		$response = $this->submit(

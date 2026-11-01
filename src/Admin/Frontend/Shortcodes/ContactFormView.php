@@ -19,8 +19,12 @@ final class ContactFormView {
 	/** The topics a visitor chooses between; `support` only comes from the attribute. */
 	public const SELECTOR_TOPICS = array( 'general', 'booking', 'feedback' );
 
-	/** The trap field's name. A person never sees it, so a value means a bot. */
-	public const HONEYPOT_FIELD = 'website';
+	/**
+	 * The trap field's name. A person never sees it, so a value means a bot. No word
+	 * browsers autofill (website, url, name, company...): autofill would make a real
+	 * visitor's message vanish behind the success answer.
+	 */
+	public const HONEYPOT_FIELD = 'rvs_leave_blank';
 
 	/**
 	 * The types one form may submit, which is also what its token vouches for (r2 M1).

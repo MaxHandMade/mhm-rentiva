@@ -76,7 +76,7 @@ final class RecipientToken {
 				'auto_reply' => $auto_reply,
 			)
 		);
-		$nonce   = substr(hash_hmac('sha256', 'nonce|' . $payload, self::key(), true), 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$nonce   = substr(hash_hmac('sha256', $payload, self::nonce_key(), true), 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
 		return base64_encode($nonce . sodium_crypto_secretbox($payload, $nonce, self::key())); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- transport encoding of an encrypted payload.
 	}
@@ -367,6 +367,16 @@ final class RecipientToken {
 	private static function key(): string
 	{
 		return hash('sha256', wp_salt('auth'), true);
+	}
+
+	/**
+	 * The key of the derived nonce, separate from the secretbox key so that one key
+	 * never serves two algorithms. Only issue() uses it: resolving needs no nonce key,
+	 * so tokens already on cached pages open as before.
+	 */
+	private static function nonce_key(): string
+	{
+		return hash_hmac('sha256', 'contact-token-nonce', self::key(), true);
 	}
 
 	/**

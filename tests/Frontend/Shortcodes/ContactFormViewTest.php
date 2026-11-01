@@ -265,4 +265,12 @@ final class ContactFormViewTest extends WP_UnitTestCase
 		$this->assertCount(count($one['ids']), array_unique($one['ids']));
 		$this->assertSame(ContactFormView::HONEYPOT_FIELD, $one['honeypot']);
 	}
+
+	public function test_honeypot_name_holds_no_word_browsers_autofill(): void
+	{
+		$this->assertDoesNotMatchRegularExpression(
+			'/web|site|url|name|mail|phone|tel|company|org|address|city|zip|postal|country|fax|contact/i',
+			ContactFormView::HONEYPOT_FIELD
+		);
+	}
 }

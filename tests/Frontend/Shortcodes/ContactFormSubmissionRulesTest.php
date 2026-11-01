@@ -7,6 +7,7 @@ use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RecipientToken;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactForm;
+use MHMRentiva\Admin\Frontend\Shortcodes\ContactFormView;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Tests\Support\RequestSimulator;
 use WP_Ajax_UnitTestCase;
@@ -214,11 +215,118 @@ final class ContactFormSubmissionRulesTest extends WP_Ajax_UnitTestCase
 	public function test_honeypot_answers_success_and_stores_nothing(): void
 	{
 		$before   = $this->contact_count();
-		$response = $this->submit(array( 'website' => 'http://spam.example' ));
+		$response = $this->submit(array( ContactFormView::HONEYPOT_FIELD => 'http://spam.example' ));
 
 		$this->assertTrue($response['success'], 'The bot learns nothing.');
 		$this->assertSame($before, $this->contact_count());
 		$this->assertSame(array(), $this->mails);
+	}
+
+	public function test_an_autofilled_website_field_is_no_trap(): void
+	{
+		$before   = $this->contact_count();
+		$response = $this->submit(array( 'website' => 'https://visitor.example' ));
+
+		$this->assertTrue($response['success']);
+		$this->assertSame($before + 1, $this->contact_count());
+	}
+
+	/**
+	 * @return list<string> The addressees of the mails since the last call.
+	 */
+	private function take_recipients(): array
+	{
+		$to          = array_map(static fn(array $mail): string => implode(',', (array) $mail['to']), $this->mails);
+		$this->mails = array();
+		return $to;
+	}
+
+	public function test_one_auto_reply_per_address_per_hour(): void
+	{
+		$token = RecipientToken::issue('', 0, array( 'general' ), true);
+		$admin = (string) get_option('admin_email');
+
+		$this->submit(array( 'recipient_token' => $token ));
+		$this->assertSame(array( $admin, 'ada@example.com' ), $this->take_recipients());
+
+		$before = $this->contact_count();
+		$second = $this->submit(array( 'recipient_token' => $token, 'email' => 'ADA@example.com' ));
+		$this->assertTrue($second['success'], 'The visitor is told nothing different.');
+		$this->assertSame(array( $admin ), $this->take_recipients(), 'Admin only; the address case changes nothing.');
+		$this->assertSame($before + 1, $this->contact_count(), 'The message itself is saved.');
+
+		$this->submit(array( 'recipient_token' => $token, 'email' => 'other@example.com' ));
+		$this->assertSame(array( $admin, 'other@example.com' ), $this->take_recipients());
+
+		$this->assertSame(1, (int) get_transient('mhmrentiva_contact_reply_' . wp_hash('ada@example.com')), 'Stored under a hash.');
+		global $wpdb;
+		$this->assertSame('0', (string) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", '%ada@example.com%')), 'No address in the options table.');
+
+		$expiry = (int) get_option('_transient_timeout_mhmrentiva_contact_reply_' . wp_hash('ada@example.com'));
+		if ($expiry > 0) {
+			$this->assertLessThanOrEqual(time() + HOUR_IN_SECONDS, $expiry);
+			$this->assertGreaterThan(time() + HOUR_IN_SECONDS - 60, $expiry);
+		}
+
+		// The hour is over: the address may get a reply again.
+		delete_transient('mhmrentiva_contact_reply_' . wp_hash('ada@example.com'));
+		$this->submit(array( 'recipient_token' => $token ));
+		$this->assertSame(array( $admin, 'ada@example.com' ), $this->take_recipients());
+	}
+
+	public function test_a_refused_message_uses_no_reply_slot(): void
+	{
+		$token = RecipientToken::issue('', 0, array( 'general' ), true);
+
+		$this->submit(array( 'recipient_token' => $token, 'message' => '' ));
+		$this->assertSame(array(), $this->take_recipients());
+		$this->assertFalse(get_transient('mhmrentiva_contact_reply_' . wp_hash('ada@example.com')));
+	}
+
+	public function test_auto_reply_name_is_capped_at_sixty_characters(): void
+	{
+		$long  = str_repeat('Ş', 60) . 'BUY-NOW';
+		$token = RecipientToken::issue('', 0, array( 'general' ), true);
+
+		$this->submit(array( 'recipient_token' => $token, 'name' => $long ));
+		$this->assertCount(2, $this->mails);
+
+		$reply = (string) $this->mails[1]['message'];
+		$this->assertStringContainsString(str_repeat('Ş', 60), $reply);
+		$this->assertStringNotContainsString('BUY-NOW', $reply);
+		$this->assertStringContainsString('BUY-NOW', (string) $this->mails[0]['message'], 'The admin sees the name as typed.');
+	}
+
+	public function test_booking_list_query_runs_only_when_the_list_can_be_drawn(): void
+	{
+		$user = (int) self::factory()->user->create(array( 'role' => 'customer' ));
+		wp_set_current_user($user);
+
+		$count = 0;
+		add_filter(
+			'posts_pre_query',
+			static function ($posts, $query) use (&$count) {
+				if ('mhmrentiva_booking' === $query->get('post_type')) {
+					++$count;
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$this->render('[rentiva_contact type="general" show_topic_selector="0" show_booking_id_field="0"]');
+		$this->assertSame(0, $count, 'A fixed form without the field runs no booking query.');
+
+		$this->render('[rentiva_contact type="general" show_topic_selector="0" show_booking_id_field="1"]');
+		$this->assertSame(1, $count);
+
+		$this->render('[rentiva_contact]');
+		$this->assertSame(2, $count);
+
+		wp_set_current_user(0);
+		$this->render('[rentiva_contact]');
+		$this->assertSame(2, $count, 'A guest runs none.');
 	}
 
 	public function test_no_token_means_no_auto_reply(): void
