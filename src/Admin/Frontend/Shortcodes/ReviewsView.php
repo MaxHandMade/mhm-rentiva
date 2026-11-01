@@ -19,6 +19,37 @@ if (! defined('ABSPATH')) {
  */
 final class ReviewsView {
 
+	/** The form starts empty, for a first review. */
+	public const FORM_NEW = 'new';
+
+	/** The form waits, hidden, for the Edit button on the visitor's own card. */
+	public const FORM_HIDDEN = 'hidden';
+
+	/** No list, so no card to edit from: the form shows the visitor's review itself. */
+	public const FORM_EDIT = 'edit';
+
+	/** The visitor has a review and may not change it: no form at all. */
+	public const FORM_NONE = 'none';
+
+	/**
+	 * How the form appears to a visitor who may post.
+	 *
+	 * @param bool $has_own   The visitor already has a review on this vehicle.
+	 * @param bool $show_list The list, with its Edit button, is on the page.
+	 * @param bool $can_edit  The site allows editing.
+	 */
+	public static function form_mode(bool $has_own, bool $show_list, bool $can_edit): string
+	{
+		if (! $has_own) {
+			return self::FORM_NEW;
+		}
+		if (! $can_edit) {
+			return self::FORM_NONE;
+		}
+
+		return $show_list ? self::FORM_HIDDEN : self::FORM_EDIT;
+	}
+
 	/**
 	 * Average, count and the 5..1 distribution, or null without reviews.
 	 *
@@ -174,11 +205,16 @@ final class ReviewsView {
 		}
 
 		if ($approved) {
+			// A guest may be served the vehicle page from the HTML cache for up to five
+			// minutes: reloading could show a list without the review, so nothing here
+			// promises that it is already there.
 			return array(
 				'state'   => 'published',
 				'title'   => __('Your review is published', 'mhm-rentiva'),
-				'message' => __('Thank you. Your review is in the list.', 'mhm-rentiva'),
-				'reload'  => true,
+				'message' => $is_guest
+					? __('Thank you. It appears in the list within a few minutes.', 'mhm-rentiva')
+					: __('Thank you. Your review is in the list.', 'mhm-rentiva'),
+				'reload'  => ! $is_guest,
 			);
 		}
 

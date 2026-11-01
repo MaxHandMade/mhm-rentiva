@@ -36,6 +36,7 @@
 
 .rvs-shell .rvs-reviews__box-title {
 	margin: 0;
+	color: var(--rvs-text);
 	font-size: 20px;
 	font-weight: 600;
 	line-height: 1.12;

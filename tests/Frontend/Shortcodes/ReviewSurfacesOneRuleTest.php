@@ -98,6 +98,19 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 		}
 	}
 
+	/**
+	 * @param array<string, mixed> $display Display settings to apply.
+	 */
+	private function settings_display(array $display): void
+	{
+		$property = new ReflectionProperty(CommentsSettings::class, 'runtime_cache');
+		$property->setAccessible(true);
+		$property->setValue(null, null);
+		$settings            = CommentsSettings::get_settings();
+		$settings['display'] = $display + (array) $settings['display'];
+		$property->setValue(null, $settings);
+	}
+
 	private function cards(string $html): int
 	{
 		return substr_count($html, '<article class="rvs-review');
@@ -356,6 +369,141 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('Second version of it.', $html);
 	}
 
+	public function test_without_the_list_the_own_review_is_edited_in_the_visible_form(): void
+	{
+		$this->review(
+			array(
+				'user_id'         => $this->author,
+				'comment_content' => 'What I wrote.',
+			),
+			3
+		);
+		wp_set_current_user($this->author);
+
+		$html = $this->render(' show_ratings_list="0"');
+
+		$this->assertDoesNotMatchRegularExpression('/<form [^>]*\bhidden\b/', $html, 'No card means no Edit: the form must not wait for one.');
+		$this->assertStringNotContainsString('data-rvs-review-edit', $html);
+		$this->assertStringContainsString('>What I wrote.</textarea>', $html);
+		$this->assertMatchesRegularExpression('/value="3"\s+checked/', $html);
+		$this->assertStringContainsString('Update review', $html);
+		$this->assertStringContainsString('Edit your review', $html);
+		$this->assertStringNotContainsString('Submit review', $html, 'Sending it changes the review: the button says so.');
+	}
+
+	public function test_with_editing_off_an_own_review_gets_no_form(): void
+	{
+		$this->review(array( 'user_id' => $this->author ));
+		wp_set_current_user($this->author);
+		$this->settings_display(array( 'allow_editing' => false ));
+
+		foreach (array( '', ' show_ratings_list="0"' ) as $atts) {
+			$html = $this->render($atts);
+			$this->assertStringNotContainsString('<form', $html, "atts: $atts");
+			$this->assertStringNotContainsString('data-rvs-review-edit', $html);
+			$this->assertStringNotContainsString('rvs-reviews__login', $html, 'A logged-in author is not told to log in.');
+		}
+	}
+
+	public function test_the_endpoint_refuses_an_edit_when_editing_is_off(): void
+	{
+		$id = $this->review(
+			array(
+				'user_id'         => $this->author,
+				'comment_content' => 'The original words.',
+			)
+		);
+		wp_set_current_user($this->author);
+		$this->settings_display(array( 'allow_editing' => false ));
+
+		$response = $this->submit(
+			array(
+				'rating'  => '1',
+				'comment' => 'Trying to rewrite it.',
+			)
+		);
+
+		$this->assertFalse($response['success'], (string) $this->_last_response);
+		$this->assertSame('The original words.', get_comment($id)->comment_content);
+		$this->assertSame('4', (string) get_comment_meta($id, 'mhmrentiva_rating', true));
+		$this->assertCount(1, get_comments(array( 'post_id' => $this->vehicle, 'status' => 'all' )), 'Refused, not a duplicate.');
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function delete(int $comment_id): array
+	{
+		add_action('wp_ajax_mhmrentiva_delete_rating', array( VehicleRatingForm::class, 'ajax_delete_rating' ));
+		$_POST = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_rating_nonce'),
+			'comment_id' => (string) $comment_id,
+		);
+		try {
+			$this->_handleAjax('mhmrentiva_delete_rating');
+		} catch (\WPAjaxDieContinueException | \WPAjaxDieStopException $e) {
+			unset($e);
+		}
+
+		return (array) json_decode($this->_last_response, true);
+	}
+
+	public function test_the_endpoint_refuses_the_owners_delete_when_deletion_is_off(): void
+	{
+		$id = $this->review(array( 'user_id' => $this->author ));
+		wp_set_current_user($this->author);
+		$this->settings_display(array( 'allow_deletion' => false ));
+
+		$response = $this->delete($id);
+
+		$this->assertFalse($response['success'], (string) $this->_last_response);
+		$this->assertInstanceOf(\WP_Comment::class, get_comment($id));
+		$this->assertStringNotContainsString('data-rvs-review-delete', $this->render());
+	}
+
+	public function test_an_admin_still_deletes_when_deletion_is_off(): void
+	{
+		$id = $this->review(array( 'user_id' => $this->author ));
+		wp_set_current_user( (int) self::factory()->user->create(array( 'role' => 'administrator' )));
+		$this->settings_display(array( 'allow_deletion' => false ));
+
+		$response = $this->delete($id);
+
+		$this->assertTrue($response['success'], (string) $this->_last_response);
+		$this->assertNull(get_comment($id));
+	}
+
+	public function test_nested_boxes_add_no_heading(): void
+	{
+		$page = do_shortcode('[rentiva_vehicle_details vehicle_id="' . $this->vehicle . '"]');
+		preg_match('#<section class="rvs-vd__section rvs-vd__reviews".*?</section>#s', $page, $section);
+
+		$this->assertNotEmpty($section);
+		$this->assertStringContainsString('No reviews yet.', $section[0]);
+		$this->assertStringContainsString('Login required', $section[0]);
+		$this->assertSame(1, preg_match_all('/<h[1-6]\b/', $section[0]), 'The h2 of the section, nothing else.');
+
+		$standalone = $this->render();
+		$this->assertMatchesRegularExpression('#<h3 [^>]*>No reviews yet\.</h3>#', $standalone);
+		$this->assertMatchesRegularExpression('#<h3 [^>]*>Login required</h3>#', $standalone);
+	}
+
+	public function test_a_standalone_form_stays_out_of_the_html_cache(): void
+	{
+		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true', 999);
+		try {
+			$before = $this->render();
+			$this->review();
+			$after = $this->render();
+		} finally {
+			remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true', 999);
+		}
+
+		$this->assertSame(0, $this->cards($before));
+		$this->assertSame(1, $this->cards($after), 'A second render came from a cache.');
+	}
+
 	public function test_a_new_waiting_review_answers_from_the_stored_status(): void
 	{
 		$this->settings_cache(array( 'auto_approve' => false ));
@@ -382,7 +530,12 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 		$this->assertFalse($guest['reload'], 'A guest review is listed for nobody, so nothing to reload.');
 		$this->assertStringNotContainsString('only you', $guest['message']);
 		$this->assertStringContainsString('only you', $user['message']);
-		$this->assertSame('published', ReviewsView::submission_answer(true, false, true)['state']);
+
+		$published = ReviewsView::submission_answer(true, false, true);
+		$this->assertSame('published', $published['state']);
+		$this->assertFalse($published['reload'], 'A reload could show the cached page without it.');
+		$this->assertStringContainsString('within a few minutes', $published['message'], 'True for the whole life of the cache.');
+		$this->assertStringContainsString('is in the list', ReviewsView::submission_answer(true, false, false)['message'], 'A logged-in visitor is never cached.');
 		$this->assertSame('updated', ReviewsView::submission_answer(true, true, false)['state']);
 	}
 

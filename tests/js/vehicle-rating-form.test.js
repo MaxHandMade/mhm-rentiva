@@ -211,6 +211,13 @@ describe( 'vehicle rating form', () => {
 		expect( root( 'a' ).querySelector( '[data-rvs-rating-status]' ).textContent ).toBe( '' );
 	} );
 
+	test( 'a form printed with the own review counts its text and needs no cancel', () => {
+		load( instance( 'a' ).replace( '></textarea>', '>Already written</textarea>' ) );
+		const form = formOf( 'a' );
+		expect( form.querySelector( '[data-rvs-rating-count]' ).textContent ).toBe( '15 / 20, at least 5' );
+		expect( form.querySelector( '[data-rvs-rating-cancel]' ).hidden ).toBe( true );
+	} );
+
 	test( 'edit opens the hidden form with the old values; cancel puts it back', () => {
 		load( instance( 'a', 'hidden' ) );
 		const form = formOf( 'a' );

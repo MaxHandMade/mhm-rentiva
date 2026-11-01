@@ -162,6 +162,8 @@ final class VehicleRatingForm extends AbstractShortcode {
 		$show_form  = $to_bool($atts['show_form'] ?? '1');
 		$show_list  = $to_bool($atts['show_ratings_list'] ?? '1');
 		$cards      = $show_list ? self::review_cards($vehicle_id, $display, $show_form && $allow_post) : array();
+		$own        = $logged_in ? self::get_user_rating($vehicle_id) : null;
+		$mode       = ReviewsView::form_mode(null !== $own, $show_list, (bool) ( $display['allow_editing'] ?? true ));
 
 		return array(
 			'vehicle_id'          => $vehicle_id,
@@ -175,7 +177,9 @@ final class VehicleRatingForm extends AbstractShortcode {
 			'show_ratings_list'   => $show_list,
 			'cards'               => $cards,
 			'can_post'            => $allow_post,
-			'has_own'             => $logged_in && null !== self::get_user_rating($vehicle_id),
+			'form_mode'           => $mode,
+			'own_rating'          => ReviewsView::FORM_EDIT === $mode ? (int) ( $own['rating'] ?? 0 ) : 0,
+			'own_comment'         => ReviewsView::FORM_EDIT === $mode ? (string) ( $own['comment'] ?? '' ) : '',
 			'guest_fields'        => ! $logged_in && $allow_post,
 			'has_dialog'          => array() !== array_filter(array_column($cards, 'can_delete')),
 			'min_length'          => (int) ( $limits['comment_length_min'] ?? 5 ),
@@ -376,6 +380,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 			}
 		}
 
+		// The setting is the server's too, not only the missing button: without this a
+		// direct request still rewrites the review. Refused before anything is written.
+		if ($is_update && ! ( $comments_settings['display']['allow_editing'] ?? true )) {
+			wp_send_json_error(array( 'message' => __('Editing reviews is turned off on this site.', 'mhm-rentiva') ));
+		}
+
 		// Run spam protection only for NEW submissions.
 		// Updates are safe: user already passed spam check on first submission.
 		if (! $is_update) {
@@ -510,8 +520,10 @@ final class VehicleRatingForm extends AbstractShortcode {
 			wp_send_json_error(array( 'message' => __('Comment not found', 'mhm-rentiva') ));
 		}
 
-		// Check permission: owner or admin
-		if ($c->user_id == $uid || current_user_can('manage_options')) {
+		// Check permission: an admin always; the owner while the setting allows it.
+		$settings  = CommentsSettings::get_settings();
+		$owner_may = (int) $c->user_id === $uid && (bool) ( $settings['display']['allow_deletion'] ?? true );
+		if ($owner_may || current_user_can('manage_options')) {
 			$vid = (int) $c->comment_post_ID;
 			wp_delete_comment($cid, true);
 

@@ -20,7 +20,9 @@
  * @var bool                      $show_form
  * @var list<array<string,mixed>> $cards               ReviewsView::card().
  * @var bool                      $can_post
- * @var bool                      $has_own             The visitor already has a review here.
+ * @var string                    $form_mode           ReviewsView::form_mode().
+ * @var int                       $own_rating          Prefilled star, FORM_EDIT only.
+ * @var string                    $own_comment         Prefilled text, FORM_EDIT only.
  * @var bool                      $guest_fields        Ask a guest's name and e-mail.
  * @var bool                      $has_dialog          A delete button is on the page.
  * @var int                       $min_length
@@ -28,6 +30,7 @@
  */
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView;
 use MHMRentiva\Frontend\RenderContext;
 
 if (! defined('ABSPATH')) {
@@ -52,7 +55,12 @@ $is_preview = RenderContext::current()->is_preview();
 $inert      = $is_preview ? ' disabled' : '';
 $min_length = (int) ( $min_length ?? 0 );
 $max_length = (int) ( $max_length ?? 0 );
-$classes    = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . ' ' . (string) ( $class ?? '' ));
+$form_mode  = (string) ( $form_mode ?? ReviewsView::FORM_NEW );
+$editing    = ReviewsView::FORM_EDIT === $form_mode;
+$own_text   = $editing ? (string) ( $own_comment ?? '' ) : '';
+// Inside the page the section's h2 is the one heading: these boxes are not headings there.
+$box_tag = $nested ? 'div' : 'h3';
+$classes = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . ' ' . (string) ( $class ?? '' ));
 ?>
 <div class="<?php echo esc_attr($classes); ?>" data-rvs-rating data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>">
 	<?php if (! $nested) : ?>
@@ -80,26 +88,25 @@ $classes    = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . '
 			</div>
 		<?php else : ?>
 			<div class="rvs-reviews__empty">
-				<h3 class="rvs-reviews__box-title"><?php esc_html_e('No reviews yet.', 'mhm-rentiva'); ?></h3>
+				<<?php echo esc_html($box_tag); ?> class="rvs-reviews__box-title"><?php esc_html_e('No reviews yet.', 'mhm-rentiva'); ?></<?php echo esc_html($box_tag); ?>>
 			</div>
 		<?php endif; ?>
 	<?php endif; ?>
 
 	<div class="rvs-reviews__status" data-rvs-rating-status role="status"></div>
 
-	<?php if (! empty($show_form) && ! empty($can_post)) : ?>
+	<?php if (! empty($show_form) && ! empty($can_post) && ReviewsView::FORM_NONE !== $form_mode) : ?>
 		<form class="rvs-reviews__form" data-rvs-rating-form novalidate
 			<?php if ($nested) : ?>
 				aria-label="<?php esc_attr_e('Write a review', 'mhm-rentiva'); ?>"
 			<?php else : ?>
 				aria-labelledby="<?php echo esc_attr($uid . '-form-title'); ?>"
 			<?php endif; ?>
-			<?php echo ! empty($has_own) ? 'hidden' : ''; ?>>
+			<?php echo ReviewsView::FORM_HIDDEN === $form_mode ? 'hidden' : ''; ?>>
 			<?php if (! $nested) : ?>
-				<h3 class="rvs-reviews__box-title" id="<?php echo esc_attr($uid . '-form-title'); ?>" data-rvs-rating-title><?php esc_html_e('Rate this vehicle', 'mhm-rentiva'); ?></h3>
+				<h3 class="rvs-reviews__box-title" id="<?php echo esc_attr($uid . '-form-title'); ?>" data-rvs-rating-title><?php echo esc_html($editing ? __('Edit your review', 'mhm-rentiva') : __('Rate this vehicle', 'mhm-rentiva')); ?></h3>
 			<?php endif; ?>
 
-			<input type="hidden" name="vehicle_id" value="<?php echo esc_attr( (string) $vehicle_id); ?>">
 			<?php RenderContext::the_nonce_input_line('mhmrentiva_rating_nonce', 'nonce'); ?>
 
 			<?php if (! empty($guest_fields)) : ?>
@@ -117,12 +124,20 @@ $classes    = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . '
 
 			<fieldset class="rvs-field" id="<?php echo esc_attr($uid . '-rating'); ?>" data-rvs-field data-rvs-rating-stars>
 				<legend><?php esc_html_e('Your rating', 'mhm-rentiva'); ?></legend>
-				<?php Templates::render('partials/rvs/star-input', array( 'disabled' => $is_preview )); ?>
+				<?php
+				Templates::render(
+					'partials/rvs/star-input',
+					array(
+						'disabled' => $is_preview,
+						'checked'  => $editing ? (int) ( $own_rating ?? 0 ) : 0,
+					)
+				);
+				?>
 			</fieldset>
 
 			<div class="rvs-field" data-rvs-field>
 				<label for="<?php echo esc_attr($uid . '-comment'); ?>"><?php esc_html_e('Your review', 'mhm-rentiva'); ?></label>
-				<textarea name="comment" class="rvs-input rvs-reviews__comment" id="<?php echo esc_attr($uid . '-comment'); ?>" rows="4" aria-describedby="<?php echo esc_attr($uid . '-count'); ?>" data-min-length="<?php echo esc_attr( (string) $min_length); ?>" data-max-length="<?php echo esc_attr( (string) $max_length); ?>"></textarea>
+				<textarea name="comment" class="rvs-input rvs-reviews__comment" id="<?php echo esc_attr($uid . '-comment'); ?>" rows="4" aria-describedby="<?php echo esc_attr($uid . '-count'); ?>" data-min-length="<?php echo esc_attr( (string) $min_length); ?>" data-max-length="<?php echo esc_attr( (string) $max_length); ?>"><?php echo esc_textarea($own_text); ?></textarea>
 				<span class="rvs-help" id="<?php echo esc_attr($uid . '-count'); ?>" data-rvs-rating-count aria-live="polite">
 					<?php
 					echo esc_html(
@@ -139,13 +154,13 @@ $classes    = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . '
 			<div class="rvs-notice rvs-notice--alert" data-rvs-rating-alert role="alert" hidden></div>
 
 			<div class="rvs-reviews__actions">
-				<button type="submit" class="rvs-btn rvs-btn--primary"<?php echo esc_attr($inert); ?>><?php esc_html_e('Submit review', 'mhm-rentiva'); ?></button>
+				<button type="submit" class="rvs-btn rvs-btn--primary"<?php echo esc_attr($inert); ?>><?php echo esc_html($editing ? __('Update review', 'mhm-rentiva') : __('Submit review', 'mhm-rentiva')); ?></button>
 				<button type="button" class="rvs-btn rvs-btn--secondary" data-rvs-rating-cancel hidden><?php esc_html_e('Cancel', 'mhm-rentiva'); ?></button>
 			</div>
 		</form>
-	<?php elseif (! empty($show_form) && empty($has_own)) : /* Form requested but the visitor may not post. With show_form off, neither branch renders. */ ?>
+	<?php elseif (! empty($show_form) && empty($can_post)) : /* Form requested but the visitor may not post. With show_form off, neither branch renders. */ ?>
 		<div class="rvs-reviews__login">
-			<h3 class="rvs-reviews__box-title"><?php esc_html_e('Login required', 'mhm-rentiva'); ?></h3>
+			<<?php echo esc_html($box_tag); ?> class="rvs-reviews__box-title"><?php esc_html_e('Login required', 'mhm-rentiva'); ?></<?php echo esc_html($box_tag); ?>>
 			<p><?php esc_html_e('Log in to rate this vehicle and write a review.', 'mhm-rentiva'); ?></p>
 			<div class="rvs-reviews__actions">
 				<a class="rvs-btn rvs-btn--primary" href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url()); ?>"><?php esc_html_e('Log in', 'mhm-rentiva'); ?></a>
