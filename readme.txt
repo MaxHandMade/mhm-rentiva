@@ -107,7 +107,7 @@ The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scr
 
 = Bundled third-party libraries =
 
-Three bundled JavaScript libraries and two webfonts ship with the plugin -- two of the libraries on the front end, one in the admin dashboard only -- all permissively licensed and with public upstream source.
+Three bundled JavaScript libraries and one webfont ship with the plugin -- two of the libraries on the front end, one in the admin dashboard only -- all permissively licensed and with public upstream source.
 
 Two are pre-built (minified) under `assets/vendor/`:
 
@@ -118,10 +118,9 @@ One is compiled into the admin dashboard bundle (`build/admin/dashboard.js`) by 
 
 *   **Chart.js** v4.5.1 — dashboard charts, MIT License. Source: [https://github.com/chartjs/Chart.js](https://github.com/chartjs/Chart.js)
 
-Two webfonts are bundled under `assets/vendor/fonts/`, served from your own site rather than from a font CDN:
+One webfont is bundled under `assets/vendor/fonts/`, served from your own site rather than from a font CDN:
 
 *   **Plus Jakarta Sans** — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt`. Source: [https://github.com/tokotype/PlusJakartaSans](https://github.com/tokotype/PlusJakartaSans)
-*   **Source Serif 4** (Adobe) — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/source-serif-4/LICENSE-Source-Serif-4.txt`. Static 400, 600 and 400 italic in the latin and latin-ext subsets, as packaged by Fontsource 5.3.0. Source: [https://github.com/adobe-fonts/source-serif](https://github.com/adobe-fonts/source-serif)
 
 None of these libraries is modified from its upstream release; their full source is public on the repositories linked above.
 
@@ -199,6 +198,7 @@ ordinary visitors can also send re-opens the bypass this default closes.
 WordPress.org renders at most 5,000 characters of this section, so only the releases published since the version currently in the directory are repeated here. The complete history, in English and Turkish, ships with the plugin as changelog.json and changelog-tr.json, 6.0.0's breaking-change notice among them.
 
 = 6.4.0 =
+* Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site.
 * New: a redesigned search and results page. The search strip is one row (pickup location, pickup, return) and opens on tomorrow to three days later. Results have a filter column with a new Category filter, removable filter chips, a line with the dates and number of days, and page buttons that keep your filters. On phones the filters open in a drawer.
 * New: a redesigned vehicle card on grids, lists, featured vehicles, search results and My Account > Favorites. With search dates it shows the total for the whole rental, required add-ons included, and the price per day; it lists the deposit and the free-cancellation window.
 * New: a comparison bar on the results page shows the vehicles picked for comparison.

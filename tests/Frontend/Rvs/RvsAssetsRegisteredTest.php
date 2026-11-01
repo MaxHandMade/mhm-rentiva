@@ -9,7 +9,7 @@ use WP_UnitTestCase;
 
 /**
  * Aşama 2 PR 1: the `rvs-` style chain (fonts -> tokens -> shell -> primitives),
- * the bundled Source Serif 4 with its licence, and the rules the spec pins in
+ * the bundled Plus Jakarta Sans with its licence, and the rules the spec pins in
  * the stylesheets themselves.
  */
 final class RvsAssetsRegisteredTest extends WP_UnitTestCase
@@ -38,7 +38,7 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 	{
 		$styles = wp_styles();
 		$this->assertFalse(isset($styles->registered['mhm-rentiva-rvs-fonts']), 'The front end loads no font file.');
-		$this->assertSame(array(), $styles->registered['mhm-rentiva-rvs-tokens']->deps);
+		$this->assertSame(array( 'mhm-rentiva-fonts' ), $styles->registered['mhm-rentiva-rvs-tokens']->deps, 'The tokens name Plus Jakarta Sans, so the bundled face loads first.');
 		$this->assertSame(array( 'mhm-rentiva-rvs-tokens' ), $styles->registered['mhm-rentiva-rvs-shell']->deps);
 		$this->assertSame(array( 'mhm-rentiva-rvs-shell' ), $styles->registered['mhm-rentiva-rvs-primitives']->deps);
 	}
@@ -70,12 +70,12 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 	public function test_font_css_references_only_bundled_files(): void
 	{
 		// The header comment names the upstream URLs; only rules matter here.
-		$css = (string) preg_replace('!/\*.*?\*/!s', '', self::css('assets/vendor/fonts/source-serif-4.css'));
+		$css = (string) preg_replace('!/\*.*?\*/!s', '', self::css('assets/vendor/fonts/plus-jakarta-sans.css'));
 
 		$this->assertStringNotContainsString('http', $css);
 		$this->assertStringNotContainsString('//fonts.', $css);
 		preg_match_all('/url\("([^"]+)"\)/', $css, $m);
-		$this->assertCount(6, $m[1]);
+		$this->assertCount(2, $m[1], 'latin and latin-ext: the Turkish letters need the second.');
 		foreach ($m[1] as $file) {
 			$this->assertFileExists(self::ROOT . 'assets/vendor/fonts/' . $file);
 		}
@@ -83,10 +83,10 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 
 	public function test_license_ships_with_font(): void
 	{
-		$license = self::css('assets/vendor/fonts/source-serif-4/LICENSE-Source-Serif-4.txt');
+		$license = self::css('assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt');
 
 		$this->assertStringContainsString('SIL OPEN FONT LICENSE Version 1.1', $license);
-		$this->assertStringContainsString('Adobe', $license);
+		$this->assertStringContainsString('Plus Jakarta Sans Project Authors', $license);
 	}
 
 	public function test_tokens_declare_spec_values_scoped_to_the_shell(): void
@@ -105,7 +105,7 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 				'--rvs-s1: 5px',
 				'--rvs-s12: 60px',
 				'--rvs-r: 4px',
-				'--rvs-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+				'--rvs-font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 			) as $declaration
 		) {
 			$this->assertStringContainsString($declaration, $css);
