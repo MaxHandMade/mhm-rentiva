@@ -18,6 +18,8 @@
 	const ROOT = '[data-rvs-availability]';
 	const PREVIEW = '[data-rv-render="preview"]';
 	const STATE = 'rvsAvailabilityState';
+	// The spinner: on a visitor's own step or switch, not on the quiet refresh at load.
+	const LOADING = 'data-rvs-cal-loading';
 
 	function config() {
 		return window.mhmRentivaAvailability || {};
@@ -214,7 +216,14 @@
 
 	/* Months ------------------------------------------------------------------- */
 
-	function setPrevAllowed( $root, allowed ) {
+	/**
+	 * The way back follows the month being asked for, not the month on screen, or
+	 * a "previous" clicked before the answer would land on a disabled button.
+	 * `floor` is the month the server last called closed; the server stays the
+	 * judge: below an unknown floor it answers with its own month and prev_allowed.
+	 */
+	function syncPrev( $root, state ) {
+		const allowed = '' === state.floor || state.target > state.floor;
 		const $prev = $root.find( '[data-rvs-cal-nav="-1"]' );
 		// A disabled button drops the keyboard's focus: hand it to the next one.
 		if ( ! allowed && $prev.is( document.activeElement ) ) {
@@ -240,7 +249,12 @@
 			$root.attr( 'data-start-month', data.start_month );
 		}
 		state.target = state.month;
-		setPrevAllowed( $root, !! data.prev_allowed );
+		if ( ! data.prev_allowed ) {
+			state.floor = state.month;
+		} else if ( state.floor >= state.month ) {
+			state.floor = '';
+		}
+		syncPrev( $root, state );
 		markSelection( $root, state );
 	}
 
@@ -249,6 +263,7 @@
 		const seq = state.monthSeq;
 		state.target = month;
 		$root.attr( 'aria-busy', 'true' );
+		syncPrev( $root, state );
 
 		post(
 			monthsRequest( state, month ),
@@ -266,12 +281,13 @@
 					return;
 				}
 				state.target = state.month;
+				syncPrev( $root, state );
 				state.loadError = message || t( 'error' );
 				renderPanel( $root, state );
 			},
 			function () {
 				if ( seq === state.monthSeq ) {
-					$root.removeAttr( 'aria-busy' );
+					$root.removeAttr( 'aria-busy' ).removeAttr( LOADING );
 				}
 			}
 		);
@@ -322,7 +338,7 @@
 				return;
 			}
 			state.switching = false;
-			$root.removeAttr( 'aria-busy' );
+			$root.removeAttr( 'aria-busy' ).removeAttr( LOADING );
 			if ( failed || ! card || ! months || false === card.bookable ) {
 				state.loadError = failure || t( 'error' );
 				renderPanel( $root, state );
@@ -342,8 +358,9 @@
 		// A month answer still on its way belongs to the old car.
 		state.monthSeq += 1;
 		state.target = state.month;
+		syncPrev( $root, state );
 		state.switching = true;
-		$root.attr( 'aria-busy', 'true' );
+		$root.attr( 'aria-busy', 'true' ).attr( LOADING, '' );
 		markSelection( $root, state );
 		renderPanel( $root, state );
 
@@ -401,6 +418,7 @@
 			vehicleId: parseInt( $root.attr( 'data-vehicle-id' ), 10 ) || 0,
 			month: month,
 			target: month,
+			floor: $root.find( '[data-rvs-cal-nav="-1"]' ).prop( 'disabled' ) ? month : '',
 			monthsToShow: parseInt( $root.attr( 'data-months-to-show' ), 10 ) || 1,
 			weekStart: parseInt( $root.attr( 'data-week-start' ), 10 ) || 0,
 			pricing: '1' === $root.attr( 'data-show-pricing' ),
@@ -427,6 +445,7 @@
 		} );
 		$root.on( 'click', '[data-rvs-cal-nav]', function () {
 			if ( ! state.switching ) {
+				$root.attr( LOADING, '' );
 				loadMonths( $root, state, stepMonth( state.target, parseInt( this.getAttribute( 'data-rvs-cal-nav' ), 10 ) || 0 ) );
 			}
 		} );

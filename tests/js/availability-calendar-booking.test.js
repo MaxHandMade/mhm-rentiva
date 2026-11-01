@@ -477,6 +477,84 @@ describe( 'availability calendar: selection, panel and months', () => {
 		expect( root().getAttribute( 'data-start-month' ) ).toBe( '2027-01' );
 	} );
 
+	test( 'next_next_prev_prev_all_count_before_any_answer', () => {
+		boot();
+		const next = q( '[data-rvs-cal-nav="1"]' );
+		const prev = q( '[data-rvs-cal-nav="-1"]' );
+
+		click( next );
+		expect( prev.disabled ).toBe( false );
+		click( next );
+		click( prev );
+		expect( prev.disabled ).toBe( false );
+		click( prev );
+
+		expect( calls.map( ( c ) => c.data.start_month ) ).toEqual( [ '2026-12', '2027-01', '2026-12', '2026-11' ] );
+		// Back on the month the server called closed: no further step, before any answer.
+		expect( prev.disabled ).toBe( true );
+
+		ok( calls[ 3 ], { html: NOVEMBER, prev_allowed: false, start_month: '2026-11' } );
+		ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+		ok( calls[ 2 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+		expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ) ).not.toBeNull();
+		expect( prev.disabled ).toBe( true );
+	} );
+
+	test( 'a_step_shows_loading_until_the_last_answer_only', () => {
+		boot();
+		const next = q( '[data-rvs-cal-nav="1"]' );
+
+		expect( root().hasAttribute( 'data-rvs-cal-loading' ) ).toBe( false );
+		click( next );
+		click( next );
+		expect( root().hasAttribute( 'data-rvs-cal-loading' ) ).toBe( true );
+
+		ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+		expect( root().hasAttribute( 'data-rvs-cal-loading' ) ).toBe( true );
+		expect( root().getAttribute( 'aria-busy' ) ).toBe( 'true' );
+
+		ok( calls[ 1 ], { html: month( '2027-01', day( '2027-01-05' ) ), prev_allowed: true, start_month: '2027-01' } );
+		expect( root().hasAttribute( 'data-rvs-cal-loading' ) ).toBe( false );
+		expect( root().hasAttribute( 'aria-busy' ) ).toBe( false );
+	} );
+
+	test( 'the_load_time_refresh_shows_no_spinner', () => {
+		document.body.innerHTML = page();
+		calls.length = 0;
+		window.mhmRentivaAvailabilityCalendar.init();
+
+		expect( root().getAttribute( 'aria-busy' ) ).toBe( 'true' );
+		expect( root().hasAttribute( 'data-rvs-cal-loading' ) ).toBe( false );
+	} );
+
+	test( 'the_server_month_wins_when_a_step_back_passes_an_unknown_floor', () => {
+		boot();
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+		const prev = q( '[data-rvs-cal-nav="-1"]' );
+		expect( prev.disabled ).toBe( false );
+
+		// The month rolled over while the page stood open: the server clamps.
+		click( prev );
+		ok( calls[ 1 ], { html: DECEMBER, prev_allowed: false, start_month: '2026-12' } );
+
+		expect( prev.disabled ).toBe( true );
+		expect( root().getAttribute( 'data-start-month' ) ).toBe( '2026-12' );
+	} );
+
+	test( 'a_failed_step_puts_the_way_back_where_the_screen_is', () => {
+		boot();
+		const prev = q( '[data-rvs-cal-nav="-1"]' );
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		expect( prev.disabled ).toBe( false );
+
+		broken( calls[ 0 ] );
+
+		expect( prev.disabled ).toBe( true );
+		expect( root().hasAttribute( 'data-rvs-cal-loading' ) ).toBe( false );
+	} );
+
 	test( 'failed_month_step_stays_on_the_month_and_tells', () => {
 		boot();
 		click( q( '[data-rvs-cal-nav="1"]' ) );

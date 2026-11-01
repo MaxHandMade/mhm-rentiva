@@ -7663,7 +7663,7 @@ msgstr "günlük"
 #: src/Admin/Frontend/Shortcodes/CalendarView.php:409
 #, php-format
 msgid "Pickup and return at %s"
-msgstr "Teslim alma ve bırakma saati: %s"
+msgstr "Teslim alma ve dönüş saati: %s"
 
 #. translators: %s: average rating, e.g. 4.8.
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:89

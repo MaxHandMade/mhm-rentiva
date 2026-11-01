@@ -108,6 +108,36 @@
 	opacity: 0.6;
 }
 
+.rvs-shell .rvs-availability[data-rvs-cal-loading] .rvs-availability__months {
+	position: relative;
+}
+
+.rvs-shell .rvs-availability[data-rvs-cal-loading] .rvs-availability__months::after {
+	content: "";
+	position: absolute;
+	top: 96px;
+	left: 50%;
+	width: 32px;
+	height: 32px;
+	margin-left: -16px;
+	border: 3px solid var(--rvs-line);
+	border-top-color: var(--rvs-accent-strong);
+	border-radius: 50%;
+	animation: rvs-availability-spin 0.8s linear infinite;
+}
+
+@keyframes rvs-availability-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rvs-shell .rvs-availability[data-rvs-cal-loading] .rvs-availability__months::after {
+		animation: none;
+	}
+}
+
 /* Legend ------------------------------------------------------------------- */
 
 .rvs-shell .rvs-availability__legend {
