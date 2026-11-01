@@ -123,7 +123,13 @@
 			if ( this.pauseButton ) {
 				this.pauseButton.addEventListener( 'click', () => this.setUserPaused( ! this.userPaused ) );
 				// A touch has no "leave": it pauses until the visitor starts it again.
-				this.root.addEventListener( 'touchstart', () => this.setUserPaused( true ), { passive: true } );
+				// The button itself is left out: its own click decides, or a tap on it would
+				// pause here and the click would toggle it straight back.
+				this.root.addEventListener( 'touchstart', ( event ) => {
+					if ( ! this.pauseButton.contains( event.target ) ) {
+						this.setUserPaused( true );
+					}
+				}, { passive: true } );
 			}
 			this.root.addEventListener( 'mouseenter', hold );
 			this.root.addEventListener( 'mouseleave', release );

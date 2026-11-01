@@ -280,4 +280,24 @@ describe( 'testimonials', () => {
 		load( instance( 'a', { carousel: true, rotate: '1', more: false } ) );
 		expect( document.querySelector( '[data-rvs-pause]' ).hidden ).toBe( true );
 	} );
+
+	test( 'tapping the pause button on a touch device pauses once and a second tap starts again', () => {
+		load( instance( 'a', { carousel: true, rotate: '1', more: false } ) );
+		const button = document.querySelector( '[data-rvs-pause]' );
+		const dots = document.querySelectorAll( '[data-rvs-dots] button' );
+		const tap = () => {
+			button.dispatchEvent( new Event( 'touchstart', { bubbles: true } ) );
+			button.click();
+		};
+
+		tap();
+		expect( button.getAttribute( 'aria-label' ) ).toBe( 'Start automatic rotation' );
+		jest.advanceTimersByTime( 30000 );
+		expect( dots[ 0 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
+
+		tap();
+		expect( button.getAttribute( 'aria-label' ) ).toBe( 'Pause automatic rotation' );
+		jest.advanceTimersByTime( 5000 );
+		expect( dots[ 1 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
+	} );
 } );
