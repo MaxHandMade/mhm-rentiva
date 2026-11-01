@@ -173,11 +173,12 @@
 }
 
 .rvs-shell .rvs-availability__swatch--booked {
+	border-color: var(--rvs-line);
 	background: var(--rvs-n-200);
 }
 
 .rvs-shell .rvs-availability__swatch--past {
-	border-color: var(--rvs-n-200);
+	border-color: var(--rvs-n-300);
 	background: transparent;
 }
 

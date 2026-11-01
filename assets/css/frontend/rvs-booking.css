@@ -82,7 +82,7 @@
 /* The return time follows the pickup time: shown, not chosen. */
 .rvs-shell .rvs-booking__time--locked,
 .rvs-shell .rvs-booking__time--locked:disabled {
-	background: var(--rvs-surface);
+	background: var(--rvs-n-200);
 	color: var(--rvs-muted);
 	opacity: 1;
 	cursor: default;
@@ -296,6 +296,7 @@
 
 .rvs-shell .rvs-booking .rvs-booking__submit:hover:not(:disabled) {
 	background: var(--rvs-booking-cta-hover);
+	box-shadow: var(--rvs-hover-shadow);
 }
 
 .rvs-shell .rvs-booking__submit:disabled {

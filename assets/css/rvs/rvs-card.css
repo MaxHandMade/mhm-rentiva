@@ -144,7 +144,7 @@
 	position: relative;
 	aspect-ratio: 3 / 2;
 	overflow: hidden;
-	background: linear-gradient(135deg, #dcd8d6, #c9c4c2);
+	background: linear-gradient(135deg, var(--rvs-n-200), var(--rvs-n-300));
 }
 
 .rvs-shell .rvs-card__media-link {
@@ -273,6 +273,11 @@
 	filter: grayscale(1);
 }
 
+.rvs-shell .rvs-card__status.is-available {
+	background: var(--rvs-st-available-bg);
+	color: var(--rvs-st-available-fg);
+}
+
 .rvs-shell .rvs-card__tag--booked {
 	background: var(--rvs-n-200);
 	color: var(--rvs-text);
@@ -337,6 +342,7 @@
 
 .rvs-shell .rvs-card__select:hover {
 	background: var(--rvs-card-btn-bg-hover);
+	box-shadow: var(--rvs-hover-shadow);
 }
 
 .rvs-shell .rvs-card__select:disabled {

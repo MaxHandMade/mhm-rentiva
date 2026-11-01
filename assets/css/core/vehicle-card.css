@@ -854,11 +854,11 @@
    face follows the theme's heading font and degrades to a serif.
    ========================================================================= */
 .mhm-vehicle-card {
-	--rv-surface: var(--wp--preset--color--surface, #f8f4f4);
-	--rv-ink: var(--wp--preset--color--text, #201e1d);
+	--rv-surface: var(--wp--preset--color--surface, #f6f7f7);
+	--rv-ink: var(--wp--preset--color--text, #1d2327);
 	--rv-muted: color-mix(in srgb, var(--rv-ink) 60%, transparent);
 	--rv-faint: color-mix(in srgb, var(--rv-ink) 42%, transparent);
-	--rv-accent: var(--wp--preset--color--primary, #0088b0);
+	--rv-accent: var(--wp--preset--color--primary, #2271b1);
 	--rv-accent-soft: color-mix(in srgb, var(--rv-accent) 12%, transparent);
 	--rv-accent-ink: color-mix(in srgb, var(--rv-accent) 82%, #000);
 	--rv-hair: color-mix(in srgb, var(--rv-ink) 9%, transparent);

@@ -1,10 +1,18 @@
 /**
  * Rentiva front-end standard -- design tokens (`--rvs-*`).
  *
- * Values from the approved design canvas (Aşama 1, `Main`). Scoped to
+ * Values from the "live front-end language" board (`Canli-Ornek`, class `.R`):
+ * vivid blue accent on a pale blue page, white surfaces, system sans-serif
+ * type, 4 px corners. Owner decision 2026-11-01; it replaces the Aşama 1 canvas
+ * palette (teal accent, warm greys, Source Serif 4, 2 px corners). Scoped to
  * `.rvs-shell`, not `:root`: the admin and the older `.rv-*` / `--mhm-*`
  * surfaces never see them, and a theme's own custom properties cannot be
  * overwritten by them.
+ *
+ * Surface, raised and the card backgrounds are all white and the page is a
+ * pale blue, so a panel is told from the page by its fill, and a panel on a
+ * panel by --rvs-line. Text pairs are listed with their ratios in
+ * docs/superpowers/audits/2026-10-25-asama-2-yuzey-2-6/canli-rapor.md.
  *
  * One more scope: WooCommerce's My Account wrapper (`.woocommerce-account
  * .woocommerce`). Its navigation is WooCommerce's own markup and sits outside
@@ -19,37 +27,44 @@
 .rvs-shell,
 .woocommerce-account .woocommerce {
 	/* Surfaces and text */
-	--rvs-bg: #f3f2f2;
-	--rvs-surface: #eae9e9;
-	--rvs-raised: #fbfafa;
-	--rvs-text: #201e1d;
-	--rvs-muted: #5f5b5a;
+	--rvs-bg: #f0f6fc;
+	--rvs-surface: #ffffff;
+	--rvs-raised: #ffffff;
+	--rvs-text: #1d2327;
+	--rvs-muted: #50575e;
 
-	/* Accent. White text sits on --rvs-accent-strong (6.4:1), never on
-	   --rvs-accent (4.08:1). */
-	--rvs-accent: #0088b0;
-	--rvs-accent-strong: #006786;
-	--rvs-accent-deep: #004961;
-	--rvs-accent-100: #e9f8ff;
-	--rvs-accent-200: #cbeeff;
+	/* Accent. White text sits on --rvs-accent-strong (5.17:1), never on
+	   --rvs-accent (4.08:1 on white): the accent is for rings and strokes. */
+	--rvs-accent: #3582c4;
+	--rvs-accent-strong: #2271b1;
+	--rvs-accent-deep: #135e96;
+	--rvs-accent-100: #dcecf9;
+	--rvs-accent-200: #c5dff3;
+
+	/* Selected chip / option (board: sel-bg, sel-line, sel-text) and the
+	   stronger primary hover (board: hover-shadow). */
+	--rvs-sel-bg: #dcecf9;
+	--rvs-sel-line: #2271b1;
+	--rvs-sel-text: #0a3c63;
+	--rvs-hover-shadow: 0 2px 6px rgba(19, 94, 150, 0.35);
 
 	/* Alert */
 	--rvs-alert: #aa0b56;
 	--rvs-alert-100: #fff1f4;
 	--rvs-alert-500: #d6006c;
 
-	/* Neutrals */
-	--rvs-n-100: #f8f4f4;
-	--rvs-n-200: #eae7e7;
-	--rvs-n-300: #d7d3d3;
-	--rvs-n-700: #605d5d;
+	/* Neutrals: n-100 a quiet fill, n-200 the disabled / booked / hover fill
+	   (visibly darker than the white surfaces), n-300 a faded stroke or text. */
+	--rvs-n-100: #f6f7f7;
+	--rvs-n-200: #e2e4e7;
+	--rvs-n-300: #c3c4c7;
+	--rvs-n-700: #50575e;
 
-	/* Lines and shadows: a solid fallback first, the canvas's color-mix()
-	   where the browser supports it (below). */
-	--rvs-line: #d6d4d3;
-	--rvs-line-strong: #8f8c8b;
-	--rvs-shadow: 0 1px 2px rgba(45, 43, 43, 0.14);
-	--rvs-shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
+	/* Lines and shadows. */
+	--rvs-line: #c3c4c7;
+	--rvs-line-strong: #8c8f94;
+	--rvs-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+	--rvs-shadow-md: 0 3px 10px rgba(0, 0, 0, 0.16);
 
 	/* Spacing (5 / 10 / 15 / 20 / 30 / 40 / 60) */
 	--rvs-s1: 5px;
@@ -61,53 +76,47 @@
 	--rvs-s12: 60px;
 
 	/* Shape and type */
-	--rvs-r: 2px;
-	--rvs-font: "Source Serif 4", Georgia, serif;
+	--rvs-r: 4px;
+	--rvs-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
 	/* Vehicle card (rvs-card.css). The Elementor card controls overwrite these
 	   on the widget's .rvs-shell, which outranks this rule. */
-	--rvs-card-bg: #fbfafa;
-	--rvs-card-radius: 2px;
+	--rvs-card-bg: #ffffff;
+	--rvs-card-radius: 4px;
 	--rvs-card-pad: 15px;
-	--rvs-card-title: #201e1d;
-	--rvs-card-title-hover: #006786;
+	--rvs-card-title: #1d2327;
+	--rvs-card-title-hover: #2271b1;
 	--rvs-card-title-margin: 0;
-	--rvs-card-price: #201e1d;
-	--rvs-card-price-period: #5f5b5a;
-	--rvs-card-btn-bg: #006786;
-	--rvs-card-btn-bg-hover: #004961;
-	--rvs-card-btn-radius: 2px;
+	--rvs-card-price: #1d2327;
+	--rvs-card-price-period: #50575e;
+	--rvs-card-btn-bg: #2271b1;
+	--rvs-card-btn-bg-hover: #135e96;
+	--rvs-card-btn-radius: 4px;
 
 	/* Booking form (rvs-booking.css). The Elementor form controls overwrite
 	   these on the widget's .rvs-booking, which is nearer than this rule. */
-	--rvs-booking-bg: #fbfafa;
-	--rvs-booking-radius: 2px;
-	--rvs-booking-shadow: 0 3px 10px rgba(45, 43, 43, 0.16);
-	--rvs-booking-cta: #006786;
-	--rvs-booking-cta-hover: #004961;
+	--rvs-booking-bg: #ffffff;
+	--rvs-booking-radius: 4px;
+	--rvs-booking-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+	--rvs-booking-cta: #2271b1;
+	--rvs-booking-cta-hover: #135e96;
 
-	/* Booking status tags (rvs-data.css). Plain hex pairs from the approved
-	   Hesabim canvas; text on background is at least 4.5:1 (RvsStatusContrastTest). */
-	--rvs-st-confirmed-bg: #e9f8ff;
-	--rvs-st-confirmed-fg: #004961;
+	/* Booking status tags (rvs-data.css). Plain hex pairs from the live
+	   language board; text on background is at least 4.5:1 (RvsStatusContrastTest). */
+	--rvs-st-confirmed-bg: #dcecf9;
+	--rvs-st-confirmed-fg: #135e96;
 	--rvs-st-pending-bg: #fdf0c8;
 	--rvs-st-pending-fg: #6b4a00;
 	--rvs-st-payment-bg: #ffe4d1;
 	--rvs-st-payment-fg: #8a3a00;
 	--rvs-st-active-bg: #ecebff;
 	--rvs-st-active-fg: #3a2d94;
-	--rvs-st-done-bg: #e3f3e8;
-	--rvs-st-done-fg: #1d5c34;
+	--rvs-st-done-bg: #d5f2dc;
+	--rvs-st-done-fg: #00500f;
 	--rvs-st-cancelled-bg: #fff1f4;
 	--rvs-st-cancelled-fg: #aa0b56;
-}
 
-@supports (color: color-mix(in srgb, red, blue)) {
-	.rvs-shell,
-	.woocommerce-account .woocommerce {
-		--rvs-line: color-mix(in srgb, #201e1d 16%, transparent);
-		--rvs-line-strong: color-mix(in srgb, #201e1d 45%, transparent);
-		--rvs-shadow: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
-		--rvs-shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
-	}
+	/* Available tag on a vehicle card (board: st-bg / st-text). */
+	--rvs-st-available-bg: #d5f2dc;
+	--rvs-st-available-fg: #00500f;
 }

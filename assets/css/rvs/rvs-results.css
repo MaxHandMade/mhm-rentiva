@@ -137,8 +137,8 @@
 }
 
 .rvs-shell .rvs-results__view-btn[aria-pressed="true"] {
-	background: var(--rvs-accent-100);
-	color: var(--rvs-accent-strong);
+	background: var(--rvs-sel-bg);
+	color: var(--rvs-sel-text);
 }
 
 .rvs-shell .rvs-results__chips {
@@ -344,7 +344,7 @@
 .rvs-shell .rvs-results__band-link,
 .rvs-shell .rvs-results__band-link:hover {
 	margin-inline-start: auto;
-	background: #fff;
+	background: var(--rvs-raised);
 	color: var(--rvs-text);
 }
 

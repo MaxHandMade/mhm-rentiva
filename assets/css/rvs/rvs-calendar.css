@@ -55,10 +55,12 @@
 
 .rvs-shell .rvs-cal__day.is-available {
 	background: var(--rvs-raised);
+	box-shadow: inset 0 0 0 1px var(--rvs-line);
 }
 
 .rvs-shell .rvs-cal__day.is-booked {
 	background: var(--rvs-n-200);
+	box-shadow: inset 0 0 0 1px var(--rvs-line);
 	color: var(--rvs-muted);
 }
 
@@ -67,7 +69,7 @@
 }
 
 .rvs-shell .rvs-cal__day.is-past {
-	color: var(--rvs-n-300);
+	color: var(--rvs-line-strong);
 }
 
 .rvs-shell .rvs-cal__day.is-selected {

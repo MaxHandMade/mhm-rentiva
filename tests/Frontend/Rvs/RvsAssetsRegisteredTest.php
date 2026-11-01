@@ -37,8 +37,8 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 	public function test_rvs_chain_is_registered_in_order(): void
 	{
 		$styles = wp_styles();
-		$this->assertSame(array(), $styles->registered['mhm-rentiva-rvs-fonts']->deps);
-		$this->assertSame(array( 'mhm-rentiva-rvs-fonts' ), $styles->registered['mhm-rentiva-rvs-tokens']->deps);
+		$this->assertFalse(isset($styles->registered['mhm-rentiva-rvs-fonts']), 'The front end loads no font file.');
+		$this->assertSame(array(), $styles->registered['mhm-rentiva-rvs-tokens']->deps);
 		$this->assertSame(array( 'mhm-rentiva-rvs-tokens' ), $styles->registered['mhm-rentiva-rvs-shell']->deps);
 		$this->assertSame(array( 'mhm-rentiva-rvs-shell' ), $styles->registered['mhm-rentiva-rvs-primitives']->deps);
 	}
@@ -53,14 +53,14 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		AssetManager::enqueue_rvs_styles();
 
 		wp_styles()->all_deps(wp_styles()->queue);
-		foreach (array( 'mhm-rentiva-rvs-fonts', 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
+		foreach (array( 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
 			$this->assertContains($handle, wp_styles()->to_do, $handle);
 		}
 	}
 
 	public function test_every_registered_file_exists(): void
 	{
-		foreach (array( 'mhm-rentiva-rvs-fonts', 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
+		foreach (array( 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
 			$src  = (string) wp_styles()->registered[ $handle ]->src;
 			$path = str_replace(MHMRENTIVA_PLUGIN_URL, '', $src);
 			$this->assertFileExists(self::ROOT . $path, $handle);
@@ -96,16 +96,16 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString(':root', preg_replace('!/\*.*?\*/!s', '', $css));
 		foreach (
 			array(
-				'--rvs-bg: #f3f2f2',
-				'--rvs-text: #201e1d',
-				'--rvs-accent: #0088b0',
-				'--rvs-accent-strong: #006786',
+				'--rvs-bg: #f0f6fc',
+				'--rvs-text: #1d2327',
+				'--rvs-accent: #3582c4',
+				'--rvs-accent-strong: #2271b1',
 				'--rvs-alert: #aa0b56',
-				'--rvs-n-700: #605d5d',
+				'--rvs-n-700: #50575e',
 				'--rvs-s1: 5px',
 				'--rvs-s12: 60px',
-				'--rvs-r: 2px',
-				'--rvs-font: "Source Serif 4", Georgia, serif',
+				'--rvs-r: 4px',
+				'--rvs-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 			) as $declaration
 		) {
 			$this->assertStringContainsString($declaration, $css);
@@ -159,6 +159,8 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-available \{[^}]*background: var\(--rvs-raised\);/', $css);
 		$this->assertMatchesRegularExpression('/\.rvs-cal__day\.is-booked \{[^}]*background: var\(--rvs-n-200\);/', $css);
 		$this->assertMatchesRegularExpression('/@media \(max-width: 768px\) \{[^@]*\.rvs-cal__day \{[^}]*height: 44px;/', $css);
+		// The button inherits the cell colour, so a selected day keeps its white number.
+		$this->assertMatchesRegularExpression('/\.rvs-cal__btn \{[^}]*color: inherit;/', $css);
 	}
 
 	public function test_breakdown_amount_has_a_fallback_size(): void
