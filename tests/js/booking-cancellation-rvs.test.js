@@ -12,6 +12,7 @@ describe( 'booking cancellation dialog', () => {
 		<div class="rvs-shell">
 			<main id="content">
 				<button type="button" id="open" data-rvs-cancel-open data-booking-id="42" aria-haspopup="dialog" aria-controls="dlg">Cancel booking</button>
+				<p id="outcome" data-rvs-cancel-outcome role="status"></p>
 			</main>
 			<div class="rvs-dialog rvs-account-cancel" id="dlg" data-rvs-cancel-dialog data-booking-id="42" aria-describedby="dlg-desc" hidden>
 				<div class="rvs-dialog__panel">
@@ -48,7 +49,7 @@ describe( 'booking cancellation dialog', () => {
 		window.mhmRentivaCancellation = {
 			ajaxUrl: '/wp-admin/admin-ajax.php',
 			nonce: 'n-cancel',
-			i18n: { cancelling: 'Cancelling...', error: 'An error occurred. Please try again.' },
+			i18n: { cancelling: 'Cancelling...', error: 'An error occurred. Please try again.', cancelled: 'Your booking has been cancelled.' },
 		};
 		delete window.mhmRentivaRvsDialog;
 		jest.isolateModules( () => {
@@ -161,19 +162,23 @@ describe( 'booking cancellation dialog', () => {
 
 		const settled = () => new Promise( ( resolve ) => setTimeout( resolve, 0 ) );
 
-		test( 'the button is busy and the dialog stays open until the answer; a second click sends nothing', async () => {
+		const flush = async () => {
+			for ( let i = 0; i < 10; i++ ) {
+				await Promise.resolve();
+			}
+		};
+		const escape = () => document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Escape', bubbles: true } ) );
+
+		test( 'the button is busy and a second click sends nothing; "Keep booking" stays usable', async () => {
 			click( el( 'open' ) );
 			click( el( 'confirm' ) );
 
 			expect( el( 'confirm' ).disabled ).toBe( true );
 			expect( el( 'confirm' ).getAttribute( 'aria-busy' ) ).toBe( 'true' );
 			expect( el( 'confirm' ).textContent ).toBe( 'Cancelling...' );
-			expect( el( 'keep' ).disabled ).toBe( true );
+			expect( el( 'keep' ).disabled ).toBe( false );
 
 			click( el( 'confirm' ) );
-			document.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Escape', bubbles: true } ) );
-			click( el( 'dlg' ) );
-
 			expect( global.fetch ).toHaveBeenCalledTimes( 1 );
 			expect( dialogApi.current() ).toBe( el( 'dlg' ) );
 
@@ -181,20 +186,102 @@ describe( 'booking cancellation dialog', () => {
 			await settled();
 		} );
 
-		test( 'success closes the dialog and reloads at once, with no way to submit again', async () => {
-			jest.useFakeTimers();
+		test( 'Escape during the request closes the dialog, returns focus, and the request goes on', async () => {
+			el( 'open' ).focus();
 			click( el( 'open' ) );
 			click( el( 'confirm' ) );
-			answer( { success: true, data: { message: 'Cancelled' } } );
-			jest.useRealTimers();
-			await settled();
+
+			escape();
 
 			expect( dialogApi.current() ).toBe( null );
 			expect( el( 'dlg' ).hidden ).toBe( true );
-			expect( window.location.reload ).toHaveBeenCalledTimes( 1 );
+			expect( document.activeElement ).toBe( el( 'open' ) );
+			expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+			expect( el( 'confirm' ).disabled ).toBe( true );
 
+			answer( { success: false, data: { message: 'Too late' } } );
+			await settled();
+
+			expect( el( 'outcome' ).textContent ).toBe( 'Too late' );
+			expect( el( 'outcome' ).getAttribute( 'role' ) ).toBe( 'status' );
+			expect( document.querySelector( '[data-rvs-cancel-message]' ).hidden ).toBe( true );
+			expect( el( 'confirm' ).disabled ).toBe( false );
+			expect( window.location.reload ).not.toHaveBeenCalled();
+		} );
+
+		test.each( [
+			[ '"Keep booking"', () => el( 'keep' ) ],
+			[ 'the backdrop', () => el( 'dlg' ) ],
+		] )( '%s closes the dialog during the request', async ( name, target ) => {
+			el( 'open' ).focus();
+			click( el( 'open' ) );
+			click( el( 'confirm' ) );
+
+			click( target() );
+
+			expect( dialogApi.current() ).toBe( null );
+			expect( document.activeElement ).toBe( el( 'open' ) );
+
+			answer( { success: false, data: { message: 'Nope' } } );
+			await settled();
+		} );
+
+		test( 'reopening during the request cannot submit a second time', async () => {
+			click( el( 'open' ) );
+			click( el( 'confirm' ) );
+			escape();
+			click( el( 'open' ) );
+
+			expect( el( 'confirm' ).disabled ).toBe( true );
 			click( el( 'confirm' ) );
 			expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+
+			// Open again when the answer arrives: said in the dialog, not twice.
+			answer( { success: false, data: { message: 'Nope' } } );
+			await settled();
+			expect( document.querySelector( '[data-rvs-cancel-message]' ).textContent ).toBe( 'Nope' );
+			expect( el( 'outcome' ).textContent ).toBe( '' );
+		} );
+
+		test( 'success after Escape is announced once on the page, then the page reloads', async () => {
+			jest.useFakeTimers();
+			try {
+				click( el( 'open' ) );
+				click( el( 'confirm' ) );
+				escape();
+				answer( { success: true, data: { message: 'Cancelled' } } );
+				await flush();
+
+				expect( el( 'outcome' ).textContent ).toBe( 'Cancelled' );
+				expect( window.location.reload ).not.toHaveBeenCalled();
+
+				jest.advanceTimersByTime( 1500 );
+				expect( window.location.reload ).toHaveBeenCalledTimes( 1 );
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
+		test( 'success with the dialog open closes it and announces, with no way to submit again', async () => {
+			jest.useFakeTimers();
+			try {
+				click( el( 'open' ) );
+				click( el( 'confirm' ) );
+				answer( { success: true, data: {} } );
+				await flush();
+
+				expect( dialogApi.current() ).toBe( null );
+				expect( el( 'dlg' ).hidden ).toBe( true );
+				expect( el( 'outcome' ).textContent ).toBe( 'Your booking has been cancelled.' );
+
+				click( el( 'confirm' ) );
+				expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+
+				jest.advanceTimersByTime( 1500 );
+				expect( window.location.reload ).toHaveBeenCalledTimes( 1 );
+			} finally {
+				jest.useRealTimers();
+			}
 		} );
 
 		test( 'a refusal keeps the dialog open with the server message, and it can be retried or closed', async () => {
@@ -205,6 +292,7 @@ describe( 'booking cancellation dialog', () => {
 
 			expect( dialogApi.current() ).toBe( el( 'dlg' ) );
 			expect( document.querySelector( '[data-rvs-cancel-message]' ).textContent ).toBe( 'Too late' );
+			expect( el( 'outcome' ).textContent ).toBe( '' );
 			expect( el( 'confirm' ).getAttribute( 'aria-busy' ) ).toBe( 'false' );
 			expect( el( 'confirm' ).textContent ).toBe( 'Cancel booking' );
 			expect( el( 'keep' ).disabled ).toBe( false );

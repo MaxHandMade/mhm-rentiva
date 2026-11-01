@@ -378,6 +378,10 @@
 	margin: 4px 0 0;
 }
 
+.rvs-shell .rvs-account-detail__cancel-outcome:empty {
+	margin: 0;
+}
+
 .rvs-shell .rvs-account-detail__cancel-btn {
 	border-color: var(--rvs-alert);
 	background: var(--rvs-raised);

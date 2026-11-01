@@ -324,6 +324,7 @@ final class AccountController {
 					'i18n'    => array(
 						'cancelling' => __('Cancelling...', 'mhm-rentiva'),
 						'error'      => __('An error occurred. Please try again.', 'mhm-rentiva'),
+						'cancelled'  => __('Your booking has been cancelled successfully.', 'mhm-rentiva'),
 					),
 				)
 			);
@@ -727,7 +728,7 @@ final class AccountController {
 	 * pickup, never by a second transfer slip. The single rule for the detail
 	 * page, the payment history and the upload handler.
 	 */
-	public static function receipt_upload_allowed(int $booking_id): bool
+	public static function receipt_upload_allowed(int $booking_id, ?\MHMRentiva\Admin\Payment\Core\PaymentState $state = null): bool
 	{
 		if ($booking_id <= 0) {
 			return false;
@@ -738,7 +739,7 @@ final class AccountController {
 			return false;
 		}
 
-		$state = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+		$state = $state ?? \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
 
 		return ! ( $state->paid() > 0 || array() !== $state->orders() || $state->isMixedCurrency() );
 	}

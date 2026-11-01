@@ -8,12 +8,12 @@
  * request keeps its contract: action mhmrentiva_cancel_booking, nonce,
  * booking_id, reason -- the chosen reason's label, plus the text when given.
  * Escape and "Keep booking" close the dialog; focus returns to the button.
- * While the request runs the confirm button is busy and the dialog stays open
- * (Escape included), so a second submit cannot start. On success the dialog
- * closes and the page reloads at once; a refusal keeps the dialog open with the
- * server's message.
+ * While the request runs the confirm button is busy, so a second submit cannot
+ * start, and the dialog can still be closed: closing does not stop the request.
+ * The outcome is said once: on success in the page's status region, then the
+ * page reloads; a refusal in the dialog if it is open, else in that region.
  *
- * Config: window.mhmRentivaCancellation = { ajaxUrl, nonce, i18n: { cancelling, error } }.
+ * Config: window.mhmRentivaCancellation = { ajaxUrl, nonce, i18n: { cancelling, error, cancelled } }.
  */
 ( function () {
 	'use strict';
@@ -62,14 +62,26 @@
 		return label || extra;
 	}
 
+	// Long enough to read and hear the outcome before the page goes away.
+	const RELOAD_DELAY_MS = 1500;
+
 	// Dialogs with a request running, or done and about to reload.
 	const inFlight = new WeakSet();
 
 	function setBusy( p, busy ) {
 		p.confirm.disabled = busy;
 		p.confirm.setAttribute( 'aria-busy', busy ? 'true' : 'false' );
-		if ( p.keep ) {
-			p.keep.disabled = busy;
+	}
+
+	function outcomeRegion() {
+		return document.querySelector( '[data-rvs-cancel-outcome]' );
+	}
+
+	function showOutcome( text, isError ) {
+		const region = outcomeRegion();
+		if ( region ) {
+			region.textContent = text || '';
+			region.classList.toggle( 'rvs-error', !! isError );
 		}
 	}
 
@@ -83,7 +95,7 @@
 		}
 		syncOther( p );
 		showMessage( p, '', false );
-		if ( p.confirm ) {
+		if ( p.confirm && ! inFlight.has( el ) ) {
 			p.confirm.disabled = false;
 		}
 	}
@@ -94,6 +106,7 @@
 			return;
 		}
 		const p = parts( el );
+		showOutcome( '', false );
 		el.hidden = false;
 		el.classList.add( 'is-open' );
 		api.open( el, {
@@ -135,19 +148,15 @@
 		body.append( 'booking_id', el.getAttribute( 'data-booking-id' ) || '' );
 		body.append( 'reason', reasonText( p ) );
 
-		// Closing now would lose the answer; the capture phase reaches this first.
-		const swallowEscape = function ( event ) {
-			if ( event.key === 'Escape' ) {
-				event.preventDefault();
-				event.stopImmediatePropagation();
-			}
-		};
-		document.addEventListener( 'keydown', swallowEscape, true );
-
 		const fail = function ( text ) {
-			document.removeEventListener( 'keydown', swallowEscape, true );
+			const api = dialogApi();
+			const message = text || i18n.error || '';
 			inFlight.delete( el );
-			showMessage( p, text || i18n.error || '', false );
+			if ( ( api && api.current() === el ) || ! outcomeRegion() ) {
+				showMessage( p, message, false );
+			} else {
+				showOutcome( message, true );
+			}
 			setBusy( p, false );
 			p.confirm.textContent = original;
 		};
@@ -163,9 +172,11 @@
 			.then( function ( response ) {
 				if ( response && response.success ) {
 					// Stays in flight: nothing may submit again before the reload.
-					document.removeEventListener( 'keydown', swallowEscape, true );
 					close( el );
-					window.location.reload();
+					showOutcome( ( response.data && response.data.message ) || i18n.cancelled || '', false );
+					setTimeout( function () {
+						window.location.reload();
+					}, RELOAD_DELAY_MS );
 					return;
 				}
 				fail( response && response.data && response.data.message );
@@ -194,9 +205,7 @@
 		}
 		if ( target === el || target.closest( '[data-rvs-cancel-keep]' ) ) {
 			event.preventDefault();
-			if ( ! inFlight.has( el ) ) {
-				close( el );
-			}
+			close( el );
 			return;
 		}
 		if ( target.closest( '[data-rvs-cancel-confirm]' ) ) {

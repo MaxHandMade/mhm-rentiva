@@ -193,6 +193,8 @@ $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 				<?php if (! empty($mhmrentiva_bd_cancel['note'])) : ?>
 					<p class="rvs-help"><?php echo esc_html( (string) $mhmrentiva_bd_cancel['note']); ?></p>
 				<?php endif; ?>
+				<?php // The answer to a request whose dialog was closed while it ran. ?>
+				<p class="rvs-account-detail__cancel-outcome" data-rvs-cancel-outcome role="status"></p>
 			</div>
 			<?php if ('open' === $mhmrentiva_bd_state && ! empty($mhmrentiva_bd_cancel['can_cancel'])) : ?>
 				<button
