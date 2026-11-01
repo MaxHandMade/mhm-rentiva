@@ -929,5 +929,11 @@ final class PrefixMigrationMap {
         'mhmrentiva_cache_gen_',
         'mhmrentiva_cache_gen_avail',
         'mhmrentiva_cache_gen_vehicle_stats',
+        // Contact auto reply limit (6.4.0, PR F): one transient per address,
+        // `mhmrentiva_contact_reply_` . wp_hash(address), so the options table
+        // never holds an address. The entry is the dynamic prefix as the call
+        // spells it. New in 6.4.0, no legacy spelling; short-lived, and swept
+        // by the uninstaller's `mhmrentiva%` LIKE.
+        'mhmrentiva_contact_reply_',
     ];
 }

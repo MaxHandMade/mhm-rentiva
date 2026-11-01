@@ -9,8 +9,6 @@
 
 declare(strict_types=1);
 
-use MHMRentiva\Helpers\Icons;
-
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -28,7 +26,7 @@ $mhmrentiva_si_checked  = (int) ( $checked ?? 0 );
 				echo esc_html(sprintf(_n('%d star', '%d stars', $mhmrentiva_si_star, 'mhm-rentiva'), $mhmrentiva_si_star));
 				?>
 			</span>
-			<?php Icons::render('star'); ?>
+			<svg class="rvs-stars__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l2.8 5.9 6.2.9-4.5 4.4 1.1 6.3L12 17.6l-5.6 2.9 1.1-6.3L3 9.8l6.2-.9z"/></svg>
 		</label>
 	<?php endfor; ?>
 </div>

@@ -452,6 +452,13 @@
 	color: var(--rvs-accent-strong);
 }
 
+/* The icon's size is the class's, not an inline style. */
+.rvs-shell .rvs-stars__icon {
+	width: 24px;
+	height: 24px;
+	flex: none;
+}
+
 /* Filled, not only recoloured: the choice is not told by colour alone. */
 .rvs-shell .rvs-stars > label:has(input:checked) svg,
 .rvs-shell .rvs-stars > label:has(~ label input:checked) svg {
