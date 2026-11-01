@@ -166,6 +166,97 @@ final class BookingSummaryPageTest extends WP_UnitTestCase
 		$this->assertStringContainsString('This summary is not an invoice.', $this->document());
 	}
 
+	public function test_real_template_redirect_chain_keeps_the_404(): void
+	{
+		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'customer' )));
+		$this->ask($this->booking_id);
+		// What the live request looks like: the account page's slug is the
+		// "name" core guesses a 404 against.
+		self::factory()->post->create(array( 'post_type' => 'page', 'post_name' => 'hesabim', 'post_status' => 'publish' ));
+		$GLOBALS['wp_query']->set('name', 'hesabim');
+		$_SERVER['REQUEST_URI'] = '/hesabim/?mhmrentiva_summary=1';
+		$redirected             = '';
+		add_filter(
+			'wp_redirect',
+			static function (string $location) use (&$redirected): string {
+				$redirected = $location;
+				// redirect_canonical() exits after wp_redirect(): end the call cleanly.
+				throw new \RuntimeException('canonical redirect to ' . $location);
+			}
+		);
+		add_action('template_redirect', array( BookingSummaryPage::class, 'maybe_render' ), 1);
+		add_action('template_redirect', 'redirect_canonical');
+
+		try {
+			do_action('template_redirect');
+		} catch (\RuntimeException $e) {
+			$this->fail($e->getMessage());
+		}
+
+		remove_action('template_redirect', array( BookingSummaryPage::class, 'maybe_render' ), 1);
+		add_action('template_redirect', 'redirect_canonical');
+		$this->assertSame('', $redirected, 'No canonical 301 for a refused summary.');
+		$this->assertContains(404, $this->statuses);
+		$this->assertTrue(is_404());
+	}
+
+	public function test_vehicle_author_can_open(): void
+	{
+		$vendor = (int) self::factory()->user->create(array( 'role' => 'customer' ));
+		wp_update_post(
+			array(
+				'ID'          => (int) get_post_meta($this->booking_id, '_mhmrentiva_vehicle_id', true),
+				'post_author' => $vendor,
+			)
+		);
+		wp_set_current_user($vendor);
+		$this->ask($this->booking_id);
+
+		BookingSummaryPage::maybe_render();
+
+		$this->assertNotContains(404, $this->statuses);
+		$this->assertStringContainsString('This summary is not an invoice.', $this->document());
+	}
+
+	public function test_bare_id_form_is_checked_like_the_endpoint_form(): void
+	{
+		$GLOBALS['wp_query']->init();
+		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'customer' )));
+		$GLOBALS['wp_query']->set(BookingSummaryPage::QUERY_VAR, (string) $this->booking_id);
+		BookingSummaryPage::maybe_render();
+		$this->assertTrue(is_404(), 'A foreign customer with the bare id form.');
+
+		$GLOBALS['wp_query']->init();
+		wp_set_current_user($this->customer_id);
+		$GLOBALS['wp_query']->set(BookingSummaryPage::QUERY_VAR, (string) $this->booking_id);
+		BookingSummaryPage::maybe_render();
+		$this->assertStringContainsString('This summary is not an invoice.', $this->document());
+	}
+
+	public function test_url_forms(): void
+	{
+		$this->assertStringContainsString('mhmrentiva_summary=1', BookingSummaryPage::url($this->booking_id, true));
+		$this->assertStringContainsString('mhmrentiva_summary=' . $this->booking_id, BookingSummaryPage::url($this->booking_id, false));
+		$this->assertStringNotContainsString('mhmrentiva_summary=1&', BookingSummaryPage::url($this->booking_id, false) . '&');
+	}
+
+	public function test_due_at_pickup_is_not_printed_for_a_cancelled_booking(): void
+	{
+		update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'deposit');
+		update_post_meta($this->booking_id, '_mhmrentiva_deposit_amount', '300.00');
+		update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', '934.00');
+		wp_set_current_user($this->customer_id);
+
+		$this->ask($this->booking_id);
+		BookingSummaryPage::maybe_render();
+		$this->assertStringContainsString('934', $this->document(), 'An open booking names the amount due.');
+
+		update_post_meta($this->booking_id, '_mhmrentiva_status', 'cancelled');
+		$this->ask($this->booking_id);
+		BookingSummaryPage::maybe_render();
+		$this->assertStringNotContainsString('934', $this->document());
+	}
+
 	public function test_other_requests_are_untouched(): void
 	{
 		wp_set_current_user($this->customer_id);

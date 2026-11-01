@@ -70,10 +70,10 @@ $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 				</div>
 			</div>
 			<div class="rvs-account__actions rvs-account-detail__actions" data-rvs-detail-actions>
-					<?php if ('' !== (string) ( $summary_url ?? '' )) : ?>
-						<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url( (string) $summary_url); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
-					<?php endif; ?>
-				</div>
+				<?php if ('' !== (string) ( $summary_url ?? '' )) : ?>
+					<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url( (string) $summary_url); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
+				<?php endif; ?>
+			</div>
 		</div>
 	</header>
 

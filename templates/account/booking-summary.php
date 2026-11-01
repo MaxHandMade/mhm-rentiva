@@ -84,8 +84,8 @@ $mhmrentiva_sum_head = sprintf(__('Booking #%s', 'mhm-rentiva'), $mhmrentiva_sum
 			<?php endif; ?>
 		</dl>
 
-		<section class="rvs-summary__money" aria-labelledby="rvs-summary-pay">
-			<h2 class="rvs-kicker" id="rvs-summary-pay"><?php esc_html_e('Payment', 'mhm-rentiva'); ?></h2>
+		<section class="rvs-summary__money" data-rvs-summary-money>
+			<h2 class="rvs-kicker"><?php esc_html_e('Payment', 'mhm-rentiva'); ?></h2>
 			<?php
 			Templates::render(
 				'partials/rvs/breakdown',

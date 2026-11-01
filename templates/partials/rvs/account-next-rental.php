@@ -62,9 +62,9 @@ $mhmrentiva_nr_where   = $mhmrentiva_nr_card['location'];
 		</dl>
 		<div class="rvs-account__actions rvs-account-next__actions">
 			<a class="rvs-btn rvs-btn--primary" href="<?php echo esc_url( (string) $mhmrentiva_nr_card['details_url']); ?>"><?php esc_html_e('Details', 'mhm-rentiva'); ?></a>
-				<?php if ('' !== (string) ( $mhmrentiva_nr_card['summary_url'] ?? '' )) : ?>
-					<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url( (string) $mhmrentiva_nr_card['summary_url']); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
-				<?php endif; ?>
+			<?php if ('' !== (string) ( $mhmrentiva_nr_card['summary_url'] ?? '' )) : ?>
+				<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url( (string) $mhmrentiva_nr_card['summary_url']); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
+			<?php endif; ?>
 		</div>
 		<?php if (null !== $mhmrentiva_nr_card['free_cancel']) : ?>
 			<p class="rvs-account-next__cancel"><?php echo esc_html( (string) $mhmrentiva_nr_card['free_cancel']); ?></p>

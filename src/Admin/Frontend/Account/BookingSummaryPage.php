@@ -59,10 +59,14 @@ final class BookingSummaryPage {
 
 	/**
 	 * URL of a booking's summary.
+	 *
+	 * @param bool|null $endpoint_carries_id Does the view URL carry the id as a
+	 *                                       WooCommerce endpoint? null: detect.
 	 */
-	public static function url(int $booking_id): string
+	public static function url(int $booking_id, ?bool $endpoint_carries_id = null): string
 	{
-		$value = ( class_exists('WooCommerce') && function_exists('wc_get_endpoint_url') ) ? '1' : (string) $booking_id;
+		$endpoint = $endpoint_carries_id ?? ( class_exists('WooCommerce') && function_exists('wc_get_endpoint_url') );
+		$value    = $endpoint ? '1' : (string) $booking_id;
 
 		return add_query_arg(self::QUERY_VAR, $value, AccountController::get_booking_view_url($booking_id));
 	}
@@ -91,6 +95,10 @@ final class BookingSummaryPage {
 			$wp_query->set_404();
 			status_header(404);
 			nocache_headers();
+			// Core's redirect_canonical (template_redirect, priority 10) would
+			// guess the account page for this 404 and 301 there: keep it a 404.
+			add_filter('do_redirect_guess_404_permalink', '__return_false');
+			remove_action('template_redirect', 'redirect_canonical');
 			self::$denied = true;
 
 			return;
@@ -197,7 +205,7 @@ final class BookingSummaryPage {
 			'breakdown'    => $breakdown,
 			'deposit_paid' => RvsBreakdown::money_received($booking_id),
 			'paid_rows'    => self::paid_rows($booking_id, $breakdown),
-			'created'      => wp_date( (string) get_option('date_format'), (int) get_post_time('U', true, $booking_id)),
+			'created'      => BookingTimeline::moment_text( (int) get_post_time('U', true, $booking_id)),
 		);
 	}
 

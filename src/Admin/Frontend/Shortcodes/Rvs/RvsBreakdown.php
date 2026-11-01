@@ -136,8 +136,17 @@ final class RvsBreakdown {
 					'label' => self::money_received($booking_id) ? __('Deposit paid', 'mhm-rentiva') : __('Deposit', 'mhm-rentiva'),
 				)
 				: null,
-			'on_pickup' => $remaining > 0 ? self::money($remaining) : null,
+			'on_pickup' => $remaining > 0 && ! self::is_closed($booking_id) ? self::money($remaining) : null,
 		);
+	}
+
+	/**
+	 * Is the booking over without a pickup to pay at (cancelled, refunded or
+	 * no-show)? Then "due at pickup" must not be printed.
+	 */
+	private static function is_closed(int $booking_id): bool
+	{
+		return in_array(\MHMRentiva\Admin\Booking\Core\Status::get($booking_id), array( 'cancelled', 'refunded', 'no_show' ), true);
 	}
 
 	/**

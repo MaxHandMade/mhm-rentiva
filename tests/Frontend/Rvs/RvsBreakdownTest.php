@@ -193,6 +193,17 @@ final class RvsBreakdownTest extends WP_UnitTestCase
 		}
 	}
 
+	public function test_due_at_pickup_is_not_printed_for_a_closed_booking(): void
+	{
+		foreach (array( 'cancelled', 'refunded', 'no_show' ) as $status) {
+			$id = $this->stored_booking(array(), array( '_mhmrentiva_status' => $status ));
+			$this->assertNull(RvsBreakdown::from_booking($id)['on_pickup'], $status);
+		}
+
+		$open = $this->stored_booking(array(), array( '_mhmrentiva_status' => 'confirmed' ));
+		$this->assertSame(2623.0, RvsBreakdown::from_booking($open)['on_pickup']['amount']);
+	}
+
 	public function test_deposit_label_says_paid_once_money_arrived(): void
 	{
 		$id = $this->stored_booking(array(), array( '_mhmrentiva_payment_status' => 'paid' ));
