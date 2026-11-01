@@ -60,8 +60,8 @@ class BlockRegistry {
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
 			'title' => 'Vehicle Comparison',
-			'css'   => 'vehicle-comparison.css',
-			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
+			'css'   => array(), // The page is the rvs standard (VehicleComparison enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-comparison' ),
 		),
 		'testimonials'          => array(
 			'tag'   => 'rentiva_testimonials',

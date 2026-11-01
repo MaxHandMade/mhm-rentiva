@@ -89,6 +89,7 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 		'mhm-rentiva-vehicle-rating-form',
 		'mhm-rentiva-my-account',
 		'mhm-rentiva-availability-calendar',
+		'mhm-rentiva-vehicle-comparison',
 		'mhm-rentiva-vehicle-interactions',
 		'mhm-rentiva-search-results-js',
 		'mhm-rentiva-booking-form',
@@ -124,6 +125,7 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 			'my_account via AccountController::enqueue_account_script()'                 => array( 'my_account_via_controller', 'mhm-rentiva-my-account' ),
 			'my_account via AbstractAccountShortcode::enqueue_assets() (:43-49)'         => array( 'my_account_via_shortcode', 'mhm-rentiva-my-account' ),
 			'availability_calendar -- AvailabilityCalendar::get_js_dependencies()'       => array( 'availability_calendar', 'mhm-rentiva-availability-calendar' ),
+			'vehicle_comparison -- VehicleComparison::get_js_dependencies()'             => array( 'vehicle_comparison', 'mhm-rentiva-vehicle-comparison' ),
 			'vehicle_interactions -- AssetManager::register_common_assets()'             => array( 'vehicle_interactions', 'mhm-rentiva-vehicle-interactions' ),
 			'search_results -- SearchResults::enqueue_assets() inline'                   => array( 'search_results', 'mhm-rentiva-search-results-js' ),
 			'booking_form -- BookingForm::get_js_dependencies()'                         => array( 'booking_form', 'mhm-rentiva-booking-form' ),
@@ -173,6 +175,10 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 
 			case 'availability_calendar':
 				do_shortcode( '[rentiva_availability_calendar]' );
+				break;
+
+			case 'vehicle_comparison':
+				do_shortcode( '[rentiva_vehicle_comparison]' );
 				break;
 
 			case 'booking_form':

@@ -30,6 +30,8 @@ final class VehicleComparison extends AbstractShortcode {
 
 	public const SHORTCODE = 'rentiva_vehicle_comparison';
 
+	protected static bool $rvs_shell = true;
+
 	/**
 	 * Rows a site compares until the admin saves a selection of their own (also what the Display
 	 * tab's reset writes). Every key is Active on a default install.
@@ -87,26 +89,30 @@ final class VehicleComparison extends AbstractShortcode {
 		);
 	}
 
-	protected static function get_css_filename(): string
-	{
-		return 'vehicle-comparison.css';
-	}
-
 	protected static function get_js_filename(): string
 	{
 		return 'vehicle-comparison.js';
 	}
 
 	/**
-	 * Enqueue assets
+	 * The comparison's styles and script.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes.
 	 */
 	protected static function enqueue_assets(array $atts = array()): void
 	{
-		// Call parent method (enqueue_styles and enqueue_scripts from AbstractShortcode)
-		parent::enqueue_assets();
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_comparison_styles();
+		self::enqueue_scripts($atts);
+	}
 
-		// Localize script — this is the effective runtime config the front-end script reads.
-		self::localize_script(self::get_asset_handle());
+	/**
+	 * Toggles run through vehicle-interactions.js's queue; errors are toasts.
+	 *
+	 * @return list<string>
+	 */
+	protected static function get_js_dependencies(): array
+	{
+		return array( 'jquery', 'mhm-rentiva-toast', 'mhm-rentiva-vehicle-interactions' );
 	}
 
 	protected static function get_asset_handle(): string
@@ -122,23 +128,12 @@ final class VehicleComparison extends AbstractShortcode {
 	protected static function get_localized_data(): array
 	{
 		return array(
-			'ajax_url'                   => admin_url('admin-ajax.php'),
-			'toggle_nonce'               => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
-			'loading'                    => __('Loading...', 'mhm-rentiva'),
-			'error'                      => __('An error occurred', 'mhm-rentiva'),
-			'vehicleAdded'               => __('Vehicle added to comparison', 'mhm-rentiva'),
-			'vehicleRemoved'             => __('Vehicle removed from comparison', 'mhm-rentiva'),
-			'maxVehiclesReached'         => __('Maximum vehicle count reached', 'mhm-rentiva'),
-			'noVehiclesToCompare'        => __('No vehicles to compare', 'mhm-rentiva'),
-			'addVehicle'                 => __('Add Vehicle', 'mhm-rentiva'),
-			'removeVehicle'              => __('Remove', 'mhm-rentiva'),
-			'bookNow'                    => __('Book Now', 'mhm-rentiva'),
-			'one_vehicle_compared'       => __('1 vehicle being compared', 'mhm-rentiva'),
-			/* translators: %d: number of vehicles */
-			'multiple_vehicles_compared' => __('%d vehicles being compared', 'mhm-rentiva'),
+			'toggle_nonce' => \MHMRentiva\Frontend\RenderContext::script_nonce('mhmrentiva_toggle_compare'),
+			'strings'      => array(
+				'error' => __('Something went wrong. Please try again.', 'mhm-rentiva'),
+			),
 		);
 	}
-
 
 	protected static function prepare_template_data(array $atts): array
 	{

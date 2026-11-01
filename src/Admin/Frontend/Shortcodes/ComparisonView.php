@@ -112,6 +112,8 @@ final class ComparisonView {
 			'title'        => '' !== trim( (string) ( $atts['title'] ?? '' )) ? trim( (string) $atts['title']) : __('Compare vehicles', 'mhm-rentiva'),
 			'class'        => trim( (string) ( $atts['class'] ?? '' )),
 			'header'       => self::header($count, $max, $range),
+			// The same line for the counts a removal can reach: the script holds no plural rule.
+			'headers'      => self::headers($count, $max, $range),
 			'range'        => $range,
 			'show'         => array(
 				'prices'  => self::flag($atts, array( 'show_prices' )),
@@ -487,6 +489,19 @@ final class ComparisonView {
 		}
 
 		return implode(' · ', $parts);
+	}
+
+	/**
+	 * @return array<int, string> Count => header line.
+	 */
+	private static function headers(int $count, int $max, string $range): array
+	{
+		$headers = array();
+		for ($n = self::MIN_VEHICLES; $n <= $count; $n++) {
+			$headers[ $n ] = self::header($n, $max, $range);
+		}
+
+		return $headers;
 	}
 
 	/**

@@ -1,0 +1,408 @@
+/**
+ * Rentiva front-end standard -- the vehicle comparison.
+ *
+ * Values from the approved canvas (`Karsilastirma`, `Karsilastirma-Mobil`).
+ * One table for every width: under 782 px the drawing's sticky vehicle header and
+ * labelled rows, by CSS (the template names every element's role, because a
+ * changed `display` would drop it). Selectors are scoped to `.rvs-shell`; colours
+ * come from rvs-tokens.css.
+ */
+
+.rvs-shell .rvs-compare {
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
+	padding-block: 40px 60px;
+}
+
+/* The display rules below would beat the browser's own [hidden]. */
+.rvs-shell .rvs-compare [hidden] {
+	display: none;
+}
+
+/* Header -------------------------------------------------------------------- */
+
+.rvs-shell .rvs-compare__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.rvs-shell .rvs-compare__heading {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-compare__title {
+	margin: 0;
+	color: var(--rvs-text);
+	font-size: 42px;
+	font-weight: 600;
+	line-height: 1.12;
+	letter-spacing: -0.015em;
+}
+
+.rvs-shell .rvs-compare__meta {
+	margin: 0;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-compare__only input {
+	width: 20px;
+	height: 20px;
+}
+
+/* Table --------------------------------------------------------------------- */
+
+.rvs-shell .rvs-compare__scroll {
+	overflow-x: auto;
+}
+
+.rvs-shell .rvs-compare__table {
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-collapse: collapse;
+	table-layout: fixed;
+	background: transparent;
+}
+
+.rvs-shell .rvs-compare__table th,
+.rvs-shell .rvs-compare__table td {
+	padding: 12px 15px;
+	border: 0;
+	border-bottom: 1px solid color-mix(in srgb, var(--rvs-text) 8%, transparent);
+	background: transparent;
+	color: var(--rvs-text);
+	font-size: 15px;
+	font-weight: 400;
+	text-align: start;
+	vertical-align: top;
+}
+
+.rvs-shell .rvs-compare__vehicles th,
+.rvs-shell .rvs-compare__vehicles td {
+	padding-bottom: 20px;
+	border-bottom: 0;
+}
+
+.rvs-shell .rvs-compare__table .rvs-compare__label {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-compare__table .rvs-compare__group-name {
+	padding-top: 26px;
+	border-bottom: 1px solid var(--rvs-line);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.rvs-shell .rvs-compare .rvs-compare__cell.is-different {
+	background: var(--rvs-accent-100);
+}
+
+/* One vehicle --------------------------------------------------------------- */
+
+/* A one-pixel height lets the column's content fill the row, so prices and
+   buttons line up whatever a name wraps to. */
+.rvs-shell .rvs-compare__table .rvs-compare__col {
+	height: 1px;
+}
+
+.rvs-shell .rvs-compare__vehicle {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	height: 100%;
+}
+
+.rvs-shell .rvs-compare__price,
+.rvs-shell .rvs-compare__booked {
+	margin-top: auto;
+}
+
+.rvs-shell .rvs-compare__media {
+	border-radius: var(--rvs-r);
+}
+
+.rvs-shell .rvs-compare__name-line {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 6px;
+}
+
+.rvs-shell .rvs-compare__name {
+	min-width: 0;
+	color: var(--rvs-text);
+	font-size: 19px;
+	font-weight: 600;
+	text-decoration: none;
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-compare__name:hover {
+	color: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-compare .rvs-compare__remove {
+	flex: none;
+	min-height: 36px;
+	padding: 0 6px;
+	color: var(--rvs-accent-strong);
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-compare__amount {
+	font-size: 24px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.rvs-shell .rvs-compare__amount .woocommerce-price-suffix {
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-compare__days {
+	color: var(--rvs-muted);
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-compare__select {
+	width: 100%;
+}
+
+.rvs-shell .rvs-compare__add {
+	display: grid;
+	place-items: center;
+	min-height: 260px;
+	border: 1px dashed var(--rvs-line);
+	border-radius: var(--rvs-r);
+	color: var(--rvs-accent-strong);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.rvs-shell .rvs-compare__table .rvs-compare__add-cell {
+	vertical-align: middle;
+}
+
+/* Notes and the empty state --------------------------------------------------- */
+
+.rvs-shell .rvs-compare__none,
+.rvs-shell .rvs-compare__note {
+	margin: 0;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-compare__none {
+	padding-block: 12px;
+}
+
+.rvs-shell .rvs-compare__note {
+	margin-top: 25px;
+}
+
+.rvs-shell .rvs-compare__empty {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 560px;
+	padding: 30px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-compare__empty-title {
+	margin: 0;
+	color: var(--rvs-text);
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.12;
+	letter-spacing: -0.015em;
+}
+
+.rvs-shell .rvs-compare__empty-text {
+	margin: 0;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-compare__browse {
+	align-self: flex-start;
+}
+
+/* Card layout ----------------------------------------------------------------- */
+
+.rvs-shell .rvs-compare__cards {
+	--rvs-cols: 3;
+}
+
+.rvs-shell .rvs-compare__card {
+	gap: 15px;
+	padding: 15px;
+}
+
+.rvs-shell .rvs-compare__facts-name {
+	margin: 0 0 6px;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-compare__facts-list {
+	margin: 0;
+}
+
+.rvs-shell .rvs-compare__fact {
+	display: flex;
+	justify-content: space-between;
+	gap: 10px;
+	border-bottom: 1px solid color-mix(in srgb, var(--rvs-text) 8%, transparent);
+}
+
+.rvs-shell .rvs-compare__fact dt,
+.rvs-shell .rvs-compare__fact dd {
+	margin: 0;
+	padding: 6px 4px;
+}
+
+.rvs-shell .rvs-compare__fact dt {
+	color: var(--rvs-muted);
+	font-size: 14px;
+	font-weight: 400;
+}
+
+.rvs-shell .rvs-compare__fact dd {
+	text-align: end;
+}
+
+/* The drawing's mobile: sticky vehicle header + labelled rows ------------------ */
+
+@media (max-width: 781.98px) {
+	.rvs-shell .rvs-compare {
+		gap: 10px;
+		padding-block: 20px 30px;
+	}
+
+	.rvs-shell .rvs-compare__head {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 6px;
+	}
+
+	.rvs-shell .rvs-compare__title {
+		font-size: 28px;
+	}
+
+	/* Scrolling here would make this box, not the page, the sticky header's frame. */
+	.rvs-shell .rvs-compare__scroll {
+		overflow: visible;
+	}
+
+	.rvs-shell .rvs-compare--table .rvs-compare__table,
+	.rvs-shell .rvs-compare--table .rvs-compare__group {
+		display: block;
+		min-width: 0;
+	}
+
+	.rvs-shell .rvs-compare--table .rvs-compare__vehicles {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		display: block;
+		padding-block: 10px;
+		border-bottom: 1px solid var(--rvs-line);
+		background: var(--rvs-bg);
+	}
+
+	.rvs-shell .rvs-compare--table .rvs-compare__vehicles tr {
+		display: flex;
+	}
+
+	.rvs-shell .rvs-compare--table .rvs-compare__row {
+		display: flex;
+		flex-wrap: wrap;
+		border-bottom: 1px solid color-mix(in srgb, var(--rvs-text) 8%, transparent);
+	}
+
+	.rvs-shell .rvs-compare--table .rvs-compare__group-row {
+		display: block;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__corner,
+	.rvs-shell .rvs-compare__table .rvs-compare__add-cell,
+	.rvs-shell .rvs-compare__table .rvs-compare__filler {
+		display: none;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__col {
+		flex: 1 1 0;
+		height: auto;
+		min-width: 0;
+		padding: 0 3px;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__group-name {
+		display: block;
+		padding: 20px 0 6px;
+		border-bottom: 0;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__label {
+		flex: 0 0 100%;
+		padding: 8px 3px 0;
+		border-bottom: 0;
+		font-size: 13px;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__cell {
+		flex: 1 1 0;
+		min-width: 0;
+		padding: 2px 3px 8px;
+		border-bottom: 0;
+		font-size: 14px;
+		overflow-wrap: anywhere;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__vehicle {
+		gap: 6px;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__name-line {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__name {
+		font-size: 14px;
+		line-height: 1.2;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__remove {
+		min-height: 44px;
+		padding: 0;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__amount {
+		display: block;
+		font-size: 15px;
+	}
+
+	.rvs-shell .rvs-compare__table .rvs-compare__select {
+		padding-inline: 8px;
+	}
+
+	.rvs-shell .rvs-compare__note {
+		margin-top: 6px;
+		font-size: 13px;
+	}
+}

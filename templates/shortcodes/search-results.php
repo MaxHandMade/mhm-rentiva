@@ -320,7 +320,7 @@ $range_group = static function (string $legend, string $min_key, string $max_key
 				</span>
 				<span class="rvs-results__band-names" data-rvs-band-names><?php echo esc_html(implode(', ', wp_list_pluck($compare['items'], 'title'))); ?></span>
 				<?php if ('' !== (string) $compare['url']) : ?>
-					<a class="rvs-btn rvs-results__band-link" href="<?php echo esc_url($compare['url']); ?>"><?php esc_html_e('Compare', 'mhm-rentiva'); ?></a>
+					<a class="rvs-btn rvs-results__band-link" data-rvs-compare-link href="<?php echo esc_url($compare['url']); ?>"><?php esc_html_e('Compare', 'mhm-rentiva'); ?></a>
 				<?php endif; ?>
 			</div>
 		</div>

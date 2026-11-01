@@ -164,7 +164,7 @@ final class ShortcodeFixtures
 
 			case 'rentiva_vehicle_comparison':
 				$row['atts']         = array( 'vehicle_ids' => self::vehicle() . ',' . self::vehicle() );
-				$row['marker']       = 'rv-comparison-table';
+				$row['marker']       = 'rvs-compare__table';
 				$row['min_elements'] = 40;
 				break;
 

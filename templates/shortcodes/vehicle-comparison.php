@@ -1,330 +1,186 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-
 /**
- * Vehicle Comparison Template
+ * Vehicle comparison (rentiva_vehicle_comparison), inside `.rvs-shell`.
+ *
+ * Prints ComparisonView::build(). One table for every width: under 782 px the
+ * CSS lays it out as the drawing's sticky vehicle header and labelled rows, so
+ * every table element names its role (a changed `display` would drop it).
+ * The script (vehicle-comparison.js) works from the `data-rvs-cmp-*` hooks and
+ * each comparison's root carries its own state.
+ *
+ * @var array<string, mixed> $view ComparisonView::build().
  *
  * @package MHMRentiva
- * @since 1.0.0
  */
 
-use MHMRentiva\Frontend\RenderContext;
-use MHMRentiva\Helpers\Icons;
-use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
+declare(strict_types=1);
 
-// Prevent direct access
+use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Frontend\RenderContext;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
 
-// Get template data
-$atts         = $atts ?? array();
-$view         = $view ?? array();
-$max_vehicles = (int) ( $view['max'] ?? 3 );
-$has_vehicles = ! empty($view['has_vehicles']);
+$mhmrentiva_cmp         = isset($view) && is_array($view) ? $view : array();
+$mhmrentiva_cmp_columns = (array) ( $mhmrentiva_cmp['columns'] ?? array() );
+$mhmrentiva_cmp_groups  = (array) ( $mhmrentiva_cmp['groups'] ?? array() );
+$mhmrentiva_cmp_show    = (array) ( $mhmrentiva_cmp['show'] ?? array() );
+$mhmrentiva_cmp_has     = ! empty($mhmrentiva_cmp['has_vehicles']);
+$mhmrentiva_cmp_fixed   = ! empty($mhmrentiva_cmp['fixed']);
+$mhmrentiva_cmp_layout  = 'cards' === ( $mhmrentiva_cmp['layout'] ?? 'table' ) ? 'cards' : 'table';
+$mhmrentiva_cmp_preview = RenderContext::current()->is_preview();
+// The add column is always there on the visitor's own list: a removal can make room without a reload.
+$mhmrentiva_cmp_addable = ! $mhmrentiva_cmp_fixed && '' !== (string) ( $mhmrentiva_cmp['add_url'] ?? '' );
+$mhmrentiva_cmp_room    = ! empty($mhmrentiva_cmp['can_add']);
+$mhmrentiva_cmp_span    = 1 + count($mhmrentiva_cmp_columns) + ( $mhmrentiva_cmp_room ? 1 : 0 );
+$mhmrentiva_cmp_classes = trim('rvs-compare rvs-compare--' . $mhmrentiva_cmp_layout . ' ' . (string) ( $mhmrentiva_cmp['class'] ?? '' ));
 
-// Interim (PR E Task 5): the old markup, fed from ComparisonView. Task 6 replaces this file.
-$features = array();
-$vehicles = array();
-foreach ( (array) ( $view['columns'] ?? array() ) as $mhmrentiva_column) {
-	$vehicles[ (int) $mhmrentiva_column['id'] ] = array(
-		'id'         => (int) $mhmrentiva_column['id'],
-		'title'      => $mhmrentiva_column['title'],
-		'permalink'  => $mhmrentiva_column['booking_url'],
-		'image_url'  => $mhmrentiva_column['image']['url'],
-		'price_html' => $mhmrentiva_column['price_html'],
-		'days_label' => $mhmrentiva_column['days_label'],
-		'features'   => array(),
-	);
-}
-foreach ( (array) ( $view['groups'] ?? array() ) as $mhmrentiva_group) {
-	foreach ($mhmrentiva_group['rows'] as $mhmrentiva_row) {
-		$features[ $mhmrentiva_row['key'] ] = $mhmrentiva_row['label'];
-		foreach ($mhmrentiva_row['cells'] as $mhmrentiva_cell) {
-			$vehicles[ (int) $mhmrentiva_cell['vehicle_id'] ]['features'][ $mhmrentiva_row['key'] ] = $mhmrentiva_cell['text'];
-		}
-	}
-}
-$vehicles = array_values($vehicles);
-
-
-// Layout settings
-$layout               = $atts['layout'] ?? 'table';
-$show_prices          = ( $atts['show_prices'] ?? true ) === '1' || ( $atts['show_prices'] ?? true ) === true;
-$show_booking_buttons = in_array(
-	strtolower( (string) ( $atts['show_booking_buttons'] ?? ( $atts['show_book_button'] ?? '1' ) )),
-	array( '1', 'true', 'yes', 'on' ),
-	true
-);
-$custom_class         = trim($atts['class'] ?? '');
-$comparison_flag      = static function ($value): bool {
-	return in_array(strtolower( (string) $value), array( '1', 'true', 'yes', 'on' ), true);
+$mhmrentiva_cmp_cell_body = static function (array $cell): void {
+	?>
+	<span class="rvs-compare__value"><?php echo esc_html( (string) $cell['text']); ?></span>
+	<span class="rvs-sr-only" data-rvs-cmp-cue<?php echo empty($cell['different']) ? ' hidden' : ''; ?>><?php esc_html_e('Differs from the others', 'mhm-rentiva'); ?></span>
+	<?php
 };
-$show_images          = $comparison_flag($atts['show_images'] ?? '1');
-$show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
-
 ?>
+<section class="<?php echo esc_attr($mhmrentiva_cmp_classes); ?>"
+	data-rvs-comparison
+	data-max-vehicles="<?php echo esc_attr( (string) ( $mhmrentiva_cmp['max'] ?? 3 )); ?>"
+	data-fixed="<?php echo $mhmrentiva_cmp_fixed ? '1' : '0'; ?>"
+	data-headers="<?php echo esc_attr( (string) wp_json_encode($mhmrentiva_cmp['headers'] ?? array())); ?>">
 
-<div class="rv-vehicle-comparison rv-vehicle-comparison-container rv-layout-table" data-max-vehicles="<?php echo esc_attr($max_vehicles); ?>" data-features='<?php echo esc_attr(wp_json_encode($features)); ?>'>
+	<div class="rvs-compare__head">
+		<div class="rvs-compare__heading">
+			<h2 class="rvs-compare__title"><?php echo esc_html( (string) ( $mhmrentiva_cmp['title'] ?? '' )); ?></h2>
+			<?php if ($mhmrentiva_cmp_has) : ?>
+				<p class="rvs-compare__meta" data-rvs-cmp-meta><?php echo esc_html( (string) $mhmrentiva_cmp['header']); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php if ($mhmrentiva_cmp_has) : ?>
+			<label class="rvs-check rvs-compare__only" data-rvs-cmp-only-label>
+				<input type="checkbox" data-rvs-cmp-only>
+				<span><?php esc_html_e('Show only differences', 'mhm-rentiva'); ?></span>
+			</label>
+		<?php endif; ?>
+	</div>
 
-	<!-- Comparison Content -->
-	<?php if ($has_vehicles) : ?>
-		<div class="rv-comparison-content">
-
-			<!-- Comparison Header -->
-			<div class="rv-comparison-header">
-				<h3>
-					<?php
-					if (! empty($atts['title'])) {
-						echo esc_html($atts['title']);
-					} else {
-						echo esc_html__('Vehicle Comparison', 'mhm-rentiva');
-					}
-					?>
-				</h3>
-				<div class="rv-comparison-count">
-					<?php
-					$count = count($vehicles);
-					if ($count === 1) {
-						echo esc_html__('1 vehicle being compared', 'mhm-rentiva');
-					} else {
-						/* translators: %d: number of vehicles */
-						printf(esc_html__('%d vehicles being compared', 'mhm-rentiva'), (int) $count);
-					}
-					?>
-				</div>
-			</div>
-
-			<!-- Table Layout -->
-			<?php if ($layout === 'table') : ?>
-				<div class="rv-comparison-table-wrapper">
-					<table class="rv-comparison-table">
-						<thead>
-							<tr>
-								<th class="rv-feature-column"><?php echo esc_html__('Feature', 'mhm-rentiva'); ?></th>
-								<?php foreach ($vehicles as $vehicle) : ?>
-									<th class="rv-vehicle-column" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
-										<div class="rv-vehicle-header">
-											<?php if ($show_images) : ?>
-												<div class="rv-vehicle-image-container">
-													<?php if (! empty($vehicle['image_url'])) : ?>
-														<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" class="rv-vehicle-image">
-													<?php endif; ?>
-												</div>
-											<?php endif; ?>
-											<?php if ($show_remove_buttons) : ?>
-												<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-													<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
-												</button>
-											<?php endif; ?>
-
-											<h4><?php echo esc_html($vehicle['title']); ?></h4>
-											<?php $btn_style = 'display: inline-block !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;'; ?>
-											<?php if ($show_booking_buttons) : ?>
-												<a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn" style="<?php echo esc_attr($btn_style); ?>">
-													<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-												</a>
-											<?php endif; ?>
-											<!-- Price Display -->
-											<?php if ($show_prices) : ?>
-												<div class="mhm-comparison-price" style="text-align: center; font-weight: bold; font-size: 1.1em; margin-top: 10px;">
-													<?php echo wp_kses($vehicle['price_html'], PriceDisplay::allowed_html()); ?>
-													<span class="price-suffix"><?php echo esc_html($vehicle['days_label']); ?></span>
-												</div>
-											<?php endif; ?>
-										</div>
+	<?php if ($mhmrentiva_cmp_has) : ?>
+		<div class="rvs-compare__body" data-rvs-cmp-body>
+			<?php if ('table' === $mhmrentiva_cmp_layout) : ?>
+				<div class="rvs-compare__scroll" role="region" aria-label="<?php esc_attr_e('Comparison table', 'mhm-rentiva'); ?>" tabindex="0">
+					<table class="rvs-compare__table" role="table">
+						<caption class="rvs-sr-only"><?php esc_html_e('Comparison of the selected vehicles', 'mhm-rentiva'); ?></caption>
+						<thead class="rvs-compare__vehicles" role="rowgroup">
+							<tr role="row">
+								<td class="rvs-compare__corner" role="cell"></td>
+								<?php foreach ($mhmrentiva_cmp_columns as $mhmrentiva_cmp_column) : ?>
+									<th class="rvs-compare__col" role="columnheader" scope="col" data-rvs-cmp-col data-rvs-cmp-vehicle data-vehicle-id="<?php echo esc_attr( (string) $mhmrentiva_cmp_column['id']); ?>">
+										<?php
+										Templates::render(
+											'partials/rvs/compare-vehicle',
+											array(
+												'column'  => $mhmrentiva_cmp_column,
+												'show'    => $mhmrentiva_cmp_show,
+												'preview' => $mhmrentiva_cmp_preview,
+											),
+											false
+										);
+										?>
 									</th>
 								<?php endforeach; ?>
+								<?php if ($mhmrentiva_cmp_addable) : ?>
+									<td class="rvs-compare__add-cell" role="cell" data-rvs-cmp-add<?php echo $mhmrentiva_cmp_room ? '' : ' hidden'; ?>>
+										<a class="rvs-compare__add" href="<?php echo esc_url( (string) $mhmrentiva_cmp['add_url']); ?>"><?php esc_html_e('+ Add vehicle', 'mhm-rentiva'); ?></a>
+									</td>
+								<?php endif; ?>
 							</tr>
 						</thead>
-						<tbody>
-							<?php foreach ($features as $feature_key => $feature_label) : ?>
-								<?php
-								if ($feature_key === 'price_per_day') {
-									continue;
-								}
-								?>
-								<tr class="rv-feature-row">
-									<td class="rv-feature-label"><?php echo esc_html($feature_label); ?></td>
-									<?php foreach ($vehicles as $vehicle) : ?>
-										<td class="rv-feature-value" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
-											<?php
-											$value = $vehicle['features'][ $feature_key ] ?? '–';
-											// Defense-in-depth: ensure value is always a string
-											if (is_array($value)) {
-												$value = implode(', ', array_filter(array_map('strval', $value)));
-											}
-											echo '<span class="rv-feature-text">' . esc_html( (string) $value) . '</span>';
-											?>
-										</td>
-									<?php endforeach; ?>
+						<?php foreach ($mhmrentiva_cmp_groups as $mhmrentiva_cmp_group) : ?>
+							<tbody class="rvs-compare__group" role="rowgroup" data-rvs-cmp-group>
+								<tr class="rvs-compare__group-row" role="row" data-rvs-cmp-group-head>
+									<th class="rvs-compare__group-name" role="columnheader" scope="colgroup" colspan="<?php echo esc_attr( (string) $mhmrentiva_cmp_span); ?>" data-rvs-cmp-span><?php echo esc_html( (string) $mhmrentiva_cmp_group['label']); ?></th>
 								</tr>
-							<?php endforeach; ?>
-						</tbody>
+								<?php foreach ($mhmrentiva_cmp_group['rows'] as $mhmrentiva_cmp_row) : ?>
+									<tr class="rvs-compare__row" role="row" data-rvs-cmp-row="<?php echo esc_attr( (string) $mhmrentiva_cmp_row['key']); ?>">
+										<th class="rvs-compare__label" role="rowheader" scope="row"><?php echo esc_html( (string) $mhmrentiva_cmp_row['label']); ?></th>
+										<?php foreach ($mhmrentiva_cmp_row['cells'] as $mhmrentiva_cmp_cell) : ?>
+											<td class="rvs-compare__cell<?php echo ! empty($mhmrentiva_cmp_cell['different']) ? ' is-different' : ''; ?>" role="cell" data-rvs-cmp-col data-vehicle-id="<?php echo esc_attr( (string) $mhmrentiva_cmp_cell['vehicle_id']); ?>" data-row="<?php echo esc_attr( (string) $mhmrentiva_cmp_row['key']); ?>" data-rvs-cmp-cell data-row-value="<?php echo esc_attr( (string) $mhmrentiva_cmp_cell['value']); ?>" data-empty="<?php echo ! empty($mhmrentiva_cmp_cell['empty']) ? '1' : '0'; ?>"><?php $mhmrentiva_cmp_cell_body($mhmrentiva_cmp_cell); ?></td>
+										<?php endforeach; ?>
+										<?php if ($mhmrentiva_cmp_addable) : ?>
+											<td class="rvs-compare__filler" role="cell" data-rvs-cmp-filler<?php echo $mhmrentiva_cmp_room ? '' : ' hidden'; ?>></td>
+										<?php endif; ?>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						<?php endforeach; ?>
 					</table>
 				</div>
-
-				<!-- Mobile List Layout -->
-				<div class="rv-comparison-mobile-list">
-					<?php foreach ($vehicles as $vehicle) : ?>
-						<div class="rv-mobile-card-item" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
-
-							<div class="rv-mobile-card-header-wrapper">
-								<?php if ($show_images) : ?>
-									<div class="rv-mobile-card-image">
-										<?php if (! empty($vehicle['image_url'])) : ?>
-											<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
-										<?php endif; ?>
-									</div>
-								<?php endif; ?>
-
-								<div class="rv-mobile-card-info">
-									<h4 class="rv-mobile-title"><?php echo esc_html($vehicle['title']); ?></h4>
-
-									<?php if ($show_prices) : ?>
-										<div class="rv-mobile-price">
-											<?php echo wp_kses($vehicle['price_html'], PriceDisplay::allowed_html()); ?>
-											<span class="rv-period"><?php echo esc_html($vehicle['days_label']); ?></span>
-										</div>
-									<?php endif; ?>
-								</div>
-
-								<?php if ($show_remove_buttons) : ?>
-									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-										<svg class="rv-icon-remove" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
-											<line x1="18" y1="6" x2="6" y2="18"></line>
-											<line x1="6" y1="6" x2="18" y2="18"></line>
-										</svg>
-									</button>
-								<?php endif; ?>
-							</div>
-
-							<?php
-							// No inline `onclick` -- wp_kses() (now wrapping this template's
-							// output at the dispatcher, see
-							// ShortcodeServiceProvider::handle_shortcode_execution()) strips
-							// every `on*` attribute unconditionally. The toggle is bound via
-							// event delegation in assets/js/frontend/vehicle-comparison.js
-							// (VehicleComparison.bindEvents()), which toggles the `active`
-							// class on the closest `.rv-mobile-card-item` -- the same element
-							// and class the removed inline handler targeted via
-							// `this.parentElement`.
-							?>
-							<button type="button" class="rv-mobile-accordion-toggle">
-								<span><?php echo esc_html__('Show Features', 'mhm-rentiva'); ?></span>
-								<?php
-                                Icons::render('chevron-down', [
-									'class' => 'rv-icon-chevron-down',
-									'style' => 'transition: transform 0.3s ease;',
-								]);
-								?>
-							</button>
-
-							<div class="rv-mobile-accordion-content">
-								<div class="rv-mobile-features-list">
-									<?php foreach ($features as $feature_key => $feature_label) : ?>
-										<?php
-										if ($feature_key === 'price_per_day') {
-											continue;
-										}
-										?>
-										<div class="rv-mobile-feature-row">
-											<span class="rv-mobile-label"><?php echo esc_html($feature_label); ?></span>
-											<span class="rv-mobile-value">
-												<?php
-												$value = $vehicle['features'][ $feature_key ] ?? '–';
-												if (is_array($value)) {
-													$value = implode(', ', array_filter(array_map('strval', $value)));
-												}
-												echo esc_html( (string) $value);
-												?>
-											</span>
-										</div>
-									<?php endforeach; ?>
-								</div>
-
-								<div class="rv-mobile-actions">
-									<?php $btn_class = 'rv-book-now-btn rv-mobile-btn'; ?>
-									<?php if ($show_booking_buttons) : ?>
-										<a href="<?php echo esc_url($vehicle['permalink']); ?>" class="<?php echo esc_attr($btn_class); ?>">
-											<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-										</a>
-									<?php endif; ?>
-								</div>
-							</div>
-
-						</div>
-					<?php endforeach; ?>
-				</div>
-
 			<?php else : ?>
-				<!-- Card Layout -->
-				<div class="rv-comparison-cards">
-					<?php foreach ($vehicles as $vehicle) : ?>
-						<div class="rv-vehicle-card" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
-							<div class="rv-card-header">
-								<?php if ($show_images && ! empty($vehicle['image_url'])) : ?>
-									<img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" class="rv-card-image">
-								<?php endif; ?>
-								<h4><?php echo esc_html($vehicle['title']); ?></h4>
-								<?php if ($show_remove_buttons) : ?>
-									<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-										<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
-									</button>
-								<?php endif; ?>
-								<?php if ($show_prices) : ?>
-									<span class="rv-price"><?php echo wp_kses($vehicle['price_html'], PriceDisplay::allowed_html()); ?></span>
-								<?php endif; ?>
-							</div>
-
-							<div class="rv-card-features">
-								<?php foreach ($features as $feature_key => $feature_label) : ?>
-									<div class="rv-feature-item">
-										<span class="rv-feature-label"><?php echo esc_html($feature_label); ?>:</span>
-										<span class="rv-feature-value">
-											<span class="rv-feature-text"><?php echo esc_html( (string) ( $vehicle['features'][ $feature_key ] ?? '–' )); ?></span>
-										</span>
-									</div>
-								<?php endforeach; ?>
-							</div>
-
-							<div class="rv-card-actions">
-								<?php if ($show_booking_buttons) : ?>
-									<a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn">
-										<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-									</a>
-								<?php endif; ?>
-							</div>
-						</div>
+				<div class="rvs-card-grid rvs-compare__cards">
+					<?php foreach ($mhmrentiva_cmp_columns as $mhmrentiva_cmp_column) : ?>
+						<article class="rvs-card rvs-compare__card" data-rvs-cmp-col data-rvs-cmp-vehicle data-vehicle-id="<?php echo esc_attr( (string) $mhmrentiva_cmp_column['id']); ?>">
+							<?php
+							Templates::render(
+								'partials/rvs/compare-vehicle',
+								array(
+									'column'  => $mhmrentiva_cmp_column,
+									'show'    => $mhmrentiva_cmp_show,
+									'preview' => $mhmrentiva_cmp_preview,
+								),
+								false
+							);
+							?>
+							<?php foreach ($mhmrentiva_cmp_groups as $mhmrentiva_cmp_group) : ?>
+								<div class="rvs-compare__facts" data-rvs-cmp-group>
+									<h3 class="rvs-kicker rvs-compare__facts-name" data-rvs-cmp-group-head><?php echo esc_html( (string) $mhmrentiva_cmp_group['label']); ?></h3>
+									<dl class="rvs-compare__facts-list">
+										<?php foreach ($mhmrentiva_cmp_group['rows'] as $mhmrentiva_cmp_row) : ?>
+											<?php foreach ($mhmrentiva_cmp_row['cells'] as $mhmrentiva_cmp_cell) : ?>
+												<?php
+												if ( (int) $mhmrentiva_cmp_cell['vehicle_id'] !== (int) $mhmrentiva_cmp_column['id']) {
+													continue;
+												}
+												?>
+												<div class="rvs-compare__fact" data-rvs-cmp-row="<?php echo esc_attr( (string) $mhmrentiva_cmp_row['key']); ?>">
+													<dt class="rvs-compare__label"><?php echo esc_html( (string) $mhmrentiva_cmp_row['label']); ?></dt>
+													<dd class="rvs-compare__cell<?php echo ! empty($mhmrentiva_cmp_cell['different']) ? ' is-different' : ''; ?>" data-row="<?php echo esc_attr( (string) $mhmrentiva_cmp_row['key']); ?>" data-rvs-cmp-cell data-row-value="<?php echo esc_attr( (string) $mhmrentiva_cmp_cell['value']); ?>" data-empty="<?php echo ! empty($mhmrentiva_cmp_cell['empty']) ? '1' : '0'; ?>"><?php $mhmrentiva_cmp_cell_body($mhmrentiva_cmp_cell); ?></dd>
+												</div>
+											<?php endforeach; ?>
+										<?php endforeach; ?>
+									</dl>
+								</div>
+							<?php endforeach; ?>
+						</article>
 					<?php endforeach; ?>
+					<?php if ($mhmrentiva_cmp_addable) : ?>
+						<a class="rvs-compare__add" href="<?php echo esc_url( (string) $mhmrentiva_cmp['add_url']); ?>" data-rvs-cmp-add<?php echo $mhmrentiva_cmp_room ? '' : ' hidden'; ?>><?php esc_html_e('+ Add vehicle', 'mhm-rentiva'); ?></a>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
-
-		</div>
-	<?php else : ?>
-		<!-- Threshold/Empty State Message -->
-		<div class="rv-comparison-empty-state" style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 12px; border: 2px dashed #e0e0e0; margin: 40px auto; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-			<div class="rv-empty-icon" style="margin-bottom: 20px;">
-				<?php
-                Icons::render('table', [
-					'class'  => 'rv-icon-empty',
-					'width'  => '64',
-					'height' => '64',
-					'style'  => 'margin: 0 auto; display: block; stroke: #ddd; stroke-width: 1.5;',
-				]);
-				?>
-			</div>
-			<h4 style="margin-bottom: 12px; font-size: 1.4em; color: #333;"><?php echo esc_html__('Comparison list is ready!', 'mhm-rentiva'); ?></h4>
-			<p style="color: #666; font-size: 1.1em; line-height: 1.6;"><?php echo esc_html__('Please add at least 2 vehicles to see the detailed comparison table.', 'mhm-rentiva'); ?></p>
-			<?php
-			$search_url = get_post_type_archive_link('mhmrentiva_vehicle') ?: home_url('/');
-			?>
-			<?php if ($show_booking_buttons) : ?>
-				<a href="<?php echo esc_url($search_url); ?>" class="rv-book-now-btn" style="display: inline-block; margin-top: 25px; padding: 12px 30px; font-size: 1.1em; text-decoration: none; border-radius: 8px;">
-					<?php echo esc_html__('Browse Vehicles', 'mhm-rentiva'); ?>
-				</a>
-			<?php endif; ?>
+			<p class="rvs-compare__none" data-rvs-cmp-none hidden><?php esc_html_e('These vehicles do not differ in the compared details.', 'mhm-rentiva'); ?></p>
+			<p class="rvs-compare__note"><?php esc_html_e('Light blue cell: a value different from the others.', 'mhm-rentiva'); ?></p>
 		</div>
 	<?php endif; ?>
 
-</div>
+	<?php
+	// Printed hidden on a fixed comparison: its removals only leave the screen, so a
+	// reload would bring them back.
+	if (! $mhmrentiva_cmp_has || $mhmrentiva_cmp_fixed) :
+		$mhmrentiva_cmp_one = $mhmrentiva_cmp_has || 1 === (int) ( $mhmrentiva_cmp['count'] ?? 0 );
+		?>
+		<div class="rvs-compare__empty" data-rvs-cmp-empty<?php echo $mhmrentiva_cmp_has ? ' hidden' : ''; ?>>
+			<h3 class="rvs-compare__empty-title"><?php echo esc_html($mhmrentiva_cmp_one ? __('Add one more vehicle to compare', 'mhm-rentiva') : __('No vehicles to compare', 'mhm-rentiva')); ?></h3>
+			<p class="rvs-compare__empty-text">
+				<?php
+				if ($mhmrentiva_cmp_one) {
+					esc_html_e('A comparison needs at least 2 vehicles. Tick "Compare" on another vehicle in the list.', 'mhm-rentiva');
+				} else {
+					/* translators: %d: the most vehicles that can be compared. */
+					echo esc_html(sprintf(__('Tick "Compare" in the vehicle list; you will see up to %d vehicles side by side.', 'mhm-rentiva'), (int) ( $mhmrentiva_cmp['max'] ?? 3 )));
+				}
+				?>
+			</p>
+			<a class="rvs-btn rvs-btn--primary rvs-compare__browse" href="<?php echo esc_url( (string) ( $mhmrentiva_cmp['browse_url'] ?? '' )); ?>"><?php esc_html_e('Go to vehicles', 'mhm-rentiva'); ?></a>
+		</div>
+	<?php endif; ?>
+</section>
