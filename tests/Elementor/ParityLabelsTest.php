@@ -130,7 +130,7 @@ final class ParityLabelsTest extends WP_UnitTestCase
 				$this->assertNotSame( '', $label, "$class parity control '$id' has an empty label." );
 			}
 		}
-		$this->assertSame( 119, $total, 'Lite parity control count changed; update the dictionary and this pin.' );
+		$this->assertSame( 118, $total, 'Lite parity control count changed; update the dictionary and this pin.' );
 	}
 
 	public function test_user_dashboard_has_no_parity_controls(): void

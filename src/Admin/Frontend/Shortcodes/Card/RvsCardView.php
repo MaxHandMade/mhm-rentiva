@@ -386,7 +386,7 @@ final class RvsCardView {
 				'primary_html' => $total['html'],
 				'suffix'       => $total['suffix'],
 				/* translators: 1: number of days, 2: formatted daily price. */
-				'secondary'    => sprintf(_n('%1$d day total · %2$s/day', '%1$d days total · %2$s/day', $quote->days, 'mhm-rentiva'), $quote->days, wp_strip_all_tags($daily['html'] . $daily['suffix'])),
+				'secondary'    => sprintf(_n('%1$d day total · %2$s/day', '%1$d days total · %2$s/day', $quote->days, 'mhm-rentiva'), $quote->days, wp_strip_all_tags($daily['html'])),
 				'days'         => $quote->days,
 			);
 		}

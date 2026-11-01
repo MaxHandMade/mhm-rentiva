@@ -405,9 +405,9 @@ final class CalendarEndpointsTest extends WP_Ajax_UnitTestCase
 
 		$this->assertNotFalse(wp_verify_nonce($data['nonce'], 'mhmrentiva_availability_nonce'));
 		$this->assertSame(admin_url('admin-ajax.php'), $data['ajax_url']);
-		$this->assertTrue($data['showPricing']);
-		$this->assertTrue($data['showBookingButton']);
-		$this->assertSame(get_option('date_format'), $data['dateFormat']);
+		$this->assertArrayNotHasKey('showPricing', $data, 'Each calendar reads its own root.');
+		$this->assertArrayNotHasKey('showBookingButton', $data);
+		$this->assertArrayNotHasKey('dateFormat', $data, 'The server formats every date.');
 		$this->assertArrayHasKey('pickReturn', $data['strings']);
 		$this->assertArrayNotHasKey('favoriteNonce', $data);
 		$this->assertSame(12, CalendarView::MAX_MONTH_SPAN);

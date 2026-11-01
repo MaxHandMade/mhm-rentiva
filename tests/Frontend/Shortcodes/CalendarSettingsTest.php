@@ -273,7 +273,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 		);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/\d{4}-\d{2}(-\d{2})?/', 'DATE', $html);
-		$html = (string) preg_replace('#(data-rvs-cal-months aria-live="X">).*?(?=<ul class="rvs-availability__legend")#s', '$1MONTHS</div>', $html);
+		$html = (string) preg_replace('#(data-rvs-cal-months>).*?(?=<ul class="rvs-availability__legend")#s', '$1MONTHS</div>', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
 	}

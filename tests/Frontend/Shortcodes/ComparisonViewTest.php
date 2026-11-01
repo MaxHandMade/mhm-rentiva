@@ -89,7 +89,7 @@ final class ComparisonViewTest extends WP_UnitTestCase
 	{
 		$km = ComparisonView::format('daily_km_limit', '');
 		$this->assertSame('Unlimited', $km['text']);
-		$this->assertTrue($km['empty']);
+		$this->assertFalse($km['empty']);
 
 		foreach (array( 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage', 'seats' ) as $key) {
 			$this->assertSame(array( 'text' => '–', 'value' => '', 'empty' => true ), ComparisonView::format($key, ''), $key);
@@ -182,7 +182,7 @@ final class ComparisonViewTest extends WP_UnitTestCase
 
 		$rows = $this->rows(ComparisonView::groups(array( $a, $b )));
 
-		$this->assertArrayNotHasKey('daily_km_limit', $rows, 'Even the row that would read "Unlimited".');
+		$this->assertSame(array( 'Unlimited', 'Unlimited' ), array_column($rows['daily_km_limit']['cells'], 'text'), 'No limit is a fact, not an empty row.');
 		$this->assertArrayNotHasKey('min_driver_age', $rows);
 		$this->assertArrayHasKey('seats', $rows);
 	}

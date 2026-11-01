@@ -136,4 +136,17 @@ final class CompareServicePruneTest extends WP_UnitTestCase
 
 		$this->assertSame(array( $a, $b, $c ), CompareService::get_list());
 	}
+
+	public function test_a_closed_vehicle_does_not_push_a_good_one_past_the_limit(): void
+	{
+		wp_set_current_user(0);
+		$closed                        = $this->vehicle('draft');
+		$a                             = $this->vehicle();
+		$b                             = $this->vehicle();
+		$c                             = $this->vehicle();
+		$_COOKIE['mhmrentiva_compare'] = (string) wp_json_encode(array( $closed, $a, $b, $c ));
+		$this->forget();
+
+		$this->assertSame(array( $a, $b, $c ), CompareService::get_list());
+	}
 }

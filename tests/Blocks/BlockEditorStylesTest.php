@@ -15,9 +15,9 @@ use WP_UnitTestCase;
  * handles: no shortcode runs in that document to enqueue them. Pointing at a handle
  * nobody registers fails silently (a bare preview, no notice).
  *
- * The comparison and the calendar name their sheet under `editorStyle` alone: on a
- * classic theme a `style` handle is enqueued on every front page, and their
- * shortcodes enqueue it where they render.
+ * These blocks name their sheet under `editorStyle` alone: on a classic theme a
+ * `style` handle is enqueued on every front page, and their shortcodes enqueue it
+ * where they render.
  *
  * @package MHMRentiva\Tests\Blocks
  */
@@ -31,6 +31,8 @@ class BlockEditorStylesTest extends WP_UnitTestCase
         return array(
             'comparison' => array( 'vehicle-comparison', 'mhm-rentiva-rvs-comparison' ),
             'calendar'   => array( 'availability-calendar', 'mhm-rentiva-rvs-availability' ),
+            'vehicle'    => array( 'vehicle-details', 'mhm-rentiva-rvs-vehicle' ),
+            'booking'    => array( 'booking-form', 'mhm-rentiva-rvs-booking' ),
         );
     }
 

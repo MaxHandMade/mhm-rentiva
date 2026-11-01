@@ -314,7 +314,7 @@ final class ComparisonView {
 				? array(
 					'text'  => __('Unlimited', 'mhm-rentiva'),
 					'value' => 'unlimited',
-					'empty' => true,
+					'empty' => false,
 				)
 				: self::blank();
 		}

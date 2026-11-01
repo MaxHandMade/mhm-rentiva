@@ -87,10 +87,20 @@ class CompareService {
 			}
 		}
 
-		// A stored list never exceeds MAX_ITEMS (save_list); a guest's cookie can, and each id costs a read.
-		$list = array_slice( array_values( array_unique( array_map( 'intval', $list ) ) ), 0, self::MAX_ITEMS );
+		// A closed vehicle gives its seat to the next one, so filter before limiting.
+		// A stored list never exceeds MAX_ITEMS (save_list); a guest's cookie can, and
+		// each id costs a read, so the walk has a ceiling too.
+		$comparable = array();
+		foreach ( array_slice( array_values( array_unique( array_map( 'intval', $list ) ) ), 0, 2 * self::MAX_ITEMS ) as $vehicle_id ) {
+			if ( self::is_comparable( $vehicle_id ) ) {
+				$comparable[] = $vehicle_id;
+				if ( count( $comparable ) >= self::MAX_ITEMS ) {
+					break;
+				}
+			}
+		}
 
-		self::$cached_list = array_values( array_filter( $list, array( self::class, 'is_comparable' ) ) );
+		self::$cached_list = $comparable;
 		return self::$cached_list;
 	}
 

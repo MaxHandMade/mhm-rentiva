@@ -92,6 +92,10 @@
 	 * Stops at the first line that applies, so an error wins over a status.
 	 * A good quote shows no message: the live region then holds its summary,
 	 * for screen readers only, because the same facts are on screen above it.
+	 * The months themselves are no live region (two whole tables would be read
+	 * out), so a month step speaks here: the new months' names, for screen readers
+	 * only, joining the return-date prompt when that is on screen. An error or a
+	 * refusal keeps the line to itself.
 	 */
 	function renderPanel( $root, state ) {
 		const quote = state.quote;
@@ -115,15 +119,21 @@
 		const total = state.pricing && quote && quote.priced ? quote.total_html || '' : '';
 		const url = state.booking && quote && quote.available ? quote.continue_url || '' : '';
 
-		// Visible before its text changes, so the live region is heard.
-		$root.find( '[data-rvs-cal-panel]' ).prop( 'hidden', ! ( notice || range || time || total || url ) );
+		const note = state.monthNote;
+		const filled = !! ( notice || range || time || total || url );
+		// Visible before its text changes, so the live region is heard. With a month
+		// step alone there is nothing to see, so the panel draws no empty box.
+		$root.find( '[data-rvs-cal-panel]' )
+			.prop( 'hidden', ! ( filled || note ) )
+			.toggleClass( 'rvs-sr-only', ! filled && !! note );
 		$root.find( '[data-rvs-cal-range]' ).text( range );
 		$root.find( '[data-rvs-cal-time]' ).text( time );
 		// Server HTML (PriceDisplay), like the months.
 		const $total = $root.find( '[data-rvs-cal-total]' ).html( total );
 
-		const summary = notice ? '' : [ range, total ? $total.text() : '' ].filter( Boolean ).join( ' · ' );
-		const spoken = notice || summary;
+		const summary = notice ? '' : note || [ range, total ? $total.text() : '' ].filter( Boolean ).join( ' · ' );
+		const prompt = note && ! isError && notice === t( 'pickReturn' ) ? note + ' · ' + notice : notice;
+		const spoken = prompt || summary;
 		const $message = $root.find( '[data-rvs-cal-message]' );
 		if ( $message.text() !== spoken ) {
 			$message.text( spoken );
@@ -146,6 +156,7 @@
 		state.quoting = false;
 		state.error = '';
 		state.loadError = '';
+		state.monthNote = '';
 	}
 
 	// The answer is about the click just made: on a phone the panel is below the
@@ -164,6 +175,7 @@
 		const seq = state.quoteSeq;
 		state.quote = null;
 		state.quoting = true;
+		state.monthNote = '';
 		state.error = '';
 		state.loadError = '';
 		renderPanel( $root, state );
@@ -199,6 +211,7 @@
 	function selectDay( $root, state, date ) {
 		if ( state.start && ! state.end && date === state.start ) {
 			// The same day again: it stays the start, there is still no range.
+			state.monthNote = '';
 			state.error = '';
 			state.loadError = '';
 		} else if ( state.start && ! state.end && date > state.start ) {
@@ -258,7 +271,15 @@
 		markSelection( $root, state );
 	}
 
-	function loadMonths( $root, state, month ) {
+	// The names the server gave the months on screen: "December 2026 – January 2027".
+	function monthsLabel( $root ) {
+		const titles = $root.find( '[data-rvs-cal-months] .rvs-cal__title' );
+		const first = titles.first().text().trim();
+		const last = titles.last().text().trim();
+		return first === last ? first : first + ' – ' + last;
+	}
+
+	function loadMonths( $root, state, month, announce ) {
 		state.monthSeq += 1;
 		const seq = state.monthSeq;
 		state.target = month;
@@ -272,6 +293,9 @@
 					return;
 				}
 				applyMonths( $root, state, data );
+				if ( announce ) {
+					state.monthNote = monthsLabel( $root );
+				}
 				// Only a months failure ends here: a quote's error still stands.
 				state.loadError = '';
 				renderPanel( $root, state );
@@ -282,6 +306,7 @@
 				}
 				state.target = state.month;
 				syncPrev( $root, state );
+				state.monthNote = '';
 				state.loadError = message || t( 'error' );
 				renderPanel( $root, state );
 			},
@@ -431,6 +456,7 @@
 			monthSeq: 0,
 			error: '',
 			loadError: '',
+			monthNote: '',
 			switching: false,
 		};
 		$root.data( STATE, state );
@@ -446,7 +472,7 @@
 		$root.on( 'click', '[data-rvs-cal-nav]', function () {
 			if ( ! state.switching ) {
 				$root.attr( LOADING, '' );
-				loadMonths( $root, state, stepMonth( state.target, parseInt( this.getAttribute( 'data-rvs-cal-nav' ), 10 ) || 0 ) );
+				loadMonths( $root, state, stepMonth( state.target, parseInt( this.getAttribute( 'data-rvs-cal-nav' ), 10 ) || 0 ), true );
 			}
 		} );
 		$root.on( 'click', '[data-rvs-cal-switch]', function () {

@@ -211,7 +211,7 @@ final class RvsCardViewTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('tax_label', $daily['price']['suffix']);
 		$this->assertStringContainsString('tax_label', $total['price']['suffix']);
-		$this->assertStringContainsString(wp_strip_all_tags(PriceDisplay::for_shop(1000.0)['suffix']), $total['price']['secondary'], 'The daily figure in the total\'s second line too.');
+		$this->assertStringNotContainsString(trim(wp_strip_all_tags(PriceDisplay::for_shop(1000.0)['suffix'])), $total['price']['secondary'], 'The suffix sits under the total, not inside the "per day" fragment.');
 	}
 
 	public function test_configured_suffix_on_daily_and_total_and_in_the_card_markup(): void
@@ -220,7 +220,7 @@ final class RvsCardViewTest extends WP_UnitTestCase
 
 		$this->assertStringContainsString('incl. test VAT', $daily['price']['suffix']);
 		$this->assertStringContainsString('incl. test VAT', $total['price']['suffix']);
-		$this->assertStringContainsString('incl. test VAT', $total['price']['secondary']);
+		$this->assertStringNotContainsString('incl. test VAT', $total['price']['secondary'], 'The second line is the plain daily figure.');
 
 		$card = $this->render_card();
 		$this->assertStringContainsString('rvs-card__suffix', $card);

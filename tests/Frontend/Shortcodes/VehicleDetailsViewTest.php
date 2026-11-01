@@ -349,7 +349,8 @@ final class VehicleDetailsViewTest extends WP_UnitTestCase
 	public function test_block_json_points_at_the_rvs_stylesheet(): void
 	{
 		$json = json_decode( (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/blocks/vehicle-details/block.json'), true); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped file.
-		$this->assertSame(array( 'mhm-rentiva-rvs-vehicle' ), $json['style']);
+		$this->assertContains('mhm-rentiva-rvs-vehicle', $json['editorStyle']);
+		$this->assertArrayNotHasKey('style', $json, 'A style handle loads on every page of a classic theme.');
 	}
 
 	public function test_dealer_line_empty_without_pro_data(): void

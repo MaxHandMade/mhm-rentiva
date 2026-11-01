@@ -133,6 +133,69 @@ describe( 'availability calendar: selection, panel and months', () => {
 		expect( root().getAttribute( 'data-start-month' ) ).toBe( '2026-12' );
 	} );
 
+	describe( 'a month step is spoken in the panel message', () => {
+		const titled = ( ...names ) => names.map( ( name ) => `<div class="rvs-cal"><h3 class="rvs-cal__title">${ name }</h3></div>` ).join( '' ) + DECEMBER;
+		const stepTo = ( ...names ) => {
+			click( q( '[data-rvs-cal-nav="1"]' ) );
+			ok( calls[ calls.length - 1 ], { html: titled( ...names ), prev_allowed: true, start_month: '2026-12' } );
+		};
+
+		test( 'alone_it_is_for_screen_readers_with_no_box_on_screen', () => {
+			boot();
+			expect( panel().hidden ).toBe( true );
+
+			stepTo( 'December 2026', 'January 2027' );
+
+			expect( panel().hidden ).toBe( false );
+			expect( panel().classList.contains( 'rvs-sr-only' ) ).toBe( true );
+			expect( message() ).toBe( 'December 2026 – January 2027' );
+			expect( q( '[data-rvs-cal-message]' ).getAttribute( 'role' ) ).toBe( 'status' );
+		} );
+
+		test( 'the_quiet_refresh_at_load_says_nothing', () => {
+			document.body.innerHTML = page();
+			calls.length = 0;
+			window.mhmRentivaAvailabilityCalendar.init();
+			ok( calls[ 0 ], { html: titled( 'November 2026' ), prev_allowed: false, start_month: '2026-11' } );
+
+			expect( panel().hidden ).toBe( true );
+			expect( message() ).toBe( '' );
+		} );
+
+		test( 'it_joins_the_return_prompt_and_the_next_click_clears_it', () => {
+			boot();
+			pick( '2026-11-10' );
+			stepTo( 'December 2026' );
+
+			expect( message() ).toBe( 'December 2026 · PICK RETURN' );
+			expect( panel().classList.contains( 'rvs-sr-only' ) ).toBe( false );
+
+			pick( '2026-12-01' );
+			expect( message() ).toBe( 'LOADING' );
+		} );
+
+		test( 'over_a_quote_it_stays_out_of_sight_and_the_total_stays', () => {
+			boot();
+			pick( '2026-11-10' );
+			pick( '2026-11-11' );
+			ok( calls[ 0 ], QUOTE );
+			stepTo( 'December 2026' );
+
+			expect( message() ).toBe( 'December 2026' );
+			expect( q( '[data-rvs-cal-message]' ).classList.contains( 'rvs-sr-only' ) ).toBe( true );
+			expect( panel().classList.contains( 'rvs-sr-only' ) ).toBe( false );
+			expect( total().innerHTML ).toBe( QUOTE.total_html );
+		} );
+
+		test( 'an_error_keeps_the_line_to_itself', () => {
+			boot();
+			click( q( '[data-rvs-cal-nav="1"]' ) );
+			broken( calls[ calls.length - 1 ] );
+
+			expect( message() ).toBe( 'ERR' );
+		} );
+	} );
+
 	test( 'a_failed_load_keeps_the_page_months_and_says_so', () => {
 		document.body.innerHTML = page();
 		calls.length = 0;

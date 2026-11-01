@@ -98,17 +98,11 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	}
 
 	/**
-	 * `showPricing` and `showBookingButton` are the defaults; each calendar's own
-	 * values are on its root (`data-show-pricing`, `data-show-booking-button`).
+	 * Each calendar's settings are on its own root (`data-show-pricing`, ...).
 	 */
 	protected static function get_localized_data(): array {
-		$defaults = self::get_default_attributes();
-		$data     = parent::get_localized_data();
-
-		$data['nonce']             = wp_create_nonce( 'mhmrentiva_availability_nonce' );
-		$data['showPricing']       = CalendarView::is_on( $defaults['show_pricing'] );
-		$data['showBookingButton'] = CalendarView::is_on( $defaults['show_booking_button'] );
-		$data['dateFormat']        = (string) get_option( 'date_format' );
+		$data          = parent::get_localized_data();
+		$data['nonce'] = wp_create_nonce( 'mhmrentiva_availability_nonce' );
 
 		return $data;
 	}
@@ -138,13 +132,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 * `start_date` / `end_date` marks the visitor's selection.
 	 */
 	public static function ajax_months(): void {
-		$req        = self::verified_request();
+		$req = self::verified_request();
+		// First, so a probe for vehicle ids is counted too. The script asks once per
+		// load and per step: wider than the quote's allowance.
+		SecurityHelper::check_rate_limit_or_die( 'calendar_months', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
 		$vehicle_id = VehicleDetails::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
-		// The script asks once per load and per step: wider than the quote's allowance.
-		SecurityHelper::check_rate_limit_or_die( 'calendar_months', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
 
 		$first    = CalendarView::opening_month( $req->text( 'start_month' ) );
 		$selected = array_values( array_filter( array( $req->text( 'start_date' ), $req->text( 'end_date' ) ) ) );
@@ -171,13 +166,13 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 * The selection panel for `start_date` .. `end_date`.
 	 */
 	public static function ajax_quote(): void {
-		$req        = self::verified_request();
+		$req = self::verified_request();
+		// The vehicle page's bucket: both quote the same card.
+		SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 		$vehicle_id = VehicleDetails::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
-		// The vehicle page's bucket: both quote the same card.
-		SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 
 		wp_send_json_success( CalendarView::quote( $vehicle_id, $req->text( 'start_date' ), $req->text( 'end_date' ) ) );
 	}
@@ -186,12 +181,12 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 * The vehicle card after a switch.
 	 */
 	public static function ajax_vehicle_info(): void {
-		$req        = self::verified_request();
+		$req = self::verified_request();
+		SecurityHelper::check_rate_limit_or_die( 'calendar_vehicle_info', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
 		$vehicle_id = VehicleDetails::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
-		SecurityHelper::check_rate_limit_or_die( 'calendar_vehicle_info', 60, 60, __( 'Too many requests. Please wait.', 'mhm-rentiva' ) );
 
 		wp_send_json_success( CalendarView::vehicle_card( $vehicle_id ) );
 	}

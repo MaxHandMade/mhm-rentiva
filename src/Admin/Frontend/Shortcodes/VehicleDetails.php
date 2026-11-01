@@ -106,14 +106,14 @@ final class VehicleDetails extends AbstractShortcode {
 	 * availability, and the months around it -- the page's own partials.
 	 */
 	public static function ajax_quote(): void {
-		$req        = self::verified_request();
+		$req = self::verified_request();
+		// Same allowance as the booking form's price endpoint: a visitor trying a
+		// few date ranges fires a request per change.
+		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 		$vehicle_id = self::requested_vehicle( $req );
 		if ( $vehicle_id <= 0 ) {
 			return;
 		}
-		// Same allowance as the booking form's price endpoint: a visitor trying a
-		// few date ranges fires a request per change.
-		\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die( 'vehicle_quote', 30, 60, __( 'Too many price requests. Please wait.', 'mhm-rentiva' ) );
 
 		$window  = VehicleDetailsView::window( self::posted_window( $req ) );
 		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );

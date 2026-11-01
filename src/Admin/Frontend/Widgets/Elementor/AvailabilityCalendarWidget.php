@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Frontend\Shortcodes\CalendarView;
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 use Elementor\Controls_Manager;
 
@@ -48,6 +49,17 @@ class AvailabilityCalendarWidget extends ElementorWidgetBase {
 			)
 		);
 
+		$this->add_control(
+			'months_to_show',
+			array(
+				'label'   => __( 'Months to Show', 'mhm-rentiva' ),
+				'type'    => Controls_Manager::NUMBER,
+				'default' => 2,
+				'min'     => 1,
+				'max'     => CalendarView::MAX_MONTH_SPAN,
+			)
+		);
+
 		$this->end_controls_section();
 	}
 
@@ -59,6 +71,9 @@ class AvailabilityCalendarWidget extends ElementorWidgetBase {
 		$atts = array();
 		if ( ! empty( $settings['vehicle_id'] ) ) {
 			$atts['vehicle_id'] = $settings['vehicle_id'];
+		}
+		if ( array_key_exists( 'months_to_show', $settings ) ) {
+			$atts['months_to_show'] = (string) CalendarView::span( $settings['months_to_show'] );
 		}
 		return $atts;
 	}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Elementor;
 
 use MHMRentiva\Admin\Frontend\Widgets\Base\WidgetAttributeBridge;
+use MHMRentiva\Admin\Frontend\Widgets\Elementor\AvailabilityCalendarWidget;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\VehiclesListWidget;
 use MHMRentiva\Core\Attribute\AllowlistRegistry;
@@ -120,6 +121,29 @@ final class ParityControlsTest extends WP_UnitTestCase
 				$this->assertArrayHasKey( $id, $schema, "$class parity control '$id' is not in the schema." );
 			}
 		}
+	}
+
+	/**
+	 * The block's "Months to Show" in the widget: bounded like the shortcode, in the
+	 * widget's own section, with no free-text parity twin.
+	 */
+	public function test_calendar_months_to_show_is_a_bounded_number(): void
+	{
+		$widget = WidgetFactory::make( AvailabilityCalendarWidget::class );
+		$stack  = $widget->get_stack( false );
+		$ctrl   = $stack['controls']['months_to_show'];
+
+		$this->assertSame( 'number', $ctrl['type'] );
+		$this->assertSame( 'general_section', $ctrl['section'] );
+		$this->assertSame( 2, $ctrl['default'] );
+		$this->assertSame( 1, $ctrl['min'] );
+		$this->assertSame( 12, $ctrl['max'] );
+
+		$map = new \ReflectionMethod( AvailabilityCalendarWidget::class, 'prepare_shortcode_attributes' );
+		$map->setAccessible( true );
+		$this->assertSame( array( 'months_to_show' => '12' ), $map->invoke( $widget, array( 'months_to_show' => 99 ) ) );
+		$this->assertSame( array( 'months_to_show' => '1' ), $map->invoke( $widget, array( 'months_to_show' => 0 ) ) );
+		$this->assertSame( array( 'months_to_show' => '3' ), $map->invoke( $widget, array( 'months_to_show' => '3' ) ) );
 	}
 
 	public function test_stale_saved_twin_dropped_by_live_intersection(): void

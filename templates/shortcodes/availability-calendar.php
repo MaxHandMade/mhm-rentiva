@@ -63,7 +63,7 @@ $mhmrentiva_cal_classes = trim('rvs-availability rv-theme-' . sanitize_html_clas
 
 	<p class="rvs-availability__hint"><?php esc_html_e('Click on start and end dates to select your rental period.', 'mhm-rentiva'); ?></p>
 
-	<div class="rvs-availability__months" data-rvs-cal-months aria-live="polite">
+	<div class="rvs-availability__months" data-rvs-cal-months>
 		<?php foreach ( (array) $mhmrentiva_view['months'] as $mhmrentiva_cal_month) : ?>
 			<?php Templates::render('partials/rvs/calendar-month', array( 'calendar' => $mhmrentiva_cal_month ), false); ?>
 		<?php endforeach; ?>
