@@ -195,12 +195,30 @@ final class VehicleComparisonMarkupTest extends WP_UnitTestCase
 
 	public function test_one_vehicle_uses_the_same_empty_state_and_says_what_is_missing(): void
 	{
-		$html = $this->shortcode('', array( $this->ids[0] ));
+		$view = ComparisonView::build(array(), array( $this->ids[0] ), false);
+		$html = Templates::render('shortcodes/vehicle-comparison', array( 'view' => $view ), true);
 
 		$this->assertStringContainsString('rvs-compare__empty', $html);
+		$this->assertStringContainsString('Add one more vehicle', $html);
 		$this->assertStringContainsString('at least 2 vehicles', $html);
+		$this->assertStringContainsString('Tick', $html);
 		$this->assertStringNotContainsString('No vehicles to compare', $html);
 		$this->assertStringNotContainsString('<table', $html);
+	}
+
+	/**
+	 * Nothing a visitor ticks changes a list set on the page, whether it is short
+	 * from the start or a removal took it there (the block is printed hidden).
+	 */
+	public function test_a_fixed_list_never_asks_the_visitor_to_tick_compare(): void
+	{
+		foreach (array( $this->shortcode('', array( $this->ids[0] )), $this->shortcode() ) as $html) {
+			$this->assertStringContainsString('rvs-compare__empty', $html);
+			$this->assertStringContainsString('Not enough vehicles to compare', $html);
+			$this->assertStringContainsString('at least 2 vehicles', $html);
+			$this->assertStringNotContainsString('Tick', $html);
+			$this->assertStringNotContainsString('Add one more vehicle', $html);
+		}
 	}
 
 	public function test_a_fixed_list_carries_its_empty_state_hidden_and_the_visitors_list_does_not(): void

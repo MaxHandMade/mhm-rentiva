@@ -166,13 +166,21 @@ $mhmrentiva_cmp_cell_body = static function (array $cell): void {
 	// Printed hidden on a fixed comparison: its removals only leave the screen, so a
 	// reload would bring them back.
 	if (! $mhmrentiva_cmp_has || $mhmrentiva_cmp_fixed) :
-		$mhmrentiva_cmp_one = $mhmrentiva_cmp_has || 1 === (int) ( $mhmrentiva_cmp['count'] ?? 0 );
+		$mhmrentiva_cmp_one = 1 === (int) ( $mhmrentiva_cmp['count'] ?? 0 );
+		if ($mhmrentiva_cmp_fixed) {
+			$mhmrentiva_cmp_heading = __('Not enough vehicles to compare', 'mhm-rentiva');
+		} else {
+			$mhmrentiva_cmp_heading = $mhmrentiva_cmp_one ? __('Add one more vehicle to compare', 'mhm-rentiva') : __('No vehicles to compare', 'mhm-rentiva');
+		}
 		?>
 		<div class="rvs-compare__empty" data-rvs-cmp-empty<?php echo $mhmrentiva_cmp_has ? ' hidden' : ''; ?>>
-			<h3 class="rvs-compare__empty-title"><?php echo esc_html($mhmrentiva_cmp_one ? __('Add one more vehicle to compare', 'mhm-rentiva') : __('No vehicles to compare', 'mhm-rentiva')); ?></h3>
+			<h3 class="rvs-compare__empty-title"><?php echo esc_html($mhmrentiva_cmp_heading); ?></h3>
 			<p class="rvs-compare__empty-text">
 				<?php
-				if ($mhmrentiva_cmp_one) {
+				if ($mhmrentiva_cmp_fixed) {
+					// This list is set on the page: nothing a visitor ticks can change it.
+					esc_html_e('A comparison needs at least 2 vehicles. Browse the vehicles to choose your own.', 'mhm-rentiva');
+				} elseif ($mhmrentiva_cmp_one) {
 					esc_html_e('A comparison needs at least 2 vehicles. Tick "Compare" on another vehicle in the list.', 'mhm-rentiva');
 				} else {
 					/* translators: %d: the most vehicles that can be compared. */

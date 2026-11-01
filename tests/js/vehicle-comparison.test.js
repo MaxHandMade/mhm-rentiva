@@ -329,6 +329,39 @@ describe( 'vehicle interactions: the compare queue', () => {
 		expect( calls ).toHaveLength( 2 );
 	} );
 
+	test( 'a_throwing_handler_does_not_stop_the_queue', () => {
+		const second = { success: jest.fn(), error: jest.fn() };
+
+		window.MHMRentivaCompare.toggle( 1, 'n', { success() {
+			throw new Error( 'boom' );
+		}, error() {} } );
+		window.MHMRentivaCompare.toggle( 2, 'n', second );
+		window.MHMRentivaCompare.toggle( 3, 'n', { success() {}, error() {
+			throw new Error( 'boom' );
+		} } );
+		window.MHMRentivaCompare.toggle( 4, 'n', second );
+
+		expect( () => calls[ 0 ].success( answer( [ 1 ] ) ) ).toThrow( 'boom' );
+		expect( calls ).toHaveLength( 2 );
+
+		calls[ 1 ].success( answer( [ 1, 2 ] ) );
+		expect( second.success ).toHaveBeenCalledTimes( 1 );
+
+		expect( () => calls[ 2 ].error() ).toThrow( 'boom' );
+		expect( calls ).toHaveLength( 4 );
+		expect( calls[ 3 ].data.vehicle_id ).toBe( 4 );
+	} );
+
+	test( 'every_request_has_a_timeout_so_a_silent_server_cannot_hold_the_queue', () => {
+		tick( boxes()[ 0 ] );
+
+		expect( calls[ 0 ].timeout ).toBeGreaterThan( 0 );
+
+		calls[ 0 ].error( {}, 'timeout' );
+		tick( boxes()[ 1 ] );
+		expect( calls ).toHaveLength( 2 );
+	} );
+
 	test( 'errors_read_the_translated_strings', () => {
 		tick( boxes()[ 0 ] );
 

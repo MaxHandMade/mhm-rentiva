@@ -15,8 +15,9 @@
 	padding-block: 40px 60px;
 }
 
-/* The display rules below would beat the browser's own [hidden]. */
-.rvs-shell .rvs-compare [hidden] {
+/* The display rules below would beat the browser's own [hidden]; the doubled
+   class outranks all of them, wherever they stand in this file. */
+.rvs-shell .rvs-compare.rvs-compare [hidden] {
 	display: none;
 }
 

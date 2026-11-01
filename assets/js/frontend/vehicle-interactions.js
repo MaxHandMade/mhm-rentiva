@@ -67,6 +67,8 @@
             $.ajax({
                 url: mhmrentiva_vars.ajax_url,
                 type: 'POST',
+                // A request that never answers must not hold the others back.
+                timeout: 30000,
                 data: {
                     action: 'mhmrentiva_toggle_compare',
                     vehicle_id: job.vehicleId,
@@ -77,13 +79,19 @@
                     if (response && response.success && response.data) {
                         queue.latest = response.data;
                     }
-                    job.handlers.success(response);
-                    queue.next();
+                    try {
+                        job.handlers.success(response);
+                    } finally {
+                        queue.next();
+                    }
                 },
                 error: function () {
                     queue.running = false;
-                    job.handlers.error();
-                    queue.next();
+                    try {
+                        job.handlers.error();
+                    } finally {
+                        queue.next();
+                    }
                 }
             });
         },
