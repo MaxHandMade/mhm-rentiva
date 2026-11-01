@@ -3,268 +3,512 @@
  */
 
 /**
- * Spec 3B-2b §2.3 (U3): one URL builder for the booking redirect.
- * The second date click (same day or later) and the "Make Reservation" button
- * both go through AvailabilityCalendar#buildBookingUrl() and
- * window.location.assign(). End date is sent only for two distinct days;
- * no pickup location (the booking form takes it from the car, and a
- * data-location-id left on the markup is ignored); a non-http(s) or empty base never
- * redirects. Elements with the calendar's class names outside a calendar root
- * are left alone.
+ * PR E (R4, R8, R10, m4, m17, m21, M2): the calendar's selection and months.
+ * The second click no longer redirects: the server's range, total and link show
+ * in the panel. The script builds no URL and formats no date. Markup follows
+ * templates/shortcodes/availability-calendar.php and partials/rvs/calendar-panel.php.
  */
-describe( 'availability calendar: booking redirect', () => {
+describe( 'availability calendar: selection, panel and months', () => {
 	let $;
+	let calls;
 
-	const BASE = 'https://example.test/book/';
-	const START_HREF = 'https://example.test/arac/';
-	const DAY = { status: 'available', is_weekend: false, is_today: false, is_past: false };
+	const day = ( date ) => `<td class="rvs-cal__day is-available" data-date="${ date }"><button type="button" class="rvs-cal__btn" data-date="${ date }" aria-label="${ date }, Available"><span class="rvs-cal__num">x</span></button></td>`;
+	const booked = ( date ) => `<td class="rvs-cal__day is-booked" data-date="${ date }"><span class="rvs-cal__num">x</span></td>`;
+	const month = ( key, cells ) => `<div class="rvs-cal is-interactive" data-rvs-calendar data-title="${ key }"><table><tbody><tr>${ cells }</tr></tbody></table></div>`;
+	const NOVEMBER = month( '2026-11', day( '2026-11-10' ) + day( '2026-11-11' ) + booked( '2026-11-12' ) + day( '2026-11-13' ) + day( '2026-11-14' ) );
+	const DECEMBER = month( '2026-12', day( '2026-12-01' ) );
 
-	// Response shape read from handleAvailabilityDataSuccess() (same as the
-	// Task 2 fixture in availability-calendar-instances.test.js).
-	const responseFor = ( startMonth ) => ( {
-		success: true,
-		data: {
-			availability_data: {
-				[ startMonth ]: {
-					month_name: 'October',
-					year: 2026,
-					days: startMonth === '2026-10'
-						? {
-							'2026-10-20': { ...DAY, day_number: 20 },
-							'2026-10-22': { ...DAY, day_number: 22 },
-							'2026-10-24': { ...DAY, day_number: 24 },
-						}
-						: {},
-				},
-			},
-		},
-	} );
-
-	// Markup from templates/shortcodes/availability-calendar.php (root,
-	// day cells, hidden selected-dates panel with the book now button).
-	const calendarRoot = ( vehicleId, locationId = 0 ) => `
-		<div class="rv-availability-calendar rv-theme-default"
-			data-vehicle-id="${ vehicleId }"
-			data-vehicle-price="100"
-			data-start-month="2026-10"
-			data-months-to-show="2"
-			data-location-id="${ locationId }">
-			<div class="rv-availability-grid">
-				<div class="rv-month-container" data-month="2026-10">
-					<div class="rv-calendar-days">
-						<div class="rv-calendar-day rv-day-available" data-date="2026-10-20"><span class="rv-day-number">20</span></div>
-						<div class="rv-calendar-day rv-day-available" data-date="2026-10-22"><span class="rv-day-number">22</span></div>
-						<div class="rv-calendar-day rv-day-available" data-date="2026-10-24"><span class="rv-day-number">24</span></div>
-					</div>
+	const page = ( { pricing = '1', booking = '1', vehicle = '7' } = {} ) => `
+		<section class="rvs-availability" data-rvs-availability data-vehicle-id="${ vehicle }" data-start-month="2026-11" data-months-to-show="2" data-week-start="1" data-show-pricing="${ pricing }" data-show-booking-button="${ booking }">
+			<div class="rvs-availability__vehicle">
+				<img class="rvs-availability__image" data-rvs-cal-image src="old.jpg" alt="Old">
+				<p data-rvs-cal-name>Old</p>
+				${ '1' === pricing ? '<p data-rvs-cal-price>100</p>' : '' }
+				<button type="button" id="switch" data-rvs-cal-switch>Change vehicle</button>
+			</div>
+			<button type="button" data-rvs-cal-nav="-1" disabled>prev</button>
+			<button type="button" data-rvs-cal-nav="1">next</button>
+			<div data-rvs-cal-months>${ NOVEMBER }</div>
+			<div data-rvs-cal-panel hidden>
+				<p data-rvs-cal-range></p>
+				<p data-rvs-cal-time></p>
+				${ '1' === pricing ? '<p data-rvs-cal-total></p>' : '' }
+				<p data-rvs-cal-message role="status" aria-live="polite"></p>
+				${ '1' === booking ? '<a data-rvs-cal-book href="#" hidden>Make reservation</a>' : '' }
+			</div>
+			<div class="rvs-dialog" data-rvs-cal-dialog hidden>
+				<div class="rvs-dialog__panel">
+					<h2 class="rvs-dialog__title" id="dlg-title">Select vehicle</h2>
+					<button type="button" data-rvs-dialog-close>×</button>
+					<ul>
+						<li><button type="button" data-rvs-cal-option="7" aria-pressed="true">Old</button></li>
+						<li><button type="button" data-rvs-cal-option="9" aria-pressed="false">New</button></li>
+					</ul>
 				</div>
 			</div>
-			<div class="rv-selected-dates rv-hidden">
-				<span class="rv-start-date"></span><span class="rv-end-date"></span>
-				<span class="rv-value rv-days-count"></span>
-				<span class="rv-value rv-price-total"></span>
-				<div class="rv-booking-actions">
-					<button type="button" class="rv-button rv-button-primary rv-book-now-btn" disabled>Make Reservation</button>
-				</div>
-			</div>
-			<div class="rv-availability-loading rv-hidden"></div>
-		</div>`;
+		</section>`;
 
-	const click = ( el ) => {
-		const ev = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
-		el.dispatchEvent( ev );
-		return ev;
+	const QUOTE = {
+		priced: true,
+		days: 1,
+		total_html: '<span class="amount">₺100</span>',
+		available: true,
+		message: '',
+		continue_url: 'https://example.test/book/?pickup_date=2026-11-10&return_date=2026-11-11',
+		range_label: '10/11/2026 – 11/11/2026 · 1 day',
+		time_hint: 'Pickup and return at 10:00',
 	};
-	const root = () => document.querySelector( '.rv-availability-calendar' );
-	const day = ( date ) => root().querySelector( `.rv-calendar-day[data-date="${ date }"]` );
-	const cal = () => $( root() ).data( 'rvCalendar' );
-	const assigned = ( n = 0 ) => new URL( window.location.assign.mock.calls[ n ][ 0 ] );
-	const lastAssigned = () => assigned( window.location.assign.mock.calls.length - 1 );
+	const REFUSED = { priced: false, days: 0, total_html: '', available: false, message: 'The dates you selected include a booked day.', continue_url: '', range_label: '10/11/2026 – 13/11/2026', time_hint: '' };
 
-	const boot = async ( html ) => {
-		document.body.innerHTML = html;
-		await new Promise( ( r ) => $( r ) );
-		window.AvailabilityCalendar.initAll();
-		$.post.mockClear();
+	const root = () => document.querySelector( '[data-rvs-availability]' );
+	const q = ( sel ) => root().querySelector( sel );
+	const click = ( el ) => el.dispatchEvent( new MouseEvent( 'click', { bubbles: true, cancelable: true } ) );
+	const pick = ( date ) => click( q( `.rvs-cal__btn[data-date="${ date }"]` ) );
+	const cell = ( date ) => q( `td[data-date="${ date }"]` );
+	const panel = () => q( '[data-rvs-cal-panel]' );
+	const message = () => q( '[data-rvs-cal-message]' ).textContent;
+	const total = () => q( '[data-rvs-cal-total]' );
+	const bookLink = () => q( '[data-rvs-cal-book]' );
+
+	const sent = ( action ) => calls.filter( ( c ) => c.data.action === action );
+	const ok = ( call, data ) => {
+		call.success( { success: true, data } );
+		if ( call.complete ) {
+			call.complete();
+		}
+	};
+	const refuse = ( call, msg ) => {
+		call.success( { success: false, data: { message: msg } } );
+		if ( call.complete ) {
+			call.complete();
+		}
+	};
+	const broken = ( call ) => {
+		call.error( {} );
+		if ( call.complete ) {
+			call.complete();
+		}
+	};
+
+	const boot = ( options ) => {
+		document.body.innerHTML = page( options );
+		calls.length = 0;
+		window.mhmRentivaAvailabilityCalendar.init();
+		ok( calls[ 0 ], { html: NOVEMBER, prev_allowed: false, start_month: '2026-11' } );
+		calls.length = 0;
 	};
 
 	beforeAll( () => {
 		$ = require( 'jquery' );
 		global.jQuery = $;
 		window.jQuery = $;
-
+		calls = [];
+		$.ajax = jest.fn( ( options ) => {
+			calls.push( options );
+		} );
 		window.mhmRentivaAvailability = {
-			ajaxUrl: '/wp-admin/admin-ajax.php',
+			ajax_url: '/wp-admin/admin-ajax.php',
 			nonce: 'n',
-			bookingPageUrl: BASE,
-			strings: {},
-			messages: { error: 'e', success: 's' },
+			strings: { error: 'ERR', loading: 'LOADING', pickReturn: 'PICK RETURN' },
 		};
-		window.MHMRentivaToast = { show: jest.fn() };
-
-		delete window.location;
-		window.location = { assign: jest.fn(), href: START_HREF };
-
-		$.post = jest.fn( ( url, data ) => $.Deferred().resolve( responseFor( data.start_month ) ).promise() );
-
+		require( '../../assets/js/frontend/rvs-dialog.js' );
+		document.body.innerHTML = '';
 		require( '../../assets/js/frontend/availability-calendar.js' );
 	} );
 
-	beforeEach( () => {
-		window.mhmRentivaAvailability.bookingPageUrl = BASE;
-		window.location.assign.mockClear();
-		window.location.href = START_HREF;
-		window.MHMRentivaToast.show.mockClear();
+	test( 'on_load_months_are_refreshed_with_the_root_settings', () => {
+		document.body.innerHTML = page();
+		calls.length = 0;
+		window.mhmRentivaAvailabilityCalendar.init();
+
+		expect( calls ).toHaveLength( 1 );
+		expect( calls[ 0 ].data ).toMatchObject( { action: 'mhmrentiva_calendar_months', nonce: 'n', vehicle_id: '7', start_month: '2026-11', months_to_show: 2, week_start: 1 } );
+
+		// Cached HTML opened on a month now past: the server's month and prev state win.
+		ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+		expect( q( '.rvs-cal__btn[data-date="2026-12-01"]' ) ).not.toBeNull();
+		expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ) ).toBeNull();
+		expect( q( '[data-rvs-cal-nav="-1"]' ).disabled ).toBe( false );
+		expect( root().getAttribute( 'data-start-month' ) ).toBe( '2026-12' );
 	} );
 
-	afterEach( () => {
-		jest.restoreAllMocks();
+	test( 'a_failed_load_keeps_the_page_months_and_says_so', () => {
+		document.body.innerHTML = page();
+		calls.length = 0;
+		window.mhmRentivaAvailabilityCalendar.init();
+
+		broken( calls[ 0 ] );
+
+		expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ) ).not.toBeNull();
+		expect( panel().hidden ).toBe( false );
+		expect( message() ).toBe( 'ERR' );
+		expect( q( '[data-rvs-cal-message]' ).getAttribute( 'aria-live' ) ).toBe( 'polite' );
+		expect( q( '[data-rvs-cal-message]' ).getAttribute( 'data-state' ) ).toBe( 'error' );
 	} );
 
-	test( 'second_distinct_date_redirects_with_range', async () => {
-		await boot( calendarRoot( 3017 ) );
+	test( 'first_click_marks_the_start_and_asks_for_the_return', () => {
+		boot();
+		pick( '2026-11-10' );
 
-		click( day( '2026-10-20' ) );
-		click( day( '2026-10-22' ) );
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 1 );
-		const url = assigned();
-		expect( url.origin + url.pathname ).toBe( BASE );
-		expect( url.searchParams.get( 'mhmrentiva_vehicle_id' ) ).toBe( '3017' );
-		expect( url.searchParams.get( 'mhmrentiva_start_date' ) ).toBe( '2026-10-20' );
-		expect( url.searchParams.get( 'mhmrentiva_end_date' ) ).toBe( '2026-10-22' );
-		expect( url.searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
+		expect( calls ).toHaveLength( 0 );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( true );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-available' ) ).toBe( false );
+		expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ).getAttribute( 'aria-pressed' ) ).toBe( 'true' );
+		expect( panel().hidden ).toBe( false );
+		expect( message() ).toBe( 'PICK RETURN' );
+		expect( bookLink().hidden ).toBe( true );
 	} );
 
-	test( 'same_day_twice_redirects_start_only', async () => {
-		await boot( calendarRoot( 3017 ) );
+	test( 'second_click_shows_range_total_and_the_server_link_without_redirecting', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
 
-		click( day( '2026-10-20' ) );
-		click( day( '2026-10-20' ) );
+		expect( calls ).toHaveLength( 1 );
+		expect( calls[ 0 ].data ).toMatchObject( { action: 'mhmrentiva_calendar_quote', vehicle_id: '7', start_date: '2026-11-10', end_date: '2026-11-11' } );
+		expect( message() ).toBe( 'LOADING' );
+		expect( bookLink().hidden ).toBe( true );
 
-		expect( window.location.assign ).toHaveBeenCalledTimes( 1 );
-		const url = assigned();
-		expect( url.searchParams.get( 'mhmrentiva_start_date' ) ).toBe( '2026-10-20' );
-		expect( url.searchParams.has( 'mhmrentiva_end_date' ) ).toBe( false );
+		ok( calls[ 0 ], QUOTE );
+
+		expect( q( '[data-rvs-cal-range]' ).textContent ).toBe( QUOTE.range_label );
+		expect( q( '[data-rvs-cal-time]' ).textContent ).toBe( QUOTE.time_hint );
+		expect( total().querySelector( '.amount' ).textContent ).toBe( '₺100' );
+		expect( bookLink().hidden ).toBe( false );
+		expect( bookLink().getAttribute( 'href' ) ).toBe( QUOTE.continue_url );
+		expect( message() ).toBe( '' );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-range-start' ) ).toBe( true );
+		expect( cell( '2026-11-11' ).classList.contains( 'is-range-end' ) ).toBe( true );
 	} );
 
-	// Regression guard: green before the change too.
-	test( 'single_click_does_not_redirect', async () => {
-		await boot( calendarRoot( 3017 ) );
+	test( 'same_day_twice_stays_the_start_with_no_total', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-10' );
 
-		click( day( '2026-10-20' ) );
+		expect( calls ).toHaveLength( 0 );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( true );
+		expect( total().textContent ).toBe( '' );
+		expect( bookLink().hidden ).toBe( true );
+		expect( message() ).toBe( 'PICK RETURN' );
 
-		expect( window.location.assign ).toHaveBeenCalledTimes( 0 );
-		expect( window.location.href ).toBe( START_HREF );
-		expect( cal().selectedDates ).toEqual( [ '2026-10-20' ] );
+		// The next later day still completes the range.
+		pick( '2026-11-11' );
+		expect( sent( 'mhmrentiva_calendar_quote' )[ 0 ].data.start_date ).toBe( '2026-11-10' );
 	} );
 
-	test( 'button_single_date_redirects_start_only', async () => {
-		await boot( calendarRoot( 3017 ) );
+	test( 'click_before_the_start_restarts', () => {
+		boot();
+		pick( '2026-11-11' );
+		pick( '2026-11-10' );
 
-		click( day( '2026-10-20' ) );
-		// jQuery .trigger() so a handler error (openBookingModal) reaches the test.
-		expect( () => $( root().querySelector( '.rv-book-now-btn' ) ).trigger( 'click' ) ).not.toThrow();
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 1 );
-		const url = assigned();
-		expect( url.searchParams.get( 'mhmrentiva_vehicle_id' ) ).toBe( '3017' );
-		expect( url.searchParams.get( 'mhmrentiva_start_date' ) ).toBe( '2026-10-20' );
-		expect( url.searchParams.has( 'mhmrentiva_end_date' ) ).toBe( false );
+		expect( calls ).toHaveLength( 0 );
+		expect( cell( '2026-11-11' ).classList.contains( 'is-selected' ) ).toBe( false );
+		expect( cell( '2026-11-11' ).classList.contains( 'is-available' ) ).toBe( true );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( true );
 	} );
 
-	test( 'no_pickup_location_is_sent', async () => {
-		await boot( calendarRoot( 3017, 5 ) );
+	test( 'click_after_a_full_range_starts_over_and_drops_the_total', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		ok( calls[ 0 ], QUOTE );
 
-		click( day( '2026-10-20' ) );
-		click( day( '2026-10-22' ) );
-		expect( lastAssigned().searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
+		pick( '2026-11-14' );
 
-		// A vehicle answer that still carries a location_id changes nothing.
-		cal().updateVehicleDisplay( { id: 2992, title: 'X', location_id: 7 } );
-		click( day( '2026-10-20' ) ); // restarts the completed selection
-		click( day( '2026-10-22' ) );
-		expect( lastAssigned().searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 2 );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( false );
+		expect( total().textContent ).toBe( '' );
+		expect( q( '[data-rvs-cal-range]' ).textContent ).toBe( '' );
+		expect( bookLink().hidden ).toBe( true );
+		expect( bookLink().getAttribute( 'href' ) ).toBe( '#' );
 	} );
 
-	test.each( [
-		[ 'javascript', 'javascript:alert(1)' ],
-		[ 'empty', '' ],
-		[ 'undefined', undefined ],
-	] )( 'invalid_or_empty_base_does_not_redirect (%s)', async ( label, base ) => {
-		await boot( calendarRoot( 3017 ) );
-		window.mhmRentivaAvailability.bookingPageUrl = base;
-		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+	test( 'range_with_a_booked_day_shows_the_message_no_total_no_button', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-13' );
+		ok( calls[ 0 ], REFUSED );
 
-		expect( cal().buildBookingUrl ).toEqual( expect.any( Function ) );
-
-		click( day( '2026-10-20' ) );
-		click( day( '2026-10-22' ) );
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 0 );
-		expect( window.location.href ).toBe( START_HREF );
-		expect( warn ).toHaveBeenCalled();
+		expect( message() ).toBe( REFUSED.message );
+		expect( q( '[data-rvs-cal-message]' ).getAttribute( 'data-state' ) ).toBe( 'error' );
+		expect( total().textContent ).toBe( '' );
+		expect( bookLink().hidden ).toBe( true );
+		// The booked cell stays booked inside the range.
+		expect( cell( '2026-11-12' ).classList.contains( 'is-booked' ) ).toBe( true );
+		expect( cell( '2026-11-12' ).classList.contains( 'is-selected' ) ).toBe( false );
 	} );
 
-	// Regression guard: green since Task 2 (delegate() skips elements outside a root).
-	test( 'foreign_book_now_and_day_cells_not_hijacked', async () => {
-		const foreign = `
-			<div class="rv-vehicle-comparison">
-				<a class="rv-book-now-btn" href="https://example.test/book/?mhmrentiva_vehicle_id=1">Book</a>
-			</div>
-			<div class="rv-vehicle-details-calendar">
-				<div class="rv-calendar-day" data-date="2026-10-20">20</div>
-			</div>`;
+	test( 'clicking_a_booked_cell_does_nothing', () => {
+		boot();
+		click( cell( '2026-11-12' ) );
 
-		// With a calendar root on the page.
-		await boot( calendarRoot( 3017 ) + foreign );
-		const btnOutside = document.querySelector( '.rv-vehicle-comparison .rv-book-now-btn' );
-		const dayOutside = document.querySelector( '.rv-vehicle-details-calendar .rv-calendar-day' );
-		expect( click( btnOutside ).defaultPrevented ).toBe( false );
-		expect( click( dayOutside ).defaultPrevented ).toBe( false );
-		expect( cal().selectedDates ).toEqual( [] );
-
-		// Without any calendar root.
-		await boot( foreign );
-		expect( click( document.querySelector( '.rv-book-now-btn' ) ).defaultPrevented ).toBe( false );
-		expect( click( document.querySelector( '.rv-calendar-day' ) ).defaultPrevented ).toBe( false );
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 0 );
-		expect( window.MHMRentivaToast.show ).toHaveBeenCalledTimes( 0 );
+		expect( calls ).toHaveLength( 0 );
+		expect( panel().hidden ).toBe( true );
 	} );
 
-	test( 'earlier_click_restarts_selection', async () => {
-		await boot( calendarRoot( 3017 ) );
+	test( 'stale_quote_answer_is_ignored', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		const older = calls[ 0 ];
+		pick( '2026-11-13' ); // Restart: the visitor left that range.
+		pick( '2026-11-14' );
+		const newer = calls[ 1 ];
 
-		click( day( '2026-10-22' ) );
-		click( day( '2026-10-20' ) );
+		ok( newer, { ...QUOTE, range_label: 'NEW', total_html: 'NEW TOTAL' } );
+		ok( older, { ...QUOTE, range_label: 'OLD', total_html: 'OLD TOTAL' } );
 
-		expect( window.location.assign ).toHaveBeenCalledTimes( 0 );
-		expect( cal().selectedDates ).toEqual( [ '2026-10-20' ] );
-
-		click( day( '2026-10-24' ) );
-
-		expect( window.location.assign ).toHaveBeenCalledTimes( 1 );
-		const url = assigned();
-		expect( url.searchParams.get( 'mhmrentiva_start_date' ) ).toBe( '2026-10-20' );
-		expect( url.searchParams.get( 'mhmrentiva_end_date' ) ).toBe( '2026-10-24' );
+		expect( q( '[data-rvs-cal-range]' ).textContent ).toBe( 'NEW' );
+		expect( total().textContent ).toBe( 'NEW TOTAL' );
 	} );
 
-	test( 'base_with_query_keeps_existing_params', async () => {
-		await boot( calendarRoot( 3017, 5 ) );
-		window.mhmRentivaAvailability.bookingPageUrl = 'https://example.test/book?lang=tr';
+	test( 'quote_error_is_told_in_the_live_region_and_offers_no_link', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		refuse( calls[ 0 ], 'Too many price requests. Please wait.' );
 
-		click( day( '2026-10-20' ) );
-		click( day( '2026-10-22' ) );
+		expect( message() ).toBe( 'Too many price requests. Please wait.' );
+		expect( q( '[data-rvs-cal-message]' ).getAttribute( 'role' ) ).toBe( 'status' );
+		expect( bookLink().hidden ).toBe( true );
+	} );
 
-		expect( window.location.assign ).toHaveBeenCalledTimes( 1 );
-		const url = assigned();
-		expect( url.origin + url.pathname ).toBe( 'https://example.test/book' );
-		expect( url.searchParams.get( 'lang' ) ).toBe( 'tr' );
-		expect( url.searchParams.get( 'mhmrentiva_vehicle_id' ) ).toBe( '3017' );
-		expect( url.searchParams.get( 'mhmrentiva_start_date' ) ).toBe( '2026-10-20' );
-		expect( url.searchParams.get( 'mhmrentiva_end_date' ) ).toBe( '2026-10-22' );
-		expect( url.searchParams.has( 'mhmrentiva_pickup_location' ) ).toBe( false );
+	test( 'show_pricing_off_draws_no_total_even_when_the_answer_has_one_and_keeps_the_button', () => {
+		boot( { pricing: '0' } );
+		// A total element that should not be there still stays empty.
+		panel().insertAdjacentHTML( 'afterbegin', '<p data-rvs-cal-total></p>' );
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		ok( calls[ 0 ], QUOTE );
+
+		expect( total().textContent ).toBe( '' );
+		expect( root().textContent ).not.toContain( '₺100' );
+		expect( bookLink().hidden ).toBe( false );
+		expect( bookLink().getAttribute( 'href' ) ).toBe( QUOTE.continue_url );
+		expect( q( '[data-rvs-cal-range]' ).textContent ).toBe( QUOTE.range_label );
+	} );
+
+	test( 'show_booking_button_off_keeps_the_total', () => {
+		boot( { booking: '0' } );
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		ok( calls[ 0 ], QUOTE );
+
+		expect( q( '[data-rvs-cal-book]' ) ).toBeNull();
+		expect( total().textContent ).toBe( '₺100' );
+	} );
+
+	test( 'month_navigation_applies_the_server_answer_and_keeps_the_selection', () => {
+		boot();
+		pick( '2026-11-10' );
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+
+		expect( calls[ 0 ].data ).toMatchObject( { action: 'mhmrentiva_calendar_months', start_month: '2026-12', vehicle_id: '7' } );
+		ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+		expect( q( '.rvs-cal__btn[data-date="2026-12-01"]' ) ).not.toBeNull();
+		expect( q( '[data-rvs-cal-nav="-1"]' ).disabled ).toBe( false );
+
+		// The return may be in the next month.
+		pick( '2026-12-01' );
+		expect( sent( 'mhmrentiva_calendar_quote' )[ 0 ].data ).toMatchObject( { start_date: '2026-11-10', end_date: '2026-12-01' } );
+		expect( cell( '2026-12-01' ).classList.contains( 'is-selected' ) ).toBe( true );
+
+		// Back on November the start is marked again.
+		click( q( '[data-rvs-cal-nav="-1"]' ) );
+		ok( sent( 'mhmrentiva_calendar_months' )[ 1 ], { html: NOVEMBER, prev_allowed: false, start_month: '2026-11' } );
+		expect( cell( '2026-11-10' ).classList.contains( 'is-range-start' ) ).toBe( true );
+		expect( q( '[data-rvs-cal-nav="-1"]' ).disabled ).toBe( true );
+	} );
+
+	test( 'quick_steps_build_on_each_other_and_only_the_last_answer_counts', () => {
+		boot();
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+
+		expect( calls.map( ( c ) => c.data.start_month ) ).toEqual( [ '2026-12', '2027-01' ] );
+
+		ok( calls[ 1 ], { html: month( '2027-01', day( '2027-01-05' ) ), prev_allowed: true, start_month: '2027-01' } );
+		ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+		expect( q( '.rvs-cal__btn[data-date="2027-01-05"]' ) ).not.toBeNull();
+		expect( root().getAttribute( 'data-start-month' ) ).toBe( '2027-01' );
+	} );
+
+	test( 'failed_month_step_stays_on_the_month_and_tells', () => {
+		boot();
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		broken( calls[ 0 ] );
+
+		expect( message() ).toBe( 'ERR' );
+		expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ) ).not.toBeNull();
+
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		expect( calls[ 1 ].data.start_month ).toBe( '2026-12' );
+	} );
+
+	test( 'a_disabled_prev_hands_the_focus_to_next', () => {
+		boot();
+		const prev = q( '[data-rvs-cal-nav="-1"]' );
+		prev.disabled = false;
+		prev.focus();
+		click( prev );
+		ok( calls[ 0 ], { html: NOVEMBER, prev_allowed: false, start_month: '2026-11' } );
+
+		expect( prev.disabled ).toBe( true );
+		expect( document.activeElement ).toBe( q( '[data-rvs-cal-nav="1"]' ) );
+	} );
+
+	describe( 'vehicle change', () => {
+		const INFO = { id: 9, title: 'New', image: 'new.jpg', price_html: '<span class="amount">₺200</span> per day', bookable: true };
+		const choose = () => {
+			click( q( '#switch' ) );
+			click( q( '[data-rvs-cal-option="9"]' ) );
+		};
+
+		test( 'dialog_opens_on_the_shared_module_and_focus_returns_to_the_opener', () => {
+			boot();
+			const opener = q( '#switch' );
+			const dlg = q( '[data-rvs-cal-dialog]' );
+			opener.focus();
+			click( opener );
+
+			expect( opener.getAttribute( 'aria-haspopup' ) ).toBe( 'dialog' );
+			expect( dlg.hidden ).toBe( false );
+			expect( dlg.classList.contains( 'is-open' ) ).toBe( true );
+			expect( dlg.getAttribute( 'role' ) ).toBe( 'dialog' );
+			expect( dlg.getAttribute( 'aria-labelledby' ) ).toBe( 'dlg-title' );
+			expect( document.activeElement ).toBe( q( '[data-rvs-cal-option="7"]' ) );
+
+			click( q( '[data-rvs-dialog-close]' ) );
+
+			expect( dlg.hidden ).toBe( true );
+			expect( document.activeElement ).toBe( opener );
+		} );
+
+		test( 'clicking_outside_the_panel_closes_the_dialog', () => {
+			boot();
+			const dlg = q( '[data-rvs-cal-dialog]' );
+			click( q( '#switch' ) );
+			click( dlg );
+			expect( dlg.hidden ).toBe( true );
+		} );
+
+		test( 'choosing_the_same_vehicle_only_closes', () => {
+			boot();
+			click( q( '#switch' ) );
+			click( q( '[data-rvs-cal-option="7"]' ) );
+
+			expect( calls ).toHaveLength( 0 );
+			expect( q( '[data-rvs-cal-dialog]' ).hidden ).toBe( true );
+		} );
+
+		test( 'clears_the_selection_and_updates_card_and_months_together', () => {
+			boot();
+			pick( '2026-11-10' );
+			pick( '2026-11-11' );
+			const quote = calls[ 0 ];
+			calls.length = 0;
+			const opener = q( '#switch' );
+			opener.focus();
+			choose();
+
+			expect( document.activeElement ).toBe( opener );
+			expect( panel().hidden ).toBe( true );
+			expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( false );
+			expect( root().getAttribute( 'aria-busy' ) ).toBe( 'true' );
+			expect( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ].data.vehicle_id ).toBe( '9' );
+			expect( sent( 'mhmrentiva_calendar_months' )[ 0 ].data.vehicle_id ).toBe( '9' );
+
+			// Nothing changes on one answer alone.
+			ok( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ], INFO );
+			expect( q( '[data-rvs-cal-name]' ).textContent ).toBe( 'Old' );
+			ok( sent( 'mhmrentiva_calendar_months' )[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+			expect( q( '[data-rvs-cal-name]' ).textContent ).toBe( 'New' );
+			expect( q( '[data-rvs-cal-image]' ).getAttribute( 'src' ) ).toBe( 'new.jpg' );
+			expect( q( '[data-rvs-cal-image]' ).getAttribute( 'alt' ) ).toBe( 'New' );
+			expect( q( '[data-rvs-cal-price] .amount' ).textContent ).toBe( '₺200' );
+			expect( root().getAttribute( 'data-vehicle-id' ) ).toBe( '9' );
+			expect( q( '[data-rvs-cal-option="9"]' ).getAttribute( 'aria-pressed' ) ).toBe( 'true' );
+			expect( q( '[data-rvs-cal-option="7"]' ).getAttribute( 'aria-pressed' ) ).toBe( 'false' );
+			expect( root().hasAttribute( 'aria-busy' ) ).toBe( false );
+
+			// The old car's total, arriving late, is not shown for the new one.
+			ok( quote, QUOTE );
+			expect( panel().hidden ).toBe( true );
+			expect( total().textContent ).toBe( '' );
+
+			// Later requests are for the new car.
+			calls.length = 0;
+			click( q( '[data-rvs-cal-nav="1"]' ) );
+			expect( calls[ 0 ].data.vehicle_id ).toBe( '9' );
+		} );
+
+		test( 'a_failed_switch_keeps_the_old_vehicle_and_tells', () => {
+			boot();
+			choose();
+			refuse( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ], 'Vehicle not found.' );
+			ok( sent( 'mhmrentiva_calendar_months' )[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+			expect( message() ).toBe( 'Vehicle not found.' );
+			expect( q( '[data-rvs-cal-name]' ).textContent ).toBe( 'Old' );
+			expect( root().getAttribute( 'data-vehicle-id' ) ).toBe( '7' );
+			expect( q( '.rvs-cal__btn[data-date="2026-11-10"]' ) ).not.toBeNull();
+		} );
+
+		test( 'a_vehicle_that_closed_meanwhile_is_not_switched_to', () => {
+			boot();
+			choose();
+			ok( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ], { ...INFO, bookable: false } );
+			ok( sent( 'mhmrentiva_calendar_months' )[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+			expect( q( '[data-rvs-cal-name]' ).textContent ).toBe( 'Old' );
+			expect( message() ).toBe( 'ERR' );
+		} );
+
+		test( 'the_old_calendar_takes_no_clicks_during_a_switch', () => {
+			boot();
+			choose();
+			calls.length = 0;
+			pick( '2026-11-10' );
+			click( q( '[data-rvs-cal-nav="1"]' ) );
+
+			expect( calls ).toHaveLength( 0 );
+			expect( cell( '2026-11-10' ).classList.contains( 'is-selected' ) ).toBe( false );
+		} );
+
+		test( 'without_pricing_the_price_stays_away_after_a_switch', () => {
+			boot( { pricing: '0' } );
+			choose();
+			ok( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ], INFO );
+			ok( sent( 'mhmrentiva_calendar_months' )[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+			expect( root().textContent ).not.toContain( '₺200' );
+			expect( q( '[data-rvs-cal-name]' ).textContent ).toBe( 'New' );
+		} );
+
+		test( 'a_vehicle_without_image_removes_it_and_one_with_image_adds_it', () => {
+			boot();
+			choose();
+			ok( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ], { ...INFO, image: '' } );
+			ok( sent( 'mhmrentiva_calendar_months' )[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+			expect( q( '[data-rvs-cal-image]' ) ).toBeNull();
+
+			calls.length = 0;
+			click( q( '#switch' ) );
+			click( q( '[data-rvs-cal-option="7"]' ) );
+			ok( sent( 'mhmrentiva_get_vehicle_info' )[ 0 ], { ...INFO, id: 7, image: 'back.jpg' } );
+			ok( sent( 'mhmrentiva_calendar_months' )[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+			expect( q( '.rvs-availability__vehicle' ).firstElementChild.getAttribute( 'src' ) ).toBe( 'back.jpg' );
+		} );
+	} );
+
+	test( 'the_script_builds_no_url_and_formats_no_date', () => {
+		const source = require( 'fs' ).readFileSync( require( 'path' ).join( __dirname, '../../assets/js/frontend/availability-calendar.js' ), 'utf8' );
+
+		[ 'toLocaleDateString', 'new URL', 'searchParams', 'new Date', '1400', 'mhmrentiva_availability_unified', 'bookingPageUrl', 'MHMRentivaToast' ].forEach( ( banned ) => {
+			expect( source ).not.toContain( banned );
+		} );
 	} );
 } );

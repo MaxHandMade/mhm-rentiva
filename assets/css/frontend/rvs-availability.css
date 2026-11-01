@@ -1,0 +1,307 @@
+/**
+ * Rentiva front-end standard -- availability calendar page block.
+ *
+ * Markup: templates/shortcodes/availability-calendar.php and
+ * templates/partials/rvs/calendar-panel.php. No drawing of its own: it follows
+ * the vehicle page's availability section (`Arac-Detay`, rvs-vehicle.css), and
+ * the months themselves are the shared rvs-calendar.css. The script toggles
+ * [hidden] on the panel and the link; empty panel lines take no room.
+ */
+
+.rvs-shell .rvs-availability {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+	max-width: 1200px;
+	margin-inline: auto;
+	min-width: 0;
+}
+
+/* Vehicle card ------------------------------------------------------------- */
+
+.rvs-shell .rvs-availability__vehicle {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rvs-s3);
+	margin-bottom: var(--rvs-s4);
+	padding: var(--rvs-s3);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-availability__image {
+	display: block;
+	flex: none;
+	width: 120px;
+	height: 80px;
+	border-radius: var(--rvs-r);
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-availability__vehicle-text {
+	flex: 1 1 200px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-availability__name {
+	margin: 0;
+	color: var(--rvs-text);
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-availability__price {
+	margin: 2px 0 0;
+	color: var(--rvs-muted);
+	font-size: 15px;
+}
+
+/* Heading and months ------------------------------------------------------- */
+
+.rvs-shell .rvs-availability__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.rvs-shell .rvs-availability__title {
+	margin: 0;
+	color: var(--rvs-text);
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.12;
+	letter-spacing: -0.015em;
+}
+
+.rvs-shell .rvs-availability__nav {
+	display: flex;
+	flex: none;
+	gap: 6px;
+}
+
+.rvs-shell .rvs-availability__hint {
+	margin: 0;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+/* Two a row at most, further months below (R9). */
+.rvs-shell .rvs-availability__months {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 30px;
+}
+
+/* A single month keeps a month's width instead of stretching its cells. */
+.rvs-shell .rvs-availability__months > .rvs-cal:only-child {
+	grid-column: 1 / -1;
+	width: 100%;
+	max-width: 560px;
+}
+
+.rvs-shell .rvs-availability[aria-busy="true"] .rvs-availability__months {
+	opacity: 0.6;
+}
+
+/* Legend ------------------------------------------------------------------- */
+
+.rvs-shell .rvs-availability__legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 20px;
+	margin: 0;
+	padding: 0;
+	color: var(--rvs-muted);
+	font-size: 13px;
+	list-style: none;
+}
+
+.rvs-shell .rvs-availability__legend li {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+}
+
+.rvs-shell .rvs-availability__swatch {
+	flex: none;
+	box-sizing: border-box;
+	width: 14px;
+	height: 14px;
+	border: 1px solid transparent;
+	border-radius: var(--rvs-r);
+}
+
+.rvs-shell .rvs-availability__swatch--available {
+	border-color: var(--rvs-line);
+	background: var(--rvs-raised);
+}
+
+.rvs-shell .rvs-availability__swatch--booked {
+	background: var(--rvs-n-200);
+}
+
+.rvs-shell .rvs-availability__swatch--past {
+	border-color: var(--rvs-n-200);
+	background: transparent;
+}
+
+/* Selection panel ---------------------------------------------------------- */
+
+.rvs-shell .rvs-availability__panel {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--rvs-s1);
+	margin-top: 10px;
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-availability__panel[hidden],
+.rvs-shell .rvs-availability__book[hidden],
+.rvs-shell .rvs-availability__range:empty,
+.rvs-shell .rvs-availability__time:empty,
+.rvs-shell .rvs-availability__total:empty,
+.rvs-shell .rvs-availability__message:empty {
+	display: none;
+}
+
+.rvs-shell .rvs-availability__range,
+.rvs-shell .rvs-availability__time,
+.rvs-shell .rvs-availability__total,
+.rvs-shell .rvs-availability__message {
+	margin: 0;
+}
+
+.rvs-shell .rvs-availability__range {
+	color: var(--rvs-text);
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-availability__time {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-availability__total {
+	color: var(--rvs-text);
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.rvs-shell .rvs-availability__message {
+	color: var(--rvs-text);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-availability__message[data-state="error"] {
+	padding: var(--rvs-s2) var(--rvs-s3);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-availability__book {
+	margin-top: var(--rvs-s2);
+}
+
+/* Vehicle dialog ----------------------------------------------------------- */
+
+.rvs-shell .rvs-availability__dialog .rvs-dialog__panel {
+	width: min(100%, 520px);
+}
+
+.rvs-shell .rvs-availability__options {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	margin: 0;
+	list-style: none;
+}
+
+.rvs-shell .rvs-availability__options li {
+	margin: 0;
+}
+
+.rvs-shell .rvs-availability__option {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px var(--rvs-s3);
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 44px;
+	margin: 0;
+	padding: var(--rvs-s2) var(--rvs-s3);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-availability__option:hover {
+	background: var(--rvs-accent-100);
+}
+
+.rvs-shell .rvs-availability__option:focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+.rvs-shell .rvs-availability__option[aria-pressed="true"] {
+	border-color: var(--rvs-accent-strong);
+	box-shadow: inset 0 0 0 1px var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-availability__option-name {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-availability__option-price {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-availability__title {
+		font-size: 22px;
+	}
+
+	.rvs-shell .rvs-availability__months {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-availability__months > .rvs-cal:only-child {
+		max-width: none;
+	}
+
+	.rvs-shell .rvs-availability__image {
+		width: 96px;
+		height: 64px;
+	}
+
+	.rvs-shell .rvs-availability__switch {
+		flex: 1 1 100%;
+	}
+
+	.rvs-shell .rvs-availability__book {
+		align-self: stretch;
+	}
+
+	.rvs-shell .rvs-availability__dialog .rvs-dialog__panel {
+		width: 100%;
+	}
+}
