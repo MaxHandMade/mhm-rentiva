@@ -76,6 +76,7 @@ assets/css/frontend/notifications.css
 assets/css/frontend/rvs-account-nav.css
 assets/css/frontend/rvs-account.css
 assets/css/frontend/rvs-booking.css
+assets/css/frontend/rvs-summary.css
 assets/css/frontend/search-results.css
 assets/css/frontend/single-vehicle.css
 assets/css/frontend/testimonials.css
@@ -249,8 +250,8 @@ src/Admin/Addons/AddonMeta.php
 src/Admin/Addons/AddonPostType.php
 src/Admin/Addons/AddonPricingCalculator.php
 src/Admin/Addons/AddonPricingType.php
-src/Admin/Addons/AddonSelection.php
 src/Admin/Addons/AddonScreen.php
+src/Admin/Addons/AddonSelection.php
 src/Admin/Addons/AddonSettings.php
 src/Admin/Addons/AddonStats.php
 src/Admin/Auth/SessionManager.php
@@ -359,8 +360,13 @@ src/Admin/Emails/Templates/RefundEmails.php
 src/Admin/Frontend/Account/AccountBookingsQuery.php
 src/Admin/Frontend/Account/AccountBookingsView.php
 src/Admin/Frontend/Account/AccountController.php
+src/Admin/Frontend/Account/AccountDashboardView.php
+src/Admin/Frontend/Account/AccountPaymentSummary.php
 src/Admin/Frontend/Account/AccountRenderer.php
 src/Admin/Frontend/Account/AccountSurface.php
+src/Admin/Frontend/Account/BookingSummaryPage.php
+src/Admin/Frontend/Account/BookingTimeline.php
+src/Admin/Frontend/Account/CancellationView.php
 src/Admin/Frontend/Account/EndpointHelperTrait.php
 src/Admin/Frontend/Account/WooCommerceIntegration.php
 src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php
@@ -538,6 +544,7 @@ src/Layout/Versioning/LayoutRollbackService.php
 src/Plugin.php
 templates/account/account-details.php
 templates/account/booking-detail.php
+templates/account/booking-summary.php
 templates/account/bookings.php
 templates/account/dashboard.php
 templates/account/favorites.php
@@ -562,7 +569,10 @@ templates/emails/remaining-payment-link-customer.html.php
 templates/emails/welcome-customer.html.php
 templates/partials/preview-badge.php
 templates/partials/rvs-vehicle-card.php
+templates/partials/rvs/account-booking-detail.php
 templates/partials/rvs/account-bookings.php
+templates/partials/rvs/account-cancel-dialog.php
+templates/partials/rvs/account-next-rental.php
 templates/partials/rvs/breakdown.php
 templates/partials/rvs/calendar-month.php
 templates/partials/rvs/journey-summary.php
