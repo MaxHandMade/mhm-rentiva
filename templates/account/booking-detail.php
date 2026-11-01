@@ -26,12 +26,12 @@ use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Account\AccountController;
 use MHMRentiva\Admin\Frontend\Account\AccountPaymentSummary;
+use MHMRentiva\Admin\Frontend\Account\BookingSummaryPage;
 use MHMRentiva\Admin\Frontend\Account\BookingTimeline;
 use MHMRentiva\Admin\Frontend\Account\CancellationView;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsBreakdown;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsStatus;
-use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 
 $booking       = $data['booking'] ?? null;
@@ -91,21 +91,7 @@ switch (AccountPaymentSummary::for_booking($booking_id, $booking_status)['kind']
 
 // "Paid" and "Refunded" rows under the breakdown; the deposit row already
 // names a paid deposit.
-$paid_rows = array();
-if ($payment_state->paid() > 0 && ( null === $breakdown['deposit'] || abs(Money::toMinor($deposit_amount) - $payment_state->paid()) > 0 )) {
-	$paid_rows[] = array(
-		'kind'  => 'paid',
-		'label' => __('Paid', 'mhm-rentiva'),
-		'html'  => $minor_html($payment_state->paid()),
-	);
-}
-if ($payment_state->refunded() > 0) {
-	$paid_rows[] = array(
-		'kind'  => 'refunded',
-		'label' => __('Refunded', 'mhm-rentiva'),
-		'html'  => $minor_html($payment_state->refunded()),
-	);
-}
+$paid_rows = BookingSummaryPage::paid_rows($booking_id, $breakdown);
 
 // Pay the balance -- today's condition, unchanged (m21): never while the
 // deposit order itself is unpaid (that would open a second order).
@@ -150,6 +136,7 @@ $view = array(
 	'booking_id'   => $booking_id,
 	'number'       => $number,
 	'back_url'     => (string) ( $navigation['bookings']['url'] ?? '' ),
+	'summary_url'  => BookingSummaryPage::url($booking_id),
 	'status'       => RvsStatus::for($booking_status),
 	'payment_line' => $payment_line,
 	'vehicle'      => array(

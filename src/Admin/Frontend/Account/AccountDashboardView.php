@@ -110,9 +110,9 @@ final class AccountDashboardView {
 	 *
 	 * `payment` states come from the same truth the booking detail reads: money
 	 * received (paid amount or a paid order), payment type, remaining amount.
-	 * The booking summary link is Task 5's.
+	 * `summary_url` opens the printable booking summary (BookingSummaryPage).
 	 *
-	 * @return array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, free_cancel:?string}
+	 * @return array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string}
 	 */
 	public static function next_card(int $booking_id): array
 	{
@@ -155,6 +155,7 @@ final class AccountDashboardView {
 			'location'    => $location_name,
 			'payment'     => self::payment($booking_id, $status),
 			'details_url' => AccountController::get_booking_view_url($booking_id),
+			'summary_url' => BookingSummaryPage::url($booking_id),
 			'free_cancel' => $free_cancel,
 		);
 	}

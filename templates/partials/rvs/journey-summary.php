@@ -7,7 +7,7 @@
  * after update_checkout (CheckoutJourney::order_review_fragments()), so it is
  * one element with nothing around it.
  *
- * @var array<string, mixed> $summary CheckoutJourney view: heading, title, image_id, dates, breakdown, link.
+ * @var array<string, mixed> $summary CheckoutJourney view: heading, title, image_id, dates, breakdown, link, summary.
  *
  * @package MHMRentiva
  */
@@ -20,12 +20,13 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-$mhmrentiva_js       = (array) ( $summary ?? array() );
-$mhmrentiva_js_head  = (string) ( $mhmrentiva_js['heading'] ?? '' );
-$mhmrentiva_js_title = (string) ( $mhmrentiva_js['title'] ?? '' );
-$mhmrentiva_js_image = (int) ( $mhmrentiva_js['image_id'] ?? 0 );
-$mhmrentiva_js_dates = (string) ( $mhmrentiva_js['dates'] ?? '' );
-$mhmrentiva_js_link  = (string) ( $mhmrentiva_js['link'] ?? '' );
+$mhmrentiva_js         = (array) ( $summary ?? array() );
+$mhmrentiva_js_head    = (string) ( $mhmrentiva_js['heading'] ?? '' );
+$mhmrentiva_js_title   = (string) ( $mhmrentiva_js['title'] ?? '' );
+$mhmrentiva_js_image   = (int) ( $mhmrentiva_js['image_id'] ?? 0 );
+$mhmrentiva_js_dates   = (string) ( $mhmrentiva_js['dates'] ?? '' );
+$mhmrentiva_js_link    = (string) ( $mhmrentiva_js['link'] ?? '' );
+$mhmrentiva_js_summary = (string) ( $mhmrentiva_js['summary'] ?? '' );
 ?>
 <div class="rvs-journey__summary">
 	<?php if ('' !== $mhmrentiva_js_head) : ?>
@@ -67,6 +68,9 @@ $mhmrentiva_js_link  = (string) ( $mhmrentiva_js['link'] ?? '' );
 		);
 		?>
 	</div>
+	<?php if ('' !== $mhmrentiva_js_summary) : ?>
+		<a class="rvs-journey__link" href="<?php echo esc_url($mhmrentiva_js_summary); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
+	<?php endif; ?>
 	<?php if ('' !== $mhmrentiva_js_link) : ?>
 		<a class="rvs-journey__link" href="<?php echo esc_url($mhmrentiva_js_link); ?>"><?php esc_html_e('My bookings', 'mhm-rentiva'); ?></a>
 	<?php endif; ?>

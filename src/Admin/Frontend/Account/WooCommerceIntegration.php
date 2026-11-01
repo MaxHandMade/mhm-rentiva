@@ -482,23 +482,32 @@ final class WooCommerceIntegration {
 		$id = (int) $id;
 
 		// Security: Early ownership check (customer | vehicle owner | admin).
-		if ( $id > 0 ) {
-			$booking_owner_id = (int) get_post_meta( $id, '_mhmrentiva_customer_user_id', true );
-			$current_user_id  = (int) get_current_user_id();
-			$vehicle_id       = (int) get_post_meta( $id, '_mhmrentiva_vehicle_id', true );
-			$vehicle_owner_id = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
-
-			$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
-			$is_owner    = ( $vehicle_owner_id > 0 && $vehicle_owner_id === $current_user_id );
-			$is_admin    = current_user_can( 'manage_options' );
-
-			if ( ! $is_customer && ! $is_owner && ! $is_admin ) {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'You do not have permission to view this booking.', 'mhm-rentiva' ) . '</p></div>';
-				return;
-			}
+		if ( $id > 0 && ! self::can_view_booking( $id ) ) {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'You do not have permission to view this booking.', 'mhm-rentiva' ) . '</p></div>';
+			return;
 		}
 
 		AccountRenderer::output_booking_detail( $id, true );
+	}
+
+	/**
+	 * May the current user see this booking? The customer, the owner of the
+	 * booked vehicle, or an administrator. The one predicate behind the detail
+	 * page and the printable summary (BookingSummaryPage).
+	 *
+	 * @param int $booking_id Booking post ID.
+	 */
+	public static function can_view_booking( int $booking_id ): bool {
+		$booking_owner_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
+		$current_user_id  = (int) get_current_user_id();
+		$vehicle_id       = (int) get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
+		$vehicle_owner_id = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
+
+		$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
+		$is_owner    = ( $vehicle_owner_id > 0 && $vehicle_owner_id === $current_user_id );
+		$is_admin    = current_user_can( 'manage_options' );
+
+		return $is_customer || $is_owner || $is_admin;
 	}
 
 	/**

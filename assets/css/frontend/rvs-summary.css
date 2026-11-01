@@ -1,0 +1,133 @@
+/**
+ * Printable booking summary (PR D, K14): the page BookingSummaryPage prints as
+ * a document of its own (`<body class="rvs-shell rvs-summary">`). Depends on
+ * rvs-data.css (status tag, rows) and rvs-breakdown.css. One narrow column on
+ * screen, the same column on paper; the print button is hidden on paper.
+ */
+
+body.rvs-shell.rvs-summary {
+	margin: 0;
+	padding: var(--rvs-s8) 0;
+	max-width: none;
+}
+
+.rvs-shell .rvs-summary__page {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s6);
+	max-width: 760px;
+	margin-inline: auto;
+	padding: var(--rvs-s8);
+	background: var(--rvs-surface);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+}
+
+.rvs-shell .rvs-summary__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rvs-s4);
+	padding-bottom: var(--rvs-s4);
+	border-bottom: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-summary__brand {
+	display: flex;
+	align-items: center;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-summary__logo {
+	display: block;
+	max-height: 40px;
+	width: auto;
+}
+
+.rvs-shell .rvs-summary__site {
+	font-weight: 600;
+	font-size: 18px;
+}
+
+.rvs-shell .rvs-summary__title {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-summary__title h1 {
+	font-size: 34px;
+}
+
+.rvs-shell .rvs-summary__facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: var(--rvs-s4);
+	margin: 0;
+}
+
+.rvs-shell .rvs-summary__facts dt {
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-summary__facts dd {
+	margin: 2px 0 0;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-summary__money {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-summary__paid {
+	padding-top: var(--rvs-s2);
+	border-top: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-summary__foot {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s1);
+	padding-top: var(--rvs-s4);
+	border-top: 1px solid var(--rvs-line);
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-summary__foot p {
+	margin: 0;
+}
+
+@media (max-width: 480px) {
+	.rvs-shell .rvs-summary__page {
+		padding: var(--rvs-s4);
+	}
+
+	.rvs-shell .rvs-summary__head {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+@media print {
+	body.rvs-shell.rvs-summary {
+		padding: 0;
+		background: transparent;
+	}
+
+	.rvs-shell .rvs-summary__page {
+		max-width: none;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+	}
+
+	.rvs-shell .rvs-summary__print {
+		display: none;
+	}
+}

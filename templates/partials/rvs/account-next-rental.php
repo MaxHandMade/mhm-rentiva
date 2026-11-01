@@ -2,10 +2,9 @@
 /**
  * The next-rental card of the account dashboard (PR D, Task 3; drawings
  * Hesabim + Hesabim-Mobil): image beside the content on desktop, image on top
- * on phones. Buttons: Details (primary); the secondary "Booking summary"
- * button joins in Task 5.
+ * on phones. Buttons: Details (primary) and the secondary "Booking summary".
  *
- * @var array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, free_cancel:?string} $card AccountDashboardView::next_card().
+ * @var array{number:string, status:array{modifier:string,label:string}, in_progress:bool, kicker:string, vehicle:string, image:string, pickup:string, return:string, location:?string, payment:array{label:string,amount_html:?string,note:?string}, details_url:string, summary_url:string, free_cancel:?string} $card AccountDashboardView::next_card().
  */
 
 declare(strict_types=1);
@@ -63,6 +62,9 @@ $mhmrentiva_nr_where   = $mhmrentiva_nr_card['location'];
 		</dl>
 		<div class="rvs-account__actions rvs-account-next__actions">
 			<a class="rvs-btn rvs-btn--primary" href="<?php echo esc_url( (string) $mhmrentiva_nr_card['details_url']); ?>"><?php esc_html_e('Details', 'mhm-rentiva'); ?></a>
+				<?php if ('' !== (string) ( $mhmrentiva_nr_card['summary_url'] ?? '' )) : ?>
+					<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url( (string) $mhmrentiva_nr_card['summary_url']); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
+				<?php endif; ?>
 		</div>
 		<?php if (null !== $mhmrentiva_nr_card['free_cancel']) : ?>
 			<p class="rvs-account-next__cancel"><?php echo esc_html( (string) $mhmrentiva_nr_card['free_cancel']); ?></p>

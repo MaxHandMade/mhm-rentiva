@@ -17,6 +17,7 @@
  * @var int                  $booking_id
  * @var string               $number       Display number (R4).
  * @var string               $back_url     "My bookings".
+ * @var string               $summary_url  BookingSummaryPage::url().
  * @var array{modifier: string, label: string} $status RvsStatus::for().
  * @var string|null          $payment_line
  * @var array<string, string> $vehicle     name, image, pickup, return, location.
@@ -68,7 +69,11 @@ $mhmrentiva_bd_state   = (string) ( $mhmrentiva_bd_cancel['state'] ?? 'none' );
 					<?php endif; ?>
 				</div>
 			</div>
-			<div class="rvs-account__actions rvs-account-detail__actions" data-rvs-detail-actions></div>
+			<div class="rvs-account__actions rvs-account-detail__actions" data-rvs-detail-actions>
+					<?php if ('' !== (string) ( $summary_url ?? '' )) : ?>
+						<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url( (string) $summary_url); ?>"><?php esc_html_e('Booking summary', 'mhm-rentiva'); ?></a>
+					<?php endif; ?>
+				</div>
 		</div>
 	</header>
 

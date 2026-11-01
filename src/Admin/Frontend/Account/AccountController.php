@@ -105,6 +105,8 @@ final class AccountController {
 		'mhmrentiva_payments_page',
 		// The bookings list's section (PR D, R6): upcoming, past or cancelled.
 		'mhmrentiva_view',
+		// The printable booking summary (PR D, K14): BookingSummaryPage::QUERY_VAR.
+		'mhmrentiva_summary',
 	);
 
 	/**
@@ -186,6 +188,9 @@ final class AccountController {
 
 		// Communication preferences handler
 		add_action('init', array( self::class, 'handle_communication_preferences' ));
+
+		// Printable booking summary (K14)
+		BookingSummaryPage::register();
 
 		// Remaining payment AJAX handler
 		\MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::register();

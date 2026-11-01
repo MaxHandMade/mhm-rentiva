@@ -126,6 +126,7 @@ src/Admin/Frontend/Account/AccountDashboardView.php
 src/Admin/Frontend/Account/AccountPaymentSummary.php
 src/Admin/Frontend/Account/AccountRenderer.php
 src/Admin/Frontend/Account/AccountSurface.php
+src/Admin/Frontend/Account/BookingSummaryPage.php
 src/Admin/Frontend/Account/BookingTimeline.php
 src/Admin/Frontend/Account/CancellationView.php
 src/Admin/Frontend/Account/EndpointHelperTrait.php

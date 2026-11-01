@@ -255,6 +255,11 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-account', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-account', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-account.css', array( 'mhm-rentiva-rvs-account-nav', 'mhm-rentiva-rvs-data', 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-breakdown' ), self::get_file_version('assets/css/frontend/rvs-account.css'));
 		}
+		// The printable booking summary (BookingSummaryPage): its own document, so
+		// its handles are printed directly (print_rvs_summary_styles()).
+		if (! wp_style_is('mhm-rentiva-rvs-summary', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-summary', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-summary.css', array( 'mhm-rentiva-rvs-data', 'mhm-rentiva-rvs-breakdown' ), self::get_file_version('assets/css/frontend/rvs-summary.css'));
+		}
 		if (! wp_style_is('mhm-rentiva-rvs-vehicle', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
 		}
@@ -401,6 +406,17 @@ final class AssetManager {
 	{
 		self::enqueue_rvs_dialog();
 		wp_enqueue_style('mhm-rentiva-rvs-account');
+	}
+
+	/**
+	 * Print the printable booking summary's own styles (and what they depend
+	 * on) into the document's <head>: no wp_head, so nothing else of the theme
+	 * or of other plugins is printed.
+	 */
+	public static function print_rvs_summary_styles(): void
+	{
+		self::register_core_styles();
+		wp_print_styles(array( 'mhm-rentiva-rvs-summary' ));
 	}
 
 	/**
