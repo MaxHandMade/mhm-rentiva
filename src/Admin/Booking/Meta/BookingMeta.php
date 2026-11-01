@@ -107,9 +107,8 @@ final class BookingMeta extends AbstractMetaBox {
 		add_action('wp_ajax_mhmrentiva_get_email_template', array( self::class, 'ajax_get_email_template' ));
 		add_action('wp_ajax_mhmrentiva_add_booking_history_note', array( self::class, 'ajax_add_booking_history_note' ));
 
-		// Auto note adding hooks
-		// Note: "Booking created" note is added manually (in ManualBookingMetaBox and BookingForm)
-		add_action('mhmrentiva_booking_status_changed', array( self::class, 'auto_add_status_change_note' ), 10, 3);
+		// Note: "Booking created" note is added manually (in ManualBookingMetaBox and BookingForm).
+		// The status-change note is hooked in Core\Hooks: transitions happen in every context.
 		// `mhmrentiva_payment_status_changed` was listened for here but fired by nothing in
 		// either edition, so `auto_add_payment_note()` never ran and no payment note
 		// was ever written. Rather than invent a firing site, the listener goes; the
@@ -1110,9 +1109,8 @@ final class BookingMeta extends AbstractMetaBox {
 				$entry[ $field ] = (string) $fields[ $field ];
 			}
 		}
-		if (isset($fields['at'])) {
-			$entry['at'] = (int) $fields['at'];
-		}
+		// Always a UTC instant: `timestamp` is a wall clock an hour of the year cannot place.
+		$entry['at'] = isset($fields['at']) ? (int) $fields['at'] : time();
 
 		$history[ $timestamp . '-' . wp_generate_password(6, false) ] = $entry;
 
@@ -1123,9 +1121,12 @@ final class BookingMeta extends AbstractMetaBox {
 	 * A booking's history, oldest first, each entry with `sort_ts` (UTC).
 	 *
 	 * The single reader order (admin history box, customer progress). New
-	 * entries carry `at` (UTC); older ones only the site-local `timestamp`,
-	 * which is shifted back by the site's offset at that instant. Entries of
-	 * the same instant keep their write order.
+	 * entries carry `at` (UTC); older ones only the site-local `timestamp`, a
+	 * wall clock stored as if it were UTC, so it is read back as that wall clock
+	 * in the site's timezone. In the repeated autumn hour two instants share a
+	 * reading; the earlier one is taken (PHP alone picks the later), so an older
+	 * entry never sorts after a newer one. Entries of the same instant keep their
+	 * write order.
 	 *
 	 * @return list<array<string, mixed>>
 	 */
@@ -1145,8 +1146,12 @@ final class BookingMeta extends AbstractMetaBox {
 			if (isset($entry['at']) && is_numeric($entry['at'])) {
 				$sort_ts = (int) $entry['at'];
 			} else {
-				$local   = (int) ( $entry['timestamp'] ?? 0 );
-				$sort_ts = $local - $timezone->getOffset(new \DateTimeImmutable('@' . $local));
+				$wall    = gmdate('Y-m-d H:i:s', (int) ( $entry['timestamp'] ?? 0 ));
+				$local   = new \DateTimeImmutable($wall, $timezone);
+				$sort_ts = $local->getTimestamp();
+				if ($local->setTimestamp($sort_ts - HOUR_IN_SECONDS)->format('Y-m-d H:i:s') === $wall) {
+					$sort_ts -= HOUR_IN_SECONDS;
+				}
 			}
 			$entry['sort_ts'] = $sort_ts;
 			$entries[]        = $entry;

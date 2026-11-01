@@ -86,7 +86,7 @@ $root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-
 
 	<section class="rvs-account__section rvs-account-bookings rvs-account-payments" aria-labelledby="<?php echo esc_attr($mhmrentiva_ph_uid . '-title'); ?>" data-testid="payment-history-page">
 		<div class="rvs-account-bookings__head">
-			<h2 id="<?php echo esc_attr($mhmrentiva_ph_uid . '-title'); ?>"><?php esc_html_e('Payment History', 'mhm-rentiva'); ?></h2>
+			<h2 id="<?php echo esc_attr($mhmrentiva_ph_uid . '-title'); ?>"><?php esc_html_e('Payment history', 'mhm-rentiva'); ?></h2>
 			<span class="rvs-account-bookings__page">
 				<?php
 				/* translators: %s: number of records in the payment history (paid or not). */
@@ -151,7 +151,7 @@ $root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-
 							<?php if ($show_payment_method) : ?>
 								<td role="cell" class="rvs-account-payments__method" data-label="<?php echo esc_attr($mhmrentiva_ph_col_method); ?>"><?php echo esc_html( (string) ( $payment['method'] ?? '' )); ?></td>
 							<?php endif; ?>
-							<td role="cell" class="rvs-account-bookings__amount rvs-account-payments__amount" data-label="<?php echo esc_attr($mhmrentiva_ph_col_amount); ?>"><?php echo '' !== $mhmrentiva_ph_amount ? wp_kses_post($mhmrentiva_ph_amount) : '&mdash;'; ?></td>
+							<td role="cell" class="rvs-account-bookings__amount rvs-account-payments__amount" data-label="<?php echo esc_attr($mhmrentiva_ph_col_amount); ?>"><?php echo '' !== $mhmrentiva_ph_amount ? wp_kses($mhmrentiva_ph_amount, \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::allowed_html()) : '&mdash;'; ?></td>
 							<td role="cell" class="rvs-account-bookings__status rvs-account-payments__status" data-label="<?php echo esc_attr($mhmrentiva_ph_col_status); ?>">
 								<?php
 								Templates::render(
@@ -202,7 +202,7 @@ $root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-
 				<span class="rvs-account-bookings__page">
 					<?php
 					/* translators: 1: current page, 2: total pages */
-					echo esc_html(sprintf(__('Page %1$d / %2$d', 'mhm-rentiva'), $current_page, $total_pages));
+					echo esc_html(sprintf(__('Page %1$s / %2$s', 'mhm-rentiva'), number_format_i18n($current_page), number_format_i18n($total_pages)));
 					?>
 				</span>
 				<?php if ($current_page < $total_pages) : ?>

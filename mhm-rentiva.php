@@ -742,6 +742,12 @@ register_deactivation_hook(
 			}
 		}
 
+		// WooCommerce's template-path cache may hold Lite's dashboard file, which
+		// a persistent object cache would keep serving after this plugin is gone.
+		if ( function_exists( 'wc_clear_template_cache' ) ) {
+			wc_clear_template_cache();
+		}
+
 		flush_rewrite_rules();
 	}
 );

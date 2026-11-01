@@ -63,12 +63,14 @@ final class BookingTimeline {
 		// shows it only when it is recorded -- never as a step still ahead.
 		$confirmed_at = $changes[ Status::CONFIRMED ] ?? null;
 		if (( ! $cancelled && ! $no_show ) || null !== $confirmed_at) {
-			$steps[] = self::step(
+			// A confirmation taken back (confirmed, then pending again) is a step still ahead.
+			$confirmed_done = in_array($status, self::CONFIRMED_OR_LATER, true) || $cancelled || $no_show;
+			$steps[]        = self::step(
 				'confirmed',
 				__('Confirmed', 'mhm-rentiva'),
 				null,
-				$confirmed_at,
-				in_array($status, self::CONFIRMED_OR_LATER, true) || null !== $confirmed_at
+				$confirmed_done ? $confirmed_at : null,
+				$confirmed_done
 			);
 		}
 

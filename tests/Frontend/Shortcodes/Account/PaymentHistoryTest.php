@@ -33,7 +33,7 @@ class PaymentHistoryTest extends WP_UnitTestCase
         $output = do_shortcode('[rentiva_payment_history]');
 
         // Payment History header should be present
-        $this->assertStringContainsString('Payment History', $output);
+        $this->assertStringContainsString('Payment history', $output);
     }
 
     public function tearDown(): void

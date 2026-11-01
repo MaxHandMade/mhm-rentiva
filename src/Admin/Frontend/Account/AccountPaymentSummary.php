@@ -16,6 +16,9 @@ if (! defined('ABSPATH')) {
  *
  * Money received means a paid amount or a paid order; the booking's status
  * does not decide it (a pending_payment booking with a paid order is paid).
+ * "Refunded" is the whole payment returned, or a refund on a closed booking; a
+ * partial refund on a live booking leaves the deposit or paid line standing,
+ * and the payment box lists what was refunded.
  *
  * @since 6.4.0
  */
@@ -30,17 +33,18 @@ final class AccountPaymentSummary {
 	/**
 	 * @return array{kind: string, money_received: bool, paid_minor: int, order_ids: list<int>, refunded_minor: int, remaining: float, currency: string}
 	 */
-	public static function for_booking(int $booking_id, string $status): array
+	public static function for_booking(int $booking_id, string $status, ?PaymentState $state = null): array
 	{
-		$state          = PaymentState::forBooking($booking_id);
+		$state          = $state ?? PaymentState::forBooking($booking_id);
 		$money_received = $state->paid() > 0 || array() !== $state->orders();
 		$remaining      = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
+		$closed         = in_array($status, array( Status::CANCELLED, Status::REFUNDED ), true);
 
-		if ($state->refunded() > 0) {
+		if ($state->refunded() > 0 && ( $closed || $state->refunded() >= $state->paid() )) {
 			$kind = self::REFUNDED;
 		} elseif ($money_received) {
 			$kind = $remaining > 0 ? self::DEPOSIT : self::PAID;
-		} elseif (! in_array($status, array( Status::CANCELLED, Status::REFUNDED ), true)) {
+		} elseif (! $closed) {
 			$kind = self::AWAITING;
 		} else {
 			$kind = self::NONE;

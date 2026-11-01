@@ -142,7 +142,8 @@ final class BookingSummaryPage {
 	/**
 	 * The "Paid" and "Refunded" rows under a breakdown, from the recorded gross
 	 * money (not the cart's tax display). The deposit row already names a paid
-	 * deposit, so "Paid" is left out when it would repeat it.
+	 * deposit, so "Paid" is left out when it would repeat it. Orders in different
+	 * currencies have no single sum: each shows as recorded.
 	 *
 	 * @param array<string, mixed> $breakdown RvsBreakdown::from_booking().
 	 * @return list<array{kind: string, label: string, html: string}>
@@ -153,7 +154,13 @@ final class BookingSummaryPage {
 		$deposit = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
 		$rows    = array();
 
-		if ($state->paid() > 0 && ( null === ( $breakdown['deposit'] ?? null ) || abs(Money::toMinor($deposit) - $state->paid()) > 0 )) {
+		if ($state->isMixedCurrency() && array() !== $state->orders()) {
+			$rows[] = array(
+				'kind'  => 'paid',
+				'label' => _x('Paid', 'payment box label', 'mhm-rentiva'),
+				'html'  => BookingTimeline::recorded_orders_html(array_map('intval', $state->orders())),
+			);
+		} elseif ($state->paid() > 0 && ( null === ( $breakdown['deposit'] ?? null ) || abs(Money::toMinor($deposit) - $state->paid()) > 0 )) {
 			$rows[] = array(
 				'kind'  => 'paid',
 				'label' => _x('Paid', 'payment box label', 'mhm-rentiva'),

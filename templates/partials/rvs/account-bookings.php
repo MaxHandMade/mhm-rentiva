@@ -110,7 +110,7 @@ $mhmrentiva_bl_col_action = __('Action', 'mhm-rentiva');
 							<td role="cell" class="rvs-account-bookings__dates" data-label="<?php echo esc_attr($mhmrentiva_bl_col_dates); ?>"><?php echo esc_html($mhmrentiva_bl_row['dates']); ?></td>
 						<?php endif; ?>
 						<?php if (! empty($show_price)) : ?>
-							<td role="cell" class="rvs-account-bookings__amount" data-label="<?php echo esc_attr($mhmrentiva_bl_col_amount); ?>"><?php echo wp_kses_post($mhmrentiva_bl_row['amount_html']); ?></td>
+							<td role="cell" class="rvs-account-bookings__amount" data-label="<?php echo esc_attr($mhmrentiva_bl_col_amount); ?>"><?php echo wp_kses($mhmrentiva_bl_row['amount_html'], \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::allowed_html()); ?></td>
 						<?php endif; ?>
 						<?php if (! empty($show_status)) : ?>
 							<td role="cell" class="rvs-account-bookings__status" data-label="<?php echo esc_attr($mhmrentiva_bl_col_status); ?>"><?php Templates::render('partials/rvs/status-tag', array( 'status' => $mhmrentiva_bl_row['status'] )); ?></td>
@@ -140,7 +140,7 @@ $mhmrentiva_bl_col_action = __('Action', 'mhm-rentiva');
 			<span class="rvs-account-bookings__page">
 				<?php
 				/* translators: 1: current page, 2: total pages */
-				echo esc_html(sprintf(__('Page %1$d / %2$d', 'mhm-rentiva'), $mhmrentiva_bl_page, $mhmrentiva_bl_pages));
+				echo esc_html(sprintf(__('Page %1$s / %2$s', 'mhm-rentiva'), number_format_i18n($mhmrentiva_bl_page), number_format_i18n($mhmrentiva_bl_pages)));
 				?>
 			</span>
 			<?php if ($mhmrentiva_bl_page < $mhmrentiva_bl_pages) : ?>

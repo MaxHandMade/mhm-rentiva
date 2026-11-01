@@ -78,8 +78,10 @@ switch (AccountPaymentSummary::for_booking($booking_id, $booking_status)['kind']
 		$payment_line = sprintf(__('%s refunded', 'mhm-rentiva'), wp_strip_all_tags($minor_html($payment_state->refunded())));
 		break;
 	case AccountPaymentSummary::DEPOSIT:
-		/* translators: %s: amount due at pickup. */
-		$payment_line = sprintf(__('Deposit paid, %s due at pickup', 'mhm-rentiva'), $money_text($remaining_amount));
+		$payment_line = RvsBreakdown::is_closed($booking_id)
+			? __('Deposit paid', 'mhm-rentiva')
+			/* translators: %s: amount due at pickup. */
+			: sprintf(__('Deposit paid, %s due at pickup', 'mhm-rentiva'), $money_text($remaining_amount));
 		break;
 	case AccountPaymentSummary::PAID:
 		$payment_line = __('Paid in full', 'mhm-rentiva');

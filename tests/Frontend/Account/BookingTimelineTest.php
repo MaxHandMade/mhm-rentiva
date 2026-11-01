@@ -219,6 +219,70 @@ final class BookingTimelineTest extends WP_UnitTestCase
 		$this->assertSame(array( $utc, $utc + 60, $utc + 120 ), array_column($sorted, 'sort_ts'));
 	}
 
+	/**
+	 * @param list<array<string, mixed>> $rows
+	 * @return list<array<string, mixed>>
+	 */
+	private function sorted_in_berlin(array $rows): array
+	{
+		update_option('timezone_string', 'Europe/Berlin');
+		update_option('gmt_offset', '');
+		$id = $this->booking('confirmed');
+		update_post_meta($id, '_mhmrentiva_booking_history', $rows);
+
+		return BookingMeta::history_sorted($id);
+	}
+
+	/** The wall clock a legacy entry stored for a UTC instant, read as if UTC. */
+	private static function legacy_timestamp(int $utc): int
+	{
+		$local = ( new \DateTimeImmutable('@' . $utc) )->setTimezone(new \DateTimeZone('Europe/Berlin'));
+
+		return (int) strtotime($local->format('Y-m-d H:i:s') . ' UTC');
+	}
+
+	public function test_legacy_entry_before_a_new_one_on_the_autumn_change_day(): void
+	{
+		// 2026-10-25 in Berlin: 03:00 CEST falls back to 02:00 CET at 01:00 UTC.
+		$old = (int) strtotime('2026-10-25 00:30:00 UTC');
+		$new = (int) strtotime('2026-10-25 01:00:00 UTC');
+
+		$sorted = $this->sorted_in_berlin(
+			array(
+				'new'    => array( 'note' => 'new', 'timestamp' => self::legacy_timestamp($new), 'at' => $new ),
+				'legacy' => array( 'note' => 'old', 'timestamp' => self::legacy_timestamp($old) ),
+			)
+		);
+
+		$this->assertSame(array( 'old', 'new' ), array_column($sorted, 'note'));
+		$this->assertSame(array( $old, $new ), array_column($sorted, 'sort_ts'));
+	}
+
+	public function test_legacy_entry_after_the_autumn_change_is_placed_exactly(): void
+	{
+		$after = (int) strtotime('2026-10-25 02:30:00 UTC');
+
+		$sorted = $this->sorted_in_berlin(array( array( 'note' => 'after', 'timestamp' => self::legacy_timestamp($after) ) ));
+
+		$this->assertSame($after, $sorted[0]['sort_ts']);
+	}
+
+	public function test_legacy_entries_around_the_spring_gap_are_placed_exactly(): void
+	{
+		// 2026-03-29 in Berlin: 02:00 CET jumps to 03:00 CEST at 01:00 UTC.
+		$before = (int) strtotime('2026-03-29 00:30:00 UTC');
+		$after  = (int) strtotime('2026-03-29 01:30:00 UTC');
+
+		$sorted = $this->sorted_in_berlin(
+			array(
+				array( 'note' => 'after', 'timestamp' => self::legacy_timestamp($after) ),
+				array( 'note' => 'before', 'timestamp' => self::legacy_timestamp($before) ),
+			)
+		);
+
+		$this->assertSame(array( $before, $after ), array_column($sorted, 'sort_ts'));
+	}
+
 	public function test_no_show_is_a_closed_outcome_not_upcoming_steps(): void
 	{
 		$id = $this->booking('no_show');

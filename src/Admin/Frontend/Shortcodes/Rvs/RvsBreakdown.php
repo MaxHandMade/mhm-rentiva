@@ -39,8 +39,8 @@ final class RvsBreakdown {
 				$days
 			);
 		} else {
-			/* translators: %d: number of rental days. */
-			$label = sprintf(_n('Rental, %d day', 'Rental, %d days', $days, 'mhm-rentiva'), $days);
+			/* translators: %s: number of rental days. */
+			$label = sprintf(_n('Rental, %s day', 'Rental, %s days', $days, 'mhm-rentiva'), number_format_i18n($days));
 		}
 
 		$rows = array( self::row('rental', $label, $standard) );
@@ -110,8 +110,8 @@ final class RvsBreakdown {
 		$days    = max(1, (int) get_post_meta($booking_id, '_mhmrentiva_rental_days', true));
 		$rentals = max(0.0, $total - $addons);
 
-		/* translators: %d: number of rental days. */
-		$rows = array( self::row('rental', sprintf(_n('Rental, %d day', 'Rental, %d days', $days, 'mhm-rentiva'), $days), $rentals) );
+		/* translators: %s: number of rental days. */
+		$rows = array( self::row('rental', sprintf(_n('Rental, %s day', 'Rental, %s days', $days, 'mhm-rentiva'), number_format_i18n($days)), $rentals) );
 		foreach ($lines as $line) {
 			$rows[] = self::row('addon', $line['label'], $line['amount']);
 		}
@@ -141,12 +141,12 @@ final class RvsBreakdown {
 	}
 
 	/**
-	 * Is the booking over without a pickup to pay at (cancelled, refunded or
-	 * no-show)? Then "due at pickup" must not be printed.
+	 * Is the booking past any pickup still to pay at (cancelled, refunded,
+	 * no-show or completed)? Then "due at pickup" must not be printed.
 	 */
-	private static function is_closed(int $booking_id): bool
+	public static function is_closed(int $booking_id): bool
 	{
-		return in_array(\MHMRentiva\Admin\Booking\Core\Status::get($booking_id), array( 'cancelled', 'refunded', 'no_show' ), true);
+		return in_array(\MHMRentiva\Admin\Booking\Core\Status::get($booking_id), array( 'cancelled', 'refunded', 'no_show', 'completed' ), true);
 	}
 
 	/**

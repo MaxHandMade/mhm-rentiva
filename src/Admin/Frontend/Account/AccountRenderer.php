@@ -772,7 +772,7 @@ final class AccountRenderer {
 				'icon'  => '❤️',
 			),
 			'payment-history' => array(
-				'title' => __('Payment History', 'mhm-rentiva'),
+				'title' => __('Payment history', 'mhm-rentiva'),
 				'url'   => add_query_arg('endpoint', 'payment-history', $base_url),
 				'icon'  => '💳',
 			),
@@ -890,17 +890,17 @@ final class AccountRenderer {
 					$payment_status = ! empty($status_key) ? $status_key : 'pending';
 			}
 
-			// The truth about the row (R13, PR D). A full refund, or a stored
-			// cancelled / refunded / failed (a terminal state written on purpose),
-			// is cancelled and is not overruled by the money once received. A
-			// partial refund on a live rental stays completed. Otherwise money
+			// The truth about the row (R13, PR D). What the detail and the card call
+			// refunded, or a stored cancelled / refunded / failed (a terminal state
+			// written on purpose), is cancelled and is not overruled by the money
+			// once received. A partial refund on a live rental stays completed. Otherwise money
 			// received (PaymentState, through AccountPaymentSummary) is completed,
 			// whatever the stored status still says; the stored status speaks
 			// only when no money is on record.
 			$booking_status = \MHMRentiva\Admin\Booking\Core\Status::get($booking->ID);
-			$summary        = AccountPaymentSummary::for_booking($booking->ID, $booking_status);
-			$fully_refunded = $summary['paid_minor'] > 0 && $summary['refunded_minor'] >= $summary['paid_minor'];
-			if ($fully_refunded || 'cancelled' === $payment_status) {
+			$payment_state  = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking->ID);
+			$summary        = AccountPaymentSummary::for_booking($booking->ID, $booking_status, $payment_state);
+			if (AccountPaymentSummary::REFUNDED === $summary['kind'] || 'cancelled' === $payment_status) {
 				$payment_status = 'cancelled';
 			} elseif ($summary['money_received']) {
 				$payment_status = 'completed';
@@ -977,7 +977,7 @@ final class AccountRenderer {
 					'number'             => (string) mhmrentiva_get_display_id( (int) $booking->ID),
 					'booking_title'      => $vehicle_title,
 					'amount_html'        => $amount_html,
-					'can_upload_receipt' => AccountController::receipt_upload_allowed( (int) $booking->ID),
+					'can_upload_receipt' => AccountController::receipt_upload_allowed( (int) $booking->ID, $payment_state),
 					'date'               => $row_ts > 0 ? BookingTimeline::moment_text($row_ts) : '',
 					'sort_ts'            => $row_ts,
 					'status'             => $payment_status,

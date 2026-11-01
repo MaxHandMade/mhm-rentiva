@@ -92,9 +92,9 @@ final class AccountDashboardView {
 		}
 
 		return sprintf(
-			/* translators: %d: number of days until the next rental starts. */
-			_n('Your next rental starts in %d day.', 'Your next rental starts in %d days.', $days, 'mhm-rentiva'),
-			$days
+			/* translators: %s: number of days until the next rental starts. */
+			_n('Your next rental starts in %s day.', 'Your next rental starts in %s days.', $days, 'mhm-rentiva'),
+			number_format_i18n($days)
 		);
 	}
 
