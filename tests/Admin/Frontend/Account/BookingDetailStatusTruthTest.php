@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Frontend\Account;
 
+use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
@@ -17,6 +18,10 @@ use WP_UnitTestCase;
  *   pending, unpaid booking and still said it after the customer cancelled.
  * - "Deposit Paid" showed the deposit the booking REQUIRES, money or not.
  * - "Next Steps" (come to pickup, bring the card) showed on cancelled bookings.
+ *
+ * PR D Task 4 (M7) rewrote the detail onto the rvs layer; the same facts are
+ * pinned against the new markup: the status tag's Status::get_label() text,
+ * no "successfully completed", no completed payment step before payment.
  * - A checkout booking whose deposit order was still on hold offered "Pay
  *   Remaining Amount", which opens a second order next to the unpaid one.
  * - The list showed the raw post ID while the detail showed the order number,
@@ -107,64 +112,62 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 		return AccountRenderer::render_booking_detail( $booking_id, true );
 	}
 
-	public function test_a_pending_booking_is_not_called_completed(): void
+	/**
+	 * The status tag's text is Status::get_label() (R7): the booking says
+	 * what it is, never "successfully completed" for a booking that is not.
+	 */
+	public function test_every_status_shows_its_own_label_and_never_claims_completion(): void
 	{
-		$html = $this->detail( $this->booking( 'pending' ) );
+		foreach ( array( 'pending', 'pending_payment', 'confirmed', 'in_progress', 'cancelled', 'completed' ) as $status ) {
+			$html = $this->detail( $this->booking( $status ) );
 
-		$this->assertStringNotContainsString( 'successfully completed', $html );
-		$this->assertStringContainsString( 'Booking Received', $html );
-		$this->assertStringNotContainsString( 'rv-next-steps', $html, 'A booking not yet confirmed has no pickup instructions.' );
+			$this->assertMatchesRegularExpression(
+				'/<span class="rvs-status rvs-status--[a-z]+"><svg[^>]*>.*?<\/svg>' . preg_quote( esc_html( Status::get_label( $status ) ), '/' ) . '<\/span>/s',
+				$html,
+				$status . ': the tag carries the readable label next to its icon.'
+			);
+			$this->assertStringNotContainsString( 'successfully completed', $html, $status );
+			$this->assertStringNotContainsString( 'Pending_payment', $html, $status );
+		}
 	}
 
-	public function test_a_cancelled_booking_says_so_and_drops_pickup_instructions(): void
+	public function test_no_pickup_instructions_are_promised(): void
 	{
-		$html = $this->detail( $this->booking( 'cancelled' ) );
-
-		$this->assertStringNotContainsString( 'successfully completed', $html );
-		$this->assertStringContainsString( 'Booking Cancelled', $html );
-		$this->assertStringNotContainsString( 'rv-next-steps', $html );
-	}
-
-	public function test_a_confirmed_booking_keeps_its_confirmation_and_next_steps(): void
-	{
+		// R15: "bring your licence and card" is not in the data.
 		$html = $this->detail( $this->booking( 'confirmed' ) );
 
-		$this->assertStringContainsString( 'Booking Confirmation', $html );
-		$this->assertStringContainsString( 'rv-next-steps', $html );
-		$this->assertStringNotContainsString( 'credit card used for the reservation', $html, 'Not every booking was paid by card.' );
+		$this->assertStringNotContainsString( 'rv-next-steps', $html );
+		$this->assertStringNotContainsString( 'credit card used for the reservation', $html );
 	}
 
-	public function test_a_rental_in_progress_is_not_told_to_come_to_pickup(): void
-	{
-		$html = $this->detail( $this->booking( 'in_progress' ) );
-
-		$this->assertStringNotContainsString( 'successfully completed', $html );
-		$this->assertStringNotContainsString( 'rv-next-steps', $html, 'The vehicle is already with the customer.' );
-	}
-
-	public function test_a_booking_awaiting_payment_says_so(): void
+	public function test_a_booking_awaiting_payment_has_no_completed_payment_step(): void
 	{
 		$html = $this->detail( $this->booking( 'pending_payment' ) );
 
-		$this->assertStringContainsString( 'Awaiting Payment', $html );
-		$this->assertStringNotContainsString( 'confirm it shortly', $html, 'Nothing happens until the customer pays.' );
-		$this->assertStringContainsString( 'Pending Payment', $html, 'The status row uses the readable label.' );
-		$this->assertStringNotContainsString( 'Pending_payment', $html );
+		$this->assertStringContainsString( esc_html( Status::get_label( 'pending_payment' ) ), $html, 'The status tag says it.' );
+		$this->assertStringNotContainsString( 'rvs-account-detail__payline', $html, 'The payment line would repeat the tag.' );
+		$this->assertStringNotContainsString( 'Deposit paid', $html );
+		$this->assertStringNotContainsString( 'Payment received', $html );
+		$this->assertStringNotContainsString( 'is refunded', $html, 'Nothing was paid, so nothing is promised back.' );
+		$this->assertSame( 1, preg_match_all( '/<li class="is-done">/', $html ), 'Only "Booking received" is done.' );
 	}
 
 	public function test_an_unpaid_deposit_is_not_labelled_paid(): void
 	{
 		$html = $this->detail( $this->booking( 'pending' ) );
 
-		$this->assertStringNotContainsString( 'Deposit Paid', $html );
-		$this->assertStringContainsString( 'Deposit Amount', $html );
+		$this->assertStringNotContainsString( 'Deposit paid', $html );
+		$this->assertStringNotContainsString( 'rvs-breakdown__deposit--paid', $html );
+		$this->assertMatchesRegularExpression( '/rvs-breakdown__deposit">\s*<span>Deposit<\/span>/', $html );
 	}
 
 	public function test_a_deposit_paid_through_checkout_is_labelled_paid(): void
 	{
 		$booking_id = $this->booking_paid_through_checkout( 'confirmed' );
+		$html       = $this->detail( $booking_id );
 
-		$this->assertStringContainsString( 'Deposit Paid', $this->detail( $booking_id ) );
+		$this->assertStringContainsString( 'rvs-breakdown__deposit--paid', $html );
+		$this->assertStringContainsString( 'Deposit paid', $html );
 	}
 
 	public function test_a_deposit_paid_in_another_currency_than_the_balance_is_still_paid(): void
@@ -181,7 +184,7 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 		$remaining->save();
 		$this->assertTrue( PaymentState::forBooking( $booking_id )->isMixedCurrency(), 'Fixture guard: mixed currency.' );
 
-		$this->assertStringContainsString( 'Deposit Paid', $this->detail( $booking_id ) );
+		$this->assertStringContainsString( 'rvs-breakdown__deposit--paid', $this->detail( $booking_id ) );
 	}
 
 	public function test_an_on_hold_deposit_order_does_not_offer_the_balance(): void
@@ -229,7 +232,9 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 
 		$dashboard = AccountRenderer::render_dashboard();
 
-		$this->assertStringContainsString( 'Booking #' . $order_id, $dashboard );
-		$this->assertStringNotContainsString( 'Booking #' . $booking_id . '<', $dashboard );
+		// PR D Task 3: the card's kicker and the list row carry the number.
+		$this->assertStringContainsString( 'Upcoming · #' . $order_id . '<', $dashboard );
+		$this->assertStringContainsString( '>#' . $order_id . '<', $dashboard );
+		$this->assertStringNotContainsString( '#' . $booking_id . '<', $dashboard );
 	}
 }

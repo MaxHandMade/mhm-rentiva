@@ -119,8 +119,16 @@ src/Admin/Emails/Settings/EmailTestAction.php
 src/Admin/Emails/Templates/BookingNotifications.php
 src/Admin/Emails/Templates/EmailPreview.php
 src/Admin/Emails/Templates/RefundEmails.php
+src/Admin/Frontend/Account/AccountBookingsQuery.php
+src/Admin/Frontend/Account/AccountBookingsView.php
 src/Admin/Frontend/Account/AccountController.php
+src/Admin/Frontend/Account/AccountDashboardView.php
+src/Admin/Frontend/Account/AccountPaymentSummary.php
 src/Admin/Frontend/Account/AccountRenderer.php
+src/Admin/Frontend/Account/AccountSurface.php
+src/Admin/Frontend/Account/BookingSummaryPage.php
+src/Admin/Frontend/Account/BookingTimeline.php
+src/Admin/Frontend/Account/CancellationView.php
 src/Admin/Frontend/Account/EndpointHelperTrait.php
 src/Admin/Frontend/Account/WooCommerceIntegration.php
 src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php
@@ -140,6 +148,7 @@ src/Admin/Frontend/Shortcodes/Core/BookingUrl.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsBreakdown.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsCalendar.php
+src/Admin/Frontend/Shortcodes/Rvs/RvsStatus.php
 src/Admin/Frontend/Shortcodes/Rvs/RvsSteps.php
 src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php
 src/Admin/Frontend/Shortcodes/SearchResults.php

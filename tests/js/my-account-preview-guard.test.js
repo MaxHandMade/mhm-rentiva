@@ -84,6 +84,20 @@ describe( 'my-account preview-root guards', () => {
 		expect( $.ajax ).toHaveBeenCalledTimes( 0 );
 	} );
 
+	// PR D R16: the `.cancel-booking` handler was dead (no template drew the
+	// button, and it sent the account nonce where the server checks the
+	// cancellation nonce). Cancellation is booking-cancellation.js's alone.
+	test( 'cancel_booking_class_no_longer_handled', () => {
+		setup( false );
+		document.body.insertAdjacentHTML(
+			'beforeend',
+			'<button class="cancel-booking" data-booking-id="9001">x</button>'
+		);
+		click( '.cancel-booking' );
+		expect( window.confirm ).toHaveBeenCalledTimes( 0 );
+		expect( $.ajax ).toHaveBeenCalledTimes( 0 );
+	} );
+
 	test( 'outside_preview_reaches_ajax', () => {
 		setup( false );
 		click( '#clear-all-favorites' );
@@ -106,5 +120,36 @@ describe( 'my-account preview-root guards', () => {
 		expect( $.ajax.mock.calls[ 0 ][ 0 ].data.action ).toBe(
 			'mhmrentiva_remove_receipt'
 		);
+	} );
+	test( 'refused_upload_shows_the_server_message', () => {
+		setup( false );
+		$.ajax = jest.fn( ( opts ) => {
+			opts.error( {
+				responseJSON: {
+					success: false,
+					data: { message: 'A receipt cannot be uploaded for this booking.' },
+				},
+			} );
+			opts.complete();
+			return $.Deferred().promise();
+		} );
+		change();
+		expect( window.MHMRentivaToast.show ).toHaveBeenCalledWith(
+			'A receipt cannot be uploaded for this booking.',
+			{ type: 'error' }
+		);
+	} );
+
+	test( 'failed_upload_without_a_message_shows_the_generic_toast', () => {
+		setup( false );
+		$.ajax = jest.fn( ( opts ) => {
+			opts.error( {} );
+			opts.complete();
+			return $.Deferred().promise();
+		} );
+		change();
+		expect( window.MHMRentivaToast.show ).toHaveBeenCalledWith( 'upload err', {
+			type: 'error',
+		} );
 	} );
 } );

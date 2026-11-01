@@ -207,6 +207,18 @@ WordPress.org renders at most 5,000 characters of this section, so only the rele
 * Changed: the search strip has no tabs, and its "Show Rental Tab" option is gone from the block and the Elementor widget. Elementor's generated CSS is rebuilt once on update, so saved vehicle-card styles reach the new card.
 * Fixed: with page caching for visitors, one visitor's filtered, paged or dated results are no longer shown to another.
 * Fixed: the booking form shows the vehicle's seats, transmission and fuel under its name again; the vehicle-details main photo fills its frame on Elementor pages; featured-vehicle slider cards are equally tall.
+* New: My Account follows the new design. The dashboard greets the customer and shows the next rental; the booking page shows progress, payment, when free cancellation ends and how much is refunded.
+* New: a printable Booking summary, from the dashboard, the booking page and the thank-you page. It is not an invoice.
+* Changed: the My Account menu items are named "My bookings", "My favorites" and "Payment history". WooCommerce's own items are unchanged.
+* Changed: the customer's file upload is now called "Upload bank receipt". It appears, and the server accepts or removes a file, only while a booking awaits payment or confirmation and no money has been received. Staff can still remove a file.
+* Changed: payment history shows the car name, the amount actually paid, and the right status for a paid booking.
+* Fixed: the free-cancellation deadline used the wrong pickup time on bookings created by hand.
+* Fixed: "Clear all favorites" no longer shows an error message before it runs.
+* Security: the REST nonce is no longer printed on every page. It is printed on My Account pages, on pages with the My bookings or Payment history shortcode and on pages with the search form.
+* Note for themes: a theme that overrides templates/account/*.php keeps its old markup and may look unstyled, because the old account stylesheets no longer load on these pages. A theme that overrides WooCommerce's myaccount/dashboard.php keeps its own.
+* Changed: My bookings is split into Upcoming, Past and Cancelled, each with its count, and becomes one card per booking on phones. The menu shows the number of upcoming bookings and saved vehicles. The old filter box and search field are gone; links that carry their values still narrow the list. My favorites uses the same layout.
+* Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new "Automatic" order option is the default; an order chosen explicitly still applies.
+* Removed: the dashboard no longer reads the unregistered options mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites and mhmrentiva_customer_booking_history. No settings screen wrote them; a value set by hand has no effect any more.
 
 = 6.3.1 =
 * Fixed: pages built with Elementor are found, so "Book now" buttons and other links no longer fall back to the home page and Shortcode Pages no longer lists them as missing. A page with the shortcode or block in its content still wins. On Elementor sites whose vehicle-details page is now found, vehicle pages move under that page, with a 301 from /vehicle/...

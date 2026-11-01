@@ -1,8 +1,15 @@
 <?php
 /**
- * Payment History Page Template
+ * Payment History page (PR D, Task 6; drawings Hesabim list section and Hesabim-Mobil cards).
  *
- * Displays user's payment history
+ * One table, a raised card per row on phones. Each row is one booking: the
+ * status tag is the payment's own (completed / pending / cancelled, money
+ * received is completed), the amount is what moved as recorded, and the bank
+ * receipt control follows the single rule (AccountController::receipt_upload_allowed).
+ * On a WooCommerce endpoint this template writes the `rvs-` shell; inside the
+ * [rentiva_payment_history] shortcode (block, widget) the shortcode wrote it already.
+ *
+ * @var array $data AccountRenderer::get_payment_history_data() / get_payment_history_preview_data().
  */
 
 declare(strict_types=1);
@@ -13,19 +20,17 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
+use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 
-
-// Dynamic currency symbol (plugin settings)
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
-
-$currency_code   = SettingsCore::get('mhmrentiva_currency', 'USD');
-$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-
-$payments     = $data['payments'] ?? array();
+$payments     = (array) ( $data['payments'] ?? array() );
 $navigation   = $data['navigation'] ?? array();
-$total        = $data['total'] ?? 0;
-$total_pages  = $data['total_pages'] ?? 1;
-$current_page = $data['current_page'] ?? 1;
+$total        = (int) ( $data['total'] ?? 0 );
+$total_pages  = (int) ( $data['total_pages'] ?? 1 );
+$current_page = (int) ( $data['current_page'] ?? 1 );
 
 // Spec 3A Task 7b: column and pager settings; missing means today's markup.
 $show_date           = $data['show_date'] ?? true;
@@ -33,194 +38,177 @@ $show_payment_method = $data['show_payment_method'] ?? true;
 $show_booking_link   = $data['show_booking_link'] ?? false;
 $show_pagination     = $data['show_pagination'] ?? true;
 
-// Sample rows (editor preview, AccountRenderer::get_payment_history_preview_data()):
-// no link to a booking, no receipt upload.
-$is_sample = ! empty($data['is_sample']);
+// Sample rows (editor preview): no link to a booking, no receipt upload.
+$is_sample     = ! empty($data['is_sample']);
+$is_integrated = empty($navigation);
 
 $vehicles_page_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
 $vehicles_page_url = (string) apply_filters('mhmrentiva_vehicles_page_url', $vehicles_page_url);
 
-$wrapper_class = 'mhm-rentiva-account-page';
-if (empty($navigation)) {
-	$wrapper_class .= ' mhm-integrated';
+// The receipt column exists when any row on the page has something to show or do.
+$show_receipt = false;
+foreach ($payments as $mhmrentiva_ph_probe) {
+	if (! empty($mhmrentiva_ph_probe['receipt']['attachment_id']) || ! empty($mhmrentiva_ph_probe['can_upload_receipt'])) {
+		$show_receipt = true;
+		break;
+	}
 }
-?>
 
-<div class="<?php echo esc_attr($wrapper_class); ?>">
-	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
+// The payment's own three tags -> the status tag's colour pairs.
+$mhmrentiva_ph_modifiers = array(
+	'completed' => 'done',
+	'pending'   => 'payment',
+	'cancelled' => 'cancelled',
+);
+
+$mhmrentiva_ph_uid = wp_unique_id('rvs-pay-');
+
+$mhmrentiva_ph_col_date    = __('Date', 'mhm-rentiva');
+$mhmrentiva_ph_col_booking = __('Booking', 'mhm-rentiva');
+$mhmrentiva_ph_col_type    = __('Type', 'mhm-rentiva');
+$mhmrentiva_ph_col_method  = __('Payment Method', 'mhm-rentiva');
+$mhmrentiva_ph_col_amount  = __('Amount', 'mhm-rentiva');
+$mhmrentiva_ph_col_status  = __('Status', 'mhm-rentiva');
+$mhmrentiva_ph_col_receipt = __('Bank receipt', 'mhm-rentiva');
+
+$own_shell  = ! AbstractShortcode::in_rvs_shell();
+$root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-integrated' : '' );
+?>
+<?php if ($own_shell) : ?>
+<div class="rvs-shell <?php echo esc_attr($root_class); ?>" data-rvs-shortcode="rentiva_payment_history">
+<?php else : ?>
+<div class="<?php echo esc_attr($root_class); ?>">
+<?php endif; ?>
+	<?php if (! $is_integrated) : ?>
+		<?php echo wp_kses_post(Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
-	<div class="mhm-account-content">
-		<div class="section-header">
-			<h2><?php esc_html_e('Payment History', 'mhm-rentiva'); ?></h2>
-			<span class="view-all-link">
+	<section class="rvs-account__section rvs-account-bookings rvs-account-payments" aria-labelledby="<?php echo esc_attr($mhmrentiva_ph_uid . '-title'); ?>" data-testid="payment-history-page">
+		<div class="rvs-account-bookings__head">
+			<h2 id="<?php echo esc_attr($mhmrentiva_ph_uid . '-title'); ?>"><?php esc_html_e('Payment history', 'mhm-rentiva'); ?></h2>
+			<span class="rvs-account-bookings__page">
 				<?php
-				/* translators: %d: total payments count. */
-				echo esc_html( sprintf( __( '%d payments total', 'mhm-rentiva' ), (int) $total ) );
+				/* translators: %s: number of records in the payment history (paid or not). */
+				echo esc_html(sprintf(_n('%s record', '%s records', $total, 'mhm-rentiva'), number_format_i18n($total)));
 				?>
 			</span>
 		</div>
 
 		<?php if (empty($payments)) : ?>
-			<!-- No payment records -->
-			<div class="empty-state">
-				<div class="empty-icon">
-					<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-						<path d="M12 1v6l3-3m-6 0l3 3" />
-						<path d="M21 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-						<polyline points="17,21 7,21 7,13" />
-						<polyline points="7,3 7,1 3,1" />
-					</svg>
-				</div>
+			<div class="rvs-account-empty" data-testid="payments-empty">
 				<h3><?php esc_html_e('No payment records yet', 'mhm-rentiva'); ?></h3>
 				<p><?php esc_html_e('Your payment history will appear here when you make a reservation.', 'mhm-rentiva'); ?></p>
-				<a href="<?php echo esc_url( $vehicles_page_url ); ?>" class="btn btn-primary">
-					<?php esc_html_e('View Vehicles', 'mhm-rentiva'); ?>
-				</a>
+				<a class="rvs-btn rvs-btn--primary" href="<?php echo esc_url($vehicles_page_url); ?>"><?php esc_html_e('View Vehicles', 'mhm-rentiva'); ?></a>
 			</div>
 		<?php else : ?>
-			<!-- Payment history -->
-			<div class="account-section">
-				<!-- Header kept above -->
-
-				<!-- Payment List -->
-				<div class="payment-history-list" data-testid="payment-history-list">
+			<table class="rvs-table rvs-account-bookings__table rvs-account-payments__table" role="table" data-testid="payment-history-list">
+				<thead role="rowgroup">
+					<tr role="row">
+						<?php if ($show_date) : ?>
+							<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_date); ?></th>
+						<?php endif; ?>
+						<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_booking); ?></th>
+						<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_type); ?></th>
+						<?php if ($show_payment_method) : ?>
+							<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_method); ?></th>
+						<?php endif; ?>
+						<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_amount); ?></th>
+						<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_status); ?></th>
+						<?php if ($show_receipt) : ?>
+							<th scope="col" role="columnheader"><?php echo esc_html($mhmrentiva_ph_col_receipt); ?></th>
+						<?php endif; ?>
+					</tr>
+				</thead>
+				<tbody role="rowgroup">
 					<?php foreach ($payments as $payment) : ?>
-						<div class="payment-item" data-testid="payment-item">
-							<div class="payment-header">
-								<div class="payment-info">
-									<h3 class="payment-title">
-										<?php
-										if ($show_booking_link && $is_sample) {
-											printf('<a class="payment-booking-link">%s</a>', esc_html($payment['booking_title']));
-										} elseif ($show_booking_link) {
-											printf('<a class="payment-booking-link" href="%1$s">%2$s</a>', esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( (int) $payment['booking_id'])), esc_html($payment['booking_title']));
-										} else {
-											echo esc_html($payment['booking_title']);
-										}
-										?>
-									</h3>
-									<?php if ($show_date) : ?>
-									<span class="payment-date">
-										<?php echo esc_html($payment['date']); ?>
-									</span>
-									<?php endif; ?>
-								</div>
-								<div class="payment-amount">
-									<span class="amount"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $payment['amount'] ?? 0 ), 2)); ?></span>
-									<?php if ($payment['type'] === 'deposit') : ?>
-										<span class="amount-type"><?php esc_html_e('(Deposit)', 'mhm-rentiva'); ?></span>
-									<?php else : ?>
-										<span class="amount-type"><?php esc_html_e('(Full Payment)', 'mhm-rentiva'); ?></span>
-									<?php endif; ?>
-								</div>
-							</div>
-
-							<div class="payment-details">
-								<div class="payment-meta">
-									<div class="meta-item">
-										<span class="meta-label"><?php esc_html_e('Status:', 'mhm-rentiva'); ?></span>
-										<span class="payment-status status-<?php echo esc_attr($payment['status']); ?>">
-											<?php echo esc_html($payment['status_label'] ?? ucfirst($payment['status'])); ?>
+						<?php
+						$mhmrentiva_ph_id      = (int) $payment['booking_id'];
+						$mhmrentiva_ph_number  = (string) ( $payment['number'] ?? $mhmrentiva_ph_id );
+						$mhmrentiva_ph_amount  = (string) ( $payment['amount_html'] ?? '' );
+						$mhmrentiva_ph_receipt = (array) ( $payment['receipt'] ?? array() );
+						$mhmrentiva_ph_has     = ! empty($mhmrentiva_ph_receipt['attachment_id']);
+						$mhmrentiva_ph_can     = ! empty($payment['can_upload_receipt']);
+						if ('' === $mhmrentiva_ph_amount && ! empty($payment['has_amount'])) {
+							$mhmrentiva_ph_amount = esc_html(CurrencyHelper::format_price( (float) ( $payment['amount'] ?? 0 ), 2));
+						}
+						?>
+						<tr role="row" data-testid="payment-item" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_ph_id); ?>">
+							<?php if ($show_date) : ?>
+								<td role="cell" class="rvs-account-payments__date" data-label="<?php echo esc_attr($mhmrentiva_ph_col_date); ?>"><?php echo esc_html( (string) $payment['date']); ?></td>
+							<?php endif; ?>
+							<td role="cell" class="rvs-account-payments__booking" data-label="<?php echo esc_attr($mhmrentiva_ph_col_booking); ?>">
+								<?php if ($show_booking_link && $is_sample) : ?>
+									<a class="payment-booking-link"><strong><?php echo esc_html( (string) $payment['booking_title']); ?></strong></a>
+								<?php elseif ($show_booking_link) : ?>
+									<a class="payment-booking-link" href="<?php echo esc_url(AccountController::get_booking_view_url($mhmrentiva_ph_id)); ?>"><strong><?php echo esc_html( (string) $payment['booking_title']); ?></strong></a>
+								<?php else : ?>
+									<strong><?php echo esc_html( (string) $payment['booking_title']); ?></strong>
+								<?php endif; ?>
+								<span class="rvs-account-bookings__no">#<?php echo esc_html($mhmrentiva_ph_number); ?></span>
+							</td>
+							<td role="cell" class="rvs-account-payments__type" data-label="<?php echo esc_attr($mhmrentiva_ph_col_type); ?>"><?php echo 'deposit' === $payment['type'] ? esc_html__('Deposit', 'mhm-rentiva') : esc_html__('Full payment', 'mhm-rentiva'); ?></td>
+							<?php if ($show_payment_method) : ?>
+								<td role="cell" class="rvs-account-payments__method" data-label="<?php echo esc_attr($mhmrentiva_ph_col_method); ?>"><?php echo esc_html( (string) ( $payment['method'] ?? '' )); ?></td>
+							<?php endif; ?>
+							<td role="cell" class="rvs-account-bookings__amount rvs-account-payments__amount" data-label="<?php echo esc_attr($mhmrentiva_ph_col_amount); ?>"><?php echo '' !== $mhmrentiva_ph_amount ? wp_kses($mhmrentiva_ph_amount, \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::allowed_html()) : '&mdash;'; ?></td>
+							<td role="cell" class="rvs-account-bookings__status rvs-account-payments__status" data-label="<?php echo esc_attr($mhmrentiva_ph_col_status); ?>">
+								<?php
+								Templates::render(
+									'partials/rvs/status-tag',
+									array(
+										'status' => array(
+											'modifier' => $mhmrentiva_ph_modifiers[ $payment['status'] ] ?? 'pending',
+											'label'    => (string) ( $payment['status_label'] ?? ucfirst( (string) $payment['status'] ) ),
+										),
+									)
+								);
+								?>
+							</td>
+							<?php if ($show_receipt) : ?>
+								<td role="cell" class="rvs-account-payments__receipt receipt-wrapper" data-label="<?php echo esc_attr($mhmrentiva_ph_col_receipt); ?>">
+									<?php if ($mhmrentiva_ph_has) : ?>
+										<span>
+											<?php
+											/* translators: %s: status of the uploaded bank receipt (Submitted, Approved, Rejected). */
+											echo esc_html(sprintf(__('Bank receipt: %s', 'mhm-rentiva'), (string) ( $mhmrentiva_ph_receipt['status_label'] ?? '' )));
+											?>
 										</span>
-									</div>
-
-									<?php if ($show_payment_method && ! empty($payment['method'])) : ?>
-										<div class="meta-item">
-											<span class="meta-label"><?php esc_html_e('Payment Method:', 'mhm-rentiva'); ?></span>
-											<span class="payment-method">
-												<?php echo esc_html($payment['method']); ?>
-											</span>
-										</div>
-									<?php endif; ?>
-
-									<?php if ($payment['type'] === 'deposit' && $payment['total'] > $payment['amount']) : ?>
-										<div class="meta-item">
-											<span class="meta-label"><?php esc_html_e('Total Amount:', 'mhm-rentiva'); ?></span>
-											<span class="total-amount">
-												<?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $payment['total'] ?? 0 ), 2)); ?>
-											</span>
-										</div>
-									<?php endif; ?>
-								</div>
-
-								<div class="payment-actions">
-																		<?php
-																		$receipt     = $payment['receipt'] ?? array();
-																		$has_receipt = ! empty($receipt['attachment_id']);
-																		?>
-									<?php if (! empty($payment['receipt']['url'])) : ?>
-										<div class="receipt-preview-wrapper" style="display: flex; align-items: center; gap: 10px;">
-											<a href="<?php echo esc_url($payment['receipt']['url']); ?>" target="_blank" class="receipt-thumbnail" style="display: block; width: 40px; height: 40px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
-												<?php
-												$ext = pathinfo($payment['receipt']['url'], PATHINFO_EXTENSION);
-												if (in_array(strtolower($ext), array( 'jpg', 'jpeg', 'png', 'gif' ), true)) :
-													?>
-													<img src="<?php echo esc_url($payment['receipt']['url']); ?>" alt="Receipt" style="width: 100%; height: 100%; object-fit: cover;">
-												<?php else : ?>
-													<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f5f5f5; font-size: 10px; color: #666; font-weight: bold;">
-														<?php echo esc_html(strtoupper($ext)); ?>
-													</span>
-												<?php endif; ?>
-											</a>
-
-											<div class="receipt-actions">
-												<button type="button" class="btn btn-danger btn-sm remove-receipt-btn" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" style="padding: 4px 8px; font-size: 11px; line-height: 1;">
-													<?php esc_html_e('Remove', 'mhm-rentiva'); ?>
-												</button>
-											</div>
-										</div>
-									<?php else : ?>
-										<?php
-										$is_paid = ( $payment['status'] === 'paid' ); // Assuming 'paid' is the status that disables upload
-										?>
-										<label class="btn btn-primary btn-sm mhm-upload-label <?php echo $is_paid ? 'disabled' : ''; ?>" style="margin-left:8px;">
-											<?php esc_html_e('Upload Receipt', 'mhm-rentiva'); ?>
-											<input type="file" class="mhm-upload-receipt" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" accept="image/*,.pdf" style="display: none;" <?php disabled($is_paid || $is_sample); ?>>
+										<?php if (! $is_sample && '' !== (string) ( $mhmrentiva_ph_receipt['url'] ?? '' )) : ?>
+											<a href="<?php echo esc_url( (string) $mhmrentiva_ph_receipt['url']); ?>" target="_blank" rel="noopener"><?php esc_html_e('View', 'mhm-rentiva'); ?></a>
+										<?php endif; ?>
+										<?php if ($mhmrentiva_ph_can) : ?>
+											<button type="button" class="rvs-btn rvs-btn--ghost remove-receipt-btn" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_ph_id); ?>"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
+										<?php endif; ?>
+									<?php elseif ($mhmrentiva_ph_can) : ?>
+										<label class="rvs-btn rvs-btn--secondary rvs-account-detail__upload">
+											<?php esc_html_e('Upload bank receipt', 'mhm-rentiva'); ?>
+											<input type="file" class="rvs-sr-only mhm-upload-receipt" data-booking-id="<?php echo esc_attr( (string) $mhmrentiva_ph_id); ?>" accept="image/*,.pdf"<?php disabled($is_sample); ?>>
 										</label>
 									<?php endif; ?>
-								</div>
-							</div>
-						</div>
+								</td>
+							<?php endif; ?>
+						</tr>
 					<?php endforeach; ?>
-				</div>
-
-			<?php if ( $show_pagination && $total_pages > 1 ) : ?>
-				<div class="mhm-pagination" style="display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
-					<?php if ( $current_page > 1 ) : ?>
-						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::PAGE_VAR_PAYMENTS, (int) $current_page - 1 ) ); ?>" class="btn btn-secondary btn-sm">
-							&larr; <?php esc_html_e( 'Previous', 'mhm-rentiva' ); ?>
-						</a>
-					<?php else : ?>
-						<span class="btn btn-secondary btn-sm" style="opacity:.4;pointer-events:none;">&larr; <?php esc_html_e( 'Previous', 'mhm-rentiva' ); ?></span>
-					<?php endif; ?>
-
-					<span style="font-size:14px;color:#666;">
-						<?php
-						/* translators: 1: current page, 2: total pages */
-						echo esc_html( sprintf( __( 'Page %1$d / %2$d', 'mhm-rentiva' ), (int) $current_page, (int) $total_pages ) );
-						?>
-					</span>
-
-					<?php if ( $current_page < $total_pages ) : ?>
-						<a href="<?php echo esc_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::page_url( \MHMRentiva\Admin\Frontend\Account\AccountRenderer::PAGE_VAR_PAYMENTS, (int) $current_page + 1 ) ); ?>" class="btn btn-secondary btn-sm">
-							<?php esc_html_e( 'Next', 'mhm-rentiva' ); ?> &rarr;
-						</a>
-					<?php else : ?>
-						<span class="btn btn-secondary btn-sm" style="opacity:.4;pointer-events:none;"><?php esc_html_e( 'Next', 'mhm-rentiva' ); ?> &rarr;</span>
-					<?php endif; ?>
-
-					<span style="font-size:12px;color:#999;margin-left:auto;">
-						<?php
-						/* translators: %d: total number of payments */
-						echo esc_html( sprintf( __( '%d payments total', 'mhm-rentiva' ), (int) $total ) );
-						?>
-					</span>
-				</div><!-- .mhm-pagination -->
-			<?php endif; ?>
-			</div>
+				</tbody>
+			</table>
 		<?php endif; ?>
-	</div>
+
+		<?php if ($show_pagination && $total_pages > 1) : ?>
+			<nav class="rvs-account-bookings__pager" aria-label="<?php esc_attr_e('Pagination', 'mhm-rentiva'); ?>" data-testid="payments-pager">
+				<?php if ($current_page > 1) : ?>
+					<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url(AccountRenderer::page_url(AccountRenderer::PAGE_VAR_PAYMENTS, $current_page - 1)); ?>" rel="prev"><?php esc_html_e('Previous', 'mhm-rentiva'); ?></a>
+				<?php endif; ?>
+				<span class="rvs-account-bookings__page">
+					<?php
+					/* translators: 1: current page, 2: total pages */
+					echo esc_html(sprintf(__('Page %1$s / %2$s', 'mhm-rentiva'), number_format_i18n($current_page), number_format_i18n($total_pages)));
+					?>
+				</span>
+				<?php if ($current_page < $total_pages) : ?>
+					<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url(AccountRenderer::page_url(AccountRenderer::PAGE_VAR_PAYMENTS, $current_page + 1)); ?>" rel="next"><?php esc_html_e('Next', 'mhm-rentiva'); ?></a>
+				<?php endif; ?>
+			</nav>
+		<?php endif; ?>
+	</section>
 </div>

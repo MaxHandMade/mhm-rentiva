@@ -110,18 +110,18 @@ class BlockRegistry {
 		'my-bookings'           => array(
 			'tag'   => 'rentiva_my_bookings',
 			'title' => 'My Bookings',
-			'css'   => 'my-account.css',
+			'css'   => array(), // An rvs account screen: its shortcode loads the styles (PR D); my-account.css here was a second handle.
 		),
 		'my-favorites'          => array(
 			'tag'   => 'rentiva_my_favorites',
 			'title' => 'My Favorites',
-			'css'   => 'my-account.css',
+			'css'   => array(), // An rvs account screen: its shortcode loads the styles (PR D); my-account.css here was a second handle.
 			'deps'  => array( 'mhm-rentiva-rvs-card' ),
 		),
 		'payment-history'       => array(
 			'tag'   => 'rentiva_payment_history',
 			'title' => 'Payment History',
-			'css'   => 'my-account.css',
+			'css'   => array(), // An rvs account screen: its shortcode loads the styles (PR D); my-account.css here was a second handle.
 		),
 		'booking-form'          => array(
 			'tag'   => 'rentiva_booking_form',

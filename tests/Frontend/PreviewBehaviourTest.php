@@ -132,7 +132,7 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 			'comparison'        => array( 'rentiva_vehicle_comparison', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
 			'my bookings'       => array( 'rentiva_my_bookings', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
 			'my favorites'      => array( 'rentiva_my_favorites', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
-			'payment history'   => array( 'rentiva_payment_history', array(), self::BADGE_SAMPLE_DATA, 'reference', 'account' ),
+			'payment history'   => array( 'rentiva_payment_history', array(), self::BADGE_SAMPLE_DATA, 'sentinel', 'account' ),
 			'user dashboard'    => array( 'rentiva_user_dashboard', array(), self::BADGE_NOTICE, '', 'account' ),
 			'vehicle details'   => array( 'rentiva_vehicle_details', array(), self::BADGE_SAMPLE_VEH, '', 'context' ),
 			'rating form'       => array( 'rentiva_vehicle_rating_form', array(), self::BADGE_SAMPLE_VEH, '', 'context' ),
@@ -302,12 +302,12 @@ final class PreviewBehaviourTest extends WP_UnitTestCase
 			$this->assertStringContainsString('#' . $row['id'] . '<', $bookings);
 			$this->assertStringContainsString(esc_html($row['vehicle_title']), $bookings);
 		}
-		$this->assertStringNotContainsString('rv-no-bookings', $bookings);
+		$this->assertStringNotContainsString('data-testid="bookings-empty"', $bookings);
 
 		$payments = $this->shortcode('rentiva_payment_history', array());
 		$this->assertSame(count(PreviewSamples::payment_rows()), substr_count($payments, 'data-testid="payment-item"'));
 		// The upload control is inert in a preview.
-		preg_match_all('/<input\b[^>]*class="mhm-upload-receipt"[^>]*>/', $payments, $inputs);
+		preg_match_all('/<input\b[^>]*class="[^"]*mhm-upload-receipt[^"]*"[^>]*>/', $payments, $inputs);
 		$this->assertNotEmpty($inputs[0]);
 		foreach ($inputs[0] as $input) {
 			$this->assertMatchesRegularExpression('/\bdisabled\b/', $input, "upload control not disabled: $input");

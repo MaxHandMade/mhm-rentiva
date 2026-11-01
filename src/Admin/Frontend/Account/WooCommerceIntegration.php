@@ -34,6 +34,9 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
+		// Counts on Lite's own items, after they are in (PR D, R2).
+		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_counts' ), 21 );
+
 		// Snapshot the query vars that already belong to someone else, before
 		// any endpoint registration adds to that list -- including ours.
 		//
@@ -71,6 +74,85 @@ final class WooCommerceIntegration {
 
 		// Override WooCommerce default dashboard with Rentiva dashboard
 		add_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) );
+
+		// One greeting: WooCommerce's dashboard template prints its own "Hello"
+		// paragraphs above the Rentiva dashboard (PR D, R3).
+		add_filter( 'woocommerce_locate_template', array( self::class, 'locate_dashboard_template' ), 10, 4 );
+
+		// The booking detail belongs to "My bookings" in the menu.
+		add_filter( 'woocommerce_account_menu_item_classes', array( self::class, 'menu_item_classes' ), 10, 2 );
+	}
+
+	/**
+	 * WooCommerce template name of the account dashboard.
+	 */
+	private const DASHBOARD_TEMPLATE = 'myaccount/dashboard.php';
+
+	/**
+	 * `woocommerce_locate_template` callback: while the Rentiva dashboard is
+	 * hooked, WooCommerce's own `myaccount/dashboard.php` is swapped for Lite's
+	 * copy (templates/woocommerce/myaccount/dashboard.php), which fires the same
+	 * three actions in the same order without the two greeting paragraphs.
+	 *
+	 * Only WooCommerce's default file is swapped. The filter runs after the
+	 * theme lookup (wc_locate_template()), so a theme that overrides the
+	 * dashboard template arrives here with its own path and keeps it.
+	 *
+	 * The answer is the same for every request on a site, so WooCommerce's
+	 * template path cache (wc_get_template()) can hold it.
+	 *
+	 * @param string $template      Located file.
+	 * @param string $template_name Template name, e.g. `myaccount/dashboard.php`.
+	 * @param string $template_path Theme sub-directory WooCommerce looked in.
+	 * @param string $default_path  WooCommerce's default template directory.
+	 */
+	public static function locate_dashboard_template( $template, $template_name, $template_path = '', $default_path = '' ): string {
+		$template = (string) $template;
+
+		if ( self::DASHBOARD_TEMPLATE !== $template_name ) {
+			return $template;
+		}
+
+		if ( false === has_action( 'woocommerce_account_dashboard', array( self::class, 'render_dashboard' ) ) ) {
+			return $template;
+		}
+
+		if ( '' === (string) $default_path && function_exists( 'WC' ) ) {
+			$default_path = WC()->plugin_path() . '/templates/';
+		}
+
+		if ( $template !== trailingslashit( (string) $default_path ) . $template_name ) {
+			return $template;
+		}
+
+		$ours = dirname( __DIR__, 4 ) . '/templates/woocommerce/' . self::DASHBOARD_TEMPLATE;
+
+		return is_readable( $ours ) ? $ours : $template;
+	}
+
+	/**
+	 * `woocommerce_account_menu_item_classes` callback: on the booking detail
+	 * the "My bookings" item is the current one. Only the class is added --
+	 * WooCommerce writes `aria-current` itself and offers no filter for it.
+	 *
+	 * @param array<int, string> $classes  Menu item classes.
+	 * @param string             $endpoint Menu item endpoint.
+	 * @return array<int, string>
+	 */
+	public static function menu_item_classes( $classes, $endpoint ): array {
+		$classes = (array) $classes;
+
+		if ( (string) $endpoint !== self::get_endpoint_slug( 'bookings' ) ) {
+			return $classes;
+		}
+
+		if ( 'view_booking' !== AccountSurface::current_endpoint_key() || in_array( 'is-active', $classes, true ) ) {
+			return $classes;
+		}
+
+		$classes[] = 'is-active';
+
+		return $classes;
 	}
 
 	/**
@@ -111,6 +193,73 @@ final class WooCommerceIntegration {
 		}
 
 		return $new_items;
+	}
+
+	/**
+	 * `woocommerce_account_menu_items` callback (priority 21): "My bookings (2)"
+	 * with the upcoming bookings, "My favorites (5)" with the saved vehicles
+	 * (PR D, R2). Plain text -- WooCommerce prints the label with esc_html().
+	 * Nothing is added for 0. Items are matched by their (translated) slug;
+	 * every other item, the add-on's included, is left alone.
+	 *
+	 * Only on the front-end My Account page. WooCommerce also reads the menu
+	 * items for the Appearance > Menus metabox and the Customizer, which save
+	 * the label into a menu item every visitor then sees, and for the
+	 * "Customer account" block's dropdown on every page.
+	 *
+	 * @param array<string, string> $items Menu items, slug => label.
+	 * @return array<string, string>
+	 */
+	public static function add_menu_counts( array $items ): array {
+		if ( ! self::counts_menu_here() ) {
+			return $items;
+		}
+
+		$user_id = get_current_user_id();
+		if ( $user_id <= 0 ) {
+			return $items;
+		}
+
+		$counters = array(
+			self::get_endpoint_slug( 'bookings' )  => static fn(): int => AccountBookingsQuery::counts( $user_id )['upcoming'],
+			self::get_endpoint_slug( 'favorites' ) => static function () use ( $user_id ): int {
+				$favorites = get_user_meta( $user_id, 'mhmrentiva_favorites', true );
+				return is_array( $favorites ) ? count( $favorites ) : 0;
+			},
+		);
+
+		foreach ( $counters as $slug => $counter ) {
+			if ( ! isset( $items[ $slug ] ) || ! is_string( $items[ $slug ] ) ) {
+				continue;
+			}
+			$count = $counter();
+			if ( $count <= 0 ) {
+				continue;
+			}
+			$items[ $slug ] = sprintf(
+				/* translators: 1: menu label, 2: count */
+				__( '%1$s (%2$s)', 'mhm-rentiva' ),
+				$items[ $slug ],
+				number_format_i18n( $count )
+			);
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Whether this request draws the My Account page's own menu: front end,
+	 * not a Customizer preview or REST request, on the account page.
+	 */
+	private static function counts_menu_here(): bool {
+		if ( is_admin() || is_customize_preview() || wp_doing_ajax() ) {
+			return false;
+		}
+		if ( function_exists( 'wp_is_serving_rest_request' ) ? wp_is_serving_rest_request() : ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return false;
+		}
+
+		return function_exists( 'is_account_page' ) && is_account_page();
 	}
 
 	/**
@@ -333,23 +482,32 @@ final class WooCommerceIntegration {
 		$id = (int) $id;
 
 		// Security: Early ownership check (customer | vehicle owner | admin).
-		if ( $id > 0 ) {
-			$booking_owner_id = (int) get_post_meta( $id, '_mhmrentiva_customer_user_id', true );
-			$current_user_id  = (int) get_current_user_id();
-			$vehicle_id       = (int) get_post_meta( $id, '_mhmrentiva_vehicle_id', true );
-			$vehicle_owner_id = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
-
-			$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
-			$is_owner    = ( $vehicle_owner_id > 0 && $vehicle_owner_id === $current_user_id );
-			$is_admin    = current_user_can( 'manage_options' );
-
-			if ( ! $is_customer && ! $is_owner && ! $is_admin ) {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'You do not have permission to view this booking.', 'mhm-rentiva' ) . '</p></div>';
-				return;
-			}
+		if ( $id > 0 && ! self::can_view_booking( $id ) ) {
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'You do not have permission to view this booking.', 'mhm-rentiva' ) . '</p></div>';
+			return;
 		}
 
 		AccountRenderer::output_booking_detail( $id, true );
+	}
+
+	/**
+	 * May the current user see this booking? The customer, the owner of the
+	 * booked vehicle, or an administrator. The one predicate behind the detail
+	 * page and the printable summary (BookingSummaryPage).
+	 *
+	 * @param int $booking_id Booking post ID.
+	 */
+	public static function can_view_booking( int $booking_id ): bool {
+		$booking_owner_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
+		$current_user_id  = (int) get_current_user_id();
+		$vehicle_id       = (int) get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
+		$vehicle_owner_id = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
+
+		$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
+		$is_owner    = ( $vehicle_owner_id > 0 && $vehicle_owner_id === $current_user_id );
+		$is_admin    = current_user_can( 'manage_options' );
+
+		return $is_customer || $is_owner || $is_admin;
 	}
 
 	/**

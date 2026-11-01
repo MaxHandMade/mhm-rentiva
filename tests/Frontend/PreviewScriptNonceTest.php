@@ -211,21 +211,22 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * mhmRentivaAccount is also localized site-wide by AccountController on
-	 * wp_enqueue_scripts (same object the account widgets localize), so the
-	 * preview iframe must not carry its real nonces either.
+	 * mhmRentivaAccount is also localized by AccountController on
+	 * wp_enqueue_scripts on account pages (same object the account widgets
+	 * localize, one definition: AccountController::enqueue_account_script()),
+	 * so the preview iframe must not carry its real nonces either.
 	 */
 	public function test_account_controller_localization_follows_the_context(): void
 	{
 		wp_set_current_user(ShortcodeFixtures::customer());
 
-		$front = $this->collect(static fn () => AccountController::enqueue_assets());
+		$front = $this->collect(static fn () => AccountController::enqueue_account_script());
 		$this->assertSame(wp_create_nonce('mhmrentiva_account'), $front['mhmRentivaAccount.nonce'] ?? null);
 		$this->assertSame(wp_create_nonce('wp_rest'), $front['mhmRentivaAccount.restNonce'] ?? null);
 		$this->assertSame(wp_create_nonce('mhmrentiva_upload_receipt'), $front['mhmRentivaAccount.uploadNonce'] ?? null);
 
 		\Elementor\Plugin::$instance->editor->set_edit_mode(true);
-		$preview = $this->collect(static fn () => AccountController::enqueue_assets());
+		$preview = $this->collect(static fn () => AccountController::enqueue_account_script());
 		foreach (array( 'nonce', 'restNonce', 'uploadNonce' ) as $key) {
 			$this->assertArrayHasKey('mhmRentivaAccount.' . $key, $preview);
 			$this->assertSame('', $preview[ 'mhmRentivaAccount.' . $key ], "mhmRentivaAccount.$key");

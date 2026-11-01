@@ -6,11 +6,18 @@
  * surfaces never see them, and a theme's own custom properties cannot be
  * overwritten by them.
  *
+ * One more scope: WooCommerce's My Account wrapper (`.woocommerce-account
+ * .woocommerce`). Its navigation is WooCommerce's own markup and sits outside
+ * any `.rvs-shell`, yet rvs-account-nav.css draws it from these tokens (PR D,
+ * R1). WooCommerce puts `.woocommerce-account` on the account page's body and
+ * nowhere else, so the extra scope reaches no other page.
+ *
  * Product-specific file: the palette is Rentiva's. The shell and primitives
  * that read it (rvs-shell.css, rvs-primitives.css) are generic.
  */
 
-.rvs-shell {
+.rvs-shell,
+.woocommerce-account .woocommerce {
 	/* Surfaces and text */
 	--rvs-bg: #f3f2f2;
 	--rvs-surface: #eae9e9;
@@ -78,10 +85,26 @@
 	--rvs-booking-shadow: 0 3px 10px rgba(45, 43, 43, 0.16);
 	--rvs-booking-cta: #006786;
 	--rvs-booking-cta-hover: #004961;
+
+	/* Booking status tags (rvs-data.css). Plain hex pairs from the approved
+	   Hesabim canvas; text on background is at least 4.5:1 (RvsStatusContrastTest). */
+	--rvs-st-confirmed-bg: #e9f8ff;
+	--rvs-st-confirmed-fg: #004961;
+	--rvs-st-pending-bg: #fdf0c8;
+	--rvs-st-pending-fg: #6b4a00;
+	--rvs-st-payment-bg: #ffe4d1;
+	--rvs-st-payment-fg: #8a3a00;
+	--rvs-st-active-bg: #ecebff;
+	--rvs-st-active-fg: #3a2d94;
+	--rvs-st-done-bg: #e3f3e8;
+	--rvs-st-done-fg: #1d5c34;
+	--rvs-st-cancelled-bg: #fff1f4;
+	--rvs-st-cancelled-fg: #aa0b56;
 }
 
 @supports (color: color-mix(in srgb, red, blue)) {
-	.rvs-shell {
+	.rvs-shell,
+	.woocommerce-account .woocommerce {
 		--rvs-line: color-mix(in srgb, #201e1d 16%, transparent);
 		--rvs-line-strong: color-mix(in srgb, #201e1d 45%, transparent);
 		--rvs-shadow: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);

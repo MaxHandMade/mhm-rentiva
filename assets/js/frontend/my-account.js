@@ -31,8 +31,6 @@
         */
 
         clearAllFavorites($button) {
-            MHMRentivaToast.show(this.getString('error'), { type: 'error' });
-
             $button.prop('disabled', true).addClass('is-loading');
 
             this.sendRequest({
@@ -104,13 +102,22 @@
         },
 
         removeAllFavoriteCards() {
-            $('.rv-vehicle-card').fadeOut(200, function () {
+            $('[data-rvs-favorites] [data-rvs-card], .rv-vehicle-card').fadeOut(200, function () {
                 $(this).remove();
             });
             this.showEmptyState();
         },
 
         showEmptyState() {
+            // The account favorites page (templates/account/favorites.php) draws
+            // its empty state hidden: show it, drop the grid and the button.
+            const $root = $('[data-rvs-favorites]');
+            if ($root.length) {
+                $root.find('[data-rvs-favorites-list]').remove();
+                $root.find('[data-rvs-favorites-empty]').prop('hidden', false);
+                return;
+            }
+
             const $container = $('.account-section');
             if ($container.length && !$container.find('.rv-vehicle-card').length) {
                 const emptyHtml = `
@@ -127,8 +134,11 @@
         },
 
         updateFavoriteCounter(count) {
+            if (count <= 0) {
+                $('[data-rvs-favorites-count]').remove();
+            }
             const text = count === 1 ? this.getString('favorites_count_single') : this.getString('favorites_count_plural');
-            $('.view-all-link').text(count + ' ' + text);
+            $('.view-all-link, [data-rvs-favorites-count]').text(count + ' ' + text);
         },
 
     };
@@ -168,9 +178,6 @@
         bindEvents() {
             // Account update form
             $('#mhm-account-details-form').on('submit', (e) => this.handleAccountUpdate(e));
-
-            // Booking cancellation
-            $(document).on('click', '.cancel-booking', (e) => this.handleCancelBooking(e));
 
             // Receipt upload
             $(document).on('change', '.mhm-upload-receipt', (e) => this.handleReceiptUpload(e));
@@ -216,8 +223,10 @@
                         MHMRentivaToast.show((res && res.data && res.data.message) || this.config.i18n.upload_error, { type: 'error' });
                     }
                 },
-                error: () => {
-                    MHMRentivaToast.show(this.config.i18n.upload_error, { type: 'error' });
+                error: (xhr) => {
+                    // A refusal (400) comes with the server's own sentence.
+                    const message = xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message;
+                    MHMRentivaToast.show(message || this.config.i18n.upload_error, { type: 'error' });
                 },
                 complete: () => {
                     $label.removeClass('is-loading');
@@ -269,48 +278,6 @@
         }
 
 
-
-        /**
-         * Booking cancellation
-         */
-        handleCancelBooking(e) {
-            e.preventDefault();
-
-            if (!confirm(this.config.i18n.confirm)) {
-                return;
-            }
-
-            const $btn = $(e.currentTarget);
-            const bookingId = $btn.data('booking-id');
-
-            $btn.prop('disabled', true).text(this.config.i18n.loading);
-
-            $.ajax({
-                url: this.config.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_cancel_booking',
-                    nonce: this.config.nonce,
-                    booking_id: bookingId,
-                },
-                success: (response) => {
-                    if (response.success) {
-                        MHMRentivaToast.show(response.data.message || this.config.i18n.success, { type: 'success' });
-                        // Refresh page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        MHMRentivaToast.show(response.data.message || this.config.i18n.error, { type: 'error' });
-                        $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
-                    }
-                },
-                error: () => {
-                    MHMRentivaToast.show(this.config.i18n.error, { type: 'error' });
-                    $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
-                }
-            });
-        }
 
         /**
          * Initialize favorites system

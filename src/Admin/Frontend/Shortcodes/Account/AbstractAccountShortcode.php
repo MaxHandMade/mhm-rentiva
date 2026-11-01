@@ -7,6 +7,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\AssetManager;
+use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\AccountSurface;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,71 +23,20 @@ abstract class AbstractAccountShortcode extends AbstractShortcode {
 
 
 	/**
-	 * Common assets for account pages
+	 * Common assets for account pages.
+	 *
+	 * Lite's own account shortcodes are the redesigned `rvs-` screens and load
+	 * that layer only. Every other subclass -- the add-on's messages and
+	 * vendor bookings -- keeps the old account stylesheets
+	 * (AccountSurface::classify_shortcode()).
 	 */
 	protected static function enqueue_assets( array $atts = array() ): void {
-		// Main account CSS
-		wp_enqueue_style(
-			'mhm-rentiva-my-account',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
-			array( 'mhm-rentiva-css-variables' ),
-			MHMRENTIVA_VERSION
-		);
+		if ( AccountSurface::RVS === AccountSurface::classify_shortcode( static::get_shortcode_tag() ) ) {
+			AssetManager::enqueue_rvs_account();
+		} else {
+			AccountController::enqueue_legacy_account_styles();
+		}
 
-		// Core vehicle card CSS (required for favorites page and any page showing vehicles)
-		wp_enqueue_style(
-			'mhm-rentiva-vehicle-card-css',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
-			array(),
-			MHMRENTIVA_VERSION
-		);
-
-		// Account JS
-		wp_enqueue_script(
-			'mhm-rentiva-my-account',
-			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
-			// my-account.js calls MHMRentivaToast.* -- toast.js is only
-			// ever auto-loaded where a consumer's own deps declares it. (Same handle is
-			// also enqueued from AccountController::enqueue_assets(); both sites need
-			// this dependency since either can register the handle first.)
-			array( 'jquery', 'mhm-rentiva-toast' ),
-			MHMRENTIVA_VERSION,
-			true
-		);
-
-		wp_localize_script(
-			'mhm-rentiva-my-account',
-			'mhmRentivaAccount',
-			array(
-				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
-				'restUrl'     => rest_url( 'mhm-rentiva/v1/' ),
-				'nonce'       => \MHMRentiva\Frontend\RenderContext::script_nonce( 'mhmrentiva_account' ),
-				// wp_ajax_-only handler: no point minting/printing it for a logged-out visitor.
-				'uploadNonce' => is_user_logged_in() ? \MHMRentiva\Frontend\RenderContext::script_nonce( 'mhmrentiva_upload_receipt' ) : '',
-				'restNonce'   => \MHMRentiva\Frontend\RenderContext::script_nonce( 'wp_rest' ),
-				'i18n'        => array(
-					'loading'                => __( 'Loading...', 'mhm-rentiva' ),
-					'error'                  => __( 'An error occurred.', 'mhm-rentiva' ),
-					'success'                => __( 'Success!', 'mhm-rentiva' ),
-					'confirm'                => __( 'Are you sure?', 'mhm-rentiva' ),
-					'uploading'              => __( 'Uploading...', 'mhm-rentiva' ),
-					'upload_success'         => __( 'Receipt uploaded successfully.', 'mhm-rentiva' ),
-					'upload_error'           => __( 'Receipt upload failed.', 'mhm-rentiva' ),
-					'confirm_remove_receipt' => __( 'Are you sure you want to remove this receipt?', 'mhm-rentiva' ),
-					'savedSuccessfully'      => __( 'Account details saved successfully.', 'mhm-rentiva' ),
-					'removedFromFavorites'   => __( 'Vehicle removed from favorites.', 'mhm-rentiva' ),
-					'addedToFavorites'       => __( 'Vehicle added to favorites.', 'mhm-rentiva' ),
-					'favoritesCleared'       => __( 'All favorites cleared.', 'mhm-rentiva' ),
-					'passwords_do_not_match' => __( 'Passwords do not match.', 'mhm-rentiva' ),
-					'cancel_changes_confirm' => __( 'Are you sure you want to cancel changes?', 'mhm-rentiva' ),
-					'no_favorites'           => __( 'No favorite vehicles yet.', 'mhm-rentiva' ),
-					'login_required'         => __( 'You can add vehicles to favorites using the heart icon.', 'mhm-rentiva' ),
-					'cancel_booking'         => __( 'Cancel Booking', 'mhm-rentiva' ),
-					'save_changes'           => __( 'Save Changes', 'mhm-rentiva' ),
-					'favorites_count_single' => __( 'vehicle in your favorites', 'mhm-rentiva' ),
-					'favorites_count_plural' => __( 'vehicles in your favorites', 'mhm-rentiva' ),
-				),
-			)
-		);
+		AccountController::enqueue_account_script();
 	}
 }

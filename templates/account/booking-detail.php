@@ -4,23 +4,38 @@ declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Booking Detail Template
+ * Booking Detail Template (PR D, Task 4; drawing Rezervasyon-Detayi).
  *
- * @var WP_Post $booking
- * @var array $booking_data
- * @var WP_Post|null $vehicle
- * @var array $navigation
+ * Reads the booking, builds the view values and hands them to
+ * templates/partials/rvs/account-booking-detail.php. On a WooCommerce endpoint
+ * this template writes the `rvs-` shell; inside an account shortcode that
+ * already wrote it ($rvs_shell) there is no second one. A vendor's view of the
+ * booking is Pro's template (AccountRenderer picks it), not this one.
+ *
+ * @var array $data AccountRenderer::get_booking_detail_data()['data'].
  */
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Booking\Meta\BookingMeta;
+use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
+use MHMRentiva\Admin\Core\LocationContext;
+use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\AccountPaymentSummary;
+use MHMRentiva\Admin\Frontend\Account\BookingSummaryPage;
+use MHMRentiva\Admin\Frontend\Account\BookingTimeline;
+use MHMRentiva\Admin\Frontend\Account\CancellationView;
+use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsBreakdown;
+use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsStatus;
+use MHMRentiva\Admin\Payment\Core\PaymentState;
 
-
-// Get booking data
 $booking       = $data['booking'] ?? null;
-$booking_id    = $booking ? $booking->ID : 0;
+$booking_id    = $booking ? (int) $booking->ID : 0;
 $navigation    = $data['navigation'] ?? array();
 $is_integrated = $data['is_integrated'] ?? false;
 
@@ -28,342 +43,135 @@ if (! $booking) {
 	return;
 }
 
-$vehicle_id   = get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
-$vehicle      = $vehicle_id ? get_post($vehicle_id) : null;
-$vehicle_name = $vehicle ? $vehicle->post_title : __( 'Unknown Vehicle', 'mhm-rentiva' );
+$booking_status = Status::get($booking_id);
+$number         = (string) mhmrentiva_get_display_id($booking_id);
 
-$pickup_date      = get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
-$dropoff_date     = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true);
-$pickup_time      = get_post_meta($booking_id, '_mhmrentiva_start_time', true);
-$dropoff_time     = get_post_meta($booking_id, '_mhmrentiva_end_time', true);
-$total_price      = get_post_meta($booking_id, '_mhmrentiva_total_price', true);
-$booking_status   = get_post_meta($booking_id, '_mhmrentiva_status', true);
-$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
-$deposit_amount   = get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
-$remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
-$selected_addons  = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true);
-
-// Whether money actually arrived, not the amount asked for:
-// _mhmrentiva_deposit_amount is what the booking requires, so labelling it
-// "paid" told a customer with an unpaid booking that their deposit was in.
-$payment_state  = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking_id );
-// paid() is 0 when the deposit and the balance were paid in different
-// currencies (the amounts cannot be summed), so a paid order counts too.
-$money_received = $payment_state->paid() > 0 || array() !== $payment_state->orders();
-
-// The header used to say "successfully completed" whatever the status, so a
-// pending, unpaid or cancelled booking read as confirmed.
-switch ( (string) $booking_status ) {
-	case 'pending_payment':
-		// Nothing moves until the customer pays; an unpaid booking is
-		// auto-cancelled when its payment window closes.
-		$header_title = __( 'Awaiting Payment', 'mhm-rentiva' );
-		$header_text  = __( 'Your booking will be confirmed once your payment is received.', 'mhm-rentiva' );
-		break;
-	case 'pending':
-		$header_title = __( 'Booking Received', 'mhm-rentiva' );
-		$header_text  = __( 'We have received your booking and will confirm it shortly. Please find your booking details below.', 'mhm-rentiva' );
-		break;
-	case 'cancelled':
-	case 'refunded':
-		$header_title = __( 'Booking Cancelled', 'mhm-rentiva' );
-		$header_text  = __( 'This booking has been cancelled.', 'mhm-rentiva' );
-		break;
-	case 'completed':
-		$header_title = __( 'Booking Completed', 'mhm-rentiva' );
-		$header_text  = __( 'This booking has been completed. Thank you for renting with us.', 'mhm-rentiva' );
-		break;
-	case 'confirmed':
-		$header_title = __( 'Booking Confirmation', 'mhm-rentiva' );
-		$header_text  = __( 'Your reservation has been successfully completed. Please find your booking details below.', 'mhm-rentiva' );
-		break;
-	default:
-		$header_title = __( 'Booking Details', 'mhm-rentiva' );
-		$header_text  = '';
-}
-// Pickup instructions only before pickup: in_progress means the vehicle is
-// already with the customer.
-$shows_next_steps = 'confirmed' === (string) $booking_status;
-
-// Payment method from WooCommerce order
-$wc_order_id          = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id( (int) $booking_id );
-$payment_method_title = '';
-if ($wc_order_id && function_exists('wc_get_order')) {
-	$wc_order = wc_get_order($wc_order_id);
-	if ($wc_order) {
-		$payment_method_title = $wc_order->get_payment_method_title();
-	}
-}
-
-// Vehicle image. The fallback used to hardcode assets/images/no-image.png --
-// a file this plugin has never shipped, so every vehicle without a featured
-// image rendered a broken <img> here. VehicleDataHelper owns the same
-// placeholder mechanism the vehicle grid and list already used.
-$vehicle_image = $vehicle_id ? get_the_post_thumbnail_url($vehicle_id, 'medium') : false;
+// Vehicle.
+$vehicle_id    = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+$vehicle       = $vehicle_id ? get_post($vehicle_id) : null;
+$vehicle_image = $vehicle_id ? get_the_post_thumbnail_url($vehicle_id, 'medium_large') : false;
 if (! $vehicle_image) {
 	$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 }
+// The vehicle's pickup point today: no location is stored on the booking (m17).
+$location = $vehicle_id ? LocationContext::for_vehicle($vehicle_id) : null;
+$planned  = BookingTimeline::planned($booking_id);
 
-// Currency: prices below are rendered with CurrencyHelper::format_price(), which
-// carries the symbol and the WooCommerce placement itself.
+// Money.
+$payment_state    = PaymentState::forBooking($booking_id);
+$money_received   = $payment_state->paid() > 0 || array() !== $payment_state->orders();
+$payment_type     = (string) get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
+$deposit_amount   = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
+$remaining_amount = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
+$wc_order_id      = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::resolve_wc_order_id($booking_id);
+$money_text       = static fn(float $amount): string => wp_strip_all_tags(PriceDisplay::for_cart($amount)['html']);
+// Money that moved: recorded gross, recorded currency (no cart tax display).
+$minor_html = static fn(int $minor): string => BookingTimeline::recorded_html($minor, $payment_state->currency());
+$breakdown  = RvsBreakdown::from_booking($booking_id);
 
-// Date format
-$wp_date_fmt            = get_option('date_format');
-$formatted_pickup_date  = date_i18n($wp_date_fmt, strtotime($pickup_date));
-$formatted_dropoff_date = date_i18n($wp_date_fmt, strtotime($dropoff_date));
+// The payment line under the title (Metin tablosu).
+// The card on the dashboard reads the same AccountPaymentSummary.
+$payment_line = null;
+switch (AccountPaymentSummary::for_booking($booking_id, $booking_status)['kind']) {
+	case AccountPaymentSummary::REFUNDED:
+		/* translators: %s: refunded amount. */
+		$payment_line = sprintf(__('%s refunded', 'mhm-rentiva'), wp_strip_all_tags($minor_html($payment_state->refunded())));
+		break;
+	case AccountPaymentSummary::DEPOSIT:
+		$payment_line = RvsBreakdown::is_closed($booking_id)
+			? __('Deposit paid', 'mhm-rentiva')
+			/* translators: %s: amount due at pickup. */
+			: sprintf(__('Deposit paid, %s due at pickup', 'mhm-rentiva'), $money_text($remaining_amount));
+		break;
+	case AccountPaymentSummary::PAID:
+		$payment_line = __('Paid in full', 'mhm-rentiva');
+		break;
+	case AccountPaymentSummary::AWAITING:
+		// The status tag of a pending_payment booking already says so; the line
+		// would repeat it beside the tag. (The dashboard card keeps it: a label there.)
+		if ('pending_payment' !== $booking_status) {
+			$payment_line = __('Awaiting payment', 'mhm-rentiva');
+		}
+		break;
+}
 
-// Status text
-$status_text = array(
-	'pending'     => __('Pending', 'mhm-rentiva'),
-	'confirmed'   => __('Confirmed', 'mhm-rentiva'),
-	'in_progress' => __('In Progress', 'mhm-rentiva'),
-	'completed'   => __('Completed', 'mhm-rentiva'),
-	'cancelled'   => __('Cancelled', 'mhm-rentiva'),
+// "Paid" and "Refunded" rows under the breakdown; the deposit row already
+// names a paid deposit.
+$paid_rows = BookingSummaryPage::paid_rows($booking_id, $breakdown);
+
+// Pay the balance -- today's condition, unchanged (m21): never while the
+// deposit order itself is unpaid (that would open a second order).
+$pay_remaining = null;
+if ('deposit' === $payment_type && $deposit_amount > 0
+	&& $remaining_amount > 0 && ! ( $wc_order_id && ! $money_received ) && in_array($booking_status, array( 'pending', 'confirmed' ), true)
+) {
+	$pay_remaining = \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::is_hybrid_booking($booking_id)
+		? array( 'hybrid' => true )
+		: array(
+			'hybrid' => false,
+			'nonce'  => wp_create_nonce('mhmrentiva_pay_remaining_' . $booking_id),
+		);
+}
+
+// Bank receipt (R13): upload only while no money arrived; a stored receipt's
+// status and link always show.
+$receipt_id = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);
+$receipt    = array(
+	'can_upload' => AccountController::receipt_upload_allowed($booking_id),
+	'has'        => $receipt_id > 0,
+	'status'     => BookingMeta::receipt_status_label( (string) get_post_meta($booking_id, '_mhmrentiva_receipt_status', true)),
+	'url'        => $receipt_id > 0 ? AccountController::get_receipt_url($booking_id) : '',
 );
 
-$status_display = $status_text[ $booking_status ] ?? \MHMRentiva\Admin\Booking\Core\Status::get_label( (string) $booking_status );
-$status_class   = 'status-' . $booking_status;
+// Progress.
+$steps = array();
+$index = 0;
+foreach (BookingTimeline::for_booking($booking_id) as $step) {
+	++$index;
+	$meta = array_filter(array( null !== $step['at'] ? BookingTimeline::moment_text( (int) $step['at']) : '', (string) $step['detail'] ));
 
-$wrapper_class = 'mhm-rentiva-account-page';
-if ($is_integrated) {
-	$wrapper_class .= ' mhm-integrated';
+	$steps[] = array(
+		'label' => $step['label'],
+		'meta'  => implode(' · ', $meta),
+		'done'  => $step['done'],
+		'n'     => $index,
+	);
 }
+
+$view = array(
+	'booking_id'   => $booking_id,
+	'number'       => $number,
+	'back_url'     => (string) ( $navigation['bookings']['url'] ?? '' ),
+	'summary_url'  => BookingSummaryPage::url($booking_id),
+	'status'       => RvsStatus::for($booking_status),
+	'payment_line' => $payment_line,
+	'vehicle'      => array(
+		'name'     => $vehicle ? $vehicle->post_title : __('Unknown Vehicle', 'mhm-rentiva'),
+		'image'    => (string) $vehicle_image,
+		'pickup'   => BookingTimeline::moment_text($planned['pickup']),
+		'return'   => BookingTimeline::moment_text($planned['return']),
+		'location' => $location ? (string) $location->name : '',
+	),
+	'steps'        => $steps,
+	'cancel'       => CancellationView::for_booking($booking_id, get_current_user_id()),
+	'breakdown'    => $breakdown,
+	'deposit_paid' => $money_received,
+	'paid_rows'    => $paid_rows,
+	'pay'          => $pay_remaining,
+	'receipt'      => $receipt,
+	'uid'          => wp_unique_id('rvs-acc-'),
+);
+
+$own_shell  = ! AbstractShortcode::in_rvs_shell();
+$root_class = 'rvs-account mhm-rentiva-account-page' . ( $is_integrated ? ' mhm-integrated' : '' );
 ?>
-
-<div class="<?php echo esc_attr($wrapper_class); ?>">
-
-	<!-- Account Navigation -->
-	<?php if (! $is_integrated && ! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
+<?php if ($own_shell) : ?>
+<div class="rvs-shell <?php echo esc_attr($root_class); ?>">
+<?php else : ?>
+<div class="<?php echo esc_attr($root_class); ?>">
+<?php endif; ?>
+	<?php if (! $is_integrated && ! empty($navigation) && isset($navigation['dashboard']['title'])) : ?>
+		<?php echo wp_kses_post(Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
-
-	<div class="mhm-account-content">
-
-		<!-- Breadcrumb -->
-		<div class="rv-breadcrumb">
-			<a href="<?php echo esc_url($navigation['dashboard']['url']); ?>"><?php esc_html_e('Dashboard', 'mhm-rentiva'); ?></a>
-			<span>/</span>
-			<a href="<?php echo esc_url($navigation['bookings']['url']); ?>"><?php esc_html_e('My Bookings', 'mhm-rentiva'); ?></a>
-			<span>/</span>
-			<span><?php esc_html_e('Booking Details', 'mhm-rentiva'); ?></span>
-		</div>
-
-		<!-- Header -->
-		<div class="rv-page-header">
-			<h1><?php echo esc_html( $header_title ); ?></h1>
-			<?php if ( '' !== $header_text ) : ?>
-				<p><?php echo esc_html( $header_text ); ?></p>
-			<?php endif; ?>
-		</div>
-
-		<!-- Booking Details -->
-		<div class="rv-booking-details">
-			<h2><?php esc_html_e('Reservation Details', 'mhm-rentiva'); ?></h2>
-
-			<div class="rv-details-grid">
-				<!-- Booking Reference -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Booking Reference', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">#<?php echo esc_html(mhmrentiva_get_display_id( (int) $booking_id)); ?></div>
-				</div>
-
-				<!-- Vehicle -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Vehicle', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">
-						<div class="rv-vehicle-info">
-							<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle_name); ?>" class="rv-vehicle-thumb">
-							<span><?php echo esc_html($vehicle_name); ?></span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Pickup Date & Time -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Pickup Date & Time', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value"><?php echo esc_html($formatted_pickup_date . ', ' . $pickup_time); ?></div>
-				</div>
-
-				<!-- Return Date & Time -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Return Date & Time', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value"><?php echo esc_html($formatted_dropoff_date . ', ' . $dropoff_time); ?></div>
-				</div>
-
-				<!-- Status -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Status', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">
-						<span class="rv-status <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_display); ?></span>
-					</div>
-				</div>
-
-				<!-- Payment Type -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Payment Type', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">
-						<?php echo esc_html($payment_type === 'deposit' ? __('Deposit Payment', 'mhm-rentiva') : __('Full Payment', 'mhm-rentiva')); ?>
-					</div>
-				</div>
-
-				<?php if (! empty($payment_method_title)) : ?>
-					<!-- Payment Method -->
-					<div class="rv-detail-row">
-						<div class="rv-detail-label"><?php esc_html_e('Payment Method', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value"><?php echo esc_html($payment_method_title); ?></div>
-					</div>
-				<?php endif; ?>
-
-				<!-- Total Cost -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2)); ?></div>
-				</div>
-
-				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
-					<!-- Deposit Amount -->
-					<div class="rv-detail-row">
-						<div class="rv-detail-label"><?php echo esc_html( $money_received ? __( 'Deposit Paid', 'mhm-rentiva' ) : __( 'Deposit Amount', 'mhm-rentiva' ) ); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $deposit_amount, 2)); ?></div>
-					</div>
-
-					<!-- Remaining Amount -->
-					<div class="rv-detail-row">
-						<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $remaining_amount, 2)); ?></div>
-					</div>
-
-					<?php if ( (float) $remaining_amount > 0 && ! ( $wc_order_id && ! $money_received ) && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
-						<?php if ( \MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::is_hybrid_booking( (int) $booking_id ) ) : ?>
-						<div class="rv-detail-row rv-pay-remaining-row">
-							<div class="rv-detail-label"></div>
-							<div class="rv-detail-value rv-pay-remaining-note">
-								<?php esc_html_e( 'Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance.', 'mhm-rentiva' ); ?>
-							</div>
-						</div>
-						<?php else : ?>
-						<div class="rv-detail-row rv-pay-remaining-row">
-							<div class="rv-detail-label"></div>
-							<div class="rv-detail-value">
-								<button
-									type="button"
-									class="rv-btn rv-btn-primary rv-pay-remaining-btn"
-									data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
-									data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_pay_remaining_' . $booking_id ) ); ?>"
-								>
-									<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
-								</button>
-								<span class="rv-pay-remaining-spinner" style="display:none;"></span>
-							</div>
-						</div>
-						<?php endif; ?>
-					<?php endif; ?>
-				<?php endif; ?>
-
-				<?php if (! empty($selected_addons)) : ?>
-					<!-- Selected Add-ons -->
-					<div class="rv-detail-row">
-						<div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value">
-							<ul class="rv-addons-list">
-								<?php
-								$addon_selection = \MHMRentiva\Admin\Addons\AddonSelection::for_booking($booking_id);
-								foreach ($selected_addons as $addon_id) :
-									$addon = get_post($addon_id);
-									if ($addon) :
-										$addon_label = \MHMRentiva\Admin\Addons\AddonManager::line_label(
-											array(
-												'title'    => $addon->post_title,
-												'quantity' => $addon_selection->quantity( (int) $addon_id ),
-											)
-										);
-										?>
-										<li><?php echo esc_html($addon_label); ?></li>
-										<?php
-									endif;
-								endforeach;
-								?>
-							</ul>
-						</div>
-					</div>
-				<?php endif; ?>
-			</div>
-		</div>
-
-		<?php if ( $shows_next_steps ) : ?>
-		<!-- Next Steps: only for a booking that is going ahead. The old text also
-		     asked for "the credit card used", which a bank-transfer booking never had. -->
-		<div class="rv-next-steps">
-			<h2><?php esc_html_e('Next Steps', 'mhm-rentiva'); ?></h2>
-			<p><?php esc_html_e( 'Please arrive at the pickup location 15 minutes before your scheduled pickup time and bring your driver\'s license.', 'mhm-rentiva' ); ?></p>
-		</div>
-		<?php endif; ?>
-
-		<!-- Actions -->
-		<div class="rv-booking-actions">
-			<a href="<?php echo esc_url($navigation['bookings']['url']); ?>" class="rv-btn rv-btn-secondary">
-				<?php esc_html_e('Back to Bookings', 'mhm-rentiva'); ?>
-			</a>
-
-			<?php
-			// Check if user can cancel this booking
-			$can_cancel        = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::user_can_cancel($booking_id);
-			$cancellation_info = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::get_cancellation_info($booking_id);
-
-			if ($can_cancel) :
-				?>
-				<button type="button" id="cancel-booking-btn" class="rv-btn rv-btn-danger" data-booking-id="<?php echo esc_attr($booking_id); ?>">
-					<?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?>
-				</button>
-			<?php endif; ?>
-
-		</div>
-
-		<?php if ($can_cancel) : ?>
-			<!-- Cancellation Info -->
-			<div class="rv-cancellation-info" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">
-				<p style="margin: 0; font-size: 14px; color: #856404;">
-					<?php echo esc_html($cancellation_info['message']); ?>
-				</p>
-				<?php
-				$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_text_refund_policy', '');
-				if (! empty($refund_policy)) :
-					?>
-					<p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
-						<?php echo esc_html($refund_policy); ?>
-					</p>
-				<?php endif; ?>
-			</div>
-		<?php endif; ?>
-
-	</div><!-- .mhm-account-content -->
-</div>
-
-
-<!-- Cancel Booking Modal -->
-<div id="cancel-booking-modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-	<div style="background-color: #fefefe; margin: 10% auto; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-			<h2 style="margin: 0; color: #dc3545;"><?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?></h2>
-			<button id="close-modal" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
-		</div>
-
-		<p style="margin-bottom: 20px; color: #666;">
-			<?php esc_html_e('Are you sure you want to cancel this booking? This action cannot be undone.', 'mhm-rentiva'); ?>
-		</p>
-
-		<div style="margin-bottom: 20px;">
-			<label for="cancellation-reason" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
-				<?php esc_html_e('Reason for cancellation (optional):', 'mhm-rentiva'); ?>
-			</label>
-			<textarea id="cancellation-reason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; resize: vertical;" placeholder="<?php esc_attr_e('Please tell us why you\'re cancelling...', 'mhm-rentiva'); ?>"></textarea>
-		</div>
-
-		<div id="cancel-status-message" style="margin-bottom: 15px; padding: 10px; border-radius: 4px; display: none;"></div>
-
-		<div style="display: flex; gap: 10px; justify-content: flex-end;">
-			<button id="cancel-modal-close" class="rv-btn rv-btn-secondary"><?php esc_html_e('Keep Booking', 'mhm-rentiva'); ?></button>
-			<button id="confirm-cancellation" class="rv-btn rv-btn-danger"><?php esc_html_e('Yes, Cancel Booking', 'mhm-rentiva'); ?></button>
-		</div>
-	</div>
+	<?php Templates::render('partials/rvs/account-booking-detail', $view); ?>
 </div>

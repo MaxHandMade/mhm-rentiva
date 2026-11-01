@@ -1,138 +1,52 @@
-<div class="mhm-rentiva-account-page mhm-integrated">
-<!-- Account Navigation (only show if not on WooCommerce My Account page) -->
-<!-- Bookings Content -->
-<div class="mhm-account-content">
-<div class="rv-bookings-page" data-testid="X">
-<!-- Header -->
-<div class="section-header">
-<h2>My Reservations</h2>
-<a href="http://example.org/" class="btn btn-primary"> New Reservation </a>
+<div class="rvs-shell" data-rvs-shortcode="rentiva_my_bookings"><div class="rvs-account mhm-rentiva-account-page mhm-integrated">
+<section class="rvs-account__section rvs-account-bookings" aria-labelledby="X" data-testid="X">
+<div class="rvs-account-bookings__head">
+<h2 id="X">My bookings</h2>
+<nav class="rvs-seg" aria-label="X" data-testid="X">
+<a href="/account/rentiva-bookings/?mhmrentiva_view=upcoming" data-rvs-segment="upcoming" aria-current="X">Upcoming (2)</a>
+<a href="/account/rentiva-bookings/?mhmrentiva_view=past" data-rvs-segment="past">Past (1)</a>
+<a href="/account/rentiva-bookings/?mhmrentiva_view=cancelled" data-rvs-segment="cancelled">Cancelled (0)</a>
+</nav>
 </div>
-<!-- Filter Section -->
-<div class="rv-filter-section">
-<h3>Filter</h3>
-<form method="get" action="http://example.org/" class="rv-filter-form" data-testid="X">
-<input type="hidden" name="endpoint" value="bookings">
-<div class="rv-filter-row">
-<select name="mhmrentiva_status_filter" class="rv-filter-select" data-testid="X">
-<option value="all">All Status</option>
-<option value="pending">Pending</option>
-<option value="confirmed">Confirmed</option>
-<option value="in_progress">In Progress</option>
-<option value="completed">Completed</option>
-<option value="cancelled">Cancelled</option>
-</select>
-</div>
-<div class="rv-filter-row">
-<input type="text" name="mhmrentiva_search_booking" class="rv-search-input" placeholder="Search by Reservation ID" value="">
-</div>
-<div class="rv-filter-row">
-<button type="submit" class="rv-filter-submit button">Filter</button>
-</div>
-</form>
-</div>
-<!-- Upcoming Reservations -->
-<div class="rv-bookings-section">
-<div class="section-header">
-<h3>Upcoming Reservations</h3>
-</div>
-<div class="rv-table-wrapper">
-<table class="rv-bookings-table mhm-table" data-testid="X">
-<thead>
-<tr>
-<th style="width: 50px">ID</th>
-<th>Service</th>
-<th style="white-space: nowrap">Date/Time</th>
-<th>Status</th>
-<th>Fee</th>
-<th style="text-align: center;width: 60px">Act</th>
+<table class="rvs-table rvs-account-bookings__table" role="table" data-testid="X">
+<thead role="rowgroup">
+<tr role="row">
+<th scope="col" role="columnheader">No</th>
+<th scope="col" role="columnheader">Car</th>
+<th scope="col" role="columnheader">Dates</th>
+<th scope="col" role="columnheader">Amount</th>
+<th scope="col" role="columnheader">Status</th>
+<th scope="col" role="columnheader"><span class="rvs-sr-only">Action</span></th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td class="rv-booking-id">#BOOKING0</td>
-<td class="rv-vehicle-name">Fixture Vehicle N</td>
-<td class="rv-booking-date">DATE</td>
-<td class="rv-booking-status">
-<span class="status-badge status-confirmed"> Confirmed </span>
+<tbody role="rowgroup">
+<tr role="row">
+<td role="cell" class="rvs-account-bookings__no" data-label="No">#BOOKING0</td>
+<td role="cell" class="rvs-account-bookings__car" data-label="Car"><span class="rvs-account-bookings__vehicle">
+<strong>Fixture Vehicle N</strong></span>
 </td>
-<td class="rv-booking-price">
-<span class="rv-price-badge"> $700.00 </span>
+<td role="cell" class="rvs-account-bookings__dates" data-label="Dates">DATE</td>
+<td role="cell" class="rvs-account-bookings__amount" data-label="Amount"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>700.00</bdi></span></td>
+<td role="cell" class="rvs-account-bookings__status" data-label="Status"><span class="rvs-status rvs-status--confirmed"><svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="X" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M8 12l3 3 5-6" /></svg>Confirmed</span>
 </td>
-<td class="rv-booking-actions">
-<a href="http://example.org?view-rentiva-booking=BOOKING0" class="btn btn-secondary rv-btn-icon-only" title="View Details">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-<circle cx="12" cy="12" r="3"></circle>
-</svg>
-</a>
+<td role="cell" class="rvs-account-bookings__action" data-label="Action">
+<a class="rvs-account-bookings__view" href="http://example.org?view-rentiva-booking=BOOKING0"><span class="rvs-account-bookings__view-text">View</span></a>
 </td>
 </tr>
-<tr>
-<td class="rv-booking-id">#BOOKING1</td>
-<td class="rv-vehicle-name">Fixture Vehicle N</td>
-<td class="rv-booking-date">DATE</td>
-<td class="rv-booking-status">
-<span class="status-badge status-pending"> Pending </span>
+<tr role="row">
+<td role="cell" class="rvs-account-bookings__no" data-label="No">#BOOKING1</td>
+<td role="cell" class="rvs-account-bookings__car" data-label="Car"><span class="rvs-account-bookings__vehicle">
+<strong>Fixture Vehicle N</strong></span>
 </td>
-<td class="rv-booking-price">
-<span class="rv-price-badge"> $1,200.00 </span>
+<td role="cell" class="rvs-account-bookings__dates" data-label="Dates">DATE</td>
+<td role="cell" class="rvs-account-bookings__amount" data-label="Amount"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>1,200.00</bdi></span></td>
+<td role="cell" class="rvs-account-bookings__status" data-label="Status"><span class="rvs-status rvs-status--pending"><svg width="13" height="13" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="X" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>Pending</span>
 </td>
-<td class="rv-booking-actions">
-<a href="http://example.org?view-rentiva-booking=BOOKING1" class="btn btn-secondary rv-btn-icon-only" title="View Details">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-<circle cx="12" cy="12" r="3"></circle>
-</svg>
-</a>
+<td role="cell" class="rvs-account-bookings__action" data-label="Action">
+<a class="rvs-account-bookings__view" href="http://example.org?view-rentiva-booking=BOOKING1"><span class="rvs-account-bookings__view-text">View</span></a>
 </td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<!-- Past Reservations -->
-<div class="rv-bookings-section">
-<div class="section-header">
-<h3>Past Reservations</h3>
-</div>
-<div class="rv-table-wrapper">
-<table class="rv-bookings-table mhm-table" data-testid="X">
-<thead>
-<tr>
-<th style="width: 50px">ID</th>
-<th>Service</th>
-<th style="white-space: nowrap">Date/Time</th>
-<th>Status</th>
-<th>Fee</th>
-<th style="text-align: center;width: 60px">Act</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="rv-booking-id">#BOOKING2</td>
-<td class="rv-vehicle-name">Fixture Vehicle N</td>
-<td class="rv-booking-date">DATE</td>
-<td class="rv-booking-status">
-<span class="status-badge status-completed"> Completed </span>
-</td>
-<td class="rv-booking-price">
-<span class="rv-price-badge"> $300.00 </span>
-</td>
-<td class="rv-booking-actions">
-<a href="http://example.org?view-rentiva-booking=BOOKING2" class="btn btn-secondary rv-btn-icon-only" title="View Details">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-<circle cx="12" cy="12" r="3"></circle>
-</svg>
-</a>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<!-- No Bookings -->
-</div><!-- .rv-bookings-page -->
-</div><!-- .mhm-account-content -->
-</div><!-- .mhm-rentiva-account-page -->
+</section>
+</div></div>

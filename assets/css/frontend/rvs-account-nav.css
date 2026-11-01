@@ -1,0 +1,190 @@
+/**
+ * My Account -- page layout and navigation (PR D, R1).
+ *
+ * The navigation is WooCommerce's own menu (myaccount/navigation.php), redrawn
+ * here with CSS only: its items, their order and their markup are WooCommerce's
+ * and any extension's (`mhmrentiva_account_nav_items`). Desktop: a 230px column
+ * beside the content, the current item raised with a 3px accent edge.
+ * At 782px and below: one row of tabs that scrolls sideways, the current tab
+ * underlined (drawings Hesabim / Hesabim-Mobil).
+ *
+ * Loads on every My Account screen (AccountSurface: rvs, wc and legacy), so
+ * the page keeps one layout whoever draws the content. WooCommerce marks the
+ * current item `li.is-active` and `a[aria-current="page"]`; on the booking
+ * detail Lite adds `is-active` to "My bookings" (WooCommerceIntegration::
+ * menu_item_classes()).
+ *
+ * Tokens: rvs-tokens.css also scopes them to `.woocommerce-account
+ * .woocommerce`, the wrapper this menu lives in -- it sits outside any
+ * `.rvs-shell`.
+ *
+ * Selectors go through `.woocommerce > .woocommerce-MyAccount-navigation` on
+ * purpose: one class more than the theme's and the old my-account.css's rules
+ * on the same elements (`.woocommerce-account .woocommerce-MyAccount-
+ * navigation ...`), so this layer wins on specificity, never on load order --
+ * extension screens load both. No `!important`.
+ *
+ * The two-column frame needs `:has()`. A browser without it keeps the theme's
+ * own frame; the menu is still styled and still works.
+ */
+
+/* Page frame: navigation column + content column. */
+.woocommerce-account .woocommerce:has(> .woocommerce-MyAccount-navigation) {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: flex-start;
+	gap: 50px;
+	box-sizing: border-box;
+	padding: var(--rvs-s8) clamp(16px, 4vw, 40px) var(--rvs-s12);
+	background: var(--rvs-bg);
+	color: var(--rvs-text);
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-content {
+	flex: 1 1 0;
+	min-width: 0;
+	width: auto;
+	max-width: none;
+	margin: 0;
+	float: none;
+}
+
+/* The menu column. */
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation {
+	flex: 0 0 230px;
+	position: static;
+	box-sizing: border-box;
+	width: 230px;
+	max-width: 100%;
+	margin: 0;
+	padding: 0;
+	float: none;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 1.55;
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	list-style: none;
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	list-style: none;
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rvs-s2);
+	box-sizing: border-box;
+	min-height: 44px;
+	padding: 0 12px;
+	border: 0;
+	border-left: 3px solid transparent;
+	border-radius: var(--rvs-r);
+	background: transparent;
+	box-shadow: none;
+	color: var(--rvs-text);
+	font: inherit;
+	text-decoration: none;
+	transition: none;
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a:hover {
+	border-left-color: transparent;
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a:focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li.is-active > a,
+.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li > a[aria-current="page"] {
+	border-left-color: var(--rvs-accent-strong);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+	color: var(--rvs-text);
+	font-weight: 600;
+}
+
+/* Below 782px: tabs. */
+@media (max-width: 782px) {
+	.woocommerce-account .woocommerce:has(> .woocommerce-MyAccount-navigation) {
+		flex-direction: column;
+		align-items: stretch;
+		gap: var(--rvs-s4);
+		padding: var(--rvs-s2) clamp(16px, 4vw, 40px) var(--rvs-s6);
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation {
+		flex: 0 0 auto;
+		width: 100%;
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		gap: 0;
+		padding: 0 6px;
+		overflow-x: auto;
+		border-bottom: 1px solid var(--rvs-line);
+		scrollbar-width: thin;
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li {
+		flex: 0 0 auto;
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a {
+		padding: 0 14px;
+		border-left: 0;
+		border-bottom: 3px solid transparent;
+		border-radius: 0;
+		color: var(--rvs-muted);
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a:hover {
+		background: transparent;
+		color: var(--rvs-text);
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li a:focus-visible {
+		outline-offset: -3px;
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li.is-active > a,
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-navigation ul li > a[aria-current="page"] {
+		border-bottom-color: var(--rvs-accent-strong);
+		background: transparent;
+		box-shadow: none;
+		color: var(--rvs-text);
+	}
+
+	.woocommerce-account .woocommerce > .woocommerce-MyAccount-content {
+		flex: 0 0 auto;
+		width: 100%;
+	}
+}

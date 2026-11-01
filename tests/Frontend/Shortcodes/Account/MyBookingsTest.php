@@ -22,7 +22,7 @@ class MyBookingsTest extends WP_UnitTestCase
 
         $output = do_shortcode('[rentiva_my_bookings]');
 
-        $this->assertStringContainsString('rv-bookings-page', $output);
+        $this->assertStringContainsString('data-testid="account-bookings-page"', $output);
     }
 
     public function test_logged_in_renders_account_wrapper()

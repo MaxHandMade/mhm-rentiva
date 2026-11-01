@@ -103,6 +103,10 @@ final class AccountController {
 		'mhmrentiva_search_booking',
 		'mhmrentiva_page',
 		'mhmrentiva_payments_page',
+		// The bookings list's section (PR D, R6): upcoming, past or cancelled.
+		'mhmrentiva_view',
+		// The printable booking summary (PR D, K14): BookingSummaryPage::QUERY_VAR.
+		'mhmrentiva_summary',
 	);
 
 	/**
@@ -184,6 +188,9 @@ final class AccountController {
 
 		// Communication preferences handler
 		add_action('init', array( self::class, 'handle_communication_preferences' ));
+
+		// Printable booking summary (K14)
+		BookingSummaryPage::register();
 
 		// Remaining payment AJAX handler
 		\MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::register();
@@ -297,10 +304,13 @@ final class AccountController {
 		// Enqueue Booking Cancellation JS on Booking Detail
 		$view_booking_slug = self::get_endpoint_slug('view_booking', 'view-rentiva-booking');
 		if ($endpoint === 'booking-detail' || get_query_var($view_booking_slug) !== '') {
+			// The cancel dialog is the shared rvs dialog (rvs-dialog.js); its
+			// handle is registered and enqueued here so the dependency resolves.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_dialog();
 			wp_enqueue_script(
 				'mhm-rentiva-booking-cancellation',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/booking-cancellation.js',
-				array( 'jquery' ),
+				array( 'mhm-rentiva-rvs-dialog' ),
 				MHMRENTIVA_VERSION,
 				true
 			);
@@ -314,6 +324,7 @@ final class AccountController {
 					'i18n'    => array(
 						'cancelling' => __('Cancelling...', 'mhm-rentiva'),
 						'error'      => __('An error occurred. Please try again.', 'mhm-rentiva'),
+						'cancelled'  => __('Your booking has been cancelled successfully.', 'mhm-rentiva'),
 					),
 				)
 			);
@@ -342,47 +353,93 @@ final class AccountController {
 			);
 		}
 
-		// Conditional Loading: Only load account assets on account pages or endpoints
-		// This prevents CSS leakage onto other pages (like Vehicles List).
-		// See M5 Audit (Step 4B).
+		// Account styles and my-account.js load on account pages and endpoints
+		// only (spec m5): nothing leaks onto other pages, and the script's
+		// `wp_rest` nonce is no longer printed site-wide.
 		$is_account             = self::is_account_page();
 		$has_endpoint           = ! empty($endpoint);
 		$is_woocommerce_account = function_exists('is_account_page') && is_account_page();
 
-		if ($is_account || $has_endpoint || $is_woocommerce_account) {
-			// Load CSS file
-			wp_enqueue_style(
-				'mhm-rentiva-my-account',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
-
-			// Kit stat cards (K4: iconless on the front end).
-			\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
-
-			wp_enqueue_style(
-				'mhm-rentiva-booking-detail',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
-
-			wp_enqueue_style(
-				'mhm-rentiva-bookings-page',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
-				array( 'mhm-rentiva-css-variables' ),
-				MHMRENTIVA_VERSION
-			);
+		if (! ( $is_account || $has_endpoint || $is_woocommerce_account )) {
+			return;
 		}
 
+		self::enqueue_surface_styles(AccountSurface::classify(AccountSurface::current_endpoint_key()));
+		self::enqueue_account_script();
+	}
+
+	/**
+	 * Styles of one account asset class (AccountSurface, PR D r3 Y1).
+	 *
+	 * Class `rvs` loads the `rvs-` account layer only. Class `wc` loads the
+	 * page frame and navigation layer only; WooCommerce styles its own content.
+	 * Class `legacy` loads the navigation layer plus the old account
+	 * stylesheets the extension screens still use.
+	 */
+	public static function enqueue_surface_styles(string $surface_class): void
+	{
+		if (AccountSurface::RVS === $surface_class) {
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_account();
+			return;
+		}
+
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_rvs_account_nav();
+
+		if (AccountSurface::LEGACY !== $surface_class) {
+			return;
+		}
+
+		self::enqueue_legacy_account_styles();
+
+		// Kit stat cards (K4: iconless on the front end).
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_kit( 'front' );
+
+		wp_enqueue_style(
+			'mhm-rentiva-booking-detail',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
+			array( 'mhm-rentiva-css-variables' ),
+			MHMRENTIVA_VERSION
+		);
+
+		wp_enqueue_style(
+			'mhm-rentiva-bookings-page',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
+			array( 'mhm-rentiva-css-variables' ),
+			MHMRENTIVA_VERSION
+		);
+	}
+
+	/**
+	 * The old account stylesheet and the old vehicle card: what an extension's
+	 * account shortcode (AbstractAccountShortcode) has always loaded. The one
+	 * place my-account.css is enqueued, under one handle.
+	 */
+	public static function enqueue_legacy_account_styles(): void
+	{
+		wp_enqueue_style(
+			'mhm-rentiva-my-account',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
+			array( 'mhm-rentiva-css-variables' ),
+			MHMRENTIVA_VERSION
+		);
+
+		// The canonical registration (idempotent), so the handle resolves even
+		// where its `init` run has not happened.
+		\MHMRentiva\Admin\Core\AssetManager::register_common_assets();
+		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
+	}
+
+	/**
+	 * The my-account.js script and its `mhmRentivaAccount` payload. The single definition:
+	 * AbstractAccountShortcode::enqueue_assets() calls this too.
+	 */
+	public static function enqueue_account_script(): void
+	{
 		wp_enqueue_script(
 			'mhm-rentiva-my-account',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
 			// my-account.js calls MHMRentivaToast.* -- toast.js is only
-			// ever auto-loaded where a consumer's own deps declares it. (Same handle is
-			// also enqueued from AbstractAccountShortcode::enqueue_assets(); both sites
-			// need this dependency since either can register the handle first.)
+			// ever auto-loaded where a consumer's own deps declares it.
 			array( 'jquery', 'mhm-rentiva-toast' ),
 			MHMRENTIVA_VERSION,
 			true
@@ -415,7 +472,6 @@ final class AccountController {
 					'cancel_changes_confirm' => __('Are you sure you want to cancel changes?', 'mhm-rentiva'),
 					'no_favorites'           => __('No favorite vehicles yet.', 'mhm-rentiva'),
 					'login_required'         => __('You can add vehicles to favorites using the heart icon.', 'mhm-rentiva'),
-					'cancel_booking'         => __('Cancel Booking', 'mhm-rentiva'),
 					'save_changes'           => __('Save Changes', 'mhm-rentiva'),
 					'favorites_count_single' => __('vehicle in your favorites', 'mhm-rentiva'),
 					'favorites_count_plural' => __('vehicles in your favorites', 'mhm-rentiva'),
@@ -662,6 +718,31 @@ final class AccountController {
 		);
 	}
 
+	/**
+	 * May a bank receipt be uploaded for this booking? (R13, plan r3 y10.)
+	 *
+	 * Only while no money has arrived through any channel and the booking is
+	 * still waiting (`pending_payment` or `pending`). A paid order, an offline
+	 * payment, or a mixed-currency pair (paid() reads 0 there, the orders do
+	 * not) all close it: the balance is paid online ("Pay remaining") or at
+	 * pickup, never by a second transfer slip. The single rule for the detail
+	 * page, the payment history and the upload handler.
+	 */
+	public static function receipt_upload_allowed(int $booking_id, ?\MHMRentiva\Admin\Payment\Core\PaymentState $state = null): bool
+	{
+		if ($booking_id <= 0) {
+			return false;
+		}
+
+		$status = \MHMRentiva\Admin\Booking\Core\Status::get($booking_id);
+		if (! in_array($status, array( \MHMRentiva\Admin\Booking\Core\Status::PENDING_PAYMENT, \MHMRentiva\Admin\Booking\Core\Status::PENDING ), true)) {
+			return false;
+		}
+
+		$state = $state ?? \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking($booking_id);
+
+		return ! ( $state->paid() > 0 || array() !== $state->orders() || $state->isMixedCurrency() );
+	}
 
 	/**
 	 * AJAX: Upload payment receipt (deposit slip)
@@ -690,6 +771,13 @@ final class AccountController {
 		// effective upload_files they do not hold) and wrote receipt meta onto it.
 		if (! self::can_access_receipt($booking_id, $user_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
+		}
+
+		// The one dekont rule (R13, y10), enforced here and not only by hiding
+		// the button: once money has arrived, or the booking is no longer
+		// waiting, no slip is accepted.
+		if (! self::receipt_upload_allowed($booking_id)) {
+			wp_send_json_error(array( 'message' => __('A receipt cannot be uploaded for this booking.', 'mhm-rentiva') ), 400);
 		}
 
 		if (empty($_FILES['receipt'])) {
@@ -962,6 +1050,13 @@ final class AccountController {
 		// permanently deletes an attachment on content that is not a booking.
 		if (! self::can_access_receipt($booking_id, $user_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
+		}
+
+		// Same rule as the upload (R13, y10): once money arrived or the booking
+		// stopped waiting, the customer cannot delete the slip -- the button being
+		// hidden is not the gate. Staff keep their access.
+		if (! self::receipt_upload_allowed($booking_id) && ! ( 'mhmrentiva_booking' === get_post_type($booking_id) && current_user_can('edit_post', $booking_id) )) {
+			wp_send_json_error(array( 'message' => __('A receipt cannot be uploaded for this booking.', 'mhm-rentiva') ), 400);
 		}
 
 		$attachment_id = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);

@@ -86,7 +86,8 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 			'availability'       => array( 'rentiva_availability_calendar', array(), 0 ),
 			'testimonials'       => array( 'rentiva_testimonials', array(), 0 ),
 			'comparison'         => array( 'rentiva_vehicle_comparison', array(), 0 ),
-			'my bookings'        => array( 'rentiva_my_bookings', array(), 1 ),
+			// PR D, R6: the list has no filter form any more (section links instead).
+			'my bookings'        => array( 'rentiva_my_bookings', array(), 0 ),
 			'my favorites'       => array( 'rentiva_my_favorites', array(), 0 ),
 			'payment history'    => array( 'rentiva_payment_history', array(), 0 ),
 			'user dashboard'     => array( 'rentiva_user_dashboard', array(), 0 ),
@@ -154,7 +155,7 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		$bookings_fixture = ShortcodeFixtures::for_tag('rentiva_my_bookings');
 		wp_set_current_user((int) $bookings_fixture['user']);
 		$bookings = $this->shortcode('rentiva_my_bookings', $bookings_fixture['atts']);
-		$this->assertMatchesRegularExpression('/<form\b[^>]*\baction=/', $bookings, 'The bookings filter form has an action on the front end.');
+		$this->assertStringContainsString('mhmrentiva_view=', $bookings, 'The bookings list links its sections on the front end.');
 
 		$search = $this->shortcode('rentiva_unified_search', array());
 		$this->assertMatchesRegularExpression('/<form\b[^>]*\baction=/', $search);

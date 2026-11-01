@@ -68,10 +68,23 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 
 		wp_set_current_user($this->user);
 		RequestSimulator::new_request();
+
+		// The section links are built on the current URL (PR D); a URL left by
+		// an earlier test must not reach the goldens.
+		$this->request_uri      = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/account/rentiva-bookings/';
 	}
+
+	/** @var string|null REQUEST_URI before setUp(). */
+	private ?string $request_uri = null;
 
 	public function tearDown(): void
 	{
+		if (null === $this->request_uri) {
+			unset($_SERVER['REQUEST_URI']);
+		} else {
+			$_SERVER['REQUEST_URI'] = $this->request_uri;
+		}
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
 		wp_set_current_user(0);
 		set_query_var('mhmrentiva_page', '');
@@ -89,7 +102,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 	public function test_default_renders_unchanged(string $name): void
 	{
 		$html = $this->render_surface(substr($name, strlen('my-bookings-')), array());
-		$this->assertStringContainsString('rv-bookings-table', $html, "$name rendered no bookings; the golden would pin an empty render.");
+		$this->assertStringContainsString('rvs-account-bookings__table', $html, "$name rendered no bookings; the golden would pin an empty render.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -116,7 +129,8 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Date/Time, Status and Fee: header and cells follow their flag on every surface.
+	 * Dates, Status and Amount: header and cells follow their flag on every surface
+	 * (PR D: one table, the Upcoming section's two rows).
 	 * The vehicle image column also needs a page that is not integrated (no
 	 * WooCommerce), so it is proven on the template with the non-WooCommerce
 	 * navigation, the way HideNavHasEffectTest proves hide_nav.
@@ -124,16 +138,16 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 	public function test_columns_follow_flags(): void
 	{
 		$columns = array(
-			'show_booking_dates' => array( 'Date/Time', 'rv-booking-date', 'showBookingDates' ),
-			'show_status_toggle' => array( 'Status', 'rv-booking-status', 'showStatus' ),
-			'show_price'         => array( 'Fee', 'rv-booking-price', 'showPrice' ),
+			'show_booking_dates' => array( 'Dates', 'rvs-account-bookings__dates', 'showBookingDates' ),
+			'show_status_toggle' => array( 'Status', 'rvs-account-bookings__status', 'showStatus' ),
+			'show_price'         => array( 'Amount', 'rvs-account-bookings__amount', 'showPrice' ),
 		);
 
 		foreach (array( 'shortcode', 'block', 'widget' ) as $surface) {
 			$default = $this->render_surface($surface, array());
 			foreach ($columns as $key => $col) {
-				$this->assertSame(2, preg_match_all('#<th[^>]*>' . preg_quote($col[0], '#') . '</th>#', $default), "$surface default has the $key header in both tables.");
-				$this->assertSame(3, substr_count($default, 'class="' . $col[1] . '"'), "$surface default shows $key cells.");
+				$this->assertSame(1, preg_match_all('#<th[^>]*>' . preg_quote($col[0], '#') . '</th>#', $default), "$surface default has the $key header.");
+				$this->assertSame(2, substr_count($default, 'class="' . $col[1] . '"'), "$surface default shows $key cells.");
 			}
 		}
 
@@ -144,12 +158,12 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 				'widget'    => $this->widget(array( $key => '' )),
 			);
 			foreach ($off as $surface => $html) {
-				$this->assertSame(3, substr_count($html, 'class="rv-booking-id"'), "$surface rendered the bookings.");
+				$this->assertSame(2, substr_count($html, 'class="rvs-account-bookings__no"'), "$surface rendered the bookings.");
 				$this->assertSame(0, substr_count($html, 'class="' . $col[1] . '"'), "$surface hides the $key cells.");
 				$this->assertSame(0, preg_match('#<th[^>]*>' . preg_quote($col[0], '#') . '</th>#', $html), "$surface hides the $key header.");
 				foreach ($columns as $other => $other_col) {
 					if ($other !== $key) {
-						$this->assertSame(3, substr_count($html, 'class="' . $other_col[1] . '"'), "$surface: $key off leaves $other.");
+						$this->assertSame(2, substr_count($html, 'class="' . $other_col[1] . '"'), "$surface: $key off leaves $other.");
 					}
 				}
 			}
@@ -168,12 +182,11 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 			);
 			return Templates::render('account/bookings', $data, true);
 		};
-		$this->assertSame(3, substr_count($with_nav(array()), 'class="rv-vehicle-thumb"'), 'The Img column shows by default on a non-integrated page.');
-		$this->assertSame(3, substr_count($with_nav(array( 'show_image' => '1' )), 'class="rv-vehicle-thumb"'));
+		$this->assertSame(2, substr_count($with_nav(array()), 'class="rvs-account-bookings__thumb"'), 'The thumbnail shows by default on a non-integrated page.');
+		$this->assertSame(2, substr_count($with_nav(array( 'show_image' => '1' )), 'class="rvs-account-bookings__thumb"'));
 		$hidden = $with_nav(array( 'show_image' => '0' ));
-		$this->assertStringNotContainsString('rv-vehicle-thumb', $hidden, 'show_image off hides the cells.');
-		$this->assertStringNotContainsString('>Img</th>', $hidden, 'show_image off hides the header.');
-		$this->assertStringNotContainsString('rv-vehicle-thumb', $this->shortcode(''), 'An integrated page has no Img column (unchanged).');
+		$this->assertStringNotContainsString('rvs-account-bookings__thumb', $hidden, 'show_image off hides the thumbnails.');
+		$this->assertStringNotContainsString('rvs-account-bookings__thumb', $this->shortcode(''), 'An integrated page has no thumbnail (unchanged).');
 
 		// Each surface hands show_image over to the renderer.
 		$this->assertFalse($this->received_flag('show_image', fn() => $this->block(array( 'showVehicleImage' => false ))));
@@ -192,16 +205,21 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		$newest = $this->bookings[0];
 		$middle = $this->bookings[1];
 		$oldest = $this->bookings[2];
+		// PR D: the pager pages within a section; make all three upcoming.
+		update_post_meta($oldest, '_mhmrentiva_status', 'confirmed');
+		update_post_meta($oldest, '_mhmrentiva_dropoff_date', gmdate('Y-m-d', time() + 30 * DAY_IN_SECONDS));
+		// Soonest pickup first, so the created order and the pickup order agree.
+		update_post_meta($oldest, '_mhmrentiva_start_ts', time() + 40 * DAY_IN_SECONDS);
 
 		$first = $this->shortcode('limit="2"');
 		$this->assertSame(array( $newest, $middle ), $this->ids($first));
-		$this->assertStringContainsString('mhm-pagination', $first);
+		$this->assertStringContainsString('bookings-pager', $first);
 		$this->assertStringContainsString('Page 1 / 2', $first);
 		$this->assertStringContainsString('mhmrentiva_page=2', $first, 'Next links to page 2.');
 
 		set_query_var('mhmrentiva_page', '2');
 		$second = $this->shortcode('limit="2"');
-		$this->assertSame(array( $oldest ), $this->ids($second), 'Page 2 shows the older booking.');
+		$this->assertSame(array( $oldest ), $this->ids($second), 'Page 2 shows the later pickup.');
 		$this->assertStringContainsString('Page 2 / 2', $second);
 
 		foreach (array( 'block' => $this->block(array( 'limit' => '2' )), 'widget' => $this->widget(array( 'limit' => 2 )), 'endpoint' => $this->endpoint_with_limit(2) ) as $surface => $html) {
@@ -217,16 +235,16 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		// Off: no pager, and the page var is not honoured (today's list).
 		set_query_var('mhmrentiva_page', '2');
 		$off = $this->shortcode('limit="2" show_pagination="0"');
-		$this->assertStringNotContainsString('mhm-pagination', $off);
+		$this->assertStringNotContainsString('bookings-pager', $off);
 		$this->assertSame(array( $newest, $middle ), $this->ids($off));
 		$off_block = $this->block(array( 'limit' => '2', 'showPagination' => false ));
-		$this->assertStringNotContainsString('mhm-pagination', $off_block);
+		$this->assertStringNotContainsString('bookings-pager', $off_block);
 		$off_widget = $this->widget(array( 'limit' => 2, 'show_pagination' => '' ));
-		$this->assertStringNotContainsString('mhm-pagination', $off_widget);
+		$this->assertStringNotContainsString('bookings-pager', $off_widget);
 		set_query_var('mhmrentiva_page', '');
 
 		// One page: no pager (the default render, as the goldens pin).
-		$this->assertStringNotContainsString('mhm-pagination', $this->shortcode(''));
+		$this->assertStringNotContainsString('bookings-pager', $this->shortcode(''));
 	}
 
 	/**
@@ -248,18 +266,19 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		$first = $this->shortcode('limit="10"');
 		$this->assertSame(array_slice($completed, 0, 10), $this->ids($first), 'Page 1: the 10 newest completed.');
 		$this->assertStringContainsString('Page 1 / 2', $first);
-		$this->assertStringNotContainsString('No Bookings Found', $first);
+		$this->assertStringNotContainsString('bookings-section-empty', $first);
 
 		set_query_var('mhmrentiva_page', '2');
 		$second = $this->shortcode('limit="10"');
 		$this->assertSame(array_slice($completed, 10), $this->ids($second), 'Page 2: the other 2 completed.');
 		$this->assertStringContainsString('Page 2 / 2', $second);
 
-		// The data agrees with the render, and 'all' is no filter.
+		// The data agrees with the render, and 'all' is no filter: the default
+		// section (Upcoming: the 12 confirmed), 2 pages.
 		set_query_var('mhmrentiva_page', '');
 		$this->assertSame(2, AccountRenderer::get_bookings_data(array( 'limit' => '10' ))['data']['total_pages']);
 		set_query_var('mhmrentiva_status_filter', 'all');
-		$this->assertSame(3, AccountRenderer::get_bookings_data(array( 'limit' => '10' ))['data']['total_pages'], '25 bookings, no filter: 3 pages.');
+		$this->assertSame(2, AccountRenderer::get_bookings_data(array( 'limit' => '10' ))['data']['total_pages'], 'No filter: the Upcoming section, 12 bookings, 2 pages.');
 		set_query_var('mhmrentiva_status_filter', '');
 	}
 
@@ -275,14 +294,14 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		set_query_var('mhmrentiva_search_booking', (string) $target);
 		$html = $this->shortcode('limit="10"');
 		$this->assertContains($target, $this->ids($html), 'The search finds it from page 1.');
-		$this->assertStringNotContainsString('No Bookings Found', $html);
-		$this->assertStringNotContainsString('mhm-pagination', $html, 'One page of matches, no pager.');
+		$this->assertStringNotContainsString('bookings-section-empty', $html);
+		$this->assertStringNotContainsString('bookings-pager', $html, 'One page of matches, no pager.');
 		foreach ($this->ids($html) as $id) {
 			$this->assertStringContainsString((string) $target, (string) $id, 'Only IDs containing the search text.');
 		}
 
 		set_query_var('mhmrentiva_search_booking', '999999999');
-		$this->assertStringContainsString('No Bookings Found', $this->shortcode('limit="10"'), 'No match: the empty state, not someone else\'s bookings.');
+		$this->assertStringContainsString('No bookings found.', $this->shortcode('limit="10"'), 'No match: the empty sentence, not someone else\'s bookings.');
 		set_query_var('mhmrentiva_search_booking', '');
 	}
 
@@ -384,7 +403,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 			)
 		);
 		// The details link stays: it is the only path to detail, cancel and receipt.
-		$this->assertSame(3, substr_count($this->shortcode('show_details_link="0"'), 'rv-btn-icon-only'));
+		$this->assertSame(2, substr_count($this->shortcode('show_details_link="0"'), 'class="rvs-account-bookings__view"'));
 	}
 
 	/**
@@ -394,7 +413,7 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 	 */
 	private function ids(string $html): array
 	{
-		preg_match_all('#<td class="rv-booking-id">\#(\d+)</td>#', $html, $m);
+		preg_match_all('#<td role="cell" class="rvs-account-bookings__no"[^>]*>\#(\d+)</td>#', $html, $m);
 		return array_map('intval', $m[1]);
 	}
 
@@ -428,13 +447,17 @@ final class MyBookingsSettingsTest extends WP_UnitTestCase
 		foreach ($this->bookings as $i => $id) {
 			$map[ $id ] = 'BOOKING' . $i;
 		}
+		// Numeric character references (wc_price() writes "$" as &#036;) are not
+		// booking ids: with booking 36 the mapping below would rename them.
+		$html = (string) preg_replace_callback('/&#(\d+);/', static fn(array $m): string => html_entity_decode($m[0], ENT_QUOTES | ENT_HTML5, 'UTF-8'), $html);
 		$html = (string) preg_replace_callback(
 			'/(?<=[#=\/])(\d+)(?=[^\d])/',
 			static fn(array $m): string => $map[ (int) $m[1] ] ?? $m[1],
 			$html
 		);
 		$html = (string) preg_replace('/Fixture Vehicle \d+/', 'Fixture Vehicle N', $html);
-		$html = (string) preg_replace('#(<td class="rv-booking-date">)[^<]*(</td>)#', '$1DATE$2', $html);
+		$html = (string) preg_replace('#(<td role="cell" class="rvs-account-bookings__dates"[^>]*>)[^<]*(</td>)#', '$1DATE$2', $html);
+		$html = (string) preg_replace('/rvs-acc-\d+/', 'rvs-acc-N', $html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";

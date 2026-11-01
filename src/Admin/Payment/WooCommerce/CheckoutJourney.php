@@ -8,6 +8,8 @@ use MHMRentiva\Admin\Booking\Pricing\RentalQuote;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Frontend\Account\BookingSummaryPage;
+use MHMRentiva\Admin\Frontend\Account\WooCommerceIntegration;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsBreakdown;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsSteps;
 
@@ -75,15 +77,23 @@ final class CheckoutJourney {
 			return;
 		}
 
-		$link = '';
-		$user = get_current_user_id();
+		$link         = '';
+		$summary_link = '';
+		$user         = get_current_user_id();
 		if (is_user_logged_in() && $user > 0 && (int) $order->get_customer_id() === $user) {
 			$link = wc_get_account_endpoint_url(AccountController::get_endpoint_slug('bookings', 'rentiva-bookings'));
+
+			// The printable booking summary, once the booking exists and is the
+			// customer's (the booking may not be created yet on this hook).
+			$booking_id = self::booking_id_of($order);
+			if ($booking_id > 0 && WooCommerceIntegration::can_view_booking($booking_id)) {
+				$summary_link = BookingSummaryPage::url($booking_id);
+			}
 		}
 
 		self::render_journey(
 			$order->has_status('failed') ? 2 : 3,
-			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link)
+			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link, $summary_link)
 		);
 	}
 
@@ -219,7 +229,7 @@ final class CheckoutJourney {
 	 * @param array<string, mixed> $snap Cart or order line booking data.
 	 * @return array{summary: array<string, mixed>}
 	 */
-	private static function summary_vars(array $snap, string $heading, string $link): array
+	private static function summary_vars(array $snap, string $heading, string $link, string $summary_link = ''): array
 	{
 		$total   = (float) ( $snap['total_price'] ?? 0 );
 		$deposit = 'full' === (string) ( $snap['payment_type'] ?? '' ) ? 0.0 : (float) ( $snap['deposit_amount'] ?? 0 );
@@ -235,6 +245,7 @@ final class CheckoutJourney {
 				'dates'     => self::window_text($snap),
 				'breakdown' => RvsBreakdown::from_quote(self::quote_from_snapshot($snap), $deposit, self::addon_rows($snap), $rate),
 				'link'      => $link,
+				'summary'   => $summary_link,
 			),
 		);
 	}
@@ -265,6 +276,26 @@ final class CheckoutJourney {
 		}
 
 		return $text;
+	}
+
+	/**
+	 * The booking the order created: the order's own meta, else its line's;
+	 * 0 when none exists yet.
+	 */
+	private static function booking_id_of(\WC_Order $order): int
+	{
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id', true);
+		if ($booking_id > 0) {
+			return $booking_id;
+		}
+		foreach ($order->get_items() as $item) {
+			$booking_id = (int) $item->get_meta('_mhmrentiva_booking_id', true);
+			if ($booking_id > 0) {
+				return $booking_id;
+			}
+		}
+
+		return 0;
 	}
 
 	private static function order(int $order_id): ?\WC_Order

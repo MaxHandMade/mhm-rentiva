@@ -19,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class MyBookings extends AbstractAccountShortcode {
 
+	/** Renders inside the front-end standard's shell (PR D). */
+	protected static bool $rvs_shell = true;
 
 	protected static function get_shortcode_tag(): string {
 		return 'rentiva_my_bookings';
@@ -32,7 +34,8 @@ final class MyBookings extends AbstractAccountShortcode {
 		return array(
 			'limit'              => '10',
 			'status'             => '',
-			'order'              => 'DESC',
+			// Empty: each section's own pickup order. ASC / DESC: by created date.
+			'order'              => '',
 			'hide_nav'           => false,
 			// Spec 3A Task 7a: these gate markup that was unconditional, so on by default.
 			'show_image'         => '1',
@@ -53,16 +56,5 @@ final class MyBookings extends AbstractAccountShortcode {
 		}
 
 		return AccountRenderer::get_bookings_data( $atts );
-	}
-
-	protected static function enqueue_assets( array $atts = array() ): void {
-		parent::enqueue_assets();
-
-		wp_enqueue_style(
-			'mhm-rentiva-bookings-page',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
-			array( 'mhm-rentiva-css-variables' ),
-			MHMRENTIVA_VERSION
-		);
 	}
 }

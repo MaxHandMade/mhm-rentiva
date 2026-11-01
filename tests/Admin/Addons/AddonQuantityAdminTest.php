@@ -165,8 +165,9 @@ final class AddonQuantityAdminTest extends WP_UnitTestCase
 
 		$html = AccountRenderer::render_booking_detail($booking_id, true);
 
-		$this->assertStringContainsString('<li>Child seat × 2</li>', $html);
-		$this->assertStringContainsString('<li>GPS</li>', $html);
+		// PR D Task 4: the add-ons are rows of the payment breakdown now.
+		$this->assertStringContainsString('<dt>Child seat × 2</dt>', $html);
+		$this->assertStringContainsString('<dt>GPS</dt>', $html);
 	}
 
 	public function test_edit_keeps_a_booked_quantity_after_the_maximum_is_lowered(): void

@@ -37,6 +37,10 @@ final class Hooks {
 		// old total on screen for the rest of the cache lifetime.
 		add_action('mhmrentiva_booking_created', array( self::class, 'invalidate_customer_figures' ), 10, 0);
 		add_action('mhmrentiva_booking_status_changed', array( self::class, 'invalidate_customer_figures' ), 10, 0);
+
+		// The dated history of a status, whoever moved it: a WooCommerce payment,
+		// a cron job or a REST call runs outside is_admin() too.
+		add_action('mhmrentiva_booking_status_changed', array( \MHMRentiva\Admin\Booking\Meta\BookingMeta::class, 'auto_add_status_change_note' ), 10, 3);
 	}
 
 	/**

@@ -683,6 +683,17 @@ abstract class AbstractShortcode {
 	}
 
 	/**
+	 * Whether a flagged shortcode's render is in progress, so its shell is
+	 * already around whatever renders now. A template that is also rendered
+	 * outside any shortcode (a WooCommerce account endpoint) writes its own
+	 * shell only when this is false.
+	 */
+	public static function in_rvs_shell(): bool
+	{
+		return self::$rvs_shell_depth > 0;
+	}
+
+	/**
 	 * Request state beyond the attributes that changes this shortcode's render,
 	 * for the HTML cache key: the search window (cards price the period and link
 	 * the booking with it) and a guest's comparison list (a cookie the cards'
@@ -693,6 +704,16 @@ abstract class AbstractShortcode {
 	protected static function cache_request_factors(): array
 	{
 		$factors = array( 'window' => self::request_window() );
+
+		// The account bookings list's section, page and old filter vars (PR D,
+		// m8): two requests for the same list that narrow it differently must
+		// not share an entry.
+		foreach (array( 'mhmrentiva_view', 'mhmrentiva_page', 'mhmrentiva_status_filter', 'mhmrentiva_search_booking' ) as $var) {
+			$value = get_query_var($var, '');
+			if (is_scalar($value) && '' !== (string) $value) {
+				$factors[ $var ] = (string) $value;
+			}
+		}
 		if (! is_user_logged_in() && class_exists(\MHMRentiva\Admin\Services\CompareService::class)) {
 			$factors['compare'] = \MHMRentiva\Admin\Services\CompareService::get_list();
 		}

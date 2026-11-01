@@ -13,7 +13,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Payment\Core\Money;
 
 
 
@@ -151,15 +151,36 @@ final class AccountRenderer {
 			}
 		);
 
+		// The next rental (card + line under the greeting) and the upcoming list
+		// (PR D, y16). `recent_bookings` stays filled for back-compat (Pro or a
+		// theme template may read it); the shipped template no longer does.
+		$now_ts  = time();
+		$next_id = AccountDashboardView::next_booking_id( (int) $user->ID, $now_ts);
+		$next    = null;
+		if (null !== $next_id) {
+			$next_pickup = AccountBookingsQuery::pickup_ts($next_id);
+			$next        = array(
+				'status'      => (string) get_post_meta($next_id, '_mhmrentiva_status', true),
+				'pickup_ts'   => $next_pickup,
+				'return_text' => AccountDashboardView::return_text($next_id),
+			);
+		}
+
+		$upcoming = AccountBookingsQuery::page( (int) $user->ID, AccountBookingsQuery::UPCOMING, 1, 5);
+		$counts   = AccountBookingsQuery::counts( (int) $user->ID);
+
 		$data = array(
 			'user'                  => $user,
 			'bookings_count'        => count($bookings),
 			'active_bookings_count' => count($active_bookings),
 			'recent_bookings'       => array_slice($bookings, 0, 5),
 			'navigation'            => self::get_navigation(),
-			'favorites'             => SettingsCore::get('mhmrentiva_customer_favorites', '1'),
-			'booking_history'       => SettingsCore::get('mhmrentiva_customer_booking_history', '1'),
-			'welcome_message'       => SettingsCore::get('mhmrentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
+			'greeting_name'         => AccountDashboardView::greeting_name($user),
+			'subline'               => AccountDashboardView::subline($next, $now_ts),
+			'next_rental'           => null !== $next_id ? AccountDashboardView::next_card($next_id) : null,
+			'upcoming_posts'        => $upcoming['posts'],
+			'counts'                => $counts,
+			'has_bookings'          => array_sum($counts) > 0,
 		);
 
 		return array( 'data' => $data );
@@ -175,35 +196,42 @@ final class AccountRenderer {
 
 	/**
 	 * Get bookings data
+	 *
+	 * The list shows one section (PR D, R5/R6): `mhmrentiva_view` names it,
+	 * Upcoming by default. The shortcode's `status` attribute fixes the list to
+	 * one status: no section control, no section. The old filter vars
+	 * (mhmrentiva_status_filter, mhmrentiva_search_booking) still narrow the
+	 * query; a URL that carries one of them and no section (an old bookmark)
+	 * searches every section.
 	 */
 	public static function get_bookings_data(array $atts = array()): array
 	{
 		$user = wp_get_current_user();
 
-		// Spec 3A Task 7a: the list is ordered by date only (the removed `orderby`
-		// collapsed to it for every option); Sort Order stays live.
+		// Without an `order` each section keeps its own pickup order
+		// (AccountBookingsQuery::segment_ids()). An explicit Sort Order wins: by
+		// created date, the only `orderby` left (spec 3A Task 7a).
 		$args = array(
 			'limit'   => (int) ( $atts['limit'] ?? 10 ),
 			'status'  => self::sanitize_text_field_safe($atts['status'] ?? ''),
 			'orderby' => 'date',
-			'order'   => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
+			'order'   => self::sanitize_text_field_safe($atts['order'] ?? ''),
 		);
 
-		// Pagination (show_pagination, on unless turned off): the page comes from
-		// the public query var; a page past the end shows the last one. Off is
-		// today's list -- the first `limit` bookings, the page var ignored.
-		//
-		// The list's own filter form (mhmrentiva_status_filter,
-		// mhmrentiva_search_booking) narrows the query itself, so the rows and the
-		// page count both follow it (T7a-1). It used to filter the fetched page in
-		// the template, which left pages empty under a pager that counted every
-		// booking, and a search only saw the current page.
+		// The list's old filter params narrow the query itself, so the rows and
+		// the page count both follow them (T7a-1).
 		$args['status_filter'] = self::list_filter_var('mhmrentiva_status_filter');
 		if ('all' === $args['status_filter']) {
 			$args['status_filter'] = '';
 		}
 		$args['search'] = self::list_filter_var('mhmrentiva_search_booking');
 
+		$show_segments   = '' === $args['status'];
+		$args['segment'] = $show_segments ? self::requested_segment('' !== $args['status_filter'] || '' !== $args['search']) : '';
+
+		// Pagination (show_pagination, on unless turned off): the page comes from
+		// the public query var, within the section; a page past the end shows
+		// the last one. Off is today's list -- the first `limit` bookings.
 		$paginate = self::flag_is_on($atts['show_pagination'] ?? '1') && $args['limit'] > 0;
 		// Capped so the query's offset ((page - 1) * limit) stays an integer: an
 		// overflowing page number would reach SQL as a float.
@@ -220,11 +248,18 @@ final class AccountRenderer {
 			$query       = self::query_user_bookings($user->ID, $args + array( 'page' => $page ));
 		}
 
+		$counts = AccountBookingsQuery::counts( (int) $user->ID);
+
 		$data = array(
 			'user'               => $user,
 			'bookings'           => $query->posts,
 			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 			'atts'               => $atts,
+			// Sections (PR D).
+			'segment'            => $args['segment'],
+			'show_segments'      => $show_segments,
+			'counts'             => $counts,
+			'has_bookings'       => array_sum($counts) > 0,
 			// Column toggles: missing means on, the columns were unconditional.
 			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
 			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
@@ -236,6 +271,35 @@ final class AccountRenderer {
 		);
 
 		return array( 'data' => $data );
+	}
+
+	/**
+	 * The section the request asks for (`mhmrentiva_view`). Missing or unknown
+	 * is Upcoming -- or no section when $legacy_filtered (an old filter link).
+	 */
+	private static function requested_segment(bool $legacy_filtered): string
+	{
+		$view = self::list_filter_var('mhmrentiva_view');
+		if (in_array($view, AccountBookingsQuery::SEGMENTS, true)) {
+			return $view;
+		}
+
+		return $legacy_filtered ? '' : AccountBookingsQuery::UPCOMING;
+	}
+
+	/**
+	 * URL of a section of the bookings list: the current URL with
+	 * `mhmrentiva_view` set, from page 1, without the old filter vars.
+	 *
+	 * @param string $segment An AccountBookingsQuery::SEGMENTS value.
+	 */
+	public static function segment_url(string $segment): string
+	{
+		return add_query_arg(
+			'mhmrentiva_view',
+			$segment,
+			remove_query_arg(array( self::PAGE_VAR_BOOKINGS, 'mhmrentiva_status_filter', 'mhmrentiva_search_booking' ))
+		);
 	}
 
 	/**
@@ -260,6 +324,15 @@ final class AccountRenderer {
 			'booking_rows'       => $rows,
 			'navigation'         => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 			'atts'               => $atts,
+			// Every sample row is drawn, so all of them count as Upcoming (r2 m7).
+			'segment'            => AccountBookingsQuery::UPCOMING,
+			'show_segments'      => '' === self::sanitize_text_field_safe($atts['status'] ?? ''),
+			'counts'             => array(
+				AccountBookingsQuery::UPCOMING  => count($rows),
+				AccountBookingsQuery::PAST      => 0,
+				AccountBookingsQuery::CANCELLED => 0,
+			),
+			'has_bookings'       => array() !== $rows,
 			'show_image'         => self::flag_is_on($atts['show_image'] ?? '1'),
 			'show_booking_dates' => self::flag_is_on($atts['show_booking_dates'] ?? '1'),
 			'show_status'        => self::flag_is_on($atts['show_status_toggle'] ?? '1'),
@@ -282,7 +355,7 @@ final class AccountRenderer {
 	 * falls back to the placeholder); `view_url` is '' for a row without a
 	 * details page (preview samples).
 	 *
-	 * @return array{id:int,vehicle_title:?string,vehicle_image:string,status:mixed,pickup_date:mixed,pickup_time:mixed,dropoff_date:mixed,total_price:mixed,view_url:string}
+	 * @return array{id:int,display_id:int,vehicle_title:?string,vehicle_image:string,status:mixed,pickup_date:mixed,pickup_time:mixed,dropoff_date:mixed,return_day:string,total_price:mixed,view_url:string}
 	 */
 	public static function booking_view_row(\WP_Post $booking): array
 	{
@@ -309,6 +382,8 @@ final class AccountRenderer {
 			'pickup_date'   => get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true),
 			'pickup_time'   => $pickup_time,
 			'dropoff_date'  => get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true),
+			// The return day the list's section rule reads (AccountBookingsQuery chain).
+			'return_day'    => AccountBookingsQuery::return_day( (int) $booking->ID),
 			'total_price'   => get_post_meta($booking->ID, '_mhmrentiva_total_price', true),
 			'view_url'      => AccountController::get_booking_view_url( (int) $booking->ID),
 		);
@@ -404,6 +479,13 @@ final class AccountRenderer {
 		// Enqueue global interactions (v1.3.3) -- through AssetManager, so the
 		// script always arrives with its one mhmrentiva_vars payload.
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
+
+		// The favorites template's "Clear all favorites" and empty-state redraw
+		// live in my-account.js. Enqueued here, not only from
+		// AccountController::enqueue_assets() (account pages only), so the
+		// payload below never lands on an unregistered handle, whoever renders
+		// this template.
+		AccountController::enqueue_account_script();
 
 		// Localize (grid/list ortak)
 		wp_localize_script(
@@ -691,7 +773,7 @@ final class AccountRenderer {
 				'icon'  => '❤️',
 			),
 			'payment-history' => array(
-				'title' => __('Payment History', 'mhm-rentiva'),
+				'title' => __('Payment history', 'mhm-rentiva'),
 				'url'   => add_query_arg('endpoint', 'payment-history', $base_url),
 				'icon'  => '💳',
 			),
@@ -743,90 +825,13 @@ final class AccountRenderer {
 
 	/**
 	 * The query behind get_user_bookings(), for callers that page through it
-	 * (`page`, 1-based; max_num_pages on the result).
+	 * (`page`, 1-based; max_num_pages on the result). A thin wrapper: the one
+	 * bookings query path is AccountBookingsQuery (r3 y2); `segment` narrows to
+	 * a section of the list.
 	 */
 	private static function query_user_bookings(int $user_id, array $args = array()): \WP_Query
 	{
-		$defaults = array(
-			'limit'         => 10,
-			'status'        => '',
-			'orderby'       => 'date',
-			'order'         => 'DESC',
-			'page'          => 1,
-			'status_filter' => '',
-			'search'        => '',
-		);
-
-		$args = wp_parse_args($args, $defaults);
-
-		// Meta query
-		$meta_query = array(
-			array(
-				'key'     => '_mhmrentiva_customer_user_id',
-				'value'   => $user_id,
-				'compare' => '=',
-			),
-		);
-
-		// Status filter
-		if (! empty($args['status'])) {
-			$meta_query[] = array(
-				'key'     => '_mhmrentiva_status',
-				'value'   => self::sanitize_text_field_safe($args['status']),
-				'compare' => '=',
-			);
-		}
-
-		// The list's own status filter, on top of the configured one (both must hold).
-		if (! empty($args['status_filter'])) {
-			$meta_query[] = array(
-				'key'     => '_mhmrentiva_status',
-				'value'   => self::sanitize_text_field_safe($args['status_filter']),
-				'compare' => '=',
-			);
-		}
-
-		$query_args = array(
-			'post_type'      => 'mhmrentiva_booking',
-			'post_status'    => 'publish',
-			'posts_per_page' => (int) $args['limit'],
-			'orderby'        => self::sanitize_text_field_safe($args['orderby']),
-			'order'          => self::sanitize_text_field_safe($args['order']),
-			'meta_query'     => $meta_query,
-			'paged'          => max(1, (int) $args['page']),
-		);
-
-		// Search by reservation ID (the list's form): a booking whose ID contains
-		// the text, as the template matched it. The candidate IDs are this
-		// customer's (already narrowed) bookings, so the page count follows it.
-		$search = (string) ( $args['search'] ?? '' );
-		if ('' !== $search) {
-			$ids                    = get_posts(
-				array_merge(
-					$query_args,
-					array(
-						'posts_per_page' => -1,
-						'paged'          => 1,
-						'fields'         => 'ids',
-						'no_found_rows'  => true,
-					)
-				)
-			);
-			// One query for every candidate's meta, instead of one per candidate
-			// when the display number is resolved below.
-			update_meta_cache('post', array_map('intval', $ids));
-			$matched                = array_values(
-				array_filter(
-					array_map('intval', $ids),
-					// Match the number the customer sees as well as the raw ID.
-					static fn(int $id): bool => false !== strpos( (string) $id, $search)
-						|| false !== strpos( (string) mhmrentiva_get_display_id($id), $search)
-				)
-			);
-			$query_args['post__in'] = array() !== $matched ? $matched : array( 0 );
-		}
-
-		return new \WP_Query($query_args);
+		return AccountBookingsQuery::query($user_id, $args);
 	}
 
 	/**
@@ -857,8 +862,8 @@ final class AccountRenderer {
 			$total_price     = (float) $total_raw;
 			$deposit_amount  = (float) $deposit_raw;
 			$payment_type    = get_post_meta($booking->ID, '_mhmrentiva_payment_type', true);
-			// No amount meta at all (not a zero amount): sorted last by amount.
-			$has_amount = '' !== ( $payment_type === 'deposit' ? $deposit_raw : $total_raw );
+			// No amount meta at all (not a zero amount).
+			$has_expected = '' !== ( $payment_type === 'deposit' ? $deposit_raw : $total_raw );
 
 			// Normalize status values from various sources
 			$status_key = strtolower( (string) $payment_status);
@@ -886,27 +891,31 @@ final class AccountRenderer {
 					$payment_status = ! empty($status_key) ? $status_key : 'pending';
 			}
 
+			// The truth about the row (R13, PR D). What the detail and the card call
+			// refunded, or a stored cancelled / refunded / failed (a terminal state
+			// written on purpose), is cancelled and is not overruled by the money
+			// once received. A partial refund on a live rental stays completed. Otherwise money
+			// received (PaymentState, through AccountPaymentSummary) is completed,
+			// whatever the stored status still says; the stored status speaks
+			// only when no money is on record.
+			$booking_status = \MHMRentiva\Admin\Booking\Core\Status::get($booking->ID);
+			$payment_state  = \MHMRentiva\Admin\Payment\Core\PaymentState::forBooking( (int) $booking->ID);
+			$summary        = AccountPaymentSummary::for_booking($booking->ID, $booking_status, $payment_state);
+			if (AccountPaymentSummary::REFUNDED === $summary['kind'] || 'cancelled' === $payment_status) {
+				$payment_status = 'cancelled';
+			} elseif ($summary['money_received']) {
+				$payment_status = 'completed';
+			} elseif (in_array($booking_status, array( \MHMRentiva\Admin\Booking\Core\Status::CANCELLED, \MHMRentiva\Admin\Booking\Core\Status::REFUNDED ), true)) {
+				$payment_status = 'cancelled';
+			}
+
 			// Fallback gateway if empty (manual/offline)
 			if (empty($payment_gateway)) {
 				$payment_gateway = ! empty($payment_method) ? $payment_method : 'woocommerce';
 			}
 
-			// Build date with time if available
-			$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
-			if (empty($pickup_date)) {
-				$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_date', true);
-			}
-
-			$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
-			if (empty($pickup_time)) {
-				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
-			}
-			if (empty($pickup_time)) {
-				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
-			}
-
-			$date_str       = trim($pickup_date . ' ' . ( ! empty($pickup_time) ? $pickup_time : '' ));
-			$date_formatted = $date_str ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($date_str)) : get_the_date('', $booking->ID);
+			// The row's date: when the money arrived, else when the booking was made.
+			$row_ts = AccountPaymentSummary::row_date_ts( (int) $booking->ID, $summary['order_ids']);
 
 			if ($payment_status) {
 				// Translate Status
@@ -916,6 +925,10 @@ final class AccountRenderer {
 					'cancelled' => __('Cancelled', 'mhm-rentiva'),
 				);
 				$status_label  = $status_labels[ $payment_status ] ?? ucfirst($payment_status);
+				// A refunded row keeps the cancelled colour but says what happened.
+				if (AccountPaymentSummary::REFUNDED === $summary['kind'] || \MHMRentiva\Admin\Booking\Core\Status::REFUNDED === $booking_status || 'refunded' === $status_key) {
+					$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label(\MHMRentiva\Admin\Booking\Core\Status::REFUNDED);
+				}
 
 				// Format Gateway/Method
 				$woocommerce_method_title = '';
@@ -942,21 +955,61 @@ final class AccountRenderer {
 
 				$receipt_attachment_id = (int) get_post_meta($booking->ID, '_mhmrentiva_receipt_attachment_id', true);
 
+				// The title is the car, the number the one every screen shows (R4).
+				$vehicle_post  = get_post( (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true));
+				$vehicle_title = $vehicle_post instanceof \WP_Post && '' !== $vehicle_post->post_title ? $vehicle_post->post_title : __('N/A', 'mhm-rentiva');
+
+				// Money that moved is shown as recorded (gross, its own currency);
+				// a row nobody paid shows what is expected.
+				// The same branch that builds the displayed amount also decides the
+				// number the amount sort uses, so the list never sorts by a figure
+				// it does not show.
+				$expected = $payment_type === 'deposit' ? $deposit_amount : $total_price;
+				if ($summary['paid_minor'] > 0) {
+					$amount_html = BookingTimeline::recorded_html($summary['paid_minor'], $summary['currency']);
+					$sort_amount = (float) Money::toMajor($summary['paid_minor']);
+					$has_amount  = true;
+				} elseif (array() !== $summary['order_ids']) {
+					// Orders in different currencies: no single sum exists, so each
+					// order shows as recorded (never an expected figure). There is
+					// nothing comparable either, so the row sorts last in both
+					// orders, after the rows that have an amount, by booking ID.
+					$amount_html = BookingTimeline::recorded_orders_html($summary['order_ids']);
+					$sort_amount = 0.0;
+					$has_amount  = false;
+				} elseif ($has_expected) {
+					$shown       = \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($expected);
+					$amount_html = $shown['html'];
+					$sort_amount = $shown['amount'];
+					$has_amount  = true;
+				} else {
+					$amount_html = '';
+					$sort_amount = 0.0;
+					$has_amount  = false;
+				}
+				$row_type = AccountPaymentSummary::DEPOSIT === $summary['kind']
+					? 'deposit'
+					: ( AccountPaymentSummary::PAID === $summary['kind'] ? 'full' : (string) $payment_type );
+
 				$payments[] = array(
-					'booking_id'    => $booking->ID,
-					'booking_title' => get_the_title($booking->ID),
-					'date'          => $date_formatted,
-					'sort_ts'       => $date_str ? strtotime($date_str) : 0,
-					'status'        => $payment_status,
-					'status_label'  => $status_label,
-					'method'        => $method_display,
-					'amount'        => $payment_type === 'deposit' ? $deposit_amount : $total_price,
-					'has_amount'    => $has_amount,
-					'total'         => $total_price,
-					'type'          => $payment_type,
-					'receipt'       => array(
+					'booking_id'         => $booking->ID,
+					'number'             => (string) mhmrentiva_get_display_id( (int) $booking->ID),
+					'booking_title'      => $vehicle_title,
+					'amount_html'        => $amount_html,
+					'can_upload_receipt' => AccountController::receipt_upload_allowed( (int) $booking->ID, $payment_state),
+					'date'               => $row_ts > 0 ? BookingTimeline::moment_text($row_ts) : '',
+					'sort_ts'            => $row_ts,
+					'status'             => $payment_status,
+					'status_label'       => $status_label,
+					'method'             => $method_display,
+					'amount'             => $sort_amount,
+					'has_amount'         => $has_amount,
+					'total'              => $total_price,
+					'type'               => $row_type,
+					'receipt'            => array(
 						'attachment_id' => $receipt_attachment_id,
 						'status'        => get_post_meta($booking->ID, '_mhmrentiva_receipt_status', true),
+						'status_label'  => \MHMRentiva\Admin\Booking\Meta\BookingMeta::receipt_status_label( (string) get_post_meta($booking->ID, '_mhmrentiva_receipt_status', true)),
 						// Guarded endpoint: a `private` attachment still sits at a
 						// publicly served uploads path, so the customer is never
 						// handed the raw file URL.
@@ -982,8 +1035,8 @@ final class AccountRenderer {
 		}
 
 		// Latest payments first by default. A payment without a date (by date) or
-		// without an amount (by amount) goes last in both orders (stable sort:
-		// ties keep the booking query's order).
+		// without an amount (by amount) goes last in both orders; booking ID on a
+		// tie, so a row is on exactly one page.
 		$by_amount = 'amount' === $args['orderby'];
 		$sign      = 'asc' === $args['order'] ? 1 : -1;
 		usort(
@@ -991,14 +1044,17 @@ final class AccountRenderer {
 			static function ($a, $b) use ($by_amount, $sign) {
 				if ($by_amount) {
 					if (! $a['has_amount'] || ! $b['has_amount']) {
+						if ( ! $a['has_amount'] && ! $b['has_amount'] ) {
+							return $a['booking_id'] <=> $b['booking_id'];
+						}
 						return ( ! $a['has_amount'] ) <=> ( ! $b['has_amount'] );
 					}
-					return $sign * ( $a['amount'] <=> $b['amount'] );
+					return $sign * ( array( $a['amount'], $a['booking_id'] ) <=> array( $b['amount'], $b['booking_id'] ) );
 				}
 				if (0 === $a['sort_ts'] || 0 === $b['sort_ts']) {
 					return ( 0 === $a['sort_ts'] ) <=> ( 0 === $b['sort_ts'] );
 				}
-				return $sign * ( $a['sort_ts'] <=> $b['sort_ts'] );
+				return $sign * ( array( $a['sort_ts'], $a['booking_id'] ) <=> array( $b['sort_ts'], $b['booking_id'] ) );
 			}
 		);
 

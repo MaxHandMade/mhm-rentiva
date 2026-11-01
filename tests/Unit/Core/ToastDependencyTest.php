@@ -121,7 +121,7 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 	public function consumer_site_provider(): array {
 		return array(
 			'vehicle_rating_form -- AbstractShortcode base default (no override)'        => array( 'vehicle_rating_form', 'mhm-rentiva-vehicle-rating-form' ),
-			'my_account via AccountController::enqueue_assets() (:362-368)'              => array( 'my_account_via_controller', 'mhm-rentiva-my-account' ),
+			'my_account via AccountController::enqueue_account_script()'                 => array( 'my_account_via_controller', 'mhm-rentiva-my-account' ),
 			'my_account via AbstractAccountShortcode::enqueue_assets() (:43-49)'         => array( 'my_account_via_shortcode', 'mhm-rentiva-my-account' ),
 			'availability_calendar -- AvailabilityCalendar::get_js_dependencies()'       => array( 'availability_calendar', 'mhm-rentiva-availability-calendar' ),
 			'vehicle_interactions -- AssetManager::register_common_assets()'             => array( 'vehicle_interactions', 'mhm-rentiva-vehicle-interactions' ),
@@ -193,7 +193,9 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 				break;
 
 			case 'my_account_via_controller':
-				AccountController::enqueue_assets();
+				// PR D: my-account.js loads on account pages only, through the
+				// one helper both sites now share.
+				AccountController::enqueue_account_script();
 				break;
 
 			case 'my_account_via_shortcode':

@@ -127,7 +127,7 @@ final class AccountPageVarTest extends WP_UnitTestCase
 
 			$html = do_shortcode('[rentiva_my_bookings limit="1"]');
 			$this->assertStringContainsString('#' . $ids[0] . '<', $html, "mhmrentiva_page=$var renders the booking");
-			$this->assertStringNotContainsString('No Bookings Found', $html, "mhmrentiva_page=$var is not an empty page");
+			$this->assertStringNotContainsString('bookings-section-empty', $html, "mhmrentiva_page=$var is not an empty page");
 			$this->assertMatchesRegularExpression('#Page [123] / 3#', $html, "mhmrentiva_page=$var pager label");
 		}
 
