@@ -103,6 +103,29 @@ final class CalendarDaysTest extends WP_UnitTestCase
 		$this->assertSame(array( '2027-07-01', '2027-07-02', '2027-07-03' ), BookingConflicts::calendar_days($v, '2027-07-01', '2027-07-31'));
 	}
 
+	/**
+	 * With no buffer, a booking returning at the stroke of midnight on the first
+	 * day of the window ends exactly at the window start; the return day is still
+	 * painted.
+	 */
+	public function test_midnight_return_on_the_first_day_of_the_window_is_painted_without_a_buffer(): void
+	{
+		add_filter(
+			'option_' . SettingsCore::OPTION_NAME,
+			static function ($settings): array {
+				$settings = is_array($settings) ? $settings : array();
+				$settings['mhmrentiva_booking_buffer_time'] = '0';
+
+				return $settings;
+			},
+			20
+		);
+		$v = $this->vehicle();
+		$this->booking($v, 'confirmed', '2027-06-29', '10:00', '2027-07-01', '00:00');
+
+		$this->assertSame(array( '2027-07-01' ), BookingConflicts::calendar_days($v, '2027-07-01', '2027-07-31'));
+	}
+
 	public function test_statuses_that_hold_nothing_paint_nothing(): void
 	{
 		$v = $this->vehicle();

@@ -382,7 +382,10 @@ final class BookingConflicts {
 
 		$days = array_fill_keys(self::blocked_days_in($vehicle_id, $start, $end), true);
 
-		foreach (self::booking_intervals(array( $vehicle_id ), $start, $end)[ $vehicle_id ] ?? array() as $interval) {
+		// The window opens one second early: booking_intervals() wants an end strictly
+		// after the window start, and a booking returning at exactly the first
+		// midnight (no buffer) must still paint its return day.
+		foreach (self::booking_intervals(array( $vehicle_id ), $start - 1, $end)[ $vehicle_id ] ?? array() as $interval) {
 			// Only the requested window is walked: a long booking that began
 			// months before $from does not cost a loop per day it has held.
 			$begin = SiteTime::local_date($interval[0]);
