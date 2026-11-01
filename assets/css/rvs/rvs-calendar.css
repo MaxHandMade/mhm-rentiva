@@ -98,7 +98,7 @@
 	border: 0;
 	border-radius: inherit;
 	background: transparent;
-	color: inherit;
+	color: var(--rvs-text);
 	font: inherit;
 	font-variant-numeric: tabular-nums;
 	cursor: pointer;
