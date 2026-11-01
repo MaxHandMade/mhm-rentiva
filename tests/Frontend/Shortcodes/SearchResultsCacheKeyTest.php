@@ -82,7 +82,7 @@ final class SearchResultsCacheKeyTest extends WP_UnitTestCase
 
 	public function test_compare_list_splits_the_cache(): void
 	{
-		$_COOKIE['mhmrentiva_compare'] = '[42]';
+		$_COOKIE['mhmrentiva_compare'] = '[' . ShortcodeFixtures::vehicle() . ']';
 		$this->flush_compare();
 		$this->render();
 		unset($_COOKIE['mhmrentiva_compare']);

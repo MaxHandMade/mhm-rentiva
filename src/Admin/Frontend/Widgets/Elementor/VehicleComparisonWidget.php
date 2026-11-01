@@ -56,9 +56,9 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 			array(
 				'label'   => __( 'Max Vehicles', 'mhm-rentiva' ),
 				'type'    => Controls_Manager::NUMBER,
-				'default' => 4,
+				'default' => 3,
 				'min'     => 2,
-				'max'     => 6,
+				'max'     => 3,
 			)
 		);
 
@@ -151,7 +151,7 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 		}
 
 		if ( array_key_exists( 'max_vehicles', $settings ) ) {
-			$atts['max_vehicles'] = (string) max( 2, min( 6, (int) $settings['max_vehicles'] ) );
+			$atts['max_vehicles'] = (string) max( 2, min( 3, (int) $settings['max_vehicles'] ) );
 		}
 
 		foreach ( array( 'layout' ) as $key ) {

@@ -60,7 +60,7 @@
     },
     "maxVehicles": {
       "type": "string",
-      "default": "4"
+      "default": "3"
     },
     "layout": {
       "type": "string",

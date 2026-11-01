@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Services;
 
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -52,7 +53,9 @@ class CompareService {
 	}
 
 	/**
-	 * Get compare list
+	 * Get compare list: the stored vehicles a visitor may still compare. The rest
+	 * is only left out here, in memory, so rendering a page writes nothing (a
+	 * cookie cannot be set once output has begun); add() stores the clean list.
 	 *
 	 * @return array<int> list of vehicle IDs
 	 */
@@ -84,8 +87,26 @@ class CompareService {
 			}
 		}
 
-		self::$cached_list = array_map( 'intval', array_unique( $list ) );
+		// A stored list never exceeds MAX_ITEMS (save_list); a guest's cookie can, and each id costs a read.
+		$list = array_slice( array_values( array_unique( array_map( 'intval', $list ) ) ), 0, self::MAX_ITEMS );
+
+		self::$cached_list = array_values( array_filter( $list, array( self::class, 'is_comparable' ) ) );
 		return self::$cached_list;
+	}
+
+	/**
+	 * Whether a vehicle can be in a comparison: published, publicly readable, in
+	 * service and offered for rental.
+	 *
+	 * @param int $vehicle_id
+	 * @return bool
+	 */
+	public static function is_comparable( int $vehicle_id ): bool {
+		return $vehicle_id > 0
+			&& VehicleDataHelper::is_publicly_readable( $vehicle_id )
+			&& 'publish' === get_post_status( $vehicle_id )
+			&& 'active' === VehicleDataHelper::get_status( $vehicle_id )
+			&& VehicleDataHelper::allows_service( $vehicle_id, VehicleDataHelper::SERVICE_RENTAL );
 	}
 
 	/**
@@ -138,7 +159,7 @@ class CompareService {
 	 *
 	 * @param int $vehicle_id
 	 * @return bool
-	 * @throws \Exception if max limit reached
+	 * @throws \Exception if max limit reached or the vehicle cannot be compared
 	 */
 	public static function add( int $vehicle_id ): bool {
 		if ( $vehicle_id <= 0 ) {
@@ -149,6 +170,11 @@ class CompareService {
 
 		if ( in_array( $vehicle_id, $list, true ) ) {
 			return true; // Already added
+		}
+
+		// get_list() would drop it: "added" would be untrue, and it could never be removed.
+		if ( ! self::is_comparable( $vehicle_id ) ) {
+			throw new \Exception( esc_html__( 'This vehicle cannot be compared.', 'mhm-rentiva' ) );
 		}
 
 		if ( count( $list ) >= self::MAX_ITEMS ) {

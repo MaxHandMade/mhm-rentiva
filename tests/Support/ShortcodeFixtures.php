@@ -16,7 +16,7 @@ final class ShortcodeFixtures
 
 	/**
 	 * A published vehicle the comparison shortcode counts as comparable:
-	 * VehicleComparison::get_vehicle_data() skips anything that is not a
+	 * CompareService::is_comparable() skips anything that is not a
 	 * published mhmrentiva_vehicle with status 'active'.
 	 */
 	public static function vehicle(): int

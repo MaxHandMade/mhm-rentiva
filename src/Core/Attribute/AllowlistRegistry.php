@@ -1055,7 +1055,7 @@ final class AllowlistRegistry {
                 'default' => '1',
                 'aliases' => [ 'showBookingButtons', 'showBookButton' ],
             ],
-            'max_vehicles'         => [ 'default' => '4' ],
+            'max_vehicles'         => [ 'default' => '3' ],
             'class'                => [ 'default' => '' ],
             'show_images'          => [ 'default' => '1' ],
             'show_prices'          => [ 'default' => '1' ],

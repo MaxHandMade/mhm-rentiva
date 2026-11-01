@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin;
 
+use MHMRentiva\Admin\Frontend\Shortcodes\ComparisonView;
 use MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Settings\VehicleSettings;
@@ -155,9 +156,7 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 	}
 
 	private static function rows(): array {
-		$ref = new \ReflectionMethod( VehicleComparison::class, 'get_dynamic_features' );
-		$ref->setAccessible( true );
-		return array_keys( $ref->invoke( null, array() ) );
+		return array_keys( ComparisonView::selected_rows() );
 	}
 
 	/** Run a vehicle-settings AJAX handler the way admin-ajax does, as an administrator. */
@@ -320,12 +319,7 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 		update_post_meta( $vehicle_id, '_mhmrentiva_fuel_type', 'electric' );
 		update_post_meta( $vehicle_id, '_mhmrentiva_transmission', 'auto' );
 
-		$ref = new \ReflectionMethod( VehicleComparison::class, 'get_vehicle_data' );
-		$ref->setAccessible( true );
-		$data = $ref->invoke( null, $vehicle_id );
-
-		$this->assertIsArray( $data, 'get_vehicle_data() must resolve the fixture vehicle' );
-		$this->assertSame( 'Electric', $data['features']['fuel_type'] ?? null );
-		$this->assertSame( 'Automatic', $data['features']['transmission'] ?? null );
+		$this->assertSame( 'Electric', ComparisonView::cell( $vehicle_id, 'fuel_type', 'details' )['text'] );
+		$this->assertSame( 'Automatic', ComparisonView::cell( $vehicle_id, 'transmission', 'details' )['text'] );
 	}
 }

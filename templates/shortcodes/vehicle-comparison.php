@@ -10,7 +10,7 @@
 
 use MHMRentiva\Frontend\RenderContext;
 use MHMRentiva\Helpers\Icons;
-use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 
 // Prevent direct access
 if (! defined('ABSPATH')) {
@@ -19,12 +19,33 @@ if (! defined('ABSPATH')) {
 
 // Get template data
 $atts         = $atts ?? array();
-$vehicles     = $vehicles ?? array();
-$features     = $features ?? array();
-$all_vehicles = $all_vehicles ?? array();
-$max_vehicles = $max_vehicles ?? 3;
-$has_vehicles = $has_vehicles ?? false;
-$can_add_more = $can_add_more ?? false;
+$view         = $view ?? array();
+$max_vehicles = (int) ( $view['max'] ?? 3 );
+$has_vehicles = ! empty($view['has_vehicles']);
+
+// Interim (PR E Task 5): the old markup, fed from ComparisonView. Task 6 replaces this file.
+$features = array();
+$vehicles = array();
+foreach ( (array) ( $view['columns'] ?? array() ) as $mhmrentiva_column) {
+	$vehicles[ (int) $mhmrentiva_column['id'] ] = array(
+		'id'         => (int) $mhmrentiva_column['id'],
+		'title'      => $mhmrentiva_column['title'],
+		'permalink'  => $mhmrentiva_column['booking_url'],
+		'image_url'  => $mhmrentiva_column['image']['url'],
+		'price_html' => $mhmrentiva_column['price_html'],
+		'days_label' => $mhmrentiva_column['days_label'],
+		'features'   => array(),
+	);
+}
+foreach ( (array) ( $view['groups'] ?? array() ) as $mhmrentiva_group) {
+	foreach ($mhmrentiva_group['rows'] as $mhmrentiva_row) {
+		$features[ $mhmrentiva_row['key'] ] = $mhmrentiva_row['label'];
+		foreach ($mhmrentiva_row['cells'] as $mhmrentiva_cell) {
+			$vehicles[ (int) $mhmrentiva_cell['vehicle_id'] ]['features'][ $mhmrentiva_row['key'] ] = $mhmrentiva_cell['text'];
+		}
+	}
+}
+$vehicles = array_values($vehicles);
 
 
 // Layout settings
@@ -44,7 +65,7 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 
 ?>
 
-<div class="rv-vehicle-comparison rv-vehicle-comparison-container rv-layout-table" data-max-vehicles="<?php echo esc_attr($max_vehicles); ?>" data-features='<?php echo esc_attr(wp_json_encode($features)); ?>' data-all-vehicles='<?php echo esc_attr(wp_json_encode($all_vehicles)); ?>'>
+<div class="rv-vehicle-comparison rv-vehicle-comparison-container rv-layout-table" data-max-vehicles="<?php echo esc_attr($max_vehicles); ?>" data-features='<?php echo esc_attr(wp_json_encode($features)); ?>'>
 
 	<!-- Comparison Content -->
 	<?php if ($has_vehicles) : ?>
@@ -97,57 +118,18 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 												</button>
 											<?php endif; ?>
 
-											<div class="rv-vehicle-status-container">
-												<?php
-												$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
-												$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
-
-												if (! $is_available) :
-													?>
-													<span class="rv-badge rv-badge--unavailable">
-														<?php echo esc_html($status_text); ?>
-													</span>
-												<?php endif; ?>
-											</div>
-
 											<h4><?php echo esc_html($vehicle['title']); ?></h4>
-											<?php
-											$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
-											$btn_style    = 'display: inline-block !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;';
-											$btn_class    = 'rv-book-now-btn';
-											$btn_href     = esc_url($vehicle['permalink']);
-											$btn_attrs    = '';
-
-											if (! $is_available) {
-												$btn_style .= ' background: #95a5a6 !important; opacity: 0.6; pointer-events: none; cursor: not-allowed;';
-												$btn_class .= ' rv-btn-disabled';
-												// '#' instead of 'javascript:void(0);' -- wp_kses_bad_protocol()
-												// (invoked once the dispatcher wraps this template's output in
-												// wp_kses(), see ShortcodeServiceProvider::handle_shortcode_execution())
-												// would strip a javascript: URL unconditionally anyway; fixing it
-												// here makes that explicit instead of relying on the side effect.
-												// The `.rv-btn-disabled` class already sets `pointer-events: none`
-												// (assets/css/frontend/vehicle-comparison.css), so the link is
-												// inert regardless of its href.
-												$btn_href  = '#';
-												$btn_attrs = 'aria-disabled="true" tabindex="-1"';
-											}
-											?>
+											<?php $btn_style = 'display: inline-block !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;'; ?>
 											<?php if ($show_booking_buttons) : ?>
-												<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" style="<?php echo esc_attr($btn_style); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
+												<a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn" style="<?php echo esc_attr($btn_style); ?>">
 													<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
 												</a>
 											<?php endif; ?>
 											<!-- Price Display -->
-											<?php
-											$price = $vehicle['features']['price_per_day'] ?? 0;
-											if ($show_prices && $price > 0) :
-												?>
-												<div class="mhm-comparison-price" style="text-align: center; font-weight: bold; font-size: 1.1em; color: #2ecc71; margin-top: 10px;">
-													<?php echo esc_html(CurrencyHelper::format_price( (float) $price, 0)); ?>
-													<span class="price-suffix" style="font-size: 0.9em; color: #7f8c8d; font-weight: normal;">
-														/ <?php echo esc_html__('day', 'mhm-rentiva'); ?>
-													</span>
+											<?php if ($show_prices) : ?>
+												<div class="mhm-comparison-price" style="text-align: center; font-weight: bold; font-size: 1.1em; margin-top: 10px;">
+													<?php echo wp_kses($vehicle['price_html'], PriceDisplay::allowed_html()); ?>
+													<span class="price-suffix"><?php echo esc_html($vehicle['days_label']); ?></span>
 												</div>
 											<?php endif; ?>
 										</div>
@@ -199,23 +181,10 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 								<div class="rv-mobile-card-info">
 									<h4 class="rv-mobile-title"><?php echo esc_html($vehicle['title']); ?></h4>
 
-									<?php
-									$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
-									$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
-									if (! $is_available) :
-										?>
-										<span class="rv-badge rv-badge--unavailable" style="margin-bottom: 5px;">
-											<?php echo esc_html($status_text); ?>
-										</span>
-									<?php endif; ?>
-
-									<?php
-									$price = $vehicle['features']['price_per_day'] ?? 0;
-									if ($show_prices && $price > 0) :
-										?>
+									<?php if ($show_prices) : ?>
 										<div class="rv-mobile-price">
-											<?php echo esc_html(CurrencyHelper::format_price( (float) $price, 0)); ?>
-											<span class="rv-period">/ <?php echo esc_html__('day', 'mhm-rentiva'); ?></span>
+											<?php echo wp_kses($vehicle['price_html'], PriceDisplay::allowed_html()); ?>
+											<span class="rv-period"><?php echo esc_html($vehicle['days_label']); ?></span>
 										</div>
 									<?php endif; ?>
 								</div>
@@ -275,19 +244,9 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 								</div>
 
 								<div class="rv-mobile-actions">
-									<?php
-									$btn_class = 'rv-book-now-btn rv-mobile-btn';
-									$btn_href  = esc_url($vehicle['permalink']);
-									$btn_attrs = '';
-
-									if (! $is_available) {
-										$btn_class .= ' rv-btn-disabled';
-										$btn_href   = 'javascript:void(0);';
-										$btn_attrs  = 'aria-disabled="true"';
-									}
-									?>
+									<?php $btn_class = 'rv-book-now-btn rv-mobile-btn'; ?>
 									<?php if ($show_booking_buttons) : ?>
-										<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
+										<a href="<?php echo esc_url($vehicle['permalink']); ?>" class="<?php echo esc_attr($btn_class); ?>">
 											<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
 										</a>
 									<?php endif; ?>
@@ -313,17 +272,8 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 										<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
 									</button>
 								<?php endif; ?>
-								<?php
-								$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
-								$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
-
-								if (! $is_available) :
-									?>
-									<div style="width: 100%; text-align: center; margin-top: 5px;">
-										<span class="rv-badge rv-badge--unavailable" style="display: inline-block;">
-											<?php echo esc_html($status_text); ?>
-										</span>
-									</div>
+								<?php if ($show_prices) : ?>
+									<span class="rv-price"><?php echo wp_kses($vehicle['price_html'], PriceDisplay::allowed_html()); ?></span>
 								<?php endif; ?>
 							</div>
 
@@ -332,46 +282,15 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 									<div class="rv-feature-item">
 										<span class="rv-feature-label"><?php echo esc_html($feature_label); ?>:</span>
 										<span class="rv-feature-value">
-											<?php
-											$value = $vehicle['features'][ $feature_key ] ?? '–';
-											if (is_array($value)) {
-												$value = implode(', ', array_filter(array_map('strval', $value)));
-											}
-
-											if ($feature_key === 'price_per_day' && $show_prices) {
-												if ($value > 0) {
-													echo '<span class="rv-price">' . esc_html(CurrencyHelper::format_price( (float) $value, 0)) . '</span>';
-												} else {
-													echo '<span class="rv-no-price">-</span>';
-												}
-											} else {
-												echo '<span class="rv-feature-text">' . esc_html( (string) $value) . '</span>';
-											}
-											?>
+											<span class="rv-feature-text"><?php echo esc_html( (string) ( $vehicle['features'][ $feature_key ] ?? '–' )); ?></span>
 										</span>
 									</div>
 								<?php endforeach; ?>
 							</div>
 
 							<div class="rv-card-actions">
-								<?php
-								$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
-								$btn_class    = 'rv-book-now-btn';
-								$btn_href     = esc_url($vehicle['permalink']);
-								$btn_attrs    = '';
-
-								if (! $is_available) {
-									$btn_class .= ' rv-btn-disabled';
-									// '#' instead of 'javascript:void(0);' -- see the matching comment
-									// above for the other disabled-state link in this template; same
-									// wp_kses_bad_protocol() rationale, same `.rv-btn-disabled`
-									// `pointer-events: none` (also set inline here) keeping it inert.
-									$btn_href  = '#';
-									$btn_attrs = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
-								}
-								?>
 								<?php if ($show_booking_buttons) : ?>
-									<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
+									<a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn">
 										<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
 									</a>
 								<?php endif; ?>
@@ -407,10 +326,5 @@ $show_remove_buttons  = $comparison_flag($atts['show_remove_buttons'] ?? '1');
 			<?php endif; ?>
 		</div>
 	<?php endif; ?>
-
-	<div class="rv-messages">
-		<div class="rv-success-message rv-hidden"></div>
-		<div class="rv-error-message rv-hidden"></div>
-	</div>
 
 </div>

@@ -133,6 +133,9 @@ $mhmrentiva_fav_label   = $mhmrentiva_card['favorite']['active'] ? __('Remove fr
 				<?php if ($mhmrentiva_show['price']) : ?>
 					<div class="rvs-card__price">
 						<div class="rvs-card__amount"><?php echo wp_kses($mhmrentiva_card['price']['primary_html'], PriceDisplay::allowed_html()); ?></div>
+						<?php if ('' !== trim($mhmrentiva_card['price']['suffix'])) : ?>
+							<div class="rvs-card__suffix"><?php echo wp_kses($mhmrentiva_card['price']['suffix'], PriceDisplay::allowed_html()); ?></div>
+						<?php endif; ?>
 						<?php if ('' !== $mhmrentiva_card['price']['secondary']) : ?>
 							<div class="rvs-card__per"><?php echo esc_html($mhmrentiva_card['price']['secondary']); ?></div>
 						<?php endif; ?>

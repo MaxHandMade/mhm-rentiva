@@ -1213,7 +1213,7 @@ final class VehicleSettings {
 	 * Card/detail selections pass through VehicleFeatureHelper::sanitize_card_field_selection(),
 	 * which drops any entry not in get_available_fields_map() -- the same availability truth the
 	 * frontend renders from. Comparison is stored as submitted (the frontend gates Passive keys at
-	 * render, VehicleComparison::flatten_gated_selected_keys()), so a Passive-field compare flag
+	 * render, ComparisonView::selected_keys()), so a Passive-field compare flag
 	 * may persist as harmless storage cruft. The matrix order (mhmrentiva_vehicle_matrix_order)
 	 * is stored as the id list so the single editing order round-trips exactly (spec §6).
 	 */

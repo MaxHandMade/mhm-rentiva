@@ -42,7 +42,7 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 
 		$state = VehicleSettings::build_settings_state();
 
-		// A saved empty selection renders no rows (VehicleComparison::get_dynamic_features()),
+		// A saved empty selection renders no rows (ComparisonView::selected_rows()),
 		// so compare is OFF for all. (Never saved -> defaults: VehicleComparisonDefaultFieldsTest.)
 		foreach ( $state['fields'] as $f ) {
 			$this->assertFalse( $f['compare'], "compare should be OFF when comparison_fields is empty for {$f['id']}" );
