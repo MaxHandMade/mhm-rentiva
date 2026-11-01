@@ -13,6 +13,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+use MHMRentiva\Admin\Payment\Core\Money;
 
 
 
@@ -861,8 +862,8 @@ final class AccountRenderer {
 			$total_price     = (float) $total_raw;
 			$deposit_amount  = (float) $deposit_raw;
 			$payment_type    = get_post_meta($booking->ID, '_mhmrentiva_payment_type', true);
-			// No amount meta at all (not a zero amount): sorted last by amount.
-			$has_amount = '' !== ( $payment_type === 'deposit' ? $deposit_raw : $total_raw );
+			// No amount meta at all (not a zero amount).
+			$has_expected = '' !== ( $payment_type === 'deposit' ? $deposit_raw : $total_raw );
 
 			// Normalize status values from various sources
 			$status_key = strtolower( (string) $payment_status);
@@ -960,17 +961,30 @@ final class AccountRenderer {
 
 				// Money that moved is shown as recorded (gross, its own currency);
 				// a row nobody paid shows what is expected.
+				// The same branch that builds the displayed amount also decides the
+				// number the amount sort uses, so the list never sorts by a figure
+				// it does not show.
 				$expected = $payment_type === 'deposit' ? $deposit_amount : $total_price;
 				if ($summary['paid_minor'] > 0) {
 					$amount_html = BookingTimeline::recorded_html($summary['paid_minor'], $summary['currency']);
+					$sort_amount = (float) Money::toMajor($summary['paid_minor']);
+					$has_amount  = true;
 				} elseif (array() !== $summary['order_ids']) {
 					// Orders in different currencies: no single sum exists, so each
-					// order shows as recorded (never an expected figure).
+					// order shows as recorded (never an expected figure). There is
+					// nothing comparable either, so the row sorts last in both
+					// orders, after the rows that have an amount, by booking ID.
 					$amount_html = BookingTimeline::recorded_orders_html($summary['order_ids']);
-				} elseif ($has_amount) {
+					$sort_amount = 0.0;
+					$has_amount  = false;
+				} elseif ($has_expected) {
 					$amount_html = \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($expected)['html'];
+					$sort_amount = $expected;
+					$has_amount  = true;
 				} else {
 					$amount_html = '';
+					$sort_amount = 0.0;
+					$has_amount  = false;
 				}
 				$row_type = AccountPaymentSummary::DEPOSIT === $summary['kind']
 					? 'deposit'
@@ -987,7 +1001,7 @@ final class AccountRenderer {
 					'status'             => $payment_status,
 					'status_label'       => $status_label,
 					'method'             => $method_display,
-					'amount'             => $payment_type === 'deposit' ? $deposit_amount : $total_price,
+					'amount'             => $sort_amount,
 					'has_amount'         => $has_amount,
 					'total'              => $total_price,
 					'type'               => $row_type,
@@ -1029,6 +1043,9 @@ final class AccountRenderer {
 			static function ($a, $b) use ($by_amount, $sign) {
 				if ($by_amount) {
 					if (! $a['has_amount'] || ! $b['has_amount']) {
+						if ( ! $a['has_amount'] && ! $b['has_amount'] ) {
+							return $a['booking_id'] <=> $b['booking_id'];
+						}
 						return ( ! $a['has_amount'] ) <=> ( ! $b['has_amount'] );
 					}
 					return $sign * ( array( $a['amount'], $a['booking_id'] ) <=> array( $b['amount'], $b['booking_id'] ) );

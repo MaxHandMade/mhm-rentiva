@@ -338,4 +338,65 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 
 		$this->assertSame('Cancelled', $this->row($id)['status_label']);
 	}
+
+	/**
+	 * Amount sort follows the displayed amount: a 200 booking fully paid with a
+	 * 20 deposit meta sorts as 200, above a 100 full payment.
+	 *
+	 * @return array{0:int,1:int}
+	 */
+	private function paid_deposit_and_full_booking(): array
+	{
+		$deposit_paid = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '200');
+		update_post_meta($deposit_paid, '_mhmrentiva_payment_type', 'deposit');
+		update_post_meta($deposit_paid, '_mhmrentiva_deposit_amount', '20');
+		$this->create_paid_order_for_booking($deposit_paid, '200');
+
+		$full = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '100');
+		update_post_meta($full, '_mhmrentiva_payment_type', 'full');
+		$this->create_paid_order_for_booking($full, '100');
+
+		return array( $deposit_paid, $full );
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private function sorted_ids(string $order): array
+	{
+		RequestSimulator::new_request();
+		$data = AccountRenderer::get_payment_history_data(array( 'limit' => '50', 'orderby' => 'amount', 'order' => $order ));
+		return array_map('intval', array_column($data['data']['payments'], 'booking_id'));
+	}
+
+	public function test_amount_sort_uses_the_displayed_paid_total(): void
+	{
+		$this->require_woocommerce();
+		list( $deposit_paid, $full ) = $this->paid_deposit_and_full_booking();
+
+		$this->assertSame(200.0, (float) $this->row($deposit_paid)['amount'], 'The sort figure is the paid total, not the 20 deposit meta.');
+		$this->assertSame(array( $full, $deposit_paid ), $this->sorted_ids('asc'));
+		$this->assertSame(array( $deposit_paid, $full ), $this->sorted_ids('desc'));
+	}
+
+	public function test_mixed_currency_row_sorts_last_in_both_orders(): void
+	{
+		$this->require_woocommerce();
+		list( $deposit_paid, $full ) = $this->paid_deposit_and_full_booking();
+
+		$mixed     = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '300');
+		$first     = $this->create_paid_order_for_booking($mixed, '100');
+		$remaining = $this->create_paid_order_for_booking($mixed, '200');
+		update_post_meta($mixed, '_mhmrentiva_remaining_order_id', $remaining->get_id());
+		$first->set_currency('TRY');
+		$first->save();
+		$remaining->set_currency('EUR');
+		$remaining->save();
+
+		$row = $this->row($mixed);
+		$this->assertFalse($row['has_amount'], 'No single comparable amount exists.');
+		$this->assertStringContainsString(' + ', $row['amount_html']);
+		$this->assertSame(array( $full, $deposit_paid, $mixed ), $this->sorted_ids('asc'));
+		$this->assertSame(array( $deposit_paid, $full, $mixed ), $this->sorted_ids('desc'));
+	}
 }
