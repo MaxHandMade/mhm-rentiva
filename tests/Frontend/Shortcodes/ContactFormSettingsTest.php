@@ -59,10 +59,12 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 	{
 		$booking = $this->render('[rentiva_contact type="booking"]');
 		$this->assertStringContainsString('data-form-type="booking"', $booking);
-		$this->assertStringContainsString('name="preferred_date"', $booking, 'type=booking renders the booking form (spec §2.2 exception 1).');
+		$this->assertStringNotContainsString('name="preferred_date"', $booking, 'PR F r2 M3: not among the selector\'s topics.');
+		$this->assertStringContainsString('name="preferred_date"', $this->render('[rentiva_contact type="booking" show_topic_selector="0"]'), 'A fixed booking form keeps it (spec §2.2 exception 1).');
 		$this->assertStringContainsString('<input type="hidden" name="type" value="booking">', $booking);
 
-		$feedback = $this->render('[rentiva_contact type="feedback"]');
+		$this->assertStringNotContainsString('name="rating"', $this->render('[rentiva_contact type="feedback"]'), 'PR F r2 M3: no rating on the selector form.');
+		$feedback = $this->render('[rentiva_contact type="feedback" show_topic_selector="0"]');
 		$this->assertStringContainsString('name="rating"', $feedback);
 
 		$general = $this->render('[rentiva_contact]');
@@ -76,7 +78,9 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$this->assertStringNotContainsString('name="attachment"', $this->render('[rentiva_contact show_attachment="0"]'));
 		$this->assertStringContainsString('rv-theme-compact', $this->render('[rentiva_contact theme="compact"]'));
 		$this->assertStringContainsString('name="priority"', $this->render('[rentiva_contact show_priority="1"]'));
-		$this->assertStringContainsString('<input type="hidden" name="auto_reply" value="0">', $this->render('[rentiva_contact auto_reply="0"]'));
+		$this->assertStringNotContainsString('name="auto_reply"', $general, 'PR F R8: the setting travels in the token.');
+		$this->assertStringContainsString('name="recipient_token"', $general);
+		$this->assertStringNotContainsString('name="recipient_token"', $this->render('[rentiva_contact auto_reply="0"]'));
 		$this->assertStringNotContainsString('rv-contact-info', $this->render('[rentiva_contact show_company_info="0"]'));
 
 		// The company field no longer hides behind the phone row.
@@ -175,13 +179,13 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$this->assertSame($own, (int) get_post_meta((int) $match['data']['message_id'], '_mhmrentiva_contact_booking_id', true), 'The renter\'s own booking is linked.');
 		$this->assertSame('', get_post_meta((int) $miss['data']['message_id'], '_mhmrentiva_contact_booking_id', true));
 		$this->assertSame('', get_post_meta((int) $foreign['data']['message_id'], '_mhmrentiva_contact_booking_id', true), 'Someone else\'s booking is never linked.');
-		$this->assertStringContainsString('#999999', (string) $mails[2]['message'], 'An unlinked number still reaches the e-mail as typed.');
+		$this->assertStringContainsString('#999999', (string) $mails[1]['message'], 'An unlinked number still reaches the e-mail as typed.');
 
 		wp_set_current_user(0);
 		$guest = $this->submit(array( 'booking_id' => (string) $own ));
 		$this->assertSame($this->without_id($match), $this->without_id($guest));
 		$this->assertSame('', get_post_meta((int) $guest['data']['message_id'], '_mhmrentiva_contact_booking_id', true), 'A guest submission is never linked to a record.');
-		$this->assertStringContainsString('#' . $own, (string) $mails[6]['message'], 'The guest\'s number reaches the e-mail as typed (absint).');
+		$this->assertStringContainsString('#' . $own, (string) $mails[3]['message'], 'The guest\'s number reaches the e-mail as typed (absint).');
 	}
 
 	public function test_removed_attributes_in_shortcode_text_are_ignored(): void
@@ -205,31 +209,23 @@ final class ContactFormSettingsTest extends WP_Ajax_UnitTestCase
 		$this->assertSame(array(), $notices, 'No notice or warning for a removed attribute.');
 		$this->assertSame(RenderNormalizer::normalize($default), RenderNormalizer::normalize($legacy), 'Removed attributes are ignored, as today.');
 		$this->assertSame(RenderNormalizer::normalize($block_default), RenderNormalizer::normalize($block));
-		$this->assertStringNotContainsString('recipient_token', $legacy, 'recipient_email does not change the recipient.');
 		$this->assertStringNotContainsString('x@y.z', $legacy . $block);
 	}
 
 	/**
-	 * Codex P1 on Lite #92: a field the form type requires is always rendered, so
-	 * its show_* toggle can no longer produce a form the server always refuses.
+	 * PR F R2 (Fable m1): a booking question no longer requires a phone, so
+	 * show_phone applies there too and the form still cannot be refused for it.
 	 */
-	public function test_booking_form_renders_phone_even_when_show_phone_is_off(): void
+	public function test_booking_form_without_phone_field_is_accepted(): void
 	{
 		add_filter('pre_wp_mail', '__return_true');
 
-		$shortcode = $this->render('[rentiva_contact type="booking" show_phone="0"]');
-		$this->assertStringContainsString('name="phone"', $shortcode, 'Booking requires phone, so show_phone cannot hide it.');
-		$block = $this->render_block(array( 'type' => 'booking', 'showPhone' => false ));
-		$this->assertStringContainsString('name="phone"', $block);
+		$this->assertStringNotContainsString('name="phone"', $this->render('[rentiva_contact type="booking" show_phone="0"]'));
+		$this->assertStringNotContainsString('name="phone"', $this->render_block(array( 'type' => 'booking', 'showPhone' => false )));
+		$this->assertStringContainsString('name="phone"', $this->render('[rentiva_contact type="booking"]'));
 
-		// show_phone still applies where phone is optional.
-		$this->assertStringNotContainsString('name="phone"', $this->render('[rentiva_contact type="support" show_phone="0"]'));
-
-		$ok = $this->submit(array( 'type' => 'booking', 'phone' => '+90 555 123 45 67' ));
+		$ok = $this->submit(array( 'type' => 'booking' ));
 		$this->assertTrue($ok['success'], 'A booking form filled as rendered is accepted.');
-
-		$missing = $this->submit(array( 'type' => 'booking' ));
-		$this->assertFalse($missing['success'], 'Server validation unchanged: booking still requires phone.');
 	}
 
 	public function test_support_form_with_default_atts_renders_priority_and_accepts_it(): void

@@ -42,6 +42,10 @@
         }
     },
     "attributes": {
+        "showTopicSelector": {
+            "type": "boolean",
+            "default": true
+        },
         "showBookingIdField": {
             "type": "boolean",
             "default": false

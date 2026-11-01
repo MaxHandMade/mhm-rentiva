@@ -546,6 +546,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_contact_attachment_file',
 			'_mhmrentiva_contact_booking_id',
 			'_mhmrentiva_contact_company',
+			'_mhmrentiva_contact_consent',
 			'_mhmrentiva_contact_email',
 			'_mhmrentiva_contact_ip_address',
 			'_mhmrentiva_contact_name',

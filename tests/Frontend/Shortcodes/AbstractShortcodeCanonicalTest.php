@@ -95,33 +95,34 @@ final class AbstractShortcodeCanonicalTest extends WP_UnitTestCase
 
 	public function test_assets_enqueued_on_cache_hit(): void
 	{
+		// The probe, not a real form: PR F took the contact form out of the HTML cache.
 		add_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_true');
 
 		$calls = 0;
 		add_filter(
-			'mhmrentiva_shortcodes_rentiva_contact_html',
+			'mhmrentiva_shortcodes_rentiva_canonical_probe_html',
 			static function ($html) use (&$calls) {
 				++$calls;
 				return $html;
 			}
 		);
 
-		ContactForm::render(array( '_canonical' => true ));
+		CanonicalProbeShortcode::render(array( '_canonical' => true ));
 		$this->assertSame(1, $calls);
 
 		RequestSimulator::new_request();
-		$this->assertNotContains(self::CONTACT_STYLE, wp_styles()->queue);
+		$this->assertNotContains(CanonicalProbeShortcode::STYLE, wp_styles()->queue);
 
-		$html = ContactForm::render(array( '_canonical' => true ));
+		$html = CanonicalProbeShortcode::render(array( '_canonical' => true ));
 		$this->assertNotSame('', $html);
 		// The _html filter runs after the cache branch only on a miss, so an
 		// unchanged count proves the second render was served from the cache.
 		$this->assertSame(1, $calls, 'Second render must be a cache hit.');
-		$this->assertContains(self::CONTACT_STYLE, wp_styles()->queue);
+		$this->assertContains(CanonicalProbeShortcode::STYLE, wp_styles()->queue);
 
 		// all_deps() returns true even for an unregistered handle; to_do proves the walk.
-		wp_styles()->all_deps(array( self::CONTACT_STYLE ));
-		$this->assertContains(self::CONTACT_STYLE, wp_styles()->to_do);
+		wp_styles()->all_deps(array( CanonicalProbeShortcode::STYLE ));
+		$this->assertContains(CanonicalProbeShortcode::STYLE, wp_styles()->to_do);
 		$this->assertContains('mhm-rentiva-css-variables', wp_styles()->to_do);
 	}
 
@@ -206,6 +207,13 @@ final class CanonicalProbeShortcode extends AbstractShortcode
 {
 	public static ?array $prepare_atts  = null;
 	public static ?array $template_atts = null;
+
+	public const STYLE = 'rv-canonical-probe';
+
+	protected static function enqueue_assets(array $atts = array()): void
+	{
+		wp_enqueue_style(self::STYLE, 'https://example.test/probe.css', array( 'mhm-rentiva-css-variables' ), '1');
+	}
 
 	public static function caching_enabled(): bool
 	{

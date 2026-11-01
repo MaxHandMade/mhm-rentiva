@@ -430,6 +430,7 @@ final class ContactMessagesRestController {
 		$add('submitted', __('Submitted', 'mhm-rentiva'), $row['date_label']);
 		$add('preferred_date', __('Preferred date', 'mhm-rentiva'), $meta('preferred_date'));
 		$add('company', __('Company', 'mhm-rentiva'), $meta('company'));
+		$add('consent', __('Privacy notice accepted', 'mhm-rentiva'), '' !== $meta('consent') ? (string) mysql2date(get_option('date_format') . ' ' . get_option('time_format'), $meta('consent')) : '');
 		$add('rating', __('Rating', 'mhm-rentiva'), $row['rating'] > 0 ? sprintf('%d/5', $row['rating']) : '');
 
 		$attachment = null;

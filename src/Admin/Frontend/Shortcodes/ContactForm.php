@@ -7,10 +7,16 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
+use MHMRentiva\Admin\ContactMessages\ContactAttachmentValidator;
+use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
+use MHMRentiva\Admin\Frontend\Account\AccountBookingsQuery;
 use MHMRentiva\Admin\Frontend\Shortcodes\Contact\RecipientToken;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Frontend\RenderContext;
 use Exception;
 
@@ -53,10 +59,29 @@ final class ContactForm extends AbstractShortcode {
 		return 'shortcodes/contact-form';
 	}
 
+	/**
+	 * The form carries a nonce and a sealed token: it stays out of the HTML cache
+	 * (PR F R9, as the booking form). Standalone only: inside a cached parent such
+	 * as the vehicle page the parent's cache decides.
+	 */
+	protected static function is_caching_enabled(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * No cache key either: building one writes the cache version transient.
+	 */
+	protected static function get_cache_key(array $atts): string
+	{
+		return '';
+	}
+
 	protected static function get_default_attributes(): array
 	{
 		return array(
 			'type'                  => 'general',     // Form type (general, booking, support, feedback)
+			'show_topic_selector'   => '1',           // The visitor chooses the topic; off keeps `type` fixed
 			'title'                 => '',            // Custom title
 			'description'           => '',            // Custom description
 			'show_phone'            => '1',           // Show phone field
@@ -134,9 +159,6 @@ final class ContactForm extends AbstractShortcode {
 		// A field the type requires is always rendered: its show_* toggle only applies
 		// where the field is optional, so no setting yields a form the server refuses.
 		$required = self::get_required_fields($type);
-		if (in_array('phone', $required, true)) {
-			$atts['show_phone'] = '1';
-		}
 		if (in_array('priority', $required, true)) {
 			$atts['show_priority'] = '1';
 		}
@@ -154,11 +176,14 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		// The custom recipient never reaches the page as an address: it travels as an
-		// encrypted payload bound to the source post and is re-checked on submit.
+		// encrypted payload bound to the source post and is re-checked on submit. The
+		// auto reply setting rides in the same payload, so the request cannot switch it on.
 		// A preview prints no token and issues none (RecipientToken::issue() has side effects).
 		$email_to        = trim( (string) ( $atts['email_to'] ?? '' ));
-		$recipient_token = ( '' !== $email_to && ! RenderContext::current()->is_preview() )
-			? RecipientToken::issue($email_to, self::resolve_source_post_id(), $type)
+		$auto_reply      = '1' === (string) ( $atts['auto_reply'] ?? '1' );
+		$selector        = '1' === (string) ( $atts['show_topic_selector'] ?? '1' );
+		$recipient_token = ( ( '' !== $email_to || $auto_reply ) && ! RenderContext::current()->is_preview() )
+			? RecipientToken::issue($email_to, self::resolve_source_post_id(), ContactFormView::topic_types($type, $selector), $auto_reply)
 			: '';
 
 		// Same site only; anything else means "no redirect" (not admin_url()).
@@ -172,10 +197,102 @@ final class ContactForm extends AbstractShortcode {
 			'recipient_token' => $recipient_token,
 			'redirect_url'    => $redirect_url,
 			'current_user'    => wp_get_current_user(),
-			'support_phone'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_phone', '+90 555 555 55 55'),
-			'support_hours'   => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
-			'support_email'   => self::support_email(),
+			'view'            => ContactFormView::build(
+				$atts,
+				array(
+					// Never cached (is_caching_enabled()), so the counter cannot freeze.
+					'uid'              => wp_unique_id('rvs-contact-'),
+					'logged_in'        => is_user_logged_in(),
+					'own_bookings'     => self::own_booking_rows(),
+					'has_vehicles'     => array() !== $vehicles,
+					'required'         => self::required_by_type(),
+					'address'          => (string) SettingsCore::get('mhmrentiva_contact_address', ''),
+					'phone'            => (string) SettingsCore::get('mhmrentiva_contact_phone', ''),
+					'phone_note'       => (string) SettingsCore::get('mhmrentiva_contact_phone_note', ''),
+					'hours'            => (string) SettingsCore::get('mhmrentiva_contact_hours', ''),
+					'email'            => self::support_email(),
+					'response_note'    => (string) SettingsCore::get('mhmrentiva_contact_response_note', ''),
+					'consent_enabled'  => self::consent_enabled(),
+					'privacy_url'      => (string) get_privacy_policy_url(),
+					'attachment_types' => array_keys(ContactAttachmentValidator::TYPES),
+					'max_bytes'        => self::max_attachment_bytes(),
+				)
+			),
 		);
+	}
+
+	private static function consent_enabled(): bool
+	{
+		return '1' === (string) SettingsCore::get('mhmrentiva_contact_consent_enabled', '0');
+	}
+
+	/**
+	 * @return array<string,string[]>
+	 */
+	private static function required_by_type(): array
+	{
+		$required = array();
+		foreach (ContactMessagePostType::TYPES as $type) {
+			$required[ $type ] = self::get_required_fields($type);
+		}
+		return $required;
+	}
+
+	/**
+	 * The signed-in visitor's own newest bookings for the booking list (R3, m5):
+	 * by user ID, newest created first, cancelled ones included. A booking owned
+	 * only through the account e-mail is not listed; own_booking_id() still takes
+	 * its number when typed.
+	 *
+	 * @return list<array{id:int,number:string,vehicle:string,dates:string}>
+	 */
+	private static function own_booking_rows(): array
+	{
+		$user_id = get_current_user_id();
+		if ($user_id <= 0) {
+			return array();
+		}
+
+		$query = AccountBookingsQuery::query(
+			$user_id,
+			array(
+				'limit'   => self::OWN_BOOKINGS_LIMIT,
+				'orderby' => 'date',
+				'order'   => 'DESC',
+			)
+		);
+
+		$rows = array();
+		foreach ($query->posts as $post) {
+			$id         = $post instanceof \WP_Post ? $post->ID : (int) $post;
+			$vehicle_id = (int) get_post_meta($id, MetaKeys::BOOKING_VEHICLE_ID, true);
+			$rows[]     = array(
+				'id'      => $id,
+				'number'  => (string) mhmrentiva_get_display_id($id),
+				// get_the_title( 0 ) would answer with the displayed page's title.
+				'vehicle' => $vehicle_id > 0 ? get_the_title($vehicle_id) : '',
+				'dates'   => self::booking_dates($id),
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * The rental's days in the site's format (m6), '' when none is recorded.
+	 */
+	private static function booking_dates(int $booking_id): string
+	{
+		$pickup_ts = AccountBookingsQuery::pickup_ts($booking_id);
+		$from      = $pickup_ts > 0 ? DatepickerAssets::display_date(SiteTime::local_date($pickup_ts)) : '';
+		$to        = DatepickerAssets::display_date(AccountBookingsQuery::return_day($booking_id));
+
+		if ('' === $from || '' === $to) {
+			return '' !== $from ? $from : $to;
+		}
+
+		/* translators: 1: start date, 2: end date */
+		return sprintf(__('%1$s – %2$s', 'mhm-rentiva'), $from, $to);
 	}
 
 	/**
@@ -223,8 +340,8 @@ final class ContactForm extends AbstractShortcode {
 				'title'           => __('Booking Inquiry', 'mhm-rentiva'),
 				'description'     => __('Write to us to make a booking or get information about your existing booking.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-calendar-alt',
-				'required_fields' => array( 'name', 'email', 'phone', 'message' ),
-				'optional_fields' => array( 'vehicle_id', 'preferred_date', 'company' ),
+				'required_fields' => array( 'name', 'email', 'message' ),
+				'optional_fields' => array( 'phone', 'vehicle_id', 'preferred_date', 'company' ),
 				'email_template'  => 'contact-booking',
 			),
 			'support'  => array(
@@ -239,8 +356,8 @@ final class ContactForm extends AbstractShortcode {
 				'title'           => __('Feedback', 'mhm-rentiva'),
 				'description'     => __('Share your experience with us. Your feedback is valuable to us.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-star-filled',
-				'required_fields' => array( 'name', 'email', 'rating', 'message' ),
-				'optional_fields' => array( 'phone', 'company' ),
+				'required_fields' => array( 'name', 'email', 'message' ),
+				'optional_fields' => array( 'phone', 'company', 'rating' ),
 				'email_template'  => 'contact-feedback',
 			),
 		);
@@ -385,11 +502,14 @@ final class ContactForm extends AbstractShortcode {
 				// and became a link in the admin screen and a path fed to the
 				// admin e-mail. Only handle_file_upload() below sets it.
 				'attachment'      => '',
-				'auto_reply'      => isset($_POST['auto_reply']) ? sanitize_text_field(wp_unslash( (string) $_POST['auto_reply'])) : '1',
+				// The auto reply is not read from here: RecipientToken::allows_auto_reply() decides.
 				'booking_id'      => isset($_POST['booking_id']) ? absint(wp_unslash($_POST['booking_id'])) : 0,
 				// Opaque: only RecipientToken::resolve() gives it meaning. A plain
 				// address posted here (or as email_to) is never used as a recipient.
 				'recipient_token' => isset($_POST['recipient_token']) ? sanitize_text_field(wp_unslash( (string) $_POST['recipient_token'])) : '',
+				'consent'         => isset($_POST['consent']) ? sanitize_text_field(wp_unslash( (string) $_POST['consent'])) : '',
+				// The trap field: never stored, only tested for a value.
+				ContactFormView::HONEYPOT_FIELD => isset($_POST[ ContactFormView::HONEYPOT_FIELD ]) ? sanitize_text_field(wp_unslash( (string) $_POST[ ContactFormView::HONEYPOT_FIELD ])) : '',
 			);
 
 			$attachment_file = null;
@@ -442,6 +562,15 @@ final class ContactForm extends AbstractShortcode {
 	 */
 	private static function process_submission(array $post_data, ?array $file, ?callable $handler = null): array
 	{
+		// A filled trap field: answer as if it worked, so the bot learns nothing (R10).
+		if ('' !== (string) ( $post_data[ ContactFormView::HONEYPOT_FIELD ] ?? '' )) {
+			return array(
+				'ok'         => true,
+				'message_id' => 0,
+				'email_sent' => true,
+			);
+		}
+
 		$form_data  = self::sanitize_contact_form_data($post_data);
 		$validation = self::validate_form_data($form_data);
 		if (! $validation['valid']) {
@@ -484,7 +613,7 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		$email_sent = self::send_contact_email($form_data, $message_id);
-		if ('1' === $form_data['auto_reply']) {
+		if (RecipientToken::allows_auto_reply($form_data['recipient_token'], $form_data['type'])) {
 			self::send_auto_reply($form_data);
 		}
 
@@ -553,6 +682,9 @@ final class ContactForm extends AbstractShortcode {
 	 */
 	public const MAX_ATTACHMENT_BYTES = 5242880; // 5 MB
 
+	/** How many of the visitor's own bookings the list offers (R3). */
+	private const OWN_BOOKINGS_LIMIT = 20;
+
 	private static function sanitize_contact_form_data(array $data): array
 	{
 		return array(
@@ -567,8 +699,8 @@ final class ContactForm extends AbstractShortcode {
 			'rating'          => max(0, min(5, (int) ( $data['rating'] ?? 0 ))),
 			'message'         => ( $data['message'] ?? '' ) !== null ? sanitize_textarea_field( (string) ( $data['message'] ?? '' )) : '',
 			'attachment'      => '',
-			'auto_reply'      => self::sanitize_text_field_safe($data['auto_reply'] ?? '1'),
 			'booking_id'      => absint($data['booking_id'] ?? 0),
+			'consent'         => '1' === (string) ( $data['consent'] ?? '' ),
 			'recipient_token' => self::sanitize_text_field_safe($data['recipient_token'] ?? ''),
 			'ip_address'      => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '')),
 			'user_agent'      => sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'] ?? '')),
@@ -645,9 +777,8 @@ final class ContactForm extends AbstractShortcode {
 			$errors['phone'] = __('Please enter a valid phone number.', 'mhm-rentiva');
 		}
 
-		// Rating validation
-		if ($data['type'] === 'feedback' && ( $data['rating'] < 1 || $data['rating'] > 5 )) {
-			$errors['rating'] = __('Please rate between 1-5.', 'mhm-rentiva');
+		if (self::consent_enabled() && empty($data['consent'])) {
+			$errors['consent'] = __('Please confirm that you have read the privacy notice.', 'mhm-rentiva');
 		}
 
 		return array(
@@ -661,9 +792,9 @@ final class ContactForm extends AbstractShortcode {
 	{
 		$configs = array(
 			'general'  => array( 'name', 'email', 'message' ),
-			'booking'  => array( 'name', 'email', 'phone', 'message' ),
+			'booking'  => array( 'name', 'email', 'message' ),
 			'support'  => array( 'name', 'email', 'priority', 'message' ),
-			'feedback' => array( 'name', 'email', 'rating', 'message' ),
+			'feedback' => array( 'name', 'email', 'message' ),
 		);
 
 		return self::drop_priority_without_options($configs[ $type ] ?? $configs['general'], self::get_priority_options());
@@ -740,6 +871,11 @@ final class ContactForm extends AbstractShortcode {
 
 		if (( $data['linked_booking_id'] ?? 0 ) > 0) {
 			$post_data['meta_input']['_mhmrentiva_contact_booking_id'] = (int) $data['linked_booking_id'];
+		}
+
+		// Only while the setting asks for it: with it off a posted field records nothing.
+		if (self::consent_enabled() && ! empty($data['consent'])) {
+			$post_data['meta_input'][ MetaKeys::CONTACT_CONSENT ] = $data['timestamp'];
 		}
 
 		if (is_array($data['attachment']) && array() !== $data['attachment']) {

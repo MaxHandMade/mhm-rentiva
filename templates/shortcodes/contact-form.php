@@ -14,9 +14,7 @@
  * @var string        $recipient_token Encrypted email_to payload, '' when unset.
  * @var string        $redirect_url    Validated same-site redirect, '' for none.
  * @var WP_User|null  $current_user    Current user.
- * @var string        $support_email   Contact box e-mail.
- * @var string        $support_phone   Contact box phone.
- * @var string        $support_hours   Contact box hours.
+ * @var array         $view            ContactFormView::build().
  */
 
 if (! defined('ABSPATH')) {
@@ -51,6 +49,9 @@ $success_message       = (string) ( $atts['success_message'] ?? '' );
 $theme                 = $atts['theme'] ?? 'default';
 $class                 = $atts['class'] ?? '';
 $unique_id             = uniqid('rv_contact_');
+$view                  = isset($view) && is_array($view) ? $view : array();
+$type_fields           = (array) ( $view['fields'][ $type ] ?? array() );
+$booking_mode          = (string) ( $view['booking_field']['mode'] ?? '' );
 ?>
 
 <div class="rv-contact-form rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>"
@@ -82,7 +83,6 @@ $unique_id             = uniqid('rv_contact_');
 			<?php RenderContext::the_nonce_field('mhmrentiva_contact_nonce', 'rv_contact_nonce'); ?>
 
 			<input type="hidden" name="type" value="<?php echo esc_attr($type); ?>">
-			<input type="hidden" name="auto_reply" value="<?php echo esc_attr($atts['auto_reply'] ?? '1'); ?>">
 			<?php if ('' !== $recipient_token) : ?>
 				<input type="hidden" name="recipient_token" value="<?php echo esc_attr($recipient_token); ?>">
 			<?php endif; ?>
@@ -114,10 +114,6 @@ $unique_id             = uniqid('rv_contact_');
 						<label for="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
 							<?php Icons::render('phone'); ?>
 							<?php echo esc_html__('Phone', 'mhm-rentiva'); ?>
-							<?php
-							if ($type === 'booking') :
-								?>
-								<span class="rv-required">*</span><?php endif; ?>
 						</label>
 						<input type="tel" id="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" name="phone" class="rv-form-input"
 							placeholder="<?php echo esc_attr__('+90 5XX XXX XX XX', 'mhm-rentiva'); ?>">
@@ -154,7 +150,20 @@ $unique_id             = uniqid('rv_contact_');
 				</div>
 			<?php endif; ?>
 
-			<?php if ($show_booking_id_field === '1') : ?>
+			<?php if ('list' === $booking_mode) : ?>
+				<div class="rv-form-group">
+					<label for="rv-contact-booking-id-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
+						<?php Icons::render('calendar'); ?>
+						<?php echo esc_html__('Booking ID', 'mhm-rentiva'); ?>
+					</label>
+					<select id="rv-contact-booking-id-<?php echo esc_attr($unique_id); ?>" name="booking_id" class="rv-form-select">
+						<option value=""></option>
+						<?php foreach ($view['bookings'] as $booking_option) : ?>
+							<option value="<?php echo esc_attr( (string) $booking_option['id']); ?>"><?php echo esc_html($booking_option['label']); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			<?php elseif ('number' === $booking_mode) : ?>
 				<div class="rv-form-group">
 					<label for="rv-contact-booking-id-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
 						<?php Icons::render('calendar'); ?>
@@ -164,7 +173,7 @@ $unique_id             = uniqid('rv_contact_');
 				</div>
 			<?php endif; ?>
 
-			<?php if ($type === 'booking') : ?>
+			<?php if (isset($type_fields['preferred_date'])) : ?>
 				<div class="rv-form-group">
 					<label for="rv-contact-preferred-date-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
 						<?php Icons::render('calendar'); ?>
@@ -192,16 +201,16 @@ $unique_id             = uniqid('rv_contact_');
 				</div>
 			<?php endif; ?>
 
-			<?php if ($type === 'feedback') : ?>
+			<?php if (isset($type_fields['rating'])) : ?>
 				<div class="rv-form-group">
 					<label class="rv-form-label">
 						<?php Icons::render('star'); ?>
-						<?php echo esc_html__('Rating', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
+						<?php echo esc_html__('Rating', 'mhm-rentiva'); ?>
 					</label>
 					<div class="rv-rating-container">
 						<?php for ($i = 1; $i <= 5; $i++) : ?>
 							<label class="rv-rating-star">
-								<input type="radio" name="rating" value="<?php echo esc_attr($i); ?>" required>
+								<input type="radio" name="rating" value="<?php echo esc_attr($i); ?>">
 								<?php Icons::render('star'); ?>
 							</label>
 						<?php endfor; ?>
@@ -243,6 +252,26 @@ $unique_id             = uniqid('rv_contact_');
 						<?php echo esc_html__('Supported formats: JPG, PNG, GIF, PDF, DOC, DOCX (Max: ', 'mhm-rentiva'); ?>
 						<?php echo esc_html(size_format(\MHMRentiva\Admin\Frontend\Shortcodes\ContactForm::max_attachment_bytes())); ?>)
 					</small>
+				</div>
+			<?php endif; ?>
+
+			<?php if (! empty($view['consent']['enabled'])) : ?>
+				<div class="rv-form-group">
+					<label>
+						<input type="checkbox" name="consent" value="1" required>
+						<?php
+						echo wp_kses(
+							$view['consent']['html'],
+							array(
+								'a' => array(
+									'href'   => true,
+									'target' => true,
+									'rel'    => true,
+								),
+							)
+						);
+						?>
+					</label>
 				</div>
 			<?php endif; ?>
 
@@ -294,18 +323,20 @@ $unique_id             = uniqid('rv_contact_');
 	<div class="rv-contact-info">
 		<h4><?php echo esc_html__('Contact Information', 'mhm-rentiva'); ?></h4>
 		<div class="rv-contact-details">
-			<div class="rv-contact-item">
-				<?php Icons::render('email'); ?>
-				<span><?php echo esc_html($support_email ?? ''); ?></span>
-			</div>
-			<div class="rv-contact-item">
-				<?php Icons::render('phone'); ?>
-				<span><?php echo esc_html($support_phone ?? ''); ?></span>
-			</div>
-			<div class="rv-contact-item">
-				<?php Icons::render('clock'); ?>
-				<span><?php echo esc_html($support_hours ?? ''); ?></span>
-			</div>
+			<?php foreach ( (array) ( $view['sidebar'] ?? array() ) as $info_row ) : ?>
+				<div class="rv-contact-item">
+					<?php
+					$info_icons = array(
+						'address' => 'building',
+						'phone'   => 'phone',
+						'email'   => 'email',
+						'hours'   => 'clock',
+					);
+					Icons::render($info_icons[ $info_row['key'] ] ?? 'email');
+					?>
+					<span><?php echo esc_html($info_row['value']); ?></span>
+				</div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 	<?php endif; ?>

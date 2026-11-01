@@ -353,6 +353,78 @@ final class SettingsReachTheirReadersTest extends WP_UnitTestCase
 		$this->assertSame(array( 'help@example.test' ), $this->support_recipients());
 	}
 
+	// ---------------------------------------------------------------- PR F R5, r2 M2
+
+	public function test_contact_settings_saved_on_the_general_tab_reach_the_form(): void
+	{
+		$this->save_tab(
+			'general',
+			array(
+				'mhmrentiva_contact_address'       => 'Airport, gate 8',
+				'mhmrentiva_contact_phone'         => '+90 212 000 00 00',
+				'mhmrentiva_contact_phone_note'    => 'Roadside help',
+				'mhmrentiva_contact_response_note' => 'We reply within two hours',
+			)
+		);
+
+		\MHMRentiva\Tests\Support\RequestSimulator::new_request();
+		$form = do_shortcode('[rentiva_contact]');
+		$this->assertStringContainsString('Airport, gate 8', $form);
+		$this->assertStringContainsString('+90 212 000 00 00', $form);
+		$this->assertStringNotContainsString('7/24', $form);
+
+		$method = new \ReflectionMethod(ContactForm::class, 'prepare_template_data');
+		$method->setAccessible(true);
+		$view = $method->invoke(null, array( 'type' => 'general', 'show_company_info' => '1' ))['view'];
+		$this->assertSame('We reply within two hours', $view['response_note']);
+		$this->assertSame('Roadside help', $view['sidebar'][1]['note']);
+	}
+
+	public function test_empty_contact_settings_invent_no_phone_or_hours(): void
+	{
+		$this->save_tab('general', array( 'mhmrentiva_contact_phone' => '', 'mhmrentiva_contact_hours' => '' ));
+
+		\MHMRentiva\Tests\Support\RequestSimulator::new_request();
+		$form = do_shortcode('[rentiva_contact]');
+		$this->assertStringNotContainsString('+90 555 555', $form);
+		$this->assertStringNotContainsString('7/24', $form);
+	}
+
+	public function test_consent_setting_is_not_taken_for_pollution_and_survives_another_tab(): void
+	{
+		$saved = $this->save_tab('general', array( 'mhmrentiva_contact_consent_enabled' => '1', 'mhmrentiva_contact_address' => 'Airport' ));
+		$this->assertSame('1', $saved['mhmrentiva_contact_consent_enabled']);
+
+		// Runs on plugins_loaded: drops free-text keys holding a stray 0/1, never this one.
+		add_filter(
+			'pre_update_option_mhmrentiva_settings',
+			function ($value) {
+				$this->stored = $value;
+				return $value;
+			}
+		);
+		$cleanup = new \ReflectionMethod(SettingsCore::class, 'strip_pollution_fingerprint');
+		$cleanup->setAccessible(true);
+		$cleanup->invoke(null);
+		$this->assertSame('1', $this->stored['mhmrentiva_contact_consent_enabled']);
+		$this->assertSame('Airport', $this->stored['mhmrentiva_contact_address']);
+
+		// A free-text sibling holding a stray '1' is cleaned: the list works (negative control).
+		$this->stored['mhmrentiva_contact_address'] = '1';
+		$cleanup->invoke(null);
+		$this->assertArrayNotHasKey('mhmrentiva_contact_address', $this->stored);
+		$this->assertSame('1', $this->stored['mhmrentiva_contact_consent_enabled']);
+
+		// Saving another tab leaves both alone.
+		$this->stored['mhmrentiva_contact_address'] = 'Airport';
+		$after = $this->save_tab('vehicle', array( 'mhmrentiva_default_rental_location' => '' ));
+		$this->assertSame('1', $after['mhmrentiva_contact_consent_enabled']);
+		$this->assertSame('Airport', $after['mhmrentiva_contact_address']);
+
+		// Forged value: off.
+		$this->assertSame('0', $this->save_tab('general', array( 'mhmrentiva_contact_consent_enabled' => 'yes' ))['mhmrentiva_contact_consent_enabled']);
+	}
+
 	// ---------------------------------------------------------------- M5
 
 	public function test_m5_the_header_image_field_is_drawn_in_the_email_section(): void

@@ -813,15 +813,19 @@ final class SettingsSanitizer {
 
 	private static function sanitize_site_info_settings( array $input, array $defaults ): array {
 		return array(
-			'mhmrentiva_brand_name'    => self::safe_text( $input['mhmrentiva_brand_name'] ?? \get_bloginfo( 'name' ) ),
-			'mhmrentiva_site_url'      => \esc_url_raw( $input['mhmrentiva_site_url'] ?? \get_option( 'siteurl' ) ),
-			'mhmrentiva_home_url'      => \esc_url_raw( $input['mhmrentiva_home_url'] ?? \get_option( 'home' ) ),
-			'mhmrentiva_admin_email'   => SettingsHelper::sanitize_field( $input['mhmrentiva_admin_email'] ?? \get_option( 'admin_email' ), 'email' ),
-			'mhmrentiva_site_language' => self::safe_text( $input['mhmrentiva_site_language'] ?? \get_locale() ),
-			'mhmrentiva_timezone'      => self::safe_text( $input['mhmrentiva_timezone'] ?? \wp_timezone_string() ),
-			'mhmrentiva_support_email' => SettingsHelper::sanitize_field( $input['mhmrentiva_support_email'] ?? '', 'email' ),
-			'mhmrentiva_contact_phone' => self::safe_text( $input['mhmrentiva_contact_phone'] ?? '' ),
-			'mhmrentiva_contact_hours' => self::safe_text( $input['mhmrentiva_contact_hours'] ?? '' ),
+			'mhmrentiva_brand_name'              => self::safe_text( $input['mhmrentiva_brand_name'] ?? \get_bloginfo( 'name' ) ),
+			'mhmrentiva_site_url'                => \esc_url_raw( $input['mhmrentiva_site_url'] ?? \get_option( 'siteurl' ) ),
+			'mhmrentiva_home_url'                => \esc_url_raw( $input['mhmrentiva_home_url'] ?? \get_option( 'home' ) ),
+			'mhmrentiva_admin_email'             => SettingsHelper::sanitize_field( $input['mhmrentiva_admin_email'] ?? \get_option( 'admin_email' ), 'email' ),
+			'mhmrentiva_site_language'           => self::safe_text( $input['mhmrentiva_site_language'] ?? \get_locale() ),
+			'mhmrentiva_timezone'                => self::safe_text( $input['mhmrentiva_timezone'] ?? \wp_timezone_string() ),
+			'mhmrentiva_support_email'           => SettingsHelper::sanitize_field( $input['mhmrentiva_support_email'] ?? '', 'email' ),
+			'mhmrentiva_contact_phone'           => self::safe_text( $input['mhmrentiva_contact_phone'] ?? '' ),
+			'mhmrentiva_contact_hours'           => self::safe_text( $input['mhmrentiva_contact_hours'] ?? '' ),
+			'mhmrentiva_contact_address'         => self::safe_text( $input['mhmrentiva_contact_address'] ?? '' ),
+			'mhmrentiva_contact_phone_note'      => self::safe_text( $input['mhmrentiva_contact_phone_note'] ?? '' ),
+			'mhmrentiva_contact_response_note'   => self::safe_text( $input['mhmrentiva_contact_response_note'] ?? '' ),
+			'mhmrentiva_contact_consent_enabled' => self::validate_enum( (string) ( $input['mhmrentiva_contact_consent_enabled'] ?? '0' ), array( '0', '1' ), '0' ),
 		);
 	}
 

@@ -259,6 +259,9 @@ final class SettingsCore {
 			'mhmrentiva_email_from_name',
 			'mhmrentiva_contact_phone',
 			'mhmrentiva_contact_hours',
+			'mhmrentiva_contact_address',
+			'mhmrentiva_contact_phone_note',
+			'mhmrentiva_contact_response_note',
 			'mhmrentiva_email_footer_text',
 			// Email fields.
 			'mhmrentiva_email_from_address',

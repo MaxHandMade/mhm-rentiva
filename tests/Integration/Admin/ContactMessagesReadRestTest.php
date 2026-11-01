@@ -156,6 +156,15 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$this->assertNull($this->get('/contact-messages/' . $id)->get_data()['vehicle']);
 	}
 
+	public function test_consent_time_appears_in_the_detail_only_when_recorded(): void
+	{
+		wp_set_current_user($this->admin);
+		$detail = static fn(int $id): array => array_column(ContactMessagesRestController::detail(get_post($id))['fields'], 'value', 'key');
+
+		$this->assertArrayNotHasKey('consent', $detail($this->contact()));
+		$this->assertStringContainsString('2026', (string) $detail($this->contact(array( 'consent' => '2026-11-01 10:30:00' )))['consent']);
+	}
+
 	public function test_phone_and_company_appear_in_the_detail_response_when_set(): void
 	{
 		wp_set_current_user($this->admin);
