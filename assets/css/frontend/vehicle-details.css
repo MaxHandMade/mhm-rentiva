@@ -959,7 +959,7 @@
 	margin-top: 2px;
 }
 
-/* Override availability-calendar.css global styles that bleed into the sidebar widget */
+/* The sidebar widget resets the .rv-calendar-days box defined above for the page layout. */
 .rv-vd2-booking-card .rv-calendar-days {
 	background: transparent;
 	border: none;

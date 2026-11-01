@@ -139,6 +139,37 @@ final class CalendarDaysTest extends WP_UnitTestCase
 		$this->assertSame(array( '2037-07-01', '2037-07-02', '2037-07-03' ), BookingConflicts::calendar_days($v, '2037-07-01', '2037-07-31'));
 	}
 
+	/**
+	 * A booking that began long before the window paints only the window's days
+	 * (the loop starts at $from, not at the booking's start).
+	 */
+	public function test_long_booking_paints_only_the_requested_window(): void
+	{
+		$v = $this->vehicle();
+		$this->booking($v, 'confirmed', '2027-01-01', '10:00', '2027-07-03', '10:00');
+		$this->booking($v, 'confirmed', '2027-07-30', '10:00', '2028-03-01', '10:00');
+
+		$this->assertSame(
+			array( '2027-07-01', '2027-07-02', '2027-07-03', '2027-07-30', '2027-07-31' ),
+			BookingConflicts::calendar_days($v, '2027-07-01', '2027-07-31')
+		);
+	}
+
+	/**
+	 * On a zone that changes its clock, a booking over the change paints every
+	 * day once: no day is skipped on the 23-hour day or repeated on the 25-hour one.
+	 */
+	public function test_days_are_whole_across_the_clock_changes(): void
+	{
+		$this->pin_site_timezone('Europe/Berlin');
+		$v = $this->vehicle();
+		$this->booking($v, 'confirmed', '2027-03-27', '10:00', '2027-03-29', '10:00');
+		$this->booking($v, 'confirmed', '2027-10-30', '10:00', '2027-11-01', '10:00');
+
+		$this->assertSame(array( '2027-03-27', '2027-03-28', '2027-03-29' ), BookingConflicts::calendar_days($v, '2027-03-01', '2027-03-31'));
+		$this->assertSame(array( '2027-10-30', '2027-10-31', '2027-11-01' ), BookingConflicts::calendar_days($v, '2027-10-01', '2027-11-30'));
+	}
+
 	public function test_manually_blocked_days_paint_inside_the_range_only(): void
 	{
 		$v = $this->vehicle(array( '2027-07-15', '2027-08-02', '2027-06-30' ));

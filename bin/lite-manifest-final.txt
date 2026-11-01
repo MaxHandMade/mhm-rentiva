@@ -137,6 +137,7 @@ src/Admin/Frontend/Shortcodes/Account/MyFavorites.php
 src/Admin/Frontend/Shortcodes/Account/PaymentHistory.php
 src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
+src/Admin/Frontend/Shortcodes/CalendarView.php
 src/Admin/Frontend/Shortcodes/BookingForm.php
 src/Admin/Frontend/Shortcodes/Card/RvsCardView.php
 src/Admin/Frontend/Shortcodes/Card/VehicleCardLinks.php
@@ -154,6 +155,7 @@ src/Admin/Frontend/Shortcodes/Rvs/VehicleDetailsView.php
 src/Admin/Frontend/Shortcodes/SearchResults.php
 src/Admin/Frontend/Shortcodes/Testimonials.php
 src/Admin/Frontend/Shortcodes/UnifiedSearch.php
+src/Admin/Frontend/Shortcodes/ComparisonView.php
 src/Admin/Frontend/Shortcodes/VehicleComparison.php
 src/Admin/Frontend/Shortcodes/VehicleDetails.php
 src/Admin/Frontend/Shortcodes/VehicleRatingForm.php

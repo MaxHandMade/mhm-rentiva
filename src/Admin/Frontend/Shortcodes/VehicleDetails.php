@@ -12,8 +12,6 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Services\CompareService;
-use DateTime;
-use DateInterval;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;

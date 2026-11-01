@@ -81,7 +81,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	}
 
 	protected static function get_js_dependencies(): array {
-		return array( 'jquery', 'mhm-rentiva-toast', 'mhm-rentiva-rvs-dialog' );
+		return array( 'jquery', 'mhm-rentiva-rvs-dialog' );
 	}
 
 	protected static function get_script_object_name(): string {

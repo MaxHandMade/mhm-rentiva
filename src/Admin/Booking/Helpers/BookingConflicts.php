@@ -383,13 +383,17 @@ final class BookingConflicts {
 		$days = array_fill_keys(self::blocked_days_in($vehicle_id, $start, $end), true);
 
 		foreach (self::booking_intervals(array( $vehicle_id ), $start, $end)[ $vehicle_id ] ?? array() as $interval) {
-			$day  = ( new \DateTimeImmutable('@' . $interval[0]) )->setTimezone(wp_timezone())->setTime(12, 0);
-			$stop = SiteTime::local_date($interval[1]);
+			// Only the requested window is walked: a long booking that began
+			// months before $from does not cost a loop per day it has held.
+			$begin = SiteTime::local_date($interval[0]);
+			$stop  = min(SiteTime::local_date($interval[1]), $to);
+			$day   = ( new \DateTimeImmutable('@' . $interval[0]) )->setTimezone(wp_timezone())->setTime(12, 0);
+			if ($begin < $from) {
+				$day = ( new \DateTimeImmutable('@' . $start) )->setTimezone(wp_timezone())->setTime(12, 0);
+			}
 			for ($date = $day->format('Y-m-d'); $date <= $stop; $date = $day->format('Y-m-d')) {
-				if ($date >= $from && $date <= $to) {
-					$days[ $date ] = true;
-				}
-				$day = $day->modify('+1 day');
+				$days[ $date ] = true;
+				$day           = $day->modify('+1 day');
 			}
 		}
 
