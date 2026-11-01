@@ -978,7 +978,7 @@ final class AllowlistRegistry {
             'show_vehicle_selector' => [ 'default' => '1' ],
             'show_legend'           => [ 'default' => '1' ],
             'show_month_nav'        => [ 'default' => '1' ],
-            'months_to_show'        => [ 'default' => '1' ],
+            'months_to_show'        => [ 'default' => '2' ],
             'start_week_on'         => [ 'default' => '1' ],
             'start_month'           => [ 'default' => '' ],
             'height'                => [ 'default' => '' ],

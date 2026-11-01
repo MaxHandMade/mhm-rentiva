@@ -44,7 +44,7 @@ class AvailabilityCalendarWidget extends ElementorWidgetBase {
 			array(
 				'label'       => __( 'Vehicle ID', 'mhm-rentiva' ),
 				'type'        => 'text',
-				'description' => __( 'Specific vehicle ID or leave empty for current vehicle', 'mhm-rentiva' ),
+				'description' => __( 'Specific vehicle ID, or leave empty for the newest vehicle', 'mhm-rentiva' ),
 			)
 		);
 

@@ -91,9 +91,9 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	public function test_legend_month_nav_vehicle_selector_follow_flags(): void
 	{
 		$marks = array(
-			'legend'   => 'rv-availability-legend',
-			'nav'      => 'rv-calendar-controls',
-			'selector' => 'rv-vehicle-switcher-modern',
+			'legend'   => 'rvs-availability__legend',
+			'nav'      => 'rvs-availability__nav',
+			'selector' => 'data-rvs-cal-switch',
 		);
 
 		foreach (array( 'shortcode', 'block', 'widget' ) as $surface) {
@@ -115,7 +115,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 				'widget'    => $this->widget($by_surface[2]),
 			);
 			foreach ($renders as $surface => $html) {
-				$this->assertStringContainsString('rv-availability-grid', $html, "$surface rendered a calendar.");
+				$this->assertStringContainsString('rvs-availability__months', $html, "$surface rendered a calendar.");
 				$this->assertStringNotContainsString($marks[ $what ], $html, "$surface hides the $what when it is off.");
 				foreach ($marks as $other => $class) {
 					if ($other !== $what) {
@@ -135,7 +135,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 		foreach (array( 'shortcode', 'block', 'widget' ) as $surface) {
 			$default = $this->render_surface($surface, array());
 			$this->assertSame('Mon', $this->weekdays($default)[0] ?? null, "$surface default starts on Monday.");
-			$this->assertStringNotContainsString('data-start-week-on', $default, "$surface default markup is today's.");
+			$this->assertStringContainsString('data-week-start="1"', $default, "$surface tells the months endpoint.");
 		}
 
 		$sunday = array(
@@ -143,19 +143,16 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 			'block'     => $this->block(array( 'startWeekOn' => '0' )),
 			'widget'    => $this->widget(array( 'start_week_on' => '0' )),
 		);
-		$month  = gmdate('Y-m');
+		$month  = \MHMRentiva\Admin\Frontend\Shortcodes\CalendarView::current_month();
 		$sunday_offset = (int) gmdate('w', (int) strtotime($month . '-01'));
 		foreach ($sunday as $surface => $html) {
 			$this->assertSame(array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ), $this->weekdays($html), "$surface Sunday header.");
-			$this->assertStringContainsString('data-start-week-on="0"', $html, "$surface tells the month builder.");
+			$this->assertStringContainsString('data-week-start="0"', $html, "$surface tells the months endpoint.");
 			$this->assertSame($sunday_offset, $this->leading_blanks($html), "$surface: the 1st sits under its weekday.");
 		}
 
 		$monday_offset = ( $sunday_offset + 6 ) % 7;
 		$this->assertSame($monday_offset, $this->leading_blanks($this->block(array())), 'Monday grid unchanged.');
-
-		$js = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/js/frontend/availability-calendar.js'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local asset.
-		$this->assertStringContainsString("data('start-week-on')", $js, 'The JS month builder reads the start day.');
 	}
 
 	/**
@@ -168,8 +165,8 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 		$this->assertStringNotContainsString('showBookingLinks', $js);
 		$this->assertSame(1, substr_count($js, 'setAttributes({ showBookingButton: val })'), 'One editor control writes showBookingButton.');
 
-		$this->assertStringContainsString('rv-book-now-btn', $this->block(array()));
-		$this->assertStringNotContainsString('rv-book-now-btn', $this->block(array( 'showBookingButton' => false )));
+		$this->assertStringContainsString('data-rvs-cal-book', $this->block(array()));
+		$this->assertStringNotContainsString('data-rvs-cal-book', $this->block(array( 'showBookingButton' => false )));
 	}
 
 	/**
@@ -230,7 +227,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	public function test_default_renders_unchanged(string $name): void
 	{
 		$html = $this->render_surface(substr($name, strlen('calendar-')), array());
-		$this->assertStringContainsString('rv-availability-grid', $html, "$name rendered nothing to compare; the golden would pin an empty render.");
+		$this->assertStringContainsString('rvs-availability__months', $html, "$name rendered nothing to compare; the golden would pin an empty render.");
 
 		$actual = $this->calendar_golden($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -258,9 +255,9 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 
 	/**
 	 * golden(), with the catalog ids named, and what depends on the day the suite
-	 * runs masked: dates, the month title and the day cells (their count, weekday
-	 * offset and today/past classes). The legend, controls, switcher, weekday header
-	 * and booking button -- this task's settings -- stay compared.
+	 * runs masked: dates and the months (their cells, weekday
+	 * offset and today/past classes; the weekday header is test_start_week_on...).
+	 * The legend, controls, switcher, panel and booking button stay compared.
 	 */
 	private function calendar_golden(string $html): string
 	{
@@ -270,14 +267,13 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 			$map[ (int) get_post_thumbnail_id($id) ] = 'IMAGE' . $i;
 		}
 		$html = (string) preg_replace_callback(
-			'/(?<=_id=|[?&]p=|data-vehicle-id="|&quot;id&quot;:|"id":)(\d+)(?=[",&])/',
+			'/(?<=_id=|[?&]p=|data-vehicle-id="|data-rvs-cal-option="|&quot;id&quot;:|"id":)(\d+)(?=[",&])/',
 			static fn(array $m): string => $map[ (int) $m[1] ] ?? $m[1],
 			$html
 		);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/\d{4}-\d{2}(-\d{2})?/', 'DATE', $html);
-		$html = (string) preg_replace('#(<span class="rv-month-name">)[^<]*(</span>)#', '$1MONTH$2', $html);
-		$html = (string) preg_replace('#(<div class="rv-calendar-days">).*?(?=<div class="rv-calendar-unavailable-message")#s', '$1DAYS', $html);
+		$html = (string) preg_replace('#(data-rvs-cal-months aria-live="X">).*?(?=<ul class="rvs-availability__legend")#s', '$1MONTHS</div>', $html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));
 		return (string) preg_replace('/[ \t]+/', ' ', $html) . "\n";
 	}
@@ -295,17 +291,18 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	 */
 	private function weekdays(string $html): array
 	{
-		preg_match_all('#<div class="rv-weekday">\s*([^<]*?)\s*</div>#', $html, $m);
+		// The first month's header; every month repeats it.
+		preg_match('#<thead>.*?</thead>#s', $html, $head);
+		preg_match_all('#<th scope="col"[^>]*>\s*([^<]*?)\s*</th>#', $head[0] ?? '', $m);
 		return $m[1];
 	}
 
 	private function leading_blanks(string $html): int
 	{
-		$at = strpos($html, 'rv-calendar-days');
+		$at = strpos($html, '<tbody>');
 		$this->assertNotFalse($at, 'No day grid.');
-		$rest = substr($html, (int) $at);
-		preg_match('/^rv-calendar-days">((?:\s*<div class="rv-calendar-day rv-day-empty"><\/div>)*)/', $rest, $m);
-		return substr_count($m[1] ?? '', 'rv-day-empty');
+		preg_match('/^<tbody>\s*<tr>((?:\s*<td class="rvs-cal__day is-empty"><\/td>)*)/', substr($html, (int) $at), $m);
+		return substr_count($m[1] ?? '', 'is-empty');
 	}
 
 	/**

@@ -155,24 +155,24 @@ final class UnpublishedVehiclesStayPrivateTest extends WP_Ajax_UnitTestCase
 	/**
 	 * The busiest public endpoint of the three, and the one the round missed.
 	 *
-	 * `mhmrentiva_availability_unified` is what the rendered calendar actually
+	 * `mhmrentiva_calendar_months` is what the rendered calendar actually
 	 * calls on every month change. It resolves a vehicle by ID and answers with
-	 * that vehicle's day-by-day occupancy and its daily prices, and it is nopriv.
+	 * that vehicle's day-by-day occupancy, and it is nopriv.
 	 * The other surfaces were given a publish guard while this one kept only the
 	 * "is the ID non-zero" check, so a draft ID still returned a full year of
 	 * occupancy and pricing to an anonymous caller.
 	 */
-	public function test_the_unified_availability_endpoint_refuses_a_draft(): void
+	public function test_the_calendar_months_endpoint_refuses_a_draft(): void
 	{
 		$_POST = array(
 			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
 			'vehicle_id'     => (string) $this->draft_id,
-			'start_month'    => '2026-09',
+			'start_month'    => '2030-09',
 			'months_to_show' => '1',
 		);
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+			$this->_handleAjax( 'mhmrentiva_calendar_months' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// See above.
 		}
@@ -181,21 +181,21 @@ final class UnpublishedVehiclesStayPrivateTest extends WP_Ajax_UnitTestCase
 
 		$this->assertFalse(
 			(bool) ( $response['success'] ?? false ),
-			'The unified endpoint published a draft vehicle\'s occupancy and pricing: ' . $this->_last_response
+			'The months endpoint published a draft vehicle\'s occupancy: ' . $this->_last_response
 		);
 	}
 
-	public function test_the_unified_availability_endpoint_refuses_a_private_vehicle(): void
+	public function test_the_calendar_months_endpoint_refuses_a_private_vehicle(): void
 	{
 		$_POST = array(
 			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
 			'vehicle_id'     => (string) $this->private_id,
-			'start_month'    => '2026-09',
+			'start_month'    => '2030-09',
 			'months_to_show' => '1',
 		);
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+			$this->_handleAjax( 'mhmrentiva_calendar_months' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// See above.
 		}
@@ -204,21 +204,21 @@ final class UnpublishedVehiclesStayPrivateTest extends WP_Ajax_UnitTestCase
 
 		$this->assertFalse(
 			(bool) ( $response['success'] ?? false ),
-			'The unified endpoint published a private vehicle\'s occupancy and pricing: ' . $this->_last_response
+			'The months endpoint published a private vehicle\'s occupancy: ' . $this->_last_response
 		);
 	}
 
-	public function test_the_unified_availability_endpoint_still_serves_a_published_vehicle(): void
+	public function test_the_calendar_months_endpoint_still_serves_a_published_vehicle(): void
 	{
 		$_POST = array(
 			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
 			'vehicle_id'     => (string) $this->published_id,
-			'start_month'    => '2026-09',
+			'start_month'    => '2030-09',
 			'months_to_show' => '1',
 		);
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+			$this->_handleAjax( 'mhmrentiva_calendar_months' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// See above.
 		}

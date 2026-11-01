@@ -309,10 +309,7 @@ final class VehicleServiceTypeVisibilityTest extends WP_UnitTestCase
 
 	public function test_availability_calendar_switcher_omits_transfer_only_vehicles(): void
 	{
-		$method = new ReflectionMethod(AvailabilityCalendar::class, 'get_vehicles_list');
-		$method->setAccessible(true);
-
-		$ids = array_map('intval', wp_list_pluck($method->invoke(null), 'id'));
+		$ids = array_map('intval', wp_list_pluck(\MHMRentiva\Admin\Frontend\Shortcodes\CalendarView::vehicles(), 'id'));
 
 		$this->assertContains($this->untyped_id, $ids);
 		$this->assertNotContains($this->transfer_id, $ids);
@@ -329,8 +326,9 @@ final class VehicleServiceTypeVisibilityTest extends WP_UnitTestCase
 
 		$pinned = static fn( int $id ): int => (int) $method->invoke(null, array_merge($defaults, array( 'vehicle_id' => (string) $id )))['vehicle_id'];
 
-		$this->assertNotSame($this->transfer_id, $pinned($this->transfer_id));
-		$this->assertNotSame($this->legacy_transfer_id, $pinned($this->legacy_transfer_id));
+		// R13: refused outright, never another car in its place.
+		$this->assertSame(0, $pinned($this->transfer_id));
+		$this->assertSame(0, $pinned($this->legacy_transfer_id));
 		$this->assertSame($this->both_id, $pinned($this->both_id), 'Positive control: a both-type vehicle stays pinned.');
 	}
 

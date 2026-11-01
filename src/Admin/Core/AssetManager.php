@@ -263,6 +263,9 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-vehicle', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-vehicle', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-vehicle.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-overlay', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/rvs/rvs-vehicle.css'));
 		}
+		if (! wp_style_is('mhm-rentiva-rvs-availability', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-availability', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-availability.css', array( 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-calendar', 'mhm-rentiva-rvs-overlay' ), self::get_file_version('assets/css/frontend/rvs-availability.css'));
+		}
 		if (! wp_script_is('mhm-rentiva-rvs-dialog', 'registered')) {
 			wp_register_script('mhm-rentiva-rvs-dialog', MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/rvs-dialog.js', array(), self::get_file_version('assets/js/frontend/rvs-dialog.js'), true);
 		}
@@ -326,6 +329,15 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-calendar');
+	}
+
+	/**
+	 * The availability calendar page: the calendar, the empty state and the vehicle dialog.
+	 */
+	public static function enqueue_rvs_availability_styles(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-availability');
 	}
 
 	/**

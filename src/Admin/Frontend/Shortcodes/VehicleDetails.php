@@ -57,13 +57,17 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
-	 * A published vehicle from the request, or a JSON error.
+	 * A published vehicle offered for rental from the request, or a JSON error.
+	 * The vehicle page's and the availability calendar's endpoints share it.
 	 */
-	private static function requested_vehicle( VerifiedRequest $req ): int {
+	public static function requested_vehicle( VerifiedRequest $req ): int {
 		$vehicle_id = $req->int( 'vehicle_id' );
-		// Same rule as the old calendar endpoint: published, public and without a
-		// password -- an unreadable vehicle is indistinguishable from a missing one.
-		if ( $vehicle_id <= 0 || ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vehicle_id ) ) {
+		// Published, public and without a password -- an unreadable vehicle is
+		// indistinguishable from a missing one. These endpoints answer about rental
+		// days and prices, which a transfer-only vehicle does not have.
+		if ( $vehicle_id <= 0
+			|| ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vehicle_id )
+			|| ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::allows_service( $vehicle_id, 'rental' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Vehicle not found.', 'mhm-rentiva' ) ) );
 		}
 		return $vehicle_id;
@@ -72,7 +76,7 @@ final class VehicleDetails extends AbstractShortcode {
 	/**
 	 * @param list<array<string, mixed>> $months
 	 */
-	private static function months_html( array $months ): string {
+	public static function months_html( array $months ): string {
 		$html = '';
 		foreach ( $months as $month ) {
 			$html .= (string) Templates::render( 'partials/rvs/calendar-month', array( 'calendar' => $month ), true );

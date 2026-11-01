@@ -4,27 +4,22 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Frontend\Shortcodes\CalendarView;
 use WP_Ajax_UnitTestCase;
 
 /**
- * The availability endpoint must bound the month span it renders.
+ * The months endpoint must bound the month span it renders.
  *
- * `wp_ajax_nopriv_mhmrentiva_availability_unified` reads `months_to_show` and
- * hands it to two loops -- the day-by-day availability walk and the calendar
- * pricing walk -- and the value also becomes part of the cache key. The nonce
- * it checks is printed on every page carrying the calendar, so it is not a
- * barrier to anyone who can load the site. Without a ceiling one request can
- * ask for thousands of months.
- *
- * The ceiling is not a new policy: the calendar's own markup declares
- * `data-months-to-show` of 1 (shortcode default) to 3 (template fallback), and
- * the client walks further spans by moving `start_month`, not by widening the
- * request. Twelve months is a generous year-long cap on that advertised range.
+ * `wp_ajax_nopriv_mhmrentiva_calendar_months` reads `months_to_show` and walks
+ * that many grids. The nonce it checks is printed on every page carrying the
+ * calendar, so it is not a barrier to anyone who can load the site. Without a
+ * ceiling one request can ask for thousands of months. Twelve is the attribute's
+ * own largest value (R9).
  *
  * Sibling of PublicRequestBoundsTest, which pinned the same class down for the
- * search endpoint and left this one open.
+ * search endpoint.
  *
- * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_unified_availability
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_months
  */
 final class AvailabilityCalendarBoundsTest extends WP_Ajax_UnitTestCase
 {
@@ -47,95 +42,97 @@ final class AvailabilityCalendarBoundsTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
-	 * The endpoint must answer once. Guarding wp_send_json_* with
-	 * catch(Exception) swallows the terminator wp_die() raises and appends a
-	 * second, contradictory document; a plain decode of the whole body is the
-	 * assertion that only one answer was written.
+	 * A plain decode of the whole body is the assertion that only one answer was
+	 * written (see AjaxEndpointsAnswerOnceTest).
+	 *
+	 * @param array<string, string> $post
+	 * @return array<string, mixed>
 	 */
-	private function sole_json_document( string $raw ): ?array
+	private function months( array $post ): array
 	{
-		return json_decode( $raw, true );
-	}
-
-	public function test_the_availability_endpoint_bounds_the_month_span(): void
-	{
-		$_POST = array(
-			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
-			'vehicle_id'     => (string) $this->vehicle_id,
-			'months_to_show' => '25',
+		$_POST = $post + array(
+			'nonce'      => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
+			'vehicle_id' => (string) $this->vehicle_id,
 		);
+		// One test may ask twice; the response buffer accumulates.
+		$this->_last_response = '';
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_availability_unified' );
+			$this->_handleAjax( 'mhmrentiva_calendar_months' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			// wp_send_json_* terminates; the response assertion below is the check.
+			unset( $e ); // wp_send_json_* terminates; the response below is the check.
 		}
 
-		$response = $this->sole_json_document( $this->_last_response );
-
+		$response = json_decode( $this->_last_response, true );
 		$this->assertIsArray( $response, 'Endpoint returned no JSON.' );
-		$this->assertTrue(
-			(bool) ( $response['success'] ?? false ),
-			'Endpoint failed outright: ' . $this->_last_response
-		);
-		$this->assertLessThanOrEqual(
-			12,
-			count( $response['data']['availability_data'] ?? array() ),
-			'An anonymous request asked for 25 months and the endpoint built every one of them.'
+		$this->assertTrue( (bool) ( $response['success'] ?? false ), 'Endpoint failed outright: ' . $this->_last_response );
+
+		return (array) $response['data'];
+	}
+
+	public function test_the_months_endpoint_bounds_the_month_span(): void
+	{
+		$data = $this->months( array( 'months_to_show' => '25' ) );
+
+		$this->assertSame(
+			CalendarView::MAX_MONTH_SPAN,
+			substr_count( (string) $data['html'], 'data-rvs-calendar' ),
+			'An anonymous request asked for 25 months: twelve are drawn.'
 		);
 	}
 
 	/**
-	 * A malformed start month must not be fed to strtotime(), which reads it as
-	 * false and renders January 1970.
+	 * A malformed start month must not be fed to a date parser.
 	 */
 	public function test_a_malformed_start_month_falls_back_to_the_current_month(): void
 	{
-		$_POST = array(
-			'nonce'       => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
-			'vehicle_id'  => (string) $this->vehicle_id,
-			'start_month' => 'not-a-month',
-		);
+		$data = $this->months( array( 'start_month' => 'not-a-month' ) );
 
-		try {
-			$this->_handleAjax( 'mhmrentiva_availability_unified' );
-		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			// See above.
-		}
+		$this->assertSame( CalendarView::current_month(), $data['start_month'] );
+	}
 
-		$response = $this->sole_json_document( $this->_last_response );
-		$months   = array_keys( $response['data']['availability_data'] ?? array() );
+	public function test_a_zero_month_span_falls_back_to_a_usable_calendar(): void
+	{
+		$data = $this->months( array( 'months_to_show' => '0' ) );
 
-		$this->assertSame(
-			array( gmdate( 'Y-m' ) ),
-			$months,
-			'A malformed start_month should fall back to the current month.'
-		);
+		$this->assertSame( 1, substr_count( (string) $data['html'], 'data-rvs-calendar' ) );
 	}
 
 	/**
-	 * A month span below the floor must not disable the calendar either.
+	 * R9: no walking into the past; the answer tells the script to close the button.
 	 */
-	public function test_a_zero_month_span_falls_back_to_a_usable_calendar(): void
+	public function test_past_months_stay_closed(): void
 	{
-		$_POST = array(
-			'nonce'          => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
-			'vehicle_id'     => (string) $this->vehicle_id,
-			'months_to_show' => '0',
-		);
+		$past = $this->months( array( 'start_month' => '2001-05' ) );
+		$this->assertSame( CalendarView::current_month(), $past['start_month'] );
+		$this->assertFalse( $past['prev_allowed'] );
 
-		try {
-			$this->_handleAjax( 'mhmrentiva_availability_unified' );
-		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			// See above.
+		$future = $this->months( array( 'start_month' => '2099-05' ) );
+		$this->assertSame( '2099-05', $future['start_month'] );
+		$this->assertTrue( $future['prev_allowed'] );
+	}
+
+	/**
+	 * R11, m5: a bucket of its own, 60 a minute.
+	 */
+	public function test_the_months_endpoint_is_rate_limited(): void
+	{
+		for ( $i = 0; $i < 60; $i++ ) {
+			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit( 'calendar_months', 60, 60 );
 		}
 
-		$response = $this->sole_json_document( $this->_last_response );
-
-		$this->assertGreaterThanOrEqual(
-			1,
-			count( $response['data']['availability_data'] ?? array() ),
-			'A zero span should clamp up to one month, not render an empty calendar.'
+		$_POST = array(
+			'nonce'      => wp_create_nonce( 'mhmrentiva_availability_nonce' ),
+			'vehicle_id' => (string) $this->vehicle_id,
 		);
+		try {
+			$this->_handleAjax( 'mhmrentiva_calendar_months' );
+		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
+			unset( $e );
+		}
+
+		$response = json_decode( $this->_last_response, true );
+		$this->assertFalse( (bool) ( $response['success'] ?? true ) );
+		$this->assertArrayNotHasKey( 'html', (array) $response['data'] );
 	}
 }

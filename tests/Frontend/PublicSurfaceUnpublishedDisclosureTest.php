@@ -37,8 +37,8 @@ use WP_Ajax_UnitTestCase;
  * @covers \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable
  * @covers \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::prepare_template_data
- * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_get_vehicle_info
- * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_unified_availability
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_vehicle_info
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_months
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::ajax_booking_form
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::ajax_calculate_price
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::ajax_check_availability
@@ -179,7 +179,7 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 	{
 		$output = do_shortcode( '[rentiva_availability_calendar vehicle_id="' . $this->published_id . '"]' );
 
-		$this->assertStringContainsString( 'rv-availability-calendar', $output );
+		$this->assertStringContainsString( 'data-rvs-availability', $output );
 		$this->assertStringContainsString( self::PUBLISHED_TITLE, $output );
 	}
 
@@ -190,23 +190,21 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		$booking_title = 'Booking for Jane Doe 0555 111 2233';
 		$this->seed_booking( $this->published_id, $booking_title );
 
-		$days = $this->availability_days_for( $this->published_id );
-		$busy = $this->first_occupied_day( $days );
+		$html = $this->months_html_for( $this->published_id );
 
-		$this->assertNotNull( $busy, 'The seeded booking must occupy a day, or this test proves nothing.' );
-		$this->assertArrayNotHasKey( 'bookings', $busy, 'Booking rows must not cross the public payload boundary.' );
-		$this->assertStringNotContainsString( $booking_title, wp_json_encode( $days ) );
+		$this->assertStringContainsString( 'is-booked', $html, 'The seeded booking must occupy a day, or this test proves nothing.' );
+		$this->assertStringNotContainsString( $booking_title, $html );
 	}
 
 	public function test_availability_payload_still_reports_occupancy_for_published_vehicles(): void
 	{
 		$this->seed_booking( $this->published_id, 'Booking for Jane Doe' );
 
-		$busy = $this->first_occupied_day( $this->availability_days_for( $this->published_id ) );
-
-		$this->assertNotNull( $busy );
-		$this->assertSame( 1, $busy['occupancy'], 'Occupancy is the public fact the calendar exists to show.' );
-		$this->assertContains( $busy['status'], array( 'booked', 'partial', 'maintenance' ) );
+		$this->assertStringContainsString(
+			'is-booked',
+			$this->months_html_for( $this->published_id ),
+			'A taken day is the public fact the calendar exists to show.'
+		);
 	}
 
 	public function test_rendered_calendar_does_not_publish_a_booking_title(): void
@@ -238,20 +236,28 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		$this->assertSame( self::PUBLISHED_TITLE, $response['data']['title'] );
 	}
 
-	public function test_unified_availability_refuses_an_unpublished_vehicle(): void
+	public function test_calendar_months_refuses_an_unpublished_vehicle(): void
 	{
-		$response = $this->dispatch_ajax( 'mhmrentiva_availability_unified', 'mhmrentiva_availability_nonce', $this->private_id );
+		$response = $this->dispatch_ajax( 'mhmrentiva_calendar_months', 'mhmrentiva_availability_nonce', $this->private_id );
 
 		$this->assertFalse( $response['success'] );
-		$this->assertArrayNotHasKey( 'pricing_data', (array) ( $response['data'] ?? array() ) );
+		$this->assertArrayNotHasKey( 'html', (array) ( $response['data'] ?? array() ) );
 	}
 
-	public function test_unified_availability_still_serves_a_published_vehicle(): void
+	public function test_calendar_months_still_serves_a_published_vehicle(): void
 	{
-		$response = $this->dispatch_ajax( 'mhmrentiva_availability_unified', 'mhmrentiva_availability_nonce', $this->published_id );
+		$response = $this->dispatch_ajax( 'mhmrentiva_calendar_months', 'mhmrentiva_availability_nonce', $this->published_id );
 
 		$this->assertTrue( $response['success'] );
-		$this->assertNotEmpty( $response['data']['availability_data'] );
+		$this->assertNotEmpty( $response['data']['html'] );
+	}
+
+	public function test_calendar_quote_refuses_an_unpublished_vehicle(): void
+	{
+		$response = $this->dispatch_ajax( 'mhmrentiva_calendar_quote', 'mhmrentiva_availability_nonce', $this->draft_id );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertArrayNotHasKey( 'total_html', (array) ( $response['data'] ?? array() ) );
 	}
 
 	// -------------------------------------- surface 4: public id validation
@@ -375,6 +381,9 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 
 		update_post_meta( $booking_id, '_mhmrentiva_vehicle_id', $vehicle_id );
 		update_post_meta( $booking_id, '_mhmrentiva_start_date', gmdate( 'Y-m-05' ) );
+		// The calendar's one rule (BookingConflicts) reads the booking's instants.
+		update_post_meta( $booking_id, '_mhmrentiva_start_ts', (int) strtotime( gmdate( 'Y-m-05' ) . ' 10:00:00 UTC' ) );
+		update_post_meta( $booking_id, '_mhmrentiva_end_ts', (int) strtotime( gmdate( 'Y-m-08' ) . ' 10:00:00 UTC' ) );
 		update_post_meta( $booking_id, '_mhmrentiva_end_date', gmdate( 'Y-m-08' ) );
 		update_post_meta( $booking_id, '_mhmrentiva_status', 'confirmed' );
 		update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
@@ -382,30 +391,11 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		return $booking_id;
 	}
 
-	/**
-	 * @return array<string, array<string, mixed>>
-	 */
-	private function availability_days_for( int $vehicle_id ): array
+	private function months_html_for( int $vehicle_id ): string
 	{
-		$response = $this->dispatch_ajax( 'mhmrentiva_availability_unified', 'mhmrentiva_availability_nonce', $vehicle_id );
-		$months   = $response['data']['availability_data'] ?? array();
+		$response = $this->dispatch_ajax( 'mhmrentiva_calendar_months', 'mhmrentiva_availability_nonce', $vehicle_id );
 
-		return $months ? (array) reset( $months )['days'] : array();
-	}
-
-	/**
-	 * @param array<string, array<string, mixed>> $days
-	 * @return array<string, mixed>|null
-	 */
-	private function first_occupied_day( array $days ): ?array
-	{
-		foreach ( $days as $day ) {
-			if ( ! empty( $day['occupancy'] ) ) {
-				return $day;
-			}
-		}
-
-		return null;
+		return (string) ( $response['data']['html'] ?? '' );
 	}
 
 	/**

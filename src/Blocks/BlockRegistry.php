@@ -71,7 +71,8 @@ class BlockRegistry {
 		'availability-calendar' => array(
 			'tag'   => 'rentiva_availability_calendar',
 			'title' => 'Availability Calendar',
-			'css'   => array( 'availability-calendar.css', 'datepicker-custom.css' ),
+			'css'   => array(), // The page is the rvs standard (AvailabilityCalendar enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-availability' ),
 		),
 		'vehicle-details'       => array(
 			'tag'   => 'rentiva_vehicle_details',

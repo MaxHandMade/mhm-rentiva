@@ -126,7 +126,7 @@ final class ShortcodeFixtures
 
 			case 'rentiva_availability_calendar':
 				$row['atts']         = array( 'vehicle_id' => (string) self::vehicle() );
-				$row['marker']       = 'rv-availability-grid';
+				$row['marker']       = 'rvs-availability__months';
 				$row['min_elements'] = 100;
 				break;
 
@@ -399,7 +399,11 @@ final class ShortcodeFixtures
 				$row['atts'] = array( 'vehicle_id' => (string) $catalog[0] );
 				// height (block calendarHeight): only a CSS length sizes the wrapper
 				// (spec 3A Task 6); the probe's text sentinels are rejected by design.
-				$row['pairs'] = array( 'height' => array( '', '600px' ) );
+				// start_month: an invalid month opens on the current one, by design (R9).
+				$row['pairs'] = array(
+					'height'      => array( '', '600px' ),
+					'start_month' => array( '', '2099-03' ),
+				);
 				break;
 
 			case 'rentiva_booking_form':

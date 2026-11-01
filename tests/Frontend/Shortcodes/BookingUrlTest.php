@@ -140,40 +140,21 @@ class BookingUrlTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Regression guard (green before and after): the calendar hands JS the raw base.
+	 * Regression guard: the calendar's link comes from the server (PR E, r2 M2) and
+	 * carries the raw base, not one escaped for HTML.
 	 */
-	public function test_calendar_localize_carries_raw_base(): void
+	public function test_calendar_quote_link_carries_raw_base(): void
 	{
 		$this->set_booking_setting('https://example.test/book?a=1&b=2');
 		$id = $this->vehicle(array( '_mhmrentiva_price_per_day' => '100' ));
 
-		// Earlier tests may have enqueued the calendar assets already; start clean.
-		$previous = $GLOBALS['wp_scripts'] ?? null;
-		AbstractShortcode::reset_enqueued_assets_for_tests();
-		$GLOBALS['wp_scripts'] = new \WP_Scripts();
+		$quote = \MHMRentiva\Admin\Frontend\Shortcodes\CalendarView::quote(
+			$id,
+			\MHMRentiva\Admin\Booking\Helpers\SiteTime::days_ahead(10),
+			\MHMRentiva\Admin\Booking\Helpers\SiteTime::days_ahead(12)
+		);
 
-		$data = '';
-		try {
-			do_shortcode('[rentiva_availability_calendar vehicle_id="' . $id . '"]');
-
-			foreach (array_keys(wp_scripts()->registered) as $handle) {
-				$d = wp_scripts()->get_data($handle, 'data');
-				if (is_string($d) && false !== strpos($d, 'mhmRentivaAvailability')) {
-					$data = $d;
-					break;
-				}
-			}
-		} finally {
-			$GLOBALS['wp_scripts'] = $previous;
-			AbstractShortcode::reset_enqueued_assets_for_tests();
-		}
-		$this->assertNotSame('', $data, 'Calendar must localize mhmRentivaAvailability.');
-
-		$json = rtrim(trim(substr($data, (int) strpos($data, '=') + 1)), ';');
-		$obj  = json_decode($json, true);
-
-		$this->assertIsArray($obj);
-		$this->assertStringContainsString('&b=2', (string) ( $obj['bookingPageUrl'] ?? '' ));
-		$this->assertStringNotContainsString('&#038;', (string) ( $obj['bookingPageUrl'] ?? '' ));
+		$this->assertStringContainsString('&b=2', $quote['continue_url']);
+		$this->assertStringNotContainsString('&#038;', $quote['continue_url']);
 	}
 }

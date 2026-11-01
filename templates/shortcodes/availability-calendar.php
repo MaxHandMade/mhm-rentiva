@@ -1,487 +1,104 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-
 /**
- * Availability Calendar Template
+ * Availability calendar (rentiva_availability_calendar), inside `.rvs-shell`.
  *
- * @var array $args Template data
+ * Prints CalendarView::build(). The script (availability-calendar.js) works
+ * from the `data-rvs-cal-*` hooks; each calendar's root carries its own settings.
+ *
+ * @var array<string, mixed> $view CalendarView::build().
  */
+
+declare(strict_types=1);
+
+use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
+use MHMRentiva\Admin\Core\Utilities\Templates;
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Frontend\RenderContext;
-use MHMRentiva\Helpers\Icons;
-
-
-
-// Get template data (variables from extract)
-$atts              = $atts ?? array();
-$vehicle           = $vehicle ?? null;
-$vehicle_id        = $vehicle_id ?? 0;
-$vehicles_list     = $vehicles_list ?? array();
-$start_month       = $start_month ?? wp_date('Y-m');
-$months_to_show    = $months_to_show ?? 3;
-$availability_data = $availability_data ?? array();
-$pricing_data      = $pricing_data ?? array();
-$current_user      = $current_user ?? null;
-
-
-// Shortcode parameters
-$show_pricing     = $atts['show_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_show_pricing', '1');
-$show_booking_btn = $atts['show_booking_button']
-	?? $atts['show_booking_btn']
-	?? apply_filters(
-		'mhmrentiva_availability_calendar_show_booking_button',
-		apply_filters('mhmrentiva_availability_calendar_show_booking_btn', '1')
-	);
-$theme            = $atts['theme'] ?? apply_filters('mhmrentiva_availability_calendar_theme', 'default');
-$class            = $atts['class'] ?? '';
-
-// Visibility flags (spec 3A Task 6). Missing means on: the markup they gate was
-// unconditional before, and their schema defaults are '1'.
-$flag_is_on            = static function ($value): bool {
-	return ! in_array($value, array( '0', 0, false, 'false', 'no' ), true);
-};
-$show_legend           = $flag_is_on($atts['show_legend'] ?? '1');
-$show_month_nav        = $flag_is_on($atts['show_month_nav'] ?? '1');
-$show_vehicle_selector = $flag_is_on($atts['show_vehicle_selector'] ?? '1');
-// 1 = Monday (today's grid), 0 = Sunday.
-$week_starts_sunday = '0' === (string) ( $atts['start_week_on'] ?? '1' );
-
-// If vehicle_id is provided, get the vehicle object
-if ($vehicle_id > 0 && ! $vehicle) {
-	$vehicle = get_post($vehicle_id);
-}
-
-if (! $vehicle && $vehicle_id > 0) {
-	echo '<div class="rv-availability-error show-error">' . esc_html__('Vehicle not found.', 'mhm-rentiva') . '</div>';
+$mhmrentiva_view = isset($view) && is_array($view) ? $view : array();
+if (empty($mhmrentiva_view['vehicle'])) {
 	return;
 }
 
-// If no vehicle is selected but vehicles exist, select the first one
-if ($vehicle_id === 0 && ! empty($vehicles_list)) {
-	$vehicle_id = $vehicles_list[0]['id'];
-	$vehicle    = get_post($vehicle_id);
-}
-
-if (empty($vehicles_list)) {
-	echo '<div class="rv-availability-error show-error">' . esc_html__('No vehicles found. Please add vehicles first.', 'mhm-rentiva') . '</div>';
-	return;
-}
+$mhmrentiva_cal_uid     = (string) $mhmrentiva_view['uid'];
+$mhmrentiva_cal_vehicle = (array) $mhmrentiva_view['vehicle'];
+$mhmrentiva_cal_classes = trim('rvs-availability rv-theme-' . sanitize_html_class( (string) $mhmrentiva_view['theme']) . ' ' . (string) $mhmrentiva_view['class']);
 ?>
+<section class="<?php echo esc_attr($mhmrentiva_cal_classes); ?>"
+	data-rvs-availability
+	data-vehicle-id="<?php echo esc_attr( (string) $mhmrentiva_cal_vehicle['id']); ?>"
+	data-start-month="<?php echo esc_attr( (string) $mhmrentiva_view['start_month']); ?>"
+	data-months-to-show="<?php echo esc_attr( (string) $mhmrentiva_view['months_to_show']); ?>"
+	data-week-start="<?php echo esc_attr( (string) $mhmrentiva_view['week_start']); ?>"
+	data-show-pricing="<?php echo $mhmrentiva_view['show_pricing'] ? '1' : '0'; ?>"
+	data-show-booking-button="<?php echo $mhmrentiva_view['show_booking'] ? '1' : '0'; ?>"
+	aria-labelledby="<?php echo esc_attr($mhmrentiva_cal_uid); ?>-title">
 
-<?php
-// Get vehicle price
-$vehicle_price = 0;
-$is_available  = true;
-$status_text   = '';
+	<div class="rvs-availability__vehicle">
+		<?php if ('' !== (string) $mhmrentiva_cal_vehicle['image']) : ?>
+			<img class="rvs-availability__image" data-rvs-cal-image src="<?php echo esc_url( (string) $mhmrentiva_cal_vehicle['image']); ?>" alt="<?php echo esc_attr( (string) $mhmrentiva_cal_vehicle['title']); ?>">
+		<?php endif; ?>
+		<div class="rvs-availability__vehicle-text">
+			<p class="rvs-availability__name" data-rvs-cal-name><?php echo esc_html( (string) $mhmrentiva_cal_vehicle['title']); ?></p>
+			<?php if ($mhmrentiva_view['show_pricing']) : ?>
+				<p class="rvs-availability__price" data-rvs-cal-price><?php echo wp_kses( (string) $mhmrentiva_cal_vehicle['price_html'], PriceDisplay::allowed_html()); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php if ($mhmrentiva_view['show_selector']) : ?>
+			<button type="button" class="rvs-btn rvs-btn--secondary rvs-availability__switch" data-rvs-cal-switch><?php esc_html_e('Change vehicle', 'mhm-rentiva'); ?></button>
+		<?php endif; ?>
+	</div>
 
-if ($vehicle_id > 0) {
-	$vehicle_price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) ?: 0);
-
-	// Check Status
-	$status = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_status', true);
-	if (empty($status)) {
-		$old_availability = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_availability', true);
-		if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
-			$status = 'inactive';
-		} elseif ($old_availability === '1' || $old_availability === 'active') {
-			$status = 'active';
-		} elseif ($old_availability === 'maintenance') {
-			$status = 'maintenance';
-		} else {
-			$status = 'active'; // Default
-		}
-	}
-
-	$is_available = ( $status === 'active' );
-	$status_text  = $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva');
-}
-?>
-
-<div class="rv-availability-calendar rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>"
-	data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-	data-vehicle-price="<?php echo esc_attr($vehicle_price); ?>"
-	data-start-month="<?php echo esc_attr($start_month); ?>"
-	data-months-to-show="<?php echo esc_attr($months_to_show); ?>"
-	<?php
-	// Written only when not the default, so an untouched calendar keeps today's
-	// markup; availability-calendar.js reads it when it rebuilds a month.
-	if ($week_starts_sunday) :
-		?>
-	data-start-week-on="0"
-	<?php endif; ?>>
-
-	<!-- Calendar Header -->
-
-
-	<!-- High-Fidelity Vehicle Card (Consolidated UI Migration) -->
-	<?php if ($selected_vehicle) : ?>
-		<div class="rv-vehicle-card-hifi-wrapper">
-			<div class="rv-vehicle-card-hifi-modern">
-				<!-- Favorite Button - Top right corner -->
-				<button type="button"
-					class="rv-vcal-favorite-btn <?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'favorited is-favorited' : ''; ?>"
-					data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>"
-					aria-label="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
-					aria-pressed="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'true' : 'false'; ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-					<?php
-					Icons::render('heart', [
-						'width'  => '20',
-						'height' => '20',
-						'class'  => 'rv-heart-icon' . ( ( $selected_vehicle['favorite'] ?? false ) ? ' favorited' : '' ),
-					]);
-					?>
-				</button>
-
-				<div class="rv-vehicle-info">
-					<?php if ($selected_vehicle['image_url']) : ?>
-						<div class="rv-vehicle-image-wrapper">
-							<img class="rv-vehicle-image" src="<?php echo esc_url($selected_vehicle['image_url']); ?>" alt="<?php echo esc_attr($selected_vehicle['title']); ?>">
-							<?php if (isset($selected_vehicle['availability']) && ! $selected_vehicle['availability']['is_available']) : ?>
-								<div class="rv-vehicle-status-badge rv-status-unavailable">
-									<?php echo esc_html($selected_vehicle['availability']['text']); ?>
-								</div>
-							<?php endif; ?>
-						</div>
-					<?php endif; ?>
-
-					<div class="rv-vehicle-details">
-						<h4 class="rv-vehicle-title"><?php echo esc_html($selected_vehicle['title']); ?></h4>
-						<?php if ($selected_vehicle['excerpt']) : ?>
-							<p class="rv-vehicle-excerpt"><?php echo esc_html($selected_vehicle['excerpt']); ?></p>
-						<?php endif; ?>
-
-						<!-- All Features and Meta Information -->
-						<div class="rv-vehicle-features">
-							<?php if (! empty($selected_vehicle['features'])) : ?>
-								<?php foreach (array_slice($selected_vehicle['features'], 0, 4) as $feature) : ?>
-									<div class="rv-feature-item">
-										<?php
-                                        \MHMRentiva\Helpers\Icons::echo_svg( (string) $feature['svg'], \MHMRentiva\Helpers\Icons::allowed_svg());
-										?>
-										<span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
-									</div>
-								<?php endforeach; ?>
-							<?php endif; ?>
-						</div>
-
-						<!-- Rating -->
-						<?php if (isset($selected_vehicle['rating']) && is_array($selected_vehicle['rating']) && $selected_vehicle['rating']['average'] > 0) : ?>
-							<div class="rv-vehicle-rating-block" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; margin-bottom: 5px;">
-								<div class="rv-stars" style="display: flex; align-items: center; gap: 2px;">
-									<?php
-									$rating_avg = (float) $selected_vehicle['rating']['average'];
-									for ($i = 1; $i <= 5; $i++) :
-										$is_filled  = $i <= floor($rating_avg);
-										$is_half    = ( $i == ceil($rating_avg) ) && ( $rating_avg - floor($rating_avg) >= 0.5 );
-										$star_color = $is_filled || $is_half ? '#fbbf24' : '#cbd5e1';
-
-										if ($is_half) :
-											?>
-											<div style="position: relative; width: 16px; height: 16px;">
-												<div style="position: absolute; overflow: hidden; width: 50%;">
-													<?php
-                                                    Icons::render('star', [
-														'width'  => '16',
-														'height' => '16',
-														'style'  => 'color: #fbbf24; fill: #fbbf24;',
-													]);
-													?>
-												</div>
-												<?php
-                                                Icons::render('star', [
-													'width'  => '16',
-													'height' => '16',
-													'style'  => 'color: #cbd5e1; fill: #cbd5e1;',
-												]);
-												?>
-											</div>
-										<?php else : ?>
-											<?php
-                                            Icons::render('star', [
-												'width'  => '16',
-												'height' => '16',
-												'style'  => "color: $star_color; fill: $star_color;",
-											]);
-											?>
-											<?php
-                                    endif;
-									endfor;
-                                    ?>
-								</div>
-								<span class="rv-rating-count" style="color: #64748b; font-size: 0.875rem;">(<?php echo intval($selected_vehicle['rating']['count']); ?>)</span>
-							</div>
-						<?php endif; ?>
-
-						<div class="rv-vehicle-price-container">
-							<p class="rv-vehicle-price">
-								<?php echo esc_html($selected_vehicle['formatted_price']); ?>
-								<?php echo esc_html(esc_html__('/day', 'mhm-rentiva')); ?>
-							</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- Vehicle Switcher -->
-				<?php if ($show_vehicle_selector && count($vehicles_list) > 1) : ?>
-					<div class="rv-vehicle-switcher-modern">
-						<button class="rv-switch-vehicle-btn" type="button" data-vehicles='<?php echo esc_attr(wp_json_encode($vehicles_list)); ?>'>
-							<?php Icons::render('chevron-down'); ?>
-							<?php echo esc_html__('Change Vehicle', 'mhm-rentiva'); ?>
-						</button>
-					</div>
-				<?php endif; ?>
+	<div class="rvs-availability__head">
+		<h2 class="rvs-availability__title" id="<?php echo esc_attr($mhmrentiva_cal_uid); ?>-title"><?php esc_html_e('Availability', 'mhm-rentiva'); ?></h2>
+		<?php if ($mhmrentiva_view['show_nav']) : ?>
+			<div class="rvs-availability__nav">
+				<button type="button" class="rvs-btn rvs-btn--icon" data-rvs-cal-nav="-1" aria-label="<?php esc_attr_e('Previous month', 'mhm-rentiva'); ?>"<?php disabled(! $mhmrentiva_view['prev_allowed']); ?>><span aria-hidden="true">‹</span></button>
+				<button type="button" class="rvs-btn rvs-btn--icon" data-rvs-cal-nav="1" aria-label="<?php esc_attr_e('Next month', 'mhm-rentiva'); ?>"><span aria-hidden="true">›</span></button>
 			</div>
-		</div>
-	<?php endif; ?>
-
-
-	<?php if ($show_legend) : ?>
-	<!-- Status Legend (Top per image) -->
-	<div class="rv-availability-legend rv-legend-modern" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
-		<div class="rv-legend-item">
-			<span class="rv-legend-color rv-status-available"></span>
-			<span class="rv-legend-text"><?php esc_html_e('Available', 'mhm-rentiva'); ?></span>
-		</div>
-		<div class="rv-legend-item">
-			<span class="rv-legend-color rv-status-partial"></span>
-			<span class="rv-legend-text"><?php esc_html_e('Partially Reserved', 'mhm-rentiva'); ?></span>
-		</div>
-		<div class="rv-legend-item">
-			<span class="rv-legend-color rv-status-booked"></span>
-			<span class="rv-legend-text"><?php esc_html_e('Reserved', 'mhm-rentiva'); ?></span>
-		</div>
-	</div>
-	<?php endif; ?>
-
-	<!-- Calendar Grid Hint -->
-	<div class="rv-calendar-hint" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
-		<?php Icons::render('info'); ?>
-		<?php echo esc_html__('Click on start and end dates to select your rental period.', 'mhm-rentiva'); ?>
+		<?php endif; ?>
 	</div>
 
-	<?php if ($show_month_nav) : ?>
-	<!-- Calendar Controls (Month & Navigation) -->
-	<div class="rv-calendar-controls" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
-		<button type="button" class="rv-control-btn rv-prev-months" data-action="prev">
-			<?php Icons::render('chevron-left'); ?>
-			<?php echo esc_html__('Previous', 'mhm-rentiva'); ?>
-		</button>
+	<p class="rvs-availability__hint"><?php esc_html_e('Click on start and end dates to select your rental period.', 'mhm-rentiva'); ?></p>
 
-		<div class="rv-month-display">
-			<span class="rv-month-name"><?php echo esc_html(wp_date('F Y', strtotime($start_month))); ?></span>
-		</div>
-
-		<button type="button" class="rv-control-btn rv-next-months" data-action="next">
-			<?php echo esc_html__('Next', 'mhm-rentiva'); ?>
-			<?php Icons::render('chevron-right'); ?>
-		</button>
+	<div class="rvs-availability__months" data-rvs-cal-months aria-live="polite">
+		<?php foreach ( (array) $mhmrentiva_view['months'] as $mhmrentiva_cal_month) : ?>
+			<?php Templates::render('partials/rvs/calendar-month', array( 'calendar' => $mhmrentiva_cal_month ), false); ?>
+		<?php endforeach; ?>
 	</div>
+
+	<?php if ($mhmrentiva_view['show_legend']) : ?>
+		<ul class="rvs-availability__legend">
+			<li><span class="rvs-availability__swatch rvs-availability__swatch--available" aria-hidden="true"></span><?php esc_html_e('Available', 'mhm-rentiva'); ?></li>
+			<li><span class="rvs-availability__swatch rvs-availability__swatch--booked" aria-hidden="true"></span><?php esc_html_e('Booked', 'mhm-rentiva'); ?></li>
+			<li><span class="rvs-availability__swatch rvs-availability__swatch--past" aria-hidden="true"></span><?php esc_html_e('Past', 'mhm-rentiva'); ?></li>
+		</ul>
 	<?php endif; ?>
 
-	<div class="rv-availability-grid" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
-		<?php if (empty($availability_data)) : ?>
-			<div class="rv-no-data-message">
-				<div class="rv-no-data-content">
-					<?php Icons::render('calendar'); ?>
-					<h4><?php echo esc_html__('Calendar Data Not Found', 'mhm-rentiva'); ?></h4>
-					<p><?php echo esc_html__('Please select a vehicle or check vehicle data.', 'mhm-rentiva'); ?></p>
-					<?php if (! empty($vehicles_list)) : ?>
-						<div class="rv-vehicle-selector">
-							<label for="rv-availability-vehicle-select-fallback" class="rv-selector-label">
-								<?php echo esc_html__('Select Vehicle:', 'mhm-rentiva'); ?>
-							</label>
-							<select id="rv-availability-vehicle-select-fallback" class="rv-vehicle-dropdown" data-current-vehicle="0">
-								<option value=""><?php echo esc_html__('Select vehicle...', 'mhm-rentiva'); ?></option>
-								<?php foreach ($vehicles_list as $vehicle_option) : ?>
-									<option value="<?php echo esc_attr($vehicle_option['id']); ?>">
-										<?php echo esc_html($vehicle_option['title']); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-						</div>
-					<?php endif; ?>
+	<?php Templates::render('partials/rvs/calendar-panel', array( 'view' => $mhmrentiva_view ), false); ?>
+
+	<?php if ($mhmrentiva_view['show_selector']) : ?>
+		<div class="rvs-dialog rvs-availability__dialog" data-rvs-cal-dialog hidden>
+			<div class="rvs-dialog__panel">
+				<div class="rvs-dialog__head">
+					<h2 class="rvs-dialog__title" id="<?php echo esc_attr($mhmrentiva_cal_uid); ?>-dialog-title"><?php esc_html_e('Select vehicle', 'mhm-rentiva'); ?></h2>
+					<button type="button" class="rvs-btn rvs-btn--icon rvs-dialog__close" data-rvs-dialog-close aria-label="<?php esc_attr_e('Close', 'mhm-rentiva'); ?>"><span aria-hidden="true">×</span></button>
 				</div>
-			</div>
-		<?php else : ?>
-			<?php $month_key = array_key_first($availability_data); ?>
-			<?php $month_data = $availability_data[ $month_key ]; ?>
-			<div class="rv-month-container" data-month="<?php echo esc_attr($month_key); ?>">
-				<!-- Weekday Headers -->
-				<div class="rv-calendar-weekdays">
-					<?php
-					$weekday_labels = array(
-						__('Mon', 'mhm-rentiva'),
-						__('Tue', 'mhm-rentiva'),
-						__('Wed', 'mhm-rentiva'),
-						__('Thu', 'mhm-rentiva'),
-						__('Fri', 'mhm-rentiva'),
-						__('Sat', 'mhm-rentiva'),
-						__('Sun', 'mhm-rentiva'),
-					);
-					if ($week_starts_sunday) {
-						array_unshift($weekday_labels, array_pop($weekday_labels));
-					}
-					foreach ($weekday_labels as $weekday_label) :
-						?>
-					<div class="rv-weekday"><?php echo esc_html($weekday_label); ?></div>
+				<ul class="rvs-dialog__body rvs-availability__options">
+					<?php foreach ( (array) $mhmrentiva_view['vehicles'] as $mhmrentiva_cal_option) : ?>
+						<li>
+							<button type="button" class="rvs-availability__option" data-rvs-cal-option="<?php echo esc_attr( (string) $mhmrentiva_cal_option['id']); ?>" aria-pressed="<?php echo (int) $mhmrentiva_cal_option['id'] === (int) $mhmrentiva_cal_vehicle['id'] ? 'true' : 'false'; ?>">
+								<span class="rvs-availability__option-name"><?php echo esc_html( (string) $mhmrentiva_cal_option['title']); ?></span>
+								<?php if ($mhmrentiva_view['show_pricing']) : ?>
+									<span class="rvs-availability__option-price"><?php echo wp_kses( (string) $mhmrentiva_cal_option['price_html'], PriceDisplay::allowed_html()); ?></span>
+								<?php endif; ?>
+							</button>
+						</li>
 					<?php endforeach; ?>
-				</div>
-
-				<!-- Calendar Days -->
-				<div class="rv-calendar-days">
-					<?php
-					// Blank cells before the 1st: its weekday counted from the week's first day.
-					// gmdate('w'): Sunday = 0 ... Saturday = 6.
-					$first_day = (int) gmdate('w', (int) strtotime( (string) $month_key . '-01'));
-					if (! $week_starts_sunday) {
-						$first_day = ( $first_day + 6 ) % 7; // Monday first: Monday = 0 ... Sunday = 6.
-					}
-
-
-					// Placeholder for empty days
-					for ($i = 0; $i < $first_day; $i++) {
-						echo '<div class="rv-calendar-day rv-day-empty"></div>';
-					}
-
-					// Show days of the month
-					foreach ($month_data['days'] as $date => $day_data) {
-						$day_classes = array(
-							'rv-calendar-day',
-							'rv-day-' . $day_data['status'],
-							$day_data['is_weekend'] ? 'rv-day-weekend' : '',
-							$day_data['is_today'] ? 'rv-today' : '',
-							$day_data['is_past'] ? 'rv-past' : '',
-						);
-
-						$day_classes = array_filter($day_classes);
-						$day_class   = implode(' ', $day_classes);
-
-						// Tooltip content -- the day's state, not the records behind
-						// it. This markup is public.
-						$tooltip_content = '';
-						$status_labels   = array(
-							'booked'      => __('Reserved', 'mhm-rentiva'),
-							'partial'     => __('Partially Reserved', 'mhm-rentiva'),
-							'maintenance' => __('Out of Order', 'mhm-rentiva'),
-							'unavailable' => __('Unavailable', 'mhm-rentiva'),
-						);
-						if (isset($status_labels[ $day_data['status'] ])) {
-							$tooltip_content = 'data-tooltip="' . esc_attr($status_labels[ $day_data['status'] ]) . '"';
-						}
-
-						// Price information
-						$price_info = '';
-						if ($show_pricing === '1' && isset($pricing_data[ $month_key ]['days'][ $date ])) {
-							$price_data = $pricing_data[ $month_key ]['days'][ $date ];
-							$price_info = 'data-price="' . esc_attr($price_data['day_price']) . '"';
-							if ($price_data['has_discount']) {
-								$price_info .= ' data-discount="' . esc_attr($price_data['discount_amount']) . '"';
-							}
-						}
-
-						printf(
-							'<div class="%s" data-date="%s" %s %s>',
-							esc_attr($day_class),
-							esc_attr( (string) $date),
-							wp_kses_post( (string) $tooltip_content),
-							wp_kses_post( (string) $price_info)
-						);
-
-						echo '<span class="rv-day-number">' . esc_html($day_data['day_number']) . '</span>';
-
-						// Price indicator
-						if ($show_pricing === '1' && isset($pricing_data[ $month_key ]['days'][ $date ])) {
-							$price_data = $pricing_data[ $month_key ]['days'][ $date ];
-							echo '<div class="rv-day-price">';
-							echo '<span class="rv-price-amount">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $price_data['day_price'], 0)) . '</span>';
-							if ($price_data['has_discount']) {
-								echo '<span class="rv-discount-badge">%' . esc_html(round(( $price_data['discount_amount'] / $price_data['base_price'] ) * 100)) . '</span>';
-							}
-							echo '</div>';
-						}
-
-						// Booking status indicator -- one mark per booking covering
-						// the day, carrying the day's state and nothing that
-						// identifies a booking.
-						$day_occupancy = (int) ( $day_data['occupancy'] ?? 0 );
-						if ($day_occupancy > 0) {
-							echo '<div class="rv-day-indicators">';
-							for ($indicator = 0; $indicator < $day_occupancy; $indicator++) {
-								echo '<span class="rv-booking-indicator rv-day-' . esc_attr($day_data['status']) . '"></span>';
-							}
-							echo '</div>';
-						}
-
-						echo '</div>';
-					}
-					?>
-				</div>
-			</div>
-		<?php endif; ?>
-	</div>
-
-	<div class="rv-calendar-unavailable-message" style="text-align: center; padding: 40px; background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 20px; <?php echo $is_available ? 'display: none;' : ''; ?>">
-		<div style="font-size: 48px; margin-bottom: 20px;">&#9888;</div>
-		<h3 style="color: #e74c3c; margin-bottom: 10px;"><?php echo esc_html__('Vehicle Unavailable', 'mhm-rentiva'); ?></h3>
-		<p><?php echo esc_html__('This vehicle is currently out of order and cannot be booked. Please choose another vehicle.', 'mhm-rentiva'); ?></p>
-		<?php if ($show_vehicle_selector && count($vehicles_list) > 1) : ?>
-			<button class="rv-switch-vehicle-btn rv-btn rv-btn-primary" type="button" data-vehicles='<?php echo esc_attr(wp_json_encode($vehicles_list)); ?>' style="margin-top: 20px;">
-				<?php echo esc_html__('Choose Another Vehicle', 'mhm-rentiva'); ?>
-			</button>
-		<?php endif; ?>
-	</div>
-
-	<!-- Selected Date Information -->
-	<div class="rv-selected-dates rv-hidden">
-		<div class="rv-selected-info">
-			<h4><?php echo esc_html__('Selected Dates', 'mhm-rentiva'); ?></h4>
-			<div class="rv-date-range">
-				<span class="rv-start-date"></span>
-				<span class="rv-date-separator"> - </span>
-				<span class="rv-end-date"></span>
-			</div>
-			<div class="rv-date-format-info">
-				<?php echo esc_html__('Format:', 'mhm-rentiva'); ?> <?php echo esc_html(get_option('date_format', 'd.m.Y')); ?>
-			</div>
-			<div class="rv-date-details">
-				<div class="rv-total-days">
-					<span class="rv-label"><?php echo esc_html__('Total Days:', 'mhm-rentiva'); ?></span>
-					<span class="rv-value rv-days-count"></span>
-				</div>
-				<?php if ($show_pricing === '1') : ?>
-					<div class="rv-total-price">
-						<span class="rv-label"><?php echo esc_html__('Total Price:', 'mhm-rentiva'); ?></span>
-						<span class="rv-value rv-price-total"></span>
-					</div>
-				<?php endif; ?>
+				</ul>
 			</div>
 		</div>
-
-		<?php if ($show_booking_btn === '1') : ?>
-			<div class="rv-booking-actions">
-				<button type="button" class="rv-button rv-button-primary rv-book-now-btn" disabled>
-					<?php Icons::render('calendar'); ?>
-					<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-				</button>
-			</div>
-		<?php endif; ?>
-	</div>
-
-	<!-- Loading Indicator -->
-	<div class="rv-availability-loading rv-hidden">
-		<div class="rv-loading-spinner"></div>
-		<span class="rv-loading-text"><?php echo esc_html__('Loading...', 'mhm-rentiva'); ?></span>
-	</div>
-
-	<!-- Error Message -->
-	<div class="rv-availability-error rv-hidden">
-		<span class="rv-error-text"></span>
-	</div>
-
-</div>
-
-<!-- JavaScript variables are now loaded via wp_localize_script -->
+	<?php endif; ?>
+</section>

@@ -131,7 +131,7 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 		$this->login_for('rentiva_availability_calendar');
 		$preview = $this->localized_nonces('rentiva_availability_calendar', true);
 		$this->assertSame(wp_create_nonce('mhmrentiva_availability_nonce'), $preview['mhmRentivaAvailability.nonce'] ?? null);
-		$this->assertSame('', $preview['mhmRentivaAvailability.favoriteNonce'] ?? null);
+		$this->assertArrayNotHasKey('mhmRentivaAvailability.favoriteNonce', $preview, 'The calendar has no favourite button any more (R5).');
 
 		$this->login_for('rentiva_testimonials');
 		$preview = $this->localized_nonces('rentiva_testimonials', true);
@@ -152,7 +152,7 @@ final class PreviewScriptNonceTest extends WP_UnitTestCase
 	private function public_read_nonces(): array
 	{
 		$actions = array(
-			'mhmrentiva_availability_nonce',       // availability_unified + get_vehicle_info (JSON, nopriv).
+			'mhmrentiva_availability_nonce',       // calendar_months, calendar_quote + get_vehicle_info (JSON, nopriv).
 			'mhmrentiva_testimonials_nonce',       // load more reviews (JSON, nopriv).
 			'mhmrentiva_vd_nonce',                 // vehicle page months + booking-card quote (HTML partials, nopriv).
 			'mhmrentiva_vehicle_comparison_nonce', // verified by no handler.

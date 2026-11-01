@@ -210,8 +210,8 @@ final class ShortcodePageActions {
 	 */
 	private function get_shortcode_markup( string $shortcode ): string {
 		$markup = match ( $shortcode ) {
-			'rentiva_vehicle_comparison'    => '[rentiva_vehicle_comparison vehicle_ids="1,2,3"]',
-			'rentiva_availability_calendar' => '[rentiva_availability_calendar vehicle_id="1"]',
+			'rentiva_vehicle_comparison'    => '[rentiva_vehicle_comparison]',
+			'rentiva_availability_calendar' => '[rentiva_availability_calendar]',
 			'rentiva_vehicle_details'       => '[rentiva_vehicle_details]',
 			'rentiva_vehicles_grid'         => '[rentiva_vehicles_grid columns="3" limit="12"]',
 			'rentiva_vehicles_list'         => '[rentiva_vehicles_list limit="10"]',
