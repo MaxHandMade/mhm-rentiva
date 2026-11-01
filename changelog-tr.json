@@ -24,13 +24,15 @@
       "Yeni: Hesabım yeni tasarımı izliyor. Pano müşteriyi karşılar ve bir sonraki kiralamayı gösterir; rezervasyon sayfası süreci, ödemeyi, ücretsiz iptalin ne zaman bittiğini ve ne kadar iade edileceğini gösterir.",
       "Yeni: panodan, rezervasyon sayfasından ve teşekkür sayfasından yazdırılabilir Rezervasyon özeti. Fatura yerine geçmez.",
       "Değişti: Hesabım menü öğelerinin adları \"Rezervasyonlarım\", \"Favorilerim\" ve \"Ödeme geçmişi\". WooCommerce'in kendi öğeleri değişmedi.",
-      "Değişti: müşterinin dosya yüklemesinin adı artık \"Dekont yükle\". Yalnız henüz para alınmamışken görünür; sunucu da dosyayı yalnız o sürede kabul eder veya kaldırır. Yetkililer dosyayı yine kaldırabilir.",
+      "Değişti: müşterinin dosya yüklemesinin adı artık \"Dekont yükle\". Yalnız rezervasyon ödeme veya onay beklerken ve henüz para alınmamışken görünür; sunucu da dosyayı yalnız o sürede kabul eder veya kaldırır. Yetkililer dosyayı yine kaldırabilir.",
       "Değişti: ödeme geçmişi araç adını, gerçekte ödenen tutarı ve ödenmiş bir rezervasyon için doğru durumu gösteriyor.",
       "Düzeltildi: elle oluşturulan rezervasyonlarda ücretsiz iptal son tarihi yanlış teslim alma saatini kullanıyordu.",
       "Düzeltildi: \"Tüm favorileri temizle\" çalışmadan önce hata mesajı göstermiyor.",
       "Güvenlik: REST nonce'u artık her sayfada basılmıyor. Hesabım sayfalarında, Rezervasyonlarım veya Ödeme geçmişi kısa kodunun bulunduğu sayfalarda ve arama formunun bulunduğu sayfalarda basılır.",
       "Temalar için not: templates/account/*.php dosyalarını geçersiz kılan bir tema eski işaretlemesini korur ve eski hesap stil dosyaları bu sayfalarda artık yüklenmediği için biçimsiz görünebilir. WooCommerce'in myaccount/dashboard.php dosyasını geçersiz kılan tema kendi dosyasını korur.",
-      "Değişti: Rezervasyonlarım Yaklaşan, Geçmiş ve İptal bölümlerine ayrıldı (her biri sayısıyla; bölüm adreste mhmrentiva_view olarak taşınıyor), iki tam tarih ve müşterinin e-postada gördüğü rezervasyon numarasını gösteriyor, telefonda her rezervasyon bir kart. Menü yaklaşan rezervasyon ve kayıtlı araç sayısını gösteriyor. Eski süzgeç kutusu ve arama alanı kalktı; bu değerleri taşıyan bağlantılar listeyi yine daraltıyor. Favorilerim aynı düzeni kullanıyor."
+      "Değişti: Rezervasyonlarım Yaklaşan, Geçmiş ve İptal bölümlerine ayrıldı (her biri sayısıyla; bölüm adreste mhmrentiva_view olarak taşınıyor), iki tam tarih ve müşterinin e-postada gördüğü rezervasyon numarasını gösteriyor, telefonda her rezervasyon bir kart. Menü yaklaşan rezervasyon ve kayıtlı araç sayısını gösteriyor. Eski süzgeç kutusu ve arama alanı kalktı; bu değerleri taşıyan bağlantılar listeyi yine daraltıyor. Favorilerim aynı düzeni kullanıyor.",
+      "Değişti: Rezervasyonlarım her bölümde kendi sırasıyla listelenir: Yaklaşan en yakın teslim alma ilk, Geçmiş ve İptal en yeni ilk. Eski varsayılan sırayı kullanan kayıtlı bloklar ve bileşenler de bu sırayı izler. Yeni \"Otomatik\" sıra seçeneği varsayılandır; açıkça seçilmiş sıra geçerliliğini korur.",
+      "Kaldırıldı: pano artık kayıtlı olmayan mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites ve mhmrentiva_customer_booking_history seçeneklerini okumuyor. Bunları yazan bir ayar ekranı yoktu; elle girilmiş değerin artık etkisi yok."
     ]
   },
   {
