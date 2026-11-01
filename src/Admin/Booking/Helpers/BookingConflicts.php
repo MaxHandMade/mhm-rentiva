@@ -352,6 +352,54 @@ final class BookingConflicts {
 	}
 
 	/**
+	 * The days a calendar paints as taken, `Y-m-d`, sorted, unique, inside
+	 * [$from, $to] (both inclusive, site-local dates).
+	 *
+	 * The one calendar rule: the holding bookings of booking_intervals() --
+	 * which select with the buffer, so a booking the search would drop is
+	 * never missing here -- plus the vehicle's blocked days
+	 * (blocked_days_in(), the `mhmrentiva_vehicle_blocked_days` filter
+	 * included). A booking paints local_date(start) ... local_date(end), the
+	 * return day too, a midnight return included. The buffer picks the
+	 * bookings; it does not add days, a day grid has no hour to put it on.
+	 *
+	 * @return list<string>
+	 */
+	public static function calendar_days(int $vehicle_id, string $from, string $to): array
+	{
+		$start = SiteTime::instant($from);
+		$last  = SiteTime::instant($to);
+		if (null === $start || null === $last || $to < $from) {
+			return array();
+		}
+
+		// The window ends at the next local midnight; noon, so a DST day steps once.
+		$after = ( new \DateTimeImmutable('@' . $last) )->setTimezone(wp_timezone())->setTime(12, 0)->modify('+1 day')->format('Y-m-d');
+		$end   = SiteTime::instant($after);
+		if (null === $end || $vehicle_id <= 0) {
+			return array();
+		}
+
+		$days = array_fill_keys(self::blocked_days_in($vehicle_id, $start, $end), true);
+
+		foreach (self::booking_intervals(array( $vehicle_id ), $start, $end)[ $vehicle_id ] ?? array() as $interval) {
+			$day  = ( new \DateTimeImmutable('@' . $interval[0]) )->setTimezone(wp_timezone())->setTime(12, 0);
+			$stop = SiteTime::local_date($interval[1]);
+			for ($date = $day->format('Y-m-d'); $date <= $stop; $date = $day->format('Y-m-d')) {
+				if ($date >= $from && $date <= $to) {
+					$days[ $date ] = true;
+				}
+				$day = $day->modify('+1 day');
+			}
+		}
+
+		$days = array_keys($days);
+		sort($days);
+
+		return $days;
+	}
+
+	/**
 	 * The gap kept free on both sides of a booking, in seconds.
 	 */
 	public static function buffer_seconds(): int

@@ -360,55 +360,15 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
-	 * Days the vehicle is taken between $from and $to (inclusive, `Y-m-d`), from
-	 * pickup to return day inclusive. The calendar is a guide; the booking card
-	 * checks the exact window with Util::check_availability().
+	 * Days the vehicle is taken between $from and $to (inclusive, `Y-m-d`):
+	 * the shared calendar rule, so the grid agrees with search and booking.
+	 * The calendar is a guide; the booking card checks the exact window with
+	 * Util::check_availability().
 	 *
 	 * @return list<string>
 	 */
 	public static function booked_dates( int $vehicle_id, string $from, string $to ): array {
-		global $wpdb;
-		$start_date = $from;
-		$end_date   = $to;
-
-		$bookings = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT pm_start.meta_value as start_date, pm_end.meta_value as end_date
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_v ON p.ID = pm_v.post_id AND pm_v.meta_key = '_mhmrentiva_vehicle_id'
-             INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhmrentiva_pickup_date'
-             INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-             WHERE p.post_type = 'mhmrentiva_booking' AND p.post_status = 'publish'
-             AND pm_v.meta_value = %d AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress', 'completed')
-             AND ((pm_start.meta_value <= %s AND pm_end.meta_value >= %s) OR (pm_start.meta_value >= %s AND pm_start.meta_value <= %s))",
-				$vehicle_id,
-				$end_date,
-				$start_date,
-				$start_date,
-				$end_date
-			)
-		);
-
-		$booked = array();
-		foreach ( $bookings as $booking ) {
-			try {
-				$day  = new DateTime( substr( (string) $booking->start_date, 0, 10 ) );
-				$last = new DateTime( substr( (string) $booking->end_date, 0, 10 ) );
-			} catch ( \Exception $e ) {
-				continue;
-			}
-			while ( $day <= $last ) {
-				$date = $day->format( 'Y-m-d' );
-				if ( $date >= $from && $date <= $to ) {
-					$booked[ $date ] = true;
-				}
-				$day->add( new DateInterval( 'P1D' ) );
-			}
-		}
-		$dates = array_keys( $booked );
-		sort( $dates );
-		return $dates;
+		return \MHMRentiva\Admin\Booking\Helpers\BookingConflicts::calendar_days( $vehicle_id, $from, $to );
 	}
 
 	/**
