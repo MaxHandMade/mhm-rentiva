@@ -184,6 +184,7 @@ final class VehicleComparisonDefaultFieldsTest extends WP_UnitTestCase {
 		$this->seed_then_register_sanitizer( null );
 
 		$this->assertSame( self::expected_default_rows(), self::rows() );
+		$this->assertContains( 'deposit', self::rows(), 'The drawing shows the deposit row by default.' );
 	}
 
 	public function test_an_explicitly_emptied_selection_compares_nothing(): void {

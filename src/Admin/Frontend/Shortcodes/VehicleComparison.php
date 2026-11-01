@@ -35,7 +35,7 @@ final class VehicleComparison extends AbstractShortcode {
 	 * tab's reset writes). Every key is Active on a default install.
 	 */
 	public const DEFAULT_FIELDS = array(
-		'details' => array( 'price_per_day', 'brand', 'model', 'fuel_type', 'transmission', 'seats', 'year', 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' ),
+		'details' => array( 'price_per_day', 'brand', 'model', 'fuel_type', 'transmission', 'seats', 'year', 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage', 'deposit' ),
 	);
 
 	/**

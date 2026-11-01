@@ -275,7 +275,8 @@ final class ComparisonView {
 		if ('deposit' === $key) {
 			$rate = DepositCalculator::resolve_rate($vehicle_id);
 
-			return $rate > 0 ? self::filled(CurrencyHelper::format_percentage($rate), (string) $rate) : self::blank();
+			// No deposit is a fact too, in the vehicle card's words: the whole total is paid.
+			return $rate > 0 ? self::filled(CurrencyHelper::format_percentage($rate), (string) $rate) : self::filled(__('Full payment', 'mhm-rentiva'), '0');
 		}
 
 		$in_lists = self::in_vehicle_lists($vehicle_id, $key);

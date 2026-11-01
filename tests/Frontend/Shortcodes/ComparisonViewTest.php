@@ -128,6 +128,22 @@ final class ComparisonViewTest extends WP_UnitTestCase
 		$this->assertSame('10', $cell['value']);
 	}
 
+	public function test_no_deposit_reads_full_payment_and_keeps_the_row(): void
+	{
+		$this->select(
+			array( 'details' => array( 'deposit' ) ),
+			array( 'mhmrentiva_rental_deposit_type' => 'full_payment', 'mhmrentiva_booking_cancellation_deadline_hours' => 0 )
+		);
+		$a = $this->vehicle();
+		$b = $this->vehicle();
+
+		$this->assertSame(array( 'text' => 'Full payment', 'value' => '0', 'empty' => false ), ComparisonView::cell($a, 'deposit', 'details'));
+
+		$row = $this->rows(ComparisonView::groups(array( $a, $b )))['deposit'];
+		$this->assertSame('features', $row['group']);
+		$this->assertTrue($row['all_same']);
+	}
+
 	/**
 	 * @dataProvider difference_cases
 	 *
@@ -237,11 +253,11 @@ final class ComparisonViewTest extends WP_UnitTestCase
 		$this->assertArrayNotHasKey('navigation', $rows);
 	}
 
-	public function test_default_selection_has_the_four_conditions_in_order(): void
+	public function test_default_selection_has_the_conditions_and_deposit_in_order(): void
 	{
 		$keys = array_keys(ComparisonView::selected_rows());
 
-		foreach (array( 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage' ) as $key) {
+		foreach (array( 'daily_km_limit', 'min_driver_age', 'min_license_years', 'vehicle_max_big_luggage', 'deposit' ) as $key) {
 			$this->assertContains($key, $keys);
 		}
 		$this->assertLessThan(array_search('daily_km_limit', $keys, true), array_search('year', $keys, true));
