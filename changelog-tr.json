@@ -12,7 +12,7 @@
       "Yeni: karşılaştırma bandı seçilen araç sayısını (en çok 3), adlarını ve karşılaştırma sayfası bağlantısını gösterir.",
       "Yeni: boş sonuç nedenini söyler: henüz tarih seçilmedi, bu tarihlerde müsait araç yok, filtreler hiçbir şey bırakmadı ya da listelenmiş araç yok.",
       "Yeni: araç kartı araç ızgarası, liste, öne çıkanlar, arama sonuçları ve Hesabım > Favoriler'de yenilendi. Arama tarihleri varken kiralamanın toplamını (zorunlu ek hizmetler dahil) ve günlük fiyatı gösterir; kişi, vites ve yakıt, kapora ve ücretsiz iptal süresini yazar. Elementor araç kartı stil ayarları çalışmaya devam eder.",
-      "Yeni: ön yüz eklentiyle gelen ve sitenizden sunulan Source Serif 4 yazı tipini kullanır.",
+      "Yeni: ön yüz ziyaretçinin sistem yazı tipini kullanır, yazı tipi dosyası yüklemez.",
       "Düzeltildi: rezervasyon formu artık tam olarak tahsil edilen tutarı gösteriyor. Sezon fiyatlandırması (açıksa) yalnız ekrandaki teklife değil, ödemeye ve kayıtlı rezervasyon toplamına da uygulanır. Kapora ve kalan tutar aynı toplamdan hesaplanır.",
       "Değişti: rezervasyon formundaki fiyatlar WooCommerce'in vergi gösterimiyle gösterilir (\"Sepet ve ödeme sayfasında fiyatları göster\" ayarı ve fiyat son eki). Rentiva artık kendi vergi satırını çizmiyor.",
       "Kaldırıldı: Rentiva'nın kendi vergi ayarları (Araç ayarları > Vergi dahil fiyatlandırma ve Vergi oranı (%)). Vergiler WooCommerce > Ayarlar > Vergi'den yönetilir. Tahsil edilen vergi değişmez: onu her zaman WooCommerce hesapladı. Mevcut rezervasyonların kayıtlı tutarları değişmez.",

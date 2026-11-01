@@ -6,7 +6,7 @@ namespace MHMRentiva\Tests\Frontend\Rvs;
 use WP_UnitTestCase;
 
 /**
- * The six status tag colour pairs read from rvs-tokens.css reach 4.5:1
+ * The seven status tag colour pairs read from rvs-tokens.css reach 4.5:1
  * (WCAG relative luminance). A token that is not plain hex fails the test.
  */
 final class RvsStatusContrastTest extends WP_UnitTestCase
@@ -32,7 +32,7 @@ final class RvsStatusContrastTest extends WP_UnitTestCase
 	public function test_every_status_pair_reaches_4_5_to_1(): void
 	{
 		$css = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/css/rvs/rvs-tokens.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped asset.
-		foreach (array( 'confirmed', 'pending', 'payment', 'active', 'done', 'cancelled' ) as $m) {
+		foreach (array( 'confirmed', 'pending', 'payment', 'active', 'done', 'cancelled', 'available' ) as $m) {
 			$bg = self::token($css, "--rvs-st-{$m}-bg");
 			$fg = self::token($css, "--rvs-st-{$m}-fg");
 			$this->assertNotSame('', $bg, "{$m} bg is not plain hex");
@@ -42,5 +42,18 @@ final class RvsStatusContrastTest extends WP_UnitTestCase
 			$ratio = (max($l1, $l2) + 0.05) / (min($l1, $l2) + 0.05);
 			$this->assertGreaterThanOrEqual(4.5, $ratio, "{$m} contrast {$ratio}");
 		}
+	}
+
+	public function test_selected_pair_reaches_4_5_to_1(): void
+	{
+		$css = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'assets/css/rvs/rvs-tokens.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- test reads a shipped asset.
+		$bg  = self::token($css, '--rvs-sel-bg');
+		$fg  = self::token($css, '--rvs-sel-text');
+		$this->assertNotSame('', $bg, 'sel bg is not plain hex');
+		$this->assertNotSame('', $fg, 'sel text is not plain hex');
+		$l1    = self::luminance($bg);
+		$l2    = self::luminance($fg);
+		$ratio = (max($l1, $l2) + 0.05) / (min($l1, $l2) + 0.05);
+		$this->assertGreaterThanOrEqual(4.5, $ratio, "sel contrast {$ratio}");
 	}
 }

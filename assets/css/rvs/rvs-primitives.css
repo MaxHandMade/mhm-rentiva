@@ -37,6 +37,7 @@
 
 .rvs-shell .rvs-btn--primary:hover {
 	background: var(--rvs-accent-deep);
+	box-shadow: var(--rvs-hover-shadow);
 	color: #fff;
 }
 
@@ -58,7 +59,7 @@
 
 .rvs-shell .rvs-btn--ghost:hover {
 	background: var(--rvs-accent-100);
-	color: var(--rvs-accent-strong);
+	color: var(--rvs-accent-deep);
 }
 
 .rvs-shell .rvs-btn--lg {
@@ -219,6 +220,15 @@
 
 .rvs-shell .rvs-chip:hover {
 	border-color: var(--rvs-line-strong);
+}
+
+/* The selected state the board draws: blue fill, blue edge, dark-blue bold
+   text. The active-filter chips are always selected. */
+.rvs-shell .rvs-results__chips .rvs-chip {
+	border-color: var(--rvs-sel-line);
+	background: var(--rvs-sel-bg);
+	color: var(--rvs-sel-text);
+	font-weight: 600;
 }
 
 /* Kicker ------------------------------------------------------------------- */
