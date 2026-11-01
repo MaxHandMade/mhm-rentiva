@@ -21,7 +21,15 @@
       "Fixed: with page caching for visitors, the cached results page depends on every filter, the page number, the dates and the visitor's comparison list, so one visitor's results are not shown to another. The filter options are refreshed when a vehicle is saved.",
       "Fixed: three Turkish translations start lower-case like their originals.",
       "Fixed: the booking form shows the vehicle's details (seats, transmission, fuel) under its name again, the vehicle-details page's main photo fills its frame instead of showing only its top on Elementor pages, and featured-vehicle slider cards are all as tall as the tallest.",
-      "Changed: the My Account scripts, and the REST nonce they carry, load only on My Account pages and wherever an account shortcode renders, no longer on every page. The My Account menu items are named \"My bookings\", \"My favorites\" and \"Payment history\", and the dashboard greets the customer once.",
+      "New: My Account follows the new design. The dashboard greets the customer and shows the next rental; the booking page shows progress, payment, when free cancellation ends and how much is refunded.",
+      "New: a printable Booking summary, from the dashboard, the booking page and the thank-you page. It is not an invoice.",
+      "Changed: the My Account menu items are named \"My bookings\", \"My favorites\" and \"Payment history\". WooCommerce's own items are unchanged.",
+      "Changed: the customer's file upload is now called \"Upload bank receipt\". It appears, and the server accepts or removes a file, only while no money has been received. Staff can still remove a file.",
+      "Changed: payment history shows the car name, the amount actually paid, and the right status for a paid booking.",
+      "Fixed: the free-cancellation deadline used the wrong pickup time on bookings created by hand.",
+      "Fixed: \"Clear all favorites\" no longer shows an error message before it runs.",
+      "Security: the REST nonce is no longer printed on every page. It is printed on My Account pages, on pages with the My bookings or Payment history shortcode and on pages with the search form.",
+      "Note for themes: a theme that overrides templates/account/*.php keeps its old markup and may look unstyled, because the old account stylesheets no longer load on these pages. A theme that overrides WooCommerce's myaccount/dashboard.php keeps its own.",
       "Changed: My bookings is split into Upcoming, Past and Cancelled (each with its count; the section is in the address as mhmrentiva_view), shows two full dates and the booking number customers see in e-mails, and becomes one card per booking on phones. The menu shows the number of upcoming bookings and saved vehicles. The old filter box and search field are gone; links that carry their values still narrow the list. My favorites uses the same layout."
     ]
   },
