@@ -224,7 +224,7 @@ final class ShortcodeFixtures
 					)
 				);
 				update_comment_meta($comment, 'mhmrentiva_rating', 5);
-				$row['marker']       = 'rv-testimonial-card';
+				$row['marker']       = 'rvs-tcard';
 				$row['min_elements'] = 20;
 				break;
 

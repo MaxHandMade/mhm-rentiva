@@ -1,365 +1,321 @@
 /**
- * Testimonials JavaScript
- * 
- * Müşteri yorumları için interaktif özellikler
+ * Testimonials (PR F): "Load more" and the slider. One instance per
+ * [data-rvs-testimonials]; nothing is looked up outside its root, so two lists on a
+ * page stay separate.
+ *
+ * A card added by "Load more" is a clone of the server's own card, kept hidden in the page, and the
+ * review's words go in as textContent: no markup is ever built from a string.
+ *
+ * The slider is a scroll-snap track, so touch, wheel and the keyboard (the track is
+ * focusable) scroll it natively. The buttons and dots only move that scroll position.
+ * Auto-rotate stops while the pointer or focus is inside, and never starts under
+ * prefers-reduced-motion.
  */
 
-class Testimonials {
-    constructor() {
-        // Wait for jQuery to load
-        if (typeof jQuery === 'undefined') {
-            console.warn('jQuery is not loaded, testimonials will not work');
-            return;
-        }
+( function () {
+	'use strict';
 
-        this.container = jQuery('.rv-testimonials');
-        this.carouselInterval = null;
+	const TIMEOUT = 15000;
+	const ROTATE_MS = 5000;
 
-        if (this.container.length === 0) return;
+	const config = () => window.mhmRentivaTestimonials || {};
+	const text = ( key ) => ( config().strings || {} )[ key ] || '';
+	const fill = ( template, ...values ) => values.reduce(
+		( out, value, i ) => out.replace( '%' + ( i + 1 ) + '$s', String( value ) ),
+		template
+	);
 
-        this.init();
-    }
+	const reducedMotion = () => !! ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches );
 
-    init() {
-        this.bindEvents();
-        this.initCarousel();
-        this.initAutoRotate();
-    }
+	function post( data ) {
+		const controller = new AbortController();
+		const timer = setTimeout( () => controller.abort(), TIMEOUT );
+		return fetch( config().ajaxUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			body: new URLSearchParams( data ),
+			signal: controller.signal,
+		} ).then( ( response ) => response.json() ).finally( () => clearTimeout( timer ) );
+	}
 
-    bindEvents() {
-        // Load More Button
-        jQuery(document).on('click', '.rv-load-more-btn', (e) => {
-            e.preventDefault();
-            // The block the button belongs to: a page can carry several, each
-            // with its own order, filters and flags.
-            this.loadMoreTestimonials(jQuery(e.currentTarget).closest('.rv-testimonials'));
-        });
+	/** A data-* setting of the root, as a string ('' when absent). */
+	const setting = ( root, name, fallback ) => {
+		const value = root.getAttribute( 'data-' + name );
+		return null === value || '' === value ? fallback : value;
+	};
 
-        // Carousel Controls
-        jQuery(document).on('click', '.rv-carousel-prev', () => {
-            this.carouselPrev();
-        });
+	class Testimonials {
+		constructor( root ) {
+			this.root = root;
+			this.items = root.querySelector( '[data-rvs-items]' );
+			this.button = root.querySelector( '[data-rvs-load-more]' );
+			this.error = root.querySelector( '[data-rvs-error]' );
+			this.live = root.querySelector( '[data-rvs-live]' );
+			this.template = root.querySelector( '[data-rvs-card-template]' );
+			this.dots = root.querySelector( '[data-rvs-dots]' );
+			this.prev = root.querySelector( '[data-rvs-prev]' );
+			this.next = root.querySelector( '[data-rvs-next]' );
+			this.busy = false;
+			this.current = 0;
+			this.timer = null;
+			this.paused = false;
 
-        jQuery(document).on('click', '.rv-carousel-next', () => {
-            this.carouselNext();
-        });
+			if ( this.button ) {
+				this.button.addEventListener( 'click', () => this.loadMore() );
+			}
+			if ( this.dots && this.items ) {
+				this.initSlider();
+			}
+		}
 
-        // Carousel Indicators
-        jQuery(document).on('click', '.rv-carousel-indicator', (e) => {
-            const slideIndex = parseInt(jQuery(e.target).data('slide'));
-            this.goToSlide(slideIndex);
-        });
+		/* Slider ------------------------------------------------------------ */
 
-        // Pause auto-rotate on hover
-        this.container.on('mouseenter', '.rv-testimonials-carousel', () => {
-            this.pauseAutoRotate();
-        });
+		slides() {
+			return Array.from( this.items.querySelectorAll( '[data-rvs-card]' ) );
+		}
 
-        this.container.on('mouseleave', '.rv-testimonials-carousel', () => {
-            this.resumeAutoRotate();
-        });
+		initSlider() {
+			this.prev.addEventListener( 'click', () => this.step( -1 ) );
+			this.next.addEventListener( 'click', () => this.step( 1 ) );
+			this.dots.addEventListener( 'click', ( event ) => {
+				const dot = event.target.closest( 'button' );
+				if ( dot ) {
+					this.goTo( Array.from( this.dots.children ).indexOf( dot ) );
+				}
+			} );
 
-        // Keyboard navigation
-        jQuery(document).on('keydown', (e) => {
-            if (this.container.find('.rv-testimonials-carousel').length > 0) {
-                if (e.key === 'ArrowLeft') {
-                    this.carouselPrev();
-                } else if (e.key === 'ArrowRight') {
-                    this.carouselNext();
-                }
-            }
-        });
-    }
+			let frame = 0;
+			this.items.addEventListener( 'scroll', () => {
+				if ( frame ) {
+					return;
+				}
+				frame = window.requestAnimationFrame( () => {
+					frame = 0;
+					this.syncFromScroll();
+				} );
+			}, { passive: true } );
 
-    initCarousel() {
-        const $carousel = this.container.find('.rv-testimonials-carousel');
-        if ($carousel.length === 0) return;
+			const hold = () => {
+				this.paused = true;
+				this.stopRotate();
+			};
+			const release = () => {
+				this.paused = false;
+				this.startRotate();
+			};
+			this.root.addEventListener( 'mouseenter', hold );
+			this.root.addEventListener( 'mouseleave', release );
+			this.root.addEventListener( 'focusin', hold );
+			this.root.addEventListener( 'focusout', ( event ) => {
+				if ( ! this.root.contains( event.relatedTarget ) ) {
+					release();
+				}
+			} );
+			document.addEventListener( 'visibilitychange', () => {
+				if ( document.hidden ) {
+					this.stopRotate();
+				} else {
+					this.startRotate();
+				}
+			} );
+			if ( window.matchMedia ) {
+				const query = window.matchMedia( '(prefers-reduced-motion: reduce)' );
+				const onChange = () => ( query.matches ? this.stopRotate() : this.startRotate() );
+				if ( query.addEventListener ) {
+					query.addEventListener( 'change', onChange );
+				}
+			}
 
-        this.carouselTrack = $carousel.find('.rv-carousel-track');
-        this.carouselSlides = $carousel.find('.rv-carousel-slide');
-        this.currentSlide = 0;
-        this.totalSlides = this.carouselSlides.length;
+			this.startRotate();
+		}
 
-        if (this.totalSlides <= 1) {
-            $carousel.find('.rv-carousel-prev, .rv-carousel-next, .rv-carousel-indicators').hide();
-            return;
-        }
+		step( by ) {
+			const total = this.slides().length;
+			this.goTo( ( this.current + by + total ) % total );
+		}
 
-        this.updateCarouselPosition();
-    }
+		goTo( index ) {
+			const slides = this.slides();
+			const slide = slides[ index ];
+			if ( ! slide ) {
+				return;
+			}
+			this.current = index;
+			this.mark();
+			this.items.scrollTo( {
+				left: slide.offsetLeft - this.items.offsetLeft,
+				behavior: reducedMotion() ? 'auto' : 'smooth',
+			} );
+		}
 
-    initAutoRotate() {
-        // jQuery .data() parses attribute values: '1' becomes the number 1, not string '1'.
-        // Use == (loose) or parseInt to handle both types.
-        const autoRotate = parseInt(this.container.data('auto-rotate'), 10) === 1;
-        if (autoRotate && this.totalSlides > 1) {
-            this.startAutoRotate();
-        }
-    }
+		/** The dot that matches the scroll position, once a swipe or key moved it. */
+		syncFromScroll() {
+			const slides = this.slides();
+			const left = this.items.scrollLeft + this.items.offsetLeft;
+			const atEnd = this.items.scrollLeft + this.items.clientWidth >= this.items.scrollWidth - 2;
+			let nearest = 0;
+			let best = Infinity;
+			slides.forEach( ( slide, i ) => {
+				const distance = Math.abs( slide.offsetLeft - left );
+				if ( distance < best ) {
+					best = distance;
+					nearest = i;
+				}
+			} );
+			if ( atEnd ) {
+				// The last cards cannot reach the left edge: a dot chosen among the
+				// visible ones stays, otherwise the end of the track is the last card.
+				const chosen = slides[ this.current ];
+				this.current = chosen && chosen.offsetLeft >= left - 2 && this.current >= nearest ? this.current : slides.length - 1;
+			} else {
+				this.current = nearest;
+			}
+			this.mark();
+		}
 
-    carouselPrev() {
-        if (this.totalSlides <= 1) return;
+		mark() {
+			Array.from( this.dots.children ).forEach( ( dot, i ) => {
+				if ( i === this.current ) {
+					dot.setAttribute( 'aria-current', 'true' );
+				} else {
+					dot.removeAttribute( 'aria-current' );
+				}
+			} );
+		}
 
-        this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
-        this.updateCarouselPosition();
-        this.updateIndicators();
-    }
+		startRotate() {
+			this.stopRotate();
+			const wanted = '1' === this.root.getAttribute( 'data-auto-rotate' );
+			if ( ! wanted || this.paused || reducedMotion() || document.hidden || this.slides().length < 2 ) {
+				return;
+			}
+			this.timer = setInterval( () => this.step( 1 ), ROTATE_MS );
+		}
 
-    carouselNext() {
-        if (this.totalSlides <= 1) return;
+		stopRotate() {
+			if ( this.timer ) {
+				clearInterval( this.timer );
+				this.timer = null;
+			}
+		}
 
-        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
-        this.updateCarouselPosition();
-        this.updateIndicators();
-    }
+		/** One dot per card, after "Load more" added some. */
+		rebuildDots() {
+			if ( ! this.dots ) {
+				return;
+			}
+			const total = this.slides().length;
+			const label = text( 'slideLabel' );
+			while ( this.dots.children.length < total ) {
+				const number = this.dots.children.length + 1;
+				const dot = document.createElement( 'button' );
+				dot.type = 'button';
+				dot.className = 'rvs-testimonials__dot';
+				dot.setAttribute( 'aria-label', label ? fill( label, number, total ) : String( number ) );
+				dot.appendChild( document.createElement( 'span' ) );
+				this.dots.appendChild( dot );
+			}
+			Array.from( this.dots.children ).forEach( ( dot, i ) => {
+				if ( label ) {
+					dot.setAttribute( 'aria-label', fill( label, i + 1, total ) );
+				}
+			} );
+			this.mark();
+		}
 
-    goToSlide(slideIndex) {
-        if (this.totalSlides <= 1) return;
+		/* Load more --------------------------------------------------------- */
 
-        this.currentSlide = slideIndex;
-        this.updateCarouselPosition();
-        this.updateIndicators();
-    }
+		loadMore() {
+			if ( this.busy || ! this.template ) {
+				return;
+			}
+			this.busy = true;
+			const label = this.button.textContent;
+			this.button.disabled = true;
+			this.button.setAttribute( 'aria-busy', 'true' );
+			this.button.textContent = text( 'loading' ) || label;
+			this.error.hidden = true;
+			this.error.textContent = '';
 
-    updateCarouselPosition() {
-        if (!this.carouselTrack) return;
+			const page = parseInt( this.button.getAttribute( 'data-page' ), 10 ) || 1;
+			post( {
+				action: 'mhmrentiva_load_testimonials',
+				nonce: config().nonce || '',
+				page: page + 1,
+				limit: setting( this.root, 'limit', '5' ),
+				rating: setting( this.root, 'rating', '' ),
+				vehicle_id: setting( this.root, 'vehicle-id', '' ),
+				orderby: setting( this.root, 'orderby', 'date' ),
+				order: setting( this.root, 'order', 'DESC' ),
+				seed: setting( this.root, 'seed', '' ),
+			} ).then( ( response ) => {
+				if ( ! response.success ) {
+					throw new Error( ( response.data && response.data.message ) || '' );
+				}
+				const cards = response.data.cards || [];
+				cards.forEach( ( card ) => this.items.appendChild( this.build( card ) ) );
+				this.button.setAttribute( 'data-page', String( page + 1 ) );
+				this.rebuildDots();
+				if ( cards.length && this.live ) {
+					this.live.textContent = text( 'loaded' );
+				}
+				if ( ! response.data.has_more || ! cards.length ) {
+					this.button.closest( '.rvs-testimonials__more' ).hidden = true;
+				}
+			} ).catch( () => {
+				this.error.textContent = text( 'error' );
+				this.error.hidden = false;
+			} ).finally( () => {
+				this.busy = false;
+				this.button.disabled = false;
+				this.button.removeAttribute( 'aria-busy' );
+				this.button.textContent = label;
+			} );
+		}
 
-        const translateX = -this.currentSlide * 100;
-        this.carouselTrack.css('transform', `translateX(${translateX}%)`);
-    }
+		/** The server's own card, filled with text. A part the row lacks is removed. */
+		build( card ) {
+			const node = this.template.firstElementChild.cloneNode( true );
+			const put = ( slot, value ) => {
+				const el = node.querySelector( '[data-rvs-slot="' + slot + '"]' );
+				if ( ! el ) {
+					return;
+				}
+				if ( value ) {
+					el.textContent = value;
+				} else {
+					el.remove();
+				}
+			};
+			put( 'text', card.text ? '“' + card.text + '”' : '' );
+			put( 'initial', card.initial );
+			put( 'name', card.name );
+			put( 'vehicle', card.vehicle );
+			put( 'date', card.date );
 
-    updateIndicators() {
-        this.container.find('.rv-carousel-indicator').removeClass('active');
-        this.container.find(`.rv-carousel-indicator[data-slide="${this.currentSlide}"]`).addClass('active');
-    }
+			const stars = node.querySelector( '.rvs-review-stars' );
+			if ( stars ) {
+				const rating = parseInt( card.rating, 10 ) || 0;
+				if ( rating > 0 ) {
+					stars.setAttribute( 'aria-label', card.stars_label || '' );
+					stars.querySelectorAll( '.rvs-review-stars__star' ).forEach( ( star, i ) => {
+						star.classList.toggle( 'is-filled', i < rating );
+					} );
+				} else {
+					stars.remove();
+				}
+			}
+			return node;
+		}
+	}
 
-    startAutoRotate() {
-        this.carouselInterval = setInterval(() => {
-            this.carouselNext();
-        }, 5000); // 5 saniyede bir
-    }
+	function init() {
+		document.querySelectorAll( '[data-rvs-testimonials]' ).forEach( ( root ) => new Testimonials( root ) );
+	}
 
-    pauseAutoRotate() {
-        if (this.carouselInterval) {
-            clearInterval(this.carouselInterval);
-            this.carouselInterval = null;
-        }
-    }
-
-    resumeAutoRotate() {
-        const autoRotate = parseInt(this.container.data('auto-rotate'), 10) === 1;
-        if (autoRotate && this.totalSlides > 1) {
-            this.startAutoRotate();
-        }
-    }
-
-    /**
-     * A setting the template prints only when it differs from its default
-     * (so a default render keeps today's markup). Read as a string: jQuery's
-     * .data() would turn '0' into a number.
-     */
-    setting($root, name, fallback) {
-        const value = $root.attr('data-' + name);
-        return (value === undefined || value === '') ? fallback : String(value);
-    }
-
-    loadMoreTestimonials($root) {
-        $root = ($root && $root.length) ? $root : this.container.first();
-        if ($root.data('rvLoading')) return;
-
-        $root.data('rvLoading', true);
-        const $loadMoreBtn = $root.find('.rv-load-more-btn');
-        const $spinner = $loadMoreBtn.find('.rv-loading-spinner');
-        const stored = parseInt($root.data('rvPage'), 10);
-        const page = Number.isNaN(stored) ? 1 : stored;
-
-        // Show loading state
-        $loadMoreBtn.prop('disabled', true);
-        $spinner.show();
-
-        // The next page in the same order, with the same filters, as the first.
-        jQuery.ajax({
-            url: window.mhmRentivaTestimonials?.ajaxUrl || window.ajaxurl || '',
-            type: 'POST',
-            data: {
-                action: 'mhmrentiva_load_testimonials',
-                nonce: window.mhmRentivaTestimonials?.nonce || '',
-                page: page + 1,
-                limit: this.setting($root, 'limit', '5'),
-                rating: this.setting($root, 'rating', ''),
-                vehicle_id: this.setting($root, 'vehicle-id', ''),
-                orderby: this.setting($root, 'orderby', 'date'),
-                order: this.setting($root, 'order', 'DESC'),
-                seed: this.setting($root, 'seed', '')
-            },
-            success: (response) => {
-                if (response.success) {
-                    this.appendTestimonials($root, response.data.testimonials);
-                    $root.data('rvPage', page + 1);
-
-                    // Hide load more button if no more testimonials
-                    if (!response.data.has_more) {
-                        $loadMoreBtn.closest('.rv-testimonials-load-more').hide();
-                    }
-                } else {
-                    this.showError($root, response.data?.message || (window.mhmRentivaTestimonials?.strings?.error || 'Testimonials could not be loaded'));
-                }
-            },
-            error: () => {
-                this.showError($root, window.mhmRentivaTestimonials?.strings?.error || 'An error occurred while loading testimonials');
-            },
-            complete: () => {
-                $root.data('rvLoading', false);
-                $loadMoreBtn.prop('disabled', false);
-                $spinner.hide();
-            }
-        });
-    }
-
-    appendTestimonials($root, testimonials) {
-        if (!testimonials || testimonials.length === 0) return;
-
-        const layout = $root.attr('data-layout') || 'grid';
-        const $container = $root.find(`.rv-testimonials-${layout}`);
-
-        testimonials.forEach(testimonial => {
-            $container.append(this.createTestimonialElement($root, testimonial));
-        });
-
-        // Re-initialize carousel if needed
-        if (layout === 'carousel') {
-            this.initCarousel();
-        }
-
-        // Animate new items
-        this.animateNewItems($root);
-    }
-
-    /**
-     * One card: the markup of templates/shortcodes/testimonials.php, under the
-     * same display flags.
-     */
-    createTestimonialElement($root, testimonial) {
-        const show = (name) => this.setting($root, name, '1') === '1';
-        const icons = window.mhmRentivaTestimonials?.icons || {};
-        const rating = parseInt(testimonial.rating, 10) || 0;
-        const name = String(testimonial.customer_name || '');
-
-        let content = '<div class="rv-testimonial-card">';
-
-        if (show('show-quotes')) {
-            content += `<div class="rv-quote-icon" aria-hidden="true">${icons.card_quote || ''}</div>`;
-        }
-
-        if (show('show-rating') && rating > 0) {
-            content += '<div class="rv-testimonial-rating">';
-            for (let i = 1; i <= 5; i++) {
-                content += `<span class="rv-star ${i <= rating ? 'filled' : 'empty'}">${icons.card_star || ''}</span>`;
-            }
-            content += '</div>';
-        }
-
-        // Review text - escape to prevent XSS
-        content += `<div class="rv-testimonial-text"><p>&ldquo;${this.escapeHtml(testimonial.review)}&rdquo;</p></div>`;
-
-        content += '<div class="rv-testimonial-author">';
-        if (show('show-customer') && name !== '') {
-            if (show('show-author-avatar')) {
-                content += `<div class="rv-author-avatar"><span class="rv-avatar-placeholder" aria-hidden="true">${this.escapeHtml(this.initialLetter(name))}</span></div>`;
-            }
-            content += '<div class="rv-author-info">';
-            content += `<span class="rv-author-name">${this.escapeHtml(this.formatName(name))}</span>`;
-            if (show('show-vehicle') && testimonial.vehicle_name) {
-                content += `<span class="rv-author-title">${this.escapeHtml(testimonial.vehicle_name)}</span>`;
-            }
-            if (show('show-date') && testimonial.date_display) {
-                content += `<span class="rv-author-date">${this.escapeHtml(testimonial.date_display)}</span>`;
-            }
-            content += '</div>';
-        }
-        content += '</div></div>';
-
-        const $item = jQuery('<div class="rv-testimonial-item"></div>');
-        $item.html(content);
-        return $item;
-    }
-
-    /** "Mehmet Demir" -> "Mehmet D.", as the template's $format_name. */
-    formatName(fullName) {
-        const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
-        if (parts.length < 2) {
-            return String(fullName);
-        }
-        return parts[0] + ' ' + Array.from(parts[parts.length - 1])[0].toLocaleUpperCase() + '.';
-    }
-
-    /** As mhmrentiva_initial_avatar_letter(). */
-    initialLetter(name) {
-        const first = Array.from(String(name).trim())[0] || '';
-        return first.toLocaleUpperCase();
-    }
-
-    escapeHtml(text) {
-        if (!text) return '';
-        return String(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    animateNewItems($root) {
-        ($root || this.container).find('.rv-testimonial-item').each((index, element) => {
-            if (!jQuery(element).hasClass('rv-animated')) {
-                jQuery(element).addClass('rv-animated');
-                jQuery(element).css({
-                    opacity: 0,
-                    transform: 'translateY(20px)'
-                }).animate({
-                    opacity: 1
-                }, 300).css('transform', 'translateY(0)');
-            }
-        });
-    }
-
-    showError($root, message) {
-        const $errorDiv = jQuery('<div class="rv-testimonials-error" style="background: #e74c3c; color: white; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;"></div>');
-        $errorDiv.text(message);
-
-        $root.find('.rv-testimonials-load-more').before($errorDiv);
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            $errorDiv.fadeOut(() => $errorDiv.remove());
-        }, 5000);
-    }
-
-    // Public methods for external use
-    refresh() {
-        const $root = this.container.first();
-        // Page 0, so the next request asks for page 1.
-        $root.data('rvPage', 0);
-        $root.find('.rv-testimonials-load-more').show();
-        $root.find('.rv-testimonials-grid, .rv-testimonials-list').empty();
-        this.loadMoreTestimonials($root);
-    }
-
-    filterByRating(rating) {
-        this.container.first().attr('data-rating', rating);
-        this.refresh();
-    }
-
-    filterByVehicle(vehicleId) {
-        this.container.first().attr('data-vehicle-id', vehicleId);
-        this.refresh();
-    }
-}
-
-// Initialize when document is ready
-jQuery(document).ready(function ($) {
-    new Testimonials();
-});
-
-// Make Testimonials class globally available
-window.Testimonials = Testimonials;
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+}() );

@@ -85,7 +85,9 @@ final class TestimonialsSettingsTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * G2: the default render of each surface is today's.
+	 * G2: the default render of each surface is pinned. Re-recorded in PR F, when the
+	 * page moved to the rvs layer: the markup changed on purpose, the four reviews,
+	 * their order and every setting's effect did not.
 	 *
 	 * @dataProvider default_surfaces
 	 */
@@ -219,24 +221,24 @@ final class TestimonialsSettingsTest extends WP_UnitTestCase
 
 		foreach ($surfaces as $name => $renders) {
 			$on = $renders[0]();
-			$this->assertSame(4, substr_count($on, 'class="rv-author-avatar"'), "$name: avatar on by default");
-			$this->assertSame(4, substr_count($on, 'class="rv-quote-icon"'), "$name: quotes on by default");
+			$this->assertSame(4, substr_count($on, 'class="rvs-tcard__avatar"'), "$name: avatar on by default");
+			$this->assertSame(4, substr_count($on, 'class="rvs-tcard__quote"'), "$name: quotes on by default");
 
 			$off = $renders[1]();
-			$this->assertSame(0, substr_count($off, 'class="rv-author-avatar"'), "$name: avatar off");
-			$this->assertSame(0, substr_count($off, 'class="rv-quote-icon"'), "$name: quotes off");
-			$this->assertSame(4, substr_count($off, 'class="rv-author-name"'), "$name: the names stay");
+			$this->assertSame(0, substr_count($off, 'class="rvs-tcard__avatar"'), "$name: avatar off");
+			$this->assertSame(0, substr_count($off, 'class="rvs-tcard__quote"'), "$name: quotes off");
+			$this->assertSame(4, substr_count($off, 'class="rvs-tcard__name"'), "$name: the names stay");
 			$this->assertSame(self::BY_DATE, $this->reviews($off), "$name: the review texts stay");
 
 			$avatar_only = $renders[2]();
-			$this->assertSame(0, substr_count($avatar_only, 'class="rv-author-avatar"'), "$name: avatar off alone");
-			$this->assertSame(4, substr_count($avatar_only, 'class="rv-quote-icon"'), "$name: quotes stay on");
+			$this->assertSame(0, substr_count($avatar_only, 'class="rvs-tcard__avatar"'), "$name: avatar off alone");
+			$this->assertSame(4, substr_count($avatar_only, 'class="rvs-tcard__quote"'), "$name: quotes stay on");
 		}
 
 		// show_customer still hides the whole author block, avatar included.
 		$no_customer = $this->shortcode('show_customer="0"');
-		$this->assertSame(0, substr_count($no_customer, 'class="rv-author-avatar"'));
-		$this->assertSame(0, substr_count($no_customer, 'class="rv-author-name"'));
+		$this->assertSame(0, substr_count($no_customer, 'class="rvs-tcard__avatar"'));
+		$this->assertSame(0, substr_count($no_customer, 'class="rvs-tcard__name"'));
 	}
 
 	/**
@@ -326,7 +328,7 @@ final class TestimonialsSettingsTest extends WP_UnitTestCase
 	 */
 	private function reviews(string $html): array
 	{
-		preg_match_all('#<p>&ldquo;(.*?)&rdquo;</p>#', $html, $m);
+		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">&ldquo;(.*?)&rdquo;</p>#', $html, $m);
 		return $m[1];
 	}
 

@@ -86,12 +86,12 @@ final class TestimonialsNoGravatarTest extends WP_UnitTestCase
             'No <img> avatar (Gravatar or otherwise) should be rendered for a testimonial.'
         );
         $this->assertStringContainsString(
-            'rv-avatar-placeholder',
+            'rvs-tcard__avatar',
             $output,
             'A local initials placeholder must be rendered instead.'
         );
         $this->assertMatchesRegularExpression(
-            '/rv-avatar-placeholder"[^>]*>\s*Z\s*<\/span>/',
+            '/rvs-tcard__avatar"[^>]*>\s*Z\s*<\/span>/',
             $output,
             "The initials placeholder must show the reviewer's first-name initial."
         );

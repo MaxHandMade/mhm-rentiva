@@ -25,7 +25,7 @@ if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 
 /**
@@ -40,6 +40,14 @@ final class Testimonials extends AbstractShortcode {
 
 
 	public const SHORTCODE = 'rentiva_testimonials';
+
+	private const SCRIPT_HANDLE = 'mhm-rentiva-testimonials';
+
+	/**
+	 * The page is the rvs standard: the shell, the preview scope, the `_canonical`
+	 * contract and the HTML cache all come from AbstractShortcode::render().
+	 */
+	protected static bool $rvs_shell = true;
 
 	/**
 	 * Safe sanitize text field that handles null values
@@ -96,40 +104,19 @@ final class Testimonials extends AbstractShortcode {
 		);
 	}
 
-	protected static function get_css_filename(): string
-	{
-		return 'testimonials.css';
-	}
-
-	protected static function get_js_filename(): string
-	{
-		return 'testimonials.js';
-	}
-
-	/**
-	 * Load asset files
-	 */
 	protected static function enqueue_assets(array $atts = array()): void
 	{
-		// CSS
-		wp_enqueue_style(
-			'mhm-rentiva-testimonials',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/testimonials.css',
-			array( 'mhm-rentiva-css-variables' ),
-			MHMRENTIVA_VERSION
-		);
+		AssetManager::enqueue_rvs_reviews_styles();
 
-		// JavaScript
 		wp_enqueue_script(
-			'mhm-rentiva-testimonials',
+			self::SCRIPT_HANDLE,
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/testimonials.js',
-			array( 'jquery' ),
+			array(),
 			MHMRENTIVA_VERSION,
 			true
 		);
 
-		// Localize script
-		self::localize_script('mhm-rentiva-testimonials');
+		self::localize_script(self::SCRIPT_HANDLE);
 	}
 
 	protected static function get_script_object_name(): string
@@ -151,88 +138,28 @@ final class Testimonials extends AbstractShortcode {
 		 */
 		$data['nonce'] = wp_create_nonce('mhmrentiva_testimonials_nonce');
 
-		$data['icons'] = array(
-			// The two icons of a card, as the template renders them; the cards
-			// "Load More" adds use these.
-			'card_quote' => \MHMRentiva\Helpers\Icons::get(
-				'quote',
-				array(
-					'width'  => '32px',
-					'height' => '32px',
-					'class'  => 'rv-icon rv-icon-quote-deco',
-				)
-			),
-			'card_star'  => \MHMRentiva\Helpers\Icons::get(
-				'star',
-				array(
-					'width'  => '15px',
-					'height' => '15px',
-				)
-			),
-			'star'       => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
-			'car'        => \MHMRentiva\Helpers\Icons::get('car', array( 'class' => 'rv-icon-car' )),
-			'calendar'   => \MHMRentiva\Helpers\Icons::get('calendar', array( 'class' => 'rv-icon-calendar' )),
-		);
 		return $data;
 	}
 
 	protected static function get_localized_strings(): array
 	{
 		return array(
-			'loading'        => __('Loading...', 'mhm-rentiva'),
-			'error'          => __('An error occurred', 'mhm-rentiva'),
-			'noTestimonials' => __('No testimonials found yet', 'mhm-rentiva'),
-			'loadMore'       => __('Load More Reviews', 'mhm-rentiva'),
-		);
-	}
-
-	public static function render(array $atts = array(), ?string $content = null): string
-	{
-		// This class does not go through AbstractShortcode::render(), so it opens the
-		// preview scope itself (a pass-through on the front end).
-		return \MHMRentiva\Frontend\RenderContext::render_preview_scope(
-			static fn (): string => self::render_in_scope($atts, $content)
+			'loading'    => __('Loading...', 'mhm-rentiva'),
+			'loadMore'   => __('Load more reviews', 'mhm-rentiva'),
+			'loaded'     => __('More reviews loaded.', 'mhm-rentiva'),
+			'error'      => __('The reviews could not be loaded. Try again.', 'mhm-rentiva'),
+			/* translators: 1: position of the review, 2: number of reviews. */
+			'slideLabel' => __('Review %1$s of %2$s', 'mhm-rentiva'),
 		);
 	}
 
 	/**
-	 * @param array<string,mixed> $atts    Shortcode attributes.
-	 * @param string|null         $content Shortcode content.
+	 * What the template needs: the cards, already shaped for display, and what "Load
+	 * More" needs to continue the list.
+	 *
+	 * @param array<string,mixed> $atts Resolved attributes.
+	 * @return array<string,mixed>
 	 */
-	private static function render_in_scope(array $atts, ?string $content): string
-	{
-		$defaults = self::get_default_attributes();
-
-		// Same contract as AbstractShortcode::render(): a `_canonical` payload (widgets,
-		// blocks) is already mapped and must not be truncated by shortcode_atts(); it
-		// only needs this shortcode's defaults for the keys it omits. Only boolean true
-		// counts: shortcode text yields strings, so an author cannot forge the flag.
-		if (true !== ( $atts['_canonical'] ?? null )) {
-			unset($atts['_canonical']);
-			$atts = shortcode_atts($defaults, $atts, self::SHORTCODE);
-		} else {
-			$atts = wp_parse_args($atts, $defaults);
-		}
-
-		// Load CSS manually
-		self::enqueue_assets($atts);
-
-		// Prepare template data
-		$data = self::prepare_template_data($atts);
-
-		// The internal guard is not part of the template data or the filter contract.
-		unset($data['atts']['_canonical']);
-		$filter_atts = $atts;
-		unset($filter_atts['_canonical']);
-
-		// Render template
-		$html = Templates::render(self::get_template_path(), $data, true);
-
-		// The public per-tag filter every AbstractShortcode::render() applies; this
-		// override used to skip it.
-		return (string) apply_filters('mhmrentiva_shortcodes_' . self::SHORTCODE . '_html', $html, $filter_atts, $content);
-	}
-
 	protected static function prepare_template_data(array $atts): array
 	{
 		// A random order is drawn from a seed, so "Load More" can ask for the
@@ -242,16 +169,54 @@ final class Testimonials extends AbstractShortcode {
 		}
 
 		$testimonials = self::get_testimonials($atts);
+		// What can be served, not every review: "Load More" is offered only
+		// while there is more of the pool to show.
+		$total_count = self::servable_count(self::get_testimonials_count($atts));
+
+		$layout = strtolower( (string) ( $atts['layout'] ?? 'grid' ));
+		if (in_array($layout, array( 'carousel', 'slider', 'vip' ), true)) {
+			$layout = 'carousel';
+		} elseif ('list' !== $layout) {
+			$layout = 'grid';
+		}
 
 		return array(
 			'atts'             => $atts,
-			'testimonials'     => $testimonials,
-			// What can be served, not every review: "Load More" is offered only
-			// while there is more of the pool to show.
-			'total_count'      => self::servable_count(self::get_testimonials_count($atts)),
+			'layout'           => $layout,
+			'columns'          => max(1, min(4, (int) ( $atts['columns'] ?? 3 ))),
+			'cards'            => self::cards($testimonials),
+			'total_count'      => $total_count,
+			'has_more'         => count($testimonials) < $total_count,
 			'has_testimonials' => ! empty($testimonials),
 			'load_more'        => self::load_more_attributes($atts),
 		);
+	}
+
+	/**
+	 * The rows as cards: the masked name, the stars' label and the site's date format,
+	 * from the same view the other review surfaces use. The page and "Load More"
+	 * both draw from these, so a card cannot differ between them.
+	 *
+	 * @param array<int,array<string,mixed>> $rows Rows of get_testimonials().
+	 * @return array<int,array<string,mixed>>
+	 */
+	private static function cards(array $rows): array
+	{
+		$cards = array();
+		foreach ($rows as $row) {
+			$cards[] = ReviewsView::card(
+				array(
+					'id'      => (int) ( $row['id'] ?? 0 ),
+					'author'  => (string) ( $row['customer_name'] ?? '' ),
+					'rating'  => (int) ( $row['rating'] ?? 0 ),
+					'text'    => (string) ( $row['review'] ?? '' ),
+					'date'    => (string) ( $row['date'] ?? '' ),
+					'vehicle' => (string) ( $row['vehicle_name'] ?? '' ),
+				)
+			);
+		}
+
+		return $cards;
 	}
 
 	/**
@@ -283,12 +248,6 @@ final class Testimonials extends AbstractShortcode {
 		if (! empty($atts['vehicle_id']) && (int) $atts['vehicle_id'] > 0) {
 			$out['vehicle-id'] = (string) (int) $atts['vehicle_id'];
 		}
-		foreach (array( 'show_rating', 'show_date', 'show_vehicle', 'show_customer', 'show_author_avatar', 'show_quotes' ) as $flag) {
-			if ('1' !== (string) ( $atts[ $flag ] ?? '1' )) {
-				$out[ str_replace('_', '-', $flag) ] = '0';
-			}
-		}
-
 		return $out;
 	}
 
@@ -718,12 +677,11 @@ final class Testimonials extends AbstractShortcode {
 	}
 
 	/**
-	 * The date as the template prints it, for cards "Load More" renders.
+	 * The date in the site's display format, as the cards print it.
 	 */
 	private static function date_display(string $date): string
 	{
-		$time = strtotime($date);
-		return false === $time ? '' : (string) date_i18n( (string) get_option('date_format', 'd.m.Y'), $time);
+		return ReviewsView::date_text($date);
 	}
 
 	private static function get_vehicle_name(int $vehicle_id): string
@@ -795,6 +753,8 @@ final class Testimonials extends AbstractShortcode {
 		wp_send_json_success(
 			array(
 				'testimonials' => $testimonials,
+				// What the script draws: masked names, the site's date format.
+				'cards'        => self::cards($testimonials),
 				'total_count'  => $total_count,
 				// Up to what can be served (servable_count()), not every review:
 				// past the pool the button stayed and served empty pages.

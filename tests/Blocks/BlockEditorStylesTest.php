@@ -32,6 +32,7 @@ class BlockEditorStylesTest extends WP_UnitTestCase
             'comparison' => array( 'vehicle-comparison', 'mhm-rentiva-rvs-comparison' ),
             'contact'    => array( 'contact', 'mhm-rentiva-rvs-contact' ),
             'rating'     => array( 'vehicle-rating-form', 'mhm-rentiva-rvs-reviews' ),
+            'testimonials' => array( 'testimonials', 'mhm-rentiva-rvs-reviews' ),
             'calendar'   => array( 'availability-calendar', 'mhm-rentiva-rvs-availability' ),
             'vehicle'    => array( 'vehicle-details', 'mhm-rentiva-rvs-vehicle' ),
             'booking'    => array( 'booking-form', 'mhm-rentiva-rvs-booking' ),

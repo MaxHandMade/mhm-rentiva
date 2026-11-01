@@ -401,3 +401,276 @@
 		width: 100%;
 	}
 }
+
+/* Testimonials -------------------------------------------------------------- */
+
+/* Layout from the drawings `Yorumlar` and `Yorumlar-Mobil`. The card knows no
+   layout: the grid, the list and the slider below place it. */
+
+.rvs-shell .rvs-testimonials [hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-testimonials {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-testimonials__items {
+	display: grid;
+	gap: var(--rvs-s4);
+	min-width: 0;
+}
+
+.rvs-shell .rvs-testimonials--cols-1 .rvs-testimonials__items {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.rvs-shell .rvs-testimonials--cols-2 .rvs-testimonials__items {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rvs-shell .rvs-testimonials--cols-3 .rvs-testimonials__items {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rvs-shell .rvs-testimonials--cols-4 .rvs-testimonials__items {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.rvs-shell .rvs-testimonials--list .rvs-testimonials__items {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-testimonials--carousel .rvs-testimonials__items {
+	display: flex;
+	padding: 2px 2px 6px;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+}
+
+.rvs-shell .rvs-testimonials--carousel .rvs-tcard {
+	flex: 0 0 max(280px, calc((100% - (var(--rvs-s4) * 2)) / 3));
+	scroll-snap-align: start;
+}
+
+.rvs-shell .rvs-testimonials--carousel.rvs-testimonials--cols-1 .rvs-tcard {
+	flex-basis: 100%;
+}
+
+.rvs-shell .rvs-testimonials--carousel.rvs-testimonials--cols-2 .rvs-tcard {
+	flex-basis: max(280px, calc((100% - var(--rvs-s4)) / 2));
+}
+
+.rvs-shell .rvs-testimonials--carousel.rvs-testimonials--cols-4 .rvs-tcard {
+	flex-basis: max(280px, calc((100% - (var(--rvs-s4) * 3)) / 4));
+}
+
+.rvs-shell .rvs-testimonials__items:focus-visible,
+.rvs-shell .rvs-testimonials__dot:focus-visible {
+	outline: 3px solid var(--rvs-accent);
+	outline-offset: 2px;
+}
+
+/* Card ---------------------------------------------------------------------- */
+
+.rvs-shell .rvs-tcard {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	min-width: 0;
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-tcard__quote {
+	flex: none;
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-tcard__text {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-tcard__author {
+	display: flex;
+	align-items: center;
+	gap: var(--rvs-s2);
+	margin-top: auto;
+	padding-top: var(--rvs-s1);
+}
+
+.rvs-shell .rvs-tcard__avatar {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-tcard__info {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-tcard__name {
+	color: var(--rvs-text);
+	font-size: 15px;
+}
+
+/* A list reads vehicle and date on one line, as the phone does. */
+.rvs-shell .rvs-testimonials--list .rvs-tcard__info {
+	flex-flow: row wrap;
+	column-gap: var(--rvs-s1);
+}
+
+.rvs-shell .rvs-testimonials--list .rvs-tcard__name {
+	flex: 0 0 100%;
+}
+
+.rvs-shell .rvs-testimonials--list .rvs-tcard__vehicle + .rvs-tcard__date::before {
+	content: "\00b7";
+	margin-inline-end: var(--rvs-s1);
+}
+
+/* Controls ------------------------------------------------------------------ */
+
+.rvs-shell .rvs-testimonials__controls,
+.rvs-shell .rvs-testimonials__more {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-testimonials__more {
+	flex-direction: column;
+}
+
+.rvs-shell .rvs-testimonials__dots {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.rvs-shell .rvs-testimonials__dot {
+	display: inline-grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-testimonials__dot span {
+	display: block;
+	box-sizing: border-box;
+	width: 10px;
+	height: 10px;
+	border: 1px solid var(--rvs-muted);
+	border-radius: 50%;
+}
+
+.rvs-shell .rvs-testimonials__dot[aria-current="true"] span {
+	border-color: var(--rvs-accent-strong);
+	background: var(--rvs-accent-strong);
+}
+
+.rvs-shell .rvs-testimonials__error {
+	margin: 0;
+	color: var(--rvs-alert);
+}
+
+.rvs-shell .rvs-testimonials__empty {
+	padding: var(--rvs-s6);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-testimonials__empty-title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.12;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rvs-shell .rvs-testimonials__items {
+		scroll-behavior: auto;
+	}
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+	.rvs-shell .rvs-testimonials--cols-3:not(.rvs-testimonials--carousel) .rvs-testimonials__items,
+	.rvs-shell .rvs-testimonials--cols-4:not(.rvs-testimonials--carousel) .rvs-testimonials__items {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-testimonials .rvs-testimonials__items {
+		gap: var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-testimonials--grid .rvs-testimonials__items {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-testimonials--carousel .rvs-testimonials__items {
+		margin-inline: calc(var(--rvs-s4) * -1);
+		padding-inline: var(--rvs-s4);
+	}
+
+	.rvs-shell .rvs-testimonials--carousel .rvs-tcard,
+	.rvs-shell .rvs-testimonials--carousel.rvs-testimonials--cols-2 .rvs-tcard,
+	.rvs-shell .rvs-testimonials--carousel.rvs-testimonials--cols-4 .rvs-tcard {
+		flex-basis: 310px;
+		scroll-snap-align: center;
+	}
+
+	.rvs-shell .rvs-tcard {
+		padding: var(--rvs-s3);
+	}
+
+	.rvs-shell .rvs-tcard__info {
+		flex-flow: row wrap;
+		column-gap: var(--rvs-s1);
+	}
+
+	.rvs-shell .rvs-tcard__name {
+		flex: 0 0 100%;
+	}
+
+	.rvs-shell .rvs-tcard__vehicle + .rvs-tcard__date::before {
+		content: "\00b7";
+		margin-inline-end: var(--rvs-s1);
+	}
+
+	.rvs-shell .rvs-testimonials__more .rvs-btn {
+		width: 100%;
+	}
+
+	.rvs-shell .rvs-testimonials__dot {
+		width: 36px;
+	}
+
+	.rvs-shell .rvs-testimonials__empty {
+		padding: var(--rvs-s4);
+	}
+}

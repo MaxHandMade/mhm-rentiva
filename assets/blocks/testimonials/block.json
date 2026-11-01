@@ -123,9 +123,7 @@
         }
     },
     "editorStyle": [
-        "mhm-rentiva-core-variables"
-    ],
-    "style": [
-        "mhm-rentiva-testimonials"
+        "mhm-rentiva-core-variables",
+        "mhm-rentiva-rvs-reviews"
     ]
 }

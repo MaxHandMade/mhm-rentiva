@@ -66,7 +66,8 @@ class BlockRegistry {
 		'testimonials'          => array(
 			'tag'   => 'rentiva_testimonials',
 			'title' => 'Testimonials',
-			'css'   => 'testimonials.css',
+			'css'   => array(), // The rvs review component (Testimonials enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-reviews' ),
 		),
 		'availability-calendar' => array(
 			'tag'   => 'rentiva_availability_calendar',

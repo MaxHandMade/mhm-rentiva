@@ -343,17 +343,17 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
     private function assert_normal_markup_intact(string $output): void
     {
         $this->assertStringContainsString(
-            'rv-testimonials',
+            'rvs-testimonials',
             $output,
             'Wrapper markup from the template must render normally.'
         );
         $this->assertStringContainsString(
-            'rv-author-name',
+            'rvs-tcard__name',
             $output,
             'Author name markup structure must be present and intact.'
         );
         $this->assertStringContainsString(
-            'rv-avatar-placeholder',
+            'rvs-tcard__avatar',
             $output,
             'Initials avatar markup must be present and intact.'
         );

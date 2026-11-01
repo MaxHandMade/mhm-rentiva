@@ -104,8 +104,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 
 	/**
 	 * The wrapper names only what differs from the defaults (a default render
-	 * keeps its markup -- the goldens of TestimonialsSettingsTest); the card
-	 * flags reach the script, and each row carries the date as the cards print it.
+	 * keeps its markup), and each row carries the date as the cards print it.
 	 */
 	public function test_wrapper_carries_non_default_settings_only(): void
 	{
@@ -116,17 +115,15 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 		$this->assertSame('rating', $set['orderby']);
 		$this->assertSame('ASC', $set['order']);
 		$this->assertSame('2', $set['rating']);
-		$this->assertSame('0', $set['show-author-avatar']);
-		$this->assertSame('0', $set['show-quotes']);
-		$this->assertSame('0', $set['show-date']);
-		$this->assertArrayNotHasKey('show-rating', $set);
+		// The display flags are not here: the script clones the page's own card.
+		$this->assertArrayNotHasKey('show-quotes', $set);
 		$this->assertArrayNotHasKey('seed', $set);
 
 		// The rating filter is kept on later pages: R1 (3), R5 (4), R2, R6 (5), R7 (2).
 		$this->assertSame(array( 'R7', 'R1', 'R5', 'R2', 'R6' ), $this->all_pages('orderby="rating" order="ASC" rating="2" limit="2"'));
 
 		$rows = $this->page(array( 'limit' => '3' ), 2);
-		$this->assertSame(date_i18n((string) get_option('date_format'), strtotime('2026-05-29 10:00:00')), $rows[0]['date_display']);
+		$this->assertSame(\MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView::date_text('2026-05-29 10:00:00'), $rows[0]['date_display']);
 
 		// A value outside the allowlist is the date order.
 		$this->assertSame(
@@ -154,7 +151,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 	private function all_pages(string $atts): array
 	{
 		$html = $this->shortcode($atts);
-		preg_match_all('#<p>&ldquo;(.*?)&rdquo;</p>#', $html, $m);
+		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">&ldquo;(.*?)&rdquo;</p>#', $html, $m);
 		$texts = $m[1];
 
 		$data = $this->wrapper_data($html);
@@ -206,7 +203,7 @@ final class TestimonialsLoadMoreOrderTest extends WP_Ajax_UnitTestCase
 	 */
 	private function wrapper_data(string $html): array
 	{
-		$this->assertSame(1, preg_match('#<div class="rv-testimonials [^>]*>#', $html, $tag));
+		$this->assertSame(1, preg_match('#<div class="rvs-testimonials [^>]*>#', $html, $tag));
 		preg_match_all('#data-([a-z-]+)="([^"]*)"#', $tag[0], $m, PREG_SET_ORDER);
 		$out = array();
 		foreach ($m as $attr) {

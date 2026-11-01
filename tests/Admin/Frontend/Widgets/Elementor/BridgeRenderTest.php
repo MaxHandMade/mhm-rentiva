@@ -143,7 +143,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 		Templates::output_shortcode('[rentiva_testimonials]');
 		$testimonials = (string) ob_get_clean();
 
-		$this->assertStringContainsString('rv-testimonials', $testimonials);
+		$this->assertStringContainsString('rvs-testimonials', $testimonials);
 	}
 
 	/**
