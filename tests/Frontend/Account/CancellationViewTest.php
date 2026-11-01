@@ -16,7 +16,7 @@ if (class_exists('WC_Payment_Gateway') && ! class_exists(CancellationViewRefundi
 	{
 		public function __construct()
 		{
-			$this->id       = 'mhm_test_refunding';
+			$this->id       = 'test_refunding_gateway';
 			$this->enabled  = 'yes';
 			$this->supports = array( 'products', 'refunds' );
 		}
@@ -89,7 +89,7 @@ final class CancellationViewTest extends WP_UnitTestCase
 		$this->refunding_gateway();
 		$id    = $this->booking('confirmed', 'paid');
 		$order = $this->create_paid_order_for_booking($id, '292');
-		$order->set_payment_method('mhm_test_refunding');
+		$order->set_payment_method('test_refunding_gateway');
 		$order->save();
 
 		$view = CancellationView::for_booking($id, $this->customer_id);
