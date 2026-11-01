@@ -204,7 +204,7 @@ final class AssetManager {
 		// Literal handles, one call each: the style-token gate reads registrations
 		// by their literal handle and dependency list.
 		if (! wp_style_is('mhm-rentiva-rvs-tokens', 'registered')) {
-			wp_register_style('mhm-rentiva-rvs-tokens', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-tokens.css', array(), self::get_file_version('assets/css/rvs/rvs-tokens.css'));
+			wp_register_style('mhm-rentiva-rvs-tokens', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-tokens.css', array( 'mhm-rentiva-fonts' ), self::get_file_version('assets/css/rvs/rvs-tokens.css'));
 		}
 		if (! wp_style_is('mhm-rentiva-rvs-shell', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-shell', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-shell.css', array( 'mhm-rentiva-rvs-tokens' ), self::get_file_version('assets/css/rvs/rvs-shell.css'));

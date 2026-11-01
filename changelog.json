@@ -32,7 +32,8 @@
       "Note for themes: a theme that overrides templates/account/*.php keeps its old markup and may look unstyled, because the old account stylesheets no longer load on these pages. A theme that overrides WooCommerce's myaccount/dashboard.php keeps its own.",
       "Changed: My bookings is split into Upcoming, Past and Cancelled (each with its count; the section is in the address as mhmrentiva_view), shows two full dates and the booking number customers see in e-mails, and becomes one card per booking on phones. The menu shows the number of upcoming bookings and saved vehicles. The old filter box and search field are gone; links that carry their values still narrow the list. My favorites uses the same layout.",
       "Changed: My bookings is ordered within each section: Upcoming soonest pickup first, Past and Cancelled latest first. Saved blocks and widgets that used the old default order follow it too. The new \"Automatic\" order option is the default; an order chosen explicitly still applies.",
-      "Removed: the dashboard no longer reads the unregistered options mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites and mhmrentiva_customer_booking_history. No settings screen wrote them; a value set by hand has no effect any more."
+      "Removed: the dashboard no longer reads the unregistered options mhmrentiva_customer_dashboard_welcome, mhmrentiva_customer_favorites and mhmrentiva_customer_booking_history. No settings screen wrote them; a value set by hand has no effect any more.",
+      "Changed: the new front-end pages use the Plus Jakarta Sans typeface, served from your own site (the same font file the admin screens already used). The unused Source Serif 4 font files are no longer shipped."
     ]
   },
   {
