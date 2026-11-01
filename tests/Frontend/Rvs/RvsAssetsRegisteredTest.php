@@ -37,8 +37,8 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 	public function test_rvs_chain_is_registered_in_order(): void
 	{
 		$styles = wp_styles();
-		$this->assertSame(array(), $styles->registered['mhm-rentiva-rvs-fonts']->deps);
-		$this->assertSame(array( 'mhm-rentiva-rvs-fonts' ), $styles->registered['mhm-rentiva-rvs-tokens']->deps);
+		$this->assertFalse(isset($styles->registered['mhm-rentiva-rvs-fonts']), 'The front end loads no font file.');
+		$this->assertSame(array(), $styles->registered['mhm-rentiva-rvs-tokens']->deps);
 		$this->assertSame(array( 'mhm-rentiva-rvs-tokens' ), $styles->registered['mhm-rentiva-rvs-shell']->deps);
 		$this->assertSame(array( 'mhm-rentiva-rvs-shell' ), $styles->registered['mhm-rentiva-rvs-primitives']->deps);
 	}
@@ -53,14 +53,14 @@ final class RvsAssetsRegisteredTest extends WP_UnitTestCase
 		AssetManager::enqueue_rvs_styles();
 
 		wp_styles()->all_deps(wp_styles()->queue);
-		foreach (array( 'mhm-rentiva-rvs-fonts', 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
+		foreach (array( 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
 			$this->assertContains($handle, wp_styles()->to_do, $handle);
 		}
 	}
 
 	public function test_every_registered_file_exists(): void
 	{
-		foreach (array( 'mhm-rentiva-rvs-fonts', 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
+		foreach (array( 'mhm-rentiva-rvs-tokens', 'mhm-rentiva-rvs-shell', 'mhm-rentiva-rvs-primitives' ) as $handle) {
 			$src  = (string) wp_styles()->registered[ $handle ]->src;
 			$path = str_replace(MHMRENTIVA_PLUGIN_URL, '', $src);
 			$this->assertFileExists(self::ROOT . $path, $handle);
