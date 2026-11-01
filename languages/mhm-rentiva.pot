@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-01T01:58:13+00:00\n"
+"POT-Creation-Date: 2026-11-01T02:44:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1107,7 +1107,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
 #: src/Admin/Emails/Templates/EmailPreview.php:109
-#: src/Admin/Frontend/Account/AccountRenderer.php:690
+#: src/Admin/Frontend/Account/AccountRenderer.php:691
 msgid "Booking not found."
 msgstr ""
 
@@ -1248,7 +1248,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1156
 #: src/Admin/Emails/Core/EmailTemplates.php:504
 #: src/Admin/Emails/Notifications/BookingNotifications.php:207
-#: src/Admin/Frontend/Account/AccountRenderer.php:937
+#: src/Admin/Frontend/Account/AccountRenderer.php:922
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:338
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1036
@@ -1292,7 +1292,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1636
 #: src/Admin/Core/AssetManager.php:1159
 #: src/Admin/Emails/Notifications/BookingNotifications.php:210
-#: src/Admin/Frontend/Account/AccountRenderer.php:938
+#: src/Admin/Frontend/Account/AccountRenderer.php:923
 #: src/Admin/Frontend/Account/BookingTimeline.php:105
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:339
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
@@ -1313,7 +1313,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1160
 #: src/Admin/Emails/Notifications/BookingNotifications.php:211
 #: src/Admin/Emails/Templates/EmailPreview.php:231
-#: src/Admin/Frontend/Account/AccountRenderer.php:939
+#: src/Admin/Frontend/Account/AccountRenderer.php:924
 #: src/Admin/Frontend/Account/BookingTimeline.php:76
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:340
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:73
@@ -1730,7 +1730,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:282
 #: templates/account/booking-summary.php:88
-#: templates/partials/rvs/account-booking-detail.php:110
+#: templates/partials/rvs/account-booking-detail.php:111
 msgid "Payment"
 msgstr ""
 
@@ -1767,8 +1767,8 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:710
 #: templates/account/booking-summary.php:69
 #: templates/admin/partials/booking-popup.php:85
-#: templates/partials/rvs/account-booking-detail.php:88
-#: templates/partials/rvs/account-next-rental.php:41
+#: templates/partials/rvs/account-booking-detail.php:89
+#: templates/partials/rvs/account-next-rental.php:42
 #: templates/partials/vehicle-details/booking-card.php:70
 #: templates/shortcodes/unified-search.php:87
 msgid "Pickup"
@@ -1779,8 +1779,8 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:711
 #: templates/account/booking-summary.php:75
 #: templates/admin/partials/booking-popup.php:90
-#: templates/partials/rvs/account-booking-detail.php:97
-#: templates/partials/rvs/account-next-rental.php:47
+#: templates/partials/rvs/account-booking-detail.php:98
+#: templates/partials/rvs/account-next-rental.php:48
 msgid "Return"
 msgstr ""
 
@@ -2287,7 +2287,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:205
 #: src/Admin/Core/AssetManager.php:1133
 #: src/Admin/Core/AssetManager.php:1629
-#: src/Admin/Frontend/Account/AccountRenderer.php:503
+#: src/Admin/Frontend/Account/AccountRenderer.php:504
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:282
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:339
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:349
@@ -2555,7 +2555,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:352
 #: src/Admin/Core/AssetManager.php:1494
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:447
-#: templates/partials/rvs/account-next-rental.php:64
+#: templates/partials/rvs/account-next-rental.php:65
 msgid "Details"
 msgstr ""
 
@@ -3441,7 +3441,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:631
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:683
 #: templates/account/payment-history.php:181
-#: templates/partials/rvs/account-booking-detail.php:153
+#: templates/partials/rvs/account-booking-detail.php:154
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:58
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
 msgid "Remove"
@@ -3502,8 +3502,10 @@ msgid "Redirecting to Vehicle Settings..."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1049
+#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:89
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:88
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:194
+#: assets/blocks/my-bookings/index.js:50
 msgid "Automatic"
 msgstr ""
 
@@ -3575,7 +3577,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1600
 #: src/Admin/Emails/Core/EmailTemplates.php:571
 #: src/Admin/Frontend/Account/AccountController.php:458
-#: src/Admin/Frontend/Account/AccountRenderer.php:501
+#: src/Admin/Frontend/Account/AccountRenderer.php:502
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:344
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:546
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:644
@@ -5864,7 +5866,7 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:542
 #: templates/account/payment-history.php:178
-#: templates/partials/rvs/account-booking-detail.php:150
+#: templates/partials/rvs/account-booking-detail.php:151
 #: templates/partials/rvs/account-bookings.php:120
 #: templates/partials/rvs/account-bookings.php:122
 #: templates/shortcodes/search-results.php:253
@@ -6412,8 +6414,8 @@ msgid "Refund Alert: Booking #{booking_id}"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountBookingsView.php:82
-#: src/Admin/Frontend/Account/AccountDashboardView.php:151
-#: src/Admin/Frontend/Account/AccountRenderer.php:970
+#: src/Admin/Frontend/Account/AccountDashboardView.php:161
+#: src/Admin/Frontend/Account/AccountRenderer.php:955
 #: src/Layout/CLI/LayoutImportCommand.php:409
 msgid "N/A"
 msgstr ""
@@ -6487,7 +6489,7 @@ msgid "An error occurred."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:349
-#: templates/partials/rvs/account-booking-detail.php:136
+#: templates/partials/rvs/account-booking-detail.php:137
 msgid "Pay Remaining Amount"
 msgstr ""
 
@@ -6651,26 +6653,26 @@ msgstr ""
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:67
+#: src/Admin/Frontend/Account/AccountDashboardView.php:77
 msgid "You have no upcoming rentals."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:72
+#: src/Admin/Frontend/Account/AccountDashboardView.php:82
 msgid "Your rental is in progress."
 msgstr ""
 
 #. translators: %s: return date and time.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:76
+#: src/Admin/Frontend/Account/AccountDashboardView.php:86
 #, php-format
 msgid "Your rental is in progress. Return: %s"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:81
+#: src/Admin/Frontend/Account/AccountDashboardView.php:91
 msgid "Your next rental starts today."
 msgstr ""
 
 #. translators: %d: number of days until the next rental starts.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:86
+#: src/Admin/Frontend/Account/AccountDashboardView.php:96
 #, php-format
 msgid "Your next rental starts in %d day."
 msgid_plural "Your next rental starts in %d days."
@@ -6678,56 +6680,56 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: booking number.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:136
+#: src/Admin/Frontend/Account/AccountDashboardView.php:146
 #, php-format
 msgid "In progress · %s"
 msgstr ""
 
 #. translators: %s: booking number.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:138
+#: src/Admin/Frontend/Account/AccountDashboardView.php:148
 #, php-format
 msgid "Upcoming · %s"
 msgstr ""
 
 #. translators: %s: cancellation deadline (date and time).
-#: src/Admin/Frontend/Account/AccountDashboardView.php:143
+#: src/Admin/Frontend/Account/AccountDashboardView.php:153
 #, php-format
 msgid "Free cancellation until %s"
 msgstr ""
 
 #. translators: %s: refunded amount.
-#: src/Admin/Frontend/Account/AccountDashboardView.php:235
+#: src/Admin/Frontend/Account/AccountDashboardView.php:245
 #: templates/account/booking-detail.php:78
 #, php-format
 msgid "%s refunded"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:241
+#: src/Admin/Frontend/Account/AccountDashboardView.php:251
 #: templates/partials/rvs/breakdown.php:63
 msgid "Due at pickup"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:243
+#: src/Admin/Frontend/Account/AccountDashboardView.php:253
 msgid "Deposit paid"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:247
+#: src/Admin/Frontend/Account/AccountDashboardView.php:257
 #: templates/account/booking-detail.php:85
 msgid "Paid in full"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountDashboardView.php:254
+#: src/Admin/Frontend/Account/AccountDashboardView.php:264
 #: templates/account/booking-detail.php:88
 msgid "Awaiting payment"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:502
+#: src/Admin/Frontend/Account/AccountRenderer.php:503
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:579
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:431
 msgid "No vehicles found"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:504
+#: src/Admin/Frontend/Account/AccountRenderer.php:505
 #: src/Admin/Frontend/Shortcodes/Card/RvsCardView.php:461
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:139
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:243
@@ -6742,7 +6744,7 @@ msgstr ""
 msgid "Book Now"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:505
+#: src/Admin/Frontend/Account/AccountRenderer.php:506
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:593
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:209
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:434
@@ -6751,7 +6753,7 @@ msgstr ""
 msgid "View Details"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:506
+#: src/Admin/Frontend/Account/AccountRenderer.php:507
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:337
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:312
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:587
@@ -6763,7 +6765,7 @@ msgstr ""
 msgid "Added to favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:507
+#: src/Admin/Frontend/Account/AccountRenderer.php:508
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:338
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:313
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:588
@@ -6775,7 +6777,7 @@ msgstr ""
 msgid "Removed from favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:508
+#: src/Admin/Frontend/Account/AccountRenderer.php:509
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:336
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:212
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:437
@@ -6785,46 +6787,46 @@ msgstr ""
 msgid "You must be logged in to add to favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:704
+#: src/Admin/Frontend/Account/AccountRenderer.php:705
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:486
 msgid "You do not have permission to view this booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:759
+#: src/Admin/Frontend/Account/AccountRenderer.php:760
 #: src/Admin/Utilities/Menu/Menu.php:55
 #: src/Admin/Utilities/Menu/Menu.php:56
 #: src-react/admin/dashboard/DashboardPage.jsx:37
 msgid "Dashboard"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:764
+#: src/Admin/Frontend/Account/AccountRenderer.php:765
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:25
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:47
 msgid "My Bookings"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:769
+#: src/Admin/Frontend/Account/AccountRenderer.php:770
 msgid "Favorite Vehicles"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:774
+#: src/Admin/Frontend/Account/AccountRenderer.php:775
 #: src/Admin/Frontend/Widgets/Elementor/PaymentHistoryWidget.php:25
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:57
 #: templates/account/payment-history.php:89
 msgid "Payment History"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:779
+#: src/Admin/Frontend/Account/AccountRenderer.php:780
 msgid "Messages"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:784
+#: src/Admin/Frontend/Account/AccountRenderer.php:785
 #: templates/account/account-details.php:37
 #: templates/account/account-details.php:53
 msgid "Account Details"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:789
+#: src/Admin/Frontend/Account/AccountRenderer.php:790
 msgid "Logout"
 msgstr ""
 
@@ -6912,7 +6914,7 @@ msgid "You are within the free cancellation period. %s will be refunded."
 msgstr ""
 
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:38
-#: templates/partials/rvs/account-booking-detail.php:54
+#: templates/partials/rvs/account-booking-detail.php:55
 #: templates/partials/rvs/account-bookings.php:63
 #: templates/partials/rvs/journey-summary.php:75
 msgid "My bookings"
@@ -6928,7 +6930,7 @@ msgid "Payment history"
 msgstr ""
 
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:53
-#: templates/partials/rvs/account-booking-detail.php:58
+#: templates/partials/rvs/account-booking-detail.php:59
 msgid "Booking details"
 msgstr ""
 
@@ -6958,7 +6960,7 @@ msgstr ""
 msgid "%1$s (%2$s)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Account/MyBookings.php:53
+#: src/Admin/Frontend/Shortcodes/Account/MyBookings.php:54
 #: src/Admin/Frontend/Shortcodes/Account/MyFavorites.php:145
 #: src/Admin/Frontend/Shortcodes/Account/PaymentHistory.php:56
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:187
@@ -8576,7 +8578,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:57
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:68
 #: assets/blocks/contact/index.js:47
-#: assets/blocks/my-bookings/index.js:66
+#: assets/blocks/my-bookings/index.js:67
 #: assets/blocks/my-favorites/index.js:36
 #: assets/blocks/payment-history/index.js:73
 #: assets/blocks/search-results/index.js:36
@@ -8769,12 +8771,12 @@ msgid "Show Image"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:245
-#: assets/blocks/my-bookings/index.js:82
+#: assets/blocks/my-bookings/index.js:83
 msgid "Show Vehicle Image"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:246
-#: assets/blocks/my-bookings/index.js:87
+#: assets/blocks/my-bookings/index.js:88
 msgid "Show Booking Dates"
 msgstr ""
 
@@ -8786,7 +8788,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:97
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:77
 #: assets/blocks/featured-vehicles/index.js:92
-#: assets/blocks/my-bookings/index.js:92
+#: assets/blocks/my-bookings/index.js:93
 #: assets/blocks/my-favorites/index.js:87
 #: assets/blocks/search-results/index.js:95
 #: assets/blocks/vehicle-comparison/index.js:60
@@ -8797,13 +8799,13 @@ msgid "Show Price"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:248
-#: assets/blocks/my-bookings/index.js:97
+#: assets/blocks/my-bookings/index.js:98
 msgid "Show Status"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:249
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:114
-#: assets/blocks/my-bookings/index.js:73
+#: assets/blocks/my-bookings/index.js:74
 #: assets/blocks/payment-history/index.js:80
 #: assets/blocks/search-results/index.js:76
 msgid "Show Pagination"
@@ -8871,7 +8873,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:263
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:100
-#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:84
+#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:85
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:94
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:102
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:84
@@ -8901,7 +8903,7 @@ msgid "Limit"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:266
-#: assets/blocks/my-bookings/index.js:58
+#: assets/blocks/my-bookings/index.js:59
 #: assets/blocks/payment-history/index.js:65
 #: assets/blocks/search-results/index.js:61
 msgid "Limit Results"
@@ -9038,7 +9040,7 @@ msgstr ""
 #: assets/blocks/booking-form/index.js:23
 #: assets/blocks/contact/index.js:49
 #: assets/blocks/featured-vehicles/index.js:83
-#: assets/blocks/my-bookings/index.js:68
+#: assets/blocks/my-bookings/index.js:69
 #: assets/blocks/my-favorites/index.js:68
 #: assets/blocks/payment-history/index.js:75
 #: assets/blocks/search-results/index.js:71
@@ -9162,7 +9164,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:323
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:105
-#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:89
+#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:99
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:107
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:88
@@ -9177,7 +9179,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:324
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:104
-#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:88
+#: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:90
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:98
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:106
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:89
@@ -14296,15 +14298,15 @@ msgstr ""
 
 #. translators: %s: booking number shown to the customer (the order number when there is one).
 #: templates/account/booking-summary.php:27
-#: templates/partials/rvs/account-booking-detail.php:62
+#: templates/partials/rvs/account-booking-detail.php:63
 #, php-format
 msgid "Booking #%s"
 msgstr ""
 
 #: templates/account/booking-summary.php:35
 #: templates/account/booking-summary.php:51
-#: templates/partials/rvs/account-booking-detail.php:74
-#: templates/partials/rvs/account-next-rental.php:66
+#: templates/partials/rvs/account-booking-detail.php:75
+#: templates/partials/rvs/account-next-rental.php:67
 #: templates/partials/rvs/journey-summary.php:72
 #: templates/partials/vehicle-details/booking-card.php:126
 #: templates/shortcodes/booking-form.php:193
@@ -14384,11 +14386,13 @@ msgstr ""
 msgid "Bank receipt"
 msgstr ""
 
-#. translators: %d: total payments count.
+#. translators: %s: number of records in the payment history (paid or not).
 #: templates/account/payment-history.php:93
 #, php-format
-msgid "%d payments total"
-msgstr ""
+msgid "%s record"
+msgid_plural "%s records"
+msgstr[0] ""
+msgstr[1] ""
 
 #: templates/account/payment-history.php:100
 msgid "No payment records yet"
@@ -14404,13 +14408,13 @@ msgstr ""
 
 #. translators: %s: status of the uploaded bank receipt (Submitted, Approved, Rejected).
 #: templates/account/payment-history.php:174
-#: templates/partials/rvs/account-booking-detail.php:147
+#: templates/partials/rvs/account-booking-detail.php:148
 #, php-format
 msgid "Bank receipt: %s"
 msgstr ""
 
 #: templates/account/payment-history.php:185
-#: templates/partials/rvs/account-booking-detail.php:157
+#: templates/partials/rvs/account-booking-detail.php:158
 msgid "Upload bank receipt"
 msgstr ""
 
@@ -14841,23 +14845,23 @@ msgstr ""
 msgid "See from that date"
 msgstr ""
 
-#: templates/partials/rvs/account-booking-detail.php:129
+#: templates/partials/rvs/account-booking-detail.php:130
 msgid "Your deposit was paid outside our website, so we will contact you directly to collect the remaining balance."
 msgstr ""
 
-#: templates/partials/rvs/account-booking-detail.php:167
+#: templates/partials/rvs/account-booking-detail.php:168
 msgid "Progress"
 msgstr ""
 
-#: templates/partials/rvs/account-booking-detail.php:175
+#: templates/partials/rvs/account-booking-detail.php:176
 msgid "(upcoming)"
 msgstr ""
 
-#: templates/partials/rvs/account-booking-detail.php:190
+#: templates/partials/rvs/account-booking-detail.php:191
 msgid "Cancellation"
 msgstr ""
 
-#: templates/partials/rvs/account-booking-detail.php:204
+#: templates/partials/rvs/account-booking-detail.php:205
 #: templates/partials/rvs/account-cancel-dialog.php:67
 msgid "Cancel booking"
 msgstr ""
@@ -15536,7 +15540,7 @@ msgstr ""
 #: assets/blocks/booking-form/index.js:30
 #: assets/blocks/contact/index.js:56
 #: assets/blocks/featured-vehicles/index.js:90
-#: assets/blocks/my-bookings/index.js:80
+#: assets/blocks/my-bookings/index.js:81
 #: assets/blocks/my-favorites/index.js:85
 #: assets/blocks/payment-history/index.js:87
 #: assets/blocks/search-results/index.js:83
@@ -15593,11 +15597,11 @@ msgstr ""
 msgid "Adds a \"View All\" link below the carousel. Leave empty to hide."
 msgstr ""
 
-#: assets/blocks/my-bookings/index.js:50
+#: assets/blocks/my-bookings/index.js:51
 msgid "Descending (Newest First)"
 msgstr ""
 
-#: assets/blocks/my-bookings/index.js:51
+#: assets/blocks/my-bookings/index.js:52
 msgid "Ascending (Oldest First)"
 msgstr ""
 
