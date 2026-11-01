@@ -544,11 +544,12 @@
 	font-size: 14px;
 }
 
-/* Payment history (the bookings table's look; its own cells) */
-.rvs-shell .rvs-account-payments__booking {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
+/* Payment history (the bookings table's look; its own cells). The cells
+   stay table cells on desktop; the flex layout is the phone card's. */
+.rvs-shell .rvs-account-payments__booking > strong,
+.rvs-shell .rvs-account-payments__booking > a,
+.rvs-shell .rvs-account-payments__booking > .rvs-account-bookings__no {
+	display: block;
 }
 
 .rvs-shell .rvs-account-payments__date {
@@ -557,11 +558,11 @@
 }
 
 .rvs-shell .rvs-account-payments__receipt {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--rvs-s2);
 	font-size: 14px;
+}
+
+.rvs-shell .rvs-account-payments__receipt > * + * {
+	margin-left: var(--rvs-s2);
 }
 
 .rvs-shell .rvs-account-payments__receipt a {
@@ -658,11 +659,12 @@
 	}
 
 	/* Payment history cards: car and number, status; then
-	   "date - type - method - amount"; the receipt control last. */
+	   "date · type · method · amount"; the receipt control last. */
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__booking {
 		display: flex;
 		flex: 1 1 0;
 		flex-direction: column;
+		gap: 2px;
 		order: 1;
 		min-width: 0;
 	}
@@ -676,15 +678,25 @@
 		font-size: 14px;
 	}
 
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__type::before,
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__method::before,
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__amount::before {
-		content: "· ";
+	/* The dot trails the cell before it, so a hidden date or method never
+	   leaves the line starting with one. */
+	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__date::after,
+	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__type::after,
+	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__method::after {
+		content: " ·";
 	}
 
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__receipt {
+		display: flex;
 		flex-basis: 100%;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--rvs-s2);
 		order: 5;
+	}
+
+	.rvs-shell .rvs-account-payments__receipt > * + * {
+		margin-left: 0;
 	}
 
 	.rvs-shell .rvs-account-bookings__view::after {

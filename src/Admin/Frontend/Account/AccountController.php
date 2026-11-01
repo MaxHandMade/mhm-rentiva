@@ -1051,6 +1051,13 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
 		}
 
+		// Same rule as the upload (R13, y10): once money arrived or the booking
+		// stopped waiting, the customer cannot delete the slip -- the button being
+		// hidden is not the gate. Staff keep their access.
+		if (! self::receipt_upload_allowed($booking_id) && ! ( 'mhmrentiva_booking' === get_post_type($booking_id) && current_user_can('edit_post', $booking_id) )) {
+			wp_send_json_error(array( 'message' => __('A receipt cannot be uploaded for this booking.', 'mhm-rentiva') ), 400);
+		}
+
 		$attachment_id = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);
 		if (! $attachment_id) {
 			wp_send_json_error(array( 'message' => __('No receipt found to remove.', 'mhm-rentiva') ), 404);

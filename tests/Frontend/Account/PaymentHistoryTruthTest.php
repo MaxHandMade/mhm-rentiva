@@ -203,4 +203,65 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 		$this->assertStringContainsString('aria-hidden="true"', $html, 'The status icon is decoration.');
 		$this->assertStringNotContainsString('style="', $html, 'No inline styles.');
 	}
+
+	public function test_partial_refund_on_a_live_rental_stays_completed(): void
+	{
+		$this->require_woocommerce();
+		$id    = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '120');
+		$order = $this->create_paid_order_for_booking($id, '120');
+		wc_create_refund(array( 'order_id' => $order->get_id(), 'amount' => '20' ));
+		update_post_meta($id, '_mhmrentiva_payment_status', 'partially_refunded');
+
+		$this->assertSame('completed', $this->row($id)['status'], 'Money is still held: not Cancelled.');
+		$this->assertStringContainsString('rvs-status--done', $this->html());
+	}
+
+	public function test_full_refund_is_cancelled(): void
+	{
+		$this->require_woocommerce();
+		$id    = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '120');
+		$order = $this->create_paid_order_for_booking($id, '120');
+		wc_create_refund(array( 'order_id' => $order->get_id(), 'amount' => '120' ));
+
+		$this->assertSame('cancelled', $this->row($id)['status']);
+	}
+
+	public function test_stored_terminal_status_beats_money_received(): void
+	{
+		$this->require_woocommerce();
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'cancelled', '120');
+		$this->create_paid_order_for_booking($id, '120');
+		update_post_meta($id, '_mhmrentiva_payment_status', 'cancelled');
+
+		$this->assertSame('cancelled', $this->row($id)['status']);
+	}
+
+	public function test_mixed_currency_shows_each_order_as_recorded(): void
+	{
+		$this->require_woocommerce();
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '300');
+		update_post_meta($id, '_mhmrentiva_payment_type', 'deposit');
+		update_post_meta($id, '_mhmrentiva_remaining_amount', '0');
+		$deposit   = $this->create_paid_order_for_booking($id, '100');
+		$remaining = $this->create_paid_order_for_booking($id, '200');
+		update_post_meta($id, '_mhmrentiva_remaining_order_id', $remaining->get_id());
+		$deposit->set_currency('TRY');
+		$deposit->save();
+		$remaining->set_currency('EUR');
+		$remaining->save();
+
+		$row  = $this->row($id);
+		$text = wp_strip_all_tags($row['amount_html']);
+		$this->assertSame('completed', $row['status']);
+		$this->assertStringContainsString('100', $text);
+		$this->assertStringContainsString('200', $text);
+		$this->assertMatchesRegularExpression("/(TRY|\x{20BA}).*\+.*(EUR|\x{20AC})/su", html_entity_decode($text), "One recorded figure per order, in its own currency.");
+	}
+
+	public function test_phone_line_never_starts_with_a_dot(): void
+	{
+		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/rvs-account.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local asset.
+		$this->assertStringNotContainsString('rvs-account-payments__type::before', $css);
+		$this->assertStringContainsString('rvs-account-payments__type::after', $css);
+	}
 }

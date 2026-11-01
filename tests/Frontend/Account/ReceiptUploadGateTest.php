@@ -121,4 +121,103 @@ final class ReceiptUploadGateTest extends WP_Ajax_UnitTestCase
 			'pending'         => array( 'pending' ),
 		);
 	}
+
+	public function test_offline_paid_booking_is_refused(): void
+	{
+		$id = $this->booking('pending_payment');
+		update_post_meta($id, '_mhmrentiva_payment_status', 'paid');
+		update_post_meta($id, '_mhmrentiva_total_price', '300');
+		update_post_meta($id, '_mhmrentiva_remaining_amount', '100');
+
+		$res = $this->upload($id);
+
+		$this->assertSame(self::REFUSAL, $res['data']['message'] ?? null);
+	}
+
+	public function test_mixed_currency_booking_is_refused(): void
+	{
+		$this->require_woocommerce();
+		$id        = $this->booking('pending_payment');
+		$deposit   = $this->create_paid_order_for_booking($id, '100');
+		$remaining = $this->create_paid_order_for_booking($id, '200');
+		update_post_meta($id, '_mhmrentiva_remaining_order_id', $remaining->get_id());
+		$deposit->set_currency('TRY');
+		$deposit->save();
+		$remaining->set_currency('EUR');
+		$remaining->save();
+
+		$this->assertSame(self::REFUSAL, $this->upload($id)['data']['message'] ?? null);
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function remove(int $booking_id): array
+	{
+		$_POST = array(
+			'nonce'      => wp_create_nonce('mhmrentiva_upload_receipt'),
+			'booking_id' => $booking_id,
+		);
+
+		try {
+			$this->_handleAjax('mhmrentiva_remove_receipt');
+		} catch (\WPAjaxDieContinueException | \WPAjaxDieStopException $e) {
+			// The response is read below.
+		}
+
+		$decoded = json_decode($this->_last_response, true);
+		return is_array($decoded) ? $decoded : array();
+	}
+
+	private function with_receipt(int $booking_id): int
+	{
+		$attachment = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'receipt.pdf',
+				'post_parent'    => $booking_id,
+				'post_mime_type' => 'application/pdf',
+			)
+		);
+		update_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', $attachment);
+
+		return $attachment;
+	}
+
+	public function test_owner_cannot_remove_the_slip_once_paid(): void
+	{
+		$this->require_woocommerce();
+		$id         = $this->booking('pending_payment');
+		$attachment = $this->with_receipt($id);
+		$this->create_paid_order_for_booking($id, '292');
+
+		$res = $this->remove($id);
+
+		$this->assertFalse((bool) ( $res['success'] ?? true ));
+		$this->assertSame(self::REFUSAL, $res['data']['message'] ?? null);
+		$this->assertSame($attachment, (int) get_post_meta($id, '_mhmrentiva_receipt_attachment_id', true), 'The slip is still attached.');
+	}
+
+	public function test_owner_can_remove_the_slip_while_waiting(): void
+	{
+		$id = $this->booking('pending_payment');
+		$this->with_receipt($id);
+
+		$res = $this->remove($id);
+
+		$this->assertTrue((bool) ( $res['success'] ?? false ), $this->_last_response);
+		$this->assertSame('', (string) get_post_meta($id, '_mhmrentiva_receipt_attachment_id', true));
+	}
+
+	public function test_staff_keep_removing_after_payment(): void
+	{
+		$this->require_woocommerce();
+		$id = $this->booking('pending_payment');
+		$this->with_receipt($id);
+		$this->create_paid_order_for_booking($id, '292');
+		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
+
+		$res = $this->remove($id);
+
+		$this->assertTrue((bool) ( $res['success'] ?? false ), $this->_last_response);
+	}
 }

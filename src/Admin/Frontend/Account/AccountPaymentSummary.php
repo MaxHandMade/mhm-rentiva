@@ -28,7 +28,7 @@ final class AccountPaymentSummary {
 	public const NONE     = 'none';
 
 	/**
-	 * @return array{kind: string, money_received: bool, paid_minor: int, refunded_minor: int, remaining: float, currency: string}
+	 * @return array{kind: string, money_received: bool, paid_minor: int, order_ids: list<int>, refunded_minor: int, remaining: float, currency: string}
 	 */
 	public static function for_booking(int $booking_id, string $status): array
 	{
@@ -50,6 +50,7 @@ final class AccountPaymentSummary {
 			'kind'           => $kind,
 			'money_received' => $money_received,
 			'paid_minor'     => $state->paid(),
+			'order_ids'      => array_map('intval', $state->orders()),
 			'refunded_minor' => $state->refunded(),
 			'remaining'      => $remaining,
 			'currency'       => $state->currency(),

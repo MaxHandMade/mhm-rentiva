@@ -223,8 +223,10 @@
                         MHMRentivaToast.show((res && res.data && res.data.message) || this.config.i18n.upload_error, { type: 'error' });
                     }
                 },
-                error: () => {
-                    MHMRentivaToast.show(this.config.i18n.upload_error, { type: 'error' });
+                error: (xhr) => {
+                    // A refusal (400) comes with the server's own sentence.
+                    const message = xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message;
+                    MHMRentivaToast.show(message || this.config.i18n.upload_error, { type: 'error' });
                 },
                 complete: () => {
                     $label.removeClass('is-loading');

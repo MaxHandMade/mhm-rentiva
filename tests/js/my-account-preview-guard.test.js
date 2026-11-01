@@ -121,4 +121,35 @@ describe( 'my-account preview-root guards', () => {
 			'mhmrentiva_remove_receipt'
 		);
 	} );
+	test( 'refused_upload_shows_the_server_message', () => {
+		setup( false );
+		$.ajax = jest.fn( ( opts ) => {
+			opts.error( {
+				responseJSON: {
+					success: false,
+					data: { message: 'A receipt cannot be uploaded for this booking.' },
+				},
+			} );
+			opts.complete();
+			return $.Deferred().promise();
+		} );
+		change();
+		expect( window.MHMRentivaToast.show ).toHaveBeenCalledWith(
+			'A receipt cannot be uploaded for this booking.',
+			{ type: 'error' }
+		);
+	} );
+
+	test( 'failed_upload_without_a_message_shows_the_generic_toast', () => {
+		setup( false );
+		$.ajax = jest.fn( ( opts ) => {
+			opts.error( {} );
+			opts.complete();
+			return $.Deferred().promise();
+		} );
+		change();
+		expect( window.MHMRentivaToast.show ).toHaveBeenCalledWith( 'upload err', {
+			type: 'error',
+		} );
+	} );
 } );

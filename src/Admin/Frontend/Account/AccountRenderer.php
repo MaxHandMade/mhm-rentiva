@@ -889,17 +889,17 @@ final class AccountRenderer {
 					$payment_status = ! empty($status_key) ? $status_key : 'pending';
 			}
 
-			// The truth about the row (R13, PR D): money received is completed,
-			// whatever the stored payment status still says; a refund or a
-			// closed booking nobody paid is cancelled. PaymentState (through
-			// AccountPaymentSummary) is the source; the stored status only
-			// speaks when no money is on record.
+			// The truth about the row (R13, PR D). A full refund, or a stored
+			// cancelled / refunded / failed (a terminal state written on purpose),
+			// is cancelled and is not overruled by the money once received. A
+			// partial refund on a live rental stays completed. Otherwise money
+			// received (PaymentState, through AccountPaymentSummary) is completed,
+			// whatever the stored status still says; the stored status speaks
+			// only when no money is on record.
 			$booking_status = \MHMRentiva\Admin\Booking\Core\Status::get($booking->ID);
 			$summary        = AccountPaymentSummary::for_booking($booking->ID, $booking_status);
-			if (AccountPaymentSummary::REFUNDED === $summary['kind'] || 'cancelled' === $payment_status) {
-				// A refund, or a stored cancelled / refunded / failed (a terminal
-				// state written on purpose), is not overruled by the money that
-				// was once received.
+			$fully_refunded = $summary['paid_minor'] > 0 && $summary['refunded_minor'] >= $summary['paid_minor'];
+			if ($fully_refunded || 'cancelled' === $payment_status) {
 				$payment_status = 'cancelled';
 			} elseif ($summary['money_received']) {
 				$payment_status = 'completed';
@@ -974,6 +974,10 @@ final class AccountRenderer {
 				$expected = $payment_type === 'deposit' ? $deposit_amount : $total_price;
 				if ($summary['paid_minor'] > 0) {
 					$amount_html = BookingTimeline::recorded_html($summary['paid_minor'], $summary['currency']);
+				} elseif (array() !== $summary['order_ids']) {
+					// Orders in different currencies: no single sum exists, so each
+					// order shows as recorded (never an expected figure).
+					$amount_html = BookingTimeline::recorded_orders_html($summary['order_ids']);
 				} elseif ($has_amount) {
 					$amount_html = \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($expected)['html'];
 				} else {

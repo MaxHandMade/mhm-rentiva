@@ -240,6 +240,26 @@ final class BookingTimeline {
 	}
 
 	/**
+	 * Every paid order of a booking, each in its own recorded currency, joined
+	 * with " + " (HTML). The honest figure when the orders do not share a
+	 * currency and no single sum exists.
+	 *
+	 * @param list<int> $order_ids Paid WooCommerce order ids.
+	 */
+	public static function recorded_orders_html(array $order_ids): string
+	{
+		$parts = array();
+		foreach ($order_ids as $order_id) {
+			$order = function_exists('wc_get_order') ? wc_get_order($order_id) : null;
+			if ($order instanceof \WC_Order) {
+				$parts[] = self::recorded_html(Money::toMinor($order->get_total()), (string) $order->get_currency());
+			}
+		}
+
+		return implode(' + ', $parts);
+	}
+
+	/**
 	 * A moment as the detail page writes it everywhere: "<date> · <time>",
 	 * site formats and timezone; '' for none.
 	 */
