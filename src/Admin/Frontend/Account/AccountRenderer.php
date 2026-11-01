@@ -924,6 +924,10 @@ final class AccountRenderer {
 					'cancelled' => __('Cancelled', 'mhm-rentiva'),
 				);
 				$status_label  = $status_labels[ $payment_status ] ?? ucfirst($payment_status);
+				// A refunded row keeps the cancelled colour but says what happened.
+				if (AccountPaymentSummary::REFUNDED === $summary['kind'] || \MHMRentiva\Admin\Booking\Core\Status::REFUNDED === $booking_status || 'refunded' === $status_key) {
+					$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label(\MHMRentiva\Admin\Booking\Core\Status::REFUNDED);
+				}
 
 				// Format Gateway/Method
 				$woocommerce_method_title = '';

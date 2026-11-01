@@ -83,12 +83,16 @@ final class AccountLayoutCssTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * B5: the amount cell carries the bookings card's class too; its leading dot
-	 * is off in the payment card, where the method's trailing dot separates.
+	 * B5 (round 2): a card's values are flex items separated by the gap, never by
+	 * a dot pseudo-element: a dot cannot follow its value onto a new line, so a
+	 * wrap left a dot at a line start (bookings) and at a line end (payments).
 	 */
-	public function test_payment_card_amount_has_no_second_separator(): void
+	public function test_card_values_are_separated_by_gap_not_dots(): void
 	{
-		$this->assertStringContainsString('content: none', $this->rule('.rvs-shell .rvs-account-payments__table td.rvs-account-payments__amount::before'));
+		$css  = $this->css();
+		$card = (string) substr($css, (int) strpos($css, '@container rvs-list (max-width: 700px) {'));
+		$this->assertDoesNotMatchRegularExpression('/content:\s*"[^"]*\x{00B7}[^"]*"/u', $card, 'A dot between card values.');
+		$this->assertMatchesRegularExpression('/\.rvs-account-bookings__table tr \{[^}]*gap: 4px 12px;/s', $card, 'The gap is the separator.');
 	}
 
 	private function rule(string $selector): string

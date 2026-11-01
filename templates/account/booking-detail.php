@@ -87,7 +87,11 @@ switch (AccountPaymentSummary::for_booking($booking_id, $booking_status)['kind']
 		$payment_line = __('Paid in full', 'mhm-rentiva');
 		break;
 	case AccountPaymentSummary::AWAITING:
-		$payment_line = __('Awaiting payment', 'mhm-rentiva');
+		// The status tag of a pending_payment booking already says so; the line
+		// would repeat it beside the tag. (The dashboard card keeps it: a label there.)
+		if ('pending_payment' !== $booking_status) {
+			$payment_line = __('Awaiting payment', 'mhm-rentiva');
+		}
 		break;
 }
 

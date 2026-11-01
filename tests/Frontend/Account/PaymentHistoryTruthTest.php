@@ -306,10 +306,36 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression("/(TRY|\x{20BA}).*\+.*(EUR|\x{20AC})/su", html_entity_decode($text), "One recorded figure per order, in its own currency.");
 	}
 
-	public function test_phone_line_never_starts_with_a_dot(): void
+	public function test_phone_line_has_no_dot_separators_to_dangle(): void
 	{
 		$css = (string) file_get_contents(dirname(__DIR__, 3) . '/assets/css/frontend/rvs-account.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local asset.
 		$this->assertStringNotContainsString('rvs-account-payments__type::before', $css);
-		$this->assertStringContainsString('rvs-account-payments__type::after', $css);
+		$this->assertStringNotContainsString('rvs-account-payments__type::after', $css);
+		$this->assertStringNotContainsString('rvs-account-bookings__dates::before', $css);
+	}
+
+	public function test_full_refund_row_reads_refunded_with_the_cancelled_colour(): void
+	{
+		$this->require_woocommerce();
+		$id    = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '120');
+		$order = $this->create_paid_order_for_booking($id, '120');
+		wc_create_refund(array( 'order_id' => $order->get_id(), 'amount' => '120' ));
+
+		$row = $this->row($id);
+		$this->assertSame('cancelled', $row['status']);
+		$this->assertSame(\MHMRentiva\Admin\Booking\Core\Status::get_label('refunded'), $row['status_label']);
+		$html = $this->html();
+		$this->assertStringContainsString('rvs-status--cancelled', $html);
+		$this->assertStringContainsString(esc_html(\MHMRentiva\Admin\Booking\Core\Status::get_label('refunded')), $html);
+	}
+
+	public function test_cancelled_row_without_refund_still_reads_cancelled(): void
+	{
+		$this->require_woocommerce();
+		$id = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'cancelled', '120');
+		$this->create_paid_order_for_booking($id, '120');
+		update_post_meta($id, '_mhmrentiva_payment_status', 'cancelled');
+
+		$this->assertSame('Cancelled', $this->row($id)['status_label']);
 	}
 }

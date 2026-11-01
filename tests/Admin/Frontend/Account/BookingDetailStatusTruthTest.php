@@ -144,7 +144,8 @@ final class BookingDetailStatusTruthTest extends WP_UnitTestCase
 	{
 		$html = $this->detail( $this->booking( 'pending_payment' ) );
 
-		$this->assertStringContainsString( 'Awaiting payment', $html );
+		$this->assertStringContainsString( esc_html( Status::get_label( 'pending_payment' ) ), $html, 'The status tag says it.' );
+		$this->assertStringNotContainsString( 'rvs-account-detail__payline', $html, 'The payment line would repeat the tag.' );
 		$this->assertStringNotContainsString( 'Deposit paid', $html );
 		$this->assertStringNotContainsString( 'Payment received', $html );
 		$this->assertStringNotContainsString( 'is refunded', $html, 'Nothing was paid, so nothing is promised back.' );

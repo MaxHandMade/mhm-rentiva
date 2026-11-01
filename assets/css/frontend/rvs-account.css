@@ -654,7 +654,7 @@
 }
 
 /* Too narrow for the table: each row is a raised card -- car and status, then
-   "no · dates · amount"; the whole card is the link (Hesabim-Mobil). */
+   "no, dates, amount" (spaced, no dots); the whole card is the link (Hesabim-Mobil). */
 @container rvs-list (max-width: 700px) {
 	.rvs-shell .rvs-account-bookings__table thead {
 		position: absolute;
@@ -678,7 +678,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 4px 8px;
+		gap: 4px 12px;
 		margin-bottom: var(--rvs-s2);
 		padding: 14px 15px;
 		border: 0;
@@ -732,17 +732,12 @@
 		font-size: 14px;
 	}
 
-	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__dates::before,
-	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__amount::before {
-		content: "· ";
-	}
-
 	.rvs-shell .rvs-account-bookings__table td.rvs-account-bookings__action {
 		order: 5;
 	}
 
 	/* Payment history cards: car and number, status; then
-	   "date · type · method · amount"; the receipt control last. */
+	   "date, type, method, amount" (spaced, no dots); the receipt control last. */
 
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__booking {
 		display: flex;
@@ -762,21 +757,9 @@
 		font-size: 14px;
 	}
 
-	/* The dot trails the cell before it, so a hidden date or method never
-	   leaves the line starting with one. */
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__date::after,
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__type::after,
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__method::after {
-		content: " ·";
-	}
-
-	/* The amount cell also carries the bookings card's class, whose leading dot
-	   would double the method's trailing one. An empty cell has no value to
-	   separate. */
-	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__amount::before {
-		content: none;
-	}
-
+	/* No dot between values: each is its own flex item, the gap separates them, so a
+	   wrap can never leave a dot hanging at the start or end of a line. An empty
+	   cell has no value to show. */
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__date:empty,
 	.rvs-shell .rvs-account-payments__table td.rvs-account-payments__method:empty {
 		display: none;
