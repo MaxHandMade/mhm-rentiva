@@ -10,7 +10,7 @@
  * load. A day's selected look is set here, also after a month change: the server
  * draws every day unselected, the buttons' aria-pressed tells which are chosen.
  *
- * Config: window.mhmRentivaAvailability = { ajax_url, nonce, strings: { error, loading, pickReturn } }.
+ * Config: window.mhmRentivaAvailability = { ajax_url, nonce, strings: { error, loading, pickReturn, selected } }.
  */
 ( function ( $ ) {
 	'use strict';
@@ -67,6 +67,16 @@
 			const date = this.getAttribute( 'data-date' );
 			const chosen = '' !== state.start && date >= state.start && date <= last;
 			this.setAttribute( 'aria-pressed', chosen ? 'true' : 'false' );
+			// The server's label names the button and outranks anything inside it,
+			// so "Selected" joins the label; it comes off when the day is released.
+			if ( ! this.hasAttribute( 'data-rvs-cal-label' ) ) {
+				this.setAttribute( 'data-rvs-cal-label', this.getAttribute( 'aria-label' ) || '' );
+			}
+			const label = this.getAttribute( 'data-rvs-cal-label' );
+			const selected = t( 'selected' );
+			if ( label ) {
+				this.setAttribute( 'aria-label', chosen && selected ? label + ', ' + selected : label );
+			}
 			$( this ).closest( '.rvs-cal__day' )
 				.toggleClass( 'is-selected', chosen )
 				.toggleClass( 'is-available', ! chosen )
@@ -78,13 +88,16 @@
 	/**
 	 * The whole panel, drawn from the state: nothing of an older answer survives.
 	 * Stops at the first line that applies, so an error wins over a status.
+	 * A good quote shows no message: the live region then holds its summary,
+	 * for screen readers only, because the same facts are on screen above it.
 	 */
 	function renderPanel( $root, state ) {
 		const quote = state.quote;
+		const error = state.loadError || state.error;
 		let notice = '';
 		let isError = false;
-		if ( state.error ) {
-			notice = state.error;
+		if ( error ) {
+			notice = error;
 			isError = true;
 		} else if ( state.quoting ) {
 			notice = t( 'loading' );
@@ -105,12 +118,15 @@
 		$root.find( '[data-rvs-cal-range]' ).text( range );
 		$root.find( '[data-rvs-cal-time]' ).text( time );
 		// Server HTML (PriceDisplay), like the months.
-		$root.find( '[data-rvs-cal-total]' ).html( total );
+		const $total = $root.find( '[data-rvs-cal-total]' ).html( total );
 
+		const summary = notice ? '' : [ range, total ? $total.text() : '' ].filter( Boolean ).join( ' · ' );
+		const spoken = notice || summary;
 		const $message = $root.find( '[data-rvs-cal-message]' );
-		if ( $message.text() !== notice ) {
-			$message.text( notice );
+		if ( $message.text() !== spoken ) {
+			$message.text( spoken );
 		}
+		$message.toggleClass( 'rvs-sr-only', '' !== summary );
 		if ( isError ) {
 			$message.attr( 'data-state', 'error' );
 		} else {
@@ -127,6 +143,18 @@
 		state.quote = null;
 		state.quoting = false;
 		state.error = '';
+		state.loadError = '';
+	}
+
+	// The answer is about the click just made: on a phone the panel is below the
+	// months, so it comes into view. No jump when it already shows.
+	function revealPanel( $root ) {
+		const panel = $root.find( '[data-rvs-cal-panel]' ).get( 0 );
+		if ( ! panel || typeof panel.scrollIntoView !== 'function' ) {
+			return;
+		}
+		const reduced = typeof window.matchMedia === 'function' && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		panel.scrollIntoView( { block: 'nearest', behavior: reduced ? 'instant' : 'smooth' } );
 	}
 
 	function requestQuote( $root, state ) {
@@ -135,6 +163,7 @@
 		state.quote = null;
 		state.quoting = true;
 		state.error = '';
+		state.loadError = '';
 		renderPanel( $root, state );
 
 		post(
@@ -151,6 +180,7 @@
 				state.quoting = false;
 				state.quote = data;
 				renderPanel( $root, state );
+				revealPanel( $root );
 			},
 			function ( message ) {
 				if ( seq !== state.quoteSeq ) {
@@ -159,6 +189,7 @@
 				state.quoting = false;
 				state.error = message || t( 'error' );
 				renderPanel( $root, state );
+				revealPanel( $root );
 			}
 		);
 	}
@@ -167,6 +198,7 @@
 		if ( state.start && ! state.end && date === state.start ) {
 			// The same day again: it stays the start, there is still no range.
 			state.error = '';
+			state.loadError = '';
 		} else if ( state.start && ! state.end && date > state.start ) {
 			state.end = date;
 			markSelection( $root, state );
@@ -225,7 +257,8 @@
 					return;
 				}
 				applyMonths( $root, state, data );
-				state.error = '';
+				// Only a months failure ends here: a quote's error still stands.
+				state.loadError = '';
 				renderPanel( $root, state );
 			},
 			function ( message ) {
@@ -233,7 +266,7 @@
 					return;
 				}
 				state.target = state.month;
-				state.error = message || t( 'error' );
+				state.loadError = message || t( 'error' );
 				renderPanel( $root, state );
 			},
 			function () {
@@ -291,7 +324,7 @@
 			state.switching = false;
 			$root.removeAttr( 'aria-busy' );
 			if ( failed || ! card || ! months || false === card.bookable ) {
-				state.error = failure || t( 'error' );
+				state.loadError = failure || t( 'error' );
 				renderPanel( $root, state );
 				return;
 			}
@@ -379,6 +412,7 @@
 			quoteSeq: 0,
 			monthSeq: 0,
 			error: '',
+			loadError: '',
 			switching: false,
 		};
 		$root.data( STATE, state );

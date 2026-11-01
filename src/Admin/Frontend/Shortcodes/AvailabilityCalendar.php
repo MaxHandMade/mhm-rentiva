@@ -93,6 +93,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			'error'      => __( 'Something went wrong. Please try again.', 'mhm-rentiva' ),
 			'loading'    => __( 'Loading...', 'mhm-rentiva' ),
 			'pickReturn' => __( 'Now choose your return date.', 'mhm-rentiva' ),
+			'selected'   => __( 'Selected', 'mhm-rentiva' ),
 		);
 	}
 

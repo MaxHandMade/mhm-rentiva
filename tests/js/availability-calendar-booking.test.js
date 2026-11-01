@@ -109,7 +109,7 @@ describe( 'availability calendar: selection, panel and months', () => {
 		window.mhmRentivaAvailability = {
 			ajax_url: '/wp-admin/admin-ajax.php',
 			nonce: 'n',
-			strings: { error: 'ERR', loading: 'LOADING', pickReturn: 'PICK RETURN' },
+			strings: { error: 'ERR', loading: 'LOADING', pickReturn: 'PICK RETURN', selected: 'SELECTED' },
 		};
 		require( '../../assets/js/frontend/rvs-dialog.js' );
 		document.body.innerHTML = '';
@@ -177,7 +177,10 @@ describe( 'availability calendar: selection, panel and months', () => {
 		expect( total().querySelector( '.amount' ).textContent ).toBe( '₺100' );
 		expect( bookLink().hidden ).toBe( false );
 		expect( bookLink().getAttribute( 'href' ) ).toBe( QUOTE.continue_url );
-		expect( message() ).toBe( '' );
+		expect( message() ).toBe( `${ QUOTE.range_label } · ₺100` );
+		expect( q( '[data-rvs-cal-message]' ).classList.contains( 'rvs-sr-only' ) ).toBe( true );
+		expect( q( '[data-rvs-cal-message]' ).children ).toHaveLength( 0 );
+		expect( q( '[data-rvs-cal-message]' ).hasAttribute( 'data-state' ) ).toBe( false );
 		expect( cell( '2026-11-10' ).classList.contains( 'is-range-start' ) ).toBe( true );
 		expect( cell( '2026-11-11' ).classList.contains( 'is-range-end' ) ).toBe( true );
 	} );
@@ -287,6 +290,145 @@ describe( 'availability calendar: selection, panel and months', () => {
 		expect( bookLink().hidden ).toBe( false );
 		expect( bookLink().getAttribute( 'href' ) ).toBe( QUOTE.continue_url );
 		expect( q( '[data-rvs-cal-range]' ).textContent ).toBe( QUOTE.range_label );
+	} );
+
+	test( 'live_summary_leaves_the_total_out_with_pricing_off', () => {
+		boot( { pricing: '0' } );
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		ok( calls[ 0 ], QUOTE );
+
+		expect( message() ).toBe( QUOTE.range_label );
+		expect( message() ).not.toContain( '₺' );
+	} );
+
+	test( 'a_visible_message_after_a_summary_is_visible_again', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		ok( calls[ 0 ], QUOTE );
+		pick( '2026-11-14' );
+
+		expect( message() ).toBe( 'PICK RETURN' );
+		expect( q( '[data-rvs-cal-message]' ).classList.contains( 'rvs-sr-only' ) ).toBe( false );
+	} );
+
+	describe( 'bringing the panel into view', () => {
+		let scroll;
+		const motion = ( reduced ) => {
+			window.matchMedia = jest.fn( ( query ) => ( { matches: reduced && query.includes( 'reduce' ) } ) );
+		};
+
+		beforeEach( () => {
+			scroll = jest.fn();
+			window.HTMLElement.prototype.scrollIntoView = scroll;
+		} );
+
+		afterEach( () => {
+			delete window.HTMLElement.prototype.scrollIntoView;
+			delete window.matchMedia;
+		} );
+
+		const quoted = () => {
+			boot();
+			pick( '2026-11-10' );
+			pick( '2026-11-11' );
+		};
+
+		test( 'after_the_quote_arrives_and_not_before', () => {
+			motion( false );
+			quoted();
+			expect( scroll ).not.toHaveBeenCalled();
+
+			ok( calls[ 0 ], QUOTE );
+
+			expect( scroll ).toHaveBeenCalledTimes( 1 );
+			expect( scroll.mock.instances[ 0 ] ).toBe( panel() );
+			expect( scroll ).toHaveBeenCalledWith( { block: 'nearest', behavior: 'smooth' } );
+		} );
+
+		test( 'instantly_under_reduced_motion', () => {
+			motion( true );
+			quoted();
+			ok( calls[ 0 ], QUOTE );
+
+			expect( scroll ).toHaveBeenCalledWith( { block: 'nearest', behavior: 'instant' } );
+		} );
+
+		test( 'a_stale_answer_moves_nothing', () => {
+			motion( false );
+			quoted();
+			const older = calls[ 0 ];
+			pick( '2026-11-14' );
+			ok( older, QUOTE );
+
+			expect( scroll ).not.toHaveBeenCalled();
+		} );
+
+		test( 'a_refused_range_comes_into_view_too', () => {
+			motion( false );
+			boot();
+			pick( '2026-11-10' );
+			pick( '2026-11-13' );
+			ok( calls[ 0 ], REFUSED );
+
+			expect( scroll ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		test( 'the_first_click_and_a_month_step_do_not_scroll', () => {
+			motion( false );
+			boot();
+			pick( '2026-11-10' );
+			click( q( '[data-rvs-cal-nav="1"]' ) );
+			ok( calls[ 0 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+			expect( scroll ).not.toHaveBeenCalled();
+		} );
+	} );
+
+	test( 'a_selected_day_says_so_in_its_name_and_stops_when_released', () => {
+		boot();
+		const button = () => q( '.rvs-cal__btn[data-date="2026-11-10"]' );
+		pick( '2026-11-10' );
+		expect( button().getAttribute( 'aria-label' ) ).toBe( '2026-11-10, Available, SELECTED' );
+
+		// Marked again after the months come back: never twice.
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		ok( calls[ 0 ], { html: NOVEMBER, prev_allowed: true, start_month: '2026-11' } );
+		expect( button().getAttribute( 'aria-label' ) ).toBe( '2026-11-10, Available, SELECTED' );
+
+		pick( '2026-11-10' ); // Stays the start.
+		expect( button().getAttribute( 'aria-label' ) ).toBe( '2026-11-10, Available, SELECTED' );
+
+		pick( '2026-11-11' ); // Range; the next click releases the old days.
+		pick( '2026-11-14' );
+		expect( button().getAttribute( 'aria-label' ) ).toBe( '2026-11-10, Available' );
+		expect( button().getAttribute( 'aria-pressed' ) ).toBe( 'false' );
+	} );
+
+	test( 'a_months_reload_keeps_a_showing_quote_error', () => {
+		boot();
+		pick( '2026-11-10' );
+		pick( '2026-11-11' );
+		refuse( calls[ 0 ], 'Too many price requests. Please wait.' );
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		ok( calls[ 1 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+		expect( message() ).toBe( 'Too many price requests. Please wait.' );
+		expect( q( '[data-rvs-cal-message]' ).getAttribute( 'data-state' ) ).toBe( 'error' );
+	} );
+
+	test( 'a_months_reload_ends_its_own_error', () => {
+		boot();
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		broken( calls[ 0 ] );
+		expect( message() ).toBe( 'ERR' );
+
+		click( q( '[data-rvs-cal-nav="1"]' ) );
+		ok( calls[ 1 ], { html: DECEMBER, prev_allowed: true, start_month: '2026-12' } );
+
+		expect( message() ).toBe( '' );
+		expect( panel().hidden ).toBe( true );
 	} );
 
 	test( 'show_booking_button_off_keeps_the_total', () => {
