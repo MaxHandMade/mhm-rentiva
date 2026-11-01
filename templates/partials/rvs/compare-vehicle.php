@@ -45,7 +45,7 @@ $mhmrentiva_cmp_image = (array) $column['image'];
 	<div class="rvs-compare__name-line">
 		<a class="rvs-compare__name" href="<?php echo esc_url( (string) $column['permalink']); ?>"><?php echo esc_html( (string) $column['title']); ?></a>
 		<?php if (! empty($show['remove'])) : ?>
-			<button type="button" class="rvs-btn rvs-btn--ghost rvs-compare__remove" data-rvs-cmp-remove data-vehicle-id="<?php echo esc_attr( (string) $column['id']); ?>" aria-label="<?php echo esc_attr( (string) $column['remove_label']); ?>"<?php echo ! empty($preview) ? ' disabled' : ''; ?>><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
+			<button type="button" class="rvs-btn rvs-btn--ghost rvs-compare__remove" data-rvs-cmp-remove data-vehicle-id="<?php echo esc_attr( (string) $column['id']); ?>" aria-label="<?php echo esc_attr( (string) $column['remove_label']); ?>"<?php echo ! empty($preview) ? ' disabled' : ''; ?>><?php echo esc_html_x('Remove', 'comparison: take this vehicle out', 'mhm-rentiva'); ?></button>
 		<?php endif; ?>
 	</div>
 
