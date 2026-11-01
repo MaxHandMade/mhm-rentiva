@@ -84,9 +84,7 @@
     }
   },
   "editorStyle": [
-    "mhm-rentiva-core-variables"
-  ],
-  "style": [
+    "mhm-rentiva-core-variables",
     "mhm-rentiva-rvs-comparison"
   ]
 }

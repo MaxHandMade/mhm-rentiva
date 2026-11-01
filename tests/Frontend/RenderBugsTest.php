@@ -246,7 +246,7 @@ final class RenderBugsTest extends WP_UnitTestCase
 				'innerBlocks'  => array(),
 			)
 		);
-		$this->assertMatchesRegularExpression('#^<div [^>]*style="height:420px"#', $html, 'The wrapper still carries the height.');
-		$this->assertSame(1, substr_count($html, 'style="height:420px"'), 'Exactly one style on the wrapper.');
+		$this->assertMatchesRegularExpression('#^<div [^>]*style="min-height:420px"#', $html, 'The wrapper still carries the height.');
+		$this->assertSame(1, substr_count($html, 'style="min-height:420px"'), 'Exactly one style on the wrapper.');
 	}
 }

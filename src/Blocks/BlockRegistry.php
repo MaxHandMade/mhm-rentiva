@@ -658,7 +658,7 @@ class BlockRegistry {
 		$wrapper_styles = array();
 
 		if ('' !== $height) {
-			$wrapper_styles[] = "height:$height";
+			$wrapper_styles[] = "min-height:$height";
 		}
 
 		if (! empty($wrapper_styles)) {
@@ -688,7 +688,7 @@ class BlockRegistry {
 
 
 	/**
-	 * The wrapper height: the calendar's `calendarHeight`, else a raw `height`.
+	 * The wrapper's minimum height: the calendar's `calendarHeight`, else a raw `height`.
 	 *
 	 * The editor writes `calendarHeight`; this used to read only `height`, so the
 	 * control never applied (spec 3A Task 6). A calendar saved before Gutenberg slice

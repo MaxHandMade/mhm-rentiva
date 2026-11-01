@@ -281,7 +281,7 @@ final class CalendarSettingsTest extends WP_UnitTestCase
 	private function wrapper_height(string $html): string
 	{
 		$this->assertSame(1, preg_match('/^<div\s+([^>]*)>/', trim($html), $m), 'No block wrapper.');
-		return preg_match('/height:\s*([^;"]+)/', $m[1], $h) ? trim($h[1]) : '';
+		return preg_match('/(?:^|[;"\s])min-height:\s*([^;"]+)/', $m[1], $h) ? trim($h[1]) : '';
 	}
 
 	/**

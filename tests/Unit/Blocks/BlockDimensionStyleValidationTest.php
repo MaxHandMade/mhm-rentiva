@@ -79,9 +79,9 @@ final class BlockDimensionStyleValidationTest extends WP_UnitTestCase
 	public function valid_dimension_provider(): array
 	{
 		return array(
-			'unitless numeric values become pixels' => array('height', '320', 'height:320px'),
-			'percentages remain percentages'         => array('height', '75%', 'height:75%'),
-			'rem lengths remain rem lengths'          => array('height', '12.5rem', 'height:12.5rem'),
+			'unitless numeric values become pixels' => array('height', '320', 'min-height:320px'),
+			'percentages remain percentages'         => array('height', '75%', 'min-height:75%'),
+			'rem lengths remain rem lengths'          => array('height', '12.5rem', 'min-height:12.5rem'),
 		);
 	}
 
