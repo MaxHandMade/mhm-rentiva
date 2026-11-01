@@ -978,8 +978,9 @@ final class AccountRenderer {
 					$sort_amount = 0.0;
 					$has_amount  = false;
 				} elseif ($has_expected) {
-					$amount_html = \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($expected)['html'];
-					$sort_amount = $expected;
+					$shown       = \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_cart($expected);
+					$amount_html = $shown['html'];
+					$sort_amount = $shown['amount'];
 					$has_amount  = true;
 				} else {
 					$amount_html = '';

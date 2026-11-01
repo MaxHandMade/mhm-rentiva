@@ -9,6 +9,7 @@ use MHMRentiva\Admin\Frontend\Account\BookingTimeline;
 use MHMRentiva\Tests\Support\RequestSimulator;
 use MHMRentiva\Tests\Support\ShortcodeFixtures;
 use MHMRentiva\Tests\Support\WooCommerceFixtures;
+use MHMRentiva\Tests\Support\WooCommerceOptionSandbox;
 use WP_UnitTestCase;
 
 /**
@@ -21,6 +22,7 @@ use WP_UnitTestCase;
 final class PaymentHistoryTruthTest extends WP_UnitTestCase
 {
 	use WooCommerceFixtures;
+	use WooCommerceOptionSandbox;
 
 	private int $user = 0;
 
@@ -36,6 +38,7 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 	public function tearDown(): void
 	{
 		remove_filter('mhmrentiva_shortcode_html_cache_enabled', '__return_false', 999);
+		$this->restore_sandboxed_options();
 		wp_set_current_user(0);
 		RequestSimulator::new_request();
 		parent::tearDown();
@@ -398,5 +401,51 @@ final class PaymentHistoryTruthTest extends WP_UnitTestCase
 		$this->assertStringContainsString(' + ', $row['amount_html']);
 		$this->assertSame(array( $full, $deposit_paid, $mixed ), $this->sorted_ids('asc'));
 		$this->assertSame(array( $deposit_paid, $full, $mixed ), $this->sorted_ids('desc'));
+	}
+
+	/**
+	 * Prices entered ex tax, cart shows incl. tax (20%): an unpaid 3900 row
+	 * displays 4680, so it sorts as 4680 -- above a paid row recorded at 4560 (3800 + 20%), not below it.
+	 */
+	public function test_amount_sort_uses_the_tax_inclusive_expected_amount(): void
+	{
+		$this->require_woocommerce();
+		$this->sandbox_option('woocommerce_calc_taxes', 'yes');
+		$this->sandbox_option('woocommerce_prices_include_tax', 'no');
+		$this->sandbox_option('woocommerce_tax_based_on', 'base');
+		$this->sandbox_option('woocommerce_default_customer_address', 'base');
+		$this->sandbox_option('woocommerce_tax_display_cart', 'incl');
+		$rate_id = (int) \WC_Tax::_insert_tax_rate(
+			array(
+				'tax_rate_country'  => '',
+				'tax_rate_state'    => '',
+				'tax_rate'          => '20.0000',
+				'tax_rate_name'     => 'VAT',
+				'tax_rate_priority' => 1,
+				'tax_rate_compound' => 0,
+				'tax_rate_shipping' => 1,
+				'tax_rate_order'    => 1,
+				'tax_rate_class'    => '',
+			)
+		);
+
+		try {
+			$unpaid = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'pending_payment', '3900');
+			update_post_meta($unpaid, '_mhmrentiva_payment_status', 'pending');
+			update_post_meta($unpaid, '_mhmrentiva_payment_type', 'full');
+
+			$paid = ShortcodeFixtures::booking($this->user, ShortcodeFixtures::vehicle(), 'confirmed', '3800');
+			update_post_meta($paid, '_mhmrentiva_payment_type', 'full');
+			$this->create_paid_order_for_booking($paid, '3800');
+
+			$row = $this->row($unpaid);
+			$this->assertEqualsWithDelta(4680.0, (float) $row['amount'], 0.01, 'The sort figure is the one the row shows.');
+			$this->assertStringContainsString('4,680', wp_strip_all_tags($row['amount_html']));
+			$this->assertEqualsWithDelta(4560.0, (float) $this->row($paid)['amount'], 0.01);
+			$this->assertSame(array( $paid, $unpaid ), $this->sorted_ids('asc'));
+			$this->assertSame(array( $unpaid, $paid ), $this->sorted_ids('desc'));
+		} finally {
+			\WC_Tax::_delete_tax_rate($rate_id);
+		}
 	}
 }
