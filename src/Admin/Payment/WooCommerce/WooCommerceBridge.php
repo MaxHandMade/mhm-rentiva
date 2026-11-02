@@ -72,9 +72,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// The list is only what is shown; these refuse on every classic entry.
 		add_action('woocommerce_after_checkout_validation', array( self::class, 'refuse_cash_on_delivery_at_checkout' ), 20, 2);
 		add_action('woocommerce_before_pay_action', array( self::class, 'refuse_cash_on_delivery_on_pay' ), 5, 1);
-		// REST: only the Store API order-pay route leaves the list alone.
-		add_filter('rest_request_before_callbacks', array( self::class, 'enter_rest_request' ), 10, 3);
-		add_filter('rest_request_after_callbacks', array( self::class, 'leave_rest_request' ), 10, 1);
+		// A refused classic order-pay keeps no COD method (WooCommerce saves it
+		// before it counts the notices).
+		add_action('woocommerce_after_pay_action', array( self::class, 'forget_refused_cash_on_delivery' ), 10, 1);
 		add_filter('woocommerce_no_available_payment_methods_message', array( self::class, 'no_payment_methods_message' ), 10, 1);
 		// Classic checkout: billing field labels in the error notices.
 		add_action('woocommerce_checkout_process', array( self::class, 'open_field_label_window' ), 5, 0);
@@ -2372,12 +2372,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * The list only shapes what is shown; refusals on every entry decide
 	 * (refuse_cash_on_delivery_at_checkout(), refuse_cash_on_delivery_on_pay(),
-	 * store_api_order_processed()). In REST the cart rule holds on every route
-	 * except the Store API order-pay route (serving_store_api_order_pay()):
-	 * that one pays an existing order with a list built from the session's
-	 * cart, so its order hook decides for the order actually paid, and a shop
-	 * order there is never touched, whatever the cart holds (Codex PR K
-	 * delta7, Fable delta8 1).
+	 * store_api_order_processed()). In any REST request (wp_is_rest_endpoint())
+	 * the list is left alone: the Store API builds it from the session's cart
+	 * even when it pays another order, and telling its routes apart from REST
+	 * state proved fragile (Codex PR K delta9: a caught inner exception, an
+	 * upper-case route). There the order hook decides for the order actually
+	 * paid, on both routes, and a shop order is never touched.
+	 *
+	 * Accepted cost (ruling, delta9): with the classic cart and checkout swap
+	 * turned off, the Checkout block's REST refreshes list COD for a rental,
+	 * and choosing it is refused with the COD message. The product's own path
+	 * is the classic checkout, so this is a fallback only.
 	 *
 	 * @param mixed $gateways The available gateways, by id.
 	 * @return mixed
@@ -2390,7 +2395,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if (! is_array($gateways) || ! isset($gateways['cod'])) {
 			return $gateways;
 		}
-		if (self::serving_store_api_order_pay()) {
+		if (function_exists('wp_is_rest_endpoint') && wp_is_rest_endpoint()) {
 			return $gateways;
 		}
 
@@ -2416,67 +2421,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	private static bool $cod_was_the_only_gateway = false;
 
 	/**
-	 * One entry per REST request being served, innermost last: is it the Store
-	 * API order-pay route? Pushed on rest_request_before_callbacks, popped on
-	 * rest_request_after_callbacks, so nested requests stack.
-	 *
-	 * @var list<bool>
-	 */
-	private static array $rest_order_pay = array();
-
-	/**
-	 * Is the request being served the Store API order-pay route, POST
-	 * /wc/store(/v1)/checkout/{id}? Only there is the gateway list left alone:
-	 * that route pays an existing order but builds the list from the session's
-	 * cart, and the order hook decides for the order actually paid
-	 * (store_api_order_processed()). Every other REST route -- the Checkout
-	 * block's cart refreshes among them -- keeps the cart rule (Fable PR K
-	 * delta8 1). The route is recognised, never its id. A stale entry left by
-	 * an exception only loosens the list; the refusals on every entry
-	 * (refuse_cash_on_delivery_at_checkout(), refuse_cash_on_delivery_on_pay(),
-	 * the order hook) still decide.
-	 */
-	private static function serving_store_api_order_pay(): bool
-	{
-		if (array() === self::$rest_order_pay || ! function_exists('wp_is_rest_endpoint') || ! wp_is_rest_endpoint()) {
-			return false;
-		}
-
-		return true === end(self::$rest_order_pay);
-	}
-
-	/**
-	 * On rest_request_before_callbacks, push whether this request is the Store API
-	 * order-pay route.
-	 *
-	 * @param mixed $response The response so far.
-	 * @param mixed $handler  The route handler.
-	 * @param mixed $request  The request.
-	 * @return mixed The response, untouched.
-	 */
-	public static function enter_rest_request($response, $handler, $request)
-	{
-		self::$rest_order_pay[] = $request instanceof \WP_REST_Request
-			&& 'POST' === $request->get_method()
-			&& 1 === preg_match('#^/wc/store(?:/v1)?/checkout/\d+/?$#', (string) $request->get_route());
-
-		return $response;
-	}
-
-	/**
-	 * On rest_request_after_callbacks, pop what enter_rest_request() pushed.
-	 *
-	 * @param mixed $response The response.
-	 * @return mixed The response, untouched.
-	 */
-	public static function leave_rest_request($response)
-	{
-		array_pop(self::$rest_order_pay);
-
-		return $response;
-	}
-
-	/**
 	 * Classic checkout, whatever the gateway list says: a rental cart paid
 	 * with cash on delivery is refused in validation, before WooCommerce calls
 	 * any gateway (Codex PR K delta8: the list is only what is shown; an
@@ -2491,6 +2435,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 		if (self::cart_has_booking()) {
+			// WooCommerce's own "Invalid payment method." (COD not in the list)
+			// would stand next to ours: one error, the one that says why
+			// (Fable PR K delta9 2).
+			$errors->remove('payment');
 			$errors->add('payment', __('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'));
 		}
 	}
@@ -2519,6 +2467,33 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 		wc_add_notice(__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'), 'error');
+		self::$cod_refused_pay_order = (int) $order->get_id();
+	}
+
+	/**
+	 * The order refuse_cash_on_delivery_on_pay() refused on this request; 0 for none.
+	 */
+	private static int $cod_refused_pay_order = 0;
+
+	/**
+	 * After a refused classic order-pay (woocommerce_after_pay_action, which
+	 * WC_Form_Handler::pay_action() reaches when no payment went through):
+	 * WooCommerce set the order's method to COD and saved it before it counted
+	 * the notices, and RentalMoneyLabels would read it as "pay at pickup". That
+	 * order only gets its method and title cleared (Codex PR K delta9 3).
+	 *
+	 * @param mixed $order The order the form was for.
+	 */
+	public static function forget_refused_cash_on_delivery($order): void
+	{
+		$refused                     = self::$cod_refused_pay_order;
+		self::$cod_refused_pay_order = 0;
+		if (0 === $refused || ! $order instanceof \WC_Order || $refused !== (int) $order->get_id()) {
+			return;
+		}
+		$order->set_payment_method('');
+		$order->set_payment_method_title('');
+		$order->save();
 	}
 
 	/**
