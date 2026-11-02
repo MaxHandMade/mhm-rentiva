@@ -1397,6 +1397,7 @@ final class BookingForm extends AbstractShortcode {
 					'deposit_amount'        => $deposit_result['deposit_amount'],
 					'remaining_amount'      => $deposit_result['remaining_amount'],
 					'deposit_type'          => $deposit_result['deposit_type'],
+					'deposit_percentage'    => $deposit_result['deposit_percentage'] ?? 0,
 					'payment_display'       => $deposit_result['payment_display'],
 					'total_price'           => $deposit_result['total_amount'],
 					'rental_days'           => $days,

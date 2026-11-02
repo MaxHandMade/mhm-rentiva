@@ -56,6 +56,7 @@ final class CheckoutJourney {
 		add_filter('body_class', array( self::class, 'body_class' ));
 		add_filter('pre_render_block', array( self::class, 'pre_render_block' ), 10, 2);
 		add_filter('wp_resource_hints', array( self::class, 'resource_hints' ), 11, 2);
+		RentalMoneyLabels::register();
 	}
 
 	/**
@@ -103,7 +104,7 @@ final class CheckoutJourney {
 	 * carries no snapshot, only the order's own `_mhmrentiva_is_remaining_payment`
 	 * and `_mhmrentiva_booking_id` (RemainingPaymentHandler).
 	 */
-	private static function is_rental_order(\WC_Order $order): bool
+	public static function is_rental_order(\WC_Order $order): bool
 	{
 		if (null !== self::order_rental_data($order)) {
 			return true;
@@ -239,7 +240,7 @@ final class CheckoutJourney {
 
 		self::render_journey(
 			$order->has_status('failed') ? 2 : 3,
-			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link, $summary_link)
+			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link, $summary_link, RentalMoneyLabels::order_state($order))
 		);
 	}
 
@@ -375,12 +376,8 @@ final class CheckoutJourney {
 	 * @param array<string, mixed> $snap Cart or order line booking data.
 	 * @return array{summary: array<string, mixed>}
 	 */
-	private static function summary_vars(array $snap, string $heading, string $link, string $summary_link = ''): array
+	private static function summary_vars(array $snap, string $heading, string $link, string $summary_link = '', string $state = RentalMoneyLabels::STATE_DUE): array
 	{
-		$total   = (float) ( $snap['total_price'] ?? 0 );
-		$deposit = 'full' === (string) ( $snap['payment_type'] ?? '' ) ? 0.0 : (float) ( $snap['deposit_amount'] ?? 0 );
-		$rate    = $total > 0 ? $deposit / $total * 100 : 0.0;
-
 		$vehicle_id = (int) ( $snap['vehicle_id'] ?? 0 );
 
 		return array(
@@ -389,11 +386,46 @@ final class CheckoutJourney {
 				'title'     => $vehicle_id > 0 ? get_the_title($vehicle_id) : '',
 				'image_id'  => $vehicle_id > 0 ? (int) get_post_thumbnail_id($vehicle_id) : 0,
 				'dates'     => self::window_text($snap),
-				'breakdown' => RvsBreakdown::from_quote(self::quote_from_snapshot($snap), $deposit, self::addon_rows($snap), $rate),
+				'breakdown' => self::breakdown_of($snap, $state),
 				'link'      => $link,
 				'summary'   => $summary_link,
+				'paid'      => RentalMoneyLabels::STATE_PAID === $state,
 			),
 		);
+	}
+
+	/**
+	 * The snapshot's breakdown, its deposit row named after how the money stands.
+	 * The rate is the snapshot's own: the setting may have changed since.
+	 *
+	 * @param array<string, mixed> $snap Cart or order line booking data.
+	 * @return array<string, mixed> RvsBreakdown::from_quote().
+	 */
+	public static function breakdown_of(array $snap, string $state = RentalMoneyLabels::STATE_DUE): array
+	{
+		$deposit = 'full' === (string) ( $snap['payment_type'] ?? '' ) ? 0.0 : (float) ( $snap['deposit_amount'] ?? 0 );
+		$rate    = (float) ( $snap['deposit_percentage'] ?? 0 );
+
+		$breakdown = RvsBreakdown::from_quote(self::quote_from_snapshot($snap), $deposit, self::addon_rows($snap), $rate);
+		if (null !== $breakdown['deposit']) {
+			$breakdown['deposit']['label'] = RentalMoneyLabels::deposit_label($state, $rate);
+		}
+
+		return $breakdown;
+	}
+
+	/**
+	 * Does this rental order charge a deposit now and leave the rest for pickup?
+	 * A remaining-payment order carries no snapshot and does not.
+	 */
+	public static function order_is_split(\WC_Order $order): bool
+	{
+		$snap = self::order_rental_data($order);
+		if (null === $snap) {
+			return false;
+		}
+
+		return null !== self::breakdown_of($snap)['deposit'];
 	}
 
 	/**

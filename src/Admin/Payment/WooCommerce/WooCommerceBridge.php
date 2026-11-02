@@ -17,6 +17,7 @@ use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Payment\Core\Money;
 use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
 use MHMRentiva\Admin\Payment\Core\PaymentState;
+use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 
@@ -581,7 +582,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				if ($remaining_amount > 0) {
 					$item_data[] = array(
 						'key'   => esc_html__('Remaining Amount', 'mhm-rentiva'),
-						'value' => wp_kses_post(wc_price($remaining_amount)),
+						'value' => self::cart_money($remaining_amount),
 					);
 				}
 			}
@@ -633,7 +634,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			foreach (self::rental_addon_lines($booking_data) as $line) {
 				$item_data[] = array(
 					'key'   => esc_html($line['title']),
-					'value' => wp_kses_post(wc_price($line['line_total'])),
+					'value' => self::cart_money( (float) $line['line_total']),
 				);
 			}
 
@@ -652,7 +653,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				if ($remaining_amount > 0) {
 					$item_data[] = array(
 						'key'   => __('Remaining Amount', 'mhm-rentiva'),
-						'value' => wp_kses_post(wc_price($remaining_amount)),
+						'value' => self::cart_money($remaining_amount),
 					);
 				}
 			}
@@ -2090,59 +2091,53 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// Nothing left for pickup: no deposit applies, the only choice is to pay in full.
+		if ($total_remaining_amount <= 0) {
+			$current_payment_type = 'full';
+		}
+
 		?>
-		<div id="mhm-booking-payment-type" class="mhm-checkout-payment-type">
+		<div id="mhm-booking-payment-type" class="mhm-checkout-payment-type rvs-shell">
 			<h3>
 				<?php echo esc_html__('Payment Options', 'mhm-rentiva'); ?>
 			</h3>
 
-			<div class="mhm-payment-type-options">
-				<label class="mhm-payment-type-option <?php echo $current_payment_type === 'deposit' ? 'selected' : ''; ?>">
-					<input type="radio"
-						name="mhmrentiva_booking_payment_type"
-						value="deposit"
-						<?php checked($current_payment_type, 'deposit'); ?>
-						data-amount="<?php echo esc_attr($total_deposit_amount); ?>">
-					<div class="mhm-payment-type-option-content">
-						<strong class="mhm-payment-type-option-title">
-							<?php echo esc_html__('Deposit Payment', 'mhm-rentiva'); ?>
-						</strong>
-						<small class="mhm-payment-type-option-description">
-							<?php echo esc_html__('Pay deposit for booking, pay remaining amount at vehicle delivery', 'mhm-rentiva'); ?>
-						</small>
-						<div class="mhm-payment-type-option-price">
-							<span class="mhm-payment-amount"><?php echo wp_kses_post(wc_price($total_deposit_amount)); ?></span>
-							<?php if ($total_remaining_amount > 0) : ?>
-								<div class="mhm-payment-type-option-price-remaining">
-									<span class="mhm-remaining-label"><?php echo esc_html__('Remaining:', 'mhm-rentiva'); ?></span>
-									<span class="mhm-remaining-value"><?php echo wp_kses_post(wc_price($total_remaining_amount)); ?></span>
-								</div>
-							<?php endif; ?>
-						</div>
-					</div>
-				</label>
+			<div class="rvs-payment-type__options">
+				<?php if ($total_remaining_amount > 0) : ?>
+					<label class="rvs-option <?php echo 'deposit' === $current_payment_type ? 'rvs-option--selected' : ''; ?>" data-rvs-payment-option>
+						<input type="radio"
+							name="mhmrentiva_booking_payment_type"
+							value="deposit"
+							<?php checked($current_payment_type, 'deposit'); ?>
+							data-amount="<?php echo esc_attr($total_deposit_amount); ?>">
+						<span class="rvs-option__body">
+							<strong class="rvs-option__title"><?php echo esc_html__('Deposit Payment', 'mhm-rentiva'); ?></strong>
+							<span class="rvs-option__desc">
+								<?php echo esc_html__('Pay deposit for booking, pay remaining amount at vehicle delivery', 'mhm-rentiva'); ?>
+								<span class="rvs-payment-type__remaining">
+									<?php echo esc_html__('Remaining:', 'mhm-rentiva'); ?>
+									<?php echo wp_kses(self::cart_money($total_remaining_amount), PriceDisplay::allowed_html()); ?>
+								</span>
+							</span>
+						</span>
+						<span class="rvs-option__price"><?php echo wp_kses(self::cart_money($total_deposit_amount), PriceDisplay::allowed_html()); ?></span>
+					</label>
+				<?php endif; ?>
 
-				<label class="mhm-payment-type-option <?php echo $current_payment_type === 'full' ? 'selected' : ''; ?>">
+				<label class="rvs-option <?php echo 'full' === $current_payment_type ? 'rvs-option--selected' : ''; ?>" data-rvs-payment-option>
 					<input type="radio"
 						name="mhmrentiva_booking_payment_type"
 						value="full"
 						<?php checked($current_payment_type, 'full'); ?>
 						data-amount="<?php echo esc_attr($total_full_price); ?>">
-					<div class="mhm-payment-type-option-content">
-						<strong class="mhm-payment-type-option-title">
-							<?php echo esc_html__('Full Payment', 'mhm-rentiva'); ?>
-						</strong>
-						<small class="mhm-payment-type-option-description">
-							<?php echo esc_html__('Pay full amount now', 'mhm-rentiva'); ?>
-						</small>
-						<div class="mhm-payment-type-option-price">
-							<?php echo wp_kses_post(wc_price($total_full_price)); ?>
-						</div>
-					</div>
+					<span class="rvs-option__body">
+						<strong class="rvs-option__title"><?php echo esc_html__('Full Payment', 'mhm-rentiva'); ?></strong>
+						<span class="rvs-option__desc"><?php echo esc_html__('Pay full amount now', 'mhm-rentiva'); ?></span>
+					</span>
+					<span class="rvs-option__price"><?php echo wp_kses(self::cart_money($total_full_price), PriceDisplay::allowed_html()); ?></span>
 				</label>
 			</div>
 		</div>
-
 
 		<?php
 		// Selector behavior is enqueued as assets/js/frontend/checkout-payment-type.js.
@@ -2507,6 +2502,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * A booking amount on the cart and checkout, as the rental's breakdown shows it.
+	 */
+	private static function cart_money(float $amount): string
+	{
+		return wp_kses(PriceDisplay::for_cart($amount)['html'], PriceDisplay::allowed_html());
+	}
+
+	/**
 	 * A price for an order line's meta: text, with the symbol as a character.
 	 *
 	 * Order meta is shown as stored; a plain-text email strips tags and a stored
@@ -2514,7 +2517,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	private static function order_meta_price(float $amount): string
 	{
-		return html_entity_decode(wp_strip_all_tags(wc_price($amount)), ENT_QUOTES, 'UTF-8');
+		return html_entity_decode(wp_strip_all_tags(PriceDisplay::for_cart($amount)['html']), ENT_QUOTES, 'UTF-8');
 	}
 
 	/**

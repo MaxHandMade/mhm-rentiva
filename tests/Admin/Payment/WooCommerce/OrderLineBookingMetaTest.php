@@ -311,7 +311,7 @@ final class OrderLineBookingMetaTest extends WP_UnitTestCase
 			$by_key[ self::label($row['key']) ] = (string) $row['value'];
 		}
 		$this->assertArrayHasKey('Full Insurance', $by_key);
-		$this->assertSame(wp_kses_post(wc_price(25.0)), $by_key['Full Insurance']);
+		$this->assertSame(MHMRentivaAdminBookingPricingPriceDisplay::for_cart(25.0)['html'], $by_key['Full Insurance']);
 	}
 
 	public function test_lite_leaves_a_transfers_add_ons_to_the_add_on(): void
