@@ -206,6 +206,12 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 
 		$this->assertNotSame('', (string) $found['price_html']);
 		$this->assertSame(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url(), $found['image'], 'No featured image: the booking form\'s placeholder.');
+
+		// The box's markup: the page's own partial, one link per suggestion.
+		$html = (string) ( $data['alternatives_html'] ?? '' );
+		$this->assertSame(count($data['alternatives']), preg_match_all('/<a [^>]*class="rvs-btn rvs-btn--ghost rvs-vd__alt-link"/', $html));
+		$this->assertStringContainsString('href="' . esc_url($link) . '"', $html);
+		$this->assertStringContainsString('Renault Clio', $html);
 	}
 
 	public function test_quote_suggests_at_most_two_vehicles(): void
@@ -218,6 +224,7 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$data = $this->quote()['data'] ?? array();
 
 		$this->assertCount(2, $data['alternatives'] ?? array());
+		$this->assertSame(2, substr_count( (string) ( $data['alternatives_html'] ?? '' ), 'class="rvs-vd__alt"'));
 	}
 
 	public function test_quote_for_a_free_car_carries_no_alternatives(): void
@@ -228,6 +235,7 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 
 		$this->assertTrue($data['available']);
 		$this->assertSame(array(), $data['alternatives'] ?? null);
+		$this->assertSame('', $data['alternatives_html'] ?? null);
 	}
 
 	public function test_quote_refused_by_a_booking_rule_carries_no_alternatives(): void

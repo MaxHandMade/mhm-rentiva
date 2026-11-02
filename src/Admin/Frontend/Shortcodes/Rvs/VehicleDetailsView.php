@@ -5,16 +5,19 @@ namespace MHMRentiva\Admin\Frontend\Shortcodes\Rvs;
 
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\Booking\Helpers\Util;
+use MHMRentiva\Admin\Booking\Pricing\PriceDisplay;
 use MHMRentiva\Admin\Booking\Pricing\RentalPricing;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\LocationContext;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+use MHMRentiva\Admin\Frontend\Shortcodes\Card\AlternativeVehicles;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView;
 use MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks;
 use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
 use MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 use MHMRentiva\Admin\Vehicle\Helpers\RatingHelper;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 
@@ -49,6 +52,10 @@ final class VehicleDetailsView {
 		$category = self::category($vehicle_id);
 		$rating   = RatingHelper::get_rating($vehicle_id);
 		$window   = self::window($window);
+		$booking  = self::booking($vehicle_id, $atts, $window);
+		// A page opened with taken dates (from search) suggests free vehicles on
+		// first load, as the quote does after a change.
+		$booking['alternatives'] = self::alternatives($vehicle_id, $booking, $window);
 
 		return array(
 			'uid'         => wp_unique_id('rvs-vd-'),
@@ -76,7 +83,7 @@ final class VehicleDetailsView {
 			'conditions'  => self::conditions($vehicle_id),
 			'months'      => self::months($vehicle_id, $window['pickup_date'], $window),
 			'reviews'     => self::reviews($vehicle_id, $rating),
-			'booking'     => self::booking($vehicle_id, $atts, $window),
+			'booking'     => $booking,
 		);
 	}
 
@@ -227,6 +234,59 @@ final class VehicleDetailsView {
 			// "Pickup and return: X" -- the car's point, '' without one.
 			'pickup_return' => null !== $location ? (string) $location->name : '',
 		);
+	}
+
+	/**
+	 * Owner request (2026-11-02): up to two free vehicles for a window the car is
+	 * booked on, as the booking form suggests them (the same finder, page link
+	 * and specs line), plus what the card's compact row shows: an image (the
+	 * booking form's placeholder without one) and the daily price the rvs cards
+	 * show. Empty when the car is free or a booking rule refused the dates.
+	 * The page's first render and the quote endpoint both call it.
+	 *
+	 * @param array<string, mixed>  $booking self::booking().
+	 * @param array<string, string> $window  Completed window (self::window()).
+	 * @return list<array{id: int, title: string, image: string, specs: string, price_html: string, permalink: string}>
+	 */
+	public static function alternatives(int $vehicle_id, array $booking, array $window): array
+	{
+		if (! empty($booking['available']) || 'unavailable' !== ( $booking['code'] ?? '' )) {
+			return array();
+		}
+
+		// The return is at the pickup time (the card has no return time field).
+		$result = Util::check_availability_with_alternatives($vehicle_id, $window['pickup_date'], $window['pickup_time'], $window['return_date'], $window['pickup_time']);
+		$found  = isset($result['alternatives']) && is_array($result['alternatives']) ? array_slice($result['alternatives'], 0, 2) : array();
+		if (array() === $found) {
+			return array();
+		}
+
+		$found       = AlternativeVehicles::enrich(
+			$found,
+			array(
+				'pickup_date' => $window['pickup_date'],
+				'pickup_time' => $window['pickup_time'],
+				'return_date' => $window['return_date'],
+				'return_time' => $window['pickup_time'],
+			)
+		);
+		$placeholder = VehicleDataHelper::get_placeholder_image_url();
+
+		$out = array();
+		foreach ($found as $alternative) {
+			$alt_id = (int) ( $alternative['id'] ?? 0 );
+			$image  = $alternative['image'] ?? '';
+			$out[]  = array(
+				'id'         => $alt_id,
+				'title'      => (string) ( $alternative['title'] ?? '' ),
+				'image'      => is_string($image) && '' !== $image ? $image : $placeholder,
+				'specs'      => (string) ( $alternative['specs'] ?? '' ),
+				// The rvs cards' daily figure (RvsCardView::price()).
+				'price_html' => (string) PriceDisplay::for_shop(RentalPricing::quote_for_days($alt_id, 1, 0)->rental_amount)['html'],
+				'permalink'  => (string) ( $alternative['permalink'] ?? '' ),
+			);
+		}
+		return $out;
 	}
 
 	/**

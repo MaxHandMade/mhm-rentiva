@@ -247,4 +247,78 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertMatchesRegularExpression('/data-rvs-vd-continue[^>]*aria-disabled="true"/', $html);
 		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
 	}
+
+	private function free_car(string $title): int
+	{
+		$id = (int) self::factory()->post->create(array(
+			'post_type'   => 'mhmrentiva_vehicle',
+			'post_status' => 'publish',
+			'post_title'  => $title,
+		));
+		update_post_meta($id, '_mhmrentiva_price_per_day', '900');
+		update_post_meta($id, '_mhmrentiva_vehicle_status', 'active');
+		update_post_meta($id, '_mhmrentiva_seats', '5');
+		return $id;
+	}
+
+	private function render_window(string $pickup, string $return): string
+	{
+		set_query_var('mhmrentiva_pickup_date', $pickup);
+		set_query_var('mhmrentiva_return_date', $return);
+		try {
+			return $this->render();
+		} finally {
+			set_query_var('mhmrentiva_pickup_date', '');
+			set_query_var('mhmrentiva_return_date', '');
+		}
+	}
+
+	/**
+	 * The suggestions box between the message and "Continue"; '' when absent.
+	 */
+	private function alternatives_box(string $html): ?string
+	{
+		if (1 !== preg_match('/<div class="rvs-vd__alternatives" data-rvs-vd-alternatives role="status">(.*?)<\/div>\s*<a [^>]*data-rvs-vd-continue/s', $html, $m)) {
+			return null;
+		}
+		return $m[1];
+	}
+
+	/**
+	 * Coordinator ruling (2026-11-02): a page opened with taken dates in the URL
+	 * (from search) shows the suggestions under the message on first load --
+	 * the same partial the quote endpoint answers with.
+	 */
+	public function test_first_load_with_taken_dates_shows_the_suggestions(): void
+	{
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		update_post_meta($booking, '_mhmrentiva_vehicle_id', (string) $this->vehicle_id);
+		update_post_meta($booking, '_mhmrentiva_pickup_date', '2027-07-13');
+		update_post_meta($booking, '_mhmrentiva_dropoff_date', '2027-07-14');
+		update_post_meta($booking, '_mhmrentiva_status', 'confirmed');
+		$other = $this->free_car('Renault Clio');
+		$this->free_car('Free B');
+		$this->free_car('Free C');
+
+		$html = $this->render_window('2027-07-12', '2027-07-15');
+
+		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html, 'The red message stays.');
+		$box = $this->alternatives_box($html);
+		$this->assertNotNull($box, 'The box sits between the message and Continue.');
+		$this->assertSame(2, substr_count( (string) $box, 'class="rvs-vd__alt"'), 'At most two suggestions.');
+		$this->assertSame(2, preg_match_all('/<a [^>]*class="rvs-btn rvs-btn--ghost rvs-vd__alt-link"/', (string) $box), 'One link each.');
+		$this->assertStringContainsString('Renault Clio', (string) $box);
+		$this->assertStringContainsString('href="' . esc_url(get_permalink($other)), (string) $box);
+		$this->assertStringContainsString('mhmrentiva_pickup_date=2027-07-12', (string) $box);
+		$this->assertMatchesRegularExpression('/aria-describedby="(rvs-vd-alt-\d+)"/', (string) $box);
+	}
+
+	public function test_first_load_with_free_dates_leaves_the_box_empty(): void
+	{
+		$this->free_car('Renault Clio');
+
+		$html = $this->render_window('2027-07-12', '2027-07-15');
+
+		$this->assertSame('', $this->alternatives_box($html), 'Empty, without even whitespace (the card CSS keys on :empty).');
+	}
 }

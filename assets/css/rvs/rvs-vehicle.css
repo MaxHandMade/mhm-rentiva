@@ -428,6 +428,19 @@
 	margin-top: calc(var(--rvs-s2) - var(--rvs-s3));
 }
 
+/* New dates were picked and their quote is on its way: the suggestions are
+   the old window's, and look it (rvs-vehicle.js holdContinue). */
+.rvs-shell .rvs-vd__alternatives[aria-busy="true"] {
+	opacity: 0.55;
+	transition: opacity 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rvs-shell .rvs-vd__alternatives[aria-busy="true"] {
+		transition: none;
+	}
+}
+
 .rvs-shell .rvs-vd__alternatives-title {
 	margin: 0;
 	font-size: 14px;

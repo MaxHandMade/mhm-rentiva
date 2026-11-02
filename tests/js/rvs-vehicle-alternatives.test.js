@@ -4,9 +4,10 @@
 
 /**
  * Owner request (2026-11-02): when the car is taken for the chosen window, the
- * vehicle page's booking card suggests up to two free vehicles under the red
- * message (the quote's `alternatives`), each linking to its own page with the
- * same dates. Without alternatives the card shows the message alone.
+ * vehicle page's booking card shows the free vehicles the server suggests under
+ * the red message (the quote's `alternatives_html`, the page's own partial).
+ * Without alternatives the card shows the message alone; a window change marks
+ * the old suggestions at once.
  */
 describe( 'rvs vehicle page: alternative vehicles', () => {
 	let jQuery;
@@ -45,9 +46,6 @@ describe( 'rvs vehicle page: alternative vehicles', () => {
 				error: 'Something went wrong',
 				days_one: '%s day total',
 				days_many: '%s days total',
-				alternatives: 'Alternative Vehicles',
-				select_vehicle: 'Select This Vehicle',
-				per_day: '/day',
 			},
 		};
 		jQuery.ajax = jest.fn();
@@ -70,16 +68,15 @@ describe( 'rvs vehicle page: alternative vehicles', () => {
 		answer( call, data );
 	};
 
-	const alt = ( id, extra ) => Object.assign( {
-		id,
-		title: 'Car <b>' + id + '</b>',
-		image: '/img/' + id + '.jpg',
-		specs: '5 seats · Automatic · Diesel',
-		price_html: '<span class="amount">₺900</span>',
-		permalink: '/vehicle/' + id + '/?mhmrentiva_pickup_date=2027-07-12',
-	}, extra || {} );
+	// The server's partial (partials/vehicle-details/alternatives.php) for ids.
+	const partial = ( ids ) => ids.length
+		? '<p class="rvs-vd__alternatives-title">Alternative Vehicles</p><ul class="rvs-vd__alternatives-list">' +
+			ids.map( ( id ) => '<li class="rvs-vd__alt"><div class="rvs-vd__alt-body"><p class="rvs-vd__alt-title" id="rvs-vd-alt-' + id + '">Car ' + id + '</p></div>' +
+				'<a class="rvs-btn rvs-btn--ghost rvs-vd__alt-link" href="/vehicle/' + id + '/" aria-describedby="rvs-vd-alt-' + id + '">Select This Vehicle</a></li>' ).join( '' ) +
+			'</ul>'
+		: '';
 
-	const taken = ( alternatives ) => ( {
+	const taken = ( ids ) => ( {
 		priced: true,
 		days: 3,
 		total_html: 'T1',
@@ -88,7 +85,8 @@ describe( 'rvs vehicle page: alternative vehicles', () => {
 		available: false,
 		message: 'This vehicle is already booked for the selected dates.',
 		months_html: '',
-		alternatives,
+		alternatives: ids.map( ( id ) => ( { id } ) ),
+		alternatives_html: partial( ids ),
 	} );
 
 	afterEach( () => {
@@ -98,9 +96,9 @@ describe( 'rvs vehicle page: alternative vehicles', () => {
 		delete window.mhmRentivaVehicle;
 	} );
 
-	test( 'a taken car shows the message and at most two suggestions, one link each', async () => {
+	test( 'a taken car shows the message and the suggestions the server drew under it', async () => {
 		await boot();
-		requote( 0, taken( [ alt( 11 ), alt( 12 ), alt( 13 ) ] ) );
+		requote( 0, taken( [ 11, 12 ] ) );
 
 		const message = document.querySelector( '[data-rvs-vd-message]' );
 		expect( message.hidden ).toBe( false );
@@ -109,26 +107,15 @@ describe( 'rvs vehicle page: alternative vehicles', () => {
 		const box = document.querySelector( '[data-rvs-vd-alternatives]' );
 		expect( box.getAttribute( 'role' ) ).toBe( 'status' );
 		expect( box.textContent ).toContain( 'Alternative Vehicles' );
-
 		const items = box.querySelectorAll( '.rvs-vd__alt' );
 		expect( items ).toHaveLength( 2 );
 		items.forEach( ( item, index ) => {
-			const id = 11 + index;
 			const links = item.querySelectorAll( 'a' );
 			expect( links ).toHaveLength( 1 );
-			expect( links[ 0 ].getAttribute( 'href' ) ).toBe( '/vehicle/' + id + '/?mhmrentiva_pickup_date=2027-07-12' );
+			expect( links[ 0 ].getAttribute( 'href' ) ).toBe( '/vehicle/' + ( 11 + index ) + '/' );
 			expect( links[ 0 ].textContent ).toBe( 'Select This Vehicle' );
-			// The link's name says which car: its title describes it.
-			const title = item.querySelector( '.rvs-vd__alt-title' );
-			expect( title.textContent ).toBe( 'Car <b>' + id + '</b>' );
-			expect( title.querySelector( 'b' ) ).toBeNull();
-			expect( links[ 0 ].getAttribute( 'aria-describedby' ) ).toBe( title.id );
-			expect( item.querySelector( 'img' ).getAttribute( 'src' ) ).toBe( '/img/' + id + '.jpg' );
-			expect( item.querySelector( '.rvs-vd__alt-specs' ).textContent ).toBe( '5 seats · Automatic · Diesel' );
-			const price = item.querySelector( '.rvs-vd__alt-price' );
-			expect( price.querySelector( '.amount' ).textContent ).toBe( '₺900' );
-			expect( price.textContent ).toContain( '/day' );
 		} );
+		expect( box.hasAttribute( 'aria-busy' ) ).toBe( false );
 		expect( document.querySelectorAll( '[data-rvs-vd-alternatives]' ) ).toHaveLength( 1 );
 	} );
 
@@ -139,31 +126,62 @@ describe( 'rvs vehicle page: alternative vehicles', () => {
 		expect( document.querySelector( '[data-rvs-vd-message]' ).hidden ).toBe( false );
 		const box = document.querySelector( '[data-rvs-vd-alternatives]' );
 		expect( box.children ).toHaveLength( 0 );
-		expect( box.textContent ).toBe( '' );
+		expect( box.innerHTML ).toBe( '' );
 	} );
 
-	test( 'a free window clears earlier suggestions', async () => {
+	test( 'a free window clears earlier suggestions, even if the answer carried some', async () => {
 		await boot();
-		requote( 0, taken( [ alt( 11 ) ] ) );
+		requote( 0, taken( [ 11 ] ) );
 		expect( document.querySelectorAll( '.rvs-vd__alt' ) ).toHaveLength( 1 );
 
-		requote( 1, Object.assign( taken( [ alt( 11 ) ] ), { available: true, message: '' } ) );
-		expect( document.querySelectorAll( '.rvs-vd__alt' ) ).toHaveLength( 0 );
+		requote( 1, Object.assign( taken( [ 11 ] ), { available: true, message: '' } ) );
+		expect( document.querySelector( '[data-rvs-vd-alternatives]' ).innerHTML ).toBe( '' );
 	} );
 
-	test( 'a suggestion without a link is left out, never drawn with a dead link', async () => {
+	test( 'a failed quote clears the suggestions', async () => {
 		await boot();
-		requote( 0, taken( [ alt( 11, { permalink: '', specs: '' } ) ] ) );
+		requote( 0, taken( [ 11 ] ) );
+		document.querySelector( '[data-rvs-pickup-date]' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		jest.advanceTimersByTime( 300 );
+		const options = jQuery.ajax.mock.calls[ 1 ][ 0 ];
+		options.error();
+		options.complete();
 
-		expect( document.querySelectorAll( '.rvs-vd__alt' ) ).toHaveLength( 0 );
+		expect( document.querySelector( '[data-rvs-vd-alternatives]' ).innerHTML ).toBe( '' );
+	} );
+
+	// Coordinator ruling (2026-11-02): the suggestions on screen belong to the
+	// window just left -- marked the moment the window changes, not when the
+	// answer lands (as PR #155 does for the booking form).
+	test( 'a window change dims the old suggestions and holds their links at once', async () => {
+		await boot( page().replace( 'role="status"></div>', 'role="status">' + partial( [ 11, 12 ] ) + '</div>' ) );
+		const box = document.querySelector( '[data-rvs-vd-alternatives]' );
+		expect( box.hasAttribute( 'aria-busy' ) ).toBe( false );
+
+		document.querySelector( '[data-rvs-pickup-date]' ).dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		// Before the debounce, before any request.
+		expect( jQuery.ajax ).not.toHaveBeenCalled();
+		expect( box.getAttribute( 'aria-busy' ) ).toBe( 'true' );
+		box.querySelectorAll( 'a' ).forEach( ( a ) => {
+			expect( a.getAttribute( 'aria-disabled' ) ).toBe( 'true' );
+			expect( a.getAttribute( 'tabindex' ) ).toBe( '-1' );
+		} );
+
+		jest.advanceTimersByTime( 300 );
+		answer( 0, taken( [ 13 ] ) );
+		expect( box.hasAttribute( 'aria-busy' ) ).toBe( false );
+		const links = box.querySelectorAll( 'a' );
+		expect( links ).toHaveLength( 1 );
+		expect( links[ 0 ].getAttribute( 'href' ) ).toBe( '/vehicle/13/' );
+		expect( links[ 0 ].hasAttribute( 'aria-disabled' ) ).toBe( false );
 	} );
 
 	test( 'a cached page without the container still gets the suggestions right after the message', async () => {
 		await boot( page( false ) );
-		requote( 0, taken( [ alt( 11 ) ] ) );
+		requote( 0, taken( [ 11 ] ) );
 
-		const message = document.querySelector( '[data-rvs-vd-message]' );
-		const box = message.nextElementSibling;
+		const box = document.querySelector( '[data-rvs-vd-message]' ).nextElementSibling;
 		expect( box.hasAttribute( 'data-rvs-vd-alternatives' ) ).toBe( true );
 		expect( box.querySelectorAll( '.rvs-vd__alt' ) ).toHaveLength( 1 );
 	} );

@@ -115,9 +115,10 @@ final class VehicleDetails extends AbstractShortcode {
 			return;
 		}
 
-		$window  = VehicleDetailsView::window( self::posted_window( $req ) );
-		$booking = VehicleDetailsView::booking( $vehicle_id, array(), $window );
-		$months  = VehicleDetailsView::months( $vehicle_id, $window['pickup_date'], $window );
+		$window       = VehicleDetailsView::window( self::posted_window( $req ) );
+		$booking      = VehicleDetailsView::booking( $vehicle_id, array(), $window );
+		$months       = VehicleDetailsView::months( $vehicle_id, $window['pickup_date'], $window );
+		$alternatives = VehicleDetailsView::alternatives( $vehicle_id, $booking, $window );
 
 		// Dates the server cannot price (wrong order) carry no total, days or
 		// breakdown: the card shows the message alone.
@@ -125,80 +126,38 @@ final class VehicleDetails extends AbstractShortcode {
 
 		wp_send_json_success(
 			array(
-				'priced'         => $priced,
-				'days'           => $priced ? (int) $booking['days'] : 0,
-				'total_html'     => $priced ? (string) $booking['breakdown']['total']['html'] : '',
-				'breakdown_html' => $priced ? (string) Templates::render( 'partials/rvs/breakdown', array(
+				'priced'            => $priced,
+				'days'              => $priced ? (int) $booking['days'] : 0,
+				'total_html'        => $priced ? (string) $booking['breakdown']['total']['html'] : '',
+				'breakdown_html'    => $priced ? (string) Templates::render( 'partials/rvs/breakdown', array(
 					'breakdown'   => $booking['breakdown'],
 					'collapsible' => true,
 				), true ) : '',
-				'continue_url'   => (string) $booking['continue_url'],
-				'available'      => (bool) $booking['available'],
-				'message'        => (string) $booking['message'],
-				'alternatives'   => self::alternatives( $vehicle_id, $booking, $window ),
-				'months_html'    => self::months_html( $months ),
+				'continue_url'      => (string) $booking['continue_url'],
+				'available'         => (bool) $booking['available'],
+				'message'           => (string) $booking['message'],
+				// Free vehicles for a taken window: the data, and the box's markup.
+				'alternatives'      => $alternatives,
+				'alternatives_html' => self::alternatives_html( $alternatives ),
+				'months_html'       => self::months_html( $months ),
 				// The window actually quoted, so the fields show what the total is for.
-				'window'         => $window,
+				'window'            => $window,
 			)
 		);
 	}
 
 	/**
-	 * Owner request (2026-11-02): up to two free vehicles for a window the car is
-	 * booked on, as the booking form suggests them (the same finder and the same
-	 * page link and specs line), plus what the card's compact row shows: an image
-	 * (the booking form's placeholder without one) and the daily price the rvs
-	 * cards show. Empty when the car is free or a booking rule refused the dates.
+	 * The booking card's suggestions box content (partials/vehicle-details/alternatives):
+	 * the one markup the page renders on first load and the quote answers with.
+	 * '' without suggestions, so the box stays :empty.
 	 *
-	 * @param array<string, mixed>  $booking VehicleDetailsView::booking().
-	 * @param array<string, string> $window  Completed window (VehicleDetailsView::window()).
-	 * @return list<array{id: int, title: string, image: string, specs: string, price_html: string, permalink: string}>
+	 * @param array<int, array<string, mixed>> $alternatives VehicleDetailsView::alternatives().
 	 */
-	private static function alternatives( int $vehicle_id, array $booking, array $window ): array {
-		if ( ! empty( $booking['available'] ) || 'unavailable' !== ( $booking['code'] ?? '' ) ) {
-			return array();
+	public static function alternatives_html( array $alternatives ): string {
+		if ( array() === $alternatives ) {
+			return '';
 		}
-
-		// The return is at the pickup time (the card has no return time field).
-		$result = \MHMRentiva\Admin\Booking\Helpers\Util::check_availability_with_alternatives(
-			$vehicle_id,
-			$window['pickup_date'],
-			$window['pickup_time'],
-			$window['return_date'],
-			$window['pickup_time']
-		);
-		$found  = isset( $result['alternatives'] ) && is_array( $result['alternatives'] ) ? array_slice( $result['alternatives'], 0, 2 ) : array();
-		if ( array() === $found ) {
-			return array();
-		}
-
-		$found       = \MHMRentiva\Admin\Frontend\Shortcodes\Card\AlternativeVehicles::enrich(
-			$found,
-			array(
-				'pickup_date' => $window['pickup_date'],
-				'pickup_time' => $window['pickup_time'],
-				'return_date' => $window['return_date'],
-				'return_time' => $window['pickup_time'],
-			)
-		);
-		$placeholder = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
-
-		$out = array();
-		foreach ( $found as $alternative ) {
-			$alt_id = (int) ( $alternative['id'] ?? 0 );
-			$image  = $alternative['image'] ?? '';
-			$daily  = \MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days( $alt_id, 1, 0 )->rental_amount;
-			$out[]  = array(
-				'id'         => $alt_id,
-				'title'      => (string) ( $alternative['title'] ?? '' ),
-				'image'      => is_string( $image ) && '' !== $image ? $image : $placeholder,
-				'specs'      => (string) ( $alternative['specs'] ?? '' ),
-				// The rvs cards' daily figure (RvsCardView::price()).
-				'price_html' => (string) \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_shop( $daily )['html'],
-				'permalink'  => (string) ( $alternative['permalink'] ?? '' ),
-			);
-		}
-		return $out;
+		return trim( (string) Templates::render( 'partials/vehicle-details/alternatives', array( 'alternatives' => $alternatives ), true ) );
 	}
 
 	/**
@@ -295,15 +254,11 @@ final class VehicleDetails extends AbstractShortcode {
 				// (the search strip's rule, Settings > Booking).
 				'min_days' => BookingForm::min_rental_days(),
 				'i18n'     => array(
-					'error'          => __( 'Something went wrong. Please try again.', 'mhm-rentiva' ),
+					'error'     => __( 'Something went wrong. Please try again.', 'mhm-rentiva' ),
 					/* translators: %s: number of rental days. */
-					'days_one'       => __( '%s day total', 'mhm-rentiva' ),
+					'days_one'  => __( '%s day total', 'mhm-rentiva' ),
 					/* translators: %s: number of rental days. */
-					'days_many'      => __( '%s days total', 'mhm-rentiva' ),
-					// Free vehicles under a "taken" message: the booking form's strings.
-					'alternatives'   => __( 'Alternative Vehicles', 'mhm-rentiva' ),
-					'select_vehicle' => __( 'Select This Vehicle', 'mhm-rentiva' ),
-					'per_day'        => __( '/day', 'mhm-rentiva' ),
+					'days_many' => __( '%s days total', 'mhm-rentiva' ),
 				),
 			)
 		);
