@@ -1389,20 +1389,37 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * '' when every booking the order pays for holds its dates, or holds them
 	 * again; else what to tell the customer. Asked before money is taken.
 	 *
+	 * All or nothing: when a later booking is refused, the earlier ones this
+	 * call revived are put back as they were (Codex PR K delta, advice), and
+	 * nobody hears of a revival that did not stand -- the hooks run only once
+	 * every booking holds.
+	 *
 	 * @param list<int>|null $booking_ids The bookings to ask about; null for the order's.
 	 */
 	private static function claim_order_bookings(\WC_Order $order, ?array $booking_ids = null): string
 	{
 		$remaining = self::is_remaining_order($order);
+		$revived   = array();
 		foreach ($booking_ids ?? self::linked_booking_ids($order) as $booking_id) {
-			$refusal = self::claim_booking( (int) $booking_id, $remaining);
+			$refusal = self::claim_booking( (int) $booking_id, $remaining, $revived);
 			if ('' !== $refusal) {
+				self::undo_revivals($revived);
 				return $refusal;
 			}
 		}
+		self::announce_revivals($revived);
 
 		return '';
 	}
+
+	/**
+	 * The statuses a payment may bring back to life: a booking that was never
+	 * paid (pending), or that a failed payment cancelled. Refunded and no-show
+	 * are closed for good, and a payment does not reopen them.
+	 *
+	 * @var list<string>
+	 */
+	private const REVIVABLE = array( Status::CANCELLED, Status::PENDING, Status::PENDING_PAYMENT );
 
 	/**
 	 * Has the booking let go of its dates? Cancelled, refunded or no-show: it
@@ -1424,6 +1441,38 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * The booking's vehicle and instants; zeros when it has none.
+	 *
+	 * @return array{0: int, 1: int, 2: int}
+	 */
+	private static function booking_window(int $booking_id): array
+	{
+		$vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+		$start_ts   = (int) get_post_meta($booking_id, '_mhmrentiva_start_ts', true);
+		$end_ts     = (int) get_post_meta($booking_id, '_mhmrentiva_end_ts', true);
+		if ($start_ts <= 0 || $end_ts <= 0) {
+			$start_ts = (int) self::parse_datetime_to_timestamp( (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true), (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true));
+			$end_ts   = (int) self::parse_datetime_to_timestamp( (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true), (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_time', true));
+		}
+
+		return $vehicle_id > 0 && $start_ts > 0 && $end_ts > $start_ts ? array( $vehicle_id, $start_ts, $end_ts ) : array( 0, 0, 0 );
+	}
+
+	private static function booking_gone_notice(): string
+	{
+		return __('This booking was cancelled and can no longer be paid. Please make a new booking.', 'mhm-rentiva');
+	}
+
+	/**
+	 * A count, a lock or a transaction that could not be read decides nothing:
+	 * the booking is refused, never taken as free (Codex PR K delta H2).
+	 */
+	private static function availability_unknown_notice(): string
+	{
+		return __('The availability of this booking could not be checked, so no payment was taken. Please try again in a moment.', 'mhm-rentiva');
+	}
+
+	/**
 	 * Make sure a booking still holds its dates before money is taken for it
 	 * (Codex PR K 1: a failed payment cancels the booking, another customer
 	 * books the dates, the first order is paid again).
@@ -1434,76 +1483,230 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * refused. Taking back means: a cancelled booking is pending again, and a
 	 * fresh payment deadline. A refunded or no-show booking, and any booking of
 	 * a remaining-payment order, is not revived: the deposit side of that money
-	 * is not known here.
+	 * is not known here. An unreadable count or a failed lock refuses.
 	 *
+	 * What it revived is added to $revived ({id, status, deadline} as they
+	 * were); the caller announces it (announce_revivals()) or puts it back
+	 * (undo_revivals()).
+	 *
+	 * @param list<array{id: int, status: string, deadline: string, vehicle: int}> $revived
 	 * @return string '' when it holds its dates; else the customer's message.
 	 */
-	private static function claim_booking(int $booking_id, bool $remaining): string
+	private static function claim_booking(int $booking_id, bool $remaining, array &$revived): string
 	{
 		wp_cache_delete($booking_id, 'post_meta');
 		if (! self::booking_lost_its_dates($booking_id)) {
 			return '';
 		}
 
-		$status     = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
-		$vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
-		$start_ts   = (int) get_post_meta($booking_id, '_mhmrentiva_start_ts', true);
-		$end_ts     = (int) get_post_meta($booking_id, '_mhmrentiva_end_ts', true);
-		if ($start_ts <= 0 || $end_ts <= 0) {
-			$start_ts = (int) self::parse_datetime_to_timestamp( (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true), (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true));
-			$end_ts   = (int) self::parse_datetime_to_timestamp( (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true), (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_time', true));
+		$status                               = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+		list($vehicle_id, $start_ts, $end_ts) = self::booking_window($booking_id);
+		if ($remaining || ! in_array($status, self::REVIVABLE, true) || $vehicle_id <= 0) {
+			return self::booking_gone_notice();
 		}
 
-		$revivable = array( Status::CANCELLED, Status::PENDING, Status::PENDING_PAYMENT );
-		if ($remaining || ! in_array($status, $revivable, true) || $vehicle_id <= 0 || $start_ts <= 0 || $end_ts <= $start_ts) {
-			return __('This booking was cancelled and can no longer be paid. Please make a new booking.', 'mhm-rentiva');
-		}
-
+		$locked  = false;
 		$claimed = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
 			$vehicle_id,
 			static function () use ($booking_id, $vehicle_id, $start_ts, $end_ts) {
 				// What the lock protects, read fresh.
 				wp_cache_delete($booking_id, 'post_meta');
 				if (! self::booking_lost_its_dates($booking_id)) {
-					return 'held';
+					return array( 'held' );
 				}
-				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts, $booking_id)) {
-					return 'taken';
+				$overlaps = \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $booking_id);
+				if (null === $overlaps) {
+					return array( 'unknown' );
+				}
+				if ($overlaps > 0) {
+					return array( 'taken' );
 				}
 
-				$from = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+				$from     = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+				$deadline = (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
 				if (Status::CANCELLED === $from) {
 					update_post_meta($booking_id, '_mhmrentiva_status', Status::PENDING);
 				}
 				update_post_meta($booking_id, '_mhmrentiva_payment_deadline', self::get_payment_deadline());
 
-				return $from;
-			}
+				return array( 'revived', $from, $deadline );
+			},
+			$locked
 		);
 
-		if ('taken' === $claimed) {
+		if (true !== $locked || ! is_array($claimed) || 'unknown' === $claimed[0]) {
+			return self::availability_unknown_notice();
+		}
+		if ('taken' === $claimed[0]) {
 			return self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts);
 		}
-		if ('held' === $claimed) {
-			return '';
-		}
-
-		// Outside the transaction, like every hook of the booking path.
-		if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
-			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
-		}
-		if (class_exists('MHMRentiva\Admin\Booking\Meta\BookingMeta')) {
-			\MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
-				$booking_id,
-				__('The dates were still free when the order was paid again; the booking holds them again.', 'mhm-rentiva'),
-				'system'
+		if ('revived' === $claimed[0]) {
+			$revived[] = array(
+				'id'       => $booking_id,
+				'status'   => (string) $claimed[1],
+				'deadline' => (string) $claimed[2],
+				'vehicle'  => $vehicle_id,
 			);
-		}
-		if (Status::CANCELLED === $claimed) {
-			do_action('mhmrentiva_booking_status_changed', $booking_id, Status::CANCELLED, Status::PENDING);
 		}
 
 		return '';
+	}
+
+	/**
+	 * Tell everyone about the revivals that stand. Outside the transaction, like
+	 * every hook of the booking path.
+	 *
+	 * @param list<array{id: int, status: string, deadline: string, vehicle: int}> $revived
+	 */
+	private static function announce_revivals(array $revived): void
+	{
+		foreach ($revived as $revival) {
+			if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+				\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($revival['vehicle']);
+			}
+			if (class_exists('MHMRentiva\Admin\Booking\Meta\BookingMeta')) {
+				\MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
+					$revival['id'],
+					__('The dates were still free when the order was paid again; the booking holds them again.', 'mhm-rentiva'),
+					'system'
+				);
+			}
+			if (Status::CANCELLED === $revival['status']) {
+				do_action('mhmrentiva_booking_status_changed', $revival['id'], Status::CANCELLED, Status::PENDING);
+			}
+		}
+	}
+
+	/**
+	 * Put revived bookings back as they were: a later booking of the same order
+	 * was refused, so no payment is taken and these dates are not held for it.
+	 * Silent -- nobody was told of the revival.
+	 *
+	 * @param list<array{id: int, status: string, deadline: string, vehicle: int}> $revived
+	 */
+	private static function undo_revivals(array $revived): void
+	{
+		foreach ($revived as $revival) {
+			update_post_meta($revival['id'], '_mhmrentiva_status', $revival['status']);
+			update_post_meta($revival['id'], '_mhmrentiva_payment_deadline', $revival['deadline']);
+			if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+				\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($revival['vehicle']);
+			}
+		}
+	}
+
+	/**
+	 * Confirm (or complete) a booking because its order was paid, deciding and
+	 * writing under the vehicle's lock in one transaction (Codex PR K delta
+	 * H1). A pending booking whose deadline runs out between the payment and
+	 * this write cannot be confirmed over someone who took the dates
+	 * meanwhile: whoever holds the lock first decides, and the other sees it.
+	 *
+	 * Only a revivable booking (cancelled, pending, pending payment) is asked
+	 * about its dates (Fable PR K delta M1); any other keeps the status table's
+	 * old answer, unlocked -- a confirmed booking already holds its dates, and
+	 * a refunded or no-show booking is closed without a word to the operator.
+	 * The notification hooks run after COMMIT.
+	 *
+	 * @param string $to Status::CONFIRMED or Status::COMPLETED.
+	 * @return string|null null when the payment stands (confirmed, completed or
+	 *                     left as the status table allows); else why the booking
+	 *                     was not confirmed.
+	 */
+	private static function confirm_paid_booking(int $booking_id, bool $remaining, string $to): ?string
+	{
+		wp_cache_delete($booking_id, 'post_meta');
+		$status = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+		if (! in_array($status, self::REVIVABLE, true)) {
+			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+			Status::update_status($booking_id, $to, get_current_user_id());
+			return null;
+		}
+
+		list($vehicle_id, $start_ts, $end_ts) = self::booking_window($booking_id);
+		if ($remaining && Status::CANCELLED === $status) {
+			return self::booking_gone_notice();
+		}
+		if ($vehicle_id <= 0) {
+			// No vehicle or window: nothing to lock and nobody to compete with.
+			// One that still holds its dates is confirmed as before; one that
+			// let go of them cannot be checked, so it is refused.
+			if (self::booking_lost_its_dates($booking_id)) {
+				return self::booking_gone_notice();
+			}
+			update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+			Status::update_status($booking_id, $to, get_current_user_id());
+			return null;
+		}
+
+		$locked  = false;
+		$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+			$vehicle_id,
+			static function () use ($booking_id, $vehicle_id, $start_ts, $end_ts, $remaining, $to) {
+				wp_cache_delete($booking_id, 'post_meta');
+				$from = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+				if (! in_array($from, self::REVIVABLE, true)) {
+					return array( 'moved', $from );
+				}
+				if (self::booking_lost_its_dates($booking_id)) {
+					if ($remaining && Status::CANCELLED === $from) {
+						return array( 'gone', $from );
+					}
+					$overlaps = \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $booking_id);
+					if (null === $overlaps) {
+						return array( 'unknown', $from );
+					}
+					if ($overlaps > 0) {
+						return array( 'taken', $from );
+					}
+				}
+
+				update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+				$effective = Status::CANCELLED === $from ? Status::PENDING : $from;
+				if (Status::can_transition($effective, $to)) {
+					update_post_meta($booking_id, '_mhmrentiva_status', $to);
+					return array( 'written', $from );
+				}
+				if (Status::CANCELLED === $from) {
+					update_post_meta($booking_id, '_mhmrentiva_status', Status::PENDING);
+					return array( 'revived', $from );
+				}
+
+				return array( 'kept', $from );
+			},
+			$locked
+		);
+
+		if (true !== $locked || ! is_array($outcome)) {
+			return self::availability_unknown_notice();
+		}
+
+		switch ($outcome[0]) {
+			case 'unknown':
+				return self::availability_unknown_notice();
+			case 'taken':
+				return self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts);
+			case 'gone':
+				return self::booking_gone_notice();
+			case 'moved':
+				// Someone else moved it out of the revivable set meanwhile; the
+				// status table answers, as for any booking that holds its dates.
+				update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+				Status::update_status($booking_id, $to, get_current_user_id());
+				return null;
+		}
+
+		$from = (string) $outcome[1];
+		if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+		}
+		if ('written' === $outcome[0]) {
+			do_action('mhmrentiva_booking_status_changed', $booking_id, $from, $to);
+		} elseif ('revived' === $outcome[0]) {
+			do_action('mhmrentiva_booking_status_changed', $booking_id, $from, Status::PENDING);
+		}
+
+		return null;
 	}
 
 	/**
@@ -1531,17 +1734,28 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Money arrived for a booking that could not take its dates back. Nothing is
-	 * confirmed; the operator reads why on the order and in the log.
+	 * A payment landed, or an order went on hold, for a booking that could not
+	 * take its dates back. Nothing is confirmed; the operator reads why on the
+	 * order and in the log. A refund through WooCommerce reverses what the
+	 * payment started elsewhere (the add-on's commission reverses on the
+	 * order refund).
 	 */
-	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal): void
+	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal, string $new_status): void
 	{
-		$note = sprintf(
-			/* translators: 1: booking id, 2: why, as the customer would have read it. */
-			__('Payment recorded, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Return the payment or move the booking.', 'mhm-rentiva'),
-			$booking_id,
-			self::plain_text($refusal)
-		);
+		$why  = self::plain_text($refusal);
+		$note = 'on-hold' === $new_status
+			? sprintf(
+				/* translators: 1: booking id, 2: why, as the customer would have read it. */
+				__('Order on hold, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Do not accept the payment for it, or move the booking first.', 'mhm-rentiva'),
+				$booking_id,
+				$why
+			)
+			: sprintf(
+				/* translators: 1: booking id, 2: why, as the customer would have read it. */
+				__('Payment recorded, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Refund the payment in WooCommerce, or move the booking.', 'mhm-rentiva'),
+				$booking_id,
+				$why
+			);
 		$order->add_order_note($note);
 		AdvancedLogger::error_linked(
 			$note,
@@ -1836,8 +2050,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$creation_result = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
 			(int) $booking_data['vehicle_id'],
 			static function () use ($post_data, $booking_data, $order_id, $start_ts, $end_ts) {
-				// Authoritative conflict check, now genuinely holding the lock.
-				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($booking_data['vehicle_id'], $start_ts, $end_ts)) {
+				// Authoritative conflict check, now genuinely holding the lock. A
+				// count that could not be read books nothing (null: the caller's
+				// "could not be created" path, not "taken by someone").
+				$overlaps = \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked( (int) $booking_data['vehicle_id'], $start_ts, $end_ts);
+				if (null === $overlaps) {
+					return null;
+				}
+				if ($overlaps > 0) {
 					return false;
 				}
 
@@ -1943,26 +2163,37 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if ($booking_id) {
 				// Money landed (a gateway's late callback, an operator marking the
 				// order paid): a booking that lost its dates is not revived over
-				// someone else's. The operator is told; the money is theirs to return.
-				if (in_array($new_status, array( 'processing', 'completed', 'on-hold' ), true)) {
-					$refusal = self::claim_booking($booking_id, self::is_remaining_order($order));
-					if ('' !== $refusal) {
-						self::report_unclaimed_payment($order, $booking_id, $refusal);
+				// someone else's. Paid: confirm_paid_booking() decides and writes
+				// under the vehicle's lock. On hold: only a revivable booking is
+				// asked (a refunded or no-show one keeps the old, silent answer).
+				// The operator is told; the money is theirs to return.
+				$is_remaining = self::is_remaining_order($order);
+				if (in_array($new_status, array( 'processing', 'completed' ), true)) {
+					// Same rule as the deposit screen, and for the same reason:
+					// a date-only comparison completes a booking at midnight on
+					// the drop-off day, hours before the car is back.
+					$target  = 'completed' === $new_status && \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id) ? Status::COMPLETED : Status::CONFIRMED;
+					$refusal = self::confirm_paid_booking($booking_id, $is_remaining, $target);
+					if (null !== $refusal) {
+						self::report_unclaimed_payment($order, $booking_id, $refusal, (string) $new_status);
 						continue;
 					}
+				} elseif ('on-hold' === $new_status && in_array( (string) get_post_meta($booking_id, '_mhmrentiva_status', true), self::REVIVABLE, true)) {
+					$revived = array();
+					$refusal = self::claim_booking($booking_id, $is_remaining, $revived);
+					if ('' !== $refusal) {
+						self::report_unclaimed_payment($order, $booking_id, $refusal, 'on-hold');
+						continue;
+					}
+					self::announce_revivals($revived);
 				}
 
 				// Status Mapping Logic
 				switch ($new_status) {
 					case 'completed':
-						// WC order completed - only mark booking as completed if rental period has ended.
-						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
-						// Same rule as the deposit screen, and for the same reason:
-						// a date-only comparison completes a booking at midnight on
-						// the drop-off day, hours before the car is back.
-						$rental_ended   = \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id);
-						$booking_status = $rental_ended ? 'completed' : 'confirmed';
-						Status::update_status($booking_id, $booking_status, get_current_user_id());
+						// WC order completed - the booking is paid and confirmed, or
+						// completed once the rental has ended: written above, under
+						// the lock (confirm_paid_booking()).
 						// Clear the remaining balance only when THIS order is the one
 						// that settles it. Until 6.1.0 the branch looked only at the
 						// booking's payment_type, so completing the FIRST (deposit)
@@ -1980,18 +2211,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						break;
 
 					case 'processing':
-						// Payment confirmed - booking is confirmed, rental period is not over yet.
-						update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
-						// Full payment: clear remaining. Both types confirm the booking.
-						if (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'full') {
+						// Payment confirmed - paid and confirmed above, under the lock
+						// (confirm_paid_booking()). Full payment, or the remaining
+						// payment's own order: nothing is left to pay.
+						if (get_post_meta($booking_id, '_mhmrentiva_payment_type', true) === 'full' || $order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
 							update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
-							Status::update_status($booking_id, 'confirmed', get_current_user_id());
-						} else {
-							// If this is a remaining payment order, clear remaining amount too
-							if ($order->get_meta('_mhmrentiva_is_remaining_payment') === '1') {
-								update_post_meta($booking_id, '_mhmrentiva_remaining_amount', 0);
-							}
-							Status::update_status($booking_id, 'confirmed', get_current_user_id());
 						}
 						break;
 

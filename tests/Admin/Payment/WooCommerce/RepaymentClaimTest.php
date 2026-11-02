@@ -43,6 +43,12 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		WC()->cart->empty_cart();
 		wc_clear_notices();
 
+		// As LockerRobustnessTest: a nested START TRANSACTION would commit the
+		// test's own transaction, so transaction control is neutralised.
+		add_filter('query', static function ($query) {
+			return preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query) ? 'SELECT 1' : $query;
+		});
+
 		add_action('woocommerce_store_api_checkout_order_processed', array( WooCommerceBridge::class, 'store_api_order_processed' ), 10, 1);
 		add_action('woocommerce_checkout_order_processed', array( WooCommerceBridge::class, 'create_booking_from_order' ), 10, 3);
 	}
@@ -410,5 +416,253 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertFalse((bool) $item->get_meta('_mhmrentiva_booking_pending'));
 		$this->assertSame(1, $this->bookings_of_vehicle());
 		$this->assertSame(Status::PENDING, get_post_meta($booking_id, '_mhmrentiva_status', true));
+	}
+
+	// ------------------------------------- Codex delta H1: deadline race
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function paid_arms(): array
+	{
+		return array(
+			'processing' => array( 'processing' ),
+			'completed'  => array( 'completed' ),
+		);
+	}
+
+	/**
+	 * A's payment arrives one tick before its deadline. Between the arrival and
+	 * the confirm write the deadline runs out and B takes the dates (another
+	 * request: it runs at the last moment before A's handler touches the
+	 * database for the booking -- before A takes the vehicle's lock, or, without
+	 * one, before A writes its status). Only one of them may hold the dates.
+	 *
+	 * @dataProvider paid_arms
+	 */
+	public function test_a_deadline_running_out_during_the_payment_cannot_confirm_over_another(string $arm): void
+	{
+		$a = $this->pending_order();
+		$this->store_api($a);
+		$a       = wc_get_order($a->get_id());
+		$booking = (int) $a->get_meta('_mhmrentiva_booking_id');
+		$this->assertGreaterThan(current_time('mysql', true), (string) get_post_meta($booking, '_mhmrentiva_payment_deadline', true), 'A holds its dates when the payment arrives.');
+
+		global $wpdb;
+		$vehicle = $this->vehicle_id;
+		$fired   = false;
+		$other   = 0;
+		$race    = function ($query) use (&$fired, &$other, $vehicle, $booking, $wpdb) {
+			$sql      = (string) $query;
+			$locks    = (bool) preg_match('/FOR UPDATE/i', $sql) && str_contains($sql, 'post_id = ' . $vehicle);
+			$confirms = (bool) preg_match('/^\s*(UPDATE|INSERT)/i', $sql) && str_contains($sql, $wpdb->postmeta) && str_contains($sql, '_mhmrentiva_status') && str_contains($sql, (string) $booking);
+			if ($fired || ( ! $locks && ! $confirms )) {
+				return $query;
+			}
+			$fired = true;
+
+			// The deadline runs out, and B books meanwhile.
+			update_post_meta($booking, '_mhmrentiva_payment_deadline', gmdate('Y-m-d H:i:s', time() - 1));
+			wp_cache_delete($booking, 'post_meta');
+			$b = $this->pending_order();
+			try {
+				$this->store_api($b);
+				$other = (int) wc_get_order($b->get_id())->get_meta('_mhmrentiva_booking_id');
+			} catch (RouteException $e) {
+				$other = 0;
+			}
+
+			return $query;
+		};
+		add_filter('query', $race);
+
+		$a->set_status($arm);
+		$a->save();
+		WooCommerceBridge::handle_order_status_change($a->get_id(), 'pending', $arm, wc_get_order($a->get_id()));
+		remove_filter('query', $race);
+
+		$this->assertTrue($fired, 'The race ran.');
+		wp_cache_delete($booking, 'post_meta');
+		$a_holds = in_array(get_post_meta($booking, '_mhmrentiva_status', true), array( 'confirmed', 'completed' ), true);
+		$b_holds = $other > 0 && 'pending' === get_post_meta($other, '_mhmrentiva_status', true);
+		$this->assertFalse($a_holds && $b_holds, 'Never both: A=' . get_post_meta($booking, '_mhmrentiva_status', true) . ', B=' . ( $other > 0 ? get_post_meta($other, '_mhmrentiva_status', true) : 'refused' ));
+		$this->assertTrue($a_holds || $b_holds, 'One of them holds the dates.');
+		if (! $a_holds) {
+			$this->assertNotEmpty(array_filter($this->notes(wc_get_order($a->get_id())), static fn($n) => str_contains($n, 'Refund the payment in WooCommerce')));
+		}
+	}
+
+	// ----------------------------- Codex delta H2: unreadable is not free
+
+	/**
+	 * Make the locked COUNT, or the vehicle's row lock, fail.
+	 */
+	private function failing(string $what): callable
+	{
+		global $wpdb;
+		$vehicle = $this->vehicle_id;
+		$wpdb->suppress_errors(true);
+
+		return static function ($query) use ($what, $vehicle, $wpdb) {
+			$sql = (string) $query;
+			if ('count' === $what && preg_match('/^\s*SELECT COUNT\(\*\)/i', $sql) && str_contains($sql, 'pm_vid')) {
+				return 'SELECT * FROM mhmrentiva_no_such_table';
+			}
+			if ('lock' === $what && preg_match('/FOR UPDATE/i', $sql) && str_contains($sql, $wpdb->posts) && str_contains($sql, 'ID = ' . $vehicle)) {
+				return 'SELECT * FROM mhmrentiva_no_such_table';
+			}
+
+			return $query;
+		};
+	}
+
+	public function test_an_unreadable_count_reads_as_taken(): void
+	{
+		$fail = $this->failing('count');
+		add_filter('query', $fail);
+		$taken = \MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($this->vehicle_id, time() + DAY_IN_SECONDS, time() + 2 * DAY_IN_SECONDS);
+		remove_filter('query', $fail);
+
+		$this->assertTrue($taken, 'Util.php: a null count is never "available".');
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function failures(): array
+	{
+		return array(
+			'count' => array( 'count' ),
+			'lock'  => array( 'lock' ),
+		);
+	}
+
+	/**
+	 * @dataProvider failures
+	 */
+	public function test_a_failure_to_check_refuses_every_payment_path(string $what): void
+	{
+		list($order, $booking_id) = $this->failed_order();
+		$fail                     = $this->failing($what);
+		add_filter('query', $fail);
+
+		// Order-pay: an error notice, so WC_Form_Handler::pay_action() never calls the gateway.
+		WooCommerceBridge::claim_before_pay($order);
+		$notices = wc_get_notices('error');
+
+		// Store API: the request stops before the gateway.
+		$stopped = false;
+		try {
+			$this->store_api(wc_get_order($order->get_id()));
+		} catch (RouteException $e) {
+			$stopped = true;
+		}
+
+		// A payment landing confirms nothing.
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'failed', 'processing', wc_get_order($order->get_id()));
+		remove_filter('query', $fail);
+
+		$this->assertCount(1, $notices);
+		$this->assertStringContainsString('could not be checked', (string) $notices[0]['notice']);
+		$this->assertTrue($stopped);
+		wp_cache_delete($booking_id, 'post_meta');
+		$this->assertSame('cancelled', get_post_meta($booking_id, '_mhmrentiva_status', true), 'Stays cancelled.');
+	}
+
+	public function test_a_new_booking_is_not_made_on_an_unreadable_count(): void
+	{
+		$fail = $this->failing('count');
+		add_filter('query', $fail);
+		try {
+			$this->store_api($this->pending_order());
+			$this->fail('The checkout must stop.');
+		} catch (RouteException $e) {
+			$this->assertSame(400, $e->getCode());
+		}
+		remove_filter('query', $fail);
+
+		$this->assertSame(0, $this->bookings_of_vehicle());
+	}
+
+	// ----------------------------------- Codex delta advice: all or nothing
+
+	public function test_a_refused_later_booking_puts_the_earlier_revival_back(): void
+	{
+		$second_vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_title' => 'Renault Clio' ));
+
+		// One order, two rentals; the payment failed and cancelled both.
+		$order = wc_create_order();
+		$this->pending_line($order, $this->snapshot());
+		$this->pending_line($order, $this->snapshot(array( 'vehicle_id' => $second_vehicle )));
+		$order->calculate_totals();
+		$order->set_status('pending');
+		$order->save();
+		$this->store_api($order);
+		$order = wc_get_order($order->get_id());
+		$ids   = array();
+		foreach ($order->get_items() as $item) {
+			$ids[] = (int) $item->get_meta('_mhmrentiva_booking_id');
+		}
+		$order->update_status('failed');
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'failed', $order);
+		$deadline = (string) get_post_meta($ids[0], '_mhmrentiva_payment_deadline', true);
+
+		// Someone takes the second vehicle's dates only.
+		$other = wc_create_order();
+		$this->pending_line($other, $this->snapshot(array( 'vehicle_id' => $second_vehicle )));
+		$other->calculate_totals();
+		$other->save();
+		$this->store_api($other);
+
+		WooCommerceBridge::claim_before_pay(wc_get_order($order->get_id()));
+
+		$this->assertSame(1, wc_notice_count('error'));
+		wp_cache_delete($ids[0], 'post_meta');
+		$this->assertSame('cancelled', get_post_meta($ids[0], '_mhmrentiva_status', true), 'The first booking is not left revived.');
+		$this->assertSame($deadline, (string) get_post_meta($ids[0], '_mhmrentiva_payment_deadline', true));
+		$this->assertSame('cancelled', get_post_meta($ids[1], '_mhmrentiva_status', true));
+	}
+
+	// ------------------------------------ Fable delta M1: closed bookings
+
+	/**
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function closed_bookings(): array
+	{
+		return array(
+			'no-show, completed'  => array( 'no_show', 'completed' ),
+			'no-show, processing' => array( 'no_show', 'processing' ),
+			'refunded, completed' => array( 'refunded', 'completed' ),
+		);
+	}
+
+	/**
+	 * @dataProvider closed_bookings
+	 */
+	public function test_closing_the_order_of_a_closed_booking_tells_nobody_to_refund(string $status, string $arm): void
+	{
+		$order = $this->pending_order();
+		$this->store_api($order);
+		$order      = wc_get_order($order->get_id());
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
+		update_post_meta($booking_id, '_mhmrentiva_status', $status);
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'on-hold', $arm, $order);
+
+		$this->assertSame($status, get_post_meta($booking_id, '_mhmrentiva_status', true), 'The status table answers, as before.');
+		$this->assertSame(array(), array_filter($this->notes(wc_get_order($order->get_id())), static fn($n) => str_contains($n, 'was not confirmed')), 'No refund instruction.');
+	}
+
+	public function test_an_on_hold_refusal_does_not_say_a_payment_was_recorded(): void
+	{
+		list($order, $booking_id) = $this->failed_order();
+		$this->someone_else_books();
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'failed', 'on-hold', $order);
+
+		$notes = $this->notes(wc_get_order($order->get_id()));
+		$this->assertNotEmpty(array_filter($notes, static fn($n) => str_contains($n, 'Order on hold, but booking #' . $booking_id)));
+		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'Payment recorded')));
 	}
 }
