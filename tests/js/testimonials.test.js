@@ -123,6 +123,40 @@ describe( 'testimonials', () => {
 		expect( document.querySelector( '[data-rvs-load-more]' ).disabled ).toBe( false );
 	} );
 
+	test( 'after load more focus is on the first new card, not lost to the body', async () => {
+		global.fetch.mockReturnValue( answer( { success: true, data: { cards: [ row(), row( { text: 'second new' } ) ], has_more: true } } ) );
+		load( instance( 'a' ) );
+		document.querySelector( '[data-rvs-load-more]' ).focus();
+
+		document.querySelector( '[data-rvs-load-more]' ).click();
+		await flush();
+
+		const cards = document.querySelectorAll( '[data-rvs-items] [data-rvs-card]' );
+		expect( document.activeElement ).toBe( cards[ 2 ] );
+		expect( cards[ 2 ].getAttribute( 'tabindex' ) ).toBe( '-1' );
+		expect( cards[ 3 ].hasAttribute( 'tabindex' ) ).toBe( false );
+	} );
+
+	test( 'an empty last page moves focus to the live region', async () => {
+		global.fetch.mockReturnValue( answer( { success: true, data: { cards: [], has_more: false } } ) );
+		load( instance( 'a' ) );
+
+		document.querySelector( '[data-rvs-load-more]' ).click();
+		await flush();
+
+		expect( document.activeElement ).toBe( document.querySelector( '[data-rvs-live]' ) );
+	} );
+
+	test( 'a failed load gives focus back to the button', async () => {
+		global.fetch.mockReturnValue( answer( { success: false, data: {} } ) );
+		load( instance( 'a' ) );
+
+		document.querySelector( '[data-rvs-load-more]' ).click();
+		await flush();
+
+		expect( document.activeElement ).toBe( document.querySelector( '[data-rvs-load-more]' ) );
+	} );
+
 	test( 'a row without a rating, vehicle or date loses those parts', async () => {
 		global.fetch.mockReturnValue( answer( { success: true, data: { cards: [ row( { rating: 0, vehicle: '', date: '' } ) ], has_more: false } } ) );
 		load( instance( 'a' ) );
@@ -240,7 +274,10 @@ describe( 'testimonials', () => {
 		const dots = document.querySelectorAll( '[data-rvs-dots] button' );
 		expect( dots ).toHaveLength( 3 );
 		expect( dots[ 2 ].getAttribute( 'aria-label' ) ).toBe( 'Review 3 of 3' );
-		// Rotation began with the cards: it steps.
+		// Focus went to the new card: rotation holds until it leaves, then steps.
+		jest.advanceTimersByTime( 5000 );
+		expect( dots[ 1 ].getAttribute( 'aria-current' ) ).toBeNull();
+		document.activeElement.blur();
 		jest.advanceTimersByTime( 5000 );
 		expect( dots[ 1 ].getAttribute( 'aria-current' ) ).toBe( 'true' );
 	} );

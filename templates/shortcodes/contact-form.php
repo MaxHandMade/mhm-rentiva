@@ -225,7 +225,9 @@ $wrapper_classes   = trim('rvs-contact rvs-contact--' . $theme . ' ' . $extra_cl
 					<div class="rvs-field" data-rvs-field>
 						<label for="<?php echo esc_attr($ids['attachment'] ?? ''); ?>"><?php echo esc_html__('File (optional)', 'mhm-rentiva'); ?></label>
 						<div class="rvs-file">
-							<input type="file" id="<?php echo esc_attr($ids['attachment'] ?? ''); ?>" name="attachment" class="rvs-file__input" accept="<?php echo esc_attr( (string) ( $attachment['accept'] ?? '' )); ?>" aria-describedby="<?php echo esc_attr( ( $ids['attachment'] ?? '' ) . '-help'); ?>">
+							<input type="file" id="<?php echo esc_attr($ids['attachment'] ?? ''); ?>" name="attachment" class="rvs-file__input rvs-sr-only" accept="<?php echo esc_attr( (string) ( $attachment['accept'] ?? '' )); ?>" aria-describedby="<?php echo esc_attr( ( $ids['attachment'] ?? '' ) . '-help'); ?>">
+							<label for="<?php echo esc_attr($ids['attachment'] ?? ''); ?>" class="rvs-btn rvs-btn--secondary rvs-file__choose"><?php echo esc_html__('Choose file', 'mhm-rentiva'); ?></label>
+							<span class="rvs-file__name" data-rvs-file-name><?php echo esc_html__('No file chosen', 'mhm-rentiva'); ?></span>
 							<button type="button" class="rvs-btn rvs-btn--ghost" data-rvs-file-remove hidden><?php echo esc_html__('Remove file', 'mhm-rentiva'); ?></button>
 						</div>
 						<span id="<?php echo esc_attr( ( $ids['attachment'] ?? '' ) . '-help'); ?>" class="rvs-help"><?php echo esc_html( (string) ( $attachment['help'] ?? '' )); ?></span>
@@ -254,7 +256,7 @@ $wrapper_classes   = trim('rvs-contact rvs-contact--' . $theme . ' ' . $extra_cl
 					</div>
 				<?php endif; ?>
 
-				<div class="rvs-sr-only" aria-hidden="true">
+				<div class="rvs-sr-only" inert>
 					<label for="<?php echo esc_attr($ids['honeypot'] ?? ''); ?>"><?php echo esc_html__('Leave this field blank', 'mhm-rentiva'); ?></label>
 					<input type="text" id="<?php echo esc_attr($ids['honeypot'] ?? ''); ?>" name="<?php echo esc_attr( (string) ( $view['honeypot'] ?? '' )); ?>" tabindex="-1" autocomplete="off">
 				</div>
@@ -269,7 +271,7 @@ $wrapper_classes   = trim('rvs-contact rvs-contact--' . $theme . ' ' . $extra_cl
 			<aside class="rvs-contact__info" aria-label="<?php echo esc_attr__('Contact information', 'mhm-rentiva'); ?>">
 				<?php foreach ($sidebar as $info_row) : ?>
 					<div class="rvs-contact__info-row">
-						<h2><?php echo esc_html($info_row['label']); ?></h2>
+						<h3><?php echo esc_html($info_row['label']); ?></h3>
 						<p>
 							<?php if ('' !== $info_row['href']) : ?>
 								<a class="rvs-contact__info-link" href="<?php echo esc_url($info_row['href'], array( 'tel', 'mailto' )); ?>"><?php echo esc_html($info_row['value']); ?></a>

@@ -30,6 +30,7 @@ const form = ( uid, extra = '' ) => `
 			<div data-rvs-field><textarea id="${ uid }-message" name="message" required></textarea></div>
 			<div data-rvs-field>
 				<input type="file" id="${ uid }-attachment" name="attachment" aria-describedby="${ uid }-attachment-help">
+				<span data-rvs-file-name>No file chosen</span>
 				<button type="button" data-rvs-file-remove hidden>Remove</button>
 				<span id="${ uid }-attachment-help">types</span>
 			</div>
@@ -168,6 +169,18 @@ describe( 'contact form', () => {
 			first.querySelector( '[data-rvs-file-remove]' ).click();
 			expect( input.getAttribute( 'aria-describedby' ) ).toBe( 'a-attachment-help' );
 			expect( input.hasAttribute( 'aria-invalid' ) ).toBe( false );
+		} );
+
+		test( 'the chosen file is named next to its remove button, and the name goes with it', () => {
+			const input = first.elements.attachment;
+			const name = first.querySelector( '[data-rvs-file-name]' );
+			setFile( input, 'photo.png' );
+			input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+			expect( name.textContent ).toBe( 'photo.png' );
+			expect( first.querySelector( '[data-rvs-file-remove]' ).hidden ).toBe( false );
+
+			first.querySelector( '[data-rvs-file-remove]' ).click();
+			expect( name.textContent ).toBe( 'No file chosen' );
 		} );
 
 		test( 'a file over the limit is refused', () => {

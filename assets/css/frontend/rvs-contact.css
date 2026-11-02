@@ -96,7 +96,7 @@
 	min-width: 0;
 }
 
-.rvs-shell .rvs-contact__info h2 {
+.rvs-shell .rvs-contact__info h3 {
 	margin-bottom: var(--rvs-s1);
 	font-size: 20px;
 }
@@ -140,14 +140,22 @@
 		padding-block: var(--rvs-s4) var(--rvs-s8);
 	}
 
+	/* No wrap: a wrapping column's line is as wide as its widest child, past the page. */
 	.rvs-shell .rvs-contact__body {
 		flex-direction: column;
+		flex-wrap: nowrap;
 		align-items: stretch;
 		gap: var(--rvs-s6);
 	}
 
 	.rvs-shell .rvs-contact__main {
 		flex: none;
+	}
+
+	/* Equal thirds cut the longest one-word topic: each takes at least its word. */
+	.rvs-shell .rvs-contact .rvs-seg--choice > label {
+		flex: 1 1 auto;
+		min-width: min-content;
 	}
 
 	.rvs-shell .rvs-contact__grid {

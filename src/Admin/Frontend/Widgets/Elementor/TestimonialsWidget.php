@@ -22,6 +22,16 @@ class TestimonialsWidget extends ElementorWidgetBase {
 		return 'rv-testimonials';
 	}
 
+	/**
+	 * Elementor loads a widget's dependencies into the editor preview too; a
+	 * render-time enqueue never reaches it.
+	 *
+	 * @return array<int, string>
+	 */
+	public function get_style_depends(): array {
+		return array( 'mhm-rentiva-elementor', 'mhm-rentiva-rvs-reviews' );
+	}
+
 	public function get_title(): string {
 		return __( 'Testimonials', 'mhm-rentiva' );
 	}

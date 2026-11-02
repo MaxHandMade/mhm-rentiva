@@ -186,6 +186,9 @@ class RatingHelper {
 				'user_id' => $user_id, // This works for logged in users
 				'type'    => 'review',
 				'number'  => 1,
+				// One review per person; old data may hold more, the newest is "the" review.
+				'orderby' => 'comment_date_gmt',
+				'order'   => 'DESC',
 			)
 		);
 

@@ -99,12 +99,21 @@
 			if ( ! input || ! remove ) {
 				return;
 			}
+			const name = this.form.querySelector( '[data-rvs-file-name]' );
+			const empty = name ? name.textContent : '';
+			const showName = ( value ) => {
+				if ( name ) {
+					name.textContent = value || empty;
+				}
+			};
 			input.addEventListener( 'change', () => {
 				remove.hidden = 0 === input.files.length;
+				showName( input.files.length ? input.files[ 0 ].name : '' );
 			} );
 			remove.addEventListener( 'click', () => {
 				input.value = '';
 				remove.hidden = true;
+				showName( '' );
 				this.clearFieldError( input );
 				input.focus();
 			} );

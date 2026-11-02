@@ -28,6 +28,16 @@ class SearchResultsWidget extends ElementorWidgetBase {
 		return 'rv-search-results';
 	}
 
+	/**
+	 * Elementor loads a widget's dependencies into the editor preview too; a
+	 * render-time enqueue never reaches it.
+	 *
+	 * @return array<int, string>
+	 */
+	public function get_style_depends(): array {
+		return array( 'mhm-rentiva-elementor', 'mhm-rentiva-rvs-results' );
+	}
+
 	public function get_title(): string {
 		return __( 'Search Results', 'mhm-rentiva' );
 	}

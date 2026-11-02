@@ -16894,3 +16894,16 @@ msgstr ""
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
+msgid "The review could not be deleted."
+msgstr ""
+
+#: templates/shortcodes/contact-form.php
+msgid "Choose file"
+msgstr ""
+
+#: templates/shortcodes/contact-form.php
+msgid "No file chosen"
+msgstr ""
+

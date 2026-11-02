@@ -17725,6 +17725,18 @@ msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste yerleşiminde görüntüleyin."
 
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
+msgid "The review could not be deleted."
+msgstr "Yorum silinemedi."
+
+#: templates/shortcodes/contact-form.php
+msgid "Choose file"
+msgstr "Dosya seç"
+
+#: templates/shortcodes/contact-form.php
+msgid "No file chosen"
+msgstr "Dosya seçilmedi"
+
 #~ msgid "7/24 Support"
 #~ msgstr "7/24 destek"
 

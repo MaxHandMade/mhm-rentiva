@@ -470,24 +470,30 @@
 	outline-offset: -3px;
 }
 
-/* File input: the browser's own control, and a way to take the choice back. */
+/*
+ * File input: the control is hidden for the eye and stays in the tab order, because
+ * the browser's own box has a fixed width of its own: it pushed the form past a phone
+ * and kept the remove button far from the file name.
+ */
 
 .rvs-shell .rvs-file {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--rvs-s2);
+	position: relative;
 }
 
-.rvs-shell .rvs-file__input {
-	flex: 0 1 auto;
+.rvs-shell .rvs-file:has(.rvs-file__input:focus-visible) .rvs-file__choose {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+.rvs-shell .rvs-file__name {
 	min-width: 0;
-	min-height: 44px;
-	padding: 0;
-	border: 0;
-	background: transparent;
-	color: var(--rvs-text);
+	color: var(--rvs-muted);
 	font-size: 15px;
+	overflow-wrap: anywhere;
 }
 
 /* Notice: a form's lasting answer (success) or its form-wide failure. */

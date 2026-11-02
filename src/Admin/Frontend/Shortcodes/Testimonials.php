@@ -501,7 +501,11 @@ final class Testimonials extends AbstractShortcode {
 		$testimonials = array();
 
 		foreach ($bookings as $booking) {
-			$vid            = (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
+			$vid = (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
+			// As in the comment source: a vehicle off the site keeps no public reviews.
+			if ($vid > 0 && 'publish' !== get_post_status($vid)) {
+				continue;
+			}
 			$testimonials[] = array(
 				'id'            => $booking->ID,
 				'review'        => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),

@@ -257,6 +257,17 @@ describe( 'vehicle rating form', () => {
 		expect( document.activeElement ).toBe( opener );
 	} );
 
+	test( 'without a form on the page delete uses the page nonce', async () => {
+		load( instance( 'a' ) );
+		fetch.mockReturnValue( answer( { success: true, data: {} } ) );
+		root( 'a' ).querySelector( 'form' ).elements.nonce.remove();
+		document.getElementById( 'a-delete' ).click();
+		root( 'a' ).querySelector( '[data-rvs-review-dialog-confirm]' ).click();
+		await flush();
+
+		expect( fetch.mock.calls[ 0 ][ 1 ].body.get( 'nonce' ) ).toBe( 'script-nonce' );
+	} );
+
 	test( 'confirmed delete posts the comment and leaves the answer for the reload', async () => {
 		load( instance( 'a' ) );
 		fetch.mockReturnValue( answer( { success: true, data: {} } ) );
@@ -267,7 +278,7 @@ describe( 'vehicle rating form', () => {
 		const body = fetch.mock.calls[ 0 ][ 1 ].body;
 		expect( body.get( 'action' ) ).toBe( 'mhmrentiva_delete_rating' );
 		expect( body.get( 'comment_id' ) ).toBe( 'a0' );
-		expect( body.get( 'nonce' ) ).toBe( 'script-nonce' );
+		expect( body.get( 'nonce' ) ).toBe( 'form-nonce' );
 		expect( JSON.parse( window.sessionStorage.getItem( 'mhmRentivaRatingNotice' ) ).title ).toBe( 'Deleted' );
 	} );
 

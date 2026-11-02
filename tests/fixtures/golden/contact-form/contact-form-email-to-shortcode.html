@@ -33,12 +33,14 @@
 <div class="rvs-field" data-rvs-field>
 <label for="X">File (optional)</label>
 <div class="rvs-file">
-<input type="file" id="X" name="attachment" class="rvs-file__input" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" aria-describedby="X">
+<input type="file" id="X" name="attachment" class="rvs-file__input rvs-sr-only" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" aria-describedby="X">
+<label for="X" class="rvs-btn rvs-btn--secondary rvs-file__choose">Choose file</label>
+<span class="rvs-file__name" data-rvs-file-name>No file chosen</span>
 <button type="button" class="rvs-btn rvs-btn--ghost" data-rvs-file-remove hidden>Remove file</button>
 </div>
 <span id="X" class="rvs-help">JPG, JPEG, PNG, GIF, PDF, DOC, DOCX, up to 2 MB</span>
 </div>
-<div class="rvs-sr-only" aria-hidden="X">
+<div class="rvs-sr-only" inert>
 <label for="X">Leave this field blank</label>
 <input type="text" id="X" name="rvs_leave_blank" tabindex="-1" autocomplete="off">
 </div>
@@ -49,7 +51,7 @@
 </div>
 <aside class="rvs-contact__info" aria-label="X">
 <div class="rvs-contact__info-row">
-<h2>Email</h2>
+<h3>Email</h3>
 <p>
 <a class="rvs-contact__info-link" href="mailto:admin@example.org">admin@example.org</a>
 </p>

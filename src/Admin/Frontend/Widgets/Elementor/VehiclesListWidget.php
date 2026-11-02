@@ -26,6 +26,16 @@ class VehiclesListWidget extends ElementorWidgetBase {
 		return 'mhmrentiva_vehicles_list';
 	}
 
+	/**
+	 * Elementor loads a widget's dependencies into the editor preview too; a
+	 * render-time enqueue never reaches it.
+	 *
+	 * @return array<int, string>
+	 */
+	public function get_style_depends(): array {
+		return array( 'mhm-rentiva-elementor', 'mhm-rentiva-rvs-card' );
+	}
+
 	public function get_title(): string {
 		return __( 'Vehicles List', 'mhm-rentiva' );
 	}

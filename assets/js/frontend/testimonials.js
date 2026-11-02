@@ -300,6 +300,7 @@
 			this.error.textContent = '';
 
 			const page = parseInt( this.button.getAttribute( 'data-page' ), 10 ) || 1;
+			let moved = false;
 			post( {
 				action: 'mhmrentiva_load_testimonials',
 				nonce: config().nonce || '',
@@ -314,8 +315,8 @@
 				if ( ! response.success ) {
 					throw new Error( ( response.data && response.data.message ) || '' );
 				}
-				const cards = response.data.cards || [];
-				cards.forEach( ( card ) => this.items.appendChild( this.build( card ) ) );
+				const cards = ( response.data.cards || [] ).map( ( card ) => this.build( card ) );
+				cards.forEach( ( node ) => this.items.appendChild( node ) );
 				this.button.setAttribute( 'data-page', String( page + 1 ) );
 				this.rebuildDots();
 				if ( cards.length && this.live ) {
@@ -323,6 +324,13 @@
 				}
 				if ( ! response.data.has_more || ! cards.length ) {
 					this.button.closest( '.rvs-testimonials__more' ).hidden = true;
+				}
+				// The busy button dropped focus to the body: it goes to what was added.
+				const target = cards[ 0 ] || this.live;
+				if ( target ) {
+					target.setAttribute( 'tabindex', '-1' );
+					target.focus();
+					moved = true;
 				}
 			} ).catch( () => {
 				this.error.textContent = text( 'error' );
@@ -332,6 +340,9 @@
 				this.button.disabled = false;
 				this.button.removeAttribute( 'aria-busy' );
 				this.button.textContent = label;
+				if ( ! moved ) {
+					this.button.focus();
+				}
 			} );
 		}
 

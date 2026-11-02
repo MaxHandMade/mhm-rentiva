@@ -12,6 +12,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Settings\Comments\CommentsSettings;
 use MHMRentiva\Admin\Vehicle\Helpers\RatingHelper;
 use MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper;
+use MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
 
@@ -28,6 +29,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 	public const SHORTCODE = 'rentiva_vehicle_rating_form';
 
 	private const SCRIPT_HANDLE = 'mhm-rentiva-vehicle-rating-form';
+
+	/**
+	 * Most reviews one list draws, whatever the per-page setting says: the list is on
+	 * a public, cacheable page.
+	 */
+	private const MAX_LIST_ROWS = 50;
 
 	protected static bool $rvs_shell = true;
 
@@ -201,7 +208,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		$own_id   = null === $own ? 0 : (int) $own['comment_id'];
 		$comments = array_values(
 			array_filter(
-				RatingHelper::get_public_reviews($vehicle_id, CommentsSettings::get_comments_per_page()),
+				RatingHelper::get_public_reviews($vehicle_id, min(self::MAX_LIST_ROWS, CommentsSettings::get_comments_per_page())),
 				static fn(\WP_Comment $comment): bool => (int) $comment->comment_ID !== $own_id
 			)
 		);
@@ -398,7 +405,6 @@ final class VehicleRatingForm extends AbstractShortcode {
 			'comment_post_ID'  => $vid,
 			'comment_content'  => $comment,
 			'comment_type'     => 'review',
-			'comment_approved' => ! empty($comments_settings['approval']['auto_approve']) ? 1 : 0,
 			// ReviewEnforcer (preprocess_comment) enforces the 1-5 rating. It reads
 			// this value from the comment data rather than from $_POST, so the
 			// nonce-verified handler that owns the request has to pass it along.
@@ -409,7 +415,20 @@ final class VehicleRatingForm extends AbstractShortcode {
 		if ($is_update && $existing) {
 			$comment_data['comment_ID'] = $existing['comment_id'];
 			$comment_data['user_id']    = $uid;
-			wp_update_comment($comment_data);
+			// Approved stays approved only under auto approve; approved under moderation
+			// goes back to waiting. Waiting stays waiting either way: an edit never
+			// undoes an administrator's "unapprove". (get_user_review() finds 0 and 1
+			// only, so spam and trash never arrive here.)
+			$comment_data['comment_approved'] = '1' === (string) $existing['status'] && ! empty($comments_settings['approval']['auto_approve']) ? 1 : 0;
+			// Core unslashes what these two APIs are given: unslashed text loses its backslashes.
+			$updated = wp_update_comment(wp_slash($comment_data), true);
+			if (is_wp_error($updated)) {
+				wp_send_json_error(array( 'message' => $updated->get_error_message() ));
+			}
+			// 0 is "nothing to change" and goes on: the rating may still differ.
+			if (false === $updated) {
+				wp_send_json_error(array( 'message' => __('Failed to submit rating', 'mhm-rentiva') ));
+			}
 			update_comment_meta($existing['comment_id'], 'mhmrentiva_rating', $rating);
 			self::update_vehicle_rating_meta($vid);
 			wp_send_json_success(ReviewsView::submission_answer(self::is_approved( (int) $existing['comment_id']), true, false));
@@ -457,7 +476,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 			? substr(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])), 0, 254)
 			: '';
 
-		$cid = wp_new_comment($comment_data, true);
+		// Refused here, as JSON: the check inside core's pipeline can only wp_die().
+		if (ReviewEnforcer::has_review($vid, $uid, (string) $comment_data['comment_author_email'])) {
+			wp_send_json_error(array( 'message' => ReviewEnforcer::duplicate_message() ));
+		}
+
+		$cid = wp_new_comment(wp_slash($comment_data), true);
 		if ($cid && ! is_wp_error($cid)) {
 			update_comment_meta($cid, 'mhmrentiva_rating', $rating);
 			self::update_vehicle_rating_meta($vid);
@@ -525,7 +549,9 @@ final class VehicleRatingForm extends AbstractShortcode {
 		$owner_may = (int) $c->user_id === $uid && (bool) ( $settings['display']['allow_deletion'] ?? true );
 		if ($owner_may || current_user_can('manage_options')) {
 			$vid = (int) $c->comment_post_ID;
-			wp_delete_comment($cid, true);
+			if (! wp_delete_comment($cid, true)) {
+				wp_send_json_error(array( 'message' => __('The review could not be deleted.', 'mhm-rentiva') ));
+			}
 
 			// Update vehicle meta
 			self::update_vehicle_rating_meta($vid);

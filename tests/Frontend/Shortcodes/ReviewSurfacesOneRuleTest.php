@@ -507,7 +507,9 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 	public function test_a_new_waiting_review_answers_from_the_stored_status(): void
 	{
 		$this->settings_cache(array( 'auto_approve' => false ));
-		update_option('comment_moderation', '1');
+		update_option('comment_moderation', '0');
+		$filter = array( \MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::class, 'apply_moderation_setting' );
+		add_filter('pre_comment_approved', $filter, 10, 2);
 		wp_set_current_user($this->author);
 
 		$response = $this->submit(
@@ -518,6 +520,7 @@ final class ReviewSurfacesOneRuleTest extends WP_Ajax_UnitTestCase
 		);
 
 		$this->assertTrue($response['success'], (string) $this->_last_response);
+		remove_filter('pre_comment_approved', $filter, 10);
 		$this->assertSame('pending', $response['data']['state']);
 		$this->assertTrue($response['data']['reload']);
 	}

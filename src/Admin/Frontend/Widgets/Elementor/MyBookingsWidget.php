@@ -21,6 +21,16 @@ class MyBookingsWidget extends ElementorWidgetBase {
 		return 'rv-my-bookings';
 	}
 
+	/**
+	 * Elementor loads a widget's dependencies into the editor preview too; a
+	 * render-time enqueue never reaches it.
+	 *
+	 * @return array<int, string>
+	 */
+	public function get_style_depends(): array {
+		return array( 'mhm-rentiva-elementor', 'mhm-rentiva-rvs-account' );
+	}
+
 	public function get_title(): string {
 		return __( 'My Bookings', 'mhm-rentiva' );
 	}

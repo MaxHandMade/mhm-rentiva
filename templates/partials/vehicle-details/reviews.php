@@ -35,7 +35,5 @@ $mhmrentiva_reviews = $mhmrentiva_view['reviews'];
 		?>
 	<?php endif; ?>
 
-	<div class="rvs-vd__review-form" id="<?php echo esc_attr($mhmrentiva_uid); ?>-review-form">
-		<?php Templates::output_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . (int) $mhmrentiva_view['vehicle_id'] . '" show_rating_display="0"]'); ?>
-	</div>
+	<?php Templates::output_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . (int) $mhmrentiva_view['vehicle_id'] . '" show_rating_display="0"]'); ?>
 </section>

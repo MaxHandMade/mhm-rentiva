@@ -229,7 +229,7 @@
 				vehicle_id: this.vehicleId,
 				rating: this.form.querySelector( 'input[name="rating"]:checked' ).value,
 				comment: this.comment.value,
-				nonce: this.form.elements.nonce ? this.form.elements.nonce.value : config().nonce,
+				nonce: this.nonce(),
 			};
 			if ( this.form.elements.guest_name ) {
 				data.guest_name = this.form.elements.guest_name.value;
@@ -248,6 +248,11 @@
 				this.setBusy( false );
 				this.showAlert( text( 'connection' ) );
 			} );
+		}
+
+		/** One source for submit and delete: the form's own field, else the page's. */
+		nonce() {
+			return this.form && this.form.elements.nonce ? this.form.elements.nonce.value : config().nonce;
 		}
 
 		setBusy( busy ) {
@@ -392,7 +397,7 @@
 			post( {
 				action: 'mhmrentiva_delete_rating',
 				comment_id: this.commentId,
-				nonce: config().nonce,
+				nonce: this.nonce(),
 			} ).then( ( response ) => {
 				if ( ! response.success ) {
 					fail( ( response.data && response.data.message ) || text( 'connection' ) );
