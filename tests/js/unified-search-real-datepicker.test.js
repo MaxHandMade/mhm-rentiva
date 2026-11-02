@@ -93,6 +93,21 @@ describe( 'search strip with the real datepicker', () => {
 		expect( submitted().mhmrentiva_return_date ).toBe( '2027-07-21' );
 	} );
 
+	// Same focus handler as the vehicle card (2026-11-02): a Prev / Next step
+	// re-set minDate and threw the popup back to the selected month.
+	// In a browser the click takes the focus off the field (see the card test).
+	test( 'the return popup steps to another month and stays open', async () => {
+		await boot( 1 );
+		ret().focus();
+		jQuery( ret() ).datepicker( 'show' );
+		const inst = jQuery.data( ret(), 'datepicker' );
+
+		ret().blur();
+		jQuery( '#ui-datepicker-div a[data-handler="next"]' )[ 0 ].click();
+		expect( inst.drawYear * 12 + inst.drawMonth ).toBe( 2027 * 12 + 7 );
+		expect( jQuery.datepicker._datepickerShowing ).toBeTruthy();
+	} );
+
 	test( 'the strip and the card share one rule', async () => {
 		await boot( 1 );
 		expect( typeof window.mhmRentivaDatepicker.constrainReturn ).toBe( 'function' );
