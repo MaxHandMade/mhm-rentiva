@@ -1898,13 +1898,9 @@ final class BookingForm extends AbstractShortcode {
 					'return_date' => $dropoff_date,
 					'return_time' => $dropoff_time,
 				);
-				foreach ($result['alternatives'] as $index => $alternative) {
-					$alt_id                                        = (int) ( $alternative['id'] ?? 0 );
-					$result['alternatives'][ $index ]['permalink'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\VehicleCardLinks::details_url($alt_id, $window);
-					// The rvs card's own specs line (seats · transmission · fuel, translated;
-					// else the first three features), as every other card shows it.
-					$result['alternatives'][ $index ]['specs'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\RvsCardView::specs($alt_id, \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_limited_features($alt_id, 3));
-				}
+				// The page link and the rvs card's own specs line, as the vehicle page's
+				// suggestions carry them too.
+				$result['alternatives'] = \MHMRentiva\Admin\Frontend\Shortcodes\Card\AlternativeVehicles::enrich($result['alternatives'], $window);
 			}
 
 			return $result['ok'] ? self::succeeded($result) : self::refused($result);

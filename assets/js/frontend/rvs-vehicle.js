@@ -7,7 +7,8 @@
  * The gallery viewer and the phone's breakdown sheet are shared rvs dialogs
  * (rvs-dialog.js).
  *
- * Config: window.mhmRentivaVehicle = { ajax_url, nonce, min_days, i18n: { error, days_one, days_many } }.
+ * Config: window.mhmRentivaVehicle = { ajax_url, nonce, min_days,
+ * i18n: { error, days_one, days_many, alternatives, select_vehicle, per_day } }.
  */
 ( function ( $ ) {
 	'use strict';
@@ -195,6 +196,61 @@
 			}
 		} );
 		showMessage( $root, data.available ? '' : data.message || '' );
+		showAlternatives( $root, data.available ? [] : data.alternatives );
+	}
+
+	let altSeq = 0;
+
+	/**
+	 * Free vehicles for a taken window (the quote's `alternatives`, at most two)
+	 * under the message: image, title, specs, daily price and a link to that
+	 * vehicle's page with the same dates. The box is a status region the page
+	 * renders empty, so a screen reader hears what arrives in it; a cached page
+	 * without one gets it right after the message. Text goes in as text; only
+	 * price_html, the server's formatted price, is markup (as total_html is).
+	 *
+	 * @param {jQuery} $root The vehicle page root.
+	 * @param {Array}  list  The quote's alternatives; empty clears the box.
+	 */
+	function showAlternatives( $root, list ) {
+		let $box = $root.find( '[data-rvs-vd-alternatives]' ).first();
+		if ( ! $box.length ) {
+			$box = $( '<div class="rvs-vd__alternatives" data-rvs-vd-alternatives role="status"></div>' )
+				.insertAfter( $root.find( '[data-rvs-vd-message]' ).first() );
+		}
+		$box.empty();
+
+		const items = ( Array.isArray( list ) ? list : [] ).filter( function ( vehicle ) {
+			return vehicle && vehicle.permalink;
+		} ).slice( 0, 2 );
+		if ( ! items.length ) {
+			return;
+		}
+
+		$( '<p class="rvs-vd__alternatives-title"></p>' ).text( t( 'alternatives', 'Alternative Vehicles' ) ).appendTo( $box );
+		const $list = $( '<ul class="rvs-vd__alternatives-list"></ul>' ).appendTo( $box );
+		items.forEach( function ( vehicle ) {
+			const titleId = 'rvs-vd-alt-' + ( ++altSeq );
+			const $item = $( '<li class="rvs-vd__alt"></li>' ).appendTo( $list );
+			if ( vehicle.image ) {
+				// The title beside it names the car: the image is decoration.
+				$( '<img class="rvs-vd__alt-img" alt="" loading="lazy" width="72" height="54">' ).attr( 'src', String( vehicle.image ) ).appendTo( $item );
+			}
+			const $body = $( '<div class="rvs-vd__alt-body"></div>' ).appendTo( $item );
+			$( '<p class="rvs-vd__alt-title"></p>' ).attr( 'id', titleId ).text( String( vehicle.title || '' ) ).appendTo( $body );
+			if ( vehicle.specs ) {
+				$( '<p class="rvs-vd__alt-specs"></p>' ).text( String( vehicle.specs ) ).appendTo( $body );
+			}
+			if ( vehicle.price_html ) {
+				const $price = $( '<p class="rvs-vd__alt-price"></p>' ).appendTo( $body );
+				$( '<strong></strong>' ).html( String( vehicle.price_html ) ).appendTo( $price );
+				$( '<span></span>' ).text( ' ' + t( 'per_day', '/day' ) ).appendTo( $price );
+			}
+			$( '<a class="rvs-btn rvs-btn--ghost rvs-vd__alt-link"></a>' )
+				.attr( { href: String( vehicle.permalink ), 'aria-describedby': titleId } )
+				.text( t( 'select_vehicle', 'Select This Vehicle' ) )
+				.appendTo( $item );
+		} );
 	}
 
 	function requestQuote( $root ) {
@@ -219,6 +275,8 @@
 			},
 			function ( message ) {
 				showMessage( $root, message || t( 'error', 'An error occurred' ) );
+				// Suggestions for an earlier window must not stay beside the error.
+				showAlternatives( $root, [] );
 			},
 			function () {
 				state.loading = false;

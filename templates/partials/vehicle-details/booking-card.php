@@ -112,6 +112,8 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 		<?php endif; ?>
 
 		<p class="rvs-vd__message" data-rvs-vd-message role="status"<?php echo $mhmrentiva_ok ? ' hidden' : ''; ?>><?php echo esc_html( (string) $mhmrentiva_booking['message']); ?></p>
+		<?php // Free vehicles for a taken window, filled by rvs-vehicle.js from the quote; empty in the page so a screen reader hears it fill. ?>
+		<div class="rvs-vd__alternatives" data-rvs-vd-alternatives role="status"></div>
 
 		<?php $mhmrentiva_continue('rvs-btn--lg rvs-vd__continue'); ?>
 

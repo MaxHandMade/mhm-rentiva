@@ -221,6 +221,9 @@ final class VehicleDetailsView {
 			),
 			'available'     => $available,
 			'message'       => $available ? '' : (string) ( $check['message'] ?? '' ),
+			// Why it is not available: Util's code ('unavailable' = booked on those
+			// dates), '' for a booking-rule refusal or when it is available.
+			'code'          => $available ? '' : (string) ( $check['code'] ?? '' ),
 			// "Pickup and return: X" -- the car's point, '' without one.
 			'pickup_return' => null !== $location ? (string) $location->name : '',
 		);
