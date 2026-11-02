@@ -316,7 +316,7 @@ class VehiclesGrid extends AbstractShortcode {
 
 		$args     = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::restrict_query_to_service($args, 'rental');
 		$args     = apply_filters('mhmrentiva_vehicle_query_args', $args, 'vehicles_grid', array(), $atts);
-		$posts    = get_posts($args);
+		$posts    = get_posts(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::prefilter_service_clause($args));
 		$vehicles = array();
 
 		// One batch for the covers instead of one judgement query set per card.

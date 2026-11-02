@@ -814,7 +814,7 @@ final class SearchResults extends AbstractShortcode {
 			'rental'
 		);
 
-		return array_values(array_map('intval', get_posts($args)));
+		return array_values(array_map('intval', get_posts(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::prefilter_service_clause($args))));
 	}
 
 	/**
@@ -853,6 +853,7 @@ final class SearchResults extends AbstractShortcode {
 		// A token per call, not a flag: a second search started while this
 		// query is being built carries the key too, and must not get this
 		// clause.
+		$args                             = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::prefilter_service_clause($args);
 		$token                            = 'q' . ( ++self::$scope_seq );
 		$args[ self::SEARCH_CONTEXT_KEY ] = $token;
 		$args['suppress_filters']         = false;

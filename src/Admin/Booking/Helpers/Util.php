@@ -535,7 +535,7 @@ final class Util {
 			}
 		}
 
-		$all_vehicles = get_posts($query_args);
+		$all_vehicles = get_posts(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::prefilter_service_clause($query_args));
 
 		$all_vehicles = array_values(
 			array_filter(

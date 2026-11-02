@@ -97,6 +97,8 @@ class MyFavorites extends AbstractShortcode {
 				$args['posts_per_page'] = -1;
 			}
 
+			$args['no_found_rows'] = true; // The total is count( $vehicles ).
+
 			$vehicle_posts = ( new WP_Query($args) )->posts;
 			if ('price' === $mode) {
 				$vehicle_posts = self::sort_by_price($vehicle_posts, $order);
