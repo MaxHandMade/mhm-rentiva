@@ -159,6 +159,19 @@
 	gap: var(--rvs-s2);
 }
 
+/* New dates were picked and their quote is on its way: the figures still on
+   screen are the old window's, and look it (booking-form.js showLoading). */
+.rvs-shell .rvs-booking__summary[aria-busy="true"] {
+	opacity: 0.55;
+	transition: opacity 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rvs-shell .rvs-booking__summary[aria-busy="true"] {
+		transition: none;
+	}
+}
+
 .rvs-shell .rvs-booking__vehicle {
 	display: flex;
 	flex-direction: column;

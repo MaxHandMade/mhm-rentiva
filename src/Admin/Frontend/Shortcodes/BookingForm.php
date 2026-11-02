@@ -1470,7 +1470,8 @@ final class BookingForm extends AbstractShortcode {
 
 		// Rate limiting check. Unauthenticated, high-frequency endpoint --
 		// the frontend debounces every date/time/addon change into a
-		// call (100ms debounce, see booking-form.js autoCalculatePrice()),
+		// call (150ms for a date/time/vehicle change, autoCheckAvailability();
+		// 100ms for an add-on, autoCalculatePrice(); see booking-form.js),
 		// so a single honest visitor comparing a few date ranges and
 		// toggling several add-ons can legitimately fire ~15-20 requests
 		// within a minute. 30/60s covers that with headroom while
@@ -1821,7 +1822,7 @@ final class BookingForm extends AbstractShortcode {
 
 		// Rate limiting check. Unauthenticated endpoint; fires less often
 		// than price_calculation -- only once a vehicle, both dates AND
-		// both times are set (300ms debounce, see booking-form.js
+		// both times are set (150ms debounce, see booking-form.js
 		// autoCheckAvailability()). A visitor comparing a handful of
 		// date/vehicle combinations legitimately needs single digits of
 		// calls per session. 20/300s keeps generous headroom over that
