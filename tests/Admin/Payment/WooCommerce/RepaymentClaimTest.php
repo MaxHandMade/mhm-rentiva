@@ -1013,4 +1013,223 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertNotContains('COMMIT', $this->transactions);
 		$this->assertFalse(wp_cache_get($booking_id, 'post_meta'), 'Nothing the rolled-back transaction wrote is served from the cache.');
 	}
+
+	// ------------------------------ Codex delta4: writes the cache cannot fool
+
+	/**
+	 * @param mixed ...$args
+	 * @return mixed
+	 */
+	private function bridge(string $method, ...$args)
+	{
+		$m = new \ReflectionMethod(WooCommerceBridge::class, $method);
+		$m->setAccessible(true);
+
+		return $m->invoke(null, ...$args);
+	}
+
+	/**
+	 * Every row of one meta key, oldest first, from the database.
+	 *
+	 * @return list<string>
+	 */
+	private function rows(int $booking_id, string $key): array
+	{
+		global $wpdb;
+
+		return array_map('strval', $wpdb->get_col($wpdb->prepare("SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC", $booking_id, $key)));
+	}
+
+	/**
+	 * A booking whose rental has ended, so a completed order targets
+	 * Status::COMPLETED.
+	 *
+	 * @return array{0: \WC_Order, 1: int}
+	 */
+	private function ended_booking(string $status): array
+	{
+		$order = $this->pending_order();
+		$this->store_api($order);
+		$order      = wc_get_order($order->get_id());
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
+		update_post_meta($booking_id, '_mhmrentiva_status', $status);
+		update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+		update_post_meta($booking_id, '_mhmrentiva_dropoff_date', '2020-01-10');
+
+		return array( $order, $booking_id );
+	}
+
+	/**
+	 * Codex delta4 1: in the database no_show/paid; a delayed reader put the old
+	 * confirmed/paid entry back into the cache. The paid mark needs no write,
+	 * so nothing clears that entry -- the transition is decided on the
+	 * database, and a no-show booking is not completed.
+	 */
+	public function test_a_stale_cached_status_does_not_reopen_a_closed_booking(): void
+	{
+		list($order, $booking_id) = $this->ended_booking('no_show');
+
+		$stale   = true;
+		$cache   = static function ($check, $object_id, $meta_key) use (&$stale, $booking_id) {
+			return $stale && (int) $object_id === $booking_id && '_mhmrentiva_status' === $meta_key ? array( 'confirmed' ) : $check;
+		};
+		$cleared = static function ($meta_id, $object_id) use (&$stale, $booking_id): void {
+			if ( (int) $object_id === $booking_id) {
+				$stale = false;
+			}
+		};
+		add_filter('get_post_metadata', $cache, 10, 3);
+		add_action('update_post_meta', $cleared, 10, 2);
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'on-hold', 'completed', $order);
+		remove_filter('get_post_metadata', $cache, 10);
+		remove_action('update_post_meta', $cleared, 10);
+
+		$this->assertSame(array( 'no_show' ), $this->rows($booking_id, '_mhmrentiva_status'), 'A no-show booking is not completed from a stale cache.');
+	}
+
+	/**
+	 * Codex delta3 3 / Fable: an allowed unlocked transition that does not hold
+	 * is a failure the operator hears of, not a success.
+	 */
+	public function test_an_allowed_unlocked_transition_that_does_not_hold_is_reported(): void
+	{
+		list($order, $booking_id) = $this->ended_booking('confirmed');
+		$announced = 0;
+		$count     = static function () use (&$announced): void {
+			++$announced;
+		};
+		add_action('mhmrentiva_booking_status_changed', $count);
+		$fail = $this->failing_write($booking_id, '_mhmrentiva_status', 'completed');
+		add_filter('update_post_metadata', $fail, 10, 4);
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'on-hold', 'completed', $order);
+
+		remove_filter('update_post_metadata', $fail, 10);
+		remove_action('mhmrentiva_booking_status_changed', $count);
+
+		$this->assertSame(array( 'confirmed' ), $this->rows($booking_id, '_mhmrentiva_status'));
+		$this->assertSame(0, $announced, 'No status change is announced.');
+		$this->assertNotEmpty(array_filter($this->notes(wc_get_order($order->get_id())), static fn($n) => str_contains($n, 'could not be updated')), 'The operator is told.');
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function empty_values(): array
+	{
+		return array(
+			'empty string' => array( '' ),
+			'zero'         => array( '0' ),
+		);
+	}
+
+	/**
+	 * Codex delta4 2 / Fable B1: update_post_meta()'s $prev_value tests empty(),
+	 * so '' and '0' made no condition. An existing row whose value changes just
+	 * before the write is not overwritten.
+	 *
+	 * @dataProvider empty_values
+	 */
+	public function test_an_empty_expected_value_is_still_a_condition(string $expected): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_payment_deadline', $expected);
+
+		$fired     = false;
+		$meanwhile = static function ($meta_id, $object_id, $meta_key) use (&$fired, $booking_id): void {
+			global $wpdb;
+			if (! $fired && (int) $object_id === $booking_id && '_mhmrentiva_payment_deadline' === $meta_key) {
+				$fired = true;
+				$wpdb->update($wpdb->postmeta, array( 'meta_value' => '2031-01-01 00:00:00' ), array( 'meta_id' => (int) $meta_id ));
+			}
+		};
+		add_action('update_post_meta', $meanwhile, 10, 3);
+		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_payment_deadline', '2031-05-05 10:00:00', $expected);
+		remove_action('update_post_meta', $meanwhile, 10);
+
+		$this->assertTrue($fired);
+		$this->assertFalse($held, 'A value that changed meanwhile is not reported as written.');
+		$this->assertSame(array( '2031-01-01 00:00:00' ), $this->rows($booking_id, '_mhmrentiva_payment_deadline'), 'Not overwritten.');
+	}
+
+	/**
+	 * A missing row is added only while it is still missing: one that appears
+	 * meanwhile is neither overwritten nor joined by a second row.
+	 */
+	public function test_a_missing_row_is_added_only_while_it_is_missing(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+
+		$fired     = false;
+		$meanwhile = static function ($check, $object_id, $meta_key) use (&$fired, $booking_id) {
+			global $wpdb;
+			if (! $fired && (int) $object_id === $booking_id && '_mhmrentiva_payment_deadline' === $meta_key) {
+				$fired = true;
+				$wpdb->insert($wpdb->postmeta, array( 'post_id' => $booking_id, 'meta_key' => '_mhmrentiva_payment_deadline', 'meta_value' => '2031-01-01 00:00:00' ));
+			}
+			return $check;
+		};
+		add_filter('add_post_metadata', $meanwhile, 10, 3);
+		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_payment_deadline', '2031-05-05 10:00:00', '');
+		remove_filter('add_post_metadata', $meanwhile, 10);
+
+		$this->assertTrue($fired);
+		$this->assertFalse($held);
+		$this->assertSame(array( '2031-01-01 00:00:00' ), $this->rows($booking_id, '_mhmrentiva_payment_deadline'), 'One row, the one that appeared meanwhile.');
+	}
+
+	/**
+	 * Codex delta4 3: one key, two rows, two values. The first row alone is no
+	 * answer, and a write over it alone is no success: refused, nothing written.
+	 */
+	public function test_duplicate_rows_that_disagree_are_refused(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+		add_post_meta($booking_id, '_mhmrentiva_status', 'confirmed');
+
+		try {
+			$this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_status', 'cancelled', 'pending');
+			$this->fail('Rows that disagree must refuse.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('mhmrentiva_booking_read_failed', $e->getMessage());
+		}
+		$this->assertSame(array( 'pending', 'confirmed' ), $this->rows($booking_id, '_mhmrentiva_status'), 'Nothing written.');
+
+		try {
+			$this->bridge('read_booking_meta', $booking_id, '_mhmrentiva_status');
+			$this->fail('A decision does not read the first row of two.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('mhmrentiva_booking_read_failed', $e->getMessage());
+		}
+	}
+
+	/**
+	 * Fable B2: a read that fails inside the write is a read failure ("could
+	 * not be checked"), not a write that did not hold.
+	 */
+	public function test_a_read_failure_inside_a_write_is_not_a_write_failure(): void
+	{
+		global $wpdb;
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+		$suppressed = $wpdb->suppress_errors(true);
+		$fail       = static function ($query) use ($booking_id) {
+			$sql = (string) $query;
+			if (preg_match('/^\s*SELECT meta_value FROM/i', $sql) && str_contains($sql, 'post_id = ' . $booking_id . ' ')) {
+				return 'SELECT * FROM mhmrentiva_no_such_table';
+			}
+			return $query;
+		};
+		add_filter('query', $fail);
+		try {
+			$this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_payment_status', 'paid');
+			$this->fail('The read failure must reach the caller.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('mhmrentiva_booking_read_failed', $e->getMessage());
+		} finally {
+			remove_filter('query', $fail);
+			$wpdb->suppress_errors($suppressed);
+		}
+	}
 }

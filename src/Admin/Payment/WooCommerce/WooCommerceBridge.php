@@ -1497,51 +1497,127 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * Locker transaction this is the locked connection, so it sees the
 	 * transaction's own writes.
 	 *
-	 * @throws \RuntimeException When the read failed ('mhmrentiva_booking_read_failed').
+	 * Every row of the key is read: rows that disagree (a duplicate key with
+	 * two values) are not a value, and a decision on the first of them would
+	 * leave the other for BookingConflicts' JOIN to see (Codex PR K delta4 3).
+	 * They read as a failure, so the caller refuses. No row reads as ''.
+	 *
+	 * @throws \RuntimeException When the read failed or the rows disagree ('mhmrentiva_booking_read_failed').
 	 */
 	private static function read_booking_meta(int $booking_id, string $key): string
+	{
+		$rows = self::read_booking_meta_rows($booking_id, $key);
+		if (count(array_unique($rows)) > 1) {
+			throw new \RuntimeException('mhmrentiva_booking_read_failed');
+		}
+
+		return $rows[0] ?? '';
+	}
+
+	/**
+	 * Every row of one booking meta key, oldest first, from the database.
+	 *
+	 * @return list<string>
+	 * @throws \RuntimeException When the read failed ('mhmrentiva_booking_read_failed').
+	 */
+	private static function read_booking_meta_rows(int $booking_id, string $key): array
 	{
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A locked decision must not trust the object cache (Codex PR K delta3 H1).
-		$value = $wpdb->get_var(
+		$values = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC LIMIT 1",
+				"SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC",
 				$booking_id,
 				$key
 			)
 		);
-		if ('' !== (string) $wpdb->last_error) {
+		if ('' !== (string) $wpdb->last_error || ! is_array($values)) {
 			throw new \RuntimeException('mhmrentiva_booking_read_failed');
 		}
 
-		return null === $value ? '' : (string) $value;
+		return array_values(array_map('strval', $values));
 	}
 
 	/**
 	 * Write one booking meta, only over the value it is expected to replace, and
-	 * read it back from the database. "Already that value" is success;
-	 * update_post_meta() returns false for it as well as for a failure, so its
-	 * answer is not used (Codex PR K delta2 H2).
+	 * read every row of it back from the database. "Already that value" is
+	 * success (and still drops the request cache: a stale entry must not
+	 * outlive a write that was not needed, Codex PR K delta4 1).
 	 *
-	 * @param string|null $expected The value the write replaces (update_post_meta()'s
-	 *                              $prev_value: `WHERE meta_value = expected`); null
-	 *                              reads it from the database first. A concurrent
-	 *                              change to anything else is not overwritten, and
-	 *                              the read-back reports the write as not held.
+	 * Conditional for every expected value, '' and '0' included -- which
+	 * update_post_meta()'s $prev_value cannot do, it tests empty() (delta4 2):
+	 * an existing row is updated `WHERE meta_value = expected` and the rows it
+	 * changed counted; a missing row is added only while it is still missing
+	 * (add_post_meta(..., true)). The core hooks a meta write runs
+	 * (update_post_metadata, update_post_meta, updated_post_meta) run as they do
+	 * in update_metadata(). Rows that disagree refuse (read_booking_meta()).
+	 *
+	 * @param string|null $expected The value the write replaces; null takes what
+	 *                              the database holds now.
+	 * @return bool Whether every row of the key now holds $value.
+	 * @throws \RuntimeException When a read failed or the rows disagree ('mhmrentiva_booking_read_failed').
 	 */
 	private static function write_booking_meta(int $booking_id, string $key, string $value, ?string $expected = null): bool
 	{
-		try {
-			$current = $expected ?? self::read_booking_meta($booking_id, $key);
-			if ($current !== $value) {
-				update_post_meta($booking_id, $key, $value, $current);
-			}
+		global $wpdb;
 
-			return self::read_booking_meta($booking_id, $key) === $value;
-		} catch (\RuntimeException $e) {
-			return false;
+		$rows = self::read_booking_meta_rows($booking_id, $key);
+		if (count(array_unique($rows)) > 1) {
+			throw new \RuntimeException('mhmrentiva_booking_read_failed');
 		}
+		$current = $rows[0] ?? '';
+		$expect  = $expected ?? $current;
+
+		if (array() !== $rows && $current === $value) {
+			wp_cache_delete($booking_id, 'post_meta');
+			return true;
+		}
+
+		if (array() === $rows) {
+			if ('' === $expect) {
+				add_post_meta($booking_id, $key, $value, true);
+			}
+		} else {
+			$check = apply_filters('update_post_metadata', null, $booking_id, $key, $value, $expect); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The core meta hook update_metadata() runs; this write stands in for it.
+			if (null === $check) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The meta ids the conditional write below changes, for the core hooks.
+				$meta_ids = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s",
+						$booking_id,
+						$key,
+						$expect
+					)
+				);
+				foreach ( (array) $meta_ids as $meta_id) {
+					do_action('update_post_meta', (int) $meta_id, $booking_id, $key, $value); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The core meta hook update_metadata() runs; this write stands in for it.
+				}
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A conditional write: only over the expected value (Codex PR K delta4 2).
+				$changed = $wpdb->update(
+					$wpdb->postmeta,
+					array( 'meta_value' => $value ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Keyed by post_id and meta_key.
+					array(
+						'post_id'    => $booking_id,
+						'meta_key'   => $key, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Keyed by post_id.
+						'meta_value' => $expect, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- The condition that makes the write conditional.
+					),
+					array( '%s' ),
+					array( '%d', '%s', '%s' )
+				);
+				wp_cache_delete($booking_id, 'post_meta');
+				if (is_int($changed) && $changed > 0) {
+					foreach ( (array) $meta_ids as $meta_id) {
+						do_action('updated_post_meta', (int) $meta_id, $booking_id, $key, $value); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The core meta hook update_metadata() runs; this write stands in for it.
+					}
+				}
+			}
+		}
+		wp_cache_delete($booking_id, 'post_meta');
+
+		$after = self::read_booking_meta_rows($booking_id, $key);
+
+		return array() !== $after && array( $value ) === array_values(array_unique($after));
 	}
 
 	/**
@@ -1618,11 +1694,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	private static function claim_booking(int $booking_id, bool $remaining, array &$revived): string
 	{
 		wp_cache_delete($booking_id, 'post_meta');
-		if (! self::booking_lost_its_dates($booking_id)) {
-			return '';
+		// From the database: a stale cached status must not pass a booking that
+		// let go of its dates (Codex PR K delta4 1, same class).
+		try {
+			if (! self::booking_lost_its_dates($booking_id, true)) {
+				return '';
+			}
+			$status = self::read_booking_meta($booking_id, '_mhmrentiva_status');
+		} catch (\RuntimeException $e) {
+			return self::availability_unknown_notice();
 		}
 
-		$status                               = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
 		list($vehicle_id, $start_ts, $end_ts) = self::booking_window($booking_id);
 		if ($remaining || ! in_array($status, self::REVIVABLE, true) || $vehicle_id <= 0) {
 			return self::booking_gone_notice();
@@ -1763,15 +1845,40 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Mark a booking paid and move it as the status table allows, outside a
 	 * lock (a booking that already holds its dates, or one closed for good).
-	 * The paid mark is verified; the status keeps Status::update_status()'s own
-	 * answer, as before.
+	 *
+	 * The transition is decided on the status the database holds -- never the
+	 * request cache, which a write that was not needed leaves stale (Codex PR K
+	 * delta4 1: a no-show booking read as confirmed from the cache was
+	 * completed) -- and written only over that status. The paid mark and the
+	 * status write are both verified: an allowed transition that does not hold
+	 * is a failure, not a success (delta3 3). A transition the table does not
+	 * allow keeps the status, as before.
+	 *
+	 * @param string|null $from The status the caller read from the database; null reads it now.
 	 */
-	private static function mark_paid_unlocked(int $booking_id, string $to): ?string
+	private static function mark_paid_unlocked(int $booking_id, string $to, ?string $from = null): ?string
 	{
-		if (! self::write_booking_meta($booking_id, '_mhmrentiva_payment_status', 'paid')) {
-			return self::write_failed_notice();
+		$effective = Status::PENDING;
+		try {
+			if (! self::write_booking_meta($booking_id, '_mhmrentiva_payment_status', 'paid')) {
+				return self::write_failed_notice();
+			}
+			$from      = $from ?? self::read_booking_meta($booking_id, '_mhmrentiva_status');
+			$effective = in_array($from, Status::allowed(), true) ? $from : Status::PENDING;
+			if (! in_array($to, Status::allowed(), true) || ! Status::can_transition($effective, $to)) {
+				return null;
+			}
+			if (! self::write_booking_meta($booking_id, '_mhmrentiva_status', $to, $from)) {
+				return self::write_failed_notice();
+			}
+		} catch (\RuntimeException $e) {
+			if ('mhmrentiva_booking_read_failed' !== $e->getMessage()) {
+				throw $e;
+			}
+			wp_cache_delete($booking_id, 'post_meta');
+			return self::availability_unknown_notice();
 		}
-		Status::update_status($booking_id, $to, get_current_user_id());
+		do_action('mhmrentiva_booking_status_changed', $booking_id, $effective, $to);
 
 		return null;
 	}
@@ -1799,9 +1906,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	private static function confirm_paid_booking(int $booking_id, bool $remaining, string $to): ?string
 	{
 		wp_cache_delete($booking_id, 'post_meta');
-		$status = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+		// Which path decides is read from the database too: a stale cached
+		// status must not send a revivable booking down the unlocked path.
+		try {
+			$status = self::read_booking_meta($booking_id, '_mhmrentiva_status');
+		} catch (\RuntimeException $e) {
+			return self::availability_unknown_notice();
+		}
 		if (! in_array($status, self::REVIVABLE, true)) {
-			return self::mark_paid_unlocked($booking_id, $to);
+			return self::mark_paid_unlocked($booking_id, $to, $status);
 		}
 
 		list($vehicle_id, $start_ts, $end_ts) = self::booking_window($booking_id);
@@ -1812,10 +1925,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			// No vehicle or window: nothing to lock and nobody to compete with.
 			// One that still holds its dates is confirmed as before; one that
 			// let go of them cannot be checked, so it is refused.
-			if (self::booking_lost_its_dates($booking_id)) {
+			try {
+				$lost = self::booking_lost_its_dates($booking_id, true);
+			} catch (\RuntimeException $e) {
+				return self::availability_unknown_notice();
+			}
+			if ($lost) {
 				return self::booking_gone_notice();
 			}
-			return self::mark_paid_unlocked($booking_id, $to);
+			return self::mark_paid_unlocked($booking_id, $to, $status);
 		}
 
 		$outcome = self::decide_under_lock(
@@ -1863,7 +1981,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			case 'moved':
 				// Someone else moved it out of the revivable set meanwhile; the
 				// status table answers, as for any booking that holds its dates.
-				return self::mark_paid_unlocked($booking_id, $to);
+				return self::mark_paid_unlocked($booking_id, $to, (string) ( $outcome[1] ?? '' ));
 			case 'written':
 			case 'kept':
 				break;
