@@ -36,7 +36,26 @@ $mhmrentiva_label   = trim( (string) ( ( $atts ?? array() )['booking_btn_text'] 
 $mhmrentiva_label   = '' !== $mhmrentiva_label ? $mhmrentiva_label : __('Continue', 'mhm-rentiva');
 $mhmrentiva_ok      = ! empty($mhmrentiva_booking['available']);
 $mhmrentiva_priced  = ! empty($mhmrentiva_booking['priced']); // Wrong-order dates: the message alone, no total beside it.
+// Taken for the window (owner decision 2026-11-03): no total block at all; the
+// header and the phone bar show the car's daily price. rvs-vehicle.js flips
+// the same parts from the quote's `taken`.
+$mhmrentiva_taken   = ! empty($mhmrentiva_booking['taken']);
+$mhmrentiva_totaled = $mhmrentiva_priced && ! $mhmrentiva_taken;
+$mhmrentiva_daily   = $mhmrentiva_taken ? (string) ( $mhmrentiva_booking['daily_html'] ?? '' ) : '';
 $mhmrentiva_html    = PriceDisplay::allowed_html();
+$mhmrentiva_bd      = static function () use ($mhmrentiva_taken, $mhmrentiva_booking): void {
+	if ($mhmrentiva_taken) {
+		return;
+	}
+	Templates::render(
+		'partials/rvs/breakdown',
+		array(
+			'breakdown'   => $mhmrentiva_booking['breakdown'],
+			'collapsible' => true,
+		),
+		false
+	);
+};
 $mhmrentiva_days    = (int) $mhmrentiva_booking['days'];
 /* translators: %s: number of rental days. */
 $mhmrentiva_days_label = sprintf(_n('%s day total', '%s days total', $mhmrentiva_days, 'mhm-rentiva'), number_format_i18n($mhmrentiva_days));
@@ -59,9 +78,13 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 <aside class="rvs-vd__booking" aria-label="<?php esc_attr_e('Booking', 'mhm-rentiva'); ?>">
 	<div class="rvs-vd__card">
 		<?php if ($mhmrentiva_price) : ?>
-			<div class="rvs-vd__total" data-rvs-vd-priced<?php echo $mhmrentiva_priced ? '' : ' hidden'; ?>>
-				<span class="rvs-vd__total-amount" data-rvs-vd-total><?php echo wp_kses( (string) $mhmrentiva_booking['breakdown']['total']['html'], $mhmrentiva_html); ?></span>
-				<span class="rvs-vd__total-days" data-rvs-vd-days><?php echo esc_html($mhmrentiva_days_label); ?></span>
+			<div class="rvs-vd__total" data-rvs-vd-priced<?php echo $mhmrentiva_totaled ? '' : ' hidden'; ?>>
+				<span class="rvs-vd__total-amount" data-rvs-vd-total><?php echo $mhmrentiva_totaled ? wp_kses( (string) $mhmrentiva_booking['breakdown']['total']['html'], $mhmrentiva_html) : ''; ?></span>
+				<span class="rvs-vd__total-days" data-rvs-vd-days><?php echo $mhmrentiva_totaled ? esc_html($mhmrentiva_days_label) : ''; ?></span>
+			</div>
+			<div class="rvs-vd__total" data-rvs-vd-daily<?php echo $mhmrentiva_taken ? '' : ' hidden'; ?>>
+				<span class="rvs-vd__total-amount" data-rvs-vd-daily-amount><?php echo wp_kses($mhmrentiva_daily, $mhmrentiva_html); ?></span>
+				<span class="rvs-vd__total-days"><?php esc_html_e('/day', 'mhm-rentiva'); ?></span>
 			</div>
 		<?php endif; ?>
 
@@ -97,21 +120,20 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 		<?php endif; ?>
 
 		<?php if ($mhmrentiva_price) : ?>
-			<div data-rvs-vd-breakdown>
-				<?php
-				Templates::render(
-					'partials/rvs/breakdown',
-					array(
-						'breakdown'   => $mhmrentiva_booking['breakdown'],
-						'collapsible' => true,
-					),
-					false
-				);
-				?>
+			<div data-rvs-vd-breakdown<?php echo $mhmrentiva_taken ? ' hidden' : ''; ?>>
+				<?php $mhmrentiva_bd(); ?>
 			</div>
 		<?php endif; ?>
 
 		<p class="rvs-vd__message" data-rvs-vd-message role="status"<?php echo $mhmrentiva_ok ? ' hidden' : ''; ?>><?php echo esc_html( (string) $mhmrentiva_booking['message']); ?></p>
+		<?php // Free vehicles for a taken window (partials/vehicle-details/alternatives; the quote answers with the same). Nothing at all inside when none, so the box stays :empty. ?>
+		<?php
+		$mhmrentiva_alt_args = array(
+			'alternatives' => (array) ( $mhmrentiva_booking['alternatives'] ?? array() ),
+			'vehicle_id'   => (int) $mhmrentiva_view['vehicle_id'],
+		);
+		?>
+		<div class="rvs-vd__alternatives" data-rvs-vd-alternatives role="status"><?php Templates::render('partials/vehicle-details/alternatives', $mhmrentiva_alt_args, false); ?></div>
 
 		<?php $mhmrentiva_continue('rvs-btn--lg rvs-vd__continue'); ?>
 
@@ -125,12 +147,17 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 
 	<div class="rvs-vd__bar" role="region" aria-label="<?php esc_attr_e('Booking summary', 'mhm-rentiva'); ?>">
 		<?php if ($mhmrentiva_price) : ?>
-			<button type="button" class="rvs-vd__bar-total" data-rvs-vd-breakdown-open data-rvs-vd-priced<?php echo $mhmrentiva_priced ? '' : ' hidden'; ?>>
-				<strong data-rvs-vd-total><?php echo wp_kses( (string) $mhmrentiva_booking['breakdown']['total']['html'], $mhmrentiva_html); ?></strong>
+			<button type="button" class="rvs-vd__bar-total" data-rvs-vd-breakdown-open data-rvs-vd-priced<?php echo $mhmrentiva_totaled ? '' : ' hidden'; ?>>
+				<strong data-rvs-vd-total><?php echo $mhmrentiva_totaled ? wp_kses( (string) $mhmrentiva_booking['breakdown']['total']['html'], $mhmrentiva_html) : ''; ?></strong>
 				<span>
-					<span data-rvs-vd-days><?php echo esc_html($mhmrentiva_days_label); ?></span> · <?php esc_html_e('breakdown', 'mhm-rentiva'); ?>
+					<span data-rvs-vd-days><?php echo $mhmrentiva_totaled ? esc_html($mhmrentiva_days_label) : ''; ?></span> · <?php esc_html_e('breakdown', 'mhm-rentiva'); ?>
 				</span>
 			</button>
+			<?php // Taken: the daily price, plain text -- there is no breakdown to open. ?>
+			<div class="rvs-vd__bar-total rvs-vd__bar-total--daily" data-rvs-vd-daily<?php echo $mhmrentiva_taken ? '' : ' hidden'; ?>>
+				<strong data-rvs-vd-daily-amount><?php echo wp_kses($mhmrentiva_daily, $mhmrentiva_html); ?></strong>
+				<span><?php esc_html_e('/day', 'mhm-rentiva'); ?></span>
+			</div>
 		<?php endif; ?>
 		<?php $mhmrentiva_continue('rvs-vd__bar-continue'); ?>
 	</div>
@@ -142,17 +169,8 @@ $mhmrentiva_continue   = static function (string $extra_class) use ($mhmrentiva_
 					<h2 class="rvs-dialog__title" id="<?php echo esc_attr($mhmrentiva_uid); ?>-breakdown-title"><?php esc_html_e('Price breakdown', 'mhm-rentiva'); ?></h2>
 					<button type="button" class="rvs-btn rvs-btn--icon rvs-dialog__close" data-rvs-dialog-close aria-label="<?php esc_attr_e('Close', 'mhm-rentiva'); ?>"><span aria-hidden="true">×</span></button>
 				</div>
-				<div class="rvs-dialog__body" data-rvs-vd-breakdown>
-					<?php
-					Templates::render(
-						'partials/rvs/breakdown',
-						array(
-							'breakdown'   => $mhmrentiva_booking['breakdown'],
-							'collapsible' => true,
-						),
-						false
-					);
-					?>
+				<div class="rvs-dialog__body" data-rvs-vd-breakdown<?php echo $mhmrentiva_taken ? ' hidden' : ''; ?>>
+					<?php $mhmrentiva_bd(); ?>
 				</div>
 			</div>
 		</div>

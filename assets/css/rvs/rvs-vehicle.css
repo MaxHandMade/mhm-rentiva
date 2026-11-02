@@ -332,7 +332,8 @@
 .rvs-shell .rvs-vd__card {
 	display: flex;
 	flex-direction: column;
-	gap: 15px;
+	/* The alternatives box's offset below counts on this gap. */
+	gap: var(--rvs-s3);
 	padding: 20px;
 	border-radius: var(--rvs-r);
 	background: var(--rvs-raised);
@@ -347,8 +348,10 @@
 }
 
 /* Dates the server could not price (wrong order): the card and the phone bar
-   show no total, only the message (rvs-vehicle.js toggles [hidden]). */
-.rvs-shell [data-rvs-vd-priced][hidden] {
+   show no total, only the message (rvs-vehicle.js toggles [hidden]). A car
+   taken for the window swaps the total for its daily price. */
+.rvs-shell [data-rvs-vd-priced][hidden],
+.rvs-shell [data-rvs-vd-daily][hidden] {
 	display: none;
 }
 
@@ -405,6 +408,123 @@
 	background: var(--rvs-alert-100);
 	color: var(--rvs-text);
 	font-size: 14px;
+}
+
+/* Free vehicles under a "taken" message (rvs-vehicle.js). The box stays in
+   the page empty -- a live region -- and takes no room until it is filled. */
+.rvs-shell .rvs-vd__alternatives {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	color: var(--rvs-text);
+}
+
+/* Empty, it cancels the card's gap so the card looks as it did without it
+   (display: none would keep a screen reader from hearing it fill). Filled,
+   it sits close under the message it answers. */
+.rvs-shell .rvs-vd__alternatives:empty {
+	margin-top: calc(-1 * var(--rvs-s3));
+}
+
+.rvs-shell .rvs-vd__message:not([hidden]) + .rvs-vd__alternatives:not(:empty) {
+	margin-top: calc(var(--rvs-s2) - var(--rvs-s3));
+}
+
+/* New dates were picked and their quote is on its way: the suggestions are
+   the old window's, and look it (rvs-vehicle.js holdContinue). */
+.rvs-shell .rvs-vd__alternatives[aria-busy="true"] {
+	opacity: 0.55;
+	transition: opacity 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rvs-shell .rvs-vd__alternatives[aria-busy="true"] {
+		transition: none;
+	}
+}
+
+.rvs-shell .rvs-vd__alternatives-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-vd__alternatives-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.rvs-shell .rvs-vd__alt {
+	display: grid;
+	grid-template-columns: 72px minmax(0, 1fr);
+	gap: var(--rvs-s1) var(--rvs-s2);
+	align-items: start;
+	padding: var(--rvs-s2);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-vd__alt-img {
+	display: block;
+	width: 72px;
+	height: 54px;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-n-100);
+	object-fit: cover;
+}
+
+.rvs-shell .rvs-vd__alt-body {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-vd__alt-title,
+.rvs-shell .rvs-vd__alt-specs,
+.rvs-shell .rvs-vd__alt-price {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-vd__alt-title {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.rvs-shell .rvs-vd__alt-specs {
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+.rvs-shell .rvs-vd__alt-price {
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-vd__alt-price span {
+	color: var(--rvs-muted);
+}
+
+/* The link sits under the text, in the text's column (no image: full row). */
+/* Flush with the title and price: the ghost button's side padding would
+   push the text in. The 44 px touch target stays in height. */
+.rvs-shell .rvs-vd__alt-link {
+	grid-column: 2;
+	justify-self: start;
+	justify-content: flex-start;
+	min-height: 44px;
+	padding-inline: 0;
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-vd__alt-body:first-child,
+.rvs-shell .rvs-vd__alt-body:first-child ~ .rvs-vd__alt-link {
+	grid-column: 1 / -1;
 }
 
 .rvs-shell .rvs-vd__continue {
@@ -611,6 +731,15 @@
 		color: var(--rvs-muted);
 		font-size: 13px;
 		text-decoration: underline;
+	}
+
+	/* Taken: the daily price is text, not a breakdown opener. */
+	.rvs-shell .rvs-vd__bar-total--daily {
+		cursor: default;
+	}
+
+	.rvs-shell .rvs-vd__bar-total--daily > span {
+		text-decoration: none;
 	}
 
 	.rvs-shell .rvs-vd__bar-continue {

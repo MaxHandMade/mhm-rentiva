@@ -366,6 +366,7 @@ src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 src/Admin/Frontend/Shortcodes/BookingForm.php
 src/Admin/Frontend/Shortcodes/CalendarView.php
+src/Admin/Frontend/Shortcodes/Card/AlternativeVehicles.php
 src/Admin/Frontend/Shortcodes/Card/RvsCardView.php
 src/Admin/Frontend/Shortcodes/Card/VehicleCardLinks.php
 src/Admin/Frontend/Shortcodes/ComparisonView.php
@@ -593,6 +594,7 @@ templates/partials/search/rvs-summary.php
 templates/partials/selected-vehicle-summary.php
 templates/partials/vehicle-card-base.php
 templates/partials/vehicle-card.php
+templates/partials/vehicle-details/alternatives.php
 templates/partials/vehicle-details/booking-card.php
 templates/partials/vehicle-details/gallery.php
 templates/partials/vehicle-details/reviews.php

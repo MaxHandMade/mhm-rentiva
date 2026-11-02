@@ -200,7 +200,24 @@ final class ContactFormSpamTest extends WP_Ajax_UnitTestCase
 		$html = do_shortcode('[rentiva_contact]');
 
 		$this->assertSame(1, preg_match('/name="rvs_rendered" value="([^"]+)"/', $html, $m));
-		$this->assertLessThanOrEqual(1, RenderStamp::age(html_entity_decode($m[1], ENT_QUOTES), RenderStamp::FORM_CONTACT));
+		// age() measures from the submit's arrival (REQUEST_TIME). Here the stamp is
+		// read in the request that drew it, and REQUEST_TIME is this process's start
+		// or an earlier test's submit -- a second before the stamp's time() and the
+		// age is -1, null, which assertLessThanOrEqual(1, null) lets pass unseen.
+		// Arrive now, as a submit would, and require a real age.
+		$saved                   = $_SERVER['REQUEST_TIME'] ?? null;
+		$_SERVER['REQUEST_TIME'] = time();
+		try {
+			$age = RenderStamp::age(html_entity_decode($m[1], ENT_QUOTES), RenderStamp::FORM_CONTACT);
+		} finally {
+			if (null === $saved) {
+				unset($_SERVER['REQUEST_TIME']);
+			} else {
+				$_SERVER['REQUEST_TIME'] = $saved;
+			}
+		}
+		$this->assertNotNull($age, 'The server accepts its own stamp.');
+		$this->assertLessThanOrEqual(1, $age);
 	}
 
 	public function test_too_fast_is_spam(): void
