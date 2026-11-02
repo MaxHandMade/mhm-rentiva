@@ -151,7 +151,8 @@ describe( 'rvs search strip with dates in the site format', () => {
 		};
 		pickup.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 
-		const min = calls.find( ( args ) => args[ 0 ] === 'option' && args[ 1 ] === 'minDate' );
+		// The rule reads the current minimum first; the write is the call with a value.
+		const min = calls.find( ( args ) => args[ 0 ] === 'option' && args[ 1 ] === 'minDate' && args.length === 3 );
 		expect( min[ 2 ] ).toEqual( new Date( 2027, 6, 14 ) );
 	} );
 } );
