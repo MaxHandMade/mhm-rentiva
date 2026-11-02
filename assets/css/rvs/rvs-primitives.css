@@ -342,6 +342,23 @@
 	box-shadow: var(--rvs-shadow);
 }
 
+/* The list view holds its place as rows: media beside the body. */
+.rvs-shell .rvs-card-list .rvs-skel-card {
+	flex-direction: row;
+}
+
+.rvs-shell .rvs-card-list .rvs-skel-card .rvs-skel--media {
+	flex: 0 0 35%;
+	align-self: stretch;
+	aspect-ratio: auto;
+	min-height: 120px;
+}
+
+.rvs-shell .rvs-card-list .rvs-skel-card__body {
+	flex: 1;
+	justify-content: center;
+}
+
 .rvs-shell .rvs-skel-card__body {
 	display: flex;
 	flex-direction: column;

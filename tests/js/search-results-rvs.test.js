@@ -115,7 +115,7 @@ describe( 'rvs search results', () => {
 			during = {
 				skels: grid.querySelectorAll( '.rvs-skel-card' ).length,
 				media: grid.querySelectorAll( '.rvs-skel--media' ).length,
-				label: grid.querySelector( '.rvs-sr-only' ).textContent,
+				label: document.querySelector( '[data-rvs-notice]' ).textContent,
 				busy: document.querySelector( '[data-rvs-results]' ).getAttribute( 'aria-busy' ),
 				hiddenFromAt: grid.querySelector( '.rvs-skel-card' ).getAttribute( 'aria-hidden' ),
 			};

@@ -889,7 +889,7 @@ final class AccountController {
 	 */
 	public static function missing_receipt_message(): string
 	{
-		return __('The receipt file for this booking is no longer available. Your booking is not affected. Contact us if you need a copy.', 'mhm-rentiva');
+		return __('The receipt file for this booking is not available. Your booking is not affected. Contact us if you need a copy.', 'mhm-rentiva');
 	}
 
 	/**

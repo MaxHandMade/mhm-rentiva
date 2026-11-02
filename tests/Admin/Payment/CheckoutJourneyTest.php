@@ -357,6 +357,8 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$text = self::plain($html);
 
 		$this->assertSame(3, self::current_step($html), 'The thank-you page is step 3.');
+		$this->assertSame(1, substr_count($html, 'rvs-journey__headline'), 'The page draws its own heading, once.');
+		$this->assertLessThan(strpos($html, 'rvs-steps'), strpos($html, 'rvs-journey__headline'), 'The heading is above the steps.');
 		$this->assertStringContainsString('Your booking', $text);
 		$this->assertStringContainsString('Fiat Egea', $text);
 		$this->assertStringContainsString(self::money(1000.0), $text);
@@ -383,6 +385,7 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$html = $this->thankyou_html($order->get_id());
 
 		$this->assertSame(2, self::current_step($html), 'A failed payment is still on step 2.');
+		$this->assertStringNotContainsString('rvs-journey__headline', $html, 'A failed payment does not say the booking is received.');
 		$this->assertStringContainsString('rvs-journey__summary', $html);
 	}
 

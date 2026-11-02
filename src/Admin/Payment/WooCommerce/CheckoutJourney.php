@@ -239,9 +239,11 @@ final class CheckoutJourney {
 			}
 		}
 
+		$failed = $order->has_status('failed');
 		self::render_journey(
-			$order->has_status('failed') ? 2 : 3,
-			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link, $summary_link, RentalMoneyLabels::order_state($order))
+			$failed ? 2 : 3,
+			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link, $summary_link, RentalMoneyLabels::order_state($order)),
+			$failed ? '' : __('Your booking is received', 'mhm-rentiva')
 		);
 	}
 
@@ -358,10 +360,16 @@ final class CheckoutJourney {
 	 * Steps and summary inside one shell.
 	 *
 	 * @param array<string, mixed> $summary_vars summary_vars().
+	 * @param string               $headline     Heading above the steps; '' for none.
 	 */
-	private static function render_journey(int $step, array $summary_vars): void
+	private static function render_journey(int $step, array $summary_vars, string $headline = ''): void
 	{
 		echo '<div class="rvs-shell rvs-journey">';
+		// The thank-you page's own heading: themes that hide their page titles
+		// leave the page without one (R14).
+		if ('' !== $headline) {
+			echo '<h2 class="rvs-journey__headline">' . esc_html($headline) . '</h2>';
+		}
 		Templates::render(
 			'partials/rvs/steps',
 			array(
