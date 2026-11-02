@@ -23,6 +23,12 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 {
 	use WooCommerceFixtures;
 
+	/**
+	 * A neutral id for "some card gateway": the labels read the method id and
+	 * the paid date, never a particular vendor's gateway.
+	 */
+	private const CARD = 'rentiva_test_card';
+
 	private \WC_Product $product;
 
 	private int $vehicle_id;
@@ -264,7 +270,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 	 */
 	public static function thankyou_matrix(): array
 	{
-		$card = 'mhm_polar_sandbox';
+		$card = self::CARD;
 
 		return array(
 			'bacs on hold, deposit'           => array( 'bacs', 'on-hold', 'deposit', 'Deposit to send (%s)', 'Deposit to send:', false ),
@@ -289,7 +295,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 
 	public function test_a_paid_date_wins_over_the_method_and_a_failure_over_both(): void
 	{
-		foreach (array( 'bacs', 'cheque', 'cod', 'mhm_polar_sandbox' ) as $method) {
+		foreach (array( 'bacs', 'cheque', 'cod', self::CARD ) as $method) {
 			$order = $this->order($this->snapshot(), $method, 'on-hold');
 			$order->set_date_paid(time());
 			$order->save();
@@ -410,7 +416,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 
 	public function test_a_failed_order_never_says_paid_or_to_send(): void
 	{
-		foreach (array( 'bacs', 'cod', 'mhm_polar_sandbox' ) as $method) {
+		foreach (array( 'bacs', 'cod', self::CARD ) as $method) {
 			$html = $this->thankyou($this->order($this->snapshot(), $method, 'failed'));
 
 			$this->assertStringContainsString('woocommerce-thankyou-order-failed', $html);
@@ -443,7 +449,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 
 	public function test_a_mixed_order_keeps_its_labels_on_the_thankyou_page(): void
 	{
-		$order   = $this->order($this->snapshot(), 'mhm_polar_sandbox', 'processing');
+		$order   = $this->order($this->snapshot(), self::CARD, 'processing');
 		$product = new \WC_Product_Simple();
 		$product->set_regular_price('25');
 		$product->save();
@@ -460,7 +466,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 	{
 		add_filter('woocommerce_is_order_received_page', '__return_true');
 
-		foreach (array( array( 'bacs', 'on-hold', 'WC_Email_Customer_On_Hold_Order' ), array( 'mhm_polar_sandbox', 'processing', 'WC_Email_Customer_Processing_Order' ) ) as $case) {
+		foreach (array( array( 'bacs', 'on-hold', 'WC_Email_Customer_On_Hold_Order' ), array( self::CARD, 'processing', 'WC_Email_Customer_Processing_Order' ) ) as $case) {
 			$order = $this->order($this->snapshot(), $case[0], $case[1]);
 			$args  = array(
 				'order'         => $order,
@@ -479,7 +485,7 @@ final class RentalMoneyLabelsTest extends WP_UnitTestCase
 
 	public function test_my_account_keeps_woocommerces_words(): void
 	{
-		$order = $this->order($this->snapshot(), 'mhm_polar_sandbox', 'processing');
+		$order = $this->order($this->snapshot(), self::CARD, 'processing');
 
 		$html = $this->capture(static fn() => woocommerce_order_details_table($order->get_id()));
 
