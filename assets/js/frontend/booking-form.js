@@ -353,18 +353,27 @@
         }
 
         /**
-         * Refresh this form's datepickers so the updated blockedDates list takes
-         * effect immediately.
+         * Redraw the calendar that is open on one of this form's fields, so the
+         * updated blockedDates list takes effect at once.
+         *
+         * Only the open one: jQuery UI draws every field into the one shared
+         * popup (#ui-datepicker-div), and 'refresh' draws even a field that is
+         * not showing. A field never opened still holds jQuery UI's blank month
+         * (drawMonth 0, drawYear 0), so refreshing it painted "January 0", every
+         * day greyed, over the calendar the customer had open when the blocked
+         * dates arrived. A closed field needs nothing: beforeShowDay reads
+         * blockedDates each time a calendar opens. jQuery UI tells the showing
+         * field the same way itself (_curInst + _datepickerShowing).
          */
         refreshDatepickerBlockedDates() {
+            const dp = $.datepicker;
+            if ( ! dp || ! dp._datepickerShowing || ! dp._curInst ) {
+                return;
+            }
+            const showing = dp._curInst.input && dp._curInst.input[ 0 ];
             this.hook( 'pickup-date' ).add( this.hook( 'dropoff-date' ) ).each( function () {
-                const $input = $( this );
-                if ( $input.hasClass( 'hasDatepicker' ) ) {
-                    try {
-                        $input.datepicker( 'refresh' );
-                    } catch ( e ) {
-                        // Datepicker not yet initialised; beforeShowDay will apply on first open.
-                    }
+                if ( this === showing ) {
+                    $( this ).datepicker( 'refresh' );
                 }
             } );
         }
