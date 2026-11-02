@@ -160,10 +160,11 @@ final class ContactFormView {
 	private static function topic_labels(): array
 	{
 		return array(
-			'general'  => __('General', 'mhm-rentiva'),
+			// One source for the words: the admin screen reads the same labels. Only the visitor's own-booking topic words it differently.
+			'general'  => ContactMessagePostType::type_label('general'),
 			'booking'  => __('My booking', 'mhm-rentiva'),
-			'feedback' => __('Suggestion or complaint', 'mhm-rentiva'),
-			'support'  => __('Technical support', 'mhm-rentiva'),
+			'feedback' => ContactMessagePostType::type_label('feedback'),
+			'support'  => ContactMessagePostType::type_label('support'),
 		);
 	}
 

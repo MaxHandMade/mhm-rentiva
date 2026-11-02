@@ -96,6 +96,10 @@ final class ContactMessagesPage {
 
 		$types = array();
 		foreach (ContactMessagePostType::TYPES as $type) {
+			// The form offers no support topic by default; list it only when records of it exist.
+			if ('support' === $type && ! self::type_in_use($type)) {
+				continue;
+			}
 			$types[ $type ] = ContactMessagePostType::type_label($type);
 		}
 
@@ -110,6 +114,21 @@ final class ContactMessagesPage {
 			// Sent as '1'/'0': wp_localize_script() stringifies scalars (false -> '').
 			'trashEnabled'      => EMPTY_TRASH_DAYS ? '1' : '0',
 		));
+	}
+
+	/** Whether any message (trash included) is stored with this type. */
+	private static function type_in_use(string $type): bool
+	{
+		$ids = get_posts(array(
+			'post_type'      => ContactMessagePostType::TYPE,
+			'post_status'    => array( 'any', 'trash' ),
+			'meta_key'       => '_mhmrentiva_contact_type', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'     => $type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		));
+		return array() !== $ids;
 	}
 
 	/**

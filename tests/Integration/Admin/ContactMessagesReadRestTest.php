@@ -87,7 +87,7 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$this->assertSame(array( 'all' => 2, 'new' => 1, 'read' => 0, 'replied' => 1, 'trash' => 0 ), $data['counts']);
 		$this->assertSame(1, $data['stats']['new']);
 		$this->assertSame(1, $data['stats']['awaiting']);
-		$this->assertSame('General Contact', $data['items'][0]['type_label']);
+		$this->assertSame('General', $data['items'][0]['type_label']);
 		$this->assertArrayNotHasKey('ip_address', $data['items'][0]);
 	}
 
@@ -429,6 +429,36 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 		$this->assertSame('PDF', $a['type_label']);
 	}
 
+	public function test_the_picked_booking_is_reported_and_feeds_the_vehicle(): void
+	{
+		$vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Egea' ));
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		update_post_meta($booking, \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID, $vehicle);
+		$id = $this->contact(array( 'booking_id' => $booking ));
+
+		wp_set_current_user($this->admin);
+		foreach (array( $this->get('/contact-messages')->get_data()['items'][0], $this->get('/contact-messages/' . $id)->get_data() ) as $item) {
+			$this->assertSame($booking, $item['booking']['id']);
+			$this->assertSame(mhmrentiva_get_display_id($booking), $item['booking']['number']);
+			$this->assertSame('Egea', $item['booking']['vehicle_title']);
+			$this->assertSame(get_edit_post_link($booking, 'raw'), $item['booking']['edit_url']);
+			$this->assertSame('Egea', $item['vehicle']['title']);
+		}
+	}
+
+	public function test_a_deleted_or_trashed_booking_reads_as_none_without_a_fatal(): void
+	{
+		wp_set_current_user($this->admin);
+		$trashed = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'trash' ));
+		foreach (array( $trashed, 999999 ) as $gone) {
+			$this->contact(array( 'booking_id' => $gone ));
+		}
+		foreach ($this->get('/contact-messages')->get_data()['items'] as $item) {
+			$this->assertNull($item['booking']);
+			$this->assertNull($item['vehicle']);
+		}
+	}
+
 	public function test_the_vehicle_links_to_its_edit_screen_for_editors_only(): void
 	{
 		$vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Golf' ));
@@ -484,6 +514,6 @@ final class ContactMessagesReadRestTest extends WP_UnitTestCase
 
 	public function test_only_the_admin_type_label_is_contextual(): void
 	{
-		$this->assertSame('Booking Inquiry', ContactMessagePostType::type_label('booking'));
+		$this->assertSame('Booking', ContactMessagePostType::type_label('booking'));
 	}
 }

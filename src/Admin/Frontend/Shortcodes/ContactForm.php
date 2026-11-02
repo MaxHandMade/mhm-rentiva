@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Helpers\SiteTime;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentValidator;
+use MHMRentiva\Admin\ContactMessages\REST\ContactMessagesRestController;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 use MHMRentiva\Admin\Core\MetaKeys;
@@ -277,7 +278,7 @@ final class ContactForm extends AbstractShortcode {
 	/**
 	 * The rental's days in the site's format (m6), '' when none is recorded.
 	 */
-	private static function booking_dates(int $booking_id): string
+	public static function booking_dates(int $booking_id): string
 	{
 		$pickup_ts = AccountBookingsQuery::pickup_ts($booking_id);
 		$from      = $pickup_ts > 0 ? DatepickerAssets::display_date(SiteTime::local_date($pickup_ts)) : '';
@@ -325,7 +326,7 @@ final class ContactForm extends AbstractShortcode {
 	{
 		$configs = array(
 			'general'  => array(
-				'title'           => __('General Contact', 'mhm-rentiva'),
+				'title'           => ContactMessagePostType::type_label('general'),
 				'description'     => __('Contact us. We are happy to answer your questions.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-email-alt',
 				'required_fields' => array( 'name', 'email', 'message' ),
@@ -333,7 +334,7 @@ final class ContactForm extends AbstractShortcode {
 				'email_template'  => 'contact-general',
 			),
 			'booking'  => array(
-				'title'           => __('Booking Inquiry', 'mhm-rentiva'),
+				'title'           => ContactMessagePostType::type_label('booking'),
 				'description'     => __('Write to us to make a booking or get information about your existing booking.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-calendar-alt',
 				'required_fields' => array( 'name', 'email', 'message' ),
@@ -341,7 +342,7 @@ final class ContactForm extends AbstractShortcode {
 				'email_template'  => 'contact-booking',
 			),
 			'support'  => array(
-				'title'           => __('Technical Support', 'mhm-rentiva'),
+				'title'           => ContactMessagePostType::type_label('support'),
 				'description'     => __('Our support team will help you with your technical issues.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-sos',
 				'required_fields' => array( 'name', 'email', 'priority', 'message' ),
@@ -349,7 +350,7 @@ final class ContactForm extends AbstractShortcode {
 				'email_template'  => 'contact-support',
 			),
 			'feedback' => array(
-				'title'           => __('Feedback', 'mhm-rentiva'),
+				'title'           => ContactMessagePostType::type_label('feedback'),
 				'description'     => __('Share your experience with us. Your feedback is valuable to us.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-star-filled',
 				'required_fields' => array( 'name', 'email', 'message' ),
@@ -971,6 +972,12 @@ final class ContactForm extends AbstractShortcode {
 		if (! empty($data['booking_id'])) {
 			// The number as typed (absint); linked to the record only when it is the sender's own.
 			$message .= '<p><strong>' . esc_html__('Booking ID:', 'mhm-rentiva') . '</strong> #' . (int) $data['booking_id'] . '</p>';
+		}
+
+		$linked = ContactMessagesRestController::booking( (int) ( $data['linked_booking_id'] ?? 0 ));
+		if (null !== $linked) {
+			$parts = array_filter(array( '#' . $linked['number'], $linked['vehicle_title'], $linked['dates'] ), static fn(string $part): bool => '' !== $part);
+			$message .= '<p><strong>' . esc_html__('Booking:', 'mhm-rentiva') . '</strong> ' . esc_html(implode(' · ', $parts)) . '</p>';
 		}
 
 		if (! empty($data['preferred_date'])) {

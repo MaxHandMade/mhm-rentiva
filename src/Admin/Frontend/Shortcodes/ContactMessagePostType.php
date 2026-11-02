@@ -52,13 +52,13 @@ final class ContactMessagePostType {
     {
         switch ($type) {
             case 'booking':
-                return _x('Booking Inquiry', 'contact message type', 'mhm-rentiva');
+                return __('Booking', 'mhm-rentiva');
             case 'support':
-                return __('Technical Support', 'mhm-rentiva');
+                return __('Technical support', 'mhm-rentiva');
             case 'feedback':
-                return __('Feedback', 'mhm-rentiva');
+                return __('Suggestion or complaint', 'mhm-rentiva');
             default:
-                return __('General Contact', 'mhm-rentiva');
+                return __('General', 'mhm-rentiva');
         }
     }
 

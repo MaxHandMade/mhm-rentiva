@@ -2650,6 +2650,8 @@ msgstr "Ödeme makbuzunuz reddedildi"
 #: src/Admin/Booking/PostType/Booking.php:23
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
 #: src/Admin/Frontend/Widgets/Base/ParityLabels.php:345
+#: src-react/admin/contact-messages/ContactMessageDetail.jsx:145
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
 #: src/Admin/Utilities/ListTable/LogColumns.php:77
 #: templates/account/payment-history.php:68
