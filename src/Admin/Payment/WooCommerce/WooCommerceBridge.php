@@ -60,6 +60,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Safety net: a rental order that still reaches the Store API gets its booking.
 		add_action('woocommerce_store_api_checkout_order_processed', array( self::class, 'store_api_order_processed' ), 10, 1);
 		add_action('woocommerce_store_api_cart_errors', array( self::class, 'store_api_cart_errors' ), 10, 2);
+		// Above WooCommerce's own draft-status filter (999).
+		add_filter('woocommerce_valid_order_statuses_for_payment', array( self::class, 'refuse_payment_without_booking' ), 1000, 2);
 		// Fallback hook if primary fails (thankyou page load)
 		add_action('woocommerce_thankyou', array( self::class, 'create_booking_from_order_fallback' ), 5, 1);
 		add_action('woocommerce_order_status_changed', array( self::class, 'handle_order_status_change' ), 10, 4);
@@ -1082,7 +1084,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					if ($halt && ! $booking_id) {
 						self::halt_checkout(__('Your booking could not be created and no payment was taken. Please try again.', 'mhm-rentiva'));
 					}
-				} catch (\Exception $e) {
+				} catch (\Throwable $e) {
 					self::take_back_bookings($order, $created);
 					throw $e;
 				}
@@ -1154,12 +1156,109 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	private static function halt_checkout(string $message): void
 	{
+		// Plain text, not HTML: JSON on the Store API, and wc_add_notice() runs
+		// wp_kses_post() when it prints on the classic checkout. get_the_title()
+		// and esc_html() would leave entities the customer reads literally.
+		$plain = wp_strip_all_tags(html_entity_decode($message, ENT_QUOTES, 'UTF-8'));
+
 		$route_exception = '\Automattic\WooCommerce\StoreApi\Exceptions\RouteException';
-		if (class_exists($route_exception)) {
-			throw new $route_exception('mhmrentiva_booking_refused', esc_html($message), 400);
+		$exception       = class_exists($route_exception)
+			? new $route_exception('mhmrentiva_booking_refused', $plain, 400)
+			: new \Exception($plain);
+
+		throw $exception;
+	}
+
+	/**
+	 * A halted checkout leaves its order `pending` with no booking, and
+	 * WC_Order::needs_payment() would offer it for payment: the Pay action in My
+	 * Account, the order-pay form and WC_Form_Handler::pay_action() all ask it.
+	 * Money there would have no booking, so such an order is not payable.
+	 *
+	 * The Store API stays open: DraftOrderTrait::is_valid_draft_order() asks the
+	 * same question to reuse the order on a retry, and both its routes
+	 * (Checkout, CheckoutOrder) fire the order-processed hook before payment, so
+	 * store_api_order_processed() books or halts first.
+	 *
+	 * @param mixed $statuses The statuses an order may be paid in.
+	 * @param mixed $order    The order asking.
+	 * @return mixed
+	 */
+	public static function refuse_payment_without_booking($statuses, $order)
+	{
+		if (! $order instanceof \WC_Order || ! is_array($statuses) || $order->get_meta('_mhmrentiva_booking_id', true)) {
+			return $statuses;
+		}
+		if (array() === self::pending_booking_snapshots($order) || \WC()->is_store_api_request()) {
+			return $statuses;
 		}
 
-		throw new \Exception(esc_html($message));
+		return array();
+	}
+
+	/**
+	 * The snapshots of the order's lines still waiting for a booking, by item.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function pending_booking_snapshots(\WC_Order $order): array
+	{
+		$snapshots = array();
+		foreach ($order->get_items() as $item_id => $item) {
+			$snapshot = $item->get_meta('_mhmrentiva_booking_data', true);
+			if (is_array($snapshot) && $item->get_meta('_mhmrentiva_booking_pending', true)) {
+				$snapshots[ (int) $item_id ] = $snapshot;
+			}
+		}
+
+		return $snapshots;
+	}
+
+	/**
+	 * The snapshot's payment type; without one, what its amounts charge: a
+	 * deposit leaves something to pay, a full payment does not.
+	 *
+	 * @param array<string, mixed> $snapshot
+	 */
+	private static function snapshot_payment_type(array $snapshot): string
+	{
+		$type = (string) ( $snapshot['payment_type'] ?? '' );
+		if ('' !== $type) {
+			return $type;
+		}
+
+		return (float) ( $snapshot['deposit_amount'] ?? 0 ) > 0 && (float) ( $snapshot['remaining_amount'] ?? 0 ) > 0 ? 'deposit' : 'full';
+	}
+
+	/**
+	 * A guest's snapshot has no contact: the booking form asks nothing, checkout
+	 * does. Each empty field comes from the order's billing details; what the
+	 * snapshot holds stands.
+	 *
+	 * @param array<string, mixed> $booking_data
+	 * @return array<string, mixed>
+	 */
+	private static function with_order_contact(array $booking_data, int $order_id): array
+	{
+		$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
+
+		$billing = $order instanceof \WC_Order
+			? array(
+				'customer_first_name' => $order->get_billing_first_name(),
+				'customer_last_name'  => $order->get_billing_last_name(),
+				'customer_name'       => trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name()),
+				'customer_email'      => $order->get_billing_email(),
+				'customer_phone'      => $order->get_billing_phone(),
+			)
+			: array_fill_keys(array( 'customer_first_name', 'customer_last_name', 'customer_name', 'customer_email', 'customer_phone' ), '');
+
+		foreach ($billing as $key => $value) {
+			if (empty($booking_data[ $key ])) {
+				$booking_data[ $key ] = $value;
+			}
+		}
+
+		return $booking_data;
 	}
 
 	/**
@@ -1177,23 +1276,20 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		$payment_type = '';
-		foreach ($order->get_items() as $item) {
-			$snapshot = $item->get_meta('_mhmrentiva_booking_data', true);
-			if (is_array($snapshot) && $item->get_meta('_mhmrentiva_booking_pending', true)) {
-				$payment_type = (string) ( $snapshot['payment_type'] ?? '' );
-				break;
-			}
-		}
-
-		if ('' === $payment_type || $order->get_meta('_mhmrentiva_booking_id', true)) {
+		$snapshots = self::pending_booking_snapshots($order);
+		if (array() === $snapshots || $order->get_meta('_mhmrentiva_booking_id', true)) {
 			return;
 		}
 
 		self::create_booking_from_order($order->get_id(), null, $order);
 
-		$order->update_meta_data('_mhmrentiva_wc_payment_type', $payment_type);
-		$order->update_meta_data('_mhmrentiva_booking_payment_type', $payment_type);
+		// One order-level type only when it is true of every line; each booking
+		// carries its own either way.
+		$types = array_unique(array_map(array( self::class, 'snapshot_payment_type' ), array_values($snapshots)));
+		if (1 === count($types)) {
+			$order->update_meta_data('_mhmrentiva_wc_payment_type', reset($types));
+			$order->update_meta_data('_mhmrentiva_booking_payment_type', reset($types));
+		}
 		$order->add_order_note(__('Rentiva booking created from the block checkout. The customer could not change the payment type there.', 'mhm-rentiva'));
 		$order->save();
 	}
@@ -1289,6 +1385,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	private static function create_booking_from_data(array $booking_data, int $order_id, bool $halt = false): ?int
 	{
+		$booking_data['payment_type'] = self::snapshot_payment_type($booking_data);
+		$booking_data                 = self::with_order_contact($booking_data, $order_id);
+
 		// Parse dates to timestamps
 		$start_ts = self::parse_datetime_to_timestamp($booking_data['pickup_date'], $booking_data['pickup_time']);
 		$end_ts   = self::parse_datetime_to_timestamp($booking_data['dropoff_date'], $booking_data['dropoff_time']);
