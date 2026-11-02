@@ -29,6 +29,18 @@
 
 /* 1 · Page frame ----------------------------------------------------------- */
 
+/*
+ * The cart's page title (canvas `Sepet`). Measured on dev 2026-11-02: an
+ * Elementor template's "hide title" writes `:root { --page-title-display: none }`
+ * (post-3577.css, the header template) and Elementor's `h1.entry-title` reads
+ * it, so every page loses its title. A rental's cart shows its own again: the
+ * variable is reset for the title's header only, not on body and not with
+ * !important. A theme that never used the variable is unaffected.
+ */
+body.rvs-rental.woocommerce-cart .entry-header {
+	--page-title-display: block;
+}
+
 body.rvs-rental .woocommerce {
 	color: var(--rvs-text);
 	font-family: var(--rvs-font);

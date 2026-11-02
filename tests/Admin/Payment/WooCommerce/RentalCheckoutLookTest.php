@@ -56,7 +56,10 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		if (! has_action('woocommerce_cart_is_empty', 'wc_empty_cart_message')) {
 			add_action('woocommerce_cart_is_empty', 'wc_empty_cart_message', 10);
 		}
-		unset($GLOBALS['wp']->query_vars['order-received']);
+		unset($GLOBALS['wp']->query_vars['order-received'], $_GET['key']);
+		update_option('woocommerce_calc_taxes', 'no');
+		update_option('woocommerce_prices_include_tax', 'no');
+		update_option('woocommerce_tax_display_cart', 'incl');
 		wp_set_current_user(0);
 		parent::tearDown();
 	}
@@ -221,19 +224,76 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 
 	// --------------------------------------------------- thank-you (R14, m1)
 
-	public function test_a_rental_order_received_page_has_one_title_and_a_booking_sentence(): void
+	public function test_a_rental_order_received_page_draws_its_heading_once_and_a_booking_sentence(): void
+	{
+		$order = $this->order($this->rental_data());
+
+		// Fable PR K M1: the journey draws the heading; the page title stays
+		// WooCommerce's, so a theme that prints it never repeats the heading.
+		RentalCheckoutLook::register();
+		$this->assertFalse(has_filter('woocommerce_endpoint_order-received_title'));
+		$html = $this->capture(static fn() => \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::render_thankyou($order->get_id()));
+		$this->assertSame(1, substr_count($html, 'Your booking is received'));
+
+		$this->assertStringContainsString('We have your booking', (string) RentalCheckoutLook::order_received_text('Thank you.', $order));
+		$shop = $this->order(null);
+		$this->assertSame('Thank you.', RentalCheckoutLook::order_received_text('Thank you.', $shop));
+	}
+
+	public function test_an_order_of_two_rentals_gets_the_journey_with_a_card_each(): void
+	{
+		$order = wc_create_order();
+		foreach (array( 'Opel Corsa', 'Renault Clio' ) as $title) {
+			$item = new \WC_Order_Item_Product();
+			$item->set_product($this->product);
+			$item->set_quantity(1);
+			$item->set_total(200.0);
+			$item->add_meta_data('_mhmrentiva_booking_data', $this->rental_data(array( 'vehicle_id' => self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_title' => $title )) )));
+			$order->add_item($item);
+		}
+		$order->set_payment_method('bacs');
+		$order->calculate_totals();
+		$order->save();
+
+		$html = $this->capture(static fn() => \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::render_thankyou($order->get_id()));
+		$this->assertStringContainsString('Your bookings are received', $html);
+		$this->assertStringContainsString('Opel Corsa', $html);
+		$this->assertStringContainsString('Renault Clio', $html);
+
+		add_filter('woocommerce_is_order_received_page', '__return_true');
+		$this->visit('order-received', $order);
+		$this->assertContains('rvs-rental', \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::body_class(array()));
+
+		$bank = $this->capture(static fn() => RentalCheckoutLook::render_bank_transfer($order->get_id()));
+		$this->assertStringContainsString('To send', $bank);
+		$this->assertStringContainsString($this->kept(wc_price( (float) $order->get_total())), $bank, 'The order total, both lines.');
+	}
+
+	public function test_a_wrong_order_key_says_nothing_about_the_order(): void
 	{
 		$order = $this->order($this->rental_data());
 		add_filter('woocommerce_is_order_received_page', '__return_true');
 		$GLOBALS['wp']->query_vars['order-received'] = (string) $order->get_id();
 
-		$this->assertSame('Your booking is received', RentalCheckoutLook::order_received_title('Order received'));
-		$this->assertStringContainsString('We have your booking', (string) RentalCheckoutLook::order_received_text('Thank you.', $order));
+		$_GET['key'] = 'wc_order_guessed';
+		$this->assertNotContains('rvs-rental', \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::body_class(array()), 'Fable PR K m2.');
 
-		$shop = $this->order(null);
-		$GLOBALS['wp']->query_vars['order-received'] = (string) $shop->get_id();
-		$this->assertSame('Order received', RentalCheckoutLook::order_received_title('Order received'));
-		$this->assertSame('Thank you.', RentalCheckoutLook::order_received_text('Thank you.', $shop));
+		$this->visit('order-received', $order);
+		$this->assertContains('rvs-rental', \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::body_class(array()));
+	}
+
+	/**
+	 * A price as the template keeps it (PriceDisplay::allowed_html()).
+	 */
+	private function kept(string $price): string
+	{
+		return wp_kses($price, \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::allowed_html());
+	}
+
+	private function visit(string $endpoint, \WC_Order $order): void
+	{
+		$GLOBALS['wp']->query_vars[ $endpoint ] = (string) $order->get_id();
+		$_GET['key']                            = $order->get_order_key();
 	}
 
 	// ------------------------------------------------- bank transfer (R10)
@@ -250,6 +310,61 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		$this->assertStringContainsString('<strong>' . $order->get_order_number() . '</strong>', $html);
 		$this->assertStringContainsString('mailto:shop@example.org', $html);
 		$this->assertStringNotContainsString('Upload receipt', $html, 'A guest has no account page.');
+	}
+
+	/**
+	 * Codex PR K 3: the bank must receive the order's total. Prices without
+	 * tax and a 20% rate, a coupon and a fee: the net snapshot deposit (200) is
+	 * not what the order charges.
+	 */
+	public function test_the_figure_to_send_is_the_order_total_in_the_order_currency(): void
+	{
+		update_option('woocommerce_calc_taxes', 'yes');
+		update_option('woocommerce_prices_include_tax', 'no');
+		update_option('woocommerce_tax_display_cart', 'excl');
+		\WC_Tax::_insert_tax_rate(
+			array(
+				'tax_rate_country'  => '',
+				'tax_rate'          => '20.0000',
+				'tax_rate_name'     => 'KDV',
+				'tax_rate_priority' => '1',
+				'tax_rate_compound' => '0',
+				'tax_rate_shipping' => '1',
+				'tax_rate_order'    => '1',
+				'tax_rate_class'    => '',
+			)
+		);
+		$coupon = new \WC_Coupon();
+		$coupon->set_code('prk-ten');
+		$coupon->set_discount_type('fixed_cart');
+		$coupon->set_amount(10);
+		$coupon->save();
+
+		$order = $this->order($this->rental_data());
+		$fee   = new \WC_Order_Item_Fee();
+		$fee->set_name('Airport fee');
+		$fee->set_total(30.0);
+		$fee->set_tax_status('taxable');
+		$order->add_item($fee);
+		$order->set_currency('EUR');
+		$order->calculate_totals();
+		$order->apply_coupon('prk-ten');
+		$order->save();
+		$order = wc_get_order($order->get_id());
+
+		$this->assertNotEqualsWithDelta(200.0, (float) $order->get_total(), 0.001, 'The setup: the order does not charge the net deposit.');
+		$this->assertGreaterThan(0.0, (float) $order->get_total_tax());
+		$this->assertGreaterThan(0.0, (float) $order->get_discount_total());
+
+		$html = $this->capture(static fn() => RentalCheckoutLook::render_bank_transfer($order->get_id()));
+
+		$this->assertStringContainsString('Deposit to send (', $html, 'The label still says deposit.');
+		$this->assertStringContainsString($this->kept(wc_price( (float) $order->get_total(), array( 'currency' => 'EUR' ))), $html);
+		$this->assertStringNotContainsString($this->kept(wc_price(200.0, array( 'currency' => 'EUR' ))), $html);
+
+		// The summary card's deposit row above says the same figure.
+		$summary = $this->capture(static fn() => \MHMRentiva\Admin\Payment\WooCommerce\CheckoutJourney::render_thankyou($order->get_id()));
+		$this->assertStringContainsString($this->kept(wc_price( (float) $order->get_total(), array( 'currency' => 'EUR' ))), $summary);
 	}
 
 	public function test_the_owner_of_a_bank_order_uploads_the_receipt_in_my_account(): void
@@ -354,6 +469,37 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		$this->assertSame(50, $default['phone']['priority']);
 		$this->assertTrue($default['phone']['required'], 'The booking\'s phone is required.');
 		$this->assertSame(51, $default['email']['priority']);
+	}
+
+	public function test_a_booking_checkout_names_a_missing_field_by_its_own_label(): void
+	{
+		// WC_Checkout::validate_posted_data() names it "Billing %s" ("Fatura Ad
+		// gerekli bir alandır."); a booking's checkout asks for the renter.
+		$this->add_rental();
+		WooCommerceBridge::open_field_label_window();
+		$during = sprintf(_x('Billing %s', 'checkout-validation', 'woocommerce'), 'Phone');
+		WooCommerceBridge::close_field_label_window();
+
+		$this->assertSame('Phone', $during);
+		$this->assertSame('Billing Phone', sprintf(_x('Billing %s', 'checkout-validation', 'woocommerce'), 'Phone'), 'The window closes with validation.');
+
+		WC()->cart->empty_cart();
+		$this->add_product();
+		WooCommerceBridge::open_field_label_window();
+		$shop = sprintf(_x('Billing %s', 'checkout-validation', 'woocommerce'), 'Phone');
+		WooCommerceBridge::close_field_label_window();
+		$this->assertSame('Billing Phone', $shop, 'The shop\'s own orders keep WooCommerce\'s wording.');
+	}
+
+	public function test_the_default_locale_carries_the_booking_labels(): void
+	{
+		add_filter('woocommerce_is_checkout', '__return_true');
+		$this->add_rental();
+
+		$default = WooCommerceBridge::booking_address_locale(array( 'first_name' => array( 'priority' => 10 ), 'city' => array( 'label' => 'Town / City' ), 'state' => array( 'label' => 'State / County' ) ));
+
+		$this->assertSame('District / Neighborhood', $default['city']['label'], 'address-i18n.js puts this back, not "Town / City".');
+		$this->assertSame('City', $default['state']['label']);
 	}
 
 	public function test_a_shop_checkout_locale_is_untouched(): void

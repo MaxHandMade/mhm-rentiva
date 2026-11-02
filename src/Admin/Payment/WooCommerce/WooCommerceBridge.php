@@ -63,6 +63,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		add_action('woocommerce_store_api_cart_errors', array( self::class, 'store_api_cart_errors' ), 10, 2);
 		// Above WooCommerce's own draft-status filter (999).
 		add_filter('woocommerce_valid_order_statuses_for_payment', array( self::class, 'refuse_payment_without_booking' ), 1000, 2);
+		// Classic order-pay form: before the gateway, a booking the order pays
+		// for must still hold its dates.
+		add_action('woocommerce_before_pay_action', array( self::class, 'claim_before_pay' ), 10, 1);
+		// Classic checkout: billing field labels in the error notices.
+		add_action('woocommerce_checkout_process', array( self::class, 'open_field_label_window' ), 5, 0);
+		add_action('woocommerce_after_checkout_validation', array( self::class, 'close_field_label_window' ), 10, 0);
 		// Fallback hook if primary fails (thankyou page load)
 		add_action('woocommerce_thankyou', array( self::class, 'create_booking_from_order_fallback' ), 5, 1);
 		add_action('woocommerce_order_status_changed', array( self::class, 'handle_order_status_change' ), 10, 4);
@@ -962,11 +968,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// Check if booking already created (prevent duplicate creation)
-		$existing_booking_id = $order->get_meta('_mhmrentiva_booking_id', true);
-		if ($existing_booking_id) {
-			return;
-		}
+		// A booking id on the order is not enough to skip it: on a retry WC_Checkout
+		// resumes the order with fresh lines (remove_order_items()), and a booking
+		// cancelled by a failed payment may have lost its dates to someone else.
+		// Each line is linked, relinked to the order's own booking, or booked.
 
 		// From the two order-placed hooks a refused booking stops the request, so
 		// no gateway ever sees the order. The thank-you fallback runs after payment
@@ -998,8 +1003,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Announced after the loop: on a refused later line the earlier bookings
 		// are taken back, and nobody may have heard of them.
 		$created = array();
+		// Bookings that existed before this request: they must still hold their
+		// dates before the gateway runs.
+		$existing = array();
 
 		foreach ($items as $item) {
+			$linked = (int) $item->get_meta('_mhmrentiva_booking_id', true);
+			if ($linked > 0) {
+				$existing[] = $linked;
+				continue;
+			}
+
 			// Check if this is a pending booking (not yet created)
 			// ⭐ WooCommerce stores meta as serialized, so we need to get it properly
 			$booking_data = $item->get_meta('_mhmrentiva_booking_data', true);
@@ -1014,11 +1028,23 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			}
 
 			if ($booking_data && is_array($booking_data) && $is_pending) {
+				// A resumed order's line: its booking was made on the first attempt.
+				$own = self::order_booking_for( (int) $order_id, $booking_data, $existing);
+				if ($own > 0) {
+					$item->update_meta_data('_mhmrentiva_booking_id', $own);
+					$item->update_meta_data('_mhmrentiva_booking_pending', false);
+					$item->save();
+					$order->update_meta_data('_mhmrentiva_booking_id', $own);
+					$order->save();
+					$existing[] = $own;
+					continue;
+				}
+
 				// Create booking from cart data
 				try {
 					$booking_id = self::create_booking_from_data($booking_data, $order_id, $halt);
 					if ($halt && ! $booking_id) {
-						self::halt_checkout(__('Your booking could not be created and no payment was taken. Please try again.', 'mhm-rentiva'));
+						self::halt_checkout(__('Your booking could not be created and no payment was taken. Please try again.', 'mhm-rentiva'), (int) $order_id);
 					}
 				} catch (\Throwable $e) {
 					self::take_back_bookings($order, $created);
@@ -1046,6 +1072,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						'item'       => $item,
 					);
 				}
+			}
+		}
+
+		// Only where the request can still stop: the thank-you fallback is a page
+		// view and must not revive a booking the operator cancelled. After money
+		// moves, handle_order_status_change() asks the same question.
+		if ($halt && array() !== $existing) {
+			$refusal = self::claim_order_bookings($order, $existing);
+			if ('' !== $refusal) {
+				self::take_back_bookings($order, $created);
+				self::halt_checkout($refusal, (int) $order_id);
 			}
 		}
 
@@ -1086,16 +1123,23 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Stop an order-placed request: the Store API answers 400 with this message,
 	 * WC_Checkout::process_checkout() catches it and shows it as a notice. Either
-	 * way the gateway is never called.
+	 * way the gateway is never called. The order stays `pending`, so it says
+	 * why on the order screen.
 	 *
 	 * @throws \Exception Always.
 	 */
-	private static function halt_checkout(string $message): void
+	private static function halt_checkout(string $message, int $order_id = 0): void
 	{
 		// Plain text, not HTML: JSON on the Store API, and wc_add_notice() runs
 		// wp_kses_post() when it prints on the classic checkout. get_the_title()
 		// and esc_html() would leave entities the customer reads literally.
-		$plain = wp_strip_all_tags(html_entity_decode($message, ENT_QUOTES, 'UTF-8'));
+		$plain = self::plain_text($message);
+
+		$order = $order_id > 0 && function_exists('wc_get_order') ? wc_get_order($order_id) : false;
+		if ($order instanceof \WC_Order) {
+			/* translators: %s: why the booking was refused, as the customer read it. */
+			$order->add_order_note(sprintf(__('Booking refused, no payment taken: %s', 'mhm-rentiva'), $plain));
+		}
 
 		$route_exception = '\Automattic\WooCommerce\StoreApi\Exceptions\RouteException';
 		$exception       = class_exists($route_exception)
@@ -1103,6 +1147,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			: new \Exception($plain);
 
 		throw $exception;
+	}
+
+	private static function plain_text(string $message): string
+	{
+		return wp_strip_all_tags(html_entity_decode($message, ENT_QUOTES, 'UTF-8'));
 	}
 
 	/**
@@ -1116,6 +1165,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * (Checkout, CheckoutOrder) fire the order-processed hook before payment, so
 	 * store_api_order_processed() books or halts first.
 	 *
+	 * An order with a booking stays payable here: whether that booking still
+	 * holds its dates is asked where the payment starts (claim_before_pay(),
+	 * create_booking_from_order() on the Store API) and where it lands
+	 * (handle_order_status_change()), under the vehicle's lock.
+	 *
+	 * WC_Order::status_transition() applies the same filter to ask "was this
+	 * a payment?" once the order already sits in a paid status (an operator
+	 * moving a halted order to processing). Such an order is not payable
+	 * either way, so it is left alone: the transition keeps its payment hook.
+	 *
 	 * @param mixed $statuses The statuses an order may be paid in.
 	 * @param mixed $order    The order asking.
 	 * @return mixed
@@ -1123,6 +1182,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	public static function refuse_payment_without_booking($statuses, $order)
 	{
 		if (! $order instanceof \WC_Order || ! is_array($statuses) || $order->get_meta('_mhmrentiva_booking_id', true)) {
+			return $statuses;
+		}
+		if ($order->has_status(wc_get_is_paid_statuses())) {
 			return $statuses;
 		}
 		if (array() === self::pending_booking_snapshots($order) || \WC()->is_store_api_request()) {
@@ -1194,7 +1256,303 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			}
 		}
 
+		// A guest who creates an account at checkout: WC_Checkout::process_customer()
+		// makes the user and puts it on the order before the order-placed hook.
+		// My Account finds a booking by this id only.
+		if (empty($booking_data['customer_user_id']) && $order instanceof \WC_Order && $order->get_customer_id() > 0) {
+			$booking_data['customer_user_id'] = $order->get_customer_id();
+		}
+
 		return $booking_data;
+	}
+
+	/**
+	 * The bookings an order pays for: its lines' ids, else the order's own.
+	 *
+	 * @return list<int>
+	 */
+	private static function linked_booking_ids(\WC_Order $order): array
+	{
+		$ids = array();
+		foreach ($order->get_items() as $item) {
+			$id = (int) $item->get_meta('_mhmrentiva_booking_id', true);
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+		if (array() === $ids) {
+			$id = (int) $order->get_meta('_mhmrentiva_booking_id', true);
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+
+		return array_values(array_unique($ids));
+	}
+
+	private static function is_remaining_order(\WC_Order $order): bool
+	{
+		return '1' === (string) $order->get_meta('_mhmrentiva_is_remaining_payment', true);
+	}
+
+	/**
+	 * The booking this order made for a line on an earlier attempt: same order,
+	 * vehicle and instants. 0 when none, or when it is already another line's.
+	 *
+	 * @param array<string, mixed> $snapshot The line's booking data.
+	 * @param list<int>            $taken    Bookings other lines already have.
+	 */
+	private static function order_booking_for(int $order_id, array $snapshot, array $taken = array()): int
+	{
+		$vehicle_id = (int) ( $snapshot['vehicle_id'] ?? 0 );
+		$start_ts   = self::parse_datetime_to_timestamp( (string) ( $snapshot['pickup_date'] ?? '' ), (string) ( $snapshot['pickup_time'] ?? '' ));
+		$end_ts     = self::parse_datetime_to_timestamp( (string) ( $snapshot['dropoff_date'] ?? '' ), (string) ( $snapshot['dropoff_time'] ?? '' ));
+		if ($order_id <= 0 || $vehicle_id <= 0 || ! $start_ts || ! $end_ts) {
+			return 0;
+		}
+
+		$ids = get_posts(
+			array(
+				'post_type'        => 'mhmrentiva_booking',
+				'post_status'      => 'any',
+				'fields'           => 'ids',
+				'numberposts'      => 20,
+				'no_found_rows'    => true,
+				'suppress_filters' => true,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Two exact keys, one order's bookings: a handful of rows, only on a checkout retry.
+				'meta_query'       => array(
+					array(
+						'key'   => '_mhmrentiva_woocommerce_order_id',
+						'value' => $order_id,
+					),
+					array(
+						'key'   => '_mhmrentiva_vehicle_id',
+						'value' => $vehicle_id,
+					),
+				),
+			)
+		);
+
+		foreach ($ids as $id) {
+			$id = (int) $id;
+			if (in_array($id, $taken, true)) {
+				continue;
+			}
+			if ( (int) get_post_meta($id, '_mhmrentiva_start_ts', true) === $start_ts && (int) get_post_meta($id, '_mhmrentiva_end_ts', true) === $end_ts) {
+				return $id;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * The customer's own booking for a cart line, when the checkout is a retry of
+	 * an order whose first attempt already booked it (the gateway failed and
+	 * left the order pending or failed). The cart checks leave out exactly this
+	 * booking; every other booking still refuses the dates.
+	 *
+	 * @param array<string, mixed> $booking_data The cart line's booking data.
+	 */
+	private static function own_booking_of_cart_line(array $booking_data): int
+	{
+		if (! function_exists('WC') || null === \WC()->session || ! function_exists('wc_get_order')) {
+			return 0;
+		}
+
+		// WC_Checkout::create_order() resumes order_awaiting_payment; the Store
+		// API reuses store_api_draft_order (DraftOrderTrait).
+		$order_ids = array_unique(
+			array_filter(
+				array(
+					(int) \WC()->session->get('order_awaiting_payment', 0),
+					(int) \WC()->session->get('store_api_draft_order', 0),
+				)
+			)
+		);
+
+		foreach ($order_ids as $order_id) {
+			$order = wc_get_order($order_id);
+			if (! $order instanceof \WC_Order || ! $order->has_status(array( 'pending', 'failed', 'checkout-draft' ))) {
+				continue;
+			}
+			$booking_id = self::order_booking_for($order_id, $booking_data);
+			if ($booking_id > 0) {
+				return $booking_id;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * '' when every booking the order pays for holds its dates, or holds them
+	 * again; else what to tell the customer. Asked before money is taken.
+	 *
+	 * @param list<int>|null $booking_ids The bookings to ask about; null for the order's.
+	 */
+	private static function claim_order_bookings(\WC_Order $order, ?array $booking_ids = null): string
+	{
+		$remaining = self::is_remaining_order($order);
+		foreach ($booking_ids ?? self::linked_booking_ids($order) as $booking_id) {
+			$refusal = self::claim_booking( (int) $booking_id, $remaining);
+			if ('' !== $refusal) {
+				return $refusal;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Has the booking let go of its dates? Cancelled, refunded or no-show: it
+	 * holds nothing. Pending past its payment deadline: BookingConflicts no
+	 * longer counts it (PAYMENT_SQL), so someone else may have booked over it.
+	 */
+	private static function booking_lost_its_dates(int $booking_id): bool
+	{
+		$status = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+		if (in_array($status, array( Status::CANCELLED, Status::REFUNDED, Status::NO_SHOW ), true)) {
+			return true;
+		}
+		if (! in_array($status, array( Status::PENDING, Status::PENDING_PAYMENT ), true)) {
+			return false;
+		}
+		$deadline = (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
+
+		return '' !== $deadline && $deadline <= current_time('mysql', true);
+	}
+
+	/**
+	 * Make sure a booking still holds its dates before money is taken for it
+	 * (Codex PR K 1: a failed payment cancels the booking, another customer
+	 * books the dates, the first order is paid again).
+	 *
+	 * A booking that holds its dates passes untouched. One that let go of them
+	 * takes them back under the vehicle's lock -- the same lock and the same
+	 * rule a new booking goes through, leaving only itself out -- or is
+	 * refused. Taking back means: a cancelled booking is pending again, and a
+	 * fresh payment deadline. A refunded or no-show booking, and any booking of
+	 * a remaining-payment order, is not revived: the deposit side of that money
+	 * is not known here.
+	 *
+	 * @return string '' when it holds its dates; else the customer's message.
+	 */
+	private static function claim_booking(int $booking_id, bool $remaining): string
+	{
+		wp_cache_delete($booking_id, 'post_meta');
+		if (! self::booking_lost_its_dates($booking_id)) {
+			return '';
+		}
+
+		$status     = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+		$vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+		$start_ts   = (int) get_post_meta($booking_id, '_mhmrentiva_start_ts', true);
+		$end_ts     = (int) get_post_meta($booking_id, '_mhmrentiva_end_ts', true);
+		if ($start_ts <= 0 || $end_ts <= 0) {
+			$start_ts = (int) self::parse_datetime_to_timestamp( (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true), (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true));
+			$end_ts   = (int) self::parse_datetime_to_timestamp( (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true), (string) get_post_meta($booking_id, '_mhmrentiva_dropoff_time', true));
+		}
+
+		$revivable = array( Status::CANCELLED, Status::PENDING, Status::PENDING_PAYMENT );
+		if ($remaining || ! in_array($status, $revivable, true) || $vehicle_id <= 0 || $start_ts <= 0 || $end_ts <= $start_ts) {
+			return __('This booking was cancelled and can no longer be paid. Please make a new booking.', 'mhm-rentiva');
+		}
+
+		$claimed = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock(
+			$vehicle_id,
+			static function () use ($booking_id, $vehicle_id, $start_ts, $end_ts) {
+				// What the lock protects, read fresh.
+				wp_cache_delete($booking_id, 'post_meta');
+				if (! self::booking_lost_its_dates($booking_id)) {
+					return 'held';
+				}
+				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts, $booking_id)) {
+					return 'taken';
+				}
+
+				$from = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+				if (Status::CANCELLED === $from) {
+					update_post_meta($booking_id, '_mhmrentiva_status', Status::PENDING);
+				}
+				update_post_meta($booking_id, '_mhmrentiva_payment_deadline', self::get_payment_deadline());
+
+				return $from;
+			}
+		);
+
+		if ('taken' === $claimed) {
+			return self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts);
+		}
+		if ('held' === $claimed) {
+			return '';
+		}
+
+		// Outside the transaction, like every hook of the booking path.
+		if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+			\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+		}
+		if (class_exists('MHMRentiva\Admin\Booking\Meta\BookingMeta')) {
+			\MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
+				$booking_id,
+				__('The dates were still free when the order was paid again; the booking holds them again.', 'mhm-rentiva'),
+				'system'
+			);
+		}
+		if (Status::CANCELLED === $claimed) {
+			do_action('mhmrentiva_booking_status_changed', $booking_id, Status::CANCELLED, Status::PENDING);
+		}
+
+		return '';
+	}
+
+	/**
+	 * The classic order-pay form, before the gateway: an error notice here stops
+	 * WC_Form_Handler::pay_action() (it pays only while wc_notice_count('error')
+	 * is 0).
+	 *
+	 * @param mixed $order The order being paid.
+	 */
+	public static function claim_before_pay($order): void
+	{
+		if (! $order instanceof \WC_Order) {
+			return;
+		}
+
+		$refusal = self::claim_order_bookings($order);
+		if ('' === $refusal) {
+			return;
+		}
+
+		$plain = self::plain_text($refusal);
+		/* translators: %s: why the booking was refused, as the customer read it. */
+		$order->add_order_note(sprintf(__('Booking refused, no payment taken: %s', 'mhm-rentiva'), $plain));
+		wc_add_notice($plain, 'error');
+	}
+
+	/**
+	 * Money arrived for a booking that could not take its dates back. Nothing is
+	 * confirmed; the operator reads why on the order and in the log.
+	 */
+	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal): void
+	{
+		$note = sprintf(
+			/* translators: 1: booking id, 2: why, as the customer would have read it. */
+			__('Payment recorded, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Return the payment or move the booking.', 'mhm-rentiva'),
+			$booking_id,
+			self::plain_text($refusal)
+		);
+		$order->add_order_note($note);
+		AdvancedLogger::error_linked(
+			$note,
+			$booking_id,
+			array(
+				'order_id' => $order->get_id(),
+				'surface'  => 'wc_status_change',
+				'reason'   => 'dates_lost',
+			),
+			AdvancedLogger::CATEGORY_PAYMENT
+		);
 	}
 
 	/**
@@ -1213,7 +1571,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		$snapshots = self::pending_booking_snapshots($order);
-		if (array() === $snapshots || $order->get_meta('_mhmrentiva_booking_id', true)) {
+		if (array() === $snapshots) {
+			// A retry (POST /checkout/{id}, or a reused draft) of an order that
+			// already has its bookings: a failed payment may have cancelled
+			// them and someone else may hold the dates now.
+			if (array() !== self::linked_booking_ids($order)) {
+				self::create_booking_from_order($order->get_id(), null, $order);
+			}
 			return;
 		}
 
@@ -1231,9 +1595,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * The Store API's cart check: the same refusals as
-	 * validate_checkout_availability(), reported on the WP_Error it passes. The
-	 * line stays, so the customer still sees what was refused.
+	 * The Store API's cart check on the checkout request: the same refusals as
+	 * validate_checkout_availability(), reported on the WP_Error it passes, and
+	 * on that request the line stays. (A cart GET goes through
+	 * woocommerce_check_cart_items, where validate_cart_availability() removes
+	 * a refused line.) A retry of the same order does not collide with the
+	 * booking its first attempt made (own_booking_of_cart_line()).
 	 *
 	 * @param \WP_Error $errors Collected by WooCommerce.
 	 * @param mixed     $cart   The cart.
@@ -1267,7 +1634,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				continue;
 			}
 
-			if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+			if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts, self::own_booking_of_cart_line($booking_data))) {
 				$errors->add('mhmrentiva_booking_refused', self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts));
 			}
 		}
@@ -1302,10 +1669,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// Check if booking already exists (prevent duplicate creation)
-		$existing_booking_id = $order->get_meta('_mhmrentiva_booking_id', true);
-		if ($existing_booking_id) {
-			return; // Already created by primary hook
+		// Nothing left to book: every rental line already carries its booking. An
+		// order-level id alone does not say that (a resumed order's fresh lines).
+		// A linked booking is not re-checked here: this is a page view, and
+		// handle_order_status_change() asked when the payment landed.
+		if (array() === self::pending_booking_snapshots($order)) {
+			return;
 		}
 
 		// Only attempt to create if order is paid/processing (fallback safety check)
@@ -1354,7 +1723,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				AdvancedLogger::CATEGORY_BOOKING
 			);
 			if ($halt) {
-				self::halt_checkout(self::rental_refusal_notice( (int) $booking_data['vehicle_id']));
+				self::halt_checkout(self::rental_refusal_notice( (int) $booking_data['vehicle_id']), $order_id);
 			}
 			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
 			if ($order) {
@@ -1548,7 +1917,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				AdvancedLogger::CATEGORY_BOOKING
 			);
 			if ($halt) {
-				self::halt_checkout(self::booked_meanwhile_notice( (int) $booking_data['vehicle_id'], $start_ts, $end_ts));
+				self::halt_checkout(self::booked_meanwhile_notice( (int) $booking_data['vehicle_id'], $start_ts, $end_ts), $order_id);
 			}
 			// ⚠️ Cancel the WooCommerce order if booking cannot be created
 			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
@@ -1572,6 +1941,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$booking_id = (int) $item->get_meta('_mhmrentiva_booking_id');
 
 			if ($booking_id) {
+				// Money landed (a gateway's late callback, an operator marking the
+				// order paid): a booking that lost its dates is not revived over
+				// someone else's. The operator is told; the money is theirs to return.
+				if (in_array($new_status, array( 'processing', 'completed', 'on-hold' ), true)) {
+					$refusal = self::claim_booking($booking_id, self::is_remaining_order($order));
+					if ('' !== $refusal) {
+						self::report_unclaimed_payment($order, $booking_id, $refusal);
+						continue;
+					}
+				}
+
 				// Status Mapping Logic
 				switch ($new_status) {
 					case 'completed':
@@ -2515,8 +2895,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 				// Note: Cache should NOT be invalidated on read operations - only when booking is created/updated
 
-				// Check for overlap (locked check for real-time availability)
-				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+				// Check for overlap (locked check for real-time availability); a
+				// retried order's own booking is not a conflict.
+				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts, self::own_booking_of_cart_line($booking_data))) {
 					$vehicle_title = get_the_title($vehicle_id);
 					$pickup_date   = wp_date(get_option('date_format'), $start_ts);
 					$dropoff_date  = wp_date(get_option('date_format'), $end_ts);
@@ -2630,7 +3011,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// the customer is told at checkout rather than after paying. It is
 				// NOT atomic and takes no lock (no transaction is open here). The
 				// authoritative locked check runs in create_booking_from_data().
-				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+				// A retried order's own booking is not a conflict.
+				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts, self::own_booking_of_cart_line($booking_data))) {
 					$pickup_date  = wp_date(get_option('date_format'), $start_ts);
 					$dropoff_date = wp_date(get_option('date_format'), $end_ts);
 
@@ -3155,10 +3537,29 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if ('phone' === $key) {
 				$field['required'] = true;
 			}
+			// The default locale's labels are what address-i18n.js puts back
+			// for a country that sets none: the same words the form printed
+			// (reorder_checkout_fields()), not WooCommerce's "Town / City".
+			if ($all && isset(self::booking_address_labels()[ $key ])) {
+				$field['label'] = self::booking_address_labels()[ $key ];
+			}
 			$fields[ $key ] = $field;
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * The labels a booking's checkout gives the address fields.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function booking_address_labels(): array
+	{
+		return array(
+			'state' => __('City', 'mhm-rentiva'),
+			'city'  => __('District / Neighborhood', 'mhm-rentiva'),
+		);
 	}
 
 	/**
@@ -3196,7 +3597,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if (isset($fields['billing']['billing_state'])) {
 			$fields['billing']['billing_state']['priority'] = 21;
 			$fields['billing']['billing_state']['class']    = array( 'form-row-last' );
-			$fields['billing']['billing_state']['label']    = __('City', 'mhm-rentiva');
+			$fields['billing']['billing_state']['label']    = self::booking_address_labels()['state'];
 		}
 
 		// --- ROW 3: Location Specific (City/District + Postcode) ---
@@ -3204,7 +3605,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if (isset($fields['billing']['billing_city'])) {
 			$fields['billing']['billing_city']['priority'] = 30;
 			$fields['billing']['billing_city']['class']    = array( 'form-row-first' );
-			$fields['billing']['billing_city']['label']    = __('District / Neighborhood', 'mhm-rentiva');
+			$fields['billing']['billing_city']['label']    = self::booking_address_labels()['city'];
 		}
 
 		if (isset($fields['billing']['billing_postcode'])) {
@@ -3237,6 +3638,38 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		return $fields;
 	}
+	/**
+	 * WC_Checkout::validate_posted_data() names a billing field "Billing %s" in
+	 * its error notices ("Fatura Ad gerekli bir alandır."). A booking's checkout
+	 * asks for the renter's details, not an invoice address, so on a cart with a
+	 * booking the field's own label stands alone. Open from
+	 * woocommerce_checkout_process (before validate_checkout()) to
+	 * woocommerce_after_checkout_validation; the shop's own orders keep
+	 * WooCommerce's wording.
+	 */
+	public static function open_field_label_window(): void
+	{
+		if (self::cart_has_booking()) {
+			add_filter('gettext_with_context_woocommerce', array( self::class, 'bare_field_label' ), 10, 3);
+		}
+	}
+
+	public static function close_field_label_window(): void
+	{
+		remove_filter('gettext_with_context_woocommerce', array( self::class, 'bare_field_label' ), 10);
+	}
+
+	/**
+	 * @param mixed $translation The translated text.
+	 * @param mixed $text        The source text.
+	 * @param mixed $context     The context.
+	 * @return mixed
+	 */
+	public static function bare_field_label($translation, $text, $context = '')
+	{
+		return 'Billing %s' === $text && 'checkout-validation' === $context ? '%s' : $translation;
+	}
+
 	/**
 	 * Add "Return to Cart" link at checkout
 	 */

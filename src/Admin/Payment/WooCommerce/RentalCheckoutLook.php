@@ -20,7 +20,8 @@ if (! defined('ABSPATH')) {
  * canvas (`Sepet`, `Odeme`, `Tesekkur`).
  *
  * Two reaches. The whole page wears the Rentiva look only on a request of
- * exactly one rental (`body.rvs-rental`, CheckoutJourney::is_rental_request()).
+ * exactly one rental, and on the thank-you page of an order of rentals only
+ * (`body.rvs-rental`, CheckoutJourney::is_rental_request()).
  * A mixed or transfer cart keeps the theme's cart and checkout; only Rentiva's
  * own parts are styled there -- its cart and review lines (`rvs-cart-line`) and
  * the payment-type card (`#mhm-booking-payment-type`, already an `.rvs-shell`).
@@ -54,7 +55,10 @@ final class RentalCheckoutLook {
 		add_filter('woocommerce_return_to_shop_redirect', array( self::class, 'return_to_shop_url' ), 10, 1);
 		add_filter('woocommerce_return_to_shop_text', array( self::class, 'return_to_shop_text' ), 10, 1);
 
-		add_filter('woocommerce_endpoint_order-received_title', array( self::class, 'order_received_title' ), 10, 1);
+		// The page title stays WooCommerce's ("Order received"): the journey draws
+		// the one "Your booking is received" heading (CheckoutJourney::render_journey()),
+		// so a theme that prints its page title shows two different lines, never
+		// the same heading twice (Fable PR K M1).
 		add_filter('woocommerce_thankyou_order_received_text', array( self::class, 'order_received_text' ), 10, 2);
 		// After WooCommerce's own bank details (WC_Gateway_BACS::thankyou_page, 10).
 		add_action('woocommerce_thankyou_bacs', array( self::class, 'render_bank_transfer' ), 20, 1);
@@ -234,18 +238,6 @@ final class RentalCheckoutLook {
 	}
 
 	/**
-	 * The page title of a rental's order-received page. The theme prints it, so
-	 * the page has one title, never a second Rentiva heading next to it.
-	 *
-	 * @param mixed $title WooCommerce's "Order received".
-	 * @return mixed
-	 */
-	public static function order_received_title($title)
-	{
-		return CheckoutJourney::is_rental_request() ? __('Your booking is received', 'mhm-rentiva') : $title;
-	}
-
-	/**
 	 * @param mixed $message WooCommerce's thank-you sentence (escaped HTML).
 	 * @param mixed $order   The order, or false.
 	 * @return mixed
@@ -261,17 +253,25 @@ final class RentalCheckoutLook {
 
 	/**
 	 * What to send and how to send the receipt, under WooCommerce's bank
-	 * details (R10). The amounts are the summary's own figures: the deposit or
-	 * the total to send now, and what is left for pickup. A logged-in customer
-	 * uploads the receipt on the booking in My Account; a guest has no account
-	 * page, so the receipt goes to the shop's email address.
+	 * details (R10). The figure to send is the order's total in the order's
+	 * currency -- what the bank must receive, tax, coupons and fees included;
+	 * the snapshot's deposit is a net price and can differ (Codex PR K 3). Only
+	 * the label says "deposit" when the order charges one. What is left for
+	 * pickup is the snapshot's. A logged-in customer uploads the receipt on the
+	 * booking in My Account; a guest has no account page, so the receipt goes
+	 * to the shop's email address.
 	 *
 	 * @param mixed $order_id The order WooCommerce is thanking for.
 	 */
 	public static function render_bank_transfer($order_id): void
 	{
 		$order = wc_get_order( (int) $order_id);
-		if (! ( $order instanceof \WC_Order ) || ! CheckoutJourney::is_rental_order($order) || $order->has_status(array( 'failed', 'cancelled', 'refunded' ))) {
+		if (! ( $order instanceof \WC_Order ) || $order->has_status(array( 'failed', 'cancelled', 'refunded' ))) {
+			return;
+		}
+		// One rental, its remaining payment, or several rentals (each summary
+		// card above names its own pickup figure; the card here sends the total).
+		if (! CheckoutJourney::is_rental_order($order) && count(CheckoutJourney::order_rentals($order)) < 2) {
 			return;
 		}
 
@@ -279,15 +279,11 @@ final class RentalCheckoutLook {
 		$breakdown = null !== $snap ? CheckoutJourney::breakdown_of($snap, RentalMoneyLabels::STATE_TO_SEND) : null;
 
 		$to_send = array(
-			'label' => __('To send', 'mhm-rentiva'),
-			'html'  => (string) $order->get_formatted_order_total(),
+			'label' => null !== $breakdown && null !== $breakdown['deposit'] ? (string) $breakdown['deposit']['label'] : __('To send', 'mhm-rentiva'),
+			// wc_price() with the order's currency is what WC_Order::get_formatted_order_total()
+			// prints, without its tax suffix.
+			'html'  => (string) wc_price( (float) $order->get_total(), array( 'currency' => $order->get_currency() )),
 		);
-		if (null !== $breakdown && null !== $breakdown['deposit']) {
-			$to_send = array(
-				'label' => (string) $breakdown['deposit']['label'],
-				'html'  => (string) $breakdown['deposit']['html'],
-			);
-		}
 
 		$upload_url = '';
 		$user       = get_current_user_id();

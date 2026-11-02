@@ -52,9 +52,18 @@ final class RentalScopeTest extends WP_UnitTestCase
 		remove_all_filters('woocommerce_is_checkout');
 		remove_all_filters('woocommerce_is_order_received_page');
 		remove_all_filters('woocommerce_is_cart');
-		unset($GLOBALS['wp']->query_vars['order-received'], $GLOBALS['wp']->query_vars['order-pay']);
+		unset($GLOBALS['wp']->query_vars['order-received'], $GLOBALS['wp']->query_vars['order-pay'], $_GET['key']);
 		update_option('woocommerce_tax_display_cart', 'incl');
 		parent::tearDown();
+	}
+
+	/**
+	 * An order page's URL: its id and its key (CheckoutJourney reads both).
+	 */
+	private function visit(string $endpoint, \WC_Order $order): void
+	{
+		$GLOBALS['wp']->query_vars[ $endpoint ] = (string) $order->get_id();
+		$_GET['key']                            = $order->get_order_key();
 	}
 
 	/**
@@ -208,13 +217,13 @@ final class RentalScopeTest extends WP_UnitTestCase
 		add_filter('woocommerce_is_order_received_page', '__return_true');
 		$this->add_rental(); // The cart must not answer for the order.
 
-		$GLOBALS['wp']->query_vars['order-received'] = (string) $this->order_with(array(), null)->get_id();
+		$this->visit('order-received', $this->order_with(array(), null));
 		$this->assertNotContains('rvs-rental', CheckoutJourney::body_class(array()), 'A shop order.');
 
-		$GLOBALS['wp']->query_vars['order-received'] = (string) $this->order_with(array(), $this->rental_data())->get_id();
+		$this->visit('order-received', $this->order_with(array(), $this->rental_data()));
 		$this->assertContains('rvs-rental', CheckoutJourney::body_class(array()), 'A rental order.');
 
-		$GLOBALS['wp']->query_vars['order-received'] = (string) $this->order_with(array(), $this->rental_data(array( 'booking_type' => 'transfer' )))->get_id();
+		$this->visit('order-received', $this->order_with(array(), $this->rental_data(array( 'booking_type' => 'transfer' ))));
 		$this->assertNotContains('rvs-rental', CheckoutJourney::body_class(array()), 'A transfer order.');
 	}
 
@@ -222,18 +231,18 @@ final class RentalScopeTest extends WP_UnitTestCase
 	{
 		add_filter('woocommerce_is_checkout', '__return_true');
 
-		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(array(), null)->get_id();
+		$this->visit('order-pay', $this->order_with(array(), null));
 		$this->assertNotContains('rvs-rental', CheckoutJourney::body_class(array()), 'A shop order.');
 
-		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(array(), $this->rental_data())->get_id();
+		$this->visit('order-pay', $this->order_with(array(), $this->rental_data()));
 		$this->assertContains('rvs-rental', CheckoutJourney::body_class(array()), 'A rental order.');
 
 		// A remaining-payment line carries no snapshot, only these keys (m7).
 		$booking = self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
-		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(
+		$this->visit('order-pay', $this->order_with(
 			array( '_mhmrentiva_is_remaining_payment' => '1', '_mhmrentiva_booking_id' => $booking ),
 			null
-		)->get_id();
+		));
 		$this->assertContains('rvs-rental', CheckoutJourney::body_class(array()), 'A remaining payment.');
 
 		update_post_meta($booking, '_mhmrentiva_transfer_origin_id', 7);
@@ -414,13 +423,13 @@ final class RentalScopeTest extends WP_UnitTestCase
 	{
 		add_filter('woocommerce_is_checkout', '__return_true');
 
-		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(array( '_mhmrentiva_is_remaining_payment' => '1' ), null)->get_id();
+		$this->visit('order-pay', $this->order_with(array( '_mhmrentiva_is_remaining_payment' => '1' ), null));
 		WooCommerceBridge::enqueue_checkout_styles();
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-tokens', 'enqueued') || wp_style_is('mhm-rentiva-rvs-booking', 'enqueued'), 'The tokens reach the page.');
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-checkout', 'enqueued'));
 
 		$GLOBALS['wp_styles'] = null;
-		$GLOBALS['wp']->query_vars['order-pay'] = (string) $this->order_with(array(), null)->get_id();
+		$this->visit('order-pay', $this->order_with(array(), null));
 		WooCommerceBridge::enqueue_checkout_styles();
 		$this->assertFalse(wp_style_is('mhm-rentiva-rvs-checkout', 'enqueued'));
 	}

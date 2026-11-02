@@ -2125,16 +2125,15 @@ final class SearchResults extends AbstractShortcode {
 	private static function render_vehicles_list(array $vehicles, string $layout, array $atts = array(), array $dates = array()): string
 	{
 		if (empty($vehicles)) {
-			// esc_html__ rather than __: this string reaches the browser two ways, and
-			// only one of them escapes. The shortcode path goes out through
-			// ShortcodeServiceProvider's wp_kses() dispatcher, but the AJAX path returns
-			// this markup as the `html` field of a JSON response and nothing escapes it
-			// on the way. A translator's markup would land in the DOM raw.
+			// Plain __(): StateBox::html() escapes every field itself, on both ways
+			// this markup reaches the browser (the shortcode's wp_kses() dispatcher and
+			// the AJAX `html` field, which nothing escapes on the way). Escaping here
+			// too would print a translation's apostrophe as `&#039;`.
 			return \MHMRentiva\Frontend\StateBox::html(
 				array(
-					'title'        => esc_html__('No cars match your search', 'mhm-rentiva'),
-					'text'         => esc_html__('Try other dates, another pickup location, or fewer filters.', 'mhm-rentiva'),
-					'action_label' => esc_html__('See all cars', 'mhm-rentiva'),
+					'title'        => __('No cars match your search', 'mhm-rentiva'),
+					'text'         => __('Try other dates, another pickup location, or fewer filters.', 'mhm-rentiva'),
+					'action_label' => __('See all cars', 'mhm-rentiva'),
 					'action_url'   => \MHMRentiva\Frontend\StateBox::browse_url(),
 					'action_style' => 'primary',
 					'state'        => 'no_results',

@@ -219,6 +219,10 @@ final class StoreApiSafetyNetTest extends WP_UnitTestCase
 		$this->assertSame('pending', $second->get_status(), 'Not cancelled: a gateway could revive that. refuse_payment_without_booking() closes payment instead.');
 		$this->assertSame('', $second->get_meta('_mhmrentiva_booking_id'));
 		$this->assertSame(1, $this->bookings_of_vehicle());
+
+		// Fable PR K m4: the pending order says why, for the operator.
+		$notes = wc_get_order_notes(array( 'order_id' => $second->get_id() ));
+		$this->assertNotEmpty(array_filter($notes, static fn($n) => str_contains($n->content, 'Booking refused, no payment taken: Sorry, the vehicle "Fiat Egea"')));
 	}
 
 	public function test_a_conflict_stops_the_classic_checkout_before_payment(): void
@@ -411,6 +415,38 @@ final class StoreApiSafetyNetTest extends WP_UnitTestCase
 		do_action('woocommerce_checkout_order_processed', $order->get_id(), array(), $order);
 
 		$this->assert_guest_contact($order->get_id());
+	}
+
+	/**
+	 * Fable PR K M2: "create an account" at checkout makes the user before the
+	 * order-placed hook (WC_Checkout::process_customer(), Store API
+	 * Checkout::process_customer()); the booking is that account's, so My
+	 * Account lists it.
+	 */
+	public function test_a_guest_who_creates_an_account_at_checkout_owns_the_booking(): void
+	{
+		$user = self::factory()->user->create(array( 'role' => 'customer' ));
+
+		foreach (array( 'store_api', 'classic' ) as $i => $path) {
+			$order = $this->with_billing(
+				$this->pending_order(200.0, array_merge($this->guest_snapshot(), array( 'pickup_date' => '2031-0' . ( 7 + $i ) . '-10', 'dropoff_date' => '2031-0' . ( 7 + $i ) . '-13' )))
+			);
+			$order->set_customer_id($user);
+			$order->save();
+
+			if ('store_api' === $path) {
+				$this->store_api($order);
+			} else {
+				do_action('woocommerce_checkout_order_processed', $order->get_id(), array(), $order);
+			}
+
+			$booking_id = (int) wc_get_order($order->get_id())->get_meta('_mhmrentiva_booking_id');
+			$this->assertSame($user, (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true), $path);
+
+			wp_set_current_user($user);
+			$this->assertTrue(\MHMRentiva\Admin\Frontend\Account\WooCommerceIntegration::can_view_booking($booking_id), $path . ': My Account shows it.');
+			wp_set_current_user(0);
+		}
 	}
 
 	public function test_a_snapshot_contact_outranks_the_billing_form(): void

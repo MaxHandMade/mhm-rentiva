@@ -133,6 +133,13 @@ $allowedByFile = [
     // sanitize edilmez, çünkü hiçbir yere yazılmaz veya basılmaz, yalnızca
     // bir yönlendirme hedefine karar vermek için okunur.
     'ContactMessagesPage.php'    => 2,
+    // CheckoutJourney.php'nin 1 kalıntısı 2026-11-02'de EKLENDİ (PR K, Fable m2):
+    // sipariş-alındı / sipariş-öde sayfasında URL'deki `key` okunur ve
+    // hash_equals() ile siparişin anahtarına karşılaştırılır -- WooCommerce'in
+    // kendi WC_Shortcode_Checkout'unun okuduğu parametre. Salt-okunur, yazılmaz,
+    // basılmaz; yanlış anahtarla gelen istekte Rentiva siparişin kiralama
+    // olduğunu sızdırmasın diye.
+    'CheckoutJourney.php'        => 1,
 ];
 $residualByFile = array_fill_keys(array_keys($allowedByFile), 0);
 $hard = []; $residual = 0;
@@ -172,8 +179,9 @@ foreach ($violations as [$f, $l, $s]) {
 // $_GET okuyan kodu gitti, dosyada 0 uyarı kaldı (ölçüldü: phpcs --report=json).
 // 2026-09-27: 20 -> 22. ContactMessagesPage.php'nin iki yeni salt-okunur
 // routing okuması eklendi (yukarıdaki gerekçe, contact messages ekranı).
+// 2026-11-02: 22 -> 23. CheckoutJourney.php sipariş anahtarı okuması (yukarıda).
 // Sonraki her artış aynı şekilde kendi dosya bazlı gerekçesini taşımalı.
-$CEILING = 22;
+$CEILING = 23;
 $overCeiling = [];
 foreach ($residualByFile as $file => $count) {
     if ($count > $allowedByFile[$file]) {

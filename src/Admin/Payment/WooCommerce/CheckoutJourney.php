@@ -24,7 +24,8 @@ if (! defined('ABSPATH')) {
  * The checkout shows step 2 of the journey (RvsSteps) and a Rentiva summary --
  * vehicle, window, breakdown -- above the checkout form; the thank-you page
  * shows step 3 and the same summary under "Your booking". Both draw only for
- * exactly one rental and nothing else (a transfer is the add-on's surface).
+ * exactly one rental and nothing else (a transfer is the add-on's surface);
+ * the thank-you page also for an order of several rentals, one card each.
  *
  * The summary never re-prices: it is built from the snapshot the cart line or
  * the order line carries (quote_from_snapshot()), so its total is the one
@@ -75,22 +76,21 @@ final class CheckoutJourney {
 
 	/**
 	 * Is this the cart, checkout, thank-you or order-pay page of exactly one
-	 * rental? A transfer, a mixed cart and the shop's own orders are not. The
-	 * order pages answer from the order: their cart is empty or about something
+	 * rental -- or the thank-you page of an order of rentals only? A transfer, a
+	 * mixed cart and the shop's own orders are not. The order pages answer from
+	 * the order (named with its key): their cart is empty or about something
 	 * else.
 	 */
 	public static function is_rental_request(): bool
 	{
-		global $wp;
-
 		if (function_exists('is_order_received_page') && is_order_received_page()) {
-			$order = self::order(isset($wp->query_vars['order-received']) ? absint($wp->query_vars['order-received']) : 0);
+			$order = self::requested_order('order-received');
 
-			return null !== $order && self::is_rental_order($order);
+			return null !== $order && ( self::is_rental_order($order) || count(self::order_rentals($order)) > 1 );
 		}
 
 		if (function_exists('is_checkout_pay_page') && is_checkout_pay_page()) {
-			$order = self::order(isset($wp->query_vars['order-pay']) ? absint($wp->query_vars['order-pay']) : 0);
+			$order = self::requested_order('order-pay');
 
 			return null !== $order && self::is_rental_order($order);
 		}
@@ -206,7 +206,7 @@ final class CheckoutJourney {
 			return;
 		}
 
-		self::render_journey(2, self::summary_vars($data, '', ''));
+		self::render_journey(2, array( self::summary_vars($data, '', '') ));
 	}
 
 	/**
@@ -219,31 +219,53 @@ final class CheckoutJourney {
 	 */
 	public static function render_thankyou($order_id): void
 	{
-		$order = self::order( (int) $order_id);
-		$data  = null !== $order ? self::order_rental_data($order) : null;
-		if (null === $order || null === $data) {
+		$order   = self::order( (int) $order_id);
+		$rentals = null !== $order ? self::order_rentals($order) : array();
+		if (null === $order || array() === $rentals) {
 			return;
 		}
 
-		$link         = '';
-		$summary_link = '';
-		$user         = get_current_user_id();
+		$link  = '';
+		$owner = false;
+		$user  = get_current_user_id();
 		if (is_user_logged_in() && $user > 0 && (int) $order->get_customer_id() === $user) {
-			$link = wc_get_account_endpoint_url(AccountController::get_endpoint_slug('bookings', 'rentiva-bookings'));
+			$link  = wc_get_account_endpoint_url(AccountController::get_endpoint_slug('bookings', 'rentiva-bookings'));
+			$owner = true;
+		}
 
+		// Several rentals in one order: one summary card each, under the same
+		// step bar and heading; WooCommerce's order table below carries the
+		// order's own totals. The order-level state names each deposit row.
+		$state     = RentalMoneyLabels::order_state($order);
+		$several   = count($rentals) > 1;
+		$summaries = array();
+		foreach ($rentals as $rental) {
 			// The printable booking summary, once the booking exists and is the
 			// customer's (the booking may not be created yet on this hook).
-			$booking_id = self::booking_id_of($order);
-			if ($booking_id > 0 && WooCommerceIntegration::can_view_booking($booking_id)) {
-				$summary_link = BookingSummaryPage::url($booking_id);
+			$booking_id   = (int) $rental['item']->get_meta('_mhmrentiva_booking_id', true);
+			$booking_id   = $booking_id > 0 || $several ? $booking_id : self::booking_id_of($order);
+			$summary_link = $owner && $booking_id > 0 && WooCommerceIntegration::can_view_booking($booking_id) ? BookingSummaryPage::url($booking_id) : '';
+
+			$vars = self::summary_vars($rental['data'], $several ? '' : __('Your booking', 'mhm-rentiva'), $link, $summary_link, $state);
+
+			// The deposit row names what this order charges now, so its figure
+			// is the order's, in the order's currency -- tax, coupon and fees
+			// included -- not the snapshot's net deposit (Codex PR K 3; the bank
+			// card below says the same). With several rentals, each line's own
+			// total with its tax.
+			if (is_array($vars['summary']['breakdown']['deposit'] ?? null)) {
+				$charged = $several ? (float) $order->get_line_total($rental['item'], true) : (float) $order->get_total();
+				$vars['summary']['breakdown']['deposit']['amount'] = $charged;
+				$vars['summary']['breakdown']['deposit']['html']   = (string) wc_price($charged, array( 'currency' => $order->get_currency() ));
 			}
+			$summaries[] = $vars;
 		}
 
 		$failed = $order->has_status('failed');
 		self::render_journey(
 			$failed ? 2 : 3,
-			self::summary_vars($data, __('Your booking', 'mhm-rentiva'), $link, $summary_link, RentalMoneyLabels::order_state($order)),
-			$failed ? '' : __('Your booking is received', 'mhm-rentiva')
+			$summaries,
+			$failed ? '' : ( $several ? __('Your bookings are received', 'mhm-rentiva') : __('Your booking is received', 'mhm-rentiva') )
 		);
 	}
 
@@ -359,14 +381,15 @@ final class CheckoutJourney {
 	/**
 	 * Steps and summary inside one shell.
 	 *
-	 * @param array<string, mixed> $summary_vars summary_vars().
-	 * @param string               $headline     Heading above the steps; '' for none.
+	 * @param list<array<string, mixed>> $summaries summary_vars(), one per rental.
+	 * @param string                     $headline  Heading above the steps; '' for none.
 	 */
-	private static function render_journey(int $step, array $summary_vars, string $headline = ''): void
+	private static function render_journey(int $step, array $summaries, string $headline = ''): void
 	{
 		echo '<div class="rvs-shell rvs-journey">';
-		// The thank-you page's own heading: themes that hide their page titles
-		// leave the page without one (R14).
+		// The thank-you page's one "booking received" heading. The page title
+		// stays WooCommerce's: a theme that hides it leaves this, a theme that
+		// shows it reads "Order received" above (R14, Fable PR K M1).
 		if ('' !== $headline) {
 			echo '<h2 class="rvs-journey__headline">' . esc_html($headline) . '</h2>';
 		}
@@ -376,7 +399,9 @@ final class CheckoutJourney {
 				'items' => RvsSteps::items($step),
 			)
 		);
-		Templates::render('partials/rvs/journey-summary', $summary_vars);
+		foreach ($summaries as $summary_vars) {
+			Templates::render('partials/rvs/journey-summary', $summary_vars);
+		}
 		echo '</div>';
 	}
 
@@ -486,6 +511,48 @@ final class CheckoutJourney {
 		return 0;
 	}
 
+	/**
+	 * The order an order-received or order-pay URL names, only with its own key:
+	 * WooCommerce draws nothing for a wrong key, and neither does Rentiva -- a
+	 * guessed id must not tell whether that order is a rental (Fable PR K m2).
+	 */
+	private static function requested_order(string $endpoint): ?\WC_Order
+	{
+		global $wp;
+
+		$order = self::order(isset($wp->query_vars[ $endpoint ]) ? absint($wp->query_vars[ $endpoint ]) : 0);
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The order key is the credential WooCommerce itself checks on these pages (WC_Shortcode_Checkout reads the same parameter); read-only, nothing is written.
+		$key = sanitize_text_field(wp_unslash( (string) ( $_GET['key'] ?? '' )));
+		if (null === $order || '' === $key || ! hash_equals($order->get_order_key(), $key)) {
+			return null;
+		}
+
+		return $order;
+	}
+
+	/**
+	 * Every line of the order, when every line is a rental (no shop product, no
+	 * transfer): its line and booking data. Empty otherwise.
+	 *
+	 * @return list<array{item: \WC_Order_Item, data: array<string, mixed>}>
+	 */
+	public static function order_rentals(\WC_Order $order): array
+	{
+		$rentals = array();
+		foreach ($order->get_items() as $item) {
+			$data = $item->get_meta('_mhmrentiva_booking_data', true);
+			if (! is_array($data) || WooCommerceBridge::is_transfer_booking($data)) {
+				return array();
+			}
+			$rentals[] = array(
+				'item' => $item,
+				'data' => $data,
+			);
+		}
+
+		return $rentals;
+	}
+
 	private static function order(int $order_id): ?\WC_Order
 	{
 		if ($order_id <= 0 || ! function_exists('wc_get_order')) {
@@ -525,11 +592,9 @@ final class CheckoutJourney {
 	private static function journey_request(): bool
 	{
 		if (function_exists('is_order_received_page') && is_order_received_page()) {
-			global $wp;
-			$order_id = isset($wp->query_vars['order-received']) ? absint($wp->query_vars['order-received']) : 0;
-			$order    = self::order($order_id);
+			$order = self::requested_order('order-received');
 
-			return null !== $order && null !== self::order_rental_data($order);
+			return null !== $order && array() !== self::order_rentals($order);
 		}
 
 		return function_exists('is_checkout') && is_checkout() && null !== WooCommerceBridge::rental_cart_data();

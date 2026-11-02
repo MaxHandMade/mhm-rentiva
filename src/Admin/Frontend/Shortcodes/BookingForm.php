@@ -1385,7 +1385,7 @@ final class BookingForm extends AbstractShortcode {
 					'pickup_time'           => $pickup_time,
 					'dropoff_time'          => $dropoff_time,
 					'guests'                => $guests,
-					'customer_user_id'      => $user_id, // 0 if not logged in, will be set by payment gateway
+					'customer_user_id'      => $user_id, // 0 for a guest; an account made at checkout fills it (WooCommerceBridge::with_order_contact())
 					'customer_name'         => $customer_name ? $customer_name : '', // Optional - Payment gateway will collect
 					'customer_first_name'   => $customer_first_name ? $customer_first_name : '', // Optional - Payment gateway will collect
 					'customer_last_name'    => $customer_last_name ? $customer_last_name : '', // Optional - Payment gateway will collect
