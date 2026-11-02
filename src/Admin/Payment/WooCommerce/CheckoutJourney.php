@@ -12,6 +12,7 @@ use MHMRentiva\Admin\Frontend\Account\BookingSummaryPage;
 use MHMRentiva\Admin\Frontend\Account\WooCommerceIntegration;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsBreakdown;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\RvsSteps;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -30,8 +31,14 @@ if (! defined('ABSPATH')) {
  * WooCommerce charges. Styles are enqueued on wp_enqueue_scripts
  * (WooCommerceBridge::enqueue_checkout_styles()); the hooks here only draw.
  *
- * A block checkout never fires these hooks, so administrators get a warning
- * (block_checkout_notice()).
+ * A Cart or Checkout block never fires these hooks, so pre_render_block() draws
+ * the classic page in its place: the cart on every request (setting
+ * mhmrentiva_classic_cart, default on), the checkout whenever a Rentiva line is
+ * in the cart. Administrators are told (block_checkout_notice()); the Store API
+ * safety net behind this is in WooCommerceBridge::store_api_order_processed().
+ *
+ * The `rvs-rental` body class (body_class()) marks the requests the Rentiva look
+ * applies to. It follows the journey's rule: one rental and nothing else.
  */
 final class CheckoutJourney {
 
@@ -46,6 +53,145 @@ final class CheckoutJourney {
 		add_action('woocommerce_before_thankyou', array( self::class, 'render_thankyou' ), 10, 1);
 		add_filter('woocommerce_update_order_review_fragments', array( self::class, 'order_review_fragments' ), 10, 1);
 		add_action('admin_notices', array( self::class, 'block_checkout_notice' ));
+		add_filter('body_class', array( self::class, 'body_class' ));
+		add_filter('pre_render_block', array( self::class, 'pre_render_block' ), 10, 2);
+		add_filter('wp_resource_hints', array( self::class, 'resource_hints' ), 11, 2);
+	}
+
+	/**
+	 * @param mixed $classes The body classes.
+	 * @return mixed
+	 */
+	public static function body_class($classes)
+	{
+		if (is_array($classes) && self::is_rental_request()) {
+			$classes[] = 'rvs-rental';
+		}
+
+		return $classes;
+	}
+
+	/**
+	 * Is this the cart, checkout, thank-you or order-pay page of exactly one
+	 * rental? A transfer, a mixed cart and the shop's own orders are not. The
+	 * order pages answer from the order: their cart is empty or about something
+	 * else.
+	 */
+	public static function is_rental_request(): bool
+	{
+		global $wp;
+
+		if (function_exists('is_order_received_page') && is_order_received_page()) {
+			$order = self::order(isset($wp->query_vars['order-received']) ? absint($wp->query_vars['order-received']) : 0);
+
+			return null !== $order && self::is_rental_order($order);
+		}
+
+		if (function_exists('is_checkout_pay_page') && is_checkout_pay_page()) {
+			$order = self::order(isset($wp->query_vars['order-pay']) ? absint($wp->query_vars['order-pay']) : 0);
+
+			return null !== $order && self::is_rental_order($order);
+		}
+
+		$on_page = ( function_exists('is_cart') && is_cart() ) || ( function_exists('is_checkout') && is_checkout() );
+
+		return $on_page && null !== WooCommerceBridge::rental_cart_data();
+	}
+
+	/**
+	 * One rental line, or the remaining payment of a rental: that order's line
+	 * carries no snapshot, only the order's own `_mhmrentiva_is_remaining_payment`
+	 * and `_mhmrentiva_booking_id` (RemainingPaymentHandler).
+	 */
+	private static function is_rental_order(\WC_Order $order): bool
+	{
+		if (null !== self::order_rental_data($order)) {
+			return true;
+		}
+		if ('1' !== (string) $order->get_meta('_mhmrentiva_is_remaining_payment', true)) {
+			return false;
+		}
+
+		return (int) get_post_meta(self::booking_id_of($order), '_mhmrentiva_transfer_origin_id', true) <= 0;
+	}
+
+	/**
+	 * Draw the classic page instead of the Cart or Checkout block. Runs before
+	 * the block does, so no checkout-draft order, React bundle or Store API
+	 * hydration exists for it. A checkout endpoint needs nothing here: the block
+	 * hands those to the shortcode itself, and the cart is empty by then.
+	 *
+	 * @param mixed                $pre          An earlier filter's answer.
+	 * @param array<string, mixed> $parsed_block The block about to render.
+	 * @return mixed
+	 */
+	public static function pre_render_block($pre, $parsed_block)
+	{
+		if (null !== $pre || is_admin() || ( defined('REST_REQUEST') && REST_REQUEST )) {
+			return $pre;
+		}
+
+		$name = (string) ( $parsed_block['blockName'] ?? '' );
+		if ('woocommerce/cart' === $name && self::classic_cart_enabled()) {
+			return self::classic_page('cart');
+		}
+		if ('woocommerce/checkout' === $name && WooCommerceBridge::cart_has_booking()) {
+			return self::classic_page('checkout');
+		}
+
+		return null;
+	}
+
+	/**
+	 * WooCommerce's own classic-shortcode block loads the classic scripts in time
+	 * on a block theme, where wp_head runs after the template.
+	 */
+	private static function classic_page(string $page): string
+	{
+		if (! \WP_Block_Type_Registry::get_instance()->is_registered('woocommerce/classic-shortcode')) {
+			return do_shortcode('[woocommerce_' . $page . ']');
+		}
+
+		return render_block(
+			array(
+				'blockName'    => 'woocommerce/classic-shortcode',
+				'attrs'        => array( 'shortcode' => $page ),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
+	}
+
+	private static function classic_cart_enabled(): bool
+	{
+		return '1' === (string) SettingsCore::get('mhmrentiva_classic_cart', '1');
+	}
+
+	/**
+	 * A Cart block page tells the browser to prerender the checkout. A block
+	 * checkout could afford that; a classic one prints and spends the session's
+	 * notices on that hidden request, so the customer never sees them.
+	 *
+	 * @param mixed $urls     The hints.
+	 * @param mixed $relation prefetch, prerender...
+	 * @return mixed
+	 */
+	public static function resource_hints($urls, $relation)
+	{
+		if ('prerender' !== $relation || ! is_array($urls) || ! function_exists('wc_get_page_id')) {
+			return $urls;
+		}
+		if (! self::classic_cart_enabled() && ! WooCommerceBridge::cart_has_booking()) {
+			return $urls;
+		}
+
+		$checkout = (string) get_permalink( (int) wc_get_page_id('checkout'));
+
+		return array_filter(
+			$urls,
+			static fn($hint) => $checkout !== ( is_array($hint) ? (string) ( $hint['href'] ?? '' ) : (string) $hint )
+		);
 	}
 
 	/**
@@ -123,31 +269,31 @@ final class CheckoutJourney {
 	}
 
 	/**
-	 * Enqueue the journey styles when this request will draw it: a checkout with
-	 * a single-rental cart, or the order-received page of a single-rental order.
+	 * Enqueue the journey styles and tokens for a rental request (body_class()):
+	 * also the remaining-payment page, which draws no journey but reads the tokens.
 	 * Called from WooCommerceBridge::enqueue_checkout_styles() (wp_enqueue_scripts),
 	 * so the styles print in the head.
 	 */
 	public static function enqueue_assets(): void
 	{
-		if (self::journey_request()) {
+		if (self::journey_request() || self::is_rental_request()) {
 			AssetManager::enqueue_rvs_journey();
 		}
 	}
 
 	/**
-	 * The checkout and thank-you journey depend on WooCommerce's classic
-	 * checkout hooks; warn an administrator whose checkout page uses the block.
+	 * Tell an administrator whose cart or checkout page uses a block what the
+	 * customer gets instead, and that a shop order keeps the Checkout block.
 	 */
 	public static function block_checkout_notice(): void
 	{
-		if (! current_user_can('manage_options') || ! self::is_notice_screen() || ! self::checkout_uses_block()) {
+		if (! current_user_can('manage_options') || ! self::is_notice_screen() || ! ( self::checkout_uses_block() || self::cart_uses_block() )) {
 			return;
 		}
 
 		printf(
-			'<div class="notice notice-warning"><p>%s</p></div>',
-			esc_html__("Rentiva's booking steps and payment-type choice work with the classic checkout. Your checkout page uses the Checkout block — replace it with the [woocommerce_checkout] shortcode.", 'mhm-rentiva')
+			'<div class="notice notice-info"><p>%s</p></div>',
+			esc_html__('Your cart or checkout page uses a WooCommerce block. Rentiva shows the classic cart, and the classic checkout whenever a booking is in the cart, so the booking steps and the payment-type choice keep working. An order without a booking still uses the Checkout block. To keep the Cart block, turn off "Classic cart page" in the Payment tab of the Rentiva settings.', 'mhm-rentiva')
 		);
 	}
 
@@ -358,6 +504,17 @@ final class CheckoutJourney {
 		}
 
 		return 'plugins' === $screen->id || AssetManager::is_rentiva_admin_page();
+	}
+
+	/**
+	 * Does the cart page use the Cart block? WooCommerce's own helper, as in
+	 * checkout_uses_block().
+	 */
+	private static function cart_uses_block(): bool
+	{
+		$utils = '\Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils';
+
+		return class_exists($utils) && is_callable(array( $utils, 'is_cart_block_default' )) && (bool) call_user_func(array( $utils, 'is_cart_block_default' ));
 	}
 
 	/**

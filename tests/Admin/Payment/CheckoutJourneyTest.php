@@ -450,8 +450,12 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 
 	public function test_block_checkout_warns_admin_only(): void
 	{
-		$warning = esc_html__("Rentiva's booking steps and payment-type choice work with the classic checkout. Your checkout page uses the Checkout block — replace it with the [woocommerce_checkout] shortcode.", 'mhm-rentiva');
+		// R19: the block no longer breaks the journey (R4), so the notice says what
+		// the customer gets instead of asking for the shortcode.
+		$warning = 'Rentiva shows the classic cart';
 
+		$cart_page = self::factory()->post->create(array( 'post_type' => 'page', 'post_status' => 'publish', 'post_content' => '[woocommerce_cart]' ));
+		update_option('woocommerce_cart_page_id', $cart_page);
 		$this->use_checkout_page('<!-- wp:woocommerce/checkout /-->');
 
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
@@ -470,7 +474,10 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 		$this->use_checkout_page('<!-- wp:shortcode -->[woocommerce_checkout]<!-- /wp:shortcode -->');
-		$this->assertSame('', $this->notice_html(), 'A shortcode checkout needs no warning.');
+		$this->assertSame('', $this->notice_html(), 'Classic pages need no notice.');
+
+		wp_update_post(array( 'ID' => $cart_page, 'post_content' => '<!-- wp:woocommerce/cart /-->' ));
+		$this->assertStringContainsString($warning, $this->notice_html(), 'A Cart block alone.');
 
 		set_current_screen('front');
 	}

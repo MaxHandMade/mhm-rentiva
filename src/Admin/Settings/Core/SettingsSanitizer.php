@@ -647,6 +647,7 @@ final class SettingsSanitizer {
 		return array(
 			'mhmrentiva_rental_deposit_type' => self::validate_enum( (string) ( $input['mhmrentiva_rental_deposit_type'] ?? '' ), array( 'full_payment', 'percentage' ), 'percentage' ),
 			'mhmrentiva_rental_deposit_rate' => self::get_int( $input, 'mhmrentiva_rental_deposit_rate', 10, 1, 100 ),
+			'mhmrentiva_classic_cart'        => '1' === (string) ( $input['mhmrentiva_classic_cart'] ?? '' ) ? '1' : '0',
 		);
 	}
 

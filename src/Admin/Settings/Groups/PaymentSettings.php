@@ -40,6 +40,8 @@ final class PaymentSettings {
 		return array(
 			'mhmrentiva_rental_deposit_type' => 'percentage',
 			'mhmrentiva_rental_deposit_rate' => 10,
+			// Draw the classic cart in place of the Cart block (CheckoutJourney).
+			'mhmrentiva_classic_cart'        => '1',
 		);
 	}
 
@@ -95,6 +97,14 @@ final class PaymentSettings {
 			1,
 			100,
 			__( 'Percentage of the rental total charged as a deposit when the vehicle has no deposit rate of its own.', 'mhm-rentiva' ),
+			self::SECTION_GENERAL
+		);
+
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'mhmrentiva_classic_cart',
+			__( 'Classic cart page', 'mhm-rentiva' ),
+			__( 'Show the classic cart in place of the Cart block, so that the deposit, the remaining amount and the empty-cart link appear there. Your shop products work in it too. Turn this off only to keep customizations made inside the Cart block.', 'mhm-rentiva' ),
 			self::SECTION_GENERAL
 		);
 	}

@@ -20,12 +20,19 @@
  * R1). WooCommerce puts `.woocommerce-account` on the account page's body and
  * nowhere else, so the extra scope reaches no other page.
  *
+ * And the rental pages of WooCommerce (`body.rvs-rental`, PR K, R16): the cart,
+ * checkout, thank-you and order-pay pages of one rental, whose forms and tables
+ * are WooCommerce's own markup outside any `.rvs-shell`. Tokens only: no
+ * background or type reaches the theme's body from this rule. CheckoutJourney
+ * sets the class, and never for the shop's own orders.
+ *
  * Product-specific file: the palette is Rentiva's. The shell and primitives
  * that read it (rvs-shell.css, rvs-primitives.css) are generic.
  */
 
 .rvs-shell,
-.woocommerce-account .woocommerce {
+.woocommerce-account .woocommerce,
+body.rvs-rental {
 	/* Surfaces and text */
 	--rvs-bg: #f0f6fc;
 	--rvs-surface: #ffffff;

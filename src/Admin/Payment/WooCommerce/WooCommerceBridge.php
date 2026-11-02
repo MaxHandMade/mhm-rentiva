@@ -57,6 +57,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		add_action('woocommerce_checkout_create_order_line_item', array( self::class, 'add_order_item_meta' ), 10, 4);
 		// ⭐ Create booking when order is processed - use primary hook with fallback
 		add_action('woocommerce_checkout_order_processed', array( self::class, 'create_booking_from_order' ), 10, 3);
+		// Safety net: a rental order that still reaches the Store API gets its booking.
+		add_action('woocommerce_store_api_checkout_order_processed', array( self::class, 'store_api_order_processed' ), 10, 1);
+		add_action('woocommerce_store_api_cart_errors', array( self::class, 'store_api_cart_errors' ), 10, 2);
 		// Fallback hook if primary fails (thankyou page load)
 		add_action('woocommerce_thankyou', array( self::class, 'create_booking_from_order_fallback' ), 5, 1);
 		add_action('woocommerce_order_status_changed', array( self::class, 'handle_order_status_change' ), 10, 4);
@@ -144,7 +147,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		// Cart page
-		if ($is_cart_page) {
+		if ($is_cart_page && null !== self::rental_cart_data()) {
 			wp_enqueue_style(
 				'mhm-rentiva-woocommerce-cart',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-cart.css',
@@ -153,8 +156,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			);
 		}
 
-		// Checkout page
-		if (function_exists('is_checkout') && \is_checkout()) {
+		// Checkout, thank-you and remaining-payment pages of a rental. A shop
+		// order, a mixed cart and a transfer keep the theme's checkout.
+		if (CheckoutJourney::is_rental_request()) {
 			wp_enqueue_style(
 				'mhm-rentiva-woocommerce-checkout',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-checkout.css',
@@ -1026,6 +1030,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// From the two order-placed hooks a refused booking stops the request, so
+		// no gateway ever sees the order. The thank-you fallback runs after payment
+		// and cannot stop anything: it cancels instead.
+		$halt = doing_action('woocommerce_checkout_order_processed') || doing_action('woocommerce_store_api_checkout_order_processed');
+
 		$items = $order->get_items();
 
 		if (empty($items)) {
@@ -1048,6 +1057,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// Announced after the loop: on a refused later line the earlier bookings
+		// are taken back, and nobody may have heard of them.
+		$created = array();
+
 		foreach ($items as $item) {
 			// Check if this is a pending booking (not yet created)
 			// ⭐ WooCommerce stores meta as serialized, so we need to get it properly
@@ -1064,7 +1077,15 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 			if ($booking_data && is_array($booking_data) && $is_pending) {
 				// Create booking from cart data
-				$booking_id = self::create_booking_from_data($booking_data, $order_id);
+				try {
+					$booking_id = self::create_booking_from_data($booking_data, $order_id, $halt);
+					if ($halt && ! $booking_id) {
+						self::halt_checkout(__('Your booking could not be created and no payment was taken. Please try again.', 'mhm-rentiva'));
+					}
+				} catch (\Exception $e) {
+					self::take_back_bookings($order, $created);
+					throw $e;
+				}
 
 				if ($booking_id) {
 					// Update order item meta to link booking
@@ -1081,12 +1102,157 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 						\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($booking_data['vehicle_id']);
 					}
 
-					// Trigger booking created action (with booking_data for addons)
-					// Note: AddonManager::save_booking_addons expects 2 parameters: booking_id and booking_data
-					do_action('mhmrentiva_booking_created', $booking_id, $booking_data);
+					$created[] = array(
+						'booking_id' => $booking_id,
+						'data'       => $booking_data,
+						'item'       => $item,
+					);
 				}
 			}
 		}
+
+		foreach ($created as $booking) {
+			// Trigger booking created action (with booking_data for addons)
+			// Note: AddonManager::save_booking_addons expects 2 parameters: booking_id and booking_data
+			do_action('mhmrentiva_booking_created', $booking['booking_id'], $booking['data']);
+		}
+	}
+
+	/**
+	 * Undo the bookings an order made before a later line was refused, so that a
+	 * retry of the same order -- which skips an order carrying a booking id --
+	 * books every line again.
+	 *
+	 * @param \WC_Order                                                                 $order
+	 * @param array<int, array{booking_id: int, data: array<string, mixed>, item: mixed}> $created
+	 */
+	private static function take_back_bookings($order, array $created): void
+	{
+		foreach ($created as $booking) {
+			$booking['item']->delete_meta_data('_mhmrentiva_booking_id');
+			$booking['item']->update_meta_data('_mhmrentiva_booking_pending', true);
+			$booking['item']->save();
+
+			wp_delete_post($booking['booking_id'], true);
+			if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+				\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($booking['data']['vehicle_id']);
+			}
+		}
+
+		if (array() !== $created) {
+			$order->delete_meta_data('_mhmrentiva_booking_id');
+			$order->save();
+		}
+	}
+
+	/**
+	 * Stop an order-placed request: the Store API answers 400 with this message,
+	 * WC_Checkout::process_checkout() catches it and shows it as a notice. Either
+	 * way the gateway is never called.
+	 *
+	 * @throws \Exception Always.
+	 */
+	private static function halt_checkout(string $message): void
+	{
+		$route_exception = '\Automattic\WooCommerce\StoreApi\Exceptions\RouteException';
+		if (class_exists($route_exception)) {
+			throw new $route_exception('mhmrentiva_booking_refused', esc_html($message), 400);
+		}
+
+		throw new \Exception(esc_html($message));
+	}
+
+	/**
+	 * A rental order placed through the Store API (a Checkout block the classic
+	 * swap did not reach): the booking WC_Checkout would have made, on the
+	 * payment type the snapshot was priced with. That type is what the line
+	 * charges, so nothing here may change it.
+	 *
+	 * @param \WC_Order $order The order, about to go to the gateway.
+	 * @throws \Exception When the booking is refused (halt_checkout()).
+	 */
+	public static function store_api_order_processed($order): void
+	{
+		if (! $order instanceof \WC_Order) {
+			return;
+		}
+
+		$payment_type = '';
+		foreach ($order->get_items() as $item) {
+			$snapshot = $item->get_meta('_mhmrentiva_booking_data', true);
+			if (is_array($snapshot) && $item->get_meta('_mhmrentiva_booking_pending', true)) {
+				$payment_type = (string) ( $snapshot['payment_type'] ?? '' );
+				break;
+			}
+		}
+
+		if ('' === $payment_type || $order->get_meta('_mhmrentiva_booking_id', true)) {
+			return;
+		}
+
+		self::create_booking_from_order($order->get_id(), null, $order);
+
+		$order->update_meta_data('_mhmrentiva_wc_payment_type', $payment_type);
+		$order->update_meta_data('_mhmrentiva_booking_payment_type', $payment_type);
+		$order->add_order_note(__('Rentiva booking created from the block checkout. The customer could not change the payment type there.', 'mhm-rentiva'));
+		$order->save();
+	}
+
+	/**
+	 * The Store API's cart check: the same refusals as
+	 * validate_checkout_availability(), reported on the WP_Error it passes. The
+	 * line stays, so the customer still sees what was refused.
+	 *
+	 * @param \WP_Error $errors Collected by WooCommerce.
+	 * @param mixed     $cart   The cart.
+	 */
+	public static function store_api_cart_errors($errors, $cart): void
+	{
+		if (! $errors instanceof \WP_Error || ! $cart instanceof \WC_Cart) {
+			return;
+		}
+
+		foreach ($cart->get_cart() as $cart_item) {
+			if (empty($cart_item['mhmrentiva_booking_pending']) || ! isset($cart_item['mhmrentiva_booking_data'])) {
+				continue;
+			}
+
+			$booking_data = $cart_item['mhmrentiva_booking_data'];
+			$vehicle_id   = (int) ( $booking_data['vehicle_id'] ?? 0 );
+			if (! $vehicle_id) {
+				continue;
+			}
+
+			if (self::is_refused_rental($booking_data, $vehicle_id)) {
+				$errors->add('mhmrentiva_booking_refused', self::rental_refusal_notice($vehicle_id));
+				continue;
+			}
+
+			$start_ts = self::parse_datetime_to_timestamp( (string) ( $booking_data['pickup_date'] ?? '' ), (string) ( $booking_data['pickup_time'] ?? '00:00' ));
+			$end_ts   = self::parse_datetime_to_timestamp( (string) ( $booking_data['dropoff_date'] ?? '' ), (string) ( $booking_data['dropoff_time'] ?? '23:59' ));
+			if (! $start_ts || ! $end_ts) {
+				$errors->add('mhmrentiva_booking_refused', __('Invalid booking dates. Please try again.', 'mhm-rentiva'));
+				continue;
+			}
+
+			if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+				$errors->add('mhmrentiva_booking_refused', self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts));
+			}
+		}
+	}
+
+	/**
+	 * The dates were free when the customer chose them and are not any more.
+	 */
+	private static function booked_meanwhile_notice(int $vehicle_id, int $start_ts, int $end_ts): string
+	{
+		return sprintf(
+			/* translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date */
+			__('Sorry, the vehicle "%1$s" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle.', 'mhm-rentiva'),
+			get_the_title($vehicle_id),
+			wp_date(get_option('date_format'), $start_ts),
+			wp_date(get_option('date_format'), $end_ts)
+		);
 	}
 
 	/**
@@ -1121,7 +1287,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Create booking from booking data array
 	 */
-	private static function create_booking_from_data(array $booking_data, int $order_id): ?int
+	private static function create_booking_from_data(array $booking_data, int $order_id, bool $halt = false): ?int
 	{
 		// Parse dates to timestamps
 		$start_ts = self::parse_datetime_to_timestamp($booking_data['pickup_date'], $booking_data['pickup_time']);
@@ -1152,6 +1318,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				),
 				AdvancedLogger::CATEGORY_BOOKING
 			);
+			if ($halt) {
+				self::halt_checkout(self::rental_refusal_notice( (int) $booking_data['vehicle_id']));
+			}
 			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
 			if ($order) {
 				$order->update_status('cancelled', __('Booking cancelled: Vehicle is not available for rental.', 'mhm-rentiva'));
@@ -1343,6 +1512,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				),
 				AdvancedLogger::CATEGORY_BOOKING
 			);
+			if ($halt) {
+				self::halt_checkout(self::booked_meanwhile_notice( (int) $booking_data['vehicle_id'], $start_ts, $end_ts));
+			}
 			// ⚠️ Cancel the WooCommerce order if booking cannot be created
 			$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
 			if ($order) {
@@ -1647,7 +1819,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/**
 	 * Check if cart contains booking items
 	 */
-	private static function cart_has_booking(): bool
+	public static function cart_has_booking(): bool
 	{
 		if (! function_exists('WC') || ! \WC()->cart) {
 			return false;
@@ -2422,21 +2594,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// NOT atomic and takes no lock (no transaction is open here). The
 				// authoritative locked check runs in create_booking_from_data().
 				if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
-					$vehicle_title = get_the_title($vehicle_id);
-					$pickup_date   = wp_date(get_option('date_format'), $start_ts);
-					$dropoff_date  = wp_date(get_option('date_format'), $end_ts);
+					$pickup_date  = wp_date(get_option('date_format'), $start_ts);
+					$dropoff_date = wp_date(get_option('date_format'), $end_ts);
 
 					// ⭐ This error will STOP checkout process - NO PAYMENT WILL BE PROCESSED
-					\wc_add_notice(
-						sprintf(
-							/* translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date */
-							__('Sorry, the vehicle "%1$s" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle.', 'mhm-rentiva'),
-							$vehicle_title,
-							$pickup_date,
-							$dropoff_date
-						),
-						'error'
-					);
+					\wc_add_notice(self::booked_meanwhile_notice($vehicle_id, $start_ts, $end_ts), 'error');
 
 					// Task 14b item 3: left at warning() deliberately -- the
 					// customer already sees the wc_add_notice() error above,
@@ -2899,6 +3061,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function reorder_checkout_fields(array $fields): array
 	{
+		// A rule of the booking (its phone comes from here), so any Rentiva line
+		// keeps it; the shop's own orders keep their fields.
+		if (! self::cart_has_booking()) {
+			return $fields;
+		}
+
 		// --- ROW 1: Identity ---
 		if (isset($fields['billing']['billing_first_name'])) {
 			$fields['billing']['billing_first_name']['priority'] = 10;
@@ -2966,6 +3134,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function add_return_to_cart_link(): void
 	{
+		if (! self::cart_has_booking()) {
+			return;
+		}
+
 		$cart_url = wc_get_cart_url();
 		// Changed text to "Return to Cart" and ensured container is ready for JS move
 		echo '<div class="mhm-return-cart-wrapper" style="text-align: right; margin-bottom: 15px;">
@@ -2979,12 +3151,18 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function add_custom_tax_row_checkout(): void
 	{
-		if (!isset(\WC()->cart)) {
+		if (!isset(\WC()->cart) || null === self::rental_cart_data()) {
 			return;
 		}
 
 		/** @var \WC_Cart $cart */
 		$cart = \WC()->cart;
+
+		// Prices shown without tax: WooCommerce's review-order.php draws the tax
+		// rows itself, and a second set would count the tax twice on screen.
+		if (! $cart->display_prices_including_tax()) {
+			return;
+		}
 
 		// Get all tax totals dynamically to silence static analyzer
 		$tax_totals = [];
@@ -2997,20 +3175,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 
 		foreach ($tax_totals as $code => $tax) {
-			$label = $tax->label;
-
-			// Check if we should append "(incl.)" to the label
-			// Use dynamic call to silence static analyzer
-			$display_incl = false;
-			if (is_callable([ $cart, 'display_prices_including_tax' ])) {
-				$display_incl = (bool) call_user_func([ $cart, 'display_prices_including_tax' ]);
-			}
-
-			if ($display_incl) {
-				// Use WooCommerce's native translation for consistency
-				// Matches source text: (incl. tax)
-				$label .= ' ' . __('(incl. tax)', 'mhm-rentiva');
-			}
+			// Use WooCommerce's native translation for consistency
+			// Matches source text: (incl. tax)
+			$label = $tax->label . ' ' . __('(incl. tax)', 'mhm-rentiva');
 			?>
 			<tr class="tax-rate tax-rate-<?php echo esc_attr(sanitize_title($code)); ?> mhm-custom-tax-row">
 				<th><?php echo esc_html($label); ?></th>
@@ -3028,6 +3195,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 */
 	public static function clean_checkout_total_html(string $value): string
 	{
+		// Only where add_custom_tax_row_checkout() says the same thing in a row:
+		// on the cart page the suffix is the customer's only mention of tax.
+		if (! function_exists('is_checkout') || ! \is_checkout() || null === self::rental_cart_data()) {
+			return $value;
+		}
+
 		// The $value comes as "Price <small class='includes_tax'>...</small>"
 		// We simply explode at the <small> tag and take the first part (the Price).
 		$parts = explode('<small', $value);
