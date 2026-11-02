@@ -509,10 +509,14 @@
 }
 
 /* The link sits under the text, in the text's column (no image: full row). */
+/* Flush with the title and price: the ghost button's side padding would
+   push the text in. The 44 px touch target stays in height. */
 .rvs-shell .rvs-vd__alt-link {
 	grid-column: 2;
 	justify-self: start;
+	justify-content: flex-start;
 	min-height: 44px;
+	padding-inline: 0;
 	font-size: 14px;
 }
 
