@@ -1146,7 +1146,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 
 		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_payment_deadline', '2031-05-05 10:00:00', $expected);
 
-		$this->assertSame('not_held', $held, 'A value that changed meanwhile is not reported as written.');
+		$this->assertSame('not_written', $held, 'A value that changed meanwhile is not reported as written.');
 		$this->assertSame(array( '2031-01-01 00:00:00' ), $this->rows($booking_id, '_mhmrentiva_payment_deadline'), 'Not overwritten.');
 
 		// The value it expected: written, after the rows were locked.
@@ -1192,7 +1192,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		remove_filter('add_post_metadata', $meanwhile, 10);
 
 		$this->assertTrue($fired);
-		$this->assertSame('not_held', $held);
+		$this->assertSame('other_value', $held, 'Another value is there now.');
 		$this->assertSame(array( '2031-01-01 00:00:00' ), $this->rows($booking_id, '_mhmrentiva_payment_deadline'), 'One row, the one that appeared meanwhile.');
 	}
 
@@ -1324,7 +1324,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_status', 'confirmed', 'pending');
 
 		remove_filter('sanitize_post_meta__mhmrentiva_status', $sanitize);
-		$this->assertSame('not_held', $held);
+		$this->assertSame('other_value', $held);
 	}
 
 	/**
@@ -1506,5 +1506,61 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		remove_filter('query', $meanwhile);
 		$this->assertSame(1, wc_notice_count('error'), 'The second booking is refused.');
 		$this->assertSame(array( 'pending' ), $this->rows($ids[0], '_mhmrentiva_status'), 'Not put back to cancelled: that revival was not ours.');
+	}
+	// --------------------- Codex delta7 3: the note says what persisted
+
+	/**
+	 * @return array{0: \WC_Order, 1: int, 2: \ArrayObject<int, array<int, mixed>>, 3: callable}
+	 */
+	private function unlocked_round(string $payment, string $key, string $sanitized): array
+	{
+		list($order, $booking_id) = $this->ended_booking('confirmed');
+		update_post_meta($booking_id, '_mhmrentiva_payment_status', $payment);
+		$changes  = new \ArrayObject();
+		$count    = static function (...$args) use ($changes): void {
+			$changes[] = $args;
+		};
+		$sanitize = static fn() => $sanitized;
+		add_action('mhmrentiva_booking_status_changed', $count, 10, 3);
+		add_filter('sanitize_post_meta_' . $key, $sanitize);
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'on-hold', 'completed', $order);
+
+		remove_filter('sanitize_post_meta_' . $key, $sanitize);
+		remove_action('mhmrentiva_booking_status_changed', $count, 10);
+
+		return array( wc_get_order($order->get_id()), $booking_id, $changes, $count );
+	}
+
+	/**
+	 * Codex delta7 3, probe 1: the paid mark became `failed` (a sanitize
+	 * filter, under autocommit, no transaction to roll back). The note says
+	 * so; it never says "nothing was changed".
+	 */
+	public function test_a_paid_mark_that_persisted_another_value_is_reported_as_it_is(): void
+	{
+		list($order, $booking_id, $changes) = $this->unlocked_round('pending', '_mhmrentiva_payment_status', 'failed');
+
+		$this->assertSame(array( 'failed' ), $this->rows($booking_id, '_mhmrentiva_payment_status'), 'Sanity: the other value persisted.');
+		$notes = $this->notes($order);
+		$this->assertContains(sprintf('Payment recorded on the order, but booking #%d is not marked paid: its payment status is "failed" and its status %s. Check the booking.', $booking_id, Status::get_label(Status::CONFIRMED)), $notes);
+		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'nothing was changed') || str_contains($n, 'holds its dates') || str_contains($n, 'Refund')));
+		$this->assertCount(0, $changes, 'No status hook.');
+	}
+
+	/**
+	 * Codex delta7 3, probe 2: the move to completed persisted `cancelled`,
+	 * and the booking is paid. A cancelled booking holds no dates
+	 * (BookingConflicts STATUS_SQL): the note asks for reconciliation.
+	 */
+	public function test_a_paid_booking_left_cancelled_asks_for_reconciliation(): void
+	{
+		list($order, $booking_id, $changes) = $this->unlocked_round('paid', '_mhmrentiva_status', 'cancelled');
+
+		$this->assertSame(array( 'cancelled' ), $this->rows($booking_id, '_mhmrentiva_status'), 'Sanity: the other value persisted.');
+		$notes = $this->notes($order);
+		$this->assertContains(sprintf('Payment recorded and booking #%d is marked paid, but its status is %s, so it no longer holds its dates. Reconcile it: give the booking its dates back, or refund the payment.', $booking_id, Status::get_label(Status::CANCELLED)), $notes);
+		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'could not be moved') || str_contains($n, 'nothing was changed')));
+		$this->assertCount(0, $changes, 'No false confirmed -> completed status hook.');
 	}
 }

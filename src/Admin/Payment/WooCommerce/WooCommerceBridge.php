@@ -69,10 +69,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// No cash on delivery for a rental: the classic checkout, its validation,
 		// the order-pay form and the Store API all read this list.
 		add_filter('woocommerce_available_payment_gateways', array( self::class, 'without_cash_on_delivery' ), 10, 1);
-		// Store API POST /checkout/{id} pays an existing order: that order, not
-		// the session's cart, decides (Codex PR K delta6 2).
-		add_filter('rest_request_before_callbacks', array( self::class, 'note_store_api_pay_order' ), 10, 3);
-		add_filter('rest_request_after_callbacks', array( self::class, 'forget_store_api_pay_order' ), 10, 1);
 		add_filter('woocommerce_no_available_payment_methods_message', array( self::class, 'no_payment_methods_message' ), 10, 1);
 		// Classic checkout: billing field labels in the error notices.
 		add_action('woocommerce_checkout_process', array( self::class, 'open_field_label_window' ), 5, 0);
@@ -1530,8 +1526,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	/** A write_booking_meta() answer: every row already held the value; nothing was written. */
 	private const META_ALREADY = 'already';
 
-	/** A write_booking_meta() answer: the value does not hold (expected value gone, a failed or a changed write). */
-	private const META_NOT_HELD = 'not_held';
+	/** A write_booking_meta() answer: not written -- the expected value was no longer there; nothing was changed by this write. */
+	private const META_NOT_WRITTEN = 'not_written';
+
+	/** A write_booking_meta() answer: a value other than the one asked for is there now (a sanitize filter, another writer). */
+	private const META_OTHER_VALUE = 'other_value';
+
+	/** A write_booking_meta() answer: the write failed in the database, or the value could not be read back; the final state is unknown. */
+	private const META_UNREADABLE = 'unreadable';
+
+	/**
+	 * Does a write_booking_meta() answer mean the value holds?
+	 */
+	private static function meta_holds(string $result): bool
+	{
+		return self::META_WRITTEN === $result || self::META_ALREADY === $result;
+	}
 
 	/**
 	 * Every row of one booking meta key, oldest first, from the database.
@@ -1601,7 +1611,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * @param string|null $expected The value the write replaces; null takes what
 	 *                              the database holds now.
-	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_HELD.
+	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_WRITTEN, META_OTHER_VALUE, META_UNREADABLE.
 	 * @throws \RuntimeException When a read failed or the rows disagree ('mhmrentiva_booking_read_failed').
 	 */
 	private static function write_booking_meta(int $booking_id, string $key, string $value, ?string $expected = null): string
@@ -1632,7 +1642,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 		if (null !== $expected && $current !== $expected) {
 			wp_cache_delete($booking_id, 'post_meta');
-			return self::META_NOT_HELD;
+			return self::META_NOT_WRITTEN;
 		}
 
 		// update_metadata() compares with the cached value first; a stale entry
@@ -1646,12 +1656,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		if ($failed) {
 			// A database error (a deadlock victim among them): nothing that
 			// follows on this connection confirms anything.
-			return self::META_NOT_HELD;
+			return self::META_UNREADABLE;
 		}
 
-		$after = self::read_booking_meta_rows($booking_id, $key, true);
+		try {
+			$after = self::read_booking_meta_rows($booking_id, $key, true);
+		} catch (\RuntimeException $e) {
+			return self::META_UNREADABLE;
+		}
 
-		return array() !== $after && array( $value ) === array_values(array_unique($after)) ? self::META_WRITTEN : self::META_NOT_HELD;
+		return array() !== $after && array( $value ) === array_values(array_unique($after)) ? self::META_WRITTEN : self::META_OTHER_VALUE;
 	}
 
 	/**
@@ -1675,7 +1689,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * caller's transaction they hold their locks until it ends, under
 	 * autocommit for one statement -- see write_booking_meta().
 	 *
-	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_HELD.
+	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_WRITTEN, META_OTHER_VALUE, META_UNREADABLE.
 	 * @throws \RuntimeException When a read failed or the rows disagree ('mhmrentiva_booking_read_failed').
 	 */
 	private static function write_booking_meta_alone(int $booking_id, string $key, string $value, ?string $expected = null): string
@@ -1698,7 +1712,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	private static function write_booking_meta_or_roll_back(int $booking_id, string $key, string $value, ?string $expected = null): string
 	{
 		$result = self::write_booking_meta($booking_id, $key, $value, $expected);
-		if (self::META_NOT_HELD === $result) {
+		if (! self::meta_holds($result)) {
 			throw new \RuntimeException('mhmrentiva_booking_write_failed');
 		}
 
@@ -1942,21 +1956,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * is a failure, not a success (delta3 3). A transition the table does not
 	 * allow keeps the status, as before.
 	 *
-	 * Each write takes the key's row lock in its own short transaction
-	 * (write_booking_meta_alone()). The status hook runs only for a status that
-	 * was written, never for one that already held (Fable F2). A status write
-	 * that does not hold comes after the paid mark was kept: the payment is
-	 * recorded and the booking still holds its dates, so the caller gets
-	 * STATUS_NOT_MOVED, not a refusal (Fable F1).
+	 * Each write takes the key's row lock (write_booking_meta_alone(), no
+	 * transaction of its own). The status hook runs only for a status that was
+	 * written, never for one that already held (Fable F2). A write that does
+	 * not hold answers UNLOCKED_NOT_HELD with what the booking holds now
+	 * (unlocked_write_did_not_hold()), not a refusal: the payment is recorded on
+	 * the order (Fable F1, Codex delta7 3).
 	 *
 	 * @param string|null $from The status the caller read from the database; null reads it now.
-	 * @return string|null null when the payment stands; STATUS_NOT_MOVED; else why it was not recorded.
+	 * @return string|null null when the payment stands; UNLOCKED_NOT_HELD; else why it was not recorded.
 	 */
 	private static function mark_paid_unlocked(int $booking_id, string $to, ?string $from = null): ?string
 	{
+		self::$unlocked_outcome = array();
 		try {
-			if (self::META_NOT_HELD === self::write_booking_meta_alone($booking_id, '_mhmrentiva_payment_status', 'paid')) {
-				return self::write_failed_notice();
+			if (! self::meta_holds(self::write_booking_meta_alone($booking_id, '_mhmrentiva_payment_status', 'paid'))) {
+				return self::unlocked_write_did_not_hold($booking_id, $to, (string) $from);
 			}
 			$from      = $from ?? self::read_booking_meta($booking_id, '_mhmrentiva_status');
 			$effective = in_array($from, Status::allowed(), true) ? $from : Status::PENDING;
@@ -1971,8 +1986,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			wp_cache_delete($booking_id, 'post_meta');
 			return self::availability_unknown_notice();
 		}
-		if (self::META_NOT_HELD === $wrote) {
-			return self::STATUS_NOT_MOVED;
+		if (! self::meta_holds($wrote)) {
+			return self::unlocked_write_did_not_hold($booking_id, $to, $from);
 		}
 		if (self::META_WRITTEN === $wrote) {
 			do_action('mhmrentiva_booking_status_changed', $booking_id, $effective, $to);
@@ -1982,12 +1997,114 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * The mark_paid_unlocked() answer when the payment is recorded on the booking, which still
-	 * holds its dates, but its status could not be moved (Fable F1). Not a
-	 * customer message; the order note says what happened
-	 * (report_unclaimed_payment(), reason status_write_failed).
+	 * An unlocked write did not hold. Without a transaction that is not
+	 * "nothing changed": under autocommit a sanitize filter's value, or a
+	 * concurrent writer's, may be what persisted (Codex PR K delta7 3). So
+	 * what the booking holds now is read back -- payment status and status --
+	 * and the operator note is built from those values
+	 * (unlocked_write_note()). No status hook runs.
+	 *
+	 * @param string $from The status the transition was decided on ('' when not read yet).
 	 */
-	private const STATUS_NOT_MOVED = 'mhmrentiva_status_not_moved';
+	private static function unlocked_write_did_not_hold(int $booking_id, string $to, string $from): string
+	{
+		wp_cache_delete($booking_id, 'post_meta');
+		try {
+			$payment = self::read_booking_meta($booking_id, '_mhmrentiva_payment_status');
+			$status  = self::read_booking_meta($booking_id, '_mhmrentiva_status');
+		} catch (\RuntimeException $e) {
+			$payment = null;
+			$status  = null;
+		}
+		self::$unlocked_outcome = array(
+			'payment' => $payment,
+			'status'  => $status,
+			'from'    => $from,
+			'target'  => $to,
+		);
+
+		return self::UNLOCKED_NOT_HELD;
+	}
+
+	/**
+	 * The mark_paid_unlocked() answer when a write did not hold: the order
+	 * note is built from what the booking holds now
+	 * (self::$unlocked_outcome, report_unclaimed_payment() reason
+	 * unlocked_write). Not a customer message.
+	 */
+	private const UNLOCKED_NOT_HELD = 'mhmrentiva_unlocked_not_held';
+
+	/**
+	 * What the booking held after an unlocked write that did not hold: its
+	 * payment status and status as read back (null when unreadable), the
+	 * status the move was decided on, and the status it should have reached.
+	 *
+	 * @var array{payment?: string|null, status?: string|null, from?: string, target?: string}
+	 */
+	private static array $unlocked_outcome = array();
+
+	/**
+	 * Statuses that hold no dates: a booking left in one is paid for nothing.
+	 *
+	 * @var list<string>
+	 */
+	private const RELEASED = array( Status::CANCELLED, Status::REFUNDED, Status::NO_SHOW, Status::DRAFT );
+
+	/**
+	 * The order note for an unlocked write that did not hold, from the values
+	 * read back -- never "nothing was changed" or "holds its dates" unless
+	 * those values say so (Codex PR K delta7 3).
+	 *
+	 * @param array{payment?: string|null, status?: string|null, from?: string, target?: string} $outcome
+	 */
+	private static function unlocked_write_note(int $booking_id, array $outcome): string
+	{
+		$payment = $outcome['payment'] ?? null;
+		$status  = $outcome['status'] ?? null;
+		$from    = (string) ( $outcome['from'] ?? '' );
+		$target  = (string) ( $outcome['target'] ?? '' );
+
+		if (null === $payment || null === $status) {
+			return sprintf(
+				/* translators: %d: booking id. */
+				__('Payment recorded on the order, but booking #%d could not be read back afterwards: its payment status and status are not known. Check the booking before anything else.', 'mhm-rentiva'),
+				$booking_id
+			);
+		}
+		if ('paid' !== $payment) {
+			return sprintf(
+				/* translators: 1: booking id, 2: the booking's payment status as stored, 3: the booking status. */
+				__('Payment recorded on the order, but booking #%1$d is not marked paid: its payment status is "%2$s" and its status %3$s. Check the booking.', 'mhm-rentiva'),
+				$booking_id,
+				'' !== $payment ? $payment : '-',
+				Status::get_label($status)
+			);
+		}
+		if (in_array($status, self::RELEASED, true)) {
+			return sprintf(
+				/* translators: 1: booking id, 2: the booking status. */
+				__('Payment recorded and booking #%1$d is marked paid, but its status is %2$s, so it no longer holds its dates. Reconcile it: give the booking its dates back, or refund the payment.', 'mhm-rentiva'),
+				$booking_id,
+				Status::get_label($status)
+			);
+		}
+		if ('' === $from || $status === $from) {
+			return sprintf(
+				/* translators: 1: booking id, 2: the booking status it should have moved to. */
+				__('Payment recorded and booking #%1$d marked paid, but it could not be moved to %2$s. Check the booking.', 'mhm-rentiva'),
+				$booking_id,
+				Status::get_label($target)
+			);
+		}
+
+		return sprintf(
+			/* translators: 1: booking id, 2: the booking status now, 3: the booking status it should have moved to. */
+			__('Payment recorded and booking #%1$d marked paid, but it is %2$s instead of %3$s. Check the booking.', 'mhm-rentiva'),
+			$booking_id,
+			Status::get_label($status),
+			Status::get_label($target)
+		);
+	}
 
 	/**
 	 * Confirm (or complete) a booking because its order was paid, deciding and
@@ -2137,24 +2254,18 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * payment started elsewhere (the add-on's commission reverses on the
 	 * order refund).
 	 *
-	 * Reason status_write_failed is the other case (Fable F1): the payment is
-	 * recorded and the booking marked paid, still holding its dates, but its
-	 * status did not move to $target. Nothing is to be refunded; the operator
-	 * checks the booking.
+	 * Reason unlocked_write is the other case (Fable F1, Codex delta7 3): the
+	 * payment is recorded on the order, and an unlocked booking write did not
+	 * hold. The note says what the booking holds now (unlocked_write_note()).
 	 *
-	 * @param string $reason 'dates_lost' (the default) or 'status_write_failed'.
-	 * @param string $target The status the booking should have moved to (status_write_failed).
+	 * @param string $reason 'dates_lost' (the default) or 'unlocked_write'.
+	 * @param array{payment?: string|null, status?: string|null, from?: string, target?: string} $outcome What the booking holds now (unlocked_write).
 	 */
-	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal, string $new_status, string $reason = 'dates_lost', string $target = ''): void
+	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal, string $new_status, string $reason = 'dates_lost', array $outcome = array()): void
 	{
 		$why = self::plain_text($refusal);
-		if ('status_write_failed' === $reason) {
-			$note = sprintf(
-				/* translators: 1: booking id, 2: the booking status it should have moved to. */
-				__('Payment recorded and booking #%1$d marked paid, but it could not be moved to %2$s. Check the booking.', 'mhm-rentiva'),
-				$booking_id,
-				Status::get_label($target)
-			);
+		if ('unlocked_write' === $reason) {
+			$note = self::unlocked_write_note($booking_id, $outcome);
 		} else {
 			$reason = 'dates_lost';
 			$note   = 'on-hold' === $new_status
@@ -2199,9 +2310,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
-		// The Store API's order-pay route (POST /checkout/{id}) asks the gateway
-		// list with the session's cart, not this order, so without_cash_on_delivery()
-		// cannot see a rental there. Stopped before any booking or payment.
+		// The Store API's one cash-on-delivery rule, on both routes (POST
+		// /checkout and /checkout/{id}): the gateway list is left alone in REST
+		// (without_cash_on_delivery()), and the order actually paid decides
+		// here. A rental order paid with COD is stopped before any booking or
+		// payment (Codex PR K delta7).
 		if ('cod' === $order->get_payment_method() && self::order_has_booking($order)) {
 			self::halt_checkout(
 				__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'),
@@ -2246,28 +2359,36 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * cart; with a wrong key the list is WooCommerce's, which refuses the page.
 	 * Existing COD orders keep their labels (RentalMoneyLabels::order_state()).
 	 *
+	 * A REST request (the Store API) is left alone: there the list is built
+	 * from the session's cart even when the request pays another order (POST
+	 * /checkout/{id}), so the cart cannot decide (Codex PR K delta7 1-2). The
+	 * Store API's one rule is the order hook, on both routes, for the order
+	 * actually paid: a rental order with cash on delivery is refused there
+	 * before any booking or payment (store_api_order_processed()). A shop order
+	 * is never touched in REST, whatever the cart holds.
+	 *
 	 * @param mixed $gateways The available gateways, by id.
 	 * @return mixed
 	 */
 	public static function without_cash_on_delivery($gateways)
 	{
+		// A list without COD, or one left alone, must not keep an earlier
+		// rental's message (Fable PR K delta6 3, Codex delta7 note).
+		self::$cod_was_the_only_gateway = false;
 		if (! is_array($gateways) || ! isset($gateways['cod'])) {
+			return $gateways;
+		}
+		if (function_exists('wp_is_rest_endpoint') && wp_is_rest_endpoint()) {
 			return $gateways;
 		}
 
 		if (function_exists('is_checkout_pay_page') && is_checkout_pay_page()) {
 			$order  = CheckoutJourney::pay_page_order();
 			$rental = null !== $order && self::order_has_booking($order);
-		} elseif (self::$store_api_pay_order_id > 0) {
-			// Store API POST /checkout/{id} pays that order, not the cart
-			// (Codex PR K delta6 2): its verified order decides.
-			$order  = wc_get_order(self::$store_api_pay_order_id);
-			$rental = $order instanceof \WC_Order && self::order_has_booking($order);
 		} else {
 			$rental = self::cart_has_booking();
 		}
 
-		self::$cod_was_the_only_gateway = false;
 		if ($rental) {
 			unset($gateways['cod']);
 			self::$cod_was_the_only_gateway = array() === $gateways;
@@ -2277,80 +2398,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * The order a Store API `POST /wc/store/v1/checkout/{id}` request pays,
-	 * once verified as CheckoutOrder's own authorization does; 0 otherwise.
-	 */
-	private static int $store_api_pay_order_id = 0;
-
-	/**
 	 * The last without_cash_on_delivery() call removed cash on delivery from a
 	 * rental's list, and nothing was left.
 	 */
 	private static bool $cod_was_the_only_gateway = false;
 
 	/**
-	 * Remember the order a Store API order-pay request pays (rest_request_before_callbacks,
-	 * which runs before the route's permission callback): CheckoutOrder asks
-	 * the gateway list with the session's cart, so without_cash_on_delivery()
-	 * would decide for the cart, not for the order paid (Codex PR K delta6 2).
-	 * Only an order this request may pay counts -- the owner's, or a guest
-	 * order with its key and billing e-mail -- the same test as WooCommerce's
-	 * OrderAuthorizationTrait::is_authorized(); anything else leaves the cart
-	 * rule, and the route refuses the request itself.
-	 *
-	 * @param mixed $response The response so far.
-	 * @param mixed $handler  The route handler.
-	 * @param mixed $request  The request.
-	 * @return mixed The response, untouched.
-	 */
-	public static function note_store_api_pay_order($response, $handler, $request)
-	{
-		self::$store_api_pay_order_id = 0;
-		if (! $request instanceof \WP_REST_Request || 'POST' !== $request->get_method()) {
-			return $response;
-		}
-		if (! preg_match('#^/wc/store(?:/v1)?/checkout/(\d+)/?$#', (string) $request->get_route(), $m)) {
-			return $response;
-		}
-
-		$order = function_exists('wc_get_order') ? wc_get_order( (int) $m[1]) : false;
-		if (! $order instanceof \WC_Order) {
-			return $response;
-		}
-		$owner = (int) $order->get_customer_id();
-		if ($owner > 0) {
-			$may = get_current_user_id() === $owner;
-		} else {
-			$key   = sanitize_text_field(wp_unslash( (string) $request->get_param('key')));
-			$email = sanitize_text_field(wp_unslash( (string) $request->get_param('billing_email')));
-			$may   = '' !== $key && hash_equals( (string) $order->get_order_key(), $key )
-				&& 0 === strcasecmp( (string) $order->get_billing_email(), $email );
-		}
-		if ($may) {
-			self::$store_api_pay_order_id = (int) $order->get_id();
-		}
-
-		return $response;
-	}
-
-	/**
-	 * The request is over: its order no longer decides the gateway list.
-	 *
-	 * @param mixed $response The response.
-	 * @return mixed The response, untouched.
-	 */
-	public static function forget_store_api_pay_order($response)
-	{
-		self::$store_api_pay_order_id = 0;
-
-		return $response;
-	}
-
-	/**
 	 * A rental whose only gateway was cash on delivery would read WooCommerce's
 	 * generic "no available payment methods" (Fable PR K delta6 F4). The classic
 	 * checkout and order-pay templates print this filter's answer through
-	 * wc_print_notice(); the Checkout block has its own message.
+	 * wc_print_notice(); the Checkout block has its own message. On the classic
+	 * checkout, a customer with no billing country yet reads WooCommerce's
+	 * "fill in your details" (templates/checkout/payment.php), which stays
+	 * (Fable delta7 1).
 	 *
 	 * @param mixed $message WooCommerce's message, escaped.
 	 * @return mixed
@@ -2358,6 +2418,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	public static function no_payment_methods_message($message)
 	{
 		if (! self::$cod_was_the_only_gateway) {
+			return $message;
+		}
+		$pay_page = function_exists('is_checkout_pay_page') && is_checkout_pay_page();
+		if (! $pay_page && function_exists('WC') && WC()->customer instanceof \WC_Customer && '' === (string) WC()->customer->get_billing_country()) {
 			return $message;
 		}
 
@@ -2739,11 +2803,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					// the drop-off day, hours before the car is back.
 					$target  = 'completed' === $new_status && \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id) ? Status::COMPLETED : Status::CONFIRMED;
 					$refusal = self::confirm_paid_booking($booking_id, $is_remaining, $target);
-					if (self::STATUS_NOT_MOVED === $refusal) {
+					if (self::UNLOCKED_NOT_HELD === $refusal) {
 						// The payment is recorded and the booking holds its dates;
 						// only its status did not move (Fable F1). The rest of the
 						// mapping below still applies to a recorded payment.
-						self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'status_write_failed', $target);
+						self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'unlocked_write', self::$unlocked_outcome);
+						self::$unlocked_outcome = array();
 					} elseif (null !== $refusal) {
 						self::report_unclaimed_payment($order, $booking_id, $refusal, (string) $new_status);
 						continue;

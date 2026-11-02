@@ -363,9 +363,9 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * The Store API checkout route itself: WooCommerce refuses a method missing
-	 * from the list (Checkout::get_request_payment_method()), so no draft order
-	 * reaches the order-processed hook with COD.
+	 * The Store API checkout route itself: in REST the gateway list is left
+	 * alone, and the order hook refuses the rental order paid with COD before
+	 * any booking or payment (Codex PR K delta7).
 	 *
 	 * Its own process: the route defines WOOCOMMERCE_CHECKOUT (StoreApi\Legacy).
 	 *
@@ -410,7 +410,8 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 
 		$data = (array) $response->get_data();
 		$this->assertSame(400, $response->get_status(), (string) wp_json_encode($data));
-		$this->assertSame('woocommerce_rest_checkout_payment_method_disabled', $data['code'] ?? '');
+		$this->assertSame('mhmrentiva_booking_refused', $data['code'] ?? '');
+		$this->assertSame(0, (int) ( new \WP_Query(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'any', 'fields' => 'ids' )) )->found_posts, 'No booking was made.');
 	}
 
 	// ------------------------------------- Store API order-pay (delta6)
@@ -420,12 +421,10 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	 *
 	 * @return array{0: int, 1: array<string, mixed>}
 	 */
-	private function pay_order_on_the_route(\WC_Order $order): array
+	private function pay_order_on_the_route(\WC_Order $order, int $url_id = 0): array
 	{
 		update_option('woocommerce_cod_settings', array( 'enabled' => 'yes', 'title' => 'Cash on delivery', 'enable_for_virtual' => 'yes' ));
 		WC()->payment_gateways()->init();
-		$this->hook('rest_request_before_callbacks', array( WooCommerceBridge::class, 'note_store_api_pay_order' ), 10, 3);
-		$this->hook('rest_request_after_callbacks', array( WooCommerceBridge::class, 'forget_store_api_pay_order' ), 10, 1);
 
 		add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 		$address = array(
@@ -439,7 +438,11 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 			'email'      => 'jane@example.com',
 			'phone'      => '5551234567',
 		);
-		$request = new \WP_REST_Request('POST', '/wc/store/v1/checkout/' . $order->get_id());
+		$request = new \WP_REST_Request('POST', '/wc/store/v1/checkout/' . ( $url_id > 0 ? $url_id : $order->get_id() ));
+		if ($url_id > 0) {
+			// A query `id` shadows the URL's (WP_REST_Request::get_parameter_order()).
+			$request->set_query_params(array( 'id' => $order->get_id() ));
+		}
 		$request->set_header('Content-Type', 'application/json');
 		$request->set_body(
 			(string) wp_json_encode(
@@ -492,8 +495,9 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta6 2: a shop order paid on the route keeps COD, whatever the
-	 * session's cart holds -- the route pays that order, not the cart.
+	 * Codex delta6 2 / delta7: a shop order paid on the route keeps COD,
+	 * whatever the session's cart holds -- the route pays that order, not the
+	 * cart, and REST leaves the gateway list alone.
 	 *
 	 * Its own process: the route defines WOOCOMMERCE_CHECKOUT (StoreApi\Legacy).
 	 *
@@ -533,7 +537,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		list($status, $data) = $this->pay_order_on_the_route($order);
 
 		$this->assertSame(400, $status, (string) wp_json_encode($data));
-		$this->assertSame('woocommerce_rest_checkout_payment_method_disabled', $data['code'] ?? '', 'The verified order decides: a rental, so no COD.');
+		$this->assertSame('mhmrentiva_booking_refused', $data['code'] ?? '', 'The order hook decides for the order paid: a rental, so no COD.');
 		$this->assertNotSame('processing', wc_get_order($order->get_id())->get_status());
 	}
 
@@ -544,6 +548,7 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 	public function test_a_rental_with_cash_on_delivery_as_the_only_gateway_says_why(): void
 	{
 		$this->hook('woocommerce_no_available_payment_methods_message', array( WooCommerceBridge::class, 'no_payment_methods_message' ), 10, 1);
+		WC()->customer->set_billing_country('TR');
 		$generic = 'Sorry, it seems that there are no available payment methods.';
 		$this->add_rental();
 
@@ -561,5 +566,64 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$this->add_product();
 		WooCommerceBridge::without_cash_on_delivery(array( 'cod' => $this->gateways()['cod'] ));
 		$this->assertSame($generic, apply_filters('woocommerce_no_available_payment_methods_message', $generic));
+	}
+	/**
+	 * Codex delta7 1: the order WooCommerce pays is $request['id'], and a body
+	 * or query `id` shadows the URL's. A rental's URL with the shop order's
+	 * `id`: WooCommerce pays the shop order, which keeps COD.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_the_order_pay_route_follows_the_order_woocommerce_pays_when_the_id_is_shadowed(): void
+	{
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		$rental  = $this->guest_order(null);
+		$rental->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
+		$rental->update_meta_data('_mhmrentiva_booking_id', $booking);
+		$rental->save();
+		$shop = $this->guest_order(null);
+		$this->add_rental();
+
+		list($status, $data) = $this->pay_order_on_the_route($shop, $rental->get_id());
+
+		$this->assertSame(200, $status, (string) wp_json_encode($data));
+		$this->assertSame('cod', wc_get_order($shop->get_id())->get_payment_method(), 'The shop order is paid with COD.');
+		$this->assertNotSame('cod', wc_get_order($rental->get_id())->get_payment_method(), 'The rental order is untouched.');
+	}
+
+	/**
+	 * Codex delta7 note / Fable delta6 3: a later list in the same process --
+	 * one without COD, or a shop cart's -- does not keep the rental's message.
+	 */
+	public function test_a_later_list_does_not_keep_the_rental_message(): void
+	{
+		$this->hook('woocommerce_no_available_payment_methods_message', array( WooCommerceBridge::class, 'no_payment_methods_message' ), 10, 1);
+		WC()->customer->set_billing_country('TR');
+		$generic = 'Sorry, it seems that there are no available payment methods.';
+		$this->add_rental();
+		WooCommerceBridge::without_cash_on_delivery(array( 'cod' => $this->gateways()['cod'] ));
+		$this->assertNotSame($generic, apply_filters('woocommerce_no_available_payment_methods_message', $generic), 'Sanity: the rental message.');
+
+		WC()->cart->empty_cart();
+		$this->add_product();
+		WooCommerceBridge::without_cash_on_delivery(array());
+
+		$this->assertSame($generic, apply_filters('woocommerce_no_available_payment_methods_message', $generic));
+	}
+
+	/**
+	 * Fable delta7 1: on the classic checkout a customer with no billing
+	 * country yet reads WooCommerce's "fill in your details", not ours.
+	 */
+	public function test_no_billing_country_keeps_woocommerces_fill_in_message(): void
+	{
+		$this->hook('woocommerce_no_available_payment_methods_message', array( WooCommerceBridge::class, 'no_payment_methods_message' ), 10, 1);
+		WC()->customer->set_billing_country('');
+		$fill = 'Please fill in your details above to see available payment methods.';
+		$this->add_rental();
+		WooCommerceBridge::without_cash_on_delivery(array( 'cod' => $this->gateways()['cod'] ));
+
+		$this->assertSame($fill, apply_filters('woocommerce_no_available_payment_methods_message', $fill));
 	}
 }
