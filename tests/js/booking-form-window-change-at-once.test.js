@@ -222,6 +222,23 @@ describe( 'booking form: a picked date updates availability and price at once', 
 		expect( last( 'mhmrentiva_check_availability' ).dropoff ).toBe( iso( day( 10 ) ) );
 	} );
 
+	test( 'answers for a window left incomplete (vehicle cleared) do not land', () => {
+		pick( '#bf-pickup', day( 5 ) );
+		pick( '#bf-return', day( 8 ) );
+		settle();
+		const oldCheck = last( 'mhmrentiva_check_availability' );
+		const oldQuote = last( 'mhmrentiva_calculate_price' );
+
+		form.container.removeAttr( 'data-vehicle-id' ).find( 'input[name="vehicle_id"]' ).val( '' );
+		form.autoCheckAvailability();
+		oldCheck.options.success( FREE );
+		oldQuote.options.success( quote( 300 ) );
+
+		expect( $status().prop( 'hidden' ) ).toBe( true );
+		expect( form.container.find( '[data-rvs-total]' ).text() ).toBe( '-' );
+		expect( $summary().attr( 'aria-busy' ) ).toBe( 'false' );
+	} );
+
 	test( 'a window over the rental limit sends nothing and leaves no old answer on screen', () => {
 		takenWindow();
 

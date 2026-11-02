@@ -559,8 +559,10 @@
 
             const formData = this.getFormData();
             // Vehicle and both dates (time is optional for the quote).
+            // An incomplete window leaves the old one too: its answers may not land.
             if (!formData.vehicle_id || !formData.pickup_date || !formData.dropoff_date) {
-                this.windowPending = false;
+                this.abandonWindow();
+                this.showLoading(false);
                 return;
             }
 
@@ -568,6 +570,10 @@
             this.showLoading(true);
             if (formData.pickup_time && formData.dropoff_time) {
                 this.setStatus(this.hook('availability'), 'busy', this.getMessage('checking_availability'));
+            } else {
+                // No times, no check: the old window's line and lock go.
+                this.hook('availability').prop('hidden', true).removeAttr('data-state').empty();
+                this.availabilityBlocked = false;
             }
             this.windowPending = true;
 
@@ -1196,7 +1202,6 @@
                 this.container.attr('data-vehicle-id', vehicleId);
                 this.showVehicle(vehicleData);
                 this.fetchAndApplyBlockedDates(vehicleId);
-                this.autoCalculatePrice();
                 this.autoCheckAvailability();
             }
 
