@@ -30,6 +30,9 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 
 	private int $vehicle_id;
 
+	/** @var list<string> START TRANSACTION / COMMIT / ROLLBACK, in order. */
+	private array $transactions = array();
+
 	public function setUp(): void
 	{
 		parent::setUp();
@@ -45,8 +48,13 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 
 		// As LockerRobustnessTest: a nested START TRANSACTION would commit the
 		// test's own transaction, so transaction control is neutralised.
-		add_filter('query', static function ($query) {
-			return preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query) ? 'SELECT 1' : $query;
+		$this->transactions = array();
+		add_filter('query', function ($query) {
+			if (preg_match('/^\s*(START TRANSACTION|COMMIT|ROLLBACK)\b/i', (string) $query, $m)) {
+				$this->transactions[] = strtoupper($m[1]);
+				return 'SELECT 1';
+			}
+			return $query;
 		});
 
 		add_action('woocommerce_store_api_checkout_order_processed', array( WooCommerceBridge::class, 'store_api_order_processed' ), 10, 1);
@@ -664,5 +672,227 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$notes = $this->notes(wc_get_order($order->get_id()));
 		$this->assertNotEmpty(array_filter($notes, static fn($n) => str_contains($n, 'Order on hold, but booking #' . $booking_id)));
 		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'Payment recorded')));
+	}
+
+	// --------------------------- Codex delta2 H1: undo keeps a later payment
+
+	/**
+	 * One order, two rentals, both cancelled by a failed payment; the second
+	 * vehicle's dates are then taken by someone else.
+	 *
+	 * @return array{0: \WC_Order, 1: list<int>, 2: int}
+	 */
+	private function two_rental_failed_order(): array
+	{
+		$second_vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish', 'post_title' => 'Renault Clio' ));
+
+		$order = wc_create_order();
+		$this->pending_line($order, $this->snapshot());
+		$this->pending_line($order, $this->snapshot(array( 'vehicle_id' => $second_vehicle )));
+		$order->calculate_totals();
+		$order->set_status('pending');
+		$order->save();
+		$this->store_api($order);
+		$order = wc_get_order($order->get_id());
+		$ids   = array();
+		foreach ($order->get_items() as $item) {
+			$ids[] = (int) $item->get_meta('_mhmrentiva_booking_id');
+		}
+		$order->update_status('failed');
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'failed', $order);
+
+		$other = wc_create_order();
+		$this->pending_line($other, $this->snapshot(array( 'vehicle_id' => $second_vehicle )));
+		$other->calculate_totals();
+		$other->save();
+		$this->store_api($other);
+
+		return array( wc_get_order($order->get_id()), $ids, $second_vehicle );
+	}
+
+	public function test_undoing_a_revival_keeps_a_payment_that_landed_meanwhile(): void
+	{
+		list($order, $ids, $second_vehicle) = $this->two_rental_failed_order();
+
+		// While the second booking is being checked, a payment notification
+		// confirms the first one (it was just revived).
+		$fired  = false;
+		$notify = static function ($query) use (&$fired, $second_vehicle, $ids) {
+			$sql = (string) $query;
+			if (! $fired && preg_match('/FOR UPDATE/i', $sql) && str_contains($sql, 'post_id = ' . $second_vehicle)) {
+				$fired = true;
+				update_post_meta($ids[0], '_mhmrentiva_status', 'confirmed');
+				update_post_meta($ids[0], '_mhmrentiva_payment_status', 'paid');
+			}
+			return $query;
+		};
+		add_filter('query', $notify);
+		WooCommerceBridge::claim_before_pay($order);
+		remove_filter('query', $notify);
+
+		$this->assertTrue($fired);
+		$this->assertSame(1, wc_notice_count('error'), 'The second booking is refused.');
+		wp_cache_delete($ids[0], 'post_meta');
+		$this->assertSame('confirmed', get_post_meta($ids[0], '_mhmrentiva_status', true), 'The payment that landed is kept, not put back to cancelled.');
+		$this->assertSame('paid', get_post_meta($ids[0], '_mhmrentiva_payment_status', true));
+	}
+
+	public function test_a_throw_while_checking_a_later_booking_puts_the_earlier_revival_back(): void
+	{
+		list($order, $ids, $second_vehicle) = $this->two_rental_failed_order();
+
+		$boom = static function ($query) use ($second_vehicle) {
+			if (preg_match('/FOR UPDATE/i', (string) $query) && str_contains((string) $query, 'post_id = ' . $second_vehicle)) {
+				throw new \LogicException('mhmrentiva_test_boom');
+			}
+			return $query;
+		};
+		add_filter('query', $boom);
+		try {
+			WooCommerceBridge::claim_before_pay($order);
+			$this->fail('The error must reach the caller.');
+		} catch (\LogicException $e) {
+			$this->assertSame('mhmrentiva_test_boom', $e->getMessage());
+		}
+		remove_filter('query', $boom);
+
+		wp_cache_delete($ids[0], 'post_meta');
+		$this->assertSame('cancelled', get_post_meta($ids[0], '_mhmrentiva_status', true), 'Fable delta2 m1: the first revival is put back.');
+	}
+
+	// ------------------------- Codex delta2 H2: writes that do not hold
+
+	/**
+	 * Make one meta write of one booking fail, as a database error would:
+	 * nothing is written and update_post_meta() answers false.
+	 */
+	private function failing_write(int $booking_id, string $key, ?string $only_value = null): callable
+	{
+		return static function ($check, $object_id, $meta_key, $meta_value) use ($booking_id, $key, $only_value) {
+			if ( (int) $object_id === $booking_id && $meta_key === $key && ( null === $only_value || (string) $meta_value === $only_value )) {
+				return false;
+			}
+			return $check;
+		};
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function claim_writes(): array
+	{
+		return array(
+			'status'   => array( '_mhmrentiva_status' ),
+			'deadline' => array( '_mhmrentiva_payment_deadline' ),
+		);
+	}
+
+	/**
+	 * @dataProvider claim_writes
+	 */
+	public function test_a_revival_write_that_does_not_hold_refuses_and_rolls_back(string $key): void
+	{
+		list($order, $booking_id) = $this->failed_order();
+		// An older deadline than the fresh one the revival writes (made in the
+		// same second, they would be the same string: "already that value").
+		update_post_meta($booking_id, '_mhmrentiva_payment_deadline', gmdate('Y-m-d H:i:s', time() - HOUR_IN_SECONDS));
+		$announced = 0;
+		$count                    = static function () use (&$announced): void {
+			++$announced;
+		};
+		add_action('mhmrentiva_booking_status_changed', $count);
+		$fail = $this->failing_write($booking_id, $key);
+		add_filter('update_post_metadata', $fail, 10, 4);
+		$this->transactions = array();
+
+		WooCommerceBridge::claim_before_pay($order);
+
+		remove_filter('update_post_metadata', $fail, 10);
+		remove_action('mhmrentiva_booking_status_changed', $count);
+
+		$notices = wc_get_notices('error');
+		$this->assertCount(1, $notices);
+		$this->assertStringContainsString('could not be updated', (string) $notices[0]['notice']);
+		$this->assertContains('ROLLBACK', $this->transactions, 'The transaction is rolled back, not committed.');
+		$this->assertNotContains('COMMIT', $this->transactions);
+		$this->assertSame(0, $announced, 'Nobody hears of a revival that did not hold.');
+		if ('_mhmrentiva_status' === $key) {
+			wp_cache_delete($booking_id, 'post_meta');
+			$this->assertSame('cancelled', get_post_meta($booking_id, '_mhmrentiva_status', true));
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function confirm_writes(): array
+	{
+		return array(
+			'status'         => array( '_mhmrentiva_status' ),
+			'payment status' => array( '_mhmrentiva_payment_status' ),
+		);
+	}
+
+	/**
+	 * @dataProvider confirm_writes
+	 */
+	public function test_a_confirm_write_that_does_not_hold_confirms_nothing(string $key): void
+	{
+		$order = $this->pending_order();
+		$this->store_api($order);
+		$order      = wc_get_order($order->get_id());
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
+
+		$announced = 0;
+		$count     = static function () use (&$announced): void {
+			++$announced;
+		};
+		add_action('mhmrentiva_booking_status_changed', $count);
+		$fail = $this->failing_write($booking_id, $key);
+		add_filter('update_post_metadata', $fail, 10, 4);
+		$this->transactions = array();
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'processing', $order);
+
+		remove_filter('update_post_metadata', $fail, 10);
+		remove_action('mhmrentiva_booking_status_changed', $count);
+
+		$this->assertSame(0, $announced, 'No confirmation is published.');
+		$this->assertContains('ROLLBACK', $this->transactions);
+		$this->assertNotContains('COMMIT', $this->transactions);
+		wp_cache_delete($booking_id, 'post_meta');
+		$this->assertSame('pending', get_post_meta($booking_id, '_mhmrentiva_status', true));
+		$this->assertNotEmpty(array_filter($this->notes(wc_get_order($order->get_id())), static fn($n) => str_contains($n, 'could not be updated')));
+	}
+
+	public function test_a_write_that_is_already_that_value_is_not_a_failure(): void
+	{
+		$order = $this->pending_order();
+		$this->store_api($order);
+		$order      = wc_get_order($order->get_id());
+		$booking_id = (int) $order->get_meta('_mhmrentiva_booking_id');
+		update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+
+		// update_post_meta() answers false for an unchanged value too.
+		$this->assertFalse(update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid'));
+
+		WooCommerceBridge::handle_order_status_change($order->get_id(), 'pending', 'processing', $order);
+
+		wp_cache_delete($booking_id, 'post_meta');
+		$this->assertSame('confirmed', get_post_meta($booking_id, '_mhmrentiva_status', true));
+	}
+
+	public function test_an_undo_write_that_does_not_hold_is_logged_and_leaves_no_payment(): void
+	{
+		list($order, $ids) = $this->two_rental_failed_order();
+		$fail              = $this->failing_write($ids[0], '_mhmrentiva_status', 'cancelled');
+		add_filter('update_post_metadata', $fail, 10, 4);
+
+		WooCommerceBridge::claim_before_pay($order);
+
+		remove_filter('update_post_metadata', $fail, 10);
+
+		$this->assertSame(1, wc_notice_count('error'), 'Still refused: no payment is taken.');
+		$this->assertContains('ROLLBACK', $this->transactions, 'The failed undo is rolled back.');
 	}
 }

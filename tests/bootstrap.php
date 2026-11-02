@@ -25,15 +25,6 @@ if (! file_exists("{$_tests_dir}/includes/functions.php")) {
 	exit(1);
 }
 
-// Test-only cryptographic seed constants for audit key generation paths.
-if (! defined('AUTH_KEY')) {
-	define('AUTH_KEY', hash('sha256', 'mhm-rentiva-test-suite')); // Test-only seed, computed so it is never mistaken for a real key.
-}
-
-if (! defined('SECURE_AUTH_SALT')) {
-	define('SECURE_AUTH_SALT', 'unit-test-secure-auth-salt');
-}
-
 /**
  * Detect whether PHPUnit is running in test discovery mode.
  *
@@ -136,6 +127,29 @@ if ($should_isolate_db) {
 
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
+
+/**
+ * Test-only cryptographic seed constants for audit key generation paths.
+ *
+ * Defined only once WordPress has read its test config: the config written by
+ * bin/install-wp-tests.sh (CI) defines AUTH_KEY and SECURE_AUTH_SALT itself, and
+ * a define here first made it warn "Constant AUTH_KEY already defined". The
+ * main process lived with the warning; a @runInSeparateProcess child turns any
+ * output into a test error (RentalMoneyParityTest's Store API route test, PR K
+ * CI). A local config without the keys still gets them, before any plugin loads.
+ */
+tests_add_filter(
+	'muplugins_loaded',
+	static function (): void {
+		if (! defined('AUTH_KEY')) {
+			define('AUTH_KEY', hash('sha256', 'mhm-rentiva-test-suite')); // Test-only seed, computed so it is never mistaken for a real key.
+		}
+		if (! defined('SECURE_AUTH_SALT')) {
+			define('SECURE_AUTH_SALT', 'unit-test-secure-auth-salt');
+		}
+	},
+	-1000
+);
 
 /**
  * R-3 (Dilim 2): the suite runs against the dev site's ABSPATH, so its uploads

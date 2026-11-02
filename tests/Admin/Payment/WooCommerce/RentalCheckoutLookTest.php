@@ -367,6 +367,29 @@ final class RentalCheckoutLookTest extends WP_UnitTestCase
 		$this->assertStringContainsString($this->kept(wc_price( (float) $order->get_total(), array( 'currency' => 'EUR' ))), $summary);
 	}
 
+	/**
+	 * PR bot P2: once the shop confirms the transfer (processing with a paid
+	 * date, or completed), the thank-you page asks for no money and no receipt
+	 * -- the deposit label already reads "Deposit paid" by the same rule.
+	 */
+	public function test_a_confirmed_bank_payment_asks_for_nothing_more(): void
+	{
+		foreach (array( 'processing', 'completed' ) as $status) {
+			$order = $this->order($this->rental_data());
+			$order->set_date_paid(time());
+			$order->set_status($status);
+			$order->save();
+
+			$this->assertSame(\MHMRentiva\Admin\Payment\WooCommerce\RentalMoneyLabels::STATE_PAID, \MHMRentiva\Admin\Payment\WooCommerce\RentalMoneyLabels::order_state($order));
+			$this->assertSame('', $this->capture(static fn() => RentalCheckoutLook::render_bank_transfer($order->get_id())), $status);
+		}
+
+		$waiting = $this->order($this->rental_data());
+		$waiting->set_status('on-hold');
+		$waiting->save();
+		$this->assertStringContainsString('Deposit to send (', $this->capture(static fn() => RentalCheckoutLook::render_bank_transfer($waiting->get_id())), 'Still waiting: the card stays.');
+	}
+
 	public function test_the_owner_of_a_bank_order_uploads_the_receipt_in_my_account(): void
 	{
 		$user = self::factory()->user->create(array( 'role' => 'customer' ));

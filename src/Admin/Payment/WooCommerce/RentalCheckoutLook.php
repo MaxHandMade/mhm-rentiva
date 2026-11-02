@@ -269,6 +269,12 @@ final class RentalCheckoutLook {
 		if (! ( $order instanceof \WC_Order ) || $order->has_status(array( 'failed', 'cancelled', 'refunded' ))) {
 			return;
 		}
+		// Once the shop has confirmed the transfer, nothing is left to send and
+		// no receipt to upload: the same state rule as the deposit label, which
+		// then reads "Deposit paid" (PR bot P2).
+		if (RentalMoneyLabels::STATE_PAID === RentalMoneyLabels::order_state($order)) {
+			return;
+		}
 		// One rental, its remaining payment, or several rentals (each summary
 		// card above names its own pickup figure; the card here sends the total).
 		if (! CheckoutJourney::is_rental_order($order) && count(CheckoutJourney::order_rentals($order)) < 2) {
