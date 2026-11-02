@@ -163,8 +163,10 @@ final class Util {
 	/**
 	 * Atomic overlap check (with database lock)
 	 *
-	 * A query that could not run reads as "no overlap" here, as it always has;
-	 * a caller that must not treat that as free uses count_overlaps_locked().
+	 * A query that could not run reads as "taken": nobody books, revives or pays
+	 * on an answer that was never read (PR K, Codex delta H2). Until then it read
+	 * as "no overlap". A caller that must tell "taken" from "unknown" uses
+	 * count_overlaps_locked(), whose null is the unknown.
 	 *
 	 * @param int $exclude_booking_id A booking to leave out of the check: the one
 	 *                                being edited, which would otherwise conflict
@@ -172,7 +174,9 @@ final class Util {
 	 */
 	public static function has_overlap_locked(int $vehicle_id, int $start_ts, int $end_ts, int $exclude_booking_id = 0): bool
 	{
-		return (int) self::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $exclude_booking_id) > 0;
+		$count = self::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $exclude_booking_id);
+
+		return null === $count || $count > 0;
 	}
 
 	/**

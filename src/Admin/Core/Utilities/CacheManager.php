@@ -297,10 +297,10 @@ final class CacheManager {
 	 *
 	 * @param string $key Cache key
 	 * @param mixed  $data Data to cache
-	 * @param int    $ttl Time to live (seconds)
+	 * @param int|null $ttl Time to live (seconds); null for the default duration
 	 * @return bool Success status
 	 */
-	public static function set_cache_object( string $key, $data, int $ttl = null ): bool {
+	public static function set_cache_object( string $key, $data, ?int $ttl = null ): bool {
 		// Return false if cache is not enabled
 		if ( ! \MHMRentiva\Admin\Settings\Groups\CoreSettings::is_cache_enabled() ) {
 			return false;

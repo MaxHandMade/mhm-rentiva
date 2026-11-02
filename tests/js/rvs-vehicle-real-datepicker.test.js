@@ -140,6 +140,47 @@ describe( 'vehicle booking card with the real datepicker', () => {
 		expect( posted().return_date ).toBe( '2027-07-24' );
 	} );
 
+	// The owner (2026-11-02): with the pickup moved a month earlier, the return
+	// popup would not step back to that month. Each Prev / Next focuses the
+	// field, the card's focus handler set minDate again, and jQuery UI redrew
+	// the popup on the selected month and hid it.
+	// A click on Prev / Next takes the focus off the field in a browser, so
+	// jQuery UI focuses it again after the redraw (_shouldFocusInput); jsdom
+	// keeps the focus on the field, hence the explicit blur.
+	const step = ( handler ) => {
+		ret().blur();
+		jQuery( '#ui-datepicker-div a[data-handler="' + handler + '"]' )[ 0 ].click();
+	};
+
+	test( 'the return popup steps to another month, both ways, and stays open', async () => {
+		await boot( 1 );
+		ret().focus();
+		jQuery( ret() ).datepicker( 'show' );
+		const inst = jQuery.data( ret(), 'datepicker' );
+		const shown = () => inst.drawYear * 12 + inst.drawMonth;
+
+		step( 'next' );
+		expect( shown() ).toBe( 2027 * 12 + 7 );
+		expect( jQuery.datepicker._datepickerShowing ).toBeTruthy();
+
+		step( 'prev' );
+		expect( shown() ).toBe( 2027 * 12 + 6 );
+		expect( jQuery.datepicker._datepickerShowing ).toBeTruthy();
+	} );
+
+	test( 'with the pickup a month earlier, the return popup reaches that month', async () => {
+		await boot( 1 );
+		realDatepicker.pick( jQuery, pickup(), 2027, 6, 10 );
+		ret().focus();
+		jQuery( ret() ).datepicker( 'show' );
+		const inst = jQuery.data( ret(), 'datepicker' );
+
+		step( 'prev' );
+		expect( inst.drawYear * 12 + inst.drawMonth ).toBe( 2027 * 12 + 5 );
+		realDatepicker.dayLink( jQuery, 20 )[ 0 ].click();
+		expect( posted() ).toMatchObject( { pickup_date: '2027-06-10', return_date: '2027-06-20' } );
+	} );
+
 	test( 'the card popup wears the rvs skin; a field outside the shell does not', async () => {
 		await boot( 1 );
 		const $widget = () => jQuery( '#ui-datepicker-div' );

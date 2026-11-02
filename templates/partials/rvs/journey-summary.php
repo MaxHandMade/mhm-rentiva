@@ -7,7 +7,7 @@
  * after update_checkout (CheckoutJourney::order_review_fragments()), so it is
  * one element with nothing around it.
  *
- * @var array<string, mixed> $summary CheckoutJourney view: heading, title, image_id, dates, breakdown, link, summary.
+ * @var array<string, mixed> $summary CheckoutJourney view: heading, title, image_id, dates, breakdown, link, summary, paid.
  *
  * @package MHMRentiva
  */
@@ -62,8 +62,9 @@ $mhmrentiva_js_summary = (string) ( $mhmrentiva_js['summary'] ?? '' );
 		Templates::render(
 			'partials/rvs/breakdown',
 			array(
-				'breakdown'   => (array) ( $mhmrentiva_js['breakdown'] ?? array() ),
-				'collapsible' => false,
+				'breakdown'    => (array) ( $mhmrentiva_js['breakdown'] ?? array() ),
+				'collapsible'  => false,
+				'deposit_paid' => ! empty($mhmrentiva_js['paid']),
 			)
 		);
 		?>

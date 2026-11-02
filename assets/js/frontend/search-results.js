@@ -137,13 +137,41 @@
 	}
 
 	function showError( $root, message ) {
-		const $box = $( '<div class="rvs-empty" role="alert"></div>' );
+		announce( $root, '', '' );
+		const $box = $( '<div class="rvs-empty rvs-state rvs-state--alert" role="alert"></div>' );
 		$box.append( $( '<h3></h3>' ).text( t( 'error', 'Error' ) ) );
 		$box.append( $( '<p></p>' ).text( message ) );
 		$box.append( $( '<button type="button" class="rvs-btn rvs-btn--primary"></button>' ).text( t( 'try_again', 'Try Again' ) ).on( 'click', function () {
 			reload( $root, stateOf( $root ).page );
 		} ) );
 		$root.find( '[data-rvs-grid]' ).empty().append( $box );
+	}
+
+	/**
+	 * Skeleton cards (drawing Bos-Hata) hold the grid's place while a reload is
+	 * in flight; the grid is `aria-busy` through the root, and the page's
+	 * pre-rendered status region names what is loading.
+	 */
+	function showSkeleton( $root ) {
+		const $grid = $root.find( '[data-rvs-grid]' );
+		if ( ! $grid.length ) {
+			return;
+		}
+		// The page's own status region speaks; a live region added now would
+		// not be read reliably.
+		$root.find( '[data-rvs-notice]' ).text( t( 'loading', 'Loading...' ) );
+		$grid.empty();
+		for ( let i = 0; i < 3; i++ ) {
+			const $card = $( '<div class="rvs-skel-card" aria-hidden="true"></div>' );
+			$card.append( '<span class="rvs-skel rvs-skel--media"></span>' );
+			$card.append(
+				$( '<div class="rvs-skel-card__body"></div>' )
+					.append( '<span class="rvs-skel rvs-skel--title"></span>' )
+					.append( '<span class="rvs-skel rvs-skel--line"></span>' )
+					.append( '<span class="rvs-skel rvs-skel--price"></span>' )
+			);
+			$grid.append( $card );
+		}
 	}
 
 	/**
@@ -159,6 +187,7 @@
 		}
 		state.loading = true;
 		$root.attr( 'aria-busy', 'true' );
+		showSkeleton( $root );
 
 		$.ajax( {
 			url: config().ajax_url,

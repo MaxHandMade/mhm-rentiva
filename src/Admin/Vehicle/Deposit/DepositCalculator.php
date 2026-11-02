@@ -230,15 +230,16 @@ final class DepositCalculator {
 
 		if ($payment_type === 'full') {
 			return array(
-				'success'          => true,
-				'payment_type'     => 'full',
-				'deposit_amount'   => $total_amount,
-				'total_amount'     => $total_amount,
-				'remaining_amount' => 0,
-				'deposit_type'     => 'full_payment',
-				'payment_display'  => __('Full Payment', 'mhm-rentiva'),
-				'vehicle_total'    => $vehicle_total,
-				'addon_total'      => $addon_total,
+				'success'            => true,
+				'payment_type'       => 'full',
+				'deposit_amount'     => $total_amount,
+				'total_amount'       => $total_amount,
+				'remaining_amount'   => 0,
+				'deposit_type'       => 'full_payment',
+				'deposit_percentage' => $rate,
+				'payment_display'    => __('Full Payment', 'mhm-rentiva'),
+				'vehicle_total'      => $vehicle_total,
+				'addon_total'        => $addon_total,
 			);
 		}
 
@@ -253,6 +254,7 @@ final class DepositCalculator {
 			'total_amount'     => round($total_amount, 2), // Total amount (vehicle + addons)
 			'remaining_amount' => round($remaining_amount, 2), // Total amount minus deposit
 			'deposit_type'     => $deposit_type,
+			'deposit_percentage' => $rate,
 			'payment_display'  => $deposit_amount > 0 ?
 				/* translators: %s: formatted deposit amount including the currency symbol. */
 				sprintf(__('Deposit: %s', 'mhm-rentiva'), \MHMRentiva\Admin\Core\CurrencyHelper::format_price($deposit_amount, 2)) :

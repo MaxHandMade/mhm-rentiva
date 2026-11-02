@@ -242,8 +242,15 @@
             }
             var earliest = new Date(from.getFullYear(), from.getMonth(), from.getDate() + (parseInt(minDays, 10) || 1));
             var $return = $(ret).first();
+            // Only a changed minimum is written: setting the option redraws an
+            // open popup on its selected month and hides it, and jQuery UI
+            // focuses the field after every Prev / Next -- so the focus
+            // handlers that call this rule threw each month step back.
             if ($.fn.datepicker && $return.hasClass('hasDatepicker')) {
-                $return.datepicker('option', 'minDate', earliest);
+                var set = $return.datepicker('option', 'minDate');
+                if (!(set instanceof Date) || set.getTime() !== earliest.getTime()) {
+                    $return.datepicker('option', 'minDate', earliest);
+                }
             }
             var current = parseIso(api.value($return));
             if (current && current < earliest) {

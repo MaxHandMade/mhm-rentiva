@@ -689,7 +689,18 @@ final class AccountRenderer {
 		$booking = get_post($booking_id);
 
 		if (! $booking || $booking->post_type !== 'mhmrentiva_booking') {
-			return array( 'error' => '<p>' . __('Booking not found.', 'mhm-rentiva') . '</p>' );
+			return array(
+				'error' => \MHMRentiva\Frontend\StateBox::html(
+					array(
+						'kicker'       => __('Booking not found', 'mhm-rentiva'),
+						'title'        => __('This booking could not be found', 'mhm-rentiva'),
+						'text'         => __('It may have been removed, or the link may be wrong. Your other bookings are in your account.', 'mhm-rentiva'),
+						'action_label' => __('Back to my account', 'mhm-rentiva'),
+						'action_url'   => AccountController::get_account_url(),
+						'state'        => 'booking_missing',
+					)
+				),
+			);
 		}
 
 		// User check — customer, vendor (vehicle owner), or admin may view

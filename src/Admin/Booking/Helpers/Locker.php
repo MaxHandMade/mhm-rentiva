@@ -16,13 +16,25 @@ final class Locker {
 
 
 	/**
-	 * Executes callback with database lock for vehicle
+	 * Executes callback with database lock for vehicle.
+	 *
+	 * A transaction that could not be opened, or a lock read that failed, is not
+	 * a lock: the callback does not run, the transaction is rolled back, null is
+	 * returned and $locked says false (PR K, Codex delta H2). Every caller reads
+	 * null as "could not decide", never as "free".
+	 *
+	 * @param bool $locked Set to whether the lock was held for the callback.
+	 * @return mixed The callback's result; null when the lock failed.
 	 */
-	public static function withLock( int $vehicle_id, callable $callback ) {
+	public static function withLock( int $vehicle_id, callable $callback, bool &$locked = false ) {
 		global $wpdb;
 
+		$locked = false;
+
 		// Start transaction
-		$wpdb->query( 'START TRANSACTION' );
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
+			return null;
+		}
 
 		try {
 			// prefix-rename:ignore-start
@@ -47,6 +59,10 @@ final class Locker {
 				)
 			);
 			// prefix-rename:ignore-end
+			if ( self::last_query_failed() ) {
+				$wpdb->query( 'ROLLBACK' );
+				return null;
+			}
 
 			// The postmeta lock above is not sufficient on its own: if the vehicle
 			// happens to have no '_mhm%' row, that statement matches nothing and
@@ -54,18 +70,27 @@ final class Locker {
 			// other, so two transactions would both sail through the guard. Lock
 			// the post row as well, which is guaranteed to exist for a real
 			// vehicle, so exclusion never depends on the meta set being non-empty.
-			$wpdb->get_results(
+			$row = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE",
 					$vehicle_id
 				)
 			);
+			if ( self::last_query_failed() || ! is_array( $row ) || array() === $row ) {
+				$wpdb->query( 'ROLLBACK' );
+				return null;
+			}
 
 			// Execute callback
+			$locked = true;
 			$result = $callback();
 
-			// Commit transaction
-			$wpdb->query( 'COMMIT' );
+			// Commit transaction. A commit that fails kept nothing the callback wrote.
+			if ( false === $wpdb->query( 'COMMIT' ) ) {
+				$locked = false;
+				$wpdb->query( 'ROLLBACK' );
+				return null;
+			}
 
 			return $result;
 		} catch ( \Throwable $e ) {
@@ -76,6 +101,17 @@ final class Locker {
 			$wpdb->query( 'ROLLBACK' );
 			throw $e;
 		}
+	}
+
+	/**
+	 * Did the statement just run fail? wpdb clears last_error before each query.
+	 *
+	 * @phpstan-impure It reads the state the latest query left.
+	 */
+	private static function last_query_failed(): bool {
+		global $wpdb;
+
+		return '' !== (string) $wpdb->last_error;
 	}
 
 	/**

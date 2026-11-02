@@ -493,6 +493,13 @@
 	min-width: 0;
 }
 
+.rvs-shell .rvs-journey__headline {
+	margin: 0;
+	color: var(--rvs-text);
+	font-size: 26px;
+	line-height: 1.25;
+}
+
 .rvs-shell .rvs-journey__title {
 	font-size: 23px;
 }

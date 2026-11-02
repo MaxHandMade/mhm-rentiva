@@ -884,6 +884,32 @@ final class AccountController {
 	}
 
 	/**
+	 * What the customer is told when the receipt file is gone: the file is, the
+	 * booking is not.
+	 */
+	public static function missing_receipt_message(): string
+	{
+		return __('The receipt file for this booking is not available. Your booking is not affected. Contact us if you need a copy.', 'mhm-rentiva');
+	}
+
+	/**
+	 * The receipt link opens in a new tab and its handler is AJAX, outside the
+	 * theme. A themed answer is the booking's own page with a notice, so the
+	 * notice is queued and the page to go to is returned. Without WooCommerce's
+	 * notices there is nowhere to put it: '' sends the caller to a plain page.
+	 */
+	public static function report_missing_receipt(int $booking_id): string
+	{
+		if (! function_exists('wc_add_notice') || ! function_exists('WC') || ! \WC()->session) {
+			return '';
+		}
+
+		\wc_add_notice(self::missing_receipt_message(), 'error');
+
+		return self::get_booking_view_url($booking_id);
+	}
+
+	/**
 	 * Deliver a receipt to someone entitled to see it.
 	 *
 	 * Thin by design: every decision it makes is delegated to
@@ -909,7 +935,12 @@ final class AccountController {
 		$path          = $attachment_id > 0 ? get_attached_file($attachment_id) : '';
 
 		if (! $path || ! file_exists($path)) {
-			wp_die(esc_html__('Receipt not found.', 'mhm-rentiva'), '', array( 'response' => 404 ));
+			$back = self::report_missing_receipt($booking_id);
+			if ('' !== $back) {
+				wp_safe_redirect($back);
+				exit;
+			}
+			wp_die(esc_html(self::missing_receipt_message()), esc_html__('Receipt not found', 'mhm-rentiva'), array( 'response' => 404 ));
 		}
 
 		$mime = get_post_mime_type($attachment_id);
