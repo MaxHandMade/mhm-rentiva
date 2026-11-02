@@ -139,6 +139,7 @@ src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 src/Admin/Frontend/Shortcodes/CalendarView.php
 src/Admin/Frontend/Shortcodes/BookingForm.php
+src/Admin/Frontend/Shortcodes/Card/AlternativeVehicles.php
 src/Admin/Frontend/Shortcodes/Card/RvsCardView.php
 src/Admin/Frontend/Shortcodes/Card/VehicleCardLinks.php
 src/Admin/Frontend/Shortcodes/Contact/RecipientToken.php
