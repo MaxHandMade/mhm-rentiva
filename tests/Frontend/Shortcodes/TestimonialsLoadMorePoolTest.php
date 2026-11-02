@@ -142,14 +142,14 @@ final class TestimonialsLoadMorePoolTest extends WP_Ajax_UnitTestCase
 	 */
 	public function test_no_load_more_button_past_the_pool(): void
 	{
-		$this->assertStringContainsString('rv-load-more-btn', $this->shortcode('limit="10"'));
-		$this->assertStringNotContainsString('rv-load-more-btn', $this->shortcode('limit="50"'));
+		$this->assertStringContainsString('data-rvs-load-more', $this->shortcode('limit="10"'));
+		$this->assertStringNotContainsString('data-rvs-load-more', $this->shortcode('limit="50"'));
 	}
 
 	/** @return list<string> */
 	private function first_page(string $atts): array
 	{
-		preg_match_all('#<p>&ldquo;(.*?)&rdquo;</p>#', $this->shortcode($atts), $m);
+		preg_match_all('#<p class="rvs-tcard__text" data-rvs-slot="text">&ldquo;(.*?)&rdquo;</p>#', $this->shortcode($atts), $m);
 		return $m[1];
 	}
 
@@ -159,7 +159,7 @@ final class TestimonialsLoadMorePoolTest extends WP_Ajax_UnitTestCase
 	 */
 	private function texts(array $rows): array
 	{
-		return array_map('strval', array_column($rows, 'review'));
+		return array_map('strval', array_column($rows, 'text'));
 	}
 
 	/**
@@ -184,7 +184,7 @@ final class TestimonialsLoadMorePoolTest extends WP_Ajax_UnitTestCase
 		$decoded = json_decode($this->_last_response, true);
 		$this->assertTrue((bool) ( $decoded['success'] ?? false ), 'Endpoint refused: ' . $this->_last_response);
 		return array(
-			'testimonials' => (array) ( $decoded['data']['testimonials'] ?? array() ),
+			'testimonials' => (array) ( $decoded['data']['cards'] ?? array() ),
 			'has_more'     => (bool) ( $decoded['data']['has_more'] ?? false ),
 		);
 	}

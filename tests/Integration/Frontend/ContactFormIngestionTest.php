@@ -104,9 +104,24 @@ final class ContactFormIngestionTest extends WP_UnitTestCase
 		$this->assertStringContainsString(esc_url(ContactMessagePostType::admin_detail_url(4242)), $html);
 	}
 
+	public function test_admin_email_names_the_linked_booking_and_survives_a_missing_one(): void
+	{
+		$vehicle = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Egea' ));
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		update_post_meta($booking, \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID, $vehicle);
+		$data                      = $this->sanitized(array());
+		$data['linked_booking_id'] = $booking;
+		$html                      = $this->call('build_email_message', array( $data, array( 'title' => 'General' ), 4242 ));
+		$this->assertStringContainsString('#' . mhmrentiva_get_display_id($booking) . ' · Egea', $html);
+
+		$data['linked_booking_id'] = 999999;
+		$html                      = $this->call('build_email_message', array( $data, array( 'title' => 'General' ), 4242 ));
+		$this->assertStringNotContainsString('Booking:</strong>', $html);
+	}
+
 	public function test_type_label_maps_known_and_unknown_types(): void
 	{
-		$this->assertSame('Technical Support', ContactMessagePostType::type_label('support'));
-		$this->assertSame('General Contact', ContactMessagePostType::type_label('whatever'));
+		$this->assertSame('Technical support', ContactMessagePostType::type_label('support'));
+		$this->assertSame('General', ContactMessagePostType::type_label('whatever'));
 	}
 }

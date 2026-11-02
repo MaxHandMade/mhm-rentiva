@@ -30,14 +30,14 @@ class VehicleRatingFormTest extends WP_UnitTestCase
         $this->assertNotEmpty($output);
         // The controller finds no vehicle, so the template prints the short empty state
         // (no internal path: FallbackNoPathLeakTest).
-        $this->assertStringContainsString('rv-rating-form-error', $output);
+        $this->assertStringContainsString('rvs-reviews--unavailable', $output);
     }
 
     public function test_renders_rating_form_with_valid_vehicle()
     {
         $output = do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $this->vehicle_id . '"]');
 
-        $this->assertStringContainsString('rv-rating-form', $output);
+        $this->assertStringContainsString('data-rvs-rating', $output);
         $this->assertStringContainsString('data-vehicle-id="' . $this->vehicle_id . '"', $output);
     }
 
@@ -45,6 +45,6 @@ class VehicleRatingFormTest extends WP_UnitTestCase
     {
         $output = do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $this->vehicle_id . '"]');
 
-        $this->assertStringContainsString('rv-rating-display', $output);
+        $this->assertStringContainsString('rvs-reviews__title', $output);
     }
 }

@@ -20,6 +20,7 @@
             // "Show Vehicle Select" -> showVehicleSelector).
             var emailTo = attributes.emailTo;
             var successMessage = attributes.successMessage;
+            var showTopicSelector = attributes.showTopicSelector;
             var showPhone = attributes.showPhone;
             var showBookingIdField = attributes.showBookingIdField;
             var showVehicleSelector = attributes.showVehicleSelector;
@@ -55,10 +56,15 @@
                     /* PANEL 3: VISIBILITY */
                     el(PanelBody, { title: __('Visibility Controls', 'mhm-rentiva'), initialOpen: false },
                         el(ToggleControl, {
+                            label: __('Show Topic Selector', 'mhm-rentiva'),
+                            checked: showTopicSelector,
+                            onChange: function (val) { setAttributes({ showTopicSelector: val }); },
+                            help: __('Off keeps the form on its one form type.', 'mhm-rentiva')
+                        }),
+                        el(ToggleControl, {
                             label: __('Show Phone Field', 'mhm-rentiva'),
                             checked: showPhone,
-                            onChange: function (val) { setAttributes({ showPhone: val }); },
-                            help: __('Booking forms always show the phone field because they require it.', 'mhm-rentiva')
+                            onChange: function (val) { setAttributes({ showPhone: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Booking ID Field', 'mhm-rentiva'),

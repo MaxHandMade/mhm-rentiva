@@ -1,260 +1,354 @@
 /**
- * Contact Form JavaScript
- * 
- * JavaScript functions for contact form
+ * Contact form (PR F): topic selector, field errors under their fields, the
+ * permanent success box. One instance per [data-rvs-contact]: nothing is looked
+ * up outside its root, so two forms on a page stay separate.
+ *
+ * Text only ever goes in as text; the icon is the server's SVG, parsed inert.
  */
 
-(function ($) {
-    'use strict';
+( function () {
+	'use strict';
 
-    /**
-     * Contact Form Handler
-     */
-    class ContactFormHandler {
-        constructor() {
-            this.init();
-        }
+	const REDIRECT_DELAY = 1500;
+	const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        init() {
-            this.initRatingStars();
-            this.initFileUpload();
-            this.initFormSubmission();
-            this.initResetButton();
-        }
+	const config = () => window.mhmContactForm || {};
+	const text = ( key ) => ( config().messages || {} )[ key ] || '';
 
-        /**
-         * Rating stars interaction
-         */
-        initRatingStars() {
-            const ratingStars = document.querySelectorAll('.rv-rating-star input[type="radio"]');
-            ratingStars.forEach((star, index) => {
-                star.addEventListener('change', function () {
-                    // Remove active class from all stars
-                    ratingStars.forEach(s => s.parentElement.classList.remove('active'));
+	function topicsOf( element, attribute ) {
+		return ( element.getAttribute( attribute ) || '' ).split( ' ' ).filter( Boolean );
+	}
 
-                    // Add active class to selected star and previous stars
-                    for (let i = 0; i <= index; i++) {
-                        ratingStars[i].parentElement.classList.add('active');
-                    }
-                });
-            });
-        }
+	function warningIcon() {
+		const svg = ( config().icons || {} ).warning;
+		if ( ! svg ) {
+			return null;
+		}
+		const icon = new DOMParser().parseFromString( svg, 'text/html' ).body.firstElementChild;
+		return icon ? document.importNode( icon, true ) : null;
+	}
 
-        /**
-         * Reset Button Handler
-         */
-        initResetButton() {
-            const resetButtons = document.querySelectorAll('.rv-reset-button');
-            resetButtons.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (confirm(mhmContactForm.messages.confirm_reset)) {
-                        const form = btn.closest('form');
-                        this.resetForm(form);
-                    }
-                });
-            });
-        }
+	class ContactForm {
+		constructor( root ) {
+			this.root = root;
+			this.form = root.querySelector( 'form' );
+			this.status = root.querySelector( '.rvs-contact__status' );
+			this.submit = this.form.querySelector( '[type="submit"]' );
+			this.busy = false;
 
-        /**
-         * Helper to reset form and UI elements
-         */
-        resetForm(form) {
-            // Native form reset
-            form.reset();
+			this.form.addEventListener( 'submit', ( event ) => {
+				event.preventDefault();
+				this.handleSubmit();
+			} );
+			this.form.addEventListener( 'input', ( event ) => this.clearFieldError( event.target ) );
+			this.form.addEventListener( 'change', ( event ) => {
+				this.clearFieldError( event.target );
+				if ( 'radio' === event.target.type && 'type' === event.target.name ) {
+					this.applyTopic( event.target.value );
+				}
+			} );
 
-            // Clear messages
-            this.clearMessages(form);
+			this.initTopic();
+			this.initFile();
+		}
 
-            // Reset File Upload UI
-            const fileInfo = form.querySelector('.rv-file-info');
-            if (fileInfo) {
-                fileInfo.style.display = 'none';
-                const fileInput = form.querySelector('.rv-file-input');
-                if (fileInput) fileInput.value = '';
-                const fileName = form.querySelector('.rv-file-name');
-                if (fileName) fileName.textContent = '';
-            }
+		/* Topic ------------------------------------------------------------ */
 
-            // Reset Rating Stars UI
-            const ratingStars = form.querySelectorAll('.rv-rating-star');
-            ratingStars.forEach(star => star.classList.remove('active'));
-        }
+		initTopic() {
+			// A restored page can come back with another radio chosen than the server printed.
+			const checked = this.form.querySelector( 'input[type="radio"][name="type"]:checked' );
+			if ( checked ) {
+				this.applyTopic( checked.value );
+			}
+		}
 
-        /**
-         * File upload handling
-         */
-        /**
-         * File upload handling
-         */
-        initFileUpload() {
-            const forms = document.querySelectorAll('.rv-contact-form form');
+		applyTopic( topic ) {
+			this.root.dataset.formType = topic;
 
-            forms.forEach(form => {
-                const fileInput = form.querySelector('.rv-file-input');
-                const fileInfo = form.querySelector('.rv-file-info');
-                const fileName = form.querySelector('.rv-file-name');
-                const fileRemove = form.querySelector('.rv-file-remove');
+			this.form.querySelectorAll( '[data-rvs-topics]' ).forEach( ( field ) => {
+				const shown = topicsOf( field, 'data-rvs-topics' ).includes( topic );
+				field.hidden = ! shown;
+				// A hidden field is not sent: a booking chosen under "My booking" must
+				// not travel with a general question.
+				field.querySelectorAll( 'input, select, textarea' ).forEach( ( control ) => {
+					control.disabled = ! shown;
+					if ( ! shown ) {
+						this.clearFieldError( control );
+					}
+				} );
+			} );
 
-                if (fileInput && fileInfo && fileName && fileRemove) {
-                    fileInput.addEventListener('change', function () {
-                        if (this.files.length > 0) {
-                            fileName.textContent = this.files[0].name;
-                            fileInfo.style.display = 'flex';
-                        }
-                    });
+			this.form.querySelectorAll( '[data-rvs-required-topics]' ).forEach( ( field ) => {
+				const required = topicsOf( field, 'data-rvs-required-topics' ).includes( topic );
+				const control = field.querySelector( 'input, select, textarea' );
+				const label = field.querySelector( 'label' );
+				if ( control ) {
+					control.required = required;
+				}
+				if ( label ) {
+					label.textContent = label.getAttribute( required ? 'data-rvs-label-required' : 'data-rvs-label-optional' );
+				}
+			} );
+		}
 
-                    fileRemove.addEventListener('click', function () {
-                        fileInput.value = '';
-                        fileInfo.style.display = 'none';
-                    });
-                }
-            });
-        }
+		/* File ------------------------------------------------------------- */
 
-        /**
-         * Form submission handling
-         */
-        initFormSubmission() {
-            // Select the actual <form> element inside the wrapper
-            const forms = document.querySelectorAll('.rv-contact-form form');
+		initFile() {
+			const input = this.form.querySelector( 'input[type="file"]' );
+			const remove = this.form.querySelector( '[data-rvs-file-remove]' );
+			if ( ! input || ! remove ) {
+				return;
+			}
+			const name = this.form.querySelector( '[data-rvs-file-name]' );
+			const empty = name ? name.textContent : '';
+			const showName = ( value ) => {
+				if ( name ) {
+					name.textContent = value || empty;
+				}
+			};
+			input.addEventListener( 'change', () => {
+				remove.hidden = 0 === input.files.length;
+				showName( input.files.length ? input.files[ 0 ].name : '' );
+			} );
+			remove.addEventListener( 'click', () => {
+				input.value = '';
+				remove.hidden = true;
+				showName( '' );
+				this.clearFieldError( input );
+				input.focus();
+			} );
+		}
 
-            forms.forEach(form => {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleFormSubmit(form);
-                });
-            });
-        }
+		fileError( input ) {
+			const file = input.files && input.files[ 0 ];
+			if ( ! file ) {
+				return '';
+			}
+			const extension = file.name.split( '.' ).pop().toLowerCase();
+			if ( ! ( config().allowedFileTypes || [] ).includes( extension ) ) {
+				return text( 'file_type' );
+			}
+			const max = config().maxFileSize || 0;
+			return max > 0 && file.size > max ? text( 'file_size' ) : '';
+		}
 
-        /**
-         * Handle form submission
-         */
-        handleFormSubmit(form) {
-            const submitBtn = form.querySelector('.rv-submit-button');
-            const originalText = submitBtn.textContent;
+		/* Validation ------------------------------------------------------- */
 
-            // Disable button and show loading
-            submitBtn.disabled = true;
-            submitBtn.textContent = mhmContactForm.messages.submitting;
+		validate() {
+			const errors = {};
+			const required = ( config().messages || {} ).required || {};
 
-            // Collect form data
-            const formData = new FormData(form);
-            formData.append('action', 'mhmrentiva_submit_contact_form');
-            formData.append('nonce', mhmContactForm.nonce);
+			Array.from( this.form.elements ).forEach( ( control ) => {
+				if ( control.disabled || ! control.name || errors[ control.name ] ) {
+					return;
+				}
+				if ( 'file' === control.type ) {
+					const message = this.fileError( control );
+					if ( message ) {
+						errors[ control.name ] = message;
+					}
+					return;
+				}
+				const empty = 'checkbox' === control.type ? ! control.checked : '' === control.value.trim();
+				if ( control.required && empty ) {
+					errors[ control.name ] = required[ control.name ] || text( 'required_fields' );
+				} else if ( 'email' === control.type && ! empty && ! EMAIL_SHAPE.test( control.value.trim() ) ) {
+					errors[ control.name ] = text( 'invalid_email' );
+				}
+			} );
 
-            // Submit via AJAX
-            fetch(mhmContactForm.ajaxUrl, {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        this.resetForm(form);
-                        // The block/widget "Success Message" setting wins over the server text.
-                        const wrapper = form.closest('.rv-contact-form');
-                        const custom = wrapper ? wrapper.dataset.successMessage : '';
-                        this.showSuccessMessage(form, custom || (data.data && data.data.message) || mhmContactForm.messages.success);
+			return errors;
+		}
 
-                        // Same-site only: the server validated it (wp_validate_redirect) before printing it.
-                        // Left after a short delay, so the success message above is seen first.
-                        const redirect = wrapper ? wrapper.dataset.redirectUrl : '';
-                        if (redirect) {
-                            setTimeout(() => {
-                                window.location.assign(redirect);
-                            }, 1500);
-                        }
-                    } else {
-                        const errorMessage = (data.data && data.data.message) || mhmContactForm.messages.error;
-                        this.showErrorMessage(form, errorMessage);
-                    }
-                })
-                .catch(error => {
-                    console.error('Form submission error:', error);
-                    this.showErrorMessage(form, mhmContactForm.messages.error);
-                })
-                .finally(() => {
-                    // Re-enable button
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
-                });
-        }
+		controlFor( name ) {
+			const control = this.form.elements[ name ];
+			if ( ! control ) {
+				return null;
+			}
+			const first = control instanceof Element ? control : control[ 0 ];
+			return first && ! first.disabled && first.closest( '[data-rvs-field]' ) ? first : null;
+		}
 
-        /**
-         * Show success message
-         */
-        showSuccessMessage(form, message) {
-            this.clearMessages(form);
+		/**
+		 * Marks each field and moves focus to the first one. Returns what had no
+		 * field to sit under.
+		 */
+		showFieldErrors( errors ) {
+			const homeless = [];
+			Object.keys( errors ).forEach( ( name ) => {
+				const control = this.controlFor( name );
+				if ( control ) {
+					this.setFieldError( control, errors[ name ] );
+				} else {
+					homeless.push( errors[ name ] );
+				}
+			} );
 
-            const successDiv = this.buildMessage('rv-form-message rv-success', mhmContactForm.icons?.success, message);
+			const first = this.form.querySelector( '[aria-invalid="true"]' );
+			if ( first ) {
+				first.focus();
+			}
+			return homeless;
+		}
 
-            const actionsDiv = form.querySelector('.rv-form-actions');
-            if (actionsDiv) {
-                actionsDiv.parentNode.insertBefore(successDiv, actionsDiv);
-            } else {
-                form.insertBefore(successDiv, form.firstChild);
-            }
+		setFieldError( control, message ) {
+			this.clearFieldError( control );
 
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                successDiv.remove();
-            }, 5000);
-        }
+			const error = document.createElement( 'span' );
+			error.id = control.id + '-error';
+			error.className = 'rvs-error';
+			error.dataset.rvsErrorFor = control.name;
+			const icon = warningIcon();
+			if ( icon ) {
+				error.appendChild( icon );
+			}
+			const body = document.createElement( 'span' );
+			body.textContent = message;
+			error.appendChild( body );
+			control.closest( '[data-rvs-field]' ).appendChild( error );
 
-        /**
-         * Show error message
-         */
-        showErrorMessage(form, message) {
-            this.clearMessages(form);
+			control.setAttribute( 'aria-invalid', 'true' );
+			const described = control.getAttribute( 'aria-describedby' );
+			control.setAttribute( 'aria-describedby', described ? described + ' ' + error.id : error.id );
+		}
 
-            const errorDiv = this.buildMessage('rv-form-message rv-error', mhmContactForm.icons?.warning, message);
+		clearFieldError( control ) {
+			const field = control.closest ? control.closest( '[data-rvs-field]' ) : null;
+			const error = field ? field.querySelector( '.rvs-error' ) : null;
+			if ( ! error ) {
+				return;
+			}
+			const first = this.controlFor( error.dataset.rvsErrorFor ) || control;
+			first.removeAttribute( 'aria-invalid' );
+			const rest = ( first.getAttribute( 'aria-describedby' ) || '' ).split( ' ' ).filter( ( id ) => id && id !== error.id );
+			if ( rest.length ) {
+				first.setAttribute( 'aria-describedby', rest.join( ' ' ) );
+			} else {
+				first.removeAttribute( 'aria-describedby' );
+			}
+			error.remove();
+		}
 
-            const actionsDiv = form.querySelector('.rv-form-actions');
-            if (actionsDiv) {
-                actionsDiv.parentNode.insertBefore(errorDiv, actionsDiv);
-            } else {
-                form.insertBefore(errorDiv, form.firstChild);
-            }
-        }
+		clearAllErrors() {
+			this.form.querySelectorAll( '[data-rvs-field]' ).forEach( ( field ) => {
+				const control = field.querySelector( 'input, select, textarea' );
+				if ( control ) {
+					this.clearFieldError( control );
+				}
+			} );
+			this.clearAlert();
+		}
 
-        /**
-         * A message box: the server's icon SVG, then the text. The message (custom
-         * setting or AJAX response) is only ever set as text, never parsed as markup.
-         */
-        buildMessage(className, iconSvg, message) {
-            const box = document.createElement('div');
-            box.className = className;
+		/* Form-wide message ------------------------------------------------ */
 
-            if (iconSvg) {
-                // Server-built icon markup (Icons::get), parsed inert: DOMParser runs no scripts.
-                const icon = new DOMParser().parseFromString(iconSvg, 'text/html').body.firstElementChild;
-                if (icon) {
-                    box.appendChild(document.importNode(icon, true));
-                    box.appendChild(document.createTextNode(' '));
-                }
-            }
+		clearAlert() {
+			const alert = this.form.querySelector( '.rvs-notice--alert' );
+			if ( alert ) {
+				alert.remove();
+			}
+		}
 
-            const text = document.createElement('span');
-            text.className = 'rv-msg-text';
-            text.textContent = message;
-            box.appendChild(text);
+		showAlert( message ) {
+			this.clearAlert();
+			const alert = document.createElement( 'div' );
+			alert.className = 'rvs-notice rvs-notice--alert';
+			alert.setAttribute( 'role', 'alert' );
+			alert.textContent = message;
+			this.form.insertBefore( alert, this.form.querySelector( '.rvs-contact__actions' ) );
+		}
 
-            return box;
-        }
+		/* Submit ----------------------------------------------------------- */
 
-        /**
-         * Clear existing messages
-         */
-        clearMessages(form) {
-            const existingMessages = form.querySelectorAll('.rv-form-message');
-            existingMessages.forEach(msg => msg.remove());
-        }
-    }
+		handleSubmit() {
+			if ( this.busy ) {
+				return;
+			}
+			this.clearAllErrors();
 
-    // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', function () {
-        new ContactFormHandler();
-    });
+			const errors = this.validate();
+			if ( Object.keys( errors ).length ) {
+				this.showFieldErrors( errors );
+				return;
+			}
 
-})(jQuery);
+			const formData = new FormData( this.form );
+			formData.append( 'action', 'mhmrentiva_submit_contact_form' );
+			formData.append( 'nonce', config().nonce );
+
+			const label = this.submit.textContent;
+			this.busy = true;
+			this.submit.disabled = true;
+			this.submit.textContent = text( 'submitting' );
+
+			fetch( config().ajaxUrl, { method: 'POST', body: formData } )
+				.then( ( response ) => response.json() )
+				.then( ( data ) => {
+					if ( data.success ) {
+						this.showSuccess( data.data || {} );
+						return;
+					}
+					this.showFailure( data.data || {} );
+				} )
+				.catch( () => this.showAlert( text( 'error' ) ) )
+				.finally( () => {
+					this.busy = false;
+					this.submit.disabled = false;
+					this.submit.textContent = label;
+				} );
+		}
+
+		showFailure( data ) {
+			const homeless = this.showFieldErrors( data.errors || {} );
+			const anyMarked = this.form.querySelector( '[aria-invalid="true"]' );
+			if ( homeless.length ) {
+				this.showAlert( homeless.join( ' ' ) );
+			} else if ( ! anyMarked ) {
+				this.showAlert( data.message || text( 'error' ) );
+			}
+		}
+
+		showSuccess( data ) {
+			const number = parseInt( data.message_id, 10 );
+			const heading = document.createElement( 'strong' );
+			heading.textContent = number > 0 ? text( 'success_title' ).replace( '%s', String( number ) ) : text( 'success_title_plain' );
+
+			// The block/widget "Success Message" setting wins over the default sentence.
+			const message = this.root.dataset.successMessage || text( 'success_body' );
+			const body = document.createElement( 'span' );
+			body.textContent = message;
+
+			const box = document.createElement( 'div' );
+			box.className = 'rvs-notice rvs-notice--success';
+			box.tabIndex = -1;
+			box.appendChild( heading );
+			box.appendChild( body );
+
+			this.form.reset();
+			this.form.hidden = true;
+			this.status.appendChild( box );
+			// The focused button went away with the form.
+			box.focus();
+
+			// Same-site only: the server validated it (wp_validate_redirect) before printing it.
+			// Left after a short delay, so the box above is seen first.
+			const redirect = this.root.dataset.redirectUrl;
+			if ( redirect ) {
+				setTimeout( () => window.location.assign( redirect ), REDIRECT_DELAY );
+			}
+		}
+	}
+
+	function init() {
+		document.querySelectorAll( '[data-rvs-contact]' ).forEach( ( root ) => {
+			if ( root.querySelector( 'form' ) ) {
+				new ContactForm( root );
+			}
+		} );
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+}() );

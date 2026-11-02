@@ -17,7 +17,7 @@ use WP_UnitTestCase;
  * input (3B-2a prints no token in a preview; the front end keeps it).
  *
  * (tests/fixtures/golden/contact-form/, MHMRENTIVA_RECORD_GOLDEN=1 re-records).
- * The recipient token is random per render, so its value is masked here, in this
+ * The token is sealed with the site's salt, so its value is masked here, in this
  * test only; the shared RenderNormalizer is untouched.
  */
 final class ContactFormGoldenTest extends WP_UnitTestCase
@@ -92,8 +92,8 @@ final class ContactFormGoldenTest extends WP_UnitTestCase
 		}
 
 		$html = $this->render($surface, $email_to);
-		$this->assertStringContainsString('rv-contact', $html, "$name rendered no contact form; the golden would pin an empty render.");
-		$this->assertSame($email_to, str_contains($html, 'name="recipient_token"'), "$name: the recipient token input follows email_to.");
+		$this->assertStringContainsString('data-rvs-contact', $html, "$name rendered no contact form; the golden would pin an empty render.");
+		$this->assertTrue(str_contains($html, 'name="recipient_token"'), "$name: the token input carries the default auto reply and email_to.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -157,7 +157,7 @@ final class ContactFormGoldenTest extends WP_UnitTestCase
 
 	private function golden_form(string $html): string
 	{
-		// The recipient token is a random sealed payload: mask its value.
+		// The recipient token is a sealed payload: mask its value.
 		$html = (string) preg_replace('/(name="recipient_token" value=")[^"]*"/', '$1TOKEN"', $html);
 		$html = RenderNormalizer::golden($html);
 		$html = (string) preg_replace('/>\s+</', ">\n<", trim($html));

@@ -219,6 +219,7 @@ final class ParityLabels {
 			'start_date'                    => __( 'Start Date', 'mhm-rentiva' ),
 			'end_date'                      => __( 'End Date', 'mhm-rentiva' ),
 			// contact.
+			'show_topic_selector'           => __( 'Show Topic Selector', 'mhm-rentiva' ),
 			'show_booking_id_field'         => __( 'Show Booking ID Field', 'mhm-rentiva' ),
 			'show_company_info'             => __( 'Show Company Info', 'mhm-rentiva' ),
 			'success_message'               => __( 'Success Message', 'mhm-rentiva' ),

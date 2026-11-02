@@ -2,44 +2,42 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
- * Vehicle Rating Form Template
+ * Rating form and review list (PR F; drawings Puan-Formu, Puan-Formu-Mobil).
  *
- * @var int $vehicle_id
- * @var array $vehicle_rating
- * @var array|null $user_rating
- * @var bool $show_rating_display Whether to render the score summary block
- * @var bool $show_ratings_list   Whether to render the list of existing reviews
- * @var bool $show_form           Whether to render the submission form
+ * Standalone: title, summary, list, form. Inside the vehicle page the page draws the
+ * title and the summary: here only the list and the form, under no heading of its own.
+ *
+ * The controller decides everything (VehicleRatingForm::prepare_template_data()).
+ * Script: vehicle-rating-form.js; one instance per [data-rvs-rating].
+ *
+ * @var int                       $vehicle_id
+ * @var string                    $uid                 Unique id base of this instance.
+ * @var bool                      $nested              Inside another rvs surface.
+ * @var string                    $class               Extra classes.
+ * @var array<string, mixed>|null $summary             ReviewsView::summary().
+ * @var bool                      $show_rating_display
+ * @var bool                      $show_ratings_list
+ * @var bool                      $show_form
+ * @var list<array<string,mixed>> $cards               ReviewsView::card().
+ * @var bool                      $can_post
+ * @var string                    $form_mode           ReviewsView::form_mode().
+ * @var int                       $own_rating          Prefilled star, FORM_EDIT only.
+ * @var string                    $own_comment         Prefilled text, FORM_EDIT only.
+ * @var bool                      $guest_fields        Ask a guest's name and e-mail.
+ * @var bool                      $has_dialog          A delete button is on the page.
+ * @var int                       $min_length
+ * @var int                       $max_length
  */
+
+use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Frontend\Shortcodes\ReviewsView;
+use MHMRentiva\Frontend\RenderContext;
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Frontend\RenderContext;
-use MHMRentiva\Helpers\Icons;
-
-
-
-// ⭐ Asset management removed - VehicleRatingForm Controller handles asset loading
-// Assets are enqueued via VehicleRatingForm::enqueue_assets() method
-// Localized data is provided via VehicleRatingForm::get_localized_strings() method
-
-// Use the data array passed to template
-$data = $data ?? array();
-
-// Get data from vars array
-$vars           = $vars ?? array();
-$vehicle_id     = (int) ( $data['vehicle_id'] ?? $vars['vehicle_id'] ?? 0 );
-$vehicle_rating = $data['vehicle_rating'] ?? $vars['vehicle_rating'] ?? array();
-$user_rating    = $data['user_rating'] ?? $vars['user_rating'] ?? null;
-$is_logged_in   = $data['is_logged_in'] ?? $vars['is_logged_in'] ?? is_user_logged_in();
-
-// Section toggles. They default to true so a bare [rentiva_vehicle_rating_form]
-// keeps rendering all three sections exactly as it always has.
-$show_rating_display = $data['show_rating_display'] ?? $vars['show_rating_display'] ?? true;
-$show_ratings_list   = $data['show_ratings_list'] ?? $vars['show_ratings_list'] ?? true;
-$show_form           = $data['show_form'] ?? $vars['show_form'] ?? true;
+$vehicle_id = (int) ( $vehicle_id ?? 0 );
 
 // The controller resolves the vehicle (VehicleRatingForm::resolve_vehicle()); the
 // template never looks for an id of its own. No vehicle: a short, helpful state.
@@ -47,353 +45,134 @@ if ($vehicle_id <= 0) {
 	$empty_text = RenderContext::current()->is_preview()
 		? __('No vehicle selected. Set a vehicle ID in the widget settings, or place this form on a vehicle page.', 'mhm-rentiva')
 		: __('Vehicle ratings are not available here.', 'mhm-rentiva');
-	echo '<div class="rv-rating-form-error">' . esc_html($empty_text) . '</div>';
+	echo '<div class="rvs-reviews rvs-reviews--unavailable">' . esc_html($empty_text) . '</div>';
 	return;
 }
 
-// Get comment settings
-$require_login        = $comments_settings['approval']['require_login'] ?? true;
-$allow_guest_comments = $comments_settings['approval']['allow_guest_comments'] ?? false;
-
-// Login check - according to settings
-$is_logged_in         = is_user_logged_in();
-$can_comment          = $is_logged_in || ( ! $require_login && $allow_guest_comments );
-$current_user_rating  = $user_rating ? floatval($user_rating['rating']) : 0;
-$current_user_comment = $user_rating ? $user_rating['comment'] : '';
-
-// Rating distribution for the summary bars, 5 down to 1 star. Counted by
-// RatingHelper from the same approved reviews the average uses; bars are a
-// share of those reviews.
-$rating_distribution = $vehicle_id > 0
-	? \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_distribution( (int) $vehicle_id )
-	: array_fill_keys( array( 5, 4, 3, 2, 1 ), 0 );
-$rating_total        = array_sum( $rating_distribution );
-
-// Get settings for character limits
-$full_comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
-$display_settings       = array_merge(
-	$full_comments_settings['display'] ?? array(),
-	$full_comments_settings['limits'] ?? array()
-);
-
-$allowed_rating_svg_tags = array(
-	'span' => array(
-		'class' => true,
-	),
-	'svg'  => array(
-		'width'       => true,
-		'height'      => true,
-		'viewBox'     => true,
-		'fill'        => true,
-		'xmlns'       => true,
-		'class'       => true,
-		'aria-hidden' => true,
-		'focusable'   => true,
-		'role'        => true,
-		'style'       => true,
-	),
-	'path' => array(
-		'd'    => true,
-		'fill' => true,
-	),
-);
-
+$uid        = (string) $uid;
+$nested     = ! empty($nested);
+$is_preview = RenderContext::current()->is_preview();
+$inert      = $is_preview ? ' disabled' : '';
+$min_length = (int) ( $min_length ?? 0 );
+$max_length = (int) ( $max_length ?? 0 );
+$form_mode  = (string) ( $form_mode ?? ReviewsView::FORM_NEW );
+$editing    = ReviewsView::FORM_EDIT === $form_mode;
+$own_text   = $editing ? (string) ( $own_comment ?? '' ) : '';
+// Inside the page the section's h2 is the one heading: these boxes are not headings there.
+$box_tag = $nested ? 'div' : 'h3';
+$classes = trim('rvs-reviews' . ( $nested ? ' rvs-reviews--nested' : '' ) . ' ' . (string) ( $class ?? '' ));
 ?>
-
-<div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
-
-	<!-- Current Rating Display -->
-	<?php if ($show_rating_display) : ?>
-	<div class="rv-rating-display">
-		<div class="rv-rating-summary">
-			<div class="rv-rating-summary-left">
-				<div class="rv-rating-average"><?php echo esc_html(number_format( (float) ( $vehicle_rating['average'] ?? 0 ), 1)); ?></div>
-				<div class="rv-rating-stars">
-					<?php echo wp_kses( (string) ( $vehicle_rating['stars'] ?? '' ), $allowed_rating_svg_tags); ?>
-				</div>
-				<div class="rv-rating-total-label">
-					<?php
-					$count = intval($vehicle_rating['count'] ?? 0);
-					/* translators: %d: number of reviews. */
-					echo esc_html(sprintf(_n('%d review', '%d reviews', $count, 'mhm-rentiva'), $count));
-					?>
-				</div>
-			</div>
-			<div class="rv-rating-summary-right">
-				<?php foreach (array_keys( $rating_distribution ) as $score) : ?>
-					<?php
-					$score_count = intval($rating_distribution[ $score ] ?? 0);
-					$percent     = $rating_total > 0 ? (int) round(( $score_count / $rating_total ) * 100) : 0;
-					?>
-					<div class="rv-rating-dist-row">
-						<span class="rv-rating-dist-label"><?php echo esc_html( (string) $score); ?></span>
-						<div class="rv-rating-dist-track" aria-hidden="true">
-							<span class="rv-rating-dist-fill" style="width: <?php echo esc_attr( (string) $percent); ?>%;"></span>
-						</div>
-						<span class="rv-rating-dist-percent"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_percentage( (float) $percent)); ?></span>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		</div>
-	</div>
+<div class="<?php echo esc_attr($classes); ?>" data-rvs-rating data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>">
+	<?php if (! $nested) : ?>
+		<h2 class="rvs-reviews__title"><?php esc_html_e('Reviews', 'mhm-rentiva'); ?></h2>
 	<?php endif; ?>
 
-	<!-- Rating List - Show to everyone (TOP) -->
-	<?php if ($show_ratings_list) : ?>
-	<div class="rv-ratings-list" id="ratings-list-<?php echo esc_attr($vehicle_id); ?>">
+	<?php if (! empty($show_rating_display) && ! empty($summary)) : ?>
 		<?php
-		// Get settings from comments settings
-		$comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
-		$display_settings  = $comments_settings['display'] ?? array();
-
-		// Get WordPress comments - only approved comments
-		$comments = get_comments(
+		Templates::render(
+			'partials/rvs/review-summary',
 			array(
-				'post_id'                   => $vehicle_id,
-				// 'type'                      => 'review', // REMOVED: Allow all comment types (reviews + standard comments)
-				'status'                    => array( 'approve', 'pending' ), // Both approved and pending comments
-				'number'                    => \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_comments_per_page(),
-				'orderby'                   => 'comment_date',
-				'order'                     => 'DESC',
-				'no_found_rows'             => true,
-				'update_comment_meta_cache' => false,
-				'cache_results'             => false,
+				'summary'    => $summary,
+				'show_stars' => true,
 			)
 		);
+		?>
+	<?php endif; ?>
 
-		if (! empty($comments)) :
-			// Batch fetch verified review IDs (single query, no N+1)
-			$verified_ids = \MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper::get_verified_comment_ids_for_vehicle( (int) $vehicle_id);
-			?>
-			<div class="rv-reviews-section">
-				<h4 class="rv-reviews-title"><?php echo esc_html__('Reviews', 'mhm-rentiva'); ?></h4>
-				<div class="rv-reviews-list">
-					<?php
-					foreach ($comments as $comment) :
-						// Email check for guest users, user_id check for normal users
-						if (is_user_logged_in()) {
-							$is_current_user = $comment->user_id == get_current_user_id();
-						} else {
-							// Email check for guest users
-							$guest_email_cookie = isset($_COOKIE['guest_email']) ? sanitize_email(wp_unslash($_COOKIE['guest_email'])) : '';
-							$is_current_user    = ! empty($comment->comment_author_email) &&
-								$comment->comment_author_email === $guest_email_cookie;
-						}
-						$rating = get_comment_meta($comment->comment_ID, 'mhmrentiva_rating', true);
-
-						// Get author name with fallback
-						$full_name = $comment->comment_author;
-						if (empty($full_name) && $comment->user_id) {
-							$user      = get_userdata($comment->user_id);
-							$full_name = $user ? $user->display_name : '';
-						}
-						if (empty($full_name)) {
-							$full_name = __('Anonymous', 'mhm-rentiva');
-						}
-
-						// Privacy: Mask the author name (e.g., "John Doe" -> "John D.")
-						$name_parts = explode(' ', trim($full_name));
-						if (count($name_parts) > 1) {
-							$first_name   = $name_parts[0];
-							$last_initial = mb_substr(end($name_parts), 0, 1, 'UTF-8') . '.';
-							$masked_name  = $first_name . ' ' . $last_initial;
-						} else {
-							$masked_name = $full_name;
-						}
-						?>
-						<div class="rv-review-item" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>">
-							<div class="rv-review-header">
-								<div class="rv-review-author">
-									<?php if ($display_settings['show_avatars'] ?? true) : ?>
-										<div class="rv-review-avatar">
-											<span class="rv-avatar-placeholder" aria-hidden="true">
-												<?php echo esc_html(mhmrentiva_initial_avatar_letter($masked_name)); ?>
-											</span>
-										</div>
-									<?php endif; ?>
-									<div class="rv-review-author-info">
-										<span class="rv-review-author-name"><?php echo esc_html($masked_name); ?></span>
-										<?php if (in_array( (int) $comment->comment_ID, $verified_ids, true)) : ?>
-											<span class="mhm-review-badge mhm-review-badge--verified">
-												<?php
-                                                Icons::render('check', [
-													'width'  => '12',
-													'height' => '12',
-												]);
-												?>
-												<?php echo esc_html__('Verified Rental', 'mhm-rentiva'); ?>
-											</span>
-										<?php endif; ?>
-										<span class="rv-review-date"><?php echo esc_html(human_time_diff(strtotime($comment->comment_date)) . ' ' . esc_html__('ago', 'mhm-rentiva')); ?></span>
-										<?php if (( $display_settings['show_ratings'] ?? true ) && $rating) : ?>
-											<div class="rv-review-rating">
-												<?php
-                                                for ($i = 1; $i <= 5; $i++) :
-													$star_fill = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
-													?>
-													<span class="rv-star <?php echo $i <= (int) $rating ? 'active' : ''; ?>">
-														<?php
-														$star_color = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
-														Icons::render('star', [
-															'width' => '14',
-															'height' => '14',
-															'style' => "fill: $star_color; color: $star_color;",
-														]);
-														?>
-													</span>
-												<?php endfor; ?>
-											</div>
-										<?php endif; ?>
-									</div>
-								</div>
-								<?php
-								$show_actions = $is_current_user && ( ( $display_settings['allow_editing'] ?? true ) || ( $display_settings['allow_deletion'] ?? true ) );
-								?>
-								<?php if ($show_actions) : ?>
-									<div class="rv-review-actions">
-										<?php if ($display_settings['allow_editing'] ?? true) : ?>
-											<button class="rv-edit-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>" data-rating="<?php echo esc_attr($rating); ?>" data-comment="<?php echo esc_attr($comment->comment_content); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-												<?php Icons::render('edit'); ?>
-												<?php echo esc_html__('Edit', 'mhm-rentiva'); ?>
-											</button>
-										<?php endif; ?>
-										<?php if ($display_settings['allow_deletion'] ?? true) : ?>
-											<button class="rv-delete-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-												<?php Icons::render('trash'); ?>
-												<?php echo esc_html__('Delete', 'mhm-rentiva'); ?>
-											</button>
-										<?php endif; ?>
-									</div>
-								<?php endif; ?>
-							</div>
-							<div class="rv-review-content">
-								<?php echo wp_kses_post($comment->comment_content); ?>
-							</div>
-						</div>
-					<?php endforeach; ?>
-				</div>
+	<?php if (! empty($show_ratings_list)) : ?>
+		<?php if (! empty($cards)) : ?>
+			<div class="rvs-reviews__list">
+				<?php foreach ($cards as $card) : ?>
+					<?php Templates::render('partials/rvs/review-card', array( 'review' => $card )); ?>
+				<?php endforeach; ?>
 			</div>
 		<?php else : ?>
-			<div class="rv-no-reviews">
-				<p><?php echo esc_html__('No reviews yet.', 'mhm-rentiva'); ?></p>
+			<div class="rvs-reviews__empty">
+				<<?php echo esc_html($box_tag); ?> class="rvs-reviews__box-title"><?php esc_html_e('No reviews yet.', 'mhm-rentiva'); ?></<?php echo esc_html($box_tag); ?>>
 			</div>
 		<?php endif; ?>
-	</div>
 	<?php endif; ?>
 
-	<!-- Rating Form (BOTTOM) -->
-	<?php if ($show_form && $can_comment) : ?>
-		<div class="rv-rating-form-container">
-			<h4 class="rv-rating-form-title"><?php echo esc_html__('Rate This Vehicle', 'mhm-rentiva'); ?></h4>
+	<div class="rvs-reviews__status" data-rvs-rating-status role="status"></div>
 
-			<form class="rv-rating-form-content" id="rating-form-<?php echo esc_attr($vehicle_id); ?>">
-				<?php RenderContext::the_nonce_field('mhmrentiva_nonce', 'rating_nonce'); ?>
-				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($vehicle_id); ?>">
+	<?php if (! empty($show_form) && ! empty($can_post) && ReviewsView::FORM_NONE !== $form_mode) : ?>
+		<form class="rvs-reviews__form" data-rvs-rating-form novalidate
+			<?php if ($nested) : ?>
+				aria-label="<?php esc_attr_e('Write a review', 'mhm-rentiva'); ?>"
+			<?php else : ?>
+				aria-labelledby="<?php echo esc_attr($uid . '-form-title'); ?>"
+			<?php endif; ?>
+			<?php echo ReviewsView::FORM_HIDDEN === $form_mode ? 'hidden' : ''; ?>>
+			<?php if (! $nested) : ?>
+				<h3 class="rvs-reviews__box-title" id="<?php echo esc_attr($uid . '-form-title'); ?>" data-rvs-rating-title><?php echo esc_html($editing ? __('Edit your review', 'mhm-rentiva') : __('Rate this vehicle', 'mhm-rentiva')); ?></h3>
+			<?php endif; ?>
 
-				<?php if (! $is_logged_in && $allow_guest_comments) : ?>
-					<!-- Name and email fields for guest users -->
-					<div class="rv-guest-fields">
-						<div class="rv-guest-name">
-							<label for="guest-name-<?php echo esc_attr($vehicle_id); ?>" class="rv-rating-label"><?php echo esc_html__('Your Name:', 'mhm-rentiva'); ?></label>
-							<input type="text" name="guest_name" id="guest-name-<?php echo esc_attr($vehicle_id); ?>"
-								class="rv-rating-input-field"
-								placeholder="<?php echo esc_attr__('Enter your name', 'mhm-rentiva'); ?>"
-								required>
-						</div>
-						<div class="rv-guest-email">
-							<label for="guest-email-<?php echo esc_attr($vehicle_id); ?>" class="rv-rating-label"><?php echo esc_html__('Your Email:', 'mhm-rentiva'); ?></label>
-							<input type="email" name="guest_email" id="guest-email-<?php echo esc_attr($vehicle_id); ?>"
-								class="rv-rating-input-field"
-								placeholder="<?php echo esc_attr__('Enter your email', 'mhm-rentiva'); ?>"
-								required>
-						</div>
+			<?php RenderContext::the_nonce_input_line('mhmrentiva_rating_nonce', 'nonce'); ?>
+
+			<?php if (! empty($guest_fields)) : ?>
+				<div class="rvs-reviews__guest">
+					<div class="rvs-field" data-rvs-field>
+						<label for="<?php echo esc_attr($uid . '-name'); ?>"><?php esc_html_e('Your name', 'mhm-rentiva'); ?></label>
+						<input type="text" class="rvs-input" id="<?php echo esc_attr($uid . '-name'); ?>" name="guest_name" autocomplete="name" required>
 					</div>
-				<?php endif; ?>
-
-				<!-- Rating Selection -->
-				<div class="rv-rating-input">
-					<label class="rv-rating-label"><?php echo esc_html__('Your Rating:', 'mhm-rentiva'); ?></label>
-					<div class="rv-rating-stars-input">
-						<?php for ($i = 5; $i >= 1; $i--) : ?>
-							<input type="radio" name="rating" value="<?php echo (int) $i; ?>"
-								id="rating-<?php echo esc_attr($vehicle_id); ?>-<?php echo (int) $i; ?>"
-								<?php checked($current_user_rating, $i); ?>>
-							<label for="rating-<?php echo esc_attr($vehicle_id); ?>-<?php echo (int) $i; ?>"
-								class="rv-star-input">
-								<?php
-                                Icons::render('star', [
-									'width'  => '24',
-									'height' => '24',
-									'class'  => 'rv-star-icon',
-								]);
-								?>
-							</label>
-						<?php endfor; ?>
+					<div class="rvs-field" data-rvs-field>
+						<label for="<?php echo esc_attr($uid . '-email'); ?>"><?php esc_html_e('Your email', 'mhm-rentiva'); ?></label>
+						<input type="email" class="rvs-input" id="<?php echo esc_attr($uid . '-email'); ?>" name="guest_email" autocomplete="email" required>
 					</div>
 				</div>
+			<?php endif; ?>
 
-				<!-- Comment Area -->
-				<div class="rv-rating-comment">
-					<label for="rating-comment-<?php echo esc_attr($vehicle_id); ?>" class="rv-rating-label"><?php echo esc_html__('Your Comment:', 'mhm-rentiva'); ?></label>
-					<textarea name="comment" id="rating-comment-<?php echo esc_attr($vehicle_id); ?>"
-						class="rv-rating-textarea"
-						placeholder="<?php echo esc_attr__('Share your thoughts about the vehicle...', 'mhm-rentiva'); ?>"
-						rows="4"
-						data-min-length="<?php echo esc_attr($display_settings['comment_length_min'] ?? 5); ?>"
-						data-max-length="<?php echo esc_attr($display_settings['comment_length_max'] ?? 1000); ?>"><?php echo esc_textarea($current_user_comment); ?></textarea>
-					<div class="rv-char-counter">
-						<span class="rv-char-current">0</span> / <span class="rv-char-max"><?php echo esc_html($display_settings['comment_length_max'] ?? 1000); ?></span>
-						<span class="rv-char-min-notice">(
-                        <?php
-															/* translators: %d: Minimum character length */
-															echo esc_html(sprintf(__('min %d', 'mhm-rentiva'), $display_settings['comment_length_min'] ?? 5));
-						?>
-                                                            )</span>
-					</div>
-				</div>
+			<fieldset class="rvs-field" id="<?php echo esc_attr($uid . '-rating'); ?>" data-rvs-field data-rvs-rating-stars>
+				<legend><?php esc_html_e('Your rating', 'mhm-rentiva'); ?></legend>
+				<?php
+				Templates::render(
+					'partials/rvs/star-input',
+					array(
+						'disabled' => $is_preview,
+						'checked'  => $editing ? (int) ( $own_rating ?? 0 ) : 0,
+					)
+				);
+				?>
+			</fieldset>
 
-				<!-- Nonce Field -->
-				<?php RenderContext::the_nonce_input_line('mhmrentiva_rating_nonce', 'nonce'); ?>
-
-				<!-- Submit Button -->
-				<div class="rv-rating-submit">
-					<button type="submit" class="rv-btn rv-btn-primary"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-						<?php echo $user_rating ? esc_html__('Update review', 'mhm-rentiva') : esc_html__('Submit review', 'mhm-rentiva'); ?>
-					</button>
-					<?php if ($user_rating) : ?>
-						<button type="button" class="rv-btn rv-btn-danger rv-delete-rating" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"<?php echo RenderContext::current()->is_preview() ? ' disabled' : ''; ?>>
-							<?php echo esc_html__('Delete Rating', 'mhm-rentiva'); ?>
-						</button>
-					<?php endif; ?>
-				</div>
-			</form>
-		</div>
-	<?php elseif ($show_form) : /* Form requested but the visitor may not post: prompt to log in. With show_form off, neither branch renders. */ ?>
-		<div class="rv-rating-login-notice">
-			<div class="rv-login-required">
-				<div class="rv-login-icon">
+			<div class="rvs-field" data-rvs-field>
+				<label for="<?php echo esc_attr($uid . '-comment'); ?>"><?php esc_html_e('Your review', 'mhm-rentiva'); ?></label>
+				<textarea name="comment" class="rvs-input rvs-reviews__comment" id="<?php echo esc_attr($uid . '-comment'); ?>" rows="4" aria-describedby="<?php echo esc_attr($uid . '-count'); ?>" data-min-length="<?php echo esc_attr( (string) $min_length); ?>" data-max-length="<?php echo esc_attr( (string) $max_length); ?>"><?php echo esc_textarea($own_text); ?></textarea>
+				<span class="rvs-help" id="<?php echo esc_attr($uid . '-count'); ?>" data-rvs-rating-count aria-live="polite">
 					<?php
-                    Icons::render('users', [
-						'width'  => '24',
-						'height' => '24',
-					]);
+					echo esc_html(
+						$min_length > 0
+							/* translators: 1: characters written, 2: most characters allowed, 3: fewest characters allowed. */
+							? sprintf(__('%1$s / %2$s, at least %3$s characters', 'mhm-rentiva'), number_format_i18n(0), number_format_i18n($max_length), number_format_i18n($min_length))
+							/* translators: 1: characters written, 2: most characters allowed. */
+							: sprintf(__('%1$s / %2$s', 'mhm-rentiva'), number_format_i18n(0), number_format_i18n($max_length))
+					);
 					?>
-				</div>
-				<h4><?php echo esc_html__('Login Required', 'mhm-rentiva'); ?></h4>
-				<p><?php echo esc_html__('You must be logged in to submit a rating and review.', 'mhm-rentiva'); ?></p>
-				<div class="rv-login-actions">
-					<a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url()); ?>" class="rv-btn rv-btn-primary">
-						<?php echo esc_html__('Login', 'mhm-rentiva'); ?>
-					</a>
-					<?php $rv_register_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url(); ?>
-					<?php if ('' !== $rv_register_url) : /* Only when the site really offers registration. */ ?>
-						<a href="<?php echo esc_url($rv_register_url); ?>" class="rv-btn rv-btn-secondary">
-							<?php echo esc_html__('Register', 'mhm-rentiva'); ?>
-						</a>
-					<?php endif; ?>
-				</div>
+				</span>
+			</div>
+
+			<div class="rvs-notice rvs-notice--alert" data-rvs-rating-alert role="alert" hidden></div>
+
+			<div class="rvs-reviews__actions">
+				<button type="submit" class="rvs-btn rvs-btn--primary"<?php echo esc_attr($inert); ?>><?php echo esc_html($editing ? __('Update review', 'mhm-rentiva') : __('Submit review', 'mhm-rentiva')); ?></button>
+				<button type="button" class="rvs-btn rvs-btn--secondary" data-rvs-rating-cancel hidden><?php esc_html_e('Cancel', 'mhm-rentiva'); ?></button>
+			</div>
+		</form>
+	<?php elseif (! empty($show_form) && empty($can_post)) : /* Form requested but the visitor may not post. With show_form off, neither branch renders. */ ?>
+		<div class="rvs-reviews__login">
+			<<?php echo esc_html($box_tag); ?> class="rvs-reviews__box-title"><?php esc_html_e('Login required', 'mhm-rentiva'); ?></<?php echo esc_html($box_tag); ?>>
+			<p><?php esc_html_e('Log in to rate this vehicle and write a review.', 'mhm-rentiva'); ?></p>
+			<div class="rvs-reviews__actions">
+				<a class="rvs-btn rvs-btn--primary" href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_login_url()); ?>"><?php esc_html_e('Log in', 'mhm-rentiva'); ?></a>
+				<?php $register_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url(); ?>
+				<?php if ('' !== $register_url) : /* Only when the site really offers registration. */ ?>
+					<a class="rvs-btn rvs-btn--secondary" href="<?php echo esc_url($register_url); ?>"><?php esc_html_e('Register', 'mhm-rentiva'); ?></a>
+				<?php endif; ?>
 			</div>
 		</div>
 	<?php endif; ?>
 
+	<?php if (! empty($has_dialog)) : ?>
+		<?php Templates::render('partials/rvs/review-delete-dialog', array( 'dialog_id' => $uid . '-delete' )); ?>
+	<?php endif; ?>
 </div>

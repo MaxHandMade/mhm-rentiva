@@ -111,6 +111,7 @@ final class MetaKeys {
 	public const BOOKING_CUSTOMER_PHONE      = '_mhmrentiva_customer_phone';
 	public const BOOKING_CONTACT_EMAIL       = '_mhmrentiva_contact_email'; // Legacy/Contact Form
 	public const BOOKING_CONTACT_NAME        = '_mhmrentiva_contact_name';  // Legacy/Contact Form
+	public const CONTACT_CONSENT             = '_mhmrentiva_contact_consent'; // Local time the sender ticked the privacy notice; absent = not asked
 	public const BOOKING_PICKUP_DATE         = '_mhmrentiva_pickup_date';
 	public const BOOKING_RETURN_DATE         = '_mhmrentiva_return_date';
 	public const BOOKING_DROPOFF_DATE        = '_mhmrentiva_dropoff_date'; // Legacy/Alternative

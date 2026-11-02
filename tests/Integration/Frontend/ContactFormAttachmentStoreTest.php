@@ -83,7 +83,7 @@ final class ContactFormAttachmentStoreTest extends WP_UnitTestCase
 	{
 		$before = (int) wp_count_posts('mhmrentiva_contact')->private;
 		$r      = $this->submit(array(), 'zip', 'x.pdf');
-		$this->assertSame(array( 'ok' => false, 'message' => 'Invalid file type.' ), $r);
+		$this->assertSame(array( 'ok' => false, 'message' => 'Invalid file type.', 'errors' => array( 'attachment' => 'Invalid file type.' ) ), $r);
 		$this->assertSame($before, (int) wp_count_posts('mhmrentiva_contact')->private);
 	}
 

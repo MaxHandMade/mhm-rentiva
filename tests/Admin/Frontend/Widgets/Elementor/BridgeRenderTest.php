@@ -37,12 +37,12 @@ final class BridgeRenderTest extends WP_UnitTestCase
 		$widget = WidgetFactory::make(ContactFormWidget::class, array( 'title' => 'Bize ulaşın [7/24] & "biz"' ));
 		$html   = $this->render_widget($widget);
 
-		$this->assertStringContainsString('id="rv-contact-form"', $html);
+		$this->assertStringContainsString('data-rvs-contact', $html);
 		$this->assertStringNotContainsString('_transform_', $html);
 		$this->assertStringNotContainsString('title=', $html);
 		// Since slice 3A Task 1 the title renders (it was a dead setting): intact,
 		// escaped once, as text in the heading -- never as shortcode text.
-		$this->assertStringContainsString('<h3 class="rv-contact-title">Bize ulaşın [7/24] &amp; &quot;biz&quot;</h3>', $html);
+		$this->assertStringContainsString('<h2 class="rvs-contact__title">Bize ulaşın [7/24] &amp; &quot;biz&quot;</h2>', $html);
 	}
 
 	public function test_bracket_ampersand_quote_value_survives(): void
@@ -80,7 +80,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 			remove_filter('mhmrentiva_shortcodes_rentiva_contact_html', $inject);
 		}
 
-		$this->assertStringContainsString('id="rv-contact-form"', $html);
+		$this->assertStringContainsString('data-rvs-contact', $html);
 		$this->assertStringNotContainsString('<script', $html);
 	}
 
@@ -96,7 +96,7 @@ final class BridgeRenderTest extends WP_UnitTestCase
 			remove_filter('do_shortcode_tag', $marker);
 		}
 
-		$this->assertStringContainsString('id="rv-contact-form"', $html);
+		$this->assertStringContainsString('data-rvs-contact', $html);
 		$this->assertStringNotContainsString('DO_SHORTCODE_TAG_RAN', $html);
 	}
 
@@ -136,14 +136,14 @@ final class BridgeRenderTest extends WP_UnitTestCase
 			true
 		);
 
-		$this->assertStringContainsString('mhm-rentiva-rating-form', $html);
+		$this->assertStringContainsString('rvs-reviews', $html);
 		$this->assertStringContainsString('mhm-rentiva-featured-wrapper', $html);
 
 		ob_start();
 		Templates::output_shortcode('[rentiva_testimonials]');
 		$testimonials = (string) ob_get_clean();
 
-		$this->assertStringContainsString('rv-testimonials', $testimonials);
+		$this->assertStringContainsString('rvs-testimonials', $testimonials);
 	}
 
 	/**

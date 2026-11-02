@@ -39,15 +39,19 @@ final class GeneralSettings {
 
 		return array(
 			// General
-			'mhmrentiva_currency'          => $currency,
-			'mhmrentiva_currency_position' => 'right_space',
-			'mhmrentiva_dark_mode'         => 'auto',
+			'mhmrentiva_currency'                => $currency,
+			'mhmrentiva_currency_position'       => 'right_space',
+			'mhmrentiva_dark_mode'               => 'auto',
 
 			// Site Info
-			'mhmrentiva_brand_name'        => get_bloginfo( 'name' ),
-			'mhmrentiva_support_email'     => get_option( 'admin_email' ),
-			'mhmrentiva_contact_phone'     => '',
-			'mhmrentiva_contact_hours'     => '',
+			'mhmrentiva_brand_name'              => get_bloginfo( 'name' ),
+			'mhmrentiva_support_email'           => get_option( 'admin_email' ),
+			'mhmrentiva_contact_phone'           => '',
+			'mhmrentiva_contact_hours'           => '',
+			'mhmrentiva_contact_address'         => '',
+			'mhmrentiva_contact_phone_note'      => '',
+			'mhmrentiva_contact_response_note'   => '',
+			'mhmrentiva_contact_consent_enabled' => '0',
 		);
 	}
 
@@ -147,6 +151,43 @@ final class GeneralSettings {
 			self::SECTION_SITE_INFO,
 			__( 'Business hours for customer support', 'mhm-rentiva' ),
 			__( '09:00 - 18:00', 'mhm-rentiva' )
+		);
+
+		SettingsHelper::text_field(
+			$page_slug,
+			'mhmrentiva_contact_address',
+			__( 'Office Address', 'mhm-rentiva' ),
+			self::SECTION_SITE_INFO,
+			__( 'Shown beside the contact form. Leave empty to hide it.', 'mhm-rentiva' )
+		);
+
+		SettingsHelper::text_field(
+			$page_slug,
+			'mhmrentiva_contact_phone_note',
+			__( 'Phone Note', 'mhm-rentiva' ),
+			self::SECTION_SITE_INFO,
+			__( 'A short line under the phone number on the contact form.', 'mhm-rentiva' )
+		);
+
+		SettingsHelper::text_field(
+			$page_slug,
+			'mhmrentiva_contact_response_note',
+			__( 'Response Time Note', 'mhm-rentiva' ),
+			self::SECTION_SITE_INFO,
+			__( 'Shown above the contact form, for example when you usually reply.', 'mhm-rentiva' )
+		);
+
+		$consent_help = __( 'Senders must tick a privacy notice box on the contact form.', 'mhm-rentiva' );
+		if ( '' === get_privacy_policy_url() ) {
+			$consent_help .= ' ' . __( 'No privacy policy page is published (Settings > Privacy), so the box shows plain text without a link.', 'mhm-rentiva' );
+		}
+
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'mhmrentiva_contact_consent_enabled',
+			__( 'Privacy Notice Consent', 'mhm-rentiva' ),
+			$consent_help,
+			self::SECTION_SITE_INFO
 		);
 	}
 

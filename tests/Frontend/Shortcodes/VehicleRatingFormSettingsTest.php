@@ -76,21 +76,20 @@ final class VehicleRatingFormSettingsTest extends WP_UnitTestCase
 				'post_title'  => 'Rating Form Vehicle',
 			)
 		);
-		// Exactly 210 days old: the template prints human_time_diff() against time(), so
-		// a fixed date would drift ("7 months ago" -> "8 months ago"). The template parses
-		// comment_date with strtotime() (UTC), hence both columns carry the UTC value.
-		$review_date = gmdate('Y-m-d H:i:s', time() - 210 * DAY_IN_SECONDS);
+		$review_date = '2026-03-14 10:00:00';
 		$comment     = (int) wp_insert_comment(
 			array(
 				'comment_post_ID'  => $this->vehicle,
 				'comment_author'   => 'Ayse Yilmaz',
 				'comment_content'  => 'A rated review of the form vehicle.',
+				'comment_type'     => 'review',
 				'comment_approved' => 1,
 				'comment_date'     => $review_date,
 				'comment_date_gmt' => $review_date,
 			)
 		);
 		update_comment_meta($comment, 'mhmrentiva_rating', 4);
+		\MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::recalculate_and_save($this->vehicle);
 
 		wp_set_current_user(0);
 		RequestSimulator::new_request();
@@ -122,7 +121,7 @@ final class VehicleRatingFormSettingsTest extends WP_UnitTestCase
 		}
 		$surface = explode('-', substr($name, strlen('vehicle-rating-form-')))[0];
 		$html    = $this->render_surface($surface, array());
-		$this->assertStringContainsString('rv-rating-summary', $html, "$name rendered the form; the golden would pin an error.");
+		$this->assertStringContainsString('rvs-review-summary', $html, "$name rendered the form; the golden would pin an error.");
 
 		$actual = $this->golden_form($html);
 		$file   = self::GOLDEN_DIR . '/' . $name . '.html';
@@ -220,7 +219,7 @@ final class VehicleRatingFormSettingsTest extends WP_UnitTestCase
 		// A visitor gets the login prompt from the global setting, whatever was saved.
 		wp_set_current_user(0);
 		$visitor = $this->render_surface('block', array( 'requireLogin' => false ));
-		$this->assertStringContainsString('rv-rating-login-notice', $visitor);
+		$this->assertStringContainsString('rvs-reviews__login', $visitor);
 		$this->assertStringNotContainsString('<textarea name="comment"', $visitor);
 	}
 

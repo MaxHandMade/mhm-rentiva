@@ -85,6 +85,7 @@ final class TestimonialsCanonicalTest extends WP_UnitTestCase
 
 		$this->assertCount(1, $this->seen);
 		$this->assertArrayNotHasKey('category', $this->seen[0]);
-		$this->assertSame('2', $this->seen[0]['limit']);
+		// The attribute mapper (CAM) now runs on this path too: the limit arrives mapped.
+		$this->assertSame(2, $this->seen[0]['limit']);
 	}
 }

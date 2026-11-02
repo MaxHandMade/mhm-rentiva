@@ -10,7 +10,9 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\ContactMessages\ContactAttachmentStore;
 use MHMRentiva\Admin\ContactMessages\ContactMessageRepository;
 use MHMRentiva\Admin\ContactMessages\ContactStatus;
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Customers\CustomerIdentity;
+use MHMRentiva\Admin\Frontend\Shortcodes\ContactForm;
 use MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType;
 
 /**
@@ -386,6 +388,11 @@ final class ContactMessagesRestController {
 		$type   = $meta('type');
 		$status = ContactStatus::get($post->ID);
 		$text   = trim(wp_specialchars_decode(wp_strip_all_tags($post->post_content)));
+		$book   = self::booking( (int) $meta('booking_id'));
+		$veh_id = (int) $meta('vehicle_id');
+		if ($veh_id <= 0 && null !== $book) {
+			$veh_id = $book['vehicle_id'];
+		}
 
 		return array(
 			'id'              => $post->ID,
@@ -396,7 +403,8 @@ final class ContactMessagesRestController {
 			'type'            => in_array($type, ContactMessagePostType::TYPES, true) ? $type : 'general',
 			'type_label'      => ContactMessagePostType::type_label($type),
 			'snippet'         => mb_substr(preg_replace('/\s+/u', ' ', $text) ?? '', 0, 140),
-			'vehicle'         => self::vehicle( (int) $meta('vehicle_id')),
+			'vehicle'         => self::vehicle($veh_id),
+			'booking'         => null === $book ? null : array_diff_key($book, array( 'vehicle_id' => true )),
 			'has_attachment'  => null !== ContactAttachmentStore::record($post->ID) || '' !== ContactAttachmentStore::legacy_url($post->ID),
 			'rating'          => max(0, min(5, (int) $meta('rating'))),
 			'status'          => $status,
@@ -430,6 +438,7 @@ final class ContactMessagesRestController {
 		$add('submitted', __('Submitted', 'mhm-rentiva'), $row['date_label']);
 		$add('preferred_date', __('Preferred date', 'mhm-rentiva'), $meta('preferred_date'));
 		$add('company', __('Company', 'mhm-rentiva'), $meta('company'));
+		$add('consent', __('Privacy notice accepted', 'mhm-rentiva'), '' !== $meta('consent') ? (string) mysql2date(get_option('date_format') . ' ' . get_option('time_format'), $meta('consent')) : '');
 		$add('rating', __('Rating', 'mhm-rentiva'), $row['rating'] > 0 ? sprintf('%d/5', $row['rating']) : '');
 
 		$attachment = null;
@@ -505,6 +514,29 @@ final class ContactMessagesRestController {
 				'edit_url' => current_user_can('edit_post', $id) ? ( get_edit_post_link($id, 'raw') ?: null ) : null,
 			)
 			: null;
+	}
+
+	/**
+	 * The booking the sender picked on the form; null when none, deleted, trashed or of another type.
+	 *
+	 * @return array{id:int,number:int,vehicle_id:int,vehicle_title:string,dates:string,edit_url:?string}|null
+	 */
+	public static function booking(int $id): ?array
+	{
+		if ($id <= 0 || 'mhmrentiva_booking' !== get_post_type($id) || 'trash' === get_post_status($id)) {
+			return null;
+		}
+		$vehicle_id = (int) get_post_meta($id, MetaKeys::BOOKING_VEHICLE_ID, true);
+		$vehicle    = $vehicle_id > 0 && 'mhmrentiva_vehicle' === get_post_type($vehicle_id) ? get_the_title($vehicle_id) : '';
+
+		return array(
+			'id'            => $id,
+			'number'        => mhmrentiva_get_display_id($id),
+			'vehicle_id'    => '' !== $vehicle ? $vehicle_id : 0,
+			'vehicle_title' => $vehicle,
+			'dates'         => ContactForm::booking_dates($id),
+			'edit_url'      => current_user_can('edit_post', $id) ? ( get_edit_post_link($id, 'raw') ?: null ) : null,
+		);
 	}
 
 	private static function customer_url(string $email): ?string

@@ -143,11 +143,11 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 
 		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $vehicle . '"]' );
 
-		$this->assertStringContainsString( 'rv-login-actions', $html, 'Fixture guard: the guest prompt renders.' );
+		$this->assertStringContainsString( 'rvs-reviews__login', $html, 'Fixture guard: the guest prompt renders.' );
 		$this->assertStringNotContainsString( '[rentiva_login_form]', $html );
 		$this->assertStringNotContainsString( '[rentiva_register_form]', $html );
-		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $account ) ) . '" class="rv-btn rv-btn-primary"', $html );
-		$this->assertStringContainsString( 'href="' . esc_url( (string) get_permalink( $account ) ) . '" class="rv-btn rv-btn-secondary"', $html );
+		$this->assertStringContainsString( 'class="rvs-btn rvs-btn--primary" href="' . esc_url( (string) get_permalink( $account ) ) . '"', $html );
+		$this->assertStringContainsString( 'class="rvs-btn rvs-btn--secondary" href="' . esc_url( (string) get_permalink( $account ) ) . '"', $html );
 	}
 
 	/**
@@ -166,7 +166,7 @@ final class PageLinkTargetsTest extends WP_UnitTestCase
 
 		$this->assertSame( '', \MHMRentiva\Admin\Frontend\Account\AccountController::get_register_url() );
 		$html = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $vehicle . '"]' );
-		$this->assertStringContainsString( 'rv-login-actions', $html, 'Fixture guard: the guest prompt renders.' );
+		$this->assertStringContainsString( 'rvs-reviews__login', $html, 'Fixture guard: the guest prompt renders.' );
 		$this->assertStringNotContainsString( 'rv-btn-secondary', $html );
 	}
 

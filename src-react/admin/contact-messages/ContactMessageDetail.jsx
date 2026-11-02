@@ -140,6 +140,16 @@ export default function ContactMessageDetail( { id, onBack } ) {
 		const after = msg.fields.findIndex( ( f ) => f.key === 'submitted' );
 		details.splice( after < 0 ? details.length : after + 1, 0, vehicle );
 	}
+	if ( msg.booking ) {
+		// The reservation the sender picked on the form, after the vehicle row.
+		const line = [ '#' + msg.booking.number, msg.booking.vehicle_title, msg.booking.dates ].filter( Boolean ).join( ' · ' );
+		const booking = {
+			label: __( 'Booking', 'mhm-rentiva' ),
+			value: msg.booking.edit_url ? <a href={ msg.booking.edit_url }>{ line }</a> : line,
+		};
+		const at = details.findIndex( ( d ) => d.label === __( 'Related vehicle', 'mhm-rentiva' ) );
+		details.splice( at < 0 ? details.length : at + 1, 0, booking );
+	}
 	const name = msg.name || '—';
 	const meta = sprintf(
 		/* translators: 1: enquiry type label, 2: date and time, 3: message number line. */

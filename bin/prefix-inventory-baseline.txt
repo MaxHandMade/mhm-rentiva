@@ -561,8 +561,8 @@
 'mhmrentiva_contact_form_nonce'
 'mhmrentiva_contact_hours'
 'mhmrentiva_contact_new_count'
-'mhmrentiva_contact_nonce'
 'mhmrentiva_contact_phone'
+'mhmrentiva_contact_reply_'
 'mhmrentiva_contact_status_migrated'
 'mhmrentiva_contact_status_migrated_at'
 'mhmrentiva_contact_url'
@@ -1245,7 +1245,6 @@ wp_ajax_mhmrentiva_get_calendar
 wp_ajax_mhmrentiva_get_email_template
 wp_ajax_mhmrentiva_get_uninstall_stats
 wp_ajax_mhmrentiva_get_vehicle_info
-wp_ajax_mhmrentiva_get_vehicle_rating_list
 wp_ajax_mhmrentiva_list_backups
 wp_ajax_mhmrentiva_list_cron_jobs
 wp_ajax_mhmrentiva_list_full_backups
@@ -1295,7 +1294,6 @@ wp_ajax_nopriv_mhmrentiva_filter_results
 wp_ajax_nopriv_mhmrentiva_get_blocked_dates
 wp_ajax_nopriv_mhmrentiva_get_calendar
 wp_ajax_nopriv_mhmrentiva_get_vehicle_info
-wp_ajax_nopriv_mhmrentiva_get_vehicle_rating_list
 wp_ajax_nopriv_mhmrentiva_load_testimonials
 wp_ajax_nopriv_mhmrentiva_pay_remaining
 wp_ajax_nopriv_mhmrentiva_submit_contact_form

@@ -39,8 +39,6 @@
 	.mhm-rentiva-featured-wrapper,
 	.mhm-rentiva-account-page,
 	.rv-unified-ratings-section,
-	.rv-contact-form,
-	.rv-testimonials,
 	.rv-booking-confirmation,
 	.rv-vehicle-details
 ):not(.rv-surface--flush) {
@@ -87,8 +85,6 @@
 		.mhm-rentiva-featured-wrapper,
 		.mhm-rentiva-account-page,
 		.rv-unified-ratings-section,
-		.rv-contact-form,
-		.rv-testimonials,
 		.rv-booking-confirmation,
 		.rv-vehicle-details
 	):not(.rv-surface--flush) {

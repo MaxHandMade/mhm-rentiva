@@ -1,0 +1,175 @@
+/**
+ * Rentiva front-end standard -- contact form (`rentiva_contact`).
+ *
+ * Markup: templates/shortcodes/contact-form.php. Layout from the drawings
+ * `Iletisim` and `Iletisim-Mobil`; colours, type and corners from rvs-tokens.css.
+ * The field primitives are rvs-primitives.css and rvs-forms.css. The script
+ * toggles [hidden] on fields, on the form and on the file button; this block's
+ * rule below keeps [hidden] above every display rule at any width.
+ */
+
+.rvs-shell .rvs-contact [hidden] {
+	display: none;
+}
+
+.rvs-shell .rvs-contact {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s6);
+	padding-block: var(--rvs-s8) var(--rvs-s12);
+}
+
+/* Header -------------------------------------------------------------------- */
+
+.rvs-shell .rvs-contact__header {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s1);
+}
+
+.rvs-shell .rvs-contact__desc,
+.rvs-shell .rvs-contact__note {
+	max-width: 620px;
+	color: var(--rvs-muted);
+}
+
+/* Two columns that fold: form, then the information -------------------------- */
+
+.rvs-shell .rvs-contact__body {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--rvs-s12);
+}
+
+.rvs-shell .rvs-contact__main {
+	flex: 999 1 560px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-contact__form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-contact__grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--rvs-s4);
+}
+
+.rvs-shell textarea.rvs-contact__message {
+	min-height: 150px;
+}
+
+.rvs-shell .rvs-contact__consent {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.rvs-shell .rvs-contact__consent .rvs-check {
+	align-items: flex-start;
+	line-height: 1.55;
+}
+
+.rvs-shell .rvs-contact__consent .rvs-check input {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin-top: 2px;
+}
+
+.rvs-shell .rvs-contact__actions {
+	display: flex;
+}
+
+/* Information --------------------------------------------------------------- */
+
+.rvs-shell .rvs-contact__info {
+	display: flex;
+	flex: 1 1 300px;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+	max-width: 360px;
+	min-width: 0;
+}
+
+.rvs-shell .rvs-contact__info h3 {
+	margin-bottom: var(--rvs-s1);
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-contact__info p {
+	overflow-wrap: anywhere;
+}
+
+.rvs-shell .rvs-contact__info-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+}
+
+.rvs-shell .rvs-contact__info-note {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+/* The `theme` attribute ------------------------------------------------------ */
+
+.rvs-shell .rvs-contact--compact {
+	gap: var(--rvs-s4);
+	padding-block: var(--rvs-s4);
+}
+
+.rvs-shell .rvs-contact--compact .rvs-contact__form,
+.rvs-shell .rvs-contact--compact .rvs-contact__grid {
+	gap: var(--rvs-s3);
+}
+
+.rvs-shell .rvs-contact--detailed .rvs-contact__header {
+	padding-bottom: var(--rvs-s4);
+	border-bottom: 1px solid var(--rvs-line);
+}
+
+/* Narrow: one column, the send button full width, a line above the information. */
+
+@media (max-width: 768px) {
+	.rvs-shell .rvs-contact {
+		padding-block: var(--rvs-s4) var(--rvs-s8);
+	}
+
+	/* No wrap: a wrapping column's line is as wide as its widest child, past the page. */
+	.rvs-shell .rvs-contact__body {
+		flex-direction: column;
+		flex-wrap: nowrap;
+		align-items: stretch;
+		gap: var(--rvs-s6);
+	}
+
+	.rvs-shell .rvs-contact__main {
+		flex: none;
+	}
+
+	/* Equal thirds cut the longest one-word topic: each takes at least its word. */
+	.rvs-shell .rvs-contact .rvs-seg--choice > label {
+		flex: 1 1 auto;
+		min-width: min-content;
+	}
+
+	.rvs-shell .rvs-contact__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.rvs-shell .rvs-contact__actions .rvs-btn {
+		width: 100%;
+	}
+
+	.rvs-shell .rvs-contact__info {
+		flex: none;
+		max-width: none;
+		padding-top: var(--rvs-s4);
+		border-top: 1px solid var(--rvs-line);
+	}
+}

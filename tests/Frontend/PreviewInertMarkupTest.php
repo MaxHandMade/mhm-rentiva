@@ -40,7 +40,7 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 	 * a localized nonce when the markup nonce is missing). In a preview each
 	 * must be `disabled`, so no click event ever reaches the delegated handler.
 	 */
-	private const ACTION_CONTROL = '/(mhm-vehicle-favorite-btn|mhm-vehicle-compare-btn|rvs-compare__remove|rv-vcal-favorite-btn|rv-sv__favorite|\bid="(?:export-data|withdraw-consent|delete-account|clear-all-favorites|cancel-booking-btn|confirm-cancellation)"|rv-edit-comment-btn|rv-delete-comment-btn|rv-delete-rating|remove-receipt-btn|mhm-upload-receipt)/';
+	private const ACTION_CONTROL = '/(mhm-vehicle-favorite-btn|mhm-vehicle-compare-btn|rvs-compare__remove|rv-vcal-favorite-btn|rv-sv__favorite|\bid="(?:export-data|withdraw-consent|delete-account|clear-all-favorites|cancel-booking-btn|confirm-cancellation)"|data-rvs-review-edit|data-rvs-review-delete|remove-receipt-btn|mhm-upload-receipt)/';
 
 	public function set_up(): void
 	{
@@ -139,14 +139,13 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		ShortcodeFixtures::vehicle();
 
 		$contact = $this->shortcode('rentiva_contact', array( 'email_to' => 'zz-recipient@example.test' ));
-		$this->assertStringContainsString('name="rv_contact_nonce"', $contact);
+		$this->assertStringContainsString('name="type"', $contact);
 		$this->assertStringContainsString('name="recipient_token"', $contact);
 		$this->assertStringContainsString('type="submit"', $contact);
 		$this->assertDoesNotMatchRegularExpression('/<button\b[^>]*type="submit"[^>]*\bdisabled\b/', $contact);
 
 		$rating_fixture = ShortcodeFixtures::for_tag('rentiva_vehicle_rating_form');
 		$rating         = $this->shortcode('rentiva_vehicle_rating_form', $rating_fixture['atts']);
-		$this->assertStringContainsString('name="rating_nonce"', $rating);
 		$this->assertStringContainsString('name="nonce"', $rating);
 
 		$grid = $this->shortcode('rentiva_vehicles_grid', array());
@@ -198,19 +197,20 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 				'comment_post_ID'  => $vehicle,
 				'user_id'          => $user,
 				'comment_content'  => 'zz review body',
+				'comment_type'     => 'review',
 				'comment_approved' => 1,
 			)
 		);
 		$atts = array( 'vehicle_id' => (string) $vehicle );
 
 		$front = $this->shortcode('rentiva_vehicle_rating_form', $atts);
-		$this->assertMatchesRegularExpression('/<button class="rv-delete-comment-btn"[^>]*>/', $front, 'The review actions must render for this control to mean anything.');
-		$this->assertDoesNotMatchRegularExpression('/<button class="rv-(?:edit|delete)-comment-btn"[^>]*\sdisabled\b/', $front);
+		$this->assertMatchesRegularExpression('/<button [^>]*data-rvs-review-delete[^>]*>/', $front, 'The review actions must render for this control to mean anything.');
+		$this->assertDoesNotMatchRegularExpression('/<button [^>]*data-rvs-review-(?:edit|delete)[^>]*\sdisabled\b/', $front);
 
 		$this->set_preview(true);
 		$html = $this->shortcode('rentiva_vehicle_rating_form', $atts);
-		$this->assertMatchesRegularExpression('/<button class="rv-delete-comment-btn"[^>]*\sdisabled\b[^>]*>/', $html);
-		$this->assertMatchesRegularExpression('/<button class="rv-edit-comment-btn"[^>]*\sdisabled\b[^>]*>/', $html);
+		$this->assertMatchesRegularExpression('/<button [^>]*data-rvs-review-delete[^>]*\sdisabled\b[^>]*>/', $html);
+		$this->assertMatchesRegularExpression('/<button [^>]*data-rvs-review-edit[^>]*\sdisabled\b[^>]*>/', $html);
 		$this->assert_inert($html, 'rating form with comment');
 	}
 
@@ -244,7 +244,7 @@ final class PreviewInertMarkupTest extends WP_UnitTestCase
 		$data     = $response->get_data();
 		$html     = is_array($data) && isset($data['rendered']) ? (string) $data['rendered'] : '';
 
-		$this->assertStringContainsString('rv-contact', $html, 'The block renderer returned no contact form.');
+		$this->assertStringContainsString('data-rvs-contact', $html, 'The block renderer returned no contact form.');
 		$this->assertStringContainsString('data-rv-render="preview"', $html);
 		$this->assert_inert($html, 'block contact');
 	}

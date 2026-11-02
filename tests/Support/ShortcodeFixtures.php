@@ -138,8 +138,8 @@ final class ShortcodeFixtures
 
 			case 'rentiva_vehicle_rating_form':
 				$row['atts']         = array( 'vehicle_id' => (string) self::vehicle() );
-				$row['marker']       = 'rv-rating-summary';
-				$row['min_elements'] = 30;
+				$row['marker']       = 'rvs-reviews__title';
+				$row['min_elements'] = 8;
 				break;
 
 			case 'rentiva_vehicles_list':
@@ -208,8 +208,8 @@ final class ShortcodeFixtures
 				break;
 
 			case 'rentiva_contact':
-				$row['marker']       = 'rv-contact-form-container';
-				$row['min_elements'] = 50;
+				$row['marker']       = 'rvs-contact__form';
+				$row['min_elements'] = 40;
 				break;
 
 			case 'rentiva_testimonials':
@@ -224,7 +224,7 @@ final class ShortcodeFixtures
 					)
 				);
 				update_comment_meta($comment, 'mhmrentiva_rating', 5);
-				$row['marker']       = 'rv-testimonial-card';
+				$row['marker']       = 'rvs-tcard';
 				$row['min_elements'] = 20;
 				break;
 
@@ -489,9 +489,8 @@ final class ShortcodeFixtures
 				break;
 
 			case 'rentiva_contact':
-				// email_to: the address only ever reaches the page as an encrypted payload
-				// with a random nonce, so two addresses differ on every render (noisy); the
-				// observable effect is the payload field appearing at all (spec 3A §2.5 b).
+				// email_to: the address only ever reaches the page as an encrypted payload;
+				// the observable effect is a different payload (spec 3A §2.5 b).
 				// redirect_url: only a same-site URL survives wp_validate_redirect().
 				$row['pairs'] = array(
 					'email_to'     => array( '', 'zza@example.com' ),

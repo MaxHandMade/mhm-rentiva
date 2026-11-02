@@ -66,7 +66,8 @@ class BlockRegistry {
 		'testimonials'          => array(
 			'tag'   => 'rentiva_testimonials',
 			'title' => 'Testimonials',
-			'css'   => 'testimonials.css',
+			'css'   => array(), // The rvs review component (Testimonials enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-reviews' ),
 		),
 		'availability-calendar' => array(
 			'tag'   => 'rentiva_availability_calendar',
@@ -101,12 +102,14 @@ class BlockRegistry {
 		'contact'               => array(
 			'tag'   => 'rentiva_contact',
 			'title' => 'Contact Form',
-			'css'   => 'contact-form.css',
+			'css'   => array(), // The form is the rvs standard (ContactForm enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-contact' ),
 		),
 		'vehicle-rating-form'   => array(
 			'tag'   => 'rentiva_vehicle_rating_form',
 			'title' => 'Vehicle Rating Form',
-			'css'   => 'vehicle-rating-form.css',
+			'css'   => array(), // The rvs review component (VehicleRatingForm enqueues it).
+			'deps'  => array( 'mhm-rentiva-rvs-reviews' ),
 		),
 		'my-bookings'           => array(
 			'tag'   => 'rentiva_my_bookings',

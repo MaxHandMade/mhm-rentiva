@@ -208,6 +208,97 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		$this->assertSame(array(), $this->reasons, 'No fallback on the happy path.');
 	}
 
+	/**
+	 * PR F r2 M1: with the topic selector on (the default) the visitor changes the
+	 * type after the page was rendered, and the custom recipient has to survive that.
+	 */
+	public function test_selector_keeps_the_custom_recipient_for_every_offered_topic(): void
+	{
+		$token = $this->token_from_render($this->page_by($this->editor));
+
+		foreach (array( 'general', 'booking', 'feedback' ) as $type) {
+			$this->mails = array();
+			$response    = $this->submit(array( 'recipient_token' => $token, 'type' => $type ));
+			$this->assertTrue($response['success'], $type);
+			$this->assertSame(array( self::CUSTOM ), $this->notification_to(), $type);
+		}
+		$this->assertSame(array(), $this->reasons);
+	}
+
+	public function test_selector_token_refuses_a_type_outside_its_set(): void
+	{
+		$token = $this->token_from_render($this->page_by($this->editor));
+
+		$this->submit(array( 'recipient_token' => $token, 'type' => 'support', 'priority' => 'low' ));
+		$this->assertNotSame(array( self::CUSTOM ), $this->notification_to());
+		$this->assert_fell_back('type_mismatch');
+	}
+
+	public function test_a_support_form_keeps_support_in_its_set(): void
+	{
+		$token = $this->token_from_render($this->page_by($this->editor), ' type="support"');
+
+		$this->submit(array( 'recipient_token' => $token, 'type' => 'support', 'priority' => 'low' ));
+		$this->assertSame(array( self::CUSTOM ), $this->notification_to());
+	}
+
+	public function test_a_token_without_recipient_is_no_refusal(): void
+	{
+		$page = $this->page_by($this->editor);
+		$this->assertNull(RecipientToken::resolve(RecipientToken::issue('', $page, array( 'general' ), true), 'general'));
+		$this->assertSame(array(), $this->reasons, 'A form with no custom recipient announces no fallback.');
+	}
+
+	public function test_a_token_of_an_older_page_still_vouches(): void
+	{
+		$page  = $this->page_by($this->editor);
+		$nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$plain = (string) wp_json_encode(
+			array(
+				'email'   => self::CUSTOM,
+				'post_id' => $page,
+				'type'    => 'general',
+			)
+		);
+		$token = base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, hash('sha256', wp_salt('auth'), true)));
+
+		$this->assertSame(self::CUSTOM, RecipientToken::resolve($token, 'general'));
+		$this->assertNull(RecipientToken::resolve($token, 'booking'));
+		$this->assertFalse(RecipientToken::allows_auto_reply($token, 'general'), 'The old payload never vouches for a reply.');
+	}
+
+	public function test_the_nonce_does_not_come_from_the_secretbox_key(): void
+	{
+		$key   = hash('sha256', wp_salt('auth'), true);
+		$token = RecipientToken::issue('', 7, array( 'general' ), true);
+		$raw   = (string) base64_decode($token, true);
+		$nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$plain = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $nonce, $key);
+
+		$this->assertIsString($plain, 'The secretbox key is unchanged, so cached tokens keep opening.');
+		$this->assertNotSame(substr(hash_hmac('sha256', $plain, $key, true), 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $nonce);
+		$this->assertSame($token, RecipientToken::issue('', 7, array( 'general' ), true), 'Still one token per payload.');
+	}
+
+	public function test_a_token_sealed_with_another_key_fails_closed(): void
+	{
+		$page  = $this->page_by($this->editor);
+		$nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$plain = (string) wp_json_encode(
+			array(
+				'email'      => self::CUSTOM,
+				'post_id'    => $page,
+				'types'      => array( 'general' ),
+				'auto_reply' => true,
+			)
+		);
+		$token = base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, str_repeat('k', SODIUM_CRYPTO_SECRETBOX_KEYBYTES)));
+
+		$this->assertNull(RecipientToken::resolve($token, 'general'));
+		$this->assertFalse(RecipientToken::allows_auto_reply($token, 'general'));
+		$this->assert_fell_back('auth_failed');
+	}
+
 	public function test_plain_email_to_post_is_ignored(): void
 	{
 		$response = $this->submit(
@@ -302,7 +393,7 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 
 		// End to end: the token rendered for a booking form, posted as a general form.
 		$this->reasons = array();
-		$token         = $this->token_from_render($page, ' type="booking"');
+		$token         = $this->token_from_render($page, ' type="booking" show_topic_selector="0"');
 		$this->submit(array( 'recipient_token' => $token ));
 		$this->assertSame(array( get_option('admin_email') ), $this->notification_to());
 		$this->assert_fell_back('type_mismatch');
@@ -313,7 +404,7 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 	 *
 	 * SiteClock moves the site's clock (gmt_offset), not PHP's time(); the real
 	 * guarantee is structural and asserted as such: the payload holds exactly
-	 * {email, post_id, type} and RecipientToken reads no clock at all.
+	 * {email, post_id, types, auto_reply} and RecipientToken reads no clock at all.
 	 */
 	public function test_recipient_payload_has_no_expiry(): void
 	{
@@ -328,7 +419,7 @@ final class ContactRecipientTokenTest extends WP_Ajax_UnitTestCase
 		);
 		$this->assertIsString($plain);
 		$payload = json_decode($plain, true);
-		$this->assertSame(array( 'email', 'post_id', 'type' ), array_keys($payload), 'No issue time, no expiry.');
+		$this->assertSame(array( 'email', 'post_id', 'types', 'auto_reply' ), array_keys($payload), 'No issue time, no expiry.');
 
 		$src = (string) file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'src/Admin/Frontend/Shortcodes/Contact/RecipientToken.php'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source.
 		$this->assertDoesNotMatchRegularExpression('/\b(time|microtime|current_time|wp_date|date|gmdate|strtotime)\s*\(/', $src, 'The resolver reads no clock.');

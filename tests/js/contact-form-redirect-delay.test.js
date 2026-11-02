@@ -3,9 +3,8 @@
  */
 
 /**
- * Spec 3A Task 10a item 8: with a redirect URL set, the success message is shown
- * first and the page leaves only after a short delay (it used to leave at once,
- * so the message was never visible).
+ * Spec 3A Task 10a item 8 + PR F R7 (m4): with a redirect URL set, the permanent
+ * success box is shown first and the page leaves only after a short delay.
  */
 describe( 'contact form success redirect', () => {
 	let assign;
@@ -14,22 +13,28 @@ describe( 'contact form success redirect', () => {
 		jest.useFakeTimers();
 		jest.resetModules();
 		document.body.innerHTML = `
-			<div class="rv-contact-form" data-redirect-url="http://rentiva.localhost/thank-you/">
+			<div class="rvs-contact" data-rvs-contact data-redirect-url="http://rentiva.localhost/thank-you/">
+				<div class="rvs-contact__status" role="status"></div>
 				<form>
-					<input name="name" value="A">
-					<div class="rv-form-actions"><button type="submit" class="rv-submit-button">Send</button></div>
+					<div data-rvs-field><input id="n" name="name" value="A"></div>
+					<div class="rvs-contact__actions"><button type="submit">Send</button></div>
 				</form>
 			</div>`;
 
-		window.jQuery = jest.fn();
 		window.mhmContactForm = {
 			ajaxUrl: '/wp-admin/admin-ajax.php',
 			nonce: 'n',
 			icons: {},
-			messages: { submitting: 'Sending', success: 'Sent!', error: 'Error' },
+			messages: {
+				submitting: 'Sending',
+				error: 'Error',
+				success_title: 'Received, request #%s',
+				success_title_plain: 'Received',
+				success_body: 'We will reply by email.',
+			},
 		};
 		global.fetch = jest.fn().mockResolvedValue( {
-			json: () => Promise.resolve( { success: true, data: { message: 'Thanks, we got it.' } } ),
+			json: () => Promise.resolve( { success: true, data: { message_id: 2291 } } ),
 		} );
 
 		assign = jest.fn();
@@ -37,7 +42,6 @@ describe( 'contact form success redirect', () => {
 		window.location = { assign };
 
 		require( '../../assets/js/frontend/contact-form.js' );
-		document.dispatchEvent( new Event( 'DOMContentLoaded' ) );
 	} );
 
 	afterEach( () => {
@@ -50,13 +54,15 @@ describe( 'contact form success redirect', () => {
 		}
 	};
 
-	test( 'shows the success message, then redirects after a delay', async () => {
+	test( 'shows the success box, then redirects after a delay', async () => {
 		document.querySelector( 'form' ).dispatchEvent( new Event( 'submit', { cancelable: true } ) );
 		await flush();
 
-		const message = document.querySelector( '.rv-form-message.rv-success .rv-msg-text' );
-		expect( message ).not.toBeNull();
-		expect( message.textContent ).toBe( 'Thanks, we got it.' );
+		const box = document.querySelector( '.rvs-contact__status .rvs-notice--success' );
+		expect( box ).not.toBeNull();
+		expect( box.textContent ).toContain( 'Received, request #2291' );
+		expect( box.textContent ).toContain( 'We will reply by email.' );
+		expect( document.querySelector( 'form' ).hidden ).toBe( true );
 		expect( assign ).not.toHaveBeenCalled();
 
 		jest.advanceTimersByTime( 1499 );
@@ -64,5 +70,6 @@ describe( 'contact form success redirect', () => {
 
 		jest.advanceTimersByTime( 1 );
 		expect( assign ).toHaveBeenCalledWith( 'http://rentiva.localhost/thank-you/' );
+		expect( document.querySelector( '.rvs-notice--success' ) ).not.toBeNull();
 	} );
 } );

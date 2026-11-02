@@ -78,6 +78,7 @@ final class RatingDistributionTest extends WP_UnitTestCase
 		$template = (string) file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'templates/shortcodes/vehicle-rating-form.php' );
 
 		$this->assertStringNotContainsString( '$wpdb', $template, 'The rating summary must not query the database from the template.' );
-		$this->assertStringContainsString( 'RatingHelper::get_distribution', $template );
+		$controller = (string) file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'src/Admin/Frontend/Shortcodes/VehicleRatingForm.php' );
+		$this->assertStringContainsString( 'RatingHelper::get_distribution', $controller );
 	}
 }

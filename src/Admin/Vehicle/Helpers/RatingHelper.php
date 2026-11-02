@@ -28,6 +28,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 class RatingHelper {
 
 	/**
+	 * What counts as a public review, on every surface that counts or lists them:
+	 * the summary, the rating form's list, the vehicle page and the testimonials.
+	 * A plain WordPress comment has no stars and is neither counted nor drawn.
+	 *
+	 * @return array{type: string, status: string} get_comments() arguments.
+	 */
+	public static function public_review_args(): array {
+		return array(
+			'type'   => 'review',
+			'status' => 'approve',
+		);
+	}
+
+	/**
+	 * The public reviews of a vehicle, newest first.
+	 *
+	 * @param int $vehicle_id Vehicle.
+	 * @param int $number     Most rows to read.
+	 * @return array<int, \WP_Comment>
+	 */
+	public static function get_public_reviews( int $vehicle_id, int $number ): array {
+		return get_comments(
+			array(
+				'post_id' => $vehicle_id,
+				'number'  => max( 1, $number ),
+				'orderby' => 'comment_date',
+				'order'   => 'DESC',
+			) + self::public_review_args()
+		);
+	}
+
+	/**
 	 * Get the rating data for a vehicle from the cache (post meta).
 	 *
 	 * @param int $vehicle_id
@@ -59,9 +91,7 @@ class RatingHelper {
 		$comments = get_comments(
 			array(
 				'post_id' => $vehicle_id,
-				'type'    => 'review',
-				'status'  => 'approve',
-			)
+			) + self::public_review_args()
 		);
 
 		$total_rating = 0;
@@ -109,9 +139,7 @@ class RatingHelper {
 		$comments = get_comments(
 			array(
 				'post_id' => $vehicle_id,
-				'type'    => 'review',
-				'status'  => 'approve',
-			)
+			) + self::public_review_args()
 		);
 
 		foreach ( $comments as $comment ) {
@@ -158,6 +186,9 @@ class RatingHelper {
 				'user_id' => $user_id, // This works for logged in users
 				'type'    => 'review',
 				'number'  => 1,
+				// One review per person; old data may hold more, the newest is "the" review.
+				'orderby' => 'comment_date_gmt',
+				'order'   => 'DESC',
 			)
 		);
 

@@ -41,7 +41,6 @@ use WP_UnitTestCase;
  *
  * | site (trigger key)          | handle                             | file:line (pre-fix deps)                                          | pre-fix state |
  * |------------------------------|-------------------------------------|--------------------------------------------------------------------|---------------|
- * | vehicle_rating_form          | mhm-rentiva-vehicle-rating-form     | AbstractShortcode.php:367-370 (base default; VehicleRatingForm does NOT override get_js_dependencies()) | already had toast |
  * | my_account_via_controller    | mhm-rentiva-my-account              | AccountController.php:362-368 (['jquery'])                        | MISSING |
  * | my_account_via_shortcode     | mhm-rentiva-my-account (same handle)| AbstractAccountShortcode.php:43-49 (['jquery'])                   | MISSING |
  * | availability_calendar        | (removed, PR E)                     | the rewritten availability-calendar.js makes no MHMRentivaToast.* call, so the handle no longer lists toast and has no row below | n/a |
@@ -86,7 +85,6 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 
 	/** Every handle any trigger() branch below can register. */
 	private const CONSUMER_HANDLES = array(
-		'mhm-rentiva-vehicle-rating-form',
 		'mhm-rentiva-my-account',
 		'mhm-rentiva-vehicle-comparison',
 		'mhm-rentiva-vehicle-interactions',
@@ -120,7 +118,6 @@ final class ToastDependencyTest extends WP_UnitTestCase {
 	 */
 	public function consumer_site_provider(): array {
 		return array(
-			'vehicle_rating_form -- AbstractShortcode base default (no override)'        => array( 'vehicle_rating_form', 'mhm-rentiva-vehicle-rating-form' ),
 			'my_account via AccountController::enqueue_account_script()'                 => array( 'my_account_via_controller', 'mhm-rentiva-my-account' ),
 			'my_account via AbstractAccountShortcode::enqueue_assets() (:43-49)'         => array( 'my_account_via_shortcode', 'mhm-rentiva-my-account' ),
 			'vehicle_comparison -- VehicleComparison::get_js_dependencies()'             => array( 'vehicle_comparison', 'mhm-rentiva-vehicle-comparison' ),

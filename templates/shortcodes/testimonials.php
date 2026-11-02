@@ -1,267 +1,121 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-// phpcs:disable WordPress.NamingConventions.ValidHookName.UseUnderscores -- Slash-separated filter names are stable legacy hooks in this shortcode.
-// phpcs:disable PSR12.Files.FileHeader.IncorrectOrder -- phpcs:disable directives must precede declare() in template files.
+/**
+ * Testimonials: grid, list or slider of the same card (PR F, drawing `Yorumlar`).
+ *
+ * The page's `.rvs-shell` wrapper comes from AbstractShortcode. Script hooks
+ * (testimonials.js): [data-rvs-testimonials], [data-rvs-items], [data-rvs-card],
+ * [data-rvs-load-more], [data-rvs-prev], [data-rvs-next], [data-rvs-dots].
+ *
+ * @var array<string, mixed>              $atts     Resolved attributes.
+ * @var string                            $layout   grid, list or carousel.
+ * @var int                               $columns  1 to 4.
+ * @var array<int, array<string, mixed>>  $cards    ReviewsView::card() rows.
+ * @var bool                              $has_more More reviews than the page shows.
+ * @var array<string, string>             $load_more Order and filters Load more continues with.
+ */
 
 declare(strict_types=1);
 
-/**
- * Testimonials Template — VIP Design
- *
- * Shows customer reviews and ratings with a premium card layout.
- */
+use MHMRentiva\Admin\Core\Utilities\Templates;
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Helpers\Icons;
-
-// Get template variables
-$atts             = $atts ?? array();
-$testimonials     = $testimonials ?? array();
-$total_count      = $total_count ?? 0;
-$has_testimonials = $has_testimonials ?? false;
-// The order, filters and card flags "Load More" continues with; only the values
-// that differ from the defaults (Testimonials::load_more_attributes()). Printed
-// as data-* attributes on the wrapper, each name and value escaped where echoed;
-// an empty list prints nothing, so a default render keeps its markup.
-$load_more_attrs       = (array) ( $load_more ?? array() );
-$print_load_more_attrs = static function (array $attrs): void {
-	foreach ($attrs as $name => $value) {
-		echo ' data-' . esc_attr( (string) $name) . '="' . esc_attr( (string) $value) . '"';
-	}
-};
-
-// Shortcode attributes
-$limit         = intval($atts['limit'] ?? apply_filters('mhmrentiva_testimonials_limit', 5));
-$show_rating   = ( $atts['show_rating'] ?? '1' ) === '1';
-$show_date     = ( $atts['show_date'] ?? '1' ) === '1';
-$show_vehicle  = ( $atts['show_vehicle'] ?? '1' ) === '1';
-$show_customer = ( $atts['show_customer'] ?? '1' ) === '1';
-$layout        = $atts['layout'] ?? 'grid';
-$columns       = intval($atts['columns'] ?? 3);
-$auto_rotate   = ( $atts['auto_rotate'] ?? '0' ) === '1';
-$show_avatar   = ( $atts['show_author_avatar'] ?? '1' ) === '1';
-$show_quotes   = ( $atts['show_quotes'] ?? '1' ) === '1';
-$class         = $atts['class'] ?? '';
-
-// 'carousel', 'slider', and 'vip' all render as the slider/carousel layout.
-$is_carousel = in_array($layout, array( 'carousel', 'slider', 'vip' ), true);
-
-/**
- * Format a full name as "First L." (first name + last-name initial).
- * Example: "Mehmet Demir" → "Mehmet D."
- */
-$format_name = static function (string $full_name): string {
-	$parts = preg_split('/\s+/', trim($full_name), -1, PREG_SPLIT_NO_EMPTY);
-	if (count($parts) < 2) {
-		return $full_name;
-	}
-	$last_initial = mb_strtoupper(mb_substr($parts[ count($parts) - 1 ], 0, 1), 'UTF-8');
-	return $parts[0] . ' ' . $last_initial . '.';
-};
-
+$mhmrentiva_t_atts     = (array) ( $atts ?? array() );
+$mhmrentiva_t_cards    = (array) ( $cards ?? array() );
+$mhmrentiva_t_layout   = (string) ( $layout ?? 'grid' );
+$mhmrentiva_t_carousel = 'carousel' === $mhmrentiva_t_layout;
+$mhmrentiva_t_columns  = (int) ( $columns ?? 3 );
+$mhmrentiva_t_flag     = static fn (string $key): bool => '1' === (string) ( $mhmrentiva_t_atts[ $key ] ?? '1' );
+$mhmrentiva_t_show     = array(
+	'rating'   => $mhmrentiva_t_flag('show_rating'),
+	'customer' => $mhmrentiva_t_flag('show_customer'),
+	'avatar'   => $mhmrentiva_t_flag('show_author_avatar'),
+	'vehicle'  => $mhmrentiva_t_flag('show_vehicle'),
+	'date'     => $mhmrentiva_t_flag('show_date'),
+	'quotes'   => $mhmrentiva_t_flag('show_quotes'),
+);
+$mhmrentiva_t_rotate   = '1' === (string) ( $mhmrentiva_t_atts['auto_rotate'] ?? '0' );
+$mhmrentiva_t_count    = count($mhmrentiva_t_cards);
+$mhmrentiva_t_classes  = trim(
+	'rvs-testimonials rvs-testimonials--' . $mhmrentiva_t_layout
+	. ' rvs-testimonials--cols-' . $mhmrentiva_t_columns
+	. ' ' . implode(' ', array_map('sanitize_html_class', preg_split('/\s+/', (string) ( $mhmrentiva_t_atts['class'] ?? '' ), -1, PREG_SPLIT_NO_EMPTY) ?: array()))
+);
 ?>
+<?php if (empty($mhmrentiva_t_cards)) : ?>
+	<div class="<?php echo esc_attr($mhmrentiva_t_classes); ?>">
+		<div class="rvs-testimonials__empty">
+			<p class="rvs-testimonials__empty-title"><?php esc_html_e('No reviews yet.', 'mhm-rentiva'); ?></p>
+		</div>
+	</div>
+<?php else : ?>
+	<div class="<?php echo esc_attr($mhmrentiva_t_classes); ?>" data-rvs-testimonials data-limit="<?php echo esc_attr( (string) (int) ( $mhmrentiva_t_atts['limit'] ?? 5 )); ?>" data-layout="<?php echo esc_attr($mhmrentiva_t_layout); ?>" data-auto-rotate="<?php echo $mhmrentiva_t_rotate ? '1' : '0'; ?>"
+	<?php
+	foreach ( (array) ( $load_more ?? array() ) as $mhmrentiva_t_name => $mhmrentiva_t_value) {
+		echo ' data-' . esc_attr( (string) $mhmrentiva_t_name) . '="' . esc_attr( (string) $mhmrentiva_t_value) . '"';
+	}
+	?>
+	<?php if ($mhmrentiva_t_carousel) : ?>
+		role="region" aria-label="<?php esc_attr_e('Customer reviews', 'mhm-rentiva'); ?>"
+	<?php endif; ?>>
+		<div class="rvs-testimonials__items" data-rvs-items<?php echo $mhmrentiva_t_carousel ? ' tabindex="0" role="group" aria-label="' . esc_attr__('Reviews', 'mhm-rentiva') . '"' : ''; ?>>
+			<?php foreach ($mhmrentiva_t_cards as $mhmrentiva_t_card) : ?>
+				<?php
+				Templates::render(
+					'partials/rvs/testimonial-card',
+					array(
+						'card' => $mhmrentiva_t_card,
+						'show' => $mhmrentiva_t_show,
+					)
+				);
+				?>
+			<?php endforeach; ?>
+		</div>
 
-<div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>"
-	data-limit="<?php echo esc_attr($limit); ?>"
-	data-layout="<?php echo esc_attr($layout); ?>"
-	data-auto-rotate="<?php echo $auto_rotate ? '1' : '0'; ?>"<?php $print_load_more_attrs($load_more_attrs); ?>>
-
-	<?php if ($has_testimonials) : ?>
-
-		<!-- Testimonials Container -->
-		<div class="rv-testimonials-container">
-
-			<?php if ($is_carousel) : ?>
-				<!-- Carousel / Slider Layout -->
-				<div class="rv-testimonials-carousel">
-					<div class="rv-carousel-wrapper">
-						<div class="rv-carousel-track">
-							<?php foreach ($testimonials as $testimonial) : ?>
-								<div class="rv-testimonial-item rv-carousel-slide">
-									<div class="rv-testimonial-card">
-
-										<?php if ($show_quotes) : ?>
-										<!-- Quote Icon -->
-										<div class="rv-quote-icon" aria-hidden="true">
-											<?php
-                                            Icons::render('quote', array(
-												'width'  => '32px',
-												'height' => '32px',
-												'class'  => 'rv-icon rv-icon-quote-deco',
-											));
-											?>
-										</div>
-										<?php endif; ?>
-
-										<!-- Rating -->
-										<?php if ($show_rating && $testimonial['rating'] > 0) : ?>
-											<div class="rv-testimonial-rating">
-												<?php for ($i = 1; $i <= 5; $i++) : ?>
-													<span class="rv-star <?php echo $i <= $testimonial['rating'] ? 'filled' : 'empty'; ?>">
-														<?php
-                                                        Icons::render('star', array(
-															'width'  => '15px',
-															'height' => '15px',
-														));
-														?>
-													</span>
-												<?php endfor; ?>
-											</div>
-										<?php endif; ?>
-
-										<!-- Review Text -->
-										<div class="rv-testimonial-text">
-											<p>&ldquo;<?php echo esc_html($testimonial['review']); ?>&rdquo;</p>
-										</div>
-
-										<!-- Customer Info -->
-										<div class="rv-testimonial-author">
-											<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
-												<?php if ($show_avatar) : ?>
-												<div class="rv-author-avatar">
-													<span class="rv-avatar-placeholder" aria-hidden="true">
-														<?php echo esc_html(mhmrentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
-													</span>
-												</div>
-												<?php endif; ?>
-												<div class="rv-author-info">
-													<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
-													<?php if ($show_vehicle && ! empty($testimonial['vehicle_name'])) : ?>
-														<span class="rv-author-title"><?php echo esc_html($testimonial['vehicle_name']); ?></span>
-													<?php endif; ?>
-													<?php if ($show_date) : ?>
-														<span class="rv-author-date"><?php echo esc_html(date_i18n(get_option('date_format', 'd.m.Y'), strtotime( (string) $testimonial['date']))); ?></span>
-													<?php endif; ?>
-												</div>
-											<?php endif; ?>
-										</div>
-
-									</div><!-- .rv-testimonial-card -->
-								</div><!-- .rv-testimonial-item -->
-							<?php endforeach; ?>
-						</div><!-- .rv-carousel-track -->
-					</div><!-- .rv-carousel-wrapper -->
-
-					<!-- Carousel Controls -->
-					<button class="rv-carousel-prev" aria-label="<?php echo esc_attr__('Previous', 'mhm-rentiva'); ?>">
-						<?php Icons::render('chevron-left'); ?>
-					</button>
-					<button class="rv-carousel-next" aria-label="<?php echo esc_attr__('Next', 'mhm-rentiva'); ?>">
-						<?php Icons::render('chevron-right'); ?>
-					</button>
-
-					<!-- Carousel Indicators -->
-					<div class="rv-carousel-indicators">
-						<?php
-						$total_slides = count($testimonials);
-						for ($i = 0; $i < $total_slides; $i++) :
-							?>
-							<button class="rv-carousel-indicator <?php echo $i === 0 ? 'active' : ''; ?>"
-								data-slide="<?php echo esc_attr($i); ?>"></button>
-						<?php endfor; ?>
-					</div>
-				</div><!-- .rv-testimonials-carousel -->
-
-			<?php else : ?>
-				<!-- Grid / List Layout -->
-				<div class="rv-testimonials-<?php echo esc_attr($layout); ?>" data-columns="<?php echo esc_attr($columns); ?>">
-					<?php foreach ($testimonials as $testimonial) : ?>
-						<div class="rv-testimonial-item">
-							<div class="rv-testimonial-card">
-
-								<?php if ($show_quotes) : ?>
-								<!-- Quote Icon -->
-								<div class="rv-quote-icon" aria-hidden="true">
-									<?php
-                                    Icons::render('quote', array(
-										'width'  => '32px',
-										'height' => '32px',
-										'class'  => 'rv-icon rv-icon-quote-deco',
-									));
-									?>
-								</div>
-								<?php endif; ?>
-
-								<!-- Rating -->
-								<?php if ($show_rating && $testimonial['rating'] > 0) : ?>
-									<div class="rv-testimonial-rating">
-										<?php for ($i = 1; $i <= 5; $i++) : ?>
-											<span class="rv-star <?php echo $i <= $testimonial['rating'] ? 'filled' : 'empty'; ?>">
-												<?php
-                                                Icons::render('star', array(
-													'width'  => '15px',
-													'height' => '15px',
-												));
-												?>
-											</span>
-										<?php endfor; ?>
-									</div>
-								<?php endif; ?>
-
-								<!-- Review Text -->
-								<div class="rv-testimonial-text">
-									<p>&ldquo;<?php echo esc_html($testimonial['review']); ?>&rdquo;</p>
-								</div>
-
-								<!-- Customer Info -->
-								<div class="rv-testimonial-author">
-									<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
-										<?php if ($show_avatar) : ?>
-										<div class="rv-author-avatar">
-											<span class="rv-avatar-placeholder" aria-hidden="true">
-												<?php echo esc_html(mhmrentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
-											</span>
-										</div>
-										<?php endif; ?>
-										<div class="rv-author-info">
-											<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
-											<?php if ($show_vehicle && ! empty($testimonial['vehicle_name'])) : ?>
-												<span class="rv-author-title"><?php echo esc_html($testimonial['vehicle_name']); ?></span>
-											<?php endif; ?>
-											<?php if ($show_date) : ?>
-												<span class="rv-author-date"><?php echo esc_html(date_i18n(get_option('date_format', 'd.m.Y'), strtotime( (string) $testimonial['date']))); ?></span>
-											<?php endif; ?>
-										</div>
-									<?php endif; ?>
-								</div>
-
-							</div><!-- .rv-testimonial-card -->
-						</div><!-- .rv-testimonial-item -->
-					<?php endforeach; ?>
-				</div><!-- .rv-testimonials-{layout} -->
-			<?php endif; ?>
-
-		</div><!-- .rv-testimonials-container -->
-
-		<!-- Load More Button -->
-		<?php if (count($testimonials) < $total_count) : ?>
-			<div class="rv-testimonials-load-more">
-				<button class="rv-load-more-btn" data-page="1">
-					<?php echo esc_html__('Load More Reviews', 'mhm-rentiva'); ?>
-					<span class="rv-loading-spinner" style="display: none;">
-						<?php Icons::render('refresh'); ?>
-					</span>
+		<?php if ($mhmrentiva_t_carousel && ( $mhmrentiva_t_count > 1 || ! empty($has_more) )) : ?>
+			<?php /* One review so far but more to load: the controls wait, hidden, for the cards Load more adds. */ ?>
+			<div class="rvs-testimonials__controls" data-rvs-controls<?php echo $mhmrentiva_t_count > 1 ? '' : ' hidden'; ?>>
+				<button type="button" class="rvs-btn rvs-btn--secondary rvs-btn--icon" data-rvs-prev aria-label="<?php esc_attr_e('Previous review', 'mhm-rentiva'); ?>">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6"/></svg>
 				</button>
+				<div class="rvs-testimonials__dots" role="group" aria-label="<?php esc_attr_e('Choose a review', 'mhm-rentiva'); ?>" data-rvs-dots>
+					<?php for ($mhmrentiva_t_i = 1; $mhmrentiva_t_i <= $mhmrentiva_t_count; $mhmrentiva_t_i++) : ?>
+						<?php /* translators: 1: position of the review, 2: number of reviews. */ ?>
+						<button type="button" class="rvs-testimonials__dot" aria-label="<?php echo esc_attr(sprintf(__('Review %1$s of %2$s', 'mhm-rentiva'), number_format_i18n($mhmrentiva_t_i), number_format_i18n($mhmrentiva_t_count))); ?>"<?php echo 1 === $mhmrentiva_t_i ? ' aria-current="true"' : ''; ?>><span></span></button>
+					<?php endfor; ?>
+				</div>
+				<button type="button" class="rvs-btn rvs-btn--secondary rvs-btn--icon" data-rvs-next aria-label="<?php esc_attr_e('Next review', 'mhm-rentiva'); ?>">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+				</button>
+				<?php if ($mhmrentiva_t_rotate) : ?>
+					<button type="button" class="rvs-btn rvs-btn--secondary rvs-btn--icon" data-rvs-pause aria-label="<?php esc_attr_e('Pause automatic rotation', 'mhm-rentiva'); ?>">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false" data-rvs-pause-icon><path d="M9 6v12M15 6v12"/></svg>
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false" data-rvs-play-icon hidden><path d="M8 5l11 7-11 7z"/></svg>
+					</button>
+				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 
-	<?php else : ?>
-		<!-- No Testimonials -->
-		<div class="rv-no-testimonials">
-			<div class="rv-no-testimonials-icon">
+		<?php if (! empty($has_more)) : ?>
+			<div class="rvs-testimonials__more">
+				<button type="button" class="rvs-btn rvs-btn--secondary" data-rvs-load-more data-page="1"><?php esc_html_e('Load more reviews', 'mhm-rentiva'); ?></button>
+				<p class="rvs-testimonials__error" role="alert" data-rvs-error hidden></p>
+			</div>
+			<div hidden inert data-rvs-card-template>
 				<?php
-                Icons::render('quote', array(
-					'width'  => '48px',
-					'height' => '48px',
-				));
+				Templates::render(
+					'partials/rvs/testimonial-card',
+					array(
+						'card'     => array(),
+						'show'     => $mhmrentiva_t_show,
+						'template' => true,
+					)
+				);
 				?>
 			</div>
-			<h4><?php echo esc_html__('No Reviews Yet', 'mhm-rentiva'); ?></h4>
-			<p><?php echo esc_html__('Be the first to leave a review!', 'mhm-rentiva'); ?></p>
-		</div>
-	<?php endif; ?>
-
-</div><!-- .rv-testimonials -->
+		<?php endif; ?>
+		<span class="rvs-sr-only" role="status" data-rvs-live></span>
+	</div>
+<?php endif; ?>

@@ -1,561 +1,421 @@
 /**
- * Vehicle Rating Form JavaScript
- * Real user rating system
+ * Rating form (PR F): field errors under their fields, a lasting answer, edit in
+ * place, delete through the shared rvs dialog. One instance per [data-rvs-rating]:
+ * nothing is looked up outside its root, so two forms on a page stay separate.
+ *
+ * The stars are native radios, so the arrow keys and the selected state are the
+ * browser's. After a change the list and the summary come from the server: the page
+ * reloads and the answer survives it in sessionStorage. Where storage is refused the
+ * answer stays on the page instead, without the reload.
+ *
+ * Text only ever goes in as text.
  */
 
-(function ($) {
-    'use strict';
-
-    class VehicleRatingForm {
-        constructor() {
-            this.init();
-        }
-
-        applySelectedStars($container, value) {
-            const score = parseInt(value, 10) || 0;
-            const $labels = $container.find('label.rv-star-input');
-
-            $labels.removeClass('active');
-            $labels.each(function () {
-                const $label = $(this);
-                const inputId = $label.attr('for');
-                const $input = $container.find('input#' + inputId);
-                const inputScore = parseInt($input.val(), 10) || 0;
-
-                if (inputScore > 0 && inputScore <= score) {
-                    $(this).addClass('active');
-                }
-            });
-        }
-
-        init() {
-            this.bindEvents();
-            this.initStarRating();
-            this.initCharCounter();
-            this.loadUserRatings();
-            this.initModals();
-
-            // Auto-load ratings list on page load - with slight delay
-            setTimeout(() => {
-                this.loadInitialRatings();
-            }, 100);
-        }
-
-        bindEvents() {
-            $(document).on('submit', '.rv-rating-form-content', this.handleSubmit.bind(this));
-            $(document).on('change', '.rv-rating-stars-input input[type="radio"]', this.handleStarChange.bind(this));
-            // Submit button click removed - only use form submit
-            $(document).on('click', '.rv-delete-rating', this.handleDeleteRating.bind(this));
-            $(document).on('click', '.rv-edit-comment-btn', this.handleEditComment.bind(this));
-            $(document).on('click', '.rv-delete-comment-btn', this.handleDeleteComment.bind(this));
-
-            // Modal events
-            $(document).on('click', '.rv-show-login-form', this.showLoginModal.bind(this));
-            $(document).on('click', '.rv-show-register-form', this.showRegisterModal.bind(this));
-            $(document).on('click', '.rv-modal-close', this.hideModals.bind(this));
-            $(document).on('click', '.rv-login-modal, .rv-register-modal', this.hideModalsOnBackdrop.bind(this));
-        }
-
-        initStarRating() {
-            const self = this;
-
-            $('.rv-rating-stars-input').each(function () {
-                const $container = $(this);
-                const $inputs = $container.find('input[type="radio"]');
-                const $labels = $container.find('label');
-
-                $labels.on('click', function (e) {
-                    e.preventDefault();
-                    const $label = $(this);
-                    const inputId = $label.attr('for');
-                    const $input = $container.find('input#' + inputId);
-                    const value = parseInt($input.val());
-
-                    if ($input.length) {
-                        $inputs.prop('checked', false);
-                        $input.prop('checked', true);
-                        self.applySelectedStars($container, value);
-                    }
-                });
-
-                $inputs.on('change', function () {
-                    const $input = $(this);
-                    const value = parseInt($input.val());
-                    self.applySelectedStars($container, value);
-                });
-
-                // Preview selected score while hovering stars.
-                $labels.on('mouseenter', function () {
-                    const $label = $(this);
-                    const inputId = $label.attr('for');
-                    const $input = $container.find('input#' + inputId);
-                    const value = parseInt($input.val(), 10) || 0;
-                    self.applySelectedStars($container, value);
-                });
-
-                // Restore persisted value when hover ends.
-                $container.on('mouseleave', function () {
-                    const $checkedInput = $inputs.filter(':checked').first();
-                    const value = $checkedInput.length ? parseInt($checkedInput.val(), 10) : 0;
-                    self.applySelectedStars($container, value);
-                });
-
-                // Ensure pre-filled user rating is visible on initial render.
-                const $checked = $inputs.filter(':checked').first();
-                if ($checked.length) {
-                    self.applySelectedStars($container, $checked.val());
-                }
-            });
-        }
-
-        initCharCounter() {
-            const self = this;
-
-            $('.rv-rating-textarea').each(function () {
-                const $textarea = $(this);
-                const $counter = $textarea.siblings('.rv-char-counter');
-                const $current = $counter.find('.rv-char-current');
-                const $form = $textarea.closest('form');
-                const $submitBtn = $form.find('button[type="submit"]');
-
-                const minLength = parseInt($textarea.data('min-length')) || 5;
-                const maxLength = parseInt($textarea.data('max-length')) || 1000;
-
-                // Update counter function
-                const updateCounter = () => {
-                    const length = $textarea.val().length;
-                    $current.text(length);
-
-                    // Reset classes
-                    $counter.removeClass('valid error warning');
-
-                    if (length === 0) {
-                        // Empty - neutral state
-                        $submitBtn.prop('disabled', false);
-                    } else if (length < minLength) {
-                        // Too short
-                        $counter.addClass('error');
-                        $submitBtn.prop('disabled', true);
-                    } else if (length > maxLength) {
-                        // Too long
-                        $counter.addClass('error');
-                        $submitBtn.prop('disabled', true);
-                    } else {
-                        // Valid range
-                        $counter.addClass('valid');
-                        $submitBtn.prop('disabled', false);
-                    }
-                };
-
-                // Bind input event
-                $textarea.on('input', updateCounter);
-
-                // Initial update (for edit mode)
-                updateCounter();
-            });
-        }
-
-        initModals() {
-            // Modal functionality
-        }
-
-        showLoginModal(e) {
-            e.preventDefault();
-            $('.rv-login-modal').fadeIn(300);
-        }
-
-        showRegisterModal(e) {
-            e.preventDefault();
-            $('.rv-register-modal').fadeIn(300);
-        }
-
-        hideModals() {
-            $('.rv-login-modal, .rv-register-modal').fadeOut(300);
-        }
-
-        hideModalsOnBackdrop(e) {
-            if (e.target === e.currentTarget) {
-                this.hideModals();
-            }
-        }
-
-        handleSubmit(e) {
-            e.preventDefault();
-
-            // Double-click protection
-            const $form = $(e.target).closest('.rv-rating-form-content');
-            const $submitBtn = $form.find('button[type="submit"]');
-
-            if ($submitBtn.prop('disabled')) {
-                return;
-            }
-
-            // Login check is done on PHP side, we don't check in JavaScript
-
-            const $container = $form.closest('.rv-rating-form');
-            const vehicleId = $container.attr('data-vehicle-id');
-            const rating = $form.find('input[name="rating"]:checked').val();
-            const comment = $form.find('textarea[name="comment"]').val();
-
-
-            // Name and email fields for guest users
-            const guestName = $form.find('input[name="guest_name"]').val();
-            const guestEmail = $form.find('input[name="guest_email"]').val();
-
-
-
-            if (!rating) {
-                MHMRentivaToast.show(window.mhmVehicleRating?.strings?.select_rating || 'Please select a rating.', { type: 'error' });
-                return;
-            }
-
-
-            const formData = {
-                action: 'mhmrentiva_submit_rating',
-                vehicle_id: vehicleId,
-                rating: rating,
-                comment: comment,
-                nonce: $form.find('input[name="nonce"]').val()
-            };
-
-
-            // Add name and email fields for guest users
-            if (guestName && guestEmail) {
-                formData.guest_name = guestName;
-                formData.guest_email = guestEmail;
-            }
-
-
-            $.ajax({
-                url: window.mhmVehicleRating?.ajaxUrl || '',
-                type: 'POST',
-                data: formData,
-                timeout: 10000,
-                beforeSend: () => {
-                    $form.find('button[type="submit"]').prop('disabled', true).text(window.mhmVehicleRating?.strings?.submitting || 'Submitting...');
-                },
-                success: (response) => {
-                    if (response.success) {
-                        MHMRentivaToast.show(response.data.message || 'Your comment has been submitted successfully! Awaiting approval.', { type: 'success' });
-                        // Refresh page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000); // Wait 3 seconds
-                    } else {
-                        MHMRentivaToast.show(response.data?.message || 'An error occurred', { type: 'error' });
-                    }
-                },
-                // jQuery reports a timeout through `error` with textStatus
-                // 'timeout' -- there is no `timeout` callback. A second
-                // `timeout` key here used to overwrite the 10000 above with a
-                // function, and `s.timeout > 0` is false for a function, so
-                // the request had no time limit at all AND this message never
-                // reached anyone.
-                error: (xhr, textStatus) => {
-                    MHMRentivaToast.show(
-                        'timeout' === textStatus
-                            ? (window.mhmVehicleRating?.strings?.timeout || 'Request timed out. Please try again.')
-                            : (window.mhmVehicleRating?.strings?.submit_error || 'An error occurred while submitting the rating.'),
-                        { type: 'error' }
-                    );
-                },
-                complete: () => {
-                    $form.find('button[type="submit"]').prop('disabled', false).text(window.mhmVehicleRating?.strings?.submit_rating || 'Submit review');
-                }
-            });
-        }
-
-        handleStarChange(e) {
-            const $input = $(e.target);
-            const $container = $input.closest('.rv-rating-stars-input');
-            this.applySelectedStars($container, $input.val());
-        }
-
-        handleDeleteRating(e) {
-            e.preventDefault();
-
-            if (!confirm(window.mhmVehicleRating?.strings?.delete_rating || 'Are you sure you want to delete your rating?')) {
-                return;
-            }
-
-            const $button = $(e.target);
-            const vehicleId = $button.attr('data-vehicle-id');
-
-            $.ajax({
-                url: window.mhmVehicleRating?.ajaxUrl || '',
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_delete_rating',
-                    vehicle_id: vehicleId,
-                    nonce: $('input[name="nonce"]').val() || window.mhmVehicleRating?.nonce
-                },
-                success: (response) => {
-                    if (response.success) {
-                        MHMRentivaToast.show(response.data?.message || 'Your rating has been deleted successfully!', { type: 'success' });
-                        // Refresh page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
-                    } else {
-                        MHMRentivaToast.show(response.data?.message || 'Error deleting rating.', { type: 'error' });
-                    }
-                },
-                error: () => {
-                    MHMRentivaToast.show(window.mhmVehicleRating?.strings?.connection_error || 'Connection error. Please try again.', { type: 'error' });
-                }
-            });
-        }
-
-        loadInitialRatings() {
-            const self = this;
-            $('.rv-rating-form').each((index, element) => {
-                const $element = $(element);
-                const vehicleId = $element.attr('data-vehicle-id');
-
-                if (vehicleId && vehicleId !== 'undefined') {
-                    self.loadUserRatings(vehicleId);
-                }
-            });
-        }
-
-        loadUserRatings(vehicleId = null) {
-            const self = this;
-
-            if (!vehicleId) {
-                $('.rv-rating-form').each((index, element) => {
-                    const $element = $(element);
-                    const id = $element.attr('data-vehicle-id');
-                    if (id && id !== 'undefined') {
-                        self.loadUserRatings(id);
-                    }
-                });
-                return;
-            }
-
-            // Check if AJAX call has been made
-            const $container = $(`.rv-rating-form[data-vehicle-id="${vehicleId}"]`);
-            if ($container.data('ajax-called')) {
-                return; // AJAX call already made
-            }
-
-            const $ratingsList = $container.find('.rv-ratings-list');
-
-            if ($ratingsList.length === 0) {
-                return;
-            }
-
-            // If reviews already exist (loaded from PHP), don't make AJAX call
-            if ($ratingsList.find('.rv-reviews-section').length > 0 || $ratingsList.find('.rv-review-item').length > 0) {
-                return;
-            }
-
-            // If "No reviews yet" message exists, don't make AJAX call
-            if ($ratingsList.find('.rv-no-reviews').length > 0) {
-                return;
-            }
-
-            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || '';
-
-            if (!ajaxUrl || ajaxUrl === 'undefined') {
-                return;
-            }
-            // Mark AJAX call as made
-            $container.data('ajax-called', true);
-
-            $.ajax({
-                url: ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_get_vehicle_rating_list',
-                    vehicle_id: vehicleId
-                },
-                timeout: 10000,
-                success: (response) => {
-                    if (response.success && response.data) {
-                        self.renderRatingsList(response.data.ratings || []);
-                    } else {
-                        // Keep existing reviews if AJAX fails
-                    }
-                },
-                // Deliberately silent: whatever is already on the page stays
-                // there. jQuery routes a timeout here too, with textStatus
-                // 'timeout' -- the `timeout` key that used to sit below was
-                // not a callback jQuery ever calls, it just overwrote the
-                // 10000 above with a function and removed the time limit.
-                error: () => {
-                    // Keep the reviews already rendered, on error or timeout.
-                }
-            });
-        }
-
-        escapeHtml(text) {
-            if (!text) return '';
-            return String(text)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        renderRatingsList(ratings) {
-            const $container = $('.rv-ratings-list');
-
-            // If reviews already exist (loaded from PHP), don't render
-            if ($container.find('.rv-reviews-section').length > 0 || $container.find('.rv-review-item').length > 0) {
-                return;
-            }
-
-            // Remove loading state
-            $container.find('.rv-loading-ratings').remove();
-
-            if (!ratings || ratings.length === 0) {
-                $container.html('<p class="rv-no-ratings">' + (window.mhmVehicleRating?.no_ratings || 'No reviews yet.') + '</p>');
-                return;
-            }
-
-            let html = '<div class="rv-ratings-header"><h4>' + (window.mhmVehicleRating?.reviews_title || 'Reviews') + '</h4></div>';
-
-            ratings.forEach((rating, index) => {
-                let stars = '';
-                for (let i = 1; i <= 5; i++) {
-                    const isFilled = i <= rating.rating;
-                    const starIcon = window.mhmVehicleRating?.icons?.star || (isFilled ? '★' : '☆');
-                    stars += `<span class="rv-star ${isFilled ? 'filled' : 'empty'}">${starIcon}</span>`;
-                }
-                // Date handling: Ensure it doesn't break if date format varies
-                let dateStr = '';
-                try {
-                    dateStr = new Date(rating.date || rating.created_at).toLocaleDateString();
-                } catch (e) {
-                    dateStr = rating.date || '';
-                }
-
-                html += `
-                    <div class="rv-rating-item">
-                        <div class="rv-rating-user">
-                            <span class="rv-rating-name">${this.escapeHtml(rating.display_name || rating.customer_name || 'Anonymous')}</span>
-                            <div class="rv-rating-stars">${stars}</div>
-                            <span class="rv-rating-date">${this.escapeHtml(dateStr)}</span>
-                        </div>
-                        ${rating.comment ? `<div class="rv-rating-comment">${this.escapeHtml(rating.comment)}</div>` : ''}
-                    </div>
-                `;
-            });
-
-            $container.html(html);
-        }
-
-
-        handleEditComment(e) {
-            e.preventDefault();
-
-            // Settings check
-            if (!(window.mhmVehicleRating?.settings?.allow_editing ?? true)) {
-                MHMRentivaToast.show('❌ Comment editing is disabled.', { type: 'error' });
-                return;
-            }
-
-            const $btn = $(e.target).closest('.rv-edit-comment-btn');
-            const commentId = $btn.data('comment-id');
-            const rating = $btn.data('rating');
-            const comment = $btn.data('comment');
-
-            // Fill the form
-            const $form = $('.rv-rating-form-content');
-            const $starsContainer = $form.find('.rv-rating-stars-input');
-            const $ratingInputs = $starsContainer.find('input[type="radio"]');
-            const $commentTextarea = $form.find('textarea[name="comment"]');
-
-            // Set rating
-            $ratingInputs.prop('checked', false);
-            $ratingInputs.filter(`[value="${rating}"]`).prop('checked', true);
-
-            // Update star appearance
-            this.applySelectedStars($starsContainer, rating);
-
-            // Set comment
-            $commentTextarea.val(comment);
-
-            // Set form to update mode
-            $form.data('edit-mode', true);
-            $form.data('comment-id', commentId);
-
-            // Update submit button text
-            $form.find('button[type="submit"]').text(window.mhmVehicleRating?.strings?.update_rating || 'Update Rating');
-
-            // Scroll to form
-            $('html, body').animate({
-                scrollTop: $form.offset().top - 100
-            }, 500);
-
-            MHMRentivaToast.show(window.mhmVehicleRating?.strings?.edit_loaded || 'Your comment has been loaded for editing.', { type: 'info' });
-        }
-
-        handleDeleteComment(e) {
-            e.preventDefault();
-
-            // Settings check
-            if (!(window.mhmVehicleRating?.settings?.allow_deletion ?? true)) {
-                MHMRentivaToast.show(window.mhmVehicleRating?.strings?.deletion_disabled || 'Comment deletion is disabled.', { type: 'error' });
-                return;
-            }
-
-            const $btn = $(e.target).closest('.rv-delete-comment-btn');
-            const commentId = $btn.data('comment-id');
-            const $reviewItem = $btn.closest('.rv-review-item'); // Get the review item to remove it
-
-            if (!confirm(window.mhmVehicleRating?.strings?.delete_confirm || 'Are you sure you want to delete this comment?')) {
-                return;
-            }
-
-            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || '';
-
-            // Get nonce from form
-            const nonce = $('.rv-rating-form-content input[name="nonce"]').val() || window.mhmVehicleRating?.nonce;
-
-            $.ajax({
-                url: ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhmrentiva_delete_rating',
-                    comment_id: commentId,
-                    nonce: nonce
-                },
-                timeout: 10000,
-                beforeSend: () => {
-                    $btn.prop('disabled', true).text(window.mhmVehicleRating?.strings?.deleting || 'Deleting...');
-                },
-                success: (response) => {
-                    if (response.success) {
-                        MHMRentivaToast.show(window.mhmVehicleRating?.strings?.delete_success || 'Your comment has been deleted successfully!', { type: 'success' });
-
-                        // Remove review from DOM
-                        $reviewItem.slideUp(function () {
-                            $(this).remove();
-                        });
-
-                        // Refresh page
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
-                    } else {
-                        MHMRentivaToast.show((window.mhmVehicleRating?.strings?.delete_error || 'Error deleting comment: ') + (response.data?.message || (window.mhmVehicleRating?.strings?.unknown_error || 'Unknown error')), { type: 'error' });
-                    }
-                },
-                error: (xhr, status, error) => {
-                    MHMRentivaToast.show(window.mhmVehicleRating?.strings?.delete_error_retry || 'Error deleting comment. Please try again.', { type: 'error' });
-                },
-                complete: () => {
-                    $btn.prop('disabled', false).html((window.mhmVehicleRating?.icons?.trash || '') + ' ' + (window.mhmVehicleRating?.strings?.delete || 'Delete'));
-                }
-            });
-        }
-    }
-
-    // Initialize when document is ready
-    $(document).ready(function () {
-        new VehicleRatingForm();
-    });
-
-})(jQuery);
+( function () {
+	'use strict';
+
+	const TIMEOUT = 15000;
+	const NOTICE_KEY = 'mhmRentivaRatingNotice';
+
+	const config = () => window.mhmVehicleRating || {};
+	const text = ( key ) => ( config().strings || {} )[ key ] || '';
+	const fill = ( template, ...values ) => values.reduce(
+		( out, value, i ) => out.replace( '%' + ( i + 1 ) + '$s', String( value ) ),
+		template
+	);
+	const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+	function formatNumber( value ) {
+		try {
+			return new Intl.NumberFormat( document.documentElement.lang || undefined ).format( value );
+		} catch ( error ) {
+			return String( value );
+		}
+	}
+
+	/** The server counts mb_strlen( trim() ): code points of the trimmed text. */
+	function lengthOf( value ) {
+		return Array.from( value.trim() ).length;
+	}
+
+	function post( data ) {
+		const controller = new AbortController();
+		const timer = setTimeout( () => controller.abort(), TIMEOUT );
+		return fetch( config().ajaxUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			body: new URLSearchParams( data ),
+			signal: controller.signal,
+		} ).then( ( response ) => response.json() ).finally( () => clearTimeout( timer ) );
+	}
+
+	function storeNotice( vehicleId, notice ) {
+		try {
+			window.sessionStorage.setItem( NOTICE_KEY, JSON.stringify( Object.assign( { vehicleId }, notice ) ) );
+			return true;
+		} catch ( error ) {
+			return false;
+		}
+	}
+
+	function takeNotice( vehicleId ) {
+		try {
+			const raw = window.sessionStorage.getItem( NOTICE_KEY );
+			if ( ! raw ) {
+				return null;
+			}
+			const notice = JSON.parse( raw );
+			if ( String( notice.vehicleId ) !== String( vehicleId ) ) {
+				return null;
+			}
+			window.sessionStorage.removeItem( NOTICE_KEY );
+			return notice;
+		} catch ( error ) {
+			return null;
+		}
+	}
+
+	class RatingForm {
+		constructor( root ) {
+			this.root = root;
+			this.vehicleId = root.getAttribute( 'data-vehicle-id' );
+			this.status = root.querySelector( '[data-rvs-rating-status]' );
+			this.form = root.querySelector( '[data-rvs-rating-form]' );
+			this.dialog = root.querySelector( '[data-rvs-review-dialog]' );
+			this.busy = false;
+			this.deleteOpener = null;
+
+			if ( this.form ) {
+				this.initForm();
+			}
+			if ( this.dialog ) {
+				this.initDialog();
+			}
+			root.addEventListener( 'click', ( event ) => this.handleCardClick( event ) );
+
+			const notice = takeNotice( this.vehicleId );
+			if ( notice ) {
+				this.showNotice( notice.title, notice.message );
+			}
+		}
+
+		/* Form ------------------------------------------------------------- */
+
+		initForm() {
+			this.comment = this.form.querySelector( 'textarea[name="comment"]' );
+			this.count = this.form.querySelector( '[data-rvs-rating-count]' );
+			this.alert = this.form.querySelector( '[data-rvs-rating-alert]' );
+			this.submit = this.form.querySelector( '[type="submit"]' );
+			this.cancel = this.form.querySelector( '[data-rvs-rating-cancel]' );
+			this.heading = this.form.querySelector( '[data-rvs-rating-title]' );
+			this.submitLabel = this.submit.textContent;
+			this.headingLabel = this.heading ? this.heading.textContent : '';
+			this.min = parseInt( this.comment.getAttribute( 'data-min-length' ), 10 ) || 0;
+			this.max = parseInt( this.comment.getAttribute( 'data-max-length' ), 10 ) || 0;
+
+			this.form.addEventListener( 'submit', ( event ) => {
+				event.preventDefault();
+				this.handleSubmit();
+			} );
+			this.form.addEventListener( 'input', ( event ) => {
+				this.clearFieldError( event.target );
+				if ( event.target === this.comment ) {
+					this.updateCount();
+				}
+			} );
+			this.form.addEventListener( 'change', ( event ) => this.clearFieldError( event.target ) );
+			if ( this.cancel ) {
+				this.cancel.addEventListener( 'click', () => this.leaveEdit() );
+			}
+			this.updateCount();
+		}
+
+		updateCount() {
+			const written = formatNumber( lengthOf( this.comment.value ) );
+			const max = formatNumber( this.max );
+			this.count.textContent = this.min > 0
+				? fill( text( 'count_min' ), written, max, formatNumber( this.min ) )
+				: fill( text( 'count' ), written, max );
+		}
+
+		validate() {
+			const errors = [];
+			const name = this.form.elements.guest_name;
+			const email = this.form.elements.guest_email;
+			if ( name && ! name.value.trim() ) {
+				errors.push( [ name, text( 'name_required' ) ] );
+			}
+			if ( email && ! EMAIL_SHAPE.test( email.value.trim() ) ) {
+				errors.push( [ email, text( 'email_required' ) ] );
+			}
+			if ( ! this.form.querySelector( 'input[name="rating"]:checked' ) ) {
+				errors.push( [ this.form.querySelector( '[data-rvs-rating-stars]' ), text( 'select_rating' ) ] );
+			}
+			const length = lengthOf( this.comment.value );
+			if ( this.min > 0 && length < this.min ) {
+				errors.push( [ this.comment, fill( text( 'comment_short' ), formatNumber( this.min ) ) ] );
+			} else if ( this.max > 0 && length > this.max ) {
+				errors.push( [ this.comment, fill( text( 'comment_long' ), formatNumber( this.max ) ) ] );
+			}
+			return errors;
+		}
+
+		/** @param {Element} target An input, or the stars' fieldset. */
+		setFieldError( target, message ) {
+			const field = target.closest( '[data-rvs-field]' );
+			const error = document.createElement( 'span' );
+			error.id = target.id + '-error';
+			error.className = 'rvs-error';
+			error.textContent = message;
+			field.appendChild( error );
+			if ( 'FIELDSET' !== target.tagName ) {
+				target.setAttribute( 'aria-invalid', 'true' );
+			}
+			const described = target.getAttribute( 'aria-describedby' );
+			target.setAttribute( 'aria-describedby', described ? described + ' ' + error.id : error.id );
+		}
+
+		clearFieldError( control ) {
+			const field = control && control.closest ? control.closest( '[data-rvs-field]' ) : null;
+			const error = field ? field.querySelector( '.rvs-error' ) : null;
+			if ( ! error ) {
+				return;
+			}
+			const target = field.matches( 'fieldset' ) ? field : field.querySelector( '[aria-invalid="true"]' );
+			if ( target ) {
+				target.removeAttribute( 'aria-invalid' );
+				const rest = ( target.getAttribute( 'aria-describedby' ) || '' ).split( ' ' ).filter( ( id ) => id && id !== error.id );
+				if ( rest.length ) {
+					target.setAttribute( 'aria-describedby', rest.join( ' ' ) );
+				} else {
+					target.removeAttribute( 'aria-describedby' );
+				}
+			}
+			error.remove();
+		}
+
+		clearErrors() {
+			this.form.querySelectorAll( '[data-rvs-field] .rvs-error' ).forEach( ( error ) => this.clearFieldError( error ) );
+			this.alert.hidden = true;
+			this.alert.textContent = '';
+		}
+
+		showAlert( message ) {
+			this.alert.textContent = '';
+			const title = document.createElement( 'strong' );
+			title.textContent = text( 'send_failed' );
+			const body = document.createElement( 'span' );
+			body.textContent = message;
+			this.alert.append( title, body );
+			this.alert.hidden = false;
+		}
+
+		handleSubmit() {
+			if ( this.busy ) {
+				return;
+			}
+			this.clearErrors();
+
+			const errors = this.validate();
+			if ( errors.length ) {
+				errors.forEach( ( [ target, message ] ) => this.setFieldError( target, message ) );
+				const first = errors[ 0 ][ 0 ];
+				( 'FIELDSET' === first.tagName ? first.querySelector( 'input' ) : first ).focus();
+				return;
+			}
+
+			const data = {
+				action: 'mhmrentiva_submit_rating',
+				vehicle_id: this.vehicleId,
+				rating: this.form.querySelector( 'input[name="rating"]:checked' ).value,
+				comment: this.comment.value,
+				nonce: this.nonce(),
+			};
+			if ( this.form.elements.guest_name ) {
+				data.guest_name = this.form.elements.guest_name.value;
+				data.guest_email = this.form.elements.guest_email.value;
+			}
+
+			this.setBusy( true );
+			post( data ).then( ( response ) => {
+				this.setBusy( false );
+				if ( ! response.success ) {
+					this.showAlert( ( response.data && response.data.message ) || text( 'connection' ) );
+					return;
+				}
+				this.answer( response.data || {} );
+			} ).catch( () => {
+				this.setBusy( false );
+				this.showAlert( text( 'connection' ) );
+			} );
+		}
+
+		/** One source for submit and delete: the form's own field, else the page's. */
+		nonce() {
+			return this.form && this.form.elements.nonce ? this.form.elements.nonce.value : config().nonce;
+		}
+
+		setBusy( busy ) {
+			this.busy = busy;
+			this.submit.disabled = busy;
+			if ( busy ) {
+				this.submit.textContent = text( 'sending' );
+			} else {
+				this.submit.textContent = this.editing ? text( 'update' ) : this.submitLabel;
+			}
+		}
+
+		answer( data ) {
+			if ( data.reload && storeNotice( this.vehicleId, { title: data.title, message: data.message } ) ) {
+				window.location.reload();
+				return;
+			}
+			// A guest's review that waits for approval is listed for nobody: the form
+			// empties and the answer stays. So does any answer without storage.
+			this.form.reset();
+			this.leaveEdit( false );
+			this.updateCount();
+			this.showNotice( data.title, data.message );
+		}
+
+		showNotice( title, message ) {
+			this.status.textContent = '';
+			const box = document.createElement( 'div' );
+			box.className = 'rvs-notice rvs-notice--success';
+			const heading = document.createElement( 'strong' );
+			heading.textContent = title || '';
+			const body = document.createElement( 'span' );
+			body.textContent = message || '';
+			box.append( heading, body );
+			this.status.appendChild( box );
+			this.status.setAttribute( 'tabindex', '-1' );
+			this.status.focus();
+		}
+
+		/* Edit ------------------------------------------------------------- */
+
+		enterEdit( button ) {
+			if ( ! this.form ) {
+				return;
+			}
+			this.editing = true;
+			this.editOpener = button;
+			this.clearErrors();
+			this.status.textContent = '';
+			this.form.hidden = false;
+			this.comment.value = button.getAttribute( 'data-comment' ) || '';
+			const star = this.form.querySelector( 'input[name="rating"][value="' + parseInt( button.getAttribute( 'data-rating' ), 10 ) + '"]' );
+			if ( star ) {
+				star.checked = true;
+			}
+			this.submit.textContent = text( 'update' );
+			if ( this.heading ) {
+				this.heading.textContent = text( 'edit_heading' );
+			}
+			this.cancel.hidden = false;
+			this.updateCount();
+			this.comment.focus();
+		}
+
+		leaveEdit( restoreFocus = true ) {
+			if ( ! this.editing ) {
+				return;
+			}
+			this.editing = false;
+			this.clearErrors();
+			this.form.reset();
+			this.form.hidden = true;
+			this.cancel.hidden = true;
+			this.submit.textContent = this.submitLabel;
+			if ( this.heading ) {
+				this.heading.textContent = this.headingLabel;
+			}
+			this.updateCount();
+			if ( restoreFocus && this.editOpener ) {
+				this.editOpener.focus();
+			}
+		}
+
+		/* Delete ----------------------------------------------------------- */
+
+		handleCardClick( event ) {
+			const target = event.target instanceof Element ? event.target : null;
+			if ( ! target ) {
+				return;
+			}
+			const edit = target.closest( '[data-rvs-review-edit]' );
+			if ( edit ) {
+				this.enterEdit( edit );
+				return;
+			}
+			const remove = target.closest( '[data-rvs-review-delete]' );
+			if ( remove ) {
+				this.openDialog( remove );
+			}
+		}
+
+		initDialog() {
+			this.dialogConfirm = this.dialog.querySelector( '[data-rvs-review-dialog-confirm]' );
+			this.dialogKeep = this.dialog.querySelector( '[data-rvs-review-dialog-keep]' );
+			this.dialogMessage = this.dialog.querySelector( '[data-rvs-review-dialog-message]' );
+			this.dialogKeep.addEventListener( 'click', () => window.mhmRentivaRvsDialog.close( this.dialog ) );
+			this.dialogConfirm.addEventListener( 'click', () => this.confirmDelete() );
+		}
+
+		openDialog( opener ) {
+			if ( ! this.dialog ) {
+				return;
+			}
+			this.commentId = opener.closest( '[data-comment-id]' ).getAttribute( 'data-comment-id' );
+			this.dialogMessage.hidden = true;
+			this.dialogMessage.textContent = '';
+			this.dialog.hidden = false;
+			this.dialog.classList.add( 'is-open' );
+			window.mhmRentivaRvsDialog.open( this.dialog, {
+				opener,
+				labelledBy: this.dialog.id + '-title',
+				initialFocus: this.dialogKeep,
+				onClose: () => {
+					this.dialog.classList.remove( 'is-open' );
+					this.dialog.hidden = true;
+				},
+			} );
+		}
+
+		confirmDelete() {
+			if ( this.busy ) {
+				return;
+			}
+			this.busy = true;
+			this.dialogConfirm.disabled = true;
+			const fail = ( message ) => {
+				this.busy = false;
+				this.dialogConfirm.disabled = false;
+				this.dialogMessage.textContent = message;
+				this.dialogMessage.hidden = false;
+			};
+			post( {
+				action: 'mhmrentiva_delete_rating',
+				comment_id: this.commentId,
+				nonce: this.nonce(),
+			} ).then( ( response ) => {
+				if ( ! response.success ) {
+					fail( ( response.data && response.data.message ) || text( 'connection' ) );
+					return;
+				}
+				storeNotice( this.vehicleId, { title: text( 'deleted_title' ), message: text( 'deleted' ) } );
+				window.location.reload();
+			} ).catch( () => fail( text( 'connection' ) ) );
+		}
+	}
+
+	function init() {
+		document.querySelectorAll( '[data-rvs-rating]' ).forEach( ( root ) => new RatingForm( root ) );
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+}() );

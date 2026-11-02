@@ -16,8 +16,16 @@ use MHMRentiva\Core\Attribute\KeyNormalizer;
  *
  * The submit AJAX sees only the POST, and trusting an address posted there would
  * make the form an open relay. So the address leaves the server only inside a
- * sodium secretbox payload {email, post_id, type} (encrypted and authenticated,
- * random nonce in front, base64) and comes back as an opaque hidden field.
+ * sodium secretbox payload {email, post_id, types, auto_reply} (encrypted and
+ * authenticated, nonce in front, base64) and comes back as an opaque hidden field.
+ * `email` is '' for a form with no custom recipient. `types` is every type the form
+ * may submit: one for a fixed form, the topics when the visitor chooses (PR F r2 M1).
+ * `auto_reply` is the form's own setting, so the request cannot switch it on (R8).
+ *
+ * The nonce is derived from the payload (a keyed hash), not random: the same form
+ * renders the same token, so comparing two renders still tells whether a setting
+ * changed anything (setting-effect gate, parity tests). Equal payloads giving equal
+ * tokens reveals nothing the page does not already show.
  *
  * resolve() then re-checks what the payload claims against the site as it is now:
  * the source post must still exist, its author must still hold `edit_others_posts`
@@ -25,7 +33,7 @@ use MHMRentiva\Core\Attribute\KeyNormalizer;
  * the address must still be the recipient setting of a contact form on that post
  * (`email_to` of the contact block or a [rentiva_contact] shortcode in its content,
  * or of the contact widget or such a shortcode in its `_elementor_data`; the address
- * elsewhere on the page does not count), the type must be the submitted
+ * elsewhere on the page does not count), the submitted type must be one of the
  * form's own, the address must be valid. There is no expiry: binding to the post is
  * the revocation (remove `email_to`, delete the post or demote the author and the
  * payload stops working), and a cached page stays usable for as long as the AJAX
@@ -52,21 +60,23 @@ final class RecipientToken {
 	/**
 	 * Encrypt the recipient for one form on one source post.
 	 *
-	 * @param string $email   The `email_to` address as configured.
-	 * @param int    $post_id The source post (ContactForm::resolve_source_post_id()); 0 when there is none.
-	 * @param string $type    The form's normalized type.
+	 * @param string              $email      The `email_to` address as configured, '' for none.
+	 * @param int                 $post_id    The source post (ContactForm::resolve_source_post_id()); 0 when there is none.
+	 * @param string|list<string> $types      The normalized types the form may submit.
+	 * @param bool                $auto_reply The form's auto reply setting.
 	 * @return string base64( nonce . ciphertext ).
 	 */
-	public static function issue(string $email, int $post_id, string $type): string
+	public static function issue(string $email, int $post_id, $types, bool $auto_reply = false): string
 	{
 		$payload = (string) wp_json_encode(
 			array(
-				'email'   => $email,
-				'post_id' => $post_id,
-				'type'    => $type,
+				'email'      => $email,
+				'post_id'    => $post_id,
+				'types'      => array_values( (array) $types),
+				'auto_reply' => $auto_reply,
 			)
 		);
-		$nonce   = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$nonce   = substr(hash_hmac('sha256', $payload, self::nonce_key(), true), 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
 		return base64_encode($nonce . sodium_crypto_secretbox($payload, $nonce, self::key())); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- transport encoding of an encrypted payload.
 	}
@@ -80,36 +90,17 @@ final class RecipientToken {
 	 */
 	public static function resolve(string $token, string $normalized_type): ?string
 	{
-		$raw = base64_decode($token, true); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- transport encoding of an encrypted payload.
-		if (false === $raw) {
-			return self::fallback('invalid_base64');
-		}
-		if (strlen($raw) < SODIUM_CRYPTO_SECRETBOX_NONCEBYTES + SODIUM_CRYPTO_SECRETBOX_MACBYTES) {
-			return self::fallback('too_short');
+		$payload = self::open($token);
+		if (is_string($payload)) {
+			return self::fallback($payload);
 		}
 
-		try {
-			$plain = sodium_crypto_secretbox_open(
-				substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES),
-				substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES),
-				self::key()
-			);
-		} catch (\SodiumException $e) {
-			// Wrong lengths throw rather than return false; the submit handler's own
-			// catch would turn that into a message that is never sent (Fable r3 I-1).
-			unset($e);
-			return self::fallback('sodium_error');
-		}
-		if (false === $plain) {
-			return self::fallback('auth_failed');
+		// A form with no custom recipient: its token vouches for no address, and that is no refusal.
+		if ('' === $payload['email']) {
+			return null;
 		}
 
-		$payload = json_decode($plain, true);
-		if (! is_array($payload) || ! is_string($payload['email'] ?? null) || ! is_int($payload['post_id'] ?? null) || ! is_string($payload['type'] ?? null)) {
-			return self::fallback('malformed');
-		}
-
-		if (! in_array($payload['type'], ContactMessagePostType::TYPES, true) || $payload['type'] !== $normalized_type) {
+		if (! self::type_allowed($payload, $normalized_type)) {
 			return self::fallback('type_mismatch');
 		}
 
@@ -133,6 +124,76 @@ final class RecipientToken {
 		}
 
 		return $payload['email'];
+	}
+
+	/**
+	 * Whether the form that issued this token has the auto reply on. No token, a
+	 * refused token or a type outside the form's set: no reply (m3, fail closed).
+	 * No post check: no address of the site's is at stake, only the form's own setting.
+	 *
+	 * @param string $token           The posted hidden field.
+	 * @param string $normalized_type The submitted form's type after sanitization.
+	 */
+	public static function allows_auto_reply(string $token, string $normalized_type): bool
+	{
+		$payload = '' !== $token ? self::open($token) : 'empty';
+
+		return is_array($payload) && true === ( $payload['auto_reply'] ?? false ) && self::type_allowed($payload, $normalized_type);
+	}
+
+	/**
+	 * The decrypted payload, or the reason it cannot be read.
+	 *
+	 * @return array<string,mixed>|string
+	 */
+	private static function open(string $token)
+	{
+		$raw = base64_decode($token, true); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- transport encoding of an encrypted payload.
+		if (false === $raw) {
+			return 'invalid_base64';
+		}
+		if (strlen($raw) < SODIUM_CRYPTO_SECRETBOX_NONCEBYTES + SODIUM_CRYPTO_SECRETBOX_MACBYTES) {
+			return 'too_short';
+		}
+
+		try {
+			$plain = sodium_crypto_secretbox_open(
+				substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES),
+				substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES),
+				self::key()
+			);
+		} catch (\SodiumException $e) {
+			// Wrong lengths throw rather than return false; the submit handler's own
+			// catch would turn that into a message that is never sent (Fable r3 I-1).
+			unset($e);
+			return 'sodium_error';
+		}
+		if (false === $plain) {
+			return 'auth_failed';
+		}
+
+		$payload = json_decode($plain, true);
+		if (! is_array($payload) || ! is_string($payload['email'] ?? null) || ! is_int($payload['post_id'] ?? null)) {
+			return 'malformed';
+		}
+
+		// A page cached before PR F still carries the one `type` of the old payload.
+		if (! isset($payload['types']) && is_string($payload['type'] ?? null)) {
+			$payload['types'] = array( $payload['type'] );
+		}
+		if (! is_array($payload['types'] ?? null)) {
+			return 'malformed';
+		}
+
+		return $payload;
+	}
+
+	/**
+	 * @param array<string,mixed> $payload Opened payload.
+	 */
+	private static function type_allowed(array $payload, string $normalized_type): bool
+	{
+		return in_array($normalized_type, ContactMessagePostType::TYPES, true) && in_array($normalized_type, $payload['types'], true);
 	}
 
 	/**
@@ -306,6 +367,16 @@ final class RecipientToken {
 	private static function key(): string
 	{
 		return hash('sha256', wp_salt('auth'), true);
+	}
+
+	/**
+	 * The key of the derived nonce, separate from the secretbox key so that one key
+	 * never serves two algorithms. Only issue() uses it: resolving needs no nonce key,
+	 * so tokens already on cached pages open as before.
+	 */
+	private static function nonce_key(): string
+	{
+		return hash_hmac('sha256', 'contact-token-nonce', self::key(), true);
 	}
 
 	/**

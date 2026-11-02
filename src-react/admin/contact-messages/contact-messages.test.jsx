@@ -24,7 +24,7 @@ jest.mock( './api', () => ( {
 } ) );
 
 window.mhmRentivaContactMessages = {
-	types: { general: 'General Contact', booking: 'Booking Inquiry', support: 'Technical Support', feedback: 'Feedback' },
+	types: { general: 'General', booking: 'Booking', feedback: 'Suggestion or complaint' },
 	pageUrl: '/wp-admin/admin.php?page=mhm-rentiva-contact-messages',
 	shortcodePagesUrl: 'http://example.test/wp-admin/admin.php?page=mhm-rentiva-shortcode-pages',
 	months: [],
@@ -935,6 +935,21 @@ describe( 'contact message detail', () => {
 			await screen.findByText( /Line one/ );
 			expect( screen.getByText( 'Fiat Egea' ) ).toBeTruthy();
 			expect( screen.queryByRole( 'link', { name: 'Fiat Egea' } ) ).toBeNull();
+		} );
+
+		test( 'the booking line reads number, vehicle and dates, linked only with an edit_url', async () => {
+			const booking = { id: 10144, number: 10143, vehicle_title: 'Fiat Egea', dates: '01/11/2026 – 03/11/2026', edit_url: '/b/10144' };
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, booking } ) );
+			const first = render( <ContactMessageDetail id={ 3531 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			const link = screen.getByRole( 'link', { name: '#10143 · Fiat Egea · 01/11/2026 – 03/11/2026' } );
+			expect( link.getAttribute( 'href' ) ).toBe( '/b/10144' );
+			first.unmount();
+			contactApi.get = jest.fn().mockResolvedValue( detail( { ...long, booking: { ...booking, edit_url: null, vehicle_title: '', dates: '' } } ) );
+			render( <ContactMessageDetail id={ 3532 } onBack={ () => {} } /> );
+			await screen.findByText( /Line one/ );
+			expect( screen.getByText( '#10143' ) ).toBeTruthy();
+			expect( screen.queryByRole( 'link', { name: /#10143/ } ) ).toBeNull();
 		} );
 
 		test( 'other messages from the address link to the list filtered by that address', async () => {

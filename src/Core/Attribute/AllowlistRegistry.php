@@ -835,6 +835,11 @@ final class AllowlistRegistry {
             'aliases' => [ 'formType' ],
             'values'  => [ 'general', 'booking', 'support', 'feedback' ],
         ],
+        'show_topic_selector'      => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showTopicSelector' ],
+        ],
         'show_phone'               => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -1071,6 +1076,7 @@ final class AllowlistRegistry {
             'type',
             'title',
             'description',
+            'show_topic_selector',
             'show_phone',
             'show_company',
             'show_vehicle_selector',

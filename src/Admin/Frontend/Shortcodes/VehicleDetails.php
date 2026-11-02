@@ -193,6 +193,23 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	/**
+	 * The nested rating form's assets go by each render's show_reviews, not only the
+	 * first one's: the parent's own enqueue runs once a page, and on a cache hit the
+	 * nested shortcode never runs.
+	 *
+	 * @param array<string, mixed> $atts Shortcode attributes.
+	 */
+	protected static function enqueue_assets_once( array $atts = array() ): void {
+		parent::enqueue_assets_once( $atts );
+
+		// The template's rule: empty is the default (on).
+		$show_reviews = strtolower( (string) ( $atts['show_reviews'] ?? '' ) );
+		if ( in_array( $show_reviews, array( '', '1', 'true', 'yes', 'on' ), true ) ) {
+			VehicleRatingForm::enqueue_nested_assets();
+		}
+	}
+
+	/**
 	 * The rvs page: the vehicle stylesheet (card, calendar, breakdown, dialog
 	 * underneath), the dialog module, favourites/compare, the date picker and
 	 * the page script. The old vehicle-details.css / .js are not loaded here.

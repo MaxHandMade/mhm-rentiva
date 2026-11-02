@@ -694,6 +694,15 @@ abstract class AbstractShortcode {
 	}
 
 	/**
+	 * While a flagged shortcode renders: whether it sits inside another flagged one.
+	 * Its own render already counts as one level.
+	 */
+	protected static function is_nested_in_rvs_shell(): bool
+	{
+		return self::$rvs_shell_depth > 1;
+	}
+
+	/**
 	 * Request state beyond the attributes that changes this shortcode's render,
 	 * for the HTML cache key: the search window (cards price the period and link
 	 * the booking with it) and a guest's comparison list (a cookie the cards'

@@ -42,6 +42,10 @@
         }
     },
     "attributes": {
+        "showTopicSelector": {
+            "type": "boolean",
+            "default": true
+        },
         "showBookingIdField": {
             "type": "boolean",
             "default": false
@@ -114,9 +118,7 @@
         }
     },
     "editorStyle": [
-        "mhm-rentiva-core-variables"
-    ],
-    "style": [
-        "mhm-rentiva-contact"
+        "mhm-rentiva-core-variables",
+        "mhm-rentiva-rvs-contact"
     ]
 }

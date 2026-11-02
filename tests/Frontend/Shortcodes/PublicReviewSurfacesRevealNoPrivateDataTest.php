@@ -20,8 +20,8 @@ use WP_Ajax_UnitTestCase;
  * 2. The testimonials slider resolved a vehicle's name without asking whether
  *    the vehicle is published, so a vehicle deliberately taken off the site
  *    kept being named through its reviews.
- * 3. `mhmrentiva_get_vehicle_rating_list` checked the post type but not the
- *    status, and read comments with no ceiling.
+ * 3. The rating list checked the post type but not the status, and read comments
+ *    with no ceiling. Its endpoint is gone (PR F); the render path holds the rule now.
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm
@@ -59,6 +59,7 @@ final class PublicReviewSurfacesRevealNoPrivateDataTest extends WP_Ajax_UnitTest
 		return (int) self::factory()->comment->create(
 			array(
 				'comment_post_ID'      => $vehicle_id,
+				'comment_type'         => 'review',
 				'comment_approved'     => '1',
 				'comment_author'       => $author,
 				'comment_author_email' => $email,
@@ -108,86 +109,38 @@ final class PublicReviewSurfacesRevealNoPrivateDataTest extends WP_Ajax_UnitTest
 		);
 	}
 
-	public function test_the_rating_list_endpoint_refuses_an_unpublished_vehicle(): void
+	public function test_the_rating_form_shows_no_review_of_an_unpublished_vehicle(): void
 	{
 		$this->create_review( $this->draft_vehicle, 'Grace Hopper', 'grace@example.test' );
 
-		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhmrentiva_rating_nonce' ),
-			'vehicle_id' => (string) $this->draft_vehicle,
-		);
+		$output = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $this->draft_vehicle . '"]' );
 
-		try {
-			$this->_handleAjax( 'mhmrentiva_get_vehicle_rating_list' );
-		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			// See above.
-		}
-
-		$response = json_decode( $this->_last_response, true );
-
-		$this->assertFalse(
-			(bool) ( $response['success'] ?? false ),
-			'The public rating list served an unpublished vehicle: ' . $this->_last_response
-		);
-		$this->assertStringNotContainsString( 'Grace Hopper', $this->_last_response );
+		$this->assertStringNotContainsString( 'Grace', $output, 'The public rating list served an unpublished vehicle.' );
+		$this->assertStringNotContainsString( 'A perfectly ordinary review.', $output );
 	}
 
-	public function test_the_rating_list_endpoint_still_serves_a_published_vehicle(): void
+	public function test_the_rating_form_still_shows_a_published_vehicles_reviews(): void
 	{
 		$this->create_review( $this->published_vehicle, 'Ada Lovelace', 'ada@example.test' );
 
-		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhmrentiva_rating_nonce' ),
-			'vehicle_id' => (string) $this->published_vehicle,
-		);
+		$output = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $this->published_vehicle . '"]' );
 
-		try {
-			$this->_handleAjax( 'mhmrentiva_get_vehicle_rating_list' );
-		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			// See above.
-		}
-
-		$response = json_decode( $this->_last_response, true );
-
-		$this->assertTrue(
-			(bool) ( $response['success'] ?? false ),
-			'A published vehicle must still return its reviews: ' . $this->_last_response
-		);
-		$this->assertStringNotContainsString(
-			'ada@example.test',
-			$this->_last_response,
-			'The rating list published a reviewer e-mail address.'
-		);
+		$this->assertStringContainsString( 'Ada L.', $output, 'A published vehicle must still show its reviews.' );
+		$this->assertStringNotContainsString( 'Lovelace', $output, 'The full name of a reviewer is not public.' );
+		$this->assertStringNotContainsString( 'ada@example.test', $output, 'The rating list published a reviewer e-mail address.' );
 	}
 
-	public function test_the_rating_list_endpoint_is_bounded(): void
+	public function test_the_rating_form_list_is_bounded(): void
 	{
-		// More rows than the ceiling, so the assertion measures the bound rather
-		// than passing for free: without a `number` argument get_comments()
-		// returns all 60.
+		// More rows than the ceiling, so the assertion measures the bound.
 		for ( $i = 0; $i < 60; $i++ ) {
 			$this->create_review( $this->published_vehicle, 'Reviewer ' . $i, 'r' . $i . '@example.test' );
 		}
 
-		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhmrentiva_rating_nonce' ),
-			'vehicle_id' => (string) $this->published_vehicle,
-		);
+		$output = do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . $this->published_vehicle . '"]' );
+		$cards  = substr_count( $output, '<article class="rvs-review' );
 
-		try {
-			$this->_handleAjax( 'mhmrentiva_get_vehicle_rating_list' );
-		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
-			// See above.
-		}
-
-		$response = json_decode( $this->_last_response, true );
-		$returned = is_array( $response['data']['ratings'] ?? null ) ? count( $response['data']['ratings'] ) : -1;
-
-		$this->assertGreaterThan( 0, $returned, 'The endpoint returned nothing at all: ' . $this->_last_response );
-		$this->assertLessThanOrEqual(
-			50,
-			$returned,
-			'The nopriv rating list is unbounded; it returned ' . $returned . ' rows.'
-		);
+		$this->assertGreaterThan( 0, $cards, 'The list rendered nothing at all.' );
+		$this->assertLessThanOrEqual( 50, $cards, 'The public list is unbounded; it drew ' . $cards . ' cards.' );
 	}
 }

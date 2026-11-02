@@ -79,6 +79,11 @@ class Html {
 			'aria-expanded' => true,
 		);
 
+		// The testimonials page keeps the card "Load more" clones in a hidden, inert
+		// `div`: nothing in it takes focus or is read out. core's 'post' list has
+		// `hidden` on a div but not `inert`.
+		$allowed['div'] = ( $allowed['div'] ?? array() ) + array( 'inert' => true );
+
 		// wc_price() wraps every amount in <bdi>, which core's 'post' list lacks:
 		// the front-end standard's card prints prices as WooCommerce writes them
 		// (PriceDisplay), and without this every card price lost its bidi
@@ -97,11 +102,12 @@ class Html {
 		);
 
 		$allowed['form']     = $common + array(
-			'action'  => true,
-			'method'  => true,
-			'enctype' => true,
-			'name'    => true,
-			'target'  => true,
+			'action'     => true,
+			'method'     => true,
+			'enctype'    => true,
+			'name'       => true,
+			'target'     => true,
+			'novalidate' => true,
 		);
 		$allowed['input']    = $common + array(
 			'type'         => true,

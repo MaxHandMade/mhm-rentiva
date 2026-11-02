@@ -355,3 +355,174 @@
 	outline: 3px solid var(--rvs-accent-strong);
 	outline-offset: -3px;
 }
+
+/* Choice form of the segmented control: radios wrapped in labels, inside a
+   <fieldset>. Fills its row; a long label wraps instead of scrolling. */
+
+.rvs-shell .rvs-seg--choice {
+	display: flex;
+	width: 100%;
+	overflow: hidden;
+}
+
+.rvs-shell .rvs-seg--choice > label {
+	position: relative;
+	display: flex;
+	flex: 1 1 0;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	min-height: 44px;
+	padding: var(--rvs-s1);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	font-size: 15px;
+	font-weight: 400;
+	text-align: center;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-seg--choice > label + label {
+	border-inline-start: 1px solid var(--rvs-line);
+}
+
+.rvs-shell .rvs-seg--choice > label > input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-seg--choice > label:has(input:checked) {
+	background: var(--rvs-text);
+	color: var(--rvs-raised);
+}
+
+.rvs-shell .rvs-seg--choice > label:has(input:focus-visible) {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: -3px;
+}
+
+/* A plain <fieldset> used as a field. */
+
+.rvs-shell fieldset.rvs-field {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.rvs-shell fieldset.rvs-field > legend {
+	margin-bottom: 6px;
+}
+
+/* Star input: focusable radios under the icons; the arrow keys are the browser's. */
+
+.rvs-shell .rvs-stars {
+	display: inline-flex;
+	align-items: center;
+}
+
+.rvs-shell .rvs-stars > label {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	color: var(--rvs-line-strong);
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-stars > label > input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.rvs-shell .rvs-stars > label:has(input:checked),
+.rvs-shell .rvs-stars > label:has(~ label input:checked) {
+	color: var(--rvs-accent-strong);
+}
+
+/* The icon's size is the class's, not an inline style. */
+.rvs-shell .rvs-stars__icon {
+	width: 24px;
+	height: 24px;
+	flex: none;
+}
+
+/* Filled, not only recoloured: the choice is not told by colour alone. */
+.rvs-shell .rvs-stars > label:has(input:checked) svg,
+.rvs-shell .rvs-stars > label:has(~ label input:checked) svg {
+	fill: currentColor;
+}
+
+.rvs-shell .rvs-stars > label:has(input:focus-visible) {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: -3px;
+}
+
+/*
+ * File input: the control is hidden for the eye and stays in the tab order, because
+ * the browser's own box has a fixed width of its own: it pushed the form past a phone
+ * and kept the remove button far from the file name.
+ */
+
+.rvs-shell .rvs-file {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rvs-s2);
+	position: relative;
+}
+
+.rvs-shell .rvs-file:has(.rvs-file__input:focus-visible) .rvs-file__choose {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+.rvs-shell .rvs-file__name {
+	min-width: 0;
+	color: var(--rvs-muted);
+	font-size: 15px;
+	overflow-wrap: anywhere;
+}
+
+/* Notice: a form's lasting answer (success) or its form-wide failure. */
+
+.rvs-shell .rvs-notice {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s1);
+	padding: var(--rvs-s3);
+	border-radius: var(--rvs-r);
+	color: var(--rvs-text);
+}
+
+.rvs-shell .rvs-notice--success {
+	background: var(--rvs-st-done-bg);
+}
+
+.rvs-shell .rvs-notice--success strong {
+	color: var(--rvs-st-done-fg);
+}
+
+.rvs-shell .rvs-notice--alert {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+/* The error's icon sits beside its first line. */
+
+.rvs-shell .rvs-error > svg {
+	flex: none;
+	margin-top: 1px;
+}

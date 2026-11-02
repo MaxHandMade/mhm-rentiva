@@ -71,7 +71,7 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 		$html = $this->render();
 		$this->assertStringNotContainsString('data-vehicle-id="' . $page . '"', $html);
 		$this->assertStringNotContainsString('name="vehicle_id" value="' . $page . '"', $html);
-		$this->assertStringContainsString('rv-rating-form-error', $html, 'Front: a helpful empty state, not an empty string.');
+		$this->assertStringContainsString('rvs-reviews--unavailable', $html, 'Front: a helpful empty state, not an empty string.');
 
 		$this->set_preview(true);
 		$html = $this->render();
@@ -87,7 +87,7 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 
 		foreach (array( 999999, $draft, $locked, $page ) as $bad) {
 			$front = $this->render(' vehicle_id="' . $bad . '"');
-			$this->assertStringContainsString('rv-rating-form-error', $front, "front, id $bad");
+			$this->assertStringContainsString('rvs-reviews--unavailable', $front, "front, id $bad");
 			$this->assertStringNotContainsString('data-vehicle-id', $front, "front, id $bad");
 			$this->assertStringNotContainsString('name="vehicle_id"', $front, "front, id $bad");
 		}
@@ -98,7 +98,7 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 			$this->assertStringContainsString(self::INVALID_BADGE, $html, "preview, id $bad");
 			$this->assertStringNotContainsString(self::SAMPLE_BADGE, $html, "preview, id $bad");
 			$this->assertStringNotContainsString('No vehicle selected', $html, "preview, id $bad: the badge already says what to check.");
-			$this->assertStringNotContainsString('rv-rating-form-error', $html, "preview, id $bad");
+			$this->assertStringNotContainsString('rvs-reviews--unavailable', $html, "preview, id $bad");
 			$this->assertStringNotContainsString('data-vehicle-id="' . $sample . '"', $html, "preview, id $bad must not fall to the sample");
 		}
 	}
@@ -111,7 +111,7 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 		foreach (array( '999999', '-5' ) as $bad) {
 			$front = $this->render(' vehicle_id="' . $bad . '"');
 			$this->assertStringNotContainsString('data-vehicle-id', $front, "front, id $bad");
-			$this->assertStringContainsString('rv-rating-form-error', $front, "front, id $bad");
+			$this->assertStringContainsString('rvs-reviews--unavailable', $front, "front, id $bad");
 			$this->assertStringContainsString('Vehicle ratings are not available here.', $front);
 			$this->assertStringNotContainsString('Set a vehicle ID', $front, 'Visitors get no editor instruction.');
 		}
@@ -131,7 +131,7 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 
 		$html = $this->render();
 		$this->assertStringContainsString('data-vehicle-id="' . $vehicle . '"', $html);
-		$this->assertStringNotContainsString('rv-rating-form-error', $html);
+		$this->assertStringNotContainsString('rvs-reviews--unavailable', $html);
 		$this->assertStringNotContainsString('mhm-rv-preview-badge', $html);
 
 		// An explicit id beats the page.
@@ -193,7 +193,7 @@ final class RatingFormBindingTest extends WP_UnitTestCase
 		$vehicle = ShortcodeFixtures::vehicle();
 		$this->on_page($vehicle);
 		$html = $this->render();
-		$this->assertStringContainsString('rv-rating-form', $html);
+		$this->assertStringContainsString('data-rvs-rating', $html);
 		foreach (array( 'data-debug-', 'data-render-time', '<!-- Debug:' ) as $needle) {
 			$this->assertSame(0, substr_count($html, $needle), $needle);
 		}
