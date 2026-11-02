@@ -66,6 +66,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Classic order-pay form: before the gateway, a booking the order pays
 		// for must still hold its dates.
 		add_action('woocommerce_before_pay_action', array( self::class, 'claim_before_pay' ), 10, 1);
+		// No cash on delivery for a rental: the classic checkout, its validation,
+		// the order-pay form and the Store API all read this list.
+		add_filter('woocommerce_available_payment_gateways', array( self::class, 'without_cash_on_delivery' ), 10, 1);
 		// Classic checkout: billing field labels in the error notices.
 		add_action('woocommerce_checkout_process', array( self::class, 'open_field_label_window' ), 5, 0);
 		add_action('woocommerce_after_checkout_validation', array( self::class, 'close_field_label_window' ), 10, 0);
@@ -2074,6 +2077,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// The Store API's order-pay route (POST /checkout/{id}) asks the gateway
+		// list with the session's cart, not this order, so without_cash_on_delivery()
+		// cannot see a rental there. Stopped before any booking or payment.
+		if ('cod' === $order->get_payment_method() && self::order_has_booking($order)) {
+			self::halt_checkout(__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'), $order->get_id());
+		}
+
 		$snapshots = self::pending_booking_snapshots($order);
 		if (array() === $snapshots) {
 			// A retry (POST /checkout/{id}, or a reused draft) of an order that
@@ -2096,6 +2106,50 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		}
 		$order->add_order_note(__('Rentiva booking created from the block checkout. The customer could not change the payment type there.', 'mhm-rentiva'));
 		$order->save();
+	}
+
+	/**
+	 * Cash on delivery is never offered for a rental (owner, 2026-11-02): a full
+	 * payment at the door makes no sense, and a deposit paid at the door is no
+	 * deposit; what is left is paid at pickup anyway. The store's own COD setting
+	 * is not touched, so the shop's own orders keep it.
+	 *
+	 * Like the other checkout rules it follows any Rentiva line, so a mixed cart
+	 * loses it too: one order, one gateway. The order-pay page answers from the
+	 * order its URL names (CheckoutJourney::pay_page_order()), never from the
+	 * cart; with a wrong key the list is WooCommerce's, which refuses the page.
+	 * Existing COD orders keep their labels (RentalMoneyLabels::order_state()).
+	 *
+	 * @param mixed $gateways The available gateways, by id.
+	 * @return mixed
+	 */
+	public static function without_cash_on_delivery($gateways)
+	{
+		if (! is_array($gateways) || ! isset($gateways['cod'])) {
+			return $gateways;
+		}
+
+		if (function_exists('is_checkout_pay_page') && is_checkout_pay_page()) {
+			$order  = CheckoutJourney::pay_page_order();
+			$rental = null !== $order && self::order_has_booking($order);
+		} else {
+			$rental = self::cart_has_booking();
+		}
+
+		if ($rental) {
+			unset($gateways['cod']);
+		}
+
+		return $gateways;
+	}
+
+	/**
+	 * Does the order carry a Rentiva line -- one waiting for its booking, or one
+	 * (or the order itself, a remaining payment) linked to a booking?
+	 */
+	private static function order_has_booking(\WC_Order $order): bool
+	{
+		return array() !== self::pending_booking_snapshots($order) || array() !== self::linked_booking_ids($order);
 	}
 
 	/**

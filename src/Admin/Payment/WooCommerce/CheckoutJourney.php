@@ -531,6 +531,14 @@ final class CheckoutJourney {
 	}
 
 	/**
+	 * The order this order-pay URL names, with its own key; null otherwise.
+	 */
+	public static function pay_page_order(): ?\WC_Order
+	{
+		return self::requested_order('order-pay');
+	}
+
+	/**
 	 * Every line of the order, when every line is a rental (no shop product, no
 	 * transfer): its line and booking data. Empty otherwise.
 	 *
