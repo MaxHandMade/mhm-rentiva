@@ -895,4 +895,122 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$this->assertSame(1, wc_notice_count('error'), 'Still refused: no payment is taken.');
 		$this->assertContains('ROLLBACK', $this->transactions, 'The failed undo is rolled back.');
 	}
+
+	// ------------------------- Codex delta3: the object cache decides nothing
+
+	/**
+	 * Codex delta3 H1. A reader read the first booking's revived `pending`
+	 * before the payment committed and puts it into the shared object cache
+	 * (Redis) only after: between the payment and the undo the cache says
+	 * `pending`/unpaid while the database says `confirmed`/`paid`. The entry
+	 * lives until the next write of the booking clears it, as a real one would.
+	 */
+	public function test_a_stale_cache_fill_between_the_payment_and_the_undo_keeps_the_payment(): void
+	{
+		list($order, $ids, $second_vehicle) = $this->two_rental_failed_order();
+
+		$stale  = false;
+		$fired  = false;
+		$notify = static function ($query) use (&$fired, &$stale, $second_vehicle, $ids) {
+			$sql = (string) $query;
+			if (! $fired && preg_match('/FOR UPDATE/i', $sql) && str_contains($sql, 'post_id = ' . $second_vehicle)) {
+				$fired = true;
+				update_post_meta($ids[0], '_mhmrentiva_status', 'confirmed');
+				update_post_meta($ids[0], '_mhmrentiva_payment_status', 'paid');
+				$stale = true;
+			}
+			return $query;
+		};
+		$cache = static function ($check, $object_id, $meta_key) use (&$stale, $ids) {
+			if (! $stale || (int) $object_id !== $ids[0]) {
+				return $check;
+			}
+			if ('_mhmrentiva_status' === $meta_key) {
+				return array( 'pending' );
+			}
+			if ('_mhmrentiva_payment_status' === $meta_key) {
+				return array( 'pending' );
+			}
+			return $check;
+		};
+		$cleared = static function ($meta_id, $object_id) use (&$stale, $ids): void {
+			if ( (int) $object_id === $ids[0]) {
+				$stale = false;
+			}
+		};
+		add_filter('query', $notify);
+		add_filter('get_post_metadata', $cache, 10, 3);
+		add_action('update_post_meta', $cleared, 10, 2);
+		WooCommerceBridge::claim_before_pay($order);
+		remove_filter('query', $notify);
+		remove_filter('get_post_metadata', $cache, 10);
+		remove_action('update_post_meta', $cleared, 10);
+
+		$this->assertTrue($fired);
+		$this->assertSame(1, wc_notice_count('error'), 'The second booking is refused.');
+		wp_cache_delete($ids[0], 'post_meta');
+		$this->assertSame('confirmed', get_post_meta($ids[0], '_mhmrentiva_status', true), 'A stale cache entry does not put a paid booking back to cancelled.');
+		$this->assertSame('paid', get_post_meta($ids[0], '_mhmrentiva_payment_status', true));
+	}
+
+	/**
+	 * Fable delta3 m2: a payment that only marked the booking paid (its status
+	 * left as it was) is kept too.
+	 */
+	public function test_undoing_a_revival_keeps_a_booking_that_was_marked_paid_meanwhile(): void
+	{
+		list($order, $ids, $second_vehicle) = $this->two_rental_failed_order();
+
+		$fired  = false;
+		$notify = static function ($query) use (&$fired, $second_vehicle, $ids) {
+			$sql = (string) $query;
+			if (! $fired && preg_match('/FOR UPDATE/i', $sql) && str_contains($sql, 'post_id = ' . $second_vehicle)) {
+				$fired = true;
+				update_post_meta($ids[0], '_mhmrentiva_payment_status', 'paid');
+			}
+			return $query;
+		};
+		add_filter('query', $notify);
+		WooCommerceBridge::claim_before_pay($order);
+		remove_filter('query', $notify);
+
+		$this->assertTrue($fired);
+		wp_cache_delete($ids[0], 'post_meta');
+		$this->assertSame('pending', get_post_meta($ids[0], '_mhmrentiva_status', true), 'A paid booking is not put back to cancelled.');
+		$this->assertSame('paid', get_post_meta($ids[0], '_mhmrentiva_payment_status', true));
+	}
+
+	/**
+	 * Codex delta3 Orta: any Throwable inside the lock rolls the transaction
+	 * back, and the request cache does not keep what the rolled-back
+	 * transaction let it read.
+	 */
+	public function test_a_throw_inside_the_lock_leaves_no_cached_meta_of_the_booking(): void
+	{
+		list($order, $booking_id) = $this->failed_order();
+		update_post_meta($booking_id, '_mhmrentiva_payment_deadline', gmdate('Y-m-d H:i:s', time() - HOUR_IN_SECONDS));
+
+		// After the verified status write, a reader inside the transaction fills
+		// the cache (`pending`, not yet committed), then the deadline write throws.
+		$boom = static function ($check, $object_id, $meta_key) use ($booking_id) {
+			if ( (int) $object_id === $booking_id && '_mhmrentiva_payment_deadline' === $meta_key) {
+				get_post_meta($booking_id, '_mhmrentiva_status', true);
+				throw new \LogicException('mhmrentiva_test_boom');
+			}
+			return $check;
+		};
+		add_filter('update_post_metadata', $boom, 10, 3);
+		$this->transactions = array();
+		try {
+			WooCommerceBridge::claim_before_pay($order);
+			$this->fail('The error must reach the caller.');
+		} catch (\LogicException $e) {
+			$this->assertSame('mhmrentiva_test_boom', $e->getMessage());
+		}
+		remove_filter('update_post_metadata', $boom, 10);
+
+		$this->assertContains('ROLLBACK', $this->transactions);
+		$this->assertNotContains('COMMIT', $this->transactions);
+		$this->assertFalse(wp_cache_get($booking_id, 'post_meta'), 'Nothing the rolled-back transaction wrote is served from the cache.');
+	}
 }

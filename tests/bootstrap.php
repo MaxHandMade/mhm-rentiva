@@ -129,6 +129,26 @@ if ($should_isolate_db) {
 require_once "{$_tests_dir}/includes/functions.php";
 
 /**
+ * A @runInSeparateProcess child turns anything on its stderr into a test error,
+ * and PHPUnit's child template sends display_errors there. On PHP 8.4 a third
+ * party (Elementor) prints compile-time "Implicitly marking parameter as
+ * nullable is deprecated" while it loads, which failed RentalMoneyParityTest's
+ * Store API route test in CI. In that child only -- the template defines
+ * __phpunit_run_isolated_test() before it requires this bootstrap; the main
+ * process never does -- E_DEPRECATED is left out of error_reporting, here and
+ * again once wp_debug_mode() has reset it to E_ALL. The main process keeps
+ * reporting deprecations, ours included.
+ */
+if (function_exists('__phpunit_run_isolated_test')) {
+	$mhmrentiva_no_deprecations = static function (): void {
+		error_reporting(error_reporting() & ~E_DEPRECATED);
+	};
+	$mhmrentiva_no_deprecations();
+	tests_add_filter('muplugins_loaded', $mhmrentiva_no_deprecations, -10000);
+	unset($mhmrentiva_no_deprecations);
+}
+
+/**
  * Test-only cryptographic seed constants for audit key generation paths.
  *
  * Defined only once WordPress has read its test config: the config written by

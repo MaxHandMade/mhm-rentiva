@@ -1431,16 +1431,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * holds nothing. Pending past its payment deadline: BookingConflicts no
 	 * longer counts it (PAYMENT_SQL), so someone else may have booked over it.
 	 */
-	private static function booking_lost_its_dates(int $booking_id): bool
+	private static function booking_lost_its_dates(int $booking_id, bool $from_database = false): bool
 	{
-		$status = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+		$read   = static function (string $key) use ($booking_id, $from_database): string {
+			return $from_database ? self::read_booking_meta($booking_id, $key) : (string) get_post_meta($booking_id, $key, true);
+		};
+		$status = $read('_mhmrentiva_status');
 		if (in_array($status, array( Status::CANCELLED, Status::REFUNDED, Status::NO_SHOW ), true)) {
 			return true;
 		}
 		if (! in_array($status, array( Status::PENDING, Status::PENDING_PAYMENT ), true)) {
 			return false;
 		}
-		$deadline = (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
+		$deadline = $read('_mhmrentiva_payment_deadline');
 
 		return '' !== $deadline && $deadline <= current_time('mysql', true);
 	}
@@ -1486,16 +1489,59 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
-	 * Write one booking meta and read it back from the database. "Already that
-	 * value" is success; update_post_meta() returns false for it as well as for
-	 * a failure, so its answer is not used (Codex PR K delta2 H2).
+	 * One booking meta straight from the database, past the object cache. A
+	 * deleted cache entry does not make the next get_post_meta() read the
+	 * database: on a shared object cache (Redis) another request can put a
+	 * value it read before a payment committed back in between, and a decision
+	 * taken on it overwrites that payment (Codex PR K delta3 H1). Inside a
+	 * Locker transaction this is the locked connection, so it sees the
+	 * transaction's own writes.
+	 *
+	 * @throws \RuntimeException When the read failed ('mhmrentiva_booking_read_failed').
 	 */
-	private static function write_booking_meta(int $booking_id, string $key, string $value): bool
+	private static function read_booking_meta(int $booking_id, string $key): string
 	{
-		update_post_meta($booking_id, $key, $value);
-		wp_cache_delete($booking_id, 'post_meta');
+		global $wpdb;
 
-		return (string) get_post_meta($booking_id, $key, true) === $value;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A locked decision must not trust the object cache (Codex PR K delta3 H1).
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC LIMIT 1",
+				$booking_id,
+				$key
+			)
+		);
+		if ('' !== (string) $wpdb->last_error) {
+			throw new \RuntimeException('mhmrentiva_booking_read_failed');
+		}
+
+		return null === $value ? '' : (string) $value;
+	}
+
+	/**
+	 * Write one booking meta, only over the value it is expected to replace, and
+	 * read it back from the database. "Already that value" is success;
+	 * update_post_meta() returns false for it as well as for a failure, so its
+	 * answer is not used (Codex PR K delta2 H2).
+	 *
+	 * @param string|null $expected The value the write replaces (update_post_meta()'s
+	 *                              $prev_value: `WHERE meta_value = expected`); null
+	 *                              reads it from the database first. A concurrent
+	 *                              change to anything else is not overwritten, and
+	 *                              the read-back reports the write as not held.
+	 */
+	private static function write_booking_meta(int $booking_id, string $key, string $value, ?string $expected = null): bool
+	{
+		try {
+			$current = $expected ?? self::read_booking_meta($booking_id, $key);
+			if ($current !== $value) {
+				update_post_meta($booking_id, $key, $value, $current);
+			}
+
+			return self::read_booking_meta($booking_id, $key) === $value;
+		} catch (\RuntimeException $e) {
+			return false;
+		}
 	}
 
 	/**
@@ -1505,17 +1551,21 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 *
 	 * @throws \RuntimeException When the value did not hold.
 	 */
-	private static function write_booking_meta_or_roll_back(int $booking_id, string $key, string $value): void
+	private static function write_booking_meta_or_roll_back(int $booking_id, string $key, string $value, ?string $expected = null): void
 	{
-		if (! self::write_booking_meta($booking_id, $key, $value)) {
+		if (! self::write_booking_meta($booking_id, $key, $value, $expected)) {
 			throw new \RuntimeException('mhmrentiva_booking_write_failed');
 		}
 	}
 
 	/**
-	 * Run a booking decision under the vehicle's lock. A write that did not
-	 * hold rolled the transaction back (write_booking_meta_or_roll_back()); the
-	 * request cache may still hold what was written, so it is dropped.
+	 * Run a booking decision under the vehicle's lock. The decision reads and
+	 * verifies the booking from the database (read_booking_meta()), never from
+	 * the object cache. Locker rolls back on any Throwable; whatever the
+	 * request cache took in meanwhile is dropped then too, and once after a
+	 * COMMIT (Codex PR K delta3). A write that did not hold answers
+	 * 'write_failed', a read that failed 'unknown'; any other Throwable reaches
+	 * the caller.
 	 *
 	 * @param callable(): mixed $decide
 	 * @return array{0: string, 1?: mixed, 2?: mixed}
@@ -1525,16 +1575,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$locked = false;
 		try {
 			$outcome = \MHMRentiva\Admin\Booking\Helpers\Locker::withLock($vehicle_id, $decide, $locked);
-		} catch (\RuntimeException $e) {
-			if ('mhmrentiva_booking_write_failed' !== $e->getMessage()) {
-				throw $e;
-			}
+		} catch (\Throwable $e) {
 			wp_cache_delete($booking_id, 'post_meta');
-			return array( 'write_failed' );
+			if ($e instanceof \RuntimeException && 'mhmrentiva_booking_write_failed' === $e->getMessage()) {
+				return array( 'write_failed' );
+			}
+			if ($e instanceof \RuntimeException && 'mhmrentiva_booking_read_failed' === $e->getMessage()) {
+				return array( 'unknown' );
+			}
+			throw $e;
 		}
+		wp_cache_delete($booking_id, 'post_meta');
 
 		if (true !== $locked || ! is_array($outcome) || ! isset($outcome[0])) {
-			wp_cache_delete($booking_id, 'post_meta');
 			return array( 'unknown' );
 		}
 
@@ -1579,9 +1632,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$vehicle_id,
 			$booking_id,
 			static function () use ($booking_id, $vehicle_id, $start_ts, $end_ts) {
-				// What the lock protects, read fresh.
-				wp_cache_delete($booking_id, 'post_meta');
-				if (! self::booking_lost_its_dates($booking_id)) {
+				// What the lock protects, read from the database.
+				if (! self::booking_lost_its_dates($booking_id, true)) {
 					return array( 'held' );
 				}
 				$overlaps = \MHMRentiva\Admin\Booking\Helpers\Util::count_overlaps_locked($vehicle_id, $start_ts, $end_ts, $booking_id);
@@ -1592,12 +1644,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					return array( 'taken' );
 				}
 
-				$from     = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
-				$deadline = (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
+				$from     = self::read_booking_meta($booking_id, '_mhmrentiva_status');
+				$deadline = self::read_booking_meta($booking_id, '_mhmrentiva_payment_deadline');
 				$to       = Status::CANCELLED === $from ? Status::PENDING : $from;
 				$fresh    = self::get_payment_deadline();
-				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to);
-				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $fresh);
+				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
+				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $fresh, $deadline);
 
 				return array( 'revived', array( $from, $deadline ), array( $to, $fresh ) );
 			}
@@ -1674,14 +1726,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$revival['vehicle'],
 				$booking_id,
 				static function () use ($revival, $booking_id) {
-					wp_cache_delete($booking_id, 'post_meta');
-					$still_ours = (string) get_post_meta($booking_id, '_mhmrentiva_status', true) === $revival['wrote_status']
-						&& (string) get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true) === $revival['wrote_deadline'];
+					// From the database, and only over what this attempt wrote: a
+					// payment that landed meanwhile -- confirmed, or only marked
+					// paid (Fable PR K delta3 m2) -- is kept.
+					$still_ours = self::read_booking_meta($booking_id, '_mhmrentiva_status') === $revival['wrote_status']
+						&& self::read_booking_meta($booking_id, '_mhmrentiva_payment_deadline') === $revival['wrote_deadline']
+						&& 'paid' !== self::read_booking_meta($booking_id, '_mhmrentiva_payment_status');
 					if (! $still_ours) {
 						return array( 'kept' );
 					}
-					self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $revival['status']);
-					self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $revival['deadline']);
+					self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $revival['status'], $revival['wrote_status']);
+					self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_payment_deadline', $revival['deadline'], $revival['wrote_deadline']);
 
 					return array( 'undone' );
 				}
@@ -1767,12 +1822,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			$vehicle_id,
 			$booking_id,
 			static function () use ($booking_id, $vehicle_id, $start_ts, $end_ts, $remaining, $to) {
-				wp_cache_delete($booking_id, 'post_meta');
-				$from = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
+				$from = self::read_booking_meta($booking_id, '_mhmrentiva_status');
 				if (! in_array($from, self::REVIVABLE, true)) {
 					return array( 'moved', $from );
 				}
-				if (self::booking_lost_its_dates($booking_id)) {
+				if (self::booking_lost_its_dates($booking_id, true)) {
 					if ($remaining && Status::CANCELLED === $from) {
 						return array( 'gone', $from );
 					}
@@ -1793,7 +1847,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				if (! Status::can_transition($effective, $to)) {
 					return array( 'kept', $from );
 				}
-				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to);
+				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
 
 				return array( 'written', $from );
 			}
