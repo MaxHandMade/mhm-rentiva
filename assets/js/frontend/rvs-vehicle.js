@@ -177,12 +177,17 @@
 			$root.find( '[data-rvs-return-time-display]' ).text( data.window.pickup_time );
 		}
 		// Dates the server could not price (wrong order) show no total: the
-		// message beside them says why.
-		const priced = data.priced !== false;
-		$root.find( '[data-rvs-vd-priced]' ).prop( 'hidden', ! priced );
-		$root.find( '[data-rvs-vd-total]' ).html( priced ? data.total_html || '' : '' );
-		$root.find( '[data-rvs-vd-days]' ).text( priced ? daysLabel( parseInt( data.days, 10 ) || 0 ) : '' );
-		$root.find( '[data-rvs-vd-breakdown]' ).html( data.breakdown_html || '' );
+		// message beside them says why. A car taken for the window (the
+		// server's `taken`, owner decision 2026-11-03) shows no total block at
+		// all -- the header and the phone bar show its daily price instead.
+		const taken = data.taken === true;
+		const totaled = data.priced !== false && ! taken;
+		$root.find( '[data-rvs-vd-priced]' ).prop( 'hidden', ! totaled );
+		$root.find( '[data-rvs-vd-total]' ).html( totaled ? data.total_html || '' : '' );
+		$root.find( '[data-rvs-vd-days]' ).text( totaled ? daysLabel( parseInt( data.days, 10 ) || 0 ) : '' );
+		$root.find( '[data-rvs-vd-daily]' ).prop( 'hidden', ! taken );
+		$root.find( '[data-rvs-vd-daily-amount]' ).html( taken ? data.daily_html || '' : '' );
+		$root.find( '[data-rvs-vd-breakdown]' ).prop( 'hidden', taken ).html( taken ? '' : data.breakdown_html || '' );
 		$root.find( '[data-rvs-vd-breakdown-dialog] details' ).prop( 'open', true );
 		if ( data.months_html ) {
 			$root.find( '[data-rvs-vd-months]' ).html( data.months_html );
@@ -243,9 +248,13 @@
 				}
 			},
 			function ( message ) {
-				showMessage( $root, message || t( 'error', 'An error occurred' ) );
-				// Suggestions for an earlier window must not stay beside the error.
-				showAlternatives( $root, '' );
+				// As above: a failure for a window already left is not shown
+				// (Fable B3); the queued request answers for the new one.
+				if ( ! state.queued ) {
+					showMessage( $root, message || t( 'error', 'An error occurred' ) );
+					// Suggestions for an earlier window must not stay beside the error.
+					showAlternatives( $root, '' );
+				}
 			},
 			function () {
 				state.loading = false;

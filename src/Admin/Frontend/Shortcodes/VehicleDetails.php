@@ -122,15 +122,21 @@ final class VehicleDetails extends AbstractShortcode {
 		$alternatives = VehicleDetailsView::alternatives( $vehicle_id, $booking, $window );
 
 		// Dates the server cannot price (wrong order) carry no total, days or
-		// breakdown: the card shows the message alone.
-		$priced = ! empty( $booking['priced'] );
+		// breakdown: the card shows the message alone. A taken car carries none
+		// either, but its daily price (owner decision 2026-11-03).
+		$priced  = ! empty( $booking['priced'] );
+		$taken   = ! empty( $booking['taken'] );
+		$totaled = $priced && ! $taken;
 
 		wp_send_json_success(
 			array(
 				'priced'            => $priced,
-				'days'              => $priced ? (int) $booking['days'] : 0,
-				'total_html'        => $priced ? (string) $booking['breakdown']['total']['html'] : '',
-				'breakdown_html'    => $priced ? (string) Templates::render( 'partials/rvs/breakdown', array(
+				// The card's one switch: daily price instead of the total block.
+				'taken'             => $taken,
+				'daily_html'        => (string) $booking['daily_html'],
+				'days'              => $totaled ? (int) $booking['days'] : 0,
+				'total_html'        => $totaled ? (string) $booking['breakdown']['total']['html'] : '',
+				'breakdown_html'    => $totaled ? (string) Templates::render( 'partials/rvs/breakdown', array(
 					'breakdown'   => $booking['breakdown'],
 					'collapsible' => true,
 				), true ) : '',
@@ -139,7 +145,7 @@ final class VehicleDetails extends AbstractShortcode {
 				'message'           => (string) $booking['message'],
 				// Free vehicles for a taken window: the data, and the box's markup.
 				'alternatives'      => $alternatives,
-				'alternatives_html' => self::alternatives_html( $alternatives ),
+				'alternatives_html' => self::alternatives_html( $alternatives, $vehicle_id ),
 				'months_html'       => self::months_html( $months ),
 				// The window actually quoted, so the fields show what the total is for.
 				'window'            => $window,
@@ -153,12 +159,22 @@ final class VehicleDetails extends AbstractShortcode {
 	 * '' without suggestions, so the box stays :empty.
 	 *
 	 * @param array<int, array<string, mixed>> $alternatives VehicleDetailsView::alternatives().
+	 * @param int                              $vehicle_id   The page's vehicle: part of each title id, so two vehicle roots on a page never share one.
 	 */
-	public static function alternatives_html( array $alternatives ): string {
+	public static function alternatives_html( array $alternatives, int $vehicle_id ): string {
 		if ( array() === $alternatives ) {
 			return '';
 		}
-		return trim( (string) Templates::render( 'partials/vehicle-details/alternatives', array( 'alternatives' => $alternatives ), true ) );
+		return trim(
+			(string) Templates::render(
+				'partials/vehicle-details/alternatives',
+				array(
+					'alternatives' => $alternatives,
+					'vehicle_id'   => $vehicle_id,
+				),
+				true
+			)
+		);
 	}
 
 	/**

@@ -10,6 +10,7 @@
  * The links share one text, so each is described by its car's title.
  *
  * @var list<array<string, mixed>> $alternatives VehicleDetailsView::alternatives().
+ * @var int                        $vehicle_id   The page's vehicle (title ids: rvs-vd-alt-{vehicle}-{suggestion}).
  */
 
 declare(strict_types=1);
@@ -32,12 +33,15 @@ if (array() === $mhmrentiva_alts) {
 	return;
 }
 $mhmrentiva_alt_html = PriceDisplay::allowed_html();
+$mhmrentiva_alt_page = (int) ( $vehicle_id ?? 0 );
 ?>
 <p class="rvs-vd__alternatives-title"><?php esc_html_e('Alternative Vehicles', 'mhm-rentiva'); ?></p>
 <ul class="rvs-vd__alternatives-list">
 	<?php foreach ($mhmrentiva_alts as $mhmrentiva_alt) : ?>
 		<?php
-		$mhmrentiva_alt_title_id = wp_unique_id('rvs-vd-alt-');
+		// Page vehicle + suggested vehicle: stable across the first render and the
+		// quote, and distinct between two vehicle roots on one page (Fable B2).
+		$mhmrentiva_alt_title_id = 'rvs-vd-alt-' . $mhmrentiva_alt_page . '-' . (int) ( $mhmrentiva_alt['id'] ?? 0 );
 		$mhmrentiva_alt_image    = (string) ( $mhmrentiva_alt['image'] ?? '' );
 		$mhmrentiva_alt_specs    = (string) ( $mhmrentiva_alt['specs'] ?? '' );
 		$mhmrentiva_alt_price    = (string) ( $mhmrentiva_alt['price_html'] ?? '' );

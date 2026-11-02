@@ -214,6 +214,39 @@ final class VehicleDetailsRvsAjaxTest extends WP_Ajax_UnitTestCase
 		$this->assertStringContainsString('Renault Clio', $html);
 	}
 
+	/**
+	 * Owner decision (2026-11-03): a taken window's quote carries no total and
+	 * no breakdown, but the car's daily price -- the card's one source of
+	 * the state is `taken`.
+	 */
+	public function test_quote_for_a_taken_car_carries_the_daily_price_not_the_total(): void
+	{
+		$this->book_the_car();
+
+		$data = $this->quote()['data'] ?? array();
+
+		$this->assertTrue($data['taken'] ?? null, wp_json_encode($data));
+		$this->assertSame('', $data['total_html']);
+		$this->assertSame('', $data['breakdown_html']);
+		$this->assertSame(0, $data['days']);
+		$expected = (string) \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_shop(\MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($this->vehicle_id, 1, 0)->rental_amount)['html'];
+		$this->assertNotSame('', $expected);
+		$this->assertSame($expected, $data['daily_html'] ?? null);
+	}
+
+	public function test_quote_for_a_free_or_refused_window_is_not_taken(): void
+	{
+		$data = $this->quote()['data'] ?? array();
+		$this->assertFalse($data['taken'] ?? null);
+		$this->assertSame('', $data['daily_html'] ?? null);
+		$this->assertNotSame('', $data['total_html']);
+
+		$past = $this->quote(array( 'pickup_date' => '2020-01-10', 'return_date' => '2020-01-12' ))['data'] ?? array();
+		$this->assertFalse($past['available']);
+		$this->assertFalse($past['taken'] ?? null, 'A rule refusal keeps the total.');
+		$this->assertNotSame('', $past['total_html']);
+	}
+
 	public function test_quote_suggests_at_most_two_vehicles(): void
 	{
 		$this->book_the_car();

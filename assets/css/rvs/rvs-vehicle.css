@@ -348,8 +348,10 @@
 }
 
 /* Dates the server could not price (wrong order): the card and the phone bar
-   show no total, only the message (rvs-vehicle.js toggles [hidden]). */
-.rvs-shell [data-rvs-vd-priced][hidden] {
+   show no total, only the message (rvs-vehicle.js toggles [hidden]). A car
+   taken for the window swaps the total for its daily price. */
+.rvs-shell [data-rvs-vd-priced][hidden],
+.rvs-shell [data-rvs-vd-daily][hidden] {
 	display: none;
 }
 
@@ -729,6 +731,15 @@
 		color: var(--rvs-muted);
 		font-size: 13px;
 		text-decoration: underline;
+	}
+
+	/* Taken: the daily price is text, not a breakdown opener. */
+	.rvs-shell .rvs-vd__bar-total--daily {
+		cursor: default;
+	}
+
+	.rvs-shell .rvs-vd__bar-total--daily > span {
+		text-decoration: none;
 	}
 
 	.rvs-shell .rvs-vd__bar-continue {

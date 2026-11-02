@@ -310,7 +310,7 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$this->assertStringContainsString('Renault Clio', (string) $box);
 		$this->assertStringContainsString('href="' . esc_url(get_permalink($other)), (string) $box);
 		$this->assertStringContainsString('mhmrentiva_pickup_date=2027-07-12', (string) $box);
-		$this->assertMatchesRegularExpression('/aria-describedby="(rvs-vd-alt-\d+)"/', (string) $box);
+		$this->assertMatchesRegularExpression('/aria-describedby="(rvs-vd-alt-' . $this->vehicle_id . '-' . $other . ')"/', (string) $box);
 	}
 
 	public function test_first_load_with_free_dates_leaves_the_box_empty(): void
@@ -320,5 +320,143 @@ final class VehicleDetailsRvsPageTest extends WP_UnitTestCase
 		$html = $this->render_window('2027-07-12', '2027-07-15');
 
 		$this->assertSame('', $this->alternatives_box($html), 'Empty, without even whitespace (the card CSS keys on :empty).');
+	}
+
+	private function book_the_car(): void
+	{
+		$booking = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
+		update_post_meta($booking, '_mhmrentiva_vehicle_id', (string) $this->vehicle_id);
+		update_post_meta($booking, '_mhmrentiva_pickup_date', '2027-07-13');
+		update_post_meta($booking, '_mhmrentiva_dropoff_date', '2027-07-14');
+		update_post_meta($booking, '_mhmrentiva_status', 'confirmed');
+	}
+
+	private function with_deposit(): void
+	{
+		$settings                                   = (array) get_option('mhmrentiva_settings', array());
+		$settings['mhmrentiva_rental_deposit_type'] = 'percentage';
+		$settings['mhmrentiva_rental_deposit_rate'] = 10;
+		update_option('mhmrentiva_settings', $settings);
+	}
+
+	private function daily_html(): string
+	{
+		return (string) \MHMRentiva\Admin\Booking\Pricing\PriceDisplay::for_shop(\MHMRentiva\Admin\Booking\Pricing\RentalPricing::quote_for_days($this->vehicle_id, 1, 0)->rental_amount)['html'];
+	}
+
+	/**
+	 * Owner decision (2026-11-03): while the car is taken for the window, the
+	 * card shows no total block (total, deposit, due at pickup, breakdown) and
+	 * the header and the phone bar show the car's daily price instead.
+	 */
+	public function test_first_load_with_taken_dates_shows_the_daily_price_and_no_total(): void
+	{
+		$this->with_deposit();
+		$this->book_the_car();
+
+		$html = $this->render_window('2027-07-12', '2027-07-15');
+
+		$this->assertStringNotContainsString('rvs-breakdown__total', $html, 'No "Total" row.');
+		$this->assertStringNotContainsString('rvs-breakdown__deposit', $html, 'No deposit row.');
+		$this->assertStringNotContainsString('rvs-breakdown__pickup', $html, 'No "Due at pickup" row.');
+		$this->assertStringNotContainsString('rvs-breakdown__summary', $html, 'No "Price breakdown" link.');
+		$this->assertMatchesRegularExpression('/<button [^>]*data-rvs-vd-breakdown-open[^>]*\shidden>/', $html, 'The phone bar opens no breakdown.');
+		$this->assertSame(0, preg_match_all('/<div [^>]*data-rvs-vd-breakdown(?![-\w])(?![^>]*\shidden[\s>])[^>]*>/', $html), 'Both breakdown boxes are hidden.');
+		$this->assertSame(0, preg_match_all('/<[^>]*data-rvs-vd-priced(?![^>]*\shidden[\s>])[^>]*>/', $html), 'Every period total is hidden.');
+
+		// Card header and phone bar: the daily price, "/day" after it.
+		$daily = $this->daily_html();
+		$this->assertNotSame('', $daily);
+		$this->assertSame(2, preg_match_all('/<[^>]*data-rvs-vd-daily(?![-\w])(?![^>]*\shidden[\s>])[^>]*>\s*<(?:span|strong)[^>]*data-rvs-vd-daily-amount[^>]*>' . preg_quote($daily, '/') . '<\/(?:span|strong)>\s*<span[^>]*>\/day<\/span>/', $html), 'Header and bar show the daily price.');
+		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html, 'The red message stays.');
+	}
+
+	public function test_first_load_with_free_dates_keeps_the_total_rows(): void
+	{
+		$this->with_deposit();
+
+		$html = $this->render_window('2027-07-12', '2027-07-15');
+
+		$this->assertStringContainsString('rvs-breakdown__total', $html);
+		$this->assertStringContainsString('rvs-breakdown__deposit', $html);
+		$this->assertStringContainsString('rvs-breakdown__pickup', $html);
+		$this->assertStringContainsString('data-rvs-vd-breakdown-open', $html);
+		$this->assertSame(0, preg_match_all('/<[^>]*data-rvs-vd-priced[^>]*\shidden[\s>]/', $html));
+		$this->assertMatchesRegularExpression('/data-rvs-vd-days>3 days total</', $html);
+		// The daily twins are there for a later taken quote, hidden and empty.
+		$this->assertSame(2, preg_match_all('/<[^>]*data-rvs-vd-daily(?![-\w])[^>]*\shidden[\s>]/', $html));
+	}
+
+	/**
+	 * A booking-rule refusal (past date) keeps today's card: the total stays.
+	 */
+	public function test_a_rule_refusal_keeps_the_total(): void
+	{
+		$html = $this->render_window('2020-01-10', '2020-01-13');
+
+		$this->assertMatchesRegularExpression('/data-rvs-vd-message role="status">[^<]+</', $html);
+		$this->assertStringContainsString('rvs-breakdown__total', $html);
+		$this->assertSame(0, preg_match_all('/<[^>]*data-rvs-vd-priced[^>]*\shidden[\s>]/', $html));
+	}
+
+	/**
+	 * Fable B7: without the booking card there is nothing to suggest into, so
+	 * the finder does not run.
+	 *
+	 * @return array<string, array{0: array<string, string>}>
+	 */
+	public static function no_card(): array
+	{
+		return array(
+			'show_booking'        => array( array( 'show_booking' => '0' ) ),
+			'show_booking_button' => array( array( 'show_booking_button' => 'false' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider no_card
+	 * @param array<string, string> $atts
+	 */
+	public function test_no_booking_card_runs_no_finder(array $atts): void
+	{
+		$this->book_the_car();
+		$this->free_car('Renault Clio');
+		$window = array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:00', 'return_date' => '2027-07-15' );
+		$view   = \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView::build($this->vehicle_id, array(), $window);
+		$this->assertNotSame(array(), $view['booking']['alternatives'], 'With the card the finder runs.');
+
+		$view = \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView::build($this->vehicle_id, $atts, $window);
+		$this->assertSame(array(), $view['booking']['alternatives']);
+	}
+
+	public function test_a_transfer_only_car_runs_no_finder(): void
+	{
+		$this->book_the_car();
+		$this->free_car('Renault Clio');
+		update_post_meta($this->vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SERVICE_TYPE, 'transfer');
+
+		$view = \MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView::build($this->vehicle_id, array(), array( 'pickup_date' => '2027-07-12', 'pickup_time' => '10:00', 'return_date' => '2027-07-15' ));
+		$this->assertSame(array(), $view['booking']['alternatives']);
+	}
+
+	/**
+	 * Fable B2: a suggestion's title id carries the page's vehicle and the
+	 * suggested one, so two vehicle roots on one page cannot collide.
+	 */
+	public function test_suggestion_ids_carry_both_vehicles(): void
+	{
+		$alts = array(
+			array(
+				'id'        => 55,
+				'title'     => 'Renault Clio',
+				'permalink' => 'http://example.org/clio/',
+			),
+		);
+		$a = \MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::alternatives_html($alts, 10);
+		$b = \MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::alternatives_html($alts, 11);
+
+		$this->assertStringContainsString('id="rvs-vd-alt-10-55"', $a);
+		$this->assertStringContainsString('aria-describedby="rvs-vd-alt-10-55"', $a);
+		$this->assertStringContainsString('id="rvs-vd-alt-11-55"', $b);
 	}
 }
