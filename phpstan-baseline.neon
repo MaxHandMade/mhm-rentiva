@@ -222,7 +222,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 47
+			count: 48
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -679,7 +679,13 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 5
+			count: 1
+			path: src/Admin/Payment/WooCommerce/RentalCheckoutLook.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
+			identifier: constant.notFound
+			count: 1
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 
 		-

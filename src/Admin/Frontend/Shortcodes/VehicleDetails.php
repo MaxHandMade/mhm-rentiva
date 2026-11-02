@@ -15,6 +15,7 @@ use MHMRentiva\Admin\Services\CompareService;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Frontend\PreviewSamples;
 use MHMRentiva\Frontend\RenderContext;
+use MHMRentiva\Frontend\StateBox;
 use MHMRentiva\Admin\Frontend\Shortcodes\Rvs\VehicleDetailsView;
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
@@ -329,11 +330,26 @@ final class VehicleDetails extends AbstractShortcode {
 		}
 
 		$is_preview = RenderContext::current()->is_preview();
-		$text       = $is_preview
-			? __( 'No vehicle selected. Set a vehicle ID in the widget settings, or place this widget on a vehicle page.', 'mhm-rentiva' )
-			: __( 'Vehicle details are not available here.', 'mhm-rentiva' );
+		if ( $is_preview ) {
+			return StateBox::html(
+				array(
+					'title' => __( 'No vehicle selected', 'mhm-rentiva' ),
+					'text'  => __( 'Set a vehicle ID in the widget settings, or place this widget on a vehicle page.', 'mhm-rentiva' ),
+					'state' => 'vehicle_missing',
+				)
+			);
+		}
 
-		return '<div class="rv-vehicle-details-empty">' . esc_html( $text ) . '</div>';
+		return StateBox::html(
+			array(
+				'kicker'       => __( 'Vehicle not found', 'mhm-rentiva' ),
+				'title'        => __( 'This vehicle could not be shown', 'mhm-rentiva' ),
+				'text'         => __( 'It may have been removed, or the link may be wrong.', 'mhm-rentiva' ),
+				'action_label' => __( 'Browse cars', 'mhm-rentiva' ),
+				'action_url'   => StateBox::browse_url(),
+				'state'        => 'vehicle_missing',
+			)
+		);
 	}
 
 	/**

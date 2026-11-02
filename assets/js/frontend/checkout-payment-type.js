@@ -16,8 +16,8 @@ jQuery(document).ready(function($) {
 	}
 
 	function updateSelectedState() {
-		$('.mhm-payment-type-option').removeClass('selected');
-		$('.mhm-payment-type-option:has(input[type="radio"]:checked)').addClass('selected');
+		$('[data-rvs-payment-option]').removeClass('rvs-option--selected');
+		$('[data-rvs-payment-option]:has(input[type="radio"]:checked)').addClass('rvs-option--selected');
 	}
 
 	// Initial visual state + one-time sync of the pre-selected type with the cart session.

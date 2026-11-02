@@ -241,6 +241,11 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-rvs-booking', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-booking', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-booking.css', array( 'mhm-rentiva-rvs-forms', 'mhm-rentiva-rvs-breakdown', 'mhm-rentiva-rvs-card', 'mhm-rentiva-rvs-datepicker' ), self::get_file_version('assets/css/frontend/rvs-booking.css'));
 		}
+		// WooCommerce's cart, checkout, thank-you and order-pay pages (PR K): on
+		// the journey's styles, which bring the form primitives and the breakdown.
+		if (! wp_style_is('mhm-rentiva-rvs-checkout', 'registered')) {
+			wp_register_style('mhm-rentiva-rvs-checkout', MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/rvs-checkout.css', array( 'mhm-rentiva-rvs-booking' ), self::get_file_version('assets/css/frontend/rvs-checkout.css'));
+		}
 		if (! wp_style_is('mhm-rentiva-rvs-overlay', 'registered')) {
 			wp_register_style('mhm-rentiva-rvs-overlay', MHMRENTIVA_PLUGIN_URL . 'assets/css/rvs/rvs-overlay.css', array( 'mhm-rentiva-rvs-primitives' ), self::get_file_version('assets/css/rvs/rvs-overlay.css'));
 		}
@@ -414,6 +419,16 @@ final class AssetManager {
 	{
 		self::register_core_styles();
 		wp_enqueue_style('mhm-rentiva-rvs-booking');
+	}
+
+	/**
+	 * WooCommerce's pages around a booking (rvs-checkout.css): the whole page
+	 * under `body.rvs-rental`, Rentiva's own parts on a mixed or transfer cart.
+	 */
+	public static function enqueue_rvs_checkout(): void
+	{
+		self::register_core_styles();
+		wp_enqueue_style('mhm-rentiva-rvs-checkout');
 	}
 
 	/**

@@ -68,7 +68,6 @@
                 img.src = vehicleImage.url;
                 if (vehicleImage.srcset) img.srcset = vehicleImage.srcset;
                 img.alt = vehicleImage.alt || 'Vehicle';
-                img.style.cssText = 'width: 80px; height: 80px; object-fit: cover; border-radius: 8px;';
                 img.classList.add('mhm-vehicle-image-injected');
                 processed++;
             }
@@ -114,8 +113,7 @@
                     newImg.src = vehicleImage.url;
                     if (vehicleImage.srcset) newImg.srcset = vehicleImage.srcset;
                     newImg.alt = vehicleImage.alt || 'Vehicle';
-                    newImg.className = 'mhm-vehicle-thumbnail';
-                    newImg.style.cssText = 'width: 48px; height: 48px; object-fit: cover; border-radius: 6px;';
+                    newImg.className = 'mhm-vehicle-thumbnail rvs-cart-thumb';
 
                     svgPlaceholder.parentNode.replaceChild(newImg, svgPlaceholder);
                     processed++;
@@ -130,7 +128,6 @@
                     img.src = vehicleImage.url;
                     if (vehicleImage.srcset) img.srcset = vehicleImage.srcset;
                     img.alt = vehicleImage.alt || 'Vehicle';
-                    img.style.cssText = 'width: 48px; height: 48px; object-fit: cover; border-radius: 6px;';
                     img.classList.add('mhm-vehicle-image-injected');
                     processed++;
                 }
@@ -207,12 +204,11 @@
     /**
      * Whether this page can ever need the injector.
      *
-     * The script is enqueued on every front-end page on purpose: a Mini-Cart in
-     * the header renders with a full cart anywhere on the site, and making the
-     * enqueue conditional on cart contents would break under page caching. What
-     * does NOT belong on every page is a MutationObserver watching the whole of
-     * document.body with subtree:true -- it fires for every DOM change a theme or
-     * any other plugin makes, on pages where there is provably nothing to inject.
+     * The script is enqueued only while a Cart or Mini-Cart block renders
+     * (RentalCheckoutLook::with_block_image_injector()). Even there a
+     * MutationObserver watching the whole of document.body with subtree:true
+     * fires for every DOM change a theme or any other plugin makes, so it runs
+     * only when there is something to inject.
      *
      * The image map is localised server-side at render time, so an empty map
      * means this request has no cart images at all and processAll() could not

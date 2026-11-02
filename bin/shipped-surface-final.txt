@@ -75,6 +75,7 @@ assets/css/frontend/rvs-account-nav.css
 assets/css/frontend/rvs-account.css
 assets/css/frontend/rvs-availability.css
 assets/css/frontend/rvs-booking.css
+assets/css/frontend/rvs-checkout.css
 assets/css/frontend/rvs-comparison.css
 assets/css/frontend/rvs-contact.css
 assets/css/frontend/rvs-summary.css
@@ -85,8 +86,6 @@ assets/css/frontend/user-dashboard.css
 assets/css/frontend/vehicle-details.css
 assets/css/frontend/vehicles-grid.css
 assets/css/frontend/vehicles-list.css
-assets/css/payment/woocommerce-cart.css
-assets/css/payment/woocommerce-checkout.css
 assets/css/rvs/rvs-breakdown.css
 assets/css/rvs/rvs-calendar.css
 assets/css/rvs/rvs-card.css
@@ -161,7 +160,6 @@ assets/js/frontend/vehicle-interactions.js
 assets/js/frontend/vehicle-rating-form.js
 assets/js/frontend/vehicles-grid.js
 assets/js/payment/woocommerce-cart-block.js
-assets/js/payment/woocommerce-checkout.js
 assets/vendor/flatpickr/flatpickr.min.css
 assets/vendor/flatpickr/flatpickr.min.js
 assets/vendor/flatpickr/l10n/tr.min.js
@@ -425,6 +423,8 @@ src/Admin/Payment/Refunds/RefundValidator.php
 src/Admin/Payment/Refunds/Service.php
 src/Admin/Payment/WooCommerce/CheckoutJourney.php
 src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php
+src/Admin/Payment/WooCommerce/RentalCheckoutLook.php
+src/Admin/Payment/WooCommerce/RentalMoneyLabels.php
 src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 src/Admin/PostTypes/Logs/AdvancedLogger.php
 src/Admin/PostTypes/Logs/MetaBox.php
@@ -522,6 +522,7 @@ src/Core/Tenancy/TenantContext.php
 src/Core/Tenancy/TenantResolver.php
 src/Frontend/PreviewSamples.php
 src/Frontend/RenderContext.php
+src/Frontend/StateBox.php
 src/Helpers/Html.php
 src/Helpers/Icons.php
 src/Helpers/NotificationHelper.php
@@ -573,6 +574,8 @@ templates/partials/rvs/account-next-rental.php
 templates/partials/rvs/breakdown.php
 templates/partials/rvs/calendar-month.php
 templates/partials/rvs/calendar-panel.php
+templates/partials/rvs/cart-empty.php
+templates/partials/rvs/checkout-bank-transfer.php
 templates/partials/rvs/compare-vehicle.php
 templates/partials/rvs/journey-summary.php
 templates/partials/rvs/review-card.php

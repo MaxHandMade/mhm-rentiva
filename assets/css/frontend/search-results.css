@@ -473,31 +473,6 @@
 	}
 }
 
-/* No Results */
-.rv-no-results {
-	text-align: center;
-	padding: 60px 20px;
-	color: #666;
-}
-
-.rv-no-results-icon {
-	font-size: 64px;
-	margin-bottom: 20px;
-}
-
-.rv-no-results h3 {
-	margin: 0 0 12px 0;
-	font-size: 24px;
-	font-weight: 600;
-	color: #333;
-}
-
-.rv-no-results p {
-	margin: 0 0 24px 0;
-	font-size: 16px;
-	line-height: 1.5;
-}
-
 .rv-back-to-search {
 	display: inline-block;
 	padding: 12px 24px;

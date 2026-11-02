@@ -108,6 +108,41 @@ describe( 'rvs search results', () => {
 		expect( data.page ).toBe( 1 );
 	} );
 
+	test( 'a reload holds the grid with skeleton cards and is announced as loading', async () => {
+		let during = null;
+		await boot( () => {
+			const grid = document.querySelector( '[data-rvs-grid]' );
+			during = {
+				skels: grid.querySelectorAll( '.rvs-skel-card' ).length,
+				media: grid.querySelectorAll( '.rvs-skel--media' ).length,
+				label: document.querySelector( '[data-rvs-notice]' ).textContent,
+				busy: document.querySelector( '[data-rvs-results]' ).getAttribute( 'aria-busy' ),
+				hiddenFromAt: grid.querySelector( '.rvs-skel-card' ).getAttribute( 'aria-hidden' ),
+			};
+		} );
+		const box = document.getElementById( 'cat6' );
+		box.checked = true;
+		box.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		expect( during ).toEqual( { skels: 3, media: 3, label: 'Loading...', busy: 'true', hiddenFromAt: 'true' } );
+	} );
+
+	test( 'a failed reload shows the alert state box with a retry', async () => {
+		await boot();
+		jQuery.ajax = jest.fn( ( options ) => {
+			options.error();
+			options.complete();
+		} );
+		const box = document.getElementById( 'cat6' );
+		box.checked = true;
+		box.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+
+		const state = document.querySelector( '[data-rvs-grid] .rvs-empty.rvs-state.rvs-state--alert' );
+		expect( state ).not.toBeNull();
+		expect( state.getAttribute( 'role' ) ).toBe( 'alert' );
+		expect( state.querySelector( 'button.rvs-btn' ) ).not.toBeNull();
+	} );
+
 	test( 'without the sort control the default sort and the keyword still go along', async () => {
 		await boot();
 		document.querySelector( '[data-rvs-sort]' ).remove();

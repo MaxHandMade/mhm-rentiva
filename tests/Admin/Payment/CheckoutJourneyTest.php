@@ -56,8 +56,17 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$GLOBALS['wp_styles'] = null;
 		remove_all_filters('woocommerce_is_checkout');
 		remove_all_filters('woocommerce_is_order_received_page');
-		unset($GLOBALS['wp']->query_vars['order-received']);
+		unset($GLOBALS['wp']->query_vars['order-received'], $_GET['key']);
 		parent::tearDown();
+	}
+
+	/**
+	 * An order page's URL: its id and its key (CheckoutJourney reads both).
+	 */
+	private function visit(string $endpoint, \WC_Order $order): void
+	{
+		$GLOBALS['wp']->query_vars[ $endpoint ] = (string) $order->get_id();
+		$_GET['key']                            = $order->get_order_key();
 	}
 
 	/**
@@ -357,6 +366,8 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$text = self::plain($html);
 
 		$this->assertSame(3, self::current_step($html), 'The thank-you page is step 3.');
+		$this->assertSame(1, substr_count($html, 'rvs-journey__headline'), 'The page draws its own heading, once.');
+		$this->assertLessThan(strpos($html, 'rvs-steps'), strpos($html, 'rvs-journey__headline'), 'The heading is above the steps.');
 		$this->assertStringContainsString('Your booking', $text);
 		$this->assertStringContainsString('Fiat Egea', $text);
 		$this->assertStringContainsString(self::money(1000.0), $text);
@@ -368,9 +379,13 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$this->assertSame('', $this->thankyou_html(0));
 	}
 
-	public function test_thankyou_needs_exactly_one_rental_line(): void
+	public function test_thankyou_needs_rentals_only(): void
 	{
-		$this->assertSame('', $this->thankyou_html($this->order_with_lines(array( $this->rental_data(), $this->rental_data() ))->get_id()), 'Two rentals.');
+		// Several rentals: one card each under one heading (browser K7, PR K final fixes).
+		$two = $this->thankyou_html($this->order_with_lines(array( $this->rental_data(), $this->rental_data() ))->get_id());
+		$this->assertSame(2, substr_count($two, 'rvs-journey__summary'), 'Two rentals, two cards.');
+		$this->assertSame(1, substr_count($two, 'rvs-journey__headline'));
+
 		$this->assertSame('', $this->thankyou_html($this->order_with_lines(array( $this->rental_data(), null ))->get_id()), 'Rental and product.');
 		$this->assertSame('', $this->thankyou_html($this->order_with_lines(array( $this->transfer_data() ))->get_id()), 'Transfer.');
 	}
@@ -383,6 +398,7 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 		$html = $this->thankyou_html($order->get_id());
 
 		$this->assertSame(2, self::current_step($html), 'A failed payment is still on step 2.');
+		$this->assertStringNotContainsString('rvs-journey__headline', $html, 'A failed payment does not say the booking is received.');
 		$this->assertStringContainsString('rvs-journey__summary', $html);
 	}
 
@@ -415,14 +431,14 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 	{
 		$order = $this->order_with_lines(array( $this->rental_data() ));
 		add_filter('woocommerce_is_order_received_page', '__return_true');
-		$GLOBALS['wp']->query_vars['order-received'] = (string) $order->get_id();
+		$this->visit('order-received', $order);
 
 		WooCommerceBridge::enqueue_checkout_styles();
 
 		$this->assertTrue(wp_style_is('mhm-rentiva-rvs-booking', 'enqueued'));
 
 		$GLOBALS['wp_styles']                       = null;
-		$GLOBALS['wp']->query_vars['order-received'] = (string) $this->order_with_lines(array( null ))->get_id();
+		$this->visit('order-received', $this->order_with_lines(array( null )));
 		WooCommerceBridge::enqueue_checkout_styles();
 		$this->assertFalse(wp_style_is('mhm-rentiva-rvs-booking', 'enqueued'));
 	}
@@ -450,8 +466,12 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 
 	public function test_block_checkout_warns_admin_only(): void
 	{
-		$warning = esc_html__("Rentiva's booking steps and payment-type choice work with the classic checkout. Your checkout page uses the Checkout block — replace it with the [woocommerce_checkout] shortcode.", 'mhm-rentiva');
+		// R19: the block no longer breaks the journey (R4), so the notice says what
+		// the customer gets instead of asking for the shortcode.
+		$warning = 'Rentiva shows the classic cart';
 
+		$cart_page = self::factory()->post->create(array( 'post_type' => 'page', 'post_status' => 'publish', 'post_content' => '[woocommerce_cart]' ));
+		update_option('woocommerce_cart_page_id', $cart_page);
 		$this->use_checkout_page('<!-- wp:woocommerce/checkout /-->');
 
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
@@ -470,7 +490,10 @@ final class CheckoutJourneyTest extends WP_UnitTestCase
 
 		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 		$this->use_checkout_page('<!-- wp:shortcode -->[woocommerce_checkout]<!-- /wp:shortcode -->');
-		$this->assertSame('', $this->notice_html(), 'A shortcode checkout needs no warning.');
+		$this->assertSame('', $this->notice_html(), 'Classic pages need no notice.');
+
+		wp_update_post(array( 'ID' => $cart_page, 'post_content' => '<!-- wp:woocommerce/cart /-->' ));
+		$this->assertStringContainsString($warning, $this->notice_html(), 'A Cart block alone.');
 
 		set_current_screen('front');
 	}

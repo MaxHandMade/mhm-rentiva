@@ -1,0 +1,1487 @@
+/**
+ * Rentiva front-end standard -- WooCommerce's cart, checkout, thank-you and
+ * order-pay pages (PR K, R10, R12-R16). Canvas: `Sepet`, `Sepet-Mobil`,
+ * `Odeme`, `Odeme-Mobil`, `Tesekkur`, `Tesekkur-Mobil`.
+ *
+ * Two reaches, never more:
+ *
+ * 1. `body.rvs-rental` -- the page of exactly one rental (CheckoutJourney sets
+ *    the class, never for the shop's own orders, a mixed cart or a transfer).
+ *    WooCommerce's own markup (tables, fields, gateways, coupon, notices) is
+ *    laid out and coloured from rvs-tokens.css here, and only here.
+ * 2. Rentiva's own parts wherever they appear: a Rentiva cart or review line
+ *    (`.rvs-cart-line`, its meta and thumbnail), the payment-type card
+ *    (`#mhm-booking-payment-type`, an `.rvs-shell`), the empty cart card and the
+ *    bank-transfer card. A mixed or transfer cart keeps the theme's look
+ *    everywhere else.
+ *
+ * Nothing is written on `body` itself (no background, no overflow): the theme
+ * owns the page. Colours, font and corners come from the tokens.
+ *
+ * Measured against Astra 4.14 (woocommerce.min.css, woocommerce-layout,
+ * woocommerce-smallscreen, Astra's inline rules). They are reached by selector
+ * weight -- `form.checkout` or `:not(#rvs-none)` where Astra's selector carries
+ * an id, each named beside its rule. One `!important`, against one of
+ * WooCommerce's own (section 8, cart name cell). Where a value below looks
+ * redundant it resets an Astra float, width or border. White text on the
+ * accent is `#fff`, as in rvs-primitives.css.
+ */
+
+/* 1 · Page frame ----------------------------------------------------------- */
+
+/*
+ * The cart's page title (canvas `Sepet`). Measured on dev 2026-11-02: an
+ * Elementor template's "hide title" writes `:root { --page-title-display: none }`
+ * (post-3577.css, the header template) and Elementor's `h1.entry-title` reads
+ * it, so every page loses its title. A rental's cart shows its own again: the
+ * variable is reset for the title's header only, not on body and not with
+ * !important. A theme that never used the variable is unaffected.
+ */
+body.rvs-rental.woocommerce-cart .entry-header {
+	--page-title-display: block;
+}
+
+body.rvs-rental .woocommerce {
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 15px;
+	line-height: 1.55;
+}
+
+body.rvs-rental .woocommerce h2,
+body.rvs-rental .woocommerce h3,
+body.rvs-rental .woocommerce legend {
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-weight: 600;
+	letter-spacing: -0.015em;
+	line-height: 1.12;
+	text-transform: none;
+}
+
+body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn) {
+	color: var(--rvs-accent-strong);
+	text-underline-offset: 3px;
+}
+
+body.rvs-rental .woocommerce a:not(.button):not(.rvs-btn):hover {
+	color: var(--rvs-accent-deep);
+}
+
+body.rvs-rental .woocommerce :focus-visible {
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 2px;
+}
+
+/* Buttons: WooCommerce's `.button` (Apply coupon, Update cart, Proceed,
+   Place order, Pay) in the standard's colours. */
+body.rvs-rental .woocommerce .button,
+body.rvs-rental .woocommerce button.button,
+body.rvs-rental .woocommerce a.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 20px;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: none;
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	text-transform: none;
+	letter-spacing: normal;
+	cursor: pointer;
+}
+
+body.rvs-rental .woocommerce .button:hover {
+	background: var(--rvs-n-200);
+	color: var(--rvs-text);
+}
+
+/* The primary action of each page. White text on --rvs-accent-strong. */
+body.rvs-rental .woocommerce .button.alt,
+body.rvs-rental .woocommerce a.checkout-button,
+body.rvs-rental .woocommerce #place_order {
+	min-height: 52px;
+	border-color: var(--rvs-accent-strong);
+	background: var(--rvs-accent-strong);
+	color: #fff;
+	font-size: 16px;
+}
+
+body.rvs-rental .woocommerce .button.alt:hover,
+body.rvs-rental .woocommerce a.checkout-button:hover,
+body.rvs-rental .woocommerce #place_order:hover {
+	border-color: var(--rvs-accent-deep);
+	background: var(--rvs-accent-deep);
+	box-shadow: var(--rvs-hover-shadow);
+	color: #fff;
+}
+
+body.rvs-rental .woocommerce .button:disabled,
+body.rvs-rental .woocommerce .button[disabled] {
+	border-color: var(--rvs-line);
+	background: var(--rvs-n-200);
+	color: var(--rvs-muted);
+	opacity: 1;
+	cursor: default;
+}
+
+/* Fields: WooCommerce's inputs, selects (and select2) and textareas. */
+body.rvs-rental .woocommerce .input-text,
+body.rvs-rental .woocommerce input[type="text"],
+body.rvs-rental .woocommerce input[type="email"],
+body.rvs-rental .woocommerce input[type="tel"],
+body.rvs-rental .woocommerce input[type="password"],
+body.rvs-rental .woocommerce select,
+body.rvs-rental .woocommerce textarea,
+body.rvs-rental .woocommerce .select2-container .select2-selection--single {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 48px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: none;
+	color: var(--rvs-text);
+	font-family: var(--rvs-font);
+	font-size: 16px;
+	line-height: 46px;
+}
+
+body.rvs-rental .woocommerce textarea {
+	min-height: 96px;
+	padding: 12px;
+	line-height: 1.4;
+}
+
+body.rvs-rental .woocommerce .select2-container .select2-selection__rendered {
+	padding: 0;
+	color: var(--rvs-text);
+	line-height: 46px;
+}
+
+body.rvs-rental .woocommerce .select2-container .select2-selection__arrow {
+	top: 0;
+	right: 8px;
+	height: 46px;
+}
+
+body.rvs-rental .woocommerce .input-text:focus,
+body.rvs-rental .woocommerce select:focus,
+body.rvs-rental .woocommerce textarea:focus,
+body.rvs-rental .woocommerce .select2-container--focus .select2-selection--single,
+body.rvs-rental .woocommerce .select2-container--open .select2-selection--single {
+	border-color: var(--rvs-accent-strong);
+	outline: 3px solid var(--rvs-accent-strong);
+	outline-offset: 0;
+}
+
+body.rvs-rental .woocommerce form .form-row {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+}
+
+body.rvs-rental .woocommerce form .form-row label {
+	margin: 0;
+	color: var(--rvs-text);
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+body.rvs-rental .woocommerce form .form-row .required {
+	color: var(--rvs-alert);
+	text-decoration: none;
+}
+
+body.rvs-rental .woocommerce form .form-row .optional {
+	color: var(--rvs-muted);
+	font-weight: 400;
+}
+
+/* A field WooCommerce marks valid keeps the plain border: the standard has
+   no green for it, only the error state is drawn. */
+body.rvs-rental .woocommerce form .form-row.woocommerce-validated .input-text,
+body.rvs-rental .woocommerce form .form-row.woocommerce-validated select,
+body.rvs-rental .woocommerce form .form-row.woocommerce-validated .select2-selection--single {
+	border-color: var(--rvs-line);
+}
+
+/* A field WooCommerce marks invalid, and its inline message. */
+body.rvs-rental .woocommerce form .form-row.woocommerce-invalid .input-text,
+body.rvs-rental .woocommerce form .form-row.woocommerce-invalid select,
+body.rvs-rental .woocommerce form .form-row.woocommerce-invalid .select2-selection--single {
+	border-color: var(--rvs-alert);
+	box-shadow: inset 0 0 0 1px var(--rvs-alert);
+}
+
+body.rvs-rental .woocommerce form .form-row.woocommerce-invalid label {
+	color: var(--rvs-alert);
+}
+
+body.rvs-rental .woocommerce .checkout-inline-error-message {
+	margin: 0;
+	color: var(--rvs-alert);
+	font-size: 13px;
+}
+
+/* Notices: info, success and error, WooCommerce's lists and the block-style
+   banners alike. */
+body.rvs-rental .woocommerce .woocommerce-info,
+body.rvs-rental .woocommerce .woocommerce-message,
+body.rvs-rental .woocommerce .woocommerce-error,
+body.rvs-rental .woocommerce .woocommerce-notice:not(.woocommerce-thankyou-order-received) {
+	margin: 0 0 var(--rvs-s4);
+	padding: 12px 15px;
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+	color: var(--rvs-sel-text);
+	font-size: 15px;
+	list-style: none;
+}
+
+body.rvs-rental .woocommerce .woocommerce-info::before,
+body.rvs-rental .woocommerce .woocommerce-message::before,
+body.rvs-rental .woocommerce .woocommerce-error::before {
+	display: none;
+}
+
+body.rvs-rental .woocommerce .woocommerce-error,
+body.rvs-rental .woocommerce .woocommerce-notice--error {
+	background: var(--rvs-alert-100);
+	color: var(--rvs-alert);
+}
+
+body.rvs-rental .woocommerce .woocommerce-error li {
+	margin: 0;
+	padding: 0;
+}
+
+body.rvs-rental .woocommerce .woocommerce-error a:not(.button) {
+	color: var(--rvs-alert);
+}
+
+/* --rvs-sel-text on --rvs-accent-100: the accent link colour there is 4.28:1. */
+body.rvs-rental .woocommerce .woocommerce-info a:not(.button),
+body.rvs-rental .woocommerce .woocommerce-message a:not(.button) {
+	color: var(--rvs-sel-text);
+	font-weight: 600;
+}
+
+/* WooCommerce's tables as a card: no grid lines of the theme. */
+body.rvs-rental .woocommerce table.shop_table {
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-collapse: collapse;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+body.rvs-rental .woocommerce table.shop_table th,
+body.rvs-rental .woocommerce table.shop_table td {
+	padding: var(--rvs-s3) var(--rvs-s2);
+	border: 0;
+	border-top: 1px solid var(--rvs-line);
+	background: transparent;
+	color: var(--rvs-text);
+	font-size: 15px;
+	font-weight: 400;
+	text-align: start;
+	vertical-align: top;
+}
+
+body.rvs-rental .woocommerce table.shop_table thead th {
+	border-top: 0;
+	border-bottom: 1px solid var(--rvs-line);
+	color: var(--rvs-muted);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+body.rvs-rental .woocommerce table.shop_table tbody tr:first-child td {
+	border-top: 0;
+}
+
+body.rvs-rental .woocommerce table.shop_table .amount,
+body.rvs-rental .woocommerce table.shop_table bdi {
+	font-variant-numeric: tabular-nums;
+}
+
+body.rvs-rental .woocommerce .order-total th,
+body.rvs-rental .woocommerce .order-total td {
+	font-weight: 600;
+}
+
+body.rvs-rental .woocommerce .order-total .amount {
+	font-size: 17px;
+}
+
+/* The tax note WooCommerce adds to a total ("includes ... VAT"): shown, quiet. */
+body.rvs-rental .woocommerce small.includes_tax,
+body.rvs-rental .woocommerce .tax_label {
+	display: block;
+	color: var(--rvs-muted);
+	font-size: 13px;
+	font-weight: 400;
+}
+
+/* 2 · Rentiva's parts, on any cart -------------------------------------------- */
+
+/* The line's own facts, one per line: "Label: value", the label quiet. */
+.rvs-cart-line dl.variation,
+.rvs-cart-line .wc-item-meta {
+	display: block;
+	margin: 6px 0 0;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.45;
+	list-style: none;
+}
+
+.rvs-cart-line dl.variation dt,
+.rvs-cart-line .wc-item-meta .wc-item-meta-label {
+	display: inline;
+	float: none;
+	clear: none;
+	margin: 0;
+	padding: 0;
+	color: var(--rvs-muted);
+	font-weight: 400;
+}
+
+.rvs-cart-line dl.variation dd {
+	display: inline;
+	float: none;
+	margin: 0;
+	padding: 0;
+	color: var(--rvs-text);
+}
+
+.rvs-cart-line dl.variation dd::after {
+	content: "";
+	display: block;
+}
+
+.rvs-cart-line dl.variation dd p,
+.rvs-cart-line .wc-item-meta p {
+	display: inline;
+	margin: 0;
+}
+
+.rvs-cart-line .wc-item-meta li {
+	margin: 0;
+	padding: 0;
+}
+
+/* The vehicle image (WooCommerceBridge::set_universal_vehicle_thumbnail()). */
+.rvs-cart-line .rvs-cart-thumb {
+	display: block;
+	width: 120px;
+	max-width: 100%;
+	height: auto;
+	aspect-ratio: 3 / 2;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-n-100);
+	object-fit: cover;
+}
+
+.rvs-cart-line .rvs-cart-thumb--empty {
+	display: grid;
+	place-items: center;
+	color: var(--rvs-muted);
+}
+
+/* The payment-type card (WooCommerceBridge::display_payment_type_field()): a
+   shell sitting inside the theme's order review, so no gutter of its own. */
+#mhm-booking-payment-type.rvs-shell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	max-width: none;
+	margin: var(--rvs-s4) 0;
+	padding: 0;
+	background: transparent;
+}
+
+#mhm-booking-payment-type.rvs-shell > h3 {
+	margin: 0;
+	font-size: 20px;
+}
+
+#mhm-booking-payment-type .rvs-payment-type__options {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+}
+
+#mhm-booking-payment-type .rvs-option__price {
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+#mhm-booking-payment-type .rvs-payment-type__remaining {
+	display: block;
+	margin-top: 2px;
+}
+
+/* "Return to cart" (WooCommerceBridge): at the end of its line inside the
+   theme's order review of a mixed or transfer cart; a rental places it beside
+   the heading (section 4). */
+.mhm-return-cart-wrapper {
+	margin: 0 0 10px;
+	text-align: end;
+}
+
+/* The empty cart (RentalCheckoutLook::render_empty_cart()). Astra widens
+   every child of a wide group on a block page (`.ast-plain-container
+   .entry-content .wp-block-group.alignwide:not(...) > *`, five classes); the
+   id-weight `:not(#rvs-none)` keeps the card at the canvas's 560 px. */
+.rvs-shell.rvs-cart-empty:not(#rvs-none) {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--rvs-s2);
+	max-width: 560px;
+	margin: 0 0 var(--rvs-s6);
+	padding: var(--rvs-s6);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-surface);
+	box-shadow: var(--rvs-shadow);
+	color: var(--rvs-text);
+	text-align: start;
+}
+
+.rvs-shell.rvs-cart-empty .rvs-cart-empty__title {
+	font-size: 20px;
+}
+
+.rvs-shell.rvs-cart-empty .rvs-cart-empty__text {
+	color: var(--rvs-muted);
+}
+
+/* The card carries the vehicles button; WooCommerce's own link below it
+   points to the same page (R13 filters) and is not drawn twice. */
+.rvs-cart-empty ~ .return-to-shop {
+	display: none;
+}
+
+/* The bank-transfer card (RentalCheckoutLook::render_bank_transfer()). */
+.rvs-shell.rvs-bank-transfer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s6);
+	align-items: flex-start;
+	max-width: none;
+	margin: 0 0 var(--rvs-s6);
+	padding: 0;
+	background: transparent;
+}
+
+.rvs-shell .rvs-bank-transfer__amounts,
+.rvs-shell .rvs-bank-transfer__receipt {
+	display: flex;
+	flex: 1 1 360px;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+.rvs-shell .rvs-bank-transfer__receipt {
+	align-items: flex-start;
+	padding: var(--rvs-s6);
+	background: var(--rvs-surface);
+}
+
+.rvs-shell .rvs-bank-transfer__receipt p {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-bank-transfer__title {
+	font-size: 20px;
+}
+
+.rvs-shell .rvs-bank-transfer__row {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--rvs-s2);
+}
+
+.rvs-shell .rvs-bank-transfer__row > span:first-child {
+	color: var(--rvs-muted);
+}
+
+.rvs-shell .rvs-bank-transfer__row--send {
+	padding: var(--rvs-s2);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-accent-100);
+}
+
+.rvs-shell .rvs-bank-transfer__row--send > span:first-child {
+	color: var(--rvs-sel-text);
+}
+
+.rvs-shell .rvs-bank-transfer__row--pickup {
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+.rvs-shell .rvs-bank-transfer__row strong,
+.rvs-shell .rvs-bank-transfer__row .amount {
+	font-variant-numeric: tabular-nums;
+}
+
+/* 3 · Cart ----------------------------------------------------------------- */
+
+/* The line table and the totals card side by side (canvas: 560 / 340-380,
+   40 apart), notices across. Astra floats `.cart_totals` at 48%; reset. */
+body.rvs-rental.woocommerce-cart .woocommerce {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s8);
+	align-items: flex-start;
+}
+
+body.rvs-rental.woocommerce-cart .woocommerce > * {
+	flex: 1 1 100%;
+	min-width: 0;
+}
+
+body.rvs-rental.woocommerce-cart .woocommerce > .woocommerce-notices-wrapper:empty {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-cart .woocommerce > .woocommerce-cart-form {
+	flex: 999 1 560px;
+	margin: 0;
+}
+
+body.rvs-rental.woocommerce-cart .woocommerce > .cart-collaterals {
+	flex: 1 1 340px;
+	max-width: 380px;
+	width: auto;
+	margin: 0;
+}
+
+/* The line: image, facts, quantity, due now, remove (desktop). A grid on the
+   row, so the remove control sits at the end, as the canvas draws it. */
+body.rvs-rental.woocommerce-cart table.cart thead tr,
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item {
+	display: grid;
+	grid-template-columns: 180px minmax(0, 1fr) 64px 140px 44px;
+	grid-template-areas: "thumb name qty sub remove";
+	column-gap: var(--rvs-s4);
+	align-items: start;
+	padding: 0 var(--rvs-s2);
+}
+
+body.rvs-rental.woocommerce-cart table.cart thead th,
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td {
+	display: block;
+	padding: var(--rvs-s3) 0;
+	border: 0;
+}
+
+body.rvs-rental.woocommerce-cart table.cart thead {
+	background: transparent;
+}
+
+body.rvs-rental.woocommerce-cart table.cart thead th {
+	grid-row: 1;
+}
+
+body.rvs-rental.woocommerce-cart table.cart thead th.product-name {
+	grid-column: 1 / 3;
+}
+
+/* A rental's price is its line total: one figure, under "Due now". */
+body.rvs-rental.woocommerce-cart table.cart thead th.product-thumbnail,
+body.rvs-rental.woocommerce-cart table.cart thead th.product-price,
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-price {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-cart table.cart thead th.product-quantity { grid-area: qty; }
+body.rvs-rental.woocommerce-cart table.cart thead th.product-subtotal { grid-area: sub; text-align: end; }
+body.rvs-rental.woocommerce-cart table.cart thead th.product-remove { grid-area: remove; }
+
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-thumbnail { grid-area: thumb; }
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-name { grid-area: name; }
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-quantity { grid-area: qty; }
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-subtotal {
+	grid-area: sub;
+	font-weight: 600;
+	text-align: end;
+}
+body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-remove {
+	grid-area: remove;
+	padding-top: 6px;
+}
+
+/* Astra caps a cart image at 70 px (woocommerce-grid.min.css). */
+body.rvs-rental.woocommerce-cart table.cart td.product-thumbnail .rvs-cart-thumb {
+	width: 180px;
+	max-width: none;
+}
+
+body.rvs-rental.woocommerce-cart table.cart td.product-name {
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+body.rvs-rental.woocommerce-cart table.cart td.product-name dl.variation {
+	font-weight: 400;
+	letter-spacing: normal;
+}
+
+/* WooCommerce's remove control: a 44 px target with the cross in the text colour. */
+body.rvs-rental.woocommerce-cart table.cart a.remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: transparent;
+	color: var(--rvs-text);
+	font-size: 24px;
+	font-weight: 400;
+	line-height: 1;
+	text-decoration: none;
+}
+
+/* Astra rings the cross with a bordered ::before. */
+body.rvs-rental.woocommerce-cart table.cart a.remove::before {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-cart table.cart a.remove:hover {
+	background: var(--rvs-n-200);
+	color: var(--rvs-alert);
+}
+
+/* Coupon and Update cart: one row under the line. */
+body.rvs-rental.woocommerce-cart table.cart tbody tr:not(.cart_item) {
+	display: block;
+}
+
+body.rvs-rental.woocommerce-cart table.cart td.actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: var(--rvs-s2);
+	padding: var(--rvs-s3) var(--rvs-s2);
+	border-top: 1px solid var(--rvs-line);
+	text-align: start;
+}
+
+/* WooCommerce centres the coupon with `.woocommerce #content table.cart
+   td.actions .coupon { margin: 0 auto }` (woocommerce-layout, an id in the
+   selector); `:not(#rvs-none)` carries the same weight, no !important. */
+body.rvs-rental.woocommerce-cart table.cart td.actions .coupon:not(#rvs-none) {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s2);
+	float: none;
+	margin: 0;
+}
+
+body.rvs-rental.woocommerce-cart table.cart td.actions .coupon .input-text {
+	width: 200px;
+	max-width: 100%;
+}
+
+body.rvs-rental.woocommerce-cart table.cart td.actions > .button {
+	float: none;
+}
+
+/* The totals card: heading, the rental's breakdown (RentalMoneyLabels), then
+   WooCommerce's own rows (coupons, fees, taxes, Due now) and the button. */
+body.rvs-rental.woocommerce-cart .cart-collaterals .cart_totals {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	float: none;
+	width: auto;
+	padding: var(--rvs-s4);
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow-md);
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals > h2 {
+	order: -1;
+	margin: 0 0 6px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font-size: 20px;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals .rvs-cart-totals-card {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals table.shop_table {
+	box-shadow: none;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals table.shop_table tr > th,
+body.rvs-rental.woocommerce-cart .cart_totals table.shop_table tr > td {
+	padding: var(--rvs-s2) 0;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals table.shop_table td {
+	text-align: end;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals tr.order-total th,
+body.rvs-rental.woocommerce-cart .cart_totals tr.order-total td {
+	color: var(--rvs-text);
+	font-size: 15px;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals .wc-proceed-to-checkout {
+	margin: var(--rvs-s2) 0 0;
+	padding: 0;
+}
+
+body.rvs-rental.woocommerce-cart .cart_totals a.checkout-button {
+	display: flex;
+	width: 100%;
+	margin: 0;
+}
+
+/* The Cart block, when the site keeps it ("Classic cart page" off): the
+   line's facts one per line, as on the classic cart, instead of the block's
+   run of "Label: value / Label: value". */
+body.rvs-rental .wc-block-components-product-details {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 6px;
+	font-size: 13px;
+}
+
+body.rvs-rental .wc-block-components-product-details__name {
+	color: var(--rvs-muted);
+	font-weight: 400;
+}
+
+body.rvs-rental .wc-block-components-product-details [aria-hidden="true"] {
+	display: none;
+}
+
+/* 4 · Checkout --------------------------------------------------------------- */
+
+body.rvs-rental.woocommerce-checkout .woocommerce-form-coupon-toggle,
+body.rvs-rental.woocommerce-checkout .woocommerce-form-login-toggle {
+	margin: 0 0 var(--rvs-s4);
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout_coupon,
+body.rvs-rental.woocommerce-checkout form.woocommerce-form-login {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rvs-s2);
+	align-items: flex-end;
+	margin: 0 0 var(--rvs-s4);
+	padding: var(--rvs-s4);
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout_coupon .form-row {
+	flex: 0 1 auto;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout_coupon .clear {
+	display: none;
+}
+
+/* Billing on the left, the order on the right (canvas: 520+ / 400-460, 60
+   apart). Astra floats #customer_details and the review and frames the review
+   (Astra's inline `form #order_review:not(.elementor-widget-woocommerce-
+   checkout-page #order_review)`, two ids of weight, and the same for the
+   heading): `form.checkout` and `:not(#rvs-none)` in ours outweigh it, no
+   !important. */
+body.rvs-rental.woocommerce-checkout form.checkout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+	grid-template-areas:
+		"details heading"
+		"details review";
+	grid-template-rows: auto 1fr;
+	column-gap: var(--rvs-s12);
+	row-gap: var(--rvs-s4);
+	align-items: start;
+}
+
+/* WooCommerce prepends the field errors to the form after a failed submit. */
+body.rvs-rental.woocommerce-checkout form.checkout:has(> .woocommerce-NoticeGroup) {
+	grid-template-areas:
+		"notices notices"
+		"details heading"
+		"details review";
+	grid-template-rows: auto auto 1fr;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout > .woocommerce-NoticeGroup {
+	grid-area: notices;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout::before,
+body.rvs-rental.woocommerce-checkout form.checkout::after {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout #customer_details {
+	grid-area: details;
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout #customer_details .col-1,
+body.rvs-rental.woocommerce-checkout form.checkout #customer_details .col-2 {
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout #customer_details .col-2:empty {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout #order_review_heading:not(#rvs-none) {
+	grid-area: heading;
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 28px;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout .mhm-return-cart-wrapper {
+	grid-area: heading;
+	justify-self: end;
+	align-self: center;
+}
+
+body.rvs-rental.woocommerce-checkout .mhm-return-cart-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	min-height: 44px;
+	font-size: 14px;
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout #order_review:not(#rvs-none) {
+	grid-area: review;
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+
+/* Billing: a two-column grid, a wide field across. */
+body.rvs-rental.woocommerce-checkout #customer_details .woocommerce-billing-fields > h3,
+body.rvs-rental.woocommerce-checkout #customer_details .woocommerce-additional-fields > h3 {
+	margin: 0 0 var(--rvs-s4);
+	padding: 0;
+	border: 0;
+	font-size: 28px;
+}
+
+/* Astra's `#customer_details h3:not(...)` rule draws a rule under the heading;
+   the selector above carries the id and outweighs it. */
+
+body.rvs-rental.woocommerce-checkout #customer_details .woocommerce-additional-fields > h3 {
+	margin-top: var(--rvs-s6);
+	font-size: 20px;
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-billing-fields__field-wrapper,
+body.rvs-rental.woocommerce-checkout .woocommerce-additional-fields__field-wrapper {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--rvs-s4);
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-billing-fields__field-wrapper::before,
+body.rvs-rental.woocommerce-checkout .woocommerce-billing-fields__field-wrapper::after {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-billing-fields__field-wrapper .form-row-wide,
+body.rvs-rental.woocommerce-checkout .woocommerce-additional-fields__field-wrapper .form-row {
+	grid-column: 1 / -1;
+}
+
+/* The order: a compact card. The line's facts are in the summary above, so
+   the review shows the line's name and what is charged now. */
+body.rvs-rental .woocommerce table.shop_table tr > :first-child {
+	padding-inline-start: var(--rvs-s3);
+}
+
+body.rvs-rental .woocommerce table.shop_table tr > :last-child {
+	padding-inline-end: var(--rvs-s3);
+}
+
+/* Astra zeroes the side padding of the review's cells with
+   `.woocommerce-page.woocommerce-checkout form #order_review td` (an id). */
+body.rvs-rental.woocommerce-checkout form.checkout #order_review table.shop_table tr > :first-child {
+	padding-inline-start: var(--rvs-s3);
+}
+
+body.rvs-rental.woocommerce-checkout form.checkout #order_review table.shop_table tr > :last-child {
+	padding-inline-end: var(--rvs-s3);
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table thead {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table .rvs-cart-line dl.variation {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table td.product-total,
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot td {
+	text-align: end;
+	white-space: nowrap;
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot th,
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot td {
+	padding-block: var(--rvs-s2);
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr.order-total th,
+body.rvs-rental.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr.order-total td {
+	color: var(--rvs-text);
+	font-size: 15px;
+}
+
+/* 5 · Gateways (checkout and order-pay) ------------------------------------ */
+
+body.rvs-rental .woocommerce #payment {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	margin: 0 0 var(--rvs-s4);
+	padding: 0;
+	border: 0;
+	list-style: none;
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods::before,
+body.rvs-rental .woocommerce #payment ul.payment_methods::after {
+	display: none;
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 0 12px;
+	margin: 0;
+	padding: var(--rvs-s3);
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	line-height: 1.4;
+	list-style: none;
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods li:has(> input:checked) {
+	border-color: var(--rvs-sel-line);
+	background: var(--rvs-sel-bg);
+	box-shadow: inset 0 0 0 1px var(--rvs-sel-line);
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods li > input[type="radio"] {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	accent-color: var(--rvs-accent-strong);
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods li > label {
+	display: inline;
+	flex: 1;
+	margin: 0;
+	color: var(--rvs-text);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+body.rvs-rental .woocommerce #payment ul.payment_methods li img {
+	max-height: 24px;
+	margin: 0 0 0 6px;
+	vertical-align: middle;
+}
+
+body.rvs-rental .woocommerce #payment .payment_box {
+	flex: 1 1 100%;
+	margin: var(--rvs-s1) 0 0 32px;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: var(--rvs-muted);
+	font-size: 14px;
+}
+
+body.rvs-rental .woocommerce #payment .payment_box::before {
+	display: none;
+}
+
+body.rvs-rental .woocommerce #payment .payment_box p {
+	margin: 0;
+}
+
+body.rvs-rental .woocommerce #payment div.form-row.place-order {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s3);
+	margin: 0;
+	padding: 0;
+}
+
+body.rvs-rental .woocommerce #payment #place_order {
+	float: none;
+	width: 100%;
+}
+
+body.rvs-rental .woocommerce .woocommerce-privacy-policy-text,
+body.rvs-rental .woocommerce .woocommerce-privacy-policy-text p {
+	margin: 0;
+	color: var(--rvs-muted);
+	font-size: 13px;
+}
+
+body.rvs-rental .woocommerce .woocommerce-terms-and-conditions-wrapper .form-row {
+	margin: 0;
+}
+
+body.rvs-rental .woocommerce .woocommerce-form__label-for-checkbox {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	min-height: 44px;
+	font-size: 15px;
+	font-weight: 400;
+	cursor: pointer;
+}
+
+body.rvs-rental .woocommerce .woocommerce-form__label-for-checkbox input[type="checkbox"] {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: 2px 0 0;
+	accent-color: var(--rvs-accent-strong);
+}
+
+/* 6 · Thank-you ------------------------------------------------------------- */
+
+body.rvs-rental.woocommerce-order-received .woocommerce-order {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s6);
+}
+
+body.rvs-rental.woocommerce-order-received .woocommerce-order > .rvs-journey {
+	margin: 0;
+}
+
+body.rvs-rental .woocommerce .rvs-journey__link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0 20px;
+	border: 1px solid var(--rvs-line);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	color: var(--rvs-text);
+	font-size: 15px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.rvs-rental .woocommerce .rvs-journey__link:hover {
+	background: var(--rvs-n-200);
+	color: var(--rvs-text);
+}
+
+body.rvs-rental.woocommerce-order-received .woocommerce-thankyou-order-received {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--rvs-text);
+	font-size: 17px;
+}
+
+/* The order facts (number, date, email, paid, method) as a grid. */
+body.rvs-rental.woocommerce-order-received ul.woocommerce-order-overview {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: var(--rvs-s3);
+	margin: 0;
+	padding: var(--rvs-s6) 0 0;
+	border-top: 1px solid var(--rvs-line);
+	list-style: none;
+}
+
+body.rvs-rental.woocommerce-order-received ul.woocommerce-order-overview::before,
+body.rvs-rental.woocommerce-order-received ul.woocommerce-order-overview::after {
+	display: none;
+}
+
+body.rvs-rental.woocommerce-order-received ul.woocommerce-order-overview li {
+	float: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: var(--rvs-muted);
+	font-size: 14px;
+	line-height: 1.4;
+	text-transform: none;
+}
+
+body.rvs-rental.woocommerce-order-received ul.woocommerce-order-overview li strong {
+	display: block;
+	margin-top: 2px;
+	color: var(--rvs-text);
+	font-size: 15px;
+	font-weight: 600;
+	text-transform: none;
+}
+
+/* WooCommerce's bank details (WC_Gateway_BACS::bank_details()) as a card. */
+body.rvs-rental.woocommerce-order-received .woocommerce-bacs-bank-details {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: var(--rvs-s4);
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+}
+
+/* Astra frames these headings in a grey box with a rule
+   (`.woocommerce-page.woocommerce-checkout .woocommerce-order h2.…`);
+   `body` and the element in ours outweigh it. */
+body.rvs-rental.woocommerce-order-received .woocommerce-order h2.wc-bacs-bank-details-heading,
+body.rvs-rental.woocommerce-order-received .woocommerce-order h2.woocommerce-order-details__title,
+body.rvs-rental.woocommerce-order-received .woocommerce-order h2.woocommerce-column__title {
+	margin: 0 0 var(--rvs-s3);
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font-size: 20px;
+}
+
+body.rvs-rental.woocommerce-order-received .woocommerce-order .woocommerce-bacs-bank-details h2.wc-bacs-bank-details-heading {
+	margin: 0;
+}
+
+body.rvs-rental.woocommerce-order-received .woocommerce-bacs-bank-details h3 {
+	margin: 0;
+	font-size: 15px;
+}
+
+body.rvs-rental.woocommerce-order-received ul.bacs_details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+body.rvs-rental.woocommerce-order-received ul.bacs_details li {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: var(--rvs-s2);
+	float: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: var(--rvs-muted);
+	font-size: 15px;
+	text-transform: none;
+}
+
+body.rvs-rental.woocommerce-order-received ul.bacs_details li strong {
+	color: var(--rvs-text);
+	font-size: 15px;
+	overflow-wrap: anywhere;
+}
+
+/* The order table and the address under it. */
+body.rvs-rental.woocommerce-order-received .woocommerce-order-details,
+body.rvs-rental.woocommerce-order-received .woocommerce-customer-details {
+	margin: 0;
+}
+
+body.rvs-rental.woocommerce-order-received .woocommerce-table--order-details th:last-child,
+body.rvs-rental.woocommerce-order-received .woocommerce-table--order-details td:last-child,
+body.rvs-rental.woocommerce-order-received .woocommerce-table--order-details tfoot td {
+	text-align: end;
+}
+
+body.rvs-rental.woocommerce-order-received .woocommerce-customer-details address {
+	margin: 0;
+	padding: var(--rvs-s4);
+	border: 0;
+	border-radius: var(--rvs-r);
+	background: var(--rvs-raised);
+	box-shadow: var(--rvs-shadow);
+	color: var(--rvs-text);
+	font-style: normal;
+}
+
+/* 7 · Order-pay (the remaining payment) ------------------------------------- */
+
+body.rvs-rental.woocommerce-order-pay .woocommerce {
+	max-width: 760px;
+}
+
+body.rvs-rental.woocommerce-order-pay form#order_review {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rvs-s4);
+}
+
+body.rvs-rental.woocommerce-order-pay #order_review table.shop_table tr > :last-child {
+	text-align: end;
+}
+
+/* 8 · Phone (the canvas at 390) ---------------------------------------------- */
+
+@media (max-width: 900px) {
+	body.rvs-rental.woocommerce-checkout form.checkout {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-areas:
+			"details"
+			"heading"
+			"review";
+		grid-template-rows: auto;
+		row-gap: var(--rvs-s4);
+	}
+
+	body.rvs-rental.woocommerce-checkout form.checkout #customer_details {
+		margin-bottom: var(--rvs-s2);
+	}
+
+	body.rvs-rental.woocommerce-checkout form.checkout:has(> .woocommerce-NoticeGroup) {
+		grid-template-areas:
+			"notices"
+			"details"
+			"heading"
+			"review";
+		grid-template-rows: auto;
+	}
+
+	body.rvs-rental.woocommerce-cart .woocommerce > .cart-collaterals {
+		max-width: none;
+	}
+}
+
+@media (max-width: 768px) {
+	body.rvs-rental .woocommerce h2,
+	body.rvs-rental.woocommerce-checkout form.checkout #order_review_heading,
+	body.rvs-rental.woocommerce-checkout #customer_details .woocommerce-billing-fields > h3 {
+		font-size: 24px;
+	}
+
+	/* The line as a card: image across, name and remove, facts, then
+	   "Quantity: 1 · Due now". WooCommerce's small-screen table labels each
+	   cell from data-title; the name and image need none. */
+	body.rvs-rental.woocommerce-cart table.cart thead {
+		display: none;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item {
+		grid-template-columns: minmax(0, 1fr) 44px;
+		grid-template-areas:
+			"thumb thumb"
+			"name remove"
+			"qty qty"
+			"sub sub";
+		padding: 0 0 var(--rvs-s2);
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td {
+		padding: var(--rvs-s2) 16px 0;
+	}
+
+	/* The one !important of this file: WooCommerce's small-screen sheet
+	   right-aligns every cell with `.woocommerce table.shop_table_responsive
+	   tr td, .woocommerce-page table.shop_table_responsive tr td { text-align:
+	   right !important }` (woocommerce-smallscreen-grid.min.css, loaded by
+	   Astra 4.14), which only another !important outranks. */
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-name {
+		text-align: start !important;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-thumbnail {
+		display: block;
+		padding: 0;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart td.product-thumbnail .rvs-cart-thumb {
+		width: 100%;
+		border-radius: var(--rvs-r) var(--rvs-r) 0 0;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-remove {
+		padding: 6px 6px 0 0;
+		text-align: end;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-name::before,
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-thumbnail::before,
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-remove::before {
+		display: none;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-quantity,
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-subtotal {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--rvs-s2);
+		font-size: 15px;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-quantity {
+		margin-top: var(--rvs-s2);
+		padding-top: var(--rvs-s2);
+		border-top: 1px solid var(--rvs-line);
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-quantity::before,
+	body.rvs-rental.woocommerce-cart table.cart tr.cart_item td.product-subtotal::before {
+		float: none;
+		color: var(--rvs-muted);
+		font-weight: 400;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart td.actions {
+		flex-direction: column;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart td.actions::before {
+		display: none;
+	}
+
+	body.rvs-rental.woocommerce-cart table.cart td.actions .coupon,
+	body.rvs-rental.woocommerce-cart table.cart td.actions .coupon .input-text,
+	body.rvs-rental.woocommerce-cart table.cart td.actions .button {
+		width: 100%;
+	}
+
+	body.rvs-rental.woocommerce-cart .cart-collaterals .cart_totals {
+		padding: 16px;
+	}
+
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table tr {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--rvs-s2);
+		border-top: 1px solid var(--rvs-line);
+	}
+
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table tr:first-child {
+		border-top: 0;
+	}
+
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table th,
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table td {
+		border-top: 0;
+	}
+
+	/* The row's own heading stays the label (WooCommerce hides it and repeats
+	   it from data-title). */
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table tbody th {
+		display: block;
+		text-align: start;
+	}
+
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table td {
+		display: block;
+		text-align: end;
+	}
+
+	body.rvs-rental.woocommerce-cart .cart_totals table.shop_table td::before {
+		display: none;
+	}
+
+	body.rvs-rental.woocommerce-checkout .woocommerce-billing-fields__field-wrapper {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--rvs-s3);
+	}
+}
