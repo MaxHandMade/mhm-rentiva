@@ -1129,9 +1129,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * way the gateway is never called. The order stays `pending`, so it says
 	 * why on the order screen.
 	 *
+	 * @param string $note The order note when the reason is not the booking
+	 *                     (the payment method, for one); '' for the booking refusal note.
 	 * @throws \Exception Always.
 	 */
-	private static function halt_checkout(string $message, int $order_id = 0): void
+	private static function halt_checkout(string $message, int $order_id = 0, string $note = ''): void
 	{
 		// Plain text, not HTML: JSON on the Store API, and wc_add_notice() runs
 		// wp_kses_post() when it prints on the classic checkout. get_the_title()
@@ -1141,7 +1143,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		$order = $order_id > 0 && function_exists('wc_get_order') ? wc_get_order($order_id) : false;
 		if ($order instanceof \WC_Order) {
 			/* translators: %s: why the booking was refused, as the customer read it. */
-			$order->add_order_note(sprintf(__('Booking refused, no payment taken: %s', 'mhm-rentiva'), $plain));
+			$order->add_order_note('' !== $note ? $note : sprintf(__('Booking refused, no payment taken: %s', 'mhm-rentiva'), $plain));
 		}
 
 		$route_exception = '\Automattic\WooCommerce\StoreApi\Exceptions\RouteException';
@@ -1542,85 +1544,124 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		return array_values(array_map('strval', $values));
 	}
 
+	/** A write_booking_meta() answer: the value was written and every row holds it. */
+	private const META_WRITTEN = 'written';
+
+	/** A write_booking_meta() answer: every row already held the value; nothing was written. */
+	private const META_ALREADY = 'already';
+
+	/** A write_booking_meta() answer: the value does not hold (expected value gone, a failed or a changed write). */
+	private const META_NOT_HELD = 'not_held';
+
 	/**
-	 * Write one booking meta, only over the value it is expected to replace, and
-	 * read every row of it back from the database. "Already that value" is
-	 * success (and still drops the request cache: a stale entry must not
-	 * outlive a write that was not needed, Codex PR K delta4 1).
+	 * Write one booking meta, only over the value it is expected to replace,
+	 * with the key's rows locked from the check to the write.
 	 *
-	 * Conditional for every expected value, '' and '0' included -- which
-	 * update_post_meta()'s $prev_value cannot do, it tests empty() (delta4 2):
-	 * an existing row is updated `WHERE meta_value = expected` and the rows it
-	 * changed counted; a missing row is added only while it is still missing
-	 * (add_post_meta(..., true)). The core hooks a meta write runs
-	 * (update_post_metadata, update_post_meta, updated_post_meta) run as they do
-	 * in update_metadata(). Rows that disagree refuse (read_booking_meta()).
+	 * Must run inside a transaction (Locker::withLock(), or
+	 * write_booking_meta_alone() outside one): `SELECT … FOR UPDATE` locks the
+	 * key's rows -- or, for a missing row, the gap it would go in (InnoDB
+	 * next-key lock) -- until COMMIT, so no other writer can change the value
+	 * between the check and the write. That is what makes it conditional for
+	 * every expected value, '' and '0' included (Codex PR K delta4 2).
+	 *
+	 * The write itself is WordPress's own (update_post_meta() for an existing
+	 * row, add_post_meta(..., true) for a missing one): every core hook,
+	 * wp_unslash(), sanitize_meta() and the meta cache are core's (Codex PR K
+	 * delta5). Every row is then read back from the database: a value a
+	 * sanitize filter changed is not held either.
+	 *
+	 * Order of the answers: rows that disagree, or a failed read, throw
+	 * (read failure); a value every row already holds is "already" -- whatever
+	 * was expected, it is what the caller wants and no hook should run twice
+	 * (Fable F2); a current value other than the expected one is "not held";
+	 * else the write.
 	 *
 	 * @param string|null $expected The value the write replaces; null takes what
 	 *                              the database holds now.
-	 * @return bool Whether every row of the key now holds $value.
+	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_HELD.
 	 * @throws \RuntimeException When a read failed or the rows disagree ('mhmrentiva_booking_read_failed').
 	 */
-	private static function write_booking_meta(int $booking_id, string $key, string $value, ?string $expected = null): bool
+	private static function write_booking_meta(int $booking_id, string $key, string $value, ?string $expected = null): string
 	{
 		global $wpdb;
 
-		$rows = self::read_booking_meta_rows($booking_id, $key);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A row lock from the check to the write (Codex PR K delta5).
+		$locked = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT meta_id, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC FOR UPDATE",
+				$booking_id,
+				$key
+			),
+			ARRAY_A
+		);
+		if ('' !== (string) $wpdb->last_error || ! is_array($locked)) {
+			throw new \RuntimeException('mhmrentiva_booking_read_failed');
+		}
+		$rows = array_map(static fn($row): string => (string) ( is_array($row) ? ( $row['meta_value'] ?? '' ) : '' ), $locked);
 		if (count(array_unique($rows)) > 1) {
 			throw new \RuntimeException('mhmrentiva_booking_read_failed');
 		}
 		$current = $rows[0] ?? '';
-		$expect  = $expected ?? $current;
 
-		if (array() !== $rows && $current === $value) {
+		if ($current === $value) {
 			wp_cache_delete($booking_id, 'post_meta');
-			return true;
+			return self::META_ALREADY;
+		}
+		if (null !== $expected && $current !== $expected) {
+			wp_cache_delete($booking_id, 'post_meta');
+			return self::META_NOT_HELD;
 		}
 
+		// update_metadata() compares with the cached value first; a stale entry
+		// equal to $value would skip the write.
+		wp_cache_delete($booking_id, 'post_meta');
 		if (array() === $rows) {
-			if ('' === $expect) {
-				add_post_meta($booking_id, $key, $value, true);
-			}
+			add_post_meta($booking_id, $key, $value, true);
 		} else {
-			$check = apply_filters('update_post_metadata', null, $booking_id, $key, $value, $expect); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The core meta hook update_metadata() runs; this write stands in for it.
-			if (null === $check) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The meta ids the conditional write below changes, for the core hooks.
-				$meta_ids = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s",
-						$booking_id,
-						$key,
-						$expect
-					)
-				);
-				foreach ( (array) $meta_ids as $meta_id) {
-					do_action('update_post_meta', (int) $meta_id, $booking_id, $key, $value); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The core meta hook update_metadata() runs; this write stands in for it.
-				}
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A conditional write: only over the expected value (Codex PR K delta4 2).
-				$changed = $wpdb->update(
-					$wpdb->postmeta,
-					array( 'meta_value' => $value ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Keyed by post_id and meta_key.
-					array(
-						'post_id'    => $booking_id,
-						'meta_key'   => $key, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Keyed by post_id.
-						'meta_value' => $expect, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- The condition that makes the write conditional.
-					),
-					array( '%s' ),
-					array( '%d', '%s', '%s' )
-				);
-				wp_cache_delete($booking_id, 'post_meta');
-				if (is_int($changed) && $changed > 0) {
-					foreach ( (array) $meta_ids as $meta_id) {
-						do_action('updated_post_meta', (int) $meta_id, $booking_id, $key, $value); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The core meta hook update_metadata() runs; this write stands in for it.
-					}
-				}
-			}
+			update_post_meta($booking_id, $key, $value);
 		}
 		wp_cache_delete($booking_id, 'post_meta');
 
 		$after = self::read_booking_meta_rows($booking_id, $key);
 
-		return array() !== $after && array( $value ) === array_values(array_unique($after));
+		return array() !== $after && array( $value ) === array_values(array_unique($after)) ? self::META_WRITTEN : self::META_NOT_HELD;
+	}
+
+	/**
+	 * The same as write_booking_meta(), outside a Locker transaction: its own short one,
+	 * around the row lock, the check and the write -- nothing else. Not
+	 * Locker::withLock(): that needs a vehicle (this path also serves bookings
+	 * without one) and would hold the whole vehicle for one booking's key.
+	 * Committed when the value holds or already held, rolled back otherwise
+	 * (a changed or failed write is not kept); a Throwable rolls back and
+	 * reaches the caller.
+	 *
+	 * @return string One of META_WRITTEN, META_ALREADY, META_NOT_HELD.
+	 * @throws \RuntimeException When a read failed or the rows disagree ('mhmrentiva_booking_read_failed').
+	 */
+	private static function write_booking_meta_alone(int $booking_id, string $key, string $value, ?string $expected = null): string
+	{
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery -- Transaction control around one row-locked write (Codex PR K delta5), as Locker does.
+		if (false === $wpdb->query('START TRANSACTION')) {
+			throw new \RuntimeException('mhmrentiva_booking_read_failed');
+		}
+		try {
+			$result = self::write_booking_meta($booking_id, $key, $value, $expected);
+		} catch (\Throwable $e) {
+			$wpdb->query('ROLLBACK');
+			wp_cache_delete($booking_id, 'post_meta');
+			throw $e;
+		}
+		if (self::META_NOT_HELD === $result || false === $wpdb->query('COMMIT')) {
+			$wpdb->query('ROLLBACK');
+			$result = self::META_NOT_HELD;
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
+		wp_cache_delete($booking_id, 'post_meta');
+
+		return $result;
 	}
 
 	/**
@@ -1628,13 +1669,17 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * Locker::withLock() rolls the whole transaction back and nothing of it is
 	 * kept or announced.
 	 *
+	 * @return string META_WRITTEN or META_ALREADY.
 	 * @throws \RuntimeException When the value did not hold.
 	 */
-	private static function write_booking_meta_or_roll_back(int $booking_id, string $key, string $value, ?string $expected = null): void
+	private static function write_booking_meta_or_roll_back(int $booking_id, string $key, string $value, ?string $expected = null): string
 	{
-		if (! self::write_booking_meta($booking_id, $key, $value, $expected)) {
+		$result = self::write_booking_meta($booking_id, $key, $value, $expected);
+		if (self::META_NOT_HELD === $result) {
 			throw new \RuntimeException('mhmrentiva_booking_write_failed');
 		}
+
+		return $result;
 	}
 
 	/**
@@ -1857,13 +1902,20 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * is a failure, not a success (delta3 3). A transition the table does not
 	 * allow keeps the status, as before.
 	 *
+	 * Each write takes the key's row lock in its own short transaction
+	 * (write_booking_meta_alone()). The status hook runs only for a status that
+	 * was written, never for one that already held (Fable F2). A status write
+	 * that does not hold comes after the paid mark was kept: the payment is
+	 * recorded and the booking still holds its dates, so the caller gets
+	 * STATUS_NOT_MOVED, not a refusal (Fable F1).
+	 *
 	 * @param string|null $from The status the caller read from the database; null reads it now.
+	 * @return string|null null when the payment stands; STATUS_NOT_MOVED; else why it was not recorded.
 	 */
 	private static function mark_paid_unlocked(int $booking_id, string $to, ?string $from = null): ?string
 	{
-		$effective = Status::PENDING;
 		try {
-			if (! self::write_booking_meta($booking_id, '_mhmrentiva_payment_status', 'paid')) {
+			if (self::META_NOT_HELD === self::write_booking_meta_alone($booking_id, '_mhmrentiva_payment_status', 'paid')) {
 				return self::write_failed_notice();
 			}
 			$from      = $from ?? self::read_booking_meta($booking_id, '_mhmrentiva_status');
@@ -1871,9 +1923,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			if (! in_array($to, Status::allowed(), true) || ! Status::can_transition($effective, $to)) {
 				return null;
 			}
-			if (! self::write_booking_meta($booking_id, '_mhmrentiva_status', $to, $from)) {
-				return self::write_failed_notice();
-			}
+			$wrote = self::write_booking_meta_alone($booking_id, '_mhmrentiva_status', $to, $from);
 		} catch (\RuntimeException $e) {
 			if ('mhmrentiva_booking_read_failed' !== $e->getMessage()) {
 				throw $e;
@@ -1881,10 +1931,23 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			wp_cache_delete($booking_id, 'post_meta');
 			return self::availability_unknown_notice();
 		}
-		do_action('mhmrentiva_booking_status_changed', $booking_id, $effective, $to);
+		if (self::META_NOT_HELD === $wrote) {
+			return self::STATUS_NOT_MOVED;
+		}
+		if (self::META_WRITTEN === $wrote) {
+			do_action('mhmrentiva_booking_status_changed', $booking_id, $effective, $to);
+		}
 
 		return null;
 	}
+
+	/**
+	 * The mark_paid_unlocked() answer when the payment is recorded on the booking, which still
+	 * holds its dates, but its status could not be moved (Fable F1). Not a
+	 * customer message; the order note says what happened
+	 * (report_unclaimed_payment(), reason status_write_failed).
+	 */
+	private const STATUS_NOT_MOVED = 'mhmrentiva_status_not_moved';
 
 	/**
 	 * Confirm (or complete) a booking because its order was paid, deciding and
@@ -1968,9 +2031,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				if (! Status::can_transition($effective, $to)) {
 					return array( 'kept', $from );
 				}
-				self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
+				$wrote = self::write_booking_meta_or_roll_back($booking_id, '_mhmrentiva_status', $to, $from);
 
-				return array( 'written', $from );
+				// Announced only for a write that happened (Fable F2).
+				return array( self::META_WRITTEN === $wrote ? 'written' : 'kept', $from );
 			}
 		);
 
@@ -2032,11 +2096,28 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	 * order and in the log. A refund through WooCommerce reverses what the
 	 * payment started elsewhere (the add-on's commission reverses on the
 	 * order refund).
+	 *
+	 * Reason status_write_failed is the other case (Fable F1): the payment is
+	 * recorded and the booking marked paid, still holding its dates, but its
+	 * status did not move to $target. Nothing is to be refunded; the operator
+	 * checks the booking.
+	 *
+	 * @param string $reason 'dates_lost' (the default) or 'status_write_failed'.
+	 * @param string $target The status the booking should have moved to (status_write_failed).
 	 */
-	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal, string $new_status): void
+	private static function report_unclaimed_payment(\WC_Order $order, int $booking_id, string $refusal, string $new_status, string $reason = 'dates_lost', string $target = ''): void
 	{
-		$why  = self::plain_text($refusal);
-		$note = 'on-hold' === $new_status
+		$why = self::plain_text($refusal);
+		if ('status_write_failed' === $reason) {
+			$note = sprintf(
+				/* translators: 1: booking id, 2: the booking status it should have moved to. */
+				__('Payment recorded and booking #%1$d marked paid, but it could not be moved to %2$s. Check the booking.', 'mhm-rentiva'),
+				$booking_id,
+				Status::get_label($target)
+			);
+		} else {
+			$reason = 'dates_lost';
+			$note   = 'on-hold' === $new_status
 			? sprintf(
 				/* translators: 1: booking id, 2: why, as the customer would have read it. */
 				__('Order on hold, but booking #%1$d was not confirmed: it no longer holds its dates (%2$s). Do not accept the payment for it, or move the booking first.', 'mhm-rentiva'),
@@ -2049,6 +2130,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$booking_id,
 				$why
 			);
+		}
 		$order->add_order_note($note);
 		AdvancedLogger::error_linked(
 			$note,
@@ -2056,7 +2138,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			array(
 				'order_id' => $order->get_id(),
 				'surface'  => 'wc_status_change',
-				'reason'   => 'dates_lost',
+				'reason'   => $reason,
 			),
 			AdvancedLogger::CATEGORY_PAYMENT
 		);
@@ -2081,7 +2163,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// list with the session's cart, not this order, so without_cash_on_delivery()
 		// cannot see a rental there. Stopped before any booking or payment.
 		if ('cod' === $order->get_payment_method() && self::order_has_booking($order)) {
-			self::halt_checkout(__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'), $order->get_id());
+			self::halt_checkout(
+				__('Cash on delivery is not available for a booking. Please choose another payment method.', 'mhm-rentiva'),
+				$order->get_id(),
+				__('Payment method refused: cash on delivery is not available for a booking. No booking was made and no payment was taken.', 'mhm-rentiva')
+			);
 		}
 
 		$snapshots = self::pending_booking_snapshots($order);
@@ -2518,7 +2604,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 					// the drop-off day, hours before the car is back.
 					$target  = 'completed' === $new_status && \MHMRentiva\Admin\Booking\Helpers\Util::rental_has_ended($booking_id) ? Status::COMPLETED : Status::CONFIRMED;
 					$refusal = self::confirm_paid_booking($booking_id, $is_remaining, $target);
-					if (null !== $refusal) {
+					if (self::STATUS_NOT_MOVED === $refusal) {
+						// The payment is recorded and the booking holds its dates;
+						// only its status did not move (Fable F1). The rest of the
+						// mapping below still applies to a recorded payment.
+						self::report_unclaimed_payment($order, $booking_id, '', (string) $new_status, 'status_write_failed', $target);
+					} elseif (null !== $refusal) {
 						self::report_unclaimed_payment($order, $booking_id, $refusal, (string) $new_status);
 						continue;
 					}

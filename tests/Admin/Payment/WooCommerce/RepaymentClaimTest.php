@@ -1088,8 +1088,10 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * Codex delta3 3 / Fable: an allowed unlocked transition that does not hold
-	 * is a failure the operator hears of, not a success.
+	 * Codex delta3 3 / Fable F1: an allowed unlocked transition that does not
+	 * hold is a failure the operator hears of, not a success -- and the note
+	 * says what is true: the payment is recorded and the booking marked paid,
+	 * only its status did not move. Nothing to refund.
 	 */
 	public function test_an_allowed_unlocked_transition_that_does_not_hold_is_reported(): void
 	{
@@ -1108,8 +1110,12 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		remove_action('mhmrentiva_booking_status_changed', $count);
 
 		$this->assertSame(array( 'confirmed' ), $this->rows($booking_id, '_mhmrentiva_status'));
+		$this->assertSame(array( 'paid' ), $this->rows($booking_id, '_mhmrentiva_payment_status'));
 		$this->assertSame(0, $announced, 'No status change is announced.');
-		$this->assertNotEmpty(array_filter($this->notes(wc_get_order($order->get_id())), static fn($n) => str_contains($n, 'could not be updated')), 'The operator is told.');
+		$notes    = $this->notes(wc_get_order($order->get_id()));
+		$expected = sprintf('Payment recorded and booking #%d marked paid, but it could not be moved to %s. Check the booking.', $booking_id, Status::get_label(Status::COMPLETED));
+		$this->assertContains($expected, $notes, 'The operator is told what is true.');
+		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'Refund the payment') || str_contains($n, 'nothing was changed')), 'No refund instruction, no "nothing was changed".');
 	}
 
 	/**
@@ -1125,31 +1131,43 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 
 	/**
 	 * Codex delta4 2 / Fable B1: update_post_meta()'s $prev_value tests empty(),
-	 * so '' and '0' made no condition. An existing row whose value changes just
-	 * before the write is not overwritten.
+	 * so '' and '0' made no condition. The condition is now the locked read:
+	 * an expected '' or '0' that the row no longer holds is not overwritten,
+	 * and the key's rows are locked (SELECT … FOR UPDATE) before anything is
+	 * written. A second connection's wait on that lock cannot be shown on the
+	 * test's one connection; the order of the statements can.
 	 *
 	 * @dataProvider empty_values
 	 */
 	public function test_an_empty_expected_value_is_still_a_condition(string $expected): void
 	{
 		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
-		add_post_meta($booking_id, '_mhmrentiva_payment_deadline', $expected);
+		add_post_meta($booking_id, '_mhmrentiva_payment_deadline', '2031-01-01 00:00:00');
 
-		$fired     = false;
-		$meanwhile = static function ($meta_id, $object_id, $meta_key) use (&$fired, $booking_id): void {
-			global $wpdb;
-			if (! $fired && (int) $object_id === $booking_id && '_mhmrentiva_payment_deadline' === $meta_key) {
-				$fired = true;
-				$wpdb->update($wpdb->postmeta, array( 'meta_value' => '2031-01-01 00:00:00' ), array( 'meta_id' => (int) $meta_id ));
-			}
-		};
-		add_action('update_post_meta', $meanwhile, 10, 3);
 		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_payment_deadline', '2031-05-05 10:00:00', $expected);
-		remove_action('update_post_meta', $meanwhile, 10);
 
-		$this->assertTrue($fired);
-		$this->assertFalse($held, 'A value that changed meanwhile is not reported as written.');
+		$this->assertSame('not_held', $held, 'A value that changed meanwhile is not reported as written.');
 		$this->assertSame(array( '2031-01-01 00:00:00' ), $this->rows($booking_id, '_mhmrentiva_payment_deadline'), 'Not overwritten.');
+
+		// The value it expected: written, after the rows were locked.
+		$other = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($other, '_mhmrentiva_payment_deadline', $expected);
+		$log    = array();
+		$listen = static function ($query) use (&$log, $other) {
+			$sql = (string) $query;
+			if (str_contains($sql, '_mhmrentiva_payment_deadline') && str_contains($sql, (string) $other)) {
+				$log[] = preg_match('/FOR UPDATE/i', $sql) ? 'lock' : ( preg_match('/^\s*(UPDATE|INSERT)/i', $sql) ? 'write' : 'read' );
+			}
+			return $query;
+		};
+		add_filter('query', $listen);
+		$held = $this->bridge('write_booking_meta', $other, '_mhmrentiva_payment_deadline', '2031-05-05 10:00:00', $expected);
+		remove_filter('query', $listen);
+
+		$this->assertSame('written', $held);
+		$this->assertSame('lock', $log[0] ?? '', 'The rows are locked first.');
+		$this->assertContains('write', $log);
+		$this->assertLessThan(array_search('write', $log, true), array_search('lock', $log, true));
 	}
 
 	/**
@@ -1174,7 +1192,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		remove_filter('add_post_metadata', $meanwhile, 10);
 
 		$this->assertTrue($fired);
-		$this->assertFalse($held);
+		$this->assertSame('not_held', $held);
 		$this->assertSame(array( '2031-01-01 00:00:00' ), $this->rows($booking_id, '_mhmrentiva_payment_deadline'), 'One row, the one that appeared meanwhile.');
 	}
 
@@ -1216,7 +1234,7 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 		$suppressed = $wpdb->suppress_errors(true);
 		$fail       = static function ($query) use ($booking_id) {
 			$sql = (string) $query;
-			if (preg_match('/^\s*SELECT meta_value FROM/i', $sql) && str_contains($sql, 'post_id = ' . $booking_id . ' ')) {
+			if (preg_match('/^\s*SELECT meta_(id, meta_)?value FROM/i', $sql) && str_contains($sql, 'post_id = ' . $booking_id . ' ')) {
 				return 'SELECT * FROM mhmrentiva_no_such_table';
 			}
 			return $query;
@@ -1231,5 +1249,139 @@ final class RepaymentClaimTest extends WP_UnitTestCase
 			remove_filter('query', $fail);
 			$wpdb->suppress_errors($suppressed);
 		}
+	}
+
+	// ------------------------------ Codex delta5: the write is core's own
+
+	/**
+	 * The four core actions a meta update runs, with their arguments; meta
+	 * and object ids as placeholders so two bookings compare.
+	 *
+	 * @return array{0: callable, 1: list<array<int, mixed>>}
+	 */
+	private function meta_action_recorder(int $booking_id): array
+	{
+		$log    = new \ArrayObject();
+		$record = static function (string $hook) use ($log, $booking_id): callable {
+			return static function (...$args) use ($hook, $log, $booking_id): void {
+				if ( (int) ( $args[1] ?? 0 ) !== $booking_id) {
+					return;
+				}
+				$args[0] = 'meta_id';
+				$args[1] = 'object_id';
+				$log[]   = array_merge(array( $hook ), $args);
+			};
+		};
+		$hooks  = array();
+		foreach (array( 'update_post_meta', 'update_postmeta', 'updated_post_meta', 'updated_postmeta' ) as $hook) {
+			$hooks[ $hook ] = $record($hook);
+			add_action($hook, $hooks[ $hook ], 10, 4);
+		}
+		$stop = static function () use ($hooks): void {
+			foreach ($hooks as $hook => $callback) {
+				remove_action($hook, $callback, 10);
+			}
+		};
+
+		return array( $stop, $log );
+	}
+
+	/**
+	 * Codex delta5 1: every core meta action runs, in core's order and with
+	 * core's arguments -- the same as a plain update_post_meta().
+	 */
+	public function test_a_booking_write_runs_the_core_meta_actions_as_update_post_meta_does(): void
+	{
+		$plain = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		$ours  = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($plain, '_mhmrentiva_status', 'pending');
+		add_post_meta($ours, '_mhmrentiva_status', 'pending');
+
+		list($stop, $core) = $this->meta_action_recorder($plain);
+		update_post_meta($plain, '_mhmrentiva_status', 'confirmed');
+		$stop();
+
+		list($stop, $bridge) = $this->meta_action_recorder($ours);
+		$held                = $this->bridge('write_booking_meta', $ours, '_mhmrentiva_status', 'confirmed', 'pending');
+		$stop();
+
+		$this->assertCount(4, $core, 'Core runs four actions.');
+		$this->assertSame('written', $held);
+		$this->assertSame($core->getArrayCopy(), $bridge->getArrayCopy());
+	}
+
+	/**
+	 * Codex delta5 2: sanitize_meta() runs, and a value a sanitize filter
+	 * changed is not the value asked for: not held.
+	 */
+	public function test_a_value_a_sanitize_filter_changes_is_not_held(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+		$sanitize = static fn() => 'cancelled';
+		add_filter('sanitize_post_meta__mhmrentiva_status', $sanitize);
+
+		$held = $this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_status', 'confirmed', 'pending');
+
+		remove_filter('sanitize_post_meta__mhmrentiva_status', $sanitize);
+		$this->assertSame('not_held', $held);
+	}
+
+	/**
+	 * Codex delta5 3: the locking read of the meta ids fails -- nothing is
+	 * written, no meta action runs, and the caller hears a read failure.
+	 */
+	public function test_a_failed_locking_read_writes_nothing_and_runs_no_hook(): void
+	{
+		global $wpdb;
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+		list($stop, $log) = $this->meta_action_recorder($booking_id);
+		$suppressed       = $wpdb->suppress_errors(true);
+		$fail             = static function ($query) use ($booking_id) {
+			$sql = (string) $query;
+			if (preg_match('/^\s*SELECT meta_id\b/i', $sql) && str_contains($sql, '_mhmrentiva_status') && str_contains($sql, 'post_id = ' . $booking_id . ' ')) {
+				return 'SELECT * FROM mhmrentiva_no_such_table';
+			}
+			return $query;
+		};
+		add_filter('query', $fail);
+		try {
+			$this->bridge('write_booking_meta', $booking_id, '_mhmrentiva_status', 'confirmed', 'pending');
+			$this->fail('A failed locking read must reach the caller.');
+		} catch (\RuntimeException $e) {
+			$this->assertSame('mhmrentiva_booking_read_failed', $e->getMessage());
+		} finally {
+			remove_filter('query', $fail);
+			$wpdb->suppress_errors($suppressed);
+			$stop();
+		}
+
+		$this->assertSame(array( 'pending' ), $this->rows($booking_id, '_mhmrentiva_status'), 'Nothing written.');
+		$this->assertCount(0, $log, 'No meta action ran.');
+	}
+
+	/**
+	 * Fable F2: a status that already held -- another writer moved it to the
+	 * target meanwhile -- is not announced a second time.
+	 */
+	public function test_a_status_that_already_held_is_not_announced_again(): void
+	{
+		$booking_id = (int) self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking' ));
+		add_post_meta($booking_id, '_mhmrentiva_status', 'completed');
+		add_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+		$announced = 0;
+		$count     = static function () use (&$announced): void {
+			++$announced;
+		};
+		add_action('mhmrentiva_booking_status_changed', $count);
+
+		// The caller read `confirmed`; by the write it is `completed` already.
+		$result = $this->bridge('mark_paid_unlocked', $booking_id, Status::COMPLETED, Status::CONFIRMED);
+
+		remove_action('mhmrentiva_booking_status_changed', $count);
+		$this->assertNull($result, 'The payment stands.');
+		$this->assertSame(0, $announced, 'No second status notification.');
+		$this->assertSame(array( 'completed' ), $this->rows($booking_id, '_mhmrentiva_status'));
 	}
 }

@@ -324,6 +324,26 @@ final class CashOnDeliveryTest extends WP_UnitTestCase
 		$this->assertSame('', $order->get_meta('_mhmrentiva_booking_id'), 'No booking was made.');
 	}
 
+	/**
+	 * The order note names the payment method as the reason, not the
+	 * generic booking refusal (PR K COD commit, concern 4).
+	 */
+	public function test_the_cash_on_delivery_refusal_note_names_the_payment_method(): void
+	{
+		$order = $this->order_with(array(), $this->rental_data(), 'cod');
+
+		try {
+			do_action('woocommerce_store_api_checkout_order_processed', $order);
+			$this->fail('The request must stop.');
+		} catch (RouteException $e) {
+			$this->assertSame('mhmrentiva_booking_refused', $e->getErrorCode());
+		}
+
+		$notes = array_map(static fn($n) => (string) $n->content, wc_get_order_notes(array( 'order_id' => $order->get_id() )));
+		$this->assertContains('Payment method refused: cash on delivery is not available for a booking. No booking was made and no payment was taken.', $notes);
+		$this->assertSame(array(), array_filter($notes, static fn($n) => str_contains($n, 'Booking refused')), 'Not the generic booking refusal.');
+	}
+
 	public function test_a_booked_rental_order_on_the_store_api_with_cash_on_delivery_is_refused(): void
 	{
 		$booking = self::factory()->post->create(array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ));
