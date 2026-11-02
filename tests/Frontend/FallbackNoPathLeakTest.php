@@ -68,14 +68,17 @@ final class FallbackNoPathLeakTest extends WP_UnitTestCase
 
 		$visitor = $this->render_rating(' vehicle_id="' . $vehicle . '"');
 		$this->assertNotSame('', trim($visitor), 'A missing template shows a generic state, not nothing.');
-		$this->assertStringContainsString('mhm-rentiva-shortcode-error', $visitor);
+		$this->assertStringContainsString('data-rvs-empty="shortcode_error"', $visitor);
 		$this->assert_no_leak($visitor, 'visitor');
 		$this->assertStringNotContainsString('Error:', $visitor, 'Visitors get no error detail.');
+		$this->assertStringContainsString('rvs-state--alert', $visitor, 'The error is the shared alert state box.');
+		$this->assertStringNotContainsString('rvs-state__detail', $visitor);
 
 		wp_set_current_user((int) self::factory()->user->create(array( 'role' => 'administrator' )));
 		$admin = $this->render_rating(' vehicle_id="' . $vehicle . '"');
 		$this->assert_no_leak($admin, 'administrator');
 		$this->assertStringContainsString('Error:', $admin, 'The detail line comes from get_error_html, behind manage_options.');
+		$this->assertStringContainsString('rvs-state__detail', $admin);
 	}
 
 	public function test_intentionally_empty_template_stays_empty(): void

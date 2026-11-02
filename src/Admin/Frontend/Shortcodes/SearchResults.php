@@ -2130,7 +2130,16 @@ final class SearchResults extends AbstractShortcode {
 			// ShortcodeServiceProvider's wp_kses() dispatcher, but the AJAX path returns
 			// this markup as the `html` field of a JSON response and nothing escapes it
 			// on the way. A translator's markup would land in the DOM raw.
-			return '<div class="rv-no-results">' . esc_html__('No vehicles found matching your criteria.', 'mhm-rentiva') . '</div>';
+			return \MHMRentiva\Frontend\StateBox::html(
+				array(
+					'title'        => esc_html__('No cars match your search', 'mhm-rentiva'),
+					'text'         => esc_html__('Try other dates, another pickup location, or fewer filters.', 'mhm-rentiva'),
+					'action_label' => esc_html__('See all cars', 'mhm-rentiva'),
+					'action_url'   => \MHMRentiva\Frontend\StateBox::browse_url(),
+					'action_style' => 'primary',
+					'state'        => 'no_results',
+				)
+			);
 		}
 
 		$html = '';

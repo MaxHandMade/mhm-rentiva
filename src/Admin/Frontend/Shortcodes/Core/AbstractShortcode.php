@@ -826,21 +826,27 @@ abstract class AbstractShortcode {
 	 */
 	protected static function get_error_html(string $error_message): string
 	{
-		if (! current_user_can('manage_options')) {
-			return '<div class="mhm-rentiva-shortcode-error"><p>' .
-				__('An error occurred while loading shortcode.', 'mhm-rentiva') .
-				'</p></div>';
+		// Visitors learn that this part did not load and where to go on; the
+		// detail line (message and shortcode tag) is for administrators only.
+		$args = array(
+			'tone'         => 'alert',
+			'kicker'       => __('Something went wrong', 'mhm-rentiva'),
+			'title'        => __('This section could not be loaded', 'mhm-rentiva'),
+			'text'         => __('Please reload the page. If it keeps happening, contact the site owner.', 'mhm-rentiva'),
+			'action_label' => __('Browse cars', 'mhm-rentiva'),
+			'action_url'   => \MHMRentiva\Frontend\StateBox::browse_url(),
+			'state'        => 'shortcode_error',
+		);
+		if (current_user_can('manage_options')) {
+			$args['detail'] = sprintf(
+				/* translators: 1: error message, 2: shortcode tag */
+				__('Error: %1$s | Shortcode: %2$s', 'mhm-rentiva'),
+				$error_message,
+				static::get_shortcode_tag()
+			);
 		}
 
-		return sprintf(
-			'<div class="mhm-rentiva-shortcode-error">
-                <p>%s</p>
-                <small>Error: %s | Shortcode: %s</small>
-            </div>',
-			__('An error occurred while loading shortcode.', 'mhm-rentiva'),
-			esc_html($error_message),
-			static::get_shortcode_tag()
-		);
+		return \MHMRentiva\Frontend\StateBox::html($args);
 	}
 
 	/**

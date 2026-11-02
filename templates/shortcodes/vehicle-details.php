@@ -248,7 +248,7 @@ $rating        = $view['rating'];
 		// Render first: with no other featured vehicle the shortcode answers with
 		// its empty-state paragraph, and a heading over it is noise.
 		$related_html = Templates::render_shortcode($related_shortcode);
-		if ('' !== trim($related_html) && false === strpos($related_html, 'class="mhm-rentiva-no-vehicles"')) :
+		if ('' !== trim($related_html) && false === strpos($related_html, 'data-rvs-empty="no_featured"')) :
 			?>
 			<section class="rvs-vd__similar" aria-labelledby="<?php echo esc_attr($uid); ?>-similar">
 				<h2 class="rvs-vd__h2" id="<?php echo esc_attr($uid); ?>-similar"><?php esc_html_e('Similar vehicles', 'mhm-rentiva'); ?></h2>

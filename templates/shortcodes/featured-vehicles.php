@@ -24,8 +24,17 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
     data-interval="<?php echo esc_attr($atts['interval'] ?? '5000'); ?>">
 
     <?php if (empty($vehicles)) : ?>
-        <?php // Contract: vehicle-details hides its "Similar Premium Vehicles" section by looking for class="mhm-rentiva-no-vehicles" in this output. Theme overrides must keep this exact class on the empty state. ?>
-        <p class="mhm-rentiva-no-vehicles"><?php esc_html_e('No featured vehicles found.', 'mhm-rentiva'); ?></p>
+        <?php // Contract: vehicle-details hides its "Similar vehicles" section by looking for data-rvs-empty="no_featured" in this output. Theme overrides must keep this exact attribute on the empty state. ?>
+        <?php
+        $mhmrentiva_empty_box = \MHMRentiva\Frontend\StateBox::html(array(
+            'title'       => __('No featured cars yet', 'mhm-rentiva'),
+            'text'         => __('Check back soon, or browse every car.', 'mhm-rentiva'),
+            'action_label' => __('Browse cars', 'mhm-rentiva'),
+            'action_url'   => \MHMRentiva\Frontend\StateBox::browse_url(),
+            'state'        => 'no_featured',
+        ));
+        \MHMRentiva\Admin\Core\Utilities\Templates::output_rendered_html($mhmrentiva_empty_box);
+        ?>
     <?php else : ?>
 
         <?php if ($is_carousel) : ?>
